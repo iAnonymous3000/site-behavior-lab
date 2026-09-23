@@ -228,10 +228,10 @@
       "notes": null
     },
     {
-      "key": "npm:@emnapi/runtime@1.11.2",
+      "key": "npm:@emnapi/runtime@1.11.3",
       "ecosystem": "npm",
       "name": "@emnapi/runtime",
-      "version": "1.11.2",
+      "version": "1.11.3",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -620,10 +620,10 @@
       "notes": null
     },
     {
-      "key": "npm:@img/sharp-darwin-arm64@0.35.3",
+      "key": "npm:@img/sharp-darwin-arm64@0.35.4",
       "ecosystem": "npm",
       "name": "@img/sharp-darwin-arm64",
-      "version": "0.35.3",
+      "version": "0.35.4",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "Apache-2.0",
@@ -634,10 +634,10 @@
       "notes": null
     },
     {
-      "key": "npm:@img/sharp-darwin-x64@0.35.3",
+      "key": "npm:@img/sharp-darwin-x64@0.35.4",
       "ecosystem": "npm",
       "name": "@img/sharp-darwin-x64",
-      "version": "0.35.3",
+      "version": "0.35.4",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "Apache-2.0",
@@ -648,10 +648,10 @@
       "notes": null
     },
     {
-      "key": "npm:@img/sharp-freebsd-wasm32@0.35.3",
+      "key": "npm:@img/sharp-freebsd-wasm32@0.35.4",
       "ecosystem": "npm",
       "name": "@img/sharp-freebsd-wasm32",
-      "version": "0.35.3",
+      "version": "0.35.4",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "Apache-2.0",
@@ -662,10 +662,10 @@
       "notes": null
     },
     {
-      "key": "npm:@img/sharp-libvips-darwin-arm64@1.3.2",
+      "key": "npm:@img/sharp-libvips-darwin-arm64@1.3.3",
       "ecosystem": "npm",
       "name": "@img/sharp-libvips-darwin-arm64",
-      "version": "1.3.2",
+      "version": "1.3.3",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "LGPL-3.0-or-later",
@@ -676,10 +676,10 @@
       "notes": null
     },
     {
-      "key": "npm:@img/sharp-libvips-darwin-x64@1.3.2",
+      "key": "npm:@img/sharp-libvips-darwin-x64@1.3.3",
       "ecosystem": "npm",
       "name": "@img/sharp-libvips-darwin-x64",
-      "version": "1.3.2",
+      "version": "1.3.3",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "LGPL-3.0-or-later",
@@ -690,10 +690,10 @@
       "notes": null
     },
     {
-      "key": "npm:@img/sharp-libvips-linux-arm@1.3.2",
+      "key": "npm:@img/sharp-libvips-linux-arm@1.3.3",
       "ecosystem": "npm",
       "name": "@img/sharp-libvips-linux-arm",
-      "version": "1.3.2",
+      "version": "1.3.3",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "LGPL-3.0-or-later",
@@ -704,10 +704,10 @@
       "notes": null
     },
     {
-      "key": "npm:@img/sharp-libvips-linux-arm64@1.3.2",
+      "key": "npm:@img/sharp-libvips-linux-arm64@1.3.3",
       "ecosystem": "npm",
       "name": "@img/sharp-libvips-linux-arm64",
-      "version": "1.3.2",
+      "version": "1.3.3",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "LGPL-3.0-or-later",
@@ -718,10 +718,10 @@
       "notes": null
     },
     {
-      "key": "npm:@img/sharp-libvips-linux-ppc64@1.3.2",
+      "key": "npm:@img/sharp-libvips-linux-ppc64@1.3.3",
       "ecosystem": "npm",
       "name": "@img/sharp-libvips-linux-ppc64",
-      "version": "1.3.2",
+      "version": "1.3.3",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "LGPL-3.0-or-later",
@@ -732,10 +732,10 @@
       "notes": null
     },
     {
-      "key": "npm:@img/sharp-libvips-linux-riscv64@1.3.2",
+      "key": "npm:@img/sharp-libvips-linux-riscv64@1.3.3",
       "ecosystem": "npm",
       "name": "@img/sharp-libvips-linux-riscv64",
-      "version": "1.3.2",
+      "version": "1.3.3",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "LGPL-3.0-or-later",
@@ -746,10 +746,10 @@
       "notes": null
     },
     {
-      "key": "npm:@img/sharp-libvips-linux-s390x@1.3.2",
+      "key": "npm:@img/sharp-libvips-linux-s390x@1.3.3",
       "ecosystem": "npm",
       "name": "@img/sharp-libvips-linux-s390x",
-      "version": "1.3.2",
+      "version": "1.3.3",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "LGPL-3.0-or-later",
@@ -760,10 +760,10 @@
       "notes": null
     },
     {
-      "key": "npm:@img/sharp-libvips-linux-x64@1.3.2",
+      "key": "npm:@img/sharp-libvips-linux-x64@1.3.3",
       "ecosystem": "npm",
       "name": "@img/sharp-libvips-linux-x64",
-      "version": "1.3.2",
+      "version": "1.3.3",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "LGPL-3.0-or-later",
@@ -774,10 +774,10 @@
       "notes": null
     },
     {
-      "key": "npm:@img/sharp-libvips-linuxmusl-arm64@1.3.2",
+      "key": "npm:@img/sharp-libvips-linuxmusl-arm64@1.3.3",
       "ecosystem": "npm",
       "name": "@img/sharp-libvips-linuxmusl-arm64",
-      "version": "1.3.2",
+      "version": "1.3.3",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "LGPL-3.0-or-later",
@@ -788,10 +788,10 @@
       "notes": null
     },
     {
-      "key": "npm:@img/sharp-libvips-linuxmusl-x64@1.3.2",
+      "key": "npm:@img/sharp-libvips-linuxmusl-x64@1.3.3",
       "ecosystem": "npm",
       "name": "@img/sharp-libvips-linuxmusl-x64",
-      "version": "1.3.2",
+      "version": "1.3.3",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "LGPL-3.0-or-later",
@@ -802,10 +802,10 @@
       "notes": null
     },
     {
-      "key": "npm:@img/sharp-linux-arm@0.35.3",
+      "key": "npm:@img/sharp-linux-arm@0.35.4",
       "ecosystem": "npm",
       "name": "@img/sharp-linux-arm",
-      "version": "0.35.3",
+      "version": "0.35.4",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "Apache-2.0",
@@ -816,10 +816,10 @@
       "notes": null
     },
     {
-      "key": "npm:@img/sharp-linux-arm64@0.35.3",
+      "key": "npm:@img/sharp-linux-arm64@0.35.4",
       "ecosystem": "npm",
       "name": "@img/sharp-linux-arm64",
-      "version": "0.35.3",
+      "version": "0.35.4",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "Apache-2.0",
@@ -830,10 +830,10 @@
       "notes": null
     },
     {
-      "key": "npm:@img/sharp-linux-ppc64@0.35.3",
+      "key": "npm:@img/sharp-linux-ppc64@0.35.4",
       "ecosystem": "npm",
       "name": "@img/sharp-linux-ppc64",
-      "version": "0.35.3",
+      "version": "0.35.4",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "Apache-2.0",
@@ -844,10 +844,10 @@
       "notes": null
     },
     {
-      "key": "npm:@img/sharp-linux-riscv64@0.35.3",
+      "key": "npm:@img/sharp-linux-riscv64@0.35.4",
       "ecosystem": "npm",
       "name": "@img/sharp-linux-riscv64",
-      "version": "0.35.3",
+      "version": "0.35.4",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "Apache-2.0",
@@ -858,10 +858,10 @@
       "notes": null
     },
     {
-      "key": "npm:@img/sharp-linux-s390x@0.35.3",
+      "key": "npm:@img/sharp-linux-s390x@0.35.4",
       "ecosystem": "npm",
       "name": "@img/sharp-linux-s390x",
-      "version": "0.35.3",
+      "version": "0.35.4",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "Apache-2.0",
@@ -872,10 +872,10 @@
       "notes": null
     },
     {
-      "key": "npm:@img/sharp-linux-x64@0.35.3",
+      "key": "npm:@img/sharp-linux-x64@0.35.4",
       "ecosystem": "npm",
       "name": "@img/sharp-linux-x64",
-      "version": "0.35.3",
+      "version": "0.35.4",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "Apache-2.0",
@@ -886,10 +886,10 @@
       "notes": null
     },
     {
-      "key": "npm:@img/sharp-linuxmusl-arm64@0.35.3",
+      "key": "npm:@img/sharp-linuxmusl-arm64@0.35.4",
       "ecosystem": "npm",
       "name": "@img/sharp-linuxmusl-arm64",
-      "version": "0.35.3",
+      "version": "0.35.4",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "Apache-2.0",
@@ -900,10 +900,10 @@
       "notes": null
     },
     {
-      "key": "npm:@img/sharp-linuxmusl-x64@0.35.3",
+      "key": "npm:@img/sharp-linuxmusl-x64@0.35.4",
       "ecosystem": "npm",
       "name": "@img/sharp-linuxmusl-x64",
-      "version": "0.35.3",
+      "version": "0.35.4",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "Apache-2.0",
@@ -914,10 +914,10 @@
       "notes": null
     },
     {
-      "key": "npm:@img/sharp-wasm32@0.35.3",
+      "key": "npm:@img/sharp-wasm32@0.35.4",
       "ecosystem": "npm",
       "name": "@img/sharp-wasm32",
-      "version": "0.35.3",
+      "version": "0.35.4",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "Apache-2.0 AND LGPL-3.0-or-later AND MIT",
@@ -928,10 +928,10 @@
       "notes": null
     },
     {
-      "key": "npm:@img/sharp-webcontainers-wasm32@0.35.3",
+      "key": "npm:@img/sharp-webcontainers-wasm32@0.35.4",
       "ecosystem": "npm",
       "name": "@img/sharp-webcontainers-wasm32",
-      "version": "0.35.3",
+      "version": "0.35.4",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "Apache-2.0",
@@ -942,10 +942,10 @@
       "notes": null
     },
     {
-      "key": "npm:@img/sharp-win32-arm64@0.35.3",
+      "key": "npm:@img/sharp-win32-arm64@0.35.4",
       "ecosystem": "npm",
       "name": "@img/sharp-win32-arm64",
-      "version": "0.35.3",
+      "version": "0.35.4",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "Apache-2.0 AND LGPL-3.0-or-later",
@@ -956,10 +956,10 @@
       "notes": null
     },
     {
-      "key": "npm:@img/sharp-win32-ia32@0.35.3",
+      "key": "npm:@img/sharp-win32-ia32@0.35.4",
       "ecosystem": "npm",
       "name": "@img/sharp-win32-ia32",
-      "version": "0.35.3",
+      "version": "0.35.4",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "Apache-2.0 AND LGPL-3.0-or-later",
@@ -970,10 +970,10 @@
       "notes": null
     },
     {
-      "key": "npm:@img/sharp-win32-x64@0.35.3",
+      "key": "npm:@img/sharp-win32-x64@0.35.4",
       "ecosystem": "npm",
       "name": "@img/sharp-win32-x64",
-      "version": "0.35.3",
+      "version": "0.35.4",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "Apache-2.0 AND LGPL-3.0-or-later",
@@ -1194,10 +1194,10 @@
       "notes": null
     },
     {
-      "key": "npm:@next/env@16.2.12",
+      "key": "npm:@next/env@16.3.6",
       "ecosystem": "npm",
       "name": "@next/env",
-      "version": "16.2.12",
+      "version": "16.3.6",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -1208,10 +1208,10 @@
       "notes": null
     },
     {
-      "key": "npm:@next/swc-darwin-arm64@16.2.12",
+      "key": "npm:@next/swc-darwin-arm64@16.3.6",
       "ecosystem": "npm",
       "name": "@next/swc-darwin-arm64",
-      "version": "16.2.12",
+      "version": "16.3.6",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -1222,10 +1222,10 @@
       "notes": null
     },
     {
-      "key": "npm:@next/swc-darwin-x64@16.2.12",
+      "key": "npm:@next/swc-darwin-x64@16.3.6",
       "ecosystem": "npm",
       "name": "@next/swc-darwin-x64",
-      "version": "16.2.12",
+      "version": "16.3.6",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -1236,10 +1236,10 @@
       "notes": null
     },
     {
-      "key": "npm:@next/swc-linux-arm64-gnu@16.2.12",
+      "key": "npm:@next/swc-linux-arm64-gnu@16.3.6",
       "ecosystem": "npm",
       "name": "@next/swc-linux-arm64-gnu",
-      "version": "16.2.12",
+      "version": "16.3.6",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -1250,10 +1250,10 @@
       "notes": null
     },
     {
-      "key": "npm:@next/swc-linux-arm64-musl@16.2.12",
+      "key": "npm:@next/swc-linux-arm64-musl@16.3.6",
       "ecosystem": "npm",
       "name": "@next/swc-linux-arm64-musl",
-      "version": "16.2.12",
+      "version": "16.3.6",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -1264,10 +1264,10 @@
       "notes": null
     },
     {
-      "key": "npm:@next/swc-linux-x64-gnu@16.2.12",
+      "key": "npm:@next/swc-linux-x64-gnu@16.3.6",
       "ecosystem": "npm",
       "name": "@next/swc-linux-x64-gnu",
-      "version": "16.2.12",
+      "version": "16.3.6",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -1278,10 +1278,10 @@
       "notes": null
     },
     {
-      "key": "npm:@next/swc-linux-x64-musl@16.2.12",
+      "key": "npm:@next/swc-linux-x64-musl@16.3.6",
       "ecosystem": "npm",
       "name": "@next/swc-linux-x64-musl",
-      "version": "16.2.12",
+      "version": "16.3.6",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -1292,10 +1292,10 @@
       "notes": null
     },
     {
-      "key": "npm:@next/swc-win32-arm64-msvc@16.2.12",
+      "key": "npm:@next/swc-win32-arm64-msvc@16.3.6",
       "ecosystem": "npm",
       "name": "@next/swc-win32-arm64-msvc",
-      "version": "16.2.12",
+      "version": "16.3.6",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -1306,10 +1306,10 @@
       "notes": null
     },
     {
-      "key": "npm:@next/swc-win32-x64-msvc@16.2.12",
+      "key": "npm:@next/swc-win32-x64-msvc@16.3.6",
       "ecosystem": "npm",
       "name": "@next/swc-win32-x64-msvc",
-      "version": "16.2.12",
+      "version": "16.3.6",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -1390,10 +1390,10 @@
       "notes": null
     },
     {
-      "key": "npm:@swc/helpers@0.5.15",
+      "key": "npm:@swc/helpers@0.5.23",
       "ecosystem": "npm",
       "name": "@swc/helpers",
-      "version": "0.5.15",
+      "version": "0.5.23",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "Apache-2.0",
@@ -1880,10 +1880,10 @@
       "notes": null
     },
     {
-      "key": "npm:next@16.2.12",
+      "key": "npm:next@16.3.6",
       "ecosystem": "npm",
       "name": "next",
-      "version": "16.2.12",
+      "version": "16.3.6",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -2104,10 +2104,10 @@
       "notes": null
     },
     {
-      "key": "npm:sharp@0.35.3",
+      "key": "npm:sharp@0.35.4",
       "ecosystem": "npm",
       "name": "sharp",
-      "version": "0.35.3",
+      "version": "0.35.4",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "Apache-2.0",
