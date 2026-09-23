@@ -412,13 +412,19 @@ export function buildFindings(
   // cross-site hosts used to render an "ok" card titled "No known services
   // matched" carrying a "High third-party domains count" badge, under a green
   // "few review signals" bottom line, while ReportFacts scored the same run
-  // "loud". Scoped to the same condition as the badge so error pages and
-  // non-comparable populations, which show no badge, keep their absence copy.
-  const domainsCountLevel: FindingLevel = domainsBenchmarkAllowed
-    ? domainsBenchmark
-      ? domainsBenchmark.level
-      : levelForMetric("thirdPartyDomains", run.counts.thirdPartyDomains)
-    : "ok";
+  // "loud". Scoped to an exact count of an established subject, so error pages
+  // and capped or censored logs keep their absence copy. NOT scoped to the
+  // corpus population: that withholds only the percentile badge, and fixed
+  // reference thresholds need no population (domainsLevel below and the cookie
+  // card already apply them to post-choice arms). Gating the level on it
+  // rendered 20 uncatalogued hosts on an Accept-all arm as an ok "No known
+  // services matched" card under a green bottom line.
+  const domainsCountLevel: FindingLevel =
+    facts.claims["third-party-services"].exactCountAllowed && facts.subject.describesSubject
+      ? domainsBenchmark
+        ? domainsBenchmark.level
+        : levelForMetric("thirdPartyDomains", run.counts.thirdPartyDomains)
+      : "ok";
   const entityLevel = levelForMetric("trackerEntities", trackingEntities.length);
   const domainsLevel = domainsBenchmark
     ? domainsBenchmark.level

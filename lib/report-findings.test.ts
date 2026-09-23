@@ -2343,11 +2343,14 @@ test("an uncatalogued cross-site host count never renders ok under its own high 
   // the SAME card carried a "High third-party domains count" badge and
   // ReportFacts scored the run "loud". Level, title and badge now come from one
   // number.
-  for (const [hosts, expectedLevel] of [
-    [2, "info"],
-    [20, "warn"],
-    [40, "loud"]
-  ] as const) {
+  //
+  // The same holds on runs outside the corpus population (a post-choice
+  // consent arm, a focused comparison variant): the population withholds the
+  // percentile badge only, never the fixed-threshold level. Gating the level on
+  // it rendered 20 uncatalogued hosts on an Accept-all arm as an ok "No known
+  // services matched" card under a green bottom line.
+  const corpus = makeCorpus(60);
+  const uncatalogued = (hosts: number, consentMode: ScanResult["conditions"]["consentMode"] = "observe") => {
     const result = makeResult({
       firstPartyDomain: "example.com",
       domains: Array.from({ length: hosts }, (_unused, index) => ({
@@ -2361,8 +2364,15 @@ test("an uncatalogued cross-site host count never renders ok under its own high 
       thirdPartyRequests: hosts * 3,
       thirdPartyDomains: hosts
     });
-
-    const findings = buildFindings(viewFromV1Report(result), null);
+    result.conditions = { ...result.conditions, consentMode };
+    return result;
+  };
+  for (const [hosts, expectedLevel] of [
+    [2, "info"],
+    [20, "warn"],
+    [40, "loud"]
+  ] as const) {
+    const findings = buildFindings(viewFromV1Report(uncatalogued(hosts)), null);
     const card = byId(findings, "third-party-services");
     assert.equal(card.level, expectedLevel, `${hosts} hosts should score ${expectedLevel}`);
     if (expectedLevel === "warn" || expectedLevel === "loud") {
@@ -2370,6 +2380,29 @@ test("an uncatalogued cross-site host count never renders ok under its own high 
       assert.doesNotMatch(card.title, /No known services matched/);
       // The summary must not stay green while a card is loud.
       assert.equal(byId(findings, "bottom-line").icon, "alert");
+    }
+
+    const postChoiceBoards = (["accept-all", "reject-all"] as const).map((consentMode) => ({
+      label: `${consentMode} arm`,
+      findings: buildFindings(viewFromV1Report(uncatalogued(hosts, consentMode)), corpus)
+    }));
+    // A focused variant is outside the population too: the board describes an
+    // arm the display run's cohort does not rank.
+    const focusedView = viewFromV1Report(consentPair(uncatalogued(1), uncatalogued(hosts)));
+    postChoiceBoards.push({
+      label: "focused Reject-all variant",
+      findings: buildFindings(focusedView, corpus, buildReportFacts(focusedView), "variant")
+    });
+    for (const { label, findings: postChoice } of postChoiceBoards) {
+      const postChoiceCard = byId(postChoice, "third-party-services");
+      assert.equal(postChoiceCard.level, expectedLevel, `${label}: ${hosts} hosts should score ${expectedLevel}`);
+      assert.equal(postChoiceCard.title, card.title, `${label}: ${hosts} hosts`);
+      assert.equal(postChoiceCard.benchmark, undefined, `${label}: no percentile outside the corpus population`);
+      assert.equal(
+        byId(postChoice, "bottom-line").icon,
+        byId(findings, "bottom-line").icon,
+        `${label}: ${hosts} hosts`
+      );
     }
   }
 });
