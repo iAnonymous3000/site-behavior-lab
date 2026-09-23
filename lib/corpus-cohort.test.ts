@@ -7,6 +7,7 @@ import {
   corpusCohortLabel,
   corpusCohortSummaryLabel,
   isOnCurrentMeasurementLine,
+  REVIEWED_MEASUREMENT_LINES,
   selectPrimaryCorpusCohort,
   type CorpusCohortCandidate,
   type CorpusCohortIdentity
@@ -382,6 +383,88 @@ test("the current-line literal equals what new reports will record, so an epoch 
   assert.equal(
     isOnCurrentMeasurementLine(identity({ id: "x", schemaVersion: 2, methodologyVersion: CURRENT_MEASUREMENT_LINE_METHODOLOGY })),
     false
+  );
+});
+
+test("the reviewed line history is append-only and ends at the current line", () => {
+  // Removing or reordering an entry would re-run a retired line's handoff (or
+  // skip it) and move published aggregates with no site behaving differently.
+  // An epoch appends its reviewed line; nothing else edits this list.
+  assert.deepEqual(REVIEWED_MEASUREMENT_LINES, [
+    "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v3+detector-coverage-v2"
+  ]);
+  assert.equal(Object.isFrozen(REVIEWED_MEASUREMENT_LINES), true);
+  assert.equal(new Set(REVIEWED_MEASUREMENT_LINES).size, REVIEWED_MEASUREMENT_LINES.length);
+  assert.equal(REVIEWED_MEASUREMENT_LINES[REVIEWED_MEASUREMENT_LINES.length - 1], CURRENT_MEASUREMENT_LINE_METHODOLOGY);
+});
+
+// A synthetic two-line history, independent of the one this repository has
+// reviewed, so these cases keep meaning the same thing after every epoch.
+const RETIRED_LINE = "retired-line-method";
+const CURRENT_LINE = "current-line-method";
+const LINES = [RETIRED_LINE, CURRENT_LINE] as const;
+
+function onLine(line: string, id: string, sites: string[], latestRunAt: string): CorpusCohortCandidate {
+  return {
+    identity: identity({ id, methodologyVersion: line, gpc: false }),
+    siteCount: sites.length,
+    latestRunAt,
+    sites
+  };
+}
+
+test("advancing the line keeps a retired line's refused cohort from taking the aggregate on recency", () => {
+  // The 2026-09 epoch shape: the retired line's newest cohort in a category
+  // dropped one of the incumbent's sites, so its handoff refused it. With the
+  // current line still empty, moving the line on must not hand it the
+  // aggregate just because it is newer and no longer on the current line.
+  const population = sitesNamed(64, "mixed");
+  const incumbent = incumbentCandidate("v1:pre-line:gpc-on", population, "2026-08-24T06:00:00.000Z");
+  const refused = onLine(RETIRED_LINE, "v1:retired-line:gpc-off", population.slice(0, 56), "2026-09-07T05:00:00.000Z");
+
+  assert.equal(selectPrimaryCorpusCohort([incumbent, refused], MIN, LINES)?.identity.id, incumbent.identity.id);
+  assert.equal(selectPrimaryCorpusCohort([refused, incumbent], MIN, LINES)?.identity.id, incumbent.identity.id);
+  // What the history prevents: forget the retired line and recency crowns
+  // the narrower cohort.
+  assert.equal(selectPrimaryCorpusCohort([incumbent, refused], MIN, [CURRENT_LINE])?.identity.id, refused.identity.id);
+});
+
+test("the current line is judged against the population the retired lines settled on", () => {
+  const population = sitesNamed(64, "mixed");
+  const expansion = sitesNamed(60, "expansion");
+  const incumbent = incumbentCandidate("v1:pre-line:gpc-on", population, "2026-07-25T18:00:00.000Z");
+  // 58 of 64 retained (9.4%): the retired line took over, and grew.
+  const retiredWinner = onLine(
+    RETIRED_LINE,
+    "v1:retired-line-union:gpc-off",
+    [...population.slice(0, 58), ...expansion],
+    "2026-08-24T06:00:00.000Z"
+  );
+  // Retains 112 of the retired winner's 118 sites (5.1%) but only 52 of the
+  // pre-line incumbent's 64 (18.75%): judged against the running incumbent it
+  // takes over.
+  const continues = onLine(
+    CURRENT_LINE,
+    "v1:current-line-continues:gpc-off",
+    [...population.slice(0, 52), ...expansion],
+    "2026-09-21T06:00:00.000Z"
+  );
+  assert.equal(
+    selectPrimaryCorpusCohort([incumbent, retiredWinner, continues], MIN, LINES)?.identity.id,
+    continues.identity.id
+  );
+
+  // Keeps all of the pre-line incumbent's sites but drops the retired
+  // winner's expansion: refused, and the retired winner keeps publishing.
+  const regresses = onLine(
+    CURRENT_LINE,
+    "v1:current-line-regresses:gpc-off",
+    [...population, ...sitesNamed(4, "other")],
+    "2026-09-21T06:00:00.000Z"
+  );
+  assert.equal(
+    selectPrimaryCorpusCohort([incumbent, retiredWinner, regresses], MIN, LINES)?.identity.id,
+    retiredWinner.identity.id
   );
 });
 

@@ -136,23 +136,48 @@ export type CorpusCohortCandidate<Identity extends CorpusCohortIdentity = Corpus
 export const MAX_DROPPED_SITE_SHARE = 0.1;
 
 /**
- * The measurement line whose cohorts may take over the published aggregate.
+ * Every reviewed measurement line, oldest first. The last entry is the
+ * current line: the one whose cohorts may take over the published aggregate.
  *
- * A reviewed literal, deliberately NOT imported from the live scanner
+ * Reviewed literals, deliberately NOT imported from the live scanner
  * constants: closed-epoch identity work in this repository learned the hard
  * way that aliasing an ACTIVE_* constant lets an epoch move silently restate
  * what published evidence was measured against. Here the coupling runs the
  * safe direction instead: the parity test in corpus-cohort.test.ts fails
- * after any toolchain move until this literal is re-reviewed to equal what
- * new reports will actually record, so advancing the line is always a
- * deliberate, diff-visible act.
+ * after any toolchain move until a re-reviewed literal equal to what new
+ * reports will actually record is appended here, so advancing the line is
+ * always a deliberate, diff-visible act.
+ *
+ * Advancing the line retires the previous one, and a retired line's cohorts
+ * can never receive another scan. If they simply rejoined the off-line pool,
+ * recency would decide between them and the cohorts the retired line's
+ * handoff gate had refused to promote: a newer cohort that dropped part of
+ * the incumbent's population would take the aggregate the moment the line
+ * moved on, with no site behaving differently. So each retired line keeps its
+ * handoff, replayed in order against the running incumbent, and the current
+ * line is judged against whatever the retired lines settled on.
+ *
+ * The history starts at the line that was current when it was introduced.
+ * Lines retired before that compete as ordinary off-line cohorts, exactly as
+ * they did while that line was current, so introducing the history changes
+ * no selection.
  */
-export const CURRENT_MEASUREMENT_LINE_METHODOLOGY =
-  "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v3+detector-coverage-v2";
+export const REVIEWED_MEASUREMENT_LINES: readonly string[] = Object.freeze([
+  "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v3+detector-coverage-v2"
+]);
+
+/** The current line: the newest entry of {@link REVIEWED_MEASUREMENT_LINES}. */
+export const CURRENT_MEASUREMENT_LINE_METHODOLOGY: string =
+  REVIEWED_MEASUREMENT_LINES[REVIEWED_MEASUREMENT_LINES.length - 1] ?? "";
 
 /** v1 stays the deployed benchmark generation; the line lives inside it. */
 export function isOnCurrentMeasurementLine(identity: CorpusCohortIdentity): boolean {
   return identity.schemaVersion === 1 && identity.methodologyVersion === CURRENT_MEASUREMENT_LINE_METHODOLOGY;
+}
+
+/** Position of the identity's line in a reviewed history, or -1 when on none. */
+function measurementLineIndex(identity: CorpusCohortIdentity, lines: readonly string[]): number {
+  return identity.schemaVersion === 1 ? lines.indexOf(identity.methodologyVersion) : -1;
 }
 
 /**
@@ -194,23 +219,48 @@ export function isOnCurrentMeasurementLine(identity: CorpusCohortIdentity): bool
  *   temporary by construction: one composition-complete refresh on the
  *   current line clears both. A permanent cross-era veto would instead freeze
  *   the aggregate on a cohort that can never be rescanned.
+ * - Retired lines in {@link REVIEWED_MEASUREMENT_LINES} keep their handoff
+ *   when the line advances. The incumbent is chosen among cohorts on no
+ *   reviewed line, then each reviewed line, oldest first, may take over only
+ *   by retaining the running incumbent's population. The current line is the
+ *   last step, so moving the line to a new, empty methodology changes no
+ *   selection.
  *
  * v1 keeps precedence while v1 remains the deployed benchmark source. Promoting
  * an r2 cohort is a separate, deliberate policy change, not a side effect of it
  * happening to be newer.
+ *
+ * `lines` exists so tests can replay a line history independent of the one
+ * this repository has reviewed; every production caller takes the default.
  */
 export function selectPrimaryCorpusCohort<Identity extends CorpusCohortIdentity>(
   candidates: readonly CorpusCohortCandidate<Identity>[],
-  minSiteCount: number
+  minSiteCount: number,
+  lines: readonly string[] = REVIEWED_MEASUREMENT_LINES
 ): CorpusCohortCandidate<Identity> | null {
   if (candidates.length === 0) return null;
   const legacy = candidates.filter((candidate) => candidate.identity.schemaVersion === 1);
   const generation = legacy.length > 0 ? legacy : candidates;
   const usable = generation.filter((candidate) => candidate.siteCount >= minSiteCount);
   const pool = usable.length > 0 ? usable : generation;
-  const onLine = pool.filter((candidate) => isOnCurrentMeasurementLine(candidate.identity));
-  const offLine = pool.filter((candidate) => !isOnCurrentMeasurementLine(candidate.identity));
-  const incumbent = pickByCompositionAndRecency(offLine);
+  let incumbent = pickByCompositionAndRecency(
+    pool.filter((candidate) => measurementLineIndex(candidate.identity, lines) === -1)
+  );
+  for (let line = 0; line < lines.length; line += 1) {
+    const onLine = pool.filter((candidate) => measurementLineIndex(candidate.identity, lines) === line);
+    incumbent = handOffToLine(onLine, incumbent);
+  }
+  return incumbent;
+}
+
+/**
+ * One line's handoff: the first of its contenders that retains the running
+ * incumbent's population takes over; otherwise the incumbent stays.
+ */
+function handOffToLine<Identity extends CorpusCohortIdentity>(
+  onLine: readonly CorpusCohortCandidate<Identity>[],
+  incumbent: CorpusCohortCandidate<Identity> | null
+): CorpusCohortCandidate<Identity> | null {
   if (onLine.length === 0) return incumbent;
   // The handoff gate, applied per contender rather than winner-take-or-revert.
   // One newest-but-partial line cohort failing continuity must not disqualify
