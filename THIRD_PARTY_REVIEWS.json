@@ -4,10 +4,10 @@
   "notice": "Rows are created unreviewed by scripts/third-party-reviews.mjs --sync. A human review fills reviewer, reviewedAt, determinedLicense, and obligations, and sets status to reviewed. A version bump is a new row and re-enters review.",
   "reviews": [
     {
-      "key": "npm:@axe-core/playwright@4.12.1",
+      "key": "npm:@axe-core/playwright@4.13.0",
       "ecosystem": "npm",
       "name": "@axe-core/playwright",
-      "version": "4.12.1",
+      "version": "4.13.0",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "MPL-2.0",
@@ -46,10 +46,10 @@
       "notes": null
     },
     {
-      "key": "npm:@cloudflare/unenv-preset@2.16.1",
+      "key": "npm:@cloudflare/unenv-preset@2.16.2",
       "ecosystem": "npm",
       "name": "@cloudflare/unenv-preset",
-      "version": "2.16.1",
+      "version": "2.16.2",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "MIT OR Apache-2.0",
@@ -74,10 +74,10 @@
       "notes": null
     },
     {
-      "key": "npm:@cloudflare/workerd-darwin-64@1.20260801.1",
+      "key": "npm:@cloudflare/workerd-darwin-64@1.20260921.1",
       "ecosystem": "npm",
       "name": "@cloudflare/workerd-darwin-64",
-      "version": "1.20260801.1",
+      "version": "1.20260921.1",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "Apache-2.0",
@@ -102,10 +102,10 @@
       "notes": null
     },
     {
-      "key": "npm:@cloudflare/workerd-darwin-arm64@1.20260801.1",
+      "key": "npm:@cloudflare/workerd-darwin-arm64@1.20260921.1",
       "ecosystem": "npm",
       "name": "@cloudflare/workerd-darwin-arm64",
-      "version": "1.20260801.1",
+      "version": "1.20260921.1",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "Apache-2.0",
@@ -130,10 +130,10 @@
       "notes": null
     },
     {
-      "key": "npm:@cloudflare/workerd-linux-64@1.20260801.1",
+      "key": "npm:@cloudflare/workerd-linux-64@1.20260921.1",
       "ecosystem": "npm",
       "name": "@cloudflare/workerd-linux-64",
-      "version": "1.20260801.1",
+      "version": "1.20260921.1",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "Apache-2.0",
@@ -158,10 +158,10 @@
       "notes": null
     },
     {
-      "key": "npm:@cloudflare/workerd-linux-arm64@1.20260801.1",
+      "key": "npm:@cloudflare/workerd-linux-arm64@1.20260921.1",
       "ecosystem": "npm",
       "name": "@cloudflare/workerd-linux-arm64",
-      "version": "1.20260801.1",
+      "version": "1.20260921.1",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "Apache-2.0",
@@ -186,10 +186,10 @@
       "notes": null
     },
     {
-      "key": "npm:@cloudflare/workerd-windows-64@1.20260801.1",
+      "key": "npm:@cloudflare/workerd-windows-64@1.20260921.1",
       "ecosystem": "npm",
       "name": "@cloudflare/workerd-windows-64",
-      "version": "1.20260801.1",
+      "version": "1.20260921.1",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "Apache-2.0",
@@ -200,10 +200,10 @@
       "notes": null
     },
     {
-      "key": "npm:@cloudflare/workers-types@5.20260804.1",
+      "key": "npm:@cloudflare/workers-types@5.20260922.1",
       "ecosystem": "npm",
       "name": "@cloudflare/workers-types",
-      "version": "5.20260804.1",
+      "version": "5.20260922.1",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "MIT OR Apache-2.0",
@@ -1418,10 +1418,10 @@
       "notes": null
     },
     {
-      "key": "npm:@types/node@26.2.0",
+      "key": "npm:@types/node@26.6.2",
       "ecosystem": "npm",
       "name": "@types/node",
-      "version": "26.2.0",
+      "version": "26.6.2",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -1488,10 +1488,10 @@
       "notes": null
     },
     {
-      "key": "npm:axe-core@4.12.1",
+      "key": "npm:axe-core@4.13.0",
       "ecosystem": "npm",
       "name": "axe-core",
-      "version": "4.12.1",
+      "version": "4.13.0",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "MPL-2.0",
@@ -1824,10 +1824,10 @@
       "notes": null
     },
     {
-      "key": "npm:miniflare@5.20260801.1-alpha",
+      "key": "npm:miniflare@5.20260921.0-alpha",
       "ecosystem": "npm",
       "name": "miniflare",
-      "version": "5.20260801.1-alpha",
+      "version": "5.20260921.0-alpha",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -2244,10 +2244,10 @@
       "notes": null
     },
     {
-      "key": "npm:undici-types@8.3.0",
+      "key": "npm:undici-types@8.9.0",
       "ecosystem": "npm",
       "name": "undici-types",
-      "version": "8.3.0",
+      "version": "8.9.0",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -2286,10 +2286,10 @@
       "notes": null
     },
     {
-      "key": "npm:workerd@1.20260801.1",
+      "key": "npm:workerd@1.20260921.1",
       "ecosystem": "npm",
       "name": "workerd",
-      "version": "1.20260801.1",
+      "version": "1.20260921.1",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "Apache-2.0",
@@ -2300,10 +2300,10 @@
       "notes": null
     },
     {
-      "key": "npm:wrangler@4.120.0",
+      "key": "npm:wrangler@4.136.3",
       "ecosystem": "npm",
       "name": "wrangler",
-      "version": "4.120.0",
+      "version": "4.136.3",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "MIT OR Apache-2.0",

@@ -152,15 +152,15 @@
     "nanoid": "3.3.18"
   },
   "devDependencies": {
-    "@axe-core/playwright": "4.12.1",
-    "@cloudflare/workers-types": "^5.20260804.1",
-    "@types/node": "^26.2.0",
+    "@axe-core/playwright": "4.13.0",
+    "@cloudflare/workers-types": "^5.20260922.1",
+    "@types/node": "^26.6.2",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
     "ajv": "8.20.0",
     "miniflare": "4.20260730.0",
     "ts-json-schema-generator": "2.9.0",
     "typescript": "^5.7.2",
-    "wrangler": "^4.120.0"
+    "wrangler": "^4.136.3"
   }
 }
