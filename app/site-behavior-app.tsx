@@ -855,7 +855,7 @@ function LoadingState({
       </ul>
       <p className="scan-checks-note">
         Keystroke capture is tested by typing a synthetic value into the page&rsquo;s form fields (never submitting) and
-        watching for it to appear in a request to another registrable domain during typing, blur, or unload. A match
+        watching for it to appear in a request to another registrable domain during typing, blur, or the wait after. A match
         proves that synthetic value crossed the domain boundary, not why it was sent. It covers fields on the loaded
         page, not flows behind login or extra steps.
       </p>

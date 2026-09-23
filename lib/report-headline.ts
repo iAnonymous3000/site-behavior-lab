@@ -372,7 +372,8 @@ function buildUncorrectedReportHeadline(
   // Confirmed input transmission leads over every other story. Hashing is a
   // stronger transformation signal, but neither the encoding nor this frozen
   // summary identifies the recipient's purpose or whether transmission
-  // happened during typing, blur, or the scanner's unload flush.
+  // happened during typing or blur. Older reports predate the retirement of
+  // the unload flush, which is why the reader-facing hedge still names unload.
   const keystrokeExfil = fingerprintDetection(run.evidence, "keystroke-exfiltration");
   if (keystrokeExfil) {
     const sameOrganizationRecipients = keystrokeExfil.evidence.recipients.filter(
