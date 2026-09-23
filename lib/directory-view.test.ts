@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { CURRENT_MEASUREMENT_LINE_METHODOLOGY } from "./corpus-cohort";
 import type { DirectoryEntry } from "./corpus-overview";
 import { siteProfileKey } from "./site-profile";
 import {
@@ -465,4 +466,62 @@ test("the generation rule still holds between cohorts that can each carry the pa
 
   const [page] = buildCategoryEvidencePages([...r2, ...v1], 3);
   assert.equal(page.cohort.schemaVersion, 1, "a publishable v1 cohort is not displaced by r2");
+});
+
+/**
+ * A page kept on an older cohort says so. At five to nine sites the handoff
+ * gate's 10% allowance is less than one site, so a current-line cohort missing
+ * a single site cannot take the page, and the page kept saying every row was
+ * each site's "newest" eligible visit while the linked profiles showed newer
+ * ones: 35 of 41 rows across six categories on the corpus this was found on.
+ * Which cohort a category publishes is not changed here; the page discloses
+ * what its one denominator leaves out.
+ */
+test("a category kept on an older cohort discloses listed sites' newer eligible visits", () => {
+  const incumbent = {
+    id: "v1:subject-validity-v2-line:producer-node",
+    schemaVersion: 1 as const,
+    schemaRevision: null,
+    methodologyVersion: "subject-validity-v2-line",
+    methodologyOrigin: "recorded" as const,
+    producer: "node-playwright",
+    gpc: true,
+    trackerCatalogDigest: "f".repeat(64),
+    trackerCatalogOrigin: "legacy-metadata-hash" as const,
+    ...SERVICE_ROLE_IDENTITY
+  };
+  const currentLine = {
+    ...incumbent,
+    id: "v1:current-line:producer-node",
+    methodologyVersion: CURRENT_MEASUREMENT_LINE_METHODOLOGY
+  };
+  const retired = { ...incumbent, id: "v1:retired:producer-node", methodologyVersion: "retired" };
+  const domains = ["a.com", "b.com", "c.com", "d.com", "e.com", "f.com"];
+  const incumbentRows = domains.map((domain, index) =>
+    entry(`v2-${index}`, { domain, corpusCohort: incumbent, scannedAt: "2026-08-24T00:00:00.000Z" })
+  );
+  const lineRows = (sites: string[]) =>
+    sites.map((domain, index) =>
+      entry(`v3-${domain}`, {
+        domain,
+        corpusCohort: currentLine,
+        scannedAt: `2026-09-0${index + 1}T00:00:00.000Z`
+      })
+    );
+  // An OLDER eligible visit in another cohort is not newer evidence.
+  const olderElsewhere = entry("retired-a", { domain: "a.com", corpusCohort: retired, scannedAt: "2026-07-01T00:00:00.000Z" });
+
+  // The current line misses f.com: 1 of 6 is over the 10% allowance.
+  const [kept] = buildCategoryEvidencePages([...incumbentRows, ...lineRows(domains.slice(0, 5)), olderElsewhere]);
+  assert.equal(kept.cohort.id, incumbent.id, "the handoff gate keeps the incumbent");
+  assert.equal(kept.sites.length, 6);
+  assert.deepEqual(kept.newerEligibleOutsideCohort, {
+    siteCount: 5,
+    newestScannedAt: "2026-09-05T00:00:00.000Z"
+  });
+
+  // Once the line covers every site it takes the page, and nothing is newer.
+  const [handedOff] = buildCategoryEvidencePages([...incumbentRows, ...lineRows(domains), olderElsewhere]);
+  assert.equal(handedOff.cohort.id, currentLine.id);
+  assert.equal(handedOff.newerEligibleOutsideCohort, null);
 });

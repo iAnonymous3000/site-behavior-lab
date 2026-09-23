@@ -82,10 +82,25 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
         <p className="eyebrow">Controlled-visit evidence · {category.sites.length} canonical sites</p>
         <h1>What {category.label.toLowerCase()} sites loaded</h1>
         <p>
-          Descriptive results from one newest eligible passive visit per site, not a ranking, privacy grade, causal
-          claim or representative sample of all {category.label.toLowerCase()} sites.
+          Descriptive results from each site&apos;s newest eligible passive visit within this page&apos;s one
+          measurement cohort, not a ranking, privacy grade, causal claim or representative sample of all{" "}
+          {category.label.toLowerCase()} sites.
         </p>
         <p className={styles.updated}>Newest included observation: <time dateTime={category.lastScannedAt}>{formatEvidenceDate(category.lastScannedAt)}</time></p>
+        {/* The cohort selector can keep this page on an older cohort while
+            listed sites have newer eligible visits in another one. The rows
+            stay in one cohort so the medians share a denominator, and this
+            says what that leaves out, as /status does for its aggregate. */}
+        {category.newerEligibleOutsideCohort && (
+          <p className={styles.updated}>
+            {newerOutsideCohortLead(category.newerEligibleOutsideCohort.siteCount, category.sites.length)}{" "}
+            <time dateTime={category.newerEligibleOutsideCohort.newestScannedAt}>
+              {formatEvidenceDate(category.newerEligibleOutsideCohort.newestScannedAt)}
+            </time>
+            , in a measurement cohort this page does not use. Their rows stay in this page&apos;s cohort so every median
+            shares one denominator; each site&apos;s profile shows its newer visit.
+          </p>
+        )}
       </header>
 
       <section className={styles.summary} aria-labelledby="summary-title">
@@ -142,7 +157,10 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
         <p className="eyebrow">How to read this page</p>
         <h2 id="method-title">Eligibility and limits</h2>
         <ul>
-          <li>Each row is the newest successful, request-complete, uncapped passive lead visit for one canonical site.</li>
+          <li>
+            Each row is the newest successful, request-complete, uncapped passive lead visit for one canonical site
+            within this page&apos;s measurement cohort, which is not always the site&apos;s newest such visit.
+          </li>
           {/* The full identity carries three 64-character digests. Inline they were most
               of a mobile screen of hex in the one section labelled "How to read this
               page", so the readable half stays in the sentence and the digests move
@@ -184,6 +202,10 @@ async function loadCategory(rawId: string): Promise<CategoryEvidencePage | null>
 
 function categoryDescription(category: CategoryEvidencePage): string {
   return `Controlled-visit evidence for ${category.sites.length} curated ${category.label.toLowerCase()} sites, with observed medians, dates, limitations and links to reproducible reports.`;
+}
+
+function newerOutsideCohortLead(newerSiteCount: number, siteCount: number): string {
+  return `${newerSiteCount} of these ${siteCount} sites ${newerSiteCount === 1 ? "has" : "have"} an eligible visit newer than the one shown here, as new as`;
 }
 
 function blockingMedianText(value: number | null): string {

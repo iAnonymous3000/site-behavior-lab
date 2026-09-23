@@ -39,6 +39,16 @@ export type CategoryEvidencePage = {
   cohort: CorpusCohortIdentity;
   rollup: CategoryRollup;
   sites: DirectorySite[];
+  /**
+   * Listed sites that also have an eligible visit NEWER than their row, in a
+   * cohort this page does not use, with the newest such visit; null when
+   * every row is also its site's newest eligible visit. The cohort selector
+   * can keep a page on an older cohort (a current-line cohort missing one of
+   * five to nine sites fails the handoff), and the rows then describe that
+   * cohort's newest visits, not each site's. Derived from the same eligible
+   * rows the page is built from, so it restates no eligibility rule.
+   */
+  newerEligibleOutsideCohort: { siteCount: number; newestScannedAt: string } | null;
 };
 
 /** Stable route for a quality-gated evidence category. */
@@ -97,6 +107,7 @@ export function buildCategoryEvidencePages(
 ): CategoryEvidencePage[] {
   const retainedBySite = retainedReportsBySite(entries);
   const reportsBySiteAndCohort = new Map<string, DirectoryEntry[]>();
+  const eligibleBySite = new Map<string, DirectoryEntry[]>();
 
   for (const entry of entries) {
     if (!entryEligibleForCorpusRollups(entry) || !entry.category) continue;
@@ -106,6 +117,9 @@ export function buildCategoryEvidencePages(
     const list = reportsBySiteAndCohort.get(key);
     if (list) list.push(entry);
     else reportsBySiteAndCohort.set(key, [entry]);
+    const siteReports = eligibleBySite.get(domain);
+    if (siteReports) siteReports.push(entry);
+    else eligibleBySite.set(domain, [entry]);
   }
 
   const currentSites = [...reportsBySiteAndCohort.values()].map((reports) => {
@@ -169,7 +183,8 @@ export function buildCategoryEvidencePages(
       lastScannedAt: newestTimestamp(sortedSites.map((site) => site.latest.scannedAt)),
       cohort: sortedSites[0].latest.corpusCohort,
       rollup,
-      sites: sortedSites
+      sites: sortedSites,
+      newerEligibleOutsideCohort: newerEligibleOutsideCohort(sortedSites, eligibleBySite)
     });
   }
 
@@ -231,6 +246,31 @@ export function buildCategoryEvidencePages(
   return [...selectedByCategory.values()]
     .filter((page) => page.sites.length >= minimumSites)
     .sort((left, right) => left.label.localeCompare(right.label));
+}
+
+/**
+ * Count the listed sites whose eligible evidence includes a visit newer than
+ * the row the page shows, from a different cohort, and date the newest one.
+ * Mirrors /status's newerEligibleOutsideAggregate at row scale: the page
+ * keeps its one denominator and says what it is leaving out.
+ */
+function newerEligibleOutsideCohort(
+  sites: DirectorySite[],
+  eligibleBySite: Map<string, DirectoryEntry[]>
+): CategoryEvidencePage["newerEligibleOutsideCohort"] {
+  let siteCount = 0;
+  const newerScannedAt: string[] = [];
+  for (const site of sites) {
+    const shownAt = Date.parse(site.latest.scannedAt);
+    const newer = (eligibleBySite.get(site.domain) ?? []).filter(
+      (report) =>
+        report.corpusCohort.id !== site.latest.corpusCohort.id && Date.parse(report.scannedAt) > shownAt
+    );
+    if (newer.length === 0) continue;
+    siteCount += 1;
+    newerScannedAt.push(...newer.map((report) => report.scannedAt));
+  }
+  return siteCount > 0 ? { siteCount, newestScannedAt: newestTimestamp(newerScannedAt) } : null;
 }
 
 function newestEntry(entries: DirectoryEntry[]): DirectoryEntry {

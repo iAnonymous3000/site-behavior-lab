@@ -104,6 +104,36 @@ test("both site listings render the shared evidence table, not their own grid", 
   );
 });
 
+/**
+ * A category page publishes one cohort, and the shared selector can keep it on
+ * an older one while listed sites have newer eligible visits elsewhere (the
+ * handoff gate, at five to nine sites, lets one missing site block a
+ * current-line cohort). The page used to say every row was each site's
+ * "newest" eligible visit regardless, which was false for most rows on six
+ * pages, and /directory/ described the category sample the same way. The
+ * sentences are scoped to the page's cohort, and what the cohort leaves out
+ * is rendered from a derived field, never a literal count or date.
+ */
+test("category copy scopes 'newest' to the page's cohort and discloses newer visits outside it", () => {
+  const category = source("app/categories/[category]/page.tsx");
+  const directory = source("app/directory/directory-index.tsx");
+
+  assert.doesNotMatch(category, /one newest eligible passive visit per site/);
+  assert.doesNotMatch(category, /uncapped passive lead visit for one canonical site\.<\/li>/);
+  assert.match(category, /newest eligible passive visit within this page&apos;s one\s+measurement cohort/);
+  assert.match(category, /lead visit for one canonical site\s+within this page&apos;s measurement cohort/);
+  assert.doesNotMatch(directory, /one newest successful, request-complete, uncapped\s+passive visit per canonical site\./);
+  assert.match(directory, /the newest within the one measurement cohort each category page publishes/);
+
+  assert.match(category, /\{category\.newerEligibleOutsideCohort && \(/);
+  assert.match(
+    category,
+    /newerOutsideCohortLead\(category\.newerEligibleOutsideCohort\.siteCount, category\.sites\.length\)/
+  );
+  assert.match(category, /formatEvidenceDate\(category\.newerEligibleOutsideCohort\.newestScannedAt\)/);
+  assert.match(category, /in a measurement cohort this page does not use/);
+});
+
 test("public metric copy keeps request rows and distinct service entities separate", () => {
   const home = source("app/site-behavior-app.tsx");
   // The rows moved from card grids in directory-index.tsx and the category page
