@@ -26,7 +26,7 @@ test("scan preparation returns at its target-verification deadline when an injec
     (error: unknown) =>
       error instanceof ScanTargetVerificationTimeoutError && error.timeoutMs === 5
   );
-  assert.equal(Date.now() - started < 250, true);
+  assert.ok(Date.now() - started < 1_000, "the 5ms verification deadline must win, not the 5s default");
 });
 
 test("scan preparation propagates request cancellation while a verifier ignores it", async () => {
