@@ -12,6 +12,12 @@ import type { DirectorySite } from "./directory-view";
  * could not vouch for while the category page published the bare number, which
  * is the shape of defect this repository files most often.
  *
+ * One mapper only keeps the rendering identical; agreement also needs each
+ * builder to hand it the same definitions. `reportCount` is the site's retained
+ * report total on both surfaces (what the profile calls "reports retained"):
+ * the category builder once passed its eligible in-cohort count instead, and
+ * the same cell read "1 report" there and "12 reports" on /directory/.
+ *
  * Deliberately not exported from the `"use client"` component: a server route
  * importing a value from a client module pulls that module into the client
  * bundle. The component imports this type only, and a type import is erased.

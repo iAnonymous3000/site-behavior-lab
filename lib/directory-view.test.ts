@@ -145,6 +145,47 @@ test("a generalized lead host joins no directory row, profile or category site",
   assert.equal(page.rollup.siteCount, 1);
 });
 
+test("a site's report count means the same retained total on the directory and its category page", () => {
+  // Both surfaces print this number in one table cell ("N reports"). The
+  // category builder used to pass the eligible reports inside its selected
+  // cohort, so chase.com read "1 report" on /categories/money/ beside
+  // "12 reports" on /directory/ and "12 reports retained" on its profile. The
+  // fixture spans every way a retained report can fall outside that group, so
+  // the two counts cannot agree by construction.
+  const olderCohort = {
+    ...entry("probe").corpusCohort,
+    id: "v2-r2:older-methodology:node-playwright",
+    methodologyVersion: "older-methodology"
+  };
+  const reports = [
+    entry("current", { domain: "example.com", scannedAt: "2026-07-05T00:00:00.000Z" }),
+    entry("older-eligible", { domain: "www.example.com", scannedAt: "2026-07-01T00:00:00.000Z" }),
+    entry("capped", { domain: "example.com", capped: true, requestEvidenceComplete: false }),
+    entry("failed", { domain: "example.com", status: 403, runOutcome: "failed" }),
+    entry("accept-arm", {
+      domain: "example.com",
+      reportType: "comparison",
+      comparisonType: "consent",
+      consentMode: "accept-all"
+    }),
+    entry("other-cohort", { domain: "example.com", corpusCohort: olderCohort, scannedAt: "2026-06-01T00:00:00.000Z" }),
+    entry("generalized", {
+      domain: "example.com",
+      siteKey: null,
+      requestedUrl: "https://{label}.example.com/",
+      finalUrl: "https://{label}.example.com/"
+    })
+  ];
+
+  const retained = reports.filter((report) => report.siteKey === "example.com").length;
+  const [directoryRow] = buildDirectorySites(reports);
+  const [page] = buildCategoryEvidencePages(reports, 1);
+  assert.equal(page.cohort.id, reports[0].corpusCohort.id);
+  assert.equal(page.sites[0].latest.id, "current");
+  assert.equal(directoryRow.reportCount, retained);
+  assert.equal(page.sites[0].reportCount, retained, "the category row counts the site's retained reports too");
+});
+
 test("directory pagination is bounded and rejects invalid page numbers", () => {
   assert.equal(directoryPageCount(0, 24), 1);
   assert.equal(directoryPageCount(49, 24), 3);

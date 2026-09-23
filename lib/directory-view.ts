@@ -22,6 +22,11 @@ export type DirectorySite = {
   domain: string;
   profilePath: string;
   latest: DirectoryEntry;
+  /**
+   * Every retained report for the site, whatever its eligibility or cohort:
+   * the "N reports retained" the linked profile shows. The directory and the
+   * category pages print it in one table cell, so it has one meaning on both.
+   */
   reportCount: number;
 };
 
@@ -47,17 +52,7 @@ export function categoryPagePath(id: string): string {
  * repeating the same site hundreds of times.
  */
 export function buildDirectorySites(entries: DirectoryEntry[]): DirectorySite[] {
-  const bySite = new Map<string, DirectoryEntry[]>();
-
-  for (const entry of entries) {
-    const domain = entry.siteKey;
-    if (!domain) continue;
-    const list = bySite.get(domain);
-    if (list) list.push(entry);
-    else bySite.set(domain, [entry]);
-  }
-
-  return [...bySite.entries()]
+  return [...retainedReportsBySite(entries).entries()]
     .map(([domain, reports]) => ({
       domain,
       profilePath: siteProfilePath(domain) as string,
@@ -65,6 +60,19 @@ export function buildDirectorySites(entries: DirectoryEntry[]): DirectorySite[] 
       reportCount: reports.length
     }))
     .sort((left, right) => left.domain.localeCompare(right.domain));
+}
+
+/** Every retained report grouped by site key; a keyless row belongs to no site. */
+function retainedReportsBySite(entries: DirectoryEntry[]): Map<string, DirectoryEntry[]> {
+  const bySite = new Map<string, DirectoryEntry[]>();
+  for (const entry of entries) {
+    const domain = entry.siteKey;
+    if (!domain) continue;
+    const list = bySite.get(domain);
+    if (list) list.push(entry);
+    else bySite.set(domain, [entry]);
+  }
+  return bySite;
 }
 
 export function directoryPageCount(siteCount: number, pageSize = DIRECTORY_PAGE_SIZE): number {
@@ -87,6 +95,7 @@ export function buildCategoryEvidencePages(
   entries: DirectoryEntry[],
   minimumSites = CATEGORY_MIN_SITE_COUNT
 ): CategoryEvidencePage[] {
+  const retainedBySite = retainedReportsBySite(entries);
   const reportsBySiteAndCohort = new Map<string, DirectoryEntry[]>();
 
   for (const entry of entries) {
@@ -122,7 +131,10 @@ export function buildCategoryEvidencePages(
         ...latest,
         shieldsThirdPartyChange: latestShields?.shieldsThirdPartyChange ?? null
       },
-      reportCount: reports.length
+      // The site's retained total, as on /directory/ and the profile. The
+      // eligible in-cohort count this used to carry printed "1 report" for a
+      // site the directory row beside it showed with 12.
+      reportCount: (retainedBySite.get(domain) as DirectoryEntry[]).length
     } satisfies DirectorySite;
   });
 
