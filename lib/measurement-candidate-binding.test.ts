@@ -48,13 +48,17 @@ import {
   MEASUREMENT_IDENTITY_PATH,
   MEASUREMENT_STAGING_TEARDOWN_SOURCE_CLOSURE_PATHS,
   measurementCalibrationAnalysisPolicyProblems,
+  MEASUREMENT_CALIBRATION_CENSORING_POLICY_ID,
+  MEASUREMENT_CALIBRATION_CENSORING_POLICY_PATH,
   MEASUREMENT_CALIBRATION_POLICY_ASSIGNMENTS_ID,
   MEASUREMENT_CALIBRATION_POLICY_ASSIGNMENTS_PATH,
   measurementCalibrationAssignmentsSemanticProjection,
   measurementCalibrationPolicyAssignmentsDispositionSha256,
+  measurementCalibrationPolicyDispositionSha256,
   verifiedMeasurementCandidateAcquisitionContext,
   verifiedMeasurementCandidateBuildProof,
   verifiedMeasurementCandidateBinding,
+  verifyCalibrationCensoringPolicy,
   verifyStagingTeardownHostedSourceTrust,
   type MeasurementCandidateAttestationRequest,
   type MeasurementDurableReplayVerificationRequest,
@@ -922,6 +926,122 @@ test("calibration acquisition stays blocked until the exact censoring policy dec
       assert.throws(() => inspectFixture(fixture.root), row.expected);
     });
   }
+});
+
+test("the superseded zero-censoring approval is re-derived by its historical verifiers", (t) => {
+  // These three verifiers stay exported so the superseded approval remains
+  // verifiable, but no production path calls them since the per-detector
+  // assignments replaced it, and the readiness recheck compares pinned
+  // strings instead. Without this test an edit to the disposition domain,
+  // canonicalJson, or the rate-publication profile could leave history
+  // unverifiable (or verifying a different tuple) with every test green.
+  const studyLib = requireFromRepository(
+    path.join(process.cwd(), "scripts", "calibration-study-lib.mjs")
+  ) as {
+    CALIBRATION_SUPERSEDED_DISPOSITION_SHA256: string;
+    supersededZeroCensoringPolicyObject: (value: unknown) => unknown;
+  };
+  const readiness = JSON.parse(
+    readFileSync(path.join(process.cwd(), "RELEASE_READINESS.json"), "utf8")
+  ) as {
+    decisions: {
+      calibrationCensoringPolicy: {
+        superseded: {
+          id: string;
+          policyArtifactPath: string;
+          policyArtifactSha256: string;
+          dispositionSha256: string;
+        };
+      };
+    };
+  };
+  // The tuple the named human approved, not a restated constant.
+  const approved = readiness.decisions.calibrationCensoringPolicy.superseded;
+  assert.equal(approved.id, MEASUREMENT_CALIBRATION_CENSORING_POLICY_ID);
+  assert.equal(approved.policyArtifactPath, MEASUREMENT_CALIBRATION_CENSORING_POLICY_PATH);
+
+  const sha256 = (text: string) => createHash("sha256").update(text).digest("hex");
+  const disposition = (policy: Record<string, unknown>, artifactSha256: string) => {
+    const eligibility = policy.releaseEligibility as Record<string, string>;
+    return measurementCalibrationPolicyDispositionSha256({
+      id: policy.id as string,
+      policyArtifactPath: approved.policyArtifactPath,
+      policyArtifactSha256: artifactSha256,
+      anyCensoredCase: eligibility.anyCensoredCase,
+      plannedDenominator: eligibility.plannedDenominator
+    });
+  };
+
+  const committedText = readFileSync(
+    path.join(process.cwd(), ...approved.policyArtifactPath.split("/")),
+    "utf8"
+  );
+  assert.equal(sha256(committedText), approved.policyArtifactSha256);
+  const committed = JSON.parse(committedText) as Record<string, unknown>;
+  assert.doesNotThrow(() => studyLib.supersededZeroCensoringPolicyObject(committed));
+  // The candidate blob check needs git history, which the Docker build's
+  // `npm run check` does not have; the byte digest above covers the bytes.
+  assert.doesNotThrow(() =>
+    verifyCalibrationCensoringPolicy(
+      process.cwd(),
+      "superseded",
+      "HEAD",
+      approved.id,
+      approved.policyArtifactPath,
+      approved.policyArtifactSha256,
+      false
+    )
+  );
+  assert.equal(disposition(committed, approved.policyArtifactSha256), approved.dispositionSha256);
+  assert.equal(studyLib.CALIBRATION_SUPERSEDED_DISPOSITION_SHA256, approved.dispositionSha256);
+
+  // Inverse, so validators that accepted anything could not pass: one
+  // drifted denominator is refused by both, and its bytes bind a different
+  // disposition.
+  const drifted = structuredClone(committed) as {
+    ratePublicationEligibility: { minimumDenominators: { referencePresent: number } };
+  };
+  drifted.ratePublicationEligibility.minimumDenominators.referencePresent -= 1;
+  const driftedText = `${JSON.stringify(drifted, null, 2)}\n`;
+  assert.throws(
+    () => studyLib.supersededZeroCensoringPolicyObject(drifted),
+    /disagrees with the canonical binding policy/
+  );
+  const root = mkdtempSync(path.join(tmpdir(), "sbl-superseded-censoring-policy-"));
+  t.after(() => removeFixtureTree(root));
+  const driftedAbsolute = path.join(root, ...approved.policyArtifactPath.split("/"));
+  mkdirSync(path.dirname(driftedAbsolute), { recursive: true });
+  writeFileSync(driftedAbsolute, driftedText);
+  assert.throws(
+    () =>
+      verifyCalibrationCensoringPolicy(
+        root,
+        "superseded",
+        "HEAD",
+        approved.id,
+        approved.policyArtifactPath,
+        sha256(driftedText),
+        false
+      ),
+    /four minimum class denominators/
+  );
+  assert.throws(
+    () =>
+      verifyCalibrationCensoringPolicy(
+        root,
+        "superseded",
+        "HEAD",
+        approved.id,
+        approved.policyArtifactPath,
+        approved.policyArtifactSha256,
+        false
+      ),
+    /byte-identical/
+  );
+  assert.notEqual(
+    disposition(drifted as unknown as Record<string, unknown>, sha256(driftedText)),
+    approved.dispositionSha256
+  );
 });
 
 test("the candidate policy rejects descriptive and underpowered calibration analyses", (t) => {
