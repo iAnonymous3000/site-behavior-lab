@@ -12,7 +12,6 @@ import {
   POLICY_B_ID,
   POLICY_C_ID,
   PUBLICATION_PROFILES,
-  assertStudyPermitted,
   validateDetectorPolicyAssignments
 } from "./calibration-policy-assignments.mjs";
 
@@ -77,13 +76,6 @@ test("the table restates the decision document, checked against it and not the r
     "sensitivity-only"
   );
   assert.deepEqual(PUBLICATION_PROFILES["sensitivity-only"].claimedClasses, ["reference-present"]);
-});
-
-test("held detectors refuse study permission with their recorded reason", () => {
-  assert.equal(assertStudyPermitted("cname-uncloaking").disposition, "proceed");
-  assert.throws(() => assertStudyPermitted("fingerprint-heuristics"), /held by the step-3/);
-  assert.throws(() => assertStudyPermitted("privacy-policy"), /negative class/);
-  assert.throws(() => assertStudyPermitted("not-a-detector"), /not a governed detector/);
 });
 
 test("the validator refuses the widenings the decision forbids", () => {

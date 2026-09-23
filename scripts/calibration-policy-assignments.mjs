@@ -271,14 +271,3 @@ export function validateDetectorPolicyAssignments(assignments = DETECTOR_POLICY_
   }
   return assignments;
 }
-
-/** The gate a ceremony or frame producer calls before touching a detector. */
-export function assertStudyPermitted(detector) {
-  const entry = DETECTOR_POLICY_ASSIGNMENTS[detector];
-  require(entry !== undefined, `${detector} is not a governed detector`);
-  require(
-    entry.disposition === "proceed",
-    `${detector} is held by the step-3 censoring decision: ${entry.holdReason}`
-  );
-  return entry;
-}
