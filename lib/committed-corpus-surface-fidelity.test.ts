@@ -211,7 +211,19 @@ function assertJsonLdFidelity(id: string, view: ReportView, presentation: Presen
       presentation.facts.arms.variant.subject.describesSubject === true
     : presentation.facts.display.subject.describesSubject;
   const subjectRun = arms ? arms.variant : displayRunView(view);
-  const expectedName = subjectEstablished
+  // The name is derived from each arm's own subject kind and recorded site,
+  // not from the pair's same-subject ruling: that ruling also compares route
+  // shapes, and two visits that ended on different pages of one site are
+  // still a scan of that site, never a "returned-document" scan (the wording
+  // for a requested page that was not established).
+  const armSubjects = arms
+    ? [presentation.facts.arms?.baseline.subject, presentation.facts.arms?.variant.subject]
+    : [presentation.facts.display.subject];
+  const recordedSite = (domain: string) => domain.toLowerCase().replace(/^www\./, "");
+  const namesRequestedSite =
+    armSubjects.every((subject) => subject?.kind === "requested-page") &&
+    (!arms || recordedSite(arms.baseline.domain) === recordedSite(arms.variant.domain));
+  const expectedName = namesRequestedSite
     ? `Site Behavior Lab scan of ${presentation.headline.domain}`
     : `Site Behavior Lab returned-document scan while requesting ${presentation.headline.domain}`;
 

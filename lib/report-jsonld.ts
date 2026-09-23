@@ -1,3 +1,4 @@
+import { comparableSubjectHosts } from "./comparison-eligibility";
 import { buildReportHeadline } from "./report-headline";
 import {
   buildReportFacts,
@@ -37,11 +38,21 @@ export function buildReportDataset(view: ReportView, options: { url: string; jso
   // A v1 comparison's top-level requestedUrl/scannedAt were the variant run's
   // (see createComparisonReport); the view preserves both.
   const subjectRun = arms ? arms.variant : run;
-  const reportSubjectEstablished = arms
-    ? facts.sameSubject === true &&
-      facts.arms?.baseline.subject.describesSubject === true &&
-      facts.arms.variant.subject.describesSubject === true
+  // Two separate questions. The NAME says whether the measurements describe
+  // the requested site at all: every arm established its requested page, and
+  // both arms visited the same site. The pair's same-subject ruling is
+  // narrower (v2 also requires the same route shape), so a pair whose visits
+  // ended on different pages of one site is still a scan of that site; that
+  // ruling only withholds the WebSite attribution below. "Returned-document"
+  // is reserved for a requested page that was not established.
+  const armsDescribeSubject = arms
+    ? facts.arms?.baseline.subject.describesSubject === true &&
+      facts.arms.variant.subject.describesSubject === true &&
+      comparableSubjectHosts(arms.baseline.domain, arms.variant.domain)
     : facts.display.subject.describesSubject;
+  const reportSubjectEstablished = arms
+    ? armsDescribeSubject && facts.sameSubject === true
+    : armsDescribeSubject;
   const requestedUrl = subjectRun.conditions.requestedUrl;
   // Route shapes are flagged only on v2 wires, but the v1 redactor writes the
   // same `{seg}` / `{label}` markers into conditions.requestedUrl, so the flag
@@ -64,7 +75,7 @@ export function buildReportDataset(view: ReportView, options: { url: string; jso
   const dataset: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@type": "Dataset",
-    name: reportSubjectEstablished
+    name: armsDescribeSubject
       ? `Site Behavior Lab scan of ${headline.domain}`
       : `Site Behavior Lab returned-document scan while requesting ${headline.domain}`,
     description: headline.subhead,

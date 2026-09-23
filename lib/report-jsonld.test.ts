@@ -103,6 +103,36 @@ test("omits report-level site attribution for a comparison of different sites", 
   });
 
   assert.equal(dataset.about, undefined);
+  // Neither the returned-document wording's opposite nor one site's name may
+  // be upgraded here: half the measurements are of another site.
+  assert.notEqual(dataset.name, "Site Behavior Lab scan of news.example");
+});
+
+test("a same-site pair whose visits ended on different pages is still a scan of that site", () => {
+  // cdc.gov and ebay.com: both visits established the requested page, but one
+  // ended on a deeper route, so the pair's same-subject ruling is false. That
+  // ruling withholds WebSite attribution; it never meant the requested page
+  // was not established, which is what "returned-document scan" says.
+  const baseline = makeResult({ firstPartyDomain: "www.news.example", thirdPartyRequests: 4, thirdPartyDomains: 2 });
+  const variant = makeResult({ firstPartyDomain: "www.news.example", thirdPartyRequests: 3, thirdPartyDomains: 2 });
+  baseline.conditions.requestedUrl = "https://www.news.example/";
+  baseline.conditions.finalUrl = "https://www.news.example/{seg}";
+  variant.conditions.requestedUrl = "https://www.news.example/";
+  variant.conditions.finalUrl = "https://www.news.example/";
+  variant.conditions.gpcEnabled = true;
+  const view = viewFromV1Report(createGpcComparisonReport(baseline, variant));
+  assert.equal(view.claims.decision?.sameSubject, false, "fixture must exercise a route-only mismatch");
+
+  const dataset = buildReportDataset(view, { url: "https://example.org/reports/route-mismatch/" });
+  assert.equal(dataset.name, "Site Behavior Lab scan of news.example");
+  assert.equal(dataset.about, undefined);
+
+  // An arm that did not establish the requested page keeps the returned-document framing.
+  variant.summary.status = 403;
+  const failed = buildReportDataset(viewFromV1Report(createGpcComparisonReport(baseline, variant)), {
+    url: "https://example.org/reports/route-mismatch-403/"
+  });
+  assert.equal(failed.name, "Site Behavior Lab returned-document scan while requesting news.example");
 });
 
 test("omits an incoherent subject URL instead of pairing it with another site name", () => {
