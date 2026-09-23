@@ -9,8 +9,8 @@ FROM mcr.microsoft.com/playwright:v1.63.0-noble@sha256:eff16c30e6f3f4af0a03fa4b7
 # The digest-pinned Playwright base intentionally carries a newer runtime than
 # the host/Actions authoring toolchain. Fail the image build if that immutable
 # base ever resolves to different Node or npm bytes without a reviewed epoch.
-RUN test "$(node --version)" = "v24.18.1" \
-  && test "$(npm --version)" = "11.16.0"
+RUN test "$(node --version)" = "v24.20.0" \
+  && test "$(npm --version)" = "11.19.0"
 
 FROM playwright-base AS build
 

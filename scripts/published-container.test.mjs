@@ -153,7 +153,7 @@ function receipts() {
     inputs: { productionContainerConfig: { path: "wrangler.container.jsonc", bytes: configBytes.length, sha256: sha256(configBytes) } },
     artifacts: [{ name: "container-image", kind: "docker-image-inspection", image: "site-behavior-lab:smoke",
       imageId, repoDigests: [], os: "linux", architecture: "amd64", sourceCommit: commit,
-      rootfsLayers: [`sha256:${"5".repeat(64)}`], bytes: 12345, runtime: { node: "24.18.1" } }]
+      rootfsLayers: [`sha256:${"5".repeat(64)}`], bytes: 12345, runtime: { node: "24.20.0" } }]
   };
   const published = structuredClone(tested);
   published.artifacts[0].repoDigests = [reference];
