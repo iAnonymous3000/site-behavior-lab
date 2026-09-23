@@ -36,8 +36,6 @@ import {
 import { CALIBRATION_CENSORING_POLICY_PATH, sha256Hex } from "./calibration-study-lib.mjs";
 import { calibrationLabelPublicKeyIdentity } from "./calibration-label-source-envelope-lib.mjs";
 
-const SHA1 = /^[0-9a-f]{40}$/;
-
 export const PILOT_CARRIER_FILE = "pilot-carrier.txt";
 export const PILOT_SET_FILE = "pilot-set.json";
 export const PILOT_UNIVERSE_FILE = "universe-provenance.json";

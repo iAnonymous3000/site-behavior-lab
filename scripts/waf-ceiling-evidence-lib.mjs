@@ -18,8 +18,6 @@ export const WAF_CEILING_EVIDENCE_PATH =
   "research/ops-evidence/waf-ceilings.json";
 export const WAF_PROBE_TRANSCRIPT_KIND =
   "site-behavior-waf-ceiling-probe-transcript";
-export const WAF_PROBE_TRANSCRIPT_PATH =
-  "research/ops-evidence/waf-probe-transcript.json";
 export const PRODUCTION_WAF_ORIGIN = "https://scan.sitebehavior.org";
 export const WAF_REQUEST_TIMEOUT_MS = 5_000;
 export const WAF_COOLDOWN_MARGIN_MS = 1_000;

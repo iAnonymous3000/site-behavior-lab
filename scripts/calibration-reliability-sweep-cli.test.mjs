@@ -24,8 +24,6 @@ function run(args) {
   return { status: result.status, stdout: result.stdout, stderr: result.stderr };
 }
 
-const sha = (seed) => seed.repeat(64).slice(0, 64);
-
 function soundReport() {
   return {
     run: {

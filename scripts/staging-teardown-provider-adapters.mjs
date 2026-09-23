@@ -4,7 +4,6 @@ import {
   sha256Bytes
 } from "./operator-evidence-common.mjs";
 import { parseStrictJson } from "../lib/strict-json.ts";
-import { STAGING_RESOURCE_CONTRACT } from "./staging-teardown-evidence-lib.mjs";
 import {
   createBoundedProviderClient,
   createProviderRequestLedger,
@@ -4947,8 +4946,4 @@ export function stagingTeardownTargetManifestTemplate({
     }
   };
   return validateStagingTeardownTargetManifest(manifest, stagingSourceCommit);
-}
-
-export function canonicalStagingTeardownResources() {
-  return STAGING_RESOURCE_CONTRACT.map((resource) => ({ ...resource }));
 }

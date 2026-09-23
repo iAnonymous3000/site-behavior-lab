@@ -511,12 +511,6 @@ export function calibrationLabelRosterSelectionLedgerSha256(value) {
   return sha256Hex(canonicalCalibrationAcquisitionText(ledger));
 }
 
-export function canonicalCalibrationLabelRosterSelectionLedgerText(value) {
-  return canonicalCalibrationAcquisitionText(
-    validateCalibrationLabelRosterSelectionLedger(value)
-  );
-}
-
 export function compareCalibrationLabelRosterSelectionLedgers({
   archivedLedger,
   liveSelection,
@@ -1023,12 +1017,6 @@ export function calibrationAcquisitionAttemptLedgerSha256(value) {
   return sha256Hex(canonicalCalibrationAcquisitionText(ledger));
 }
 
-export function canonicalCalibrationAcquisitionAttemptLedgerText(value) {
-  return canonicalCalibrationAcquisitionText(
-    validateCalibrationAcquisitionAttemptLedger(value)
-  );
-}
-
 export function compareCalibrationAcquisitionAttemptLedgers({
   archivedLedger,
   liveLedger,
@@ -1239,10 +1227,6 @@ export async function verifyCalibrationCeremonyFilesLive(input) {
 
 export function canonicalCalibrationAcquisitionText(value) {
   return `${JSON.stringify(canonicalJsonValue(value), null, 2)}\n`;
-}
-
-export function sha256CalibrationAcquisition(value) {
-  return sha256Hex(value);
 }
 
 function normalizeCalibrationAcquisitionAttempts(

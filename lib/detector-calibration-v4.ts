@@ -32,7 +32,7 @@ import {
 
 export const DETECTOR_CALIBRATION_STUDY_V4_SCHEMA_VERSION = 4;
 export const DETECTOR_CALIBRATION_STUDY_V4_SCHEMA_ID =
-  "detector-calibration-study.v4";
+  "https://sitebehavior.org/schemas/detector-calibration-study.v4.schema.json" as const;
 
 /**
  * Scan-side censor reasons only. `reference-label-uncertain` is exclusively a

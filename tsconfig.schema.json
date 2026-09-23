@@ -14,7 +14,6 @@
     "lib/scan-report-v2.ts",
     "lib/scan-report-v2-validation.ts",
     "lib/scan-report-v2-evaluators.ts",
-    "lib/scan-report-v2-fixtures.ts",
     "lib/scan-report-reader.ts",
     "lib/scan-report-projection.ts",
     "lib/scan-report-view.ts",

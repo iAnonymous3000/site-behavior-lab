@@ -18,6 +18,7 @@ import {
   type DetectorCalibrationStudyV2,
   type DetectorCalibrationStudyV3
 } from "./detector-calibration";
+import { DETECTOR_CALIBRATION_STUDY_V4_SCHEMA_ID } from "./detector-calibration-v4";
 import { sha256Hex } from "./sha256";
 
 const ROOT = process.cwd();
@@ -78,10 +79,7 @@ function generatedV4Schema(): Record<string, unknown> {
     additionalProperties: false,
     topRef: true
   }).createSchema("DetectorCalibrationStudyV4");
-  return {
-    $id: "https://sitebehavior.org/schemas/detector-calibration-study.v4.schema.json",
-    ...schema
-  };
+  return { $id: DETECTOR_CALIBRATION_STUDY_V4_SCHEMA_ID, ...schema };
 }
 
 function generatedV3Schema(): Record<string, unknown> {
