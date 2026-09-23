@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import test from "node:test";
 import { entryEligibleForCorpusRollups, loadCorpusOverview } from "./corpus-overview";
@@ -142,6 +142,30 @@ test("category copy scopes 'newest' to the page's cohort and discloses newer vis
 test("reader copy names no leaderboard the site does not render", () => {
   for (const file of ["app/sites/[domain]/page.tsx", "lib/corpus-export.ts"]) {
     assert.doesNotMatch(source(file), /leaderboard/i, `${file} names a leaderboard no page renders`);
+  }
+});
+
+/**
+ * loadedSiteCount is corpus-overview's coverageSiteCount: sites with at least
+ * one successful load, request-capped recordings included. That module calls
+ * it "what the corpus covers, as opposed to what it measures", and /status
+ * says a cut-short load is counted as covered and never as measured, yet the
+ * homepage library heading read "98 sites measured". Every app source file is
+ * scanned so the pin follows the heading if it moves to another component.
+ */
+test("the homepage never labels its successfully loaded site count as measured", () => {
+  const files = readdirSync(path.join(root, "app"), { encoding: "utf8", recursive: true })
+    .filter((file) => /\.tsx?$/.test(file))
+    .map((file) => path.join("app", file));
+  const uses = files.flatMap((file) =>
+    [...source(file).matchAll(/[^\n]{0,80}loadedSiteCount[\s\S]{0,80}/g)].map((match) => ({ file, text: match[0] }))
+  );
+  assert.ok(
+    uses.some(({ text }) => /plural\(highlights\.loadedSiteCount, "site"\)\} with a successful load/.test(text)),
+    "the library heading must name the count as sites with a successful load"
+  );
+  for (const { file, text } of uses) {
+    assert.doesNotMatch(text, /measured/i, `${file} labels loadedSiteCount as measured: ${text}`);
   }
 });
 

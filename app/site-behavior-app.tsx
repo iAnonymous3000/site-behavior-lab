@@ -607,7 +607,7 @@ function EmptyState({
           <h2 id="library-title">
             {homepageDiscovery
               ? highlights
-                ? `${plural(highlights.loadedSiteCount, "site")} measured, ${plural(
+                ? `${plural(highlights.loadedSiteCount, "site")} with a successful load, ${plural(
                     homepageDiscovery.reportCount,
                     "report"
                   )} on record`
