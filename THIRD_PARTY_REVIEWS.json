@@ -1432,10 +1432,10 @@
       "notes": null
     },
     {
-      "key": "npm:@types/react@19.2.18",
+      "key": "npm:@types/react@19.3.0",
       "ecosystem": "npm",
       "name": "@types/react",
-      "version": "19.2.18",
+      "version": "19.3.0",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -1446,10 +1446,10 @@
       "notes": null
     },
     {
-      "key": "npm:@types/react-dom@19.2.4",
+      "key": "npm:@types/react-dom@19.3.0",
       "ecosystem": "npm",
       "name": "@types/react-dom",
-      "version": "19.2.4",
+      "version": "19.3.0",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -1796,10 +1796,10 @@
       "notes": null
     },
     {
-      "key": "npm:lucide-react@1.30.0",
+      "key": "npm:lucide-react@1.47.0",
       "ecosystem": "npm",
       "name": "lucide-react",
-      "version": "1.30.0",
+      "version": "1.47.0",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "ISC",
@@ -2020,10 +2020,10 @@
       "notes": null
     },
     {
-      "key": "npm:react@19.2.8",
+      "key": "npm:react@19.3.0",
       "ecosystem": "npm",
       "name": "react",
-      "version": "19.2.8",
+      "version": "19.3.0",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -2034,10 +2034,10 @@
       "notes": null
     },
     {
-      "key": "npm:react-dom@19.2.8",
+      "key": "npm:react-dom@19.3.0",
       "ecosystem": "npm",
       "name": "react-dom",
-      "version": "19.2.8",
+      "version": "19.3.0",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -2076,10 +2076,10 @@
       "notes": null
     },
     {
-      "key": "npm:scheduler@0.27.0",
+      "key": "npm:scheduler@0.28.0",
       "ecosystem": "npm",
       "name": "scheduler",
-      "version": "0.27.0",
+      "version": "0.28.0",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "MIT",
