@@ -180,16 +180,29 @@ current binary identifies rustc 1.96.1 commit
 also embeds the building host's Cargo registry paths. The adblock-rust 0.13.3
 rebuild recorded its wasm-pack command and generator versions in the commit
 that vendored it, and clean rebuilds with that command on that host produced
-the vendored bytes. Those bytes also depend on the wasm-opt (binaryen 117)
-that wasm-pack took from its local tool cache without a pinned or reviewed
-source, and CI does not rebuild the binary, so the committed bytes cannot
-currently be derived from checked inputs alone.
+the vendored bytes. Those bytes also depend on wasm-opt. wasm-pack 0.14.0
+downloads binaryen `version_117` from the upstream GitHub release into its
+local tool cache and verifies no checksum; with no cached copy and
+`--mode no-install` it skips wasm-opt and writes different bytes. The cached
+copy on the host that built 0.13.3 (arm64-macos), with which a rebuild
+reproduces all four vendored files, has `bin/wasm-opt` SHA-256
+`e541f303219f9b6caa1661daea44510249da278736b7f2e320910051e7bbd4cd` and
+`lib/libbinaryen.dylib` SHA-256
+`9dc88d02f1aa84de40a8e8dbe5f3a023a8b5bcafaf1308ae20926ab425c533fb`; neither
+has been checked against the upstream release. The contract declares
+`wasmOpt` 117 and names that unverified download as a blocker, but the WASM
+records no wasm-opt marker, so that entry binds the documented toolchain, not
+observed bytes. The toolchain epoch playbook records the version and hashes
+and requires the build log to show wasm-opt ran. CI does not rebuild the
+binary, so the committed bytes cannot currently be derived from checked inputs
+alone.
 
 Do not call this artifact reproducible until one reviewed change does all of
 the following:
 
 1. Pins rustc 1.96.1, Cargo 1.96.1, wasm-pack 0.14.0, wasm-bindgen CLI 0.2.126,
-   and the `wasm32-unknown-unknown` target from independently reviewed sources.
+   wasm-opt (binaryen `version_117`), and the `wasm32-unknown-unknown` target
+   from independently reviewed sources.
 2. Builds with `Cargo.lock`, a fixed source-date policy, and fixed path-prefix
    remapping so host paths cannot enter the output.
 3. Produces identical bytes in two clean isolated builds, then replaces all

@@ -36,12 +36,20 @@ npm run build:pages
 npm run test:smoke:static
 ```
 
-Record the Rust-side generator versions in the release record, rebuild with the locked Cargo graph, copy the complete generated `sbl_adblock_wasm*` set, and prove the committed copies are byte-identical:
+Record the Rust-side generator versions in the release record, rebuild with the locked Cargo graph, copy the complete generated `sbl_adblock_wasm*` set, and prove the committed copies are byte-identical.
+
+The generators include wasm-opt, and the vendored bytes depend on it. wasm-pack 0.14.0 runs a `wasm-opt` from `PATH` first, and otherwise the binaryen `version_117` build it downloaded into its tool cache (`$WASM_PACK_CACHE`, by default `~/Library/Caches/.wasm-pack` on macOS and `~/.cache/.wasm-pack` on Linux). `--mode no-install` never downloads: with no cached copy the build logs "Skipping wasm-opt", exits 0, and writes a different, larger `sbl_adblock_wasm_bg.wasm`. So require that no `wasm-opt` is on `PATH` and exactly one cached copy exists, record its version and SHA-256 (on macOS also the `libbinaryen.dylib` it loads), and require the build log to show wasm-opt ran from the cache. The commands below are for a macOS build host; on Linux, point the cache path at the Linux default and hash only `bin/wasm-opt`.
 
 ```sh
 wasm-pack --version
 wasm-bindgen --version
-wasm-pack build tools/adblock-wasm --mode no-install --target nodejs --release -- --locked
+test -z "$(command -v wasm-opt)"
+WASM_OPT="$(find "${WASM_PACK_CACHE:-$HOME/Library/Caches/.wasm-pack}" -path '*/wasm-opt-*/bin/wasm-opt' -type f)"
+"$WASM_OPT" --version
+shasum -a 256 "$WASM_OPT" "$(dirname "$WASM_OPT")/../lib/libbinaryen.dylib"
+wasm-pack build tools/adblock-wasm --mode no-install --target nodejs --release -- --locked 2> /private/tmp/toolchain-wasm-build.log
+grep -F 'Optimizing wasm binaries with `wasm-opt`' /private/tmp/toolchain-wasm-build.log
+! grep -F 'found wasm-opt at' /private/tmp/toolchain-wasm-build.log
 cp tools/adblock-wasm/pkg/sbl_adblock_wasm* lib/adblock-wasm/
 cmp tools/adblock-wasm/pkg/sbl_adblock_wasm.js lib/adblock-wasm/sbl_adblock_wasm.js
 cmp tools/adblock-wasm/pkg/sbl_adblock_wasm.d.ts lib/adblock-wasm/sbl_adblock_wasm.d.ts

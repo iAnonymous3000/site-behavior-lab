@@ -8,6 +8,7 @@ type WasmContract = {
   schemaVersion: number;
   status: string;
   claim: string;
+  requiredBuild: Record<string, string | boolean>;
   blockers: string[];
   activationCriteria: string[];
   observedBinaryMarkers: {
@@ -38,8 +39,13 @@ test("vendored WASM source and output bytes stay bound to an explicitly blocked 
 
   assert.equal(contract.status, "blocked");
   assert.equal(contract.claim, "integrity-only-not-reproducible-build");
+  // deepEqual against the verifier's own expectation passes if both drop a
+  // field, so the documented toolchain is pinned here independently.
+  assert.equal(contract.requiredBuild.wasmPack, "0.14.0");
+  assert.equal(contract.requiredBuild.wasmBindgenCli, "0.2.126");
+  assert.equal(contract.requiredBuild.wasmOpt, "117");
   assert.deepEqual(contract.blockers, [
-    "generator-provenance-was-not-recorded-at-build-time",
+    "wasm-opt-came-from-an-unverified-wasm-pack-tool-cache-download",
     "committed-wasm-embeds-host-cargo-registry-paths",
     "clean-ci-rebuild-and-byte-compare-is-not-active"
   ]);
@@ -60,6 +66,20 @@ test("WASM integrity verification rejects a stale or optimistic contract", async
   stale.outputs[0].sha256 = "0".repeat(64);
   assert.throws(
     () => assertWasmContractMatches(stale, observed),
+    /source, vendored output, or blocked provenance policy drifted/
+  );
+
+  const withoutWasmOpt = structuredClone(observed);
+  delete withoutWasmOpt.requiredBuild.wasmOpt;
+  assert.throws(
+    () => assertWasmContractMatches(withoutWasmOpt, observed),
+    /source, vendored output, or blocked provenance policy drifted/
+  );
+
+  const otherWasmOpt = structuredClone(observed);
+  otherWasmOpt.requiredBuild.wasmOpt = "123";
+  assert.throws(
+    () => assertWasmContractMatches(otherWasmOpt, observed),
     /source, vendored output, or blocked provenance policy drifted/
   );
 

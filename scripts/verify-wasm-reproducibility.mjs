@@ -21,6 +21,10 @@ const OUTPUT_PATHS = [
 ];
 const RUSTC_COMMIT = "31fca3adb283cc9dfd56b49cdee9a96eb9c96ffd";
 const WASM_BINDGEN_VERSION = "0.2.126";
+// wasm-pack 0.14.0 downloads binaryen version_117 into its tool cache when no
+// wasm-opt is on PATH. The WASM records no marker for it, so this entry is
+// declarative: it binds the documented toolchain, not observed bytes.
+const WASM_OPT_VERSION = "117";
 
 function fileRecord(root, relativePath) {
   const absolutePath = path.join(root, relativePath);
@@ -53,15 +57,16 @@ export function buildObservedWasmContract(root = ROOT) {
       cargo: "1.96.1",
       wasmPack: "0.14.0",
       wasmBindgenCli: WASM_BINDGEN_VERSION,
+      wasmOpt: WASM_OPT_VERSION,
       pathRemapping: "required-before-activation"
     },
     blockers: [
-      "generator-provenance-was-not-recorded-at-build-time",
+      "wasm-opt-came-from-an-unverified-wasm-pack-tool-cache-download",
       "committed-wasm-embeds-host-cargo-registry-paths",
       "clean-ci-rebuild-and-byte-compare-is-not-active"
     ],
     activationCriteria: [
-      "pin-and-install-the-declared-rustc-wasm-pack-and-wasm-bindgen-cli-versions-from-reviewed-sources",
+      "pin-and-install-the-declared-rustc-wasm-pack-wasm-bindgen-cli-and-wasm-opt-versions-from-reviewed-sources",
       "rebuild-with-a-fixed-remapped-source-prefix-and-cargo-locked",
       "prove-two-clean-builds-and-all-four-vendored-output-files-are-byte-identical",
       "replace-this-blocked-contract-with-reviewed-build-provenance-and-enforce-the-rebuild-in-ci"
