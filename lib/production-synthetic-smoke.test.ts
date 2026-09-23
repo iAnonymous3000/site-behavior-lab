@@ -458,21 +458,31 @@ test("production synthetic binds persisted readback to the exact run start ident
 });
 
 test("production synthetic enforces both per-request and total deadlines", async () => {
-  const hanging = await listen(() => undefined);
+  // Each bound runs from the synthetic's first request reaching the test
+  // server, not from spawn: process start-up is host-dependent (seconds inside
+  // an emulated amd64 image build) and neither deadline covers it.
+  const hangingRequestsAt: number[] = [];
+  const hanging = await listen(() => {
+    hangingRequestsAt.push(Date.now());
+    return undefined;
+  });
   try {
-    const requestStart = Date.now();
+    const spawnedAt = Date.now();
     const requestResult = await runSynthetic(hanging.origin, {
       PRODUCTION_SYNTHETIC_REQUEST_TIMEOUT_MS: "100",
       PRODUCTION_SYNTHETIC_TOTAL_TIMEOUT_MS: "1000"
     });
+    const exitedAt = Date.now();
     assert.equal(requestResult.status, 1);
     assert.match(requestResult.stderr, /exceeded its 100ms deadline/);
-    assert.ok(Date.now() - requestStart < 1_500);
+    assertDeadlineExit(hangingRequestsAt, spawnedAt, exitedAt);
   } finally {
     await hanging.close();
   }
 
+  const pollingRequestsAt: number[] = [];
   const polling = await listen((request, response) => {
+    pollingRequestsAt.push(Date.now());
     if (request.url === "/api/scan") {
       return sendJson(response, 202, {
         ok: true,
@@ -484,7 +494,7 @@ test("production synthetic enforces both per-request and total deadlines", async
     sendJson(response, 200, { ok: true, status: "running" });
   });
   try {
-    const totalStart = Date.now();
+    const spawnedAt = Date.now();
     const totalResult = await runSynthetic(polling.origin, {
       // Keep the per-request budget above the total budget so this case
       // deterministically exercises the total deadline even on a loaded CI
@@ -493,13 +503,25 @@ test("production synthetic enforces both per-request and total deadlines", async
       PRODUCTION_SYNTHETIC_TOTAL_TIMEOUT_MS: "500",
       PRODUCTION_SYNTHETIC_POLL_INTERVAL_MS: "10"
     });
+    const exitedAt = Date.now();
     assert.equal(totalResult.status, 1);
     assert.match(totalResult.stderr, /exceeded its 500ms total deadline|did not finish within 0\.5s/);
-    assert.ok(Date.now() - totalStart < 1_500);
+    assertDeadlineExit(pollingRequestsAt, spawnedAt, exitedAt);
   } finally {
     await polling.close();
   }
 });
+
+/**
+ * A delivered request anchors a tight bound on the deadline firing. On a slow
+ * host the deadline can fire before the first request reaches the test server
+ * (loading fetch and connecting spend the whole 100 ms budget); that is still
+ * enforcement, so only a hang guard from spawn applies then.
+ */
+function assertDeadlineExit(requestsAt: number[], spawnedAt: number, exitedAt: number): void {
+  if (requestsAt.length > 0) assert.ok(exitedAt - requestsAt[0] < 1_500);
+  else assert.ok(exitedAt - spawnedAt < 10_000);
+}
 
 function syntheticReport(
   options: {
