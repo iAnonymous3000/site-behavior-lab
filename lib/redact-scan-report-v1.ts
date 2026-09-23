@@ -772,9 +772,13 @@ function previousNodeScannerDisclosure(
  * string, and a pattern would let a report declare an arbitrary methodology
  * tail and have it survive verbatim.
  *
- * A Playwright or methodology move therefore ADDS the outgoing identity here.
+ * A Playwright, ad-block engine, or methodology move therefore ADDS the
+ * outgoing identity here.
  */
 const HISTORICAL_NODE_SCANNER_METHODOLOGIES: readonly string[] = Object.freeze([
+  // Retired by the 2026-09 toolchain epoch (adblock-rust 0.13.3, Playwright
+  // 1.63.0); 95 committed reports carry it.
+  "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v3+detector-coverage-v2",
   "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v2+detector-coverage-v2",
   "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.0+subject-validity-v2+detector-coverage-v2"
 ]);

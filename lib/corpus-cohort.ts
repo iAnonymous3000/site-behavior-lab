@@ -163,7 +163,9 @@ export const MAX_DROPPED_SITE_SHARE = 0.1;
  * no selection.
  */
 export const REVIEWED_MEASUREMENT_LINES: readonly string[] = Object.freeze([
-  "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v3+detector-coverage-v2"
+  "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v3+detector-coverage-v2",
+  // The 2026-09 toolchain epoch: adblock-rust 0.13.3 and Playwright 1.63.0.
+  "shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v3+detector-coverage-v2"
 ]);
 
 /** The current line: the newest entry of {@link REVIEWED_MEASUREMENT_LINES}. */

@@ -369,15 +369,22 @@ function incumbentCandidate(id: string, sites: string[], latestRunAt: string): C
 
 test("the current-line literal equals what new reports will record, so an epoch move must re-review it", () => {
   // This is the coupling that keeps the line honest. When a toolchain move
-  // changes the recorded methodology, this fails until the reviewed literal in
-  // corpus-cohort.ts is deliberately advanced, and the docblock there explains
-  // what to check before advancing it.
+  // changes the recorded methodology, this fails until a reviewed literal is
+  // deliberately appended to REVIEWED_MEASUREMENT_LINES in corpus-cohort.ts,
+  // and the docblock there explains what to check before appending it.
   assert.equal(CURRENT_MEASUREMENT_LINE_METHODOLOGY, NODE_SCANNER_METHODOLOGY_VERSION);
   assert.equal(isOnCurrentMeasurementLine(identity({ id: "x", methodologyVersion: CURRENT_MEASUREMENT_LINE_METHODOLOGY })), true);
   assert.equal(isOnCurrentMeasurementLine(identity({ id: "x", methodologyVersion: "previous-era-method" })), false);
   assert.equal(isOnCurrentMeasurementLine(identity({
     id: "subject-validity-v2",
     methodologyVersion: "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v2+detector-coverage-v2"
+  })), false);
+  // The line the 2026-09 toolchain epoch (adblock-rust 0.13.3, Playwright
+  // 1.63.0) retired: its committed cohorts now take part only through its
+  // replayed handoff.
+  assert.equal(isOnCurrentMeasurementLine(identity({
+    id: "toolchain-2026-08",
+    methodologyVersion: "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v3+detector-coverage-v2"
   })), false);
   // The line lives inside the v1 benchmark generation only.
   assert.equal(
@@ -391,7 +398,8 @@ test("the reviewed line history is append-only and ends at the current line", ()
   // skip it) and move published aggregates with no site behaving differently.
   // An epoch appends its reviewed line; nothing else edits this list.
   assert.deepEqual(REVIEWED_MEASUREMENT_LINES, [
-    "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v3+detector-coverage-v2"
+    "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v3+detector-coverage-v2",
+    "shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v3+detector-coverage-v2"
   ]);
   assert.equal(Object.isFrozen(REVIEWED_MEASUREMENT_LINES), true);
   assert.equal(new Set(REVIEWED_MEASUREMENT_LINES).size, REVIEWED_MEASUREMENT_LINES.length);

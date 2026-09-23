@@ -63,6 +63,19 @@ export const SUPERSEDED_R2_NORMALIZATIONS: Readonly<
   Record<ObserverKind, readonly string[]>
 > = Object.freeze({
   "node-playwright": Object.freeze([
+    // Retired by the 2026-09 toolchain epoch, which moved the public-suffix
+    // engine to tldts@7.4.13 under the same policy digest. tldts-core 7.4.13
+    // ships the same JavaScript as 7.4.10 and tldts changes only its suffix
+    // trie (94 rules added, 8 removed). Every host-like token and URL in the
+    // committed reports, their provenance sidecars, the index, the allowlists,
+    // the tracker catalogs and every other tracked text file parses to the
+    // same domain, suffix and ICANN/private flags and redacts to the same
+    // bytes under both engines, and none falls inside a changed rule's zone,
+    // so every committed report stays a fixed point. A live report holding a
+    // host under a removed rule (adaptable.app, xnbay.com, datacenter.fi,
+    // vps.hrsn.au, or directly under aivencloud.com) would not; the committed
+    // corpus is the evidence this entry rests on.
+    "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:cb7064a154022024d8ffa25c110de6feff64f2b0ecbd375b14a24ff17105059d+tldts@7.4.10+node-evidence-policy-v1+r2-http-status-compat-v1",
     // Retired by node-detectors-v9, which admits the fingerprint
     // listener-attribution disclosure beside the unreadable-frame one. Only a
     // fixed scanner warning is added; nothing an older pass admitted was
@@ -114,6 +127,9 @@ export const SUPERSEDED_R2_NORMALIZATIONS: Readonly<
     "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:6c78c05523e1f16c88264d0144af33587bd6dc11e04d337a6af2d58190639266+tldts@7.4.9+node-evidence-policy-v1+r2-http-status-compat-v1"
   ]),
   "pagegraph-import": Object.freeze([
+    // Retired by the 2026-09 toolchain epoch's move to tldts@7.4.13; see the
+    // node-playwright entry.
+    "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:cb7064a154022024d8ffa25c110de6feff64f2b0ecbd375b14a24ff17105059d+tldts@7.4.10+pagegraph-request-evidence-v1+r2-http-status-compat-v1",
     // Retired by node-detectors-v9's listener-attribution disclosure; see the
     // node-playwright entry.
     "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:42735187d5a7121bacd36074418a138c64dfb0eb5575b5983a134398670e5384+tldts@7.4.10+pagegraph-request-evidence-v1+r2-http-status-compat-v1",

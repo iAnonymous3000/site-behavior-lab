@@ -21,6 +21,23 @@ entries is in [docs/comprehensive-review-2026-09-22.md](docs/comprehensive-revie
 
 ### Changed
 
+- Toolchain epoch 2026-09 (#9) moves the measurement toolchain in one
+  reviewed step: Playwright 1.62.1 to 1.63.0 (bundled Chromium 151.0.7922.34
+  to 153.0.8010.12), with the container base
+  `mcr.microsoft.com/playwright:v1.63.0-noble` at index digest `eff16c30`
+  (was v1.62.1-noble at `dcc5531e`), whose Node 24.18.1 and npm 11.16.0
+  become Node 24.20.0 and npm 11.19.0; adblock-rust 0.13.2 to 0.13.3, with
+  the vendored WASM rebuilt from the locked Cargo graph (`aa0df933` to
+  `4034076e`); and tldts 7.4.10 to 7.4.13. New Node reports record the
+  `shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v3+detector-coverage-v2`
+  base methodology and the `tldts@7.4.13` normalization, and the reviewed
+  corpus line advances to that methodology. Detector versions do not move.
+  Published reports keep their recorded identities: the outgoing Node and
+  PageGraph producer rows are closed to their exact literals, the outgoing
+  normalization stays readable, and committed v1 reports that name the
+  outgoing methodology stay fixed points. The engine differential found no
+  changed block decision and the public-suffix refresh no changed parse over
+  the committed corpus; neither is a replay of live traffic.
 - Detector epoch `node-detectors-v9` revises three detectors.
   `pixel-request-decoder@6` reads multipart form bodies (a page's `FormData`
   beacon) field by field instead of reading them as complete forms with no
@@ -82,6 +99,10 @@ entries is in [docs/comprehensive-review-2026-09-22.md](docs/comprehensive-revie
 
 ### Fixed
 
+- Advancing the reviewed corpus line no longer hands a category page to a
+  retired line's narrower cohort on recency. Each reviewed line keeps the
+  handoff decision it made while current, so moving to a line with no reports
+  yet leaves every published aggregate and category page as it was.
 - The privacy page and homepage no longer say the input probe flushes unload
   beacons; teardown-only transmissions are not measured.
 - The homepage's initial JavaScript no longer includes the report-view and

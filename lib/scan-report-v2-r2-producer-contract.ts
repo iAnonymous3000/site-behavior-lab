@@ -423,10 +423,21 @@ const HISTORICAL_NODE_V7_METHODOLOGY = "shields-request-context-v2-adblock-rust-
 // methodology map that names it, so module evaluation never reads it early.
 const HISTORICAL_NODE_V10_NORMALIZATION = "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:42735187d5a7121bacd36074418a138c64dfb0eb5575b5983a134398670e5384+tldts@7.4.10+node-evidence-policy-v1+r2-http-status-compat-v1";
 const HISTORICAL_NODE_V10_METHODOLOGY = "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v3+detector-coverage-v2+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v2+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1+service-role-taxonomy-v1+gpc-worker-application-v2+active-probe-v2+auxiliary-context-block-v1";
+// Exact normalization of the node-detectors-v9 production producer, closed by
+// the 2026-09 toolchain epoch when the public-suffix engine moved from
+// tldts@7.4.10 to tldts@7.4.13. That producer kept the v10 methodology above:
+// node-detectors-v9 moved detectors and the admitted vocabulary, not a
+// methodology component.
+const HISTORICAL_NODE_V11_NORMALIZATION = "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:cb7064a154022024d8ffa25c110de6feff64f2b0ecbd375b14a24ff17105059d+tldts@7.4.10+node-evidence-policy-v1+r2-http-status-compat-v1";
 
 export const HISTORICAL_NODE_R2_V4_METHODOLOGIES_BY_NORMALIZATION: Readonly<
   Record<string, readonly string[]>
 > = Object.freeze({
+  // The cb7064 identity under tldts@7.4.10 closed when the 2026-09 toolchain
+  // epoch moved the public-suffix engine to tldts@7.4.13. Only the
+  // node-detectors-v9 rows ran it, all under the subject-validity-v3
+  // methodology.
+  [HISTORICAL_NODE_V11_NORMALIZATION]: Object.freeze([HISTORICAL_NODE_V10_METHODOLOGY]),
   // The 4273 identity closed when node-detectors-v9 admitted the fingerprint
   // listener-attribution disclosure. It ran the subject-validity-v2 catalog
   // suffix rows first and the subject-validity-v3 network-security rows after.
@@ -548,6 +559,21 @@ export const HISTORICAL_R2_LISTS_2026_09_07_ADBLOCK_IDENTITY = Object.freeze({
   lists: 31,
   fetchedAt: "2026-09-07T04:11:08.142Z",
   manifestDigest: "72487242a444a911e669f41ceda3571c0eed9758e93679d6f3d3cb851de5a41c",
+  engineVersion: "adblock-rust-0.13.2"
+} satisfies NonNullable<Toolchain["adblock"]>);
+
+/**
+ * Frozen copy of the September 21 list snapshot, as the node-detectors-v9
+ * production rows published it under adblock-rust 0.13.2. The live constant
+ * above derives its engine from NODE_ADBLOCK_ENGINE_VERSION, which the
+ * 2026-09 toolchain epoch moved to adblock-rust-0.13.3; this closed copy
+ * keeps the engine those reports were measured with.
+ */
+export const HISTORICAL_R2_LISTS_2026_09_21_ADBLOCK_IDENTITY = Object.freeze({
+  source: "Brave default ad-block lists",
+  lists: 31,
+  fetchedAt: "2026-09-21T12:45:16.395Z",
+  manifestDigest: "7e42412ee50d641b83699aff20bb2d2151a36b5419121f7245ab0dec5b243a9f",
   engineVersion: "adblock-rust-0.13.2"
 } satisfies NonNullable<Toolchain["adblock"]>);
 
@@ -912,6 +938,57 @@ const HISTORICAL_NODE_V8_FIELDS: NodeTupleFields = Object.freeze({
   phaseOmissionContractVersion: "phase-omission-v2",
 });
 
+// Exact node-detectors-v9 producer fields, frozen when the 2026-09 toolchain
+// epoch closed the v11 rows. No detector moved in that epoch, so the active
+// fields still equal these today; the closed rows must not follow them when a
+// later detector epoch moves.
+const HISTORICAL_NODE_V9_FIELDS: NodeTupleFields = Object.freeze({
+  detectorRegistry: Object.freeze({
+    "version": "node-detectors-v9",
+    "digest": "b15c8281f0db49b91a46427ffee63e44bf7bbbfc0a9878069c2bb1098b6d4715"
+  } as const),
+  detectorVersions: Object.freeze({
+    "fingerprint-heuristics": "fingerprint-observer@4",
+    "keystroke-exfiltration": "synthetic-sentinel@4",
+    "cname-uncloaking": "dns-cname-chain@4",
+    "pixel-events": "pixel-request-decoder@6",
+    "consent-banner": "consent-control-and-state@2",
+    "privacy-policy": "policy-text-cross-check@7"
+  } as const),
+  detectorStatusContractVersion: "detector-status-v2",
+  detectorObligations: Object.freeze({
+    "version": "detector-obligations-v1",
+    "digest": "fb8bd07786fdb71c02ffdf1eca40a73b8974c691c6d4ef3c89230ad5314c22a3"
+  } as const),
+  serviceRoleTaxonomy: Object.freeze({
+    "version": "service-role-taxonomy-v1",
+    "digest": "dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67"
+  } as const),
+  trackerCatalog: Object.freeze({
+    "source": "Hand-curated service catalog",
+    "version": "hand-curated-2026.08",
+    "entries": 146,
+    "digest": "e94970de235fc80254de8ed99b94316a252e52aa1c2e748c8fbfc3c093b908f4"
+  } as const),
+  publicLimits: Object.freeze({
+    "phases": 16,
+    "warnings": 64,
+    "requests": 1000,
+    "cookieRecords": 1000,
+    "cookieMutations": 2000,
+    "storageRecords": 1000,
+    "storageMutations": 2000,
+    "fingerprintEvents": 1000,
+    "fingerprintDetections": 256,
+    "cnameCloaks": 256,
+    "pixelEvents": 512,
+    "consentObservations": 32,
+    "policyClaims": 32,
+    "policyEntities": 100
+  } as const),
+  phaseOmissionContractVersion: "phase-omission-v2",
+});
+
 const ACTIVE_DETECTOR_STATUS_CONTRACT_VERSION: DetectorStatusContractVersion =
   isDetectorReasonCode("evidence-cap-reached") ? "detector-status-v2" : "detector-status-v1";
 const ACTIVE_NODE_FIELDS: NodeTupleFields = Object.freeze({
@@ -949,25 +1026,26 @@ function nodeTuple(
   });
 }
 
-// Closed rows retain their exact literals; detector epoch node-detectors-v9
-// (fingerprint-observer@4, pixel-request-decoder@6, policy-text-cross-check@7)
-// and its listener-attribution disclosure define v11.
+// Closed rows retain their exact literals; the 2026-09 toolchain epoch
+// (Playwright 1.63.0, adblock-rust 0.13.3, tldts 7.4.13) defines v12. It moves
+// the methodology's engine and browser components and the normalization's
+// public-suffix engine; the detector fields are unchanged from v11.
 const ACTIVE_NODE_WIRE_IDENTITY_IS_DISTINCT =
   String(NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION) !== HISTORICAL_NODE_V10_METHODOLOGY ||
-  String(NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION) !== HISTORICAL_NODE_V10_NORMALIZATION ||
-  canonicalJson(ACTIVE_NODE_FIELDS) !== canonicalJson(HISTORICAL_NODE_V8_FIELDS);
+  String(NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION) !== HISTORICAL_NODE_V11_NORMALIZATION ||
+  canonicalJson(ACTIVE_NODE_FIELDS) !== canonicalJson(HISTORICAL_NODE_V9_FIELDS);
 
 const ACTIVE_NODE_TUPLES: readonly NodeR2ProducerTuple[] = ACTIVE_NODE_WIRE_IDENTITY_IS_DISTINCT
   ? Object.freeze([
       nodeTuple(
-        "node-v11-detectors-v9-active-lists-2026-09-21",
+        "node-v12-toolchain-2026-09-active-lists-2026-09-21",
         NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION,
         NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION,
         ACTIVE_NODE_FIELDS,
         NODE_R2_CURRENT_ADBLOCK_IDENTITY
       ),
       nodeTuple(
-        "node-v11-detectors-v9-active-no-adblock",
+        "node-v12-toolchain-2026-09-active-no-adblock",
         NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION,
         NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION,
         ACTIVE_NODE_FIELDS,
@@ -1315,6 +1393,17 @@ export const NODE_R2_PRODUCER_TUPLES: readonly NodeR2ProducerTuple[] = Object.fr
     HISTORICAL_NODE_V10_NORMALIZATION, HISTORICAL_NODE_V10_METHODOLOGY,
     HISTORICAL_NODE_V8_FIELDS, HISTORICAL_R2_LISTS_2026_09_07_ADBLOCK_IDENTITY
   ),
+  // The node-detectors-v9 production producer, with and without the September
+  // 21 lists, closed to its exact source identity by the 2026-09 toolchain
+  // epoch: Playwright 1.62.1, adblock-rust 0.13.2 and tldts 7.4.10.
+  nodeTuple("node-v11-detectors-v9-active-lists-2026-09-21",
+    HISTORICAL_NODE_V11_NORMALIZATION, HISTORICAL_NODE_V10_METHODOLOGY,
+    HISTORICAL_NODE_V9_FIELDS, HISTORICAL_R2_LISTS_2026_09_21_ADBLOCK_IDENTITY
+  ),
+  nodeTuple("node-v11-detectors-v9-active-no-adblock",
+    HISTORICAL_NODE_V11_NORMALIZATION, HISTORICAL_NODE_V10_METHODOLOGY,
+    HISTORICAL_NODE_V9_FIELDS, null
+  ),
   ...ACTIVE_NODE_TUPLES
 ]);
 
@@ -1382,7 +1471,13 @@ export const PAGEGRAPH_R2_PRODUCER_TUPLES: readonly PageGraphR2ProducerTuple[] =
     "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:42735187d5a7121bacd36074418a138c64dfb0eb5575b5983a134398670e5384+tldts@7.4.10+pagegraph-request-evidence-v1+r2-http-status-compat-v1",
     HISTORICAL_R2_2026_08_TRACKER_CATALOG
   ),
-  pageGraphTuple("pagegraph-v4-listener-warning-active", PAGEGRAPH_R2_NORMALIZATION_VERSION, ACTIVE_TRACKER_CATALOG, {
+  // Closed by the 2026-09 toolchain epoch, which moved the public-suffix engine
+  // from tldts@7.4.10 to tldts@7.4.13 under the same policy digest.
+  pageGraphTuple("pagegraph-v4-listener-warning-active",
+    "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:cb7064a154022024d8ffa25c110de6feff64f2b0ecbd375b14a24ff17105059d+tldts@7.4.10+pagegraph-request-evidence-v1+r2-http-status-compat-v1",
+    HISTORICAL_R2_2026_08_TRACKER_CATALOG
+  ),
+  pageGraphTuple("pagegraph-v4-tldts7413-active", PAGEGRAPH_R2_NORMALIZATION_VERSION, ACTIVE_TRACKER_CATALOG, {
     methodologyVersion: PAGEGRAPH_R2_METHODOLOGY_VERSION,
     publicLimits: PAGEGRAPH_R2_PUBLIC_LIMITS,
     detectorRegistry: PAGEGRAPH_REGISTRY,
