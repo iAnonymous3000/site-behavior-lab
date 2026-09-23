@@ -5,6 +5,7 @@ import vm from "node:vm";
 import { test } from "node:test";
 import {
   callBoundedElementCollector,
+  callBoundedPageCollector,
   createBoundedPageCollectorKey,
   installBoundedPageCollector
 } from "./bounded-page-collector";
@@ -58,6 +59,13 @@ test("pre-page native collector survives hostile DOM getters and prototype poiso
     value: "Policy body",
     truncated: false,
     available: true
+  });
+  // The privacy-policy read skips the same SCRIPT child. A vendor loader in
+  // <body> is code, and reading it as policy text counted the policy as
+  // naming every vendor whose domain the loader contains.
+  assert.deepEqual(JSON.parse((await callBoundedPageCollector(realm.page, key, "text", 4_096)) ?? "null"), {
+    value: "Policy body",
+    truncated: false
   });
 
   assert.equal(await callBoundedElementCollector(realm.element, key, "fieldType"), "email");

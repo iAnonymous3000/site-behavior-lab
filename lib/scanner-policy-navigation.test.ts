@@ -223,6 +223,83 @@ test("privacy-policy probing reads only a same-site document that is a policy", 
   }
 });
 
+test("privacy-policy text never counts a vendor loader in the page body as naming the vendor", { timeout: 60_000 }, async () => {
+  // A tag manager commonly injects the same loader snippets into <body> on
+  // every page, the policy page included. The policy prose below names only
+  // Google; the Clarity and Segment loaders carry their vendors' domains in
+  // script text, which is code and not something the policy says.
+  const loaders =
+    `<script>(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};` +
+    `t=l.createElement(r);t.async=1;t.src="http://www.clarity.ms/tag/"+i;y=l.getElementsByTagName(r)[0];` +
+    `y.parentNode.insertBefore(t,y);})(window,document,"clarity","script","abc123");</script>` +
+    `<script>!function(){var t=document.createElement("script");t.async=!0;` +
+    `t.src="http://cdn.segment.com/analytics.js/v1/KEY/analytics.min.js";document.body.appendChild(t)}();</script>`;
+  const pixel = `<img src="http://www.google-analytics.com/collect?v=1&t=pageview" width="1" height="1" alt="">`;
+  const filler = "We collect the information you give us and information about how you use the site. ".repeat(12);
+  const page = (title: string, heading: string, body: string) =>
+    `<!doctype html><title>${title}</title><main><h1>${heading}</h1><p>${body}</p></main>` +
+    `<footer><a href="/privacy-policy">Privacy Policy</a></footer>${pixel}${loaders}`;
+
+  const upstream = createServer((request, response) => {
+    const host = request.headers.host?.split(":")[0] ?? "";
+    const path = new URL(request.url ?? "/", "http://fixture.test").pathname;
+    if (host === "www.google-analytics.com") {
+      response.writeHead(204);
+      response.end();
+      return;
+    }
+    if (host === "www.clarity.ms" || host === "cdn.segment.com") {
+      response.writeHead(200, { "content-type": "text/javascript" });
+      response.end("/* vendor */");
+      return;
+    }
+    response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+    response.end(
+      path === "/privacy-policy"
+        ? page(
+            "Privacy Policy | Example Lamps",
+            "Privacy Policy",
+            `This privacy policy explains what we collect. We use Google Analytics to measure visits. ${filler}`
+          )
+        : page("Example Lamps", "Welcome", "Lamps for every room. ".repeat(40))
+    );
+  });
+  await new Promise<void>((resolve, reject) => {
+    upstream.once("error", reject);
+    upstream.listen(0, "127.0.0.1", resolve);
+  });
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+
+  try {
+    const { result, measurement } = await scanSiteWithMeasurement(
+      { url: "http://loader-policy.test/", device: "desktop", gpcEnabled: false, consentMode: "observe" },
+      {
+        publicUrlAlreadyVerified: true,
+        verifyPublicUrl: async () => undefined,
+        resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+        connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"),
+        resolveCnameChain: async () => []
+      }
+    );
+    const policyPhase = measurement.measurement.phases.find((phase) => phase.kind === "policy-analysis");
+    assert.deepEqual(measurement.measurement.detectors["privacy-policy"], {
+      version: "policy-text-cross-check@7",
+      status: "complete",
+      phaseId: policyPhase!.phaseId
+    });
+    // The control: the read happened and the prose's own naming still counts.
+    assert.deepEqual(result.privacyPolicy?.mentionedEntities, ["Google"]);
+    assert.deepEqual([...(result.privacyPolicy?.unmentionedEntities ?? [])].sort(), [
+      "Microsoft Clarity",
+      "Twilio Segment"
+    ]);
+  } finally {
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+});
+
 test("observe-mode consent probing ignores page-owned geometry navigation hooks", { timeout: 30_000 }, async () => {
   const upstream = createServer((request, response) => {
     const host = request.headers.host?.split(":")[0];

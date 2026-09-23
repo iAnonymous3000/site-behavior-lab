@@ -587,6 +587,11 @@ export function installBoundedPageCollector(key: string): void {
     return call(matchesMethod, element, [":focus"]) === true;
   });
 
+  // Privacy-policy text. Script, style, noscript and template text is code or
+  // fallback markup, not what the policy says: a vendor's loader snippet in
+  // <body> (clarity.ms, cdn.segment.com, google-analytics.com) otherwise
+  // counted as the policy naming that vendor, and its string literals could be
+  // quoted as policy sentences.
   set(api, "text", (maxCharsInput: unknown): string => {
     try {
       const maxChars = boundedPositiveInteger(maxCharsInput, 400_000);
@@ -594,7 +599,7 @@ export function installBoundedPageCollector(key: string): void {
       const documentValue = call(windowDocumentGetter, globalThis, []);
       const body = call(documentBodyGetter, documentValue, []);
       if (!body) return failWire("text");
-      const text = boundedNodeText(body as object, maxChars, 20_000);
+      const text = boundedNodeText(body as object, maxChars, 20_000, true);
       const output = record();
       set(output, "value", text.value);
       set(output, "truncated", text.truncated);
