@@ -39,11 +39,28 @@ test("vendored WASM source and output bytes stay bound to an explicitly blocked 
 
   assert.equal(contract.status, "blocked");
   assert.equal(contract.claim, "integrity-only-not-reproducible-build");
-  // deepEqual against the verifier's own expectation passes if both drop a
-  // field, so the documented toolchain is pinned here independently.
-  assert.equal(contract.requiredBuild.wasmPack, "0.14.0");
-  assert.equal(contract.requiredBuild.wasmBindgenCli, "0.2.126");
-  assert.equal(contract.requiredBuild.wasmOpt, "117");
+  // The verifier deepEquals the contract against literals it restates, so an
+  // identical edit to both passes it. The documented toolchain and the
+  // activation criteria are therefore pinned here independently, in full.
+  assert.deepEqual(contract.requiredBuild, {
+    cargoLocked: true,
+    target: "wasm32-unknown-unknown",
+    wasmPackTarget: "nodejs",
+    profile: "release",
+    rustc: "1.96.1",
+    rustcCommit: "31fca3adb283cc9dfd56b49cdee9a96eb9c96ffd",
+    cargo: "1.96.1",
+    wasmPack: "0.14.0",
+    wasmBindgenCli: "0.2.126",
+    wasmOpt: "117",
+    pathRemapping: "required-before-activation"
+  });
+  assert.deepEqual(contract.activationCriteria, [
+    "pin-and-install-the-declared-rustc-wasm-pack-wasm-bindgen-cli-and-wasm-opt-versions-from-reviewed-sources",
+    "rebuild-with-a-fixed-remapped-source-prefix-and-cargo-locked",
+    "prove-two-clean-builds-and-all-four-vendored-output-files-are-byte-identical",
+    "replace-this-blocked-contract-with-reviewed-build-provenance-and-enforce-the-rebuild-in-ci"
+  ]);
   assert.deepEqual(contract.blockers, [
     "wasm-opt-came-from-an-unverified-wasm-pack-tool-cache-download",
     "committed-wasm-embeds-host-cargo-registry-paths",

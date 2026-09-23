@@ -36,42 +36,51 @@ npm run build:pages
 npm run test:smoke:static
 ```
 
-Record the Rust-side generator versions in the release record, rebuild with the locked Cargo graph, copy the complete generated `sbl_adblock_wasm*` set, commit it, and then prove the committed copies are reproducible with a second, clean rebuild that is compared against them before anything is copied. A `cmp` run after `cp` compares a file with itself and always passes.
+Record the Rust-side generator versions in the release record, rebuild from a clean Cargo target with the locked Cargo graph, copy the complete generated `sbl_adblock_wasm*` set, regenerate the WASM integrity contract, and commit them together. Then prove the committed copies are reproducible with a second build from a clean target, compared against them before anything is copied. A `cmp` run after `cp` compares a file with itself and always passes, and a rebuild over a warm `tools/adblock-wasm/target` reuses the first compile instead of repeating it.
 
-The generators include wasm-opt, and the vendored bytes depend on it. wasm-pack 0.14.0 runs a `wasm-opt` from `PATH` first, and otherwise the binaryen `version_117` build it downloaded into its tool cache (`$WASM_PACK_CACHE`, by default `~/Library/Caches/.wasm-pack` on macOS and `~/.cache/.wasm-pack` on Linux). `--mode no-install` never downloads: with no cached copy the build logs "Skipping wasm-opt", exits 0, and writes a different, larger `sbl_adblock_wasm_bg.wasm`. So require that no `wasm-opt` is on `PATH` and exactly one cached copy exists, record its version and SHA-256 (on macOS also the `libbinaryen.dylib` it loads), and require the build log to show wasm-opt ran from the cache. The commands below are for a macOS build host; on Linux, point the cache path at the Linux default and hash only `bin/wasm-opt`.
+The generators include wasm-opt, and the vendored bytes depend on it. wasm-pack 0.14.0 runs a `wasm-opt` from `PATH` first, and otherwise the binaryen `version_117` build it downloaded into its tool cache (`$WASM_PACK_CACHE`, by default `~/Library/Caches/.wasm-pack` on macOS and `~/.cache/.wasm-pack` on Linux). `--mode no-install` never downloads: with no cached copy the build logs "Skipping wasm-opt", exits 0, and writes a different, larger `sbl_adblock_wasm_bg.wasm`. So require that no `wasm-opt` is on `PATH` and exactly one cached copy exists, record its version and SHA-256 (on macOS also the `libbinaryen.dylib` it loads), and require the build log to show wasm-opt ran from the cache. wasm-pack chooses wasm-bindgen the same way: a copy on `PATH` only when its version equals the `wasm-bindgen` pin in `tools/adblock-wasm/Cargo.lock`, and otherwise the cached `wasm-bindgen-cargo-install-<version>` copy, logging "Installing wasm-bindgen". A `wasm-bindgen --version` on `PATH` is therefore not evidence of the binary the build ran, so require none on `PATH` and record the cached copy for the locked version. The commands below are for a macOS build host; on Linux, point the cache path at the Linux default and hash only `bin/wasm-opt`.
 
 ```sh
 wasm-pack --version
-wasm-bindgen --version
 test -z "$(command -v wasm-opt)"
-WASM_OPT="$(find "${WASM_PACK_CACHE:-$HOME/Library/Caches/.wasm-pack}" -path '*/wasm-opt-*/bin/wasm-opt' -type f)"
+test -z "$(command -v wasm-bindgen)"
+WASM_PACK_CACHE_DIR="${WASM_PACK_CACHE:-$HOME/Library/Caches/.wasm-pack}"
+WASM_OPT="$(find "$WASM_PACK_CACHE_DIR" -path '*/wasm-opt-*/bin/wasm-opt' -type f)"
 "$WASM_OPT" --version
 shasum -a 256 "$WASM_OPT" "$(dirname "$WASM_OPT")/../lib/libbinaryen.dylib"
+WASM_BINDGEN_LOCKED="$(awk '/^name = "wasm-bindgen"$/{getline; gsub(/"/,"",$3); print $3}' tools/adblock-wasm/Cargo.lock)"
+"$WASM_PACK_CACHE_DIR/wasm-bindgen-cargo-install-$WASM_BINDGEN_LOCKED/wasm-bindgen" --version
+rm -rf tools/adblock-wasm/pkg tools/adblock-wasm/target
 wasm-pack build tools/adblock-wasm --mode no-install --target nodejs --release -- --locked 2> /private/tmp/toolchain-wasm-build.log
+grep -F 'Compiling sbl-adblock-wasm' /private/tmp/toolchain-wasm-build.log
+grep -F 'Installing wasm-bindgen' /private/tmp/toolchain-wasm-build.log
 grep -F 'Optimizing wasm binaries with `wasm-opt`' /private/tmp/toolchain-wasm-build.log
 ! grep -F 'found wasm-opt at' /private/tmp/toolchain-wasm-build.log
 cp tools/adblock-wasm/pkg/sbl_adblock_wasm* lib/adblock-wasm/
+node scripts/verify-wasm-reproducibility.mjs --print > tools/adblock-wasm/reproducibility-contract.json
 npm run lists:verify
 ```
 
-Commit the vendored set, then prove it from a clean output directory without copying:
+The contract binds the SHA-256 of the Cargo inputs and all four outputs, so it moves with any rebuilt byte. If the epoch moves rustc, wasm-bindgen or wasm-opt, first update `RUSTC_COMMIT`, `WASM_BINDGEN_VERSION`, `WASM_OPT_VERSION` and the `requiredBuild` pins in `scripts/verify-wasm-reproducibility.mjs`, together with their assertions in `lib/wasm-reproducibility.test.ts`, then regenerate the contract. Review the contract diff and commit the vendored set and the contract together. Then prove them from a clean target without copying:
 
 ```sh
-rm -rf tools/adblock-wasm/pkg
+rm -rf tools/adblock-wasm/pkg tools/adblock-wasm/target
 wasm-pack build tools/adblock-wasm --mode no-install --target nodejs --release -- --locked 2> /private/tmp/toolchain-wasm-rebuild.log
+grep -F 'Compiling sbl-adblock-wasm' /private/tmp/toolchain-wasm-rebuild.log
+grep -F 'Installing wasm-bindgen' /private/tmp/toolchain-wasm-rebuild.log
 grep -F 'Optimizing wasm binaries with `wasm-opt`' /private/tmp/toolchain-wasm-rebuild.log
 ! grep -F 'found wasm-opt at' /private/tmp/toolchain-wasm-rebuild.log
 cmp tools/adblock-wasm/pkg/sbl_adblock_wasm.js lib/adblock-wasm/sbl_adblock_wasm.js
 cmp tools/adblock-wasm/pkg/sbl_adblock_wasm.d.ts lib/adblock-wasm/sbl_adblock_wasm.d.ts
 cmp tools/adblock-wasm/pkg/sbl_adblock_wasm_bg.wasm lib/adblock-wasm/sbl_adblock_wasm_bg.wasm
 cmp tools/adblock-wasm/pkg/sbl_adblock_wasm_bg.wasm.d.ts lib/adblock-wasm/sbl_adblock_wasm_bg.wasm.d.ts
-git diff --exit-code -- lib/adblock-wasm
+git diff --exit-code HEAD -- lib/adblock-wasm tools/adblock-wasm/reproducibility-contract.json
 npm run wasm:verify-reproducibility
 ```
 
 Treat any generated artifact, lockfile, disclosed version, Docker pin, or methodology guard that does not move together as a failed epoch.
 
-That includes `CONTAINER_IMAGE_PACKAGE_REVIEWS.json`. A new base image changes the OS packages the runtime image ships, and main CI's container package-evidence gate fails until the ledger matches them, which blocks publication of the tested image. Sync it in the candidate before the staging deploy, so the staged commit is the commit CI promotes: build the exact `linux/amd64` image, scan it with Trivy v0.70.0 as CI does, and run the inventory and review-sync producers described in [supply-chain assurance](./supply-chain-assurance.md). Never derive or edit a row by hand or from `dpkg-query`; each row's evidence digest covers Trivy's detected licenses.
+That includes `CONTAINER_IMAGE_PACKAGE_REVIEWS.json`. A new base image can change the OS packages the runtime image ships. The ledger keys each package by name, upstream version and architecture, and each row's evidence digest covers the source package and Trivy's detected licenses, so main CI's container package-evidence gate fails, and blocks publication of the tested image, until the ledger matches any change in those. It does not see a Debian-revision-only update (the 2026-09 base moved dozens, among them glibc and OpenSSL security revisions); CI's image vulnerability scan still catches a HIGH or CRITICAL finding in one. Sync the ledger in the candidate before the staging deploy, so the staged commit is the commit CI promotes: scan a `linux/amd64` image built from the commit before the sync commit with Trivy v0.70.0 exactly as CI does (license scanner, OS package types, every package), then run the inventory and review-sync producers described in [supply-chain assurance](./supply-chain-assurance.md). Either image works: the full deployable image, or a runner-stage stand-in built from the candidate Dockerfile's runner stage on the same pinned base with the same purge step and labels, without the `COPY --from=build` lines. Application files cannot change an OS-package inventory, because the scan is limited to OS package types and the inventory producer rejects any non-OS package result. CI re-derives the inventory from the exact deployable image and checks it against the committed ledger. Never derive or edit a row by hand or from `dpkg-query`.
 
 ## 2. Corpus-neutrality gate
 
