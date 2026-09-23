@@ -15,6 +15,8 @@ export const MAX_RECORDED_REQUEST_URL_CHARS = 16_384;
 export const MAX_RECORDED_REQUEST_METHOD_CHARS = 64;
 export const MAX_RECORDED_RESOURCE_TYPE_CHARS = 64;
 export const MAX_PAGE_TITLE_CHARS = 512;
+export const MAX_PAGE_HEADINGS = 8;
+export const MAX_PAGE_HEADING_CHARS = 256;
 export const MAX_PAGE_SUBJECT_TEXT_CHARS = 16 * 1024;
 export const MAX_CAPTURED_STORAGE_RECORDS = 1_000;
 export const MAX_CAPTURED_STORAGE_KEY_CHARS = 1_024;
@@ -538,6 +540,49 @@ export async function collectBoundedPageTitle(
     return { value: "", truncated: true };
   }
   return result as BoundedPageTitle;
+}
+
+export type BoundedPageHeadings = {
+  values: string[];
+  truncated: boolean;
+};
+
+/**
+ * Read the text of the document's first few top-level headings. Process-local
+ * like the title: the privacy-policy probe uses it to decide whether the page
+ * it landed on is a policy, and it is never copied onto a report wire.
+ */
+export async function collectBoundedPageHeadings(
+  page: BoundedPageEvaluateLike,
+  collectorKey: string
+): Promise<BoundedPageHeadings> {
+  const wire = await callBoundedPageCollector(page, collectorKey, "headings", {
+    maxHeadings: MAX_PAGE_HEADINGS,
+    maxChars: MAX_PAGE_HEADING_CHARS
+  });
+  // JSON escaping can expand one input character to six wire characters.
+  if (typeof wire !== "string" || wire.length > MAX_PAGE_HEADINGS * (MAX_PAGE_HEADING_CHARS * 6 + 8) + 128) {
+    return { values: [], truncated: true };
+  }
+  let result: unknown;
+  try {
+    result = JSON.parse(wire);
+  } catch {
+    return { values: [], truncated: true };
+  }
+
+  const candidate = result as Partial<BoundedPageHeadings> | null;
+  if (
+    !candidate ||
+    typeof candidate !== "object" ||
+    !Array.isArray(candidate.values) ||
+    candidate.values.length > MAX_PAGE_HEADINGS ||
+    !candidate.values.every((value) => typeof value === "string" && value.length <= MAX_PAGE_HEADING_CHARS) ||
+    typeof candidate.truncated !== "boolean"
+  ) {
+    return { values: [], truncated: true };
+  }
+  return { values: candidate.values, truncated: candidate.truncated };
 }
 
 export type BoundedPageContentText = {

@@ -141,6 +141,12 @@ export function isAllowedPrivacyPolicyUrl(url: string | URL, firstPartyHostname:
   return linkParty === partyKey(firstPartyHostname) || POLICY_HOSTING_SERVICES.includes(linkParty);
 }
 
+type ScoredPolicyLink = {
+  url: URL;
+  segments: string[];
+  score: number;
+};
+
 /**
  * Pick the most plausible privacy-policy URL from a page's links. The decision
  * is driven primarily by the URL PATH (a segment that IS a privacy-policy id),
@@ -148,10 +154,51 @@ export function isAllowedPrivacyPolicyUrl(url: string | URL, firstPartyHostname:
  * weak on its own. Only same-site links (same registrable domain) and known
  * policy-hosting services qualify: an arbitrary off-site "Privacy Policy" link
  * is some other company's policy, and misattributing it is worse than skipping.
+ *
+ * A policy-labeled link that leads back to the site root or to the scanned page
+ * itself is not a policy document either (see pointsAtNonPolicyPage), so it is
+ * never picked, and a lower-ranked real candidate can win instead of it.
  */
-export function pickPrivacyPolicyLink(links: PolicyLinkCandidate[], firstPartyHostname: string): string | null {
-  const firstParty = partyKey(firstPartyHostname);
+export function pickPrivacyPolicyLink(
+  links: PolicyLinkCandidate[],
+  firstPartyHostname: string,
+  scannedPageUrl: string
+): string | null {
+  const scannedPage = policyPageLocation(scannedPageUrl);
   let best: { url: string; score: number; depth: number } | null = null;
+
+  for (const candidate of scorePrivacyPolicyLinks(links, firstPartyHostname)) {
+    if (pointsAtNonPolicyPage({ hostname: candidate.url.hostname, segments: candidate.segments }, scannedPage)) continue;
+    // Break ties toward the most canonical policy: the shallowest path (e.g.
+    // /privacy/ over /privacy/website/), then the shorter URL.
+    const depth = candidate.segments.length;
+    if (!best || candidate.score > best.score || (candidate.score === best.score && depth < best.depth)) {
+      best = { url: candidate.url.href, score: candidate.score, depth };
+    }
+  }
+
+  return best?.url ?? null;
+}
+
+/**
+ * Whether the page offers any link that qualifies as a privacy-policy link,
+ * before the root and self-link filter pickPrivacyPolicyLink applies.
+ *
+ * The two answer different questions on purpose. A page whose only "Privacy
+ * Statement" link points at "/" or at "#" DOES offer a policy link; the scanner
+ * just cannot follow it to a policy document. Deciding the probe's outcome from
+ * the filtered pick would publish "the page offers no discoverable policy link",
+ * a property of the site, for what is a limit of the instrument. The scanner
+ * gates the policy visit on this answer, and a probe whose filtered pick comes
+ * back empty then fails through the policy-visit capture loss instead.
+ */
+export function offersPrivacyPolicyLink(links: PolicyLinkCandidate[], firstPartyHostname: string): boolean {
+  return scorePrivacyPolicyLinks(links, firstPartyHostname).length > 0;
+}
+
+function scorePrivacyPolicyLinks(links: PolicyLinkCandidate[], firstPartyHostname: string): ScoredPolicyLink[] {
+  const firstParty = partyKey(firstPartyHostname);
+  const scored: ScoredPolicyLink[] = [];
 
   for (const link of links) {
     let parsed: URL;
@@ -190,7 +237,7 @@ export function pickPrivacyPolicyLink(links: PolicyLinkCandidate[], firstPartyHo
       continue;
     }
 
-    const hasPolicyPath = segments.some((segment) => POLICY_PATH_SEGMENT.test(segment));
+    const hasPolicyPath = hasPolicyPathSegment(segments);
     const hasPolicyText = POLICY_TEXT_PATTERNS.some((pattern) => pattern.test(text));
 
     let score = 0;
@@ -203,15 +250,123 @@ export function pickPrivacyPolicyLink(links: PolicyLinkCandidate[], firstPartyHo
     if (score < 4) continue;
     if (sameParty) score += 2;
 
-    // Break ties toward the most canonical policy: the shallowest path (e.g.
-    // /privacy/ over /privacy/website/), then the shorter URL.
-    const depth = segments.length;
-    if (!best || score > best.score || (score === best.score && depth < best.depth)) {
-      best = { url: parsed.href, score, depth };
-    }
+    scored.push({ url: parsed, segments, score });
   }
 
-  return best?.url ?? null;
+  return scored;
+}
+
+type PolicyPageLocation = {
+  hostname: string;
+  segments: string[];
+};
+
+function policyPageLocation(url: string | URL): PolicyPageLocation | null {
+  let parsed: URL;
+  try {
+    parsed = typeof url === "string" ? new URL(url) : url;
+  } catch {
+    return null;
+  }
+  const segments = normalizedPolicyPathSegments(parsed.pathname);
+  return segments ? { hostname: parsed.hostname, segments } : null;
+}
+
+function hasPolicyPathSegment(segments: readonly string[]): boolean {
+  return segments.some((segment) => POLICY_PATH_SEGMENT.test(segment));
+}
+
+/**
+ * A URL with no policy-shaped path segment that is the site root, or the
+ * scanned page itself, is not a policy document, whatever the link that led
+ * there said. "Privacy Statement" pointing at "/" and a script-driven
+ * "Privacy Policy" link whose href is "#" both resolve to such a URL, and
+ * reading that page as the policy published a homepage or a product page as
+ * "the site's privacy policy" (committed bing.com reports store the homepage).
+ *
+ * Only the path is compared: stored URLs are scrubbed to origin and path, so a
+ * query string cannot tell a reader which document was read. A path that does
+ * carry a policy segment stays eligible even when it is the scanned page, so
+ * scanning a policy page directly still reads that policy.
+ *
+ * Shared by link selection and the scanner's post-navigation check, like
+ * isAllowedPrivacyPolicyUrl, so a redirect cannot land where selection would
+ * never have gone.
+ */
+function pointsAtNonPolicyPage(target: PolicyPageLocation, scannedPage: PolicyPageLocation | null): boolean {
+  if (hasPolicyPathSegment(target.segments)) return false;
+  if (target.segments.length === 0) return true;
+  return (
+    scannedPage !== null &&
+    target.hostname === scannedPage.hostname &&
+    target.segments.length === scannedPage.segments.length &&
+    target.segments.every((segment, index) => segment === scannedPage.segments[index])
+  );
+}
+
+// The policy phrases the link selector scores, unanchored so they can be found
+// inside a title, a heading, or running text. The localized forms are anchored
+// for link labels, where the whole label must be the phrase; inside a document
+// they are one phrase among many.
+const POLICY_PHRASES_IN_DOCUMENT = POLICY_TEXT_PATTERNS.map(
+  (pattern) =>
+    new RegExp(`(?<![a-z0-9])(?:${pattern.source.replace(/^\^/, "").replace(/\$$/, "")})(?![a-z0-9])`)
+);
+
+// A title or top-level heading announcing a missing page. A site that answers
+// a dead policy link with its "not found" template and status 200 (a soft 404)
+// wraps it in the same chrome, footer and "Privacy Policy" link text as every
+// other page, so only the page's own announcement says it is not the document
+// the link promised.
+const NOT_FOUND_ANNOUNCEMENT =
+  /(?<![a-z0-9])404(?![a-z0-9])|\bnot found\b|\b(?:could not|couldn't|cannot|can't|can not) be found\b|\b(?:does not|doesn't|no longer) exists?\b|\bpagina no encontrada\b|\bpage (?:introuvable|non trouvee)\b|\bseite nicht gefunden\b|\bpagina niet gevonden\b|\bpagina nao encontrada\b|\bpagina non trovata\b/;
+
+function labelNamesPrivacyPolicy(label: string): boolean {
+  const normalized = normalizePolicySignal(label);
+  if (NON_POLICY_PRIVACY_PAGE.test(normalized)) return false;
+  return PRIVACY_TERM.test(normalized) || POLICY_PHRASES_IN_DOCUMENT.some((pattern) => pattern.test(normalized));
+}
+
+/**
+ * Whether the document a policy link actually led to can be read as the site's
+ * privacy policy. A 2xx status, a same-party URL and enough text were all the
+ * probe used to require, so a policy link that redirected to the homepage, or
+ * a soft 404 served with status 200 at /privacy-policy, was read, stored and
+ * published as "the site's privacy policy", and every tracking company absent
+ * from that homepage text was reported as missing from the policy.
+ *
+ * The landed document must pass every check below; any failure means the probe
+ * read nothing it can attribute to the policy.
+ *   1. The landed URL is not somewhere selection refuses to go (the site root,
+ *      or the scanned page itself, without a policy path segment).
+ *   2. A link whose path named a policy did not end at a path that names none.
+ *   3. Neither the title nor any top-level heading announces a missing page.
+ *   4. The title or a heading names privacy, or the text names a privacy
+ *      policy, notice or statement in one of the languages the selector reads.
+ *
+ * Deliberately no guess about client-rendered pages that have not finished
+ * painting: any fixed render wait has that edge, and a heuristic here would
+ * reject real policies on timing alone.
+ */
+export function privacyPolicyDocumentQualifies(input: {
+  selectedUrl: string;
+  landedUrl: string;
+  scannedPageUrl: string;
+  title: string;
+  headings: readonly string[];
+  text: string;
+}): boolean {
+  const selected = policyPageLocation(input.selectedUrl);
+  const landed = policyPageLocation(input.landedUrl);
+  if (!selected || !landed) return false;
+  if (pointsAtNonPolicyPage(landed, policyPageLocation(input.scannedPageUrl))) return false;
+  if (hasPolicyPathSegment(selected.segments) && !hasPolicyPathSegment(landed.segments)) return false;
+
+  const labels = [input.title, ...input.headings];
+  if (labels.some((label) => NOT_FOUND_ANNOUNCEMENT.test(normalizePolicySignal(label)))) return false;
+  if (labels.some(labelNamesPrivacyPolicy)) return true;
+  const text = normalizePolicySignal(input.text);
+  return POLICY_PHRASES_IN_DOCUMENT.some((pattern) => pattern.test(text));
 }
 
 // A first-person subject followed by a negation, e.g. "we do not", "we never",

@@ -10,9 +10,12 @@ import {
 } from "./bounded-page-collector";
 import {
   collectBoundedPageContentText,
+  collectBoundedPageHeadings,
   collectBoundedPageTitle,
   collectStorageEntriesWithCoverage,
-  MAX_CAPTURED_STORAGE_RECORDS
+  MAX_CAPTURED_STORAGE_RECORDS,
+  MAX_PAGE_HEADING_CHARS,
+  MAX_PAGE_HEADINGS
 } from "./scan-runtime";
 import { pickPrivacyPolicyLink } from "./privacy-policy";
 import { collectPrivacyPolicyLinks } from "./scanner";
@@ -60,6 +63,29 @@ test("pre-page native collector survives hostile DOM getters and prototype poiso
   assert.equal(await callBoundedElementCollector(realm.element, key, "fieldType"), "email");
   assert.equal(await callBoundedElementCollector(realm.element, key, "blur"), true);
   assert.equal(realm.run("__wasBlurred()"), true);
+});
+
+test("the collector reads bounded top-level headings through natives captured before page script", async () => {
+  const key = createBoundedPageCollectorKey();
+  const realm = hostileDomRealm();
+  realm.run(`(${installBoundedPageCollector.toString()})(${JSON.stringify(key)})`);
+  realm.run(`__setHeadings([" Page not found ", ["Privacy", "Policy"], "x".repeat(1000)])`);
+  realm.run(POISON_PAGE_REALM);
+  realm.run(`Document.prototype.getElementsByTagName = function () { throw new Error("page method invoked"); };`);
+
+  const headings = await collectBoundedPageHeadings(realm.page, key);
+  assert.deepEqual(headings.values.slice(0, 2), ["Page not found", "Privacy Policy"]);
+  assert.equal(headings.values[2], "x".repeat(MAX_PAGE_HEADING_CHARS));
+  assert.equal(headings.truncated, true, "a heading cut at the character bound reports truncation");
+
+  realm.run(`__setHeadings(Array.from({ length: 20 }, (_, index) => "Heading " + index))`);
+  const many = await collectBoundedPageHeadings(realm.page, key);
+  assert.equal(many.values.length, MAX_PAGE_HEADINGS);
+  assert.equal(many.truncated, true);
+  assert.deepEqual(await collectBoundedPageHeadings(realm.page, createBoundedPageCollectorKey()), {
+    values: [],
+    truncated: true
+  });
 });
 
 test("an absent or forged collector capability fails closed", async () => {
@@ -111,7 +137,7 @@ test("the bounded collector discovers localized privacy-policy link candidates",
   });
   for (const link of links.links) {
     assert.equal(
-      pickPrivacyPolicyLink([link], "example.com"),
+      pickPrivacyPolicyLink([link], "example.com", "https://example.com/"),
       link.href,
       `collector candidate must remain eligible at the selector handoff: ${link.text}`
     );
@@ -239,6 +265,9 @@ const REALM_SETUP = String.raw`
     get title() { return documentState.get(this).title; }
     get links() { return documentState.get(this).links; }
     get body() { return documentState.get(this).body; }
+    getElementsByTagName(name) {
+      return new HTMLCollection(name === "h1" ? documentState.get(this).headings ?? [] : []);
+    }
   }
 
   const anchors = new Array(2002);
@@ -268,6 +297,13 @@ const REALM_SETUP = String.raw`
     documentState.get(documentValue).links = new HTMLCollection(
       links.map((link) => new HTMLAnchorElement(link.href, link.text))
     );
+  };
+  globalThis.__setHeadings = (texts) => {
+    documentState.get(documentValue).headings = texts.map((text) => {
+      const heading = new HTMLElement("H1");
+      for (const part of Array.isArray(text) ? text : [text]) heading.append(new Node(3, part));
+      return heading;
+    });
   };
   globalThis.__wasBlurred = () => htmlState.get(__field).blurred;
   globalThis.__setFieldValue = (value) => { inputState.get(__field).value = value; };

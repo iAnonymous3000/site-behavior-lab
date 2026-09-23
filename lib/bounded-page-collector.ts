@@ -89,6 +89,7 @@ export function installBoundedPageCollector(key: string): void {
   const documentTitleGetter = getter(documentObject, "title");
   const documentLinksGetter = getter(documentObject, "links");
   const documentBodyGetter = getter(documentObject, "body");
+  const documentElementsByTagName = method(documentObject, "getElementsByTagName");
   const storagePrototype = typeof Storage === "function" ? Storage.prototype : null;
   const storageLengthGetter = getter(storagePrototype, "length");
   const storageKey = method(storagePrototype, "key");
@@ -152,10 +153,11 @@ export function installBoundedPageCollector(key: string): void {
   const textAreaValueGetter = getter(textAreaPrototype, "value");
   const elementTextContentGetter = getter(nodePrototype, "textContent");
 
-  const failWire = (kind: "title" | "storage" | "links" | "text" | "contentText"): string => {
+  const failWire = (kind: "title" | "headings" | "storage" | "links" | "text" | "contentText"): string => {
     const output = record();
     if (kind === "title" || kind === "text" || kind === "contentText") set(output, "value", "");
     if (kind === "contentText") set(output, "available", false);
+    if (kind === "headings") set(output, "values", list());
     if (kind === "storage") {
       set(output, "records", list());
       set(output, "omittedCount", 1);
@@ -265,6 +267,41 @@ export function installBoundedPageCollector(key: string): void {
       return stringify(output);
     } catch {
       return failWire("title");
+    }
+  });
+
+  // Text of the document's top-level (h1) headings, in document order. Read
+  // only to decide whether a page reached through a privacy-policy link is a
+  // policy at all or announces a missing page; like the policy text, it never
+  // leaves the scanner host.
+  set(api, "headings", (input: unknown): string => {
+    try {
+      const limits = input as Record<string, unknown>;
+      const maxHeadings = boundedPositiveInteger(limits.maxHeadings, 32);
+      const maxChars = boundedPositiveInteger(limits.maxChars, 1_024);
+      if (!maxHeadings || !maxChars) return failWire("headings");
+      const documentValue = call(windowDocumentGetter, globalThis, []);
+      const collection = call(documentElementsByTagName, documentValue, ["h1"]);
+      const length = call(collectionLengthGetter, collection, []);
+      if (typeof length !== "number" || !nativeNumberIsSafeInteger(length) || length < 0) {
+        return failWire("headings");
+      }
+      const values = list();
+      let truncated = length > maxHeadings;
+      const inspected = length < maxHeadings ? length : maxHeadings;
+      for (let index = 0; index < inspected; index += 1) {
+        const heading = call(collectionItem, collection, [index]);
+        if (!heading) continue;
+        const text = boundedNodeText(heading as object, maxChars, 256);
+        if (text.truncated) truncated = true;
+        push(values, call(nativeStringTrim, text.value, []));
+      }
+      const output = record();
+      set(output, "values", values);
+      set(output, "truncated", truncated);
+      return stringify(output);
+    } catch {
+      return failWire("headings");
     }
   });
 
@@ -611,7 +648,7 @@ export type BoundedCollectorEvaluateLike = {
 export async function callBoundedPageCollector(
   page: BoundedCollectorEvaluateLike,
   key: string,
-  method: "title" | "storage" | "links" | "text" | "contentText",
+  method: "title" | "headings" | "storage" | "links" | "text" | "contentText",
   input: unknown
 ): Promise<string | null> {
   return page.evaluate((arg) => {

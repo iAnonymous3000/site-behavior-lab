@@ -64,7 +64,9 @@ import { inspectPixelRequest, summarizePixelEvents, type PixelEventInput } from 
 import {
   buildPrivacyPolicySummary,
   isAllowedPrivacyPolicyUrl,
+  offersPrivacyPolicyLink,
   pickPrivacyPolicyLink,
+  privacyPolicyDocumentQualifies,
   type PolicyLinkCandidate
 } from "./privacy-policy";
 import {
@@ -108,6 +110,7 @@ import { chromiumSandboxEnabled } from "./chromium-sandbox";
 import {
   aggregateByteBudgetWarning,
   collectBoundedPageContentText,
+  collectBoundedPageHeadings,
   collectBoundedPageTitle,
   collectStorageEntriesWithCoverage,
   FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING,
@@ -2560,7 +2563,12 @@ export async function scanSiteWithMeasurement(
     // is not the site, and its only policy link is typically the interstitial
     // vendor's own policy (e.g. Cloudflare's), which must not be attributed to
     // the scanned site.
-    const policyCandidate = pageSubjectInvalid ? null : pickPrivacyPolicyLink(policyLinks, finalParsed.hostname);
+    //
+    // The gate asks whether the page OFFERS a policy link, not which one the
+    // probe will follow: a page whose only "Privacy Statement" link points at
+    // "/" offers one the scanner cannot read as a policy. That is a failed
+    // policy visit, not a page with no policy link (see offersPrivacyPolicyLink).
+    const policyCandidate = !pageSubjectInvalid && offersPrivacyPolicyLink(policyLinks, finalParsed.hostname);
     const policyBudgetAvailable = MAX_SCAN_DURATION_MS - (Date.now() - started) >= PRIVACY_POLICY_MIN_BUDGET_MS;
     const policyPhaseId = policyCandidate && policyBudgetAvailable ? measurementKernel.beginPhase("policy-analysis") : null;
     if (policyLinksTruncated && !pageSubjectInvalid) {
@@ -2611,6 +2619,7 @@ export async function scanSiteWithMeasurement(
             boundedPageCollectorKey,
             links: policyLinks,
             firstPartyHostname: finalParsed.hostname,
+            scannedPageUrl: finalParsed.href,
             requests: publicRequests,
             proxyServer: scanProxy.server,
             started,
@@ -3968,6 +3977,7 @@ async function probePrivacyPolicy(input: {
   boundedPageCollectorKey: string;
   links: PolicyLinkCandidate[];
   firstPartyHostname: string;
+  scannedPageUrl: string;
   requests: NetworkRequestRecord[];
   proxyServer: string;
   started: number;
@@ -3976,7 +3986,9 @@ async function probePrivacyPolicy(input: {
 }): Promise<PrivacyPolicySummary | null> {
   if (MAX_SCAN_DURATION_MS - (Date.now() - input.started) < PRIVACY_POLICY_MIN_BUDGET_MS) return null;
 
-  const policyUrl = pickPrivacyPolicyLink(input.links, input.firstPartyHostname);
+  // Null here, when the page did offer a policy link, means every candidate
+  // led back to the site root or to the scanned page itself.
+  const policyUrl = pickPrivacyPolicyLink(input.links, input.firstPartyHostname, input.scannedPageUrl);
   if (!policyUrl) return null;
   const parsed = safeParseUrl(policyUrl);
   if (!parsed) return null;
@@ -4075,11 +4087,39 @@ async function probePrivacyPolicy(input: {
       scanTimeoutError
     );
     const policyText = boundedPolicyTextFromWire(policyTextWire);
+    // The title and top-level headings decide below whether this document is a
+    // policy at all. Read them before the final URL check so it covers them too.
+    const { policyTitle, policyHeadings } = await withScanDeadline(
+      (async () => ({
+        policyTitle: await collectBoundedPageTitle(policyPage, input.boundedPageCollectorKey),
+        policyHeadings: await collectBoundedPageHeadings(policyPage, input.boundedPageCollectorKey)
+      }))(),
+      input.started,
+      MAX_SCAN_DURATION_MS,
+      scanTimeoutError
+    );
     // Re-check after DOM extraction as a final race boundary. If the page
     // navigated while text was being read, neither its text nor URL is safe to
     // attribute to the original scan subject.
     const observedPolicyUrl = policyPage.url();
     assertAllowedPrivacyPolicyPage(observedPolicyUrl, input.firstPartyHostname);
+    // Same party is not enough: a policy link that redirects to the homepage,
+    // or a soft 404 answered with status 200, is the site's own page and still
+    // not its policy. Reading either published the homepage as "the site's
+    // privacy policy" and every tracker it never mentions as a disclosure gap.
+    // Null takes the existing failed-visit path, so no new warning vocabulary.
+    if (
+      !privacyPolicyDocumentQualifies({
+        selectedUrl: policyUrl,
+        landedUrl: observedPolicyUrl,
+        scannedPageUrl: input.scannedPageUrl,
+        title: policyTitle.value,
+        headings: policyHeadings.values,
+        text: policyText
+      })
+    ) {
+      return null;
+    }
 
     const summary = buildPrivacyPolicySummary({
       url: observedPolicyUrl,

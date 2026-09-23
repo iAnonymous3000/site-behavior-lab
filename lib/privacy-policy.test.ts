@@ -9,8 +9,10 @@ import {
   isCurrentlyCheckablePolicyClaim,
   isAllowedPrivacyPolicyUrl,
   MIN_POLICY_TEXT_LENGTH,
+  offersPrivacyPolicyLink,
   pickPrivacyPolicyLink,
-  policyUrlIsSiteRoot
+  policyUrlIsSiteRoot,
+  privacyPolicyDocumentQualifies
 } from "./privacy-policy";
 
 const PAD = " Lorem ipsum privacy boilerplate.".repeat(30);
@@ -42,8 +44,8 @@ test("catalog entity names recognize their parent company aliases", () => {
 });
 
 test("Privacy Centre is not mistaken for a localized settings link", () => {
-  assert.equal(pickPrivacyPolicyLink([{href: "https://shop.example/privacy", text: "Privacy Centre"}], "shop.example"), "https://shop.example/privacy");
-  assert.equal(pickPrivacyPolicyLink([{href: "https://shop.example/privacy", text: "Centre de preferences"}], "shop.example"), null);
+  assert.equal(pickPrivacyPolicyLink([{href: "https://shop.example/privacy", text: "Privacy Centre"}], "shop.example", "https://shop.example/"), "https://shop.example/privacy");
+  assert.equal(pickPrivacyPolicyLink([{href: "https://shop.example/privacy", text: "Centre de preferences"}], "shop.example", "https://shop.example/"), null);
 });
 
 test("isAllowedPrivacyPolicyUrl keeps redirects within the site or an approved policy host", () => {
@@ -74,7 +76,8 @@ test("pickPrivacyPolicyLink prefers a same-site privacy policy link", () => {
       { href: "https://shop.example/legal/privacy-policy", text: "Privacy Policy" },
       { href: "https://shop.example/careers", text: "Careers" }
     ],
-    "www.shop.example"
+    "www.shop.example",
+    "https://www.shop.example/"
   );
   assert.equal(url, "https://shop.example/legal/privacy-policy");
 });
@@ -90,7 +93,8 @@ test("pickPrivacyPolicyLink picks the real /privacy/ policy over a 'Privacy feat
       { href: "https://brave.com/privacy/browser/", text: "Brave Browser" },
       { href: "https://brave.com/privacy/website/", text: "Website & email" }
     ],
-    "brave.com"
+    "brave.com",
+    "https://brave.com/"
   );
   assert.equal(url, "https://brave.com/privacy/browser/");
 });
@@ -101,7 +105,8 @@ test("pickPrivacyPolicyLink breaks ties toward the shallowest (most canonical) p
       { href: "https://shop.example/legal/privacy/mobile-app/", text: "Privacy" },
       { href: "https://shop.example/privacy/", text: "Privacy" }
     ],
-    "shop.example"
+    "shop.example",
+    "https://shop.example/"
   );
   assert.equal(url, "https://shop.example/privacy/");
 });
@@ -113,7 +118,8 @@ test("pickPrivacyPolicyLink ignores a bare 'privacy' mention with no policy path
         { href: "https://shop.example/why-privacy-matters", text: "Why privacy matters to us" },
         { href: "https://shop.example/blog/privacy-tips", text: "Our privacy tips" }
       ],
-      "shop.example"
+      "shop.example",
+      "https://shop.example/"
     ),
     null
   );
@@ -122,7 +128,7 @@ test("pickPrivacyPolicyLink ignores a bare 'privacy' mention with no policy path
 test("pickPrivacyPolicyLink accepts a known policy-hosting service but not arbitrary off-site policies", () => {
   // A CMP-hosted document is still the site's own policy.
   assert.equal(
-    pickPrivacyPolicyLink([{ href: "https://app.termly.io/document/privacy-policy/abc", text: "Privacy Policy" }], "shop.example"),
+    pickPrivacyPolicyLink([{ href: "https://app.termly.io/document/privacy-policy/abc", text: "Privacy Policy" }], "shop.example", "https://shop.example/"),
     "https://app.termly.io/document/privacy-policy/abc"
   );
   // Another company's policy (Cloudflare challenge page, reCAPTCHA badge) must
@@ -133,7 +139,8 @@ test("pickPrivacyPolicyLink accepts a known policy-hosting service but not arbit
         { href: "https://www.cloudflare.com/privacypolicy/", text: "Privacy Policy" },
         { href: "https://policies.google.com/privacy", text: "Privacy Policy" }
       ],
-      "shop.example"
+      "shop.example",
+      "https://shop.example/"
     ),
     null
   );
@@ -146,7 +153,8 @@ test("pickPrivacyPolicyLink never picks Do Not Sell opt-out links or non-http sc
         { href: "https://shop.example/dns", text: "Do Not Sell My Personal Information" },
         { href: "javascript:openPrivacy()", text: "Privacy Policy" }
       ],
-      "shop.example"
+      "shop.example",
+      "https://shop.example/"
     ),
     null
   );
@@ -208,7 +216,7 @@ test("pickPrivacyPolicyLink recognizes exact localized policy paths without rely
 
   for (const fixture of cases) {
     assert.equal(
-      pickPrivacyPolicyLink([{ href: fixture.href, text: fixture.text }], "shop.example"),
+      pickPrivacyPolicyLink([{ href: fixture.href, text: fixture.text }], "shop.example", "https://shop.example/"),
       fixture.href,
       fixture.locale
     );
@@ -245,7 +253,7 @@ test("pickPrivacyPolicyLink accepts localized policy labels on a generic legal p
     { href: "https://shop.example/legal/pl", text: "Polityka prywatności" }
   ]) {
     assert.equal(
-      pickPrivacyPolicyLink([{ href: fixture.href, text: fixture.text }], "shop.example"),
+      pickPrivacyPolicyLink([{ href: fixture.href, text: fixture.text }], "shop.example", "https://shop.example/"),
       fixture.href,
       fixture.text
     );
@@ -303,7 +311,7 @@ test("every policy-link stem the bounded collector matches is answerable at the 
       `the fixture for "${stem}" would not be collected in the first place`
     );
     assert.equal(
-      pickPrivacyPolicyLink([answer], "shop.example"),
+      pickPrivacyPolicyLink([answer], "shop.example", "https://shop.example/"),
       answer.href,
       `collector stem "${stem}" is collected but scores too low at the selector`
     );
@@ -338,7 +346,8 @@ test("pickPrivacyPolicyLink keeps localized marketing, preferences, and bare men
         { href: "https://shop.example/legal/fi", text: "Tietosuoja" },
         { href: "https://shop.example/legal/hu", text: "Adatvédelem" }
       ],
-      "shop.example"
+      "shop.example",
+      "https://shop.example/"
     ),
     null
   );
@@ -348,9 +357,159 @@ test("pickPrivacyPolicyLink never attributes a localized policy to another site"
   assert.equal(
     pickPrivacyPolicyLink(
       [{ href: "https://other.example/legal", text: "Política de privacidad" }],
-      "shop.example"
+      "shop.example",
+      "https://shop.example/"
     ),
     null
+  );
+});
+
+test("pickPrivacyPolicyLink never picks a policy-labeled link back to the site root or the scanned page", () => {
+  // The bing.com shape: a text-only "Privacy Statement" link whose href is the
+  // homepage. Before, it tied a real policy path on score and won the depth
+  // tie-break, so the homepage was read as the policy.
+  assert.equal(
+    pickPrivacyPolicyLink(
+      [
+        { href: "https://shop.example/", text: "Privacy Statement" },
+        { href: "https://shop.example/legal/privacy", text: "Legal" }
+      ],
+      "shop.example",
+      "https://shop.example/"
+    ),
+    "https://shop.example/legal/privacy"
+  );
+
+  const scannedProduct = "https://shop.example/products/lamp?color=red";
+  for (const href of [
+    "https://shop.example/",
+    // The root by path: stored URLs keep only origin and path.
+    "https://shop.example/?ref=footer",
+    // A script-driven link whose href is "#" resolves to the scanned page.
+    "https://shop.example/products/lamp?color=red#",
+    "https://shop.example/products/lamp/"
+  ]) {
+    const links = [{ href, text: "Privacy Policy" }];
+    assert.equal(pickPrivacyPolicyLink(links, "shop.example", scannedProduct), null, href);
+    // The page still OFFERS a policy link; the scanner just cannot read one.
+    assert.equal(offersPrivacyPolicyLink(links, "shop.example"), true, href);
+  }
+
+  // A text-only link elsewhere on the site stays eligible, and so does a link
+  // back to the scanned page when that page is itself a policy path.
+  assert.equal(
+    pickPrivacyPolicyLink([{ href: "https://shop.example/legal", text: "Privacy Policy" }], "shop.example", scannedProduct),
+    "https://shop.example/legal"
+  );
+  assert.equal(
+    pickPrivacyPolicyLink(
+      [{ href: "https://shop.example/privacy#", text: "Privacy Policy" }],
+      "shop.example",
+      "https://shop.example/privacy"
+    ),
+    "https://shop.example/privacy#"
+  );
+  // The same path on another host of the site is another document.
+  assert.equal(
+    pickPrivacyPolicyLink(
+      [{ href: "https://legal.shop.example/products/lamp", text: "Privacy Policy" }],
+      "shop.example",
+      scannedProduct
+    ),
+    "https://legal.shop.example/products/lamp"
+  );
+  assert.equal(offersPrivacyPolicyLink([{ href: "https://shop.example/about", text: "About us" }], "shop.example"), false);
+});
+
+const POLICY_BODY =
+  `Privacy Policy. This privacy policy explains what we collect and why. ${PAD}`;
+const HOMEPAGE_BODY =
+  `Welcome to our shop. Lamps, rugs and chairs. ${PAD} Terms of use. Privacy Policy. Contact.`;
+
+function qualifies(overrides: Partial<Parameters<typeof privacyPolicyDocumentQualifies>[0]>): boolean {
+  return privacyPolicyDocumentQualifies({
+    selectedUrl: "https://shop.example/privacy-policy",
+    landedUrl: "https://shop.example/privacy-policy",
+    scannedPageUrl: "https://shop.example/",
+    title: "Privacy Policy | Shop",
+    headings: ["Privacy Policy"],
+    text: POLICY_BODY,
+    ...overrides
+  });
+}
+
+test("privacyPolicyDocumentQualifies accepts a policy document", () => {
+  assert.equal(qualifies({}), true);
+  // A redirect that keeps a policy path, including a localized one.
+  assert.equal(qualifies({ landedUrl: "https://legal.shop.example/en-us/privacy/" }), true);
+  assert.equal(
+    qualifies({
+      landedUrl: "https://shop.example/de/datenschutz",
+      title: "Datenschutzerklärung | Shop",
+      headings: ["Datenschutzerklärung"],
+      text: `Verantwortlicher im Sinne der Datenschutz-Grundverordnung ist die Shop GmbH. ${PAD}`
+    }),
+    true
+  );
+  // A bare "Privacy" title or heading is how many policies label themselves.
+  assert.equal(qualifies({ title: "Privacy", headings: [], text: `How we handle your data. ${PAD}` }), true);
+  assert.equal(qualifies({ title: "Shop", headings: ["Privacy"], text: `How we handle your data. ${PAD}` }), true);
+  // Running text alone suffices, in any language the selector reads.
+  assert.equal(qualifies({ title: "", headings: [], text: `Bu gizlilik politikası verilerinizi açıklar. ${PAD}` }), true);
+  assert.equal(qualifies({ title: "", headings: [], text: `Consulte nuestra política de privacidad. ${PAD}` }), true);
+  // A text-only link to a generic path is judged by its content.
+  assert.equal(
+    qualifies({ selectedUrl: "https://shop.example/legal", landedUrl: "https://shop.example/legal" }),
+    true
+  );
+});
+
+test("privacyPolicyDocumentQualifies rejects a same-site page that is not the policy", () => {
+  // Each case keeps site chrome with a "Privacy Policy" footer label in its
+  // text, which is what every page of a real site carries: the text signal
+  // alone never tells these apart from a policy.
+  const chrome = { text: HOMEPAGE_BODY, title: "Shop", headings: ["Shop"] };
+
+  // A policy link that redirects to the homepage.
+  assert.equal(qualifies({ ...chrome, landedUrl: "https://shop.example/" }), false);
+  // A policy path that redirects to a page whose path names no policy.
+  assert.equal(qualifies({ ...chrome, landedUrl: "https://shop.example/welcome" }), false);
+  // A text-only policy link that redirects to the homepage or back to the
+  // scanned page itself.
+  assert.equal(
+    qualifies({ ...chrome, selectedUrl: "https://shop.example/legal", landedUrl: "https://shop.example/" }),
+    false
+  );
+  assert.equal(
+    qualifies({
+      ...chrome,
+      selectedUrl: "https://shop.example/legal",
+      landedUrl: "https://shop.example/products/lamp",
+      scannedPageUrl: "https://shop.example/products/lamp"
+    }),
+    false
+  );
+  // A soft 404 answered with status 200 at the policy path, announced by its
+  // title or by its heading, even when the title otherwise reads as a policy.
+  for (const announcement of [
+    { title: "Page not found | Shop", headings: ["Shop"] },
+    { title: "404 | Shop", headings: [] },
+    { title: "Shop", headings: ["Shop", "Sorry, this page could not be found"] },
+    { title: "Privacy Policy | Shop", headings: ["Oops! That page can’t be found."] },
+    { title: "Seite nicht gefunden", headings: [] },
+    { title: "Shop", headings: ["Página no encontrada"] }
+  ]) {
+    assert.equal(qualifies({ ...chrome, ...announcement }), false, JSON.stringify(announcement));
+  }
+  // A document with no privacy signal anywhere.
+  assert.equal(
+    qualifies({ title: "Shop", headings: ["Our stores"], text: `Opening hours and directions. ${PAD.replace(/privacy/g, "store")}` }),
+    false
+  );
+  // A marketing title does not stand in for a policy.
+  assert.equal(
+    qualifies({ title: "Privacy features | Shop", headings: [], text: `What we built. ${PAD.replace(/privacy/g, "store")}` }),
+    false
   );
 });
 
