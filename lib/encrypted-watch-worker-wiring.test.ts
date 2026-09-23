@@ -1,7 +1,10 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { execFileSync } from "node:child_process";
+import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
+import { Log, LogLevel, Miniflare, Response as MiniflareResponse, type Request as MiniflareRequest } from "miniflare";
 
 async function workerSource(): Promise<string> {
   return readFile(path.join(process.cwd(), "cloudflare/container-worker.ts"), "utf8");
@@ -56,6 +59,65 @@ test("creation resolves any optional endpoint second factor before capability, D
   assert.match(handler, /catch \{[\s\S]*scanner\.findEncryptedWatch\(/);
   assert.match(handler, /encryptedWatchAdmissionProofMatches/);
   assert.match(handler, /result\.status === "refused"[\s\S]*scanner\.findEncryptedWatch/);
+});
+
+test("creation with the feature off recovers only, and never redeems Turnstile, preflights quota, or reads the body", { timeout: 45_000 }, async () => {
+  // Production and staging both commit SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES="0".
+  // A direct API caller used to reach Siteverify (spending its one-shot token)
+  // and the quota preflight before the flag was read, then got a 503 claiming a
+  // temporary outage.
+  const dir = await mkdtemp(path.join(tmpdir(), "sbl-watch-flag-runtime-"));
+  const outbound: string[] = [];
+  let mf: Miniflare | undefined;
+  try {
+    execFileSync(process.execPath, [
+      "node_modules/wrangler/bin/wrangler.js", "deploy", "test-fixtures/encrypted-watch-flag-runtime.test.ts",
+      "--dry-run", "--outdir", dir, "--name", "encrypted-watch-flag-runtime", "--compatibility-date", "2026-06-19",
+      "--compatibility-flags", "nodejs_compat"
+    ], { cwd: process.cwd(), env: { ...process.env, CI: "1", WRANGLER_SEND_METRICS: "false" }, stdio: "pipe" });
+    mf = new Miniflare({
+      modules: true, scriptPath: path.join(dir, "encrypted-watch-flag-runtime.test.js"), modulesRoot: dir,
+      compatibilityDate: "2026-06-19", compatibilityFlags: ["nodejs_compat"],
+      durableObjects: { SCANNER: { className: "EncryptedWatchFlagHarness", useSQLite: true } },
+      durableObjectsPersist: false, log: new Log(LogLevel.ERROR),
+      // Siteverify and every other egress lands here, never on the network.
+      outboundService: (request: MiniflareRequest) => {
+        outbound.push(new URL(request.url).host);
+        return new MiniflareResponse(JSON.stringify({ success: true }), {
+          headers: { "content-type": "application/json" }
+        });
+      }
+    });
+    const capability = Buffer.alloc(32, 7).toString("base64url");
+    for (const flag of ["0", "misconfigured"]) {
+      const response = await mf.dispatchFetch("https://scan.sitebehavior.org/api/watches", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          origin: "https://sitebehavior.org",
+          "cf-connecting-ip": "203.0.113.9",
+          "x-site-behavior-lab-watch-capability": capability,
+          "x-harness-encrypted-watches": flag
+        },
+        body: JSON.stringify({
+          url: "https://example.com/",
+          device: "desktop",
+          gpcEnabled: false,
+          turnstileToken: "one-shot-token"
+        })
+      });
+      assert.equal(response.status, 404, `flag ${flag}`);
+      assert.deepEqual(await response.json(), { ok: false, error: "Scheduled rescan not found." });
+      // The rollback lookup still runs, which is what proves this is not an
+      // early refusal of a malformed capability; nothing after it does.
+      const calls = await (await mf.dispatchFetch("https://scan.sitebehavior.org/__harness/calls")).json();
+      assert.deepEqual(calls, ["chargeEncryptedWatchReadRateLimit", "findEncryptedWatch"], `flag ${flag}`);
+    }
+    assert.deepEqual(outbound, []);
+  } finally {
+    await mf?.dispose();
+    await rm(dir, { recursive: true, force: true });
+  }
 });
 
 test("scheduled-rescan creation has one caller-composed deadline through its final commit", async () => {

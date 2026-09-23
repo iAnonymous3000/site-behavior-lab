@@ -3560,6 +3560,12 @@ async function handleEncryptedWatchCreationWithinDeadline(
   } catch {
     return encryptedWatchUnavailableResponse(request, env);
   }
+  // Recovery is the only thing creation does while the feature is off. The
+  // deployment can never commit a new watch, so it must not redeem the
+  // caller's one-shot Turnstile token, preflight quota, or parse the body.
+  if (encryptedWatchesFlagState(env[ENCRYPTED_WATCHES_ENV]) !== "enabled") {
+    return encryptedWatchNotFoundResponse(request, env);
+  }
 
   const body = await readRequestBodyWithinLimit(request, MAX_BODY_BYTES, {
     signal,
