@@ -11,7 +11,7 @@ import {
   SITE_TITLE_SUFFIX,
   sitemapLastModified
 } from "./seo-metadata";
-import { buildReportHeadline, type ReportHeadline } from "./report-headline";
+import { buildReportHeadline } from "./report-headline";
 import { makePublicSingleReportV2R2 } from "./scan-report-v2-r2-fixtures";
 import { viewFromV2 } from "./scan-report-views";
 
@@ -54,28 +54,30 @@ test("report metadata is concise, report-specific, and retains the evidence cave
     /^\*\.example\.com scan/
   );
 
-  const headline = {
-    headline:
-      "example.com contacted several third parties during this controlled visit, including a deliberately long description that cannot consume the evidence caveat.",
-    subheadPrimaryClaim:
-      "The complete claim-specific qualification is deliberately too long to fit beside that headline without being severed.",
-    subhead:
-      "The complete claim-specific qualification is deliberately too long to fit beside that headline without being severed.",
-    domain: "example.com",
-    caveat: "Observed in one automated visit: evidence to check, not a verdict."
-  } as ReportHeadline;
+  // Built from the real headline builder, never a hand-written claim: the
+  // claim-bearing candidates this replaced were exercised only by a synthetic
+  // 68-character claim no headline branch has ever produced, while every real
+  // claim plus its qualification and the caveat exceeds the 160-character
+  // bound, so every report already published this fallback.
+  const headline = buildReportHeadline(viewFromV2(makePublicSingleReportV2R2(), 2));
   const description = reportMetadataDescription(headline);
-  assert.match(description, /Open the report for the complete finding/);
-  assert.match(description, /not a verdict\.$/);
+  assert.equal(
+    description,
+    `Automated visit to ${headline.domain}. Open the report for the complete finding, evidence scope, and limitations. Evidence to check, not a verdict.`
+  );
   assert.ok(description.length <= 160);
 
-  const qualified = reportMetadataDescription({
+  // However short a claim is, the description never quotes headline prose: a
+  // claim severed from the report's qualification is the overclaim the
+  // fallback exists to prevent, and a fitting path only a synthetic claim
+  // reaches is a guard that cannot fail.
+  const shortClaim = {
     ...headline,
     headline: "example.com returned HTTP 403.",
     subheadPrimaryClaim: "Signals describe the returned block page, not normal site behavior.",
     subhead: "Signals describe the returned block page, not normal site behavior."
-  });
-  assert.match(qualified, /returned block page, not normal site behavior/);
+  };
+  assert.equal(reportMetadataDescription(shortClaim), description);
 });
 
 test("metadata truncation collapses whitespace and stops cleanly", () => {

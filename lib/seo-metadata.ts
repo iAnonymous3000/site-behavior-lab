@@ -72,20 +72,17 @@ export function reportMetadataTitle(input: {
   return `${conciseMetadataText(displayHost(input.domain), domainBudget)}${suffix}`;
 }
 
-export function reportMetadataDescription(headline: ReportHeadline): string {
-  const primaryClaim = headline.subheadPrimaryClaim || headline.subhead || "";
-  const candidates = [
-    `${headline.headline} ${primaryClaim} ${headline.caveat}`,
-    `${primaryClaim} ${headline.caveat}`
-  ].map((value) => value.replace(/\s+/g, " ").trim());
-  const complete = candidates.find(
-    (candidate) => candidate.length > 0 && candidate.length <= REPORT_DESCRIPTION_MAX_LENGTH
-  );
-  if (complete) return complete;
-
-  // Never sever a claim from the sentence that scopes or qualifies it. If the
-  // complete lead does not fit social metadata, withhold the claim and direct
-  // readers to the report instead of publishing a categorical fragment.
+/**
+ * The meta, Open Graph and Twitter description for a report page.
+ *
+ * Never sever a claim from the sentence that scopes or qualifies it. Every
+ * headline branch's claim plus its qualification and the evidence caveat
+ * exceeds the description bound (the shortest real claim alone runs past the
+ * room the caveat leaves), so this withholds the claim and directs readers to
+ * the report instead of publishing a categorical fragment. The claim travels
+ * with its qualification on the OG image and in the JSON-LD description.
+ */
+export function reportMetadataDescription(headline: Pick<ReportHeadline, "domain">): string {
   return conciseMetadataText(
     `Automated visit to ${headline.domain || "this site"}. Open the report for the complete finding, evidence scope, and limitations. Evidence to check, not a verdict.`,
     REPORT_DESCRIPTION_MAX_LENGTH
