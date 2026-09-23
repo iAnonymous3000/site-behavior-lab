@@ -9,7 +9,8 @@ import {
   isCurrentlyCheckablePolicyClaim,
   isAllowedPrivacyPolicyUrl,
   MIN_POLICY_TEXT_LENGTH,
-  pickPrivacyPolicyLink
+  pickPrivacyPolicyLink,
+  policyUrlIsSiteRoot
 } from "./privacy-policy";
 
 const PAD = " Lorem ipsum privacy boilerplate.".repeat(30);
@@ -51,6 +52,19 @@ test("isAllowedPrivacyPolicyUrl keeps redirects within the site or an approved p
   assert.equal(isAllowedPrivacyPolicyUrl("https://policies.other.example/privacy", "shop.example"), false);
   assert.equal(isAllowedPrivacyPolicyUrl("javascript:alert(1)", "shop.example"), false);
   assert.equal(isAllowedPrivacyPolicyUrl("not a url", "shop.example"), false);
+});
+
+test("policyUrlIsSiteRoot recognizes only a bare site root, never a redacted or addressed path", () => {
+  assert.equal(policyUrlIsSiteRoot("https://www.bing.com/"), true);
+  assert.equal(policyUrlIsSiteRoot("https://www.bing.com"), true);
+  assert.equal(policyUrlIsSiteRoot("https://{label}.example.com/"), true);
+  // A generalized segment hides a real path, usually the policy's own.
+  assert.equal(policyUrlIsSiteRoot("https://www.eharmony.com/{seg}"), false);
+  assert.equal(policyUrlIsSiteRoot("https://www.nasa.gov/privacy"), false);
+  // A query can address a real policy page at the root path.
+  assert.equal(policyUrlIsSiteRoot("https://blog.example/?page_id=3"), false);
+  assert.equal(policyUrlIsSiteRoot("{invalid-url}"), false);
+  assert.equal(policyUrlIsSiteRoot("ftp://example.com/"), false);
 });
 
 test("pickPrivacyPolicyLink prefers a same-site privacy policy link", () => {

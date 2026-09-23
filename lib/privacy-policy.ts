@@ -383,6 +383,31 @@ export function isCurrentlyCheckablePolicyClaim(claim: PrivacyPolicyClaim): bool
   return noSellingOrSharingClaimScope(claim.quote) === "blanket";
 }
 
+/**
+ * Whether a stored policy summary's URL is the site root. The probe accepts
+ * whatever same-party document the policy link lands on, so a link that
+ * redirects home, or a "Privacy Statement" link to "/", records the homepage
+ * as the policy (committed bing.com reports store https://www.bing.com/ over
+ * homepage text). A root path is not a policy document, so the reader treats
+ * the cross-check as not established. Deliberately this narrow: a redacted
+ * path such as "/{seg}" hides a real segment and is not the root (it usually
+ * hides a real policy), and a root path with a query string can address a
+ * real policy page. An unparseable URL is not evidence of anything.
+ */
+export function policyUrlIsSiteRoot(url: string): boolean {
+  let parsed: URL;
+  try {
+    parsed = new URL(url);
+  } catch {
+    return false;
+  }
+  return (
+    (parsed.protocol === "http:" || parsed.protocol === "https:") &&
+    parsed.pathname === "/" &&
+    parsed.search === ""
+  );
+}
+
 /** Only direct, unqualified denials support a cookie contradiction. A negation
  * elsewhere in the sentence must never govern a positive cookie statement. */
 function blanketCookieClaimKind(sentence: string): "no-cookies" | "no-third-party-cookies" | null {

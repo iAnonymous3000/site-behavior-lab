@@ -1831,6 +1831,93 @@ type ResultOverrides = {
   status?: number | null;
 };
 
+test("a policy read recorded at the site root presents the cross-check as not established", () => {
+  // The probe accepts whatever same-party document the policy link lands on.
+  // Three committed bing.com reports store the homepage as the policy, and the
+  // board published "Tracking companies the privacy policy does not appear to
+  // name" over homepage text.
+  for (const id of [
+    "20260727-165807d3cf2e22605703bb1af992f9d5",
+    "20260817-08181f13ccd09a2584f7728e41496995",
+    "20260824-7d6e9ff3be8b064709266d73a9518b4d"
+  ]) {
+    const view = committedReportView(id);
+    // Pin the wire shape, so the omission branch is really the one bypassed.
+    assert.ok((displayRunView(view).evidence.privacyPolicy?.unmentionedEntities.length ?? 0) > 0, id);
+    for (const arm of ["baseline", "variant"] as const) {
+      const run = view.runs.find((candidate) => candidate.label === arm);
+      const policy = run?.evidence.privacyPolicy;
+      if (!policy) assert.fail(`${id} ${arm} carries no policy summary`);
+      assert.equal(policy.url, "https://www.bing.com/");
+      const card = byId(buildFindings(view, null, undefined, arm), "privacy-policy");
+      assert.equal(card.title, "Privacy-policy cross-check not established", `${id} ${arm}`);
+      assert.equal(card.methodology, true);
+      assert.equal(card.level, "info");
+      assert.equal(card.claim?.mode, "unavailable");
+      assert.match(card.lead, /recorded as the privacy policy is a homepage \(the root of its site\), not a policy document/);
+      for (const entity of policy.unmentionedEntities) {
+        assert.equal(`${card.lead} ${card.detail} ${card.evidence}`.includes(entity), false, entity);
+      }
+      assert.doesNotMatch(card.evidence, /^Policy at /);
+      assert.equal(card.evidence, "Page recorded as the policy: https://www.bing.com/ (the site root); no policy text compared.");
+      // The run's frozen scanner disclosure calls this URL the privacy policy.
+      assert.match(card.detail, /The measurement note that the privacy policy was read refers to this homepage text\./);
+    }
+  }
+
+  // Redacted and ordinary policy paths keep their recorded cross-check.
+  for (const [id, url] of [
+    ["20260702-037b2fee08bbbab57b9367afd51e7a84", "https://www.eharmony.com/{seg}"],
+    ["20260702-01ec5d5bf8e198ade542e392ea70146d", "https://www.nasa.gov/privacy"]
+  ] as const) {
+    const view = committedReportView(id);
+    assert.equal(displayRunView(view).evidence.privacyPolicy?.url, url);
+    const card = byId(buildFindings(view, null), "privacy-policy");
+    assert.equal(card.title, "Tracking companies the privacy policy does not appear to name", id);
+    assert.equal(card.methodology, undefined);
+    assert.equal(card.claim?.mode, "presence");
+    assert.ok(card.evidence.startsWith(`Policy at ${url}; `), card.evidence);
+  }
+});
+
+test("a root-path policy read neither reassures nor raises the bottom line", () => {
+  // The existing "check unavailable" shape: a methodology card that does not
+  // move the bottom line and leaves the claim gate (and so calm) as it was.
+  const withPolicy = (url: string) => {
+    const result = makeResult({ firstPartyDomain: "quiet.example" });
+    // Every optional detector field recorded, so the visit can read as calm.
+    result.pixelEvents = [];
+    result.cnameCloaks = [];
+    result.privacyPolicy = {
+      url,
+      claims: [{ kind: "no-third-party-cookies", quote: "We do not use third-party cookies." }],
+      mentionedEntities: [],
+      unmentionedEntities: [],
+      policyTextLength: 5000
+    };
+    return viewFromV1Report(result);
+  };
+  const policyPath = withPolicy("https://quiet.example/privacy");
+  const pathCard = byId(buildFindings(policyPath, null), "privacy-policy");
+  assert.equal(pathCard.level, "ok");
+  assert.match(pathCard.title, /no checked statement contradicted/);
+
+  const root = withPolicy("https://quiet.example/");
+  const rootFacts = buildReportFacts(root);
+  const rootFindings = buildFindings(root, null, rootFacts);
+  const rootCard = byId(rootFindings, "privacy-policy");
+  assert.equal(rootCard.title, "Privacy-policy cross-check not established");
+  assert.equal(rootCard.methodology, true);
+  assert.equal(rootCard.level, "info");
+  assert.equal(rootCard.claim?.mode, "unavailable");
+  assert.doesNotMatch(`${rootCard.title} ${rootCard.lead}`, /contradicted/);
+  assert.equal(byId(rootFindings, "bottom-line").level, byId(buildFindings(policyPath, null), "bottom-line").level);
+  assert.equal(rootFacts.display.claims["privacy-policy"].allowed, true);
+  assert.equal(buildReportFacts(policyPath).display.calmEligible, true);
+  assert.equal(rootFacts.display.calmEligible, true);
+  assert.equal(buildReportHeadline(root, rootFacts).semantic.story, "quiet");
+});
+
 test("flags a policy contradiction when the policy denies third-party cookies that were observed", () => {
   const result = makeResult({ thirdPartyCookies: 3 });
   result.privacyPolicy = {

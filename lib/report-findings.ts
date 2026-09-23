@@ -47,7 +47,7 @@ import {
 import {
   reviewedOwnershipRelationship
 } from "./reviewed-ownership";
-import { isCurrentlyCheckablePolicyClaim } from "./privacy-policy";
+import { isCurrentlyCheckablePolicyClaim, policyUrlIsSiteRoot } from "./privacy-policy";
 import {
   comparisonArmViews,
   familyCensoredOnRun,
@@ -693,7 +693,30 @@ export function buildFindings(
   }
 
   const policy = run.evidence.privacyPolicy;
-  if (policy) {
+  if (policy && policyUrlIsSiteRoot(policy.url)) {
+    // The document read as the policy was the site root: the homepage, not a
+    // policy. Its text supports neither an omission nor a contradiction, so
+    // the card takes the same shape as any other cross-check this scan could
+    // not make (methodology, info, "unavailable") and quotes no result from it.
+    // The scanner's frozen disclosure names this URL as "the site's privacy
+    // policy"; reconcile it when the run carries it (fails safe if not).
+    const policyReadNoteShown = run.warnings.some((warning) =>
+      warning.startsWith(`Read the site's privacy policy (${policy.url}) `)
+    );
+    findings.push({
+      id: "privacy-policy",
+      icon: "file-text",
+      methodology: true,
+      level: "info",
+      title: "Privacy-policy cross-check not established",
+      lead: "The page this scan recorded as the privacy policy is a homepage (the root of its site), not a policy document, so no policy text was compared against this visit's evidence. That is a limit of the automated check, not a finding about the site either way.",
+      detail: `The scanner reads whatever document the page's privacy-policy link leads to; here that was a site root, for example because the link redirects to or points at the homepage. Company mentions and policy statements recorded from that text are not used.${
+        policyReadNoteShown ? " The measurement note that the privacy policy was read refers to this homepage text." : ""
+      }`,
+      evidence: `Page recorded as the policy: ${policy.url} (the site root); no policy text compared.`,
+      claim: findingClaim(facts, "privacy-policy", "unavailable")
+    });
+  } else if (policy) {
     // Each entry pairs a testable statement from the policy with the observed
     // evidence that cuts against it. Quotes come along so a reader can check
     // the sentence in context; this is a text match, never a legal reading.
