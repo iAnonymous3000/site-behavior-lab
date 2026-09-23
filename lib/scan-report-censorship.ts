@@ -161,6 +161,10 @@ function censoredFamilyDetailNote(run: RunView, family: string): string {
     !(run.quality.facts?.captureLoss ?? []).some(
       (loss) => loss.family === family && loss.detail === RESPONSE_BYTE_CAPTURE_LOSS_DETAIL
     );
+  // The r2 twin of the v1 rule in qualityReasonNote: one capture-loss detail,
+  // two warnings, and only the warning says which state the run was in.
+  const fingerprintListenerAttributionOnly =
+    runHitFingerprintListenerAttributionLoss(run) && !runHitFingerprintObserverCaptureLoss(run);
   const details = Array.from(
     new Set(
       (run.quality.facts?.captureLoss ?? [])
@@ -169,7 +173,8 @@ function censoredFamilyDetailNote(run: RunView, family: string): string {
           captureLossDetailNote(presentationLoss(run, loss), {
             ...(responseByteLimit === null ? {} : { responseByteLimit }),
             ...(uploadByteLimit === null ? {} : { uploadByteLimit }),
-            ...(historicalMergedRequestAndByteLoss ? { historicalMergedRequestAndByteLoss: true } : {})
+            ...(historicalMergedRequestAndByteLoss ? { historicalMergedRequestAndByteLoss: true } : {}),
+            ...(fingerprintListenerAttributionOnly ? { fingerprintListenerAttributionOnly: true } : {})
           })
         )
     )

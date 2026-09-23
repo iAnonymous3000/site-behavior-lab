@@ -28,7 +28,7 @@ import {
   viewFromV1Report,
   viewFromV2
 } from "./scan-report-views";
-import { runCensorshipNotes } from "./scan-report-censorship";
+import { degradedRunNotice, runCensorshipNotes } from "./scan-report-censorship";
 import { evaluateQuality } from "./scan-report-v2-evaluators";
 import {
   runHitFingerprintListenerAttributionLoss,
@@ -438,6 +438,52 @@ test("a timed-out v1 synthetic-input probe censors detector and request evidence
   assert.equal(familyCensoredOnRun(run, "requests"), true);
   assert.equal(familyCensoredOnRun(run, "cookies"), false);
   assert.equal(requestEvidenceState(run), "incomplete");
+});
+
+test("an r2 listener-attribution loss is named as that loss, not as an observer that did not finish", () => {
+  // fingerprint-observer@4 records an unreadable frame and a read frame with
+  // bounded listener attribution under the same capture-loss detail. Only the
+  // run's warning tells them apart, as it does on the v1 path.
+  const render = (warnings: string[]) => {
+    const report = makePublicSingleReportV2R2();
+    report.run.warnings.push(...warnings);
+    report.run.qualityFacts.captureLoss = [
+      { family: "fingerprinting", phaseId: 0, kind: "dropped", count: 1, detail: "fingerprint-observer" }
+    ];
+    report.run.quality = evaluateQuality(report.run.qualityFacts, {
+      observedRequests: report.run.summary.counts.totalRequests
+    });
+    const view = viewFromV2(report, 2);
+    assert.equal(familyCensoredOnRun(view.runs[0], "fingerprinting"), true);
+    return {
+      notes: runCensorshipNotes(view.runs[0]).filter((note) => note.startsWith("fingerprinting evidence")),
+      notice: degradedRunNotice(view) ?? ""
+    };
+  };
+
+  const listener = render([FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING]);
+  assert.equal(listener.notes.length, 1);
+  assert.match(
+    listener.notes[0],
+    /the in-page fingerprint observer could not attribute every event listener to the script that registered it \(recorded loss count: 1\)$/
+  );
+  for (const text of [...listener.notes, listener.notice]) {
+    assert.doesNotMatch(text, /did not finish|could not read/);
+  }
+  assert.match(listener.notice, /could not attribute every event listener/);
+
+  // An unreadable frame, alone or beside the listener line, keeps the
+  // observer sentence: the frame line already covers a bounded listener.
+  for (const warnings of [
+    [FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING],
+    [FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING, FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING]
+  ]) {
+    const frame = render(warnings);
+    assert.equal(frame.notes.length, 1);
+    assert.match(frame.notes[0], /the in-page fingerprint observer did not finish \(recorded loss count: 1\)$/);
+    assert.doesNotMatch(frame.notes[0], /attribute every event listener/);
+    assert.doesNotMatch(frame.notice, /attribute every event listener/);
+  }
 });
 
 test("historical response-byte loss names the ceiling and counts streams, never missing requests", () => {

@@ -125,6 +125,12 @@ export function captureLossDetailNote(
     responseByteLimit?: string;
     uploadByteLimit?: string;
     historicalMergedRequestAndByteLoss?: boolean;
+    /**
+     * The run's warnings carry the listener-attribution line and not the
+     * unreadable-frame line. fingerprint-observer@4 records both states under
+     * one detail, so the warning is the only discriminator on the wire.
+     */
+    fingerprintListenerAttributionOnly?: boolean;
   } = {}
 ): string {
   const detail = loss.detail;
@@ -133,6 +139,15 @@ export function captureLossDetailNote(
   }
 
   const presentation = captureLossPresentation(detail);
+  if (detail === "fingerprint-observer" && options.fingerprintListenerAttributionOnly) {
+    // Every frame of the final read was read and its events were kept, so
+    // "did not finish" would be false. This sentence claims only what the
+    // listener line proves, and never that every frame was read: in a consent
+    // mode an entry from the passive-boundary read can be either state.
+    return `${presentation[0]} could not attribute every event listener to the script that registered it (${recordedLossCount(
+      loss.count
+    )})`;
+  }
   if (detail === "request-capture" && options.historicalMergedRequestAndByteLoss) {
     return `request recording and response-byte loading did not finish; the historical wire carries a combined ${recordedLossCount(
       loss.count
