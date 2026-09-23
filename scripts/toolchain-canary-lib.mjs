@@ -1,6 +1,6 @@
 export const CANARY_ORIGIN = "https://scan-staging.sitebehavior.org";
 export const CANARY_CONFIRMATION = "I_ACKNOWLEDGE_THIS_SUBMITS_LIVE_STAGING_SCANS";
-export const RECEIPT_VERSION = 1;
+export const RECEIPT_VERSION = 2;
 export const METRICS = Object.freeze([
   "totalRequests",
   "thirdPartyRequests",
@@ -12,6 +12,29 @@ export const METRICS = Object.freeze([
   "fingerprintEvents",
   "shieldsBlockedRequests"
 ]);
+
+/**
+ * The evidence family each canary metric is counted from, per the report's
+ * claim relation (REPORT_CLAIM_REQUIREMENTS in lib/report-facts.ts), which
+ * lib/toolchain-canary.test.ts pins this map to. Recorded capture loss in a
+ * family censors it and leaves the metrics it feeds inexact (lower bounds for
+ * the request and fingerprint counts, incomplete snapshots for cookies and
+ * storage), so the comparison leaves those metrics out for that site, as the
+ * report's claim eligibility does for a censored family. The pair
+ * comparability evaluator is coarser: a loss in any of requests, cookies or
+ * storage makes its whole raw-counts family ineligible.
+ */
+export const METRIC_EVIDENCE_FAMILIES = Object.freeze({
+  totalRequests: "requests",
+  thirdPartyRequests: "requests",
+  knownTrackerRequests: "requests",
+  thirdPartyDomains: "requests",
+  cookies: "cookies",
+  thirdPartyCookies: "cookies",
+  storageEntries: "storage",
+  fingerprintEvents: "fingerprinting",
+  shieldsBlockedRequests: "requests"
+});
 
 const SHA40 = /^[0-9a-f]{40}$/;
 const SHA256 = /^[0-9a-f]{64}$/;
@@ -150,9 +173,37 @@ function assertCompleteRun(run, expectedBuild, { allowUnrecordedPlaywright = fal
       typeof conditions.browser.version === "string" && conditions.headless === true && conditions.automation === "playwright-chromium",
     "Saved report does not match the full fixed ordinary single-scan condition vector."
   );
-  requireValue(run.qualityFacts?.status >= 200 && run.qualityFacts.status <= 399 && run.qualityFacts.botWallTitleMatched === false && run.qualityFacts.navigationSettled === true && Array.isArray(run.qualityFacts.budgetsExhausted) && run.qualityFacts.budgetsExhausted.length === 0 && Array.isArray(run.qualityFacts.captureLoss) && run.qualityFacts.captureLoss.length === 0, "Saved report has failed, bot-wall, timeout, budget, or capture-loss quality facts.");
+  requireValue(run.qualityFacts?.status >= 200 && run.qualityFacts.status <= 399 && run.qualityFacts.botWallTitleMatched === false && run.qualityFacts.navigationSettled === true && Array.isArray(run.qualityFacts.budgetsExhausted) && run.qualityFacts.budgetsExhausted.length === 0, "Saved report has failed, bot-wall, timeout, or budget quality facts.");
+  // Capture loss is admitted here and judged across builds in compareReceipts:
+  // a site keeps a loss only if every run of it in both receipts records the
+  // same one, and the metrics its family feeds are then left out.
+  requireValue(
+    Array.isArray(run.qualityFacts.captureLoss) &&
+      run.qualityFacts.captureLoss.every((loss) =>
+        record(loss) && typeof loss.family === "string" && loss.family.length > 0 &&
+        typeof loss.kind === "string" && loss.kind.length > 0 &&
+        (loss.detail === undefined || (typeof loss.detail === "string" && loss.detail.length > 0)) &&
+        Number.isSafeInteger(loss.count) && loss.count > 0
+      ),
+    "Saved report has malformed capture-loss quality facts."
+  );
   requireValue(run.quality?.run?.outcome === "complete" && Array.isArray(run.quality.run.reasons) && run.quality.run.reasons.length === 0, "Saved report is not run-level complete.");
-  requireValue(record(run.quality.byFamily) && Object.values(run.quality.byFamily).every((family) => family?.outcome === "complete" && Array.isArray(family.reasons) && family.reasons.length === 0), "Saved report has censored evidence families.");
+  // The evaluator censors a family exactly when it records capture loss, with
+  // one capture-loss:<kind> reason per kind. Anything else, or a loss in a
+  // family the quality block does not carry, still refuses the run.
+  const lossKinds = new Map();
+  for (const loss of run.qualityFacts.captureLoss) lossKinds.set(loss.family, [...new Set([...(lossKinds.get(loss.family) ?? []), loss.kind])]);
+  requireValue(
+    record(run.quality.byFamily) &&
+      [...lossKinds.keys()].every((family) => Object.hasOwn(run.quality.byFamily, family)) &&
+      Object.entries(run.quality.byFamily).every(([name, family]) => {
+        if (!record(family) || !Array.isArray(family.reasons)) return false;
+        const kinds = lossKinds.get(name);
+        if (!kinds) return family.outcome === "complete" && family.reasons.length === 0;
+        return family.outcome === "censored" && same([...family.reasons].sort(), kinds.map((kind) => `capture-loss:${kind}`).sort());
+      }),
+    "Saved report has evidence families censored by something other than its recorded capture loss."
+  );
   requireValue(record(run.summary?.counts) && METRICS.every((metric) => Number.isSafeInteger(run.summary.counts[metric]) && run.summary.counts[metric] >= 0), "Saved report is missing a canary count metric.");
 }
 
@@ -265,6 +316,17 @@ function normalizationTemplate(value) {
   return value.replace(matches[0], "tldts@<version>");
 }
 
+/**
+ * A run's capture losses as sorted family/kind/detail signatures; loss counts
+ * vary run to run and are not compared. A loss recorded without a detail is
+ * identified by family and kind alone, so two undetailed causes of the same
+ * family and kind read as one; either way only metrics already left out for
+ * that site are affected.
+ */
+function captureLossSignatures(run) {
+  return [...new Set(run.qualityFacts.captureLoss.map((loss) => `${loss.family}/${loss.kind}/${loss.detail ?? ""}`))].sort();
+}
+
 function median(values) {
   const sorted = [...values].sort((a, b) => a - b);
   return sorted[Math.floor(sorted.length / 2)];
@@ -296,9 +358,36 @@ export function compareReceipts(baselineInput, candidateInput, expectedPanel, pa
       `Conditions or provenance changed outside Playwright, browser, adblock engine, tldts, and build for ${key}.`
     );
   }
+  // Capture loss is compared like with like: every run of a site in both
+  // receipts must record the same family/kind/detail loss signatures, or the
+  // loss is itself a difference between the builds. A shared loss leaves out
+  // only the metrics its family feeds, for that site.
+  const lossyFamiliesBySite = new Map();
+  for (const panelCase of expectedPanel.cases) {
+    const signatures = [...baseline.runs, ...candidate.runs]
+      .filter((run) => run.caseId === panelCase.id)
+      .map((run) => JSON.stringify(captureLossSignatures(run)));
+    requireValue(
+      signatures.every((signature) => signature === signatures[0]),
+      `Capture loss differs between runs of ${panelCase.id}: ${[...new Set(signatures)].join(" vs ")}.`
+    );
+    lossyFamiliesBySite.set(panelCase.id, new Set(JSON.parse(signatures[0]).map((signature) => signature.split("/")[0])));
+  }
+  for (const metric of METRICS) {
+    requireValue(
+      expectedPanel.cases.some((panelCase) => !lossyFamiliesBySite.get(panelCase.id).has(METRIC_EVIDENCE_FAMILIES[metric])),
+      `${metric} is left out on every panel site, so the canary would not compare it.`
+    );
+  }
+  const excluded = [];
   const results = [];
   for (const panelCase of expectedPanel.cases) {
     for (const metric of METRICS) {
+      const family = METRIC_EVIDENCE_FAMILIES[metric];
+      if (lossyFamiliesBySite.get(panelCase.id).has(family)) {
+        excluded.push({ caseId: panelCase.id, metric, family });
+        continue;
+      }
       const left = median(baseline.runs.filter((run) => run.caseId === panelCase.id).map((run) => run.counts[metric]));
       const right = median(candidate.runs.filter((run) => run.caseId === panelCase.id).map((run) => run.counts[metric]));
       const tolerance = expectedPanel.metricTolerances[metric];
@@ -307,5 +396,5 @@ export function compareReceipts(baselineInput, candidateInput, expectedPanel, pa
       results.push({ caseId: panelCase.id, metric, baseline: left, candidate: right, delta, allowed, pass: delta <= allowed });
     }
   }
-  return { pass: results.every((result) => result.pass), baselineBuild: baseline.expectedBuild, candidateBuild: candidate.expectedBuild, results };
+  return { pass: results.every((result) => result.pass), baselineBuild: baseline.expectedBuild, candidateBuild: candidate.expectedBuild, results, excluded };
 }

@@ -83,8 +83,11 @@ async function compare(flags) {
   for (const row of result.results) {
     if (!row.pass) console.error(`FAIL ${row.caseId}.${row.metric}: median ${row.baseline} -> ${row.candidate}; delta ${row.delta} > ${row.allowed}`);
   }
+  for (const row of result.excluded) {
+    console.log(`LEFT OUT ${row.caseId}.${row.metric}: every run of both builds records ${row.family} capture loss`);
+  }
   if (!result.pass) throw new Error("Toolchain canary metric tolerances failed.");
-  console.log(`PASS ${result.baselineBuild} -> ${result.candidateBuild}: all fixed-panel medians are within tolerance.`);
+  console.log(`PASS ${result.baselineBuild} -> ${result.candidateBuild}: all ${result.results.length} compared fixed-panel medians are within tolerance${result.excluded.length ? `; ${result.excluded.length} left out for shared capture loss` : ""}.`);
 }
 
 async function captureOne(input) {

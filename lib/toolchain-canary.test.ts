@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { test } from "node:test";
+import { REPORT_CLAIM_REQUIREMENTS } from "./report-facts";
 
 type Helpers = {
   CANARY_ORIGIN: string;
@@ -16,8 +17,15 @@ type Helpers = {
   assertPanelCatalogMembership(panel: Panel, catalogs: Record<string, unknown>): void;
   buildReceipt(input: Record<string, unknown>): Receipt;
   extractCapturedRun(report: unknown, input: Record<string, unknown>): Record<string, unknown>;
-  compareReceipts(baseline: Receipt, candidate: Receipt, panel: Panel, digest: string): { pass: boolean; results: Array<{ pass: boolean }> };
+  compareReceipts(baseline: Receipt, candidate: Receipt, panel: Panel, digest: string): {
+    pass: boolean;
+    results: Array<{ pass: boolean; caseId: string; metric: string }>;
+    excluded: Array<{ caseId: string; metric: string; family: string }>;
+  };
+  METRICS: readonly string[];
+  METRIC_EVIDENCE_FAMILIES: Readonly<Record<string, string>>;
 };
+type Loss = { family: string; kind: string; detail?: string; count: number; phaseId: number };
 type Panel = { panelVersion: number; panelId: string; repetitions: number; conditions: object; metricTolerances: Record<string, { absolute: number; relative: number }>; cases: Array<{ id: string; catalog: string; domain: string; url: string }> };
 type Receipt = Record<string, any>;
 type Versions = { playwright: string | null; adblock: string; tldts: string };
@@ -234,4 +242,180 @@ test("receipt comparison permits only browser, toolchain, and build drift within
   const unrelatedNormalizationDrift = structuredClone(candidate);
   for (const entry of unrelatedNormalizationDrift.runs) entry.toolchain.normalizationVersion += "+redaction-v3";
   assert.throws(() => h.compareReceipts(baseline, unrelatedNormalizationDrift, panel, digest), /outside Playwright, browser, adblock engine, tldts, and build/);
+});
+
+function withLoss(target: Receipt, caseId: string, loss: Loss, include: (entry: Record<string, any>) => boolean = () => true) {
+  for (const entry of target.runs) {
+    if (entry.caseId !== caseId || !include(entry)) continue;
+    entry.qualityFacts.captureLoss.push({ ...loss, count: loss.count + entry.repetition });
+    const family = entry.quality.byFamily[loss.family];
+    family.outcome = "censored";
+    family.reasons = [...new Set([...family.reasons, `capture-loss:${loss.kind}`])];
+  }
+  return target;
+}
+
+test("each canary metric is left out for exactly the evidence family the report's own claims count it from", async () => {
+  const h = await helpers;
+  const claimFor: Record<string, keyof typeof REPORT_CLAIM_REQUIREMENTS> = {
+    totalRequests: "third-party-services",
+    thirdPartyRequests: "third-party-services",
+    knownTrackerRequests: "named-platforms",
+    thirdPartyDomains: "third-party-services",
+    cookies: "third-party-cookies",
+    thirdPartyCookies: "third-party-cookies",
+    storageEntries: "storage-keys",
+    fingerprintEvents: "fingerprint-apis",
+    shieldsBlockedRequests: "shields-blocked"
+  };
+  assert.deepEqual(Object.keys(h.METRIC_EVIDENCE_FAMILIES).sort(), [...h.METRICS].sort());
+  for (const metric of h.METRICS) {
+    assert.deepEqual(REPORT_CLAIM_REQUIREMENTS[claimFor[metric]].families, [h.METRIC_EVIDENCE_FAMILIES[metric]], metric);
+  }
+});
+
+test("a capture loss every run of both builds shares leaves out only the metrics its family feeds", async () => {
+  const h = await helpers;
+  const digest = createHash("sha256").update(h.stableCompareJson(panel)).digest("hex");
+  const baselineVersions: Versions = { playwright: null, adblock: "0.13.0", tldts: "7.4.3" };
+  const candidateVersions: Versions = { playwright: "1.61.1", adblock: "0.13.2", tldts: "7.4.9" };
+  const fresh = async () => ({
+    baseline: await receipt("forward", "a".repeat(40), "149.0", 10, baselineVersions),
+    candidate: await receipt("reverse", "b".repeat(40), "150.0", 11, candidateVersions)
+  });
+  const fingerprintLoss: Loss = { family: "fingerprinting", kind: "dropped", detail: "fingerprint-observer", count: 1, phaseId: 0 };
+  const keystrokeLoss: Loss = { family: "detector-output", kind: "truncated", detail: "keystroke-probe-capture", count: 1, phaseId: 1 };
+  const heavy = panel.cases[4].id;
+  const typed = panel.cases[1].id;
+
+  // Shared by all six runs (counts differ): only that site's fingerprintEvents
+  // is left out, so a far-off candidate median there cannot fail the gate.
+  {
+    const { baseline, candidate } = await fresh();
+    withLoss(baseline, heavy, fingerprintLoss);
+    withLoss(candidate, heavy, fingerprintLoss);
+    for (const entry of candidate.runs) if (entry.caseId === heavy) entry.counts.fingerprintEvents = 500;
+    const result = h.compareReceipts(baseline, candidate, panel, digest);
+    assert.equal(result.pass, true);
+    assert.deepEqual(result.excluded, [{ caseId: heavy, metric: "fingerprintEvents", family: "fingerprinting" }]);
+    assert.equal(result.results.length, panel.cases.length * h.METRICS.length - 1);
+    assert.equal(result.results.some((row) => row.caseId === heavy && row.metric === "fingerprintEvents"), false);
+  }
+  // A shared detector-output loss feeds no canary metric, so nothing is left out.
+  {
+    const { baseline, candidate } = await fresh();
+    withLoss(baseline, typed, keystrokeLoss);
+    withLoss(candidate, typed, keystrokeLoss);
+    const result = h.compareReceipts(baseline, candidate, panel, digest);
+    assert.equal(result.pass, true);
+    assert.deepEqual(result.excluded, []);
+    assert.equal(result.results.length, panel.cases.length * h.METRICS.length);
+  }
+  // A loss only one build records is itself a difference between the builds.
+  {
+    const { baseline, candidate } = await fresh();
+    withLoss(candidate, heavy, fingerprintLoss);
+    assert.throws(() => h.compareReceipts(baseline, candidate, panel, digest), /Capture loss differs between runs of/);
+  }
+  // So is a loss that only some runs record.
+  {
+    const { baseline, candidate } = await fresh();
+    withLoss(baseline, heavy, fingerprintLoss, (entry) => entry.repetition !== 2);
+    withLoss(candidate, heavy, fingerprintLoss);
+    assert.throws(() => h.compareReceipts(baseline, candidate, panel, digest), /Capture loss differs between runs of/);
+  }
+  // And a loss whose detail changes between builds.
+  {
+    const { baseline, candidate } = await fresh();
+    withLoss(baseline, heavy, fingerprintLoss);
+    withLoss(candidate, heavy, { ...fingerprintLoss, detail: "fingerprint-heuristics" });
+    assert.throws(() => h.compareReceipts(baseline, candidate, panel, digest), /Capture loss differs between runs of/);
+  }
+  // A metric left out on every site would never be compared.
+  {
+    const { baseline, candidate } = await fresh();
+    for (const entry of panel.cases) {
+      withLoss(baseline, entry.id, fingerprintLoss);
+      withLoss(candidate, entry.id, fingerprintLoss);
+    }
+    assert.throws(() => h.compareReceipts(baseline, candidate, panel, digest), /fingerprintEvents is left out on every panel site/);
+  }
+  // A family censored by anything but its own recorded loss still refuses the run.
+  {
+    const { baseline, candidate } = await fresh();
+    baseline.runs[0].quality.byFamily.fingerprinting = { outcome: "censored", reasons: ["detector-failed"] };
+    assert.throws(() => h.compareReceipts(baseline, candidate, panel, digest), /censored by something other than its recorded capture loss/);
+  }
+  // So does a recorded loss whose family the quality block leaves complete.
+  {
+    const { baseline, candidate } = await fresh();
+    baseline.runs[0].qualityFacts.captureLoss.push({ ...fingerprintLoss });
+    assert.throws(() => h.compareReceipts(baseline, candidate, panel, digest), /censored by something other than its recorded capture loss/);
+  }
+  // And a malformed loss entry.
+  {
+    const { baseline, candidate } = await fresh();
+    withLoss(baseline, heavy, { ...fingerprintLoss, count: -1 });
+    assert.throws(() => h.compareReceipts(baseline, candidate, panel, digest), /malformed capture-loss/);
+  }
+  {
+    const { baseline, candidate } = await fresh();
+    withLoss(baseline, heavy, { ...fingerprintLoss, detail: "" });
+    assert.throws(() => h.compareReceipts(baseline, candidate, panel, digest), /malformed capture-loss/);
+  }
+  // The censored branch must match the evaluator exactly: an extra reason, a
+  // reason naming another kind, or a lossy family left complete all refuse.
+  const censoringCases: Array<[string, (family: { outcome: string; reasons: string[] }) => void]> = [
+    ["extra reason", (family) => { family.reasons.push("detector-failed"); }],
+    ["wrong kind", (family) => { family.reasons = ["capture-loss:truncated"]; }],
+    ["left complete", (family) => { family.outcome = "complete"; }]
+  ];
+  for (const [label, edit] of censoringCases) {
+    const { baseline, candidate } = await fresh();
+    withLoss(baseline, heavy, fingerprintLoss);
+    withLoss(candidate, heavy, fingerprintLoss);
+    edit(baseline.runs.find((entry: Record<string, any>) => entry.caseId === heavy).quality.byFamily.fingerprinting);
+    assert.throws(() => h.compareReceipts(baseline, candidate, panel, digest), /censored by something other than its recorded capture loss/, label);
+  }
+  // A complete family carrying a stray reason refuses too.
+  {
+    const { baseline, candidate } = await fresh();
+    baseline.runs[0].quality.byFamily.storage.reasons = ["capture-loss:dropped"];
+    assert.throws(() => h.compareReceipts(baseline, candidate, panel, digest), /censored by something other than its recorded capture loss/);
+  }
+  // So does a loss in a family the quality block does not carry.
+  {
+    const { baseline, candidate } = await fresh();
+    withLoss(baseline, heavy, fingerprintLoss);
+    withLoss(candidate, heavy, fingerprintLoss);
+    delete baseline.runs.find((entry: Record<string, any>) => entry.caseId === heavy).quality.byFamily.fingerprinting;
+    assert.throws(() => h.compareReceipts(baseline, candidate, panel, digest), /censored by something other than its recorded capture loss/);
+  }
+  // The same loss set recorded in a different order is the same loss.
+  {
+    const { baseline, candidate } = await fresh();
+    const storageLoss: Loss = { family: "storage", kind: "dropped", detail: "storage-snapshot", count: 1, phaseId: 0 };
+    withLoss(baseline, heavy, fingerprintLoss);
+    withLoss(baseline, heavy, storageLoss);
+    withLoss(candidate, heavy, storageLoss);
+    withLoss(candidate, heavy, fingerprintLoss);
+    const result = h.compareReceipts(baseline, candidate, panel, digest);
+    assert.equal(result.pass, true);
+    assert.deepEqual(
+      result.excluded.map((row) => row.metric).sort(),
+      ["fingerprintEvents", "storageEntries"]
+    );
+  }
+  // Reasons are a set: two kinds in one family pass in either reason order.
+  {
+    const { baseline, candidate } = await fresh();
+    const truncatedLoss: Loss = { ...fingerprintLoss, kind: "truncated" };
+    for (const target of [baseline, candidate]) {
+      withLoss(target, heavy, fingerprintLoss);
+      withLoss(target, heavy, truncatedLoss);
+    }
+    const reordered = baseline.runs.find((entry: Record<string, any>) => entry.caseId === heavy).quality.byFamily.fingerprinting;
+    reordered.reasons = [...reordered.reasons].reverse();
+    assert.equal(h.compareReceipts(baseline, candidate, panel, digest).pass, true);
+  }
 });
