@@ -1,8 +1,12 @@
 # Limitations and acceptable use in detail
 
 The long-form boundary statements, moved out of the README on 2026-09-02. The
-README carries the condensed version; the wording here is the wording the
-guard tests pin, so change both together.
+README carries the condensed version, so change both together. Only two
+passages here are checked against the code, both by
+`lib/readme-truth-contract.test.ts`: the methodology components listed under
+"The Brave Shields block simulation" and the transparency-log anchoring
+sentence. No other sentence in this file is test-pinned, so review the rest by
+hand when the code or the README changes.
 
 ## Acceptable Use
 
@@ -164,7 +168,7 @@ Consent comparison mode runs one visit that clicks the banner's accept-all choic
 
 ### The Brave Shields block simulation
 
-The simulation uses Brave's own ad-block engine (the open-source [`adblock`](https://github.com/brave/adblock-rust) Rust crate, compiled to WASM) with the `default_enabled` lists from Brave's filter-list catalog. Under the Node scanner's `shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v3+detector-coverage-v2` base methodology (production r2 reports record the full extended identity, this base plus the phase-kernel, boundary-state, consent, budget, proxy-traffic, service-worker-block, accountability, ServiceRole-taxonomy, and GPC worker-application suffixes, in `provenance.methodologyVersion`), each route-evaluated request is matched with its actual HTTP method against the document that initiated it: an ordinary subresource uses its requesting frame, a subframe navigation uses the parent document, and a non-HTTP inherited frame such as `about:blank` walks to its nearest HTTP(S) ancestor. Main-frame navigations are deliberately neither blocked nor counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. The source URL is used transiently by the engine and never added to the public v1 report. It matches network requests only: it does not apply cosmetic/element-hiding rules (CNAME cloaking is handled by the separate DNS step described above, not the block simulation), and the lists are a pinned snapshot, so blocked counts describe only this engine/list snapshot in the scanner. They do not establish real Brave behavior or a lower bound on its blocking; independently paired browser measurements would be needed to assess that relationship.
+The simulation uses Brave's own ad-block engine (the open-source [`adblock`](https://github.com/brave/adblock-rust) Rust crate, compiled to WASM) with the `default_enabled` lists from Brave's filter-list catalog. Under the Node scanner's `shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v3+detector-coverage-v2` base methodology (production r2 reports record the full extended identity, this base plus the phase-kernel, boundary-state, consent, resource-budget, proxy-traffic, service-worker-block, detector-accountability, ServiceRole-taxonomy, GPC worker-application, active-probe, and auxiliary-context-block suffixes, in `provenance.methodologyVersion`), each route-evaluated request is matched with its actual HTTP method against the document that initiated it: an ordinary subresource uses its requesting frame, a subframe navigation uses the parent document, and a non-HTTP inherited frame such as `about:blank` walks to its nearest HTTP(S) ancestor. Main-frame navigations are deliberately neither blocked nor counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. The source URL is used transiently by the engine and never added to the public v1 report. It matches network requests only: it does not apply cosmetic/element-hiding rules (CNAME cloaking is handled by the separate DNS step described above, not the block simulation), and the lists are a pinned snapshot, so blocked counts describe only this engine/list snapshot in the scanner. They do not establish real Brave behavior or a lower bound on its blocking; independently paired browser measurements would be needed to assess that relationship.
 
 ### What a result does not generalize to
 

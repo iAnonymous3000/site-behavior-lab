@@ -3,6 +3,8 @@ import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import test from "node:test";
 import { COVERAGE_BOUNDARY_ENTRIES, coverageBoundaryMetadata } from "./detector-coverage-boundary";
+import { NODE_SCANNER_METHODOLOGY_VERSION } from "./legacy-methodology";
+import { NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION } from "./scan-report-v2-r2-producer-contract";
 
 const root = process.cwd();
 const readme = readFileSync(path.join(root, "README.md"), "utf8");
@@ -152,34 +154,71 @@ test("the README lists every header that satisfies the scan access token", () =>
  * The methodology identity enumerated five suffixes while the producer emitted
  * eight. A reader comparing a report's provenance against the README would
  * conclude their report was malformed.
+ *
+ * docs/limitations.md restates the same enumeration and later omitted
+ * active-probe and auxiliary-context-block while this guard, run on the README
+ * alone, stayed green. Its earlier form could not have caught that anywhere:
+ * the window ran from 600 characters before `provenance.methodologyVersion` to
+ * the END of the file, and any one word of a component satisfied it, so
+ * "active" further down and "context" from the quoted base's
+ * shields-request-context covered both missing components. Each enumeration
+ * is now only the text between the quoted base methodology and
+ * `provenance.methodologyVersion`, and every alphabetic word of every emitted
+ * component must appear there in order. Components come from the runtime
+ * constant, so the interpolated taxonomy version and consent-r2-v4 count too.
  */
-test("the README enumerates every methodology suffix the r2 producer emits", () => {
-  // Parse the ACTIVE constant only. A broad sweep for every `-vN` literal in
-  // this file also collects HISTORICAL_* identities, which are deliberately
-  // frozen and must not be enumerated in the README.
-  const source = readFileSync(path.join(root, "lib/scan-report-v2-r2-producer-contract.ts"), "utf8");
-  const active = source.slice(source.indexOf("export const NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION"));
-  const template = active.slice(active.indexOf("`") + 1, active.indexOf("`", active.indexOf("`") + 1));
-  assert.ok(template.includes("+"), "the active r2 methodology template was not found");
-  const suffixes = template
-    .split("+")
-    .map((part) => part.trim())
-    .filter((part) => /^[a-z][a-z-]*-v\d+$/.test(part));
-  assert.ok(suffixes.length > 0, "no methodology suffixes found; the source path likely moved");
+const METHODOLOGY_ENUMERATION_DOCUMENTS = ["README.md", "docs/limitations.md"] as const;
 
-  const listed = readme.slice(readme.indexOf("provenance.methodologyVersion") - 600);
-  // The README shortens names in prose ("budget" for resource-budget,
-  // "accountability" for detector-accountability), which is fine. What must
-  // hold is that each emitted suffix is RECOGNISABLE in the enumeration, so a
-  // genuinely omitted one (no distinctive word present) still fails.
-  for (const suffix of suffixes) {
-    const words = suffix
+function r2MethodologyComponents(): string[] {
+  const prefix = `${NODE_SCANNER_METHODOLOGY_VERSION}+`;
+  assert.ok(
+    NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION.startsWith(prefix),
+    "the r2 methodology no longer extends the Node base; revisit how the docs describe it"
+  );
+  return NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION.slice(prefix.length).split("+");
+}
+
+function methodologyEnumeration(document: string): string {
+  const base = `\`${NODE_SCANNER_METHODOLOGY_VERSION}\``;
+  const from = document.indexOf(base);
+  if (from < 0) return "";
+  const end = document.indexOf("provenance.methodologyVersion", from);
+  return end < 0 ? "" : document.slice(from + base.length, end);
+}
+
+function unnamedMethodologyComponents(enumeration: string): string[] {
+  return r2MethodologyComponents().filter((component) => {
+    // Prose writes consent-r2-v4 as "consent" and may write the taxonomy as
+    // "ServiceRole-taxonomy": digit-bearing segments are qualifiers, and the
+    // remaining words may be joined by a hyphen, whitespace, or nothing.
+    const words = component
       .replace(/-v\d+$/, "")
       .split("-")
-      .filter((word) => word.length >= 5);
+      .filter((segment) => /^[a-z]+$/.test(segment));
+    return words.length === 0 || !new RegExp(words.join("[\\s-]*"), "i").test(enumeration);
+  });
+}
+
+test("the README and docs/limitations.md enumerate every methodology component the r2 producer emits", () => {
+  const components = r2MethodologyComponents();
+  assert.ok(
+    components.length > 1 && components.every((component) => /^[a-z][a-z0-9-]*-v\d+$/.test(component)),
+    `unexpected r2 methodology components: ${components.join(", ")}`
+  );
+  for (const file of METHODOLOGY_ENUMERATION_DOCUMENTS) {
+    const enumeration = methodologyEnumeration(readFileSync(path.join(root, file), "utf8"));
     assert.ok(
-      words.length > 0 && words.some((word) => listed.includes(word)),
-      `the r2 producer emits ${suffix} but the README's methodology enumeration names none of ${words.join(", ")}`
+      enumeration.length > 0,
+      `${file} must quote the base methodology and then name provenance.methodologyVersion`
+    );
+    assert.ok(
+      enumeration.length < 600,
+      `${file}: ${enumeration.length} characters separate the quoted base from provenance.methodologyVersion, so they are no longer one enumeration`
+    );
+    assert.deepEqual(
+      unnamedMethodologyComponents(enumeration),
+      [],
+      `${file}'s methodology enumeration omits components the r2 producer emits`
     );
   }
 });
@@ -279,4 +318,15 @@ test("the README guards reject the sentences that were wrong", () => {
   );
 
   assert.doesNotMatch("npm run calibration:archive", /`npm run ([a-z0-9:_-]+)`/, "unbackticked text is not a claim");
+
+  // The enumeration docs/limitations.md shipped with: nine components, two of
+  // them abbreviated, and no active-probe or auxiliary-context-block.
+  const shippedLimitations =
+    " base methodology (production r2 reports record the full extended identity, this base plus the phase-kernel, boundary-state, consent, budget, proxy-traffic, service-worker-block, accountability, ServiceRole-taxonomy, and GPC worker-application suffixes, in `";
+  const unnamed = unnamedMethodologyComponents(shippedLimitations);
+  assert.ok(unnamed.includes("active-probe-v2"), "the shipped limitations enumeration omitted active-probe");
+  assert.ok(
+    unnamed.includes("auxiliary-context-block-v1"),
+    "the shipped limitations enumeration omitted auxiliary-context-block"
+  );
 });
