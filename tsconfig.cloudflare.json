@@ -17,5 +17,10 @@
     "lib/scan-result-builder.ts",
     "lib/types.ts",
     "lib/url-normalization.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "**/*.test.ts",
+    ".unit-test-dist"
   ]
 }
