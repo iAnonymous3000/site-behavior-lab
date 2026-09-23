@@ -60,6 +60,8 @@ npm run lists:verify
 
 Treat any generated artifact, lockfile, disclosed version, Docker pin, or methodology guard that does not move together as a failed epoch.
 
+That includes `CONTAINER_IMAGE_PACKAGE_REVIEWS.json`. A new base image changes the OS packages the runtime image ships, and main CI's container package-evidence gate fails until the ledger matches them, which blocks publication of the tested image. Sync it in the candidate before the staging deploy, so the staged commit is the commit CI promotes: build the exact `linux/amd64` image, scan it with Trivy v0.70.0 as CI does, and run the inventory and review-sync producers described in [supply-chain assurance](./supply-chain-assurance.md). Never derive or edit a row by hand or from `dpkg-query`; each row's evidence digest covers Trivy's detected licenses.
+
 ## 2. Corpus-neutrality gate
 
 Compile and run the audit command separately inside each exact checkout. The
