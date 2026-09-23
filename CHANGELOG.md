@@ -44,7 +44,11 @@ entries is in [docs/comprehensive-review-2026-09-22.md](docs/comprehensive-revie
   engine changes fails closed instead of being served: a label below a
   removed suffix rule that is now generalized, a direct child of a newly
   wildcarded zone such as `*.eth.limo`, or a host that is now a suffix itself
-  such as `cloud.run`. No committed report holds such a host. For the live
+  such as `cloud.run`. So does one whose stored registrable domain the new
+  engine computes differently: a scanned site below a newly added suffix,
+  such as an Azure App Service app on a `<region>-01.azurewebsites.net`
+  hostname or a Cloud Run service, or a CNAME-cloaked tracker target in the
+  same positions. No committed report holds such a host. For the live
   store the owner accepted that instead of remediating: shares expire after 7
   days and the storage bucket deletes them at 8, so only reports saved in the
   8 days before the deploy can be affected. The engine differential found no

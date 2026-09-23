@@ -58,9 +58,10 @@ export const MIGRATABLE_REDACTION_V3_NORMALIZATIONS: Readonly<
  * only as a recorded owner exception. An entry is not a readability guarantee:
  * the managed reader re-runs the current sanitizer over every stored
  * redaction-v4 r2 report whatever normalization it declares, so a stored report
- * holding a host whose redaction the new engine changes fails closed as
- * redaction-not-idempotent. Such an entry needs, in its own comment, the
- * complete set of host shapes that stop being fixed points, the committed
+ * holding a host whose redaction the new engine changes, or a registrable
+ * domain it stored that the new engine no longer computes the same way, fails
+ * closed. Such an entry needs, in its own comment, the complete set of host
+ * shapes and stored-domain positions that stop being fixed points, the committed
  * corpus proof that none of them is published, the retention bound on the live
  * store, and the owner's acceptance of orphaning the stored reports that hold
  * one. Short of all four, remediate.
@@ -81,36 +82,56 @@ export const SUPERSEDED_R2_NORMALIZATIONS: Readonly<
     // removes admitted strings. tldts-core 7.4.13 ships the same JavaScript as
     // 7.4.10 and tldts changes only its suffix trie: 94 rules added (6
     // wildcard, 88 exact) and 8 removed. The authoritative list is the rule
-    // diff between the two tldts tries. By category, a host the 7.4.10
-    // sanitizer published:
+    // diff between the two tldts tries. Categories 1 to 4 are host strings
+    // (a request, cookie, frame or script host); category 5 is a registrable
+    // domain the report stores. By category, a host the 7.4.10 sanitizer
+    // published:
     // 1. under one of the 8 removed rules stops being a fixed point when a
     //    label the older engine kept whole as part of the registrable domain
     //    is now generalized or moved: "myapp.adaptable.app" becomes
     //    "{label}.adaptable.app". A host whose labels below the new
     //    registrable domain are all ones the allowlist keeps stays fixed
     //    (api.adaptable.app, www.xnbay.com; not www.u2.xnbay.com, whose u2 is
-    //    generalized). Below aivencloud.com only direct children fail, all of
-    //    them, because *.aivencloud.com replaces it;
+    //    generalized). Below aivencloud.com only direct children fail as host
+    //    strings, all of them, because *.aivencloud.com replaces it. Neither
+    //    exception holds for a stored registrable domain (5);
     // 2. that is a direct child of one of the 6 wildcard-added zones
     //    (*.eth.limo, *.eth.link, *.p.azurewebsites.net,
     //    *.cursorusercontent.com, *.builtwithrocket.new, *.aivencloud.com)
     //    stops being a fixed point: "{label}.eth.limo" is now a suffix and
     //    redacts to "{invalid-host}";
-    // 3. below one of the 88 exact added rules STAYS a fixed point. This is
-    //    the form most likely in live reports, because Azure's newer default
-    //    App Service hostnames sit under the 71 added
-    //    "<region>-01.azurewebsites.net" rules: the older engine already
-    //    published them as "{label}.<region>-01.azurewebsites.net", which the
-    //    new one reads as a registrable domain and leaves alone;
+    // 3. below one of the 88 exact added rules STAYS a fixed point as a host
+    //    string. Azure's newer default App Service hostnames sit under the 71
+    //    added "<region>-01.azurewebsites.net" rules: the older engine
+    //    already published them as "{label}.<region>-01.azurewebsites.net",
+    //    which the new one reads as a registrable domain and leaves alone. The
+    //    same app as the scanned site fails (5);
     // 4. equal to one of those exact rules, now a suffix itself, stops being
     //    a fixed point for 84 of the 88 (cloud.run, scw.site, the bare Azure
     //    region hosts, among others); the other 4 were published as
-    //    "{label}.<parent>" and stay fixed.
+    //    "{label}.<parent>" and stay fixed;
+    // 5. stored as a registrable domain the 7.4.10 engine computed is checked
+    //    again under the new engine even where every host string above stays
+    //    fixed. The scanned site's subject.requested and subject.observed
+    //    registrableDomain fail when the new engine redacts them differently:
+    //    a site below an exact added rule (87 of the 88; only vps.hrsn.net
+    //    keeps hrsn.net) or deeper than a direct child under
+    //    *.aivencloud.com. The sanitizer throws unsafe-subject-identity,
+    //    which the reader reports as redaction-not-idempotent and the
+    //    remediation planner as unsupported-report-schema. The domain and
+    //    entity of a Shields-list tracker matched through a CNAME cloak fail
+    //    when the new engine computes a different registrable domain for the
+    //    stored target: below an exact added rule, deeper than a direct child
+    //    under a wildcard-added zone, or an allowlisted host under a removed
+    //    rule (api.adaptable.app). A scanned App Service app on Azure's newer
+    //    "<region>-01.azurewebsites.net" hostnames, or a scanned Cloud Run
+    //    service, is the likeliest live case.
     // readManagedReport enters its fixed-point branch on the redaction
     // version alone, never the normalization, so every stored redaction-v4 r2
     // report of every era, not only cb7064 ones, is re-redacted with the new
-    // engine when read, and one holding a host in category 1, 2 or 4 fails
-    // closed as redaction-not-idempotent instead of being served. Read-time
+    // engine when read, and one holding a host in category 1, 2 or 4, or a
+    // stored registrable domain in category 5, fails closed instead of being
+    // served. Read-time
     // party grouping of a host kept whole under a changed zone also follows
     // the new engine (api.cloud.run groups as itself, no longer under
     // cloud.run).
@@ -118,8 +139,9 @@ export const SUPERSEDED_R2_NORMALIZATIONS: Readonly<
     // reports, their provenance sidecars, the index, the allowlists, the
     // tracker catalogs and every other tracked text file parses to the same
     // domain, suffix and ICANN/private flags and redacts to the same bytes
-    // under both engines, and none falls inside a changed rule's zone, so
-    // every committed report stays a fixed point. Live store: the application
+    // under both engines, and none falls inside a changed rule's zone as a
+    // host or a stored registrable domain, so every committed report stays a
+    // fixed point. Live store: the application
     // stops serving a share at its 7-day expiry and the bucket's
     // reports-retention-backstop-8d rule deletes the reports/ prefix at 8 days
     // (research/ops-receipts/r2-lifecycle-readback.json; the owner read the

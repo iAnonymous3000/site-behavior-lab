@@ -654,7 +654,7 @@ test("the planner and reader refuse a stored report holding a host the tldts@7.4
   // The 2026-09 toolchain epoch keeps accepting the tldts@7.4.10 identity, but
   // the managed reader re-sanitizes every stored v4 report with the current
   // engine. These are the exact bytes the 7.4.10 engine published for hosts in
-  // the three failing categories of changed zone (see the
+  // the failing categories of changed zone (see the
   // SUPERSEDED_R2_NORMALIZATIONS entry). Under 7.4.13 none is a fixed point,
   // so the remediation Worker's dry run (which runs this planner) must count
   // each as an issue, and the reader must refuse it rather than serve bytes
@@ -670,7 +670,7 @@ test("the planner and reader refuse a stored report holding a host the tldts@7.4
   );
   assert.notEqual(tuple, undefined);
 
-  function storedWithRequestHost(domain: string) {
+  function storedWith(substitute: (run: ScanRunV2R2) => void) {
     const report = makePublicSingleReportV2R2();
     const run = report.run;
     run.privacy.redactionVersion = REDACTION_VERSION;
@@ -701,13 +701,10 @@ test("the planner and reader refuse a stored report holding a host the tldts@7.4
       detectors: run.detectors
     });
     // Sanitize under the current engine first, then substitute the bytes the
-    // 7.4.10 engine published, so the host is the only difference.
+    // 7.4.10 engine published, so the substituted field is the only difference.
     const stored = redactPublicScanReportV2R2(report);
     if (stored.reportType !== "single") throw new Error("fixture invariant");
-    const request = stored.run.evidence.requests.find((entry) => entry.id === 2);
-    if (!request) throw new Error("fixture invariant");
-    request.url = `https://${domain}/{seg}`;
-    request.domain = domain;
+    substitute(stored.run);
     const sidecar = buildProvenanceEntry({
       reportId: REPORT_ID,
       publicReport: stored,
@@ -727,15 +724,55 @@ test("the planner and reader refuse a stored report holding a host the tldts@7.4
     // An exact host that was a registrable domain and is now a suffix.
     ["cloud.run", false],
     ["eastus-01.azurewebsites.net", false],
-    // Controls: deeper and allowlisted hosts in the same zones are unchanged,
-    // including an app host below an added Azure region rule.
+    // Controls: as REQUEST hosts, deeper and allowlisted hosts in the same
+    // zones are unchanged, including an app host below an added Azure region
+    // rule. A stored registrable domain for the same host can still fail
+    // (subject rows below).
     ["{label}.{label}.eth.limo", true],
     ["api.cloud.run", true],
     ["api.adaptable.app", true],
     ["{label}.eastus-01.azurewebsites.net", true],
     ["cdn.tracker-example.com", true]
   ] as const) {
-    const { reportContents, sidecarContents } = storedWithRequestHost(domain);
+    const { reportContents, sidecarContents } = storedWith((run) => {
+      const request = run.evidence.requests.find((entry) => entry.id === 2);
+      if (!request) throw new Error("fixture invariant");
+      request.url = `https://${domain}/{seg}`;
+      request.domain = domain;
+    });
+    assertStoredOutcome(domain, reportContents, sidecarContents, readable);
+  }
+
+  // A registrable domain the report STORES is recomputed on read too: the
+  // scanned site's subject keys. A site below an exact added rule keeps a
+  // fixed-point host string ("{label}.eastus-01.azurewebsites.net") but the
+  // registrable domain 7.4.10 stored for it is now a suffix, so the report
+  // fails even though the same host as a request host (above) stays readable.
+  // The sanitizer throws unsafe-subject-identity: the reader reports that as
+  // redaction-not-idempotent and the planner as unsupported-report-schema.
+  for (const [origin, registrableDomain, readable] of [
+    ["https://{label}.eastus-01.azurewebsites.net", "eastus-01.azurewebsites.net", false],
+    ["https://{label}.cloud.run", "cloud.run", false],
+    // Control: substituting an unchanged site through the same path reads.
+    ["https://{label}.contoso-apps.com", "contoso-apps.com", true]
+  ] as const) {
+    const { reportContents, sidecarContents } = storedWith((run) => {
+      run.subject.requested = { ...run.subject.requested, origin, registrableDomain };
+      run.subject.observed = { ...run.subject.observed, origin, registrableDomain };
+    });
+    assertStoredOutcome(`subject ${registrableDomain}`, reportContents, sidecarContents, readable, {
+      issue: "unsupported-report-schema",
+      detail: "unsafe-subject-identity"
+    });
+  }
+
+  function assertStoredOutcome(
+    label: string,
+    reportContents: string,
+    sidecarContents: string,
+    readable: boolean,
+    planRefusal: { issue: string; detail?: string } = { issue: "redaction-not-idempotent" }
+  ) {
     const read = readManagedReport({ reportId: REPORT_ID, reportContents, sidecarContents, retention: CLOCK });
     const plan = planR2ReportRemediation({
       reportId: REPORT_ID,
@@ -746,14 +783,14 @@ test("the planner and reader refuse a stored report holding a host the tldts@7.4
       now: WRITTEN_AT
     });
     if (readable) {
-      assert.equal(read.ok, true, domain);
-      assert.equal(plan.ok && plan.action, "current", domain);
+      assert.equal(read.ok, true, label);
+      assert.equal(plan.ok && plan.action, "current", label);
     } else {
-      assert.deepEqual(read.ok ? "ok" : read.reason, "redaction-not-idempotent", domain);
+      assert.deepEqual(read.ok ? "ok" : read.reason, "redaction-not-idempotent", label);
       assert.deepEqual(
-        plan.ok ? plan.action : plan.issue,
-        "redaction-not-idempotent",
-        domain
+        plan.ok ? plan.action : { issue: plan.issue, ...(plan.detail ? { detail: plan.detail } : {}) },
+        planRefusal,
+        label
       );
     }
   }
