@@ -16,7 +16,7 @@ The visit is passive except for two bounded interactions. First, an **active inp
 
 With optional durable execution, an attempt whose execution, publication, or status coordination was lost may be abandoned and retried once under a fenced two-attempt lease. The target can therefore receive an extra automated visit that was partial or that completed before its result was lost. The report still contains one completed attempt per condition and never merges evidence from separate attempts; if a complete R2 report already exists, recovery reconciles that exact stored report instead of visiting again.
 
-Operators of public deployments are still responsible for abuse prevention and local legal compliance. For security-sensitive reports, follow [SECURITY.md](SECURITY.md).
+Operators of public deployments are still responsible for abuse prevention and local legal compliance. For security-sensitive reports, follow [SECURITY.md](../SECURITY.md).
 
 ### What this is ready for
 
@@ -43,7 +43,7 @@ npm run verify:report -- <report-id>
 
 Add `--from <dir>` to check bytes you saved yourself rather than the bytes this
 site serves today; if you intend to rely on a report, read
-[docs/evidence-custody.md](docs/evidence-custody.md) first, and note that a
+[docs/evidence-custody.md](evidence-custody.md) first, and note that a
 printed copy is a rendering whose footer carries the wire digest, not the
 evidence.
 
@@ -69,11 +69,11 @@ Two limits matter most for serious work, and both are deliberate:
   the desktop, GPC-disabled arm where accept-all registration was verified
   again after reload, never from a requested click alone and never generalized
   to all visits. The release-grade, role-separated producer and operator sequence are documented in
-  [docs/calibration-study-operations.md](docs/calibration-study-operations.md).
+  [docs/calibration-study-operations.md](calibration-study-operations.md).
 - **The claim boundary is investigative evidence requiring independent
   corroboration.** Standalone legal determinations and sole-court-exhibit use
   are explicitly excluded; that decision is approved and recorded in
-  [`RELEASE_READINESS.json`](RELEASE_READINESS.json).
+  [`RELEASE_READINESS.json`](../RELEASE_READINESS.json).
 
 Three practical consequences when interpreting a report:
 
@@ -98,11 +98,11 @@ in the committed production configuration and are tracked as release gates.
 
 ## Data Attribution
 
-The tracker/service catalog is a US-biased, hand-curated, in-repo list of high-prevalence third-party services in [lib/tracker-catalog.ts](lib/tracker-catalog.ts), licensed with this repository under AGPL-3.0-or-later. It deliberately bundles no third-party dataset, so there is no separate NonCommercial term to clear before commercial use.
+The tracker/service catalog is a US-biased, hand-curated, in-repo list of high-prevalence third-party services in [lib/tracker-catalog.ts](../lib/tracker-catalog.ts), licensed with this repository under AGPL-3.0-or-later. It deliberately bundles no third-party dataset, so there is no separate NonCommercial term to clear before commercial use.
 
 Coverage is intentionally a lower bound: the curated list names recognizable services rather than every tracker. The Shields filter-list-match and block-simulation signals are computed separately, with Brave's own ad-block engine (the [`adblock`](https://github.com/brave/adblock-rust) Rust crate compiled to WASM, built from `tools/adblock-wasm/`) over Brave's default filter lists, vendored as a pinned snapshot; those lists do not assign the service/entity labels shown by the curated catalog.
 
-[`THIRD_PARTY_INVENTORY.json`](THIRD_PARTY_INVENTORY.json) is the deterministic dependency and filter-source evidence inventory. It is not a complete notice set: the checked lockfiles do not establish licenses for 68 third-party Cargo packages or any of the 31 filter-list sources, so legal review and any required notice/source-offer work remain release gates. The automated dependency/CVE checks, WASM reproducibility boundary, and artifact-attestation gate are documented in [`docs/supply-chain-assurance.md`](docs/supply-chain-assurance.md).
+[`THIRD_PARTY_INVENTORY.json`](../THIRD_PARTY_INVENTORY.json) is the deterministic dependency and filter-source evidence inventory. It is not a complete notice set: the checked lockfiles do not establish licenses for 68 third-party Cargo packages or any of the 31 filter-list sources, so legal review and any required notice/source-offer work remain release gates. The automated dependency/CVE checks, WASM reproducibility boundary, and artifact-attestation gate are documented in [`docs/supply-chain-assurance.md`](supply-chain-assurance.md).
 
 
 ## Important Limitations
