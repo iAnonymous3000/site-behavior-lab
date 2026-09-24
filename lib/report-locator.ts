@@ -102,6 +102,26 @@ export function reportPdfLocation(id: string, runtime: ReportRuntime): string | 
 }
 
 /**
+ * Where this report's PDF can be fetched, given how the report reached the page.
+ *
+ * On a static build a committed report is offered a PDF only when the build
+ * declares its container renderer (`declaredRenderer`), the rule the
+ * server-rendered receipt applies (lib/site-url.ts reportPdfHref). Only a report
+ * produced behind the live API (an /api/ JSON path) may also use that API's
+ * observed savedReportPages capability; the permalink explorer passes
+ * liveApiServesReportPages without probing anything.
+ */
+export function reportPdfLocationForShare(
+  share: ReportShare,
+  runtime: ReportRuntime,
+  declaredRenderer: boolean
+): string | null {
+  if (!runtime.staticExport) return reportPdfLocation(share.id, runtime);
+  const observed = share.jsonPath.startsWith("/api/") && runtime.liveApiServesReportPages === true;
+  return reportPdfLocation(share.id, { ...runtime, liveApiServesReportPages: declaredRenderer || observed });
+}
+
+/**
  * Build the `ReportShare` persisted alongside a saved report. Shared by every
  * producer so the stored path scheme has exactly one definition.
  */

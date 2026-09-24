@@ -10,6 +10,7 @@ import { loadCommittedCorpusStats } from "@/lib/current-scan-cohort";
 import { parseCorrectionsLedger, reportCorrections } from "@/lib/corrections-ledger";
 import { serializeJsonLd } from "@/lib/jsonld-script";
 import { buildReportDataset } from "@/lib/report-jsonld";
+import { reportPdfExportQuery } from "@/lib/report-pdf-export-query";
 import { readStoredReportForId } from "@/lib/report-source";
 import { requireFreshRuntimeReportRequest } from "@/lib/report-route-freshness";
 import { correctionMetadataDescription, reportMetadataDescription, reportMetadataTitle } from "@/lib/seo-metadata";
@@ -140,6 +141,7 @@ export default async function SavedReportPage({ params }: { params: Promise<{ id
         id={id}
         evidenceHref={evidenceHref}
         expectedEvidenceSha256={result.wireSha256}
+        pdfExportQuery={reportPdfExportQuery(id, result.wireSha256)}
         title={reportPageTitle(headline)}
         context={
           <ReportPageContext

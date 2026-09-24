@@ -145,6 +145,27 @@ test("the document download and PDF preview use the configured renderer, includi
   assert.match(helper, /NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SCAN_API_BASE/);
 });
 
+test("the explorer's PDF control follows the receipt's capability and binding", () => {
+  // The receipt and the explorer header answer the same question on one saved
+  // page. The header used to force an unprobed capability true for committed
+  // reports and to send its export unbound; lib/site-url.test.ts runs both
+  // capability producers over the same inputs, and this pins the wiring.
+  const overview = source("app/_components/report-overview.tsx");
+  assert.match(overview, /reportPdfLocationForShare\(/);
+  assert.doesNotMatch(overview, /liveApiServesReportPages = true/);
+  assert.match(overview, /process\.env\.NEXT_PUBLIC_SITE_BEHAVIOR_LAB_PDF_EXPORT_ENABLED === "1"/,
+    "the declaration must stay a literal env read so Next inlines it");
+  assert.match(source("app/_components/report-page-context.tsx"), /reportPdfExportQuery\(id, evidenceSha256\)/);
+  assert.match(source("app/reports/[id]/page.tsx"), /pdfExportQuery=\{reportPdfExportQuery\(id, result\.wireSha256\)\}/);
+  assert.match(source("app/reports/[id]/saved-report-client.tsx"), /<LazyReportRenderer[^>]*pdfExportQuery=\{pdfExportQuery\}/);
+  assert.match(source("app/_components/report-renderer.tsx"), /<ReportHeader\b(?:(?!\/>)[\s\S])*pdfExportQuery=\{pdfExportQuery\}/);
+  // The client files receive the finished string; none computes the digests.
+  for (const client of ["app/reports/[id]/saved-report-client.tsx", "app/_components/report-renderer.tsx", "app/_components/report-header.tsx"]) {
+    assert.doesNotMatch(source(client), /from "[^"]*report-pdf-export-query"|publishedReportCorrectionWire\(/, client);
+  }
+  assert.match(source("app/_components/report-header.tsx"), /href=\{`\$\{pdfHref\}\?\$\{pdfExportQuery \? `\$\{pdfExportQuery\}&` : ""\}download=bundle`\}/);
+});
+
 test("the PDF route is an API route, so the static export drops it with the rest of app/api", () => {
   // If it ever moved out of app/api it would become a force-dynamic route the
   // export build fails on, and it would fail inside a copied worktree in CI.

@@ -8,6 +8,7 @@ import {
   locateReport,
   reportPdfApiPath,
   reportPdfLocation,
+  reportPdfLocationForShare,
   withoutReportShare
 } from "./report-locator";
 
@@ -186,6 +187,40 @@ test("no PDF is offered where nothing can render one", () => {
 
   for (const [why, runtime] of cases) {
     assert.equal(reportPdfLocation(VALID_ID, runtime), null, why);
+  }
+});
+
+test("a committed report's PDF follows the build declaration, a live-API report may also follow observation", () => {
+  // The permalink explorer passes liveApiServesReportPages=true without probing
+  // anything. On a static build that must not offer a committed report a PDF
+  // the receipt (lib/site-url.ts reportPdfHref) withholds, so only an /api/
+  // share may use the observed capability.
+  const staticRuntime = {
+    staticExport: true,
+    liveApiBacked: true,
+    basePath: "",
+    scanApiBase: "https://scan.example.org",
+    liveApiServesReportPages: true
+  };
+  const url = `https://scan.example.org/api/reports/${VALID_ID}/pdf`;
+  const committed = buildStaticReportShare(VALID_ID);
+  const live = buildReportShare(VALID_ID);
+  const cases: Array<[string, Parameters<typeof reportPdfLocationForShare>, string | null]> = [
+    ["committed, undeclared, unprobed true", [committed, staticRuntime, false], null],
+    ["committed, undeclared, observed false", [committed, { ...staticRuntime, liveApiServesReportPages: false }, false], null],
+    ["committed, declared", [committed, staticRuntime, true], url],
+    ["committed, declared, observed false", [committed, { ...staticRuntime, liveApiServesReportPages: false }, true], url],
+    ["live API, undeclared, observed true", [live, staticRuntime, false], url],
+    ["live API, undeclared, observed false", [live, { ...staticRuntime, liveApiServesReportPages: false }, false], null],
+    ["live API, undeclared, capability unknown", [live, { ...staticRuntime, liveApiServesReportPages: undefined }, false], null],
+    ["live API, declared, observed false", [live, { ...staticRuntime, liveApiServesReportPages: false }, true], url],
+    ["declared but no live API", [committed, { ...staticRuntime, liveApiBacked: false }, true], null],
+    ["declared but no API origin", [committed, { ...staticRuntime, scanApiBase: undefined }, true], null],
+    ["container, committed", [committed, { staticExport: false, liveApiBacked: false, basePath: "" }, false], `/api/reports/${VALID_ID}/pdf`],
+    ["container, live API", [live, { staticExport: false, liveApiBacked: false, basePath: "", liveApiServesReportPages: false }, false], `/api/reports/${VALID_ID}/pdf`]
+  ];
+  for (const [why, args, expected] of cases) {
+    assert.equal(reportPdfLocationForShare(...args), expected, why);
   }
 });
 

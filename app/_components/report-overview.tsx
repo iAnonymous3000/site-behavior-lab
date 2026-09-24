@@ -46,7 +46,7 @@ import { gpcRunMeasurement, shieldsFilterMatchDetail } from "@/lib/report-insigh
 import {
   committedReportLocation,
   locateReport,
-  reportPdfLocation,
+  reportPdfLocationForShare,
   type ReportRuntime
 } from "@/lib/report-locator";
 import { buildRequestComposition } from "@/lib/request-composition";
@@ -86,19 +86,21 @@ export function reportSharePath(share: ReportShare | null | undefined, liveApiSe
  * The PDF download URL for this report, or null when no reachable origin can
  * render one.
  *
- * Live scans use the API's observed capability. The public static library can
- * additionally declare its configured container renderer at build time.
+ * On a static build a committed report follows the build's declared renderer
+ * (the rule the server-rendered receipt applies), and only a report produced
+ * behind the live API may also use that API's observed capability. The env read
+ * stays literal so Next inlines it into the client bundle.
  */
 export function reportPdfHref(
   share: ReportShare | null | undefined,
   liveApiServesReportPages: boolean
 ): string | null {
   if (!share?.id) return null;
-  const runtime: ReportRuntime = { ...clientReportRuntime(), liveApiServesReportPages };
-  if (runtime.staticExport && process.env.NEXT_PUBLIC_SITE_BEHAVIOR_LAB_PDF_EXPORT_ENABLED === "1") {
-    runtime.liveApiServesReportPages = true;
-  }
-  return reportPdfLocation(share.id, runtime);
+  return reportPdfLocationForShare(
+    share,
+    { ...clientReportRuntime(), liveApiServesReportPages },
+    process.env.NEXT_PUBLIC_SITE_BEHAVIOR_LAB_PDF_EXPORT_ENABLED === "1"
+  );
 }
 
 /**

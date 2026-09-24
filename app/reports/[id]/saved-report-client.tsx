@@ -27,6 +27,7 @@ export function SavedReportClient({
   id,
   evidenceHref,
   expectedEvidenceSha256,
+  pdfExportQuery,
   title,
   context,
   receipt,
@@ -35,6 +36,12 @@ export function SavedReportClient({
   id: string;
   evidenceHref: string;
   expectedEvidenceSha256: string;
+  /**
+   * Binds the explorer's PDF control to this page's evidence and correction
+   * context. Computed on the server (lib/report-pdf-export-query.ts), the same
+   * producer as the receipt's links, so this client never restates the binding.
+   */
+  pdfExportQuery: string;
   title: string;
   context: ReactNode;
   /** Integrity and provenance, rendered after the evidence rather than before it. */
@@ -190,7 +197,7 @@ export function SavedReportClient({
               tabIndex={-1}
             >
               <Suspense fallback={<p className="muted">Preparing the evidence explorer…</p>}>
-                <LazyReportRenderer loaded={loaded} liveApiServesReportPages />
+                <LazyReportRenderer loaded={loaded} liveApiServesReportPages pdfExportQuery={pdfExportQuery} />
               </Suspense>
             </section>
           )}

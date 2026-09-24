@@ -52,11 +52,14 @@ import { publishedReportCorrections } from "@/lib/published-report-corrections";
 export function ReportRenderer({
   loaded,
   liveApiServesReportPages,
+  pdfExportQuery,
   printComplete = false,
   printGuide
 }: {
   loaded: LoadedReport;
   liveApiServesReportPages: boolean;
+  /** Server-computed evidence and correction binding for the header's PDF control; saved pages only. */
+  pdfExportQuery?: string;
   /**
    * Render every retained row and open every disclosure, for a page that will
    * be printed. Defaults false so the interactive route is byte-identical to
@@ -188,6 +191,7 @@ export function ReportRenderer({
             onDownload={() => void exportWithFeedback(downloadReport)}
             onDownloadCsv={() => void exportWithFeedback(downloadCsv)}
             liveApiServesReportPages={liveApiServesReportPages}
+            pdfExportQuery={pdfExportQuery}
           />
           {exportError && <p role="alert" className="export-error">{exportError}</p>}
           <HeadlineBanner

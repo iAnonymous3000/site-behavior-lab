@@ -1,5 +1,5 @@
-import { sha256Hex } from "@/lib/sha256";
-import { publishedReportCorrections, publishedReportCorrectionWire } from "@/lib/published-report-corrections";
+import { publishedReportCorrections } from "@/lib/published-report-corrections";
+import { reportPdfExportQuery } from "@/lib/report-pdf-export-query";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { CLAIM_BOUNDARY, claimBoundaryParagraph } from "@/lib/claim-boundary";
@@ -178,9 +178,7 @@ export function ReportEvidenceReceipt({
 }) {
   const detectorScope = reportDetectorScope(view);
   const pdfHref = reportPdfHref(id);
-  const exportQuery = new URLSearchParams({ correctionsSha256: sha256Hex(publishedReportCorrectionWire(id)) });
-  if (evidenceSha256) exportQuery.set("sha256", evidenceSha256);
-  const boundPdfHref = pdfHref && `${pdfHref}?${exportQuery}`;
+  const boundPdfHref = pdfHref && `${pdfHref}?${reportPdfExportQuery(id, evidenceSha256)}`;
   return (
     <section className="evidence-receipt" id="receipt" aria-labelledby="evidence-receipt-title">
         <p className="evidence-receipt-retention">

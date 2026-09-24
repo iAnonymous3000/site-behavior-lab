@@ -805,6 +805,21 @@ async function main() {
     );
     if (!explorerHasFocus) fail("saved report explorer did not receive focus after its trigger disappeared");
     pass("saved report explorer preserves keyboard focus across lazy loading");
+    // The explorer header offers the receipt's package a second time on the
+    // same page, so it must follow the same declared capability and carry the
+    // same source and correction binding, not an unbound export.
+    const headerPdfLinks = page.locator(".report-header").getByRole("link", { name: /^PDF \+ evidence/ });
+    if (await headerPdfLinks.count() !== (hasDocumentRenderer ? 1 : 0)) {
+      fail("evidence explorer PDF control does not match the declared renderer capability");
+    }
+    if (hasDocumentRenderer) {
+      const receiptPackageHref = await page.locator(".evidence-receipt")
+        .getByRole("link", { name: /^Download PDF \+ evidence/ }).getAttribute("href");
+      if (await headerPdfLinks.getAttribute("href") !== receiptPackageHref) {
+        fail("evidence explorer PDF control is not bound to this report's source and correction context");
+      }
+    }
+    pass("evidence explorer PDF control agrees with the evidence receipt");
     await assertNoSeriousAxeViolations(page, "interactive r2 evidence explorer");
     await expectText(phaseEvidence, "P0 · passive-load");
     await expectText(phaseEvidence, "No retained rows");

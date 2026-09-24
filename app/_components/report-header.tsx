@@ -22,7 +22,8 @@ export function ReportHeader({
   csvArmLabel,
   onDownload,
   onDownloadCsv,
-  liveApiServesReportPages
+  liveApiServesReportPages,
+  pdfExportQuery
 }: {
   /** The wire report's share pointer, needed only to resolve the permalink. */
   share: ReportShare | null;
@@ -35,6 +36,12 @@ export function ReportHeader({
   onDownload: () => void;
   onDownloadCsv: () => void;
   liveApiServesReportPages: boolean;
+  /**
+   * The saved page's evidence and correction binding, the same query its
+   * receipt links carry. Absent on a live scan result and the print route,
+   * whose exports stay unbound exactly as before.
+   */
+  pdfExportQuery?: string;
 }) {
   const run = runFacts.run;
   const sharePath = reportSharePath(share, liveApiServesReportPages);
@@ -173,7 +180,7 @@ export function ReportHeader({
             <a
               aria-describedby="pdf-export-description"
               className="secondary-button"
-              href={`${pdfHref}?download=bundle`}
+              href={`${pdfHref}?${pdfExportQuery ? `${pdfExportQuery}&` : ""}download=bundle`}
               // Opens beside the report, never over it. This control also
               // renders on the live scan result, where the report exists only
               // in React state and has no permalink to come back to: a refusal

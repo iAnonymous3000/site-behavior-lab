@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { buildStaticReportShare, reportPdfLocationForShare } from "./report-locator";
 import {
   printableReportHref,
   publicLibraryUrl,
@@ -139,5 +140,44 @@ test("static PDF links require an explicit renderer capability and resolve outsi
     process.env[names[1]] = "1";
     process.env[names[2]] = "https://scan.sitebehavior.org";
     assert.equal(reportPdfHref("example"), "https://scan.sitebehavior.org/api/reports/example/pdf");
+  } finally { names.forEach((name, index) => restore(name, previous[index])); }
+});
+
+test("the saved page's explorer and its receipt agree on whether a committed report has a PDF", () => {
+  // Two producers answer one question on one page: the server-rendered receipt
+  // (reportPdfHref) and the client explorer header (reportPdfLocationForShare
+  // via app/_components/report-overview.tsx). The explorer is handed an
+  // unprobed liveApiServesReportPages=true, so both values of it are run. The
+  // runtime below mirrors app/client-runtime.ts clientReportRuntime() for a
+  // static build with a scan API configured.
+  const names = [
+    "NEXT_PUBLIC_SITE_BEHAVIOR_LAB_STATIC_EXPORT",
+    "NEXT_PUBLIC_SITE_BEHAVIOR_LAB_PDF_EXPORT_ENABLED",
+    "NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SCAN_API_BASE",
+    "NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL"
+  ];
+  const previous = names.map(name => process.env[name]);
+  const id = `20260101-${"a".repeat(32)}`;
+  try {
+    process.env.NEXT_PUBLIC_SITE_BEHAVIOR_LAB_STATIC_EXPORT = "1";
+    process.env.NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SCAN_API_BASE = "https://scan.example.org";
+    process.env.NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL = "https://example.org";
+    for (const flag of [undefined, "1"]) {
+      restore("NEXT_PUBLIC_SITE_BEHAVIOR_LAB_PDF_EXPORT_ENABLED", flag);
+      for (const liveApiServesReportPages of [true, false]) {
+        const explorer = reportPdfLocationForShare(
+          buildStaticReportShare(id),
+          {
+            staticExport: true,
+            liveApiBacked: true,
+            basePath: "",
+            scanApiBase: process.env.NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SCAN_API_BASE,
+            liveApiServesReportPages
+          },
+          flag === "1"
+        );
+        assert.equal(explorer, reportPdfHref(id), `flag=${flag ?? "unset"} liveApiServesReportPages=${liveApiServesReportPages}`);
+      }
+    }
   } finally { names.forEach((name, index) => restore(name, previous[index])); }
 });
