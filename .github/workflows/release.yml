@@ -65,6 +65,11 @@ jobs:
       receipt_artifact_digest: ${{ steps.receipt_artifact.outputs.artifact-digest }}
       static_artifact_id: ${{ steps.static_artifact.outputs.artifact-id }}
       static_artifact_digest: ${{ steps.static_artifact.outputs.artifact-digest }}
+      # The handoff names are minted in THIS job's attempt. An attest-only
+      # rerun keeps these outputs from prepare's successful attempt, so attest
+      # names the handoff by this number, never by its own run_attempt (the
+      # same rule as scan.yml's publication_artifact_name).
+      handoff_run_attempt: ${{ github.run_attempt }}
     steps:
       # Snapshot the two external maintainer trust roots before checkout or any
       # package execution. The measurement selector may be empty for 0.x; its
@@ -649,6 +654,7 @@ jobs:
     outputs:
       receipt_sha256: ${{ steps.validate.outputs.receipt_sha256 }}
       attestation_url: ${{ steps.attest_release.outputs.attestation-url }}
+      attest_run_attempt: ${{ steps.validate.outputs.attest_run_attempt }}
     steps:
       - name: Download only the immutable receipt artifact
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
@@ -770,6 +776,7 @@ jobs:
           RELEASE_VERSION: ${{ needs.prepare.outputs.release_version }}
           RELEASE_TAG: ${{ needs.prepare.outputs.release_tag }}
           RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256: ${{ needs.prepare.outputs.governance_receipt_sha256 }}
+          HANDOFF_RUN_ATTEMPT: ${{ needs.prepare.outputs.handoff_run_attempt }}
         run: |
           set -euo pipefail
           node <<'NODE'
@@ -812,9 +819,24 @@ jobs:
           }
           if (process.env.RELEASE_TAG !== `v${process.env.RELEASE_VERSION}`) fail("The release tag is inconsistent.");
           if (!/^\d+$/.test(process.env.ARTIFACT_ID)) fail("The receipt artifact ID is malformed.");
+          // An attest-only rerun consumes the handoff prepare uploaded in its own,
+          // earlier attempt of this run. Only the attempt number comes from
+          // prepare, bounded to no later than this attempt; the run id and head
+          // SHA stay this job's own, so cross-run substitution stays closed.
+          const runAttemptPattern = /^(?:[1-9]\d?|100)$/;
+          const currentAttempt = process.env.GITHUB_RUN_ATTEMPT ?? "";
+          const handoffAttempt = process.env.HANDOFF_RUN_ATTEMPT ?? "";
+          if (
+            !/^[1-9]\d*$/.test(process.env.GITHUB_RUN_ID ?? "") ||
+            !runAttemptPattern.test(currentAttempt) ||
+            !runAttemptPattern.test(handoffAttempt) ||
+            Number(handoffAttempt) > Number(currentAttempt)
+          ) {
+            fail("The run id is malformed, or the handoff run attempt is malformed or later than this attempt.");
+          }
           const receiptDir = path.join(process.env.RUNNER_TEMP, "release-receipt");
           const entries = fs.readdirSync(receiptDir, { withFileTypes: true });
-          const expectedName = `site-behavior-lab-release-${process.env.GITHUB_RUN_ID}-${process.env.GITHUB_RUN_ATTEMPT}.json`;
+          const expectedName = `site-behavior-lab-release-${process.env.GITHUB_RUN_ID}-${handoffAttempt}.json`;
           if (entries.length !== 1 || entries[0].name !== expectedName || !entries[0].isFile()) {
             fail("The handoff must contain exactly the expected regular receipt file.");
           }
@@ -863,7 +885,7 @@ jobs:
           if (
             String(staticArtifactRecord?.id) !== process.env.STATIC_ARTIFACT_ID ||
             staticArtifactRecord?.name !==
-              `site-behavior-lab-static-${process.env.GITHUB_RUN_ID}-${process.env.GITHUB_RUN_ATTEMPT}` ||
+              `site-behavior-lab-static-${process.env.GITHUB_RUN_ID}-${handoffAttempt}` ||
             staticArtifactRecord?.expired !== false ||
             !Number.isSafeInteger(staticArtifactRecord?.size_in_bytes) ||
             staticArtifactRecord.size_in_bytes <= 0 ||
@@ -1175,7 +1197,10 @@ jobs:
           }
 
           const receiptSha256 = sha256(bytes);
-          fs.appendFileSync(process.env.GITHUB_OUTPUT, `receipt_sha256=${receiptSha256}\n`);
+          fs.appendFileSync(
+            process.env.GITHUB_OUTPUT,
+            `receipt_sha256=${receiptSha256}\nreceipt_file=${expectedName}\nattest_run_attempt=${currentAttempt}\n`
+          );
           console.log(
             `Validated isolated release receipt sha256:${receiptSha256} against ` +
               `${walked.length} independently hashed static file(s).`
@@ -1186,7 +1211,7 @@ jobs:
         id: attest_release
         uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
         with:
-          subject-path: ${{ runner.temp }}/release-receipt/site-behavior-lab-release-${{ github.run_id }}-${{ github.run_attempt }}.json
+          subject-path: ${{ runner.temp }}/release-receipt/${{ steps.validate.outputs.receipt_file }}
 
       - name: Require the attestation result
         env:
@@ -1203,7 +1228,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: site-behavior-lab-release-${{ needs.prepare.outputs.release_version }}
-          path: ${{ runner.temp }}/release-receipt/site-behavior-lab-release-${{ github.run_id }}-${{ github.run_attempt }}.json
+          path: ${{ runner.temp }}/release-receipt/${{ steps.validate.outputs.receipt_file }}
           if-no-files-found: error
           retention-days: 90
 
@@ -2170,6 +2195,7 @@ jobs:
           RELEASE_TAG: ${{ needs.prepare.outputs.release_tag }}
           ATTESTATION_URL: ${{ needs.attest.outputs.attestation_url }}
           RECEIPT_SHA256: ${{ needs.attest.outputs.receipt_sha256 }}
+          ATTEST_RUN_ATTEMPT: ${{ needs.attest.outputs.attest_run_attempt }}
           RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256: ${{ needs.prepare.outputs.governance_receipt_sha256 }}
           RELEASE_MEASUREMENT_BINDING_REQUIRED: ${{ needs.prepare.outputs.measurement_binding_required }}
           RELEASE_MEASUREMENT_BINDING_SHA256: ${{ needs.prepare.outputs.measurement_binding_sha256 }}
@@ -2195,8 +2221,17 @@ jobs:
             echo "::error title=Release refused::Tag-ref preflight failed with transport exit ${preflight_exit} and HTTP ${preflight_status}."
             exit 1
           fi
-          if [[ "$GITHUB_RUN_ATTEMPT" == "1" && "$preflight_status" != "404" ]]; then
-            echo "::error title=Release refused::A first-attempt release may proceed only when the exact tag ref returns HTTP 404."
+          if [[ ! "$ATTEST_RUN_ATTEMPT" =~ ^([1-9][0-9]?|100)$ ||
+                ! "$GITHUB_RUN_ATTEMPT" =~ ^([1-9][0-9]?|100)$ ||
+                "$ATTEST_RUN_ATTEMPT" -gt "$GITHUB_RUN_ATTEMPT" ]]; then
+            echo "::error title=Release refused::The attestation run attempt is malformed or later than this attempt."
+            exit 1
+          fi
+          # A tag job in the attempt that minted its attestation is that
+          # attestation's first publication attempt, so any existing ref is
+          # foreign. Only a tag-only rerun may find a ref it may itself have created.
+          if [[ "$GITHUB_RUN_ATTEMPT" == "$ATTEST_RUN_ATTEMPT" && "$preflight_status" != "404" ]]; then
+            echo "::error title=Release refused::A release whose attestation was minted in this attempt may proceed only when the exact tag ref returns HTTP 404."
             exit 1
           fi
           node <<'NODE'

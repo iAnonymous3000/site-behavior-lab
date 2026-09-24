@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { cpSync, existsSync, readFileSync, readdirSync } from "node:fs";
-import { chmod, copyFile, mkdir, mkdtemp, readFile, rm, symlink, writeFile } from "node:fs/promises";
+import { chmod, copyFile, mkdir, mkdtemp, readFile, rename, rm, symlink, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { test, type TestContext } from "node:test";
@@ -190,10 +190,32 @@ test("repository metadata truthfully describes the governed 0.x and exact 1.0 li
     releaseGuide,
     /30653749957[\s\S]*HTTP 403[\s\S]*fresh dispatch from\s+the updated `main` workflow/
   );
+  // The blanket "never rerun" rule became too broad once an attest-only rerun
+  // validates the handoff its prepare attempt uploaded: a dispatch whose
+  // workflow or configuration was wrong still restarts from `main`, because a
+  // rerun keeps the old workflow definition, while a transient outage may use
+  // "Re-run failed jobs".
   assert.match(
     releaseGuide,
-    /A failed dispatch is never approved or\s+rerun; the ceremony restarts from `main`\./
+    /A dispatch that failed because its\s+workflow or configuration was wrong\s+is never approved or\s+rerun; the\s+ceremony restarts from `main`\./
   );
+  assert.match(
+    releaseGuide,
+    /If prepare or attest fails because of\s+the\s+workflow, its configuration or the candidate, start a fresh\s+dispatch[\s\S]*A\s+transient failure[\s\S]*may\s+instead use "Re-run failed jobs"/
+  );
+  assert.match(
+    releaseGuide,
+    /Whenever the tag job runs in the same attempt that minted the\s+attestation it names[\s\S]*requires the exact ref preflight to\s+return HTTP 404/
+  );
+  // The dated 2026-07-26 review listed artifact substitution across attempts
+  // as closed; the deliberate cross-attempt acceptance is recorded beside it,
+  // inside that section, rather than by rewriting the dated text.
+  const securityReview = releaseGuide.slice(
+    releaseGuide.indexOf("## Security review of the release path (2026-07-26)"),
+    releaseGuide.indexOf("## External control snapshot (2026-07-21)")
+  );
+  assert.match(securityReview, /artifact substitution across runs or attempts/);
+  assert.match(securityReview, /### Addendum[\s\S]*attest-only rerun[\s\S]*run id and head SHA/);
   // The guide must state what a tag does and does not claim, and must keep the
   // ordering that makes the claim true: promote first, then tag.
   assert.match(releaseGuide, /What a release tag claims/);
@@ -1075,6 +1097,25 @@ test("the release workflow tags only a promoted, CI-green revision and attests i
     "site-behavior-lab-release-\\$\\{\\{ github\\.run_id \\}\\}-\\$\\{\\{ github\\.run_attempt \\}\\}\\.json";
   assert.match(prepare, new RegExp(`name: ${receiptFileName}`));
   assert.match(prepare, new RegExp(`path: \\$\\{\\{ runner\\.temp \\}\\}/${receiptFileName}`));
+  // The handoff names carry prepare's attempt, and an attest-only rerun keeps
+  // prepare's outputs from that attempt. Attest must name the handoff by the
+  // attempt prepare exported, never rebuild it from its own run_attempt, and
+  // must sign and preserve exactly the file its validator accepted rather
+  // than any path a prepare output could spell.
+  assert.match(prepare, /handoff_run_attempt: \$\{\{ github\.run_attempt \}\}/);
+  assert.match(attest, /HANDOFF_RUN_ATTEMPT: \$\{\{ needs\.prepare\.outputs\.handoff_run_attempt \}\}/);
+  assert.match(attest, /attest_run_attempt: \$\{\{ steps\.validate\.outputs\.attest_run_attempt \}\}/);
+  assert.match(
+    attest,
+    /subject-path: \$\{\{ runner\.temp \}\}\/release-receipt\/\$\{\{ steps\.validate\.outputs\.receipt_file \}\}\n/
+  );
+  assert.match(
+    attest,
+    /name: site-behavior-lab-release-\$\{\{ needs\.prepare\.outputs\.release_version \}\}\n\s+path: \$\{\{ runner\.temp \}\}\/release-receipt\/\$\{\{ steps\.validate\.outputs\.receipt_file \}\}\n/
+  );
+  assert.doesNotMatch(attest, /(?:subject-path|path):[^\n]*needs\.prepare/);
+  assert.doesNotMatch(attest, /\$\{\{ github\.run_attempt \}\}/);
+  assert.doesNotMatch(attest, /-\$\{process\.env\.GITHUB_RUN_ATTEMPT\}/);
   const candidateExecution = prepare.slice(prepare.indexOf("Verify every required CI job without an API token"));
   assert.doesNotMatch(
     candidateExecution,
@@ -1315,10 +1356,12 @@ test("the release workflow tags only a promoted, CI-green revision and attests i
   );
   assert.match(tagCreation, /GH_TOKEN: \$\{\{ steps\.release_app_token\.outputs\.token \}\}/);
   assert.doesNotMatch(tagCreation, /github\.token/);
-  assert.match(
-    tagCreation,
-    /GITHUB_RUN_ATTEMPT" == "1" && "\$preflight_status" != "404"/
-  );
+  // The absent-ref rule follows the attempt that minted the attestation, not
+  // attempt 1: after an attest-only rerun the tag job first runs in a later
+  // attempt and is still that attestation's first publication attempt.
+  assert.match(tagCreation, /ATTEST_RUN_ATTEMPT: \$\{\{ needs\.attest\.outputs\.attest_run_attempt \}\}/);
+  assert.match(tagCreation, /"\$GITHUB_RUN_ATTEMPT" == "\$ATTEST_RUN_ATTEMPT" && "\$preflight_status" != "404"/);
+  assert.doesNotMatch(tagCreation, /GITHUB_RUN_ATTEMPT" == "1"/);
   assert.match(tagCreation, /--write-out "%\{http_code\}"/);
   assert.match(tagCreation, /"\$create_status" == "201"/);
   assert.match(tagCreation, /"\$create_status" == "422"/);
@@ -1807,9 +1850,15 @@ async function attestContext(
     fixture?: Parameters<typeof makeFixture>[1];
     /** The dispatched version; defaults to the released fixture's 0.1.0. */
     releaseVersion?: string;
+    /** The attempt whose prepare job minted and uploaded the handoff. */
+    handoffAttempt?: string;
+    /** The attempt this attestation job runs in; later on a rerun. */
+    currentAttempt?: string;
   } = {}
 ): Promise<AttestContext> {
   const releaseVersion = options.releaseVersion ?? "0.1.0";
+  const handoffAttempt = options.handoffAttempt ?? "1";
+  const currentAttempt = options.currentAttempt ?? "1";
   const fixture = await makeFixture(t, {
     policy: RELEASED_POLICY,
     citation: RELEASED_CITATION,
@@ -1829,13 +1878,12 @@ async function attestContext(
   const runnerTemp = await mkdtemp(path.join(os.tmpdir(), "site-behavior-lab-attest-"));
   t.after(() => rm(runnerTemp, { recursive: true, force: true }));
   const runId = "9001";
-  const runAttempt = "1";
   const receiptDir = path.join(runnerTemp, "release-receipt");
   const staticDir = path.join(runnerTemp, "release-static");
   const contextDir = path.join(runnerTemp, "release-context");
   await mkdir(receiptDir, { recursive: true });
   await mkdir(contextDir, { recursive: true });
-  const receiptPath = path.join(receiptDir, `site-behavior-lab-release-${runId}-${runAttempt}.json`);
+  const receiptPath = path.join(receiptDir, `site-behavior-lab-release-${runId}-${handoffAttempt}.json`);
   const receiptBytes = `${JSON.stringify(receipt, null, 2)}\n`;
   await writeFile(receiptPath, receiptBytes);
   cpSync(path.join(fixture.root, "out"), staticDir, { recursive: true });
@@ -1892,7 +1940,7 @@ async function attestContext(
   );
   await writeContext("artifact.json", {
     id: 11,
-    name: `site-behavior-lab-release-${runId}-${runAttempt}.json`,
+    name: `site-behavior-lab-release-${runId}-${handoffAttempt}.json`,
     expired: false,
     size_in_bytes: Buffer.byteLength(receiptBytes),
     digest: `sha256:${digest}`,
@@ -1900,7 +1948,7 @@ async function attestContext(
   });
   await writeContext("static-artifact.json", {
     id: 12,
-    name: `site-behavior-lab-static-${runId}-${runAttempt}`,
+    name: `site-behavior-lab-static-${runId}-${handoffAttempt}`,
     expired: false,
     size_in_bytes: 4096,
     workflow_run: { id: Number(runId), head_sha: "b".repeat(40) }
@@ -1932,7 +1980,8 @@ async function attestContext(
       PATH: process.env.PATH,
       RUNNER_TEMP: runnerTemp,
       GITHUB_RUN_ID: runId,
-      GITHUB_RUN_ATTEMPT: runAttempt,
+      GITHUB_RUN_ATTEMPT: currentAttempt,
+      HANDOFF_RUN_ATTEMPT: handoffAttempt,
       GITHUB_SHA: "b".repeat(40),
       GITHUB_REPOSITORY: "iAnonymous3000/site-behavior-lab",
       GITHUB_OUTPUT: path.join(runnerTemp, "github-output"),
@@ -1969,6 +2018,106 @@ test("the isolated release validator accepts one honest receipt", { skip: hostTo
   assert.match(accepted.stdout, /Validated isolated release receipt sha256:[0-9a-f]{64} against \d+ independently hashed static file/);
   const output = await readFile(context.env.GITHUB_OUTPUT as string, "utf8");
   assert.match(output, /^receipt_sha256=[0-9a-f]{64}$/m);
+  assert.match(output, /^receipt_file=site-behavior-lab-release-9001-1\.json$/m);
+  assert.match(output, /^attest_run_attempt=1$/m);
+});
+
+test("an attest-only rerun validates the handoff its own prepare attempt uploaded", { skip: hostToolchainSkip }, async (t) => {
+  // "Re-run failed jobs" after an attest failure starts a later attempt that
+  // keeps the successful prepare job's outputs and artifacts. The handoff is
+  // named by prepare's attempt, so a validator that rebuilt the name from its
+  // own attempt looked for a file that was never uploaded and refused every
+  // such rerun as if the handoff had been substituted.
+  const controller = releaseValidatorController(await source(".github/workflows/release.yml"));
+  for (const [handoffAttempt, currentAttempt] of [
+    ["1", "2"],
+    ["1", "3"],
+    ["2", "2"]
+  ]) {
+    const context = await attestContext(t, { handoffAttempt, currentAttempt });
+    const accepted = runValidator(controller, context);
+    assert.equal(
+      accepted.status,
+      0,
+      `handoff ${handoffAttempt} in attempt ${currentAttempt}: ${accepted.stderr}${accepted.stdout}`
+    );
+    const output = await readFile(context.env.GITHUB_OUTPUT as string, "utf8");
+    assert.match(output, new RegExp(`^receipt_file=site-behavior-lab-release-9001-${handoffAttempt}\\.json$`, "m"));
+    // The tag job keys its absent-ref rule to the attempt that attested.
+    assert.match(output, new RegExp(`^attest_run_attempt=${currentAttempt}$`, "m"));
+  }
+});
+
+test("the validator bounds the handoff attempt to this run and no later than this attempt", { skip: hostToolchainSkip }, async (t) => {
+  const controller = releaseValidatorController(await source(".github/workflows/release.yml"));
+  const artifactOf = async (context: AttestContext, file: string) =>
+    JSON.parse(await readFile(path.join(context.contextDir, file), "utf8"));
+  const refuse = (context: AttestContext, env: NodeJS.ProcessEnv, expected: RegExp, name: string) => {
+    const run = spawnSync(process.execPath, ["--input-type=commonjs", "-e", controller], {
+      cwd: context.runnerTemp,
+      env,
+      encoding: "utf8"
+    });
+    assert.equal(run.status, 1, `${name} must be refused, got: ${run.stdout}`);
+    assert.match(run.stderr, expected, name);
+  };
+  const malformed = /handoff run attempt is malformed or later than this attempt/;
+
+  // Every name in the fixture agrees with the bad value, so only the attempt
+  // clause itself can refuse: a later attempt than this one, or any spelling
+  // other than a canonical 1 through 100.
+  for (const handoffAttempt of ["3", "0", "01", "1a", " 1", ""]) {
+    const context = await attestContext(t, { handoffAttempt, currentAttempt: "2" });
+    refuse(context, context.env, malformed, `handoff attempt ${JSON.stringify(handoffAttempt)}`);
+  }
+  // This job's own attempt is held to the same spelling: Number("02") would
+  // otherwise bound the handoff as if it were 2.
+  {
+    const context = await attestContext(t, { handoffAttempt: "1", currentAttempt: "02" });
+    refuse(context, context.env, malformed, "current attempt 02");
+  }
+  // The attempt output is required, not defaulted.
+  {
+    const context = await attestContext(t, { handoffAttempt: "1", currentAttempt: "2" });
+    const env = { ...context.env };
+    delete env.HANDOFF_RUN_ATTEMPT;
+    refuse(context, env, malformed, "absent handoff attempt");
+  }
+  // The run id is this job's own and must be canonical, even when the
+  // artifact metadata spells it the same non-canonical way.
+  {
+    const context = await attestContext(t, { handoffAttempt: "1", currentAttempt: "2" });
+    const runId = "09001";
+    await rename(context.receiptPath, path.join(path.dirname(context.receiptPath), `site-behavior-lab-release-${runId}-1.json`));
+    for (const [file, name] of [
+      ["artifact.json", `site-behavior-lab-release-${runId}-1.json`],
+      ["static-artifact.json", `site-behavior-lab-static-${runId}-1`]
+    ]) {
+      const artifact = await artifactOf(context, file);
+      await context.writeContext(file, { ...artifact, name, workflow_run: { ...artifact.workflow_run, id: runId } });
+    }
+    refuse(context, { ...context.env, GITHUB_RUN_ID: runId }, malformed, "non-canonical run id");
+  }
+
+  // A prepare that misstates its attempt names a file it never uploaded.
+  {
+    const context = await attestContext(t, { handoffAttempt: "1", currentAttempt: "2" });
+    refuse(context, { ...context.env, HANDOFF_RUN_ATTEMPT: "2" }, /expected regular receipt file/, "misstated attempt");
+  }
+  // Both immutable artifact records must carry the attempt the handoff names,
+  // so a receipt and a static tree from two different attempts never pair.
+  {
+    const context = await attestContext(t, { handoffAttempt: "1", currentAttempt: "2" });
+    const artifact = await artifactOf(context, "artifact.json");
+    await context.writeContext("artifact.json", { ...artifact, name: "site-behavior-lab-release-9001-2.json" });
+    refuse(context, context.env, /immutable artifact metadata/, "receipt artifact from another attempt");
+  }
+  {
+    const context = await attestContext(t, { handoffAttempt: "1", currentAttempt: "2" });
+    const artifact = await artifactOf(context, "static-artifact.json");
+    await context.writeContext("static-artifact.json", { ...artifact, name: "site-behavior-lab-static-9001-2" });
+    refuse(context, context.env, /immutable static-artifact metadata/, "static artifact from another attempt");
+  }
 });
 
 test("the validator compares commit instants, not their spelling", { skip: hostToolchainSkip }, async (t) => {
@@ -2266,6 +2415,73 @@ test("the atomic tag publisher remains valid bash around its HTTP reconciliation
     encoding: "utf8"
   });
   assert.equal(syntax.status, 0, syntax.stderr);
+});
+
+test("the tag preflight requires an absent ref whenever the attestation was minted in this attempt", async (t) => {
+  // Only a tag-only rerun, a later attempt than the one that attested, may
+  // find a ref it may itself have created and go on to exact reconciliation.
+  // Keying that on "attempt 1" silently waived the absent-ref rule for a tag
+  // job that first runs in a later attempt, after an attest-only rerun.
+  const step = releaseWorkflowShellStep(
+    await source(".github/workflows/release.yml"),
+    "Create the annotated release tag atomically through the Git database API",
+    "Record the release in the run summary"
+  );
+  const end = step.indexOf("node <<'NODE'");
+  assert.notEqual(end, -1, "the preflight must precede the tag-object controller");
+  const script = `${step.slice(0, end)}\necho preflight-accepted\n`;
+  const root = await mkdtemp(path.join(os.tmpdir(), "site-behavior-release-tag-preflight-"));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const stubs = path.join(root, "bin");
+  await mkdir(stubs);
+  await writeFile(path.join(stubs, "curl"), "#!/bin/sh\nprintf '%s' \"$STUB_HTTP_STATUS\"\n");
+  await chmod(path.join(stubs, "curl"), 0o755);
+
+  const run = (current: string, attested: string, status: string) =>
+    spawnSync("bash", ["-c", script], {
+      encoding: "utf8",
+      env: {
+        PATH: `${stubs}${path.delimiter}${process.env.PATH}`,
+        RUNNER_TEMP: root,
+        GH_TOKEN: "x",
+        GITHUB_REPOSITORY: "iAnonymous3000/site-behavior-lab",
+        RELEASE_TAG: "v0.1.0",
+        GITHUB_RUN_ATTEMPT: current,
+        ATTEST_RUN_ATTEMPT: attested,
+        STUB_HTTP_STATUS: status
+      }
+    });
+  const cases: Array<[current: string, attested: string, status: string, accepted: boolean]> = [
+    ["1", "1", "404", true],
+    ["1", "1", "200", false],
+    // Attest and tag rerun together in a later attempt: still a first
+    // publication attempt for that attestation.
+    ["2", "2", "404", true],
+    ["2", "2", "200", false],
+    // Tag-only rerun: the attestation came from an earlier attempt.
+    ["2", "1", "200", true],
+    ["2", "1", "404", true],
+    // An attestation can never come from a later attempt, and both attempt
+    // numbers must be canonical.
+    ["1", "2", "404", false],
+    ["2", "", "404", false],
+    ["2", "01", "404", false],
+    ["01", "1", "200", false],
+    // The existing transport rule still refuses everything but 200 and 404.
+    ["2", "1", "500", false]
+  ];
+  for (const [current, attested, status, accepted] of cases) {
+    const result = run(current, attested, status);
+    const label = `attempt ${JSON.stringify(current)}, attested ${JSON.stringify(attested)}, HTTP ${status}`;
+    if (accepted) {
+      assert.equal(result.status, 0, `${label} must proceed: ${result.stdout}${result.stderr}`);
+      assert.match(result.stdout, /preflight-accepted/, label);
+    } else {
+      assert.notEqual(result.status, 0, `${label} must be refused: ${result.stdout}`);
+      assert.doesNotMatch(result.stdout, /preflight-accepted/, label);
+      assert.match(result.stdout, /::error title=Release refused::/, label);
+    }
+  }
 });
 
 test("the tag publisher refuses every mismatched existing ref or tag object", async (t) => {

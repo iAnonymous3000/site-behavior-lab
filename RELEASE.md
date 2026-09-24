@@ -52,8 +52,9 @@ configuration landed through the protected PR flow, a **fresh dispatch from
 the updated `main` workflow** created the tag the same day (2026-08-01 at
 20:44:52Z, receipt at
 [`docs/release-receipts/0.4.0-rc.1/release-receipt.json`](docs/release-receipts/0.4.0-rc.1/release-receipt.json)),
-and `v0.4.0` followed on 2026-08-02. A failed dispatch is never approved or
-rerun; the ceremony restarts from `main`.
+and `v0.4.0` followed on 2026-08-02. A dispatch that failed because its
+workflow or configuration was wrong is never approved or rerun; the
+ceremony restarts from `main`.
 
 ## What a release tag claims
 
@@ -311,11 +312,19 @@ created only after the revision it names is already promoted:
    its CI has promoted it. The workflow repeats the selection check in its
    read-only `prepare` job after the locked install; the privileged tag job
    then repeats the authoritative live App, ruleset, secret-scope, and receipt
-   checks before creating the tag. If prepare or attest fails, start a fresh
-   dispatch: "Re-run failed jobs" after an attest failure reuses the earlier
-   prepare job's handoff, which the attest job names by run attempt and then
-   refuses. A tag-job failure after its create request may have succeeded has
-   its own narrower recovery, described below.
+   checks before creating the tag. If prepare or attest fails because of
+   the workflow, its configuration or the candidate, start a fresh
+   dispatch: a rerun keeps the old workflow definition and event SHA. A
+   transient failure, such as a GitHub API outage or a Sigstore outage while
+   attesting, may instead use "Re-run failed jobs". After an attest failure,
+   start that rerun within the one-day handoff retention: the rerun attest
+   job validates the handoff under the attempt prepare exported, bounded to
+   this run and to no later attempt than its own, and refuses an expired one.
+   The tag job that reruns with it still requires the exact tag ref to return
+   HTTP 404, because it runs in the attestation's attempt, and the 24-hour
+   governance-receipt window still applies. A tag-job failure after its
+   create request may have succeeded has its own narrower recovery,
+   described below.
 
    The static `RELEASE_READINESS.json` descriptor names that external selector
    and add-only directory, so no ceremony-time manifest edit is permitted. The
@@ -402,11 +411,13 @@ created only after the revision it names is already promoted:
    A workflow re-run retains the original event SHA and workflow definition.
    After any change to `.github/workflows/release.yml`, start a **fresh
    workflow dispatch** from `main`; re-running an older attempt cannot pick up
-   the repair. On attempt 1 the tag job requires the exact ref preflight to
-   return HTTP 404. There is one narrower recovery after a current-workflow
-   attempt reaches publication: if its tag job fails after the create request
-   may have succeeded, re-run the **failed tag job only**, not all jobs. The
-   create-only path enters reconciliation only for exact HTTP 422 with message
+   the repair. Whenever the tag job runs in the same attempt that minted the
+   attestation it names (every first attempt, and any rerun that re-attested),
+   it requires the exact ref preflight to return HTTP 404. There is one
+   narrower recovery after a current-workflow attempt reaches publication: if
+   its tag job fails after the create request may have succeeded,
+   re-run the **failed tag job only**, not all jobs. The create-only path
+   enters reconciliation only for exact HTTP 422 with message
    `Reference already exists`; transport errors, 403, 5xx, and every other
    response refuse. Recovery then succeeds only when the ref name, tag-object
    type, target commit, and exact message (including the same attestation URL,
@@ -634,6 +645,30 @@ allowlist trimmed whitespace across the whole list after splitting on commas,
 which also deleted the separators and collapsed a multi-name list into a single
 name matching nobody. It failed closed, so it was never exploitable, but it
 would have refused every release as soon as a second approver was added.
+
+### Addendum: attest-only reruns (2026-09-24)
+
+The review above counts artifact substitution across runs or attempts as
+closed. One cross-attempt case is now accepted on purpose, so that "Re-run
+failed jobs" after a transient attest failure validates the handoff its
+prepare attempt uploaded instead of refusing it as substituted. The
+boundary it keeps:
+
+- only the attempt number comes from prepare's `handoff_run_attempt`
+  output, and the validator requires it to be a canonical 1 through 100 no
+  later than its own attempt;
+- the run id and head SHA still come from the attest job's own environment
+  and must match both immutable artifact records, so substitution across
+  runs stays closed;
+- every attempt of one run shares `GITHUB_SHA`, the workflow definition and
+  the dispatch inputs, so a prepare job in any attempt is the same principal
+  this review already treats as hostile, and the receipt and the static tree
+  must name the same attempt;
+- the attested and preserved path is the validator's own `receipt_file`
+  output, never a prepare output; and
+- the tag job's absent-ref rule is keyed to the attempt that minted the
+  attestation, so it is exactly as strict as before for first attempts and
+  tag-only reruns, and stricter for a full rerun.
 
 ## External control snapshot (2026-07-21)
 
