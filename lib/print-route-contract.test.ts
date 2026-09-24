@@ -122,6 +122,16 @@ test("the printable route is container-only, and says why in the file a reader l
   assert.doesNotMatch(contents, /lazy\(/, "the printable route must import the renderer statically");
 });
 
+test("the printed scope caveat is the footer's caveat, not a restated copy", () => {
+  // The print route renders no footer, so it states the caveat itself. A
+  // hand-written copy there had already drifted from the footer's.
+  for (const file of ["app/_components/site-chrome.tsx", "app/reports/[id]/print/page.tsx"]) {
+    const contents = source(file);
+    assert.match(contents, /<[a-z]+ className="app-footer-caveat">\{SITE_SCOPE_CAVEAT\}</, `${file} must render the shared caveat`);
+    assert.doesNotMatch(contents, /visit per condition|attempts are never merged/, `${file} restates the caveat`);
+  }
+});
+
 test("the printable route is not advertised to crawlers", () => {
   assert.doesNotMatch(source("app/sitemap.ts"), /\/print/, "the printable rendering must stay out of the sitemap");
 });

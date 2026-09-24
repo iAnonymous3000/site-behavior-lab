@@ -10,6 +10,7 @@ import { readStoredReportForId } from "@/lib/report-source";
 import { requireFreshRuntimeReportRequest } from "@/lib/report-route-freshness";
 import { loadedReportFromStored } from "@/lib/scan-report-view";
 import { toReportView } from "@/lib/scan-report-views";
+import { SITE_SCOPE_CAVEAT } from "@/lib/site-navigation";
 import { siteBaseUrl, siteOrigin } from "@/lib/site-url";
 import { PrintEvidenceFooter } from "@/app/_components/print-evidence-footer";
 import { ReportEvidenceReceipt, ReportPageContext } from "@/app/_components/report-page-context";
@@ -142,11 +143,9 @@ export default async function PrintableReportPage({ params, searchParams }: {
           view={view}
         />
         {/* This route renders no .app-footer, so the standing scope caveat the
-            print stylesheet rescues there has to be stated here directly. */}
-        <p className="app-footer-caveat">
-          Reports record one automated visit per condition; visits may be incomplete. Results describe these visits,
-          not everything a site can do.
-        </p>
+            print stylesheet rescues there has to be stated here directly, from
+            the same constant the footer renders. */}
+        <p className="app-footer-caveat">{SITE_SCOPE_CAVEAT}</p>
       </main>
       <PrintEvidenceFooter
         committed={committed}

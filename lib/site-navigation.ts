@@ -53,3 +53,14 @@ export const SITE_TRUST_LINKS: readonly SiteNavLink[] = [
 ];
 
 export const SOURCE_REPOSITORY_URL = "https://github.com/iAnonymous3000/site-behavior-lab";
+
+/**
+ * The standing scope caveat every page footer carries. The printable report
+ * route renders no footer and states it directly, so both render this one
+ * string: the printed copy had drifted and dropped the retry sentence.
+ * Client-safe on purpose, since the shell reaches client bundles;
+ * lib/claim-boundary.ts is server-only.
+ */
+export const SITE_SCOPE_CAVEAT =
+  "Reports record one automated visit per condition; visits may be incomplete. On restart-safe deployments, " +
+  "an interrupted visit may be retried; attempts are never merged. Results describe these visits, not everything a site can do.";

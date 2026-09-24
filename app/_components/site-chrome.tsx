@@ -1,6 +1,6 @@
 import { FlaskConical } from "lucide-react";
 import { Fragment, type ReactNode } from "react";
-import { SITE_PRIMARY_NAV, SITE_TRUST_LINKS, SOURCE_REPOSITORY_URL } from "@/lib/site-navigation";
+import { SITE_PRIMARY_NAV, SITE_SCOPE_CAVEAT, SITE_TRUST_LINKS, SOURCE_REPOSITORY_URL } from "@/lib/site-navigation";
 import { staticAssetPath } from "../client-runtime";
 import { ThemeToggle } from "./theme-toggle";
 
@@ -118,10 +118,7 @@ export function SiteChrome({
               Source
             </a>
           </span>
-          <span className="app-footer-caveat">
-            Reports record one automated visit per condition; visits may be incomplete. On restart-safe deployments,
-            an interrupted visit may be retried; attempts are never merged. Results describe these visits, not everything a site can do.
-          </span>
+          <span className="app-footer-caveat">{SITE_SCOPE_CAVEAT}</span>
         </footer>
       </div>
     </>
