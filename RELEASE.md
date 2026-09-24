@@ -163,6 +163,14 @@ created only after the revision it names is already promoted:
 
    Configure that authority once as a distinct GitHub App installed on this
    repository only, with metadata read and contents read/write, and no webhook.
+   Make it public, and make the promotion App public too (App settings,
+   Advanced, Make public). The privileged tag job reads both App identities
+   with `GET /apps/{slug}` using the release App's installation token, and the
+   capture below reads them the same way with the maintainer token, so a
+   private App (which returns 404 there to unauthenticated and ordinary user
+   requests) fails at capture instead of at the tag step. Any account can see
+   and install a public App; that does not change which repositories this
+   repository's installation covers.
    Do not grant Administration permission: a tag publisher must never be able
    to weaken the rulesets it is required to obey.
    Store its client ID and numeric GitHub Integration id as the nonsecret
@@ -206,7 +214,18 @@ created only after the revision it names is already promoted:
    point-in-time secret-name inventory and refuses if that name is missing from
    the environment or exists at repository or applicable organization scope.
 
-   Inject the three short-lived credentials from a secret manager, or enter
+   The App JWTs are used only for installation discovery and for minting (then
+   revoking) one installation token each; the capture sends them as
+   `Authorization: Bearer` from inside the process, never through a command
+   argument or a child process environment, and refuses to run with
+   `NODE_TLS_REJECT_UNAUTHORIZED=0`. To mint them, generate a temporary private
+   key on each App (record every existing key's fingerprint first), sign an
+   RS256 JWT with `iss` set to that App's client ID, `iat` about 60 seconds in
+   the past and `exp` at most ten minutes after `iat`, and run the capture
+   immediately. Afterwards delete only the temporary keys, by fingerprint; the
+   release App keeps exactly the key stored as `RELEASE_APP_PRIVATE_KEY`, and
+   the promotion App keeps the key CI uses. Inject the three
+   short-lived credentials from a secret manager, or enter
    them silently in a disposable subshell. Never put their values in command
    arguments, inline assignments, or shell history:
 

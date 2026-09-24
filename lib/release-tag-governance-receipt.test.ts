@@ -628,6 +628,23 @@ test("release governance producer is an explicit operator command", () => {
   assert.match(producer, /orgs\/\$\{owner\.login\}\/actions\/secrets/);
   assert.match(producer, /dispatch the carrier commit, not the earlier version-declaration commit/);
   assert.doesNotMatch(producer, /execFileSync\(\s*["']gh["']/);
+  // App JWTs authenticate only installation discovery and token minting, in
+  // process as Bearer (never through gh or its environment). GET /apps/{slug}
+  // does not take a JWT, so the App's public identity is read with the
+  // maintainer token, the same public lookup the release tag job depends on.
+  assert.match(producer, /Authorization: `Bearer \$\{jwt\}`/);
+  assert.match(producer, /redirect: "manual"/);
+  assert.match(producer, /signal: AbortSignal\.timeout\(30_000\)/);
+  assert.match(producer, /githubAppJwtApi\(\s*"POST",\s*`app\/installations\/\$\{installation\.id\}\/access_tokens`,\s*jwt\s*\)/);
+  assert.match(producer, /githubAppJwtApi\(\s*"GET",\s*`repos\/\$\{repository\}\/installation`,\s*jwt\s*\)/);
+  assert.match(producer, /live = fetchJson\(`apps\/\$\{configured\.slug\}`\);/);
+  assert.doesNotMatch(producer, /githubAppJwtApi\(\s*"GET",\s*`apps\//);
+  assert.doesNotMatch(producer, /\b(?:githubApi|fetchJson|fetchPaginatedJson)\([^;]*\bjwt\b/);
+  assert.doesNotMatch(producer, /"-H",\s*`?"?Authorization/);
+  assert.match(producer, /delete environment\.RELEASE_APP_JWT;/);
+  assert.match(producer, /delete environment\.PROMOTION_APP_JWT;/);
+  assert.match(producer, /env: githubCliEnvironment\(token\)/);
+  assert.match(producer, /NODE_TLS_REJECT_UNAUTHORIZED === "0"/);
   const readiness = readFileSync(
     path.join(process.cwd(), "scripts", "release-readiness-lib.mjs"),
     "utf8"

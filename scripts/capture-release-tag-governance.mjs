@@ -15,6 +15,7 @@ import {
   serializeReleaseTagGovernanceReceipt
 } from "./release-tag-governance-receipt-lib.mjs";
 import { writeExclusive } from "./operator-evidence-common.mjs";
+import { readResponseTextWithinLimit } from "./http-response.mjs";
 
 function usage() {
   return [
@@ -83,6 +84,14 @@ if (!path.isAbsolute(githubCli)) {
   throw new Error("the byte-pinned GitHub CLI resolver did not return an absolute path");
 }
 
+// gh children get the one credential each call needs, never the App JWTs.
+function githubCliEnvironment(token) {
+  const environment = { ...process.env, GH_TOKEN: token };
+  delete environment.RELEASE_APP_JWT;
+  delete environment.PROMOTION_APP_JWT;
+  return environment;
+}
+
 function githubApi(args, token = process.env.GH_TOKEN, maximum = 1024 * 1024) {
   if (typeof token !== "string" || token.length < 1) {
     throw new Error("the required GitHub credential is absent");
@@ -98,7 +107,7 @@ function githubApi(args, token = process.env.GH_TOKEN, maximum = 1024 * 1024) {
       ...args
     ],
     {
-      env: { ...process.env, GH_TOKEN: token },
+      env: githubCliEnvironment(token),
       maxBuffer: maximum,
       timeout: 30_000,
       stdio: ["ignore", "pipe", "inherit"]
@@ -111,6 +120,58 @@ function githubApi(args, token = process.env.GH_TOKEN, maximum = 1024 * 1024) {
     throw new Error(`${args.at(-1)} returned non-UTF-8 bytes`);
   }
   return text;
+}
+
+// App-JWT requests: installation discovery and token minting only. GitHub
+// documents "if you are passing a JSON web token (JWT), you must use
+// Authorization: Bearer", gh sends GH_TOKEN as "Authorization: token", and a
+// gh -H argument would put the JWT in the process table, so these requests are
+// made in process. A redirect is reported as its status, never followed.
+async function githubAppJwtApi(method, endpoint, jwt) {
+  if (typeof jwt !== "string" || jwt.length < 1) {
+    throw new Error("the required GitHub App JWT is absent");
+  }
+  let response;
+  try {
+    response = await fetch(`https://api.github.com/${endpoint}`, {
+      method,
+      headers: {
+        Accept: "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+        Authorization: `Bearer ${jwt}`,
+        "User-Agent": "site-behavior-lab-release-governance-capture"
+      },
+      redirect: "manual",
+      signal: AbortSignal.timeout(30_000)
+    });
+  } catch (error) {
+    const reason = error instanceof Error ? error.name : "error";
+    throw new Error(`${method} ${endpoint} failed before GitHub responded (${reason})`);
+  }
+  let text;
+  try {
+    text = await readResponseTextWithinLimit(response, {
+      maxBytes: 1024 * 1024,
+      label: endpoint
+    });
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : String(error);
+    throw new Error(`${method} ${endpoint} response could not be read: ${reason}`);
+  }
+  let value;
+  try {
+    value = JSON.parse(text);
+  } catch {
+    value = undefined;
+  }
+  if (!response.ok) {
+    const message = typeof value?.message === "string" ? `: ${value.message.slice(0, 200)}` : "";
+    const error = new Error(`${method} ${endpoint} returned HTTP ${response.status}${message}`);
+    error.status = response.status;
+    throw error;
+  }
+  if (value === undefined) throw new Error(`${endpoint} returned invalid JSON`);
+  return value;
 }
 
 function fetchJson(endpoint, token = process.env.GH_TOKEN) {
@@ -158,7 +219,7 @@ function secretNames(endpoint) {
   return names;
 }
 
-function normalizeAppAndInstallation({
+async function normalizeAppAndInstallation({
   label,
   configured,
   repository,
@@ -168,7 +229,18 @@ function normalizeAppAndInstallation({
   if (typeof jwt !== "string" || jwt.length < 1) {
     throw new Error(`${label} App JWT is required for installation capture`);
   }
-  const live = fetchJson(`apps/${configured.slug}`, jwt);
+  // GET /apps/{slug} does not take App-JWT authentication. Read the App's
+  // public identity with the maintainer token, the same public lookup the
+  // release workflow's tag job makes with its installation token, so a private
+  // App fails here instead of at the tag step.
+  let live;
+  try {
+    live = fetchJson(`apps/${configured.slug}`);
+  } catch {
+    throw new Error(
+      `${label} App ${configured.slug} could not be read at GET /apps/{slug}; RELEASE.md requires both Apps to be public`
+    );
+  }
   if (
     live?.id !== configured.integrationId ||
     live?.client_id !== configured.clientId ||
@@ -178,7 +250,11 @@ function normalizeAppAndInstallation({
       `${label} App client id, Integration id, and slug do not identify one public GitHub App`
     );
   }
-  const installation = fetchJson(`repos/${repository}/installation`, jwt);
+  const installation = await githubAppJwtApi(
+    "GET",
+    `repos/${repository}/installation`,
+    jwt
+  );
   if (
     !Number.isSafeInteger(installation?.id) ||
     installation.id < 1 ||
@@ -196,15 +272,10 @@ function normalizeAppAndInstallation({
   // /installation/repositories enumeration therefore proves the underlying
   // installation's repository set. A current-repository-scoped token minted
   // by the release workflow cannot make that claim.
-  const tokenResponse = JSON.parse(
-    githubApi(
-      [
-        "--method",
-        "POST",
-        `app/installations/${installation.id}/access_tokens`
-      ],
-      jwt
-    )
+  const tokenResponse = await githubAppJwtApi(
+    "POST",
+    `app/installations/${installation.id}/access_tokens`,
+    jwt
   );
   if (typeof tokenResponse?.token !== "string" || tokenResponse.token.length < 1) {
     throw new Error(`${label} App did not mint a full-installation capture token`);
@@ -253,6 +324,11 @@ function normalizeAppAndInstallation({
 }
 
 async function main() {
+  if (process.env.NODE_TLS_REJECT_UNAUTHORIZED === "0") {
+    throw new Error(
+      "refusing to send App JWTs with NODE_TLS_REJECT_UNAUTHORIZED=0; unset it and rerun"
+    );
+  }
   const options = parseArgs(process.argv.slice(2));
   const repository = options["--repository"];
   const creationRulesetId = positiveInteger(
@@ -286,14 +362,14 @@ async function main() {
   ) {
     throw new Error("the repository owner identity is malformed");
   }
-  const releaseApp = normalizeAppAndInstallation({
+  const releaseApp = await normalizeAppAndInstallation({
     label: "release",
     configured: configuredReleaseApp,
     repository,
     owner,
     jwt: process.env.RELEASE_APP_JWT
   });
-  const promotionApp = normalizeAppAndInstallation({
+  const promotionApp = await normalizeAppAndInstallation({
     label: "promotion",
     configured: configuredPromotionApp,
     repository,
