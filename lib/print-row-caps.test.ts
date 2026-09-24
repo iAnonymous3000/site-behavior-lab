@@ -6,6 +6,7 @@ import { PRINT_ROW_CAPS } from "./print-row-caps";
 import { toReportView } from "./scan-report-views";
 import { listStaticReportCandidateIds, readStaticReportBundle } from "./static-report-files";
 import { STATE_CHANGE_ROW_LIMIT } from "./report-phase-evidence";
+import { MAX_RECORDED_REQUESTS } from "./scan-runtime";
 
 /**
  * lib/print-row-caps.ts claims its ceilings were derived from the committed
@@ -151,7 +152,7 @@ test("the request cap is the scanner's own recording cap, so paper never truncat
   // one the scan itself disclosed.
   assert.equal(
     PRINT_ROW_CAPS.requests,
-    1_000,
+    MAX_RECORDED_REQUESTS,
     "the request cap is meant to equal the scanner's recording cap"
   );
   assert.ok(
