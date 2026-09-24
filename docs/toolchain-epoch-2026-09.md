@@ -82,13 +82,18 @@ Torn down with Wrangler and read back on 2026-09-24 (UTC), after the comparison:
 - The two staging images this epoch pushed (`f88bcc3f`, `224ea2a9`) deleted from the managed registry.
 - `scan-staging.sitebehavior.org` has no DNS records and no longer accepts HTTPS connections.
 
+Remaining cleanup completed and read back on 2026-09-24 (UTC):
+
+- Revoked the bucket-scoped R2 API token `sbl-staging-toolchain-canary` (ID `4bcca63e421d56cd95b3fd5bebfba48a`) in the dashboard after verifying its ID. It no longer appears in the account API-token list.
+- The staging bucket still contained objects, so an initial delete request refused with code 10008. Emptied `site-behavior-lab-reports-staging`, verified the dashboard's empty object list, then deleted the bucket. `npx wrangler r2 bucket list` lists `site-behavior-lab-reports` and no staging bucket. The production bucket was not modified.
+- Deleted the older image `site-behavior-lab-scanner-staging-container:ceb57f4b` (digest `sha256:8760fc67b3f0aaeb659ca71b1ff3d9f4b8677ef049ab089076f6452f30c107df`). The subsequent `npx wrangler containers images list` returned no rows containing `staging`.
+- The complete Durable Objects dashboard inventory shows one namespace, belonging to the production Worker. There is no namespace for `site-behavior-lab-scanner-staging` and no surviving namespace `ccdbebe9ddf14aefabbd0cca1a16ede2`. No namespace was deleted during this readback.
+- The `sitebehavior.org` Edge Certificates inventory has no certificate dedicated to `scan-staging.sitebehavior.org`. It lists an Advanced certificate for `*.scan.sitebehavior.org`, `scan.sitebehavior.org`, and `sitebehavior.org`, plus shared Universal and Backup certificates for `*.sitebehavior.org` and `sitebehavior.org`. All were left unchanged.
+- An exact DNS search for `scan-staging.sitebehavior.org` returned no records. The complete Workers custom-domain API inventory returned two entries and no match for that hostname. The zone's Workers Routes page also has no routes configured.
+- Deleted `~/.sbl-staging/scan-access-token` without reading its contents, removed the empty `~/.sbl-staging` directory, and verified both are absent. Ran `npx wrangler logout` from the repository; Wrangler confirmed successful logout.
+
 Not yet done, and not claimed:
 
-- The staging bucket `site-behavior-lab-reports-staging` still holds the canary's objects. Its lifecycle rule expires every object after one day; delete the bucket once it is empty.
-- The bucket-scoped R2 API token used for staging must be revoked in the dashboard, and the local canary token file deleted.
-- An older staging image, `site-behavior-lab-scanner-staging-container:ceb57f4b`, predates this epoch and was left in place.
-- The Worker's Durable Object namespace was not read back independently after the Worker deletion.
-- No dedicated Advanced Certificate pack was ordered for the staging hostname; any certificate Cloudflare issued for its custom domain was not read back.
 - This is not the canonical twelve-resource teardown receipt from [the go-live runbook](./go-live-public-scanner.md), which needs the hosted adapter, six scoped read credentials and protected-environment approval.
 
 ## Publication
