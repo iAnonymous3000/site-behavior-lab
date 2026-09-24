@@ -196,6 +196,7 @@ export type NodeInterventionComparisonV2R2Input = {
 function normalizeNodeR2HttpStatuses(input: NodeScanReportV2R2Input): {
   qualityFacts: QualityFacts;
   evidence: Omit<RunEvidenceR2, "consent">;
+  unrepresentableRequestIds: ReadonlySet<number>;
 } {
   if (input.measurement.qualityFacts.captureLoss.some((entry) => isR2HttpStatusLimitationDetail(entry.detail))) {
     throw new Error("r2 HTTP status limitation details are reserved for the public builder.");
@@ -214,28 +215,18 @@ function normalizeNodeR2HttpStatuses(input: NodeScanReportV2R2Input): {
     });
   }
 
-  const requestLossByPhase = new Map<PhaseId, number>();
+  // Request markers are emitted by sanitizeEvidence, over the rows it retains.
+  const unrepresentableRequestIds = new Set<number>();
   const requests = input.evidence.requests.map((request, index) => {
     const normalized = normalizeHttpStatusForScanReportV2R2(
       request.status,
       `Node request evidence HTTP status at index ${index}`
     );
-    if (normalized.unrepresentable) {
-      requestLossByPhase.set(request.phaseId, (requestLossByPhase.get(request.phaseId) ?? 0) + 1);
-    }
+    if (normalized.unrepresentable) unrepresentableRequestIds.add(request.id);
     return { ...request, status: normalized.status };
   });
-  for (const [phaseId, count] of [...requestLossByPhase].sort(([left], [right]) => left - right)) {
-    qualityFacts.captureLoss.push({
-      family: "requests",
-      phaseId,
-      kind: "dropped",
-      count,
-      detail: R2_REQUEST_STATUS_UNREPRESENTABLE
-    });
-  }
 
-  return { qualityFacts, evidence: { ...input.evidence, requests } };
+  return { qualityFacts, evidence: { ...input.evidence, requests }, unrepresentableRequestIds };
 }
 
 export function buildNodeScanReportV2R2(
@@ -283,6 +274,7 @@ export function buildNodeScanReportV2R2(
   const publicPass = new RedactionPass();
   const evidence = sanitizeEvidence(
     statusNormalized.evidence,
+    statusNormalized.unrepresentableRequestIds,
     subject.observed.registrableDomain,
     input.adblockEngineLoaded,
     publicPass,
@@ -660,6 +652,7 @@ function executedDetector(entry: DetectorLedger[keyof DetectorLedger]): boolean 
 
 function sanitizeEvidence(
   source: Omit<RunEvidenceR2, "consent">,
+  unrepresentableRequestIds: ReadonlySet<number>,
   observedRegistrableDomain: string,
   adblockEngineLoaded: boolean,
   pass: RedactionPass,
@@ -682,6 +675,25 @@ function sanitizeEvidence(
     "public-request-records",
     qualityFacts
   ).map((request) => ({ ...redactRequest(request, pass), phaseId: request.phaseId }));
+  // The evaluator checks each unrepresentable-status marker against the null
+  // statuses on the wire, so count only the rows that survive the two drops
+  // above. A marker counted before them could exceed its phase's null statuses
+  // and turn a completed scan into a refused build. A dropped row's status is
+  // not lost twice: its whole row is already disclosed as a capture loss.
+  const requestStatusLossByPhase = new Map<PhaseId, number>();
+  for (const request of requests) {
+    if (!unrepresentableRequestIds.has(request.id)) continue;
+    requestStatusLossByPhase.set(request.phaseId, (requestStatusLossByPhase.get(request.phaseId) ?? 0) + 1);
+  }
+  for (const [phaseId, count] of [...requestStatusLossByPhase].sort(([left], [right]) => left - right)) {
+    qualityFacts.captureLoss.push({
+      family: "requests",
+      phaseId,
+      kind: "dropped",
+      count,
+      detail: R2_REQUEST_STATUS_UNREPRESENTABLE
+    });
+  }
 
   const cookieMutations = clipArray(
     source.cookieMutations,

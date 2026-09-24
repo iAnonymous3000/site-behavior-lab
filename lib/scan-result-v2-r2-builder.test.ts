@@ -523,6 +523,55 @@ test("an unrepresentable subresource status censors requests without failing a s
   assert.deepEqual(scanReportV2R2SemanticViolations(toPublicScanReportR2(report)), []);
 });
 
+test("unrepresentable request status markers count only the rows publication retains", () => {
+  // The evaluator checks each marker against the null statuses on the wire.
+  // Counting before publication drops a row (a host with no registrable
+  // domain, or a row past the record cap) left a marker larger than its
+  // null statuses, and the self-check refused an otherwise complete scan.
+  const dropped = baseInput();
+  dropped.evidence.requests.push(
+    { ...dropped.evidence.requests[0], id: 2, status: 799, startedAtMs: 30 },
+    {
+      id: 3,
+      url: "https://s3.amazonaws.com/assets/pixel.gif",
+      domain: "s3.amazonaws.com",
+      method: "GET",
+      resourceType: "image",
+      status: 799,
+      thirdParty: true,
+      tracker: null,
+      blockedByShields: false,
+      startedAtMs: 40,
+      phaseId: 0
+    }
+  );
+  const droppedReport = buildNodeScanReportV2R2(dropped);
+  assert.equal(
+    droppedReport.run.evidence.requests.some((request) => request.domain === "s3.amazonaws.com"),
+    false
+  );
+  assert.deepEqual(
+    droppedReport.run.qualityFacts.captureLoss.filter((entry) => entry.detail === R2_REQUEST_STATUS_UNREPRESENTABLE),
+    [{ family: "requests", phaseId: 0, kind: "dropped", count: 1, detail: R2_REQUEST_STATUS_UNREPRESENTABLE }]
+  );
+  assert.deepEqual(scanReportV2R2SemanticViolations(toPublicScanReportR2(droppedReport)), []);
+
+  const clipped = baseInput();
+  clipped.evidence.requests = Array.from({ length: 1_000 }, (_, index) => ({
+    ...clipped.evidence.requests[0],
+    id: index + 1,
+    startedAtMs: Math.min(index, 999)
+  }));
+  clipped.evidence.requests.push({ ...clipped.evidence.requests[0], id: 1_001, status: 799, startedAtMs: 999 });
+  const clippedReport = buildNodeScanReportV2R2(clipped);
+  assert.equal(clippedReport.run.evidence.requests.length, 1_000);
+  assert.equal(
+    clippedReport.run.qualityFacts.captureLoss.some((entry) => entry.detail === R2_REQUEST_STATUS_UNREPRESENTABLE),
+    false
+  );
+  assert.deepEqual(scanReportV2R2SemanticViolations(toPublicScanReportR2(clippedReport)), []);
+});
+
 test("raw subject URLs cross redaction v2 inside the builder and never survive the shell", () => {
   const report = buildNodeScanReportV2R2(baseInput());
   assert.deepEqual(report.run.subject, {
