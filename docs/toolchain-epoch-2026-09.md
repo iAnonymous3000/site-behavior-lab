@@ -31,7 +31,7 @@ The container package ledger moves by one row, nodejs 24.18.1 to 24.20.0 (packag
 
 ## Staging A/B
 
-Both builds ran on the isolated staging Worker `site-behavior-lab-scanner-staging` at `https://scan-staging.sitebehavior.org`, one standard-2 container, token-gated, with the staging-only R2 bucket. Authenticated health reported the exact deployment SHA, status ok, no warnings, the Chromium sandbox, the ad-block engine, public r2 reports and a ready durable lane before each capture. Both captures ran from the candidate checkout against the committed panel `monthly-toolchain-canary-v1` (5 sites, 3 repetitions, egress `WNAM/pdx03/US` for every run).
+Both builds ran on the isolated staging Worker `site-behavior-lab-scanner-staging` at `https://scan-staging.sitebehavior.org`, one standard-2 container, token-gated, with the staging-only R2 bucket. Authenticated health reported the exact deployment SHA, status ok, no warnings, the Chromium sandbox, the ad-block engine, public r2 reports and a ready durable lane before each capture. Both captures ran from candidate checkouts against the committed panel `monthly-toolchain-canary-v1` (5 sites, 3 repetitions, egress `WNAM/pdx03/US` for every run): the baseline from `fb85f510`, the candidate from `c8b189ac`. The canary code differs only in comments between those two commits, and both receipts carry panel digest `86fe39f8e4e75e9a2925c1849006909968b67bc507d2aec6cb688ce9cc22be29`.
 
 | | Baseline | Candidate |
 | --- | --- | --- |
@@ -88,6 +88,7 @@ Not yet done, and not claimed:
 - The bucket-scoped R2 API token used for staging must be revoked in the dashboard, and the local canary token file deleted.
 - An older staging image, `site-behavior-lab-scanner-staging-container:ceb57f4b`, predates this epoch and was left in place.
 - The Worker's Durable Object namespace was not read back independently after the Worker deletion.
+- No dedicated Advanced Certificate pack was ordered for the staging hostname; any certificate Cloudflare issued for its custom domain was not read back.
 - This is not the canonical twelve-resource teardown receipt from [the go-live runbook](./go-live-public-scanner.md), which needs the hosted adapter, six scoped read credentials and protected-environment approval.
 
 ## Publication
@@ -97,4 +98,4 @@ The candidate was pushed to `main` as a fast-forward from `cd43c7bc` only after 
 - CI run [35937344107](https://github.com/iAnonymous3000/site-behavior-lab/actions/runs/35937344107) at `c8b189ac` succeeded (2026-09-24 00:12 to 00:36 UTC). On the exact deployable image its container job passed the Trivy HIGH/CRITICAL scan, the package-review coverage check (the ledger synced from the stand-in matched the real image's inventory exactly), the security and package-evidence enforcement step, and published the tested image; the exact-SHA evidence manifests were attested.
 - [Promote Production](https://github.com/iAnonymous3000/site-behavior-lab/actions/runs/35939192077) advanced `production` to `c8b189ac`, and [Deploy Tested Container](https://github.com/iAnonymous3000/site-behavior-lab/actions/runs/35939187275) and [Deploy Tested Pages](https://github.com/iAnonymous3000/site-behavior-lab/actions/runs/35939187225) succeeded.
 - Live readback: `https://scan.sitebehavior.org/api/health` reports deployment `c8b189ac59f50121e6f1777dabe12ba4854f6090`, status ok, no warnings, and `https://sitebehavior.org/deployment.json` names the same SHA.
-- The governed [Production Health](https://github.com/iAnonymous3000/site-behavior-lab/actions/runs/35939857974) lane and a dispatched [Scanner Fidelity](https://github.com/iAnonymous3000/site-behavior-lab/actions/runs/35939868726) run (single, desktop) against the new production build both succeeded, the second being the real-site acceptance check on Chromium 153.
+- The governed [Production Health](https://github.com/iAnonymous3000/site-behavior-lab/actions/runs/35939857974) lane succeeded against the new production build. A dispatched [Scanner Fidelity](https://github.com/iAnonymous3000/site-behavior-lab/actions/runs/35939868726) run (single, desktop), which builds and scans the checked-out `c8b189ac` on a GitHub runner rather than calling production, also succeeded: the real-site acceptance check on Chromium 153.
