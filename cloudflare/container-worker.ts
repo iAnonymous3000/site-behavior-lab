@@ -55,6 +55,7 @@ import { PRIVACY_SAFE_OBSERVABILITY_PATH } from "../lib/privacy-safe-observabili
 import { scansAvailableAfterEdgeOverlay } from "../lib/container-health-overlay";
 import { forwardContainerResponseWithinDeadline } from "../lib/container-forward-response";
 import { requireContainerR2Bucket } from "../lib/container-r2-bucket";
+import { assertDurableAdmittedAtWithinSkew, DurableAdmittedAtSkewError } from "../lib/durable-admission-clock";
 import { publicErrorBody, toPublicError } from "../lib/public-errors";
 import {
   PUBLIC_REPORT_READ_ALLOW_HEADER,
@@ -819,11 +820,14 @@ export class ScannerContainer extends Container<Env> {
         ensureEncryptedWatchStore(this.ctx.storage.sql);
         this.purgeDurableScanJobState(now);
         purgeExpiredEncryptedWatches(this.ctx.storage.sql, now);
+        // Lead 0: the watch records this as its first run's admission time.
+        assertDurableAdmittedAtWithinSkew(preparation.payload.admittedAt, now, 0);
         preflightDurableScanJobAdmission(this.ctx.storage.sql, durableAdmission);
         return peekPublicScanRateLimitInStore(this.ctx.storage.sql, rateLimit, now);
       });
     } catch (error) {
       if (error instanceof DurableScanJobAdmissionDeadlineExpiredError) return { status: "expired" };
+      if (error instanceof DurableAdmittedAtSkewError) return refuseDurableAdmittedAtSkew(error);
       if (
         error instanceof DurableScanJobCapacityError ||
         error instanceof DurableScanJobStateError ||
@@ -854,6 +858,8 @@ export class ScannerContainer extends Container<Env> {
           rateLimit,
           now,
           () => {
+            // Inside the charged operation, so a refusal rolls the charge back.
+            assertDurableAdmittedAtWithinSkew(preparation.payload.admittedAt, now, 0);
             const durable = admitDurableScanJob(this.ctx.storage.sql, durableAdmission);
             recordDurableContainerShardRoute(this.ctx.storage.sql, durable.jobId, containerRoute);
             const snapshot = admitEncryptedWatch(this.ctx.storage.sql, watchAdmission);
@@ -871,6 +877,7 @@ export class ScannerContainer extends Container<Env> {
       });
     } catch (error) {
       if (error instanceof DurableScanJobAdmissionDeadlineExpiredError) return { status: "expired" };
+      if (error instanceof DurableAdmittedAtSkewError) return refuseDurableAdmittedAtSkew(error);
       if (
         error instanceof DurableScanJobCapacityError ||
         error instanceof DurableScanJobStateError ||
@@ -988,6 +995,9 @@ export class ScannerContainer extends Container<Env> {
         }
         ensureDurableScanJobStore(this.ctx.storage.sql);
         this.purgeDurableScanJobState(now);
+        // After the recovery return above, so an honest retry of a committed
+        // admission is never refused for the clock it was first minted on.
+        assertDurableAdmittedAtWithinSkew(preparation.payload.admittedAt, now);
         preflightDurableScanJobAdmission(this.ctx.storage.sql, admission);
         return {
           existing: null,
@@ -1006,6 +1016,7 @@ export class ScannerContainer extends Container<Env> {
       rateLimitPreflight = preflight.rateLimit;
     } catch (error) {
       if (error instanceof DurableScanJobAdmissionDeadlineExpiredError) return { status: "expired" };
+      if (error instanceof DurableAdmittedAtSkewError) return refuseDurableAdmittedAtSkew(error);
       if (error instanceof ScanAdmissionConflictError) return { status: "conflict" };
       if (error instanceof DurableScanJobCapacityError || error instanceof DurableScanJobStateError) {
         return { status: "refused" };
@@ -1032,6 +1043,9 @@ export class ScannerContainer extends Container<Env> {
           rateLimit,
           now,
           () => {
+            // Inside the charged operation: a recovered admission never reaches
+            // here, and a refusal rolls the charge back with everything else.
+            assertDurableAdmittedAtWithinSkew(preparation.payload.admittedAt, now);
             const admitted = admitDurableScanJob(this.ctx.storage.sql, admission);
             recordDurableContainerShardRoute(this.ctx.storage.sql, admitted.jobId, containerRoute);
             pruneDurableContainerShardRoutes(this.ctx.storage.sql);
@@ -1074,6 +1088,7 @@ export class ScannerContainer extends Container<Env> {
       });
     } catch (error) {
       if (error instanceof DurableScanJobAdmissionDeadlineExpiredError) return { status: "expired" };
+      if (error instanceof DurableAdmittedAtSkewError) return refuseDurableAdmittedAtSkew(error);
       if (error instanceof ScanAdmissionConflictError) return { status: "conflict" };
       if (error instanceof DurableScanJobCapacityError || error instanceof DurableScanJobStateError) {
         return { status: "refused" };
@@ -1894,6 +1909,8 @@ export class ScannerContainer extends Container<Env> {
       const containerRoute = selectDurableContainerShard(preparation.submission.jobId, sharding.shardCount);
       this.ctx.storage.transactionSync(() => {
         const committedAt = Date.now();
+        // Lead 0: the watch records this run's admission time.
+        assertDurableAdmittedAtWithinSkew(preparation.payload.admittedAt, committedAt, 0);
         preflightDurableScanJobAdmission(this.ctx.storage.sql, admission);
         const durable = admitDurableScanJob(this.ctx.storage.sql, admission);
         recordDurableContainerShardRoute(this.ctx.storage.sql, durable.jobId, containerRoute);
@@ -1915,6 +1932,7 @@ export class ScannerContainer extends Container<Env> {
     } catch (error) {
       if (context.signal.aborted) throw durablePumpAbortReason(context.signal);
       if (error instanceof EncryptedWatchStateError && error.code === "lease-invalid") return false;
+      if (error instanceof DurableAdmittedAtSkewError) refuseDurableAdmittedAtSkew(error);
       await this.failEncryptedWatchClaim(claim, "admission-refused", context.signal);
       return false;
     }
@@ -5407,6 +5425,18 @@ function gateErrorResponse(error: unknown, request: Request, env: Env): Response
       "Content-Type": "application/json; charset=utf-8"
     }
   });
+}
+
+/**
+ * The container minted a durable job's admission time on a clock too far from
+ * this Durable Object's. Refused, not stored: see lib/durable-admission-clock.ts.
+ * The log names only the skew, never the target or an identifier.
+ */
+function refuseDurableAdmittedAtSkew(error: DurableAdmittedAtSkewError): { status: "refused" } {
+  console.error(
+    `Refused a durable admission minted ${error.skewMs} ms from the Durable Object clock.`
+  );
+  return { status: "refused" };
 }
 
 function assertDurableAdmissionCommitActive(commitNotAfter: number, now = Date.now()): void {
