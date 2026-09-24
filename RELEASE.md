@@ -290,15 +290,17 @@ created only after the revision it names is already promoted:
    Before opening the workflow UI, verify the exact carrier selection locally:
 
    ```bash
-   npx tsc -p tsconfig.schema.json
    npm run release:governance:verify-selection -- \
      --commit <full-governance-carrier-sha> \
      --receipt-sha256 <receipt-sha256>
    ```
 
-   The verifier's canonical-JSON check uses the compiled shared
-   canonicalizer, so compile first in a fresh checkout; an older build's
-   `dist/schema` would otherwise hide a failure.
+   The npm script builds `dist/schema` from this checkout before it runs the
+   verifier, because the receipt's canonical-JSON check uses the compiled
+   shared canonicalizer and an older build would check with stale code. Run it
+   through npm rather than `node scripts/verify-release-governance-selection.mjs`,
+   and leave `SITE_BEHAVIOR_LAB_SCHEMA_DIST_READY` unset so the build is not
+   skipped.
 
    Dispatch that verified carrier SHA, not the earlier version-declaration
    SHA. It must also be `main`'s tip when you dispatch: the prepare job's

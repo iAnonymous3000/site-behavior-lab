@@ -50,6 +50,18 @@ const TARGETS = {
   // through the compiled contract, and release.yml runs it right after
   // `npm ci`, where no dist/schema exists yet.
   "release-readiness": ["scripts", "release-readiness.mjs"],
+  // The operator-evidence canonicalizer (scripts/operator-evidence-common.mjs)
+  // and the runner-receipt one (scripts/scanner-fidelity-study-lib.mjs) load
+  // dist/schema/lib/canonical-json.js lazily and fall back to whatever tree
+  // exists. The release-attestation-scaffold,
+  // release-governance-verify-selection, runner-expected-environment and
+  // staging-teardown-targets commands reach one of them, so they build it from
+  // this checkout rather than trust an older build.
+  "release-attestation-scaffold": ["scripts", "release-attestation-scaffold.mjs"],
+  "release-governance-verify-selection": [
+    "scripts",
+    "verify-release-governance-selection.mjs"
+  ],
   "release-tag-governance-capture": [
     "scripts",
     "capture-release-tag-governance.mjs"
@@ -57,6 +69,14 @@ const TARGETS = {
   "runner-destruction-evidence": [
     "scripts",
     "runner-destruction-evidence.mjs"
+  ],
+  "runner-expected-environment": [
+    "scripts",
+    "controlled-runner-expected-environment.mjs"
+  ],
+  "staging-teardown-targets": [
+    "scripts",
+    "staging-teardown-target-manifest.mjs"
   ],
   "publication-transparency-log": ["dist", "schema", "lib", "publication-transparency-log-cli.js"],
   "transparency-log-anchor": ["dist", "schema", "lib", "transparency-log-anchor-cli.js"],

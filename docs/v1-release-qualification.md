@@ -67,7 +67,7 @@ their own. The externally pinned whole-binding review remains mandatory.
    their Sigstore bundles. Complete the exact-image package review. Provider
    evidence still needs its existing authenticated capture, freshness and
    failure-probe checks. A hand-written statement cannot replace those proofs.
-   `node scripts/release-attestation-scaffold.mjs --gate <gate-id>` can prepare
+   `npm run release:attestation-scaffold -- --gate <gate-id>` can prepare
    the operator review from canonical evidence before the binding exists. Its
    statements remain false and its approval fields empty; it grants no release
    authority and cannot pass readiness.

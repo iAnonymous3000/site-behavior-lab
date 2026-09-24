@@ -578,7 +578,17 @@ test("release governance producer is an explicit operator command", () => {
   );
   assert.equal(
     manifest.scripts["release:governance:verify-selection"],
-    "node scripts/verify-release-governance-selection.mjs"
+    "node scripts/run-schema-cli.mjs release-governance-verify-selection"
+  );
+  // The verifier's canonical-JSON check loads dist/schema lazily and falls
+  // back to any older tree, so the npm script must build it first.
+  const launcher = readFileSync(
+    path.join(process.cwd(), "scripts", "run-schema-cli.mjs"),
+    "utf8"
+  );
+  assert.match(
+    launcher,
+    /"release-governance-verify-selection": \[\s*"scripts",\s*"verify-release-governance-selection\.mjs"\s*\]/
   );
   const guide = readFileSync(
     path.join(process.cwd(), "RELEASE.md"),
@@ -601,6 +611,7 @@ test("release governance producer is an explicit operator command", () => {
     /For a governed `0\.x`\s+release, commit the new receipt[\s\S]*measurement-candidate binding is explicitly not required/
   );
   assert.match(guide, /Dispatch that verified carrier SHA, not the earlier version-declaration/);
+  assert.doesNotMatch(guide, /npx tsc -p tsconfig\.schema\.json/);
   const producer = readFileSync(
     path.join(process.cwd(), "scripts", "capture-release-tag-governance.mjs"),
     "utf8"

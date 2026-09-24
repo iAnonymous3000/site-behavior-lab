@@ -76,3 +76,27 @@ test("the shared schema launcher forwards arguments and refuses unknown targets"
   assert.equal(refused.status, 1);
   assert.match(refused.stderr, /Unknown schema CLI/);
 });
+
+test("the release governance selection check reaches its verifier through the schema launcher", () => {
+  // The verifier's canonical-JSON check loads dist/schema/lib/canonical-json.js
+  // and falls back to any older tree, so `npm run
+  // release:governance:verify-selection` must build it first. The flag skips
+  // only the compile here; the target must still resolve to the verifier and
+  // surface its own usage refusal and exit code. Three sibling operator
+  // commands reach the same lazy canonicalizers, so they build first too.
+  for (const [name, target] of [
+    ["release:governance:verify-selection", "release-governance-verify-selection"],
+    ["release:attestation-scaffold", "release-attestation-scaffold"],
+    ["runner:expected-environment", "runner-expected-environment"],
+    ["staging:teardown-targets", "staging-teardown-targets"]
+  ]) {
+    assert.equal(packageJson.scripts[name], `node scripts/run-schema-cli.mjs ${target}`, name);
+  }
+  const refused = spawnSync(
+    process.execPath,
+    [path.join(root, "scripts", "run-schema-cli.mjs"), "release-governance-verify-selection"],
+    { cwd: root, encoding: "utf8", env: { ...process.env, [SCHEMA_DIST_READY]: "1" } }
+  );
+  assert.equal(refused.status, 1);
+  assert.match(refused.stderr, /Usage: node scripts\/verify-release-governance-selection\.mjs/);
+});

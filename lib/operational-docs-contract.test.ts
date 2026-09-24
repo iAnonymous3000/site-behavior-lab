@@ -478,7 +478,7 @@ test("release operators get a fail-closed scaffold for every attestation gate", 
 
   assert.equal(
     packageJson.scripts?.["release:attestation-scaffold"],
-    "node scripts/release-attestation-scaffold.mjs"
+    "node scripts/run-schema-cli.mjs release-attestation-scaffold"
   );
   assert.match(
     release,
