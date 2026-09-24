@@ -54,7 +54,18 @@ entries is in [docs/comprehensive-review-2026-09-22.md](docs/comprehensive-revie
   days and the storage bucket deletes them at 8, so only reports saved in the
   8 days before the deploy can be affected. The engine differential found no
   changed block decision and the public-suffix refresh no changed parse over
-  the committed corpus; neither is a replay of live traffic.
+  the committed corpus; neither is a replay of live traffic. The exact-build
+  staging A/B passed: all 44 compared panel medians stayed within tolerance,
+  and the full record is in
+  [docs/toolchain-epoch-2026-09.md](docs/toolchain-epoch-2026-09.md).
+- The toolchain canary compares capture loss like with like. A site may keep
+  a capture loss only if every run of it in both builds records the same
+  family, kind and detail, and only the metrics that family feeds are then
+  left out for that site; a loss that differs between builds fails the
+  comparison. Before, any capture loss refused the run, and since
+  node-detectors-v9 records the fingerprint listener-attribution loss on most
+  ad-heavy pages, even the baseline build could not produce a receipt.
+  Receipts move to version 2.
 - Detector epoch `node-detectors-v9` revises three detectors.
   `pixel-request-decoder@6` reads multipart form bodies (a page's `FormData`
   beacon) field by field instead of reading them as complete forms with no

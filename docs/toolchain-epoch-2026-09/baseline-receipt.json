@@ -1,0 +1,2086 @@
+{
+  "receiptVersion": 2,
+  "kind": "site-behavior-toolchain-canary-capture",
+  "createdAt": "2026-09-23T21:56:19.337Z",
+  "origin": "https://scan-staging.sitebehavior.org",
+  "expectedBuild": "cd43c7bce9a980037a74f7ee2a05b722c2638b17",
+  "order": "forward",
+  "panelDigest": "86fe39f8e4e75e9a2925c1849006909968b67bc507d2aec6cb688ce9cc22be29",
+  "panel": {
+    "panelVersion": 1,
+    "panelId": "monthly-toolchain-canary-v1",
+    "repetitions": 3,
+    "conditions": {
+      "device": "desktop",
+      "gpcEnabled": true,
+      "consentMode": "observe"
+    },
+    "metricTolerances": {
+      "totalRequests": {
+        "absolute": 10,
+        "relative": 0.2
+      },
+      "thirdPartyRequests": {
+        "absolute": 8,
+        "relative": 0.25
+      },
+      "knownTrackerRequests": {
+        "absolute": 3,
+        "relative": 0.3
+      },
+      "thirdPartyDomains": {
+        "absolute": 3,
+        "relative": 0.25
+      },
+      "cookies": {
+        "absolute": 4,
+        "relative": 0.3
+      },
+      "thirdPartyCookies": {
+        "absolute": 3,
+        "relative": 0.3
+      },
+      "storageEntries": {
+        "absolute": 4,
+        "relative": 0.3
+      },
+      "fingerprintEvents": {
+        "absolute": 3,
+        "relative": 0.3
+      },
+      "shieldsBlockedRequests": {
+        "absolute": 3,
+        "relative": 0.3
+      }
+    },
+    "cases": [
+      {
+        "id": "wikipedia",
+        "catalog": "public/featured-sites.json",
+        "domain": "wikipedia.org",
+        "url": "https://www.wikipedia.org/"
+      },
+      {
+        "id": "github",
+        "catalog": "public/corpus-seed-sites.json",
+        "domain": "github.com",
+        "url": "https://github.com/"
+      },
+      {
+        "id": "python",
+        "catalog": "public/corpus-seed-sites.json",
+        "domain": "python.org",
+        "url": "https://www.python.org/"
+      },
+      {
+        "id": "gov-uk",
+        "catalog": "public/corpus-seed-sites.json",
+        "domain": "gov.uk",
+        "url": "https://www.gov.uk/"
+      },
+      {
+        "id": "guardian",
+        "catalog": "public/featured-sites.json",
+        "domain": "theguardian.com",
+        "url": "https://www.theguardian.com/"
+      }
+    ]
+  },
+  "runs": [
+    {
+      "caseId": "wikipedia",
+      "repetition": 1,
+      "sequence": 1,
+      "reportId": "20260923-0b92f5370c43bc3bc34a8cb5d947ffff",
+      "reportJsonPath": "/api/reports/20260923-0b92f5370c43bc3bc34a8cb5d947ffff",
+      "reportWireSha256": "2d51fe25bc1d2a36ed294e13f5ba9e3b03556a44f6c8a441073b4cd1b980f3d1",
+      "runId": "20260923-cda712cd2ebf8c66e8267dfeda201544",
+      "startedAt": "2026-09-23T21:53:03.220Z",
+      "subject": {
+        "requested": {
+          "origin": "https://www.wikipedia.org",
+          "registrableDomain": "wikipedia.org",
+          "routeShape": "/"
+        },
+        "observed": {
+          "origin": "https://www.wikipedia.org",
+          "registrableDomain": "wikipedia.org",
+          "routeShape": "/"
+        }
+      },
+      "conditions": {
+        "gpc": true,
+        "shields": "classification",
+        "consent": "observe",
+        "device": {
+          "kind": "desktop",
+          "viewport": {
+            "width": 1440,
+            "height": 980,
+            "isMobile": false
+          }
+        },
+        "probes": {
+          "keystroke": true,
+          "policyVisit": true
+        },
+        "locale": "en-US",
+        "language": "en-US",
+        "timezone": "UTC",
+        "egress": {
+          "label": "cloudflare-containers",
+          "region": "WNAM/pdx03/US"
+        },
+        "browser": {
+          "name": "chromium",
+          "version": "151.0.7922.34"
+        },
+        "headless": true,
+        "automation": "playwright-chromium"
+      },
+      "provenance": {
+        "observer": "node-playwright",
+        "acquisition": "public-api",
+        "buildCommit": "cd43c7bce9a980037a74f7ee2a05b722c2638b17",
+        "methodologyVersion": "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v3+detector-coverage-v2+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v2+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1+service-role-taxonomy-v1+gpc-worker-application-v2+active-probe-v2+auxiliary-context-block-v1",
+        "detectorRegistry": {
+          "version": "node-detectors-v9",
+          "digest": "b15c8281f0db49b91a46427ffee63e44bf7bbbfc0a9878069c2bb1098b6d4715"
+        }
+      },
+      "toolchain": {
+        "trackerCatalog": {
+          "source": "Hand-curated service catalog",
+          "version": "hand-curated-2026.08",
+          "entries": 146,
+          "digest": "e94970de235fc80254de8ed99b94316a252e52aa1c2e748c8fbfc3c093b908f4"
+        },
+        "adblock": {
+          "source": "Brave default ad-block lists",
+          "lists": 31,
+          "fetchedAt": "2026-09-21T12:45:16.395Z",
+          "manifestDigest": "7e42412ee50d641b83699aff20bb2d2151a36b5419121f7245ab0dec5b243a9f",
+          "engineVersion": "adblock-rust-0.13.2"
+        },
+        "normalizationVersion": "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:cb7064a154022024d8ffa25c110de6feff64f2b0ecbd375b14a24ff17105059d+tldts@7.4.10+node-evidence-policy-v1+r2-http-status-compat-v1"
+      },
+      "qualityFacts": {
+        "status": 200,
+        "botWallTitleMatched": false,
+        "navigationSettled": true,
+        "budgetsExhausted": [],
+        "captureLoss": []
+      },
+      "quality": {
+        "evaluatorVersion": "1",
+        "run": {
+          "outcome": "complete",
+          "reasons": []
+        },
+        "byFamily": {
+          "requests": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "cookies": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "storage": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "fingerprinting": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "detector-output": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "consent-verification": {
+            "outcome": "complete",
+            "reasons": []
+          }
+        }
+      },
+      "counts": {
+        "totalRequests": 6,
+        "thirdPartyRequests": 0,
+        "knownTrackerRequests": 0,
+        "thirdPartyDomains": 0,
+        "cookies": 5,
+        "thirdPartyCookies": 0,
+        "storageEntries": 3,
+        "fingerprintEvents": 0,
+        "shieldsBlockedRequests": 0
+      }
+    },
+    {
+      "caseId": "wikipedia",
+      "repetition": 2,
+      "sequence": 2,
+      "reportId": "20260923-892f80cae2367101f5cb1100cdba11ba",
+      "reportJsonPath": "/api/reports/20260923-892f80cae2367101f5cb1100cdba11ba",
+      "reportWireSha256": "a583bb75a5968d420bb996b3f38a3afb79c670c5a6b8aa0e6241871abd175cbe",
+      "runId": "20260923-8d98c0db4504cd911029d9b668c87ffd",
+      "startedAt": "2026-09-23T21:53:10.124Z",
+      "subject": {
+        "requested": {
+          "origin": "https://www.wikipedia.org",
+          "registrableDomain": "wikipedia.org",
+          "routeShape": "/"
+        },
+        "observed": {
+          "origin": "https://www.wikipedia.org",
+          "registrableDomain": "wikipedia.org",
+          "routeShape": "/"
+        }
+      },
+      "conditions": {
+        "gpc": true,
+        "shields": "classification",
+        "consent": "observe",
+        "device": {
+          "kind": "desktop",
+          "viewport": {
+            "width": 1440,
+            "height": 980,
+            "isMobile": false
+          }
+        },
+        "probes": {
+          "keystroke": true,
+          "policyVisit": true
+        },
+        "locale": "en-US",
+        "language": "en-US",
+        "timezone": "UTC",
+        "egress": {
+          "label": "cloudflare-containers",
+          "region": "WNAM/pdx03/US"
+        },
+        "browser": {
+          "name": "chromium",
+          "version": "151.0.7922.34"
+        },
+        "headless": true,
+        "automation": "playwright-chromium"
+      },
+      "provenance": {
+        "observer": "node-playwright",
+        "acquisition": "public-api",
+        "buildCommit": "cd43c7bce9a980037a74f7ee2a05b722c2638b17",
+        "methodologyVersion": "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v3+detector-coverage-v2+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v2+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1+service-role-taxonomy-v1+gpc-worker-application-v2+active-probe-v2+auxiliary-context-block-v1",
+        "detectorRegistry": {
+          "version": "node-detectors-v9",
+          "digest": "b15c8281f0db49b91a46427ffee63e44bf7bbbfc0a9878069c2bb1098b6d4715"
+        }
+      },
+      "toolchain": {
+        "trackerCatalog": {
+          "source": "Hand-curated service catalog",
+          "version": "hand-curated-2026.08",
+          "entries": 146,
+          "digest": "e94970de235fc80254de8ed99b94316a252e52aa1c2e748c8fbfc3c093b908f4"
+        },
+        "adblock": {
+          "source": "Brave default ad-block lists",
+          "lists": 31,
+          "fetchedAt": "2026-09-21T12:45:16.395Z",
+          "manifestDigest": "7e42412ee50d641b83699aff20bb2d2151a36b5419121f7245ab0dec5b243a9f",
+          "engineVersion": "adblock-rust-0.13.2"
+        },
+        "normalizationVersion": "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:cb7064a154022024d8ffa25c110de6feff64f2b0ecbd375b14a24ff17105059d+tldts@7.4.10+node-evidence-policy-v1+r2-http-status-compat-v1"
+      },
+      "qualityFacts": {
+        "status": 200,
+        "botWallTitleMatched": false,
+        "navigationSettled": true,
+        "budgetsExhausted": [],
+        "captureLoss": []
+      },
+      "quality": {
+        "evaluatorVersion": "1",
+        "run": {
+          "outcome": "complete",
+          "reasons": []
+        },
+        "byFamily": {
+          "requests": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "cookies": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "storage": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "fingerprinting": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "detector-output": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "consent-verification": {
+            "outcome": "complete",
+            "reasons": []
+          }
+        }
+      },
+      "counts": {
+        "totalRequests": 6,
+        "thirdPartyRequests": 0,
+        "knownTrackerRequests": 0,
+        "thirdPartyDomains": 0,
+        "cookies": 5,
+        "thirdPartyCookies": 0,
+        "storageEntries": 3,
+        "fingerprintEvents": 0,
+        "shieldsBlockedRequests": 0
+      }
+    },
+    {
+      "caseId": "wikipedia",
+      "repetition": 3,
+      "sequence": 3,
+      "reportId": "20260923-dae361e3be8daf74bf00c568db4d84dd",
+      "reportJsonPath": "/api/reports/20260923-dae361e3be8daf74bf00c568db4d84dd",
+      "reportWireSha256": "d678e84636c0c949303b78d58156c68d1277df101022d79bcfda4aa718bdee1a",
+      "runId": "20260923-7d37af43f025c302dd67d3f90969bf49",
+      "startedAt": "2026-09-23T21:53:18.105Z",
+      "subject": {
+        "requested": {
+          "origin": "https://www.wikipedia.org",
+          "registrableDomain": "wikipedia.org",
+          "routeShape": "/"
+        },
+        "observed": {
+          "origin": "https://www.wikipedia.org",
+          "registrableDomain": "wikipedia.org",
+          "routeShape": "/"
+        }
+      },
+      "conditions": {
+        "gpc": true,
+        "shields": "classification",
+        "consent": "observe",
+        "device": {
+          "kind": "desktop",
+          "viewport": {
+            "width": 1440,
+            "height": 980,
+            "isMobile": false
+          }
+        },
+        "probes": {
+          "keystroke": true,
+          "policyVisit": true
+        },
+        "locale": "en-US",
+        "language": "en-US",
+        "timezone": "UTC",
+        "egress": {
+          "label": "cloudflare-containers",
+          "region": "WNAM/pdx03/US"
+        },
+        "browser": {
+          "name": "chromium",
+          "version": "151.0.7922.34"
+        },
+        "headless": true,
+        "automation": "playwright-chromium"
+      },
+      "provenance": {
+        "observer": "node-playwright",
+        "acquisition": "public-api",
+        "buildCommit": "cd43c7bce9a980037a74f7ee2a05b722c2638b17",
+        "methodologyVersion": "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v3+detector-coverage-v2+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v2+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1+service-role-taxonomy-v1+gpc-worker-application-v2+active-probe-v2+auxiliary-context-block-v1",
+        "detectorRegistry": {
+          "version": "node-detectors-v9",
+          "digest": "b15c8281f0db49b91a46427ffee63e44bf7bbbfc0a9878069c2bb1098b6d4715"
+        }
+      },
+      "toolchain": {
+        "trackerCatalog": {
+          "source": "Hand-curated service catalog",
+          "version": "hand-curated-2026.08",
+          "entries": 146,
+          "digest": "e94970de235fc80254de8ed99b94316a252e52aa1c2e748c8fbfc3c093b908f4"
+        },
+        "adblock": {
+          "source": "Brave default ad-block lists",
+          "lists": 31,
+          "fetchedAt": "2026-09-21T12:45:16.395Z",
+          "manifestDigest": "7e42412ee50d641b83699aff20bb2d2151a36b5419121f7245ab0dec5b243a9f",
+          "engineVersion": "adblock-rust-0.13.2"
+        },
+        "normalizationVersion": "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:cb7064a154022024d8ffa25c110de6feff64f2b0ecbd375b14a24ff17105059d+tldts@7.4.10+node-evidence-policy-v1+r2-http-status-compat-v1"
+      },
+      "qualityFacts": {
+        "status": 200,
+        "botWallTitleMatched": false,
+        "navigationSettled": true,
+        "budgetsExhausted": [],
+        "captureLoss": []
+      },
+      "quality": {
+        "evaluatorVersion": "1",
+        "run": {
+          "outcome": "complete",
+          "reasons": []
+        },
+        "byFamily": {
+          "requests": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "cookies": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "storage": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "fingerprinting": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "detector-output": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "consent-verification": {
+            "outcome": "complete",
+            "reasons": []
+          }
+        }
+      },
+      "counts": {
+        "totalRequests": 6,
+        "thirdPartyRequests": 0,
+        "knownTrackerRequests": 0,
+        "thirdPartyDomains": 0,
+        "cookies": 5,
+        "thirdPartyCookies": 0,
+        "storageEntries": 3,
+        "fingerprintEvents": 0,
+        "shieldsBlockedRequests": 0
+      }
+    },
+    {
+      "caseId": "github",
+      "repetition": 1,
+      "sequence": 4,
+      "reportId": "20260923-46a196d771d1f06bf701803eda7018e0",
+      "reportJsonPath": "/api/reports/20260923-46a196d771d1f06bf701803eda7018e0",
+      "reportWireSha256": "665e60312fa04ce88265f019190099a2b0ecc98cd12cee2eed73140319031796",
+      "runId": "20260923-60658e6546704790a88fc8a3eca0382d",
+      "startedAt": "2026-09-23T21:53:26.162Z",
+      "subject": {
+        "requested": {
+          "origin": "https://github.com",
+          "registrableDomain": "github.com",
+          "routeShape": "/"
+        },
+        "observed": {
+          "origin": "https://github.com",
+          "registrableDomain": "github.com",
+          "routeShape": "/"
+        }
+      },
+      "conditions": {
+        "gpc": true,
+        "shields": "classification",
+        "consent": "observe",
+        "device": {
+          "kind": "desktop",
+          "viewport": {
+            "width": 1440,
+            "height": 980,
+            "isMobile": false
+          }
+        },
+        "probes": {
+          "keystroke": true,
+          "policyVisit": true
+        },
+        "locale": "en-US",
+        "language": "en-US",
+        "timezone": "UTC",
+        "egress": {
+          "label": "cloudflare-containers",
+          "region": "WNAM/pdx03/US"
+        },
+        "browser": {
+          "name": "chromium",
+          "version": "151.0.7922.34"
+        },
+        "headless": true,
+        "automation": "playwright-chromium"
+      },
+      "provenance": {
+        "observer": "node-playwright",
+        "acquisition": "public-api",
+        "buildCommit": "cd43c7bce9a980037a74f7ee2a05b722c2638b17",
+        "methodologyVersion": "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v3+detector-coverage-v2+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v2+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1+service-role-taxonomy-v1+gpc-worker-application-v2+active-probe-v2+auxiliary-context-block-v1",
+        "detectorRegistry": {
+          "version": "node-detectors-v9",
+          "digest": "b15c8281f0db49b91a46427ffee63e44bf7bbbfc0a9878069c2bb1098b6d4715"
+        }
+      },
+      "toolchain": {
+        "trackerCatalog": {
+          "source": "Hand-curated service catalog",
+          "version": "hand-curated-2026.08",
+          "entries": 146,
+          "digest": "e94970de235fc80254de8ed99b94316a252e52aa1c2e748c8fbfc3c093b908f4"
+        },
+        "adblock": {
+          "source": "Brave default ad-block lists",
+          "lists": 31,
+          "fetchedAt": "2026-09-21T12:45:16.395Z",
+          "manifestDigest": "7e42412ee50d641b83699aff20bb2d2151a36b5419121f7245ab0dec5b243a9f",
+          "engineVersion": "adblock-rust-0.13.2"
+        },
+        "normalizationVersion": "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:cb7064a154022024d8ffa25c110de6feff64f2b0ecbd375b14a24ff17105059d+tldts@7.4.10+node-evidence-policy-v1+r2-http-status-compat-v1"
+      },
+      "qualityFacts": {
+        "status": 200,
+        "botWallTitleMatched": false,
+        "navigationSettled": true,
+        "budgetsExhausted": [],
+        "captureLoss": [
+          {
+            "family": "detector-output",
+            "phaseId": 1,
+            "kind": "truncated",
+            "count": 1,
+            "detail": "keystroke-probe-capture"
+          }
+        ]
+      },
+      "quality": {
+        "evaluatorVersion": "1",
+        "run": {
+          "outcome": "complete",
+          "reasons": []
+        },
+        "byFamily": {
+          "requests": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "cookies": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "storage": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "fingerprinting": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "detector-output": {
+            "outcome": "censored",
+            "reasons": [
+              "capture-loss:truncated"
+            ]
+          },
+          "consent-verification": {
+            "outcome": "complete",
+            "reasons": []
+          }
+        }
+      },
+      "counts": {
+        "totalRequests": 162,
+        "thirdPartyRequests": 157,
+        "knownTrackerRequests": 0,
+        "thirdPartyDomains": 2,
+        "cookies": 5,
+        "thirdPartyCookies": 0,
+        "storageEntries": 1,
+        "fingerprintEvents": 0,
+        "shieldsBlockedRequests": 1
+      }
+    },
+    {
+      "caseId": "github",
+      "repetition": 2,
+      "sequence": 5,
+      "reportId": "20260923-0286fa8e8d91cda9f08763a89f2aa5a8",
+      "reportJsonPath": "/api/reports/20260923-0286fa8e8d91cda9f08763a89f2aa5a8",
+      "reportWireSha256": "a8672714fe78633637bf34bbd74a94c49e9448cddb9882449d3b9f1988ba6f14",
+      "runId": "20260923-3176b01debabb166410c0d3946d5b0de",
+      "startedAt": "2026-09-23T21:53:41.164Z",
+      "subject": {
+        "requested": {
+          "origin": "https://github.com",
+          "registrableDomain": "github.com",
+          "routeShape": "/"
+        },
+        "observed": {
+          "origin": "https://github.com",
+          "registrableDomain": "github.com",
+          "routeShape": "/"
+        }
+      },
+      "conditions": {
+        "gpc": true,
+        "shields": "classification",
+        "consent": "observe",
+        "device": {
+          "kind": "desktop",
+          "viewport": {
+            "width": 1440,
+            "height": 980,
+            "isMobile": false
+          }
+        },
+        "probes": {
+          "keystroke": true,
+          "policyVisit": true
+        },
+        "locale": "en-US",
+        "language": "en-US",
+        "timezone": "UTC",
+        "egress": {
+          "label": "cloudflare-containers",
+          "region": "WNAM/pdx03/US"
+        },
+        "browser": {
+          "name": "chromium",
+          "version": "151.0.7922.34"
+        },
+        "headless": true,
+        "automation": "playwright-chromium"
+      },
+      "provenance": {
+        "observer": "node-playwright",
+        "acquisition": "public-api",
+        "buildCommit": "cd43c7bce9a980037a74f7ee2a05b722c2638b17",
+        "methodologyVersion": "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v3+detector-coverage-v2+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v2+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1+service-role-taxonomy-v1+gpc-worker-application-v2+active-probe-v2+auxiliary-context-block-v1",
+        "detectorRegistry": {
+          "version": "node-detectors-v9",
+          "digest": "b15c8281f0db49b91a46427ffee63e44bf7bbbfc0a9878069c2bb1098b6d4715"
+        }
+      },
+      "toolchain": {
+        "trackerCatalog": {
+          "source": "Hand-curated service catalog",
+          "version": "hand-curated-2026.08",
+          "entries": 146,
+          "digest": "e94970de235fc80254de8ed99b94316a252e52aa1c2e748c8fbfc3c093b908f4"
+        },
+        "adblock": {
+          "source": "Brave default ad-block lists",
+          "lists": 31,
+          "fetchedAt": "2026-09-21T12:45:16.395Z",
+          "manifestDigest": "7e42412ee50d641b83699aff20bb2d2151a36b5419121f7245ab0dec5b243a9f",
+          "engineVersion": "adblock-rust-0.13.2"
+        },
+        "normalizationVersion": "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:cb7064a154022024d8ffa25c110de6feff64f2b0ecbd375b14a24ff17105059d+tldts@7.4.10+node-evidence-policy-v1+r2-http-status-compat-v1"
+      },
+      "qualityFacts": {
+        "status": 200,
+        "botWallTitleMatched": false,
+        "navigationSettled": true,
+        "budgetsExhausted": [],
+        "captureLoss": [
+          {
+            "family": "detector-output",
+            "phaseId": 1,
+            "kind": "truncated",
+            "count": 1,
+            "detail": "keystroke-probe-capture"
+          }
+        ]
+      },
+      "quality": {
+        "evaluatorVersion": "1",
+        "run": {
+          "outcome": "complete",
+          "reasons": []
+        },
+        "byFamily": {
+          "requests": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "cookies": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "storage": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "fingerprinting": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "detector-output": {
+            "outcome": "censored",
+            "reasons": [
+              "capture-loss:truncated"
+            ]
+          },
+          "consent-verification": {
+            "outcome": "complete",
+            "reasons": []
+          }
+        }
+      },
+      "counts": {
+        "totalRequests": 162,
+        "thirdPartyRequests": 157,
+        "knownTrackerRequests": 0,
+        "thirdPartyDomains": 2,
+        "cookies": 5,
+        "thirdPartyCookies": 0,
+        "storageEntries": 1,
+        "fingerprintEvents": 0,
+        "shieldsBlockedRequests": 1
+      }
+    },
+    {
+      "caseId": "github",
+      "repetition": 3,
+      "sequence": 6,
+      "reportId": "20260923-ffe6639b05225b20dba5437dfb40471d",
+      "reportJsonPath": "/api/reports/20260923-ffe6639b05225b20dba5437dfb40471d",
+      "reportWireSha256": "e10d17d82d9a326aee59587224adddcdedeb3ac424900f7407f95c669931a986",
+      "runId": "20260923-f234f7fe517e0a1e69e35db8bd84d464",
+      "startedAt": "2026-09-23T21:53:55.165Z",
+      "subject": {
+        "requested": {
+          "origin": "https://github.com",
+          "registrableDomain": "github.com",
+          "routeShape": "/"
+        },
+        "observed": {
+          "origin": "https://github.com",
+          "registrableDomain": "github.com",
+          "routeShape": "/"
+        }
+      },
+      "conditions": {
+        "gpc": true,
+        "shields": "classification",
+        "consent": "observe",
+        "device": {
+          "kind": "desktop",
+          "viewport": {
+            "width": 1440,
+            "height": 980,
+            "isMobile": false
+          }
+        },
+        "probes": {
+          "keystroke": true,
+          "policyVisit": true
+        },
+        "locale": "en-US",
+        "language": "en-US",
+        "timezone": "UTC",
+        "egress": {
+          "label": "cloudflare-containers",
+          "region": "WNAM/pdx03/US"
+        },
+        "browser": {
+          "name": "chromium",
+          "version": "151.0.7922.34"
+        },
+        "headless": true,
+        "automation": "playwright-chromium"
+      },
+      "provenance": {
+        "observer": "node-playwright",
+        "acquisition": "public-api",
+        "buildCommit": "cd43c7bce9a980037a74f7ee2a05b722c2638b17",
+        "methodologyVersion": "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v3+detector-coverage-v2+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v2+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1+service-role-taxonomy-v1+gpc-worker-application-v2+active-probe-v2+auxiliary-context-block-v1",
+        "detectorRegistry": {
+          "version": "node-detectors-v9",
+          "digest": "b15c8281f0db49b91a46427ffee63e44bf7bbbfc0a9878069c2bb1098b6d4715"
+        }
+      },
+      "toolchain": {
+        "trackerCatalog": {
+          "source": "Hand-curated service catalog",
+          "version": "hand-curated-2026.08",
+          "entries": 146,
+          "digest": "e94970de235fc80254de8ed99b94316a252e52aa1c2e748c8fbfc3c093b908f4"
+        },
+        "adblock": {
+          "source": "Brave default ad-block lists",
+          "lists": 31,
+          "fetchedAt": "2026-09-21T12:45:16.395Z",
+          "manifestDigest": "7e42412ee50d641b83699aff20bb2d2151a36b5419121f7245ab0dec5b243a9f",
+          "engineVersion": "adblock-rust-0.13.2"
+        },
+        "normalizationVersion": "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:cb7064a154022024d8ffa25c110de6feff64f2b0ecbd375b14a24ff17105059d+tldts@7.4.10+node-evidence-policy-v1+r2-http-status-compat-v1"
+      },
+      "qualityFacts": {
+        "status": 200,
+        "botWallTitleMatched": false,
+        "navigationSettled": true,
+        "budgetsExhausted": [],
+        "captureLoss": [
+          {
+            "family": "detector-output",
+            "phaseId": 1,
+            "kind": "truncated",
+            "count": 1,
+            "detail": "keystroke-probe-capture"
+          }
+        ]
+      },
+      "quality": {
+        "evaluatorVersion": "1",
+        "run": {
+          "outcome": "complete",
+          "reasons": []
+        },
+        "byFamily": {
+          "requests": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "cookies": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "storage": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "fingerprinting": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "detector-output": {
+            "outcome": "censored",
+            "reasons": [
+              "capture-loss:truncated"
+            ]
+          },
+          "consent-verification": {
+            "outcome": "complete",
+            "reasons": []
+          }
+        }
+      },
+      "counts": {
+        "totalRequests": 162,
+        "thirdPartyRequests": 157,
+        "knownTrackerRequests": 0,
+        "thirdPartyDomains": 2,
+        "cookies": 5,
+        "thirdPartyCookies": 0,
+        "storageEntries": 1,
+        "fingerprintEvents": 0,
+        "shieldsBlockedRequests": 1
+      }
+    },
+    {
+      "caseId": "python",
+      "repetition": 1,
+      "sequence": 7,
+      "reportId": "20260923-5b29f8da377018e9a25d06fd8ec4091b",
+      "reportJsonPath": "/api/reports/20260923-5b29f8da377018e9a25d06fd8ec4091b",
+      "reportWireSha256": "f9131542b15cbdb5c7c9fd6149beb2e5350b5d1fc7c0c03171478049c74be89b",
+      "runId": "20260923-ab7047d55978125b3738ca7a10d39e90",
+      "startedAt": "2026-09-23T21:54:10.167Z",
+      "subject": {
+        "requested": {
+          "origin": "https://www.python.org",
+          "registrableDomain": "python.org",
+          "routeShape": "/"
+        },
+        "observed": {
+          "origin": "https://www.python.org",
+          "registrableDomain": "python.org",
+          "routeShape": "/"
+        }
+      },
+      "conditions": {
+        "gpc": true,
+        "shields": "classification",
+        "consent": "observe",
+        "device": {
+          "kind": "desktop",
+          "viewport": {
+            "width": 1440,
+            "height": 980,
+            "isMobile": false
+          }
+        },
+        "probes": {
+          "keystroke": true,
+          "policyVisit": true
+        },
+        "locale": "en-US",
+        "language": "en-US",
+        "timezone": "UTC",
+        "egress": {
+          "label": "cloudflare-containers",
+          "region": "WNAM/pdx03/US"
+        },
+        "browser": {
+          "name": "chromium",
+          "version": "151.0.7922.34"
+        },
+        "headless": true,
+        "automation": "playwright-chromium"
+      },
+      "provenance": {
+        "observer": "node-playwright",
+        "acquisition": "public-api",
+        "buildCommit": "cd43c7bce9a980037a74f7ee2a05b722c2638b17",
+        "methodologyVersion": "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v3+detector-coverage-v2+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v2+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1+service-role-taxonomy-v1+gpc-worker-application-v2+active-probe-v2+auxiliary-context-block-v1",
+        "detectorRegistry": {
+          "version": "node-detectors-v9",
+          "digest": "b15c8281f0db49b91a46427ffee63e44bf7bbbfc0a9878069c2bb1098b6d4715"
+        }
+      },
+      "toolchain": {
+        "trackerCatalog": {
+          "source": "Hand-curated service catalog",
+          "version": "hand-curated-2026.08",
+          "entries": 146,
+          "digest": "e94970de235fc80254de8ed99b94316a252e52aa1c2e748c8fbfc3c093b908f4"
+        },
+        "adblock": {
+          "source": "Brave default ad-block lists",
+          "lists": 31,
+          "fetchedAt": "2026-09-21T12:45:16.395Z",
+          "manifestDigest": "7e42412ee50d641b83699aff20bb2d2151a36b5419121f7245ab0dec5b243a9f",
+          "engineVersion": "adblock-rust-0.13.2"
+        },
+        "normalizationVersion": "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:cb7064a154022024d8ffa25c110de6feff64f2b0ecbd375b14a24ff17105059d+tldts@7.4.10+node-evidence-policy-v1+r2-http-status-compat-v1"
+      },
+      "qualityFacts": {
+        "status": 200,
+        "botWallTitleMatched": false,
+        "navigationSettled": true,
+        "budgetsExhausted": [],
+        "captureLoss": []
+      },
+      "quality": {
+        "evaluatorVersion": "1",
+        "run": {
+          "outcome": "complete",
+          "reasons": []
+        },
+        "byFamily": {
+          "requests": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "cookies": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "storage": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "fingerprinting": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "detector-output": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "consent-verification": {
+            "outcome": "complete",
+            "reasons": []
+          }
+        }
+      },
+      "counts": {
+        "totalRequests": 32,
+        "thirdPartyRequests": 7,
+        "knownTrackerRequests": 0,
+        "thirdPartyDomains": 3,
+        "cookies": 0,
+        "thirdPartyCookies": 0,
+        "storageEntries": 0,
+        "fingerprintEvents": 0,
+        "shieldsBlockedRequests": 2
+      }
+    },
+    {
+      "caseId": "python",
+      "repetition": 2,
+      "sequence": 8,
+      "reportId": "20260923-22cff761eea5b10307c8465404fc391e",
+      "reportJsonPath": "/api/reports/20260923-22cff761eea5b10307c8465404fc391e",
+      "reportWireSha256": "95e9473f5ab0c19395f807d67ece9d2581e993f5c2ca8f1ae82f6482af291982",
+      "runId": "20260923-aa5018635ab4a66592e879dd53b950e4",
+      "startedAt": "2026-09-23T21:54:27.154Z",
+      "subject": {
+        "requested": {
+          "origin": "https://www.python.org",
+          "registrableDomain": "python.org",
+          "routeShape": "/"
+        },
+        "observed": {
+          "origin": "https://www.python.org",
+          "registrableDomain": "python.org",
+          "routeShape": "/"
+        }
+      },
+      "conditions": {
+        "gpc": true,
+        "shields": "classification",
+        "consent": "observe",
+        "device": {
+          "kind": "desktop",
+          "viewport": {
+            "width": 1440,
+            "height": 980,
+            "isMobile": false
+          }
+        },
+        "probes": {
+          "keystroke": true,
+          "policyVisit": true
+        },
+        "locale": "en-US",
+        "language": "en-US",
+        "timezone": "UTC",
+        "egress": {
+          "label": "cloudflare-containers",
+          "region": "WNAM/pdx03/US"
+        },
+        "browser": {
+          "name": "chromium",
+          "version": "151.0.7922.34"
+        },
+        "headless": true,
+        "automation": "playwright-chromium"
+      },
+      "provenance": {
+        "observer": "node-playwright",
+        "acquisition": "public-api",
+        "buildCommit": "cd43c7bce9a980037a74f7ee2a05b722c2638b17",
+        "methodologyVersion": "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v3+detector-coverage-v2+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v2+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1+service-role-taxonomy-v1+gpc-worker-application-v2+active-probe-v2+auxiliary-context-block-v1",
+        "detectorRegistry": {
+          "version": "node-detectors-v9",
+          "digest": "b15c8281f0db49b91a46427ffee63e44bf7bbbfc0a9878069c2bb1098b6d4715"
+        }
+      },
+      "toolchain": {
+        "trackerCatalog": {
+          "source": "Hand-curated service catalog",
+          "version": "hand-curated-2026.08",
+          "entries": 146,
+          "digest": "e94970de235fc80254de8ed99b94316a252e52aa1c2e748c8fbfc3c093b908f4"
+        },
+        "adblock": {
+          "source": "Brave default ad-block lists",
+          "lists": 31,
+          "fetchedAt": "2026-09-21T12:45:16.395Z",
+          "manifestDigest": "7e42412ee50d641b83699aff20bb2d2151a36b5419121f7245ab0dec5b243a9f",
+          "engineVersion": "adblock-rust-0.13.2"
+        },
+        "normalizationVersion": "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:cb7064a154022024d8ffa25c110de6feff64f2b0ecbd375b14a24ff17105059d+tldts@7.4.10+node-evidence-policy-v1+r2-http-status-compat-v1"
+      },
+      "qualityFacts": {
+        "status": 200,
+        "botWallTitleMatched": false,
+        "navigationSettled": true,
+        "budgetsExhausted": [],
+        "captureLoss": []
+      },
+      "quality": {
+        "evaluatorVersion": "1",
+        "run": {
+          "outcome": "complete",
+          "reasons": []
+        },
+        "byFamily": {
+          "requests": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "cookies": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "storage": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "fingerprinting": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "detector-output": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "consent-verification": {
+            "outcome": "complete",
+            "reasons": []
+          }
+        }
+      },
+      "counts": {
+        "totalRequests": 32,
+        "thirdPartyRequests": 7,
+        "knownTrackerRequests": 0,
+        "thirdPartyDomains": 3,
+        "cookies": 0,
+        "thirdPartyCookies": 0,
+        "storageEntries": 0,
+        "fingerprintEvents": 0,
+        "shieldsBlockedRequests": 2
+      }
+    },
+    {
+      "caseId": "python",
+      "repetition": 3,
+      "sequence": 9,
+      "reportId": "20260923-ad7a6392580c368de0d6c05278050c93",
+      "reportJsonPath": "/api/reports/20260923-ad7a6392580c368de0d6c05278050c93",
+      "reportWireSha256": "a69a983836e21dbfe325a71ae29c1a0536f7db655b3c1e5a5a9d54ead64694d4",
+      "runId": "20260923-457ece58a66d49cd86c54178639c4c9d",
+      "startedAt": "2026-09-23T21:54:45.209Z",
+      "subject": {
+        "requested": {
+          "origin": "https://www.python.org",
+          "registrableDomain": "python.org",
+          "routeShape": "/"
+        },
+        "observed": {
+          "origin": "https://www.python.org",
+          "registrableDomain": "python.org",
+          "routeShape": "/"
+        }
+      },
+      "conditions": {
+        "gpc": true,
+        "shields": "classification",
+        "consent": "observe",
+        "device": {
+          "kind": "desktop",
+          "viewport": {
+            "width": 1440,
+            "height": 980,
+            "isMobile": false
+          }
+        },
+        "probes": {
+          "keystroke": true,
+          "policyVisit": true
+        },
+        "locale": "en-US",
+        "language": "en-US",
+        "timezone": "UTC",
+        "egress": {
+          "label": "cloudflare-containers",
+          "region": "WNAM/pdx03/US"
+        },
+        "browser": {
+          "name": "chromium",
+          "version": "151.0.7922.34"
+        },
+        "headless": true,
+        "automation": "playwright-chromium"
+      },
+      "provenance": {
+        "observer": "node-playwright",
+        "acquisition": "public-api",
+        "buildCommit": "cd43c7bce9a980037a74f7ee2a05b722c2638b17",
+        "methodologyVersion": "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v3+detector-coverage-v2+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v2+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1+service-role-taxonomy-v1+gpc-worker-application-v2+active-probe-v2+auxiliary-context-block-v1",
+        "detectorRegistry": {
+          "version": "node-detectors-v9",
+          "digest": "b15c8281f0db49b91a46427ffee63e44bf7bbbfc0a9878069c2bb1098b6d4715"
+        }
+      },
+      "toolchain": {
+        "trackerCatalog": {
+          "source": "Hand-curated service catalog",
+          "version": "hand-curated-2026.08",
+          "entries": 146,
+          "digest": "e94970de235fc80254de8ed99b94316a252e52aa1c2e748c8fbfc3c093b908f4"
+        },
+        "adblock": {
+          "source": "Brave default ad-block lists",
+          "lists": 31,
+          "fetchedAt": "2026-09-21T12:45:16.395Z",
+          "manifestDigest": "7e42412ee50d641b83699aff20bb2d2151a36b5419121f7245ab0dec5b243a9f",
+          "engineVersion": "adblock-rust-0.13.2"
+        },
+        "normalizationVersion": "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:cb7064a154022024d8ffa25c110de6feff64f2b0ecbd375b14a24ff17105059d+tldts@7.4.10+node-evidence-policy-v1+r2-http-status-compat-v1"
+      },
+      "qualityFacts": {
+        "status": 200,
+        "botWallTitleMatched": false,
+        "navigationSettled": true,
+        "budgetsExhausted": [],
+        "captureLoss": []
+      },
+      "quality": {
+        "evaluatorVersion": "1",
+        "run": {
+          "outcome": "complete",
+          "reasons": []
+        },
+        "byFamily": {
+          "requests": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "cookies": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "storage": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "fingerprinting": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "detector-output": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "consent-verification": {
+            "outcome": "complete",
+            "reasons": []
+          }
+        }
+      },
+      "counts": {
+        "totalRequests": 32,
+        "thirdPartyRequests": 7,
+        "knownTrackerRequests": 0,
+        "thirdPartyDomains": 3,
+        "cookies": 0,
+        "thirdPartyCookies": 0,
+        "storageEntries": 0,
+        "fingerprintEvents": 0,
+        "shieldsBlockedRequests": 2
+      }
+    },
+    {
+      "caseId": "gov-uk",
+      "repetition": 1,
+      "sequence": 10,
+      "reportId": "20260923-9682ff5ad9a78451e08225cbfb92e8ca",
+      "reportJsonPath": "/api/reports/20260923-9682ff5ad9a78451e08225cbfb92e8ca",
+      "reportWireSha256": "dbca1ae1557d8878c26d933394c6e148a8c9939a5c8dd4dd14f70d1e894b3279",
+      "runId": "20260923-ed769b8b5848cbf0e8450b008d99558b",
+      "startedAt": "2026-09-23T21:55:03.165Z",
+      "subject": {
+        "requested": {
+          "origin": "https://www.gov.uk",
+          "registrableDomain": "www.gov.uk",
+          "routeShape": "/"
+        },
+        "observed": {
+          "origin": "https://www.gov.uk",
+          "registrableDomain": "www.gov.uk",
+          "routeShape": "/"
+        }
+      },
+      "conditions": {
+        "gpc": true,
+        "shields": "classification",
+        "consent": "observe",
+        "device": {
+          "kind": "desktop",
+          "viewport": {
+            "width": 1440,
+            "height": 980,
+            "isMobile": false
+          }
+        },
+        "probes": {
+          "keystroke": true,
+          "policyVisit": true
+        },
+        "locale": "en-US",
+        "language": "en-US",
+        "timezone": "UTC",
+        "egress": {
+          "label": "cloudflare-containers",
+          "region": "WNAM/pdx03/US"
+        },
+        "browser": {
+          "name": "chromium",
+          "version": "151.0.7922.34"
+        },
+        "headless": true,
+        "automation": "playwright-chromium"
+      },
+      "provenance": {
+        "observer": "node-playwright",
+        "acquisition": "public-api",
+        "buildCommit": "cd43c7bce9a980037a74f7ee2a05b722c2638b17",
+        "methodologyVersion": "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v3+detector-coverage-v2+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v2+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1+service-role-taxonomy-v1+gpc-worker-application-v2+active-probe-v2+auxiliary-context-block-v1",
+        "detectorRegistry": {
+          "version": "node-detectors-v9",
+          "digest": "b15c8281f0db49b91a46427ffee63e44bf7bbbfc0a9878069c2bb1098b6d4715"
+        }
+      },
+      "toolchain": {
+        "trackerCatalog": {
+          "source": "Hand-curated service catalog",
+          "version": "hand-curated-2026.08",
+          "entries": 146,
+          "digest": "e94970de235fc80254de8ed99b94316a252e52aa1c2e748c8fbfc3c093b908f4"
+        },
+        "adblock": {
+          "source": "Brave default ad-block lists",
+          "lists": 31,
+          "fetchedAt": "2026-09-21T12:45:16.395Z",
+          "manifestDigest": "7e42412ee50d641b83699aff20bb2d2151a36b5419121f7245ab0dec5b243a9f",
+          "engineVersion": "adblock-rust-0.13.2"
+        },
+        "normalizationVersion": "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:cb7064a154022024d8ffa25c110de6feff64f2b0ecbd375b14a24ff17105059d+tldts@7.4.10+node-evidence-policy-v1+r2-http-status-compat-v1"
+      },
+      "qualityFacts": {
+        "status": 200,
+        "botWallTitleMatched": false,
+        "navigationSettled": true,
+        "budgetsExhausted": [],
+        "captureLoss": []
+      },
+      "quality": {
+        "evaluatorVersion": "1",
+        "run": {
+          "outcome": "complete",
+          "reasons": []
+        },
+        "byFamily": {
+          "requests": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "cookies": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "storage": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "fingerprinting": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "detector-output": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "consent-verification": {
+            "outcome": "complete",
+            "reasons": []
+          }
+        }
+      },
+      "counts": {
+        "totalRequests": 35,
+        "thirdPartyRequests": 0,
+        "knownTrackerRequests": 0,
+        "thirdPartyDomains": 0,
+        "cookies": 1,
+        "thirdPartyCookies": 0,
+        "storageEntries": 0,
+        "fingerprintEvents": 0,
+        "shieldsBlockedRequests": 0
+      }
+    },
+    {
+      "caseId": "gov-uk",
+      "repetition": 2,
+      "sequence": 11,
+      "reportId": "20260923-97079f98fcd9d18e1c7de78ab4e92853",
+      "reportJsonPath": "/api/reports/20260923-97079f98fcd9d18e1c7de78ab4e92853",
+      "reportWireSha256": "a2f9cacd2f59b07e7e8426102f7d95de0ab78483633c7b5738a8892927e246fe",
+      "runId": "20260923-e2b2b7593f85f3ad7ddb72a8ca59033e",
+      "startedAt": "2026-09-23T21:55:13.159Z",
+      "subject": {
+        "requested": {
+          "origin": "https://www.gov.uk",
+          "registrableDomain": "www.gov.uk",
+          "routeShape": "/"
+        },
+        "observed": {
+          "origin": "https://www.gov.uk",
+          "registrableDomain": "www.gov.uk",
+          "routeShape": "/"
+        }
+      },
+      "conditions": {
+        "gpc": true,
+        "shields": "classification",
+        "consent": "observe",
+        "device": {
+          "kind": "desktop",
+          "viewport": {
+            "width": 1440,
+            "height": 980,
+            "isMobile": false
+          }
+        },
+        "probes": {
+          "keystroke": true,
+          "policyVisit": true
+        },
+        "locale": "en-US",
+        "language": "en-US",
+        "timezone": "UTC",
+        "egress": {
+          "label": "cloudflare-containers",
+          "region": "WNAM/pdx03/US"
+        },
+        "browser": {
+          "name": "chromium",
+          "version": "151.0.7922.34"
+        },
+        "headless": true,
+        "automation": "playwright-chromium"
+      },
+      "provenance": {
+        "observer": "node-playwright",
+        "acquisition": "public-api",
+        "buildCommit": "cd43c7bce9a980037a74f7ee2a05b722c2638b17",
+        "methodologyVersion": "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v3+detector-coverage-v2+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v2+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1+service-role-taxonomy-v1+gpc-worker-application-v2+active-probe-v2+auxiliary-context-block-v1",
+        "detectorRegistry": {
+          "version": "node-detectors-v9",
+          "digest": "b15c8281f0db49b91a46427ffee63e44bf7bbbfc0a9878069c2bb1098b6d4715"
+        }
+      },
+      "toolchain": {
+        "trackerCatalog": {
+          "source": "Hand-curated service catalog",
+          "version": "hand-curated-2026.08",
+          "entries": 146,
+          "digest": "e94970de235fc80254de8ed99b94316a252e52aa1c2e748c8fbfc3c093b908f4"
+        },
+        "adblock": {
+          "source": "Brave default ad-block lists",
+          "lists": 31,
+          "fetchedAt": "2026-09-21T12:45:16.395Z",
+          "manifestDigest": "7e42412ee50d641b83699aff20bb2d2151a36b5419121f7245ab0dec5b243a9f",
+          "engineVersion": "adblock-rust-0.13.2"
+        },
+        "normalizationVersion": "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:cb7064a154022024d8ffa25c110de6feff64f2b0ecbd375b14a24ff17105059d+tldts@7.4.10+node-evidence-policy-v1+r2-http-status-compat-v1"
+      },
+      "qualityFacts": {
+        "status": 200,
+        "botWallTitleMatched": false,
+        "navigationSettled": true,
+        "budgetsExhausted": [],
+        "captureLoss": []
+      },
+      "quality": {
+        "evaluatorVersion": "1",
+        "run": {
+          "outcome": "complete",
+          "reasons": []
+        },
+        "byFamily": {
+          "requests": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "cookies": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "storage": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "fingerprinting": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "detector-output": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "consent-verification": {
+            "outcome": "complete",
+            "reasons": []
+          }
+        }
+      },
+      "counts": {
+        "totalRequests": 35,
+        "thirdPartyRequests": 0,
+        "knownTrackerRequests": 0,
+        "thirdPartyDomains": 0,
+        "cookies": 1,
+        "thirdPartyCookies": 0,
+        "storageEntries": 0,
+        "fingerprintEvents": 0,
+        "shieldsBlockedRequests": 0
+      }
+    },
+    {
+      "caseId": "gov-uk",
+      "repetition": 3,
+      "sequence": 12,
+      "reportId": "20260923-04f6ae45ad3b07a01eb1b1f5cc0ae459",
+      "reportJsonPath": "/api/reports/20260923-04f6ae45ad3b07a01eb1b1f5cc0ae459",
+      "reportWireSha256": "66eee2ccd129f8153f0022e9b5445d6927f6e3e19667737dc231cdc47aa464e0",
+      "runId": "20260923-e3b147d888dd092573e1085ef6ec4405",
+      "startedAt": "2026-09-23T21:55:23.166Z",
+      "subject": {
+        "requested": {
+          "origin": "https://www.gov.uk",
+          "registrableDomain": "www.gov.uk",
+          "routeShape": "/"
+        },
+        "observed": {
+          "origin": "https://www.gov.uk",
+          "registrableDomain": "www.gov.uk",
+          "routeShape": "/"
+        }
+      },
+      "conditions": {
+        "gpc": true,
+        "shields": "classification",
+        "consent": "observe",
+        "device": {
+          "kind": "desktop",
+          "viewport": {
+            "width": 1440,
+            "height": 980,
+            "isMobile": false
+          }
+        },
+        "probes": {
+          "keystroke": true,
+          "policyVisit": true
+        },
+        "locale": "en-US",
+        "language": "en-US",
+        "timezone": "UTC",
+        "egress": {
+          "label": "cloudflare-containers",
+          "region": "WNAM/pdx03/US"
+        },
+        "browser": {
+          "name": "chromium",
+          "version": "151.0.7922.34"
+        },
+        "headless": true,
+        "automation": "playwright-chromium"
+      },
+      "provenance": {
+        "observer": "node-playwright",
+        "acquisition": "public-api",
+        "buildCommit": "cd43c7bce9a980037a74f7ee2a05b722c2638b17",
+        "methodologyVersion": "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v3+detector-coverage-v2+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v2+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1+service-role-taxonomy-v1+gpc-worker-application-v2+active-probe-v2+auxiliary-context-block-v1",
+        "detectorRegistry": {
+          "version": "node-detectors-v9",
+          "digest": "b15c8281f0db49b91a46427ffee63e44bf7bbbfc0a9878069c2bb1098b6d4715"
+        }
+      },
+      "toolchain": {
+        "trackerCatalog": {
+          "source": "Hand-curated service catalog",
+          "version": "hand-curated-2026.08",
+          "entries": 146,
+          "digest": "e94970de235fc80254de8ed99b94316a252e52aa1c2e748c8fbfc3c093b908f4"
+        },
+        "adblock": {
+          "source": "Brave default ad-block lists",
+          "lists": 31,
+          "fetchedAt": "2026-09-21T12:45:16.395Z",
+          "manifestDigest": "7e42412ee50d641b83699aff20bb2d2151a36b5419121f7245ab0dec5b243a9f",
+          "engineVersion": "adblock-rust-0.13.2"
+        },
+        "normalizationVersion": "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:cb7064a154022024d8ffa25c110de6feff64f2b0ecbd375b14a24ff17105059d+tldts@7.4.10+node-evidence-policy-v1+r2-http-status-compat-v1"
+      },
+      "qualityFacts": {
+        "status": 200,
+        "botWallTitleMatched": false,
+        "navigationSettled": true,
+        "budgetsExhausted": [],
+        "captureLoss": []
+      },
+      "quality": {
+        "evaluatorVersion": "1",
+        "run": {
+          "outcome": "complete",
+          "reasons": []
+        },
+        "byFamily": {
+          "requests": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "cookies": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "storage": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "fingerprinting": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "detector-output": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "consent-verification": {
+            "outcome": "complete",
+            "reasons": []
+          }
+        }
+      },
+      "counts": {
+        "totalRequests": 35,
+        "thirdPartyRequests": 0,
+        "knownTrackerRequests": 0,
+        "thirdPartyDomains": 0,
+        "cookies": 1,
+        "thirdPartyCookies": 0,
+        "storageEntries": 0,
+        "fingerprintEvents": 0,
+        "shieldsBlockedRequests": 0
+      }
+    },
+    {
+      "caseId": "guardian",
+      "repetition": 1,
+      "sequence": 13,
+      "reportId": "20260923-b3d5341015653783cedd3d7723824d67",
+      "reportJsonPath": "/api/reports/20260923-b3d5341015653783cedd3d7723824d67",
+      "reportWireSha256": "ce16bbe2f1cda1a904e719e17eee9bf451fa3f7db7bd96359e2b25878e7b2612",
+      "runId": "20260923-e7d1f294d1a0c8684cff4aa37b34b6d8",
+      "startedAt": "2026-09-23T21:55:33.167Z",
+      "subject": {
+        "requested": {
+          "origin": "https://www.theguardian.com",
+          "registrableDomain": "theguardian.com",
+          "routeShape": "/"
+        },
+        "observed": {
+          "origin": "https://www.theguardian.com",
+          "registrableDomain": "theguardian.com",
+          "routeShape": "/us"
+        }
+      },
+      "conditions": {
+        "gpc": true,
+        "shields": "classification",
+        "consent": "observe",
+        "device": {
+          "kind": "desktop",
+          "viewport": {
+            "width": 1440,
+            "height": 980,
+            "isMobile": false
+          }
+        },
+        "probes": {
+          "keystroke": true,
+          "policyVisit": true
+        },
+        "locale": "en-US",
+        "language": "en-US",
+        "timezone": "UTC",
+        "egress": {
+          "label": "cloudflare-containers",
+          "region": "WNAM/pdx03/US"
+        },
+        "browser": {
+          "name": "chromium",
+          "version": "151.0.7922.34"
+        },
+        "headless": true,
+        "automation": "playwright-chromium"
+      },
+      "provenance": {
+        "observer": "node-playwright",
+        "acquisition": "public-api",
+        "buildCommit": "cd43c7bce9a980037a74f7ee2a05b722c2638b17",
+        "methodologyVersion": "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v3+detector-coverage-v2+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v2+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1+service-role-taxonomy-v1+gpc-worker-application-v2+active-probe-v2+auxiliary-context-block-v1",
+        "detectorRegistry": {
+          "version": "node-detectors-v9",
+          "digest": "b15c8281f0db49b91a46427ffee63e44bf7bbbfc0a9878069c2bb1098b6d4715"
+        }
+      },
+      "toolchain": {
+        "trackerCatalog": {
+          "source": "Hand-curated service catalog",
+          "version": "hand-curated-2026.08",
+          "entries": 146,
+          "digest": "e94970de235fc80254de8ed99b94316a252e52aa1c2e748c8fbfc3c093b908f4"
+        },
+        "adblock": {
+          "source": "Brave default ad-block lists",
+          "lists": 31,
+          "fetchedAt": "2026-09-21T12:45:16.395Z",
+          "manifestDigest": "7e42412ee50d641b83699aff20bb2d2151a36b5419121f7245ab0dec5b243a9f",
+          "engineVersion": "adblock-rust-0.13.2"
+        },
+        "normalizationVersion": "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:cb7064a154022024d8ffa25c110de6feff64f2b0ecbd375b14a24ff17105059d+tldts@7.4.10+node-evidence-policy-v1+r2-http-status-compat-v1"
+      },
+      "qualityFacts": {
+        "status": 200,
+        "botWallTitleMatched": false,
+        "navigationSettled": true,
+        "budgetsExhausted": [],
+        "captureLoss": [
+          {
+            "family": "fingerprinting",
+            "phaseId": 0,
+            "kind": "dropped",
+            "count": 1,
+            "detail": "fingerprint-observer"
+          }
+        ]
+      },
+      "quality": {
+        "evaluatorVersion": "1",
+        "run": {
+          "outcome": "complete",
+          "reasons": []
+        },
+        "byFamily": {
+          "requests": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "cookies": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "storage": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "fingerprinting": {
+            "outcome": "censored",
+            "reasons": [
+              "capture-loss:dropped"
+            ]
+          },
+          "detector-output": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "consent-verification": {
+            "outcome": "complete",
+            "reasons": []
+          }
+        }
+      },
+      "counts": {
+        "totalRequests": 198,
+        "thirdPartyRequests": 165,
+        "knownTrackerRequests": 27,
+        "thirdPartyDomains": 29,
+        "cookies": 22,
+        "thirdPartyCookies": 6,
+        "storageEntries": 24,
+        "fingerprintEvents": 0,
+        "shieldsBlockedRequests": 75
+      }
+    },
+    {
+      "caseId": "guardian",
+      "repetition": 2,
+      "sequence": 14,
+      "reportId": "20260923-cf8ae4a7a02d6eb4249161ff3514820c",
+      "reportJsonPath": "/api/reports/20260923-cf8ae4a7a02d6eb4249161ff3514820c",
+      "reportWireSha256": "c13e8f2e307c1b2b2a5ab28f5244e40c79c1fad39ff9424bd9ea7e6109fc501c",
+      "runId": "20260923-129255f938fefcd7dfd477a18ddaf6a2",
+      "startedAt": "2026-09-23T21:55:48.160Z",
+      "subject": {
+        "requested": {
+          "origin": "https://www.theguardian.com",
+          "registrableDomain": "theguardian.com",
+          "routeShape": "/"
+        },
+        "observed": {
+          "origin": "https://www.theguardian.com",
+          "registrableDomain": "theguardian.com",
+          "routeShape": "/us"
+        }
+      },
+      "conditions": {
+        "gpc": true,
+        "shields": "classification",
+        "consent": "observe",
+        "device": {
+          "kind": "desktop",
+          "viewport": {
+            "width": 1440,
+            "height": 980,
+            "isMobile": false
+          }
+        },
+        "probes": {
+          "keystroke": true,
+          "policyVisit": true
+        },
+        "locale": "en-US",
+        "language": "en-US",
+        "timezone": "UTC",
+        "egress": {
+          "label": "cloudflare-containers",
+          "region": "WNAM/pdx03/US"
+        },
+        "browser": {
+          "name": "chromium",
+          "version": "151.0.7922.34"
+        },
+        "headless": true,
+        "automation": "playwright-chromium"
+      },
+      "provenance": {
+        "observer": "node-playwright",
+        "acquisition": "public-api",
+        "buildCommit": "cd43c7bce9a980037a74f7ee2a05b722c2638b17",
+        "methodologyVersion": "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v3+detector-coverage-v2+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v2+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1+service-role-taxonomy-v1+gpc-worker-application-v2+active-probe-v2+auxiliary-context-block-v1",
+        "detectorRegistry": {
+          "version": "node-detectors-v9",
+          "digest": "b15c8281f0db49b91a46427ffee63e44bf7bbbfc0a9878069c2bb1098b6d4715"
+        }
+      },
+      "toolchain": {
+        "trackerCatalog": {
+          "source": "Hand-curated service catalog",
+          "version": "hand-curated-2026.08",
+          "entries": 146,
+          "digest": "e94970de235fc80254de8ed99b94316a252e52aa1c2e748c8fbfc3c093b908f4"
+        },
+        "adblock": {
+          "source": "Brave default ad-block lists",
+          "lists": 31,
+          "fetchedAt": "2026-09-21T12:45:16.395Z",
+          "manifestDigest": "7e42412ee50d641b83699aff20bb2d2151a36b5419121f7245ab0dec5b243a9f",
+          "engineVersion": "adblock-rust-0.13.2"
+        },
+        "normalizationVersion": "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:cb7064a154022024d8ffa25c110de6feff64f2b0ecbd375b14a24ff17105059d+tldts@7.4.10+node-evidence-policy-v1+r2-http-status-compat-v1"
+      },
+      "qualityFacts": {
+        "status": 200,
+        "botWallTitleMatched": false,
+        "navigationSettled": true,
+        "budgetsExhausted": [],
+        "captureLoss": [
+          {
+            "family": "fingerprinting",
+            "phaseId": 0,
+            "kind": "dropped",
+            "count": 1,
+            "detail": "fingerprint-observer"
+          }
+        ]
+      },
+      "quality": {
+        "evaluatorVersion": "1",
+        "run": {
+          "outcome": "complete",
+          "reasons": []
+        },
+        "byFamily": {
+          "requests": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "cookies": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "storage": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "fingerprinting": {
+            "outcome": "censored",
+            "reasons": [
+              "capture-loss:dropped"
+            ]
+          },
+          "detector-output": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "consent-verification": {
+            "outcome": "complete",
+            "reasons": []
+          }
+        }
+      },
+      "counts": {
+        "totalRequests": 206,
+        "thirdPartyRequests": 173,
+        "knownTrackerRequests": 30,
+        "thirdPartyDomains": 33,
+        "cookies": 21,
+        "thirdPartyCookies": 5,
+        "storageEntries": 24,
+        "fingerprintEvents": 1,
+        "shieldsBlockedRequests": 80
+      }
+    },
+    {
+      "caseId": "guardian",
+      "repetition": 3,
+      "sequence": 15,
+      "reportId": "20260923-b69b5fdabeb821b7d904020be9eb6f64",
+      "reportJsonPath": "/api/reports/20260923-b69b5fdabeb821b7d904020be9eb6f64",
+      "reportWireSha256": "bd91321b5450ad227433ff9d042ea2ad434c31b8dd347dd593771615fedaf558",
+      "runId": "20260923-ff3be419346289b67690c730eacaf8cc",
+      "startedAt": "2026-09-23T21:56:05.160Z",
+      "subject": {
+        "requested": {
+          "origin": "https://www.theguardian.com",
+          "registrableDomain": "theguardian.com",
+          "routeShape": "/"
+        },
+        "observed": {
+          "origin": "https://www.theguardian.com",
+          "registrableDomain": "theguardian.com",
+          "routeShape": "/us"
+        }
+      },
+      "conditions": {
+        "gpc": true,
+        "shields": "classification",
+        "consent": "observe",
+        "device": {
+          "kind": "desktop",
+          "viewport": {
+            "width": 1440,
+            "height": 980,
+            "isMobile": false
+          }
+        },
+        "probes": {
+          "keystroke": true,
+          "policyVisit": true
+        },
+        "locale": "en-US",
+        "language": "en-US",
+        "timezone": "UTC",
+        "egress": {
+          "label": "cloudflare-containers",
+          "region": "WNAM/pdx03/US"
+        },
+        "browser": {
+          "name": "chromium",
+          "version": "151.0.7922.34"
+        },
+        "headless": true,
+        "automation": "playwright-chromium"
+      },
+      "provenance": {
+        "observer": "node-playwright",
+        "acquisition": "public-api",
+        "buildCommit": "cd43c7bce9a980037a74f7ee2a05b722c2638b17",
+        "methodologyVersion": "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v3+detector-coverage-v2+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v2+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1+service-role-taxonomy-v1+gpc-worker-application-v2+active-probe-v2+auxiliary-context-block-v1",
+        "detectorRegistry": {
+          "version": "node-detectors-v9",
+          "digest": "b15c8281f0db49b91a46427ffee63e44bf7bbbfc0a9878069c2bb1098b6d4715"
+        }
+      },
+      "toolchain": {
+        "trackerCatalog": {
+          "source": "Hand-curated service catalog",
+          "version": "hand-curated-2026.08",
+          "entries": 146,
+          "digest": "e94970de235fc80254de8ed99b94316a252e52aa1c2e748c8fbfc3c093b908f4"
+        },
+        "adblock": {
+          "source": "Brave default ad-block lists",
+          "lists": 31,
+          "fetchedAt": "2026-09-21T12:45:16.395Z",
+          "manifestDigest": "7e42412ee50d641b83699aff20bb2d2151a36b5419121f7245ab0dec5b243a9f",
+          "engineVersion": "adblock-rust-0.13.2"
+        },
+        "normalizationVersion": "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:cb7064a154022024d8ffa25c110de6feff64f2b0ecbd375b14a24ff17105059d+tldts@7.4.10+node-evidence-policy-v1+r2-http-status-compat-v1"
+      },
+      "qualityFacts": {
+        "status": 200,
+        "botWallTitleMatched": false,
+        "navigationSettled": true,
+        "budgetsExhausted": [],
+        "captureLoss": [
+          {
+            "family": "fingerprinting",
+            "phaseId": 0,
+            "kind": "dropped",
+            "count": 1,
+            "detail": "fingerprint-observer"
+          }
+        ]
+      },
+      "quality": {
+        "evaluatorVersion": "1",
+        "run": {
+          "outcome": "complete",
+          "reasons": []
+        },
+        "byFamily": {
+          "requests": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "cookies": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "storage": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "fingerprinting": {
+            "outcome": "censored",
+            "reasons": [
+              "capture-loss:dropped"
+            ]
+          },
+          "detector-output": {
+            "outcome": "complete",
+            "reasons": []
+          },
+          "consent-verification": {
+            "outcome": "complete",
+            "reasons": []
+          }
+        }
+      },
+      "counts": {
+        "totalRequests": 202,
+        "thirdPartyRequests": 169,
+        "knownTrackerRequests": 30,
+        "thirdPartyDomains": 30,
+        "cookies": 22,
+        "thirdPartyCookies": 6,
+        "storageEntries": 25,
+        "fingerprintEvents": 0,
+        "shieldsBlockedRequests": 78
+      }
+    }
+  ]
+}
