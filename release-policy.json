@@ -5,9 +5,5 @@
   "releaseTag": "v0.6.0",
   "releaseDate": "2026-09-06",
   "stablePublicApi": false,
-  "npmPublication": "disabled",
-  "tagPending": {
-    "declaredAt": "2026-09-06",
-    "note": "Prepared milestone under RELEASE.md step 1, not a published release. No v0.6.0 tag or release receipt exists until the dedicated release App, creation-only tag ruleset, and fresh governance carrier are configured and Cut Release Tag succeeds. The earlier 0.5.0 declaration was not tagged; its history remains in CHANGELOG.md."
-  }
+  "npmPublication": "disabled"
 }

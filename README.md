@@ -30,8 +30,8 @@ not describe GitHub's current behavior.*
 | **Run your own instance** | [Local setup](#run-it-locally) · [Self-hosting](#self-host) |
 | **Check or contribute** | [Verify a report](#verify-a-report) · [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md) |
 
-**Version:** `0.6.0` is the prepared milestone; its governed tag and receipt are
-pending. The latest receipted tag is [`v0.4.0`](https://github.com/iAnonymous3000/site-behavior-lab/tree/v0.4.0).
+**Version:** `0.6.0` is the current release, tagged
+[`v0.6.0`](https://github.com/iAnonymous3000/site-behavior-lab/tree/v0.6.0) with its release receipt archived.
 Product versions are independent of the report contracts: v1 remains frozen,
 and v2/r1 and v2/r2 remain byte-immutable. See the [changelog](CHANGELOG.md) and
 [release status](RELEASE.md#current-release-state).

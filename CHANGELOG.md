@@ -7,9 +7,9 @@ public API or a 1.0 release.
 
 ## Unreleased
 
-Changes after the prepared 0.6.0 milestone are recorded here. The 0.6.0 tag,
-when it is cut, will also contain them, because the ceremony tags a commit on
-`main` at or after the declaration. The full review behind most of these
+Changes after the 0.6.0 declaration of 2026-09-06 are recorded here. The
+`v0.6.0` tag, cut on 2026-09-24 at `ee525b5f`, contains every entry below,
+because the ceremony tags a commit on `main` at or after the declaration. The full review behind most of these
 entries is in [docs/comprehensive-review-2026-09-22.md](docs/comprehensive-review-2026-09-22.md).
 
 ### Security

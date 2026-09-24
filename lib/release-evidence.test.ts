@@ -175,9 +175,16 @@ test("repository metadata truthfully describes the governed 0.x and exact 1.0 li
   // the one recorded tag-ceremony failure WITH its completed recovery: the
   // old pin here required "the tag does not exist", which locked the stale
   // pre-recovery narrative in place after v0.4.0-rc.1 and v0.4.0 were tagged.
+  // The current release follows CITATION.cff, which the check above binds to
+  // the most recent archived receipt, so no release has to edit this test.
+  const citedVersion = /^version:\s*["']?([^"'\s]+)["']?\s*$/m.exec(await source("CITATION.cff"))?.[1];
+  assert.ok(citedVersion, "CITATION.cff must name one version");
+  const escapedCited = citedVersion.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   assert.match(
     releaseGuide,
-    /The current release is `v0\.4\.0`[\s\S]*docs\/release-receipts\/0\.4\.0\/release-receipt\.json/
+    new RegExp(
+      `The current release is \`v${escapedCited}\`[\\s\\S]*docs/release-receipts/${escapedCited}/release-receipt\\.json`
+    )
   );
   assert.match(
     releaseGuide,
