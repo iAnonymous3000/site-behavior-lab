@@ -55,7 +55,7 @@ import { PRIVACY_SAFE_OBSERVABILITY_PATH } from "../lib/privacy-safe-observabili
 import { scansAvailableAfterEdgeOverlay } from "../lib/container-health-overlay";
 import { forwardContainerResponseWithinDeadline } from "../lib/container-forward-response";
 import { requireContainerR2Bucket } from "../lib/container-r2-bucket";
-import { toPublicError } from "../lib/public-errors";
+import { publicErrorBody, toPublicError } from "../lib/public-errors";
 import {
   PUBLIC_REPORT_READ_ALLOW_HEADER,
   parsePublicReportReadPath,
@@ -470,7 +470,9 @@ class DurableScanJobRateLimitError extends EdgeScanGateError {
       scope === "public"
         ? `Too many public scans. Try again in about ${formatPublicScanRetryAfter(retryAfterSeconds)}.`
         : "Too many scan requests. Try again shortly.",
-      429
+      429,
+      "request-limit",
+      retryAfterSeconds
     );
     this.name = "DurableScanJobRateLimitError";
   }
@@ -486,6 +488,8 @@ class DurableScanJobRateLimitError extends EdgeScanGateError {
  */
 class DurablePreparationInFlightError extends EdgeScanGateError {
   constructor(retryAfterSeconds: number) {
+    // Deliberately no "request-limit" cause: this is a duplicate in flight, not
+    // a quota refusal, and that notice would say a limit was reached.
     super(
       `This scan request is already being prepared. Try again in about ${formatPublicScanRetryAfter(retryAfterSeconds)}.`,
       429
@@ -4415,6 +4419,8 @@ async function recoverCommittedScanAdmission(request: Request, env: Env): Promis
       clientHash: await publicClientHash(request.headers)
     });
     if (result.status === "rate-limited") {
+      // Uncaused: a recovery lookup is not a scan submission, and the client
+      // renders recovery failures as the server's own words.
       throw new EdgeScanGateError(
         `Too many scan-admission recovery requests. Try again in about ${formatPublicScanRetryAfter(result.retryAfterSeconds)}.`,
         429
@@ -5280,7 +5286,9 @@ async function gateScanRequest(
   if (!charge.allowed) {
     throw new EdgeScanGateError(
       `Too many public scans. Try again in about ${formatPublicScanRetryAfter(charge.retryAfterSeconds)}.`,
-      429
+      429,
+      "request-limit",
+      charge.retryAfterSeconds
     );
   }
   return null;
@@ -5390,8 +5398,9 @@ function gateErrorResponse(error: unknown, request: Request, env: Env): Response
   const publicError = toPublicError(error);
   // The Worker and the Node route are two producers of one contract. Both emit
   // `cause` from the same `toPublicError`, so the client has a single shape to
-  // read and neither side can drift into its own error vocabulary.
-  return new Response(JSON.stringify({ ok: false, error: publicError.message, cause: publicError.cause }), {
+  // read and neither side can drift into its own error vocabulary. The body is
+  // built by `publicErrorBody`, which also carries a quota refusal's wait.
+  return new Response(JSON.stringify(publicErrorBody(publicError)), {
     status: publicError.status,
     headers: {
       ...scanCorsHeaders(request.headers.get("origin"), env.SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN),

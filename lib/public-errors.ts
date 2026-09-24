@@ -15,7 +15,9 @@ export class PublicFacingError extends Error {
     message: string,
     public readonly status = 400,
     name = "PublicFacingError",
-    public readonly failureCause?: ScanFailureCause
+    public readonly failureCause?: ScanFailureCause,
+    /** The producer's known wait, carried as data beside a quota refusal. */
+    public readonly retryAfterSeconds?: number
   ) {
     super(message);
     this.name = name;
@@ -23,8 +25,8 @@ export class PublicFacingError extends Error {
 }
 
 export class PublicScanError extends PublicFacingError {
-  constructor(message: string, status = 400, failureCause?: ScanFailureCause) {
-    super(message, status, "PublicScanError", failureCause);
+  constructor(message: string, status = 400, failureCause?: ScanFailureCause, retryAfterSeconds?: number) {
+    super(message, status, "PublicScanError", failureCause, retryAfterSeconds);
   }
 }
 
@@ -45,13 +47,41 @@ export function toPublicError(error: unknown): {
   message: string;
   status: number;
   cause?: ScanFailureCause;
+  retryAfterSeconds?: number;
 } {
   if (error instanceof PublicFacingError) {
-    return error.failureCause === undefined
-      ? { message: error.message, status: error.status }
-      : { message: error.message, status: error.status, cause: error.failureCause };
+    // `retryAfterSeconds` follows the same rule as `cause`: present only when
+    // the thrower supplied a usable value, never set to undefined.
+    return {
+      message: error.message,
+      status: error.status,
+      ...(error.failureCause === undefined ? {} : { cause: error.failureCause }),
+      ...(Number.isSafeInteger(error.retryAfterSeconds) && (error.retryAfterSeconds as number) > 0
+        ? { retryAfterSeconds: error.retryAfterSeconds }
+        : {})
+    };
   }
 
   console.error(error);
   return { message: "The service could not complete this request. Try again later.", status: 500 };
+}
+
+/**
+ * The one wire body for a failed request. Every producer that serializes a
+ * public error builds it here, so `cause` and `retryAfterSeconds` cannot reach
+ * the client from one producer and silently go missing from another. With
+ * neither present the bytes are exactly `{"ok":false,"error":...}`.
+ */
+export function publicErrorBody(publicError: ReturnType<typeof toPublicError>): {
+  ok: false;
+  error: string;
+  cause?: ScanFailureCause;
+  retryAfterSeconds?: number;
+} {
+  return {
+    ok: false,
+    error: publicError.message,
+    ...(publicError.cause === undefined ? {} : { cause: publicError.cause }),
+    ...(publicError.retryAfterSeconds === undefined ? {} : { retryAfterSeconds: publicError.retryAfterSeconds })
+  };
 }

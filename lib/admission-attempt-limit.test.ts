@@ -86,6 +86,38 @@ test("a store failure refuses before body consumption, leaks no details, and pre
   assert.doesNotMatch(await response!.text(), /secret|private storage/);
 });
 
+test("a refused scan submission declares the quota cause and its wait; a recovery lookup does not", async () => {
+  // Both buckets (per-client and global) refuse through this one branch, so the
+  // declared cause makes no claim about whose attempts filled the window.
+  const refuse = async () => ({ allowed: false as const, retryAfterSeconds: 7 });
+  const submit = await enforceAdmissionAttemptLimit(
+    new Request("https://scanner.invalid/api/scan", { method: "POST", body: "{}" }),
+    undefined,
+    refuse
+  );
+  assert.equal(submit?.status, 429);
+  assert.equal(submit?.headers.get("retry-after"), "7");
+  assert.deepEqual(await submit!.json(), {
+    ok: false,
+    error: "Too many scan admission requests. Try again shortly.",
+    cause: "request-limit",
+    retryAfterSeconds: 7
+  });
+
+  // The recovery lookup is not a scan being held back.
+  const recovery = await enforceAdmissionAttemptLimit(
+    new Request("https://scanner.invalid/api/scan/admission"),
+    undefined,
+    refuse
+  );
+  assert.equal(recovery?.status, 429);
+  assert.equal(recovery?.headers.get("retry-after"), "7");
+  assert.deepEqual(await recovery!.json(), {
+    ok: false,
+    error: "Too many scan admission requests. Try again shortly."
+  });
+});
+
 test("only the provider client identity changes an attempt bucket", async () => {
   const hashes: string[] = [];
   const inputs: Record<string, string>[] = [

@@ -1,4 +1,5 @@
 import { PublicScanError } from "./public-errors";
+import type { ScanFailureCause } from "./scan-failure-causes";
 import { AUTHENTICATED_SCAN_RATE_LIMIT_PER_MINUTE } from "./public-scan-rate-limit-store";
 import { scanAbortError } from "./scan-runtime";
 
@@ -65,12 +66,12 @@ export function peekRateLimit(clientKey: string, now = Date.now(), cost = 1): vo
   sweepRateLimitState(scanTimestampsByClient, now, RATE_LIMIT_WINDOW_MS, lastRateLimitSweepMs, (value) => {
     lastRateLimitSweepMs = value;
   });
-  ensureRateLimitCapacity(scanTimestampsByClient, clientKey, now, RATE_LIMIT_WINDOW_MS, RATE_LIMIT_MAX, cost, "Too many scan requests. Try again shortly.");
+  ensureRateLimitCapacity(scanTimestampsByClient, clientKey, now, RATE_LIMIT_WINDOW_MS, RATE_LIMIT_MAX, cost, "Too many scan requests. Try again shortly.", "request-limit");
 }
 
 export function assertRateLimit(clientKey: string, now = Date.now(), cost = 1): void {
   peekRateLimit(clientKey, now, cost);
-  chargeRateLimit(scanTimestampsByClient, clientKey, now, RATE_LIMIT_WINDOW_MS, RATE_LIMIT_MAX, cost, "Too many scan requests. Try again shortly.");
+  chargeRateLimit(scanTimestampsByClient, clientKey, now, RATE_LIMIT_WINDOW_MS, RATE_LIMIT_MAX, cost, "Too many scan requests. Try again shortly.", "request-limit");
 
   if (scanTimestampsByClient.size > MAX_RATE_LIMIT_CLIENTS) {
     pruneOldestRateLimitKeys(scanTimestampsByClient);
@@ -229,6 +230,11 @@ function makeRelease(): () => void {
   };
 }
 
+/**
+ * `failureCause` is passed only by the scan limiter. The report-read and PDF
+ * limiters share this function, and a scan-quota notice on a report read would
+ * describe a scan nobody submitted.
+ */
 function ensureRateLimitCapacity(
   timestampsByClient: Map<string, number[]>,
   clientKey: string,
@@ -236,14 +242,15 @@ function ensureRateLimitCapacity(
   windowMs: number,
   max: number,
   cost: number,
-  message: string
+  message: string,
+  failureCause?: ScanFailureCause
 ): void {
   const cutoff = now - windowMs;
   const current = timestampsByClient.get(clientKey)?.filter((timestamp) => timestamp > cutoff) ?? [];
   const charge = Math.max(1, Math.floor(cost));
 
   if (current.length + charge > max) {
-    throw new PublicScanError(message, 429);
+    throw new PublicScanError(message, 429, failureCause);
   }
 }
 
@@ -254,9 +261,10 @@ function chargeRateLimit(
   windowMs: number,
   max: number,
   cost: number,
-  message: string
+  message: string,
+  failureCause?: ScanFailureCause
 ): void {
-  ensureRateLimitCapacity(timestampsByClient, clientKey, now, windowMs, max, cost, message);
+  ensureRateLimitCapacity(timestampsByClient, clientKey, now, windowMs, max, cost, message, failureCause);
 
   const cutoff = now - windowMs;
   const current = timestampsByClient.get(clientKey)?.filter((timestamp) => timestamp > cutoff) ?? [];

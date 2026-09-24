@@ -160,6 +160,34 @@ test("assertReportPdfRateLimit meters renders far tighter than reads, in its own
   assertReportPdfRateLimit("client-a", 1_000 + REPORT_READ_RATE_LIMIT_WINDOW_MS + 1);
 });
 
+test("only the scan limiter declares the quota cause; report reads and PDFs stay uncaused", () => {
+  // ensureRateLimitCapacity is shared by all three limiters. A scan-quota notice
+  // on a report read would tell the reader a scan was held back that nobody
+  // submitted, so the cause is passed by the scan limiter alone.
+  const refusal = (charge: () => void): PublicScanError => {
+    try {
+      charge();
+    } catch (error) {
+      assert.ok(error instanceof PublicScanError);
+      assert.equal(error.status, 429);
+      return error;
+    }
+    assert.fail("the limiter must refuse");
+  };
+
+  for (let index = 0; index < RATE_LIMIT_MAX; index += 1) assertRateLimit("client-a", 1_000);
+  const scan = refusal(() => assertRateLimit("client-a", 2_000));
+  assert.equal(scan.failureCause, "request-limit");
+  // The message is unchanged, so a client that predates the cause still reads it.
+  assert.equal(scan.message, "Too many scan requests. Try again shortly.");
+
+  for (let index = 0; index < REPORT_READ_RATE_LIMIT_MAX; index += 1) assertReportReadRateLimit("client-a", 1_000);
+  assert.equal(refusal(() => assertReportReadRateLimit("client-a", 2_000)).failureCause, undefined);
+
+  for (let index = 0; index < REPORT_PDF_RATE_LIMIT_MAX; index += 1) assertReportPdfRateLimit("client-a", 1_000);
+  assert.equal(refusal(() => assertReportPdfRateLimit("client-a", 2_000)).failureCause, undefined);
+});
+
 test("acquireScanSlot queues past the concurrency cap and transfers a released slot", async () => {
   const releases: Array<() => void> = [];
   for (let index = 0; index < MAX_CONCURRENT_SCANS; index += 1) {

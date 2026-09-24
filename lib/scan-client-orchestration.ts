@@ -584,7 +584,9 @@ export function scanFailureNoticeFor(
 ): ScanFailureNotice {
   const message = error instanceof Error ? error.message : String(error ?? "");
   const cause = error instanceof ScanRequestError ? error.failureCause : undefined;
-  return scanFailureText(cause, message, { openAccessScanner });
+  // Passed through unchecked: scanFailureText validates the wait itself.
+  const retryAfterSeconds = error instanceof ScanRequestError ? error.retryAfterSeconds : undefined;
+  return scanFailureText(cause, message, { openAccessScanner, retryAfterSeconds });
 }
 
 async function fetchRuntimeJsonWithPolicy(
@@ -631,7 +633,7 @@ async function fetchRuntimeJsonWithPolicy(
 
 function isRuntimeScanError(
   value: unknown
-): value is { ok: false; error: string; cause?: unknown } {
+): value is { ok: false; error: string; cause?: unknown; retryAfterSeconds?: unknown } {
   return isRecord(value) && value.ok === false && typeof value.error === "string";
 }
 
@@ -645,15 +647,17 @@ function isRuntimeScanError(
 export class ScanRequestError extends Error {
   constructor(
     message: string,
-    readonly failureCause?: unknown
+    readonly failureCause?: unknown,
+    /** A quota refusal's wait, as sent. Absent from older producers. */
+    readonly retryAfterSeconds?: unknown
   ) {
     super(message);
     this.name = "ScanRequestError";
   }
 }
 
-function scanRequestError(payload: { error: string; cause?: unknown }): ScanRequestError {
-  return new ScanRequestError(payload.error, payload.cause);
+function scanRequestError(payload: { error: string; cause?: unknown; retryAfterSeconds?: unknown }): ScanRequestError {
+  return new ScanRequestError(payload.error, payload.cause, payload.retryAfterSeconds);
 }
 
 function isScanJobSubmissionResponse(value: unknown): value is ScanJobSubmissionResponse {

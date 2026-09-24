@@ -905,6 +905,72 @@ test("a refused cancellation surfaces the reason the server declared, not a bare
   }
 });
 
+test("a scanner quota refusal renders the declared cause with the server's wait", async () => {
+  const submitWith = async (status: number, body: Record<string, unknown>): Promise<unknown> => {
+    try {
+      await submitRuntimeScan({
+        targetUrl: "https://example.com/",
+        form: {
+          device: "desktop",
+          gpcEnabled: true,
+          compareGpc: false,
+          compareShields: false,
+          compareConsent: false,
+          accessKey: ""
+        },
+        gpcComparisonEnabled: false,
+        shieldsComparisonEnabled: false,
+        consentComparisonEnabled: false,
+        scannerRequiresAccessKey: false,
+        turnstileRequired: false,
+        turnstileToken: "",
+        resolveApiUrl: (path) => path,
+        fetcher: async () => Response.json(body, { status }),
+        onAccepted: async () => assert.fail("a refusal must not be accepted")
+      });
+    } catch (caught) {
+      return caught;
+    }
+    return assert.fail("a refusal must reject");
+  };
+
+  // A day window can refuse for hours, and the quota store cannot say whose
+  // usage fired. The notice states the producer's wait and blames nobody.
+  const quota = await submitWith(429, {
+    ok: false,
+    error: "Too many public scans. Try again in about 2 hours.",
+    cause: "request-limit",
+    retryAfterSeconds: 5_400
+  });
+  assert.ok(quota instanceof ScanRequestError);
+  assert.equal(quota.retryAfterSeconds, 5_400);
+  assert.equal(
+    friendlyScanError(quota, false),
+    "The scanner has reached a request limit, so it held this scan back. This has nothing to do with the address you gave it. Try again in about 2 hours."
+  );
+
+  // A producer that sends the cause without a wait gets a fixed action that
+  // cannot be false, whatever window fired.
+  const noWait = await submitWith(429, {
+    ok: false,
+    error: "Too many scan requests. Try again shortly.",
+    cause: "request-limit"
+  });
+  assert.equal(
+    friendlyScanError(noWait, false),
+    "The scanner has reached a request limit, so it held this scan back. This has nothing to do with the address you gave it. Try again later."
+  );
+
+  // A producer that predates the cause, and a duplicate still in flight, stay
+  // verbatim: neither declares a quota refusal.
+  for (const error of [
+    "Too many public scans. Try again in about 40 seconds.",
+    "This scan request is already being prepared. Try again in about 5 seconds."
+  ]) {
+    assert.equal(friendlyScanError(await submitWith(429, { ok: false, error }), false), error);
+  }
+});
+
 test("friendly scan errors explain a DECLARED cause and never infer one", () => {
   // This test used to assert the opposite, and in doing so it codified the
   // defect: it required that any message containing "private address" render

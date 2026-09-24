@@ -22,8 +22,8 @@ import { scanTokenFromHeaders } from "./scan-token";
 import { fetchJsonResponseWithPolicy } from "./client-fetch-policy";
 
 export class EdgeScanGateError extends PublicFacingError {
-  constructor(message: string, status: number, failureCause?: ScanFailureCause) {
-    super(message, status, "EdgeScanGateError", failureCause);
+  constructor(message: string, status: number, failureCause?: ScanFailureCause, retryAfterSeconds?: number) {
+    super(message, status, "EdgeScanGateError", failureCause, retryAfterSeconds);
   }
 }
 
@@ -541,13 +541,6 @@ async function sha256Hex(value: string): Promise<string> {
     .join("");
 }
 
-export function formatPublicScanRetryAfter(seconds: number): string {
-  // Only the seconds branch can carry a singular value: the minutes branch
-  // starts at 90 seconds and the hours branch at 90 minutes, so both round to
-  // at least two. A visitor refused in the last second of a window was still
-  // told to "Try again in about 1 seconds."
-  if (seconds < 90) return `${seconds} ${seconds === 1 ? "second" : "seconds"}`;
-  const minutes = Math.ceil(seconds / 60);
-  if (minutes < 90) return `${minutes} minutes`;
-  return `${Math.ceil(minutes / 60)} hours`;
-}
+// The Worker's refusal messages and the client's quota action share this one
+// formatter, so the wait a message states and the wait the notice states agree.
+export { formatScanRetryWait as formatPublicScanRetryAfter } from "./scan-failure-causes";

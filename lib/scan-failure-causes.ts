@@ -46,8 +46,18 @@ export type ScanFailureCause =
   | "page-load-timeout"
   /** The scanner itself is at capacity right now. */
   | "scanner-busy"
-  /** This client has used its allowance for the moment. */
-  | "rate-limited"
+  /**
+   * The scanner's own request limits held this scan back. The quota store folds
+   * per-client and global, per-minute and per-day windows into one refusal, so
+   * the producer cannot say whose usage fired or that the wait is short. The
+   * wait it does know travels beside the cause as data (`retryAfterSeconds`).
+   *
+   * Not the retired "rate-limited" id: its copy blamed the visitor and promised
+   * "a moment", and a page built before this change still carries that copy. A
+   * new id reaches such a page as an unknown cause, which renders the server's
+   * own accurate sentence instead.
+   */
+  | "request-limit"
   /** A human-verification challenge must be solved (again) first. */
   | "challenge-required"
   /** This deployment gates scanning behind an access key. */
@@ -97,9 +107,15 @@ const NOTICES: Record<ScanFailureCause, ScanFailureNotice> = {
     action: "Wait a few seconds and scan again.",
     retryable: true
   },
-  "rate-limited": {
-    message: "You've run several scans in a short window, so this one was held back.",
-    action: "Wait a moment and scan again.",
+  "request-limit": {
+    // "The scanner", never "the site": a target's own 429 has separate copy.
+    // No second-person usage claim, because a global window refuses too. And
+    // no verdict on the address: a limit can refuse before the address is read.
+    message:
+      "The scanner has reached a request limit, so it held this scan back. This has nothing to do with the address you gave it.",
+    // A day window can mean hours, so the fixed action promises no duration.
+    // scanFailureText replaces it with the producer's wait when one arrives.
+    action: "Try again later.",
     retryable: true
   },
   "challenge-required": {
@@ -146,6 +162,28 @@ export function scanFailureNotice(cause: ScanFailureCause): ScanFailureNotice {
   return NOTICES[cause];
 }
 
+/** The longest wait any quota window can produce: one day. */
+export const MAX_SCAN_RETRY_WAIT_SECONDS = 86_400;
+
+/**
+ * One formatter for a quota wait, shared by the Worker's refusal message and
+ * the client's action sentence so the two cannot drift apart.
+ */
+export function formatScanRetryWait(seconds: number): string {
+  // Only the seconds branch can carry a singular value: the minutes branch
+  // starts at 90 seconds and the hours branch at 90 minutes, so both round to
+  // at least two. A visitor refused in the last second of a window was still
+  // told to "Try again in about 1 seconds."
+  if (seconds < 90) return `${seconds} ${seconds === 1 ? "second" : "seconds"}`;
+  const minutes = Math.ceil(seconds / 60);
+  if (minutes < 90) return `${minutes} minutes`;
+  return `${Math.ceil(minutes / 60)} hours`;
+}
+
+function validRetryWait(value: unknown): value is number {
+  return Number.isSafeInteger(value) && (value as number) >= 1 && (value as number) <= MAX_SCAN_RETRY_WAIT_SECONDS;
+}
+
 /**
  * The sentence a visitor reads for a failed scan.
  *
@@ -157,10 +195,19 @@ export function scanFailureNotice(cause: ScanFailureCause): ScanFailureNotice {
 export function scanFailureText(
   cause: unknown,
   serverMessage: string,
-  options: { openAccessScanner?: boolean } = {}
+  options: { openAccessScanner?: boolean; retryAfterSeconds?: unknown } = {}
 ): ScanFailureNotice {
   if (!isScanFailureCause(cause)) {
     return { message: serverMessage, action: null, retryable: false };
+  }
+  if (cause === "request-limit" && validRetryWait(options.retryAfterSeconds)) {
+    // The wait is wire data, so it is checked here rather than trusted. A
+    // producer that sends none, or an older one, gets the fixed action above,
+    // which cannot be false.
+    return {
+      ...NOTICES["request-limit"],
+      action: `Try again in about ${formatScanRetryWait(options.retryAfterSeconds)}.`
+    };
   }
   if (cause === "access-key-required" && options.openAccessScanner) {
     // An open deployment rejecting an open scan is the operator's problem, and

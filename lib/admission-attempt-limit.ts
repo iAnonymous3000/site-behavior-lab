@@ -1,5 +1,6 @@
 import { scanCorsHeaders } from "./cors";
 import type { DurableScanJobStoreSql } from "./durable-scan-job-store";
+import { publicErrorBody } from "./public-errors";
 import type { PublicScanRateLimitResult } from "./public-scan-rate-limit-store";
 import { sha256Hex } from "./sha256";
 
@@ -76,17 +77,40 @@ export async function enforceAdmissionAttemptLimit(
     return refusal(request, allowedOrigin, 503, "Scan admission is temporarily unavailable.", 5);
   }
   if (decision.allowed) return null;
-  return refusal(request, allowedOrigin, 429, "Too many scan admission requests. Try again shortly.", decision.retryAfterSeconds);
+  // Both the per-client and the global bucket refuse here, so the declared
+  // cause makes no claim about whose attempts filled the window. Only the scan
+  // submission declares it: the GET recovery lookup is not a scan being held
+  // back, matching the uncaused recovery refusal in the Worker.
+  return refusal(
+    request,
+    allowedOrigin,
+    429,
+    "Too many scan admission requests. Try again shortly.",
+    decision.retryAfterSeconds,
+    request.method === "POST" ? "request-limit" : undefined
+  );
 }
 
-function refusal(request: Request, allowedOrigin: string | undefined, status: 429 | 503, error: string, retryAfter: number): Response {
-  return new Response(JSON.stringify({ ok: false, error }), {
+function refusal(
+  request: Request,
+  allowedOrigin: string | undefined,
+  status: 429 | 503,
+  error: string,
+  retryAfter: number,
+  cause?: "request-limit"
+): Response {
+  const retryAfterSeconds = Math.max(1, Math.ceil(retryAfter));
+  return new Response(JSON.stringify(publicErrorBody({
+    message: error,
+    status,
+    ...(cause === undefined ? {} : { cause, retryAfterSeconds })
+  })), {
     status,
     headers: {
       ...scanCorsHeaders(request.headers.get("origin"), allowedOrigin),
       "content-type": "application/json; charset=utf-8",
       "cache-control": "no-store",
-      "retry-after": String(Math.max(1, Math.ceil(retryAfter))),
+      "retry-after": String(retryAfterSeconds),
       "x-content-type-options": "nosniff"
     }
   });

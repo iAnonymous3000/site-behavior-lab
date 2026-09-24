@@ -5,6 +5,7 @@ import { test } from "node:test";
 import { PublicScanError, toPublicError } from "./public-errors";
 import { requireIndex } from "./source-markers";
 import {
+  formatScanRetryWait,
   isScanFailureCause,
   scanFailureNotice,
   scanFailureText,
@@ -24,7 +25,7 @@ const CAUSE_KEYS: Record<ScanFailureCause, true> = {
   "target-unreachable": true,
   "page-load-timeout": true,
   "scanner-busy": true,
-  "rate-limited": true,
+  "request-limit": true,
   "challenge-required": true,
   "access-key-required": true,
   "request-rejected": true,
@@ -38,9 +39,10 @@ const ALL_CAUSES = Object.keys(CAUSE_KEYS) as ScanFailureCause[];
  * Every cause a producer declares at a throw site in lib, app, or cloudflare.
  *
  * Reads `new PublicScanError|PublicFacingError|EdgeScanGateError(..., "cause")`
- * in non-test sources. The `[^;]*?` span cannot cross a semicolon, so a throw
- * whose message text contains one is not seen; if a guard below fails for a
- * cause you can see being thrown, check for that first.
+ * in non-test sources, optionally followed by one identifier or member
+ * expression (a quota refusal's `retryAfterSeconds`). The `[^;]*?` span cannot
+ * cross a semicolon, so a throw whose message text contains one is not seen; if
+ * a guard below fails for a cause you can see being thrown, check for that first.
  */
 function producerDeclaredCauses(): Set<string> {
   const declared = new Set<string>();
@@ -55,7 +57,7 @@ function producerDeclaredCauses(): Set<string> {
       if (!entry.name.endsWith(".ts") || entry.name.includes(".test.")) continue;
       const source = readFileSync(full, "utf8");
       for (const match of source.matchAll(
-        /new (?:PublicScanError|PublicFacingError|EdgeScanGateError)\([^;]*?,\s*"([a-z-]+)"\s*\)/g
+        /new (?:PublicScanError|PublicFacingError|EdgeScanGateError)\([^;]*?,\s*"([a-z-]+)"\s*(?:,\s*[A-Za-z_$][\w$.]*\s*)?\)/g
       )) {
         declared.add(match[1]!);
       }
@@ -178,8 +180,83 @@ test("both producers emit the cause on the wire", () => {
   // regression is invisible in the other producer's tests.
   const node = readFileSync(path.join(root, "app", "api", "scan", "route.ts"), "utf8");
   assert.match(node, /cause:\s*publicError\.cause/);
+  // The Worker's bodies come from the one builder, which also carries a quota
+  // refusal's wait. A hand-written body there would drop `retryAfterSeconds`
+  // while still passing the `cause` check above.
   const worker = readFileSync(path.join(root, "cloudflare", "container-worker.ts"), "utf8");
-  assert.match(worker, /cause:\s*publicError\.cause/);
+  const gate = worker.slice(
+    requireIndex(worker, "function gateErrorResponse(", "cloudflare/container-worker.ts"),
+    requireIndex(worker, "function assertDurableAdmissionCommitActive(", "cloudflare/container-worker.ts")
+  );
+  assert.match(gate, /JSON\.stringify\(publicErrorBody\(publicError\)\)/);
+  assert.doesNotMatch(gate, /cause:\s*publicError\.cause/);
+  const attempts = readFileSync(path.join(root, "lib", "admission-attempt-limit.ts"), "utf8");
+  assert.match(attempts, /JSON\.stringify\(publicErrorBody\(/);
+});
+
+test("a scanner quota refusal states the producer's wait, or nothing it cannot know", () => {
+  // The quota store folds client and global, minute and day windows into one
+  // refusal with only the longest wait. So the notice may not say whose usage
+  // fired, and may not promise a short wait unless the producer sent one. A
+  // limit can also refuse before the address is read, so it passes no verdict
+  // on the address either.
+  const quota = scanFailureNotice("request-limit");
+  const words = `${quota.message} ${quota.action ?? ""}`;
+  assert.doesNotMatch(words, /you('ve| have) run|short window|a moment|the site|nothing is wrong/i);
+  assert.equal(quota.action, "Try again later.");
+  assert.equal(quota.retryable, true);
+
+  for (const [seconds, wait] of [
+    [1, "1 second"],
+    [89, "89 seconds"],
+    [5_340, "89 minutes"],
+    [5_400, "2 hours"],
+    [86_400, "24 hours"]
+  ] as const) {
+    const notice = scanFailureText("request-limit", "raw", { retryAfterSeconds: seconds });
+    assert.equal(notice.message, quota.message);
+    assert.equal(notice.action, `Try again in about ${wait}.`);
+    assert.equal(formatScanRetryWait(seconds), wait);
+  }
+  // A wait is wire data. Anything that is not a whole number of seconds inside
+  // one day falls back to the fixed action instead of being rendered.
+  for (const invalid of [0, -1, 1.5, "60", 86_401, Number.NaN, Number.POSITIVE_INFINITY, null, undefined]) {
+    assert.equal(
+      scanFailureText("request-limit", "raw", { retryAfterSeconds: invalid }).action,
+      "Try again later.",
+      `retryAfterSeconds ${String(invalid)} must not be rendered`
+    );
+  }
+  // The wait belongs to this cause only.
+  assert.equal(
+    scanFailureText("scanner-busy", "raw", { retryAfterSeconds: 30 }).action,
+    scanFailureNotice("scanner-busy").action
+  );
+});
+
+test("the quota cause is a new id, so a page built before it renders the server's own sentence", () => {
+  // Pages and the Worker deploy separately. A page built before this cause was
+  // emitted maps the retired "rate-limited" id to "You've run several scans in a
+  // short window... Wait a moment", which is false for a global or a day-window
+  // refusal. Emitting a new id reaches that page as an unknown cause, and an
+  // unknown cause renders the Worker's message verbatim, which is accurate.
+  assert.equal(isScanFailureCause("rate-limited"), false);
+  const worker = readFileSync(path.join(root, "cloudflare", "container-worker.ts"), "utf8");
+  assert.doesNotMatch(worker, /429,\s*"rate-limited"/);
+  // Both public quota refusals declare the cause and carry the wait as data.
+  assert.match(
+    worker,
+    /class DurableScanJobRateLimitError extends EdgeScanGateError[\s\S]*?429,\s*"request-limit",\s*retryAfterSeconds\s*\)/
+  );
+  assert.match(
+    worker,
+    /Too many public scans\. Try again in about \$\{formatPublicScanRetryAfter\(charge\.retryAfterSeconds\)\}\.`,\s*429,\s*"request-limit",\s*charge\.retryAfterSeconds\s*\)/
+  );
+  // A duplicate preparation in flight is not a quota refusal and stays uncaused.
+  assert.match(
+    worker,
+    /class DurablePreparationInFlightError extends EdgeScanGateError[\s\S]*?formatPublicScanRetryAfter\(retryAfterSeconds\)\}\.`,\s*429\s*\)/
+  );
 });
 
 test("no public scan error declares a cause outside the closed vocabulary", () => {
@@ -202,10 +279,12 @@ test("every cause in the vocabulary is declared by a producer or listed as undec
   const undeclaredAllowed = new Set<ScanFailureCause>([
     // toPublicError's unexpected-error branch declines to classify.
     "service-error",
-    // The lease conflicts in lib/scan-jobs.ts throw 409 without a cause.
-    "scan-conflict",
-    // The 429 throws in lib/scan-limits.ts and the Worker carry no cause.
-    "rate-limited"
+    // Every 409 a visitor can reach is a cancel refusal whose specific wording
+    // ("already being saved" or "already finished") renders verbatim by design
+    // (scan-client-orchestration.test.ts). Lease and activation 409s in
+    // lib/scan-jobs.ts reach only the private coordinator, and the Node jobs
+    // route drops `cause` from the wire anyway.
+    "scan-conflict"
   ]);
   const declared = producerDeclaredCauses();
   for (const cause of ALL_CAUSES) {

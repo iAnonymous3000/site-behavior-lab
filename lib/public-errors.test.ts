@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { test } from "node:test";
-import { PublicFacingError, PublicScanError, toPublicError } from "./public-errors";
+import { PublicFacingError, PublicScanError, publicErrorBody, toPublicError } from "./public-errors";
 import { PublicUrlDnsUnavailableError } from "./url-safety";
 
 test("public-facing errors share one status-carrying base class", () => {
@@ -57,7 +57,37 @@ test("the front Worker scrubs unexpected exception text before unauthenticated r
   // the pattern allows fields after `error:` while still pinning the scrub.
   assert.match(
     containerWorker,
-    /function gateErrorResponse[\s\S]*?const publicError = toPublicError\(error\);[\s\S]*?JSON\.stringify\(\{ ok: false, error: publicError\.message[^}]*\}\)[\s\S]*?status: publicError\.status,/
+    /function gateErrorResponse[\s\S]*?const publicError = toPublicError\(error\);[\s\S]*?JSON\.stringify\(publicErrorBody\(publicError\)\)[\s\S]*?status: publicError\.status,/
   );
   assert.doesNotMatch(containerWorker, /const message = error instanceof Error \? error\.message/);
+});
+
+test("a quota refusal carries its wait as data, and every other body keeps its exact bytes", () => {
+  assert.deepEqual(toPublicError(new PublicScanError("m", 429, "request-limit", 30)), {
+    message: "m",
+    status: 429,
+    cause: "request-limit",
+    retryAfterSeconds: 30
+  });
+  // Omitted, never undefined, exactly like `cause`: a wait the thrower did not
+  // establish as a whole positive number of seconds is not sent at all.
+  for (const invalid of [0, -5, 1.5, Number.NaN]) {
+    assert.deepEqual(toPublicError(new PublicScanError("m", 429, "request-limit", invalid)), {
+      message: "m",
+      status: 429,
+      cause: "request-limit"
+    });
+  }
+
+  // The builder adds nothing to a body without a cause or a wait, so every
+  // existing producer's bytes are unchanged.
+  assert.equal(JSON.stringify(publicErrorBody({ message: "m", status: 400 })), '{"ok":false,"error":"m"}');
+  assert.equal(
+    JSON.stringify(publicErrorBody({ message: "m", status: 400, cause: "invalid-url" })),
+    '{"ok":false,"error":"m","cause":"invalid-url"}'
+  );
+  assert.equal(
+    JSON.stringify(publicErrorBody(toPublicError(new PublicScanError("m", 429, "request-limit", 30)))),
+    '{"ok":false,"error":"m","cause":"request-limit","retryAfterSeconds":30}'
+  );
 });
