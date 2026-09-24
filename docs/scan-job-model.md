@@ -396,6 +396,12 @@ released in a `finally`. So:
 
 - a concurrent replay of one solved Turnstile token is refused (HTTP 429) before
   it can buy any preparation, because the capability's single slot is held;
+- a serial replay after Node definitively refused the request (a 4xx other than
+  404 and 429) is refused (HTTP 409) until the refused attempt's admission
+  deadline, because that refusal is recorded by capability digest before the
+  slot is released (`lib/durable-preparation-refusal.ts`). This bounds one
+  solved token to one preparation per admission window; it does not remove the
+  replay entirely;
 - an honest retry of a lost response never reaches the reservation at all: its
   committed admission is recovered first;
 - a crashed isolate strands nothing, because the reservation expires with the

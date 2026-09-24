@@ -48,6 +48,12 @@ import {
   type DurablePreparationReservation
 } from "../lib/durable-preparation-reservation";
 import {
+  findDurablePreparationRefusal,
+  isDefinitivePreparationRefusal,
+  recordDurablePreparationRefusal as recordDurablePreparationRefusalInStore,
+  type DurablePreparationRefused
+} from "../lib/durable-preparation-refusal";
+import {
   handleAggregateMetricsRequest,
   type AggregateMetricsDataset
 } from "../lib/privacy-safe-observability-edge";
@@ -500,6 +506,19 @@ class DurablePreparationInFlightError extends EdgeScanGateError {
 }
 
 /**
+ * Node definitively refused this exact request moments ago, inside the same
+ * admission window. Uncaused and fixed: the marker holds no refusal text, and an
+ * honest client that sees any durable 4xx drops the capability, so its next
+ * scan is prepared afresh and shows the real reason.
+ */
+class DurablePreparationRefusedGateError extends EdgeScanGateError {
+  constructor() {
+    super("This scan request was already refused, so it was not prepared again.", 409);
+    this.name = "DurablePreparationRefusedGateError";
+  }
+}
+
+/**
  * The admission window was already over when the authoritative clock read it.
  * Retryable: the two machines disagree about the time, or the round trip was
  * genuinely slow. Never a client error, and never an opaque server error.
@@ -665,10 +684,27 @@ export class ScannerContainer extends Container<Env> {
   reserveDurablePreparationSlot(input: {
     capabilityHash: ArrayBuffer;
     expiresAt: number;
-  }): DurablePreparationReservation {
+  }): DurablePreparationReservation | DurablePreparationRefused {
+    const now = Date.now();
+    return this.ctx.storage.transactionSync(
+      () =>
+        // A refusal recorded in this window answers first, so a serial replay
+        // cannot buy another preparation once the refused attempt releases.
+        findDurablePreparationRefusal(this.ctx.storage.sql, input.capabilityHash, now) ??
+        reserveDurablePreparationInStore(this.ctx.storage.sql, input.capabilityHash, now, input.expiresAt)
+    );
+  }
+
+  /**
+   * Remember that Node definitively refused this capability's request, until
+   * the refused attempt's admission deadline. Called while that attempt still
+   * holds its reservation, so no replay can reserve between the two. See
+   * lib/durable-preparation-refusal.ts.
+   */
+  recordDurablePreparationRefusal(input: { capabilityHash: ArrayBuffer; expiresAt: number }): boolean {
     const now = Date.now();
     return this.ctx.storage.transactionSync(() =>
-      reserveDurablePreparationInStore(this.ctx.storage.sql, input.capabilityHash, now, input.expiresAt)
+      recordDurablePreparationRefusalInStore(this.ctx.storage.sql, input.capabilityHash, now, input.expiresAt)
     );
   }
 
@@ -3025,6 +3061,9 @@ export default {
           if (reservation.status === "window-elapsed") {
             throw new DurablePreparationWindowError(reservation.retryAfterSeconds);
           }
+          if (reservation.status === "refused") {
+            throw new DurablePreparationRefusedGateError();
+          }
           try {
             const deferredRateLimit = await gateScanRequest(
               request,
@@ -3380,6 +3419,10 @@ async function submitDurableScanJob(
     return durableUnavailableResponse(request, env);
   }
   if (preparedResponse.status !== 202) {
+    if (isDefinitivePreparationRefusal(preparedResponse.status)) {
+      // Before returning, so before the caller's finally frees the slot.
+      await recordDefinitivePreparationRefusal(env, scanAdmissionKey.capabilityHash, commitNotAfter);
+    }
     return new Response(new Uint8Array(preparedBody), {
       status: preparedResponse.status,
       statusText: preparedResponse.statusText,
@@ -3463,6 +3506,20 @@ async function submitDurableScanJob(
   publicHeaders.set("content-type", "application/json; charset=utf-8");
   publicHeaders.set("cache-control", "no-store");
   return new Response(JSON.stringify(admission.submission), { status: admission.status, headers: publicHeaders });
+}
+
+async function recordDefinitivePreparationRefusal(
+  env: Env,
+  capabilityHash: ArrayBuffer,
+  expiresAt: number
+): Promise<void> {
+  try {
+    await getContainer(env.SCANNER).recordDurablePreparationRefusal({ capabilityHash, expiresAt });
+  } catch (error) {
+    // The reservation still bounds concurrent replays; a missing marker must
+    // never replace Node's refusal with a server error.
+    console.error("Could not record a durable preparation refusal.", error);
+  }
 }
 
 async function handleEncryptedWatchCreation(request: Request, env: Env): Promise<Response> {
