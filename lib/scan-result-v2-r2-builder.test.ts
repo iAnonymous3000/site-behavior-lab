@@ -141,6 +141,31 @@ test("real Node producer output is an exact managed-sanitizer fixed point", () =
   assert.equal(prepared.manifest.reportId, `20260721-${"e".repeat(32)}`);
 });
 
+test("a leading-dot IP cookie domain the builder admits stays a managed-sanitizer fixed point", () => {
+  // The builder admits an IP literal as its own cookie party and publishes the
+  // leading-dot marker. Re-sanitizing that must not move the malformed-drop
+  // counter, or the managed reader refuses the stored report as not idempotent.
+  const input = baseInput();
+  input.evidence.cookiesFinal.push({
+    name: "_ga",
+    domain: ".203.0.113.55",
+    path: "/",
+    sameSite: "Lax",
+    secure: true,
+    httpOnly: false,
+    session: false,
+    thirdParty: true
+  });
+  const report = buildNodeScanReportV2R2(input);
+  assert.equal(report.run.evidence.cookiesFinal[0].domain, ".{invalid-host}");
+  assert.equal(report.run.privacy.redaction.malformedUrlsDropped, 1);
+  const publicReport = toPublicScanReportR2(report);
+  assert.equal(
+    publicReportDigest(redactPublicScanReportV2R2(publicReport)),
+    publicReportDigest(publicReport)
+  );
+});
+
 test("Azure hosting requests retain service counts through building, persistence and rereading", () => {
   const input = baseInput();
   for (const host of ["customer.b02.azurefd.net", "customer.azureedge.net"]) {

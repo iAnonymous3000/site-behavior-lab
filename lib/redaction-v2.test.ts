@@ -243,3 +243,22 @@ test("all public markers are byte-idempotent across repeated boundaries", () => 
   assert.equal(redactUrlV2(INVALID_URL_MARKER).value, INVALID_URL_MARKER);
   assert.equal(redactHostnameV2(INVALID_HOST_MARKER).value, INVALID_HOST_MARKER);
 });
+
+test("a leading-dot invalid-host marker is terminal and moves no counter", () => {
+  // A leading-dot cookie domain that fails the host policy publishes the
+  // marker with its dot kept. A later boundary (store, export, remediation,
+  // the managed reader's fixed-point check) must not re-parse that form and
+  // count another malformed drop.
+  for (const input of [".203.0.113.55", ".[2001:db8::1]", ".foo.localhost"]) {
+    const once = redactHostnameV2(input);
+    assert.equal(once.value, `.${INVALID_HOST_MARKER}`);
+    assert.equal(once.counters.malformedUrlsDropped, 1);
+    const twice = redactHostnameV2(once.value);
+    assert.equal(twice.value, once.value);
+    assert.deepEqual(twice.counters, emptyRedactionCounters());
+  }
+  assert.deepEqual(redactHostnameV2(INVALID_HOST_MARKER).counters, emptyRedactionCounters());
+  // Only the exact published forms are terminal; a raw spelling around the
+  // marker is still malformed input.
+  assert.equal(redactHostnameV2(` .${INVALID_HOST_MARKER}`).counters.malformedUrlsDropped, 1);
+});

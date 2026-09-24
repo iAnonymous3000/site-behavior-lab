@@ -42,6 +42,7 @@ export const PUBLIC_SUFFIX_ENGINE_VERSION = "tldts@7.4.13";
 
 export const INVALID_URL_MARKER = "{invalid-url}";
 export const INVALID_HOST_MARKER = "{invalid-host}";
+const LEADING_DOT_INVALID_HOST_MARKER = `.${INVALID_HOST_MARKER}`;
 const GENERALIZED_LABEL = "{label}";
 const GENERALIZED_SEGMENT = "{seg}";
 const GENERALIZED_NUMERIC_SEGMENT = "{n}";
@@ -267,7 +268,13 @@ export function isExactPublicSuffixHost(hostname: string): boolean {
  */
 export function redactHostnameV2(hostname: string): RedactedUrl {
   const counters = emptyRedactionCounters();
-  if (hostname === INVALID_HOST_MARKER) return { value: INVALID_HOST_MARKER, counters };
+  // Both published forms of the marker are terminal. A leading-dot cookie
+  // domain that fails the policy publishes ".{invalid-host}" because the dot is
+  // kept below, and a later boundary must not re-parse it and count another
+  // malformed drop.
+  if (hostname === INVALID_HOST_MARKER || hostname === LEADING_DOT_INVALID_HOST_MARKER) {
+    return { value: hostname, counters };
+  }
 
   const trimmed = hostname.trim();
   const leadingDot = trimmed.startsWith(".");
