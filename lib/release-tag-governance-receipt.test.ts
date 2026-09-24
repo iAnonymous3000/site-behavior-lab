@@ -690,20 +690,37 @@ test("release workflow snapshots external selectors before checkout or environme
     workflow,
     /--release-tag-governance-receipt-sha256 "\$RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256"/
   );
+  const selectionName = "- name: Verify the selected governance receipt is committed in the release revision";
   const selection = workflow.slice(
-    workflow.indexOf("- name: Verify the selected governance receipt is committed in the release revision"),
-    workflow.indexOf("- name: Classify the release measurement-binding requirement")
+    workflow.indexOf(selectionName),
+    workflow.indexOf("- name: Require every governed release 1.0 readiness gate")
   );
   assert.match(
     selection,
-    /node scripts\/verify-release-governance-selection\.mjs[\s\S]*--commit "\$RELEASE_SHA"[\s\S]*--receipt-sha256 "\$RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256"/
+    /node node_modules\/typescript\/bin\/tsc -p tsconfig\.schema\.json\s+node scripts\/verify-release-governance-selection\.mjs[\s\S]*--commit "\$RELEASE_SHA"[\s\S]*--receipt-sha256 "\$RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256"/,
+    "the verifier's canonical-JSON check needs the compiled shared canonicalizer, which a fresh runner only has after the locked install and schema compile"
   );
+  // The verifier is candidate code and needs compiled candidate TypeScript, so
+  // it runs after the no-token boundary and the locked install, and still
+  // before 1.0 readiness, the browser install and the artifact build.
+  const order = [
+    "- name: Resolve the exact revision this release names",
+    "- name: Verify every required CI job without an API token",
+    "- name: Install locked dependencies",
+    selectionName,
+    "- name: Require every governed release 1.0 readiness gate",
+    "- name: Install Chromium",
+    "- name: Build the static artifact this receipt describes"
+  ].map((name) => prepareJob.indexOf(name));
   assert.ok(
-    prepareJob.indexOf("- name: Resolve the exact revision this release names") <
-      prepareJob.indexOf("- name: Verify the selected governance receipt is committed in the release revision") &&
-      prepareJob.indexOf("- name: Verify the selected governance receipt is committed in the release revision") <
-        prepareJob.indexOf("- name: Classify the release measurement-binding requirement"),
-    "the carrier receipt must be rejected after exact-SHA resolution and before expensive release preparation"
+    order.every((position) => position >= 0) &&
+      order.every((position, index) => index === 0 || order[index - 1] < position),
+    "the carrier receipt must be verified after the no-token boundary and the locked install, and before readiness, browser installation and the artifact build"
+  );
+  assert.equal(
+    prepareJob.split(selectionName).length - 1,
+    1,
+    "the governance selection is verified exactly once in prepare"
   );
 
   assert.doesNotMatch(workflow, /actions\/variables\/RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256/);
