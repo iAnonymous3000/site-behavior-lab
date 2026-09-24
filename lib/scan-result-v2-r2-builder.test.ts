@@ -942,10 +942,43 @@ test("policy summaries are unique, disjoint, long enough, and grounded after req
   assert.deepEqual(report.run.evidence.privacyPolicy?.mentionedEntities, []);
   assert.equal(
     report.run.qualityFacts.captureLoss.some(
-      (loss) => loss.detail === "public-policy-entities" && loss.count === 1
+      (loss) => loss.detail === "public-policy-entities" && loss.count === 1 && loss.kind === "dropped"
     ),
     true
   );
+  // Only the request cap was reached; the entity cap never was.
+  assert.deepEqual(report.run.qualityFacts.budgetsExhausted, ["public-request-records"]);
+});
+
+test("a CNAME cloak dropped with its clipped request host names only the cap actually reached", () => {
+  const input = baseInput();
+  input.evidence.requests = Array.from({ length: 1_000 }, (_, index) => ({
+    ...input.evidence.requests[0],
+    id: index + 1,
+    startedAtMs: Math.min(index, 999)
+  }));
+  input.evidence.requests.push({
+    ...input.evidence.requests[0],
+    id: 1_001,
+    url: "https://metrics.example.com/collect",
+    domain: "metrics.example.com",
+    resourceType: "fetch",
+    startedAtMs: 999
+  });
+  const google = findTrackerMatch("google-analytics.com");
+  assert.notEqual(google, null);
+  input.evidence.cnameCloaks.push({ host: "metrics.example.com", cname: "google-analytics.com", tracker: google! });
+
+  const report = buildNodeScanReportV2R2(input);
+  assert.deepEqual(report.run.evidence.cnameCloaks, []);
+  assert.deepEqual(
+    report.run.qualityFacts.captureLoss.find((loss) => loss.detail === "public-cname-cloaks"),
+    { family: "detector-output", phaseId: null, kind: "dropped", count: 1, detail: "public-cname-cloaks" }
+  );
+  assert.deepEqual(report.run.qualityFacts.budgetsExhausted, ["public-request-records"]);
+  assert.equal(report.run.quality.run.reasons.includes("budget-exhausted:public-request-records"), true);
+  assert.equal(report.run.quality.run.reasons.includes("budget-exhausted:public-cname-cloaks"), false);
+  assert.deepEqual(scanReportV2R2SemanticViolations(toPublicScanReportR2(report)), []);
 });
 
 test("public evidence arrays clip with explicit family-scoped capture loss", () => {

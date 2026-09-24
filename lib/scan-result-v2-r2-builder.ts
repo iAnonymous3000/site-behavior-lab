@@ -784,7 +784,9 @@ function sanitizeEvidence(
   const retainedRequestHosts = new Set(requests.map((request) => request.domain));
   const cnameCloaks = clippedCnameCloaks.filter((cloak) => retainedRequestHosts.has(cloak.host));
   if (cnameCloaks.length !== clippedCnameCloaks.length) {
-    recordPublicCaptureLoss(
+    // A grounding drop, not a cap: the cloak cap was not reached. The request
+    // clip that removed the host records its own exhausted budget.
+    recordPublicNonBudgetCaptureLoss(
       "detector-output",
       "public-cname-cloaks",
       clippedCnameCloaks.length - cnameCloaks.length,
@@ -1024,7 +1026,9 @@ function sanitizePrivacyPolicy(
   const ungroundedAfterClipping =
     mentioned.length - retainedMentioned.length + unmentioned.length - retainedUnmentioned.length;
   if (ungroundedAfterClipping > 0) {
-    recordPublicCaptureLoss(
+    // A grounding drop, not a cap: the entity cap was not reached. The clip
+    // that removed the grounding evidence records its own exhausted budget.
+    recordPublicNonBudgetCaptureLoss(
       "detector-output",
       "public-policy-entities",
       ungroundedAfterClipping,
