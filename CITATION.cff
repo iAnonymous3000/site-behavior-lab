@@ -12,7 +12,8 @@ license: "AGPL-3.0-or-later"
 # release. This file is consumed STANDALONE by citation tooling, which never
 # sees RELEASE.md's declare-then-tag sequence or release-policy.json, so it must
 # not assert a release date for a version whose tag and receipt do not yet
-# exist. Advance this in the tag step, not the declaration step.
+# exist. Advance it in the archive PR that lands the version's
+# docs/release-receipts/<version>/release-receipt.json, never before.
 version: "0.6.0"
 date-released: "2026-09-06"
 keywords:

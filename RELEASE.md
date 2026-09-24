@@ -66,7 +66,7 @@ A `vX.Y.Z` tag claims exactly this, and nothing else:
 - `CHANGELOG.md` carries a dated section for that version. `CITATION.cff`
   still cites the previous receipted release when the tag is created, and
   catches up to this version, with the matching `date-released`, only after
-  the receipt is archived (step 5): the receipt this ceremony produces is what
+  the receipt is archived (see "After a successful tag"): the receipt this ceremony produces is what
   makes the citation truthful, so every gate that runs at the tagged revision,
   the release-evidence gate in `prepare` and the attestation validator alike,
   requires the citation to name the most recent receipted release, never the
@@ -101,8 +101,8 @@ created only after the revision it names is already promoted:
    **`CITATION.cff` is NOT advanced here.** It is consumed standalone by
    citation tooling, which never sees this sequence or `release-policy.json`,
    so advancing it at declaration time asserts a release date for a version
-   that has no tag and no receipt. It moves in step 5, once the receipt is
-   archived. A guard enforces both halves: the cited version must lag while the
+   that has no tag and no receipt. It moves in the receipt-archive PR (see
+   "After a successful tag"), once the receipt is archived. A guard enforces both halves: the cited version must lag while the
    receipt is absent, and must match once it exists.
 2. Let CI go green and let the promotion job advance `production`.
 3. Complete the governance-carrier sequence described below before dispatch:
@@ -309,9 +309,11 @@ created only after the revision it names is already promoted:
    its CI has promoted it. The workflow repeats the selection check in its
    read-only `prepare` job after the locked install; the privileged tag job
    then repeats the authoritative live App, ruleset, secret-scope, and receipt
-   checks before creating the tag. If any job fails, start a fresh dispatch:
-   "Re-run failed jobs" reuses the earlier prepare job's handoff, which the
-   attest job names by run attempt and then refuses.
+   checks before creating the tag. If prepare or attest fails, start a fresh
+   dispatch: "Re-run failed jobs" after an attest failure reuses the earlier
+   prepare job's handoff, which the attest job names by run attempt and then
+   refuses. A tag-job failure after its create request may have succeeded has
+   its own narrower recovery, described below.
 
    The static `RELEASE_READINESS.json` descriptor names that external selector
    and add-only directory, so no ceremony-time manifest edit is permitted. The
@@ -409,8 +411,9 @@ created only after the revision it names is already promoted:
    receipt digest, and workflow run id) match. Every mismatch remains a hard
    refusal.
 
-Between steps 1 and 3 the policy truthfully says `released` while no tag exists
-yet. That window is expected, and the receipt records it: `release.tagExists`
+From step 1 until the receipt-archive PR removes `tagPending`, the policy
+truthfully says `released` while the tag and its archived receipt are still to
+come; no tag exists before step 4. That window is expected, and the receipt records it: `release.tagExists`
 and `release.evidencesReleaseCommit` say whether the tag is present and whether
 the evidenced commit is the tagged one, so a receipt built from a later commit
 on the same version never implies it describes the released tree.
@@ -433,15 +436,18 @@ window, and guards enforce both directions: `CITATION.cff` may not cite the
 declared version while its receipt is missing, and may not lag once that
 receipt exists. A receipt-only archive commit therefore fails CI (the 0.6.0
 archive did); add both edits as a separate commit on the automation branch and
-leave the generated receipt bytes untouched.
+leave the generated receipt bytes untouched. In the same PR, fold any
+changelog entries recorded under `Unreleased` between the declaration and the
+tag into the version's section, so `Unreleased` again holds only later work.
 
 After a successful prerelease rehearsal, close the prerelease line promptly
 rather than leaving the repository indefinitely in an RC-labelled released
 state. This is how `0.4.0` closed its `0.4.0-rc.1` line on 2026-08-02, through
 the ordinary release commit: retitle the RC changelog section as the final
-version, update the package, lockfile, citation, and release-policy version,
-tag, and date together, regenerate the third-party inventory, then repeat CI,
-promotion, fresh tag dispatch, and receipt archival. The final tag is a
+version, update the package, lockfile, and release-policy version, tag, and
+date together, regenerate the third-party inventory, then repeat CI,
+promotion, fresh tag dispatch, and receipt archival. `CITATION.cff` advances to
+the final version only in that version's receipt-archive PR. The final tag is a
 separate immutable ceremony; it does not
 move or replace the RC tag.
 

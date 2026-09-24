@@ -7,19 +7,129 @@ public API or a 1.0 release.
 
 ## Unreleased
 
-Changes after the 0.6.0 declaration of 2026-09-06 are recorded here. The
-`v0.6.0` tag, cut on 2026-09-24 at `ee525b5f`, contains every entry below,
-because the ceremony tags a commit on `main` at or after the declaration. The full review behind most of these
+## [0.6.0] - 2026-09-06
+
+Declared on 2026-09-06 (the date above) and tagged `v0.6.0` on 2026-09-24 at
+`ee525b5f` by Cut Release Tag run 36047081291, with its receipt archived at
+[docs/release-receipts/0.6.0/release-receipt.json](docs/release-receipts/0.6.0/release-receipt.json);
+see [release status](RELEASE.md#current-release-state).
+
+This milestone brings findings and their evidence closer together, makes
+incomplete observations harder to misread, and carries tested artifacts from
+main CI into deployment. It preserves the report schemas and published
+measurements. It does not declare 1.0 readiness, a stable public API, or measured
+detector error rates.
+
+### Highlights
+
+- An evidence-first report interface with shared findings across server-rendered
+  and interactive views, clearer comparisons, print/export actions, and site
+  history. Directory search accepts URLs consistently and fits narrow screens.
+- Consistent uncertainty and coverage disclosures across reports, summaries,
+  comparisons, and exports, including historical pixel evidence and failed visits.
+- Parallel CI builds and reuse of tested, attested container and Pages artifacts
+  during production deployment. Routine maintainer changes go directly to main;
+  exact-source checks, promotion authority, and live verification still apply.
+- A bounded investigative-v1 qualification contract and independent capture
+  workflow. Qualification remains evidence-gated; formal calibration is separate.
+- A clearer repository front page, a real report screenshot, and explicit
+  separation between a prepared product milestone and a completed release tag.
+
+### Added
+
+- The published coverage boundary now names two request-log surfaces this
+  scanner does not instrument: what a site declares in its response headers,
+  and which redirect led to which, in which frame. Both entries state what a
+  report does carry, because the near misses are what a reader would otherwise
+  mistake for the missing fact: cookie records expose flags a `Set-Cookie`
+  header set, the bounded privacy-policy fetch reads `Content-Length` and
+  `Location` without retaining either, and a redirect hop is published as its
+  own request row with no frame identifier and no link to the hop it led to.
+  Neither entry names absent identifiers, because `lib/scanner.ts` and
+  `lib/scan-runtime.ts` are themselves boundary sources and a pinned token
+  would fix an identifier this project's own code may legitimately use later,
+  so both rest on review and the catalog page marks them as such. The heading
+  for not-instrumented entries no longer says every one of them is held by a
+  test, which was already untrue of four shipped entries. No detector, report
+  field, or capture path changed, and no admitted public string or
+  normalization identity moved.
+
+### Changed
+
+- A GPC-enabled visit now runs every Web Worker the site asks for and delivers
+  the signal inside each dedicated worker's own realm, verified by a readback
+  from that realm before the worker's first statement (a DevTools session
+  scoped to the measured page pauses each worker, installs
+  `navigator.globalPrivacyControl`, and reads it back in the same evaluation).
+  Previously the GPC arm rewrote network worker sources at the route boundary
+  and refused `blob:`/`data:` workers with a page-visible `NotSupportedError`,
+  a one-arm intervention a GPC comparison had to read around; a worker spawned
+  inside another worker ran with no signal and no disclosure at all. Workers
+  the scanner cannot attest from inside their realm (SharedWorker, or any
+  worker when the verification channel is unavailable) still run untouched and
+  are disclosed through the existing capture-loss warning. This changes what
+  the GPC arm does at runtime, so the Node r2 methodology gains the
+  `gpc-worker-application-v2` component and the outgoing `node-detectors-v6`
+  methodology is closed as an exact historical producer row pair for its
+  deployed window; no committed report is affected, and no admitted public
+  string or normalization identity moved.
+
+### Fixed
+
+- Incomplete-visit copy no longer exposes internal `capture-loss:*` reason
+  codes or silently discards the recorded loss count. Historical reports whose
+  warning proves the 64 MiB aggregate response-byte ceiling now say how many
+  response streams or proxy tunnels were truncated or refused, without
+  relabelling that number as missing requests.
+- New Node r2 reports record the byte ceiling as `response-bytes`, distinct
+  from the 1,000-request routing/recording ceiling; that semantic change
+  advances the Node `resource-budget` methodology epoch while preserving the
+  exact historical producer tuple used by the committed corpus.
+- The weekly Brave Shields list refresh can complete again. It regenerated
+  `THIRD_PARTY_INVENTORY.json` for the new list bytes but never synced
+  `THIRD_PARTY_REVIEWS.json`, whose rows are keyed by `url@sha256`, so every
+  refresh failed the unit suite on `missing ledger row` before reaching the
+  proposal step and no refresh ever reached a human. New rows are created
+  unreviewed, so the review gate is unchanged.
+- A Brave refresh whose rules moved upstream is no longer reported as a broken
+  refresh. `NODE_R2_CURRENT_ADBLOCK_IDENTITY` is a source literal no workflow
+  may edit, so once the fetch overwrites the snapshot the producer-contract
+  assertions have a predetermined answer: the run went red with `unknown Node
+  producer tuple` and `redaction-not-idempotent`, which reads as a redaction
+  bug that does not exist. `npm run lists:adoption` now names that condition
+  directly, prints the exact literal to adopt, and counts the committed reports
+  measured under the outgoing identity so a maintainer knows whether it must
+  also be frozen. A new guard test fails first, and says so, when the pin goes
+  stale. The pinned constant's own docblock still claimed the fetch timestamp
+  was why the job could not self-green, which #146 had already fixed.
+- The canonical featured-refresh issue says which kind of red a run is. It
+  published a bare rate (`61/81 (75%)`), and a rate cannot distinguish a broken
+  scanner from sites declining an undisguised automated browser, which need
+  opposite responses. The failure taxonomy added in #149 existed only in the
+  job log, because the alerting job receives a sanitized projection and never
+  sees per-target diagnostics; the counts now travel through that projection.
+  Counts only: no target names, messages, or URLs reach the public issue, and a
+  taxonomy that contradicts the counts beside it is dropped rather than
+  rendered. The classification itself now reads the producer's structured
+  reason for the four values that name the site declining, rather than the
+  English diagnostic; the fifth is its catch-all and covers three outcomes that
+  are the scanner's, so it keeps going through the sentence, which separates
+  them.
+
+### Landed after the declaration
+
+These changes landed on `main` between the 2026-09-06 declaration and the
+2026-09-24 tag, so `v0.6.0` contains them. The full review behind most of these
 entries is in [docs/comprehensive-review-2026-09-22.md](docs/comprehensive-review-2026-09-22.md).
 
-### Security
+#### Security
 
 - next moves to 16.3.6 and the sharp override to 0.35.4, past
   GHSA-2xp9-vwfh-vxw4 (critical, Image Optimization API) and
   GHSA-rgj7-g3m4-5g8c (high, bundled libheif), which had made npm audit and
   both Trivy scans fail.
 
-### Changed
+#### Changed
 
 - Toolchain epoch 2026-09 (#9) moves the measurement toolchain in one
   reviewed step: Playwright 1.62.1 to 1.63.0 (bundled Chromium 151.0.7922.34
@@ -125,7 +235,7 @@ entries is in [docs/comprehensive-review-2026-09-22.md](docs/comprehensive-revie
   types, axe, Wrangler) are updated. The Worker sources are typechecked only
   in their own program, which was the cause of the type failures in #228.
 
-### Fixed
+#### Fixed
 
 - Advancing the reviewed corpus line no longer hands a category page to a
   retired line's narrower cohort on recency. Each reviewed line keeps the
@@ -163,114 +273,6 @@ entries is in [docs/comprehensive-review-2026-09-22.md](docs/comprehensive-revie
 - Worker source-shape tests fail when a marker is missing; deadline tests no
   longer fail under load; unreachable helpers, exports and a never-emitted
   failure cause are removed.
-
-## [0.6.0] - 2026-09-06
-
-Prepared milestone: the governed tag and release receipt are pending. This
-date records the source declaration, not a completed release. The latest
-receipted release remains 0.4.0; see [release status](RELEASE.md#current-release-state).
-
-This milestone brings findings and their evidence closer together, makes
-incomplete observations harder to misread, and carries tested artifacts from
-main CI into deployment. It preserves the report schemas and published
-measurements. It does not declare 1.0 readiness, a stable public API, or measured
-detector error rates.
-
-### Highlights
-
-- An evidence-first report interface with shared findings across server-rendered
-  and interactive views, clearer comparisons, print/export actions, and site
-  history. Directory search accepts URLs consistently and fits narrow screens.
-- Consistent uncertainty and coverage disclosures across reports, summaries,
-  comparisons, and exports, including historical pixel evidence and failed visits.
-- Parallel CI builds and reuse of tested, attested container and Pages artifacts
-  during production deployment. Routine maintainer changes go directly to main;
-  exact-source checks, promotion authority, and live verification still apply.
-- A bounded investigative-v1 qualification contract and independent capture
-  workflow. Qualification remains evidence-gated; formal calibration is separate.
-- A clearer repository front page, a real report screenshot, and explicit
-  separation between a prepared product milestone and a completed release tag.
-
-### Added
-
-- The published coverage boundary now names two request-log surfaces this
-  scanner does not instrument: what a site declares in its response headers,
-  and which redirect led to which, in which frame. Both entries state what a
-  report does carry, because the near misses are what a reader would otherwise
-  mistake for the missing fact: cookie records expose flags a `Set-Cookie`
-  header set, the bounded privacy-policy fetch reads `Content-Length` and
-  `Location` without retaining either, and a redirect hop is published as its
-  own request row with no frame identifier and no link to the hop it led to.
-  Neither entry names absent identifiers, because `lib/scanner.ts` and
-  `lib/scan-runtime.ts` are themselves boundary sources and a pinned token
-  would fix an identifier this project's own code may legitimately use later,
-  so both rest on review and the catalog page marks them as such. The heading
-  for not-instrumented entries no longer says every one of them is held by a
-  test, which was already untrue of four shipped entries. No detector, report
-  field, or capture path changed, and no admitted public string or
-  normalization identity moved.
-
-### Changed
-
-- A GPC-enabled visit now runs every Web Worker the site asks for and delivers
-  the signal inside each dedicated worker's own realm, verified by a readback
-  from that realm before the worker's first statement (a DevTools session
-  scoped to the measured page pauses each worker, installs
-  `navigator.globalPrivacyControl`, and reads it back in the same evaluation).
-  Previously the GPC arm rewrote network worker sources at the route boundary
-  and refused `blob:`/`data:` workers with a page-visible `NotSupportedError`,
-  a one-arm intervention a GPC comparison had to read around; a worker spawned
-  inside another worker ran with no signal and no disclosure at all. Workers
-  the scanner cannot attest from inside their realm (SharedWorker, or any
-  worker when the verification channel is unavailable) still run untouched and
-  are disclosed through the existing capture-loss warning. This changes what
-  the GPC arm does at runtime, so the Node r2 methodology gains the
-  `gpc-worker-application-v2` component and the outgoing `node-detectors-v6`
-  methodology is closed as an exact historical producer row pair for its
-  deployed window; no committed report is affected, and no admitted public
-  string or normalization identity moved.
-
-### Fixed
-
-- Incomplete-visit copy no longer exposes internal `capture-loss:*` reason
-  codes or silently discards the recorded loss count. Historical reports whose
-  warning proves the 64 MiB aggregate response-byte ceiling now say how many
-  response streams or proxy tunnels were truncated or refused, without
-  relabelling that number as missing requests.
-- New Node r2 reports record the byte ceiling as `response-bytes`, distinct
-  from the 1,000-request routing/recording ceiling; that semantic change
-  advances the Node `resource-budget` methodology epoch while preserving the
-  exact historical producer tuple used by the committed corpus.
-- The weekly Brave Shields list refresh can complete again. It regenerated
-  `THIRD_PARTY_INVENTORY.json` for the new list bytes but never synced
-  `THIRD_PARTY_REVIEWS.json`, whose rows are keyed by `url@sha256`, so every
-  refresh failed the unit suite on `missing ledger row` before reaching the
-  proposal step and no refresh ever reached a human. New rows are created
-  unreviewed, so the review gate is unchanged.
-- A Brave refresh whose rules moved upstream is no longer reported as a broken
-  refresh. `NODE_R2_CURRENT_ADBLOCK_IDENTITY` is a source literal no workflow
-  may edit, so once the fetch overwrites the snapshot the producer-contract
-  assertions have a predetermined answer: the run went red with `unknown Node
-  producer tuple` and `redaction-not-idempotent`, which reads as a redaction
-  bug that does not exist. `npm run lists:adoption` now names that condition
-  directly, prints the exact literal to adopt, and counts the committed reports
-  measured under the outgoing identity so a maintainer knows whether it must
-  also be frozen. A new guard test fails first, and says so, when the pin goes
-  stale. The pinned constant's own docblock still claimed the fetch timestamp
-  was why the job could not self-green, which #146 had already fixed.
-- The canonical featured-refresh issue says which kind of red a run is. It
-  published a bare rate (`61/81 (75%)`), and a rate cannot distinguish a broken
-  scanner from sites declining an undisguised automated browser, which need
-  opposite responses. The failure taxonomy added in #149 existed only in the
-  job log, because the alerting job receives a sanitized projection and never
-  sees per-target diagnostics; the counts now travel through that projection.
-  Counts only: no target names, messages, or URLs reach the public issue, and a
-  taxonomy that contradicts the counts beside it is dropped rather than
-  rendered. The classification itself now reads the producer's structured
-  reason for the four values that name the site declining, rather than the
-  English diagnostic; the fifth is its catch-all and covers three outcomes that
-  are the scanner's, so it keeps going through the sentence, which separates
-  them.
 
 ## 0.5.0 - 2026-08-11
 
