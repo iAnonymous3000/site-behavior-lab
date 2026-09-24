@@ -690,7 +690,10 @@ jobs:
             release-policy.json
           do
             safe="$(printf '%s' "$path" | tr '/.' '__')"
-            gh api "repos/${GITHUB_REPOSITORY}/contents/${path}?ref=${RELEASE_SHA}" > "$context/content-${safe}.json"
+            # Raw bytes: the JSON contents API returns no content for a file
+            # over 1 MB (the 0.4.0 release receipt is 1.5 MB).
+            gh api -H "Accept: application/vnd.github.raw+json" \
+              "repos/${GITHUB_REPOSITORY}/contents/${path}?ref=${RELEASE_SHA}" > "$context/content-${safe}.bin"
           done
           # The citation contract follows the archived receipts, so hand the
           # validator every receipt the release SHA carries; it re-runs the
@@ -708,7 +711,8 @@ jobs:
             esac
             receipt_path="docs/release-receipts/${version}/release-receipt.json"
             safe="$(printf '%s' "$receipt_path" | tr '/.' '__')"
-            gh api "repos/${GITHUB_REPOSITORY}/contents/${receipt_path}?ref=${RELEASE_SHA}" > "$context/content-${safe}.json"
+            gh api -H "Accept: application/vnd.github.raw+json" \
+              "repos/${GITHUB_REPOSITORY}/contents/${receipt_path}?ref=${RELEASE_SHA}" > "$context/content-${safe}.bin"
           done
           gh api \
             --paginate \
@@ -782,11 +786,11 @@ jobs:
             JSON.parse(fs.readFileSync(path.join(process.env.RUNNER_TEMP, "release-context", name), "utf8"));
           const content = (repositoryPath) => {
             const safe = repositoryPath.replace(/[/.]/g, "_");
-            const response = json(`content-${safe}.json`);
-            if (response?.type !== "file" || response?.encoding !== "base64" || typeof response?.content !== "string") {
+            try {
+              return fs.readFileSync(path.join(process.env.RUNNER_TEMP, "release-context", `content-${safe}.bin`));
+            } catch {
               fail(`Could not read ${repositoryPath} at the release SHA.`);
             }
-            return Buffer.from(response.content.replace(/\s/g, ""), "base64");
           };
           const exactKeys = (value, expected, label) => {
             if (!value || typeof value !== "object" || Array.isArray(value)) fail(`${label} must be an object.`);
@@ -1919,6 +1923,16 @@ jobs:
             ["productionEvidence", "production-evidence.json"],
             ["productionUpdater", "production-updater.json"]
           ];
+          // GitHub renders ruleset timestamps in the requester's time zone (gh
+          // sends a Time-Zone header from its host), so the maintainer's
+          // capture and this runner spell one instant differently. Compare
+          // instants; an unparseable live value still differs and refuses.
+          const githubInstant = (value) => {
+            const instant = typeof value === "string" ? Date.parse(value) : Number.NaN;
+            return Number.isFinite(instant)
+              ? new Date(instant).toISOString()
+              : `unparseable:${String(value)}`;
+          };
           const publicProjection = (ruleset) => ({
             id: ruleset?.id,
             name: ruleset?.name,
@@ -1928,8 +1942,8 @@ jobs:
             enforcement: ruleset?.enforcement,
             conditions: ruleset?.conditions,
             rules: ruleset?.rules,
-            createdAt: ruleset?.created_at,
-            updatedAt: ruleset?.updated_at
+            createdAt: githubInstant(ruleset?.created_at),
+            updatedAt: githubInstant(ruleset?.updated_at)
           });
           const receiptPublicProjection = (ruleset) => ({
             id: ruleset.id,
@@ -1940,8 +1954,8 @@ jobs:
             enforcement: ruleset.enforcement,
             conditions: ruleset.conditions,
             rules: ruleset.rules,
-            createdAt: ruleset.createdAt,
-            updatedAt: ruleset.updatedAt
+            createdAt: githubInstant(ruleset.createdAt),
+            updatedAt: githubInstant(ruleset.updatedAt)
           });
           for (const [role, filename] of roles) {
             const pinned = receipt.rulesets[role];

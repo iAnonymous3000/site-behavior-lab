@@ -972,6 +972,17 @@ test("release workflow executes the pinned governance validator against exact li
   assert.equal(unbound.status, 1);
   assert.match(unbound.stderr, /add-only digest-enumerated evidence/);
 
+  // GitHub renders ruleset timestamps in the requester's time zone, so the
+  // runner (UTC) and the maintainer's capture (any zone) spell one instant
+  // differently. The same instant in another zone must still verify.
+  write("tag-creation.json", {
+    ...creation,
+    created_at: "2026-07-31T17:00:00.000-07:00",
+    updated_at: "2026-07-31T18:00:00-07:00"
+  });
+  const otherZone = run();
+  assert.equal(otherZone.status, 0, `${otherZone.stderr}${otherZone.stdout}`);
+
   write("tag-creation.json", {
     ...creation,
     updated_at: "2026-08-01T02:00:00Z"
@@ -979,6 +990,11 @@ test("release workflow executes the pinned governance validator against exact li
   const refused = run();
   assert.equal(refused.status, 1);
   assert.match(refused.stderr, /public shape or GitHub updated_at differs/);
+
+  write("tag-creation.json", { ...creation, updated_at: "not a time" });
+  const unparseable = run();
+  assert.equal(unparseable.status, 1);
+  assert.match(unparseable.stderr, /public shape or GitHub updated_at differs/);
 
   write("tag-creation.json", creation);
   const staleCapturedAt = new Date(

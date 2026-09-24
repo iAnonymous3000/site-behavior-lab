@@ -863,6 +863,17 @@ test("the release workflow tags only a promoted, CI-green revision and attests i
     /if: github\.ref_type == 'branch' && github\.ref_name == github\.event\.repository\.default_branch/
   );
 
+  // Repository files reach the attest job's hostile-data validator as raw
+  // bytes: the JSON contents API returns no content for a file over 1 MB, and
+  // an archived release receipt (0.4.0) is 1.5 MB.
+  assert.doesNotMatch(attest, /content-\$\{safe\}\.json/);
+  assert.equal(
+    (attest.match(/gh api -H "Accept: application\/vnd\.github\.raw\+json" \\\n\s+"repos\/\$\{GITHUB_REPOSITORY\}\/contents\/\$\{(?:path|receipt_path)\}\?ref=\$\{RELEASE_SHA\}" > "\$context\/content-\$\{safe\}\.bin"/g) ?? []).length,
+    2,
+    "both repository-file prefetch loops must fetch raw bytes"
+  );
+  assert.match(attest, /readFileSync\(path\.join\(process\.env\.RUNNER_TEMP, "release-context", `content-\$\{safe\}\.bin`\)\)/);
+
   // The four refusals that make the tag mean something.
   assert.match(workflow, /release-policy\.json status must be released before a tag is cut/);
   assert.match(workflow, /already exists; releases are immutable/);
@@ -1827,13 +1838,14 @@ async function attestContext(
   // Repository files the gate reads back through the API. The required-job list
   // comes from the real repository so the job names stay in the one file
   // lib/required-ci-jobs.test.ts already pins; the rest describe the fixture.
+  // The read-back step fetches raw bytes (the JSON contents API returns no
+  // content over 1 MB), so the fixture hands the validator raw bytes too.
   const writeFileContent = async (repositoryPath: string, from: string) => {
     const safe = repositoryPath.replace(/[/.]/g, "_");
-    await writeContext(`content-${safe}.json`, {
-      type: "file",
-      encoding: "base64",
-      content: (await readFile(path.join(from, repositoryPath))).toString("base64")
-    });
+    await writeFile(
+      path.join(contextDir, `content-${safe}.bin`),
+      await readFile(path.join(from, repositoryPath))
+    );
   };
   await writeFileContent(".github/required-ci-jobs.json", ROOT);
   // Derive the rest from the receipt's own declared inputs plus the metadata
@@ -2083,12 +2095,9 @@ test("the validator refuses wrong handoff, CI, source, and policy facts", { skip
     await writeFile(c.receiptPath, `${JSON.stringify(receipt)}\n`);
   }, /canonical|does not match|artifact metadata/);
   await refuse("a policy that is not released", async (c) => {
-    const encoded = await artifactOf(c, "content-release-policy_json.json");
-    const policy = JSON.parse(Buffer.from(encoded.content, "base64").toString("utf8"));
-    await c.writeContext("content-release-policy_json.json", {
-      ...encoded,
-      content: Buffer.from(`${JSON.stringify({ ...policy, status: "development" }, null, 2)}\n`).toString("base64")
-    });
+    const policyPath = path.join(c.contextDir, "content-release-policy_json.bin");
+    const policy = JSON.parse(await readFile(policyPath, "utf8"));
+    await writeFile(policyPath, `${JSON.stringify({ ...policy, status: "development" }, null, 2)}\n`);
   }, /exact source|released|policy/i);
 });
 
@@ -2135,19 +2144,16 @@ test("the validator accepts the ceremony-window citation and refuses the declare
   const accepted = runValidator(controller, await attestContext(t, ceremony));
   assert.equal(accepted.status, 0, `${accepted.stderr}${accepted.stdout}`);
 
-  const encodedCitation = (text: string) => ({
-    type: "file",
-    encoding: "base64",
-    content: Buffer.from(text).toString("base64")
-  });
+  const writeCitation = (context: AttestContext, text: string) =>
+    writeFile(path.join(context.contextDir, "content-CITATION_cff.bin"), text);
 
   // Citing the declared version before its receipt exists is the standalone
   // overclaim the receipt-following contract retired; the validator must
   // refuse it rather than require it.
   const advanced = await attestContext(t, ceremony);
-  await advanced.writeContext(
-    "content-CITATION_cff.json",
-    encodedCitation('cff-version: 1.2.0\nversion: "0.2.0"\ndate-released: "2026-02-10"\n')
+  await writeCitation(
+    advanced,
+    'cff-version: 1.2.0\nversion: "0.2.0"\ndate-released: "2026-02-10"\n'
   );
   const advancedRefused = runValidator(controller, advanced);
   assert.equal(advancedRefused.status, 1, advancedRefused.stdout);
@@ -2162,9 +2168,9 @@ test("the validator accepts the ceremony-window citation and refuses the declare
   // version once its receipt exists; a date differing from that receipt still
   // refuses.
   const postArchival = await attestContext(t);
-  await postArchival.writeContext(
-    "content-CITATION_cff.json",
-    encodedCitation('cff-version: 1.2.0\nversion: "0.1.0"\ndate-released: "2026-07-26"\n')
+  await writeCitation(
+    postArchival,
+    'cff-version: 1.2.0\nversion: "0.1.0"\ndate-released: "2026-07-26"\n'
   );
   const dateRefused = runValidator(controller, postArchival);
   assert.equal(dateRefused.status, 1, dateRefused.stdout);
