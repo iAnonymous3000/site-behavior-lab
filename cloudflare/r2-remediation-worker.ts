@@ -420,7 +420,10 @@ function sameTransitionAudit(left: RedactionTransitionAudit, right: RedactionTra
     left.version === right.version &&
     left.pageTitlesWithheld === right.pageTitlesWithheld &&
     left.explicitPortFieldsRemoved === right.explicitPortFieldsRemoved &&
-    left.ipLiteralFieldsRejected === right.ipLiteralFieldsRejected
+    left.ipLiteralFieldsRejected === right.ipLiteralFieldsRejected &&
+    left.privateSuffixTenantLabelsGeneralized === right.privateSuffixTenantLabelsGeneralized &&
+    left.policyQuoteIdentifierSpansScrubbed === right.policyQuoteIdentifierSpansScrubbed &&
+    left.policyClaimsMadeUncheckable === right.policyClaimsMadeUncheckable
   );
 }
 

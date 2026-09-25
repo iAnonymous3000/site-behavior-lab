@@ -1,27 +1,40 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { test } from "node:test";
 import { PAGE_SUBJECT_UNVERIFIED_WARNING } from "./bot-wall-classifier";
 import { ACTIVE_PROBE_SUBJECT_WARNING, CONSENT_RELOAD_SUBJECT_WARNING } from "./active-probe-subject-warnings";
-import { compareScanResults, createGpcComparisonReport } from "./compare-reports";
+import {
+  compareScanResults,
+  createGpcComparisonReport,
+  createShieldsComparisonReport
+} from "./compare-reports";
 import { runHitResponseByteCap, runHitUploadByteCap } from "./comparison-eligibility";
 import { CONSENT_PROBE_OUTCOMES, consentInteractionWarning } from "./consent-interaction";
+import { summarizeDomains } from "./domain-summaries";
 import {
   NODE_PLAYWRIGHT_VERSION,
   NODE_SCANNER_METHODOLOGY_VERSION,
   NODE_SHIELDS_REQUEST_CONTEXT_VERSION,
   recordedPlaywrightVersion
 } from "./legacy-methodology";
+import { isCurrentlyCheckablePolicyClaim } from "./privacy-policy";
 import {
   assertKnownPixelEventVocabulary,
+  PUBLIC_STRING_POLICY_DIGEST,
+  publicStringPolicyInputs,
   redactPixelEvents,
+  redactPrivacyPolicy,
   redactScanReportV1,
   redactScanResultV1,
   redactScannerWarnings,
   redactTrackerMatch,
-  RedactionPass
+  RedactionPass,
+  scrubPolicyQuoteIdentifiers
 } from "./redact-scan-report-v1";
+import { prepareScanReportBundle } from "./report-store";
+import { canonicalJson } from "./scan-report-v2-fingerprints";
+import { sha256Hex } from "./sha256";
 import { scannerDisclosure } from "./scan-condition-disclosure";
 import {
   aggregateByteBudgetWarning,
@@ -39,8 +52,14 @@ import {
 import { readStoredScanReport } from "./scan-report-reader";
 import { makeScanReportV1 } from "./scan-report-v2-fixtures";
 import { canonicalTrackerCatalogContents, findTrackerMatch } from "./tracker-catalog";
-import { redactHostnameV2 } from "./redaction-v2";
-import type { FingerprintDetectionSummary, ScanResult } from "./types";
+import { PRIVATE_SUFFIX_TENANT_SHAPES, redactHostnameV2 } from "./redaction-v2";
+import type {
+  FingerprintDetectionSummary,
+  NetworkRequestRecord,
+  PrivacyPolicyClaim,
+  ScanResult,
+  TrackerMatch
+} from "./types";
 
 const TOKEN_HOST = "a8f3c9d2e1b4f6a7.google-analytics.com";
 
@@ -858,4 +877,360 @@ test("an inherited Object.prototype key cannot pass the pixel catalog's fail-clo
       .length,
     1
   );
+});
+
+// ---------------------------------------------------------------------------
+// Private-suffix tenant labels and policy-quote identifiers
+// ---------------------------------------------------------------------------
+
+const ADDRESS_TENANT = "192-0-2-41_s-198-51-100-43_ts-1767225600-clienttons-s.akamaihd.net";
+const TOKEN_TENANT = "qwert2yuiop3asdfg4hj-zxc5v6-79b48c136-clientnsv4-s.akamaihd.net";
+const GENERALIZED_TENANT = "{label}.akamaihd.net";
+
+function shieldsListMatch(host: string): TrackerMatch {
+  return { domain: host, entity: host, category: "tracking (Brave Shields list)", confidence: "shields-list" };
+}
+
+function beaconRequest(id: number, host: string, thirdParty: boolean, tracker: TrackerMatch | null): NetworkRequestRecord {
+  return {
+    id,
+    url: `https://${host}/beacon`,
+    domain: host,
+    method: "GET",
+    resourceType: thirdParty ? "ping" : "document",
+    status: 200,
+    thirdParty,
+    tracker,
+    startedAtMs: id * 10
+  };
+}
+
+/** A single visit whose two Shields-matched beacons sit on token tenants of one suffix. */
+function tokenTenantSingle(): ScanResult {
+  const report = makeScanReportV1() as ScanResult;
+  report.requests = [
+    beaconRequest(1, "example.com", false, null),
+    beaconRequest(2, ADDRESS_TENANT, true, shieldsListMatch(ADDRESS_TENANT)),
+    beaconRequest(3, TOKEN_TENANT, true, shieldsListMatch(TOKEN_TENANT))
+  ];
+  report.domains = summarizeDomains(report.requests);
+  report.summary = {
+    ...report.summary,
+    totalRequests: 3,
+    thirdPartyRequests: 2,
+    knownTrackerRequests: 2,
+    thirdPartyDomains: 2
+  };
+  report.privacyPolicy = {
+    url: "https://example.com/privacy",
+    claims: [],
+    mentionedEntities: [],
+    unmentionedEntities: [],
+    policyTextLength: 1_000
+  };
+  return report;
+}
+
+test("a Shields-list match on a generalized tenant publishes the redacted domain as its entity", () => {
+  const pass = new RedactionPass();
+  const first = redactTrackerMatch(shieldsListMatch(ADDRESS_TENANT), pass, ADDRESS_TENANT);
+  assert.deepEqual(first, shieldsListMatch(GENERALIZED_TENANT));
+  // The domain is generalized once and the entity reuses it: one label, one count.
+  assert.equal(pass.counters.subdomainLabelsGeneralized, 1);
+
+  const secondPass = new RedactionPass();
+  assert.deepEqual(redactTrackerMatch(first, secondPass, GENERALIZED_TENANT), first);
+  assert.equal(secondPass.counters.subdomainLabelsGeneralized, 0);
+});
+
+test("a raw Shields-list policy entity stays grounded in its generalized form", () => {
+  const input = tokenTenantSingle();
+  input.privacyPolicy!.unmentionedEntities = [ADDRESS_TENANT];
+  const first = redactScanResultV1(input).report;
+  assert.deepEqual(first.privacyPolicy?.unmentionedEntities, [GENERALIZED_TENANT]);
+  assert.equal(JSON.stringify(redactScanResultV1(first).report), JSON.stringify(first));
+
+  // Two raw tenants sharing one public form collapse to one entity, and an
+  // entity that lands in both lists stays mentioned only (the lists are
+  // disjoint on the wire).
+  const collided = tokenTenantSingle();
+  collided.privacyPolicy!.mentionedEntities = [TOKEN_TENANT, ADDRESS_TENANT];
+  collided.privacyPolicy!.unmentionedEntities = [ADDRESS_TENANT];
+  const merged = redactScanResultV1(collided).report;
+  assert.deepEqual(merged.privacyPolicy?.mentionedEntities, [GENERALIZED_TENANT]);
+  assert.deepEqual(merged.privacyPolicy?.unmentionedEntities, []);
+  assert.equal(JSON.stringify(redactScanResultV1(merged).report), JSON.stringify(merged));
+
+  // Only a raw lowercase hostname is re-read in its public form, so a
+  // dotted name in any other case can never be lowercased into a host
+  // entity; an entity whose public form no retained tracker grounds is still
+  // dropped.
+  const ungrounded = tokenTenantSingle();
+  ungrounded.privacyPolicy!.unmentionedEntities = ["metrics.example.net", "Akamai", ADDRESS_TENANT.toUpperCase()];
+  assert.deepEqual(redactScanResultV1(ungrounded).report.privacyPolicy?.unmentionedEntities, []);
+});
+
+test("the v1 producer path publishes a token-tenant visit as a readable fixed point", () => {
+  const input = tokenTenantSingle();
+  input.privacyPolicy!.mentionedEntities = [ADDRESS_TENANT];
+  const redacted = redactScanResultV1(input).report;
+  assert.deepEqual(
+    redacted.requests.map((request) => [request.domain, request.tracker?.domain, request.tracker?.entity]),
+    [
+      ["example.com", undefined, undefined],
+      [GENERALIZED_TENANT, GENERALIZED_TENANT, GENERALIZED_TENANT],
+      [GENERALIZED_TENANT, GENERALIZED_TENANT, GENERALIZED_TENANT]
+    ]
+  );
+  assert.deepEqual(redacted.privacyPolicy?.mentionedEntities, [GENERALIZED_TENANT]);
+  assert.equal(JSON.stringify(redacted).includes("clienttons"), false);
+  assert.equal(JSON.stringify(redacted).includes("clientnsv4"), false);
+  // Persistence re-reads the bundle through the managed reader, which refuses
+  // a report that is not a fixed point of the sanitizer.
+  const bundle = prepareScanReportBundle(redacted, { shareId: `20260727-${"a".repeat(32)}` });
+  assert.equal(bundle.reportWire.includes("akamaihd"), true);
+  assert.equal(bundle.reportWire.includes("192-0-2-41"), false);
+});
+
+test("two token tenants of one suffix merge into one domain row and the comparison is recounted", () => {
+  const baseline = tokenTenantSingle();
+  const variant = makeScanReportV1() as ScanResult;
+  variant.requests = [beaconRequest(1, "example.com", false, null)];
+  variant.domains = summarizeDomains(variant.requests);
+  variant.summary = { ...variant.summary, totalRequests: 1, shieldsBlockedRequests: 2 };
+  const comparison = createShieldsComparisonReport(baseline, variant);
+  assert.equal(comparison.diff.removedDomains.length, 2, "the raw pair differs by two tenants");
+
+  const first = redactScanReportV1(comparison);
+  const arm = first.report.baseline;
+  assert.deepEqual(
+    arm.domains.filter((row) => row.thirdParty).map((row) => [row.domain, row.requests]),
+    [[GENERALIZED_TENANT, 2]]
+  );
+  assert.equal(arm.summary.thirdPartyDomains, 1);
+  assert.equal(arm.summary.thirdPartyRequests, 2);
+  assert.deepEqual(first.report.diff.thirdPartyDomains, { before: 1, after: 0, delta: -1 });
+  assert.deepEqual(first.report.diff.removedDomains.map((change) => [change.domain, change.requests]), [
+    [GENERALIZED_TENANT, 2]
+  ]);
+  assert.deepEqual(first.report.diff.removedEntities.map((change) => [change.entity, change.requests]), [
+    [GENERALIZED_TENANT, 2]
+  ]);
+  assert.deepEqual(first.report.diff, compareScanResults(first.report.baseline, first.report.variant));
+  assert.equal(first.counters.subdomainLabelsGeneralized > 0, true);
+
+  const second = redactScanReportV1(first.report);
+  assert.equal(JSON.stringify(second.report), JSON.stringify(first.report));
+  assert.equal(second.counters.subdomainLabelsGeneralized, 0);
+});
+
+function redactQuote(quote: string, kind: PrivacyPolicyClaim["kind"] = "honors-gpc"): string {
+  return redactPrivacyPolicy(
+    {
+      url: "https://example.com/privacy",
+      claims: [{ kind, quote }],
+      mentionedEntities: [],
+      unmentionedEntities: [],
+      policyTextLength: 1_000
+    },
+    new RedactionPass()
+  ).claims[0].quote;
+}
+
+function assertQuoteFixedPoint(quote: string): void {
+  assert.equal(redactQuote(quote), quote, `not a fixed point: ${quote}`);
+}
+
+const POLICY_CLAIM_KINDS: PrivacyPolicyClaim["kind"][] = [
+  "no-cookies",
+  "no-third-party-cookies",
+  "no-selling-or-sharing",
+  "honors-gpc"
+];
+
+test("identifier spans in a quoted policy sentence become the marker and the quote reads as incomplete", () => {
+  const spans = [
+    "privacy@acme.com",
+    "Jane.Doe+gpc@mail.acme.co.uk",
+    "+44 20 7946 0958",
+    "+1 (415) 555-0100",
+    "(415) 555-0100",
+    "1-800-555-0199",
+    "415.555.0100",
+    "https://acme.com/privacy?uid=12345#gpc",
+    "www.acme.com/optout",
+    "acme.com/privacy/gpc",
+    "@acme",
+    "privacy [at] acme [dot] com"
+  ];
+  for (const kind of POLICY_CLAIM_KINDS) {
+    for (const span of spans) {
+      const published = redactQuote(`We honor your choices; contact ${span}, and we reply within 30 days.`, kind);
+      assert.equal(
+        published,
+        "We honor your choices; contact [redacted], and we reply within 30 days...",
+        `${kind}: ${span}`
+      );
+      assertQuoteFixedPoint(published);
+    }
+  }
+  assert.equal(redactQuote("We honor GPC; call 415.555.0100."), "We honor GPC; call [redacted]...");
+  assert.equal(redactQuote("Email privacy@acme.com."), "Email [redacted]...");
+  assert.equal(redactQuote("Questions? Write to privacy@acme.com!"), "Questions? Write to [redacted]...");
+
+  // Ordinary figures, citations, dates, and bare names stay verbatim with no marker.
+  for (const quote of [
+    "We do not sell data about anyone under 16 years of age.",
+    "See Section 4.1 of this policy.",
+    "We honor GPC as Cal. Civ. Code \u00a7 1798.140 requires.",
+    "We honor GPC under \u00a7\u00a7 1798.100 \u2013 1798.199.",
+    "This policy is effective 2024-01-01 (version 20240101).",
+    "We honor GPC on acme.com and its apps.",
+    "\"Sites.Sale\" does not sell your personal information."
+  ]) {
+    assert.equal(redactQuote(quote), quote, quote);
+  }
+  // A hyphen-joined statute range reads as a phone-shaped run: a known,
+  // accepted false positive that costs the citation, not the claim.
+  assert.equal(redactQuote("We honor GPC under \u00a7\u00a7 1798.100-1798.199."), "We honor GPC under \u00a7\u00a7 [redacted]...");
+});
+
+test("scrubbing and marking are one fixed point, even where a pass completes a new span", () => {
+  // A second obfuscated address after the first: one global replace does not
+  // rescan its own output.
+  assert.equal(scrubPolicyQuoteIdentifiers("Write a [at] b [dot] c [at] d [dot] e today."), "Write [redacted] today.");
+  assert.equal(redactQuote("Write a [at] b [dot] c [at] d [dot] e today."), "Write [redacted] today...");
+  // The appended marker completes "www." and "[dot]..." spans.
+  assert.equal(
+    redactQuote("Email privacy@acme.com or see the www"),
+    "Email [redacted] or see the [redacted]..."
+  );
+  assert.equal(
+    redactQuote("Email privacy@acme.com or write a [at] b [dot]"),
+    "Email [redacted] or write [redacted]..."
+  );
+  // The cut to fit the marker lands just after a ".", which must not become "....".
+  const cutAtPeriod = redactQuote(`Email privacy@acme.com ${"a".repeat(179)}. More text past the cap.`);
+  assert.equal(cutAtPeriod, `Email [redacted] ${"a".repeat(179)}...`);
+  for (const quote of [
+    "Write a [at] b [dot] c [at] d [dot] e today.",
+    "Email privacy@acme.com or see the www",
+    "Email privacy@acme.com or write a [at] b [dot]",
+    "Email privacy@acme.com?!",
+    `Email privacy@acme.com. ${"word ".repeat(40)}end.`,
+    `Email privacy@acme.com ${"a".repeat(179)}. More text past the cap.`
+  ]) {
+    assertQuoteFixedPoint(redactQuote(quote));
+  }
+});
+
+test("an identifier at the length cap is scrubbed whole before the quote is bounded", () => {
+  const filler = (characters: number) => "word ".repeat(characters / 5);
+  const cases = [
+    // An email starting at character 185, a URL at 190, and a ten-digit phone
+    // straddling character 200, where capping first would publish "415-5".
+    [`${filler(185)}privacy@acme.com is where to write about your privacy choices.`, "acme"],
+    [`${filler(190)}https://acme.com/privacy is our policy page for this service.`, "acme"],
+    [`${filler(195)}415-555-0100 is our privacy line for requests.`, "415"]
+  ];
+  for (const [quote, identifier] of cases) {
+    const published = redactQuote(quote);
+    assert.equal(published.includes(identifier), false, published);
+    assert.equal(published.endsWith("..."), true, published);
+    assert.equal(Array.from(published).length <= 200, true, published);
+    assertQuoteFixedPoint(published);
+  }
+});
+
+test("a scrubbed policy claim is never checkable, so a scrub cannot add a finding", () => {
+  const checkable = (quote: string) =>
+    isCurrentlyCheckablePolicyClaim({ kind: "no-selling-or-sharing", quote });
+  const sentences = [
+    // Checkable raw: the span's "." ended the governed clause, so a bare
+    // scrub would move the later ";" inside it and drop a finding.
+    "We do not sell or share your personal information, email privacy@acme.com; we reply within 30 days.",
+    // Not checkable raw because of the ":" in the URL; a bare scrub would
+    // make a finding appear that the evidence never supported.
+    "We do not sell or share your personal information, see https://acme.com/ccpa for details.",
+    "We do not sell or share your personal information, write to privacy@acme.com with questions."
+  ];
+  assert.deepEqual(sentences.map(checkable), [true, false, true], "the raw baseline this test relies on");
+  for (const sentence of sentences) {
+    const published = redactQuote(sentence, "no-selling-or-sharing");
+    assert.notEqual(published, sentence);
+    assert.equal(checkable(published), false, published);
+  }
+  const blanket = "We do not sell or share your personal information.";
+  assert.equal(redactQuote(blanket, "no-selling-or-sharing"), blanket);
+  assert.equal(checkable(redactQuote(blanket, "no-selling-or-sharing")), true);
+
+  // Every committed claim: sanitizing never makes an uncheckable claim checkable.
+  const claims = committedPolicyClaims();
+  assert.ok(claims.length > 0, "the corpus walk must reach at least one policy claim");
+  for (const claim of claims) {
+    const published = { kind: claim.kind, quote: redactQuote(claim.quote, claim.kind) };
+    if (isCurrentlyCheckablePolicyClaim(published)) {
+      assert.equal(isCurrentlyCheckablePolicyClaim(claim), true, claim.quote);
+    }
+  }
+});
+
+function committedPolicyClaims(): PrivacyPolicyClaim[] {
+  const reportsDir = path.join(process.cwd(), "public", "reports");
+  const claims: PrivacyPolicyClaim[] = [];
+  const visit = (value: unknown, key?: string): void => {
+    if (Array.isArray(value)) {
+      for (const element of value) {
+        if (
+          key === "claims" &&
+          element !== null &&
+          typeof element === "object" &&
+          typeof (element as PrivacyPolicyClaim).kind === "string" &&
+          typeof (element as PrivacyPolicyClaim).quote === "string"
+        ) {
+          claims.push(element as PrivacyPolicyClaim);
+        } else {
+          visit(element, key);
+        }
+      }
+      return;
+    }
+    if (value === null || typeof value !== "object") return;
+    for (const [childKey, child] of Object.entries(value)) visit(child, childKey);
+  };
+  for (const file of readdirSync(reportsDir).filter((name) => /^\d{8}-[a-f0-9]{32}\.json$/.test(name))) {
+    visit(JSON.parse(readFileSync(path.join(reportsDir, file), "utf8")));
+  }
+  return claims;
+}
+
+test("the public-string policy digest hashes both rule tables", () => {
+  // A table declared below the digest reads as undefined in an esbuild bundle
+  // (top-level const lowered to var), so the digest would silently omit it.
+  const inputs = publicStringPolicyInputs();
+  assert.equal(PUBLIC_STRING_POLICY_DIGEST, sha256Hex(canonicalJson(inputs)));
+  assert.deepEqual(inputs.privateSuffixTenantShapes, PRIVATE_SUFFIX_TENANT_SHAPES);
+  assert.equal(PRIVATE_SUFFIX_TENANT_SHAPES.label, "private-suffix-tenant-shapes-v1");
+  assert.equal(PRIVATE_SUFFIX_TENANT_SHAPES.patterns.length, 5);
+  assert.equal(PRIVATE_SUFFIX_TENANT_SHAPES.minDigitRuns, 3);
+
+  const spans = inputs.policyQuoteIdentifierSpans;
+  assert.equal(spans.label, "policy-quote-identifier-spans-v1");
+  assert.equal(spans.marker, "[redacted]");
+  assert.equal(spans.patterns.length, 7);
+  // Each hashed source/flags pair is a live pattern, in the scrub's order.
+  const examples = [
+    "https://acme.com/x",
+    "privacy@acme.com",
+    "privacy [at] acme [dot] com",
+    "www.acme.com",
+    "acme.com/privacy",
+    "+44 20 7946 0958",
+    "415 555 0100"
+  ];
+  spans.patterns.forEach((entry, index) => {
+    const slash = entry.lastIndexOf("/");
+    const pattern = new RegExp(entry.slice(0, slash), entry.slice(slash + 1));
+    assert.equal(examples[index].replace(pattern, "[redacted]"), "[redacted]", entry);
+  });
 });

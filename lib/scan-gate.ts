@@ -11,7 +11,7 @@ import {
 } from "./edge-scan-gate";
 import type { ScanDevice, ScanRequestPayload } from "./types";
 import { PublicScanError } from "./public-errors";
-import { isExactPublicSuffixHost } from "./redaction-v2";
+import { isExactPublicSuffixHost, isGeneralizedPrivateSuffixTenantHost } from "./redaction-v2";
 import { assertPublicHttpUrl, assertPublicHttpUrlShape, normalizeUrl } from "./url-safety";
 import { assertScanAccess } from "./access-control";
 
@@ -19,6 +19,9 @@ export const SCAN_TARGET_VERIFICATION_TIMEOUT_MS = 5_000;
 
 export const PUBLIC_SUFFIX_SUBJECT_MESSAGE =
   "That host is a registry boundary (a public suffix such as github.io or gov.uk), not a site that can be scanned on its own. Enter a site under it, for example example.github.io.";
+
+export const PRIVATE_SUFFIX_TENANT_SUBJECT_MESSAGE =
+  "That host's name under its hosting provider looks like a network address, timestamp, or one-time token, which published reports generalize, so a report could not name the site. Scan the site's stable address instead.";
 
 /**
  * Refuse a target the report format cannot name as a subject.
@@ -35,10 +38,19 @@ export const PUBLIC_SUFFIX_SUBJECT_MESSAGE =
  * reach the same builder limit but are deliberately left alone here: they are
  * an established target shape with their own callers, and narrowing them is a
  * separate decision from this one.
+ *
+ * A host under a private suffix whose tenant label is address-, timestamp- or
+ * token-shaped (for example a per-client akamaihd.net or netlify.app name)
+ * reaches the same end by another road: the subject key keeps the raw
+ * registrable domain, redaction generalizes that tenant, and the public
+ * boundary refuses a subject key redaction would change. Refuse it here too.
  */
 function assertRegistrableScanSubject(url: URL): void {
   const hostname = url.hostname.toLowerCase().replace(/\.+$/, "");
   if (isExactPublicSuffixHost(hostname)) throw new PublicScanError(PUBLIC_SUFFIX_SUBJECT_MESSAGE);
+  if (isGeneralizedPrivateSuffixTenantHost(hostname)) {
+    throw new PublicScanError(PRIVATE_SUFFIX_TENANT_SUBJECT_MESSAGE);
+  }
 }
 
 export class ScanTargetVerificationTimeoutError extends PublicScanError {

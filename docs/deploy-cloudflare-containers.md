@@ -305,9 +305,12 @@ strict v4 code is deployed.
 
 Record the versioned `transitionAudit` from the dry run and compare it with the
 apply result. It separately counts page titles withheld, explicit-port fields
-removed, and IP-literal fields rejected. These are v3-to-v4 policy-transition
-counts, not additions to the frozen seven-field public privacy-counter
-vocabulary. A final `--check` must report zero for all three transition counts.
+removed, and IP-literal fields rejected, and since
+`redaction-v4-transition-audit@3` also private-suffix tenant fields generalized,
+policy quotes scrubbed of an identifier, and checkable policy claims that the
+scrub made uncheckable. These are policy-transition counts, not additions to
+the frozen seven-field public privacy-counter vocabulary. A final `--check` must
+report zero for all six transition counts.
 
 The one-off operator Worker is never deployed: it runs through a remote
 Wrangler development session bound to the production bucket. `GET /` is

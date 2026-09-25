@@ -185,7 +185,10 @@ test("r2/v3 remediation requires its old sidecar, rewrites to v4, and preserves 
     version: REDACTION_TRANSITION_AUDIT_VERSION,
     pageTitlesWithheld: r2ReportRuns(report).length,
     explicitPortFieldsRemoved: 0,
-    ipLiteralFieldsRejected: 0
+    ipLiteralFieldsRejected: 0,
+    privateSuffixTenantLabelsGeneralized: 0,
+    policyQuoteIdentifierSpansScrubbed: 0,
+    policyClaimsMadeUncheckable: 0
   });
   assert.deepEqual(dryRun.issues, [{ reportId: id, reason: "redaction-version-mismatch" }]);
   assert.equal(await readFile(reportPath(reportsDir, id), "utf8"), originalWire);
@@ -228,7 +231,10 @@ test("r2/v3 remediation requires its old sidecar, rewrites to v4, and preserves 
     version: REDACTION_TRANSITION_AUDIT_VERSION,
     pageTitlesWithheld: 0,
     explicitPortFieldsRemoved: 0,
-    ipLiteralFieldsRejected: 0
+    ipLiteralFieldsRejected: 0,
+    privateSuffixTenantLabelsGeneralized: 0,
+    policyQuoteIdentifierSpansScrubbed: 0,
+    policyClaimsMadeUncheckable: 0
   });
 });
 

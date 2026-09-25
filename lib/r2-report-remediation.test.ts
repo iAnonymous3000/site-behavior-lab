@@ -474,7 +474,10 @@ test("v2/r1 stays unsupported while an exactly attested r2/v3 report migrates to
     version: REDACTION_TRANSITION_AUDIT_VERSION,
     pageTitlesWithheld: 1,
     explicitPortFieldsRemoved: 2,
-    ipLiteralFieldsRejected: 0
+    ipLiteralFieldsRejected: 0,
+    privateSuffixTenantLabelsGeneralized: 0,
+    policyQuoteIdentifierSpansScrubbed: 0,
+    policyClaimsMadeUncheckable: 0
   });
 
   const output = JSON.parse(migrated.reportWire) as ReturnType<typeof legacyV3R2Report>;
@@ -510,7 +513,10 @@ test("v2/r1 stays unsupported while an exactly attested r2/v3 report migrates to
     version: REDACTION_TRANSITION_AUDIT_VERSION,
     pageTitlesWithheld: 0,
     explicitPortFieldsRemoved: 0,
-    ipLiteralFieldsRejected: 0
+    ipLiteralFieldsRejected: 0,
+    privateSuffixTenantLabelsGeneralized: 0,
+    policyQuoteIdentifierSpansScrubbed: 0,
+    policyClaimsMadeUncheckable: 0
   });
 });
 

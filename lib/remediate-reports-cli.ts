@@ -745,7 +745,10 @@ async function main(): Promise<void> {
     `Transition audit ${summary.transitionAudit.version}: ` +
       `${summary.transitionAudit.pageTitlesWithheld} page title(s) withheld, ` +
       `${summary.transitionAudit.explicitPortFieldsRemoved} explicit-port field(s) removed, ` +
-      `${summary.transitionAudit.ipLiteralFieldsRejected} IP-literal field(s) rejected.`
+      `${summary.transitionAudit.ipLiteralFieldsRejected} IP-literal field(s) rejected, ` +
+      `${summary.transitionAudit.privateSuffixTenantLabelsGeneralized} private-suffix tenant field(s) generalized, ` +
+      `${summary.transitionAudit.policyQuoteIdentifierSpansScrubbed} policy quote(s) scrubbed, ` +
+      `${summary.transitionAudit.policyClaimsMadeUncheckable} checkable policy claim(s) made uncheckable.`
   );
 }
 

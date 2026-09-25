@@ -25,7 +25,10 @@ import {
  * vocabulary. Policy-revision transitions with no wire field (currently
  * title withholding, explicit-port removal, and IP-literal rejection) are
  * accounted separately by the versioned remediation transition audit; they
- * must never be misattributed to one of the seven legacy counters.
+ * must never be misattributed to one of the seven legacy counters. A
+ * generalized private-suffix tenant label is a label generalization, so it
+ * counts as `subdomainLabelsGeneralized` on the wire and is also named
+ * separately in the transition audit.
  *
  * Node/worker-side module: the registrable-domain rule needs the public
  * suffix list (tldts), so this must stay out of client bundles the way
@@ -34,7 +37,11 @@ import {
 
 // Policy revision 4 also withholds page-authored titles and IP/port literals.
 // The module name remains the RFC's "redaction v2" architecture; this numeric
-// identity is the executable sanitizer revision carried in provenance.
+// identity is the executable sanitizer revision carried in provenance. The
+// private-suffix tenant rule below narrowed the sanitizer without moving this
+// number: every committed sidecar and logged r2 wire pins revision 4, so the
+// rule is carried by the public-string policy identity instead, whose digest
+// hashes PRIVATE_SUFFIX_TENANT_SHAPES.
 export const REDACTION_VERSION = 4;
 export const REDACTION_ALLOWLISTS_VERSION: string = allowlists.version;
 export const REDACTION_ALLOWLISTS_DIGEST = sha256Hex(JSON.stringify(allowlists));
@@ -197,14 +204,17 @@ function redactCanonicalHostname(hostname: string, counters: RedactionCounters):
     counters.malformedUrlsDropped += 1;
     return INVALID_HOST_MARKER;
   }
-  const registrable = publicRegistrableDomain(canonicalHostname);
+  const registrable = publicRegistrableParts(canonicalHostname);
   if (!registrable) {
     counters.malformedUrlsDropped += 1;
     return INVALID_HOST_MARKER;
   }
-  if (registrable === canonicalHostname) return canonicalHostname;
-  if (!canonicalHostname.endsWith(`.${registrable}`)) return INVALID_HOST_MARKER;
-  const prefix = canonicalHostname.slice(0, canonicalHostname.length - registrable.length - 1);
+  const publicRegistrable = registrable.isPrivate
+    ? generalizePrivateSuffixTenant(registrable.domain, counters)
+    : registrable.domain;
+  if (registrable.domain === canonicalHostname) return publicRegistrable;
+  if (!canonicalHostname.endsWith(`.${registrable.domain}`)) return INVALID_HOST_MARKER;
+  const prefix = canonicalHostname.slice(0, canonicalHostname.length - registrable.domain.length - 1);
   const labels = prefix.split(".").map((label) => {
     // Subdomains can be tenant names, clinics, usernames, or opaque ids. Keep
     // only reviewed infrastructure/service literals; everything else is a
@@ -215,7 +225,7 @@ function redactCanonicalHostname(hostname: string, counters: RedactionCounters):
     }
     return label;
   });
-  return `${labels.join(".")}.${registrable}`;
+  return `${labels.join(".")}.${publicRegistrable}`;
 }
 
 /**
@@ -223,8 +233,16 @@ function redactCanonicalHostname(hostname: string, counters: RedactionCounters):
  * private suffix tables. Unknown and special-use suffixes (for example
  * `.internal`, `.localhost`, and `.example`) are not a safe public boundary:
  * tldts otherwise treats the entire human-controlled label as the domain.
+ *
+ * This is the RAW registrable domain, before the private-suffix tenant rule
+ * below: subject keys, party grouping, and the Shields-list tracker shape are
+ * all defined on it, and redaction generalizes it separately.
  */
 export function publicRegistrableDomain(hostname: string): string | null {
+  return publicRegistrableParts(hostname)?.domain ?? null;
+}
+
+function publicRegistrableParts(hostname: string): { domain: string; isPrivate: boolean } | null {
   let canonicalHostname: string;
   try {
     canonicalHostname = new URL(`https://${hostname.replace(/\.+$/, "")}/`).hostname.replace(/\.+$/, "");
@@ -239,7 +257,88 @@ export function publicRegistrableDomain(hostname: string): string | null {
   const parsed = parse(markerSafeHostname, { allowPrivateDomains: true });
   if (!parsed.domain || (!parsed.isIcann && !parsed.isPrivate)) return null;
   const domainLabels = parsed.domain.split(".").length;
-  return originalLabels.slice(-domainLabels).join(".");
+  return { domain: originalLabels.slice(-domainLabels).join("."), isPrivate: parsed.isPrivate === true };
+}
+
+// ---------------------------------------------------------------------------
+// Private-suffix tenant labels
+// ---------------------------------------------------------------------------
+
+/*
+ * Under a PSL PRIVATE suffix (akamaihd.net, cloudfront.net, github.io, ...)
+ * the registrable domain is a provider-assigned tenant label plus the suffix,
+ * and a registrable domain otherwise survives verbatim. Most tenants are
+ * stable service names, but some providers mint one per client or per visit:
+ * Akamai's EUM beacon hosts carry the requesting address (here, the scanner's
+ * egress), a Unix timestamp, and a per-visit token in the tenant label. A
+ * tenant label shaped like one of those generalizes to `{label}`, exactly like
+ * an unreviewed subdomain label.
+ *
+ * The label is split into segments on runs of `-` and `_`. It generalizes
+ * when the whole label holds a dashed or underscored IPv4 address, or any
+ * segment is a long numeric run, a hex token with both digits and letters, or
+ * a long mixed token with at least three separate digit runs. The thresholds
+ * keep ordinary names verbatim: `coolprogrammer2000` (one digit run),
+ * `face2face` and `cafe1234` (short hex-like words), and cloudfront
+ * distribution ids such as `d3e54v103j8qbb`. An IDNA A-label's tail is base36
+ * by construction, so an `xn--` label is tested for the address shape only.
+ * ICANN registrable domains are out of scope: a registered name is a public
+ * identity, and its subdomain labels already follow the allowlist.
+ *
+ * The sources below feed PUBLIC_STRING_POLICY_DIGEST, so editing a shape
+ * moves the published normalization identity.
+ */
+const TENANT_SEGMENT_SEPARATOR = /[-_]+/;
+const DASHED_IPV4_TENANT_LABEL =
+  /(?:^|[^0-9])(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(?:[-_](?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}(?![0-9])/;
+const LONG_NUMERIC_TENANT_SEGMENT = /^[0-9]{8,}$/;
+const HEX_TOKEN_TENANT_SEGMENT = /^(?=[0-9a-f]*[0-9])(?=[0-9a-f]*[a-f])[0-9a-f]{12,}$/;
+const MIXED_TOKEN_TENANT_SEGMENT = /^(?=[a-z0-9]*[a-z])[a-z0-9]{16,}$/;
+const MIXED_TOKEN_MIN_DIGIT_RUNS = 3;
+
+/** The tenant-shape identity, as the public-string policy digest hashes it. */
+export const PRIVATE_SUFFIX_TENANT_SHAPES = Object.freeze({
+  label: "private-suffix-tenant-shapes-v1",
+  patterns: Object.freeze([
+    TENANT_SEGMENT_SEPARATOR,
+    DASHED_IPV4_TENANT_LABEL,
+    LONG_NUMERIC_TENANT_SEGMENT,
+    HEX_TOKEN_TENANT_SEGMENT,
+    MIXED_TOKEN_TENANT_SEGMENT
+  ].map((pattern) => pattern.source)),
+  minDigitRuns: MIXED_TOKEN_MIN_DIGIT_RUNS
+});
+
+function isGeneralizedTenantLabel(label: string): boolean {
+  if (label === GENERALIZED_LABEL) return false;
+  if (DASHED_IPV4_TENANT_LABEL.test(label)) return true;
+  if (label.startsWith("xn--")) return false;
+  return label.split(TENANT_SEGMENT_SEPARATOR).some((segment) =>
+    LONG_NUMERIC_TENANT_SEGMENT.test(segment) ||
+    HEX_TOKEN_TENANT_SEGMENT.test(segment) ||
+    (MIXED_TOKEN_TENANT_SEGMENT.test(segment) &&
+      (segment.match(/[0-9]+/g)?.length ?? 0) >= MIXED_TOKEN_MIN_DIGIT_RUNS)
+  );
+}
+
+/** Generalize the tenant label of a registrable domain under a private suffix. */
+function generalizePrivateSuffixTenant(registrable: string, counters: RedactionCounters): string {
+  const firstDot = registrable.indexOf(".");
+  if (firstDot <= 0 || !isGeneralizedTenantLabel(registrable.slice(0, firstDot))) return registrable;
+  counters.subdomainLabelsGeneralized += 1;
+  return `${GENERALIZED_LABEL}${registrable.slice(firstDot)}`;
+}
+
+/**
+ * True when the host's registrable domain sits under a private suffix and its
+ * tenant label is one redaction generalizes. Such a host cannot be a scan
+ * subject: the r2 subject key is the raw registrable domain, and the public
+ * boundary refuses a subject key that redaction would change.
+ */
+export function isGeneralizedPrivateSuffixTenantHost(hostname: string): boolean {
+  const registrable = publicRegistrableParts(hostname);
+  if (registrable === null || !registrable.isPrivate) return false;
+  return isGeneralizedTenantLabel(registrable.domain.slice(0, registrable.domain.indexOf(".")));
 }
 
 /**

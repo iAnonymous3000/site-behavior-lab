@@ -7,9 +7,11 @@ import {
   policyQuoteIdentifiersInR2Report,
   summarizeInventories
 } from "./remediation-inventory";
+import { RedactionPass, redactPrivacyPolicy } from "./redact-scan-report-v1";
 import {
   makePublicSingleReportV2R2,
-  makeShieldsInterventionReportV2R2
+  makeShieldsInterventionReportV2R2,
+  makeSupportingPairInterventionReportV2R2
 } from "./scan-report-v2-r2-fixtures";
 import { makePublicSingleReportV2, makeScanReportV1 } from "./scan-report-v2-fixtures";
 import type { ScanReport, ScanResult } from "./types";
@@ -269,4 +271,54 @@ test("routing a stored report to its inventory sweeps r2 quotes, v1 entries, and
     report: makePublicSingleReportV2()
   });
   assert.deepEqual(routedOld, { schema: "unsupported", schemaVersion: 2, schemaRevision: 1 });
+});
+
+test("the quote signal is the sanitizer's own scrub decision, not a second looser matcher", () => {
+  const scrubbedBySanitizer = (quote: string) =>
+    redactPrivacyPolicy(
+      {
+        url: "https://example.com/privacy",
+        claims: [{ kind: "honors-gpc", quote }],
+        mentionedEntities: [],
+        unmentionedEntities: [],
+        policyTextLength: 1_000
+      },
+      new RedactionPass()
+    ).claims[0].quote !== quote;
+  const quotes = [
+    // Scrubbed spans the old email/phone matcher could not see.
+    "Opt out at https://example.com/optout.",
+    "Follow @example for updates.",
+    "Write to privacy [at] example [dot] com.",
+    "Opt out at www.example.com/gpc.",
+    // Scrubbed spans it did see.
+    "Reach the DPO at dpo@example.org.",
+    "Call us on +1 (415) 555-0132.",
+    // Figures the old matcher counted and the sanitizer keeps.
+    "This policy is effective 2024-01-01.",
+    "This policy was last updated 2024.01.01.",
+    "We retain logs for 30 days."
+  ];
+  for (const quote of quotes) {
+    assert.equal(policyQuoteIdentifierCount([{ quote }]), scrubbedBySanitizer(quote) ? 1 : 0, quote);
+  }
+  assert.equal(policyQuoteIdentifierCount([{ quote: "This policy is effective 2024-01-01." }]), 0);
+  assert.equal(policyQuoteIdentifierCount(quotes.map((quote) => ({ quote }))), 6);
+});
+
+test("an r2 intervention's supporting pair is swept like its primary pair", () => {
+  const report = makeSupportingPairInterventionReportV2R2();
+  assert.equal(policyQuoteIdentifiersInR2Report(report), 0, "the fixture must start clean");
+  const pair = report.reportType === "comparison" && report.experiment.kind === "intervention"
+    ? report.experiment.supportingPairs?.[0]
+    : undefined;
+  assert.ok(pair, "the fixture must carry a supporting pair");
+  pair.variant.evidence.privacyPolicy = {
+    url: "https://example.com/privacy",
+    claims: [{ kind: "honors-gpc", quote: "Write to dpo@example.com to exercise your rights." }],
+    mentionedEntities: [],
+    unmentionedEntities: [],
+    policyTextLength: 60
+  };
+  assert.equal(policyQuoteIdentifiersInR2Report(report), 1);
 });

@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
+  PRIVATE_SUFFIX_TENANT_SUBJECT_MESSAGE,
   ScanGate,
   ScanTargetVerificationTimeoutError
 } from "./scan-gate";
@@ -108,4 +109,51 @@ test("a public-suffix target is refused before quota, DNS, or Chromium", async (
     })
   );
   assert.equal(verifierCalled, true);
+});
+
+test("a token-shaped private-suffix tenant is refused before quota, DNS, or Chromium", async () => {
+  let quotaPeeked = false;
+  let verifierCalled = false;
+  const gate = new ScanGate({
+    assertAccess: () => undefined,
+    assertBodySize: () => undefined,
+    clientKeyFromRequest: () => "client",
+    peekRateLimit: () => {
+      quotaPeeked = true;
+    },
+    verifyPublicUrl: async () => {
+      verifierCalled = true;
+    },
+    targetVerificationTimeoutMs: 1_000
+  });
+  const prepare = (url: string) =>
+    gate.prepare(
+      new Request("https://scanner.example/api/scan", { method: "POST", body: JSON.stringify({ url }) })
+    );
+
+  // Redaction generalizes these tenants, but the r2 subject key keeps the raw
+  // registrable domain, so the public boundary would refuse the finished
+  // report after the requester paid for the visit.
+  for (const url of [
+    "https://192-0-2-41_s-198-51-100-43_ts-1767225600-clienttons-s.akamaihd.net/",
+    "https://5f8e9a0b1c2d3e4f5a6b7c8d--site.netlify.app/"
+  ]) {
+    await assert.rejects(
+      prepare(url),
+      (error: unknown) =>
+        error instanceof PublicScanError &&
+        error.status === 400 &&
+        error.message === PRIVATE_SUFFIX_TENANT_SUBJECT_MESSAGE,
+      url
+    );
+    assert.equal(quotaPeeked, false, `${url} must not reach the quota peek`);
+    assert.equal(verifierCalled, false, `${url} must not reach target verification`);
+  }
+
+  // Stable tenants under the same kind of suffix stay scannable.
+  for (const url of ["https://trial-eum-clienttons-s.akamaihd.net/", "https://face2face.github.io/"]) {
+    verifierCalled = false;
+    await prepare(url);
+    assert.equal(verifierCalled, true, url);
+  }
 });

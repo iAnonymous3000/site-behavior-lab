@@ -28,7 +28,10 @@ test("transition audit accounts title, explicit-port, and IP-literal field chang
     version: REDACTION_TRANSITION_AUDIT_VERSION,
     pageTitlesWithheld: 1,
     explicitPortFieldsRemoved: 3,
-    ipLiteralFieldsRejected: 2
+    ipLiteralFieldsRejected: 2,
+    privateSuffixTenantLabelsGeneralized: 0,
+    policyQuoteIdentifierSpansScrubbed: 0,
+    policyClaimsMadeUncheckable: 0
   });
 });
 
@@ -38,7 +41,10 @@ test("fixed points and canonical default ports do not inflate transition account
     version: REDACTION_TRANSITION_AUDIT_VERSION,
     pageTitlesWithheld: 0,
     explicitPortFieldsRemoved: 0,
-    ipLiteralFieldsRejected: 0
+    ipLiteralFieldsRejected: 0,
+    privateSuffixTenantLabelsGeneralized: 0,
+    policyQuoteIdentifierSpansScrubbed: 0,
+    policyClaimsMadeUncheckable: 0
   });
   assert.equal(
     redactionTransitionAudit({ url: "https://example.com:443/path" }, { url: "https://example.com/path" })
@@ -74,7 +80,10 @@ test("transition audit covers provenance domains, hostname arrays, and leading-d
     version: REDACTION_TRANSITION_AUDIT_VERSION,
     pageTitlesWithheld: 0,
     explicitPortFieldsRemoved: 1,
-    ipLiteralFieldsRejected: 5
+    ipLiteralFieldsRejected: 5,
+    privateSuffixTenantLabelsGeneralized: 0,
+    policyQuoteIdentifierSpansScrubbed: 0,
+    policyClaimsMadeUncheckable: 0
   });
 });
 
@@ -126,6 +135,72 @@ test("rebuilt domain rows are accounted individually, not by array position", ()
     explicitPortFieldsRemoved: 3,
     // requests[].url on 4 IP-literal rows, requests[].domain on the same 4,
     // and all 3 rebuilt domains[].domain rows.
-    ipLiteralFieldsRejected: 11
+    ipLiteralFieldsRejected: 11,
+    privateSuffixTenantLabelsGeneralized: 0,
+    policyQuoteIdentifierSpansScrubbed: 0,
+    policyClaimsMadeUncheckable: 0
+  });
+});
+
+test("transition audit names generalized private-suffix tenants and scrubbed policy quotes", () => {
+  const address = "192-0-2-41_s-198-51-100-43_ts-1767225600-clienttons-s.akamaihd.net";
+  const token = "qwert2yuiop3asdfg4hj-zxc5v6-79b48c136-clientnsv4-s.akamaihd.net";
+  const stable = "trial-eum-clienttons-s.akamaihd.net";
+  const checkable =
+    "We do not sell or share your personal information, email privacy@acme.com; we reply within 30 days.";
+  const before = {
+    request: {
+      url: `https://${address}/beacon`,
+      domain: address,
+      tracker: { domain: address, entity: address, confidence: "shields-list" }
+    },
+    stableRequest: { domain: stable, tracker: { domain: stable, entity: stable } },
+    privacyPolicy: {
+      unmentionedEntities: [token],
+      claims: [
+        { kind: "no-selling-or-sharing", quote: checkable },
+        { kind: "honors-gpc", quote: "We honor GPC; call 415.555.0100." },
+        { kind: "no-cookies", quote: "We do not use cookies." }
+      ]
+    }
+  };
+  const after = {
+    request: {
+      url: "https://{label}.akamaihd.net/{seg}",
+      domain: "{label}.akamaihd.net",
+      tracker: { domain: "{label}.akamaihd.net", entity: "{label}.akamaihd.net", confidence: "shields-list" }
+    },
+    stableRequest: { domain: stable, tracker: { domain: stable, entity: stable } },
+    privacyPolicy: {
+      unmentionedEntities: ["{label}.akamaihd.net"],
+      claims: [
+        {
+          kind: "no-selling-or-sharing",
+          quote: "We do not sell or share your personal information, email [redacted]; we reply within 30 days..."
+        },
+        { kind: "honors-gpc", quote: "We honor GPC; call [redacted]..." },
+        { kind: "no-cookies", quote: "We do not use cookies." }
+      ]
+    }
+  };
+  assert.deepEqual(redactionTransitionAudit(before, after), {
+    version: REDACTION_TRANSITION_AUDIT_VERSION,
+    pageTitlesWithheld: 0,
+    explicitPortFieldsRemoved: 0,
+    ipLiteralFieldsRejected: 0,
+    // url, domain, tracker domain, tracker entity, and the policy entity.
+    privateSuffixTenantLabelsGeneralized: 5,
+    policyQuoteIdentifierSpansScrubbed: 2,
+    // Only the sell-or-share claim was checkable; GPC claims never are.
+    policyClaimsMadeUncheckable: 1
+  });
+  assert.deepEqual(redactionTransitionAudit(after, after), {
+    version: REDACTION_TRANSITION_AUDIT_VERSION,
+    pageTitlesWithheld: 0,
+    explicitPortFieldsRemoved: 0,
+    ipLiteralFieldsRejected: 0,
+    privateSuffixTenantLabelsGeneralized: 0,
+    policyQuoteIdentifierSpansScrubbed: 0,
+    policyClaimsMadeUncheckable: 0
   });
 });

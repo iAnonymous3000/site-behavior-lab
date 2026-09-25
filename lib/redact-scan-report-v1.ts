@@ -31,6 +31,7 @@ import {
   addRedactionCounters,
   emptyRedactionCounters,
   INVALID_HOST_MARKER,
+  PRIVATE_SUFFIX_TENANT_SHAPES,
   redactCookieName,
   redactHostnameV2,
   redactPageTitle,
@@ -410,6 +411,55 @@ const COMPARISON_WARNING_LABELS = new Set([
   "Variant"
 ]);
 
+/*
+ * Identifier spans scrubbed from a quoted privacy-policy sentence.
+ *
+ * A quote is page-derived text kept because the sentence IS the evidence, so
+ * it is the one public field that can carry whatever the site printed next to
+ * a claim: a contact address, a phone number, an opt-out link. Each span below
+ * becomes the `[redacted]` marker (trailing punctuation stays outside it), and
+ * the quote is then marked incomplete, because a scrubbed sentence is no
+ * longer the sentence the claim was checked against (see redactPolicyQuote).
+ *
+ * The spans apply in this order. The first two take the whole
+ * whitespace-delimited token. Bare hostnames are deliberately NOT scrubbed:
+ * `.sale` and many other real TLDs make ordinary words host-shaped, and a
+ * committed quote contains exactly such a word. A hyphen-joined statute range
+ * (`1798.100-1798.199`) is a known false positive of the nine-digit rule; the
+ * claim survives and only the citation is lost. Dashed IPv6 is not covered.
+ *
+ * Declared above PUBLIC_STRING_POLICY_DIGEST on purpose: a table declared
+ * below it reads as `undefined` in an esbuild bundle (top-level const lowered
+ * to var), and the digest would silently leave the spans out.
+ */
+const POLICY_QUOTE_IDENTIFIER_SPANS: readonly RegExp[] = Object.freeze([
+  // Any token carrying a scheme separator.
+  /\S*:\/\/\S*/g,
+  // Any token carrying "@": email addresses and handles.
+  /\S*@\S*/g,
+  // An obfuscated email: "name [at] example [dot] com".
+  /\S+\s*[[(]at[\])]\s*\S+(?:\s*[[(]dot[\])]\s*\S+)+/gi,
+  // A scheme-less www. host.
+  /\bwww\.\S*/gi,
+  // A host followed by a path.
+  /\b(?:[a-z0-9-]+\.)+[a-z]{2,}\/\S*/gi,
+  // An international phone number: 7 or more digits after "+".
+  /\+\(?\d(?:[\s().-]{0,2}\d){6,}/g,
+  // Any other phone-shaped run of 9 or more digits.
+  /\(?\d(?:[\s().-]{0,2}\d){8,}/g
+]);
+// Not "]": an obfuscated address ends in its own "[dot]" bracket, and the
+// marker already closes with one.
+const POLICY_QUOTE_SPAN_TRAILING_PUNCTUATION = /[),.;:!?"'\u201d\u2019]*$/;
+const INCOMPLETE_QUOTE_MARKER = "...";
+
+/** The span identity, as the public-string policy digest hashes it. */
+const POLICY_QUOTE_IDENTIFIER_SPAN_POLICY = Object.freeze({
+  label: "policy-quote-identifier-spans-v1",
+  marker: REDACTED_PUBLIC_STRING,
+  patterns: Object.freeze(POLICY_QUOTE_IDENTIFIER_SPANS.map((pattern) => `${pattern.source}/${pattern.flags}`))
+});
+
 export const PUBLIC_STRING_POLICY_VERSION = "public-string-policy-v3";
 /**
  * Identity of every non-allowlist public string vocabulary in this sanitizer.
@@ -426,57 +476,67 @@ export const PUBLIC_STRING_POLICY_VERSION = "public-string-policy-v3";
  * used to claim the whole object was machine-derived, which is exactly the
  * assumption that makes the manual step easy to skip.
  */
-export const PUBLIC_STRING_POLICY_DIGEST = sha256Hex(
-  canonicalJson({
-    version: PUBLIC_STRING_POLICY_VERSION,
-    httpMethods: [...SAFE_HTTP_METHODS].sort(),
-    resourceTypes: [...SAFE_RESOURCE_TYPES].sort(),
-    cookieSameSite: [...SAFE_COOKIE_SAME_SITE].sort(),
-    scannerEgress: [...SAFE_SCANNER_EGRESS].sort(),
-    adblockSource: SAFE_ADBLOCK_SOURCE,
-    historicalTrackerCatalogs: HISTORICAL_TRACKER_CATALOGS,
-    curatedPublicSuffixes: [...CURATED_PUBLIC_SUFFIXES].sort(),
-    chromiumVersionPattern: CHROMIUM_VERSION.source,
-    chromiumUserAgentPattern: CHROMIUM_USER_AGENT.source,
-    fixedWarnings: [...FIXED_SCANNER_WARNINGS].sort(),
-    warningLabels: [...COMPARISON_WARNING_LABELS].sort(),
-    dynamicWarningPatterns: "scanner-warning-patterns-v9",
-    cmpSelectors: CONSENT_CMP_SELECTORS,
-    consentShadowHosts: CONSENT_SHADOW_HOSTS,
-    consentTextPatterns: Object.fromEntries(
-      Object.entries(CONSENT_TEXT_PATTERNS).map(([key, value]) => [key, value.source])
-    ),
-    legacyConsentMatchedText: LEGACY_PUBLIC_CONSENT_MATCHED_TEXT,
-    pixelMatchFields: [...KNOWN_PIXEL_MATCH_FIELDS].sort(),
-    pixelProducts: Object.fromEntries(
-      Object.entries(PIXEL_PRODUCTS).map(([key, value]) => [key, { product: value.product, events: [...value.events].sort() }])
-    ),
-    opaqueIdPolicy: {
-      prefix: OPAQUE_ID_ALIAS_PREFIX,
-      width: OPAQUE_ID_ALIAS_WIDTH,
-      initiatorTypes: [...PAGEGRAPH_INITIATOR_TYPES].sort()
-    },
-    fingerprintVocabulary: {
-      eventApis: FINGERPRINT_EVENT_APIS,
-      canvasReadApis: CANVAS_READ_APIS,
-      webglReadApis: WEBGL_READ_APIS,
-      webglParameters: WEBGL_PARAMETERS,
-      audioApis: AUDIO_FINGERPRINT_APIS,
-      sessionEvents: SESSION_RECORDING_EVENTS,
-      inputEvents: INPUT_MONITORING_EVENTS,
-      listenerTargets: LISTENER_TARGETS,
-      keystrokeEncodings: KEYSTROKE_ENCODINGS,
-      keystrokeFieldTypes: KEYSTROKE_FIELD_TYPES
-    },
-    limits: {
-      pageTitle: "withheld-empty-marker",
-      policyQuote: MAX_POLICY_QUOTE_CHARS,
-      warning: MAX_WARNING_CHARS,
-      comparisonTitle: MAX_COMPARISON_TITLE_CHARS,
-      runLabel: MAX_RUN_LABEL_CHARS
-    }
-  })
-);
+const PUBLIC_STRING_POLICY_INPUTS = Object.freeze({
+  version: PUBLIC_STRING_POLICY_VERSION,
+  httpMethods: [...SAFE_HTTP_METHODS].sort(),
+  resourceTypes: [...SAFE_RESOURCE_TYPES].sort(),
+  cookieSameSite: [...SAFE_COOKIE_SAME_SITE].sort(),
+  scannerEgress: [...SAFE_SCANNER_EGRESS].sort(),
+  adblockSource: SAFE_ADBLOCK_SOURCE,
+  historicalTrackerCatalogs: HISTORICAL_TRACKER_CATALOGS,
+  curatedPublicSuffixes: [...CURATED_PUBLIC_SUFFIXES].sort(),
+  chromiumVersionPattern: CHROMIUM_VERSION.source,
+  chromiumUserAgentPattern: CHROMIUM_USER_AGENT.source,
+  fixedWarnings: [...FIXED_SCANNER_WARNINGS].sort(),
+  warningLabels: [...COMPARISON_WARNING_LABELS].sort(),
+  dynamicWarningPatterns: "scanner-warning-patterns-v9",
+  cmpSelectors: CONSENT_CMP_SELECTORS,
+  consentShadowHosts: CONSENT_SHADOW_HOSTS,
+  consentTextPatterns: Object.fromEntries(
+    Object.entries(CONSENT_TEXT_PATTERNS).map(([key, value]) => [key, value.source])
+  ),
+  legacyConsentMatchedText: LEGACY_PUBLIC_CONSENT_MATCHED_TEXT,
+  pixelMatchFields: [...KNOWN_PIXEL_MATCH_FIELDS].sort(),
+  pixelProducts: Object.fromEntries(
+    Object.entries(PIXEL_PRODUCTS).map(([key, value]) => [key, { product: value.product, events: [...value.events].sort() }])
+  ),
+  opaqueIdPolicy: {
+    prefix: OPAQUE_ID_ALIAS_PREFIX,
+    width: OPAQUE_ID_ALIAS_WIDTH,
+    initiatorTypes: [...PAGEGRAPH_INITIATOR_TYPES].sort()
+  },
+  fingerprintVocabulary: {
+    eventApis: FINGERPRINT_EVENT_APIS,
+    canvasReadApis: CANVAS_READ_APIS,
+    webglReadApis: WEBGL_READ_APIS,
+    webglParameters: WEBGL_PARAMETERS,
+    audioApis: AUDIO_FINGERPRINT_APIS,
+    sessionEvents: SESSION_RECORDING_EVENTS,
+    inputEvents: INPUT_MONITORING_EVENTS,
+    listenerTargets: LISTENER_TARGETS,
+    keystrokeEncodings: KEYSTROKE_ENCODINGS,
+    keystrokeFieldTypes: KEYSTROKE_FIELD_TYPES
+  },
+  privateSuffixTenantShapes: PRIVATE_SUFFIX_TENANT_SHAPES,
+  policyQuoteIdentifierSpans: POLICY_QUOTE_IDENTIFIER_SPAN_POLICY,
+  limits: {
+    pageTitle: "withheld-empty-marker",
+    policyQuote: MAX_POLICY_QUOTE_CHARS,
+    warning: MAX_WARNING_CHARS,
+    comparisonTitle: MAX_COMPARISON_TITLE_CHARS,
+    runLabel: MAX_RUN_LABEL_CHARS
+  }
+});
+export const PUBLIC_STRING_POLICY_DIGEST = sha256Hex(canonicalJson(PUBLIC_STRING_POLICY_INPUTS));
+
+/**
+ * The digest's inputs, for the guard test that proves both rule tables reached
+ * the digest. Returned as a copy, like admittedPixelEventVocabulary, so a
+ * caller cannot mutate vocabulary the sanitizer itself reads.
+ */
+export function publicStringPolicyInputs(): typeof PUBLIC_STRING_POLICY_INPUTS {
+  return JSON.parse(canonicalJson(PUBLIC_STRING_POLICY_INPUTS)) as typeof PUBLIC_STRING_POLICY_INPUTS;
+}
 
 export function redactScanReportV1<T extends ScanReport>(report: T): RedactedV1<T> {
   if (report.reportType !== "comparison") {
@@ -969,11 +1029,16 @@ export function redactTrackerMatch(
   } else {
     return null;
   }
+  const domain = tracker.confidence === "curated" && CURATED_PUBLIC_SUFFIXES.has(tracker.domain)
+    ? tracker.domain
+    : pass.hostname(tracker.domain);
   return {
-    domain: tracker.confidence === "curated" && CURATED_PUBLIC_SUFFIXES.has(tracker.domain)
-      ? tracker.domain
-      : pass.hostname(tracker.domain),
-    entity: tracker.entity,
+    domain,
+    // A Shields-list entity IS the registrable domain (checked above), so it
+    // publishes the same redacted form. Copying it verbatim published a raw
+    // private-suffix tenant that the domain field had generalized, and the
+    // next pass then dropped the whole match as no longer in producer shape.
+    entity: tracker.confidence === "shields-list" ? domain : tracker.entity,
     category: tracker.category,
     confidence: tracker.confidence,
     ...(tracker.prevalence !== undefined ? { prevalence: tracker.prevalence } : {}),
@@ -1115,7 +1180,7 @@ export function redactPrivacyPolicy(
   const claims = policy.claims.flatMap((claim) => {
     if (!KNOWN_POLICY_CLAIM_KINDS.has(claim.kind) || claimKinds.has(claim.kind)) return [];
     claimKinds.add(claim.kind);
-    return [{ kind: claim.kind, quote: boundedPublicText(claim.quote, MAX_POLICY_QUOTE_CHARS) }];
+    return [{ kind: claim.kind, quote: redactPolicyQuote(claim.quote) }];
   });
   const mentionedEntities = uniqueGroundedEntities(policy.mentionedEntities, groundedEntities);
   const mentionedSet = new Set(mentionedEntities);
@@ -1133,7 +1198,114 @@ export function redactPrivacyPolicy(
 }
 
 function uniqueGroundedEntities(values: string[], grounded: ReadonlySet<string>): string[] {
-  return Array.from(new Set(values.filter((entity) => grounded.has(entity))));
+  return Array.from(new Set(values.flatMap((entity) => {
+    const publicEntity = publicPolicyEntity(entity, grounded);
+    return publicEntity === null ? [] : [publicEntity];
+  })));
+}
+
+// The raw registrable-domain shape a Shields-list tracker entity has before
+// redaction. Deliberately lowercase-only, so a curated entity NAME that
+// happens to contain a dot ("Amazon.com") can never be lowercased into a
+// different tracker's domain entity.
+const RAW_HOSTNAME_ENTITY = /^[a-z0-9_-]+(?:\.[a-z0-9_-]+)+$/;
+
+/**
+ * The public form of one privacy-policy entity, grounded in the retained
+ * (already redacted) tracker entities, or null when it is not grounded.
+ *
+ * A Shields-list tracker's entity is its registrable domain, and redaction
+ * can generalize that domain (a token-shaped private-suffix tenant becomes
+ * `{label}`). Grounding the raw entity against the redacted tracker entities
+ * would silently drop it, so an ungrounded hostname-shaped entity is compared
+ * in its redacted form. The r2 producer grounds through this same function
+ * before it counts a policy entity as lost.
+ */
+export function publicPolicyEntity(entity: string, grounded: ReadonlySet<string>): string | null {
+  if (grounded.has(entity)) return entity;
+  if (!RAW_HOSTNAME_ENTITY.test(entity)) return null;
+  const redacted = redactHostnameV2(entity).value;
+  return grounded.has(redacted) ? redacted : null;
+}
+
+/**
+ * Normalize, scrub identifier spans, and bound one policy quote.
+ *
+ * Scrubbing runs before the cap. Every span pattern is open-ended at its end,
+ * so a truncated text can never hold a span the whole text did not, while
+ * capping first could cut a phone number or address below its own threshold
+ * and publish the partial identifier.
+ *
+ * A scrubbed quote always ends in the producer's incomplete-quote marker. The
+ * report re-derives checkability from the stored quote at render time, and a
+ * scrub can move that answer either way (a removed "." or ":" changes where
+ * the governed clause ends), so the only safe direction is the one a capped
+ * quote already takes: a scrubbed claim is kept as evidence but never checked.
+ * The loop matters: appending the marker can complete a span ("www" + "..."),
+ * so the marked text is scrubbed again until it is its own fixed point.
+ */
+function redactPolicyQuote(quote: string): string {
+  const normalized = normalizePublicText(quote);
+  let scrubbed = scrubPolicyQuoteIdentifiers(normalized);
+  if (scrubbed === normalized) return capCharacters(normalized, MAX_POLICY_QUOTE_CHARS);
+  for (;;) {
+    const marked = markIncompleteQuote(scrubbed);
+    scrubbed = scrubPolicyQuoteIdentifiers(marked);
+    if (scrubbed === marked) return marked;
+  }
+}
+
+/**
+ * Replace every identifier span in normalized quote text with the marker.
+ *
+ * Repeated to a fixed point: one global replace does not rescan its own
+ * output, so a second obfuscated address after the first ("a [at] b [dot] c
+ * [at] d [dot] e") would otherwise survive until the next publication pass.
+ * Each pass removes at least one "@", "/", digit, "www." or "[at]" and the
+ * marker adds none, so the loop ends.
+ */
+export function scrubPolicyQuoteIdentifiers(text: string): string {
+  let current = text;
+  for (;;) {
+    const next = POLICY_QUOTE_IDENTIFIER_SPANS.reduce(
+      (value, span) => value.replace(span, (match) => {
+        const trailing = POLICY_QUOTE_SPAN_TRAILING_PUNCTUATION.exec(match)?.[0] ?? "";
+        return `${REDACTED_PUBLIC_STRING}${trailing}`;
+      }),
+      current
+    );
+    if (next === current) return current;
+    current = next;
+  }
+}
+
+/** Whether publishing this quote scrubs an identifier span from it. */
+export function policyQuoteHasIdentifier(quote: string): boolean {
+  const normalized = normalizePublicText(quote);
+  return scrubPolicyQuoteIdentifiers(normalized) !== normalized;
+}
+
+/**
+ * The producer's incomplete-quote form (lib/privacy-policy.ts truncateQuote):
+ * the final run of sentence punctuation becomes "...", and a quote that would
+ * exceed the cap is cut first. Trailing whitespace and punctuation are
+ * stripped both before and after the cut, so the result is its own fixed
+ * point ("foo." cut and marked is "foo...", never "foo....").
+ */
+function markIncompleteQuote(quote: string): string {
+  const room = MAX_POLICY_QUOTE_CHARS - INCOMPLETE_QUOTE_MARKER.length;
+  const stem = withoutTrailingSentenceEnd(quote);
+  const characters = Array.from(stem);
+  const bounded = characters.length <= room
+    ? stem
+    : withoutTrailingSentenceEnd(characters.slice(0, room).join(""));
+  return `${bounded}${INCOMPLETE_QUOTE_MARKER}`;
+}
+
+function withoutTrailingSentenceEnd(value: string): string {
+  let end = value.length;
+  while (end > 0 && /[\s.!?]/.test(value[end - 1])) end -= 1;
+  return value.slice(0, end);
 }
 
 function validPolicyTextLength(value: number): boolean {

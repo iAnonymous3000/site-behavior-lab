@@ -175,8 +175,12 @@ second layer there. See `SECURITY.md`.
 Published data: cookie and storage values, credentials, URL fragments, query
 values, and screenshots never enter a saved report. Query keys survive only
 from a reviewed allow-list; unknown keys, path segments, subdomain labels,
-cookie names, and storage keys are generalized. Policy sentences are quoted
-verbatim up to a length cap, which is a deliberate, documented exception.
+cookie names, and storage keys are generalized, and so is a hosting tenant name
+under a shared provider suffix (such as `akamaihd.net`) when it is shaped like
+a network address, timestamp, or token. Policy sentences are quoted up to a
+length cap, which is a deliberate, documented exception; an email address,
+phone number, web address, or handle inside a quote is replaced with
+`[redacted]`, and that quote is marked incomplete and never checked.
 
 ## Run it locally
 

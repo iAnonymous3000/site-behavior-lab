@@ -1,11 +1,13 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { domainToASCII } from "node:url";
 import tldtsPackage from "tldts/package.json";
 import {
   INVALID_URL_MARKER,
   INVALID_HOST_MARKER,
   PUBLIC_SUFFIX_ENGINE_VERSION,
   emptyRedactionCounters,
+  isGeneralizedPrivateSuffixTenantHost,
   queryKeyAllowed,
   publicRegistrableDomain,
   redactCookieName,
@@ -261,4 +263,95 @@ test("a leading-dot invalid-host marker is terminal and moves no counter", () =>
   // Only the exact published forms are terminal; a raw spelling around the
   // marker is still malformed input.
   assert.equal(redactHostnameV2(` .${INVALID_HOST_MARKER}`).counters.malformedUrlsDropped, 1);
+});
+
+// Four hosts laid out like the private-suffix tenants two committed v1 reports
+// published: two Akamai EUM beacon hosts carrying the scanner egress address,
+// the Akamai edge address and a visit timestamp, and two carrying per-visit
+// client tokens. The addresses are documentation ranges and the timestamps and
+// tokens are invented, with the observed segment lengths and digit runs, so no
+// fixture repeats a value the privacy replacement removed.
+const TOKEN_TENANT_HOSTS = [
+  "192-0-2-41_s-198-51-100-43_ts-1767225600-clienttons-s.akamaihd.net",
+  "qwert2yuiop3asdfg4hj-zxc5v6-79b48c136-clientnsv4-s.akamaihd.net",
+  "203-0-113-121_s-198-51-100-24_ts-1767312000-clienttons-s.akamaihd.net",
+  "mnbvc7xzlkj5hgfd2sap-lkj9h3-5d83bcfa2-clientnsv4-s.akamaihd.net"
+];
+
+function onlyLabelsGeneralized(count: number) {
+  return { ...emptyRedactionCounters(), subdomainLabelsGeneralized: count };
+}
+
+test("an address- or token-shaped tenant label under a private suffix generalizes and is counted", () => {
+  for (const host of TOKEN_TENANT_HOSTS) {
+    const hostname = redactHostnameV2(host);
+    assert.equal(hostname.value, "{label}.akamaihd.net", host);
+    assert.deepEqual(hostname.counters, onlyLabelsGeneralized(1), host);
+    const url = redactUrlV2(`https://${host}/`);
+    assert.equal(url.value, "https://{label}.akamaihd.net/", host);
+    assert.deepEqual(url.counters, onlyLabelsGeneralized(1), host);
+    assert.equal(isGeneralizedPrivateSuffixTenantHost(host), true, host);
+  }
+
+  // Each shape on its own. The address hosts above also carry a timestamp,
+  // so each row below is caught by exactly one shape.
+  for (const [shape, host] of [
+    ["dashed IPv4", "198-51-100-7-clienttons-s.akamaihd.net"],
+    ["long numeric run", "1767225600-clienttons-s.akamaihd.net"],
+    ["hex token", "deadbeefcafe1234.herokuapp.com"],
+    ["mixed token with three digit runs", "a1b2c3d4e5f6g7h8.github.io"]
+  ]) {
+    const hostname = redactHostnameV2(host);
+    assert.equal(hostname.value.startsWith("{label}."), true, `${shape}: ${host}`);
+    assert.deepEqual(hostname.counters, onlyLabelsGeneralized(1), `${shape}: ${host}`);
+  }
+
+  // Deeper labels follow the ordinary subdomain rule on top of the tenant.
+  const deep = redactHostnameV2(`a.b.${TOKEN_TENANT_HOSTS[0]}`);
+  assert.equal(deep.value, "{label}.{label}.{label}.akamaihd.net");
+  assert.deepEqual(deep.counters, onlyLabelsGeneralized(3));
+
+  // An IDNA A-label is exempt from the token shapes, not from the address one.
+  const addressIdn = domainToASCII("198-51-100-7-\u4f8b\u3048.github.io");
+  assert.equal(addressIdn.startsWith("xn--198-51-100-7-"), true, addressIdn);
+  assert.equal(redactHostnameV2(addressIdn).value, "{label}.github.io");
+});
+
+test("the tenant marker is terminal and stable service tenants stay verbatim", () => {
+  assert.deepEqual(redactHostnameV2("{label}.akamaihd.net"), {
+    value: "{label}.akamaihd.net",
+    counters: emptyRedactionCounters()
+  });
+  assert.deepEqual(redactUrlV2("https://{label}.akamaihd.net/").counters, emptyRedactionCounters());
+
+  // "официальныйсайт" encodes to an A-label whose base36 tail would read as a
+  // mixed token; the exemption keeps it.
+  const idn = domainToASCII("\u043e\u0444\u0438\u0446\u0438\u0430\u043b\u044c\u043d\u044b\u0439\u0441\u0430\u0439\u0442.github.io");
+  assert.equal(idn, "xn--80aawagblqe0bno1a8en.github.io");
+  for (const host of [
+    "trial-eum-clienttons-s.akamaihd.net",
+    "trial-eum-clientnsv4-s.akamaihd.net",
+    "creditkarmacdn-a.akamaihd.net",
+    "d3e54v103j8qbb.cloudfront.net",
+    // Two digit runs: a random token this sparse survives by design.
+    "abcd1234efgh5678ijkl.cloudfront.net",
+    "fonts.googleapis.com",
+    // One digit run.
+    "coolprogrammer2000.github.io",
+    // Hex-like words shorter than the hex threshold.
+    "face2face.github.io",
+    "cafe1234.herokuapp.com",
+    idn,
+    // ICANN registrable domains are out of scope: a registered name is public.
+    "203-0-113-7.com"
+  ]) {
+    assert.deepEqual(redactHostnameV2(host), { value: host, counters: emptyRedactionCounters() }, host);
+    assert.equal(isGeneralizedPrivateSuffixTenantHost(host), false, host);
+  }
+
+  // An address-shaped label left of an ICANN registrable domain was already a
+  // generalized subdomain label, and still is.
+  const icann = redactHostnameV2("203-0-113-7.static.example-isp.net");
+  assert.equal(icann.value, "{label}.static.example-isp.net");
+  assert.deepEqual(icann.counters, onlyLabelsGeneralized(1));
 });

@@ -2,16 +2,20 @@ import assert from "node:assert/strict";
 import { readFile, readdir } from "node:fs/promises";
 import path from "node:path";
 import { test } from "node:test";
+import { parse as parseHostname } from "tldts";
+import { publicReportDigest } from "./canonical-json";
 import { committedReportCreatedAt } from "./committed-report-created-at";
 import { createGpcComparisonReport } from "./compare-reports";
 import {
   buildPageGraphScanReportV2R2,
   type PageGraphCaptureMetadataV1
 } from "./pagegraph-v2-r2-builder";
+import { redactScanReportV1 } from "./redact-scan-report-v1";
 import { REPORT_PRODUCER_CAPABILITIES } from "./report-producers";
 import { isScanReport } from "./report-validation";
 import { isPublicScanReportV2R2 } from "./scan-report-v2-r2-validation";
-import type { StoredScanReport } from "./scan-report-reader";
+import { readStoredScanReport, type StoredScanReport } from "./scan-report-reader";
+import { redactPublicScanReportV2R2 } from "./scan-report-v2-r2-remediation";
 import {
   listDanglingStaticSidecarIds,
   readStaticReportBundle
@@ -47,6 +51,105 @@ test("static fixture reports are current version-aware managed reports", async (
       assert.equal(DISALLOWED_STATIC_CATALOG_VALUES.has(catalog.version), false, `${file} has stale tracker catalog version`);
     }
   }
+});
+
+test("every committed report is a sanitizer fixed point, and so is its sanitized form", async () => {
+  // Both directions, every report, every offender named at once. The managed
+  // read above checks one pass against the sidecar; the second pass catches a
+  // rule that happens to be a fixed point on this corpus but is not
+  // idempotent in general.
+  const reportsDir = path.join(process.cwd(), "public", "reports");
+  const reportFiles = (await readdir(reportsDir)).filter((file) => /^\d{8}-[a-f0-9]{32}\.json$/.test(file));
+  assert.ok(reportFiles.length > 0, "expected static report fixtures");
+  // Schema-2 revision 1 has no public sanitizer transform, and none is committed.
+  const redact = (stored: StoredScanReport): unknown =>
+    stored.schemaVersion === 1
+      ? redactScanReportV1(stored.report).report
+      : stored.schemaRevision === 2
+        ? redactPublicScanReportV2R2(stored.report)
+        : stored.report;
+  const notFixedPoints: string[] = [];
+  const notIdempotent: string[] = [];
+  for (const file of reportFiles) {
+    const id = file.replace(/\.json$/, "");
+    const read = readStoredScanReport(JSON.parse(await readFile(path.join(reportsDir, file), "utf8")));
+    if (!read.ok) {
+      notFixedPoints.push(`${id} (unreadable)`);
+      continue;
+    }
+    try {
+      const once = redact(read.stored);
+      if (publicReportDigest(once) !== publicReportDigest(read.stored.report)) notFixedPoints.push(id);
+      const reread = readStoredScanReport(once);
+      if (!reread.ok || publicReportDigest(redact(reread.stored)) !== publicReportDigest(once)) {
+        notIdempotent.push(id);
+      }
+    } catch (error) {
+      notFixedPoints.push(`${id} (${error instanceof Error ? error.message : "sanitizer threw"})`);
+    }
+  }
+  assert.deepEqual({ notFixedPoints, notIdempotent }, { notFixedPoints: [], notIdempotent: [] });
+});
+
+test("no committed evidence names a private-suffix tenant address or a quoted identifier", async () => {
+  // Independent of the sanitizer on purpose: this reads the published bytes
+  // with its own host split and its own digit count, so it cannot pass by
+  // agreeing with the code it checks.
+  const publicDir = path.join(process.cwd(), "public");
+  const reportsDir = path.join(publicDir, "reports");
+  const files = [
+    ...(await readdir(reportsDir))
+      .filter((file) => /^\d{8}-[a-f0-9]{32}\.json$/.test(file))
+      .map((file) => path.join(reportsDir, file)),
+    path.join(reportsDir, "index.json"),
+    path.join(publicDir, "corpus-stats.json")
+  ];
+  const privateRegistrables = new Set<string>();
+  let quotes = 0;
+  const offenders = new Set<string>();
+
+  const addressTenant = (label: string): boolean => {
+    const segments = label.split(/[-_]/);
+    for (let start = 0; start + 4 <= segments.length; start += 1) {
+      if (segments.slice(start, start + 4).every((segment) => /^[0-9]{1,3}$/.test(segment) && Number(segment) <= 255)) {
+        return true;
+      }
+    }
+    return false;
+  };
+  const quoteIdentifier = (quote: string): boolean => {
+    if (quote.includes("@") || quote.includes("://")) return true;
+    const joinedDigits = quote.replace(/([0-9])[\s().-]{1,2}(?=[0-9])/g, "$1");
+    return /[0-9]{9,}/.test(joinedDigits);
+  };
+  const visit = (value: unknown, source: string, key?: string): void => {
+    if (typeof value === "string") {
+      if (key === "quote") {
+        quotes += 1;
+        if (quoteIdentifier(value)) offenders.add(`${source} (quote)`);
+      }
+      for (const candidate of value.toLowerCase().match(/[a-z0-9_-]+(?:\.[a-z0-9_-]+)+/g) ?? []) {
+        const parsed = parseHostname(candidate, { allowPrivateDomains: true });
+        if (parsed.isPrivate !== true || !parsed.domain) continue;
+        privateRegistrables.add(parsed.domain);
+        if (addressTenant(parsed.domain.split(".")[0])) offenders.add(`${source} (${parsed.publicSuffix} tenant)`);
+      }
+      return;
+    }
+    if (Array.isArray(value)) {
+      for (const element of value) visit(element, source, key);
+      return;
+    }
+    if (value === null || typeof value !== "object") return;
+    for (const [childKey, child] of Object.entries(value)) visit(child, source, childKey);
+  };
+  for (const file of files) {
+    visit(JSON.parse(await readFile(file, "utf8")), path.basename(file, ".json"));
+  }
+
+  assert.ok(privateRegistrables.size > 0, "the walk must reach at least one private-suffix host");
+  assert.ok(quotes > 0, "the walk must reach at least one policy quote");
+  assert.deepEqual([...offenders].sort(), []);
 });
 
 test("report validation rejects reports without a current schema version", () => {

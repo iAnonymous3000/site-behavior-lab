@@ -7,7 +7,9 @@ import {
   tokenShapeMarker,
   type RedactionCounters
 } from "./redaction-v2";
+import { policyQuoteHasIdentifier } from "./redact-scan-report-v1";
 import type { StoredScanReport } from "./scan-report-reader";
+import { r2ReportRuns } from "./scan-report-v2-r2-remediation";
 import type { PublicScanReportV2R2 } from "./scan-report-v2-r2";
 import type { ScanReport, ScanResult } from "./types";
 
@@ -51,16 +53,14 @@ export type ReportRemediationInventory = {
     tokenLikePathSegments: number;
     unallowlistedSubdomainLabels: number;
     /**
-     * Identifier-shaped material inside a quoted privacy-policy sentence.
+     * Quoted privacy-policy sentences that carry an identifier span.
      *
      * Counted separately because the surface is different: every other signal
-     * here comes from a URL or a name that the sanitizer already rewrites,
-     * while a policy quote is admitted page-derived text that passes through
-     * with only whitespace normalization and a length cap. That made the
-     * corpus-clean statement vacuous for the one field structurally able to
-     * carry an address, so the sweep now reaches it. Counting it is not a
-     * redaction decision: scrubbing quotes would narrow the admitted public
-     * string set, which is a remediation-class move, not a ledger entry.
+     * here comes from a URL or a name, while a policy quote is admitted
+     * page-derived text. The sanitizer now scrubs these spans (and marks the
+     * quote incomplete), so this counts exactly the stored quotes a
+     * remediation pass would rewrite, by the sanitizer's own predicate rather
+     * than a second, looser matcher.
      */
     policyQuoteIdentifiers: number;
   };
@@ -68,17 +68,12 @@ export type ReportRemediationInventory = {
   examples: UrlFieldChange[];
 };
 
-// Image-density suffixes (logo@2x.png, icon%403x.webp, Close%20@16.svg) are
-// the dominant "@" pattern in real request logs and are not addresses; the
-// lookahead excludes an all-digit (optionally x/dpi-suffixed) domain start so
-// the risk count reflects address-shaped strings only.
+// URL fields only. Image-density suffixes (logo@2x.png, icon%403x.webp,
+// Close%20@16.svg) are the dominant "@" pattern in real request logs and are
+// not addresses; the lookahead excludes an all-digit (optionally
+// x/dpi-suffixed) domain start so the risk count reflects address-shaped
+// strings only. Policy quotes use the sanitizer's own span predicate instead.
 const EMAIL_LIKE = /[A-Za-z0-9._%+-]+(?:@|%40)(?![0-9]{1,3}(?:x|dpi)?\.)[A-Za-z0-9.-]+\.[A-Za-z]{2,}/;
-// Deliberately loose, and only ever used to COUNT a review signal in prose: a
-// policy sentence quoting a contact number is the shape at issue, and a false
-// positive costs an operator one read while a false negative hides the field
-// the sweep exists to cover. Requires a separator so ordinary figures in a
-// policy ("30 days", "2026") do not register.
-const PHONE_LIKE = /(?:\+\d{1,3}[\s.-]?)?(?:\(\d{2,4}\)[\s.-]?|\d{2,4}[\s.-])\d{2,4}[\s.-]\d{2,4}/;
 const TOKEN_MARKERS = new Set(["[redacted:uuid-like]", "[redacted:hex-like]", "[redacted:long-token]"]);
 
 /**
@@ -94,13 +89,14 @@ export function policyQuoteIdentifierCount(
 ): number {
   let count = 0;
   for (const claim of claims ?? []) {
-    if (EMAIL_LIKE.test(claim.quote) || PHONE_LIKE.test(claim.quote)) count += 1;
+    if (policyQuoteHasIdentifier(claim.quote)) count += 1;
   }
   return count;
 }
 
 /**
- * The same count over a schema-r2 report, across every run it carries.
+ * The same count over a schema-r2 report, across every run it carries,
+ * including an intervention's supporting pairs (the remediation traversal).
  *
  * Lives here rather than inline in the CLI so the r2 traversal is testable
  * against real fixtures. The report that actually leaked an address in the
@@ -109,9 +105,8 @@ export function policyQuoteIdentifierCount(
  * the original blind spot.
  */
 export function policyQuoteIdentifiersInR2Report(report: PublicScanReportV2R2): number {
-  const runs = report.reportType === "comparison" ? [report.baseline, report.variant] : [report.run];
   let count = 0;
-  for (const run of runs) {
+  for (const run of r2ReportRuns(report)) {
     count += policyQuoteIdentifierCount(run.evidence.privacyPolicy?.claims);
   }
   return count;
@@ -190,9 +185,9 @@ function inventoryRun(run: ScanResult, label: string, inventory: ReportRemediati
   url("conditions.finalUrl", run.conditions.finalUrl, false);
   url("consentInteraction.frameUrl", run.consentInteraction?.frameUrl, false);
   url("privacyPolicy.url", run.privacyPolicy?.url, false);
-  // The quote itself, not just its URL. Sanitization here is whitespace
-  // normalization and a length cap, so an address published in the site's own
-  // policy sentence reaches the stored report intact.
+  // The quote itself, not just its URL: a report stored before the sanitizer
+  // scrubbed identifier spans from quotes can still carry an address that the
+  // site printed in its own policy sentence.
   inventory.riskSignals.policyQuoteIdentifiers += policyQuoteIdentifierCount(
     run.privacyPolicy?.claims
   );

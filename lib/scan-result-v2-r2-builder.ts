@@ -33,6 +33,7 @@ import {
 import {
   RedactionPass,
   assertKnownPixelEventVocabulary,
+  publicPolicyEntity,
   redactConsentInteraction,
   redactCookie,
   redactFingerprintDetection,
@@ -1022,8 +1023,19 @@ function sanitizePrivacyPolicy(
     "public-policy-entities",
     qualityFacts
   );
-  const retainedMentioned = mentioned.filter((entity) => retainedTrackerEntities.has(entity));
-  const retainedUnmentioned = unmentioned.filter((entity) => retainedTrackerEntities.has(entity));
+  // Ground each entity in its public form, the one the retained (redacted)
+  // tracker entities carry. A Shields-list entity whose private-suffix tenant
+  // redaction generalized is still grounded; comparing its raw form dropped it
+  // and recorded a capture loss for evidence that was captured. Two raw
+  // entities that share a public form are a generalization, not a loss, so
+  // duplicates stay here and redactPrivacyPolicy deduplicates them.
+  const groundedPublicEntities = (entities: readonly string[]): string[] =>
+    entities.flatMap((entity) => {
+      const publicEntity = publicPolicyEntity(entity, retainedTrackerEntities);
+      return publicEntity === null ? [] : [publicEntity];
+    });
+  const retainedMentioned = groundedPublicEntities(mentioned);
+  const retainedUnmentioned = groundedPublicEntities(unmentioned);
   const ungroundedAfterClipping =
     mentioned.length - retainedMentioned.length + unmentioned.length - retainedUnmentioned.length;
   if (ungroundedAfterClipping > 0) {

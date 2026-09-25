@@ -1876,3 +1876,71 @@ test("a publishable listener-coverage origin still survives redaction", () => {
     []
   );
 });
+
+test("a Shields-matched beacon on a token tenant builds generalized, grounded, and readable", () => {
+  // An Akamai EUM beacon host carries the scanner's egress address in its
+  // private-suffix tenant label. The raw-side checks (tracker vocabulary,
+  // policy grounding) run on the raw registrable domain; publication must
+  // generalize it everywhere, keep the policy entity that names it, and
+  // record no capture loss for evidence that was captured.
+  const address = "192-0-2-41_s-198-51-100-43_ts-1767225600-clienttons-s.akamaihd.net";
+  const generalized = "{label}.akamaihd.net";
+  const shieldsMatch = (host: string) => ({
+    domain: host,
+    entity: host,
+    category: "tracking (Brave Shields list)",
+    confidence: "shields-list" as const
+  });
+  const input = baseInput();
+  input.conditions.probes.policyVisit = true;
+  input.measurement.phases.push({ phaseId: 1, kind: "policy-analysis", startedAtMs: 1000, endedAtMs: 1100 });
+  input.measurement.detectors["privacy-policy"] = {
+    version: DETECTOR_VERSIONS["privacy-policy"],
+    status: "complete",
+    phaseId: 1
+  };
+  input.summary.durationMs = 1100;
+  input.evidence.requests.push({
+    ...input.evidence.requests[0],
+    id: 2,
+    url: `https://${address}/beacon`,
+    domain: address,
+    resourceType: "fetch",
+    thirdParty: true,
+    tracker: shieldsMatch(address),
+    startedAtMs: 40
+  });
+  input.evidence.privacyPolicy = {
+    url: "https://shop.example.com/privacy",
+    claims: [],
+    mentionedEntities: [],
+    unmentionedEntities: [address],
+    policyTextLength: 1_000
+  };
+
+  const report = buildNodeScanReportV2R2(input);
+  const beacon = report.run.evidence.requests.find((request) => request.id === 2);
+  assert.equal(beacon?.domain, generalized);
+  assert.equal(beacon?.url.startsWith(`https://${generalized}/`), true);
+  assert.deepEqual(beacon?.tracker, shieldsMatch(generalized));
+  assert.deepEqual(report.run.evidence.privacyPolicy?.unmentionedEntities, [generalized]);
+  assert.equal(
+    report.run.qualityFacts.captureLoss.some((loss) => loss.detail === "public-policy-entities"),
+    false
+  );
+
+  const publicReport = toPublicScanReportR2(report);
+  assert.equal(JSON.stringify(publicReport).includes("192-0-2-41"), false);
+  assert.deepEqual(scanReportV2R2SemanticViolations(publicReport), []);
+  assert.equal(
+    publicReportDigest(redactPublicScanReportV2R2(publicReport)),
+    publicReportDigest(publicReport)
+  );
+  // Persistence re-reads the bundle through the managed reader and refuses a
+  // report that is not a fixed point of the sanitizer.
+  const bundle = prepareScanReportBundle(report, {
+    shareId: `20260727-${"f".repeat(32)}`,
+    now: new Date("2026-07-27T12:00:00.000Z")
+  });
+  assert.equal(bundle.manifest.reportId, `20260727-${"f".repeat(32)}`);
+});
