@@ -442,8 +442,9 @@ the keystroke claim, so censoring does not move on either wire and no string
 or digest changes. A request the page started before typing whose event
 arrives after the snapshot still takes the unread line, which only says "may".
 A table in lib/scanner.test.ts covers the pre-keystroke cases (six failed at
-the parent) and the dispatched ones: a refused value, a typing call that
-threw, and a loss while typing the first of two fields.
+the parent) and the dispatched ones: a loss before typing and another during
+it, a refused value, a typing call that threw, and a loss while typing the
+first of two fields.
 
 **Update, 2026-09-25, on review, continued.** The divergence list above first
 gave "a v1 line per cause is its own identity change" as the reason for
