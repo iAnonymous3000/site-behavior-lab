@@ -249,10 +249,14 @@ public API or a 1.0 release.
   Shields-list tracker's domain and entity, and policy entities. Akamai's EUM
   beacon hosts put the scanner's egress address, a visit timestamp and
   per-visit tokens there. A site whose own host has such a label is refused
-  before the scan. An email address, phone number, web address, `www.` host,
-  host with a path, handle or obfuscated address inside a quoted policy
-  sentence becomes `[redacted]`, and the quote is marked incomplete, so its
-  claim is kept but never checked. The shapes cover the per-visit patterns
+  before the scan. An email address, obfuscated address (`[at]` or `(at)`),
+  `@` handle, URL with a scheme, `www.` host or host with a path inside a
+  quoted policy sentence becomes `[redacted]`, and so does any run of nine or
+  more digits (seven or more after `+`) with at most two separators between
+  digits: a phone number, but also a statute range joined by a dash or slash
+  such as `1798.100-1798.199`, or a date followed by a time. The quote is then
+  marked incomplete, so its claim is kept but never checked. A bare hostname
+  and a shorter number are kept. The shapes cover the per-visit patterns
   seen in published reports, not every identifier: a dashed IPv6 address, a
   shorter token, a sparse token whose label has fewer than five digit runs,
   and a numeric id that is neither a timestamp nor sixteen digits long
@@ -263,7 +267,7 @@ public API or a 1.0 release.
   and logged r2 wire pins revision 4, so the narrowing is named by the
   public-string policy instead. `PUBLIC_STRING_POLICY_VERSION` moves from
   `public-string-policy-v3` to `public-string-policy-v4`, and the policy digest
-  from `b40a333a...3d51` to `3a173cc9...6c14`, which now also hashes the tenant
+  from `b40a333a...3d51` to `3ee20166...1c80`, which now also hashes the tenant
   shapes and the quote spans. Both r2 normalization identities move with it;
   `tldts@7.4.13` and the allowlists do not.
 - The outgoing Node and PageGraph normalizations stay readable as superseded

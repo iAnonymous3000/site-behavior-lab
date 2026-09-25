@@ -1088,7 +1088,20 @@ test("identifier spans in a quoted policy sentence become the marker and the quo
     "www.acme.com/optout",
     "acme.com/privacy/gpc",
     "@acme",
-    "privacy [at] acme [dot] com"
+    "privacy [at] acme [dot] com",
+    // An obfuscated address with a plain dotted domain, in either bracket.
+    "privacy [at] acme.com",
+    "privacy(at)acme.com",
+    "privacy (at) mail.acme.co.uk",
+    // A [dot]-joined local part is part of the address.
+    "jane [dot] doe [at] acme [dot] com",
+    // A host label may carry "_".
+    "my_company.example.com/optout",
+    // Digit groups joined by a Unicode dash, a minus sign, or "/".
+    "1\u2011800\u2011555\u20110199",
+    "800\u2013555\u20130199",
+    "+1\u2212800\u2212555\u22120199",
+    "030/12345678"
   ];
   for (const kind of POLICY_CLAIM_KINDS) {
     for (const span of spans) {
@@ -1111,15 +1124,31 @@ test("identifier spans in a quoted policy sentence become the marker and the quo
     "See Section 4.1 of this policy.",
     "We honor GPC as Cal. Civ. Code \u00a7 1798.140 requires.",
     "We honor GPC under \u00a7\u00a7 1798.100 \u2013 1798.199.",
+    "We honor GPC under \u00a7\u00a7 1798.100 - 1798.199.",
     "This policy is effective 2024-01-01 (version 20240101).",
     "We honor GPC on acme.com and its apps.",
+    // "(at)" in prose is not an address: no dotted or [dot] domain follows.
+    "Visit us (at) our office to opt out.",
     "\"Sites.Sale\" does not sell your personal information."
   ]) {
     assert.equal(redactQuote(quote), quote, quote);
   }
   // A hyphen-joined statute range reads as a phone-shaped run: a known,
-  // accepted false positive that costs the citation, not the claim.
-  assert.equal(redactQuote("We honor GPC under \u00a7\u00a7 1798.100-1798.199."), "We honor GPC under \u00a7\u00a7 [redacted]...");
+  // accepted false positive that costs the citation, not the claim. Joined by
+  // an en dash or "/", it reads the same way.
+  for (const range of ["1798.100-1798.199", "1798.100\u20131798.199", "1798.100/1798.105"]) {
+    assert.equal(redactQuote(`We honor GPC under \u00a7\u00a7 ${range}.`), "We honor GPC under \u00a7\u00a7 [redacted]...");
+  }
+  // Known misses, disclosed in docs/limitations.md: a number under the digit
+  // threshold, groups separated by a spaced dash (so a spaced statute range
+  // stays whole), and a bare hostname.
+  for (const quote of [
+    "Call us at 555-0199 with questions.",
+    "Call 800 - 555 - 0199 with questions.",
+    "Visit example.com to opt out."
+  ]) {
+    assert.equal(redactQuote(quote), quote, quote);
+  }
 });
 
 test("scrubbing and marking are one fixed point, even where a pass completes a new span", () => {
@@ -1149,6 +1178,19 @@ test("scrubbing and marking are one fixed point, even where a pass completes a n
   ]) {
     assertQuoteFixedPoint(redactQuote(quote));
   }
+});
+
+test("the obfuscated-address span cannot backtrack exponentially on a run of markers", () => {
+  // Each part of the span excludes "[at]", "(at)", "[dot]" and "(dot)", so a
+  // quote-length run of "a[dot]" with no "[at]" fails at once. With parts that
+  // could span a marker, eighteen repetitions took about 70 ms and every two
+  // more took four times as long.
+  for (const run of ["a[dot]".repeat(26), "a(dot)".repeat(26), `${"a[dot]".repeat(24)}b[at]c[dot]com`]) {
+    const started = Date.now();
+    scrubPolicyQuoteIdentifiers(run);
+    assert.equal(Date.now() - started < 1_000, true, run);
+  }
+  assert.equal(scrubPolicyQuoteIdentifiers(`${"a[dot]".repeat(24)}b[at]c[dot]com`), "[redacted]");
 });
 
 test("an identifier at the length cap is scrubbed whole before the quote is bounded", () => {

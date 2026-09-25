@@ -118,11 +118,18 @@ export const SUPERSEDED_R2_NORMALIZATIONS: Readonly<
     //    and registrable domain (admission now refuses such a site, and a
     //    stored one throws unsafe-subject-identity, which the reader reports
     //    as redaction-not-idempotent).
-    // 2. A policy claim quote holding an email address, a phone number, a URL
-    //    with a scheme, a "www." host, a host with a path, an "@" handle or an
-    //    "[at]"/"[dot]" address: each span now publishes as "[redacted]" and
-    //    the quote ends in the incomplete-quote marker, so the claim is kept
-    //    but never checked.
+    // 2. A policy claim quote holding an email address; an "@" handle; an
+    //    obfuscated address ("[at]" or "(at)" before a "[dot]"-joined or
+    //    dotted domain, with any "[dot]"-joined local part); a URL with a
+    //    scheme; a "www." host; a host with a path (labels may carry "_"); or
+    //    any run of nine or more digits (seven or more after "+") with at most
+    //    two separators between digits (whitespace, a parenthesis, ".", "/",
+    //    "-", U+2010 to U+2015 or U+2212). That last shape is a phone number,
+    //    but also a statute range joined by a dash or "/" such as
+    //    1798.100-1798.199, or a date followed by a time such as
+    //    "2024-01-01 12:00". Each span now publishes as "[redacted]" and the
+    //    quote ends in the incomplete-quote marker, so the claim is kept but
+    //    never checked.
     // Committed corpus: re-sanitizing every committed bundle changes exactly
     // two v1 Shields comparisons, 20260727-f378d41658184b8e1b014ae2e41b8541 and
     // 20260817-693b5bc1c455e1be2d0b42b4d8efa292, each holding two tenant hosts

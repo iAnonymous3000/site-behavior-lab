@@ -178,9 +178,12 @@ from a reviewed allow-list; unknown keys, path segments, subdomain labels,
 cookie names, and storage keys are generalized, and so is a hosting tenant name
 under a shared provider suffix (such as `akamaihd.net`) when it is shaped like
 a network address, timestamp, or token. Policy sentences are quoted up to a
-length cap, which is a deliberate, documented exception; an email address,
-phone number, web address, or handle inside a quote is replaced with
-`[redacted]`, and that quote is marked incomplete and never checked. These
+length cap, which is a deliberate, documented exception; inside a quote, an
+email address (also one written with `[at]` or `(at)`), an `@` handle, a URL
+with a scheme, a `www.` host, a host with a path, and a phone-shaped run of
+nine or more digits (seven or more after `+`) are replaced with `[redacted]`,
+and that quote is marked incomplete and never checked. A bare hostname and a
+shorter number are kept. These
 rules are named by the public-string policy in each r2 report's normalization
 identity (currently `public-string-policy-v4`). A saved r2 report holding a
 string a later rule removes is no longer served and is not rewritten, and a

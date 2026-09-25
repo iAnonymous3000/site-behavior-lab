@@ -421,6 +421,12 @@ const COMPARISON_WARNING_LABELS = new Set([
   "Variant"
 ]);
 
+// One part of an obfuscated address: a run of non-space characters holding no
+// "[at]", "(at)", "[dot]" or "(dot)". A part that could span one would let the
+// address split many ways, and a long run of "a[dot]a[dot]..." with no "[at]"
+// would then backtrack exponentially before failing.
+const OBFUSCATED_ADDRESS_PART = String.raw`(?:[^\s[(]|[[(](?!(?:at|dot)[\])]))+`;
+
 /*
  * Identifier spans scrubbed from a quoted privacy-policy sentence.
  *
@@ -432,11 +438,22 @@ const COMPARISON_WARNING_LABELS = new Set([
  * longer the sentence the claim was checked against (see redactPolicyQuote).
  *
  * The spans apply in this order. The first two take the whole
- * whitespace-delimited token. Bare hostnames are deliberately NOT scrubbed:
- * `.sale` and many other real TLDs make ordinary words host-shaped, and a
- * committed quote contains exactly such a word. A hyphen-joined statute range
- * (`1798.100-1798.199`) is a known false positive of the nine-digit rule; the
- * claim survives and only the citation is lost. Dashed IPv6 is not covered.
+ * whitespace-delimited token. An obfuscated address takes its "[dot]"-joined
+ * local part and either a "[dot]"-joined or a plain dotted domain, after
+ * "[at]" or "(at)". A phone-shaped run is nine or more digits (seven or more
+ * after "+") with at most two separators between digits: whitespace, a
+ * parenthesis, ".", "/", "-", a Unicode dash (U+2010 to U+2015) or a minus
+ * sign (U+2212).
+ *
+ * Deliberate exclusions, each a reviewed choice (design decision D4): bare
+ * hostnames are NOT scrubbed, since `.sale` and many other real TLDs make
+ * ordinary words host-shaped and a committed quote contains exactly such a
+ * word. A statute range or pair joined by a dash or "/" (`1798.100-1798.199`)
+ * and a date followed by a time read as phone-shaped runs; the claim survives
+ * and only the citation or date is lost. Groups separated by a spaced dash are
+ * not joined, so a spaced range (`1798.100 - 1798.199`) stays whole and so
+ * does a phone number written that way. A number under the digit threshold
+ * (`555-0199`) and dashed IPv6 are not covered.
  *
  * Declared above PUBLIC_STRING_POLICY_DIGEST on purpose: a table declared
  * below it reads as `undefined` in an esbuild bundle (top-level const lowered
@@ -447,16 +464,21 @@ const POLICY_QUOTE_IDENTIFIER_SPANS: readonly RegExp[] = Object.freeze([
   /\S*:\/\/\S*/g,
   // Any token carrying "@": email addresses and handles.
   /\S*@\S*/g,
-  // An obfuscated email: "name [at] example [dot] com".
-  /\S+\s*[[(]at[\])]\s*\S+(?:\s*[[(]dot[\])]\s*\S+)+/gi,
+  // An obfuscated email: "jane [dot] doe [at] example [dot] com",
+  // "name (at) example.com".
+  new RegExp(
+    String.raw`(?:${OBFUSCATED_ADDRESS_PART}\s*[[(]dot[\])]\s*)*${OBFUSCATED_ADDRESS_PART}\s*[[(]at[\])]\s*` +
+      String.raw`(?:${OBFUSCATED_ADDRESS_PART}(?:\s*[[(]dot[\])]\s*${OBFUSCATED_ADDRESS_PART})+|[^\s.]+\.\S+)`,
+    "gi"
+  ),
   // A scheme-less www. host.
   /\bwww\.\S*/gi,
   // A host followed by a path.
-  /\b(?:[a-z0-9-]+\.)+[a-z]{2,}\/\S*/gi,
+  /\b(?:[a-z0-9_-]+\.)+[a-z]{2,}\/\S*/gi,
   // An international phone number: 7 or more digits after "+".
-  /\+\(?\d(?:[\s().-]{0,2}\d){6,}/g,
+  /\+\(?\d(?:[\s()./\u2010-\u2015\u2212-]{0,2}\d){6,}/g,
   // Any other phone-shaped run of 9 or more digits.
-  /\(?\d(?:[\s().-]{0,2}\d){8,}/g
+  /\(?\d(?:[\s()./\u2010-\u2015\u2212-]{0,2}\d){8,}/g
 ]);
 // Not "]": an obfuscated address ends in its own "[dot]" bracket, and the
 // marker already closes with one.
@@ -1276,8 +1298,8 @@ function redactPolicyQuote(quote: string): string {
  * Repeated to a fixed point: one global replace does not rescan its own
  * output, so a second obfuscated address after the first ("a [at] b [dot] c
  * [at] d [dot] e") would otherwise survive until the next publication pass.
- * Each pass removes at least one "@", "/", digit, "www." or "[at]" and the
- * marker adds none, so the loop ends.
+ * Each pass removes at least one "@", "/", digit, "www.", "[at]" or "(at)"
+ * and the marker adds none, so the loop ends.
  */
 export function scrubPolicyQuoteIdentifiers(text: string): string {
   let current = text;

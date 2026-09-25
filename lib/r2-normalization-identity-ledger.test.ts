@@ -69,9 +69,9 @@ import {
  *   5. Only then update the two literals below to the new identity.
  */
 const ACTIVE_NODE_R2_NORMALIZATION_LITERAL =
-  "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:3a173cc9dee0c747c74009e6e186430f08f6c22cd1f8e562bf37cc47adc16c14+tldts@7.4.13+node-evidence-policy-v1+r2-http-status-compat-v1";
+  "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:3ee20166349539c6c4959dcb1192cb2dbba50bbcfd1ed7a53a93b475162d1c80+tldts@7.4.13+node-evidence-policy-v1+r2-http-status-compat-v1";
 const ACTIVE_PAGEGRAPH_R2_NORMALIZATION_LITERAL =
-  "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:3a173cc9dee0c747c74009e6e186430f08f6c22cd1f8e562bf37cc47adc16c14+tldts@7.4.13+pagegraph-request-evidence-v1+r2-http-status-compat-v1";
+  "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:3ee20166349539c6c4959dcb1192cb2dbba50bbcfd1ed7a53a93b475162d1c80+tldts@7.4.13+pagegraph-request-evidence-v1+r2-http-status-compat-v1";
 
 /**
  * The identities the latest NARROWING retired, pinned as exact literals beside
@@ -191,7 +191,7 @@ test("the identities the public-string-policy-v4 narrowing retired stay declarab
 const PINNED_TENANT_SHAPES_LABEL = "private-suffix-tenant-shapes-v1";
 const PINNED_TENANT_RULE_SHA256 = "010920430673f65dde633e51668379c648765f3737dc2e456680f490f9a63177";
 const PINNED_QUOTE_SPANS_LABEL = "policy-quote-identifier-spans-v1";
-const PINNED_QUOTE_SCRUB_SHA256 = "618a43b3f214a96c2a93d17fa18aeadc6408732dec59b57ff3abd67edf74887e";
+const PINNED_QUOTE_SCRUB_SHA256 = "8694fe0053203ee21d319392dc04715a4c699d929838ec690266979b734e068e";
 
 function pinnedBlock(file: string, first: string, last: string): string {
   const source = readFileSync(path.join(process.cwd(), "lib", file), "utf8");
