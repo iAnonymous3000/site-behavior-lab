@@ -201,6 +201,30 @@ not established (`548f7ea`), without a correction event.
   pull request** would, on re-run, carry the anchors, find nothing new and
   finish green without a pull request. No proof is lost.
 
+**Update, 2026-09-24.** Every row above was re-verified at `bc2d438b`. Fixed
+without moving any identity: the `rate-limited` cause (declared at the scan-quota
+429 sites with copy that is true for all four quota windows; `scan-conflict`
+stays undeclared because every visitor-reachable 409 carries specific wording),
+the leading-dot marker, the anchoring re-run, the policy PDF CPU assertion, the
+CNAME reference instrument (`cname-reference@2`; nothing committed bound `@1`),
+and two real disagreements between the PDF href implementations (an undeclared
+static build offered a PDF control the receipt hid, and the saved-page header
+link skipped the hash binding). Left, with evidence: the Dockerfile build
+argument (the tests job takes about 14 minutes, so gating the image on it makes
+the pipeline slower, and skipping the in-image run removes the only unit run on
+production's Node and npm); the canonical JSON serializers (no input any
+producer builds or verifier reads yields divergent bytes, and routing them
+through canon-v1 would loosen three undefined-member refusals, not two); and the
+oversized functions (no restated helper disagrees with its original). Older
+backlog rows fixed in the same pass: unrepresentable-status markers counted
+before sanitization (a completed scan could 500), grounding drops recorded as
+exhausted budgets, the shared retention-debt ledger refusing another container's
+publication, the durable admission clock and refused-preparation replay, the
+proxy DNS deadline, and the print caveat and row-cap drift. The canvas-font
+heuristic in section 4 stays as it is: 213 of the 217 committed instances are
+plausibly real probes, and every rule available from retained evidence drops
+some of them.
+
 ## 6. Refuted or already known (do not re-file)
 
 | Finding | Why it was refuted |

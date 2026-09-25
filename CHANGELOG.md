@@ -7,6 +7,51 @@ public API or a 1.0 release.
 
 ## Unreleased
 
+### Fixed
+
+- A scanner quota refusal (HTTP 429) now reaches the visitor as the declared
+  `rate-limited` notice instead of raw server text. The notice says the scanner
+  reached a request limit, blames no one (the quota store merges per-visitor and
+  global windows, so it cannot know whose traffic fired it), and states the
+  server's wait when the response carries one. An older page talking to a newer
+  scanner, or the reverse, still renders a true sentence.
+- A completed scan could fail to publish (a 500) when a request with an
+  unrepresentable HTTP status sat on a row that publication later drops; the
+  markers are now counted over the retained rows. Grounding drops (a CNAME cloak
+  whose host was not retained, an ungrounded policy entity) are recorded as
+  dropped evidence instead of as a budget that was never reached.
+- The leading-dot invalid-host marker is terminal in the hostname redactor, so
+  redaction stays idempotent for it.
+- Static builds offer the evidence explorer's PDF control on committed reports
+  only when `NEXT_PUBLIC_SITE_BEHAVIOR_LAB_PDF_EXPORT_ENABLED=1`, matching the
+  receipt, and the saved-page explorer's PDF link now binds the source and
+  correction hashes as the receipt link does. An undeclared self-hosted build
+  that fronts a container loses that control; set the flag to restore it.
+- The print route renders the site scope caveat from the footer's constant, so
+  the PDF no longer omits the restart-safe retry sentence.
+- A release attest job re-run alone now finds prepare's artifacts (they are named
+  by prepare's attempt, bounded to 1 through 100) instead of refusing as a
+  substitution. `release:governance:verify-selection` and three sibling operator
+  scripts compile `dist/schema` before loading it, so a fresh clone runs them and
+  a stale build cannot pass.
+- An anchoring run that pushed its proposal branch but could not open the pull
+  request no longer finishes green on the re-run with no pull request; the
+  re-run opens it after checking the branch is one log-only commit on main.
+- Retention: a second container's in-flight delete no longer refuses a finished
+  publication on another container. Durable jobs (disabled in production): the
+  admission time is bounded by the Durable Object's clock, and a refused
+  preparation is remembered for its admission window so a replayed Turnstile
+  token buys no second preparation.
+- Each proxy DNS lookup has a 35 s backstop past a default resolver's own retry
+  schedule, and the container raises the libuv pool from 4 to 16 threads so slow
+  lookups in one scan cannot queue another scan's preflight into a refusal.
+- The CNAME reference research instrument applies public-suffix wildcard,
+  exception and IDN rules (`cname-reference@2`). Nothing committed was produced
+  with `@1`.
+- Test hygiene: the policy PDF stop check bounds the parse thread's own CPU work
+  instead of a wall window, and the print request cap is pinned to the scanner's
+  recording cap.
+
 ## [0.6.0] - 2026-09-06
 
 Declared on 2026-09-06 (the date above) and tagged `v0.6.0` on 2026-09-24 at
