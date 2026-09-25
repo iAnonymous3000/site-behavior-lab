@@ -13,14 +13,15 @@ import {
 
 test("public detector validation manifest is complete and mechanically valid", () => {
   assert.deepEqual(validateDetectorValidationManifest(DETECTOR_VALIDATION_FIXTURES), []);
-  assert.equal(DETECTOR_VALIDATION_FIXTURES.length, 20);
+  assert.equal(DETECTOR_VALIDATION_FIXTURES.length, 21);
   assert.equal(detectorValidationRows().length, DETECTOR_IDS.length);
-  // fingerprint-heuristics carries a second positive case: the two-vendor
-  // chain fixture proving multi-origin chains detect instead of censoring.
+  // fingerprint-heuristics carries two more positive cases: the two-vendor
+  // chain fixture proving multi-origin chains detect instead of censoring, and
+  // the OffscreenCanvas readback fixture proving that surface is observed.
   assert.equal(detectorValidationRows().every((row) => row.positiveCases >= 1), true);
   assert.equal(
     detectorValidationRows().find((row) => row.detector === "fingerprint-heuristics")?.positiveCases,
-    2
+    3
   );
   assert.equal(
     detectorValidationRows().filter((row) => row.detector !== "fingerprint-heuristics").every((row) => row.positiveCases === 1),
@@ -38,7 +39,7 @@ test("public detector validation manifest is complete and mechanically valid", (
     detectorValidationRows().filter((row) => row.detector !== "fingerprint-heuristics").every((row) => row.adversarialCases === 1),
     true
   );
-  assert.equal(detectorValidationRows().reduce((sum, row) => sum + row.realChromiumCases, 0), 5);
+  assert.equal(detectorValidationRows().reduce((sum, row) => sum + row.realChromiumCases, 0), 6);
 });
 
 test("every public validation case points to an exact source-controlled test", () => {

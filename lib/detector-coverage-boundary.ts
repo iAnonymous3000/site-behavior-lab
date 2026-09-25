@@ -265,13 +265,16 @@ export const COVERAGE_BOUNDARY_ENTRIES: readonly CoverageBoundaryEntry[] = [
       "Querying the state of camera, microphone, notification, or location permissions is itself an entropy source, and it happens without any user prompt. The scanner does not instrument the Permissions API, so these silent queries are absent from every report.",
     absentIdentifiers: ["navigator.permissions", "permissions.query"]
   },
+  // Review-only. Instrumenting a worker would mean evaluating an observer in
+  // it over DevTools, as the GPC worker handshake does, not naming an API in
+  // the scanner source, so there is no identifier whose absence could stand
+  // in for this claim.
   {
-    id: "offscreen-canvas-2d",
-    label: "2D canvas work on an OffscreenCanvas",
+    id: "worker-realm-canvas",
+    label: "Canvas and WebGL work inside a Web Worker",
     reason: "not-instrumented",
     explanation:
-      "A script can draw text, measure fonts, read pixels, or export an image through the 2D context of an OffscreenCanvas. The scanner watches those operations only on page canvases, so canvas and font fingerprinting done on an OffscreenCanvas is not observed. WebGL on an OffscreenCanvas is observed, because it shares the WebGL prototype the scanner watches. Canvas and WebGL use inside a worker realm is not observed.",
-    absentIdentifiers: ["OffscreenCanvasRenderingContext2D", "convertToBlob"]
+      "A script can move canvas work into a worker: it can create an OffscreenCanvas there, or transfer one from the page, and draw text, measure fonts, read pixels, export an image, or read WebGL parameters inside the worker. The scanner observes those operations in the page itself, on page canvases and on OffscreenCanvas alike, but its observer does not run inside workers, so canvas, font and WebGL fingerprinting done in a worker is not observed. Drawing a worker does on a canvas the page transferred to it is not observed either."
   },
   {
     id: "script-integrity-drift",

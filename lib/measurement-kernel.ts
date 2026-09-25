@@ -56,6 +56,7 @@ export const DETECTOR_VERSIONS: Readonly<Record<DetectorId, string>> = {
 };
 
 export const FINGERPRINT_EVENT_APIS = [
+  "canvas.convertToBlob",
   "canvas.getImageData",
   "canvas.measureText",
   "canvas.toBlob",
@@ -76,7 +77,7 @@ export const FINGERPRINT_EVENT_APIS = [
   "webrtc.RTCPeerConnection.createOffer",
   "webrtc.RTCPeerConnection.setLocalDescription"
 ] as const;
-export const CANVAS_READ_APIS = ["canvas.getImageData", "canvas.toBlob", "canvas.toDataURL"] as const;
+export const CANVAS_READ_APIS = ["canvas.convertToBlob", "canvas.getImageData", "canvas.toBlob", "canvas.toDataURL"] as const;
 export const WEBGL_READ_APIS = ["webgl.readPixels", "webgl2.readPixels"] as const;
 export const WEBGL_PARAMETERS = [
   "webgl.getParameter.UNMASKED_RENDERER_WEBGL",

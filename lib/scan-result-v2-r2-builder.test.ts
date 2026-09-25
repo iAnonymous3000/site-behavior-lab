@@ -1877,6 +1877,46 @@ test("a publishable listener-coverage origin still survives redaction", () => {
   );
 });
 
+test("an OffscreenCanvas export publishes under its own canvas read token", () => {
+  // The builder asserts canvas read APIs and event APIs against the admitted
+  // vocabulary, so an observer token missing from it would fail the whole
+  // build instead of publishing the read.
+  const input = baseInput();
+  input.evidence.fingerprintEvents.push(
+    { api: "canvas.convertToBlob", count: 1, phaseId: 0 },
+    { api: "canvas.getImageData", count: 1, phaseId: 0 }
+  );
+  input.evidence.fingerprintDetections.push({
+    kind: "canvas-fingerprinting",
+    heuristic: "openwpm-canvas-v1",
+    count: 1,
+    evidence: {
+      readApis: ["canvas.convertToBlob", "canvas.getImageData"],
+      maxCanvasWidth: 200,
+      maxCanvasHeight: 60,
+      maxDistinctTextCharacters: 30,
+      maxTextWriteCalls: 1
+    },
+    phaseId: 0
+  });
+
+  const report = buildNodeScanReportV2R2(input);
+  assert.deepEqual(
+    report.run.evidence.fingerprintEvents.map((event) => event.api).sort(),
+    ["canvas.convertToBlob", "canvas.getImageData"]
+  );
+  const canvas = report.run.evidence.fingerprintDetections.find((detection) => detection.kind === "canvas-fingerprinting");
+  assert.deepEqual(canvas?.kind === "canvas-fingerprinting" ? canvas.evidence.readApis : null, [
+    "canvas.convertToBlob",
+    "canvas.getImageData"
+  ]);
+  const publicReport = toPublicScanReportR2(report);
+  assert.equal(
+    publicReportDigest(redactPublicScanReportV2R2(publicReport)),
+    publicReportDigest(publicReport)
+  );
+});
+
 test("a Shields-matched beacon on a token tenant builds generalized, grounded, and readable", () => {
   // An Akamai EUM beacon host carries the scanner's egress address in its
   // private-suffix tenant label. The raw-side checks (tracker vocabulary,

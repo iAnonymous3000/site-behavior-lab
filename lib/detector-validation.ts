@@ -110,6 +110,15 @@ export const DETECTOR_VALIDATION_FIXTURES: readonly DetectorValidationFixture[] 
       "A deferred registration whose bounded call chain contains two distinct third-party origins keeps the frame readable and records a detection naming both chain origins."
   },
   {
+    detector: "fingerprint-heuristics",
+    kind: "positive",
+    environment: "real-chromium",
+    file: "lib/fingerprint-observer.test.ts",
+    testName: "fingerprintObserverInitScript flags canvas readback on an OffscreenCanvas 2D context in real Chromium",
+    verifies:
+      "Text drawn on an OffscreenCanvas and read back through getImageData or exported through convertToBlob produces the same canvas finding a page canvas does, with the export named as convertToBlob."
+  },
+  {
     detector: "keystroke-exfiltration",
     kind: "positive",
     environment: "unit",

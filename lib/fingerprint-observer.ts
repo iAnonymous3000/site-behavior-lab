@@ -118,6 +118,8 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
     HTMLInputElement?: PrototypeConstructor;
     HTMLScriptElement?: PrototypeConstructor;
     HTMLTextAreaElement?: PrototypeConstructor;
+    OffscreenCanvas?: PrototypeConstructor;
+    OffscreenCanvasRenderingContext2D?: PrototypeConstructor;
     WebGL2RenderingContext?: PrototypeConstructor;
     WebGLRenderingContext?: PrototypeConstructor;
     location?: Location;
@@ -125,6 +127,8 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
   const observerWindow = window as FingerprintObserverWindow;
   const canvasElementPrototype = observerWindow.HTMLCanvasElement?.prototype;
   const canvasContextPrototype = observerWindow.CanvasRenderingContext2D?.prototype;
+  const offscreenCanvasPrototype = observerWindow.OffscreenCanvas?.prototype;
+  const offscreenContextPrototype = observerWindow.OffscreenCanvasRenderingContext2D?.prototype;
   const documentPrototype = observerWindow.Document?.prototype;
   const elementPrototype = observerWindow.Element?.prototype;
   const eventTargetPrototype = observerWindow.EventTarget?.prototype;
@@ -159,6 +163,21 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
     : undefined;
   const canvasHeightGetter = canvasElementPrototype
     ? objectGetOwnPropertyDescriptor(canvasElementPrototype, "height")?.get
+    : undefined;
+  // OffscreenCanvasRenderingContext2D is its own interface: its prototype
+  // chain goes straight to Object.prototype, and the page getters above reject
+  // its instances, so the offscreen surface keeps its own captured getters.
+  const offscreenCanvasGetter = offscreenContextPrototype
+    ? objectGetOwnPropertyDescriptor(offscreenContextPrototype, "canvas")?.get
+    : undefined;
+  const offscreenFontGetter = offscreenContextPrototype
+    ? objectGetOwnPropertyDescriptor(offscreenContextPrototype, "font")?.get
+    : undefined;
+  const offscreenWidthGetter = offscreenCanvasPrototype
+    ? objectGetOwnPropertyDescriptor(offscreenCanvasPrototype, "width")?.get
+    : undefined;
+  const offscreenHeightGetter = offscreenCanvasPrototype
+    ? objectGetOwnPropertyDescriptor(offscreenCanvasPrototype, "height")?.get
     : undefined;
   const imageDataWidthGetter = imageDataPrototype
     ? objectGetOwnPropertyDescriptor(imageDataPrototype, "width")?.get
@@ -237,7 +256,10 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
     createOfferCalls: number;
     setLocalDescriptionCalls: number;
   };
-  const canvasStates = new Map<HTMLCanvasElement, CanvasState>();
+  type TrackedCanvas = HTMLCanvasElement | OffscreenCanvas;
+  // Page and offscreen canvases share one map and one cap, so offscreen
+  // canvases cannot exhaust tracking without failing the frame closed.
+  const canvasStates = new Map<TrackedCanvas, CanvasState>();
   const imageBitmapProvenance = new WeakMap<object, CanvasTextProvenance>();
   const canvasFontState: CanvasFontState = {
     fontValues: new TrustedSet(),
@@ -397,7 +419,7 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
     get: snapshotEventCounts
   });
 
-  const getCanvasState = (canvas: HTMLCanvasElement): CanvasState | null => {
+  const getCanvasState = (canvas: TrackedCanvas): CanvasState | null => {
     let state = safeMapGet(canvasStates, canvas);
     if (!state) {
       if (safeMapSize(canvasStates) >= maxTrackedCanvases) {
@@ -424,20 +446,53 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
         (reflectApply(objectIsPrototypeOf, prototype, [value]) as boolean)
     );
 
-  const getCanvasFromContext = (context: unknown): HTMLCanvasElement | null => {
-    if (!context || typeof context !== "object") return null;
-    let canvas: unknown;
+  const isTrackedCanvas = (value: unknown): value is TrackedCanvas =>
+    hasPrototype(value, canvasElementPrototype) || hasPrototype(value, offscreenCanvasPrototype);
+
+  const readContextCanvas = (context: object, getter: ((this: unknown) => unknown) | undefined): unknown => {
     try {
-      canvas = canvasGetter
-        ? reflectApply(canvasGetter, context, [])
-        : (context as { canvas?: unknown }).canvas;
+      return getter ? reflectApply(getter, context, []) : (context as { canvas?: unknown }).canvas;
     } catch {
       return null;
     }
+  };
+
+  const pageCanvasFromContext = (context: object): HTMLCanvasElement | null => {
+    const canvas = readContextCanvas(context, canvasGetter);
     return hasPrototype(canvas, canvasElementPrototype) ? (canvas as HTMLCanvasElement) : null;
   };
 
-  const readCanvasDimension = (canvas: HTMLCanvasElement, getter: ((this: unknown) => unknown) | undefined, key: "height" | "width") => {
+  const offscreenCanvasFromContext = (context: object): OffscreenCanvas | null => {
+    const canvas = readContextCanvas(context, offscreenCanvasGetter);
+    return hasPrototype(canvas, offscreenCanvasPrototype) ? (canvas as OffscreenCanvas) : null;
+  };
+
+  // The captured native `canvas` getters are the brand check: each one
+  // checks its receiver's internal slots, not its prototype chain, and
+  // rejects the other family's contexts, so re-prototyping a context does not
+  // change which canvas it resolves to. The family its prototype names is
+  // asked first only so that an ordinary context costs one getter call, not a
+  // thrown brand check on every text, measure or read call.
+  const getCanvasFromContext = (context: unknown): TrackedCanvas | null => {
+    if (!context || typeof context !== "object") return null;
+    if (hasPrototype(context, offscreenContextPrototype)) {
+      return offscreenCanvasFromContext(context) ?? pageCanvasFromContext(context);
+    }
+    return pageCanvasFromContext(context) ?? offscreenCanvasFromContext(context);
+  };
+
+  // Each family's size getters reject the other's canvases, so the getter
+  // follows the brand the canvas was admitted under.
+  const readCanvasDimension = (canvas: TrackedCanvas, key: "height" | "width") => {
+    const offscreen = hasPrototype(canvas, offscreenCanvasPrototype);
+    const getter =
+      key === "width"
+        ? offscreen
+          ? offscreenWidthGetter
+          : canvasWidthGetter
+        : offscreen
+          ? offscreenHeightGetter
+          : canvasHeightGetter;
     try {
       const value = getter ? reflectApply(getter, canvas, []) : (canvas as unknown as Record<string, unknown>)[key];
       return typeof value === "number" && numberIsFinite(value) && value >= 0 ? value : 0;
@@ -453,6 +508,15 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
     numberIsFinite(height) &&
     mathAbs(width) >= 16 &&
     mathAbs(height) >= 16;
+
+  const copyCanvasTextProvenance = (canvas: TrackedCanvas): CanvasTextProvenance | undefined => {
+    const state = safeMapGet(canvasStates, canvas);
+    if (!state) return undefined;
+    return {
+      textCharacters: copyStringSet(state.textCharacters),
+      textWriteCalls: state.textWriteCalls
+    };
+  };
 
   const imageDataDimension = (
     value: unknown,
@@ -757,8 +821,8 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
   const wrapCanvasReadMethod = (
     target: object | undefined,
     key: string,
-    api: "canvas.getImageData" | "canvas.toBlob" | "canvas.toDataURL",
-    canvasForThis: (thisValue: unknown) => HTMLCanvasElement | null,
+    api: "canvas.convertToBlob" | "canvas.getImageData" | "canvas.toBlob" | "canvas.toDataURL",
+    canvasForThis: (thisValue: unknown) => TrackedCanvas | null,
     qualifies: (args: unknown[], result: unknown) => boolean = () => true
   ) => {
     if (!target) return;
@@ -767,15 +831,29 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
 
     defineWrappedMethod(target, key, descriptor, function wrappedCanvasReadMethod(this: unknown, ...args: unknown[]) {
       const result = reflectApply(descriptor.value, this, args);
-      record(api);
       const canvas = canvasForThis(this);
-      if (canvas && qualifies(args, result)) {
-        const state = getCanvasState(canvas);
-        if (state) {
-          safeSetAdd(state.readApis, api);
-          state.maxReadWidth = mathMax(state.maxReadWidth, readCanvasDimension(canvas, canvasWidthGetter, "width"));
-          state.maxReadHeight = mathMax(state.maxReadHeight, readCanvasDimension(canvas, canvasHeightGetter, "height"));
+      // Sized at the call: convertToBlob encodes the bitmap as it was then,
+      // and the page can resize the canvas before the promise settles.
+      const readWidth = canvas ? readCanvasDimension(canvas, "width") : 0;
+      const readHeight = canvas ? readCanvasDimension(canvas, "height") : 0;
+      const recordSuccessfulRead = () => {
+        record(api);
+        if (canvas && qualifies(args, result)) {
+          const state = getCanvasState(canvas);
+          if (state) {
+            safeSetAdd(state.readApis, api);
+            state.maxReadWidth = mathMax(state.maxReadWidth, readWidth);
+            state.maxReadHeight = mathMax(state.maxReadHeight, readHeight);
+          }
         }
+      };
+      // convertToBlob rejects for a canvas it cannot export (zero-size,
+      // without a rendering context, detached or origin-tainted), so only a
+      // fulfilled export is a read.
+      if (api === "canvas.convertToBlob") {
+        afterPromiseFulfilled(result, recordSuccessfulRead);
+      } else {
+        recordSuccessfulRead();
       }
       return result;
     });
@@ -818,14 +896,8 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
       const source = args[0];
       if (targetCanvas && source !== targetCanvas) {
         let provenance: CanvasTextProvenance | undefined;
-        if (hasPrototype(source, canvasElementPrototype)) {
-          const sourceState = safeMapGet(canvasStates, source as HTMLCanvasElement);
-          if (sourceState) {
-            provenance = {
-              textCharacters: copyStringSet(sourceState.textCharacters),
-              textWriteCalls: sourceState.textWriteCalls
-            };
-          }
+        if (isTrackedCanvas(source)) {
+          provenance = copyCanvasTextProvenance(source);
         } else if ((typeof source === "object" || typeof source === "function") && source !== null) {
           provenance = reflectApply(weakMapGet, imageBitmapProvenance, [source]) as CanvasTextProvenance | undefined;
         }
@@ -867,14 +939,8 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
       value: function wrappedCreateImageBitmap(this: unknown, ...args: unknown[]) {
         const source = args[0];
         let provenance: CanvasTextProvenance | undefined;
-        if (hasPrototype(source, canvasElementPrototype)) {
-          const sourceState = safeMapGet(canvasStates, source as HTMLCanvasElement);
-          if (sourceState) {
-            provenance = {
-              textCharacters: copyStringSet(sourceState.textCharacters),
-              textWriteCalls: sourceState.textWriteCalls
-            };
-          }
+        if (isTrackedCanvas(source)) {
+          provenance = copyCanvasTextProvenance(source);
         } else if ((typeof source === "object" || typeof source === "function") && source !== null) {
           const inherited = reflectApply(weakMapGet, imageBitmapProvenance, [source]) as CanvasTextProvenance | undefined;
           if (inherited) {
@@ -899,7 +965,30 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
     });
   };
 
-  const wrapCanvasMeasureTextMethod = (target: object | undefined) => {
+  // transferToImageBitmap is not a read. It moves the offscreen bitmap into an
+  // ImageBitmap the page can draw into another canvas, so, like
+  // createImageBitmap, it only carries the canvas's text provenance along.
+  const wrapCanvasTransferToImageBitmap = (target: object | undefined) => {
+    if (!target) return;
+    const descriptor = objectGetOwnPropertyDescriptor(target, "transferToImageBitmap");
+    if (!descriptor || typeof descriptor.value !== "function" || !descriptor.configurable) return;
+
+    defineWrappedMethod(target, "transferToImageBitmap", descriptor, function wrappedTransferToImageBitmap(this: unknown, ...args: unknown[]) {
+      const result = reflectApply(descriptor.value, this, args);
+      // The native call succeeded, so the receiver is an OffscreenCanvas; its
+      // state is found by identity, whatever the page did to its prototype.
+      if ((typeof result === "object" || typeof result === "function") && result !== null) {
+        const provenance = copyCanvasTextProvenance(this as OffscreenCanvas);
+        if (provenance) reflectApply(weakMapSet, imageBitmapProvenance, [result, provenance]);
+      }
+      return result;
+    });
+  };
+
+  const wrapCanvasMeasureTextMethod = (
+    target: object | undefined,
+    fontGetter: ((this: unknown) => unknown) | undefined
+  ) => {
     if (!target) return;
     const descriptor = objectGetOwnPropertyDescriptor(target, "measureText");
     if (!descriptor || typeof descriptor.value !== "function" || !descriptor.configurable) return;
@@ -926,8 +1015,8 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
 
         let contextFont: unknown;
         try {
-          contextFont = canvasFontGetter
-            ? reflectApply(canvasFontGetter, this, [])
+          contextFont = fontGetter
+            ? reflectApply(fontGetter, this, [])
             : (this as { font?: unknown })?.font;
         } catch {
           contextFont = undefined;
@@ -1418,22 +1507,51 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
     );
   }
 
+  const imageDataCoversAtLeast16By16 = (_args: unknown[], result: unknown) =>
+    isAtLeast16By16(
+      imageDataDimension(result, imageDataWidthGetter, "width"),
+      imageDataDimension(result, imageDataHeightGetter, "height")
+    );
+
   if (canvasContextPrototype) {
     wrapCanvasReadMethod(
       canvasContextPrototype,
       "getImageData",
       "canvas.getImageData",
       getCanvasFromContext,
-      (_args, result) =>
-        isAtLeast16By16(
-          imageDataDimension(result, imageDataWidthGetter, "width"),
-          imageDataDimension(result, imageDataHeightGetter, "height")
-        )
+      imageDataCoversAtLeast16By16
     );
     wrapCanvasDrawImageMethod(canvasContextPrototype);
     wrapCanvasTextMethod(canvasContextPrototype, "fillText");
     wrapCanvasTextMethod(canvasContextPrototype, "strokeText");
-    wrapCanvasMeasureTextMethod(canvasContextPrototype);
+    wrapCanvasMeasureTextMethod(canvasContextPrototype, canvasFontGetter);
+  }
+
+  // An OffscreenCanvas exports through convertToBlob, a read recorded under
+  // its own token (never as canvas.toBlob, which the page did not call), and
+  // hands its bitmap on through transferToImageBitmap.
+  if (offscreenCanvasPrototype) {
+    wrapCanvasReadMethod(offscreenCanvasPrototype, "convertToBlob", "canvas.convertToBlob", (canvas) =>
+      hasPrototype(canvas, offscreenCanvasPrototype) ? (canvas as OffscreenCanvas) : null
+    );
+    wrapCanvasTransferToImageBitmap(offscreenCanvasPrototype);
+  }
+
+  // The offscreen 2D context runs the same wrappers into the same per-canvas
+  // and document-wide state under the same tokens: each token names a
+  // 2D-context method, and that method is identical on both contexts.
+  if (offscreenContextPrototype) {
+    wrapCanvasReadMethod(
+      offscreenContextPrototype,
+      "getImageData",
+      "canvas.getImageData",
+      getCanvasFromContext,
+      imageDataCoversAtLeast16By16
+    );
+    wrapCanvasDrawImageMethod(offscreenContextPrototype);
+    wrapCanvasTextMethod(offscreenContextPrototype, "fillText");
+    wrapCanvasTextMethod(offscreenContextPrototype, "strokeText");
+    wrapCanvasMeasureTextMethod(offscreenContextPrototype, offscreenFontGetter);
   }
   wrapCreateImageBitmap();
 

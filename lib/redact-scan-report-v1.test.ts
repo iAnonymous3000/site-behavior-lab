@@ -713,6 +713,54 @@ test("legacy fingerprint sanitization drops detections that become structurally 
   assert.equal(JSON.stringify(second), JSON.stringify(first));
 });
 
+test("an OffscreenCanvas export keeps its own admitted token through v1 sanitization", () => {
+  // The observer records convertToBlob under its own token, never as
+  // canvas.toBlob. The admitted vocabulary has to carry that token through the
+  // event redactor and the canvas read-API filter, while an unadmitted canvas
+  // token still generalizes (events) or drops (read APIs).
+  const input = sensitiveSingle();
+  input.fingerprintEvents = [
+    { api: "canvas.convertToBlob", count: 1 },
+    { api: "canvas.getImageData", count: 1 },
+    { api: "canvas.unreviewedExport", count: 2 }
+  ];
+  input.fingerprintDetections = [
+    {
+      kind: "canvas-fingerprinting",
+      heuristic: "openwpm-canvas-v1",
+      count: 1,
+      evidence: {
+        readApis: ["canvas.convertToBlob", "canvas.getImageData", "canvas.unreviewedExport"],
+        maxCanvasWidth: 200,
+        maxCanvasHeight: 60,
+        maxDistinctTextCharacters: 30,
+        maxTextWriteCalls: 1
+      }
+    }
+  ];
+  const report = redactScanResultV1(input).report;
+  assert.deepEqual(report.fingerprintEvents, [
+    { api: "canvas.convertToBlob", count: 1 },
+    { api: "canvas.getImageData", count: 1 },
+    { api: "other", count: 2 }
+  ]);
+  assert.deepEqual(report.fingerprintDetections, [
+    {
+      kind: "canvas-fingerprinting",
+      heuristic: "openwpm-canvas-v1",
+      count: 1,
+      evidence: {
+        readApis: ["canvas.convertToBlob", "canvas.getImageData"],
+        maxCanvasWidth: 200,
+        maxCanvasHeight: 60,
+        maxDistinctTextCharacters: 30,
+        maxTextWriteCalls: 1
+      }
+    }
+  ]);
+  assert.equal(JSON.stringify(redactScanResultV1(report).report), JSON.stringify(report));
+});
+
 function listenerDetection(
   kind: "session-recording" | "input-monitoring",
   thirdPartyOrigins: string[]
