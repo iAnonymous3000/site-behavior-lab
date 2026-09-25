@@ -276,6 +276,9 @@ const SCAN_COLOR_SCHEME = "light" as const;
 const NAVIGATION_TIMEOUT_MS = 30_000;
 const NETWORK_IDLE_TIMEOUT_MS = 8_000;
 const MAX_SCAN_DURATION_MS = 45_000;
+// Main-frame document responses kept for the subject's HTTP status. Only the
+// newest can describe the frozen subject, so the oldest is dropped past this.
+const MAX_PASSIVE_DOCUMENT_RESPONSES = 32;
 /**
  * Backstop for draining in-flight worker handshakes at the evidence boundary.
  * Each handshake has its own shorter watchdog inside the verification
@@ -1103,7 +1106,10 @@ export async function scanSiteWithMeasurement(
       networkRecorder.recordRequest(request, Date.now() - started);
     };
     page.on("request", recordRequest);
-    const passiveNavigation = { latestResponseRequest: null as Request | null };
+    const passiveNavigation = {
+      latestResponseRequest: null as Request | null,
+      documentResponses: [] as Array<{ request: Request; url: string; status: number }>
+    };
     const recordResponse = (response: Response) => {
       networkRecorder.recordResponse(response);
       const request = response.request();
@@ -1114,6 +1120,10 @@ export async function scanSiteWithMeasurement(
         safeRequestFrame(request) === safeMainFrame(page)
       ) {
         passiveNavigation.latestResponseRequest = request;
+        passiveNavigation.documentResponses.push({ request, url: request.url(), status: response.status() });
+        if (passiveNavigation.documentResponses.length > MAX_PASSIVE_DOCUMENT_RESPONSES) {
+          passiveNavigation.documentResponses.shift();
+        }
       }
     };
     page.on("response", recordResponse);
@@ -1162,7 +1172,10 @@ export async function scanSiteWithMeasurement(
           502
         );
       });
-    const responseStatus = response?.status() ?? null;
+    // The first document's status. A script navigation can still replace that
+    // document before the subject is frozen, so this is only the fallback for
+    // the subject's status below, never a status on its own.
+    const navigationResponseStatus = response?.status() ?? null;
 
     options.onProgress?.("collecting");
     // The navigation itself already succeeded: a failed `goto` throws above and
@@ -1217,6 +1230,20 @@ export async function scanSiteWithMeasurement(
         ? trustedSubjectCandidate.toString()
         : targetUrl.toString();
     const trustedSubjectHostname = safeParseUrl(trustedSubjectUrl)!.hostname;
+    // The HTTP status of the frozen subject's document, read in the same
+    // synchronous step as its URL. Every status consumer reads this one value:
+    // the subject classifier, the failed-load gate on the consent, keystroke and
+    // policy probes, the HTTP warning, r2 `qualityFacts.status` and v1
+    // `summary.status`. `redirectedTo()` is set by then for every redirect hop.
+    const responseStatus = frozenSubjectDocumentStatus(
+      passiveNavigation.documentResponses.map(({ request, url, status }) => ({
+        url,
+        status,
+        redirected: request.redirectedTo() !== null
+      })),
+      trustedSubjectUrl,
+      navigationResponseStatus
+    );
     const [trustedSubjectPageTitleRead, trustedSubjectPageTextRead] = await Promise.all([
       withScanTimeout(
         collectBoundedPageTitle(page, boundedPageCollectorKey),
@@ -3088,6 +3115,37 @@ export function phaseAwareDetections(
   }
 
   return { detections, attributionIncomplete };
+}
+
+/**
+ * The HTTP status of the document the frozen scan subject shows
+ * (subject-validity-v4).
+ *
+ * `page.goto` resolves with the FIRST document's response, but the subject is
+ * frozen later, after network idle, and a script navigation can commit in
+ * between: a 200 loader that redirects to a 403 block page, or a static host's
+ * 404 that redirects to the 200 app shell. The status must describe the same
+ * document as the subject's title, text and requests.
+ *
+ * Redirect hops and 204/205 responses are excluded, because Chromium commits
+ * neither as a document. The newest remaining document on the subject's
+ * ORIGIN wins, not one at the subject's exact URL: an SPA fallback restores the
+ * requested path with `history.replaceState`, so the subject URL is exactly the
+ * URL that answered 404. With no document on that origin the newest delivered
+ * document stands, then the navigation response.
+ */
+export function frozenSubjectDocumentStatus(
+  documents: readonly { url: string; status: number; redirected: boolean }[],
+  trustedSubjectUrl: string,
+  navigationResponseStatus: number | null
+): number | null {
+  const delivered = documents.filter(
+    (candidate) => !candidate.redirected && candidate.status !== 204 && candidate.status !== 205
+  );
+  for (let index = delivered.length - 1; index >= 0; index -= 1) {
+    if (sameScanSubjectUrl(delivered[index].url, trustedSubjectUrl)) return delivered[index].status;
+  }
+  return delivered.at(-1)?.status ?? navigationResponseStatus;
 }
 
 export function sameScanSubjectUrl(url: string, recordedUrl: string): boolean {

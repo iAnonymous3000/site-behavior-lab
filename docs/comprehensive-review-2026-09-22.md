@@ -182,6 +182,19 @@ requests recorded and classified at the boundary. The only published value that
 moves is the r2 classification-arm `requestsMatched` (and the summary count
 derived from it), and it can only go down; v1 counts are unchanged.
 
+**Update, 2026-09-24.** The HTTP status row is fixed in the scanner. The scan
+keeps every passive main-frame document response and, in the same synchronous
+step that freezes the subject URL, takes the newest one on the subject's origin
+that Chromium could have committed (redirect hops and 204/205 responses
+excluded), falling back to the newest such document and then the navigation
+response. It matches by origin, not by the URL equality this row asks for: a
+static host's SPA fallback restores the requested path with
+`history.replaceState`, so the subject URL is exactly the URL that answered 404
+and an equality rule would keep the defect. One value feeds all five consumers.
+Tests cover 200 then 403, 404 then 200, and a 204 navigation that never
+commits. The subject-validity `v4` methodology move lands with this epoch's
+identity bookkeeping.
+
 ## 5. Confirmed and left for other reasons
 
 - **The Dockerfile re-runs `npm run check` inside the image build** (about 16

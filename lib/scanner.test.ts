@@ -38,6 +38,7 @@ import {
   incompleteKeystrokeProbeRequestLoss,
   phaseAwareFingerprintEvents,
   freezePassiveShieldsFacts,
+  frozenSubjectDocumentStatus,
   MAX_RECORDED_REQUESTS,
   MAX_CAPTURED_BODY_CHARS,
   MAX_POLICY_TEXT_CHARS,
@@ -183,6 +184,77 @@ test("post-consent subject checks require the exact normalized HTTP(S) origin", 
   assert.equal(sameScanSubjectUrl("https://www.example.com:8443/after", "https://www.example.com/before"), false);
   assert.equal(sameScanSubjectUrl("ftp://www.example.com/after", "https://www.example.com/before"), false);
   assert.equal(sameScanSubjectUrl("about:blank", "https://www.example.com/before"), false);
+});
+
+test("the subject's HTTP status is the newest delivered document on the frozen subject's origin", () => {
+  const served = (url: string, status: number, redirected = false) => ({ url, status, redirected });
+  assert.equal(frozenSubjectDocumentStatus([], "https://a.example/", 200), 200);
+  assert.equal(frozenSubjectDocumentStatus([], "https://a.example/", null), null);
+  assert.equal(
+    frozenSubjectDocumentStatus(
+      [served("https://a.example/", 200), served("https://a.example/blocked", 403)],
+      "https://a.example/blocked",
+      200
+    ),
+    403,
+    "the newest document, not the first"
+  );
+  assert.equal(
+    frozenSubjectDocumentStatus(
+      [served("https://a.example/deep/route", 404), served("https://a.example/?p=/deep/route", 200)],
+      "https://a.example/deep/route",
+      404
+    ),
+    200,
+    "matched by origin: the SPA fallback restores the URL that answered 404"
+  );
+  assert.equal(
+    frozenSubjectDocumentStatus(
+      [served("https://a.example/", 200), served("https://b.example/", 403)],
+      "https://a.example/",
+      200
+    ),
+    200,
+    "a newer document on another origin is not the subject's"
+  );
+  for (const status of [204, 205]) {
+    assert.equal(
+      frozenSubjectDocumentStatus(
+        [served("https://a.example/", 200), served("https://a.example/ping", status)],
+        "https://a.example/",
+        200
+      ),
+      200,
+      `a ${status} response never commits a document`
+    );
+  }
+  assert.equal(
+    frozenSubjectDocumentStatus(
+      [served("https://a.example/hop", 302, true), served("https://b.example/", 200)],
+      "https://a.example/",
+      200
+    ),
+    200,
+    "a redirect hop is never the subject's document"
+  );
+  assert.equal(
+    frozenSubjectDocumentStatus(
+      [served("https://a.example/", 200), served("https://a.example/hop", 302, true)],
+      "https://a.example/",
+      200
+    ),
+    200,
+    "a redirect hop is not newer than the document it left"
+  );
+  assert.equal(
+    frozenSubjectDocumentStatus(
+      [served("https://a.example/", 301, true), served("https://a.example/next", 302, true)],
+      "https://a.example/",
+      418
+    ),
+    418,
+    "with only redirect hops recorded the navigation response stands"
+  );
 });
 
 test("active input typing stops if focus races an origin change", async () => {
@@ -1927,6 +1999,171 @@ test("HTTP-200 robot pages and unavailable subject collectors fail quality and s
     assert.equal(upstreamHits.some((hit) => hit.endsWith("/consent-click")), false);
     assert.equal(upstreamHits.some((hit) => hit.endsWith("/typed")), false);
   } finally {
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+});
+
+test("the recorded HTTP status is the frozen subject's document after a script redirect", { timeout: 60_000 }, async () => {
+  const upstreamHits: string[] = [];
+  const policyText = "We collect information and use cookies for analytics and advertising. ".repeat(12);
+  const upstream = createServer((request, response) => {
+    const host = request.headers.host?.split(":")[0] ?? "";
+    const url = request.url ?? "/";
+    upstreamHits.push(`${host}${url}`);
+    const html = (status: number, body: string) => {
+      response.writeHead(status, { "content-type": "text/html; charset=utf-8" });
+      response.end(body);
+    };
+
+    if (url === "/privacy") {
+      html(200, `<!doctype html><title>Privacy</title><h1>Privacy Policy</h1><p>${policyText}</p>`);
+      return;
+    }
+    if (url === "/consent-click" || url === "/typed" || url === "/ping") {
+      response.writeHead(204);
+      response.end();
+      return;
+    }
+    if (host === "status-script-block.example.com") {
+      if (url === "/blocked") {
+        // A neutral title and body: nothing but the status marks this page as
+        // a refusal, so the status alone must fail the visit.
+        html(403, `<!doctype html><title>Members area</title>
+          <main>
+            <p>This area is restricted.</p>
+            <a href="/privacy">Privacy Policy</a>
+            <button onclick="fetch('/consent-click')">Accept all</button>
+            <input oninput="fetch('/typed', { method: 'POST' })">
+          </main>`);
+        return;
+      }
+      html(200, `<!doctype html><title>Loading</title><script>setTimeout(()=>location.replace("/blocked"),0)</script>`);
+      return;
+    }
+    if (host === "spa-fallback.example.com") {
+      // The static-host SPA fallback: the requested path answers 404 and
+      // redirects to the app shell, which restores the path in place.
+      if (url === "/deep/route") {
+        html(404, `<!doctype html><title>Not found</title><script>setTimeout(()=>location.replace("/?p=/deep/route"),0)</script>`);
+        return;
+      }
+      html(200, `<!doctype html><title>Deep route</title>
+        <script>history.replaceState(null, "", "/deep/route")</script>
+        <main><p>Ordinary application content.</p><a href="/privacy">Privacy Policy</a></main>`);
+      return;
+    }
+    if (host === "nocontent-nav.example.com") {
+      // A 204 navigation never commits, so the page stays on its 200 document.
+      html(200, `<!doctype html><title>No content navigation</title>
+        <main><p>Ordinary page.</p></main>
+        <script>addEventListener("load", () => setTimeout(() => { location.href = "/ping"; }, 100))</script>`);
+      return;
+    }
+    html(500, "<!doctype html><title>Unexpected fixture host</title>");
+  });
+  await new Promise<void>((resolve, reject) => {
+    upstream.once("error", reject);
+    upstream.listen(0, "127.0.0.1", resolve);
+  });
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+  const options = {
+    publicUrlAlreadyVerified: true,
+    verifyPublicUrl: async () => undefined,
+    resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 as const }],
+    connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"),
+    resolveCnameChain: async () => []
+  };
+
+  // The corrected status must survive publication: the r2 builder runs its
+  // own semantic checks, and the reader's subject fact reads the status.
+  const previousConsentVerification = process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
+  process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = "1";
+  const publishedSubject = (visit: Awaited<ReturnType<typeof scanSiteWithMeasurement>>) =>
+    buildReportFacts(
+      viewFromV2(
+        toPublicScanReportR2(
+          buildRuntimeScanReportV2R2(visit, "public-api", {
+            SITE_BEHAVIOR_LAB_BUILD_COMMIT: "a".repeat(40)
+          } as NodeJS.ProcessEnv)
+        ),
+        2
+      )
+    ).display.subject;
+
+  try {
+    // 200 then 403: the block page is the subject, so the visit failed.
+    const blocked = await scanSiteWithMeasurement(
+      { url: "http://status-script-block.example.com/", device: "desktop", gpcEnabled: false, consentMode: "accept-all" },
+      options
+    );
+    assert.ok(upstreamHits.includes("status-script-block.example.com/blocked"), "the script redirect reached the block page");
+    assert.equal(blocked.result.summary.status, 403);
+    assert.equal(blocked.measurement.measurement.qualityFacts.status, 403);
+    assert.equal(
+      blocked.result.warnings.includes("The page returned HTTP 403; this report reflects an error or block page, not a normal load."),
+      true
+    );
+    assert.equal(blocked.result.warnings.includes(SUSPECTED_CHALLENGE_OR_SOFT_BLOCK_WARNING), false);
+    assert.equal(blocked.result.consentInteraction, undefined);
+    assert.deepEqual(blocked.measurement.measurement.detectors["consent-banner"], {
+      version: "consent-control-and-state@2",
+      status: "skipped",
+      reason: "load-failed"
+    });
+    assert.deepEqual(blocked.measurement.measurement.detectors["keystroke-exfiltration"], {
+      version: "synthetic-sentinel@4",
+      status: "skipped",
+      reason: "load-failed"
+    });
+    assert.deepEqual(blocked.measurement.measurement.detectors["privacy-policy"], {
+      version: "policy-text-cross-check@7",
+      status: "skipped",
+      reason: "load-failed"
+    });
+    assert.equal(upstreamHits.includes("status-script-block.example.com/privacy"), false);
+    assert.equal(upstreamHits.includes("status-script-block.example.com/consent-click"), false);
+    assert.equal(upstreamHits.includes("status-script-block.example.com/typed"), false);
+    assert.deepEqual(
+      { kind: publishedSubject(blocked).kind, status: publishedSubject(blocked).status },
+      { kind: "http-error", status: 403 }
+    );
+    assert.equal(buildReportFacts(viewFromV1Report(blocked.result)).display.subject.kind, "http-error");
+
+    // 404 then 200: the page the reader sees loaded normally, at the very URL
+    // that first answered 404, so matching the subject by exact URL would
+    // still pick the 404.
+    const fallback = await scanSiteWithMeasurement(
+      { url: "http://spa-fallback.example.com/deep/route", device: "desktop", gpcEnabled: false, consentMode: "observe" },
+      options
+    );
+    assert.ok(upstreamHits.includes("spa-fallback.example.com/?p=/deep/route"), "the script redirect reached the app shell");
+    assert.equal(fallback.result.summary.status, 200);
+    assert.equal(fallback.measurement.measurement.qualityFacts.status, 200);
+    assert.equal(fallback.result.warnings.some((warning) => warning.startsWith("The page returned HTTP")), false);
+    assert.equal(fallback.measurement.measurement.detectors["privacy-policy"].status, "complete");
+    assert.equal(upstreamHits.includes("spa-fallback.example.com/privacy"), true);
+    assert.deepEqual(
+      { kind: publishedSubject(fallback).kind, status: publishedSubject(fallback).status },
+      { kind: "requested-page", status: 200 }
+    );
+    assert.equal(buildReportFacts(viewFromV1Report(fallback.result)).display.subject.kind, "requested-page");
+
+    // A 204 navigation is not a document the page shows.
+    const nocontent = await scanSiteWithMeasurement(
+      { url: "http://nocontent-nav.example.com/", device: "desktop", gpcEnabled: false, consentMode: "observe" },
+      options
+    );
+    assert.ok(upstreamHits.includes("nocontent-nav.example.com/ping"), "the page navigated to the 204 endpoint");
+    assert.equal(nocontent.result.summary.status, 200);
+    assert.equal(nocontent.measurement.measurement.qualityFacts.status, 200);
+  } finally {
+    if (previousConsentVerification === undefined) {
+      delete process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
+    } else {
+      process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = previousConsentVerification;
+    }
     await closeSharedBrowserForTests();
     await new Promise<void>((resolve) => upstream.close(() => resolve()));
   }

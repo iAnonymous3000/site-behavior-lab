@@ -56,6 +56,16 @@ public API or a 1.0 release.
   evaluated count, which failed the r2 report. The count now covers only
   requests classified by that boundary, so it can only go down; v1 counts are
   unchanged.
+- After a script redirect, the recorded HTTP status described the first
+  document instead of the page the report measures, so a 200 loader that
+  redirected to a 403 block page read as a normal load (consent was clicked,
+  the input probe typed and the block page's policy was followed), and a
+  static host's 404 that redirected to its 200 app shell read as a failed load.
+  The status is now the newest main-frame document on the frozen subject's
+  origin (redirect hops and 204/205 responses excluded), and v1
+  `summary.status`, r2 `qualityFacts.status`, the HTTP warning, the subject
+  classifier and the consent, keystroke and policy gating all read it. Detector
+  outcomes on redirected visits change without a detector version bump.
 
 ## [0.6.0] - 2026-09-06
 

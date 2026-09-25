@@ -80,7 +80,9 @@ Three practical consequences when interpreting a report:
 - A **failed or challenged load is not an absence of trackers.** Sites refuse
   undisguised automated browsers, and the scanner reports that honestly instead
   of evading it. Check the report's quality and bot-wall disclosures before
-  reading a low count as a clean result.
+  reading a low count as a clean result. The recorded HTTP status is the
+  measured page's own document: after a script redirect, the newest main-frame
+  document on the measured page's origin, not the first response.
 - **Counts describe the instrumented visit, not an ordinary browser visit.**
   Capture loss can make retained request counts lower bounds for that same
   visit. Cookie and storage snapshots can change in either direction. Service
