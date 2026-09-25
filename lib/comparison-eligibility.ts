@@ -4,6 +4,7 @@ import {
   SUSPECTED_CHALLENGE_OR_SOFT_BLOCK_WARNING
 } from "./bot-wall-classifier";
 import { CONSENT_INTERACTION_LEFT_SUBJECT_WARNING } from "./consent-subject-loss-warning";
+import { ACTIVE_PROBE_SUBJECT_WARNING, CONSENT_RELOAD_SUBJECT_WARNING } from "./active-probe-subject-warnings";
 import { legacyV1MethodologyIdentity } from "./legacy-methodology";
 
 /**
@@ -53,9 +54,12 @@ const PIXEL_DECODE_WARNING_FRAGMENT =
   "recognized advertising-pixel request bodies could not be read in full";
 const KEYSTROKE_PROBE_INCOMPLETE_WARNING_FRAGMENT =
   "synthetic form-input probe ended before it finished";
-// Not the opening: both probe lines begin "The synthetic form-input probe".
+// Not the opening: every probe line begins "The synthetic form-input probe".
 const KEYSTROKE_PROBE_REQUEST_UNREAD_WARNING_FRAGMENT =
   "one or more requests that may have carried its test value";
+const KEYSTROKE_PROBE_TEST_INCOMPLETE_WARNING_FRAGMENT = "probe did not complete its test";
+const KEYSTROKE_PROBE_NAVIGATION_STOPPED_WARNING_FRAGMENT =
+  "stopped one or more navigations started while it ran";
 const INVALID_UPSTREAM_RESPONSE_WARNING_FRAGMENT = "scan proxy rejected one or more invalid upstream responses";
 const UNSETTLED_ROUTED_REQUEST_WARNING_FRAGMENT =
   "still being handled, so this visit's request evidence is incomplete";
@@ -113,6 +117,9 @@ export function comparisonEligibility(report: ComparisonScanResult): ComparisonE
     }
     if (runHitKeystrokeProbeCaptureLoss(run)) {
       reasons.push(`The "${label}" visit ended its synthetic form-input probe before it finished, so its request evidence is incomplete.`);
+    }
+    if (runHitKeystrokeProbeNavigationStopped(run)) {
+      reasons.push(`The "${label}" visit's synthetic form-input probe stopped one or more navigations, so its request evidence is incomplete.`);
     }
     // The dispatch can still read as a click (the control reacted before the
     // page navigated away), so this warning is the only v1 channel saying the
@@ -540,20 +547,60 @@ export function runHitKeystrokeProbeCaptureLoss(run: Pick<ScanResult, "warnings"
 }
 
 /**
- * Whether a legacy run's finished input probe stopped, or could not read in
- * full, a request that may have carried its test value. The r2 twin is the
- * keystroke detector's `partial`/`scan-failed` status with its
- * `keystroke-probe` capture loss. Readers censor only the keystroke claim for
- * it, and it never enters runRequestEvidenceCapped. That scope fits a request
- * the probe could not read, which was sent and is in the log, where request
- * censoring would over-censor. It does not cover a navigation the probe
- * stopped: r2 records that as lost request coverage, whether or not it carried
- * the value, and v1 has no line for it, so such a v1 run stays eligible here
- * and in the corpus population. That v1 line is tracked separately
- * (scan-report-views runViewFromV1).
+ * Whether a legacy run's input probe stopped, or could not read in full, a
+ * request that may have carried its test value. The r2 twin is the keystroke
+ * detector's `partial` status (`scan-failed`, or `evidence-cap-reached` for a
+ * request cut or skipped at the capture bounds) with its `keystroke-probe` or
+ * `keystroke-probe-capture` capture loss. Readers censor only the keystroke
+ * claim for it, and it never enters runRequestEvidenceCapped: a request the
+ * probe could not read was sent and is in the log, where request censoring
+ * would over-censor. A navigation the probe stopped is lost request coverage
+ * too, carrying the value or not, and says so in its own line
+ * (runHitKeystrokeProbeNavigationStopped).
  */
 export function runHitKeystrokeProbeRequestUnread(run: Pick<ScanResult, "warnings">): boolean {
   return run.warnings.some((warning) => warning.includes(KEYSTROKE_PROBE_REQUEST_UNREAD_WARNING_FRAGMENT));
+}
+
+/**
+ * Whether a legacy run's input probe did not complete its test for a cause
+ * other than a request: too little time to start, a field left untested or
+ * refusing the value, or the probe's own work throwing. The r2 twin is the
+ * keystroke detector ending other than `complete` with a `keystroke-probe` or
+ * `keystroke-probe-capture` capture loss. Readers censor only the keystroke
+ * claim for it: the probe's requests are in the log.
+ */
+export function runHitKeystrokeProbeTestIncomplete(run: Pick<ScanResult, "warnings">): boolean {
+  return run.warnings.some((warning) => warning.includes(KEYSTROKE_PROBE_TEST_INCOMPLETE_WARNING_FRAGMENT));
+}
+
+/**
+ * Whether the page route stopped a navigation while a legacy run's input
+ * probe ran. The navigation never loaded and left the log, and r2 records it
+ * as a `dropped` requests-family loss, so this is request-evidence loss like
+ * an unsettled routed request: it censors the request family and enters
+ * runRequestEvidenceCapped and comparison eligibility. It says nothing about
+ * the keystroke claim, which the unread-request line covers when the stopped
+ * navigation may have carried the value.
+ */
+export function runHitKeystrokeProbeNavigationStopped(run: Pick<ScanResult, "warnings">): boolean {
+  return run.warnings.some((warning) => warning.includes(KEYSTROKE_PROBE_NAVIGATION_STOPPED_WARNING_FRAGMENT));
+}
+
+/**
+ * Whether a legacy run's input probe was skipped or stopped because the page
+ * was off the recorded site: the consent interaction or the post-consent
+ * reload left it, or the page left before or during the probe. r2 records the
+ * keystroke detector as skipped or partial for each, so readers censor the
+ * keystroke claim; the families the subject loss also drops on r2 are not
+ * this predicate's. Matched exactly against the producer's own constants.
+ */
+export function runKeystrokeProbeLeftSubject(run: Pick<ScanResult, "warnings">): boolean {
+  return (
+    run.warnings.includes(CONSENT_INTERACTION_LEFT_SUBJECT_WARNING) ||
+    run.warnings.includes(CONSENT_RELOAD_SUBJECT_WARNING) ||
+    run.warnings.includes(ACTIVE_PROBE_SUBJECT_WARNING)
+  );
 }
 
 /**
@@ -574,6 +621,7 @@ export function runRequestEvidenceCapped(run: ScanResult): boolean {
     runHitGpcWorkerCaptureLoss(run) ||
     runHitInvalidUpstreamResponseCaptureLoss(run) ||
     runHitKeystrokeProbeCaptureLoss(run) ||
+    runHitKeystrokeProbeNavigationStopped(run) ||
     runHitProxyTrafficBudget(run) ||
     runHitUnsettledRoutedRequests(run)
   );

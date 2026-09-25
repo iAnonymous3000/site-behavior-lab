@@ -25,7 +25,7 @@ import { buildScanConditions, buildScanResult } from "./scan-result-builder";
 import {
   MAX_RECORDED_REQUEST_URL_CHARS,
   ScanNetworkRecorder, withScanDeadline } from "./scan-runtime";
-import type { FingerprintDetectionSummary } from "./types";
+import type { FingerprintDetectionSummary, ScanResult } from "./types";
 import {
   blockedNavigationMayCarrySentinel,
   boundedPolicyTextFromWire,
@@ -51,6 +51,7 @@ import {
   MAX_PROBE_FIELDS,
   KEYSTROKE_PROBE_STEP_TIMEOUT_MS,
   isTimeoutError,
+  keystrokeProbeScanWarnings,
   NON_HTTP_WARNING_EXAMPLE_LIMIT,
   phaseAwareDetections,
   retainedScanEvidenceDiagnostics,
@@ -77,14 +78,23 @@ import {
   FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING,
   FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING,
   INVALID_UPSTREAM_RESPONSE_WARNING,
+  KEYSTROKE_PROBE_INCOMPLETE_WARNING,
+  KEYSTROKE_PROBE_NAVIGATION_STOPPED_WARNING,
   KEYSTROKE_PROBE_REQUEST_UNREAD_WARNING,
+  KEYSTROKE_PROBE_TEST_INCOMPLETE_WARNING,
   PIXEL_DECODE_CAPTURE_LOSS_WARNING
 } from "./scan-runtime";
 import { resolveScannerEgressLabel, resolveScannerEgressRegion } from "./scanner-egress";
 import { buildReportFacts } from "./report-facts";
 import { buildRuntimeScanReportV2R2 } from "./scan-report-v2-runtime-builder";
 import { toPublicScanReportR2 } from "./scan-report-v2-r2-projection";
-import { viewFromV1Report, viewFromV2 } from "./scan-report-views";
+import {
+  requestEvidenceState,
+  runInCorpusDistributionPopulation,
+  viewFromV1Report,
+  viewFromV2
+} from "./scan-report-views";
+import { makeScanReportV1 } from "./scan-report-v2-fixtures";
 
 test("scannerEgressLabel canonicalizes unreviewed operator text before r2 collection", () => {
   assert.equal(scannerEgressLabel({}), "this scanner instance");
@@ -5425,7 +5435,72 @@ test("the scanner blocks probe-triggered foreign-realm form navigation and auxil
     // document count rather than the path.
     assert.deepEqual(measurement.evidence.requests.filter(request => request.phaseId === activePhase.phaseId), []);
     assert.equal(result.requests.filter(request => request.resourceType === "document").length, 1);
+    // The stopped first-party submission carried nothing to a third party, so
+    // the keystroke claim stands on both wires, but its lost request coverage
+    // censors the request family on v1 as it does on r2.
+    assert.equal(result.warnings.filter(warning => warning === KEYSTROKE_PROBE_NAVIGATION_STOPPED_WARNING).length, 1);
+    assert.equal(result.warnings.includes(KEYSTROKE_PROBE_REQUEST_UNREAD_WARNING), false);
+    const v1Facts = buildReportFacts(viewFromV1Report(redactScanResultV1(result).report)).display;
+    assert.equal(v1Facts.claims["keystroke-exfiltration"].allowed, true);
+    assert.equal(v1Facts.evidence.requests.state, "censored");
+    assert.equal(v1Facts.claims["third-party-services"].allowed, false);
   } finally {
+    await closeSharedBrowserForTests();
+    await new Promise<void>(resolve => upstream.close(() => resolve()));
+  }
+});
+
+test("a visit with too little time left for the input probe withholds the keystroke claim on v1 as on r2", { timeout: 30_000 }, async () => {
+  // The scan skips the probe for lack of time before it starts, so the probe
+  // adds no line of its own. r2 records the detector as skipped; v1 used to
+  // publish the keystroke absence over a probe that never ran.
+  const upstream = createServer((_request, response) => {
+    response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+    response.end(`<!doctype html><title>Probe budget fixture</title><input id="field">`);
+  });
+  await new Promise<void>(resolve => upstream.listen(0, "127.0.0.1", resolve));
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+  const previousConsentVerification = process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
+  process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = "1";
+  try {
+    const visit = await scanSiteWithMeasurement(
+      { url: "http://probe-budget.example.com/", device: "desktop", gpcEnabled: false, consentMode: "observe" },
+      { publicUrlAlreadyVerified: true, verifyPublicUrl: async () => undefined,
+        resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+        connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"), resolveCnameChain: async () => [],
+        keystrokeProbeMinBudgetMsForTests: Number.MAX_SAFE_INTEGER }
+    );
+    const { result, measurement } = visit;
+    assert.ok(measurement);
+    assert.deepEqual(measurement.measurement.detectors["keystroke-exfiltration"], {
+      version: measurement.measurement.detectors["keystroke-exfiltration"].version,
+      status: "skipped",
+      reason: "budget-unavailable"
+    });
+    assert.equal(measurement.measurement.phases.some(phase => phase.kind === "active-probe"), false);
+    assert.ok(result.warnings.every(warning => !warning.includes("typed a synthetic test value")));
+    assert.equal(result.warnings.filter(warning => warning === KEYSTROKE_PROBE_TEST_INCOMPLETE_WARNING).length, 1);
+
+    const r2Claim = buildReportFacts(
+      viewFromV2(
+        toPublicScanReportR2(
+          buildRuntimeScanReportV2R2(visit, "public-api", {
+            SITE_BEHAVIOR_LAB_BUILD_COMMIT: "a".repeat(40)
+          } as NodeJS.ProcessEnv)
+        ),
+        2
+      )
+    ).display.claims["keystroke-exfiltration"];
+    assert.equal(r2Claim.allowed, false);
+    const v1Facts = buildReportFacts(viewFromV1Report(redactScanResultV1(result).report)).display;
+    assert.equal(v1Facts.claims["keystroke-exfiltration"].allowed, false);
+    assert.deepEqual(v1Facts.claims["keystroke-exfiltration"].blockers, ["family-censored"]);
+    // Nothing was stopped or lost from the log, so the request family stands.
+    assert.equal(v1Facts.evidence.requests.state, "complete");
+  } finally {
+    if (previousConsentVerification === undefined) delete process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
+    else process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = previousConsentVerification;
     await closeSharedBrowserForTests();
     await new Promise<void>(resolve => upstream.close(() => resolve()));
   }
@@ -5483,6 +5558,8 @@ test("a child-frame navigation the input probe aborts leaves the request log and
  * Run the probe over one fake text field whose typing emits the requests
  * `requestsFor` builds from the typed value, and return its outcome and the
  * warnings it added. `accepted: false` makes the field refuse the value,
+ * `fieldType` reports another field type (one the probe does not type into
+ * is left untested), `started` moves the scan's start (0 leaves no budget),
  * `afterType` runs once typing has emitted its requests, and `duringWait`
  * runs in place of the post-typing wait. Either hook can move the page off
  * the subject by assigning `location.url`.
@@ -5491,8 +5568,10 @@ async function probeWithTypedRequests(
   requestsFor: (value: string) => unknown[],
   options: {
     accepted?: boolean;
+    fieldType?: string;
+    started?: number;
     afterType?: (lifecycle: KeystrokeProbeLifecycle, location: { url: string }) => void;
-    duringWait?: (location: { url: string }) => void;
+    duringWait?: (location: { url: string }, lifecycle: KeystrokeProbeLifecycle) => void;
   } = {}
 ) {
   const location = { url: "https://www.example.com/form" };
@@ -5511,7 +5590,7 @@ async function probeWithTypedRequests(
       Object.defineProperty(globalThis, "probe-navigation-collector", {
         configurable: true,
         value: {
-          fieldType: () => "text",
+          fieldType: () => options.fieldType ?? "text",
           focusForProbe: () => true,
           sentinelPresent: () => options.accepted ?? true,
           blur: () => true
@@ -5541,7 +5620,7 @@ async function probeWithTypedRequests(
       listeners.delete(listener);
     },
     async waitForTimeout() {
-      options.duringWait?.(location);
+      options.duringWait?.(location, lifecycle);
     },
     locator: () => ({
       count: async () => 1,
@@ -5563,7 +5642,7 @@ async function probeWithTypedRequests(
     page as unknown as Parameters<typeof probeKeystrokeExfiltration>[0],
     "https://www.example.com/form",
     "www.example.com",
-    Date.now(),
+    options.started ?? Date.now(),
     warnings,
     "probe-navigation-collector",
     lifecycle
@@ -5574,6 +5653,8 @@ async function probeWithTypedRequests(
 
 const probeRequestUnreadLines = (warnings: readonly string[]) =>
   warnings.filter((warning) => warning === KEYSTROKE_PROBE_REQUEST_UNREAD_WARNING).length;
+const probeTestIncompleteLines = (warnings: readonly string[]) =>
+  warnings.filter((warning) => warning === KEYSTROKE_PROBE_TEST_INCOMPLETE_WARNING).length;
 
 test("the probe's capture skips the navigations its route aborts and keeps everything else", async () => {
   // The page route aborts a navigation's first hop while the probe runs, and
@@ -5642,7 +5723,7 @@ test("a stopped navigation that cannot carry the value to a third party leaves t
   assert.equal(probeRequestUnreadLines(warnings), 0);
 });
 
-test("the probe discloses a request it could not read, and no other partial cause", async () => {
+test("the probe discloses a request it could not read in full, and a test it could not complete, each with its own line", async () => {
   // An unreadable body is the pre-existing scan-failed path of the same
   // family: the request may have carried the value and the probe cannot say.
   // r2 leaves the detector partial; v1 gets the fixed line.
@@ -5659,9 +5740,10 @@ test("the probe discloses a request it could not read, and no other partial caus
   assert.ok(unreadable.outcome.status === "partial");
   assert.equal(unreadable.outcome.reason, "scan-failed");
   assert.equal(probeRequestUnreadLines(unreadable.warnings), 1);
+  assert.equal(probeTestIncompleteLines(unreadable.warnings), 0);
 
-  // A body cut at the capture bound is r2's evidence-cap-reached, not this
-  // line's cause.
+  // A body cut at the capture bound is r2's evidence-cap-reached. The rest of
+  // it may have carried the value, so the probe could not read it in full.
   const truncated = await probeWithTypedRequests(() => [
     {
       url: () => "https://beacon.example/collect",
@@ -5672,14 +5754,23 @@ test("the probe discloses a request it could not read, and no other partial caus
   ]);
   assert.ok(truncated.outcome.status === "partial");
   assert.equal(truncated.outcome.reason, "evidence-cap-reached");
-  assert.equal(probeRequestUnreadLines(truncated.warnings), 0);
+  assert.equal(probeRequestUnreadLines(truncated.warnings), 1);
+  assert.equal(probeTestIncompleteLines(truncated.warnings), 0);
 
   // A field that refused the value is scan-failed too, but nothing that may
-  // have carried it went unread.
+  // have carried it went unread: the test itself is what did not complete.
   const refused = await probeWithTypedRequests(() => [], { accepted: false });
   assert.ok(refused.outcome.status === "partial");
   assert.equal(refused.outcome.reason, "scan-failed");
   assert.equal(probeRequestUnreadLines(refused.warnings), 0);
+  assert.equal(probeTestIncompleteLines(refused.warnings), 1);
+
+  // So is a field the probe does not type into, left untested.
+  const untested = await probeWithTypedRequests(() => [], { fieldType: "number" });
+  assert.ok(untested.outcome.status === "partial");
+  assert.equal(untested.outcome.reason, "evidence-cap-reached");
+  assert.equal(probeRequestUnreadLines(untested.warnings), 0);
+  assert.equal(probeTestIncompleteLines(untested.warnings), 1);
 
   // Once the scan-level deadline has cancelled the probe, its warnings are
   // frozen and the incomplete-probe line speaks for it.
@@ -5701,6 +5792,19 @@ test("the probe discloses a request it could not read, and no other partial caus
   assert.ok(cancelled.outcome.status === "partial");
   assert.equal(cancelled.outcome.reason, "budget-unavailable");
   assert.equal(probeRequestUnreadLines(cancelled.warnings), 0);
+  assert.equal(probeTestIncompleteLines(cancelled.warnings), 0);
+
+  // A wait that rejects once the deadline has cancelled the probe adds
+  // nothing either: the scan-level handler has already frozen the report's
+  // warnings with the incomplete-probe line.
+  const cancelledThrow = await probeWithTypedRequests(() => [], {
+    duringWait: (_location, lifecycle) => {
+      lifecycle.cancelled = true;
+      throw new Error("target closed");
+    }
+  });
+  assert.equal(cancelledThrow.outcome.status, "failed");
+  assert.deepEqual(cancelledThrow.warnings, []);
 });
 
 test("the probe discloses a request it could not read on every exit, not only on completion", async () => {
@@ -5759,6 +5863,7 @@ test("the probe discloses a request it could not read on every exit, not only on
   assert.equal(threw.outcome.status, "failed");
   assert.equal(threw.outcome.reason, "scan-failed");
   assert.equal(probeRequestUnreadLines(threw.warnings), 1);
+  assert.equal(probeTestIncompleteLines(threw.warnings), 1);
 
   // Losing the subject is not itself this line's cause.
   const lostReadable = await probeWithTypedRequests((value) => [readableBeacon(value)], {
@@ -5767,6 +5872,108 @@ test("the probe discloses a request it could not read on every exit, not only on
   assert.ok(lostReadable.outcome.status === "partial");
   assert.equal(lostReadable.outcome.reason, "load-failed");
   assert.equal(probeRequestUnreadLines(lostReadable.warnings), 0);
+});
+
+/** The keystroke-exfiltration claim a v1 report with these warnings publishes. */
+function v1KeystrokeClaim(warnings: readonly string[], detection: FingerprintDetectionSummary | null) {
+  const input = makeScanReportV1() as ScanResult;
+  input.summary.firstPartyDomain = "probe-fixture.net";
+  input.conditions.requestedUrl = "https://probe-fixture.net/";
+  input.conditions.finalUrl = "https://probe-fixture.net/";
+  input.fingerprintDetections = detection ? [detection] : [];
+  input.pixelEvents = [];
+  input.cnameCloaks = [];
+  input.warnings = [...warnings];
+  const report = redactScanResultV1(input).report;
+  return buildReportFacts(viewFromV1Report(report)).display.claims["keystroke-exfiltration"];
+}
+
+test("every input probe exit that leaves the keystroke detector incomplete censors the v1 keystroke claim", async () => {
+  // r2 withholds the keystroke claim whenever the detector ends other than
+  // complete. v1 has no detector ledger, so each such exit must leave a line
+  // its readers censor the claim for, and a complete probe must leave none.
+  // Each exit's own warnings, with the line the scan adds for its outcome,
+  // go through the real sanitizer, view and facts.
+  const beacon = (value: string, overrides: Record<string, unknown> = {}) => ({
+    url: () => `https://beacon.example/collect?v=${value}`,
+    postData: () => null,
+    isNavigationRequest: () => false,
+    redirectedFrom: () => null,
+    ...overrides
+  });
+  const leaveSubject = (_lifecycle: KeystrokeProbeLifecycle, location: { url: string }) => {
+    location.url = "https://account.example.net/login";
+  };
+  const probeLines = [
+    KEYSTROKE_PROBE_REQUEST_UNREAD_WARNING,
+    KEYSTROKE_PROBE_TEST_INCOMPLETE_WARNING,
+    KEYSTROKE_PROBE_INCOMPLETE_WARNING
+  ];
+  // The scan skipped the probe for lack of time, so it has no outcome and
+  // only the scan's own line.
+  const unstarted = keystrokeProbeScanWarnings(null, true);
+  assert.equal(v1KeystrokeClaim(unstarted, null).allowed, false, "the scan had no time left to start the probe");
+  // A subject that was unavailable already carries its own line.
+  assert.deepEqual(keystrokeProbeScanWarnings(null, false), []);
+
+  const exits: [string, Awaited<ReturnType<typeof probeWithTypedRequests>>, string[]][] = [
+    ["complete", await probeWithTypedRequests((value) => [beacon(value)]), []],
+    ["no time left once started", await probeWithTypedRequests(() => [], { started: 0 }), []],
+    ["a field refused the value", await probeWithTypedRequests(() => [], { accepted: false }), []],
+    ["an unsupported field left untested", await probeWithTypedRequests(() => [], { fieldType: "number" }), []],
+    [
+      "a body cut at the capture bound",
+      await probeWithTypedRequests((value) => [beacon(value, { postData: () => "x".repeat(MAX_CAPTURED_BODY_CHARS + 1) })]),
+      []
+    ],
+    [
+      "a URL past the capture bound",
+      await probeWithTypedRequests(() => [
+        beacon("", { url: () => `https://beacon.example/${"a".repeat(MAX_RECORDED_REQUEST_URL_CHARS)}` })
+      ]),
+      []
+    ],
+    [
+      "requests past the capture's request bound",
+      await probeWithTypedRequests(() => Array.from({ length: MAX_PROBE_CAPTURED_REQUESTS + 1 }, () => beacon("none"))),
+      []
+    ],
+    [
+      "an unreadable body",
+      await probeWithTypedRequests(() => [beacon("", { postData: () => { throw new Error("unreadable body"); } })]),
+      []
+    ],
+    [
+      "the probe's own wait threw",
+      await probeWithTypedRequests(() => [], { duringWait: () => { throw new Error("target closed"); } }),
+      []
+    ],
+    ["the subject lost after typing", await probeWithTypedRequests((value) => [beacon(value)], { afterType: leaveSubject }), []],
+    [
+      "the subject lost before any field kept the value",
+      await probeWithTypedRequests(() => [], { accepted: false, afterType: leaveSubject }),
+      []
+    ],
+    // The scan-level deadline handler adds the incomplete-probe line.
+    [
+      "cancelled by the scan deadline",
+      await probeWithTypedRequests((value) => [beacon(value)], {
+        afterType: (lifecycle) => {
+          lifecycle.cancelled = true;
+        }
+      }),
+      [KEYSTROKE_PROBE_INCOMPLETE_WARNING]
+    ]
+  ];
+  for (const [label, { outcome, warnings }, scanLines] of exits) {
+    const lines = [...warnings, ...keystrokeProbeScanWarnings(outcome, true), ...scanLines];
+    const claim = v1KeystrokeClaim(lines, outcome.detection);
+    assert.equal(claim.allowed, outcome.status === "complete", label);
+    if (outcome.status === "complete") {
+      assert.ok(lines.every((warning) => !probeLines.includes(warning)), label);
+      assert.ok(lines.every((warning) => !warning.includes("left the recorded site")), label);
+    }
+  }
 });
 
 test("a stopped navigation counts as carrying the value in any encoding, or when it cannot be read", () => {
@@ -5850,6 +6057,8 @@ for (const variant of ["child-frame", "main-frame"] as const) {
       ));
       assert.equal(result.fingerprintDetections?.some(detection => detection.kind === "keystroke-exfiltration") ?? false, false);
       assert.equal(result.warnings.filter(warning => warning === KEYSTROKE_PROBE_REQUEST_UNREAD_WARNING).length, 1);
+      assert.equal(result.warnings.filter(warning => warning === KEYSTROKE_PROBE_NAVIGATION_STOPPED_WARNING).length, 1);
+      assert.equal(result.warnings.includes(KEYSTROKE_PROBE_TEST_INCOMPLETE_WARNING), false);
 
       const r2View = viewFromV2(
         toPublicScanReportR2(
@@ -5859,8 +6068,9 @@ for (const variant of ["child-frame", "main-frame"] as const) {
         ),
         2
       );
-      // The admitted line survives the public r2 boundary verbatim too.
+      // The admitted lines survive the public r2 boundary verbatim too.
       assert.equal(r2View.runs[0].warnings.includes(KEYSTROKE_PROBE_REQUEST_UNREAD_WARNING), true);
+      assert.equal(r2View.runs[0].warnings.includes(KEYSTROKE_PROBE_NAVIGATION_STOPPED_WARNING), true);
       const facts = buildReportFacts(r2View);
       const claim = facts.display.claims["keystroke-exfiltration"];
       assert.equal(claim.allowed, false);
@@ -5873,6 +6083,23 @@ for (const variant of ["child-frame", "main-frame"] as const) {
       const v1Claim = buildReportFacts(viewFromV1Report(result)).display.claims["keystroke-exfiltration"];
       assert.equal(v1Claim.allowed, false);
       assert.deepEqual(v1Claim.blockers, ["family-censored"]);
+
+      // The stopped navigation is also lost request coverage, whether or not
+      // it carried the value: r2 censors the request family. The public v1
+      // report of the same visit used to read its request log as complete,
+      // stay in the corpus population and benchmark third-party services.
+      const r2Run = r2View.runs[0];
+      assert.equal(facts.display.claims["third-party-services"].allowed, false);
+      assert.ok(facts.display.claims["third-party-services"].blockers.includes("family-censored"));
+      assert.equal(runInCorpusDistributionPopulation(r2Run), false);
+      const v1View = viewFromV1Report(redactScanResultV1(result).report);
+      const v1Services = buildReportFacts(v1View).display.claims["third-party-services"];
+      assert.equal(v1Services.allowed, false);
+      assert.deepEqual(v1Services.blockers, ["family-censored"]);
+      assert.equal(v1Services.benchmarkAllowed, false);
+      assert.equal(runInCorpusDistributionPopulation(v1View.runs[0]), false);
+      assert.equal(requestEvidenceState(v1View.runs[0]), requestEvidenceState(r2Run));
+      assert.notEqual(requestEvidenceState(v1View.runs[0]), "complete");
     } finally {
       if (previousConsentVerification === undefined) delete process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
       else process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = previousConsentVerification;

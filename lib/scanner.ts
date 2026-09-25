@@ -49,6 +49,7 @@ import {
   type ConsentProbeFailure
 } from "./consent-interaction";
 import { CONSENT_INTERACTION_LEFT_SUBJECT_WARNING } from "./consent-subject-loss-warning";
+import { ACTIVE_PROBE_SUBJECT_WARNING, CONSENT_RELOAD_SUBJECT_WARNING } from "./active-probe-subject-warnings";
 import {
   CONSENT_RELOAD_DISCLOSURE,
   consentVerificationEnabled,
@@ -118,7 +119,9 @@ import {
   FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING,
   INVALID_UPSTREAM_RESPONSE_WARNING,
   KEYSTROKE_PROBE_INCOMPLETE_WARNING,
+  KEYSTROKE_PROBE_NAVIGATION_STOPPED_WARNING,
   KEYSTROKE_PROBE_REQUEST_UNREAD_WARNING,
+  KEYSTROKE_PROBE_TEST_INCOMPLETE_WARNING,
   MAX_RECORDED_REQUEST_URL_CHARS,
   PIXEL_DECODE_CAPTURE_LOSS_WARNING,
   UNSETTLED_ROUTED_REQUEST_WARNING,
@@ -336,10 +339,6 @@ const CONSENT_SETTLE_IDLE_TIMEOUT_MS = 3_000;
 const CONSENT_RELOAD_MIN_BUDGET_MS = 8_000;
 const CONSENT_RELOAD_NAV_TIMEOUT_MS = 10_000;
 const CONSENT_RELOAD_SETTLE_IDLE_TIMEOUT_MS = 1_500;
-const CONSENT_RELOAD_SUBJECT_WARNING =
-  "The post-consent reload left the recorded site; its state was not used and the active input probe was skipped.";
-const ACTIVE_PROBE_SUBJECT_WARNING =
-  "The page left the recorded site before or during the active input probe; the probe stopped without acting on the other site.";
 const PROXY_TRAFFIC_BUDGET_WARNING =
   "The scan stopped opening additional proxy requests after reaching its connection and target safety budget.";
 // Privacy-policy cross-check: budget needed for the extra page visit, its own
@@ -440,6 +439,12 @@ export type ScanSiteOptions = {
   onGpcWorkerVerificationEstablishedForTests?: (verification: GpcWorkerVerificationSession) => void;
   /** Exercise the fail-closed subject-validity path with an absent collector capability. */
   forceMissingPageSubjectCollectorForTests?: boolean;
+  /**
+   * Raise the time the scan must have left to start the input probe, in
+   * scanner integration tests, so a visit skips it for lack of time.
+   * Production always uses KEYSTROKE_PROBE_MIN_BUDGET_MS.
+   */
+  keystrokeProbeMinBudgetMsForTests?: number;
 };
 
 export type ScanEvidenceDiagnostics = {
@@ -683,6 +688,24 @@ export function completedKeystrokeProbeOutcome(
         captureLossCount: evidenceCapLossCount
       }
     : { status: "complete", detection };
+}
+
+/**
+ * The v1 lines the scan adds for the input probe, beside the ones the probe
+ * adds itself. v1 has no detector ledger, so every keystroke status other than
+ * `complete` needs a line its readers censor the keystroke claim for. This
+ * covers the two the scan decides: a probe it had too little time left to
+ * start (no outcome, with the subject available) and a probe that lost the
+ * subject. A probe the scan did not start because the subject was unavailable
+ * already carries that subject's own line or a failed subject, and a
+ * deadline-cancelled probe carries the incomplete-probe line.
+ */
+export function keystrokeProbeScanWarnings(
+  probe: KeystrokeProbeOutcome | null,
+  subjectAvailable: boolean
+): string[] {
+  if (probe === null) return subjectAvailable ? [KEYSTROKE_PROBE_TEST_INCOMPLETE_WARNING] : [];
+  return "subjectLost" in probe && probe.subjectLost === true ? [ACTIVE_PROBE_SUBJECT_WARNING] : [];
 }
 
 /** One unknown-size request-evidence boundary was lost after the probe promise escaped its caller. */
@@ -1081,6 +1104,9 @@ export async function scanSiteWithMeasurement(
             family: "requests", phaseId: keystrokeActivePhase,
             kind: "dropped", count: 1
           });
+          // v1's only record of that loss, added with it and before the abort
+          // is awaited, so both wires carry it whether or not the abort holds.
+          warnings.add(KEYSTROKE_PROBE_NAVIGATION_STOPPED_WARNING);
           // ERR_ABORTED, not the default ERR_FAILED: Chromium then keeps the
           // current document instead of committing an error page, so the
           // scanner's own block of a main-frame navigation is not read as the
@@ -2310,7 +2336,8 @@ export async function scanSiteWithMeasurement(
     }
     const keystrokeBudgetAvailable =
       activeProbeSubjectAvailable &&
-      MAX_SCAN_DURATION_MS - (Date.now() - started) >= KEYSTROKE_PROBE_MIN_BUDGET_MS;
+      MAX_SCAN_DURATION_MS - (Date.now() - started) >=
+        (options.keystrokeProbeMinBudgetMsForTests ?? KEYSTROKE_PROBE_MIN_BUDGET_MS);
     const keystrokePhaseId = keystrokeBudgetAvailable ? measurementKernel.beginPhase("active-probe") : null;
     keystrokeActivePhase = keystrokePhaseId;
     let keystrokeProbe: KeystrokeProbeOutcome | null = null;
@@ -2355,10 +2382,12 @@ export async function scanSiteWithMeasurement(
           : { status: "failed", reason: "scan-failed", detection: null };
       }
     }
+    for (const warning of keystrokeProbeScanWarnings(keystrokeProbe, activeProbeSubjectAvailable)) {
+      warnings.add(warning);
+    }
     const activeProbeSubjectLost =
       keystrokeProbe !== null && "subjectLost" in keystrokeProbe && keystrokeProbe.subjectLost === true;
     if (activeProbeSubjectLost) {
-      warnings.add(ACTIVE_PROBE_SUBJECT_WARNING);
       measurementKernel.recordCaptureLoss({
         family: "requests",
         phaseId: keystrokePhaseId,
@@ -3871,7 +3900,12 @@ export async function probeKeystrokeExfiltration(
   boundedPageCollectorKey: string,
   lifecycle: KeystrokeProbeLifecycle
 ): Promise<KeystrokeProbeOutcome> {
+  // Every exit that leaves r2's keystroke detector other than complete adds a
+  // v1 line its readers censor the keystroke claim for, since v1 has no
+  // detector ledger: this one, the unread-request line where the capture
+  // closes, and the scan's own lines for a lost subject or a deadline cancel.
   if (MAX_SCAN_DURATION_MS - (Date.now() - started) < KEYSTROKE_PROBE_MIN_BUDGET_MS) {
+    warnings.add(KEYSTROKE_PROBE_TEST_INCOMPLETE_WARNING);
     return { status: "partial", reason: "budget-unavailable", detection: null };
   }
   if (!sameScanSubjectUrl(page.url(), trustedSubjectUrl)) {
@@ -3929,6 +3963,11 @@ export async function probeKeystrokeExfiltration(
     if (lifecycle.cancelled) {
       return { status: "partial", reason: "budget-unavailable", detection: null };
     }
+    // A field left untested or refusing the value leaves the detector
+    // partial on every exit below.
+    if (typed.omittedCandidateCount > 0 || typed.preventedFieldCount > 0) {
+      warnings.add(KEYSTROKE_PROBE_TEST_INCOMPLETE_WARNING);
+    }
     if (typed.subjectLost) {
       if (typed.count > 0) addKeystrokeProbeDisclosure(warnings, typed.count, false);
       return typed.count > 0
@@ -3956,20 +3995,22 @@ export async function probeKeystrokeExfiltration(
       return { status: "partial", reason: "load-failed", detection: null, subjectLost: true };
     }
   } catch {
-    if (!lifecycle.cancelled && lifecycle.typedFieldCount > 0) {
-      addKeystrokeProbeDisclosure(warnings, lifecycle.typedFieldCount);
+    if (!lifecycle.cancelled) {
+      if (lifecycle.typedFieldCount > 0) addKeystrokeProbeDisclosure(warnings, lifecycle.typedFieldCount);
+      warnings.add(KEYSTROKE_PROBE_TEST_INCOMPLETE_WARNING);
     }
     return { status: "failed", reason: "scan-failed", detection: null };
   } finally {
     lifecycle.stopCapture();
-    // The capture is closed, so its failure count is final on every exit.
-    // A stopped navigation that may have carried the value, or a request the
-    // capture could not read, withholds the keystroke claim on r2 through the
-    // detector status; v1 has no detector ledger, and without this line it
-    // published the absence. A refused field and a capture-bound truncation
-    // are other causes. Once cancelled, the scan-level handler has frozen the
-    // warnings and the incomplete-probe line already covers the probe.
-    if (!lifecycle.cancelled && captured.failureLossCount > 0) {
+    // The capture is closed, so its loss count is final on every exit. A
+    // stopped navigation that may have carried the value, a request the
+    // capture could not read, and one it cut or skipped at its bounds each
+    // withhold the keystroke claim on r2 through the detector status; v1 has
+    // no detector ledger, and without this line it published the absence. A
+    // field is the other line's cause. Once cancelled, the scan-level handler
+    // has frozen the warnings and the incomplete-probe line already covers
+    // the probe.
+    if (!lifecycle.cancelled && captured.captureLossCount > 0) {
       warnings.add(KEYSTROKE_PROBE_REQUEST_UNREAD_WARNING);
     }
   }

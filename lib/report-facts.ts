@@ -34,6 +34,8 @@ import {
   familyCensoredOnRun,
   familyUnsupportedOnRun,
   LEGACY_KEYSTROKE_PROBE_REQUEST_UNREAD_REASON,
+  LEGACY_KEYSTROKE_PROBE_SUBJECT_LOST_REASON,
+  LEGACY_KEYSTROKE_PROBE_TEST_INCOMPLETE_REASON,
   LEGACY_LISTENER_DETECTION_WITHHELD_REASON,
   requestEvidenceState,
   unsupportedEvidenceFamilies,
@@ -306,11 +308,17 @@ export const REPORT_CLAIM_REQUIREMENTS: Readonly<Record<ReportClaimId, ClaimRequ
         "public-fingerprint-detections"
       ]
     },
-    // The v1 channel for r2's scan-failed probe over a request it stopped or
-    // could not read. It censors this claim alone; the incomplete probe's
-    // wider reason reaches it through the family instead.
+    // The v1 channels for an r2 keystroke detector that is not complete: a
+    // request the probe stopped or could not read in full, a test it did not
+    // complete for another cause, and a probe the subject loss skipped or
+    // stopped. Each censors this claim alone; the incomplete probe's wider
+    // reason reaches it through the family instead.
     legacyReasons: {
-      "detector-output": [LEGACY_KEYSTROKE_PROBE_REQUEST_UNREAD_REASON]
+      "detector-output": [
+        LEGACY_KEYSTROKE_PROBE_REQUEST_UNREAD_REASON,
+        LEGACY_KEYSTROKE_PROBE_TEST_INCOMPLETE_REASON,
+        LEGACY_KEYSTROKE_PROBE_SUBJECT_LOST_REASON
+      ]
     },
     detectors: ["keystroke-exfiltration"],
     count: "none"

@@ -12,7 +12,9 @@ import {
   comparableSubjectHosts,
   comparisonEligibility,
   runHitKeystrokeProbeCaptureLoss,
+  runHitKeystrokeProbeNavigationStopped,
   runHitKeystrokeProbeRequestUnread,
+  runHitKeystrokeProbeTestIncomplete,
   runHitPixelDecodeCaptureLoss,
   runHitRequestCap,
   runHitResponseByteCap,
@@ -22,11 +24,14 @@ import {
 } from "./comparison-eligibility";
 import { legacyComparisonDecision } from "./comparison-decision";
 import { CONSENT_INTERACTION_LEFT_SUBJECT_WARNING } from "./consent-subject-loss-warning";
+import { ACTIVE_PROBE_SUBJECT_WARNING, CONSENT_RELOAD_SUBJECT_WARNING } from "./active-probe-subject-warnings";
 import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "./gpc-injection";
 import {
   INVALID_UPSTREAM_RESPONSE_WARNING,
   KEYSTROKE_PROBE_INCOMPLETE_WARNING,
+  KEYSTROKE_PROBE_NAVIGATION_STOPPED_WARNING,
   KEYSTROKE_PROBE_REQUEST_UNREAD_WARNING,
+  KEYSTROKE_PROBE_TEST_INCOMPLETE_WARNING,
   MAX_RECORDED_REQUESTS,
   PIXEL_DECODE_CAPTURE_LOSS_WARNING,
   ScanRequestBudget,
@@ -400,6 +405,10 @@ test("all scanner-declared request capture loss fails the legacy comparison clos
     {
       warning: KEYSTROKE_PROBE_INCOMPLETE_WARNING,
       reason: /synthetic form-input probe before it finished/
+    },
+    {
+      warning: KEYSTROKE_PROBE_NAVIGATION_STOPPED_WARNING,
+      reason: /synthetic form-input probe stopped one or more navigations/
     }
   ];
 
@@ -439,6 +448,27 @@ test("the input probe's unread-request line is scoped detector loss, not request
     comparisonEligibility(shieldsPair(makeRun({}), run)),
     comparisonEligibility(shieldsPair(makeRun({}), makeRun({ totalRequests: 20 })))
   );
+});
+
+test("the input probe's other claim-scoped lines are not request loss", () => {
+  // A test the probe did not complete, or a probe the subject loss skipped or
+  // stopped, leaves only the keystroke conclusion unknown. None may make a
+  // pair ineligible or read as request-evidence loss on its own; the consent
+  // line already disqualifies a pair for its own reason.
+  const run = makeRun({ totalRequests: 20 });
+  run.warnings = [KEYSTROKE_PROBE_TEST_INCOMPLETE_WARNING];
+  assert.equal(runHitKeystrokeProbeTestIncomplete(run), true);
+  assert.equal(runHitKeystrokeProbeNavigationStopped(run), false);
+  for (const warning of [KEYSTROKE_PROBE_TEST_INCOMPLETE_WARNING, CONSENT_RELOAD_SUBJECT_WARNING, ACTIVE_PROBE_SUBJECT_WARNING]) {
+    const incomplete = makeRun({ totalRequests: 20 });
+    incomplete.warnings = [warning];
+    assert.equal(runRequestEvidenceCapped(incomplete), false, warning);
+    assert.deepEqual(
+      comparisonEligibility(shieldsPair(makeRun({}), incomplete)),
+      comparisonEligibility(shieldsPair(makeRun({}), makeRun({ totalRequests: 20 }))),
+      warning
+    );
+  }
 });
 
 test("mismatched subjects, devices, and pipelines each disqualify", () => {

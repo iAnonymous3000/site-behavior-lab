@@ -33,6 +33,10 @@ const QUALITY_REASON_NOTES: Record<string, string> = {
     "the scan proxy rejected one or more invalid upstream responses, so the request evidence is incomplete",
   "capture-loss:unsettled-routed-requests":
     "the scan deadline arrived while one or more requests were still being handled, so the request evidence is incomplete",
+  // v1 only (LEGACY_KEYSTROKE_PROBE_NAVIGATION_STOPPED_REASON). r2 reports the
+  // same stop as a dropped requests-family capture loss.
+  "capture-loss:keystroke-probe-navigation-stopped":
+    "the synthetic form-input probe stopped one or more navigations started while it ran, so the request evidence is incomplete",
   "capture-loss:page-subject-validity":
     "the bounded page-content collector was unavailable or unreadable, so the scanner could not verify the rendered document",
   // v1 only (LEGACY_LISTENER_DETECTION_WITHHELD_REASON). r2 reports the same
@@ -42,7 +46,14 @@ const QUALITY_REASON_NOTES: Record<string, string> = {
   // v1 only (LEGACY_KEYSTROKE_PROBE_REQUEST_UNREAD_REASON). r2 reports the
   // same probe as a partial detector with a keystroke-probe capture loss.
   "capture-loss:keystroke-probe-request-unread":
-    "the synthetic form-input probe stopped, or could not read in full, a request that may have carried its test value, so input-capture detection is incomplete"
+    "the synthetic form-input probe stopped, or could not read in full, a request that may have carried its test value, so input-capture detection is incomplete",
+  // v1 only (LEGACY_KEYSTROKE_PROBE_TEST_INCOMPLETE_REASON and
+  // LEGACY_KEYSTROKE_PROBE_SUBJECT_LOST_REASON). r2 reports both as a keystroke
+  // detector that is not complete.
+  "capture-loss:keystroke-probe-test-incomplete":
+    "the synthetic form-input probe did not complete its test, so input-capture detection is incomplete",
+  "capture-loss:keystroke-probe-subject-lost":
+    "the page was off the recorded site before or during the synthetic form-input probe, so input-capture detection is incomplete"
 };
 
 const FINGERPRINT_LISTENER_ATTRIBUTION_NOTE =

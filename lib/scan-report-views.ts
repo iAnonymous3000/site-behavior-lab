@@ -21,7 +21,9 @@ import {
   runHitGpcWorkerCaptureLoss,
   runHitInvalidUpstreamResponseCaptureLoss,
   runHitKeystrokeProbeCaptureLoss,
+  runHitKeystrokeProbeNavigationStopped,
   runHitKeystrokeProbeRequestUnread,
+  runHitKeystrokeProbeTestIncomplete,
   runHitListenerDetectionWithheld,
   runHitPixelDecodeCaptureLoss,
   runHitPageSubjectUnverified,
@@ -30,7 +32,8 @@ import {
   runHitResponseByteCap,
   runHitSuspectedChallengeOrSoftBlock,
   runHitUnsettledRoutedRequests,
-  runHitUploadByteCap
+  runHitUploadByteCap,
+  runKeystrokeProbeLeftSubject
 } from "./comparison-eligibility";
 import { summarizeDomains } from "./domain-summaries";
 import { recordedPlaywrightVersion } from "./legacy-methodology";
@@ -629,6 +632,27 @@ export const LEGACY_LISTENER_DETECTION_WITHHELD_REASON = "capture-loss:public-fi
  */
 export const LEGACY_KEYSTROKE_PROBE_REQUEST_UNREAD_REASON = "capture-loss:keystroke-probe-request-unread";
 
+/**
+ * The legacy reason for a v1 input probe that did not complete its test for a
+ * cause other than a request (no time to start, a field left untested or
+ * refusing the value, the probe's own work throwing). Claim-scoped to the
+ * keystroke claim like the unread-request reason.
+ */
+export const LEGACY_KEYSTROKE_PROBE_TEST_INCOMPLETE_REASON = "capture-loss:keystroke-probe-test-incomplete";
+
+/**
+ * The legacy reason for a v1 input probe that was skipped or stopped because
+ * the page was off the recorded site. Claim-scoped to the keystroke claim: the
+ * families that subject loss also drops on r2 are outside it.
+ */
+export const LEGACY_KEYSTROKE_PROBE_SUBJECT_LOST_REASON = "capture-loss:keystroke-probe-subject-lost";
+
+/**
+ * The legacy reason for a navigation the page route stopped while the v1 input
+ * probe ran: lost request coverage, read like an unsettled routed request.
+ */
+export const LEGACY_KEYSTROKE_PROBE_NAVIGATION_STOPPED_REASON = "capture-loss:keystroke-probe-navigation-stopped";
+
 function runViewFromV1(result: ScanResult, label: RunView["label"], scannedAt: string | null): RunView {
   // v1 never recorded quality; derive the run-level outcome from the same
   // facts the interim gate uses (status, cap) and mark it legacy-derived so it
@@ -652,6 +676,10 @@ function runViewFromV1(result: ScanResult, label: RunView["label"], scannedAt: s
   // deliberately not a `budget-exhausted:` slug: that prefix censors every
   // family, which would hide cookies and storage this visit did observe.
   if (runHitUnsettledRoutedRequests(result)) reasons.push("capture-loss:unsettled-routed-requests");
+  // A navigation the input probe stopped never loaded and left the log. r2's
+  // page route records each one as a dropped requests-family loss, so it is
+  // read like the deadline above, whether or not it carried the test value.
+  if (runHitKeystrokeProbeNavigationStopped(result)) reasons.push(LEGACY_KEYSTROKE_PROBE_NAVIGATION_STOPPED_REASON);
   if (runHitProxyTrafficBudget(result)) reasons.push("budget-exhausted:proxy-traffic");
   // Not a budget: the instrument itself did not run. Scoped to the families it
   // actually covers rather than censoring the whole run. A read frame whose
@@ -666,19 +694,15 @@ function runViewFromV1(result: ScanResult, label: RunView["label"], scannedAt: s
   // withheld one listener detection and published every other fingerprinting
   // and detector-output product as measured.
   if (runHitListenerDetectionWithheld(result)) reasons.push(LEGACY_LISTENER_DETECTION_WITHHELD_REASON);
-  // Claim-scoped too, but the request log is whole for only one of the line's
-  // two causes. A request the probe could not read was sent and is in the log,
-  // so request censoring would over-censor it. A navigation the probe stopped
-  // is lost request coverage: r2's page route records it as `dropped` in the
-  // requests family, which censors that family, drops the run from the corpus
-  // population and withholds third-party-services. v1 has no channel for that
-  // loss, and this line cannot be it: it fires only for a stopped navigation
-  // that may have carried the value, while r2 records every one. So a v1 visit
-  // with a stopped navigation still reads as complete request evidence here.
-  // A separate v1 line for any probe-stopped navigation, read like
-  // `capture-loss:unsettled-routed-requests`, is tracked as its own identity
-  // change (docs/comprehensive-review-2026-09-22.md).
+  // Claim-scoped too: every r2 keystroke status other than complete leaves one
+  // of these three lines (or the incomplete-probe line above, or a subject
+  // that is not established), and each censors the keystroke claim alone. A
+  // request the probe could not read was sent and is in the log, so request
+  // censoring would over-censor it; the request coverage a stopped navigation
+  // loses is the navigation line's, read with the request losses above.
   if (runHitKeystrokeProbeRequestUnread(result)) reasons.push(LEGACY_KEYSTROKE_PROBE_REQUEST_UNREAD_REASON);
+  if (runHitKeystrokeProbeTestIncomplete(result)) reasons.push(LEGACY_KEYSTROKE_PROBE_TEST_INCOMPLETE_REASON);
+  if (runKeystrokeProbeLeftSubject(result)) reasons.push(LEGACY_KEYSTROKE_PROBE_SUBJECT_LOST_REASON);
   return {
     label,
     domain: result.summary.firstPartyDomain,
@@ -1272,9 +1296,9 @@ export function familyCensoredOnRun(run: RunView, family: string): boolean {
   // LEGACY_LISTENER_DETECTION_WITHHELD_REASON is not listed here on purpose:
   // the family state applies to every claim of the family, so it would also
   // censor the pixel, CNAME, consent, policy and keystroke claims. The listener
-  // claim takes it through its own `legacyReasons` in report-facts, and
-  // LEGACY_KEYSTROKE_PROBE_REQUEST_UNREAD_REASON reaches the keystroke claim
-  // the same way.
+  // claim takes it through its own `legacyReasons` in report-facts, and the
+  // unread-request, test-incomplete and subject-lost probe reasons reach the
+  // keystroke claim the same way.
   if (
     (family === "fingerprinting" || family === "detector-output") &&
     run.quality.reasons.includes("capture-loss:fingerprint-observer")
@@ -1296,7 +1320,8 @@ export function familyCensoredOnRun(run: RunView, family: string): boolean {
     family === "requests" &&
     (run.quality.reasons.includes("capture-loss:gpc-worker") ||
       run.quality.reasons.includes("capture-loss:invalid-upstream-response") ||
-      run.quality.reasons.includes("capture-loss:unsettled-routed-requests"))
+      run.quality.reasons.includes("capture-loss:unsettled-routed-requests") ||
+      run.quality.reasons.includes(LEGACY_KEYSTROKE_PROBE_NAVIGATION_STOPPED_REASON))
   );
 }
 

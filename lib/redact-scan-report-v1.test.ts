@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { test } from "node:test";
 import { PAGE_SUBJECT_UNVERIFIED_WARNING } from "./bot-wall-classifier";
+import { ACTIVE_PROBE_SUBJECT_WARNING, CONSENT_RELOAD_SUBJECT_WARNING } from "./active-probe-subject-warnings";
 import { compareScanResults, createGpcComparisonReport } from "./compare-reports";
 import { runHitResponseByteCap, runHitUploadByteCap } from "./comparison-eligibility";
 import { CONSENT_PROBE_OUTCOMES, consentInteractionWarning } from "./consent-interaction";
@@ -28,7 +29,9 @@ import {
   FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING,
   INVALID_UPSTREAM_RESPONSE_WARNING,
   KEYSTROKE_PROBE_INCOMPLETE_WARNING,
+  KEYSTROKE_PROBE_NAVIGATION_STOPPED_WARNING,
   KEYSTROKE_PROBE_REQUEST_UNREAD_WARNING,
+  KEYSTROKE_PROBE_TEST_INCOMPLETE_WARNING,
   LISTENER_DETECTION_WITHHELD_WARNING,
   PIXEL_DECODE_CAPTURE_LOSS_WARNING,
   UNSETTLED_ROUTED_REQUEST_WARNING
@@ -421,6 +424,31 @@ test("the input probe's unread-request disclosure survives the public boundary, 
     redactScannerWarnings([`Shields on: ${KEYSTROKE_PROBE_REQUEST_UNREAD_WARNING}`], new RedactionPass()),
     [`Shields on: ${KEYSTROKE_PROBE_REQUEST_UNREAD_WARNING}`]
   );
+});
+
+test("the input probe's incomplete-test and stopped-navigation lines survive the public boundary, alone and labeled", () => {
+  // v1's only records that the probe did not complete its test for a cause
+  // other than a request, and that its route stopped a navigation. Replaced by
+  // the redacted marker, the keystroke claim or the request family would read
+  // as complete where r2 withholds it. The subject-loss lines v1 readers now
+  // also read for the keystroke claim were admitted before and stay so.
+  for (const warning of [
+    KEYSTROKE_PROBE_TEST_INCOMPLETE_WARNING,
+    KEYSTROKE_PROBE_NAVIGATION_STOPPED_WARNING,
+    CONSENT_RELOAD_SUBJECT_WARNING,
+    ACTIVE_PROBE_SUBJECT_WARNING
+  ]) {
+    const input = sensitiveSingle();
+    input.warnings = [warning];
+    const first = redactScanResultV1(input).report;
+    assert.deepEqual(first.warnings, [warning], warning);
+    assert.equal(JSON.stringify(redactScanResultV1(first).report), JSON.stringify(first), warning);
+    assert.deepEqual(
+      redactScannerWarnings([`Shields on: ${warning}`], new RedactionPass()),
+      [`Shields on: ${warning}`],
+      warning
+    );
+  }
 });
 
 test("every consent disclosure the producer can emit survives the public boundary", () => {

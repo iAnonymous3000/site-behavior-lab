@@ -76,12 +76,15 @@ export const SUPERSEDED_R2_NORMALIZATIONS: Readonly<
   Record<ObserverKind, readonly string[]>
 > = Object.freeze({
   "node-playwright": Object.freeze([
-    // Retired by the node-detectors-v10 measurement epoch, which admits two
+    // Retired by the node-detectors-v10 measurement epoch, which admits four
     // exact fixed scanner warnings: the v1 listener-withheld disclosure
-    // (LISTENER_DETECTION_WITHHELD_WARNING) and the input probe's unread
-    // request line (KEYSTROKE_PROBE_REQUEST_UNREAD_WARNING). Nothing an older
-    // pass admitted was removed and the public-suffix engine is unchanged, so
-    // every published report stays a fixed point.
+    // (LISTENER_DETECTION_WITHHELD_WARNING) and the input probe's
+    // unread-request, incomplete-test and stopped-navigation lines
+    // (KEYSTROKE_PROBE_REQUEST_UNREAD_WARNING,
+    // KEYSTROKE_PROBE_TEST_INCOMPLETE_WARNING and
+    // KEYSTROKE_PROBE_NAVIGATION_STOPPED_WARNING). Nothing an older pass
+    // admitted was removed and the public-suffix engine is unchanged, so every
+    // published report stays a fixed point.
     "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:cb7064a154022024d8ffa25c110de6feff64f2b0ecbd375b14a24ff17105059d+tldts@7.4.13+node-evidence-policy-v1+r2-http-status-compat-v1",
     // Retired by the 2026-09 toolchain epoch, which moved the public-suffix
     // engine to tldts@7.4.13 under the same policy digest. This is the
@@ -211,7 +214,7 @@ export const SUPERSEDED_R2_NORMALIZATIONS: Readonly<
     "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:6c78c05523e1f16c88264d0144af33587bd6dc11e04d337a6af2d58190639266+tldts@7.4.9+node-evidence-policy-v1+r2-http-status-compat-v1"
   ]),
   "pagegraph-import": Object.freeze([
-    // Retired by the two warnings node-detectors-v10 admits; see the
+    // Retired by the four warnings node-detectors-v10 admits; see the
     // node-playwright entry.
     "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:cb7064a154022024d8ffa25c110de6feff64f2b0ecbd375b14a24ff17105059d+tldts@7.4.13+pagegraph-request-evidence-v1+r2-http-status-compat-v1",
     // Retired by the 2026-09 toolchain epoch's move to tldts@7.4.13; see the

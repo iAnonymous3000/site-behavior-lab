@@ -271,10 +271,10 @@ sibling claim and every corpus population stay as measured. Unlike r2's shared
 detail, it does not censor keystroke exfiltration, because a v1 keystroke
 recipient redacts to a host marker the guard accepts. The admitted string moves
 the public-string policy digest off `cb7064a1...059d`, and with it both r2
-normalization identities; with the input probe's line admitted below, the
-epoch's value is `ab262b83...2560`. The `dynamicWarningPatterns` label and its
-source pin do not move. The outgoing normalizations and producer
-rows are closed with this epoch's identity bookkeeping. Re-sanitizing all 919
+normalization identities; with the input probe's three lines admitted below,
+the epoch's value is `b40a333a...3d51`. The `dynamicWarningPatterns` label and
+its source pin do not move. The outgoing normalizations and producer rows are
+closed with this epoch's identity bookkeeping. Re-sanitizing all 919
 committed v1 reports leaves each one byte-identical and adds the line to none.
 Reports whose listener detection was dropped at scan time cannot be
 identified, because raw evidence is not retained, so they stay undisclosed.
@@ -284,7 +284,7 @@ identified, because raw evidence is not retained, so they stay undisclosed.
 the HTTP status (subject validity `v4`), the probe-aborted navigation (active
 probe `v3` and `synthetic-sentinel@5`), the Shields boundary (no identity), the
 v1 sanitizer (a normalization widening, `cb7064a1...059d` to
-`ab262b83...2560` with the probe line below) and the GPC worker accounting
+`b40a333a...3d51` with the probe lines below) and the GPC worker accounting
 (`gpc-worker-application-v3`),
 and, from the older backlog, the partial banner read (`consent-r2-v5`). Of the
 table, only `canvas-font-probing-v1` stays open. The probe row asked for the v1
@@ -320,14 +320,15 @@ log, where request censoring would over-censor. It does not fit a stopped
 navigation, which r2 records as lost request coverage. r2 carries the same line
 beside its detector status. The admitted string is a second widening in this
 epoch, so the public-string policy digest the outgoing `cb7064a1...059d` moves
-to is `ab262b83...2560`; the `dynamicWarningPatterns` label and its source pin
-do not move. Re-sanitizing all 919 committed v1 reports leaves each one
-unchanged and adds the line to none. The line is added where the probe's
-capture closes, so a probe that threw after typing, lost the subject, or had no
-field keep the value still carries it when a request went unread. Still open
-on v1, where r2 withholds the claim with no request unread: a probe cut at its
-capture bounds, a probe whose own work threw, a field that refused the value,
-and a probe that lost the subject.
+to is `ab262b83...2560` (`b40a333a...3d51` with the two lines of the next
+update); the `dynamicWarningPatterns` label and its source pin do not move.
+Re-sanitizing all 919 committed v1 reports leaves each one unchanged and adds
+the line to none. The line is added where the probe's capture closes, so a
+probe that threw after typing, lost the subject, or had no field keep the value
+still carries it when a request went unread. Still open on v1, where r2
+withholds the claim with no request unread: a probe cut at its capture bounds,
+a probe whose own work threw, a field that refused the value, and a probe that
+lost the subject.
 
 Also open, and wider than the keystroke claim: every navigation the probe
 stops, whether or not it carried the value, is lost request coverage on r2 and
@@ -345,6 +346,77 @@ unreadable-request case. The fix is a separate v1 line for any probe-stopped
 navigation, read like `capture-loss:unsettled-routed-requests` (request-family
 censoring, `runRequestEvidenceCapped` and comparison eligibility), tracked as
 its own identity change.
+
+**Update, 2026-09-25, later.** Both are closed in the same epoch, so the only
+identity cost is one more move of a digest that is already moving. Every r2
+outcome of the keystroke detector other than `complete` now leaves a v1 line
+that v1 readers censor the keystroke claim for, and the table test in
+lib/scanner.test.ts drives each probe exit through the real sanitizer, view
+and facts to hold that. Before the fix nine of its eleven non-complete exits
+published the absence on v1: no time left once the probe started, a refused
+field, an untested field, a body or URL past the capture bounds, requests past
+the capture's request bound, a thrown wait, and the subject lost with and
+without a typed field. So did a probe the scan had no time left to start, and
+a consent interaction or post-consent reload that left the site. Two existing strings cover most of them. The
+unread-request line now also fires for a request cut or skipped at the capture
+bounds, since the probe could not read it in full and the unread part may have
+carried the value. The three admitted lines that say the page was off the
+recorded site before or during the probe (the consent interaction's, the
+post-consent reload's and the probe's own) are already emitted on every r2
+skip or stop for subject loss and are literally true there, so v1 readers now
+read them as `capture-loss:keystroke-probe-subject-lost`, scoped to the
+keystroke claim; no committed report carries any of the three. The
+incomplete-probe line is not true for the rest: its request clause describes a
+deadline that can cut the log, while a probe whose own work threw has stopped
+and its requests are in the log. So a new admitted line,
+`KEYSTROKE_PROBE_TEST_INCOMPLETE_WARNING`, covers a probe the scan had no time
+to start (the one case the scan decides, through `keystrokeProbeScanWarnings`,
+and a browser test forces it with a test-only budget option), a field left
+untested or refusing the value, and the probe's own work throwing. It is worded
+so it holds when the probe never started or the page has no fields, and v1
+readers map it to `capture-loss:keystroke-probe-test-incomplete`, scoped to the
+keystroke claim. Untested fields include every number or date field and every
+field past the probe's eight-field and 64-candidate bounds, so on real pages
+many new v1 visits lose the calm headline; r2 was already partial on each.
+
+For request coverage, the page route now adds a second new admitted line,
+`KEYSTROKE_PROBE_NAVIGATION_STOPPED_WARNING`, beside its r2 loss and before the
+abort is awaited, so both wires carry the stop whether or not the abort holds.
+v1 readers map it to `capture-loss:keystroke-probe-navigation-stopped` and read
+it like the unsettled routed-request line: it censors the request family,
+enters `runRequestEvidenceCapped` and comparison eligibility, and leaves the
+keystroke claim to the probe's own lines. In the child-frame and main-frame
+browser tests v1 now withholds `third-party-services` with `family-censored`
+and `benchmarkAllowed: false`, leaves the corpus population and reads its
+request evidence as `incomplete`, as r2 does; the foreign-realm test's
+first-party submission censors the request family on v1 while its keystroke
+claim stands on both wires. The two strings move the public-string policy
+digest from `ab262b83...2560` to `b40a333a...3d51`; the outgoing
+`cb7064a1...059d` literals, the closed v12 rows and the `SUPERSEDED` entries do
+not change, and `isScannerWarning` is untouched, so
+`scanner-warning-patterns-v9` holds. Re-sanitizing all 919 committed v1 reports
+leaves each one unchanged, adds neither line to any, and gives none of them a
+new reader reason.
+
+Still divergent, outside the keystroke claim and probe-stopped navigations:
+
+- Request, cookie, storage and fingerprinting coverage after the page leaves
+  the recorded site. r2 records dropped losses for those families when the
+  consent interaction leaves it (all four), when the page leaves before the
+  passive snapshot (all four) and when it leaves during the probe (requests and
+  fingerprinting), while v1 reads them as complete. The probe's subject line
+  cannot carry request censoring: it is also added when the page is off the
+  site just before the probe, where r2 records no family loss. A v1 line per
+  cause is its own identity change.
+- Auxiliary pages. The context-level route records a dropped requests-family
+  loss for every popup request in any phase, and v1 has no line for it. It is
+  not probe-specific, so the stopped-navigation line would be false for it.
+- The listener-withheld drop. r2's shared `public-fingerprint-detections`
+  detail censors the keystroke claim too; v1 does not. That drop does not
+  undermine the keystroke negative, and the v1 sanitizer never drops a
+  keystroke detection (a recipient that does not redact to a publishable host
+  becomes a host marker the guard accepts), so this is r2 over-censoring and
+  is left.
 
 ## 5. Confirmed and left for other reasons
 

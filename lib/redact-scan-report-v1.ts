@@ -49,7 +49,9 @@ import {
   FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING,
   INVALID_UPSTREAM_RESPONSE_WARNING,
   KEYSTROKE_PROBE_INCOMPLETE_WARNING,
+  KEYSTROKE_PROBE_NAVIGATION_STOPPED_WARNING,
   KEYSTROKE_PROBE_REQUEST_UNREAD_WARNING,
+  KEYSTROKE_PROBE_TEST_INCOMPLETE_WARNING,
   LISTENER_DETECTION_WITHHELD_WARNING,
   PIXEL_DECODE_CAPTURE_LOSS_WARNING,
   UNSETTLED_ROUTED_REQUEST_WARNING
@@ -355,9 +357,16 @@ const FIXED_SCANNER_WARNINGS = new Set([
   // script origin has no publishable registrable domain was withheld.
   LISTENER_DETECTION_WITHHELD_WARNING,
   KEYSTROKE_PROBE_INCOMPLETE_WARNING,
-  // synthetic-sentinel@5: the probe finished, but stopped or could not read
-  // in full a request that may have carried its test value.
+  // synthetic-sentinel@5: the probe stopped or could not read in full a
+  // request that may have carried its test value.
   KEYSTROKE_PROBE_REQUEST_UNREAD_WARNING,
+  // synthetic-sentinel@5: the probe did not complete its test for another
+  // cause (no time to start, a field left untested or refusing the value,
+  // its own work throwing).
+  KEYSTROKE_PROBE_TEST_INCOMPLETE_WARNING,
+  // active-probe-v3: the page route stopped a navigation while the probe ran,
+  // which r2 records as lost request coverage.
+  KEYSTROKE_PROBE_NAVIGATION_STOPPED_WARNING,
   PIXEL_DECODE_CAPTURE_LOSS_WARNING,
   GPC_WORKER_CAPTURE_LOSS_WARNING,
   CONSENT_RELOAD_DISCLOSURE,

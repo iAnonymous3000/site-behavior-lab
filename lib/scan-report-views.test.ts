@@ -23,10 +23,14 @@ import {
 } from "./legacy-methodology";
 import {
   familyCensoredOnRun,
+  LEGACY_KEYSTROKE_PROBE_NAVIGATION_STOPPED_REASON,
   LEGACY_KEYSTROKE_PROBE_REQUEST_UNREAD_REASON,
+  LEGACY_KEYSTROKE_PROBE_SUBJECT_LOST_REASON,
+  LEGACY_KEYSTROKE_PROBE_TEST_INCOMPLETE_REASON,
   LEGACY_LISTENER_DETECTION_WITHHELD_REASON,
   requestEvidenceState,
   runHitRequestRecordingCap,
+  runInCorpusDistributionPopulation,
   viewFromV1Report,
   viewFromV2
 } from "./scan-report-views";
@@ -36,10 +40,16 @@ import {
   runHitFingerprintListenerAttributionLoss,
   runHitFingerprintObserverCaptureLoss,
   runHitKeystrokeProbeCaptureLoss,
+  runHitKeystrokeProbeNavigationStopped,
   runHitKeystrokeProbeRequestUnread,
+  runHitKeystrokeProbeTestIncomplete,
   runHitListenerDetectionWithheld,
+  runHitUnsettledRoutedRequests,
+  runKeystrokeProbeLeftSubject,
   runRequestEvidenceCapped
 } from "./comparison-eligibility";
+import { CONSENT_INTERACTION_LEFT_SUBJECT_WARNING } from "./consent-subject-loss-warning";
+import { ACTIVE_PROBE_SUBJECT_WARNING, CONSENT_RELOAD_SUBJECT_WARNING } from "./active-probe-subject-warnings";
 import { createCorpusStatsAccumulator } from "./corpus-stats-builder";
 import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "./gpc-injection";
 import { buildReportFacts } from "./report-facts";
@@ -50,7 +60,9 @@ import {
   FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING,
   INVALID_UPSTREAM_RESPONSE_WARNING,
   KEYSTROKE_PROBE_INCOMPLETE_WARNING,
+  KEYSTROKE_PROBE_NAVIGATION_STOPPED_WARNING,
   KEYSTROKE_PROBE_REQUEST_UNREAD_WARNING,
+  KEYSTROKE_PROBE_TEST_INCOMPLETE_WARNING,
   LISTENER_DETECTION_WITHHELD_WARNING,
   PIXEL_DECODE_CAPTURE_LOSS_WARNING,
   UNSETTLED_ROUTED_REQUEST_WARNING
@@ -318,7 +330,8 @@ test("the view's sort clock covers every embedded run, supporting pairs included
 const REQUEST_EVIDENCE_LOSS_WARNINGS: { name: string; warning: string }[] = [
   { name: "GPC_WORKER_CAPTURE_LOSS_WARNING", warning: GPC_WORKER_CAPTURE_LOSS_WARNING },
   { name: "INVALID_UPSTREAM_RESPONSE_WARNING", warning: INVALID_UPSTREAM_RESPONSE_WARNING },
-  { name: "UNSETTLED_ROUTED_REQUEST_WARNING", warning: UNSETTLED_ROUTED_REQUEST_WARNING }
+  { name: "UNSETTLED_ROUTED_REQUEST_WARNING", warning: UNSETTLED_ROUTED_REQUEST_WARNING },
+  { name: "KEYSTROKE_PROBE_NAVIGATION_STOPPED_WARNING", warning: KEYSTROKE_PROBE_NAVIGATION_STOPPED_WARNING }
 ];
 
 test("every producer request-loss warning censors the requests family on both halves", () => {
@@ -613,6 +626,156 @@ test("a v1 probe that stopped or could not read a request censors the keystroke 
   assert.doesNotMatch(quiet.headline, /did not finish/);
   assert.match(quiet.subhead, /^The request log recorded no cross-site hosts/);
   assert.match(quiet.subhead, /instrumented API events\. The synthetic form-input probe stopped/);
+});
+
+test("each probe and request-loss line is recognized by its own predicate alone", () => {
+  // Every probe line opens with the same words and two share their tail with
+  // the unsettled line, so a fragment that also matched a sibling would move
+  // a line into the wrong scope: a claim-scoped line would censor the request
+  // family, or the request-loss line would censor the keystroke claim.
+  const lines: [string, string][] = [
+    ["incomplete", KEYSTROKE_PROBE_INCOMPLETE_WARNING],
+    ["unread", KEYSTROKE_PROBE_REQUEST_UNREAD_WARNING],
+    ["test", KEYSTROKE_PROBE_TEST_INCOMPLETE_WARNING],
+    ["navigation", KEYSTROKE_PROBE_NAVIGATION_STOPPED_WARNING],
+    ["unsettled", UNSETTLED_ROUTED_REQUEST_WARNING],
+    ["listener", LISTENER_DETECTION_WITHHELD_WARNING],
+    ["consent-subject", CONSENT_INTERACTION_LEFT_SUBJECT_WARNING],
+    ["reload-subject", CONSENT_RELOAD_SUBJECT_WARNING],
+    ["probe-subject", ACTIVE_PROBE_SUBJECT_WARNING]
+  ];
+  const predicates: [string, (run: { warnings: string[] }) => boolean, string[]][] = [
+    ["incomplete", runHitKeystrokeProbeCaptureLoss, ["incomplete"]],
+    ["unread", runHitKeystrokeProbeRequestUnread, ["unread"]],
+    ["test", runHitKeystrokeProbeTestIncomplete, ["test"]],
+    ["navigation", runHitKeystrokeProbeNavigationStopped, ["navigation"]],
+    ["unsettled", runHitUnsettledRoutedRequests, ["unsettled"]],
+    ["listener", runHitListenerDetectionWithheld, ["listener"]],
+    ["subject", runKeystrokeProbeLeftSubject, ["consent-subject", "reload-subject", "probe-subject"]]
+  ];
+  for (const [predicateName, predicate, own] of predicates) {
+    for (const [lineName, line] of lines) {
+      assert.equal(predicate({ warnings: [line] }), own.includes(lineName), `${predicateName} on ${lineName}`);
+    }
+  }
+});
+
+test("every other v1 line for an incomplete input probe censors the keystroke claim and nothing else", () => {
+  // r2 withholds the keystroke claim whenever its detector is not complete.
+  // Besides the unread-request line, v1 records that with the line for a test
+  // the probe did not complete and with the three lines for a page that was
+  // off the recorded site when the probe was skipped or stopped. Each run goes
+  // through the real sanitizer, view, facts and corpus accumulator.
+  const outcome = (warnings: string[], fingerprintEvents = 4) => {
+    const input = makeScanReportV1() as ScanResult;
+    input.summary.firstPartyDomain = "probe-fixture.net";
+    input.conditions.requestedUrl = "https://probe-fixture.net/";
+    input.conditions.finalUrl = "https://probe-fixture.net/";
+    input.summary.fingerprintEvents = fingerprintEvents;
+    input.fingerprintEvents = fingerprintEvents > 0 ? [{ api: "canvas.toDataURL", count: fingerprintEvents }] : [];
+    input.fingerprintDetections = [];
+    input.pixelEvents = [];
+    input.cnameCloaks = [];
+    input.warnings = warnings;
+    const report = redactScanResultV1(input).report;
+    const view = viewFromV1Report(report);
+    const run = view.runs[0];
+    const corpus = createCorpusStatsAccumulator(new Date("2026-09-25T00:00:00.000Z"));
+    corpus.add(`20260709-${"e".repeat(32)}`, view);
+    return {
+      report,
+      view,
+      run,
+      facts: buildReportFacts(view).display,
+      censored: ["requests", "cookies", "storage", "fingerprinting", "detector-output"].map((family) =>
+        familyCensoredOnRun(run, family as Parameters<typeof familyCensoredOnRun>[1])
+      ),
+      cohorts: corpus.finish().cohorts
+    };
+  };
+  const clean = outcome([]);
+  const cases: [string, string, RegExp][] = [
+    [KEYSTROKE_PROBE_TEST_INCOMPLETE_WARNING, LEGACY_KEYSTROKE_PROBE_TEST_INCOMPLETE_REASON, /probe did not complete its test/],
+    [CONSENT_INTERACTION_LEFT_SUBJECT_WARNING, LEGACY_KEYSTROKE_PROBE_SUBJECT_LOST_REASON, /off the recorded site before or during the synthetic form-input probe/],
+    [CONSENT_RELOAD_SUBJECT_WARNING, LEGACY_KEYSTROKE_PROBE_SUBJECT_LOST_REASON, /off the recorded site before or during the synthetic form-input probe/],
+    [ACTIVE_PROBE_SUBJECT_WARNING, LEGACY_KEYSTROKE_PROBE_SUBJECT_LOST_REASON, /off the recorded site before or during the synthetic form-input probe/]
+  ];
+  for (const [warning, reason, note] of cases) {
+    const incomplete = outcome([warning]);
+    assert.deepEqual(incomplete.report.warnings, [warning], warning);
+    assert.deepEqual(incomplete.run.quality.reasons, [reason], warning);
+    assert.equal(incomplete.run.quality.outcome, "complete", warning);
+
+    const keystroke = incomplete.facts.claims["keystroke-exfiltration"];
+    assert.equal(clean.facts.claims["keystroke-exfiltration"].allowed, true, warning);
+    assert.equal(keystroke.allowed, false, warning);
+    assert.deepEqual(keystroke.blockers, ["family-censored"], warning);
+    assert.equal(incomplete.facts.calmEligible, false, warning);
+    for (const claim of Object.keys(clean.facts.claims) as (keyof typeof clean.facts.claims)[]) {
+      if (claim === "keystroke-exfiltration") continue;
+      assert.deepEqual(incomplete.facts.claims[claim], clean.facts.claims[claim], `${warning} ${claim}`);
+    }
+    assert.deepEqual(incomplete.facts.evidence, clean.facts.evidence, warning);
+    assert.deepEqual(incomplete.censored, [false, false, false, false, false], warning);
+    assert.equal(runRequestEvidenceCapped(incomplete.report), false, warning);
+    assert.deepEqual(incomplete.cohorts, clean.cohorts, warning);
+
+    const notes = runCensorshipNotes(incomplete.run).join(" ");
+    assert.match(notes, note, warning);
+    assert.doesNotMatch(notes, /capture-loss:/, warning);
+    assert.notEqual(degradedRunNotice(incomplete.view), null, warning);
+    assert.match(buildReportHeadline(outcome([warning], 0).view).subhead, note, warning);
+  }
+});
+
+test("a v1 probe-stopped navigation censors request evidence, not the keystroke claim", () => {
+  // r2's page route records every navigation the probe stops as a dropped
+  // requests-family loss, carrying the value or not: it censors the request
+  // family, leaves the run out of the corpus distribution population and
+  // withholds third-party services. The v1 line is read the same way, and the
+  // keystroke claim stays with the probe's own lines.
+  const outcome = (warnings: string[]) => {
+    const input = makeScanReportV1() as ScanResult;
+    input.summary.firstPartyDomain = "probe-fixture.net";
+    input.conditions.requestedUrl = "https://probe-fixture.net/";
+    input.conditions.finalUrl = "https://probe-fixture.net/";
+    input.fingerprintDetections = [];
+    input.pixelEvents = [];
+    input.cnameCloaks = [];
+    input.warnings = warnings;
+    const report = redactScanResultV1(input).report;
+    const view = viewFromV1Report(report);
+    const corpus = createCorpusStatsAccumulator(new Date("2026-09-25T00:00:00.000Z"));
+    corpus.add(`20260709-${"e".repeat(32)}`, view);
+    return { report, view, run: view.runs[0], facts: buildReportFacts(view).display, cohorts: corpus.finish().cohorts };
+  };
+  const clean = outcome([]);
+  const stopped = outcome([KEYSTROKE_PROBE_NAVIGATION_STOPPED_WARNING]);
+
+  assert.deepEqual(stopped.report.warnings, [KEYSTROKE_PROBE_NAVIGATION_STOPPED_WARNING]);
+  assert.deepEqual(stopped.run.quality.reasons, [LEGACY_KEYSTROKE_PROBE_NAVIGATION_STOPPED_REASON]);
+  assert.equal(stopped.run.quality.outcome, "complete");
+  assert.equal(runRequestEvidenceCapped(stopped.report), true);
+  assert.equal(familyCensoredOnRun(stopped.run, "requests"), true);
+  for (const family of ["cookies", "storage", "fingerprinting", "detector-output"] as const) {
+    assert.equal(familyCensoredOnRun(stopped.run, family), false, family);
+  }
+  assert.equal(requestEvidenceState(stopped.run), "incomplete");
+  assert.equal(runInCorpusDistributionPopulation(clean.run), true);
+  assert.equal(runInCorpusDistributionPopulation(stopped.run), false);
+  assert.equal(clean.cohorts[0]?.metrics.thirdPartyRequests?.count, 1);
+  assert.equal(stopped.cohorts[0]?.metrics.thirdPartyRequests?.count ?? 0, 0);
+
+  const services = stopped.facts.claims["third-party-services"];
+  assert.equal(clean.facts.claims["third-party-services"].benchmarkAllowed, true);
+  assert.equal(services.allowed, false);
+  assert.deepEqual(services.blockers, ["family-censored"]);
+  assert.equal(services.benchmarkAllowed, false);
+  assert.deepEqual(stopped.facts.claims["keystroke-exfiltration"], clean.facts.claims["keystroke-exfiltration"]);
+
+  const notes = runCensorshipNotes(stopped.run).join(" ");
+  assert.match(notes, /stopped one or more navigations started while it ran, so the request evidence is incomplete/);
+  assert.doesNotMatch(notes, /capture-loss:/);
 });
 
 test("a timed-out v1 synthetic-input probe censors detector and request evidence", () => {
