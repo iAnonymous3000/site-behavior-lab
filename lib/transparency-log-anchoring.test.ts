@@ -236,8 +236,20 @@ async function cliWorkspace(): Promise<string> {
   return dir;
 }
 
-function runCli(cwd: string, args: readonly string[]) {
-  return spawnSync(process.execPath, [CLI, ...args], { cwd, encoding: "utf8" });
+/**
+ * The CLI appends a step output whenever GITHUB_OUTPUT is set. Under CI that
+ * is the unit-test step's own output file, so every run here starts without
+ * it and a test that reads the output names a file of its own.
+ */
+function cliEnv(githubOutput?: string): NodeJS.ProcessEnv {
+  const env: NodeJS.ProcessEnv = { ...process.env };
+  delete env.GITHUB_OUTPUT;
+  if (githubOutput !== undefined) env.GITHUB_OUTPUT = githubOutput;
+  return env;
+}
+
+function runCli(cwd: string, args: readonly string[], env: NodeJS.ProcessEnv = cliEnv()) {
+  return spawnSync(process.execPath, [CLI, ...args], { cwd, encoding: "utf8", env });
 }
 
 function settleWithin<T>(operation: Promise<T>, timeoutMs = 250): Promise<T> {
@@ -267,10 +279,11 @@ function settleWithin<T>(operation: Promise<T>, timeoutMs = 250): Promise<T> {
  */
 function runCliAsync(
   cwd: string,
-  args: readonly string[]
+  args: readonly string[],
+  env: NodeJS.ProcessEnv = cliEnv()
 ): Promise<{ status: number | null; stdout: string; stderr: string }> {
   return new Promise((resolve, reject) => {
-    const child = spawn(process.execPath, [CLI, ...args], { cwd });
+    const child = spawn(process.execPath, [CLI, ...args], { cwd, env });
     let stdout = "";
     let stderr = "";
     child.stdout.setEncoding("utf8").on("data", (chunk: string) => (stdout += chunk));
@@ -316,9 +329,12 @@ test("the CLI submits the exact head digest and commits a validated anchor", asy
       return { status: 200, body: fakeCalendarTimestamp(PENDING_TAG, origin) };
     },
     async (origin) => {
-      const first = await runCliAsync(dir, ["--submit", "--calendar", origin]);
+      const firstOutput = path.join(dir, "first-github-output");
+      const first = await runCliAsync(dir, ["--submit", "--calendar", origin], cliEnv(firstOutput));
       assert.equal(first.status, 0, first.stderr);
       assert.match(first.stdout, /1 appended/);
+      // No proposal was carried, so there is nothing pending to publish.
+      assert.match(await readFile(firstOutput, "utf8"), /^carried_pending=false$/m);
 
       // The calendar received the raw 32-byte head, nothing else.
       assert.deepEqual(received, digestHexToBytes(logBefore.head ?? ""));
@@ -429,12 +445,22 @@ test("the CLI carries a pending proposal's anchors and never resubmits a head it
     await writeLog(carryPath, 3, [pending]);
 
     const committedBefore = await readFile(logPath, "utf8");
-    const same = await runCliAsync(dir, ["--submit", "--calendar", origin, "--carry-anchors", carryPath]);
+    const sameOutput = path.join(dir, "same-github-output");
+    const same = await runCliAsync(
+      dir,
+      ["--submit", "--calendar", origin, "--carry-anchors", carryPath],
+      cliEnv(sameOutput)
+    );
     assert.equal(same.status, 0, same.stderr);
     assert.match(same.stdout, /Carried 1 pending anchor/);
     assert.match(same.stdout, /Already anchored at 3 entries/);
     assert.equal(hits(), 0, "a head the open proposal already anchors must not be submitted again");
     assert.equal(await readFile(logPath, "utf8"), committedBefore, "nothing new to propose means nothing written");
+    // Nothing is written, yet the branch still holds an anchor main lacks. A
+    // run that pushed it and then failed to open the pull request is re-run
+    // exactly here, and the workflow can open that pull request only if the
+    // CLI says the proposal is pending.
+    assert.match(await readFile(sameOutput, "utf8"), /^carried_pending=true$/m);
 
     // Main moved on. The earlier proof is the tighter bound for its prefix, so
     // it is carried byte for byte ahead of the new head's anchor.
@@ -454,9 +480,15 @@ test("the CLI carries a pending proposal's anchors and never resubmits a head it
 
     // Once the proposal merges, its anchors are simply committed history.
     await writeFile(carryPath, JSON.stringify(written));
-    const merged = await runCliAsync(dir, ["--submit", "--calendar", origin, "--carry-anchors", carryPath]);
+    const mergedOutput = path.join(dir, "merged-github-output");
+    const merged = await runCliAsync(
+      dir,
+      ["--submit", "--calendar", origin, "--carry-anchors", carryPath],
+      cliEnv(mergedOutput)
+    );
     assert.equal(merged.status, 0, merged.stderr);
     assert.match(merged.stdout, /Carried 0 pending anchors/);
+    assert.match(await readFile(mergedOutput, "utf8"), /^carried_pending=false$/m);
     assert.equal(hits(), 1);
   });
 });

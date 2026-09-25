@@ -1,4 +1,4 @@
-import { readFile } from "node:fs/promises";
+import { appendFile, readFile } from "node:fs/promises";
 import path from "node:path";
 import { readBoundedUtf8File } from "./bounded-utf8-file";
 import { replaceUtf8FileAtomically } from "./exact-atomic-file";
@@ -35,7 +35,10 @@ import { TRANSPARENCY_LOG_JSON_MAX_BYTES } from "./report-resource-limits";
  * extends the pending proposal instead of replacing it. An OpenTimestamps
  * proof only bounds a head from above, so the earlier pending proof is the
  * tighter bound and must survive; and a head the proposal already anchors is
- * not submitted again.
+ * not submitted again. When `$GITHUB_OUTPUT` is set, every submit appends
+ * `carried_pending=true|false` to it, before any calendar is contacted: a
+ * proposal branch can hold anchors main lacks while this run appends nothing,
+ * and the workflow must still open its pull request.
  *
  * `--status` is offline: it revalidates every stored anchor against the
  * recomputed chain and reports its attestation kinds. A fresh anchor carries
@@ -56,7 +59,12 @@ const DEFAULT_CALENDARS = [
 ] as const;
 
 type Mode =
-  | { readonly kind: "submit"; readonly calendars: readonly string[]; readonly carryAnchorsPath: string | null }
+  | {
+      readonly kind: "submit";
+      readonly calendars: readonly string[];
+      readonly carryAnchorsPath: string | null;
+      readonly githubOutput: string | null;
+    }
   | { readonly kind: "status" };
 
 async function main(): Promise<void> {
@@ -80,6 +88,7 @@ async function main(): Promise<void> {
     const entryCount = log.entryCount;
     const pending = mode.carryAnchorsPath === null ? [] : await readPendingAnchors(mode.carryAnchorsPath, log);
     const known = [...log.anchors, ...pending];
+    if (mode.githubOutput !== null) await appendFile(mode.githubOutput, `carried_pending=${pending.length > 0}\n`);
     if (mode.carryAnchorsPath !== null) {
       console.log(
         `Carried ${pending.length} pending anchor${pending.length === 1 ? "" : "s"} from the open proposal ` +
@@ -154,7 +163,8 @@ function parseMode(): Mode {
     return {
       kind: "submit",
       calendars: calendars.length > 0 ? calendars : [...DEFAULT_CALENDARS],
-      carryAnchorsPath
+      carryAnchorsPath,
+      githubOutput: process.env.GITHUB_OUTPUT?.trim() || null
     };
   }
   throw new Error(USAGE);

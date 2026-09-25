@@ -23,6 +23,11 @@ name: Anchor Transparency Log
 # there, and force-pushes only against the exact commit it carried from.
 # Deleting the branch is how a reviewer discards a pending proposal.
 #
+# A run that pushed the branch but never opened its pull request leaves the
+# anchors there. The next run carries them and appends nothing, so it opens
+# the pull request from the branch as it stands instead of reading the quiet
+# working tree as nothing to propose.
+#
 # It does NOT upgrade a pending calendar promise into a Bitcoin attestation.
 # That needs the external opentimestamps client to replay the proof's operation
 # tree, which this repository deliberately does not reimplement; run
@@ -168,35 +173,45 @@ jobs:
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
+      # A run that pushed the branch and then failed to open its pull request
+      # (a transient API error, or the repository refusing Actions-created
+      # pull requests) leaves the anchors on the branch. A re-run carries them,
+      # appends nothing, and must still open that pull request, so this step
+      # also runs when the carried proposal holds anchors main lacks. It then
+      # pushes nothing. A pull request closed with its branch left in place is
+      # opened again on every run; deleting the branch discards the proposal.
       - name: Publish reviewed anchor proposal
-        if: steps.anchor.outputs.changed == '1'
+        if: steps.anchor.outputs.changed == '1' || steps.anchor.outputs.carried_pending == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
           BASE_BRANCH: ${{ github.event.repository.default_branch }}
           REMOTE_OID: ${{ steps.pending.outputs.remote_oid }}
+          CHANGED: ${{ steps.anchor.outputs.changed }}
         run: |
           set -euo pipefail
-          git config user.name "iAnonymous3000"
-          git config user.email "32236127+iAnonymous3000@users.noreply.github.com"
-          # Only the log. Anything else in the tree at this point is an
-          # unrelated change that must not ride an automation proposal.
-          git add public/transparency-log.json
-          if ! git diff --cached --quiet -- ':!public/transparency-log.json'; then
-            echo "::error title=Refused::the anchoring run staged a file other than the transparency log"
-            exit 1
-          fi
-          git checkout -B "$PROPOSAL_BRANCH"
-          git commit -m "Anchor the current transparency-log head" \
-            -m "Carries the pending proposal's anchors unchanged and appends one anchor per calendar that replied for the head at this run. Existing anchors are untouched; the list is append-only and CI compares committed anchors by whole object."
-          # Lease against exactly the commit whose anchors were carried. A
-          # branch that moved since then holds proofs this run never saw, and
-          # overwriting it would discard them.
-          if [[ -n "$REMOTE_OID" ]]; then
-            git push \
-              --force-with-lease="refs/heads/${PROPOSAL_BRANCH}:${REMOTE_OID}" \
-              origin "HEAD:refs/heads/${PROPOSAL_BRANCH}"
-          else
-            git push origin "HEAD:refs/heads/${PROPOSAL_BRANCH}"
+          if [[ "$CHANGED" == "1" ]]; then
+            git config user.name "iAnonymous3000"
+            git config user.email "32236127+iAnonymous3000@users.noreply.github.com"
+            # Only the log. Anything else in the tree at this point is an
+            # unrelated change that must not ride an automation proposal.
+            git add public/transparency-log.json
+            if ! git diff --cached --quiet -- ':!public/transparency-log.json'; then
+              echo "::error title=Refused::the anchoring run staged a file other than the transparency log"
+              exit 1
+            fi
+            git checkout -B "$PROPOSAL_BRANCH"
+            git commit -m "Anchor the current transparency-log head" \
+              -m "Carries the pending proposal's anchors unchanged and appends one anchor per calendar that replied for the head at this run. Existing anchors are untouched; the list is append-only and CI compares committed anchors by whole object."
+            # Lease against exactly the commit whose anchors were carried. A
+            # branch that moved since then holds proofs this run never saw, and
+            # overwriting it would discard them.
+            if [[ -n "$REMOTE_OID" ]]; then
+              git push \
+                --force-with-lease="refs/heads/${PROPOSAL_BRANCH}:${REMOTE_OID}" \
+                origin "HEAD:refs/heads/${PROPOSAL_BRANCH}"
+            else
+              git push origin "HEAD:refs/heads/${PROPOSAL_BRANCH}"
+            fi
           fi
 
           proposal_body="$RUNNER_TEMP/anchor-pr.md"
@@ -221,7 +236,14 @@ jobs:
             --limit 10 \
             --json number,isCrossRepository \
             --jq '[.[] | select(.isCrossRepository | not)] | if length > 1 then error("multiple open transparency-anchor PRs") elif length == 1 then .[0].number else empty end')
+          pr_refused=0
           if [[ -n "$pr_number" ]]; then
+            # Nothing new was pushed, so the open pull request already shows
+            # this branch; editing it or dispatching CI again changes nothing.
+            if [[ "$CHANGED" != "1" ]]; then
+              echo "Pull request #${pr_number} already proposes ${PROPOSAL_BRANCH}; nothing new to push."
+              exit 0
+            fi
             gh pr edit "$pr_number" \
               --repo "$GITHUB_REPOSITORY" \
               --title "Anchor the current transparency-log head" \
@@ -240,6 +262,13 @@ jobs:
               fi
               compare_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/compare/${BASE_BRANCH}...${PROPOSAL_BRANCH}?expand=1"
               echo "::error title=Open the proposal manually::Actions may not create PRs in this repository. Open ${compare_url}"
+              pr_refused=1
             fi
           fi
           gh workflow run ci.yml --ref "$PROPOSAL_BRANCH" --repo "$GITHUB_REPOSITORY"
+          # Validation still starts on the pushed branch, but a proposal no one
+          # can see is not published: the run is red, like every sibling
+          # proposal workflow, until the pull request exists.
+          if [[ "$pr_refused" == "1" ]]; then
+            exit 1
+          fi
