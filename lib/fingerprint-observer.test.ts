@@ -1467,6 +1467,226 @@ test("fingerprintObserverInitScript counts OffscreenCanvas toward the canvas tra
   }
 });
 
+test("fingerprintObserverInitScript records fulfilled promise calls whatever the page does to Promise species in real Chromium", async () => {
+  // Promise.prototype.then looks up the promise's constructor and its
+  // Symbol.species before it registers anything. A page that swaps either
+  // around a call must not keep a fulfilled export, render or offer from
+  // being recorded, and must not make its own call throw.
+  const offscreenExport = {
+    kind: "canvas-fingerprinting",
+    heuristic: "openwpm-canvas-v1",
+    count: 1,
+    evidence: {
+      readApis: ["canvas.convertToBlob"],
+      maxCanvasWidth: 200,
+      maxCanvasHeight: 60,
+      maxDistinctTextCharacters: OFFSCREEN_PROBE_TEXT.length,
+      maxTextWriteCalls: 1
+    }
+  };
+
+  await withObservedPages(async (runCase) => {
+    const exports: Record<string, () => unknown> = {
+      species: async () => {
+        const canvas = new OffscreenCanvas(200, 60);
+        canvas.getContext("2d")?.fillText("abcdefghijklmnopqrstuvwxyz0123", 0, 30);
+        const original = Object.getOwnPropertyDescriptor(Promise, Symbol.species) as PropertyDescriptor;
+        Object.defineProperty(Promise, Symbol.species, { configurable: true, value: function PageSpecies() {} });
+        const pending = canvas.convertToBlob();
+        Object.defineProperty(Promise, Symbol.species, original);
+        const blob = await pending;
+        const fingerprintWindow = window as Window & { __siteBehaviorLabFingerprintSnapshot?: () => unknown };
+        return { blobBytes: blob.size, snapshot: fingerprintWindow.__siteBehaviorLabFingerprintSnapshot?.() };
+      },
+      constructor: async () => {
+        const canvas = new OffscreenCanvas(200, 60);
+        canvas.getContext("2d")?.fillText("abcdefghijklmnopqrstuvwxyz0123", 0, 30);
+        const original = Object.getOwnPropertyDescriptor(Promise.prototype, "constructor") as PropertyDescriptor;
+        Object.defineProperty(Promise.prototype, "constructor", {
+          configurable: true,
+          get() {
+            throw new Error("page constructor");
+          }
+        });
+        const pending = canvas.convertToBlob();
+        Object.defineProperty(Promise.prototype, "constructor", original);
+        const blob = await pending;
+        const fingerprintWindow = window as Window & { __siteBehaviorLabFingerprintSnapshot?: () => unknown };
+        return { blobBytes: blob.size, snapshot: fingerprintWindow.__siteBehaviorLabFingerprintSnapshot?.() };
+      }
+    };
+    for (const [poisoning, body] of Object.entries(exports)) {
+      const exported = (await runCase(body)) as { blobBytes: number; snapshot: unknown };
+      assert.ok(exported.blobBytes > 0, poisoning);
+      const snapshot = parseObserverSnapshot(exported.snapshot);
+      assert.deepEqual(snapshot.events, { "canvas.convertToBlob": 1 }, poisoning);
+      assert.deepEqual(snapshot.detections, [offscreenExport], poisoning);
+    }
+
+    const rendered = parseObserverSnapshot(
+      await runCase(async () => {
+        const context = new OfflineAudioContext(1, 44100, 44100);
+        const oscillator = context.createOscillator();
+        const compressor = context.createDynamicsCompressor();
+        oscillator.connect(compressor);
+        compressor.connect(context.destination);
+        oscillator.start(0);
+        const original = Object.getOwnPropertyDescriptor(Promise, Symbol.species) as PropertyDescriptor;
+        Object.defineProperty(Promise, Symbol.species, { configurable: true, value: function PageSpecies() {} });
+        const pending = context.startRendering();
+        Object.defineProperty(Promise, Symbol.species, original);
+        await pending;
+        const fingerprintWindow = window as Window & { __siteBehaviorLabFingerprintSnapshot?: () => unknown };
+        return fingerprintWindow.__siteBehaviorLabFingerprintSnapshot?.();
+      })
+    );
+    assert.deepEqual(rendered.detections.map((detection) => detection.heuristic), ["audio-rendering-v1"]);
+    assert.equal(rendered.events["audio.OfflineAudioContext.startRendering"], 1);
+
+    const offered = parseObserverSnapshot(
+      await runCase(async () => {
+        const connection = new RTCPeerConnection();
+        connection.createDataChannel("probe");
+        const original = Object.getOwnPropertyDescriptor(Promise, Symbol.species) as PropertyDescriptor;
+        Object.defineProperty(Promise, Symbol.species, { configurable: true, value: function PageSpecies() {} });
+        const pending = connection.createOffer();
+        Object.defineProperty(Promise, Symbol.species, original);
+        await pending;
+        connection.close();
+        const fingerprintWindow = window as Window & { __siteBehaviorLabFingerprintSnapshot?: () => unknown };
+        return fingerprintWindow.__siteBehaviorLabFingerprintSnapshot?.();
+      })
+    );
+    assert.equal(offered.events["webrtc.RTCPeerConnection.createOffer"], 1);
+
+    // createImageBitmap hands the page a derived promise. Before, deriving it
+    // under a page species threw into the page's own call.
+    const bitmapped = (await runCase(async () => {
+      const offscreen = new OffscreenCanvas(200, 60);
+      offscreen.getContext("2d")?.fillText("abcdefghijklmnopqrstuvwxyz0123", 0, 30);
+      const original = Object.getOwnPropertyDescriptor(Promise, Symbol.species) as PropertyDescriptor;
+      Object.defineProperty(Promise, Symbol.species, { configurable: true, value: function PageSpecies() {} });
+      let pending: Promise<ImageBitmap> | undefined;
+      let thrown = "";
+      try {
+        pending = createImageBitmap(offscreen);
+      } catch (error) {
+        thrown = String(error);
+      }
+      Object.defineProperty(Promise, Symbol.species, original);
+      if (!pending) return { thrown };
+      const bitmap = await pending;
+      const canvas = document.createElement("canvas");
+      canvas.width = 200;
+      canvas.height = 60;
+      canvas.getContext("2d")?.drawImage(bitmap, 0, 0);
+      canvas.toDataURL();
+      const fingerprintWindow = window as Window & { __siteBehaviorLabFingerprintSnapshot?: () => unknown };
+      return { bitmapWidth: bitmap.width, snapshot: fingerprintWindow.__siteBehaviorLabFingerprintSnapshot?.() };
+    })) as { bitmapWidth?: number; snapshot?: unknown; thrown?: string };
+    assert.equal(bitmapped.thrown, undefined);
+    assert.equal(bitmapped.bitmapWidth, 200);
+    assert.deepEqual(parseObserverSnapshot(bitmapped.snapshot).detections, [
+      { ...offscreenExport, evidence: { ...offscreenExport.evidence, readApis: ["canvas.toDataURL"] } }
+    ]);
+  });
+});
+
+test("fingerprintObserverInitScript leaves a rejection the page never handles unhandled in real Chromium", async () => {
+  // Observing a native promise marks its rejection handled, so the observer
+  // hands the page a promise of its own for every promise call it records. A
+  // rejection the page leaves unhandled must still reach unhandledrejection
+  // (and the error monitoring that listens for it), as it does unobserved,
+  // and one the page handles must not.
+  const provoke = async () => {
+    const seen: string[] = [];
+    window.addEventListener("unhandledrejection", (event) => {
+      seen.push(String((event.reason as { name?: unknown } | undefined)?.name));
+    });
+    void new OffscreenCanvas(0, 0).convertToBlob();
+    new OffscreenCanvas(0, 0).convertToBlob().catch(() => undefined);
+    const context = new OfflineAudioContext(1, 128, 44100);
+    context.startRendering().catch(() => undefined);
+    void context.startRendering();
+    const closed = new RTCPeerConnection();
+    closed.close();
+    void closed.createOffer();
+    closed.createOffer().catch(() => undefined);
+    void new RTCPeerConnection().setLocalDescription({ type: "answer", sdp: "not sdp" });
+    void createImageBitmap(new OffscreenCanvas(0, 0));
+    const deadline = Date.now() + 5000;
+    while (seen.length < 5 && Date.now() < deadline) {
+      await new Promise((resolve) => setTimeout(resolve, 25));
+    }
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    return seen.sort();
+  };
+
+  const browser = await chromium.launch({ headless: true });
+  try {
+    const seenBy = async (observed: boolean) => {
+      const context = await browser.newContext();
+      if (observed) await context.addInitScript(fingerprintObserverInitScript, "example.com");
+      const page = await context.newPage();
+      await page.route("https://example.com/**", (route) =>
+        route.fulfill({ body: "<!doctype html><title>rejections</title>", contentType: "text/html" })
+      );
+      await page.goto("https://example.com/");
+      const seen = await page.evaluate(provoke);
+      await context.close();
+      return seen;
+    };
+
+    const unobserved = await seenBy(false);
+    assert.deepEqual(unobserved, ["IndexSizeError", "InvalidStateError", "InvalidStateError", "InvalidStateError", "OperationError"]);
+    assert.deepEqual(await seenBy(true), unobserved);
+  } finally {
+    await browser.close();
+  }
+});
+
+test("fingerprintObserverInitScript keeps a failure while recording a promise call out of the page in real Chromium", async () => {
+  // A connection the page re-prototypes onto a Proxy whose getPrototypeOf
+  // trap throws makes the WebRTC recording throw after the native offer has
+  // fulfilled. The page's own promise must still fulfill, no rejection it
+  // never caused may reach it, and the frame fails closed.
+  const browser = await chromium.launch({ headless: true });
+  try {
+    const context = await browser.newContext();
+    await context.addInitScript(fingerprintObserverInitScript, "example.com");
+    const page = await context.newPage();
+    await page.route("https://example.com/**", (route) =>
+      route.fulfill({ body: "<!doctype html><title>trapped offer</title>", contentType: "text/html" })
+    );
+    await page.goto("https://example.com/");
+
+    const outcome = await page.evaluate(async () => {
+      const seen: string[] = [];
+      window.addEventListener("unhandledrejection", (event) => {
+        seen.push(String(event.reason));
+      });
+      const connection = new RTCPeerConnection();
+      const createOffer = RTCPeerConnection.prototype.createOffer;
+      Object.setPrototypeOf(
+        connection,
+        new Proxy(RTCPeerConnection.prototype, {
+          getPrototypeOf() {
+            throw new Error("page trap");
+          }
+        })
+      );
+      const offer = (await Reflect.apply(createOffer, connection, [])) as RTCSessionDescriptionInit;
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      connection.close();
+      const fingerprintWindow = window as Window & { __siteBehaviorLabFingerprintSnapshot?: () => unknown };
+      return { offerType: offer.type, seen, snapshot: fingerprintWindow.__siteBehaviorLabFingerprintSnapshot?.() };
+    });
+    assert.deepEqual(outcome, { offerType: "offer", seen: [], snapshot: null });
+  } finally {
+    await browser.close();
+  }
+});
+
 test("collectFingerprintObservationsFromFrames merges canvas detections across frames", async () => {
   const observations = await collectFingerprintObservationsFromFrames([
     frameWithSnapshot({
@@ -2268,6 +2488,22 @@ test("fingerprintObserverInitScript flags offline audio rendering signatures", a
         }
       }
     ]);
+  } finally {
+    harness.restore();
+  }
+});
+
+test("fingerprintObserverInitScript fails the frame closed when a promise call's result cannot be observed", () => {
+  // A native promise API always returns a promise. If the observer cannot
+  // register on what came back, it cannot tell a fulfilled call from a
+  // rejected one, so the frame must not read as quiet.
+  const harness = installAudioHarness();
+  try {
+    (harness.OfflineAudioContext.prototype as unknown as { startRendering: () => unknown }).startRendering = () => ({});
+    fingerprintObserverInitScript();
+    const context = new harness.OfflineAudioContext();
+    assert.deepEqual(context.startRendering() as unknown, {});
+    assert.equal(readRawSnapshot(harness.window), null);
   } finally {
     harness.restore();
   }

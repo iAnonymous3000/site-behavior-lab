@@ -63,6 +63,7 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
   const setForEach = Set.prototype.forEach;
   const setHas = Set.prototype.has;
   const setSizeGetter = objectGetOwnPropertyDescriptor(Set.prototype, "size")?.get;
+  const TrustedPromise = Promise;
   const TrustedSet = Set;
   const stringEndsWith = String.prototype.endsWith;
   const stringIncludes = String.prototype.includes;
@@ -386,17 +387,77 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
     }
     safeSetAdd(values, value);
   };
-  const afterPromiseFulfilled = (value: unknown, callback: () => void): void => {
+  // Promise.prototype.then looks up its receiver's constructor and that
+  // constructor's Symbol.species before it registers anything, and a page can
+  // swap either around a call, which makes then throw. The throw comes before
+  // registration, so the retry cannot register twice: it gives the native
+  // promise, which the page has not seen yet, an own constructor of undefined
+  // for the length of the call, so then falls back to the intrinsic Promise.
+  // The plain call goes first because defining that property disables the
+  // engine's promise fast path for the whole page.
+  const observeSettlement = (
+    value: unknown,
+    onFulfilled: (fulfilled: unknown) => void,
+    onRejected: (reason: unknown) => void
+  ): boolean => {
     try {
-      reflectApply(promiseThen, value, [
-        () => {
-          callback();
-        },
-        () => undefined
-      ]);
+      reflectApply(promiseThen, value, [onFulfilled, onRejected]);
+      return true;
     } catch {
-      /* A non-Promise result violates these native API contracts; do not record it. */
+      /* retried below against the intrinsic Promise */
     }
+    try {
+      objectDefineProperty(value, "constructor", { configurable: true, value: undefined });
+    } catch {
+      return false;
+    }
+    try {
+      reflectApply(promiseThen, value, [onFulfilled, onRejected]);
+      return true;
+    } catch {
+      return false;
+    } finally {
+      reflectDeleteProperty(value as object, "constructor");
+    }
+  };
+
+  // Runs onFulfilled once a native promise call fulfills, and returns the
+  // promise the page gets in its place. Observing the native promise marks
+  // its rejection handled, so handing that promise back would keep a
+  // rejection the page never handles from reaching unhandledrejection (and
+  // the error monitoring that listens for it). The page gets a promise of its
+  // own instead, which settles as the native one does, one microtask later,
+  // and is unhandled exactly when the page leaves it so. A native promise API
+  // always returns a promise; if what came back cannot be observed, the page
+  // gets it untouched and the frame fails closed rather than reading quiet.
+  // The recording itself runs inside a reaction whose own promise nothing
+  // handles, so a throw there (a page trap met while recording) would surface
+  // in the page as an unhandled rejection the page never caused; it fails the
+  // frame closed instead.
+  const settleAfterNative = (value: unknown, onFulfilled: (fulfilled: unknown) => void): unknown => {
+    let resolvePage: (fulfilled: unknown) => void = () => undefined;
+    let rejectPage: (reason: unknown) => void = () => undefined;
+    const pagePromise = new TrustedPromise<unknown>((resolve, reject) => {
+      resolvePage = resolve;
+      rejectPage = reject;
+    });
+    const observed = observeSettlement(
+      value,
+      (fulfilled) => {
+        resolvePage(fulfilled);
+        try {
+          onFulfilled(fulfilled);
+        } catch {
+          markObserverCoverageLost();
+        }
+      },
+      (reason) => {
+        rejectPage(reason);
+      }
+    );
+    if (observed) return pagePromise;
+    markObserverCoverageLost();
+    return value;
   };
 
   const snapshotEventCounts = () => {
@@ -850,11 +911,8 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
       // convertToBlob rejects for a canvas it cannot export (zero-size,
       // without a rendering context, detached or origin-tainted), so only a
       // fulfilled export is a read.
-      if (api === "canvas.convertToBlob") {
-        afterPromiseFulfilled(result, recordSuccessfulRead);
-      } else {
-        recordSuccessfulRead();
-      }
+      if (api === "canvas.convertToBlob") return settleAfterNative(result, recordSuccessfulRead);
+      recordSuccessfulRead();
       return result;
     });
   };
@@ -952,14 +1010,11 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
         }
 
         const result = reflectApply(originalCreateImageBitmap, this, args);
-        return reflectApply(promiseThen, result, [
-          (bitmap: object) => {
-            if (provenance && (typeof bitmap === "object" || typeof bitmap === "function") && bitmap !== null) {
-              reflectApply(weakMapSet, imageBitmapProvenance, [bitmap, provenance]);
-            }
-            return bitmap;
+        return settleAfterNative(result, (bitmap) => {
+          if (provenance && (typeof bitmap === "object" || typeof bitmap === "function") && bitmap !== null) {
+            reflectApply(weakMapSet, imageBitmapProvenance, [bitmap, provenance]);
           }
-        ]);
+        });
       },
       writable: true
     });
@@ -1462,11 +1517,8 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
         if (key === "createOscillator") audioState.oscillatorCalls += 1;
         if (key === "startRendering") audioState.offlineRenderCalls += 1;
       };
-      if (key === "startRendering") {
-        afterPromiseFulfilled(result, recordSuccessfulCall);
-      } else {
-        recordSuccessfulCall();
-      }
+      if (key === "startRendering") return settleAfterNative(result, recordSuccessfulCall);
+      recordSuccessfulCall();
       return result;
     });
   };
@@ -1489,11 +1541,8 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
         if (key === "createOffer") rtcState.createOfferCalls += 1;
         if (key === "setLocalDescription") rtcState.setLocalDescriptionCalls += 1;
       };
-      if (key === "createOffer" || key === "setLocalDescription") {
-        afterPromiseFulfilled(result, recordSuccessfulCall);
-      } else {
-        recordSuccessfulCall();
-      }
+      if (key === "createOffer" || key === "setLocalDescription") return settleAfterNative(result, recordSuccessfulCall);
+      recordSuccessfulCall();
       return result;
     });
   };
