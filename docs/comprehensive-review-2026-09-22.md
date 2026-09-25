@@ -322,9 +322,12 @@ beside its detector status. The admitted string is a second widening in this
 epoch, so the public-string policy digest the outgoing `cb7064a1...059d` moves
 to is `ab262b83...2560`; the `dynamicWarningPatterns` label and its source pin
 do not move. Re-sanitizing all 919 committed v1 reports leaves each one
-unchanged and adds the line to none. Still open on v1, where r2 withholds the
-claim: a probe cut at its capture bounds, a probe whose own work threw, a field
-that refused the value, and a probe that lost the subject.
+unchanged and adds the line to none. The line is added where the probe's
+capture closes, so a probe that threw after typing, lost the subject, or had no
+field keep the value still carries it when a request went unread. Still open
+on v1, where r2 withholds the claim with no request unread: a probe cut at its
+capture bounds, a probe whose own work threw, a field that refused the value,
+and a probe that lost the subject.
 
 Also open, and wider than the keystroke claim: every navigation the probe
 stops, whether or not it carried the value, is lost request coverage on r2 and
