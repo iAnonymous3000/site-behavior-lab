@@ -83,7 +83,9 @@ export const MIGRATABLE_REDACTION_V3_NORMALIZATIONS: Readonly<
  * one. The retired literal is pinned in the identity ledger test
  * (lib/r2-normalization-identity-ledger.test.ts), because nothing else fails
  * when this entry or its closed producer rows are missing. Short of all of
- * these, bump REDACTION_VERSION and remediate.
+ * these, bump REDACTION_VERSION and remediate. A narrowing's move may also
+ * admit strings; the entry then names each admitted constant, as a widening's
+ * entry does, so a reader sees both directions of the change.
  *
  * Exact strings, never a pattern, for the same reason the v3 set is exact: an
  * unreviewed or self-declared identity must fail closed rather than be blessed
@@ -96,9 +98,10 @@ export const SUPERSEDED_R2_NORMALIZATIONS: Readonly<
 > = Object.freeze({
   "node-playwright": Object.freeze([
     // Retired by public-string-policy-v4 (redaction v5), a reviewed NARROWING
-    // recorded as the owner exception in the docblock above. REDACTION_VERSION
-    // stays 4 and the public-suffix engine is unchanged. v4 stops publishing two
-    // kinds of string this pass published:
+    // recorded as the owner exception in the docblock above, which also admits
+    // three warnings (below). REDACTION_VERSION stays 4 and the public-suffix
+    // engine is unchanged. v4 stops publishing two kinds of string this pass
+    // published:
     // 1. A registrable domain under a PSL private suffix whose tenant label
     //    (its leftmost label) matches PRIVATE_SUFFIX_TENANT_SHAPES: a dashed or
     //    underscored IPv4 address anywhere in the label, a label of 32+
@@ -130,6 +133,14 @@ export const SUPERSEDED_R2_NORMALIZATIONS: Readonly<
     //    "2024-01-01 12:00". Each span now publishes as "[redacted]" and the
     //    quote ends in the incomplete-quote marker, so the claim is kept but
     //    never checked.
+    // The same move is also a WIDENING: v4 admits three exact fixed scanner
+    // warnings this pass replaced with "[redacted warning]", the v1 lines for a
+    // page that left the site before its state was read or while the input
+    // probe ran, and for a window the page opened
+    // (PAGE_LEFT_SUBJECT_BEFORE_STATE_WARNING, KEYSTROKE_PROBE_PAGE_LEFT_WARNING
+    // and AUXILIARY_PAGE_REQUESTS_BLOCKED_WARNING). A v4 report can carry them
+    // where this pass could not; no report this pass produced holds one, so
+    // the widening orphans nothing.
     // Committed corpus: re-sanitizing every committed bundle changes exactly
     // two v1 Shields comparisons, 20260727-f378d41658184b8e1b014ae2e41b8541 and
     // 20260817-693b5bc1c455e1be2d0b42b4d8efa292, each holding two tenant hosts

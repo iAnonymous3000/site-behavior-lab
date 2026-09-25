@@ -499,11 +499,15 @@ const POLICY_QUOTE_IDENTIFIER_SPAN_POLICY = Object.freeze({
   incompleteQuoteMarker: INCOMPLETE_QUOTE_MARKER
 });
 
-// v4 names a reviewed NARROWING, not a widening: the private-suffix tenant
-// shapes and the policy-quote identifier spans remove strings v3 published.
-// REDACTION_VERSION stays 4 (see lib/redaction-v2.ts), so this name is where a
-// reader sees the change; the retired v3 identities and the owner's acceptance
-// are recorded in SUPERSEDED_R2_NORMALIZATIONS.
+// v4 names a reviewed NARROWING and carries a widening with it: the
+// private-suffix tenant shapes and the policy-quote identifier spans remove
+// strings v3 published, and three fixed scanner warnings v3 replaced with the
+// redacted-warning marker are admitted (the v1 lines for a page that left the
+// site before its state was read or while the input probe ran, and for a
+// window the page opened). REDACTION_VERSION stays 4 (see lib/redaction-v2.ts),
+// so this name is where a reader sees the change; the retired v3 identities,
+// what each side of the move changed, and the owner's acceptance are recorded
+// in SUPERSEDED_R2_NORMALIZATIONS.
 export const PUBLIC_STRING_POLICY_VERSION = "public-string-policy-v4";
 /**
  * Identity of every non-allowlist public string vocabulary in this sanitizer.

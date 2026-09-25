@@ -452,7 +452,8 @@ const HISTORICAL_NODE_V12_NORMALIZATION = "redaction-v4+allowlists-v3:269f631f04
 // Exact identity of the node-detectors-v10 measurement epoch's producer
 // (6c4698f7), closed by public-string-policy-v4, a reviewed narrowing that
 // generalizes token-shaped private-suffix tenant labels and scrubs identifiers
-// from policy quotes. Only the normalization moves: the live methodology still
+// from policy quotes, and admits three fixed v1 warnings. Only the
+// normalization moves: the live methodology still
 // equals this literal, and the closed rows name the literal so they stay put
 // when the methodology next moves.
 const HISTORICAL_NODE_V13_METHODOLOGY = "shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v4+detector-coverage-v2+phase-kernel-v2+boundary-state-v1+consent-r2-v5+resource-budget-v2+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1+service-role-taxonomy-v1+gpc-worker-application-v3+active-probe-v3+auxiliary-context-block-v1";

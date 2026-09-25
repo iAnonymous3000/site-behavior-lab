@@ -54,7 +54,10 @@ import {
  *      moves PUBLIC_STRING_POLICY_VERSION, replaces every committed report
  *      holding a removed string through a privacy replacement in the same
  *      push, and pins the retired literals in RETIRED_*_LITERAL below. Stored
- *      reports either changes fail closed on read.
+ *      reports either changes fail closed on read. The narrowing's move may
+ *      carry a widening too (public-string-policy-v4 admits three fixed
+ *      warnings); its entry then names every admitted constant, as step 2's
+ *      widening entries do.
  *   4. Check every producer tuple that references an ACTIVE or computed
  *      constant (the node-v4-*-active-* family in
  *      scan-report-v2-r2-producer-contract.ts): tuples that described the OLD
@@ -173,6 +176,22 @@ test("the identities the public-string-policy-v4 narrowing retired stay declarab
     true,
     "no closed PageGraph producer row carries the retired identity"
   );
+
+  // The move also admitted fixed warnings the retired pass redacted, and the
+  // entry must say so: a reader of it otherwise concludes the move only
+  // removes strings.
+  const normalizationSource = readFileSync(path.join(process.cwd(), "lib", "scan-report-v2-normalization.ts"), "utf8");
+  const literalAt = normalizationSource.indexOf(JSON.stringify(RETIRED_NODE_R2_NORMALIZATION_LITERAL));
+  const entryAt = normalizationSource.lastIndexOf('"node-playwright": Object.freeze([', literalAt);
+  assert.ok(entryAt > 0 && literalAt > entryAt, "the retired Node entry was not found");
+  const entryComment = normalizationSource.slice(entryAt, literalAt);
+  for (const admitted of [
+    "PAGE_LEFT_SUBJECT_BEFORE_STATE_WARNING",
+    "KEYSTROKE_PROBE_PAGE_LEFT_WARNING",
+    "AUXILIARY_PAGE_REQUESTS_BLOCKED_WARNING"
+  ]) {
+    assert.equal(entryComment.includes(admitted), true, `the retired Node entry must name the admitted ${admitted}`);
+  }
 });
 
 /**

@@ -268,13 +268,16 @@ public API or a 1.0 release.
   public-string policy instead. `PUBLIC_STRING_POLICY_VERSION` moves from
   `public-string-policy-v3` to `public-string-policy-v4`, and the policy digest
   from `b40a333a...3d51` to `359b216f...e9bc`, which now also hashes the tenant
-  shapes and the quote spans. Both r2 normalization identities move with it;
-  `tldts@7.4.13` and the allowlists do not.
+  shapes and the quote spans. The same move admits the three v1 warnings for
+  a page that left the site or opened a window, which `b40a333a` replaced with
+  the redacted-warning marker, so it is a narrowing that also carries a
+  widening. Both r2 normalization identities move with it; `tldts@7.4.13` and
+  the allowlists do not.
 - The outgoing Node and PageGraph normalizations stay readable as superseded
   identities, recorded as the second kind of owner exception the superseded
   list admits: a reviewed sanitizer narrowing, with its removed strings and
-  their positions, the committed-corpus proof, the retention bound and the
-  owner's acceptance on 2026-09-25 in the entry. The outgoing producer rows
+  their positions, the three admitted warnings, the committed-corpus proof,
+  the retention bound and the owner's acceptance on 2026-09-25 in the entry. The outgoing producer rows
   `node-v13-detectors-v10-active-lists-2026-09-21`,
   `node-v13-detectors-v10-active-no-adblock` and
   `pagegraph-v4-listener-withheld-active` are closed to their exact literals
