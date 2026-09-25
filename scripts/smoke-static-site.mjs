@@ -17,6 +17,7 @@ import {
   withHttpOperationDeadline
 } from "./http-response.mjs";
 import { resolveExactStaticDeploymentCommit } from "./static-deployment-provenance.mjs";
+import { reportCorrectionSuppressesIndexing, reportSubjectCorrectionEvents } from "./static-report-corrections.mjs";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const outDir = path.join(rootDir, "out");
@@ -542,14 +543,16 @@ async function main() {
       );
     }
     const corrections = JSON.parse(await readFile(path.join(outDir, "corrections.json"), "utf8"));
-    for (const event of corrections.entries) {
-      for (const id of event.reportIds) {
-        const row = corpus.reports.find((report) => report.id === id);
-        // The directory export may retain one representative rather than every
-        // archived report. Any affected representative must carry its context.
+    const correctedIds = new Set(corrections.entries.flatMap((event) => [...event.reportIds, ...(event.replacementReportIds ?? [])]));
+    for (const id of correctedIds) {
+      const row = corpus.reports.find((report) => report.id === id);
+      // The directory export may retain one representative rather than every
+      // archived report. Any affected representative must carry its context,
+      // a privacy replacement the events inherited from its original included.
+      for (const event of reportSubjectCorrectionEvents(corrections, id)) {
         if (row && (!row.correctionSummary?.includes(event.eventId) ||
           !corpusCsv.includes(event.eventId))) {
-          fail(`researcher exports omitted correction context for ${id}`);
+          fail(`researcher exports omitted correction context ${event.eventId} for ${id}`);
         }
       }
     }
@@ -1224,9 +1227,7 @@ function escapeRegex(value) {
 }
 
 async function assertStaticSeoContract(manifest, firstReport, corrections) {
-  const correctionStates = new Map(corrections.entries.flatMap(event =>
-    event.reportIds.map(id => [id, event.state])));
-  const isSuppressed = id => correctionStates.has(id) && correctionStates.get(id) !== "active";
+  const isSuppressed = id => reportCorrectionSuppressesIndexing(corrections, id);
   const configuredOrigin = process.env.NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL?.trim();
   if (!configuredOrigin) fail("static SEO contract requires NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL");
   const origin = new URL(configuredOrigin).origin;

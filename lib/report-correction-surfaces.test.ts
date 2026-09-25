@@ -1,7 +1,9 @@
 import assert from "node:assert/strict";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
+import path from "node:path";
 import { test } from "node:test";
-import { parseCorrectionsLedger } from "./corrections-ledger-model";
+import { pathToFileURL } from "node:url";
+import { parseCorrectionsLedger, reportCorrections } from "./corrections-ledger-model";
 import { publishedReportCorrections, publishedReportCorrectionWire } from "./published-report-corrections";
 import { committedReportCreatedAt } from "./committed-report-created-at";
 import { readStoredScanReport } from "./scan-report-reader";
@@ -125,4 +127,64 @@ test("a privacy replacement carries its removed original's correction context on
   }
   assert.equal(checked, expected);
   assert.equal(checked, 2);
+});
+
+// A literal `import()` would be downleveled to require() in the CommonJS test
+// build, which cannot load file:// URLs; the Function wrapper keeps it native.
+const nativeImport = new Function("specifier", "return import(specifier)") as (
+  specifier: string
+) => Promise<unknown>;
+
+type StaticReportCorrections = {
+  reportSubjectCorrectionEvents(corrections: unknown, reportId: string): { eventId: string }[];
+  reportCorrectionSuppressesIndexing(corrections: unknown, reportId: string): boolean;
+};
+
+test("the static smoke expects every report's correction context the site gives it", async () => {
+  // The smoke checks the built sitemap and exports against its own reading of
+  // the ledger. It must read inheritance the way the site does, or a correct
+  // build fails CI (or a wrong one passes).
+  const smoke = (await nativeImport(
+    pathToFileURL(path.join(process.cwd(), "scripts", "static-report-corrections.mjs")).href
+  )) as StaticReportCorrections;
+  const agree = (wire: typeof ledger, ids: Iterable<string>) => {
+    const parsed = parseCorrectionsLedger(wire);
+    let compared = 0;
+    for (const id of ids) {
+      const site = reportCorrections(parsed, id);
+      assert.deepEqual(
+        smoke.reportSubjectCorrectionEvents(wire, id).map(event => event.eventId),
+        site.subjectEvents.map(event => event.eventId),
+        id
+      );
+      assert.equal(smoke.reportCorrectionSuppressesIndexing(wire, id), site.suppressIndexing, id);
+      compared++;
+    }
+    return compared;
+  };
+  const committed = readdirSync(path.join(process.cwd(), "public", "reports"))
+    .filter(name => /^\d{8}-[a-f0-9]{32}\.json$/.test(name))
+    .map(name => name.slice(0, -".json".length));
+  const named = ledger.entries.flatMap(event => [...event.reportIds, ...(event.replacementReportIds ?? [])]);
+  assert.ok(agree(ledger, new Set([...committed, ...named])) >= committed.length);
+
+  // The only way to correct a privacy replacement is to name its removed
+  // original. The site then keeps the replacement out of the sitemap, and the
+  // smoke must expect that rather than fail the build that did it.
+  const privacy = ledger.entries.find(event => event.state === "privacy-superseded")!;
+  const replacementId = privacy.replacementReportIds![0];
+  const later = {
+    ...ledger,
+    entries: [...ledger.entries, {
+      eventId: "SBL-CORR-2026-005",
+      publishedAt: privacy.publishedAt,
+      state: "corrected",
+      reportIds: [privacy.reportIds[0]],
+      summary: "A later correction of the measurement both IDs record.",
+      detailsUrl: "https://sitebehavior.org/corrections/"
+    }]
+  };
+  assert.equal(reportCorrections(parseCorrectionsLedger(later), replacementId).suppressIndexing, true);
+  assert.equal(smoke.reportCorrectionSuppressesIndexing(later, replacementId), true);
+  agree(later, new Set(named));
 });
