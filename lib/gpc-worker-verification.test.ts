@@ -56,9 +56,14 @@ function scriptedChannel(
   };
 }
 
-function workerAttachEvent(sessionId: string, type = "worker"): GpcWorkerCdpEvent {
+/**
+ * `parentSessionId` is the session the attach event arrives on: the page
+ * session for a page-level target, a worker's session for a nested worker.
+ */
+function workerAttachEvent(sessionId: string, type = "worker", parentSessionId = "page-session"): GpcWorkerCdpEvent {
   return {
     method: "Target.attachedToTarget",
+    sessionId: parentSessionId,
     params: {
       sessionId,
       targetInfo: { type, targetId: `${sessionId}-target`, url: "http://fixture.test/w.js" },
@@ -139,6 +144,7 @@ test("a worker that reads the signal back true is verified, after recursion and 
   assert.equal(evaluate?.params.returnByValue, true);
   assert.deepEqual(session.diagnostics(), {
     attachedDedicatedWorkerCount: 1,
+    attachedNestedDedicatedWorkerCount: 0,
     attachedSharedWorkerCount: 0,
     verifiedWorkerCount: 1,
     unverifiedAttachedWorkerCount: 0
@@ -159,6 +165,7 @@ test("a false readback and an evaluate failure are both terminal unverified stat
 
     assert.deepEqual(session.diagnostics(), {
       attachedDedicatedWorkerCount: 1,
+      attachedNestedDedicatedWorkerCount: 0,
       attachedSharedWorkerCount: 0,
       verifiedWorkerCount: 0,
       unverifiedAttachedWorkerCount: 1
@@ -192,6 +199,7 @@ test("a stalled handshake is concluded unverified by the watchdog and a late rea
 
   assert.deepEqual(session.diagnostics(), {
     attachedDedicatedWorkerCount: 1,
+    attachedNestedDedicatedWorkerCount: 0,
     attachedSharedWorkerCount: 0,
     verifiedWorkerCount: 0,
     unverifiedAttachedWorkerCount: 1
@@ -243,6 +251,7 @@ test("a worker still mid-handshake when the settle backstop expires is swept int
     session.diagnostics(),
     {
       attachedDedicatedWorkerCount: 1,
+      attachedNestedDedicatedWorkerCount: 0,
       attachedSharedWorkerCount: 0,
       verifiedWorkerCount: 0,
       unverifiedAttachedWorkerCount: 1
@@ -258,6 +267,7 @@ test("a worker still mid-handshake when the settle backstop expires is swept int
   await session.settle(1_000);
   assert.deepEqual(session.diagnostics(), {
     attachedDedicatedWorkerCount: 1,
+    attachedNestedDedicatedWorkerCount: 0,
     attachedSharedWorkerCount: 0,
     verifiedWorkerCount: 0,
     unverifiedAttachedWorkerCount: 1
@@ -280,6 +290,7 @@ test("auxiliary targets are recursed into and released without entering worker a
   );
   assert.deepEqual(session.diagnostics(), {
     attachedDedicatedWorkerCount: 0,
+    attachedNestedDedicatedWorkerCount: 0,
     attachedSharedWorkerCount: 0,
     verifiedWorkerCount: 0,
     unverifiedAttachedWorkerCount: 0
@@ -299,6 +310,7 @@ test("a shared worker attach, if the browser ever delivers one, is counted in it
 
   assert.deepEqual(session.diagnostics(), {
     attachedDedicatedWorkerCount: 0,
+    attachedNestedDedicatedWorkerCount: 0,
     attachedSharedWorkerCount: 1,
     verifiedWorkerCount: 1,
     unverifiedAttachedWorkerCount: 0
@@ -310,8 +322,9 @@ test("workers attached while an earlier handshake settles are drained by the sam
     if (command.method === "Target.attachToTarget") return { sessionId: "page-session" };
     if (command.method === "Runtime.evaluate") {
       if (command.sessionId === "worker-parent") {
-        // The parent's handshake surfaces a nested worker mid-flight.
-        scripted.emit(workerAttachEvent("worker-child"));
+        // The parent's handshake surfaces a nested worker mid-flight, on the
+        // parent's own session.
+        scripted.emit(workerAttachEvent("worker-child", "worker", "worker-parent"));
       }
       return { result: { value: true } };
     }
@@ -324,8 +337,34 @@ test("workers attached while an earlier handshake settles are drained by the sam
 
   assert.deepEqual(session.diagnostics(), {
     attachedDedicatedWorkerCount: 2,
+    attachedNestedDedicatedWorkerCount: 1,
     attachedSharedWorkerCount: 0,
     verifiedWorkerCount: 2,
+    unverifiedAttachedWorkerCount: 0
+  });
+});
+
+test("a worker attached on another worker's session is tagged nested; one attached on a frame's session is page-level", async () => {
+  const scripted = scriptedChannel((command) => {
+    if (command.method === "Target.attachToTarget") return { sessionId: "page-session" };
+    if (command.method === "Runtime.evaluate") return { result: { value: true } };
+    return {};
+  });
+  const session = new GpcWorkerVerificationSession(scripted.channel);
+  await session.attachToPage("page-target-id");
+  scripted.emit(workerAttachEvent("worker-parent"));
+  scripted.emit(workerAttachEvent("worker-child", "worker", "worker-parent"));
+  // An out-of-process frame of the measured page runs the page-side
+  // construction wrap too, so its worker is page-level, not nested.
+  scripted.emit(workerAttachEvent("iframe-session", "iframe"));
+  scripted.emit(workerAttachEvent("frame-worker", "worker", "iframe-session"));
+  await session.settle(1_000);
+
+  assert.deepEqual(session.diagnostics(), {
+    attachedDedicatedWorkerCount: 3,
+    attachedNestedDedicatedWorkerCount: 1,
+    attachedSharedWorkerCount: 0,
+    verifiedWorkerCount: 3,
     unverifiedAttachedWorkerCount: 0
   });
 });
@@ -430,6 +469,13 @@ test("real Chromium: all six worker shapes attest and observe GPC while an unatt
 
   const verifiedPage = await verifiedContext.newPage();
   const untouchedPage = await untouchedContext.newPage();
+  // The scanner's browser-side witness: Playwright's own recursive
+  // auto-attach, nested workers included. Its population must equal this
+  // client's attaches, or the witness itself reports false loss (or masks it).
+  let witnessedWorkers = 0;
+  verifiedPage.on("worker", () => {
+    witnessedWorkers += 1;
+  });
 
   const targetSession = await verifiedContext.newCDPSession(verifiedPage);
   const info = (await targetSession.send("Target.getTargetInfo")) as {
@@ -463,7 +509,7 @@ test("real Chromium: all six worker shapes attest and observe GPC while an unatt
   await untouchedPage.goto(`http://127.0.0.1:${address.port}/?arm=untouched`, { timeout: 10_000 });
   const deadline = Date.now() + 15_000;
   while (
-    (beaconNames("verified").length < 6 || beaconNames("untouched").length < 6) &&
+    (beaconNames("verified").length < 6 || beaconNames("untouched").length < 6 || witnessedWorkers < 6) &&
     Date.now() < deadline
   ) {
     await new Promise((resolve) => setTimeout(resolve, 100));
@@ -491,4 +537,12 @@ test("real Chromium: all six worker shapes attest and observe GPC while an unatt
   assert.equal(diagnostics.attachedDedicatedWorkerCount, 6);
   assert.equal(diagnostics.verifiedWorkerCount, 6);
   assert.equal(diagnostics.unverifiedAttachedWorkerCount, 0);
+  // Chromium delivers the nested child's attach on its parent's session, so
+  // exactly one of the six is nested and five are page-level.
+  assert.equal(diagnostics.attachedNestedDedicatedWorkerCount, 1);
+  assert.equal(
+    witnessedWorkers,
+    diagnostics.attachedDedicatedWorkerCount,
+    "the browser-side witness must see exactly the dedicated workers this client attached"
+  );
 });

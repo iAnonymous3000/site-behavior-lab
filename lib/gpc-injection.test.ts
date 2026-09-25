@@ -154,58 +154,148 @@ test("registrations without the per-context capability are ignored", () => {
   assert.equal(session.diagnostics().dedicatedWorkerConstructionCount, 0);
 });
 
+function rawCounters(
+  overrides: Partial<Parameters<typeof gpcWorkerCaptureLossCount>[0]>
+): Parameters<typeof gpcWorkerCaptureLossCount>[0] {
+  return {
+    dedicatedWorkerConstructionCount: 0,
+    sharedWorkerConstructionCount: 0,
+    observedDedicatedWorkerCount: 0,
+    attachedDedicatedWorkerCount: 0,
+    attachedNestedDedicatedWorkerCount: 0,
+    attachedSharedWorkerCount: 0,
+    verifiedWorkerCount: 0,
+    unverifiedAttachedWorkerCount: 0,
+    ...overrides
+  };
+}
+
 test("the disclosed loss counts exactly the unattested workers, in both directions", () => {
   // Every construction attached and attested: the asymmetry is gone and the
   // loss must be zero, or every clean GPC report reads as degraded.
   assert.equal(
-    gpcWorkerCaptureLossCount({
-      dedicatedWorkerConstructionCount: 3,
-      sharedWorkerConstructionCount: 0,
-      attachedDedicatedWorkerCount: 3,
-      attachedSharedWorkerCount: 0,
-      verifiedWorkerCount: 3,
-      unverifiedAttachedWorkerCount: 0
-    }),
+    gpcWorkerCaptureLossCount(
+      rawCounters({
+        dedicatedWorkerConstructionCount: 3,
+        observedDedicatedWorkerCount: 3,
+        attachedDedicatedWorkerCount: 3,
+        verifiedWorkerCount: 3
+      })
+    ),
     0
   );
   // An attached worker whose realm never attested is loss even when the
   // construction counts balance.
   assert.equal(
-    gpcWorkerCaptureLossCount({
-      dedicatedWorkerConstructionCount: 2,
-      sharedWorkerConstructionCount: 0,
-      attachedDedicatedWorkerCount: 2,
-      attachedSharedWorkerCount: 0,
-      verifiedWorkerCount: 1,
-      unverifiedAttachedWorkerCount: 1
-    }),
+    gpcWorkerCaptureLossCount(
+      rawCounters({
+        dedicatedWorkerConstructionCount: 2,
+        observedDedicatedWorkerCount: 2,
+        attachedDedicatedWorkerCount: 2,
+        verifiedWorkerCount: 1,
+        unverifiedAttachedWorkerCount: 1
+      })
+    ),
     1
   );
   // Constructions the channel never attached (channel down, or shared workers
   // a page session cannot attach) are loss even though no handshake failed.
   assert.equal(
-    gpcWorkerCaptureLossCount({
-      dedicatedWorkerConstructionCount: 2,
-      sharedWorkerConstructionCount: 1,
-      attachedDedicatedWorkerCount: 0,
-      attachedSharedWorkerCount: 0,
-      verifiedWorkerCount: 0,
-      unverifiedAttachedWorkerCount: 0
-    }),
+    gpcWorkerCaptureLossCount(
+      rawCounters({
+        dedicatedWorkerConstructionCount: 2,
+        sharedWorkerConstructionCount: 1,
+        observedDedicatedWorkerCount: 2
+      })
+    ),
     3
   );
-  // Nested workers attach without a page-level construction; the surplus must
-  // not go negative and mask a real gap elsewhere.
+  // A nested worker attaches with no page-level construction behind it; its
+  // attach is tagged, so it neither goes negative nor offsets anything, and
+  // only the unattachable shared construction remains.
   assert.equal(
-    gpcWorkerCaptureLossCount({
-      dedicatedWorkerConstructionCount: 1,
-      sharedWorkerConstructionCount: 1,
-      attachedDedicatedWorkerCount: 2,
-      attachedSharedWorkerCount: 0,
-      verifiedWorkerCount: 2,
-      unverifiedAttachedWorkerCount: 0
-    }),
+    gpcWorkerCaptureLossCount(
+      rawCounters({
+        dedicatedWorkerConstructionCount: 1,
+        sharedWorkerConstructionCount: 1,
+        observedDedicatedWorkerCount: 2,
+        attachedDedicatedWorkerCount: 2,
+        attachedNestedDedicatedWorkerCount: 1,
+        verifiedWorkerCount: 2
+      })
+    ),
     1
+  );
+});
+
+test("a nested or constructor-bypassing attach cannot stand in for a page-level worker the channel never reached", () => {
+  // One page worker spawned a child (both attached), then the channel missed
+  // a later page worker. Netting pooled counts read 2 - 2 = 0.
+  assert.equal(
+    gpcWorkerCaptureLossCount(
+      rawCounters({
+        dedicatedWorkerConstructionCount: 2,
+        observedDedicatedWorkerCount: 3,
+        attachedDedicatedWorkerCount: 2,
+        attachedNestedDedicatedWorkerCount: 1,
+        verifiedWorkerCount: 2
+      })
+    ),
+    1
+  );
+  // The same visit with the browser-side witness short one worker: the
+  // construction count against page-level attaches still catches it.
+  assert.equal(
+    gpcWorkerCaptureLossCount(
+      rawCounters({
+        dedicatedWorkerConstructionCount: 2,
+        observedDedicatedWorkerCount: 2,
+        attachedDedicatedWorkerCount: 2,
+        attachedNestedDedicatedWorkerCount: 1,
+        verifiedWorkerCount: 2
+      })
+    ),
+    1
+  );
+  // A page worker built through the native constructor the wrap never sees
+  // attaches uncounted and offsets a counted construction the channel never
+  // attached; only the witness exposes it.
+  assert.equal(
+    gpcWorkerCaptureLossCount(
+      rawCounters({
+        dedicatedWorkerConstructionCount: 2,
+        observedDedicatedWorkerCount: 4,
+        attachedDedicatedWorkerCount: 3,
+        verifiedWorkerCount: 3
+      })
+    ),
+    1
+  );
+  // Both records are lower bounds on the same unattached workers, so a
+  // channel that never established discloses the larger of the two, not their
+  // sum.
+  assert.equal(
+    gpcWorkerCaptureLossCount(
+      rawCounters({
+        dedicatedWorkerConstructionCount: 2,
+        observedDedicatedWorkerCount: 3
+      })
+    ),
+    3
+  );
+  // The full clean matrix (five page workers, one nested child, all attached
+  // and attested) stays at zero: the witness adds no false loss.
+  assert.equal(
+    gpcWorkerCaptureLossCount(
+      rawCounters({
+        dedicatedWorkerConstructionCount: 5,
+        observedDedicatedWorkerCount: 6,
+        attachedDedicatedWorkerCount: 6,
+        attachedNestedDedicatedWorkerCount: 1,
+        verifiedWorkerCount: 6
+      })
+    ),
+    0
   );
 });
 
@@ -217,6 +307,7 @@ test("a session without a verification source discloses every construction as lo
 
   session.setVerificationDiagnosticsSource(() => ({
     attachedDedicatedWorkerCount: 1,
+    attachedNestedDedicatedWorkerCount: 0,
     attachedSharedWorkerCount: 0,
     verifiedWorkerCount: 1,
     unverifiedAttachedWorkerCount: 0
@@ -224,6 +315,27 @@ test("a session without a verification source discloses every construction as lo
   // The dedicated construction is attached and attested; only the shared
   // construction, which a page session cannot attach, remains disclosed.
   assert.equal(session.checkpoint().diagnostics.captureLossCount, 1);
+});
+
+test("the browser-side witness discloses dedicated workers the construction count never saw", () => {
+  const session = createGpcWorkerInjectionSession({ randomBytes: FIXED_RANDOM_BYTES });
+  session.register({}, { capability: session.initScriptArgs.capability, kind: "dedicated", protocol: "https:" });
+  session.observeDedicatedWorker();
+  session.observeDedicatedWorker();
+  // No channel: one wrapped construction, two workers the browser started.
+  // The disclosed loss is the larger record, never the smaller.
+  const unattached = session.checkpoint().diagnostics;
+  assert.equal(unattached.observedDedicatedWorkerCount, 2);
+  assert.equal(unattached.captureLossCount, 2);
+
+  session.setVerificationDiagnosticsSource(() => ({
+    attachedDedicatedWorkerCount: 2,
+    attachedNestedDedicatedWorkerCount: 0,
+    attachedSharedWorkerCount: 0,
+    verifiedWorkerCount: 2,
+    unverifiedAttachedWorkerCount: 0
+  }));
+  assert.equal(session.checkpoint().diagnostics.captureLossCount, 0);
 });
 
 test("the disclosed warning names verification, not blocking as policy", () => {

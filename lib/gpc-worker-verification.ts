@@ -28,6 +28,13 @@ import { installGlobalPrivacyControl } from "./gpc-injection";
  * pause the baseline arm's workers too. Shared workers therefore run
  * untouched and are disclosed as unverified through the construction counts
  * kept by lib/gpc-injection.ts.
+ *
+ * Nested attaches are tagged. A worker whose attach event arrives on another
+ * worker's session was started by that worker, not by a document, so the
+ * page-side construction wrap (which runs only in document realms) never
+ * counted it. lib/gpc-injection.ts nets constructions against page-level
+ * attaches only; without the tag, a nested attach would offset a page-level
+ * construction the channel never reached.
  */
 
 /** One command/handshake step may not outlive this. */
@@ -42,7 +49,10 @@ const DEFAULT_HANDSHAKE_TIMEOUT_MS = 3_000;
 const DEVTOOLS_DISCOVERY_TIMEOUT_MS = 3_000;
 
 export type GpcWorkerVerificationDiagnostics = {
+  /** Every dedicated worker this client attached, nested ones included. */
   attachedDedicatedWorkerCount: number;
+  /** The subset of `attachedDedicatedWorkerCount` started by another worker. */
+  attachedNestedDedicatedWorkerCount: number;
   attachedSharedWorkerCount: number;
   verifiedWorkerCount: number;
   unverifiedAttachedWorkerCount: number;
@@ -85,7 +95,10 @@ export class GpcWorkerVerificationSession {
   private readonly inFlight = new Set<Promise<void>>();
   /** Attached workers whose handshake has not reached a terminal record yet. */
   private readonly openRecords = new Set<WorkerHandshakeRecord>();
+  /** Sessions of attached workers; an attach arriving on one is nested. */
+  private readonly workerSessionIds = new Set<string>();
   private attachedDedicatedWorkerCount = 0;
+  private attachedNestedDedicatedWorkerCount = 0;
   private attachedSharedWorkerCount = 0;
   private verifiedWorkerCount = 0;
   private unverifiedAttachedWorkerCount = 0;
@@ -116,6 +129,7 @@ export class GpcWorkerVerificationSession {
   diagnostics(): GpcWorkerVerificationDiagnostics {
     return {
       attachedDedicatedWorkerCount: this.attachedDedicatedWorkerCount,
+      attachedNestedDedicatedWorkerCount: this.attachedNestedDedicatedWorkerCount,
       attachedSharedWorkerCount: this.attachedSharedWorkerCount,
       verifiedWorkerCount: this.verifiedWorkerCount,
       unverifiedAttachedWorkerCount: this.unverifiedAttachedWorkerCount
@@ -173,8 +187,15 @@ export class GpcWorkerVerificationSession {
     if (typeof sessionId !== "string" || !targetInfo) return;
     const type = typeof targetInfo.type === "string" ? targetInfo.type : "";
     const waitingForDebugger = params.waitingForDebugger === true;
+    // The event's own sessionId names the session it arrived on: the page,
+    // a frame or auxiliary target (page-level, because the construction wrap
+    // runs in every frame of the measured page), or a worker (nested). Read
+    // and register synchronously: a child can only attach after its parent's
+    // setAutoAttach is sent, which happens after this registration.
+    const nested = typeof event.sessionId === "string" && this.workerSessionIds.has(event.sessionId);
+    if (type === "worker" || type === "shared_worker") this.workerSessionIds.add(sessionId);
 
-    const operation = this.handleAttachedTarget(sessionId, type, waitingForDebugger).catch(() => undefined);
+    const operation = this.handleAttachedTarget(sessionId, type, waitingForDebugger, nested).catch(() => undefined);
     this.inFlight.add(operation);
     void operation.then(
       () => this.inFlight.delete(operation),
@@ -185,7 +206,8 @@ export class GpcWorkerVerificationSession {
   private async handleAttachedTarget(
     sessionId: string,
     type: string,
-    waitingForDebugger: boolean
+    waitingForDebugger: boolean,
+    nested: boolean
   ): Promise<void> {
     if (type !== "worker" && type !== "shared_worker") {
       // Out-of-process frames and other auxiliary targets are attached by the
@@ -199,8 +221,12 @@ export class GpcWorkerVerificationSession {
       return;
     }
 
-    if (type === "worker") this.attachedDedicatedWorkerCount += 1;
-    else this.attachedSharedWorkerCount += 1;
+    if (type === "worker") {
+      this.attachedDedicatedWorkerCount += 1;
+      if (nested) this.attachedNestedDedicatedWorkerCount += 1;
+    } else {
+      this.attachedSharedWorkerCount += 1;
+    }
 
     const record: WorkerHandshakeRecord = { settled: false };
     this.openRecords.add(record);

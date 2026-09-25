@@ -424,6 +424,12 @@ export type ScanSiteOptions = {
    * scanner integration tests. Production never supplies this hook.
    */
   beforePassiveShieldsBoundaryForTests?: (page: Page) => Promise<void>;
+  /**
+   * Receive the measured page's GPC worker verification session once it is
+   * established, so scanner integration tests can drop the DevTools channel
+   * mid-scan. Production never supplies this hook.
+   */
+  onGpcWorkerVerificationEstablishedForTests?: (verification: GpcWorkerVerificationSession) => void;
   /** Exercise the fail-closed subject-validity path with an absent collector capability. */
   forceMissingPageSubjectCollectorForTests?: boolean;
 };
@@ -510,10 +516,20 @@ export function retainedScanEvidenceDiagnostics(
         afterGpc.sharedWorkerConstructionCount,
         finalGpc.sharedWorkerConstructionCount
       ),
+      observedDedicatedWorkerCount: retainedMonotonicCount(
+        beforeGpc.observedDedicatedWorkerCount,
+        afterGpc.observedDedicatedWorkerCount,
+        finalGpc.observedDedicatedWorkerCount
+      ),
       attachedDedicatedWorkerCount: retainedMonotonicCount(
         beforeGpc.attachedDedicatedWorkerCount,
         afterGpc.attachedDedicatedWorkerCount,
         finalGpc.attachedDedicatedWorkerCount
+      ),
+      attachedNestedDedicatedWorkerCount: retainedMonotonicCount(
+        beforeGpc.attachedNestedDedicatedWorkerCount,
+        afterGpc.attachedNestedDedicatedWorkerCount,
+        finalGpc.attachedNestedDedicatedWorkerCount
       ),
       attachedSharedWorkerCount: retainedMonotonicCount(
         beforeGpc.attachedSharedWorkerCount,
@@ -911,6 +927,12 @@ export async function scanSiteWithMeasurement(
     }
 
     if (gpcWorkerInjection) {
+      // The browser-side witness: every dedicated worker Playwright's own
+      // recursive auto-attach reports for this page, nested ones included.
+      // Registered while the page is still about:blank and before the DevTools
+      // client is established, so a failed establish cannot skip it and no
+      // worker of the visit predates it.
+      page.on("worker", () => gpcWorkerInjection.observeDedicatedWorker());
       // Scope the registration wrapper to the measured page and its child
       // frames. Popups and the later out-of-evidence policy page are outside
       // the measured session, so their constructions must not enter its
@@ -927,8 +949,9 @@ export async function scanSiteWithMeasurement(
       // start, install GPC inside the worker realm, and read it back before
       // release (lib/gpc-worker-verification.ts). Best effort to ESTABLISH,
       // never to account: when any step here fails the scan proceeds, and the
-      // construction counts registered above turn every worker of this visit
-      // into disclosed capture loss instead of a silently unverified realm.
+      // construction counts and the witness registered above turn every worker
+      // of this visit into disclosed capture loss instead of a silently
+      // unverified realm.
       try {
         // Disposing on a lost deadline race: an establish that materializes
         // after the scan deadline must close its DevTools socket rather than
@@ -942,6 +965,7 @@ export async function scanSiteWithMeasurement(
         );
         const verification = gpcWorkerVerification;
         gpcWorkerInjection.setVerificationDiagnosticsSource(() => verification.diagnostics());
+        options.onGpcWorkerVerificationEstablishedForTests?.(verification);
       } catch {
         gpcWorkerVerification = null;
       }

@@ -216,6 +216,25 @@ The same `v3` also takes the companion change: the probe now aborts with
 a main-frame navigation no longer reads as the page leaving the subject, and
 no longer discards the probe or censors fingerprinting.
 
+**Update, 2026-09-24.** The GPC worker accounting row is fixed in the scanner.
+Nested attaches are tagged by the session they arrive on, and the count the row
+asks for, one the page cannot mask, is a browser-side witness: the scanner
+counts every dedicated worker Playwright's own recursive auto-attach reports
+for the measured page. That population matches the verification client's
+attaches, nested workers included, and page script cannot step around it as it
+can around the construction wrap (`Worker.prototype.constructor` is the native
+constructor, so tagging alone would not have closed the row). The loss nets
+constructions against page-level attaches and the witness against all
+attaches, and discloses the larger, since both are lower bounds on the same
+unattached workers. Two narrow holes remain: a worker in a frame Playwright
+cannot place, and dedicated workers started inside a SharedWorker, which
+neither record sees (such a run is already disclosed through its shared
+worker). A worker started just as the evidence freezes can reach the witness
+before the verification client and read as one lost worker, as it could
+already reach the construction count first. The fix changes when the capture
+loss is recorded, so the r2 methodology component moves to
+`gpc-worker-application-v3` with this epoch's identity bookkeeping.
+
 ## 5. Confirmed and left for other reasons
 
 - **The Dockerfile re-runs `npm run check` inside the image build** (about 16

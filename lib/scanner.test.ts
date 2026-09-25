@@ -16,7 +16,7 @@ import { comparisonEligibility } from "./comparison-eligibility";
 import { CONSENT_INTERACTION_LEFT_SUBJECT_WARNING } from "./consent-subject-loss-warning";
 import { PublicScanError } from "./public-errors";
 import { TCF_API_METHOD } from "./consent-verification";
-import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "./gpc-injection";
+import { GPC_WORKER_CAPTURE_LOSS_WARNING, gpcWorkerCaptureLossCount } from "./gpc-injection";
 import { MeasurementKernel } from "./measurement-kernel";
 import { buildScanConditions, buildScanResult } from "./scan-result-builder";
 import {
@@ -899,6 +899,10 @@ test("ScanRequestBudget can defer its legacy warning until a retained evidence b
 });
 
 test("retained scanner diagnostics subtract reload loss while keeping later active-probe loss", () => {
+  const withGpcWorkerLoss = (counters: Parameters<typeof gpcWorkerCaptureLossCount>[0]) => ({
+    ...counters,
+    captureLossCount: gpcWorkerCaptureLossCount(counters)
+  });
   const snapshot = (input: {
     invalid: number;
     trafficLoss: number;
@@ -911,7 +915,9 @@ test("retained scanner diagnostics subtract reload loss while keeping later acti
     requestLoss: number;
     constructedDedicated: number;
     constructedShared: number;
+    observedDedicated: number;
     attachedDedicated: number;
+    attachedNested: number;
     attachedShared: number;
     verified: number;
     unverifiedAttached: number;
@@ -977,18 +983,16 @@ test("retained scanner diagnostics subtract reload loss while keeping later acti
       captureLossCount: input.requestLoss
     },
     gpcWorker: {
-      diagnostics: {
+      diagnostics: withGpcWorkerLoss({
         dedicatedWorkerConstructionCount: input.constructedDedicated,
         sharedWorkerConstructionCount: input.constructedShared,
+        observedDedicatedWorkerCount: input.observedDedicated,
         attachedDedicatedWorkerCount: input.attachedDedicated,
+        attachedNestedDedicatedWorkerCount: input.attachedNested,
         attachedSharedWorkerCount: input.attachedShared,
         verifiedWorkerCount: input.verified,
-        unverifiedAttachedWorkerCount: input.unverifiedAttached,
-        captureLossCount:
-          input.unverifiedAttached +
-          Math.max(0, input.constructedDedicated - input.attachedDedicated) +
-          Math.max(0, input.constructedShared - input.attachedShared)
-      }
+        unverifiedAttachedWorkerCount: input.unverifiedAttached
+      })
     }
   });
 
@@ -1004,7 +1008,9 @@ test("retained scanner diagnostics subtract reload loss while keeping later acti
     requestLoss: 1,
     constructedDedicated: 2,
     constructedShared: 1,
+    observedDedicated: 2,
     attachedDedicated: 1,
+    attachedNested: 0,
     attachedShared: 0,
     verified: 1,
     unverifiedAttached: 0
@@ -1021,7 +1027,9 @@ test("retained scanner diagnostics subtract reload loss while keeping later acti
     requestLoss: 5,
     constructedDedicated: 4,
     constructedShared: 2,
+    observedDedicated: 5,
     attachedDedicated: 2,
+    attachedNested: 1,
     attachedShared: 0,
     verified: 1,
     unverifiedAttached: 1
@@ -1038,7 +1046,9 @@ test("retained scanner diagnostics subtract reload loss while keeping later acti
     requestLoss: 8,
     constructedDedicated: 5,
     constructedShared: 2,
+    observedDedicated: 7,
     attachedDedicated: 3,
+    attachedNested: 2,
     attachedShared: 0,
     verified: 2,
     unverifiedAttached: 1
@@ -1067,11 +1077,13 @@ test("retained scanner diagnostics subtract reload loss while keeping later acti
     diagnostics: {
       dedicatedWorkerConstructionCount: 3,
       sharedWorkerConstructionCount: 1,
+      observedDedicatedWorkerCount: 4,
       attachedDedicatedWorkerCount: 2,
+      attachedNestedDedicatedWorkerCount: 1,
       attachedSharedWorkerCount: 0,
       verifiedWorkerCount: 2,
       unverifiedAttachedWorkerCount: 0,
-      captureLossCount: 2
+      captureLossCount: 3
     }
   });
 });

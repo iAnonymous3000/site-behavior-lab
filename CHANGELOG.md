@@ -79,6 +79,13 @@ public API or a 1.0 release.
   probe was discarded and fingerprinting was censored. The probe now stops
   these navigations the way a cancelled navigation stops, the page stays in
   place, and the probe completes on the rest of what it observed.
+- On a GPC visit, a worker started by another worker, or built through
+  `Worker.prototype.constructor`, could stand in for a page worker the
+  verification channel never reached, so a worker that ran without the signal
+  went undisclosed. Attaches are now tagged by the session they arrive on, and
+  checked against the browser's own record of every dedicated worker the page
+  started as well as the page-side construction count. A visit whose channel
+  never opened now discloses the larger of the two counts.
 
 ## [0.6.0] - 2026-09-06
 

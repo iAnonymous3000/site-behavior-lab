@@ -1,3 +1,5 @@
+import type { GpcWorkerVerificationDiagnostics } from "./gpc-worker-verification";
+
 export const GPC_WORKER_CAPTURE_LOSS_WARNING =
   "The scan blocked or could not verify one or more Web Workers while applying the simulated GPC signal; request evidence may be incomplete.";
 
@@ -33,11 +35,21 @@ type GpcWorkerRegistration = {
  * realm. The wrap never blocks, rewrites, or rejects a construction: every
  * worker the site asks for runs, in both arms, with the caller's exact
  * arguments.
+ *
+ * The wrap is page JavaScript's own record, so the page can step around it
+ * (`Worker.prototype.constructor` is the native constructor), and it never
+ * runs in worker realms. A second, browser-side record closes that gap: the
+ * host counts every dedicated worker Playwright's own recursive auto-attach
+ * reports for the measured page (`observeDedicatedWorker`), a population the
+ * page cannot evade and the same one the DevTools client attaches from.
  */
 export type GpcWorkerInjectionDiagnostics = {
   dedicatedWorkerConstructionCount: number;
   sharedWorkerConstructionCount: number;
+  /** Dedicated workers of the measured page reported by the browser, nested included. */
+  observedDedicatedWorkerCount: number;
   attachedDedicatedWorkerCount: number;
+  attachedNestedDedicatedWorkerCount: number;
   attachedSharedWorkerCount: number;
   verifiedWorkerCount: number;
   unverifiedAttachedWorkerCount: number;
@@ -57,18 +69,39 @@ type GpcWorkerRawCounters = Omit<GpcWorkerInjectionDiagnostics, "captureLossCoun
  * Three terms, each a fact with no inference stapled on:
  * - an attached worker whose handshake did not return `true` from inside its
  *   realm ran without a verified signal;
- * - a dedicated construction the DevTools client never attached ran outside
- *   the verification channel entirely (channel down or never established);
+ * - a dedicated worker the DevTools client never attached ran outside the
+ *   verification channel entirely (channel down or never established);
  * - a shared construction beyond the attached shared count cannot be paused
  *   from a page session, so its realm is never attested.
+ *
+ * The unattached dedicated workers are counted from two records, each netted
+ * only against the attaches of its own population, so no attach can stand in
+ * for a worker the channel never reached:
+ * - page-side constructions against page-level attaches (all attaches minus
+ *   the nested ones, which the document-realm wrap never counts);
+ * - the browser-side witness against all attaches (both come from Chromium
+ *   auto-attach on the same page tree, nested included, and the page cannot
+ *   step around either, as it can around the wrap).
+ * Each is a lower bound on the same unattached workers, so the larger one is
+ * disclosed, never their sum.
  *
  * Verified workers contribute nothing: for them the asymmetry this warning
  * discloses no longer exists.
  */
 export function gpcWorkerCaptureLossCount(counters: GpcWorkerRawCounters): number {
+  const pageLevelAttachedDedicatedWorkerCount =
+    counters.attachedDedicatedWorkerCount - counters.attachedNestedDedicatedWorkerCount;
+  const unattachedConstructions = Math.max(
+    0,
+    counters.dedicatedWorkerConstructionCount - pageLevelAttachedDedicatedWorkerCount
+  );
+  const unattachedObserved = Math.max(
+    0,
+    counters.observedDedicatedWorkerCount - counters.attachedDedicatedWorkerCount
+  );
   return (
     counters.unverifiedAttachedWorkerCount +
-    Math.max(0, counters.dedicatedWorkerConstructionCount - counters.attachedDedicatedWorkerCount) +
+    Math.max(unattachedConstructions, unattachedObserved) +
     Math.max(0, counters.sharedWorkerConstructionCount - counters.attachedSharedWorkerCount)
   );
 }
@@ -195,12 +228,8 @@ export class GpcWorkerInjectionSession {
 
   private dedicatedWorkerConstructionCount = 0;
   private sharedWorkerConstructionCount = 0;
-  private verificationDiagnostics: (() => {
-    attachedDedicatedWorkerCount: number;
-    attachedSharedWorkerCount: number;
-    verifiedWorkerCount: number;
-    unverifiedAttachedWorkerCount: number;
-  }) | null = null;
+  private observedDedicatedWorkerCount = 0;
+  private verificationDiagnostics: (() => GpcWorkerVerificationDiagnostics) | null = null;
 
   constructor(options: { randomBytes?: Uint8Array } = {}) {
     const randomBytes = options.randomBytes ?? crypto.getRandomValues(new Uint8Array(24));
@@ -218,24 +247,28 @@ export class GpcWorkerInjectionSession {
   }
 
   /**
-   * Wire in the DevTools verification counters. Without a source (channel
-   * never established), every construction stays unmatched and therefore
-   * counts as disclosed loss: verification failure is loud by construction.
+   * Host-side witness: one call per dedicated worker the browser reported for
+   * the measured page (Playwright's page "worker" event). Not a page binding,
+   * so the page can neither call nor skip it.
    */
-  setVerificationDiagnosticsSource(
-    source: () => {
-      attachedDedicatedWorkerCount: number;
-      attachedSharedWorkerCount: number;
-      verifiedWorkerCount: number;
-      unverifiedAttachedWorkerCount: number;
-    }
-  ): void {
+  observeDedicatedWorker(): void {
+    this.observedDedicatedWorkerCount += 1;
+  }
+
+  /**
+   * Wire in the DevTools verification counters. Without a source (channel
+   * never established), every construction and every witnessed worker stays
+   * unmatched and therefore counts as disclosed loss: verification failure is
+   * loud by construction.
+   */
+  setVerificationDiagnosticsSource(source: () => GpcWorkerVerificationDiagnostics): void {
     this.verificationDiagnostics = source;
   }
 
   diagnostics(): GpcWorkerInjectionDiagnostics {
     const verification = this.verificationDiagnostics?.() ?? {
       attachedDedicatedWorkerCount: 0,
+      attachedNestedDedicatedWorkerCount: 0,
       attachedSharedWorkerCount: 0,
       verifiedWorkerCount: 0,
       unverifiedAttachedWorkerCount: 0
@@ -243,7 +276,9 @@ export class GpcWorkerInjectionSession {
     const counters: GpcWorkerRawCounters = {
       dedicatedWorkerConstructionCount: this.dedicatedWorkerConstructionCount,
       sharedWorkerConstructionCount: this.sharedWorkerConstructionCount,
+      observedDedicatedWorkerCount: this.observedDedicatedWorkerCount,
       attachedDedicatedWorkerCount: verification.attachedDedicatedWorkerCount,
+      attachedNestedDedicatedWorkerCount: verification.attachedNestedDedicatedWorkerCount,
       attachedSharedWorkerCount: verification.attachedSharedWorkerCount,
       verifiedWorkerCount: verification.verifiedWorkerCount,
       unverifiedAttachedWorkerCount: verification.unverifiedAttachedWorkerCount

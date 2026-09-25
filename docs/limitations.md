@@ -127,14 +127,20 @@ and reads the property back in the same evaluation. A worker counts as carrying
 the signal only when that readback from inside its own realm returned `true`;
 delivery is never inferred from the injection having been attempted. A worker
 the scanner could not attest this way still runs untouched, and the run says so
-in its warnings and marks its request evidence incomplete. `SharedWorker` is
-the standing case: Chromium does not expose shared workers to a page-scoped
-DevTools session, so on a GPC-enabled visit a shared worker's realm never
-carries the signal (its network requests still carry the `Sec-GPC: 1` header),
-and every such construction is disclosed as unverified. The baseline arm gets
-no DevTools session, no pause, and no injection, so for verified workers a GPC
-comparison differs between arms only in the signal itself; an unverified worker
-is the remaining one-arm asymmetry and is always disclosed.
+in its warnings and marks its request evidence incomplete. To find workers it
+never reached, the scanner checks its attaches against two records: a count of
+the workers the page's documents constructed, and the browser's own record of
+every dedicated worker the page started, workers of workers included. A worker
+started by another worker, or built through a constructor the page-side count
+cannot see, therefore cannot stand in for one the scanner never reached.
+`SharedWorker` is the standing case: Chromium does not expose shared workers to
+a page-scoped DevTools session, so on a GPC-enabled visit a shared worker's
+realm never carries the signal (its network requests still carry the
+`Sec-GPC: 1` header), and every such construction is disclosed as unverified.
+The baseline arm gets no DevTools session, no pause, and no injection, so for
+verified workers a GPC comparison differs between arms only in the signal
+itself; an unverified worker is the remaining one-arm asymmetry and is
+disclosed.
 
 ### What one report covers
 
