@@ -541,8 +541,14 @@ removes, adds none of the three lines to any, and gives none of their 1,837
 runs a new reader reason, so no published reading or aggregate moves until a
 refresh. How often live visits open a window is not measured here; where one
 does, a refreshed v1 aggregate pools fewer runs for that reason, as r2 already
-did. Still divergent: the listener-withheld drop above, and the
-`detector-output` and `consent-verification` residue of the consent line.
+did. Still divergent: the listener-withheld drop above, the
+`detector-output` and `consent-verification` residue of the consent line, and
+the `detector-output` residue of a probe that lost the page. On both probe
+fixtures r2 marks that family censored over the keystroke detector while v1
+reads it complete, carrying the loss only through the keystroke claim's
+`legacyReasons` (the probe's subject line). Requests and fingerprinting are
+censored on both wires, and no v1 surface renders `detector-output`, so every
+claim r2 withholds is withheld on v1 too.
 
 ## 5. Confirmed and left for other reasons
 

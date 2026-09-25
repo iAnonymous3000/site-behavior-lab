@@ -127,10 +127,14 @@ public API or a 1.0 release.
   nothing about fingerprinting), and a window or tab the page opened, whose
   requests the scanner blocks and leaves out of the log (requests, in any
   phase). The scanner now adds a fixed warning beside each r2 loss, and v1
-  readers censor the same families r2 does: such a visit leaves the corpus
-  population and is not compared or benchmarked on third-party services, and
-  a page that left before its state was read also withholds its listener
-  findings, as r2 does over its fingerprint detector. No committed report
+  readers censor the families r2 drops for that loss: such a visit leaves the
+  corpus population and is not compared or benchmarked on third-party
+  services, and a page that left before its state was read also withholds its
+  listener findings, as r2 does over its fingerprint detector. One residue
+  stays: for a probe that lost the page, r2 also marks `detector-output`
+  censored over the keystroke detector, which v1 records only through the
+  keystroke claim's own reason. No v1 surface shows that family, so no claim
+  r2 withholds stands on v1. No committed report
   carries any of the three lines. They are new admitted public strings, so
   they move the public-string policy digest with this release's redaction
   change.
