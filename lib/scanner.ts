@@ -435,6 +435,12 @@ export type ScanSiteOptions = {
    */
   beforePassiveShieldsBoundaryForTests?: (page: Page) => Promise<void>;
   /**
+   * Issue page work after the subject's state reads begin and before the last
+   * of them, in scanner integration tests, so a navigation lands inside the
+   * reads rather than before them. Production never supplies this hook.
+   */
+  duringSubjectStateReadsForTests?: (page: Page) => Promise<void>;
+  /**
    * Receive the measured page's GPC worker verification session once it is
    * established, so scanner integration tests can drop the DevTools channel
    * mid-scan. Production never supplies this hook.
@@ -1977,6 +1983,7 @@ export async function scanSiteWithMeasurement(
       });
       tentativePageTitle = titleRead.value;
       tentativePageTitleTruncated = titleRead.truncated;
+      if (options.duringSubjectStateReadsForTests) await options.duringSubjectStateReadsForTests(page);
       tentativeCookies = await withScanTimeout(collectCookies(context, trustedSubjectHostname), started);
       tentativeStorage = await capturePassiveBoundary(
         withScanTimeout(collectStorageSnapshot(stateSnapshotPhaseId), started)

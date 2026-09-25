@@ -4702,6 +4702,90 @@ test("a page that left the site before its state was read withholds on v1 each c
   }
 });
 
+test("a page that left the site during its state reads records the same line and losses as one that left before them", { timeout: 60_000 }, async () => {
+  // The subject check before the state reads passes, and a navigation lands
+  // inside them, so the loss is recorded by the check after the last read,
+  // the second of the two sites markPassiveStateSubjectLoss serves. A real
+  // redirect during the title, cookie, storage, fingerprint, screenshot or
+  // policy-link reads takes this path; without the line there, v1 would read
+  // the four families r2 drops as complete.
+  const upstream = createServer((request, response) => {
+    if (request.headers.host?.startsWith("elsewhere.read-origin.net")) {
+      response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+      response.end("<!doctype html><title>Elsewhere</title><p>Elsewhere</p>");
+      return;
+    }
+    if (request.url?.startsWith("/t.js")) {
+      response.writeHead(200, { "content-type": "text/javascript" });
+      response.end("void 0;");
+      return;
+    }
+    response.writeHead(200, { "content-type": "text/html; charset=utf-8", "set-cookie": "first=1; path=/" });
+    response.end(`<!doctype html>
+      <title>Read origin</title>
+      <script src="http://tracker.example.net/t.js"></script>
+      <script>localStorage.setItem("seen", "1");</script>
+      <input id="field">`);
+  });
+  await new Promise<void>((resolve, reject) => {
+    upstream.once("error", reject);
+    upstream.listen(0, "127.0.0.1", resolve);
+  });
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+  const previousConsentVerification = process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
+  process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = "1";
+  let leftDuringReads = false;
+  try {
+    const visit = await scanSiteWithMeasurement(
+      { url: "http://www.read-origin.com/", device: "desktop", gpcEnabled: false, consentMode: "observe" },
+      { publicUrlAlreadyVerified: true, verifyPublicUrl: async () => undefined,
+        resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+        connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"), resolveCnameChain: async () => [],
+        duringSubjectStateReadsForTests: async (page) => {
+          leftDuringReads = true;
+          await Promise.all([
+            page.waitForURL("http://elsewhere.read-origin.net/", { waitUntil: "commit" }),
+            page.evaluate(() => {
+              setTimeout(() => {
+                location.href = "http://elsewhere.read-origin.net/";
+              }, 0);
+            })
+          ]);
+        } }
+    );
+    assert.equal(leftDuringReads, true, "the reads must have started on the subject");
+    const { result, measurement } = visit;
+    assert.ok(measurement);
+    const passivePhase = measurement.measurement.phases.find((phase) => phase.kind === "passive-load");
+    assert.ok(passivePhase);
+    for (const family of ["requests", "cookies", "storage", "fingerprinting"] as const) {
+      assert.ok(
+        measurement.measurement.qualityFacts.captureLoss.some((loss) =>
+          loss.family === family && loss.kind === "dropped" && loss.phaseId === passivePhase.phaseId && loss.detail === undefined
+        ),
+        family
+      );
+    }
+    assert.equal(result.warnings.includes(ACTIVE_PROBE_SUBJECT_WARNING), true);
+    assert.equal(result.warnings.filter((warning) => warning === PAGE_LEFT_SUBJECT_BEFORE_STATE_WARNING).length, 1);
+
+    const { r2, v1, v1Report } = bothWireDisplayFacts(visit);
+    assert.equal(v1Report.warnings.includes(PAGE_LEFT_SUBJECT_BEFORE_STATE_WARNING), true);
+    assert.ok(v1Report.requests.some((request) => request.thirdParty), "the fixture must record third-party traffic");
+    for (const family of ["requests", "cookies", "storage", "fingerprinting"] as const) {
+      assert.equal(r2.evidence[family].state, "censored", family);
+      assert.equal(v1.evidence[family].state, "censored", family);
+    }
+    assertV1WithholdsEachClaimR2Withholds(r2, v1);
+  } finally {
+    if (previousConsentVerification === undefined) delete process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
+    else process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = previousConsentVerification;
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+});
+
 test("a consent click cannot promote a sibling origin into evidence or active-input scope", { timeout: 30_000 }, async () => {
   let siblingReceivedSyntheticInput = false;
   const upstream = createServer((request, response) => {
