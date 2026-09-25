@@ -51,6 +51,11 @@ public API or a 1.0 release.
 - Test hygiene: the policy PDF stop check bounds the parse thread's own CPU work
   instead of a wall window, and the print request cap is pinned to the scanner's
   recording cap.
+- A Shields filter-match count could include a request the engine had not yet
+  evaluated at the passive-load boundary, and on a small page exceed the
+  evaluated count, which failed the r2 report. The count now covers only
+  requests classified by that boundary, so it can only go down; v1 counts are
+  unchanged.
 
 ## [0.6.0] - 2026-09-06
 

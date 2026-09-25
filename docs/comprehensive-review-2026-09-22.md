@@ -168,6 +168,20 @@ Three bing.com reports (20260727-165807d3, 20260817-08181f13, 20260824-7d6e9ff3)
 stored the homepage as the policy URL; their policy card now reads as a cross-check
 not established (`548f7ea`), without a correction event.
 
+**Update, 2026-09-24.** The Shields boundary row is fixed without moving any
+identity. Its diagnosis was wrong: the request ids and the classifier counters
+were already read in one synchronous step, so no reordering could matter. The
+gap was between lifecycle stages. A request is recorded at Playwright's request
+event but classified only after its route's public-host check, so a request the
+page issued just before the boundary could be recorded but not yet evaluated,
+and the classification arm's match recount then counted it against a
+denominator that never saw it (above that denominator on a small page, which
+the r2 evaluator refuses). Each classifier call now stamps its request in the
+same synchronous step as the evaluated counter, and the recount covers only
+requests recorded and classified at the boundary. The only published value that
+moves is the r2 classification-arm `requestsMatched` (and the summary count
+derived from it), and it can only go down; v1 counts are unchanged.
+
 ## 5. Confirmed and left for other reasons
 
 - **The Dockerfile re-runs `npm run check` inside the image build** (about 16

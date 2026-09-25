@@ -221,20 +221,25 @@ export type ScanRouteDecision = {
  * retained per-request flags; that recount must be restricted to the SAME
  * boundary, since a straggler can still be recorded into the passive phase
  * after the snapshot and would otherwise be matched against a frozen
- * denominator that never saw it.
+ * denominator that never saw it. The recount covers only requests that were
+ * both recorded and classified at that instant: a request is recorded before
+ * its route classifies it, so one recorded but not yet classified is a
+ * straggler too. That set is a subset of the requests counted in the boundary
+ * `requestsMatched`, so recount <= requestsMatched <= requestsEvaluated holds
+ * by construction.
  */
 export function freezePassiveShieldsFacts(input: {
   boundaryCounters: { requestsEvaluated: number; requestsMatched: number; requestsActuallyBlocked: number };
   retainedRequests: readonly { id: number; phaseId: number; blockedByShields?: boolean | undefined }[];
   passivePhaseId: number;
-  boundaryRequestIds: ReadonlySet<number>;
+  boundaryClassifiedRequestIds: ReadonlySet<number>;
   blockingEnabled: boolean;
 }): { requestsEvaluated: number; requestsMatched: number; requestsActuallyBlocked: number } {
   const retainedPassiveMatches = input.retainedRequests.filter(
     (request) =>
       request.phaseId === input.passivePhaseId &&
       request.blockedByShields === true &&
-      input.boundaryRequestIds.has(request.id)
+      input.boundaryClassifiedRequestIds.has(request.id)
   ).length;
   return {
     requestsEvaluated: input.boundaryCounters.requestsEvaluated,
@@ -400,6 +405,11 @@ export type ScanSiteOptions = {
    * scanner integration tests. Production never supplies this hook.
    */
   beforeConsentSubframeEvaluationForTests?: (frame: Frame) => Promise<void>;
+  /**
+   * Issue page work immediately before the passive Shields boundary is read in
+   * scanner integration tests. Production never supplies this hook.
+   */
+  beforePassiveShieldsBoundaryForTests?: (page: Page) => Promise<void>;
   /** Exercise the fail-closed subject-validity path with an absent collector capability. */
   forceMissingPageSubjectCollectorForTests?: boolean;
 };
@@ -942,18 +952,24 @@ export async function scanSiteWithMeasurement(
     let shieldsBlockedRequestCount = 0;
     let shieldsRequestsEvaluated = 0;
     let shieldsRequestsMatched = 0;
+    const shieldsClassifiedRequests = new WeakSet<Request>();
     // Meter only the classifier call used by the page route. Later CNAME
     // checks use the original engine and therefore cannot inflate these facts.
-    const routedAdblockEngine: RouteAdblockEngine | null = adblockEngine
-      ? {
-          checkWithMethod: (url, sourceUrl, requestType, method) => {
-            shieldsRequestsEvaluated += 1;
-            const matched = adblockEngine.checkWithMethod(url, sourceUrl, requestType, method);
-            if (matched) shieldsRequestsMatched += 1;
-            return matched;
+    // The per-request stamp is written in the same synchronous step as the
+    // evaluated counter, so a boundary that reads both sees every request on
+    // the same side of it.
+    const routedAdblockEngineFor = (request: Request): RouteAdblockEngine | null =>
+      adblockEngine
+        ? {
+            checkWithMethod: (url, sourceUrl, requestType, method) => {
+              shieldsRequestsEvaluated += 1;
+              shieldsClassifiedRequests.add(request);
+              const matched = adblockEngine.checkWithMethod(url, sourceUrl, requestType, method);
+              if (matched) shieldsRequestsMatched += 1;
+              return matched;
+            }
           }
-        }
-      : null;
+        : null;
     const networkRecorder = new ScanNetworkRecorder<Request>({
       firstPartyHostname: targetUrl.hostname,
       warnings,
@@ -1025,7 +1041,7 @@ export async function scanSiteWithMeasurement(
           requestBudget: networkRecorder.requestBudget,
           publicHostChecks,
           shieldsBlockingEnabled: options.shieldsBlockingEnabled,
-          adblockEngine: routedAdblockEngine,
+          adblockEngine: routedAdblockEngineFor(request),
           verifyPublicUrl
         });
         if (decision.shieldsMatched !== undefined) {
@@ -1222,10 +1238,28 @@ export async function scanSiteWithMeasurement(
         return { value: "", truncated: true, available: false };
       })
     ]);
+    // Nothing may await between this hook and the boundary read below.
+    if (options.beforePassiveShieldsBoundaryForTests) await options.beforePassiveShieldsBoundaryForTests(page);
     const trustedSubjectPageTitle = trustedSubjectPageTitleRead.value;
+    // The passive Shields boundary, read in one synchronous step. A request is
+    // recorded at Playwright's request event but classified only after its
+    // public-host check, so one issued just before this instant can be recorded
+    // yet unclassified. It is then a straggler, like one recorded after the
+    // boundary, and stays out of the classified set the match recount uses.
+    const shieldsClassifiedBoundaryRequestIds = new Set<number>();
     const trustedSubjectRequestIds = new Set(
-      networkRecorder.publicRecords(trustedSubjectHostname).map((record) => record.id)
+      networkRecorder
+        .publicRecords(trustedSubjectHostname, (record, request) => {
+          if (shieldsClassifiedRequests.has(request)) shieldsClassifiedBoundaryRequestIds.add(record.id);
+          return record;
+        })
+        .map((record) => record.id)
     );
+    const trustedSubjectShieldsFacts = {
+      requestsEvaluated: shieldsRequestsEvaluated,
+      requestsMatched: shieldsRequestsMatched,
+      requestsActuallyBlocked: shieldsBlockedRequestCount
+    };
     const pageSubjectState = classifyPageSubject({
       pageTitle: trustedSubjectPageTitle,
       pageText: trustedSubjectPageTextRead.value,
@@ -1251,11 +1285,6 @@ export async function scanSiteWithMeasurement(
         detail: PAGE_SUBJECT_CAPTURE_LOSS_DETAIL
       });
     }
-    const trustedSubjectShieldsFacts = {
-      requestsEvaluated: shieldsRequestsEvaluated,
-      requestsMatched: shieldsRequestsMatched,
-      requestsActuallyBlocked: shieldsBlockedRequestCount
-    };
 
     // Kernel step 3 helpers. Weak banner-visibility moments plus the strong
     // CMP interpreters (TCF API in-page read, OneTrust consent cookie), each
@@ -2411,7 +2440,7 @@ export async function scanSiteWithMeasurement(
       boundaryCounters: trustedSubjectShieldsFacts,
       retainedRequests: phaseAwareRequests,
       passivePhaseId,
-      boundaryRequestIds: trustedSubjectRequestIds,
+      boundaryClassifiedRequestIds: shieldsClassifiedBoundaryRequestIds,
       blockingEnabled: options.shieldsBlockingEnabled === true
     });
     // This is the existing v1 request-log snapshot boundary. Requests from the

@@ -2079,6 +2079,113 @@ test("scanSite stages live phase-aware readbacks while returning only v1", { tim
   }
 });
 
+test("a request recorded before the Shields boundary but classified after it is not a boundary match", { timeout: 30_000 }, async () => {
+  // Playwright emits the request event, which records the row, before it hands
+  // the request to the route, which classifies it only after the per-host
+  // public check. Two late matching scripts, each held on its own host check,
+  // are therefore recorded but unclassified when the boundary is read. Counting
+  // them against a denominator that never evaluated them publishes a match
+  // count above the evaluated count, which the r2 evaluator refuses.
+  const lateHosts = new Set(["ads.example", "adserver.example"]);
+  const enteredLateHosts = new Set<string>();
+  let markEntered!: () => void;
+  const lateHostsEntered = new Promise<void>((resolve) => {
+    markEntered = resolve;
+  });
+  let releaseLate!: () => void;
+  const lateGate = new Promise<void>((resolve) => {
+    releaseLate = resolve;
+  });
+  let hookCalls = 0;
+  const upstream = createServer((request, response) => {
+    const host = request.headers.host?.split(":")[0];
+    if (host !== undefined && lateHosts.has(host)) {
+      response.writeHead(200, { "content-type": "application/javascript" });
+      response.end("void 0;");
+      return;
+    }
+    if (request.url === "/ok.png") {
+      response.writeHead(200, { "content-type": "image/png" });
+      response.end();
+      return;
+    }
+    response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+    response.end('<!doctype html><title>Shields boundary</title><img src="/ok.png"><p>ok</p>');
+  });
+  await new Promise<void>((resolve, reject) => {
+    upstream.once("error", reject);
+    upstream.listen(0, "127.0.0.1", resolve);
+  });
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+
+  try {
+    const { result, measurement: staged } = await scanSiteWithMeasurement(
+      { url: "http://shields-boundary.test/", device: "desktop", gpcEnabled: false, consentMode: "observe" },
+      {
+        publicUrlAlreadyVerified: true,
+        verifyPublicUrl: async (url) => {
+          if (!lateHosts.has(url.hostname)) return;
+          enteredLateHosts.add(url.hostname);
+          if (enteredLateHosts.size === lateHosts.size) markEntered();
+          await lateGate;
+        },
+        resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+        connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"),
+        resolveCnameChain: async () => [],
+        beforePassiveShieldsBoundaryForTests: async (page) => {
+          hookCalls += 1;
+          await page.evaluate(() => {
+            for (const src of ["http://ads.example/pixel.js", "http://adserver.example/pixel.js"]) {
+              const script = document.createElement("script");
+              script.src = src;
+              document.head.append(script);
+            }
+          });
+          // Both route handlers are now in flight, so both rows are recorded.
+          // The release runs only after the synchronous boundary read. The
+          // timer only bounds a failure, so a script that is never routed
+          // fails the scan instead of hanging it.
+          let enteredTimer: NodeJS.Timeout | undefined;
+          try {
+            await Promise.race([
+              lateHostsEntered,
+              new Promise<never>((_, reject) => {
+                enteredTimer = setTimeout(
+                  () => reject(new Error("a late script never reached its host check")),
+                  10_000
+                );
+              })
+            ]);
+          } finally {
+            clearTimeout(enteredTimer);
+          }
+          setImmediate(releaseLate);
+        }
+      }
+    );
+
+    assert.equal(hookCalls, 1);
+    const shields = staged.verificationFacts.shields;
+    const flaggedPassiveDomains = staged.evidence.requests
+      .filter((request) => request.phaseId === shields.phaseId && request.blockedByShields === true)
+      .map((request) => request.domain)
+      .sort();
+    // Both late matches stay retained as flagged passive-phase stragglers.
+    assert.deepEqual(flaggedPassiveDomains, ["ads.example", "adserver.example"]);
+    // Only the first-party image was classified by the boundary.
+    assert.equal(shields.requestsEvaluated, 1);
+    assert.equal(shields.requestsMatched, 0);
+    assert.equal(shields.requestsMatched <= shields.requestsEvaluated, true);
+    // v1 counts the final retained flags and does not move.
+    assert.equal(result.summary.shieldsBlockedRequests, 2);
+  } finally {
+    releaseLate();
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+});
+
 test("keystroke candidate overflow records exact detector-output truncation", { timeout: 30_000 }, async () => {
   const upstream = createServer((_request, response) => {
     response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
@@ -4556,23 +4663,28 @@ test("frozen Shields facts stay commensurable when a straggler lands after the b
   // refused run is a failed scan, not a degraded report. The route counters are
   // snapshotted the instant the passive load settles, so a match recounted from
   // a request recorded into the passive phase AFTER that instant would be
-  // measured against a denominator that never saw it.
+  // measured against a denominator that never saw it. The same holds for a
+  // request recorded before that instant but classified after it.
   const boundaryCounters = { requestsEvaluated: 2, requestsMatched: 2, requestsActuallyBlocked: 0 };
-  const boundaryRequestIds = new Set([1, 2]);
+  // Id 5 was recorded at the boundary but not yet classified, so only 1 and 2
+  // are in the classified set.
+  const boundaryClassifiedRequestIds = new Set([1, 2]);
   const retainedRequests = [
     { id: 1, phaseId: 0, blockedByShields: true },
     { id: 2, phaseId: 0, blockedByShields: true },
     // Straggler: same phase, recorded after the snapshot.
     { id: 3, phaseId: 0, blockedByShields: true },
     // Later phases never belong to a passive-load fact at all.
-    { id: 4, phaseId: 1, blockedByShields: true }
+    { id: 4, phaseId: 1, blockedByShields: true },
+    // Straggler: recorded before the snapshot, matched after it.
+    { id: 5, phaseId: 0, blockedByShields: true }
   ];
 
   const classification = freezePassiveShieldsFacts({
     boundaryCounters,
     retainedRequests,
     passivePhaseId: 0,
-    boundaryRequestIds,
+    boundaryClassifiedRequestIds,
     blockingEnabled: false
   });
   assert.deepEqual(classification, { requestsEvaluated: 2, requestsMatched: 2, requestsActuallyBlocked: 0 });
@@ -4584,7 +4696,7 @@ test("frozen Shields facts stay commensurable when a straggler lands after the b
     boundaryCounters: { requestsEvaluated: 9, requestsMatched: 4, requestsActuallyBlocked: 4 },
     retainedRequests,
     passivePhaseId: 0,
-    boundaryRequestIds,
+    boundaryClassifiedRequestIds,
     blockingEnabled: true
   });
   assert.deepEqual(blocking, { requestsEvaluated: 9, requestsMatched: 4, requestsActuallyBlocked: 4 });
