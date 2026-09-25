@@ -130,13 +130,18 @@ the scanner could not attest this way still runs untouched, and the run says so
 in its warnings and marks its request evidence incomplete. To find workers it
 never reached, the scanner checks its attaches against two records: a count of
 the workers the page's documents constructed, and the browser's own record of
-every dedicated worker the page started, workers of workers included. A worker
-started by another worker, or built through a constructor the page-side count
-cannot see, therefore cannot stand in for one the scanner never reached.
-`SharedWorker` is the standing case: Chromium does not expose shared workers to
-a page-scoped DevTools session, so on a GPC-enabled visit a shared worker's
-realm never carries the signal (its network requests still carry the
-`Sec-GPC: 1` header), and every such construction is disclosed as unverified.
+the dedicated workers the automation layer reports for the page, workers of
+workers included. A worker started by another worker, or built through a
+constructor the page-side count cannot see, therefore no longer stands in for
+one the scanner never reached. Two narrow gaps remain. A worker inside a frame
+the automation layer cannot place is missing from the browser record, so its
+attach can still offset a page worker the scanner never reached, and a
+dedicated worker started inside a `SharedWorker` appears in neither record (the
+shared worker itself is disclosed). `SharedWorker` is the standing case:
+Chromium does not expose shared workers to a page-scoped DevTools session, so
+on a GPC-enabled visit a shared worker's realm never carries the signal (its
+network requests still carry the `Sec-GPC: 1` header), and every such
+construction is disclosed as unverified.
 The baseline arm gets no DevTools session, no pause, and no injection, so for
 verified workers a GPC comparison differs between arms only in the signal
 itself; an unverified worker is the remaining one-arm asymmetry and is

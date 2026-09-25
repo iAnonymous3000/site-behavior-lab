@@ -84,9 +84,12 @@ public API or a 1.0 release.
   `Worker.prototype.constructor`, could stand in for a page worker the
   verification channel never reached, so a worker that ran without the signal
   went undisclosed. Attaches are now tagged by the session they arrive on, and
-  checked against the browser's own record of every dedicated worker the page
-  started as well as the page-side construction count. A visit whose channel
-  never opened now discloses the larger of the two counts.
+  checked against the browser's own record of the page's dedicated workers as
+  well as the page-side construction count. A visit whose channel never opened
+  now discloses the larger of the two counts. Two narrow gaps remain: a worker
+  in a frame the automation layer cannot place is missing from the browser's
+  record, and a dedicated worker started inside a `SharedWorker` is in neither
+  record.
 - A consent banner read that lost a frame was recorded as "banner not visible",
   so a banner that could have been in the unread frame completed a
   visible-then-hidden transition and published a weak signal of the chosen

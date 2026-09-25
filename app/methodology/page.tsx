@@ -124,13 +124,16 @@ export default function MethodologyPage() {
           inside the worker itself, marks the worker as carrying the signal. A worker the scanner could not attest
           this way still runs untouched; the visit then says so in its warnings and marks its request evidence
           incomplete. To find workers it never reached, the scanner checks its attaches against two records: a
-          count of the workers the page&apos;s documents constructed, and the browser&apos;s own record of every
-          dedicated worker the page started, workers of workers included. A worker started by another worker, or
-          built through a constructor the page-side count cannot see, therefore cannot stand in for one the
-          scanner never reached. <code>SharedWorker</code> is the standing case: the browser does not expose
-          shared workers to a page-scoped session, so their execution context never carries the signal even
-          though their network requests carry the <code>Sec-GPC</code> header, and every such construction is
-          disclosed. For attested workers a GPC comparison differs between its two visits in the signal alone; an
+          count of the workers the page&apos;s documents constructed, and the browser&apos;s own record of the
+          dedicated workers the automation layer reports for the page, workers of workers included. A worker
+          started by another worker, or built through a constructor the page-side count cannot see, therefore no
+          longer stands in for one the scanner never reached. Two narrow gaps remain: a worker inside a frame the
+          automation layer cannot place is missing from the browser&apos;s record, so its attach can still offset
+          a page worker the scanner never reached, and a dedicated worker started inside a shared worker appears
+          in neither record (the shared worker itself is disclosed). <code>SharedWorker</code> is the standing
+          case: the browser does not expose shared workers to a page-scoped session, so their execution context
+          never carries the signal even though their network requests carry the <code>Sec-GPC</code> header, and
+          every such construction is disclosed. For attested workers a GPC comparison differs between its two visits in the signal alone; an
           unattested worker is the remaining one-visit asymmetry, and it is disclosed rather than silently passed.
         </p>
       </section>
