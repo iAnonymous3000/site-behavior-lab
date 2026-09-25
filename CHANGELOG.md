@@ -100,10 +100,12 @@ public API or a 1.0 release.
   (a path-style S3 host, a bare IP address, a host that is itself a public
   suffix), and then stated that no listener signals were observed. The v1
   sanitizer now adds a fixed warning when it withholds such a detection, and v1
-  readers treat the listener claim, and only that claim, as incomplete, as r2
-  already did through its capture-loss record. The new admitted warning moves
-  the public-string policy digest and both r2 normalization identities; the
-  outgoing ones are closed with this release's identity bookkeeping. No
+  readers treat the listener claim, and only that claim, as incomplete. r2
+  already recorded the drop as a capture loss, which also censors the keystroke
+  claim; a v1 keystroke recipient redacts to a host marker the sanitizer
+  accepts, so the v1 line leaves that claim alone. The new admitted warning
+  moves the public-string policy digest and both r2 normalization identities;
+  the outgoing ones are closed with this release's identity bookkeeping. No
   committed report changes. Reports whose detection was dropped before this
   change cannot be identified, because raw evidence is not retained.
 
