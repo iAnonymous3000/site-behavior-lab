@@ -390,7 +390,12 @@ browser tests v1 now withholds `third-party-services` with `family-censored`
 and `benchmarkAllowed: false`, leaves the corpus population and reads its
 request evidence as `incomplete`, as r2 does; the foreign-realm test's
 first-party submission censors the request family on v1 while its keystroke
-claim stands on both wires. The two strings move the public-string policy
+claim stands on both wires. The route stops every navigation started while the
+probe runs, an ad frame rotating during the wait included, so on ad-heavy
+pages many new v1 visits leave the corpus population and the third-party
+benchmark, as r2 visits already did, and a refreshed v1 aggregate pools fewer
+runs for that reason. No committed report carries the line, so the published
+aggregate does not move until a refresh. The two strings move the public-string policy
 digest from `ab262b83...2560` to `b40a333a...3d51`; the outgoing
 `cb7064a1...059d` literals, the closed v12 rows and the `SUPERSEDED` entries do
 not change, and `isScannerWarning` is untouched, so

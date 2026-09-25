@@ -147,13 +147,15 @@ export default function MethodologyPage() {
           run and send requests. Unsupported, offscreen and failed field attempts are reported as omitted coverage;
           the probe does not scroll to reach them. Auxiliary pages are blocked; r2 reports count their requests as
           lost coverage, and v1 reports carry no record of them. Navigations started while the probe runs, whether
-          or not the probe caused them, are blocked too: they are left out of the request log and counted as lost
-          coverage in both report versions (v1 reports through a fixed warning), so the visit&apos;s request evidence
-          reads as incomplete. One that would have carried the test value to a third party leaves the input check
-          incomplete, and so does a request the probe could not read in full, a field it could not test or that
-          refused the value, a probe that had no time to start or whose own work failed, and a page that left the
-          recorded site before or during the probe; v1 reports, which have no detector status, say so with a fixed
-          warning. Second, in consent comparison mode only, the scanner clicks one accept-all or
+          or not the probe caused them, are blocked too: they are left out of the request log and r2 reports count
+          them as lost coverage, so the visit&apos;s request evidence reads as incomplete. One that would have
+          carried the test value to a third party leaves the input check incomplete, and so does a request the probe
+          could not read in full, a field it could not test or that refused the value, a probe that had no time to
+          start or whose own work failed, and a page that left the recorded site before or during the probe. Newer v1
+          reports, which have no quality block or detector status, record both with fixed warnings; v1 reports
+          measured before those warnings existed, including every committed one, carry none, so their request
+          evidence and input check can read as complete. Second, in consent comparison mode only, the scanner clicks
+          one accept-all or
           reject-all control on the cookie banner&apos;s first layer (known consent-platform controls first, then a
           conservative whole-label match). Whenever at least one field accepts the synthetic value, the report says
           how many did; a visit where no field accepted it carries no typed-field count. Consent-comparison reports

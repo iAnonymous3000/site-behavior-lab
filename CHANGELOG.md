@@ -79,7 +79,11 @@ public API or a 1.0 release.
   read it like a request deadline, as r2 reads the loss: the request evidence
   is incomplete, the visit leaves the corpus population and is not compared or
   benchmarked on third-party services, and the keystroke claim is left to the
-  probe's own lines (next entry).
+  probe's own lines (next entry). The route stops every navigation started
+  while the probe runs, an ad frame rotating during its wait included, so on
+  ad-heavy pages many new v1 visits leave the corpus population and the
+  third-party benchmark, as r2 visits already did; a refreshed v1 aggregate
+  pools fewer runs for that reason, not because the sites changed.
 - A v1 report stated that no typed value left the page whenever the input probe
   did not complete its test in a way r2 records only in the detector's status:
   a navigation it stopped that would have carried the value to a third party,
