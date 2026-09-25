@@ -756,6 +756,14 @@ type ConsentVisibilityProbeOutcome = {
    * "not found" would silently mean "not readable".
    */
   calibrationUsable: boolean;
+  /**
+   * Whether every frame the read could not evaluate had detached by then. A
+   * detached frame displays nothing, so a negative read that lost only
+   * detached frames still searched every frame that could show a banner.
+   * Only the consent-mode banner moments read this; observe-mode calibration
+   * keeps counting a detached frame as unreadable.
+   */
+  unreadFramesDetached: boolean;
 };
 
 const publicHostCheckFailures = new WeakMap<Map<string, Promise<void>>, Map<string, number>>();
@@ -1380,6 +1388,7 @@ export async function scanSiteWithMeasurement(
         const args = consentVisibilityArgs(consentShadowRootCapability);
         let readableFrames = 0;
         let unreadableFrames = 0;
+        let unreadableAttachedFrames = 0;
         const frames = page.frames();
         for (const frame of frames) {
           // Outside the unreadable-frame catch, as in applyConsentChoice: a
@@ -1405,55 +1414,39 @@ export async function scanSiteWithMeasurement(
                   );
             readableFrames += 1;
             if (visible) {
-              return { visible: true, calibrationUsable: true };
+              return { visible: true, calibrationUsable: true, unreadFramesDetached: true };
             }
           } catch (error) {
             if (isScanBudgetError(error)) throw error;
             unreadableFrames += 1;
+            if (!frame.isDetached()) unreadableAttachedFrames += 1;
           }
         }
         if (readableFrames === 0) {
-          return { visible: null, calibrationUsable: false };
+          return { visible: null, calibrationUsable: false, unreadFramesDetached: unreadableAttachedFrames === 0 };
         }
         return {
           visible: false,
-          calibrationUsable: unreadableFrames === 0
+          calibrationUsable: unreadableFrames === 0,
+          unreadFramesDetached: unreadableAttachedFrames === 0
         };
       };
-    // One consent coverage loss per family, phase and kind, whichever path
-    // (probe failure, subject loss, lost banner moment) finds it first.
-    const recordedConsentCoverageLosses = new Set<string>();
-    const recordConsentFamilyLoss = (
-      family: "detector-output" | "consent-verification",
-      phaseId: number | null,
-      kind: "cap" | "dropped"
-    ): void => {
-      const key = `${family}:${phaseId ?? "none"}:${kind}`;
-      if (recordedConsentCoverageLosses.has(key)) return;
-      recordedConsentCoverageLosses.add(key);
-      measurementKernel.recordCaptureLoss({
-        family,
-        phaseId,
-        kind,
-        count: 1,
-        detail: family === "detector-output" ? "consent-banner" : "consent-verification"
-      });
-    };
     const recordBannerMoment = async (
       moment: BannerTransitionR2["observations"][number]["moment"],
       phaseId: number
     ): Promise<void> => {
       try {
-        const { visible, calibrationUsable } = await probeConsentBannerVisibility();
+        const { visible, unreadFramesDetached } = await probeConsentBannerVisibility();
         if (visible === null) return;
-        // "Not visible" claims every frame was searched. A negative read that
-        // lost a frame could have missed the banner there, and would complete
-        // a before/after transition the page never showed, so the moment is
-        // lost verification evidence, not an observation.
-        if (visible === false && !calibrationUsable) {
-          recordConsentFamilyLoss("consent-verification", phaseId, "dropped");
-          return;
-        }
+        // "Not visible" claims every frame that could show a banner was
+        // searched. A negative read that lost a frame still attached could
+        // have missed the banner there, and would complete a before/after
+        // transition the page never showed, so the moment is left out, as a
+        // read of no frame is. Without the after-click moment the choice
+        // state derives unavailable. No capture loss: strong interpreter reads
+        // settle the choice without any banner moment, and a family loss
+        // would censor consent verification they had already established.
+        if (visible === false && !unreadFramesDetached) return;
         // The validator requires strictly increasing moments; guard the
         // degenerate same-millisecond probe pair.
         const lastAtMs = bannerObservations[bannerObservations.length - 1]?.atMs ?? -1;
@@ -1575,13 +1568,29 @@ export async function scanSiteWithMeasurement(
     let consentBannerObserveCalibration:
       | ConsentBannerObserveCalibrationFact
       | undefined;
+    const recordedConsentCoverageLosses = new Set<string>();
     const recordConsentCoverageLoss = (
       phaseId: number | null,
       kind: "cap" | "dropped",
       includeVerification: boolean
     ): void => {
-      recordConsentFamilyLoss("detector-output", phaseId, kind);
-      if (includeVerification) recordConsentFamilyLoss("consent-verification", phaseId, kind);
+      const record = (
+        family: "detector-output" | "consent-verification",
+        detail: "consent-banner" | "consent-verification"
+      ) => {
+        const key = `${family}:${phaseId ?? "none"}:${kind}`;
+        if (recordedConsentCoverageLosses.has(key)) return;
+        recordedConsentCoverageLosses.add(key);
+        measurementKernel.recordCaptureLoss({
+          family,
+          phaseId,
+          kind,
+          count: 1,
+          detail
+        });
+      };
+      record("detector-output", "consent-banner");
+      if (includeVerification) record("consent-verification", "consent-verification");
     };
     const markConsentInteractionSubjectLoss = (phaseId: number) => {
       if (consentInteractionLeftSubject) return;

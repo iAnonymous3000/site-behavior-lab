@@ -5,6 +5,7 @@ import path from "node:path";
 import { createServer } from "node:http";
 import { connect, createServer as createNetServer } from "node:net";
 import { test } from "node:test";
+import type { Frame } from "playwright";
 import {
   PAGE_SUBJECT_CAPTURE_LOSS_DETAIL,
   PAGE_SUBJECT_UNVERIFIED_WARNING,
@@ -4237,30 +4238,41 @@ test("scanSite verifies a consent click end to end when the verification flag is
   }
 });
 
-test("a banner moment read from only some frames records lost verification, not an absent banner", { timeout: 30_000 }, async () => {
-  // "Not visible" means every frame was searched and none showed a control. A
-  // probe that lost a frame cannot say that: the banner may sit in the frame
-  // it could not read. Recorded anyway, the partial negative completed a
-  // before-visible, after-not-visible transition and published a weak signal
-  // of a registered choice.
-  //
-  // The fixture's banner hides on click and its one subframe is empty. No
-  // strong interpreter can read a state, so the banner transition alone
-  // decides the choice state. A test-only hook removes the subframe right
-  // before the after-click visibility read, which therefore reads the top
-  // document (no control) and loses the subframe. The before-click read stops
-  // at the visible control in the top document, and the after-reload read
-  // finds a fresh subframe and reads every frame.
-  let visibilityHookCalls = 0;
-  let detachedSubframeObserved = false;
+/**
+ * Scan a reject-all fixture whose banner hides on click and whose one subframe
+ * is empty, calling `onSubframeRead` before each consent-visibility read of the
+ * subframe. The before-click read stops at the visible control in the top
+ * document and never reaches the subframe, so read 1 is the after-click moment
+ * and read 2 the after-reload one. With `tcf`, a TCF API reports the rejection
+ * in both consent phases, which verifies the choice without any banner moment.
+ */
+async function scanPartialBannerReadFixture(
+  tcf: boolean,
+  onSubframeRead: (frame: Frame, read: number) => Promise<void>
+) {
+  let reads = 0;
   const upstream = createServer((_request, response) => {
     response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
     response.end(`<!doctype html>
       <title>Partial banner read fixture</title>
       <script>
         const rejected = localStorage.getItem("cmp-choice") === "rejected";
+        const tcData = {
+          gdprApplies: true,
+          eventStatus: rejected ? "tcloaded" : "cmpuishown",
+          purpose: {
+            consents: rejected ? { "1": false, "2": false } : {},
+            legitimateInterests: rejected ? { "1": false, "2": false } : {}
+          }
+        };
+        ${tcf ? "window.__tcfapi = (command, version, callback) => callback(tcData, true);" : ""}
         window.registerRejection = () => {
           localStorage.setItem("cmp-choice", "rejected");
+          tcData.eventStatus = "useractioncomplete";
+          tcData.purpose = {
+            consents: { "1": false, "2": false },
+            legitimateInterests: { "1": false, "2": false }
+          };
           document.getElementById("consent-banner").style.display = "none";
         };
       </script>
@@ -4296,53 +4308,121 @@ test("a banner moment read from only some frames records lost verification, not 
         connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"),
         resolveCnameChain: async () => [],
         beforeConsentVisibilitySubframeEvaluationForTests: async (frame) => {
-          visibilityHookCalls += 1;
-          if (visibilityHookCalls !== 1) return;
-          const frameElement = await frame.frameElement();
-          try {
-            await frameElement.evaluate((element) => element.parentNode?.removeChild(element));
-            detachedSubframeObserved = frame.isDetached();
-          } finally {
-            await frameElement.dispose();
-          }
+          reads += 1;
+          await onSubframeRead(frame, reads);
         }
       }
     );
-
-    assert.equal(detachedSubframeObserved, true);
     const staged = visit.measurement;
     const consentPhaseId = staged.measurement.phases.find((phase) => phase.kind === "consent-interaction")!.phaseId;
     const reloadPhaseId = staged.measurement.phases.find((phase) => phase.kind === "post-choice-reload")!.phaseId;
     assert.equal(staged.consent!.controlActivated, true);
     assert.equal(staged.measurement.detectors["consent-banner"].status, "complete");
-
-    // The after-click moment is omitted, not recorded as "not visible".
-    assert.deepEqual(
-      (staged.consent!.bannerTransition?.observations ?? []).map((entry) => [entry.moment, entry.phaseId, entry.visible]),
-      [
-        ["before-interaction", consentPhaseId, true],
-        ["after-reload", reloadPhaseId, false]
-      ]
-    );
-    // The lost moment is disclosed once, in its own phase and family only.
+    // Neither path records consent coverage loss: a banner moment is weak
+    // evidence the choice state can do without.
     assert.deepEqual(
       staged.measurement.qualityFacts.captureLoss.filter(
         (loss) => loss.family === "consent-verification" || loss.detail === "consent-banner"
       ),
-      [{ family: "consent-verification", phaseId: consentPhaseId, kind: "dropped", count: 1, detail: "consent-verification" }]
+      []
     );
-
-    // Published, the run no longer claims a weak signal of the choice.
     const report = buildRuntimeScanReportV2R2(visit, "public-api", {
       SITE_BEHAVIOR_LAB_BUILD_COMMIT: "a".repeat(40)
     } as NodeJS.ProcessEnv);
-    assert.equal(report.run.evidence.consent?.choiceState, "unavailable");
-    assert.equal(report.run.quality.byFamily["consent-verification"].outcome, "censored");
+    return {
+      moments: (staged.consent!.bannerTransition?.observations ?? []).map(
+        (entry) => [entry.moment, entry.phaseId, entry.visible] as const
+      ),
+      consentPhaseId,
+      reloadPhaseId,
+      report
+    };
   } finally {
     delete process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
     await closeSharedBrowserForTests();
     await new Promise<void>((resolve) => upstream.close(() => resolve()));
   }
+}
+
+/**
+ * Make Playwright's next evaluation of this still-attached frame reject, as it
+ * does for a frame whose document is replaced mid-read.
+ */
+function rejectNextFrameEvaluation(frame: Frame): void {
+  Object.defineProperty(frame, "evaluate", {
+    configurable: true,
+    writable: true,
+    value: async () => {
+      Reflect.deleteProperty(frame, "evaluate");
+      throw new Error("Execution context was destroyed, most likely because of a navigation");
+    }
+  });
+}
+
+test("a banner moment read that could not read an attached frame is left out, and costs no verification coverage", { timeout: 30_000 }, async () => {
+  // "Not visible" means every frame that could show a banner was searched. A
+  // read that lost an attached frame cannot say that: the banner may sit in
+  // the frame it could not read. Recorded anyway, the partial negative
+  // completed a before-visible, after-not-visible transition and published a
+  // weak signal of a registered choice. Left out, the missing after-click
+  // moment derives unavailable, which already says the choice was not verified,
+  // so the moment costs no consent-verification loss.
+  const { moments, consentPhaseId, reloadPhaseId, report } = await scanPartialBannerReadFixture(false, async (frame, read) => {
+    if (read !== 1) return;
+    assert.equal(frame.isDetached(), false);
+    rejectNextFrameEvaluation(frame);
+  });
+  assert.deepEqual(moments, [
+    ["before-interaction", consentPhaseId, true],
+    ["after-reload", reloadPhaseId, false]
+  ]);
+  assert.equal(report.run.evidence.consent?.choiceState, "unavailable");
+  assert.equal(report.run.quality.byFamily["consent-verification"].outcome, "complete");
+});
+
+test("a lost banner moment leaves consent that strong reads verified uncensored", { timeout: 30_000 }, async () => {
+  // Strong interpreter reads in the interaction and reload phases verify the
+  // choice without any banner moment. A consent-verification loss for the lost
+  // after-reload moment censored that family, withheld the consent-banner
+  // claim and made every consent comparison including the run ineligible for
+  // consent verification, over evidence the derivation never reads.
+  const { moments, consentPhaseId, report } = await scanPartialBannerReadFixture(true, async (frame, read) => {
+    if (read !== 2) return;
+    assert.equal(frame.isDetached(), false);
+    rejectNextFrameEvaluation(frame);
+  });
+  assert.deepEqual(moments, [
+    ["before-interaction", consentPhaseId, true],
+    ["after-interaction", consentPhaseId, false]
+  ]);
+  assert.equal(report.run.evidence.consent?.choiceState, "verified");
+  assert.equal(report.run.quality.byFamily["consent-verification"].outcome, "complete");
+  const claim = buildReportFacts(viewFromV2(toPublicScanReportR2(report), 2)).display.claims["consent-banner"];
+  assert.equal(claim.blockers.includes("family-censored"), false);
+});
+
+test("a banner moment read that lost only a detached frame still records the banner as gone", { timeout: 30_000 }, async () => {
+  // A frame that detached during the read displays nothing, so the read still
+  // searched every frame that could show the banner. Counting it as unread
+  // turned an ad frame rotating out during the read into a lost moment.
+  let detachedSubframeObserved = false;
+  const { moments, consentPhaseId, reloadPhaseId, report } = await scanPartialBannerReadFixture(false, async (frame, read) => {
+    if (read !== 1) return;
+    const frameElement = await frame.frameElement();
+    try {
+      await frameElement.evaluate((element) => element.parentNode?.removeChild(element));
+      detachedSubframeObserved = frame.isDetached();
+    } finally {
+      await frameElement.dispose();
+    }
+  });
+  assert.equal(detachedSubframeObserved, true);
+  assert.deepEqual(moments, [
+    ["before-interaction", consentPhaseId, true],
+    ["after-interaction", consentPhaseId, false],
+    ["after-reload", reloadPhaseId, false]
+  ]);
+  assert.equal(report.run.evidence.consent?.choiceState, "weak-signal");
 });
 
 test("a consent pair whose Accept click later leaves the site is not comparable", { timeout: 60_000 }, async () => {

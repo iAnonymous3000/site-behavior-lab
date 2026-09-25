@@ -1472,12 +1472,15 @@ exactly one `after-interaction` observation with the transition observed
 (`visible: true` then `visible: false`), plus `interactionAttempted === true`,
 `controlActivated === true`, and a `"complete"` consent-banner detector. A
 disappearance without an activated control, or observations without the
-transition, derive `unavailable`. `visible: false` claims every frame was
-searched: a negative read that searched some frames but not all records no
-observation for that moment and a `consent-verification` capture loss in its
-phase instead. A read that searched no frame records no observation. The
-partial-read rule arrived with `consent-r2-v5`; a report whose methodology
-records `consent-r2-v4` could hold such a read as `visible: false`.
+transition, derive `unavailable`. `visible: false` claims every frame that
+could show a banner was searched; a frame that detached during the read shows
+nothing and counts as searched. A negative read that could not search some
+attached frame records no observation for that moment, as a read that searched
+no frame does. Neither records a capture loss: the strong interpreters settle
+the choice without banner moments, and a missing interaction moment already
+keeps the transition from deriving `weak-signal`. The partial-read rule arrived
+with `consent-r2-v5`; a report whose methodology records `consent-r2-v4` could
+hold such a read as `visible: false`.
 
 ### 15.6 Supporting pairs: replication machinery without replication claims
 

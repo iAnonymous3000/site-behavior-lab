@@ -90,9 +90,11 @@ public API or a 1.0 release.
 - A consent banner read that lost a frame was recorded as "banner not visible",
   so a banner that could have been in the unread frame completed a
   visible-then-hidden transition and published a weak signal of the chosen
-  consent. Such a moment is now left out and recorded as lost consent
-  verification in its phase; without the after-click moment the choice state
-  is unavailable.
+  consent. Such a moment is now left out, as a read of no frame already was;
+  without the after-click moment the choice state is unavailable. It records
+  no capture loss, so a choice the TCF API or OneTrust readback verified stays
+  verified and uncensored, and a frame that detached during the read, which
+  shows nothing, does not count as unread.
 - A v1 report dropped a session-recording or input-monitoring detection without
   a trace when a script origin it named had no publishable registrable domain
   (a path-style S3 host, a bare IP address, a host that is itself a public

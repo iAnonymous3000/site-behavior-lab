@@ -242,15 +242,20 @@ loss is recorded, so the r2 methodology component moves to
 **Update, 2026-09-24.** An older backlog row lands in the same epoch: a
 banner-visibility moment recorded "not visible" from a read that lost a frame,
 which the observe-mode read already refused. A partial negative read now
-records no observation and one `consent-verification` capture loss in the
-moment's phase, deduplicated with the subject-loss path, so a missing
-after-click moment derives `unavailable` instead of `weak-signal`. The wire
-method `banner-visibility@1` and the consent-banner detector version stay: a
+records no observation, as a read that could not read any frame already did,
+so a missing after-click moment derives `unavailable` instead of
+`weak-signal`. It records no capture loss either: a first cut recorded a
+`consent-verification` loss, which censored that family, withheld the
+consent-banner claim and made consent comparisons ineligible even when TCF
+reads had verified the choice, a derivation that never reads banner moments.
+A frame that detached during the read shows nothing and no longer counts as
+unread; the observe-mode calibration read keeps counting it, so the
+consent-banner detector's outcomes do not move. The wire method
+`banner-visibility@1` and the consent-banner detector version stay: a
 recorded observation means what it meant, and the detector ledger and its
 `detector-output` losses are unchanged. Only when an observation is recorded
 changes, so the r2 methodology component moves to `consent-r2-v5` with this
-epoch's identity bookkeeping. A read that could not read any frame already
-recorded nothing and still records no loss; that is left as it was.
+epoch's identity bookkeeping.
 
 **Update, 2026-09-24.** The v1 sanitizer row is fixed as a vocabulary widening.
 When redaction refuses a session-recording or input-monitoring detection (an
