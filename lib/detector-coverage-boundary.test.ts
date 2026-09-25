@@ -442,7 +442,7 @@ test("the causality boundary states what the scanner actually records", () => {
  * that says the page realm is observed must say which reports it is true of,
  * with markers a reader can find on a report: an observer version older than
  * the current one, and a methodology component the current base carries. It
- * must also name the page-realm gaps that remain.
+ * must also say which page-realm routes it traces, and that no other is.
  */
 test("the worker-realm canvas entry tells a reader which reports observed OffscreenCanvas work in the page", () => {
   const entry = COVERAGE_BOUNDARY_ENTRIES.find((candidate) => candidate.id === "worker-realm-canvas");
@@ -462,6 +462,9 @@ test("the worker-realm canvas entry tells a reader which reports observed Offscr
   );
   assert.match(entry.explanation, /does not rule it out/);
 
-  assert.match(entry.explanation, /bitmaprenderer/);
+  // The traced routes are a rule, not a count of known gaps: a list of gaps
+  // read as closed while createPattern and VideoFrame routes were missed too.
+  assert.match(entry.explanation, /\bonly through drawImage\b/);
+  assert.match(entry.explanation, /any other route[^.]*is not traced, for either kind of canvas/);
   assert.match(entry.explanation, /still pending when the visit's evidence is collected/);
 });

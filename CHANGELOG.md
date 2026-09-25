@@ -329,12 +329,13 @@ public API or a 1.0 release.
   `convertToBlob` is recorded as its own API, `canvas.convertToBlob`, only when
   its promise fulfills, never as `canvas.toBlob`, so an export still pending
   when the visit's evidence is collected is not recorded. Text drawn offscreen
-  keeps its provenance into another canvas through `drawImage`, including
+  is traced into another canvas only through `drawImage`, including
   `drawImage` of a bitmap made by `transferToImageBitmap` or
   `createImageBitmap`, and a page canvas whose control moved to an
   OffscreenCanvas with `transferControlToOffscreen` is read as showing that
-  OffscreenCanvas's text. An ImageBitmap handed to a `bitmaprenderer` context
-  carries no provenance, for either kind of canvas. Before this, a page that
+  OffscreenCanvas's text. Any other route, such as an ImageBitmap handed to a
+  `bitmaprenderer` context or a pattern made with `createPattern`, is not
+  traced, for either kind of canvas. Before this, a page that
   fingerprinted only on an OffscreenCanvas left no event and no detection, so
   its fingerprint card read quiet. WebGL on an OffscreenCanvas was already
   observed. The observer captures the OffscreenCanvas intrinsics at init, so a
@@ -359,7 +360,8 @@ public API or a 1.0 release.
   (only the GPC arm pauses workers today), plus a worker-realm observer and a
   readback path for workers that exit early. The coverage boundary entry for
   OffscreenCanvas 2D work is narrowed to `worker-realm-canvas`, which says so,
-  names the two page-realm gaps above, and says that reports measured before
+  names the page-realm routes above that are not traced and the pending
+  export, and says that reports measured before
   node-detectors-v11 did not observe OffscreenCanvas 2D work in the page at
   all, so a quiet canvas finding on one does not rule it out.
 - Recorded identities, old to new:
