@@ -5482,13 +5482,20 @@ test("a child-frame navigation the input probe aborts leaves the request log and
 /**
  * Run the probe over one fake text field whose typing emits the requests
  * `requestsFor` builds from the typed value, and return its outcome and the
- * warnings it added. `accepted: false` makes the field refuse the value, and
- * `afterType` runs once typing has emitted its requests.
+ * warnings it added. `accepted: false` makes the field refuse the value,
+ * `afterType` runs once typing has emitted its requests, and `duringWait`
+ * runs in place of the post-typing wait. Either hook can move the page off
+ * the subject by assigning `location.url`.
  */
 async function probeWithTypedRequests(
   requestsFor: (value: string) => unknown[],
-  options: { accepted?: boolean; afterType?: (lifecycle: KeystrokeProbeLifecycle) => void } = {}
+  options: {
+    accepted?: boolean;
+    afterType?: (lifecycle: KeystrokeProbeLifecycle, location: { url: string }) => void;
+    duringWait?: (location: { url: string }) => void;
+  } = {}
 ) {
+  const location = { url: "https://www.example.com/form" };
   const listeners = new Set<(request: unknown) => void>();
   const handle = {
     async isVisible() {
@@ -5521,19 +5528,21 @@ async function probeWithTypedRequests(
       for (const request of requestsFor(value)) {
         for (const listener of listeners) listener(request);
       }
-      options.afterType?.(lifecycle);
+      options.afterType?.(lifecycle, location);
     },
     async dispose() {}
   };
   const page = {
-    url: () => "https://www.example.com/form",
+    url: () => location.url,
     on: (_event: string, listener: (request: unknown) => void) => {
       listeners.add(listener);
     },
     off: (_event: string, listener: (request: unknown) => void) => {
       listeners.delete(listener);
     },
-    async waitForTimeout() {},
+    async waitForTimeout() {
+      options.duringWait?.(location);
+    },
     locator: () => ({
       count: async () => 1,
       nth: () => ({
@@ -5692,6 +5701,72 @@ test("the probe discloses a request it could not read, and no other partial caus
   assert.ok(cancelled.outcome.status === "partial");
   assert.equal(cancelled.outcome.reason, "budget-unavailable");
   assert.equal(probeRequestUnreadLines(cancelled.warnings), 0);
+});
+
+test("the probe discloses a request it could not read on every exit, not only on completion", async () => {
+  // The line is added where the capture closes, so each early return below
+  // carries it too. r2 withholds the keystroke claim on every one of these
+  // exits; emitted only on a completed probe, v1 published the absence here.
+  const unreadableBeacon = {
+    url: () => "https://beacon.example/collect",
+    postData: () => {
+      throw new Error("unreadable body");
+    },
+    isNavigationRequest: () => false,
+    redirectedFrom: () => null
+  };
+  const carryingNavigation = (value: string) => ({
+    url: () => `https://nav-collector.example/frame?q=${value}`,
+    postData: () => null,
+    isNavigationRequest: () => true,
+    redirectedFrom: () => null
+  });
+  const readableBeacon = (value: string) => ({
+    url: () => `https://beacon.example/collect?v=${value}`,
+    postData: () => null,
+    isNavigationRequest: () => false,
+    redirectedFrom: () => null
+  });
+  const leaveSubject = (location: { url: string }) => {
+    location.url = "https://account.example.net/login";
+  };
+
+  // No field kept the value, so the probe returns before its wait.
+  const noFieldTyped = await probeWithTypedRequests(() => [unreadableBeacon], { accepted: false });
+  assert.ok(noFieldTyped.outcome.status === "partial");
+  assert.equal(noFieldTyped.outcome.reason, "scan-failed");
+  assert.equal(probeRequestUnreadLines(noFieldTyped.warnings), 1);
+
+  // The page left the subject after the probe stopped a navigation carrying
+  // the value: once while typing, once during the wait.
+  for (const [label, options] of [
+    ["while typing", { afterType: (_lifecycle: KeystrokeProbeLifecycle, location: { url: string }) => leaveSubject(location) }],
+    ["during the wait", { duringWait: leaveSubject }]
+  ] as const) {
+    const lost = await probeWithTypedRequests((value) => [carryingNavigation(value)], options);
+    assert.ok(lost.outcome.status === "partial", label);
+    assert.equal(lost.outcome.reason, "load-failed", label);
+    assert.equal("subjectLost" in lost.outcome && lost.outcome.subjectLost, true, label);
+    assert.equal(probeRequestUnreadLines(lost.warnings), 1, label);
+  }
+
+  // The probe's own work threw after typing.
+  const threw = await probeWithTypedRequests(() => [unreadableBeacon], {
+    duringWait: () => {
+      throw new Error("target closed");
+    }
+  });
+  assert.equal(threw.outcome.status, "failed");
+  assert.equal(threw.outcome.reason, "scan-failed");
+  assert.equal(probeRequestUnreadLines(threw.warnings), 1);
+
+  // Losing the subject is not itself this line's cause.
+  const lostReadable = await probeWithTypedRequests((value) => [readableBeacon(value)], {
+    afterType: (_lifecycle, location) => leaveSubject(location)
+  });
+  assert.ok(lostReadable.outcome.status === "partial");
+  assert.equal(lostReadable.outcome.reason, "load-failed");
+  assert.equal(probeRequestUnreadLines(lostReadable.warnings), 0);
 });
 
 test("a stopped navigation counts as carrying the value in any encoding, or when it cannot be read", () => {
