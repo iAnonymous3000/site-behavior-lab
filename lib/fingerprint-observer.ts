@@ -507,53 +507,62 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
         (reflectApply(objectIsPrototypeOf, prototype, [value]) as boolean)
     );
 
-  const isTrackedCanvas = (value: unknown): value is TrackedCanvas =>
-    hasPrototype(value, canvasElementPrototype) || hasPrototype(value, offscreenCanvasPrototype);
+  type NativeGetter = ((this: unknown) => unknown) | undefined;
+  // A canvas interface with its 2D context. Page canvases and OffscreenCanvas
+  // are separate interfaces whose getters reject each other's instances, so
+  // every canvas wrapper is installed with the family whose methods it wraps.
+  type CanvasFamily = {
+    canvasPrototype: object | undefined;
+    contextCanvasGetter: NativeGetter;
+    contextFontGetter: NativeGetter;
+    heightGetter: NativeGetter;
+    widthGetter: NativeGetter;
+  };
+  const pageCanvasFamily: CanvasFamily = {
+    canvasPrototype: canvasElementPrototype,
+    contextCanvasGetter: canvasGetter,
+    contextFontGetter: canvasFontGetter,
+    heightGetter: canvasHeightGetter,
+    widthGetter: canvasWidthGetter
+  };
+  const offscreenCanvasFamily: CanvasFamily = {
+    canvasPrototype: offscreenCanvasPrototype,
+    contextCanvasGetter: offscreenCanvasGetter,
+    contextFontGetter: offscreenFontGetter,
+    heightGetter: offscreenHeightGetter,
+    widthGetter: offscreenWidthGetter
+  };
 
-  const readContextCanvas = (context: object, getter: ((this: unknown) => unknown) | undefined): unknown => {
+  // The captured native getters and methods are the brand check. Each reads
+  // its receiver's internal slots, runs no page code and throws for a receiver
+  // of any other interface, so branding walks no prototype chain: a page can
+  // put a Proxy whose getPrototypeOf trap throws anywhere in one, and
+  // re-prototyping a canvas or context does not change what it is. A
+  // context's canvas getter returns a canvas of its family, and a native
+  // canvas method that returned has checked its receiver (convertToBlob
+  // reports a wrong receiver by rejecting, and its read is recorded only once
+  // its promise fulfills). The prototype test stands in only where the
+  // family's getters were not captured, which no browser that has the
+  // interface does.
+  const receiverCanvas = (family: CanvasFamily, receiver: unknown): TrackedCanvas | null => {
+    if (!receiver || typeof receiver !== "object") return null;
+    if (family.widthGetter) return receiver as TrackedCanvas;
+    return hasPrototype(receiver, family.canvasPrototype) ? (receiver as TrackedCanvas) : null;
+  };
+
+  const contextCanvas = (family: CanvasFamily, context: unknown): TrackedCanvas | null => {
+    if (!context || typeof context !== "object") return null;
     try {
-      return getter ? reflectApply(getter, context, []) : (context as { canvas?: unknown }).canvas;
+      if (family.contextCanvasGetter) return reflectApply(family.contextCanvasGetter, context, []) as TrackedCanvas;
+      const canvas = (context as { canvas?: unknown }).canvas;
+      return hasPrototype(canvas, family.canvasPrototype) ? (canvas as TrackedCanvas) : null;
     } catch {
       return null;
     }
   };
 
-  const pageCanvasFromContext = (context: object): HTMLCanvasElement | null => {
-    const canvas = readContextCanvas(context, canvasGetter);
-    return hasPrototype(canvas, canvasElementPrototype) ? (canvas as HTMLCanvasElement) : null;
-  };
-
-  const offscreenCanvasFromContext = (context: object): OffscreenCanvas | null => {
-    const canvas = readContextCanvas(context, offscreenCanvasGetter);
-    return hasPrototype(canvas, offscreenCanvasPrototype) ? (canvas as OffscreenCanvas) : null;
-  };
-
-  // The captured native `canvas` getters are the brand check: each one
-  // checks its receiver's internal slots, not its prototype chain, and
-  // rejects the other family's contexts, so re-prototyping a context does not
-  // change which canvas it resolves to. The family its prototype names is
-  // asked first only so that an ordinary context costs one getter call, not a
-  // thrown brand check on every text, measure or read call.
-  const getCanvasFromContext = (context: unknown): TrackedCanvas | null => {
-    if (!context || typeof context !== "object") return null;
-    if (hasPrototype(context, offscreenContextPrototype)) {
-      return offscreenCanvasFromContext(context) ?? pageCanvasFromContext(context);
-    }
-    return pageCanvasFromContext(context) ?? offscreenCanvasFromContext(context);
-  };
-
-  // Each family's size getters reject the other's canvases, so the getter
-  // follows the brand the canvas was admitted under.
-  const readCanvasDimension = (canvas: TrackedCanvas, key: "height" | "width") => {
-    const offscreen = hasPrototype(canvas, offscreenCanvasPrototype);
-    const getter =
-      key === "width"
-        ? offscreen
-          ? offscreenWidthGetter
-          : canvasWidthGetter
-        : offscreen
-          ? offscreenHeightGetter
-          : canvasHeightGetter;
+  const readCanvasDimension = (family: CanvasFamily, canvas: TrackedCanvas, key: "height" | "width") => {
+    const getter = key === "width" ? family.widthGetter : family.heightGetter;
     try {
       const value = getter ? reflectApply(getter, canvas, []) : (canvas as unknown as Record<string, unknown>)[key];
       return typeof value === "number" && numberIsFinite(value) && value >= 0 ? value : 0;
@@ -570,8 +579,10 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
     mathAbs(width) >= 16 &&
     mathAbs(height) >= 16;
 
-  const copyCanvasTextProvenance = (canvas: TrackedCanvas): CanvasTextProvenance | undefined => {
-    const state = safeMapGet(canvasStates, canvas);
+  // Found by identity, so any value can be asked: only a canvas the observer
+  // admitted has a state.
+  const copyCanvasTextProvenance = (canvas: unknown): CanvasTextProvenance | undefined => {
+    const state = safeMapGet(canvasStates, canvas as TrackedCanvas);
     if (!state) return undefined;
     return {
       textCharacters: copyStringSet(state.textCharacters),
@@ -883,7 +894,8 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
     target: object | undefined,
     key: string,
     api: "canvas.convertToBlob" | "canvas.getImageData" | "canvas.toBlob" | "canvas.toDataURL",
-    canvasForThis: (thisValue: unknown) => TrackedCanvas | null,
+    family: CanvasFamily,
+    canvasForThis: (family: CanvasFamily, thisValue: unknown) => TrackedCanvas | null,
     qualifies: (args: unknown[], result: unknown) => boolean = () => true
   ) => {
     if (!target) return;
@@ -892,11 +904,11 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
 
     defineWrappedMethod(target, key, descriptor, function wrappedCanvasReadMethod(this: unknown, ...args: unknown[]) {
       const result = reflectApply(descriptor.value, this, args);
-      const canvas = canvasForThis(this);
+      const canvas = canvasForThis(family, this);
       // Sized at the call: convertToBlob encodes the bitmap as it was then,
       // and the page can resize the canvas before the promise settles.
-      const readWidth = canvas ? readCanvasDimension(canvas, "width") : 0;
-      const readHeight = canvas ? readCanvasDimension(canvas, "height") : 0;
+      const readWidth = canvas ? readCanvasDimension(family, canvas, "width") : 0;
+      const readHeight = canvas ? readCanvasDimension(family, canvas, "height") : 0;
       const recordSuccessfulRead = () => {
         record(api);
         if (canvas && qualifies(args, result)) {
@@ -917,46 +929,47 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
     });
   };
 
-  const wrapCanvasTextMethod = (target: object | undefined, key: "fillText" | "strokeText") => {
+  const wrapCanvasTextMethod = (target: object | undefined, key: "fillText" | "strokeText", family: CanvasFamily) => {
     if (!target) return;
     const descriptor = objectGetOwnPropertyDescriptor(target, key);
     if (!descriptor || typeof descriptor.value !== "function" || !descriptor.configurable) return;
 
     defineWrappedMethod(target, key, descriptor, function wrappedCanvasTextMethod(this: unknown, ...args: unknown[]) {
-      if (!hasPrototype(this, target) || args.length < 3) return reflectApply(descriptor.value, this, args);
+      // A receiver whose canvas the family getter rejects goes straight to
+      // the native call, which throws before converting any argument.
+      const canvas = args.length < 3 ? null : contextCanvas(family, this);
+      if (!canvas) return reflectApply(descriptor.value, this, args);
       const text = webIdlDomString(args[0]);
       args[0] = text;
       const result = reflectApply(descriptor.value, this, args);
-      const canvas = getCanvasFromContext(this);
-      if (canvas) {
-        const state = getCanvasState(canvas);
-        if (state) {
-          state.textWriteCalls += 1;
-          const retainedLength = text.length > maxRetainedCanvasTextLength ? maxRetainedCanvasTextLength : text.length;
-          if (retainedLength !== text.length) observerCoverageLost = true;
-          for (let index = 0; index < retainedLength; index += 1) {
-            addBoundedUniqueString(state.textCharacters, text[index], maxUniqueCanvasTextCharacters);
-          }
+      const state = getCanvasState(canvas);
+      if (state) {
+        state.textWriteCalls += 1;
+        const retainedLength = text.length > maxRetainedCanvasTextLength ? maxRetainedCanvasTextLength : text.length;
+        if (retainedLength !== text.length) observerCoverageLost = true;
+        for (let index = 0; index < retainedLength; index += 1) {
+          addBoundedUniqueString(state.textCharacters, text[index], maxUniqueCanvasTextCharacters);
         }
       }
       return result;
     });
   };
 
-  const wrapCanvasDrawImageMethod = (target: object | undefined) => {
+  const wrapCanvasDrawImageMethod = (target: object | undefined, family: CanvasFamily) => {
     if (!target) return;
     const descriptor = objectGetOwnPropertyDescriptor(target, "drawImage");
     if (!descriptor || typeof descriptor.value !== "function" || !descriptor.configurable) return;
 
     defineWrappedMethod(target, "drawImage", descriptor, function wrappedCanvasDrawImage(this: unknown, ...args: unknown[]) {
       const result = reflectApply(descriptor.value, this, args);
-      const targetCanvas = getCanvasFromContext(this);
+      const targetCanvas = contextCanvas(family, this);
       const source = args[0];
       if (targetCanvas && source !== targetCanvas) {
-        let provenance: CanvasTextProvenance | undefined;
-        if (isTrackedCanvas(source)) {
-          provenance = copyCanvasTextProvenance(source);
-        } else if ((typeof source === "object" || typeof source === "function") && source !== null) {
+        // A canvas source of either family and a bitmap are both found by
+        // identity, so an image source costs two map lookups and no brand
+        // check at all.
+        let provenance = copyCanvasTextProvenance(source);
+        if (!provenance && (typeof source === "object" || typeof source === "function") && source !== null) {
           provenance = reflectApply(weakMapGet, imageBitmapProvenance, [source]) as CanvasTextProvenance | undefined;
         }
 
@@ -996,10 +1009,8 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
       enumerable: ownDescriptor?.enumerable ?? true,
       value: function wrappedCreateImageBitmap(this: unknown, ...args: unknown[]) {
         const source = args[0];
-        let provenance: CanvasTextProvenance | undefined;
-        if (isTrackedCanvas(source)) {
-          provenance = copyCanvasTextProvenance(source);
-        } else if ((typeof source === "object" || typeof source === "function") && source !== null) {
+        let provenance = copyCanvasTextProvenance(source);
+        if (!provenance && (typeof source === "object" || typeof source === "function") && source !== null) {
           const inherited = reflectApply(weakMapGet, imageBitmapProvenance, [source]) as CanvasTextProvenance | undefined;
           if (inherited) {
             provenance = {
@@ -1040,49 +1051,44 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
     });
   };
 
-  const wrapCanvasMeasureTextMethod = (
-    target: object | undefined,
-    fontGetter: ((this: unknown) => unknown) | undefined
-  ) => {
+  const wrapCanvasMeasureTextMethod = (target: object | undefined, family: CanvasFamily) => {
     if (!target) return;
     const descriptor = objectGetOwnPropertyDescriptor(target, "measureText");
     if (!descriptor || typeof descriptor.value !== "function" || !descriptor.configurable) return;
 
     defineWrappedMethod(target, "measureText", descriptor, function wrappedCanvasMeasureText(this: unknown, ...args: unknown[]) {
-      if (!hasPrototype(this, target) || args.length < 1) return reflectApply(descriptor.value, this, args);
+      const canvas = args.length < 1 ? null : contextCanvas(family, this);
+      if (!canvas) return reflectApply(descriptor.value, this, args);
       const measuredText = webIdlDomString(args[0]);
       args[0] = measuredText;
       const result = reflectApply(descriptor.value, this, args);
       record("canvas.measureText");
-      const canvas = getCanvasFromContext(this);
-      if (canvas) {
-        canvasFontState.measureTextCalls += 1;
-        canvasFontState.maxMeasuredTextLength = mathMax(canvasFontState.maxMeasuredTextLength, measuredText.length);
-        if (measuredText.length > maxRetainedCanvasTextLength) {
+      canvasFontState.measureTextCalls += 1;
+      canvasFontState.maxMeasuredTextLength = mathMax(canvasFontState.maxMeasuredTextLength, measuredText.length);
+      if (measuredText.length > maxRetainedCanvasTextLength) {
+        observerCoverageLost = true;
+      } else {
+        addBoundedUniqueString(
+          canvasFontState.measuredTextSamples,
+          measuredText,
+          maxUniqueCanvasTextSamples
+        );
+      }
+
+      let contextFont: unknown;
+      try {
+        contextFont = family.contextFontGetter
+          ? reflectApply(family.contextFontGetter, this, [])
+          : (this as { font?: unknown })?.font;
+      } catch {
+        contextFont = undefined;
+      }
+      const normalizedFont = typeof contextFont === "string" ? (reflectApply(stringTrim, contextFont, []) as string) : "";
+      if (normalizedFont) {
+        if (normalizedFont.length > maxRetainedCanvasTextLength) {
           observerCoverageLost = true;
         } else {
-          addBoundedUniqueString(
-            canvasFontState.measuredTextSamples,
-            measuredText,
-            maxUniqueCanvasTextSamples
-          );
-        }
-
-        let contextFont: unknown;
-        try {
-          contextFont = fontGetter
-            ? reflectApply(fontGetter, this, [])
-            : (this as { font?: unknown })?.font;
-        } catch {
-          contextFont = undefined;
-        }
-        const normalizedFont = typeof contextFont === "string" ? (reflectApply(stringTrim, contextFont, []) as string) : "";
-        if (normalizedFont) {
-          if (normalizedFont.length > maxRetainedCanvasTextLength) {
-            observerCoverageLost = true;
-          } else {
-            addBoundedUniqueString(canvasFontState.fontValues, normalizedFont, maxUniqueCanvasFontValues);
-          }
+          addBoundedUniqueString(canvasFontState.fontValues, normalizedFont, maxUniqueCanvasFontValues);
         }
       }
       return result;
@@ -1548,12 +1554,8 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
   };
 
   if (canvasElementPrototype) {
-    wrapCanvasReadMethod(canvasElementPrototype, "toDataURL", "canvas.toDataURL", (canvas) =>
-      hasPrototype(canvas, canvasElementPrototype) ? (canvas as HTMLCanvasElement) : null
-    );
-    wrapCanvasReadMethod(canvasElementPrototype, "toBlob", "canvas.toBlob", (canvas) =>
-      hasPrototype(canvas, canvasElementPrototype) ? (canvas as HTMLCanvasElement) : null
-    );
+    wrapCanvasReadMethod(canvasElementPrototype, "toDataURL", "canvas.toDataURL", pageCanvasFamily, receiverCanvas);
+    wrapCanvasReadMethod(canvasElementPrototype, "toBlob", "canvas.toBlob", pageCanvasFamily, receiverCanvas);
   }
 
   const imageDataCoversAtLeast16By16 = (_args: unknown[], result: unknown) =>
@@ -1567,22 +1569,21 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
       canvasContextPrototype,
       "getImageData",
       "canvas.getImageData",
-      getCanvasFromContext,
+      pageCanvasFamily,
+      contextCanvas,
       imageDataCoversAtLeast16By16
     );
-    wrapCanvasDrawImageMethod(canvasContextPrototype);
-    wrapCanvasTextMethod(canvasContextPrototype, "fillText");
-    wrapCanvasTextMethod(canvasContextPrototype, "strokeText");
-    wrapCanvasMeasureTextMethod(canvasContextPrototype, canvasFontGetter);
+    wrapCanvasDrawImageMethod(canvasContextPrototype, pageCanvasFamily);
+    wrapCanvasTextMethod(canvasContextPrototype, "fillText", pageCanvasFamily);
+    wrapCanvasTextMethod(canvasContextPrototype, "strokeText", pageCanvasFamily);
+    wrapCanvasMeasureTextMethod(canvasContextPrototype, pageCanvasFamily);
   }
 
   // An OffscreenCanvas exports through convertToBlob, a read recorded under
   // its own token (never as canvas.toBlob, which the page did not call), and
   // hands its bitmap on through transferToImageBitmap.
   if (offscreenCanvasPrototype) {
-    wrapCanvasReadMethod(offscreenCanvasPrototype, "convertToBlob", "canvas.convertToBlob", (canvas) =>
-      hasPrototype(canvas, offscreenCanvasPrototype) ? (canvas as OffscreenCanvas) : null
-    );
+    wrapCanvasReadMethod(offscreenCanvasPrototype, "convertToBlob", "canvas.convertToBlob", offscreenCanvasFamily, receiverCanvas);
     wrapCanvasTransferToImageBitmap(offscreenCanvasPrototype);
   }
 
@@ -1594,13 +1595,14 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
       offscreenContextPrototype,
       "getImageData",
       "canvas.getImageData",
-      getCanvasFromContext,
+      offscreenCanvasFamily,
+      contextCanvas,
       imageDataCoversAtLeast16By16
     );
-    wrapCanvasDrawImageMethod(offscreenContextPrototype);
-    wrapCanvasTextMethod(offscreenContextPrototype, "fillText");
-    wrapCanvasTextMethod(offscreenContextPrototype, "strokeText");
-    wrapCanvasMeasureTextMethod(offscreenContextPrototype, offscreenFontGetter);
+    wrapCanvasDrawImageMethod(offscreenContextPrototype, offscreenCanvasFamily);
+    wrapCanvasTextMethod(offscreenContextPrototype, "fillText", offscreenCanvasFamily);
+    wrapCanvasTextMethod(offscreenContextPrototype, "strokeText", offscreenCanvasFamily);
+    wrapCanvasMeasureTextMethod(offscreenContextPrototype, offscreenCanvasFamily);
   }
   wrapCreateImageBitmap();
 

@@ -863,6 +863,57 @@ test("fingerprintObserverInitScript coerces DOMString inputs once in real Chromi
   }
 });
 
+test("fingerprintObserverInitScript converts no text argument for a receiver the native method rejects in real Chromium", async () => {
+  // A native text or measure method checks its receiver before it converts
+  // any argument. The observer converts the text once itself, so it must hand
+  // a receiver its family's canvas getter rejects straight to the native
+  // call, or a page's toString would run where it never runs unobserved.
+  const browser = await chromium.launch({ headless: true });
+  try {
+    const context = await browser.newContext();
+    await context.addInitScript(fingerprintObserverInitScript, "example.com");
+    const page = await context.newPage();
+    await page.route("https://example.com/**", (route) =>
+      route.fulfill({ body: "<!doctype html><title>receivers</title>", contentType: "text/html" })
+    );
+    await page.goto("https://example.com/");
+
+    const conversions = await page.evaluate(() => {
+      const pageContext = document.createElement("canvas").getContext("2d");
+      const offscreenContext = new OffscreenCanvas(32, 32).getContext("2d");
+      if (!pageContext || !offscreenContext) throw new Error("missing 2d context");
+      const counts: Record<string, number> = {};
+      const calls: Record<string, [(...args: unknown[]) => unknown, unknown, number]> = {
+        "fillText on a plain object": [CanvasRenderingContext2D.prototype.fillText as never, {}, 3],
+        "strokeText on an offscreen context": [CanvasRenderingContext2D.prototype.strokeText as never, offscreenContext, 3],
+        "measureText on an offscreen context": [CanvasRenderingContext2D.prototype.measureText as never, offscreenContext, 1],
+        "offscreen fillText on a page context": [OffscreenCanvasRenderingContext2D.prototype.fillText as never, pageContext, 3],
+        "offscreen strokeText on a plain object": [OffscreenCanvasRenderingContext2D.prototype.strokeText as never, {}, 3],
+        "offscreen measureText on a page context": [OffscreenCanvasRenderingContext2D.prototype.measureText as never, pageContext, 1]
+      };
+      for (const [name, [method, receiver, arity]] of Object.entries(calls)) {
+        counts[name] = 0;
+        const text = {
+          toString() {
+            counts[name] += 1;
+            return "abcdefghij";
+          }
+        };
+        try {
+          Reflect.apply(method, receiver, [text, 0, 16].slice(0, arity));
+        } catch {
+          /* expected native illegal-invocation error */
+        }
+      }
+      return counts;
+    });
+    for (const [name, count] of Object.entries(conversions)) assert.equal(count, 0, name);
+    assert.equal(Object.keys(conversions).length, 6);
+  } finally {
+    await browser.close();
+  }
+});
+
 test("fingerprintObserverInitScript records only native-successful calls in real Chromium", async () => {
   const browser = await chromium.launch({ headless: true });
   try {
@@ -1384,26 +1435,37 @@ test("fingerprintObserverInitScript keeps OffscreenCanvas evidence when the page
   });
 });
 
-test("fingerprintObserverInitScript resolves a re-prototyped canvas context through the native canvas getters in real Chromium", async () => {
-  // The brand check is the native `canvas` getter, which reads the context's
-  // internal slots. A prototype test in its place would lose a context the
-  // page has re-prototyped and then reads through a saved method.
-  const reprototypedRead = {
+test("fingerprintObserverInitScript resolves re-prototyped canvases and contexts through the native getters in real Chromium", async () => {
+  // The brand checks are the native canvas, width and height getters, which
+  // read internal slots. A prototype test in their place would lose a canvas
+  // or context the page has re-prototyped and then drives through saved
+  // methods, and the page gets its results either way.
+  const readback = (readApis: string[]) => ({
     kind: "canvas-fingerprinting",
     heuristic: "openwpm-canvas-v1",
     count: 1,
     evidence: {
-      readApis: ["canvas.getImageData"],
+      readApis,
       maxCanvasWidth: 200,
       maxCanvasHeight: 60,
       maxDistinctTextCharacters: OFFSCREEN_PROBE_TEXT.length,
       maxTextWriteCalls: 1
     }
+  });
+  const fontProbe = {
+    kind: "canvas-font-fingerprinting",
+    heuristic: "canvas-font-probing-v1",
+    count: 1,
+    evidence: {
+      measureTextCalls: 10,
+      maxDistinctFonts: 10,
+      maxDistinctTextSamples: 1,
+      maxTextLength: 13
+    }
   };
-
-  await withObservedPages(async (runCase) => {
-    const cases: Record<string, () => unknown> = {
-      page: () => {
+  const cases: Record<string, { body: () => unknown; events: Record<string, number>; detections: unknown[] }> = {
+    pageContextAfterText: {
+      body: () => {
         const canvas = document.createElement("canvas");
         canvas.width = 200;
         canvas.height = 60;
@@ -1416,7 +1478,11 @@ test("fingerprintObserverInitScript resolves a re-prototyped canvas context thro
         const fingerprintWindow = window as Window & { __siteBehaviorLabFingerprintSnapshot?: () => unknown };
         return fingerprintWindow.__siteBehaviorLabFingerprintSnapshot?.();
       },
-      offscreen: () => {
+      events: { "canvas.getImageData": 1 },
+      detections: [readback(["canvas.getImageData"])]
+    },
+    offscreenContextAfterText: {
+      body: () => {
         const context = new OffscreenCanvas(200, 60).getContext("2d");
         if (!context) throw new Error("missing offscreen 2d context");
         context.fillText("abcdefghijklmnopqrstuvwxyz0123", 0, 30);
@@ -1425,14 +1491,220 @@ test("fingerprintObserverInitScript resolves a re-prototyped canvas context thro
         Reflect.apply(getImageData, context, [0, 0, 200, 60]);
         const fingerprintWindow = window as Window & { __siteBehaviorLabFingerprintSnapshot?: () => unknown };
         return fingerprintWindow.__siteBehaviorLabFingerprintSnapshot?.();
-      }
-    };
-
-    for (const [family, body] of Object.entries(cases)) {
-      const snapshot = parseObserverSnapshot(await runCase(body));
-      assert.deepEqual(snapshot.events, { "canvas.getImageData": 1 }, family);
-      assert.deepEqual(snapshot.detections, [reprototypedRead], family);
+      },
+      events: { "canvas.getImageData": 1 },
+      detections: [readback(["canvas.getImageData"])]
+    },
+    pageContextSavedText: {
+      body: () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = 200;
+        canvas.height = 60;
+        const context = canvas.getContext("2d");
+        if (!context) throw new Error("missing 2d context");
+        const { fillText, getImageData } = CanvasRenderingContext2D.prototype;
+        Object.setPrototypeOf(context, Object.prototype);
+        Reflect.apply(fillText, context, ["abcdefghijklmnopqrstuvwxyz0123", 0, 30]);
+        Reflect.apply(getImageData, context, [0, 0, 200, 60]);
+        const fingerprintWindow = window as Window & { __siteBehaviorLabFingerprintSnapshot?: () => unknown };
+        return fingerprintWindow.__siteBehaviorLabFingerprintSnapshot?.();
+      },
+      events: { "canvas.getImageData": 1 },
+      detections: [readback(["canvas.getImageData"])]
+    },
+    offscreenContextSavedText: {
+      body: () => {
+        const context = new OffscreenCanvas(200, 60).getContext("2d");
+        if (!context) throw new Error("missing offscreen 2d context");
+        const { fillText, getImageData } = OffscreenCanvasRenderingContext2D.prototype;
+        Object.setPrototypeOf(context, Object.prototype);
+        Reflect.apply(fillText, context, ["abcdefghijklmnopqrstuvwxyz0123", 0, 30]);
+        Reflect.apply(getImageData, context, [0, 0, 200, 60]);
+        const fingerprintWindow = window as Window & { __siteBehaviorLabFingerprintSnapshot?: () => unknown };
+        return fingerprintWindow.__siteBehaviorLabFingerprintSnapshot?.();
+      },
+      events: { "canvas.getImageData": 1 },
+      detections: [readback(["canvas.getImageData"])]
+    },
+    pageCanvas: {
+      body: () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = 200;
+        canvas.height = 60;
+        const context = canvas.getContext("2d");
+        if (!context) throw new Error("missing 2d context");
+        const toDataURL = HTMLCanvasElement.prototype.toDataURL;
+        Object.setPrototypeOf(canvas, Object.prototype);
+        context.fillText("abcdefghijklmnopqrstuvwxyz0123", 0, 30);
+        context.getImageData(0, 0, 200, 60);
+        Reflect.apply(toDataURL, canvas, []);
+        const fingerprintWindow = window as Window & { __siteBehaviorLabFingerprintSnapshot?: () => unknown };
+        return fingerprintWindow.__siteBehaviorLabFingerprintSnapshot?.();
+      },
+      events: { "canvas.getImageData": 1, "canvas.toDataURL": 1 },
+      detections: [readback(["canvas.getImageData", "canvas.toDataURL"])]
+    },
+    offscreenCanvas: {
+      body: async () => {
+        const canvas = new OffscreenCanvas(200, 60);
+        const context = canvas.getContext("2d");
+        if (!context) throw new Error("missing offscreen 2d context");
+        const convertToBlob = OffscreenCanvas.prototype.convertToBlob;
+        Object.setPrototypeOf(canvas, Object.prototype);
+        context.fillText("abcdefghijklmnopqrstuvwxyz0123", 0, 30);
+        context.getImageData(0, 0, 200, 60);
+        await Reflect.apply(convertToBlob, canvas, []);
+        const fingerprintWindow = window as Window & { __siteBehaviorLabFingerprintSnapshot?: () => unknown };
+        return fingerprintWindow.__siteBehaviorLabFingerprintSnapshot?.();
+      },
+      events: { "canvas.convertToBlob": 1, "canvas.getImageData": 1 },
+      detections: [readback(["canvas.convertToBlob", "canvas.getImageData"])]
+    },
+    pageContextMeasure: {
+      body: () => {
+        const context = document.createElement("canvas").getContext("2d");
+        if (!context) throw new Error("missing 2d context");
+        const measureText = CanvasRenderingContext2D.prototype.measureText;
+        const setFont = Object.getOwnPropertyDescriptor(CanvasRenderingContext2D.prototype, "font")?.set;
+        if (!setFont) throw new Error("missing font setter");
+        Object.setPrototypeOf(context, Object.prototype);
+        const families = ["Arial", "Verdana", "Georgia", "Tahoma", "Courier", "Impact", "Garamond", "Palatino", "Helvetica", "Futura"];
+        for (let index = 0; index < families.length; index += 1) {
+          Reflect.apply(setFont, context, [`16px ${families[index]}`]);
+          Reflect.apply(measureText, context, ["mmmmmmmmmmlli"]);
+        }
+        const fingerprintWindow = window as Window & { __siteBehaviorLabFingerprintSnapshot?: () => unknown };
+        return fingerprintWindow.__siteBehaviorLabFingerprintSnapshot?.();
+      },
+      events: { "canvas.measureText": 10 },
+      detections: [fontProbe]
+    },
+    offscreenContextMeasure: {
+      body: () => {
+        const context = new OffscreenCanvas(200, 60).getContext("2d");
+        if (!context) throw new Error("missing offscreen 2d context");
+        const measureText = OffscreenCanvasRenderingContext2D.prototype.measureText;
+        const setFont = Object.getOwnPropertyDescriptor(OffscreenCanvasRenderingContext2D.prototype, "font")?.set;
+        if (!setFont) throw new Error("missing font setter");
+        Object.setPrototypeOf(context, Object.prototype);
+        const families = ["Arial", "Verdana", "Georgia", "Tahoma", "Courier", "Impact", "Garamond", "Palatino", "Helvetica", "Futura"];
+        for (let index = 0; index < families.length; index += 1) {
+          Reflect.apply(setFont, context, [`16px ${families[index]}`]);
+          Reflect.apply(measureText, context, ["mmmmmmmmmmlli"]);
+        }
+        const fingerprintWindow = window as Window & { __siteBehaviorLabFingerprintSnapshot?: () => unknown };
+        return fingerprintWindow.__siteBehaviorLabFingerprintSnapshot?.();
+      },
+      events: { "canvas.measureText": 10 },
+      detections: [fontProbe]
     }
+  };
+
+  await withObservedPages(async (runCase) => {
+    for (const [name, { body, events, detections }] of Object.entries(cases)) {
+      const snapshot = parseObserverSnapshot(await runCase(body));
+      assert.deepEqual(snapshot.events, events, name);
+      assert.deepEqual(snapshot.detections, detections, name);
+    }
+  });
+});
+
+test("fingerprintObserverInitScript walks no page prototype chain while recording canvas work in real Chromium", async () => {
+  // A page can put a Proxy whose getPrototypeOf trap throws anywhere in a
+  // prototype chain. The observer brands canvases and contexts with native
+  // getters and finds recorded state by identity, so it never reaches such a
+  // trap: every call the page makes returns as it would unobserved, and is
+  // recorded.
+  await withObservedPages(async (runCase) => {
+    const outcome = (await runCase(async () => {
+      const image = new Image();
+      image.src =
+        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==";
+      await image.decode();
+      let trapCalls = 0;
+      const trapped = (target: object) =>
+        new Proxy(target, {
+          getPrototypeOf() {
+            trapCalls += 1;
+            throw new Error("page trap");
+          }
+        });
+      Object.setPrototypeOf(HTMLElement.prototype, trapped(Element.prototype));
+      Object.setPrototypeOf(CanvasRenderingContext2D.prototype, trapped(Object.prototype));
+      Object.setPrototypeOf(OffscreenCanvas.prototype, trapped(EventTarget.prototype));
+      Object.setPrototypeOf(OffscreenCanvasRenderingContext2D.prototype, trapped(Object.prototype));
+
+      const canvas = document.createElement("canvas");
+      canvas.width = 200;
+      canvas.height = 60;
+      const context = canvas.getContext("2d");
+      const target = document.createElement("canvas");
+      target.width = 200;
+      target.height = 60;
+      const targetContext = target.getContext("2d");
+      const offscreen = new OffscreenCanvas(200, 60);
+      const offscreenContext = offscreen.getContext("2d");
+      const source = new OffscreenCanvas(200, 60);
+      const sourceContext = source.getContext("2d");
+      if (!context || !targetContext || !offscreenContext || !sourceContext) throw new Error("missing 2d context");
+
+      const failures: string[] = [];
+      const attempt = async (name: string, call: () => unknown) => {
+        try {
+          await call();
+        } catch (error) {
+          failures.push(`${name}: ${String(error)}`);
+        }
+      };
+      await attempt("fillText", () => context.fillText("abcdefghijklmnopqrstuvwxyz0123", 0, 30));
+      await attempt("strokeText", () => context.strokeText("abcdefghijklmnopqrstuvwxyz0123", 0, 30));
+      await attempt("measureText", () => context.measureText("mmmmmmmmmmlli"));
+      await attempt("getImageData", () => context.getImageData(0, 0, 200, 60));
+      await attempt("toDataURL", () => canvas.toDataURL());
+      await attempt("toBlob", () => new Promise((resolve) => canvas.toBlob(resolve)));
+      await attempt("offscreen fillText", () => offscreenContext.fillText("abcdefghijklmnopqrstuvwxyz0123", 0, 30));
+      await attempt("offscreen measureText", () => offscreenContext.measureText("mmmmmmmmmmlli"));
+      await attempt("offscreen getImageData", () => offscreenContext.getImageData(0, 0, 200, 60));
+      await attempt("offscreen drawImage(image)", () => offscreenContext.drawImage(image, 0, 0));
+      await attempt("offscreen drawImage(canvas)", () => offscreenContext.drawImage(canvas, 0, 0));
+      await attempt("convertToBlob", () => offscreen.convertToBlob());
+      await attempt("drawImage(image)", () => targetContext.drawImage(image, 0, 0));
+      await attempt("drawImage(offscreen)", () => targetContext.drawImage(offscreen, 0, 0));
+      await attempt("createImageBitmap(image)", () => createImageBitmap(image));
+      await attempt("createImageBitmap(offscreen)", () => createImageBitmap(offscreen));
+      await attempt("transferToImageBitmap", () => source.transferToImageBitmap());
+      await attempt("target toDataURL", () => target.toDataURL());
+      const fingerprintWindow = window as Window & { __siteBehaviorLabFingerprintSnapshot?: () => unknown };
+      return { failures, trapCalls, snapshot: fingerprintWindow.__siteBehaviorLabFingerprintSnapshot?.() };
+    })) as { failures: string[]; trapCalls: number; snapshot: unknown };
+
+    assert.deepEqual(outcome.failures, []);
+    assert.equal(outcome.trapCalls, 0);
+    const snapshot = parseObserverSnapshot(outcome.snapshot);
+    assert.deepEqual(snapshot.events, {
+      "canvas.convertToBlob": 1,
+      "canvas.getImageData": 2,
+      "canvas.measureText": 2,
+      "canvas.toBlob": 1,
+      "canvas.toDataURL": 2
+    });
+    // The page canvas, the offscreen canvas it drew into, and the page canvas
+    // the offscreen one was drawn into: three canvases carrying the text, each
+    // read back.
+    assert.deepEqual(snapshot.detections, [
+      {
+        kind: "canvas-fingerprinting",
+        heuristic: "openwpm-canvas-v1",
+        count: 3,
+        evidence: {
+          readApis: ["canvas.convertToBlob", "canvas.getImageData", "canvas.toBlob", "canvas.toDataURL"],
+          maxCanvasWidth: 200,
+          maxCanvasHeight: 60,
+          maxDistinctTextCharacters: OFFSCREEN_PROBE_TEXT.length,
+          maxTextWriteCalls: 2
+        }
+      }
+    ]);
   });
 });
 
