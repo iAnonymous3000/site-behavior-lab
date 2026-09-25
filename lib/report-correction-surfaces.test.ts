@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { test } from "node:test";
-import { publishedReportCorrections } from "./published-report-corrections";
+import { parseCorrectionsLedger } from "./corrections-ledger-model";
+import { publishedReportCorrections, publishedReportCorrectionWire } from "./published-report-corrections";
 import { readStoredScanReport } from "./scan-report-reader";
 import { toReportView, publicWireForExportOrPersistence, readScanTransportPayload } from "./scan-report-view";
 import { asLocalReport, shareForLoadedReport } from "./client-report-reader";
@@ -66,4 +67,45 @@ test("historical policy alias misses are unknown, not evidence that Amazon or Or
     }
   }
   assert.ok(checked > 0);
+});
+
+test("a privacy replacement carries its removed original's correction context on every surface", () => {
+  // Vacuous until the first privacy-superseded event is appended; from then on
+  // every replacement it names is checked, and the count must match.
+  const events = parseCorrectionsLedger(ledger).entries.filter(event => event.state === "privacy-superseded");
+  const expected = events.reduce((count, event) => count + (event.replacementReportIds?.length ?? 0), 0);
+  let checked = 0;
+  for (const event of events) {
+    for (const [index, originalId] of event.reportIds.entries()) {
+      const replacementId = event.replacementReportIds?.[index] ?? "";
+      for (const suffix of [".json", ".provenance.json"]) {
+        assert.equal(existsSync(`public/reports/${originalId}${suffix}`), false, `${originalId}${suffix} is still published`);
+      }
+      const inherited = ledger.entries
+        .filter(item => item.state !== "privacy-superseded" && item.reportIds.includes(originalId))
+        .map(item => item.eventId);
+      const context = publishedReportCorrections(replacementId);
+      assert.equal(context.privacyReplacementOf, originalId);
+      assert.deepEqual(context.subjectEvents.map(item => item.eventId), inherited);
+      const wire = JSON.parse(publishedReportCorrectionWire(replacementId));
+      assert.equal(wire.privacyReplacementOf, originalId);
+      assert.deepEqual(wire.replacementEvents.map((item: { eventId: string }) => item.eventId), [event.eventId]);
+
+      const read = readStoredScanReport(JSON.parse(readFileSync(`public/reports/${replacementId}.json`, "utf8")));
+      assert.ok(read.ok);
+      if (!read.ok) continue;
+      const view = toReportView(read.stored);
+      // Every surface keys its correction lookup on the identity inside the
+      // wire, so a replacement that still names its original would show the
+      // removal notice instead of the inherited context.
+      assert.equal(view.reportId, replacementId);
+      const current = context.currentSubjectEvent;
+      if (current) assert.ok(buildReportHeadline(view).subhead.includes(current.eventId));
+      const run = view.runs[0];
+      const csv = requestLogToCsv(run.evidence.requests, requestLogRecordingState(run), context.subjectEvents);
+      for (const eventId of inherited) assert.ok(csv.includes(eventId), `${replacementId} CSV lost ${eventId}`);
+      checked++;
+    }
+  }
+  assert.equal(checked, expected);
 });

@@ -4,7 +4,7 @@ const CORRECTIONS_SCHEMA = "https://sitebehavior.org/corrections.schema.json";
 const CORRECTIONS_POLICY = "https://sitebehavior.org/corrections/";
 const EVENT_ID_PATTERN = /^SBL-CORR-[0-9]{4}-[0-9]{3,}$/;
 const RFC3339_DATE_TIME = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d+)?(?:Z|([+-])(\d{2}):(\d{2}))$/;
-const EVENT_STATES = new Set(["active", "corrected", "superseded", "withdrawn"]);
+const EVENT_STATES = new Set(["active", "corrected", "superseded", "withdrawn", "privacy-superseded"]);
 export const CORRECTIONS_FUTURE_TOLERANCE_MS = 5 * 60 * 1_000;
 const LEDGER_KEYS = new Set(["$schema", "schemaVersion", "policy", "entries"]);
 const EVENT_KEYS = new Set([
@@ -18,7 +18,7 @@ const EVENT_KEYS = new Set([
   "supersedesEventId"
 ]);
 
-export type CorrectionsEventState = "active" | "corrected" | "superseded" | "withdrawn";
+export type CorrectionsEventState = "active" | "corrected" | "superseded" | "withdrawn" | "privacy-superseded";
 
 export interface CorrectionsLedgerEvent {
   readonly eventId: string;
@@ -43,6 +43,12 @@ export interface ReportCorrections {
   readonly replacementEvents: readonly CorrectionsLedgerEvent[];
   readonly currentSubjectEvent: CorrectionsLedgerEvent | null;
   readonly suppressIndexing: boolean;
+  /**
+   * The removed original this report is the redacted privacy replacement of.
+   * Its subject events are included in subjectEvents. Absent otherwise, so the
+   * exported correction context of every other report keeps its exact bytes.
+   */
+  readonly privacyReplacementOf?: string;
 }
 
 export interface CorrectionsLedgerParseOptions {
@@ -72,6 +78,8 @@ export function parseCorrectionsLedger(
   const parsedEntries: CorrectionsLedgerEvent[] = [];
   const originalReportIds = new Set<string>();
   const replacementReportIdsSeen = new Set<string>();
+  const privacyRemovedReportIds = new Set<string>();
+  const privacyReplacementReportIds = new Set<string>();
   const eventIds = new Set<string>();
   const latestSequenceByYear = new Map<number, number>();
   let previousPublishedAt = Number.NEGATIVE_INFINITY;
@@ -106,9 +114,19 @@ export function parseCorrectionsLedger(
     const replacementReportIds = event.replacementReportIds === undefined
       ? []
       : reportIdArray(event.replacementReportIds, `${label}.replacementReportIds`, false);
+    const privacy = state === "privacy-superseded";
+    // A privacy replacement removes each original from publication and pairs
+    // it, by position, with one redacted copy under a new ID. The pairing is
+    // what lets exactly one replacement inherit its original's events.
+    if (privacy && replacementReportIds.length !== reportIds.length) {
+      throw new Error(`${label}.replacementReportIds must pair one replacement with each privacy-superseded report`);
+    }
     for (const reportId of reportIds) {
       if (replacementReportIdsSeen.has(reportId)) {
         throw new Error(`${label}.reportIds contains ${reportId}, which is already a replacement report`);
+      }
+      if (privacy && privacyRemovedReportIds.has(reportId)) {
+        throw new Error(`${label}.reportIds contains ${reportId}, which was already removed for privacy`);
       }
       originalReportIds.add(reportId);
     }
@@ -116,7 +134,14 @@ export function parseCorrectionsLedger(
       if (originalReportIds.has(reportId)) {
         throw new Error(`${label}.replacementReportIds contains ${reportId}, which is already an original report`);
       }
+      if (privacyReplacementReportIds.has(reportId) || (privacy && replacementReportIdsSeen.has(reportId))) {
+        throw new Error(`${label}.replacementReportIds contains ${reportId}; a privacy replacement belongs to one event only`);
+      }
       replacementReportIdsSeen.add(reportId);
+    }
+    if (privacy) {
+      for (const reportId of reportIds) privacyRemovedReportIds.add(reportId);
+      for (const reportId of replacementReportIds) privacyReplacementReportIds.add(reportId);
     }
 
     const summary = requiredString(event.summary, `${label}.summary`);
@@ -164,13 +189,31 @@ export function correctionsLedgerReportIds(
   return parsedCorrectionsLedgerReportIds(parseCorrectionsLedger(value, options));
 }
 
+/**
+ * The retention pin set: every referenced report except the originals a
+ * privacy-superseded event removed from publication. A pin is a promise that
+ * the exact bundle exists, and a removed original must not.
+ */
 export function parsedCorrectionsLedgerReportIds(ledger: ParsedCorrectionsLedger): ReadonlySet<string> {
+  const removed = parsedCorrectionsLedgerPrivacyRemovedReportIds(ledger);
   const pinned = new Set<string>();
   for (const event of ledger.entries) {
-    for (const reportId of event.reportIds) pinned.add(reportId);
+    for (const reportId of event.reportIds) {
+      if (!removed.has(reportId)) pinned.add(reportId);
+    }
     for (const reportId of event.replacementReportIds ?? []) pinned.add(reportId);
   }
   return pinned;
+}
+
+/** Originals a privacy-superseded event removed; each has no published bundle. */
+export function parsedCorrectionsLedgerPrivacyRemovedReportIds(ledger: ParsedCorrectionsLedger): ReadonlySet<string> {
+  const removed = new Set<string>();
+  for (const event of ledger.entries) {
+    if (event.state !== "privacy-superseded") continue;
+    for (const reportId of event.reportIds) removed.add(reportId);
+  }
+  return removed;
 }
 
 /** Resolve the public correction context for one immutable report identity. */
@@ -178,8 +221,17 @@ export function reportCorrections(
   ledger: ParsedCorrectionsLedger,
   reportId: string
 ): ReportCorrections {
-  const subjectEvents = ledger.entries.filter((event) => event.reportIds.includes(reportId));
   const replacementEvents = ledger.entries.filter((event) => event.replacementReportIds?.includes(reportId) === true);
+  // A privacy replacement is a redacted copy of the same measurement, so the
+  // events recorded against its removed original apply to it as well.
+  const privacyEvent = replacementEvents.find((event) => event.state === "privacy-superseded");
+  const privacyReplacementOf = privacyEvent?.reportIds[(privacyEvent.replacementReportIds ?? []).indexOf(reportId)];
+  const subjectEvents = ledger.entries.filter((event) =>
+    event.reportIds.includes(reportId) ||
+    (privacyReplacementOf !== undefined &&
+      event.state !== "privacy-superseded" &&
+      event.reportIds.includes(privacyReplacementOf))
+  );
   const currentSubjectEvent = subjectEvents.at(-1) ?? null;
   return {
     subjectEvents,
@@ -187,7 +239,8 @@ export function reportCorrections(
     currentSubjectEvent,
     suppressIndexing:
       currentSubjectEvent !== null &&
-      currentSubjectEvent.state !== "active"
+      currentSubjectEvent.state !== "active",
+    ...(privacyReplacementOf === undefined ? {} : { privacyReplacementOf })
   };
 }
 
@@ -196,6 +249,11 @@ export function reportCorrections(
  * entry must remain the exact same typed event at the same index, and every
  * report bundle it pinned must still have the exact report and sidecar bytes.
  * New entries may only be appended and must point to complete current bundles.
+ *
+ * The one permitted change to pinned evidence is the removal of an original
+ * that a current privacy-superseded event names. A removed original that is
+ * still present, changed or not, is refused, so currentBundles must also carry
+ * any privacy-removed original whose bytes remain.
  */
 export function assertCorrectionsLedgerHistory(
   previousValue: unknown,
@@ -218,6 +276,7 @@ export function assertCorrectionsLedgerHistory(
 
   const previousIds = parsedCorrectionsLedgerReportIds(previous);
   const currentIds = parsedCorrectionsLedgerReportIds(current);
+  const privacyRemovedIds = parsedCorrectionsLedgerPrivacyRemovedReportIds(current);
   for (const reportId of currentIds) {
     if (!currentBundles.has(reportId)) {
       throw new Error(`Current correction-linked report ${reportId} is missing its report or provenance sidecar bytes`);
@@ -230,6 +289,7 @@ export function assertCorrectionsLedgerHistory(
     }
     const currentBundle = currentBundles.get(reportId);
     if (currentBundle === undefined) {
+      if (privacyRemovedIds.has(reportId)) continue;
       throw new Error(`Correction-linked report ${reportId} was removed`);
     }
     if (!sameBytes(previousBundle.report, currentBundle.report)) {
@@ -237,6 +297,11 @@ export function assertCorrectionsLedgerHistory(
     }
     if (!sameBytes(previousBundle.sidecar, currentBundle.sidecar)) {
       throw new Error(`Correction-linked report ${reportId}.provenance.json changed`);
+    }
+  }
+  for (const reportId of privacyRemovedIds) {
+    if (currentBundles.has(reportId)) {
+      throw new Error(`Privacy-superseded report ${reportId} is still published; remove its report and provenance sidecar`);
     }
   }
 }

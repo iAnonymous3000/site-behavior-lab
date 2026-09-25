@@ -1,6 +1,10 @@
 import Link from "next/link";
 import corrections from "@/public/corrections.json";
-import { parseCorrectionsLedger, type CorrectionsLedgerEvent } from "@/lib/corrections-ledger";
+import {
+  parseCorrectionsLedger,
+  parsedCorrectionsLedgerPrivacyRemovedReportIds,
+  type CorrectionsLedgerEvent
+} from "@/lib/corrections-ledger";
 import { publicPageMetadata } from "@/lib/seo-metadata";
 import { sitePagesBasePath } from "@/lib/site-url";
 import { SiteChrome } from "../_components/site-chrome";
@@ -17,6 +21,8 @@ export const metadata = publicPageMetadata({
 const EVIDENCE_ISSUE_URL = "https://github.com/iAnonymous3000/site-behavior-lab/issues/new?template=evidence-problem.yml";
 const PRIVATE_REPORT_URL = "https://github.com/iAnonymous3000/site-behavior-lab/security/advisories/new";
 const ledger = parseCorrectionsLedger(corrections);
+// A report removed for privacy has no page; its ID stays visible, unlinked.
+const removedReportIds = parsedCorrectionsLedgerPrivacyRemovedReportIds(ledger);
 
 export default function CorrectionsPage() {
   return (
@@ -43,6 +49,7 @@ export default function CorrectionsPage() {
           <li>We reproduce the claim from the stored evidence and separate an artifact defect from ordinary visit-to-visit variation.</li>
           <li>We publish the result as active, corrected, superseded, or withdrawn, with a plain-language reason and supporting link.</li>
           <li>Any replacement report receives a new identity and is pinned too; publication requires every referenced static report and provenance receipt to remain available.</li>
+          <li>A report that published data redaction should have removed is replaced for privacy: a redacted copy is published under a new identity, the original is removed, and the ledger names both.</li>
         </ol>
       </section>
 
@@ -91,18 +98,24 @@ function CorrectionEvent({ event }: { event: CorrectionsLedgerEvent }) {
       <dl>
         <div>
           <dt>Questioned reports</dt>
-          <dd>{event.reportIds.map((id) => <Link href={`/reports/${id}/`} key={id}><code>{id}</code></Link>)}</dd>
+          <dd>{event.reportIds.map((id) => <ReportIdReference id={id} key={id} />)}</dd>
         </div>
         {(event.replacementReportIds?.length ?? 0) > 0 && (
           <div>
             <dt>Replacement evidence</dt>
-            <dd>{event.replacementReportIds?.map((id) => <Link href={`/reports/${id}/`} key={id}><code>{id}</code></Link>)}</dd>
+            <dd>{event.replacementReportIds?.map((id) => <ReportIdReference id={id} key={id} />)}</dd>
           </div>
         )}
       </dl>
       <p><a href={event.detailsUrl}>Read the public review record</a></p>
     </article>
   );
+}
+
+function ReportIdReference({ id }: { id: string }) {
+  return removedReportIds.has(id)
+    ? <span><code>{id}</code> (removed)</span>
+    : <Link href={`/reports/${id}/`}><code>{id}</code></Link>;
 }
 
 function correctionStateLabel(state: CorrectionsLedgerEvent["state"]): string {
@@ -112,7 +125,9 @@ function correctionStateLabel(state: CorrectionsLedgerEvent["state"]): string {
       ? "Evidence corrected"
       : state === "superseded"
         ? "Evidence superseded"
-        : "Evidence withdrawn";
+        : state === "privacy-superseded"
+          ? "Replaced for privacy"
+          : "Evidence withdrawn";
 }
 
 function formatPublishedAt(value: string): string {

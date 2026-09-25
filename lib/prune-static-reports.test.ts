@@ -434,6 +434,48 @@ test("a corrections ledger cannot reference an absent static evidence bundle", a
   await access(path.join(reportsDir, committedSidecarFilename(existingId)));
 });
 
+test("an original removed for privacy does not abort pruning, and its replacement stays pinned", async () => {
+  const now = Date.parse("2026-07-10T00:00:00.000Z");
+  const removedId = "20250101-eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
+  const replacementId = "20250101-ffffffffffffffffffffffffffffffff";
+  const unpinnedId = "20260710-cccccccccccccccccccccccccccccccc";
+  await writeReport(replacementId, makeResult("replacement.example.dev", "2025-01-01T00:00:00.000Z"));
+  await writeReport(unpinnedId, makeResult("unpinned.example.dev", "2026-07-10T00:00:00.000Z"));
+  const ledgerPath = path.join(ledgerDir, "privacy-corrections.json");
+  await writeFile(ledgerPath, `${JSON.stringify({
+    $schema: "https://sitebehavior.org/corrections.schema.json",
+    schemaVersion: 1,
+    policy: "https://sitebehavior.org/corrections/",
+    entries: [{
+      eventId: "SBL-CORR-2026-001",
+      publishedAt: "2026-07-08T00:00:00.000Z",
+      state: "active",
+      reportIds: [removedId],
+      summary: "A clarification that the privacy replacement inherits.",
+      detailsUrl: "https://example.test/corrections/1"
+    }, {
+      eventId: "SBL-CORR-2026-002",
+      publishedAt: "2026-07-09T00:00:00.000Z",
+      state: "privacy-superseded",
+      reportIds: [removedId],
+      replacementReportIds: [replacementId],
+      summary: "A redacted copy replaced a report that exposed a scanner network address.",
+      detailsUrl: "https://example.test/corrections/2"
+    }]
+  })}\n`);
+
+  const { removed } = await pruneStaticReportsWithCorrections(reportsDir, ledgerPath, {
+    maxAgeMs: 7 * DAY_MS,
+    maxCount: 1,
+    keepPerSite: 0,
+    now
+  });
+
+  assert.deepEqual(removed, [path.join(reportsDir, `${unpinnedId}.json`)]);
+  await access(path.join(reportsDir, `${replacementId}.json`));
+  await access(path.join(reportsDir, committedSidecarFilename(replacementId)));
+});
+
 test("a malformed corrections ledger aborts before any report is pruned", async () => {
   const reportId = "20250101-dddddddddddddddddddddddddddddddd";
   await writeReport(reportId, makeResult("preserved.example.dev", "2025-01-01T00:00:00.000Z"));

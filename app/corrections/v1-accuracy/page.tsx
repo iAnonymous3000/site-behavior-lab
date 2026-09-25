@@ -12,7 +12,7 @@ export const metadata = publicPageMetadata({
 export default function AccuracyCorrectionPage() {
   return <SiteChrome><div className="legal-page"><section className="legal-section">
     <h1>Corrections to historical detector claims</h1>
-    <p>The September 5, 2026 audit reproduced these interpretation and coverage problems. The original reports and provenance remain unchanged. The <Link href="/corrections/">public ledger</Link> identifies every affected report.</p>
+    <p>The September 5, 2026 audit reproduced these interpretation and coverage problems. The original reports and provenance remain unchanged, except where a later privacy correction replaced a report with a redacted copy under a new ID. These clarifications apply to that copy too. The <Link href="/corrections/">public ledger</Link> identifies every affected report and names both IDs of each replacement.</p>
     <h2>Input-probe coverage</h2>
     <p>406 reports include a disclosure claiming unload beacons were captured. The pinned browser capture did not reliably record teardown-only requests. Focus and blur callbacks could also run, and failed field attempts were not fully accounted for. Retained positive observations remain evidence of those observations; a quiet result does not establish absence of transmission across untested fields or teardown.</p>
     <h2>Policy entity mentions</h2>

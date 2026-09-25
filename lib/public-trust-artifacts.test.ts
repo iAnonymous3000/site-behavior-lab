@@ -10,6 +10,7 @@ import {
   assertCorrectionsLedgerHistory,
   CORRECTIONS_FUTURE_TOLERANCE_MS,
   correctionsLedgerReportIds,
+  parsedCorrectionsLedgerPrivacyRemovedReportIds,
   isCorrectionsDateTime,
   isCorrectionsDetailsUrl,
   parseCorrectionsLedger,
@@ -39,6 +40,14 @@ test("the public corrections ledger validates against its published schema", () 
       true,
       `${reportId} is missing its provenance sidecar`
     );
+  }
+  // A privacy-superseded original is removed from publication. This set is
+  // empty until the first such event is appended; the check is then live.
+  for (const reportId of parsedCorrectionsLedgerPrivacyRemovedReportIds(parseCorrectionsLedger(ledger))) {
+    assert.equal(referencedReports.has(reportId), false, `${reportId} is removed for privacy and must not be pinned`);
+    for (const suffix of [".json", ".provenance.json"]) {
+      assert.equal(existsSync(path.join(root, "public", "reports", `${reportId}${suffix}`)), false, `${reportId}${suffix} is still published`);
+    }
   }
   assert.equal(ledger.policy, "https://sitebehavior.org/corrections/");
 
@@ -80,6 +89,24 @@ test("correction dispositions are visible on the ledger and affected report page
   assert.match(reportPage, /STATIC_EXPORT && !correction\.suppressIndexing/);
   assert.match(reportPage, /correction\.suppressIndexing[\s\S]*\? null[\s\S]*buildReportDataset/);
   assert.match(reportContext, /Public corrections ledger/);
+});
+
+test("reports removed for privacy are named as plain IDs, never linked to a page that no longer exists", () => {
+  const correctionsPage = read("app/corrections/page.tsx");
+  const reportContext = read("app/_components/report-page-context.tsx");
+  // Every report link on the ledger page goes through the one reference that
+  // checks the removed set, and the new state has its own label rather than
+  // falling through to "Evidence withdrawn".
+  assert.equal(correctionsPage.match(/href=\{`\/reports\//g)?.length, 1);
+  assert.match(correctionsPage, /removedReportIds\.has\(id\)\s*\?\s*<span><code>\{id\}<\/code> \(removed\)<\/span>/);
+  assert.match(correctionsPage, /event\.reportIds\.map\(\(id\) => <ReportIdReference/);
+  assert.match(correctionsPage, /event\.replacementReportIds\?\.map\(\(id\) => <ReportIdReference/);
+  assert.match(correctionsPage, /state === "privacy-superseded"\s*\?\s*"Replaced for privacy"/);
+  // A replacement page explains why its original's events apply, naming the
+  // removed original as plain text.
+  assert.match(reportContext, /corrections\.privacyReplacementOf/);
+  assert.match(reportContext, /<code>\{corrections\.privacyReplacementOf\}<\/code>/);
+  assert.doesNotMatch(reportContext, /href=\{`\/reports\/\$\{corrections\.privacyReplacementOf/);
 });
 
 test("corrections ledger semantic validation is ordered, unique, and append-only safe", () => {
@@ -144,6 +171,267 @@ test("corrections ledger semantic validation is ordered, unique, and append-only
   assert.throws(
     () => parseCorrectionsLedger({ ...ledger, entries: [first] }, { now: exactlyAtTolerance - 1 }),
     /materially in the future/
+  );
+});
+
+const PRIVACY_ORIGINAL_ID = "20250101-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+const PRIVACY_SIBLING_ID = "20250101-cccccccccccccccccccccccccccccccc";
+const PRIVACY_REPLACEMENT_ID = "20250101-dddddddddddddddddddddddddddddddd";
+
+/** One clarification over two reports, then a privacy replacement of the first. */
+function privacyLedgerFixture() {
+  const clarification = {
+    eventId: "SBL-CORR-2025-001",
+    publishedAt: "2025-01-01T12:00:00.000Z",
+    state: "active",
+    reportIds: [PRIVACY_ORIGINAL_ID, PRIVACY_SIBLING_ID],
+    summary: "A reviewed clarification applies to both reports.",
+    detailsUrl: "https://github.com/iAnonymous3000/site-behavior-lab/issues/123"
+  };
+  const privacy = {
+    eventId: "SBL-CORR-2025-002",
+    publishedAt: "2025-01-02T12:00:00.000Z",
+    state: "privacy-superseded",
+    reportIds: [PRIVACY_ORIGINAL_ID],
+    replacementReportIds: [PRIVACY_REPLACEMENT_ID],
+    summary: "A redacted copy replaced a report that exposed a scanner network address.",
+    detailsUrl: "https://github.com/iAnonymous3000/site-behavior-lab/issues/124"
+  };
+  const envelope = {
+    $schema: "https://sitebehavior.org/corrections.schema.json",
+    schemaVersion: 1,
+    policy: "https://sitebehavior.org/corrections/"
+  };
+  return { clarification, privacy, envelope, options: { now: Date.parse("2025-01-03T00:00:00.000Z") } };
+}
+
+test("a privacy-superseded event pairs each removed original with one redacted replacement", () => {
+  const { clarification, privacy, envelope, options } = privacyLedgerFixture();
+  const schema = JSON.parse(read("public/corrections.schema.json"));
+  const ajv = new Ajv2020({ strict: false });
+  ajv.addFormat("date-time", isCorrectionsDateTime);
+  ajv.addFormat("uri", isCorrectionsDetailsUrl);
+  const validate = ajv.compile(schema);
+  const ledger = { ...envelope, entries: [clarification, privacy] };
+  const { replacementReportIds: _omitted, ...unreplaced } = privacy;
+
+  assert.equal(validate(ledger), true, JSON.stringify(validate.errors));
+  assert.equal(validate({ ...ledger, entries: [clarification, unreplaced] }), false);
+  assert.equal(validate({ ...ledger, entries: [clarification, { ...privacy, replacementReportIds: [] }] }), false);
+  assert.doesNotThrow(() => parseCorrectionsLedger(ledger, options));
+
+  // The pin set drops the removed original and keeps its replacement.
+  assert.deepEqual(
+    [...correctionsLedgerReportIds(ledger, options)].sort(),
+    [PRIVACY_SIBLING_ID, PRIVACY_REPLACEMENT_ID].sort()
+  );
+  assert.deepEqual([...parsedCorrectionsLedgerPrivacyRemovedReportIds(parseCorrectionsLedger(ledger, options))], [PRIVACY_ORIGINAL_ID]);
+
+  assert.throws(
+    () => parseCorrectionsLedger({ ...ledger, entries: [clarification, unreplaced] }, options),
+    /must pair one replacement with each privacy-superseded report/
+  );
+  assert.throws(
+    () => parseCorrectionsLedger({
+      ...ledger,
+      entries: [clarification, { ...privacy, reportIds: [PRIVACY_ORIGINAL_ID, PRIVACY_SIBLING_ID] }]
+    }, options),
+    /must pair one replacement with each privacy-superseded report/
+  );
+  const second = {
+    ...privacy,
+    eventId: "SBL-CORR-2025-003",
+    publishedAt: "2025-01-02T13:00:00.000Z",
+    replacementReportIds: ["20250101-eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"]
+  };
+  assert.throws(
+    () => parseCorrectionsLedger({ ...ledger, entries: [clarification, privacy, second] }, options),
+    /already removed for privacy/
+  );
+  assert.throws(
+    () => parseCorrectionsLedger({
+      ...ledger,
+      entries: [clarification, privacy, { ...second, reportIds: [PRIVACY_SIBLING_ID], replacementReportIds: [PRIVACY_REPLACEMENT_ID] }]
+    }, options),
+    /a privacy replacement belongs to one event only/
+  );
+  assert.throws(
+    () => parseCorrectionsLedger({
+      ...ledger,
+      entries: [clarification, privacy, { ...second, state: "corrected", reportIds: [PRIVACY_SIBLING_ID], replacementReportIds: [PRIVACY_REPLACEMENT_ID] }]
+    }, options),
+    /a privacy replacement belongs to one event only/
+  );
+  const earlierReplacement = {
+    ...clarification,
+    state: "corrected",
+    reportIds: [PRIVACY_SIBLING_ID],
+    replacementReportIds: [PRIVACY_REPLACEMENT_ID]
+  };
+  assert.throws(
+    () => parseCorrectionsLedger({ ...ledger, entries: [earlierReplacement, privacy] }, options),
+    /a privacy replacement belongs to one event only/
+  );
+});
+
+test("a privacy replacement inherits the correction events recorded against its removed original", () => {
+  const { clarification, privacy, envelope, options } = privacyLedgerFixture();
+  const ledger = parseCorrectionsLedger({ ...envelope, entries: [clarification, privacy] }, options);
+
+  const replacement = reportCorrections(ledger, PRIVACY_REPLACEMENT_ID);
+  assert.deepEqual(replacement.subjectEvents.map(event => event.eventId), [clarification.eventId]);
+  assert.equal(replacement.currentSubjectEvent?.eventId, clarification.eventId);
+  assert.deepEqual(replacement.replacementEvents.map(event => event.eventId), [privacy.eventId]);
+  assert.equal(replacement.suppressIndexing, false);
+  assert.equal(replacement.privacyReplacementOf, PRIVACY_ORIGINAL_ID);
+
+  // The removed original's own latest disposition is the privacy removal.
+  const original = reportCorrections(ledger, PRIVACY_ORIGINAL_ID);
+  assert.equal(original.currentSubjectEvent?.eventId, privacy.eventId);
+  assert.equal(original.suppressIndexing, true);
+  assert.equal("privacyReplacementOf" in original, false);
+
+  // Every other report keeps its exact exported correction context bytes: the
+  // new key appears only on a privacy replacement.
+  const sibling = reportCorrections(ledger, PRIVACY_SIBLING_ID);
+  assert.deepEqual(Object.keys(sibling), ["subjectEvents", "replacementEvents", "currentSubjectEvent", "suppressIndexing"]);
+  assert.deepEqual(Object.keys(reportCorrections(ledger, "")), ["subjectEvents", "replacementEvents", "currentSubjectEvent", "suppressIndexing"]);
+  assert.equal(JSON.parse(JSON.stringify(replacement)).privacyReplacementOf, PRIVACY_ORIGINAL_ID);
+
+  // A later event naming the original still follows the measurement, in
+  // ledger order, and moves the replacement's current disposition.
+  const withdrawal = {
+    ...clarification,
+    eventId: "SBL-CORR-2025-003",
+    publishedAt: "2025-01-02T13:00:00.000Z",
+    state: "withdrawn",
+    reportIds: [PRIVACY_ORIGINAL_ID],
+    summary: "The measurement no longer supports its claim."
+  };
+  const withdrawn = reportCorrections(
+    parseCorrectionsLedger({ ...envelope, entries: [clarification, privacy, withdrawal] }, options),
+    PRIVACY_REPLACEMENT_ID
+  );
+  assert.deepEqual(withdrawn.subjectEvents.map(event => event.eventId), [clarification.eventId, withdrawal.eventId]);
+  assert.equal(withdrawn.currentSubjectEvent?.state, "withdrawn");
+  assert.equal(withdrawn.suppressIndexing, true);
+
+  // A corrected replacement is new evidence, not the same measurement, and
+  // inherits nothing.
+  const corrected = { ...privacy, state: "corrected" };
+  const correctedReplacement = reportCorrections(
+    parseCorrectionsLedger({ ...envelope, entries: [clarification, corrected] }, options),
+    PRIVACY_REPLACEMENT_ID
+  );
+  assert.deepEqual(correctedReplacement.subjectEvents, []);
+  assert.equal("privacyReplacementOf" in correctedReplacement, false);
+});
+
+test("corrections history accepts only the privacy removal of a pinned bundle", () => {
+  const { clarification, privacy, envelope, options } = privacyLedgerFixture();
+  const previous = { ...envelope, entries: [clarification] };
+  const current = { ...envelope, entries: [clarification, privacy] };
+  const originalBundle = { report: Buffer.from("original-report\n"), sidecar: Buffer.from("original-sidecar\n") };
+  const siblingBundle = { report: Buffer.from("sibling-report\n"), sidecar: Buffer.from("sibling-sidecar\n") };
+  const replacementBundle = { report: Buffer.from("redacted-report\n"), sidecar: Buffer.from("redacted-sidecar\n") };
+  const previousBundles = new Map([
+    [PRIVACY_ORIGINAL_ID, originalBundle],
+    [PRIVACY_SIBLING_ID, siblingBundle]
+  ]);
+  const currentBundles = new Map([
+    [PRIVACY_SIBLING_ID, siblingBundle],
+    [PRIVACY_REPLACEMENT_ID, replacementBundle]
+  ]);
+
+  assert.doesNotThrow(() => assertCorrectionsLedgerHistory(previous, current, previousBundles, currentBundles, options));
+  // Once the removal is history, the next change verifies without the original.
+  assert.doesNotThrow(() => assertCorrectionsLedgerHistory(
+    current,
+    current,
+    new Map([[PRIVACY_SIBLING_ID, siblingBundle], [PRIVACY_REPLACEMENT_ID, replacementBundle]]),
+    currentBundles,
+    options
+  ));
+
+  // A privacy event never admits a changed bundle (M12), report or sidecar.
+  assert.throws(
+    () => assertCorrectionsLedgerHistory(
+      previous,
+      current,
+      previousBundles,
+      new Map(currentBundles).set(PRIVACY_ORIGINAL_ID, { ...originalBundle, report: Buffer.from("redacted-in-place\n") }),
+      options
+    ),
+    new RegExp(`Correction-linked report ${PRIVACY_ORIGINAL_ID}\\.json changed`)
+  );
+  assert.throws(
+    () => assertCorrectionsLedgerHistory(
+      previous,
+      current,
+      previousBundles,
+      new Map(currentBundles).set(PRIVACY_ORIGINAL_ID, { ...originalBundle, sidecar: Buffer.from("rewritten-sidecar\n") }),
+      options
+    ),
+    new RegExp(`Correction-linked report ${PRIVACY_ORIGINAL_ID}\\.provenance\\.json changed`)
+  );
+  // Nor does it leave the original published, even byte-identical.
+  assert.throws(
+    () => assertCorrectionsLedgerHistory(
+      previous,
+      current,
+      previousBundles,
+      new Map(currentBundles).set(PRIVACY_ORIGINAL_ID, originalBundle),
+      options
+    ),
+    new RegExp(`Privacy-superseded report ${PRIVACY_ORIGINAL_ID} is still published`)
+  );
+  // A removal with no replacement: the event is refused, and so is an event
+  // whose replacement bundle is absent.
+  const { replacementReportIds: _omitted, ...unreplaced } = privacy;
+  assert.throws(
+    () => assertCorrectionsLedgerHistory(
+      previous,
+      { ...current, entries: [clarification, unreplaced] },
+      previousBundles,
+      currentBundles,
+      options
+    ),
+    /must pair one replacement with each privacy-superseded report/
+  );
+  const withoutReplacement = new Map(currentBundles);
+  withoutReplacement.delete(PRIVACY_REPLACEMENT_ID);
+  assert.throws(
+    () => assertCorrectionsLedgerHistory(previous, current, previousBundles, withoutReplacement, options),
+    new RegExp(`Current correction-linked report ${PRIVACY_REPLACEMENT_ID} is missing`)
+  );
+  // A removal with no privacy event, including one covered only by an
+  // ordinary superseded event that also names a replacement: the original is
+  // still pinned, so its absence is refused.
+  assert.throws(
+    () => assertCorrectionsLedgerHistory(previous, previous, previousBundles, new Map([[PRIVACY_SIBLING_ID, siblingBundle]]), options),
+    new RegExp(`Current correction-linked report ${PRIVACY_ORIGINAL_ID} is missing`)
+  );
+  assert.throws(
+    () => assertCorrectionsLedgerHistory(
+      previous,
+      { ...current, entries: [clarification, { ...privacy, state: "superseded" }] },
+      previousBundles,
+      currentBundles,
+      options
+    ),
+    new RegExp(`Current correction-linked report ${PRIVACY_ORIGINAL_ID} is missing`)
+  );
+  // The event covers only the ids it names: removing another pinned report in
+  // the same change is still refused.
+  assert.throws(
+    () => assertCorrectionsLedgerHistory(
+      previous,
+      current,
+      previousBundles,
+      new Map([[PRIVACY_REPLACEMENT_ID, replacementBundle]]),
+      options
+    ),
+    new RegExp(`Current correction-linked report ${PRIVACY_SIBLING_ID} is missing`)
   );
 });
 
@@ -288,6 +576,68 @@ test("the Git history gate fails closed without a base and catches pinned-byte r
     const missingBaseWithEmptyLedger = runHistoryCli(cliPath, repo, "does-not-exist");
     assert.equal(missingBaseWithEmptyLedger.status, 1);
     assert.match(missingBaseWithEmptyLedger.stderr, /repository or ledger history exists/);
+  } finally {
+    rmSync(repo, { recursive: true, force: true });
+  }
+});
+
+test("the Git history gate accepts a privacy replacement's removal and still catches a rewritten original", () => {
+  const repo = mkdtempSync(path.join(tmpdir(), "sbl-corrections-privacy-"));
+  const { clarification, privacy, envelope } = privacyLedgerFixture();
+  const reportsDir = path.join(repo, "public", "reports");
+  const ledgerPath = path.join(repo, "public", "corrections.json");
+  const cliPath = path.join(root, ".unit-test-dist", "lib", "corrections-ledger-history-cli.js");
+  const bundlePath = (reportId: string, suffix: string) => path.join(reportsDir, `${reportId}${suffix}`);
+  const writeLedger = (entries: readonly object[]) =>
+    writeFileSync(ledgerPath, `${JSON.stringify({ ...envelope, entries }, null, 2)}\n`);
+
+  try {
+    mkdirSync(reportsDir, { recursive: true });
+    writeLedger([clarification]);
+    for (const reportId of [PRIVACY_ORIGINAL_ID, PRIVACY_SIBLING_ID]) {
+      writeFileSync(bundlePath(reportId, ".json"), `${reportId}-report\n`);
+      writeFileSync(bundlePath(reportId, ".provenance.json"), `${reportId}-sidecar\n`);
+    }
+    initFixtureRepo(repo, {
+      name: "Site Behavior Lab",
+      email: "ci@sitebehavior.org"
+    });
+    runFixtureGit(repo, ["add", "public"]);
+    runFixtureGit(repo, ["commit", "-qm", "base"]);
+
+    writeLedger([clarification, privacy]);
+    rmSync(bundlePath(PRIVACY_ORIGINAL_ID, ".json"));
+    rmSync(bundlePath(PRIVACY_ORIGINAL_ID, ".provenance.json"));
+    writeFileSync(bundlePath(PRIVACY_REPLACEMENT_ID, ".json"), "redacted-report\n");
+    writeFileSync(bundlePath(PRIVACY_REPLACEMENT_ID, ".provenance.json"), "redacted-sidecar\n");
+    const replaced = runHistoryCli(cliPath, repo, "HEAD");
+    assert.equal(replaced.status, 0, replaced.stderr);
+    assert.match(replaced.stdout, /1 pinned bundle is unchanged; 1 privacy-superseded bundle was removed\./);
+
+    // The CLI still reads an original the event removed from the pin set.
+    writeFileSync(bundlePath(PRIVACY_ORIGINAL_ID, ".json"), "redacted-in-place\n");
+    writeFileSync(bundlePath(PRIVACY_ORIGINAL_ID, ".provenance.json"), `${PRIVACY_ORIGINAL_ID}-sidecar\n`);
+    const rewritten = runHistoryCli(cliPath, repo, "HEAD");
+    assert.equal(rewritten.status, 1);
+    assert.match(rewritten.stderr, new RegExp(`${PRIVACY_ORIGINAL_ID}\\.json changed`));
+
+    writeFileSync(bundlePath(PRIVACY_ORIGINAL_ID, ".json"), `${PRIVACY_ORIGINAL_ID}-report\n`);
+    const stillPublished = runHistoryCli(cliPath, repo, "HEAD");
+    assert.equal(stillPublished.status, 1);
+    assert.match(stillPublished.stderr, /is still published/);
+
+    rmSync(bundlePath(PRIVACY_ORIGINAL_ID, ".json"));
+    const halfRemoved = runHistoryCli(cliPath, repo, "HEAD");
+    assert.equal(halfRemoved.status, 1);
+    assert.match(halfRemoved.stderr, new RegExp(`ENOENT.*${PRIVACY_ORIGINAL_ID}\\.json`));
+
+    // Without the privacy event the original is still pinned, so its absence
+    // fails the working-tree read.
+    rmSync(bundlePath(PRIVACY_ORIGINAL_ID, ".provenance.json"));
+    writeLedger([clarification]);
+    const unexplained = runHistoryCli(cliPath, repo, "HEAD");
+    assert.equal(unexplained.status, 1);
+    assert.match(unexplained.stderr, new RegExp(`ENOENT.*${PRIVACY_ORIGINAL_ID}\\.json`));
   } finally {
     rmSync(repo, { recursive: true, force: true });
   }

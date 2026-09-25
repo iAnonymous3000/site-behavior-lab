@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://sitebehavior.org/corrections.schema.json",
   "title": "Site Behavior Lab corrections ledger",
-  "description": "Append-only public events that qualify, correct, supersede, or withdraw published evidence.",
+  "description": "Append-only public events that qualify, correct, supersede, or withdraw published evidence, or replace it for privacy.",
   "type": "object",
   "additionalProperties": false,
   "required": ["$schema", "schemaVersion", "policy", "entries"],
@@ -27,6 +27,26 @@
     "event": {
       "type": "object",
       "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "required": ["state"],
+            "properties": {
+              "state": {
+                "const": "privacy-superseded"
+              }
+            }
+          },
+          "then": {
+            "required": ["replacementReportIds"],
+            "properties": {
+              "replacementReportIds": {
+                "minItems": 1
+              }
+            }
+          }
+        }
+      ],
       "required": [
         "eventId",
         "publishedAt",
@@ -45,7 +65,8 @@
           "format": "date-time"
         },
         "state": {
-          "enum": ["active", "corrected", "superseded", "withdrawn"]
+          "description": "privacy-superseded removes each reportIds report from publication and pairs it, by position, with its redacted copy in replacementReportIds; both arrays have the same length.",
+          "enum": ["active", "corrected", "superseded", "withdrawn", "privacy-superseded"]
         },
         "reportIds": {
           "type": "array",

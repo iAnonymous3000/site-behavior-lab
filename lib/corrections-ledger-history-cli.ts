@@ -1,9 +1,10 @@
 import { spawnSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import {
   assertCorrectionsLedgerHistory,
   parseCorrectionsLedger,
+  parsedCorrectionsLedgerPrivacyRemovedReportIds,
   parsedCorrectionsLedgerReportIds,
   type CorrectionsPinnedBundles
 } from "./corrections-ledger";
@@ -41,13 +42,21 @@ function main(): void {
   const previousValue = parseJson(previousWire, `${base}:${ledgerPath}`);
   const previous = parseCorrectionsLedger(previousValue);
   const previousBundles = gitBundles(base, parsedCorrectionsLedgerReportIds(previous));
-  const currentBundles = workingTreeBundles(parsedCorrectionsLedgerReportIds(current));
+  const currentBundles = workingTreeBundles(
+    parsedCorrectionsLedgerReportIds(current),
+    parsedCorrectionsLedgerPrivacyRemovedReportIds(current)
+  );
 
   assertCorrectionsLedgerHistory(previousValue, currentValue, previousBundles, currentBundles);
+  // After the gate passes, a base pin absent from the working tree can only be
+  // an original that a privacy-superseded event removed.
+  const removed = [...previousBundles.keys()].filter((reportId) => !currentBundles.has(reportId)).length;
+  const unchanged = previousBundles.size - removed;
   console.log(
     `Corrections history verified against ${base}: ${previous.entries.length} prior ` +
-      `event${previous.entries.length === 1 ? "" : "s"} and ${previousBundles.size} pinned ` +
-      `bundle${previousBundles.size === 1 ? "" : "s"} are unchanged.`
+      `event${previous.entries.length === 1 ? "" : "s"} and ${unchanged} pinned ` +
+      `bundle${unchanged === 1 ? " is" : "s are"} unchanged` +
+      (removed === 0 ? "." : `; ${removed} privacy-superseded bundle${removed === 1 ? " was" : "s were"} removed.`)
   );
 }
 
@@ -71,15 +80,34 @@ function gitBundles(base: string, reportIds: ReadonlySet<string>): CorrectionsPi
   return bundles;
 }
 
-function workingTreeBundles(reportIds: ReadonlySet<string>): CorrectionsPinnedBundles {
+function workingTreeBundles(
+  reportIds: ReadonlySet<string>,
+  privacyRemovedReportIds: ReadonlySet<string>
+): CorrectionsPinnedBundles {
   const bundles = new Map<string, { report: Uint8Array; sidecar: Uint8Array }>();
-  for (const reportId of reportIds) {
-    bundles.set(reportId, {
-      report: readFileSync(path.join(root, "public", "reports", `${reportId}.json`)),
-      sidecar: readFileSync(path.join(root, "public", "reports", `${reportId}.provenance.json`))
-    });
+  for (const reportId of reportIds) bundles.set(reportId, workingTreeBundle(reportId));
+  // A privacy-removed original is no longer pinned, but any bytes of it that
+  // remain are read, so the gate refuses a changed or still-published original
+  // instead of never seeing it. A half-removed bundle fails the read here.
+  for (const reportId of privacyRemovedReportIds) {
+    const bundlePaths = workingTreeBundlePaths(reportId);
+    if (existsSync(bundlePaths.report) || existsSync(bundlePaths.sidecar)) {
+      bundles.set(reportId, workingTreeBundle(reportId));
+    }
   }
   return bundles;
+}
+
+function workingTreeBundle(reportId: string): { report: Uint8Array; sidecar: Uint8Array } {
+  const bundlePaths = workingTreeBundlePaths(reportId);
+  return { report: readFileSync(bundlePaths.report), sidecar: readFileSync(bundlePaths.sidecar) };
+}
+
+function workingTreeBundlePaths(reportId: string): { report: string; sidecar: string } {
+  return {
+    report: path.join(root, "public", "reports", `${reportId}.json`),
+    sidecar: path.join(root, "public", "reports", `${reportId}.provenance.json`)
+  };
 }
 
 function requiredGitBlob(base: string, repoPath: string): Uint8Array {

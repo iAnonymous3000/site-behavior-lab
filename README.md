@@ -159,7 +159,10 @@ the committed corpus under `public/reports/` is the currently retained
 research corpus and follows its own age, count, and cohort rules, and
 reports cited by the corrections ledger are retention-pinned. Published reports are
 never rewritten in place; corrections go through the append-only ledger in
-`docs/corrections-ledger.md`.
+`docs/corrections-ledger.md`. A privacy replacement is the one case where a
+cited report is removed: when a report published data redaction should have
+removed, a redacted copy is published under a new report ID, the original is
+removed, and a ledger event names both.
 
 Network boundary: the Node scanner refuses loopback, private, link-local,
 carrier-grade NAT, multicast, and reserved ranges in both IP families, on

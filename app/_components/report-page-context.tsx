@@ -274,6 +274,17 @@ export function ReportEvidenceReceipt({
 function ReportCorrectionNotice({ corrections }: { corrections: ReportCorrections }) {
   const event = corrections.currentSubjectEvent ?? corrections.replacementEvents.at(-1)!;
   const isReplacement = corrections.currentSubjectEvent === null;
+  // A privacy replacement's subject events were recorded against its removed
+  // original, which the ledger names instead of this report. Say so, and list
+  // the privacy event beside them.
+  const privacyEvent = corrections.privacyReplacementOf
+    ? corrections.replacementEvents.find(item => item.state === "privacy-superseded")
+    : undefined;
+  const listedEvents = isReplacement
+    ? [event]
+    : privacyEvent
+      ? [...corrections.subjectEvents, privacyEvent]
+      : corrections.subjectEvents;
   return (
     <section
       className={`report-correction-notice state-${event.state}`}
@@ -288,7 +299,13 @@ function ReportCorrectionNotice({ corrections }: { corrections: ReportCorrection
             ? "This report has a reviewed clarification"
             : `This report was ${event.state}`}
       </h2>
-      {(isReplacement ? [event] : corrections.subjectEvents).map(item => <p key={item.eventId}><strong>{item.eventId}:</strong> {item.summary}</p>)}
+      {listedEvents.map(item => <p key={item.eventId}><strong>{item.eventId}:</strong> {item.summary}</p>)}
+      {corrections.privacyReplacementOf && (
+        <p>
+          This report is the redacted replacement for <code>{corrections.privacyReplacementOf}</code>, which was
+          removed for privacy and has no page. Correction events recorded against that report apply to this one.
+        </p>
+      )}
       {(event.replacementReportIds?.length ?? 0) > 0 && !isReplacement && (
         <p className="report-correction-replacements">
           Replacement evidence:{" "}
