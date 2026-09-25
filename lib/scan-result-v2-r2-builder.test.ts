@@ -1006,6 +1006,56 @@ test("a CNAME cloak dropped with its clipped request host names only the cap act
   assert.deepEqual(scanReportV2R2SemanticViolations(toPublicScanReportR2(report)), []);
 });
 
+test("a grounding-only drop with no cap reached anywhere names no exhausted budget", () => {
+  // The input check strips a leading dot from a cloak host, but redaction
+  // keeps it, so the cloak no longer matches its request row and is dropped
+  // with no clip anywhere. The policy entity it alone grounded goes with it.
+  const input = baseInput();
+  input.conditions.probes.policyVisit = true;
+  input.measurement.phases.push({ phaseId: 1, kind: "policy-analysis", startedAtMs: 1000, endedAtMs: 1100 });
+  input.measurement.detectors["privacy-policy"] = {
+    version: DETECTOR_VERSIONS["privacy-policy"],
+    status: "complete",
+    phaseId: 1
+  };
+  input.summary.durationMs = 1100;
+  input.evidence.requests.push({
+    ...input.evidence.requests[0],
+    id: 2,
+    url: "https://metrics.example.com/collect",
+    domain: "metrics.example.com",
+    resourceType: "fetch",
+    startedAtMs: 30
+  });
+  const google = findTrackerMatch("google-analytics.com");
+  assert.notEqual(google, null);
+  input.evidence.cnameCloaks.push({ host: ".metrics.example.com", cname: "google-analytics.com", tracker: google! });
+  input.evidence.privacyPolicy = {
+    url: "https://example.com/privacy",
+    claims: [],
+    mentionedEntities: [google!.entity],
+    unmentionedEntities: [],
+    policyTextLength: 1_000
+  };
+
+  const report = buildNodeScanReportV2R2(input);
+  assert.equal(report.run.evidence.requests.length, 2);
+  assert.deepEqual(report.run.evidence.cnameCloaks, []);
+  assert.deepEqual(report.run.evidence.privacyPolicy?.mentionedEntities, []);
+  assert.deepEqual(
+    report.run.qualityFacts.captureLoss.filter(
+      (loss) => loss.detail === "public-cname-cloaks" || loss.detail === "public-policy-entities"
+    ),
+    [
+      { family: "detector-output", phaseId: null, kind: "dropped", count: 1, detail: "public-cname-cloaks" },
+      { family: "detector-output", phaseId: null, kind: "dropped", count: 1, detail: "public-policy-entities" }
+    ]
+  );
+  assert.deepEqual(report.run.qualityFacts.budgetsExhausted, []);
+  assert.equal(report.run.quality.run.reasons.some((reason) => reason.startsWith("budget-exhausted:")), false);
+  assert.deepEqual(scanReportV2R2SemanticViolations(toPublicScanReportR2(report)), []);
+});
+
 test("public evidence arrays clip with explicit family-scoped capture loss", () => {
   const input = baseInput();
   input.evidence.requests = Array.from({ length: 1_001 }, (_, index) => ({
