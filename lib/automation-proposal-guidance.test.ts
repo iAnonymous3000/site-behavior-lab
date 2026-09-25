@@ -190,6 +190,7 @@ test("an anchor proposal pushed without its pull request is opened on the re-run
         "#!/usr/bin/env bash",
         'printf \'gh %s\\n\' "$*" >> "$FAKE_LOG"',
         'case "$1 $2" in',
+        '  "api repos/iAnonymous3000/site-behavior-lab/compare/main..."*) printf \'%s\\n\' "${FAKE_COMPARE-1 public/transparency-log.json}" ;;',
         '  "pr list") if [[ -n "${FAKE_OPEN_PR:-}" ]]; then printf \'%s\\n\' "$FAKE_OPEN_PR"; fi ;;',
         '  "pr create")',
         '    if [[ -n "${FAKE_CREATE_ERROR:-}" ]]; then printf \'%s\\n\' "$FAKE_CREATE_ERROR" >&2; exit 1; fi',
@@ -239,20 +240,31 @@ test("an anchor proposal pushed without its pull request is opened on the re-run
     const recovered = runStep({});
     assert.equal(recovered.status, 0, `${recovered.stdout}\n${recovered.stderr}`);
     assert.equal(recovered.calls.filter((call) => call.startsWith("git ")).length, 0, recovered.calls.join("\n"));
-    assert.equal(recovered.calls.length, 3, recovered.calls.join("\n"));
-    assert.match(recovered.calls[0], /^gh pr list /);
-    assert.match(recovered.calls[1], /^gh pr create .*--head automation\/transparency-anchor /);
-    assert.match(recovered.calls[2], /^gh workflow run ci\.yml --ref automation\/transparency-anchor /);
+    assert.equal(recovered.calls.length, 4, recovered.calls.join("\n"));
+    assert.match(recovered.calls[0], /^gh api repos\/iAnonymous3000\/site-behavior-lab\/compare\/main\.\.\.e{40} /);
+    assert.match(recovered.calls[1], /^gh pr list /);
+    assert.match(recovered.calls[2], /^gh pr create .*--head automation\/transparency-anchor /);
+    assert.match(recovered.calls[3], /^gh workflow run ci\.yml --ref automation\/transparency-anchor /);
 
     // (b) Recovery with the pull request already open: nothing new was pushed,
     // so neither the pull request nor its validation is touched again.
     const alreadyOpen = runStep({ FAKE_OPEN_PR: "7" });
     assert.equal(alreadyOpen.status, 0, alreadyOpen.stderr);
-    assert.equal(alreadyOpen.calls.length, 1, alreadyOpen.calls.join("\n"));
-    assert.match(alreadyOpen.calls[0], /^gh pr list /);
+    assert.equal(alreadyOpen.calls.length, 2, alreadyOpen.calls.join("\n"));
+    assert.match(alreadyOpen.calls[1], /^gh pr list /);
+
+    // (b2) Recovery proposes the branch as it stands, so a branch carrying
+    // anything besides one log commit on the base is refused before any pull
+    // request is listed, opened or validated.
+    for (const shape of ["1 public/transparency-log.json,package.json", "2 public/transparency-log.json", "1 ", ""]) {
+      const tampered = runStep({ FAKE_COMPARE: shape });
+      assert.equal(tampered.status, 1, `${shape}: ${tampered.stdout}`);
+      assert.match(tampered.stdout, /::error title=Refused::/);
+      assert.equal(tampered.calls.length, 1, `${shape}: ${tampered.calls.join("\n")}`);
+    }
 
     // (c) The repository refuses Actions-created pull requests: validation
-    // still starts, but the run is red, like every sibling proposal workflow.
+    // still starts, but the run is red until the pull request exists.
     const refused = runStep({
       FAKE_CREATE_ERROR: "pull request create failed: GraphQL: GitHub Actions is not permitted to create or approve pull requests (createPullRequest)"
     });

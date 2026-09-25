@@ -212,6 +212,16 @@ jobs:
             else
               git push origin "HEAD:refs/heads/${PROPOSAL_BRANCH}"
             fi
+          else
+            # Nothing is pushed on recovery, so the pull request proposes the
+            # branch exactly as it stands. Hold it to the rule a fresh proposal
+            # meets above: one commit on the base that changes only the log.
+            proposal_shape="$(gh api "repos/${GITHUB_REPOSITORY}/compare/${BASE_BRANCH}...${REMOTE_OID}" \
+              --jq '"\(.ahead_by) \([.files[].filename] | join(","))"')"
+            if [[ "$proposal_shape" != "1 public/transparency-log.json" ]]; then
+              echo "::error title=Refused::${PROPOSAL_BRANCH} at ${REMOTE_OID} is not one commit on ${BASE_BRANCH} that changes only the transparency log (${proposal_shape})"
+              exit 1
+            fi
           fi
 
           proposal_body="$RUNNER_TEMP/anchor-pr.md"
@@ -267,8 +277,9 @@ jobs:
           fi
           gh workflow run ci.yml --ref "$PROPOSAL_BRANCH" --repo "$GITHUB_REPOSITORY"
           # Validation still starts on the pushed branch, but a proposal no one
-          # can see is not published: the run is red, like every sibling
-          # proposal workflow, until the pull request exists.
+          # can see is not published: the run is red until the pull request
+          # exists. A refusal leaves the anchors on the branch, and a green run
+          # here would read as a published proposal.
           if [[ "$pr_refused" == "1" ]]; then
             exit 1
           fi
