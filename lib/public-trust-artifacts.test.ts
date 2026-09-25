@@ -140,7 +140,14 @@ test("the corrections process and the permalink promise name privacy replacement
   const correctionsPage = read("app/corrections/page.tsx");
   assert.match(correctionsPage, /active, corrected, superseded, withdrawn, or replaced for privacy/);
   assert.match(correctionsPage, /to remain available, except an original replaced for privacy, which is removed\./);
-  assert.match(read("docs/compatibility-promise.md"), /privacy replacement is the one removal of a report the corrections ledger\s+names/);
+  // The compatibility promise is an owner-approved text pinned by digest
+  // (RELEASE_READINESS.json compatibilitySurface), so it is not reworded here.
+  // Its permalink clause already covers a privacy replacement: the original
+  // honestly ceases to exist and the redacted copy appears under a NEW id.
+  assert.match(
+    read("docs/compatibility-promise.md"),
+    /either serves the same measurement or honestly ceases to\s+exist, and a corrected measurement always appears under a NEW id\./
+  );
   // Git history and archives keep the removed bytes, not only digests.
   assert.match(read("docs/corrections-ledger.md"), /Git history and archived releases keep the original's bytes/);
 });
