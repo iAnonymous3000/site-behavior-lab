@@ -6,7 +6,14 @@ import {
   collectFingerprintObservationsWithCoverage,
   fingerprintObserverInitScript
 } from "./fingerprint-observer";
-import { DETECTOR_VERSIONS } from "./measurement-kernel";
+import {
+  AUDIO_FINGERPRINT_APIS,
+  CANVAS_READ_APIS,
+  DETECTOR_VERSIONS,
+  FINGERPRINT_EVENT_APIS,
+  WEBGL_PARAMETERS,
+  WEBGL_READ_APIS
+} from "./measurement-kernel";
 import { isSingleSignalWebglDetection } from "./report-insights";
 import type { FingerprintDetectionSummary } from "./types";
 
@@ -1020,9 +1027,32 @@ async function withObservedPages(run: (runCase: (body: () => unknown) => Promise
   }
 }
 
+// v1 redaction generalizes, and the r2 builder refuses, any token outside the
+// kernel vocabulary, and neither runs inside a scan. Holding the tokens a real
+// observer emits to that vocabulary here ties the two halves together, rather
+// than two hand-typed copies of each token agreeing by construction.
+function assertKernelVocabulary(snapshot: ObserverSnapshot) {
+  const within = (values: readonly string[], vocabulary: readonly string[], label: string) => {
+    for (const value of values) assert.ok(vocabulary.includes(value), `${value} is not in ${label}`);
+  };
+  within(Object.keys(snapshot.events), FINGERPRINT_EVENT_APIS, "FINGERPRINT_EVENT_APIS");
+  for (const detection of snapshot.detections) {
+    if (detection.kind === "canvas-fingerprinting") {
+      within(detection.evidence.readApis, CANVAS_READ_APIS, "CANVAS_READ_APIS");
+    } else if (detection.kind === "webgl-fingerprinting") {
+      within(detection.evidence.readApis, WEBGL_READ_APIS, "WEBGL_READ_APIS");
+      within(detection.evidence.parameters, WEBGL_PARAMETERS, "WEBGL_PARAMETERS");
+    } else if (detection.kind === "audio-fingerprinting") {
+      within(detection.evidence.apis, AUDIO_FINGERPRINT_APIS, "AUDIO_FINGERPRINT_APIS");
+    }
+  }
+}
+
 function parseObserverSnapshot(raw: unknown): ObserverSnapshot {
   assert.equal(typeof raw, "string");
-  return JSON.parse(raw as string) as ObserverSnapshot;
+  const snapshot = JSON.parse(raw as string) as ObserverSnapshot;
+  assertKernelVocabulary(snapshot);
+  return snapshot;
 }
 
 test("fingerprintObserverInitScript flags canvas readback on an OffscreenCanvas 2D context in real Chromium", async () => {
