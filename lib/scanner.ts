@@ -3902,8 +3902,8 @@ export async function probeKeystrokeExfiltration(
 ): Promise<KeystrokeProbeOutcome> {
   // Every exit that leaves r2's keystroke detector other than complete adds a
   // v1 line its readers censor the keystroke claim for, since v1 has no
-  // detector ledger: this one, the unread-request line where the capture
-  // closes, and the scan's own lines for a lost subject or a deadline cancel.
+  // detector ledger: this one, the request-loss line where the capture closes,
+  // and the scan's own lines for a lost subject or a deadline cancel.
   if (MAX_SCAN_DURATION_MS - (Date.now() - started) < KEYSTROKE_PROBE_MIN_BUDGET_MS) {
     warnings.add(KEYSTROKE_PROBE_TEST_INCOMPLETE_WARNING);
     return { status: "partial", reason: "budget-unavailable", detection: null };
@@ -3933,6 +3933,12 @@ export async function probeKeystrokeExfiltration(
 
   page.on("request", onRequest);
   lifecycle.stopCapture = () => page.off("request", onRequest);
+  // The capture's loss count when the first keystroke was dispatched, taken in
+  // Node before the typing call, so no request the typing provoked can be
+  // counted ahead of it. A request the page started earlier whose event lands
+  // later counts as after it, which only errs toward the "may have carried"
+  // line. Held here rather than on `typed`, which a throw leaves unassigned.
+  const keystrokeDispatch = { captureLossBefore: null as number | null };
   let typed: { count: number; types: string[]; subjectLost: boolean; omittedCandidateCount: number; preventedFieldCount: number };
   // Disclosure must survive a mid-probe failure. Typing has already happened by
   // the time anything below can throw, and those requests stay in the retained
@@ -3957,6 +3963,9 @@ export async function probeKeystrokeExfiltration(
         isCancelled: () => lifecycle.cancelled,
         onTypedField: (count) => {
           lifecycle.typedFieldCount = count;
+        },
+        onKeystrokeDispatch: () => {
+          keystrokeDispatch.captureLossBefore ??= captured.captureLossCount;
         }
       }
     );
@@ -4006,12 +4015,20 @@ export async function probeKeystrokeExfiltration(
     // stopped navigation that may have carried the value, a request the
     // capture could not read, and one it cut or skipped at its bounds each
     // withhold the keystroke claim on r2 through the detector status; v1 has
-    // no detector ledger, and without this line it published the absence. A
-    // field is the other line's cause. Once cancelled, the scan-level handler
-    // has frozen the warnings and the incomplete-probe line already covers
-    // the probe.
+    // no detector ledger, and without a line it published the absence. The
+    // unread-request line says such a request may have carried the test
+    // value, which holds only for a loss after the first keystroke: the page
+    // has not seen the value before then. A loss with no keystroke after it
+    // takes the incomplete-test line, which holds with nothing typed. Once
+    // cancelled, the scan-level handler has frozen the warnings and the
+    // incomplete-probe line already covers the probe.
     if (!lifecycle.cancelled && captured.captureLossCount > 0) {
-      warnings.add(KEYSTROKE_PROBE_REQUEST_UNREAD_WARNING);
+      const lossBeforeKeystroke = keystrokeDispatch.captureLossBefore;
+      warnings.add(
+        lossBeforeKeystroke !== null && captured.captureLossCount > lossBeforeKeystroke
+          ? KEYSTROKE_PROBE_REQUEST_UNREAD_WARNING
+          : KEYSTROKE_PROBE_TEST_INCOMPLETE_WARNING
+      );
     }
   }
 
@@ -4064,6 +4081,8 @@ export async function typeSentinelIntoFields(
   lifecycle?: {
     isCancelled: () => boolean;
     onTypedField: (count: number) => void;
+    /** Called just before each typing call, whether or not the field keeps the value. */
+    onKeystrokeDispatch?: () => void;
   }
 ): Promise<{ count: number; types: string[]; subjectLost: boolean; omittedCandidateCount: number; preventedFieldCount: number }> {
   if (!sameScanSubjectUrl(page.url(), trustedSubjectUrl)) {
@@ -4141,6 +4160,7 @@ export async function typeSentinelIntoFields(
       if (lifecycle?.isCancelled()) {
         return { count, types, subjectLost: false, omittedCandidateCount: omittedCandidates(), preventedFieldCount };
       }
+      lifecycle?.onKeystrokeDispatch?.();
       await handle.type(sentinel, { delay: 1, timeout: stepTimeout() });
       // `type()` resolving only means the keystrokes were dispatched. A field
       // that is readonly, disabled mid-type, or that cancels every keydown

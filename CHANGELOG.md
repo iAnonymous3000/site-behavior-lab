@@ -93,7 +93,9 @@ public API or a 1.0 release.
   recorded site before or during it. v1 reports have no detector status. The
   scanner now adds one of two fixed warnings in each of the first five cases,
   an unread-request line for a request it stopped or could not read in full
-  and an incomplete-test line for the rest, and v1 readers treat the
+  after its first keystroke and an incomplete-test line for the rest (a
+  request lost before any keystroke included, since the page had not yet seen
+  the value), and v1 readers treat the
   keystroke claim, and only that claim, as incomplete for either line and for
   the existing lines that say the page left the recorded site before or during
   the probe. Request evidence, comparisons and the corpus population stay as v1

@@ -46,9 +46,11 @@ export const KEYSTROKE_PROBE_INCOMPLETE_WARNING =
  * keystroke detector ending `partial` (`scan-failed` for the first two,
  * `evidence-cap-reached` for the bounds) with a `keystroke-probe` or
  * `keystroke-probe-capture` detector-output loss; v1 has no detector ledger,
- * so this line is its only channel. v1 readers censor only the
- * keystroke-exfiltration claim for it: the request log and every other
- * detector product stand as measured. A stopped navigation's lost request
+ * so this line is its only channel. It is added only for a loss after the
+ * probe dispatched its first keystroke: the page has not seen the value
+ * before then, so an earlier loss takes KEYSTROKE_PROBE_TEST_INCOMPLETE_WARNING.
+ * v1 readers censor only the keystroke-exfiltration claim for it: the request
+ * log and every other detector product stand as measured. A stopped navigation's lost request
  * coverage has its own line, KEYSTROKE_PROBE_NAVIGATION_STOPPED_WARNING, and
  * a field the probe could not test is KEYSTROKE_PROBE_TEST_INCOMPLETE_WARNING.
  * It must never contain the incomplete-probe line's recognition fragment,
@@ -57,12 +59,14 @@ export const KEYSTROKE_PROBE_INCOMPLETE_WARNING =
 export const KEYSTROKE_PROBE_REQUEST_UNREAD_WARNING =
   "The synthetic form-input probe stopped, or could not read in full, one or more requests that may have carried its test value, so input-capture conclusions for this visit are incomplete.";
 /**
- * The probe did not complete its test for a cause other than a request: the
- * scan had too little time left to start it, a field it found was left
- * untested (past the candidate or typed-field bound, a type it does not type
- * into, a focus or blur that failed) or refused the value, or the probe's own
- * work threw. r2 records each as the keystroke detector ending other than
- * `complete` (skipped or partial with `budget-unavailable`, partial with
+ * The probe did not complete its test for a cause other than a request that
+ * may have carried its test value: the scan had too little time left to start
+ * it, a field it found was left untested (past the candidate or typed-field
+ * bound, a type it does not type into, a focus or blur that failed) or refused
+ * the value, the probe's own work threw, or it lost a request (in any of the
+ * unread-request line's ways) before its first keystroke, when the page had
+ * not seen the value. r2 records each as the keystroke detector ending other
+ * than `complete` (skipped or partial with `budget-unavailable`, partial with
  * `evidence-cap-reached` or `scan-failed`, failed with `scan-failed`) and a
  * `keystroke-probe` or `keystroke-probe-capture` detector-output loss. v1 has
  * no detector ledger, so this line is its only channel, and v1 readers censor

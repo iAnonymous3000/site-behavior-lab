@@ -5562,7 +5562,10 @@ test("a child-frame navigation the input probe aborts leaves the request log and
  * is left untested), `started` moves the scan's start (0 leaves no budget),
  * `afterType` runs once typing has emitted its requests, and `duringWait`
  * runs in place of the post-typing wait. Either hook can move the page off
- * the subject by assigning `location.url`.
+ * the subject by assigning `location.url`. `candidates` sets how many fields
+ * the lookup finds (default 1), `beforeTyping` lists requests the page emits
+ * during that lookup, before any keystroke, and `typeThrows` makes typing
+ * throw once its requests are out.
  */
 async function probeWithTypedRequests(
   requestsFor: (value: string) => unknown[],
@@ -5570,6 +5573,9 @@ async function probeWithTypedRequests(
     accepted?: boolean;
     fieldType?: string;
     started?: number;
+    candidates?: number;
+    beforeTyping?: readonly unknown[];
+    typeThrows?: boolean;
     afterType?: (lifecycle: KeystrokeProbeLifecycle, location: { url: string }) => void;
     duringWait?: (location: { url: string }, lifecycle: KeystrokeProbeLifecycle) => void;
   } = {}
@@ -5608,6 +5614,7 @@ async function probeWithTypedRequests(
         for (const listener of listeners) listener(request);
       }
       options.afterType?.(lifecycle, location);
+      if (options.typeThrows) throw new Error("element detached mid-type");
     },
     async dispose() {}
   };
@@ -5623,7 +5630,12 @@ async function probeWithTypedRequests(
       options.duringWait?.(location, lifecycle);
     },
     locator: () => ({
-      count: async () => 1,
+      count: async () => {
+        for (const request of options.beforeTyping ?? []) {
+          for (const listener of listeners) listener(request);
+        }
+        return options.candidates ?? 1;
+      },
       nth: () => ({
         async elementHandle() {
           return handle;
@@ -5874,6 +5886,82 @@ test("the probe discloses a request it could not read on every exit, not only on
   assert.equal(probeRequestUnreadLines(lostReadable.warnings), 0);
 });
 
+{
+  // Nothing the page sent before the first keystroke can carry a value the
+  // page has never seen, so the unread-request line ("requests that may have
+  // carried its test value") is false for a request lost there. r2 still ends
+  // the detector partial for the loss, so v1 keeps a keystroke-scoped line:
+  // the incomplete-test line, worded to hold when nothing was typed. A request
+  // lost once a keystroke was dispatched may have carried the value, whether
+  // the field then kept it, refused it, or the typing call threw.
+  const beacon = (overrides: Record<string, unknown> = {}) => ({
+    url: () => "https://beacon.example/collect",
+    postData: () => null,
+    isNavigationRequest: () => false,
+    redirectedFrom: () => null,
+    ...overrides
+  });
+  const longUrl = beacon({ url: () => `https://beacon.example/${"a".repeat(MAX_RECORDED_REQUEST_URL_CHARS)}` });
+  const unreadable = beacon({ postData: () => { throw new Error("unreadable body"); } });
+  const typedDisclosures = (warnings: readonly string[]) =>
+    warnings.filter((warning) => warning.includes("typed a synthetic test value")).length;
+  const cases: {
+    label: string;
+    typing: () => unknown[];
+    options: Parameters<typeof probeWithTypedRequests>[1];
+    reason: string;
+    typed: number;
+    unread: number;
+    testIncomplete: number;
+  }[] = [
+    // No keystroke was ever dispatched.
+    { label: "a URL past the capture bound and no fields", typing: () => [], options: { candidates: 0, beforeTyping: [longUrl] },
+      reason: "evidence-cap-reached", typed: 0, unread: 0, testIncomplete: 1 },
+    { label: "an unreadable body and no fields", typing: () => [], options: { candidates: 0, beforeTyping: [unreadable] },
+      reason: "scan-failed", typed: 0, unread: 0, testIncomplete: 1 },
+    { label: "a body past the capture bound and no fields", typing: () => [],
+      options: { candidates: 0, beforeTyping: [beacon({ postData: () => "x".repeat(MAX_CAPTURED_BODY_CHARS + 1) })] },
+      reason: "evidence-cap-reached", typed: 0, unread: 0, testIncomplete: 1 },
+    { label: "requests past the request bound and no fields", typing: () => [],
+      options: { candidates: 0, beforeTyping: Array.from({ length: MAX_PROBE_CAPTURED_REQUESTS + 1 }, () => beacon()) },
+      reason: "evidence-cap-reached", typed: 0, unread: 0, testIncomplete: 1 },
+    { label: "a URL past the capture bound and one untested field", typing: () => [],
+      options: { fieldType: "number", beforeTyping: [longUrl] },
+      reason: "evidence-cap-reached", typed: 0, unread: 0, testIncomplete: 1 },
+    // A field later kept the value, but the only loss came before it.
+    { label: "a URL past the capture bound before a field kept the value", typing: () => [beacon()],
+      options: { beforeTyping: [longUrl] },
+      reason: "evidence-cap-reached", typed: 1, unread: 0, testIncomplete: 1 },
+    // Losses from the first keystroke on.
+    { label: "a loss before typing and another during it", typing: () => [longUrl], options: { beforeTyping: [longUrl] },
+      reason: "evidence-cap-reached", typed: 1, unread: 1, testIncomplete: 0 },
+    { label: "an unreadable body while a field refused the value", typing: () => [unreadable], options: { accepted: false },
+      reason: "scan-failed", typed: 0, unread: 1, testIncomplete: 1 },
+    { label: "an unreadable body before typing threw", typing: () => [unreadable], options: { typeThrows: true },
+      reason: "scan-failed", typed: 0, unread: 1, testIncomplete: 1 },
+    // The first keystroke fixes the point, not the last: this loss comes
+    // before the second field's keystrokes and after the first's.
+    { label: "an unreadable body while typing the first of two fields",
+      typing: (() => {
+        let calls = 0;
+        return () => (calls++ === 0 ? [unreadable] : []);
+      })(),
+      options: { candidates: 2 },
+      reason: "scan-failed", typed: 1, unread: 1, testIncomplete: 0 }
+  ];
+  for (const { label, typing, options, reason, typed, unread, testIncomplete } of cases) {
+    test(`the probe's request-loss line after ${label}`, async () => {
+      const { outcome, warnings } = await probeWithTypedRequests(typing, options);
+      assert.ok(outcome.status === "partial");
+      assert.equal(outcome.reason, reason);
+      assert.equal(typedDisclosures(warnings), typed);
+      assert.equal(probeRequestUnreadLines(warnings), unread);
+      assert.equal(probeTestIncompleteLines(warnings), testIncomplete);
+      assert.equal(v1KeystrokeClaim(warnings, outcome.detection).allowed, false);
+    });
+  }
+}
+
 /** The keystroke-exfiltration claim a v1 report with these warnings publishes. */
 function v1KeystrokeClaim(warnings: readonly string[], detection: FingerprintDetectionSummary | null) {
   const input = makeScanReportV1() as ScanResult;
@@ -5936,6 +6024,14 @@ test("every input probe exit that leaves the keystroke detector incomplete censo
     [
       "requests past the capture's request bound",
       await probeWithTypedRequests(() => Array.from({ length: MAX_PROBE_CAPTURED_REQUESTS + 1 }, () => beacon("none"))),
+      []
+    ],
+    [
+      "a URL past the capture bound on a page with no fields",
+      await probeWithTypedRequests(() => [], {
+        candidates: 0,
+        beforeTyping: [beacon("", { url: () => `https://beacon.example/${"a".repeat(MAX_RECORDED_REQUEST_URL_CHARS)}` })]
+      }),
       []
     ],
     [

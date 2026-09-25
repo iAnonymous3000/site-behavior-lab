@@ -551,10 +551,11 @@ export function runHitKeystrokeProbeCaptureLoss(run: Pick<ScanResult, "warnings"
  * request that may have carried its test value. The r2 twin is the keystroke
  * detector's `partial` status (`scan-failed`, or `evidence-cap-reached` for a
  * request cut or skipped at the capture bounds) with its `keystroke-probe` or
- * `keystroke-probe-capture` capture loss. Readers censor only the keystroke
- * claim for it, and it never enters runRequestEvidenceCapped: a request the
- * probe could not read was sent and is in the log, where request censoring
- * would over-censor. A navigation the probe stopped is lost request coverage
+ * `keystroke-probe-capture` capture loss. The producer adds it only for a loss
+ * after the probe's first keystroke; an earlier one takes the incomplete-test
+ * line. Readers censor only the keystroke claim for it, and it never enters
+ * runRequestEvidenceCapped: a request the probe could not read was sent and is
+ * in the log, where request censoring would over-censor. A navigation the probe stopped is lost request coverage
  * too, carrying the value or not, and says so in its own line
  * (runHitKeystrokeProbeNavigationStopped).
  */
@@ -564,8 +565,9 @@ export function runHitKeystrokeProbeRequestUnread(run: Pick<ScanResult, "warning
 
 /**
  * Whether a legacy run's input probe did not complete its test for a cause
- * other than a request: too little time to start, a field left untested or
- * refusing the value, or the probe's own work throwing. The r2 twin is the
+ * other than a request that may have carried its test value: too little time
+ * to start, a field left untested or refusing the value, the probe's own work
+ * throwing, or a request it lost before its first keystroke. The r2 twin is the
  * keystroke detector ending other than `complete` with a `keystroke-probe` or
  * `keystroke-probe-capture` capture loss. Readers censor only the keystroke
  * claim for it: the probe's requests are in the log.

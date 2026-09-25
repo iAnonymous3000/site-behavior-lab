@@ -423,6 +423,23 @@ Still divergent, outside the keystroke claim and probe-stopped navigations:
   becomes a host marker the guard accepts), so this is r2 over-censoring and
   is left.
 
+**Update, 2026-09-25, on review.** The unread-request line says a request "may
+have carried its test value", which is false for a request the probe lost
+before its first keystroke: the page had not seen the value. Unreadable bodies
+already fired it there, and the capture-bound extension above widened the case
+to a URL or body past the bounds and to requests past the request bound,
+including on a page with no fields or only untested ones. The probe now takes
+the capture's loss count in Node just before its first typing call and adds
+the unread-request line only when the count grew after it; a loss with none
+after the first keystroke, or with no keystroke at all, takes the
+incomplete-test line, which holds with nothing typed. Both lines are scoped to
+the keystroke claim, so censoring does not move on either wire and no string
+or digest changes. A request the page started before typing whose event
+arrives after the snapshot still takes the unread line, which only says "may".
+A table in lib/scanner.test.ts covers the pre-keystroke cases (six failed at
+the parent) and the dispatched ones: a refused value, a typing call that
+threw, and a loss while typing the first of two fields.
+
 ## 5. Confirmed and left for other reasons
 
 - **The Dockerfile re-runs `npm run check` inside the image build** (about 16

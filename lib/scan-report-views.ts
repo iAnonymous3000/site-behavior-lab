@@ -634,8 +634,9 @@ export const LEGACY_KEYSTROKE_PROBE_REQUEST_UNREAD_REASON = "capture-loss:keystr
 
 /**
  * The legacy reason for a v1 input probe that did not complete its test for a
- * cause other than a request (no time to start, a field left untested or
- * refusing the value, the probe's own work throwing). Claim-scoped to the
+ * cause other than a request that may have carried its test value (no time to
+ * start, a field left untested or refusing the value, the probe's own work
+ * throwing, a request lost before its first keystroke). Claim-scoped to the
  * keystroke claim like the unread-request reason.
  */
 export const LEGACY_KEYSTROKE_PROBE_TEST_INCOMPLETE_REASON = "capture-loss:keystroke-probe-test-incomplete";
