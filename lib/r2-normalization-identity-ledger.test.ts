@@ -56,9 +56,9 @@ import {
  *   5. Only then update the two literals below to the new identity.
  */
 const ACTIVE_NODE_R2_NORMALIZATION_LITERAL =
-  "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:cb7064a154022024d8ffa25c110de6feff64f2b0ecbd375b14a24ff17105059d+tldts@7.4.13+node-evidence-policy-v1+r2-http-status-compat-v1";
+  "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:6ce6219dbd47d1ad22665b389eeec4640f7d5063cdfe879c005fd246004557aa+tldts@7.4.13+node-evidence-policy-v1+r2-http-status-compat-v1";
 const ACTIVE_PAGEGRAPH_R2_NORMALIZATION_LITERAL =
-  "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:cb7064a154022024d8ffa25c110de6feff64f2b0ecbd375b14a24ff17105059d+tldts@7.4.13+pagegraph-request-evidence-v1+r2-http-status-compat-v1";
+  "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:6ce6219dbd47d1ad22665b389eeec4640f7d5063cdfe879c005fd246004557aa+tldts@7.4.13+pagegraph-request-evidence-v1+r2-http-status-compat-v1";
 
 test("the active r2 normalization identities match their reviewed ledger literals", () => {
   assert.equal(

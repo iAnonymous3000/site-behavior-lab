@@ -45,6 +45,10 @@ const GPC_WORKER_CAPTURE_LOSS_WARNING_FRAGMENT = "Web Workers while applying the
 const FINGERPRINT_OBSERVER_WARNING_FRAGMENT = "in-page fingerprint observer could not read one or more frames";
 const FINGERPRINT_LISTENER_ATTRIBUTION_WARNING_FRAGMENT =
   "could not attribute every event listener to the script that registered it";
+// Not the tail: the listener-attribution line ends with the same "findings for
+// this visit are incomplete" clause, so each predicate would fire on the other.
+const LISTENER_DETECTION_WITHHELD_WARNING_FRAGMENT =
+  "input-monitoring detections were withheld from this report";
 const PIXEL_DECODE_WARNING_FRAGMENT =
   "recognized advertising-pixel request bodies could not be read in full";
 const KEYSTROKE_PROBE_INCOMPLETE_WARNING_FRAGMENT =
@@ -506,6 +510,17 @@ export function runHitFingerprintObserverCaptureLoss(run: Pick<ScanResult, "warn
  */
 export function runHitFingerprintListenerAttributionLoss(run: Pick<ScanResult, "warnings">): boolean {
   return run.warnings.some((warning) => warning.includes(FINGERPRINT_LISTENER_ATTRIBUTION_WARNING_FRAGMENT));
+}
+
+/**
+ * Whether the v1 sanitizer withheld a session-recording or input-monitoring
+ * detection because a script origin it named has no publishable registrable
+ * domain. The r2 twin is the `public-fingerprint-detections` capture loss.
+ * Readers censor only the listener claim for it: every other fingerprinting and
+ * detector-output product of the run was published as measured.
+ */
+export function runHitListenerDetectionWithheld(run: Pick<ScanResult, "warnings">): boolean {
+  return run.warnings.some((warning) => warning.includes(LISTENER_DETECTION_WITHHELD_WARNING_FRAGMENT));
 }
 
 /**

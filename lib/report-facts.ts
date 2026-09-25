@@ -33,6 +33,7 @@ import {
   displayRunView,
   familyCensoredOnRun,
   familyUnsupportedOnRun,
+  LEGACY_LISTENER_DETECTION_WITHHELD_REASON,
   requestEvidenceState,
   unsupportedEvidenceFamilies,
   type RequestEvidenceState,
@@ -253,6 +254,12 @@ type ClaimRequirement = {
    * present, known sibling losses can be excluded; unknown loss stays relevant.
    */
   familyDetails?: Partial<Record<EvidenceFamily, readonly string[]>>;
+  /**
+   * Frozen v1 has no loss ledger, so familyDetails cannot scope it. A listed
+   * v1 quality reason censors only this claim's state for that family; the
+   * family itself, and every sibling claim on it, stays as measured.
+   */
+  legacyReasons?: Partial<Record<EvidenceFamily, readonly string[]>>;
   optionalLegacyEvidence?: OptionalLegacyEvidence;
   detectors?: DetectorId[];
   count: "monotonic" | "snapshot" | "none";
@@ -277,6 +284,13 @@ export const REPORT_CLAIM_REQUIREMENTS: Readonly<Record<ReportClaimId, ClaimRequ
     families: ["detector-output"],
     familyDetails: {
       "detector-output": ["public-fingerprint-detections"]
+    },
+    // Not listed on keystroke-exfiltration, although r2's shared detail
+    // censors it: on v1 a keystroke recipient redacts to a host marker the
+    // guard accepts, so this path never withholds a keystroke detection, and
+    // the v1 line names only listener detections.
+    legacyReasons: {
+      "detector-output": [LEGACY_LISTENER_DETECTION_WITHHELD_REASON]
     },
     detectors: ["fingerprint-heuristics"],
     count: "none"
@@ -630,7 +644,7 @@ function claimEligibility(
   if (evidenceUnrecorded) blockers.add("evidence-unrecorded");
   if (!subject.describesSubject) blockers.add("subject-not-established");
   for (const family of requirement.families) {
-    const state = claimFamilyState(run, evidence, family, requirement.familyDetails?.[family]);
+    const state = claimFamilyState(run, evidence, family, requirement);
     if (state === "unsupported") blockers.add("family-unsupported");
     if (state === "censored") blockers.add("family-censored");
   }
@@ -643,7 +657,7 @@ function claimEligibility(
     blockers.add("detector-incomplete");
   }
   const familyStates = requirement.families.map((family) =>
-    claimFamilyState(run, evidence, family, requirement.familyDetails?.[family])
+    claimFamilyState(run, evidence, family, requirement)
   );
   const familyIncomplete = familyStates.some((state) => state !== "complete");
   const familyCensored = familyStates.some((state) => state === "censored");
@@ -690,12 +704,20 @@ function claimFamilyState(
   run: RunView,
   evidence: Record<EvidenceFamily, EvidenceFamilyFact>,
   family: EvidenceFamily,
-  details: readonly string[] | undefined
+  requirement: ClaimRequirement
 ): EvidenceState {
-  if (!details) return evidence[family].state;
-  // Frozen v1 has no causal loss ledger. Preserve its legacy family state;
-  // optional evidence omitted on that wire is handled separately above.
-  if (!run.quality.facts) return evidence[family].state;
+  const state = evidence[family].state;
+  // Frozen v1 has no causal loss ledger. Preserve its legacy family state; a
+  // legacy reason this claim names censors this claim alone. Optional evidence
+  // omitted on that wire is handled separately above.
+  if (!run.quality.facts) {
+    if (state !== "complete") return state;
+    return (requirement.legacyReasons?.[family] ?? []).some((reason) => run.quality.reasons.includes(reason))
+      ? "censored"
+      : state;
+  }
+  const details = requirement.familyDetails?.[family];
+  if (!details) return state;
   const losses = run.quality.facts.captureLoss.filter((loss) => loss.family === family);
   if (losses.length === 0) return evidence[family].state;
   return losses.some((loss) => captureLossAffectsScope(loss, details))

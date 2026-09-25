@@ -21,6 +21,7 @@ import {
   runHitGpcWorkerCaptureLoss,
   runHitInvalidUpstreamResponseCaptureLoss,
   runHitKeystrokeProbeCaptureLoss,
+  runHitListenerDetectionWithheld,
   runHitPixelDecodeCaptureLoss,
   runHitPageSubjectUnverified,
   runHitProxyTrafficBudget,
@@ -608,6 +609,14 @@ function runViewFromV2(run: ScanRunV2 | ScanRunV2R2, label: RunView["label"]): R
   };
 }
 
+/**
+ * The legacy reason for a v1 listener detection the sanitizer withheld. Named
+ * for the r2 capture-loss detail that records the same drop. It scopes to the
+ * listener claim alone (REPORT_CLAIM_REQUIREMENTS `legacyReasons`), never to
+ * a family through familyCensoredOnRun.
+ */
+export const LEGACY_LISTENER_DETECTION_WITHHELD_REASON = "capture-loss:public-fingerprint-detections";
+
 function runViewFromV1(result: ScanResult, label: RunView["label"], scannedAt: string | null): RunView {
   // v1 never recorded quality; derive the run-level outcome from the same
   // facts the interim gate uses (status, cap) and mark it legacy-derived so it
@@ -641,6 +650,10 @@ function runViewFromV1(result: ScanResult, label: RunView["label"], scannedAt: s
   }
   if (runHitPixelDecodeCaptureLoss(result)) reasons.push("capture-loss:pixel-decode");
   if (runHitKeystrokeProbeCaptureLoss(result)) reasons.push("capture-loss:keystroke-probe");
+  // Claim-scoped, deliberately absent from familyCensoredOnRun: the sanitizer
+  // withheld one listener detection and published every other fingerprinting
+  // and detector-output product as measured.
+  if (runHitListenerDetectionWithheld(result)) reasons.push(LEGACY_LISTENER_DETECTION_WITHHELD_REASON);
   return {
     label,
     domain: result.summary.firstPartyDomain,
@@ -1231,6 +1244,10 @@ export function familyCensoredOnRun(run: RunView, family: string): boolean {
   // A capture loss is narrower than an exhausted budget: it names the one
   // instrument that failed, so it censors only the families that instrument
   // feeds. A dead fingerprint observer says nothing about the request log.
+  // LEGACY_LISTENER_DETECTION_WITHHELD_REASON is not listed here on purpose:
+  // the family state applies to every claim of the family, so it would also
+  // censor the pixel, CNAME, consent, policy and keystroke claims. The listener
+  // claim takes it through its own `legacyReasons` in report-facts.
   if (
     (family === "fingerprinting" || family === "detector-output") &&
     run.quality.reasons.includes("capture-loss:fingerprint-observer")

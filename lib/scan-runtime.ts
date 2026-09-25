@@ -64,6 +64,21 @@ export const FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING =
 export const FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING =
   "The in-page fingerprint observer read every frame but could not attribute every event listener to the script that registered it, so session-recording and input-monitoring findings for this visit are incomplete.";
 /**
+ * The v1 sanitizer withheld a session-recording or input-monitoring detection
+ * because a script origin it named redacted to the invalid-URL marker (a
+ * path-style S3 host, a bare-IP CDN, a host that is itself a public suffix, a
+ * special-use suffix), which the shared detection guard refuses. Naming the
+ * origin is that detection's evidence, so nothing honest is left to publish.
+ *
+ * r2 records the same drop as a `detector-output` capture loss with detail
+ * `public-fingerprint-detections`; v1 has no quality block, so this line is
+ * its only channel. v1 readers censor only the listener claim for it, not the
+ * fingerprinting or detector-output family. It must never contain the
+ * listener-attribution line's recognition fragment (the two share a tail).
+ */
+export const LISTENER_DETECTION_WITHHELD_WARNING =
+  "One or more session-recording or input-monitoring detections were withheld from this report because a script origin they named has no publishable registrable domain, so session-recording and input-monitoring findings for this visit are incomplete.";
+/**
  * A recognized advertising-pixel request carried a body that the scanner
  * could not read or interpret completely. v2 records the same fact in the
  * `detector-output` capture-loss ledger; v1 needs this stable warning so its

@@ -5,6 +5,7 @@ import {
   NODE_SCANNER_METHODOLOGY_VERSION
 } from "./legacy-methodology";
 import { buildScanConditions, buildScanResult } from "./scan-result-builder";
+import { LISTENER_DETECTION_WITHHELD_WARNING } from "./scan-runtime";
 import type { NetworkRequestRecord, ScanConditions } from "./types";
 
 test("buildScanConditions owns producer profiles, disclosure text, and nested metadata", () => {
@@ -255,6 +256,47 @@ test("buildScanResult is the default-deny public seam after matching and classif
   assert.equal(result.cookies[0].name, "[redacted]");
   assert.equal(result.cookies[0].path, "/{seg}/{seg}");
   assert.equal(result.storage[0].key, "[redacted]");
+});
+
+test("buildScanResult discloses a withheld listener detection without touching the caller's warnings", () => {
+  // The scanner hands the same warnings.list to the r2 measurement and to this
+  // builder, and the r2 report is built later from that measurement. Appending
+  // the v1 line in place would leak it into the r2 wire, which records the
+  // same drop as a capture loss instead.
+  const warnings = ["The page did not reach network idle before the scan window ended."];
+  const result = buildScanResult({
+    pageTitle: "",
+    status: 200,
+    durationMs: 1,
+    firstPartyDomain: "example.com",
+    conditions: makeConditions(),
+    requests: [],
+    cookies: [],
+    storage: [],
+    fingerprintDetections: [
+      {
+        kind: "session-recording",
+        heuristic: "interaction-listener-coverage-v1",
+        count: 1,
+        evidence: {
+          eventTypes: ["mousemove", "click", "scroll"],
+          listenerTargets: ["document"],
+          thirdPartyOrigins: ["https://s3.us-east-1.amazonaws.com"],
+          totalListenerCalls: 3
+        }
+      }
+    ],
+    fingerprintEvents: [],
+    screenshot: null,
+    warnings
+  });
+
+  assert.deepEqual(result.fingerprintDetections, []);
+  assert.deepEqual(result.warnings, [
+    "The page did not reach network idle before the scan window ended.",
+    LISTENER_DETECTION_WITHHELD_WARNING
+  ]);
+  assert.deepEqual(warnings, ["The page did not reach network idle before the scan window ended."]);
 });
 
 function requestRecord({

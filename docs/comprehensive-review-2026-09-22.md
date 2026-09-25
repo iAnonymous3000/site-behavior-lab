@@ -248,6 +248,27 @@ changes, so the r2 methodology component moves to `consent-r2-v5` with this
 epoch's identity bookkeeping. A read that could not read any frame already
 recorded nothing and still records no loss; that is left as it was.
 
+**Update, 2026-09-24.** The v1 sanitizer row is fixed as a vocabulary widening.
+When redaction refuses a session-recording or input-monitoring detection (an
+origin it names redacts to the invalid-URL marker), the sanitizer still drops
+the whole detection, as r2 does, and now appends one fixed warning,
+`LISTENER_DETECTION_WITHHELD_WARNING`, to a new array, so the r2 measurement
+that shares the scanner's warning list never carries it. A malformed detection
+of any other kind still drops silently, since it is not this cause. v1 readers
+map the line to the legacy reason `capture-loss:public-fingerprint-detections`,
+named for the r2 detail, and a claim-level `legacyReasons` field censors the
+listener claim alone: the fingerprinting and detector-output families, every
+sibling claim and every corpus population stay as measured. Unlike r2's shared
+detail, it does not censor keystroke exfiltration, because a v1 keystroke
+recipient redacts to a host marker the guard accepts. The admitted string moves
+the public-string policy digest from `cb7064a1...059d` to `6ce6219d...57aa`,
+and with it both r2 normalization identities; the `dynamicWarningPatterns`
+label and its source pin do not move. The outgoing normalizations and producer
+rows are closed with this epoch's identity bookkeeping. Re-sanitizing all 919
+committed v1 reports leaves each one byte-identical and adds the line to none.
+Reports whose listener detection was dropped at scan time cannot be
+identified, because raw evidence is not retained, so they stay undisclosed.
+
 ## 5. Confirmed and left for other reasons
 
 - **The Dockerfile re-runs `npm run check` inside the image build** (about 16

@@ -92,6 +92,17 @@ public API or a 1.0 release.
   consent. Such a moment is now left out and recorded as lost consent
   verification in its phase; without the after-click moment the choice state
   is unavailable.
+- A v1 report dropped a session-recording or input-monitoring detection without
+  a trace when a script origin it named had no publishable registrable domain
+  (a path-style S3 host, a bare IP address, a host that is itself a public
+  suffix), and then stated that no listener signals were observed. The v1
+  sanitizer now adds a fixed warning when it withholds such a detection, and v1
+  readers treat the listener claim, and only that claim, as incomplete, as r2
+  already did through its capture-loss record. The new admitted warning moves
+  the public-string policy digest and both r2 normalization identities; the
+  outgoing ones are closed with this release's identity bookkeeping. No
+  committed report changes. Reports whose detection was dropped before this
+  change cannot be identified, because raw evidence is not retained.
 
 ## [0.6.0] - 2026-09-06
 

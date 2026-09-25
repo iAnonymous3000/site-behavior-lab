@@ -16,6 +16,7 @@ import {
   redactPixelEvents,
   redactScanReportV1,
   redactScanResultV1,
+  redactScannerWarnings,
   redactTrackerMatch,
   RedactionPass
 } from "./redact-scan-report-v1";
@@ -26,6 +27,7 @@ import {
   FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING,
   INVALID_UPSTREAM_RESPONSE_WARNING,
   KEYSTROKE_PROBE_INCOMPLETE_WARNING,
+  LISTENER_DETECTION_WITHHELD_WARNING,
   PIXEL_DECODE_CAPTURE_LOSS_WARNING,
   UNSETTLED_ROUTED_REQUEST_WARNING
 } from "./scan-runtime";
@@ -33,7 +35,7 @@ import { readStoredScanReport } from "./scan-report-reader";
 import { makeScanReportV1 } from "./scan-report-v2-fixtures";
 import { canonicalTrackerCatalogContents, findTrackerMatch } from "./tracker-catalog";
 import { redactHostnameV2 } from "./redaction-v2";
-import type { ScanResult } from "./types";
+import type { FingerprintDetectionSummary, ScanResult } from "./types";
 
 const TOKEN_HOST = "a8f3c9d2e1b4f6a7.google-analytics.com";
 
@@ -601,8 +603,109 @@ test("legacy fingerprint sanitization drops detections that become structurally 
   const first = redactScanResultV1(input).report;
   const second = redactScanResultV1(first).report;
   assert.equal(first.fingerprintDetections?.length, 2, "only the two valid original detections remain");
+  // The withheld alice.internal listener detection is disclosed; the malformed
+  // audio detection beside it is not the named cause and adds nothing.
+  assert.equal(first.warnings.filter((warning) => warning === LISTENER_DETECTION_WITHHELD_WARNING).length, 1);
   assert.equal(readStoredScanReport(first).ok, true);
   assert.equal(JSON.stringify(second), JSON.stringify(first));
+});
+
+function listenerDetection(
+  kind: "session-recording" | "input-monitoring",
+  thirdPartyOrigins: string[]
+): FingerprintDetectionSummary {
+  return kind === "session-recording"
+    ? {
+        kind,
+        heuristic: "interaction-listener-coverage-v1",
+        count: 1,
+        evidence: { eventTypes: ["mousemove"], listenerTargets: ["document"], thirdPartyOrigins, totalListenerCalls: 3 }
+      }
+    : {
+        kind,
+        heuristic: "input-listener-coverage-v1",
+        count: 1,
+        evidence: { eventTypes: ["input"], listenerTargets: ["document"], thirdPartyOrigins, totalListenerCalls: 3 }
+      };
+}
+
+test("a listener detection with an unpublishable script origin is withheld with a fixed disclosure", () => {
+  // Redaction turns an origin with no publishable registrable domain into the
+  // invalid-URL marker and the shared guard refuses the detection, because
+  // naming the origin is its evidence. r2 records that drop as a
+  // public-fingerprint-detections capture loss. v1 has no quality block, so the
+  // detection used to vanish with no trace and the reader then printed an
+  // unhedged "no listener signals" absence.
+  const sanitize = (detections: FingerprintDetectionSummary[]): ScanResult => {
+    const input = makeScanReportV1() as ScanResult;
+    input.fingerprintDetections = detections;
+    input.warnings = [];
+    const first = redactScanResultV1(input).report;
+    const second = redactScanResultV1(first).report;
+    assert.equal(JSON.stringify(second), JSON.stringify(first), "a second pass is byte-identical");
+    assert.equal(readStoredScanReport(first).ok, true);
+    return first;
+  };
+  const lines = (report: ScanResult) =>
+    report.warnings.filter((warning) => warning === LISTENER_DETECTION_WITHHELD_WARNING).length;
+
+  for (const origin of [
+    "https://s3.us-east-1.amazonaws.com",
+    "https://93.184.216.34",
+    "https://web.app",
+    "https://alice.internal"
+  ]) {
+    for (const kind of ["session-recording", "input-monitoring"] as const) {
+      const report = sanitize([listenerDetection(kind, [origin])]);
+      assert.deepEqual(report.fingerprintDetections, [], `${kind} ${origin}`);
+      assert.deepEqual(report.warnings, [LISTENER_DETECTION_WITHHELD_WARNING], `${kind} ${origin}`);
+    }
+    const both = sanitize([
+      listenerDetection("session-recording", [origin]),
+      listenerDetection("input-monitoring", [origin])
+    ]);
+    assert.deepEqual(both.fingerprintDetections, [], origin);
+    assert.equal(lines(both), 1, `${origin}: two withheld detections publish the line once`);
+  }
+
+  // One unpublishable origin withholds the whole detection, publishable origin
+  // included, exactly as r2 drops it.
+  const mixed = sanitize([
+    listenerDetection("session-recording", ["https://cdn.example.com", "https://s3.us-east-1.amazonaws.com"])
+  ]);
+  assert.deepEqual(mixed.fingerprintDetections, []);
+  assert.deepEqual(mixed.warnings, [LISTENER_DETECTION_WITHHELD_WARNING]);
+
+  // Inverses: a publishable origin keeps the detection with no line, and a
+  // malformed non-listener detection is not this cause and stays silent.
+  const kept = sanitize([listenerDetection("session-recording", ["https://cdn.example.com"])]);
+  assert.equal(kept.fingerprintDetections?.length, 1);
+  assert.deepEqual(kept.warnings, []);
+  const audio = sanitize([
+    {
+      kind: "audio-fingerprinting",
+      heuristic: "audio-rendering-v1",
+      count: 1,
+      evidence: {
+        apis: ["AlicePrivateAudio"],
+        offlineRenderCalls: 1,
+        oscillatorCalls: 1,
+        compressorCalls: 1,
+        analyserCalls: 1
+      }
+    }
+  ]);
+  assert.deepEqual(audio.fingerprintDetections, []);
+  assert.deepEqual(audio.warnings, []);
+});
+
+test("the withheld-listener disclosure is admitted alone and under a comparison label", () => {
+  assert.deepEqual(redactScannerWarnings([LISTENER_DETECTION_WITHHELD_WARNING], new RedactionPass()), [
+    LISTENER_DETECTION_WITHHELD_WARNING
+  ]);
+  assert.deepEqual(redactScannerWarnings([`GPC off: ${LISTENER_DETECTION_WITHHELD_WARNING}`], new RedactionPass()), [
+    `GPC off: ${LISTENER_DETECTION_WITHHELD_WARNING}`
+  ]);
 });
 
 test("the HTTP status disclosure survives for the full three-digit grammar the producer can emit", () => {

@@ -37,6 +37,7 @@ import { trackerCatalogMetadata } from "./tracker-catalog";
 import { findTrackerMatch } from "./tracker-catalog";
 import { publicReportDigest } from "./canonical-json";
 import { redactPublicScanReportV2R2 } from "./scan-report-v2-r2-remediation";
+import { LISTENER_DETECTION_WITHHELD_WARNING } from "./scan-runtime";
 import { prepareScanReportBundle } from "./report-store";
 
 const BUILD_COMMIT_ENV = "SITE_BEHAVIOR_LAB_BUILD_COMMIT";
@@ -1843,6 +1844,9 @@ test("a listener-coverage origin with no publishable domain drops the detection 
     );
     assert.equal(loss.length, 1, `${origin} must record exactly one dropped-detection loss`);
     assert.equal(loss[0].count, 1);
+    // The loss record is r2's disclosure. The v1 sanitizer's fixed line for
+    // the same drop belongs to the v1 wire only.
+    assert.equal(report.run.warnings.includes(LISTENER_DETECTION_WITHHELD_WARNING), false);
   }
 });
 

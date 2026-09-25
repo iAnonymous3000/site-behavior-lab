@@ -23,6 +23,7 @@ import {
 } from "./legacy-methodology";
 import {
   familyCensoredOnRun,
+  LEGACY_LISTENER_DETECTION_WITHHELD_REASON,
   requestEvidenceState,
   runHitRequestRecordingCap,
   viewFromV1Report,
@@ -33,16 +34,19 @@ import { evaluateQuality } from "./scan-report-v2-evaluators";
 import {
   runHitFingerprintListenerAttributionLoss,
   runHitFingerprintObserverCaptureLoss,
+  runHitListenerDetectionWithheld,
   runRequestEvidenceCapped
 } from "./comparison-eligibility";
 import { createCorpusStatsAccumulator } from "./corpus-stats-builder";
 import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "./gpc-injection";
 import { buildReportFacts } from "./report-facts";
+import { redactScanResultV1 } from "./redact-scan-report-v1";
 import {
   FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING,
   FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING,
   INVALID_UPSTREAM_RESPONSE_WARNING,
   KEYSTROKE_PROBE_INCOMPLETE_WARNING,
+  LISTENER_DETECTION_WITHHELD_WARNING,
   PIXEL_DECODE_CAPTURE_LOSS_WARNING,
   UNSETTLED_ROUTED_REQUEST_WARNING
 } from "./scan-runtime";
@@ -426,6 +430,93 @@ test("a v1 listener-attribution line censors fingerprinting exactly as the unrea
   assert.doesNotMatch(listenerNotes, /could not read every frame/);
   assert.match(listenerNotes, /could not attribute every event listener/);
   assert.doesNotMatch(listenerNotes, /capture-loss:/);
+});
+
+test("a v1 withheld listener detection censors the listener claim and nothing else", () => {
+  // The line shares its tail with the listener-attribution line, so each
+  // predicate must recognize only its own line.
+  assert.equal(runHitListenerDetectionWithheld({ warnings: [LISTENER_DETECTION_WITHHELD_WARNING] }), true);
+  assert.equal(runHitListenerDetectionWithheld({ warnings: [FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING] }), false);
+  assert.equal(runHitListenerDetectionWithheld({ warnings: [FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING] }), false);
+  assert.equal(runHitFingerprintListenerAttributionLoss({ warnings: [LISTENER_DETECTION_WITHHELD_WARNING] }), false);
+  assert.equal(runHitFingerprintObserverCaptureLoss({ warnings: [LISTENER_DETECTION_WITHHELD_WARNING] }), false);
+
+  // Both runs go through the real sanitizer, view, facts and corpus
+  // accumulator. The only difference is one listener detection whose script
+  // origin (path-style S3) has no publishable registrable domain.
+  const outcome = (withheld: boolean) => {
+    const input = makeScanReportV1() as ScanResult;
+    input.summary.firstPartyDomain = "listener-fixture.net";
+    input.conditions.requestedUrl = "https://listener-fixture.net/";
+    input.conditions.finalUrl = "https://listener-fixture.net/";
+    input.summary.fingerprintEvents = 4;
+    input.fingerprintEvents = [{ api: "canvas.toDataURL", count: 4 }];
+    input.fingerprintDetections = withheld
+      ? [
+          {
+            kind: "session-recording",
+            heuristic: "interaction-listener-coverage-v1",
+            count: 1,
+            evidence: {
+              eventTypes: ["mousemove", "click", "scroll"],
+              listenerTargets: ["document"],
+              thirdPartyOrigins: ["https://s3.us-east-1.amazonaws.com"],
+              totalListenerCalls: 3
+            }
+          }
+        ]
+      : [];
+    input.pixelEvents = [];
+    input.cnameCloaks = [];
+    const report = redactScanResultV1(input).report;
+    const view = viewFromV1Report(report);
+    const run = view.runs[0];
+    const facts = buildReportFacts(view).display;
+    const corpus = createCorpusStatsAccumulator(new Date("2026-09-24T00:00:00.000Z"));
+    corpus.add(`20260709-${"f".repeat(32)}`, view);
+    return {
+      view,
+      run,
+      facts,
+      censored: ["requests", "cookies", "storage", "fingerprinting", "detector-output"].map((family) =>
+        familyCensoredOnRun(run, family as Parameters<typeof familyCensoredOnRun>[1])
+      ),
+      cohorts: corpus.finish().cohorts
+    };
+  };
+  const clean = outcome(false);
+  const withheld = outcome(true);
+
+  assert.deepEqual(clean.run.quality.reasons, []);
+  assert.deepEqual(withheld.run.quality.reasons, [LEGACY_LISTENER_DETECTION_WITHHELD_REASON]);
+  assert.equal(withheld.run.quality.outcome, "complete");
+
+  const listener = withheld.facts.claims["session-recording-input-monitoring"];
+  assert.equal(clean.facts.claims["session-recording-input-monitoring"].allowed, true);
+  assert.equal(listener.allowed, false);
+  assert.deepEqual(listener.blockers, ["family-censored"]);
+  // Every other claim, keystroke exfiltration included, reads as measured:
+  // on v1 a keystroke recipient redacts to a host marker the guard accepts,
+  // so this path never withholds a keystroke detection.
+  for (const claim of Object.keys(clean.facts.claims) as (keyof typeof clean.facts.claims)[]) {
+    if (claim === "session-recording-input-monitoring") continue;
+    assert.deepEqual(withheld.facts.claims[claim], clean.facts.claims[claim], claim);
+  }
+  assert.deepEqual(withheld.facts.evidence, clean.facts.evidence);
+  assert.deepEqual(withheld.censored, clean.censored);
+  assert.deepEqual(withheld.censored, [false, false, false, false, false]);
+
+  // The corpus population is unchanged: fingerprintEvents and request counts
+  // still admit the run.
+  assert.deepEqual(withheld.cohorts, clean.cohorts);
+  assert.equal(withheld.cohorts[0]?.metrics.fingerprintEvents?.count, 1);
+  assert.equal(withheld.cohorts[0]?.metrics.thirdPartyRequests?.count, 1);
+
+  const notes = runCensorshipNotes(withheld.run).join(" ");
+  assert.match(notes, /named a script origin with no publishable registrable domain/);
+  assert.doesNotMatch(notes, /capture-loss:/);
+  assert.equal(degradedRunNotice(clean.view), null);
+  assert.notEqual(degradedRunNotice(withheld.view), null);
 });
 
 test("a timed-out v1 synthetic-input probe censors detector and request evidence", () => {

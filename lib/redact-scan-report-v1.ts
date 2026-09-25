@@ -49,6 +49,7 @@ import {
   FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING,
   INVALID_UPSTREAM_RESPONSE_WARNING,
   KEYSTROKE_PROBE_INCOMPLETE_WARNING,
+  LISTENER_DETECTION_WITHHELD_WARNING,
   PIXEL_DECODE_CAPTURE_LOSS_WARNING,
   UNSETTLED_ROUTED_REQUEST_WARNING
 } from "./scan-runtime";
@@ -349,6 +350,9 @@ const FIXED_SCANNER_WARNINGS = new Set([
   // fingerprint-observer@4: every frame read, listener attribution bounded.
   // Admitted beside the frame warning, which stays for unreadable frames.
   FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING,
+  // Emitted by this sanitizer, not the scanner: a listener detection whose
+  // script origin has no publishable registrable domain was withheld.
+  LISTENER_DETECTION_WITHHELD_WARNING,
   KEYSTROKE_PROBE_INCOMPLETE_WARNING,
   PIXEL_DECODE_CAPTURE_LOSS_WARNING,
   GPC_WORKER_CAPTURE_LOSS_WARNING,
@@ -509,8 +513,17 @@ export function redactScanResultV1(result: ScanResult): RedactedV1<ScanResult> {
   const cookies = result.cookies.map((cookie) => redactCookie(cookie, pass));
   const storage = result.storage.map((entry) => redactStorage(entry, pass));
   const fingerprintEvents = redactFingerprintEvents(result.fingerprintEvents);
+  // A refused listener detection is evidence loss, not a filter: r2 records it
+  // as a public-fingerprint-detections capture loss, and v1's only channel is a
+  // fixed warning. Only the two listener kinds can name an origin that redacts
+  // to the invalid-URL marker; any other refusal is malformed input and is not
+  // this cause.
+  let listenerDetectionWithheld = false;
   const fingerprintDetections = result.fingerprintDetections?.flatMap((detection) => {
     const redacted = redactFingerprintDetection(detection, pass);
+    if (redacted === null && (detection.kind === "session-recording" || detection.kind === "input-monitoring")) {
+      listenerDetectionWithheld = true;
+    }
     return redacted === null ? [] : [redacted];
   });
   const cnameCloaks = result.cnameCloaks?.flatMap((cloak) => {
@@ -568,7 +581,12 @@ export function redactScanResultV1(result: ScanResult): RedactedV1<ScanResult> {
     // The immediate result may intentionally retain a screenshot for the
     // submitter. Persistence/export projectors strip it at their own boundary.
     screenshot: result.screenshot,
-    warnings: redactScannerWarnings(result.warnings, pass),
+    // A new array, never a push: the scanner hands this same list to the r2
+    // measurement, which records the drop as a capture loss instead.
+    warnings: redactScannerWarnings(
+      listenerDetectionWithheld ? [...result.warnings, LISTENER_DETECTION_WITHHELD_WARNING] : result.warnings,
+      pass
+    ),
     ...copyValidatedShare(result.share)
   };
 

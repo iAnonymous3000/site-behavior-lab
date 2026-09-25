@@ -34,7 +34,11 @@ const QUALITY_REASON_NOTES: Record<string, string> = {
   "capture-loss:unsettled-routed-requests":
     "the scan deadline arrived while one or more requests were still being handled, so the request evidence is incomplete",
   "capture-loss:page-subject-validity":
-    "the bounded page-content collector was unavailable or unreadable, so the scanner could not verify the rendered document"
+    "the bounded page-content collector was unavailable or unreadable, so the scanner could not verify the rendered document",
+  // v1 only (LEGACY_LISTENER_DETECTION_WITHHELD_REASON). r2 reports the same
+  // drop as a capture-loss detail, never as this reason.
+  "capture-loss:public-fingerprint-detections":
+    "a session-recording or input-monitoring detection named a script origin with no publishable registrable domain and was withheld, so session-recording and input-monitoring findings are incomplete"
 };
 
 const FINGERPRINT_LISTENER_ATTRIBUTION_NOTE =
