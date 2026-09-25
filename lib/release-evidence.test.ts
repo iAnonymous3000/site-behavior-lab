@@ -2070,6 +2070,20 @@ test("the validator bounds the handoff attempt to this run and no later than thi
     const context = await attestContext(t, { handoffAttempt, currentAttempt: "2" });
     refuse(context, context.env, malformed, `handoff attempt ${JSON.stringify(handoffAttempt)}`);
   }
+  // The bound is 1 through 100 for both attempts, not any canonical integer:
+  // 100 itself is accepted, and 101 is refused on either side.
+  {
+    const context = await attestContext(t, { handoffAttempt: "100", currentAttempt: "100" });
+    const accepted = runValidator(controller, context);
+    assert.equal(accepted.status, 0, `handoff 100 in attempt 100: ${accepted.stderr}${accepted.stdout}`);
+  }
+  for (const [handoffAttempt, currentAttempt] of [
+    ["101", "101"],
+    ["1", "101"]
+  ]) {
+    const context = await attestContext(t, { handoffAttempt, currentAttempt });
+    refuse(context, context.env, malformed, `handoff ${handoffAttempt} in attempt ${currentAttempt}`);
+  }
   // This job's own attempt is held to the same spelling: Number("02") would
   // otherwise bound the handoff as if it were 2.
   {
@@ -2467,6 +2481,13 @@ test("the tag preflight requires an absent ref whenever the attestation was mint
     ["2", "", "404", false],
     ["2", "01", "404", false],
     ["01", "1", "200", false],
+    // Both are bounded to 1 through 100, not any canonical integer. Bash
+    // integers wrap, so without the bound 2^64 + 1 compares as attempt 1 and
+    // would pass as an earlier attestation.
+    ["100", "100", "404", true],
+    ["101", "101", "404", false],
+    ["101", "1", "200", false],
+    ["2", "18446744073709551617", "200", false],
     // The existing transport rule still refuses everything but 200 and 404.
     ["2", "1", "500", false]
   ];
