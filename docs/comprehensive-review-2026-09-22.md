@@ -525,12 +525,12 @@ in `lib/scan-runtime.ts`, added beside its r2 loss and after it:
 - `AUXILIARY_PAGE_REQUESTS_BLOCKED_WARNING`, beside the context route's
   dropped requests-family loss, under the same `measuringRequests` guard. v1
   readers map it to `capture-loss:auxiliary-page-requests-blocked` and read it
-  like an unsettled routed request. Measured before wording it: with service
-  workers blocked, only pages the visit opened reach that route (`window.open`
-  and `target=_blank`, `noopener` included). Dedicated workers, a
-  `SharedWorker`'s script, iframes, prefetch, preload and beacons go through
-  the page route. Speculation-rules prefetch and prerender reached neither
-  route in the same check; that is noted here and not addressed. On a fixture that opens a popup during the load, v1 allowed
+  like an unsettled routed request. The wording rests on what reaches that
+  route, measured through the scanner with GPC on and off: a dedicated
+  worker's fetch and import, a `SharedWorker`'s script, an iframe and its
+  fetch, prefetch, preload, a beacon and a keepalive fetch all go through the
+  page route, and a browser test holds that none of them adds the line; a
+  window the page opens reaches the context route. On a fixture that opens a popup during the load, v1 allowed
   third-party services (benchmarked), named platforms, GA remarketing, the
   consent banner and Shields.
 

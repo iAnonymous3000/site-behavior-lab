@@ -5760,6 +5760,86 @@ test("a page that opened a new window withholds on v1 each claim r2 withholds fo
   }
 });
 
+test("a page's own workers, frames and beacons never reach the auxiliary-page route", { timeout: 60_000 }, async () => {
+  // The auxiliary-page line says the page opened a window, which is true only
+  // if nothing else the page does reaches the context route. Service workers
+  // are blocked; every other request path of the page itself must stay on the
+  // page route, with GPC and its worker instrumentation on and off.
+  const reached: string[] = [];
+  const upstream = createServer((request, response) => {
+    reached.push(request.url ?? "");
+    if (request.url === "/worker.js") {
+      response.writeHead(200, { "content-type": "text/javascript" });
+      response.end("fetch('/from-worker').catch(() => undefined); importScripts('/imported.js');");
+      return;
+    }
+    if (request.url === "/shared.js" || request.url === "/imported.js") {
+      response.writeHead(200, { "content-type": "text/javascript" });
+      response.end("void 0;");
+      return;
+    }
+    if (request.url === "/frame") {
+      response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+      response.end("<!doctype html><title>Frame</title><script>fetch('/from-frame').catch(() => undefined);</script>");
+      return;
+    }
+    if (request.url !== "/") {
+      response.writeHead(204);
+      response.end();
+      return;
+    }
+    response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+    response.end(`<!doctype html>
+      <title>Own requests origin</title>
+      <link rel="prefetch" href="/prefetched">
+      <link rel="preload" as="script" href="/preloaded.js">
+      <iframe src="/frame"></iframe>
+      <script>
+        new Worker("/worker.js");
+        new SharedWorker("/shared.js");
+        navigator.sendBeacon("/beacon");
+        fetch("/keepalive", { method: "POST", keepalive: true, body: "x" }).catch(() => undefined);
+      </script>`);
+  });
+  await new Promise<void>((resolve, reject) => {
+    upstream.once("error", reject);
+    upstream.listen(0, "127.0.0.1", resolve);
+  });
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+  try {
+    for (const gpcEnabled of [true, false]) {
+      reached.length = 0;
+      const { result, measurement } = await scanSiteWithMeasurement(
+        { url: "http://www.own-requests.com/", device: "desktop", gpcEnabled, consentMode: "observe" },
+        { publicUrlAlreadyVerified: true, verifyPublicUrl: async () => undefined,
+          resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+          connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"), resolveCnameChain: async () => [] }
+      );
+      assert.ok(measurement);
+      const label = `gpc ${gpcEnabled ? "on" : "off"}`;
+      // Each path ran, so its request had a route to go through.
+      for (const path of ["/from-worker", "/imported.js", "/shared.js", "/frame", "/from-frame", "/beacon", "/keepalive", "/prefetched", "/preloaded.js"]) {
+        assert.ok(reached.includes(path), `${label}: ${path}`);
+      }
+      assert.equal(result.warnings.includes(AUXILIARY_PAGE_REQUESTS_BLOCKED_WARNING), false, label);
+      // The context route attributes each loss to the phase it arrived in. A
+      // worker the GPC instrumentation could not verify is its own request
+      // loss, with its own line, recorded without a phase.
+      assert.deepEqual(
+        measurement.measurement.qualityFacts.captureLoss.filter((loss) =>
+          loss.family === "requests" && loss.kind === "dropped" && loss.phaseId !== null
+        ),
+        [],
+        label
+      );
+    }
+  } finally {
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+});
+
 test("a visit with too little time left for the input probe withholds the keystroke claim on v1 as on r2", { timeout: 30_000 }, async () => {
   // The scan skips the probe for lack of time before it starts, so the probe
   // adds no line of its own. r2 records the detector as skipped; v1 used to
