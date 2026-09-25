@@ -91,6 +91,28 @@ test("correction dispositions are visible on the ledger and affected report page
   assert.match(reportContext, /Public corrections ledger/);
 });
 
+test("every committed correction event links a review record this site builds", () => {
+  // An event is permanent once published, so its record must be a stable
+  // project page. A file view on a branch can change under the link, and a
+  // renamed file or heading breaks it.
+  const ledger = parseCorrectionsLedger(JSON.parse(read("public/corrections.json")));
+  assert.ok(ledger.entries.length > 0);
+  for (const event of ledger.entries) {
+    const url = new URL(event.detailsUrl);
+    assert.equal(url.origin, "https://sitebehavior.org", event.eventId);
+    assert.match(url.pathname, /^\/corrections\/(?:[a-z0-9-]+\/)?$/, event.eventId);
+    assert.equal(url.search + url.hash, "", event.eventId);
+    const page = path.join("app", ...url.pathname.split("/").filter(Boolean), "page.tsx");
+    assert.equal(existsSync(path.join(root, page)), true, `${event.eventId}: ${page}`);
+  }
+  // The privacy record names its event and the defect class, never a value.
+  const privacyPage = read("app/corrections/privacy-replacement/page.tsx");
+  for (const event of ledger.entries.filter(entry => entry.state === "privacy-superseded")) {
+    assert.equal(event.detailsUrl, "https://sitebehavior.org/corrections/privacy-replacement/");
+    assert.ok(privacyPage.includes(event.eventId), event.eventId);
+  }
+});
+
 test("reports removed for privacy are named as plain IDs, never linked to a page that no longer exists", () => {
   const correctionsPage = read("app/corrections/page.tsx");
   const reportContext = read("app/_components/report-page-context.tsx");

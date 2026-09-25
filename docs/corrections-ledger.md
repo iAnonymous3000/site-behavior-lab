@@ -43,8 +43,10 @@ public/corrections.schema.json.
   redacted copy replaces a report for privacy.
 - The summary must explain the disposition without implying that one automated
   visit proves universal site behavior. The detailsUrl must link to the public
-  review record. A privacy-superseded summary and review record name the
-  defect class, never the removed value.
+  review record, a page under https://sitebehavior.org/corrections/ that this
+  site builds: an event is permanent, and a link to a file view on a branch
+  can change or break under it. A privacy-superseded summary and review
+  record name the defect class, never the removed value.
 - Event IDs are sequential within a calendar year:
   SBL-CORR-YYYY-NNN.
 
