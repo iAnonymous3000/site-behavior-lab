@@ -405,14 +405,19 @@ new reader reason.
 
 Still divergent, outside the keystroke claim and probe-stopped navigations:
 
-- Request, cookie, storage and fingerprinting coverage after the page leaves
-  the recorded site. r2 records dropped losses for those families when the
-  consent interaction leaves it (all four), when the page leaves before the
-  passive snapshot (all four) and when it leaves during the probe (requests and
-  fingerprinting), while v1 reads them as complete. The probe's subject line
-  cannot carry request censoring: it is also added when the page is off the
-  site just before the probe, where r2 records no family loss. A v1 line per
-  cause is its own identity change.
+- Part of the request, cookie, storage and fingerprinting coverage after the
+  page leaves the recorded site. r2 records dropped losses for those families
+  when the consent interaction leaves it (all four), when the page leaves before
+  the passive snapshot (all four) and when it leaves during the probe (requests
+  and fingerprinting). The consent interaction's case and the request loss of a
+  probe that typed before the page left are closed by reader-only mappings (see
+  the update below). Still open: the page leaving before the passive snapshot,
+  the probe losing the page before any field kept the value, and fingerprinting
+  when it lost the page after typing. The only v1 line on those paths is the
+  probe's subject line, which cannot carry family censoring because it is also
+  added when the page is off the site just before the probe, where r2 records no
+  family loss, and the typed-field disclosure says nothing about fingerprinting.
+  Closing them needs a new admitted line per cause, which is an identity change.
 - Auxiliary pages. The context-level route records a dropped requests-family
   loss for every popup request in any phase, and v1 has no line for it. It is
   not probe-specific, so the stopped-navigation line would be false for it.
@@ -439,6 +444,45 @@ arrives after the snapshot still takes the unread line, which only says "may".
 A table in lib/scanner.test.ts covers the pre-keystroke cases (six failed at
 the parent) and the dispatched ones: a refused value, a typing call that
 threw, and a loss while typing the first of two fields.
+
+**Update, 2026-09-25, on review, continued.** The divergence list above first
+gave "a v1 line per cause is its own identity change" as the reason for
+leaving all of the coverage after the page leaves the site open. That was
+wrong for two subsets: in each, an admitted v1 line already maps one to one to
+r2's family loss, so closing it is a reader-only change that moves no digest.
+
+- `CONSENT_INTERACTION_LEFT_SUBJECT_WARNING` is added only in
+  `markConsentInteractionSubjectLoss`, which always records dropped request,
+  cookie, storage and fingerprinting losses, and the scan then ends the
+  fingerprint detector partial. Its words say later page state was not used. v1
+  readers now also map it to `capture-loss:consent-interaction-left-subject`,
+  which censors those four families and enters `runRequestEvidenceCapped`; the
+  listener claim takes it through its `legacyReasons`. It does not censor
+  `detector-output`, where r2 scopes its consent, keystroke and policy losses to
+  their own claims. On a browser fixture whose Accept click leaves the site,
+  with a third-party script, v1 used to allow third-party services
+  (benchmarked), named platforms, GA remarketing, third-party cookies,
+  fingerprint APIs, session recording, storage keys, Shields and the consent
+  banner where r2 withholds each. A browser test now holds that no claim r2
+  withholds stands on v1; it failed at the parent. Residue: v1 still reads the
+  `detector-output` and `consent-verification` families as complete where r2
+  reads them censored, and no claim moves with either.
+- The typed-field disclosure's omitted tail ("Requests from this incomplete
+  probe were omitted from the recorded request log and counts.") is written only
+  on the two paths where the probe lost the page after typing, where the scan
+  records r2's dropped requests and fingerprinting losses. v1 readers now map it
+  to `capture-loss:keystroke-probe-requests-omitted` and read it like a
+  probe-stopped navigation: request-family censoring, `runRequestEvidenceCapped`
+  and comparison eligibility. The fragment is that tail sentence, so it matches
+  both admitted disclosure generations that carry it and neither retained form.
+
+No committed report carries either line, so no published reading or aggregate
+moves, and no string changes. Reader tests cover each reason's families,
+claims, notes, corpus population and eligibility, and the predicate
+cross-matrix now includes both disclosure generations. Eighteen of nineteen
+mutations were killed; the survivor, adding the consent reason to the
+keystroke claim's `legacyReasons`, is equivalent, since the same line already
+gives that claim the subject-lost reason.
 
 ## 5. Confirmed and left for other reasons
 

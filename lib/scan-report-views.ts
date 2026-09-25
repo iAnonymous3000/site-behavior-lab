@@ -16,12 +16,14 @@ import {
   type ComparisonDecision
 } from "./comparison-decision";
 import {
+  runConsentInteractionLeftSubject,
   runHitFingerprintListenerAttributionLoss,
   runHitFingerprintObserverCaptureLoss,
   runHitGpcWorkerCaptureLoss,
   runHitInvalidUpstreamResponseCaptureLoss,
   runHitKeystrokeProbeCaptureLoss,
   runHitKeystrokeProbeNavigationStopped,
+  runHitKeystrokeProbeRequestsOmitted,
   runHitKeystrokeProbeRequestUnread,
   runHitKeystrokeProbeTestIncomplete,
   runHitListenerDetectionWithheld,
@@ -654,6 +656,24 @@ export const LEGACY_KEYSTROKE_PROBE_SUBJECT_LOST_REASON = "capture-loss:keystrok
  */
 export const LEGACY_KEYSTROKE_PROBE_NAVIGATION_STOPPED_REASON = "capture-loss:keystroke-probe-navigation-stopped";
 
+/**
+ * The legacy reason for a v1 input probe whose typed-field disclosure says its
+ * requests were left out of the request log (the page left the recorded site
+ * after it typed): lost request coverage, read like a probe-stopped
+ * navigation. r2 records the same probe as a dropped requests-family loss.
+ */
+export const LEGACY_KEYSTROKE_PROBE_REQUESTS_OMITTED_REASON = "capture-loss:keystroke-probe-requests-omitted";
+
+/**
+ * The legacy reason for a v1 consent visit whose click left the recorded site.
+ * The producer keeps its requests, cookies, storage and fingerprinting at the
+ * pre-click boundary, and r2 records a dropped loss for each of those four
+ * families beside the same line, so it censors those four. The keystroke claim
+ * takes the subject-lost reason the same line also gives, and the listener
+ * claim takes this one through its own `legacyReasons`.
+ */
+export const LEGACY_CONSENT_INTERACTION_LEFT_SUBJECT_REASON = "capture-loss:consent-interaction-left-subject";
+
 function runViewFromV1(result: ScanResult, label: RunView["label"], scannedAt: string | null): RunView {
   // v1 never recorded quality; derive the run-level outcome from the same
   // facts the interim gate uses (status, cap) and mark it legacy-derived so it
@@ -681,6 +701,12 @@ function runViewFromV1(result: ScanResult, label: RunView["label"], scannedAt: s
   // page route records each one as a dropped requests-family loss, so it is
   // read like the deadline above, whether or not it carried the test value.
   if (runHitKeystrokeProbeNavigationStopped(result)) reasons.push(LEGACY_KEYSTROKE_PROBE_NAVIGATION_STOPPED_REASON);
+  // The probe's requests left out of the log after the page left the site
+  // are the same loss, and r2 records it the same way.
+  if (runHitKeystrokeProbeRequestsOmitted(result)) reasons.push(LEGACY_KEYSTROKE_PROBE_REQUESTS_OMITTED_REASON);
+  // A click that left the site stops four families at the pre-click boundary;
+  // r2 records each as dropped beside the same line.
+  if (runConsentInteractionLeftSubject(result)) reasons.push(LEGACY_CONSENT_INTERACTION_LEFT_SUBJECT_REASON);
   if (runHitProxyTrafficBudget(result)) reasons.push("budget-exhausted:proxy-traffic");
   // Not a budget: the instrument itself did not run. Scoped to the families it
   // actually covers rather than censoring the whole run. A read frame whose
@@ -1314,6 +1340,15 @@ export function familyCensoredOnRun(run: RunView, family: string): boolean {
   ) {
     return true;
   }
+  // Not detector-output: r2 scopes its consent, keystroke and policy losses on
+  // that family to their own claims, and v1 reaches those claims through the
+  // subject-lost and listener reasons instead.
+  if (
+    (family === "requests" || family === "cookies" || family === "storage" || family === "fingerprinting") &&
+    run.quality.reasons.includes(LEGACY_CONSENT_INTERACTION_LEFT_SUBJECT_REASON)
+  ) {
+    return true;
+  }
   // Worker instrumentation loss and a rejected upstream response both drop
   // recorded requests and nothing else, which is why runRequestEvidenceCapped
   // counts them. They belong to the request family here for the same reason.
@@ -1322,7 +1357,8 @@ export function familyCensoredOnRun(run: RunView, family: string): boolean {
     (run.quality.reasons.includes("capture-loss:gpc-worker") ||
       run.quality.reasons.includes("capture-loss:invalid-upstream-response") ||
       run.quality.reasons.includes("capture-loss:unsettled-routed-requests") ||
-      run.quality.reasons.includes(LEGACY_KEYSTROKE_PROBE_NAVIGATION_STOPPED_REASON))
+      run.quality.reasons.includes(LEGACY_KEYSTROKE_PROBE_NAVIGATION_STOPPED_REASON) ||
+      run.quality.reasons.includes(LEGACY_KEYSTROKE_PROBE_REQUESTS_OMITTED_REASON))
   );
 }
 

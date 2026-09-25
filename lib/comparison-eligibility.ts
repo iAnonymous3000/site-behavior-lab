@@ -60,6 +60,11 @@ const KEYSTROKE_PROBE_REQUEST_UNREAD_WARNING_FRAGMENT =
 const KEYSTROKE_PROBE_TEST_INCOMPLETE_WARNING_FRAGMENT = "probe did not complete its test";
 const KEYSTROKE_PROBE_NAVIGATION_STOPPED_WARNING_FRAGMENT =
   "stopped one or more navigations started while it ran";
+// The closing sentence of the typed-field disclosure the probe adds when the
+// page left the recorded site after it typed. Both admitted generations of the
+// disclosure end with it; the retained form, which opens the same way, does not.
+const KEYSTROKE_PROBE_REQUESTS_OMITTED_WARNING_FRAGMENT =
+  "Requests from this incomplete probe were omitted from the recorded request log and counts.";
 const INVALID_UPSTREAM_RESPONSE_WARNING_FRAGMENT = "scan proxy rejected one or more invalid upstream responses";
 const UNSETTLED_ROUTED_REQUEST_WARNING_FRAGMENT =
   "still being handled, so this visit's request evidence is incomplete";
@@ -120,6 +125,9 @@ export function comparisonEligibility(report: ComparisonScanResult): ComparisonE
     }
     if (runHitKeystrokeProbeNavigationStopped(run)) {
       reasons.push(`The "${label}" visit's synthetic form-input probe stopped one or more navigations, so its request evidence is incomplete.`);
+    }
+    if (runHitKeystrokeProbeRequestsOmitted(run)) {
+      reasons.push(`The "${label}" visit omitted its synthetic form-input probe's requests from the request log, so its request evidence is incomplete.`);
     }
     // The dispatch can still read as a click (the control reacted before the
     // page navigated away), so this warning is the only v1 channel saying the
@@ -590,12 +598,31 @@ export function runHitKeystrokeProbeNavigationStopped(run: Pick<ScanResult, "war
 }
 
 /**
+ * Whether a legacy run's typed-field disclosure says the input probe's
+ * requests were left out of the request log. The probe writes that form only
+ * when the page left the recorded site after it typed, and r2 records the same
+ * probe as a `dropped` requests-family loss (with a fingerprinting one), so
+ * this is request-evidence loss read like a probe-stopped navigation: it
+ * censors the request family and enters runRequestEvidenceCapped and
+ * comparison eligibility. The line says nothing about fingerprinting, so the
+ * r2 fingerprinting loss has no v1 channel here. The keystroke claim is the
+ * subject line's (runKeystrokeProbeLeftSubject).
+ */
+export function runHitKeystrokeProbeRequestsOmitted(run: Pick<ScanResult, "warnings">): boolean {
+  return run.warnings.some((warning) => warning.includes(KEYSTROKE_PROBE_REQUESTS_OMITTED_WARNING_FRAGMENT));
+}
+
+/**
  * Whether a legacy run's input probe was skipped or stopped because the page
  * was off the recorded site: the consent interaction or the post-consent
  * reload left it, or the page left before or during the probe. r2 records the
  * keystroke detector as skipped or partial for each, so readers censor the
  * keystroke claim; the families the subject loss also drops on r2 are not
- * this predicate's. Matched exactly against the producer's own constants.
+ * this predicate's. The consent line's are runConsentInteractionLeftSubject's
+ * and the omitted-requests disclosure's are
+ * runHitKeystrokeProbeRequestsOmitted's; the probe's own line cannot carry
+ * any, since it is also added where r2 records no family loss. Matched exactly
+ * against the producer's own constants.
  */
 export function runKeystrokeProbeLeftSubject(run: Pick<ScanResult, "warnings">): boolean {
   return (
@@ -608,8 +635,11 @@ export function runKeystrokeProbeLeftSubject(run: Pick<ScanResult, "warnings">):
 /**
  * Whether a legacy consent visit's click navigated the page to another origin.
  * The producer then keeps that visit's evidence at the pre-click boundary, so
- * it is not evidence of the choice. Matched exactly against the producer's
- * own constant, never a restated fragment.
+ * it is not evidence of the choice. The producer adds the line only beside
+ * r2's dropped request, cookie, storage and fingerprinting losses, and its
+ * words ("later page state was not used") cover all four, so readers censor
+ * those families for it and it enters runRequestEvidenceCapped. Matched
+ * exactly against the producer's own constant, never a restated fragment.
  */
 export function runConsentInteractionLeftSubject(run: Pick<ScanResult, "warnings">): boolean {
   return run.warnings.includes(CONSENT_INTERACTION_LEFT_SUBJECT_WARNING);
@@ -624,6 +654,8 @@ export function runRequestEvidenceCapped(run: ScanResult): boolean {
     runHitInvalidUpstreamResponseCaptureLoss(run) ||
     runHitKeystrokeProbeCaptureLoss(run) ||
     runHitKeystrokeProbeNavigationStopped(run) ||
+    runHitKeystrokeProbeRequestsOmitted(run) ||
+    runConsentInteractionLeftSubject(run) ||
     runHitProxyTrafficBudget(run) ||
     runHitUnsettledRoutedRequests(run)
   );

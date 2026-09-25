@@ -37,6 +37,13 @@ const QUALITY_REASON_NOTES: Record<string, string> = {
   // same stop as a dropped requests-family capture loss.
   "capture-loss:keystroke-probe-navigation-stopped":
     "the synthetic form-input probe stopped one or more navigations started while it ran, so the request evidence is incomplete",
+  // v1 only (LEGACY_KEYSTROKE_PROBE_REQUESTS_OMITTED_REASON and
+  // LEGACY_CONSENT_INTERACTION_LEFT_SUBJECT_REASON). r2 reports both as
+  // dropped capture losses on the families named.
+  "capture-loss:keystroke-probe-requests-omitted":
+    "requests from the synthetic form-input probe were omitted from the recorded request log and counts, so the request evidence is incomplete",
+  "capture-loss:consent-interaction-left-subject":
+    "the consent interaction left the recorded site, so the request, cookie, storage and fingerprinting evidence stops before the choice and is incomplete",
   "capture-loss:page-subject-validity":
     "the bounded page-content collector was unavailable or unreadable, so the scanner could not verify the rendered document",
   // v1 only (LEGACY_LISTENER_DETECTION_WITHHELD_REASON). r2 reports the same

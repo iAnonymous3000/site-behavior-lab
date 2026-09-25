@@ -104,6 +104,16 @@ public API or a 1.0 release.
   already withheld the claim. The two lines and the stopped-navigation line
   above join the listener-withheld warning below in this release's
   public-string policy widening.
+- A v1 consent visit whose click left the recorded site says so, and keeps its
+  requests, cookies, storage and fingerprinting at the pre-click boundary, but
+  v1 readers read all four as complete: third-party services (benchmarked),
+  cookies, storage keys and fingerprint and session-recording findings were
+  allowed where r2, which records a dropped loss for each, withholds them. v1
+  readers now read that line as lost coverage in those four families. The input
+  probe's disclosure that its requests were omitted from the log, written when
+  the page left the recorded site after the probe typed, is now read as lost
+  request coverage, like a stopped navigation. Both are reader changes: no
+  committed report carries either line, and no string or digest moves.
 - The input probe's block of a main-frame navigation (a form submitted through
   another frame's `submit`, for example) replaced the page with an error page,
   so the scanner's own block read as the page leaving the recorded site: the

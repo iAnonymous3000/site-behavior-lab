@@ -23,7 +23,9 @@ import {
 } from "./legacy-methodology";
 import {
   familyCensoredOnRun,
+  LEGACY_CONSENT_INTERACTION_LEFT_SUBJECT_REASON,
   LEGACY_KEYSTROKE_PROBE_NAVIGATION_STOPPED_REASON,
+  LEGACY_KEYSTROKE_PROBE_REQUESTS_OMITTED_REASON,
   LEGACY_KEYSTROKE_PROBE_REQUEST_UNREAD_REASON,
   LEGACY_KEYSTROKE_PROBE_SUBJECT_LOST_REASON,
   LEGACY_KEYSTROKE_PROBE_TEST_INCOMPLETE_REASON,
@@ -37,10 +39,12 @@ import {
 import { degradedRunNotice, runCensorshipNotes } from "./scan-report-censorship";
 import { evaluateQuality } from "./scan-report-v2-evaluators";
 import {
+  runConsentInteractionLeftSubject,
   runHitFingerprintListenerAttributionLoss,
   runHitFingerprintObserverCaptureLoss,
   runHitKeystrokeProbeCaptureLoss,
   runHitKeystrokeProbeNavigationStopped,
+  runHitKeystrokeProbeRequestsOmitted,
   runHitKeystrokeProbeRequestUnread,
   runHitKeystrokeProbeTestIncomplete,
   runHitListenerDetectionWithheld,
@@ -628,6 +632,21 @@ test("a v1 probe that stopped or could not read a request censors the keystroke 
   assert.match(quiet.subhead, /instrumented API events\. The synthetic form-input probe stopped/);
 });
 
+// The typed-field disclosure the input probe adds, in both admitted
+// generations (lib/redact-scan-report-v1.ts). The probe writes the omitted form
+// only when the page left the recorded site after it typed.
+const REQUESTS_OMITTED_TAIL = "Requests from this incomplete probe were omitted from the recorded request log and counts.";
+const typedFieldDisclosure = (tail: "retained" | "omitted", fields = 1) =>
+  `This scan typed a synthetic test value into ${fields === 1 ? "1 form field" : `${fields} form fields`} with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored. ${
+    tail === "retained"
+      ? "Observed requests during typing and the following wait are included in the request log. Teardown-only transmissions are not measured."
+      : REQUESTS_OMITTED_TAIL
+  }`;
+const HISTORICAL_TYPED_FIELD_DISCLOSURE =
+  "This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.";
+const HISTORICAL_RETAINED_TAIL =
+  "Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts.";
+
 test("each probe and request-loss line is recognized by its own predicate alone", () => {
   // Every probe line opens with the same words and two share their tail with
   // the unsettled line, so a fragment that also matched a sibling would move
@@ -642,7 +661,12 @@ test("each probe and request-loss line is recognized by its own predicate alone"
     ["listener", LISTENER_DETECTION_WITHHELD_WARNING],
     ["consent-subject", CONSENT_INTERACTION_LEFT_SUBJECT_WARNING],
     ["reload-subject", CONSENT_RELOAD_SUBJECT_WARNING],
-    ["probe-subject", ACTIVE_PROBE_SUBJECT_WARNING]
+    ["probe-subject", ACTIVE_PROBE_SUBJECT_WARNING],
+    ["typed-retained", typedFieldDisclosure("retained")],
+    ["typed-omitted", typedFieldDisclosure("omitted")],
+    ["historical-typed", HISTORICAL_TYPED_FIELD_DISCLOSURE],
+    ["historical-typed-retained", `${HISTORICAL_TYPED_FIELD_DISCLOSURE} ${HISTORICAL_RETAINED_TAIL}`],
+    ["historical-typed-omitted", `${HISTORICAL_TYPED_FIELD_DISCLOSURE} ${REQUESTS_OMITTED_TAIL}`]
   ];
   const predicates: [string, (run: { warnings: string[] }) => boolean, string[]][] = [
     ["incomplete", runHitKeystrokeProbeCaptureLoss, ["incomplete"]],
@@ -651,7 +675,9 @@ test("each probe and request-loss line is recognized by its own predicate alone"
     ["navigation", runHitKeystrokeProbeNavigationStopped, ["navigation"]],
     ["unsettled", runHitUnsettledRoutedRequests, ["unsettled"]],
     ["listener", runHitListenerDetectionWithheld, ["listener"]],
-    ["subject", runKeystrokeProbeLeftSubject, ["consent-subject", "reload-subject", "probe-subject"]]
+    ["subject", runKeystrokeProbeLeftSubject, ["consent-subject", "reload-subject", "probe-subject"]],
+    ["consent", runConsentInteractionLeftSubject, ["consent-subject"]],
+    ["omitted", runHitKeystrokeProbeRequestsOmitted, ["typed-omitted", "historical-typed-omitted"]]
   ];
   for (const [predicateName, predicate, own] of predicates) {
     for (const [lineName, line] of lines) {
@@ -664,8 +690,10 @@ test("every other v1 line for an incomplete input probe censors the keystroke cl
   // r2 withholds the keystroke claim whenever its detector is not complete.
   // Besides the unread-request line, v1 records that with the line for a test
   // the probe did not complete and with the three lines for a page that was
-  // off the recorded site when the probe was skipped or stopped. Each run goes
-  // through the real sanitizer, view, facts and corpus accumulator.
+  // off the recorded site when the probe was skipped or stopped. The consent
+  // interaction's line also censors the four families r2 drops beside it, so
+  // it has its own test below. Each run goes through the real sanitizer, view,
+  // facts and corpus accumulator.
   const outcome = (warnings: string[], fingerprintEvents = 4) => {
     const input = makeScanReportV1() as ScanResult;
     input.summary.firstPartyDomain = "probe-fixture.net";
@@ -696,7 +724,6 @@ test("every other v1 line for an incomplete input probe censors the keystroke cl
   const clean = outcome([]);
   const cases: [string, string, RegExp][] = [
     [KEYSTROKE_PROBE_TEST_INCOMPLETE_WARNING, LEGACY_KEYSTROKE_PROBE_TEST_INCOMPLETE_REASON, /probe did not complete its test/],
-    [CONSENT_INTERACTION_LEFT_SUBJECT_WARNING, LEGACY_KEYSTROKE_PROBE_SUBJECT_LOST_REASON, /off the recorded site before or during the synthetic form-input probe/],
     [CONSENT_RELOAD_SUBJECT_WARNING, LEGACY_KEYSTROKE_PROBE_SUBJECT_LOST_REASON, /off the recorded site before or during the synthetic form-input probe/],
     [ACTIVE_PROBE_SUBJECT_WARNING, LEGACY_KEYSTROKE_PROBE_SUBJECT_LOST_REASON, /off the recorded site before or during the synthetic form-input probe/]
   ];
@@ -775,6 +802,125 @@ test("a v1 probe-stopped navigation censors request evidence, not the keystroke 
 
   const notes = runCensorshipNotes(stopped.run).join(" ");
   assert.match(notes, /stopped one or more navigations started while it ran, so the request evidence is incomplete/);
+  assert.doesNotMatch(notes, /capture-loss:/);
+});
+
+test("a v1 typed-field disclosure that omitted the probe's requests censors request evidence", () => {
+  // The probe writes this form of its disclosure only when the page left the
+  // recorded site after it typed, and r2 records that probe as a dropped
+  // requests-family loss. The v1 report said its own request log left the
+  // probe's requests out while its reader called the log complete, kept the
+  // run in the corpus population and benchmarked third-party services.
+  const outcome = (warnings: string[]) => {
+    const input = makeScanReportV1() as ScanResult;
+    input.summary.firstPartyDomain = "probe-fixture.net";
+    input.conditions.requestedUrl = "https://probe-fixture.net/";
+    input.conditions.finalUrl = "https://probe-fixture.net/";
+    input.fingerprintDetections = [];
+    input.pixelEvents = [];
+    input.cnameCloaks = [];
+    input.warnings = warnings;
+    const report = redactScanResultV1(input).report;
+    const view = viewFromV1Report(report);
+    const corpus = createCorpusStatsAccumulator(new Date("2026-09-25T00:00:00.000Z"));
+    corpus.add(`20260709-${"e".repeat(32)}`, view);
+    return { report, view, run: view.runs[0], facts: buildReportFacts(view).display, cohorts: corpus.finish().cohorts };
+  };
+  const clean = outcome([typedFieldDisclosure("retained", 2)]);
+  assert.deepEqual(clean.run.quality.reasons, []);
+  assert.equal(runRequestEvidenceCapped(clean.report), false);
+
+  for (const disclosure of [typedFieldDisclosure("omitted", 2), `${HISTORICAL_TYPED_FIELD_DISCLOSURE} ${REQUESTS_OMITTED_TAIL}`]) {
+    const omitted = outcome([disclosure]);
+    assert.deepEqual(omitted.report.warnings, [disclosure]);
+    assert.deepEqual(omitted.run.quality.reasons, [LEGACY_KEYSTROKE_PROBE_REQUESTS_OMITTED_REASON]);
+    assert.equal(omitted.run.quality.outcome, "complete");
+    assert.equal(runRequestEvidenceCapped(omitted.report), true);
+    assert.equal(familyCensoredOnRun(omitted.run, "requests"), true);
+    for (const family of ["cookies", "storage", "fingerprinting", "detector-output"] as const) {
+      assert.equal(familyCensoredOnRun(omitted.run, family), false, family);
+    }
+    assert.equal(requestEvidenceState(omitted.run), "incomplete");
+    assert.equal(runInCorpusDistributionPopulation(clean.run), true);
+    assert.equal(runInCorpusDistributionPopulation(omitted.run), false);
+    assert.equal(clean.cohorts[0]?.metrics.thirdPartyRequests?.count, 1);
+    assert.equal(omitted.cohorts[0]?.metrics.thirdPartyRequests?.count ?? 0, 0);
+
+    const services = omitted.facts.claims["third-party-services"];
+    assert.equal(clean.facts.claims["third-party-services"].benchmarkAllowed, true);
+    assert.equal(services.allowed, false);
+    assert.deepEqual(services.blockers, ["family-censored"]);
+    assert.equal(services.benchmarkAllowed, false);
+    // The subject line beside it on the wire carries the keystroke claim.
+    assert.deepEqual(omitted.facts.claims["keystroke-exfiltration"], clean.facts.claims["keystroke-exfiltration"]);
+    assert.deepEqual(omitted.facts.claims["fingerprint-apis"], clean.facts.claims["fingerprint-apis"]);
+
+    const notes = runCensorshipNotes(omitted.run).join(" ");
+    assert.match(notes, /omitted from the recorded request log and counts, so the request evidence is incomplete/);
+    assert.doesNotMatch(notes, /capture-loss:/);
+  }
+});
+
+test("a v1 consent interaction that left the site censors the four families r2 drops beside it", () => {
+  // The producer adds the line only where r2 records dropped request, cookie,
+  // storage and fingerprinting losses and ends the fingerprint detector
+  // partial, and the line says later page state was not used. v1 readers read
+  // all four as complete and allowed every claim on them.
+  const outcome = (warnings: string[]) => {
+    const input = makeScanReportV1() as ScanResult;
+    input.summary.firstPartyDomain = "probe-fixture.net";
+    input.conditions.requestedUrl = "https://probe-fixture.net/";
+    input.conditions.finalUrl = "https://probe-fixture.net/";
+    input.summary.fingerprintEvents = 4;
+    input.fingerprintEvents = [{ api: "canvas.toDataURL", count: 4 }];
+    input.fingerprintDetections = [];
+    input.pixelEvents = [];
+    input.cnameCloaks = [];
+    input.warnings = warnings;
+    const report = redactScanResultV1(input).report;
+    const view = viewFromV1Report(report);
+    return { report, view, run: view.runs[0], facts: buildReportFacts(view).display };
+  };
+  const clean = outcome([]);
+  const left = outcome([CONSENT_INTERACTION_LEFT_SUBJECT_WARNING]);
+
+  assert.deepEqual(left.run.quality.reasons, [
+    LEGACY_CONSENT_INTERACTION_LEFT_SUBJECT_REASON,
+    LEGACY_KEYSTROKE_PROBE_SUBJECT_LOST_REASON
+  ]);
+  assert.equal(left.run.quality.outcome, "complete");
+  assert.equal(runRequestEvidenceCapped(left.report), true);
+  for (const family of ["requests", "cookies", "storage", "fingerprinting"] as const) {
+    assert.equal(familyCensoredOnRun(left.run, family), true, family);
+    assert.equal(left.facts.evidence[family].state, "censored", family);
+  }
+  // r2 scopes its detector-output losses here to the consent, keystroke and
+  // policy claims; the family itself stays as measured on v1.
+  assert.equal(familyCensoredOnRun(left.run, "detector-output"), false);
+  assert.equal(requestEvidenceState(left.run), "incomplete");
+  assert.equal(runInCorpusDistributionPopulation(left.run), false);
+
+  const withheld = [
+    "third-party-services",
+    "named-platforms",
+    "ga-remarketing",
+    "third-party-cookies",
+    "fingerprint-apis",
+    "session-recording-input-monitoring",
+    "keystroke-exfiltration",
+    "storage-keys",
+    "shields-blocked"
+  ] as const;
+  for (const claim of withheld) {
+    assert.equal(clean.facts.claims[claim].allowed, true, claim);
+    assert.equal(left.facts.claims[claim].allowed, false, claim);
+    assert.deepEqual(left.facts.claims[claim].blockers, ["family-censored"], claim);
+  }
+  assert.deepEqual(left.facts.claims["cname-cloaking"], clean.facts.claims["cname-cloaking"]);
+
+  const notes = runCensorshipNotes(left.run).join(" ");
+  assert.match(notes, /consent interaction left the recorded site, so the request, cookie, storage and fingerprinting evidence stops before the choice/);
+  assert.match(notes, /off the recorded site before or during the synthetic form-input probe/);
   assert.doesNotMatch(notes, /capture-loss:/);
 });
 

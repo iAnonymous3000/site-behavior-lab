@@ -14,7 +14,7 @@ import {
 import { RedactionPass, redactScanResultV1, redactScannerWarnings } from "./redact-scan-report-v1";
 import { createConsentComparisonReport } from "./compare-reports";
 import { legacyComparisonDecision } from "./comparison-decision";
-import { comparisonEligibility } from "./comparison-eligibility";
+import { comparisonEligibility, runHitKeystrokeProbeRequestsOmitted } from "./comparison-eligibility";
 import { CONSENT_INTERACTION_LEFT_SUBJECT_WARNING } from "./consent-subject-loss-warning";
 import { PublicScanError } from "./public-errors";
 import { TCF_API_METHOD } from "./consent-verification";
@@ -4503,6 +4503,81 @@ test("a consent pair whose Accept click later leaves the site is not comparable"
   }
 });
 
+test("a consent interaction that left the site withholds on v1 each claim r2 withholds for its dropped families", { timeout: 60_000 }, async () => {
+  // When the click leaves the recorded site, r2 records dropped request,
+  // cookie, storage and fingerprinting losses and a partial fingerprint
+  // detector beside the consent line, so it withholds every claim on those
+  // families. v1 carries only the line, and its readers used to read all four
+  // as complete: third-party services, cookies and storage were allowed and
+  // benchmarked over evidence that stops before the choice.
+  const upstream = createServer((request, response) => {
+    if (request.headers.host?.startsWith("account.consent-origin.com")) {
+      response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+      response.end("<!doctype html><title>Account</title><p>Elsewhere</p>");
+      return;
+    }
+    if (request.url?.startsWith("/t.js")) {
+      response.writeHead(200, { "content-type": "text/javascript" });
+      response.end("void 0;");
+      return;
+    }
+    response.writeHead(200, { "content-type": "text/html; charset=utf-8", "set-cookie": "first=1; path=/" });
+    response.end(`<!doctype html>
+      <title>Trusted consent origin</title>
+      <script src="http://tracker.example.net/t.js"></script>
+      <script>localStorage.setItem("seen", "1");</script>
+      <div id="consent-banner"><button onclick="location.href='http://account.consent-origin.com/'">Accept all</button></div>`);
+  });
+  await new Promise<void>((resolve, reject) => {
+    upstream.once("error", reject);
+    upstream.listen(0, "127.0.0.1", resolve);
+  });
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+  const previousConsentVerification = process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
+  process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = "1";
+  try {
+    const visit = await scanSiteWithMeasurement(
+      { url: "http://www.consent-origin.com/", device: "desktop", gpcEnabled: false, consentMode: "accept-all" },
+      { publicUrlAlreadyVerified: true, verifyPublicUrl: async () => undefined,
+        resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+        connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"), resolveCnameChain: async () => [] }
+    );
+    const r2 = buildReportFacts(
+      viewFromV2(
+        toPublicScanReportR2(
+          buildRuntimeScanReportV2R2(visit, "public-api", {
+            SITE_BEHAVIOR_LAB_BUILD_COMMIT: "a".repeat(40)
+          } as NodeJS.ProcessEnv)
+        ),
+        2
+      )
+    ).display;
+    const v1Report = redactScanResultV1(visit.result).report;
+    const v1 = buildReportFacts(viewFromV1Report(v1Report)).display;
+    assert.equal(v1Report.warnings.includes(CONSENT_INTERACTION_LEFT_SUBJECT_WARNING), true);
+    assert.ok(v1Report.requests.some((request) => request.thirdParty), "the fixture must record third-party traffic");
+
+    for (const family of ["requests", "cookies", "storage", "fingerprinting"] as const) {
+      assert.equal(r2.evidence[family].state, "censored", family);
+      assert.equal(v1.evidence[family].state, "censored", family);
+    }
+    // No claim r2 withholds may stand on v1. v1 also withholds claims whose
+    // evidence it never recorded, which r2 may allow.
+    for (const claim of Object.keys(r2.claims) as (keyof typeof r2.claims)[]) {
+      if (!r2.claims[claim].allowed) assert.equal(v1.claims[claim].allowed, false, claim);
+      if (!r2.claims[claim].benchmarkAllowed) assert.equal(v1.claims[claim].benchmarkAllowed, false, claim);
+    }
+    assert.equal(r2.claims["third-party-services"].allowed, false);
+    assert.equal(r2.claims["session-recording-input-monitoring"].allowed, false);
+  } finally {
+    if (previousConsentVerification === undefined) delete process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
+    else process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = previousConsentVerification;
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+});
+
 test("a consent click cannot promote a sibling origin into evidence or active-input scope", { timeout: 30_000 }, async () => {
   let siblingReceivedSyntheticInput = false;
   const upstream = createServer((request, response) => {
@@ -5962,8 +6037,8 @@ test("the probe discloses a request it could not read on every exit, not only on
   }
 }
 
-/** The keystroke-exfiltration claim a v1 report with these warnings publishes. */
-function v1KeystrokeClaim(warnings: readonly string[], detection: FingerprintDetectionSummary | null) {
+/** The display facts a v1 report with these warnings publishes. */
+function v1DisplayFacts(warnings: readonly string[], detection: FingerprintDetectionSummary | null) {
   const input = makeScanReportV1() as ScanResult;
   input.summary.firstPartyDomain = "probe-fixture.net";
   input.conditions.requestedUrl = "https://probe-fixture.net/";
@@ -5973,8 +6048,47 @@ function v1KeystrokeClaim(warnings: readonly string[], detection: FingerprintDet
   input.cnameCloaks = [];
   input.warnings = [...warnings];
   const report = redactScanResultV1(input).report;
-  return buildReportFacts(viewFromV1Report(report)).display.claims["keystroke-exfiltration"];
+  return buildReportFacts(viewFromV1Report(report)).display;
 }
+
+/** The keystroke-exfiltration claim a v1 report with these warnings publishes. */
+function v1KeystrokeClaim(warnings: readonly string[], detection: FingerprintDetectionSummary | null) {
+  return v1DisplayFacts(warnings, detection).claims["keystroke-exfiltration"];
+}
+
+test("a probe that lost the subject after typing leaves v1 request evidence incomplete, as r2 does", async () => {
+  // Its disclosure then says the probe's requests were omitted from the log,
+  // and the scan records r2's dropped requests-family loss for the same
+  // outcome. v1 readers used to read the log as complete beside that sentence.
+  // The producer's own disclosure pins the reader's fragment.
+  const beacon = (value: string) => ({
+    url: () => `https://beacon.example/collect?v=${value}`,
+    postData: () => null,
+    isNavigationRequest: () => false,
+    redirectedFrom: () => null
+  });
+  const leaveSubject = (location: { url: string }) => {
+    location.url = "https://account.example.net/login";
+  };
+  for (const [label, options] of [
+    ["while typing", { afterType: (_lifecycle: KeystrokeProbeLifecycle, location: { url: string }) => leaveSubject(location) }],
+    ["during the wait", { duringWait: leaveSubject }]
+  ] as const) {
+    const { outcome, warnings } = await probeWithTypedRequests((value) => [beacon(value)], options);
+    assert.ok(outcome.status === "partial" && outcome.subjectLost === true, label);
+    assert.equal(warnings.filter((warning) => warning.includes("typed a synthetic test value")).length, 1, label);
+    assert.equal(runHitKeystrokeProbeRequestsOmitted({ warnings: [...warnings] }), true, label);
+    const facts = v1DisplayFacts([...warnings, ...keystrokeProbeScanWarnings(outcome, true)], outcome.detection);
+    assert.equal(facts.evidence.requests.state, "censored", label);
+    assert.equal(facts.claims["third-party-services"].allowed, false, label);
+    assert.equal(facts.claims["keystroke-exfiltration"].allowed, false, label);
+  }
+  // A probe that kept the page reports its requests as retained.
+  const complete = await probeWithTypedRequests((value) => [beacon(value)]);
+  assert.equal(complete.outcome.status, "complete");
+  assert.equal(runHitKeystrokeProbeRequestsOmitted({ warnings: [...complete.warnings] }), false);
+  assert.equal(v1DisplayFacts(complete.warnings, complete.outcome.detection).evidence.requests.state, "complete");
+});
 
 test("every input probe exit that leaves the keystroke detector incomplete censors the v1 keystroke claim", async () => {
   // r2 withholds the keystroke claim whenever the detector ends other than

@@ -409,6 +409,13 @@ test("all scanner-declared request capture loss fails the legacy comparison clos
     {
       warning: KEYSTROKE_PROBE_NAVIGATION_STOPPED_WARNING,
       reason: /synthetic form-input probe stopped one or more navigations/
+    },
+    {
+      // The typed-field disclosure's form for a probe whose page left the
+      // recorded site after it typed.
+      warning:
+        "This scan typed a synthetic test value into 1 form field with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored. Requests from this incomplete probe were omitted from the recorded request log and counts.",
+      reason: /omitted its synthetic form-input probe's requests from the request log/
     }
   ];
 
@@ -469,6 +476,11 @@ test("the input probe's other claim-scoped lines are not request loss", () => {
       warning
     );
   }
+  // The consent line is request loss too: r2 drops the request family beside
+  // it, and the evidence stops at the pre-click boundary.
+  const consentLeft = makeRun({ totalRequests: 20 });
+  consentLeft.warnings = [CONSENT_INTERACTION_LEFT_SUBJECT_WARNING];
+  assert.equal(runRequestEvidenceCapped(consentLeft), true);
 });
 
 test("mismatched subjects, devices, and pipelines each disqualify", () => {

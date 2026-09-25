@@ -33,6 +33,7 @@ import {
   displayRunView,
   familyCensoredOnRun,
   familyUnsupportedOnRun,
+  LEGACY_CONSENT_INTERACTION_LEFT_SUBJECT_REASON,
   LEGACY_KEYSTROKE_PROBE_REQUEST_UNREAD_REASON,
   LEGACY_KEYSTROKE_PROBE_SUBJECT_LOST_REASON,
   LEGACY_KEYSTROKE_PROBE_TEST_INCOMPLETE_REASON,
@@ -292,8 +293,11 @@ export const REPORT_CLAIM_REQUIREMENTS: Readonly<Record<ReportClaimId, ClaimRequ
     // censors it: on v1 a keystroke recipient redacts to a host marker the
     // guard accepts, so this path never withholds a keystroke detection, and
     // the v1 line names only listener detections.
+    // The consent line's reason too: r2 ends the fingerprint detector partial
+    // when the click leaves the site, and the listener detections come from
+    // the page state that line says was not used.
     legacyReasons: {
-      "detector-output": [LEGACY_LISTENER_DETECTION_WITHHELD_REASON]
+      "detector-output": [LEGACY_LISTENER_DETECTION_WITHHELD_REASON, LEGACY_CONSENT_INTERACTION_LEFT_SUBJECT_REASON]
     },
     detectors: ["fingerprint-heuristics"],
     count: "none"
