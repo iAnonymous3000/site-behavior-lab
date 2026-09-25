@@ -262,6 +262,11 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
   // canvases cannot exhaust tracking without failing the frame closed.
   const canvasStates = new Map<TrackedCanvas, CanvasState>();
   const imageBitmapProvenance = new WeakMap<object, CanvasTextProvenance>();
+  // A page canvas whose control transferControlToOffscreen moved to an
+  // OffscreenCanvas (its placeholder) shows what that OffscreenCanvas draws.
+  // The link is kept apart from canvasStates, so the two stay two states and
+  // a read of the placeholder counts one canvas, not both.
+  const placeholderOffscreenCanvases = new WeakMap<object, TrackedCanvas>();
   const canvasFontState: CanvasFontState = {
     fontValues: new TrustedSet(),
     maxMeasuredTextLength: 0,
@@ -579,15 +584,28 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
     mathAbs(width) >= 16 &&
     mathAbs(height) >= 16;
 
+  const placeholderOffscreenCanvas = (canvas: unknown): TrackedCanvas | undefined =>
+    reflectApply(weakMapGet, placeholderOffscreenCanvases, [canvas]) as TrackedCanvas | undefined;
+
   // Found by identity, so any value can be asked: only a canvas the observer
-  // admitted has a state.
+  // admitted has a state. A placeholder carries its OffscreenCanvas's text,
+  // since it can have no context of its own to draw with.
   const copyCanvasTextProvenance = (canvas: unknown): CanvasTextProvenance | undefined => {
-    const state = safeMapGet(canvasStates, canvas as TrackedCanvas);
+    const state = safeMapGet(canvasStates, (placeholderOffscreenCanvas(canvas) ?? canvas) as TrackedCanvas);
     if (!state) return undefined;
     return {
       textCharacters: copyStringSet(state.textCharacters),
       textWriteCalls: state.textWriteCalls
     };
+  };
+
+  const inheritTextProvenance = (state: CanvasState, provenance: CanvasTextProvenance): void => {
+    reflectApply(setForEach, provenance.textCharacters, [
+      (character: string) => {
+        addBoundedUniqueString(state.textCharacters, character, maxUniqueCanvasTextCharacters);
+      }
+    ]);
+    state.textWriteCalls = mathMax(state.textWriteCalls, provenance.textWriteCalls);
   };
 
   const imageDataDimension = (
@@ -914,6 +932,9 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
         if (canvas && qualifies(args, result)) {
           const state = getCanvasState(canvas);
           if (state) {
+            // Reading a placeholder reads what its OffscreenCanvas drew.
+            const shown = placeholderOffscreenCanvas(canvas) ? copyCanvasTextProvenance(canvas) : undefined;
+            if (shown) inheritTextProvenance(state, shown);
             safeSetAdd(state.readApis, api);
             state.maxReadWidth = mathMax(state.maxReadWidth, readWidth);
             state.maxReadHeight = mathMax(state.maxReadHeight, readHeight);
@@ -975,18 +996,7 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
 
         if (provenance) {
           const targetState = getCanvasState(targetCanvas);
-          if (targetState) {
-            reflectApply(setForEach, provenance.textCharacters, [
-              (character: string) => {
-                addBoundedUniqueString(
-                  targetState.textCharacters,
-                  character,
-                  maxUniqueCanvasTextCharacters
-                );
-              }
-            ]);
-            targetState.textWriteCalls = mathMax(targetState.textWriteCalls, provenance.textWriteCalls);
-          }
+          if (targetState) inheritTextProvenance(targetState, provenance);
         }
       }
       return result;
@@ -1049,6 +1059,25 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
       }
       return result;
     });
+  };
+
+  const wrapCanvasTransferControlToOffscreen = (target: object | undefined) => {
+    if (!target) return;
+    const descriptor = objectGetOwnPropertyDescriptor(target, "transferControlToOffscreen");
+    if (!descriptor || typeof descriptor.value !== "function" || !descriptor.configurable) return;
+
+    defineWrappedMethod(
+      target,
+      "transferControlToOffscreen",
+      descriptor,
+      function wrappedTransferControlToOffscreen(this: unknown, ...args: unknown[]) {
+        const result = reflectApply(descriptor.value, this, args);
+        // The native call succeeded, so the receiver is a page canvas and the
+        // result the OffscreenCanvas that now draws it.
+        reflectApply(weakMapSet, placeholderOffscreenCanvases, [this, result]);
+        return result;
+      }
+    );
   };
 
   const wrapCanvasMeasureTextMethod = (target: object | undefined, family: CanvasFamily) => {
@@ -1556,6 +1585,7 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
   if (canvasElementPrototype) {
     wrapCanvasReadMethod(canvasElementPrototype, "toDataURL", "canvas.toDataURL", pageCanvasFamily, receiverCanvas);
     wrapCanvasReadMethod(canvasElementPrototype, "toBlob", "canvas.toBlob", pageCanvasFamily, receiverCanvas);
+    wrapCanvasTransferControlToOffscreen(canvasElementPrototype);
   }
 
   const imageDataCoversAtLeast16By16 = (_args: unknown[], result: unknown) =>

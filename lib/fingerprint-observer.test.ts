@@ -1151,6 +1151,106 @@ test("fingerprintObserverInitScript carries OffscreenCanvas text provenance into
   });
 });
 
+test("fingerprintObserverInitScript reads a transferControlToOffscreen placeholder as its OffscreenCanvas in real Chromium", async () => {
+  // A page canvas whose control the page transferred to an OffscreenCanvas
+  // shows what that OffscreenCanvas draws, in the page with no worker
+  // involved. Reading the placeholder, or drawing it into another canvas,
+  // reads that text, and the detection counts the one canvas read, not the
+  // offscreen canvas as well.
+  const readback = (readApis: string[]) => ({
+    kind: "canvas-fingerprinting",
+    heuristic: "openwpm-canvas-v1",
+    count: 1,
+    evidence: {
+      readApis,
+      maxCanvasWidth: 200,
+      maxCanvasHeight: 60,
+      maxDistinctTextCharacters: OFFSCREEN_PROBE_TEXT.length,
+      maxTextWriteCalls: 1
+    }
+  });
+  const cases: Record<string, { body: () => unknown; events: Record<string, number>; readApis: string[] }> = {
+    toDataURL: {
+      body: async () => {
+        const placeholder = document.createElement("canvas");
+        placeholder.width = 200;
+        placeholder.height = 60;
+        document.body.append(placeholder);
+        placeholder.transferControlToOffscreen().getContext("2d")?.fillText("abcdefghijklmnopqrstuvwxyz0123", 0, 30);
+        await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+        placeholder.toDataURL();
+        const fingerprintWindow = window as Window & { __siteBehaviorLabFingerprintSnapshot?: () => unknown };
+        return fingerprintWindow.__siteBehaviorLabFingerprintSnapshot?.();
+      },
+      events: { "canvas.toDataURL": 1 },
+      readApis: ["canvas.toDataURL"]
+    },
+    toBlob: {
+      body: async () => {
+        const placeholder = document.createElement("canvas");
+        placeholder.width = 200;
+        placeholder.height = 60;
+        document.body.append(placeholder);
+        placeholder.transferControlToOffscreen().getContext("2d")?.fillText("abcdefghijklmnopqrstuvwxyz0123", 0, 30);
+        await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+        await new Promise((resolve) => placeholder.toBlob(resolve));
+        const fingerprintWindow = window as Window & { __siteBehaviorLabFingerprintSnapshot?: () => unknown };
+        return fingerprintWindow.__siteBehaviorLabFingerprintSnapshot?.();
+      },
+      events: { "canvas.toBlob": 1 },
+      readApis: ["canvas.toBlob"]
+    },
+    drawImage: {
+      body: async () => {
+        const placeholder = document.createElement("canvas");
+        placeholder.width = 200;
+        placeholder.height = 60;
+        document.body.append(placeholder);
+        placeholder.transferControlToOffscreen().getContext("2d")?.fillText("abcdefghijklmnopqrstuvwxyz0123", 0, 30);
+        await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+        const reader = document.createElement("canvas");
+        reader.width = 200;
+        reader.height = 60;
+        const context = reader.getContext("2d");
+        context?.drawImage(placeholder, 0, 0);
+        context?.getImageData(0, 0, 200, 60);
+        const fingerprintWindow = window as Window & { __siteBehaviorLabFingerprintSnapshot?: () => unknown };
+        return fingerprintWindow.__siteBehaviorLabFingerprintSnapshot?.();
+      },
+      events: { "canvas.getImageData": 1 },
+      readApis: ["canvas.getImageData"]
+    },
+    createImageBitmap: {
+      body: async () => {
+        const placeholder = document.createElement("canvas");
+        placeholder.width = 200;
+        placeholder.height = 60;
+        document.body.append(placeholder);
+        placeholder.transferControlToOffscreen().getContext("2d")?.fillText("abcdefghijklmnopqrstuvwxyz0123", 0, 30);
+        await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+        const bitmap = await createImageBitmap(placeholder);
+        const reader = document.createElement("canvas");
+        reader.width = 200;
+        reader.height = 60;
+        reader.getContext("2d")?.drawImage(bitmap, 0, 0);
+        reader.toDataURL();
+        const fingerprintWindow = window as Window & { __siteBehaviorLabFingerprintSnapshot?: () => unknown };
+        return fingerprintWindow.__siteBehaviorLabFingerprintSnapshot?.();
+      },
+      events: { "canvas.toDataURL": 1 },
+      readApis: ["canvas.toDataURL"]
+    }
+  };
+
+  await withObservedPages(async (runCase) => {
+    for (const [route, { body, events, readApis }] of Object.entries(cases)) {
+      const snapshot = parseObserverSnapshot(await runCase(body));
+      assert.deepEqual(snapshot.events, events, route);
+      assert.deepEqual(snapshot.detections, [readback(readApis)], route);
+    }
+  });
+});
+
 test("fingerprintObserverInitScript flags canvas font probing on an OffscreenCanvas in real Chromium", async () => {
   await withObservedPages(async (runCase) => {
     const snapshot = parseObserverSnapshot(
