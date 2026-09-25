@@ -4234,6 +4234,114 @@ test("scanSite verifies a consent click end to end when the verification flag is
   }
 });
 
+test("a banner moment read from only some frames records lost verification, not an absent banner", { timeout: 30_000 }, async () => {
+  // "Not visible" means every frame was searched and none showed a control. A
+  // probe that lost a frame cannot say that: the banner may sit in the frame
+  // it could not read. Recorded anyway, the partial negative completed a
+  // before-visible, after-not-visible transition and published a weak signal
+  // of a registered choice.
+  //
+  // The fixture's banner hides on click and its one subframe is empty. No
+  // strong interpreter can read a state, so the banner transition alone
+  // decides the choice state. A test-only hook removes the subframe right
+  // before the after-click visibility read, which therefore reads the top
+  // document (no control) and loses the subframe. The before-click read stops
+  // at the visible control in the top document, and the after-reload read
+  // finds a fresh subframe and reads every frame.
+  let visibilityHookCalls = 0;
+  let detachedSubframeObserved = false;
+  const upstream = createServer((_request, response) => {
+    response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+    response.end(`<!doctype html>
+      <title>Partial banner read fixture</title>
+      <script>
+        const rejected = localStorage.getItem("cmp-choice") === "rejected";
+        window.registerRejection = () => {
+          localStorage.setItem("cmp-choice", "rejected");
+          document.getElementById("consent-banner").style.display = "none";
+        };
+      </script>
+      <div id="consent-banner" style="display:none">
+        <button onclick="registerRejection()">Reject all</button>
+      </div>
+      <script>
+        if (!rejected) document.getElementById("consent-banner").style.display = "block";
+      </script>
+      <iframe title="Unrelated embedded content"></iframe>
+      <p>fixture</p>`);
+  });
+  await new Promise<void>((resolve, reject) => {
+    upstream.once("error", reject);
+    upstream.listen(0, "127.0.0.1", resolve);
+  });
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+
+  process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = "1";
+  try {
+    const visit = await scanSiteWithMeasurement(
+      {
+        url: "http://partial-banner-read.example.com/",
+        device: "desktop",
+        gpcEnabled: false,
+        consentMode: "reject-all"
+      },
+      {
+        publicUrlAlreadyVerified: true,
+        verifyPublicUrl: async () => undefined,
+        resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+        connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"),
+        resolveCnameChain: async () => [],
+        beforeConsentVisibilitySubframeEvaluationForTests: async (frame) => {
+          visibilityHookCalls += 1;
+          if (visibilityHookCalls !== 1) return;
+          const frameElement = await frame.frameElement();
+          try {
+            await frameElement.evaluate((element) => element.parentNode?.removeChild(element));
+            detachedSubframeObserved = frame.isDetached();
+          } finally {
+            await frameElement.dispose();
+          }
+        }
+      }
+    );
+
+    assert.equal(detachedSubframeObserved, true);
+    const staged = visit.measurement;
+    const consentPhaseId = staged.measurement.phases.find((phase) => phase.kind === "consent-interaction")!.phaseId;
+    const reloadPhaseId = staged.measurement.phases.find((phase) => phase.kind === "post-choice-reload")!.phaseId;
+    assert.equal(staged.consent!.controlActivated, true);
+    assert.equal(staged.measurement.detectors["consent-banner"].status, "complete");
+
+    // The after-click moment is omitted, not recorded as "not visible".
+    assert.deepEqual(
+      (staged.consent!.bannerTransition?.observations ?? []).map((entry) => [entry.moment, entry.phaseId, entry.visible]),
+      [
+        ["before-interaction", consentPhaseId, true],
+        ["after-reload", reloadPhaseId, false]
+      ]
+    );
+    // The lost moment is disclosed once, in its own phase and family only.
+    assert.deepEqual(
+      staged.measurement.qualityFacts.captureLoss.filter(
+        (loss) => loss.family === "consent-verification" || loss.detail === "consent-banner"
+      ),
+      [{ family: "consent-verification", phaseId: consentPhaseId, kind: "dropped", count: 1, detail: "consent-verification" }]
+    );
+
+    // Published, the run no longer claims a weak signal of the choice.
+    const report = buildRuntimeScanReportV2R2(visit, "public-api", {
+      SITE_BEHAVIOR_LAB_BUILD_COMMIT: "a".repeat(40)
+    } as NodeJS.ProcessEnv);
+    assert.equal(report.run.evidence.consent?.choiceState, "unavailable");
+    assert.equal(report.run.quality.byFamily["consent-verification"].outcome, "censored");
+  } finally {
+    delete process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+});
+
 test("a consent pair whose Accept click later leaves the site is not comparable", { timeout: 60_000 }, async () => {
   // The control hides its banner (so the probe records a click), then the page
   // navigates to another origin during the settle wait. The producer keeps the

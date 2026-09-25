@@ -86,6 +86,12 @@ public API or a 1.0 release.
   checked against the browser's own record of every dedicated worker the page
   started as well as the page-side construction count. A visit whose channel
   never opened now discloses the larger of the two counts.
+- A consent banner read that lost a frame was recorded as "banner not visible",
+  so a banner that could have been in the unread frame completed a
+  visible-then-hidden transition and published a weak signal of the chosen
+  consent. Such a moment is now left out and recorded as lost consent
+  verification in its phase; without the after-click moment the choice state
+  is unavailable.
 
 ## [0.6.0] - 2026-09-06
 

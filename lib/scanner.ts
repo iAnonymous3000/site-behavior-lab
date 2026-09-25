@@ -420,6 +420,12 @@ export type ScanSiteOptions = {
    */
   beforeConsentSubframeEvaluationForTests?: (frame: Frame) => Promise<void>;
   /**
+   * Coordinate frame lifecycle immediately before each consent-visibility
+   * evaluation of a subframe in scanner integration tests. Production never
+   * supplies this hook.
+   */
+  beforeConsentVisibilitySubframeEvaluationForTests?: (frame: Frame) => Promise<void>;
+  /**
    * Issue page work immediately before the passive Shields boundary is read in
    * scanner integration tests. Production never supplies this hook.
    */
@@ -1375,6 +1381,11 @@ export async function scanSiteWithMeasurement(
         let unreadableFrames = 0;
         const frames = page.frames();
         for (const frame of frames) {
+          // Outside the unreadable-frame catch, as in applyConsentChoice: a
+          // broken test hook must fail the test, not become site evidence.
+          if (options.beforeConsentVisibilitySubframeEvaluationForTests && frame !== page.mainFrame()) {
+            await options.beforeConsentVisibilitySubframeEvaluationForTests(frame);
+          }
           try {
             const operation = frame.evaluate(findVisibleConsentControl, args);
             const visible =
@@ -1408,13 +1419,40 @@ export async function scanSiteWithMeasurement(
           calibrationUsable: unreadableFrames === 0
         };
       };
+    // One consent coverage loss per family, phase and kind, whichever path
+    // (probe failure, subject loss, lost banner moment) finds it first.
+    const recordedConsentCoverageLosses = new Set<string>();
+    const recordConsentFamilyLoss = (
+      family: "detector-output" | "consent-verification",
+      phaseId: number | null,
+      kind: "cap" | "dropped"
+    ): void => {
+      const key = `${family}:${phaseId ?? "none"}:${kind}`;
+      if (recordedConsentCoverageLosses.has(key)) return;
+      recordedConsentCoverageLosses.add(key);
+      measurementKernel.recordCaptureLoss({
+        family,
+        phaseId,
+        kind,
+        count: 1,
+        detail: family === "detector-output" ? "consent-banner" : "consent-verification"
+      });
+    };
     const recordBannerMoment = async (
       moment: BannerTransitionR2["observations"][number]["moment"],
       phaseId: number
     ): Promise<void> => {
       try {
-        const { visible } = await probeConsentBannerVisibility();
+        const { visible, calibrationUsable } = await probeConsentBannerVisibility();
         if (visible === null) return;
+        // "Not visible" claims every frame was searched. A negative read that
+        // lost a frame could have missed the banner there, and would complete
+        // a before/after transition the page never showed, so the moment is
+        // lost verification evidence, not an observation.
+        if (visible === false && !calibrationUsable) {
+          recordConsentFamilyLoss("consent-verification", phaseId, "dropped");
+          return;
+        }
         // The validator requires strictly increasing moments; guard the
         // degenerate same-millisecond probe pair.
         const lastAtMs = bannerObservations[bannerObservations.length - 1]?.atMs ?? -1;
@@ -1536,29 +1574,13 @@ export async function scanSiteWithMeasurement(
     let consentBannerObserveCalibration:
       | ConsentBannerObserveCalibrationFact
       | undefined;
-    const recordedConsentCoverageLosses = new Set<string>();
     const recordConsentCoverageLoss = (
       phaseId: number | null,
       kind: "cap" | "dropped",
       includeVerification: boolean
     ): void => {
-      const record = (
-        family: "detector-output" | "consent-verification",
-        detail: "consent-banner" | "consent-verification"
-      ) => {
-        const key = `${family}:${phaseId ?? "none"}:${kind}`;
-        if (recordedConsentCoverageLosses.has(key)) return;
-        recordedConsentCoverageLosses.add(key);
-        measurementKernel.recordCaptureLoss({
-          family,
-          phaseId,
-          kind,
-          count: 1,
-          detail
-        });
-      };
-      record("detector-output", "consent-banner");
-      if (includeVerification) record("consent-verification", "consent-verification");
+      recordConsentFamilyLoss("detector-output", phaseId, kind);
+      if (includeVerification) recordConsentFamilyLoss("consent-verification", phaseId, kind);
     };
     const markConsentInteractionSubjectLoss = (phaseId: number) => {
       if (consentInteractionLeftSubject) return;

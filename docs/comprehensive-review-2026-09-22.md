@@ -235,6 +235,19 @@ already reach the construction count first. The fix changes when the capture
 loss is recorded, so the r2 methodology component moves to
 `gpc-worker-application-v3` with this epoch's identity bookkeeping.
 
+**Update, 2026-09-24.** An older backlog row lands in the same epoch: a
+banner-visibility moment recorded "not visible" from a read that lost a frame,
+which the observe-mode read already refused. A partial negative read now
+records no observation and one `consent-verification` capture loss in the
+moment's phase, deduplicated with the subject-loss path, so a missing
+after-click moment derives `unavailable` instead of `weak-signal`. The wire
+method `banner-visibility@1` and the consent-banner detector version stay: a
+recorded observation means what it meant, and the detector ledger and its
+`detector-output` losses are unchanged. Only when an observation is recorded
+changes, so the r2 methodology component moves to `consent-r2-v5` with this
+epoch's identity bookkeeping. A read that could not read any frame already
+recorded nothing and still records no loss; that is left as it was.
+
 ## 5. Confirmed and left for other reasons
 
 - **The Dockerfile re-runs `npm run check` inside the image build** (about 16

@@ -1472,7 +1472,10 @@ exactly one `after-interaction` observation with the transition observed
 (`visible: true` then `visible: false`), plus `interactionAttempted === true`,
 `controlActivated === true`, and a `"complete"` consent-banner detector. A
 disappearance without an activated control, or observations without the
-transition, derive `unavailable`.
+transition, derive `unavailable`. `visible: false` claims every frame was
+searched: a negative read that searched some frames but not all records no
+observation for that moment and a `consent-verification` capture loss in its
+phase instead. A read that searched no frame records no observation.
 
 ### 15.6 Supporting pairs: replication machinery without replication claims
 
