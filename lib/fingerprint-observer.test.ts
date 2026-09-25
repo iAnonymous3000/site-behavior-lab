@@ -1457,6 +1457,7 @@ test("fingerprintObserverInitScript keeps OffscreenCanvas evidence when the page
         delegate(contextPrototype, "drawImage");
         delegate(canvasPrototype, "convertToBlob");
         delegate(canvasPrototype, "transferToImageBitmap");
+        delegate(HTMLCanvasElement.prototype as unknown as Record<string, unknown>, "transferControlToOffscreen");
         spoofGetter(contextPrototype, "canvas", null);
         spoofGetter(contextPrototype, "font", "10px sans-serif");
         spoofGetter(canvasPrototype, "width", 1);
@@ -1526,6 +1527,12 @@ test("fingerprintObserverInitScript keeps OffscreenCanvas evidence when the page
         pageCanvas.getContext("2d")?.drawImage(bitmap, 0, 0);
         pageCanvas.toDataURL();
 
+        const placeholder = document.createElement("canvas");
+        placeholder.width = 200;
+        placeholder.height = 60;
+        placeholder.transferControlToOffscreen().getContext("2d")?.fillText("abcdefghijklmnopqrstuvwxyz0123", 0, 30);
+        placeholder.toDataURL();
+
         // Called through the captured Reflect.apply, since the page has
         // poisoned Function.prototype.call.
         return apply(takeSnapshot, fingerprintWindow, []);
@@ -1535,13 +1542,13 @@ test("fingerprintObserverInitScript keeps OffscreenCanvas evidence when the page
       "canvas.convertToBlob": 1,
       "canvas.getImageData": 1,
       "canvas.measureText": 10,
-      "canvas.toDataURL": 1
+      "canvas.toDataURL": 2
     });
     assert.deepEqual(snapshot.detections, [
       {
         kind: "canvas-fingerprinting",
         heuristic: "openwpm-canvas-v1",
-        count: 2,
+        count: 3,
         evidence: {
           readApis: ["canvas.convertToBlob", "canvas.getImageData", "canvas.toDataURL"],
           maxCanvasWidth: 200,
