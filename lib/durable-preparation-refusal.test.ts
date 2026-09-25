@@ -102,6 +102,20 @@ test("the refusal table stays bounded under churn and falls back to the reservat
   });
 });
 
+test("the refusal table stores only a digest and an expiry", () => {
+  withDatabase((sql, database) => {
+    // The replay answer is a fixed sentence precisely because no target,
+    // refusal text, client identifier or token is kept to echo.
+    assert.equal(recordDurablePreparationRefusal(sql, capability(1), NOW, NOW + WINDOW_MS), true);
+    const columns = database
+      .prepare("SELECT name FROM pragma_table_info('durable_preparation_refusals')")
+      .all()
+      .map((row) => String((row as { name: unknown }).name))
+      .sort();
+    assert.deepEqual(columns, ["capability_hash", "expires_at"]);
+  });
+});
+
 test("malformed refusal inputs are rejected", () => {
   withDatabase((sql) => {
     assert.throws(
@@ -164,24 +178,27 @@ test("the Worker records the refusal before it frees the slot, and answers a rep
   );
 });
 
-function withDatabase(callback: (sql: DurableScanJobStoreSql) => void): void {
+function withDatabase(callback: (sql: DurableScanJobStoreSql, database: DatabaseSync) => void): void {
   const database = new DatabaseSync(":memory:");
   try {
-    callback({
-      exec<T extends Record<string, ArrayBuffer | string | number | null>>(
-        query: string,
-        ...bindings: Array<ArrayBuffer | string | number | null>
-      ) {
-        const statement = database.prepare(query);
-        const sqliteBindings = bindings.map((binding) =>
-          binding instanceof ArrayBuffer ? new Uint8Array(binding) : binding
-        );
-        const isRead = /^\s*(SELECT|PRAGMA)\b/i.test(query);
-        const rows = isRead ? (statement.all(...sqliteBindings) as T[]) : [];
-        if (!isRead) statement.run(...sqliteBindings);
-        return { toArray: () => rows };
-      }
-    });
+    callback(
+      {
+        exec<T extends Record<string, ArrayBuffer | string | number | null>>(
+          query: string,
+          ...bindings: Array<ArrayBuffer | string | number | null>
+        ) {
+          const statement = database.prepare(query);
+          const sqliteBindings = bindings.map((binding) =>
+            binding instanceof ArrayBuffer ? new Uint8Array(binding) : binding
+          );
+          const isRead = /^\s*(SELECT|PRAGMA)\b/i.test(query);
+          const rows = isRead ? (statement.all(...sqliteBindings) as T[]) : [];
+          if (!isRead) statement.run(...sqliteBindings);
+          return { toArray: () => rows };
+        }
+      },
+      database
+    );
   } finally {
     database.close();
   }
