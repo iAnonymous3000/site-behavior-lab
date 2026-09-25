@@ -101,10 +101,12 @@ export const SUPERSEDED_R2_NORMALIZATIONS: Readonly<
     // kinds of string this pass published:
     // 1. A registrable domain under a PSL private suffix whose tenant label
     //    (its leftmost label) matches PRIVATE_SUFFIX_TENANT_SHAPES: a dashed or
-    //    underscored IPv4 address anywhere in the label, or a segment (split on
-    //    "-" and "_") that is an 8+ digit run, a 12+ hex token holding digits
-    //    and letters, or a 16+ alphanumeric token with at least three digit
-    //    runs; an xn-- label is tested for the address shape only. That label
+    //    underscored IPv4 address anywhere in the label, a label of 32+
+    //    characters with at least five digit runs, or a segment (split on "-"
+    //    and "_") that is a Unix timestamp in seconds or milliseconds (a 1 then
+    //    9 or 12 digits), a 16+ digit run, a 16+ hex token holding digits and
+    //    letters, or a 16+ alphanumeric token with at least three digit runs;
+    //    an xn-- label is tested for the address shape only. That label
     //    now publishes as "{label}". Host positions: a request's URL and domain
     //    and its initiator, script and injecting URLs and domains; a cookie
     //    domain; a listener detection's third-party origins and a keystroke

@@ -69,9 +69,9 @@ import {
  *   5. Only then update the two literals below to the new identity.
  */
 const ACTIVE_NODE_R2_NORMALIZATION_LITERAL =
-  "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:72a11e98768ccc24ebae379e8bdbb3c3147c5ad2b6ed3c044902fbe382f9f7d9+tldts@7.4.13+node-evidence-policy-v1+r2-http-status-compat-v1";
+  "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:3a173cc9dee0c747c74009e6e186430f08f6c22cd1f8e562bf37cc47adc16c14+tldts@7.4.13+node-evidence-policy-v1+r2-http-status-compat-v1";
 const ACTIVE_PAGEGRAPH_R2_NORMALIZATION_LITERAL =
-  "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:72a11e98768ccc24ebae379e8bdbb3c3147c5ad2b6ed3c044902fbe382f9f7d9+tldts@7.4.13+pagegraph-request-evidence-v1+r2-http-status-compat-v1";
+  "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:3a173cc9dee0c747c74009e6e186430f08f6c22cd1f8e562bf37cc47adc16c14+tldts@7.4.13+pagegraph-request-evidence-v1+r2-http-status-compat-v1";
 
 /**
  * The identities the latest NARROWING retired, pinned as exact literals beside
@@ -189,7 +189,7 @@ test("the identities the public-string-policy-v4 narrowing retired stay declarab
  * this file's docblock; a change that alters nothing updates only the pin.
  */
 const PINNED_TENANT_SHAPES_LABEL = "private-suffix-tenant-shapes-v1";
-const PINNED_TENANT_RULE_SHA256 = "928e488a4a97e8e6df1b7dbbdcb9399b2e785acb7270b344a3694010c46a63f7";
+const PINNED_TENANT_RULE_SHA256 = "010920430673f65dde633e51668379c648765f3737dc2e456680f490f9a63177";
 const PINNED_QUOTE_SPANS_LABEL = "policy-quote-identifier-spans-v1";
 const PINNED_QUOTE_SCRUB_SHA256 = "618a43b3f214a96c2a93d17fa18aeadc6408732dec59b57ff3abd67edf74887e";
 

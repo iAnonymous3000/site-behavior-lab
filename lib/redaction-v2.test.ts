@@ -297,9 +297,13 @@ test("an address- or token-shaped tenant label under a private suffix generalize
   // so each row below is caught by exactly one shape.
   for (const [shape, host] of [
     ["dashed IPv4", "198-51-100-7-clienttons-s.akamaihd.net"],
-    ["long numeric run", "1767225600-clienttons-s.akamaihd.net"],
+    ["Unix timestamp in seconds", "1767225600-clienttons-s.akamaihd.net"],
+    ["Unix timestamp in milliseconds", "1767225600000-clienttons-s.akamaihd.net"],
+    ["numeric token of sixteen digits", "4839201756482913.herokuapp.com"],
     ["hex token", "deadbeefcafe1234.herokuapp.com"],
-    ["mixed token with three digit runs", "a1b2c3d4e5f6g7h8.github.io"]
+    ["mixed token with three digit runs", "a1b2c3d4e5f6g7h8.github.io"],
+    // Two digit runs in the long segment, eight across the label.
+    ["long label with five digit runs", "abcde1fghij2klmnopqr-abc1d2-12a34b567-clientnsv4-s.akamaihd.net"]
   ]) {
     const hostname = redactHostnameV2(host);
     assert.equal(hostname.value.startsWith("{label}."), true, `${shape}: ${host}`);
@@ -341,6 +345,13 @@ test("the tenant marker is terminal and stable service tenants stay verbatim", (
     // Hex-like words shorter than the hex threshold.
     "face2face.github.io",
     "cafe1234.herokuapp.com",
+    // Platform default hostnames are the site's stable address: Heroku's
+    // twelve-character app id and a Cloud Run service's twelve-digit project
+    // number sit below the hex and numeric thresholds.
+    "example-app-1234567890ab.herokuapp.com",
+    "hello-123456789012.us-central1.run.app",
+    // A long label whose digit runs are too few for the label shape.
+    "my-company-marketing-site-2024-v2.netlify.app",
     idn,
     // ICANN registrable domains are out of scope: a registered name is public.
     "203-0-113-7.com"
@@ -354,4 +365,55 @@ test("the tenant marker is terminal and stable service tenants stay verbatim", (
   const icann = redactHostnameV2("203-0-113-7.static.example-isp.net");
   assert.equal(icann.value, "{label}.static.example-isp.net");
   assert.deepEqual(icann.counters, onlyLabelsGeneralized(1));
+});
+
+test("a per-visit client token laid out like the observed ones generalizes whatever its long segment's digit runs", () => {
+  // The observed Akamai clientnsv4 tokens carry a twenty-character base32
+  // segment, a six-character segment starting "p", and a nine-character hex
+  // segment. Only the long segment can meet a segment shape, and a random one
+  // has fewer than three digit runs about a third of the time, so the label
+  // shape must catch those. Each draw keeps one observed digit layout for the
+  // two later segments and places zero to three digit runs in the long one.
+  // Park-Miller: seeded, so every run draws the same labels.
+  let state = 0x5eed;
+  const next = (bound: number) => {
+    state = (state * 48271) % 2147483647;
+    return Math.floor((state / 2147483647) * bound);
+  };
+  const fill = (layout: string, letters: string, digits: string) =>
+    Array.from(layout, (slot) => (slot === "d" ? digits[next(digits.length)] : letters[next(letters.length)])).join("");
+  const letters = "abcdefghijklmnopqrstuvwxyz";
+  const laterLayouts = [
+    ["lldld", "ddlddlddd"],
+    ["dldll", "dlddlllld"],
+    ["lddll", "dldlddddl"]
+  ];
+  for (let runs = 0; runs <= 3; runs += 1) {
+    for (let draw = 0; draw < 200; draw += 1) {
+      // Runs start at distinct slots three apart, so two runs never touch.
+      const slots = [0, 3, 6, 9, 12, 15, 18];
+      for (let index = slots.length - 1; index > 0; index -= 1) {
+        const other = next(index + 1);
+        [slots[index], slots[other]] = [slots[other], slots[index]];
+      }
+      const long = Array.from({ length: 20 }, () => "l");
+      for (const start of slots.slice(0, runs)) {
+        long[start] = "d";
+        if (next(2) === 1) long[start + 1] = "d";
+      }
+      const [middle, hex] = laterLayouts[next(laterLayouts.length)];
+      const label = [
+        fill(long.join(""), letters, "234567"),
+        `p${fill(middle, letters, "0123456789")}`,
+        fill(hex, "abcdef", "0123456789"),
+        "clientnsv4",
+        "s"
+      ].join("-");
+      assert.equal(label.length, 50, label);
+      assert.equal(label.split("-")[0].match(/[0-9]+/g)?.length ?? 0, runs, label);
+      const host = `${label}.akamaihd.net`;
+      assert.equal(redactHostnameV2(host).value, "{label}.akamaihd.net", host);
+      assert.equal(isGeneralizedPrivateSuffixTenantHost(host), true, host);
+    }
+  }
 });

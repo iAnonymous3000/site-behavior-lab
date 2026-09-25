@@ -136,7 +136,8 @@ test("a token-shaped private-suffix tenant is refused before quota, DNS, or Chro
   // report after the requester paid for the visit.
   for (const url of [
     "https://192-0-2-41_s-198-51-100-43_ts-1767225600-clienttons-s.akamaihd.net/",
-    "https://5f8e9a0b1c2d3e4f5a6b7c8d--site.netlify.app/"
+    "https://5f8e9a0b1c2d3e4f5a6b7c8d--site.netlify.app/",
+    "https://abcde1fghij2klmnopqr-abc1d2-12a34b567-clientnsv4-s.akamaihd.net/"
   ]) {
     await assert.rejects(
       prepare(url),
@@ -150,8 +151,14 @@ test("a token-shaped private-suffix tenant is refused before quota, DNS, or Chro
     assert.equal(verifierCalled, false, `${url} must not reach target verification`);
   }
 
-  // Stable tenants under the same kind of suffix stay scannable.
-  for (const url of ["https://trial-eum-clienttons-s.akamaihd.net/", "https://face2face.github.io/"]) {
+  // Stable tenants under the same kind of suffix stay scannable, platform
+  // default hostnames included: that address is the site's stable one.
+  for (const url of [
+    "https://trial-eum-clienttons-s.akamaihd.net/",
+    "https://face2face.github.io/",
+    "https://example-app-1234567890ab.herokuapp.com/",
+    "https://hello-123456789012.us-central1.run.app/"
+  ]) {
     verifierCalled = false;
     await prepare(url);
     assert.equal(verifierCalled, true, url);

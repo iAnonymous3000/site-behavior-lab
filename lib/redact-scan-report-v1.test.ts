@@ -1240,6 +1240,7 @@ test("the public-string policy digest hashes both rule tables", () => {
   assert.equal(PRIVATE_SUFFIX_TENANT_SHAPES.label, "private-suffix-tenant-shapes-v1");
   assert.equal(PRIVATE_SUFFIX_TENANT_SHAPES.patterns.length, 5);
   assert.equal(PRIVATE_SUFFIX_TENANT_SHAPES.minDigitRuns, 3);
+  assert.deepEqual(PRIVATE_SUFFIX_TENANT_SHAPES.tokenLabel, { minLength: 32, minDigitRuns: 5 });
 
   const spans = inputs.policyQuoteIdentifierSpans;
   assert.equal(spans.label, "policy-quote-identifier-spans-v1");

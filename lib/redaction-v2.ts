@@ -275,13 +275,27 @@ function publicRegistrableParts(hostname: string): { domain: string; isPrivate: 
  * an unreviewed subdomain label.
  *
  * The label is split into segments on runs of `-` and `_`. It generalizes
- * when the whole label holds a dashed or underscored IPv4 address, or any
- * segment is a long numeric run, a hex token with both digits and letters, or
- * a long mixed token with at least three separate digit runs. The thresholds
- * keep ordinary names verbatim: `coolprogrammer2000` (one digit run),
- * `face2face` and `cafe1234` (short hex-like words), and cloudfront
- * distribution ids such as `d3e54v103j8qbb`. An IDNA A-label's tail is base36
- * by construction, so an `xn--` label is tested for the address shape only.
+ * when the whole label holds a dashed or underscored IPv4 address; when the
+ * label is at least 32 characters long with at least five separate digit runs
+ * across it; or when any segment is a Unix timestamp in seconds or
+ * milliseconds (ten or thirteen digits starting with 1, so 2001 to 2033), a
+ * numeric run of sixteen or more digits, a hex token of sixteen or more
+ * characters with both digits and letters, or a mixed token of sixteen or more
+ * characters with at least three separate digit runs. The label shape exists
+ * for Akamai's clientnsv4 tokens: only their twenty-character segment can meet
+ * a segment shape, and a random one has fewer than three digit runs about a
+ * third of the time. Modeling each segment as random over the alphabets the
+ * observed tokens use, about 3 draws in 100 still carry four or fewer digit
+ * runs in all and publish verbatim.
+ *
+ * The thresholds keep ordinary names verbatim: `coolprogrammer2000` (one digit
+ * run), `face2face` and `cafe1234` (short hex-like words), cloudfront
+ * distribution ids such as `d3e54v103j8qbb`, and platform default hostnames,
+ * which are a site's stable address: Heroku's `example-app-1234567890ab`
+ * (a twelve-character app id) and Cloud Run's `hello-123456789012` (a
+ * twelve-digit project number). A ten-digit id starting with 1 reads as a
+ * timestamp and generalizes. An IDNA A-label's tail is base36 by
+ * construction, so an `xn--` label is tested for the address shape only.
  * ICANN registrable domains are out of scope: a registered name is a public
  * identity, and its subdomain labels already follow the allowlist.
  *
@@ -291,10 +305,12 @@ function publicRegistrableParts(hostname: string): { domain: string; isPrivate: 
 const TENANT_SEGMENT_SEPARATOR = /[-_]+/;
 const DASHED_IPV4_TENANT_LABEL =
   /(?:^|[^0-9])(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(?:[-_](?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}(?![0-9])/;
-const LONG_NUMERIC_TENANT_SEGMENT = /^[0-9]{8,}$/;
-const HEX_TOKEN_TENANT_SEGMENT = /^(?=[0-9a-f]*[0-9])(?=[0-9a-f]*[a-f])[0-9a-f]{12,}$/;
+const NUMERIC_TOKEN_TENANT_SEGMENT = /^(?:1[0-9]{9}(?:[0-9]{3})?|[0-9]{16,})$/;
+const HEX_TOKEN_TENANT_SEGMENT = /^(?=[0-9a-f]*[0-9])(?=[0-9a-f]*[a-f])[0-9a-f]{16,}$/;
 const MIXED_TOKEN_TENANT_SEGMENT = /^(?=[a-z0-9]*[a-z])[a-z0-9]{16,}$/;
 const MIXED_TOKEN_MIN_DIGIT_RUNS = 3;
+const TOKEN_TENANT_LABEL_MIN_LENGTH = 32;
+const TOKEN_TENANT_LABEL_MIN_DIGIT_RUNS = 5;
 
 /** The tenant-shape identity, as the public-string policy digest hashes it. */
 export const PRIVATE_SUFFIX_TENANT_SHAPES = Object.freeze({
@@ -302,22 +318,32 @@ export const PRIVATE_SUFFIX_TENANT_SHAPES = Object.freeze({
   patterns: Object.freeze([
     TENANT_SEGMENT_SEPARATOR,
     DASHED_IPV4_TENANT_LABEL,
-    LONG_NUMERIC_TENANT_SEGMENT,
+    NUMERIC_TOKEN_TENANT_SEGMENT,
     HEX_TOKEN_TENANT_SEGMENT,
     MIXED_TOKEN_TENANT_SEGMENT
   ].map((pattern) => pattern.source)),
-  minDigitRuns: MIXED_TOKEN_MIN_DIGIT_RUNS
+  minDigitRuns: MIXED_TOKEN_MIN_DIGIT_RUNS,
+  tokenLabel: Object.freeze({
+    minLength: TOKEN_TENANT_LABEL_MIN_LENGTH,
+    minDigitRuns: TOKEN_TENANT_LABEL_MIN_DIGIT_RUNS
+  })
 });
 
 function isGeneralizedTenantLabel(label: string): boolean {
   if (label === GENERALIZED_LABEL) return false;
   if (DASHED_IPV4_TENANT_LABEL.test(label)) return true;
   if (label.startsWith("xn--")) return false;
+  const digitRuns = (value: string) => value.match(/[0-9]+/g)?.length ?? 0;
+  if (
+    label.length >= TOKEN_TENANT_LABEL_MIN_LENGTH &&
+    digitRuns(label) >= TOKEN_TENANT_LABEL_MIN_DIGIT_RUNS
+  ) {
+    return true;
+  }
   return label.split(TENANT_SEGMENT_SEPARATOR).some((segment) =>
-    LONG_NUMERIC_TENANT_SEGMENT.test(segment) ||
+    NUMERIC_TOKEN_TENANT_SEGMENT.test(segment) ||
     HEX_TOKEN_TENANT_SEGMENT.test(segment) ||
-    (MIXED_TOKEN_TENANT_SEGMENT.test(segment) &&
-      (segment.match(/[0-9]+/g)?.length ?? 0) >= MIXED_TOKEN_MIN_DIGIT_RUNS)
+    (MIXED_TOKEN_TENANT_SEGMENT.test(segment) && digitRuns(segment) >= MIXED_TOKEN_MIN_DIGIT_RUNS)
   );
 }
 

@@ -239,9 +239,12 @@ public API or a 1.0 release.
   tenant label under a shared provider suffix (the first label of a
   registrable domain under a private public suffix, such as `akamaihd.net`) is
   generalized to `{label}` when it holds a dashed or underscored IPv4 address,
-  a run of eight or more digits, a hex token of twelve or more characters
-  mixing digits and letters, or a token of sixteen or more characters with at
-  least three digit runs, wherever a host or registrable domain is published:
+  when it is at least 32 characters long with five or more separate digit
+  runs, or when a segment of it (split on `-` and `_`) is a Unix timestamp in
+  seconds or milliseconds, a run of sixteen or more digits, a hex token of
+  sixteen or more characters mixing digits and letters, or a token of sixteen
+  or more characters with at least three digit runs, wherever a host or
+  registrable domain is published:
   request, provenance, cookie, CNAME, consent-frame and policy hosts, a
   Shields-list tracker's domain and entity, and policy entities. Akamai's EUM
   beacon hosts put the scanner's egress address, a visit timestamp and
@@ -251,12 +254,16 @@ public API or a 1.0 release.
   sentence becomes `[redacted]`, and the quote is marked incomplete, so its
   claim is kept but never checked. The shapes cover the per-visit patterns
   seen in published reports, not every identifier: a dashed IPv6 address, a
-  short token or one with fewer than three digit runs survives.
+  shorter token, a sparse token whose label has fewer than five digit runs,
+  and a numeric id that is neither a timestamp nor sixteen digits long
+  survive. Platform default hostnames, such as Heroku's
+  `example-app-1234567890ab.herokuapp.com` and a Cloud Run service URL, stay
+  verbatim and scannable.
 - Identities, old to new. `REDACTION_VERSION` stays 4: every committed sidecar
   and logged r2 wire pins revision 4, so the narrowing is named by the
   public-string policy instead. `PUBLIC_STRING_POLICY_VERSION` moves from
   `public-string-policy-v3` to `public-string-policy-v4`, and the policy digest
-  from `b40a333a...3d51` to `72a11e98...f7d9`, which now also hashes the tenant
+  from `b40a333a...3d51` to `3a173cc9...6c14`, which now also hashes the tenant
   shapes and the quote spans. Both r2 normalization identities move with it;
   `tldts@7.4.13` and the allowlists do not.
 - The outgoing Node and PageGraph normalizations stay readable as superseded
