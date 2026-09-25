@@ -1414,7 +1414,8 @@ test("a detector loss hedges the detectors, not the request and cookie counts", 
 
   // The detector loss is disclosed, and absence claims over it are hedged.
   assert.equal(headline.tone, "info");
-  assert.match(headline.subhead, /detector output evidence was censored/);
+  // The note opens its own sentence after the completed families' absences.
+  assert.match(headline.subhead, /instrumented API events\. Detector output evidence was censored/);
   assert.match(headline.subhead, /unproven here rather than shown to be absent/);
 
   // But nothing may call the completed families interrupted.
@@ -1434,6 +1435,36 @@ test("a detector loss hedges the detectors, not the request and cookie counts", 
   assert.match(cappedHeadline.headline, /scan did not finish every measurement/);
   assert.match(cappedHeadline.subhead, /retained lower bounds for this visit/);
   assert.doesNotMatch(cappedHeadline.subhead, /cookie and storage figures are incomplete end-state snapshots/);
+});
+
+test("with counts complete, each part of the incomplete-check subhead opens its own sentence", () => {
+  // An unsupported family and a detector loss beside the completed absences:
+  // three sentences, each capitalized, and a headline that says the other
+  // check is incomplete rather than that it did not finish.
+  const report = makePublicSingleReportV2R2();
+  const run = report.run;
+  run.quality.byFamily["detector-output"] = { outcome: "censored", reasons: ["capture-loss:truncated"] };
+  run.qualityFacts.captureLoss.push({
+    family: "detector-output",
+    phaseId: null,
+    kind: "truncated",
+    count: 1,
+    detail: "policy-visit"
+  });
+  run.quality.byFamily.fingerprinting = { outcome: "censored", reasons: ["capture-loss:dropped"] };
+  run.qualityFacts.captureLoss.push({
+    family: "fingerprinting",
+    phaseId: null,
+    kind: "dropped",
+    count: 0,
+    detail: "pagegraph-unsupported"
+  });
+
+  const headline = buildReportHeadline(viewFromV2(report, 2));
+
+  assert.match(headline.headline, /recorded no listed activity, but another check is incomplete\.$/);
+  assert.match(headline.subhead, /^The request log recorded no cross-site hosts/);
+  assert.match(headline.subhead, /records\. Fingerprinting evidence was not captured and is not treated as an observed absence\. Detector output evidence was censored/);
 });
 
 test("caveat counts one visit on single reports and two on comparisons", () => {

@@ -1067,19 +1067,23 @@ function buildUncorrectedReportHeadline(
   if (censorshipNotes.length > 0) {
     // Counts complete, an instrument short. Report both, and hedge only the
     // absence claims that actually depend on the instrument that stopped.
+    // "Incomplete", not "did not finish": some of these reasons come from a
+    // check that ran to its end, such as a v1 input probe that stopped or
+    // could not read a request, or a listener detection the sanitizer
+    // withheld. Each note below says what happened.
     return finish(
       "info",
       completedAbsenceParts.length > 0
-        ? `${domain}'s completed measurements recorded no listed activity, but another check did not finish.`
-        : `${domain}'s scan completed some measurements, but another check did not finish.`,
-      `${completedAbsenceParts.length > 0 ? `${joinNames(completedAbsenceParts)}. ` : ""}${
+        ? `${domain}'s completed measurements recorded no listed activity, but another check is incomplete.`
+        : `${domain}'s scan completed some measurements, but another check is incomplete.`,
+      `${completedAbsenceParts.length > 0 ? `${capitalize(joinNames(completedAbsenceParts))}. ` : ""}${
         unsupportedFamilies.length > 0
-          ? `${joinNames(unsupportedFamilies)} evidence was not captured and is not treated as an observed absence. `
+          ? `${capitalize(joinNames(unsupportedFamilies))} evidence was not captured and is not treated as an observed absence. `
           : ""
-      }${joinNames(
+      }${capitalize(joinNames(
         censorshipNotes,
         2
-      )}, so whatever those checks look for is unproven here rather than shown to be absent.`,
+      ))}, so whatever those checks look for is unproven here rather than shown to be absent.`,
       stats.length > 0 ? stats : [{ label: "third-party requests", value: n(run.counts.thirdPartyRequests), emphasis: true }],
       undefined,
       {

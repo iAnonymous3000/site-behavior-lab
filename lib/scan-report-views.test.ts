@@ -604,8 +604,15 @@ test("a v1 probe that stopped or could not read a request censors the keystroke 
   assert.notEqual(degradedRunNotice(unread.view), null);
   // On a quiet visit the rendered headline names the unproven input check
   // instead of reading the visit as complete.
-  assert.match(buildReportHeadline(outcome(true, 0).view).subhead, /may have carried its test value/);
+  const quiet = buildReportHeadline(outcome(true, 0).view);
+  assert.match(quiet.subhead, /may have carried its test value/);
   assert.doesNotMatch(buildReportHeadline(outcome(false, 0).view).subhead, /test value/);
+  // The probe finished, so the headline may not say a check did not finish,
+  // and each sentence of the subhead opens as a sentence.
+  assert.match(quiet.headline, /recorded no listed activity, but another check is incomplete\.$/);
+  assert.doesNotMatch(quiet.headline, /did not finish/);
+  assert.match(quiet.subhead, /^The request log recorded no cross-site hosts/);
+  assert.match(quiet.subhead, /instrumented API events\. The synthetic form-input probe stopped/);
 });
 
 test("a timed-out v1 synthetic-input probe censors detector and request evidence", () => {
