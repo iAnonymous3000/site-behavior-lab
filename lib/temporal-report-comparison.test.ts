@@ -47,7 +47,11 @@ test("corrected historical visits cannot become an apparently uncorrected tempor
 
 test("local comparison retains no loophole for a published clarification", () => {
   for (const event of ledger.entries) {
-    const loaded = asLocalReport(archivedReport(event.reportIds[0]));
+    // A privacy replacement removes its original; the redacted copy is the
+    // published evidence that carries the event.
+    const published = event.state === "privacy-superseded" ? event.replacementReportIds?.[0] : event.reportIds[0];
+    assert.ok(published, `${event.eventId} names no published report`);
+    const loaded = asLocalReport(archivedReport(published));
     assert.ok(temporalUploadSelectionError(loaded)?.includes(event.eventId));
     const result = createLoadedTemporalComparison(loadedR2(makePublicSingleReportV2R2()), loaded);
     assert.equal(result.ok, false);

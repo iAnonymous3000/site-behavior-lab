@@ -536,6 +536,21 @@
       ],
       "summary": "The X pixel decoder treated any populated sale amount or order quantity as Purchase, including zero. The Purchase label in these reports is unsupported and must not be used as evidence of a purchase. The underlying X pixel requests remain observations. Consult earlier clarification events for input-probe and policy limitations.",
       "detailsUrl": "https://sitebehavior.org/corrections/v1-accuracy/"
+    },
+    {
+      "eventId": "SBL-CORR-2026-004",
+      "publishedAt": "2026-09-25T18:52:53.861Z",
+      "state": "privacy-superseded",
+      "reportIds": [
+        "20260727-f378d41658184b8e1b014ae2e41b8541",
+        "20260817-693b5bc1c455e1be2d0b42b4d8efa292"
+      ],
+      "summary": "Two Brave-list blocking comparisons published two hosting tenant names each under a shared provider suffix, and the names encoded the scanner's egress address, a visit timestamp and per-visit tokens. Redaction now generalizes such names. Redacted copies are published under new report IDs and the originals are removed. Each copy merges the generalized hosts into one domain row, so its unblocked run counts one fewer third-party domain. Every earlier event about an original applies to its copy.",
+      "detailsUrl": "https://github.com/iAnonymous3000/site-behavior-lab/blob/main/docs/critical-use-audit-2026-09-01.md#32-confirmed-and-deliberately-left",
+      "replacementReportIds": [
+        "20260727-4006618d80dc779268592042b119010e",
+        "20260817-8d7ada3c1897a6c494396ed15db32a53"
+      ]
     }
   ]
 }

@@ -1,8 +1,8 @@
-import { randomUUID } from "node:crypto";
+import { randomBytes, randomUUID } from "node:crypto";
 import { constants } from "node:fs";
-import { open, readdir, rename, stat, unlink } from "node:fs/promises";
+import { lstat, open, readdir, rename, stat, unlink } from "node:fs/promises";
 import path from "node:path";
-import { syncDirectory } from "./exact-atomic-file";
+import { syncDirectory, writeNewFileDurably } from "./exact-atomic-file";
 import { publicReportDigest } from "./canonical-json";
 import { committedReportCreatedAt } from "./committed-report-created-at";
 import { readManagedReport, type ManagedReportReadFailureReason } from "./managed-report-reader";
@@ -14,9 +14,12 @@ import { redactScanReportV1 } from "./redact-scan-report-v1";
 import {
   buildProvenanceEntry,
   committedSidecarFilename,
+  matchProvenance,
   matchProvenanceAtVersion
 } from "./redaction-provenance";
+import { buildStaticReportShare } from "./report-locator";
 import { REPORT_ID_PATTERN } from "./report-validation";
+import { readStaticReportBundle, removeStaticReportBundleUnderLock } from "./static-report-files";
 import { readStoredScanReport } from "./scan-report-reader";
 import type { PublicScanReportV2R2 } from "./scan-report-v2-r2";
 import {
@@ -276,6 +279,201 @@ async function remediateReportsUnlocked(
     issues: [],
     transitionAudit
   };
+}
+
+export type PrivacyReplacementSummary = {
+  originalReportId: string;
+  replacementReportId: string;
+  writtenAt: string;
+  createdAt: string;
+  transitionAudit: RedactionTransitionAudit;
+};
+
+type PrivacyReplacementHookEvent = {
+  stage: "after-replacement-write" | "before-original-removal";
+};
+
+/**
+ * Replace one committed report for privacy (docs/corrections-ledger.md): a
+ * report that published a string the current sanitizer removes is republished
+ * redacted under a new ID, and the original pair is deleted. Rewriting it in
+ * place would edit logged, correction-pinned evidence, which the transparency
+ * log and the corrections history both refuse.
+ *
+ * Only one state qualifies: a committed frozen-v1 bundle whose sidecar vouches
+ * for its exact bytes at the current redaction version and committed clock,
+ * and which is not a fixed point of the current sanitizer. The replacement is
+ * the sanitizer's output with the share pointed at the new ID, which keeps the
+ * original's scan-date prefix, and its sidecar keeps the original creation
+ * clock. It is proven readable from disk before the original is removed, so a
+ * failure leaves both pairs for inspection rather than neither.
+ *
+ * The corrections-ledger event that names both IDs is a separate reviewed
+ * edit, and the launcher refuses this mode during a measurement freeze with
+ * the pruner's own guard, since it deletes governed evidence too.
+ */
+export async function privacyReplaceReport(input: {
+  reportsDir: string;
+  reportId: string;
+  /** One operator clock for the new sidecar; exposed for deterministic tests. */
+  writtenAt?: string;
+  /** Deterministic replacement ID for tests; production mints a random one. */
+  _testReplacementReportId?: string;
+  /** Deterministic race injection for tests; production callers leave absent. */
+  _testHook?: (event: PrivacyReplacementHookEvent) => Promise<void>;
+}): Promise<PrivacyReplacementSummary> {
+  const { reportsDir, reportId } = input;
+  if (!REPORT_ID_PATTERN.test(reportId)) throw new Error(`Invalid report id "${reportId}".`);
+  const writtenAt = input.writtenAt ?? new Date().toISOString();
+  assertCanonicalTimestamp(writtenAt, "writtenAt");
+  const replacementReportId =
+    input._testReplacementReportId ?? `${reportId.slice(0, 8)}-${randomBytes(16).toString("hex")}`;
+  if (
+    !REPORT_ID_PATTERN.test(replacementReportId) ||
+    replacementReportId === reportId ||
+    replacementReportId.slice(0, 8) !== reportId.slice(0, 8)
+  ) {
+    throw new Error(
+      `Cannot replace ${reportId} for privacy: replacement id "${replacementReportId}" must be a new report id with the original's scan-date prefix.`
+    );
+  }
+
+  const lock = await acquireReportCorpusLock(reportsDir, `privacy-replacement-${reportId}`);
+  try {
+    return await privacyReplaceReportUnlocked(input, replacementReportId, writtenAt);
+  } finally {
+    await lock.release();
+  }
+}
+
+async function privacyReplaceReportUnlocked(
+  input: {
+    reportsDir: string;
+    reportId: string;
+    _testHook?: (event: PrivacyReplacementHookEvent) => Promise<void>;
+  },
+  replacementReportId: string,
+  writtenAt: string
+): Promise<PrivacyReplacementSummary> {
+  const { reportsDir, reportId } = input;
+  const refuse = (detail: string) => new Error(`Cannot replace ${reportId} for privacy: ${detail}.`);
+  const reportPath = path.join(reportsDir, `${reportId}.json`);
+  const sidecarPath = path.join(reportsDir, committedSidecarFilename(reportId));
+  const originalReport = await readBoundedUtf8FileSnapshot(
+    reportPath,
+    SERVER_STORED_REPORT_JSON_MAX_BYTES,
+    `${reportId}.json`,
+    true
+  );
+  if (originalReport === null) throw refuse("no committed report has this id");
+  const originalSidecar = await readOptionalSidecarSnapshot(sidecarPath);
+
+  let parsed: unknown;
+  try {
+    parsed = parseStrictJson(originalReport.text, SERVER_STORED_REPORT_JSON_MAX_BYTES);
+  } catch {
+    throw refuse("invalid JSON");
+  }
+  const read = readStoredScanReport(parsed);
+  if (!read.ok) throw refuse(`unreadable report (${read.error})`);
+  if (read.stored.schemaVersion !== 1) {
+    throw refuse("only a frozen v1 report has a reviewed privacy replacement");
+  }
+  const createdAt = committedReportCreatedAt(read.stored);
+
+  // A pair the reader accepts publishes nothing redaction removes, and any
+  // other failure is a provenance defect, not a privacy one. The reader stops
+  // at the fixed-point check before it compares clocks, so the committed clock
+  // is proven separately.
+  const existing = readManagedReport({
+    reportId,
+    reportContents: originalReport.text,
+    sidecarContents: originalSidecar?.text ?? null,
+    retention: { createdAt, expiresAt: null }
+  });
+  if (existing.ok) throw refuse("it is already a fixed point of the current sanitizer");
+  if (existing.reason !== "redaction-not-idempotent") {
+    throw refuse(`its committed bundle is not an attested current pair (${existing.reason})`);
+  }
+  const provenance = matchProvenance(
+    read.stored.report,
+    parseStrictJson(originalSidecar!.text, SERVER_STORED_PROVENANCE_SIDECAR_MAX_BYTES),
+    reportId
+  );
+  if (
+    provenance.status !== "matched" ||
+    provenance.entry.createdAt !== createdAt ||
+    provenance.entry.expiresAt !== null
+  ) {
+    throw refuse("its sidecar does not carry the committed retention clock");
+  }
+
+  const redacted = redactScanReportV1(read.stored.report).report;
+  assertPreservedIdentity(reportId, read.stored.report, redacted);
+  const replacement: ScanReport = { ...redacted, share: buildStaticReportShare(replacementReportId) };
+  const replacementWire = `${JSON.stringify(replacement, null, 2)}\n`;
+  const replacementSidecarWire = `${JSON.stringify(
+    buildProvenanceEntry({
+      reportId: replacementReportId,
+      publicReport: replacement,
+      writtenAt,
+      createdAt,
+      expiresAt: null
+    }),
+    null,
+    2
+  )}\n`;
+
+  const replacementPath = path.join(reportsDir, `${replacementReportId}.json`);
+  const replacementSidecarPath = path.join(reportsDir, committedSidecarFilename(replacementReportId));
+  // Both names must be free before the first write: a stray sidecar would
+  // otherwise refuse only after the report exists.
+  for (const file of [replacementPath, replacementSidecarPath]) {
+    if (await pathExists(file)) throw refuse(`${path.basename(file)} already exists`);
+  }
+  // Report first, sidecar second, as publication writes a new pair.
+  await writeNewFileDurably(replacementPath, replacementWire);
+  await writeNewFileDurably(replacementSidecarPath, replacementSidecarWire);
+  await input._testHook?.({ stage: "after-replacement-write" });
+
+  const written = await readStaticReportBundle(reportsDir, replacementReportId);
+  if (
+    written.outcome !== "found" ||
+    written.wire !== replacementWire ||
+    written.sidecarWire !== replacementSidecarWire
+  ) {
+    throw new RemediationConflictError(
+      `${replacementReportId} did not read back as the planned managed bundle; ${reportId} was left in place`
+    );
+  }
+
+  await input._testHook?.({ stage: "before-original-removal" });
+  await assertExactObjectState(reportPath, originalReport.bytes, SERVER_STORED_REPORT_JSON_MAX_BYTES, `${reportId}.json`);
+  await assertExactObjectState(
+    sidecarPath,
+    originalSidecar!.bytes,
+    SERVER_STORED_PROVENANCE_SIDECAR_MAX_BYTES,
+    `${reportId}.provenance.json`
+  );
+  await removeStaticReportBundleUnderLock(reportsDir, reportId);
+
+  return {
+    originalReportId: reportId,
+    replacementReportId,
+    writtenAt,
+    createdAt,
+    transitionAudit: redactionTransitionAudit(read.stored.report, redacted)
+  };
+}
+
+async function pathExists(file: string): Promise<boolean> {
+  try {
+    await lstat(file);
+    return true;
+  } catch (error) {
+    if (isErrno(error, "ENOENT")) return false;
+    throw error;
+  }
 }
 
 async function planReport(
@@ -722,12 +920,40 @@ export function parseRemediationMode(args: string[]): RemediationMode {
   return apply ? "apply" : check ? "check" : "dry-run";
 }
 
+export type RemediationCommand =
+  | { kind: "corpus"; mode: RemediationMode }
+  | { kind: "privacy-replace"; reportId: string };
+
+/**
+ * `--privacy-replace <id>` stands alone, as exactly that token followed by one
+ * report id. scripts/run-schema-cli.mjs applies the freeze guard when the token
+ * is present, so any other spelling must be refused here, never read as a mode.
+ */
+export function parseRemediationCommand(args: string[]): RemediationCommand {
+  if (!args.includes("--privacy-replace")) return { kind: "corpus", mode: parseRemediationMode(args) };
+  const [flag, reportId, ...rest] = args;
+  if (flag !== "--privacy-replace" || reportId === undefined || rest.length > 0) {
+    throw new Error("--privacy-replace takes exactly one report id and no other argument.");
+  }
+  if (!REPORT_ID_PATTERN.test(reportId)) throw new Error(`Invalid report id for --privacy-replace: ${reportId}`);
+  return { kind: "privacy-replace", reportId };
+}
+
 async function main(): Promise<void> {
-  const mode = parseRemediationMode(process.argv.slice(2));
-  const summary = await remediateReports({
-    reportsDir: path.join(process.cwd(), "public", "reports"),
-    mode
-  });
+  const command = parseRemediationCommand(process.argv.slice(2));
+  const reportsDir = path.join(process.cwd(), "public", "reports");
+  if (command.kind === "privacy-replace") {
+    const replaced = await privacyReplaceReport({ reportsDir, reportId: command.reportId });
+    console.log(
+      `Replaced ${replaced.originalReportId} for privacy with ${replaced.replacementReportId} ` +
+        `(createdAt ${replaced.createdAt}, writtenAt ${replaced.writtenAt}). ` +
+        "Append the corrections-ledger event naming both IDs, then regenerate the derived artifacts."
+    );
+    printTransitionAudit(replaced.transitionAudit);
+    return;
+  }
+  const mode = command.mode;
+  const summary = await remediateReports({ reportsDir, mode });
   if (mode === "dry-run") {
     console.log(
       `Dry run: ${summary.reports} report(s), ${summary.reportChanges} report change(s), ` +
@@ -741,14 +967,18 @@ async function main(): Promise<void> {
   } else {
     console.log(`Checked ${summary.reports} report(s): all reports and sidecars are current.`);
   }
+  printTransitionAudit(summary.transitionAudit);
+}
+
+function printTransitionAudit(audit: RedactionTransitionAudit): void {
   console.log(
-    `Transition audit ${summary.transitionAudit.version}: ` +
-      `${summary.transitionAudit.pageTitlesWithheld} page title(s) withheld, ` +
-      `${summary.transitionAudit.explicitPortFieldsRemoved} explicit-port field(s) removed, ` +
-      `${summary.transitionAudit.ipLiteralFieldsRejected} IP-literal field(s) rejected, ` +
-      `${summary.transitionAudit.privateSuffixTenantLabelsGeneralized} private-suffix tenant field(s) generalized, ` +
-      `${summary.transitionAudit.policyQuoteIdentifierSpansScrubbed} policy quote(s) scrubbed, ` +
-      `${summary.transitionAudit.policyClaimsMadeUncheckable} checkable policy claim(s) made uncheckable.`
+    `Transition audit ${audit.version}: ` +
+      `${audit.pageTitlesWithheld} page title(s) withheld, ` +
+      `${audit.explicitPortFieldsRemoved} explicit-port field(s) removed, ` +
+      `${audit.ipLiteralFieldsRejected} IP-literal field(s) rejected, ` +
+      `${audit.privateSuffixTenantLabelsGeneralized} private-suffix tenant field(s) generalized, ` +
+      `${audit.policyQuoteIdentifierSpansScrubbed} policy quote(s) scrubbed, ` +
+      `${audit.policyClaimsMadeUncheckable} checkable policy claim(s) made uncheckable.`
   );
 }
 

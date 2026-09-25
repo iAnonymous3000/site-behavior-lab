@@ -56,6 +56,15 @@ public/corrections.schema.json.
    sidecar. Record whether the problem is an artifact defect, presentation
    defect, catalog issue, or ordinary visit variation.
 3. Add the ledger event and any replacement report in one reviewed change.
+   A privacy replacement is produced by
+   `npm run reports:remediate -- --privacy-replace <report-id>`, never by
+   hand. It accepts only a committed v1 report whose sidecar attests its exact
+   bytes and which the current sanitizer changes, writes the redacted copy
+   under a new ID with the original's scan-date prefix, and removes the
+   original only after the copy reads back. Like the pruner, it refuses during
+   a measurement freeze. Then append the event and regenerate
+   `npm run reports:manifest`, `npm run corpus:stats` and
+   `npm run transparency:log`.
 4. Validate the JSON against the checked-in schema, run the retention tests,
    build the static site, and verify the public corrections page before
    publication. Report IDs must use the canonical YYYYMMDD- plus 32-lowercase-

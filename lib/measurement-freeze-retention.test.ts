@@ -131,6 +131,33 @@ test("the standalone pruner refuses before compilation or report enumeration dur
   assert.doesNotMatch(result.stdout, /Pruned/);
 });
 
+test("a privacy replacement refuses before compilation during a freeze, and the corpus check does not", () => {
+  // It deletes a committed report pair, so it answers to the pruner's guard.
+  const launcher = source("scripts/run-schema-cli.mjs");
+  const guard = launcher.indexOf("requireStaticReportPruningAllowed(process.env)");
+  assert.ok(guard > 0 && guard < launcher.indexOf("SITE_BEHAVIOR_LAB_SCHEMA_DIST_READY !=="));
+
+  const frozen = { ...process.env, SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE: "1" };
+  const replacement = spawnSync(
+    process.execPath,
+    ["scripts/run-schema-cli.mjs", "remediate-reports", "--privacy-replace", `20260101-${"0".repeat(32)}`],
+    { cwd: process.cwd(), encoding: "utf8", env: frozen }
+  );
+  assert.notEqual(replacement.status, 0);
+  assert.match(replacement.stderr, /forbids static report pruning/);
+  assert.doesNotMatch(replacement.stdout, /Replaced/);
+
+  // The featured workflow runs the remediation check during a freeze. With the
+  // compile skipped, the CLI's own argument refusal shows the guard let it by.
+  const check = spawnSync(
+    process.execPath,
+    ["scripts/run-schema-cli.mjs", "remediate-reports", "--no-such-mode"],
+    { cwd: process.cwd(), encoding: "utf8", env: { ...frozen, SITE_BEHAVIOR_LAB_SCHEMA_DIST_READY: "1" } }
+  );
+  assert.notEqual(check.status, 0);
+  assert.doesNotMatch(check.stderr, /forbids static report pruning/);
+});
+
 test("the featured publisher skips pruning only for exact freeze and rejects deletions", () => {
   const workflow = source(".github/workflows/scan-featured.yml");
   const start = workflow.indexOf(

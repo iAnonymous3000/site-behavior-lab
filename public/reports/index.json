@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-23T06:40:23.406Z",
+  "generatedAt": "2026-09-25T18:53:08.116Z",
   "reports": [
     {
       "id": "20260907-cf8be51e45532bfab007b146d7a5e289",
@@ -6554,9 +6554,9 @@
       }
     },
     {
-      "id": "20260817-693b5bc1c455e1be2d0b42b4d8efa292",
-      "reportWireBytes": 342504,
-      "reportWireSha256": "b09cb31555fa984e2d3579db9172bd282a8fc24b7cf5d53d6869d92d897b65f9",
+      "id": "20260817-8d7ada3c1897a6c494396ed15db32a53",
+      "reportWireBytes": 341764,
+      "reportWireSha256": "6cc008879535db43eb49d2de26642d100a11615471d5eef1cccc1a24d355296d",
       "title": "Brave-list blocking off/on comparison",
       "headline": "homedepot.com's observed Meta Pixel requests contained populated identifier fields.",
       "tone": "warn",
@@ -6574,7 +6574,7 @@
         "totalRequests": 334,
         "thirdPartyRequests": 295,
         "knownTrackerRequests": 60,
-        "thirdPartyDomains": 43,
+        "thirdPartyDomains": 42,
         "cookies": 59,
         "thirdPartyCookies": 12,
         "shieldsBlockedRequests": 120
@@ -15544,9 +15544,9 @@
       }
     },
     {
-      "id": "20260727-f378d41658184b8e1b014ae2e41b8541",
-      "reportWireBytes": 267726,
-      "reportWireSha256": "1ad40f4928fe6e2efdd556e706e27a587d8e4f498d309e2da5d97d79d16bd142",
+      "id": "20260727-4006618d80dc779268592042b119010e",
+      "reportWireBytes": 266990,
+      "reportWireSha256": "fe3b18d1778bb8e62ee0e106737af22ca9dfbc4a4fe04e901d369b352d179c2c",
       "title": "Brave-list blocking off/on comparison",
       "headline": "homedepot.com's observed Meta Pixel requests contained populated identifier fields.",
       "tone": "warn",
@@ -15564,7 +15564,7 @@
         "totalRequests": 349,
         "thirdPartyRequests": 307,
         "knownTrackerRequests": 58,
-        "thirdPartyDomains": 44,
+        "thirdPartyDomains": 43,
         "cookies": 59,
         "thirdPartyCookies": 14,
         "shieldsBlockedRequests": 142

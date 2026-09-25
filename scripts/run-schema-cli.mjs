@@ -14,6 +14,7 @@
 import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { requireStaticReportPruningAllowed } from "./measurement-freeze-retention-lib.mjs";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const [target, ...forwarded] = process.argv.slice(2);
@@ -90,6 +91,18 @@ const relative = Object.prototype.hasOwnProperty.call(TARGETS, target ?? "") ? T
 if (!relative) {
   console.error(`Unknown schema CLI "${target ?? ""}". Known: ${Object.keys(TARGETS).sort().join(", ")}.`);
   process.exit(1);
+}
+
+// A privacy replacement deletes a committed report pair, so it answers to the
+// pruner's freeze guard, before compilation and before any report is read.
+// The CLI refuses every spelling of the mode except this exact token.
+if (target === "remediate-reports" && forwarded.includes("--privacy-replace")) {
+  try {
+    requireStaticReportPruningAllowed(process.env);
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : String(error));
+    process.exit(1);
+  }
 }
 
 // Surface the child's own exit code and nothing else. execFileSync throws a

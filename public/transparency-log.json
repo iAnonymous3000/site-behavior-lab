@@ -2,8 +2,8 @@
   "$schema": "https://sitebehavior.org/transparency-log.schema.json",
   "schemaVersion": 1,
   "chainAlgorithm": "sha256-canon-v1",
-  "entryCount": 1026,
-  "head": "1aae8dc51d0e3f1b6f6a109a3baab480de4237a93cf450f4578de51c1d186258",
+  "entryCount": 1028,
+  "head": "37369c1cae4ca68d66732999c21b45e7d12bf04ae5ed1de25518c66fc4748a5d",
   "entries": [
     {
       "sequence": 0,
@@ -7186,6 +7186,20 @@
       "reportWireSha256": "bef63e82d21c6e3f3fbff8228b8681b5d522c1498a049e167a00cadd06bb656d",
       "publicDigest": "d38af8f90447ea172d8a4a04bb47915eeacab732f646f90e3e27276c40b04f25",
       "entryDigest": "1aae8dc51d0e3f1b6f6a109a3baab480de4237a93cf450f4578de51c1d186258"
+    },
+    {
+      "sequence": 1026,
+      "reportId": "20260727-4006618d80dc779268592042b119010e",
+      "reportWireSha256": "fe3b18d1778bb8e62ee0e106737af22ca9dfbc4a4fe04e901d369b352d179c2c",
+      "publicDigest": "277cb357e2cf6d9fc4bd93f9fc46ff6a19a8f5ed10dac477a0ab4f8af5e925d9",
+      "entryDigest": "d31ddc6066a51e0be59e29af217554fae9c8bfd17197ba4ef3451ecec87b9851"
+    },
+    {
+      "sequence": 1027,
+      "reportId": "20260817-8d7ada3c1897a6c494396ed15db32a53",
+      "reportWireSha256": "6cc008879535db43eb49d2de26642d100a11615471d5eef1cccc1a24d355296d",
+      "publicDigest": "b31a9c2fae135b732c2e4a177cadcdcf4a6e079d60a298e8905c64e0c577961e",
+      "entryDigest": "37369c1cae4ca68d66732999c21b45e7d12bf04ae5ed1de25518c66fc4748a5d"
     }
   ],
   "anchors": [

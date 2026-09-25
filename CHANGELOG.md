@@ -288,11 +288,18 @@ public API or a 1.0 release.
   `20260727-f378d41658184b8e1b014ae2e41b8541` and
   `20260817-693b5bc1c455e1be2d0b42b4d8efa292`, both Shields comparisons of one
   site with two affected hosts each. They are replaced for privacy: redacted
-  copies are published under new report IDs, the originals are removed, and a
-  corrections-ledger event names both. No committed quote changes. This
-  reduces what is served only: git history and the archived earlier releases
-  still hold the original bytes, and the earlier release receipts still list
-  their digests.
+  copies are published as `20260727-4006618d80dc779268592042b119010e` and
+  `20260817-8d7ada3c1897a6c494396ed15db32a53`, the originals are removed, and
+  `SBL-CORR-2026-004` (privacy-superseded) names both pairs. Each copy is the
+  current sanitizer's output with only its share moved: the two hosts become one
+  `{label}.akamaihd.net` row, so the unblocked run counts one fewer
+  third-party domain (44 to 43, and 43 to 42), and every earlier correction
+  event applies to the copy. No committed quote changes, and no comparison
+  decision in the corpus moves. `npm run reports:remediate -- --privacy-replace
+  <report-id>` produced them and refuses during a measurement freeze, as the
+  pruner does. This reduces what is served only: git history and the archived
+  earlier releases still hold the original bytes, and the earlier release
+  receipts and the transparency log still list their digests.
 
 ## [0.6.0] - 2026-09-06
 

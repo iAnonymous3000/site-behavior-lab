@@ -3,12 +3,15 @@ import { mkdtemp, mkdir, readFile, readdir, rm, symlink, writeFile } from "node:
 import os from "node:os";
 import path from "node:path";
 import { after, test } from "node:test";
-import { createGpcComparisonReport } from "./compare-reports";
+import { createGpcComparisonReport, createShieldsComparisonReport } from "./compare-reports";
+import { summarizeDomains } from "./domain-summaries";
 import { readManagedReport } from "./managed-report-reader";
 import { SERVER_STORED_REPORT_JSON_MAX_BYTES } from "./report-resource-limits";
 import { redactScanReportV1 } from "./redact-scan-report-v1";
 import {
+  parseRemediationCommand,
   parseRemediationMode,
+  privacyReplaceReport,
   remediateReports,
   RemediationCheckError,
   RemediationConflictError,
@@ -20,7 +23,8 @@ import {
   ReportCorpusLockedError
 } from "./report-corpus-lock";
 import { buildProvenanceEntry, committedSidecarFilename, matchProvenance } from "./redaction-provenance";
-import { REDACTION_VERSION } from "./redaction-v2";
+import { REDACTION_VERSION, redactHostnameV2 } from "./redaction-v2";
+import { readStaticReportBundle } from "./static-report-files";
 import { REDACTION_TRANSITION_AUDIT_VERSION } from "./redaction-transition-audit";
 import { buildStaticReportShare } from "./report-locator";
 import {
@@ -47,7 +51,7 @@ import {
 } from "./scan-report-v2-r2-producer-contract";
 import type { ScanRunV2R2 } from "./scan-report-v2-r2";
 import { makePublicSingleReportV2, makeScanReportV1 } from "./scan-report-v2-fixtures";
-import type { ScanReport, ScanResult } from "./types";
+import type { NetworkRequestRecord, ScanReport, ScanResult, TrackerMatch } from "./types";
 
 const WRITTEN_AT = "2026-07-12T20:00:00.000Z";
 const LATER_WRITTEN_AT = "2026-07-13T20:00:00.000Z";
@@ -703,6 +707,259 @@ test("CLI modes are explicit and mutually exclusive", () => {
   assert.throws(() => parseRemediationMode(["--force"]), /Unknown argument/);
 });
 
+test("a privacy replacement publishes the redacted report under a new ID and removes the original", async () => {
+  const reportsDir = await makeReportsDirectory();
+  const id = reportId("d");
+  const raw = tenantShieldsComparison(id);
+  await writeAttestedPair(reportsDir, id, raw);
+  // The committed state the tool answers: an attested current pair that is
+  // not a fixed point of the current sanitizer.
+  assert.equal(await managedReason(reportsDir, id), "redaction-not-idempotent");
+
+  const summary = await privacyReplaceReport({ reportsDir, reportId: id, writtenAt: LATER_WRITTEN_AT });
+
+  const replacementId = summary.replacementReportId;
+  assert.match(replacementId, /^20260712-[0-9a-f]{32}$/);
+  assert.notEqual(replacementId, id);
+  assert.equal(summary.originalReportId, id);
+  assert.equal(summary.createdAt, raw.scannedAt);
+  assert.equal(summary.writtenAt, LATER_WRITTEN_AT);
+  assert.equal(summary.transitionAudit.privateSuffixTenantLabelsGeneralized > 0, true);
+  assert.deepEqual((await readdir(reportsDir)).sort(), [
+    `${replacementId}.json`,
+    `${replacementId}.provenance.json`
+  ]);
+
+  // Byte for byte the current sanitizer's output, with only the share moved.
+  const wire = await readFile(reportPath(reportsDir, replacementId), "utf8");
+  const expected = { ...redactScanReportV1(raw).report, share: buildStaticReportShare(replacementId) };
+  assert.equal(wire, `${JSON.stringify(expected, null, 2)}\n`);
+  assert.deepEqual(JSON.parse(wire).share, {
+    id: replacementId,
+    path: `/reports/${replacementId}/`,
+    jsonPath: `/reports/${replacementId}.json`
+  });
+  assert.equal(wire.includes(ADDRESS_TENANT), false);
+  assert.equal(wire.includes(TOKEN_TENANT), false);
+  assert.equal(wire.includes(GENERALIZED_TENANT), true);
+
+  const sidecar = JSON.parse(await readFile(sidecarPath(reportsDir, replacementId), "utf8"));
+  assert.deepEqual(
+    [sidecar.reportId, sidecar.redactionVersion, sidecar.writtenAt, sidecar.createdAt, sidecar.expiresAt],
+    [replacementId, REDACTION_VERSION, LATER_WRITTEN_AT, raw.scannedAt, null]
+  );
+  assert.equal((await readStaticReportBundle(reportsDir, replacementId)).outcome, "found");
+  assert.equal((await readStaticReportBundle(reportsDir, id)).outcome, "not-found");
+  const check = await remediateReports({ reportsDir, mode: "check", writtenAt: LATER_WRITTEN_AT });
+  assert.deepEqual([check.reports, check.issues], [1, []]);
+});
+
+test("a privacy replacement refuses every pair that is not an attested, changed current v1 bundle", async (context) => {
+  const cases: Array<{ name: string; setup: (reportsDir: string, id: string) => Promise<void>; refusal: RegExp }> = [
+    {
+      name: "already a fixed point",
+      setup: async (reportsDir, id) => {
+        const clean = { ...redactScanReportV1(tenantShieldsComparison(id)).report, share: buildStaticReportShare(id) };
+        await writeAttestedPair(reportsDir, id, clean);
+      },
+      refusal: /already a fixed point of the current sanitizer/
+    },
+    {
+      name: "no sidecar",
+      setup: (reportsDir, id) => writeReport(reportsDir, id, tenantShieldsComparison(id)),
+      refusal: /not an attested current pair \(no-sidecar\)/
+    },
+    {
+      name: "sidecar over other bytes",
+      setup: async (reportsDir, id) => {
+        const raw = tenantShieldsComparison(id);
+        await writeReport(reportsDir, id, raw);
+        await writeSidecar(reportsDir, id, { ...raw, title: "Other bytes" }, raw.scannedAt, null);
+      },
+      refusal: /not an attested current pair \(digest-mismatch\)/
+    },
+    {
+      name: "share bound to another report",
+      setup: async (reportsDir, id) => {
+        const raw = { ...tenantShieldsComparison(id), share: buildStaticReportShare(reportId("e")) };
+        await writeAttestedPair(reportsDir, id, raw);
+      },
+      refusal: /not an attested current pair \(share-id-mismatch\)/
+    },
+    {
+      name: "creation clock other than the scan",
+      setup: async (reportsDir, id) => {
+        const raw = tenantShieldsComparison(id);
+        await writeReport(reportsDir, id, raw);
+        await writeSidecar(reportsDir, id, raw, "2026-07-09T09:00:00.000Z", null);
+      },
+      refusal: /does not carry the committed retention clock/
+    },
+    {
+      name: "an expiry",
+      setup: async (reportsDir, id) => {
+        const raw = tenantShieldsComparison(id);
+        await writeReport(reportsDir, id, raw);
+        await writeSidecar(reportsDir, id, raw, raw.scannedAt, "2026-07-16T10:00:00.000Z");
+      },
+      refusal: /does not carry the committed retention clock/
+    },
+    {
+      name: "schema-r2",
+      setup: async (reportsDir, id) => {
+        const report = makePublicSingleReportV2R2();
+        report.share = buildStaticReportShare(id);
+        await writeFile(reportPath(reportsDir, id), `${JSON.stringify(report, null, 2)}\n`);
+      },
+      refusal: /only a frozen v1 report has a reviewed privacy replacement/
+    },
+    {
+      name: "no report",
+      setup: async () => undefined,
+      refusal: /no committed report has this id/
+    }
+  ];
+  for (const testCase of cases) {
+    await context.test(testCase.name, async () => {
+      const reportsDir = await makeReportsDirectory();
+      const id = reportId("f");
+      await testCase.setup(reportsDir, id);
+      const before = await directorySnapshot(reportsDir);
+      await assert.rejects(
+        () => privacyReplaceReport({ reportsDir, reportId: id, writtenAt: LATER_WRITTEN_AT }),
+        testCase.refusal
+      );
+      assert.deepEqual(await directorySnapshot(reportsDir), before);
+    });
+  }
+});
+
+test("a privacy replacement ID keeps the scan-date prefix and needs both names free", async () => {
+  const reportsDir = await makeReportsDirectory();
+  const id = reportId("1");
+  await writeAttestedPair(reportsDir, id, tenantShieldsComparison(id));
+  const before = await directorySnapshot(reportsDir);
+  await assert.rejects(() => privacyReplaceReport({ reportsDir, reportId: "../20260712-report" }), /Invalid report id/);
+  await assert.rejects(
+    () => privacyReplaceReport({ reportsDir, reportId: id, writtenAt: "2026-07-12 20:00" }),
+    /Invalid writtenAt/
+  );
+  for (const replacement of [id, `20260713-${"2".repeat(32)}`, "20260712-not-a-report-id"]) {
+    await assert.rejects(
+      () => privacyReplaceReport({ reportsDir, reportId: id, _testReplacementReportId: replacement }),
+      /must be a new report id with the original's scan-date prefix/
+    );
+  }
+  assert.deepEqual(await directorySnapshot(reportsDir), before);
+
+  // A stray sidecar under the new name refuses before the report is written.
+  const replacement = reportId("2");
+  await writeFile(sidecarPath(reportsDir, replacement), "{}\n");
+  const occupied = await directorySnapshot(reportsDir);
+  await assert.rejects(
+    () => privacyReplaceReport({ reportsDir, reportId: id, _testReplacementReportId: replacement }),
+    /already exists/
+  );
+  assert.deepEqual(await directorySnapshot(reportsDir), occupied);
+});
+
+test("a privacy replacement holds the corpus lock and keeps the original until the replacement reads back", async () => {
+  const lockedDir = await makeReportsDirectory();
+  const id = reportId("3");
+  await writeAttestedPair(lockedDir, id, tenantShieldsComparison(id));
+  const lock = await acquireReportCorpusLock(lockedDir, "test-holder");
+  const locked = await directorySnapshot(lockedDir);
+  try {
+    await assert.rejects(() => privacyReplaceReport({ reportsDir: lockedDir, reportId: id }), ReportCorpusLockedError);
+    assert.deepEqual(await directorySnapshot(lockedDir), locked);
+  } finally {
+    await lock.release();
+  }
+
+  // A replacement that does not read back as the planned bundle leaves the
+  // original in place: an unreadable pair, and a readable pair whose report or
+  // sidecar bytes are not the ones planned.
+  const replacement = reportId("4");
+  const substitutions: Array<(reportsDir: string) => Promise<void>> = [
+    (reportsDir) => writeFile(sidecarPath(reportsDir, replacement), "{}\n"),
+    async (reportsDir) => {
+      const wire = await readFile(reportPath(reportsDir, replacement), "utf8");
+      await writeFile(reportPath(reportsDir, replacement), `${JSON.stringify(JSON.parse(wire))}\n`);
+    },
+    async (reportsDir) => {
+      const sidecar = JSON.parse(await readFile(sidecarPath(reportsDir, replacement), "utf8"));
+      await writeFile(sidecarPath(reportsDir, replacement), `${JSON.stringify({ ...sidecar, writtenAt: WRITTEN_AT }, null, 2)}\n`);
+    }
+  ];
+  for (const substitute of substitutions) {
+    const substitutedDir = await makeReportsDirectory();
+    await writeAttestedPair(substitutedDir, id, tenantShieldsComparison(id));
+    const original = await directorySnapshot(substitutedDir);
+    await assert.rejects(
+      () =>
+        privacyReplaceReport({
+          reportsDir: substitutedDir,
+          reportId: id,
+          writtenAt: LATER_WRITTEN_AT,
+          _testReplacementReportId: replacement,
+          _testHook: async (event) => {
+            if (event.stage === "after-replacement-write") await substitute(substitutedDir);
+          }
+        }),
+      RemediationConflictError
+    );
+    const after = await directorySnapshot(substitutedDir);
+    assert.equal(after[`${id}.json`], original[`${id}.json`]);
+    assert.equal(after[`${id}.provenance.json`], original[`${id}.provenance.json`]);
+  }
+
+  // An original whose report or sidecar bytes change after planning is not
+  // removed.
+  for (const changedFile of [reportPath, sidecarPath]) {
+    const racedDir = await makeReportsDirectory();
+    await writeAttestedPair(racedDir, id, tenantShieldsComparison(id));
+    const changedWire = `${await readFile(changedFile(racedDir, id), "utf8")}\n`;
+    await assert.rejects(
+      () =>
+        privacyReplaceReport({
+          reportsDir: racedDir,
+          reportId: id,
+          _testHook: async (event) => {
+            if (event.stage === "before-original-removal") await writeFile(changedFile(racedDir, id), changedWire);
+          }
+        }),
+      RemediationConflictError
+    );
+    assert.equal(await readFile(changedFile(racedDir, id), "utf8"), changedWire);
+    assert.deepEqual(
+      (await readdir(racedDir)).filter((file) => file.startsWith(`${id}.`)).sort(),
+      [`${id}.json`, `${id}.provenance.json`]
+    );
+  }
+});
+
+test("the privacy replacement mode is one exact token and one report id", () => {
+  const id = reportId("5");
+  assert.deepEqual(parseRemediationCommand([]), { kind: "corpus", mode: "dry-run" });
+  assert.deepEqual(parseRemediationCommand(["--check"]), { kind: "corpus", mode: "check" });
+  assert.deepEqual(parseRemediationCommand(["--privacy-replace", id]), { kind: "privacy-replace", reportId: id });
+  // scripts/run-schema-cli.mjs keys its freeze guard on the exact token, so no
+  // other spelling may reach a mode.
+  assert.throws(() => parseRemediationCommand([`--privacy-replace=${id}`]), /Unknown argument/);
+  for (const args of [
+    ["--privacy-replace"],
+    ["--privacy-replace", id, id],
+    [id, "--privacy-replace"],
+    ["--apply", "--privacy-replace", id],
+    ["--privacy-replace", id, "--check"]
+  ]) {
+    assert.throws(() => parseRemediationCommand(args), /takes exactly one report id and no other argument/, args.join(" "));
+  }
+  for (const reportIdArgument of ["not-an-id", "--apply"]) {
+    assert.throws(() => parseRemediationCommand(["--privacy-replace", reportIdArgument]), /Invalid report id/);
+  }
+});
+
 function sensitiveSingle(id: string): ScanResult {
   const report = makeScanReportV1();
   if (report.reportType === "comparison") throw new Error("expected single report fixture");
@@ -725,6 +982,85 @@ function sensitiveComparison(id: string) {
   const report = createGpcComparisonReport(baseline, variant);
   report.share = buildStaticReportShare(id);
   return report;
+}
+
+// Tenant hosts in the shapes an Akamai EUM beacon publishes, built from
+// documentation-range addresses and an invented token, never a corpus value.
+const ADDRESS_TENANT = "198-51-100-7_s-203-0-113-9_ts-1700000000-clienttons-s.akamaihd.net";
+const TOKEN_TENANT = "0f1e2d3c4b5a69788796-q7r8s9-1a2b3c4d5-clientnsv4-s.akamaihd.net";
+const GENERALIZED_TENANT = "{label}.akamaihd.net";
+
+function tenantBeacon(id: number, host: string): NetworkRequestRecord {
+  const tracker: TrackerMatch = {
+    domain: host,
+    entity: host,
+    category: "tracking (Brave Shields list)",
+    confidence: "shields-list"
+  };
+  return {
+    id,
+    url: `https://${host}/{seg}/{seg}`,
+    domain: host,
+    method: "GET",
+    resourceType: "ping",
+    status: 200,
+    thirdParty: true,
+    tracker,
+    startedAtMs: id * 10
+  };
+}
+
+/**
+ * A committed Shields comparison as the retired public-string policy left it:
+ * the unblocked arm's beacons sit on token-shaped tenants the current
+ * sanitizer generalizes.
+ */
+function tenantShieldsComparison(id: string) {
+  for (const host of [ADDRESS_TENANT, TOKEN_TENANT]) {
+    assert.equal(redactHostnameV2(host).value, GENERALIZED_TENANT, `fixture tenant ${host} must be one v4 removes`);
+  }
+  const baseline = makeScanReportV1() as ScanResult;
+  baseline.requests = [tenantBeacon(1, ADDRESS_TENANT), tenantBeacon(2, TOKEN_TENANT)];
+  baseline.domains = summarizeDomains(baseline.requests);
+  baseline.summary = {
+    ...baseline.summary,
+    totalRequests: 2,
+    thirdPartyRequests: 2,
+    knownTrackerRequests: 2,
+    thirdPartyDomains: 2
+  };
+  const report = createShieldsComparisonReport(baseline, makeScanReportV1() as ScanResult);
+  report.share = buildStaticReportShare(id);
+  return report;
+}
+
+async function writeAttestedPair(reportsDir: string, id: string, report: ScanReport): Promise<void> {
+  await writeReport(reportsDir, id, report);
+  await writeSidecar(reportsDir, id, report, reportCreatedAt(report), null);
+}
+
+async function writeSidecar(
+  reportsDir: string,
+  id: string,
+  report: ScanReport,
+  createdAt: string,
+  expiresAt: string | null
+): Promise<void> {
+  const sidecar = buildProvenanceEntry({ reportId: id, publicReport: report, writtenAt: WRITTEN_AT, createdAt, expiresAt });
+  await writeFile(sidecarPath(reportsDir, id), `${JSON.stringify(sidecar, null, 2)}\n`);
+}
+
+async function managedReason(reportsDir: string, id: string): Promise<string> {
+  const read = await readStaticReportBundle(reportsDir, id);
+  return read.outcome === "unreadable" ? read.reason : read.outcome;
+}
+
+async function directorySnapshot(reportsDir: string): Promise<Record<string, string>> {
+  const snapshot: Record<string, string> = {};
+  for (const file of (await readdir(reportsDir)).sort()) {
+    snapshot[file] = await readFile(path.join(reportsDir, file), "utf8");
+  }
+  return snapshot;
 }
 
 function currentSidecar(id: string, report: ScanReport, createdAt: string) {

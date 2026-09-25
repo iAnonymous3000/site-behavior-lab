@@ -23,7 +23,7 @@
       "totalRequests": 334,
       "thirdPartyRequests": 295,
       "knownTrackerRequests": 60,
-      "thirdPartyDomains": 43,
+      "thirdPartyDomains": 42,
       "cookies": 59,
       "thirdPartyCookies": 12,
       "storageEntries": 69,
@@ -2939,8 +2939,8 @@
       },
       {
         "id": 180,
-        "url": "https://64-236-169-121_s-23-48-99-24_ts-1786947101-clienttons-s.akamaihd.net/{seg}/{seg}",
-        "domain": "64-236-169-121_s-23-48-99-24_ts-1786947101-clienttons-s.akamaihd.net",
+        "url": "https://{label}.akamaihd.net/{seg}/{seg}",
+        "domain": "{label}.akamaihd.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -2950,8 +2950,8 @@
       },
       {
         "id": 181,
-        "url": "https://idwks6ixefk5m2ucuyoq-p5l9vm-8e92caab4-clientnsv4-s.akamaihd.net/{seg}/{seg}",
-        "domain": "idwks6ixefk5m2ucuyoq-p5l9vm-8e92caab4-clientnsv4-s.akamaihd.net",
+        "url": "https://{label}.akamaihd.net/{seg}/{seg}",
+        "domain": "{label}.akamaihd.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
@@ -5974,6 +5974,19 @@
         ]
       },
       {
+        "domain": "{label}.akamaihd.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
         "domain": "{label}.agkn.com",
         "requests": 2,
         "thirdParty": true,
@@ -6061,32 +6074,6 @@
         "blockedByShields": false,
         "statuses": [
           302
-        ],
-        "resourceTypes": [
-          "xhr"
-        ]
-      },
-      {
-        "domain": "64-236-169-121_s-23-48-99-24_ts-1786947101-clienttons-s.akamaihd.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr"
-        ]
-      },
-      {
-        "domain": "idwks6ixefk5m2ucuyoq-p5l9vm-8e92caab4-clientnsv4-s.akamaihd.net",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
         ],
         "resourceTypes": [
           "xhr"
@@ -10721,9 +10708,9 @@
       "delta": -58
     },
     "thirdPartyDomains": {
-      "before": 43,
+      "before": 42,
       "after": 9,
-      "delta": -34
+      "delta": -33
     },
     "cookies": {
       "before": 59,
@@ -10840,6 +10827,11 @@
       },
       {
         "domain": "{label}.agkn.com",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.akamaihd.net",
         "requests": 2,
         "tracker": null
       },
@@ -10969,11 +10961,6 @@
         "tracker": null
       },
       {
-        "domain": "64-236-169-121_s-23-48-99-24_ts-1786947101-clienttons-s.akamaihd.net",
-        "requests": 1,
-        "tracker": null
-      },
-      {
         "domain": "analytics.google.com",
         "requests": 1,
         "tracker": {
@@ -10992,11 +10979,6 @@
           "category": "session replay / product analytics",
           "confidence": "curated"
         }
-      },
-      {
-        "domain": "idwks6ixefk5m2ucuyoq-p5l9vm-8e92caab4-clientnsv4-s.akamaihd.net",
-        "requests": 1,
-        "tracker": null
       },
       {
         "domain": "pixel.tapad.com",
@@ -11638,8 +11620,8 @@
     "Brave-list blocking: Read the site's privacy policy (https://www.homedepot.com/privacy/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
   ],
   "share": {
-    "id": "20260817-693b5bc1c455e1be2d0b42b4d8efa292",
-    "path": "/reports/20260817-693b5bc1c455e1be2d0b42b4d8efa292/",
-    "jsonPath": "/reports/20260817-693b5bc1c455e1be2d0b42b4d8efa292.json"
+    "id": "20260817-8d7ada3c1897a6c494396ed15db32a53",
+    "path": "/reports/20260817-8d7ada3c1897a6c494396ed15db32a53/",
+    "jsonPath": "/reports/20260817-8d7ada3c1897a6c494396ed15db32a53.json"
   }
 }
