@@ -268,13 +268,15 @@ export const COVERAGE_BOUNDARY_ENTRIES: readonly CoverageBoundaryEntry[] = [
   // Review-only. Instrumenting a worker would mean evaluating an observer in
   // it over DevTools, as the GPC worker handshake does, not naming an API in
   // the scanner source, so there is no identifier whose absence could stand
-  // in for this claim.
+  // in for this claim. The two page-realm gaps it names ride along rather
+  // than becoming entries of their own, and naming transferFromImageBitmap
+  // here would present the worker claim as test-enforced.
   {
     id: "worker-realm-canvas",
     label: "Canvas and WebGL work inside a Web Worker",
     reason: "not-instrumented",
     explanation:
-      "A script can move canvas work into a worker: it can create an OffscreenCanvas there, or transfer one from the page, and draw text, measure fonts, read pixels, export an image, or read WebGL parameters inside the worker. The scanner observes those operations in the page itself, on page canvases and on OffscreenCanvas alike, but its observer does not run inside workers, so canvas, font and WebGL fingerprinting done in a worker is not observed. Drawing a worker does on a canvas the page transferred to it is not observed either."
+      "A script can move canvas work into a worker: it can create an OffscreenCanvas there, or transfer one from the page, and draw text, measure fonts, read pixels, export an image, or read WebGL parameters inside the worker. The scanner's observer runs in the page, not inside workers, so canvas, font and WebGL fingerprinting done in a worker is not observed, and neither is drawing a worker does on a canvas the page transferred to it. In the page itself, 2D work on an OffscreenCanvas feeds the same canvas heuristics as work on a page canvas, with two gaps: text that reaches a canvas only as an ImageBitmap handed to a bitmaprenderer context is not carried into that canvas's readback, for either kind of canvas, and an OffscreenCanvas export still pending when the visit's evidence is collected is not recorded. Reports measured before node-detectors-v11 (an r2 report whose fingerprint detector is fingerprint-observer@4 or earlier, or a v1 report whose methodology lacks +fingerprint-surface-v2) did not observe OffscreenCanvas 2D work in the page at all, so a quiet canvas finding on such a report does not rule it out."
   },
   {
     id: "script-integrity-drift",

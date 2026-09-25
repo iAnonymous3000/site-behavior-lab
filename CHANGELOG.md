@@ -327,21 +327,41 @@ public API or a 1.0 release.
   heuristics with the same thresholds as a page canvas, and page and offscreen
   canvases share the one 256-canvas tracking cap. An export through
   `convertToBlob` is recorded as its own API, `canvas.convertToBlob`, only when
-  its promise fulfills, never as `canvas.toBlob`. Text drawn offscreen keeps
-  its provenance into a page canvas through `drawImage`,
-  `transferToImageBitmap` and `createImageBitmap`. Before this, a page that
+  its promise fulfills, never as `canvas.toBlob`, so an export still pending
+  when the visit's evidence is collected is not recorded. Text drawn offscreen
+  keeps its provenance into another canvas through `drawImage`, including
+  `drawImage` of a bitmap made by `transferToImageBitmap` or
+  `createImageBitmap`, and a page canvas whose control moved to an
+  OffscreenCanvas with `transferControlToOffscreen` is read as showing that
+  OffscreenCanvas's text. An ImageBitmap handed to a `bitmaprenderer` context
+  carries no provenance, for either kind of canvas. Before this, a page that
   fingerprinted only on an OffscreenCanvas left no event and no detection, so
   its fingerprint card read quiet. WebGL on an OffscreenCanvas was already
   observed. The observer captures the OffscreenCanvas intrinsics at init, so a
   page that later replaces its constructors, methods or getters cannot hide
-  the work.
+  the work, and it brands canvases and contexts with their native getters
+  rather than their prototype chains, so re-prototyping a canvas or context,
+  or planting a throwing prototype trap, neither hides the work nor breaks
+  the page's calls.
+- Every promise call the observer records (`convertToBlob`,
+  `createImageBitmap`, `OfflineAudioContext.startRendering`,
+  `RTCPeerConnection.createOffer` and `setLocalDescription`) now hands the
+  page a promise of its own that settles as the native one does, one
+  microtask later. A rejection the page leaves unhandled reaches
+  `unhandledrejection` as it does unobserved, where the audio and WebRTC calls
+  used to mark it handled, and a page that swaps `Promise[Symbol.species]` or
+  the promise constructor around a call no longer keeps a fulfilled call from
+  being recorded.
 - Canvas and WebGL work inside a Web Worker is still not observed, including
   drawing a worker does on a canvas the page transferred to it. Observing it
   would mean opening the DevTools channel on every arm and pausing every
   worker before its first statement, a new intervention in the baseline visit
   (only the GPC arm pauses workers today), plus a worker-realm observer and a
   readback path for workers that exit early. The coverage boundary entry for
-  OffscreenCanvas 2D work is narrowed to `worker-realm-canvas`, which says so.
+  OffscreenCanvas 2D work is narrowed to `worker-realm-canvas`, which says so,
+  names the two page-realm gaps above, and says that reports measured before
+  node-detectors-v11 did not observe OffscreenCanvas 2D work in the page at
+  all, so a quiet canvas finding on one does not rule it out.
 - Recorded identities, old to new:
   - Base Node methodology, which is also the v1 methodology token and the
     corpus cohort key:
@@ -355,10 +375,12 @@ public API or a 1.0 release.
     `DETECTOR_REGISTRY_VERSION` moves from `node-detectors-v10` to
     `node-detectors-v11`, and its digest from `6f8d32c3...5657` to
     `80209bf7...e22a`. The digest also hashes the fingerprint vocabulary, so
-    recomputing it from the current inputs with the registry label, the
-    observer version and the `canvas.convertToBlob` token restored reproduces
-    `6f8d32c3...5657`, and nothing else moved. The obligation target
-    registries keep v10 as a closed epoch and enforce v11.
+    recomputing it from the current inputs with the registry label and the
+    observer version restored and the `canvas.convertToBlob` token removed
+    from both vocabulary arrays reproduces `6f8d32c3...5657`, and nothing else
+    moved. Keeping the token gives `6d76e9d9...ce13`, a value no deployment
+    carried. The obligation target registries keep v10 as a closed epoch and
+    enforce v11.
   - Node and PageGraph r2 normalization: public-string-policy-v4
     `359b216f...e9bc` to `7fd4ef76...69f5` under the same `tldts@7.4.13`, a
     widening by the one admitted `canvas.convertToBlob` token. The policy name

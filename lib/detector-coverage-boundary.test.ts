@@ -17,6 +17,8 @@ import {
   validateCoverageBoundary,
   type CoverageBoundaryEntry
 } from "./detector-coverage-boundary";
+import { NODE_SCANNER_METHODOLOGY_VERSION } from "./legacy-methodology";
+import { DETECTOR_VERSIONS } from "./measurement-kernel";
 
 const root = process.cwd();
 
@@ -432,4 +434,34 @@ test("the causality boundary states what the scanner actually records", () => {
       ? "nothing wires the initiator index, so the boundary must say a live scan records no initiator"
       : `the live producer now reaches ${productionImporters.join(", ")}, so this boundary text must be rewritten to describe what a live scan records`
   );
+});
+
+/**
+ * Every report links to this catalog, and none measured before
+ * node-detectors-v11 observed OffscreenCanvas 2D work in the page. The entry
+ * that says the page realm is observed must say which reports it is true of,
+ * with markers a reader can find on a report: an observer version older than
+ * the current one, and a methodology component the current base carries. It
+ * must also name the page-realm gaps that remain.
+ */
+test("the worker-realm canvas entry tells a reader which reports observed OffscreenCanvas work in the page", () => {
+  const entry = COVERAGE_BOUNDARY_ENTRIES.find((candidate) => candidate.id === "worker-realm-canvas");
+  assert.ok(entry, "the worker-realm canvas boundary entry must exist");
+
+  const olderObserver = /\bfingerprint-observer@(\d+) or earlier\b/.exec(entry.explanation);
+  assert.ok(olderObserver, "the entry must name the last observer version that did not observe it");
+  const currentObserver = /^fingerprint-observer@(\d+)$/.exec(DETECTOR_VERSIONS["fingerprint-heuristics"]);
+  assert.ok(currentObserver);
+  assert.ok(Number(olderObserver[1]) < Number(currentObserver[1]));
+
+  const component = /\+fingerprint-surface-v\d+\b/.exec(entry.explanation);
+  assert.ok(component, "the entry must name the v1 methodology component that marks the change");
+  assert.ok(
+    NODE_SCANNER_METHODOLOGY_VERSION.split("+").includes(component[0].slice(1)),
+    `${component[0]} is not a component of the current base methodology`
+  );
+  assert.match(entry.explanation, /does not rule it out/);
+
+  assert.match(entry.explanation, /bitmaprenderer/);
+  assert.match(entry.explanation, /still pending when the visit's evidence is collected/);
 });
