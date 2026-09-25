@@ -21,6 +21,7 @@ import {
   runHitGpcWorkerCaptureLoss,
   runHitInvalidUpstreamResponseCaptureLoss,
   runHitKeystrokeProbeCaptureLoss,
+  runHitKeystrokeProbeRequestUnread,
   runHitListenerDetectionWithheld,
   runHitPixelDecodeCaptureLoss,
   runHitPageSubjectUnverified,
@@ -617,6 +618,17 @@ function runViewFromV2(run: ScanRunV2 | ScanRunV2R2, label: RunView["label"]): R
  */
 export const LEGACY_LISTENER_DETECTION_WITHHELD_REASON = "capture-loss:public-fingerprint-detections";
 
+/**
+ * The legacy reason for a finished v1 input probe that stopped, or could not
+ * read in full, a request that may have carried its test value. r2 records it
+ * under the `keystroke-probe` detail, which v1 cannot reuse: its
+ * `capture-loss:keystroke-probe` reason is the incomplete probe, which censors
+ * the request and detector-output families. This one scopes to the keystroke
+ * claim alone (REPORT_CLAIM_REQUIREMENTS `legacyReasons`), never to a family
+ * through familyCensoredOnRun.
+ */
+export const LEGACY_KEYSTROKE_PROBE_REQUEST_UNREAD_REASON = "capture-loss:keystroke-probe-request-unread";
+
 function runViewFromV1(result: ScanResult, label: RunView["label"], scannedAt: string | null): RunView {
   // v1 never recorded quality; derive the run-level outcome from the same
   // facts the interim gate uses (status, cap) and mark it legacy-derived so it
@@ -654,6 +666,9 @@ function runViewFromV1(result: ScanResult, label: RunView["label"], scannedAt: s
   // withheld one listener detection and published every other fingerprinting
   // and detector-output product as measured.
   if (runHitListenerDetectionWithheld(result)) reasons.push(LEGACY_LISTENER_DETECTION_WITHHELD_REASON);
+  // Claim-scoped for the same reason: the probe finished, its request log is
+  // whole, and only its keystroke conclusion is unknown.
+  if (runHitKeystrokeProbeRequestUnread(result)) reasons.push(LEGACY_KEYSTROKE_PROBE_REQUEST_UNREAD_REASON);
   return {
     label,
     domain: result.summary.firstPartyDomain,
@@ -1247,7 +1262,9 @@ export function familyCensoredOnRun(run: RunView, family: string): boolean {
   // LEGACY_LISTENER_DETECTION_WITHHELD_REASON is not listed here on purpose:
   // the family state applies to every claim of the family, so it would also
   // censor the pixel, CNAME, consent, policy and keystroke claims. The listener
-  // claim takes it through its own `legacyReasons` in report-facts.
+  // claim takes it through its own `legacyReasons` in report-facts, and
+  // LEGACY_KEYSTROKE_PROBE_REQUEST_UNREAD_REASON reaches the keystroke claim
+  // the same way.
   if (
     (family === "fingerprinting" || family === "detector-output") &&
     run.quality.reasons.includes("capture-loss:fingerprint-observer")

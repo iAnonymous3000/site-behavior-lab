@@ -23,6 +23,7 @@ import {
 } from "./legacy-methodology";
 import {
   familyCensoredOnRun,
+  LEGACY_KEYSTROKE_PROBE_REQUEST_UNREAD_REASON,
   LEGACY_LISTENER_DETECTION_WITHHELD_REASON,
   requestEvidenceState,
   runHitRequestRecordingCap,
@@ -34,18 +35,22 @@ import { evaluateQuality } from "./scan-report-v2-evaluators";
 import {
   runHitFingerprintListenerAttributionLoss,
   runHitFingerprintObserverCaptureLoss,
+  runHitKeystrokeProbeCaptureLoss,
+  runHitKeystrokeProbeRequestUnread,
   runHitListenerDetectionWithheld,
   runRequestEvidenceCapped
 } from "./comparison-eligibility";
 import { createCorpusStatsAccumulator } from "./corpus-stats-builder";
 import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "./gpc-injection";
 import { buildReportFacts } from "./report-facts";
+import { buildReportHeadline } from "./report-headline";
 import { redactScanResultV1 } from "./redact-scan-report-v1";
 import {
   FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING,
   FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING,
   INVALID_UPSTREAM_RESPONSE_WARNING,
   KEYSTROKE_PROBE_INCOMPLETE_WARNING,
+  KEYSTROKE_PROBE_REQUEST_UNREAD_WARNING,
   LISTENER_DETECTION_WITHHELD_WARNING,
   PIXEL_DECODE_CAPTURE_LOSS_WARNING,
   UNSETTLED_ROUTED_REQUEST_WARNING
@@ -517,6 +522,90 @@ test("a v1 withheld listener detection censors the listener claim and nothing el
   assert.doesNotMatch(notes, /capture-loss:/);
   assert.equal(degradedRunNotice(clean.view), null);
   assert.notEqual(degradedRunNotice(withheld.view), null);
+});
+
+test("a v1 probe that stopped or could not read a request censors the keystroke claim and nothing else", () => {
+  // Both probe lines open with the same words, so each predicate must
+  // recognize only its own line; the incomplete-probe reason censors whole
+  // families.
+  assert.equal(runHitKeystrokeProbeRequestUnread({ warnings: [KEYSTROKE_PROBE_REQUEST_UNREAD_WARNING] }), true);
+  assert.equal(runHitKeystrokeProbeRequestUnread({ warnings: [KEYSTROKE_PROBE_INCOMPLETE_WARNING] }), false);
+  assert.equal(runHitKeystrokeProbeRequestUnread({ warnings: [LISTENER_DETECTION_WITHHELD_WARNING] }), false);
+  assert.equal(runHitKeystrokeProbeCaptureLoss({ warnings: [KEYSTROKE_PROBE_REQUEST_UNREAD_WARNING] }), false);
+  assert.equal(runHitListenerDetectionWithheld({ warnings: [KEYSTROKE_PROBE_REQUEST_UNREAD_WARNING] }), false);
+
+  // Both runs go through the real sanitizer, view, facts and corpus
+  // accumulator. The only difference is the scanner's line for a probe that
+  // finished but stopped, or could not read, a request that may have carried
+  // its test value; r2 leaves that probe's detector partial with scan-failed.
+  const outcome = (unread: boolean, fingerprintEvents = 4) => {
+    const input = makeScanReportV1() as ScanResult;
+    input.summary.firstPartyDomain = "probe-fixture.net";
+    input.conditions.requestedUrl = "https://probe-fixture.net/";
+    input.conditions.finalUrl = "https://probe-fixture.net/";
+    input.summary.fingerprintEvents = fingerprintEvents;
+    input.fingerprintEvents = fingerprintEvents > 0 ? [{ api: "canvas.toDataURL", count: fingerprintEvents }] : [];
+    input.fingerprintDetections = [];
+    input.pixelEvents = [];
+    input.cnameCloaks = [];
+    input.warnings = unread ? [KEYSTROKE_PROBE_REQUEST_UNREAD_WARNING] : [];
+    const report = redactScanResultV1(input).report;
+    const view = viewFromV1Report(report);
+    const run = view.runs[0];
+    const facts = buildReportFacts(view).display;
+    const corpus = createCorpusStatsAccumulator(new Date("2026-09-25T00:00:00.000Z"));
+    corpus.add(`20260709-${"e".repeat(32)}`, view);
+    return {
+      report,
+      view,
+      run,
+      facts,
+      censored: ["requests", "cookies", "storage", "fingerprinting", "detector-output"].map((family) =>
+        familyCensoredOnRun(run, family as Parameters<typeof familyCensoredOnRun>[1])
+      ),
+      cohorts: corpus.finish().cohorts
+    };
+  };
+  const clean = outcome(false);
+  const unread = outcome(true);
+
+  assert.deepEqual(unread.report.warnings, [KEYSTROKE_PROBE_REQUEST_UNREAD_WARNING]);
+  assert.deepEqual(clean.run.quality.reasons, []);
+  assert.deepEqual(unread.run.quality.reasons, [LEGACY_KEYSTROKE_PROBE_REQUEST_UNREAD_REASON]);
+  assert.equal(unread.run.quality.outcome, "complete");
+
+  const keystroke = unread.facts.claims["keystroke-exfiltration"];
+  assert.equal(clean.facts.claims["keystroke-exfiltration"].allowed, true);
+  assert.equal(keystroke.allowed, false);
+  assert.deepEqual(keystroke.blockers, ["family-censored"]);
+  assert.equal(unread.facts.calmEligible, false);
+  // Every other claim, the listener claim on the same family included, reads
+  // as measured, and so does the request log.
+  for (const claim of Object.keys(clean.facts.claims) as (keyof typeof clean.facts.claims)[]) {
+    if (claim === "keystroke-exfiltration") continue;
+    assert.deepEqual(unread.facts.claims[claim], clean.facts.claims[claim], claim);
+  }
+  assert.deepEqual(unread.facts.evidence, clean.facts.evidence);
+  assert.deepEqual(unread.censored, clean.censored);
+  assert.deepEqual(unread.censored, [false, false, false, false, false]);
+  assert.equal(requestEvidenceState(unread.run), requestEvidenceState(clean.run));
+  assert.equal(runRequestEvidenceCapped(unread.report), false);
+
+  // The corpus population is unchanged: request counts and fingerprintEvents
+  // still admit the run.
+  assert.deepEqual(unread.cohorts, clean.cohorts);
+  assert.equal(unread.cohorts[0]?.metrics.fingerprintEvents?.count, 1);
+  assert.equal(unread.cohorts[0]?.metrics.thirdPartyRequests?.count, 1);
+
+  const notes = runCensorshipNotes(unread.run).join(" ");
+  assert.match(notes, /could not read in full, a request that may have carried its test value/);
+  assert.doesNotMatch(notes, /capture-loss:/);
+  assert.equal(degradedRunNotice(clean.view), null);
+  assert.notEqual(degradedRunNotice(unread.view), null);
+  // On a quiet visit the rendered headline names the unproven input check
+  // instead of reading the visit as complete.
+  assert.match(buildReportHeadline(outcome(true, 0).view).subhead, /may have carried its test value/);
+  assert.doesNotMatch(buildReportHeadline(outcome(false, 0).view).subhead, /test value/);
 });
 
 test("a timed-out v1 synthetic-input probe censors detector and request evidence", () => {

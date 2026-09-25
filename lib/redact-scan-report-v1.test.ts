@@ -28,6 +28,7 @@ import {
   FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING,
   INVALID_UPSTREAM_RESPONSE_WARNING,
   KEYSTROKE_PROBE_INCOMPLETE_WARNING,
+  KEYSTROKE_PROBE_REQUEST_UNREAD_WARNING,
   LISTENER_DETECTION_WITHHELD_WARNING,
   PIXEL_DECODE_CAPTURE_LOSS_WARNING,
   UNSETTLED_ROUTED_REQUEST_WARNING
@@ -405,6 +406,21 @@ test("the incomplete synthetic-input probe disclosure survives the public bounda
 
   const { report } = redactScanResultV1(input);
   assert.deepEqual(report.warnings, [KEYSTROKE_PROBE_INCOMPLETE_WARNING]);
+});
+
+test("the input probe's unread-request disclosure survives the public boundary, alone and labeled", () => {
+  // v1's only record that a finished probe stopped or could not read a
+  // request that may have carried its test value. Replaced by the redacted
+  // marker, the keystroke claim would publish the absence r2 withholds.
+  const input = sensitiveSingle();
+  input.warnings = [KEYSTROKE_PROBE_REQUEST_UNREAD_WARNING];
+  const first = redactScanResultV1(input).report;
+  assert.deepEqual(first.warnings, [KEYSTROKE_PROBE_REQUEST_UNREAD_WARNING]);
+  assert.equal(JSON.stringify(redactScanResultV1(first).report), JSON.stringify(first));
+  assert.deepEqual(
+    redactScannerWarnings([`Shields on: ${KEYSTROKE_PROBE_REQUEST_UNREAD_WARNING}`], new RedactionPass()),
+    [`Shields on: ${KEYSTROKE_PROBE_REQUEST_UNREAD_WARNING}`]
+  );
 });
 
 test("every consent disclosure the producer can emit survives the public boundary", () => {

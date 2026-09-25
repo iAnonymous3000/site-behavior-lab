@@ -53,6 +53,9 @@ const PIXEL_DECODE_WARNING_FRAGMENT =
   "recognized advertising-pixel request bodies could not be read in full";
 const KEYSTROKE_PROBE_INCOMPLETE_WARNING_FRAGMENT =
   "synthetic form-input probe ended before it finished";
+// Not the opening: both probe lines begin "The synthetic form-input probe".
+const KEYSTROKE_PROBE_REQUEST_UNREAD_WARNING_FRAGMENT =
+  "one or more requests that may have carried its test value";
 const INVALID_UPSTREAM_RESPONSE_WARNING_FRAGMENT = "scan proxy rejected one or more invalid upstream responses";
 const UNSETTLED_ROUTED_REQUEST_WARNING_FRAGMENT =
   "still being handled, so this visit's request evidence is incomplete";
@@ -534,6 +537,18 @@ export function runHitPixelDecodeCaptureLoss(run: Pick<ScanResult, "warnings">):
 
 export function runHitKeystrokeProbeCaptureLoss(run: Pick<ScanResult, "warnings">): boolean {
   return run.warnings.some((warning) => warning.includes(KEYSTROKE_PROBE_INCOMPLETE_WARNING_FRAGMENT));
+}
+
+/**
+ * Whether a legacy run's finished input probe stopped, or could not read in
+ * full, a request that may have carried its test value. The r2 twin is the
+ * keystroke detector's `partial`/`scan-failed` status with its
+ * `keystroke-probe` capture loss. Readers censor only the keystroke claim for
+ * it: unlike the incomplete-probe line, the request log is not short, so it is
+ * not request-evidence loss and never enters runRequestEvidenceCapped.
+ */
+export function runHitKeystrokeProbeRequestUnread(run: Pick<ScanResult, "warnings">): boolean {
+  return run.warnings.some((warning) => warning.includes(KEYSTROKE_PROBE_REQUEST_UNREAD_WARNING_FRAGMENT));
 }
 
 /**

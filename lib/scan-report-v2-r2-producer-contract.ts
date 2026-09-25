@@ -443,8 +443,9 @@ const HISTORICAL_NODE_V11_NORMALIZATION = "redaction-v4+allowlists-v3:269f631f04
 // Exact identity of the 2026-09 toolchain epoch's production producer
 // (deployed from c8b189ac), closed by the node-detectors-v10 measurement
 // epoch: subject-validity-v4, consent-r2-v5, gpc-worker-application-v3 and
-// active-probe-v3 move the methodology, and the admitted v1 listener-withheld
-// disclosure moves the public-string policy digest.
+// active-probe-v3 move the methodology, and two admitted warnings (the v1
+// listener-withheld disclosure and the input probe's unread request line)
+// move the public-string policy digest.
 const HISTORICAL_NODE_V12_METHODOLOGY = "shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v3+detector-coverage-v2+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v2+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1+service-role-taxonomy-v1+gpc-worker-application-v2+active-probe-v2+auxiliary-context-block-v1";
 const HISTORICAL_NODE_V12_NORMALIZATION = "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:cb7064a154022024d8ffa25c110de6feff64f2b0ecbd375b14a24ff17105059d+tldts@7.4.13+node-evidence-policy-v1+r2-http-status-compat-v1";
 
@@ -452,8 +453,9 @@ export const HISTORICAL_NODE_R2_V4_METHODOLOGIES_BY_NORMALIZATION: Readonly<
   Record<string, readonly string[]>
 > = Object.freeze({
   // The cb7064 identity under tldts@7.4.13 closed when the node-detectors-v10
-  // measurement epoch admitted the v1 listener-withheld disclosure. Only the
-  // 2026-09 toolchain epoch's rows ran it, all under its one methodology.
+  // measurement epoch admitted the v1 listener-withheld disclosure and the
+  // input probe's unread request line. Only the 2026-09 toolchain epoch's rows
+  // ran it, all under its one methodology.
   [HISTORICAL_NODE_V12_NORMALIZATION]: Object.freeze([HISTORICAL_NODE_V12_METHODOLOGY]),
   // The cb7064 identity under tldts@7.4.10 closed when the 2026-09 toolchain
   // epoch moved the public-suffix engine to tldts@7.4.13. Only the
@@ -1527,9 +1529,10 @@ export const PAGEGRAPH_R2_PRODUCER_TUPLES: readonly PageGraphR2ProducerTuple[] =
     "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:cb7064a154022024d8ffa25c110de6feff64f2b0ecbd375b14a24ff17105059d+tldts@7.4.10+pagegraph-request-evidence-v1+r2-http-status-compat-v1",
     HISTORICAL_R2_2026_08_TRACKER_CATALOG
   ),
-  // Closed by the v1 listener-withheld disclosure that the node-detectors-v10
-  // measurement epoch admitted; the public-string policy digest is shared by
-  // both observers.
+  // Closed by the two warnings the node-detectors-v10 measurement epoch
+  // admitted (the v1 listener-withheld disclosure and the input probe's unread
+  // request line); the public-string policy digest is shared by both
+  // observers.
   pageGraphTuple("pagegraph-v4-tldts7413-active",
     "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:cb7064a154022024d8ffa25c110de6feff64f2b0ecbd375b14a24ff17105059d+tldts@7.4.13+pagegraph-request-evidence-v1+r2-http-status-compat-v1",
     HISTORICAL_R2_2026_08_TRACKER_CATALOG

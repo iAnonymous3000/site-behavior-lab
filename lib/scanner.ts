@@ -118,6 +118,7 @@ import {
   FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING,
   INVALID_UPSTREAM_RESPONSE_WARNING,
   KEYSTROKE_PROBE_INCOMPLETE_WARNING,
+  KEYSTROKE_PROBE_REQUEST_UNREAD_WARNING,
   MAX_RECORDED_REQUEST_URL_CHARS,
   PIXEL_DECODE_CAPTURE_LOSS_WARNING,
   UNSETTLED_ROUTED_REQUEST_WARNING,
@@ -3961,6 +3962,16 @@ export async function probeKeystrokeExfiltration(
     return { status: "failed", reason: "scan-failed", detection: null };
   } finally {
     lifecycle.stopCapture();
+    // The capture is closed, so its failure count is final on every exit.
+    // A stopped navigation that may have carried the value, or a request the
+    // capture could not read, withholds the keystroke claim on r2 through the
+    // detector status; v1 has no detector ledger, and without this line it
+    // published the absence. A refused field and a capture-bound truncation
+    // are other causes. Once cancelled, the scan-level handler has frozen the
+    // warnings and the incomplete-probe line already covers the probe.
+    if (!lifecycle.cancelled && captured.failureLossCount > 0) {
+      warnings.add(KEYSTROKE_PROBE_REQUEST_UNREAD_WARNING);
+    }
   }
 
   if (lifecycle.cancelled) {

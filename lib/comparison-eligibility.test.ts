@@ -11,6 +11,8 @@ import {
   COMPARISON_REQUEST_CAP,
   comparableSubjectHosts,
   comparisonEligibility,
+  runHitKeystrokeProbeCaptureLoss,
+  runHitKeystrokeProbeRequestUnread,
   runHitPixelDecodeCaptureLoss,
   runHitRequestCap,
   runHitResponseByteCap,
@@ -24,6 +26,7 @@ import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "./gpc-injection";
 import {
   INVALID_UPSTREAM_RESPONSE_WARNING,
   KEYSTROKE_PROBE_INCOMPLETE_WARNING,
+  KEYSTROKE_PROBE_REQUEST_UNREAD_WARNING,
   MAX_RECORDED_REQUESTS,
   PIXEL_DECODE_CAPTURE_LOSS_WARNING,
   ScanRequestBudget,
@@ -418,6 +421,22 @@ test("the pixel-body warning is recognized as scoped detector loss, not request 
 
   assert.equal(runHitPixelDecodeCaptureLoss(run), true);
   assert.equal(runRequestEvidenceCapped(run), false);
+});
+
+test("the input probe's unread-request line is scoped detector loss, not request loss", () => {
+  // The probe finished and its requests are in the log; only its keystroke
+  // conclusion is unknown. Unlike the incomplete-probe line it must not make
+  // a pair ineligible or read as request-evidence loss.
+  const run = makeRun({ totalRequests: 20 });
+  run.warnings = [KEYSTROKE_PROBE_REQUEST_UNREAD_WARNING];
+
+  assert.equal(runHitKeystrokeProbeRequestUnread(run), true);
+  assert.equal(runHitKeystrokeProbeCaptureLoss(run), false);
+  assert.equal(runRequestEvidenceCapped(run), false);
+  assert.deepEqual(
+    comparisonEligibility(shieldsPair(makeRun({}), run)),
+    comparisonEligibility(shieldsPair(makeRun({}), makeRun({ totalRequests: 20 })))
+  );
 });
 
 test("mismatched subjects, devices, and pipelines each disqualify", () => {

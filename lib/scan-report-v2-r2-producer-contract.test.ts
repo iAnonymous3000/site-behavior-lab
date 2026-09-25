@@ -701,8 +701,8 @@ test("every exact PageGraph normalization row replays and mixed tracker identiti
     catalog: serviceRoleTracker,
     mixedVersion: "hand-curated-2026.07"
   });
-  // The cb7064 identity under tldts@7.4.13, closed by the node-detectors-v10
-  // measurement epoch's listener-withheld disclosure.
+  // The cb7064 identity under tldts@7.4.13, closed by the two warnings the
+  // node-detectors-v10 measurement epoch admits.
   oracle.push({
     normalizationVersion: `${V4_PREFIX}cb7064a154022024d8ffa25c110de6feff64f2b0ecbd375b14a24ff17105059d+tldts@7.4.13+pagegraph-request-evidence-v1+r2-http-status-compat-v1`,
     catalog: serviceRoleTracker,
@@ -1156,7 +1156,7 @@ test("closed v12 reports keep their exact identity when v13 moves the methodolog
   assert.equal(
     closedLists.normalizationVersion.replace(
       ":cb7064a154022024d8ffa25c110de6feff64f2b0ecbd375b14a24ff17105059d+",
-      ":6ce6219dbd47d1ad22665b389eeec4640f7d5063cdfe879c005fd246004557aa+"
+      ":ab262b8387cdb194d2c2cbc60413f403b9d13cbe5d0caba6abb52731da832560+"
     ),
     currentLists.normalizationVersion
   );

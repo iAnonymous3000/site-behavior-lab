@@ -270,9 +270,10 @@ listener claim alone: the fingerprinting and detector-output families, every
 sibling claim and every corpus population stay as measured. Unlike r2's shared
 detail, it does not censor keystroke exfiltration, because a v1 keystroke
 recipient redacts to a host marker the guard accepts. The admitted string moves
-the public-string policy digest from `cb7064a1...059d` to `6ce6219d...57aa`,
-and with it both r2 normalization identities; the `dynamicWarningPatterns`
-label and its source pin do not move. The outgoing normalizations and producer
+the public-string policy digest off `cb7064a1...059d`, and with it both r2
+normalization identities; with the input probe's line admitted below, the
+epoch's value is `ab262b83...2560`. The `dynamicWarningPatterns` label and its
+source pin do not move. The outgoing normalizations and producer
 rows are closed with this epoch's identity bookkeeping. Re-sanitizing all 919
 committed v1 reports leaves each one byte-identical and adds the line to none.
 Reports whose listener detection was dropped at scan time cannot be
@@ -283,7 +284,8 @@ identified, because raw evidence is not retained, so they stay undisclosed.
 the HTTP status (subject validity `v4`), the probe-aborted navigation (active
 probe `v3` and `synthetic-sentinel@5`), the Shields boundary (no identity), the
 v1 sanitizer (a normalization widening, `cb7064a1...059d` to
-`6ce6219d...57aa`) and the GPC worker accounting (`gpc-worker-application-v3`),
+`ab262b83...2560` with the probe line below) and the GPC worker accounting
+(`gpc-worker-application-v3`),
 and, from the older backlog, the partial banner read (`consent-r2-v5`). Of the
 table, only `canvas-font-probing-v1` stays open. The probe row asked for the v1
 methodology token; the token moves through subject validity `v4`, which
@@ -297,6 +299,31 @@ staging A/B went stale when #9 landed at c8b189ac without them. This epoch
 moves no toolchain input, which is what docs/toolchain-epoch.md's A/B covers;
 the subject validity `v3` and `node-detectors-v9` epochs (`557891e`,
 `8078dd7`) landed the same way.
+
+**Update, 2026-09-25.** The probe-aborted navigation fix left the v1 wire
+behind. v1 has no detector ledger, so the run whose r2 keystroke detector ends
+`partial` with `scan-failed` over a stopped navigation that carried the test
+value published an allowed "no typed value left this page" on v1, where before
+this epoch the same visit named the frame's host. The probe's older
+`scan-failed` path, a request whose URL or body it could not read, had the same
+v1 gap. The scanner now adds one fixed warning,
+`KEYSTROKE_PROBE_REQUEST_UNREAD_WARNING`, whenever the probe's capture records
+either cause and the probe was not cancelled; a field that refused the value
+and a request cut at the capture bounds are other causes and add nothing. v1
+readers map the line to the legacy reason
+`capture-loss:keystroke-probe-request-unread`, which censors the keystroke claim
+alone through its `legacyReasons`, the way the listener line censors the
+listener claim: the probe finished and its requests are in the log, so the
+request family, comparison eligibility and the corpus population stay as
+measured, unlike the incomplete-probe line. r2 carries the same line beside its
+detector status. The admitted string is a second widening in this epoch, so the
+public-string policy digest the outgoing `cb7064a1...059d` moves to is
+`ab262b83...2560`; the `dynamicWarningPatterns` label and its source pin do not
+move. Re-sanitizing all 919 committed v1 reports leaves each one unchanged and
+adds the line to none. Still open on v1, where r2 withholds the claim: a probe
+cut at its capture bounds, a probe whose own work threw, a field that refused
+the value, and a probe that lost the subject; a blocked navigation's request
+coverage loss also has no v1 trace.
 
 ## 5. Confirmed and left for other reasons
 

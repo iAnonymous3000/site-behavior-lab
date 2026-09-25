@@ -38,7 +38,11 @@ const QUALITY_REASON_NOTES: Record<string, string> = {
   // v1 only (LEGACY_LISTENER_DETECTION_WITHHELD_REASON). r2 reports the same
   // drop as a capture-loss detail, never as this reason.
   "capture-loss:public-fingerprint-detections":
-    "a session-recording or input-monitoring detection named a script origin with no publishable registrable domain and was withheld, so session-recording and input-monitoring findings are incomplete"
+    "a session-recording or input-monitoring detection named a script origin with no publishable registrable domain and was withheld, so session-recording and input-monitoring findings are incomplete",
+  // v1 only (LEGACY_KEYSTROKE_PROBE_REQUEST_UNREAD_REASON). r2 reports the
+  // same probe as a partial detector with a keystroke-probe capture loss.
+  "capture-loss:keystroke-probe-request-unread":
+    "the synthetic form-input probe stopped, or could not read in full, a request that may have carried its test value, so input-capture detection is incomplete"
 };
 
 const FINGERPRINT_LISTENER_ATTRIBUTION_NOTE =

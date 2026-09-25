@@ -77,6 +77,7 @@ import {
   FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING,
   FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING,
   INVALID_UPSTREAM_RESPONSE_WARNING,
+  KEYSTROKE_PROBE_REQUEST_UNREAD_WARNING,
   PIXEL_DECODE_CAPTURE_LOSS_WARNING
 } from "./scan-runtime";
 import { resolveScannerEgressLabel, resolveScannerEgressRegion } from "./scanner-egress";
@@ -5480,9 +5481,14 @@ test("a child-frame navigation the input probe aborts leaves the request log and
 
 /**
  * Run the probe over one fake text field whose typing emits the requests
- * `requestsFor` builds from the typed value, and return its outcome.
+ * `requestsFor` builds from the typed value, and return its outcome and the
+ * warnings it added. `accepted: false` makes the field refuse the value, and
+ * `afterType` runs once typing has emitted its requests.
  */
-async function probeWithTypedRequests(requestsFor: (value: string) => unknown[]) {
+async function probeWithTypedRequests(
+  requestsFor: (value: string) => unknown[],
+  options: { accepted?: boolean; afterType?: (lifecycle: KeystrokeProbeLifecycle) => void } = {}
+) {
   const listeners = new Set<(request: unknown) => void>();
   const handle = {
     async isVisible() {
@@ -5500,7 +5506,7 @@ async function probeWithTypedRequests(requestsFor: (value: string) => unknown[])
         value: {
           fieldType: () => "text",
           focusForProbe: () => true,
-          sentinelPresent: () => true,
+          sentinelPresent: () => options.accepted ?? true,
           blur: () => true
         }
       });
@@ -5515,6 +5521,7 @@ async function probeWithTypedRequests(requestsFor: (value: string) => unknown[])
       for (const request of requestsFor(value)) {
         for (const listener of listeners) listener(request);
       }
+      options.afterType?.(lifecycle);
     },
     async dispose() {}
   };
@@ -5542,18 +5549,22 @@ async function probeWithTypedRequests(requestsFor: (value: string) => unknown[])
     stopCapture: () => undefined
   };
 
+  const warnings = new ScanWarningCollector();
   const outcome = await probeKeystrokeExfiltration(
     page as unknown as Parameters<typeof probeKeystrokeExfiltration>[0],
     "https://www.example.com/form",
     "www.example.com",
     Date.now(),
-    new ScanWarningCollector(),
+    warnings,
     "probe-navigation-collector",
     lifecycle
   );
   assert.equal(listeners.size, 0, "the probe must retire its request listener");
-  return outcome;
+  return { outcome, warnings: warnings.list };
 }
+
+const probeRequestUnreadLines = (warnings: readonly string[]) =>
+  warnings.filter((warning) => warning === KEYSTROKE_PROBE_REQUEST_UNREAD_WARNING).length;
 
 test("the probe's capture skips the navigations its route aborts and keeps everything else", async () => {
   // The page route aborts a navigation's first hop while the probe runs, and
@@ -5561,7 +5572,7 @@ test("the probe's capture skips the navigations its route aborts and keeps every
   // capture must skip exactly the first hops: a hop the route never saw was
   // sent and stays evidence. The stopped first hop was carrying the value to a
   // third party, so the probe cannot publish a complete result either.
-  const outcome = await probeWithTypedRequests((value) => [
+  const { outcome, warnings } = await probeWithTypedRequests((value) => [
     {
       url: () => `https://nav-collector.example/frame?q=${value}`,
       postData: () => null,
@@ -5587,13 +5598,15 @@ test("the probe's capture skips the navigations its route aborts and keeps every
   assert.equal("captureLossCount" in outcome, false);
   assert.ok(outcome.detection && outcome.detection.kind === "keystroke-exfiltration");
   assert.deepEqual(outcome.detection.evidence.recipients, ["beacon.example", "hop-collector.example"]);
+  // v1 has no detector ledger: this line is its only record of the stop.
+  assert.equal(probeRequestUnreadLines(warnings), 1);
 });
 
 test("a stopped navigation that cannot carry the value to a third party leaves the probe complete", async () => {
   // Search-as-you-type navigating the page itself, and an ad frame rotating
   // during the wait, are stopped too. Neither could hand the value to a third
   // party, so neither may censor the probe.
-  const outcome = await probeWithTypedRequests((value) => [
+  const { outcome, warnings } = await probeWithTypedRequests((value) => [
     {
       url: () => `https://www.example.com/search?q=${value}`,
       postData: () => null,
@@ -5617,6 +5630,68 @@ test("a stopped navigation that cannot carry the value to a third party leaves t
   assert.equal(outcome.status, "complete");
   assert.ok(outcome.detection && outcome.detection.kind === "keystroke-exfiltration");
   assert.deepEqual(outcome.detection.evidence.recipients, ["beacon.example"]);
+  assert.equal(probeRequestUnreadLines(warnings), 0);
+});
+
+test("the probe discloses a request it could not read, and no other partial cause", async () => {
+  // An unreadable body is the pre-existing scan-failed path of the same
+  // family: the request may have carried the value and the probe cannot say.
+  // r2 leaves the detector partial; v1 gets the fixed line.
+  const unreadable = await probeWithTypedRequests(() => [
+    {
+      url: () => "https://beacon.example/collect",
+      postData: () => {
+        throw new Error("unreadable body");
+      },
+      isNavigationRequest: () => false,
+      redirectedFrom: () => null
+    }
+  ]);
+  assert.ok(unreadable.outcome.status === "partial");
+  assert.equal(unreadable.outcome.reason, "scan-failed");
+  assert.equal(probeRequestUnreadLines(unreadable.warnings), 1);
+
+  // A body cut at the capture bound is r2's evidence-cap-reached, not this
+  // line's cause.
+  const truncated = await probeWithTypedRequests(() => [
+    {
+      url: () => "https://beacon.example/collect",
+      postData: () => "x".repeat(MAX_CAPTURED_BODY_CHARS + 1),
+      isNavigationRequest: () => false,
+      redirectedFrom: () => null
+    }
+  ]);
+  assert.ok(truncated.outcome.status === "partial");
+  assert.equal(truncated.outcome.reason, "evidence-cap-reached");
+  assert.equal(probeRequestUnreadLines(truncated.warnings), 0);
+
+  // A field that refused the value is scan-failed too, but nothing that may
+  // have carried it went unread.
+  const refused = await probeWithTypedRequests(() => [], { accepted: false });
+  assert.ok(refused.outcome.status === "partial");
+  assert.equal(refused.outcome.reason, "scan-failed");
+  assert.equal(probeRequestUnreadLines(refused.warnings), 0);
+
+  // Once the scan-level deadline has cancelled the probe, its warnings are
+  // frozen and the incomplete-probe line speaks for it.
+  const cancelled = await probeWithTypedRequests(
+    (value) => [
+      {
+        url: () => `https://nav-collector.example/frame?q=${value}`,
+        postData: () => null,
+        isNavigationRequest: () => true,
+        redirectedFrom: () => null
+      }
+    ],
+    {
+      afterType: (lifecycle) => {
+        lifecycle.cancelled = true;
+      }
+    }
+  );
+  assert.ok(cancelled.outcome.status === "partial");
+  assert.equal(cancelled.outcome.reason, "budget-unavailable");
+  assert.equal(probeRequestUnreadLines(cancelled.warnings), 0);
 });
 
 test("a stopped navigation counts as carrying the value in any encoding, or when it cannot be read", () => {
@@ -5699,21 +5774,30 @@ for (const variant of ["child-frame", "main-frame"] as const) {
         loss.family === "detector-output" && loss.detail === "keystroke-probe" && loss.phaseId === activePhase.phaseId
       ));
       assert.equal(result.fingerprintDetections?.some(detection => detection.kind === "keystroke-exfiltration") ?? false, false);
+      assert.equal(result.warnings.filter(warning => warning === KEYSTROKE_PROBE_REQUEST_UNREAD_WARNING).length, 1);
 
-      const facts = buildReportFacts(
-        viewFromV2(
-          toPublicScanReportR2(
-            buildRuntimeScanReportV2R2(visit, "public-api", {
-              SITE_BEHAVIOR_LAB_BUILD_COMMIT: "a".repeat(40)
-            } as NodeJS.ProcessEnv)
-          ),
-          2
-        )
+      const r2View = viewFromV2(
+        toPublicScanReportR2(
+          buildRuntimeScanReportV2R2(visit, "public-api", {
+            SITE_BEHAVIOR_LAB_BUILD_COMMIT: "a".repeat(40)
+          } as NodeJS.ProcessEnv)
+        ),
+        2
       );
+      // The admitted line survives the public r2 boundary verbatim too.
+      assert.equal(r2View.runs[0].warnings.includes(KEYSTROKE_PROBE_REQUEST_UNREAD_WARNING), true);
+      const facts = buildReportFacts(r2View);
       const claim = facts.display.claims["keystroke-exfiltration"];
       assert.equal(claim.allowed, false);
       assert.ok(claim.blockers.includes("detector-incomplete"));
       assert.ok(claim.blockers.includes("family-censored"));
+
+      // The v1 wire of the same visit has no detector ledger. It used to
+      // publish the allowed negative r2 withholds, and before this epoch it
+      // named the frame's recipient instead.
+      const v1Claim = buildReportFacts(viewFromV1Report(result)).display.claims["keystroke-exfiltration"];
+      assert.equal(v1Claim.allowed, false);
+      assert.deepEqual(v1Claim.blockers, ["family-censored"]);
     } finally {
       if (previousConsentVerification === undefined) delete process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
       else process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = previousConsentVerification;

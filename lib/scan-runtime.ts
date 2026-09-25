@@ -38,6 +38,21 @@ export const INVALID_UPSTREAM_RESPONSE_WARNING =
 export const KEYSTROKE_PROBE_INCOMPLETE_WARNING =
   "The synthetic form-input probe ended before it finished. Synthetic typing may have occurred; requests emitted near the cutoff may be missing from the recorded request log and counts, and input-capture conclusions are incomplete.";
 /**
+ * The probe stopped a navigation that would have carried the test value to a
+ * third party, or could not read in full a request (or a stopped navigation)
+ * that may have carried it. r2 records this as the keystroke detector ending
+ * `partial` with `scan-failed` and a `detector-output` capture loss with
+ * detail `keystroke-probe`; v1 has no detector ledger, so this line is its
+ * only channel. v1 readers censor only the keystroke-exfiltration claim for
+ * it: the request log and every other detector product stand as measured. A
+ * field that refused the value is not this cause, and neither is a request
+ * the probe retained but cut at its capture bounds (r2's
+ * `evidence-cap-reached`). It must never contain the incomplete-probe line's
+ * recognition fragment, which censors whole families.
+ */
+export const KEYSTROKE_PROBE_REQUEST_UNREAD_WARNING =
+  "The synthetic form-input probe stopped, or could not read in full, one or more requests that may have carried its test value, so input-capture conclusions for this visit are incomplete.";
+/**
  * The in-page fingerprint observer could not read every frame it attempted.
  *
  * v2 records this as a `fingerprinting` capture loss in its quality facts, but

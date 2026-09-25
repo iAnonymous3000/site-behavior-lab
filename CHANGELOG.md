@@ -73,7 +73,14 @@ public API or a 1.0 release.
   a blocked navigation now leaves the log and its counts, keeps its lost request
   coverage record, and names no recipient. One that would have carried the test
   value to a third party leaves the input check incomplete, so the report does
-  not state that the value stayed on the page.
+  not state that the value stayed on the page. v1 reports have no detector
+  status, so the scanner now also emits a fixed warning for it, as it does when
+  the probe could not read the URL or body of a request that may have carried
+  the value, which v1 reports used to publish as a complete negative. v1
+  readers treat the keystroke claim, and only that claim, as incomplete; the
+  request log, comparisons and the corpus population are unaffected. The line
+  joins the listener-withheld warning below in this release's public-string
+  policy widening.
 - The input probe's block of a main-frame navigation (a form submitted through
   another frame's `submit`, for example) replaced the page with an error page,
   so the scanner's own block read as the page leaving the recorded site: the
@@ -146,11 +153,12 @@ public API or a 1.0 release.
     without a detector version bump, and the keystroke outcomes it changes
     ride on `synthetic-sentinel@5`.
   - Node and PageGraph r2 normalization: public-string-policy-v3
-    `cb7064a1...059d` to `6ce6219d...57aa` under the same `tldts@7.4.13`, a
-    widening by the one admitted listener-withheld warning.
+    `cb7064a1...059d` to `ab262b83...2560` under the same `tldts@7.4.13`, a
+    widening by two admitted warnings, the listener-withheld line and the input
+    probe's unread-request line.
 - The probe and GPC worker revisions also change what v1 reports record (v1
-  request rows after a probe-blocked navigation, and when the GPC worker
-  warning appears), but their components stay in the r2 suffix where their
+  request rows after a probe-blocked navigation, the input probe's
+  unread-request warning, and when the GPC worker warning appears), but their components stay in the r2 suffix where their
   earlier revisions were declared. The v1 token still moves in this epoch,
   through subject-validity-v4, so no v1 cohort mixes reports from before and
   after either change.
