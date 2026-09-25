@@ -94,6 +94,13 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3000
 ENV SITE_BEHAVIOR_LAB_REPORT_STORE_DIR=/var/lib/site-behavior-lab/reports
 ENV SITE_BEHAVIOR_LAB_BUILD_COMMIT=${SITE_BEHAVIOR_LAB_BUILD_COMMIT}
+# dns.lookup is getaddrinfo on libuv's threadpool, four threads by default and
+# shared by the whole Next process. The scan proxy resolves every host a page
+# reaches on it, and so does the scanned URL's preflight under its 5 s bound,
+# which counts time spent queued. Two concurrent scans could pin all four
+# threads on slow third-party hosts and queue the other scan's preflight past
+# that bound into a refused scan.
+ENV UV_THREADPOOL_SIZE=16
 
 COPY --from=build /app/package.json /app/package-lock.json ./
 COPY --from=build /app/node_modules ./node_modules

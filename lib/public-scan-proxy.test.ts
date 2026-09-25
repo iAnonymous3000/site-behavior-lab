@@ -9,6 +9,7 @@ import {
   MAX_PUBLIC_SCAN_PROXY_RESPONSE_BYTE_LIMIT,
   MAX_PUBLIC_SCAN_PROXY_UNIQUE_TARGET_LIMIT,
   MAX_PUBLIC_SCAN_PROXY_UPLOAD_BYTE_LIMIT,
+  PUBLIC_SCAN_PROXY_DNS_LOOKUP_TIMEOUT_MS,
   PUBLIC_SCAN_PROXY_RESPONSE_BYTE_BUDGET_NAME,
   isValidPublicScanProxyUpstreamStatusLine,
   startPublicScanProxy
@@ -242,6 +243,63 @@ test("public scan proxy records a DNS failure as resolution-failed, not a privat
   await assert.rejects(() => proxyGet(proxy.server, "http://dead.test/pixel"));
 
   assert.deepEqual(proxy.blockedTargets, [{ target: "http://dead.test/", reason: "resolution-failed" }]);
+});
+
+test("a DNS lookup that outlives its backstop is refused as resolution-failed and never reissued", async (t) => {
+  // A lookup that never returned held its CONNECT, and every later one to the
+  // same host, until the scan ended. Ending it must not start another lookup
+  // for that host either: the abandoned one still holds a resolver thread.
+  const calls: string[] = [];
+  const proxy = await startPublicScanProxy({
+    dnsLookupTimeoutMs: 50,
+    resolveHost: (hostname) => {
+      calls.push(hostname);
+      if (hostname === "hung.test") return new Promise(() => undefined);
+      return Promise.reject(new Error("getaddrinfo EAI_AGAIN flaky.test"));
+    }
+  });
+  t.after(() => proxy.close());
+
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    const response = await settleWithin(rawProxyConnect(proxy.server, "hung.test:443"), 2_000);
+    assert.match(response.toString("latin1"), /^HTTP\/1\.1 403 Forbidden/);
+  }
+  // An ordinary resolver failure is still retried on the next request.
+  await settleWithin(rawProxyConnect(proxy.server, "flaky.test:443"), 2_000);
+  await settleWithin(rawProxyConnect(proxy.server, "flaky.test:443"), 2_000);
+
+  assert.deepEqual(calls, ["hung.test", "flaky.test", "flaky.test"]);
+  assert.deepEqual(
+    proxy.blockedTargets,
+    ["hung.test", "hung.test", "flaky.test", "flaky.test"].map((host) => ({
+      target: `https://${host}/`,
+      reason: "resolution-failed"
+    }))
+  );
+});
+
+test("closing the proxy cancels a pending DNS backstop so it records nothing after the scan", async (t) => {
+  let announceLookup: () => void = () => undefined;
+  const lookupStarted = new Promise<void>((resolve) => {
+    announceLookup = resolve;
+  });
+  const proxy = await startPublicScanProxy({
+    dnsLookupTimeoutMs: 100,
+    resolveHost: () => {
+      announceLookup();
+      return new Promise(() => undefined);
+    }
+  });
+  // A second close is harmless; this one only runs if the test fails early.
+  t.after(() => proxy.close());
+
+  const pending = rawProxyConnect(proxy.server, "hung.test:443").catch(() => Buffer.alloc(0));
+  await settleWithin(lookupStarted, 2_000);
+  await proxy.close();
+  await pending;
+  await new Promise((resolve) => setTimeout(resolve, 250));
+
+  assert.deepEqual(proxy.blockedTargets, []);
 });
 
 test("public scan proxy records a non-standard port as blocked-port before resolving", async (t) => {
@@ -565,6 +623,16 @@ test("public scan proxy rejects response-byte overrides that could disable its s
   await assert.rejects(
     () => startPublicScanProxy({ uniqueTargetLimit: 0 }),
     /unique-target limit must be a positive integer no greater/
+  );
+  // The DNS backstop sits past the resolver's own schedule; an override may
+  // only shorten it, or it could turn into a limit a scan never reaches.
+  await assert.rejects(
+    () => startPublicScanProxy({ dnsLookupTimeoutMs: PUBLIC_SCAN_PROXY_DNS_LOOKUP_TIMEOUT_MS + 1 }),
+    /DNS lookup timeout must be a positive integer no greater/
+  );
+  await assert.rejects(
+    () => startPublicScanProxy({ dnsLookupTimeoutMs: 0 }),
+    /DNS lookup timeout must be a positive integer no greater/
   );
 });
 

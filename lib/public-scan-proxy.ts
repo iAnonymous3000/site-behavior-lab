@@ -65,6 +65,21 @@ export const MAX_PUBLIC_SCAN_PROXY_TRANSACTION_LIMIT = 4_000;
 export const DEFAULT_PUBLIC_SCAN_PROXY_UNIQUE_TARGET_LIMIT = 256;
 export const MAX_PUBLIC_SCAN_PROXY_UNIQUE_TARGET_LIMIT = 1_000;
 export const MAX_RECORDED_PROXY_BLOCKS = 100;
+/**
+ * Backstop for one proxy DNS lookup, not a product timeout.
+ *
+ * resolv.conf(5): the system resolver waits `timeout` (default 5 s) for a
+ * name server before trying the next, makes `attempts` (default 2) rounds, and
+ * uses at most MAXNS (3) name servers, so a default-configured resolver
+ * answers or fails on its own within about 30 s. This sits one more timeout
+ * past that, so it only ends a lookup that outlived the resolver's own
+ * schedule (one that never returns, or waited on a saturated libuv pool) and
+ * never turns a slow answer into a refusal. The 5 s preflight bound in
+ * url-safety.ts is deliberately not reused: it is a fail-fast timeout for the
+ * scanned URL, and the resolver only retries after 5 s, so a subresource whose
+ * first query was dropped would be refused here where it loads today.
+ */
+export const PUBLIC_SCAN_PROXY_DNS_LOOKUP_TIMEOUT_MS = 35_000;
 
 type PublicScanProxyByteBudgetName =
   | typeof PUBLIC_SCAN_PROXY_RESPONSE_BYTE_BUDGET_NAME
@@ -151,6 +166,8 @@ type StartPublicScanProxyOptions = {
   transactionLimit?: number;
   /** Bounds DNS/connect fan-out and the successful target cache. */
   uniqueTargetLimit?: number;
+  /** Test override that can only shorten the per-lookup DNS backstop. */
+  dnsLookupTimeoutMs?: number;
   resolveHost?: ResolvePublicHost;
   /** Routes an already validated, pinned target in deterministic socket tests. */
   connectUpstreamForTests?: (target: Readonly<PinnedTarget>) => net.Socket;
@@ -170,7 +187,12 @@ const DEFAULT_HTTP_PORT = 80;
 const DEFAULT_HTTPS_PORT = 443;
 
 export async function startPublicScanProxy(options: StartPublicScanProxyOptions = {}): Promise<PublicScanProxy> {
-  const resolveHost = options.resolveHost ?? defaultResolveHost;
+  const pendingLookupDeadlines = new Set<ReturnType<typeof setTimeout>>();
+  const resolveHost = resolveHostWithinDeadline(
+    options.resolveHost ?? defaultResolveHost,
+    normalizeDnsLookupTimeout(options.dnsLookupTimeoutMs),
+    pendingLookupDeadlines
+  );
   const blockedTargets: BlockedProxyTarget[] = [];
   const pinnedTargets = new Map<string, Promise<PinnedTarget>>();
   const sockets = new Set<Duplex>();
@@ -276,6 +298,10 @@ export async function startPublicScanProxy(options: StartPublicScanProxyOptions 
     }),
     close: async () => {
       closing = true;
+      // The proxy lives for one scan, so this is what clamps a lookup deadline
+      // to the scan budget: none fires, or records a block, after the scan.
+      for (const timer of pendingLookupDeadlines) clearTimeout(timer);
+      pendingLookupDeadlines.clear();
       const serverClosed = new Promise<void>((resolve) => server.close(() => resolve()));
       for (const socket of sockets) socket.destroy();
       await serverClosed;
@@ -550,7 +576,11 @@ async function getPinnedTarget(targetUrl: URL, state: ProxyState): Promise<Pinne
   if (!pinnedTarget) {
     const pendingTarget = resolvePinnedTarget(targetUrl, hostname, port, state);
     pinnedTarget = pendingTarget.catch((error) => {
-      if (state.pinnedTargets.get(cacheKey) === pinnedTarget) {
+      // A lookup abandoned at its deadline still holds a resolver thread, so
+      // its refusal stays pinned instead of starting another lookup for the
+      // same host on another thread. Every other failure may be retried.
+      const lookupAbandoned = error instanceof ProxyTargetBlockedError && error.lookupAbandoned;
+      if (!lookupAbandoned && state.pinnedTargets.get(cacheKey) === pinnedTarget) {
         state.pinnedTargets.delete(cacheKey);
       }
       throw error;
@@ -567,8 +597,17 @@ async function getPinnedTarget(targetUrl: URL, state: ProxyState): Promise<Pinne
  * about the target's network location).
  */
 class ProxyTargetBlockedError extends Error {
-  constructor(readonly reason: BlockedProxyTarget["reason"]) {
+  constructor(
+    readonly reason: BlockedProxyTarget["reason"],
+    readonly lookupAbandoned = false
+  ) {
     super(`Proxy target blocked: ${reason}`);
+  }
+}
+
+class ProxyDnsLookupTimeoutError extends Error {
+  constructor(readonly timeoutMs: number) {
+    super(`Proxy DNS lookup exceeded its ${timeoutMs} ms backstop.`);
   }
 }
 
@@ -600,8 +639,8 @@ async function resolvePinnedTarget(
   } else {
     try {
       addresses = await state.resolveHost(hostname);
-    } catch {
-      throw new ProxyTargetBlockedError("resolution-failed");
+    } catch (error) {
+      throw new ProxyTargetBlockedError("resolution-failed", error instanceof ProxyDnsLookupTimeoutError);
     }
   }
 
@@ -725,6 +764,39 @@ function defaultPort(protocol: string): number {
 
 async function defaultResolveHost(hostname: string): Promise<ResolvedHostAddress[]> {
   return dns.lookup(hostname, { all: true, verbatim: true });
+}
+
+/**
+ * dns.lookup is getaddrinfo on the libuv pool and cannot be cancelled, so a
+ * lookup that never returns used to hold its request, and every later request
+ * to the same host, until the scan ended. Race it against the backstop; the
+ * deadline is unreferenced and tracked so closing the proxy clears it.
+ */
+function resolveHostWithinDeadline(
+  resolveHost: ResolvePublicHost,
+  timeoutMs: number,
+  pendingDeadlines: Set<ReturnType<typeof setTimeout>>
+): ResolvePublicHost {
+  return async (hostname) => {
+    const lookup = Promise.resolve().then(() => resolveHost(hostname));
+    // Observe a late failure after the race so it can never become an
+    // unhandled rejection.
+    void lookup.catch(() => undefined);
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const deadline = new Promise<never>((_resolve, reject) => {
+      timer = setTimeout(() => reject(new ProxyDnsLookupTimeoutError(timeoutMs)), timeoutMs);
+      timer.unref();
+      pendingDeadlines.add(timer);
+    });
+    try {
+      return await Promise.race([lookup, deadline]);
+    } finally {
+      if (timer) {
+        clearTimeout(timer);
+        pendingDeadlines.delete(timer);
+      }
+    }
+  };
 }
 
 function defaultConnectUpstream(target: Readonly<PinnedTarget>, dial: UpstreamDialer): net.Socket {
@@ -982,6 +1054,16 @@ function normalizeUploadByteLimit(value: number | undefined): number {
     );
   }
   return limit;
+}
+
+function normalizeDnsLookupTimeout(value: number | undefined): number {
+  const timeoutMs = value ?? PUBLIC_SCAN_PROXY_DNS_LOOKUP_TIMEOUT_MS;
+  if (!Number.isSafeInteger(timeoutMs) || timeoutMs <= 0 || timeoutMs > PUBLIC_SCAN_PROXY_DNS_LOOKUP_TIMEOUT_MS) {
+    throw new Error(
+      `Public scan proxy DNS lookup timeout must be a positive integer no greater than ${PUBLIC_SCAN_PROXY_DNS_LOOKUP_TIMEOUT_MS} ms.`
+    );
+  }
+  return timeoutMs;
 }
 
 function normalizeTransactionLimit(value: number | undefined): number {
