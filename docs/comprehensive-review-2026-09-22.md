@@ -313,17 +313,35 @@ and a request cut at the capture bounds are other causes and add nothing. v1
 readers map the line to the legacy reason
 `capture-loss:keystroke-probe-request-unread`, which censors the keystroke claim
 alone through its `legacyReasons`, the way the listener line censors the
-listener claim: the probe finished and its requests are in the log, so the
-request family, comparison eligibility and the corpus population stay as
-measured, unlike the incomplete-probe line. r2 carries the same line beside its
-detector status. The admitted string is a second widening in this epoch, so the
-public-string policy digest the outgoing `cb7064a1...059d` moves to is
-`ab262b83...2560`; the `dynamicWarningPatterns` label and its source pin do not
-move. Re-sanitizing all 919 committed v1 reports leaves each one unchanged and
-adds the line to none. Still open on v1, where r2 withholds the claim: a probe
-cut at its capture bounds, a probe whose own work threw, a field that refused
-the value, and a probe that lost the subject; a blocked navigation's request
-coverage loss also has no v1 trace.
+listener claim, and leaves the request family, comparison eligibility and the
+corpus population as v1 measured them, unlike the incomplete-probe line. That
+scope fits a request the probe could not read, which was sent and is in the
+log, where request censoring would over-censor. It does not fit a stopped
+navigation, which r2 records as lost request coverage. r2 carries the same line
+beside its detector status. The admitted string is a second widening in this
+epoch, so the public-string policy digest the outgoing `cb7064a1...059d` moves
+to is `ab262b83...2560`; the `dynamicWarningPatterns` label and its source pin
+do not move. Re-sanitizing all 919 committed v1 reports leaves each one
+unchanged and adds the line to none. Still open on v1, where r2 withholds the
+claim: a probe cut at its capture bounds, a probe whose own work threw, a field
+that refused the value, and a probe that lost the subject.
+
+Also open, and wider than the keystroke claim: every navigation the probe
+stops, whether or not it carried the value, is lost request coverage on r2 and
+has no v1 channel. The page route records a `dropped` requests-family loss for
+each one. In the child-frame and main-frame browser tests, r2 censors the
+requests family with `capture-loss:dropped`, leaves the run out of the corpus
+distribution population, reads its request evidence as `incomplete` and
+withholds `third-party-services` with `family-censored`. v1 of the same visit
+reads its request evidence as complete, keeps the run in the population and
+allows `third-party-services` with `benchmarkAllowed: true`, so the v1 visit is
+benchmarked and pooled where r2 withholds it. The unread-request line cannot
+close this: it fires only for a stopped navigation that may have carried the
+value, and censoring the request family for it would over-censor the
+unreadable-request case. The fix is a separate v1 line for any probe-stopped
+navigation, read like `capture-loss:unsettled-routed-requests` (request-family
+censoring, `runRequestEvidenceCapped` and comparison eligibility), tracked as
+its own identity change.
 
 ## 5. Confirmed and left for other reasons
 

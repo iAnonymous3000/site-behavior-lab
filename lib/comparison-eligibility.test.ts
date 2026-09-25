@@ -424,9 +424,11 @@ test("the pixel-body warning is recognized as scoped detector loss, not request 
 });
 
 test("the input probe's unread-request line is scoped detector loss, not request loss", () => {
-  // The probe finished and its requests are in the log; only its keystroke
-  // conclusion is unknown. Unlike the incomplete-probe line it must not make
-  // a pair ineligible or read as request-evidence loss.
+  // For a request the probe could not read, the request is in the log and
+  // only the keystroke conclusion is unknown, so unlike the incomplete-probe
+  // line this one must not make a pair ineligible or read as request-evidence
+  // loss. A stopped navigation's lost request coverage is a different cause
+  // that needs its own v1 line; this one would over-censor the first.
   const run = makeRun({ totalRequests: 20 });
   run.warnings = [KEYSTROKE_PROBE_REQUEST_UNREAD_WARNING];
 

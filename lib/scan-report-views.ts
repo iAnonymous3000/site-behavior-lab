@@ -666,8 +666,18 @@ function runViewFromV1(result: ScanResult, label: RunView["label"], scannedAt: s
   // withheld one listener detection and published every other fingerprinting
   // and detector-output product as measured.
   if (runHitListenerDetectionWithheld(result)) reasons.push(LEGACY_LISTENER_DETECTION_WITHHELD_REASON);
-  // Claim-scoped for the same reason: the probe finished, its request log is
-  // whole, and only its keystroke conclusion is unknown.
+  // Claim-scoped too, but the request log is whole for only one of the line's
+  // two causes. A request the probe could not read was sent and is in the log,
+  // so request censoring would over-censor it. A navigation the probe stopped
+  // is lost request coverage: r2's page route records it as `dropped` in the
+  // requests family, which censors that family, drops the run from the corpus
+  // population and withholds third-party-services. v1 has no channel for that
+  // loss, and this line cannot be it: it fires only for a stopped navigation
+  // that may have carried the value, while r2 records every one. So a v1 visit
+  // with a stopped navigation still reads as complete request evidence here.
+  // A separate v1 line for any probe-stopped navigation, read like
+  // `capture-loss:unsettled-routed-requests`, is tracked as its own identity
+  // change (docs/comprehensive-review-2026-09-22.md).
   if (runHitKeystrokeProbeRequestUnread(result)) reasons.push(LEGACY_KEYSTROKE_PROBE_REQUEST_UNREAD_REASON);
   return {
     label,

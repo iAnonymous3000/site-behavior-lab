@@ -544,8 +544,13 @@ export function runHitKeystrokeProbeCaptureLoss(run: Pick<ScanResult, "warnings"
  * full, a request that may have carried its test value. The r2 twin is the
  * keystroke detector's `partial`/`scan-failed` status with its
  * `keystroke-probe` capture loss. Readers censor only the keystroke claim for
- * it: unlike the incomplete-probe line, the request log is not short, so it is
- * not request-evidence loss and never enters runRequestEvidenceCapped.
+ * it, and it never enters runRequestEvidenceCapped. That scope fits a request
+ * the probe could not read, which was sent and is in the log, where request
+ * censoring would over-censor. It does not cover a navigation the probe
+ * stopped: r2 records that as lost request coverage, whether or not it carried
+ * the value, and v1 has no line for it, so such a v1 run stays eligible here
+ * and in the corpus population. That v1 line is tracked separately
+ * (scan-report-views runViewFromV1).
  */
 export function runHitKeystrokeProbeRequestUnread(run: Pick<ScanResult, "warnings">): boolean {
   return run.warnings.some((warning) => warning.includes(KEYSTROKE_PROBE_REQUEST_UNREAD_WARNING_FRAGMENT));

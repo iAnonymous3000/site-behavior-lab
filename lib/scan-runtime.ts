@@ -44,7 +44,10 @@ export const KEYSTROKE_PROBE_INCOMPLETE_WARNING =
  * `partial` with `scan-failed` and a `detector-output` capture loss with
  * detail `keystroke-probe`; v1 has no detector ledger, so this line is its
  * only channel. v1 readers censor only the keystroke-exfiltration claim for
- * it: the request log and every other detector product stand as measured. A
+ * it: the request log and every other detector product stand as measured. The
+ * log is whole for an unreadable request; a stopped navigation's lost request
+ * coverage, which r2 records in the requests family, has no v1 channel, and
+ * this line is not one (see runViewFromV1 in scan-report-views). A
  * field that refused the value is not this cause, and neither is a request
  * the probe retained but cut at its capture bounds (r2's
  * `evidence-cap-reached`). It must never contain the incomplete-probe line's

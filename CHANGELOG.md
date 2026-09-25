@@ -78,9 +78,13 @@ public API or a 1.0 release.
   the probe could not read the URL or body of a request that may have carried
   the value, which v1 reports used to publish as a complete negative. v1
   readers treat the keystroke claim, and only that claim, as incomplete; the
-  request log, comparisons and the corpus population are unaffected. The line
-  joins the listener-withheld warning below in this release's public-string
-  policy widening.
+  line leaves the request log, comparisons and the corpus population as v1
+  measured them. One gap remains: v1 records nothing for the request coverage
+  a blocked navigation loses, whether or not it carried the value, so such a v1
+  visit still reads its request evidence as complete, stays in the corpus
+  population and is benchmarked on third-party services, where r2 censors the
+  request family. The line joins the listener-withheld warning below in this
+  release's public-string policy widening.
 - The input probe's block of a main-frame navigation (a form submitted through
   another frame's `submit`, for example) replaced the page with an error page,
   so the scanner's own block read as the page leaving the recorded site: the
