@@ -160,8 +160,14 @@ jq -r '.entries[].reportId' public/transparency-log.json | while read -r id; do
 done
 ```
 
-  A logged id that returns 404 was pruned, not withdrawn; a withdrawal appears
-  in `public/corrections.json` instead. Log membership is evidence that a
+  A logged id that returns 404 was pruned or removed for privacy, not
+  withdrawn; a withdrawal appears in `public/corrections.json` instead, and so
+  does a removal for privacy, as a `privacy-superseded` event naming the
+  redacted copy. Run on a saved copy of such a report with `--from <dir>`,
+  `verify:report` still checks the bytes against the log and the sidecar, says
+  which event removed the report and names its copy, and does not count the
+  index's silence or the current sanitizer changing the report as failures,
+  since those are why it was removed. Log membership is evidence that a
   report was published, never that it still is.
 - **Anchors cover a prefix of the log, not all of it.** An OpenTimestamps anchor
   bounds only the entries beneath the head it names. Entries published after the

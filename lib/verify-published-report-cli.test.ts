@@ -4,7 +4,13 @@ import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSy
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
+import { appendTransparencyLogEntries, buildTransparencyLog } from "./publication-transparency-log";
+import { buildProvenanceEntry } from "./redaction-provenance";
+import { buildStaticReportShare } from "./report-locator";
+import { makeScanReportV1 } from "./scan-report-v2-fixtures";
+import { sha256Hex } from "./sha256";
 import { listStaticReportCandidateIds } from "./static-report-files";
+import type { ScanResult } from "./types";
 
 /**
  * Behavior tests for the reader-facing verifier, run as a subprocess because
@@ -17,8 +23,8 @@ const root = process.cwd();
 const cliPath = path.join(root, ".unit-test-dist", "lib", "verify-published-report-cli.js");
 const reportsDir = path.join(root, "public", "reports");
 
-function runCli(args: readonly string[]) {
-  const result = spawnSync(process.execPath, [cliPath, ...args], { cwd: root, encoding: "utf8" });
+function runCli(args: readonly string[], cwd = root) {
+  const result = spawnSync(process.execPath, [cliPath, ...args], { cwd, encoding: "utf8" });
   if (result.error) throw result.error;
   return { status: result.status, stdout: result.stdout ?? "", stderr: result.stderr ?? "" };
 }
@@ -196,5 +202,87 @@ test("the boundary is printed on success as well as failure", async () => {
     assert.match(result.stdout, /coverage-boundary/);
   } finally {
     rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("a report later removed for privacy verifies against the log and says it was removed", () => {
+  // A reader's saved evidence package of a report the ledger later removed
+  // for privacy: the current sanitizer changes it (that is why it was
+  // removed), and the published index no longer lists it. The log still
+  // records its digest, so it is verified published evidence, not tampering.
+  const originalId = "20260709-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+  const replacementId = "20260709-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
+  const original: ScanResult = {
+    ...(makeScanReportV1() as ScanResult),
+    share: buildStaticReportShare(originalId),
+    privacyPolicy: {
+      url: "https://example.com/privacy",
+      claims: [{ kind: "honors-gpc", quote: "We honor GPC; email privacy@example.com with questions." }],
+      mentionedEntities: [],
+      unmentionedEntities: [],
+      policyTextLength: 1_000
+    }
+  };
+  const wire = `${JSON.stringify(original, null, 2)}\n`;
+  const sidecar = buildProvenanceEntry({
+    reportId: originalId,
+    publicReport: original,
+    writtenAt: "2026-07-09T12:00:00.000Z",
+    createdAt: original.conditions.scannedAt,
+    expiresAt: null
+  });
+  const clone = mkdtempSync(path.join(tmpdir(), "verify-report-clone-"));
+  const evidence = mkdtempSync(path.join(tmpdir(), "verify-report-removed-"));
+  try {
+    mkdirSync(path.join(clone, "public"), { recursive: true });
+    writeFileSync(path.join(evidence, `${originalId}.json`), wire);
+    writeFileSync(path.join(evidence, `${originalId}.provenance.json`), `${JSON.stringify(sidecar, null, 2)}\n`);
+    writeFileSync(path.join(evidence, "index.json"), `${JSON.stringify({ reports: [] })}\n`);
+    const log = buildTransparencyLog(appendTransparencyLogEntries([], [
+      { reportId: originalId, reportWireSha256: sha256Hex(wire), publicDigest: sidecar.publicDigest }
+    ]));
+    writeFileSync(path.join(clone, "public", "transparency-log.json"), `${JSON.stringify(log, null, 2)}\n`);
+    const ledger = (entries: object[]) => `${JSON.stringify({
+      $schema: "https://sitebehavior.org/corrections.schema.json",
+      schemaVersion: 1,
+      policy: "https://sitebehavior.org/corrections/",
+      entries
+    }, null, 2)}\n`;
+    const removal = {
+      eventId: "SBL-CORR-2026-001",
+      publishedAt: "2026-07-10T12:00:00.000Z",
+      state: "privacy-superseded",
+      reportIds: [originalId],
+      replacementReportIds: [replacementId],
+      summary: "A redacted copy replaced a report that published a contact address.",
+      detailsUrl: "https://sitebehavior.org/corrections/privacy-replacement/"
+    };
+
+    // Without the ledger event the same bytes fail, as any report that is not
+    // a fixed point of the sanitizer and not in the index must.
+    writeFileSync(path.join(clone, "public", "corrections.json"), ledger([]));
+    const unexplained = runCli([originalId, "--from", evidence], clone);
+    assert.equal(unexplained.status, 1, unexplained.stdout + unexplained.stderr);
+    assert.match(unexplained.stdout, /FAIL\s+managed report validation\s+redaction-not-idempotent/);
+    assert.match(unexplained.stdout, /NOT VERIFIED/);
+
+    writeFileSync(path.join(clone, "public", "corrections.json"), ledger([removal]));
+    const removed = runCli([originalId, "--from", evidence], clone);
+    assert.equal(removed.status, 0, removed.stdout + removed.stderr);
+    assert.doesNotMatch(removed.stdout, /FAIL/);
+    assert.match(removed.stdout, /wire digest vs published index\s+not listed: SBL-CORR-2026-001 removed this report for privacy/);
+    assert.match(removed.stdout, /wire digest vs transparency log\s+entry 0 of 1/);
+    assert.match(removed.stdout, new RegExp(`Removed for privacy: SBL-CORR-2026-001 replaced this report with a redacted copy,\\s+${replacementId}`));
+    assert.match(removed.stdout, /See https:\/\/sitebehavior\.org\/corrections\/privacy-replacement\//);
+    assert.match(removed.stdout, /Verified: these bytes are exactly what this project published/);
+
+    // The explanation never excuses changed bytes.
+    writeFileSync(path.join(evidence, `${originalId}.json`), wire.replace("privacy@example.com", "privacy@example.org"));
+    const tampered = runCli([originalId, "--from", evidence], clone);
+    assert.equal(tampered.status, 1);
+    assert.match(tampered.stdout, /FAIL\s+managed report validation\s+digest-mismatch/);
+  } finally {
+    rmSync(clone, { recursive: true, force: true });
+    rmSync(evidence, { recursive: true, force: true });
   }
 });

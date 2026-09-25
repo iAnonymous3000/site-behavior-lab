@@ -1,5 +1,6 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
+import { parseCorrectionsLedger } from "./corrections-ledger-model";
 import { readManagedReport } from "./managed-report-reader";
 import { parseTransparencyLog, verifyTransparencyLogChain } from "./publication-transparency-log";
 import { REPORT_ID_PATTERN } from "./report-validation";
@@ -46,9 +47,17 @@ type Options = {
 
 type Check = { readonly ok: boolean; readonly label: string; readonly detail: string };
 
+/** A privacy-superseded event in this clone's corrections ledger that removed the report. */
+type PrivacyRemoval = {
+  readonly eventId: string;
+  readonly replacementReportId: string;
+  readonly detailsUrl: string;
+};
+
 async function main(): Promise<void> {
   const options = parseArgs(process.argv.slice(2));
   const checks: Check[] = [];
+  const privacyRemoval = await privacyRemovalOf(options.reportId);
 
   const reportWire = await readArtifact(options.source, `${options.reportId}.json`);
   checks.push({
@@ -76,6 +85,14 @@ async function main(): Promise<void> {
       ok: true,
       label: "wire digest vs published index",
       detail: "not checked: no reports/index.json in this directory"
+    });
+  } else if (manifestDigest.kind === "present" && manifestDigest.digest === null && privacyRemoval) {
+    // A report removed for privacy leaves the index with its bytes; the
+    // transparency log below still records what was published.
+    checks.push({
+      ok: true,
+      label: "wire digest vs published index",
+      detail: `not listed: ${privacyRemoval.eventId} removed this report for privacy`
     });
   } else if (manifestDigest.kind === "absent" || manifestDigest.digest === null) {
     // Either the origin served no manifest, or a manifest that exists does not
@@ -114,6 +131,21 @@ async function main(): Promise<void> {
       label: "schema and redaction validity",
       detail: `readable as published, redaction v${sidecar?.redactionVersion ?? "?"}`
     });
+  } else if (managed.reason === "redaction-not-idempotent" && privacyRemoval) {
+    // The reader refuses a report that is not a fixed point of the current
+    // sanitizer only after its bytes matched the sidecar's canonical digest.
+    // For a report removed for privacy that refusal is the reason it was
+    // removed, not a sign of tampering.
+    checks.push({
+      ok: true,
+      label: "canonical digest vs sidecar",
+      detail: `${sidecar?.publicDigest ?? "matched"} (${sidecar?.canonicalizationVersion ?? "canonical"})`
+    });
+    checks.push({
+      ok: true,
+      label: "schema and redaction validity",
+      detail: `readable as published; the current sanitizer changes it, which is why ${privacyRemoval.eventId} removed it`
+    });
   } else {
     checks.push({
       ok: false,
@@ -133,8 +165,33 @@ async function main(): Promise<void> {
   const chained = await transparencyChainCheck(options.reportId, wireDigest);
   checks.push(chained.check);
 
-  report(options, checks, chained.independent);
+  report(options, checks, chained.independent, privacyRemoval);
   if (checks.some((check) => !check.ok)) process.exitCode = 1;
+}
+
+/**
+ * The privacy-superseded event in this clone's corrections ledger that removed
+ * the report, if any. Like the transparency log, the ledger is a plain local
+ * file of the checkout the reader runs this from; without it nothing is
+ * explained and a removed report's checks fail as they would for any other.
+ */
+async function privacyRemovalOf(reportId: string): Promise<PrivacyRemoval | null> {
+  let raw: string;
+  try {
+    raw = await readFile(path.join(process.cwd(), "public", "corrections.json"), "utf8");
+  } catch {
+    return null;
+  }
+  const ledger = parseCorrectionsLedger(JSON.parse(raw));
+  for (const event of ledger.entries) {
+    if (event.state !== "privacy-superseded") continue;
+    const position = event.reportIds.indexOf(reportId);
+    const replacementReportId = event.replacementReportIds?.[position];
+    if (position >= 0 && replacementReportId !== undefined) {
+      return { eventId: event.eventId, replacementReportId, detailsUrl: event.detailsUrl };
+    }
+  }
+  return null;
 }
 
 /**
@@ -194,11 +251,22 @@ async function transparencyChainCheck(
   };
 }
 
-function report(options: Options, checks: readonly Check[], independent: boolean): void {
+function report(
+  options: Options,
+  checks: readonly Check[],
+  independent: boolean,
+  privacyRemoval: PrivacyRemoval | null
+): void {
   const where = options.source.kind === "origin" ? options.source.origin : options.source.dir;
   console.log(`\nVerifying ${options.reportId} from ${where}\n`);
   for (const check of checks) {
     console.log(`  ${check.ok ? "ok  " : "FAIL"}  ${check.label.padEnd(32)} ${check.detail}`);
+  }
+  if (privacyRemoval) {
+    console.log(
+      `\nRemoved for privacy: ${privacyRemoval.eventId} replaced this report with a redacted copy,\n` +
+        `${privacyRemoval.replacementReportId}, and removed it from the site. See ${privacyRemoval.detailsUrl}`
+    );
   }
 
   const failed = checks.filter((check) => !check.ok);
