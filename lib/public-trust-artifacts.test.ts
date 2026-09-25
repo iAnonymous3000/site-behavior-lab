@@ -131,6 +131,17 @@ test("reports removed for privacy are named as plain IDs, never linked to a page
   assert.doesNotMatch(reportContext, /href=\{`\/reports\/\$\{corrections\.privacyReplacementOf/);
 });
 
+test("the corrections process and the permalink promise name privacy replacement as the one removal", () => {
+  // The process list must not promise that every referenced report stays
+  // available while the ledger names two removed originals.
+  const correctionsPage = read("app/corrections/page.tsx");
+  assert.match(correctionsPage, /active, corrected, superseded, withdrawn, or replaced for privacy/);
+  assert.match(correctionsPage, /to remain available, except an original replaced for privacy, which is removed\./);
+  assert.match(read("docs/compatibility-promise.md"), /privacy replacement is the one removal of a report the corrections ledger\s+names/);
+  // Git history and archives keep the removed bytes, not only digests.
+  assert.match(read("docs/corrections-ledger.md"), /Git history and archived releases keep the original's bytes/);
+});
+
 test("corrections ledger semantic validation is ordered, unique, and append-only safe", () => {
   const first = {
     eventId: "SBL-CORR-2026-001",

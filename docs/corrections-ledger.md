@@ -23,8 +23,9 @@ public/corrections.schema.json.
 - A privacy replacement is a redacted copy of the same measurement, so every
   other event recorded against its original applies to it, including events
   appended later that name the original. The removal reduces live exposure
-  only: Git history, release receipts, archived releases and the transparency
-  log keep the original's digests.
+  only: Git history and archived releases keep the original's bytes, removed
+  values included, and release receipts and the transparency log keep its
+  digests.
 - Every reportIds and replacementReportIds reference is a retention pin, except
   an original removed for privacy. The static-report pruner keeps both the
   questioned evidence and any replacement, even when either artifact is older

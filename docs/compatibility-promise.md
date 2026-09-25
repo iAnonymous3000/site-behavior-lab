@@ -27,7 +27,11 @@ their meanings never change or disappear; new ones may appear.
    rules, with corrections-ledger pins exempting named ids), and public-scan
    reports follow the documented application TTL. A permalink never changes
    meaning; it either serves the same measurement or honestly ceases to
-   exist, and a corrected measurement always appears under a NEW id.
+   exist, and a corrected measurement always appears under a NEW id. A
+   privacy replacement is the one removal of a report the corrections ledger
+   names: when a report published data redaction should have removed, its
+   redacted copy appears under a NEW id, the original's permalink ceases to
+   exist, and a `privacy-superseded` ledger event names both ids.
 3. **Per-site Atom feeds.** `/sites/<registrable-domain>/feed.xml` remains
    the feed route. Every entry keeps carrying: a stable entry id, the report
    permalink, `updated`, and a title naming the site and visit. Feed-level

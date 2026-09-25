@@ -47,8 +47,8 @@ export default function CorrectionsPage() {
         <ol>
           <li>We pin the questioned report against automated retention and identify its report ID, source revision, scan time, and methodology.</li>
           <li>We reproduce the claim from the stored evidence and separate an artifact defect from ordinary visit-to-visit variation.</li>
-          <li>We publish the result as active, corrected, superseded, or withdrawn, with a plain-language reason and supporting link.</li>
-          <li>Any replacement report receives a new identity and is pinned too; publication requires every referenced static report and provenance receipt to remain available.</li>
+          <li>We publish the result as active, corrected, superseded, withdrawn, or replaced for privacy, with a plain-language reason and supporting link.</li>
+          <li>Any replacement report receives a new identity and is pinned too; publication requires every referenced static report and provenance receipt to remain available, except an original replaced for privacy, which is removed.</li>
           <li>A report that published data redaction should have removed is replaced for privacy: a redacted copy is published under a new identity, the original is removed, and the ledger names both.</li>
         </ol>
       </section>
