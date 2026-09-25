@@ -402,10 +402,10 @@ export async function readStoredScanReportById(
     if (blob.retention && isExpired(blob.retention)) {
       // The retention-debt ledger is durable and shared, and a marker that is
       // only in flight is indistinguishable from a delete that failed. A prune
-      // pass running concurrently reads it as physicalStateUnknown and refuses
-      // the publication, and the health probe reports an unhealthy store, so an
-      // unauthenticated permalink read could fail a scan that had already run.
-      // Take the same mutation FIFO every other ledger mutation takes.
+      // pass running concurrently in this process would retry it or count it
+      // against the maintenance signal, and the health probe reports an
+      // unhealthy store while it is outstanding. Take the same mutation FIFO
+      // every other ledger mutation takes.
       await withReportStoreMutationLock(
         () => deleteWithRetentionDebt(backend, { id, scope: "bundle" }, boundedOptions),
         boundedOptions.signal
@@ -468,10 +468,11 @@ async function pruneStoredReportsUnlocked(
   maintenanceRequired: boolean;
   /** The per-pass delete cap was hit; everything attempted succeeded. */
   continuationPending: boolean;
-  /** A delete failed, so an object may outlive what retention reports. */
+  /** A delete failed before this pass and was not retried, so an object may outlive what retention reports. */
   physicalStateUnknown: boolean;
 }> {
   const priorState = await backend.retentionState(options);
+  const priorDebtKeys = new Set(priorState.debts.map(retentionDebtKey));
   const deletions: ReportRetentionDebtEntry[] = [...priorState.debts];
   const deletionKeys = new Set(deletions.map(retentionDebtKey));
   const scheduleDeletion = (debt: ReportRetentionDebtEntry) => {
@@ -569,14 +570,29 @@ async function pruneStoredReportsUnlocked(
   //
   // `physicalStateUnknown` means a delete actually failed, so an object may
   // still be there when retention says it is gone. That is the only condition
-  // that may refuse to publish new bytes.
+  // that may refuse to publish new bytes. A delete that failed in THIS pass
+  // has already rejected it above, so what is left to find is a debt that was
+  // outstanding before this pass began and that this pass did not retry.
   //
   // Conflating them refused publication on an ordinary backlog, and it did so
   // AFTER Chromium had already run and the caller's rate-limit token was
   // spent, turning routine retention lag into user-facing scan failures.
+  //
+  // The ledger is shared by every container on the bucket, and a delete marks
+  // its debt before it deletes. A marker that appeared during this pass, or one
+  // this pass cleared and another process marked again, is that process's
+  // delete in flight, not a failure. Reading the whole ledger here refused a
+  // finished publication on a second container for a delete that went on to
+  // succeed. The maintenance signal still reads the whole ledger: this pass
+  // does not own another process's debt and must not clear the signal while
+  // one is outstanding.
   const continuationPending = deletions.length > selected.length;
-  const physicalStateUnknown = after.debts.length > 0;
-  const maintenanceRequired = continuationPending || physicalStateUnknown;
+  const retriedDebtKeys = new Set(selected.map(retentionDebtKey));
+  const physicalStateUnknown = after.debts.some((debt) => {
+    const key = retentionDebtKey(debt);
+    return priorDebtKeys.has(key) && !retriedDebtKeys.has(key);
+  });
+  const maintenanceRequired = continuationPending || after.debts.length > 0;
   await backend.setRetentionMaintenanceRequired(maintenanceRequired, options);
   return { maintenanceRequired, continuationPending, physicalStateUnknown };
 }

@@ -1040,7 +1040,7 @@ test("a failed retention delete never leaves prune workers running after the pas
   // objects, and clearing debt. The pass had already released the mutation
   // lock and cleared its whole-operation deadline, so those deletes ran
   // unsupervised and whatever ran next read a retention ledger holding markers
-  // for bundles whose delete never failed, which is what refuses publication.
+  // for bundles whose delete never failed, which is what refused publication.
   await mkdir(reportDir, { recursive: true });
   const retention = {
     createdAt: "2026-06-01T00:00:00.000Z",
@@ -1446,6 +1446,91 @@ test("a bounded delete backlog keeps publishing while retention still reports ma
   assert.equal(status.debtCount, 0, "nothing actually failed to delete");
 });
 
+test("another container's delete in flight never refuses a publication this pass could complete", async () => {
+  // The debt ledger is shared by every container on the bucket, and a delete
+  // marks its debt before it deletes. The pass read the whole ledger after its
+  // own deletes, so a second container's in-flight delete looked like a failed
+  // one and refused a publication after Chromium had already run.
+  const prepared = prepareScanReportBundle(makeScanResult(), {
+    shareId: `20260718-${"a".repeat(32)}`,
+    now: FIXTURE_NOW
+  });
+  const debtPrefix = "reports/_retention-debt/";
+  const priorDebt = `20260601-${"1".repeat(32)}`;
+  const foreignDebt = `20260601-${"2".repeat(32)}`;
+  const markers = new Set<string>([`${debtPrefix}${priorDebt}.json`]);
+  const objects = new Map<string, string>();
+  configureFakeR2(async (request) => {
+    const url = new URL(request.url);
+    const key = decodeURIComponent(url.pathname).replace("/test-reports/", "");
+    if (request.method === "GET" && url.searchParams.get("list-type") === "2") {
+      const listed = url.searchParams.get("prefix") === debtPrefix ? [...markers] : [];
+      return new Response(
+        `<ListBucketResult>${listed
+          .map((listedKey) => `<Contents><Key>${listedKey}</Key></Contents>`)
+          .join("")}<IsTruncated>false</IsTruncated></ListBucketResult>`,
+        { status: 200 }
+      );
+    }
+    if (key.startsWith(debtPrefix)) {
+      if (request.method === "PUT") markers.add(key);
+      if (request.method === "DELETE") {
+        markers.delete(key);
+        // Another container starts retiring the same bundle again and a
+        // different one while this pass finishes: each marker is durable
+        // before that container's delete runs.
+        if (key === `${debtPrefix}${priorDebt}.json`) {
+          markers.add(key);
+          markers.add(`${debtPrefix}${foreignDebt}.json`);
+        }
+      }
+      return new Response(null, { status: request.method === "PUT" ? 200 : 204 });
+    }
+    if (request.method === "DELETE") return new Response(null, { status: 204 });
+    if (request.method === "PUT") {
+      objects.set(key, await request.text());
+      return new Response(null, { status: 200 });
+    }
+    if (request.method === "GET" && key === `reports/${prepared.manifest.reportId}.json`) {
+      return objects.has(key) ? r2ReportResponse(prepared) : new Response(null, { status: 404 });
+    }
+    if (request.method === "GET" && objects.has(key)) {
+      return new Response(objects.get(key), { status: 200 });
+    }
+    if (request.method === "GET") return new Response(null, { status: 404 });
+    throw new Error(`Unexpected fake R2 request: ${request.method} ${key}`);
+  });
+
+  const saved = await commitPreparedScanReportBundle(prepared);
+  assert.equal(saved.share?.id, prepared.manifest.reportId);
+
+  // The pass does not own the foreign debts, so it must not clear the
+  // operator-visible signal while they are outstanding.
+  assert.deepEqual(await reportStoreRetentionStatus(), {
+    debtCount: 2,
+    maintenanceRequired: true,
+    healthy: false
+  });
+});
+
+test("a debt outstanding before the pass that it could not retry still refuses publication", async () => {
+  // Only a delete that actually failed leaves physical state unknown. A pass
+  // retries prior debts first, so a prior debt it never reached is the one
+  // shape of that failure a pass which rejected nothing can still see.
+  const debtDir = path.join(reportDir, ".retention-debt");
+  await mkdir(debtDir, { recursive: true });
+  for (let index = 0; index <= REPORT_PRUNE_MAX_DELETES_PER_PASS; index += 1) {
+    await writeFile(path.join(debtDir, `20260601-${index.toString(16).padStart(32, "0")}.bundle`), "1\n");
+  }
+
+  await assert.rejects(() => saveScanReport(makeScanResult()), /Report publication refused/);
+  assert.deepEqual(await reportStoreRetentionStatus(), {
+    debtCount: 1,
+    maintenanceRequired: true,
+    healthy: false
+  });
+});
+
 test("the public permalink read is bounded by the same whole-operation deadline", async () => {
   // This is the only store entry point a visitor can reach unauthenticated, and
   // it was the only one that passed no options to the backend. Every R2 call
@@ -1533,7 +1618,7 @@ test("an expired permalink read never mutates the retention ledger outside the s
 
     // The read itself is still unblocked, but the durable retention-debt ledger
     // must not be touched while a mutation-lock holder is in flight: a marker a
-    // concurrent prune sees is read as a failed delete and refuses publication.
+    // concurrent prune sees is retried as a debt or holds its maintenance signal.
     assert.deepEqual(requests, [
       `GET reports/${holder.manifest.reportId}.json`,
       `GET reports/${expiredId}.json`
