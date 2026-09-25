@@ -376,8 +376,10 @@ untested or refusing the value, and the probe's own work throwing. It is worded
 so it holds when the probe never started or the page has no fields, and v1
 readers map it to `capture-loss:keystroke-probe-test-incomplete`, scoped to the
 keystroke claim. Untested fields include every number or date field and every
-field past the probe's eight-field and 64-candidate bounds, so on real pages
-many new v1 visits lose the calm headline; r2 was already partial on each.
+field past the probe's eight-field and 64-candidate bounds. More new v1 visits
+therefore lose the calm headline, each where r2 was already partial: 15 of the
+126 committed r2 runs (earlier probe versions) and all 6 github.com runs of the
+2026-09 toolchain canary ended with the keystroke check incomplete.
 
 For request coverage, the page route now adds a second new admitted line,
 `KEYSTROKE_PROBE_NAVIGATION_STOPPED_WARNING`, beside its r2 loss and before the
@@ -391,10 +393,12 @@ and `benchmarkAllowed: false`, leaves the corpus population and reads its
 request evidence as `incomplete`, as r2 does; the foreign-realm test's
 first-party submission censors the request family on v1 while its keystroke
 claim stands on both wires. The route stops every navigation started while the
-probe runs, an ad frame rotating during the wait included, so on ad-heavy
-pages many new v1 visits leave the corpus population and the third-party
-benchmark, as r2 visits already did, and a refreshed v1 aggregate pools fewer
-runs for that reason. No committed report carries the line, so the published
+probe runs, an ad frame rotating during the wait included, and such a v1 visit
+now leaves the corpus population and the third-party benchmark, as r2 visits
+already did. None of the 30 runs of the 2026-09 toolchain canary recorded one
+(the only loss on theguardian.com was fingerprinting), so this is expected to
+be uncommon; where it happens, a refreshed v1 aggregate pools fewer runs for
+that reason. No committed report carries the line, so the published
 aggregate does not move until a refresh. The two strings move the public-string policy
 digest from `ab262b83...2560` to `b40a333a...3d51`; the outgoing
 `cb7064a1...059d` literals, the closed v12 rows and the `SUPERSEDED` entries do

@@ -80,10 +80,12 @@ public API or a 1.0 release.
   is incomplete, the visit leaves the corpus population and is not compared or
   benchmarked on third-party services, and the keystroke claim is left to the
   probe's own lines (next entry). The route stops every navigation started
-  while the probe runs, an ad frame rotating during its wait included, so on
-  ad-heavy pages many new v1 visits leave the corpus population and the
-  third-party benchmark, as r2 visits already did; a refreshed v1 aggregate
-  pools fewer runs for that reason, not because the sites changed.
+  while the probe runs, an ad frame rotating during its wait included, and a
+  v1 visit with such a stop now leaves the corpus population and the
+  third-party benchmark, as r2 visits already did. None of the 30 runs of the
+  2026-09 toolchain canary (five sites, theguardian.com among them) recorded
+  one, so this is expected to be uncommon; where it happens, a refreshed v1
+  aggregate pools fewer runs for that reason, not because the sites changed.
 - A v1 report stated that no typed value left the page whenever the input probe
   did not complete its test in a way r2 records only in the detector's status:
   a navigation it stopped that would have carried the value to a third party,
@@ -99,9 +101,10 @@ public API or a 1.0 release.
   keystroke claim, and only that claim, as incomplete for either line and for
   the existing lines that say the page left the recorded site before or during
   the probe. Request evidence, comparisons and the corpus population stay as v1
-  measured them. Fields past the probe's bounds or of a type it does not type
-  into are common, so many new v1 visits lose the calm headline where r2
-  already withheld the claim. The two lines and the stopped-navigation line
+  measured them. More new v1 visits therefore lose the calm headline, each
+  one where r2 already withheld the claim: 15 of the 126 committed r2 runs
+  (recorded under earlier probe versions) and all 6 github.com runs of the
+  2026-09 toolchain canary ended with the keystroke check incomplete. The two lines and the stopped-navigation line
   above join the listener-withheld warning below in this release's
   public-string policy widening.
 - A v1 consent visit whose click left the recorded site says so, and keeps its
