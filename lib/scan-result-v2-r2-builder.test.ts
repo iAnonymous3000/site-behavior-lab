@@ -595,6 +595,51 @@ test("unrepresentable request status markers count only the rows publication ret
     false
   );
   assert.deepEqual(scanReportV2R2SemanticViolations(toPublicScanReportR2(clippedReport)), []);
+
+  // The evaluator checks each phase separately, so a retained row's marker
+  // must land in that row's own phase, and a dropped row's in none.
+  const phased = baseInput();
+  phased.conditions.probes.policyVisit = true;
+  phased.measurement.phases.push({ phaseId: 1, kind: "policy-analysis", startedAtMs: 1000, endedAtMs: 1100 });
+  phased.measurement.detectors["privacy-policy"] = {
+    version: DETECTOR_VERSIONS["privacy-policy"],
+    status: "complete",
+    phaseId: 1
+  };
+  phased.summary.durationMs = 1100;
+  phased.evidence.privacyPolicy = {
+    url: "https://example.com/privacy",
+    claims: [],
+    mentionedEntities: [],
+    unmentionedEntities: [],
+    policyTextLength: 1_000
+  };
+  phased.evidence.requests.push(
+    { ...phased.evidence.requests[0], id: 2, status: 799, startedAtMs: 30 },
+    { ...phased.evidence.requests[0], id: 3, status: 899, startedAtMs: 1_020, phaseId: 1 },
+    {
+      id: 4,
+      url: "https://s3.amazonaws.com/assets/pixel.gif",
+      domain: "s3.amazonaws.com",
+      method: "GET",
+      resourceType: "image",
+      status: 799,
+      thirdParty: true,
+      tracker: null,
+      blockedByShields: false,
+      startedAtMs: 1_040,
+      phaseId: 1
+    }
+  );
+  const phasedReport = buildNodeScanReportV2R2(phased);
+  assert.deepEqual(
+    phasedReport.run.qualityFacts.captureLoss.filter((entry) => entry.detail === R2_REQUEST_STATUS_UNREPRESENTABLE),
+    [
+      { family: "requests", phaseId: 0, kind: "dropped", count: 1, detail: R2_REQUEST_STATUS_UNREPRESENTABLE },
+      { family: "requests", phaseId: 1, kind: "dropped", count: 1, detail: R2_REQUEST_STATUS_UNREPRESENTABLE }
+    ]
+  );
+  assert.deepEqual(scanReportV2R2SemanticViolations(toPublicScanReportR2(phasedReport)), []);
 });
 
 test("raw subject URLs cross redaction v2 inside the builder and never survive the shell", () => {
