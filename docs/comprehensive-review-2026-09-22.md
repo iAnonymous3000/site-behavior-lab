@@ -195,6 +195,23 @@ Tests cover 200 then 403, 404 then 200, and a 204 navigation that never
 commits. The subject-validity `v4` methodology move lands with this epoch's
 identity bookkeeping.
 
+**Update, 2026-09-24.** The probe-aborted navigation row is fixed in the
+scanner. Its premise was only partly right: the default abort (`ERR_FAILED`)
+commits an error page on a main-frame navigation, which the probe read as the
+page leaving the subject, discarding the probe and its rows, so the row that
+survived came from child-frame navigations, where the page stays on the
+subject. Playwright's request event fires before the route callback, so the
+request was already in the recorder and in the probe's own capture when the
+route aborted it, and the input check could name a host that never received
+anything. One rule now names what the probe stops, the first hop of any
+navigation while it runs (Playwright never routes a redirect hop): the route
+removes it from the recorder once the abort succeeds and keeps its capture-loss
+record, and the probe's capture skips it. A value that only a blocked
+navigation would carry is not observed: the capture loss censors the requests
+family but not the keystroke absence claim. The active probe `v3` move, and a
+keystroke detector version move because its output changes, land with this
+epoch's identity bookkeeping.
+
 ## 5. Confirmed and left for other reasons
 
 - **The Dockerfile re-runs `npm run check` inside the image build** (about 16

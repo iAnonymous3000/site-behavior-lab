@@ -66,6 +66,13 @@ public API or a 1.0 release.
   `summary.status`, r2 `qualityFacts.status`, the HTTP warning, the subject
   classifier and the consent, keystroke and policy gating all read it. Detector
   outcomes on redirected visits change without a detector version bump.
+- A navigation the input probe blocked stayed in the request log and in the
+  probe's own capture. A child-frame navigation carrying the test value then
+  published a third-party document row that never loaded and a keystroke
+  finding naming a host that never received anything. Once the abort succeeds,
+  a blocked navigation now leaves the log and its counts, keeps its lost request
+  coverage record, and is not searched for the test value, so a value that only
+  a blocked navigation would carry is not observed.
 
 ## [0.6.0] - 2026-09-06
 

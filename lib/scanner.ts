@@ -301,6 +301,17 @@ const KEYSTROKE_EXFIL_WAIT_MS = 2_500;
 // with two slots. The scan wall still ended the scan; it just did so after the
 // slot had been spent.
 export const KEYSTROKE_PROBE_STEP_TIMEOUT_MS = 3_000;
+/**
+ * Which requests the active input probe stops: the first hop of every
+ * navigation, main frame or child frame, issued while it runs. The page route
+ * aborts them and the probe's own capture skips them through this one rule, so
+ * a request the scanner stopped is never retained as the test value leaving.
+ * Playwright routes only a request's first URL, so a redirect hop of a
+ * navigation that started earlier is never aborted and stays evidence.
+ */
+function isActiveProbeBlockedRequest(request: Pick<Request, "isNavigationRequest" | "redirectedFrom">): boolean {
+  return request.isNavigationRequest() && request.redirectedFrom() === null;
+}
 const FILLABLE_FIELD_SELECTOR =
   "input:not([type=hidden]):not([type=checkbox]):not([type=radio]):not([type=button]):not([type=submit]):not([type=reset]):not([type=file]):not([type=range]):not([type=color]):not([disabled]):not([readonly]), textarea:not([disabled]):not([readonly]), [contenteditable=true], [contenteditable='']";
 // CNAME-uncloaking: how many first-party subdomains to resolve, the budget to
@@ -943,6 +954,7 @@ export async function scanSiteWithMeasurement(
 
     const requestsBlockedByShields = new WeakSet<Request>();
     const requestsBlockedByGuard = new WeakSet<Request>();
+    const requestsAbortedByProbe = new WeakSet<Request>();
     // The source document can navigate or detach before report construction.
     // Keep only the route-time boolean keyed by Playwright's Request identity:
     // raw frame/worker URLs remain transient and never enter the public wire.
@@ -1024,12 +1036,18 @@ export async function scanSiteWithMeasurement(
     await page.route("**/*", (route) => {
       const operation = (async () => {
         const request = route.request();
-        if (keystrokeActivePhase !== null && request.isNavigationRequest()) {
+        if (keystrokeActivePhase !== null && isActiveProbeBlockedRequest(request)) {
           measurementKernel.recordCaptureLoss({
             family: "requests", phaseId: keystrokeActivePhase,
             kind: "dropped", count: 1
           });
           await route.abort();
+          // The request event already recorded it. Same rule as the guard and
+          // Shields aborts below: once Playwright confirms the abort it never
+          // loaded, so it leaves the recorded log and its totals, and the
+          // capture loss above is its only trace. A failed abort keeps the row.
+          requestsAbortedByProbe.add(request);
+          networkRecorder.removeRequest(request);
           return;
         }
         cnameRequestTypes.set(
@@ -1097,7 +1115,11 @@ export async function scanSiteWithMeasurement(
     const consentReadState = { sequence: 0, reloadPhaseId: null as number | null };
 
     const recordRequest = (request: Request) => {
-      if (requestsBlockedByShields.has(request) || requestsBlockedByGuard.has(request)) return;
+      if (
+        requestsBlockedByShields.has(request) ||
+        requestsBlockedByGuard.has(request) ||
+        requestsAbortedByProbe.has(request)
+      ) return;
       const phaseId = measurementKernel.tagRequest(request);
       // Post-choice reload traffic exists only to read the registered consent
       // state back; it never enters the v1 request log or counts (the report
@@ -3799,6 +3821,10 @@ export async function probeKeystrokeExfiltration(
   const captured = createProbeRequestCaptureState();
   const onRequest = (request: Request) => {
     if (lifecycle.cancelled) return;
+    // The page route aborts these for as long as this listener lives, and the
+    // request event fires before the route runs: a stopped navigation is
+    // capture loss, not the test value leaving.
+    if (isActiveProbeBlockedRequest(request)) return;
     captureProbeRequest(captured, request, firstPartyHostname);
   };
 

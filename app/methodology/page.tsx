@@ -139,7 +139,9 @@ export default function MethodologyPage() {
           that value leaves to a third party in plain, encoded, or hashed form. Focus, input and blur handlers may
           run and send requests. Unsupported, offscreen and failed field attempts are reported as omitted coverage;
           the probe does not scroll to reach them. Auxiliary pages are blocked and their requests counted as lost
-          coverage. Second, in consent comparison mode only, the scanner clicks one accept-all or
+          coverage. Navigations the probe triggers are blocked too: they are counted as lost coverage and left out
+          of the request log and the check for the test value. Second, in consent comparison mode only, the
+          scanner clicks one accept-all or
           reject-all control on the cookie banner&apos;s first layer (known consent-platform controls first, then a
           conservative whole-label match). Whenever at least one field accepts the synthetic value, the report says
           how many did; a visit where no field accepted it carries no typed-field count. Consent-comparison reports
