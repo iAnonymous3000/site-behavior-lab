@@ -10,6 +10,7 @@ import {
   SERVER_STORED_PROVENANCE_SIDECAR_MAX_BYTES,
   SERVER_STORED_REPORT_JSON_MAX_BYTES
 } from "./report-resource-limits";
+import { planPrivacyReplacement } from "./privacy-replacement";
 import { redactScanReportV1 } from "./redact-scan-report-v1";
 import {
   buildProvenanceEntry,
@@ -17,7 +18,6 @@ import {
   matchProvenance,
   matchProvenanceAtVersion
 } from "./redaction-provenance";
-import { buildStaticReportShare } from "./report-locator";
 import { REPORT_ID_PATTERN } from "./report-validation";
 import { readStaticReportBundle, removeStaticReportBundleUnderLock } from "./static-report-files";
 import { readStoredScanReport } from "./scan-report-reader";
@@ -408,10 +408,8 @@ async function privacyReplaceReportUnlocked(
     throw refuse("its sidecar does not carry the committed retention clock");
   }
 
-  const redacted = redactScanReportV1(read.stored.report).report;
+  const { redacted, replacement, wire: replacementWire } = planPrivacyReplacement(read.stored.report, replacementReportId);
   assertPreservedIdentity(reportId, read.stored.report, redacted);
-  const replacement: ScanReport = { ...redacted, share: buildStaticReportShare(replacementReportId) };
-  const replacementWire = `${JSON.stringify(replacement, null, 2)}\n`;
   const replacementSidecarWire = `${JSON.stringify(
     buildProvenanceEntry({
       reportId: replacementReportId,

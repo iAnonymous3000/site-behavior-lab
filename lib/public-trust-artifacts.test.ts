@@ -6,6 +6,9 @@ import path from "node:path";
 import { test } from "node:test";
 import { initFixtureRepo, runFixtureGit } from "./git-fixture";
 import Ajv2020 from "ajv/dist/2020";
+import { planPrivacyReplacement } from "./privacy-replacement";
+import { buildStaticReportShare } from "./report-locator";
+import { makeScanReportV1 } from "./scan-report-v2-fixtures";
 import {
   assertCorrectionsLedgerHistory,
   CORRECTIONS_FUTURE_TOLERANCE_MS,
@@ -294,6 +297,27 @@ test("a privacy-superseded event pairs each removed original with one redacted r
       entries: [clarification, privacy, { ...second, state: "corrected", reportIds: [PRIVACY_SIBLING_ID], replacementReportIds: [PRIVACY_REPLACEMENT_ID] }]
     }, options),
     /a privacy replacement belongs to one event only/
+  );
+  // A redacted copy keeps its original's scan-date prefix, so a swapped or
+  // unrelated pairing is refused, the committed one included.
+  assert.throws(
+    () => parseCorrectionsLedger({
+      ...ledger,
+      entries: [clarification, { ...privacy, replacementReportIds: ["20250102-dddddddddddddddddddddddddddddddd"] }]
+    }, options),
+    /replacementReportIds\[0\] must keep the scan-date prefix of 20250101-a+/
+  );
+  const committed = JSON.parse(read("public/corrections.json"));
+  assert.doesNotThrow(() => parseCorrectionsLedger(committed));
+  assert.throws(
+    () => parseCorrectionsLedger({
+      ...committed,
+      entries: committed.entries.map((entry: { state: string; replacementReportIds?: string[] }) =>
+        entry.state === "privacy-superseded"
+          ? { ...entry, replacementReportIds: [...(entry.replacementReportIds ?? [])].reverse() }
+          : entry)
+    }),
+    /must keep the scan-date prefix/
   );
   const earlierReplacement = {
     ...clarification,
@@ -624,13 +648,25 @@ test("the Git history gate accepts a privacy replacement's removal and still cat
   const writeLedger = (entries: readonly object[]) =>
     writeFileSync(ledgerPath, `${JSON.stringify({ ...envelope, entries }, null, 2)}\n`);
 
+  // The original is a real v1 report, since the gate re-derives its redacted
+  // copy; the sibling is only ever compared byte for byte.
+  const original = { ...makeScanReportV1(), share: buildStaticReportShare(PRIVACY_ORIGINAL_ID) };
+  const originalWire = `${JSON.stringify(original, null, 2)}\n`;
+  const sidecarWire = (reportId: string, createdAt: string) => `${JSON.stringify({ reportId, createdAt }, null, 2)}\n`;
+  const createdAt = "2025-01-01T09:00:00.000Z";
+  const replacementWire = planPrivacyReplacement(original, PRIVACY_REPLACEMENT_ID).wire;
+  const writeReplacement = (report: string, sidecar: string) => {
+    writeFileSync(bundlePath(PRIVACY_REPLACEMENT_ID, ".json"), report);
+    writeFileSync(bundlePath(PRIVACY_REPLACEMENT_ID, ".provenance.json"), sidecar);
+  };
+
   try {
     mkdirSync(reportsDir, { recursive: true });
     writeLedger([clarification]);
-    for (const reportId of [PRIVACY_ORIGINAL_ID, PRIVACY_SIBLING_ID]) {
-      writeFileSync(bundlePath(reportId, ".json"), `${reportId}-report\n`);
-      writeFileSync(bundlePath(reportId, ".provenance.json"), `${reportId}-sidecar\n`);
-    }
+    writeFileSync(bundlePath(PRIVACY_ORIGINAL_ID, ".json"), originalWire);
+    writeFileSync(bundlePath(PRIVACY_ORIGINAL_ID, ".provenance.json"), sidecarWire(PRIVACY_ORIGINAL_ID, createdAt));
+    writeFileSync(bundlePath(PRIVACY_SIBLING_ID, ".json"), `${PRIVACY_SIBLING_ID}-report\n`);
+    writeFileSync(bundlePath(PRIVACY_SIBLING_ID, ".provenance.json"), `${PRIVACY_SIBLING_ID}-sidecar\n`);
     initFixtureRepo(repo, {
       name: "Site Behavior Lab",
       email: "ci@sitebehavior.org"
@@ -641,20 +677,34 @@ test("the Git history gate accepts a privacy replacement's removal and still cat
     writeLedger([clarification, privacy]);
     rmSync(bundlePath(PRIVACY_ORIGINAL_ID, ".json"));
     rmSync(bundlePath(PRIVACY_ORIGINAL_ID, ".provenance.json"));
-    writeFileSync(bundlePath(PRIVACY_REPLACEMENT_ID, ".json"), "redacted-report\n");
-    writeFileSync(bundlePath(PRIVACY_REPLACEMENT_ID, ".provenance.json"), "redacted-sidecar\n");
+    writeReplacement(replacementWire, sidecarWire(PRIVACY_REPLACEMENT_ID, createdAt));
     const replaced = runHistoryCli(cliPath, repo, "HEAD");
     assert.equal(replaced.status, 0, replaced.stderr);
     assert.match(replaced.stdout, /1 pinned bundle is unchanged; 1 privacy-superseded bundle was removed\./);
 
+    // The replacement must be its original's redacted copy: the same creation
+    // clock, and exactly the planned bytes, never another report of the day or
+    // a copy whose findings also moved.
+    writeReplacement(replacementWire, sidecarWire(PRIVACY_REPLACEMENT_ID, "2025-01-01T09:30:00.000Z"));
+    const otherClock = runHistoryCli(cliPath, repo, "HEAD");
+    assert.equal(otherClock.status, 1);
+    assert.match(otherClock.stderr, new RegExp(`${PRIVACY_REPLACEMENT_ID} does not keep the creation clock of ${PRIVACY_ORIGINAL_ID}`));
+    const changedFindings = JSON.parse(replacementWire);
+    changedFindings.summary.totalRequests += 1;
+    writeReplacement(`${JSON.stringify(changedFindings, null, 2)}\n`, sidecarWire(PRIVACY_REPLACEMENT_ID, createdAt));
+    const notTheCopy = runHistoryCli(cliPath, repo, "HEAD");
+    assert.equal(notTheCopy.status, 1);
+    assert.match(notTheCopy.stderr, new RegExp(`${PRIVACY_REPLACEMENT_ID} is not the current redaction of ${PRIVACY_ORIGINAL_ID}`));
+    writeReplacement(replacementWire, sidecarWire(PRIVACY_REPLACEMENT_ID, createdAt));
+
     // The CLI still reads an original the event removed from the pin set.
     writeFileSync(bundlePath(PRIVACY_ORIGINAL_ID, ".json"), "redacted-in-place\n");
-    writeFileSync(bundlePath(PRIVACY_ORIGINAL_ID, ".provenance.json"), `${PRIVACY_ORIGINAL_ID}-sidecar\n`);
+    writeFileSync(bundlePath(PRIVACY_ORIGINAL_ID, ".provenance.json"), sidecarWire(PRIVACY_ORIGINAL_ID, createdAt));
     const rewritten = runHistoryCli(cliPath, repo, "HEAD");
     assert.equal(rewritten.status, 1);
     assert.match(rewritten.stderr, new RegExp(`${PRIVACY_ORIGINAL_ID}\\.json changed`));
 
-    writeFileSync(bundlePath(PRIVACY_ORIGINAL_ID, ".json"), `${PRIVACY_ORIGINAL_ID}-report\n`);
+    writeFileSync(bundlePath(PRIVACY_ORIGINAL_ID, ".json"), originalWire);
     const stillPublished = runHistoryCli(cliPath, repo, "HEAD");
     assert.equal(stillPublished.status, 1);
     assert.match(stillPublished.stderr, /is still published/);

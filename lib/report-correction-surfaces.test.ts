@@ -3,6 +3,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { test } from "node:test";
 import { parseCorrectionsLedger } from "./corrections-ledger-model";
 import { publishedReportCorrections, publishedReportCorrectionWire } from "./published-report-corrections";
+import { committedReportCreatedAt } from "./committed-report-created-at";
 import { readStoredScanReport } from "./scan-report-reader";
 import { toReportView, publicWireForExportOrPersistence, readScanTransportPayload } from "./scan-report-view";
 import { asLocalReport, shareForLoadedReport } from "./client-report-reader";
@@ -70,14 +71,26 @@ test("historical policy alias misses are unknown, not evidence that Amazon or Or
 });
 
 test("a privacy replacement carries its removed original's correction context on every surface", () => {
-  // Vacuous until the first privacy-superseded event is appended; from then on
-  // every replacement it names is checked, and the count must match.
+  // Every replacement a privacy-superseded event names is checked. The floor
+  // is the committed event: expected and checked both come from the parsed
+  // ledger, so a refactor that stopped parsing the state would otherwise
+  // leave both at zero and pass.
   const events = parseCorrectionsLedger(ledger).entries.filter(event => event.state === "privacy-superseded");
+  assert.deepEqual(
+    events.map(event => [event.eventId, event.reportIds.map((id, index) => [id, event.replacementReportIds?.[index]])]),
+    [["SBL-CORR-2026-004", [
+      ["20260727-f378d41658184b8e1b014ae2e41b8541", "20260727-4006618d80dc779268592042b119010e"],
+      ["20260817-693b5bc1c455e1be2d0b42b4d8efa292", "20260817-8d7ada3c1897a6c494396ed15db32a53"]
+    ]]]
+  );
   const expected = events.reduce((count, event) => count + (event.replacementReportIds?.length ?? 0), 0);
   let checked = 0;
   for (const event of events) {
     for (const [index, originalId] of event.reportIds.entries()) {
       const replacementId = event.replacementReportIds?.[index] ?? "";
+      // The pairing: a redacted copy keeps its original's scan date, and its
+      // sidecar keeps the scan's creation clock, which falls on that date.
+      assert.equal(replacementId.slice(0, 9), originalId.slice(0, 9), replacementId);
       for (const suffix of [".json", ".provenance.json"]) {
         assert.equal(existsSync(`public/reports/${originalId}${suffix}`), false, `${originalId}${suffix} is still published`);
       }
@@ -94,6 +107,9 @@ test("a privacy replacement carries its removed original's correction context on
       const read = readStoredScanReport(JSON.parse(readFileSync(`public/reports/${replacementId}.json`, "utf8")));
       assert.ok(read.ok);
       if (!read.ok) continue;
+      const sidecar = JSON.parse(readFileSync(`public/reports/${replacementId}.provenance.json`, "utf8"));
+      assert.equal(sidecar.createdAt, committedReportCreatedAt(read.stored), replacementId);
+      assert.equal(sidecar.createdAt.slice(0, 10).replaceAll("-", ""), originalId.slice(0, 8), replacementId);
       const view = toReportView(read.stored);
       // Every surface keys its correction lookup on the identity inside the
       // wire, so a replacement that still names its original would show the
@@ -108,4 +124,5 @@ test("a privacy replacement carries its removed original's correction context on
     }
   }
   assert.equal(checked, expected);
+  assert.equal(checked, 2);
 });

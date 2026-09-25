@@ -121,6 +121,17 @@ export function parseCorrectionsLedger(
     if (privacy && replacementReportIds.length !== reportIds.length) {
       throw new Error(`${label}.replacementReportIds must pair one replacement with each privacy-superseded report`);
     }
+    // A redacted copy is the same measurement, so it keeps its original's
+    // scan-date prefix; a pair that does not is swapped or unrelated.
+    if (privacy) {
+      for (const [position, reportId] of reportIds.entries()) {
+        if (replacementReportIds[position].slice(0, 9) !== reportId.slice(0, 9)) {
+          throw new Error(
+            `${label}.replacementReportIds[${position}] must keep the scan-date prefix of ${reportId}, the report it replaces for privacy`
+          );
+        }
+      }
+    }
     for (const reportId of reportIds) {
       if (replacementReportIdsSeen.has(reportId)) {
         throw new Error(`${label}.reportIds contains ${reportId}, which is already a replacement report`);

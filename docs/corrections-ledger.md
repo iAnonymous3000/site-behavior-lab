@@ -14,8 +14,12 @@ public/corrections.schema.json.
   for a report that published data redaction should have removed. Each
   reportIds entry is paired, by position, with its redacted copy in
   replacementReportIds under a new report ID, so both arrays have the same
-  length. The same change removes the original report and provenance sidecar
-  and adds the replacement; the history gate
+  length. A replacement keeps its original's scan-date prefix, which the
+  parser checks. The same change removes the original report and provenance
+  sidecar and adds the replacement, and the history gate requires the
+  replacement to be exactly the original's redacted copy: the same creation
+  clock, and the bytes the current sanitizer writes for the original at the
+  base with only the share moved. The history gate
   (`npm run corrections:verify-history`) accepts only that removal, and still
   refuses any changed pinned byte, a removal with no privacy event, and an
   original left published. An original is removed for privacy at most once,
