@@ -171,7 +171,12 @@ export const REVIEWED_MEASUREMENT_LINES: readonly string[] = Object.freeze([
   // reports record (active-probe-v3 request rows, gpc-worker-application-v3
   // warnings), whose components sit in the r2 suffix. No committed report is
   // on the line it retires.
-  "shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v4+detector-coverage-v2"
+  "shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v4+detector-coverage-v2",
+  // The node-detectors-v11 measurement epoch: fingerprint-surface-v2 names the
+  // OffscreenCanvas 2D work the fingerprint observer now reads in the page,
+  // which moves v1 fingerprint event counts and canvas detections. No
+  // committed report is on the line it retires.
+  "shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2"
 ]);
 
 /** The current line: the newest entry of {@link REVIEWED_MEASUREMENT_LINES}. */

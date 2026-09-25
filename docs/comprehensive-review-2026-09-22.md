@@ -550,6 +550,24 @@ reads it complete, carrying the loss only through the keystroke claim's
 censored on both wires, and no v1 surface renders `detector-output`, so every
 claim r2 withholds is withheld on v1 too.
 
+**Update, 2026-09-25, OffscreenCanvas.** The section 3 row that disclosed
+unobserved OffscreenCanvas 2D work (`de10f51`) is now fixed in the page. The
+observer reads text drawing, `drawImage`, `getImageData` and `measureText` on
+an OffscreenCanvas 2D context under the existing heuristics and thresholds,
+records a fulfilled `convertToBlob` as its own `canvas.convertToBlob` token,
+and carries offscreen text provenance into page canvases. It lands as its own
+measurement epoch, `node-detectors-v11`: `fingerprint-observer@5`, the base
+methodology component `fingerprint-surface-v2` (which advances the reviewed
+corpus line, since v1 `fingerprintEvents` counts change), and a normalization
+widening under `public-string-policy-v4`, `359b216f...e9bc` to
+`7fd4ef76...69f5`, for the admitted token. The `public-string-policy-v4`
+producer rows are closed to their exact literals, byte for byte what
+`89ae341f` deployed. The boundary entry narrows to canvas and WebGL work
+inside a Web Worker, which stays unobserved: instrumenting it would pause
+every worker in every arm through DevTools, a new intervention in the baseline
+visit. The canvas-font heuristic, which the section 5 update keeps as it is,
+now also sees offscreen measurement, with its thresholds unchanged.
+
 ## 5. Confirmed and left for other reasons
 
 - **The Dockerfile re-runs `npm run check` inside the image build** (about 16

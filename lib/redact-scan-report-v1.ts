@@ -915,6 +915,11 @@ function previousNodeScannerDisclosure(
  * outgoing identity here.
  */
 const HISTORICAL_NODE_SCANNER_METHODOLOGIES: readonly string[] = Object.freeze([
+  // Retired by fingerprint-surface-v2 in the node-detectors-v11 measurement
+  // epoch. No committed report carries it, but production has recorded it
+  // since the node-detectors-v10 epoch deployed. It is a strict prefix of the
+  // current base, which the exact template comparison below keeps apart.
+  "shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v4+detector-coverage-v2",
   // Retired by subject-validity-v4 in the node-detectors-v10 measurement
   // epoch. No committed report carries it, but production has recorded it
   // since the 2026-09 toolchain epoch deployed.

@@ -806,9 +806,10 @@ test("a stored share under the identity public-string-policy-v4 retired reads un
   // public-string-policy-v4 is a reviewed narrowing: the retired identity stays
   // declarable, and the reader re-runs the current sanitizer, so a share the
   // retired pass published is served exactly when it is still a fixed point.
-  // The live producer's own run is the retired producer's: only the
-  // normalization moved, so the current fixture relabeled with the retired
-  // literal is what that producer stored, not a mixed epoch.
+  // The fixture is relabeled with the retired producer's whole closed identity
+  // (normalization, methodology, registry, detector versions, catalog and
+  // lists), so it is what that producer stored, not a mixed epoch:
+  // node-detectors-v11 moved the live methodology and fingerprint observer.
   // The retired literal the identity ledger pins, not a lookup: without its
   // superseded entry every share under it, affected or not, fails as an
   // unreviewed normalization, and that is the failure this test must show.
@@ -817,12 +818,23 @@ test("a stored share under the identity public-string-policy-v4 retired reads un
   // Documentation-range addresses in the shape the retired pass kept verbatim.
   const tokenHost = "198-51-100-7_s-203-0-113-9_ts-1700000000-clienttons-s.akamaihd.net";
   assert.equal(redactHostnameV2(tokenHost).value, "{label}.akamaihd.net");
+  const closed = NODE_R2_PRODUCER_TUPLES.find(
+    (tuple) => tuple.normalizationVersion === retired && tuple.adblockIdentity === null
+  );
+  if (!closed) throw new Error("no closed no-adblock producer row for the retired identity");
 
   function stored(substitute: (run: ScanRunV2R2) => void) {
     const report = makePublicSingleReportV2R2();
     const run = report.run;
     run.privacy.redactionVersion = REDACTION_VERSION;
     run.toolchain.normalizationVersion = retired;
+    run.provenance.methodologyVersion = closed!.methodologyVersion;
+    run.provenance.detectorRegistry = { ...closed!.detectorRegistry };
+    run.toolchain.trackerCatalog = { ...closed!.trackerCatalog };
+    run.toolchain.adblock = null;
+    for (const id of Object.keys(run.detectors) as Array<keyof typeof run.detectors>) {
+      run.detectors[id] = { ...run.detectors[id], version: closed!.detectorVersions[id] };
+    }
     run.evidence.requests.push({
       id: 2,
       url: "https://cdn.tracker-example.com/app.js",

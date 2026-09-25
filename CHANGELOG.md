@@ -319,6 +319,71 @@ public API or a 1.0 release.
   earlier releases still hold the original bytes, and the earlier release
   receipts and the transparency log still list their digests.
 
+### OffscreenCanvas
+
+- The fingerprint observer now reads OffscreenCanvas 2D work in the page.
+  Text drawing, `drawImage`, `getImageData` and `measureText` on an
+  OffscreenCanvas 2D context feed the canvas readback and font-probing
+  heuristics with the same thresholds as a page canvas, and page and offscreen
+  canvases share the one 256-canvas tracking cap. An export through
+  `convertToBlob` is recorded as its own API, `canvas.convertToBlob`, only when
+  its promise fulfills, never as `canvas.toBlob`. Text drawn offscreen keeps
+  its provenance into a page canvas through `drawImage`,
+  `transferToImageBitmap` and `createImageBitmap`. Before this, a page that
+  fingerprinted only on an OffscreenCanvas left no event and no detection, so
+  its fingerprint card read quiet. WebGL on an OffscreenCanvas was already
+  observed. The observer captures the OffscreenCanvas intrinsics at init, so a
+  page that later replaces its constructors, methods or getters cannot hide
+  the work.
+- Canvas and WebGL work inside a Web Worker is still not observed, including
+  drawing a worker does on a canvas the page transferred to it. Observing it
+  would mean opening the DevTools channel on every arm and pausing every
+  worker before its first statement, a new intervention in the baseline visit
+  (only the GPC arm pauses workers today), plus a worker-realm observer and a
+  readback path for workers that exit early. The coverage boundary entry for
+  OffscreenCanvas 2D work is narrowed to `worker-realm-canvas`, which says so.
+- Recorded identities, old to new:
+  - Base Node methodology, which is also the v1 methodology token and the
+    corpus cohort key:
+    `shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v4+detector-coverage-v2`
+    to
+    `shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2`.
+    The earlier surface, page canvases only, was unnamed, so only the revision
+    carries a component, as with `gpc-worker-application-v2`. The r2
+    methodology moves with the base.
+  - Detectors: `fingerprint-observer@4` to `fingerprint-observer@5`.
+    `DETECTOR_REGISTRY_VERSION` moves from `node-detectors-v10` to
+    `node-detectors-v11`, and its digest from `6f8d32c3...5657` to
+    `80209bf7...e22a`. The digest also hashes the fingerprint vocabulary, so
+    recomputing it from the current inputs with the registry label, the
+    observer version and the `canvas.convertToBlob` token restored reproduces
+    `6f8d32c3...5657`, and nothing else moved. The obligation target
+    registries keep v10 as a closed epoch and enforce v11.
+  - Node and PageGraph r2 normalization: public-string-policy-v4
+    `359b216f...e9bc` to `7fd4ef76...69f5` under the same `tldts@7.4.13`, a
+    widening by the one admitted `canvas.convertToBlob` token. The policy name
+    stays `public-string-policy-v4`: a widening is not a policy revision, as
+    the v9 and v10 detector epochs' widenings kept v3.
+- The reviewed corpus line advances to the new base. No committed report is on
+  the outgoing line, so its replayed handoff moves nothing, and the published
+  aggregate changes only when a refresh on the new line passes the handoff
+  gate. New v1 reports count OffscreenCanvas work in `fingerprintEvents` and
+  may carry canvas detections the outgoing line could not, so they are not
+  pooled with it. A canary panel site that uses OffscreenCanvas can move the
+  toleranced `fingerprintEvents` metric legitimately.
+- Published reports keep their recorded identities. The deployed producer rows
+  `node-v14-public-string-policy-v4-active-lists-2026-09-21`,
+  `node-v14-public-string-policy-v4-active-no-adblock` and
+  `pagegraph-v4-public-string-policy-v4-active` are closed to their exact
+  literals (the v13 methodology, the `359b216f` normalization,
+  node-detectors-v10 and a frozen copy of the September 21 lists under
+  adblock-rust 0.13.3), byte for byte what `89ae341f` produced. The outgoing
+  normalizations stay readable as superseded identities, and v1 reports that
+  name the outgoing base stay fixed points of the sanitizer. The new active
+  rows are `node-v15-detectors-v11-active-lists-2026-09-21`,
+  `node-v15-detectors-v11-active-no-adblock` and
+  `pagegraph-v4-convert-to-blob-active`.
+
 ## [0.6.0] - 2026-09-06
 
 Declared on 2026-09-06 (the date above) and tagged `v0.6.0` on 2026-09-24 at

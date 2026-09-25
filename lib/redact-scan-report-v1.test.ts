@@ -298,6 +298,17 @@ test("a reviewed superseded methodology survives the toolchain move that retired
   report.conditions.scannerDisclosure = subjectValiditySuperseded;
   assert.equal(redactScanResultV1(report).report.conditions.scannerDisclosure, subjectValiditySuperseded);
 
+  // The line fingerprint-surface-v2 retired appended a component instead of
+  // swapping one, so the outgoing base is a strict prefix of the current one.
+  // Production recorded it with no committed report to prove it.
+  const fingerprintSurfaceMethodology =
+    "shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v4+detector-coverage-v2";
+  assert.equal(NODE_SCANNER_METHODOLOGY_VERSION.startsWith(`${fingerprintSurfaceMethodology}+`), true);
+  const fingerprintSurfaceSuperseded = current.replace(NODE_SCANNER_METHODOLOGY_VERSION, fingerprintSurfaceMethodology);
+  assert.notEqual(fingerprintSurfaceSuperseded, current);
+  report.conditions.scannerDisclosure = fingerprintSurfaceSuperseded;
+  assert.equal(redactScanResultV1(report).report.conditions.scannerDisclosure, fingerprintSurfaceSuperseded);
+
   // An unreviewed extended identity is still refused: the reviewed list is
   // exact, so a report cannot mint its own methodology tail and publish it.
   report.conditions.scannerDisclosure = current

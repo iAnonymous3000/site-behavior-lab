@@ -10,8 +10,12 @@
 export const NODE_ADBLOCK_ENGINE_VERSION = "adblock-rust-0.13.3";
 export const NODE_PLAYWRIGHT_VERSION = "1.63.0";
 export const NODE_SHIELDS_REQUEST_CONTEXT_VERSION = `shields-request-context-v2-${NODE_ADBLOCK_ENGINE_VERSION}-request-method-v1`;
+// fingerprint-surface-v2 names the OffscreenCanvas 2D work the fingerprint
+// observer reads in the page (node-detectors-v11). The earlier surface, page
+// canvases only, was unnamed, so only the revision carries a component, as
+// with gpc-worker-application-v2.
 export const NODE_SCANNER_METHODOLOGY_VERSION =
-  `${NODE_SHIELDS_REQUEST_CONTEXT_VERSION}-playwright-${NODE_PLAYWRIGHT_VERSION}+subject-validity-v4+detector-coverage-v2`;
+  `${NODE_SHIELDS_REQUEST_CONTEXT_VERSION}-playwright-${NODE_PLAYWRIGHT_VERSION}+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2`;
 export const LEGACY_V1_METHODOLOGY_UNSPECIFIED = "legacy-v1-methodology-unspecified";
 
 const METHODOLOGY_TOKEN = /\bmethodology\s+([a-z0-9]+(?:[._+-][a-z0-9]+)*)\b/gi;

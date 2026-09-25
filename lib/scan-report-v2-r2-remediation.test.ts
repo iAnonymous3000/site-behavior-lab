@@ -512,10 +512,10 @@ test("every superseded normalization reads only with its pinned historical produ
     }
   }
 
-  // A superseded identity whose producer epoch ran another methodology. The
-  // newest entry is not one: public-string-policy-v4 retired its identity
-  // without moving the methodology, so the live fixture under it is the
-  // retired producer's own run (see the next test).
+  // A superseded identity whose producer epoch ran another methodology. Since
+  // node-detectors-v11 moved the methodology, every entry is one, the newest
+  // included; a normalization-only move would again leave the newest entry
+  // paired with the live methodology, which this filter skips.
   const superseded = SUPERSEDED_R2_NORMALIZATIONS["node-playwright"].find(
     (normalization) =>
       !HISTORICAL_NODE_R2_V4_METHODOLOGIES_BY_NORMALIZATION[normalization]?.includes(
@@ -556,20 +556,32 @@ test("every superseded normalization reads only with its pinned historical produ
   );
 });
 
-test("the identity public-string-policy-v4 retired replays the live producer and re-sanitizes what v4 removes", () => {
+test("the identity public-string-policy-v4 retired replays its closed producer and re-sanitizes what v4 removes", () => {
   // A narrowing, not a widening: the retired identity is declarable, but a
   // report the retired pass published is a fixed point only if it holds none
-  // of the strings v4 removes. Only the normalization moved, so the current
-  // fixture relabeled with the retired literal is that producer's own run and
-  // replays through its closed row.
+  // of the strings v4 removes. The fixture is relabeled with that producer's
+  // whole closed identity (normalization, methodology, registry, detector
+  // versions, catalog and lists), since node-detectors-v11 moved the live
+  // methodology and fingerprint observer past it.
   // The retired literal the identity ledger pins; without its superseded
   // entry the sanitizer refuses it as unreviewed.
   const retired =
     "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:b40a333af90f0b6a7bd1e5c702edcd7ef768167bc811ae20272a6e993cb83d51+tldts@7.4.13+node-evidence-policy-v1+r2-http-status-compat-v1";
   assert.notEqual(retired, NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION);
+  const closed = NODE_R2_PRODUCER_TUPLES.find(
+    (tuple) => tuple.normalizationVersion === retired && tuple.adblockIdentity === null
+  );
+  if (!closed) throw new Error("no closed no-adblock producer row for the retired identity");
   const report = makePublicSingleReportV2R2();
   report.run.privacy.redactionVersion = REDACTION_VERSION;
   report.run.toolchain.normalizationVersion = retired;
+  report.run.provenance.methodologyVersion = closed.methodologyVersion;
+  report.run.provenance.detectorRegistry = { ...closed.detectorRegistry };
+  report.run.toolchain.trackerCatalog = { ...closed.trackerCatalog };
+  report.run.toolchain.adblock = null;
+  for (const id of Object.keys(report.run.detectors) as Array<keyof typeof report.run.detectors>) {
+    report.run.detectors[id] = { ...report.run.detectors[id], version: closed.detectorVersions[id] };
+  }
   report.run.evidence.requests.push({
     id: 2,
     url: "https://cdn.tracker-example.com/app.js",

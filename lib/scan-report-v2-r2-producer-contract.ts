@@ -453,15 +453,24 @@ const HISTORICAL_NODE_V12_NORMALIZATION = "redaction-v4+allowlists-v3:269f631f04
 // (6c4698f7), closed by public-string-policy-v4, a reviewed narrowing that
 // generalizes token-shaped private-suffix tenant labels and scrubs identifiers
 // from policy quotes, and admits three fixed v1 warnings. Only the
-// normalization moves: the live methodology still
-// equals this literal, and the closed rows name the literal so they stay put
-// when the methodology next moves.
+// normalization moved there; the v14 producer kept this methodology literal,
+// which node-detectors-v11 then retired by appending fingerprint-surface-v2
+// to the base.
 const HISTORICAL_NODE_V13_METHODOLOGY = "shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v4+detector-coverage-v2+phase-kernel-v2+boundary-state-v1+consent-r2-v5+resource-budget-v2+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1+service-role-taxonomy-v1+gpc-worker-application-v3+active-probe-v3+auxiliary-context-block-v1";
 const HISTORICAL_NODE_V13_NORMALIZATION = "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:b40a333af90f0b6a7bd1e5c702edcd7ef768167bc811ae20272a6e993cb83d51+tldts@7.4.13+node-evidence-policy-v1+r2-http-status-compat-v1";
+// Exact normalization of the public-string-policy-v4 producer (89ae341f, the
+// main and production tip when it closed), retired by node-detectors-v11,
+// which admits the canvas.convertToBlob fingerprint token. That producer ran
+// the v13 methodology above and the frozen node-detectors-v10 fields.
+const HISTORICAL_NODE_V14_NORMALIZATION = "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:359b216f1168c4caf2f107e9f5220cbab5e0da9b4dad686129922a9ab3e4e9bc+tldts@7.4.13+node-evidence-policy-v1+r2-http-status-compat-v1";
 
 export const HISTORICAL_NODE_R2_V4_METHODOLOGIES_BY_NORMALIZATION: Readonly<
   Record<string, readonly string[]>
 > = Object.freeze({
+  // The 359b216f identity closed when node-detectors-v11 admitted the
+  // canvas.convertToBlob token. Only the public-string-policy-v4 rows ran it,
+  // all under the v13 methodology, which that producer kept.
+  [HISTORICAL_NODE_V14_NORMALIZATION]: Object.freeze([HISTORICAL_NODE_V13_METHODOLOGY]),
   // The b40a333a identity closed when public-string-policy-v4 narrowed the
   // sanitizer. It was declared by the node-detectors-v10 epoch, whose rows
   // alone ran it, all under the one v13 methodology.
@@ -619,8 +628,9 @@ export const HISTORICAL_R2_LISTS_2026_09_21_ADBLOCK_IDENTITY = Object.freeze({
 /**
  * Frozen copy of the same September 21 snapshot under adblock-rust 0.13.3, as
  * the 2026-09 toolchain epoch's production rows published it, and after them
- * the node-detectors-v10 epoch's. The live constant follows the next list
- * adoption or engine move; this closed copy never does.
+ * the node-detectors-v10 epoch's and the public-string-policy-v4 producer's.
+ * The live constant follows the next list adoption or engine move; this closed
+ * copy never does.
  */
 export const HISTORICAL_R2_LISTS_2026_09_21_ADBLOCK_0_13_3_IDENTITY = Object.freeze({
   source: "Brave default ad-block lists",
@@ -1043,9 +1053,9 @@ const HISTORICAL_NODE_V9_FIELDS: NodeTupleFields = Object.freeze({
 });
 
 // Exact node-detectors-v10 producer fields, frozen when public-string-policy-v4
-// closed the v13 rows. No detector moved in that narrowing, so they equal the
-// live fields today; the closed rows must not follow them when a later
-// detector epoch moves.
+// closed the v13 rows. No detector moved in that narrowing, so the v14 rows
+// share them too; node-detectors-v11 then moved the fingerprint observer and
+// the registry, and the closed rows keep these.
 const HISTORICAL_NODE_V10_FIELDS: NodeTupleFields = Object.freeze({
   detectorRegistry: Object.freeze({
     "version": "node-detectors-v10",
@@ -1130,26 +1140,27 @@ function nodeTuple(
   });
 }
 
-// Closed rows retain their exact literals; public-string-policy-v4 defines v14.
-// It moves only the public-string policy (version and digest) in the
-// normalization; the methodology, detectors, toolchain and lists are unchanged
-// from v13.
+// Closed rows retain their exact literals; the node-detectors-v11 measurement
+// epoch defines v15. It moves the base methodology (fingerprint-surface-v2),
+// the fingerprint observer (fingerprint-observer@5) with the registry, and the
+// public-string policy digest in the normalization; the toolchain, lists and
+// every other field are unchanged from v14.
 const ACTIVE_NODE_WIRE_IDENTITY_IS_DISTINCT =
   String(NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION) !== HISTORICAL_NODE_V13_METHODOLOGY ||
-  String(NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION) !== HISTORICAL_NODE_V13_NORMALIZATION ||
+  String(NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION) !== HISTORICAL_NODE_V14_NORMALIZATION ||
   canonicalJson(ACTIVE_NODE_FIELDS) !== canonicalJson(HISTORICAL_NODE_V10_FIELDS);
 
 const ACTIVE_NODE_TUPLES: readonly NodeR2ProducerTuple[] = ACTIVE_NODE_WIRE_IDENTITY_IS_DISTINCT
   ? Object.freeze([
       nodeTuple(
-        "node-v14-public-string-policy-v4-active-lists-2026-09-21",
+        "node-v15-detectors-v11-active-lists-2026-09-21",
         NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION,
         NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION,
         ACTIVE_NODE_FIELDS,
         NODE_R2_CURRENT_ADBLOCK_IDENTITY
       ),
       nodeTuple(
-        "node-v14-public-string-policy-v4-active-no-adblock",
+        "node-v15-detectors-v11-active-no-adblock",
         NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION,
         NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION,
         ACTIVE_NODE_FIELDS,
@@ -1532,6 +1543,18 @@ export const NODE_R2_PRODUCER_TUPLES: readonly NodeR2ProducerTuple[] = Object.fr
     HISTORICAL_NODE_V13_NORMALIZATION, HISTORICAL_NODE_V13_METHODOLOGY,
     HISTORICAL_NODE_V10_FIELDS, null
   ),
+  // The public-string-policy-v4 producer (89ae341f), with and without the
+  // September 21 lists, closed to its exact source identity by
+  // node-detectors-v11: the v13 methodology, the 359b216f policy digest under
+  // tldts 7.4.13, node-detectors-v10 and adblock-rust 0.13.3.
+  nodeTuple("node-v14-public-string-policy-v4-active-lists-2026-09-21",
+    HISTORICAL_NODE_V14_NORMALIZATION, HISTORICAL_NODE_V13_METHODOLOGY,
+    HISTORICAL_NODE_V10_FIELDS, HISTORICAL_R2_LISTS_2026_09_21_ADBLOCK_0_13_3_IDENTITY
+  ),
+  nodeTuple("node-v14-public-string-policy-v4-active-no-adblock",
+    HISTORICAL_NODE_V14_NORMALIZATION, HISTORICAL_NODE_V13_METHODOLOGY,
+    HISTORICAL_NODE_V10_FIELDS, null
+  ),
   ...ACTIVE_NODE_TUPLES
 ]);
 
@@ -1620,7 +1643,14 @@ export const PAGEGRAPH_R2_PRODUCER_TUPLES: readonly PageGraphR2ProducerTuple[] =
     "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:b40a333af90f0b6a7bd1e5c702edcd7ef768167bc811ae20272a6e993cb83d51+tldts@7.4.13+pagegraph-request-evidence-v1+r2-http-status-compat-v1",
     HISTORICAL_R2_2026_08_TRACKER_CATALOG
   ),
-  pageGraphTuple("pagegraph-v4-public-string-policy-v4-active", PAGEGRAPH_R2_NORMALIZATION_VERSION, ACTIVE_TRACKER_CATALOG, {
+  // Closed by node-detectors-v11, which admits the canvas.convertToBlob
+  // fingerprint token; the public-string policy is shared by both observers,
+  // although a PageGraph import records no fingerprint events.
+  pageGraphTuple("pagegraph-v4-public-string-policy-v4-active",
+    "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:359b216f1168c4caf2f107e9f5220cbab5e0da9b4dad686129922a9ab3e4e9bc+tldts@7.4.13+pagegraph-request-evidence-v1+r2-http-status-compat-v1",
+    HISTORICAL_R2_2026_08_TRACKER_CATALOG
+  ),
+  pageGraphTuple("pagegraph-v4-convert-to-blob-active", PAGEGRAPH_R2_NORMALIZATION_VERSION, ACTIVE_TRACKER_CATALOG, {
     methodologyVersion: PAGEGRAPH_R2_METHODOLOGY_VERSION,
     publicLimits: PAGEGRAPH_R2_PUBLIC_LIMITS,
     detectorRegistry: PAGEGRAPH_REGISTRY,
