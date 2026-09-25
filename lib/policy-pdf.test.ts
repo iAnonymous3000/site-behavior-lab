@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import workerThreads, { type Worker } from "node:worker_threads";
 import { deflateSync } from "node:zlib";
 import {
   extractPolicyTextFromPdf,
@@ -53,7 +54,7 @@ test(
 test(
   "extractPolicyTextFromPdf ends a document that decompresses to hundreds of MB at the memory bound, without stalling the event loop",
   { timeout: 60_000 },
-  async () => {
+  async (context) => {
     // Under 1 MB on the wire, 192 MB once FlateDecode expands it: three 64 MB
     // string operands on a single page, so neither the byte cap nor the page
     // cap refuses it and the text ceiling is only consulted after the whole
@@ -76,6 +77,7 @@ test(
     ]);
     assert.ok(bomb.byteLength < 1024 * 1024, `the document is ${bomb.byteLength} bytes on the wire`);
 
+    const parseThreads = context.mock.method(workerThreads, "Worker");
     const watch = watchProcess();
     const started = Date.now();
     let extracted: string | null;
@@ -93,14 +95,14 @@ test(
       watch.peakRssGrowthMb < 3 * MAX_POLICY_PDF_PARSE_MEMORY_MB,
       `resident memory grew by ${watch.peakRssGrowthMb} MB during the parse`
     );
-    await assertParseThreadStopped();
+    await assertParseThreadStopped(parseThreads.mock.calls);
   }
 );
 
 test(
   "extractPolicyTextFromPdf ends a stream of no-op operators at the memory bound before its decode buffer can keep doubling",
   { timeout: 60_000 },
-  async () => {
+  async (context) => {
     // The heap-heavy shape above is also caught by V8's own heap limit on the
     // parse thread. This one is not: 384 MB of text-positioning operators
     // produce no text items and almost no heap, while the decoded stream is a
@@ -116,6 +118,7 @@ test(
     ]);
     assert.ok(bomb.byteLength < 2 * 1024 * 1024, `the document is ${bomb.byteLength} bytes on the wire`);
 
+    const parseThreads = context.mock.method(workerThreads, "Worker");
     const watch = watchProcess();
     const started = Date.now();
     let extracted: string | null;
@@ -133,7 +136,7 @@ test(
       watch.peakRssGrowthMb < 3 * MAX_POLICY_PDF_PARSE_MEMORY_MB,
       `resident memory grew by ${watch.peakRssGrowthMb} MB during the parse`
     );
-    await assertParseThreadStopped();
+    await assertParseThreadStopped(parseThreads.mock.calls);
   }
 );
 
@@ -167,6 +170,7 @@ test(
       if (delay === 500) deadlineFired = true;
       callback(...args);
     }, delay));
+    const parseThreads = context.mock.method(workerThreads, "Worker");
     const watch = watchProcess();
     const started = performance.now();
     let extracted: string | null;
@@ -181,7 +185,44 @@ test(
     assert.equal(extracted, null);
     assert.equal(deadlineFired, true, "the deadline must end this parse, not an unrelated refusal");
     assert.ok(elapsedMs < 2_000, `the parse returned after ${elapsedMs}ms against a 500ms deadline`);
-    await assertParseThreadStopped();
+    await assertParseThreadStopped(parseThreads.mock.calls);
+  }
+);
+
+test(
+  "the stopped-parse check counts the parse thread's own work, not other work in the process",
+  { timeout: 60_000 },
+  async (context) => {
+    // A thread that is not the parse keeps a core busy for the whole check,
+    // as teardown, garbage collection and other work in the process can on a
+    // loaded host. Charging it to the parse failed a correctly stopped parse.
+    const busy = new workerThreads.Worker("for (;;);", { eval: true });
+    try {
+      const parseThreads = context.mock.method(workerThreads, "Worker");
+      const slow = flatePdf([
+        Buffer.concat([
+          Buffer.from("BT\n/F1 12 Tf\n72 720 Td\n(Privacy) Tj\n", "latin1"),
+          Buffer.alloc(48 * 1024 * 1024, "0 0 Td\n", "latin1"),
+          Buffer.from("ET\n", "latin1")
+        ])
+      ]);
+      assert.equal(await extractPolicyTextFromPdf(slow, 400_000, 500), null);
+      await assertParseThreadStopped(parseThreads.mock.calls);
+    } finally {
+      await busy.terminate();
+    }
+
+    // A thread that keeps working after the parse returns still fails it,
+    // however slowly a loaded host lets it run.
+    const abandoned = new workerThreads.Worker("for (;;);", { eval: true });
+    try {
+      await assert.rejects(
+        assertParseThreadStopped([{ result: abandoned }]),
+        /of its own work after the parse ended/
+      );
+    } finally {
+      await abandoned.terminate();
+    }
   }
 );
 
@@ -208,13 +249,45 @@ function watchProcess(): { stop: () => void; readonly maxGapMs: number; readonly
   };
 }
 
-/** Stopped, not abandoned: a decode still running on its own thread shows up as this process's CPU time. */
-async function assertParseThreadStopped(): Promise<void> {
-  const cpuBefore = process.cpuUsage();
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  const cpu = process.cpuUsage(cpuBefore);
-  const cpuMs = (cpu.user + cpu.system) / 1000;
-  assert.ok(cpuMs < 250, `the process used ${cpuMs}ms of CPU in the 500ms after the parse ended`);
+/**
+ * Stopped, not abandoned. The bound is on the work the parse thread itself
+ * does after the call returns, read on that thread, so the teardown of what it
+ * decoded, garbage collection on other threads and a loaded host cannot count
+ * against it, while a thread left decoding fails however slowly the host lets
+ * it run. The check ends when that thread has exited; a thread that neither
+ * works nor exits fails at the test's timeout.
+ */
+async function assertParseThreadStopped(calls: ReadonlyArray<{ result: Worker | undefined }>): Promise<void> {
+  assert.equal(calls.length, 1, "the parse must run on exactly one thread this test observes");
+  const thread = calls[0].result;
+  assert.ok(thread, "the parse thread was never constructed");
+  if (thread.threadId === -1) return;
+  let exited = false;
+  const exit = new Promise<undefined>((resolve) =>
+    thread.once("exit", () => {
+      exited = true;
+      resolve(undefined);
+    })
+  );
+  let first: NodeJS.CpuUsage | undefined;
+  while (!exited) {
+    // Read on the parse thread; a reading asked for as it stops is refused,
+    // and one still in flight at exit gives way to the exit.
+    const reading: NodeJS.CpuUsage | undefined = await Promise.race([
+      thread.cpuUsage().catch((error: unknown) => {
+        if (exited || (error as { code?: unknown }).code === "ERR_WORKER_NOT_RUNNING") return undefined;
+        throw error;
+      }),
+      exit
+    ]);
+    if (reading) {
+      const baseline: NodeJS.CpuUsage = first ?? reading;
+      first = baseline;
+      const workMs: number = (reading.user - baseline.user + reading.system - baseline.system) / 1000;
+      assert.ok(workMs < 250, `the parse thread did ${workMs}ms of its own work after the parse ended`);
+    }
+    await Promise.race([new Promise((resolve) => setTimeout(resolve, 10)), exit]);
+  }
 }
 
 function contentStream(text: string): Buffer {
