@@ -206,9 +206,13 @@ route aborted it, and the input check could name a host that never received
 anything. One rule now names what the probe stops, the first hop of any
 navigation while it runs (Playwright never routes a redirect hop): the route
 removes it from the recorder once the abort succeeds and keeps its capture-loss
-record, and the probe's capture skips it. A value that only a blocked
-navigation would carry is not observed: the capture loss censors the requests
-family but not the keystroke absence claim. The active probe `v3` move, and a
+record, and the probe's capture skips it. A blocked navigation names no
+recipient, since nothing received it, but one whose URL or body carries the
+test value to a third party (or cannot be read in full) leaves the probe
+`partial` with `scan-failed`, so the keystroke absence claim is withheld; the
+requests-family loss alone would not have censored that claim. Other blocked
+navigations, a same-site search redirect or an ad frame rotating during the
+wait, cost only the requests-family loss. The active probe `v3` move, and a
 keystroke detector version move because its output changes, land with this
 epoch's identity bookkeeping.
 The same `v3` also takes the companion change: the probe now aborts with

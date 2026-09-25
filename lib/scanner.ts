@@ -32,7 +32,8 @@ import {
   createSentinel,
   findSentinelLeaks,
   sentinelEncodings,
-  type CapturedRequest
+  type CapturedRequest,
+  type SentinelEncoding
 } from "./keystroke-exfiltration";
 import {
   consentClickArgs,
@@ -3868,13 +3869,21 @@ export async function probeKeystrokeExfiltration(
   }
 
   const sentinel = createSentinel(randomBytes(6).toString("hex"));
+  const encodings = sentinelEncodings(sentinel);
   const captured = createProbeRequestCaptureState();
   const onRequest = (request: Request) => {
     if (lifecycle.cancelled) return;
     // The page route aborts these for as long as this listener lives, and the
     // request event fires before the route runs: a stopped navigation is
-    // capture loss, not the test value leaving.
-    if (isActiveProbeBlockedRequest(request)) return;
+    // capture loss, not the test value leaving. One that would have carried
+    // the value to a third party is also the case the probe exists to find,
+    // so it leaves the probe incomplete rather than a complete negative.
+    if (isActiveProbeBlockedRequest(request)) {
+      if (blockedNavigationMayCarrySentinel(request, encodings, firstPartyHostname)) {
+        addProbeCaptureLoss(captured, "failure");
+      }
+      return;
+    }
     captureProbeRequest(captured, request, firstPartyHostname);
   };
 
@@ -3959,7 +3968,7 @@ export async function probeKeystrokeExfiltration(
     captured.failureLossCount + typed.preventedFieldCount
   );
   const detection = buildKeystrokeExfiltrationDetection(
-    findSentinelLeaks(sentinelEncodings(sentinel), captured.requests),
+    findSentinelLeaks(encodings, captured.requests),
     {
       fieldsTyped: typed.count,
       fieldTypes: typed.types
@@ -4523,6 +4532,24 @@ export function captureProbeRequest(
   } catch {
     addProbeCaptureLoss(state, "failure");
   }
+}
+
+/**
+ * Whether a navigation the probe stopped may have been carrying the test value
+ * to a third party. It never loaded, so it names no recipient, but the probe
+ * cannot report the value as staying either. The request goes through the
+ * probe's own capture rules into a scratch state: a navigation whose URL or
+ * body could not be read in full counts, since what it carried is unknown.
+ */
+export function blockedNavigationMayCarrySentinel(
+  request: Pick<Request, "postData" | "url">,
+  encodings: SentinelEncoding[],
+  firstPartyHostname: string
+): boolean {
+  const scratch = createProbeRequestCaptureState();
+  captureProbeRequest(scratch, request, firstPartyHostname);
+  if (scratch.captureLossCount > 0) return true;
+  return findSentinelLeaks(encodings, scratch.requests).some((leak) => leak.thirdParty);
 }
 
 // Playwright exposes the POST body synchronously, but reading it can throw for

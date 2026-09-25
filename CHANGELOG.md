@@ -71,8 +71,9 @@ public API or a 1.0 release.
   published a third-party document row that never loaded and a keystroke
   finding naming a host that never received anything. Once the abort succeeds,
   a blocked navigation now leaves the log and its counts, keeps its lost request
-  coverage record, and is not searched for the test value, so a value that only
-  a blocked navigation would carry is not observed.
+  coverage record, and names no recipient. One that would have carried the test
+  value to a third party leaves the input check incomplete, so the report does
+  not state that the value stayed on the page.
 - The input probe's block of a main-frame navigation (a form submitted through
   another frame's `submit`, for example) replaced the page with an error page,
   so the scanner's own block read as the page leaving the recorded site: the
@@ -124,13 +125,15 @@ public API or a 1.0 release.
     the new base in front.
   - Detectors: `synthetic-sentinel@4` to `synthetic-sentinel@5`, because a
     navigation the probe blocks is no longer searched for the test value or
-    counted toward the probe's capture cap, and a probe whose own main-frame
-    block used to end it now completes. `DETECTOR_REGISTRY_VERSION` moves
-    from `node-detectors-v9` to `node-detectors-v10`, and its digest from
-    `b15c8281...4715` to `6f8d32c3...5657`. Recomputing the v9 digest from
-    the current inputs with only the keystroke version and the registry label
-    restored reproduces `b15c8281...4715`, so nothing else moved. The
-    obligation target registries keep v9 as a closed epoch and enforce v10.
+    counted toward the probe's capture cap (one that would have carried the
+    value to a third party leaves the probe incomplete instead), and a probe
+    whose own main-frame block used to end it now runs to the end.
+    `DETECTOR_REGISTRY_VERSION` moves from `node-detectors-v9` to
+    `node-detectors-v10`, and its digest from `b15c8281...4715` to
+    `6f8d32c3...5657`. Recomputing the v9 digest from the current inputs
+    with only the keystroke version and the registry label restored
+    reproduces `b15c8281...4715`, so nothing else moved. The obligation
+    target registries keep v9 as a closed epoch and enforce v10.
     No other detector version moves: the subject status changes consent and
     policy outcomes on redirected visits the way subject-validity-v3 did,
     without a detector version bump, and the keystroke outcomes it changes

