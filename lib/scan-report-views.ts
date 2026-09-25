@@ -17,6 +17,7 @@ import {
 } from "./comparison-decision";
 import {
   runConsentInteractionLeftSubject,
+  runHitAuxiliaryPageRequestsBlocked,
   runHitFingerprintListenerAttributionLoss,
   runHitFingerprintObserverCaptureLoss,
   runHitGpcWorkerCaptureLoss,
@@ -35,7 +36,9 @@ import {
   runHitSuspectedChallengeOrSoftBlock,
   runHitUnsettledRoutedRequests,
   runHitUploadByteCap,
-  runKeystrokeProbeLeftSubject
+  runKeystrokeProbeLeftSubject,
+  runKeystrokeProbePageLeft,
+  runPageLeftSubjectBeforeState
 } from "./comparison-eligibility";
 import { summarizeDomains } from "./domain-summaries";
 import { recordedPlaywrightVersion } from "./legacy-methodology";
@@ -674,6 +677,33 @@ export const LEGACY_KEYSTROKE_PROBE_REQUESTS_OMITTED_REASON = "capture-loss:keys
  */
 export const LEGACY_CONSENT_INTERACTION_LEFT_SUBJECT_REASON = "capture-loss:consent-interaction-left-subject";
 
+/**
+ * The legacy reason for a v1 page that left the recorded site while the input
+ * probe ran. The scan leaves the probe's requests out of the log, and r2
+ * records dropped request and fingerprinting losses beside the same line, so
+ * it censors those two families. The keystroke claim takes the subject-lost
+ * reason the probe's subject line gives beside it.
+ */
+export const LEGACY_KEYSTROKE_PROBE_PAGE_LEFT_REASON = "capture-loss:keystroke-probe-page-left";
+
+/**
+ * The legacy reason for a v1 page that left the recorded site before the
+ * scanner finished reading its state, with no consent interaction to blame.
+ * r2 records a dropped loss for the request, cookie, storage and
+ * fingerprinting families beside the same line, so it censors those four, and
+ * the listener claim takes it through its own `legacyReasons`, as for the
+ * consent reason.
+ */
+export const LEGACY_PAGE_LEFT_SUBJECT_BEFORE_STATE_REASON = "capture-loss:page-left-subject-before-state";
+
+/**
+ * The legacy reason for a v1 page that opened another window or tab whose
+ * requests the context route blocked: lost request coverage, read like an
+ * unsettled routed request. r2 records each such request as a dropped
+ * requests-family loss.
+ */
+export const LEGACY_AUXILIARY_PAGE_REQUESTS_BLOCKED_REASON = "capture-loss:auxiliary-page-requests-blocked";
+
 function runViewFromV1(result: ScanResult, label: RunView["label"], scannedAt: string | null): RunView {
   // v1 never recorded quality; derive the run-level outcome from the same
   // facts the interim gate uses (status, cap) and mark it legacy-derived so it
@@ -707,6 +737,14 @@ function runViewFromV1(result: ScanResult, label: RunView["label"], scannedAt: s
   // A click that left the site stops four families at the pre-click boundary;
   // r2 records each as dropped beside the same line.
   if (runConsentInteractionLeftSubject(result)) reasons.push(LEGACY_CONSENT_INTERACTION_LEFT_SUBJECT_REASON);
+  // The same four families when the page left before its state was read with
+  // no click to blame, and the request and fingerprinting families when it
+  // left while the probe ran; r2 records each as dropped beside the line.
+  if (runPageLeftSubjectBeforeState(result)) reasons.push(LEGACY_PAGE_LEFT_SUBJECT_BEFORE_STATE_REASON);
+  if (runKeystrokeProbePageLeft(result)) reasons.push(LEGACY_KEYSTROKE_PROBE_PAGE_LEFT_REASON);
+  // A window the page opened is blocked at the context route, whose every
+  // request r2 records as a dropped requests-family loss.
+  if (runHitAuxiliaryPageRequestsBlocked(result)) reasons.push(LEGACY_AUXILIARY_PAGE_REQUESTS_BLOCKED_REASON);
   if (runHitProxyTrafficBudget(result)) reasons.push("budget-exhausted:proxy-traffic");
   // Not a budget: the instrument itself did not run. Scoped to the families it
   // actually covers rather than censoring the whole run. A read frame whose
@@ -1345,7 +1383,16 @@ export function familyCensoredOnRun(run: RunView, family: string): boolean {
   // subject-lost and listener reasons instead.
   if (
     (family === "requests" || family === "cookies" || family === "storage" || family === "fingerprinting") &&
-    run.quality.reasons.includes(LEGACY_CONSENT_INTERACTION_LEFT_SUBJECT_REASON)
+    (run.quality.reasons.includes(LEGACY_CONSENT_INTERACTION_LEFT_SUBJECT_REASON) ||
+      run.quality.reasons.includes(LEGACY_PAGE_LEFT_SUBJECT_BEFORE_STATE_REASON))
+  ) {
+    return true;
+  }
+  // The page leaving while the probe ran drops its requests and its
+  // fingerprinting on r2; the cookies and storage read before it stand.
+  if (
+    (family === "requests" || family === "fingerprinting") &&
+    run.quality.reasons.includes(LEGACY_KEYSTROKE_PROBE_PAGE_LEFT_REASON)
   ) {
     return true;
   }
@@ -1358,7 +1405,8 @@ export function familyCensoredOnRun(run: RunView, family: string): boolean {
       run.quality.reasons.includes("capture-loss:invalid-upstream-response") ||
       run.quality.reasons.includes("capture-loss:unsettled-routed-requests") ||
       run.quality.reasons.includes(LEGACY_KEYSTROKE_PROBE_NAVIGATION_STOPPED_REASON) ||
-      run.quality.reasons.includes(LEGACY_KEYSTROKE_PROBE_REQUESTS_OMITTED_REASON))
+      run.quality.reasons.includes(LEGACY_KEYSTROKE_PROBE_REQUESTS_OMITTED_REASON) ||
+      run.quality.reasons.includes(LEGACY_AUXILIARY_PAGE_REQUESTS_BLOCKED_REASON))
   );
 }
 

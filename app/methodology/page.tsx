@@ -145,16 +145,20 @@ export default function MethodologyPage() {
           supported form fields already in the viewport, with native form submission blocked, and watches whether
           that value leaves to a third party in plain, encoded, or hashed form. Focus, input and blur handlers may
           run and send requests. Unsupported, offscreen and failed field attempts are reported as omitted coverage;
-          the probe does not scroll to reach them. Auxiliary pages are blocked; r2 reports count their requests as
-          lost coverage, and v1 reports carry no record of them. Navigations started while the probe runs, whether
+          the probe does not scroll to reach them. Auxiliary pages (a popup, or a link or form that opens a new
+          window or tab) are blocked: their requests are left out of the request log and count as lost coverage, so
+          the visit&apos;s request evidence reads as incomplete. Navigations started while the probe runs, whether
           or not the probe caused them, are blocked too: they are left out of the request log and r2 reports count
           them as lost coverage, so the visit&apos;s request evidence reads as incomplete. One that would have
           carried the test value to a third party leaves the input check incomplete, and so does a request the probe
           could not read in full, a field it could not test or that refused the value, a probe that had no time to
-          start or whose own work failed, and a page that left the recorded site before or during the probe. Newer v1
-          reports, which have no quality block or detector status, record both with fixed warnings; v1 reports
-          measured before those warnings existed, including every committed one, carry none, so their request
-          evidence and input check can read as complete. Second, in consent comparison mode only, the scanner clicks
+          start or whose own work failed, and a page that left the recorded site before or during the probe. A page
+          that leaves the recorded site keeps only its evidence from before it left, and the families it lost read
+          as incomplete: requests, cookies, storage and fingerprinting when it leaves before the scanner has read
+          its state, requests and fingerprinting when it leaves while the probe runs. Newer v1 reports, which have
+          no quality block or detector status, record each of these with fixed warnings; v1 reports measured
+          before those warnings existed, including every committed one, carry none, so their evidence and input
+          check can read as complete. Second, in consent comparison mode only, the scanner clicks
           one accept-all or
           reject-all control on the cookie banner&apos;s first layer (known consent-platform controls first, then a
           conservative whole-label match). Whenever at least one field accepts the synthetic value, the report says

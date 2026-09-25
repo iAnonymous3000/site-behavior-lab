@@ -46,14 +46,17 @@ import { MIN_POLICY_TEXT_LENGTH } from "./privacy-policy";
 import { scannerDisclosure, type ScanConditionsProfile } from "./scan-condition-disclosure";
 import { PUBLIC_SCANNER_EGRESS_LABELS } from "./scanner-egress";
 import {
+  AUXILIARY_PAGE_REQUESTS_BLOCKED_WARNING,
   FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING,
   FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING,
   INVALID_UPSTREAM_RESPONSE_WARNING,
   KEYSTROKE_PROBE_INCOMPLETE_WARNING,
   KEYSTROKE_PROBE_NAVIGATION_STOPPED_WARNING,
+  KEYSTROKE_PROBE_PAGE_LEFT_WARNING,
   KEYSTROKE_PROBE_REQUEST_UNREAD_WARNING,
   KEYSTROKE_PROBE_TEST_INCOMPLETE_WARNING,
   LISTENER_DETECTION_WITHHELD_WARNING,
+  PAGE_LEFT_SUBJECT_BEFORE_STATE_WARNING,
   PIXEL_DECODE_CAPTURE_LOSS_WARNING,
   UNSETTLED_ROUTED_REQUEST_WARNING
 } from "./scan-runtime";
@@ -368,6 +371,13 @@ const FIXED_SCANNER_WARNINGS = new Set([
   // active-probe-v3: the page route stopped a navigation while the probe ran,
   // which r2 records as lost request coverage.
   KEYSTROKE_PROBE_NAVIGATION_STOPPED_WARNING,
+  // The page left the recorded site while the probe ran, or before the
+  // scanner finished reading its state, and the context route blocked the
+  // requests of a window the page opened: each where r2 records dropped
+  // family losses that no older line can carry.
+  KEYSTROKE_PROBE_PAGE_LEFT_WARNING,
+  PAGE_LEFT_SUBJECT_BEFORE_STATE_WARNING,
+  AUXILIARY_PAGE_REQUESTS_BLOCKED_WARNING,
   PIXEL_DECODE_CAPTURE_LOSS_WARNING,
   GPC_WORKER_CAPTURE_LOSS_WARNING,
   CONSENT_RELOAD_DISCLOSURE,

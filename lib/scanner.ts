@@ -111,6 +111,7 @@ import { browserProcessEnvironment } from "./browser-process-env";
 import { chromiumSandboxEnabled } from "./chromium-sandbox";
 import {
   aggregateByteBudgetWarning,
+  AUXILIARY_PAGE_REQUESTS_BLOCKED_WARNING,
   collectBoundedPageContentText,
   collectBoundedPageHeadings,
   collectBoundedPageTitle,
@@ -120,9 +121,11 @@ import {
   INVALID_UPSTREAM_RESPONSE_WARNING,
   KEYSTROKE_PROBE_INCOMPLETE_WARNING,
   KEYSTROKE_PROBE_NAVIGATION_STOPPED_WARNING,
+  KEYSTROKE_PROBE_PAGE_LEFT_WARNING,
   KEYSTROKE_PROBE_REQUEST_UNREAD_WARNING,
   KEYSTROKE_PROBE_TEST_INCOMPLETE_WARNING,
   MAX_RECORDED_REQUEST_URL_CHARS,
+  PAGE_LEFT_SUBJECT_BEFORE_STATE_WARNING,
   PIXEL_DECODE_CAPTURE_LOSS_WARNING,
   UNSETTLED_ROUTED_REQUEST_WARNING,
   ScanNetworkRecorder,
@@ -1081,10 +1084,15 @@ export async function scanSiteWithMeasurement(
       const operation = (async () => {
         // Attribute loss before awaiting abort, while the originating phase is
         // still active. Drain these handlers with the main-page route work.
-        if (measuringRequests) measurementKernel.recordCaptureLoss({
-          family: "requests", phaseId: measurementKernel.currentPhaseId(),
-          kind: "dropped", count: 1
-        });
+        if (measuringRequests) {
+          measurementKernel.recordCaptureLoss({
+            family: "requests", phaseId: measurementKernel.currentPhaseId(),
+            kind: "dropped", count: 1
+          });
+          // v1's only record of that loss, added after it so a phase that
+          // cannot be attributed leaves neither wire with a record.
+          warnings.add(AUXILIARY_PAGE_REQUESTS_BLOCKED_WARNING);
+        }
         await route.abort();
       })();
       inFlightRouteHandlers.add(operation);
@@ -1628,6 +1636,17 @@ export async function scanSiteWithMeasurement(
       }
       recordConsentCoverageLoss(phaseId, "dropped", verificationEnabled);
     };
+    // The page left the recorded site before its state was kept, with no
+    // consent interaction to blame. The probe's subject line is also added
+    // where r2 records no family loss, so the second line is v1's only record
+    // of the four families r2 drops here.
+    const markPassiveStateSubjectLoss = () => {
+      warnings.add(ACTIVE_PROBE_SUBJECT_WARNING);
+      warnings.add(PAGE_LEFT_SUBJECT_BEFORE_STATE_WARNING);
+      for (const family of ["requests", "cookies", "storage", "fingerprinting"] as const) {
+        measurementKernel.recordCaptureLoss({ family, phaseId: passivePhaseId, kind: "dropped", count: 1 });
+      }
+    };
 
     // Consent-choice modes: dispatch the Accept all / Reject all click on the
     // banner now. Collection is cumulative for the whole visit (traffic from
@@ -1925,10 +1944,7 @@ export async function scanSiteWithMeasurement(
       if (consentPhaseId !== null) {
         markConsentInteractionSubjectLoss(consentPhaseId);
       } else {
-        warnings.add(ACTIVE_PROBE_SUBJECT_WARNING);
-        for (const family of ["requests", "cookies", "storage", "fingerprinting"] as const) {
-          measurementKernel.recordCaptureLoss({ family, phaseId: passivePhaseId, kind: "dropped", count: 1 });
-        }
+        markPassiveStateSubjectLoss();
       }
     }
 
@@ -2002,10 +2018,7 @@ export async function scanSiteWithMeasurement(
         if (consentPhaseId !== null) {
           markConsentInteractionSubjectLoss(consentPhaseId);
         } else {
-          warnings.add(ACTIVE_PROBE_SUBJECT_WARNING);
-          for (const family of ["requests", "cookies", "storage", "fingerprinting"] as const) {
-            measurementKernel.recordCaptureLoss({ family, phaseId: passivePhaseId, kind: "dropped", count: 1 });
-          }
+          markPassiveStateSubjectLoss();
         }
       }
     }
@@ -2400,6 +2413,9 @@ export async function scanSiteWithMeasurement(
         kind: "dropped",
         count: 1
       });
+      // v1's only record of the two families: the subject line above is also
+      // added where r2 records no family loss.
+      warnings.add(KEYSTROKE_PROBE_PAGE_LEFT_WARNING);
     }
     keystrokeActivePhase = null;
     const keystrokeDetection = keystrokeProbe?.detection ?? null;

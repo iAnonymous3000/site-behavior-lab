@@ -38,14 +38,17 @@ import { sha256Hex } from "./sha256";
 import { scannerDisclosure } from "./scan-condition-disclosure";
 import {
   aggregateByteBudgetWarning,
+  AUXILIARY_PAGE_REQUESTS_BLOCKED_WARNING,
   FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING,
   FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING,
   INVALID_UPSTREAM_RESPONSE_WARNING,
   KEYSTROKE_PROBE_INCOMPLETE_WARNING,
   KEYSTROKE_PROBE_NAVIGATION_STOPPED_WARNING,
+  KEYSTROKE_PROBE_PAGE_LEFT_WARNING,
   KEYSTROKE_PROBE_REQUEST_UNREAD_WARNING,
   KEYSTROKE_PROBE_TEST_INCOMPLETE_WARNING,
   LISTENER_DETECTION_WITHHELD_WARNING,
+  PAGE_LEFT_SUBJECT_BEFORE_STATE_WARNING,
   PIXEL_DECODE_CAPTURE_LOSS_WARNING,
   UNSETTLED_ROUTED_REQUEST_WARNING
 } from "./scan-runtime";
@@ -456,6 +459,30 @@ test("the input probe's incomplete-test and stopped-navigation lines survive the
     KEYSTROKE_PROBE_NAVIGATION_STOPPED_WARNING,
     CONSENT_RELOAD_SUBJECT_WARNING,
     ACTIVE_PROBE_SUBJECT_WARNING
+  ]) {
+    const input = sensitiveSingle();
+    input.warnings = [warning];
+    const first = redactScanResultV1(input).report;
+    assert.deepEqual(first.warnings, [warning], warning);
+    assert.equal(JSON.stringify(redactScanResultV1(first).report), JSON.stringify(first), warning);
+    assert.deepEqual(
+      redactScannerWarnings([`Shields on: ${warning}`], new RedactionPass()),
+      [`Shields on: ${warning}`],
+      warning
+    );
+  }
+});
+
+test("the lines for a page that left the site or opened a window survive the public boundary, alone and labeled", () => {
+  // v1's only records of the request, cookie, storage and fingerprinting
+  // losses r2 records when the page leaves before its state is read or while
+  // the input probe runs, and when the context route blocks a window the page
+  // opened. Replaced by the redacted marker, each family would read as
+  // complete where r2 withholds it.
+  for (const warning of [
+    PAGE_LEFT_SUBJECT_BEFORE_STATE_WARNING,
+    KEYSTROKE_PROBE_PAGE_LEFT_WARNING,
+    AUXILIARY_PAGE_REQUESTS_BLOCKED_WARNING
   ]) {
     const input = sensitiveSingle();
     input.warnings = [warning];

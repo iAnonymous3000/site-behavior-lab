@@ -16,6 +16,7 @@ import { createConsentComparisonReport } from "./compare-reports";
 import { legacyComparisonDecision } from "./comparison-decision";
 import { comparisonEligibility, runHitKeystrokeProbeRequestsOmitted } from "./comparison-eligibility";
 import { CONSENT_INTERACTION_LEFT_SUBJECT_WARNING } from "./consent-subject-loss-warning";
+import { ACTIVE_PROBE_SUBJECT_WARNING } from "./active-probe-subject-warnings";
 import { PublicScanError } from "./public-errors";
 import { TCF_API_METHOD } from "./consent-verification";
 import { GPC_WORKER_CAPTURE_LOSS_WARNING, gpcWorkerCaptureLossCount } from "./gpc-injection";
@@ -75,13 +76,16 @@ import {
   createNodeScanMeasurementEnvelope
 } from "./node-scan-measurement";
 import {
+  AUXILIARY_PAGE_REQUESTS_BLOCKED_WARNING,
   FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING,
   FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING,
   INVALID_UPSTREAM_RESPONSE_WARNING,
   KEYSTROKE_PROBE_INCOMPLETE_WARNING,
   KEYSTROKE_PROBE_NAVIGATION_STOPPED_WARNING,
+  KEYSTROKE_PROBE_PAGE_LEFT_WARNING,
   KEYSTROKE_PROBE_REQUEST_UNREAD_WARNING,
   KEYSTROKE_PROBE_TEST_INCOMPLETE_WARNING,
+  PAGE_LEFT_SUBJECT_BEFORE_STATE_WARNING,
   PIXEL_DECODE_CAPTURE_LOSS_WARNING
 } from "./scan-runtime";
 import { resolveScannerEgressLabel, resolveScannerEgressRegion } from "./scanner-egress";
@@ -4578,6 +4582,126 @@ test("a consent interaction that left the site withholds on v1 each claim r2 wit
   }
 });
 
+/** The display facts each wire publishes for one visit, through its own producer and reader. */
+function bothWireDisplayFacts(visit: Awaited<ReturnType<typeof scanSiteWithMeasurement>>) {
+  const r2 = buildReportFacts(
+    viewFromV2(
+      toPublicScanReportR2(
+        buildRuntimeScanReportV2R2(visit, "public-api", {
+          SITE_BEHAVIOR_LAB_BUILD_COMMIT: "a".repeat(40)
+        } as NodeJS.ProcessEnv)
+      ),
+      2
+    )
+  ).display;
+  const v1Report = redactScanResultV1(visit.result).report;
+  return { r2, v1: buildReportFacts(viewFromV1Report(v1Report)).display, v1Report };
+}
+
+/**
+ * No claim r2 withholds may stand on v1. v1 also withholds claims whose
+ * evidence it never recorded, which r2 may allow, so this runs one way.
+ */
+function assertV1WithholdsEachClaimR2Withholds(
+  r2: ReturnType<typeof bothWireDisplayFacts>["r2"],
+  v1: ReturnType<typeof bothWireDisplayFacts>["v1"]
+): void {
+  for (const claim of Object.keys(r2.claims) as (keyof typeof r2.claims)[]) {
+    if (!r2.claims[claim].allowed) assert.equal(v1.claims[claim].allowed, false, claim);
+    if (!r2.claims[claim].benchmarkAllowed) assert.equal(v1.claims[claim].benchmarkAllowed, false, claim);
+  }
+}
+
+test("a page that left the site before its state was read withholds on v1 each claim r2 withholds for its dropped families", { timeout: 60_000 }, async () => {
+  // With no consent interaction to blame, the scan keeps requests up to the
+  // passive boundary and, in observe mode, no cookies or storage at all, and
+  // r2 records dropped request, cookie, storage and fingerprinting losses and
+  // a failed fingerprint detector. v1 carried only the probe's subject line,
+  // which cannot carry families, so its readers read all four as complete:
+  // third-party services were benchmarked, and no third-party cookies and no
+  // storage keys stood over state the scanner never kept.
+  const upstream = createServer((request, response) => {
+    if (request.headers.host?.startsWith("elsewhere.state-origin.net")) {
+      response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+      response.end("<!doctype html><title>Elsewhere</title><p>Elsewhere</p>");
+      return;
+    }
+    if (request.url?.startsWith("/t.js")) {
+      response.writeHead(200, { "content-type": "text/javascript" });
+      response.end("void 0;");
+      return;
+    }
+    response.writeHead(200, { "content-type": "text/html; charset=utf-8", "set-cookie": "first=1; path=/" });
+    response.end(`<!doctype html>
+      <title>State origin</title>
+      <script src="http://tracker.example.net/t.js"></script>
+      <script>localStorage.setItem("seen", "1");</script>
+      <input id="field">`);
+  });
+  await new Promise<void>((resolve, reject) => {
+    upstream.once("error", reject);
+    upstream.listen(0, "127.0.0.1", resolve);
+  });
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+  // r2 needs the consent-banner detector to have run; observe mode runs it
+  // only as the flag-gated visibility read.
+  const previousConsentVerification = process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
+  process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = "1";
+  try {
+    const visit = await scanSiteWithMeasurement(
+      { url: "http://www.state-origin.com/", device: "desktop", gpcEnabled: false, consentMode: "observe" },
+      { publicUrlAlreadyVerified: true, verifyPublicUrl: async () => undefined,
+        resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+        connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"), resolveCnameChain: async () => [],
+        // The subject is frozen before this hook, so the page leaves the
+        // recorded site after the load and before any state is read.
+        beforePassiveShieldsBoundaryForTests: async (page) => {
+          await Promise.all([
+            page.waitForURL("http://elsewhere.state-origin.net/", { waitUntil: "commit" }),
+            page.evaluate(() => {
+              setTimeout(() => {
+                location.href = "http://elsewhere.state-origin.net/";
+              }, 0);
+            })
+          ]);
+        } }
+    );
+    const { result, measurement } = visit;
+    assert.ok(measurement);
+    const passivePhase = measurement.measurement.phases.find((phase) => phase.kind === "passive-load");
+    assert.ok(passivePhase);
+    for (const family of ["requests", "cookies", "storage", "fingerprinting"] as const) {
+      assert.ok(
+        measurement.measurement.qualityFacts.captureLoss.some((loss) =>
+          loss.family === family && loss.kind === "dropped" && loss.phaseId === passivePhase.phaseId && loss.detail === undefined
+        ),
+        family
+      );
+    }
+    assert.equal(measurement.measurement.phases.some((phase) => phase.kind === "active-probe"), false);
+    assert.equal(result.warnings.includes(ACTIVE_PROBE_SUBJECT_WARNING), true);
+    assert.equal(result.warnings.filter((warning) => warning === PAGE_LEFT_SUBJECT_BEFORE_STATE_WARNING).length, 1);
+
+    const { r2, v1, v1Report } = bothWireDisplayFacts(visit);
+    assert.equal(v1Report.warnings.includes(PAGE_LEFT_SUBJECT_BEFORE_STATE_WARNING), true);
+    assert.ok(v1Report.requests.some((request) => request.thirdParty), "the fixture must record third-party traffic");
+    for (const family of ["requests", "cookies", "storage", "fingerprinting"] as const) {
+      assert.equal(r2.evidence[family].state, "censored", family);
+      assert.equal(v1.evidence[family].state, "censored", family);
+    }
+    assertV1WithholdsEachClaimR2Withholds(r2, v1);
+    for (const claim of ["third-party-services", "third-party-cookies", "storage-keys", "session-recording-input-monitoring"] as const) {
+      assert.equal(r2.claims[claim].allowed, false, claim);
+    }
+  } finally {
+    if (previousConsentVerification === undefined) delete process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
+    else process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = previousConsentVerification;
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+});
+
 test("a consent click cannot promote a sibling origin into evidence or active-input scope", { timeout: 30_000 }, async () => {
   let siblingReceivedSyntheticInput = false;
   const upstream = createServer((request, response) => {
@@ -5519,9 +5643,120 @@ test("the scanner blocks probe-triggered foreign-realm form navigation and auxil
     assert.equal(v1Facts.claims["keystroke-exfiltration"].allowed, true);
     assert.equal(v1Facts.evidence.requests.state, "censored");
     assert.equal(v1Facts.claims["third-party-services"].allowed, false);
+    // The popup the blur opened is a page the context route blocks, which r2
+    // records as lost request coverage in the probe's phase as in any other.
+    assert.equal(result.warnings.filter(warning => warning === AUXILIARY_PAGE_REQUESTS_BLOCKED_WARNING).length, 1);
   } finally {
     await closeSharedBrowserForTests();
     await new Promise<void>(resolve => upstream.close(() => resolve()));
+  }
+});
+
+test("a page that opened a new window withholds on v1 each claim r2 withholds for its blocked requests", { timeout: 30_000 }, async () => {
+  // The context route blocks every request of a page the visit opens, and r2
+  // records each one as a dropped requests-family loss. v1 had no record of
+  // it, so its readers read the request log as complete, benchmarked the
+  // visit's third-party services and kept it in the corpus population.
+  const reachedPopup: string[] = [];
+  const policyOpened: string[] = [];
+  const upstream = createServer((request, response) => {
+    if (request.url?.startsWith("/popup")) reachedPopup.push(request.url);
+    if (request.url?.startsWith("/opened")) {
+      policyOpened.push(request.url);
+      response.writeHead(204);
+      response.end();
+      return;
+    }
+    if (request.url?.startsWith("/t.js")) {
+      response.writeHead(200, { "content-type": "text/javascript" });
+      response.end("void 0;");
+      return;
+    }
+    response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+    // The policy page is read after the request log is frozen, so a window it
+    // opens is blocked without being counted against the visit.
+    if (request.url?.startsWith("/privacy")) {
+      response.end(`<!doctype html>
+        <title>Privacy Policy</title>
+        <p>We do not sell your personal information.</p>
+        <script>navigator.sendBeacon("/opened?" + (window.open("/popup-from-policy", "_blank") ? "yes" : "no"));</script>`);
+      return;
+    }
+    if (request.headers.host?.startsWith("www.policy-popup.com")) {
+      response.end(`<!doctype html>
+        <title>Policy popup origin</title>
+        <script src="http://tracker.example.net/t.js"></script>
+        <a href="/privacy">Privacy Policy</a>`);
+      return;
+    }
+    response.end(`<!doctype html>
+      <title>Popup origin</title>
+      <script src="http://tracker.example.net/t.js"></script>
+      <script>window.open("/popup", "_blank");</script>`);
+  });
+  await new Promise<void>((resolve, reject) => {
+    upstream.once("error", reject);
+    upstream.listen(0, "127.0.0.1", resolve);
+  });
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+  // r2 needs the consent-banner detector to have run; observe mode runs it
+  // only as the flag-gated visibility read.
+  const previousConsentVerification = process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
+  process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = "1";
+  try {
+    const visit = await scanSiteWithMeasurement(
+      { url: "http://www.popup-origin.com/", device: "desktop", gpcEnabled: false, consentMode: "observe" },
+      { publicUrlAlreadyVerified: true, verifyPublicUrl: async () => undefined,
+        resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+        connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"), resolveCnameChain: async () => [] }
+    );
+    const { result, measurement } = visit;
+    assert.ok(measurement);
+    assert.deepEqual(reachedPopup, []);
+    const passivePhase = measurement.measurement.phases.find((phase) => phase.kind === "passive-load");
+    assert.ok(passivePhase);
+    assert.ok(measurement.measurement.qualityFacts.captureLoss.some((loss) =>
+      loss.family === "requests" && loss.kind === "dropped" && loss.phaseId === passivePhase.phaseId
+    ));
+    assert.equal(result.warnings.filter((warning) => warning === AUXILIARY_PAGE_REQUESTS_BLOCKED_WARNING).length, 1);
+
+    const { r2, v1, v1Report } = bothWireDisplayFacts(visit);
+    assert.equal(v1Report.warnings.includes(AUXILIARY_PAGE_REQUESTS_BLOCKED_WARNING), true);
+    assert.ok(v1Report.requests.some((request) => request.thirdParty), "the fixture must record third-party traffic");
+    assert.equal(r2.evidence.requests.state, "censored");
+    assert.equal(v1.evidence.requests.state, "censored");
+    assert.equal(runInCorpusDistributionPopulation(v1.run), false);
+    // The line is request loss alone: the popup never ran, so the page's own
+    // cookies, storage and fingerprinting stand.
+    for (const family of ["cookies", "storage", "fingerprinting"] as const) {
+      assert.equal(v1.evidence[family].state, "complete", family);
+    }
+    assertV1WithholdsEachClaimR2Withholds(r2, v1);
+    assert.equal(r2.claims["third-party-services"].allowed, false);
+
+    // Only while requests are measured: a window the policy page opens later
+    // is blocked too, but costs neither wire any coverage.
+    const policyVisit = await scanSiteWithMeasurement(
+      { url: "http://www.policy-popup.com/", device: "desktop", gpcEnabled: false, consentMode: "observe" },
+      { publicUrlAlreadyVerified: true, verifyPublicUrl: async () => undefined,
+        resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+        connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"), resolveCnameChain: async () => [] }
+    );
+    assert.ok(policyVisit.measurement);
+    assert.deepEqual(policyOpened, ["/opened?yes"], "the policy page must open its window");
+    assert.deepEqual(reachedPopup, []);
+    assert.equal(policyVisit.result.warnings.includes(AUXILIARY_PAGE_REQUESTS_BLOCKED_WARNING), false);
+    assert.equal(
+      policyVisit.measurement.measurement.qualityFacts.captureLoss.some((loss) => loss.family === "requests"),
+      false
+    );
+    assert.equal(bothWireDisplayFacts(policyVisit).v1.evidence.requests.state, "complete");
+  } finally {
+    if (previousConsentVerification === undefined) delete process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
+    else process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = previousConsentVerification;
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
   }
 });
 
@@ -6089,6 +6324,99 @@ test("a probe that lost the subject after typing leaves v1 request evidence inco
   assert.equal(runHitKeystrokeProbeRequestsOmitted({ warnings: [...complete.warnings] }), false);
   assert.equal(v1DisplayFacts(complete.warnings, complete.outcome.detection).evidence.requests.state, "complete");
 });
+
+for (const keptValue of [false, true]) {
+  test(`a page that left the site during the input probe ${keptValue ? "after" : "before"} a field kept the value withholds on v1 each claim r2 withholds`, { timeout: 60_000 }, async () => {
+    // The probe's route stops every navigation that makes a request while it
+    // runs, so the page leaves for about:blank, which makes none, when it
+    // reacts to the probe. The scan then leaves the probe's requests out of the
+    // log, and r2 records dropped request and fingerprinting losses at the
+    // probe's phase. v1 had only the probe's subject line, which is also added
+    // where r2 records no family loss, and, once a field kept the value, the
+    // typed-field disclosure's omitted tail, which says nothing about
+    // fingerprinting: third-party services were benchmarked before a field
+    // kept the value, and fingerprint APIs stood either way.
+    const upstream = createServer((request, response) => {
+      if (request.url?.startsWith("/t.js")) {
+        response.writeHead(200, { "content-type": "text/javascript" });
+        response.end("void 0;");
+        return;
+      }
+      // The refusing field keeps no value and leaves on its first keystroke,
+      // so the rest of the typing finds the page gone. The accepting field
+      // leaves on the blur that follows its kept value.
+      response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+      response.end(`<!doctype html>
+        <title>Probe origin</title>
+        <script src="http://tracker.example.net/t.js"></script>
+        <input id="field">
+        <script>
+          ${keptValue
+            ? "field.addEventListener('blur', () => { location.href = 'about:blank'; });"
+            : "field.addEventListener('keydown', (event) => { event.preventDefault(); location.href = 'about:blank'; });"}
+        </script>`);
+    });
+    await new Promise<void>((resolve, reject) => {
+      upstream.once("error", reject);
+      upstream.listen(0, "127.0.0.1", resolve);
+    });
+    const address = upstream.address();
+    assert.ok(address && typeof address === "object");
+    // r2 needs the consent-banner detector to have run; observe mode runs it
+    // only as the flag-gated visibility read.
+    const previousConsentVerification = process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
+    process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = "1";
+    try {
+      const visit = await scanSiteWithMeasurement(
+        { url: "http://www.probe-origin.com/", device: "desktop", gpcEnabled: false, consentMode: "observe" },
+        { publicUrlAlreadyVerified: true, verifyPublicUrl: async () => undefined,
+          resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+          connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"), resolveCnameChain: async () => [] }
+      );
+      const { result, measurement } = visit;
+      assert.ok(measurement);
+      const activePhase = measurement.measurement.phases.find((phase) => phase.kind === "active-probe");
+      assert.ok(activePhase, "the probe must start on the recorded site");
+      // The exit this case is about, not a neighbouring one a race could reach.
+      const keystroke = measurement.measurement.detectors["keystroke-exfiltration"];
+      assert.equal(keystroke.status, keptValue ? "partial" : "skipped");
+      assert.equal(keystroke.reason, "load-failed");
+      const typedDisclosures = result.warnings.filter((warning) => warning.includes("typed a synthetic test value"));
+      assert.equal(typedDisclosures.length, keptValue ? 1 : 0);
+      assert.equal(runHitKeystrokeProbeRequestsOmitted({ warnings: typedDisclosures }), keptValue);
+      for (const family of ["requests", "fingerprinting"] as const) {
+        assert.ok(
+          measurement.measurement.qualityFacts.captureLoss.some((loss) =>
+            loss.family === family && loss.kind === "dropped" && loss.phaseId === activePhase.phaseId
+          ),
+          family
+        );
+      }
+      assert.equal(result.warnings.includes(ACTIVE_PROBE_SUBJECT_WARNING), true);
+      assert.equal(result.warnings.filter((warning) => warning === KEYSTROKE_PROBE_PAGE_LEFT_WARNING).length, 1);
+
+      const { r2, v1, v1Report } = bothWireDisplayFacts(visit);
+      assert.equal(v1Report.warnings.includes(KEYSTROKE_PROBE_PAGE_LEFT_WARNING), true);
+      assert.ok(v1Report.requests.some((request) => request.thirdParty), "the fixture must record third-party traffic");
+      for (const family of ["requests", "fingerprinting"] as const) {
+        assert.equal(r2.evidence[family].state, "censored", family);
+        assert.equal(v1.evidence[family].state, "censored", family);
+      }
+      // Cookies and storage were read before the probe, and the line leaves them.
+      for (const family of ["cookies", "storage"] as const) {
+        assert.equal(v1.evidence[family].state, "complete", family);
+      }
+      assertV1WithholdsEachClaimR2Withholds(r2, v1);
+      assert.equal(r2.claims["third-party-services"].allowed, false);
+      assert.equal(r2.claims["fingerprint-apis"].allowed, false);
+    } finally {
+      if (previousConsentVerification === undefined) delete process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
+      else process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = previousConsentVerification;
+      await closeSharedBrowserForTests();
+      await new Promise<void>((resolve) => upstream.close(() => resolve()));
+    }
+  });
+}
 
 test("every input probe exit that leaves the keystroke detector incomplete censors the v1 keystroke claim", async () => {
   // r2 withholds the keystroke claim whenever the detector ends other than

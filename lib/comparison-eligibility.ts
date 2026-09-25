@@ -65,6 +65,11 @@ const KEYSTROKE_PROBE_NAVIGATION_STOPPED_WARNING_FRAGMENT =
 // disclosure end with it; the retained form, which opens the same way, does not.
 const KEYSTROKE_PROBE_REQUESTS_OMITTED_WARNING_FRAGMENT =
   "Requests from this incomplete probe were omitted from the recorded request log and counts.";
+// Not the opening: the probe's subject line also opens "The page left the
+// recorded site".
+const KEYSTROKE_PROBE_PAGE_LEFT_WARNING_FRAGMENT = "left the recorded site during the synthetic form-input probe";
+const PAGE_LEFT_SUBJECT_BEFORE_STATE_WARNING_FRAGMENT = "before the scanner finished reading its state";
+const AUXILIARY_PAGE_REQUESTS_BLOCKED_WARNING_FRAGMENT = "opened one or more new windows or tabs";
 const INVALID_UPSTREAM_RESPONSE_WARNING_FRAGMENT = "scan proxy rejected one or more invalid upstream responses";
 const UNSETTLED_ROUTED_REQUEST_WARNING_FRAGMENT =
   "still being handled, so this visit's request evidence is incomplete";
@@ -128,6 +133,17 @@ export function comparisonEligibility(report: ComparisonScanResult): ComparisonE
     }
     if (runHitKeystrokeProbeRequestsOmitted(run)) {
       reasons.push(`The "${label}" visit omitted its synthetic form-input probe's requests from the request log, so its request evidence is incomplete.`);
+    }
+    if (runKeystrokeProbePageLeft(run)) {
+      reasons.push(`The "${label}" visit left the recorded site during its synthetic form-input probe, so its request evidence is incomplete.`);
+    }
+    if (runPageLeftSubjectBeforeState(run)) {
+      reasons.push(
+        `The "${label}" visit left the recorded site before its state was read, so its request evidence is incomplete, as is its cookie, storage and fingerprinting evidence.`
+      );
+    }
+    if (runHitAuxiliaryPageRequestsBlocked(run)) {
+      reasons.push(`The "${label}" visit opened new windows or tabs whose requests were blocked, so its request evidence is incomplete.`);
     }
     // The dispatch can still read as a click (the control reacted before the
     // page navigated away), so this warning is the only v1 channel saying the
@@ -604,12 +620,54 @@ export function runHitKeystrokeProbeNavigationStopped(run: Pick<ScanResult, "war
  * probe as a `dropped` requests-family loss (with a fingerprinting one), so
  * this is request-evidence loss read like a probe-stopped navigation: it
  * censors the request family and enters runRequestEvidenceCapped and
- * comparison eligibility. The line says nothing about fingerprinting, so the
- * r2 fingerprinting loss has no v1 channel here. The keystroke claim is the
- * subject line's (runKeystrokeProbeLeftSubject).
+ * comparison eligibility. The line says nothing about fingerprinting; the
+ * scan adds runKeystrokeProbePageLeft's line beside it for the r2
+ * fingerprinting loss. The keystroke claim is the subject line's
+ * (runKeystrokeProbeLeftSubject).
  */
 export function runHitKeystrokeProbeRequestsOmitted(run: Pick<ScanResult, "warnings">): boolean {
   return run.warnings.some((warning) => warning.includes(KEYSTROKE_PROBE_REQUESTS_OMITTED_WARNING_FRAGMENT));
+}
+
+/**
+ * Whether the page left the recorded site while a legacy run's input probe
+ * ran. The scan then leaves the probe's requests out of the log, and r2
+ * records the same probe as `dropped` request and fingerprinting losses, so
+ * readers censor those two families for it, and it enters
+ * runRequestEvidenceCapped and comparison eligibility. It is added beside the
+ * probe's subject line, which gives the keystroke claim
+ * (runKeystrokeProbeLeftSubject) and cannot carry families, and, once a field
+ * kept the value, beside the omitted-requests disclosure, which says nothing
+ * about fingerprinting.
+ */
+export function runKeystrokeProbePageLeft(run: Pick<ScanResult, "warnings">): boolean {
+  return run.warnings.some((warning) => warning.includes(KEYSTROKE_PROBE_PAGE_LEFT_WARNING_FRAGMENT));
+}
+
+/**
+ * Whether the page left the recorded site before the scanner finished reading
+ * a legacy run's state, with no consent interaction to blame. The scan keeps
+ * requests up to the passive boundary and only the passive state it read, and
+ * r2 records `dropped` request, cookie, storage and fingerprinting losses
+ * beside the same line and ends the fingerprint detector partial or failed.
+ * Readers censor those four families for it, it enters
+ * runRequestEvidenceCapped and comparison eligibility, and the listener claim
+ * takes it through its `legacyReasons`, as for the consent line.
+ */
+export function runPageLeftSubjectBeforeState(run: Pick<ScanResult, "warnings">): boolean {
+  return run.warnings.some((warning) => warning.includes(PAGE_LEFT_SUBJECT_BEFORE_STATE_WARNING_FRAGMENT));
+}
+
+/**
+ * Whether a legacy run's page opened another window or tab whose requests the
+ * context route blocked. They never loaded and are not in the log, and r2
+ * records each as a `dropped` requests-family loss in whatever phase it
+ * arrived, so this is request-evidence loss like an unsettled routed request:
+ * it censors the request family and enters runRequestEvidenceCapped and
+ * comparison eligibility.
+ */
+export function runHitAuxiliaryPageRequestsBlocked(run: Pick<ScanResult, "warnings">): boolean {
+  return run.warnings.some((warning) => warning.includes(AUXILIARY_PAGE_REQUESTS_BLOCKED_WARNING_FRAGMENT));
 }
 
 /**
@@ -618,11 +676,12 @@ export function runHitKeystrokeProbeRequestsOmitted(run: Pick<ScanResult, "warni
  * reload left it, or the page left before or during the probe. r2 records the
  * keystroke detector as skipped or partial for each, so readers censor the
  * keystroke claim; the families the subject loss also drops on r2 are not
- * this predicate's. The consent line's are runConsentInteractionLeftSubject's
- * and the omitted-requests disclosure's are
- * runHitKeystrokeProbeRequestsOmitted's; the probe's own line cannot carry
- * any, since it is also added where r2 records no family loss. Matched exactly
- * against the producer's own constants.
+ * this predicate's. The consent line's are runConsentInteractionLeftSubject's,
+ * and the probe's own line cannot carry any, since it is also added where r2
+ * records no family loss: the scan adds runPageLeftSubjectBeforeState's line
+ * beside it when the page left before its state was read, and
+ * runKeystrokeProbePageLeft's when it left while the probe ran. Matched
+ * exactly against the producer's own constants.
  */
 export function runKeystrokeProbeLeftSubject(run: Pick<ScanResult, "warnings">): boolean {
   return (
@@ -655,7 +714,10 @@ export function runRequestEvidenceCapped(run: ScanResult): boolean {
     runHitKeystrokeProbeCaptureLoss(run) ||
     runHitKeystrokeProbeNavigationStopped(run) ||
     runHitKeystrokeProbeRequestsOmitted(run) ||
+    runKeystrokeProbePageLeft(run) ||
     runConsentInteractionLeftSubject(run) ||
+    runPageLeftSubjectBeforeState(run) ||
+    runHitAuxiliaryPageRequestsBlocked(run) ||
     runHitProxyTrafficBudget(run) ||
     runHitUnsettledRoutedRequests(run)
   );

@@ -44,6 +44,16 @@ const QUALITY_REASON_NOTES: Record<string, string> = {
     "requests from the synthetic form-input probe were omitted from the recorded request log and counts, so the request evidence is incomplete",
   "capture-loss:consent-interaction-left-subject":
     "the consent interaction left the recorded site, so the request, cookie, storage and fingerprinting evidence stops before the choice and is incomplete",
+  // v1 only (LEGACY_PAGE_LEFT_SUBJECT_BEFORE_STATE_REASON,
+  // LEGACY_KEYSTROKE_PROBE_PAGE_LEFT_REASON and
+  // LEGACY_AUXILIARY_PAGE_REQUESTS_BLOCKED_REASON). r2 reports each as dropped
+  // capture losses on the families named.
+  "capture-loss:page-left-subject-before-state":
+    "the page left the recorded site before the scanner finished reading its state, so the request, cookie, storage and fingerprinting evidence is incomplete",
+  "capture-loss:keystroke-probe-page-left":
+    "the page left the recorded site during the synthetic form-input probe, so the request and fingerprinting evidence is incomplete",
+  "capture-loss:auxiliary-page-requests-blocked":
+    "the page opened one or more new windows or tabs whose requests were blocked and left out of the request log, so the request evidence is incomplete",
   "capture-loss:page-subject-validity":
     "the bounded page-content collector was unavailable or unreadable, so the scanner could not verify the rendered document",
   // v1 only (LEGACY_LISTENER_DETECTION_WITHHELD_REASON). r2 reports the same

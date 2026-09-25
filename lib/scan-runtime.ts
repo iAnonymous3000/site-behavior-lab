@@ -93,6 +93,53 @@ export const KEYSTROKE_PROBE_TEST_INCOMPLETE_WARNING =
 export const KEYSTROKE_PROBE_NAVIGATION_STOPPED_WARNING =
   "The synthetic form-input probe stopped one or more navigations started while it ran, so this visit's request evidence is incomplete.";
 /**
+ * The page left the recorded site while the input probe ran: at the probe's
+ * start check, while it typed, or during its wait. The scan then leaves the
+ * probe's requests out of the log and publishes no keystroke detection, and
+ * r2 records a `dropped` capture loss on the request and fingerprinting
+ * families at the probe's phase. v1 has no quality block, so this line is its
+ * only channel for those two families: the probe's subject line
+ * (ACTIVE_PROBE_SUBJECT_WARNING), added beside it, is also added where r2
+ * records no family loss, and the typed-field disclosure's omitted tail is
+ * written only when a field kept the value and says nothing about
+ * fingerprinting. v1 readers censor the request and fingerprinting families
+ * for it, and it enters runRequestEvidenceCapped and comparison eligibility;
+ * the keystroke claim is the subject line's. It must never contain another
+ * line's recognition fragment.
+ */
+export const KEYSTROKE_PROBE_PAGE_LEFT_WARNING =
+  "The page left the recorded site during the synthetic form-input probe, so this visit's request and fingerprinting evidence is incomplete.";
+/**
+ * The page left the recorded site before the scanner finished reading its
+ * state, with no consent interaction to blame (that is
+ * CONSENT_INTERACTION_LEFT_SUBJECT_WARNING). The scan then keeps requests up
+ * to the passive Shields boundary and the passive cookie, storage and
+ * fingerprint reads when it took them (none in observe mode, which then
+ * publishes no cookies and no storage), and r2 records a `dropped` capture
+ * loss on the request, cookie, storage and fingerprinting families and ends
+ * the fingerprint detector partial or failed. v1 has no quality block, so this
+ * line is its only channel; the probe's subject line, added beside it, is also
+ * added where r2 records no family loss. v1 readers censor those four families
+ * for it, it enters runRequestEvidenceCapped and comparison eligibility, and
+ * the listener claim takes it through its `legacyReasons`, as for the consent
+ * line. It must never contain another line's recognition fragment.
+ */
+export const PAGE_LEFT_SUBJECT_BEFORE_STATE_WARNING =
+  "The page left the recorded site before the scanner finished reading its state, so this visit's request, cookie, storage and fingerprinting evidence is incomplete.";
+/**
+ * The page opened another window or tab (a popup, or a link or form aimed at
+ * a new one) while its requests were measured. The context route blocks every
+ * request such a page makes and the popup is closed, so those requests never
+ * load and are not in the request log, and r2 records each one as a `dropped`
+ * requests-family capture loss. The page's own frames and workers go through
+ * the page route, not this one. v1 has no quality block, so this line is its
+ * only channel; v1 readers read it like UNSETTLED_ROUTED_REQUEST_WARNING
+ * (request-family censoring, runRequestEvidenceCapped and comparison
+ * eligibility). It must never contain another line's recognition fragment.
+ */
+export const AUXILIARY_PAGE_REQUESTS_BLOCKED_WARNING =
+  "The page opened one or more new windows or tabs whose requests were blocked and left out of the request log, so this visit's request evidence is incomplete.";
+/**
  * The in-page fingerprint observer could not read every frame it attempted.
  *
  * v2 records this as a `fingerprinting` capture loss in its quality facts, but

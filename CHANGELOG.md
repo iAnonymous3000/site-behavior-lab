@@ -117,6 +117,23 @@ public API or a 1.0 release.
   the page left the recorded site after the probe typed, is now read as lost
   request coverage, like a stopped navigation. Both are reader changes: no
   committed report carries either line, and no string or digest moves.
+- Three more losses that r2 reports record had no v1 line, so v1 readers read
+  the lost families as complete: a page that left the recorded site before the
+  scanner finished reading its state (requests, cookies, storage and
+  fingerprinting; an observe-mode visit then published no cookies and no
+  storage, read as a complete absence), a page that left the site while the
+  input probe ran (requests and fingerprinting; the probe's subject line is
+  also added where r2 records no loss, and its omitted-requests disclosure says
+  nothing about fingerprinting), and a window or tab the page opened, whose
+  requests the scanner blocks and leaves out of the log (requests, in any
+  phase). The scanner now adds a fixed warning beside each r2 loss, and v1
+  readers censor the same families r2 does: such a visit leaves the corpus
+  population and is not compared or benchmarked on third-party services, and
+  a page that left before its state was read also withholds its listener
+  findings, as r2 does over its fingerprint detector. No committed report
+  carries any of the three lines. They are new admitted public strings, so
+  they move the public-string policy digest with this release's redaction
+  change.
 - The input probe's block of a main-frame navigation (a form submitted through
   another frame's `submit`, for example) replaced the page with an error page,
   so the scanner's own block read as the page leaving the recorded site: the

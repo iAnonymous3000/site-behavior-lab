@@ -415,16 +415,18 @@ Still divergent, outside the keystroke claim and probe-stopped navigations:
   the passive snapshot (all four) and when it leaves during the probe (requests
   and fingerprinting). The consent interaction's case and the request loss of a
   probe that typed before the page left are closed by reader-only mappings (see
-  the update below). Still open: the page leaving before the passive snapshot,
-  the probe losing the page before any field kept the value, and fingerprinting
-  when it lost the page after typing. The only v1 line on those paths is the
-  probe's subject line, which cannot carry family censoring because it is also
-  added when the page is off the site just before the probe, where r2 records no
-  family loss, and the typed-field disclosure says nothing about fingerprinting.
-  Closing them needs a new admitted line per cause, which is an identity change.
+  the update below). The rest was open until redaction v5: the page leaving
+  before the passive snapshot, the probe losing the page before any field kept
+  the value, and fingerprinting when it lost the page after typing. The only v1
+  line on those paths is the probe's subject line, which cannot carry family
+  censoring because it is also added when the page is off the site just before
+  the probe, where r2 records no family loss, and the typed-field disclosure
+  says nothing about fingerprinting. Closing them needs a new admitted line per
+  cause, which is an identity change; see the last update of this section.
 - Auxiliary pages. The context-level route records a dropped requests-family
-  loss for every popup request in any phase, and v1 has no line for it. It is
-  not probe-specific, so the stopped-navigation line would be false for it.
+  loss for every popup request in any phase, and v1 had no line for it until
+  redaction v5 (the last update of this section). It is not probe-specific, so
+  the stopped-navigation line would be false for it.
 - The listener-withheld drop. r2's shared `public-fingerprint-detections`
   detail censors the keystroke claim too; v1 does not. That drop does not
   undermine the keystroke negative, and the v1 sanitizer never drops a
@@ -488,6 +490,59 @@ cross-matrix now includes both disclosure generations. Eighteen of nineteen
 mutations were killed; the survivor, adding the consent reason to the
 keystroke claim's `legacyReasons`, is equivalent, since the same line already
 gives that claim the subject-lost reason.
+
+**Update, 2026-09-25, with redaction v5.** The remaining request, cookie,
+storage and fingerprinting divergences above are closed in the identity move
+redaction v5 already makes, so three new admitted lines cost no separate
+identity change. No existing line was literally true for any of them with an
+emission that maps one to one to r2's losses, so each is a new fixed warning
+in `lib/scan-runtime.ts`, added beside its r2 loss and after it:
+
+- `PAGE_LEFT_SUBJECT_BEFORE_STATE_WARNING`, beside the four dropped losses the
+  scan records when the page left before its state was read with no consent
+  interaction to blame. Both sites now call one helper, which also adds the
+  probe's subject line. v1 readers map it to
+  `capture-loss:page-left-subject-before-state`, which censors the request,
+  cookie, storage and fingerprinting families, enters
+  `runRequestEvidenceCapped` and comparison eligibility, and reaches the
+  listener claim through its `legacyReasons`, as r2 withholds that claim over
+  the partial or failed fingerprint detector. On a browser fixture that leaves
+  in observe mode, v1 used to allow third-party services (benchmarked), named
+  platforms, GA remarketing, third-party cookies, storage keys and Shields;
+  the report published no cookies and no storage at all and read both as a
+  complete absence.
+- `KEYSTROKE_PROBE_PAGE_LEFT_WARNING`, beside the dropped request and
+  fingerprinting losses the scan records when the probe lost the page. v1
+  readers map it to `capture-loss:keystroke-probe-page-left`, which censors
+  those two families and enters `runRequestEvidenceCapped` and comparison
+  eligibility; the keystroke claim stays the subject line's. Browser fixtures
+  leave for `about:blank`, a navigation that makes no request and so passes
+  the probe's route, from a refusing field's first keystroke and from an
+  accepting field's blur.
+  Before any field kept the value v1 allowed third-party services
+  (benchmarked), named platforms, GA remarketing, fingerprint APIs, the
+  consent banner and Shields; after one did, fingerprint APIs alone.
+- `AUXILIARY_PAGE_REQUESTS_BLOCKED_WARNING`, beside the context route's
+  dropped requests-family loss, under the same `measuringRequests` guard. v1
+  readers map it to `capture-loss:auxiliary-page-requests-blocked` and read it
+  like an unsettled routed request. Measured before wording it: with service
+  workers blocked, only pages the visit opened reach that route (`window.open`
+  and `target=_blank`, `noopener` included). Dedicated workers, a
+  `SharedWorker`'s script, iframes, prefetch, preload and beacons go through
+  the page route. Speculation-rules prefetch and prerender reached neither
+  route in the same check; that is noted here and not addressed. On a fixture that opens a popup during the load, v1 allowed
+  third-party services (benchmarked), named platforms, GA remarketing, the
+  consent banner and Shields.
+
+Each browser test holds that no claim r2 withholds stands on v1, and each
+failed at the parent. Re-sanitizing all 919 committed v1 reports leaves each
+one unchanged except the two homedepot reports the privacy replacement
+removes, adds none of the three lines to any, and gives none of their 1,837
+runs a new reader reason, so no published reading or aggregate moves until a
+refresh. How often live visits open a window is not measured here; where one
+does, a refreshed v1 aggregate pools fewer runs for that reason, as r2 already
+did. Still divergent: the listener-withheld drop above, and the
+`detector-output` and `consent-verification` residue of the consent line.
 
 ## 5. Confirmed and left for other reasons
 

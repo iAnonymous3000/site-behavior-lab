@@ -38,6 +38,7 @@ import {
   LEGACY_KEYSTROKE_PROBE_SUBJECT_LOST_REASON,
   LEGACY_KEYSTROKE_PROBE_TEST_INCOMPLETE_REASON,
   LEGACY_LISTENER_DETECTION_WITHHELD_REASON,
+  LEGACY_PAGE_LEFT_SUBJECT_BEFORE_STATE_REASON,
   requestEvidenceState,
   unsupportedEvidenceFamilies,
   type RequestEvidenceState,
@@ -295,9 +296,14 @@ export const REPORT_CLAIM_REQUIREMENTS: Readonly<Record<ReportClaimId, ClaimRequ
     // the v1 line names only listener detections.
     // The consent line's reason too: r2 ends the fingerprint detector partial
     // when the click leaves the site, and the listener detections come from
-    // the page state that line says was not used.
+    // the page state that line says was not used. The same holds when the
+    // page left before its state was read with no click to blame.
     legacyReasons: {
-      "detector-output": [LEGACY_LISTENER_DETECTION_WITHHELD_REASON, LEGACY_CONSENT_INTERACTION_LEFT_SUBJECT_REASON]
+      "detector-output": [
+        LEGACY_LISTENER_DETECTION_WITHHELD_REASON,
+        LEGACY_CONSENT_INTERACTION_LEFT_SUBJECT_REASON,
+        LEGACY_PAGE_LEFT_SUBJECT_BEFORE_STATE_REASON
+      ]
     },
     detectors: ["fingerprint-heuristics"],
     count: "none"

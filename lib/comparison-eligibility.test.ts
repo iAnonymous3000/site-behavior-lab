@@ -27,12 +27,15 @@ import { CONSENT_INTERACTION_LEFT_SUBJECT_WARNING } from "./consent-subject-loss
 import { ACTIVE_PROBE_SUBJECT_WARNING, CONSENT_RELOAD_SUBJECT_WARNING } from "./active-probe-subject-warnings";
 import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "./gpc-injection";
 import {
+  AUXILIARY_PAGE_REQUESTS_BLOCKED_WARNING,
   INVALID_UPSTREAM_RESPONSE_WARNING,
   KEYSTROKE_PROBE_INCOMPLETE_WARNING,
   KEYSTROKE_PROBE_NAVIGATION_STOPPED_WARNING,
+  KEYSTROKE_PROBE_PAGE_LEFT_WARNING,
   KEYSTROKE_PROBE_REQUEST_UNREAD_WARNING,
   KEYSTROKE_PROBE_TEST_INCOMPLETE_WARNING,
   MAX_RECORDED_REQUESTS,
+  PAGE_LEFT_SUBJECT_BEFORE_STATE_WARNING,
   PIXEL_DECODE_CAPTURE_LOSS_WARNING,
   ScanRequestBudget,
   ScanWarningCollector,
@@ -416,6 +419,18 @@ test("all scanner-declared request capture loss fails the legacy comparison clos
       warning:
         "This scan typed a synthetic test value into 1 form field with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored. Requests from this incomplete probe were omitted from the recorded request log and counts.",
       reason: /omitted its synthetic form-input probe's requests from the request log/
+    },
+    {
+      warning: KEYSTROKE_PROBE_PAGE_LEFT_WARNING,
+      reason: /left the recorded site during its synthetic form-input probe/
+    },
+    {
+      warning: PAGE_LEFT_SUBJECT_BEFORE_STATE_WARNING,
+      reason: /left the recorded site before its state was read/
+    },
+    {
+      warning: AUXILIARY_PAGE_REQUESTS_BLOCKED_WARNING,
+      reason: /opened new windows or tabs whose requests were blocked/
     }
   ];
 

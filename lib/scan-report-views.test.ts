@@ -23,13 +23,16 @@ import {
 } from "./legacy-methodology";
 import {
   familyCensoredOnRun,
+  LEGACY_AUXILIARY_PAGE_REQUESTS_BLOCKED_REASON,
   LEGACY_CONSENT_INTERACTION_LEFT_SUBJECT_REASON,
   LEGACY_KEYSTROKE_PROBE_NAVIGATION_STOPPED_REASON,
+  LEGACY_KEYSTROKE_PROBE_PAGE_LEFT_REASON,
   LEGACY_KEYSTROKE_PROBE_REQUESTS_OMITTED_REASON,
   LEGACY_KEYSTROKE_PROBE_REQUEST_UNREAD_REASON,
   LEGACY_KEYSTROKE_PROBE_SUBJECT_LOST_REASON,
   LEGACY_KEYSTROKE_PROBE_TEST_INCOMPLETE_REASON,
   LEGACY_LISTENER_DETECTION_WITHHELD_REASON,
+  LEGACY_PAGE_LEFT_SUBJECT_BEFORE_STATE_REASON,
   requestEvidenceState,
   runHitRequestRecordingCap,
   runInCorpusDistributionPopulation,
@@ -40,6 +43,7 @@ import { degradedRunNotice, runCensorshipNotes } from "./scan-report-censorship"
 import { evaluateQuality } from "./scan-report-v2-evaluators";
 import {
   runConsentInteractionLeftSubject,
+  runHitAuxiliaryPageRequestsBlocked,
   runHitFingerprintListenerAttributionLoss,
   runHitFingerprintObserverCaptureLoss,
   runHitKeystrokeProbeCaptureLoss,
@@ -50,6 +54,8 @@ import {
   runHitListenerDetectionWithheld,
   runHitUnsettledRoutedRequests,
   runKeystrokeProbeLeftSubject,
+  runKeystrokeProbePageLeft,
+  runPageLeftSubjectBeforeState,
   runRequestEvidenceCapped
 } from "./comparison-eligibility";
 import { CONSENT_INTERACTION_LEFT_SUBJECT_WARNING } from "./consent-subject-loss-warning";
@@ -60,14 +66,17 @@ import { buildReportFacts } from "./report-facts";
 import { buildReportHeadline } from "./report-headline";
 import { redactScanResultV1 } from "./redact-scan-report-v1";
 import {
+  AUXILIARY_PAGE_REQUESTS_BLOCKED_WARNING,
   FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING,
   FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING,
   INVALID_UPSTREAM_RESPONSE_WARNING,
   KEYSTROKE_PROBE_INCOMPLETE_WARNING,
   KEYSTROKE_PROBE_NAVIGATION_STOPPED_WARNING,
+  KEYSTROKE_PROBE_PAGE_LEFT_WARNING,
   KEYSTROKE_PROBE_REQUEST_UNREAD_WARNING,
   KEYSTROKE_PROBE_TEST_INCOMPLETE_WARNING,
   LISTENER_DETECTION_WITHHELD_WARNING,
+  PAGE_LEFT_SUBJECT_BEFORE_STATE_WARNING,
   PIXEL_DECODE_CAPTURE_LOSS_WARNING,
   UNSETTLED_ROUTED_REQUEST_WARNING
 } from "./scan-runtime";
@@ -335,7 +344,9 @@ const REQUEST_EVIDENCE_LOSS_WARNINGS: { name: string; warning: string }[] = [
   { name: "GPC_WORKER_CAPTURE_LOSS_WARNING", warning: GPC_WORKER_CAPTURE_LOSS_WARNING },
   { name: "INVALID_UPSTREAM_RESPONSE_WARNING", warning: INVALID_UPSTREAM_RESPONSE_WARNING },
   { name: "UNSETTLED_ROUTED_REQUEST_WARNING", warning: UNSETTLED_ROUTED_REQUEST_WARNING },
-  { name: "KEYSTROKE_PROBE_NAVIGATION_STOPPED_WARNING", warning: KEYSTROKE_PROBE_NAVIGATION_STOPPED_WARNING }
+  { name: "KEYSTROKE_PROBE_NAVIGATION_STOPPED_WARNING", warning: KEYSTROKE_PROBE_NAVIGATION_STOPPED_WARNING },
+  { name: "KEYSTROKE_PROBE_PAGE_LEFT_WARNING", warning: KEYSTROKE_PROBE_PAGE_LEFT_WARNING },
+  { name: "AUXILIARY_PAGE_REQUESTS_BLOCKED_WARNING", warning: AUXILIARY_PAGE_REQUESTS_BLOCKED_WARNING }
 ];
 
 test("every producer request-loss warning censors the requests family on both halves", () => {
@@ -666,7 +677,10 @@ test("each probe and request-loss line is recognized by its own predicate alone"
     ["typed-omitted", typedFieldDisclosure("omitted")],
     ["historical-typed", HISTORICAL_TYPED_FIELD_DISCLOSURE],
     ["historical-typed-retained", `${HISTORICAL_TYPED_FIELD_DISCLOSURE} ${HISTORICAL_RETAINED_TAIL}`],
-    ["historical-typed-omitted", `${HISTORICAL_TYPED_FIELD_DISCLOSURE} ${REQUESTS_OMITTED_TAIL}`]
+    ["historical-typed-omitted", `${HISTORICAL_TYPED_FIELD_DISCLOSURE} ${REQUESTS_OMITTED_TAIL}`],
+    ["probe-page-left", KEYSTROKE_PROBE_PAGE_LEFT_WARNING],
+    ["before-state", PAGE_LEFT_SUBJECT_BEFORE_STATE_WARNING],
+    ["auxiliary", AUXILIARY_PAGE_REQUESTS_BLOCKED_WARNING]
   ];
   const predicates: [string, (run: { warnings: string[] }) => boolean, string[]][] = [
     ["incomplete", runHitKeystrokeProbeCaptureLoss, ["incomplete"]],
@@ -677,7 +691,10 @@ test("each probe and request-loss line is recognized by its own predicate alone"
     ["listener", runHitListenerDetectionWithheld, ["listener"]],
     ["subject", runKeystrokeProbeLeftSubject, ["consent-subject", "reload-subject", "probe-subject"]],
     ["consent", runConsentInteractionLeftSubject, ["consent-subject"]],
-    ["omitted", runHitKeystrokeProbeRequestsOmitted, ["typed-omitted", "historical-typed-omitted"]]
+    ["omitted", runHitKeystrokeProbeRequestsOmitted, ["typed-omitted", "historical-typed-omitted"]],
+    ["probe-page-left", runKeystrokeProbePageLeft, ["probe-page-left"]],
+    ["before-state", runPageLeftSubjectBeforeState, ["before-state"]],
+    ["auxiliary", runHitAuxiliaryPageRequestsBlocked, ["auxiliary"]]
   ];
   for (const [predicateName, predicate, own] of predicates) {
     for (const [lineName, line] of lines) {
@@ -922,6 +939,115 @@ test("a v1 consent interaction that left the site censors the four families r2 d
   assert.match(notes, /consent interaction left the recorded site, so the request, cookie, storage and fingerprinting evidence stops before the choice/);
   assert.match(notes, /off the recorded site before or during the synthetic form-input probe/);
   assert.doesNotMatch(notes, /capture-loss:/);
+});
+
+test("v1 lines for a page that left the site or opened a window censor the families r2 drops beside them", () => {
+  // Each line is added only where r2 records dropped losses on the families
+  // listed, and v1 readers used to read every family as complete beside it:
+  // the page leaving before its state was read (four families, and a partial
+  // or failed fingerprint detector), leaving while the input probe ran
+  // (requests and fingerprinting) and a window the page opened whose requests
+  // the context route blocked (requests). The two subject cases carry the
+  // probe's subject line beside them, as the producer adds it. Each run goes
+  // through the real sanitizer, view, facts and corpus accumulator.
+  const outcome = (warnings: string[]) => {
+    const input = makeScanReportV1() as ScanResult;
+    input.summary.firstPartyDomain = "probe-fixture.net";
+    input.conditions.requestedUrl = "https://probe-fixture.net/";
+    input.conditions.finalUrl = "https://probe-fixture.net/";
+    input.summary.fingerprintEvents = 4;
+    input.fingerprintEvents = [{ api: "canvas.toDataURL", count: 4 }];
+    input.fingerprintDetections = [];
+    input.pixelEvents = [];
+    input.cnameCloaks = [];
+    input.warnings = warnings;
+    const report = redactScanResultV1(input).report;
+    const view = viewFromV1Report(report);
+    const corpus = createCorpusStatsAccumulator(new Date("2026-09-25T00:00:00.000Z"));
+    corpus.add(`20260709-${"e".repeat(32)}`, view);
+    return { report, view, run: view.runs[0], facts: buildReportFacts(view).display, cohorts: corpus.finish().cohorts };
+  };
+  const clean = outcome([]);
+  const families = ["requests", "cookies", "storage", "fingerprinting", "detector-output"] as const;
+  // Every claim on the request family, whose losses leave cookies, storage,
+  // fingerprinting and the CNAME claim to their own families.
+  const requestClaims = [
+    "third-party-services",
+    "named-platforms",
+    "ga-remarketing",
+    "pixel-events",
+    "consent-banner",
+    "shields-blocked"
+  ] as const;
+  const cases: {
+    warnings: string[];
+    reasons: string[];
+    censored: readonly (typeof families)[number][];
+    withheld: readonly string[];
+    note: RegExp;
+  }[] = [
+    {
+      warnings: [ACTIVE_PROBE_SUBJECT_WARNING, PAGE_LEFT_SUBJECT_BEFORE_STATE_WARNING],
+      reasons: [LEGACY_PAGE_LEFT_SUBJECT_BEFORE_STATE_REASON, LEGACY_KEYSTROKE_PROBE_SUBJECT_LOST_REASON],
+      censored: ["requests", "cookies", "storage", "fingerprinting"],
+      // The listener claim through its own legacyReasons, as r2 withholds it
+      // over the fingerprint detector; the keystroke claim through the
+      // subject line.
+      withheld: [
+        ...requestClaims,
+        "third-party-cookies",
+        "storage-keys",
+        "fingerprint-apis",
+        "session-recording-input-monitoring",
+        "keystroke-exfiltration"
+      ],
+      note: /left the recorded site before the scanner finished reading its state, so the request, cookie, storage and fingerprinting evidence is incomplete/
+    },
+    {
+      warnings: [ACTIVE_PROBE_SUBJECT_WARNING, KEYSTROKE_PROBE_PAGE_LEFT_WARNING],
+      reasons: [LEGACY_KEYSTROKE_PROBE_PAGE_LEFT_REASON, LEGACY_KEYSTROKE_PROBE_SUBJECT_LOST_REASON],
+      censored: ["requests", "fingerprinting"],
+      withheld: [...requestClaims, "fingerprint-apis", "keystroke-exfiltration"],
+      note: /left the recorded site during the synthetic form-input probe, so the request and fingerprinting evidence is incomplete/
+    },
+    {
+      warnings: [AUXILIARY_PAGE_REQUESTS_BLOCKED_WARNING],
+      reasons: [LEGACY_AUXILIARY_PAGE_REQUESTS_BLOCKED_REASON],
+      censored: ["requests"],
+      withheld: requestClaims,
+      note: /opened one or more new windows or tabs whose requests were blocked and left out of the request log, so the request evidence is incomplete/
+    }
+  ];
+  assert.deepEqual(clean.run.quality.reasons, []);
+  assert.equal(clean.facts.claims["third-party-services"].benchmarkAllowed, true);
+  assert.equal(clean.cohorts[0]?.metrics.thirdPartyRequests?.count, 1);
+  for (const { warnings, reasons, censored, withheld, note } of cases) {
+    const label = warnings.at(-1) ?? "";
+    const lost = outcome(warnings);
+    assert.deepEqual(lost.report.warnings, warnings, label);
+    assert.deepEqual(lost.run.quality.reasons, reasons, label);
+    assert.equal(lost.run.quality.outcome, "complete", label);
+    assert.equal(runRequestEvidenceCapped(lost.report), true, label);
+    for (const family of families) {
+      assert.equal(familyCensoredOnRun(lost.run, family), censored.includes(family), `${label}: ${family}`);
+    }
+    assert.equal(requestEvidenceState(lost.run), "incomplete", label);
+    assert.equal(runInCorpusDistributionPopulation(lost.run), false, label);
+    assert.equal(lost.cohorts[0]?.metrics.thirdPartyRequests?.count ?? 0, 0, label);
+    for (const claim of Object.keys(clean.facts.claims) as (keyof typeof clean.facts.claims)[]) {
+      if (!clean.facts.claims[claim].allowed) continue;
+      assert.equal(lost.facts.claims[claim].allowed, !withheld.includes(claim), `${label}: ${claim}`);
+    }
+    assert.equal(lost.facts.claims["third-party-services"].benchmarkAllowed, false, label);
+    const notes = runCensorshipNotes(lost.run).join(" ");
+    assert.match(notes, note, label);
+    assert.doesNotMatch(notes, /capture-loss:/, label);
+  }
+  // Alone, neither subject case's own line reaches the keystroke claim: that
+  // is the subject line's, which the producer always adds beside it.
+  for (const line of [PAGE_LEFT_SUBJECT_BEFORE_STATE_WARNING, KEYSTROKE_PROBE_PAGE_LEFT_WARNING]) {
+    assert.deepEqual(outcome([line]).facts.claims["keystroke-exfiltration"], clean.facts.claims["keystroke-exfiltration"], line);
+  }
 });
 
 test("a timed-out v1 synthetic-input probe censors detector and request evidence", () => {
