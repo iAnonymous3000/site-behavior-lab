@@ -279,11 +279,14 @@ test("every cause in the vocabulary is declared by a producer or listed as undec
   const undeclaredAllowed = new Set<ScanFailureCause>([
     // toPublicError's unexpected-error branch declines to classify.
     "service-error",
-    // Every 409 a visitor can reach is a cancel refusal whose specific wording
-    // ("already being saved" or "already finished") renders verbatim by design
-    // (scan-client-orchestration.test.ts). Lease and activation 409s in
-    // lib/scan-jobs.ts reach only the private coordinator, and the Node jobs
-    // route drops `cause` from the wire anyway.
+    // Every 409 a visitor can reach carries specific wording that renders
+    // verbatim by design: the cancel refusals ("already being saved" or
+    // "already finished", scan-client-orchestration.test.ts), and a durable
+    // preparation replayed after a definitive refusal ("already refused"),
+    // which an honest client reaches only when that refusal's response was
+    // lost, because it clears the admission on any 4xx. Lease and activation
+    // 409s in lib/scan-jobs.ts reach only the private coordinator, and the
+    // Node jobs route drops `cause` from the wire anyway.
     "scan-conflict"
   ]);
   const declared = producerDeclaredCauses();

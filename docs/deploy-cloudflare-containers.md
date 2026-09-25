@@ -632,8 +632,13 @@ unset R2_DELETE_CANARY_TOKEN_FILE R2_DELETE_CANARY_ORIGIN
 
 The application records a durable, content-free debt marker before each expiry
 or count-pruning delete and clears it only after physical deletion succeeds.
-`/api/health` degrades and report publication is refused while any marker or
-bounded-maintenance continuation remains. Expired reads stay `404` and never
+`/api/health` degrades while any marker or bounded-maintenance continuation
+remains. Report publication is refused only for a marker that was already
+outstanding when the publication's own prune pass began and that the pass did
+not retry: a delete that failed earlier and is still unconfirmed. A marker
+another container writes during the pass is its delete in flight, and a pass
+that only hit its per-pass delete cap deleted everything it attempted, so
+neither refuses a finished scan. Expired reads stay `404` and never
 become readable merely because deletion failed. To prevent public health polling
 from amplifying signed R2 work, concurrent checks share one process-local probe;
 successful retention state is reused for at most 30 seconds and failed state for
