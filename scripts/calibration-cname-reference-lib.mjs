@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import { Resolver } from "node:dns/promises";
+import { domainToASCII } from "node:url";
 
 /**
  * Independent reference instrument for the `cname-uncloaking` detector.
@@ -35,7 +36,7 @@ import { Resolver } from "node:dns/promises";
 
 export const CNAME_REFERENCE_WORKSHEET_KIND =
   "site-behavior-cname-uncloaking-reference-worksheet";
-export const CNAME_REFERENCE_TOOL_VERSION = "cname-reference@1";
+export const CNAME_REFERENCE_TOOL_VERSION = "cname-reference@2";
 
 /** Hostnames that must never be treated as evidence, whatever a HAR contains. */
 const NON_PUBLIC_HOST = /^(localhost|.*\.local|.*\.internal|\d+\.\d+\.\d+\.\d+|\[.*\])$/i;
@@ -55,22 +56,70 @@ export function normalizeHost(host) {
  * mis-splits a domain, an importing reference would mis-split it identically
  * and the disagreement would vanish. The reviewer supplies the suffix list they
  * are willing to stand behind, and same-site comparison is done against it
- * here. Falls back to a last-two-labels rule ONLY when the caller passes no
- * list, which the CLI refuses to do.
+ * here.
+ *
+ * `publicSuffixes` is the rule set parsePublicSuffixList returns, and this is
+ * the Public Suffix List algorithm over it: an exception rule prevails and
+ * drops its leftmost label, otherwise the matching rule with the most labels
+ * wins, where `*` matches exactly one label. When nothing matches, the list's
+ * implicit `*` rule makes the last label the suffix, which is also the
+ * fallback when a caller passes no list (the CLI refuses to).
  */
 export function registrableDomain(host, publicSuffixes) {
   const name = normalizeHost(host);
   if (!name || !name.includes(".")) return name;
   const labels = name.split(".");
-  if (publicSuffixes && publicSuffixes.size > 0) {
-    for (let i = 0; i < labels.length - 1; i += 1) {
-      const candidate = labels.slice(i).join(".");
-      if (publicSuffixes.has(candidate)) {
-        return labels.slice(Math.max(0, i - 1)).join(".");
-      }
-    }
+  const suffixLabels = publicSuffixLabelCount(labels, publicSuffixes);
+  // A host that is itself a public suffix keys on itself, as the detector's
+  // partyKey does when getDomain finds no registrable domain.
+  if (labels.length <= suffixLabels) return name;
+  return labels.slice(-(suffixLabels + 1)).join(".");
+}
+
+function publicSuffixLabelCount(labels, rules) {
+  if (!rules || rules.size === 0) return 1;
+  // An exception prevails over every other match, and its public suffix is
+  // the rule with the leftmost label removed.
+  for (let i = 0; i < labels.length; i += 1) {
+    if (rules.has(`!${labels.slice(i).join(".")}`)) return labels.length - i - 1;
   }
-  return labels.slice(-2).join(".");
+  // Otherwise the matching rule with the most labels; a wildcard covers the
+  // one label to its left.
+  for (let i = 0; i < labels.length; i += 1) {
+    if (rules.has(labels.slice(i).join("."))) return labels.length - i;
+    if (i + 1 < labels.length && rules.has(`*.${labels.slice(i + 1).join(".")}`)) return labels.length - i;
+  }
+  return 1;
+}
+
+/**
+ * Parse the reviewer's public-suffix source, in the Public Suffix List format.
+ *
+ * This is the ONE reader, and it keeps each rule's kind: `name`, `*.name` or
+ * `!name`. Reducing a wildcard to its plain name made every host under it
+ * share one registrable domain, so another registrant's hosts became
+ * first-party candidates and a CNAME into another registrant was skipped as
+ * same-site. An exception kept as a literal never matched at all. Unicode
+ * rules are converted to ASCII because URL hostnames and DNS answers are
+ * ASCII, and an unconverted rule matches nothing. A line that is not a rule
+ * refuses the source rather than being coerced into one.
+ */
+export function parsePublicSuffixList(bytes) {
+  const text = Buffer.from(bytes).toString("utf8");
+  const rules = new Set();
+  for (const [index, line] of text.split(/\r?\n/).entries()) {
+    // A rule is read up to the first whitespace.
+    const value = line.trim().split(/\s/)[0];
+    if (!value || value.startsWith("//")) continue;
+    const kind = value.startsWith("!") ? "!" : value.startsWith("*.") ? "*." : "";
+    const name = domainToASCII(value.slice(kind.length));
+    if (!name || /[*!]/.test(name)) {
+      throw new Error(`public suffix source line ${index + 1} is not a public-suffix rule: ${JSON.stringify(line)}`);
+    }
+    rules.add(`${kind}${name}`);
+  }
+  if (rules.size === 0) throw new Error("public suffix source contains no entries");
+  return rules;
 }
 
 /**

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -8,9 +8,12 @@ import { test } from "node:test";
 import {
   buildCaseWorksheet,
   firstPartyHostsFromHar,
+  harCoversSubject,
   matchExternalTracker,
+  parsePublicSuffixList,
   parseTrackerSource,
-  registrableDomain
+  registrableDomain,
+  sha256Hex
 } from "./calibration-cname-reference-lib.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -418,4 +421,215 @@ test("a subject that never answered on its own domain is UNCERTAIN, and does not
   assert.equal(clean.subjectLoaded, true);
   assert.equal(clean.determined, true);
   assert.equal(clean.proposedLabel, "absent");
+});
+
+// An excerpt in the Public Suffix List's own rule syntax. Every test below reads
+// it through parsePublicSuffixList, never through a hand-built Set, so the
+// matcher cannot agree with its fixture by construction: the reader and the
+// matcher were two halves of one contract that each passed their own tests
+// while wildcard and exception rules were lost between them.
+const PSL_EXCERPT = [
+  "// excerpt",
+  "com",
+  "uk",
+  "co.uk",
+  "*.sch.uk",
+  "jp",
+  "kobe.jp",
+  "*.kobe.jp",
+  "!city.kobe.jp",
+  "*.kawasaki.jp",
+  "!city.kawasaki.jp",
+  "ck",
+  "*.ck",
+  "!www.ck",
+  "cn",
+  "公司.cn",
+  ""
+].join("\n");
+
+test("the public-suffix reader keeps wildcard, exception and IDN rules and registrableDomain applies them", () => {
+  const rules = parsePublicSuffixList(Buffer.from(PSL_EXCERPT));
+  assert.ok(rules.has("*.ck"));
+  assert.ok(rules.has("!www.ck"));
+  assert.ok(rules.has("xn--55qx5d.cn"));
+  // Each expected value is the PSL algorithm's answer, and matches tldts
+  // getDomain(host, { allowPrivateDomains: true }) ?? host over the same rules.
+  const expected = {
+    // A wildcard makes the suffix one label deeper.
+    "b.test.ck": "b.test.ck",
+    "a.b.test.ck": "b.test.ck",
+    "b.c.kobe.jp": "b.c.kobe.jp",
+    "a.b.c.kobe.jp": "b.c.kobe.jp",
+    "www.foo.kawasaki.jp": "www.foo.kawasaki.jp",
+    "www.stjohns.herts.sch.uk": "stjohns.herts.sch.uk",
+    // An exception prevails over the wildcard. Reducing `*.ck` to `ck` used to
+    // land on these by accident, so a wildcard-only fix would break them.
+    "www.ck": "www.ck",
+    "www.www.ck": "www.ck",
+    "foo.www.ck": "www.ck",
+    "www.city.kobe.jp": "city.kobe.jp",
+    "www.city.kawasaki.jp": "city.kawasaki.jp",
+    // Hostnames and DNS answers are ASCII, so a Unicode rule must be too.
+    "www.shishi.xn--55qx5d.cn": "shishi.xn--55qx5d.cn",
+    "www.example.xn--55qx5d.cn": "example.xn--55qx5d.cn",
+    // A host that is itself a public suffix keys on itself.
+    "test.ck": "test.ck",
+    "herts.sch.uk": "herts.sch.uk",
+    // Plain rules are unchanged.
+    "metrics.shop.co.uk": "shop.co.uk",
+    "a.b.example.com": "example.com"
+  };
+  for (const [host, registrable] of Object.entries(expected)) {
+    assert.equal(registrableDomain(host, rules), registrable, host);
+  }
+});
+
+test("the public-suffix reader refuses what is not a rule", () => {
+  assert.throws(() => parsePublicSuffixList(Buffer.from("com\na.*.b\n")), /line 2 is not a public-suffix rule/);
+  assert.throws(() => parsePublicSuffixList(Buffer.from("// only a comment\n")), /contains no entries/);
+});
+
+test("candidate scope under a wildcard suffix stops at the registrant", () => {
+  const hosts = firstPartyHostsFromHar(
+    har([
+      "https://www.stjohns.herts.sch.uk/",
+      "https://metrics.stjohns.herts.sch.uk/b",
+      "https://cdn.otherschool.herts.sch.uk/a.js",
+      "https://www.otherschool.herts.sch.uk/"
+    ]),
+    "https://www.stjohns.herts.sch.uk/",
+    parsePublicSuffixList(Buffer.from(PSL_EXCERPT))
+  );
+  // Another school's hosts are another registrant's; the detector never looks
+  // at them, so neither may the reference.
+  assert.deepEqual(hosts, ["metrics.stjohns.herts.sch.uk", "www.stjohns.herts.sch.uk"]);
+});
+
+test("a redirect to another registrant under a wildcard suffix does not cover the subject", () => {
+  const capture = {
+    log: {
+      entries: [
+        { request: { url: "https://www.stjohns.herts.sch.uk/" }, response: { status: 301 } },
+        { request: { url: "https://www.otherschool.herts.sch.uk/" }, response: { status: 200 } }
+      ]
+    }
+  };
+  assert.equal(
+    harCoversSubject(capture, "https://www.stjohns.herts.sch.uk/", parsePublicSuffixList(Buffer.from(PSL_EXCERPT))),
+    false
+  );
+});
+
+test("a chain into another registrant under a wildcard suffix is not skipped as same-site", async () => {
+  // The detector keys on stjohns.herts.sch.uk, sees adtrack.herts.sch.uk as a
+  // different party, and says PRESENT. A reference that folded both into
+  // herts.sch.uk skipped the link as same-site and scored that correct
+  // PRESENT as a false positive.
+  const worksheet = await buildCaseWorksheet(
+    {
+      caseId: "stjohns",
+      url: "https://www.stjohns.herts.sch.uk/",
+      hosts: ["metrics.stjohns.herts.sch.uk"],
+      captureSha256: "a".repeat(64),
+      subjectLoaded: true
+    },
+    {
+      resolverAddress: "9.9.9.9",
+      trackerSuffixes: new Set(["adtrack.herts.sch.uk"]),
+      publicSuffixes: parsePublicSuffixList(Buffer.from(PSL_EXCERPT)),
+      resolve: async () => ({ chain: ["client1.adtrack.herts.sch.uk"], terminated: true, failureCode: null })
+    }
+  );
+  assert.equal(worksheet.proposedLabel, "present");
+  assert.equal(worksheet.resolutions[0].matchedExternalSuffix, "adtrack.herts.sch.uk");
+  assert.equal(worksheet.resolutions[0].matchedChainLink, "client1.adtrack.herts.sch.uk");
+});
+
+function runReferenceCli(root, pslBytes, candidates, captures) {
+  const trackerBytes = Buffer.from("adtrack.example\n");
+  writeFileSync(path.join(root, "trackers.txt"), trackerBytes);
+  writeFileSync(path.join(root, "psl.dat"), pslBytes);
+  writeFileSync(
+    path.join(root, "frame-tasks.json"),
+    `${JSON.stringify(
+      {
+        externalDefinitions: {
+          trackerDefinition: { sha256: sha256Hex(trackerBytes) },
+          publicSuffixDefinition: { sha256: sha256Hex(pslBytes) }
+        }
+      },
+      null,
+      2
+    )}\n`
+  );
+  writeFileSync(
+    path.join(root, "cases.json"),
+    `${JSON.stringify({ studyId: "s-prevalence-pilot", candidates }, null, 2)}\n`
+  );
+  // The capture directory may hold nothing but HARs.
+  const harDir = path.join(root, "har");
+  mkdirSync(harDir);
+  for (const [caseId, capture] of Object.entries(captures)) {
+    writeFileSync(path.join(harDir, `${caseId}.har`), `${JSON.stringify(capture)}\n`);
+  }
+  return spawnSync(
+    process.execPath,
+    [
+      path.join(here, "calibration-cname-reference.mjs"),
+      "--study-id", "s-prevalence-pilot",
+      "--cases", path.join(root, "cases.json"),
+      "--har-dir", harDir,
+      "--frame-tasks", path.join(root, "frame-tasks.json"),
+      "--tracker-source", path.join(root, "trackers.txt"),
+      "--tracker-source-sha256", sha256Hex(trackerBytes),
+      "--public-suffix-source", path.join(root, "psl.dat"),
+      "--public-suffix-sha256", sha256Hex(pslBytes),
+      // Loopback, so a run that does resolve fails locally and fast.
+      "--resolver", "127.0.0.1",
+      "--out", path.join(root, "out.json")
+    ],
+    { encoding: "utf8" }
+  );
+}
+
+test("the reference CLI reads the suffix source through the rule-aware reader, by EXECUTION", () => {
+  const root = mkdtempSync(path.join(tmpdir(), "cname-psl-"));
+  const result = runReferenceCli(
+    root,
+    Buffer.from(PSL_EXCERPT),
+    [{ caseId: "stjohns.herts.sch.uk", url: "https://stjohns.herts.sch.uk/" }],
+    {
+      "stjohns.herts.sch.uk": {
+        log: {
+          entries: [
+            { request: { url: "https://stjohns.herts.sch.uk/" }, response: { status: 200 } },
+            { request: { url: "https://cdn.otherschool.herts.sch.uk/a.js" }, response: { status: 200 } }
+          ]
+        }
+      }
+    }
+  );
+  assert.equal(result.status, 0, result.stderr);
+  const worksheet = JSON.parse(readFileSync(path.join(root, "out.json"), "utf8"));
+  // Under *.sch.uk the subject is its own registrable apex and the other
+  // school is another registrant, so nothing is a candidate and no DNS runs.
+  assert.deepEqual(worksheet.cases[0].hostsExamined, []);
+  assert.equal(worksheet.cases[0].determined, true);
+  assert.equal(worksheet.cases[0].proposedLabel, "absent");
+});
+
+test("the reference CLI refuses a suffix source that is not rules, by name and before any DNS", () => {
+  const root = mkdtempSync(path.join(tmpdir(), "cname-psl-bad-"));
+  const result = runReferenceCli(
+    root,
+    Buffer.from("com\na.*.b\n"),
+    [{ caseId: "a.example", url: "https://a.example/" }],
+    { "a.example": { log: { entries: [] } } }
+  );
+  assert.equal(result.status, 1);
+  assert.match(
+    result.stderr,
+    /^calibration:cname-reference: public suffix source line 2 is not a public-suffix rule: "a\.\*\.b"$/m
+  );
 });

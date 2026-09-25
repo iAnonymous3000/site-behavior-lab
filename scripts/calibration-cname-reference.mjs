@@ -7,6 +7,7 @@ import {
   buildCaseWorksheet,
   firstPartyHostsFromHar,
   harCoversSubject,
+  parsePublicSuffixList,
   parseTrackerSource,
   sha256Hex,
   worksheetHeader
@@ -76,7 +77,14 @@ if (suffixDigest !== options.publicSuffixSha256) {
     `public suffix source digest ${suffixDigest} does not match the declared ${options.publicSuffixSha256}`
   );
 }
-const publicSuffixes = parsePublicSuffixList(suffixBytes);
+// The lib's reader keeps wildcard and exception rules; the registrable-domain
+// algorithm that consumes them lives beside it, so neither restates the other.
+let publicSuffixes;
+try {
+  publicSuffixes = parsePublicSuffixList(suffixBytes);
+} catch (error) {
+  fail(error.message);
+}
 
 // The SAME reader the frame producer uses: the committed candidate set is the
 // file both consume, so neither may have its own idea of that file's shape.
@@ -210,17 +218,6 @@ function assertNoScannerArtifacts(dir) {
         "scan report or detector output cannot leak into reference labelling"
     );
   }
-}
-
-function parsePublicSuffixList(bytes) {
-  const suffixes = new Set();
-  for (const line of Buffer.from(bytes).toString("utf8").split(/\r?\n/)) {
-    const value = line.trim();
-    if (!value || value.startsWith("//")) continue;
-    suffixes.add(value.replace(/^[*!]\./, "").toLowerCase());
-  }
-  if (suffixes.size === 0) fail("public suffix source contains no entries");
-  return suffixes;
 }
 
 function parseOptions(argv) {
