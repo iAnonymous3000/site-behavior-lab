@@ -69,9 +69,9 @@ import {
  *   5. Only then update the two literals below to the new identity.
  */
 const ACTIVE_NODE_R2_NORMALIZATION_LITERAL =
-  "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:3ee20166349539c6c4959dcb1192cb2dbba50bbcfd1ed7a53a93b475162d1c80+tldts@7.4.13+node-evidence-policy-v1+r2-http-status-compat-v1";
+  "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:359b216f1168c4caf2f107e9f5220cbab5e0da9b4dad686129922a9ab3e4e9bc+tldts@7.4.13+node-evidence-policy-v1+r2-http-status-compat-v1";
 const ACTIVE_PAGEGRAPH_R2_NORMALIZATION_LITERAL =
-  "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:3ee20166349539c6c4959dcb1192cb2dbba50bbcfd1ed7a53a93b475162d1c80+tldts@7.4.13+pagegraph-request-evidence-v1+r2-http-status-compat-v1";
+  "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:359b216f1168c4caf2f107e9f5220cbab5e0da9b4dad686129922a9ab3e4e9bc+tldts@7.4.13+pagegraph-request-evidence-v1+r2-http-status-compat-v1";
 
 /**
  * The identities the latest NARROWING retired, pinned as exact literals beside
@@ -177,21 +177,28 @@ test("the identities the public-string-policy-v4 narrowing retired stay declarab
 
 /**
  * The public-string policy digest hashes the private-suffix tenant shapes and
- * the policy-quote identifier spans as pattern SOURCES under a hand-bumped
- * label each. The code that combines them is not hashed: the xn-- exemption,
- * the digit-run count, the segment split and the counter in the tenant rule,
- * and in the quote path the span order, the scrub-before-cap order, the
- * trailing-punctuation rule and the marker loop. Hashing
- * Function.prototype.toString would differ between the tsc and esbuild
- * bundles, so each block's source text is pinned here beside its label, as
- * isScannerWarning is above. A change to either block that alters which
- * strings are published needs its label bumped and the identity ritual in
- * this file's docblock; a change that alters nothing updates only the pin.
+ * the policy-quote identifier spans as pattern SOURCES and thresholds under a
+ * hand-bumped label each, and the span policy also hashes the
+ * trailing-punctuation rule and the incomplete-quote marker, both declared
+ * outside the quote functions. The code that combines them is not hashed, so
+ * two blocks of source text are pinned here beside their labels, as
+ * isScannerWarning is above, because Function.prototype.toString would differ
+ * between the tsc and esbuild bundles:
+ *   - redaction-v2.ts from isGeneralizedTenantLabel through
+ *     generalizePrivateSuffixTenant: the xn-- exemption, the label and
+ *     segment digit-run counts, the segment split and the counter;
+ *   - redact-scan-report-v1.ts from redactPolicyQuote through
+ *     withoutTrailingSentenceEnd: the scrub-before-cap order, the marker loop,
+ *     the span order and replacement, and the incomplete-quote form
+ *     (markIncompleteQuote and the sentence-end characters it strips).
+ * A change to either block that alters which strings are published needs its
+ * label bumped and the identity ritual in this file's docblock; a change that
+ * alters nothing updates only the pin.
  */
 const PINNED_TENANT_SHAPES_LABEL = "private-suffix-tenant-shapes-v1";
 const PINNED_TENANT_RULE_SHA256 = "010920430673f65dde633e51668379c648765f3737dc2e456680f490f9a63177";
 const PINNED_QUOTE_SPANS_LABEL = "policy-quote-identifier-spans-v1";
-const PINNED_QUOTE_SCRUB_SHA256 = "8694fe0053203ee21d319392dc04715a4c699d929838ec690266979b734e068e";
+const PINNED_QUOTE_SCRUB_SHA256 = "7415b98528413ae2e704890f1e5a06ce7f91e1685ce9036f932371ee5cac897a";
 
 function pinnedBlock(file: string, first: string, last: string): string {
   const source = readFileSync(path.join(process.cwd(), "lib", file), "utf8");
@@ -216,9 +223,13 @@ test("the tenant rule and the quote scrub match the labels that name them in the
     PINNED_TENANT_RULE_SHA256,
     `the private-suffix tenant rule changed without this pin moving. If the change alters which hosts generalize, bump PRIVATE_SUFFIX_TENANT_SHAPES.label (currently "${PINNED_TENANT_SHAPES_LABEL}") and run the identity ritual above; then update this pin to ${tenant}.`
   );
-  const quote = createHash("sha256")
-    .update(pinnedBlock("redact-scan-report-v1.ts", "function redactPolicyQuote(", "export function scrubPolicyQuoteIdentifiers("))
-    .digest("hex");
+  const quoteBlock = pinnedBlock("redact-scan-report-v1.ts", "function redactPolicyQuote(", "function withoutTrailingSentenceEnd(");
+  // The incomplete-quote form changes published quote bytes as much as the
+  // spans do, so the pin must reach it.
+  for (const name of ["export function scrubPolicyQuoteIdentifiers(", "function markIncompleteQuote(", "function withoutTrailingSentenceEnd("]) {
+    assert.equal(quoteBlock.includes(name), true, `the quote-scrub pin must cover ${name}`);
+  }
+  const quote = createHash("sha256").update(quoteBlock).digest("hex");
   assert.equal(
     quote,
     PINNED_QUOTE_SCRUB_SHA256,

@@ -267,7 +267,7 @@ public API or a 1.0 release.
   and logged r2 wire pins revision 4, so the narrowing is named by the
   public-string policy instead. `PUBLIC_STRING_POLICY_VERSION` moves from
   `public-string-policy-v3` to `public-string-policy-v4`, and the policy digest
-  from `b40a333a...3d51` to `3ee20166...1c80`, which now also hashes the tenant
+  from `b40a333a...3d51` to `359b216f...e9bc`, which now also hashes the tenant
   shapes and the quote spans. Both r2 normalization identities move with it;
   `tldts@7.4.13` and the allowlists do not.
 - The outgoing Node and PageGraph normalizations stay readable as superseded

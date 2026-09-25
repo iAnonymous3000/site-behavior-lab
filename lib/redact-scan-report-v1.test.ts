@@ -1287,6 +1287,10 @@ test("the public-string policy digest hashes both rule tables", () => {
   const spans = inputs.policyQuoteIdentifierSpans;
   assert.equal(spans.label, "policy-quote-identifier-spans-v1");
   assert.equal(spans.marker, "[redacted]");
+  // The two rules outside the pinned quote block that shape published bytes:
+  // punctuation kept outside the marker, and the incomplete-quote marker.
+  assert.equal(spans.trailingPunctuation, String.raw`[),.;:!?"'\u201d\u2019]*$`);
+  assert.equal(spans.incompleteQuoteMarker, "...");
   assert.equal(spans.patterns.length, 7);
   // Each hashed source/flags pair is a live pattern, in the scrub's order.
   const examples = [

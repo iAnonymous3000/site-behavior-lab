@@ -485,11 +485,18 @@ const POLICY_QUOTE_IDENTIFIER_SPANS: readonly RegExp[] = Object.freeze([
 const POLICY_QUOTE_SPAN_TRAILING_PUNCTUATION = /[),.;:!?"'\u201d\u2019]*$/;
 const INCOMPLETE_QUOTE_MARKER = "...";
 
-/** The span identity, as the public-string policy digest hashes it. */
+/**
+ * The span identity, as the public-string policy digest hashes it. The
+ * trailing-punctuation rule and the incomplete-quote marker are declared
+ * outside the quote functions the identity ledger test pins, and each changes
+ * published quote bytes, so both are hashed here.
+ */
 const POLICY_QUOTE_IDENTIFIER_SPAN_POLICY = Object.freeze({
   label: "policy-quote-identifier-spans-v1",
   marker: REDACTED_PUBLIC_STRING,
-  patterns: Object.freeze(POLICY_QUOTE_IDENTIFIER_SPANS.map((pattern) => `${pattern.source}/${pattern.flags}`))
+  patterns: Object.freeze(POLICY_QUOTE_IDENTIFIER_SPANS.map((pattern) => `${pattern.source}/${pattern.flags}`)),
+  trailingPunctuation: POLICY_QUOTE_SPAN_TRAILING_PUNCTUATION.source,
+  incompleteQuoteMarker: INCOMPLETE_QUOTE_MARKER
 });
 
 // v4 names a reviewed NARROWING, not a widening: the private-suffix tenant
