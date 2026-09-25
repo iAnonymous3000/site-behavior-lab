@@ -163,6 +163,41 @@ test("rule matching sees raw PageGraph URLs before the impact JSON is sanitized"
   assert.equal(projected.pages[0].directlyBlocked[0].url, "https://google-analytics.com/{seg}?cid=&%5Bredacted%5D=");
 });
 
+test("the export ranks each public registrable domain by distinct pages after tenants merge", () => {
+  // Two token-shaped tenants of one private suffix both publish as
+  // {label}.akamaihd.net. Mapping the raw ranking key by key would list that
+  // public name twice with split counts; a page that removed both counts once.
+  const tenantA = "192-0-2-41_s-198-51-100-43_ts-1767225600-clienttons-s.akamaihd.net";
+  const tenantB = "qwert2yuiop3asdfg4hj-zxc5v6-79b48c136-clientnsv4-s.akamaihd.net";
+  const onTenants = (pageId: string, renamed: Record<string, string>) => {
+    const facts = fixtureFacts();
+    facts.page.pageId = pageId;
+    for (const node of facts.nodes) {
+      if (node.etld1 !== null && renamed[node.etld1]) node.etld1 = renamed[node.etld1];
+    }
+    return facts;
+  };
+  const corpus = [
+    onTenants("page-1", { "example.net": tenantA, "google-analytics.com": tenantB }),
+    onTenants("page-2", { "example.net": tenantA })
+  ];
+  const raw = simulateRuleImpact(corpus, (request) => request.url.includes("/tag.js"));
+  assert.deepEqual(raw.summary.topRemovedEtld1s, [
+    { etld1: tenantA, pages: 2 },
+    { etld1: "google-analytics.com", pages: 1 },
+    { etld1: tenantB, pages: 1 }
+  ]);
+
+  const exported = redactRuleImpactReportForExport(raw, corpus);
+  assert.deepEqual(exported.summary.topRemovedEtld1s, [
+    { etld1: "{label}.akamaihd.net", pages: 2 },
+    { etld1: "google-analytics.com", pages: 1 }
+  ]);
+  const json = JSON.stringify(exported);
+  assert.equal(json.includes("clienttons"), false);
+  assert.equal(json.includes("clientnsv4"), false);
+});
+
 test("the export manifest pins redaction versions and exact file bytes", () => {
   const files = { "page.csv": "a,b\r\n1,2\r\n", "impact-report.json": "{}\n" };
   const manifest = buildPageGraphExportManifest({

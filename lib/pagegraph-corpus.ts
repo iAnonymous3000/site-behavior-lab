@@ -379,6 +379,13 @@ export type PageRuleImpact = {
   breakageRisk: boolean;
 };
 
+/**
+ * A page's impact before export, which also carries the raw registrable
+ * domains of its removed nodes. The export ranks their public forms from this,
+ * so it never publishes the raw names.
+ */
+export type RawPageRuleImpact = PageRuleImpact & { removedEtld1s: string[] };
+
 export type RuleImpactReport = {
   pages: PageRuleImpact[];
   summary: {
@@ -393,6 +400,8 @@ export type RuleImpactReport = {
   };
 };
 
+export type RawRuleImpactReport = Omit<RuleImpactReport, "pages"> & { pages: RawPageRuleImpact[] };
+
 /**
  * The flagship reachability estimate: mark rule-matched request nodes as
  * blocked, close over the causal edges, and report the reachable subgraph per
@@ -400,9 +409,8 @@ export type RuleImpactReport = {
  * descendant with another surviving parent may still load, so "downstream"
  * here means "could depend on the blocked node", never "proven to disappear".
  */
-export function simulateRuleImpact(corpus: CorpusFacts[], matches: CorpusRuleMatcher): RuleImpactReport {
-  const pages: PageRuleImpact[] = [];
-  const removedEtld1Pages = new Map<string, number>();
+export function simulateRuleImpact(corpus: CorpusFacts[], matches: CorpusRuleMatcher): RawRuleImpactReport {
+  const pages: RawPageRuleImpact[] = [];
 
   for (const facts of corpus) {
     const seeds = facts.requests.filter((request) => matches(request, facts.page));
@@ -429,14 +437,13 @@ export function simulateRuleImpact(corpus: CorpusFacts[], matches: CorpusRuleMat
       )
     ];
 
-    const pageEtld1s = new Set(
-      facts.nodes
-        .filter((node) => removed.has(node.nodeId) && node.etld1 !== null)
-        .map((node) => node.etld1 as string)
-    );
-    for (const etld1 of pageEtld1s) {
-      removedEtld1Pages.set(etld1, (removedEtld1Pages.get(etld1) ?? 0) + 1);
-    }
+    const removedEtld1s = [
+      ...new Set(
+        facts.nodes
+          .filter((node) => removed.has(node.nodeId) && node.etld1 !== null)
+          .map((node) => node.etld1 as string)
+      )
+    ];
 
     pages.push({
       pageId: facts.page.pageId,
@@ -447,7 +454,8 @@ export function simulateRuleImpact(corpus: CorpusFacts[], matches: CorpusRuleMat
       removedStorageOps: removedStorageOps.length,
       removedJsCalls: removedJsCalls.length,
       firstPartyRemovedUrls,
-      breakageRisk: firstPartyRemovedUrls.length > 0
+      breakageRisk: firstPartyRemovedUrls.length > 0,
+      removedEtld1s
     });
   }
 
@@ -462,12 +470,23 @@ export function simulateRuleImpact(corpus: CorpusFacts[], matches: CorpusRuleMat
       removedStorageOps: sum(pages, (page) => page.removedStorageOps),
       removedJsCalls: sum(pages, (page) => page.removedJsCalls),
       breakageRiskPages: pages.filter((page) => page.breakageRisk).length,
-      topRemovedEtld1s: [...removedEtld1Pages.entries()]
-        .map(([etld1, pageCount]) => ({ etld1, pages: pageCount }))
-        .sort((a, b) => b.pages - a.pages || a.etld1.localeCompare(b.etld1))
-        .slice(0, 20)
+      topRemovedEtld1s: rankRemovedEtld1s(pages.map((page) => page.removedEtld1s))
     }
   };
+}
+
+/** The twenty registrable domains removed from the most pages, each page counted once. */
+function rankRemovedEtld1s(perPage: readonly (readonly string[])[]): { etld1: string; pages: number }[] {
+  const removedEtld1Pages = new Map<string, number>();
+  for (const etld1s of perPage) {
+    for (const etld1 of new Set(etld1s)) {
+      removedEtld1Pages.set(etld1, (removedEtld1Pages.get(etld1) ?? 0) + 1);
+    }
+  }
+  return [...removedEtld1Pages.entries()]
+    .map(([etld1, pageCount]) => ({ etld1, pages: pageCount }))
+    .sort((a, b) => b.pages - a.pages || a.etld1.localeCompare(b.etld1))
+    .slice(0, 20);
 }
 
 function closeOverCausalEdges(facts: CorpusFacts, seeds: Set<string>): Set<string> {
@@ -644,9 +663,16 @@ export function redactCorpusFactsForExport(corpus: CorpusFacts[]): CorpusFacts[]
   });
 }
 
-/** Sanitize the raw-match rule-impact report immediately before JSON output. */
+/**
+ * Sanitize the raw-match rule-impact report immediately before JSON output.
+ *
+ * The ranking is recounted over public names rather than mapped key by key:
+ * redaction can give two raw registrable domains one public form (two
+ * token-shaped tenants of one private suffix both become `{label}.<suffix>`),
+ * and a mapped ranking would then list that name twice with split counts.
+ */
 export function redactRuleImpactReportForExport(
-  report: RuleImpactReport,
+  report: RawRuleImpactReport,
   rawCorpus: CorpusFacts[]
 ): RuleImpactReport {
   const pages = report.pages.map((page, pageIndex) => {
@@ -674,10 +700,9 @@ export function redactRuleImpactReportForExport(
     pages,
     summary: {
       ...report.summary,
-      topRemovedEtld1s: report.summary.topRemovedEtld1s.map((entry) => ({
-        etld1: redactHostnameV2(entry.etld1).value,
-        pages: entry.pages
-      }))
+      topRemovedEtld1s: rankRemovedEtld1s(
+        report.pages.map((page) => page.removedEtld1s.map((etld1) => redactHostnameV2(etld1).value))
+      )
     }
   };
 }
