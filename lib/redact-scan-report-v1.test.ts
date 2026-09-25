@@ -9,7 +9,8 @@ import { CONSENT_PROBE_OUTCOMES, consentInteractionWarning } from "./consent-int
 import {
   NODE_PLAYWRIGHT_VERSION,
   NODE_SCANNER_METHODOLOGY_VERSION,
-  NODE_SHIELDS_REQUEST_CONTEXT_VERSION
+  NODE_SHIELDS_REQUEST_CONTEXT_VERSION,
+  recordedPlaywrightVersion
 } from "./legacy-methodology";
 import {
   assertKnownPixelEventVocabulary,
@@ -258,6 +259,18 @@ test("a reviewed superseded methodology survives the toolchain move that retired
     .replace(NODE_SCANNER_METHODOLOGY_VERSION, toolchainMethodology);
   report.conditions.scannerDisclosure = toolchainSuperseded;
   assert.equal(redactScanResultV1(report).report.conditions.scannerDisclosure, toolchainSuperseded);
+
+  // The line subject-validity-v4 retired kept the current Playwright and
+  // ad-block engine: only a methodology component moved. Production recorded
+  // it with no committed report to prove it.
+  const subjectValidityMethodology =
+    "shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v3+detector-coverage-v2";
+  assert.notEqual(subjectValidityMethodology, NODE_SCANNER_METHODOLOGY_VERSION);
+  assert.equal(recordedPlaywrightVersion(subjectValidityMethodology), NODE_PLAYWRIGHT_VERSION);
+  const subjectValiditySuperseded = current.replace(NODE_SCANNER_METHODOLOGY_VERSION, subjectValidityMethodology);
+  assert.notEqual(subjectValiditySuperseded, current);
+  report.conditions.scannerDisclosure = subjectValiditySuperseded;
+  assert.equal(redactScanResultV1(report).report.conditions.scannerDisclosure, subjectValiditySuperseded);
 
   // An unreviewed extended identity is still refused: the reviewed list is
   // exact, so a report cannot mint its own methodology tail and publish it.

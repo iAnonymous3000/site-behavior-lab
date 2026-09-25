@@ -104,6 +104,63 @@ public API or a 1.0 release.
   committed report changes. Reports whose detection was dropped before this
   change cannot be identified, because raw evidence is not retained.
 
+### Measurement epoch
+
+- The node-detectors-v10 measurement epoch declares, in one step, the
+  identities the fixes above move, so no report presents new behavior under
+  the old identity. It moves no toolchain input: Playwright 1.63.0,
+  adblock-rust 0.13.3, tldts 7.4.13 and the September 21 Brave lists stay.
+  Recorded identities, old to new:
+  - Base Node methodology, which is also the v1 methodology token and the
+    corpus cohort key:
+    `shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v3+detector-coverage-v2`
+    to
+    `shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v4+detector-coverage-v2`,
+    for the subject's HTTP status.
+  - r2 methodology suffix: `consent-r2-v4` to `consent-r2-v5` (a banner
+    moment read from only some frames), `gpc-worker-application-v2` to
+    `gpc-worker-application-v3` (worker attach accounting) and
+    `active-probe-v2` to `active-probe-v3` (probe-blocked navigations), with
+    the new base in front.
+  - Detectors: `synthetic-sentinel@4` to `synthetic-sentinel@5`, because a
+    navigation the probe blocks is no longer searched for the test value or
+    counted toward the probe's capture cap, and a probe whose own main-frame
+    block used to end it now completes. `DETECTOR_REGISTRY_VERSION` moves
+    from `node-detectors-v9` to `node-detectors-v10`, and its digest from
+    `b15c8281...4715` to `6f8d32c3...5657`. Recomputing the v9 digest from
+    the current inputs with only the keystroke version and the registry label
+    restored reproduces `b15c8281...4715`, so nothing else moved. The
+    obligation target registries keep v9 as a closed epoch and enforce v10.
+    No other detector version moves: the subject status changes consent and
+    policy outcomes on redirected visits the way subject-validity-v3 did,
+    without a detector version bump, and the keystroke outcomes it changes
+    ride on `synthetic-sentinel@5`.
+  - Node and PageGraph r2 normalization: public-string-policy-v3
+    `cb7064a1...059d` to `6ce6219d...57aa` under the same `tldts@7.4.13`, a
+    widening by the one admitted listener-withheld warning.
+- The probe and GPC worker revisions also change what v1 reports record (v1
+  request rows after a probe-blocked navigation, and when the GPC worker
+  warning appears), but their components stay in the r2 suffix where their
+  earlier revisions were declared. The v1 token still moves in this epoch,
+  through subject-validity-v4, so no v1 cohort mixes reports from before and
+  after either change.
+- The reviewed corpus line advances to the new base. No committed report is
+  on the outgoing line, so its replayed handoff moves nothing, and the
+  published aggregate changes only when a refresh on the new line passes the
+  handoff gate.
+- Published reports keep their recorded identities. The deployed producer
+  rows `node-v12-toolchain-2026-09-active-lists-2026-09-21`,
+  `node-v12-toolchain-2026-09-active-no-adblock` and
+  `pagegraph-v4-tldts7413-active` are closed to their exact literals (the v12
+  methodology, the cb7064 normalization, node-detectors-v9 and a frozen copy
+  of the September 21 lists under adblock-rust 0.13.3), byte for byte what
+  the deployed source produced. The outgoing normalizations stay readable as
+  superseded identities, and v1 reports that name the outgoing base stay
+  fixed points of the sanitizer. The new active rows are
+  `node-v13-detectors-v10-active-lists-2026-09-21`,
+  `node-v13-detectors-v10-active-no-adblock` and
+  `pagegraph-v4-listener-withheld-active`.
+
 ## [0.6.0] - 2026-09-06
 
 Declared on 2026-09-06 (the date above) and tagged `v0.6.0` on 2026-09-24 at

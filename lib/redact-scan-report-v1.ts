@@ -794,6 +794,10 @@ function previousNodeScannerDisclosure(
  * outgoing identity here.
  */
 const HISTORICAL_NODE_SCANNER_METHODOLOGIES: readonly string[] = Object.freeze([
+  // Retired by subject-validity-v4 in the node-detectors-v10 measurement
+  // epoch. No committed report carries it, but production has recorded it
+  // since the 2026-09 toolchain epoch deployed.
+  "shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v3+detector-coverage-v2",
   // Retired by the 2026-09 toolchain epoch (adblock-rust 0.13.3, Playwright
   // 1.63.0); 95 committed reports carry it.
   "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v3+detector-coverage-v2",

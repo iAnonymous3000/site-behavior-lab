@@ -1867,7 +1867,7 @@ test("HTTP-200 robot pages and unavailable subject collectors fail quality and s
       reason: "load-failed"
     });
     assert.deepEqual(measurement.measurement.detectors["keystroke-exfiltration"], {
-      version: "synthetic-sentinel@4",
+      version: "synthetic-sentinel@5",
       status: "skipped",
       reason: "load-failed"
     });
@@ -1987,7 +1987,7 @@ test("HTTP-200 robot pages and unavailable subject collectors fail quality and s
       reason: "load-failed"
     });
     assert.deepEqual(unavailable.measurement.measurement.detectors["keystroke-exfiltration"], {
-      version: "synthetic-sentinel@4",
+      version: "synthetic-sentinel@5",
       status: "skipped",
       reason: "load-failed"
     });
@@ -2125,7 +2125,7 @@ test("the recorded HTTP status is the frozen subject's document after a script r
       reason: "load-failed"
     });
     assert.deepEqual(blocked.measurement.measurement.detectors["keystroke-exfiltration"], {
-      version: "synthetic-sentinel@4",
+      version: "synthetic-sentinel@5",
       status: "skipped",
       reason: "load-failed"
     });
@@ -2245,7 +2245,7 @@ test("scanSite stages live phase-aware readbacks while returning only v1", { tim
     assert.equal(Object.keys(staged.measurement.detectors).length, 6);
     assert.equal(staged.measurement.detectors["fingerprint-heuristics"].status, "complete");
     assert.deepEqual(staged.measurement.detectors["keystroke-exfiltration"], {
-      version: "synthetic-sentinel@4",
+      version: "synthetic-sentinel@5",
       status: "complete",
       phaseId: 1
     });
@@ -2483,7 +2483,7 @@ test("keystroke candidate overflow records exact detector-output truncation", { 
     assert.deepEqual(
       measurement.measurement.detectors["keystroke-exfiltration"],
       {
-        version: "synthetic-sentinel@4",
+        version: "synthetic-sentinel@5",
         status: "partial",
         reason: "evidence-cap-reached",
         phaseId: activePhase.phaseId
@@ -4487,7 +4487,7 @@ test("a consent click cannot promote a sibling origin into evidence or active-in
       phaseId: 1
     });
     assert.deepEqual(staged!.measurement.detectors["keystroke-exfiltration"], {
-      version: "synthetic-sentinel@4",
+      version: "synthetic-sentinel@5",
       status: "skipped",
       reason: "load-failed"
     });
@@ -4792,7 +4792,7 @@ test("post-consent cross-site reload evidence is rejected and the active input p
     );
     const reloadPhase = staged!.measurement.phases.find((phase) => phase.kind === "post-choice-reload")!;
     assert.deepEqual(staged!.measurement.detectors["keystroke-exfiltration"], {
-      version: "synthetic-sentinel@4",
+      version: "synthetic-sentinel@5",
       status: "skipped",
       reason: "load-failed"
     });

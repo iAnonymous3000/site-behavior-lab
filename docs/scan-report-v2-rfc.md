@@ -1475,7 +1475,9 @@ disappearance without an activated control, or observations without the
 transition, derive `unavailable`. `visible: false` claims every frame was
 searched: a negative read that searched some frames but not all records no
 observation for that moment and a `consent-verification` capture loss in its
-phase instead. A read that searched no frame records no observation.
+phase instead. A read that searched no frame records no observation. The
+partial-read rule arrived with `consent-r2-v5`; a report whose methodology
+records `consent-r2-v4` could hold such a read as `visible: false`.
 
 ### 15.6 Supporting pairs: replication machinery without replication claims
 

@@ -165,7 +165,13 @@ export const MAX_DROPPED_SITE_SHARE = 0.1;
 export const REVIEWED_MEASUREMENT_LINES: readonly string[] = Object.freeze([
   "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v3+detector-coverage-v2",
   // The 2026-09 toolchain epoch: adblock-rust 0.13.3 and Playwright 1.63.0.
-  "shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v3+detector-coverage-v2"
+  "shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v3+detector-coverage-v2",
+  // The node-detectors-v10 measurement epoch: subject-validity-v4 names the
+  // move. The line also separates the epoch's other changes to what v1
+  // reports record (active-probe-v3 request rows, gpc-worker-application-v3
+  // warnings), whose components sit in the r2 suffix. No committed report is
+  // on the line it retires.
+  "shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v4+detector-coverage-v2"
 ]);
 
 /** The current line: the newest entry of {@link REVIEWED_MEASUREMENT_LINES}. */

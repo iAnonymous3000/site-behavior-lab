@@ -326,7 +326,7 @@ test("the README guards reject the sentences that were wrong", () => {
   const shippedLimitations =
     " base methodology (production r2 reports record the full extended identity, this base plus the phase-kernel, boundary-state, consent, budget, proxy-traffic, service-worker-block, accountability, ServiceRole-taxonomy, and GPC worker-application suffixes, in `";
   const unnamed = unnamedMethodologyComponents(shippedLimitations);
-  assert.ok(unnamed.includes("active-probe-v2"), "the shipped limitations enumeration omitted active-probe");
+  assert.ok(unnamed.includes("active-probe-v3"), "the shipped limitations enumeration omitted active-probe");
   assert.ok(
     unnamed.includes("auxiliary-context-block-v1"),
     "the shipped limitations enumeration omitted auxiliary-context-block"

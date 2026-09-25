@@ -98,15 +98,26 @@ export const HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_METHODOLOGY_VERSION =
   "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.0+subject-validity-v2+detector-coverage-v2+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v1+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1";
 
 /**
- * `gpc-worker-application-v2` names how the GPC arm treats Web Workers: the
+ * `gpc-worker-application-v2` named how the GPC arm treats Web Workers: the
  * signal is installed inside each worker realm over a DevTools session before
  * the worker's first statement, with a same-evaluation readback, and
  * unverifiable workers run and are disclosed. The v1 mechanism (route-boundary
  * source rewriting with local-scheme workers refused) was unnamed inside every
  * earlier methodology string, so only the revision carries a component.
+ * `gpc-worker-application-v3` keeps that mechanism and revises its accounting:
+ * attaches are tagged by the session they arrive on, and the disclosed loss is
+ * checked against the browser's own record of the page's dedicated workers as
+ * well as the page-side construction count.
+ *
+ * `consent-r2-v5` records a banner moment read from only some frames as lost
+ * consent verification instead of an absent banner. `active-probe-v3` keeps a
+ * navigation the probe aborts out of the request log and the probe's capture,
+ * and aborts it as a cancelled navigation. Both stay in this suffix, where
+ * their earlier revisions were declared; the probe revision also changes v1
+ * request rows, and the same epoch's subject-validity-v4 advances the v1 base.
  */
 export const NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION =
-  `${NODE_SCANNER_METHODOLOGY_VERSION}+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v2+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1+${SERVICE_ROLE_TAXONOMY_VERSION}+gpc-worker-application-v2+active-probe-v2+auxiliary-context-block-v1`;
+  `${NODE_SCANNER_METHODOLOGY_VERSION}+phase-kernel-v2+boundary-state-v1+consent-r2-v5+resource-budget-v2+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1+${SERVICE_ROLE_TAXONOMY_VERSION}+gpc-worker-application-v3+active-probe-v3+auxiliary-context-block-v1`;
 
 /** Exact producer epoch attested by the reviewed Node r2/v3 corpus. */
 export const HISTORICAL_NODE_R2_V3_METHODOLOGY_VERSION =
@@ -429,10 +440,21 @@ const HISTORICAL_NODE_V10_METHODOLOGY = "shields-request-context-v2-adblock-rust
 // node-detectors-v9 moved detectors and the admitted vocabulary, not a
 // methodology component.
 const HISTORICAL_NODE_V11_NORMALIZATION = "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:cb7064a154022024d8ffa25c110de6feff64f2b0ecbd375b14a24ff17105059d+tldts@7.4.10+node-evidence-policy-v1+r2-http-status-compat-v1";
+// Exact identity of the 2026-09 toolchain epoch's production producer
+// (deployed from c8b189ac), closed by the node-detectors-v10 measurement
+// epoch: subject-validity-v4, consent-r2-v5, gpc-worker-application-v3 and
+// active-probe-v3 move the methodology, and the admitted v1 listener-withheld
+// disclosure moves the public-string policy digest.
+const HISTORICAL_NODE_V12_METHODOLOGY = "shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v3+detector-coverage-v2+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v2+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1+service-role-taxonomy-v1+gpc-worker-application-v2+active-probe-v2+auxiliary-context-block-v1";
+const HISTORICAL_NODE_V12_NORMALIZATION = "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:cb7064a154022024d8ffa25c110de6feff64f2b0ecbd375b14a24ff17105059d+tldts@7.4.13+node-evidence-policy-v1+r2-http-status-compat-v1";
 
 export const HISTORICAL_NODE_R2_V4_METHODOLOGIES_BY_NORMALIZATION: Readonly<
   Record<string, readonly string[]>
 > = Object.freeze({
+  // The cb7064 identity under tldts@7.4.13 closed when the node-detectors-v10
+  // measurement epoch admitted the v1 listener-withheld disclosure. Only the
+  // 2026-09 toolchain epoch's rows ran it, all under its one methodology.
+  [HISTORICAL_NODE_V12_NORMALIZATION]: Object.freeze([HISTORICAL_NODE_V12_METHODOLOGY]),
   // The cb7064 identity under tldts@7.4.10 closed when the 2026-09 toolchain
   // epoch moved the public-suffix engine to tldts@7.4.13. Only the
   // node-detectors-v9 rows ran it, all under the subject-validity-v3
@@ -575,6 +597,20 @@ export const HISTORICAL_R2_LISTS_2026_09_21_ADBLOCK_IDENTITY = Object.freeze({
   fetchedAt: "2026-09-21T12:45:16.395Z",
   manifestDigest: "7e42412ee50d641b83699aff20bb2d2151a36b5419121f7245ab0dec5b243a9f",
   engineVersion: "adblock-rust-0.13.2"
+} satisfies NonNullable<Toolchain["adblock"]>);
+
+/**
+ * Frozen copy of the same September 21 snapshot under adblock-rust 0.13.3, as
+ * the 2026-09 toolchain epoch's production rows published it. The live
+ * constant follows the next list adoption or engine move; this closed copy
+ * never does.
+ */
+export const HISTORICAL_R2_LISTS_2026_09_21_ADBLOCK_0_13_3_IDENTITY = Object.freeze({
+  source: "Brave default ad-block lists",
+  lists: 31,
+  fetchedAt: "2026-09-21T12:45:16.395Z",
+  manifestDigest: "7e42412ee50d641b83699aff20bb2d2151a36b5419121f7245ab0dec5b243a9f",
+  engineVersion: "adblock-rust-0.13.3"
 } satisfies NonNullable<Toolchain["adblock"]>);
 
 export const PAGEGRAPH_R2_DETECTOR_VERSION = "pagegraph-import-unsupported@1" as const;
@@ -939,9 +975,9 @@ const HISTORICAL_NODE_V8_FIELDS: NodeTupleFields = Object.freeze({
 });
 
 // Exact node-detectors-v9 producer fields, frozen when the 2026-09 toolchain
-// epoch closed the v11 rows. No detector moved in that epoch, so the active
-// fields still equal these today; the closed rows must not follow them when a
-// later detector epoch moves.
+// epoch closed the v11 rows. No detector moved in that epoch, so the closed
+// v11 and v12 rows share them; node-detectors-v10 moved the keystroke detector
+// and the registry, and the closed rows must never follow the live fields.
 const HISTORICAL_NODE_V9_FIELDS: NodeTupleFields = Object.freeze({
   detectorRegistry: Object.freeze({
     "version": "node-detectors-v9",
@@ -1026,26 +1062,28 @@ function nodeTuple(
   });
 }
 
-// Closed rows retain their exact literals; the 2026-09 toolchain epoch
-// (Playwright 1.63.0, adblock-rust 0.13.3, tldts 7.4.13) defines v12. It moves
-// the methodology's engine and browser components and the normalization's
-// public-suffix engine; the detector fields are unchanged from v11.
+// Closed rows retain their exact literals; the node-detectors-v10 measurement
+// epoch defines v13. It moves four methodology components (subject-validity-v4,
+// consent-r2-v5, gpc-worker-application-v3, active-probe-v3), the keystroke
+// detector (synthetic-sentinel@5) with the registry, and the public-string
+// policy digest in the normalization; the toolchain and lists are unchanged
+// from v12.
 const ACTIVE_NODE_WIRE_IDENTITY_IS_DISTINCT =
-  String(NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION) !== HISTORICAL_NODE_V10_METHODOLOGY ||
-  String(NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION) !== HISTORICAL_NODE_V11_NORMALIZATION ||
+  String(NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION) !== HISTORICAL_NODE_V12_METHODOLOGY ||
+  String(NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION) !== HISTORICAL_NODE_V12_NORMALIZATION ||
   canonicalJson(ACTIVE_NODE_FIELDS) !== canonicalJson(HISTORICAL_NODE_V9_FIELDS);
 
 const ACTIVE_NODE_TUPLES: readonly NodeR2ProducerTuple[] = ACTIVE_NODE_WIRE_IDENTITY_IS_DISTINCT
   ? Object.freeze([
       nodeTuple(
-        "node-v12-toolchain-2026-09-active-lists-2026-09-21",
+        "node-v13-detectors-v10-active-lists-2026-09-21",
         NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION,
         NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION,
         ACTIVE_NODE_FIELDS,
         NODE_R2_CURRENT_ADBLOCK_IDENTITY
       ),
       nodeTuple(
-        "node-v12-toolchain-2026-09-active-no-adblock",
+        "node-v13-detectors-v10-active-no-adblock",
         NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION,
         NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION,
         ACTIVE_NODE_FIELDS,
@@ -1404,6 +1442,18 @@ export const NODE_R2_PRODUCER_TUPLES: readonly NodeR2ProducerTuple[] = Object.fr
     HISTORICAL_NODE_V11_NORMALIZATION, HISTORICAL_NODE_V10_METHODOLOGY,
     HISTORICAL_NODE_V9_FIELDS, null
   ),
+  // The 2026-09 toolchain epoch's production producer, with and without the
+  // September 21 lists, closed to its exact source identity by the
+  // node-detectors-v10 measurement epoch: the v12 methodology, the cb7064
+  // policy digest under tldts 7.4.13, node-detectors-v9 and adblock-rust 0.13.3.
+  nodeTuple("node-v12-toolchain-2026-09-active-lists-2026-09-21",
+    HISTORICAL_NODE_V12_NORMALIZATION, HISTORICAL_NODE_V12_METHODOLOGY,
+    HISTORICAL_NODE_V9_FIELDS, HISTORICAL_R2_LISTS_2026_09_21_ADBLOCK_0_13_3_IDENTITY
+  ),
+  nodeTuple("node-v12-toolchain-2026-09-active-no-adblock",
+    HISTORICAL_NODE_V12_NORMALIZATION, HISTORICAL_NODE_V12_METHODOLOGY,
+    HISTORICAL_NODE_V9_FIELDS, null
+  ),
   ...ACTIVE_NODE_TUPLES
 ]);
 
@@ -1477,7 +1527,14 @@ export const PAGEGRAPH_R2_PRODUCER_TUPLES: readonly PageGraphR2ProducerTuple[] =
     "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:cb7064a154022024d8ffa25c110de6feff64f2b0ecbd375b14a24ff17105059d+tldts@7.4.10+pagegraph-request-evidence-v1+r2-http-status-compat-v1",
     HISTORICAL_R2_2026_08_TRACKER_CATALOG
   ),
-  pageGraphTuple("pagegraph-v4-tldts7413-active", PAGEGRAPH_R2_NORMALIZATION_VERSION, ACTIVE_TRACKER_CATALOG, {
+  // Closed by the v1 listener-withheld disclosure that the node-detectors-v10
+  // measurement epoch admitted; the public-string policy digest is shared by
+  // both observers.
+  pageGraphTuple("pagegraph-v4-tldts7413-active",
+    "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:cb7064a154022024d8ffa25c110de6feff64f2b0ecbd375b14a24ff17105059d+tldts@7.4.13+pagegraph-request-evidence-v1+r2-http-status-compat-v1",
+    HISTORICAL_R2_2026_08_TRACKER_CATALOG
+  ),
+  pageGraphTuple("pagegraph-v4-listener-withheld-active", PAGEGRAPH_R2_NORMALIZATION_VERSION, ACTIVE_TRACKER_CATALOG, {
     methodologyVersion: PAGEGRAPH_R2_METHODOLOGY_VERSION,
     publicLimits: PAGEGRAPH_R2_PUBLIC_LIMITS,
     detectorRegistry: PAGEGRAPH_REGISTRY,

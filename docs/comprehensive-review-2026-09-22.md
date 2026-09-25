@@ -269,6 +269,26 @@ committed v1 reports leaves each one byte-identical and adds the line to none.
 Reports whose listener detection was dropped at scan time cannot be
 identified, because raw evidence is not retained, so they stay undisclosed.
 
+**Update, 2026-09-24.** The fixes above land as one measurement epoch,
+`node-detectors-v10`, whose identity bookkeeping closes five rows of the table,
+the HTTP status (subject validity `v4`), the probe-aborted navigation (active
+probe `v3` and `synthetic-sentinel@5`), the Shields boundary (no identity), the
+v1 sanitizer (a normalization widening, `cb7064a1...059d` to
+`6ce6219d...57aa`) and the GPC worker accounting (`gpc-worker-application-v3`),
+and, from the older backlog, the partial banner read (`consent-r2-v5`). Of the
+table, only `canvas-font-probing-v1` stays open. The probe row asked for the v1
+methodology token; the token moves through subject validity `v4`, which
+advances the reviewed corpus line, and the probe and GPC worker components
+stay in the r2 suffix where their earlier revisions were declared, so both
+changes to what v1 reports record ride on that advance without being named in
+the token. The 2026-09 toolchain epoch's producer rows are closed to their
+exact literals, byte for byte what c8b189ac deployed, and new active rows carry
+the moved identities. The sentence above that these rows wait for #9 and its
+staging A/B went stale when #9 landed at c8b189ac without them. This epoch
+moves no toolchain input, which is what docs/toolchain-epoch.md's A/B covers;
+the subject validity `v3` and `node-detectors-v9` epochs (`557891e`,
+`8078dd7`) landed the same way.
+
 ## 5. Confirmed and left for other reasons
 
 - **The Dockerfile re-runs `npm run check` inside the image build** (about 16
