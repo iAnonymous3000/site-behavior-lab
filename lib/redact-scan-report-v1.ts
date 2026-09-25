@@ -470,7 +470,12 @@ const POLICY_QUOTE_IDENTIFIER_SPAN_POLICY = Object.freeze({
   patterns: Object.freeze(POLICY_QUOTE_IDENTIFIER_SPANS.map((pattern) => `${pattern.source}/${pattern.flags}`))
 });
 
-export const PUBLIC_STRING_POLICY_VERSION = "public-string-policy-v3";
+// v4 names a reviewed NARROWING, not a widening: the private-suffix tenant
+// shapes and the policy-quote identifier spans remove strings v3 published.
+// REDACTION_VERSION stays 4 (see lib/redaction-v2.ts), so this name is where a
+// reader sees the change; the retired v3 identities and the owner's acceptance
+// are recorded in SUPERSEDED_R2_NORMALIZATIONS.
+export const PUBLIC_STRING_POLICY_VERSION = "public-string-policy-v4";
 /**
  * Identity of every non-allowlist public string vocabulary in this sanitizer.
  * A selector, warning, method, resource, pixel, or opaque-id change changes the

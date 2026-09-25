@@ -3,10 +3,18 @@ import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { test } from "node:test";
+import { publicStringPolicyInputs } from "./redact-scan-report-v1";
+import { PRIVATE_SUFFIX_TENANT_SHAPES } from "./redaction-v2";
 import {
   NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION,
-  PAGEGRAPH_R2_NORMALIZATION_VERSION
+  PAGEGRAPH_R2_NORMALIZATION_VERSION,
+  SUPERSEDED_R2_NORMALIZATIONS
 } from "./scan-report-v2-normalization";
+import {
+  HISTORICAL_NODE_R2_V4_METHODOLOGIES_BY_NORMALIZATION,
+  NODE_R2_PRODUCER_TUPLES,
+  PAGEGRAPH_R2_PRODUCER_TUPLES
+} from "./scan-report-v2-r2-producer-contract";
 
 /**
  * The identity ledger: the two ACTIVE r2 normalization identities, pinned as
@@ -38,10 +46,15 @@ import {
  *      in the published corpus and the reviewed allowlists.
  *   3. For a narrowing: STOP. Published reports need remediation before the
  *      identity may move; see docs/scan-report-v2-rfc.md and the remediation
- *      CLI. The one exception is an engine refresh the owner accepts without
- *      remediation, recorded in its SUPERSEDED_R2_NORMALIZATIONS entry with
- *      everything that file's docblock requires (the tldts 7.4.10 to 7.4.13
- *      move is one). Stored reports it changes fail closed on read.
+ *      CLI. There are two exceptions, each an owner decision recorded in its
+ *      SUPERSEDED_R2_NORMALIZATIONS entry with everything that file's docblock
+ *      requires: an engine refresh the owner accepts without remediation (the
+ *      tldts 7.4.10 to 7.4.13 move is one), and a reviewed sanitizer narrowing
+ *      the owner accepts (public-string-policy-v4 is one). The narrowing also
+ *      moves PUBLIC_STRING_POLICY_VERSION, replaces every committed report
+ *      holding a removed string through a privacy replacement in the same
+ *      push, and pins the retired literals in RETIRED_*_LITERAL below. Stored
+ *      reports either changes fail closed on read.
  *   4. Check every producer tuple that references an ACTIVE or computed
  *      constant (the node-v4-*-active-* family in
  *      scan-report-v2-r2-producer-contract.ts): tuples that described the OLD
@@ -56,8 +69,24 @@ import {
  *   5. Only then update the two literals below to the new identity.
  */
 const ACTIVE_NODE_R2_NORMALIZATION_LITERAL =
-  "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:b40a333af90f0b6a7bd1e5c702edcd7ef768167bc811ae20272a6e993cb83d51+tldts@7.4.13+node-evidence-policy-v1+r2-http-status-compat-v1";
+  "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:72a11e98768ccc24ebae379e8bdbb3c3147c5ad2b6ed3c044902fbe382f9f7d9+tldts@7.4.13+node-evidence-policy-v1+r2-http-status-compat-v1";
 const ACTIVE_PAGEGRAPH_R2_NORMALIZATION_LITERAL =
+  "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:72a11e98768ccc24ebae379e8bdbb3c3147c5ad2b6ed3c044902fbe382f9f7d9+tldts@7.4.13+pagegraph-request-evidence-v1+r2-http-status-compat-v1";
+
+/**
+ * The identities the latest NARROWING retired, pinned as exact literals beside
+ * the active ones. A narrowing's superseded entry is not optional: without it
+ * every stored share under the retired identity fails as an unreviewed
+ * normalization, affected or not. The corpus cannot notice its absence, since
+ * no committed report carries the retired identity, and neither can the replay
+ * loops over SUPERSEDED_R2_NORMALIZATIONS and the closed producer rows, which
+ * iterate over whatever those tables hold: a missing entry or row just runs
+ * one fewer time. Replace these two literals, with the test below, at the next
+ * narrowing.
+ */
+const RETIRED_NODE_R2_NORMALIZATION_LITERAL =
+  "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:b40a333af90f0b6a7bd1e5c702edcd7ef768167bc811ae20272a6e993cb83d51+tldts@7.4.13+node-evidence-policy-v1+r2-http-status-compat-v1";
+const RETIRED_PAGEGRAPH_R2_NORMALIZATION_LITERAL =
   "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:b40a333af90f0b6a7bd1e5c702edcd7ef768167bc811ae20272a6e993cb83d51+tldts@7.4.13+pagegraph-request-evidence-v1+r2-http-status-compat-v1";
 
 test("the active r2 normalization identities match their reviewed ledger literals", () => {
@@ -104,5 +133,95 @@ test("the warning-pattern block matches the version label that names it", () => 
     digest,
     PINNED_IS_SCANNER_WARNING_SHA256,
     `isScannerWarning changed without this pin moving. If the change alters which strings are admitted, bump dynamicWarningPatterns (currently "${PINNED_DYNAMIC_WARNING_PATTERNS_LABEL}") and run the identity-retirement ritual above; then update this pin to ${digest}.`
+  );
+});
+
+test("the identities the public-string-policy-v4 narrowing retired stay declarable and replayable", () => {
+  assert.notEqual(RETIRED_NODE_R2_NORMALIZATION_LITERAL, NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION);
+  assert.notEqual(RETIRED_PAGEGRAPH_R2_NORMALIZATION_LITERAL, PAGEGRAPH_R2_NORMALIZATION_VERSION);
+  assert.equal(
+    SUPERSEDED_R2_NORMALIZATIONS["node-playwright"].includes(RETIRED_NODE_R2_NORMALIZATION_LITERAL),
+    true,
+    "the retired Node identity must be a SUPERSEDED_R2_NORMALIZATIONS entry"
+  );
+  assert.equal(
+    SUPERSEDED_R2_NORMALIZATIONS["pagegraph-import"].includes(RETIRED_PAGEGRAPH_R2_NORMALIZATION_LITERAL),
+    true,
+    "the retired PageGraph identity must be a SUPERSEDED_R2_NORMALIZATIONS entry"
+  );
+  const methodologies = HISTORICAL_NODE_R2_V4_METHODOLOGIES_BY_NORMALIZATION[RETIRED_NODE_R2_NORMALIZATION_LITERAL];
+  assert.ok(methodologies && methodologies.length > 0, "the retired Node identity must name its producer epoch");
+  // Every methodology it names has a closed row, with and without the lists.
+  const nodeRows = NODE_R2_PRODUCER_TUPLES.filter(
+    (tuple) => tuple.normalizationVersion === RETIRED_NODE_R2_NORMALIZATION_LITERAL
+  );
+  assert.equal(nodeRows.length > 0, true, "no closed Node producer row carries the retired identity");
+  for (const methodology of methodologies) {
+    for (const lists of [true, false]) {
+      assert.equal(
+        nodeRows.some((tuple) => tuple.methodologyVersion === methodology && (tuple.adblockIdentity !== null) === lists),
+        true,
+        `no closed ${lists ? "list" : "no-adblock"} row for ${methodology}`
+      );
+    }
+  }
+  for (const tuple of nodeRows) assert.equal(methodologies.includes(tuple.methodologyVersion), true, tuple.id);
+  assert.equal(
+    PAGEGRAPH_R2_PRODUCER_TUPLES.some(
+      (tuple) => tuple.normalizationVersion === RETIRED_PAGEGRAPH_R2_NORMALIZATION_LITERAL
+    ),
+    true,
+    "no closed PageGraph producer row carries the retired identity"
+  );
+});
+
+/**
+ * The public-string policy digest hashes the private-suffix tenant shapes and
+ * the policy-quote identifier spans as pattern SOURCES under a hand-bumped
+ * label each. The code that combines them is not hashed: the xn-- exemption,
+ * the digit-run count, the segment split and the counter in the tenant rule,
+ * and in the quote path the span order, the scrub-before-cap order, the
+ * trailing-punctuation rule and the marker loop. Hashing
+ * Function.prototype.toString would differ between the tsc and esbuild
+ * bundles, so each block's source text is pinned here beside its label, as
+ * isScannerWarning is above. A change to either block that alters which
+ * strings are published needs its label bumped and the identity ritual in
+ * this file's docblock; a change that alters nothing updates only the pin.
+ */
+const PINNED_TENANT_SHAPES_LABEL = "private-suffix-tenant-shapes-v1";
+const PINNED_TENANT_RULE_SHA256 = "928e488a4a97e8e6df1b7dbbdcb9399b2e785acb7270b344a3694010c46a63f7";
+const PINNED_QUOTE_SPANS_LABEL = "policy-quote-identifier-spans-v1";
+const PINNED_QUOTE_SCRUB_SHA256 = "618a43b3f214a96c2a93d17fa18aeadc6408732dec59b57ff3abd67edf74887e";
+
+function pinnedBlock(file: string, first: string, last: string): string {
+  const source = readFileSync(path.join(process.cwd(), "lib", file), "utf8");
+  const start = source.indexOf(first);
+  assert.ok(start > 0, `${first} not found`);
+  const lastStart = source.indexOf(last, start);
+  assert.ok(lastStart > start, `${last} not found after ${first}`);
+  const end = source.indexOf("\n}\n", lastStart);
+  assert.ok(end > lastStart, `${last} end not found`);
+  return source.slice(start, end + 3);
+}
+
+test("the tenant rule and the quote scrub match the labels that name them in the policy digest", () => {
+  assert.equal(PRIVATE_SUFFIX_TENANT_SHAPES.label, PINNED_TENANT_SHAPES_LABEL);
+  assert.equal(publicStringPolicyInputs().policyQuoteIdentifierSpans.label, PINNED_QUOTE_SPANS_LABEL);
+
+  const tenant = createHash("sha256")
+    .update(pinnedBlock("redaction-v2.ts", "function isGeneralizedTenantLabel(", "function generalizePrivateSuffixTenant("))
+    .digest("hex");
+  assert.equal(
+    tenant,
+    PINNED_TENANT_RULE_SHA256,
+    `the private-suffix tenant rule changed without this pin moving. If the change alters which hosts generalize, bump PRIVATE_SUFFIX_TENANT_SHAPES.label (currently "${PINNED_TENANT_SHAPES_LABEL}") and run the identity ritual above; then update this pin to ${tenant}.`
+  );
+  const quote = createHash("sha256")
+    .update(pinnedBlock("redact-scan-report-v1.ts", "function redactPolicyQuote(", "export function scrubPolicyQuoteIdentifiers("))
+    .digest("hex");
+  assert.equal(
+    quote,
+    PINNED_QUOTE_SCRUB_SHA256,
+    `the policy-quote scrub changed without this pin moving. If the change alters which quotes publish, bump the span policy label (currently "${PINNED_QUOTE_SPANS_LABEL}") and run the identity ritual above; then update this pin to ${quote}.`
   );
 });

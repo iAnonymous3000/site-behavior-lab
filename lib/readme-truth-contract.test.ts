@@ -4,6 +4,7 @@ import path from "node:path";
 import test from "node:test";
 import { COVERAGE_BOUNDARY_ENTRIES, coverageBoundaryMetadata } from "./detector-coverage-boundary";
 import { NODE_SCANNER_METHODOLOGY_VERSION } from "./legacy-methodology";
+import { PUBLIC_STRING_POLICY_VERSION } from "./redact-scan-report-v1";
 import { NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION } from "./scan-report-v2-r2-producer-contract";
 
 const root = process.cwd();
@@ -149,6 +150,19 @@ test("the README lists every header that satisfies the scan access token", () =>
       readme.toLowerCase().includes(header),
       `lib/scan-token.ts accepts ${header} but the README does not mention it`
     );
+  }
+});
+
+/**
+ * The README and docs/limitations.md name the public-string policy that governs
+ * what a saved report may publish. A narrowing moves that name, so a document
+ * left on the old one would describe rules the sanitizer no longer applies.
+ */
+test("published docs name the current public-string policy and no other", () => {
+  for (const file of ["README.md", "docs/limitations.md"]) {
+    const text = readFileSync(path.join(root, file), "utf8");
+    const named = [...new Set(text.match(/public-string-policy-v\d+/g) ?? [])];
+    assert.deepEqual(named, [PUBLIC_STRING_POLICY_VERSION], `${file} must name ${PUBLIC_STRING_POLICY_VERSION}`);
   }
 });
 

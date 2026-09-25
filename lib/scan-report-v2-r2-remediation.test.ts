@@ -39,6 +39,7 @@ import {
   HISTORICAL_NODE_R2_V4_METHODOLOGIES_BY_NORMALIZATION,
   HISTORICAL_NODE_R2_V4_METHODOLOGY_VERSION,
   HISTORICAL_NODE_R2_V4_PLAYWRIGHT_1_62_METHODOLOGY_VERSION,
+  NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION,
   NODE_R2_PUBLIC_LIMITS,
   NODE_R2_PRODUCER_TUPLES
 } from "./scan-report-v2-r2-producer-contract";
@@ -511,7 +512,16 @@ test("every superseded normalization reads only with its pinned historical produ
     }
   }
 
-  const [superseded] = SUPERSEDED_R2_NORMALIZATIONS["node-playwright"];
+  // A superseded identity whose producer epoch ran another methodology. The
+  // newest entry is not one: public-string-policy-v4 retired its identity
+  // without moving the methodology, so the live fixture under it is the
+  // retired producer's own run (see the next test).
+  const superseded = SUPERSEDED_R2_NORMALIZATIONS["node-playwright"].find(
+    (normalization) =>
+      !HISTORICAL_NODE_R2_V4_METHODOLOGIES_BY_NORMALIZATION[normalization]?.includes(
+        NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION
+      )
+  );
   assert.notEqual(superseded, undefined);
 
   // A fresh producer fixture relabeled with an old sanitizer identity is a
@@ -544,6 +554,59 @@ test("every superseded normalization reads only with its pinned historical produ
     () => redactPublicScanReportV2R2(forged),
     (error: unknown) => error instanceof R2RedactionRemediationError
   );
+});
+
+test("the identity public-string-policy-v4 retired replays the live producer and re-sanitizes what v4 removes", () => {
+  // A narrowing, not a widening: the retired identity is declarable, but a
+  // report the retired pass published is a fixed point only if it holds none
+  // of the strings v4 removes. Only the normalization moved, so the current
+  // fixture relabeled with the retired literal is that producer's own run and
+  // replays through its closed row.
+  // The retired literal the identity ledger pins; without its superseded
+  // entry the sanitizer refuses it as unreviewed.
+  const retired =
+    "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:b40a333af90f0b6a7bd1e5c702edcd7ef768167bc811ae20272a6e993cb83d51+tldts@7.4.13+node-evidence-policy-v1+r2-http-status-compat-v1";
+  assert.notEqual(retired, NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION);
+  const report = makePublicSingleReportV2R2();
+  report.run.privacy.redactionVersion = REDACTION_VERSION;
+  report.run.toolchain.normalizationVersion = retired;
+  report.run.evidence.requests.push({
+    id: 2,
+    url: "https://cdn.tracker-example.com/app.js",
+    domain: "cdn.tracker-example.com",
+    method: "GET",
+    resourceType: "script",
+    status: 200,
+    thirdParty: true,
+    tracker: null,
+    startedAtMs: 20,
+    phaseId: 0
+  });
+  report.run.fingerprints = buildFingerprints({
+    conditions: report.run.conditions,
+    provenance: report.run.provenance,
+    toolchain: report.run.toolchain,
+    detectors: report.run.detectors
+  });
+  const stored = redactPublicScanReportV2R2(report);
+  if (stored.reportType !== "single") throw new Error("fixture invariant");
+  assert.equal(stored.run.toolchain.normalizationVersion, retired);
+  assert.equal(publicReportDigest(redactPublicScanReportV2R2(stored)), publicReportDigest(stored));
+
+  // The bytes the retired pass published for a token-shaped tenant
+  // (documentation-range addresses) are re-sanitized, still under the retired
+  // identity, so the stored report is not a fixed point and fails closed.
+  const tokenHost = "198-51-100-7_s-203-0-113-9_ts-1700000000-clienttons-s.akamaihd.net";
+  const affected = structuredClone(stored);
+  const request = affected.run.evidence.requests.find((entry) => entry.id === 2);
+  if (!request) throw new Error("fixture invariant");
+  request.url = `https://${tokenHost}/{seg}`;
+  request.domain = tokenHost;
+  const again = redactPublicScanReportV2R2(affected);
+  if (again.reportType !== "single") throw new Error("fixture invariant");
+  assert.equal(again.run.toolchain.normalizationVersion, retired);
+  assert.notEqual(publicReportDigest(again), publicReportDigest(affected));
+  assert.equal(again.run.evidence.requests.find((entry) => entry.id === 2)?.domain, "{label}.akamaihd.net");
 });
 
 test("the shared migration identity projection covers experiment metadata in both planners", () => {

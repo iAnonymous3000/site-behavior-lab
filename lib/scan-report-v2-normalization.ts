@@ -38,7 +38,7 @@ export const MIGRATABLE_REDACTION_V3_NORMALIZATIONS: Readonly<
 
 /**
  * Identities this generation has already published and retired without
- * remediating a single byte. Three kinds of change qualify, and nothing else.
+ * remediating a single byte. Four kinds of change qualify, and nothing else.
  *
  * A WIDENING of the sanitizer's public-string vocabulary admits strings the
  * older pass replaced with a placeholder, so every report the older pass
@@ -66,9 +66,28 @@ export const MIGRATABLE_REDACTION_V3_NORMALIZATIONS: Readonly<
  * store, and the owner's acceptance of orphaning the stored reports that hold
  * one. Short of all four, remediate.
  *
+ * A reviewed sanitizer NARROWING (a public-string rule that stops publishing
+ * strings the older pass published) qualifies only as the same kind of
+ * recorded owner exception, with the same caveat: every stored report holding
+ * a removed string fails closed on read. It needs all of the following. The
+ * rule is a reviewed table that feeds PUBLIC_STRING_POLICY_DIGEST, and
+ * PUBLIC_STRING_POLICY_VERSION moves with it, so the narrowing is named in the
+ * identity rather than hidden in a digest. The entry's comment enumerates every
+ * string shape removed and every position each can occupy. The committed
+ * corpus proof is re-derived: every committed report holding one is named, and
+ * is removed in the same push by a privacy replacement (a redacted copy under
+ * a new report ID with a corrections-ledger event; see
+ * docs/corrections-ledger.md), so after that push none is published. The
+ * comment states the retention bound on the live store and records the
+ * owner's acceptance, with its date, of orphaning the stored reports that hold
+ * one. The retired literal is pinned in the identity ledger test
+ * (lib/r2-normalization-identity-ledger.test.ts), because nothing else fails
+ * when this entry or its closed producer rows are missing. Short of all of
+ * these, bump REDACTION_VERSION and remediate.
+ *
  * Exact strings, never a pattern, for the same reason the v3 set is exact: an
  * unreviewed or self-declared identity must fail closed rather than be blessed
- * by inference. Outside that recorded exception, only add an entry for a
+ * by inference. Outside those two recorded exceptions, only add an entry for a
  * change that cannot remove a string from the admitted set; anything that can
  * REQUIRES remediation instead.
  */
@@ -76,6 +95,46 @@ export const SUPERSEDED_R2_NORMALIZATIONS: Readonly<
   Record<ObserverKind, readonly string[]>
 > = Object.freeze({
   "node-playwright": Object.freeze([
+    // Retired by public-string-policy-v4 (redaction v5), a reviewed NARROWING
+    // recorded as the owner exception in the docblock above. REDACTION_VERSION
+    // stays 4 and the public-suffix engine is unchanged. v4 stops publishing two
+    // kinds of string this pass published:
+    // 1. A registrable domain under a PSL private suffix whose tenant label
+    //    (its leftmost label) matches PRIVATE_SUFFIX_TENANT_SHAPES: a dashed or
+    //    underscored IPv4 address anywhere in the label, or a segment (split on
+    //    "-" and "_") that is an 8+ digit run, a 12+ hex token holding digits
+    //    and letters, or a 16+ alphanumeric token with at least three digit
+    //    runs; an xn-- label is tested for the address shape only. That label
+    //    now publishes as "{label}". Host positions: a request's URL and domain
+    //    and its initiator, script and injecting URLs and domains; a cookie
+    //    domain; a listener detection's third-party origins and a keystroke
+    //    recipient; a CNAME cloak's host and target; the policy URL; the
+    //    consent frame URL; a URL inside an admitted warning. Stored
+    //    registrable-domain positions: a request's or cloak's tracker domain
+    //    and, for a Shields-list match, its entity; the mentioned and
+    //    unmentioned policy entities grounded in those; the subject's origin
+    //    and registrable domain (admission now refuses such a site, and a
+    //    stored one throws unsafe-subject-identity, which the reader reports
+    //    as redaction-not-idempotent).
+    // 2. A policy claim quote holding an email address, a phone number, a URL
+    //    with a scheme, a "www." host, a host with a path, an "@" handle or an
+    //    "[at]"/"[dot]" address: each span now publishes as "[redacted]" and
+    //    the quote ends in the incomplete-quote marker, so the claim is kept
+    //    but never checked.
+    // Committed corpus: re-sanitizing every committed bundle changes exactly
+    // two v1 Shields comparisons, 20260727-f378d41658184b8e1b014ae2e41b8541 and
+    // 20260817-693b5bc1c455e1be2d0b42b4d8efa292, each holding two tenant hosts
+    // that v4 publishes as "{label}.akamaihd.net". The same push replaces both
+    // for privacy under new report IDs. None of the 244 committed quotes
+    // changes, and no committed r2 report carries this identity. Live store:
+    // the application stops serving a share at its 7-day expiry and the
+    // bucket's reports-retention-backstop-8d rule deletes the reports/ prefix
+    // at 8 days (research/ops-receipts/r2-lifecycle-readback.json), so exposure
+    // is bounded to shares saved in the 8 days before the deploy that hold
+    // such a string; the remediation Worker's dry run reports each as an
+    // issue, never a rewrite. The owner accepted orphaning those shares
+    // instead of remediating them on 2026-09-25.
+    "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:b40a333af90f0b6a7bd1e5c702edcd7ef768167bc811ae20272a6e993cb83d51+tldts@7.4.13+node-evidence-policy-v1+r2-http-status-compat-v1",
     // Retired by the node-detectors-v10 measurement epoch, which admits four
     // exact fixed scanner warnings: the v1 listener-withheld disclosure
     // (LISTENER_DETECTION_WITHHELD_WARNING) and the input probe's
@@ -214,6 +273,12 @@ export const SUPERSEDED_R2_NORMALIZATIONS: Readonly<
     "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:6c78c05523e1f16c88264d0144af33587bd6dc11e04d337a6af2d58190639266+tldts@7.4.9+node-evidence-policy-v1+r2-http-status-compat-v1"
   ]),
   "pagegraph-import": Object.freeze([
+    // Retired by the public-string-policy-v4 narrowing; see the node-playwright
+    // entry. A PageGraph import records no cookies, detections, consent or
+    // policy, so of the positions listed there only the request, provenance,
+    // warning and subject ones apply. No committed PageGraph report carries
+    // this identity.
+    "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:b40a333af90f0b6a7bd1e5c702edcd7ef768167bc811ae20272a6e993cb83d51+tldts@7.4.13+pagegraph-request-evidence-v1+r2-http-status-compat-v1",
     // Retired by the four warnings node-detectors-v10 admits; see the
     // node-playwright entry.
     "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:cb7064a154022024d8ffa25c110de6feff64f2b0ecbd375b14a24ff17105059d+tldts@7.4.13+pagegraph-request-evidence-v1+r2-http-status-compat-v1",

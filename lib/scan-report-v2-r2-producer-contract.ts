@@ -449,10 +449,22 @@ const HISTORICAL_NODE_V11_NORMALIZATION = "redaction-v4+allowlists-v3:269f631f04
 // digest.
 const HISTORICAL_NODE_V12_METHODOLOGY = "shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v3+detector-coverage-v2+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v2+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1+service-role-taxonomy-v1+gpc-worker-application-v2+active-probe-v2+auxiliary-context-block-v1";
 const HISTORICAL_NODE_V12_NORMALIZATION = "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:cb7064a154022024d8ffa25c110de6feff64f2b0ecbd375b14a24ff17105059d+tldts@7.4.13+node-evidence-policy-v1+r2-http-status-compat-v1";
+// Exact identity of the node-detectors-v10 measurement epoch's producer
+// (6c4698f7), closed by public-string-policy-v4, a reviewed narrowing that
+// generalizes token-shaped private-suffix tenant labels and scrubs identifiers
+// from policy quotes. Only the normalization moves: the live methodology still
+// equals this literal, and the closed rows name the literal so they stay put
+// when the methodology next moves.
+const HISTORICAL_NODE_V13_METHODOLOGY = "shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v4+detector-coverage-v2+phase-kernel-v2+boundary-state-v1+consent-r2-v5+resource-budget-v2+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1+service-role-taxonomy-v1+gpc-worker-application-v3+active-probe-v3+auxiliary-context-block-v1";
+const HISTORICAL_NODE_V13_NORMALIZATION = "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:b40a333af90f0b6a7bd1e5c702edcd7ef768167bc811ae20272a6e993cb83d51+tldts@7.4.13+node-evidence-policy-v1+r2-http-status-compat-v1";
 
 export const HISTORICAL_NODE_R2_V4_METHODOLOGIES_BY_NORMALIZATION: Readonly<
   Record<string, readonly string[]>
 > = Object.freeze({
+  // The b40a333a identity closed when public-string-policy-v4 narrowed the
+  // sanitizer. It was declared by the node-detectors-v10 epoch, whose rows
+  // alone ran it, all under the one v13 methodology.
+  [HISTORICAL_NODE_V13_NORMALIZATION]: Object.freeze([HISTORICAL_NODE_V13_METHODOLOGY]),
   // The cb7064 identity under tldts@7.4.13 closed when the node-detectors-v10
   // measurement epoch admitted the v1 listener-withheld disclosure and the
   // input probe's unread-request, incomplete-test and stopped-navigation
@@ -605,9 +617,9 @@ export const HISTORICAL_R2_LISTS_2026_09_21_ADBLOCK_IDENTITY = Object.freeze({
 
 /**
  * Frozen copy of the same September 21 snapshot under adblock-rust 0.13.3, as
- * the 2026-09 toolchain epoch's production rows published it. The live
- * constant follows the next list adoption or engine move; this closed copy
- * never does.
+ * the 2026-09 toolchain epoch's production rows published it, and after them
+ * the node-detectors-v10 epoch's. The live constant follows the next list
+ * adoption or engine move; this closed copy never does.
  */
 export const HISTORICAL_R2_LISTS_2026_09_21_ADBLOCK_0_13_3_IDENTITY = Object.freeze({
   source: "Brave default ad-block lists",
@@ -1029,6 +1041,57 @@ const HISTORICAL_NODE_V9_FIELDS: NodeTupleFields = Object.freeze({
   phaseOmissionContractVersion: "phase-omission-v2",
 });
 
+// Exact node-detectors-v10 producer fields, frozen when public-string-policy-v4
+// closed the v13 rows. No detector moved in that narrowing, so they equal the
+// live fields today; the closed rows must not follow them when a later
+// detector epoch moves.
+const HISTORICAL_NODE_V10_FIELDS: NodeTupleFields = Object.freeze({
+  detectorRegistry: Object.freeze({
+    "version": "node-detectors-v10",
+    "digest": "6f8d32c39564e962b50e18ac72c414752154d533df1d1157131feed703e55657"
+  } as const),
+  detectorVersions: Object.freeze({
+    "fingerprint-heuristics": "fingerprint-observer@4",
+    "keystroke-exfiltration": "synthetic-sentinel@5",
+    "cname-uncloaking": "dns-cname-chain@4",
+    "pixel-events": "pixel-request-decoder@6",
+    "consent-banner": "consent-control-and-state@2",
+    "privacy-policy": "policy-text-cross-check@7"
+  } as const),
+  detectorStatusContractVersion: "detector-status-v2",
+  detectorObligations: Object.freeze({
+    "version": "detector-obligations-v1",
+    "digest": "fb8bd07786fdb71c02ffdf1eca40a73b8974c691c6d4ef3c89230ad5314c22a3"
+  } as const),
+  serviceRoleTaxonomy: Object.freeze({
+    "version": "service-role-taxonomy-v1",
+    "digest": "dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67"
+  } as const),
+  trackerCatalog: Object.freeze({
+    "source": "Hand-curated service catalog",
+    "version": "hand-curated-2026.08",
+    "entries": 146,
+    "digest": "e94970de235fc80254de8ed99b94316a252e52aa1c2e748c8fbfc3c093b908f4"
+  } as const),
+  publicLimits: Object.freeze({
+    "phases": 16,
+    "warnings": 64,
+    "requests": 1000,
+    "cookieRecords": 1000,
+    "cookieMutations": 2000,
+    "storageRecords": 1000,
+    "storageMutations": 2000,
+    "fingerprintEvents": 1000,
+    "fingerprintDetections": 256,
+    "cnameCloaks": 256,
+    "pixelEvents": 512,
+    "consentObservations": 32,
+    "policyClaims": 32,
+    "policyEntities": 100
+  } as const),
+  phaseOmissionContractVersion: "phase-omission-v2",
+});
+
 const ACTIVE_DETECTOR_STATUS_CONTRACT_VERSION: DetectorStatusContractVersion =
   isDetectorReasonCode("evidence-cap-reached") ? "detector-status-v2" : "detector-status-v1";
 const ACTIVE_NODE_FIELDS: NodeTupleFields = Object.freeze({
@@ -1066,28 +1129,26 @@ function nodeTuple(
   });
 }
 
-// Closed rows retain their exact literals; the node-detectors-v10 measurement
-// epoch defines v13. It moves four methodology components (subject-validity-v4,
-// consent-r2-v5, gpc-worker-application-v3, active-probe-v3), the keystroke
-// detector (synthetic-sentinel@5) with the registry, and the public-string
-// policy digest in the normalization; the toolchain and lists are unchanged
-// from v12.
+// Closed rows retain their exact literals; public-string-policy-v4 defines v14.
+// It moves only the public-string policy (version and digest) in the
+// normalization; the methodology, detectors, toolchain and lists are unchanged
+// from v13.
 const ACTIVE_NODE_WIRE_IDENTITY_IS_DISTINCT =
-  String(NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION) !== HISTORICAL_NODE_V12_METHODOLOGY ||
-  String(NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION) !== HISTORICAL_NODE_V12_NORMALIZATION ||
-  canonicalJson(ACTIVE_NODE_FIELDS) !== canonicalJson(HISTORICAL_NODE_V9_FIELDS);
+  String(NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION) !== HISTORICAL_NODE_V13_METHODOLOGY ||
+  String(NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION) !== HISTORICAL_NODE_V13_NORMALIZATION ||
+  canonicalJson(ACTIVE_NODE_FIELDS) !== canonicalJson(HISTORICAL_NODE_V10_FIELDS);
 
 const ACTIVE_NODE_TUPLES: readonly NodeR2ProducerTuple[] = ACTIVE_NODE_WIRE_IDENTITY_IS_DISTINCT
   ? Object.freeze([
       nodeTuple(
-        "node-v13-detectors-v10-active-lists-2026-09-21",
+        "node-v14-public-string-policy-v4-active-lists-2026-09-21",
         NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION,
         NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION,
         ACTIVE_NODE_FIELDS,
         NODE_R2_CURRENT_ADBLOCK_IDENTITY
       ),
       nodeTuple(
-        "node-v13-detectors-v10-active-no-adblock",
+        "node-v14-public-string-policy-v4-active-no-adblock",
         NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION,
         NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION,
         ACTIVE_NODE_FIELDS,
@@ -1458,6 +1519,18 @@ export const NODE_R2_PRODUCER_TUPLES: readonly NodeR2ProducerTuple[] = Object.fr
     HISTORICAL_NODE_V12_NORMALIZATION, HISTORICAL_NODE_V12_METHODOLOGY,
     HISTORICAL_NODE_V9_FIELDS, null
   ),
+  // The node-detectors-v10 measurement epoch's producer, with and without the
+  // September 21 lists, closed to its exact source identity by
+  // public-string-policy-v4: the v13 methodology, the b40a333a policy digest
+  // under tldts 7.4.13, node-detectors-v10 and adblock-rust 0.13.3.
+  nodeTuple("node-v13-detectors-v10-active-lists-2026-09-21",
+    HISTORICAL_NODE_V13_NORMALIZATION, HISTORICAL_NODE_V13_METHODOLOGY,
+    HISTORICAL_NODE_V10_FIELDS, HISTORICAL_R2_LISTS_2026_09_21_ADBLOCK_0_13_3_IDENTITY
+  ),
+  nodeTuple("node-v13-detectors-v10-active-no-adblock",
+    HISTORICAL_NODE_V13_NORMALIZATION, HISTORICAL_NODE_V13_METHODOLOGY,
+    HISTORICAL_NODE_V10_FIELDS, null
+  ),
   ...ACTIVE_NODE_TUPLES
 ]);
 
@@ -1539,7 +1612,14 @@ export const PAGEGRAPH_R2_PRODUCER_TUPLES: readonly PageGraphR2ProducerTuple[] =
     "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:cb7064a154022024d8ffa25c110de6feff64f2b0ecbd375b14a24ff17105059d+tldts@7.4.13+pagegraph-request-evidence-v1+r2-http-status-compat-v1",
     HISTORICAL_R2_2026_08_TRACKER_CATALOG
   ),
-  pageGraphTuple("pagegraph-v4-listener-withheld-active", PAGEGRAPH_R2_NORMALIZATION_VERSION, ACTIVE_TRACKER_CATALOG, {
+  // Closed by public-string-policy-v4, the reviewed narrowing that generalizes
+  // token-shaped private-suffix tenant labels and scrubs identifiers from
+  // policy quotes; the public-string policy is shared by both observers.
+  pageGraphTuple("pagegraph-v4-listener-withheld-active",
+    "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:b40a333af90f0b6a7bd1e5c702edcd7ef768167bc811ae20272a6e993cb83d51+tldts@7.4.13+pagegraph-request-evidence-v1+r2-http-status-compat-v1",
+    HISTORICAL_R2_2026_08_TRACKER_CATALOG
+  ),
+  pageGraphTuple("pagegraph-v4-public-string-policy-v4-active", PAGEGRAPH_R2_NORMALIZATION_VERSION, ACTIVE_TRACKER_CATALOG, {
     methodologyVersion: PAGEGRAPH_R2_METHODOLOGY_VERSION,
     publicLimits: PAGEGRAPH_R2_PUBLIC_LIMITS,
     detectorRegistry: PAGEGRAPH_REGISTRY,

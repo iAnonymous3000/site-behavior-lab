@@ -8,7 +8,7 @@ import {
   planR2ReportRemediation,
   r2ReportRetentionSource
 } from "./r2-report-remediation";
-import { REDACTION_VERSION } from "./redaction-v2";
+import { REDACTION_VERSION, redactHostnameV2 } from "./redaction-v2";
 import { REDACTION_TRANSITION_AUDIT_VERSION } from "./redaction-transition-audit";
 import { buildProvenanceEntry } from "./redaction-provenance";
 import { buildReportShare } from "./report-locator";
@@ -800,4 +800,87 @@ test("the planner and reader refuse a stored report holding a host the tldts@7.4
       );
     }
   }
+});
+
+test("a stored share under the identity public-string-policy-v4 retired reads unless it holds a string v4 removes", () => {
+  // public-string-policy-v4 is a reviewed narrowing: the retired identity stays
+  // declarable, and the reader re-runs the current sanitizer, so a share the
+  // retired pass published is served exactly when it is still a fixed point.
+  // The live producer's own run is the retired producer's: only the
+  // normalization moved, so the current fixture relabeled with the retired
+  // literal is what that producer stored, not a mixed epoch.
+  // The retired literal the identity ledger pins, not a lookup: without its
+  // superseded entry every share under it, affected or not, fails as an
+  // unreviewed normalization, and that is the failure this test must show.
+  const retired =
+    "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:b40a333af90f0b6a7bd1e5c702edcd7ef768167bc811ae20272a6e993cb83d51+tldts@7.4.13+node-evidence-policy-v1+r2-http-status-compat-v1";
+  // Documentation-range addresses in the shape the retired pass kept verbatim.
+  const tokenHost = "198-51-100-7_s-203-0-113-9_ts-1700000000-clienttons-s.akamaihd.net";
+  assert.equal(redactHostnameV2(tokenHost).value, "{label}.akamaihd.net");
+
+  function stored(substitute: (run: ScanRunV2R2) => void) {
+    const report = makePublicSingleReportV2R2();
+    const run = report.run;
+    run.privacy.redactionVersion = REDACTION_VERSION;
+    run.toolchain.normalizationVersion = retired;
+    run.evidence.requests.push({
+      id: 2,
+      url: "https://cdn.tracker-example.com/app.js",
+      domain: "cdn.tracker-example.com",
+      method: "GET",
+      resourceType: "script",
+      status: 200,
+      thirdParty: true,
+      tracker: null,
+      startedAtMs: 20,
+      phaseId: 0
+    });
+    run.fingerprints = buildFingerprints({
+      conditions: run.conditions,
+      provenance: run.provenance,
+      toolchain: run.toolchain,
+      detectors: run.detectors
+    });
+    // Sanitize under the current pass first, then substitute the bytes the
+    // retired pass published, so the substituted field is the only difference.
+    const output = redactPublicScanReportV2R2(report);
+    if (output.reportType !== "single") throw new Error("fixture invariant");
+    assert.equal(output.run.toolchain.normalizationVersion, retired);
+    substitute(output.run);
+    const sidecar = buildProvenanceEntry({
+      reportId: REPORT_ID,
+      publicReport: output,
+      writtenAt: CLOCK.createdAt,
+      createdAt: CLOCK.createdAt,
+      expiresAt: CLOCK.expiresAt
+    });
+    return { reportContents: JSON.stringify(output), sidecarContents: JSON.stringify(sidecar) };
+  }
+
+  function outcome(input: { reportContents: string; sidecarContents: string }) {
+    const read = readManagedReport({ reportId: REPORT_ID, ...input, retention: CLOCK });
+    const plan = planR2ReportRemediation({
+      reportId: REPORT_ID,
+      ...input,
+      retentionSource: METADATA_SOURCE,
+      writtenAt: WRITTEN_AT,
+      now: WRITTEN_AT
+    });
+    return {
+      read: read.ok ? "ok" : read.reason,
+      plan: plan.ok ? plan.action : { issue: plan.issue, ...(plan.detail ? { detail: plan.detail } : {}) }
+    };
+  }
+
+  assert.deepEqual(outcome(stored(() => undefined)), { read: "ok", plan: "current" });
+  assert.equal(SUPERSEDED_R2_NORMALIZATIONS["node-playwright"].includes(retired), true);
+  const affected = stored((run) => {
+    const request = run.evidence.requests.find((entry) => entry.id === 2);
+    if (!request) throw new Error("fixture invariant");
+    request.url = `https://${tokenHost}/{seg}`;
+    request.domain = tokenHost;
+  });
+  // Not rewritten: the planner never re-sanitizes a report that declares the
+  // current redaction version, so the share stays unserved until it expires.
+  assert.deepEqual(outcome(affected), { read: "redaction-not-idempotent", plan: { issue: "redaction-not-idempotent" } });
 });

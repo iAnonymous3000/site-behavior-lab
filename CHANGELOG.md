@@ -233,6 +233,67 @@ public API or a 1.0 release.
   `node-v13-detectors-v10-active-no-adblock` and
   `pagegraph-v4-listener-withheld-active`.
 
+### Redaction v5
+
+- Two kinds of string a saved report could publish are now withheld. A hosting
+  tenant label under a shared provider suffix (the first label of a
+  registrable domain under a private public suffix, such as `akamaihd.net`) is
+  generalized to `{label}` when it holds a dashed or underscored IPv4 address,
+  a run of eight or more digits, a hex token of twelve or more characters
+  mixing digits and letters, or a token of sixteen or more characters with at
+  least three digit runs, wherever a host or registrable domain is published:
+  request, provenance, cookie, CNAME, consent-frame and policy hosts, a
+  Shields-list tracker's domain and entity, and policy entities. Akamai's EUM
+  beacon hosts put the scanner's egress address, a visit timestamp and
+  per-visit tokens there. A site whose own host has such a label is refused
+  before the scan. An email address, phone number, web address, `www.` host,
+  host with a path, handle or obfuscated address inside a quoted policy
+  sentence becomes `[redacted]`, and the quote is marked incomplete, so its
+  claim is kept but never checked. The shapes cover the per-visit patterns
+  seen in published reports, not every identifier: a dashed IPv6 address, a
+  short token or one with fewer than three digit runs survives.
+- Identities, old to new. `REDACTION_VERSION` stays 4: every committed sidecar
+  and logged r2 wire pins revision 4, so the narrowing is named by the
+  public-string policy instead. `PUBLIC_STRING_POLICY_VERSION` moves from
+  `public-string-policy-v3` to `public-string-policy-v4`, and the policy digest
+  from `b40a333a...3d51` to `72a11e98...f7d9`, which now also hashes the tenant
+  shapes and the quote spans. Both r2 normalization identities move with it;
+  `tldts@7.4.13` and the allowlists do not.
+- The outgoing Node and PageGraph normalizations stay readable as superseded
+  identities, recorded as the second kind of owner exception the superseded
+  list admits: a reviewed sanitizer narrowing, with its removed strings and
+  their positions, the committed-corpus proof, the retention bound and the
+  owner's acceptance on 2026-09-25 in the entry. The outgoing producer rows
+  `node-v13-detectors-v10-active-lists-2026-09-21`,
+  `node-v13-detectors-v10-active-no-adblock` and
+  `pagegraph-v4-listener-withheld-active` are closed to their exact literals
+  (the v13 methodology, the `b40a333a` normalization, node-detectors-v10 and a
+  frozen copy of the September 21 lists under adblock-rust 0.13.3), byte for
+  byte what the epoch's source produced. The new active rows are
+  `node-v14-public-string-policy-v4-active-lists-2026-09-21`,
+  `node-v14-public-string-policy-v4-active-no-adblock` and
+  `pagegraph-v4-public-string-policy-v4-active`.
+- The methodology does not move, and neither does the v1 token. The three v1
+  lines above for a page that left the site or opened a window change what v1
+  reports record and how v1 readers censor inside the current reviewed line
+  (the `subject-validity-v4` base). No committed report carries that line, so
+  no committed cohort can mix reports from before and after the change.
+- Stored shares are not rewritten. The reader re-runs the current sanitizer,
+  so a share saved under the outgoing identity that holds a string v4 removes
+  is no longer served, and the remediation planner refuses to rewrite it. The
+  application stops serving a share at seven days and the bucket deletes it at
+  eight, so this affects at most the shares saved in the eight days before the
+  deploy. The owner accepted that instead of a migration.
+- Two committed reports published such tenant hosts:
+  `20260727-f378d41658184b8e1b014ae2e41b8541` and
+  `20260817-693b5bc1c455e1be2d0b42b4d8efa292`, both Shields comparisons of one
+  site with two affected hosts each. They are replaced for privacy: redacted
+  copies are published under new report IDs, the originals are removed, and a
+  corrections-ledger event names both. No committed quote changes. This
+  reduces what is served only: git history and the archived earlier releases
+  still hold the original bytes, and the earlier release receipts still list
+  their digests.
+
 ## [0.6.0] - 2026-09-06
 
 Declared on 2026-09-06 (the date above) and tagged `v0.6.0` on 2026-09-24 at
