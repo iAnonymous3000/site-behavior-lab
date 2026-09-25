@@ -5200,6 +5200,27 @@ test("the scanner blocks probe-triggered foreign-realm form navigation and auxil
     assert.ok(measurement?.measurement.qualityFacts.captureLoss.some(loss => loss.family === "requests" && loss.kind === "dropped"));
     assert.ok(result.warnings.some(warning => warning.includes("native form submission blocked")));
     assert.ok(result.warnings.every(warning => !warning.includes("including unload")));
+    // The scanner's own block of the main-frame submission must not read as the
+    // page leaving the subject. The default abort code commits an error page in
+    // place of the document, which discarded the whole probe, published the
+    // subject-loss warning and censored fingerprinting for a block the scanner
+    // itself made.
+    const activePhase = measurement.measurement.phases.find(phase => phase.kind === "active-probe");
+    assert.ok(activePhase);
+    assert.ok(measurement.measurement.qualityFacts.captureLoss.some(loss =>
+      loss.family === "requests" && loss.kind === "dropped" && loss.phaseId === activePhase.phaseId
+    ));
+    assert.ok(measurement.measurement.qualityFacts.captureLoss.every(loss =>
+      loss.family !== "fingerprinting" || loss.phaseId !== activePhase.phaseId
+    ));
+    assert.equal(measurement.measurement.detectors["keystroke-exfiltration"].status, "complete");
+    assert.ok(result.warnings.every(warning => !warning.includes("left the recorded site before or during the active input probe")));
+    assert.ok(result.warnings.some(warning => warning.includes("Observed requests during typing")));
+    // With the page kept, the blocked submission must still leave the log. The
+    // v1 URL of this .test host is redacted, so match the phase and the
+    // document count rather than the path.
+    assert.deepEqual(measurement.evidence.requests.filter(request => request.phaseId === activePhase.phaseId), []);
+    assert.equal(result.requests.filter(request => request.resourceType === "document").length, 1);
   } finally {
     await closeSharedBrowserForTests();
     await new Promise<void>(resolve => upstream.close(() => resolve()));

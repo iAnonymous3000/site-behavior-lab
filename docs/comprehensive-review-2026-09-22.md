@@ -211,6 +211,10 @@ navigation would carry is not observed: the capture loss censors the requests
 family but not the keystroke absence claim. The active probe `v3` move, and a
 keystroke detector version move because its output changes, land with this
 epoch's identity bookkeeping.
+The same `v3` also takes the companion change: the probe now aborts with
+`ERR_ABORTED`, which leaves the current document in place, so its own block of
+a main-frame navigation no longer reads as the page leaving the subject, and
+no longer discards the probe or censors fingerprinting.
 
 ## 5. Confirmed and left for other reasons
 

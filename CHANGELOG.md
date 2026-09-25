@@ -73,6 +73,12 @@ public API or a 1.0 release.
   a blocked navigation now leaves the log and its counts, keeps its lost request
   coverage record, and is not searched for the test value, so a value that only
   a blocked navigation would carry is not observed.
+- The input probe's block of a main-frame navigation (a form submitted through
+  another frame's `submit`, for example) replaced the page with an error page,
+  so the scanner's own block read as the page leaving the recorded site: the
+  probe was discarded and fingerprinting was censored. The probe now stops
+  these navigations the way a cancelled navigation stops, the page stays in
+  place, and the probe completes on the rest of what it observed.
 
 ## [0.6.0] - 2026-09-06
 

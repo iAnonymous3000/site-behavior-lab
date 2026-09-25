@@ -1041,7 +1041,11 @@ export async function scanSiteWithMeasurement(
             family: "requests", phaseId: keystrokeActivePhase,
             kind: "dropped", count: 1
           });
-          await route.abort();
+          // ERR_ABORTED, not the default ERR_FAILED: Chromium then keeps the
+          // current document instead of committing an error page, so the
+          // scanner's own block of a main-frame navigation is not read as the
+          // page leaving the subject, and a child frame keeps its document.
+          await route.abort("aborted");
           // The request event already recorded it. Same rule as the guard and
           // Shields aborts below: once Playwright confirms the abort it never
           // loaded, so it leaves the recorded log and its totals, and the
