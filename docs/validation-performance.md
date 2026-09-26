@@ -57,6 +57,20 @@ to PR #222's tested head `3ebef9dc17da14e69fd7f727f6ffc472504b0caf`.
   promotion paths still require that check. All existing checks still execute.
 - Superseded PR runs are cancelled. Main and manual runs keep unique concurrency
   groups and retain their evidence and promotion lifecycle.
+- The lib unit tests run in two phases through `scripts/unit-test-lanes.mjs`,
+  in CI and inside the container build alike. Files named in
+  `scripts/unit-test-serial-lane.json`, each with its reason, keep the former
+  conditions: one at a time, after everything else, with nothing beside them.
+  They are the Chromium launches, wall-clock and CPU-time assertions, timers and
+  short deadlines, Miniflare runtimes, Git fixture teardown races, and the one
+  test that recompiles `dist/schema`. Every other lib test runs first, three
+  files at a time and each in its own process, while the corpus-overview group
+  runs beside them. `scripts/unit-test-lanes.test.mjs` forces any lib test that
+  matches a browser, timing, timer, direct Git or Miniflare pattern into the
+  serial lane, and the runner fails if the parallel phase changes `dist/`. The
+  same tests run with the same assertions, timeouts and tolerances. A test that
+  ever fails only in the parallel lane belongs in the serial lane, never behind
+  a retry.
 - The carrier archive error test first verifies the intact fixture, then makes
   the real Git archive command read an empty object store. It checks fresh and
   deliberately packed repositories and requires Git's actual diagnostic to be
