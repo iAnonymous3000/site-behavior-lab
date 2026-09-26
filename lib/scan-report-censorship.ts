@@ -1,9 +1,6 @@
 import { RESPONSE_BYTE_CAPTURE_LOSS_DETAIL } from "./capture-loss-detail-contract";
 import { captureLossDetailNote } from "./capture-loss-presentation";
-import {
-  runHitFingerprintListenerAttributionLoss,
-  runHitFingerprintObserverCaptureLoss
-} from "./comparison-eligibility";
+import { fingerprintObserverLossLines } from "./comparison-eligibility";
 import type { CaptureLossEntry } from "./scan-report-v2";
 import {
   runHitRequestRecordingCap,
@@ -76,6 +73,9 @@ const QUALITY_REASON_NOTES: Record<string, string> = {
 const FINGERPRINT_LISTENER_ATTRIBUTION_NOTE =
   "the in-page fingerprint observer could not attribute every event listener to the script that registered it, so the fingerprinting evidence is incomplete";
 
+const FINGERPRINT_WORKER_REALM_NOTE =
+  "the fingerprint observer could not read one or more Web Workers the page started, so the fingerprinting evidence is incomplete";
+
 const RESPONSE_BYTE_LIMIT_WARNING = /reaching the ([1-9][0-9,]* MiB) aggregate response-byte budget/;
 const UPLOAD_BYTE_LIMIT_WARNING = /reaching the ([1-9][0-9,]* MiB) aggregate upload-byte budget/;
 const REQUEST_RECORDING_LIMIT_WARNING = /stopped recording or loading additional requests after ([1-9][0-9,]*) requests/;
@@ -127,14 +127,15 @@ function ownNote(table: Readonly<Record<string, string>>, key: string): string |
  * party capture-loss details are rendered below from their semantic registry.
  */
 function qualityReasonNote(run: RunView, reason: string): string {
-  // One legacy reason, two v1 warnings. When only the listener line produced
-  // it, every frame was read, so the frame wording would be false.
-  if (
-    reason === "capture-loss:fingerprint-observer" &&
-    runHitFingerprintListenerAttributionLoss(run) &&
-    !runHitFingerprintObserverCaptureLoss(run)
-  ) {
-    return FINGERPRINT_LISTENER_ATTRIBUTION_NOTE;
+  // One legacy reason, three v1 warnings, and each note is true only of its
+  // own line's state. The frame note wins when its line is present, since an
+  // unreadable frame is the widest loss; otherwise the worker note, which
+  // says nothing about frames; the listener note only when neither is there,
+  // because it implies every frame was read.
+  if (reason === "capture-loss:fingerprint-observer") {
+    const lines = fingerprintObserverLossLines(run);
+    if (!lines.frame && lines.workerRealm) return FINGERPRINT_WORKER_REALM_NOTE;
+    if (!lines.frame && lines.listener) return FINGERPRINT_LISTENER_ATTRIBUTION_NOTE;
   }
   const mapped = ownNote(QUALITY_REASON_NOTES, reason);
   if (mapped) return mapped;
@@ -198,9 +199,12 @@ function censoredFamilyDetailNote(run: RunView, family: string): string {
       (loss) => loss.family === family && loss.detail === RESPONSE_BYTE_CAPTURE_LOSS_DETAIL
     );
   // The r2 twin of the v1 rule in qualityReasonNote: one capture-loss detail,
-  // two warnings, and only the warning says which state the run was in.
+  // three warnings, only the warnings say which state the run was in, and the
+  // precedence is the same, frame, then worker, then listener.
+  const fingerprintLines = fingerprintObserverLossLines(run);
+  const fingerprintWorkerRealmLoss = !fingerprintLines.frame && fingerprintLines.workerRealm;
   const fingerprintListenerAttributionOnly =
-    runHitFingerprintListenerAttributionLoss(run) && !runHitFingerprintObserverCaptureLoss(run);
+    fingerprintLines.listener && !fingerprintLines.frame && !fingerprintLines.workerRealm;
   const details = Array.from(
     new Set(
       (run.quality.facts?.captureLoss ?? [])
@@ -210,6 +214,7 @@ function censoredFamilyDetailNote(run: RunView, family: string): string {
             ...(responseByteLimit === null ? {} : { responseByteLimit }),
             ...(uploadByteLimit === null ? {} : { uploadByteLimit }),
             ...(historicalMergedRequestAndByteLoss ? { historicalMergedRequestAndByteLoss: true } : {}),
+            ...(fingerprintWorkerRealmLoss ? { fingerprintWorkerRealmLoss: true } : {}),
             ...(fingerprintListenerAttributionOnly ? { fingerprintListenerAttributionOnly: true } : {})
           })
         )

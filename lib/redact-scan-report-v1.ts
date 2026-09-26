@@ -49,6 +49,7 @@ import {
   AUXILIARY_PAGE_REQUESTS_BLOCKED_WARNING,
   FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING,
   FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING,
+  FINGERPRINT_WORKER_REALM_CAPTURE_LOSS_WARNING,
   INVALID_UPSTREAM_RESPONSE_WARNING,
   KEYSTROKE_PROBE_INCOMPLETE_WARNING,
   KEYSTROKE_PROBE_NAVIGATION_STOPPED_WARNING,
@@ -357,6 +358,9 @@ const FIXED_SCANNER_WARNINGS = new Set([
   // fingerprint-observer@4: every frame read, listener attribution bounded.
   // Admitted beside the frame warning, which stays for unreadable frames.
   FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING,
+  // Worker realms: a dedicated worker the observer could not read in full.
+  // Admitted beside both lines above, since a run can carry either with it.
+  FINGERPRINT_WORKER_REALM_CAPTURE_LOSS_WARNING,
   // Emitted by this sanitizer, not the scanner: a listener detection whose
   // script origin has no publishable registrable domain was withheld.
   LISTENER_DETECTION_WITHHELD_WARNING,

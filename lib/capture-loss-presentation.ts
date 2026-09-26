@@ -131,6 +131,12 @@ export function captureLossDetailNote(
      * one detail, so the warning is the only discriminator on the wire.
      */
     fingerprintListenerAttributionOnly?: boolean;
+    /**
+     * The run's warnings carry the worker realm line and not the
+     * unreadable-frame line. The same detail counts unread worker realms
+     * beside frames, and only the warning says a worker was among them.
+     */
+    fingerprintWorkerRealmLoss?: boolean;
   } = {}
 ): string {
   const detail = loss.detail;
@@ -139,6 +145,15 @@ export function captureLossDetailNote(
   }
 
   const presentation = captureLossPresentation(detail);
+  if (detail === "fingerprint-observer" && options.fingerprintWorkerRealmLoss) {
+    // Every frame of the final read was read, so "did not finish" would be
+    // false of the page's own observer. Like the listener sentence below,
+    // this claims only what the worker line proves: in a consent mode an
+    // entry from the passive-boundary read can be a frame's or a worker's.
+    return `the fingerprint observer could not read one or more Web Workers the page started (${recordedLossCount(
+      loss.count
+    )})`;
+  }
   if (detail === "fingerprint-observer" && options.fingerprintListenerAttributionOnly) {
     // Every frame of the final read was read and its events were kept, so
     // "did not finish" would be false. This sentence claims only what the

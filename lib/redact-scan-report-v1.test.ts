@@ -41,6 +41,7 @@ import {
   AUXILIARY_PAGE_REQUESTS_BLOCKED_WARNING,
   FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING,
   FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING,
+  FINGERPRINT_WORKER_REALM_CAPTURE_LOSS_WARNING,
   INVALID_UPSTREAM_RESPONSE_WARNING,
   KEYSTROKE_PROBE_INCOMPLETE_WARNING,
   KEYSTROKE_PROBE_NAVIGATION_STOPPED_WARNING,
@@ -426,14 +427,20 @@ test("the incomplete pixel-decoder disclosure survives the public boundary", () 
   assert.deepEqual(report.warnings, [PIXEL_DECODE_CAPTURE_LOSS_WARNING]);
 });
 
-test("both fingerprint-observer disclosures survive the public boundary", () => {
+test("every fingerprint-observer disclosure survives the public boundary", () => {
   // The frame line stays admitted for every report that carries it; the
-  // listener line is the fingerprint-observer@4 widening beside it.
+  // listener line is the fingerprint-observer@4 widening beside it, and the
+  // worker realm line the widening that came with worker realms.
   const input = sensitiveSingle();
-  input.warnings = [FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING, FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING];
+  const lines = [
+    FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING,
+    FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING,
+    FINGERPRINT_WORKER_REALM_CAPTURE_LOSS_WARNING
+  ];
+  input.warnings = [...lines];
 
   const { report } = redactScanResultV1(input);
-  assert.deepEqual(report.warnings, [FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING, FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING]);
+  assert.deepEqual(report.warnings, lines);
 });
 
 test("the incomplete synthetic-input probe disclosure survives the public boundary", () => {

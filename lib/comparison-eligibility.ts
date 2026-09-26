@@ -46,6 +46,7 @@ const GPC_WORKER_CAPTURE_LOSS_WARNING_FRAGMENT = "Web Workers while applying the
 const FINGERPRINT_OBSERVER_WARNING_FRAGMENT = "in-page fingerprint observer could not read one or more frames";
 const FINGERPRINT_LISTENER_ATTRIBUTION_WARNING_FRAGMENT =
   "could not attribute every event listener to the script that registered it";
+const FINGERPRINT_WORKER_REALM_WARNING_FRAGMENT = "could not read one or more Web Workers the page started";
 // Not the tail: the listener-attribution line ends with the same "findings for
 // this visit are incomplete" clause, so each predicate would fire on the other.
 const LISTENER_DETECTION_WITHHELD_WARNING_FRAGMENT =
@@ -544,6 +545,35 @@ export function runHitFingerprintObserverCaptureLoss(run: Pick<ScanResult, "warn
  */
 export function runHitFingerprintListenerAttributionLoss(run: Pick<ScanResult, "warnings">): boolean {
   return run.warnings.some((warning) => warning.includes(FINGERPRINT_LISTENER_ATTRIBUTION_WARNING_FRAGMENT));
+}
+
+/**
+ * Whether a legacy run's fingerprint observer could not read one or more
+ * worker realms the page started: a dedicated worker whose evidence could not
+ * be read in full. Neither line above is true of a worker, and a run can
+ * carry either beside this one. Readers censor the fingerprinting family for
+ * it exactly as for them, through the same quality reason.
+ */
+export function runHitFingerprintWorkerRealmLoss(run: Pick<ScanResult, "warnings">): boolean {
+  return run.warnings.some((warning) => warning.includes(FINGERPRINT_WORKER_REALM_WARNING_FRAGMENT));
+}
+
+/**
+ * The fingerprint observer's three v1 loss lines, which all stand for the one
+ * `fingerprint-observer` capture-loss detail. The detail cannot say which
+ * state a run was in; only the lines can, so every reader that names the loss
+ * chooses its wording from this one classification.
+ */
+export function fingerprintObserverLossLines(run: Pick<ScanResult, "warnings">): {
+  frame: boolean;
+  listener: boolean;
+  workerRealm: boolean;
+} {
+  return {
+    frame: runHitFingerprintObserverCaptureLoss(run),
+    listener: runHitFingerprintListenerAttributionLoss(run),
+    workerRealm: runHitFingerprintWorkerRealmLoss(run)
+  };
 }
 
 /**

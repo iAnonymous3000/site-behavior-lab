@@ -400,17 +400,37 @@ public API or a 1.0 release.
   still mid-task or its evidence was still queued when the wait ended, its
   stream broke, the DevTools channel went away while it ran, its owner
   document could not be recorded, or the browser reported it and the channel
-  never attached it) is counted as unread by the collection, but is not yet
-  recorded as capture loss or named in a warning.
-- The coverage boundary entry for OffscreenCanvas 2D work,
-  `worker-realm-canvas`, now covers what stays unobserved: canvas and font
+  never attached it) is an unread realm (next item).
+- An unread worker realm now marks the visit's fingerprinting evidence
+  incomplete, never clean. It adds to the existing `fingerprinting` capture
+  loss under the existing `fingerprint-observer` detail, whose count is now
+  the observer realms (frames and workers) whose evidence is incomplete, at
+  the read where it was unread, and the detector reads partial, never failed,
+  when every frame was read. A new fixed warning says so on v1: "The
+  fingerprint observer could not read one or more Web Workers the page
+  started, so fingerprint-like API calls and heuristics for this visit are
+  incomplete." Neither existing observer line is true of a worker (one says a
+  frame was not read, the other that every frame was), so the new line stands
+  beside them, and it follows both reads: a worker unread only at the passive
+  boundary, which r2 records as that boundary's loss, still carries it, so
+  v1 withholds what r2 withholds. v1 readers censor the fingerprinting and
+  detector-output families for it exactly as for the frame line, and the
+  reader notes on both wires say which loss it was, the frame line first,
+  then the worker line, then the listener line. A page's `terminate()` costs
+  evidence only when a read falls inside it: Chromium lets the worker's task
+  run for about two seconds and still delivers its last snapshot as it ends
+  the worker, so a worker terminated well before a read is read in full.
+- The coverage boundary entry for OffscreenCanvas 2D work is now
+  `cross-realm-canvas`, and covers what stays unobserved: canvas and font
   work split across the page and a worker (text drawn in a worker and read
   from an image the page receives, or drawn by a worker on a canvas the page
-  transferred to it and exported by the page), shared workers and worklets,
-  and workers whose evidence is unread. It still names the page-realm routes
-  above that are not traced and the pending export, and says that reports
-  measured before node-detectors-v11 did not observe OffscreenCanvas 2D work
-  in the page at all, so a quiet canvas finding on one does not rule it out.
+  transferred to it and exported by the page), and shared workers and
+  worklets. It says that a dedicated worker whose evidence cannot be read in
+  full marks the visit's evidence incomplete rather than clean. It still
+  names the page-realm routes above that are not traced and the pending
+  export, and says that reports measured before node-detectors-v11 did not
+  observe OffscreenCanvas 2D work in the page at all, so a quiet canvas
+  finding on one does not rule it out.
 - Recorded identities, old to new:
   - Base Node methodology, which is also the v1 methodology token and the
     corpus cohort key:

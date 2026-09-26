@@ -46,6 +46,7 @@ import {
   runHitAuxiliaryPageRequestsBlocked,
   runHitFingerprintListenerAttributionLoss,
   runHitFingerprintObserverCaptureLoss,
+  runHitFingerprintWorkerRealmLoss,
   runHitKeystrokeProbeCaptureLoss,
   runHitKeystrokeProbeNavigationStopped,
   runHitKeystrokeProbeRequestsOmitted,
@@ -69,6 +70,7 @@ import {
   AUXILIARY_PAGE_REQUESTS_BLOCKED_WARNING,
   FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING,
   FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING,
+  FINGERPRINT_WORKER_REALM_CAPTURE_LOSS_WARNING,
   INVALID_UPSTREAM_RESPONSE_WARNING,
   KEYSTROKE_PROBE_INCOMPLETE_WARNING,
   KEYSTROKE_PROBE_NAVIGATION_STOPPED_WARNING,
@@ -463,6 +465,77 @@ test("a v1 listener-attribution line censors fingerprinting exactly as the unrea
   assert.doesNotMatch(listenerNotes, /could not read every frame/);
   assert.match(listenerNotes, /could not attribute every event listener/);
   assert.doesNotMatch(listenerNotes, /capture-loss:/);
+});
+
+test("a v1 worker realm line censors fingerprinting exactly as the frame line, and each note says what its own line says", () => {
+  // Each predicate recognizes only its own line, the GPC worker line
+  // included, which also names Web Workers.
+  const predicates = (warnings: string[]) => [
+    runHitFingerprintObserverCaptureLoss({ warnings }),
+    runHitFingerprintListenerAttributionLoss({ warnings }),
+    runHitFingerprintWorkerRealmLoss({ warnings })
+  ];
+  assert.deepEqual(predicates([FINGERPRINT_WORKER_REALM_CAPTURE_LOSS_WARNING]), [false, false, true]);
+  assert.deepEqual(predicates([FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING]), [true, false, false]);
+  assert.deepEqual(predicates([FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING]), [false, true, false]);
+  assert.deepEqual(predicates([GPC_WORKER_CAPTURE_LOSS_WARNING]), [false, false, false]);
+  assert.equal(runHitListenerDetectionWithheld({ warnings: [FINGERPRINT_WORKER_REALM_CAPTURE_LOSS_WARNING] }), false);
+
+  // Every variant runs through the real view, facts and corpus accumulator.
+  const outcome = (warnings: string[]) => {
+    const report = makeScanReportV1() as ScanResult;
+    report.summary.firstPartyDomain = "worker-fixture.net";
+    report.conditions.requestedUrl = "https://worker-fixture.net/";
+    report.conditions.finalUrl = "https://worker-fixture.net/";
+    report.summary.totalRequests = 12;
+    report.summary.thirdPartyRequests = 5;
+    report.summary.fingerprintEvents = 4;
+    report.fingerprintEvents = [{ api: "canvas.toDataURL", count: 4 }];
+    report.warnings = warnings;
+    const view = viewFromV1Report(report);
+    const run = view.runs[0];
+    const facts = buildReportFacts(view).display;
+    const corpus = createCorpusStatsAccumulator(new Date("2026-09-25T00:00:00.000Z"));
+    corpus.add(`20260709-${"e".repeat(32)}`, view);
+    return {
+      run,
+      reasons: run.quality.reasons,
+      censored: ["requests", "cookies", "storage", "fingerprinting", "detector-output"].map((family) =>
+        familyCensoredOnRun(run, family as Parameters<typeof familyCensoredOnRun>[1])
+      ),
+      claims: {
+        fingerprint: facts.claims["fingerprint-apis"],
+        listeners: facts.claims["session-recording-input-monitoring"],
+        requests: facts.claims["third-party-services"]
+      },
+      cohorts: corpus.finish().cohorts,
+      notes: runCensorshipNotes(run).join(" ")
+    };
+  };
+  const frame = outcome([FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING]);
+  const worker = outcome([FINGERPRINT_WORKER_REALM_CAPTURE_LOSS_WARNING]);
+
+  assert.deepEqual(worker.reasons, ["capture-loss:fingerprint-observer"]);
+  assert.deepEqual(worker.reasons, frame.reasons);
+  assert.deepEqual(worker.censored, frame.censored);
+  assert.deepEqual(worker.censored, [false, false, false, true, true]);
+  assert.deepEqual(worker.claims, frame.claims);
+  assert.equal(worker.claims.fingerprint.benchmarkAllowed, false);
+  assert.deepEqual(worker.claims.fingerprint.blockers, ["family-censored"]);
+  assert.deepEqual(worker.cohorts, frame.cohorts);
+  assert.equal(worker.cohorts[0]?.metrics.fingerprintEvents, undefined);
+
+  // Precedence: frame, then worker, then listener, so the note is always
+  // true of the run.
+  const workerNote = /could not read one or more Web Workers the page started/;
+  assert.match(worker.notes, workerNote);
+  assert.doesNotMatch(worker.notes, /could not read every frame|attribute every event listener/);
+  const workerAndListener = outcome([FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING, FINGERPRINT_WORKER_REALM_CAPTURE_LOSS_WARNING]);
+  assert.match(workerAndListener.notes, workerNote);
+  assert.doesNotMatch(workerAndListener.notes, /attribute every event listener/);
+  const frameAndWorker = outcome([FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING, FINGERPRINT_WORKER_REALM_CAPTURE_LOSS_WARNING]);
+  assert.match(frameAndWorker.notes, /could not read every frame/);
+  assert.doesNotMatch(frameAndWorker.notes, workerNote);
 });
 
 test("a v1 withheld listener detection censors the listener claim and nothing else", () => {
@@ -1106,6 +1179,47 @@ test("an r2 listener-attribution loss is named as that loss, not as an observer 
     assert.doesNotMatch(frame.notes[0], /attribute every event listener/);
     assert.doesNotMatch(frame.notice, /attribute every event listener/);
   }
+});
+
+test("an r2 worker realm loss is named as that loss, and the listener sentence never stands in for it", () => {
+  // The same capture-loss detail counts unread worker realms beside frames,
+  // so only the run's warnings say a worker was among them. Precedence is
+  // the v1 rule's: frame, then worker, then listener.
+  const render = (warnings: string[]) => {
+    const report = makePublicSingleReportV2R2();
+    report.run.warnings.push(...warnings);
+    report.run.qualityFacts.captureLoss = [
+      { family: "fingerprinting", phaseId: 0, kind: "dropped", count: 2, detail: "fingerprint-observer" }
+    ];
+    report.run.quality = evaluateQuality(report.run.qualityFacts, {
+      observedRequests: report.run.summary.counts.totalRequests
+    });
+    const view = viewFromV2(report, 2);
+    assert.equal(familyCensoredOnRun(view.runs[0], "fingerprinting"), true);
+    return {
+      notes: runCensorshipNotes(view.runs[0]).filter((note) => note.startsWith("fingerprinting evidence")),
+      notice: degradedRunNotice(view) ?? ""
+    };
+  };
+
+  for (const warnings of [
+    [FINGERPRINT_WORKER_REALM_CAPTURE_LOSS_WARNING],
+    [FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING, FINGERPRINT_WORKER_REALM_CAPTURE_LOSS_WARNING]
+  ]) {
+    const worker = render(warnings);
+    assert.equal(worker.notes.length, 1);
+    assert.match(
+      worker.notes[0],
+      /the fingerprint observer could not read one or more Web Workers the page started \(recorded loss count: 2\)$/
+    );
+    for (const text of [...worker.notes, worker.notice]) {
+      assert.doesNotMatch(text, /did not finish|attribute every event listener/);
+    }
+  }
+
+  const frame = render([FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING, FINGERPRINT_WORKER_REALM_CAPTURE_LOSS_WARNING]);
+  assert.match(frame.notes[0], /the in-page fingerprint observer did not finish \(recorded loss count: 2\)$/);
+  assert.doesNotMatch(frame.notes[0], /Web Workers/);
 });
 
 test("historical response-byte loss names the ceiling and counts streams, never missing requests", () => {

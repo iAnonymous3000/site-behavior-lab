@@ -166,6 +166,19 @@ export const FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING =
 export const FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING =
   "The in-page fingerprint observer read every frame but could not attribute every event listener to the script that registered it, so session-recording and input-monitoring findings for this visit are incomplete.";
 /**
+ * The observer could not read one or more worker realms the page's code ran
+ * in: a dedicated worker whose evidence could not be read in full at one of
+ * the visit's evidence reads (lib/worker-fingerprint-realm.ts).
+ *
+ * Independent of the two lines above, since a run can carry either beside
+ * it, and neither is true of a worker: the frame line says a frame was not
+ * read, and the listener line says every frame was. v1 readers censor the
+ * fingerprinting family for it exactly as for them. It must never contain
+ * either line's recognition fragment.
+ */
+export const FINGERPRINT_WORKER_REALM_CAPTURE_LOSS_WARNING =
+  "The fingerprint observer could not read one or more Web Workers the page started, so fingerprint-like API calls and heuristics for this visit are incomplete.";
+/**
  * The v1 sanitizer withheld a session-recording or input-monitoring detection
  * because a script origin it named redacted to the invalid-URL marker (a
  * path-style S3 host, a bare-IP CDN, a host that is itself a public suffix, a

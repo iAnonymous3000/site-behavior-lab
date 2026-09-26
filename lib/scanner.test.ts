@@ -39,7 +39,8 @@ import {
   createProbeRequestCaptureState,
   decideRoutedRequest,
   fingerprintFrameCoverageStatus,
-  fingerprintObserverLossFrames,
+  fingerprintObserverLossRealms,
+  fingerprintWorkerRealmLoss,
   incompleteKeystrokeProbeRequestLoss,
   phaseAwareFingerprintEvents,
   freezePassiveShieldsFacts,
@@ -3090,11 +3091,24 @@ const PROBE_THEN_REGISTER_SCRIPT =
   '  ["input","keydown","change","paste"].forEach(type => field.addEventListener(type, () => undefined));' +
   "};";
 
-test("fingerprintObserverLossFrames counts unreadable frames and listener-bounded frames once each", () => {
-  assert.equal(fingerprintObserverLossFrames({ attemptedFrames: 3, readableFrames: 3, listenerAttributionLostFrames: 0 }), 0);
-  assert.equal(fingerprintObserverLossFrames({ attemptedFrames: 3, readableFrames: 2, listenerAttributionLostFrames: 0 }), 1);
-  assert.equal(fingerprintObserverLossFrames({ attemptedFrames: 3, readableFrames: 3, listenerAttributionLostFrames: 2 }), 2);
-  assert.equal(fingerprintObserverLossFrames({ attemptedFrames: 3, readableFrames: 2, listenerAttributionLostFrames: 1 }), 2);
+test("fingerprintObserverLossRealms counts unreadable frames, listener-bounded frames and unread worker realms once each", () => {
+  const realms = (
+    attemptedFrames: number,
+    readableFrames: number,
+    listenerAttributionLostFrames: number,
+    attemptedWorkerRealms = 0,
+    readableWorkerRealms = 0
+  ) => ({ attemptedFrames, readableFrames, listenerAttributionLostFrames, attemptedWorkerRealms, readableWorkerRealms });
+  assert.equal(fingerprintObserverLossRealms(realms(3, 3, 0)), 0);
+  assert.equal(fingerprintObserverLossRealms(realms(3, 2, 0)), 1);
+  assert.equal(fingerprintObserverLossRealms(realms(3, 3, 2)), 2);
+  assert.equal(fingerprintObserverLossRealms(realms(3, 2, 1)), 2);
+  // A worker is not a frame: it adds to the loss and never to frame coverage.
+  assert.equal(fingerprintObserverLossRealms(realms(3, 3, 0, 4, 1)), 3);
+  assert.equal(fingerprintObserverLossRealms(realms(3, 2, 1, 2, 1)), 3);
+  assert.equal(fingerprintFrameCoverageStatus(realms(3, 3, 0, 4, 1)), "complete");
+  assert.equal(fingerprintWorkerRealmLoss(realms(3, 3, 0, 4, 1)), 3);
+  assert.equal(fingerprintWorkerRealmLoss(realms(3, 2, 0, 2, 2)), 0);
 });
 
 test("a saturated listener stack publishes the frame's canvas and WebGL evidence as a censored family", { timeout: 30_000 }, async () => {

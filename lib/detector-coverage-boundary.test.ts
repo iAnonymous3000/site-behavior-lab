@@ -444,9 +444,9 @@ test("the causality boundary states what the scanner actually records", () => {
  * the current one, and a methodology component the current base carries. It
  * must also say which page-realm routes it traces, and that no other is.
  */
-test("the worker-realm canvas entry tells a reader which reports observed OffscreenCanvas work in the page", () => {
-  const entry = COVERAGE_BOUNDARY_ENTRIES.find((candidate) => candidate.id === "worker-realm-canvas");
-  assert.ok(entry, "the worker-realm canvas boundary entry must exist");
+test("the cross-realm canvas entry tells a reader which reports observed OffscreenCanvas work in the page", () => {
+  const entry = COVERAGE_BOUNDARY_ENTRIES.find((candidate) => candidate.id === "cross-realm-canvas");
+  assert.ok(entry, "the cross-realm canvas boundary entry must exist");
 
   const olderObserver = /\bfingerprint-observer@(\d+) or earlier\b/.exec(entry.explanation);
   assert.ok(olderObserver, "the entry must name the last observer version that did not observe it");
