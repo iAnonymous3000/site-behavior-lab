@@ -48,13 +48,16 @@ import {
  *
  * SCOPE. Worker evidence is scoped to current documents, as the page realm's
  * is: a replaced document's observer state is gone. The installer records each
- * worker's owner document, the frame and its loader, during the pause, when
- * the worker is alive and its owner therefore current. At a readout a worker
- * still attached is current, because a dedicated worker dies with its owner
- * document, and a worker that has gone is credited only when its owner
- * document is still in the page's current frame trees. An interstitial that
- * fingerprints in a worker and then navigates to the site is therefore not
- * credited to the site.
+ * worker's owner document, the frame and its loader, from the page's frame
+ * tree, read beside the install and never holding the worker: that read is
+ * answered on the page's main thread, which a long task or a pending
+ * navigation can keep for seconds. A late answer can describe the tree after
+ * a navigation replaced the owner, so a loader counts as the owner's only
+ * when the worker itself answers a command sent after it (`readOwner`). At a
+ * readout every worker, attached or gone, is credited only when its owner
+ * document is in the page's frame trees read at the freeze. An interstitial
+ * that fingerprints in a worker and then navigates to the site is therefore
+ * not credited to the site.
  */
 
 /** Serialized once per process: the same text for every worker of every scan. */
@@ -84,6 +87,10 @@ export const WORKER_REALM_READOUT_SETTLE_MS = 500;
  * answer. The real-Chromium backlog test pins it, and the blocked pool worker
  * test pins the interrupt. (This file is a coverage boundary source, so it
  * names no page API the boundary lists as uninstrumented.)
+ *
+ * The owner read sends the same command as the worker's vouch for its owner
+ * (`readOwner`), for the same reasons: it runs nothing of the page's, and a
+ * busy worker answers it at once.
  */
 const READOUT_BARRIER_METHOD = "Runtime.getIsolateId";
 
@@ -138,8 +145,9 @@ export type WorkerFingerprintReadoutDiagnostics = {
   /** Excluded: the worker's target went away before the channel released it. */
   diedPaused: number;
   /**
-   * Excluded: the worker has gone and its owner document is no longer
-   * current, whatever its stream state (cut off, broken, or never installed).
+   * Excluded: its owner document was not in the page's frame trees read at
+   * the freeze, whatever its stream state (cut off, broken, or never
+   * installed), and whether or not its detach had arrived.
    */
   ownerReplaced: number;
   /** Read: one cumulative snapshot. */
@@ -158,7 +166,11 @@ export type WorkerFingerprintReadoutDiagnostics = {
   streamBroken: number;
   /** Unread: the channel closed while the worker was alive, so its later emissions cannot arrive. */
   channelLostAlive: number;
-  /** Unread: its owner document could not be recorded, or could not be checked against the current frames. */
+  /**
+   * Unread: its owner document could not be recorded (no answer, or one the
+   * worker did not vouch for, by the end of the drain), or the frame trees at
+   * the freeze could not be read.
+   */
   ownerUnknown: number;
   /** Unread: witnessed by the browser but never attached by the channel. */
   unattachedDedicated: number;
@@ -189,8 +201,16 @@ type WorkerRealmRecord = {
   readonly worker: AttachedWorker;
   /** Null until the install reached its terminal record. */
   install: "installed" | "failed" | "attached-late" | null;
-  /** Null while the pause's read is pending; "unknown" when it failed. */
-  owner: OwnerDocument | "unknown" | null;
+  /**
+   * Null when no read was started, "reading" while the read or the worker's
+   * vouch for it is in flight, and "unknown" when it gave no vouched answer.
+   */
+  owner: OwnerDocument | "unknown" | "reading" | null;
+  /** The owner read, once started, which a nested worker's own read follows. */
+  ownerRead: Promise<OwnerDocument | "unknown"> | null;
+  /** Settles when the browser detaches the worker's target. */
+  readonly gone: Promise<void>;
+  markGone: () => void;
   lastSeq: number;
   lastWord: "open" | "closed" | null;
   /** The text of the last closed emission: a snapshot or the realm's own "null". */
@@ -216,7 +236,8 @@ type FrozenRealm =
  * arm, and the ledger of what each worker realm streamed back. It runs after
  * the GPC installer in the GPC arm's pause, so the GPC outcome never depends
  * on it; for the same reason the owner document is read here, after GPC, and
- * not by the channel before every installer.
+ * not by the channel before every installer. Only the install itself holds
+ * the worker: the owner read runs beside it and is never waited for.
  *
  * Dedicated workers only. The channel does not receive shared workers from a
  * page session; should one ever attach, nothing is installed into it here,
@@ -257,24 +278,26 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
     if (worker.kind !== "dedicated") return;
     this.channel = channel;
     const record = this.recordFor(worker);
+    // Beside the install, never awaited here: its answer comes from the page's
+    // main thread, and the worker must not wait on the page's long task or
+    // pending navigation to run.
+    this.startOwnerRead(record, channel);
     if (!worker.waitingForDebugger) {
       // Already running when it attached: its first statements ran before any
       // install could, so nothing is installed and its realm is unread.
       this.concludeWorker(worker, "attached-late");
       return;
     }
-    // One burst, processed in order by the browser: the owner read on the
-    // session the attach arrived on, then the sink, then the observer, which
-    // finds the sink already on its global. The worker stays held throughout.
-    const ownerRead = this.readOwner(worker, channel);
+    // One burst on the worker's own session, processed in order by the
+    // browser: the sink, then the observer, which finds the sink already on
+    // its global. The worker stays held for these two answers only.
     const binding = channel.send("Runtime.addBinding", { name: this.sinkName }, worker.sessionId);
     const evaluation = channel.send(
       "Runtime.evaluate",
       { expression: this.expression, returnByValue: true },
       worker.sessionId
     );
-    const [owner, bound, evaluated] = await Promise.allSettled([ownerRead, binding, evaluation]);
-    record.owner = owner.status === "fulfilled" ? owner.value : "unknown";
+    const [bound, evaluated] = await Promise.allSettled([binding, evaluation]);
     let installed = false;
     if (bound.status === "fulfilled" && evaluated.status === "fulfilled") {
       const result = evaluated.value.result as { value?: unknown } | undefined;
@@ -311,7 +334,9 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
       // is its whole stream: a barrier still waiting on it is answered by the
       // detach, which the channel recorded before this.
       const record = typeof event.params.sessionId === "string" ? this.records.get(event.params.sessionId) : undefined;
-      if (record) for (const slot of record.slots) this.answerBarrier(record, slot);
+      if (!record) return;
+      for (const slot of record.slots) this.answerBarrier(record, slot);
+      record.markGone();
       return;
     }
     if (event.method !== "Runtime.bindingCalled" || event.params.name !== this.sinkName) return;
@@ -351,20 +376,27 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
    *    so far is not its state at the freeze: it gets the readout barrier,
    *    and its state is its last word when the barrier's answer arrives,
    *    which is behind everything the realm emitted before answering.
+   *    The page's frame trees are read at the call too, so that each
+   *    worker's scope is judged at the freeze and not at the end of the
+   *    drain, when a frame may have navigated since.
    * 2. The drain, bounded by `settleMs`: wait until the channel's attaches
    *    reach the witness's count at the freeze (a witnessed worker not yet
    *    attached is still paused, not lost), for each running worker's
-   *    answer, and, for each worker whose last word at its freeze point was
-   *    "open", for the first closed snapshot after it. That is a page
-   *    evaluate waiting for the current task to end. The drain never waits
-   *    for a worker's latest state to be closed, which a worker drawing
-   *    every frame could starve, and a worker without its answer or its
-   *    closed snapshot at the bound is cut off, never read at an older
-   *    state.
-   * 3. A worker that has gone is checked against the page's current frame
-   *    trees first: one whose document was replaced is excluded whatever
-   *    state its stream was left in. Every other worker is classified by its
-   *    state.
+   *    answer, for each owner read still in flight, and, for each worker
+   *    whose last word at its freeze point was "open", for the first closed
+   *    snapshot after it. That is a page evaluate waiting for the current
+   *    task to end. The drain never waits for a worker's latest state to be
+   *    closed, which a worker drawing every frame could starve, and a worker
+   *    without its answer or its closed snapshot at the bound is cut off,
+   *    never read at an older state.
+   * 3. Every worker, attached or gone, is checked against the frame trees
+   *    read at the freeze first: one whose document was not current then is
+   *    excluded whatever state its stream was left in, and one whose
+   *    document was current then is classified by its state, even if it has
+   *    gone since. A worker that went mid-task after the freeze is therefore
+   *    cut off, a disclosed loss, never excluded. Attached is not taken to
+   *    mean current: a worker whose document was just replaced can still be
+   *    attached, its detach not yet arrived.
    *
    * Shared workers are unread, one each, for the whole visit so far: the
    * channel's discovery count after the drain.
@@ -378,6 +410,9 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
     settleMs: number;
   }): Promise<WorkerFingerprintRealmReadout> {
     const observedDedicated = options.witness.count();
+    // Sent now, before anything is awaited: the page's documents at the
+    // freeze. Its answer is awaited only after the drain.
+    const documentsAtFreeze = currentDocumentLoaders(options.session);
     const frozen: FrozenRealm[] = [];
     for (const record of this.records.values()) frozen.push(this.freeze(record));
     // A dedicated worker this installer has neither installed nor heard
@@ -392,6 +427,7 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
     } finally {
       for (const realm of frozen) if (realm.state === "waiting") realm.record.slots.delete(realm.slot);
     }
+    const currentDocuments = await documentsAtFreeze;
 
     const attachCounts = options.session?.attachCounts() ?? {
       attachedDedicatedWorkerCount: 0,
@@ -416,19 +452,14 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
       discoveredShared: options.session?.discoveredSharedWorkerCount() ?? 0
     };
 
-    // Scope before state. A worker that has gone with a document the page no
-    // longer shows ran no code of the page's current documents, so it is
-    // excluded, like a replaced frame, whatever its stream says: cut off by
-    // the navigation mid-task, broken, or never installed. Only a known owner
-    // shown replaced in current frame trees that could be read excludes it;
-    // anything less leaves the worker to the term its state gives it.
-    let currentDocuments: Map<string, string> | null | undefined;
-    const ownerReplaced = async (record: WorkerRealmRecord): Promise<boolean> => {
-      const owner = record.owner;
-      if (!record.worker.detached || owner === null || owner === "unknown") return false;
-      if (currentDocuments === undefined) currentDocuments = await currentDocumentLoaders(options.session);
-      return currentDocuments !== null && currentDocuments.get(owner.frameId) !== owner.loaderId;
-    };
+    // Scope before state. A worker of a document the page did not show at the
+    // freeze ran no code of the page's documents then, so it is excluded,
+    // like a replaced frame, whatever its stream says: cut off by the
+    // navigation mid-task, broken, or never installed. Only a known owner
+    // shown replaced in frame trees that could be read excludes it; anything
+    // less leaves the worker to the term its state gives it.
+    const ownerOf = (record: WorkerRealmRecord): OwnerDocument | null =>
+      typeof record.owner === "object" ? record.owner : null;
 
     const readableSnapshots: string[] = [];
     for (const realm of frozen) {
@@ -436,7 +467,8 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
         diagnostics[realm.reason] += 1;
         continue;
       }
-      if (await ownerReplaced(realm.record)) {
+      const owner = ownerOf(realm.record);
+      if (owner !== null && currentDocuments !== null && currentDocuments.get(owner.frameId) !== owner.loaderId) {
         diagnostics.ownerReplaced += 1;
         continue;
       }
@@ -462,15 +494,11 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
         diagnostics.streamBroken += 1;
         continue;
       }
-      // A realm with its snapshot in hand still needs an owner shown current.
-      const owner = realm.record.owner;
-      if (owner === null || owner === "unknown") {
-        diagnostics.ownerUnknown += 1;
-        continue;
-      }
-      if (realm.record.worker.detached && currentDocuments === null) {
-        // The current frames could not be read, so the worker's owner
-        // cannot be shown current or replaced; never excluded silently.
+      // A realm with its snapshot in hand still needs an owner shown current:
+      // one with no vouched owner, or with frames at the freeze that could not
+      // be read, cannot be shown current or replaced, and is never excluded
+      // silently.
+      if (owner === null || currentDocuments === null) {
         diagnostics.ownerUnknown += 1;
         continue;
       }
@@ -551,10 +579,12 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
       if (session.attachCounts().attachedDedicatedWorkerCount < observedDedicated) return false;
       return frozen.every(
         (realm) =>
-          realm.state !== "waiting" ||
-          realm.slot.snapshot !== null ||
-          realm.record.broken ||
-          realm.record.lostWithChannel
+          realm.state === "excluded" ||
+          (realm.record.owner !== "reading" &&
+            (realm.state !== "waiting" ||
+              realm.slot.snapshot !== null ||
+              realm.record.broken ||
+              realm.record.lostWithChannel))
       );
     };
     if (drained()) return;
@@ -625,24 +655,56 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
     }
   }
 
+  /** Starts the worker's one owner read; its result lands on the record whenever it answers. */
+  private startOwnerRead(record: WorkerRealmRecord, channel: DevtoolsChannel): void {
+    if (record.ownerRead !== null) return;
+    record.owner = "reading";
+    record.ownerRead = this.readOwner(record, channel).then((owner) => {
+      record.owner = owner;
+      this.announceChange();
+      return owner;
+    });
+  }
+
   /**
-   * The worker's owner document, read during its pause, when the worker is
-   * alive and its owner therefore committed and current: the attach's
-   * `parentFrameId`, found in `Page.getFrameTree` on the session the attach
-   * arrived on (the page, or the out-of-process frame that started it). A
-   * worker started by another worker has its parent's owner.
+   * The worker's owner document: the attach's `parentFrameId`, found in
+   * `Page.getFrameTree` on the session the attach arrived on (the page, or
+   * the out-of-process frame that started it). A worker started by another
+   * worker has its parent's owner, once its parent's read has answered.
+   *
+   * The tree is answered on the page's main thread: at once on an idle page,
+   * after the current task on a busy one, and only once a pending navigation
+   * has committed or been abandoned. An answer can therefore describe the
+   * tree after a navigation replaced the worker's owner, with the new
+   * document's loader in the owner's frame. The worker vouches for the
+   * answer: a command on the worker's own session, sent once the answer has
+   * arrived, is answered only if the worker is still running, so its owner
+   * was still current when the tree was read. A worker whose document is
+   * replaced stops answering at the replacement, before the new document's
+   * tree can be read; it gives no vouch, and its owner stays unknown, a
+   * disclosed loss rather than a guess either way. That is a platform
+   * assumption, which the real-Chromium tests pin for pending same-site and
+   * cross-site navigations, and for a long task, a 204 and a download, whose
+   * late answers are vouched.
    */
-  private async readOwner(worker: AttachedWorker, channel: DevtoolsChannel): Promise<OwnerDocument | "unknown"> {
+  private async readOwner(record: WorkerRealmRecord, channel: DevtoolsChannel): Promise<OwnerDocument | "unknown"> {
+    const worker = record.worker;
     if (worker.nested) {
       const parent = worker.arrivedOnSessionId === null ? undefined : this.records.get(worker.arrivedOnSessionId);
-      const owner = parent?.owner;
-      return owner && owner !== "unknown" ? owner : "unknown";
+      return parent?.ownerRead ?? "unknown";
     }
     if (worker.ownerFrameId === null || worker.arrivedOnSessionId === null) return "unknown";
     try {
       const tree = await channel.send("Page.getFrameTree", {}, worker.arrivedOnSessionId);
       const loaderId = frameLoaderIds(tree.frameTree).get(worker.ownerFrameId);
-      return loaderId === undefined ? "unknown" : { frameId: worker.ownerFrameId, loaderId };
+      if (loaderId === undefined || worker.detached) return "unknown";
+      // A detach cancels the vouch: the browser answers nothing more on the
+      // session of a worker that has gone.
+      const vouched = await Promise.race([
+        channel.send(READOUT_BARRIER_METHOD, {}, worker.sessionId).then(() => true),
+        record.gone.then(() => false)
+      ]);
+      return vouched ? { frameId: worker.ownerFrameId, loaderId } : "unknown";
     } catch {
       return "unknown";
     }
@@ -651,10 +713,18 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
   private recordFor(worker: AttachedWorker): WorkerRealmRecord {
     let record = this.records.get(worker.sessionId);
     if (!record) {
+      let markGone: () => void = () => undefined;
+      const gone = new Promise<void>((resolve) => {
+        markGone = resolve;
+      });
+      if (worker.detached) markGone();
       record = {
         worker,
         install: null,
         owner: null,
+        ownerRead: null,
+        gone,
+        markGone,
         lastSeq: 0,
         lastWord: null,
         lastClosed: null,

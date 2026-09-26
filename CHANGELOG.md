@@ -369,6 +369,10 @@ public API or a 1.0 release.
   Playwright alone, a burst of eight workers 7 to 8 ms longer, and each
   wrapped call inside a worker 0.6 to 1.5 microseconds longer. A worker whose
   script arrives late pays the same, because the pause comes after the fetch.
+  The pause waits only for the installs on the worker's own session: nothing
+  answered on the page's main thread holds it, so a page busy in a long task,
+  or waiting on a pending navigation, does not hold its workers for that
+  time. The design measured on idle pages only.
   The GPC arm still pays about 0.4 ms per worker more than the others for its
   own handshake, now small beside the install every arm pays; what grows is
   every arm's distance from an ordinary visit. A visit whose channel cannot
@@ -399,17 +403,28 @@ public API or a 1.0 release.
   at an older state. Each worker's snapshot is normalized and merged by the
   same functions as a frame's, once per worker, so nothing is counted twice,
   and heuristics apply per worker as they do per frame. A worker is credited
-  only while its document is current: its owner frame and loader are recorded
-  during its pause, and a worker that has gone counts only if that document is
-  still in the page's current frames, so an interstitial that fingerprints in
-  a worker and then navigates to the site is not credited to the site. That
-  holds whatever state the navigation left the worker's stream in: a busy
-  worker it ended mid-task is excluded with its document, not counted unread.
-  A worker whose evidence cannot be read in full (its install failed, it was
-  still mid-task or its evidence was still queued when the wait ended, its
-  stream broke, the DevTools channel went away while it ran, its owner
-  document could not be recorded, or the browser reported it and the channel
-  never attached it) is an unread realm (next item).
+  only while its document is current. Its owner frame and loader are read
+  from the page's frame tree beside the install, never holding the worker;
+  since that tree is answered on the page's main thread, possibly only after
+  a pending navigation has committed, a loader counts as the owner's only
+  when the worker itself answers a DevTools query sent after the tree
+  arrived, which a worker whose document was replaced no longer does. Each
+  read then counts a worker, attached or gone, only if that document is in
+  the page's frames read at the moment of the read, so an interstitial that
+  fingerprints in a worker and then navigates to the site is not credited to
+  the site, and a frame that navigates while the read is still waiting on
+  another worker does not take back a worker its document had at that moment.
+  That holds whatever state the navigation left the worker's stream in: a
+  busy worker it ended mid-task is excluded with its document, not counted
+  unread. A worker whose evidence cannot be read in full (its install failed,
+  it was still mid-task or its evidence was still queued when the wait ended,
+  its stream broke, the DevTools channel went away while it ran, its owner
+  document could not be recorded or the worker could not vouch for it, or the
+  browser reported it and the channel never attached it) is an unread realm
+  (next item). A worker a document starts while its own navigation is
+  pending is one of these: its owner can only be read after the commit, when
+  the worker has gone, so it is neither credited to the next document nor
+  excluded.
 - An unread worker realm now marks the visit's fingerprinting evidence
   incomplete, never clean. It adds to the existing `fingerprinting` capture
   loss under the existing `fingerprint-observer` detail, whose count is now

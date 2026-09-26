@@ -158,7 +158,7 @@ const READ_SNAPSHOT = JSON.stringify({ detections: [], events: { "canvas.getImag
 const LATER_SNAPSHOT = JSON.stringify({ detections: [], events: { "canvas.getImageData": 2 } });
 const LATEST_SNAPSHOT = JSON.stringify({ detections: [], events: { "canvas.getImageData": 3 } });
 
-test("the installer reads the owner, adds the sink and evaluates the one expression before each resume, and counts only a true answer with its first snapshot", async () => {
+test("the installer adds the sink and evaluates the one expression before each resume, reads the owner beside them, and counts only a true answer with its first snapshot", async () => {
   const installer = new FingerprintWorkerRealmInstaller(FIXTURE_SITE_KEY);
   const expression = fingerprintObserverWorkerInstallExpression(FIXTURE_SITE_KEY, installer);
   const answers: Record<string, Record<string, unknown> | Error> = {
@@ -188,12 +188,13 @@ test("the installer reads the owner, adds the sink and evaluates the one express
   await session.settle(1_000);
 
   for (const sessionId of Object.keys(answers)) {
-    assert.deepEqual(commandsFor(scripted.sent, sessionId), [
-      "Target.setAutoAttach",
-      "Runtime.addBinding",
-      `Runtime.evaluate ${expression}`,
-      "Runtime.runIfWaitingForDebugger"
-    ]);
+    const commands = commandsFor(scripted.sent, sessionId);
+    assert.deepEqual(
+      commands.filter((method) => method !== "Runtime.getIsolateId"),
+      ["Target.setAutoAttach", "Runtime.addBinding", `Runtime.evaluate ${expression}`, "Runtime.runIfWaitingForDebugger"]
+    );
+    // The worker's one vouch for its owner read, whenever that answers.
+    assert.equal(commands.filter((method) => method === "Runtime.getIsolateId").length, 1);
     const binding = scripted.sent.find((command) => command.sessionId === sessionId && command.method === "Runtime.addBinding");
     assert.deepEqual(binding?.params, { name: installer.sinkName });
   }
@@ -271,8 +272,10 @@ test("a shared worker attach gets nothing installed and no install record", asyn
 
 /**
  * A scripted page with the production installer: each worker attaches on the
- * page session, its install answers true after its first closed snapshot, and
- * the page's frame tree is whatever the test says it is now.
+ * page session, its install answers true after its first closed snapshot, its
+ * owner read is vouched for at once, and the page's frame tree is whatever the
+ * test says it is now. The same command is the owner read's vouch before the
+ * first readout and the readout's barrier from then on.
  */
 async function scriptedWorkerRealms(
   options: {
@@ -284,6 +287,8 @@ async function scriptedWorkerRealms(
 ) {
   const installer = new FingerprintWorkerRealmInstaller(FIXTURE_SITE_KEY);
   let frameTree = options.frameTree ?? (() => ({ frame: { id: "main-frame", loaderId: "loader-1" } }));
+  /** Commands sent before the first readout; everything after is the readouts'. */
+  let sentBeforeReadout: number | null = null;
   const scripted = scriptedChannel((command) => {
     if (command.method === "Target.attachToTarget") return { sessionId: "page-session" };
     if (command.method === "Page.getFrameTree") {
@@ -291,7 +296,8 @@ async function scriptedWorkerRealms(
       return tree instanceof Error ? tree : { frameTree: tree };
     }
     if (command.method === "Runtime.getIsolateId") {
-      return options.barrier ? options.barrier(command.sessionId!) : { id: `isolate-${command.sessionId}` };
+      if (sentBeforeReadout === null || !options.barrier) return { id: `isolate-${command.sessionId}` };
+      return options.barrier(command.sessionId!);
     }
     if (command.method === "Runtime.evaluate") {
       if (options.handshake?.(command.sessionId!) !== false) {
@@ -321,7 +327,15 @@ async function scriptedWorkerRealms(
       frameTree = next;
     },
     readout(observedDedicated: number, settleMs = 200): Promise<WorkerFingerprintRealmReadout> {
+      sentBeforeReadout ??= scripted.sent.length;
       return installer.readout({ session, witness: { count: () => observedDedicated }, settleMs });
+    },
+    /** What the readouts sent, by method and session. */
+    readoutCommands(method: string): Array<string | undefined> {
+      return scripted.sent
+        .slice(sentBeforeReadout ?? scripted.sent.length)
+        .filter((command) => command.method === method)
+        .map((command) => command.sessionId);
     }
   };
 }
@@ -367,7 +381,7 @@ test("readout: a running worker is read at its last word when its barrier answer
   }
   const pending = realms.readout(2, 2_000);
   assert.deepEqual(
-    realms.scripted.sent.filter((command) => command.method === "Runtime.getIsolateId").map((command) => command.sessionId),
+    realms.readoutCommands("Runtime.getIsolateId"),
     ["w1", "w2"],
     "each running worker gets one barrier on its own session"
   );
@@ -571,8 +585,12 @@ test("readout: a worker already running when it attached gets nothing installed 
   const realms = await scriptedWorkerRealms();
   realms.scripted.emit(attachEvent("running", "worker", { waitingForDebugger: false }));
   await realms.session.settle(1_000);
+  // Its owner is still read, and vouched for, so that it can be excluded
+  // with a replaced document; nothing is evaluated in it.
   assert.deepEqual(
-    commandsFor(realms.scripted.sent, "running").filter((method) => method !== "Target.setAutoAttach"),
+    commandsFor(realms.scripted.sent, "running").filter(
+      (method) => method !== "Target.setAutoAttach" && method !== "Runtime.getIsolateId"
+    ),
     ["Runtime.runIfWaitingForDebugger"]
   );
   assert.deepEqual(readoutTerms(await realms.readout(1)), { snapshots: [], unread: 1, terms: { attachedLate: 1 } });
@@ -591,7 +609,7 @@ test("readout: a worker that has gone is read only while its owner document is c
   realms.setFrameTree(() => ({ frame: { id: "main-frame", loaderId: "loader-2" } }));
   assert.deepEqual(readoutTerms(await realms.readout(2)), { snapshots: [], unread: 0, terms: { ownerReplaced: 2 } });
   // A worker gone at the call can emit nothing more: it gets no barrier.
-  assert.equal(realms.scripted.sent.some((command) => command.method === "Runtime.getIsolateId"), false);
+  assert.deepEqual(realms.readoutCommands("Runtime.getIsolateId"), []);
   realms.setFrameTree(() => ({ frame: { id: "main-frame", loaderId: "loader-1" } }));
   assert.deepEqual(readoutTerms(await realms.readout(2)), {
     snapshots: [READ_SNAPSHOT, READ_SNAPSHOT],
@@ -687,6 +705,198 @@ test("readout: a worker that died while held ran nothing and is excluded, althou
   assert.deepEqual(installer.installDiagnostics(), { installedWorkerCount: 0, installFailedWorkerCount: 1 });
   const readout = await installer.readout({ session, witness: { count: () => 1 }, settleMs: 0 });
   assert.deepEqual(readoutTerms(readout), { snapshots: [], unread: 0, terms: { diedPaused: 1 } });
+});
+
+/** A page frame tree each test answers by hand, and the worker vouches it drew. */
+function heldFrameTrees() {
+  const answers: Array<() => void> = [];
+  return {
+    frameTree: (tree: Record<string, unknown>) =>
+      new Promise<Record<string, unknown>>((resolve) => {
+        answers.push(() => resolve({ frameTree: tree }));
+      }),
+    answerAll() {
+      for (const answer of answers.splice(0)) answer();
+    }
+  };
+}
+
+/**
+ * The owner read is answered on the page's main thread, which a long task or
+ * a pending navigation can hold for seconds. The worker's release and the
+ * install's own count wait only for the install on the worker's session; the
+ * owner lands on the record whenever its read answers, and until then a read
+ * worker is unread for want of an owner, never read unscoped.
+ */
+test("the release and the install's count never wait for the owner read, whose answer lands whenever it comes", async () => {
+  const installer = new FingerprintWorkerRealmInstaller(FIXTURE_SITE_KEY);
+  const trees = heldFrameTrees();
+  const scripted = scriptedChannel((command) => {
+    if (command.method === "Target.attachToTarget") return { sessionId: "page-session" };
+    if (command.method === "Page.getFrameTree") return trees.frameTree({ frame: { id: "main-frame", loaderId: "loader-1" } });
+    if (command.method === "Runtime.evaluate") {
+      scripted.emit(emission(installer, command.sessionId!, 1, "closed", READ_SNAPSHOT));
+      return { result: { type: "boolean", value: true } };
+    }
+    return {};
+  });
+  const session = new DedicatedWorkerAttachSession(scripted.channel, [installer], { handshakeTimeoutMs: 1_000 });
+  await session.attachToPage("page-target-id");
+  scripted.emit(attachEvent("w1"));
+  await new Promise((resolve) => setTimeout(resolve, 50));
+
+  assert.ok(commandsFor(scripted.sent, "w1").includes("Runtime.runIfWaitingForDebugger"), "the worker must not wait for its owner read");
+  assert.deepEqual(installer.installDiagnostics(), { installedWorkerCount: 1, installFailedWorkerCount: 0 });
+  const readout = (settleMs: number) => installer.readout({ session, witness: { count: () => 1 }, settleMs });
+  // The owner read and the freeze's own frame tree read are both still held.
+  const early = readout(50);
+  await new Promise((resolve) => setTimeout(resolve, 80));
+  trees.answerAll();
+  assert.deepEqual(readoutTerms(await early), { snapshots: [], unread: 1, terms: { ownerUnknown: 1 } });
+  // Answered and vouched for: the same worker is read.
+  const late = readout(200);
+  trees.answerAll();
+  assert.deepEqual(readoutTerms(await late), { snapshots: [READ_SNAPSHOT], unread: 0, terms: { readable: 1 } });
+});
+
+/**
+ * An owner answer describes the page's frame tree when the page's main thread
+ * got to it, which can be after a navigation replaced the worker's owner. It
+ * counts only when the worker answers a command sent once the answer is in
+ * hand: a worker that has gone by then, whose command errors, or that goes
+ * while its command is in flight leaves its owner unknown, a disclosed loss,
+ * never a guess that credits or excludes it.
+ */
+test("an owner answer counts only when the worker vouches for it after it arrives", async () => {
+  const installer = new FingerprintWorkerRealmInstaller(FIXTURE_SITE_KEY);
+  const trees = heldFrameTrees();
+  const vouches = new Map<string, () => void>();
+  let readingOut = false;
+  const scripted = scriptedChannel((command) => {
+    if (command.method === "Target.attachToTarget") return { sessionId: "page-session" };
+    if (command.method === "Page.getFrameTree") return trees.frameTree({ frame: { id: "main-frame", loaderId: "loader-1" } });
+    if (command.method === "Runtime.evaluate") {
+      scripted.emit(emission(installer, command.sessionId!, 1, "closed", READ_SNAPSHOT));
+      return { result: { type: "boolean", value: true } };
+    }
+    if (command.method === "Runtime.getIsolateId") {
+      // The readout's own barrier answers at once; the vouch is up to the test.
+      if (readingOut) return { id: "isolate" };
+      if (command.sessionId === "errors") return new Error("Internal error");
+      if (command.sessionId === "goes-while-asked") return new Promise(() => undefined);
+      return new Promise((resolve) => vouches.set(command.sessionId!, () => resolve({ id: "isolate" })));
+    }
+    return {};
+  });
+  const session = new DedicatedWorkerAttachSession(scripted.channel, [installer]);
+  await session.attachToPage("page-target-id");
+  const workers = ["gone-first", "errors", "goes-while-asked", "vouched"];
+  for (const sessionId of workers) scripted.emit(attachEvent(sessionId));
+  await session.settle(1_000);
+  const detach = (sessionId: string) =>
+    scripted.emit({ method: "Target.detachedFromTarget", sessionId: "page-session", params: { sessionId } });
+
+  detach("gone-first");
+  trees.answerAll();
+  await new Promise((resolve) => setImmediate(resolve));
+  detach("goes-while-asked");
+  vouches.get("vouched")!();
+  await new Promise((resolve) => setImmediate(resolve));
+  // The worker gone before the answer arrived gets no vouch to send.
+  assert.equal(commandsFor(scripted.sent, "gone-first").includes("Runtime.getIsolateId"), false);
+
+  readingOut = true;
+  const pending = installer.readout({ session, witness: { count: () => workers.length }, settleMs: 100 });
+  trees.answerAll();
+  assert.deepEqual(readoutTerms(await pending), {
+    snapshots: [READ_SNAPSHOT],
+    unread: 3,
+    terms: { readable: 1, ownerUnknown: 3 }
+  });
+});
+
+test("a nested worker's owner follows its parent's read, however late it answers", async () => {
+  const installer = new FingerprintWorkerRealmInstaller(FIXTURE_SITE_KEY);
+  const trees = heldFrameTrees();
+  const scripted = scriptedChannel((command) => {
+    if (command.method === "Target.attachToTarget") return { sessionId: "page-session" };
+    if (command.method === "Page.getFrameTree") return trees.frameTree({ frame: { id: "main-frame", loaderId: "loader-1" } });
+    if (command.method === "Runtime.evaluate") {
+      scripted.emit(emission(installer, command.sessionId!, 1, "closed", READ_SNAPSHOT));
+      return { result: { type: "boolean", value: true } };
+    }
+    return {};
+  });
+  const session = new DedicatedWorkerAttachSession(scripted.channel, [installer]);
+  await session.attachToPage("page-target-id");
+  scripted.emit(attachEvent("parent"));
+  await session.settle(1_000);
+  scripted.emit(attachEvent("child", "worker", { arrivedOn: "parent" }));
+  await session.settle(1_000);
+  // Only the parent's owner is read; the child waits on that read.
+  assert.equal(commandsFor(scripted.sent, "parent").includes("Page.getFrameTree"), false);
+  assert.equal(scripted.sent.filter((command) => command.method === "Page.getFrameTree").length, 1);
+
+  const pending = installer.readout({ session, witness: { count: () => 2 }, settleMs: 500 });
+  setTimeout(() => trees.answerAll(), 30);
+  assert.deepEqual(readoutTerms(await pending), {
+    snapshots: [READ_SNAPSHOT, READ_SNAPSHOT],
+    unread: 0,
+    terms: { readable: 2 }
+  });
+});
+
+/**
+ * Scope is judged at the freeze. A worker whose document was not in the
+ * page's frames at the freeze is excluded even while it is still attached,
+ * its detach not yet arrived; and a worker whose document was current at the
+ * freeze keeps the term its state gives it when its frame navigates during
+ * the drain and ends it.
+ */
+test("readout: each worker's scope is its owner document at the freeze, attached or gone", async () => {
+  let childLoader = "child-loader-1";
+  const realms = await scriptedWorkerRealms({
+    frameTree: () => ({
+      frame: { id: "main-frame", loaderId: "loader-1" },
+      childFrames: [{ frame: { id: "child-frame", loaderId: childLoader } }]
+    })
+  });
+  for (const sessionId of ["child-worker", "busy"]) {
+    realms.scripted.emit(attachEvent(sessionId, "worker", { ownerFrame: sessionId === "busy" ? "main-frame" : "child-frame" }));
+  }
+  await realms.session.settle(1_000);
+  realms.emit("child-worker", 2, "open");
+  realms.emit("child-worker", 3, "closed", READ_SNAPSHOT);
+  // The main document's worker is mid-task at the freeze, so the drain waits.
+  realms.emit("busy", 2, "open");
+
+  const pending = realms.readout(2, 1_000);
+  // During the drain the child frame navigates, which ends its worker.
+  childLoader = "child-loader-2";
+  realms.detach("child-worker");
+  setTimeout(() => realms.emit("busy", 3, "closed", LATER_SNAPSHOT), 30);
+  assert.deepEqual(readoutTerms(await pending), {
+    snapshots: [READ_SNAPSHOT, LATER_SNAPSHOT],
+    unread: 0,
+    terms: { readable: 2 }
+  });
+
+  // The child frame's document is not the worker's any more. A worker of it
+  // still attached, its detach not yet arrived, is excluded all the same.
+  childLoader = "child-loader-3";
+  const stillAttached = await scriptedWorkerRealms({
+    frameTree: () => ({
+      frame: { id: "main-frame", loaderId: "loader-1" },
+      childFrames: [{ frame: { id: "child-frame", loaderId: childLoader } }]
+    })
+  });
+  childLoader = "child-loader-1";
+  stillAttached.scripted.emit(attachEvent("attached", "worker", { ownerFrame: "child-frame" }));
+  await stillAttached.session.settle(1_000);
+  stillAttached.emit("attached", 2, "open");
+  stillAttached.emit("attached", 3, "closed", READ_SNAPSHOT);
+  childLoader = "child-loader-2";
+  assert.deepEqual(readoutTerms(await stillAttached.readout(1)), { snapshots: [], unread: 0, terms: { ownerReplaced: 1 } });
 });
 
 /**
@@ -1561,6 +1771,181 @@ test("real Chromium: a cross-site iframe's workers are scoped to the iframe's cu
     [replaced.diagnostics.readable, replaced.diagnostics.ownerReplaced, replaced.unreadRealms],
     [1, 1, 0],
     JSON.stringify(replaced.diagnostics)
+  );
+});
+
+/**
+ * The owner read is answered on the page's main thread, after its current
+ * task. A worker that attaches while the page is in a long task runs at once
+ * all the same, in parallel with the page as it would for any visitor, and is
+ * installed and read: the release waits for the install on the worker's own
+ * session only. The task starts ahead of the observer's install, from an
+ * installer placed before it as the GPC installer is in its arm, so that the
+ * page is busy when the owner read is sent. Once with a task shorter than the
+ * pause's watchdog, and once with one longer, where a release that waited for
+ * the owner read would count the install as failed.
+ */
+test("real Chromium: a worker that attaches during the page's long task runs at once and is installed and read", { timeout: 60_000 }, async (t) => {
+  for (const taskMs of [1_000, 3_500]) {
+    const { origin, done } = await startWorkerFixture(t, {
+      page: `<!doctype html><title>busy page</title><script>new Worker("/busy-page.js");</script>`,
+      scripts: {
+        "/busy-page.js": `fetch(self.location.origin + "/done/first"); ${CANVAS_READ_SOURCE} setInterval(() => undefined, 1000);`
+      }
+    });
+    const longTask: WorkerRealmInstaller = {
+      async install(worker, channel) {
+        const expression =
+          `fetch("/done/task-start"); const until = Date.now() + ${taskMs}; let half = false; ` +
+          `while (Date.now() < until) { if (!half && Date.now() > until - ${taskMs / 2}) { half = true; fetch("/done/task-half"); } } ` +
+          `fetch("/done/task-end");`;
+        void channel.send("Runtime.evaluate", { expression }, worker.arrivedOnSessionId ?? undefined).catch(() => undefined);
+        await waitFor(() => done.includes("task-start"), 5_000);
+      },
+      concluded() {}
+    };
+    const harness = await openPausedWorkerHarness(t, { before: longTask });
+    await harness.page.goto(`${origin}/`, { timeout: 10_000 });
+    await waitFor(() => done.includes("task-end") && done.includes("first"), 15_000);
+
+    assert.ok(
+      done.includes("first") && done.indexOf("first") < done.indexOf("task-half"),
+      `the worker must run during the page's ${taskMs} ms task, not after it: ${done.join(", ")}`
+    );
+    assert.deepEqual(harness.installer.installDiagnostics(), { installedWorkerCount: 1, installFailedWorkerCount: 0 });
+    const readout = await readWorkerRealms(harness);
+    assert.deepEqual([readout.diagnostics.readable, readout.unreadRealms], [1, 0], JSON.stringify(readout.diagnostics));
+    const collection = await collectFingerprintObservationsWithCoverage([], readout);
+    assert.deepEqual(
+      collection.observations.detections.map((detection) => detection.heuristic),
+      ["openwpm-canvas-v1"]
+    );
+  }
+});
+
+/**
+ * A document that starts a worker while its own navigation is pending. The
+ * owner read is held until the navigation commits, and then describes the
+ * next document. The worker runs at once all the same, and the owner answer
+ * that comes with the commit is never taken for its owner: the worker has
+ * gone with its document by then and cannot vouch for it. It is not credited
+ * to the next document. Nor is it excluded, since nothing the scanner can
+ * read shows its document replaced rather than merely busy: it is unread for
+ * want of an owner, a disclosed loss. The navigation is held longer than the
+ * pause's watchdog, which a release that waited for the owner read would
+ * reach.
+ */
+test("real Chromium: a worker started during its document's pending navigation runs at once and is never credited to the next document", { timeout: 60_000 }, async (t) => {
+  const beacons: Array<{ name: string; at: number }> = [];
+  let nextRequestedAt = 0;
+  const port = await startFixtureServer(t, (request, response) => {
+    const url = new URL(request.url ?? "/", "http://fixture.test");
+    if (url.pathname.startsWith("/done/")) {
+      beacons.push({ name: url.pathname.slice("/done/".length), at: Date.now() });
+      response.writeHead(204);
+      response.end();
+      return;
+    }
+    if (url.pathname === "/interstitial.js") {
+      response.writeHead(200, { "content-type": "text/javascript" });
+      response.end(`fetch(self.location.origin + "/done/first"); ${CANVAS_READ_SOURCE} setInterval(() => undefined, 1000);`);
+      return;
+    }
+    if (url.pathname === "/next") {
+      nextRequestedAt = Date.now();
+      setTimeout(() => {
+        response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+        response.end("<!doctype html><title>next document</title>");
+      }, 3_500);
+      return;
+    }
+    response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+    response.end(`<!doctype html><title>interstitial</title><script>location.href = "/next"; new Worker("/interstitial.js");</script>`);
+  });
+  const harness = await openPausedWorkerHarness(t);
+  await harness.page.goto(`http://127.0.0.1:${port}/`, { timeout: 10_000 }).catch(() => undefined);
+  await waitFor(() => harness.page.url().endsWith("/next") && harness.workers.length === 1 && harness.workers[0].detached, 15_000);
+  assert.equal(harness.workers[0]?.detached, true, "the navigation must end the interstitial's worker");
+
+  const first = beacons.find((beacon) => beacon.name === "first");
+  assert.ok(first, "the interstitial's worker must have run");
+  assert.ok(
+    first.at - nextRequestedAt < 1_000,
+    `the worker must run while the navigation is pending, not at its commit: ${first.at - nextRequestedAt} ms`
+  );
+  assert.deepEqual(harness.installer.installDiagnostics(), { installedWorkerCount: 1, installFailedWorkerCount: 0 });
+
+  const readout = await readWorkerRealms(harness, 500);
+  assert.deepEqual(
+    [readout.diagnostics.readable, readout.diagnostics.ownerUnknown, readout.unreadRealms],
+    [0, 1, 1],
+    JSON.stringify(readout.diagnostics)
+  );
+  const collection = await collectFingerprintObservationsWithCoverage([], readout);
+  assert.deepEqual(collection.observations.detections, [], "the interstitial's worker must not be credited to the next document");
+});
+
+/**
+ * Scope is taken at the freeze. An iframe's document starts a worker that
+ * fingerprints and stays alive, and the main document's worker is mid-task
+ * at the freeze, so the drain stays open. The iframe navigates after the
+ * readout is called and before it returns, which ends its worker. That
+ * worker's document was current at the freeze, so it is read, exactly as the
+ * iframe's page realm would be at the same freeze; judging its scope after
+ * the drain would drop it with no loss at all.
+ */
+test("real Chromium: a frame that navigates while a readout drains keeps the worker its document had at the freeze", { timeout: 60_000 }, async (t) => {
+  const { origin, done } = await startWorkerFixture(t, () => ({
+    page: `<!doctype html><title>freeze scope</title><body><script>
+      if (location.pathname === "/" && window === top) {
+        const frame = document.createElement("iframe");
+        frame.src = "/?frame";
+        document.body.append(frame);
+        new Worker("/busy-main.js");
+      } else if (location.search === "?frame") {
+        const worker = new Worker("/frame-worker.js");
+        worker.onmessage = () => fetch("/done/frame-read");
+      }
+    </script>`,
+    scripts: {
+      "/frame-worker.js": `${CANVAS_READ_SOURCE} postMessage("read"); setInterval(() => undefined, 1000);`,
+      // Back-to-back tasks, each open for 300 ms, so a freeze lands mid-task.
+      "/busy-main.js":
+        "fetch(self.location.origin + '/done/main-started'); const context = new OffscreenCanvas(10, 10).getContext('2d'); " +
+        "const task = () => { context.measureText('x'); const until = Date.now() + 300; while (Date.now() < until) {} setTimeout(task, 0); }; task();"
+    }
+  }));
+  const harness = await openPausedWorkerHarness(t);
+  const scriptOf = new Map<string, string>();
+  harness.channel.onEvent((event) => {
+    const targetInfo = event.params.targetInfo as { type?: unknown; url?: unknown } | undefined;
+    if (event.method === "Target.attachedToTarget" && targetInfo?.type === "worker") {
+      scriptOf.set(String(event.params.sessionId), new URL(String(targetInfo.url)).pathname);
+    }
+  });
+  await harness.page.goto(`${origin}/`, { timeout: 10_000 });
+  await waitFor(() => done.includes("frame-read") && done.includes("main-started"), 15_000);
+  const frame = harness.page.frames().find((candidate) => candidate.url().endsWith("/?frame"));
+  assert.ok(frame, "the iframe must be loaded");
+  const frameWorker = harness.workers.find((worker) => scriptOf.get(worker.sessionId) === "/frame-worker.js");
+  assert.ok(frameWorker);
+
+  const pending = readWorkerRealms(harness, 2_000);
+  await frame.evaluate(() => {
+    location.href = "/?second";
+  });
+  const readout = await pending;
+  assert.equal(frameWorker.detached, true, "the iframe's navigation must end its worker before the readout returns");
+
+  assert.deepEqual(
+    [readout.diagnostics.readable, readout.diagnostics.ownerReplaced, readout.unreadRealms],
+    [2, 0, 0],
+    JSON.stringify(readout.diagnostics)
+  );
+  const collection = await collectFingerprintObservationsWithCoverage([], readout);
+  assert.ok(
+    collection.observations.detections.some((detection) => detection.heuristic === "openwpm-canvas-v1"),
+    "the worker of the iframe's document at the freeze must be read"
   );
 });
 
