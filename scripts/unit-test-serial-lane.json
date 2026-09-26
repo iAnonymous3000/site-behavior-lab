@@ -8,6 +8,7 @@
   "lib/consent-verification.test.ts": "launches Chromium and bounds elapsed time between 75 and 1500 ms",
   "lib/container-forward-response.test.ts": "asserts elapsed time under 1000 ms three times",
   "lib/controlled-publication-receipt.test.ts": "recompiles dist/schema in place under a 60 s compile timeout, which other tests read",
+  "lib/devtools-worker-channel.test.ts": "launches Chromium and holds paused workers under DevTools watchdogs and short handshake timeouts",
   "lib/durable-replay-smoke-guard.test.ts": "gives a child request a 2000 ms deadline",
   "lib/durable-scan-job-edge-wiring.test.ts": "races millisecond deadlines",
   "lib/durable-scan-job-internal-response.test.ts": "asserts a 250 ms settle watchdog",
@@ -51,6 +52,7 @@
   "lib/scanner-gpc-worker.test.ts": "launches Chromium through the scanner's shared browser under 40 s timeouts",
   "lib/scanner-policy-navigation.test.ts": "launches Chromium through the scanner's shared browser under 30 s timeouts",
   "lib/scanner-resource-lifecycle.test.ts": "asserts elapsed time under 1000 ms twice",
+  "lib/scanner-worker-fingerprint.test.ts": "launches Chromium through the scanner's shared browser and times worker readback under 60 s timeouts",
   "lib/scanner.test.ts": "launches Chromium through the scanner's shared browser, bounds elapsed time and uses 20 s and longer timeouts",
   "lib/script-http-response.test.ts": "asserts elapsed time under 500 ms twice",
   "lib/staging-teardown-hosted-source.test.ts": "runs git show under 10 s timeouts for every fixture",
@@ -59,5 +61,6 @@
   "lib/url-safety.test.ts": "asserts elapsed time under 1000 ms",
   "lib/v1-release-contract.test.ts": "commits in fixture repos without disabling Git auto maintenance, which can race the fixture teardown",
   "lib/verify-published-report-fetch.test.ts": "asserts a 1 s settle watchdog",
-  "lib/waf-hosted-capture.test.ts": "asserts a 1 s settle watchdog"
+  "lib/waf-hosted-capture.test.ts": "asserts a 1 s settle watchdog",
+  "lib/worker-fingerprint-realm.test.ts": "launches Chromium and holds paused workers under install and readback watchdogs"
 }
