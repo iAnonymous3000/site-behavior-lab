@@ -784,10 +784,13 @@ type PausedWorkerHarness = {
  */
 async function openPausedWorkerHarness(
   t: TestContext,
-  options: { before?: WorkerRealmInstaller } = {}
+  options: { before?: WorkerRealmInstaller; launchArgs?: string[] } = {}
 ): Promise<PausedWorkerHarness> {
   const devtoolsPort = await reserveLoopbackPort();
-  const browser = await chromium.launch({ headless: true, args: [`--remote-debugging-port=${devtoolsPort}`] });
+  const browser = await chromium.launch({
+    headless: true,
+    args: [`--remote-debugging-port=${devtoolsPort}`, ...(options.launchArgs ?? [])]
+  });
   t.after(() => browser.close());
   const context = await browser.newContext();
   const page = await context.newPage();
@@ -1466,6 +1469,71 @@ test("real Chromium: a worker ended mid-task by its document's navigation is exc
   assert.equal(readout.diagnostics.ownerReplaced, 1);
   assert.equal(readout.diagnostics.cutOff, 0);
   assert.deepEqual(readout.readableSnapshots, []);
+});
+
+/**
+ * Owner scope across processes. With every site in its own process, a
+ * cross-site iframe is its own target: its workers attach on its session, and
+ * their owner is read from its frame tree, at the pause and at the readout.
+ * The iframe's first worker closes itself at once and is credited while its
+ * document is current; once the iframe navigates, only the new document's
+ * worker is.
+ */
+test("real Chromium: a cross-site iframe's workers are scoped to the iframe's current document", { timeout: 60_000 }, async (t) => {
+  let port = 0;
+  // The fixture serves one page, top and frame alike; only the top embeds.
+  const { origin, done } = await startWorkerFixture(t, () => ({
+    page: `<!doctype html><title>cross-site frame</title><body><script>
+      if (window === top) {
+        const frame = document.createElement("iframe");
+        frame.src = "http://localhost:${port}/?frame=1";
+        document.body.append(frame);
+      }
+    </script>`,
+    scripts: {
+      "/closing.js": `${CANVAS_READ_SOURCE} fetch(self.location.origin + "/done/" + self.name); self.close();`
+    }
+  }));
+  port = Number(new URL(origin).port);
+  const harness = await openPausedWorkerHarness(t, { launchArgs: ["--site-per-process"] });
+  const frameTargetSessions: string[] = [];
+  harness.channel.onEvent((event) => {
+    const targetInfo = event.params.targetInfo as { type?: unknown } | undefined;
+    if (event.method === "Target.attachedToTarget" && targetInfo?.type === "iframe") {
+      frameTargetSessions.push(String(event.params.sessionId));
+    }
+  });
+  await harness.page.goto(`${origin}/`, { timeout: 10_000 });
+  await waitFor(() => harness.page.frames().length === 2, 10_000);
+  const frame = harness.page.frames()[1];
+  assert.match(frame.url(), /^http:\/\/localhost:/);
+  await frame.evaluate(() => {
+    new Worker("/closing.js", { name: "first" });
+  });
+  await waitFor(() => done.length >= 1 && harness.workers.length === 1 && harness.workers[0].detached, 15_000);
+  assert.ok(
+    frameTargetSessions.includes(String(harness.workers[0].arrivedOnSessionId)),
+    "the worker must attach on the out-of-process frame's own session"
+  );
+
+  const current = await readWorkerRealms(harness, 300);
+  assert.deepEqual([current.diagnostics.readable, current.unreadRealms], [1, 0], JSON.stringify(current.diagnostics));
+
+  await frame.evaluate(() => {
+    location.search = "?frame=2";
+  });
+  await waitFor(() => harness.page.frames()[1]?.url().endsWith("?frame=2") === true, 10_000);
+  await harness.page.frames()[1].evaluate(() => {
+    new Worker("/closing.js", { name: "second" });
+  });
+  await waitFor(() => done.length >= 2 && harness.workers.length === 2 && harness.workers[1].detached, 15_000);
+  assert.deepEqual(done, ["first", "second"]);
+  const replaced = await readWorkerRealms(harness, 300);
+  assert.deepEqual(
+    [replaced.diagnostics.readable, replaced.diagnostics.ownerReplaced, replaced.unreadRealms],
+    [1, 1, 0],
+    JSON.stringify(replaced.diagnostics)
+  );
 });
 
 /**
