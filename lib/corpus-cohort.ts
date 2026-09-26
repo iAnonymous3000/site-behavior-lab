@@ -173,8 +173,12 @@ export const REVIEWED_MEASUREMENT_LINES: readonly string[] = Object.freeze([
   // on the line it retires.
   "shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v4+detector-coverage-v2",
   // The node-detectors-v11 measurement epoch: fingerprint-surface-v2 names the
-  // OffscreenCanvas 2D work the fingerprint observer now reads in the page,
-  // which moves v1 fingerprint event counts and canvas detections. No
+  // OffscreenCanvas 2D work the fingerprint observer now reads in the page and
+  // the canvas, font and WebGL work it reads inside dedicated workers, which
+  // moves v1 fingerprint event counts and canvas detections. Every arm now
+  // pauses each dedicated worker at its start to install the observer, and a
+  // run with a worker the observer could not read, or any shared worker,
+  // carries a v1 line under which its fingerprint events are not counted. No
   // committed report is on the line it retires.
   "shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2"
 ]);

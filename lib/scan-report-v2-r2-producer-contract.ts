@@ -115,9 +115,26 @@ export const HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_METHODOLOGY_VERSION =
  * and aborts it as a cancelled navigation. Both stay in this suffix, where
  * their earlier revisions were declared; the probe revision also changes v1
  * request rows, and the same epoch's subject-validity-v4 advances the v1 base.
+ *
+ * `worker-fingerprint-v1` (node-detectors-v11) names how every arm treats the
+ * page's workers for fingerprinting. The scanner's DevTools channel now holds
+ * each dedicated worker of the measured page, nested ones included, paused
+ * before its first statement in every arm, where only the GPC arm paused them
+ * before, and installs the documents' own fingerprint observer there, after
+ * the GPC installer in the GPC arm. Each worker streams its evidence back, is
+ * read at the passive boundary and the final state read behind a DevTools
+ * barrier, and counts only while its owner document is current. A dedicated
+ * worker that cannot be read in full, one the browser reported that the
+ * channel never reached, and every shared worker the page starts are
+ * fingerprinting capture loss with their own v1 line. The earlier
+ * methodologies observed no worker realm, so only this revision carries a
+ * component. `gpc-worker-application-v3` does not move: its mechanism,
+ * readback and loss definition are unchanged, and its installer runs first
+ * in the same pause. The v1 base moves once for this epoch, through
+ * fingerprint-surface-v2, which covers the worker realm too.
  */
 export const NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION =
-  `${NODE_SCANNER_METHODOLOGY_VERSION}+phase-kernel-v2+boundary-state-v1+consent-r2-v5+resource-budget-v2+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1+${SERVICE_ROLE_TAXONOMY_VERSION}+gpc-worker-application-v3+active-probe-v3+auxiliary-context-block-v1`;
+  `${NODE_SCANNER_METHODOLOGY_VERSION}+phase-kernel-v2+boundary-state-v1+consent-r2-v5+resource-budget-v2+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1+${SERVICE_ROLE_TAXONOMY_VERSION}+gpc-worker-application-v3+active-probe-v3+auxiliary-context-block-v1+worker-fingerprint-v1`;
 
 /** Exact producer epoch attested by the reviewed Node r2/v3 corpus. */
 export const HISTORICAL_NODE_R2_V3_METHODOLOGY_VERSION =
@@ -455,21 +472,23 @@ const HISTORICAL_NODE_V12_NORMALIZATION = "redaction-v4+allowlists-v3:269f631f04
 // from policy quotes, and admits three fixed v1 warnings. Only the
 // normalization moved there; the v14 producer kept this methodology literal,
 // which node-detectors-v11 then retired by appending fingerprint-surface-v2
-// to the base.
+// to the base and worker-fingerprint-v1 to the r2 suffix.
 const HISTORICAL_NODE_V13_METHODOLOGY = "shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v4+detector-coverage-v2+phase-kernel-v2+boundary-state-v1+consent-r2-v5+resource-budget-v2+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1+service-role-taxonomy-v1+gpc-worker-application-v3+active-probe-v3+auxiliary-context-block-v1";
 const HISTORICAL_NODE_V13_NORMALIZATION = "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:b40a333af90f0b6a7bd1e5c702edcd7ef768167bc811ae20272a6e993cb83d51+tldts@7.4.13+node-evidence-policy-v1+r2-http-status-compat-v1";
 // Exact normalization of the public-string-policy-v4 producer (89ae341f, the
 // main and production tip when it closed), retired by node-detectors-v11,
-// which admits the canvas.convertToBlob fingerprint token. That producer ran
-// the v13 methodology above and the frozen node-detectors-v10 fields.
+// which admits the canvas.convertToBlob fingerprint token and the
+// worker-realm fingerprint loss warning. That producer ran the v13
+// methodology above and the frozen node-detectors-v10 fields.
 const HISTORICAL_NODE_V14_NORMALIZATION = "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:359b216f1168c4caf2f107e9f5220cbab5e0da9b4dad686129922a9ab3e4e9bc+tldts@7.4.13+node-evidence-policy-v1+r2-http-status-compat-v1";
 
 export const HISTORICAL_NODE_R2_V4_METHODOLOGIES_BY_NORMALIZATION: Readonly<
   Record<string, readonly string[]>
 > = Object.freeze({
   // The 359b216f identity closed when node-detectors-v11 admitted the
-  // canvas.convertToBlob token. Only the public-string-policy-v4 rows ran it,
-  // all under the v13 methodology, which that producer kept.
+  // canvas.convertToBlob token and the worker-realm fingerprint loss warning.
+  // Only the public-string-policy-v4 rows ran it, all under the v13
+  // methodology, which that producer kept.
   [HISTORICAL_NODE_V14_NORMALIZATION]: Object.freeze([HISTORICAL_NODE_V13_METHODOLOGY]),
   // The b40a333a identity closed when public-string-policy-v4 narrowed the
   // sanitizer. It was declared by the node-detectors-v10 epoch, whose rows
@@ -1141,8 +1160,9 @@ function nodeTuple(
 }
 
 // Closed rows retain their exact literals; the node-detectors-v11 measurement
-// epoch defines v15. It moves the base methodology (fingerprint-surface-v2),
-// the fingerprint observer (fingerprint-observer@5) with the registry, and the
+// epoch defines v15. It moves the methodology (fingerprint-surface-v2 in the
+// base and worker-fingerprint-v1 at the end of the r2 suffix), the
+// fingerprint observer (fingerprint-observer@5) with the registry, and the
 // public-string policy digest in the normalization; the toolchain, lists and
 // every other field are unchanged from v14.
 const ACTIVE_NODE_WIRE_IDENTITY_IS_DISTINCT =
@@ -1644,8 +1664,11 @@ export const PAGEGRAPH_R2_PRODUCER_TUPLES: readonly PageGraphR2ProducerTuple[] =
     HISTORICAL_R2_2026_08_TRACKER_CATALOG
   ),
   // Closed by node-detectors-v11, which admits the canvas.convertToBlob
-  // fingerprint token; the public-string policy is shared by both observers,
-  // although a PageGraph import records no fingerprint events.
+  // fingerprint token and the worker-realm fingerprint loss warning; the
+  // public-string policy is shared by both observers, although a PageGraph
+  // import records no fingerprint events and never emits that warning. The
+  // active row after it keeps the name of the first admission, as the
+  // pagegraph-v4-listener-withheld-active row named one of four.
   pageGraphTuple("pagegraph-v4-public-string-policy-v4-active",
     "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:359b216f1168c4caf2f107e9f5220cbab5e0da9b4dad686129922a9ab3e4e9bc+tldts@7.4.13+pagegraph-request-evidence-v1+r2-http-status-compat-v1",
     HISTORICAL_R2_2026_08_TRACKER_CATALOG

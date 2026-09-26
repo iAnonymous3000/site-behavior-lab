@@ -14,7 +14,8 @@ import {
   PAGEGRAPH_R2_NORMALIZATION_VERSION,
   SUPERSEDED_R2_NORMALIZATIONS
 } from "./scan-report-v2-normalization";
-import { PUBLIC_STRING_POLICY_DIGEST } from "./redact-scan-report-v1";
+import { PUBLIC_STRING_POLICY_DIGEST, publicStringPolicyInputs } from "./redact-scan-report-v1";
+import { FINGERPRINT_WORKER_REALM_CAPTURE_LOSS_WARNING } from "./scan-runtime";
 import { evaluateComparabilityR2 } from "./scan-report-v2-r2-evaluators";
 import {
   HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_ADBLOCK_IDENTITY,
@@ -722,7 +723,8 @@ test("every exact PageGraph normalization row replays and mixed tracker identiti
     mixedVersion: "hand-curated-2026.07"
   });
   // The 359b216f identity under the v4 policy name, closed by the
-  // canvas.convertToBlob widening in node-detectors-v11.
+  // node-detectors-v11 widening (the canvas.convertToBlob token and the
+  // worker-realm fingerprint loss warning).
   oracle.push({
     normalizationVersion: "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:359b216f1168c4caf2f107e9f5220cbab5e0da9b4dad686129922a9ab3e4e9bc+tldts@7.4.13+pagegraph-request-evidence-v1+r2-http-status-compat-v1",
     catalog: serviceRoleTracker,
@@ -1363,23 +1365,25 @@ test("closed v14 reports keep their exact identity when v15 moves the methodolog
       assert.notEqual(closed[field], currentLists[field], `${closed.id} ${field} aliases the live object`);
     }
   }
-  // The methodology gains exactly one base component, after
-  // detector-coverage-v2, and nothing else moves. The outgoing base is a strict
-  // prefix of the new one, so the outgoing literal is spelled out here rather
-  // than derived from the live string.
+  // The methodology gains exactly two components and nothing else moves:
+  // fingerprint-surface-v2 in the base, after detector-coverage-v2, and
+  // worker-fingerprint-v1 at the end of the r2 suffix. The outgoing base is a
+  // strict prefix of the new one, so the outgoing literal is spelled out here
+  // rather than derived from the live string.
   assert.equal(
     closedLists.methodologyVersion,
     "shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v4+detector-coverage-v2+phase-kernel-v2+boundary-state-v1+consent-r2-v5+resource-budget-v2+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1+service-role-taxonomy-v1+gpc-worker-application-v3+active-probe-v3+auxiliary-context-block-v1"
   );
   assert.equal(
-    closedLists.methodologyVersion.replace("+detector-coverage-v2+", "+detector-coverage-v2+fingerprint-surface-v2+"),
+    `${closedLists.methodologyVersion.replace("+detector-coverage-v2+", "+detector-coverage-v2+fingerprint-surface-v2+")}+worker-fingerprint-v1`,
     currentLists.methodologyVersion
   );
   assert.equal(closedBare.methodologyVersion, closedLists.methodologyVersion);
   assert.equal(currentBare.methodologyVersion, currentLists.methodologyVersion);
   // The normalization differs only in its public-string policy digest, under
-  // the same v4 policy name: an admitted-token widening. The outgoing literal
-  // stays readable for both observers and replays with its one methodology.
+  // the same v4 policy name: a widening that admits one fingerprint token and
+  // one fixed warning. The outgoing literal stays readable for both observers
+  // and replays with its one methodology.
   const retiredNode =
     "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:359b216f1168c4caf2f107e9f5220cbab5e0da9b4dad686129922a9ab3e4e9bc+tldts@7.4.13+node-evidence-policy-v1+r2-http-status-compat-v1";
   const retiredPageGraph =
@@ -1394,6 +1398,43 @@ test("closed v14 reports keep their exact identity when v15 moves the methodolog
     currentLists.normalizationVersion
   );
   assert.notEqual(PUBLIC_STRING_POLICY_DIGEST, "359b216f1168c4caf2f107e9f5220cbab5e0da9b4dad686129922a9ab3e4e9bc");
+  // The widening is exactly those two admissions. Taking the worker realm
+  // line out of the fixed warnings and the canvas.convertToBlob token out of
+  // both vocabulary arrays recomputes the outgoing digest, so nothing an older
+  // pass admitted was removed and nothing else was added, which is what lets
+  // the superseded entry below stay readable without remediation. The epoch
+  // declares one combined widening from the deployed identity; the digest
+  // with the token alone was never deployed and has no entry.
+  const inputs = publicStringPolicyInputs();
+  const withoutToken = (apis: readonly string[]) => apis.filter((api) => api !== "canvas.convertToBlob");
+  const outgoingInputs = {
+    ...inputs,
+    fixedWarnings: inputs.fixedWarnings.filter((warning) => warning !== FINGERPRINT_WORKER_REALM_CAPTURE_LOSS_WARNING),
+    fingerprintVocabulary: {
+      ...inputs.fingerprintVocabulary,
+      eventApis: withoutToken(inputs.fingerprintVocabulary.eventApis),
+      canvasReadApis: withoutToken(inputs.fingerprintVocabulary.canvasReadApis)
+    }
+  };
+  assert.equal(outgoingInputs.fixedWarnings.length, inputs.fixedWarnings.length - 1);
+  assert.equal(outgoingInputs.fingerprintVocabulary.eventApis.length, inputs.fingerprintVocabulary.eventApis.length - 1);
+  assert.equal(
+    outgoingInputs.fingerprintVocabulary.canvasReadApis.length,
+    inputs.fingerprintVocabulary.canvasReadApis.length - 1
+  );
+  assert.equal(
+    sha256Hex(canonicalJson(outgoingInputs)),
+    "359b216f1168c4caf2f107e9f5220cbab5e0da9b4dad686129922a9ab3e4e9bc"
+  );
+  for (const observer of ["node-playwright", "pagegraph-import"] as const) {
+    assert.equal(
+      SUPERSEDED_R2_NORMALIZATIONS[observer].some((identity) =>
+        identity.includes(":7fd4ef7683c946b8bf5e3e7c6d1e934f5ea12c6b8e25e4a065c50f5d16be69f5+")
+      ),
+      false,
+      observer
+    );
+  }
   assert.equal(SUPERSEDED_R2_NORMALIZATIONS["node-playwright"].includes(retiredNode), true);
   assert.equal(SUPERSEDED_R2_NORMALIZATIONS["pagegraph-import"].includes(retiredPageGraph), true);
   assert.deepEqual(HISTORICAL_NODE_R2_V4_METHODOLOGIES_BY_NORMALIZATION[retiredNode], [closedLists.methodologyVersion]);

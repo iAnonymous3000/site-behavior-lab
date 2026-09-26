@@ -319,7 +319,7 @@ public API or a 1.0 release.
   earlier releases still hold the original bytes, and the earlier release
   receipts and the transparency log still list their digests.
 
-### OffscreenCanvas
+### OffscreenCanvas and Web Workers
 
 - The fingerprint observer now reads OffscreenCanvas 2D work in the page.
   Text drawing, `drawImage`, `getImageData` and `measureText` on an
@@ -362,8 +362,17 @@ public API or a 1.0 release.
   same. Every arm then installs the fingerprint observer in the same pause
   (next item). Playwright already holds every worker paused until its own
   setup finishes, so this lengthens an existing pause rather than adding the
-  first one. A visit whose channel cannot be established still proceeds
-  without it, as the GPC arm already did.
+  first one, but the lengthening is a change to the visit in every arm,
+  baseline included. In the design's local measurements of a prototype of
+  this install (one macOS machine, headless Chromium 153, before the install
+  landed), a dedicated worker's start took 3 to 6 ms longer than under
+  Playwright alone, a burst of eight workers 7 to 8 ms longer, and each
+  wrapped call inside a worker 0.6 to 1.5 microseconds longer. A worker whose
+  script arrives late pays the same, because the pause comes after the fetch.
+  The GPC arm still pays about 0.4 ms per worker more than the others for its
+  own handshake, now small beside the install every arm pays; what grows is
+  every arm's distance from an ordinary visit. A visit whose channel cannot
+  be established still proceeds without it, as the GPC arm already did.
 - In every arm, each dedicated worker now gets the page's own fingerprint
   observer, the same function with the same wrappers and heuristics, installed
   in the pause above before the worker's first statement. The install runs
@@ -450,10 +459,26 @@ public API or a 1.0 release.
     `shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v4+detector-coverage-v2`
     to
     `shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2`.
-    The earlier surface, page canvases only, was unnamed, so only the revision
-    carries a component, as with `gpc-worker-application-v2`. The r2
-    methodology moves with the base.
-  - Detectors: `fingerprint-observer@4` to `fingerprint-observer@5`.
+    `fingerprint-surface-v2` names the whole surface the observer now reads:
+    OffscreenCanvas 2D work in the page and canvas, font and WebGL work in
+    every dedicated worker, together with the every-arm worker pause that
+    reaching the workers takes and the new v1 worker line. The earlier
+    surface, page canvases only, was unnamed, so only the revision carries a
+    component, as with `gpc-worker-application-v2`. Both halves land before
+    any deploy, so the v1 token moves once.
+  - r2 methodology: the base move above, and one new component,
+    `worker-fingerprint-v1`, appended after `auxiliary-context-block-v1`. It
+    names the every-arm paused attach, the observer installed in each
+    dedicated worker, the streamed readback behind a barrier at both reads,
+    owner-document scope, and the accounting that makes an unread worker
+    realm or a shared worker a fingerprinting capture loss. Earlier
+    methodologies observed no worker realm, so only this revision carries a
+    component. `gpc-worker-application-v3` does not move: its installer runs
+    first in the same pause with the same readback and loss definition.
+  - Detectors: `fingerprint-observer@4` to `fingerprint-observer@5`, which
+    covers both the page's OffscreenCanvas work and the worker realms: @5
+    was never deployed (`main` and `production` still carry @4), so the
+    worker realm does not need a version of its own.
     `DETECTOR_REGISTRY_VERSION` moves from `node-detectors-v10` to
     `node-detectors-v11`, and its digest from `6f8d32c3...5657` to
     `80209bf7...e22a`. The digest also hashes the fingerprint vocabulary, so
@@ -461,19 +486,29 @@ public API or a 1.0 release.
     observer version restored and the `canvas.convertToBlob` token removed
     from both vocabulary arrays reproduces `6f8d32c3...5657`, and nothing else
     moved. Keeping the token gives `6d76e9d9...ce13`, a value no deployment
-    carried. The obligation target registries keep v10 as a closed epoch and
-    enforce v11.
+    carried. The worker realm adds no event token, reason code or
+    obligation, so the digest stays `80209bf7...e22a`. The obligation target
+    registries keep v10 as a closed epoch and enforce v11.
   - Node and PageGraph r2 normalization: public-string-policy-v4
-    `359b216f...e9bc` to `7fd4ef76...69f5` under the same `tldts@7.4.13`, a
-    widening by the one admitted `canvas.convertToBlob` token. The policy name
-    stays `public-string-policy-v4`: a widening is not a policy revision, as
-    the v9 and v10 detector epochs' widenings kept v3.
+    `359b216f...e9bc` to `63947670...7366` under the same `tldts@7.4.13`, a
+    widening by two admissions: the `canvas.convertToBlob` token and the new
+    worker realm line. Removing both from the current policy inputs
+    reproduces `359b216f...e9bc`, and a test holds that. The token alone gave
+    `7fd4ef76...69f5`, a value no deployment carried, so it has no
+    superseded entry. The policy name stays `public-string-policy-v4`: a
+    widening is not a policy revision, as the v9 and v10 detector epochs'
+    widenings kept v3.
 - The reviewed corpus line advances to the new base. No committed report is on
   the outgoing line, so its replayed handoff moves nothing, and the published
   aggregate changes only when a refresh on the new line passes the handoff
-  gate. New v1 reports count OffscreenCanvas work in `fingerprintEvents` and
-  may carry canvas detections the outgoing line could not, so they are not
-  pooled with it. A canary panel site that uses OffscreenCanvas can move the
+  gate. New v1 reports count OffscreenCanvas work and dedicated worker work
+  in `fingerprintEvents` and may carry canvas, font and WebGL detections the
+  outgoing line could not, so they are not pooled with it. A new v1 run with
+  a worker the observer could not read, or with any shared worker, carries
+  the worker line, so its `fingerprintEvents` is not counted in its cohort,
+  as for the frame line; a site that starts a shared worker on every visit
+  therefore contributes no `fingerprintEvents` on the new line. A canary panel
+  site that uses OffscreenCanvas or fingerprints in a worker can move the
   toleranced `fingerprintEvents` metric legitimately.
 - Published reports keep their recorded identities. The deployed producer rows
   `node-v14-public-string-policy-v4-active-lists-2026-09-21`,
@@ -486,7 +521,10 @@ public API or a 1.0 release.
   name the outgoing base stay fixed points of the sanitizer. The new active
   rows are `node-v15-detectors-v11-active-lists-2026-09-21`,
   `node-v15-detectors-v11-active-no-adblock` and
-  `pagegraph-v4-convert-to-blob-active`.
+  `pagegraph-v4-convert-to-blob-active`; they follow the live methodology and
+  normalization, so they carry `worker-fingerprint-v1` and `63947670` with no
+  further row, and the PageGraph row keeps the name of the epoch's first
+  admission.
 
 ## [0.6.0] - 2026-09-06
 

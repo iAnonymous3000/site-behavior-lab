@@ -73,7 +73,10 @@ export type FingerprintObserverRealmArgs = {
  * statement (the same function, serialized by lib/worker-fingerprint-realm.ts,
  * with `realmArgs`). One source for both realms: the wrappers, thresholds and
  * heuristics below are the only ones, and a worker's calls are recorded by
- * them exactly as a document's are.
+ * them exactly as a document's are. `fingerprint-observer@5`
+ * (node-detectors-v11) is the first version with this reach: OffscreenCanvas
+ * 2D work in a document, and every dedicated worker realm. Reports recording
+ * @4 or earlier observed neither.
  *
  * `firstPartySiteKey` is the scanned site's registrable domain (computed with
  * the real public-suffix list in Node, e.g. "capitalone.com"), so the in-page

@@ -348,7 +348,8 @@ Node methodology is
 and production r2 reports extend it with the phase-kernel, boundary-state,
 consent, resource-budget, proxy-traffic, service-worker-block,
 detector-accountability, service-role-taxonomy, GPC worker-application,
-active-probe, and auxiliary-context-block components, recorded verbatim in `provenance.methodologyVersion`. The Shields
+active-probe, auxiliary-context-block, and worker-fingerprint components,
+recorded verbatim in `provenance.methodologyVersion`. The Shields
 simulation uses the `adblock` Rust crate compiled to WASM from
 `tools/adblock-wasm/` over a pinned snapshot of Brave's default lists whose
 manifest digest is part of the identity; the curated service catalog is

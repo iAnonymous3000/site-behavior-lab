@@ -10,10 +10,18 @@
 export const NODE_ADBLOCK_ENGINE_VERSION = "adblock-rust-0.13.3";
 export const NODE_PLAYWRIGHT_VERSION = "1.63.0";
 export const NODE_SHIELDS_REQUEST_CONTEXT_VERSION = `shields-request-context-v2-${NODE_ADBLOCK_ENGINE_VERSION}-request-method-v1`;
-// fingerprint-surface-v2 names the OffscreenCanvas 2D work the fingerprint
-// observer reads in the page (node-detectors-v11). The earlier surface, page
-// canvases only, was unnamed, so only the revision carries a component, as
-// with gpc-worker-application-v2.
+// fingerprint-surface-v2 (node-detectors-v11) names the surface the
+// fingerprint observer reads: OffscreenCanvas 2D work in the page, and canvas,
+// font and WebGL work inside every dedicated worker the page starts. Reaching
+// the workers changes the visit in every arm, baseline included: the scanner's
+// DevTools channel holds each dedicated worker paused before its first
+// statement while the observer is installed, which delays each worker start
+// by a few milliseconds. A worker whose evidence cannot be read in full, and
+// any shared worker the page starts, now carry a fixed v1 line that censors
+// the run's fingerprinting evidence. The earlier surface, page canvases only,
+// was unnamed, so only the revision carries a component, as with
+// gpc-worker-application-v2. r2 names the worker realm separately, as
+// worker-fingerprint-v1.
 export const NODE_SCANNER_METHODOLOGY_VERSION =
   `${NODE_SHIELDS_REQUEST_CONTEXT_VERSION}-playwright-${NODE_PLAYWRIGHT_VERSION}+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2`;
 export const LEGACY_V1_METHODOLOGY_UNSPECIFIED = "legacy-v1-methodology-unspecified";

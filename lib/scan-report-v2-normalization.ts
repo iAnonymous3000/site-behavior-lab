@@ -97,17 +97,22 @@ export const SUPERSEDED_R2_NORMALIZATIONS: Readonly<
   Record<ObserverKind, readonly string[]>
 > = Object.freeze({
   "node-playwright": Object.freeze([
-    // Retired by the node-detectors-v11 measurement epoch, which admits one
-    // fingerprint API token, "canvas.convertToBlob" (an OffscreenCanvas
-    // export), in FINGERPRINT_EVENT_APIS and CANVAS_READ_APIS. This pass
-    // generalized it to "other" in a v1 event summary, refused an r2 event
-    // carrying it and dropped it from a canvas detection's readApis; its
-    // producer never emitted it. Nothing an older pass admitted was removed
-    // and the public-suffix engine is unchanged, so every published report
-    // stays a fixed point. A widening is not a policy revision, so
-    // PUBLIC_STRING_POLICY_VERSION stays public-string-policy-v4 and only its
-    // digest moves, as the v9 and v10 detector epochs' widenings kept
-    // public-string-policy-v3.
+    // Retired by the node-detectors-v11 measurement epoch, which admits two
+    // strings. One is a fingerprint API token, "canvas.convertToBlob" (an
+    // OffscreenCanvas export), in FINGERPRINT_EVENT_APIS and
+    // CANVAS_READ_APIS: this pass generalized it to "other" in a v1 event
+    // summary, refused an r2 event carrying it and dropped it from a canvas
+    // detection's readApis. The other is one exact fixed scanner warning, the
+    // v1 line for a worker realm the fingerprint observer could not read
+    // (FINGERPRINT_WORKER_REALM_CAPTURE_LOSS_WARNING), which this pass
+    // replaced with "[redacted warning]". Its producer emitted neither.
+    // Nothing an older pass admitted was removed and the public-suffix engine
+    // is unchanged, so every published report stays a fixed point. The epoch
+    // admits both before any deploy, so this is its one widening entry; the
+    // intermediate digest with the token alone was never deployed. A widening
+    // is not a policy revision, so PUBLIC_STRING_POLICY_VERSION stays
+    // public-string-policy-v4 and only its digest moves, as the v9 and v10
+    // detector epochs' widenings kept public-string-policy-v3.
     "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:359b216f1168c4caf2f107e9f5220cbab5e0da9b4dad686129922a9ab3e4e9bc+tldts@7.4.13+node-evidence-policy-v1+r2-http-status-compat-v1",
     // Retired by public-string-policy-v4 (redaction v5), a reviewed NARROWING
     // recorded as the owner exception in the docblock above, which also admits
@@ -305,9 +310,11 @@ export const SUPERSEDED_R2_NORMALIZATIONS: Readonly<
     "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:6c78c05523e1f16c88264d0144af33587bd6dc11e04d337a6af2d58190639266+tldts@7.4.9+node-evidence-policy-v1+r2-http-status-compat-v1"
   ]),
   "pagegraph-import": Object.freeze([
-    // Retired by the canvas.convertToBlob widening in node-detectors-v11; see
-    // the node-playwright entry. A PageGraph import records no fingerprint
-    // events, but the public-string policy is shared by both observers.
+    // Retired by node-detectors-v11's widening (the canvas.convertToBlob
+    // token and the worker-realm fingerprint loss warning); see the
+    // node-playwright entry. A PageGraph import records no fingerprint events
+    // and never emits that warning, but the public-string policy is shared by
+    // both observers.
     "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:359b216f1168c4caf2f107e9f5220cbab5e0da9b4dad686129922a9ab3e4e9bc+tldts@7.4.13+pagegraph-request-evidence-v1+r2-http-status-compat-v1",
     // Retired by the public-string-policy-v4 narrowing; see the node-playwright
     // entry. A PageGraph import records no cookies, detections, consent or

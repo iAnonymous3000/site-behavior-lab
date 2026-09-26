@@ -560,13 +560,28 @@ measurement epoch, `node-detectors-v11`: `fingerprint-observer@5`, the base
 methodology component `fingerprint-surface-v2` (which advances the reviewed
 corpus line, since v1 `fingerprintEvents` counts change), and a normalization
 widening under `public-string-policy-v4`, `359b216f...e9bc` to
-`7fd4ef76...69f5`, for the admitted token. The `public-string-policy-v4`
-producer rows are closed to their exact literals, byte for byte what
-`89ae341f` deployed. The boundary entry narrows to canvas and WebGL work
-inside a Web Worker, which stays unobserved: instrumenting it would pause
-every worker in every arm through DevTools, a new intervention in the baseline
-visit. The canvas-font heuristic, which the section 5 update keeps as it is,
-now also sees offscreen measurement, with its thresholds unchanged.
+`63947670...7366`, for the admitted token and the worker line below. The
+`public-string-policy-v4` producer rows are closed to their exact literals,
+byte for byte what `89ae341f` deployed. The canvas-font heuristic, which the
+section 5 update keeps as it is, now also sees offscreen measurement, with its
+thresholds unchanged.
+
+The same epoch then closed the gap this update first left open. Canvas and
+WebGL work inside a Web Worker stayed unobserved at first, because
+instrumenting it pauses every worker in every arm through DevTools, a new
+intervention in the baseline visit. The owner decided on 2026-09-25 to take
+that intervention. Every arm now holds each dedicated worker paused before its
+first statement, installs the same observer there (after GPC in the GPC arm),
+and reads each worker back at both freezes. A worker it cannot read in full,
+and any shared worker the page starts, are fingerprinting capture loss with a
+new admitted v1 line, never a clean read. The design measured a prototype of
+the install at 3 to 6 ms per worker start in every arm, baseline included. None of this moves the
+detector version or the registry digest, since `fingerprint-observer@5` never
+shipped and the worker realm adds no vocabulary, reason code or obligation.
+`fingerprint-surface-v2` is defined to cover the worker realm, so the v1 token
+moves once, and the r2 methodology gains `worker-fingerprint-v1`. The boundary
+entry is now `cross-realm-canvas`: work split across the page and a worker,
+shared workers and worklets stay unobserved.
 
 ## 5. Confirmed and left for other reasons
 

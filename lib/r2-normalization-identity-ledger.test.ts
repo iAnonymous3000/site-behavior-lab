@@ -72,9 +72,9 @@ import {
  *   5. Only then update the two literals below to the new identity.
  */
 const ACTIVE_NODE_R2_NORMALIZATION_LITERAL =
-  "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:7fd4ef7683c946b8bf5e3e7c6d1e934f5ea12c6b8e25e4a065c50f5d16be69f5+tldts@7.4.13+node-evidence-policy-v1+r2-http-status-compat-v1";
+  "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:63947670fad8ad7124d54586c139cb2bf1f96e4cfc75d8cd247cd8165b407366+tldts@7.4.13+node-evidence-policy-v1+r2-http-status-compat-v1";
 const ACTIVE_PAGEGRAPH_R2_NORMALIZATION_LITERAL =
-  "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:7fd4ef7683c946b8bf5e3e7c6d1e934f5ea12c6b8e25e4a065c50f5d16be69f5+tldts@7.4.13+pagegraph-request-evidence-v1+r2-http-status-compat-v1";
+  "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:63947670fad8ad7124d54586c139cb2bf1f96e4cfc75d8cd247cd8165b407366+tldts@7.4.13+pagegraph-request-evidence-v1+r2-http-status-compat-v1";
 
 /**
  * The identities the latest NARROWING retired, pinned as exact literals beside
