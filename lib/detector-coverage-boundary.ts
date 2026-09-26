@@ -82,7 +82,10 @@ export const COVERAGE_BOUNDARY_SOURCES: readonly string[] = [
   "lib/gpc-worker-verification.ts",
   "lib/keystroke-exfiltration.ts",
   "lib/scan-runtime.ts",
-  "lib/scanner.ts"
+  "lib/scanner.ts",
+  // Builds the observer expression evaluated inside each paused dedicated
+  // worker; it reaches the realm over DevTools, not through Playwright.
+  "lib/worker-fingerprint-realm.ts"
 ];
 
 /**

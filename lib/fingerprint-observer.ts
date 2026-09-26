@@ -26,8 +26,24 @@ export type FingerprintObservationCollection = {
 };
 
 /**
+ * The realm the observer is installed into when it is not a document. Only
+ * the host builds this: a document gets no second argument (Playwright's
+ * init script passes one), and the worker realm installer
+ * (lib/worker-fingerprint-realm.ts) passes it while the worker is still
+ * paused before its first statement.
+ */
+export type FingerprintObserverRealmArgs = {
+  realm: "dedicated-worker";
+};
+
+/**
  * Injected into every page before navigation (Playwright serializes the
- * function; `firstPartySiteKey` travels as the init-script argument).
+ * function; `firstPartySiteKey` travels as the init-script argument), and into
+ * every dedicated worker of the measured page before the worker's first
+ * statement (the same function, serialized by lib/worker-fingerprint-realm.ts,
+ * with `realmArgs`). One source for both realms: the wrappers, thresholds and
+ * heuristics below are the only ones, and a worker's calls are recorded by
+ * them exactly as a document's are.
  *
  * `firstPartySiteKey` is the scanned site's registrable domain (computed with
  * the real public-suffix list in Node, e.g. "capitalone.com"), so the in-page
@@ -35,8 +51,29 @@ export type FingerprintObservationCollection = {
  * verified.capitalone.com vs www.capitalone.com without shipping a
  * public-suffix list into the page. Hosts outside the key still fall back to
  * the plain suffix rule.
+ *
+ * INSTALL-TIME RULE for the worker realm. A worker paused before its first
+ * statement has a partly initialized global. Reading a lazily initialized
+ * worker global there (`self.location` is the known one) or creating a WebGL
+ * context crashes the renderer, and with it the measured page and all its
+ * workers, in every arm. Everything this function does before it returns runs
+ * in that state, so it reads only interface objects, prototypes and
+ * intrinsics, and never touches `location`, `isSecureContext`, `caches`,
+ * `GPU`, `queueMicrotask`, `setTimeout` or `structuredClone`, and never calls
+ * `getContext`. lib/worker-fingerprint-realm.test.ts installs the compiled
+ * function into paused workers of every shape in real Chromium and fails on a
+ * crash.
+ *
+ * Returns `true` at the end of a worker realm install, which is the host's
+ * evidence that the whole function ran inside the realm, and nothing in a
+ * document.
  */
-export function fingerprintObserverInitScript(firstPartySiteKey?: string): void {
+export function fingerprintObserverInitScript(
+  firstPartySiteKey?: string,
+  realmArgs?: FingerprintObserverRealmArgs
+): boolean | undefined {
+  // Declared by the host, never read from the realm.
+  const workerRealm = realmArgs !== undefined && realmArgs !== null && realmArgs.realm === "dedicated-worker";
   // Capture the few intrinsics used while collecting the final snapshot. The
   // observed page is adversarial input and can replace globals such as
   // Object.keys or JSON.stringify after this init script has run.
@@ -53,6 +90,7 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
   const objectDefineProperty = Object.defineProperty;
   const objectFreeze = Object.freeze;
   const objectGetOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
+  const objectGetPrototypeOf = Object.getPrototypeOf;
   const objectKeys = Object.keys;
   const mapSizeGetter = objectGetOwnPropertyDescriptor(Map.prototype, "size")?.get;
   const promiseThen = Promise.prototype.then;
@@ -125,7 +163,11 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
     WebGLRenderingContext?: PrototypeConstructor;
     location?: Location;
   };
-  const observerWindow = window as FingerprintObserverWindow;
+  // The realm's global: the document's window, or the worker's global scope.
+  // Chosen by the declared realm rather than by probing for `window`, and the
+  // worker path never names `window` at all. Every read of the realm global
+  // below goes through this one binding.
+  const observerWindow = (workerRealm ? globalThis : window) as unknown as FingerprintObserverWindow;
   const canvasElementPrototype = observerWindow.HTMLCanvasElement?.prototype;
   const canvasContextPrototype = observerWindow.CanvasRenderingContext2D?.prototype;
   const offscreenCanvasPrototype = observerWindow.OffscreenCanvas?.prototype;
@@ -140,12 +182,17 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
   const webgl2Prototype = observerWindow.WebGL2RenderingContext?.prototype;
   const webglPrototype = observerWindow.WebGLRenderingContext?.prototype;
   const documentValue = observerWindow.document;
-  const locationValue = observerWindow.location;
+  // Never read in a worker realm: `self.location` read while the worker is
+  // paused before its first statement crashes the renderer. Its only reader
+  // is listener attribution, which a worker realm does not run.
+  const locationValue = workerRealm ? undefined : observerWindow.location;
   // `window.top` is unforgeable per the HTML standard, so a page script cannot
   // fake it; it is still read here, before any page script has run. A harness
   // window without `top` is treated as the top frame, since a missing `top` is
-  // not evidence that the observer is running inside a subframe.
+  // not evidence that the observer is running inside a subframe. A worker
+  // realm has no `top` and is not a frame, so it is not read there.
   const topWindowValue = (() => {
+    if (workerRealm) return null;
     try {
       return observerWindow.top;
     } catch {
@@ -201,10 +248,16 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
   const scriptSrcGetter = scriptElementPrototype
     ? objectGetOwnPropertyDescriptor(scriptElementPrototype, "src")?.get
     : undefined;
+  // Document-only, like `locationValue` above: a worker has WorkerLocation,
+  // and listener attribution, the only reader, does not run there.
   const locationHostnameGetter =
-    typeof Location !== "undefined" ? objectGetOwnPropertyDescriptor(Location.prototype, "hostname")?.get : undefined;
+    !workerRealm && typeof Location !== "undefined"
+      ? objectGetOwnPropertyDescriptor(Location.prototype, "hostname")?.get
+      : undefined;
   const locationHrefGetter =
-    typeof Location !== "undefined" ? objectGetOwnPropertyDescriptor(Location.prototype, "href")?.get : undefined;
+    !workerRealm && typeof Location !== "undefined"
+      ? objectGetOwnPropertyDescriptor(Location.prototype, "href")?.get
+      : undefined;
   let observerCoverageLost = false;
   // Scoped to listener attribution. A saturated stack capture or an
   // overflowed listener-origin bound leaves unknown which scripts registered
@@ -480,7 +533,7 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
     return objectFreeze(snapshot);
   };
 
-  objectDefineProperty(window, "__siteBehaviorLabFingerprintEvents", {
+  objectDefineProperty(observerWindow, "__siteBehaviorLabFingerprintEvents", {
     configurable: false,
     get: snapshotEventCounts
   });
@@ -764,6 +817,9 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
     // coverage is unaffected: cross-realm registrations against the top document
     // run through the top frame's own wrapper.
     if (observerInSubframe) return detections;
+    // A worker's listeners can observe only the worker's own messages, never
+    // user input, and a worker realm registers none through the observer.
+    if (workerRealm) return detections;
     const sessionEventTypes = sortedSetValues(sessionRecordingState.thirdPartyEventTypes);
     const sessionTargets = sortedSetValues(sessionRecordingState.thirdPartyListenerTargets);
     const sessionOrigins = sortedSetValues(sessionRecordingState.thirdPartyOrigins);
@@ -858,36 +914,40 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
     return "null";
   };
 
-  objectDefineProperty(window, "__siteBehaviorLabFingerprintSnapshot", {
-    configurable: false,
-    value: () => {
-      // The scanner treats a non-snapshot as an unreadable frame and records
-      // detector coverage loss. Never turn a compromised stack reader or an
-      // overflowed evidence bound into a publishable zero.
-      if (observerCoverageLost) return null;
-      const detections: FingerprintDetectionSummary[] = [];
-      const appendDetections = (items: FingerprintDetectionSummary[]) => {
-        for (let index = 0; index < items.length; index += 1) safeArrayAppend(detections, items[index]);
-      };
-      appendDetections(summarizeCanvasDetections());
-      appendDetections(summarizeCanvasFontDetections());
-      appendDetections(summarizeHighEntropyDetections());
-      // Bounded listener attribution withholds exactly the summaries built
-      // from attributed registrations and flags the frame, so the scanner
-      // records the loss instead of reading a clean frame.
-      if (listenerAttributionLost) {
-        return trustedJsonSnapshot({
-          detections,
-          events: snapshotEventCounts(),
-          listenerAttributionLost: true
-        });
-      }
-      appendDetections(summarizeInteractionDetections());
+  // The realm's whole cumulative observation as one snapshot text. The read
+  // surface below returns it, in a document and in a worker realm alike.
+  const buildSnapshot = (): string | null => {
+    // The scanner treats a non-snapshot as an unreadable frame and records
+    // detector coverage loss. Never turn a compromised stack reader or an
+    // overflowed evidence bound into a publishable zero.
+    if (observerCoverageLost) return null;
+    const detections: FingerprintDetectionSummary[] = [];
+    const appendDetections = (items: FingerprintDetectionSummary[]) => {
+      for (let index = 0; index < items.length; index += 1) safeArrayAppend(detections, items[index]);
+    };
+    appendDetections(summarizeCanvasDetections());
+    appendDetections(summarizeCanvasFontDetections());
+    appendDetections(summarizeHighEntropyDetections());
+    // Bounded listener attribution withholds exactly the summaries built
+    // from attributed registrations and flags the frame, so the scanner
+    // records the loss instead of reading a clean frame.
+    if (listenerAttributionLost) {
       return trustedJsonSnapshot({
         detections,
-        events: snapshotEventCounts()
+        events: snapshotEventCounts(),
+        listenerAttributionLost: true
       });
     }
+    appendDetections(summarizeInteractionDetections());
+    return trustedJsonSnapshot({
+      detections,
+      events: snapshotEventCounts()
+    });
+  };
+
+  objectDefineProperty(observerWindow, "__siteBehaviorLabFingerprintSnapshot", {
+    configurable: false,
+    value: buildSnapshot
   });
 
   const record = (api: string) => {
@@ -1003,20 +1063,28 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
     });
   };
 
+  // Wrapped on the object that defines it: the global itself in a document,
+  // WorkerGlobalScope.prototype, two levels up, in a worker. A wrapper defined
+  // as an own property of a worker's global would shadow the native method
+  // rather than replace it, so one `delete self.createImageBitmap` would bring
+  // the native method back and strip text provenance from every bitmap made
+  // after it. The owner is found once, here, before any page statement has
+  // run; no call-time path walks a prototype chain.
   const wrapCreateImageBitmap = () => {
-    type ImageBitmapWindow = Window & {
-      createImageBitmap?: (...args: unknown[]) => Promise<object>;
-    };
-    const bitmapWindow = window as ImageBitmapWindow;
-    const originalCreateImageBitmap = bitmapWindow.createImageBitmap;
-    if (typeof originalCreateImageBitmap !== "function") return;
+    let owner: object | null = observerWindow;
+    let ownerDescriptor: PropertyDescriptor | undefined;
+    while (owner !== null) {
+      ownerDescriptor = objectGetOwnPropertyDescriptor(owner, "createImageBitmap");
+      if (ownerDescriptor) break;
+      owner = objectGetPrototypeOf(owner) as object | null;
+    }
+    if (owner === null || !ownerDescriptor) return;
+    const originalCreateImageBitmap = ownerDescriptor.value as unknown;
+    if (typeof originalCreateImageBitmap !== "function" || !ownerDescriptor.configurable) return;
 
-    const ownDescriptor = objectGetOwnPropertyDescriptor(bitmapWindow, "createImageBitmap");
-    if (ownDescriptor && !ownDescriptor.configurable) return;
-
-    objectDefineProperty(bitmapWindow, "createImageBitmap", {
-      configurable: ownDescriptor?.configurable ?? true,
-      enumerable: ownDescriptor?.enumerable ?? true,
+    objectDefineProperty(owner, "createImageBitmap", {
+      configurable: ownerDescriptor.configurable,
+      enumerable: ownerDescriptor.enumerable,
       value: function wrappedCreateImageBitmap(this: unknown, ...args: unknown[]) {
         const source = args[0];
         let provenance = copyCanvasTextProvenance(source);
@@ -1125,7 +1193,7 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
   };
 
   const classifyListenerTarget = (target: unknown): string => {
-    if (target === window) return "window";
+    if (target === observerWindow) return "window";
     if (documentValue && target === documentValue) return "document";
     try {
       const documentElement = documentValue
@@ -1636,7 +1704,10 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
   }
   wrapCreateImageBitmap();
 
-  wrapEventTargetAddEventListener();
+  // Listener coverage attributes user-input listeners in a document; a
+  // worker realm has no user input to listen to, so its addEventListener stays
+  // native and no registration there captures a stack.
+  if (!workerRealm) wrapEventTargetAddEventListener();
 
   if (webglPrototype) {
     wrapWebglGetParameter(webglPrototype, "getParameter", "webgl.getParameter");
@@ -1654,7 +1725,7 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
     BaseAudioContext?: AudioContextConstructor;
     OfflineAudioContext?: AudioContextConstructor;
   };
-  const audioWindow = window as AudioObserverWindow;
+  const audioWindow = observerWindow as unknown as AudioObserverWindow;
   const audioContextConstructor = audioWindow.AudioContext;
   const baseAudioContextConstructor = audioWindow.BaseAudioContext;
   const offlineAudioContextConstructor = audioWindow.OfflineAudioContext;
@@ -1719,7 +1790,7 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
   };
 
   const patchPeerConnection = (name: "RTCPeerConnection" | "webkitRTCPeerConnection") => {
-    const rtcWindow = window as RtcWindow;
+    const rtcWindow = observerWindow as unknown as RtcWindow;
     const OriginalPeerConnection = rtcWindow[name];
     if (!OriginalPeerConnection) return;
     const peerConnectionPrototype = OriginalPeerConnection.prototype;
@@ -1753,6 +1824,8 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
 
   patchPeerConnection("RTCPeerConnection");
   patchPeerConnection("webkitRTCPeerConnection");
+
+  return workerRealm ? true : undefined;
 }
 
 export async function collectFingerprintObservationsWithCoverage(
