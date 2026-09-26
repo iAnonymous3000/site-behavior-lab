@@ -1735,3 +1735,42 @@ test("real Chromium: a worker realm keeps its native addEventListener", { timeou
   assert.equal(collection.listenerAttributionLostFrames, 0);
   assert.deepEqual(harness.installer.installDiagnostics(), { installedWorkerCount: 1, installFailedWorkerCount: 0 });
 });
+
+/**
+ * A wrapped call in a worker schedules its task's closed snapshot for the
+ * microtask checkpoint. Scheduling it through a promise's `then` looks up the
+ * promise's constructor and that constructor's species, which the worker's
+ * own code can replace with getters, and so shows the observer to the worker
+ * by a side effect a document never has: a document's wrappers schedule
+ * nothing. The checkpoint runs no lookup the worker can reach, and the task's
+ * closed snapshot still arrives.
+ */
+test("real Chromium: a wrapped worker call runs no getter the worker put on Promise", { timeout: 60_000 }, async (t) => {
+  const { origin, done } = await startWorkerFixture(t, {
+    page: `<!doctype html><title>promise getters</title><script>new Worker("/counting.js", { name: "counting" });</script>`,
+    scripts: {
+      "/counting.js": `
+        let hits = 0;
+        const NativePromise = Promise;
+        Object.defineProperty(Promise.prototype, "constructor", { configurable: true, get() { hits += 1; return NativePromise; } });
+        Object.defineProperty(Promise, Symbol.species, { configurable: true, get() { hits += 1; return NativePromise; } });
+        new OffscreenCanvas(10, 10).getContext("2d").measureText("x");
+        const duringCall = hits;
+        setTimeout(() => fetch(self.location.origin + "/done/" + duringCall + "-" + hits), 0);
+      `
+    }
+  });
+
+  const harness = await openPausedWorkerHarness(t);
+  await harness.page.goto(`${origin}/`, { timeout: 10_000 });
+  await waitFor(() => done.length >= 1, 15_000);
+  assert.deepEqual(done, ["0-0"], "neither the wrapped call nor its checkpoint may run a getter the worker defined");
+
+  const readout = await readWorkerRealms(harness);
+  assert.deepEqual([readout.diagnostics.readable, readout.unreadRealms], [1, 0], JSON.stringify(readout.diagnostics));
+  const collection = await collectFingerprintObservationsWithCoverage([], readout);
+  assert.ok(
+    collection.observations.events.some((event) => event.api === "canvas.measureText"),
+    `the task's closed snapshot must still carry its call: ${JSON.stringify(collection.observations.events)}`
+  );
+});

@@ -1059,30 +1059,41 @@ export function fingerprintObserverInitScript(
     realmClosedEmissionPending = false;
     emitToRealmHost("closed");
   };
+  // The task's microtask checkpoint, reached without a lookup the page can
+  // intercept. Resolving a fresh intrinsic promise with this thenable of the
+  // observer's own queues exactly one job, which calls its own `then`. A
+  // promise's `then` would not do: it looks up the promise's constructor and
+  // that constructor's species, which worker code can replace with getters and
+  // so watch the observer run, where a document's wrappers schedule nothing.
+  // The job never throws: a throw would reject that promise, which nothing
+  // handles, and surface in the worker as a rejection the page never caused.
+  const closedCheckpoint = objectCreate(null) as { then: () => void };
+  objectDefineProperty(closedCheckpoint, "then", {
+    value: () => {
+      try {
+        emitClosedToRealmHost();
+      } catch {
+        observerCoverageLost = true;
+      }
+    }
+  });
   // Called after every recording. A document has nothing to send. In a worker
   // realm the first recording of a task says "open" at once, and the task's
   // microtask checkpoint sends the closed snapshot, which then covers every
   // later recording of the same task. The checkpoint is reached through the
-  // captured promise path, never queueMicrotask, which a worker paused before
-  // its first statement does not have yet and which its code can replace.
+  // captured promise constructor, never queueMicrotask, which a worker paused
+  // before its first statement does not have yet and which its code can
+  // replace.
   const notifyChanged = (): void => {
     if (!workerRealm || realmClosedEmissionPending || realmStreamEnded) return;
     realmClosedEmissionPending = true;
     emitToRealmHost("open");
-    let checkpoint: unknown;
     try {
-      checkpoint = new TrustedPromise<void>((resolve) => resolve());
+      new TrustedPromise<unknown>((resolve) => resolve(closedCheckpoint));
+      return;
     } catch {
-      checkpoint = null;
+      /* no checkpoint was scheduled */
     }
-    const scheduled =
-      checkpoint !== null &&
-      observeSettlement(
-        checkpoint,
-        () => emitClosedToRealmHost(),
-        () => undefined
-      );
-    if (scheduled) return;
     // No checkpoint could be scheduled: say so now rather than leave the
     // realm's evidence to a closed emission that will never come.
     observerCoverageLost = true;
