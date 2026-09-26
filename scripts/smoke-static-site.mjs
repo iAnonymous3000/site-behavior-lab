@@ -1184,7 +1184,13 @@ async function assertStaticRouteBudgets(htmlPath, { label, maxHtmlBytes, maxInit
   if (compressedBytes > maxInitialJsGzipBytes) {
     fail(`${label} initial JavaScript is ${compressedBytes} gzip bytes; budget is ${maxInitialJsGzipBytes} bytes`);
   }
-  pass(`${label} stays within HTML and initial-JavaScript budgets`);
+  // Print the measured bytes, not only PASS: the homepage runs close to its
+  // initial-JavaScript budget, and CI is the one place it is measured on the
+  // real public configuration.
+  pass(
+    `${label} stays within HTML and initial-JavaScript budgets: HTML ${htmlBytes} of ${maxHtmlBytes} bytes, ` +
+      `initial JavaScript ${compressedBytes} of ${maxInitialJsGzipBytes} gzip bytes`
+  );
 }
 
 async function directorySizeBytes(directory) {
