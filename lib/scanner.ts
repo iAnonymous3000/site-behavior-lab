@@ -186,6 +186,7 @@ import {
   type WorkerRealmInstaller
 } from "./devtools-worker-channel";
 import { GpcWorkerRealmInstaller, type GpcWorkerVerificationDiagnostics } from "./gpc-worker-verification";
+import { FingerprintWorkerRealmInstaller, type WorkerFingerprintInstallDiagnostics } from "./worker-fingerprint-realm";
 
 export { scannerEgressLabel, scannerEgressRegion } from "./scanner-egress";
 export { MAX_RECORDED_REQUESTS, NON_HTTP_WARNING_EXAMPLE_LIMIT, ScanRequestBudget, ScanWarningCollector } from "./scan-runtime";
@@ -373,9 +374,9 @@ let browserLaunchPromise: Promise<Browser> | null = null;
  * Loopback DevTools port of the shared browser. Every arm opens a client
  * against it, the worker realm channel (lib/devtools-worker-channel.ts), which
  * holds each dedicated worker of the measured page paused before its first
- * statement while the arm's installers run. Only the GPC arm passes an
- * installer, to deliver and verify the worker signal
- * (lib/gpc-worker-verification.ts); the other arms install nothing. Reserved
+ * statement while the arm's installers run. Every arm installs the fingerprint
+ * observer (lib/worker-fingerprint-realm.ts); the GPC arm first delivers and
+ * verifies the worker signal (lib/gpc-worker-verification.ts). Reserved
  * per launch because the port must be known before Chromium starts; a lost
  * bind race fails that one launch, which is not cached, and the next scan
  * reserves a fresh port.
@@ -464,10 +465,14 @@ export type ScanSiteOptions = {
 
 export type EstablishedWorkerRealmChannelForTests = {
   session: DedicatedWorkerAttachSession;
+  /** The arm's installers, in the order they run inside each worker's pause. */
+  installers: readonly WorkerRealmInstaller[];
   /** The browser-side witness the arm's accounting reads, registered before the channel. */
   witness: DedicatedWorkerWitness;
   /** The GPC arm's handshake counters; null in every other arm. */
   gpcVerificationDiagnostics: (() => GpcWorkerVerificationDiagnostics) | null;
+  /** The fingerprint observer's worker install counters, in every arm. */
+  fingerprintInstallDiagnostics: () => WorkerFingerprintInstallDiagnostics;
 };
 
 export type ScanEvidenceDiagnostics = {
@@ -881,6 +886,10 @@ export async function scanSiteWithMeasurement(
   const verificationFlagOn = consentVerificationEnabled();
   const consentShadowRootCapability = randomBytes(32).toString("hex");
   const boundedPageCollectorKey = createBoundedPageCollectorKey();
+  // The scanned site's registrable domain, computed once for the fingerprint
+  // observer in every realm it is installed into: the documents' init script
+  // and each dedicated worker's paused install get the same key.
+  const fingerprintObserverSiteKey = partyKey(targetUrl.hostname);
   // The browser-side worker witness exists in every arm and before any
   // channel, so a failed establish or a dropped channel cannot take its count
   // with it. The GPC arm's accounting reads this one counter.
@@ -1017,14 +1026,19 @@ export async function scanSiteWithMeasurement(
     // DevTools client to this page target, hold every worker of the page
     // paused before its first statement while the arm's installers run in
     // order, then resume it once (lib/devtools-worker-channel.ts). The GPC arm
-    // installs GPC inside the worker realm and reads it back
-    // (lib/gpc-worker-verification.ts); the other arms install nothing. Best
-    // effort to ESTABLISH, never to account: when any step here fails the scan
-    // proceeds, and in the GPC arm the construction counts and the witness
-    // registered above turn every worker of this visit into disclosed capture
-    // loss instead of a silently unverified realm.
+    // first installs GPC inside the worker realm and reads it back
+    // (lib/gpc-worker-verification.ts); every arm then installs the
+    // fingerprint observer, the documents' own function with the same site
+    // key (lib/worker-fingerprint-realm.ts). Best effort to ESTABLISH, never
+    // to account: when any step here fails the scan proceeds, and in the GPC
+    // arm the construction counts and the witness registered above turn every
+    // worker of this visit into disclosed capture loss instead of a silently
+    // unverified realm.
     const gpcWorkerInstaller = gpcWorkerInjection ? new GpcWorkerRealmInstaller() : null;
-    const workerRealmInstallers: WorkerRealmInstaller[] = gpcWorkerInstaller ? [gpcWorkerInstaller] : [];
+    const fingerprintWorkerInstaller = new FingerprintWorkerRealmInstaller(fingerprintObserverSiteKey);
+    const workerRealmInstallers: WorkerRealmInstaller[] = gpcWorkerInstaller
+      ? [gpcWorkerInstaller, fingerprintWorkerInstaller]
+      : [fingerprintWorkerInstaller];
     try {
       // Disposing on a lost deadline race: an establish that materializes
       // after the scan deadline must close its DevTools socket rather than
@@ -1045,8 +1059,10 @@ export async function scanSiteWithMeasurement(
       }
       options.onWorkerRealmChannelEstablishedForTests?.({
         session: channel,
+        installers: workerRealmInstallers,
         witness: dedicatedWorkerWitness,
-        gpcVerificationDiagnostics
+        gpcVerificationDiagnostics,
+        fingerprintInstallDiagnostics: () => fingerprintWorkerInstaller.installDiagnostics()
       });
     } catch {
       workerRealmChannel = null;
@@ -1055,7 +1071,7 @@ export async function scanSiteWithMeasurement(
     // target script can shadow Navigator getters. The configured locale is
     // producer-owned and must never be replaced with page testimony.
     const configuredUserAgent = await withScanTimeout(page.evaluate(() => navigator.userAgent), started);
-    await withScanTimeout(installFingerprintObserver(page, targetUrl.hostname), started);
+    await withScanTimeout(installFingerprintObserver(page, fingerprintObserverSiteKey), started);
 
     const requestsBlockedByShields = new WeakSet<Request>();
     const requestsBlockedByGuard = new WeakSet<Request>();
@@ -3797,11 +3813,11 @@ export function createContextOptions(payload: ScanRequestPayload, proxyServer: s
   };
 }
 
-async function installFingerprintObserver(page: Page, firstPartyHostname: string): Promise<void> {
+async function installFingerprintObserver(page: Page, firstPartySiteKey: string): Promise<void> {
   // The registrable domain of the scanned site rides along as the init-script
   // argument so the in-page listener-origin classification can recognize
   // same-site sibling subdomains (see fingerprintObserverInitScript).
-  await page.addInitScript(fingerprintObserverInitScript, partyKey(firstPartyHostname));
+  await page.addInitScript(fingerprintObserverInitScript, firstPartySiteKey);
 }
 
 async function collectCookies(context: BrowserContext, firstPartyDomain: string): Promise<CookieRecord[]> {

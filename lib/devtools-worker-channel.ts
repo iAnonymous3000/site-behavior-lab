@@ -7,10 +7,11 @@
  * workers are covered too. One resume: each attached worker is held before its
  * first statement while the arm's installers run in order, and then released
  * exactly once. The installers are the only code that reaches a worker realm;
- * this module itself never evaluates anything inside one. The GPC arm's
- * installer (lib/gpc-worker-verification.ts) delivers and verifies the signal;
- * an arm with no installers holds each worker only for the recursion and the
- * release.
+ * this module itself never evaluates anything inside one. Every arm installs
+ * the fingerprint observer (lib/worker-fingerprint-realm.ts); in the GPC arm
+ * the GPC installer (lib/gpc-worker-verification.ts) runs before it and
+ * delivers and verifies the signal. A channel with no installers holds each
+ * worker only for the recursion and the release.
  *
  * The pause is not the first one a worker sees. Playwright's own CDP layer
  * already auto-attaches every page and worker session paused and releases each
@@ -45,7 +46,8 @@
 const DEFAULT_COMMAND_TIMEOUT_MS = 5_000;
 /**
  * Upper bound on how long one worker may stay paused for its installers. The
- * GPC handshake is three loopback round trips, normally single-digit
+ * GPC handshake is three loopback round trips and the fingerprint observer's
+ * install one evaluation of its serialized source, each normally single-digit
  * milliseconds; on expiry every installer is concluded and the worker is
  * force-released, never left paused.
  */

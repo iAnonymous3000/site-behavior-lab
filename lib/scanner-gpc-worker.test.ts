@@ -3,12 +3,13 @@ import { createServer } from "node:http";
 import { connect } from "node:net";
 import { test } from "node:test";
 import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "./gpc-injection";
-import type { GpcWorkerVerificationDiagnostics } from "./gpc-worker-verification";
+import { GpcWorkerRealmInstaller, type GpcWorkerVerificationDiagnostics } from "./gpc-worker-verification";
 import {
   closeSharedBrowserForTests,
   scanSiteWithMeasurement,
   type EstablishedWorkerRealmChannelForTests
 } from "./scanner";
+import { FingerprintWorkerRealmInstaller } from "./worker-fingerprint-realm";
 
 /**
  * Arm-level pins for GPC worker signal delivery, against the real scanner
@@ -25,7 +26,17 @@ type BeaconHit = {
   gpc: string;
   dep: string | null;
   secGpc: string | undefined;
+  /** The worker matrix's observer testimony; absent from other upstreams. */
+  fp?: string | null;
 };
+
+/**
+ * Appended to a matrix worker's beacon: its first statement's own testimony
+ * that the fingerprint observer was installed in its realm before it ran, read
+ * as whether the offscreen getImageData it sees is still native.
+ */
+const OBSERVER_TESTIMONY =
+  "'&fp=' + String(!Function.prototype.toString.call(OffscreenCanvasRenderingContext2D.prototype.getImageData).includes('[native code]'))";
 
 function workerMatrixUpstream(options: { sharedWorkerOnly?: boolean } = {}) {
   const beacons: BeaconHit[] = [];
@@ -36,6 +47,7 @@ function workerMatrixUpstream(options: { sharedWorkerOnly?: boolean } = {}) {
         name: url.pathname.slice("/beacon/".length),
         gpc: url.searchParams.get("gpc") ?? "missing",
         dep: url.searchParams.get("dep"),
+        fp: url.searchParams.get("fp"),
         secGpc: Array.isArray(request.headers["sec-gpc"])
           ? request.headers["sec-gpc"][0]
           : request.headers["sec-gpc"]
@@ -45,14 +57,14 @@ function workerMatrixUpstream(options: { sharedWorkerOnly?: boolean } = {}) {
       return;
     }
     const scripts: Record<string, string> = {
-      "/w.js": "fetch(self.location.origin + '/beacon/' + self.name + '?gpc=' + String(self.navigator.globalPrivacyControl));",
+      "/w.js": `fetch(self.location.origin + '/beacon/' + self.name + '?gpc=' + String(self.navigator.globalPrivacyControl) + ${OBSERVER_TESTIMONY});`,
       "/m.js":
         "import { depGpc } from './dep.js';\n" +
-        "fetch(self.location.origin + '/beacon/' + self.name + '?gpc=' + String(self.navigator.globalPrivacyControl) + '&dep=' + String(depGpc));",
+        `fetch(self.location.origin + '/beacon/' + self.name + '?gpc=' + String(self.navigator.globalPrivacyControl) + '&dep=' + String(depGpc) + ${OBSERVER_TESTIMONY});`,
       "/dep.js": "export const depGpc = self.navigator.globalPrivacyControl;",
       "/nested.js":
-        "fetch(self.location.origin + '/beacon/' + self.name + '?gpc=' + String(self.navigator.globalPrivacyControl)); new Worker('/nestedchild.js', { name: 'nestedchild' });",
-      "/nestedchild.js": "fetch(self.location.origin + '/beacon/' + self.name + '?gpc=' + String(self.navigator.globalPrivacyControl));",
+        `fetch(self.location.origin + '/beacon/' + self.name + '?gpc=' + String(self.navigator.globalPrivacyControl) + ${OBSERVER_TESTIMONY}); new Worker('/nestedchild.js', { name: 'nestedchild' });`,
+      "/nestedchild.js": `fetch(self.location.origin + '/beacon/' + self.name + '?gpc=' + String(self.navigator.globalPrivacyControl) + ${OBSERVER_TESTIMONY});`,
       "/shared.js": "onconnect = () => {}; fetch('/beacon/shared?gpc=' + String(self.navigator.globalPrivacyControl));"
     };
     const script = scripts[url.pathname];
@@ -71,10 +83,10 @@ function workerMatrixUpstream(options: { sharedWorkerOnly?: boolean } = {}) {
     response.end(`<!doctype html><title>Worker matrix</title>
       <main><p>Ordinary public page exercising every dedicated worker shape.</p></main>
       <script>
-        const workerSource = "fetch(self.location.origin + '/beacon/' + self.name + '?gpc=' + String(self.navigator.globalPrivacyControl));";
+        const workerSource = "fetch(self.location.origin + '/beacon/' + self.name + '?gpc=' + String(self.navigator.globalPrivacyControl) + ${OBSERVER_TESTIMONY});";
         // A data: worker runs in an opaque origin where location.origin is
         // "null", so its beacon target is baked in absolutely.
-        const dataSource = "fetch('" + location.origin + "/beacon/' + self.name + '?gpc=' + String(self.navigator.globalPrivacyControl));";
+        const dataSource = "fetch('" + location.origin + "/beacon/' + self.name + '?gpc=' + String(self.navigator.globalPrivacyControl) + ${OBSERVER_TESTIMONY});";
         new Worker('/w.js', { name: 'classic' });
         new Worker(URL.createObjectURL(new Blob([workerSource], { type: 'text/javascript' })), { name: 'blob' });
         new Worker('data:text/javascript,' + encodeURIComponent(dataSource), { name: 'data' });
@@ -123,9 +135,15 @@ test("the GPC arm delivers a realm-attested signal to every dedicated worker sha
   const address = server.address();
   assert.ok(address && typeof address === "object");
 
+  let established: EstablishedWorkerRealmChannelForTests | null = null;
   const { result, measurement } = await scanSiteWithMeasurement(
     { url: "http://worker-matrix.test/", device: "desktop", gpcEnabled: true, consentMode: "observe" },
-    scanOptions(address.port)
+    {
+      ...scanOptions(address.port),
+      onWorkerRealmChannelEstablishedForTests: (channel) => {
+        established = channel;
+      }
+    }
   );
 
   assert.deepEqual(
@@ -133,6 +151,22 @@ test("the GPC arm delivers a realm-attested signal to every dedicated worker sha
     MATRIX_WORKER_NAMES,
     "every worker of the matrix must RUN in the GPC arm; nothing is blocked"
   );
+  // Both installers ran in each worker's one pause: GPC first, verified in
+  // all six, then the fingerprint observer, installed in all six before
+  // their first statement.
+  assert.ok(established, "the GPC arm must open the worker realm channel");
+  const channel = established as EstablishedWorkerRealmChannelForTests;
+  // GPC first, so its outcome never depends on the observer install's latency
+  // or failure.
+  assert.deepEqual(
+    channel.installers.map((installer) => installer.constructor),
+    [GpcWorkerRealmInstaller, FingerprintWorkerRealmInstaller]
+  );
+  assert.equal(channel.gpcVerificationDiagnostics?.().verifiedWorkerCount, 6);
+  assert.deepEqual(channel.fingerprintInstallDiagnostics(), { installedWorkerCount: 6, installFailedWorkerCount: 0 });
+  for (const beacon of beacons) {
+    assert.equal(beacon.fp, "true", `the GPC arm's ${beacon.name} worker must start with the fingerprint observer in place`);
+  }
   for (const beacon of beacons) {
     assert.equal(
       beacon.gpc,
@@ -213,11 +247,12 @@ test("the baseline arm's workers observe no GPC signal", { timeout: 40_000 }, as
 /**
  * The worker realm channel opens in every arm, not only when GPC is requested.
  * The baseline arm attaches the same page-scoped DevTools session and holds
- * every dedicated worker shape in it, nested workers included, with no
- * installer: its attaches match the browser's own record of the page's
- * workers, and every worker still runs without the signal.
+ * every dedicated worker shape in it, nested workers included, and installs
+ * only the fingerprint observer: its attaches match the browser's own record
+ * of the page's workers, every worker starts with the observer in place, and
+ * every worker still runs without the signal.
  */
-test("the baseline arm holds every dedicated worker in the same channel and installs nothing in it", { timeout: 40_000 }, async (t) => {
+test("the baseline arm holds every dedicated worker in the same channel and installs only the fingerprint observer in it", { timeout: 40_000 }, async (t) => {
   const { server, beacons } = workerMatrixUpstream();
   await new Promise<void>((resolve, reject) => {
     server.once("error", reject);
@@ -242,6 +277,10 @@ test("the baseline arm holds every dedicated worker in the same channel and inst
   assert.ok(established, "the baseline arm must open the worker realm channel");
   const channel = established as EstablishedWorkerRealmChannelForTests;
   assert.equal(channel.gpcVerificationDiagnostics, null, "the baseline arm must pass no GPC installer");
+  assert.deepEqual(
+    channel.installers.map((installer) => installer.constructor),
+    [FingerprintWorkerRealmInstaller]
+  );
   assert.deepEqual(channel.session.attachCounts(), {
     attachedDedicatedWorkerCount: 6,
     attachedNestedDedicatedWorkerCount: 1,
@@ -252,9 +291,11 @@ test("the baseline arm holds every dedicated worker in the same channel and inst
     6,
     "the browser-side witness must see exactly the dedicated workers the baseline channel attached"
   );
+  assert.deepEqual(channel.fingerprintInstallDiagnostics(), { installedWorkerCount: 6, installFailedWorkerCount: 0 });
   assert.deepEqual(beacons.map((beacon) => beacon.name).sort(), MATRIX_WORKER_NAMES);
   for (const beacon of beacons) {
     assert.equal(beacon.gpc, "undefined", `baseline ${beacon.name} worker must observe no signal`);
+    assert.equal(beacon.fp, "true", `baseline ${beacon.name} worker must start with the fingerprint observer in place`);
   }
   assert.equal(result.warnings.includes(GPC_WORKER_CAPTURE_LOSS_WARNING), false);
 });

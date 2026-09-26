@@ -359,15 +359,23 @@ public API or a 1.0 release.
   then resumes it once. Only the GPC arm used to open this channel. Its
   installer is unchanged: it still installs and reads back the signal inside
   each worker first in the pause, and its accounting and disclosure are the
-  same. The other arms install nothing yet, so their workers wait only for the
-  channel's own round trips. Playwright already holds every worker paused
-  until its own setup finishes, so this lengthens an existing pause rather
-  than adding the first one. A visit whose channel cannot be established still
-  proceeds without it, as the GPC arm already did.
-- Canvas and WebGL work inside a Web Worker is still not observed, including
-  drawing a worker does on a canvas the page transferred to it. Observing it
-  needs a worker-realm observer installed in the pause the channel above now
-  holds in every arm, and a readback path for workers that exit early. The
+  same. Every arm then installs the fingerprint observer in the same pause
+  (next item). Playwright already holds every worker paused until its own
+  setup finishes, so this lengthens an existing pause rather than adding the
+  first one. A visit whose channel cannot be established still proceeds
+  without it, as the GPC arm already did.
+- In every arm, each dedicated worker now gets the page's own fingerprint
+  observer, the same function with the same wrappers and heuristics, installed
+  in the pause above before the worker's first statement. The install runs
+  where a read of `self.location` or a WebGL context creation would crash the
+  renderer, so the observer never does either in a worker, and a real-Chromium
+  test installs it into paused workers of nine shapes, including ones whose
+  script 404s, fails an import or fails to parse, and fails on a crash.
+- Canvas and WebGL work inside a Web Worker still does not reach the report,
+  including drawing a worker does on a canvas the page transferred to it: the
+  observer records it inside the worker, but nothing reads a worker's
+  observations back yet, and a worker that exits early needs a readback of its
+  own. The
   coverage boundary entry for
   OffscreenCanvas 2D work is narrowed to `worker-realm-canvas`, which says so,
   names the page-realm routes above that are not traced and the pending
