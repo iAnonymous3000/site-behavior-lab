@@ -450,9 +450,13 @@ public API or a 1.0 release.
   incomplete rather than clean, and that a visit without the DevTools
   connection cannot see a shared worker start. It still
   names the page-realm routes above that are not traced and the pending
-  export, and says that reports measured before node-detectors-v11 did not
-  observe OffscreenCanvas 2D work in the page at all, so a quiet canvas
-  finding on one does not rule it out.
+  export, and says that reports measured before node-detectors-v11 observed
+  neither OffscreenCanvas 2D work in the page nor any canvas, font or WebGL
+  work inside a worker, with the markers a reader finds on one (an r2 report
+  whose fingerprint detector is `fingerprint-observer@4` or earlier and whose
+  methodology lacks `+worker-fingerprint-v1`, or a v1 report without
+  `+fingerprint-surface-v2`), so a quiet canvas, font or WebGL finding on one
+  does not rule that work out.
 - Recorded identities, old to new:
   - Base Node methodology, which is also the v1 methodology token and the
     corpus cohort key:

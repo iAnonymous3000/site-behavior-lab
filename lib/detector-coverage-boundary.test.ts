@@ -18,6 +18,7 @@ import {
   type CoverageBoundaryEntry
 } from "./detector-coverage-boundary";
 import { NODE_SCANNER_METHODOLOGY_VERSION } from "./legacy-methodology";
+import { NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION } from "./scan-report-v2-r2-producer-contract";
 import { DETECTOR_VERSIONS } from "./measurement-kernel";
 
 const root = process.cwd();
@@ -438,29 +439,45 @@ test("the causality boundary states what the scanner actually records", () => {
 
 /**
  * Every report links to this catalog, and none measured before
- * node-detectors-v11 observed OffscreenCanvas 2D work in the page. The entry
- * that says the page realm is observed must say which reports it is true of,
- * with markers a reader can find on a report: an observer version older than
- * the current one, and a methodology component the current base carries. It
- * must also say which page-realm routes it traces, and that no other is.
+ * node-detectors-v11 observed OffscreenCanvas 2D work in the page, or any
+ * canvas, font or WebGL work inside a worker. The entry that says both realms
+ * are observed must say, in its sentence about older reports, which reports
+ * that is true of for each realm, with markers a reader can find on a report:
+ * an observer version older than the current one, a component the current v1
+ * base carries, and a component the current r2 methodology carries. It must
+ * also say which page-realm routes it traces, and that no other is.
  */
-test("the cross-realm canvas entry tells a reader which reports observed OffscreenCanvas work in the page", () => {
+test("the cross-realm canvas entry tells a reader which reports observed OffscreenCanvas work in the page and work in workers", () => {
   const entry = COVERAGE_BOUNDARY_ENTRIES.find((candidate) => candidate.id === "cross-realm-canvas");
   assert.ok(entry, "the cross-realm canvas boundary entry must exist");
+  const olderReports = /Reports measured before node-detectors-v\d+[^.]*(?:\.\d[^.]*)*\./.exec(entry.explanation)?.[0];
+  assert.ok(olderReports, "the entry must have a sentence about reports measured before the change");
+  assert.match(olderReports, /\bOffscreenCanvas 2D work in the page\b/);
+  assert.match(
+    olderReports,
+    /\bcanvas, font or WebGL work inside a worker\b/,
+    "the older-report sentence must cover the worker realm, which no older report observed either"
+  );
 
-  const olderObserver = /\bfingerprint-observer@(\d+) or earlier\b/.exec(entry.explanation);
+  const olderObserver = /\bfingerprint-observer@(\d+) or earlier\b/.exec(olderReports);
   assert.ok(olderObserver, "the entry must name the last observer version that did not observe it");
   const currentObserver = /^fingerprint-observer@(\d+)$/.exec(DETECTOR_VERSIONS["fingerprint-heuristics"]);
   assert.ok(currentObserver);
   assert.ok(Number(olderObserver[1]) < Number(currentObserver[1]));
 
-  const component = /\+fingerprint-surface-v\d+\b/.exec(entry.explanation);
+  const component = /\+fingerprint-surface-v\d+\b/.exec(olderReports);
   assert.ok(component, "the entry must name the v1 methodology component that marks the change");
   assert.ok(
     NODE_SCANNER_METHODOLOGY_VERSION.split("+").includes(component[0].slice(1)),
     `${component[0]} is not a component of the current base methodology`
   );
-  assert.match(entry.explanation, /does not rule it out/);
+  const workerComponent = /\+worker-fingerprint-v\d+\b/.exec(olderReports);
+  assert.ok(workerComponent, "the entry must name the r2 methodology component that marks the worker realm");
+  assert.ok(
+    NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION.split("+").includes(workerComponent[0].slice(1)),
+    `${workerComponent[0]} is not a component of the current r2 methodology`
+  );
+  assert.match(olderReports, /does not rule that work out/);
 
   // The traced routes are a rule, not a count of known gaps: a list of gaps
   // read as closed while createPattern and VideoFrame routes were missed too.
