@@ -454,7 +454,14 @@ public API or a 1.0 release.
   Each one counts as one unread realm for the whole visit, with the worker
   line above. Discovery rides the same channel, so on a visit whose channel is
   unavailable no shared worker is seen; the channel is established only with
-  discovery armed, so it never holds dedicated workers without it.
+  discovery armed, so it never holds dedicated workers without it. In a
+  consent comparison, r2 places fingerprint detections and call counts
+  before or after the click only when the read just before the click covered
+  every realm, so a shared worker the page started by then, like a frame or
+  a dedicated worker unread at that moment, withholds every r2 fingerprint
+  detection and call count of that visit, the page's own included; v1, which
+  has no phases, keeps them. A shared worker started after the click marks
+  the evidence incomplete without withholding them.
 - The coverage boundary entry for OffscreenCanvas 2D work is now
   `cross-realm-canvas`, and covers what stays unobserved: canvas and font
   work split across the page and a worker (text drawn in a worker and read

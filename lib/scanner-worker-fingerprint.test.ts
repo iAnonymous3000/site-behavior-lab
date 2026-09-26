@@ -606,3 +606,56 @@ test("a worker unread only at the passive boundary still carries the worker line
   assert.deepEqual(accounting.lines, { frame: false, listener: false, workerRealm: true });
   assert.equal(accounting.v1Benchmark, false, "v1 must withhold the claim r2 withholds");
 });
+
+/**
+ * r2 places each fingerprint detection and call count before or after the
+ * consent click by differencing the passive boundary's record against the
+ * final one, so it does so only when the passive boundary read every realm.
+ * A shared worker the page started by then is never read, so in a consent
+ * visit it withholds every r2 fingerprint detection and call count of the
+ * visit, the page's own included, while v1, which has no phases, keeps them.
+ * The shared worker here does nothing at all. The same page reads its canvas
+ * detection at the passive phase without the shared worker, and keeps it
+ * with the shared worker when no consent phase begins.
+ */
+test("in a consent visit a shared worker started before the click withholds every r2 fingerprint detection, the page's own included", { timeout: 90_000 }, async (t) => {
+  const pageCanvas =
+    "const canvas = document.createElement('canvas'); canvas.width = 200; canvas.height = 60; " +
+    "canvas.getContext('2d').fillText('abcdefghijklmnopqrstuvwxyz0123', 2, 20); canvas.toDataURL();";
+  const { port } = await startWorkerPage(t, {
+    page: `<!doctype html><title>Shared worker in a consent visit</title><main><p>Ordinary public page.</p></main>
+      <script>${pageCanvas} if (location.hostname.startsWith("www.with-shared")) new SharedWorker("/idle-shared.js").port.start();</script>`,
+    scripts: { "/idle-shared.js": "onconnect = () => {};" }
+  });
+  const visit = async (host: string, consentMode: "accept-all" | "observe") => {
+    const { result, measurement } = await scanSiteWithMeasurement(
+      { url: `http://${host}/`, device: "desktop", gpcEnabled: false, consentMode },
+      scanOptions(port)
+    );
+    assert.ok(measurement);
+    return {
+      v1: (result.fingerprintDetections ?? []).map((detection) => detection.heuristic),
+      r2: measurement.evidence.fingerprintDetections.map((detection) => [detection.heuristic, detection.phaseId]),
+      r2Events: measurement.evidence.fingerprintEvents.length,
+      passiveLoss: measurement.measurement.qualityFacts.captureLoss.some(
+        (loss) => loss.family === "fingerprinting" && loss.phaseId === 0 && loss.detail === "fingerprint-observer"
+      ),
+      detector: measurement.measurement.detectors["fingerprint-heuristics"].status
+    };
+  };
+
+  const consentWithShared = await visit("www.with-shared.com", "accept-all");
+  assert.deepEqual(consentWithShared, {
+    v1: ["openwpm-canvas-v1"],
+    r2: [],
+    r2Events: 0,
+    passiveLoss: true,
+    detector: "partial"
+  });
+  const consentWithout = await visit("www.without-shared.com", "accept-all");
+  assert.deepEqual(consentWithout.r2, [["openwpm-canvas-v1", 0]]);
+  assert.equal(consentWithout.passiveLoss, false);
+  const observeWithShared = await visit("www.with-shared-observe.com", "observe");
+  assert.deepEqual(observeWithShared.r2, [["openwpm-canvas-v1", 0]]);
+  assert.equal(observeWithShared.detector, "partial");
+});
