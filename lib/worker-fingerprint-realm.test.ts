@@ -1282,6 +1282,49 @@ test("real Chromium: a worker whose emissions queue behind a backlog at the free
 });
 
 /**
+ * The realm's own bound on its stream. A worker that records in a microtask
+ * loop emits twice per turn; at the 100,000th emission the realm marks its
+ * coverage lost, sends one final closed `null`, and falls silent, so an
+ * emission flood ends as an unread realm rather than unbounded host work.
+ */
+test("real Chromium: a worker past the emission cap ends its stream with its own null and is unread", { timeout: 60_000 }, async (t) => {
+  // 50,100 turns, each one open and one closed: past 100,000 emissions.
+  const { origin, done } = await startWorkerFixture(t, {
+    page: `<!doctype html><title>emission cap</title><script>
+      const worker = new Worker("/flood.js");
+      worker.onmessage = () => fetch("/done/flooded");
+    </script>`,
+    scripts: {
+      "/flood.js":
+        "(async () => { const context = new OffscreenCanvas(1, 1).getContext('2d'); " +
+        "for (let index = 0; index < 50100; index += 1) { context.measureText('flood'); await null; } postMessage('flooded'); })();"
+    }
+  });
+  const harness = await openPausedWorkerHarness(t);
+  let highestSequence = 0;
+  let finalPayload = "";
+  harness.channel.onEvent((event) => {
+    if (event.method !== "Runtime.bindingCalled" || event.params.name !== harness.installer.sinkName) return;
+    const [, sequence, ...rest] = String(event.params.payload).split("\n");
+    if (Number(sequence) > highestSequence) {
+      highestSequence = Number(sequence);
+      finalPayload = rest.join("\n");
+    }
+  });
+  await harness.page.goto(`${origin}/`, { timeout: 10_000 });
+  await waitFor(() => done.length >= 1 && highestSequence >= 100_000, 30_000);
+  assert.deepEqual(done, ["flooded"], "the worker must run its whole loop");
+  // Anything the realm sent after its final emission would have arrived by now.
+  await new Promise((resolve) => setTimeout(resolve, 500));
+  assert.equal(highestSequence, 100_000, "the realm must fall silent at its emission cap");
+  assert.equal(finalPayload, "closed\nnull", "the realm's final emission is its own null");
+
+  const readout = await readWorkerRealms(harness, 500);
+  assert.deepEqual([readout.readableSnapshots, readout.unreadRealms], [[], 1]);
+  assert.equal(readout.diagnostics.streamBroken, 1);
+});
+
+/**
  * A thread-pool worker spends its idle time blocked in Atomics.wait. The
  * barrier is answered by interrupt, so such a worker is read within the bound
  * at the state it reached before it blocked. A barrier that waited for the
