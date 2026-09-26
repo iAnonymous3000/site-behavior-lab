@@ -82,6 +82,13 @@ to PR #222's tested head `3ebef9dc17da14e69fd7f727f6ffc472504b0caf`.
   for both manifest and statistics generation. Docker dependency layers precede
   source-identity arguments so a new SHA does not invalidate unchanged package
   installation. Actual Docker cache savings depend on the builder's cache.
+- The Dockerfile's dependency layers form their own `deps` stage, and CI exports
+  only that stage to its GitHub Actions build cache. The exact-SHA image build
+  still reads the cache but no longer writes its per-commit layers, which no
+  later commit can reuse; that export took 14 to 113 seconds of every run. The
+  docker job also installs the host browser for its smoke step in the
+  background while the image builds, and fails before the smoke unless that
+  install succeeded, and it leaves builder teardown to the discarded runner.
 
 ## Reproduction and evidence
 
