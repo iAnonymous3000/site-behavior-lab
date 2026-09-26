@@ -63,8 +63,9 @@ function canvasWorkerUpstream() {
 }
 
 for (const arm of [
-  { name: "baseline", gpcEnabled: false },
-  { name: "GPC", gpcEnabled: true }
+  { name: "baseline", gpcEnabled: false, shieldsBlockingEnabled: false },
+  { name: "Shields", gpcEnabled: false, shieldsBlockingEnabled: true },
+  { name: "GPC", gpcEnabled: true, shieldsBlockingEnabled: false }
 ]) {
   test(`the ${arm.name} arm reads a dedicated worker's canvas fingerprinting into the report`, { timeout: 60_000 }, async (t) => {
     const port = await listen(t, canvasWorkerUpstream());
@@ -73,12 +74,18 @@ for (const arm of [
       { url: "http://worker-canvas.test/", device: "desktop", gpcEnabled: arm.gpcEnabled, consentMode: "observe" },
       {
         ...scanOptions(port),
+        shieldsBlockingEnabled: arm.shieldsBlockingEnabled,
         onWorkerRealmChannelEstablishedForTests: (channel) => {
           established = channel;
         }
       }
     );
 
+    assert.equal(
+      result.conditions.shieldsMode,
+      arm.shieldsBlockingEnabled ? "block-simulation" : "classification",
+      "the arm must be the one this test names"
+    );
     assert.ok(established, "the worker realm channel must be established");
     assert.deepEqual((established as EstablishedWorkerRealmChannelForTests).fingerprintInstallDiagnostics(), {
       installedWorkerCount: 1,
