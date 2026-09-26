@@ -152,6 +152,9 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
-      - name: Scanner log on failure
-        if: failure()
-        run: tail -100 /tmp/scanner-fidelity.log || true
+      # Always shown: a scan request can fail (an HTTP 500 counted as a skipped
+      # attempt) while the job still passes, and the server's own error is the
+      # only record of why.
+      - name: Scanner log
+        if: always()
+        run: tail -200 /tmp/scanner-fidelity.log || true

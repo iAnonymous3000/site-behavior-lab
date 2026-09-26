@@ -161,6 +161,11 @@ for (const site of sites) {
     for (const family of evaluation.censored) {
       censoredFamilies.set(family, (censoredFamilies.get(family) ?? 0) + 1);
     }
+    for (const entry of evaluation.censoredDetail ?? []) {
+      console.log(
+        `  censored ${entry.tag} ${entry.family}: reasons ${entry.reasons.join(", ") || "-"}; losses ${entry.losses.join(", ") || "-"}`
+      );
+    }
     if (evaluation.failures.length === 0) {
       pass(`${site.url} repetition ${repetition} (${site.shape})`);
       attempts.push({

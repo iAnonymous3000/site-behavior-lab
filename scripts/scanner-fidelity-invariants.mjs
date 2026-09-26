@@ -223,6 +223,10 @@ export function fidelityObservationOf(wire) {
 export function evaluateScanBody(label, payload, bridge) {
   const failures = [];
   const censored = [];
+  // Why each family was censored, for the run log only. The receipt keeps
+  // recording families alone; this lets a reader of a CI log tell a worker or
+  // listener loss from a lost request without the report itself.
+  const censoredDetail = [];
   const fail = (message) => failures.push(`${label}: ${message}`);
 
   const transport = bridge.readScanTransportPayload(payload);
@@ -257,7 +261,16 @@ export function evaluateScanBody(label, payload, bridge) {
     const detectors = run?.detectors ?? {};
 
     for (const [family, entry] of Object.entries(byFamily)) {
-      if (entry.outcome === "censored") censored.push(family);
+      if (entry.outcome !== "censored") continue;
+      censored.push(family);
+      censoredDetail.push({
+        tag: where,
+        family,
+        reasons: Array.isArray(entry.reasons) ? entry.reasons.map(String) : [],
+        losses: losses
+          .filter((loss) => loss?.family === family)
+          .map((loss) => `${loss.kind}:${loss.detail ?? "-"}x${loss.count ?? "?"}@${loss.phaseId ?? "-"}`)
+      });
     }
 
     // 1. A capture loss must name a family the schema knows, with a kind. An
@@ -442,5 +455,5 @@ export function evaluateScanBody(label, payload, bridge) {
     }
   }
 
-  return { failures, censored, observation: fidelityObservationOf(wire) };
+  return { failures, censored, censoredDetail, observation: fidelityObservationOf(wire) };
 }
