@@ -142,10 +142,11 @@ Chromium does not expose shared workers to a page-scoped DevTools session, so
 on a GPC-enabled visit a shared worker's realm never carries the signal (its
 network requests still carry the `Sec-GPC: 1` header), and every such
 construction is disclosed as unverified.
-The baseline arm gets no DevTools session, no pause, and no injection, so for
-verified workers a GPC comparison differs between arms only in the signal
-itself; an unverified worker is the remaining one-arm asymmetry and is
-disclosed.
+Every arm, not only the GPC arm, attaches the same page-scoped DevTools session
+and holds each dedicated worker paused before its first statement, and only the
+GPC arm installs anything during that pause, so for verified workers a GPC
+comparison differs between arms only in the signal itself; an unverified
+worker is the remaining one-arm asymmetry and is disclosed.
 
 ### What one report covers
 

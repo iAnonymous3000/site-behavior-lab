@@ -353,12 +353,22 @@ public API or a 1.0 release.
   used to mark it handled, and a page that swaps `Promise[Symbol.species]` or
   the promise constructor around a call no longer keeps a fulfilled call from
   being recorded.
+- Every arm now opens the scanner's DevTools channel to the measured page and
+  holds each dedicated worker, workers started by other workers included,
+  paused before its first statement while the arm's installers run in order,
+  then resumes it once. Only the GPC arm used to open this channel. Its
+  installer is unchanged: it still installs and reads back the signal inside
+  each worker first in the pause, and its accounting and disclosure are the
+  same. The other arms install nothing yet, so their workers wait only for the
+  channel's own round trips. Playwright already holds every worker paused
+  until its own setup finishes, so this lengthens an existing pause rather
+  than adding the first one. A visit whose channel cannot be established still
+  proceeds without it, as the GPC arm already did.
 - Canvas and WebGL work inside a Web Worker is still not observed, including
   drawing a worker does on a canvas the page transferred to it. Observing it
-  would mean opening the DevTools channel on every arm and pausing every
-  worker before its first statement, a new intervention in the baseline visit
-  (only the GPC arm pauses workers today), plus a worker-realm observer and a
-  readback path for workers that exit early. The coverage boundary entry for
+  needs a worker-realm observer installed in the pause the channel above now
+  holds in every arm, and a readback path for workers that exit early. The
+  coverage boundary entry for
   OffscreenCanvas 2D work is narrowed to `worker-realm-canvas`, which says so,
   names the page-realm routes above that are not traced and the pending
   export, and says that reports measured before

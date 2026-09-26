@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { test } from "node:test";
 import { runInNewContext } from "node:vm";
+import { DedicatedWorkerWitness } from "./devtools-worker-channel";
 import {
   createGpcWorkerInjectionSession,
   GPC_WORKER_CAPTURE_LOSS_WARNING,
@@ -92,7 +93,7 @@ function wrappedRealm(session: ReturnType<typeof createGpcWorkerInjectionSession
 }
 
 test("constructions of every scheme run natively, keep exact arguments, and are counted", () => {
-  const session = createGpcWorkerInjectionSession({ randomBytes: FIXED_RANDOM_BYTES });
+  const session = createGpcWorkerInjectionSession({ witness: new DedicatedWorkerWitness(), randomBytes: FIXED_RANDOM_BYTES });
   const { context, registrations } = wrappedRealm(session);
   const Dedicated = context.Worker as new (url: unknown, options?: unknown) => { url: unknown; options?: unknown };
   const Shared = context.SharedWorker as new (url: unknown, options?: unknown) => { url: unknown; options?: unknown };
@@ -128,7 +129,7 @@ test("constructions of every scheme run natively, keep exact arguments, and are 
 });
 
 test("a natively rejected construction throws exactly as unwrapped and is never counted", () => {
-  const session = createGpcWorkerInjectionSession({ randomBytes: FIXED_RANDOM_BYTES });
+  const session = createGpcWorkerInjectionSession({ witness: new DedicatedWorkerWitness(), randomBytes: FIXED_RANDOM_BYTES });
   const { context, registrations } = wrappedRealm(session);
   const Dedicated = context.Worker as new (url: unknown) => object;
   assert.throws(() => new Dedicated("throwing://rejected.js"), TypeError);
@@ -137,7 +138,7 @@ test("a natively rejected construction throws exactly as unwrapped and is never 
 });
 
 test("repeat primitive-name SharedWorker constructions join one realm and count once", () => {
-  const session = createGpcWorkerInjectionSession({ randomBytes: FIXED_RANDOM_BYTES });
+  const session = createGpcWorkerInjectionSession({ witness: new DedicatedWorkerWitness(), randomBytes: FIXED_RANDOM_BYTES });
   const { context } = wrappedRealm(session);
   const Shared = context.SharedWorker as new (url: unknown, options?: unknown) => object;
   new Shared("shared.js", "scan-name");
@@ -147,7 +148,7 @@ test("repeat primitive-name SharedWorker constructions join one realm and count 
 });
 
 test("registrations without the per-context capability are ignored", () => {
-  const session = createGpcWorkerInjectionSession({ randomBytes: FIXED_RANDOM_BYTES });
+  const session = createGpcWorkerInjectionSession({ witness: new DedicatedWorkerWitness(), randomBytes: FIXED_RANDOM_BYTES });
   session.register({}, { capability: "forged", kind: "dedicated", protocol: "https:" });
   session.register({}, { capability: session.initScriptArgs.capability, kind: "dedicated" });
   session.register({}, "not-a-registration");
@@ -300,7 +301,7 @@ test("a nested or constructor-bypassing attach cannot stand in for a page-level 
 });
 
 test("a session without a verification source discloses every construction as loss", () => {
-  const session = createGpcWorkerInjectionSession({ randomBytes: FIXED_RANDOM_BYTES });
+  const session = createGpcWorkerInjectionSession({ witness: new DedicatedWorkerWitness(), randomBytes: FIXED_RANDOM_BYTES });
   session.register({}, { capability: session.initScriptArgs.capability, kind: "dedicated", protocol: "https:" });
   session.register({}, { capability: session.initScriptArgs.capability, kind: "shared", protocol: "https:" });
   assert.equal(session.checkpoint().diagnostics.captureLossCount, 2);
@@ -318,10 +319,11 @@ test("a session without a verification source discloses every construction as lo
 });
 
 test("the browser-side witness discloses dedicated workers the construction count never saw", () => {
-  const session = createGpcWorkerInjectionSession({ randomBytes: FIXED_RANDOM_BYTES });
+  const witness = new DedicatedWorkerWitness();
+  const session = createGpcWorkerInjectionSession({ witness, randomBytes: FIXED_RANDOM_BYTES });
   session.register({}, { capability: session.initScriptArgs.capability, kind: "dedicated", protocol: "https:" });
-  session.observeDedicatedWorker();
-  session.observeDedicatedWorker();
+  witness.observe();
+  witness.observe();
   // No channel: one wrapped construction, two workers the browser started.
   // The disclosed loss is the larger record, never the smaller.
   const unattached = session.checkpoint().diagnostics;

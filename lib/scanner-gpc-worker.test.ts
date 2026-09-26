@@ -3,8 +3,12 @@ import { createServer } from "node:http";
 import { connect } from "node:net";
 import { test } from "node:test";
 import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "./gpc-injection";
-import type { GpcWorkerVerificationSession } from "./gpc-worker-verification";
-import { closeSharedBrowserForTests, scanSiteWithMeasurement } from "./scanner";
+import type { GpcWorkerVerificationDiagnostics } from "./gpc-worker-verification";
+import {
+  closeSharedBrowserForTests,
+  scanSiteWithMeasurement,
+  type EstablishedWorkerRealmChannelForTests
+} from "./scanner";
 
 /**
  * Arm-level pins for GPC worker signal delivery, against the real scanner
@@ -165,7 +169,7 @@ test("the GPC arm delivers a realm-attested signal to every dedicated worker sha
   assert.equal(result.requests.length, measurement!.evidence.requests.length);
 });
 
-test("the baseline arm's workers run exactly as an unobserved browser would", { timeout: 40_000 }, async (t) => {
+test("the baseline arm's workers observe no GPC signal", { timeout: 40_000 }, async (t) => {
   const { server, beacons } = workerMatrixUpstream();
   await new Promise<void>((resolve, reject) => {
     server.once("error", reject);
@@ -204,6 +208,55 @@ test("the baseline arm's workers run exactly as an unobserved browser would", { 
     );
   }
   assert.equal(result.requests.length, measurement!.evidence.requests.length);
+});
+
+/**
+ * The worker realm channel opens in every arm, not only when GPC is requested.
+ * The baseline arm attaches the same page-scoped DevTools session and holds
+ * every dedicated worker shape in it, nested workers included, with no
+ * installer: its attaches match the browser's own record of the page's
+ * workers, and every worker still runs without the signal.
+ */
+test("the baseline arm holds every dedicated worker in the same channel and installs nothing in it", { timeout: 40_000 }, async (t) => {
+  const { server, beacons } = workerMatrixUpstream();
+  await new Promise<void>((resolve, reject) => {
+    server.once("error", reject);
+    server.listen(0, "127.0.0.1", resolve);
+  });
+  t.after(() => new Promise<void>((resolve) => server.close(() => resolve())));
+  t.after(() => closeSharedBrowserForTests());
+  const address = server.address();
+  assert.ok(address && typeof address === "object");
+
+  let established: EstablishedWorkerRealmChannelForTests | null = null;
+  const { result } = await scanSiteWithMeasurement(
+    { url: "http://worker-matrix.test/", device: "desktop", gpcEnabled: false, consentMode: "observe" },
+    {
+      ...scanOptions(address.port),
+      onWorkerRealmChannelEstablishedForTests: (channel) => {
+        established = channel;
+      }
+    }
+  );
+
+  assert.ok(established, "the baseline arm must open the worker realm channel");
+  const channel = established as EstablishedWorkerRealmChannelForTests;
+  assert.equal(channel.gpcVerificationDiagnostics, null, "the baseline arm must pass no GPC installer");
+  assert.deepEqual(channel.session.attachCounts(), {
+    attachedDedicatedWorkerCount: 6,
+    attachedNestedDedicatedWorkerCount: 1,
+    attachedSharedWorkerCount: 0
+  });
+  assert.equal(
+    channel.witness.count(),
+    6,
+    "the browser-side witness must see exactly the dedicated workers the baseline channel attached"
+  );
+  assert.deepEqual(beacons.map((beacon) => beacon.name).sort(), MATRIX_WORKER_NAMES);
+  for (const beacon of beacons) {
+    assert.equal(beacon.gpc, "undefined", `baseline ${beacon.name} worker must observe no signal`);
+  }
+  assert.equal(result.warnings.includes(GPC_WORKER_CAPTURE_LOSS_WARNING), false);
 });
 
 test("a worker the GPC arm cannot attest runs untouched and is disclosed as exactly one loss unit", { timeout: 40_000 }, async (t) => {
@@ -331,7 +384,7 @@ async function scanWithChannelDroppedBeforeLateWorker(
   const address = server.address();
   assert.ok(address && typeof address === "object");
 
-  let verification: GpcWorkerVerificationSession | null = null;
+  let verificationDiagnostics: (() => GpcWorkerVerificationDiagnostics) | null = null;
   let poll: ReturnType<typeof setInterval> | null = null;
   // A hook that never fires (an establish that failed) must fail the
   // assertions below, not hang the page on its held request.
@@ -345,13 +398,13 @@ async function scanWithChannelDroppedBeforeLateWorker(
     { url: `http://${host}/`, device: "desktop", gpcEnabled: true, consentMode: "observe" },
     {
       ...scanOptions(address.port),
-      onGpcWorkerVerificationEstablishedForTests: (session) => {
-        verification = session;
+      onWorkerRealmChannelEstablishedForTests: ({ session, gpcVerificationDiagnostics }) => {
+        verificationDiagnostics = gpcVerificationDiagnostics;
         // Drop the channel only once both early workers are attested, so a
         // handshake cut short cannot contribute an unverified unit, then let
         // the page start its late worker.
         poll = setInterval(() => {
-          if (session.diagnostics().verifiedWorkerCount < 2) return;
+          if ((gpcVerificationDiagnostics?.().verifiedWorkerCount ?? 0) < 2) return;
           if (poll) clearInterval(poll);
           poll = null;
           session.close();
@@ -360,12 +413,12 @@ async function scanWithChannelDroppedBeforeLateWorker(
       }
     }
   );
-  assert.ok(verification, "the verification channel must have been established");
+  assert.ok(verificationDiagnostics, "the verification channel must have been established");
   return {
     beacons,
     result,
     measurement,
-    channel: (verification as GpcWorkerVerificationSession).diagnostics()
+    channel: (verificationDiagnostics as () => GpcWorkerVerificationDiagnostics)()
   };
 }
 

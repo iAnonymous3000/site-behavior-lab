@@ -133,8 +133,10 @@ export default function MethodologyPage() {
           in neither record (the shared worker itself is disclosed). <code>SharedWorker</code> is the standing
           case: the browser does not expose shared workers to a page-scoped session, so their execution context
           never carries the signal even though their network requests carry the <code>Sec-GPC</code> header, and
-          every such construction is disclosed. For attested workers a GPC comparison differs between its two visits in the signal alone; an
-          unattested worker is the remaining one-visit asymmetry, and it is disclosed rather than silently passed.
+          every such construction is disclosed. A visit without the signal attaches the same session and pauses
+          its dedicated workers the same way, but installs nothing in them, so for attested workers a GPC
+          comparison differs between its two visits in the signal alone; an unattested worker is the remaining
+          one-visit asymmetry, and it is disclosed rather than silently passed.
         </p>
       </section>
 

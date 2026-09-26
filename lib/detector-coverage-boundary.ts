@@ -74,6 +74,9 @@ export const COVERAGE_BOUNDARY_SOURCES: readonly string[] = [
   "lib/bounded-page-collector.ts",
   "lib/consent-interaction.ts",
   "lib/consent-verification.ts",
+  // Holds workers paused and runs installers into their realms over DevTools,
+  // which neither derivation below can see.
+  "lib/devtools-worker-channel.ts",
   "lib/fingerprint-observer.ts",
   "lib/gpc-injection.ts",
   "lib/gpc-worker-verification.ts",

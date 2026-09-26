@@ -1,3 +1,4 @@
+import type { DedicatedWorkerWitness } from "./devtools-worker-channel";
 import type { GpcWorkerVerificationDiagnostics } from "./gpc-worker-verification";
 
 export const GPC_WORKER_CAPTURE_LOSS_WARNING =
@@ -20,8 +21,9 @@ type GpcWorkerRegistration = {
 
 /**
  * Worker-side delivery and verification live in lib/gpc-worker-verification.ts
- * (a DevTools client that installs the signal inside each paused worker realm
- * and reads it back). This module keeps the page-side half of the mechanism:
+ * (an installer of the worker realm channel that puts the signal inside each
+ * paused worker realm and reads it back). This module keeps the page-side half
+ * of the mechanism:
  *
  * 1. the realm-local GPC initializer shared by documents and worker realms;
  * 2. a page-scoped constructor wrap that COUNTS Worker and SharedWorker
@@ -40,8 +42,10 @@ type GpcWorkerRegistration = {
  * (`Worker.prototype.constructor` is the native constructor), and it never
  * runs in worker realms. A second, browser-side record closes that gap: the
  * host counts every dedicated worker Playwright's own recursive auto-attach
- * reports for the measured page (`observeDedicatedWorker`), a population the
- * page cannot evade and the same one the DevTools client attaches from.
+ * reports for the measured page (`DedicatedWorkerWitness`,
+ * lib/devtools-worker-channel.ts), a population the page cannot evade and the
+ * same one the DevTools client attaches from. This session reads that one
+ * witness rather than keeping a count of its own.
  */
 export type GpcWorkerInjectionDiagnostics = {
   dedicatedWorkerConstructionCount: number;
@@ -226,12 +230,13 @@ export class GpcWorkerInjectionSession {
   readonly bindingName: string;
   readonly initScriptArgs: GpcWorkerInitScriptArgs;
 
+  private readonly witness: Pick<DedicatedWorkerWitness, "count">;
   private dedicatedWorkerConstructionCount = 0;
   private sharedWorkerConstructionCount = 0;
-  private observedDedicatedWorkerCount = 0;
   private verificationDiagnostics: (() => GpcWorkerVerificationDiagnostics) | null = null;
 
-  constructor(options: { randomBytes?: Uint8Array } = {}) {
+  constructor(options: { witness: Pick<DedicatedWorkerWitness, "count">; randomBytes?: Uint8Array }) {
+    this.witness = options.witness;
     const randomBytes = options.randomBytes ?? crypto.getRandomValues(new Uint8Array(24));
     if (randomBytes.length < 16) throw new Error("GPC worker injection requires at least 128 bits of capability entropy.");
     const capability = bytesToHex(randomBytes);
@@ -244,15 +249,6 @@ export class GpcWorkerInjectionSession {
     if (!isWorkerRegistration(value) || value.capability !== this.initScriptArgs.capability) return;
     if (value.kind === "dedicated") this.dedicatedWorkerConstructionCount += 1;
     else this.sharedWorkerConstructionCount += 1;
-  }
-
-  /**
-   * Host-side witness: one call per dedicated worker the browser reported for
-   * the measured page (Playwright's page "worker" event). Not a page binding,
-   * so the page can neither call nor skip it.
-   */
-  observeDedicatedWorker(): void {
-    this.observedDedicatedWorkerCount += 1;
   }
 
   /**
@@ -276,7 +272,7 @@ export class GpcWorkerInjectionSession {
     const counters: GpcWorkerRawCounters = {
       dedicatedWorkerConstructionCount: this.dedicatedWorkerConstructionCount,
       sharedWorkerConstructionCount: this.sharedWorkerConstructionCount,
-      observedDedicatedWorkerCount: this.observedDedicatedWorkerCount,
+      observedDedicatedWorkerCount: this.witness.count(),
       attachedDedicatedWorkerCount: verification.attachedDedicatedWorkerCount,
       attachedNestedDedicatedWorkerCount: verification.attachedNestedDedicatedWorkerCount,
       attachedSharedWorkerCount: verification.attachedSharedWorkerCount,
@@ -294,9 +290,10 @@ export class GpcWorkerInjectionSession {
   }
 }
 
-export function createGpcWorkerInjectionSession(
-  options: { randomBytes?: Uint8Array } = {}
-): GpcWorkerInjectionSession {
+export function createGpcWorkerInjectionSession(options: {
+  witness: Pick<DedicatedWorkerWitness, "count">;
+  randomBytes?: Uint8Array;
+}): GpcWorkerInjectionSession {
   return new GpcWorkerInjectionSession(options);
 }
 

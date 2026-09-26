@@ -179,10 +179,13 @@ import {
   type GpcWorkerInjectionCheckpoint
 } from "./gpc-injection";
 import {
+  DedicatedWorkerAttachSession,
+  DedicatedWorkerWitness,
   devtoolsBrowserWebSocketUrl,
-  GpcWorkerVerificationSession,
-  openDevtoolsBrowserChannel
-} from "./gpc-worker-verification";
+  openDevtoolsBrowserChannel,
+  type WorkerRealmInstaller
+} from "./devtools-worker-channel";
+import { GpcWorkerRealmInstaller, type GpcWorkerVerificationDiagnostics } from "./gpc-worker-verification";
 
 export { scannerEgressLabel, scannerEgressRegion } from "./scanner-egress";
 export { MAX_RECORDED_REQUESTS, NON_HTTP_WARNING_EXAMPLE_LIMIT, ScanRequestBudget, ScanWarningCollector } from "./scan-runtime";
@@ -289,8 +292,8 @@ const MAX_SCAN_DURATION_MS = 45_000;
 const MAX_PASSIVE_DOCUMENT_RESPONSES = 32;
 /**
  * Backstop for draining in-flight worker handshakes at the evidence boundary.
- * Each handshake has its own shorter watchdog inside the verification
- * session, so this bound is reached only when the DevTools transport stops
+ * Each worker's pause has its own shorter watchdog inside the worker realm
+ * channel, so this bound is reached only when the DevTools transport stops
  * answering entirely; the unfinished handshakes are then already terminal
  * unverified states and the boundary proceeds with that disclosure.
  */
@@ -367,12 +370,15 @@ export const MAX_POLICY_TEXT_CHARS = 400_000;
 let sharedBrowser: Browser | null = null;
 let browserLaunchPromise: Promise<Browser> | null = null;
 /**
- * Loopback DevTools port of the shared browser, present in BOTH arms as a
- * launch flag and used by none of the baseline arm's code. Only the GPC arm
- * opens a client against it, to deliver and verify the worker signal
- * (lib/gpc-worker-verification.ts). Reserved per launch because the port must
- * be known before Chromium starts; a lost bind race fails that one launch,
- * which is not cached, and the next scan reserves a fresh port.
+ * Loopback DevTools port of the shared browser. Every arm opens a client
+ * against it, the worker realm channel (lib/devtools-worker-channel.ts), which
+ * holds each dedicated worker of the measured page paused before its first
+ * statement while the arm's installers run. Only the GPC arm passes an
+ * installer, to deliver and verify the worker signal
+ * (lib/gpc-worker-verification.ts); the other arms install nothing. Reserved
+ * per launch because the port must be known before Chromium starts; a lost
+ * bind race fails that one launch, which is not cached, and the next scan
+ * reserves a fresh port.
  */
 let sharedBrowserDevtoolsPort: number | null = null;
 
@@ -441,11 +447,11 @@ export type ScanSiteOptions = {
    */
   duringSubjectStateReadsForTests?: (page: Page) => Promise<void>;
   /**
-   * Receive the measured page's GPC worker verification session once it is
-   * established, so scanner integration tests can drop the DevTools channel
-   * mid-scan. Production never supplies this hook.
+   * Receive the measured page's worker realm channel once it is established,
+   * in every arm, so scanner integration tests can read its attaches and drop
+   * the DevTools channel mid-scan. Production never supplies this hook.
    */
-  onGpcWorkerVerificationEstablishedForTests?: (verification: GpcWorkerVerificationSession) => void;
+  onWorkerRealmChannelEstablishedForTests?: (established: EstablishedWorkerRealmChannelForTests) => void;
   /** Exercise the fail-closed subject-validity path with an absent collector capability. */
   forceMissingPageSubjectCollectorForTests?: boolean;
   /**
@@ -454,6 +460,14 @@ export type ScanSiteOptions = {
    * Production always uses KEYSTROKE_PROBE_MIN_BUDGET_MS.
    */
   keystrokeProbeMinBudgetMsForTests?: number;
+};
+
+export type EstablishedWorkerRealmChannelForTests = {
+  session: DedicatedWorkerAttachSession;
+  /** The browser-side witness the arm's accounting reads, registered before the channel. */
+  witness: DedicatedWorkerWitness;
+  /** The GPC arm's handshake counters; null in every other arm. */
+  gpcVerificationDiagnostics: (() => GpcWorkerVerificationDiagnostics) | null;
 };
 
 export type ScanEvidenceDiagnostics = {
@@ -867,10 +881,16 @@ export async function scanSiteWithMeasurement(
   const verificationFlagOn = consentVerificationEnabled();
   const consentShadowRootCapability = randomBytes(32).toString("hex");
   const boundedPageCollectorKey = createBoundedPageCollectorKey();
-  const gpcWorkerInjection = payload.gpcEnabled ? createGpcWorkerInjectionSession() : null;
+  // The browser-side worker witness exists in every arm and before any
+  // channel, so a failed establish or a dropped channel cannot take its count
+  // with it. The GPC arm's accounting reads this one counter.
+  const dedicatedWorkerWitness = new DedicatedWorkerWitness();
+  const gpcWorkerInjection = payload.gpcEnabled
+    ? createGpcWorkerInjectionSession({ witness: dedicatedWorkerWitness })
+    : null;
   // Established after the measured page exists; declared here so the abort
   // handler and the final cleanup can both reach it.
-  let gpcWorkerVerification: GpcWorkerVerificationSession | null = null;
+  let workerRealmChannel: DedicatedWorkerAttachSession | null = null;
   let context: BrowserContext | null = null;
   const scanProxy = await withScanTimeoutDisposing(
     () =>
@@ -887,8 +907,8 @@ export async function scanSiteWithMeasurement(
     // Abort handlers cannot await, but closing both resources immediately
     // rejects in-flight Playwright work and tears down pending proxy connects.
     // Closing the DevTools client detaches it, which resumes any worker still
-    // paused for a handshake.
-    gpcWorkerVerification?.close();
+    // paused for its installers.
+    workerRealmChannel?.close();
     void context?.close().catch(() => undefined);
     void scanProxy.close().catch(() => undefined);
   };
@@ -974,13 +994,13 @@ export async function scanSiteWithMeasurement(
       initiatorSession = null;
     }
 
+    // The browser-side witness: every dedicated worker Playwright's own
+    // recursive auto-attach reports for this page, nested ones included.
+    // Registered in every arm while the page is still about:blank and before
+    // the DevTools channel is established, so a failed establish cannot skip
+    // it and no worker of the visit predates it.
+    page.on("worker", () => dedicatedWorkerWitness.observe());
     if (gpcWorkerInjection) {
-      // The browser-side witness: every dedicated worker Playwright's own
-      // recursive auto-attach reports for this page, nested ones included.
-      // Registered while the page is still about:blank and before the DevTools
-      // client is established, so a failed establish cannot skip it and no
-      // worker of the visit predates it.
-      page.on("worker", () => gpcWorkerInjection.observeDedicatedWorker());
       // Scope the registration wrapper to the measured page and its child
       // frames. Popups and the later out-of-evidence policy page are outside
       // the measured session, so their constructions must not enter its
@@ -992,31 +1012,44 @@ export async function scanSiteWithMeasurement(
         ),
         started
       );
-      // Worker signal delivery and verification: attach the scanner's own
-      // DevTools client to this page target, pause every worker of the page at
-      // start, install GPC inside the worker realm, and read it back before
-      // release (lib/gpc-worker-verification.ts). Best effort to ESTABLISH,
-      // never to account: when any step here fails the scan proceeds, and the
-      // construction counts and the witness registered above turn every worker
-      // of this visit into disclosed capture loss instead of a silently
-      // unverified realm.
-      try {
-        // Disposing on a lost deadline race: an establish that materializes
-        // after the scan deadline must close its DevTools socket rather than
-        // leak it for the shared browser's lifetime.
-        const establishedContext = context;
-        gpcWorkerVerification = await withScanTimeoutDisposing(
-          () => establishGpcWorkerVerification(establishedContext, page),
-          started,
-          (session) => session.close(),
-          options.signal
-        );
-        const verification = gpcWorkerVerification;
-        gpcWorkerInjection.setVerificationDiagnosticsSource(() => verification.diagnostics());
-        options.onGpcWorkerVerificationEstablishedForTests?.(verification);
-      } catch {
-        gpcWorkerVerification = null;
+    }
+    // The worker realm channel, in every arm: attach the scanner's own
+    // DevTools client to this page target, hold every worker of the page
+    // paused before its first statement while the arm's installers run in
+    // order, then resume it once (lib/devtools-worker-channel.ts). The GPC arm
+    // installs GPC inside the worker realm and reads it back
+    // (lib/gpc-worker-verification.ts); the other arms install nothing. Best
+    // effort to ESTABLISH, never to account: when any step here fails the scan
+    // proceeds, and in the GPC arm the construction counts and the witness
+    // registered above turn every worker of this visit into disclosed capture
+    // loss instead of a silently unverified realm.
+    const gpcWorkerInstaller = gpcWorkerInjection ? new GpcWorkerRealmInstaller() : null;
+    const workerRealmInstallers: WorkerRealmInstaller[] = gpcWorkerInstaller ? [gpcWorkerInstaller] : [];
+    try {
+      // Disposing on a lost deadline race: an establish that materializes
+      // after the scan deadline must close its DevTools socket rather than
+      // leak it for the shared browser's lifetime.
+      const establishedContext = context;
+      workerRealmChannel = await withScanTimeoutDisposing(
+        () => establishWorkerRealmChannel(establishedContext, page, workerRealmInstallers),
+        started,
+        (session) => session.close(),
+        options.signal
+      );
+      const channel = workerRealmChannel;
+      const gpcVerificationDiagnostics = gpcWorkerInstaller
+        ? () => gpcWorkerInstaller.verificationDiagnostics(channel.attachCounts())
+        : null;
+      if (gpcVerificationDiagnostics) {
+        gpcWorkerInjection?.setVerificationDiagnosticsSource(gpcVerificationDiagnostics);
       }
+      options.onWorkerRealmChannelEstablishedForTests?.({
+        session: channel,
+        witness: dedicatedWorkerWitness,
+        gpcVerificationDiagnostics
+      });
+    } catch {
+      workerRealmChannel = null;
     }
     // Read environment metadata from the pristine about:blank page before any
     // target script can shadow Navigator getters. The configured locale is
@@ -2619,10 +2652,11 @@ export async function scanSiteWithMeasurement(
     // Drain in-flight worker handshakes before freezing the evidence
     // diagnostics, so every attached worker reads as a terminal verified or
     // unverified fact rather than an indeterminate in-flight one. Bounded by
-    // the remaining scan budget and a fixed backstop; each handshake also has
-    // its own watchdog inside the session.
-    if (gpcWorkerVerification) {
-      await gpcWorkerVerification.settle(
+    // the remaining scan budget and a fixed backstop; each worker's pause also
+    // has its own watchdog inside the channel. Only the GPC arm's counters are
+    // frozen here, so the other arms do not wait on the channel.
+    if (workerRealmChannel && gpcWorkerInjection) {
+      await workerRealmChannel.settle(
         Math.max(
           0,
           Math.min(
@@ -3150,9 +3184,9 @@ export async function scanSiteWithMeasurement(
     );
   } finally {
     options.signal?.removeEventListener("abort", closeOnAbort);
-    // Detaching the DevTools client resumes any worker still paused for a
-    // handshake, so no worker outlives the scan suspended.
-    gpcWorkerVerification?.close();
+    // Detaching the DevTools client resumes any worker still paused for its
+    // installers, so no worker outlives the scan suspended.
+    workerRealmChannel?.close();
     const contextToClose = context;
     await runScannerCleanupWithinDeadline([
       ...(contextToClose
@@ -3665,21 +3699,23 @@ async function getSharedBrowser(): Promise<Browser> {
 }
 
 /**
- * Open the GPC arm's worker verification channel against the measured page.
+ * Open the worker realm channel against the measured page, in every arm, with
+ * the arm's installers in the order they run inside each worker's pause.
  *
  * The page's target id comes from Playwright's own CDP session, so the
- * DevTools client attaches to exactly this page: the baseline arm and any
- * concurrent scan's page are never attached. Throws when any step is
- * unavailable; the caller records that as full worker-verification loss
- * rather than failing the scan.
+ * DevTools client attaches to exactly this page: any concurrent scan's page
+ * is never attached. Throws when any step is unavailable; the caller proceeds
+ * without the channel, and the GPC arm records that as full
+ * worker-verification loss rather than failing the scan.
  */
-async function establishGpcWorkerVerification(
+async function establishWorkerRealmChannel(
   context: BrowserContext,
-  page: Page
-): Promise<GpcWorkerVerificationSession> {
+  page: Page,
+  installers: readonly WorkerRealmInstaller[]
+): Promise<DedicatedWorkerAttachSession> {
   const devtoolsPort = sharedBrowserDevtoolsPort;
   if (devtoolsPort === null) {
-    throw new Error("The shared browser exposes no DevTools port for worker verification.");
+    throw new Error("The shared browser exposes no DevTools port for the worker realm channel.");
   }
   const targetSession = await context.newCDPSession(page);
   let pageTargetId: string;
@@ -3697,7 +3733,7 @@ async function establishGpcWorkerVerification(
   }
   const wsUrl = await devtoolsBrowserWebSocketUrl(devtoolsPort);
   const channel = await openDevtoolsBrowserChannel(wsUrl);
-  const session = new GpcWorkerVerificationSession(channel);
+  const session = new DedicatedWorkerAttachSession(channel, installers);
   try {
     await session.attachToPage(pageTargetId);
   } catch (error) {

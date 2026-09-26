@@ -5,13 +5,13 @@ import { test } from "node:test";
 import { runInNewContext } from "node:vm";
 import { chromium } from "playwright";
 import {
+  DedicatedWorkerAttachSession,
   devtoolsBrowserWebSocketUrl,
-  GPC_WORKER_HANDSHAKE_EXPRESSION,
-  GpcWorkerVerificationSession,
   openDevtoolsBrowserChannel,
-  type GpcWorkerCdpChannel,
-  type GpcWorkerCdpEvent
-} from "./gpc-worker-verification";
+  type DevtoolsChannel,
+  type DevtoolsEvent
+} from "./devtools-worker-channel";
+import { GPC_WORKER_HANDSHAKE_EXPRESSION, GpcWorkerRealmInstaller } from "./gpc-worker-verification";
 
 type SentCommand = {
   method: string;
@@ -20,8 +20,8 @@ type SentCommand = {
 };
 
 type ScriptedChannel = {
-  channel: GpcWorkerCdpChannel;
-  emit(event: GpcWorkerCdpEvent): void;
+  channel: DevtoolsChannel;
+  emit(event: DevtoolsEvent): void;
   sent: SentCommand[];
   closed(): boolean;
 };
@@ -30,7 +30,7 @@ function scriptedChannel(
   respond: (command: SentCommand) => Record<string, unknown> | Promise<Record<string, unknown>> | Error = () => ({})
 ): ScriptedChannel {
   const sent: SentCommand[] = [];
-  const handlers: Array<(event: GpcWorkerCdpEvent) => void> = [];
+  const handlers: Array<(event: DevtoolsEvent) => void> = [];
   let isClosed = false;
   return {
     channel: {
@@ -60,7 +60,7 @@ function scriptedChannel(
  * `parentSessionId` is the session the attach event arrives on: the page
  * session for a page-level target, a worker's session for a nested worker.
  */
-function workerAttachEvent(sessionId: string, type = "worker", parentSessionId = "page-session"): GpcWorkerCdpEvent {
+function workerAttachEvent(sessionId: string, type = "worker", parentSessionId = "page-session"): DevtoolsEvent {
   return {
     method: "Target.attachedToTarget",
     sessionId: parentSessionId,
@@ -70,6 +70,16 @@ function workerAttachEvent(sessionId: string, type = "worker", parentSessionId =
       waitingForDebugger: true
     }
   };
+}
+
+/**
+ * The GPC arm's composition: the worker realm channel with the GPC installer
+ * as its only installer, read the way lib/scanner.ts reads it.
+ */
+function gpcArmSession(channel: DevtoolsChannel, options: { handshakeTimeoutMs?: number } = {}) {
+  const installer = new GpcWorkerRealmInstaller();
+  const session = new DedicatedWorkerAttachSession(channel, [installer], options);
+  return { session, diagnostics: () => installer.verificationDiagnostics(session.attachCounts()) };
 }
 
 /**
@@ -108,7 +118,7 @@ test("attaching to the page target turns on paused auto-attach for exactly that 
   const scripted = scriptedChannel((command) =>
     command.method === "Target.attachToTarget" ? { sessionId: "page-session" } : {}
   );
-  const session = new GpcWorkerVerificationSession(scripted.channel);
+  const { session } = gpcArmSession(scripted.channel);
   await session.attachToPage("page-target-id");
 
   assert.deepEqual(scripted.sent[0], {
@@ -128,7 +138,7 @@ test("a worker that reads the signal back true is verified, after recursion and 
     if (command.method === "Runtime.evaluate") return { result: { value: true } };
     return {};
   });
-  const session = new GpcWorkerVerificationSession(scripted.channel);
+  const { session, diagnostics } = gpcArmSession(scripted.channel);
   await session.attachToPage("page-target-id");
   scripted.emit(workerAttachEvent("worker-session"));
   await session.settle(1_000);
@@ -142,7 +152,7 @@ test("a worker that reads the signal back true is verified, after recursion and 
   const evaluate = workerCommands.find((command) => command.method === "Runtime.evaluate");
   assert.equal(evaluate?.params.expression, GPC_WORKER_HANDSHAKE_EXPRESSION);
   assert.equal(evaluate?.params.returnByValue, true);
-  assert.deepEqual(session.diagnostics(), {
+  assert.deepEqual(diagnostics(), {
     attachedDedicatedWorkerCount: 1,
     attachedNestedDedicatedWorkerCount: 0,
     attachedSharedWorkerCount: 0,
@@ -158,12 +168,12 @@ test("a false readback and an evaluate failure are both terminal unverified stat
       if (command.method === "Runtime.evaluate") return evaluateOutcome;
       return {};
     });
-    const session = new GpcWorkerVerificationSession(scripted.channel);
+    const { session, diagnostics } = gpcArmSession(scripted.channel);
     await session.attachToPage("page-target-id");
     scripted.emit(workerAttachEvent("worker-session"));
     await session.settle(1_000);
 
-    assert.deepEqual(session.diagnostics(), {
+    assert.deepEqual(diagnostics(), {
       attachedDedicatedWorkerCount: 1,
       attachedNestedDedicatedWorkerCount: 0,
       attachedSharedWorkerCount: 0,
@@ -192,12 +202,12 @@ test("a stalled handshake is concluded unverified by the watchdog and a late rea
     }
     return {};
   });
-  const session = new GpcWorkerVerificationSession(scripted.channel, { handshakeTimeoutMs: 50 });
+  const { session, diagnostics } = gpcArmSession(scripted.channel, { handshakeTimeoutMs: 50 });
   await session.attachToPage("page-target-id");
   scripted.emit(workerAttachEvent("worker-session"));
   await session.settle(2_000);
 
-  assert.deepEqual(session.diagnostics(), {
+  assert.deepEqual(diagnostics(), {
     attachedDedicatedWorkerCount: 1,
     attachedNestedDedicatedWorkerCount: 0,
     attachedSharedWorkerCount: 0,
@@ -218,8 +228,8 @@ test("a stalled handshake is concluded unverified by the watchdog and a late rea
   assert.notEqual(releaseEvaluate, null);
   releaseEvaluate!({ result: { value: true } });
   await session.settle(1_000);
-  assert.equal(session.diagnostics().verifiedWorkerCount, 0);
-  assert.equal(session.diagnostics().unverifiedAttachedWorkerCount, 1);
+  assert.equal(diagnostics().verifiedWorkerCount, 0);
+  assert.equal(diagnostics().unverifiedAttachedWorkerCount, 1);
 });
 
 test("a worker still mid-handshake when the settle backstop expires is swept into the unverified accounting, terminally", async () => {
@@ -242,13 +252,13 @@ test("a worker still mid-handshake when the settle backstop expires is swept int
   // post-settle sweep can conclude this worker, so the assertions pin the
   // sweep itself. No real timing race: a zero backstop returns immediately,
   // with the worker attached and no terminal record on file.
-  const session = new GpcWorkerVerificationSession(scripted.channel, { handshakeTimeoutMs: 60_000 });
+  const { session, diagnostics } = gpcArmSession(scripted.channel, { handshakeTimeoutMs: 60_000 });
   await session.attachToPage("page-target-id");
   scripted.emit(workerAttachEvent("worker-session"));
   await session.settle(0);
 
   assert.deepEqual(
-    session.diagnostics(),
+    diagnostics(),
     {
       attachedDedicatedWorkerCount: 1,
       attachedNestedDedicatedWorkerCount: 0,
@@ -265,7 +275,7 @@ test("a worker still mid-handshake when the settle backstop expires is swept int
   assert.notEqual(releaseEvaluate, null);
   releaseEvaluate!({ result: { value: true } });
   await session.settle(1_000);
-  assert.deepEqual(session.diagnostics(), {
+  assert.deepEqual(diagnostics(), {
     attachedDedicatedWorkerCount: 1,
     attachedNestedDedicatedWorkerCount: 0,
     attachedSharedWorkerCount: 0,
@@ -278,7 +288,7 @@ test("auxiliary targets are recursed into and released without entering worker a
   const scripted = scriptedChannel((command) =>
     command.method === "Target.attachToTarget" ? { sessionId: "page-session" } : {}
   );
-  const session = new GpcWorkerVerificationSession(scripted.channel);
+  const { session, diagnostics } = gpcArmSession(scripted.channel);
   await session.attachToPage("page-target-id");
   scripted.emit(workerAttachEvent("iframe-session", "iframe"));
   await session.settle(1_000);
@@ -288,7 +298,7 @@ test("auxiliary targets are recursed into and released without entering worker a
     iframeCommands.map((command) => command.method),
     ["Target.setAutoAttach", "Runtime.runIfWaitingForDebugger"]
   );
-  assert.deepEqual(session.diagnostics(), {
+  assert.deepEqual(diagnostics(), {
     attachedDedicatedWorkerCount: 0,
     attachedNestedDedicatedWorkerCount: 0,
     attachedSharedWorkerCount: 0,
@@ -303,12 +313,12 @@ test("a shared worker attach, if the browser ever delivers one, is counted in it
     if (command.method === "Runtime.evaluate") return { result: { value: true } };
     return {};
   });
-  const session = new GpcWorkerVerificationSession(scripted.channel);
+  const { session, diagnostics } = gpcArmSession(scripted.channel);
   await session.attachToPage("page-target-id");
   scripted.emit(workerAttachEvent("shared-session", "shared_worker"));
   await session.settle(1_000);
 
-  assert.deepEqual(session.diagnostics(), {
+  assert.deepEqual(diagnostics(), {
     attachedDedicatedWorkerCount: 0,
     attachedNestedDedicatedWorkerCount: 0,
     attachedSharedWorkerCount: 1,
@@ -330,12 +340,12 @@ test("workers attached while an earlier handshake settles are drained by the sam
     }
     return {};
   });
-  const session = new GpcWorkerVerificationSession(scripted.channel);
+  const { session, diagnostics } = gpcArmSession(scripted.channel);
   await session.attachToPage("page-target-id");
   scripted.emit(workerAttachEvent("worker-parent"));
   await session.settle(2_000);
 
-  assert.deepEqual(session.diagnostics(), {
+  assert.deepEqual(diagnostics(), {
     attachedDedicatedWorkerCount: 2,
     attachedNestedDedicatedWorkerCount: 1,
     attachedSharedWorkerCount: 0,
@@ -350,7 +360,7 @@ test("a worker attached on another worker's session is tagged nested; one attach
     if (command.method === "Runtime.evaluate") return { result: { value: true } };
     return {};
   });
-  const session = new GpcWorkerVerificationSession(scripted.channel);
+  const { session, diagnostics } = gpcArmSession(scripted.channel);
   await session.attachToPage("page-target-id");
   scripted.emit(workerAttachEvent("worker-parent"));
   scripted.emit(workerAttachEvent("worker-child", "worker", "worker-parent"));
@@ -360,7 +370,7 @@ test("a worker attached on another worker's session is tagged nested; one attach
   scripted.emit(workerAttachEvent("frame-worker", "worker", "iframe-session"));
   await session.settle(1_000);
 
-  assert.deepEqual(session.diagnostics(), {
+  assert.deepEqual(diagnostics(), {
     attachedDedicatedWorkerCount: 3,
     attachedNestedDedicatedWorkerCount: 1,
     attachedSharedWorkerCount: 0,
@@ -371,7 +381,7 @@ test("a worker attached on another worker's session is tagged nested; one attach
 
 test("close closes the channel exactly once", () => {
   const scripted = scriptedChannel();
-  const session = new GpcWorkerVerificationSession(scripted.channel);
+  const { session } = gpcArmSession(scripted.channel);
   assert.equal(scripted.closed(), false);
   session.close();
   session.close();
@@ -486,7 +496,7 @@ test("real Chromium: all six worker shapes attest and observe GPC while an unatt
   const wsUrl = await devtoolsBrowserWebSocketUrl(devtoolsPort);
   const channel = await openDevtoolsBrowserChannel(wsUrl);
   t.after(() => channel.close());
-  const session = new GpcWorkerVerificationSession(channel);
+  const { session, diagnostics } = gpcArmSession(channel);
   await session.attachToPage(info.targetInfo.targetId);
 
   const expectedNames = (marker: string) => [
@@ -533,16 +543,16 @@ test("real Chromium: all six worker shapes attest and observe GPC while an unatt
       `an unattached page in the same browser must stay untouched: ${beacon}`
     );
   }
-  const diagnostics = session.diagnostics();
-  assert.equal(diagnostics.attachedDedicatedWorkerCount, 6);
-  assert.equal(diagnostics.verifiedWorkerCount, 6);
-  assert.equal(diagnostics.unverifiedAttachedWorkerCount, 0);
+  const verification = diagnostics();
+  assert.equal(verification.attachedDedicatedWorkerCount, 6);
+  assert.equal(verification.verifiedWorkerCount, 6);
+  assert.equal(verification.unverifiedAttachedWorkerCount, 0);
   // Chromium delivers the nested child's attach on its parent's session, so
   // exactly one of the six is nested and five are page-level.
-  assert.equal(diagnostics.attachedNestedDedicatedWorkerCount, 1);
+  assert.equal(verification.attachedNestedDedicatedWorkerCount, 1);
   assert.equal(
     witnessedWorkers,
-    diagnostics.attachedDedicatedWorkerCount,
+    verification.attachedDedicatedWorkerCount,
     "the browser-side witness must see exactly the dedicated workers this client attached"
   );
 });
