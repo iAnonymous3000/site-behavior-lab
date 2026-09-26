@@ -163,7 +163,8 @@ for (const site of sites) {
     }
     for (const entry of evaluation.censoredDetail ?? []) {
       console.log(
-        `  censored ${entry.tag} ${entry.family}: reasons ${entry.reasons.join(", ") || "-"}; losses ${entry.losses.join(", ") || "-"}`
+        `  censored ${entry.tag} ${entry.family}: reasons ${entry.reasons.join(", ") || "-"}; losses ${entry.losses.join(", ") || "-"}` +
+          (entry.observerLines?.length ? `; observer lines ${entry.observerLines.join(", ")}` : "")
       );
     }
     if (evaluation.failures.length === 0) {

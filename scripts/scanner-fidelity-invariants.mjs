@@ -269,7 +269,15 @@ export function evaluateScanBody(label, payload, bridge) {
         reasons: Array.isArray(entry.reasons) ? entry.reasons.map(String) : [],
         losses: losses
           .filter((loss) => loss?.family === family)
-          .map((loss) => `${loss.kind}:${loss.detail ?? "-"}x${loss.count ?? "?"}@${loss.phaseId ?? "-"}`)
+          .map((loss) => `${loss.kind}:${loss.detail ?? "-"}x${loss.count ?? "?"}@${loss.phaseId ?? "-"}`),
+        // The frame, worker and listener observer lines share one loss detail;
+        // the scanner's own warning says which realm it was.
+        observerLines: family === "fingerprinting"
+          ? (Array.isArray(run?.warnings) ? run.warnings : [])
+              .map(String)
+              .filter((line) => /fingerprint observer/i.test(line))
+              .map((line) => (/Web Workers/.test(line) ? "worker" : /listener/i.test(line) ? "listener" : "frame"))
+          : []
       });
     }
 
