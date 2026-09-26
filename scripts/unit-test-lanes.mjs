@@ -109,6 +109,13 @@ export function distFingerprint(root = process.cwd()) {
 
 const live = new Set();
 
+// With no file arguments node --test would discover and run every test file
+// under the working directory, so an empty lane is skipped instead.
+function runLane(files, concurrency) {
+  if (files.length === 0) return Promise.resolve({ ok: true, skipped: true, seconds: 0, output: Buffer.alloc(0) });
+  return run(process.execPath, ["--test", `--test-concurrency=${concurrency}`, ...files]);
+}
+
 function run(command, args, { capture = false } = {}) {
   const started = process.hrtime.bigint();
   return new Promise((resolve) => {
@@ -130,6 +137,7 @@ function run(command, args, { capture = false } = {}) {
 }
 
 function describe(label, result) {
+  if (result.skipped) return `${label} skipped: no files`;
   const status = result.ok
     ? "passed"
     : result.error
@@ -158,7 +166,7 @@ async function main() {
   );
   const distBefore = distFingerprint();
   const [parallelResult, alongsideResult] = await Promise.all([
-    run(process.execPath, ["--test", `--test-concurrency=${PARALLEL_FILES}`, ...parallel]),
+    runLane(parallel, PARALLEL_FILES),
     run("npm", ["run", alongsideScript], { capture: true })
   ]);
   console.log(`\n----- output of \`${alongsideLabel}\`, which ran beside the parallel lane -----`);
@@ -182,17 +190,24 @@ async function main() {
   }
   if (!parallelResult.ok || !alongsideResult.ok || changed.length > 0) {
     console.error("Unit test lanes stopped before the serial lane: the parallel phase above did not pass.");
-    process.exit(1);
+    return 1;
   }
 
-  const serialResult = await run(process.execPath, ["--test", "--test-concurrency=1", ...serial]);
+  const serialResult = await runLane(serial, 1);
   console.log(describe(`Serial lib lane (${serial.length} files)`, serialResult));
-  if (!serialResult.ok) process.exit(1);
+  return serialResult.ok ? 0 : 1;
 }
 
+// Set the exit code rather than calling process.exit, so every byte of the
+// buffered alongside output reaches a piped stdout before the process ends.
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  main().catch((error) => {
-    console.error(error instanceof Error ? error.message : error);
-    process.exit(1);
-  });
+  main().then(
+    (code) => {
+      process.exitCode = code;
+    },
+    (error) => {
+      console.error(error instanceof Error ? error.message : error);
+      process.exitCode = 1;
+    }
+  );
 }

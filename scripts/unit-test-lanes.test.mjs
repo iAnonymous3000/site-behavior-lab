@@ -29,12 +29,16 @@ const libTests = readdirSync(path.join(root, "lib"))
 const SERIAL_ONLY_PATTERNS = [
   ["launches Chromium or imports the scanner's shared browser", /chromium\.launch\(|getSharedBrowser\(|from "\.\/scanner"/],
   ["measures wall-clock or CPU time", /performance\.now\(|cpuUsage\(|threadCpuUsage|resourceUsage\(|hrtime|Date\.now\(\)\s*-\s*[A-Za-z_(]/],
-  ["waits on timers or settle watchdogs", /setTimeout\(|setInterval\(|settleWithin|watchdog/],
+  ["waits on timers or settle watchdogs", /setTimeout\(|setInterval\(|timers\/promises|AbortSignal\.timeout\(|settleWithin|watchdog/],
   [
     "sets a literal timeout, deadline or delay",
     /\b\w*(?:[Tt]imeout|TIMEOUT|[Dd]eadline|DEADLINE|[Dd]elay|DELAY)(?:Ms|MS|_MS|Seconds|_SECONDS)?\s*[:=]\s*["']?[\d_]+/
   ],
-  ["boots a wrangler bundle in Miniflare", /\bMiniflare\b|from "miniflare"|wrangler\/bin\/wrangler\.js|wrangler-dist/]
+  ["boots a wrangler bundle in Miniflare", /\bMiniflare\b|from "miniflare"|wrangler\/bin\/wrangler\.js|wrangler-dist/],
+  // lib/git-fixture.ts disables the detached auto maintenance that can still be
+  // writing into a fixture repo when its teardown removes it, which fails only
+  // under load. A test that spawns git itself does not get that protection.
+  ["runs git directly instead of through lib/git-fixture.ts", /\b(?:spawnSync|execFileSync|execSync|spawn|execFile)\(\s*"git"/]
 ];
 
 test("the serial lane names existing top-level lib tests, sorted, each with its reason", () => {
@@ -97,8 +101,11 @@ test("the partition keeps glob order, refuses stale or foreign entries, and neve
 // Runs the real CLI over a throwaway package: three parallel tests, an
 // alongside script and two serial tests, each appending its name to one log
 // when it runs. `fail` names the one piece that should fail; `writeDist` names
-// a parallel test that also writes into dist/.
-async function runFixture(t, { fail = "none", writeDist = "none" } = {}) {
+// a parallel test that also writes into dist/; `serialLane` replaces the lane.
+async function runFixture(
+  t,
+  { fail = "none", writeDist = "none", serialLane = { "lib/s1.test.ts": "fixture serial test", "lib/s2.test.ts": "fixture serial test" } } = {}
+) {
   const dir = await mkdtemp(path.join(os.tmpdir(), "unit-test-lanes-"));
   t.after(() => rm(dir, { recursive: true, force: true }));
   const log = path.join(dir, "finished.log");
@@ -124,10 +131,7 @@ async function runFixture(t, { fail = "none", writeDist = "none" } = {}) {
       `process.exit(${JSON.stringify(fail)} === "side" ? 3 : 0);\n`
   );
   await writeFile(path.join(dir, "package.json"), JSON.stringify({ private: true, scripts: { side: "node side.js" } }));
-  await writeFile(
-    path.join(dir, SERIAL_LANE_FILE),
-    JSON.stringify({ "lib/s1.test.ts": "fixture serial test", "lib/s2.test.ts": "fixture serial test" })
-  );
+  await writeFile(path.join(dir, SERIAL_LANE_FILE), JSON.stringify(serialLane));
   const files = names.map((name) => `.unit-test-dist/lib/${name}.test.js`);
   const result = spawnSync(process.execPath, [runner, "--alongside", "npm run side", ...files], {
     cwd: dir,
@@ -167,6 +171,15 @@ for (const [failing, where] of [
     }
   });
 }
+
+test("an empty lane is skipped, never handed to node --test with no files", async (t) => {
+  // With no file arguments node --test falls back to discovering every test
+  // file under the working directory, which would run unrelated suites.
+  const { status, output, finished } = await runFixture(t, { serialLane: {} });
+  assert.equal(status, 0, output);
+  assert.deepEqual([...finished].sort(), ["p1", "p2", "p3", "s1", "s2", "side"]);
+  assert.match(output, /Serial lib lane \(0 files\) skipped: no files/);
+});
 
 test("the lanes fail when the parallel phase rewrites dist/, even if every test passes", async (t) => {
   const { status, output, finished } = await runFixture(t, { writeDist: "p3" });

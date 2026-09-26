@@ -36,6 +36,7 @@
   "lib/public-scan-proxy.test.ts": "runs under a 2000 ms test timeout",
   "lib/r2-delete-canary-runtime-integration.test.ts": "boots a wrangler bundle in Miniflare under a 30 s test timeout",
   "lib/redact-scan-report-v1.test.ts": "asserts a ReDoS input completes in under 1000 ms",
+  "lib/release-tag-governance-receipt.test.ts": "commits in fixture repos through plain git, whose auto maintenance can race the fixture teardown",
   "lib/report-pdf.test.ts": "asserts elapsed time under 5000 ms",
   "lib/report-store-r2.test.ts": "races millisecond deadlines",
   "lib/report-store.test.ts": "asserts elapsed time under 1000 ms twice",
