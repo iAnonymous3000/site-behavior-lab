@@ -168,7 +168,8 @@ export const FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING =
 /**
  * The observer could not read one or more worker realms the page's code ran
  * in: a dedicated worker whose evidence could not be read in full at one of
- * the visit's evidence reads (lib/worker-fingerprint-realm.ts).
+ * the visit's evidence reads (lib/worker-fingerprint-realm.ts), or a shared
+ * worker, which the observer does not instrument.
  *
  * Independent of the two lines above, since a run can carry either beside
  * it, and neither is true of a worker: the frame line says a frame was not

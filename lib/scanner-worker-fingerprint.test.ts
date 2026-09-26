@@ -375,6 +375,48 @@ test("a worker terminated or still running mid-task at the read is one unread re
   }
 });
 
+/**
+ * Design test 14, and the owner's rule that a page which ran code in a realm
+ * the observer cannot see never reads clean. The shared worker fingerprints;
+ * nothing of it is observed, and the channel's discovery turns it into one
+ * unread realm on every channel a reader uses.
+ */
+test("a page that starts a shared worker never reads clean: one unread realm on every channel", { timeout: 60_000 }, async (t) => {
+  withConsentVerification(t);
+  const { port, done } = await startWorkerPage(t, {
+    page: `<!doctype html><title>Shared worker</title><main><p>Ordinary public page.</p></main>
+      <script>new SharedWorker("/shared.js").port.start();</script>`,
+    scripts: {
+      "/shared.js": `${CANVAS_READ_SOURCE} fetch(self.location.origin + "/done/shared");`
+    }
+  });
+  let established: EstablishedWorkerRealmChannelForTests | null = null;
+  const accounting = fingerprintAccounting(
+    await scanSiteWithMeasurement(
+      { url: "http://www.shared-worker-page.com/", device: "desktop", gpcEnabled: false, consentMode: "observe" },
+      {
+        ...scanOptions(port),
+        onWorkerRealmChannelEstablishedForTests: (channel) => {
+          established = channel;
+        }
+      }
+    )
+  );
+  assert.deepEqual(done, ["shared"], "the shared worker ran");
+  assert.ok(established);
+  assert.equal((established as EstablishedWorkerRealmChannelForTests).session.discoveredSharedWorkerCount(), 1);
+  assert.deepEqual(accounting.lines, { frame: false, listener: false, workerRealm: true });
+  assert.deepEqual(accounting.losses, [[0, "dropped", 1]]);
+  assert.deepEqual(
+    accounting.detector,
+    { version: accounting.detector.version, status: "partial", reason: "scan-failed", phaseId: 0 }
+  );
+  assert.deepEqual(accounting.heuristics, [], "nothing inside a shared worker is observed");
+  assert.equal(accounting.v1Benchmark, false);
+  assert.equal(accounting.r2Benchmark, false);
+  assert.equal(accounting.r2WorkerLine, true);
+});
+
 /** Design test 4, end to end: a nested worker is observed in its own realm and costs nothing. */
 test("a worker started by another worker is read into the report with no loss", { timeout: 60_000 }, async (t) => {
   withConsentVerification(t);

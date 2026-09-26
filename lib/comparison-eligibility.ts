@@ -550,9 +550,10 @@ export function runHitFingerprintListenerAttributionLoss(run: Pick<ScanResult, "
 /**
  * Whether a legacy run's fingerprint observer could not read one or more
  * worker realms the page started: a dedicated worker whose evidence could not
- * be read in full. Neither line above is true of a worker, and a run can
- * carry either beside this one. Readers censor the fingerprinting family for
- * it exactly as for them, through the same quality reason.
+ * be read in full, or a shared worker, which the observer does not
+ * instrument. Neither line above is true of a worker, and a run can carry
+ * either beside this one. Readers censor the fingerprinting family for it
+ * exactly as for them, through the same quality reason.
  */
 export function runHitFingerprintWorkerRealmLoss(run: Pick<ScanResult, "warnings">): boolean {
   return run.warnings.some((warning) => warning.includes(FINGERPRINT_WORKER_REALM_WARNING_FRAGMENT));

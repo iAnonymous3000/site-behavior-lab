@@ -31,11 +31,15 @@
  * Scope: the client attaches to one page target. Other pages in the browser,
  * including a concurrent scan's, are never attached.
  *
- * SharedWorker is outside this channel: Chromium does not auto-attach shared
+ * SharedWorker is outside the pause: Chromium does not auto-attach shared
  * workers from a page session, and a browser-wide auto-attach would pause the
  * workers of every page in the browser. A shared attach, if the browser ever
  * delivers one, is counted in its own column and runs the installers like a
- * dedicated one.
+ * dedicated one. The channel witnesses shared workers instead: browser-level
+ * target discovery, filtered to shared workers, reports each one the scan's
+ * browser context starts without attaching or pausing it
+ * (`watchSharedWorkers`). Discovery rides this channel's socket, so a visit
+ * without the channel witnesses none.
  *
  * Nested attaches are tagged. A worker whose attach event arrives on another
  * worker's session was started by that worker, not by a document, so the
@@ -190,6 +194,10 @@ export class DedicatedWorkerAttachSession {
   /** Sessions of attached out-of-process frame targets that have not detached. */
   private readonly frameTargetSessionIds = new Set<string>();
   private pageSessionId: string | null = null;
+  /** The scan's browser context, whose shared workers discovery counts; null until watched. */
+  private sharedWorkerContextId: string | null = null;
+  /** Every shared worker target discovery reported in that context, by target id. */
+  private readonly discoveredSharedWorkerTargetIds = new Set<string>();
   private attachedDedicatedWorkerCount = 0;
   private attachedNestedDedicatedWorkerCount = 0;
   private attachedSharedWorkerCount = 0;
@@ -223,6 +231,33 @@ export class DedicatedWorkerAttachSession {
     }
     this.pageSessionId = sessionId;
     await this.enableAutoAttach(sessionId);
+  }
+
+  /**
+   * Witness every shared worker the scan's browser context starts, from now
+   * on: browser-level target discovery, filtered to shared workers, which
+   * reports each target without attaching to it or pausing it. The filter on
+   * the context keeps a concurrent scan's shared workers out, since the
+   * browser is shared. Call before `attachToPage`, while the page has run
+   * nothing.
+   */
+  async watchSharedWorkers(browserContextId: string): Promise<void> {
+    this.sharedWorkerContextId = browserContextId;
+    await this.channel.send("Target.setDiscoverTargets", {
+      discover: true,
+      filter: [{ type: "shared_worker" }]
+    });
+  }
+
+  /**
+   * The shared workers discovery has reported in the scan's browser context
+   * so far, each once whatever its later state. Visit-scoped: a shared worker
+   * belongs to no one document, so none is excluded as a replaced document's.
+   * It keeps its count after the channel closes, and counts nothing it could
+   * not see while closed.
+   */
+  discoveredSharedWorkerCount(): number {
+    return this.discoveredSharedWorkerTargetIds.size;
   }
 
   /** The channel is closed, by close() or by the browser; nothing more can arrive on it. */
@@ -317,6 +352,7 @@ export class DedicatedWorkerAttachSession {
   }
 
   private onChannelEvent(event: DevtoolsEvent): void {
+    if (event.method === "Target.targetCreated") this.onTargetCreated(event);
     if (event.method === "Target.attachedToTarget") this.onAttachedToTarget(event);
     if (event.method === "Target.detachedFromTarget") this.onDetachedFromTarget(event);
     for (const installer of this.installers) {
@@ -325,6 +361,21 @@ export class DedicatedWorkerAttachSession {
       } catch {
         // An installer's reading is its own; the channel keeps delivering.
       }
+    }
+  }
+
+  /** Discovery is browser-level, so its events carry no session. */
+  private onTargetCreated(event: DevtoolsEvent): void {
+    if (event.sessionId !== undefined || this.sharedWorkerContextId === null) return;
+    const targetInfo = event.params.targetInfo as
+      | { type?: unknown; targetId?: unknown; browserContextId?: unknown }
+      | undefined;
+    if (
+      targetInfo?.type === "shared_worker" &&
+      targetInfo.browserContextId === this.sharedWorkerContextId &&
+      typeof targetInfo.targetId === "string"
+    ) {
+      this.discoveredSharedWorkerTargetIds.add(targetInfo.targetId);
     }
   }
 

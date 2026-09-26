@@ -420,13 +420,26 @@ public API or a 1.0 release.
   evidence only when a read falls inside it: Chromium lets the worker's task
   run for about two seconds and still delivers its last snapshot as it ends
   the worker, so a worker terminated well before a read is read in full.
+- A shared worker the page starts now marks the visit's fingerprinting
+  evidence incomplete, in every arm: the owner's call is that a page that ran
+  code in a realm the observer cannot see never reads clean. The observer is
+  not installed in shared workers (Chromium does not attach them to a
+  page-scoped session), so the scanner's DevTools channel watches for them
+  instead, with browser-level target discovery filtered to shared workers of
+  the scan's own browser context, which neither attaches nor pauses them.
+  Each one counts as one unread realm for the whole visit, with the worker
+  line above. Discovery rides the same channel, so on a visit whose channel is
+  unavailable no shared worker is seen; the channel is established only with
+  discovery armed, so it never holds dedicated workers without it.
 - The coverage boundary entry for OffscreenCanvas 2D work is now
   `cross-realm-canvas`, and covers what stays unobserved: canvas and font
   work split across the page and a worker (text drawn in a worker and read
   from an image the page receives, or drawn by a worker on a canvas the page
   transferred to it and exported by the page), and shared workers and
   worklets. It says that a dedicated worker whose evidence cannot be read in
-  full marks the visit's evidence incomplete rather than clean. It still
+  full, and a shared worker the scanner sees start, mark the visit's evidence
+  incomplete rather than clean, and that a visit without the DevTools
+  connection cannot see a shared worker start. It still
   names the page-realm routes above that are not traced and the pending
   export, and says that reports measured before node-detectors-v11 did not
   observe OffscreenCanvas 2D work in the page at all, so a quiet canvas

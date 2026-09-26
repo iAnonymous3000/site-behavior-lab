@@ -38,9 +38,9 @@ export const CAPTURE_LOSS_DETAIL_CONTRACT = Object.freeze({
   "proxy-traffic": { families: ["requests"], budget: true },
   "cookie-snapshot": { families: ["cookies"], budget: true },
   "storage-snapshot": { families: ["storage"], budget: true },
-  // Counts observer realms whose evidence is incomplete: frames and
-  // dedicated worker realms. Only the run's warnings say which kinds a count
-  // holds.
+  // Counts observer realms whose evidence is incomplete: frames, and
+  // dedicated or shared worker realms. Only the run's warnings say which
+  // kinds a count holds.
   "fingerprint-observer": { families: ["fingerprinting"], budget: true },
   "keystroke-probe": { families: ["detector-output"], budget: true },
   "cname-lookups": { families: ["detector-output"], budget: true },

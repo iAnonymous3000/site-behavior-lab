@@ -224,6 +224,60 @@ test("settle concludes a worker still paused exactly once, and the flow finishin
 });
 
 /**
+ * Shared workers are witnessed, never attached: browser-level discovery,
+ * filtered to shared workers, armed before the page attach. The browser is
+ * shared by concurrent scans, so only this scan's browser context counts, and
+ * a target reported twice is still one shared worker.
+ */
+test("shared worker discovery is browser-level and counts each shared worker of the scan's context once", async () => {
+  const scripted = scriptedChannel(pageAttachResponder);
+  const session = new DedicatedWorkerAttachSession(scripted.channel, []);
+  const created = (targetId: string, targetInfo: Record<string, unknown> = {}): DevtoolsEvent => ({
+    method: "Target.targetCreated",
+    params: {
+      targetInfo: {
+        type: "shared_worker",
+        targetId,
+        browserContextId: "scan-context",
+        url: "http://fixture.test/shared.js",
+        attached: false,
+        ...targetInfo
+      }
+    }
+  });
+  // Reported before the watch: no context to count it in yet.
+  scripted.emit(created("before-watch"));
+  await session.watchSharedWorkers("scan-context");
+  await session.attachToPage("page-target-id");
+  assert.deepEqual(
+    scripted.sent.map((command) => [command.method, command.sessionId ?? null]),
+    [
+      ["Target.setDiscoverTargets", null],
+      ["Target.attachToTarget", null],
+      ["Target.setAutoAttach", "page-session"]
+    ]
+  );
+  assert.deepEqual(scripted.sent[0].params, { discover: true, filter: [{ type: "shared_worker" }] });
+
+  scripted.emit(created("shared-a"));
+  scripted.emit(created("shared-a"));
+  scripted.emit(created("shared-b"));
+  scripted.emit(created("concurrent-scan", { browserContextId: "other-context" }));
+  scripted.emit(created("a-dedicated-worker", { type: "worker" }));
+  scripted.emit({ ...created("on-a-session"), sessionId: "page-session" });
+  assert.equal(session.discoveredSharedWorkerCount(), 2);
+  // Nothing attached, nothing paused: a discovered shared worker is not an attach.
+  assert.deepEqual(session.attachCounts(), {
+    attachedDedicatedWorkerCount: 0,
+    attachedNestedDedicatedWorkerCount: 0,
+    attachedSharedWorkerCount: 0
+  });
+
+  session.close();
+  assert.equal(session.discoveredSharedWorkerCount(), 2, "the count outlives the channel");
+});
+
+/**
  * GPC runs first so its outcome cannot depend on what runs after it in the
  * same pause. A later installer that stalls past the watchdog, or throws,
  * leaves a worker whose readback came back true while it was held verified.

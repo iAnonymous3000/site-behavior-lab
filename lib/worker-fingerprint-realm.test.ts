@@ -512,6 +512,30 @@ test("readout: with no channel at all, every witnessed worker is unread", async 
   assert.deepEqual(readoutTerms(readout), { snapshots: [], unread: 2, terms: { unattachedDedicated: 2 } });
 });
 
+/**
+ * The owner's rule: a shared worker is a realm the observer never runs in, so
+ * each one the channel's discovery saw is an unread realm, and a page that
+ * starts one never reads clean. Counted from discovery alone, so an attach of
+ * the same worker, should the browser ever deliver one, adds nothing.
+ */
+test("readout: each shared worker the channel discovered is one unread realm, never counted again from an attach", async () => {
+  const realms = await scriptedWorkerRealms();
+  await realms.session.watchSharedWorkers("scan-context");
+  for (const targetId of ["shared-a", "shared-b"]) {
+    realms.scripted.emit({
+      method: "Target.targetCreated",
+      params: { targetInfo: { type: "shared_worker", targetId, browserContextId: "scan-context" } }
+    });
+  }
+  realms.scripted.emit(attachEvent("shared-a", "shared_worker"));
+  await realms.attach("dedicated");
+  assert.deepEqual(readoutTerms(await realms.readout(1)), {
+    snapshots: [EMPTY_SNAPSHOT],
+    unread: 2,
+    terms: { readable: 1, discoveredShared: 2 }
+  });
+});
+
 test("readout: the drain waits for the channel's attaches to reach the witness, and what attaches in it was paused at the freeze", async () => {
   const realms = await scriptedWorkerRealms();
   const pending = realms.readout(1, 2_000);
@@ -779,7 +803,8 @@ type PausedWorkerHarness = {
 /**
  * A browser with a loopback DevTools port, one page, and the scanner's worker
  * realm channel attached to that page with the production fingerprint
- * installer, exactly as the scanner opens it in an arm without GPC. A test may
+ * installer and watching the page's browser context for shared workers,
+ * exactly as the scanner opens it in an arm without GPC. A test may
  * put one installer ahead of it, as the GPC arm does.
  */
 async function openPausedWorkerHarness(
@@ -801,7 +826,9 @@ async function openPausedWorkerHarness(
   const witness = new DedicatedWorkerWitness();
   page.on("worker", () => witness.observe());
   const targetSession = await context.newCDPSession(page);
-  const info = (await targetSession.send("Target.getTargetInfo")) as { targetInfo: { targetId: string } };
+  const info = (await targetSession.send("Target.getTargetInfo")) as {
+    targetInfo: { targetId: string; browserContextId: string };
+  };
   await targetSession.detach();
   const channel = await openDevtoolsBrowserChannel(await devtoolsBrowserWebSocketUrl(devtoolsPort));
   const installer = new FingerprintWorkerRealmInstaller(FIXTURE_SITE_KEY);
@@ -817,6 +844,7 @@ async function openPausedWorkerHarness(
   const installers = [attachRecorder, ...(options.before ? [options.before] : []), installer];
   const session = new DedicatedWorkerAttachSession(channel, installers);
   t.after(() => session.close());
+  await session.watchSharedWorkers(info.targetInfo.browserContextId);
   await session.attachToPage(info.targetInfo.targetId);
   return { page, channel, session, installer, witness, workers, crashed: () => crashed };
 }
@@ -1534,6 +1562,37 @@ test("real Chromium: a cross-site iframe's workers are scoped to the iframe's cu
     [1, 1, 0],
     JSON.stringify(replaced.diagnostics)
   );
+});
+
+/**
+ * A page that starts a shared worker, twice with the same script and name,
+ * which is one shared worker, while a second browser context in the same
+ * browser, as a concurrent scan would be, starts its own. The page's shared
+ * worker is one unread realm; the other context's is not this scan's.
+ */
+test("real Chromium: a shared worker the page starts is one unread realm, and another context's is not counted", { timeout: 60_000 }, async (t) => {
+  const { origin, done } = await startWorkerFixture(t, {
+    page: `<!doctype html><title>shared worker</title><script>
+      for (let i = 0; i < 2; i++) new SharedWorker("/shared.js", { name: "one" }).port.start();
+    </script>`,
+    scripts: {
+      "/shared.js": `${CANVAS_READ_SOURCE} fetch(self.location.origin + "/done/shared");`
+    }
+  });
+  const harness = await openPausedWorkerHarness(t);
+  await harness.page.goto(`${origin}/`, { timeout: 10_000 });
+  const concurrent = await harness.page.context().browser()!.newContext();
+  t.after(() => concurrent.close());
+  await (await concurrent.newPage()).goto(`${origin}/`, { timeout: 10_000 });
+  await waitFor(() => done.length >= 2, 15_000);
+  assert.deepEqual(done, ["shared", "shared"], "one shared worker ran in each context");
+
+  const readout = await readWorkerRealms(harness, 200);
+  assert.deepEqual(readout.readableSnapshots, []);
+  assert.equal(readout.unreadRealms, 1);
+  assert.equal(readout.diagnostics.discoveredShared, 1);
+  assert.deepEqual([readout.diagnostics.observedDedicated, readout.diagnostics.attachedDedicated], [0, 0]);
+  assert.equal(harness.session.attachCounts().attachedSharedWorkerCount, 0, "a shared worker is witnessed, not attached");
 });
 
 /**

@@ -24,9 +24,10 @@ export type FingerprintObservationCollection = {
    */
   listenerAttributionLostFrames: number;
   /**
-   * Dedicated worker realms of current documents that ran page code: the
-   * readable ones plus those whose evidence cannot be read in full
-   * (lib/worker-fingerprint-realm.ts decides which is which).
+   * Worker realms that ran page code: the dedicated ones of current
+   * documents, readable or not, and every shared worker the page started,
+   * which is never readable (lib/worker-fingerprint-realm.ts decides which is
+   * which).
    */
   attemptedWorkerRealms: number;
   /** Worker realms whose one cumulative snapshot this collection merged. */

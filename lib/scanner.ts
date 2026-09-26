@@ -274,10 +274,10 @@ export function fingerprintFrameCoverageStatus(
 
 /**
  * Worker realms whose fingerprint evidence is incomplete: every dedicated
- * worker realm that ran page code and could not be read in full
- * (lib/worker-fingerprint-realm.ts decides which is which). Frame coverage
- * never counts them, so a worker-only loss leaves the detector partial, never
- * failed.
+ * worker realm that ran page code and could not be read in full, and every
+ * shared worker the page started (lib/worker-fingerprint-realm.ts decides
+ * which is which). Frame coverage never counts them, so a worker-only loss
+ * leaves the detector partial, never failed.
  */
 export function fingerprintWorkerRealmLoss(
   coverage: Pick<FingerprintObservationCollection, "attemptedWorkerRealms" | "readableWorkerRealms">
@@ -1065,11 +1065,13 @@ export async function scanSiteWithMeasurement(
     // first installs GPC inside the worker realm and reads it back
     // (lib/gpc-worker-verification.ts); every arm then installs the
     // fingerprint observer, the documents' own function with the same site
-    // key (lib/worker-fingerprint-realm.ts). Best effort to ESTABLISH, never
-    // to account: when any step here fails the scan proceeds, and in the GPC
-    // arm the construction counts and the witness registered above turn every
-    // worker of this visit into disclosed capture loss instead of a silently
-    // unverified realm.
+    // key (lib/worker-fingerprint-realm.ts). The channel also watches the
+    // scan's browser context for shared workers. Best effort to ESTABLISH,
+    // never to account: when any step here fails the scan proceeds, the
+    // witness registered above turns every dedicated worker of this visit
+    // into an unread fingerprint realm, and in the GPC arm the construction
+    // counts and the same witness turn it into disclosed capture loss instead
+    // of a silently unverified realm. Only a shared worker goes unseen then.
     const gpcWorkerInstaller = gpcWorkerInjection ? new GpcWorkerRealmInstaller() : null;
     const fingerprintWorkerInstaller = new FingerprintWorkerRealmInstaller(fingerprintObserverSiteKey);
     const workerRealmInstallers: WorkerRealmInstaller[] = gpcWorkerInstaller
@@ -2184,8 +2186,8 @@ export async function scanSiteWithMeasurement(
     // partially readable page.
     const fingerprintListenerAttributionLost = fingerprintCollection.listenerAttributionLostFrames > 0;
     // Worker realms of the final read that ran page code and could not be
-    // read. The readable ones' evidence publishes, and the family is
-    // incomplete exactly as for a partially readable page.
+    // read, shared workers included. The readable ones' evidence publishes,
+    // and the family is incomplete exactly as for a partially readable page.
     const fingerprintWorkerRealmsLost = fingerprintWorkerRealmLoss(fingerprintCollection) > 0;
     // v2 carries this as a `fingerprinting` capture loss in its quality facts.
     // v1 has no quality block, so without a warning a run whose observer never
@@ -3810,8 +3812,10 @@ async function getSharedBrowser(): Promise<Browser> {
  *
  * The page's target id comes from Playwright's own CDP session, so the
  * DevTools client attaches to exactly this page: any concurrent scan's page
- * is never attached. Throws when any step is unavailable; the caller proceeds
- * without the channel, and the GPC arm records that as full
+ * is never attached. The same read gives the scan's browser context, whose
+ * shared workers the channel witnesses. Throws when any step is unavailable;
+ * the caller proceeds without the channel, every witnessed dedicated worker
+ * is then an unread fingerprint realm, and the GPC arm records it as full
  * worker-verification loss rather than failing the scan.
  */
 async function establishWorkerRealmChannel(
@@ -3825,15 +3829,21 @@ async function establishWorkerRealmChannel(
   }
   const targetSession = await context.newCDPSession(page);
   let pageTargetId: string;
+  let browserContextId: string;
   try {
     const info = (await targetSession.send("Target.getTargetInfo")) as {
-      targetInfo?: { targetId?: unknown };
+      targetInfo?: { targetId?: unknown; browserContextId?: unknown };
     };
     const targetId = info.targetInfo?.targetId;
+    const contextId = info.targetInfo?.browserContextId;
     if (typeof targetId !== "string" || targetId.length === 0) {
       throw new Error("The measured page target id was unavailable.");
     }
+    if (typeof contextId !== "string" || contextId.length === 0) {
+      throw new Error("The measured page's browser context id was unavailable.");
+    }
     pageTargetId = targetId;
+    browserContextId = contextId;
   } finally {
     await targetSession.detach().catch(() => undefined);
   }
@@ -3841,6 +3851,10 @@ async function establishWorkerRealmChannel(
   const channel = await openDevtoolsBrowserChannel(wsUrl);
   const session = new DedicatedWorkerAttachSession(channel, installers);
   try {
+    // Shared workers first: the channel is established only with both, so
+    // a visit is never left with a channel that holds its dedicated workers
+    // but cannot see a shared one.
+    await session.watchSharedWorkers(browserContextId);
     await session.attachToPage(pageTargetId);
   } catch (error) {
     session.close();

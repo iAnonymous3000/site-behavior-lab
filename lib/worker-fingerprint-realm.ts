@@ -162,6 +162,12 @@ export type WorkerFingerprintReadoutDiagnostics = {
   ownerUnknown: number;
   /** Unread: witnessed by the browser but never attached by the channel. */
   unattachedDedicated: number;
+  /**
+   * Unread: shared workers the channel's discovery saw the scan's browser
+   * context start. The observer is never installed in one, so a page that
+   * ran code there never reads clean.
+   */
+  discoveredShared: number;
 };
 
 export type WorkerFingerprintRealmReadout = FingerprintWorkerRealmReadout & {
@@ -215,7 +221,9 @@ type FrozenRealm =
  * Dedicated workers only. The channel does not receive shared workers from a
  * page session; should one ever attach, nothing is installed into it here,
  * since this installer's paused-install guard covers dedicated worker shapes
- * only, and it stays in the channel's shared attach count.
+ * only, and it stays in the channel's shared attach count. The readout counts
+ * shared workers from the channel's discovery instead, once each, never from
+ * that attach count as well.
  */
 export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
   /** The sink's name on every worker session of this scan; random, so no page can guess it. */
@@ -358,8 +366,11 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
    *    state its stream was left in. Every other worker is classified by its
    *    state.
    *
+   * Shared workers are unread, one each, for the whole visit so far: the
+   * channel's discovery count after the drain.
+   *
    * Never rejects. With no channel (it was never established), every
-   * witnessed worker is unread.
+   * witnessed dedicated worker is unread, and no shared worker is witnessed.
    */
   async readout(options: {
     session: DedicatedWorkerAttachSession | null;
@@ -401,7 +412,8 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
       streamBroken: 0,
       channelLostAlive: 0,
       ownerUnknown: 0,
-      unattachedDedicated: Math.max(0, observedDedicated - attachCounts.attachedDedicatedWorkerCount)
+      unattachedDedicated: Math.max(0, observedDedicated - attachCounts.attachedDedicatedWorkerCount),
+      discoveredShared: options.session?.discoveredSharedWorkerCount() ?? 0
     };
 
     // Scope before state. A worker that has gone with a document the page no
@@ -475,7 +487,8 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
         diagnostics.streamBroken +
         diagnostics.channelLostAlive +
         diagnostics.ownerUnknown +
-        diagnostics.unattachedDedicated,
+        diagnostics.unattachedDedicated +
+        diagnostics.discoveredShared,
       diagnostics
     };
   }
