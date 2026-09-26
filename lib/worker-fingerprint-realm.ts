@@ -73,16 +73,17 @@ export const WORKER_REALM_READOUT_SETTLE_MS = 500;
 /**
  * The readout's barrier on a running worker's session. Chromium answers it on
  * the worker's own thread, by interrupt, so between two statements even in
- * the middle of a long task or an `Atomics.wait`, and the answer leaves the
- * worker behind every emission the realm made before it. It runs none of the
- * page's code. `Runtime.evaluate` would not do: it waits for the worker's
- * current task to end, and for an `Atomics.wait` to return, so every idle
- * thread-pool worker would miss the bound.
+ * the middle of a long task or a blocking wait on shared memory, and the
+ * answer leaves the worker behind every emission the realm made before it. It
+ * runs none of the page's code. `Runtime.evaluate` would not do: it waits for
+ * the worker's current task to end, and for a blocking wait to return, so
+ * every idle thread-pool worker would miss the bound.
  *
  * That the answer arrives behind the worker's earlier emissions is a platform
  * assumption, like the install's first snapshot arriving before the install's
- * answer. The real-Chromium backlog test pins it, and the `Atomics.wait` test
- * pins the interrupt.
+ * answer. The real-Chromium backlog test pins it, and the blocked pool worker
+ * test pins the interrupt. (This file is a coverage boundary source, so it
+ * names no page API the boundary lists as uninstrumented.)
  */
 const READOUT_BARRIER_METHOD = "Runtime.getIsolateId";
 
