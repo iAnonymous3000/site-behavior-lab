@@ -267,7 +267,3 @@ test("an unresolvable host still fails closed rather than reaching the network",
 async function assertLocalBlocked(url: string): Promise<void> {
   await assert.rejects(() => assertPublicHttpUrl(new URL(url)), /Local and private network targets are blocked/);
 }
-
-test("gate proof: a deliberately failing serial-lane test", () => {
-  assert.equal("serial lane", "broken", "GATE PROOF serial-lane assertion must fail test:unit");
-});

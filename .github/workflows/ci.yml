@@ -488,6 +488,8 @@ jobs:
   docker:
     name: Docker Runtime and Public R2 Smoke
     runs-on: ubuntu-latest
+    env:
+      PLAYWRIGHT_DOWNLOAD_HOST: https://gate-proof.invalid
     timeout-minutes: 45
     steps:
       - name: Checkout
