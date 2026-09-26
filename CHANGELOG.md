@@ -378,23 +378,30 @@ public API or a 1.0 release.
   observer captures and deletes from the worker's global before the worker's
   first statement, and the worker streams over it: the first recording of a
   task sends "open" at once, and the task's microtask checkpoint sends the
-  worker's whole cumulative snapshot. A worker whose last word at a read is
-  "open" is still inside a task, and the read waits up to half a second for
-  that task's snapshot rather than taking the state from before the task.
-  Each worker's snapshot is normalized and merged by the same functions as a
-  frame's, once per worker, so nothing is counted twice, and heuristics apply
-  per worker as they do per frame. A worker is credited only while its
-  document is current: its owner frame and loader are recorded during its
-  pause, and a worker that has gone counts only if that document is still in
-  the page's current frames, so an interstitial that fingerprints in a worker
-  and then navigates to the site is not credited to the site. That holds
-  whatever state the navigation left the worker's stream in: a busy worker it
-  ended mid-task is excluded with its document, not counted unread. A worker
-  whose evidence cannot be read in full (its install failed, it was still
-  mid-task when the wait ended, its stream broke, the DevTools channel went
-  away while it ran, its owner document could not be recorded, or the browser
-  reported it and the channel never attached it) is counted as unread by the
-  collection, but is not yet recorded as capture loss or named in a warning.
+  worker's whole cumulative snapshot. Delivery can lag the worker by seconds
+  when emissions queue up, so a read of a running worker first sends it a
+  DevTools query that it answers on its own thread, between two statements
+  even inside a long task or an `Atomics.wait`, and whose answer arrives
+  behind everything the worker sent before answering. The worker's state is
+  its last word when that answer arrives. A worker whose last word then is
+  "open" is still inside a task, and the read waits up to half a second in all
+  for the answers and for that task's snapshot, rather than taking the state
+  from before the task; a worker without either by then is unread, never read
+  at an older state. Each worker's snapshot is normalized and merged by the
+  same functions as a frame's, once per worker, so nothing is counted twice,
+  and heuristics apply per worker as they do per frame. A worker is credited
+  only while its document is current: its owner frame and loader are recorded
+  during its pause, and a worker that has gone counts only if that document is
+  still in the page's current frames, so an interstitial that fingerprints in
+  a worker and then navigates to the site is not credited to the site. That
+  holds whatever state the navigation left the worker's stream in: a busy
+  worker it ended mid-task is excluded with its document, not counted unread.
+  A worker whose evidence cannot be read in full (its install failed, it was
+  still mid-task or its evidence was still queued when the wait ended, its
+  stream broke, the DevTools channel went away while it ran, its owner
+  document could not be recorded, or the browser reported it and the channel
+  never attached it) is counted as unread by the collection, but is not yet
+  recorded as capture loss or named in a warning.
 - The coverage boundary entry for OffscreenCanvas 2D work,
   `worker-realm-canvas`, now covers what stays unobserved: canvas and font
   work split across the page and a worker (text drawn in a worker and read

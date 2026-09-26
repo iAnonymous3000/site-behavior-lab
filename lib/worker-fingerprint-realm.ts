@@ -71,6 +71,22 @@ export const MAX_WORKER_SNAPSHOT_PAYLOAD_CHARS = 16_384;
 export const WORKER_REALM_READOUT_SETTLE_MS = 500;
 
 /**
+ * The readout's barrier on a running worker's session. Chromium answers it on
+ * the worker's own thread, by interrupt, so between two statements even in
+ * the middle of a long task or an `Atomics.wait`, and the answer leaves the
+ * worker behind every emission the realm made before it. It runs none of the
+ * page's code. `Runtime.evaluate` would not do: it waits for the worker's
+ * current task to end, and for an `Atomics.wait` to return, so every idle
+ * thread-pool worker would miss the bound.
+ *
+ * That the answer arrives behind the worker's earlier emissions is a platform
+ * assumption, like the install's first snapshot arriving before the install's
+ * answer. The real-Chromium backlog test pins it, and the `Atomics.wait` test
+ * pins the interrupt.
+ */
+const READOUT_BARRIER_METHOD = "Runtime.getIsolateId";
+
+/**
  * The exact expression evaluated inside a paused dedicated worker: the
  * observer's own function, called with the scan's first-party site key (the
  * value the document's init script gets) and the worker realm argument, which
@@ -131,7 +147,11 @@ export type WorkerFingerprintReadoutDiagnostics = {
   installFailed: number;
   /** Unread: already running when it attached. */
   attachedLate: number;
-  /** Unread: its last word at the freeze was "open", and no closed snapshot followed within the drain. */
+  /**
+   * Unread: its last word at its freeze point was "open" and no closed
+   * snapshot followed within the drain, or, running, it never answered the
+   * readout barrier within the drain.
+   */
   cutOff: number;
   /** Unread: a sequence gap, an oversized or malformed payload, or the realm's own `null`. */
   streamBroken: number;
@@ -149,8 +169,14 @@ export type WorkerFingerprintRealmReadout = FingerprintWorkerRealmReadout & {
 
 type OwnerDocument = { frameId: string; loaderId: string };
 
-/** A pending freeze waiting on one worker: the first closed snapshot after the freeze's sequence. */
-type FreezeSlot = { freezeSeq: number; snapshot: string | null };
+/**
+ * One worker's freeze, when its state at the call is not final. A running
+ * worker's freeze point is its answer to the readout barrier, and until that
+ * answer `freezeSeq` is null. Once answered, the slot holds the closed
+ * snapshot the answer found, or takes the first closed snapshot with a
+ * sequence after `freezeSeq`.
+ */
+type FreezeSlot = { barrier: "pending" | "answered"; freezeSeq: number | null; snapshot: string | null };
 
 type WorkerRealmRecord = {
   readonly worker: AttachedWorker;
@@ -176,7 +202,7 @@ type FrozenRealm =
       reason: "installFailed" | "attachedLate" | "streamBroken" | "channelLostAlive";
     }
   | { record: WorkerRealmRecord; state: "closed"; snapshot: string }
-  | { record: WorkerRealmRecord; state: "open"; slot: FreezeSlot };
+  | { record: WorkerRealmRecord; state: "waiting"; slot: FreezeSlot };
 
 /**
  * The fingerprint observer's installer on the worker realm channel, in every
@@ -203,6 +229,8 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
   private installedWorkerCount = 0;
   private installFailedWorkerCount = 0;
   private channelLost = false;
+  /** The worker realm channel the installs went over, which the readout barrier uses too. */
+  private channel: DevtoolsChannel | null = null;
 
   /** `firstPartySiteKey` is the value the scan's documents get from their init script. */
   constructor(firstPartySiteKey: string, options: { randomBytes?: Uint8Array } = {}) {
@@ -218,6 +246,7 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
 
   async install(worker: AttachedWorker, channel: DevtoolsChannel): Promise<void> {
     if (worker.kind !== "dedicated") return;
+    this.channel = channel;
     const record = this.recordFor(worker);
     if (!worker.waitingForDebugger) {
       // Already running when it attached: its first statements ran before any
@@ -268,6 +297,14 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
       this.announceChange();
       return;
     }
+    if (event.method === "Target.detachedFromTarget") {
+      // A worker that has gone can emit nothing more, so what the host holds
+      // is its whole stream: a barrier still waiting on it is answered by the
+      // detach, which the channel recorded before this.
+      const record = typeof event.params.sessionId === "string" ? this.records.get(event.params.sessionId) : undefined;
+      if (record) for (const slot of record.slots) this.answerBarrier(record, slot);
+      return;
+    }
     if (event.method !== "Runtime.bindingCalled" || event.params.name !== this.sinkName) return;
     const record = typeof event.sessionId === "string" ? this.records.get(event.sessionId) : undefined;
     if (!record) return;
@@ -297,16 +334,24 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
    * The worker realms at one freeze, run at exactly the instants the page
    * realm is read (the passive boundary and the final state read).
    *
-   * 1. The freeze is this call, before its first await. Each worker's state
-   *    is taken as its last word so far: a closed snapshot, an open task, or
-   *    a state that excludes it or leaves it unread.
+   * 1. The freeze is this call, before its first await. A worker that is
+   *    excluded or unread at the call stays so. A worker that has gone has
+   *    its whole stream in hand, and its last word so far is its state. A
+   *    running worker's emissions may still be in flight, since delivery can
+   *    lag the realm by seconds under an emission backlog, so its last word
+   *    so far is not its state at the freeze: it gets the readout barrier,
+   *    and its state is its last word when the barrier's answer arrives,
+   *    which is behind everything the realm emitted before answering.
    * 2. The drain, bounded by `settleMs`: wait until the channel's attaches
    *    reach the witness's count at the freeze (a witnessed worker not yet
-   *    attached is still paused, not lost), and, for each worker whose last
-   *    word at the freeze was "open", for the first closed snapshot after it.
-   *    That is a page evaluate waiting for the current task to end. The drain
-   *    never waits for a worker's latest state to be closed, which a worker
-   *    drawing every frame could starve.
+   *    attached is still paused, not lost), for each running worker's
+   *    answer, and, for each worker whose last word at its freeze point was
+   *    "open", for the first closed snapshot after it. That is a page
+   *    evaluate waiting for the current task to end. The drain never waits
+   *    for a worker's latest state to be closed, which a worker drawing
+   *    every frame could starve, and a worker without its answer or its
+   *    closed snapshot at the bound is cut off, never read at an older
+   *    state.
    * 3. A worker that has gone is checked against the page's current frame
    *    trees first: one whose document was replaced is excluded whatever
    *    state its stream was left in. Every other worker is classified by its
@@ -333,7 +378,7 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
     try {
       await this.drain(options.session, observedDedicated, frozen, options.settleMs);
     } finally {
-      for (const realm of frozen) if (realm.state === "open") realm.record.slots.delete(realm.slot);
+      for (const realm of frozen) if (realm.state === "waiting") realm.record.slots.delete(realm.slot);
     }
 
     const attachCounts = options.session?.attachCounts() ?? {
@@ -388,10 +433,11 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
       }
       const snapshot = realm.state === "closed" ? realm.snapshot : realm.slot.snapshot;
       if (snapshot === null) {
-        // Open at the freeze, and still open when the drain ended: cut off
-        // mid-task (terminated, or a task longer than the bound), or its
-        // stream broke or its channel closed before the task's closed
-        // snapshot arrived.
+        // No whole state for the freeze when the drain ended: open at its
+        // freeze point and still open (terminated mid-task, or a task longer
+        // than the bound), or its barrier's answer never came (a delivery
+        // backlog longer than the bound), or its stream broke or its channel
+        // closed first.
         if (realm.record.lostWithChannel) diagnostics.channelLostAlive += 1;
         else if (realm.record.broken) diagnostics.streamBroken += 1;
         else diagnostics.cutOff += 1;
@@ -443,12 +489,41 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
     if (record.install === "attached-late") return { record, state: "unread", reason: "attachedLate" };
     if (record.install !== "installed") return { record, state: "unread", reason: "installFailed" };
     if (record.broken || record.lastWord === null) return { record, state: "unread", reason: "streamBroken" };
-    if (record.lastWord === "closed" && record.lastClosed !== null) {
-      return { record, state: "closed", snapshot: record.lastClosed };
+    if (worker.detached) {
+      // Gone: it can emit nothing more. A task it left open still gets the
+      // drain's wait for that task's closed snapshot.
+      if (record.lastWord === "closed" && record.lastClosed !== null) {
+        return { record, state: "closed", snapshot: record.lastClosed };
+      }
+      const slot: FreezeSlot = { barrier: "answered", freezeSeq: record.lastSeq, snapshot: null };
+      record.slots.add(slot);
+      return { record, state: "waiting", slot };
     }
-    const slot: FreezeSlot = { freezeSeq: record.lastSeq, snapshot: null };
+    const slot: FreezeSlot = { barrier: "pending", freezeSeq: null, snapshot: null };
     record.slots.add(slot);
-    return { record, state: "open", slot };
+    const answer = () => this.answerBarrier(record, slot);
+    // An error while the worker is still attached answers nothing: the slot
+    // waits for the worker's detach, the channel's loss, or the bound.
+    this.channel
+      ?.send(READOUT_BARRIER_METHOD, {}, worker.sessionId)
+      .then(answer, () => {
+        if (worker.detached) answer();
+      });
+    return { record, state: "waiting", slot };
+  }
+
+  /**
+   * A running worker's freeze point: the host now holds everything the realm
+   * emitted before it answered the barrier, or the worker has gone. A closed
+   * last word is the state at the freeze; an open one waits for the task's
+   * closed snapshot.
+   */
+  private answerBarrier(record: WorkerRealmRecord, slot: FreezeSlot): void {
+    if (slot.barrier !== "pending") return;
+    slot.barrier = "answered";
+    if (record.lastWord === "closed" && record.lastClosed !== null) slot.snapshot = record.lastClosed;
+    else slot.freezeSeq = record.lastSeq;
+    this.announceChange();
   }
 
   private async drain(
@@ -462,7 +537,7 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
       if (session.attachCounts().attachedDedicatedWorkerCount < observedDedicated) return false;
       return frozen.every(
         (realm) =>
-          realm.state !== "open" ||
+          realm.state !== "waiting" ||
           realm.slot.snapshot !== null ||
           realm.record.broken ||
           realm.record.lostWithChannel
@@ -532,7 +607,7 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
     record.lastWord = "closed";
     record.lastClosed = snapshot;
     for (const slot of record.slots) {
-      if (slot.snapshot === null && sequence > slot.freezeSeq) slot.snapshot = snapshot;
+      if (slot.snapshot === null && slot.freezeSeq !== null && sequence > slot.freezeSeq) slot.snapshot = snapshot;
     }
   }
 

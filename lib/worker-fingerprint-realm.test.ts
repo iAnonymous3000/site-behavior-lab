@@ -156,6 +156,7 @@ function emission(
 const EMPTY_SNAPSHOT = JSON.stringify({ detections: [], events: {} });
 const READ_SNAPSHOT = JSON.stringify({ detections: [], events: { "canvas.getImageData": 1 } });
 const LATER_SNAPSHOT = JSON.stringify({ detections: [], events: { "canvas.getImageData": 2 } });
+const LATEST_SNAPSHOT = JSON.stringify({ detections: [], events: { "canvas.getImageData": 3 } });
 
 test("the installer reads the owner, adds the sink and evaluates the one expression before each resume, and counts only a true answer with its first snapshot", async () => {
   const installer = new FingerprintWorkerRealmInstaller(FIXTURE_SITE_KEY);
@@ -277,6 +278,8 @@ async function scriptedWorkerRealms(
   options: {
     handshake?: (sessionId: string) => boolean;
     frameTree?: () => Record<string, unknown> | Error;
+    /** The readout barrier's answer on a worker's session; by default at once. */
+    barrier?: (sessionId: string) => Record<string, unknown> | Promise<Record<string, unknown>> | Error;
   } = {}
 ) {
   const installer = new FingerprintWorkerRealmInstaller(FIXTURE_SITE_KEY);
@@ -286,6 +289,9 @@ async function scriptedWorkerRealms(
     if (command.method === "Page.getFrameTree") {
       const tree = frameTree();
       return tree instanceof Error ? tree : { frameTree: tree };
+    }
+    if (command.method === "Runtime.getIsolateId") {
+      return options.barrier ? options.barrier(command.sessionId!) : { id: `isolate-${command.sessionId}` };
     }
     if (command.method === "Runtime.evaluate") {
       if (options.handshake?.(command.sessionId!) !== false) {
@@ -329,16 +335,105 @@ function readoutTerms(readout: WorkerFingerprintRealmReadout) {
   return { snapshots: readout.readableSnapshots, unread: readout.unreadRealms, terms: nonZero };
 }
 
-test("readout: a worker whose last word is closed is read at that snapshot, and later emissions do not move a freeze already taken", async () => {
-  const realms = await scriptedWorkerRealms();
+/** A barrier each test answers by hand, per worker session. */
+function heldBarriers() {
+  const answers = new Map<string, () => void>();
+  return {
+    barrier: (sessionId: string) =>
+      new Promise<Record<string, unknown>>((resolve) => {
+        answers.set(sessionId, () => resolve({ id: `isolate-${sessionId}` }));
+      }),
+    answer(sessionId: string) {
+      const answer = answers.get(sessionId);
+      assert.ok(answer, `no barrier was sent to ${sessionId}`);
+      answer();
+    }
+  };
+}
+
+/**
+ * A running worker's freeze point is its answer to the barrier: what it
+ * emitted before answering belongs to the freeze even when it reaches the
+ * host after the readout began, and what it emits after answering does not,
+ * even while the readout still waits on another worker.
+ */
+test("readout: a running worker is read at its last word when its barrier answer arrives, and what follows the answer does not move that freeze", async () => {
+  const held = heldBarriers();
+  const realms = await scriptedWorkerRealms({ barrier: held.barrier });
+  await realms.attach("w1", "w2");
+  for (const sessionId of ["w1", "w2"]) {
+    realms.emit(sessionId, 2, "open");
+    realms.emit(sessionId, 3, "closed", READ_SNAPSHOT);
+  }
+  const pending = realms.readout(2, 2_000);
+  assert.deepEqual(
+    realms.scripted.sent.filter((command) => command.method === "Runtime.getIsolateId").map((command) => command.sessionId),
+    ["w1", "w2"],
+    "each running worker gets one barrier on its own session"
+  );
+  // Emitted before w1 answered, though it reaches the host after the call.
+  realms.emit("w1", 4, "open");
+  realms.emit("w1", 5, "closed", LATER_SNAPSHOT);
+  held.answer("w1");
+  await new Promise((resolve) => setImmediate(resolve));
+  // A later task, after w1's answer, while the readout still waits on w2.
+  realms.emit("w1", 6, "open");
+  realms.emit("w1", 7, "closed", LATEST_SNAPSHOT);
+  held.answer("w2");
+  assert.deepEqual(readoutTerms(await pending), {
+    snapshots: [LATER_SNAPSHOT, READ_SNAPSHOT],
+    unread: 0,
+    terms: { readable: 2 }
+  });
+});
+
+/**
+ * Delivery lags the realm. The host holds a closed snapshot at the call, but
+ * before answering the worker began a task that is still open: the older
+ * snapshot is not its state at the freeze, so it waits for the task and, with
+ * no closed snapshot by the bound, is cut off, never read at the older state.
+ */
+test("readout: a closed snapshot the host holds at the call is not read when the worker's answer shows a task begun before it", async () => {
+  const held = heldBarriers();
+  const realms = await scriptedWorkerRealms({ barrier: held.barrier });
+  await realms.attach("w1");
+  realms.emit("w1", 2, "open");
+  realms.emit("w1", 3, "closed", EMPTY_SNAPSHOT);
+  const pending = realms.readout(1, 50);
+  realms.emit("w1", 4, "open");
+  held.answer("w1");
+  assert.deepEqual(readoutTerms(await pending), { snapshots: [], unread: 1, terms: { cutOff: 1 } });
+});
+
+test("readout: a running worker whose barrier answer does not come within the bound is cut off, never read at the host's older state", async () => {
+  const realms = await scriptedWorkerRealms({ barrier: () => new Promise(() => undefined) });
   await realms.attach("w1");
   realms.emit("w1", 2, "open");
   realms.emit("w1", 3, "closed", READ_SNAPSHOT);
-  const pending = realms.readout(1);
-  // After the freeze: a later task. A closed state at the freeze is final.
-  realms.emit("w1", 4, "open");
-  realms.emit("w1", 5, "closed", LATER_SNAPSHOT);
-  assert.deepEqual(readoutTerms(await pending), { snapshots: [READ_SNAPSHOT], unread: 0, terms: { readable: 1 } });
+  assert.deepEqual(readoutTerms(await realms.readout(1, 50)), { snapshots: [], unread: 1, terms: { cutOff: 1 } });
+});
+
+/**
+ * A worker that goes away can emit nothing more, so its detach answers its
+ * barrier with the stream as received. A barrier that errors while the worker
+ * is still attached answers nothing, and the worker waits out the bound.
+ */
+test("readout: a worker that goes away before answering is read as received, and a barrier error while attached is no answer", async () => {
+  const realms = await scriptedWorkerRealms({
+    barrier: (sessionId) => (sessionId === "errors" ? new Error("Internal error") : new Promise(() => undefined))
+  });
+  await realms.attach("leaves", "errors");
+  for (const sessionId of ["leaves", "errors"]) {
+    realms.emit(sessionId, 2, "open");
+    realms.emit(sessionId, 3, "closed", READ_SNAPSHOT);
+  }
+  const pending = realms.readout(2, 100);
+  realms.detach("leaves");
+  assert.deepEqual(readoutTerms(await pending), {
+    snapshots: [READ_SNAPSHOT],
+    unread: 1,
+    terms: { readable: 1, cutOff: 1 }
+  });
 });
 
 test("readout: a worker open at the freeze is read at the first closed snapshot after it, which the drain waits for", async () => {
@@ -471,6 +566,8 @@ test("readout: a worker that has gone is read only while its owner document is c
   // with its document.
   realms.setFrameTree(() => ({ frame: { id: "main-frame", loaderId: "loader-2" } }));
   assert.deepEqual(readoutTerms(await realms.readout(2)), { snapshots: [], unread: 0, terms: { ownerReplaced: 2 } });
+  // A worker gone at the call can emit nothing more: it gets no barrier.
+  assert.equal(realms.scripted.sent.some((command) => command.method === "Runtime.getIsolateId"), false);
   realms.setFrameTree(() => ({ frame: { id: "main-frame", loaderId: "loader-1" } }));
   assert.deepEqual(readoutTerms(await realms.readout(2)), {
     snapshots: [READ_SNAPSHOT, READ_SNAPSHOT],
@@ -749,10 +846,17 @@ function collectWorkerSnapshot(snapshot: string) {
   return collectFingerprintObservationsWithCoverage([], { readableSnapshots: [snapshot], unreadRealms: 0 });
 }
 
+type WorkerFixtureRoutes = {
+  page: string;
+  scripts?: Record<string, string>;
+  /** Serve the page and its scripts cross-origin isolated, so SharedArrayBuffer exists. */
+  crossOriginIsolated?: boolean;
+};
+
 /** A local page and its worker scripts, with a `/done/<name>` beacon the scripts can call. */
 async function startWorkerFixture(
   t: TestContext,
-  routes: { page: string; scripts?: Record<string, string> } | (() => { page: string; scripts?: Record<string, string> })
+  routes: WorkerFixtureRoutes | (() => WorkerFixtureRoutes)
 ): Promise<{ origin: string; done: string[] }> {
   const done: string[] = [];
   const port = await startFixtureServer(t, (request, response) => {
@@ -764,9 +868,12 @@ async function startWorkerFixture(
       return;
     }
     const current = typeof routes === "function" ? routes() : routes;
+    const isolation: Record<string, string> = current.crossOriginIsolated
+      ? { "cross-origin-opener-policy": "same-origin", "cross-origin-embedder-policy": "require-corp" }
+      : {};
     const script = current.scripts?.[url.pathname];
     if (script !== undefined) {
-      response.writeHead(200, { "content-type": "text/javascript" });
+      response.writeHead(200, { "content-type": "text/javascript", ...isolation });
       response.end(script);
       return;
     }
@@ -775,7 +882,7 @@ async function startWorkerFixture(
       response.end();
       return;
     }
-    response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+    response.writeHead(200, { "content-type": "text/html; charset=utf-8", ...isolation });
     response.end(current.page);
   });
   return { origin: `http://127.0.0.1:${port}`, done };
@@ -1119,6 +1226,95 @@ test("real Chromium: a worker mid-task at the freeze is unread until its task's 
   const collection = await collectFingerprintObservationsWithCoverage([], afterTask);
   assert.deepEqual([collection.attemptedWorkerRealms, collection.readableWorkerRealms], [2, 2]);
   assert.equal(collection.observations.detections[0]?.count, 2);
+});
+
+/**
+ * Delivery lags the realm. Two workers flood the channel with emissions, and a
+ * third fingerprints once while its emissions queue behind theirs, so at the
+ * freeze the host may still hold that worker's state from before it
+ * fingerprinted. Its barrier's answer queues behind the same backlog, so it is
+ * read with its fingerprinting or, when the backlog outlasts the bound, cut
+ * off; never read at the older, clean state. Every realm read here must show
+ * its own worker's work.
+ *
+ * This also pins the platform assumption the barrier rests on: a worker's
+ * answer reaches the host behind every emission the worker made before it.
+ */
+test("real Chromium: a worker whose emissions queue behind a backlog at the freeze is never read at an older state", { timeout: 60_000 }, async (t) => {
+  // 45,000 measureText calls, each followed by a microtask turn: 90,000
+  // emissions, below the realm's emission cap.
+  const floodSource =
+    "(async () => { const context = new OffscreenCanvas(1, 1).getContext('2d'); " +
+    "for (let index = 0; index < 45000; index += 1) { context.measureText('flood'); await null; } })();";
+  const { origin, done } = await startWorkerFixture(t, {
+    page: `<!doctype html><title>emission backlog</title><script>
+      new Worker("/flood.js");
+      new Worker("/fingerprint.js");
+      new Worker("/flood.js");
+    </script>`,
+    scripts: {
+      "/flood.js": floodSource,
+      "/fingerprint.js": `setTimeout(() => { ${CANVAS_READ_SOURCE} fetch(self.location.origin + "/done/fingerprint"); }, 300);`
+    }
+  });
+  const harness = await openPausedWorkerHarness(t);
+  await harness.page.goto(`${origin}/`, { timeout: 10_000 });
+  await waitFor(() => done.length >= 1, 15_000);
+  await new Promise((resolve) => setTimeout(resolve, 100));
+
+  const readout = await readWorkerRealms(harness, 500);
+  assert.equal(readout.diagnostics.readable + readout.unreadRealms, 3, JSON.stringify(readout.diagnostics));
+  const collections = await Promise.all(readout.readableSnapshots.map((snapshot) => collectWorkerSnapshot(snapshot)));
+  let fingerprintingRead = 0;
+  for (const collection of collections) {
+    const flooded = collection.observations.events.some((event) => event.api === "canvas.measureText");
+    const fingerprinted = collection.observations.detections.some((detection) => detection.heuristic === "openwpm-canvas-v1");
+    assert.ok(
+      flooded || fingerprinted,
+      `a worker was read at a state from before its own work: ${JSON.stringify(collection.observations)}`
+    );
+    if (fingerprinted) fingerprintingRead += 1;
+  }
+  assert.ok(
+    fingerprintingRead === 1 || readout.unreadRealms >= 1,
+    `the fingerprinting worker must be read with its fingerprinting or counted unread: ${JSON.stringify(readout.diagnostics)}`
+  );
+});
+
+/**
+ * A thread-pool worker spends its idle time blocked in Atomics.wait. The
+ * barrier is answered by interrupt, so such a worker is read within the bound
+ * at the state it reached before it blocked. A barrier that waited for the
+ * worker's task to end, as Runtime.evaluate does, would cut every idle pool
+ * worker off.
+ */
+test("real Chromium: a worker blocked in Atomics.wait at the freeze is read within the bound", { timeout: 60_000 }, async (t) => {
+  const { origin, done } = await startWorkerFixture(t, {
+    crossOriginIsolated: true,
+    page: `<!doctype html><title>idle pool worker</title><script>
+      const worker = new Worker("/pool.js");
+      worker.onmessage = (event) => fetch("/done/" + event.data);
+    </script>`,
+    scripts: {
+      "/pool.js":
+        `${CANVAS_READ_SOURCE} ` +
+        "setTimeout(() => { const cell = new Int32Array(new SharedArrayBuffer(4)); postMessage('waiting'); Atomics.wait(cell, 0, 0, 20000); }, 0);"
+    }
+  });
+  const harness = await openPausedWorkerHarness(t);
+  await harness.page.goto(`${origin}/`, { timeout: 10_000 });
+  await waitFor(() => done.length >= 1, 15_000);
+  assert.deepEqual(done, ["waiting"], "the worker must reach its Atomics.wait");
+  assert.equal(await harness.page.evaluate(() => crossOriginIsolated), true);
+  await new Promise((resolve) => setTimeout(resolve, 100));
+
+  const readout = await readWorkerRealms(harness, 500);
+  assert.equal(readout.unreadRealms, 0, JSON.stringify(readout.diagnostics));
+  const collection = await collectFingerprintObservationsWithCoverage([], readout);
+  assert.deepEqual(
+    collection.observations.detections.map((detection) => detection.heuristic),
+    ["openwpm-canvas-v1"]
+  );
 });
 
 /**
