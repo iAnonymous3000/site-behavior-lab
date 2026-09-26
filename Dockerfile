@@ -12,21 +12,25 @@ FROM mcr.microsoft.com/playwright:v1.63.0-noble@sha256:eff16c30e6f3f4af0a03fa4b7
 RUN test "$(node --version)" = "v24.20.0" \
   && test "$(npm --version)" = "11.19.0"
 
-FROM playwright-base AS build
+# Dependencies depend on the lockfile and pinned base, not the source commit
+# or public build identity. Keep these layers reusable when either changes;
+# source checks and the application build below still receive the exact SHA.
+# They form their own stage so CI can export exactly these reusable layers to
+# its build cache, and not the per-commit source and check layers after them.
+FROM playwright-base AS deps
 
 # Independent ZIP interoperability checks use the system reader. Install it
-# only in the build stage; the scanner runtime does not need archive tools.
+# only in the build stages; the scanner runtime does not need archive tools.
 RUN apt-get update && apt-get install -y --no-install-recommends unzip \
   && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Dependencies depend on the lockfile and pinned base, not the source commit
-# or public build identity. Keep these layers reusable when either changes;
-# source checks and the application build below still receive the exact SHA.
 COPY package.json package-lock.json ./
 RUN npm ci && npx playwright install chromium
+
+FROM deps AS build
 
 ARG SITE_BEHAVIOR_LAB_BUILD_COMMIT
 ARG SITE_BEHAVIOR_LAB_VERIFIED_MEASUREMENT_CANDIDATE_PROOF
