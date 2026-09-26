@@ -44,6 +44,7 @@ function scriptedChannel(
       onEvent(handler) {
         handlers.push(handler);
       },
+      onClose() {},
       close() {
         isClosed = true;
       }

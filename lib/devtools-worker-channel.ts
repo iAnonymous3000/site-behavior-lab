@@ -11,7 +11,10 @@
  * the fingerprint observer (lib/worker-fingerprint-realm.ts); in the GPC arm
  * the GPC installer (lib/gpc-worker-verification.ts) runs before it and
  * delivers and verifies the signal. A channel with no installers holds each
- * worker only for the recursion and the release.
+ * worker only for the recursion and the release. An installer that reads back
+ * from the realms it installed into hears every event the channel receives and
+ * the channel's close, and each attached worker says which session its attach
+ * arrived on, which frame started it, and whether it went away while held.
  *
  * The pause is not the first one a worker sees. Playwright's own CDP layer
  * already auto-attaches every page and worker session paused and releases each
@@ -68,6 +71,8 @@ export type DevtoolsEvent = {
 export type DevtoolsChannel = {
   send(method: string, params?: Record<string, unknown>, sessionId?: string): Promise<Record<string, unknown>>;
   onEvent(handler: (event: DevtoolsEvent) => void): void;
+  /** Once, when the transport closes, whether by close() or by the browser. */
+  onClose(handler: () => void): void;
   close(): void;
 };
 
@@ -77,8 +82,18 @@ export type AttachedWorker = {
   readonly kind: "dedicated" | "shared";
   /** The attach arrived on another worker's session: a worker started it. */
   readonly nested: boolean;
+  /** The session the attach arrived on: the page, an out-of-process frame, or the parent worker. */
+  readonly arrivedOnSessionId: string | null;
+  /** The attach's `targetInfo.parentFrameId`: the frame whose document started the worker, or its ancestor's. */
+  readonly ownerFrameId: string | null;
+  /** The attach said the worker is held before its first statement; false means it was already running. */
+  readonly waitingForDebugger: boolean;
   /** This channel has sent the worker's one resume, from the flow or the watchdog. */
   readonly released: boolean;
+  /** The browser detached the worker's target: the worker is gone. */
+  readonly detached: boolean;
+  /** The detach arrived before this channel sent the resume: the worker died paused and ran nothing. */
+  readonly detachedWhilePaused: boolean;
 };
 
 /**
@@ -111,6 +126,16 @@ export type WorkerRealmInstaller = {
    * resume, so an install result arriving later can tell it came too late.
    */
   concluded(worker: AttachedWorker, how: WorkerRealmConclusion): void;
+  /**
+   * Every event the channel receives, after the channel's own bookkeeping for
+   * it, for an installer that reads back from the realms it installed into.
+   */
+  onEvent?(event: DevtoolsEvent): void;
+  /**
+   * Once, when the channel is gone: closed by the scanner or by the browser.
+   * Nothing a realm emits afterwards can arrive.
+   */
+  onChannelClosed?(): void;
 };
 
 export type WorkerAttachCounts = {
@@ -160,10 +185,16 @@ export class DedicatedWorkerAttachSession {
   private readonly openWorkers = new Set<AttachedWorkerRecord>();
   /** Sessions of attached workers; an attach arriving on one is nested. */
   private readonly workerSessionIds = new Set<string>();
+  /** Every attached worker by session, so a detach can be recorded on it. */
+  private readonly workersBySession = new Map<string, AttachedWorkerRecord>();
+  /** Sessions of attached out-of-process frame targets that have not detached. */
+  private readonly frameTargetSessionIds = new Set<string>();
+  private pageSessionId: string | null = null;
   private attachedDedicatedWorkerCount = 0;
   private attachedNestedDedicatedWorkerCount = 0;
   private attachedSharedWorkerCount = 0;
   private closed = false;
+  private channelLost = false;
 
   constructor(
     channel: DevtoolsChannel,
@@ -174,6 +205,7 @@ export class DedicatedWorkerAttachSession {
     this.installers = [...installers];
     this.handshakeTimeoutMs = options.handshakeTimeoutMs ?? DEFAULT_HANDSHAKE_TIMEOUT_MS;
     this.channel.onEvent((event) => this.onChannelEvent(event));
+    this.channel.onClose(() => this.markChannelLost());
   }
 
   /**
@@ -189,7 +221,34 @@ export class DedicatedWorkerAttachSession {
     if (typeof sessionId !== "string" || sessionId.length === 0) {
       throw new Error("The worker realm channel could not attach to the measured page target.");
     }
+    this.pageSessionId = sessionId;
     await this.enableAutoAttach(sessionId);
+  }
+
+  /** The channel is closed, by close() or by the browser; nothing more can arrive on it. */
+  isChannelLost(): boolean {
+    return this.channelLost;
+  }
+
+  /**
+   * The measured page's current frame trees, read now: `Page.getFrameTree` on
+   * the page target and on every out-of-process frame target still attached.
+   * In-process frames, cross-site ones included when the browser keeps them in
+   * process, are already in the page target's tree. Null when the channel is
+   * lost or any of the reads fails, so a caller never takes a partial set of
+   * trees for the whole page.
+   */
+  async currentFrameTrees(): Promise<unknown[] | null> {
+    if (this.channelLost || this.pageSessionId === null) return null;
+    const sessionIds = [this.pageSessionId, ...this.frameTargetSessionIds];
+    try {
+      const results = await Promise.all(
+        sessionIds.map((sessionId) => this.channel.send("Page.getFrameTree", {}, sessionId))
+      );
+      return results.map((result) => result.frameTree);
+    } catch {
+      return null;
+    }
   }
 
   attachCounts(): WorkerAttachCounts {
@@ -240,13 +299,49 @@ export class DedicatedWorkerAttachSession {
     if (this.closed) return;
     this.closed = true;
     this.channel.close();
+    // Whatever the transport does on close, the installers hear that nothing
+    // more will arrive.
+    this.markChannelLost();
+  }
+
+  private markChannelLost(): void {
+    if (this.channelLost) return;
+    this.channelLost = true;
+    for (const installer of this.installers) {
+      try {
+        installer.onChannelClosed?.();
+      } catch {
+        // Every other installer still hears it.
+      }
+    }
   }
 
   private onChannelEvent(event: DevtoolsEvent): void {
-    if (event.method !== "Target.attachedToTarget") return;
+    if (event.method === "Target.attachedToTarget") this.onAttachedToTarget(event);
+    if (event.method === "Target.detachedFromTarget") this.onDetachedFromTarget(event);
+    for (const installer of this.installers) {
+      try {
+        installer.onEvent?.(event);
+      } catch {
+        // An installer's reading is its own; the channel keeps delivering.
+      }
+    }
+  }
+
+  private onDetachedFromTarget(event: DevtoolsEvent): void {
+    const sessionId = event.params.sessionId;
+    if (typeof sessionId !== "string") return;
+    this.frameTargetSessionIds.delete(sessionId);
+    const worker = this.workersBySession.get(sessionId);
+    if (!worker || worker.detached) return;
+    worker.detached = true;
+    worker.detachedWhilePaused = !worker.released;
+  }
+
+  private onAttachedToTarget(event: DevtoolsEvent): void {
     const params = event.params;
     const sessionId = params.sessionId;
-    const targetInfo = params.targetInfo as { type?: unknown } | undefined;
+    const targetInfo = params.targetInfo as { type?: unknown; parentFrameId?: unknown } | undefined;
     if (typeof sessionId !== "string" || !targetInfo) return;
     const type = typeof targetInfo.type === "string" ? targetInfo.type : "";
     const waitingForDebugger = params.waitingForDebugger === true;
@@ -255,10 +350,19 @@ export class DedicatedWorkerAttachSession {
     // runs in every frame of the measured page), or a worker (nested). Read
     // and register synchronously: a child can only attach after its parent's
     // setAutoAttach is sent, which happens after this registration.
-    const nested = typeof event.sessionId === "string" && this.workerSessionIds.has(event.sessionId);
+    const arrivedOnSessionId = typeof event.sessionId === "string" ? event.sessionId : null;
+    const nested = arrivedOnSessionId !== null && this.workerSessionIds.has(arrivedOnSessionId);
     if (type === "worker" || type === "shared_worker") this.workerSessionIds.add(sessionId);
+    if (type === "iframe") this.frameTargetSessionIds.add(sessionId);
+    const ownerFrameId =
+      typeof targetInfo.parentFrameId === "string" && targetInfo.parentFrameId.length > 0
+        ? targetInfo.parentFrameId
+        : null;
 
-    const operation = this.handleAttachedTarget(sessionId, type, waitingForDebugger, nested).catch(() => undefined);
+    const operation = this.handleAttachedTarget(sessionId, type, waitingForDebugger, nested, {
+      arrivedOnSessionId,
+      ownerFrameId
+    }).catch(() => undefined);
     this.inFlight.add(operation);
     void operation.then(
       () => this.inFlight.delete(operation),
@@ -270,7 +374,8 @@ export class DedicatedWorkerAttachSession {
     sessionId: string,
     type: string,
     waitingForDebugger: boolean,
-    nested: boolean
+    nested: boolean,
+    origin: { arrivedOnSessionId: string | null; ownerFrameId: string | null }
   ): Promise<void> {
     if (type !== "worker" && type !== "shared_worker") {
       // Out-of-process frames and other auxiliary targets are attached by the
@@ -295,9 +400,15 @@ export class DedicatedWorkerAttachSession {
       sessionId,
       kind: type === "worker" ? "dedicated" : "shared",
       nested,
+      arrivedOnSessionId: origin.arrivedOnSessionId,
+      ownerFrameId: origin.ownerFrameId,
+      waitingForDebugger,
       released: false,
+      detached: false,
+      detachedWhilePaused: false,
       concluded: false
     };
+    this.workersBySession.set(sessionId, worker);
     this.openWorkers.add(worker);
     const watchdog = setTimeout(() => {
       // The worker must not stay paused past the bound. Conclude every
@@ -431,12 +542,25 @@ export async function openDevtoolsBrowserChannel(
   let nextCommandId = 1;
   const pending = new Map<number, PendingCommand>();
   const eventHandlers = new Set<(event: DevtoolsEvent) => void>();
+  const closeHandlers = new Set<() => void>();
+  let closeAnnounced = false;
 
   const failAllPending = (reason: string) => {
     for (const [id, command] of pending) {
       pending.delete(id);
       clearTimeout(command.timer);
       command.reject(new Error(reason));
+    }
+  };
+  const announceClose = () => {
+    if (closeAnnounced) return;
+    closeAnnounced = true;
+    for (const handler of closeHandlers) {
+      try {
+        handler();
+      } catch {
+        // Close handlers own their failures; every other one still runs.
+      }
     }
   };
 
@@ -475,8 +599,14 @@ export async function openDevtoolsBrowserChannel(
       }
     }
   };
-  socket.onclose = () => failAllPending("DevTools WebSocket closed.");
-  socket.onerror = () => failAllPending("DevTools WebSocket errored.");
+  socket.onclose = () => {
+    failAllPending("DevTools WebSocket closed.");
+    announceClose();
+  };
+  socket.onerror = () => {
+    failAllPending("DevTools WebSocket errored.");
+    announceClose();
+  };
 
   return {
     send(method, params = {}, sessionId) {
@@ -497,6 +627,9 @@ export async function openDevtoolsBrowserChannel(
     onEvent(handler) {
       eventHandlers.add(handler);
     },
+    onClose(handler) {
+      closeHandlers.add(handler);
+    },
     close() {
       failAllPending("DevTools WebSocket closed.");
       try {
@@ -504,6 +637,7 @@ export async function openDevtoolsBrowserChannel(
       } catch {
         // Already closed or closing.
       }
+      announceClose();
     }
   };
 }

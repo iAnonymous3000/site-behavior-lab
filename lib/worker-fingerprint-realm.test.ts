@@ -7,6 +7,7 @@ import { test, type TestContext } from "node:test";
 import { chromium, type Page } from "playwright";
 import {
   DedicatedWorkerAttachSession,
+  DedicatedWorkerWitness,
   devtoolsBrowserWebSocketUrl,
   openDevtoolsBrowserChannel,
   type AttachedWorker,
@@ -17,7 +18,9 @@ import {
 import { collectFingerprintObservationsWithCoverage, fingerprintObserverInitScript } from "./fingerprint-observer";
 import {
   FingerprintWorkerRealmInstaller,
-  fingerprintObserverWorkerInstallExpression
+  MAX_WORKER_SNAPSHOT_PAYLOAD_CHARS,
+  fingerprintObserverWorkerInstallExpression,
+  type WorkerFingerprintRealmReadout
 } from "./worker-fingerprint-realm";
 
 /**
@@ -41,6 +44,7 @@ function scriptedChannel(
 ) {
   const sent: SentCommand[] = [];
   const handlers: Array<(event: DevtoolsEvent) => void> = [];
+  const closeHandlers: Array<() => void> = [];
   const channel: DevtoolsChannel = {
     async send(method, params = {}, sessionId) {
       const command: SentCommand = { method, params, ...(sessionId ? { sessionId } : {}) };
@@ -52,6 +56,9 @@ function scriptedChannel(
     onEvent(handler) {
       handlers.push(handler);
     },
+    onClose(handler) {
+      closeHandlers.push(handler);
+    },
     close() {}
   };
   return {
@@ -59,18 +66,26 @@ function scriptedChannel(
     sent,
     emit(event: DevtoolsEvent) {
       for (const handler of handlers) handler(event);
+    },
+    /** The transport going away underneath the session, as a browser crash would. */
+    drop() {
+      for (const handler of closeHandlers) handler();
     }
   };
 }
 
-function attachEvent(sessionId: string, type: "worker" | "shared_worker" = "worker"): DevtoolsEvent {
+function attachEvent(
+  sessionId: string,
+  type: "worker" | "shared_worker" = "worker",
+  options: { arrivedOn?: string; waitingForDebugger?: boolean } = {}
+): DevtoolsEvent {
   return {
     method: "Target.attachedToTarget",
-    sessionId: "page-session",
+    sessionId: options.arrivedOn ?? "page-session",
     params: {
       sessionId,
-      targetInfo: { type, targetId: `${sessionId}-target`, url: "http://fixture.test/w.js" },
-      waitingForDebugger: true
+      targetInfo: { type, targetId: `${sessionId}-target`, url: "http://fixture.test/w.js", parentFrameId: "main-frame" },
+      waitingForDebugger: options.waitingForDebugger ?? true
     }
   };
 }
@@ -82,12 +97,14 @@ function commandsFor(sent: readonly SentCommand[], sessionId: string): string[] 
 }
 
 test("the worker install expression is the document observer's own source, called with the site key and the worker realm", () => {
-  const expression = fingerprintObserverWorkerInstallExpression("example.com");
+  const sink = { sinkName: "__sink", capability: "cap" };
+  const expression = fingerprintObserverWorkerInstallExpression("example.com", sink);
   assert.equal(
     expression,
-    `(${fingerprintObserverInitScript.toString()})("example.com", {"realm":"dedicated-worker"})`,
+    `(${fingerprintObserverInitScript.toString()})("example.com", {"realm":"dedicated-worker","sinkName":"__sink","capability":"cap"})`,
     "a worker must run exactly the function documents run, not a second copy of it"
   );
+  assert.ok(expression.startsWith(`(${fingerprintObserverInitScript.toString()})(`));
 });
 
 /**
@@ -110,10 +127,37 @@ test("the worker realm module takes nothing from the observer but its function a
   assert.deepEqual(valueNames, ["fingerprintObserverInitScript"]);
 });
 
-test("the installer evaluates the one expression in each dedicated worker before its resume and counts only a true answer", async () => {
-  const expression = fingerprintObserverWorkerInstallExpression(FIXTURE_SITE_KEY);
+/** One emission on the sink, as the browser delivers it on the worker's session. */
+function emission(
+  installer: FingerprintWorkerRealmInstaller,
+  sessionId: string,
+  sequence: number,
+  state: "open" | "closed",
+  snapshot?: string,
+  options: { capability?: string } = {}
+): DevtoolsEvent {
+  const header = `${options.capability ?? installer.capability}\n${sequence}\n${state}`;
+  return {
+    method: "Runtime.bindingCalled",
+    sessionId,
+    params: {
+      name: installer.sinkName,
+      payload: state === "closed" ? `${header}\n${snapshot ?? EMPTY_SNAPSHOT}` : header,
+      executionContextId: 1
+    }
+  };
+}
+
+const EMPTY_SNAPSHOT = JSON.stringify({ detections: [], events: {} });
+const READ_SNAPSHOT = JSON.stringify({ detections: [], events: { "canvas.getImageData": 1 } });
+const LATER_SNAPSHOT = JSON.stringify({ detections: [], events: { "canvas.getImageData": 2 } });
+
+test("the installer reads the owner, adds the sink and evaluates the one expression before each resume, and counts only a true answer with its first snapshot", async () => {
+  const installer = new FingerprintWorkerRealmInstaller(FIXTURE_SITE_KEY);
+  const expression = fingerprintObserverWorkerInstallExpression(FIXTURE_SITE_KEY, installer);
   const answers: Record<string, Record<string, unknown> | Error> = {
     "answers-true": { result: { type: "boolean", value: true } },
+    "true-without-snapshot": { result: { type: "boolean", value: true } },
     "answers-false": { result: { type: "boolean", value: false } },
     throws: {
       result: { type: "object", subtype: "error" },
@@ -123,10 +167,15 @@ test("the installer evaluates the one expression in each dedicated worker before
   };
   const scripted = scriptedChannel((command) => {
     if (command.method === "Target.attachToTarget") return { sessionId: "page-session" };
-    if (command.method === "Runtime.evaluate") return answers[command.sessionId!];
+    if (command.method === "Page.getFrameTree") return { frameTree: { frame: { id: "main-frame", loaderId: "loader-1" } } };
+    if (command.method === "Runtime.evaluate") {
+      // The realm's first closed snapshot goes out during the evaluation, so
+      // the browser delivers it before the evaluation's answer.
+      if (command.sessionId === "answers-true") scripted.emit(emission(installer, command.sessionId, 1, "closed"));
+      return answers[command.sessionId!];
+    }
     return {};
   });
-  const installer = new FingerprintWorkerRealmInstaller(FIXTURE_SITE_KEY);
   const session = new DedicatedWorkerAttachSession(scripted.channel, [installer]);
   await session.attachToPage("page-target-id");
   for (const sessionId of Object.keys(answers)) scripted.emit(attachEvent(sessionId));
@@ -135,11 +184,28 @@ test("the installer evaluates the one expression in each dedicated worker before
   for (const sessionId of Object.keys(answers)) {
     assert.deepEqual(commandsFor(scripted.sent, sessionId), [
       "Target.setAutoAttach",
+      "Runtime.addBinding",
       `Runtime.evaluate ${expression}`,
       "Runtime.runIfWaitingForDebugger"
     ]);
+    const binding = scripted.sent.find((command) => command.sessionId === sessionId && command.method === "Runtime.addBinding");
+    assert.deepEqual(binding?.params, { name: installer.sinkName });
   }
-  assert.deepEqual(installer.installDiagnostics(), { installedWorkerCount: 1, installFailedWorkerCount: 3 });
+  // The owner read goes to the session each attach arrived on, once per worker.
+  assert.equal(
+    commandsFor(scripted.sent, "page-session").filter((method) => method === "Page.getFrameTree").length,
+    Object.keys(answers).length
+  );
+  assert.deepEqual(installer.installDiagnostics(), { installedWorkerCount: 1, installFailedWorkerCount: 4 });
+});
+
+test("the sink name and capability are fresh per installer and never guessable from the site", () => {
+  const first = new FingerprintWorkerRealmInstaller(FIXTURE_SITE_KEY);
+  const second = new FingerprintWorkerRealmInstaller(FIXTURE_SITE_KEY);
+  assert.notEqual(first.sinkName, second.sinkName);
+  assert.notEqual(first.capability, second.capability);
+  assert.match(first.capability, /^[0-9a-f]{48}$/);
+  assert.equal(first.sinkName.includes(FIXTURE_SITE_KEY), false);
 });
 
 /**
@@ -149,16 +215,19 @@ test("the installer evaluates the one expression in each dedicated worker before
  */
 test("an install answer arriving after the watchdog released the worker leaves it counted as failed", async () => {
   let answerEvaluate: (() => void) | null = null;
+  const installer = new FingerprintWorkerRealmInstaller(FIXTURE_SITE_KEY);
   const scripted = scriptedChannel((command) => {
     if (command.method === "Target.attachToTarget") return { sessionId: "page-session" };
     if (command.method === "Runtime.evaluate") {
       return new Promise((resolve) => {
-        answerEvaluate = () => resolve({ result: { type: "boolean", value: true } });
+        answerEvaluate = () => {
+          scripted.emit(emission(installer, "slow-worker", 1, "closed"));
+          resolve({ result: { type: "boolean", value: true } });
+        };
       });
     }
     return {};
   });
-  const installer = new FingerprintWorkerRealmInstaller(FIXTURE_SITE_KEY);
   const session = new DedicatedWorkerAttachSession(scripted.channel, [installer], { handshakeTimeoutMs: 50 });
   await session.attachToPage("page-target-id");
   scripted.emit(attachEvent("slow-worker"));
@@ -190,6 +259,327 @@ test("a shared worker attach gets nothing installed and no install record", asyn
   ]);
   assert.deepEqual(installer.installDiagnostics(), { installedWorkerCount: 0, installFailedWorkerCount: 0 });
   assert.equal(session.attachCounts().attachedSharedWorkerCount, 1);
+  const readout = await installer.readout({ session, witness: { count: () => 0 }, settleMs: 0 });
+  assert.deepEqual([readout.readableSnapshots, readout.unreadRealms], [[], 0]);
+});
+
+/**
+ * A scripted page with the production installer: each worker attaches on the
+ * page session, its install answers true after its first closed snapshot, and
+ * the page's frame tree is whatever the test says it is now.
+ */
+async function scriptedWorkerRealms(
+  options: {
+    handshake?: (sessionId: string) => boolean;
+    frameTree?: () => Record<string, unknown> | Error;
+  } = {}
+) {
+  const installer = new FingerprintWorkerRealmInstaller(FIXTURE_SITE_KEY);
+  let frameTree = options.frameTree ?? (() => ({ frame: { id: "main-frame", loaderId: "loader-1" } }));
+  const scripted = scriptedChannel((command) => {
+    if (command.method === "Target.attachToTarget") return { sessionId: "page-session" };
+    if (command.method === "Page.getFrameTree") {
+      const tree = frameTree();
+      return tree instanceof Error ? tree : { frameTree: tree };
+    }
+    if (command.method === "Runtime.evaluate") {
+      if (options.handshake?.(command.sessionId!) !== false) {
+        scripted.emit(emission(installer, command.sessionId!, 1, "closed"));
+      }
+      return { result: { type: "boolean", value: true } };
+    }
+    return {};
+  });
+  const session = new DedicatedWorkerAttachSession(scripted.channel, [installer]);
+  await session.attachToPage("page-target-id");
+  return {
+    installer,
+    session,
+    scripted,
+    async attach(...sessionIds: string[]) {
+      for (const sessionId of sessionIds) scripted.emit(attachEvent(sessionId));
+      await session.settle(1_000);
+    },
+    emit(sessionId: string, sequence: number, state: "open" | "closed", snapshot?: string) {
+      scripted.emit(emission(installer, sessionId, sequence, state, snapshot));
+    },
+    detach(sessionId: string) {
+      scripted.emit({ method: "Target.detachedFromTarget", sessionId: "page-session", params: { sessionId } });
+    },
+    setFrameTree(next: () => Record<string, unknown> | Error) {
+      frameTree = next;
+    },
+    readout(observedDedicated: number, settleMs = 200): Promise<WorkerFingerprintRealmReadout> {
+      return installer.readout({ session, witness: { count: () => observedDedicated }, settleMs });
+    }
+  };
+}
+
+function readoutTerms(readout: WorkerFingerprintRealmReadout) {
+  const nonZero = Object.fromEntries(
+    Object.entries(readout.diagnostics).filter(
+      ([key, value]) => value !== 0 && key !== "observedDedicated" && key !== "attachedDedicated" && key !== "attachedNested"
+    )
+  );
+  return { snapshots: readout.readableSnapshots, unread: readout.unreadRealms, terms: nonZero };
+}
+
+test("readout: a worker whose last word is closed is read at that snapshot, and later emissions do not move a freeze already taken", async () => {
+  const realms = await scriptedWorkerRealms();
+  await realms.attach("w1");
+  realms.emit("w1", 2, "open");
+  realms.emit("w1", 3, "closed", READ_SNAPSHOT);
+  const pending = realms.readout(1);
+  // After the freeze: a later task. A closed state at the freeze is final.
+  realms.emit("w1", 4, "open");
+  realms.emit("w1", 5, "closed", LATER_SNAPSHOT);
+  assert.deepEqual(readoutTerms(await pending), { snapshots: [READ_SNAPSHOT], unread: 0, terms: { readable: 1 } });
+});
+
+test("readout: a worker open at the freeze is read at the first closed snapshot after it, which the drain waits for", async () => {
+  const realms = await scriptedWorkerRealms();
+  await realms.attach("w1");
+  realms.emit("w1", 2, "open");
+  const pending = realms.readout(1, 2_000);
+  setTimeout(() => {
+    realms.emit("w1", 3, "closed", READ_SNAPSHOT);
+    realms.emit("w1", 4, "open");
+    realms.emit("w1", 5, "closed", LATER_SNAPSHOT);
+  }, 30);
+  assert.deepEqual(readoutTerms(await pending), { snapshots: [READ_SNAPSHOT], unread: 0, terms: { readable: 1 } });
+});
+
+test("readout: a worker whose last word stays open is cut off and unread, never clean", async () => {
+  const realms = await scriptedWorkerRealms();
+  await realms.attach("w1");
+  realms.emit("w1", 2, "open");
+  assert.deepEqual(readoutTerms(await realms.readout(1, 50)), { snapshots: [], unread: 1, terms: { cutOff: 1 } });
+});
+
+test("readout: a gap, an oversized payload, a malformed payload or the realm's own null leaves the worker unread", async () => {
+  const realms = await scriptedWorkerRealms();
+  await realms.attach("gap", "oversize", "malformed", "null");
+  realms.emit("gap", 3, "closed", READ_SNAPSHOT);
+  realms.emit("oversize", 2, "closed", " ".repeat(MAX_WORKER_SNAPSHOT_PAYLOAD_CHARS));
+  realms.scripted.emit({
+    method: "Runtime.bindingCalled",
+    sessionId: "malformed",
+    params: { name: realms.installer.sinkName, payload: `${realms.installer.capability}\n2\nclosing` }
+  });
+  realms.emit("null", 2, "closed", "null");
+  assert.deepEqual(readoutTerms(await realms.readout(4, 50)), { snapshots: [], unread: 4, terms: { streamBroken: 4 } });
+});
+
+test("readout: an emission without this scan's capability is ignored and breaks nothing", async () => {
+  const realms = await scriptedWorkerRealms();
+  await realms.attach("w1");
+  realms.scripted.emit(emission(realms.installer, "w1", 2, "closed", LATER_SNAPSHOT, { capability: "forged" }));
+  realms.emit("w1", 2, "open");
+  realms.emit("w1", 3, "closed", READ_SNAPSHOT);
+  assert.deepEqual(readoutTerms(await realms.readout(1)), { snapshots: [READ_SNAPSHOT], unread: 0, terms: { readable: 1 } });
+});
+
+test("readout: an install that answered true without its first snapshot leaves the worker unread", async () => {
+  const realms = await scriptedWorkerRealms({ handshake: (sessionId) => sessionId !== "silent" });
+  await realms.attach("silent");
+  // The same snapshot arriving after the answer cannot rescue it.
+  realms.emit("silent", 1, "closed", READ_SNAPSHOT);
+  assert.deepEqual(readoutTerms(await realms.readout(1)), { snapshots: [], unread: 1, terms: { installFailed: 1 } });
+});
+
+test("readout: a closed channel leaves every worker still attached unread, and every witnessed worker it never attached", async () => {
+  const realms = await scriptedWorkerRealms();
+  await realms.attach("alive", "gone");
+  realms.emit("alive", 2, "open");
+  realms.emit("alive", 3, "closed", READ_SNAPSHOT);
+  realms.emit("gone", 2, "open");
+  realms.emit("gone", 3, "closed", READ_SNAPSHOT);
+  realms.detach("gone");
+  realms.scripted.drop();
+  // Three witnessed: the two attached, and one that started after the drop.
+  // The gone worker's stream is whole, but with no channel its owner cannot
+  // be checked against the current frames.
+  assert.deepEqual(readoutTerms(await realms.readout(3)), {
+    snapshots: [],
+    unread: 3,
+    terms: { channelLostAlive: 1, ownerUnknown: 1, unattachedDedicated: 1 }
+  });
+});
+
+test("readout: with no channel at all, every witnessed worker is unread", async () => {
+  const installer = new FingerprintWorkerRealmInstaller(FIXTURE_SITE_KEY);
+  const readout = await installer.readout({ session: null, witness: { count: () => 2 }, settleMs: 0 });
+  assert.deepEqual(readoutTerms(readout), { snapshots: [], unread: 2, terms: { unattachedDedicated: 2 } });
+});
+
+test("readout: the drain waits for the channel's attaches to reach the witness, and what attaches in it was paused at the freeze", async () => {
+  const realms = await scriptedWorkerRealms();
+  const pending = realms.readout(1, 2_000);
+  setTimeout(() => realms.scripted.emit(attachEvent("late-attach")), 30);
+  assert.deepEqual(readoutTerms(await pending), { snapshots: [], unread: 0, terms: {} });
+  // Without the wait, the witnessed worker would have read as never attached.
+  const unattached = await (await scriptedWorkerRealms()).readout(1, 20);
+  assert.deepEqual(readoutTerms(unattached), { snapshots: [], unread: 1, terms: { unattachedDedicated: 1 } });
+});
+
+test("readout: a worker still held for its installers at the freeze ran nothing and is excluded", async () => {
+  let releaseInstall: (() => void) | null = null;
+  const holding: WorkerRealmInstaller = {
+    install: () =>
+      new Promise<void>((resolve) => {
+        releaseInstall = resolve;
+      }),
+    concluded() {}
+  };
+  const installer = new FingerprintWorkerRealmInstaller(FIXTURE_SITE_KEY);
+  const scripted = scriptedChannel((command) => (command.method === "Target.attachToTarget" ? { sessionId: "page-session" } : {}));
+  const session = new DedicatedWorkerAttachSession(scripted.channel, [holding, installer]);
+  await session.attachToPage("page-target-id");
+  scripted.emit(attachEvent("held"));
+  await new Promise((resolve) => setTimeout(resolve, 20));
+  const readout = await installer.readout({ session, witness: { count: () => 1 }, settleMs: 0 });
+  assert.deepEqual(readoutTerms(readout), { snapshots: [], unread: 0, terms: { pausedAtReadout: 1 } });
+  releaseInstall!();
+  await session.settle(1_000);
+});
+
+test("readout: a worker already running when it attached gets nothing installed and is unread", async () => {
+  const realms = await scriptedWorkerRealms();
+  realms.scripted.emit(attachEvent("running", "worker", { waitingForDebugger: false }));
+  await realms.session.settle(1_000);
+  assert.deepEqual(
+    commandsFor(realms.scripted.sent, "running").filter((method) => method !== "Target.setAutoAttach"),
+    ["Runtime.runIfWaitingForDebugger"]
+  );
+  assert.deepEqual(readoutTerms(await realms.readout(1)), { snapshots: [], unread: 1, terms: { attachedLate: 1 } });
+});
+
+test("readout: a worker that has gone is read only while its owner document is current", async () => {
+  const realms = await scriptedWorkerRealms();
+  await realms.attach("current", "replaced");
+  for (const sessionId of ["current", "replaced"]) {
+    realms.emit(sessionId, 2, "open");
+    realms.emit(sessionId, 3, "closed", READ_SNAPSHOT);
+    realms.detach(sessionId);
+  }
+  // The same frame, a new document: every worker recorded on loader-1 is gone
+  // with its document.
+  realms.setFrameTree(() => ({ frame: { id: "main-frame", loaderId: "loader-2" } }));
+  assert.deepEqual(readoutTerms(await realms.readout(2)), { snapshots: [], unread: 0, terms: { ownerReplaced: 2 } });
+  realms.setFrameTree(() => ({ frame: { id: "main-frame", loaderId: "loader-1" } }));
+  assert.deepEqual(readoutTerms(await realms.readout(2)), {
+    snapshots: [READ_SNAPSHOT, READ_SNAPSHOT],
+    unread: 0,
+    terms: { readable: 2 }
+  });
+  // Current frames that cannot be read never exclude a worker silently.
+  realms.setFrameTree(() => new Error("Page.getFrameTree failed"));
+  assert.deepEqual(readoutTerms(await realms.readout(2)), { snapshots: [], unread: 2, terms: { ownerUnknown: 2 } });
+});
+
+test("readout: a worker whose owner could not be recorded during its pause is unread, and its nested child inherits that", async () => {
+  const realms = await scriptedWorkerRealms({ frameTree: () => new Error("Page.getFrameTree failed") });
+  await realms.attach("orphan");
+  realms.scripted.emit(attachEvent("child", "worker", { arrivedOn: "orphan" }));
+  await realms.session.settle(1_000);
+  // A nested worker's owner is its parent's: no frame tree is read for it.
+  assert.equal(commandsFor(realms.scripted.sent, "orphan").includes("Page.getFrameTree"), false);
+  assert.deepEqual(readoutTerms(await realms.readout(2)), { snapshots: [], unread: 2, terms: { ownerUnknown: 2 } });
+});
+
+test("readout: a worker that died while held ran nothing and is excluded, although its install failed", async () => {
+  let releaseHold: (() => void) | null = null;
+  const holding: WorkerRealmInstaller = {
+    install: () =>
+      new Promise<void>((resolve) => {
+        releaseHold = resolve;
+      }),
+    concluded() {}
+  };
+  const installer = new FingerprintWorkerRealmInstaller(FIXTURE_SITE_KEY);
+  let died = false;
+  const scripted = scriptedChannel((command) => {
+    if (command.method === "Target.attachToTarget") return { sessionId: "page-session" };
+    if (died && command.sessionId === "dies") return new Error("Session with given id not found.");
+    return {};
+  });
+  const session = new DedicatedWorkerAttachSession(scripted.channel, [holding, installer]);
+  await session.attachToPage("page-target-id");
+  scripted.emit(attachEvent("dies"));
+  await new Promise((resolve) => setTimeout(resolve, 20));
+  died = true;
+  scripted.emit({ method: "Target.detachedFromTarget", sessionId: "page-session", params: { sessionId: "dies" } });
+  releaseHold!();
+  await session.settle(1_000);
+  assert.deepEqual(installer.installDiagnostics(), { installedWorkerCount: 0, installFailedWorkerCount: 1 });
+  const readout = await installer.readout({ session, witness: { count: () => 1 }, settleMs: 0 });
+  assert.deepEqual(readoutTerms(readout), { snapshots: [], unread: 0, terms: { diedPaused: 1 } });
+});
+
+/**
+ * The worker realm path adds no merge of its own: a snapshot delivered as a
+ * worker realm is normalized and merged exactly as the same text delivered as
+ * a frame, and what the collection rejects for a frame it rejects for a
+ * worker, counted as an unread realm.
+ */
+test("the same snapshot text merges identically as a frame and as a worker realm", async () => {
+  const canvas = {
+    kind: "canvas-fingerprinting",
+    heuristic: "openwpm-canvas-v1",
+    count: 1,
+    evidence: { readApis: ["canvas.getImageData"], maxCanvasWidth: 200, maxCanvasHeight: 60, maxDistinctTextCharacters: 30, maxTextWriteCalls: 1 }
+  };
+  const first = JSON.stringify({ detections: [canvas], events: { "canvas.getImageData": 1 } });
+  const second = JSON.stringify({
+    detections: [{ ...canvas, evidence: { ...canvas.evidence, readApis: ["canvas.convertToBlob"], maxCanvasWidth: 300 } }],
+    events: { "canvas.convertToBlob": 1, "canvas.getImageData": 2 }
+  });
+  const asFrames = await collectFingerprintObservationsWithCoverage([
+    { evaluate: async () => first },
+    { evaluate: async () => second }
+  ]);
+  const asFrameAndWorker = await collectFingerprintObservationsWithCoverage([{ evaluate: async () => first }], {
+    readableSnapshots: [second],
+    unreadRealms: 0
+  });
+  const asWorkers = await collectFingerprintObservationsWithCoverage([], {
+    readableSnapshots: [first, second],
+    unreadRealms: 0
+  });
+  assert.deepEqual(asFrameAndWorker.observations, asFrames.observations);
+  assert.deepEqual(asWorkers.observations, asFrames.observations);
+  assert.equal(asFrames.observations.detections[0].count, 2);
+  assert.deepEqual(
+    { ...asFrameAndWorker, observations: undefined },
+    {
+      observations: undefined,
+      attemptedFrames: 1,
+      readableFrames: 1,
+      listenerAttributionLostFrames: 0,
+      attemptedWorkerRealms: 1,
+      readableWorkerRealms: 1
+    }
+  );
+
+  const rejected = await collectFingerprintObservationsWithCoverage([], {
+    readableSnapshots: [
+      "not json",
+      JSON.stringify({ detections: [], events: { "canvas.toDataURL": 1 }, listenerAttributionLost: true }),
+      first
+    ],
+    unreadRealms: 2
+  });
+  assert.deepEqual(
+    { ...rejected, observations: undefined },
+    {
+      observations: undefined,
+      attemptedFrames: 0,
+      readableFrames: 0,
+      listenerAttributionLostFrames: 0,
+      attemptedWorkerRealms: 5,
+      readableWorkerRealms: 1
+    }
+  );
 });
 
 async function reserveLoopbackPort(): Promise<number> {
@@ -230,6 +620,8 @@ type PausedWorkerHarness = {
   channel: DevtoolsChannel;
   session: DedicatedWorkerAttachSession;
   installer: FingerprintWorkerRealmInstaller;
+  /** Playwright's own record of the page's dedicated workers, as the scanner keeps it. */
+  witness: DedicatedWorkerWitness;
   /** Every worker the channel attached, in attach order. */
   workers: AttachedWorker[];
   crashed: () => boolean;
@@ -238,9 +630,13 @@ type PausedWorkerHarness = {
 /**
  * A browser with a loopback DevTools port, one page, and the scanner's worker
  * realm channel attached to that page with the production fingerprint
- * installer, exactly as the scanner opens it in an arm without GPC.
+ * installer, exactly as the scanner opens it in an arm without GPC. A test may
+ * put one installer ahead of it, as the GPC arm does.
  */
-async function openPausedWorkerHarness(t: TestContext): Promise<PausedWorkerHarness> {
+async function openPausedWorkerHarness(
+  t: TestContext,
+  options: { before?: WorkerRealmInstaller } = {}
+): Promise<PausedWorkerHarness> {
   const devtoolsPort = await reserveLoopbackPort();
   const browser = await chromium.launch({ headless: true, args: [`--remote-debugging-port=${devtoolsPort}`] });
   t.after(() => browser.close());
@@ -250,27 +646,27 @@ async function openPausedWorkerHarness(t: TestContext): Promise<PausedWorkerHarn
   page.on("crash", () => {
     crashed = true;
   });
+  const witness = new DedicatedWorkerWitness();
+  page.on("worker", () => witness.observe());
   const targetSession = await context.newCDPSession(page);
   const info = (await targetSession.send("Target.getTargetInfo")) as { targetInfo: { targetId: string } };
   await targetSession.detach();
   const channel = await openDevtoolsBrowserChannel(await devtoolsBrowserWebSocketUrl(devtoolsPort));
   const installer = new FingerprintWorkerRealmInstaller(FIXTURE_SITE_KEY);
   const workers: AttachedWorker[] = [];
-  // Records which workers were attached, then hands each to the production
-  // installer unchanged.
+  // Records which workers were attached; the production installer runs after
+  // it, unwrapped, so it hears every channel event and the channel's close.
   const attachRecorder: WorkerRealmInstaller = {
-    async install(worker: AttachedWorker, installChannel: DevtoolsChannel) {
+    async install(worker: AttachedWorker) {
       workers.push(worker);
-      await installer.install(worker, installChannel);
     },
-    concluded(worker: AttachedWorker) {
-      installer.concluded(worker);
-    }
+    concluded() {}
   };
-  const session = new DedicatedWorkerAttachSession(channel, [attachRecorder]);
+  const installers = [attachRecorder, ...(options.before ? [options.before] : []), installer];
+  const session = new DedicatedWorkerAttachSession(channel, installers);
   t.after(() => session.close());
   await session.attachToPage(info.targetInfo.targetId);
-  return { page, channel, session, installer, workers, crashed: () => crashed };
+  return { page, channel, session, installer, witness, workers, crashed: () => crashed };
 }
 
 async function waitFor(condition: () => boolean, timeoutMs: number): Promise<void> {
@@ -291,37 +687,52 @@ async function pageStillAnswers(page: Page): Promise<boolean> {
   ]);
 }
 
-type WorkerReading = { name: string; snapshot: unknown; nested: boolean };
-
-/**
- * Reads each attached worker's cumulative snapshot from inside its realm over
- * the same DevTools session that installed it. The inspector serializes the
- * answer natively, so nothing the worker did to its own intrinsics can shape
- * what the test reads.
- */
-async function readWorkerSnapshots(harness: PausedWorkerHarness): Promise<WorkerReading[]> {
-  const readings: WorkerReading[] = [];
-  for (const worker of harness.workers) {
-    const evaluated = await harness.channel.send(
-      "Runtime.evaluate",
-      {
-        expression:
-          "({ name: self.name, snapshot: typeof self.__siteBehaviorLabFingerprintSnapshot === 'function' ? self.__siteBehaviorLabFingerprintSnapshot() : null })",
-        returnByValue: true
-      },
-      worker.sessionId
-    );
-    const value = (evaluated.result as { value?: { name: string; snapshot: unknown } } | undefined)?.value;
-    assert.ok(value, `worker session ${worker.sessionId} answered no reading`);
-    readings.push({ name: value.name, snapshot: value.snapshot, nested: worker.nested });
-  }
-  return readings.sort((left, right) => left.name.localeCompare(right.name));
+/** The production readout at one freeze, with the scanner's witness and channel. */
+function readWorkerRealms(harness: PausedWorkerHarness, settleMs = 2_000): Promise<WorkerFingerprintRealmReadout> {
+  return harness.installer.readout({ session: harness.session, witness: harness.witness, settleMs });
 }
 
-/** A worker realm's snapshot through the same collection a frame's goes through. */
-function snapshotAsFrame(snapshot: unknown) {
-  return { evaluate: async () => snapshot };
+/** One worker realm's snapshot through the collection every frame goes through. */
+function collectWorkerSnapshot(snapshot: string) {
+  return collectFingerprintObservationsWithCoverage([], { readableSnapshots: [snapshot], unreadRealms: 0 });
 }
+
+/** A local page and its worker scripts, with a `/done/<name>` beacon the scripts can call. */
+async function startWorkerFixture(
+  t: TestContext,
+  routes: { page: string; scripts?: Record<string, string> } | (() => { page: string; scripts?: Record<string, string> })
+): Promise<{ origin: string; done: string[] }> {
+  const done: string[] = [];
+  const port = await startFixtureServer(t, (request, response) => {
+    const url = new URL(request.url ?? "/", "http://fixture.test");
+    if (url.pathname.startsWith("/done/")) {
+      done.push(url.pathname.slice("/done/".length));
+      response.writeHead(204);
+      response.end();
+      return;
+    }
+    const current = typeof routes === "function" ? routes() : routes;
+    const script = current.scripts?.[url.pathname];
+    if (script !== undefined) {
+      response.writeHead(200, { "content-type": "text/javascript" });
+      response.end(script);
+      return;
+    }
+    if (url.pathname !== "/") {
+      response.writeHead(404);
+      response.end();
+      return;
+    }
+    response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+    response.end(current.page);
+  });
+  return { origin: `http://127.0.0.1:${port}`, done };
+}
+
+/** 2D text on an OffscreenCanvas read back whole: the openwpm-canvas-v1 shape. */
+const CANVAS_READ_SOURCE =
+  "const canvas = new OffscreenCanvas(200, 60); const context = canvas.getContext('2d'); " +
+  "context.fillText('abcdefghijklmnopqrstuvwxyz0123', 2, 20); context.getImageData(0, 0, 200, 60);";
 
 /**
  * Design test 9, the paused-install crash guard. A worker paused before its
@@ -331,8 +742,9 @@ function snapshotAsFrame(snapshot: unknown) {
  * in every arm. This installs the compiled observer through the production
  * installer into every dedicated worker shape the scanner can meet, including
  * the ones whose script fails to load or parse, and requires the page to
- * survive, every attached worker to be installed, and every runnable worker to
- * run with the observer already in place.
+ * survive, every attached worker to be installed (its install answering true
+ * after its first closed snapshot reached the sink), and every runnable
+ * worker to run with the observer already in place.
  *
  * It runs in the unit suite, which CI runs on every pull request, including
  * each Playwright or Chromium bump: a new Chromium can make another global
@@ -408,7 +820,7 @@ test("real Chromium: installing the observer into paused workers of every shape 
   assert.deepEqual(
     harness.installer.installDiagnostics(),
     { installedWorkerCount: expectedAttaches, installFailedWorkerCount: 0 },
-    "every attached worker's install must run to its end inside the realm and answer true"
+    "every attached worker's install must run to its end inside the realm, reach the sink, and answer true"
   );
   assert.deepEqual(
     beacons.map((beacon) => beacon.split("?")[0]).sort(),
@@ -448,43 +860,32 @@ async function probe(name, origin) {
 
 /**
  * Worker-side events are recorded by the page realm's own wrappers and
- * heuristics: the same routine yields the same events and the same detections
- * in a worker as in the page, read through the same collection.
+ * heuristics, and read back through the production readout: the same routine
+ * yields the same events and the same detections in a worker as in the page,
+ * through the same collection.
  */
 test("real Chromium: a dedicated worker records the same events and detections as the page for the same routine", { timeout: 60_000 }, async (t) => {
-  const done: string[] = [];
-  const port = await startFixtureServer(t, (request, response) => {
-    const url = new URL(request.url ?? "/", "http://fixture.test");
-    if (url.pathname.startsWith("/done/")) {
-      done.push(url.pathname.slice("/done/".length));
-      response.writeHead(204);
-      response.end();
-      return;
-    }
-    if (url.pathname === "/probe.js") {
-      response.writeHead(200, { "content-type": "text/javascript" });
-      response.end(`${PROBE_SOURCE}\nprobe(self.name, self.location.origin);`);
-      return;
-    }
-    response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
-    response.end(`<!doctype html><title>realm parity</title><script>${PROBE_SOURCE}
+  const { origin, done } = await startWorkerFixture(t, {
+    page: `<!doctype html><title>realm parity</title><script>${PROBE_SOURCE}
       probe("page", location.origin).then(() => new Worker("/probe.js", { name: "worker" }));
-    </script>`);
+    </script>`,
+    scripts: { "/probe.js": `${PROBE_SOURCE}\nprobe(self.name, self.location.origin);` }
   });
 
   const harness = await openPausedWorkerHarness(t);
   await harness.page.addInitScript(fingerprintObserverInitScript, FIXTURE_SITE_KEY);
-  await harness.page.goto(`http://127.0.0.1:${port}/`, { timeout: 10_000 });
+  await harness.page.goto(`${origin}/`, { timeout: 10_000 });
   await waitFor(() => done.length >= 2, 15_000);
   assert.deepEqual(done.sort(), ["page", "worker"]);
 
   const pageCollection = await collectFingerprintObservationsWithCoverage([harness.page.mainFrame()]);
-  const [workerReading] = await readWorkerSnapshots(harness);
-  assert.equal(workerReading.name, "worker");
-  const workerCollection = await collectFingerprintObservationsWithCoverage([snapshotAsFrame(workerReading.snapshot)]);
+  const readout = await readWorkerRealms(harness);
+  assert.equal(readout.unreadRealms, 0);
+  assert.equal(readout.readableSnapshots.length, 1);
+  const workerCollection = await collectFingerprintObservationsWithCoverage([], readout);
 
   assert.equal(pageCollection.readableFrames, 1);
-  assert.equal(workerCollection.readableFrames, 1, "the worker realm's snapshot must be one the frame collection accepts");
+  assert.equal(workerCollection.readableWorkerRealms, 1, "the worker realm's snapshot must be one the collection accepts");
   assert.deepEqual(
     workerCollection.observations,
     pageCollection.observations,
@@ -503,67 +904,293 @@ test("real Chromium: a dedicated worker records the same events and detections a
     maxTextWriteCalls: 1
   });
   assert.deepEqual(harness.installer.installDiagnostics(), { installedWorkerCount: 1, installFailedWorkerCount: 0 });
+
+  // One collection over the page and the worker counts the routine twice,
+  // once per realm, and nothing more.
+  const both = await collectFingerprintObservationsWithCoverage([harness.page.mainFrame()], await readWorkerRealms(harness));
+  const canvasReads = both.observations.events.find((event) => event.api === "canvas.getImageData");
+  assert.equal(canvasReads?.count, 2);
+  assert.equal(both.observations.detections.find((detection) => detection.kind === "canvas-fingerprinting")?.count, 2);
+});
+
+/** Design test 1: a blob: worker's text, readback and export, read back as one canvas detection. */
+test("real Chromium: a blob worker's OffscreenCanvas text, readback and export reach the canvas heuristic", { timeout: 60_000 }, async (t) => {
+  const workerSource = `(async () => { ${CANVAS_READ_SOURCE} await canvas.convertToBlob(); await fetch(ORIGIN + '/done/blob'); })();`;
+  const { origin, done } = await startWorkerFixture(t, {
+    page: `<!doctype html><title>blob worker</title><script>
+      new Worker(URL.createObjectURL(new Blob([${JSON.stringify(workerSource)}.replace("ORIGIN", JSON.stringify(location.origin))], { type: "text/javascript" })));
+    </script>`
+  });
+  const harness = await openPausedWorkerHarness(t);
+  await harness.page.goto(`${origin}/`, { timeout: 10_000 });
+  await waitFor(() => done.length >= 1, 15_000);
+
+  const collection = await collectFingerprintObservationsWithCoverage([], await readWorkerRealms(harness));
+  assert.deepEqual([collection.attemptedWorkerRealms, collection.readableWorkerRealms], [1, 1]);
+  assert.deepEqual(collection.observations.detections, [
+    {
+      kind: "canvas-fingerprinting",
+      heuristic: "openwpm-canvas-v1",
+      count: 1,
+      evidence: {
+        readApis: ["canvas.convertToBlob", "canvas.getImageData"],
+        maxCanvasWidth: 200,
+        maxCanvasHeight: 60,
+        maxDistinctTextCharacters: 30,
+        maxTextWriteCalls: 1
+      }
+    }
+  ]);
+  assert.deepEqual(
+    collection.observations.events.map((event) => event.api).sort(),
+    ["canvas.convertToBlob", "canvas.getImageData"]
+  );
 });
 
 test("real Chromium: a worker started by another worker is observed in its own realm", { timeout: 60_000 }, async (t) => {
-  const done: string[] = [];
-  const port = await startFixtureServer(t, (request, response) => {
-    const url = new URL(request.url ?? "/", "http://fixture.test");
-    if (url.pathname.startsWith("/done/")) {
-      done.push(url.pathname.slice("/done/".length));
-      response.writeHead(204);
-      response.end();
-      return;
-    }
-    if (url.pathname === "/parent.js") {
-      response.writeHead(200, { "content-type": "text/javascript" });
-      response.end(
+  const { origin, done } = await startWorkerFixture(t, {
+    page: `<!doctype html><title>nested worker</title><script>new Worker("/parent.js", { name: "parent" });</script>`,
+    scripts: {
+      "/parent.js":
         `const childSource = ${JSON.stringify(`${PROBE_SOURCE}\nprobe(self.name, ORIGIN);`)}.replace("ORIGIN", JSON.stringify(self.location.origin));\n` +
-          "new Worker(URL.createObjectURL(new Blob([childSource], { type: 'text/javascript' })), { name: 'child' });\n" +
-          "fetch(self.location.origin + '/done/parent');"
-      );
-      return;
+        "new Worker(URL.createObjectURL(new Blob([childSource], { type: 'text/javascript' })), { name: 'child' });\n" +
+        "fetch(self.location.origin + '/done/parent');"
     }
-    response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
-    response.end(`<!doctype html><title>nested worker</title><script>new Worker("/parent.js", { name: "parent" });</script>`);
   });
 
   const harness = await openPausedWorkerHarness(t);
-  await harness.page.goto(`http://127.0.0.1:${port}/`, { timeout: 10_000 });
+  await harness.page.goto(`${origin}/`, { timeout: 10_000 });
   await waitFor(() => done.length >= 2, 15_000);
   assert.deepEqual(done.sort(), ["child", "parent"]);
 
-  const readings = await readWorkerSnapshots(harness);
   assert.deepEqual(
-    readings.map((reading) => ({ name: reading.name, nested: reading.nested })),
-    [
-      { name: "child", nested: true },
-      { name: "parent", nested: false }
-    ]
+    harness.workers.map((worker) => worker.nested),
+    [false, true]
   );
-  const child = await collectFingerprintObservationsWithCoverage([snapshotAsFrame(readings[0].snapshot)]);
-  const parent = await collectFingerprintObservationsWithCoverage([snapshotAsFrame(readings[1].snapshot)]);
+  const readout = await readWorkerRealms(harness);
+  assert.equal(readout.unreadRealms, 0);
+  assert.equal(readout.diagnostics.attachedNested, 1);
+  const collections = await Promise.all(readout.readableSnapshots.map((snapshot) => collectWorkerSnapshot(snapshot)));
   assert.deepEqual(
-    child.observations.detections.map((detection) => detection.heuristic).sort(),
-    ["canvas-font-probing-v1", "openwpm-canvas-v1", "webgl-entropy-read-v1"],
-    "the nested worker's own calls must be recorded in its own realm"
+    collections.map((collection) => collection.observations.detections.map((detection) => detection.heuristic).sort()),
+    [[], ["canvas-font-probing-v1", "openwpm-canvas-v1", "webgl-entropy-read-v1"]],
+    "the parent only starts the child, and the child's own calls are recorded in its own realm"
   );
-  assert.deepEqual(parent.observations, { events: [], detections: [] }, "a worker that only starts another records nothing");
-  assert.equal(harness.session.attachCounts().attachedNestedDedicatedWorkerCount, 1);
+  assert.deepEqual(collections[0].observations, { events: [], detections: [] });
   assert.deepEqual(harness.installer.installDiagnostics(), { installedWorkerCount: 2, installFailedWorkerCount: 0 });
 });
 
 /**
- * A worker that turns hostile after the install: it replaces the canvas and
- * size getters and the collection and serialization intrinsics, deletes
- * createImageBitmap from its global, and then fingerprints through a bitmap
- * drawn from a text canvas into a second canvas that it reads. The observer
- * captured everything it uses at install, and its createImageBitmap wrapper
- * sits on WorkerGlobalScope.prototype, where the delete does not reach.
+ * Design tests 5 and 7: a worker that fingerprints and then closes itself or
+ * throws still delivers its task's closed snapshot, and a worker that throws
+ * before any call is installed, read and clean.
  */
-test("real Chromium: a worker that poisons its realm after install still has its fingerprinting recorded", { timeout: 60_000 }, async (t) => {
-  const done: string[] = [];
-  const hostile = `
+test("real Chromium: a worker that closes itself or throws right after fingerprinting is read, and one that throws first reads clean", { timeout: 60_000 }, async (t) => {
+  const { origin, done } = await startWorkerFixture(t, {
+    page: `<!doctype html><title>worker exits</title><script>
+      const closes = new Worker("/closes.js");
+      const throwsAfter = new Worker("/throws-after.js");
+      const throwsFirst = new Worker("/throws-first.js");
+      for (const [name, worker] of [["closes", closes], ["throwsafter", throwsAfter], ["throwsfirst", throwsFirst]]) {
+        worker.onerror = (event) => { event.preventDefault(); fetch("/done/" + name); };
+      }
+      setTimeout(() => fetch("/done/closes"), 500);
+    </script>`,
+    scripts: {
+      "/closes.js": `${CANVAS_READ_SOURCE} self.close();`,
+      "/throws-after.js": `${CANVAS_READ_SOURCE} throw new Error("after");`,
+      "/throws-first.js": `throw new Error("first");`
+    }
+  });
+  const harness = await openPausedWorkerHarness(t);
+  await harness.page.goto(`${origin}/`, { timeout: 10_000 });
+  await waitFor(() => done.length >= 3, 15_000);
+  assert.deepEqual(done.sort(), ["closes", "throwsafter", "throwsfirst"]);
+
+  const readout = await readWorkerRealms(harness);
+  assert.equal(readout.unreadRealms, 0, JSON.stringify(readout.diagnostics));
+  assert.equal(readout.diagnostics.readable, 3);
+  const heuristics = (
+    await Promise.all(readout.readableSnapshots.map((snapshot) => collectWorkerSnapshot(snapshot)))
+  ).map((collection) => collection.observations.detections.map((detection) => detection.heuristic).join(","));
+  assert.deepEqual(heuristics.sort(), ["", "openwpm-canvas-v1", "openwpm-canvas-v1"]);
+});
+
+/**
+ * Design test 6, as this Chromium behaves. A worker whose task is still
+ * running at the freeze has said "open" and nothing since, so it reads as
+ * unread, never as the clean state before its task began. The drain waits for
+ * the task's closed snapshot, so a task that ends within the bound is read,
+ * and a task that outlasts it is read at the next freeze once it has ended.
+ *
+ * The design measured a page's worker.terminate() mid-task as a realm that
+ * never delivers its closed snapshot. Chromium 153 lets the terminated task
+ * run to its end, or forcibly ends it after about two seconds, and in both
+ * cases runs the task's microtask checkpoint, so the closed snapshot arrives
+ * just before the target detaches. What a freeze can cut off is a task still
+ * running when the drain ends, which this test pins.
+ */
+test("real Chromium: a worker mid-task at the freeze is unread until its task's closed snapshot arrives", { timeout: 60_000 }, async (t) => {
+  const { origin, done } = await startWorkerFixture(t, {
+    page: `<!doctype html><title>workers mid-task</title><script>
+      for (const name of ["long", "short"]) {
+        const worker = new Worker("/" + name + ".js");
+        worker.onmessage = () => fetch("/done/" + name);
+      }
+    </script>`,
+    scripts: {
+      "/long.js": `${CANVAS_READ_SOURCE} postMessage("read"); const until = Date.now() + 3000; while (Date.now() < until) {}`,
+      "/short.js": `${CANVAS_READ_SOURCE} postMessage("read"); const until = Date.now() + 300; while (Date.now() < until) {}`
+    }
+  });
+  const harness = await openPausedWorkerHarness(t);
+  await harness.page.goto(`${origin}/`, { timeout: 10_000 });
+  await waitFor(() => done.length >= 2, 15_000);
+
+  // Both tasks are running at the freeze. The short one ends inside the
+  // drain; the long one does not.
+  const midTask = await readWorkerRealms(harness, 1_000);
+  assert.equal(midTask.unreadRealms, 1, `the worker still mid-task must be unread: ${JSON.stringify(midTask.diagnostics)}`);
+  assert.equal(midTask.diagnostics.cutOff, 1);
+  assert.equal(midTask.diagnostics.readable, 1);
+  const [short] = await Promise.all(midTask.readableSnapshots.map((snapshot) => collectWorkerSnapshot(snapshot)));
+  assert.deepEqual(
+    short.observations.detections.map((detection) => detection.heuristic),
+    ["openwpm-canvas-v1"],
+    "the drain must wait for the task that ends inside it"
+  );
+
+  // Once the long task has ended, its closed snapshot is its last word.
+  await new Promise((resolve) => setTimeout(resolve, 2_500));
+  const afterTask = await readWorkerRealms(harness, 1_000);
+  assert.deepEqual([afterTask.readableSnapshots.length, afterTask.unreadRealms], [2, 0]);
+  const collection = await collectFingerprintObservationsWithCoverage([], afterTask);
+  assert.deepEqual([collection.attemptedWorkerRealms, collection.readableWorkerRealms], [2, 2]);
+  assert.equal(collection.observations.detections[0]?.count, 2);
+});
+
+/**
+ * Design test 10. The page terminates a worker while the channel still holds
+ * it: the worker never ran a statement, so it is excluded, not a loss,
+ * although its fingerprint install necessarily failed.
+ */
+test("real Chromium: a worker the page terminates while the channel holds it is excluded, not a loss", { timeout: 60_000 }, async (t) => {
+  const { origin, done } = await startWorkerFixture(t, {
+    page: `<!doctype html><title>died paused</title><script>
+      const worker = new Worker("/w.js");
+      setTimeout(() => { worker.terminate(); fetch("/done/terminated"); }, 300);
+    </script>`,
+    scripts: { "/w.js": `${CANVAS_READ_SOURCE}` }
+  });
+  // An installer ahead of the observer holds each worker for a second, as a
+  // slow GPC handshake would.
+  const delay: WorkerRealmInstaller = {
+    install: () => new Promise<void>((resolve) => setTimeout(resolve, 1_000)),
+    concluded() {}
+  };
+  const harness = await openPausedWorkerHarness(t, { before: delay });
+  await harness.page.goto(`${origin}/`, { timeout: 10_000 });
+  await waitFor(() => done.length >= 1 && harness.installer.installDiagnostics().installFailedWorkerCount >= 1, 15_000);
+  await harness.session.settle(5_000);
+
+  assert.equal(harness.crashed(), false);
+  assert.deepEqual(harness.installer.installDiagnostics(), { installedWorkerCount: 0, installFailedWorkerCount: 1 });
+  const readout = await readWorkerRealms(harness, 500);
+  assert.equal(readout.diagnostics.diedPaused, 1);
+  assert.deepEqual([readout.readableSnapshots, readout.unreadRealms], [[], 0]);
+});
+
+/**
+ * Design test 11, owner-document scope. The first document starts a worker
+ * that fingerprints, then navigates the page to a second document of the same
+ * site, which ends the first worker with its document. The second document's
+ * worker fingerprints differently and closes itself at once. Only the current
+ * document's worker is credited, and the replaced one is not a loss.
+ */
+test("real Chromium: a worker of a document the page navigated away from is not credited, and a current document's closed worker is", { timeout: 60_000 }, async (t) => {
+  const webglSource =
+    "const gl = new OffscreenCanvas(16, 16).getContext('webgl'); gl.getParameter(37446); " +
+    "gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array(4));";
+  const { origin, done } = await startWorkerFixture(t, {
+    page: `<!doctype html><title>owner scope</title><script>
+      if (location.search === "") {
+        const worker = new Worker("/first.js");
+        worker.onmessage = () => { location.href = "/?second"; };
+      } else {
+        new Worker("/second.js");
+        fetch("/done/second-document");
+      }
+    </script>`,
+    scripts: {
+      "/first.js": `${CANVAS_READ_SOURCE} postMessage("read");`,
+      "/second.js": `${webglSource} fetch(self.location.origin + "/done/second-worker"); self.close();`
+    }
+  });
+  const harness = await openPausedWorkerHarness(t);
+  await harness.page.goto(`${origin}/`, { timeout: 10_000 });
+  await waitFor(() => done.length >= 2 && harness.workers.every((worker) => worker.detached), 15_000);
+  assert.deepEqual(done.sort(), ["second-document", "second-worker"]);
+  assert.equal(harness.workers.length, 2);
+
+  const readout = await readWorkerRealms(harness);
+  assert.equal(readout.unreadRealms, 0, JSON.stringify(readout.diagnostics));
+  assert.equal(readout.diagnostics.ownerReplaced, 1);
+  const collection = await collectFingerprintObservationsWithCoverage([], readout);
+  assert.deepEqual(
+    collection.observations.detections.map((detection) => detection.heuristic),
+    ["webgl-entropy-read-v1"],
+    "only the current document's worker may be credited"
+  );
+});
+
+/**
+ * Design test 12 at the realm level. The channel goes away while a worker it
+ * installed is alive, and the page then starts another worker the channel can
+ * no longer reach. Neither can be read, and the page never reads clean.
+ */
+test("real Chromium: a dropped channel leaves its live worker and every later worker unread", { timeout: 60_000 }, async (t) => {
+  const { origin, done } = await startWorkerFixture(t, {
+    page: `<!doctype html><title>dropped channel</title><script>new Worker("/first.js");</script>`,
+    scripts: {
+      "/first.js": `${CANVAS_READ_SOURCE} fetch(self.location.origin + "/done/first");`,
+      "/late.js": `${CANVAS_READ_SOURCE} fetch(self.location.origin + "/done/late");`
+    }
+  });
+  const harness = await openPausedWorkerHarness(t);
+  await harness.page.goto(`${origin}/`, { timeout: 10_000 });
+  await waitFor(() => done.length >= 1, 15_000);
+  harness.session.close();
+  await harness.page.evaluate(() => {
+    new Worker("/late.js");
+  });
+  await waitFor(() => done.length >= 2, 15_000);
+  assert.deepEqual(done.sort(), ["first", "late"]);
+
+  const readout = await readWorkerRealms(harness, 200);
+  assert.deepEqual(readout.readableSnapshots, []);
+  assert.equal(readout.unreadRealms, 2);
+  assert.equal(readout.diagnostics.channelLostAlive, 1);
+  assert.equal(readout.diagnostics.unattachedDedicated, 1);
+});
+
+/**
+ * A worker that turns hostile after the install: it looks for the sink and
+ * calls it by its name, replaces the canvas and size getters and the
+ * collection and serialization intrinsics, deletes createImageBitmap from its
+ * global, poisons Promise.prototype.then and the promise constructor lookup
+ * the observer's checkpoint would meet, and then fingerprints through a bitmap
+ * drawn from a text canvas into a second canvas that it reads. The observer
+ * captured everything it uses at install, its createImageBitmap wrapper sits
+ * on WorkerGlobalScope.prototype, where the delete does not reach, and the
+ * sink was deleted before the worker's first statement.
+ */
+test("real Chromium: a worker that poisons its realm after install still has its fingerprinting read back", { timeout: 60_000 }, async (t) => {
+  let sinkName = "";
+  const hostile = () => `
+    const surfaces = Object.getOwnPropertyNames(self).filter((name) => name.includes("siteBehaviorLab"));
+    const sinkType = typeof self[${JSON.stringify(sinkName)}];
+    let sinkCall = "none";
+    try { self[${JSON.stringify(sinkName)}]("forged"); sinkCall = "called"; } catch { sinkCall = "threw"; }
     const nativeGetImageData = OffscreenCanvasRenderingContext2D.prototype.getImageData;
     Object.defineProperty(OffscreenCanvasRenderingContext2D.prototype, "canvas", { get() { return null; }, configurable: true });
     Object.defineProperty(OffscreenCanvas.prototype, "width", { get() { return 1; }, configurable: true });
@@ -579,46 +1206,42 @@ test("real Chromium: a worker that poisons its realm after install still has its
     const nativeFetch = fetch;
     const origin = self.location.origin;
     const reflectApply = Reflect.apply;
-    Reflect.apply = () => undefined;
-    Function.prototype.call = function () { return undefined; };
+    const report = "/done/" + String(deleted) + "-" + String(typeof createBitmap) + "-" + surfaces.length + "-" + sinkType + "-" + sinkCall;
     (async () => {
       const source = new OffscreenCanvas(200, 60);
       source.getContext("2d").fillText("abcdefghijklmnopqrstuvwxyz0123", 2, 20);
       const bitmap = await createBitmap(source);
+      // Poisoned once nothing of the worker's own awaits the promise lookups.
+      Promise.prototype.then = function () { throw new Error("then poisoned"); };
+      Object.defineProperty(Promise.prototype, "constructor", { get() { throw new Error("constructor poisoned"); }, configurable: true });
+      Reflect.apply = () => undefined;
+      Function.prototype.call = function () { return undefined; };
       const target = new OffscreenCanvas(200, 60);
       const context = target.getContext("2d");
       context.drawImage(bitmap, 0, 0);
       reflectApply(nativeGetImageData, context, [0, 0, 200, 60]);
-      await nativeFetch(origin + "/done/" + String(deleted) + "-" + String(typeof createBitmap));
+      nativeFetch(origin + report);
     })();
   `;
-  const port = await startFixtureServer(t, (request, response) => {
-    const url = new URL(request.url ?? "/", "http://fixture.test");
-    if (url.pathname.startsWith("/done/")) {
-      done.push(url.pathname.slice("/done/".length));
-      response.writeHead(204);
-      response.end();
-      return;
-    }
-    if (url.pathname === "/hostile.js") {
-      response.writeHead(200, { "content-type": "text/javascript" });
-      response.end(hostile);
-      return;
-    }
-    response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
-    response.end(`<!doctype html><title>hostile worker</title><script>new Worker("/hostile.js", { name: "hostile" });</script>`);
-  });
+  const { origin, done } = await startWorkerFixture(t, () => ({
+    page: `<!doctype html><title>hostile worker</title><script>new Worker("/hostile.js", { name: "hostile" });</script>`,
+    scripts: { "/hostile.js": hostile() }
+  }));
 
   const harness = await openPausedWorkerHarness(t);
-  await harness.page.goto(`http://127.0.0.1:${port}/`, { timeout: 10_000 });
+  sinkName = harness.installer.sinkName;
+  await harness.page.goto(`${origin}/`, { timeout: 10_000 });
   await waitFor(() => done.length >= 1, 15_000);
   // The delete succeeded and the worker still found a createImageBitmap: the
-  // one on the prototype, which is the observer's wrapper.
-  assert.deepEqual(done, ["true-function"]);
+  // one on the prototype, which is the observer's wrapper. Nothing of the
+  // observer is on the worker's global, and the sink is neither there nor
+  // callable by its name.
+  assert.deepEqual(done, ["true-function-0-undefined-threw"]);
 
-  const [reading] = await readWorkerSnapshots(harness);
-  const collection = await collectFingerprintObservationsWithCoverage([snapshotAsFrame(reading.snapshot)]);
-  assert.equal(collection.readableFrames, 1);
+  const readout = await readWorkerRealms(harness);
+  assert.equal(readout.unreadRealms, 0, JSON.stringify(readout.diagnostics));
+  const collection = await collectFingerprintObservationsWithCoverage([], readout);
+  assert.equal(collection.readableWorkerRealms, 1);
   assert.deepEqual(collection.observations.detections, [
     {
       kind: "canvas-fingerprinting",
@@ -641,34 +1264,22 @@ test("real Chromium: a worker that poisons its realm after install still has its
  * registrations capture no stacks and never reach the interaction summaries.
  */
 test("real Chromium: a worker realm keeps its native addEventListener", { timeout: 60_000 }, async (t) => {
-  const done: string[] = [];
-  const port = await startFixtureServer(t, (request, response) => {
-    const url = new URL(request.url ?? "/", "http://fixture.test");
-    if (url.pathname.startsWith("/done/")) {
-      done.push(url.pathname.slice("/done/".length));
-      response.writeHead(204);
-      response.end();
-      return;
-    }
-    if (url.pathname === "/listener.js") {
-      response.writeHead(200, { "content-type": "text/javascript" });
-      response.end(
+  const { origin, done } = await startWorkerFixture(t, {
+    page: `<!doctype html><title>worker listeners</title><script>new Worker("/listener.js", { name: "listener" });</script>`,
+    scripts: {
+      "/listener.js":
         "for (const type of ['message', 'keydown', 'input', 'click', 'scroll']) self.addEventListener(type, () => undefined);\n" +
-          "fetch(self.location.origin + '/done/' + String(Function.prototype.toString.call(EventTarget.prototype.addEventListener).includes('[native code]')));"
-      );
-      return;
+        "fetch(self.location.origin + '/done/' + String(Function.prototype.toString.call(EventTarget.prototype.addEventListener).includes('[native code]')));"
     }
-    response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
-    response.end(`<!doctype html><title>worker listeners</title><script>new Worker("/listener.js", { name: "listener" });</script>`);
   });
 
   const harness = await openPausedWorkerHarness(t);
-  await harness.page.goto(`http://127.0.0.1:${port}/`, { timeout: 10_000 });
+  await harness.page.goto(`${origin}/`, { timeout: 10_000 });
   await waitFor(() => done.length >= 1, 15_000);
   assert.deepEqual(done, ["true"], "the worker's addEventListener must be the native one");
-  const [reading] = await readWorkerSnapshots(harness);
-  const collection = await collectFingerprintObservationsWithCoverage([snapshotAsFrame(reading.snapshot)]);
+  const collection = await collectFingerprintObservationsWithCoverage([], await readWorkerRealms(harness));
   assert.deepEqual(collection.observations, { events: [], detections: [] });
+  assert.deepEqual([collection.attemptedWorkerRealms, collection.readableWorkerRealms], [1, 1]);
   assert.equal(collection.listenerAttributionLostFrames, 0);
   assert.deepEqual(harness.installer.installDiagnostics(), { installedWorkerCount: 1, installFailedWorkerCount: 0 });
 });

@@ -44,6 +44,7 @@ function scriptedChannel(
     onEvent(handler) {
       handlers.push(handler);
     },
+    onClose() {},
     close() {}
   };
   return {
@@ -361,6 +362,7 @@ test("real Chromium: installers run in order inside each worker's one pause, bef
       return channel.send(method, params, sessionId);
     },
     onEvent: (handler) => channel.onEvent(handler),
+    onClose: (handler) => channel.onClose(handler),
     close: () => channel.close()
   };
   // Reads only navigator, which is initialized while the worker is paused.

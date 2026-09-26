@@ -23,6 +23,27 @@ export type FingerprintObservationCollection = {
    * incomplete whenever this is non-zero, even with every frame readable.
    */
   listenerAttributionLostFrames: number;
+  /**
+   * Dedicated worker realms of current documents that ran page code: the
+   * readable ones plus those whose evidence cannot be read in full
+   * (lib/worker-fingerprint-realm.ts decides which is which).
+   */
+  attemptedWorkerRealms: number;
+  /** Worker realms whose one cumulative snapshot this collection merged. */
+  readableWorkerRealms: number;
+};
+
+/**
+ * What the worker realms hold at one freeze, as lib/worker-fingerprint-realm.ts
+ * reads it back. The snapshots are the realms' own text, unparsed: this module
+ * alone normalizes and merges them, through the same functions a frame's
+ * snapshot goes through.
+ */
+export type FingerprintWorkerRealmReadout = {
+  /** One cumulative closed snapshot per worker realm that can be read. */
+  readonly readableSnapshots: readonly string[];
+  /** Worker realms that ran page code but cannot be read in full. */
+  readonly unreadRealms: number;
 };
 
 /**
@@ -34,6 +55,14 @@ export type FingerprintObservationCollection = {
  */
 export type FingerprintObserverRealmArgs = {
   realm: "dedicated-worker";
+  /**
+   * The name the host gave its `Runtime.addBinding` sink on the worker's
+   * session. The observer captures the sink and deletes it from the global
+   * before the worker's first statement.
+   */
+  sinkName: string;
+  /** Per-scan capability that opens every emission, so the host ignores anything else on the sink. */
+  capability: string;
 };
 
 /**
@@ -64,16 +93,27 @@ export type FingerprintObserverRealmArgs = {
  * function into paused workers of every shape in real Chromium and fails on a
  * crash.
  *
- * Returns `true` at the end of a worker realm install, which is the host's
- * evidence that the whole function ran inside the realm, and nothing in a
- * document.
+ * READBACK in the worker realm. A document is read by evaluating its snapshot
+ * surface; a worker realm has no such surface and streams instead, through
+ * the host's sink, with an edge protocol. The first recording of a task sends
+ * a small synchronous "open", and the task's microtask checkpoint sends
+ * "closed" with the realm's whole cumulative snapshot. A realm whose last word
+ * is "open" was cut off mid-task, for example by the page terminating it, and
+ * the host reads it as unread, never as clean.
+ *
+ * Returns `true` at the end of a worker realm install, once it holds the sink
+ * and has sent its first closed snapshot (sequence 1), which is the host's
+ * evidence that the whole function ran inside the realm and that the realm
+ * can reach it, and nothing in a document.
  */
 export function fingerprintObserverInitScript(
   firstPartySiteKey?: string,
   realmArgs?: FingerprintObserverRealmArgs
 ): boolean | undefined {
   // Declared by the host, never read from the realm.
-  const workerRealm = realmArgs !== undefined && realmArgs !== null && realmArgs.realm === "dedicated-worker";
+  const workerRealmArgs =
+    realmArgs !== undefined && realmArgs !== null && realmArgs.realm === "dedicated-worker" ? realmArgs : null;
+  const workerRealm = workerRealmArgs !== null;
   // Capture the few intrinsics used while collecting the final snapshot. The
   // observed page is adversarial input and can replace globals such as
   // Object.keys or JSON.stringify after this init script has run.
@@ -168,6 +208,20 @@ export function fingerprintObserverInitScript(
   // worker path never names `window` at all. Every read of the realm global
   // below goes through this one binding.
   const observerWindow = (workerRealm ? globalThis : window) as unknown as FingerprintObserverWindow;
+  // The worker realm's only output. The host's Runtime.addBinding put the
+  // sink on the worker's global; it is captured and deleted here, before the
+  // worker's first statement, so worker code can neither find it nor call it.
+  // Read through its descriptor, so no getter runs, and kept only when it is a
+  // function and the delete took: a sink the worker could still reach would
+  // let it forge the stream, so the install then answers false instead.
+  const realmSink = ((): ((payload: string) => void) | null => {
+    if (!workerRealmArgs) return null;
+    const descriptor = objectGetOwnPropertyDescriptor(observerWindow, workerRealmArgs.sinkName);
+    const sink = descriptor ? (descriptor.value as unknown) : undefined;
+    if (typeof sink !== "function") return null;
+    if (!reflectDeleteProperty(observerWindow, workerRealmArgs.sinkName)) return null;
+    return sink as (payload: string) => void;
+  })();
   const canvasElementPrototype = observerWindow.HTMLCanvasElement?.prototype;
   const canvasContextPrototype = observerWindow.CanvasRenderingContext2D?.prototype;
   const offscreenCanvasPrototype = observerWindow.OffscreenCanvas?.prototype;
@@ -508,6 +562,9 @@ export function fingerprintObserverInitScript(
         } catch {
           markObserverCoverageLost();
         }
+        // This recording lands after the wrapped call returned, so the call's
+        // own notice has passed; a worker realm's host hears of it here.
+        notifyChanged();
       },
       (reason) => {
         rejectPage(reason);
@@ -533,10 +590,15 @@ export function fingerprintObserverInitScript(
     return objectFreeze(snapshot);
   };
 
-  objectDefineProperty(observerWindow, "__siteBehaviorLabFingerprintEvents", {
-    configurable: false,
-    get: snapshotEventCounts
-  });
+  // The read surfaces are a document's. A worker realm has none: its only
+  // output is the host's sink, so worker code finds nothing of the observer
+  // on its global.
+  if (!workerRealm) {
+    objectDefineProperty(observerWindow, "__siteBehaviorLabFingerprintEvents", {
+      configurable: false,
+      get: snapshotEventCounts
+    });
+  }
 
   const getCanvasState = (canvas: TrackedCanvas): CanvasState | null => {
     let state = safeMapGet(canvasStates, canvas);
@@ -914,8 +976,9 @@ export function fingerprintObserverInitScript(
     return "null";
   };
 
-  // The realm's whole cumulative observation as one snapshot text. The read
-  // surface below returns it, in a document and in a worker realm alike.
+  // The realm's whole cumulative observation as one snapshot text: what a
+  // document's read surface returns, and what a worker realm's closed
+  // emission carries.
   const buildSnapshot = (): string | null => {
     // The scanner treats a non-snapshot as an unreadable frame and records
     // detector coverage loss. Never turn a compromised stack reader or an
@@ -945,10 +1008,82 @@ export function fingerprintObserverInitScript(
     });
   };
 
-  objectDefineProperty(observerWindow, "__siteBehaviorLabFingerprintSnapshot", {
-    configurable: false,
-    value: buildSnapshot
-  });
+  if (!workerRealm) {
+    objectDefineProperty(observerWindow, "__siteBehaviorLabFingerprintSnapshot", {
+      configurable: false,
+      value: buildSnapshot
+    });
+  }
+
+  // Worker realm emission, the edge protocol. Every emission carries the
+  // capability and a sequence number that rises by one per emission, so the
+  // host sees a lost emission as a gap. Past the emission cap the realm sends
+  // one final closed `null` and falls silent: an emission flood becomes a
+  // disclosed loss, never unbounded host work, like every other overflow here.
+  const maxWorkerRealmEmissions = 100_000;
+  let realmEmissionSequence = 0;
+  let realmStreamEnded = false;
+  let realmClosedEmissionPending = false;
+  const emitToRealmHost = (state: "open" | "closed"): void => {
+    if (!workerRealmArgs || !realmSink || realmStreamEnded) return;
+    realmEmissionSequence += 1;
+    let emittedState = state;
+    if (realmEmissionSequence >= maxWorkerRealmEmissions) {
+      observerCoverageLost = true;
+      realmStreamEnded = true;
+      emittedState = "closed";
+    }
+    let payload = `${workerRealmArgs.capability}\n${realmEmissionSequence}\n${emittedState}`;
+    if (emittedState === "closed") {
+      let snapshot: string | null = null;
+      try {
+        snapshot = buildSnapshot();
+      } catch {
+        snapshot = null;
+      }
+      payload += `\n${snapshot === null ? "null" : snapshot}`;
+    }
+    try {
+      reflectApply(realmSink, undefined, [payload]);
+    } catch {
+      // Not delivered. The next emission shows the host a gap, and a realm
+      // that never emits again leaves its last word open or stale-sequenced;
+      // the host reads either as unread.
+    }
+  };
+  const emitClosedToRealmHost = (): void => {
+    realmClosedEmissionPending = false;
+    emitToRealmHost("closed");
+  };
+  // Called after every recording. A document has nothing to send. In a worker
+  // realm the first recording of a task says "open" at once, and the task's
+  // microtask checkpoint sends the closed snapshot, which then covers every
+  // later recording of the same task. The checkpoint is reached through the
+  // captured promise path, never queueMicrotask, which a worker paused before
+  // its first statement does not have yet and which its code can replace.
+  const notifyChanged = (): void => {
+    if (!workerRealm || realmClosedEmissionPending || realmStreamEnded) return;
+    realmClosedEmissionPending = true;
+    emitToRealmHost("open");
+    let checkpoint: unknown;
+    try {
+      checkpoint = new TrustedPromise<void>((resolve) => resolve());
+    } catch {
+      checkpoint = null;
+    }
+    const scheduled =
+      checkpoint !== null &&
+      observeSettlement(
+        checkpoint,
+        () => emitClosedToRealmHost(),
+        () => undefined
+      );
+    if (scheduled) return;
+    // No checkpoint could be scheduled: say so now rather than leave the
+    // realm's evidence to a closed emission that will never come.
+    observerCoverageLost = true;
+    emitClosedToRealmHost();
+  };
 
   const record = (api: string) => {
     eventCounts[api] = (eventCounts[api] || 0) + 1;
@@ -960,10 +1095,22 @@ export function fingerprintObserverInitScript(
     descriptor: PropertyDescriptor,
     value: (...args: unknown[]) => unknown
   ) => {
+    // Every wrapper is defined here, so in a worker realm this one wrapper
+    // tells the host after each wrapped call, whatever the call recorded or
+    // threw. A document keeps the recording wrapper itself.
+    const installed = workerRealm
+      ? function notifyingWrapper(this: unknown, ...args: unknown[]) {
+          try {
+            return reflectApply(value, this, args);
+          } finally {
+            notifyChanged();
+          }
+        }
+      : value;
     objectDefineProperty(target, key, {
       configurable: descriptor.configurable,
       enumerable: descriptor.enumerable,
-      value,
+      value: installed,
       writable: true
     });
   };
@@ -1812,6 +1959,8 @@ export function fingerprintObserverInitScript(
       const connection = reflectConstruct(OriginalPeerConnection, args, constructionTarget) as RTCPeerConnection;
       record("webrtc.RTCPeerConnection");
       rtcState.constructorCalls += 1;
+      // The one recording not made through defineWrappedMethod.
+      notifyChanged();
       return connection;
     } as unknown as typeof RTCPeerConnection;
 
@@ -1825,16 +1974,40 @@ export function fingerprintObserverInitScript(
   patchPeerConnection("RTCPeerConnection");
   patchPeerConnection("webkitRTCPeerConnection");
 
-  return workerRealm ? true : undefined;
+  if (!workerRealm) return undefined;
+  // The worker install's testimony: it holds the sink, and its first closed
+  // snapshot, empty, went out as sequence 1. The host also requires that
+  // emission to have arrived before this answer did.
+  if (!realmSink) return false;
+  emitClosedToRealmHost();
+  return realmEmissionSequence === 1;
 }
 
+/**
+ * The page's fingerprint observations at one freeze: every frame's snapshot,
+ * read now, and, when given, every worker realm's snapshot at the same freeze
+ * (lib/worker-fingerprint-realm.ts), awaited after the frames are read. Both
+ * kinds of snapshot go through the same normalization and the same merge.
+ * Each realm contributes one cumulative snapshot and realms are disjoint (a
+ * call runs in exactly one of them), so nothing is counted twice; heuristics
+ * stay per realm, as they are per frame.
+ */
 export async function collectFingerprintObservationsWithCoverage(
-  frames: FingerprintFrameLike[]
+  frames: FingerprintFrameLike[],
+  workerRealms?: FingerprintWorkerRealmReadout | Promise<FingerprintWorkerRealmReadout>
 ): Promise<FingerprintObservationCollection> {
   const merged = new Map<string, number>();
   const detections = new Map<FingerprintDetectionSummary["kind"], FingerprintDetectionSummary>();
   let readableFrames = 0;
   let listenerAttributionLostFrames = 0;
+  const mergeSnapshot = (normalized: NonNullable<ReturnType<typeof normalizeFingerprintSnapshot>>) => {
+    for (const [api, count] of Object.entries(normalized.events)) {
+      merged.set(api, (merged.get(api) ?? 0) + count);
+    }
+    for (const detection of normalized.detections) {
+      mergeFingerprintDetection(detections, detection);
+    }
+  };
 
   for (const frame of frames) {
     let snapshot: unknown;
@@ -1857,12 +2030,21 @@ export async function collectFingerprintObservationsWithCoverage(
     if (!normalized) continue;
     readableFrames += 1;
     if (normalized.listenerAttributionLost) listenerAttributionLostFrames += 1;
-    const { events, detections: frameDetections } = normalized;
-    for (const [api, count] of Object.entries(events)) {
-      merged.set(api, (merged.get(api) ?? 0) + count);
-    }
-    for (const detection of frameDetections) {
-      mergeFingerprintDetection(detections, detection);
+    mergeSnapshot(normalized);
+  }
+
+  let attemptedWorkerRealms = 0;
+  let readableWorkerRealms = 0;
+  if (workerRealms !== undefined) {
+    const readout = await workerRealms;
+    attemptedWorkerRealms = readout.readableSnapshots.length + readout.unreadRealms;
+    for (const snapshot of readout.readableSnapshots) {
+      const normalized = normalizeFingerprintSnapshot(snapshot);
+      // A worker realm registers no listeners through the observer, so a
+      // snapshot flagging bounded listener attribution is not one it produces.
+      if (!normalized || normalized.listenerAttributionLost) continue;
+      readableWorkerRealms += 1;
+      mergeSnapshot(normalized);
     }
   }
 
@@ -1875,7 +2057,9 @@ export async function collectFingerprintObservationsWithCoverage(
     },
     attemptedFrames: frames.length,
     readableFrames,
-    listenerAttributionLostFrames
+    listenerAttributionLostFrames,
+    attemptedWorkerRealms,
+    readableWorkerRealms
   };
 }
 

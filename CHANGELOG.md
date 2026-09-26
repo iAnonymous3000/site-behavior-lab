@@ -371,17 +371,37 @@ public API or a 1.0 release.
   renderer, so the observer never does either in a worker, and a real-Chromium
   test installs it into paused workers of nine shapes, including ones whose
   script 404s, fails an import or fails to parse, and fails on a crash.
-- Canvas and WebGL work inside a Web Worker still does not reach the report,
-  including drawing a worker does on a canvas the page transferred to it: the
-  observer records it inside the worker, but nothing reads a worker's
-  observations back yet, and a worker that exits early needs a readback of its
-  own. The
-  coverage boundary entry for
-  OffscreenCanvas 2D work is narrowed to `worker-realm-canvas`, which says so,
-  names the page-realm routes above that are not traced and the pending
-  export, and says that reports measured before
-  node-detectors-v11 did not observe OffscreenCanvas 2D work in the page at
-  all, so a quiet canvas finding on one does not rule it out.
+- Canvas, font and WebGL work inside each dedicated worker now reaches the
+  report, in every arm, read back at the same two moments as the page's own
+  evidence: the passive boundary and the final state read. A worker has no
+  read surface. In its pause the scanner adds a DevTools binding that the
+  observer captures and deletes from the worker's global before the worker's
+  first statement, and the worker streams over it: the first recording of a
+  task sends "open" at once, and the task's microtask checkpoint sends the
+  worker's whole cumulative snapshot. A worker whose last word at a read is
+  "open" is still inside a task, and the read waits up to half a second for
+  that task's snapshot rather than taking the state from before the task.
+  Each worker's snapshot is normalized and merged by the same functions as a
+  frame's, once per worker, so nothing is counted twice, and heuristics apply
+  per worker as they do per frame. A worker is credited only while its
+  document is current: its owner frame and loader are recorded during its
+  pause, and a worker that has gone counts only if that document is still in
+  the page's current frames, so an interstitial that fingerprints in a worker
+  and then navigates to the site is not credited to the site. A worker whose
+  evidence cannot be read in full (its install failed, it was still mid-task
+  when the wait ended, its stream broke, the DevTools channel went away while
+  it ran, its owner document could not be recorded, or the browser reported it
+  and the channel never attached it) is counted as unread by the collection,
+  but is not yet recorded as capture loss or named in a warning.
+- The coverage boundary entry for OffscreenCanvas 2D work,
+  `worker-realm-canvas`, now covers what stays unobserved: canvas and font
+  work split across the page and a worker (text drawn in a worker and read
+  from an image the page receives, or drawn by a worker on a canvas the page
+  transferred to it and exported by the page), shared workers and worklets,
+  and workers whose evidence is unread. It still names the page-realm routes
+  above that are not traced and the pending export, and says that reports
+  measured before node-detectors-v11 did not observe OffscreenCanvas 2D work
+  in the page at all, so a quiet canvas finding on one does not rule it out.
 - Recorded identities, old to new:
   - Base Node methodology, which is also the v1 methodology token and the
     corpus cohort key:

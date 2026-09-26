@@ -186,7 +186,11 @@ import {
   type WorkerRealmInstaller
 } from "./devtools-worker-channel";
 import { GpcWorkerRealmInstaller, type GpcWorkerVerificationDiagnostics } from "./gpc-worker-verification";
-import { FingerprintWorkerRealmInstaller, type WorkerFingerprintInstallDiagnostics } from "./worker-fingerprint-realm";
+import {
+  FingerprintWorkerRealmInstaller,
+  WORKER_REALM_READOUT_SETTLE_MS,
+  type WorkerFingerprintInstallDiagnostics
+} from "./worker-fingerprint-realm";
 
 export { scannerEgressLabel, scannerEgressRegion } from "./scanner-egress";
 export { MAX_RECORDED_REQUESTS, NON_HTTP_WARNING_EXAMPLE_LIMIT, ScanRequestBudget, ScanWarningCollector } from "./scan-runtime";
@@ -1067,6 +1071,20 @@ export async function scanSiteWithMeasurement(
     } catch {
       workerRealmChannel = null;
     }
+    // The worker realms' fingerprint evidence at one freeze, read at exactly
+    // the two instants the page realm is read, the passive boundary and the
+    // final state read (lib/worker-fingerprint-realm.ts). The freeze is the
+    // call; the drain after it is bounded by the scan budget left. With no
+    // channel, every witnessed worker reads as unread.
+    const readWorkerRealmsAtFreeze = () =>
+      fingerprintWorkerInstaller.readout({
+        session: workerRealmChannel,
+        witness: dedicatedWorkerWitness,
+        settleMs: Math.max(
+          0,
+          Math.min(WORKER_REALM_READOUT_SETTLE_MS, MAX_SCAN_DURATION_MS - (Date.now() - started))
+        )
+      });
     // Read environment metadata from the pristine about:blank page before any
     // target script can shadow Navigator getters. The configured locale is
     // producer-owned and must never be replaced with page testimony.
@@ -1717,7 +1735,12 @@ export async function scanSiteWithMeasurement(
       const [passiveCookies, passiveStorage, passiveFingerprint] = await Promise.all([
         capturePassiveBoundary(withScanTimeout(collectCookies(context, trustedSubjectHostname), started)),
         capturePassiveBoundary(withScanTimeout(collectStorageSnapshot(passivePhaseId), started)),
-        capturePassiveBoundary(withScanTimeout(collectFingerprintObservationsWithCoverage(page.frames()), started))
+        capturePassiveBoundary(
+          withScanTimeout(
+            collectFingerprintObservationsWithCoverage(page.frames(), readWorkerRealmsAtFreeze()),
+            started
+          )
+        )
       ]);
       // Capture-loss details use the shared first-party semantic registry; the
       // phaseId already records WHICH boundary was lost.
@@ -2012,7 +2035,9 @@ export async function scanSiteWithMeasurement(
       observations: { events: [], detections: [] },
       attemptedFrames: 0,
       readableFrames: 0,
-      listenerAttributionLostFrames: 0
+      listenerAttributionLostFrames: 0,
+      attemptedWorkerRealms: 0,
+      readableWorkerRealms: 0
     };
     let tentativeScreenshot: string | null = null;
     let tentativePolicyLinks: PolicyLinkCandidate[] = [];
@@ -2038,7 +2063,7 @@ export async function scanSiteWithMeasurement(
         withScanTimeout(collectStorageSnapshot(stateSnapshotPhaseId), started)
       );
       tentativeFingerprintCollection = await withScanTimeout(
-        collectFingerprintObservationsWithCoverage(page.frames()),
+        collectFingerprintObservationsWithCoverage(page.frames(), readWorkerRealmsAtFreeze()),
         started
       );
       tentativeScreenshot = await withScanTimeout(
@@ -2100,7 +2125,9 @@ export async function scanSiteWithMeasurement(
           readableFrames: passiveBoundary.fingerprinting ? 1 : 0,
           // passiveBoundary.fingerprinting is set only for a passive read with
           // no bounded listener attribution.
-          listenerAttributionLostFrames: 0
+          listenerAttributionLostFrames: 0,
+          attemptedWorkerRealms: 0,
+          readableWorkerRealms: 0
         };
     const fingerprintObservations = fingerprintCollection.observations;
     const fingerprintFrameCoverage = fingerprintFrameCoverageStatus(fingerprintCollection);

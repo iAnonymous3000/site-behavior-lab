@@ -271,18 +271,18 @@ export const COVERAGE_BOUNDARY_ENTRIES: readonly CoverageBoundaryEntry[] = [
       "Querying the state of camera, microphone, notification, or location permissions is itself an entropy source, and it happens without any user prompt. The scanner does not instrument the Permissions API, so these silent queries are absent from every report.",
     absentIdentifiers: ["navigator.permissions", "permissions.query"]
   },
-  // Review-only. Instrumenting a worker would mean evaluating an observer in
-  // it over DevTools, as the GPC worker handshake does, not naming an API in
-  // the scanner source, so there is no identifier whose absence could stand
-  // in for this claim. The page-realm routes it says are not traced ride
-  // along rather than becoming entries of their own, and naming one of their
-  // APIs here would present the worker claim as test-enforced.
+  // Review-only. The worker observer reaches each worker over DevTools, not
+  // through an API named in the scanner source, and SharedWorker already
+  // appears there, so there is no identifier whose absence could stand in for
+  // this claim. The page-realm routes it says are not traced ride along
+  // rather than becoming entries of their own, and naming one of their APIs
+  // here would present the claim as test-enforced.
   {
     id: "worker-realm-canvas",
-    label: "Canvas and WebGL work inside a Web Worker",
+    label: "Canvas work split across realms, and shared workers and worklets",
     reason: "not-instrumented",
     explanation:
-      "A script can move canvas work into a worker: it can create an OffscreenCanvas there, or transfer one from the page, and draw text, measure fonts, read pixels, export an image, or read WebGL parameters inside the worker. The scanner installs its observer inside each dedicated worker the page starts, but does not read a worker's observations into the report, so canvas, font and WebGL fingerprinting done in a worker is not reported, and neither is drawing a worker does on a canvas the page transferred to it. In the page itself, 2D work on an OffscreenCanvas feeds the same canvas heuristics as work on a page canvas. Text drawn on one canvas is traced into another canvas's readback only through drawImage (including drawImage of a bitmap made by transferToImageBitmap or createImageBitmap) and into the readback of a canvas whose control was moved with transferControlToOffscreen; any other route, such as an ImageBitmap handed to a bitmaprenderer context or a pattern made with createPattern, is not traced, for either kind of canvas. An OffscreenCanvas export still pending when the visit's evidence is collected is not recorded. Reports measured before node-detectors-v11 (an r2 report whose fingerprint detector is fingerprint-observer@4 or earlier, or a v1 report whose methodology lacks +fingerprint-surface-v2) did not observe OffscreenCanvas 2D work in the page at all, so a quiet canvas finding on such a report does not rule it out."
+      "A script can move canvas work into a worker: it can create an OffscreenCanvas there, or transfer one from the page, and draw text, measure fonts, read pixels, export an image, or read WebGL parameters inside the worker. The scanner observes that work inside every dedicated worker the page starts, with the page's own observer and heuristics, and credits a worker only while its document is still the page's current one, but it applies its canvas and font heuristics to the page and to each worker separately. Text drawn in one realm and read back in another, for example drawn in a worker and read from an image the worker handed to the page, or drawn by a worker onto a canvas the page transferred to it and then exported by the page, is counted as separate calls in each realm and does not by itself match a canvas heuristic; font measurements split across realms are counted the same way. A worker whose evidence cannot be read in full, such as one still in the middle of a task when the visit's evidence is collected, is not yet recorded as incomplete evidence. Shared workers and worklets are not instrumented, and service workers are blocked and never run. In the page itself, 2D work on an OffscreenCanvas feeds the same canvas heuristics as work on a page canvas. Text drawn on one canvas is traced into another canvas's readback only through drawImage (including drawImage of a bitmap made by transferToImageBitmap or createImageBitmap) and into the readback of a canvas whose control was moved with transferControlToOffscreen; any other route, such as an ImageBitmap handed to a bitmaprenderer context or a pattern made with createPattern, is not traced, for either kind of canvas. An OffscreenCanvas export still pending when the visit's evidence is collected is not recorded. Reports measured before node-detectors-v11 (an r2 report whose fingerprint detector is fingerprint-observer@4 or earlier, or a v1 report whose methodology lacks +fingerprint-surface-v2) did not observe OffscreenCanvas 2D work in the page at all, so a quiet canvas finding on such a report does not rule it out."
   },
   {
     id: "script-integrity-drift",

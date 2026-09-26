@@ -100,7 +100,9 @@ test("collectFingerprintObservationsWithCoverage accepts only validated primitiv
     },
     attemptedFrames: 4,
     readableFrames: 1,
-    listenerAttributionLostFrames: 0
+    listenerAttributionLostFrames: 0,
+    attemptedWorkerRealms: 0,
+    readableWorkerRealms: 0
   });
 });
 
@@ -165,7 +167,9 @@ test("collectFingerprintObservationsWithCoverage keeps a listener-bounded frame 
     },
     attemptedFrames: 4,
     readableFrames: 1,
-    listenerAttributionLostFrames: 1
+    listenerAttributionLostFrames: 1,
+    attemptedWorkerRealms: 0,
+    readableWorkerRealms: 0
   });
 });
 
@@ -501,7 +505,14 @@ test("stack-reader integrity exits still withhold the whole frame after canvas a
       const coverage = await collectFingerprintObservationsWithCoverage(page.frames());
       assert.deepEqual(
         { ...coverage, observations: undefined },
-        { observations: undefined, attemptedFrames: 1, readableFrames: 0, listenerAttributionLostFrames: 0 },
+        {
+          observations: undefined,
+          attemptedFrames: 1,
+          readableFrames: 0,
+          listenerAttributionLostFrames: 0,
+          attemptedWorkerRealms: 0,
+          readableWorkerRealms: 0
+        },
         label
       );
       assert.deepEqual(coverage.observations, { detections: [], events: [] }, label);
