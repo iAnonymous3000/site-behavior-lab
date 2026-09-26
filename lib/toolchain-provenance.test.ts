@@ -122,12 +122,7 @@ test("Playwright package, lockfile, installation, and container base use one exa
   assert.ok(base, "Playwright base must use a literal version, noble, and a lowercase SHA-256 digest");
   assert.equal(base[1], declaredVersion);
   assert.equal(base[2].length, 64);
-  assert.deepEqual(fromLines, [
-    externalBase[0],
-    "FROM playwright-base AS deps",
-    "FROM deps AS build",
-    "FROM playwright-base AS runner"
-  ]);
+  assert.deepEqual(fromLines, [externalBase[0], "FROM playwright-base AS build", "FROM playwright-base AS runner"]);
 
   const runtimePin =
     /RUN test "\$\(node --version\)" = "v(\d+\.\d+\.\d+)" \\\n\s+&& test "\$\(npm --version\)" = "(\d+\.\d+\.\d+)"/.exec(

@@ -57,18 +57,6 @@ to PR #222's tested head `3ebef9dc17da14e69fd7f727f6ffc472504b0caf`.
   promotion paths still require that check. All existing checks still execute.
 - Superseded PR runs are cancelled. Main and manual runs keep unique concurrency
   groups and retain their evidence and promotion lifecycle.
-- The lib unit tests run in two phases through `scripts/unit-test-lanes.mjs`,
-  in CI and inside the container build alike. Files named in
-  `scripts/unit-test-serial-lane.json`, each with its reason, keep the former
-  conditions: one at a time, after everything else, with nothing beside them.
-  They are the Chromium launches, wall-clock and CPU-time assertions, timers and
-  short deadlines, Miniflare runtimes, Git fixture teardown races, and the one
-  test that recompiles `dist/schema`. Every other lib test runs first, three
-  files at a time and each in its own process, while the corpus-overview group
-  runs beside them. `scripts/unit-test-lanes.test.mjs` forces any lib test that
-  matches a browser, timing or Miniflare pattern into the serial lane, and the
-  runner fails if the parallel phase changes `dist/`. The same tests run with the
-  same assertions, timeouts and tolerances.
 - The carrier archive error test first verifies the intact fixture, then makes
   the real Git archive command read an empty object store. It checks fresh and
   deliberately packed repositories and requires Git's actual diagnostic to be
@@ -80,13 +68,6 @@ to PR #222's tested head `3ebef9dc17da14e69fd7f727f6ffc472504b0caf`.
   for both manifest and statistics generation. Docker dependency layers precede
   source-identity arguments so a new SHA does not invalidate unchanged package
   installation. Actual Docker cache savings depend on the builder's cache.
-- The Dockerfile's dependency layers form their own `deps` stage, and CI exports
-  only that stage to its GitHub Actions build cache. The exact-SHA image build
-  still reads the cache but no longer writes its per-commit layers, which no
-  later commit can reuse; that export took 14 to 113 seconds of every run. The
-  docker job also installs the host browser for its smoke step in the
-  background while the image builds, and fails before the smoke unless that
-  install succeeded, and it leaves builder teardown to the discarded runner.
 
 ## Reproduction and evidence
 

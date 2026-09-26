@@ -83,3 +83,7 @@ test("comparison heading does not promise a delta when no metric family is compa
     "GPC off and GPC on: two visits, no comparable metric delta"
   );
 });
+
+test("gate proof: a deliberately failing parallel-lane test", () => {
+  assert.equal("parallel lane", "broken", "GATE PROOF parallel-lane assertion must fail test:unit");
+});
