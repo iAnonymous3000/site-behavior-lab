@@ -77,14 +77,19 @@ function scriptedChannel(
 function attachEvent(
   sessionId: string,
   type: "worker" | "shared_worker" = "worker",
-  options: { arrivedOn?: string; waitingForDebugger?: boolean } = {}
+  options: { arrivedOn?: string; waitingForDebugger?: boolean; ownerFrame?: string } = {}
 ): DevtoolsEvent {
   return {
     method: "Target.attachedToTarget",
     sessionId: options.arrivedOn ?? "page-session",
     params: {
       sessionId,
-      targetInfo: { type, targetId: `${sessionId}-target`, url: "http://fixture.test/w.js", parentFrameId: "main-frame" },
+      targetInfo: {
+        type,
+        targetId: `${sessionId}-target`,
+        url: "http://fixture.test/w.js",
+        parentFrameId: options.ownerFrame ?? "main-frame"
+      },
       waitingForDebugger: options.waitingForDebugger ?? true
     }
   };
@@ -475,6 +480,53 @@ test("readout: a worker that has gone is read only while its owner document is c
   // Current frames that cannot be read never exclude a worker silently.
   realms.setFrameTree(() => new Error("Page.getFrameTree failed"));
   assert.deepEqual(readoutTerms(await realms.readout(2)), { snapshots: [], unread: 2, terms: { ownerUnknown: 2 } });
+});
+
+/**
+ * A document's workers end with it, and a navigation can end one mid-task,
+ * before its stream is whole. Such a worker ran no code of a current
+ * document, so it is excluded like a replaced frame, never counted as a loss;
+ * a gone worker whose document is still current keeps the term its stream
+ * gives it.
+ */
+test("readout: a gone worker of a replaced document is excluded whatever state its stream was left in", async () => {
+  let childLoader = "child-loader-1";
+  let treesReadable = true;
+  const realms = await scriptedWorkerRealms({
+    handshake: (sessionId) => sessionId !== "failed-replaced",
+    frameTree: () =>
+      treesReadable
+        ? {
+            frame: { id: "main-frame", loaderId: "loader-1" },
+            childFrames: [{ frame: { id: "child-frame", loaderId: childLoader } }]
+          }
+        : new Error("Page.getFrameTree failed")
+  });
+  for (const sessionId of ["open-replaced", "broken-replaced", "failed-replaced"]) {
+    realms.scripted.emit(attachEvent(sessionId, "worker", { ownerFrame: "child-frame" }));
+  }
+  realms.scripted.emit(attachEvent("open-current"));
+  await realms.session.settle(1_000);
+  realms.emit("open-replaced", 2, "open");
+  realms.emit("broken-replaced", 3, "closed", READ_SNAPSHOT);
+  realms.emit("open-current", 2, "open");
+  for (const sessionId of ["open-replaced", "broken-replaced", "failed-replaced", "open-current"]) realms.detach(sessionId);
+
+  // The child frame now shows another document.
+  childLoader = "child-loader-2";
+  assert.deepEqual(readoutTerms(await realms.readout(4, 50)), {
+    snapshots: [],
+    unread: 1,
+    terms: { ownerReplaced: 3, cutOff: 1 }
+  });
+  // Frames that cannot be read show nothing replaced: each worker keeps the
+  // term its state gives it.
+  treesReadable = false;
+  assert.deepEqual(readoutTerms(await realms.readout(4, 50)), {
+    snapshots: [],
+    unread: 4,
+    terms: { cutOff: 2, streamBroken: 1, installFailed: 1 }
+  });
 });
 
 test("readout: a worker whose owner could not be recorded during its pause is unread, and its nested child inherits that", async () => {
@@ -1141,6 +1193,40 @@ test("real Chromium: a worker of a document the page navigated away from is not 
     ["webgl-entropy-read-v1"],
     "only the current document's worker may be credited"
   );
+});
+
+/**
+ * The navigation ends the first document's worker in the middle of a long
+ * task, after it has fingerprinted and said "open", so its task's closed
+ * snapshot never comes. Its document is gone, so it is excluded, not cut off:
+ * a busy worker of an interstitial that navigates to the site never counts
+ * against the site's evidence.
+ */
+test("real Chromium: a worker ended mid-task by its document's navigation is excluded, not cut off", { timeout: 60_000 }, async (t) => {
+  const { origin, done } = await startWorkerFixture(t, {
+    page: `<!doctype html><title>owner scope mid-task</title><script>
+      if (location.search === "") {
+        const worker = new Worker("/busy.js");
+        worker.onmessage = () => { location.href = "/?second"; };
+      } else {
+        fetch("/done/second-document");
+      }
+    </script>`,
+    scripts: {
+      "/busy.js": `${CANVAS_READ_SOURCE} postMessage("read"); const until = Date.now() + 5000; while (Date.now() < until) {}`
+    }
+  });
+  const harness = await openPausedWorkerHarness(t);
+  await harness.page.goto(`${origin}/`, { timeout: 10_000 });
+  await waitFor(() => done.length >= 1 && harness.workers.length === 1 && harness.workers[0].detached, 15_000);
+  assert.deepEqual(done, ["second-document"]);
+  assert.equal(harness.workers[0].detached, true, "the navigation must end the first document's worker");
+
+  const readout = await readWorkerRealms(harness, 300);
+  assert.equal(readout.unreadRealms, 0, JSON.stringify(readout.diagnostics));
+  assert.equal(readout.diagnostics.ownerReplaced, 1);
+  assert.equal(readout.diagnostics.cutOff, 0);
+  assert.deepEqual(readout.readableSnapshots, []);
 });
 
 /**

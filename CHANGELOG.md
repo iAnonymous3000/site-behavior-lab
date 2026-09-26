@@ -387,12 +387,14 @@ public API or a 1.0 release.
   document is current: its owner frame and loader are recorded during its
   pause, and a worker that has gone counts only if that document is still in
   the page's current frames, so an interstitial that fingerprints in a worker
-  and then navigates to the site is not credited to the site. A worker whose
-  evidence cannot be read in full (its install failed, it was still mid-task
-  when the wait ended, its stream broke, the DevTools channel went away while
-  it ran, its owner document could not be recorded, or the browser reported it
-  and the channel never attached it) is counted as unread by the collection,
-  but is not yet recorded as capture loss or named in a warning.
+  and then navigates to the site is not credited to the site. That holds
+  whatever state the navigation left the worker's stream in: a busy worker it
+  ended mid-task is excluded with its document, not counted unread. A worker
+  whose evidence cannot be read in full (its install failed, it was still
+  mid-task when the wait ended, its stream broke, the DevTools channel went
+  away while it ran, its owner document could not be recorded, or the browser
+  reported it and the channel never attached it) is counted as unread by the
+  collection, but is not yet recorded as capture loss or named in a warning.
 - The coverage boundary entry for OffscreenCanvas 2D work,
   `worker-realm-canvas`, now covers what stays unobserved: canvas and font
   work split across the page and a worker (text drawn in a worker and read

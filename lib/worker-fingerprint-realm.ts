@@ -120,7 +120,10 @@ export type WorkerFingerprintReadoutDiagnostics = {
   pausedAtReadout: number;
   /** Excluded: the worker's target went away before the channel released it. */
   diedPaused: number;
-  /** Excluded: the worker has gone and its owner document is no longer current. */
+  /**
+   * Excluded: the worker has gone and its owner document is no longer
+   * current, whatever its stream state (cut off, broken, or never installed).
+   */
   ownerReplaced: number;
   /** Read: one cumulative snapshot. */
   readable: number;
@@ -304,8 +307,10 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
    *    That is a page evaluate waiting for the current task to end. The drain
    *    never waits for a worker's latest state to be closed, which a worker
    *    drawing every frame could starve.
-   * 3. Each worker is classified, and a worker that has gone is checked
-   *    against the page's current frame trees.
+   * 3. A worker that has gone is checked against the page's current frame
+   *    trees first: one whose document was replaced is excluded whatever
+   *    state its stream was left in. Every other worker is classified by its
+   *    state.
    *
    * Never rejects. With no channel (it was never established), every
    * witnessed worker is unread.
@@ -353,10 +358,31 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
       unattachedDedicated: Math.max(0, observedDedicated - attachCounts.attachedDedicatedWorkerCount)
     };
 
-    // A realm with its snapshot in hand still needs a current owner.
-    const candidates: Array<{ record: WorkerRealmRecord; snapshot: string }> = [];
+    // Scope before state. A worker that has gone with a document the page no
+    // longer shows ran no code of the page's current documents, so it is
+    // excluded, like a replaced frame, whatever its stream says: cut off by
+    // the navigation mid-task, broken, or never installed. Only a known owner
+    // shown replaced in current frame trees that could be read excludes it;
+    // anything less leaves the worker to the term its state gives it.
+    let currentDocuments: Map<string, string> | null | undefined;
+    const ownerReplaced = async (record: WorkerRealmRecord): Promise<boolean> => {
+      const owner = record.owner;
+      if (!record.worker.detached || owner === null || owner === "unknown") return false;
+      if (currentDocuments === undefined) currentDocuments = await currentDocumentLoaders(options.session);
+      return currentDocuments !== null && currentDocuments.get(owner.frameId) !== owner.loaderId;
+    };
+
+    const readableSnapshots: string[] = [];
     for (const realm of frozen) {
-      if (realm.state === "excluded" || realm.state === "unread") {
+      if (realm.state === "excluded") {
+        diagnostics[realm.reason] += 1;
+        continue;
+      }
+      if (await ownerReplaced(realm.record)) {
+        diagnostics.ownerReplaced += 1;
+        continue;
+      }
+      if (realm.state === "unread") {
         diagnostics[realm.reason] += 1;
         continue;
       }
@@ -377,29 +403,17 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
         diagnostics.streamBroken += 1;
         continue;
       }
-      candidates.push({ record: realm.record, snapshot });
-    }
-
-    const readableSnapshots: string[] = [];
-    let currentDocuments: Map<string, string> | null | undefined;
-    for (const { record, snapshot } of candidates) {
-      const owner = record.owner;
+      // A realm with its snapshot in hand still needs an owner shown current.
+      const owner = realm.record.owner;
       if (owner === null || owner === "unknown") {
         diagnostics.ownerUnknown += 1;
         continue;
       }
-      if (record.worker.detached) {
-        if (currentDocuments === undefined) currentDocuments = await currentDocumentLoaders(options.session);
-        if (currentDocuments === null) {
-          // The current frames could not be read, so the worker's owner
-          // cannot be shown current or replaced; never excluded silently.
-          diagnostics.ownerUnknown += 1;
-          continue;
-        }
-        if (currentDocuments.get(owner.frameId) !== owner.loaderId) {
-          diagnostics.ownerReplaced += 1;
-          continue;
-        }
+      if (realm.record.worker.detached && currentDocuments === null) {
+        // The current frames could not be read, so the worker's owner
+        // cannot be shown current or replaced; never excluded silently.
+        diagnostics.ownerUnknown += 1;
+        continue;
       }
       diagnostics.readable += 1;
       readableSnapshots.push(snapshot);
