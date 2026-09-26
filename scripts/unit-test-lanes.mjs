@@ -15,8 +15,9 @@
 // own process as before. The one command named by --alongside (the
 // corpus-overview group, which is one process by design) runs beside that
 // phase, its output held back and printed whole once it ends so the two logs
-// never interleave. A failure in either stops the run before the serial phase,
-// the same fail-fast order the former `&&` chain had.
+// never interleave. A failure in either stops the run before the serial phase.
+// The former single pass reported every failing lib file at once; now serial
+// files are not reached until the parallel phase passes. The gate is the same.
 //
 // dist/ is the one shared build output tests read: several load
 // dist/schema/lib/*.js before falling back to .unit-test-dist, and tsc rewrites
@@ -25,9 +26,11 @@
 // if anything in that phase changed it.
 //
 // scripts/unit-test-lanes.test.mjs forces every lib test that matches a
-// browser, timing, or Worker-runtime pattern into the serial lane, and proves
-// this runner fails when any lane fails or dist/ changes. New tests are
-// therefore never exposed to parallel load unnoticed.
+// browser, timing, timer, git-spawning or Worker-runtime pattern into the
+// serial lane, and proves this runner fails when any lane fails or dist/
+// changes. Those patterns are a heuristic, not a proof: a deadline hidden in a
+// helper module can still slip past them, so a test that ever fails only in
+// the parallel lane belongs in the serial lane, never behind a retry.
 
 import { spawn } from "node:child_process";
 import { existsSync, lstatSync, readFileSync, readdirSync } from "node:fs";
