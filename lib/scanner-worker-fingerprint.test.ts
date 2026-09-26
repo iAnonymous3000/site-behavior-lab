@@ -615,8 +615,10 @@ test("a worker unread only at the passive boundary still carries the worker line
  * visit it withholds every r2 fingerprint detection and call count of the
  * visit, the page's own included, while v1, which has no phases, keeps them.
  * The shared worker here does nothing at all. The same page reads its canvas
- * detection at the passive phase without the shared worker, and keeps it
- * with the shared worker when no consent phase begins.
+ * detection at the passive phase without the shared worker, keeps it with the
+ * shared worker when no consent phase begins, and keeps it when the click
+ * itself starts the shared worker, which then marks the evidence incomplete
+ * at the final read only.
  */
 test("in a consent visit a shared worker started before the click withholds every r2 fingerprint detection, the page's own included", { timeout: 90_000 }, async (t) => {
   const pageCanvas =
@@ -624,6 +626,12 @@ test("in a consent visit a shared worker started before the click withholds ever
     "canvas.getContext('2d').fillText('abcdefghijklmnopqrstuvwxyz0123', 2, 20); canvas.toDataURL();";
   const { port } = await startWorkerPage(t, {
     page: `<!doctype html><title>Shared worker in a consent visit</title><main><p>Ordinary public page.</p></main>
+      <div id="onetrust-banner-sdk">
+        <button id="onetrust-accept-btn-handler"
+          onclick="if (location.hostname.startsWith('www.click-shared')) new SharedWorker('/idle-shared.js').port.start();">
+          Accept all
+        </button>
+      </div>
       <script>${pageCanvas} if (location.hostname.startsWith("www.with-shared")) new SharedWorker("/idle-shared.js").port.start();</script>`,
     scripts: { "/idle-shared.js": "onconnect = () => {};" }
   });
@@ -640,6 +648,9 @@ test("in a consent visit a shared worker started before the click withholds ever
       passiveLoss: measurement.measurement.qualityFacts.captureLoss.some(
         (loss) => loss.family === "fingerprinting" && loss.phaseId === 0 && loss.detail === "fingerprint-observer"
       ),
+      laterLoss: measurement.measurement.qualityFacts.captureLoss.some(
+        (loss) => loss.family === "fingerprinting" && loss.phaseId !== 0 && loss.detail === "fingerprint-observer"
+      ),
       detector: measurement.measurement.detectors["fingerprint-heuristics"].status
     };
   };
@@ -650,8 +661,15 @@ test("in a consent visit a shared worker started before the click withholds ever
     r2: [],
     r2Events: 0,
     passiveLoss: true,
+    laterLoss: true,
     detector: "partial"
   });
+  const startedByClick = await visit("www.click-shared.com", "accept-all");
+  assert.deepEqual(
+    [startedByClick.r2, startedByClick.passiveLoss, startedByClick.laterLoss, startedByClick.detector],
+    [[["openwpm-canvas-v1", 0]], false, true, "partial"],
+    "a shared worker the click starts marks the final read incomplete and withholds nothing"
+  );
   const consentWithout = await visit("www.without-shared.com", "accept-all");
   assert.deepEqual(consentWithout.r2, [["openwpm-canvas-v1", 0]]);
   assert.equal(consentWithout.passiveLoss, false);

@@ -731,9 +731,13 @@ function heldFrameTrees() {
 test("the release and the install's count never wait for the owner read, whose answer lands whenever it comes", async () => {
   const installer = new FingerprintWorkerRealmInstaller(FIXTURE_SITE_KEY);
   const trees = heldFrameTrees();
+  const tree = { frame: { id: "main-frame", loaderId: "loader-1" } };
+  let frameTreeReads = 0;
   const scripted = scriptedChannel((command) => {
     if (command.method === "Target.attachToTarget") return { sessionId: "page-session" };
-    if (command.method === "Page.getFrameTree") return trees.frameTree({ frame: { id: "main-frame", loaderId: "loader-1" } });
+    // Only the install's owner read is held; every readout's own frame tree
+    // read answers at once.
+    if (command.method === "Page.getFrameTree") return frameTreeReads++ === 0 ? trees.frameTree(tree) : { frameTree: tree };
     if (command.method === "Runtime.evaluate") {
       scripted.emit(emission(installer, command.sessionId!, 1, "closed", READ_SNAPSHOT));
       return { result: { type: "boolean", value: true } };
@@ -748,15 +752,11 @@ test("the release and the install's count never wait for the owner read, whose a
   assert.ok(commandsFor(scripted.sent, "w1").includes("Runtime.runIfWaitingForDebugger"), "the worker must not wait for its owner read");
   assert.deepEqual(installer.installDiagnostics(), { installedWorkerCount: 1, installFailedWorkerCount: 0 });
   const readout = (settleMs: number) => installer.readout({ session, witness: { count: () => 1 }, settleMs });
-  // The owner read and the freeze's own frame tree read are both still held.
-  const early = readout(50);
-  await new Promise((resolve) => setTimeout(resolve, 80));
-  trees.answerAll();
-  assert.deepEqual(readoutTerms(await early), { snapshots: [], unread: 1, terms: { ownerUnknown: 1 } });
+  // The owner read is still held: the drain waits for it to its bound.
+  assert.deepEqual(readoutTerms(await readout(50)), { snapshots: [], unread: 1, terms: { ownerUnknown: 1 } });
   // Answered and vouched for: the same worker is read.
-  const late = readout(200);
   trees.answerAll();
-  assert.deepEqual(readoutTerms(await late), { snapshots: [READ_SNAPSHOT], unread: 0, terms: { readable: 1 } });
+  assert.deepEqual(readoutTerms(await readout(200)), { snapshots: [READ_SNAPSHOT], unread: 0, terms: { readable: 1 } });
 });
 
 /**
@@ -1886,6 +1886,98 @@ test("real Chromium: a worker started during its document's pending navigation r
 });
 
 /**
+ * The vouch, both ways. A navigation that never commits (a 204, a download)
+ * holds the owner read as a committing one does, and its late answer
+ * describes the worker's own document, which is still current: the worker is
+ * still running, vouches for it, and is read. A cross-site navigation that
+ * commits ends the worker before the held answer arrives, so the answer, which
+ * describes the next document, is never taken for its owner.
+ */
+test("real Chromium: a held owner answer is vouched after a 204 or a download, and never after a cross-site commit", { timeout: 90_000 }, async (t) => {
+  for (const pending of ["no-content", "download", "cross-site"] as const) {
+    const beacons: Array<{ name: string; at: number }> = [];
+    let navigationRequestedAt = 0;
+    let navigationAnsweredAt = 0;
+    let port = 0;
+    const answerLater = (answer: () => void) => {
+      navigationRequestedAt = Date.now();
+      setTimeout(() => {
+        navigationAnsweredAt = Date.now();
+        answer();
+      }, 1_500);
+    };
+    port = await startFixtureServer(t, (request, response) => {
+      const url = new URL(request.url ?? "/", "http://fixture.test");
+      if (url.pathname.startsWith("/done/")) {
+        beacons.push({ name: url.pathname.slice("/done/".length), at: Date.now() });
+        response.writeHead(204);
+        response.end();
+        return;
+      }
+      if (url.pathname === "/held.js") {
+        response.writeHead(200, { "content-type": "text/javascript" });
+        response.end(`fetch(self.location.origin + "/done/first"); ${CANVAS_READ_SOURCE} setInterval(() => undefined, 1000);`);
+        return;
+      }
+      if (url.pathname === "/no-content") {
+        answerLater(() => {
+          response.writeHead(204);
+          response.end();
+        });
+        return;
+      }
+      if (url.pathname === "/download") {
+        answerLater(() => {
+          response.writeHead(200, { "content-type": "application/octet-stream", "content-disposition": "attachment; filename=held.bin" });
+          response.end("x");
+        });
+        return;
+      }
+      if (url.pathname === "/next") {
+        answerLater(() => {
+          response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+          response.end("<!doctype html><title>next site</title>");
+        });
+        return;
+      }
+      const target = pending === "cross-site" ? `http://localhost:${port}/next` : `/${pending}`;
+      response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+      response.end(`<!doctype html><title>held navigation</title><script>location.href = ${JSON.stringify(target)}; new Worker("/held.js");</script>`);
+    });
+    const harness = await openPausedWorkerHarness(t);
+    await harness.page.goto(`http://127.0.0.1:${port}/`, { timeout: 10_000 }).catch(() => undefined);
+    await waitFor(() => navigationAnsweredAt > 0 && harness.workers.length === 1, 15_000);
+    if (pending === "cross-site") {
+      await waitFor(() => harness.page.url().startsWith("http://localhost:") && harness.workers[0].detached, 10_000);
+    } else {
+      await new Promise((resolve) => setTimeout(resolve, 300));
+    }
+    const first = beacons.find((beacon) => beacon.name === "first");
+    assert.ok(first && first.at - navigationRequestedAt < 1_000, `${pending}: the worker must run while the navigation is pending`);
+
+    const readout = await readWorkerRealms(harness);
+    const collection = await collectFingerprintObservationsWithCoverage([], readout);
+    const heuristics = collection.observations.detections.map((detection) => detection.heuristic);
+    if (pending === "cross-site") {
+      assert.deepEqual(
+        [readout.diagnostics.readable, readout.diagnostics.ownerUnknown, readout.unreadRealms],
+        [0, 1, 1],
+        `${pending}: ${JSON.stringify(readout.diagnostics)}`
+      );
+      assert.deepEqual(heuristics, [], "the replaced document's worker must not be credited to the next site");
+    } else {
+      assert.equal(harness.workers[0].detached, false, `${pending}: the navigation never committed, so the worker lives on`);
+      assert.deepEqual(
+        [readout.diagnostics.readable, readout.unreadRealms],
+        [1, 0],
+        `${pending}: the late answer must be vouched for: ${JSON.stringify(readout.diagnostics)}`
+      );
+      assert.deepEqual(heuristics, ["openwpm-canvas-v1"]);
+    }
+  }
+});
+
+/**
  * Scope is taken at the freeze. An iframe's document starts a worker that
  * fingerprints and stays alive, and the main document's worker is mid-task
  * at the freeze, so the drain stays open. The iframe navigates after the
@@ -1901,7 +1993,8 @@ test("real Chromium: a frame that navigates while a readout drains keeps the wor
         const frame = document.createElement("iframe");
         frame.src = "/?frame";
         document.body.append(frame);
-        new Worker("/busy-main.js");
+        window.mainWorker = new Worker("/busy-main.js");
+        window.mainWorker.onmessage = (event) => fetch("/done/" + event.data);
       } else if (location.search === "?frame") {
         const worker = new Worker("/frame-worker.js");
         worker.onmessage = () => fetch("/done/frame-read");
@@ -1909,10 +2002,11 @@ test("real Chromium: a frame that navigates while a readout drains keeps the wor
     </script>`,
     scripts: {
       "/frame-worker.js": `${CANVAS_READ_SOURCE} postMessage("read"); setInterval(() => undefined, 1000);`,
-      // Back-to-back tasks, each open for 300 ms, so a freeze lands mid-task.
+      // On the test's word, one task that records a call and then stays open
+      // for a second, telling the page once it is inside it.
       "/busy-main.js":
-        "fetch(self.location.origin + '/done/main-started'); const context = new OffscreenCanvas(10, 10).getContext('2d'); " +
-        "const task = () => { context.measureText('x'); const until = Date.now() + 300; while (Date.now() < until) {} setTimeout(task, 0); }; task();"
+        "const context = new OffscreenCanvas(10, 10).getContext('2d'); postMessage('main-started'); " +
+        "onmessage = () => { context.measureText('x'); postMessage('main-open'); const until = Date.now() + 1000; while (Date.now() < until) {} };"
     }
   }));
   const harness = await openPausedWorkerHarness(t);
@@ -1930,7 +2024,11 @@ test("real Chromium: a frame that navigates while a readout drains keeps the wor
   const frameWorker = harness.workers.find((worker) => scriptOf.get(worker.sessionId) === "/frame-worker.js");
   assert.ok(frameWorker);
 
-  const pending = readWorkerRealms(harness, 2_000);
+  // The main document's worker is inside its task when the readout is
+  // called, so the drain stays open for up to a second.
+  await harness.page.evaluate(() => (window as unknown as { mainWorker: Worker }).mainWorker.postMessage("go"));
+  await waitFor(() => done.includes("main-open"), 5_000);
+  const pending = readWorkerRealms(harness, 3_000);
   await frame.evaluate(() => {
     location.href = "/?second";
   });

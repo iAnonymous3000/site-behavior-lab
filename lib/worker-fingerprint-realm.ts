@@ -683,7 +683,7 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
    * replaced stops answering at the replacement, before the new document's
    * tree can be read; it gives no vouch, and its owner stays unknown, a
    * disclosed loss rather than a guess either way. That is a platform
-   * assumption, which the real-Chromium tests pin for pending same-site and
+   * assumption, which the real-Chromium tests pin for pending same-origin and
    * cross-site navigations, and for a long task, a 204 and a download, whose
    * late answers are vouched.
    */
