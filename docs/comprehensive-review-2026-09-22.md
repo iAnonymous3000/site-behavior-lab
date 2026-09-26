@@ -573,8 +573,9 @@ intervention in the baseline visit. The owner decided on 2026-09-25 to take
 that intervention. Every arm now holds each dedicated worker paused before its
 first statement, installs the same observer there (after GPC in the GPC arm),
 and reads each worker back at both freezes. A worker it cannot read in full,
-and any shared worker the page starts, are fingerprinting capture loss with a
-new admitted v1 line, never a clean read. The design measured a prototype of
+and any shared worker the DevTools channel sees the page start, are
+fingerprinting capture loss with a new admitted v1 line, never a clean read (a
+visit without the channel sees no shared worker start). The design measured a prototype of
 the install at 3 to 6 ms per worker start in every arm, baseline included. None of this moves the
 detector version or the registry digest, since `fingerprint-observer@5` never
 shipped and the worker realm adds no vocabulary, reason code or obligation.

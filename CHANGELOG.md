@@ -471,7 +471,9 @@ public API or a 1.0 release.
     names the every-arm paused attach, the observer installed in each
     dedicated worker, the streamed readback behind a barrier at both reads,
     owner-document scope, and the accounting that makes an unread worker
-    realm or a shared worker a fingerprinting capture loss. Earlier
+    realm, or a shared worker the channel sees start, a fingerprinting
+    capture loss (a visit whose channel was never established sees no shared
+    worker, as above). Earlier
     methodologies observed no worker realm, so only this revision carries a
     component. `gpc-worker-application-v3` does not move: its installer runs
     first in the same pause with the same readback and loss definition.
@@ -504,10 +506,13 @@ public API or a 1.0 release.
   gate. New v1 reports count OffscreenCanvas work and dedicated worker work
   in `fingerprintEvents` and may carry canvas, font and WebGL detections the
   outgoing line could not, so they are not pooled with it. A new v1 run with
-  a worker the observer could not read, or with any shared worker, carries
-  the worker line, so its `fingerprintEvents` is not counted in its cohort,
-  as for the frame line; a site that starts a shared worker on every visit
-  therefore contributes no `fingerprintEvents` on the new line. A canary panel
+  a worker the observer could not read, or with a shared worker its DevTools
+  channel saw start, carries the worker line, so its `fingerprintEvents` is
+  not counted in its cohort, as for the frame line; a site that starts a
+  shared worker on every visit therefore contributes no `fingerprintEvents`
+  on the new line from any visit whose channel was established. A visit
+  whose channel was not established cannot see a shared worker start, so it
+  carries no line for one and its `fingerprintEvents` is counted. A canary panel
   site that uses OffscreenCanvas or fingerprints in a worker can move the
   toleranced `fingerprintEvents` metric legitimately.
 - Published reports keep their recorded identities. The deployed producer rows

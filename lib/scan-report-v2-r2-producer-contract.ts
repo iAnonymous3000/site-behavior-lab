@@ -125,8 +125,10 @@ export const HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_METHODOLOGY_VERSION =
  * read at the passive boundary and the final state read behind a DevTools
  * barrier, and counts only while its owner document is current. A dedicated
  * worker that cannot be read in full, one the browser reported that the
- * channel never reached, and every shared worker the page starts are
- * fingerprinting capture loss with their own v1 line. The earlier
+ * channel never reached, and every shared worker the channel sees the page
+ * start are fingerprinting capture loss with their own v1 line. A visit whose
+ * channel was never established sees no shared worker start, so it records
+ * none. The earlier
  * methodologies observed no worker realm, so only this revision carries a
  * component. `gpc-worker-application-v3` does not move: its mechanism,
  * readback and loss definition are unchanged, and its installer runs first
