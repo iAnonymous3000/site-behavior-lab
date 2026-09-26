@@ -122,8 +122,8 @@ export default function MethodologyPage() {
           before its first statement over a DevTools session scoped to the measured page, the property is
           installed inside the worker, and the same evaluation reads it back. Only that readback, testimony from
           inside the worker itself, marks the worker as carrying the signal. A worker the scanner could not attest
-          this way still runs untouched; the visit then says so in its warnings and marks its request evidence
-          incomplete. To find workers it never reached, the scanner checks its attaches against two records: a
+          this way still runs, and is not counted as carrying the signal; the visit then says so in its warnings
+          and marks its request evidence incomplete. To find workers it never reached, the scanner checks its attaches against two records: a
           count of the workers the page&apos;s documents constructed, and the browser&apos;s own record of the
           dedicated workers the automation layer reports for the page, workers of workers included. A worker
           started by another worker, or built through a constructor the page-side count cannot see, therefore no

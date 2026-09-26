@@ -126,8 +126,9 @@ statement, installs `navigator.globalPrivacyControl` inside the worker realm,
 and reads the property back in the same evaluation. A worker counts as carrying
 the signal only when that readback from inside its own realm returned `true`;
 delivery is never inferred from the injection having been attempted. A worker
-the scanner could not attest this way still runs untouched, and the run says so
-in its warnings and marks its request evidence incomplete. To find workers it
+the scanner could not attest this way still runs, and is not counted as
+carrying the signal: the run says so in its warnings and marks its request
+evidence incomplete. To find workers it
 never reached, the scanner checks its attaches against two records: a count of
 the workers the page's documents constructed, and the browser's own record of
 the dedicated workers the automation layer reports for the page, workers of
