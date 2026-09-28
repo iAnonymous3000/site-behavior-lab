@@ -245,8 +245,10 @@ type EvidenceKnobs = {
   pixelEvent: boolean;
   /** A listener detection naming a publishable origin, one naming a bare IP, or none. */
   listener: "none" | "publishable" | "unpublishable";
-  /** A third-party request to an IP literal: no registrable party boundary. */
+  /** A third-party request to an IP literal, its own party on both wires. */
   ipLiteralRequest: boolean;
+  /** A request to a host that is itself a public suffix (a path-style S3 URL): no party boundary. */
+  publicSuffixRequest: boolean;
   /** A subresource whose HTTP status the r2 schema cannot carry. */
   unrepresentableRequestStatus: boolean;
 };
@@ -416,6 +418,7 @@ function generateVisit(random: SeededRandom): Visit {
       pixelEvent: random.chance(0.3),
       listener: random.pick(["none", "none", "publishable", "unpublishable"] as const),
       ipLiteralRequest: random.chance(0.1),
+      publicSuffixRequest: random.chance(0.1),
       unrepresentableRequestStatus: random.chance(0.1)
     },
     freeLines: random.subset(FIXED_WARNINGS, 0.02)
@@ -948,6 +951,7 @@ function rawRequests(visit: Visit, draft: Draft): RawRequest[] {
     add(`https://metrics.parity-fixture.net/collect`, { thirdParty: false, tracker: null });
   }
   if (visit.evidence.ipLiteralRequest) add("http://203.0.113.9/pixel.gif", { resourceType: "image", tracker: null });
+  if (visit.evidence.publicSuffixRequest) add("https://s3.amazonaws.com/parity-assets/app.js", { tracker: null });
   if (visit.evidence.unrepresentableRequestStatus) add("https://cdn.parity-fixture.net/app.js", { thirdParty: false, tracker: null, status: 999 });
   return requests;
 }
@@ -1371,6 +1375,19 @@ const ALLOWED_DIVERGENCES: readonly AllowedDivergence[] = [
     todo: true,
     covers: (visit, violation) =>
       (visit.evidence.unrepresentableRequestStatus || (visit.subject === "http-error" && visit.httpStatus > 599)) &&
+      (violation.kind === "population" || violation.subject === "requests" || REQUEST_FAMILY_CLAIMS.has(violation.subject))
+  },
+  // TODO(v1-r2-parity finding P9): a request to a host that is itself a
+  // public suffix (a path-style S3 URL such as s3.amazonaws.com/bucket/app.js).
+  // r2 drops the row and records a requests-family loss, which censors every
+  // request claim and the corpus population; v1 keeps the row with its host
+  // redacted and allows them.
+  {
+    name: "public-suffix-request-host-is-r2-only",
+    record: "finding P9 (property test, 2026-09-28): sanitizeEvidence, public-request-unregistrable-hosts",
+    todo: true,
+    covers: (visit, violation) =>
+      visit.evidence.publicSuffixRequest &&
       (violation.kind === "population" || violation.subject === "requests" || REQUEST_FAMILY_CLAIMS.has(violation.subject))
   }
 ];
