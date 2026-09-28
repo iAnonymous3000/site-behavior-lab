@@ -1265,9 +1265,7 @@ const ALLOWED_DIVERGENCES: readonly AllowedDivergence[] = [
       "docs/limitations.md, fingerprinting paragraph: a frame or worker realm the read just before the click could " +
       "not cover withholds the r2 fingerprint evidence, while the v1 report, which has no phases, keeps it",
     covers: (visit, violation) =>
-      (visit.fingerprint === "passive-frame" ||
-        visit.fingerprint === "passive-listener" ||
-        visit.fingerprint === "passive-read-failed") &&
+      (visit.fingerprint === "passive-frame" || visit.fingerprint === "passive-read-failed") &&
       violation.kind !== "population" &&
       FINGERPRINT_SUBJECTS.has(violation.subject)
   },
@@ -1364,6 +1362,20 @@ const ALLOWED_DIVERGENCES: readonly AllowedDivergence[] = [
     todo: true,
     covers: (visit, violation) =>
       visit.fingerprint === "attribution-incomplete" && violation.kind !== "population" && FINGERPRINT_SUBJECTS.has(violation.subject)
+  },
+  // TODO(v1-r2-parity finding P10): listener attribution lost at the read
+  // just before the click (the passive boundary's
+  // listenerAttributionLostFrames). r2 withholds the visit's fingerprint
+  // evidence as for a frame or worker realm that read could not cover; v1
+  // keeps it with no line. The limitations page names frames, dedicated
+  // workers and shared workers for that withholding, not listener
+  // attribution, so this cause is not the documented passive boundary above.
+  {
+    name: "consent-passive-listener-attribution-is-r2-only",
+    record: "finding P10 (property test review, 2026-09-28): scanSiteWithMeasurement, the passive boundary's listenerAttributionLostFrames",
+    todo: true,
+    covers: (visit, violation) =>
+      visit.fingerprint === "passive-listener" && violation.kind !== "population" && FINGERPRINT_SUBJECTS.has(violation.subject)
   },
   // TODO(v1-r2-parity finding P8): an HTTP status the r2 schema cannot carry
   // (600 or more). r2 keeps the row and records a requests-family loss for
