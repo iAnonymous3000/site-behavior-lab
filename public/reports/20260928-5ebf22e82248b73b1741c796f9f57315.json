@@ -1,0 +1,1310 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Brave-list blocking off/on comparison",
+  "runLabels": {
+    "baseline": "No blocking",
+    "variant": "Brave-list blocking"
+  },
+  "requestedUrl": "https://www.rfc-editor.org/",
+  "scannedAt": "2026-09-28T15:43:49.356Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 4652,
+      "firstPartyDomain": "www.rfc-editor.org",
+      "totalRequests": 31,
+      "thirdPartyRequests": 6,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 2,
+      "cookies": 4,
+      "thirdPartyCookies": 1,
+      "storageEntries": 1,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 4
+    },
+    "conditions": {
+      "requestedUrl": "https://www.rfc-editor.org/",
+      "finalUrl": "https://www.rfc-editor.org/",
+      "scannedAt": "2026-09-28T15:43:53.991Z",
+      "chromiumVersion": "153.0.8010.12",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-09-21T12:45:16.395Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.63.0 from github-actions-ubuntu with browser 153.0.8010.12, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.rfc-editor.org/",
+        "domain": "www.rfc-editor.org",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 49
+      },
+      {
+        "id": 2,
+        "url": "https://static.ietf.org/{seg}/{seg}/{seg}",
+        "domain": "static.ietf.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.rfc-editor.org/",
+          "initiatorDomain": "www.rfc-editor.org"
+        },
+        "startedAtMs": 156
+      },
+      {
+        "id": 3,
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+        "domain": "www.rfc-editor.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.rfc-editor.org/",
+          "initiatorDomain": "www.rfc-editor.org"
+        },
+        "startedAtMs": 157
+      },
+      {
+        "id": 4,
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+        "domain": "www.rfc-editor.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.rfc-editor.org/",
+          "initiatorDomain": "www.rfc-editor.org"
+        },
+        "startedAtMs": 157
+      },
+      {
+        "id": 5,
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+        "domain": "www.rfc-editor.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.rfc-editor.org/",
+          "initiatorDomain": "www.rfc-editor.org"
+        },
+        "startedAtMs": 291
+      },
+      {
+        "id": 6,
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+        "domain": "www.rfc-editor.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.rfc-editor.org/",
+          "initiatorDomain": "www.rfc-editor.org"
+        },
+        "startedAtMs": 294
+      },
+      {
+        "id": 7,
+        "url": "https://static.ietf.org/{seg}/{seg}/{seg}",
+        "domain": "static.ietf.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://static.ietf.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "static.ietf.org"
+        },
+        "startedAtMs": 323
+      },
+      {
+        "id": 8,
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+        "domain": "www.rfc-editor.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.rfc-editor.org"
+        },
+        "startedAtMs": 326
+      },
+      {
+        "id": 9,
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+        "domain": "www.rfc-editor.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.rfc-editor.org"
+        },
+        "startedAtMs": 327
+      },
+      {
+        "id": 10,
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+        "domain": "www.rfc-editor.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.rfc-editor.org"
+        },
+        "startedAtMs": 328
+      },
+      {
+        "id": 11,
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+        "domain": "www.rfc-editor.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.rfc-editor.org"
+        },
+        "startedAtMs": 328
+      },
+      {
+        "id": 12,
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+        "domain": "www.rfc-editor.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.rfc-editor.org"
+        },
+        "startedAtMs": 328
+      },
+      {
+        "id": 13,
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+        "domain": "www.rfc-editor.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.rfc-editor.org"
+        },
+        "startedAtMs": 329
+      },
+      {
+        "id": 14,
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+        "domain": "www.rfc-editor.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.rfc-editor.org"
+        },
+        "startedAtMs": 329
+      },
+      {
+        "id": 15,
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+        "domain": "www.rfc-editor.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 688
+      },
+      {
+        "id": 16,
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+        "domain": "www.rfc-editor.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 840
+      },
+      {
+        "id": 17,
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+        "domain": "www.rfc-editor.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 841
+      },
+      {
+        "id": 18,
+        "url": "https://analytics.ietf.org/{seg}",
+        "domain": "analytics.ietf.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.rfc-editor.org"
+        },
+        "startedAtMs": 1105
+      },
+      {
+        "id": 19,
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+        "domain": "www.rfc-editor.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 1141
+      },
+      {
+        "id": 20,
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+        "domain": "www.rfc-editor.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 1142
+      },
+      {
+        "id": 21,
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+        "domain": "www.rfc-editor.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 1143
+      },
+      {
+        "id": 22,
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+        "domain": "www.rfc-editor.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 1143
+      },
+      {
+        "id": 23,
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+        "domain": "www.rfc-editor.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 1143
+      },
+      {
+        "id": 24,
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+        "domain": "www.rfc-editor.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 1143
+      },
+      {
+        "id": 25,
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+        "domain": "www.rfc-editor.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 1143
+      },
+      {
+        "id": 26,
+        "url": "https://analytics.ietf.org/{seg}?%5Bredacted%5D=",
+        "domain": "analytics.ietf.org",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://analytics.ietf.org/{seg}",
+          "initiatorDomain": "analytics.ietf.org"
+        },
+        "startedAtMs": 1185
+      },
+      {
+        "id": 27,
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+        "domain": "www.rfc-editor.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 1286
+      },
+      {
+        "id": 28,
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+        "domain": "www.rfc-editor.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 1287
+      },
+      {
+        "id": 29,
+        "url": "https://analytics.ietf.org/{seg}?%5Bredacted%5D=",
+        "domain": "analytics.ietf.org",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://analytics.ietf.org/{seg}",
+          "initiatorDomain": "analytics.ietf.org"
+        },
+        "startedAtMs": 1986
+      },
+      {
+        "id": 30,
+        "url": "https://analytics.ietf.org/{seg}?%5Bredacted%5D=",
+        "domain": "analytics.ietf.org",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://analytics.ietf.org/{seg}",
+          "initiatorDomain": "analytics.ietf.org"
+        },
+        "startedAtMs": 2054
+      },
+      {
+        "id": 31,
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.rfc-editor.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.rfc-editor.org"
+        },
+        "startedAtMs": 2122
+      }
+    ],
+    "domains": [
+      {
+        "domain": "analytics.ietf.org",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "script",
+          "ping"
+        ]
+      },
+      {
+        "domain": "static.ietf.org",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet",
+          "font"
+        ]
+      },
+      {
+        "domain": "www.rfc-editor.org",
+        "requests": 25,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "script",
+          "image",
+          "fetch"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "__cf_bm",
+        "domain": ".ietf.org",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "__cf_bm",
+        "domain": ".rfc-editor.org",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.rfc-editor.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.rfc-editor.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 6
+      }
+    ],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "The in-page fingerprint observer read every frame but could not attribute every event listener to the script that registered it, so session-recording and input-monitoring findings for this visit are incomplete.",
+      "This scan typed a synthetic test value into 1 form field with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored. Observed requests during typing and the following wait are included in the request log. Teardown-only transmissions are not measured."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 4629,
+      "firstPartyDomain": "www.rfc-editor.org",
+      "totalRequests": 27,
+      "thirdPartyRequests": 2,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 1,
+      "cookies": 2,
+      "thirdPartyCookies": 1,
+      "storageEntries": 1,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 1
+    },
+    "conditions": {
+      "requestedUrl": "https://www.rfc-editor.org/",
+      "finalUrl": "https://www.rfc-editor.org/",
+      "scannedAt": "2026-09-28T15:43:49.356Z",
+      "chromiumVersion": "153.0.8010.12",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-09-21T12:45:16.395Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.63.0 from github-actions-ubuntu with browser 153.0.8010.12, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.rfc-editor.org/",
+        "domain": "www.rfc-editor.org",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 51
+      },
+      {
+        "id": 2,
+        "url": "https://static.ietf.org/{seg}/{seg}/{seg}",
+        "domain": "static.ietf.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.rfc-editor.org/",
+          "initiatorDomain": "www.rfc-editor.org"
+        },
+        "startedAtMs": 167
+      },
+      {
+        "id": 3,
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+        "domain": "www.rfc-editor.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.rfc-editor.org/",
+          "initiatorDomain": "www.rfc-editor.org"
+        },
+        "startedAtMs": 168
+      },
+      {
+        "id": 4,
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+        "domain": "www.rfc-editor.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.rfc-editor.org/",
+          "initiatorDomain": "www.rfc-editor.org"
+        },
+        "startedAtMs": 168
+      },
+      {
+        "id": 5,
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+        "domain": "www.rfc-editor.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.rfc-editor.org/",
+          "initiatorDomain": "www.rfc-editor.org"
+        },
+        "startedAtMs": 387
+      },
+      {
+        "id": 6,
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+        "domain": "www.rfc-editor.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.rfc-editor.org/",
+          "initiatorDomain": "www.rfc-editor.org"
+        },
+        "startedAtMs": 391
+      },
+      {
+        "id": 7,
+        "url": "https://static.ietf.org/{seg}/{seg}/{seg}",
+        "domain": "static.ietf.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://static.ietf.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "static.ietf.org"
+        },
+        "startedAtMs": 420
+      },
+      {
+        "id": 8,
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+        "domain": "www.rfc-editor.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.rfc-editor.org"
+        },
+        "startedAtMs": 422
+      },
+      {
+        "id": 9,
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+        "domain": "www.rfc-editor.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.rfc-editor.org"
+        },
+        "startedAtMs": 423
+      },
+      {
+        "id": 10,
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+        "domain": "www.rfc-editor.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.rfc-editor.org"
+        },
+        "startedAtMs": 423
+      },
+      {
+        "id": 11,
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+        "domain": "www.rfc-editor.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.rfc-editor.org"
+        },
+        "startedAtMs": 424
+      },
+      {
+        "id": 12,
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+        "domain": "www.rfc-editor.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.rfc-editor.org"
+        },
+        "startedAtMs": 425
+      },
+      {
+        "id": 13,
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+        "domain": "www.rfc-editor.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.rfc-editor.org"
+        },
+        "startedAtMs": 425
+      },
+      {
+        "id": 14,
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+        "domain": "www.rfc-editor.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.rfc-editor.org"
+        },
+        "startedAtMs": 425
+      },
+      {
+        "id": 15,
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+        "domain": "www.rfc-editor.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 697
+      },
+      {
+        "id": 16,
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+        "domain": "www.rfc-editor.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 817
+      },
+      {
+        "id": 17,
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+        "domain": "www.rfc-editor.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 817
+      },
+      {
+        "id": 19,
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+        "domain": "www.rfc-editor.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 1076
+      },
+      {
+        "id": 20,
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+        "domain": "www.rfc-editor.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 1077
+      },
+      {
+        "id": 21,
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+        "domain": "www.rfc-editor.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 1077
+      },
+      {
+        "id": 22,
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+        "domain": "www.rfc-editor.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 1078
+      },
+      {
+        "id": 23,
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+        "domain": "www.rfc-editor.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 1078
+      },
+      {
+        "id": 24,
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+        "domain": "www.rfc-editor.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 1078
+      },
+      {
+        "id": 25,
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+        "domain": "www.rfc-editor.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 1078
+      },
+      {
+        "id": 26,
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+        "domain": "www.rfc-editor.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 1299
+      },
+      {
+        "id": 27,
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+        "domain": "www.rfc-editor.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 1300
+      },
+      {
+        "id": 28,
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.rfc-editor.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.rfc-editor.org"
+        },
+        "startedAtMs": 2055
+      }
+    ],
+    "domains": [
+      {
+        "domain": "static.ietf.org",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet",
+          "font"
+        ]
+      },
+      {
+        "domain": "www.rfc-editor.org",
+        "requests": 25,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "script",
+          "image",
+          "fetch"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "__cf_bm",
+        "domain": ".ietf.org",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "__cf_bm",
+        "domain": ".rfc-editor.org",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 6
+      }
+    ],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "The in-page fingerprint observer read every frame but could not attribute every event listener to the script that registered it, so session-recording and input-monitoring findings for this visit are incomplete.",
+      "This scan typed a synthetic test value into 1 form field with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored. Observed requests during typing and the following wait are included in the request log. Teardown-only transmissions are not measured."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 31,
+      "after": 27,
+      "delta": -4
+    },
+    "thirdPartyRequests": {
+      "before": 6,
+      "after": 2,
+      "delta": -4
+    },
+    "knownTrackerRequests": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "thirdPartyDomains": {
+      "before": 2,
+      "after": 1,
+      "delta": -1
+    },
+    "cookies": {
+      "before": 4,
+      "after": 2,
+      "delta": -2
+    },
+    "thirdPartyCookies": {
+      "before": 1,
+      "after": 1,
+      "delta": 0
+    },
+    "storageEntries": {
+      "before": 1,
+      "after": 1,
+      "delta": 0
+    },
+    "fingerprintEvents": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "analytics.ietf.org",
+        "requests": 4,
+        "tracker": null
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [],
+    "addedCookies": [],
+    "removedCookies": [
+      {
+        "name": "[redacted]",
+        "domain": "www.rfc-editor.org",
+        "thirdParty": false
+      }
+    ],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [],
+    "removedProvenance": [
+      {
+        "domain": "analytics.ietf.org",
+        "requests": 3,
+        "tracker": null,
+        "initiator": "analytics.ietf.org",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "analytics.ietf.org",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "www.rfc-editor.org",
+        "script": null,
+        "injectedBy": null
+      }
+    ],
+    "shieldsBlockedRequests": {
+      "before": 4,
+      "after": 1,
+      "delta": -3
+    }
+  },
+  "warnings": [
+    "Brave-list blocking comparison runs should be collected under matched crawl conditions, and the blocking run is a simulation with Brave's engine and default lists in this scanner's browser, not a live Brave visit. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "The two visits ran in randomized order; the \"Brave-list blocking\" visit ran first.",
+    "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "No blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "No blocking: The in-page fingerprint observer read every frame but could not attribute every event listener to the script that registered it, so session-recording and input-monitoring findings for this visit are incomplete.",
+    "No blocking: This scan typed a synthetic test value into 1 form field with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored. Observed requests during typing and the following wait are included in the request log. Teardown-only transmissions are not measured.",
+    "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+    "Brave-list blocking: The in-page fingerprint observer read every frame but could not attribute every event listener to the script that registered it, so session-recording and input-monitoring findings for this visit are incomplete.",
+    "Brave-list blocking: This scan typed a synthetic test value into 1 form field with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored. Observed requests during typing and the following wait are included in the request log. Teardown-only transmissions are not measured."
+  ],
+  "share": {
+    "id": "20260928-5ebf22e82248b73b1741c796f9f57315",
+    "path": "/reports/20260928-5ebf22e82248b73b1741c796f9f57315/",
+    "jsonPath": "/reports/20260928-5ebf22e82248b73b1741c796f9f57315.json"
+  }
+}
