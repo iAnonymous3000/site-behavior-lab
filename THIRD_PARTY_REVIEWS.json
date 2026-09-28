@@ -2216,10 +2216,10 @@
       "notes": null
     },
     {
-      "key": "npm:undici@7.29.0",
+      "key": "npm:undici@8.11.2",
       "ecosystem": "npm",
       "name": "undici",
-      "version": "7.29.0",
+      "version": "8.11.2",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "MIT",
