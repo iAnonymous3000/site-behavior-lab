@@ -211,6 +211,34 @@ test("every committed OG report has bounded, non-truncated subhead copy", () => 
   }
 });
 
+test("a quiet visit with an incomplete check keeps its scoped absences and hedge on the card", () => {
+  // gutenberg.org, 2026-09-28: every completed family recorded nothing, and
+  // the v1 input probe did not complete its test. The full subhead names the
+  // incomplete check and runs past the card bound, which used to drop the
+  // card to the generic fallback; the compact form keeps the claims and the
+  // hedge the headline states.
+  const og = loadOgReportCardModule();
+  const raw: unknown = JSON.parse(
+    readFileSync(path.join(process.cwd(), "test-fixtures", "reports", "20260928-0ade50d01c4085ba146e27f8708a6f65.json"), "utf8")
+  );
+  const read = readStoredScanReport(raw);
+  if (!read.ok) throw new Error(`reader rejected the frozen report: ${read.error}`);
+  const view = toReportView(read.stored);
+  const headline = buildReportHeadline(view);
+  assert.equal(headline.semantic.story, "incomplete-evidence");
+  assert.match(headline.headline, /but another check is incomplete\.$/);
+  assert.ok(headline.subhead.length > og.OG_REPORT_SUBHEAD_MAX_CHARACTERS);
+  // One clause per "so": each note already ends in what it leaves incomplete.
+  assert.doesNotMatch(headline.subhead, /, so [^.]*, so /);
+  assert.match(headline.subhead, /is incomplete\. Whatever those checks look for is unproven here rather than shown to be absent\.$/);
+  const subhead = og.buildReportCardSubhead(view, headline);
+  assert.equal(subhead, headline.compactSubhead);
+  assert.ok(subhead.length <= og.OG_REPORT_SUBHEAD_MAX_CHARACTERS, `${subhead.length} characters`);
+  assert.doesNotMatch(subhead, /^Automated-visit headline only/);
+  assert.match(subhead, /^The request log recorded no cross-site hosts/);
+  assert.match(subhead, /Another check is incomplete, so what it looks for is unproven here, not shown absent\.$/);
+});
+
 test("committed pair-framed cards and share text carry no unlabeled one-arm chips", () => {
   // The Shields "fewer third-party requests in the visit configured for
   // Brave-list blocking" headline sits over the no-blocking arm's chips. On
