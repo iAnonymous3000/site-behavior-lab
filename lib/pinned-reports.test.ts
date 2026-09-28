@@ -25,14 +25,30 @@ const MAX_DEPTH = 16;
 
 type Source = { file: string; text: string };
 type CommittedRead = { file: string; line: number; id: string };
+type FunctionNode = ts.FunctionDeclaration | ts.ArrowFunction | ts.FunctionExpression;
 
 /**
  * Reads of public/reports under the repository root whose report id resolves
  * to a literal: inline, through a const, a const array or object (for-of,
- * element and property access, destructuring, array callbacks), or through a
- * function parameter traced to the literal arguments of its call sites. A
- * read whose id comes from the corpus itself (a directory listing, the
- * corrections ledger) selects by property and is not a literal read.
+ * element and property access, destructuring, array callbacks, Object.values
+ * and Object.entries), through a function parameter traced to the literal
+ * arguments of its call sites, or through what a function in the same file
+ * returns. The path is path.join or path.resolve over process.cwd() or a
+ * relative root, or a template or concatenation that starts with
+ * public/reports or `${process.cwd()}/public/reports`. A read whose id comes
+ * from the corpus itself (a directory listing, the corrections ledger) selects
+ * by property and is not a literal read.
+ *
+ * These shapes are not resolved, so a read written in one of them goes
+ * unchecked until the resolver learns it: a `let` reassigned after its
+ * declaration (only the initializer is followed), a const or function imported
+ * from another module other than the lib/pinned-reports.ts helpers, object and
+ * class methods, default parameter values, Map and Set contents, object
+ * spread, for-in, an array method other than the element callbacks
+ * (`ids.slice(1).forEach`), an id built by a string method, a path anchored at
+ * __dirname or import.meta.url or joined by Array.prototype.join, and a read
+ * through any API but readFileSync, readFile and readStaticReportBundle
+ * (createReadStream, for one).
  */
 function committedReportReads(sources: readonly Source[]): CommittedRead[] {
   const program = ts.createProgram({
@@ -96,7 +112,71 @@ function fileReads(sourceFile: ts.SourceFile, checker: ts.TypeChecker): Committe
     return undefined;
   };
 
-  // Every expression `node` can evaluate to, following bindings to their sources.
+  // The function a call invokes when it is declared in this file.
+  const calledFunction = (call: ts.CallExpression): FunctionNode | undefined => {
+    if (!ts.isIdentifier(call.expression)) return undefined;
+    const declaration = checker.getSymbolAtLocation(call.expression)?.valueDeclaration;
+    if (declaration && ts.isFunctionDeclaration(declaration)) return declaration;
+    if (declaration && ts.isVariableDeclaration(declaration) && declaration.initializer) {
+      const initializer = unwrap(declaration.initializer);
+      if (ts.isArrowFunction(initializer) || ts.isFunctionExpression(initializer)) return initializer;
+    }
+    return undefined;
+  };
+
+  const returnExpressions = (fn: FunctionNode): ts.Expression[] => {
+    if (!fn.body) return [];
+    if (!ts.isBlock(fn.body)) return [fn.body];
+    const found: ts.Expression[] = [];
+    const visit = (node: ts.Node): void => {
+      if (ts.isReturnStatement(node)) {
+        if (node.expression) found.push(node.expression);
+      } else if (!ts.isFunctionLike(node) && !ts.isClassLike(node)) {
+        ts.forEachChild(node, visit);
+      }
+    };
+    ts.forEachChild(fn.body, visit);
+    return found;
+  };
+
+  // `Object.values(x)` or `Object.entries(x)` of an object literal, as the array
+  // it evaluates to; each entry is a synthetic [key, value] pair.
+  const objectArray = (call: ts.CallExpression, depth: number): ts.ArrayLiteralExpression | undefined => {
+    const callee = call.expression;
+    if (
+      !ts.isPropertyAccessExpression(callee) ||
+      !ts.isIdentifier(callee.expression) ||
+      callee.expression.text !== "Object" ||
+      (callee.name.text !== "values" && callee.name.text !== "entries") ||
+      !call.arguments[0]
+    ) return undefined;
+    const members: ts.Expression[] = [];
+    for (const terminal of values(call.arguments[0], depth + 1)) {
+      if (!ts.isObjectLiteralExpression(terminal)) continue;
+      for (const property of terminal.properties) {
+        let key: string | undefined;
+        let value: ts.Expression;
+        if (ts.isPropertyAssignment(property)) {
+          key = propertyKey(property.name);
+          value = property.initializer;
+        } else if (ts.isShorthandPropertyAssignment(property)) {
+          key = property.name.text;
+          value = property.name;
+        } else {
+          continue;
+        }
+        members.push(
+          callee.name.text === "values"
+            ? value
+            : ts.factory.createArrayLiteralExpression([ts.factory.createStringLiteral(key ?? ""), value])
+        );
+      }
+    }
+    return ts.factory.createArrayLiteralExpression(members);
+  };
+
+  // Every expression `node` can evaluate to, following bindings to their sources
+  // and a call to a function in this file to what it returns.
   const values = (node: ts.Expression, depth: number): ts.Expression[] => {
     if (depth > MAX_DEPTH) return [];
     const expression = unwrap(node);
@@ -117,6 +197,13 @@ function fileReads(sourceFile: ts.SourceFile, checker: ts.TypeChecker): Committe
     }
     if (ts.isPropertyAccessExpression(expression)) {
       return properties(expression.expression, expression.name.text, depth + 1);
+    }
+    if (ts.isCallExpression(expression)) {
+      const array = objectArray(expression, depth);
+      if (array) return [array];
+      const fn = calledFunction(expression);
+      const returned = fn ? returnExpressions(fn) : [];
+      if (returned.length > 0) return returned.flatMap((value) => values(value, depth + 1));
     }
     return [expression];
   };
@@ -271,7 +358,11 @@ function fileReads(sourceFile: ts.SourceFile, checker: ts.TypeChecker): Committe
 
   const corpusTerminalParts = (value: ts.Expression, depth: number): ts.Expression[] | null => {
     if (ts.isStringLiteralLike(value) || ts.isTemplateExpression(value)) {
-      const text = ts.isTemplateExpression(value) ? value.head.text : value.text;
+      let text = ts.isTemplateExpression(value) ? value.head.text : value.text;
+      // `${process.cwd()}/public/reports/...` names the same directory.
+      if (ts.isTemplateExpression(value) && text === "" && isCwd(value.templateSpans[0].expression, depth + 1)) {
+        text = value.templateSpans[0].literal.text.replace(/^\//, "");
+      }
       return text.replace(/^\.\//, "").startsWith("public/reports") ? [value] : null;
     }
     if (depth > MAX_DEPTH) return null;
@@ -396,6 +487,19 @@ test("the read detector follows every binding shape to its literal id and skips 
     ledgerPinnedReportWire(pick24);
     const ext = "json";
     readFileSync(\`public/reports/${id(25)}.\${ext}\`);
+    function corpusPath(reportId: string) {
+      return path.join(process.cwd(), "public", "reports", \`\${reportId}.json\`);
+    }
+    readFileSync(corpusPath("${id(26)}"), "utf8");
+    const corpusFile = (reportId: string) => \`public/reports/\${reportId}.json\`;
+    readFileSync(corpusFile("${id(27)}"));
+    readFileSync(\`\${process.cwd()}/public/reports/${id(28)}.json\`);
+    for (const [, r29] of Object.entries({ walgreens: "${id(29)}" })) readFileSync(path.join(corpus, \`\${r29}.json\`));
+    const byName36 = { capitalone: "${id(36)}" };
+    for (const r36 of Object.values(byName36)) readFileSync(\`public/reports/\${r36}.json\`);
+    Object.entries({ nasa: "${id(37)}" }).forEach(([, r37]) => readFileSync(\`public/reports/\${r37}.json\`));
+    for (const entry of Object.entries({ bing: "${id(38)}" })) readFileSync(\`public/reports/\${entry[1]}.json\`);
+    for (const [r39] of Object.entries({ "${id(39)}": "keyed" })) readFileSync(\`public/reports/\${r39}.json\`);
 
     const tmp = mkdtempSync("sbl-");
     readFileSync(path.join(tmp, "public", "reports", "${id(30)}.json"));
@@ -413,6 +517,13 @@ test("the read detector follows every binding shape to its literal id and skips 
     }
     scoped(process.env.REPORT ?? "");
     frozenReportWire("${id(35)}");
+    function fixturePath(reportId: string) {
+      return path.join(process.cwd(), "test-fixtures", "reports", \`\${reportId}.json\`);
+    }
+    readFileSync(fixturePath("${id(40)}"));
+    readFileSync(\`\${tmp}/public/reports/${id(41)}.json\`);
+    readFileSync(\`\${process.cwd()}/test-fixtures/reports/${id(42)}.json\`);
+    for (const [, label] of Object.entries({ "${id(43)}": "keyed" })) readFileSync(\`public/reports/\${label}.json\`);
   `;
   const script = `
     import { readFileSync } from "node:fs";
@@ -425,12 +536,16 @@ test("the read detector follows every binding shape to its literal id and skips 
   assert.deepEqual(
     reads.map((read) => `${read.file} ${read.id}`).sort(),
     [
-      ...[1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 20, 22, 23, 24, 25].map((n) => `lib/example.test.ts ${id(n)}`),
+      ...[
+        1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 20, 22, 23, 24, 25, 26, 27, 28, 29, 36, 37, 38, 39
+      ].map((n) => `lib/example.test.ts ${id(n)}`),
       `scripts/example.test.mjs ${id(21)}`
     ].sort()
   );
-  // A read is reported at the call that performs it, inside the traced helper.
+  // A read is reported at the call that performs it, inside the traced helper,
+  // and at the read of a path a helper returns rather than inside that helper.
   assert.deepEqual(reads.find((read) => read.id === id(7)), { file: "lib/example.test.ts", line: 14, id: id(7) });
+  assert.deepEqual(reads.find((read) => read.id === id(26)), { file: "lib/example.test.ts", line: 47, id: id(26) });
 });
 
 test("a literal corpus read fails when its report is gone or unpinned, naming the frozen-copy remedy", () => {
