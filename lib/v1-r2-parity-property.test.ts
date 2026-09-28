@@ -33,6 +33,7 @@ import {
   type EvidenceFamily,
   type PhaseSpan
 } from "./scan-report-v2";
+import { R2_NAVIGATION_STATUS_UNREPRESENTABLE, R2_REQUEST_STATUS_UNREPRESENTABLE } from "./scan-report-v2-http-status";
 import { toPublicScanReportR2 } from "./scan-report-v2-r2-projection";
 import { buildRuntimeScanReportV2R2 } from "./scan-report-v2-runtime-builder";
 import {
@@ -1016,6 +1017,8 @@ type Wires = {
   r2Population: boolean;
   v1Censored: Record<EvidenceFamily, boolean>;
   r2Censored: Record<EvidenceFamily, boolean>;
+  /** The capture losses the published r2 report records, builder-owned details included. */
+  r2Losses: CaptureLossEntry[];
   lines: string[];
 };
 
@@ -1168,6 +1171,7 @@ function buildWires(visit: Visit): Wires {
     r2Population: runInCorpusDistributionPopulation(r2Run),
     v1Censored: censored(v1Run),
     r2Censored: censored(r2Run),
+    r2Losses: r2Run.quality.facts?.captureLoss ?? [],
     lines: draft.lines
   };
 }
@@ -1225,7 +1229,7 @@ const REQUEST_FAMILY_CLAIMS = new Set<string>(
     (REPORT_CLAIM_REQUIREMENTS[claim].families as readonly string[]).includes("requests")
   )
 );
-const FINGERPRINT_SUBJECTS = new Set(["fingerprint-apis", "session-recording-input-monitoring", "fingerprinting"]);
+const FINGERPRINT_CLAIMS = new Set(["fingerprint-apis", "session-recording-input-monitoring"]);
 
 type AllowedDivergence = {
   name: string;
@@ -1241,12 +1245,20 @@ type AllowedDivergence = {
    * fails once the divergence is gone).
    */
   todo?: true;
-  covers(visit: Visit, violation: Violation): boolean;
+  /** The claim, benchmark and population violations this entry allows. Never asked about a family. */
+  covers?(visit: Visit, violation: Violation): boolean;
+  /**
+   * The r2 capture losses this entry accounts for. A family r2 censors and v1
+   * reads complete is allowed only when every loss r2 recorded in that family
+   * is accounted for, so two causes on one visit cannot hide each other.
+   */
+  coversLoss?(visit: Visit, loss: CaptureLossEntry): boolean;
 };
 
 /**
  * Every allowed divergence, named and scoped to the drawn cause and the
- * claims, families or population it moves, never to a whole claim or family.
+ * claims or population it moves, or the capture losses it explains, never to
+ * a whole claim or family.
  */
 const ALLOWED_DIVERGENCES: readonly AllowedDivergence[] = [
   {
@@ -1267,17 +1279,55 @@ const ALLOWED_DIVERGENCES: readonly AllowedDivergence[] = [
     covers: (visit, violation) =>
       (visit.fingerprint === "passive-frame" || visit.fingerprint === "passive-read-failed") &&
       violation.kind !== "population" &&
-      FINGERPRINT_SUBJECTS.has(violation.subject)
+      FINGERPRINT_CLAIMS.has(violation.subject),
+    coversLoss: (visit, loss) =>
+      (visit.fingerprint === "passive-frame" || visit.fingerprint === "passive-read-failed") &&
+      loss.family === "fingerprinting" &&
+      loss.detail === "fingerprint-observer" &&
+      loss.phaseId === phasePlan(visit).passive
   },
   {
-    name: "v1-detector-output-and-consent-verification-are-claim-scoped",
+    name: "consent-left-and-probe-page-left-detector-residue",
     record:
-      "docs/comprehensive-review-2026-09-22.md, section 4, the 2026-09-25 updates: v1 reads the detector-output and " +
-      "consent-verification families as complete where r2 censors them, no v1 surface renders detector-output, and " +
-      "v1 carries those losses to each claim through REPORT_CLAIM_REQUIREMENTS legacyReasons instead",
-    covers: (_visit, violation) =>
-      violation.kind === "family" &&
-      (violation.subject === "detector-output" || violation.subject === "consent-verification")
+      "docs/comprehensive-review-2026-09-22.md, section 4, the 2026-09-25 updates: the consent line does not censor " +
+      "detector-output, where r2 scopes its consent, keystroke and policy losses to their own claims, and 'Still " +
+      "divergent': the detector-output and consent-verification residue of the consent line and the detector-output " +
+      "residue of a probe that lost the page",
+    coversLoss: (visit, loss) =>
+      (visit.subject === "consent-left" &&
+        ((loss.family === "detector-output" &&
+          (loss.detail === "consent-banner" || loss.detail === "keystroke-probe" || loss.detail === "policy-visit")) ||
+          (loss.family === "consent-verification" && loss.detail === "consent-verification"))) ||
+      ((visit.keystroke === "page-left-before-typing" || visit.keystroke === "page-left-after-typing") &&
+        loss.family === "detector-output" &&
+        loss.detail === "keystroke-probe" &&
+        loss.phaseId === phasePlan(visit).probe)
+  },
+  {
+    name: "v1-keystroke-probe-reasons-are-claim-scoped",
+    record:
+      "lib/scan-report-views.ts, runViewFromV1: every r2 keystroke status other than complete leaves a v1 line whose " +
+      "reason censors the keystroke claim alone, and the LEGACY_KEYSTROKE_PROBE_REQUEST_UNREAD, _TEST_INCOMPLETE and " +
+      "_SUBJECT_LOST reasons are documented as never reaching a family through familyCensoredOnRun",
+    // The consent line and the probe that lost the page are the review's
+    // causes above, so their keystroke losses are attributed there.
+    coversLoss: (visit, loss) =>
+      visit.subject !== "consent-left" &&
+      visit.keystroke !== "page-left-before-typing" &&
+      visit.keystroke !== "page-left-after-typing" &&
+      loss.family === "detector-output" &&
+      (loss.detail === "keystroke-probe" || loss.detail === "keystroke-probe-capture")
+  },
+  {
+    name: "v1-listener-withheld-reason-is-claim-scoped",
+    record:
+      "lib/scan-report-views.ts, runViewFromV1 and familyCensoredOnRun: LEGACY_LISTENER_DETECTION_WITHHELD_REASON is " +
+      "deliberately absent from family censoring, since the family state would censor every other detector claim; the " +
+      "listener claim takes it through its legacyReasons",
+    coversLoss: (visit, loss) =>
+      visit.evidence.listener === "unpublishable" &&
+      loss.family === "detector-output" &&
+      loss.detail === "public-fingerprint-detections"
   },
   // TODO(v1-r2-parity finding P1): a final storage read that failed or was
   // truncated. r2 records a storage-snapshot loss; v1 publishes the empty or
@@ -1289,7 +1339,12 @@ const ALLOWED_DIVERGENCES: readonly AllowedDivergence[] = [
     todo: true,
     covers: (visit, violation) =>
       (visit.losses.includes("final-storage-failed") || visit.losses.includes("final-storage-truncated")) &&
-      violation.subject.startsWith("storage")
+      violation.subject === "storage-keys",
+    coversLoss: (visit, loss) =>
+      (visit.losses.includes("final-storage-failed") || visit.losses.includes("final-storage-truncated")) &&
+      loss.family === "storage" &&
+      loss.detail === "storage-snapshot" &&
+      loss.phaseId === phasePlan(visit).snapshot
   },
   // TODO(v1-r2-parity finding P2): an interrupted post-click settle. r2
   // records dropped request, cookie and storage losses at the consent phase;
@@ -1303,7 +1358,12 @@ const ALLOWED_DIVERGENCES: readonly AllowedDivergence[] = [
       visit.losses.includes("consent-settle-interrupted") &&
       (violation.kind === "population" ||
         REQUEST_FAMILY_CLAIMS.has(violation.subject) ||
-        ["requests", "cookies", "storage", "third-party-cookies", "storage-keys"].includes(violation.subject))
+        ["third-party-cookies", "storage-keys"].includes(violation.subject)),
+    coversLoss: (visit, loss) =>
+      visit.losses.includes("consent-settle-interrupted") &&
+      (loss.family === "requests" || loss.family === "cookies" || loss.family === "storage") &&
+      loss.detail === undefined &&
+      loss.phaseId === phasePlan(visit).consent
   },
   // TODO(v1-r2-parity finding P3): a consent-banner detector that did not
   // complete (the observe-mode visibility read, a consent search that failed
@@ -1350,7 +1410,15 @@ const ALLOWED_DIVERGENCES: readonly AllowedDivergence[] = [
     todo: true,
     covers: (visit, violation) =>
       visit.losses.some((loss) => loss.startsWith("passive-") || loss.startsWith("reload-")) &&
-      ["cookies", "storage", "third-party-cookies", "storage-keys", "privacy-policy"].includes(violation.subject)
+      ["third-party-cookies", "storage-keys", "privacy-policy"].includes(violation.subject),
+    coversLoss: (visit, loss) => {
+      const plan = phasePlan(visit);
+      return (
+        visit.losses.some((event) => event.startsWith("passive-") || event.startsWith("reload-")) &&
+        (loss.detail === "cookie-snapshot" || loss.detail === "storage-snapshot") &&
+        ((visit.mode !== "observe" && loss.phaseId === plan.passive) || (plan.reload !== null && loss.phaseId === plan.reload))
+      );
+    }
   },
   // TODO(v1-r2-parity finding P7): fingerprint summaries that changed across
   // the click but cannot be differenced. r2 censors the later portion; v1
@@ -1361,7 +1429,12 @@ const ALLOWED_DIVERGENCES: readonly AllowedDivergence[] = [
     record: "finding P7 (property test, 2026-09-28): scanSiteWithMeasurement, fingerprintAttribution.attributionIncomplete",
     todo: true,
     covers: (visit, violation) =>
-      visit.fingerprint === "attribution-incomplete" && violation.kind !== "population" && FINGERPRINT_SUBJECTS.has(violation.subject)
+      visit.fingerprint === "attribution-incomplete" && violation.kind !== "population" && FINGERPRINT_CLAIMS.has(violation.subject),
+    coversLoss: (visit, loss) =>
+      visit.fingerprint === "attribution-incomplete" &&
+      loss.family === "fingerprinting" &&
+      loss.detail === "fingerprint-observer" &&
+      loss.phaseId === phasePlan(visit).snapshot
   },
   // TODO(v1-r2-parity finding P10): listener attribution lost at the read
   // just before the click (the passive boundary's
@@ -1375,7 +1448,12 @@ const ALLOWED_DIVERGENCES: readonly AllowedDivergence[] = [
     record: "finding P10 (property test review, 2026-09-28): scanSiteWithMeasurement, the passive boundary's listenerAttributionLostFrames",
     todo: true,
     covers: (visit, violation) =>
-      visit.fingerprint === "passive-listener" && violation.kind !== "population" && FINGERPRINT_SUBJECTS.has(violation.subject)
+      visit.fingerprint === "passive-listener" && violation.kind !== "population" && FINGERPRINT_CLAIMS.has(violation.subject),
+    coversLoss: (visit, loss) =>
+      visit.fingerprint === "passive-listener" &&
+      loss.family === "fingerprinting" &&
+      loss.detail === "fingerprint-observer" &&
+      loss.phaseId === phasePlan(visit).passive
   },
   // TODO(v1-r2-parity finding P8): an HTTP status the r2 schema cannot carry
   // (600 or more). r2 keeps the row and records a requests-family loss for
@@ -1387,7 +1465,10 @@ const ALLOWED_DIVERGENCES: readonly AllowedDivergence[] = [
     todo: true,
     covers: (visit, violation) =>
       (visit.evidence.unrepresentableRequestStatus || (visit.subject === "http-error" && visit.httpStatus > 599)) &&
-      (violation.kind === "population" || violation.subject === "requests" || REQUEST_FAMILY_CLAIMS.has(violation.subject))
+      (violation.kind === "population" || REQUEST_FAMILY_CLAIMS.has(violation.subject)),
+    coversLoss: (_visit, loss) =>
+      loss.family === "requests" &&
+      (loss.detail === R2_REQUEST_STATUS_UNREPRESENTABLE || loss.detail === R2_NAVIGATION_STATUS_UNREPRESENTABLE)
   },
   // TODO(v1-r2-parity finding P9): a request to a host that is itself a
   // public suffix (a path-style S3 URL such as s3.amazonaws.com/bucket/app.js).
@@ -1399,8 +1480,77 @@ const ALLOWED_DIVERGENCES: readonly AllowedDivergence[] = [
     record: "finding P9 (property test, 2026-09-28): sanitizeEvidence, public-request-unregistrable-hosts",
     todo: true,
     covers: (visit, violation) =>
-      visit.evidence.publicSuffixRequest &&
-      (violation.kind === "population" || violation.subject === "requests" || REQUEST_FAMILY_CLAIMS.has(violation.subject))
+      visit.evidence.publicSuffixRequest && (violation.kind === "population" || REQUEST_FAMILY_CLAIMS.has(violation.subject)),
+    coversLoss: (visit, loss) =>
+      visit.evidence.publicSuffixRequest && loss.family === "requests" && loss.detail === "public-request-unregistrable-hosts"
+  },
+  // TODO(v1-r2-parity findings P11 to P16): detector losses r2 scopes to one
+  // claim but still counts against its family, where v1 has no reason that
+  // censors the family and reads it complete. r2 readers then show the visit
+  // as evidence-incomplete (degradedRunNotice, censorshipNotes) and v1
+  // readers show nothing. Section 4 of the 2026-09-22 review records this
+  // only for the consent line and the probe that lost the page, and the v1
+  // reader records it only for the keystroke and listener reasons (all
+  // above); nothing records these causes. Each closes by a v1 reason that
+  // censors the family or by recording the residue as deliberate.
+  //
+  // P11: the consent-banner detector's own losses (its observe-mode
+  // visibility read, a consent search that failed or ran out of budget, a
+  // consent visit that never loaded), on detector-output and
+  // consent-verification.
+  {
+    name: "consent-banner-losses-are-r2-family-only",
+    record: "finding P11 (property test review, 2026-09-28): the consent-banner branches of scanSiteWithMeasurement",
+    todo: true,
+    coversLoss: (visit, loss) =>
+      visit.subject !== "consent-left" &&
+      ((loss.family === "detector-output" && loss.detail === "consent-banner") ||
+        (loss.family === "consent-verification" && loss.detail === "consent-verification"))
+  },
+  // P12: the post-consent reload that left the site, a consent-verification
+  // loss with no detail beside CONSENT_RELOAD_SUBJECT_WARNING.
+  {
+    name: "consent-reload-left-verification-loss-is-r2-family-only",
+    record: "finding P12 (property test review, 2026-09-28): scanSiteWithMeasurement, markPostConsentReloadSubjectLoss",
+    todo: true,
+    coversLoss: (visit, loss) =>
+      visit.subject === "reload-left" &&
+      loss.family === "consent-verification" &&
+      loss.detail === undefined &&
+      loss.phaseId === phasePlan(visit).reload
+  },
+  // P13: the privacy-policy detector's losses (a visit or link read that
+  // failed, no budget, truncated link candidates).
+  {
+    name: "policy-losses-are-r2-family-only",
+    record: "finding P13 (property test review, 2026-09-28): the privacy-policy branches of scanSiteWithMeasurement",
+    todo: true,
+    coversLoss: (visit, loss) =>
+      visit.subject !== "consent-left" &&
+      loss.family === "detector-output" &&
+      (loss.detail === "policy-visit" || loss.detail === "policy-link-candidates")
+  },
+  // P14: the CNAME lookup bound, budget and failures.
+  {
+    name: "cname-lookup-losses-are-r2-family-only",
+    record: "finding P14 (property test review, 2026-09-28): scanSiteWithMeasurement, cnameResolution",
+    todo: true,
+    coversLoss: (_visit, loss) => loss.family === "detector-output" && loss.detail === "cname-lookups"
+  },
+  // P15: a page title cut at its capture bound.
+  {
+    name: "page-title-truncation-is-r2-family-only",
+    record: "finding P15 (property test review, 2026-09-28): scanSiteWithMeasurement, the page-title capture",
+    todo: true,
+    coversLoss: (_visit, loss) => loss.family === "detector-output" && loss.detail === "page-title"
+  },
+  // P16: a page subject the bounded read could not verify. v1 fails the run
+  // on PAGE_SUBJECT_UNVERIFIED_WARNING but leaves the family complete.
+  {
+    name: "unverified-page-subject-loss-is-r2-family-only",
+    record: "finding P16 (property test review, 2026-09-28): pageSubjectState, PAGE_SUBJECT_CAPTURE_LOSS_DETAIL",
+    todo: true,
+    coversLoss: (_visit, loss) => loss.family === "detector-output" && loss.detail === PAGE_SUBJECT_CAPTURE_LOSS_DETAIL
   }
 ];
 
@@ -1461,12 +1611,45 @@ function knownRefusals(visit: Visit, message: string): KnownRefusal[] | null {
   return matched;
 }
 
-function uncovered(visit: Visit, violations: readonly Violation[], hits?: Map<string, number>): Violation[] {
-  return violations.filter((violation) => {
-    const divergence = ALLOWED_DIVERGENCES.find((candidate) => candidate.covers(visit, violation));
-    if (divergence && hits) hits.set(divergence.name, (hits.get(divergence.name) ?? 0) + 1);
-    return divergence === undefined;
-  });
+/**
+ * The entry that accounts for each r2 capture loss in a family, or null for a
+ * loss none does. A family with no recorded loss is never censored on r2.
+ */
+function familyAttribution(
+  visit: Visit,
+  family: string,
+  losses: readonly CaptureLossEntry[]
+): Array<{ loss: CaptureLossEntry; entry: AllowedDivergence | null }> {
+  return losses
+    .filter((loss) => loss.family === family)
+    .map((loss) => ({ loss, entry: ALLOWED_DIVERGENCES.find((candidate) => candidate.coversLoss?.(visit, loss)) ?? null }));
+}
+
+/** The violations no entry allows, each family one named with the losses nothing accounts for. */
+function uncovered(
+  visit: Visit,
+  violations: readonly Violation[],
+  losses: readonly CaptureLossEntry[],
+  hits?: Map<string, number>
+): string[] {
+  const left: string[] = [];
+  const hit = (entry: AllowedDivergence) => hits?.set(entry.name, (hits.get(entry.name) ?? 0) + 1);
+  for (const violation of violations) {
+    if (violation.kind === "family") {
+      const attribution = familyAttribution(visit, violation.subject, losses);
+      const unclaimed = attribution.filter(({ entry }) => entry === null).map(({ loss }) => loss.detail ?? `(no detail, ${loss.kind})`);
+      if (attribution.length > 0 && unclaimed.length === 0) {
+        for (const entry of new Set(attribution.map(({ entry }) => entry as AllowedDivergence))) hit(entry);
+      } else {
+        left.push(`family:${violation.subject}[${unclaimed.join("/") || "no recorded loss"}]`);
+      }
+      continue;
+    }
+    const divergence = ALLOWED_DIVERGENCES.find((candidate) => candidate.covers?.(visit, violation));
+    if (divergence) hit(divergence);
+    else left.push(`${violation.kind}:${violation.subject}`);
+  }
+  return left;
 }
 
 type ParityOutcome =
@@ -1489,13 +1672,8 @@ function parityOf(visit: Visit, hits?: Map<string, number>, withheld?: Map<strin
       if (!wires.r2.claims[claim].allowed) withheld.set(claim, (withheld.get(claim) ?? 0) + 1);
     }
   }
-  const left = uncovered(visit, violationsOf(wires), hits);
-  return left.length === 0
-    ? { kind: "held" }
-    : {
-        kind: "failed",
-        message: `r2 withholds and v1 allows: ${left.map((violation) => `${violation.kind}:${violation.subject}`).join(", ")}`
-      };
+  const left = uncovered(visit, violationsOf(wires), wires.r2Losses, hits);
+  return left.length === 0 ? { kind: "held" } : { kind: "failed", message: `r2 withholds and v1 allows: ${left.join(", ")}` };
 }
 
 function shrinkVisit(visit: Visit): Iterable<Visit> {
@@ -1577,6 +1755,72 @@ test("a v1 view never allows a claim, a corpus membership or a family completene
 function firstFailure(message: string): string {
   return message.replace(/^r2 withholds and v1 allows: /, "").split(/, |; /)[0];
 }
+
+/** One reachable visit: an observe-mode visit where everything completed, with the given changes. */
+function fixedVisit(changes: Partial<Visit>): Visit {
+  return normalizeVisit({
+    mode: "observe",
+    reload: false,
+    subject: "kept",
+    httpStatus: 200,
+    fingerprint: "complete",
+    keystroke: "complete",
+    cname: "complete",
+    pixel: "complete",
+    banner: "complete",
+    policy: "read",
+    losses: [],
+    evidence: {
+      thirdPartyTracker: true,
+      cookie: false,
+      storage: false,
+      fingerprintEvents: false,
+      cnameCloak: false,
+      pixelEvent: false,
+      listener: "none",
+      ipLiteralRequest: false,
+      publicSuffixRequest: false,
+      unrepresentableRequestStatus: false
+    },
+    freeLines: [],
+    ...changes
+  });
+}
+
+test("a family r2 censors is allowed only when every loss it recorded there is accounted for", () => {
+  // Causes co-occur by construction: a visit that never loaded records a
+  // keystroke loss and a consent-banner loss on detector-output together, so
+  // an entry scoped to the visit would let either cause hide the other.
+  const failedLoad = fixedVisit({ subject: "http-error", httpStatus: 503 });
+  const wires = buildWires(failedLoad);
+  assert.ok(violationsOf(wires).some((violation) => violation.kind === "family" && violation.subject === "detector-output"));
+  assert.deepEqual(
+    familyAttribution(failedLoad, "detector-output", wires.r2Losses)
+      .map(({ loss, entry }) => `${loss.detail}:${entry?.name}`)
+      .sort(),
+    ["consent-banner:consent-banner-losses-are-r2-family-only", "keystroke-probe:v1-keystroke-probe-reasons-are-claim-scoped"]
+  );
+  assert.deepEqual(uncovered(failedLoad, violationsOf(wires), wires.r2Losses), []);
+  // One loss nothing accounts for keeps the family failing beside the ones something does.
+  const unclaimed: CaptureLossEntry = { family: "detector-output", phaseId: null, kind: "dropped", count: 1, detail: "public-warnings" };
+  assert.deepEqual(uncovered(failedLoad, violationsOf(wires), [...wires.r2Losses, unclaimed]), ["family:detector-output[public-warnings]"]);
+
+  // The review's two causes are attributed to its record, not the keystroke reader's.
+  for (const keystroke of ["page-left-before-typing", "page-left-after-typing"] as const) {
+    const pageLeft = fixedVisit({ keystroke });
+    assert.deepEqual(
+      familyAttribution(pageLeft, "detector-output", buildWires(pageLeft).r2Losses).map(({ loss, entry }) => `${loss.detail}:${entry?.name}`),
+      ["keystroke-probe:consent-left-and-probe-page-left-detector-residue"]
+    );
+  }
+  const consentLeft = fixedVisit({ mode: "accept-all", banner: "clicked", subject: "consent-left" });
+  const consentLeftWires = buildWires(consentLeft);
+  for (const family of ["detector-output", "consent-verification"]) {
+    const entries = familyAttribution(consentLeft, family, consentLeftWires.r2Losses).map(({ entry }) => entry?.name);
+    assert.ok(entries.length > 0, family);
+    assert.deepEqual([...new Set(entries)], ["consent-left-and-probe-page-left-detector-residue"], family);
+  }
+});
 
 function visitFeatures(visit: Visit): string[] {
   return [
