@@ -34,6 +34,12 @@ export function featuredRefreshMarker(catalogSlug) {
 export const FEATURED_CATALOG_VERSION_FLOOR = 2;
 export const FEATURED_CATALOG_COVERAGE_FLOOR = 0.8;
 export const FEATURED_ACTIVE_SITE_FLOOR = 50;
+/**
+ * The largest share of eligible targets that may refuse an automated visit
+ * before a refresh goes red. Fixed, like the coverage floors, so a run cannot
+ * make itself green by reclassifying its own failures.
+ */
+export const FEATURED_REFUSAL_CEILING = 0.35;
 
 /**
  * Preserve the child scanner's final public-safe error without copying an
@@ -272,6 +278,8 @@ export function publicFeaturedScanSummary(value) {
   // predates the taxonomy, or carries a malformed one, keeps every other
   // aggregate rather than becoming unpublishable over an explanatory field.
   const failureTaxonomy = publicFailureTaxonomy(value.failureTaxonomy, failed)?.counts ?? null;
+  // Re-derived from the counts, never read from a rate the summary asserts.
+  const health = featuredBatchHealth({ total, succeeded, failed, failureTaxonomy, requiredSuccessRate });
 
   return {
     catalogVersion: fullCatalog ? value.catalogVersion : null,
@@ -284,8 +292,123 @@ export function publicFeaturedScanSummary(value) {
     successRate,
     requiredSuccessRate,
     failureTaxonomy,
+    ...health,
     ...eligibility
   };
+}
+
+/**
+ * Judge the scanner, not the sites.
+ *
+ * A site that declines an undisguised automated browser is an honest
+ * observation this project will never evade, so it leaves the success-rate
+ * denominator: the required rate applies to the targets the scanner could
+ * actually be judged on. Everything else stays counted against the scanner,
+ * including timeouts, unverified page subjects and unrecognized failures.
+ *
+ * Refusals are not free. Past {@link FEATURED_REFUSAL_CEILING} of the eligible
+ * targets the run is red on its own, because a catalog that has decayed into
+ * refusals no longer refreshes the corpus however well the scanner behaves.
+ *
+ * The refused count comes ONLY from a taxonomy that {@link publicFailureTaxonomy}
+ * accepts. Without one it is zero, the strictest reading: a summary cannot get
+ * greener by losing its explanation.
+ */
+export function featuredBatchHealth({ total, succeeded, failed, failureTaxonomy, requiredSuccessRate }) {
+  const eligible = boundedCount(total);
+  const successes = boundedCount(succeeded, eligible ?? -1);
+  const failures = boundedCount(failed, eligible ?? -1);
+  const required = boundedRate(requiredSuccessRate);
+  if (
+    eligible === null ||
+    eligible === 0 ||
+    successes === null ||
+    failures === null ||
+    successes + failures !== eligible ||
+    required === null
+  ) {
+    throw new Error("Featured batch health requires positive, internally consistent counts.");
+  }
+  const taxonomy = publicFailureTaxonomy(failureTaxonomy, failures);
+  const refused = taxonomy?.refused ?? 0;
+  const scannerJudged = eligible - refused;
+  const scannerSuccessRate = scannerJudged === 0 ? 0 : successes / scannerJudged;
+  const refusalRate = refused / eligible;
+  return {
+    refusalsCounted: taxonomy !== null || failures === 0,
+    refused,
+    scannerJudged,
+    scannerSuccessRate,
+    refusalRate,
+    refusalCeiling: FEATURED_REFUSAL_CEILING,
+    meetsSuccessRate: successes > 0 && scannerSuccessRate >= required,
+    meetsRefusalCeiling: refusalRate <= FEATURED_REFUSAL_CEILING
+  };
+}
+
+const percent = (rate) => `${Math.round(rate * 100)}%`;
+
+/**
+ * The gate lines of a projected summary, each number beside its threshold.
+ * Shared by the canonical issue and the runner's step summary so the two cannot
+ * describe one run differently. The raw eligible rate stays as context: it is
+ * the number earlier runs published, and it is no longer what is gated.
+ */
+export function featuredBatchHealthLines(aggregate) {
+  const lines = [
+    `- Eligible scan success (context, not a gate): **${aggregate.succeeded}/${aggregate.total}** (${percent(aggregate.successRate)})`,
+    `- Scanner success, excluding sites that refused an automated visit: **${aggregate.succeeded}/${aggregate.scannerJudged}** (${percent(aggregate.scannerSuccessRate)})`,
+    `- Required scanner success rate: **${percent(aggregate.requiredSuccessRate)}**`,
+    `- Eligible targets that refused an automated visit: **${aggregate.refused}/${aggregate.total}** (${percent(aggregate.refusalRate)})`,
+    `- Fixed refusal ceiling: **${percent(aggregate.refusalCeiling)} of eligible targets**`,
+    `- Failed eligible targets: **${aggregate.failed}**`,
+    `- Active eligible catalog coverage: **${aggregate.total}/${aggregate.catalogTotal}** (${percent(aggregate.catalogCoverage)})`,
+    `- Fixed full-catalog coverage gate: **${percent(aggregate.requiredCatalogCoverage)} and at least ${aggregate.minimumEligibleSites} active sites**`,
+    `- Catalog entries temporarily unavailable: **${aggregate.unavailable}/${aggregate.catalogTotal}**`
+  ];
+  if (!aggregate.refusalsCounted) {
+    lines.push("- Refusals could not be counted, so every failure is held against the scanner.");
+  }
+  lines.push("- Scope note: passing these gates does not mean every catalog entry was freshly scanned.");
+  return lines;
+}
+
+/**
+ * The public-safe sentences for each gate a batch missed, in counts only.
+ * Shared by the runner's console, its step summary and the canonical issue so
+ * the three cannot describe one run differently. Each sentence carries its
+ * counts, because a rounded percentage alone can read as equal to the
+ * threshold it failed.
+ */
+export function featuredBatchHealthFailures({
+  succeeded,
+  requiredSuccessRate,
+  refused,
+  scannerJudged,
+  scannerSuccessRate,
+  refusalRate,
+  refusalCeiling,
+  refusalsCounted,
+  meetsSuccessRate,
+  meetsRefusalCeiling
+}) {
+  const reasons = [];
+  if (!meetsRefusalCeiling) {
+    reasons.push(
+      `${refused} of ${refused + scannerJudged} eligible targets (${percent(refusalRate)}) refused an automated ` +
+        `visit, above the fixed ${percent(refusalCeiling)} ceiling. The catalog needs ` +
+        "curation: defer or replace the refusing entries rather than changing the scanner. If the rise is sudden " +
+        "rather than gradual, rule out the runner's own network first, because an unreachable load is counted as a refusal."
+    );
+  }
+  if (!meetsSuccessRate) {
+    reasons.push(
+      `The scanner succeeded on ${succeeded} of the ${scannerJudged} eligible targets ` +
+        (refusalsCounted ? "that did not refuse an automated visit" : "it was judged on, with no refusal excused") +
+        ` (${percent(scannerSuccessRate)}), below the required ${percent(requiredSuccessRate)}.`
+    );
+  }
+  return reasons;
 }
 
 /**
@@ -301,7 +424,8 @@ export function featuredPublicationDecision(value, scanOutcome) {
   const healthy =
     publishable &&
     scanOutcome === "success" &&
-    summary.successRate >= summary.requiredSuccessRate &&
+    summary.meetsSuccessRate &&
+    summary.meetsRefusalCeiling &&
     (!summary.fullCatalog || summary.meetsFloor);
   return { publishable, healthy };
 }
@@ -350,9 +474,11 @@ function workflowRunUrl({ serverUrl, repository, runId }) {
  * exists to prevent. Those keep going through the sentence, which does separate
  * them.
  *
- * Deliberately does not change the threshold or the denominator. The gate still
- * measures what it measured; this only names the parts, so a red run says which
- * kind of red it is.
+ * THIS NOW MOVES THE GATE. The `target-refused` bucket leaves the success-rate
+ * denominator and is held to its own ceiling (see {@link featuredBatchHealth}),
+ * so every sentence that lands there is a sentence the scanner is no longer
+ * judged on. Anything unrecognized stays `unclassified`, which is counted
+ * against the scanner, never assumed to be the site declining.
  */
 export function classifyFeaturedFailures(failures) {
   const kindOf = (failure) => {
@@ -465,15 +591,10 @@ export function buildFeaturedRefreshIssueReport({ failed, summary, branch, serve
   ];
   if (runUrl) lines.push(`- Workflow run: [view run](${runUrl})`);
   if (aggregate) {
-    lines.push(
-      `- Eligible scan success: **${aggregate.succeeded}/${aggregate.total}** (${Math.round(aggregate.successRate * 100)}%)`,
-      `- Required eligible success rate: **${Math.round(aggregate.requiredSuccessRate * 100)}%**`,
-      `- Failed eligible targets: **${aggregate.failed}**`,
-      `- Active eligible catalog coverage: **${aggregate.total}/${aggregate.catalogTotal}** (${Math.round(aggregate.catalogCoverage * 100)}%)`,
-      `- Fixed full-catalog coverage gate: **${Math.round(aggregate.requiredCatalogCoverage * 100)}% and at least ${aggregate.minimumEligibleSites} active sites**`,
-      `- Catalog entries temporarily unavailable: **${aggregate.unavailable}/${aggregate.catalogTotal}**`,
-      "- Scope note: passing these gates does not mean every catalog entry was freshly scanned."
-    );
+    lines.push(...featuredBatchHealthLines(aggregate));
+    for (const reason of featuredBatchHealthFailures(aggregate)) {
+      lines.push("", reason);
+    }
   } else {
     lines.push("- Aggregate scan summary: **unavailable or invalid**");
   }
@@ -491,7 +612,7 @@ export function buildFeaturedRefreshIssueReport({ failed, summary, branch, serve
       "",
       `${taxonomy.refused} of ${taxonomy.total} failures are sites refusing an undisguised automated browser. ` +
         "That is an honest observation, not a scanner defect, and it is not fixable without the evasion this " +
-        "project refuses.",
+        "project refuses. Refusals are left out of the scanner success rate and held to the refusal ceiling instead.",
       `${taxonomy.scannerAttributable} ${taxonomy.scannerAttributable === 1 ? "is" : "are"} attributable to this ` +
         `scanner and ${taxonomy.scannerAttributable === 1 ? "is" : "are"} worth investigating.`
     );

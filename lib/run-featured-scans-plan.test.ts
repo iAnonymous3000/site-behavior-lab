@@ -13,6 +13,7 @@ test("featured scan plan lists its bounded work without building or scanning", (
     env: {
       ...process.env,
       FEATURED_LIMIT: "2",
+      FEATURED_MIN_SUCCESS_RATE: "",
       FEATURED_COMPARE_GPC: "true",
       FEATURED_COMPARE_SHIELDS: "false",
       FEATURED_COMPARE_CONSENT: "false",
@@ -30,6 +31,15 @@ test("featured scan plan lists its bounded work without building or scanning", (
   assert.equal(plan.budget.attemptsPerTarget, 3);
   assert.equal(plan.budget.maximumSubmittedScans, 6);
   assert.equal(plan.budget.maximumPageVisits, 12);
+  // Refusals leave the success-rate denominator, so no fixed success count can
+  // be promised; the plan states the ceiling and the no-refusal count instead.
+  assert.equal(plan.planVersion, 2);
+  assert.deepEqual(plan.acceptance, {
+    minimumSuccessRate: 0.9,
+    successRateExcludesRefusals: true,
+    maximumRefusalRate: 0.35,
+    requiredSuccessesWithoutRefusals: 2
+  });
   assert.equal(plan.targets.length, 2);
   assert.equal(plan.targets.every((target: { domain?: unknown }) => typeof target.domain === "string"), true);
   assert.doesNotMatch(result.stdout, /https?:\/\//);

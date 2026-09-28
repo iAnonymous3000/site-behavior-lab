@@ -39,6 +39,14 @@ type FeaturedScanDiagnosticHelpers = {
     failed: number;
     successRate: number;
     requiredSuccessRate: number;
+    refusalsCounted: boolean;
+    refused: number;
+    scannerJudged: number;
+    scannerSuccessRate: number;
+    refusalRate: number;
+    refusalCeiling: number;
+    meetsSuccessRate: boolean;
+    meetsRefusalCeiling: boolean;
     catalogCoverage: number;
     requiredCatalogCoverage: number;
     minimumEligibleSites: number;
@@ -361,7 +369,18 @@ test("featured refresh issue reports expose aggregates but omit per-target diagn
   // The exact key set is the control, not incidental strictness: this is the
   // projection that crosses into the public issue, so an unexpected key is a
   // disclosure. `failureTaxonomy` is null here because this summary predates
-  // it; a summary that carries one publishes counts and nothing else.
+  // it; a summary that carries one publishes counts and nothing else. Without
+  // it no failure can be excused as a refusal, so all twelve are the scanner's.
+  const withoutRefusalCounts = {
+    refusalsCounted: false,
+    refused: 0,
+    scannerJudged: 81,
+    scannerSuccessRate: 69 / 81,
+    refusalRate: 0,
+    refusalCeiling: 0.35,
+    meetsSuccessRate: false,
+    meetsRefusalCeiling: true
+  };
   assert.deepEqual(publicFeaturedScanSummary(detailed), {
     catalogVersion: null,
     fullCatalog: false,
@@ -373,6 +392,7 @@ test("featured refresh issue reports expose aggregates but omit per-target diagn
     successRate: 69 / 81,
     requiredSuccessRate: 0.9,
     failureTaxonomy: null,
+    ...withoutRefusalCounts,
     catalogCoverage: 1,
     requiredCatalogCoverage: 0.8,
     minimumEligibleSites: 50,
@@ -389,7 +409,7 @@ test("featured refresh issue reports expose aggregates but omit per-target diagn
 
   assert.match(report, /site-behavior-lab:featured-corpus-refresh/);
   assert.match(report, /69\/81/);
-  assert.match(report, /Required eligible success rate: \*\*90%\*\*/);
+  assert.match(report, /Required scanner success rate: \*\*90%\*\*/);
   assert.match(report, /Active eligible catalog coverage: \*\*81\/81\*\*/);
   assert.match(report, /does not mean every catalog entry was freshly scanned/);
   assert.match(report, /https:\/\/github\.com\/example\/site-behavior-lab\/actions\/runs\/12345/);
@@ -413,6 +433,7 @@ test("featured refresh issue reports expose aggregates but omit per-target diagn
     successRate: 69 / 81,
     requiredSuccessRate: 0.9,
     failureTaxonomy: null,
+    ...withoutRefusalCounts,
     catalogCoverage: 81 / 94,
     requiredCatalogCoverage: 0.8,
     minimumEligibleSites: 50,

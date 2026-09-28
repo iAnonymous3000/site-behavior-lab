@@ -1,8 +1,18 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { test } from "node:test";
-import { classifyFeaturedFailures } from "./run-featured-scans.mjs";
+import {
+  buildFeaturedRunSummary,
+  classifyFeaturedFailures,
+  featuredBatchVerdict,
+  featuredStepSummaryLines
+} from "./run-featured-scans.mjs";
 import {
   buildFeaturedRefreshIssueReport,
+  FEATURED_REFUSAL_CEILING,
+  featuredBatchHealth,
+  featuredCatalogEligibility,
+  featuredPublicationDecision,
   publicFailureTaxonomy,
   publicFeaturedScanSummary,
   summarizeFailureTaxonomy,
@@ -155,9 +165,9 @@ test("refusals are reported first", () => {
 });
 
 test("the taxonomy changes no counts", () => {
-  // It names the parts; it must never alter the denominator or the rate. A
-  // classifier that drops or duplicates a failure would move the gate it exists
-  // to explain.
+  // It names the parts, and the refused part now leaves the success-rate
+  // denominator. A classifier that drops or duplicates a failure would move
+  // that gate by exactly the failures it lost or invented.
   const groups = classifyFeaturedFailures(REAL_FAILURES);
   const total = [...groups.values()].reduce((sum, group) => sum + group.length, 0);
   assert.equal(total, REAL_FAILURES.length);
@@ -261,4 +271,262 @@ test("a clean run publishes no taxonomy section", () => {
     catalogSlug: "gallery"
   });
   assert.doesNotMatch(report, /Which kind of red/);
+});
+
+/**
+ * The health gate judges the scanner, not the sites (owner decision
+ * 2026-09-28). The 2026-09-28 gallery leg read 59/81 against an 80% gate while
+ * 21 of its 22 failures were sites refusing an undisguised browser, so the
+ * canonical issue told an operator to debug a scanner that had failed once.
+ *
+ * Every fixture below is driven through the classifier with the producer's
+ * real sentences on synthetic hosts, and through BOTH halves of the gate: the
+ * runner's exit verdict and the trusted publication decision that re-derives
+ * health from the summary the runner wrote. Pre-sorted counts would let the two
+ * halves pass while disagreeing about what a refusal is.
+ */
+const REFUSAL_OUTCOMES = PRODUCER_OUTCOMES.filter(([, , kind]) => kind === "target-refused");
+const refusal = (index) => {
+  const [sentence, unavailableReason] = REFUSAL_OUTCOMES[index % REFUSAL_OUTCOMES.length];
+  return {
+    site: `refused-${index}.example`,
+    message: `Skipping scan target: primary baseline arm: ${sentence}.`,
+    unavailableReason
+  };
+};
+const unverifiedSubject = (index) => ({
+  site: `unverified-${index}.example`,
+  message: "Skipping scan target: primary baseline arm: report could not verify the rendered page subject.",
+  unavailableReason: "navigation-incomplete"
+});
+const scannerTimeout = (index) => ({
+  site: `timeout-${index}.example`,
+  message: "The scan exceeded the maximum scan duration.",
+  unavailableReason: null
+});
+const unrecognized = (index) => ({
+  site: `unrecognized-${index}.example`,
+  message: "something nobody has seen",
+  unavailableReason: null
+});
+const times = (count, make) => Array.from({ length: count }, (_, index) => make(index));
+
+function batch({ succeeded, failures, minSuccessRate = 0.8, fullCatalog = true }) {
+  const total = succeeded + failures.length;
+  const verdict = featuredBatchVerdict({ total, succeeded, failures, minSuccessRate });
+  const summary = buildFeaturedRunSummary({
+    sites: times(total, (index) => ({ domain: `site-${index}.example` })),
+    unavailable: [],
+    catalogTotal: total,
+    catalogVersion: fullCatalog ? 2 : null,
+    fullCatalog,
+    eligibility: featuredCatalogEligibility(total, total),
+    succeeded,
+    failures,
+    failureTaxonomy: verdict.failureTaxonomy,
+    scanResults: [],
+    retried: 0,
+    minSuccessRate,
+    successRate: succeeded / total
+  });
+  return {
+    verdict,
+    summary,
+    aggregate: publicFeaturedScanSummary(summary),
+    // Judged on its own, with a clean scan outcome, so it cannot simply echo
+    // the runner's exit code back.
+    decision: featuredPublicationDecision(summary, "success")
+  };
+}
+
+const issueFor = (aggregate, failed) =>
+  buildFeaturedRefreshIssueReport({
+    failed,
+    summary: aggregate,
+    branch: "main",
+    serverUrl: "https://github.com",
+    repository: "iAnonymous3000/site-behavior-lab",
+    runId: "1",
+    catalogSlug: "gallery"
+  });
+
+const TODAYS_GALLERY = () => ({ succeeded: 59, failures: [...times(21, refusal), unverifiedSubject(0)] });
+
+test("the 2026-09-28 gallery shape passes: refusals leave the denominator, the unverified subject stays", () => {
+  const run = batch(TODAYS_GALLERY());
+  assert.equal(run.aggregate.successRate < 0.8, true, "the raw rate is still the 73% that used to turn it red");
+  assert.equal(run.verdict.health.refused, 21);
+  assert.equal(run.verdict.health.scannerJudged, 60, "the one unverified subject stays in the denominator");
+  assert.equal(run.verdict.health.scannerSuccessRate, 59 / 60);
+  assert.equal(run.verdict.health.refusalRate, 21 / 81);
+  assert.deepEqual(run.verdict.reasons, []);
+  assert.deepEqual(run.decision, { publishable: true, healthy: true });
+
+  // The alerting job projects the classify step's projection a second time.
+  // Anything the round trip loses would be judged as a missing taxonomy there.
+  assert.deepEqual(publicFeaturedScanSummary(JSON.parse(JSON.stringify(run.aggregate))), run.aggregate);
+});
+
+test("refusals past the 35% ceiling fail with the curation message even when the scanner is flawless", () => {
+  assert.equal(FEATURED_REFUSAL_CEILING, 0.35);
+
+  // Seven of twenty is exactly 35%: at the ceiling, not past it.
+  const atCeiling = batch({ succeeded: 13, failures: times(7, refusal), fullCatalog: false });
+  assert.deepEqual(atCeiling.verdict.reasons, []);
+  assert.equal(atCeiling.decision.healthy, true);
+
+  const overCeiling = batch({ succeeded: 12, failures: times(8, refusal), fullCatalog: false });
+  assert.equal(overCeiling.verdict.health.scannerSuccessRate, 1, "every target it could be judged on succeeded");
+  assert.equal(overCeiling.verdict.reasons.length, 1, "only the ceiling fails");
+  assert.match(
+    overCeiling.verdict.reasons[0],
+    /^8 of 20 eligible targets \(40%\) refused an automated visit, above the fixed 35% ceiling\. The catalog needs curation/
+  );
+  assert.equal(overCeiling.decision.healthy, false);
+
+  // At gallery scale the line falls between 28 and 29 of 81.
+  assert.equal(batch({ succeeded: 53, failures: times(28, refusal) }).decision.healthy, true);
+  const decayed = batch({ succeeded: 52, failures: times(29, refusal) });
+  assert.equal(decayed.decision.healthy, false);
+  assert.match(decayed.verdict.reasons[0], /29 of 81 eligible targets \(36%\)[\s\S]*catalog needs curation/);
+
+  // The issue carries the same sentence, and does not blame the scanner.
+  const report = issueFor(decayed.aggregate, true);
+  assert.ok(report.includes(decayed.verdict.reasons[0]));
+  assert.doesNotMatch(report, /The scanner succeeded on/);
+});
+
+test("scanner failures past the gate still fail with zero refusals, and refusals never dilute them", () => {
+  const scannerFailures = [...times(9, unverifiedSubject), ...times(4, scannerTimeout), ...times(4, unrecognized)];
+  const run = batch({ succeeded: 64, failures: scannerFailures });
+  assert.equal(run.verdict.health.refused, 0);
+  assert.equal(run.verdict.health.scannerJudged, 81);
+  assert.equal(run.verdict.reasons.length, 1, "only the scanner gate fails");
+  assert.equal(
+    run.verdict.reasons[0],
+    "The scanner succeeded on 64 of the 81 eligible targets that did not refuse an automated visit (79%), below the required 80%."
+  );
+  assert.equal(run.decision.healthy, false);
+  assert.ok(issueFor(run.aggregate, true).includes(run.verdict.reasons[0]));
+  assert.doesNotMatch(issueFor(run.aggregate, true), /catalog needs curation/);
+
+  // One more success clears it: 65 of 81 is 80.2%.
+  assert.equal(batch({ succeeded: 65, failures: scannerFailures.slice(1) }).decision.healthy, true);
+
+  // With refusals present, the scanner is judged on what is left: 47 of the
+  // 60 non-refusing targets is 78%, however healthy 21 refusals of 81 look.
+  const mixed = batch({ succeeded: 47, failures: [...times(21, refusal), ...times(13, unverifiedSubject)] });
+  assert.equal(mixed.verdict.health.scannerJudged, 60);
+  assert.equal(mixed.verdict.health.meetsRefusalCeiling, true);
+  assert.equal(mixed.verdict.health.meetsSuccessRate, false);
+  assert.deepEqual(mixed.verdict.reasons, [
+    "The scanner succeeded on 47 of the 60 eligible targets that did not refuse an automated visit (78%), below the required 80%."
+  ]);
+  assert.equal(mixed.decision.healthy, false);
+
+  // A batch with no success is never healthy, whatever rate it is held to.
+  const nothing = featuredBatchHealth({ total: 5, succeeded: 0, failed: 5, failureTaxonomy: null, requiredSuccessRate: 0 });
+  assert.equal(nothing.meetsSuccessRate, false);
+});
+
+test("a summary that lost its taxonomy holds every failure against the scanner", () => {
+  const run = batch(TODAYS_GALLERY());
+
+  const stripped = { ...run.summary };
+  delete stripped.failureTaxonomy;
+  const aggregate = publicFeaturedScanSummary(stripped);
+  assert.equal(aggregate.refusalsCounted, false);
+  assert.equal(aggregate.refused, 0);
+  assert.equal(aggregate.scannerJudged, 81);
+  assert.deepEqual(featuredPublicationDecision(stripped, "success"), { publishable: true, healthy: false });
+  const report = issueFor(aggregate, true);
+  assert.match(report, /Refusals could not be counted, so every failure is held against the scanner/);
+  assert.ok(
+    report.includes(
+      "The scanner succeeded on 59 of the 81 eligible targets it was judged on, with no refusal excused (73%), below the required 80%."
+    ),
+    "an uncounted run must not claim its denominator excludes refusals"
+  );
+
+  // A taxonomy that does not add up to the failures is no better than none.
+  const contradicting = {
+    ...run.summary,
+    failureTaxonomy: [
+      { kind: "target-refused", count: 22 },
+      { kind: "subject-unverified", count: 1 }
+    ]
+  };
+  assert.equal(publicFeaturedScanSummary(contradicting).refusalsCounted, false);
+  assert.equal(featuredPublicationDecision(contradicting, "success").healthy, false);
+
+  // A clean batch has nothing to count, so nothing is missing.
+  assert.equal(batch({ succeeded: 81, failures: [] }).aggregate.refusalsCounted, true);
+  assert.doesNotMatch(issueFor(batch({ succeeded: 81, failures: [] }).aggregate, false), /could not be counted/);
+});
+
+test("the runner's exit verdict and the trusted publication decision agree", () => {
+  const fixtures = [
+    TODAYS_GALLERY(),
+    { succeeded: 13, failures: times(7, refusal), fullCatalog: false },
+    { succeeded: 12, failures: times(8, refusal), fullCatalog: false },
+    { succeeded: 53, failures: times(28, refusal) },
+    { succeeded: 52, failures: times(29, refusal) },
+    { succeeded: 64, failures: [...times(9, unverifiedSubject), ...times(8, scannerTimeout)] },
+    { succeeded: 47, failures: [...times(21, refusal), ...times(13, unverifiedSubject)] },
+    { succeeded: 0, failures: times(81, refusal) },
+    { succeeded: 0, failures: times(81, scannerTimeout) },
+    // The de-bias seed leg's recent shape: same gate, no coverage floor.
+    { succeeded: 37, failures: [...times(6, refusal), ...times(2, scannerTimeout)], fullCatalog: false }
+  ];
+  for (const fixture of fixtures) {
+    const run = batch(fixture);
+    const label = `${fixture.succeeded}/${fixture.succeeded + fixture.failures.length}`;
+    assert.equal(run.summary.failureTaxonomy, run.verdict.failureTaxonomy, `${label}: one taxonomy value`);
+    assert.equal(run.verdict.reasons.length === 0, run.decision.healthy, `${label}: exit code and health disagree`);
+  }
+  assert.equal(batch(fixtures.at(-1)).decision.healthy, true, "the seed leg's usual week stays green");
+});
+
+test("the issue and the step summary state every gate beside its threshold", () => {
+  const run = batch(TODAYS_GALLERY());
+  const report = issueFor(run.aggregate, false);
+  const step = featuredStepSummaryLines(run.summary).join("\n");
+  for (const [name, text] of [["issue", report], ["step summary", step]]) {
+    assert.match(text, /Eligible scan success \(context, not a gate\): \*\*59\/81\*\* \(73%\)/, name);
+    assert.match(text, /Scanner success, excluding sites that refused an automated visit: \*\*59\/60\*\* \(98%\)/, name);
+    assert.match(text, /Required scanner success rate: \*\*80%\*\*/, name);
+    assert.match(text, /Eligible targets that refused an automated visit: \*\*21\/81\*\* \(26%\)/, name);
+    assert.match(text, /Fixed refusal ceiling: \*\*35% of eligible targets\*\*/, name);
+    assert.match(text, /Active eligible catalog coverage: \*\*81\/81\*\* \(100%\)/, name);
+    assert.match(text, /Fixed full-catalog coverage gate: \*\*80% and at least 50 active sites\*\*/, name);
+  }
+  // The step summary is private and lists targets; the public issue never does.
+  assert.ok(step.includes("refused-0.example"));
+  for (const failure of run.summary.failures) {
+    assert.ok(!report.includes(failure.site), `${failure.site} must not reach the public issue`);
+  }
+});
+
+test("the runner exits on the shared verdict, not on a rate of its own", () => {
+  // main() scans real sites and cannot run here, so pin that its exit code and
+  // its written taxonomy are the verdict the tests above exercise.
+  const runner = readFileSync(new URL("./run-featured-scans.mjs", import.meta.url), "utf8");
+  assert.match(runner, /const verdict = featuredBatchVerdict\(\{ total: sites\.length, succeeded, failures, minSuccessRate \}\);/);
+  assert.match(runner, /failureTaxonomy: verdict\.failureTaxonomy,/);
+  const gate = runner.indexOf("  if (verdict.reasons.length > 0) {\n");
+  assert.ok(gate > 0, "main gates on the verdict's reasons");
+  assert.match(runner.slice(gate, runner.indexOf("\n  }\n", gate)), /process\.exit\(1\);$/);
+  assert.doesNotMatch(runner, /successRate < minSuccessRate/);
+  assert.doesNotMatch(runner, /taxonomy\.get\("target-refused"\)/);
+});
+
+test("the public summary carries every kind within its cross-job byte bound", () => {
+  // Mirrors MAX_PUBLIC_SUMMARY_BYTES in the diagnostics module; the classify
+  // step throws past it, which would cost the run its whole public summary.
+  const run = batch({
+    succeeded: 50,
+    failures: [...times(20, refusal), ...times(4, scannerTimeout), ...times(4, unverifiedSubject), ...times(3, unrecognized)]
+  });
+  assert.equal(run.aggregate.failureTaxonomy.length, 4);
+  assert.ok(Buffer.byteLength(JSON.stringify(run.aggregate), "utf8") <= 4 * 1024);
 });
