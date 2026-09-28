@@ -2,9 +2,8 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import {
-  buildFeaturedRunSummary,
   classifyFeaturedFailures,
-  featuredBatchVerdict,
+  featuredBatchOutcome,
   featuredStepSummaryLines
 } from "./run-featured-scans.mjs";
 import {
@@ -370,23 +369,27 @@ const unrecognized = (index) => ({
 });
 const times = (count, make) => Array.from({ length: count }, (_, index) => make(index));
 
-function batch({ succeeded, failures, minSuccessRate = 0.8, fullCatalog = true }) {
+function batch({ succeeded, failures, minSuccessRate = 0.8, fullCatalog = true, deferred = 0 }) {
   const total = succeeded + failures.length;
-  const verdict = featuredBatchVerdict({ total, succeeded, failures, minSuccessRate });
-  const summary = buildFeaturedRunSummary({
+  // The same call main() makes once its scans finish, so the verdict and the
+  // summary below are main's, not two values this fixture copied between.
+  const { verdict, summary } = featuredBatchOutcome({
     sites: times(total, (index) => ({ domain: `site-${index}.example` })),
-    unavailable: [],
-    catalogTotal: total,
+    unavailable: times(deferred, (index) => ({
+      site: `deferred-${index}.example`,
+      reason: "automation-blocked",
+      observedAt: "2026-09-21",
+      reviewAfter: "2026-10-19"
+    })),
+    catalogTotal: total + deferred,
     catalogVersion: fullCatalog ? 2 : null,
     fullCatalog,
-    eligibility: featuredCatalogEligibility(total, total),
+    eligibility: featuredCatalogEligibility(total + deferred, total),
     succeeded,
     failures,
-    failureTaxonomy: verdict.failureTaxonomy,
     scanResults: [],
     retried: 0,
-    minSuccessRate,
-    successRate: succeeded / total
+    minSuccessRate
   });
   return {
     verdict,
@@ -539,27 +542,46 @@ test("a summary that lost its taxonomy holds every failure against the scanner",
   assert.doesNotMatch(issueFor(batch({ succeeded: 81, failures: [] }).aggregate, false), /could not be counted/);
 });
 
+/**
+ * `batch()` runs featuredBatchOutcome, the function main() takes both its exit
+ * verdict and its written summary from, so agreement here is agreement in the
+ * runner's own wiring. The fixtures sit on both sides of each threshold,
+ * including a raised required rate and a run with deferred entries, where a
+ * summary handed a different rate, total or taxonomy than the verdict would
+ * flip one side. That main() then writes this summary and exits on this verdict
+ * is guarded only by the source pin in the next test.
+ */
 test("the runner's exit verdict and the trusted publication decision agree", () => {
   const fixtures = [
-    TODAYS_GALLERY(),
-    { succeeded: 13, failures: times(7, refusal), fullCatalog: false },
-    { succeeded: 12, failures: times(8, refusal), fullCatalog: false },
-    { succeeded: 53, failures: times(28, refusal) },
-    { succeeded: 52, failures: times(29, refusal) },
-    { succeeded: 64, failures: [...times(9, unverifiedSubject), ...times(8, scannerTimeout)] },
-    { succeeded: 47, failures: [...times(21, refusal), ...times(13, unverifiedSubject)] },
-    { succeeded: 0, failures: times(81, refusal) },
-    { succeeded: 0, failures: times(81, scannerTimeout) },
+    { ...TODAYS_GALLERY(), healthy: true },
+    { succeeded: 13, failures: times(7, refusal), fullCatalog: false, healthy: true },
+    { succeeded: 12, failures: times(8, refusal), fullCatalog: false, healthy: false },
+    { succeeded: 53, failures: times(28, refusal), healthy: true },
+    { succeeded: 52, failures: times(29, refusal), healthy: false },
+    { succeeded: 64, failures: [...times(9, unverifiedSubject), ...times(8, scannerTimeout)], healthy: false },
+    { succeeded: 47, failures: [...times(21, refusal), ...times(13, unverifiedSubject)], healthy: false },
+    { succeeded: 0, failures: times(81, refusal), healthy: false },
+    { succeeded: 0, failures: times(81, scannerTimeout), healthy: false },
+    // A raised required rate, straddled: 73 of 81 is 90.1% and 72 of 81 is 88.9%.
+    { succeeded: 73, failures: times(8, scannerTimeout), minSuccessRate: 0.9, healthy: true },
+    { succeeded: 72, failures: times(9, scannerTimeout), minSuccessRate: 0.9, healthy: false },
+    // Exactly 90% only once the 21 refusals leave the denominator: 54 of 60.
+    { succeeded: 54, failures: [...times(21, refusal), ...times(6, scannerTimeout)], minSuccessRate: 0.9, healthy: true },
+    // Deferred entries are not eligible targets: 29 refusals are 36% of the 81
+    // scanned, and would read as 34% of an 85-entry catalog.
+    { ...TODAYS_GALLERY(), deferred: 4, healthy: true },
+    { succeeded: 52, failures: times(29, refusal), deferred: 4, healthy: false },
     // The de-bias seed leg's recent shape: same gate, no coverage floor.
-    { succeeded: 37, failures: [...times(6, refusal), ...times(2, scannerTimeout)], fullCatalog: false }
+    { succeeded: 37, failures: [...times(6, refusal), ...times(2, scannerTimeout)], fullCatalog: false, healthy: true }
   ];
   for (const fixture of fixtures) {
     const run = batch(fixture);
-    const label = `${fixture.succeeded}/${fixture.succeeded + fixture.failures.length}`;
-    assert.equal(run.summary.failureTaxonomy, run.verdict.failureTaxonomy, `${label}: one taxonomy value`);
+    const label = `${fixture.succeeded}/${fixture.succeeded + fixture.failures.length} at ${fixture.minSuccessRate ?? 0.8}`;
+    assert.notEqual(run.aggregate, null, `${label}: main's summary must survive its own projection`);
+    assert.deepEqual(run.aggregate.failureTaxonomy, run.verdict.failureTaxonomy, `${label}: one taxonomy`);
     assert.equal(run.verdict.reasons.length === 0, run.decision.healthy, `${label}: exit code and health disagree`);
+    assert.equal(run.decision.healthy, fixture.healthy, `${label}: healthy`);
   }
-  assert.equal(batch(fixtures.at(-1)).decision.healthy, true, "the seed leg's usual week stays green");
 });
 
 test("the issue and the step summary state every gate beside its threshold", () => {
@@ -583,14 +605,19 @@ test("the issue and the step summary state every gate beside its threshold", () 
 });
 
 test("the runner exits on the shared verdict, not on a rate of its own", () => {
-  // main() scans real sites and cannot run here, so pin that its exit code and
-  // its written taxonomy are the verdict the tests above exercise.
+  // main() scans real sites and cannot run here. featuredBatchOutcome is
+  // exercised above; this pins that main takes its verdict and its written
+  // summary from that one call and from nothing else.
   const runner = readFileSync(new URL("./run-featured-scans.mjs", import.meta.url), "utf8");
-  assert.match(runner, /const verdict = featuredBatchVerdict\(\{ total: sites\.length, succeeded, failures, minSuccessRate \}\);/);
-  assert.match(runner, /failureTaxonomy: verdict\.failureTaxonomy,/);
-  const gate = runner.indexOf("  if (verdict.reasons.length > 0) {\n");
+  const start = runner.indexOf("async function main(");
+  assert.ok(start >= 0);
+  const main = runner.slice(start, runner.indexOf("\n}\n", start));
+  assert.match(main, /const \{ verdict, summary \} = featuredBatchOutcome\(\{/);
+  assert.match(main, /await publishRunDiagnostics\(summary\);/);
+  assert.doesNotMatch(main, /featuredBatchVerdict\(|buildFeaturedRunSummary\(|featuredBatchHealth\(/);
+  const gate = main.indexOf("  if (verdict.reasons.length > 0) {\n");
   assert.ok(gate > 0, "main gates on the verdict's reasons");
-  assert.match(runner.slice(gate, runner.indexOf("\n  }\n", gate)), /process\.exit\(1\);$/);
+  assert.match(main.slice(gate), /process\.exit\(1\);\n  \}$/);
   assert.doesNotMatch(runner, /successRate < minSuccessRate/);
   assert.doesNotMatch(runner, /taxonomy\.get\("target-refused"\)/);
 });

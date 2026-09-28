@@ -211,9 +211,7 @@ async function main(args = process.argv.slice(2)) {
     }
   }
 
-  const successRate = succeeded / sites.length;
-  const verdict = featuredBatchVerdict({ total: sites.length, succeeded, failures, minSuccessRate });
-  await publishRunDiagnostics({
+  const { verdict, summary } = featuredBatchOutcome({
     sites,
     unavailable,
     catalogTotal,
@@ -222,12 +220,11 @@ async function main(args = process.argv.slice(2)) {
     eligibility,
     succeeded,
     failures,
-    failureTaxonomy: verdict.failureTaxonomy,
     scanResults,
     retried,
-    minSuccessRate,
-    successRate
+    minSuccessRate
   });
+  await publishRunDiagnostics(summary);
 
   console.log("\nVerifying report redaction and provenance...");
   await run(process.platform === "win32" ? "npm.cmd" : "npm", ["run", "reports:remediate", "--", "--check"], {
@@ -296,6 +293,45 @@ export function featuredBatchVerdict({ total, succeeded, failures, minSuccessRat
   });
   const reasons = featuredBatchHealthFailures({ ...health, succeeded, requiredSuccessRate: minSuccessRate });
   return { failureTaxonomy, health, reasons };
+}
+
+/**
+ * Everything main() decides once the scans finish: the verdict it exits on and
+ * the summary it writes for the trusted publication decision, built from one
+ * set of inputs so the two cannot be handed different totals, rates or
+ * taxonomies. main() scans real sites and cannot run in a test, so this is the
+ * part of its wiring a test can reach.
+ */
+export function featuredBatchOutcome({
+  sites,
+  unavailable,
+  catalogTotal,
+  catalogVersion,
+  fullCatalog,
+  eligibility,
+  succeeded,
+  failures,
+  scanResults,
+  retried,
+  minSuccessRate
+}) {
+  const verdict = featuredBatchVerdict({ total: sites.length, succeeded, failures, minSuccessRate });
+  const summary = buildFeaturedRunSummary({
+    sites,
+    unavailable,
+    catalogTotal,
+    catalogVersion,
+    fullCatalog,
+    eligibility,
+    succeeded,
+    failures,
+    failureTaxonomy: verdict.failureTaxonomy,
+    scanResults,
+    retried,
+    minSuccessRate,
+    successRate: succeeded / sites.length
+  });
+  return { verdict, summary };
 }
 
 export function featuredRunPlan({
@@ -367,8 +403,7 @@ function parseArguments(args) {
   throw new Error("Usage: node scripts/run-featured-scans.mjs [--plan]");
 }
 
-async function publishRunDiagnostics(input) {
-  const summary = buildFeaturedRunSummary(input);
+async function publishRunDiagnostics(summary) {
   const outputPath = process.env.FEATURED_SUMMARY_PATH?.trim();
   if (outputPath) {
     await writeFile(outputPath, `${JSON.stringify(summary, null, 2)}\n`, "utf8");
