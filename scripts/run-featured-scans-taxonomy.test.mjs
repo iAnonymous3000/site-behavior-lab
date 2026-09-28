@@ -19,6 +19,7 @@ import {
   UNAMBIGUOUS_TARGET_REFUSALS
 } from "./run-featured-scans-diagnostics.mjs";
 import { FEATURED_READJUDICATION_REASONS } from "./featured-readjudication-lib.mjs";
+import { awaitSubmittedScanJob } from "./run-ci-scan-job.mjs";
 
 /**
  * Pinned to the EXACT strings two real runs produced on 2026-08-14, not to
@@ -109,6 +110,55 @@ test("every sentence the producer can emit lands where its cause belongs", () =>
   }
 });
 
+/**
+ * Failures raised BEFORE a report exists carry no structured reason, so the
+ * sentence alone decides them, and a refused sentence leaves the gate's
+ * denominator. Mentioning a refusal's status code is therefore not enough: the
+ * scanner's own status route answers 429 too, and its private-address guard
+ * also says the page "could not be loaded". Each sentence is pinned verbatim to
+ * its producer, the scanner's by reading lib/scanner.ts and the status route's
+ * by running the real poller, so a reword fails here instead of moving the gate.
+ */
+const PRE_REPORT_OUTCOMES = [
+  ["The page could not be loaded. The site may be down, unreachable, or blocking automated visits.", "target-refused"],
+  ["The page could not be loaded because it resolved to a local or private network address.", "unclassified"],
+  ["The page did not load before the scan timeout.", "scanner-timeout"],
+  ["The scan exceeded the maximum scan duration.", "scanner-timeout"]
+];
+
+async function statusRouteFailure(status) {
+  try {
+    await awaitSubmittedScanJob({
+      submission: { jobId: "job-1", statusPath: "/api/scans/job-1" },
+      baseUrl: "http://127.0.0.1:3100",
+      isPublishableScanReport: () => false,
+      fetcher: async () => new Response("busy", { status }),
+      wait: async () => {}
+    });
+  } catch (error) {
+    return error.message;
+  }
+  assert.fail("the poller must give up on a status route that never recovers");
+}
+
+const kindsOf = (message) => [
+  ...classifyFeaturedFailures([{ site: "example.test", message, unavailableReason: null }]).keys()
+];
+
+test("a pre-report sentence is a refusal only when it is the target's own answer", async () => {
+  const scanner = readFileSync(new URL("../lib/scanner.ts", import.meta.url), "utf8");
+  for (const [sentence, expected] of PRE_REPORT_OUTCOMES) {
+    assert.ok(scanner.includes(`"${sentence}"`), `lib/scanner.ts no longer emits "${sentence}"`);
+    assert.deepEqual(kindsOf(sentence), [expected], sentence);
+  }
+
+  for (const status of [429, 503]) {
+    const message = await statusRouteFailure(status);
+    assert.equal(message, `Scan job status remained temporarily unavailable (HTTP ${status}).`);
+    assert.deepEqual(kindsOf(message), ["unclassified"], `our status route's ${status} is not the site declining`);
+  }
+});
+
 test("the catch-all reason never decides fault on its own", () => {
   // navigation-incomplete covers a missing HTTP response AND three outcomes
   // that are ours. Short-circuiting on it published a scanner-side
@@ -149,6 +199,15 @@ test("a structured reason outranks the wording, and its absence falls back to it
     { site: "s.example", message: "The scan exceeded the maximum scan duration.", unavailableReason: null }
   ]);
   assert.deepEqual([...preReport.keys()], ["scanner-timeout"]);
+
+  // Without its reason, the target's own status still reads as its answer.
+  for (const status of [401, 403, 429]) {
+    assert.deepEqual(
+      kindsOf(`Skipping scan target: primary baseline arm: main navigation returned HTTP ${status}.`),
+      ["target-refused"],
+      `the target's own ${status}`
+    );
+  }
 
   // An unrecognized reason must not be trusted into the refused bucket.
   const bogus = classifyFeaturedFailures([
@@ -427,6 +486,22 @@ test("scanner failures past the gate still fail with zero refusals, and refusals
   // A batch with no success is never healthy, whatever rate it is held to.
   const nothing = featuredBatchHealth({ total: 5, succeeded: 0, failed: 5, failureTaxonomy: null, requiredSuccessRate: 0 });
   assert.equal(nothing.meetsSuccessRate, false);
+});
+
+test("the scanner's own control-plane failures stay in the denominator", async () => {
+  // 17 status-route 429s and 4 real refusals of 81: excusing the 429s as
+  // refusals read this as 60 of 60, green, and published our own rate limit
+  // among the sites refusing an automated visit.
+  const message = await statusRouteFailure(429);
+  const statusRoute = times(17, (index) => ({ site: `status-${index}.example`, message, unavailableReason: null }));
+  const run = batch({ succeeded: 60, failures: [...statusRoute, ...times(4, refusal)] });
+  assert.equal(run.verdict.health.refused, 4);
+  assert.equal(run.verdict.health.scannerJudged, 77);
+  assert.deepEqual(run.verdict.reasons, [
+    "The scanner succeeded on 60 of the 77 eligible targets that did not refuse an automated visit (78%), below the required 80%."
+  ]);
+  assert.equal(run.decision.healthy, false);
+  assert.match(issueFor(run.aggregate, true), /17 are attributable to this scanner/);
 });
 
 test("a summary that lost its taxonomy holds every failure against the scanner", () => {

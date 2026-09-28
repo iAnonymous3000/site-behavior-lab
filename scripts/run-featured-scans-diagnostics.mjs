@@ -479,13 +479,20 @@ function workflowRunUrl({ serverUrl, repository, runId }) {
  * so every sentence that lands there is a sentence the scanner is no longer
  * judged on. Anything unrecognized stays `unclassified`, which is counted
  * against the scanner, never assumed to be the site declining.
+ *
+ * So each sentence is anchored to the TARGET'S OWN ANSWER. The scanner's
+ * control plane speaks HTTP too: a bare "HTTP 429" also matched "Scan job
+ * status remained temporarily unavailable (HTTP 429).", our own status route's
+ * rate limit, and excused it as a site refusing the browser. A bare "could not
+ * be loaded" also matched the scanner's private-address guard, which is a DNS
+ * or catalog problem rather than the site declining. Both now stay counted.
  */
 export function classifyFeaturedFailures(failures) {
   const kindOf = (failure) => {
     if (UNAMBIGUOUS_TARGET_REFUSALS.has(failure?.unavailableReason)) return "target-refused";
     const text = String(failure?.message ?? "");
-    if (/HTTP (401|403|429)\b/.test(text)) return "target-refused";
-    if (/could not be loaded|down, unreachable, or blocking/i.test(text)) return "target-refused";
+    if (/main navigation returned HTTP (401|403|429)\b/i.test(text)) return "target-refused";
+    if (/down, unreachable, or blocking automated visits/i.test(text)) return "target-refused";
     if (/only \d+ network request/i.test(text)) return "target-refused";
     if (/main navigation produced no HTTP response/i.test(text)) return "target-refused";
     if (/main navigation returned HTTP 5\d\d/i.test(text)) return "target-refused";
