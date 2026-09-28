@@ -1741,6 +1741,27 @@ test("a policy link read that failed before any visit builds without a policy ph
     };
     assert.throws(() => buildNodeScanReportV2R2(activeWithoutPhase), /policy-analysis phase|explains the omission/, status);
   }
+
+  // The failed outcome explains the missing phase only for a declared policy
+  // visit: a run that never declared one has no link read to fail, so the
+  // same ledger stays a refusal there.
+  for (const reason of ["scan-failed", "load-failed"] as const) {
+    const undeclared = baseInput();
+    undeclared.measurement.detectors["privacy-policy"] = {
+      version: DETECTOR_VERSIONS["privacy-policy"],
+      status: "failed",
+      reason
+    };
+    undeclared.measurement.qualityFacts.captureLoss.push({
+      family: "detector-output",
+      phaseId: null,
+      kind: "dropped",
+      count: 1,
+      detail: "policy-visit"
+    });
+    assert.equal(undeclared.conditions.probes.policyVisit, false);
+    assert.throws(() => buildNodeScanReportV2R2(undeclared), /executed privacy-policy detector requires a policy-analysis phase/, reason);
+  }
 });
 
 test("a consent run whose interaction never happened still builds a degraded, accountable report", () => {

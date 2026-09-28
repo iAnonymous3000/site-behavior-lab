@@ -614,10 +614,12 @@ function assertPhasePlan(
   // scanner records a link read that failed before any visit as
   // `failed/scan-failed` with no phase, and the obligation registry admits it.
   // Only an outcome that reports activity needs the phase it reports from.
+  // The explanation needs the declared probe: a run that never declared a
+  // policy visit has no link read to fail.
   if (
     !hasPolicy &&
     executedDetector(detectors["privacy-policy"]) &&
-    !phaseOmissionExplainedByDetector(detectors["privacy-policy"])
+    !(conditions.probes.policyVisit && phaseOmissionExplainedByDetector(detectors["privacy-policy"]))
   ) {
     throw new Error("An executed privacy-policy detector requires a policy-analysis phase.");
   }
