@@ -1,6 +1,7 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import {
+  parseCorrectionsLedger,
   parsedCorrectionsLedgerPrivacyRemovedReportIds,
   parsedCorrectionsLedgerReportIds,
   type ParsedCorrectionsLedger
@@ -18,7 +19,8 @@ import { toReportView, type ReportView } from "./scan-report-views";
  * is published. A report the ledger removed for privacy is never frozen, since
  * the copy would put the removed bytes back in the repository; a test reads
  * the redacted replacement the ledger pairs with it. lib/pinned-reports.test.ts
- * fails any other read of public/reports by a literal id.
+ * fails any other read of public/reports by a literal id, and the
+ * ledgerPinnedReport helpers refuse one when it runs.
  */
 
 const FROZEN_READ_REMEDY = "freeze it under test-fixtures/reports and read it through lib/pinned-reports.ts";
@@ -62,9 +64,26 @@ export function frozenReportView(id: string): ReportView {
   return toReportView(storedReport(frozenReportWire(id), id));
 }
 
+let publishedLedger: ParsedCorrectionsLedger | undefined;
+
+/**
+ * Where public/reports publishes a report the corrections ledger pins. Any
+ * other id throws the remedy publishedReadProblem names, so every read through
+ * these helpers is checked when it runs, whatever shape the guard resolves.
+ */
+function ledgerPinnedReportPath(id: string): string {
+  const reportPath = path.join(process.cwd(), "public", "reports", `${id}.json`);
+  publishedLedger ??= parseCorrectionsLedger(
+    JSON.parse(readFileSync(path.join(process.cwd(), "public", "corrections.json"), "utf8"))
+  );
+  const problem = publishedReadProblem(id, publishedLedger, existsSync(reportPath));
+  if (problem !== null) throw new Error(`a test reads ${id} from public/reports, ${problem}`);
+  return reportPath;
+}
+
 /** A report the corrections ledger pins against retention, read where it is published. */
 export function ledgerPinnedReportWire(id: string): string {
-  return readFileSync(path.join(process.cwd(), "public", "reports", `${id}.json`), "utf8");
+  return readFileSync(ledgerPinnedReportPath(id), "utf8");
 }
 
 export function ledgerPinnedReportView(id: string): ReportView {

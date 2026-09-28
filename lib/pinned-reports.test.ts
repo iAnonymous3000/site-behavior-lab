@@ -7,9 +7,10 @@ import ts from "typescript";
 import {
   parseCorrectionsLedger,
   parsedCorrectionsLedgerPrivacyRemovedReportIds,
+  parsedCorrectionsLedgerReportIds,
   type ParsedCorrectionsLedger
 } from "./corrections-ledger-model";
-import { publishedReadProblem } from "./pinned-reports";
+import { ledgerPinnedReportView, ledgerPinnedReportWire, publishedReadProblem } from "./pinned-reports";
 
 /**
  * Retention prunes public/reports on every featured refresh, and a test that
@@ -24,8 +25,7 @@ import { publishedReadProblem } from "./pinned-reports";
  */
 
 const REPORT_ID = /\b\d{8}-[0-9a-f]{32}\b/g;
-/** lib/pinned-reports.ts helpers that read public/reports; each takes the report id first. */
-const COMMITTED_READ_HELPERS = new Set(["ledgerPinnedReportWire", "ledgerPinnedReportView"]);
+const HELPER_MODULE = path.join("lib", "pinned-reports.ts");
 const FILE_READS = new Set(["readFileSync", "readFile"]);
 const ELEMENT_CALLBACKS = new Set(["forEach", "map", "flatMap", "filter", "some", "every", "find"]);
 const MAX_DEPTH = 16;
@@ -33,6 +33,7 @@ const MAX_DEPTH = 16;
 type Source = { file: string; text: string };
 type CommittedRead = { file: string; line: number; id: string };
 type FunctionNode = ts.FunctionDeclaration | ts.ArrowFunction | ts.FunctionExpression;
+type CorpusRead = { call: ts.CallExpression; parts: ts.Expression[] };
 
 /**
  * Reads of public/reports under the repository root whose report id resolves
@@ -55,22 +56,81 @@ type FunctionNode = ts.FunctionDeclaration | ts.ArrowFunction | ts.FunctionExpre
  * (`ids.slice(1).forEach`), an id built by a string method, a path anchored at
  * __dirname or import.meta.url or joined by Array.prototype.join, and a read
  * through any API but readFileSync, readFile and readStaticReportBundle
- * (createReadStream, for one).
+ * (createReadStream, for one). A read through a `helpers` function is also
+ * checked at run time, whatever its shape.
  */
-function committedReportReads(sources: readonly Source[]): CommittedRead[] {
+function committedReportReads(sources: readonly Source[], helpers: ReadonlySet<string>): CommittedRead[] {
+  const { program, checker } = sourceProgram(sources);
+  const reads: CommittedRead[] = [];
+  for (const source of sources) {
+    const sourceFile = program.getSourceFile(source.file);
+    if (!sourceFile) throw new Error(`${source.file} did not parse`);
+    const { corpusReads, literalIds } = sourceResolver(sourceFile, checker);
+    for (const { call, parts } of corpusReads(helpers)) {
+      const line = sourceFile.getLineAndCharacterOfPosition(call.getStart(sourceFile)).line + 1;
+      for (const id of new Set(parts.flatMap((part) => literalIds(part, 0)))) {
+        reads.push({ file: sourceFile.fileName, line, id });
+      }
+    }
+  }
+  return reads;
+}
+
+/**
+ * The exports of the helper module that read public/reports: every function
+ * that reads a corpus path, contains one that does, or calls one that does,
+ * found by the resolver the guard runs over the tests. A renamed or added
+ * helper is then checked without a list of names to keep in step.
+ */
+function corpusReadHelpers(source: Source): ReadonlySet<string> {
+  const { program, checker } = sourceProgram([source]);
+  const sourceFile = program.getSourceFile(source.file);
+  if (!sourceFile) throw new Error(`${source.file} did not parse`);
+  const { calls, calledFunction, corpusReads } = sourceResolver(sourceFile, checker);
+  const readers = new Set<ts.Node>();
+  const enclosingFunctions = (node: ts.Node): ts.Node[] => {
+    const found: ts.Node[] = [];
+    for (let current = node.parent; current; current = current.parent) {
+      if (ts.isFunctionLike(current)) found.push(current);
+    }
+    return found;
+  };
+  for (const { call } of corpusReads(new Set())) {
+    for (const fn of enclosingFunctions(call)) readers.add(fn);
+  }
+  for (let grew = true; grew; ) {
+    grew = false;
+    for (const call of calls) {
+      const target = calledFunction(call);
+      if (!target || !readers.has(target)) continue;
+      for (const fn of enclosingFunctions(call)) {
+        if (!readers.has(fn)) {
+          readers.add(fn);
+          grew = true;
+        }
+      }
+    }
+  }
+  const moduleSymbol = checker.getSymbolAtLocation(sourceFile);
+  const helpers = new Set<string>();
+  for (const exported of moduleSymbol ? checker.getExportsOfModule(moduleSymbol) : []) {
+    const symbol = exported.flags & ts.SymbolFlags.Alias ? checker.getAliasedSymbol(exported) : exported;
+    const declaration = symbol.valueDeclaration;
+    const fn = declaration && ts.isVariableDeclaration(declaration) && declaration.initializer
+      ? unwrap(declaration.initializer)
+      : declaration;
+    if (fn && readers.has(fn)) helpers.add(exported.name);
+  }
+  return helpers;
+}
+
+function sourceProgram(sources: readonly Source[]): { program: ts.Program; checker: ts.TypeChecker } {
   const program = ts.createProgram({
     rootNames: sources.map((source) => source.file),
     options: { allowJs: true, noLib: true, noResolve: true, noEmit: true, types: [] },
     host: sourceHost(sources)
   });
-  const checker = program.getTypeChecker();
-  const reads: CommittedRead[] = [];
-  for (const source of sources) {
-    const sourceFile = program.getSourceFile(source.file);
-    if (!sourceFile) throw new Error(`${source.file} did not parse`);
-    reads.push(...fileReads(sourceFile, checker));
-  }
-  return reads;
+  return { program, checker: program.getTypeChecker() };
 }
 
 function sourceHost(sources: readonly Source[]): ts.CompilerHost {
@@ -93,31 +153,31 @@ function sourceHost(sources: readonly Source[]): ts.CompilerHost {
   };
 }
 
-function fileReads(sourceFile: ts.SourceFile, checker: ts.TypeChecker): CommittedRead[] {
+function unwrap(node: ts.Expression): ts.Expression {
+  let current = node;
+  while (
+    ts.isParenthesizedExpression(current) ||
+    ts.isAsExpression(current) ||
+    ts.isSatisfiesExpression(current) ||
+    ts.isNonNullExpression(current) ||
+    ts.isTypeAssertionExpression(current)
+  ) current = current.expression;
+  return current;
+}
+
+function calleeName(callee: ts.Expression): string | undefined {
+  if (ts.isIdentifier(callee)) return callee.text;
+  if (ts.isPropertyAccessExpression(callee)) return callee.name.text;
+  return undefined;
+}
+
+function sourceResolver(sourceFile: ts.SourceFile, checker: ts.TypeChecker) {
   const calls: ts.CallExpression[] = [];
   const collect = (node: ts.Node): void => {
     if (ts.isCallExpression(node)) calls.push(node);
     ts.forEachChild(node, collect);
   };
   collect(sourceFile);
-
-  const unwrap = (node: ts.Expression): ts.Expression => {
-    let current = node;
-    while (
-      ts.isParenthesizedExpression(current) ||
-      ts.isAsExpression(current) ||
-      ts.isSatisfiesExpression(current) ||
-      ts.isNonNullExpression(current) ||
-      ts.isTypeAssertionExpression(current)
-    ) current = current.expression;
-    return current;
-  };
-
-  const calleeName = (callee: ts.Expression): string | undefined => {
-    if (ts.isIdentifier(callee)) return callee.text;
-    if (ts.isPropertyAccessExpression(callee)) return callee.name.text;
-    return undefined;
-  };
 
   // The function a call invokes when it is declared in this file.
   const calledFunction = (call: ts.CallExpression): FunctionNode | undefined => {
@@ -389,22 +449,24 @@ function fileReads(sourceFile: ts.SourceFile, checker: ts.TypeChecker): Committe
     return null;
   };
 
-  const reads: CommittedRead[] = [];
-  for (const call of calls) {
-    const name = calleeName(call.expression);
-    let parts: ts.Expression[] | null = null;
-    if (name && COMMITTED_READ_HELPERS.has(name) && call.arguments[0]) parts = [call.arguments[0]];
-    else if (name && FILE_READS.has(name) && call.arguments[0]) parts = corpusIdParts(call.arguments[0], 0);
-    else if (name === "readStaticReportBundle" && call.arguments[1] && corpusIdParts(call.arguments[0], 0)) {
-      parts = [call.arguments[1]];
+  // Each call that reads under public/reports, with the parts of its path or
+  // arguments that carry the report id. A helper call's id may be any argument.
+  const corpusReads = (helpers: ReadonlySet<string>): CorpusRead[] => {
+    const found: CorpusRead[] = [];
+    for (const call of calls) {
+      const name = calleeName(call.expression);
+      let parts: ts.Expression[] | null = null;
+      if (name && helpers.has(name)) parts = [...call.arguments];
+      else if (name && FILE_READS.has(name) && call.arguments[0]) parts = corpusIdParts(call.arguments[0], 0);
+      else if (name === "readStaticReportBundle" && call.arguments[1] && corpusIdParts(call.arguments[0], 0)) {
+        parts = [call.arguments[1]];
+      }
+      if (parts) found.push({ call, parts });
     }
-    if (!parts) continue;
-    const line = sourceFile.getLineAndCharacterOfPosition(call.getStart(sourceFile)).line + 1;
-    for (const id of new Set(parts.flatMap((part) => literalIds(part, 0)))) {
-      reads.push({ file: sourceFile.fileName, line, id });
-    }
-  }
-  return reads;
+    return found;
+  };
+
+  return { calls, calledFunction, corpusReads, literalIds };
 }
 
 function committedReadProblems(
@@ -485,7 +547,15 @@ test("every report a test reads from public/reports by id is published there and
   // The walk reaches both suites, so an empty result is a clean tree rather than an empty scan.
   assert.ok(sources.filter((source) => source.file.startsWith("lib")).length > 100, "lib test sources");
   assert.ok(sources.some((source) => source.file.startsWith("scripts")), "scripts test sources");
-  const reads = committedReportReads(sources.filter((source) => /\d{8}-[0-9a-f]{32}/.test(source.text)));
+  const helpers = corpusReadHelpers({ file: HELPER_MODULE, text: readFileSync(HELPER_MODULE, "utf8") });
+  assert.ok(helpers.size > 0, `${HELPER_MODULE} helpers that read public/reports`);
+  const reads = committedReportReads(
+    sources.filter((source) => /\d{8}-[0-9a-f]{32}/.test(source.text)),
+    helpers
+  );
+  // Tests read ledger-pinned reports through the helpers today, so resolving
+  // none means the resolver or the helper derivation broke, not a clean tree.
+  assert.ok(reads.length > 0, "resolved corpus reads");
   const problems = committedReadProblems(reads, path.join("public", "reports"), publishedLedger());
   assert.deepEqual(problems, [], problems.join("\n"));
 });
@@ -548,6 +618,7 @@ test("the read detector follows every binding shape to its literal id and skips 
     Object.entries({ nasa: "${id(37)}" }).forEach(([, r37]) => readFileSync(\`public/reports/\${r37}.json\`));
     for (const entry of Object.entries({ bing: "${id(38)}" })) readFileSync(\`public/reports/\${entry[1]}.json\`);
     for (const [r39] of Object.entries({ "${id(39)}": "keyed" })) readFileSync(\`public/reports/\${r39}.json\`);
+    ledgerPinnedReportWire(undefined, "${id(44)}");
 
     const tmp = mkdtempSync("sbl-");
     readFileSync(path.join(tmp, "public", "reports", "${id(30)}.json"));
@@ -577,15 +648,19 @@ test("the read detector follows every binding shape to its literal id and skips 
     import { readFileSync } from "node:fs";
     readFileSync(\`public/reports/${id(21)}.json\`, "utf8");
   `;
-  const reads = committedReportReads([
-    { file: "lib/example.test.ts", text: lib },
-    { file: "scripts/example.test.mjs", text: script }
-  ]);
+  const reads = committedReportReads(
+    [
+      { file: "lib/example.test.ts", text: lib },
+      { file: "scripts/example.test.mjs", text: script }
+    ],
+    new Set(["ledgerPinnedReportWire", "ledgerPinnedReportView"])
+  );
   assert.deepEqual(
     reads.map((read) => `${read.file} ${read.id}`).sort(),
     [
       ...[
-        1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 20, 22, 23, 24, 25, 26, 27, 28, 29, 36, 37, 38, 39
+        1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 20, 22, 23, 24, 25, 26, 27, 28, 29, 36, 37, 38, 39,
+        44
       ].map((n) => `lib/example.test.ts ${id(n)}`),
       `scripts/example.test.mjs ${id(21)}`
     ].sort()
@@ -594,6 +669,49 @@ test("the read detector follows every binding shape to its literal id and skips 
   // and at the read of a path a helper returns rather than inside that helper.
   assert.deepEqual(reads.find((read) => read.id === id(7)), { file: "lib/example.test.ts", line: 14, id: id(7) });
   assert.deepEqual(reads.find((read) => read.id === id(26)), { file: "lib/example.test.ts", line: 47, id: id(26) });
+});
+
+test("the helpers the guard checks are every export of the helper module that reads public/reports", () => {
+  const helperModule = `
+    import { existsSync, readFileSync } from "node:fs";
+    import path from "node:path";
+    const corpusFile = (id: string) => path.join(process.cwd(), "public", "reports", \`\${id}.json\`);
+    function checkedPath(id: string, suffix: string) {
+      const file = path.join(process.cwd(), "public", "reports", \`\${id}\${suffix}\`);
+      if (!existsSync(file)) throw new Error(id);
+      return file;
+    }
+    export function publishedWire(id: string) {
+      return readFileSync(corpusFile(id), "utf8");
+    }
+    export function publishedView(id: string) {
+      return JSON.parse(publishedWire(id));
+    }
+    export const publishedProvenance = (id: string) => readFileSync(checkedPath(id, ".provenance.json"), "utf8");
+    export function publishedWires(ids: string[]) {
+      return ids.map((id) => readFileSync(corpusFile(id), "utf8"));
+    }
+    function localWire(id: string) {
+      return readFileSync(corpusFile(id), "utf8");
+    }
+    export { localWire as aliasedWire };
+    function unexportedWire(id: string) {
+      return readFileSync(corpusFile(id), "utf8");
+    }
+    export function frozenWire(id: string) {
+      return readFileSync(path.join(process.cwd(), "test-fixtures", "reports", \`\${id}.json\`), "utf8");
+    }
+    export function corpusPathOnly(id: string) {
+      return corpusFile(id);
+    }
+    export function parsed(wire: string) {
+      return JSON.parse(wire);
+    }
+  `;
+  assert.deepEqual(
+    [...corpusReadHelpers({ file: "lib/helpers.ts", text: helperModule })].sort(),
+    ["aliasedWire", "publishedProvenance", "publishedView", "publishedWire", "publishedWires"]
+  );
 });
 
 test("a literal corpus read fails when its report is gone, unpinned or removed for privacy, naming the remedy for each", () => {
@@ -660,4 +778,36 @@ test("a frozen copy of a privacy-removed report fails wherever it sits under tes
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
+});
+
+test("the ledger-pinned helpers refuse at run time any report the ledger does not pin where it is published", () => {
+  const ledger = publishedLedger();
+  const pinned = parsedCorrectionsLedgerReportIds(ledger);
+  const removed = parsedCorrectionsLedgerPrivacyRemovedReportIds(ledger);
+  const unpinned = readdirSync(path.join("public", "reports"))
+    .map((entry) => /^(\d{8}-[0-9a-f]{32})\.json$/.exec(entry)?.[1])
+    .find((id): id is string => id !== undefined && !pinned.has(id) && !removed.has(id));
+  assert.ok(unpinned, "a published report the ledger does not pin");
+  assert.throws(() => ledgerPinnedReportWire(unpinned), {
+    message: `a test reads ${unpinned} from public/reports, where no corrections-ledger pin keeps it from retention; freeze it under test-fixtures/reports and read it through lib/pinned-reports.ts`
+  });
+  // Every id this test reads comes from the corpus or the ledger, never a
+  // literal, so the guard above scans this file without flagging it.
+  const unpublished = `${unpinned.slice(0, 9)}${"f".repeat(32)}`;
+  assert.ok(!existsSync(path.join("public", "reports", `${unpublished}.json`)), "an id public/reports does not publish");
+  assert.throws(() => ledgerPinnedReportView(unpublished), {
+    message: `a test reads ${unpublished} from public/reports, which no longer publishes it; freeze it under test-fixtures/reports and read it through lib/pinned-reports.ts`
+  });
+  const event = ledger.entries.find((entry) => entry.state === "privacy-superseded");
+  assert.ok(event?.replacementReportIds, "a privacy removal in the published ledger");
+  const [original] = event.reportIds;
+  const [replacement] = event.replacementReportIds;
+  assert.throws(() => ledgerPinnedReportWire(original), {
+    message: `a test reads ${original} from public/reports, which ${event.eventId} removed for privacy; read its replacement ${replacement} instead, which the ledger pins, and never freeze ${original} under test-fixtures/reports`
+  });
+  // The replacement the refusal names is pinned and published, so it reads.
+  assert.equal(
+    ledgerPinnedReportWire(replacement),
+    readFileSync(path.join("public", "reports", `${replacement}.json`), "utf8")
+  );
 });
