@@ -136,7 +136,7 @@
   "dependencies": {
     "@cloudflare/containers": "^0.3.7",
     "aws4fetch": "^1.0.20",
-    "lucide-react": "^1.47.0",
+    "lucide-react": "^1.48.0",
     "next": "^16.3.6",
     "pdfjs-dist": "^6.2.108",
     "playwright": "1.63.0",
@@ -154,7 +154,7 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "4.13.0",
-    "@cloudflare/workers-types": "^5.20260922.1",
+    "@cloudflare/workers-types": "^5.20260925.1",
     "@types/node": "^26.6.2",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
@@ -162,6 +162,6 @@
     "miniflare": "4.20260730.0",
     "ts-json-schema-generator": "2.9.0",
     "typescript": "^5.7.2",
-    "wrangler": "^4.136.3"
+    "wrangler": "^4.140.0"
   }
 }

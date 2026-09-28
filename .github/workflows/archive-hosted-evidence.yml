@@ -42,7 +42,7 @@ jobs:
     if: >-
       github.repository == 'iAnonymous3000/site-behavior-lab' &&
       github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     # At most three independent sources run concurrently. Each source admits
     # no more than 26 sequential one-minute request slots; the collector adds a
     # four-minute processing margin and enforces a 30-minute global deadline.
@@ -175,7 +175,7 @@ jobs:
   propose:
     name: Verify and propose immutable hosted evidence
     needs: attest
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     permissions:
       contents: write

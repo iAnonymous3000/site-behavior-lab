@@ -496,7 +496,7 @@ test("workflow contract keeps collection unsharded and isolates hosted attestati
     archive.indexOf("  attest:"),
     archive.indexOf("  propose:")
   );
-  assert.match(attestationJob, /runs-on: ubuntu-latest/);
+  assert.match(attestationJob, /runs-on: ubuntu-24\.04/);
   assert.match(attestationJob, /id-token: write/);
   assert.match(attestationJob, /attestations: write/);
   assert.doesNotMatch(attestationJob, /contents: write|pull-requests: write/);

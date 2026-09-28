@@ -86,7 +86,7 @@ operator-attested controlled self-hosted egress facts; request bodies and
 headers cannot select it. The publisher then requires every primary and
 embedded supporting run to carry that exact acquisition label and source SHA.
 
-A separate `ubuntu-latest` publisher receives the minimum repository and
+A separate `ubuntu-24.04` publisher receives the minimum repository and
 Actions write permissions. It checks out that exact source SHA, installs locked
 dependencies with lifecycle scripts disabled, downloads the artifact by its
 immutable artifact id, and treats every downloaded byte as untrusted data. The

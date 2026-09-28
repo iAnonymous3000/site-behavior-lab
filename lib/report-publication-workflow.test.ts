@@ -45,7 +45,7 @@ test("committed r2 provenance is server-owned and publisher-enforced", () => {
 test("trusted publishers validate bounded data before a non-rebasing branch push", () => {
   for (const [name, source] of [["single", single], ["featured", featured]] as const) {
     const publisher = job(source, "publish");
-    assert.match(publisher, /runs-on: ubuntu-latest/);
+    assert.match(publisher, /runs-on: ubuntu-24\.04/);
     assert.match(publisher, /permissions:\n\s+contents: write\n[\s\S]*?actions: write/);
     assert.match(publisher, /ref: \$\{\{ github\.sha \}\}/);
     assert.match(publisher, /npm ci --ignore-scripts/);

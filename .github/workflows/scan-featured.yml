@@ -174,7 +174,7 @@ jobs:
     # for the controlled runner label. The ubuntu fallback is intentional: if
     # the label is absent, the job starts and the preflight fails visibly on
     # RUNNER_ENVIRONMENT instead of silently publishing v1.
-    runs-on: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.report_mode == 'v1' && 'ubuntu-latest' || vars.FEATURED_RUNNER_LABEL || 'ubuntu-latest' }}
+    runs-on: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.report_mode == 'v1' && 'ubuntu-24.04' || vars.FEATURED_RUNNER_LABEL || 'ubuntu-24.04' }}
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -457,7 +457,7 @@ jobs:
     if: >-
       needs.scan-featured.result == 'success' &&
       needs.scan-featured.outputs.publication_artifact_id != ''
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: write
       pull-requests: write
@@ -778,7 +778,7 @@ jobs:
       - scan-featured
       - publish
     if: always()
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
       issues: write

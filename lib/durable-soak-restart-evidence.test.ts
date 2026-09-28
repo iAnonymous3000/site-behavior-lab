@@ -572,7 +572,7 @@ test("workflow is pinned, least-privileged, bounded, and uploads only canonical 
   assert.match(workflow, /permissions:\n  contents: read/);
   assert.match(workflow, /environment: release-evidence/);
   assert.match(workflow, /timeout-minutes: 30/);
-  assert.match(workflow, /runs-on: ubuntu-latest/);
+  assert.match(workflow, /runs-on: ubuntu-24\.04/);
   assert.match(
     workflow,
     /actions\/checkout@[0-9a-f]{40}/

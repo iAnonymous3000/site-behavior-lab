@@ -40,7 +40,7 @@ concurrency:
 jobs:
   scanner:
     name: Verify scanner health and posture
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     # Rollout polling + contract fetches can use ~3 minutes and the synthetic
     # owns a separate five-minute total deadline. Leave explicit alerting
     # headroom instead of letting the job-level timeout race the canary.

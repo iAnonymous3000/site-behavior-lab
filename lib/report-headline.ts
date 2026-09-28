@@ -1070,26 +1070,38 @@ function buildUncorrectedReportHeadline(
     // "Incomplete", not "did not finish": some of these reasons come from a
     // check that ran to its end, such as a v1 input probe that stopped or
     // could not read a request, or a listener detection the sanitizer
-    // withheld. Each note below says what happened.
+    // withheld. Each note below says what happened, and each already ends in
+    // what it leaves incomplete, so the closing hedge is its own sentence.
+    const completedAbsenceSentence =
+      completedAbsenceParts.length > 0 ? `${capitalize(joinNames(completedAbsenceParts))}.` : "";
+    // The notes can carry the full subhead past the social-card bound on a
+    // quiet visit. The compact restatement keeps every completed absence claim
+    // and the hedge the headline states ("another check is incomplete"); it
+    // drops only which check, which the full subhead and the report name.
+    const compactSubhead =
+      completedAbsenceSentence && unsupportedFamilies.length === 0
+        ? `${completedAbsenceSentence} Another check is incomplete, so what it looks for is unproven here, not shown absent.`
+        : undefined;
     return finish(
       "info",
       completedAbsenceParts.length > 0
         ? `${domain}'s completed measurements recorded no listed activity, but another check is incomplete.`
         : `${domain}'s scan completed some measurements, but another check is incomplete.`,
-      `${completedAbsenceParts.length > 0 ? `${capitalize(joinNames(completedAbsenceParts))}. ` : ""}${
+      `${completedAbsenceSentence ? `${completedAbsenceSentence} ` : ""}${
         unsupportedFamilies.length > 0
           ? `${capitalize(joinNames(unsupportedFamilies))} evidence was not captured and is not treated as an observed absence. `
           : ""
       }${capitalize(joinNames(
         censorshipNotes,
         2
-      ))}, so whatever those checks look for is unproven here rather than shown to be absent.`,
+      ))}. Whatever those checks look for is unproven here rather than shown to be absent.`,
       stats.length > 0 ? stats : [{ label: "third-party requests", value: n(run.counts.thirdPartyRequests), emphasis: true }],
       undefined,
       {
         story: "incomplete-evidence",
         absenceClaims: completedAbsenceClaims
-      }
+      },
+      compactSubhead
     );
   }
 

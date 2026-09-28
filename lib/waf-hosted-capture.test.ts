@@ -1217,7 +1217,7 @@ test("WAF workflow is GitHub-hosted, least-privilege, pinned, and uploads only s
     path.join(process.cwd(), ".github", "workflows", "waf-ceiling-evidence.yml"),
     "utf8"
   );
-  assert.match(workflow, /runs-on: ubuntu-latest/);
+  assert.match(workflow, /runs-on: ubuntu-24\.04/);
   assert.match(workflow, /environment: release-evidence/);
   assert.match(workflow, /permissions:\n  contents: read/);
   assert.doesNotMatch(workflow, /contents: write/);

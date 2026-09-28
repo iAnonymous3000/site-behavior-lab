@@ -60,7 +60,7 @@ env:
 jobs:
   produce:
     name: Publish one pre-acquisition roster authorization
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     permissions:
       actions: read
@@ -204,7 +204,7 @@ jobs:
   dispatch_acquisition:
     name: Dispatch the sole authorized acquisition attempt
     needs: produce
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 5
     permissions:
       actions: write

@@ -41,7 +41,7 @@ jobs:
   measurement-freeze-notice:
     name: Measurement freeze notice
     if: vars.SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE == '1'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Explain the withheld bookkeeping
         run: |
@@ -52,7 +52,7 @@ jobs:
     # The measurement freeze quiesces this writer: dependency manifests are
     # claim-affecting inputs to the frozen epoch's identity tuple.
     if: vars.SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE != '1'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     permissions:
       contents: write

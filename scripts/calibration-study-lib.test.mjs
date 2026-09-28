@@ -1649,7 +1649,7 @@ test("workflow keeps acquisition, labels, assembly, and publication in separate 
     ),
     "utf8"
   );
-  assert.match(labelWorkflow, /runs-on: ubuntu-latest/);
+  assert.match(labelWorkflow, /runs-on: ubuntu-24\.04/);
   assert.match(
     workflow,
     /environment: calibration-label-reveal[\s\S]*CALIBRATION_LABEL_REVEAL_PRIVATE_KEY: \$\{\{ secrets\.CALIBRATION_LABEL_REVEAL_PRIVATE_KEY \}\}/

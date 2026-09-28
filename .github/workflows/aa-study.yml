@@ -34,7 +34,7 @@ env:
 jobs:
   preflight:
     name: Verify frozen candidate, frame, freeze, and unique runner
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       candidate_commit: ${{ steps.preflight.outputs.candidate_commit }}
       carrier_commit: ${{ steps.preflight.outputs.carrier_commit }}

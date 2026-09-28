@@ -123,7 +123,7 @@ env:
 jobs:
   preflight:
     name: Verify candidate, policy decision, freeze, and controlled lane
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
       actions: read
@@ -367,7 +367,7 @@ jobs:
     name: Protected reveal and calibration evidence preparation
     needs: preflight
     if: inputs.mode == 'assemble'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     environment: calibration-label-reveal
     timeout-minutes: 60
     outputs:
@@ -546,7 +546,7 @@ jobs:
       - preflight
       - prepare
     if: inputs.mode == 'assemble'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     permissions:
       contents: read
@@ -618,7 +618,7 @@ jobs:
       - prepare
       - attest-receipt
     if: inputs.mode == 'assemble'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     permissions:
       contents: write

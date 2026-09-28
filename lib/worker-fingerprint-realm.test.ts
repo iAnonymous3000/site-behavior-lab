@@ -1790,7 +1790,11 @@ test("real Chromium: a worker that attaches during the page's long task runs at 
     const { origin, done } = await startWorkerFixture(t, {
       page: `<!doctype html><title>busy page</title><script>new Worker("/busy-page.js");</script>`,
       scripts: {
-        "/busy-page.js": `fetch(self.location.origin + "/done/first"); ${CANVAS_READ_SOURCE} setInterval(() => undefined, 1000);`
+        // "drawn" follows the canvas work in the same task: "first" reaches
+        // the server as soon as it is dispatched, which on a loaded machine
+        // can be before the worker thread has run the next statement, and a
+        // read taken then correctly freezes the worker before its canvas work.
+        "/busy-page.js": `fetch(self.location.origin + "/done/first"); ${CANVAS_READ_SOURCE} fetch(self.location.origin + "/done/drawn"); setInterval(() => undefined, 1000);`
       }
     });
     const longTask: WorkerRealmInstaller = {
@@ -1806,7 +1810,7 @@ test("real Chromium: a worker that attaches during the page's long task runs at 
     };
     const harness = await openPausedWorkerHarness(t, { before: longTask });
     await harness.page.goto(`${origin}/`, { timeout: 10_000 });
-    await waitFor(() => done.includes("task-end") && done.includes("first"), 15_000);
+    await waitFor(() => done.includes("task-end") && done.includes("drawn"), 15_000);
 
     assert.ok(
       done.includes("first") && done.indexOf("first") < done.indexOf("task-half"),
