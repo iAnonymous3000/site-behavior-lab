@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { parse } from "tldts";
 import { canonicalJson, publicReportDigest } from "./canonical-json";
-import { DETECTOR_VERSIONS } from "./measurement-kernel";
+import { DETECTOR_VERSIONS, deriveCookieMutations, deriveStorageMutations } from "./measurement-kernel";
 import allowlists from "./redaction-allowlists.json";
 import {
   publicStringPolicyInputs,
@@ -21,10 +21,11 @@ import {
   type RedactionCounters
 } from "./redaction-v2";
 import { buildScanConditions, buildScanResult } from "./scan-result-builder";
+import type { PublicSingleReportV2R2 } from "./scan-report-v2-r2";
 import { toPublicScanReportR2 } from "./scan-report-v2-r2-projection";
 import { redactPublicScanReportV2R2 } from "./scan-report-v2-r2-remediation";
 import { buildNodeScanReportV2R2, type NodeScanReportV2R2Input } from "./scan-result-v2-r2-builder";
-import { assertProperty, withoutOne, type SeededRandom } from "./seeded-property";
+import { assertProperty, seededRandom, withoutOne, type SeededRandom } from "./seeded-property";
 import { findTrackerMatch } from "./tracker-catalog";
 import type { CookieRecord, FingerprintDetectionSummary, NetworkRequestRecord, StorageRecord } from "./types";
 
@@ -769,6 +770,42 @@ function partyOf(host: string): string {
   return publicRegistrableDomain(host) ?? host;
 }
 
+/**
+ * Every host, URL, name, quote and warning field of a published r2 report,
+ * scanned by its kind with the exceptions the v1 scan uses. Fixed scanner
+ * warnings are the reviewed vocabulary and are exempt as exact members; any
+ * other warning is scanned as text.
+ */
+function r2ReportLeaks(report: PublicSingleReportV2R2): Leak[] {
+  const { subject, evidence, warnings, summary } = report.run;
+  const origin = (value: string) => (/^https?:\/\//i.test(value) ? urlLeaks(value) : hostnameLeaks(value));
+  const cookie = (record: CookieRecord) => [...hostnameLeaks(record.domain), ...leaksIn(record.name), ...leaksIn(record.path)];
+  return [
+    ...[subject.requested, subject.observed].flatMap((key) => [
+      ...urlLeaks(key.origin),
+      ...hostnameLeaks(key.registrableDomain),
+      ...leaksIn(key.routeShape)
+    ]),
+    ...evidence.requests.flatMap((request) => [...urlLeaks(request.url), ...hostnameLeaks(request.domain)]),
+    ...evidence.cookiesFinal.flatMap(cookie),
+    ...evidence.cookieMutations.flatMap((mutation) => cookie(mutation.cookie)),
+    ...evidence.storageFinal.flatMap((entry) => leaksIn(entry.key)),
+    ...evidence.storageMutations.flatMap((mutation) => leaksIn(mutation.entry.key)),
+    ...evidence.fingerprintDetections.flatMap((detection) =>
+      detection.kind === "session-recording" || detection.kind === "input-monitoring"
+        ? detection.evidence.thirdPartyOrigins.flatMap(origin)
+        : detection.kind === "keystroke-exfiltration"
+          ? detection.evidence.recipients.flatMap(hostnameLeaks)
+          : []
+    ),
+    ...(evidence.privacyPolicy
+      ? [...urlLeaks(evidence.privacyPolicy.url), ...evidence.privacyPolicy.claims.flatMap((claim) => quoteLeaks(claim.quote))]
+      : []),
+    ...warnings.filter((warning) => !FIXED_WARNINGS.includes(warning)).flatMap(leaksIn),
+    ...leaksIn(summary.pageTitle)
+  ];
+}
+
 test("a built r2 report is a fixed point of the managed sanitizer over generated hosts, URLs and quotes", () => {
   const input = (draw: ReportDraw): NodeScanReportV2R2Input => {
     const requests = [{ url: SUBJECT_URL, thirdParty: false }, ...draw.requests].flatMap((request) => {
@@ -848,9 +885,9 @@ test("a built r2 report is a fixed point of the managed sanitizer over generated
             phaseId: 0
           };
         }),
-        cookieMutations: [],
+        cookieMutations: deriveCookieMutations([{ phaseId: 0, records: cookies }]),
         cookiesFinal: cookies,
-        storageMutations: [],
+        storageMutations: deriveStorageMutations([{ phaseId: 0, records: draw.storage }]),
         storageFinal: draw.storage,
         fingerprintEvents: [],
         fingerprintDetections: listenerDetections(draw).map((detection) => ({ ...detection, phaseId: 0 })),
@@ -869,7 +906,7 @@ test("a built r2 report is a fixed point of the managed sanitizer over generated
       screenshot: null
     };
   };
-  const reached = { generalizedHosts: 0, cookies: 0, listenerOrigins: 0 };
+  const reached = { generalizedHosts: 0, cookies: 0, cookieMutations: 0, storageMutations: 0, listenerOrigins: 0, quotes: 0 };
   assertProperty({
     name: "r2 managed sanitizer fixed point",
     seed: SEED,
@@ -881,13 +918,100 @@ test("a built r2 report is a fixed point of the managed sanitizer over generated
       const evidence = published.run.evidence;
       reached.generalizedHosts += evidence.requests.filter((request) => request.domain.includes("{label}")).length;
       reached.cookies += evidence.cookiesFinal.length;
+      reached.cookieMutations += evidence.cookieMutations.length;
+      reached.storageMutations += evidence.storageMutations.length;
       reached.listenerOrigins += evidence.fingerprintDetections.length;
+      reached.quotes += evidence.privacyPolicy?.claims.length ?? 0;
+      const leaks = r2ReportLeaks(published);
+      if (leaks.length > 0) return `published ${leaks.map((leak) => `a ${leak.name} (${leak.match})`).join(", ")}`;
       const again = redactPublicScanReportV2R2(published);
       return publicReportDigest(again) === publicReportDigest(published)
         ? null
         : `the managed sanitizer changed the built report: ${canonicalJson(published).slice(0, 1500)} became ${canonicalJson(again).slice(0, 1500)}`;
     }
   });
-  // Not vacuous: the builder kept generalized hosts, cookies and listener origins to re-sanitize.
+  // Not vacuous: the builder kept generalized hosts, cookies, mutations, listener origins and quotes to scan.
   for (const [field, count] of Object.entries(reached)) assert.ok(count > 0, `no built report carried ${field}`);
+
+  // The scan reads every field it names: a leak planted in any one is reported.
+  const sample = toPublicScanReportR2(buildNodeScanReportV2R2(input(reportDraw(seededRandom(SEED))), BUILD_ENV));
+  const cookieWith = (changes: Partial<CookieRecord>): CookieRecord => ({
+    name: "_ga",
+    domain: `.${SUBJECT_REGISTRABLE}`,
+    path: "/",
+    sameSite: "Lax",
+    secure: true,
+    httpOnly: false,
+    session: false,
+    thirdParty: false,
+    ...changes
+  });
+  const plants: Record<string, (report: PublicSingleReportV2R2) => void> = {
+    "subject origin": (report) => {
+      report.run.subject.observed.origin = "https://10.20.30.40";
+    },
+    "subject registrable domain": (report) => {
+      report.run.subject.requested.registrableDomain = "10.20.30.40";
+    },
+    "subject route shape": (report) => {
+      report.run.subject.observed.routeShape = "/users/123456789";
+    },
+    "request URL": (report) => {
+      report.run.evidence.requests[0].url = `${SUBJECT_URL}?id=123456789`;
+    },
+    "request domain": (report) => {
+      report.run.evidence.requests[0].domain = "10.20.30.40";
+    },
+    "cookie domain": (report) => {
+      report.run.evidence.cookiesFinal.push(cookieWith({ domain: "10.20.30.40" }));
+    },
+    "cookie name": (report) => {
+      report.run.evidence.cookiesFinal.push(cookieWith({ name: "jane@example.com" }));
+    },
+    "cookie mutation path": (report) => {
+      report.run.evidence.cookieMutations.push({ phaseId: 0, op: "added", cookie: cookieWith({ path: "/10.20.30.40" }) });
+    },
+    "storage key": (report) => {
+      report.run.evidence.storageFinal.push({ area: "localStorage", key: "123456789012", valueBytes: 1 });
+    },
+    "storage mutation key": (report) => {
+      report.run.evidence.storageMutations.push({ phaseId: 0, op: "added", entry: { area: "localStorage", key: "a@b.com", valueBytes: 1 } });
+    },
+    "listener origin": (report) => {
+      report.run.evidence.fingerprintDetections.push({ ...listenerDetections({ ...reportDraw(seededRandom(SEED)), listenerOrigins: ["http://203.0.113.7"] })[0], phaseId: 0 });
+    },
+    "keystroke recipient": (report) => {
+      report.run.evidence.fingerprintDetections.push({
+        kind: "keystroke-exfiltration",
+        heuristic: "input-sentinel-exfiltration-v1",
+        count: 1,
+        evidence: { recipients: ["10.20.30.40"], encodings: ["plain"], fieldsTyped: 1, fieldTypes: ["text"] },
+        phaseId: 0
+      });
+    },
+    "policy URL": (report) => {
+      report.run.evidence.privacyPolicy = { url: `${SUBJECT_URL}privacy?u=jane@example.com`, claims: [], mentionedEntities: [], unmentionedEntities: [], policyTextLength: 1 };
+    },
+    "policy quote": (report) => {
+      report.run.evidence.privacyPolicy = {
+        url: `${SUBJECT_URL}privacy`,
+        claims: [{ kind: "no-selling-or-sharing", quote: "Write to https://example.com/optout" }],
+        mentionedEntities: [],
+        unmentionedEntities: [],
+        policyTextLength: 1
+      };
+    },
+    warning: (report) => {
+      report.run.warnings.push("Reached 203.0.113.9 and stopped.");
+    },
+    "page title": (report) => {
+      report.run.summary.pageTitle = "Call 5551234567";
+    }
+  };
+  assert.deepEqual(r2ReportLeaks(sample), []);
+  for (const [field, plant] of Object.entries(plants)) {
+    const planted = structuredClone(sample);
+    plant(planted);
+    assert.ok(r2ReportLeaks(planted).length > 0, `a leak planted in the ${field} was not reported`);
+  }
 });
