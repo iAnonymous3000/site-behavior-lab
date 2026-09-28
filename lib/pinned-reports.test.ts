@@ -1,10 +1,15 @@
 import assert from "node:assert/strict";
-import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 import ts from "typescript";
-import { parseCorrectionsLedger, parsedCorrectionsLedgerReportIds } from "./corrections-ledger-model";
+import {
+  parseCorrectionsLedger,
+  parsedCorrectionsLedgerPrivacyRemovedReportIds,
+  type ParsedCorrectionsLedger
+} from "./corrections-ledger-model";
+import { publishedReadProblem } from "./pinned-reports";
 
 /**
  * Retention prunes public/reports on every featured refresh, and a test that
@@ -12,11 +17,13 @@ import { parseCorrectionsLedger, parsedCorrectionsLedgerReportIds } from "./corr
  * a missing file (2026-09-28). This guard finds every such read in the test
  * sources and requires each id to be published at HEAD and pinned by the
  * corrections ledger, the only pin retention honors, so an unpinned read fails
- * when it is written rather than weeks later on an automation branch.
+ * when it is written rather than weeks later on an automation branch. The one
+ * other way a pinned report leaves public/reports is a privacy removal, which a
+ * frozen copy would undo, so a read of one names the ledger's replacement and
+ * no file under test-fixtures may carry a removed report's name.
  */
 
 const REPORT_ID = /\b\d{8}-[0-9a-f]{32}\b/g;
-const REMEDY = "freeze it under test-fixtures/reports and read it through lib/pinned-reports.ts";
 /** lib/pinned-reports.ts helpers that read public/reports; each takes the report id first. */
 const COMMITTED_READ_HELPERS = new Set(["ledgerPinnedReportWire", "ledgerPinnedReportView"]);
 const FILE_READS = new Set(["readFileSync", "readFile"]);
@@ -403,16 +410,26 @@ function fileReads(sourceFile: ts.SourceFile, checker: ts.TypeChecker): Committe
 function committedReadProblems(
   reads: readonly CommittedRead[],
   reportsDir: string,
-  pinnedIds: ReadonlySet<string>
+  ledger: ParsedCorrectionsLedger
 ): string[] {
   return reads.flatMap(({ file, line, id }) => {
-    if (!existsSync(path.join(reportsDir, `${id}.json`))) {
-      return [`${file}:${line} reads ${id} from public/reports, which no longer publishes it; ${REMEDY}`];
-    }
-    if (!pinnedIds.has(id)) {
-      return [`${file}:${line} reads ${id} from public/reports, where no corrections-ledger pin keeps it from retention; ${REMEDY}`];
-    }
-    return [];
+    const problem = publishedReadProblem(id, ledger, existsSync(path.join(reportsDir, `${id}.json`)));
+    return problem === null ? [] : [`${file}:${line} reads ${id} from public/reports, ${problem}`];
+  });
+}
+
+/**
+ * Files anywhere under `fixturesDir` named after a report the corrections
+ * ledger removed for privacy. Neither the ledger history gate nor the privacy
+ * replacement CLI looks outside public/reports, so a frozen copy of a removed
+ * original would keep its bytes in the repository with nothing to notice.
+ */
+function frozenPrivacyRemovedProblems(fixturesDir: string, ledger: ParsedCorrectionsLedger): string[] {
+  const removed = parsedCorrectionsLedgerPrivacyRemovedReportIds(ledger);
+  return readdirSync(fixturesDir, { recursive: true, encoding: "utf8" }).sort().flatMap((entry) => {
+    const id = /^(\d{8}-[0-9a-f]{32})\./.exec(path.basename(entry))?.[1];
+    if (id === undefined || !removed.has(id)) return [];
+    return [`${path.join(fixturesDir, entry)} freezes ${id}, ${publishedReadProblem(id, ledger, false)}`];
   });
 }
 
@@ -428,8 +445,39 @@ function testSources(): Source[] {
   return found;
 }
 
-function ledgerPinnedIds(): ReadonlySet<string> {
-  return parsedCorrectionsLedgerReportIds(parseCorrectionsLedger(JSON.parse(readFileSync("public/corrections.json", "utf8"))));
+function publishedLedger(): ParsedCorrectionsLedger {
+  return parseCorrectionsLedger(JSON.parse(readFileSync("public/corrections.json", "utf8")));
+}
+
+/** A ledger that pins `pinned` and removes each original of `privacy` for its paired replacement. */
+function syntheticLedger(
+  pinned: readonly string[],
+  privacy: readonly (readonly [original: string, replacement: string])[]
+): ParsedCorrectionsLedger {
+  return parseCorrectionsLedger({
+    $schema: "https://sitebehavior.org/corrections.schema.json",
+    schemaVersion: 1,
+    policy: "https://sitebehavior.org/corrections/",
+    entries: [
+      {
+        eventId: "SBL-CORR-2026-001",
+        publishedAt: "2026-01-02T00:00:00.000Z",
+        state: "active",
+        reportIds: pinned,
+        summary: "Pins the reports a test reads.",
+        detailsUrl: "https://sitebehavior.org/corrections/"
+      },
+      {
+        eventId: "SBL-CORR-2026-002",
+        publishedAt: "2026-01-03T00:00:00.000Z",
+        state: "privacy-superseded",
+        reportIds: privacy.map(([original]) => original),
+        replacementReportIds: privacy.map(([, replacement]) => replacement),
+        summary: "Removes reports for privacy and publishes redacted copies.",
+        detailsUrl: "https://sitebehavior.org/corrections/privacy-replacement/"
+      }
+    ]
+  });
 }
 
 test("every report a test reads from public/reports by id is published there and pinned against retention", () => {
@@ -438,7 +486,7 @@ test("every report a test reads from public/reports by id is published there and
   assert.ok(sources.filter((source) => source.file.startsWith("lib")).length > 100, "lib test sources");
   assert.ok(sources.some((source) => source.file.startsWith("scripts")), "scripts test sources");
   const reads = committedReportReads(sources.filter((source) => /\d{8}-[0-9a-f]{32}/.test(source.text)));
-  const problems = committedReadProblems(reads, path.join("public", "reports"), ledgerPinnedIds());
+  const problems = committedReadProblems(reads, path.join("public", "reports"), publishedLedger());
   assert.deepEqual(problems, [], problems.join("\n"));
 });
 
@@ -548,17 +596,66 @@ test("the read detector follows every binding shape to its literal id and skips 
   assert.deepEqual(reads.find((read) => read.id === id(26)), { file: "lib/example.test.ts", line: 47, id: id(26) });
 });
 
-test("a literal corpus read fails when its report is gone or unpinned, naming the frozen-copy remedy", () => {
+test("a literal corpus read fails when its report is gone, unpinned or removed for privacy, naming the remedy for each", () => {
   const dir = mkdtempSync(path.join(tmpdir(), "sbl-pinned-reports-"));
   try {
     const published = "20260101-00000000000000000000000000000001";
     const pruned = "20260101-00000000000000000000000000000002";
     const unpinned = "20260101-00000000000000000000000000000003";
-    for (const id of [published, unpinned]) writeFileSync(path.join(dir, `${id}.json`), "{}\n");
-    const reads = [published, pruned, unpinned].map((id, index) => ({ file: "lib/example.test.ts", line: index + 1, id }));
-    assert.deepEqual(committedReadProblems(reads, dir, new Set([published, pruned])), [
+    const removed = "20260101-00000000000000000000000000000004";
+    const lingering = "20260101-00000000000000000000000000000005";
+    const replacement = "20260101-00000000000000000000000000000006";
+    const lingeringReplacement = "20260101-00000000000000000000000000000007";
+    for (const id of [published, unpinned, lingering, replacement]) writeFileSync(path.join(dir, `${id}.json`), "{}\n");
+    const ledger = syntheticLedger([published, pruned], [[removed, replacement], [lingering, lingeringReplacement]]);
+    const reads = [published, pruned, unpinned, removed, lingering, replacement].map((id, index) => ({
+      file: "lib/example.test.ts",
+      line: index + 1,
+      id
+    }));
+    assert.deepEqual(committedReadProblems(reads, dir, ledger), [
       `lib/example.test.ts:2 reads ${pruned} from public/reports, which no longer publishes it; freeze it under test-fixtures/reports and read it through lib/pinned-reports.ts`,
-      `lib/example.test.ts:3 reads ${unpinned} from public/reports, where no corrections-ledger pin keeps it from retention; freeze it under test-fixtures/reports and read it through lib/pinned-reports.ts`
+      `lib/example.test.ts:3 reads ${unpinned} from public/reports, where no corrections-ledger pin keeps it from retention; freeze it under test-fixtures/reports and read it through lib/pinned-reports.ts`,
+      // A privacy removal is never frozen, whether its bundle is gone or still
+      // published between the ledger event and the deletion.
+      `lib/example.test.ts:4 reads ${removed} from public/reports, which SBL-CORR-2026-002 removed for privacy; read its replacement ${replacement} instead, which the ledger pins, and never freeze ${removed} under test-fixtures/reports`,
+      `lib/example.test.ts:5 reads ${lingering} from public/reports, which SBL-CORR-2026-002 removed for privacy; read its replacement ${lingeringReplacement} instead, which the ledger pins, and never freeze ${lingering} under test-fixtures/reports`
+    ]);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("no report the corrections ledger removed for privacy is frozen under test-fixtures", () => {
+  const ledger = publishedLedger();
+  // The ledger is append-only and already removes reports for privacy, so this never checks an empty set.
+  assert.ok(parsedCorrectionsLedgerPrivacyRemovedReportIds(ledger).size > 0, "privacy-removed reports");
+  const problems = frozenPrivacyRemovedProblems("test-fixtures", ledger);
+  assert.deepEqual(problems, [], problems.join("\n"));
+});
+
+test("a frozen copy of a privacy-removed report fails wherever it sits under test-fixtures", () => {
+  const dir = mkdtempSync(path.join(tmpdir(), "sbl-pinned-fixtures-"));
+  try {
+    const kept = "20260101-00000000000000000000000000000001";
+    const removed = "20260101-00000000000000000000000000000002";
+    const replacement = "20260101-00000000000000000000000000000003";
+    mkdirSync(path.join(dir, "reports"));
+    mkdirSync(path.join(dir, "elsewhere"));
+    for (const file of [
+      `reports/${kept}.json`,
+      `reports/${removed}.json`,
+      `reports/${removed}.provenance.json`,
+      `reports/${replacement}.json`,
+      `elsewhere/${removed}.json`,
+      `reports/${removed}-notes.json`,
+      `reports/notes-${removed}.json`
+    ]) writeFileSync(path.join(dir, file), "{}\n");
+    const clause = `which SBL-CORR-2026-002 removed for privacy; read its replacement ${replacement} instead, which the ledger pins, and never freeze ${removed} under test-fixtures/reports`;
+    assert.deepEqual(frozenPrivacyRemovedProblems(dir, syntheticLedger([kept], [[removed, replacement]])), [
+      `${path.join(dir, "elsewhere", `${removed}.json`)} freezes ${removed}, ${clause}`,
+      `${path.join(dir, "reports", `${removed}.json`)} freezes ${removed}, ${clause}`,
+      `${path.join(dir, "reports", `${removed}.provenance.json`)} freezes ${removed}, ${clause}`
     ]);
   } finally {
     rmSync(dir, { recursive: true, force: true });

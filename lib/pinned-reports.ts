@@ -1,5 +1,10 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
+import {
+  parsedCorrectionsLedgerPrivacyRemovedReportIds,
+  parsedCorrectionsLedgerReportIds,
+  type ParsedCorrectionsLedger
+} from "./corrections-ledger-model";
 import { readStoredScanReport, type StoredScanReport } from "./scan-report-reader";
 import { toReportView, type ReportView } from "./scan-report-views";
 
@@ -10,9 +15,38 @@ import { toReportView, type ReportView } from "./scan-report-views";
  * test-fixtures/reports (`git show origin/main:public/reports/<id>.json`),
  * never the live corpus. A report the corrections ledger pins is the one
  * exception: retention exempts it absolutely, so a test may read it where it
- * is published. lib/pinned-reports.test.ts fails any other read of
- * public/reports by a literal id.
+ * is published. A report the ledger removed for privacy is never frozen, since
+ * the copy would put the removed bytes back in the repository; a test reads
+ * the redacted replacement the ledger pairs with it. lib/pinned-reports.test.ts
+ * fails any other read of public/reports by a literal id.
  */
+
+const FROZEN_READ_REMEDY = "freeze it under test-fixtures/reports and read it through lib/pinned-reports.ts";
+
+/**
+ * Why a test may not read report `id` where public/reports publishes it, as
+ * the clause that follows "reads <id> from public/reports, ", or null when the
+ * corrections ledger pins it there. Freezing is the remedy for retention
+ * pruning only, so a privacy removal is named before the missing file it
+ * leaves behind.
+ */
+export function publishedReadProblem(id: string, ledger: ParsedCorrectionsLedger, published: boolean): string | null {
+  if (parsedCorrectionsLedgerPrivacyRemovedReportIds(ledger).has(id)) {
+    // The parser pairs each removed original with one replacement by position,
+    // pins the replacement, and refuses it as any later event's original.
+    const event = ledger.entries.find((entry) => entry.state === "privacy-superseded" && entry.reportIds.includes(id));
+    const replacement = event?.replacementReportIds?.[event.reportIds.indexOf(id)];
+    return (
+      `which ${event?.eventId} removed for privacy; read its replacement ${replacement} instead, ` +
+      `which the ledger pins, and never freeze ${id} under test-fixtures/reports`
+    );
+  }
+  if (!published) return `which no longer publishes it; ${FROZEN_READ_REMEDY}`;
+  if (!parsedCorrectionsLedgerReportIds(ledger).has(id)) {
+    return `where no corrections-ledger pin keeps it from retention; ${FROZEN_READ_REMEDY}`;
+  }
+  return null;
+}
 
 /** A frozen report's exact published bytes. */
 export function frozenReportWire(id: string): string {
