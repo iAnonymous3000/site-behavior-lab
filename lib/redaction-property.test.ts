@@ -4,7 +4,13 @@ import { parse } from "tldts";
 import { canonicalJson, publicReportDigest } from "./canonical-json";
 import { DETECTOR_VERSIONS } from "./measurement-kernel";
 import allowlists from "./redaction-allowlists.json";
-import { publicStringPolicyInputs, redactPrivacyPolicy, RedactionPass, redactScanResultV1 } from "./redact-scan-report-v1";
+import {
+  publicStringPolicyInputs,
+  redactPrivacyPolicy,
+  RedactionPass,
+  redactScanResultV1,
+  scrubPolicyQuoteIdentifiers
+} from "./redact-scan-report-v1";
 import {
   emptyRedactionCounters,
   isExactPublicSuffixHost,
@@ -208,7 +214,7 @@ function quoteIdentifier(random: SeededRandom): string {
     case 6:
       return `+${random.int(99)} (${digits(random, 3)}) ${digits(random, 3)}-${digits(random, 4)}`;
     case 7:
-      return `${digits(random, 3)}${random.pick(["-", ".", " ", "‐", "−"])}${digits(random, 3)}${random.pick(["-", "."])}${digits(random, 4)}`;
+      return `${digits(random, 3)}${random.pick(["-", ".", " ", "‐", "−", "_"])}${digits(random, 3)}${random.pick(["-", ".", "_"])}${digits(random, 4)}`;
     case 8:
       return digits(random, random.pick([9, 12, 16]));
     case 9:
@@ -239,20 +245,24 @@ function quote(random: SeededRandom): string {
 
 const OCTET = String.raw`(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)`;
 const LEAKS: ReadonlyArray<{ name: string; pattern: RegExp }> = [
-  { name: "dotted IPv4", pattern: new RegExp(String.raw`(?<![\d.])${OCTET}(?:\.${OCTET}){3}(?![\d]|\.\d)`) },
-  { name: "dashed IPv4", pattern: new RegExp(String.raw`(?<!\d)${OCTET}(?:[-_]${OCTET}){3}(?!\d)`) },
-  { name: "9+ digit run", pattern: /\d{9,}/ },
-  { name: "email", pattern: /[^\s@]+@[^\s@]+/ }
+  { name: "dotted IPv4", pattern: new RegExp(String.raw`(?<![\d.])${OCTET}(?:\.${OCTET}){3}(?![\d]|\.\d)`, "g") },
+  { name: "dashed IPv4", pattern: new RegExp(String.raw`(?<!\d)${OCTET}(?:[-_]${OCTET}){3}(?!\d)`, "g") },
+  { name: "9+ digit run", pattern: /\d{9,}/g },
+  { name: "email", pattern: /[^\s@]+@[^\s@]+/g }
 ];
 const QUOTE_URL = /[a-z][a-z0-9+.-]*:\/\/|\bwww\.|\b(?:[a-z0-9_-]+\.)+[a-z]{2,}\/\S/i;
+/**
+ * Quotes only: nine or more digits joined by at most two separators between
+ * digits, the way a policy prints a phone number or an address. Kept out of
+ * LEAKS, where uuid-shaped and hex tenant labels would read as one.
+ */
+const QUOTE_JOINED_DIGIT_RUN = /(?<!\d)\d(?:[\s()./_\u2010-\u2015\u2212-]{0,2}\d){8,}/g;
 
 type Leak = { name: string; match: string };
 
+/** Every match of every leak pattern, so an exempt first match cannot hide a later one. */
 function leaksIn(text: string): Leak[] {
-  return LEAKS.flatMap(({ name, pattern }) => {
-    const match = pattern.exec(text);
-    return match ? [{ name, match: match[0] }] : [];
-  });
+  return LEAKS.flatMap(({ name, pattern }) => [...text.matchAll(pattern)].map((match) => ({ name, match: match[0] })));
 }
 
 /**
@@ -303,12 +313,27 @@ function urlLeaks(value: string): Leak[] {
   return leaks;
 }
 
-/** A policy quote's leaks, less the ones finding B1 below holds open, plus any URL. */
-function quoteLeaks(value: string): Leak[] {
-  const leaks = leaksIn(value).filter((leak) => !QUOTE_LEAKS_HELD_OPEN.has(leak.name));
+type QuoteLeakScan = { open: Leak[]; heldOpenB1: Leak[]; heldOpenB4: Leak[] };
+
+/** A policy quote's leaks and URL, split into the open ones and those findings B1 and B4 below hold open, match by match. */
+function quoteLeakScan(value: string): QuoteLeakScan {
+  const scan: QuoteLeakScan = { open: [], heldOpenB1: [], heldOpenB4: [] };
+  const leaks = [
+    ...leaksIn(value),
+    ...[...value.matchAll(QUOTE_JOINED_DIGIT_RUN)].map((match) => ({ name: "joined digit run", match: match[0] }))
+  ];
+  for (const leak of leaks) {
+    if (shortIPv4HeldOpen(leak)) scan.heldOpenB1.push(leak);
+    else if (underscoreJoinedDigitsHeldOpen(leak)) scan.heldOpenB4.push(leak);
+    else scan.open.push(leak);
+  }
   const url = QUOTE_URL.exec(value);
-  if (url) leaks.push({ name: "URL", match: url[0] });
-  return leaks;
+  if (url) scan.open.push({ name: "URL", match: url[0] });
+  return scan;
+}
+
+function quoteLeaks(value: string): Leak[] {
+  return quoteLeakScan(value).open;
 }
 
 const ZERO_COUNTERS: RedactionCounters = emptyRedactionCounters();
@@ -404,9 +429,27 @@ test("the path redactor is a fixed point and publishes only reviewed segments an
  * the span table and publishes, and nothing in the codebase records that as
  * deliberate. The spans are hashed into PUBLIC_STRING_POLICY_DIGEST, so a fix
  * is an identity narrowing that needs an owner decision; until then it is
- * held open here and must still be reached.
+ * held open here and must still be reached. Only an address match of fewer
+ * than nine digits is held open: a longer one is phone-shaped, which the span
+ * table scrubs, so one that survives is another cause.
  */
-const QUOTE_LEAKS_HELD_OPEN = new Set(["dotted IPv4", "dashed IPv4"]);
+function shortIPv4HeldOpen(leak: Leak): boolean {
+  return (leak.name === "dotted IPv4" || leak.name === "dashed IPv4") && (leak.match.match(/\d/g) ?? []).length < 9;
+}
+
+/**
+ * TODO(redaction finding B4): nine or more digits joined by an underscore
+ * ("192_168_100_200", "555_123_4567") survive the span table and publish,
+ * since "_" is not among the phone span's separators, and nothing in the
+ * codebase records that as deliberate. Adding "_" to the separators changes
+ * PUBLIC_STRING_POLICY_DIGEST, so it waits on the same owner decision as B1.
+ * Held open only where the underscore is the whole cause: read as dashes, the
+ * real scrubber takes every digit of the match.
+ */
+function underscoreJoinedDigitsHeldOpen(leak: Leak): boolean {
+  if (!/\d_\d/.test(leak.match)) return false;
+  return !/\d/.test(scrubPolicyQuoteIdentifiers(leak.match.replace(/(?<=\d)_(?=\d)/g, "-")));
+}
 
 /**
  * TODO(redaction finding B2): a quote longer than the 200-character cap with
@@ -423,8 +466,26 @@ function capLeftTrailingSpace(input: string, first: string, second: string): boo
   return Array.from(normalized).length > 200 && /\s$/.test(first) && second === first.trimEnd();
 }
 
+test("the quote leak scan reads every match, so a held-open short address cannot hide a longer one", () => {
+  const scan = quoteLeakScan("Our servers 10_0_0_1 and 192_168_100_200 log requests; call 555_123-4567.");
+  assert.deepEqual(scan.heldOpenB1, [{ name: "dashed IPv4", match: "10_0_0_1" }]);
+  assert.deepEqual(scan.heldOpenB4, [
+    { name: "dashed IPv4", match: "192_168_100_200" },
+    { name: "joined digit run", match: "192_168_100_200" },
+    { name: "joined digit run", match: "555_123-4567" }
+  ]);
+  assert.deepEqual(scan.open, []);
+  // A long address with no underscore is neither finding's: the span table
+  // scrubs it, so one that survived would be open.
+  assert.deepEqual(
+    quoteLeaks("Our server 192-168-100-200 logs requests.").map((leak) => leak.name),
+    ["dashed IPv4", "joined digit run"]
+  );
+});
+
 test("a published policy quote is a fixed point and holds no address, long digit run, email or URL", () => {
   let heldOpen = 0;
+  let underscoreHeldOpen = 0;
   let capHeldOpen = 0;
   const publish = (text: string) =>
     redactPrivacyPolicy(
@@ -451,12 +512,16 @@ test("a published policy quote is a fixed point and holds no address, long digit
         if (capLeftTrailingSpace(input, first, second)) capHeldOpen += 1;
         else return `not a fixed point: ${JSON.stringify(first)} became ${JSON.stringify(second)}`;
       }
-      if (leaksIn(first).some((leak) => QUOTE_LEAKS_HELD_OPEN.has(leak.name))) heldOpen += 1;
-      const open = quoteLeaks(first);
-      return open.length === 0 ? null : `published ${JSON.stringify(first)} holds ${open.map((leak) => `a ${leak.name} (${leak.match})`).join(", ")}`;
+      const scan = quoteLeakScan(first);
+      if (scan.heldOpenB1.length > 0) heldOpen += 1;
+      if (scan.heldOpenB4.length > 0) underscoreHeldOpen += 1;
+      return scan.open.length === 0
+        ? null
+        : `published ${JSON.stringify(first)} holds ${scan.open.map((leak) => `a ${leak.name} (${leak.match})`).join(", ")}`;
     }
   });
   assert.ok(heldOpen > 0, "finding B1 was never reached; if quotes now scrub short IPv4 addresses, remove it");
+  assert.ok(underscoreHeldOpen > 0, "finding B4 was never reached; if quotes now scrub underscore-joined digits, remove it");
   assert.ok(capHeldOpen > 0, "finding B2 was never reached; if the cap no longer leaves a trailing space, remove it");
 });
 
