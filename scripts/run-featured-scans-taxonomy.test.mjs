@@ -4,7 +4,8 @@ import { test } from "node:test";
 import {
   classifyFeaturedFailures,
   featuredBatchOutcome,
-  featuredStepSummaryLines
+  featuredStepSummaryLines,
+  selectSites
 } from "./run-featured-scans.mjs";
 import {
   buildFeaturedRefreshIssueReport,
@@ -369,11 +370,12 @@ const unrecognized = (index) => ({
 });
 const times = (count, make) => Array.from({ length: count }, (_, index) => make(index));
 
-function batch({ succeeded, failures, minSuccessRate = 0.8, fullCatalog = true, deferred = 0 }) {
+function batch({ succeeded, failures, minSuccessRate = 0.8, fullCatalog = true, deferred = 0, catalogSlug = "gallery" }) {
   const total = succeeded + failures.length;
   // The same call main() makes once its scans finish, so the verdict and the
   // summary below are main's, not two values this fixture copied between.
   const { verdict, summary } = featuredBatchOutcome({
+    catalogSlug,
     sites: times(total, (index) => ({ domain: `site-${index}.example` })),
     unavailable: times(deferred, (index) => ({
       site: `deferred-${index}.example`,
@@ -401,7 +403,7 @@ function batch({ succeeded, failures, minSuccessRate = 0.8, fullCatalog = true, 
   };
 }
 
-const issueFor = (aggregate, failed) =>
+const issueFor = (aggregate, failed, catalogSlug = "gallery") =>
   buildFeaturedRefreshIssueReport({
     failed,
     summary: aggregate,
@@ -409,7 +411,7 @@ const issueFor = (aggregate, failed) =>
     serverUrl: "https://github.com",
     repository: "iAnonymous3000/site-behavior-lab",
     runId: "1",
-    catalogSlug: "gallery"
+    catalogSlug
   });
 
 const TODAYS_GALLERY = () => ({ succeeded: 59, failures: [...times(21, refusal), unverifiedSubject(0)] });
@@ -456,6 +458,66 @@ test("refusals past the 35% ceiling fail with the curation message even when the
   const report = issueFor(decayed.aggregate, true);
   assert.ok(report.includes(decayed.verdict.reasons[0]));
   assert.doesNotMatch(report, /The scanner succeeded on/);
+});
+
+/**
+ * The seed list is version 1 and carries no `scanAvailability` metadata, and
+ * a deferral added to it as written stops its next run before any scan. Its
+ * curation advice therefore cannot be the gallery's "defer or replace", and
+ * the console, the step summary and the issue for one run must all give the
+ * advice for the catalog that run walked.
+ */
+test("the curation message gives each catalog advice it can follow", () => {
+  const cases = [
+    ["gallery", /The catalog needs curation: defer or replace the refusing entries rather than changing the scanner\. If the rise/],
+    [
+      "seed",
+      /The catalog needs curation: replace the refusing entries rather than changing the scanner\. The seed list takes no deferrals: a scanAvailability entry stops its next run before any scan unless the list first moves to version 2\. If the rise/
+    ]
+  ];
+  for (const [catalogSlug, advice] of cases) {
+    const run = batch({ succeeded: 12, failures: times(8, refusal), fullCatalog: false, catalogSlug });
+    assert.equal(run.verdict.reasons.length, 1, catalogSlug);
+    assert.match(run.verdict.reasons[0], advice, catalogSlug);
+    assert.ok(issueFor(run.aggregate, true, catalogSlug).includes(run.verdict.reasons[0]), `${catalogSlug} issue`);
+    assert.ok(
+      featuredStepSummaryLines(run.summary, catalogSlug).join("\n").includes(run.verdict.reasons[0]),
+      `${catalogSlug} step summary`
+    );
+  }
+  const seed = batch({ succeeded: 12, failures: times(8, refusal), fullCatalog: false, catalogSlug: "seed" });
+  assert.doesNotMatch(issueFor(seed.aggregate, true, "seed"), /defer or replace/);
+
+  // Required, not defaulted: a caller that forgot the catalog would otherwise
+  // hand the seed leg the gallery's advice.
+  assert.throws(() => batch({ succeeded: 12, failures: times(8, refusal), catalogSlug: null }), /catalog slug/);
+  assert.throws(() => featuredStepSummaryLines(seed.summary), /catalog slug/);
+});
+
+test("the seed list's advice rests on the catalog it describes", () => {
+  // The reviewer's probe, in memory: one deferral added to the committed seed
+  // list refuses the run before any scan. If the list ever moves to version 2
+  // this passes the other way, and the seed wording above must change with it.
+  const seedList = JSON.parse(readFileSync(new URL("../public/corpus-seed-sites.json", import.meta.url), "utf8"));
+  assert.equal(seedList.sites.some((site) => site.scanAvailability !== undefined), false);
+  const environment = { FEATURED_SITES_FILE: "public/corpus-seed-sites.json" };
+  const deferral = {
+    status: "temporarily-unavailable",
+    reason: "automation-blocked",
+    observedAt: "2026-09-28",
+    reviewAfter: "2026-10-26",
+    workflowRunIds: ["100000001", "100000002"]
+  };
+  const deferred = (version) => ({
+    ...seedList,
+    version,
+    sites: seedList.sites.map((site, index) => (index === 0 ? { ...site, scanAvailability: deferral } : site))
+  });
+  assert.throws(
+    () => selectSites(deferred(seedList.version), environment, "2026-09-28"),
+    /must use an integer version of 2 or newer/
+  );
+  assert.equal(selectSites(deferred(2), environment, "2026-09-28").unavailable.length, 1);
 });
 
 test("scanner failures past the gate still fail with zero refusals, and refusals never dilute them", () => {
@@ -587,7 +649,7 @@ test("the runner's exit verdict and the trusted publication decision agree", () 
 test("the issue and the step summary state every gate beside its threshold", () => {
   const run = batch(TODAYS_GALLERY());
   const report = issueFor(run.aggregate, false);
-  const step = featuredStepSummaryLines(run.summary).join("\n");
+  const step = featuredStepSummaryLines(run.summary, "gallery").join("\n");
   for (const [name, text] of [["issue", report], ["step summary", step]]) {
     assert.match(text, /Eligible scan success \(context, not a gate\): \*\*59\/81\*\* \(73%\)/, name);
     assert.match(text, /Scanner success, excluding sites that refused an automated visit: \*\*59\/60\*\* \(98%\)/, name);
@@ -612,8 +674,9 @@ test("the runner exits on the shared verdict, not on a rate of its own", () => {
   const start = runner.indexOf("async function main(");
   assert.ok(start >= 0);
   const main = runner.slice(start, runner.indexOf("\n}\n", start));
-  assert.match(main, /const \{ verdict, summary \} = featuredBatchOutcome\(\{/);
-  assert.match(main, /await publishRunDiagnostics\(summary\);/);
+  assert.match(main, /const catalogSlug = featuredRefreshCatalogSlug\(process\.env\);/);
+  assert.match(main, /const \{ verdict, summary \} = featuredBatchOutcome\(\{\n    catalogSlug,\n/);
+  assert.match(main, /await publishRunDiagnostics\(summary, catalogSlug\);/);
   assert.doesNotMatch(main, /featuredBatchVerdict\(|buildFeaturedRunSummary\(|featuredBatchHealth\(/);
   const gate = main.indexOf("  if (verdict.reasons.length > 0) {\n");
   assert.ok(gate > 0, "main gates on the verdict's reasons");

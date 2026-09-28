@@ -59,6 +59,7 @@ import {
   featuredCatalogEligibility,
   featuredCatalogVersion,
   featuredMinimumSuccessRate,
+  featuredRefreshCatalogSlug,
   featuredScanRetryReason,
   featuredTransientRetryLimit,
   isFullFeaturedCatalogSelection,
@@ -211,7 +212,11 @@ async function main(args = process.argv.slice(2)) {
     }
   }
 
+  // The same derivation the alerting job names its canonical issue by, so the
+  // console, the step summary and the issue give one catalog's advice.
+  const catalogSlug = featuredRefreshCatalogSlug(process.env);
   const { verdict, summary } = featuredBatchOutcome({
+    catalogSlug,
     sites,
     unavailable,
     catalogTotal,
@@ -224,7 +229,7 @@ async function main(args = process.argv.slice(2)) {
     retried,
     minSuccessRate
   });
-  await publishRunDiagnostics(summary);
+  await publishRunDiagnostics(summary, catalogSlug);
 
   console.log("\nVerifying report redaction and provenance...");
   await run(process.platform === "win32" ? "npm.cmd" : "npm", ["run", "reports:remediate", "--", "--check"], {
@@ -282,7 +287,7 @@ async function main(args = process.argv.slice(2)) {
  * the written summary. Exported and pure so the exit code is testable without
  * scanning anything.
  */
-export function featuredBatchVerdict({ total, succeeded, failures, minSuccessRate }) {
+export function featuredBatchVerdict({ catalogSlug, total, succeeded, failures, minSuccessRate }) {
   const failureTaxonomy = summarizeFailureTaxonomy(failures);
   const health = featuredBatchHealth({
     total,
@@ -291,7 +296,10 @@ export function featuredBatchVerdict({ total, succeeded, failures, minSuccessRat
     failureTaxonomy,
     requiredSuccessRate: minSuccessRate
   });
-  const reasons = featuredBatchHealthFailures({ ...health, succeeded, requiredSuccessRate: minSuccessRate });
+  const reasons = featuredBatchHealthFailures(
+    { ...health, succeeded, requiredSuccessRate: minSuccessRate },
+    catalogSlug
+  );
   return { failureTaxonomy, health, reasons };
 }
 
@@ -303,6 +311,7 @@ export function featuredBatchVerdict({ total, succeeded, failures, minSuccessRat
  * part of its wiring a test can reach.
  */
 export function featuredBatchOutcome({
+  catalogSlug,
   sites,
   unavailable,
   catalogTotal,
@@ -315,7 +324,7 @@ export function featuredBatchOutcome({
   retried,
   minSuccessRate
 }) {
-  const verdict = featuredBatchVerdict({ total: sites.length, succeeded, failures, minSuccessRate });
+  const verdict = featuredBatchVerdict({ catalogSlug, total: sites.length, succeeded, failures, minSuccessRate });
   const summary = buildFeaturedRunSummary({
     sites,
     unavailable,
@@ -403,7 +412,7 @@ function parseArguments(args) {
   throw new Error("Usage: node scripts/run-featured-scans.mjs [--plan]");
 }
 
-async function publishRunDiagnostics(summary) {
+async function publishRunDiagnostics(summary, catalogSlug) {
   const outputPath = process.env.FEATURED_SUMMARY_PATH?.trim();
   if (outputPath) {
     await writeFile(outputPath, `${JSON.stringify(summary, null, 2)}\n`, "utf8");
@@ -411,7 +420,7 @@ async function publishRunDiagnostics(summary) {
 
   const githubSummary = process.env.GITHUB_STEP_SUMMARY?.trim();
   if (!githubSummary) return;
-  await appendFile(githubSummary, `${featuredStepSummaryLines(summary).join("\n")}\n`, "utf8");
+  await appendFile(githubSummary, `${featuredStepSummaryLines(summary, catalogSlug).join("\n")}\n`, "utf8");
 }
 
 /** The diagnostics artifact the trusted publication decision later reads. */
@@ -462,7 +471,7 @@ export function buildFeaturedRunSummary({
  * projection and helper as the canonical issue; only the per-target sections
  * below them, which never reach the public issue, are its own.
  */
-export function featuredStepSummaryLines(summary) {
+export function featuredStepSummaryLines(summary, catalogSlug) {
   const aggregate = publicFeaturedScanSummary(summary);
   const lines = [
     "## Featured scan result",
@@ -471,7 +480,7 @@ export function featuredStepSummaryLines(summary) {
     `- Sites recovered by bounded retry: **${summary.retried}**`
   ];
   if (aggregate) {
-    for (const reason of featuredBatchHealthFailures(aggregate)) {
+    for (const reason of featuredBatchHealthFailures(aggregate, catalogSlug)) {
       lines.push("", reason);
     }
   }

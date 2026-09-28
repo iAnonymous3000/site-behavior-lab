@@ -374,31 +374,56 @@ export function featuredBatchHealthLines(aggregate) {
 }
 
 /**
+ * What curating each scheduled catalog means. Only a catalog of version
+ * {@link FEATURED_CATALOG_VERSION_FLOOR} or newer accepts `scanAvailability`
+ * deferrals, and the seed list is older: a deferral added to it as written
+ * would stop its next run before a single scan, turning a red run that still
+ * publishes into one that publishes nothing.
+ */
+const CATALOG_CURATION = new Map([
+  ["gallery", "defer or replace the refusing entries rather than changing the scanner."],
+  [
+    "seed",
+    "replace the refusing entries rather than changing the scanner. The seed list takes no deferrals: a " +
+      "scanAvailability entry stops its next run before any scan unless the list first moves to version " +
+      `${FEATURED_CATALOG_VERSION_FLOOR}.`
+  ]
+]);
+
+/**
  * The public-safe sentences for each gate a batch missed, in counts only.
  * Shared by the runner's console, its step summary and the canonical issue so
  * the three cannot describe one run differently. Each sentence carries its
  * counts, because a rounded percentage alone can read as equal to the
  * threshold it failed.
+ *
+ * The catalog is required rather than defaulted: the curation advice differs
+ * by catalog, and a caller that forgot it would hand the seed leg the gallery's.
  */
-export function featuredBatchHealthFailures({
-  succeeded,
-  requiredSuccessRate,
-  refused,
-  scannerJudged,
-  scannerSuccessRate,
-  refusalRate,
-  refusalCeiling,
-  refusalsCounted,
-  meetsSuccessRate,
-  meetsRefusalCeiling
-}) {
+export function featuredBatchHealthFailures(
+  {
+    succeeded,
+    requiredSuccessRate,
+    refused,
+    scannerJudged,
+    scannerSuccessRate,
+    refusalRate,
+    refusalCeiling,
+    refusalsCounted,
+    meetsSuccessRate,
+    meetsRefusalCeiling
+  },
+  catalogSlug
+) {
+  const curation = CATALOG_CURATION.get(catalogSlug);
+  if (!curation) throw new Error("Featured batch health failures require the catalog slug: gallery or seed.");
   const reasons = [];
   if (!meetsRefusalCeiling) {
     reasons.push(
       `${refused} of ${refused + scannerJudged} eligible targets (${percent(refusalRate)}) refused an automated ` +
-        `visit, above the fixed ${percent(refusalCeiling)} ceiling. The catalog needs ` +
-        "curation: defer or replace the refusing entries rather than changing the scanner. If the rise is sudden " +
-        "rather than gradual, rule out the runner's own network first, because an unreachable load is counted as a refusal."
+        `visit, above the fixed ${percent(refusalCeiling)} ceiling. The catalog needs curation: ${curation} ` +
+        "If the rise is sudden rather than gradual, rule out the runner's own network first, because an " +
+        "unreachable load is counted as a refusal."
     );
   }
   if (!meetsSuccessRate) {
@@ -599,7 +624,7 @@ export function buildFeaturedRefreshIssueReport({ failed, summary, branch, serve
   if (runUrl) lines.push(`- Workflow run: [view run](${runUrl})`);
   if (aggregate) {
     lines.push(...featuredBatchHealthLines(aggregate));
-    for (const reason of featuredBatchHealthFailures(aggregate)) {
+    for (const reason of featuredBatchHealthFailures(aggregate, slug)) {
       lines.push("", reason);
     }
   } else {
