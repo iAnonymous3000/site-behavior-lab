@@ -202,7 +202,7 @@ test("privacy-policy probing reads only a same-site document that is a policy", 
       assert.notEqual(policyPhase, undefined, `${site}: the page offered a policy link, so the visit was attempted`);
       assert.deepEqual(
         measurement.measurement.detectors["privacy-policy"],
-        { version: "policy-text-cross-check@7", status: "failed", reason: "load-failed", phaseId: policyPhase!.phaseId },
+        { version: "policy-text-cross-check@8", status: "failed", reason: "load-failed", phaseId: policyPhase!.phaseId },
         site
       );
       assert.equal(measurement.evidence.privacyPolicy, undefined, site);
@@ -224,7 +224,7 @@ test("privacy-policy probing reads only a same-site document that is a policy", 
     const { result, measurement } = await scan("real-policy");
     const policyPhase = measurement.measurement.phases.find((phase) => phase.kind === "policy-analysis");
     assert.deepEqual(measurement.measurement.detectors["privacy-policy"], {
-      version: "policy-text-cross-check@7",
+      version: "policy-text-cross-check@8",
       status: "complete",
       phaseId: policyPhase!.phaseId
     });
@@ -300,7 +300,7 @@ test("privacy-policy text never counts a vendor loader in the page body as namin
     );
     const policyPhase = measurement.measurement.phases.find((phase) => phase.kind === "policy-analysis");
     assert.deepEqual(measurement.measurement.detectors["privacy-policy"], {
-      version: "policy-text-cross-check@7",
+      version: "policy-text-cross-check@8",
       status: "complete",
       phaseId: policyPhase!.phaseId
     });

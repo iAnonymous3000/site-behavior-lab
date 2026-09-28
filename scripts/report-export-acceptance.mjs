@@ -19,6 +19,11 @@ export const PDF_EXPORT_WITNESSES = [
   { id: "20260824-4f89a805b50169b2c0e8b01a975018c9", rows: [183, 180], corrected: true }
 ];
 
+/** Whether the catalog declares tagged content. pdf.js 6.3 returns MarkInfo as a Map, not an object. */
+export async function pdfRetainsReadingStructure(doc) {
+  return (await doc.getMarkInfo())?.get("Marked") === true;
+}
+
 export async function verifyPdfArtifact(pdfBytes, wire, correctionBytes) {
   const report = JSON.parse(wire);
   const comparison = report.reportType === "comparison";
@@ -62,7 +67,7 @@ export async function verifyPdfArtifact(pdfBytes, wire, correctionBytes) {
     }
     assert.ok(compact(text).includes(sha256(wire)), "PDF must name the exact source bytes");
     if (correctionBytes) assert.ok(compact(text).includes(sha256(correctionBytes)), "PDF must bind the packaged correction context");
-    assert.ok((await doc.getMarkInfo())?.Marked, "PDF must retain its reading structure");
+    assert.ok(await pdfRetainsReadingStructure(doc), "PDF must retain its reading structure");
     assert.ok((await doc.getOutline())?.length, "PDF must have bookmarks");
     assert.ok(links > 0, "methodology links must survive export");
     assert.doesNotMatch(text, /other visit.s evidence is not printed/);

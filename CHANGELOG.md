@@ -575,6 +575,43 @@ public API or a 1.0 release.
   95 committed v1 reports measured under the September 21 lists read and pair
   as before.
 
+### Policy PDF path
+
+- The privacy-policy reader fetches a direct PDF policy with undici 8.11.2
+  (from 7.29.0) and reads it with pdf.js 6.3.289 (from 6.2.108), landed as one
+  declared change. undici 8 offers HTTP/2 in ALPN by default, through the scan
+  proxy's CONNECT tunnel too, so the policy fetch now sets `allowH2: false` and
+  still asks the site for HTTP/1.1 alone, as it did under undici 7. pdf.js 6.3
+  changes how it infers characters for some fonts that embed no font program
+  and no ToUnicode map: a CID-keyed TrebuchetMS is now read by the Macintosh
+  glyph order it follows, where 6.2 read its right single quote as a middle
+  dot and so lost the no-cookies claim in "We don't use cookies." The release
+  also changes the inference for a CID-keyed Symbol font and three private-use
+  math glyphs, which fixtures built for them did not reproduce. Every PDF the
+  tests parse extracts byte-identical text under both versions except the
+  TrebuchetMS fixture built to show the change, and so do all 261
+  text-bearing PDFs among the 1,181 that ship with macOS and its applications
+  on the maintainer's machine (12.8 million characters). The Docker smoke's
+  reading-structure check now reads MarkInfo from the Map pdf.js 6.3 returns.
+- Because extracted text and the fetch can differ on some inputs,
+  `policy-text-cross-check@7` moves to `@8` and `DETECTOR_REGISTRY_VERSION`
+  from `node-detectors-v11` to `node-detectors-v12`, its digest from
+  `80209bf7...e22a` to `516f4eb2...eb25`. Recomputing the v11 digest from the
+  current inputs with only the policy version and the registry label restored
+  reproduces `80209bf7...e22a`, so nothing else moved. The obligation target
+  registries keep v11 as a closed epoch and enforce v12. The methodology, the
+  normalization, the Brave lists, the rest of the toolchain and the corpus
+  cohorts do not move, and a comparison across the two identities names the
+  policy version mismatch on detector findings only.
+- Published reports keep their recorded identities. The deployed producer rows
+  `node-v15-detectors-v11-active-lists-2026-09-28` and
+  `node-v15-detectors-v11-active-no-adblock` are closed to their exact
+  literals (the v15 methodology and normalization, node-detectors-v11 and a
+  frozen copy of the September 28 lists under adblock-rust 0.13.3), byte for
+  byte what `0cf2f128` produced. The new active rows are
+  `node-v16-detectors-v12-active-lists-2026-09-28` and
+  `node-v16-detectors-v12-active-no-adblock`. No PageGraph row moves.
+
 ## [0.6.0] - 2026-09-06
 
 Declared on 2026-09-06 (the date above) and tagged `v0.6.0` on 2026-09-24 at

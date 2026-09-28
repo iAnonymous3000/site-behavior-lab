@@ -7,7 +7,7 @@
   "inputs": {
     "packageLock": {
       "path": "package-lock.json",
-      "sha256": "83b595021346522295208e01f16cc77ce070941973f4b00bb216c29075d2e689"
+      "sha256": "62bad24cb4e37613e30ce93204a9d0744178a33a2ebe6b5408e88deb5035c961"
     },
     "cargoLock": {
       "path": "tools/adblock-wasm/Cargo.lock",
@@ -1708,13 +1708,13 @@
     },
     {
       "name": "pdfjs-dist",
-      "version": "6.2.108",
+      "version": "6.3.289",
       "lockPath": "node_modules/pdfjs-dist",
       "license": "Apache-2.0",
       "licenseStatus": "declared-in-package-lock",
       "licenseEvidence": "package-lock.json",
-      "resolved": "https://registry.npmjs.org/pdfjs-dist/-/pdfjs-dist-6.2.108.tgz",
-      "integrity": "sha512-YxFb+SQcodN2rnX9Tn3dHYlqfb7NjlzzfONPpJd+AKoKtUjEdevTfbC07d5TcczzOK6261auRkP/M8OBHs9vFQ==",
+      "resolved": "https://registry.npmjs.org/pdfjs-dist/-/pdfjs-dist-6.3.289.tgz",
+      "integrity": "sha512-ZHjSVpDa3D6izMq8/04lvkhkATUmL9px6ChPaXc1k6nU2Mrhlg1/7F0bdUqCwUjw3NsPTfPZsMDUU6ZIcRaeQw==",
       "developmentOnly": false,
       "optional": false
     },
@@ -1948,13 +1948,13 @@
     },
     {
       "name": "undici",
-      "version": "7.29.1",
+      "version": "8.11.2",
       "lockPath": "node_modules/undici",
       "license": "MIT",
       "licenseStatus": "declared-in-package-lock",
       "licenseEvidence": "package-lock.json",
-      "resolved": "https://registry.npmjs.org/undici/-/undici-7.29.1.tgz",
-      "integrity": "sha512-RYONW2MeafgYlkVOKYKkA/Ag7BmXqgIWCa8t1m0JcxrQg9pI9lEqRhAOruOBCbAohOa/gkCF+iPi9hrgvTzu6Q==",
+      "resolved": "https://registry.npmjs.org/undici/-/undici-8.11.2.tgz",
+      "integrity": "sha512-u4UB2/IrKdU6lFxumHmmo1a3fCQO5tzQllRorfoRS63txhrB7xTpSn1PftwC4qEHkOaqP95fCWW4lJzwErwzhQ==",
       "developmentOnly": false,
       "optional": false
     },

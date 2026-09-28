@@ -4614,7 +4614,11 @@ async function fetchBoundedPolicyPdf(input: {
   verifyPublicUrl: (url: URL) => Promise<void>;
 }): Promise<{ bytes: Uint8Array; url: string } | null> {
   const plainHttpProxy = new Client(input.proxyServer);
-  const tunnelProxy = new ProxyAgent(input.proxyServer);
+  // undici 8 offers h2 in ALPN by default, through the CONNECT tunnel too, so
+  // an HTTPS policy PDF would be fetched over HTTP/2 wherever the site offers
+  // it. Keep the HTTP/1.1-only offer undici 7 made: a library update must not
+  // also change the protocol the policy fetch asks the site for.
+  const tunnelProxy = new ProxyAgent({ uri: input.proxyServer, allowH2: false });
   let currentUrl = input.policyUrl;
   try {
     for (let redirectCount = 0; redirectCount <= MAX_POLICY_PDF_REDIRECTS; redirectCount += 1) {

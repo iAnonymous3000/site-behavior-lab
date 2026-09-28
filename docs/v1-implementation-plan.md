@@ -29,9 +29,10 @@ prerequisites without treating a failed-check count as independent defects.
 The v1 implementation moved the detector registry to node-detectors-v8:
 synthetic-sentinel@4, pixel-request-decoder@5 and policy-text-cross-check@6
 (node-detectors-v9 later revised three detectors, node-detectors-v10 the
-input sentinel as synthetic-sentinel@5, and node-detectors-v11 the fingerprint
-observer as fingerprint-observer@5; see the changelog). The methodology records
-active-probe-v2 and auxiliary-context-block-v1 (active-probe-v3 later kept
+input sentinel as synthetic-sentinel@5, node-detectors-v11 the fingerprint
+observer as fingerprint-observer@5, and node-detectors-v12 the policy
+cross-check as policy-text-cross-check@8; see the changelog). The methodology
+records active-probe-v2 and auxiliary-context-block-v1 (active-probe-v3 later kept
 probe-blocked navigations out of the request log). Focus, input and blur callbacks
 can send requests; native submissions and probe-triggered navigation are
 blocked. Unsupported fields, failed attempts and offscreen fields count as

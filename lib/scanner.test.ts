@@ -3,7 +3,7 @@ import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { createServer } from "node:http";
-import { connect, createServer as createNetServer } from "node:net";
+import { connect, createServer as createNetServer, type Socket } from "node:net";
 import { test } from "node:test";
 import type { Frame } from "playwright";
 import {
@@ -1892,7 +1892,7 @@ test("HTTP-200 robot pages and unavailable subject collectors fail quality and s
       reason: "load-failed"
     });
     assert.deepEqual(measurement.measurement.detectors["privacy-policy"], {
-      version: "policy-text-cross-check@7",
+      version: "policy-text-cross-check@8",
       status: "skipped",
       reason: "load-failed"
     });
@@ -1918,7 +1918,7 @@ test("HTTP-200 robot pages and unavailable subject collectors fail quality and s
     );
     assert.equal(zillow.result.summary.status, 403);
     assert.deepEqual(zillow.measurement.measurement.detectors["privacy-policy"], {
-      version: "policy-text-cross-check@7",
+      version: "policy-text-cross-check@8",
       status: "skipped",
       reason: "load-failed"
     });
@@ -1940,7 +1940,7 @@ test("HTTP-200 robot pages and unavailable subject collectors fail quality and s
       options
     );
     assert.deepEqual(policyCap.measurement.measurement.detectors["privacy-policy"], {
-      version: "policy-text-cross-check@7",
+      version: "policy-text-cross-check@8",
       status: "skipped",
       reason: "evidence-cap-reached"
     });
@@ -2012,7 +2012,7 @@ test("HTTP-200 robot pages and unavailable subject collectors fail quality and s
       reason: "load-failed"
     });
     assert.deepEqual(unavailable.measurement.measurement.detectors["privacy-policy"], {
-      version: "policy-text-cross-check@7",
+      version: "policy-text-cross-check@8",
       status: "skipped",
       reason: "load-failed"
     });
@@ -2150,7 +2150,7 @@ test("the recorded HTTP status is the frozen subject's document after a script r
       reason: "load-failed"
     });
     assert.deepEqual(blocked.measurement.measurement.detectors["privacy-policy"], {
-      version: "policy-text-cross-check@7",
+      version: "policy-text-cross-check@8",
       status: "skipped",
       reason: "load-failed"
     });
@@ -3579,7 +3579,7 @@ test("a direct PDF privacy policy completes through the bounded scan proxy", { t
     assert.ok(result.privacyPolicy, "the PDF policy produced a stored cross-check summary");
     assert.ok((result.privacyPolicy?.policyTextLength ?? 0) >= 500);
     assert.deepEqual(staged!.measurement.detectors["privacy-policy"], {
-      version: "policy-text-cross-check@7",
+      version: "policy-text-cross-check@8",
       status: "complete",
       phaseId: 2
     });
@@ -3646,8 +3646,8 @@ test("a PDF privacy policy link that redirects or is missing cannot crash the pr
 
   try {
     for (const [route, expected] of [
-      ["/", { version: "policy-text-cross-check@7", status: "complete", phaseId: 2 }],
-      ["/missing", { version: "policy-text-cross-check@7", status: "failed", reason: "load-failed", phaseId: 2 }]
+      ["/", { version: "policy-text-cross-check@8", status: "complete", phaseId: 2 }],
+      ["/missing", { version: "policy-text-cross-check@8", status: "failed", reason: "load-failed", phaseId: 2 }]
     ] as const) {
       const { measurement: staged } = await scanSiteWithMeasurement(
         { url: `http://policy-pdf-hop.test${route}`, device: "desktop", gpcEnabled: false, consentMode: "observe" },
@@ -3675,6 +3675,121 @@ test("a PDF privacy policy link that redirects or is missing cannot crash the pr
     await new Promise<void>((resolve) => upstream.close(() => resolve()));
   }
 });
+
+test("an HTTPS PDF privacy policy is requested offering HTTP/1.1 alone", { timeout: 20_000 }, async () => {
+  // undici 8 offers h2 in ALPN by default, and through the scan proxy's
+  // CONNECT tunnel too. The policy fetch keeps the HTTP/1.1-only offer it made
+  // under undici 7, so the site is asked for the same protocol as before. The
+  // TLS upstream reads the ClientHello and hangs up: no certificate is needed
+  // to see what was offered, and the read then fails as a load failure.
+  const offers: string[][] = [];
+  const tlsUpstream = createNetServer((socket) => {
+    socket.on("error", () => undefined);
+    readClientHelloAlpn(socket).then(
+      (protocols) => {
+        offers.push(protocols);
+        socket.destroy();
+      },
+      () => socket.destroy()
+    );
+  });
+  const upstream = createServer((_request, response) => {
+    response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+    response.end(
+      '<!doctype html><title>PDF policy</title><a href="https://policy-pdf-alpn.test/privacy-policy.pdf">Privacy Policy</a>'
+    );
+  });
+  for (const server of [tlsUpstream, upstream]) {
+    await new Promise<void>((resolve, reject) => {
+      server.once("error", reject);
+      server.listen(0, "127.0.0.1", resolve);
+    });
+  }
+  const tlsAddress = tlsUpstream.address();
+  const address = upstream.address();
+  assert.ok(tlsAddress && typeof tlsAddress === "object" && address && typeof address === "object");
+
+  try {
+    const { measurement: staged } = await scanSiteWithMeasurement(
+      { url: "http://policy-pdf-alpn.test/", device: "desktop", gpcEnabled: false, consentMode: "observe" },
+      {
+        publicUrlAlreadyVerified: true,
+        verifyPublicUrl: async () => undefined,
+        resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+        connectProxyUpstreamForTests: (target) =>
+          target.protocol === "https:" ? connect(tlsAddress.port, "127.0.0.1") : connect(address.port, "127.0.0.1"),
+        resolveCnameChain: async () => []
+      }
+    );
+
+    assert.ok(offers.length > 0, "the policy fetch never reached the TLS upstream");
+    for (const protocols of offers) assert.deepEqual(protocols, ["http/1.1"]);
+    assert.deepEqual(staged!.measurement.detectors["privacy-policy"], {
+      version: "policy-text-cross-check@8",
+      status: "failed",
+      reason: "load-failed",
+      phaseId: 2
+    });
+  } finally {
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+    await new Promise<void>((resolve) => tlsUpstream.close(() => resolve()));
+  }
+});
+
+/**
+ * The ALPN protocols a TLS ClientHello offers, read from its first record
+ * (RFC 8446 section 4.1.2, RFC 7301 section 3.1). An empty list means the
+ * hello carried no ALPN extension.
+ */
+function readClientHelloAlpn(socket: Socket): Promise<string[]> {
+  return new Promise((resolve, reject) => {
+    let buffered = Buffer.alloc(0);
+    socket.on("data", (chunk: Buffer) => {
+      buffered = Buffer.concat([buffered, chunk]);
+      if (buffered.length < 5) return;
+      if (buffered[0] !== 0x16) {
+        reject(new Error("not a TLS handshake record"));
+        return;
+      }
+      const recordEnd = 5 + buffered.readUInt16BE(3);
+      if (buffered.length < recordEnd) return;
+      socket.removeAllListeners("data");
+      try {
+        resolve(alpnFromClientHello(buffered.subarray(5, recordEnd)));
+      } catch (error) {
+        reject(error);
+      }
+    });
+    socket.once("end", () => reject(new Error("the connection ended before a complete ClientHello")));
+  });
+}
+
+function alpnFromClientHello(handshake: Buffer): string[] {
+  assert.equal(handshake[0], 0x01, "the first handshake message is a ClientHello");
+  // type(1) length(3) legacy_version(2) random(32)
+  let offset = 1 + 3 + 2 + 32;
+  offset += 1 + handshake[offset];
+  offset += 2 + handshake.readUInt16BE(offset);
+  offset += 1 + handshake[offset];
+  const extensionsEnd = offset + 2 + handshake.readUInt16BE(offset);
+  offset += 2;
+  while (offset + 4 <= extensionsEnd) {
+    const type = handshake.readUInt16BE(offset);
+    const length = handshake.readUInt16BE(offset + 2);
+    offset += 4;
+    if (type === 0x0010) {
+      const protocols: string[] = [];
+      const listEnd = offset + 2 + handshake.readUInt16BE(offset);
+      for (let cursor = offset + 2; cursor < listEnd; cursor += 1 + handshake[cursor]) {
+        protocols.push(handshake.subarray(cursor + 1, cursor + 1 + handshake[cursor]).toString("latin1"));
+      }
+      return protocols;
+    }
+    offset += length;
+  }
+  return [];
+}
 
 function policyPdfFixture(text: string): Buffer {
   const textCommands = (text.match(/.{1,60}(?:\s|$)/g) ?? [text])

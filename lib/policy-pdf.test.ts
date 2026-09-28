@@ -9,6 +9,7 @@ import {
   MAX_POLICY_PDF_PARSE_MEMORY_MB,
   MAX_POLICY_PDF_PARSE_MS
 } from "./policy-pdf";
+import { extractPolicyClaims } from "./privacy-policy";
 
 test("extractPolicyTextFromPdf reads a bounded text policy", async () => {
   const policyText =
@@ -17,6 +18,23 @@ test("extractPolicyTextFromPdf reads a bounded text policy", async () => {
 
   assert.ok(extracted?.startsWith("Privacy Policy."));
   assert.ok((extracted?.length ?? 0) >= 500);
+});
+
+test("extractPolicyTextFromPdf reads a CID-keyed TrebuchetMS with no font program by its Mac glyph order", async () => {
+  // A composite TrebuchetMS that embeds no font program and no ToUnicode map
+  // can only be read by guessing its glyph order. pdf.js 6.3, which
+  // policy-text-cross-check@8 reads with, takes the Macintosh order the font
+  // follows; 6.2 took the standard fonts' order, which reads glyph 183 (a
+  // right single quote) as a middle dot. That dot cost this sentence the
+  // "don't" that makes it a no-cookies claim.
+  const sentence = "We don\u2019t use cookies.";
+  const glyphIds = Array.from(sentence, (character) => (character === "\u2019" ? 183 : character.charCodeAt(0) - 29));
+  const extracted = await extractPolicyTextFromPdf(pdfWithCidFont("TrebuchetMS", glyphIds), 10_000);
+
+  // pdf.js gives the first word gap an item of its own, which the reader joins
+  // with spaces, in both versions; the claim matcher collapses whitespace.
+  assert.equal(extracted?.replace(/\s+/g, " "), sentence);
+  assert.deepEqual(extractPolicyClaims(extracted ?? "").map((claim) => claim.kind), ["no-cookies"]);
 });
 
 test("extractPolicyTextFromPdf fails closed on malformed and truncated inputs", async () => {
@@ -348,6 +366,26 @@ function flatePdf(contentStreams: Buffer[]): Uint8Array {
   return new Uint8Array(Buffer.concat(parts));
 }
 
+/**
+ * One line of glyph ids in a composite (Type0, Identity-H) font whose
+ * CIDFontType2 descendant embeds no font program and has no ToUnicode map, so
+ * the reader has to infer each glyph's character from the font's name.
+ */
+function pdfWithCidFont(baseFont: string, glyphIds: number[]): Uint8Array {
+  const glyphs = glyphIds.map((glyphId) => glyphId.toString(16).padStart(4, "0")).join("");
+  const content = `BT\n/F1 12 Tf\n72 720 Td\n<${glyphs}> Tj\nET\n`;
+  const objects = [
+    "<< /Type /Catalog /Pages 2 0 R >>",
+    "<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
+    "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 6 0 R >>",
+    `<< /Type /Font /Subtype /Type0 /BaseFont /${baseFont} /Encoding /Identity-H /DescendantFonts [5 0 R] >>`,
+    `<< /Type /Font /Subtype /CIDFontType2 /BaseFont /${baseFont} /CIDSystemInfo << /Registry (Adobe) /Ordering (Identity) /Supplement 0 >> /FontDescriptor 7 0 R /DW 600 >>`,
+    `<< /Length ${Buffer.byteLength(content, "latin1")} >>\nstream\n${content}endstream`,
+    `<< /Type /FontDescriptor /FontName /${baseFont} /Flags 32 /FontBBox [0 -200 1000 900] /ItalicAngle 0 /Ascent 900 /Descent -200 /CapHeight 700 /StemV 80 >>`
+  ];
+  return pdfWithObjects(objects);
+}
+
 function pdfWithText(text: string): Uint8Array {
   const textCommands = (text.match(/.{1,60}(?:\s|$)/g) ?? [text])
     .map((line) => line.replaceAll("\\", "\\\\").replaceAll("(", "\\(").replaceAll(")", "\\)"))
@@ -361,6 +399,11 @@ function pdfWithText(text: string): Uint8Array {
     "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
     `<< /Length ${Buffer.byteLength(content, "latin1")} >>\nstream\n${content}endstream`
   ];
+  return pdfWithObjects(objects);
+}
+
+/** Serializes objects 1..n, in order, with a classic cross-reference table. */
+function pdfWithObjects(objects: string[]): Uint8Array {
   const parts: Buffer[] = [Buffer.from("%PDF-1.4\n%\xd3\xeb\xe9\xe1\n", "latin1")];
   const offsets = [0];
   let byteLength = parts[0].byteLength;
