@@ -2853,9 +2853,22 @@ test("phase-split fingerprint rows are counted and named as distinct APIs, like 
 });
 
 function committedReportView(id: string): ReturnType<typeof toReportView> {
-  const raw: unknown = JSON.parse(readFileSync(path.join(process.cwd(), "public", "reports", `${id}.json`), "utf8"));
+  return reportViewFrom(path.join(process.cwd(), "public", "reports", `${id}.json`), id);
+}
+
+/**
+ * A published report frozen under test-fixtures/reports. Tests that pin one
+ * report's wire shape read the frozen copy, because corpus retention prunes
+ * old reports and a pinned case must not disappear with them.
+ */
+function frozenReportView(id: string): ReturnType<typeof toReportView> {
+  return reportViewFrom(path.join(process.cwd(), "test-fixtures", "reports", `${id}.json`), id);
+}
+
+function reportViewFrom(file: string, id: string): ReturnType<typeof toReportView> {
+  const raw: unknown = JSON.parse(readFileSync(file, "utf8"));
   const read = readStoredScanReport(raw);
-  if (!read.ok) assert.fail(`reader rejected committed report ${id}`);
+  if (!read.ok) assert.fail(`reader rejected report ${id}`);
   return toReportView(read.stored);
 }
 
@@ -2871,10 +2884,12 @@ function onlyWebglDetection(run: ReturnType<typeof displayRunView>): Extract<Fin
 test("committed WebGL detections under the earlier single-signal rule read at info, never as a heuristic match", () => {
   // 4be4fed (2026-07-20) changed the observer's webgl-entropy-read-v1 rule
   // from a parameter read OR a pixel readback to both, under the same id and
-  // with no detector version on v1. 64 committed v1 reports carry detections
-  // that satisfy only the old rule, and this card published each one as a
-  // warn-level "WebGL entropy-read heuristic matched".
-  const walgreens = committedReportView("20260625-101b951ee4e7aed62382f4a50d68bab9");
+  // with no detector version on v1. 64 committed v1 reports carried detections
+  // that satisfy only the old rule when this was written, and this card
+  // published each one as a warn-level "WebGL entropy-read heuristic matched".
+  // Both cases below are frozen copies: retention pruned the originals on
+  // 2026-09-28.
+  const walgreens = frozenReportView("20260625-101b951ee4e7aed62382f4a50d68bab9");
   const walgreensLead = displayRunView(walgreens);
   const parameterOnly = onlyWebglDetection(walgreensLead);
   // Pin the wire shape, so this stays a single-signal case if the fixture moves.
@@ -2897,7 +2912,7 @@ test("committed WebGL detections under the earlier single-signal rule read at in
 
   // The other single-signal shape, beside heuristics the current rules match:
   // the card stays warn for those, and the WebGL entry is labelled, not counted.
-  const capitalone = committedReportView("20260625-28adfab8a3cbd996023906f34147e0ee");
+  const capitalone = frozenReportView("20260625-28adfab8a3cbd996023906f34147e0ee");
   const pixelOnly = onlyWebglDetection(displayRunView(capitalone));
   assert.deepEqual(pixelOnly.evidence.parameters, []);
   assert.equal(pixelOnly.evidence.readPixelsCalls, 1);
@@ -2916,7 +2931,7 @@ test("committed WebGL detections under the earlier single-signal rule read at in
 
   // Keyed on evidence shape, not on the report: the same run with both
   // signals is a current-rule match and warns under the plain label.
-  const bothSignals = committedReportView("20260625-101b951ee4e7aed62382f4a50d68bab9");
+  const bothSignals = frozenReportView("20260625-101b951ee4e7aed62382f4a50d68bab9");
   const bothRun = displayRunView(bothSignals);
   const upgraded = onlyWebglDetection(bothRun);
   upgraded.evidence.readPixelsCalls = 1;
