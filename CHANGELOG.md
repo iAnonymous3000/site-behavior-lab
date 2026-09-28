@@ -557,6 +557,19 @@ public API or a 1.0 release.
   further row, and the PageGraph row keeps the name of the epoch's first
   admission.
 
+### Brave Shields lists
+
+- The Shields simulation uses the Brave default filter lists fetched
+  2026-09-28 (31 lists, manifest `2e8c9278`), adopted from the weekly refresh
+  proposal. The September 21 snapshot stays readable as a closed producer
+  identity: the node-detectors-v11 list row is closed to its exact literals as
+  `node-v15-detectors-v11-active-lists-2026-09-21`, byte for byte what
+  `d8a9560e` produced, and the new active list row is
+  `node-v15-detectors-v11-active-lists-2026-09-28`. The no-list row, the
+  methodology, the normalization and the corpus cohorts do not move, and the
+  95 committed v1 reports measured under the September 21 lists read and pair
+  as before.
+
 ## [0.6.0] - 2026-09-06
 
 Declared on 2026-09-06 (the date above) and tagged `v0.6.0` on 2026-09-24 at
