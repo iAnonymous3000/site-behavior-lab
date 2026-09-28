@@ -1,10 +1,9 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
-import path from "node:path";
 import { test } from "node:test";
 import { publicReportDigest } from "./canonical-json";
 import { buildProvenanceEntry } from "./redaction-provenance";
 import { readManagedReport } from "./managed-report-reader";
+import { frozenReportProvenance, frozenReportWire } from "./pinned-reports";
 import {
   MIGRATABLE_REDACTION_V3_NORMALIZATIONS,
   NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION,
@@ -50,12 +49,10 @@ const LEGACY_NODE_NORMALIZATION = [
 ][0];
 
 test("a committed historical Node v3 report remains readable after producer epochs advance", () => {
+  // A frozen copy with its sidecar, since retention will prune the published original.
   const reportId = "20260714-be94cc2d911e26d027950a336147917e";
-  const reportContents = readFileSync(path.join(process.cwd(), "public", "reports", `${reportId}.json`), "utf8");
-  const sidecarContents = readFileSync(
-    path.join(process.cwd(), "public", "reports", `${reportId}.provenance.json`),
-    "utf8"
-  );
+  const reportContents = frozenReportWire(reportId);
+  const sidecarContents = frozenReportProvenance(reportId);
   const sidecar = JSON.parse(sidecarContents) as { createdAt: string; expiresAt: string | null };
   const read = readManagedReport({
     reportId,
