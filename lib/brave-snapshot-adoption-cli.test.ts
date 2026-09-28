@@ -58,6 +58,18 @@ function v1Report(
   return report;
 }
 
+/**
+ * The Node no-list variant: the engine did not load, so the scanner wrote no
+ * `conditions.adblock` at all while its methodology still names the pinned
+ * engine. The corpus tests reach it only if a committed report happens to
+ * have this shape, so it is held here.
+ */
+function v1NoListReport(): ScanResult {
+  const report = v1Report(CURRENT, NODE_SCANNER_METHODOLOGY_VERSION);
+  delete report.conditions.adblock;
+  return report;
+}
+
 function read(value: unknown): StoredScanReport {
   const result = readStoredScanReport(JSON.parse(JSON.stringify(value)) as unknown);
   assert.ok(result.ok, `the fixture must pass the typed reader, or a non-match proves nothing: ${JSON.stringify(result)}`);
@@ -87,6 +99,12 @@ test("a v1 run proves nothing about an engine it did not name or did not run", (
 
   const inactive = read(v1Report(CURRENT, NODE_SCANNER_METHODOLOGY_VERSION, false));
   assert.equal(reportCarriesBraveIdentity(inactive, CURRENT), false);
+
+  const noList = read(v1NoListReport());
+  assert.equal(storedReportGeneration(noList), "v1");
+  assert.ok(noList.schemaVersion === 1 && noList.report.reportType !== "comparison");
+  assert.equal(noList.report.conditions.adblock, undefined, "the reader must keep the no-list shape, or this proves nothing");
+  assert.equal(reportCarriesBraveIdentity(noList, CURRENT), false);
 
   const earlierEngine = read(
     v1Report(CURRENT, "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1")
@@ -170,7 +188,11 @@ test("the counter tallies every generation it read and every file it could not",
       [`20260928-${"4".repeat(32)}`]: makeShieldsInterventionReportV2R2(),
       [`20260928-${"5".repeat(32)}`]: makePublicSingleReportV2(),
       [`20260928-${"6".repeat(32)}`]: "{ not json",
-      [`20260928-${"7".repeat(32)}`]: { schemaVersion: 1 }
+      [`20260928-${"7".repeat(32)}`]: { schemaVersion: 1 },
+      // The no-list variant: read as v1, matched by nothing. The predicate runs
+      // outside the counter's try, so a throw would end the refresh rather than
+      // count this file as unreadable.
+      [`20260928-${"8".repeat(32)}`]: v1NoListReport()
     });
     // Not report files: never read, never counted as unreadable.
     writeFileSync(path.join(reportsDir, "index.json"), "[]");
@@ -178,7 +200,7 @@ test("the counter tallies every generation it read and every file it could not",
 
     assert.deepEqual(await countReportsUnderIdentity(dir, CURRENT), {
       generations: {
-        v1: { read: 2, matched: 1 },
+        v1: { read: 3, matched: 1 },
         "v2-r1": { read: 1, matched: 0 },
         "v2-r2": { read: 2, matched: 2 }
       },
