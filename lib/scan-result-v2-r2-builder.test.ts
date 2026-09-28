@@ -1699,14 +1699,13 @@ test("phase plans follow enabled conditions and cannot smuggle impossible phases
 });
 
 test("a policy link read that failed before any visit builds without a policy phase", () => {
-  // lib/scanner.ts records a failed link collection as `failed/scan-failed`
-  // with a `policy-visit` loss and no phase: the failed read leaves no
-  // candidate, so no policy-analysis phase ever opens. The obligation registry
-  // admits that tuple under its detector-phase rule, and a failed outcome
-  // explains the missing phase, but the builder read `failed` as an executed
-  // detector and refused the whole report. A page that reloads itself while
-  // its links are read reaches this, and the public scan failed instead of
-  // publishing.
+  // lib/scanner.ts records a link collection that threw for a reason other
+  // than the scan budget as `failed/scan-failed` with a `policy-visit` loss
+  // and no phase: the failed read leaves no candidate, so no policy-analysis
+  // phase ever opens. The obligation registry admits that tuple under its
+  // detector-phase rule, and a failed outcome explains the missing phase, but
+  // the builder read `failed` as an executed detector and refused the whole
+  // report, so the public scan failed instead of publishing.
   const linksFailed = baseInput();
   linksFailed.conditions.probes.policyVisit = true;
   linksFailed.measurement.detectors["privacy-policy"] = {
@@ -1723,7 +1722,13 @@ test("a policy link read that failed before any visit builds without a policy ph
   });
   const report = buildNodeScanReportV2R2(linksFailed);
   assert.equal(report.run.phases.some((phase) => phase.kind === "policy-analysis"), false);
-  assert.deepEqual(scanReportV2R2SemanticViolations(toPublicScanReportR2(report)), []);
+  const publicReport = toPublicScanReportR2(report);
+  assert.deepEqual(scanReportV2R2SemanticViolations(publicReport), []);
+  // The path a published report travels: persisted, read back, re-sanitized.
+  assert.equal(readStoredScanReport(publicReport).ok, true);
+  const stored = JSON.parse(prepareScanReportBundle(report).reportWire);
+  assert.equal(readStoredScanReport(stored).ok, true);
+  assert.equal(publicReportDigest(redactPublicScanReportV2R2(stored)), publicReportDigest(stored));
 
   // A detector that reports activity still needs the phase it reports from.
   for (const status of ["complete", "partial"] as const) {
