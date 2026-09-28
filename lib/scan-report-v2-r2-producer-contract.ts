@@ -485,7 +485,8 @@ const HISTORICAL_NODE_V13_NORMALIZATION = "redaction-v4+allowlists-v3:269f631f04
 const HISTORICAL_NODE_V14_NORMALIZATION = "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:359b216f1168c4caf2f107e9f5220cbab5e0da9b4dad686129922a9ab3e4e9bc+tldts@7.4.13+node-evidence-policy-v1+r2-http-status-compat-v1";
 // Exact identity of the node-detectors-v11 production producer with the
 // September 21 lists, closed by the September 28 list adoption (captured at
-// d8a9560e, the main tip before it). Only the list snapshot moved there, so
+// d8a9560e, and again at e287bc35, the next main commit, which changes only a
+// test and moves no identity). Only the list snapshot moved there, so
 // both literals still equal the live constants; they are spelled out because
 // the closed row must not follow the live identity when the next epoch moves
 // it. Not a retirement: the normalization stays active and needs no
@@ -1229,7 +1230,7 @@ function nodeTuple(
 // public-string policy digest in the normalization; the toolchain and every
 // other field are unchanged from v14. The September 28 list adoption then
 // moved only the lists: the v15 row with the September 21 lists is closed
-// above, and the no-list row is not re-minted.
+// below in NODE_R2_PRODUCER_TUPLES, and the no-list row is not re-minted.
 const ACTIVE_NODE_WIRE_IDENTITY_IS_DISTINCT =
   String(NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION) !== HISTORICAL_NODE_V13_METHODOLOGY ||
   String(NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION) !== HISTORICAL_NODE_V14_NORMALIZATION ||

@@ -1505,8 +1505,10 @@ test("closed v14 reports keep their exact identity when v15 moves the methodolog
 });
 
 // Captured by executing the tables at d8a9560efa27614f17729a4f12f3475f8424befb,
-// the main tip and the last source before the September 28 list adoption
-// closed the v15 list row.
+// the source the September 28 list adoption was prepared on, and again at
+// e287bc3558cb5f8d913421b4d8c4448bdd5ca7a3, the next main commit, which changes
+// only a test and gives the same digest. Both still emit the v15 list row from
+// the live constants.
 test("the September 28 list adoption preserves the outgoing list producer exactly", () => {
   const ids = ["node-v15-detectors-v11-active-lists-2026-09-21"];
   const rows = ids.map((id) => NODE_R2_PRODUCER_TUPLES.find((tuple) => tuple.id === id));
