@@ -610,7 +610,15 @@ function assertPhasePlan(
   if (hasPolicy && !executedDetector(detectors["privacy-policy"])) {
     throw new Error("A policy-analysis phase requires an executed privacy-policy detector outcome.");
   }
-  if (!hasPolicy && executedDetector(detectors["privacy-policy"])) {
+  // A failed outcome explains a missing phase (detector-phase-omission): the
+  // scanner records a link read that failed before any visit as
+  // `failed/scan-failed` with no phase, and the obligation registry admits it.
+  // Only an outcome that reports activity needs the phase it reports from.
+  if (
+    !hasPolicy &&
+    executedDetector(detectors["privacy-policy"]) &&
+    !phaseOmissionExplainedByDetector(detectors["privacy-policy"])
+  ) {
     throw new Error("An executed privacy-policy detector requires a policy-analysis phase.");
   }
 

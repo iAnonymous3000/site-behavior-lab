@@ -1698,6 +1698,46 @@ test("phase plans follow enabled conditions and cannot smuggle impossible phases
   assert.throws(() => buildNodeScanReportV2R2(unrunAlwaysOn), /Always-on detector pixel-events/);
 });
 
+test("a policy link read that failed before any visit builds without a policy phase", () => {
+  // lib/scanner.ts records a failed link collection as `failed/scan-failed`
+  // with a `policy-visit` loss and no phase: the failed read leaves no
+  // candidate, so no policy-analysis phase ever opens. The obligation registry
+  // admits that tuple under its detector-phase rule, and a failed outcome
+  // explains the missing phase, but the builder read `failed` as an executed
+  // detector and refused the whole report. A page that reloads itself while
+  // its links are read reaches this, and the public scan failed instead of
+  // publishing.
+  const linksFailed = baseInput();
+  linksFailed.conditions.probes.policyVisit = true;
+  linksFailed.measurement.detectors["privacy-policy"] = {
+    version: DETECTOR_VERSIONS["privacy-policy"],
+    status: "failed",
+    reason: "scan-failed"
+  };
+  linksFailed.measurement.qualityFacts.captureLoss.push({
+    family: "detector-output",
+    phaseId: null,
+    kind: "dropped",
+    count: 1,
+    detail: "policy-visit"
+  });
+  const report = buildNodeScanReportV2R2(linksFailed);
+  assert.equal(report.run.phases.some((phase) => phase.kind === "policy-analysis"), false);
+  assert.deepEqual(scanReportV2R2SemanticViolations(toPublicScanReportR2(report)), []);
+
+  // A detector that reports activity still needs the phase it reports from.
+  for (const status of ["complete", "partial"] as const) {
+    const activeWithoutPhase = baseInput();
+    activeWithoutPhase.conditions.probes.policyVisit = true;
+    activeWithoutPhase.measurement.detectors["privacy-policy"] = {
+      version: DETECTOR_VERSIONS["privacy-policy"],
+      status,
+      ...(status === "partial" ? { reason: "scan-failed" } : {})
+    };
+    assert.throws(() => buildNodeScanReportV2R2(activeWithoutPhase), /policy-analysis phase|explains the omission/, status);
+  }
+});
+
 test("a consent run whose interaction never happened still builds a degraded, accountable report", () => {
   // Two invariants used to be jointly unsatisfiable. The contract requires
   // consent evidence on every consent-mode run, a consent-interaction phase,

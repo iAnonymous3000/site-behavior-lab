@@ -9,6 +9,10 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- A scan whose privacy-policy link read failed before any policy visit (a page
+  that reloads itself while its links are read) no longer fails to publish on
+  r2. The scanner records that as a failed policy detector with no policy
+  phase, which the detector obligations admit, and the builder had refused it.
 - A scanner quota refusal (HTTP 429) now reaches the visitor as the declared
   `rate-limited` notice instead of raw server text. The notice says the scanner
   reached a request limit, blames no one (the quota store merges per-visitor and
