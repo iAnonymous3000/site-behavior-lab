@@ -116,7 +116,7 @@ jobs:
     # A missing controlled-runner label falls back to GitHub-hosted execution
     # only so the r2 preflight can fail visibly; it never falls back to v1.
     # Explicit manual v1 compatibility remains on GitHub-hosted Ubuntu.
-    runs-on: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.report_mode == 'v1' && 'ubuntu-latest' || vars.FEATURED_RUNNER_LABEL || 'ubuntu-latest' }}
+    runs-on: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.report_mode == 'v1' && 'ubuntu-24.04' || vars.FEATURED_RUNNER_LABEL || 'ubuntu-24.04' }}
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -294,7 +294,7 @@ jobs:
     name: Measurement freeze notice
     if: vars.SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE == '1'
     needs: scan
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Explain the withheld publication
         run: |
@@ -306,7 +306,7 @@ jobs:
     # above still runs and uploads its bounded artifact as evidence.
     if: vars.SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE != '1'
     needs: scan
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: write
       pull-requests: write

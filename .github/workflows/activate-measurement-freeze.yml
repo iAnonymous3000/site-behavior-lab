@@ -25,7 +25,7 @@ concurrency:
 jobs:
   activate:
     name: Capture Measurement Freeze Activation
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - name: Refuse a non-main or ambiguous candidate

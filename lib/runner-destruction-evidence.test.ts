@@ -332,7 +332,7 @@ test("the hosted workflow is trusted, exact-artifact-only, and carries no caller
     workflow,
     /name: Read back provider destruction and absence/
   );
-  assert.match(workflow, /runs-on: ubuntu-latest/);
+  assert.match(workflow, /runs-on: ubuntu-24\.04/);
   assert.match(workflow, /github\.ref == 'refs\/heads\/main'/);
   assert.match(workflow, /environment: release-evidence/);
   assert.match(

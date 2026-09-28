@@ -60,7 +60,7 @@ env:
 jobs:
   produce:
     name: Publish one authenticated pre-acquisition ciphertext commitment
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
       - name: Checkout exact trusted batch producer

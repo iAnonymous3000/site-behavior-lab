@@ -21,7 +21,7 @@ const promoteJob = workflow.slice(promoteStart);
 test("supply-chain CI uses a read-only job and blocks production promotion", () => {
   assert.notEqual(supplyChainStart, -1);
   assert.notEqual(appStart, -1);
-  assert.match(supplyChainJob, /runs-on: ubuntu-latest\n\s+timeout-minutes: 35/);
+  assert.match(supplyChainJob, /runs-on: ubuntu-24\.04\n\s+timeout-minutes: 35/);
   assert.match(supplyChainJob, /permissions:\n\s+contents: read/);
   assert.doesNotMatch(supplyChainJob, /contents: write|pull-requests: write|security-events: write/);
   // Anchored past the last entry: an appended gate would otherwise still

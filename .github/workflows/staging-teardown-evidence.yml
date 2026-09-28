@@ -16,7 +16,7 @@ jobs:
     if: >-
       github.repository == 'iAnonymous3000/site-behavior-lab' &&
       github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     environment: release-evidence
     # The adapter exports and tests its conservative request-count and
     # worst-case duration proof. This six-hour envelope must cover that checked

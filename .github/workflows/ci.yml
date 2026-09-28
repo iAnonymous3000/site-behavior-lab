@@ -31,7 +31,7 @@ env:
 jobs:
   supply-chain:
     name: Supply-chain Security
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 35
     permissions:
       contents: read
@@ -225,7 +225,7 @@ jobs:
     # Keep the existing required check as a fail-closed join. A skipped
     # dependency must fail this check, not become an implicitly passing skip.
     if: ${{ always() }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
       - name: Require tests and builds to succeed
@@ -241,7 +241,7 @@ jobs:
 
   tests:
     name: Typecheck and Unit Tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     # A deadlocked unit test must fail this job fast, never consume the 6-hour default budget.
     timeout-minutes: 45
     steps:
@@ -366,7 +366,7 @@ jobs:
 
   pages:
     name: Build and Static Export
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 45
     env:
       # Test the actual production browser configuration, including root paths.
@@ -441,7 +441,7 @@ jobs:
 
   smoke:
     name: Chromium Smoke Test
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     # A hung build or smoke run must fail this job fast, never consume the 6-hour default budget.
     timeout-minutes: 45
     steps:
@@ -487,7 +487,7 @@ jobs:
 
   docker:
     name: Docker Runtime and Public R2 Smoke
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 45
     steps:
       - name: Checkout
@@ -777,7 +777,7 @@ jobs:
     if: >-
       github.event_name != 'pull_request' &&
       github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     permissions:
       contents: read
@@ -1091,7 +1091,7 @@ jobs:
       github.event_name != 'pull_request' &&
       github.ref == 'refs/heads/main' &&
       vars.SITE_BEHAVIOR_LAB_PROMOTION_PAUSED != '1'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
     # Shared with promote-production.yml so direct and workflow_run fallbacks

@@ -270,7 +270,7 @@ export function featuredControlledR2WorkflowIssues(source) {
     "SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE: ${{ vars.SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE || '' }}",
     "SITE_BEHAVIOR_LAB_SCANNER_EGRESS: ${{ vars.SCANNER_EGRESS || 'github-actions-ubuntu' }}",
     "SITE_BEHAVIOR_LAB_SCANNER_EGRESS_REGION: ${{ vars.SCANNER_EGRESS_REGION || '' }}",
-    "vars.FEATURED_RUNNER_LABEL || 'ubuntu-latest'",
+    "vars.FEATURED_RUNNER_LABEL || 'ubuntu-24.04'",
     "- name: Prepare featured report production",
     "run: node dist/schema/lib/featured-report-preflight-cli.js",
     'const expected = mode === "r2" ? "ci-workflow" : "public-api";'

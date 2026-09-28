@@ -57,7 +57,7 @@ concurrency:
 jobs:
   fidelity:
     name: Scan real sites and assert scanner invariants (${{ matrix.mode }}, shard ${{ matrix.shard }})
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 60
     strategy:
       fail-fast: false

@@ -271,7 +271,7 @@ test("both committed-report workflows force automated r2 and gate before scannin
       );
     }
     assert.match(workflow, /SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX: "1"/, file);
-    assert.match(workflow, /runs-on:.*github\.event_name == 'workflow_dispatch'.*FEATURED_RUNNER_LABEL.*'ubuntu-latest'/, file);
+    assert.match(workflow, /runs-on:.*github\.event_name == 'workflow_dispatch'.*FEATURED_RUNNER_LABEL.*'ubuntu-24\.04'/, file);
     assert.match(workflow, /git commit -m "Add manual v1 compatibility scan report/, file);
   }
 });

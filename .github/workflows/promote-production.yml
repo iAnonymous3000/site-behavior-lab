@@ -51,7 +51,7 @@ jobs:
       github.event.workflow_run.head_repository.full_name == github.repository &&
       (github.event.workflow_run.event == 'push' || github.event.workflow_run.event == 'workflow_dispatch') &&
       vars.SITE_BEHAVIOR_LAB_PROMOTION_PAUSED != '1'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       # checkout v7 refuses to check out FORK pull-request code under
       # workflow_run, which is the privileged-context attack this job would

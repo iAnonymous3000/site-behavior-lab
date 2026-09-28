@@ -38,7 +38,7 @@ jobs:
     if: >-
       github.repository == 'iAnonymous3000/site-behavior-lab' &&
       github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     # The collector admits at most 43 one-minute network timeout slots under
     # its 32-way phased schedule, enforces a 45-minute global API deadline,
     # and leaves 15 minutes for bootstrap, derivation, and artifact upload.
