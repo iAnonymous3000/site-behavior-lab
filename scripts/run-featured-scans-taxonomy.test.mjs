@@ -454,10 +454,14 @@ test("refusals past the 35% ceiling fail with the curation message even when the
   assert.equal(decayed.decision.healthy, false);
   assert.match(decayed.verdict.reasons[0], /29 of 81 eligible targets \(36%\)[\s\S]*catalog needs curation/);
 
-  // The issue carries the same sentence, and does not blame the scanner.
+  // The issue and the step summary carry the same sentence, and neither
+  // blames the scanner.
   const report = issueFor(decayed.aggregate, true);
-  assert.ok(report.includes(decayed.verdict.reasons[0]));
-  assert.doesNotMatch(report, /The scanner succeeded on/);
+  const step = featuredStepSummaryLines(decayed.summary, "gallery").join("\n");
+  for (const [name, text] of [["issue", report], ["step summary", step]]) {
+    assert.ok(text.includes(decayed.verdict.reasons[0]), name);
+    assert.doesNotMatch(text, /The scanner succeeded on/, name);
+  }
 });
 
 /**
@@ -531,8 +535,11 @@ test("scanner failures past the gate still fail with zero refusals, and refusals
     "The scanner succeeded on 64 of the 81 eligible targets that did not refuse an automated visit (79%), below the required 80%."
   );
   assert.equal(run.decision.healthy, false);
-  assert.ok(issueFor(run.aggregate, true).includes(run.verdict.reasons[0]));
-  assert.doesNotMatch(issueFor(run.aggregate, true), /catalog needs curation/);
+  const step = featuredStepSummaryLines(run.summary, "gallery").join("\n");
+  for (const [name, text] of [["issue", issueFor(run.aggregate, true)], ["step summary", step]]) {
+    assert.ok(text.includes(run.verdict.reasons[0]), name);
+    assert.doesNotMatch(text, /catalog needs curation/, name);
+  }
 
   // One more success clears it: 65 of 81 is 80.2%.
   assert.equal(batch({ succeeded: 65, failures: scannerFailures.slice(1) }).decision.healthy, true);
@@ -547,6 +554,7 @@ test("scanner failures past the gate still fail with zero refusals, and refusals
     "The scanner succeeded on 47 of the 60 eligible targets that did not refuse an automated visit (78%), below the required 80%."
   ]);
   assert.equal(mixed.decision.healthy, false);
+  assert.ok(featuredStepSummaryLines(mixed.summary, "gallery").join("\n").includes(mixed.verdict.reasons[0]));
 
   // A batch with no success is never healthy, whatever rate it is held to.
   const nothing = featuredBatchHealth({ total: 5, succeeded: 0, failed: 5, failureTaxonomy: null, requiredSuccessRate: 0 });
@@ -664,6 +672,19 @@ test("the issue and the step summary state every gate beside its threshold", () 
   for (const failure of run.summary.failures) {
     assert.ok(!report.includes(failure.site), `${failure.site} must not reach the public issue`);
   }
+});
+
+test("a step summary whose projection fails says so and states no gate", () => {
+  // The projection re-derives every rate from the counts, so a summary that
+  // asserts a rate its counts do not produce is rejected rather than rendered.
+  const run = batch({ succeeded: 12, failures: times(8, refusal), fullCatalog: false });
+  const broken = { ...run.summary, successRate: 0.5 };
+  assert.equal(publicFeaturedScanSummary(broken), null);
+  const step = featuredStepSummaryLines(broken, "gallery").join("\n");
+  assert.match(step, /^- Aggregate scan summary: \*\*unavailable or invalid\*\*$/m);
+  assert.doesNotMatch(step, /Scanner success|refusal ceiling|catalog needs curation/);
+  // The private per-target list does not depend on the projection.
+  assert.ok(step.includes("refused-0.example"));
 });
 
 test("the runner exits on the shared verdict, not on a rate of its own", () => {
