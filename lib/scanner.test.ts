@@ -1,9 +1,11 @@
 import assert from "node:assert/strict";
-import { createHash } from "node:crypto";
+import { createHash, generateKeyPairSync, sign } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { createServer } from "node:http";
+import { createSecureServer } from "node:http2";
 import { connect, createServer as createNetServer, type Socket } from "node:net";
+import { getCACertificates, setDefaultCACertificates } from "node:tls";
 import { test } from "node:test";
 import type { Frame } from "playwright";
 import {
@@ -3737,6 +3739,83 @@ test("an HTTPS PDF privacy policy is requested offering HTTP/1.1 alone", { timeo
   }
 });
 
+test("an HTTPS PDF privacy policy completes over HTTP/1.1 through the scan proxy's tunnel", { timeout: 20_000 }, async () => {
+  // Most real policy PDFs are HTTPS, fetched through the ProxyAgent's CONNECT
+  // tunnel rather than the plain-HTTP Client the tests above exercise. The
+  // upstream offers h2 and http/1.1 with a certificate only this process
+  // trusts, so the read completes only if the tunnel verifies the site as its
+  // own hostname and then holds the HTTP/1.1 exchange the ALPN test pins.
+  const hostname = "policy-pdf-tls.test";
+  const siteCertificate = selfSignedTlsCertificate(hostname);
+  const policyPdf = policyPdfFixture(
+    "Privacy Policy. We collect information and use cookies for analytics and advertising. ".repeat(12)
+  );
+  const negotiated: Array<string | false> = [];
+  const pdfRequests: Array<{ httpVersion: string; url: string | undefined }> = [];
+  const tlsSockets = new Set<Socket>();
+  const tlsUpstream = createSecureServer(
+    { allowHTTP1: true, cert: siteCertificate.cert, key: siteCertificate.key },
+    (request, response) => {
+      pdfRequests.push({ httpVersion: request.httpVersion, url: request.url });
+      response.writeHead(200, { "content-length": policyPdf.byteLength, "content-type": "application/pdf" });
+      response.end(policyPdf);
+    }
+  );
+  tlsUpstream.on("connection", (socket: Socket) => {
+    tlsSockets.add(socket);
+    socket.once("close", () => tlsSockets.delete(socket));
+  });
+  tlsUpstream.on("secureConnection", (socket) => negotiated.push(socket.alpnProtocol ?? false));
+  const upstream = createServer((_request, response) => {
+    response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+    response.end(
+      `<!doctype html><title>PDF policy</title><a href="https://${hostname}/privacy-policy.pdf">Privacy Policy</a>`
+    );
+  });
+  for (const server of [tlsUpstream, upstream]) {
+    await new Promise<void>((resolve, reject) => {
+      server.once("error", reject);
+      server.listen(0, "127.0.0.1", resolve);
+    });
+  }
+  const tlsAddress = tlsUpstream.address();
+  const address = upstream.address();
+  assert.ok(tlsAddress && typeof tlsAddress === "object" && address && typeof address === "object");
+  // Process-wide: every later TLS client in this file would inherit it, so the
+  // exact prior list is restored below.
+  const defaultCaCertificates = getCACertificates("default");
+  setDefaultCACertificates([...defaultCaCertificates, siteCertificate.cert]);
+
+  try {
+    const { result, measurement: staged } = await scanSiteWithMeasurement(
+      { url: `http://${hostname}/`, device: "desktop", gpcEnabled: false, consentMode: "observe" },
+      {
+        publicUrlAlreadyVerified: true,
+        verifyPublicUrl: async () => undefined,
+        resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+        connectProxyUpstreamForTests: (target) =>
+          target.protocol === "https:" ? connect(tlsAddress.port, "127.0.0.1") : connect(address.port, "127.0.0.1"),
+        resolveCnameChain: async () => []
+      }
+    );
+
+    assert.deepEqual(staged!.measurement.detectors["privacy-policy"], {
+      version: "policy-text-cross-check@8",
+      status: "complete",
+      phaseId: 2
+    });
+    assert.ok((result.privacyPolicy?.policyTextLength ?? 0) >= 500, "the PDF body was read and parsed");
+    assert.deepEqual(pdfRequests, [{ httpVersion: "1.1", url: "/privacy-policy.pdf" }]);
+    assert.deepEqual(negotiated, ["http/1.1"], "the upstream offered h2 and the tunnel agreed to HTTP/1.1");
+  } finally {
+    setDefaultCACertificates(defaultCaCertificates);
+    await closeSharedBrowserForTests();
+    for (const socket of tlsSockets) socket.destroy();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+    await new Promise<void>((resolve) => tlsUpstream.close(() => resolve()));
+  }
+});
+
 /**
  * The ALPN protocols a TLS ClientHello offers, read from its first record
  * (RFC 8446 section 4.1.2, RFC 7301 section 3.1). An empty list means the
@@ -3789,6 +3868,58 @@ function alpnFromClientHello(handshake: Buffer): string[] {
     offset += length;
   }
   return [];
+}
+
+/**
+ * A self-signed P-256 certificate for one DNS name, valid for an hour either
+ * side of now: the minimal X.509 v3 (RFC 5280 section 4.1) a TLS client
+ * verifies once the certificate itself is a trusted root.
+ */
+function selfSignedTlsCertificate(hostname: string): { cert: string; key: string } {
+  const der = (tag: number, ...contents: Buffer[]): Buffer => {
+    const body = Buffer.concat(contents);
+    const lengthBytes: number[] = [];
+    for (let remaining = body.length; remaining > 0; remaining >>= 8) lengthBytes.unshift(remaining & 0xff);
+    const length = body.length < 0x80 ? [body.length] : [0x80 | lengthBytes.length, ...lengthBytes];
+    return Buffer.concat([Buffer.from([tag, ...length]), body]);
+  };
+  const oid = (dotted: string): Buffer => {
+    const [first, second, ...arcs] = dotted.split(".").map(Number);
+    const bytes = [40 * first + second];
+    for (const arc of arcs) {
+      const encoded = [arc & 0x7f];
+      for (let remaining = arc >> 7; remaining > 0; remaining >>= 7) encoded.unshift(0x80 | (remaining & 0x7f));
+      bytes.push(...encoded);
+    }
+    return der(0x06, Buffer.from(bytes));
+  };
+  const utcTime = (date: Date): Buffer =>
+    der(0x17, Buffer.from(`${date.toISOString().replace(/[-:T]/g, "").slice(2, 14)}Z`, "latin1"));
+  const { privateKey, publicKey } = generateKeyPairSync("ec", { namedCurve: "P-256" });
+  const name = der(0x30, der(0x31, der(0x30, oid("2.5.4.3"), der(0x0c, Buffer.from(hostname)))));
+  const ecdsaWithSha256 = der(0x30, oid("1.2.840.10045.4.3.2"));
+  const now = Date.now();
+  const tbsCertificate = der(
+    0x30,
+    der(0xa0, der(0x02, Buffer.from([2]))),
+    der(0x02, Buffer.from([1])),
+    ecdsaWithSha256,
+    name,
+    der(0x30, utcTime(new Date(now - 3_600_000)), utcTime(new Date(now + 3_600_000))),
+    name,
+    publicKey.export({ type: "spki", format: "der" }),
+    der(0xa3, der(0x30, der(0x30, oid("2.5.29.17"), der(0x04, der(0x30, der(0x82, Buffer.from(hostname)))))))
+  );
+  const certificate = der(
+    0x30,
+    tbsCertificate,
+    ecdsaWithSha256,
+    der(0x03, Buffer.from([0]), sign("sha256", tbsCertificate, privateKey))
+  );
+  return {
+    cert: `-----BEGIN CERTIFICATE-----\n${certificate.toString("base64").match(/.{1,64}/g)!.join("\n")}\n-----END CERTIFICATE-----\n`,
+    key: privateKey.export({ type: "pkcs8", format: "pem" }).toString()
+  };
 }
 
 function policyPdfFixture(text: string): Buffer {
