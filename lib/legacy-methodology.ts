@@ -31,6 +31,10 @@ export const LEGACY_V1_METHODOLOGY_UNSPECIFIED = "legacy-v1-methodology-unspecif
 const METHODOLOGY_TOKEN = /\bmethodology\s+([a-z0-9]+(?:[._+-][a-z0-9]+)*)\b/gi;
 const RAW_METHODOLOGY_TOKEN = /^[a-z0-9]+(?:[._+-][a-z0-9]+)*$/i;
 const PLAYWRIGHT_VERSION_COMPONENT = /(?:^|-)playwright-(\d+\.\d+\.\d+)(?=$|\+)/g;
+// The leading component NODE_SHIELDS_REQUEST_CONTEXT_VERSION writes. Anchored,
+// because the producer only ever puts it first, and bounded after
+// `request-method-v1` so a later `-v10` revision cannot pass for it.
+const ADBLOCK_ENGINE_COMPONENT = /^shields-request-context-v2-(adblock-rust-\d+\.\d+\.\d+)-request-method-v1(?=$|[-+])/;
 
 export function legacyV1MethodologyIdentity(scannerDisclosure: string | undefined): string {
   // The public-redaction sentinel contains the English words "Methodology
@@ -47,6 +51,25 @@ export function legacyV1MethodologyIdentity(scannerDisclosure: string | undefine
 
 /** Exact Playwright identity only when the report's own provenance records it. */
 export function recordedPlaywrightVersion(provenance: string | undefined): string | null {
+  const methodology = recordedMethodology(provenance);
+  if (!methodology) return null;
+  const versions = [...methodology.matchAll(PLAYWRIGHT_VERSION_COMPONENT)];
+  return versions.length === 1 ? versions[0]?.[1] ?? null : null;
+}
+
+/**
+ * Exact adblock engine identity only when the report's own provenance records
+ * it. Frozen v1 has no engine field; its methodology token is the only place a
+ * v1 report names the engine its Brave-list matches ran on.
+ */
+export function recordedAdblockEngineVersion(provenance: string | undefined): string | null {
+  const methodology = recordedMethodology(provenance);
+  if (!methodology) return null;
+  return ADBLOCK_ENGINE_COMPONENT.exec(methodology)?.[1] ?? null;
+}
+
+/** A raw methodology, or the single methodology token a disclosure carries. */
+function recordedMethodology(provenance: string | undefined): string | null {
   if (!provenance) return null;
   const methodologyTokens = [...provenance.matchAll(METHODOLOGY_TOKEN)];
   const methodology = RAW_METHODOLOGY_TOKEN.test(provenance)
@@ -54,7 +77,5 @@ export function recordedPlaywrightVersion(provenance: string | undefined): strin
     : methodologyTokens.length === 1
       ? methodologyTokens[0]?.[1]
       : null;
-  if (!methodology) return null;
-  const versions = [...methodology.matchAll(PLAYWRIGHT_VERSION_COMPONENT)];
-  return versions.length === 1 ? versions[0]?.[1] ?? null : null;
+  return methodology || null;
 }

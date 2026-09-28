@@ -265,7 +265,7 @@ npm run test:smoke:docker
 
 `npm run test:smoke:static` drives the freshly built `out/` export end to end (gallery, permalinks, uploads, compare tools); run it right after `npm run build:pages` so it never checks a stale artifact.
 
-`npm run lists:adoption` reports whether the pinned Brave measurement identity still describes the vendored snapshot. It exits `0` either way, because "upstream published new rules" is an ordinary outcome rather than a failure; when they have moved it prints the exact `NODE_R2_CURRENT_ADBLOCK_IDENTITY` literal to adopt and counts the committed reports measured under the outgoing identity, which is what decides whether that identity must also be frozen as a historical row.
+`npm run lists:adoption` reports whether the pinned Brave measurement identity still describes the vendored snapshot. It exits `0` either way, because "upstream published new rules" is an ordinary outcome rather than a failure; when they have moved it prints the exact `NODE_R2_CURRENT_ADBLOCK_IDENTITY` literal to adopt and counts the committed reports measured under the outgoing identity, per report generation (`v1`, `v2-r1`, `v2-r2`) with the number of each it read and any it could not. v1 reports record no manifest digest, so a v1 report counts only when its snapshot `fetchedAt` and the adblock engine its methodology names both match, and the v1 figure is a floor. The count describes impact only: the outgoing identity must be frozen as a historical row whatever it reads, because live reports and downloaded copies can outlive server retention without appearing in the committed corpus.
 
 Versioned releases are cut as `vX.Y.Z` tags under the release-integrity
 contract in [RELEASE.md](../RELEASE.md): a tag claims only that the tagged

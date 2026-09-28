@@ -1,11 +1,13 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { canonicalJson } from "./canonical-json";
-import { NODE_ADBLOCK_ENGINE_VERSION } from "./legacy-methodology";
+import { NODE_ADBLOCK_ENGINE_VERSION, recordedAdblockEngineVersion } from "./legacy-methodology";
+import type { StoredScanReport } from "./scan-report-reader";
 import {
   braveListMeasurementIdentity,
   NODE_R2_CURRENT_ADBLOCK_IDENTITY
 } from "./scan-report-v2-r2-producer-contract";
+import type { ScanConditions } from "./types";
 
 /**
  * Answer one question the refresh workflow could not previously ask:
@@ -91,15 +93,115 @@ export function compareBraveSnapshotAdoption(
   if (snapshot === null) {
     return { adoptionRequired: true, reason: "snapshot-unreadable", snapshot: null, pinned };
   }
-  const same =
-    canonicalJson(braveListMeasurementIdentity(snapshot)) ===
-    canonicalJson(braveListMeasurementIdentity(pinned));
+  const same = measuresIdentically(snapshot, pinned);
   return {
     adoptionRequired: !same,
     reason: same ? "identical" : "rules-moved",
     snapshot,
     pinned
   };
+}
+
+/** The producer tuple's comparison: `braveListMeasurementIdentity` on both sides. */
+function measuresIdentically(a: Record<string, unknown>, b: Record<string, unknown>): boolean {
+  return canonicalJson(braveListMeasurementIdentity(a)) === canonicalJson(braveListMeasurementIdentity(b));
+}
+
+/** A committed report's wire generation, as `readStoredScanReport` classifies it. */
+export type BraveAdoptionReportGeneration = "v1" | "v2-r1" | "v2-r2";
+
+export const BRAVE_ADOPTION_REPORT_GENERATIONS: readonly BraveAdoptionReportGeneration[] = Object.freeze([
+  "v1",
+  "v2-r1",
+  "v2-r2"
+]);
+
+export function storedReportGeneration(stored: StoredScanReport): BraveAdoptionReportGeneration {
+  if (stored.schemaVersion === 1) return "v1";
+  return stored.schemaRevision === 1 ? "v2-r1" : "v2-r2";
+}
+
+/**
+ * Whether any run of a committed report was measured under `identity`.
+ *
+ * Each generation is read through the fields it records, and every comparison
+ * goes through `measuresIdentically`, the rule `compareBraveSnapshotAdoption`
+ * and the producer tuple apply. v2 (both revisions) records the whole identity
+ * in `toolchain.adblock`, so it compares as recorded.
+ *
+ * v1 records neither the manifest nor an engine field. `conditions.adblock`
+ * carries source, lists and `fetchedAt`, and the engine appears only inside the
+ * methodology token. There `fetchedAt` is the only witness of the rule bytes:
+ * `scripts/fetch-brave-lists.mjs` stamps one timestamp per fetch and writes the
+ * manifest with it, so an equal `fetchedAt` names the fetch that produced
+ * `identity.manifestDigest`. Only after that proof does the lift borrow the
+ * manifest; source, lists and engine still go through the one comparison.
+ *
+ * THE v1 FIGURE IS A FLOOR. A byte-identical refetch moves `fetchedAt` without
+ * moving the identity, and a v1 run whose methodology names no engine proves
+ * nothing, so both are left uncounted rather than guessed.
+ */
+export function reportCarriesBraveIdentity(stored: StoredScanReport, identity: BraveSnapshotIdentity): boolean {
+  if (stored.schemaVersion === 1) {
+    const report = stored.report;
+    const runs = report.reportType === "comparison" ? [report.baseline, report.variant] : [report];
+    return runs.some((run) => legacyRunCarriesBraveIdentity(run.conditions, identity));
+  }
+  const report = stored.report;
+  const runs = report.reportType === "comparison" ? [report.baseline, report.variant] : [report.run];
+  return runs.some((run) => run.toolchain.adblock !== null && measuresIdentically(run.toolchain.adblock, identity));
+}
+
+function legacyRunCarriesBraveIdentity(conditions: ScanConditions, identity: BraveSnapshotIdentity): boolean {
+  const adblock = conditions.adblock;
+  if (adblock?.active !== true || adblock.fetchedAt !== identity.fetchedAt) return false;
+  return measuresIdentically(
+    {
+      source: adblock.source,
+      lists: adblock.lists,
+      fetchedAt: adblock.fetchedAt,
+      manifestDigest: identity.manifestDigest,
+      // Null when the methodology names no engine, which then matches nothing.
+      engineVersion: recordedAdblockEngineVersion(conditions.scannerDisclosure)
+    },
+    identity
+  );
+}
+
+export type BraveIdentityReportTally = {
+  /** Per generation: reports the typed reader accepted, and how many of those carry the identity. */
+  generations: Record<BraveAdoptionReportGeneration, { read: number; matched: number }>;
+  /** Report files that did not parse or that the typed reader rejected; never counted as matches. */
+  unreadable: number;
+};
+
+export function emptyBraveIdentityReportTally(): BraveIdentityReportTally {
+  return {
+    generations: {
+      v1: { read: 0, matched: 0 },
+      "v2-r1": { read: 0, matched: 0 },
+      "v2-r2": { read: 0, matched: 0 }
+    },
+    unreadable: 0
+  };
+}
+
+export function braveIdentityReportsMatched(tally: BraveIdentityReportTally): number {
+  return BRAVE_ADOPTION_REPORT_GENERATIONS.reduce((sum, generation) => sum + tally.generations[generation].matched, 0);
+}
+
+function formatBraveIdentityReportTally(tally: BraveIdentityReportTally | null): string[] {
+  if (tally === null) return ["- Committed reports measured under the outgoing identity: not counted"];
+  const generations = BRAVE_ADOPTION_REPORT_GENERATIONS.map((generation) => {
+    const { read, matched } = tally.generations[generation];
+    return `${generation} ${matched} of ${read}`;
+  }).join(", ");
+  return [
+    `- Committed reports measured under the outgoing identity: **${braveIdentityReportsMatched(tally)}**`,
+    `  - By generation (matched of read): ${generations}; ${tally.unreadable} unreadable and not counted.`,
+    "  - v1 records no manifest, so a v1 report counts only when its snapshot `fetchedAt` and the engine " +
+      "its methodology names both match. The v1 figure is a floor."
+  ];
 }
 
 /**
@@ -123,7 +225,7 @@ export function formatBraveAdoptionConstant(identity: BraveSnapshotIdentity): st
 
 export function formatBraveAdoptionSummary(
   adoption: BraveSnapshotAdoption,
-  publishedUnderPinned: number
+  publishedUnderPinned: BraveIdentityReportTally | null
 ): string {
   if (adoption.reason === "snapshot-unreadable") {
     return `The vendored snapshot at ${BRAVE_SNAPSHOT_METADATA_PATH} could not be read as a Brave list manifest.`;
@@ -141,7 +243,7 @@ export function formatBraveAdoptionSummary(
     "",
     `- Pinned manifest:   \`${adoption.pinned.manifestDigest}\``,
     `- Refreshed manifest: \`${snapshot.manifestDigest}\``,
-    `- Committed reports whose evidence carries the outgoing manifest: **${publishedUnderPinned}**`,
+    ...formatBraveIdentityReportTally(publishedUnderPinned),
     "",
     "Replace `NODE_R2_CURRENT_ADBLOCK_IDENTITY` in `lib/scan-report-v2-r2-producer-contract.ts` with:",
     "",
