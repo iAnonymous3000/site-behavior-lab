@@ -142,7 +142,7 @@
     "playwright": "1.63.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
-    "tldts": "7.4.13",
+    "tldts": "7.4.16",
     "undici": "8.11.2"
   },
   "overrides": {
