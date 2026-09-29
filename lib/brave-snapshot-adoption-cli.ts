@@ -1,10 +1,17 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import {
+  braveIdentityReportsMatched,
   compareBraveSnapshotAdoption,
+  emptyBraveIdentityReportTally,
   formatBraveAdoptionSummary,
-  readBraveSnapshotIdentity
+  readBraveSnapshotIdentity,
+  reportCarriesBraveIdentity,
+  storedReportGeneration,
+  type BraveIdentityReportTally,
+  type BraveSnapshotIdentity
 } from "./brave-snapshot-adoption";
+import { readStoredScanReport, type ReadStoredScanReportResult } from "./scan-report-reader";
 import { listStaticReportCandidateIds } from "./static-report-files";
 
 /**
@@ -48,45 +55,49 @@ export function parseBraveAdoptionCliArgs(
 }
 
 /**
- * Count committed reports whose evidence was measured under one exact Brave
- * manifest.
+ * Count committed reports measured under one Brave-list identity, per wire
+ * generation.
  *
- * Walks for the key rather than reading a fixed path: a single report, a
- * comparison pair, and a legacy v1 bundle each nest `toolchain` differently,
- * and a path list would be a fourth place that has to know the wire shape.
+ * Reads each report through `readStoredScanReport`, so a generation is what the
+ * typed reader says it is, and `reportCarriesBraveIdentity` decides the match
+ * through the fields that generation records. Matching a bare `manifestDigest`
+ * anywhere in the JSON, as this once did, counted zero of the 95 v1 reports
+ * committed under the outgoing snapshot on 2026-09-28: v1 never records one.
  */
-export async function countReportsUnderManifest(rootDir: string, manifestDigest: string): Promise<number> {
+export async function countReportsUnderIdentity(
+  rootDir: string,
+  identity: BraveSnapshotIdentity
+): Promise<BraveIdentityReportTally> {
   const reportsDir = path.join(rootDir, "public", "reports");
-  let matched = 0;
+  const tally = emptyBraveIdentityReportTally();
   for (const reportId of await listStaticReportCandidateIds(reportsDir)) {
-    let stored: unknown;
+    let read: ReadStoredScanReportResult;
     try {
-      stored = JSON.parse(await readFile(path.join(reportsDir, `${reportId}.json`), "utf8")) as unknown;
+      read = readStoredScanReport(JSON.parse(await readFile(path.join(reportsDir, `${reportId}.json`), "utf8")) as unknown);
     } catch {
+      read = { ok: false, error: "invalid" };
+    }
+    if (!read.ok) {
       // An unreadable committed bundle is a real defect, but it is the
       // corpus gates' defect to report. Counting is not the place to fail the
-      // refresh, and treating it as a match would overstate the impact.
+      // refresh, and treating it as a match would overstate the impact, so it
+      // is disclosed as unreadable instead.
+      tally.unreadable += 1;
       continue;
     }
-    if (containsManifestDigest(stored, manifestDigest)) matched += 1;
+    const counts = tally.generations[storedReportGeneration(read.stored)];
+    counts.read += 1;
+    if (reportCarriesBraveIdentity(read.stored, identity)) counts.matched += 1;
   }
-  return matched;
-}
-
-function containsManifestDigest(value: unknown, manifestDigest: string): boolean {
-  if (Array.isArray(value)) return value.some((entry) => containsManifestDigest(entry, manifestDigest));
-  if (!value || typeof value !== "object") return false;
-  const record = value as Record<string, unknown>;
-  if (record.manifestDigest === manifestDigest) return true;
-  return Object.values(record).some((entry) => containsManifestDigest(entry, manifestDigest));
+  return tally;
 }
 
 async function main(): Promise<void> {
   const args = parseBraveAdoptionCliArgs(process.argv.slice(2));
   const adoption = compareBraveSnapshotAdoption(readBraveSnapshotIdentity(args.rootDir));
   const publishedUnderPinned = adoption.adoptionRequired
-    ? await countReportsUnderManifest(args.rootDir, adoption.pinned.manifestDigest)
-    : 0;
+    ? await countReportsUnderIdentity(args.rootDir, adoption.pinned)
+    : null;
 
   const summary = formatBraveAdoptionSummary(adoption, publishedUnderPinned);
   console.log(summary);
@@ -98,7 +109,7 @@ async function main(): Promise<void> {
       [
         `adoption_required=${adoption.adoptionRequired}`,
         `adoption_reason=${adoption.reason}`,
-        `published_under_pinned=${publishedUnderPinned}`,
+        `published_under_pinned=${publishedUnderPinned === null ? 0 : braveIdentityReportsMatched(publishedUnderPinned)}`,
         "adoption_summary<<SBL_ADOPTION_EOF",
         summary,
         "SBL_ADOPTION_EOF",

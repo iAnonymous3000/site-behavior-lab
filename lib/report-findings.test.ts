@@ -12,6 +12,7 @@ import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "./gpc-injection";
 import { buildReportFacts } from "./report-facts";
 import { buildFindings, provenanceChangeText, requestProvenanceSummary, type Finding, type FindingIconKey } from "./report-findings";
 import { buildReportHeadline } from "./report-headline";
+import { frozenReportView, ledgerPinnedReportView, ledgerPinnedReportWire } from "./pinned-reports";
 import { HEADLINE_PLATFORMS, detectionLabel, isTrackingTrackerMatch } from "./report-insights";
 import { COMPARED_POLICY_CLAIM_KINDS } from "./privacy-policy";
 import { reviewedOwnershipRelationship } from "./reviewed-ownership";
@@ -36,7 +37,6 @@ import {
   displayRunView,
   familyCensoredOnRun,
   requestEvidenceState,
-  toReportView,
   viewFromV1Report,
   viewFromV2
 } from "./scan-report-views";
@@ -451,14 +451,13 @@ test("major-platform discovery reads exact request matches instead of a lossy ho
 });
 
 test("committed major-platform evidence reconciles to retained request rows, not host summaries", () => {
-  const reportName = "20260727-3f4388acdcec5a5a1883ad2909ebf88b.json";
-  const raw: unknown = JSON.parse(
-    readFileSync(path.join(process.cwd(), "public", "reports", reportName), "utf8")
-  );
+  // The corrections ledger pins this report, so retention keeps it published.
+  const reportId = "20260727-3f4388acdcec5a5a1883ad2909ebf88b";
+  const raw: unknown = JSON.parse(ledgerPinnedReportWire(reportId));
   const read = readStoredScanReport(raw);
-  assert.equal(read.ok, true, `reader rejected committed report ${reportName}`);
+  assert.equal(read.ok, true, `reader rejected committed report ${reportId}`);
   if (!read.ok || read.stored.schemaVersion !== 1) {
-    assert.fail(`expected committed v1 report ${reportName}`);
+    assert.fail(`expected committed v1 report ${reportId}`);
   }
   const report = read.stored.report;
   assert.equal(report.reportType, "comparison");
@@ -1836,13 +1835,14 @@ test("a policy read recorded at the site root presents the cross-check as not es
   // The probe accepts whatever same-party document the policy link lands on.
   // Three committed bing.com reports store the homepage as the policy, and the
   // board published "Tracking companies the privacy policy does not appear to
-  // name" over homepage text.
+  // name" over homepage text. The corrections ledger pins all three, so
+  // retention keeps them published.
   for (const id of [
     "20260727-165807d3cf2e22605703bb1af992f9d5",
     "20260817-08181f13ccd09a2584f7728e41496995",
     "20260824-7d6e9ff3be8b064709266d73a9518b4d"
   ]) {
-    const view = committedReportView(id);
+    const view = ledgerPinnedReportView(id);
     // Pin the wire shape, so the omission branch is really the one bypassed.
     assert.ok((displayRunView(view).evidence.privacyPolicy?.unmentionedEntities.length ?? 0) > 0, id);
     for (const arm of ["baseline", "variant"] as const) {
@@ -1866,12 +1866,13 @@ test("a policy read recorded at the site root presents the cross-check as not es
     }
   }
 
-  // Redacted and ordinary policy paths keep their recorded cross-check.
+  // Redacted and ordinary policy paths keep their recorded cross-check. Both
+  // read frozen copies, since retention will prune the published originals.
   for (const [id, url] of [
     ["20260702-037b2fee08bbbab57b9367afd51e7a84", "https://www.eharmony.com/{seg}"],
     ["20260702-01ec5d5bf8e198ade542e392ea70146d", "https://www.nasa.gov/privacy"]
   ] as const) {
-    const view = committedReportView(id);
+    const view = frozenReportView(id);
     assert.equal(displayRunView(view).evidence.privacyPolicy?.url, url);
     const card = byId(buildFindings(view, null), "privacy-policy");
     assert.equal(card.title, "Tracking companies the privacy policy does not appear to name", id);
@@ -2851,26 +2852,6 @@ test("phase-split fingerprint rows are counted and named as distinct APIs, like 
   assert.equal(card.evidence, `${facts.display.signals.fingerprint.apiFamilies} API families recorded.`);
   assert.match(card.detail, /Top calls: canvas\.toDataURL and webgl\.getParameter\./);
 });
-
-function committedReportView(id: string): ReturnType<typeof toReportView> {
-  return reportViewFrom(path.join(process.cwd(), "public", "reports", `${id}.json`), id);
-}
-
-/**
- * A published report frozen under test-fixtures/reports. Tests that pin one
- * report's wire shape read the frozen copy, because corpus retention prunes
- * old reports and a pinned case must not disappear with them.
- */
-function frozenReportView(id: string): ReturnType<typeof toReportView> {
-  return reportViewFrom(path.join(process.cwd(), "test-fixtures", "reports", `${id}.json`), id);
-}
-
-function reportViewFrom(file: string, id: string): ReturnType<typeof toReportView> {
-  const raw: unknown = JSON.parse(readFileSync(file, "utf8"));
-  const read = readStoredScanReport(raw);
-  if (!read.ok) assert.fail(`reader rejected report ${id}`);
-  return toReportView(read.stored);
-}
 
 function onlyWebglDetection(run: ReturnType<typeof displayRunView>): Extract<FingerprintDetectionSummary, { kind: "webgl-fingerprinting" }> {
   const webgl = run.evidence.fingerprintDetections.filter(

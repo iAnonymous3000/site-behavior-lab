@@ -5,9 +5,11 @@ import { test } from "node:test";
 import { adblockListMeta } from "./adblock-engine";
 import {
   compareBraveSnapshotAdoption,
+  emptyBraveIdentityReportTally,
   formatBraveAdoptionConstant,
   formatBraveAdoptionSummary,
   readBraveSnapshotIdentity,
+  type BraveIdentityReportTally,
   type BraveSnapshotIdentity
 } from "./brave-snapshot-adoption";
 import { NODE_ADBLOCK_ENGINE_VERSION } from "./legacy-methodology";
@@ -111,21 +113,51 @@ test("the emitted constant is the exact source literal, not a description of one
   assert.ok(!literal.includes("undefined"));
 });
 
+function tally(counts: Partial<BraveIdentityReportTally["generations"]>, unreadable = 0): BraveIdentityReportTally {
+  const empty = emptyBraveIdentityReportTally();
+  return { generations: { ...empty.generations, ...counts }, unreadable };
+}
+
 test("the summary tells a maintainer whether the outgoing identity must be frozen", () => {
   const moved: BraveSnapshotIdentity = { ...PINNED, manifestDigest: "c".repeat(64) };
   const adoption = compareBraveSnapshotAdoption(moved, PINNED);
 
-  const withPublications = formatBraveAdoptionSummary(adoption, 60);
+  const withPublications = formatBraveAdoptionSummary(adoption, tally({ "v2-r2": { read: 63, matched: 60 } }));
   assert.match(withPublications, /must ALSO be frozen/);
   assert.match(withPublications, /\*\*60\*\*/);
 
-  const withoutPublications = formatBraveAdoptionSummary(adoption, 0);
+  const withoutPublications = formatBraveAdoptionSummary(adoption, tally({}));
   assert.match(withoutPublications, /must ALSO be frozen/);
   assert.match(withoutPublications, /zero committed reports is not evidence/);
 });
 
+/**
+ * The count once read "0" on a day 95 committed v1 reports carried the
+ * outgoing snapshot, and nothing in the line said v1 had not been looked at.
+ * A total is only honest next to what it was drawn from.
+ */
+test("the summary states which report generations it counted and what it could not read", () => {
+  const adoption = compareBraveSnapshotAdoption({ ...PINNED, manifestDigest: "d".repeat(64) }, PINNED);
+  const summary = formatBraveAdoptionSummary(
+    adoption,
+    tally({ v1: { read: 966, matched: 95 }, "v2-r2": { read: 63, matched: 2 } }, 3)
+  );
+
+  assert.match(summary, /measured under the outgoing identity: \*\*97\*\*/);
+  assert.match(summary, /By generation \(matched of read\): v1 95 of 966, v2-r1 0 of 0, v2-r2 2 of 63; 3 unreadable and not counted\./);
+  assert.match(summary, /v1 records no manifest/);
+  assert.match(summary, /The v1 figure is a floor\./);
+});
+
+test("an adoption the counter did not reach says so instead of printing zero", () => {
+  const adoption = compareBraveSnapshotAdoption({ ...PINNED, manifestDigest: "e".repeat(64) }, PINNED);
+  const summary = formatBraveAdoptionSummary(adoption, null);
+  assert.match(summary, /measured under the outgoing identity: not counted/);
+  assert.doesNotMatch(summary, /\*\*0\*\*/);
+});
+
 test("a matching snapshot produces no adoption instructions", () => {
-  const summary = formatBraveAdoptionSummary(compareBraveSnapshotAdoption(PINNED, PINNED), 0);
+  const summary = formatBraveAdoptionSummary(compareBraveSnapshotAdoption(PINNED, PINNED), null);
   assert.match(summary, /no identity declaration is needed/);
   assert.doesNotMatch(summary, /NODE_R2_CURRENT_ADBLOCK_IDENTITY = Object\.freeze/);
 });

@@ -4,6 +4,7 @@ import path from "node:path";
 import { test } from "node:test";
 import { Script } from "node:vm";
 import ts from "typescript";
+import { frozenReportView } from "./pinned-reports";
 import { shieldsRunMeasurement } from "./report-insights";
 import { buildReportHeadline, type ReportHeadline } from "./report-headline";
 import { readStoredScanReport } from "./scan-report-reader";
@@ -218,12 +219,7 @@ test("a quiet visit with an incomplete check keeps its scoped absences and hedge
   // card to the generic fallback; the compact form keeps the claims and the
   // hedge the headline states.
   const og = loadOgReportCardModule();
-  const raw: unknown = JSON.parse(
-    readFileSync(path.join(process.cwd(), "test-fixtures", "reports", "20260928-0ade50d01c4085ba146e27f8708a6f65.json"), "utf8")
-  );
-  const read = readStoredScanReport(raw);
-  if (!read.ok) throw new Error(`reader rejected the frozen report: ${read.error}`);
-  const view = toReportView(read.stored);
+  const view = frozenReportView("20260928-0ade50d01c4085ba146e27f8708a6f65");
   const headline = buildReportHeadline(view);
   assert.equal(headline.semantic.story, "incomplete-evidence");
   assert.match(headline.headline, /but another check is incomplete\.$/);

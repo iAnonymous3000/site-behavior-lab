@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import test from "node:test";
+import { ledgerPinnedReportWire } from "./pinned-reports";
 import { buildReportFacts } from "./report-facts";
 import {
   buildRequestAttributionMap,
@@ -305,20 +306,20 @@ test("a censored capture states every drawn count as a floor, never as an exact 
  *
  * Named explicitly instead of "whichever report sorts first", because a guard
  * pinned to a corpus accident silently stops testing what it claims to when the
- * corpus moves. If this report is ever retired, this test fails loudly and
- * should be re-pinned deliberately.
+ * corpus moves. The corrections ledger pins it, so retention keeps it
+ * published; if it is ever withdrawn, this test fails loudly and should be
+ * re-pinned deliberately.
  */
 const AP_REPORT_ID = "20260814-469dd801c3015de7d2d2f04ed56ec14c";
 
 function apNewsArm(arm: "baseline" | "variant") {
-  const file = path.join(process.cwd(), "public", "reports", `${AP_REPORT_ID}.json`);
   assert.ok(
     readdirSync(path.join(process.cwd(), "public", "reports")).includes(
       `${AP_REPORT_ID}.json`
     ),
     `the pinned attribution report ${AP_REPORT_ID} is gone; re-pin this guard deliberately rather than deleting it`
   );
-  const report = JSON.parse(readFileSync(file, "utf8")) as Record<string, any>;
+  const report = JSON.parse(ledgerPinnedReportWire(AP_REPORT_ID)) as Record<string, any>;
   const run = report[arm];
   assert.ok(run, `${AP_REPORT_ID} has no ${arm} arm`);
   const requests = run.evidence.requests as NetworkRequestRecord[];

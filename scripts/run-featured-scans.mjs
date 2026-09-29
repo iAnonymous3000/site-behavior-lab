@@ -22,8 +22,10 @@
  *   FEATURED_TRANSIENT_RETRIES        Extra attempts for explicitly transient failures (default: 1, max: 2).
  *   FEATURED_TRANSIENT_RETRY_DELAY_MS Delay before the first transient retry (default: 5000).
  *   FEATURED_INCLUDE_UNAVAILABLE      Include versioned temporarily-unavailable catalog entries for manual review (default: false).
- *   FEATURED_MIN_SUCCESS_RATE         Minimum fraction of sites that must scan
- *                                     successfully for the run to succeed
+ *   FEATURED_MIN_SUCCESS_RATE         Minimum fraction of eligible sites, not
+ *                                     counting those that refused an automated
+ *                                     visit, that must scan successfully for
+ *                                     the run to succeed
  *                                     (default: 0.9, hard floor: 0.8). Below it the run exits
  *                                     nonzero, even though independently
  *                                     validated successes can still publish.
@@ -32,6 +34,9 @@
  *   --plan                            Print the selected domains, conditions,
  *                                     and bounded attempt/page-visit budget as
  *                                     JSON without building or scanning.
+ *
+ * Refusals have their own fixed, non-overridable ceiling: the run also exits
+ * nonzero when more than 35% of eligible sites refuse an automated visit.
  *
  * A full featured-catalog run also has fixed, non-overridable eligibility
  * gates: at least 80% of the whole catalog and at least 50 sites must remain
@@ -45,14 +50,20 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
+  FEATURED_REFUSAL_CEILING,
   classifyFeaturedFailures,
   failureDiagnosticFromStderr,
+  featuredBatchHealth,
+  featuredBatchHealthFailures,
+  featuredBatchHealthLines,
   featuredCatalogEligibility,
   featuredCatalogVersion,
   featuredMinimumSuccessRate,
+  featuredRefreshCatalogSlug,
   featuredScanRetryReason,
   featuredTransientRetryLimit,
   isFullFeaturedCatalogSelection,
+  publicFeaturedScanSummary,
   summarizeFailureTaxonomy
 } from "./run-featured-scans-diagnostics.mjs";
 
@@ -201,8 +212,11 @@ async function main(args = process.argv.slice(2)) {
     }
   }
 
-  const successRate = succeeded / sites.length;
-  await publishRunDiagnostics({
+  // The same derivation the alerting job names its canonical issue by, so the
+  // console, the step summary and the issue give one catalog's advice.
+  const catalogSlug = featuredRefreshCatalogSlug(process.env);
+  const { verdict, summary } = featuredBatchOutcome({
+    catalogSlug,
     sites,
     unavailable,
     catalogTotal,
@@ -213,9 +227,9 @@ async function main(args = process.argv.slice(2)) {
     failures,
     scanResults,
     retried,
-    minSuccessRate,
-    successRate
+    minSuccessRate
   });
+  await publishRunDiagnostics(summary, catalogSlug);
 
   console.log("\nVerifying report redaction and provenance...");
   await run(process.platform === "win32" ? "npm.cmd" : "npm", ["run", "reports:remediate", "--", "--check"], {
@@ -243,7 +257,8 @@ async function main(args = process.argv.slice(2)) {
     for (const [kind, group] of taxonomy) {
       console.log(`  ${kind.padEnd(22)} ${String(group.length).padStart(3)}  ${group.map((f) => f.site).join(", ")}`);
     }
-    const refused = (taxonomy.get("target-refused") ?? []).length;
+    // The gate's own count, so the console cannot disagree with what is gated.
+    const refused = verdict.health.refused;
     const ours = failures.length - refused;
     console.log(
       `\n  ${refused} of ${failures.length} failures are sites refusing automation, which is an honest result rather than a scanner defect.`
@@ -251,18 +266,81 @@ async function main(args = process.argv.slice(2)) {
     console.log(`  ${ours} ${ours === 1 ? "is" : "are"} attributable to this scanner and ${ours === 1 ? "is" : "are"} worth investigating.`);
   }
 
-  // A green run must mean a meaningful refresh. Individual bot walls and
-  // outages are tolerated up to the threshold; beyond it the run stays red
-  // and its canonical issue stays open. The workflow may still revalidate and
-  // publish the successful reports without treating failed targets as fresh.
-  if (succeeded === 0 || successRate < minSuccessRate) {
+  // A green run must mean a meaningful refresh. Sites refusing an automated
+  // visit leave the success-rate denominator but are held to their own ceiling;
+  // every other failure counts against the scanner. Past either gate the run
+  // stays red and its canonical issue stays open. The workflow may still
+  // revalidate and publish the successful reports without treating failed
+  // targets as fresh.
+  if (verdict.reasons.length > 0) {
     console.error(
-      `Refusing to treat this as a successful refresh: ${succeeded}/${sites.length} sites succeeded (${Math.round(
-        successRate * 100
-      )}%), below the ${Math.round(minSuccessRate * 100)}% threshold (FEATURED_MIN_SUCCESS_RATE).`
+      `Refusing to treat this as a successful refresh: ${succeeded}/${sites.length} eligible sites succeeded and ${verdict.health.refused} refused an automated visit.`
     );
+    for (const reason of verdict.reasons) console.error(`  ${reason}`);
     process.exit(1);
   }
+}
+
+/**
+ * The runner's verdict on a finished batch, from the same function and the
+ * same taxonomy value the trusted publication decision later re-derives from
+ * the written summary. Exported and pure so the exit code is testable without
+ * scanning anything.
+ */
+export function featuredBatchVerdict({ catalogSlug, total, succeeded, failures, minSuccessRate }) {
+  const failureTaxonomy = summarizeFailureTaxonomy(failures);
+  const health = featuredBatchHealth({
+    total,
+    succeeded,
+    failed: failures.length,
+    failureTaxonomy,
+    requiredSuccessRate: minSuccessRate
+  });
+  const reasons = featuredBatchHealthFailures(
+    { ...health, succeeded, requiredSuccessRate: minSuccessRate },
+    catalogSlug
+  );
+  return { failureTaxonomy, health, reasons };
+}
+
+/**
+ * Everything main() decides once the scans finish: the verdict it exits on and
+ * the summary it writes for the trusted publication decision, built from one
+ * set of inputs so the two cannot be handed different totals, rates or
+ * taxonomies. main() scans real sites and cannot run in a test, so this is the
+ * part of its wiring a test can reach.
+ */
+export function featuredBatchOutcome({
+  catalogSlug,
+  sites,
+  unavailable,
+  catalogTotal,
+  catalogVersion,
+  fullCatalog,
+  eligibility,
+  succeeded,
+  failures,
+  scanResults,
+  retried,
+  minSuccessRate
+}) {
+  const verdict = featuredBatchVerdict({ catalogSlug, total: sites.length, succeeded, failures, minSuccessRate });
+  const summary = buildFeaturedRunSummary({
+    sites,
+    unavailable,
+    catalogTotal,
+    catalogVersion,
+    fullCatalog,
+    eligibility,
+    succeeded,
+    failures,
+    failureTaxonomy: verdict.failureTaxonomy,
+    scanResults,
+    retried,
+    minSuccessRate,
+    successRate: succeeded / sites.length
+  });
+  return { verdict, summary };
 }
 
 export function featuredRunPlan({
@@ -286,7 +364,7 @@ export function featuredRunPlan({
   const pageVisitsPerAttempt = comparisonMode === "single" ? 1 : 2;
   const attemptsPerTarget = transientRetries + 1;
   return {
-    planVersion: 1,
+    planVersion: 2,
     kind: "site-behavior-featured-scan-plan",
     mutatesReports: false,
     catalog: {
@@ -309,9 +387,14 @@ export function featuredRunPlan({
       delayBetweenTargetsMs: delayMs,
       initialTransientRetryDelayMs: transientRetryDelayMs
     },
+    // No fixed success count exists any more: the denominator shrinks by every
+    // target that refuses an automated visit, so the plan states the count only
+    // for a batch in which nothing refuses.
     acceptance: {
       minimumSuccessRate: minSuccessRate,
-      requiredSuccesses: Math.ceil(sites.length * minSuccessRate)
+      successRateExcludesRefusals: true,
+      maximumRefusalRate: FEATURED_REFUSAL_CEILING,
+      requiredSuccessesWithoutRefusals: Math.ceil(sites.length * minSuccessRate)
     },
     retention: {
       measurementFreeze: retentionPolicy.measurementFreeze,
@@ -329,7 +412,19 @@ function parseArguments(args) {
   throw new Error("Usage: node scripts/run-featured-scans.mjs [--plan]");
 }
 
-async function publishRunDiagnostics({
+async function publishRunDiagnostics(summary, catalogSlug) {
+  const outputPath = process.env.FEATURED_SUMMARY_PATH?.trim();
+  if (outputPath) {
+    await writeFile(outputPath, `${JSON.stringify(summary, null, 2)}\n`, "utf8");
+  }
+
+  const githubSummary = process.env.GITHUB_STEP_SUMMARY?.trim();
+  if (!githubSummary) return;
+  await appendFile(githubSummary, `${featuredStepSummaryLines(summary, catalogSlug).join("\n")}\n`, "utf8");
+}
+
+/** The diagnostics artifact the trusted publication decision later reads. */
+export function buildFeaturedRunSummary({
   sites,
   unavailable,
   catalogTotal,
@@ -338,12 +433,13 @@ async function publishRunDiagnostics({
   eligibility,
   succeeded,
   failures,
+  failureTaxonomy,
   scanResults,
   retried,
   minSuccessRate,
   successRate
 }) {
-  const summary = {
+  return {
     generatedAt: new Date().toISOString(),
     catalogVersion,
     fullCatalog,
@@ -361,43 +457,46 @@ async function publishRunDiagnostics({
     minimumEligibleSites: eligibility.minimumEligibleSites,
     // Counts by kind, carried alongside the rate. The alerting job never sees
     // `failures` itself, so this is the only way the canonical issue can say
-    // which kind of red a run is instead of publishing a bare rate.
-    failureTaxonomy: summarizeFailureTaxonomy(failures),
+    // which kind of red a run is instead of publishing a bare rate. It is the
+    // verdict's own value, so the publication decision re-derives health from
+    // exactly the input the exit code was computed from.
+    failureTaxonomy,
     scanResults,
     failures
   };
-  const outputPath = process.env.FEATURED_SUMMARY_PATH?.trim();
-  if (outputPath) {
-    await writeFile(outputPath, `${JSON.stringify(summary, null, 2)}\n`, "utf8");
-  }
+}
 
-  const githubSummary = process.env.GITHUB_STEP_SUMMARY?.trim();
-  if (!githubSummary) return;
+/**
+ * The private workflow step summary. Its gate lines come from the same
+ * projection and helper as the canonical issue; only the per-target sections
+ * below them, which never reach the public issue, are its own.
+ */
+export function featuredStepSummaryLines(summary, catalogSlug) {
+  const aggregate = publicFeaturedScanSummary(summary);
   const lines = [
     "## Featured scan result",
     "",
-    `- Eligible scan success: **${succeeded}/${sites.length}** (${Math.round(successRate * 100)}%)`,
-    `- Required eligible success rate: **${Math.round(minSuccessRate * 100)}%**`,
-    `- Failed eligible targets: **${failures.length}**`,
-    `- Active eligible catalog coverage: **${sites.length}/${catalogTotal}** (${Math.round(eligibility.catalogCoverage * 100)}%)`,
-    `- Fixed full-catalog coverage gate: **${Math.round(eligibility.requiredCatalogCoverage * 100)}% and at least ${eligibility.minimumEligibleSites} active sites**`,
-    `- Catalog entries temporarily unavailable: **${unavailable.length}/${catalogTotal}**`,
-    "- Scope note: passing these gates does not mean every catalog entry was freshly scanned.",
-    `- Sites recovered by bounded retry: **${retried}**`
+    ...(aggregate ? featuredBatchHealthLines(aggregate) : ["- Aggregate scan summary: **unavailable or invalid**"]),
+    `- Sites recovered by bounded retry: **${summary.retried}**`
   ];
-  if (unavailable.length > 0) {
+  if (aggregate) {
+    for (const reason of featuredBatchHealthFailures(aggregate, catalogSlug)) {
+      lines.push("", reason);
+    }
+  }
+  if (summary.unavailableSites.length > 0) {
     lines.push("", "### Temporarily unavailable catalog entries", "");
-    for (const entry of unavailable) {
+    for (const entry of summary.unavailableSites) {
       lines.push(
         `- **${entry.site}:** ${entry.reason}; observed ${entry.observedAt}; mandatory review by ${entry.reviewAfter}`
       );
     }
   }
-  if (failures.length > 0) {
+  if (summary.failures.length > 0) {
     lines.push("", "### Failed targets", "");
-    for (const failure of failures) lines.push(`- **${failure.site}:** ${failure.message}`);
+    for (const failure of summary.failures) lines.push(`- **${failure.site}:** ${failure.message}`);
   }
-  await appendFile(githubSummary, `${lines.join("\n")}\n`, "utf8");
+  return lines;
 }
 
 async function readConfig() {

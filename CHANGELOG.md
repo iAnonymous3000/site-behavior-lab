@@ -9,6 +9,11 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- A scan whose privacy-policy link read threw before any policy visit, for a
+  reason other than the scan budget, no longer fails to publish on r2. The
+  scanner records that as a failed policy detector with no policy phase, which
+  the detector obligations admit, and the builder had refused it; the built
+  report now persists and reads back like any other.
 - A scanner quota refusal (HTTP 429) now reaches the visitor as the declared
   `rate-limited` notice instead of raw server text. The notice says the scanner
   reached a request limit, blames no one (the quota store merges per-visitor and
@@ -556,6 +561,19 @@ public API or a 1.0 release.
   normalization, so they carry `worker-fingerprint-v1` and `63947670` with no
   further row, and the PageGraph row keeps the name of the epoch's first
   admission.
+
+### Brave Shields lists
+
+- The Shields simulation uses the Brave default filter lists fetched
+  2026-09-28 (31 lists, manifest `2e8c9278`), adopted from the weekly refresh
+  proposal. The September 21 snapshot stays readable as a closed producer
+  identity: the node-detectors-v11 list row is closed to its exact literals as
+  `node-v15-detectors-v11-active-lists-2026-09-21`, byte for byte what
+  `d8a9560e` produced, and the new active list row is
+  `node-v15-detectors-v11-active-lists-2026-09-28`. The no-list row, the
+  methodology, the normalization and the corpus cohorts do not move, and the
+  95 committed v1 reports measured under the September 21 lists read and pair
+  as before.
 
 ## [0.6.0] - 2026-09-06
 

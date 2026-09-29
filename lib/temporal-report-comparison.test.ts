@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import { buildStaticReportShare } from "./report-locator";
 import { buildFingerprints } from "./scan-report-v2-fingerprints";
@@ -14,6 +13,7 @@ import { readStoredScanReport } from "./scan-report-reader";
 import { viewFromV1Report, viewFromV2 } from "./scan-report-views";
 import { publicWireForExportOrPersistence, loadedReportFromStored, type LoadedReport } from "./scan-report-view";
 import { asLocalReport } from "./client-report-reader";
+import { ledgerPinnedReportWire, storedReport } from "./pinned-reports";
 import ledger from "../public/corrections.json";
 import {
   createLoadedTemporalComparison,
@@ -24,11 +24,10 @@ function loadedR2(report: ReturnType<typeof makePublicSingleReportV2R2>): Loaded
   return { source: "v2-r2-public", wire: report, view: viewFromV2(report, 2) };
 }
 
+// Every archive read here is a report the corrections ledger names, which
+// retention never prunes.
 function archivedReport(id: string): LoadedReport {
-  const read = readStoredScanReport(JSON.parse(readFileSync(`public/reports/${id}.json`, "utf8")));
-  assert.ok(read.ok);
-  if (!read.ok) throw new Error(`Unreadable archive: ${id}`);
-  return loadedReportFromStored(read.stored);
+  return loadedReportFromStored(storedReport(ledgerPinnedReportWire(id), id));
 }
 
 test("corrected historical visits cannot become an apparently uncorrected temporal artifact", () => {

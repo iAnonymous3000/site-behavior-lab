@@ -1698,6 +1698,72 @@ test("phase plans follow enabled conditions and cannot smuggle impossible phases
   assert.throws(() => buildNodeScanReportV2R2(unrunAlwaysOn), /Always-on detector pixel-events/);
 });
 
+test("a policy link read that failed before any visit builds without a policy phase", () => {
+  // lib/scanner.ts records a link collection that threw for a reason other
+  // than the scan budget as `failed/scan-failed` with a `policy-visit` loss
+  // and no phase: the failed read leaves no candidate, so no policy-analysis
+  // phase ever opens. The obligation registry admits that tuple under its
+  // detector-phase rule, and a failed outcome explains the missing phase, but
+  // the builder read `failed` as an executed detector and refused the whole
+  // report, so the public scan failed instead of publishing.
+  const linksFailed = baseInput();
+  linksFailed.conditions.probes.policyVisit = true;
+  linksFailed.measurement.detectors["privacy-policy"] = {
+    version: DETECTOR_VERSIONS["privacy-policy"],
+    status: "failed",
+    reason: "scan-failed"
+  };
+  linksFailed.measurement.qualityFacts.captureLoss.push({
+    family: "detector-output",
+    phaseId: null,
+    kind: "dropped",
+    count: 1,
+    detail: "policy-visit"
+  });
+  const report = buildNodeScanReportV2R2(linksFailed);
+  assert.equal(report.run.phases.some((phase) => phase.kind === "policy-analysis"), false);
+  const publicReport = toPublicScanReportR2(report);
+  assert.deepEqual(scanReportV2R2SemanticViolations(publicReport), []);
+  // The path a published report travels: persisted, read back, re-sanitized.
+  assert.equal(readStoredScanReport(publicReport).ok, true);
+  const stored = JSON.parse(prepareScanReportBundle(report).reportWire);
+  assert.equal(readStoredScanReport(stored).ok, true);
+  assert.equal(publicReportDigest(redactPublicScanReportV2R2(stored)), publicReportDigest(stored));
+
+  // A detector that reports activity still needs the phase it reports from.
+  for (const status of ["complete", "partial"] as const) {
+    const activeWithoutPhase = baseInput();
+    activeWithoutPhase.conditions.probes.policyVisit = true;
+    activeWithoutPhase.measurement.detectors["privacy-policy"] = {
+      version: DETECTOR_VERSIONS["privacy-policy"],
+      status,
+      ...(status === "partial" ? { reason: "scan-failed" } : {})
+    };
+    assert.throws(() => buildNodeScanReportV2R2(activeWithoutPhase), /policy-analysis phase|explains the omission/, status);
+  }
+
+  // The failed outcome explains the missing phase only for a declared policy
+  // visit: a run that never declared one has no link read to fail, so the
+  // same ledger stays a refusal there.
+  for (const reason of ["scan-failed", "load-failed"] as const) {
+    const undeclared = baseInput();
+    undeclared.measurement.detectors["privacy-policy"] = {
+      version: DETECTOR_VERSIONS["privacy-policy"],
+      status: "failed",
+      reason
+    };
+    undeclared.measurement.qualityFacts.captureLoss.push({
+      family: "detector-output",
+      phaseId: null,
+      kind: "dropped",
+      count: 1,
+      detail: "policy-visit"
+    });
+    assert.equal(undeclared.conditions.probes.policyVisit, false);
+    assert.throws(() => buildNodeScanReportV2R2(undeclared), /executed privacy-policy detector requires a policy-analysis phase/, reason);
+  }
+});
+
 test("a consent run whose interaction never happened still builds a degraded, accountable report", () => {
   // Two invariants used to be jointly unsatisfiable. The contract requires
   // consent evidence on every consent-mode run, a consent-interaction phase,
