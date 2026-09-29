@@ -1498,12 +1498,13 @@ const ALLOWED_DIVERGENCES: readonly AllowedDivergence[] = [
   // that did not complete, the reload that left the site, a cut policy-link
   // search, CNAME candidates past the lookup bound, a failed CNAME lookup) v1
   // now carries a claim-scoped reason those readers also show, so only the
-  // family state diverges; for the rest v1 readers show nothing. Section 4 of the 2026-09-22 review
-  // records this only for the consent line and the probe that lost the page,
-  // and the v1 reader records its claim-scoped reasons as never reaching a
-  // family only for the keystroke and listener reasons (all above); nothing
-  // records these causes. Each closes by a v1 reason that censors the family
-  // or by recording the residue as deliberate.
+  // family state diverges; for the rest v1 readers show nothing. Section 4 of
+  // the 2026-09-22 review records this only for the consent line and the
+  // probe that lost the page, and the v1 reader records its claim-scoped
+  // reasons as never reaching a family only for the keystroke and listener
+  // reasons (all above); the review's 2026-09-29 update lists these causes
+  // as open, not as deliberate. Each closes by a v1 reason that censors the
+  // family or by recording the residue as deliberate.
   //
   // P11: the consent-banner detector's own losses (its observe-mode
   // visibility read, a consent search that failed or ran out of budget, a

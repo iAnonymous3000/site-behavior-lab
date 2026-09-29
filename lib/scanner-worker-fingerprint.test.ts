@@ -7,7 +7,8 @@ import { CONSENT_INTERACTION_LEFT_SUBJECT_WARNING } from "./consent-subject-loss
 import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "./gpc-injection";
 import { DETECTOR_VERSIONS } from "./measurement-kernel";
 import type { NodeScanMeasurementEnvelope } from "./node-scan-measurement";
-import { buildReportFacts } from "./report-facts";
+import { redactScanResultV1 } from "./redact-scan-report-v1";
+import { buildReportFacts, REPORT_CLAIM_REQUIREMENTS, type ReportClaimId } from "./report-facts";
 import {
   FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING,
   FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING,
@@ -798,9 +799,18 @@ test("a consent click that leaves the site after a readable but incomplete passi
         SITE_BEHAVIOR_LAB_BUILD_COMMIT: "a".repeat(40)
       } as NodeJS.ProcessEnv)
     );
+    // The pair that could not publish before: v1, through the store's
+    // sanitizer, withholds every claim the public r2 report withholds.
+    const r2Facts = buildReportFacts(viewFromV2(report, 2)).display;
+    const v1Facts = buildReportFacts(viewFromV1Report(redactScanResultV1(result).report)).display;
+    for (const claim of Object.keys(REPORT_CLAIM_REQUIREMENTS) as ReportClaimId[]) {
+      if (!r2Facts.claims[claim].allowed) assert.equal(v1Facts.claims[claim].allowed, false, claim);
+      if (!r2Facts.claims[claim].benchmarkAllowed) assert.equal(v1Facts.claims[claim].benchmarkAllowed, false, claim);
+    }
     return {
       left: result.warnings.includes(CONSENT_INTERACTION_LEFT_SUBJECT_WARNING),
       consentPhaseId: consentPhase.phaseId,
+      fingerprintClaims: [r2Facts.claims["fingerprint-apis"].allowed, v1Facts.claims["fingerprint-apis"].allowed],
       detector: measurement.measurement.detectors["fingerprint-heuristics"],
       passiveLoss: measurement.measurement.qualityFacts.captureLoss.some(
         (loss) => loss.family === "fingerprinting" && loss.phaseId === 0 && loss.detail === "fingerprint-observer"
@@ -829,6 +839,7 @@ test("a consent click that leaves the site after a readable but incomplete passi
   assert.deepEqual(readable.detections, [["openwpm-canvas-v1", 0]]);
   assert.deepEqual(readable.v1Events, ["canvas.toDataURL"], "v1 publishes the same passive record");
   assert.deepEqual(readable.published, { status: "partial", events: 1, detections: 1 });
+  assert.deepEqual(readable.fingerprintClaims, [false, false], "both wires withhold the claim over the lost state");
 
   const rejected = { count: 0 };
   const unreadable = await visit({
