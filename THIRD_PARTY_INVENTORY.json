@@ -7,7 +7,7 @@
   "inputs": {
     "packageLock": {
       "path": "package-lock.json",
-      "sha256": "4602f0bf6ce55a2d6ee9b5ae861da7dc5843b286be34bbcbb86d5a67be56722d"
+      "sha256": "83b595021346522295208e01f16cc77ce070941973f4b00bb216c29075d2e689"
     },
     "cargoLock": {
       "path": "tools/adblock-wasm/Cargo.lock",
@@ -1948,13 +1948,13 @@
     },
     {
       "name": "undici",
-      "version": "8.11.2",
+      "version": "7.29.1",
       "lockPath": "node_modules/undici",
       "license": "MIT",
       "licenseStatus": "declared-in-package-lock",
       "licenseEvidence": "package-lock.json",
-      "resolved": "https://registry.npmjs.org/undici/-/undici-8.11.2.tgz",
-      "integrity": "sha512-u4UB2/IrKdU6lFxumHmmo1a3fCQO5tzQllRorfoRS63txhrB7xTpSn1PftwC4qEHkOaqP95fCWW4lJzwErwzhQ==",
+      "resolved": "https://registry.npmjs.org/undici/-/undici-7.29.1.tgz",
+      "integrity": "sha512-RYONW2MeafgYlkVOKYKkA/Ag7BmXqgIWCa8t1m0JcxrQg9pI9lEqRhAOruOBCbAohOa/gkCF+iPi9hrgvTzu6Q==",
       "developmentOnly": false,
       "optional": false
     },
