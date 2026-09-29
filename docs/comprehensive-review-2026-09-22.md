@@ -584,6 +584,34 @@ moves once, and the r2 methodology gains `worker-fingerprint-v1`. The boundary
 entry is now `cross-realm-canvas`: work split across the page and a worker,
 shared workers and worklets stay unobserved.
 
+**Update, 2026-09-29, node-detectors-v12.** The next detector epoch bundles
+three changes. The policy PDF path moves to undici 8.11.2 and pdf.js 6.3.289
+(`policy-text-cross-check@8`). Three detectors that recorded failed beside
+evidence the visit still published, which made the r2 builder refuse the
+whole visit, now end partial: the consent banner after its interaction phase
+began (`consent-control-and-state@3`), a CNAME lookup that failed beside a
+found cloak (`dns-cname-chain@5`), and a fingerprint read with no readable
+frame but a read worker realm (`fingerprint-observer@6`). And four v1
+overclaims are closed with new admitted lines, for a failed or cut storage
+read, an incomplete banner check in observe mode, a policy link search that
+did not cover every link, and CNAME candidates left past the lookup bound;
+the consent modes' existing failure lines and the reload line now withhold
+the consent-banner claim too. The CNAME partial outcome needs one new
+obligation row, so the obligations move to `detector-obligations-v2`, and
+readers hold every earlier epoch to the v1 registry it hashed. The
+normalization widens from `63947670...7366` to `52dc3a41...9cd2`, so an r2
+pair across the deploy is ineligible in every family; the v15 producer rows
+and the PageGraph row that ran the outgoing identity are closed to their
+literals. Neither methodology moves: no pooled corpus metric or
+population rule reads the new lines or the new statuses, so the 95 committed
+reports on the `+fingerprint-surface-v2` line keep their cohort. Two
+divergences stay open: v1 has no line for a failed CNAME lookup, so its CNAME
+cloaking claim stands where r2 withholds it, and a consent-mode visit that
+lost its subject after a readable but incomplete passive read still records
+the fingerprint detector failed beside published passive observations, the
+shape of the three refusals above. The v1-r2 parity property holds the first
+open as a `todo` divergence (finding P17); it does not model the second yet.
+
 ## 5. Confirmed and left for other reasons
 
 - **The Dockerfile re-runs `npm run check` inside the image build** (about 16

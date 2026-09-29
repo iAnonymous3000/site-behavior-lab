@@ -3,11 +3,15 @@ import { test } from "node:test";
 import {
   DETECTOR_OBLIGATION_CONTRACT_VERSION,
   DETECTOR_OBLIGATION_REGISTRY,
+  DETECTOR_OBLIGATION_REGISTRY_DIGEST,
   DETECTOR_OBLIGATION_TARGET_REGISTRIES,
   DETECTOR_OBLIGATION_TARGET_REGISTRY,
+  HISTORICAL_DETECTOR_OBLIGATION_CONTRACT_VERSION,
+  HISTORICAL_DETECTOR_OBLIGATION_REGISTRY,
   HISTORICAL_DETECTOR_OBLIGATION_TARGET_REGISTRY,
   HISTORICAL_SERVICE_ROLE_DETECTOR_OBLIGATION_TARGET_REGISTRY,
   HISTORICAL_WRAPPED_VISIT_DETECTOR_OBLIGATION_TARGET_REGISTRY,
+  detectorObligationContractVersion,
   detectorObligationViolations,
   type DetectorObligationRule
 } from "./detector-obligations";
@@ -27,12 +31,27 @@ import {
   makePublicSingleReportV2R2,
   makeScanRunV2R2
 } from "./scan-report-v2-r2-fixtures";
-import { buildFingerprints } from "./scan-report-v2-fingerprints";
+import { buildFingerprints, canonicalJson } from "./scan-report-v2-fingerprints";
 import { evaluateQuality, BUDGET_FAMILIES } from "./scan-report-v2-evaluators";
+import { HISTORICAL_SERVICE_ROLE_V1_NODE_R2_DETECTOR_OBLIGATIONS } from "./scan-report-v2-r2-producer-contract";
+import { sha256Hex } from "./sha256";
 
 const EPOCH = {
   detectorRegistryVersion: DETECTOR_REGISTRY_VERSION,
   detectorRegistryDigest: DETECTOR_REGISTRY_DIGEST
+} as const;
+
+// The last closed accountability epoch, spelled out: every epoch before v12
+// hashed detector-obligations-v1 into its registry digest.
+const NODE_V11_EPOCH = {
+  detectorRegistryVersion: "node-detectors-v11",
+  detectorRegistryDigest: "80209bf72ba24bc29b3f3526fe4ed9cbc09c4e230fbdb3be0ad61092683ae22a"
+} as const;
+// The node-detectors-v12 epoch, spelled out so a later epoch that renames the
+// live target cannot move it to another contract unnoticed.
+const NODE_V12_EPOCH = {
+  detectorRegistryVersion: "node-detectors-v12",
+  detectorRegistryDigest: "30a670c81952b0bac4c9bf668867fbce6cb868e39b9ffd6a3970e3b605dcda88"
 } as const;
 
 test("the obligation contract keeps every accountability registry epoch active", () => {
@@ -75,7 +94,7 @@ test("the obligation contract keeps every accountability registry epoch active",
     },
     {
       detectorRegistryVersion: "node-detectors-v12",
-      detectorRegistryDigest: "516f4eb204374d71d2e87859e98e15beec736aab09b2338b535ff40ba786eb25"
+      detectorRegistryDigest: "30a670c81952b0bac4c9bf668867fbce6cb868e39b9ffd6a3970e3b605dcda88"
     }
   ]);
   assert.equal(
@@ -93,6 +112,14 @@ test("the obligation contract keeps every accountability registry epoch active",
   assert.equal(DETECTOR_OBLIGATION_TARGET_REGISTRIES[9], DETECTOR_OBLIGATION_TARGET_REGISTRY);
   assert.equal(Object.isFrozen(DETECTOR_OBLIGATION_TARGET_REGISTRIES), true);
 });
+
+function onEpoch(run: ScanRunV2, epoch: typeof EPOCH | typeof NODE_V11_EPOCH | typeof NODE_V12_EPOCH): ScanRunV2 {
+  run.provenance.detectorRegistry = {
+    version: epoch.detectorRegistryVersion,
+    digest: epoch.detectorRegistryDigest
+  };
+  return run;
+}
 
 function configureRule(rule: DetectorObligationRule): ScanRunV2 {
   const run = makeScanRunV2R2();
@@ -143,23 +170,33 @@ function cnameCapRun(loss?: Partial<CaptureLossEntry>): ScanRunV2 {
   return run;
 }
 
+// The active contract under the live epoch, and v1 under the last closed one.
+const CONTRACTS = [
+  { label: "active", epoch: EPOCH, version: "detector-obligations-v2", registry: DETECTOR_OBLIGATION_REGISTRY },
+  { label: "node-detectors-v11", epoch: NODE_V11_EPOCH, version: "detector-obligations-v1", registry: HISTORICAL_DETECTOR_OBLIGATION_REGISTRY }
+] as const;
+
 test("the immutable obligation registry accepts every registered causal row", () => {
-  assert.equal(DETECTOR_OBLIGATION_CONTRACT_VERSION, "detector-obligations-v1");
-  assert.equal(Object.isFrozen(DETECTOR_OBLIGATION_REGISTRY), true);
-  for (const rule of DETECTOR_OBLIGATION_REGISTRY) {
-    if (rule.loss) {
-      assert.ok(
-        rule.loss.phaseRule === "detector-phase" ||
-          rule.loss.phaseRule === "captured-request-phase" ||
-          rule.loss.phaseRule === "fingerprint-coverage-phase",
-        `${rule.detector}/${rule.status}/${rule.reason} must declare its phase rule`
+  assert.equal(DETECTOR_OBLIGATION_CONTRACT_VERSION, "detector-obligations-v2");
+  assert.equal(HISTORICAL_DETECTOR_OBLIGATION_CONTRACT_VERSION, "detector-obligations-v1");
+  for (const { label, epoch, version, registry } of CONTRACTS) {
+    assert.equal(detectorObligationContractVersion(epoch), version, label);
+    assert.equal(Object.isFrozen(registry), true, label);
+    for (const rule of registry) {
+      if (rule.loss) {
+        assert.ok(
+          rule.loss.phaseRule === "detector-phase" ||
+            rule.loss.phaseRule === "captured-request-phase" ||
+            rule.loss.phaseRule === "fingerprint-coverage-phase",
+          `${rule.detector}/${rule.status}/${rule.reason} must declare its phase rule`
+        );
+      }
+      assert.deepEqual(
+        detectorObligationViolations(onEpoch(configureRule(rule), epoch), "run", epoch),
+        [],
+        `${label} ${rule.detector}/${rule.status}/${rule.reason}`
       );
     }
-    assert.deepEqual(
-      detectorObligationViolations(configureRule(rule), "run", EPOCH),
-      [],
-      `${rule.detector}/${rule.status}/${rule.reason}`
-    );
   }
 });
 
@@ -170,41 +207,129 @@ test("every detector status/reason row is either registered or rejected", () => 
     "unsupported",
     "failed"
   ];
-  const registered = new Set(
-    DETECTOR_OBLIGATION_REGISTRY.map(
-      (rule) => `${rule.detector}/${rule.status}/${rule.reason}`
-    )
-  );
-  for (const detector of DETECTOR_IDS) {
-    for (const status of statuses) {
-      for (const reason of DETECTOR_REASON_CODES) {
-        const key = `${detector}/${status}/${reason}`;
-        const rule = DETECTOR_OBLIGATION_REGISTRY.find(
-          (candidate) =>
-            candidate.detector === detector &&
-            candidate.status === status &&
-            candidate.reason === reason
-        );
-        const run = rule
-          ? configureRule(rule)
-          : (() => {
-              const value = makeScanRunV2R2();
-              value.detectors[detector] = {
-                version: value.detectors[detector].version,
-                status,
-                reason,
-                phaseId: 0
-              };
-              return value;
-            })();
-        assert.equal(
-          detectorObligationViolations(run, "run", EPOCH).length === 0,
-          registered.has(key),
-          key
-        );
+  for (const { label, epoch, version, registry } of CONTRACTS) {
+    const registered = new Set(
+      registry.map(
+        (rule) => `${rule.detector}/${rule.status}/${rule.reason}`
+      )
+    );
+    for (const detector of DETECTOR_IDS) {
+      for (const status of statuses) {
+        for (const reason of DETECTOR_REASON_CODES) {
+          const key = `${detector}/${status}/${reason}`;
+          const rule = registry.find(
+            (candidate) =>
+              candidate.detector === detector &&
+              candidate.status === status &&
+              candidate.reason === reason
+          );
+          const run = onEpoch(
+            rule
+              ? configureRule(rule)
+              : (() => {
+                  const value = makeScanRunV2R2();
+                  value.detectors[detector] = {
+                    version: value.detectors[detector].version,
+                    status,
+                    reason,
+                    phaseId: 0
+                  };
+                  return value;
+                })(),
+            epoch
+          );
+          const violations = detectorObligationViolations(run, "run", epoch);
+          assert.equal(violations.length === 0, registered.has(key), `${label} ${key}`);
+          if (!rule) assert.match(violations.join("\n"), new RegExp(`uses an outcome outside ${version}$`), `${label} ${key}`);
+        }
       }
     }
   }
+});
+
+test("each accountability epoch is held to the obligation contract its registry digest hashed", () => {
+  // Every closed epoch recorded detector-obligations-v1 at fb8bd077...22a3,
+  // and the registry the reader holds them to still hashes to exactly that.
+  assert.equal(
+    sha256Hex(canonicalJson({
+      version: HISTORICAL_DETECTOR_OBLIGATION_CONTRACT_VERSION,
+      rules: HISTORICAL_DETECTOR_OBLIGATION_REGISTRY
+    })),
+    "fb8bd07786fdb71c02ffdf1eca40a73b8974c691c6d4ef3c89230ad5314c22a3"
+  );
+  assert.deepEqual(HISTORICAL_SERVICE_ROLE_V1_NODE_R2_DETECTOR_OBLIGATIONS, {
+    version: HISTORICAL_DETECTOR_OBLIGATION_CONTRACT_VERSION,
+    digest: "fb8bd07786fdb71c02ffdf1eca40a73b8974c691c6d4ef3c89230ad5314c22a3"
+  });
+  assert.equal(
+    DETECTOR_OBLIGATION_REGISTRY_DIGEST,
+    "502d149030a4b771031a41ec71760e02d801a569ef0fe9725b01036351b10f2b"
+  );
+  // v2 is v1 with exactly one more row, in place: a CNAME lookup that failed
+  // beside a found cloak, with the dropped lookups as its loss.
+  const added = DETECTOR_OBLIGATION_REGISTRY.filter((rule) => !HISTORICAL_DETECTOR_OBLIGATION_REGISTRY.includes(rule));
+  assert.deepEqual(added, [{
+    detector: "cname-uncloaking",
+    status: "partial",
+    reason: "scan-failed",
+    loss: { family: "detector-output", detail: "cname-lookups", kinds: ["dropped"], phaseRule: "detector-phase" }
+  }]);
+  assert.equal(HISTORICAL_DETECTOR_OBLIGATION_REGISTRY.length, DETECTOR_OBLIGATION_REGISTRY.length - 1);
+  // Every closed epoch keeps v1; node-detectors-v12 alone is held to v2.
+  assert.deepEqual(
+    DETECTOR_OBLIGATION_TARGET_REGISTRIES.map((epoch) => [epoch.detectorRegistryVersion, detectorObligationContractVersion(epoch)]),
+    [
+      ["node-detectors-v3", "detector-obligations-v1"],
+      ["node-detectors-v4", "detector-obligations-v1"],
+      ["node-detectors-v5", "detector-obligations-v1"],
+      ["node-detectors-v6", "detector-obligations-v1"],
+      ["node-detectors-v7", "detector-obligations-v1"],
+      ["node-detectors-v8", "detector-obligations-v1"],
+      ["node-detectors-v9", "detector-obligations-v1"],
+      ["node-detectors-v10", "detector-obligations-v1"],
+      ["node-detectors-v11", "detector-obligations-v1"],
+      ["node-detectors-v12", "detector-obligations-v2"]
+    ]
+  );
+  assert.equal(detectorObligationContractVersion(NODE_V12_EPOCH), "detector-obligations-v2");
+  // An epoch outside the target list has no contract to be held to.
+  assert.throws(
+    () => detectorObligationContractVersion({ detectorRegistryVersion: "node-detectors-v12", detectorRegistryDigest: "0".repeat(64) }),
+    /is not a detector obligation target epoch/
+  );
+});
+
+test("a failed CNAME lookup beside a found cloak is partial only from node-detectors-v12", () => {
+  const partialLookupFailure = (epoch: typeof NODE_V11_EPOCH | typeof NODE_V12_EPOCH): ScanRunV2 => {
+    const run = onEpoch(makeScanRunV2R2(), epoch);
+    run.detectors["cname-uncloaking"] = {
+      version: run.detectors["cname-uncloaking"].version,
+      status: "partial",
+      reason: "scan-failed",
+      phaseId: 0
+    };
+    run.qualityFacts.captureLoss.push({
+      family: "detector-output",
+      phaseId: 0,
+      kind: "dropped",
+      count: 1,
+      detail: "cname-lookups"
+    });
+    return run;
+  };
+  assert.deepEqual(detectorObligationViolations(partialLookupFailure(NODE_V12_EPOCH), "v12", NODE_V12_EPOCH), []);
+  // node-detectors-v11 failed the detector there, so a v11 report may not say
+  // partial, causal loss or not.
+  assert.deepEqual(detectorObligationViolations(partialLookupFailure(NODE_V11_EPOCH), "v11", NODE_V11_EPOCH), [
+    "v11: detector cname-uncloaking uses an outcome outside detector-obligations-v1"
+  ]);
+  // v12 still demands the causal loss.
+  const withoutLoss = partialLookupFailure(NODE_V12_EPOCH);
+  withoutLoss.qualityFacts.captureLoss = [];
+  assert.match(
+    detectorObligationViolations(withoutLoss, "v12", NODE_V12_EPOCH).join("\n"),
+    /cname-uncloaking lacks causal detector-output\/cname-lookups loss/
+  );
 });
 
 test("causal satisfaction is exact by detector, family, detail, kind, and phase", () => {

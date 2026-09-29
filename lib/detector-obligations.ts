@@ -12,7 +12,16 @@ import type {
 } from "./scan-report-v2";
 import type { DetectorReasonCode } from "./detector-status-contract";
 
-export const DETECTOR_OBLIGATION_CONTRACT_VERSION = "detector-obligations-v1";
+/**
+ * The obligation contract the active detector epoch is published under.
+ * detector-obligations-v2 (node-detectors-v12) is v1 with one more row, a
+ * CNAME lookup that failed beside a found cloak. Every earlier accountability
+ * epoch, node-detectors-v3 to v11, hashed the v1 registry into its registry
+ * digest, and a reader holds it to exactly those rules (see
+ * detectorObligationViolations).
+ */
+export const DETECTOR_OBLIGATION_CONTRACT_VERSION = "detector-obligations-v2";
+export const HISTORICAL_DETECTOR_OBLIGATION_CONTRACT_VERSION = "detector-obligations-v1";
 
 /**
  * Exact producer registries governed by this obligation contract. Kept beside
@@ -73,7 +82,7 @@ const HISTORICAL_NODE_V11_OBLIGATION_TARGET_REGISTRY = Object.freeze({
 
 export const DETECTOR_OBLIGATION_TARGET_REGISTRY = Object.freeze({
   detectorRegistryVersion: "node-detectors-v12",
-  detectorRegistryDigest: "516f4eb204374d71d2e87859e98e15beec736aab09b2338b535ff40ba786eb25"
+  detectorRegistryDigest: "30a670c81952b0bac4c9bf668867fbce6cb868e39b9ffd6a3970e3b605dcda88"
 });
 
 export const DETECTOR_OBLIGATION_TARGET_REGISTRIES = Object.freeze([
@@ -124,6 +133,24 @@ function freezeLoss(
     phaseRule
   });
 }
+
+/**
+ * The one row detector-obligations-v2 adds (node-detectors-v12): a lookup that
+ * failed beside a found cloak. The cloak publishes, so the detector is
+ * partial, with the failed lookups as its loss. Earlier producers failed the
+ * detector there instead, so their epochs never admit it.
+ */
+const CNAME_LOOKUP_FAILED_BESIDE_CLOAK: DetectorObligationRule = Object.freeze({
+  detector: "cname-uncloaking",
+  status: "partial",
+  reason: "scan-failed",
+  loss: freezeLoss(
+    "detector-output",
+    "cname-lookups",
+    ["dropped"],
+    "detector-phase"
+  )
+});
 
 /**
  * Immutable causal registry for the active Node detector epoch.
@@ -256,19 +283,7 @@ export const DETECTOR_OBLIGATION_REGISTRY: readonly DetectorObligationRule[] = O
       "detector-phase"
     )
   }),
-  // A lookup that failed beside a found cloak: the cloak publishes, so the
-  // detector is partial, with the failed lookups as its loss.
-  Object.freeze({
-    detector: "cname-uncloaking",
-    status: "partial",
-    reason: "scan-failed",
-    loss: freezeLoss(
-      "detector-output",
-      "cname-lookups",
-      ["dropped"],
-      "detector-phase"
-    )
-  }),
+  CNAME_LOOKUP_FAILED_BESIDE_CLOAK,
   Object.freeze({
     detector: "cname-uncloaking",
     status: "skipped",
@@ -425,12 +440,80 @@ export const DETECTOR_OBLIGATION_REGISTRY_DIGEST = sha256Hex(
   })
 );
 
-const RULES_BY_TUPLE: ReadonlyMap<string, DetectorObligationRule> = new Map(
-  DETECTOR_OBLIGATION_REGISTRY.map((rule) => [
-    `${rule.detector}\u0000${rule.status}\u0000${rule.reason}`,
-    rule
-  ])
+/**
+ * The detector-obligations-v1 registry: the active one without the row v2
+ * added, in the same order. Derived rather than restated, so the two cannot
+ * drift apart in any row they share; a test holds its digest to the
+ * fb8bd077...22a3 literal every closed accountability epoch recorded.
+ */
+export const HISTORICAL_DETECTOR_OBLIGATION_REGISTRY: readonly DetectorObligationRule[] = Object.freeze(
+  DETECTOR_OBLIGATION_REGISTRY.filter((rule) => rule !== CNAME_LOOKUP_FAILED_BESIDE_CLOAK)
 );
+
+type ObligationContract = Readonly<{
+  version: string;
+  rulesByTuple: ReadonlyMap<string, DetectorObligationRule>;
+}>;
+
+function obligationContract(version: string, rules: readonly DetectorObligationRule[]): ObligationContract {
+  return Object.freeze({
+    version,
+    rulesByTuple: new Map(
+      rules.map((rule) => [`${rule.detector}\u0000${rule.status}\u0000${rule.reason}`, rule])
+    )
+  });
+}
+
+const ACTIVE_OBLIGATION_CONTRACT = obligationContract(
+  DETECTOR_OBLIGATION_CONTRACT_VERSION,
+  DETECTOR_OBLIGATION_REGISTRY
+);
+const HISTORICAL_OBLIGATION_CONTRACT = obligationContract(
+  HISTORICAL_DETECTOR_OBLIGATION_CONTRACT_VERSION,
+  HISTORICAL_DETECTOR_OBLIGATION_REGISTRY
+);
+
+/**
+ * The target epochs whose registry digest hashed detector-obligations-v1.
+ * Each is held to that registry alone: a closed producer never emitted a row
+ * a later contract adds, so admitting one would widen what its reports may
+ * say after the fact. An epoch that adopts a later contract must stay listed
+ * under the one it was published with when the contract moves again.
+ */
+const DETECTOR_OBLIGATIONS_V1_TARGET_REGISTRIES: ReadonlySet<object> = new Set([
+  HISTORICAL_DETECTOR_OBLIGATION_TARGET_REGISTRY,
+  HISTORICAL_SERVICE_ROLE_DETECTOR_OBLIGATION_TARGET_REGISTRY,
+  HISTORICAL_WRAPPED_VISIT_DETECTOR_OBLIGATION_TARGET_REGISTRY,
+  HISTORICAL_NODE_V6_OBLIGATION_TARGET_REGISTRY,
+  HISTORICAL_NODE_V7_OBLIGATION_TARGET_REGISTRY,
+  HISTORICAL_NODE_V8_OBLIGATION_TARGET_REGISTRY,
+  HISTORICAL_NODE_V9_OBLIGATION_TARGET_REGISTRY,
+  HISTORICAL_NODE_V10_OBLIGATION_TARGET_REGISTRY,
+  HISTORICAL_NODE_V11_OBLIGATION_TARGET_REGISTRY
+]);
+
+type ObligationEpoch = Readonly<{ detectorRegistryVersion: string; detectorRegistryDigest: string }>;
+
+function obligationContractFor(epoch: ObligationEpoch): ObligationContract {
+  const target = DETECTOR_OBLIGATION_TARGET_REGISTRIES.find(
+    (candidate) =>
+      candidate.detectorRegistryVersion === epoch.detectorRegistryVersion &&
+      candidate.detectorRegistryDigest === epoch.detectorRegistryDigest
+  );
+  if (!target) {
+    throw new Error(
+      `${epoch.detectorRegistryVersion} ${epoch.detectorRegistryDigest} is not a detector obligation target epoch`
+    );
+  }
+  return DETECTOR_OBLIGATIONS_V1_TARGET_REGISTRIES.has(target)
+    ? HISTORICAL_OBLIGATION_CONTRACT
+    : ACTIVE_OBLIGATION_CONTRACT;
+}
+
+/** The obligation contract version a target epoch is held to. */
+export function detectorObligationContractVersion(epoch: ObligationEpoch): string {
+  return obligationContractFor(epoch).version;
+}
 
 function isFailedPage(run: ScanRunV2): boolean {
   return (
@@ -537,7 +620,7 @@ function lossPhaseMatches(
 export function detectorObligationViolations(
   run: ScanRunV2,
   label: string,
-  epoch: Readonly<{ detectorRegistryVersion: string; detectorRegistryDigest: string }>
+  epoch: ObligationEpoch
 ): string[] {
   if (
     run.provenance.detectorRegistry.version !== epoch.detectorRegistryVersion ||
@@ -546,17 +629,18 @@ export function detectorObligationViolations(
     return [];
   }
 
+  const contract = obligationContractFor(epoch);
   const violations: string[] = [];
   for (const [detector, entry] of Object.entries(run.detectors) as Array<
     [DetectorId, ScanRunV2["detectors"][DetectorId]]
   >) {
     if (entry.status === "complete") continue;
-    const rule = RULES_BY_TUPLE.get(
+    const rule = contract.rulesByTuple.get(
       `${detector}\u0000${entry.status}\u0000${entry.reason ?? ""}`
     );
     if (!rule) {
       violations.push(
-        `${label}: detector ${detector} uses an outcome outside ${DETECTOR_OBLIGATION_CONTRACT_VERSION}`
+        `${label}: detector ${detector} uses an outcome outside ${contract.version}`
       );
       continue;
     }

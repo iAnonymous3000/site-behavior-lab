@@ -76,7 +76,10 @@ export type FingerprintObserverRealmArgs = {
  * them exactly as a document's are. `fingerprint-observer@5`
  * (node-detectors-v11) is the first version with this reach: OffscreenCanvas
  * 2D work in a document, and every dedicated worker realm. Reports recording
- * @4 or earlier observed neither.
+ * @4 or earlier observed neither. `@6` (node-detectors-v12) keeps this script
+ * and changes only the detector status the scanner records: a visit that read
+ * no frame but read a worker realm ends partial beside the worker's evidence,
+ * where @5 recorded it failed and the r2 builder refused the visit.
  *
  * `firstPartySiteKey` is the scanned site's registrable domain (computed with
  * the real public-suffix list in Node, e.g. "capitalone.com"), so the in-page

@@ -47,11 +47,11 @@ export {
 export const DETECTOR_REGISTRY_VERSION = "node-detectors-v12";
 
 export const DETECTOR_VERSIONS: Readonly<Record<DetectorId, string>> = {
-  "fingerprint-heuristics": "fingerprint-observer@5",
+  "fingerprint-heuristics": "fingerprint-observer@6",
   "keystroke-exfiltration": "synthetic-sentinel@5",
-  "cname-uncloaking": "dns-cname-chain@4",
+  "cname-uncloaking": "dns-cname-chain@5",
   "pixel-events": "pixel-request-decoder@6",
-  "consent-banner": "consent-control-and-state@2",
+  "consent-banner": "consent-control-and-state@3",
   "privacy-policy": "policy-text-cross-check@8"
 };
 

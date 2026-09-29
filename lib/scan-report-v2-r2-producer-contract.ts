@@ -486,20 +486,25 @@ const HISTORICAL_NODE_V14_NORMALIZATION = "redaction-v4+allowlists-v3:269f631f04
 // Exact identity of the node-detectors-v11 production producer with the
 // September 21 lists, closed by the September 28 list adoption (captured at
 // d8a9560e, and again at e287bc35, the next main commit, which changes only a
-// test and moves no identity). Only the list snapshot moved there, so
-// both literals still equal the live constants; they are spelled out because
-// the closed row must not follow the live identity when the next epoch moves
-// it. Not a retirement: the normalization stays active and needs no
-// superseded entry. node-detectors-v12 then closed the rest of that producer,
-// its September 28 list and no-list rows, under the same two literals: it
-// moves only the policy cross-check and the registry, so both still equal the
-// live constants.
+// test and moves no identity). Only the list snapshot moved there, so the
+// normalization stayed active then and needed no superseded entry.
+// node-detectors-v12 then closed the rest of that producer, its September 28
+// list and no-list rows, under the same two literals, and retired the
+// normalization: it admits four fixed v1 warnings (see the 63947670 entry in
+// SUPERSEDED_R2_NORMALIZATIONS). The methodology literal still equals the
+// live constant, since that epoch does not move it; it is spelled out so the
+// closed rows stay put when a later epoch does.
 const HISTORICAL_NODE_V15_NORMALIZATION = "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:63947670fad8ad7124d54586c139cb2bf1f96e4cfc75d8cd247cd8165b407366+tldts@7.4.13+node-evidence-policy-v1+r2-http-status-compat-v1";
 const HISTORICAL_NODE_V15_METHODOLOGY = "shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2+phase-kernel-v2+boundary-state-v1+consent-r2-v5+resource-budget-v2+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1+service-role-taxonomy-v1+gpc-worker-application-v3+active-probe-v3+auxiliary-context-block-v1+worker-fingerprint-v1";
 
 export const HISTORICAL_NODE_R2_V4_METHODOLOGIES_BY_NORMALIZATION: Readonly<
   Record<string, readonly string[]>
 > = Object.freeze({
+  // The 63947670 identity closed when node-detectors-v12 admitted four fixed
+  // v1 warnings. Only the node-detectors-v11 production rows ran it (the
+  // September 21 and September 28 list rows and the no-list row), all under
+  // the one v15 methodology.
+  [HISTORICAL_NODE_V15_NORMALIZATION]: Object.freeze([HISTORICAL_NODE_V15_METHODOLOGY]),
   // The 359b216f identity closed when node-detectors-v11 admitted the
   // canvas.convertToBlob token and the worker-realm fingerprint loss warning.
   // Only the public-string-policy-v4 rows ran it, all under the v13
@@ -1154,9 +1159,9 @@ const HISTORICAL_NODE_V10_FIELDS: NodeTupleFields = Object.freeze({
 
 // Exact node-detectors-v11 producer fields, frozen when the September 28 list
 // adoption closed the v15 list row. No detector moved in that adoption; the
-// closed rows keep this copy now that node-detectors-v12 has moved the policy
-// cross-check and the registry, and every v15 row, both list snapshots and the
-// no-list mode, shares it.
+// closed rows keep this copy now that node-detectors-v12 has moved four
+// detector versions, the obligations and the registry, and every v15 row,
+// both list snapshots and the no-list mode, shares it.
 const HISTORICAL_NODE_V11_FIELDS: NodeTupleFields = Object.freeze({
   detectorRegistry: Object.freeze({
     "version": "node-detectors-v11",
@@ -1242,11 +1247,16 @@ function nodeTuple(
 }
 
 // Closed rows retain their exact literals; the node-detectors-v12 detector
-// epoch defines v16. It moves only the policy cross-check
-// (policy-text-cross-check@8, which fetches policy PDFs with undici 8 and reads
-// them with pdf.js 6.3) with the registry; the methodology, normalization,
-// lists, toolchain and every other field are unchanged from v15, whose three
-// rows are closed below in NODE_R2_PRODUCER_TUPLES.
+// epoch defines v16. It moves four detectors with the registry: the policy
+// cross-check (policy-text-cross-check@8, which fetches policy PDFs with
+// undici 8 and reads them with pdf.js 6.3), and the consent banner, CNAME and
+// fingerprint detectors (consent-control-and-state@3, dns-cname-chain@5,
+// fingerprint-observer@6), which end partial rather than failed beside the
+// evidence they kept. The obligations move to detector-obligations-v2, and the
+// public-string policy digest in the normalization widens by four admitted
+// v1 warnings. The methodology, lists, toolchain and every other field are
+// unchanged from v15, whose three rows are closed below in
+// NODE_R2_PRODUCER_TUPLES.
 const ACTIVE_NODE_WIRE_IDENTITY_IS_DISTINCT =
   String(NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION) !== HISTORICAL_NODE_V15_METHODOLOGY ||
   String(NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION) !== HISTORICAL_NODE_V15_NORMALIZATION ||
@@ -1776,7 +1786,16 @@ export const PAGEGRAPH_R2_PRODUCER_TUPLES: readonly PageGraphR2ProducerTuple[] =
     "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:359b216f1168c4caf2f107e9f5220cbab5e0da9b4dad686129922a9ab3e4e9bc+tldts@7.4.13+pagegraph-request-evidence-v1+r2-http-status-compat-v1",
     HISTORICAL_R2_2026_08_TRACKER_CATALOG
   ),
-  pageGraphTuple("pagegraph-v4-convert-to-blob-active", PAGEGRAPH_R2_NORMALIZATION_VERSION, ACTIVE_TRACKER_CATALOG, {
+  // Closed by node-detectors-v12, which admits four fixed v1 warnings (the
+  // storage-snapshot, consent-banner-check, policy-link-search and
+  // CNAME-candidate lines); the public-string policy is shared by both
+  // observers, although a PageGraph import emits none of them. The active row
+  // after it keeps the name of the first admission.
+  pageGraphTuple("pagegraph-v4-convert-to-blob-active",
+    "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:63947670fad8ad7124d54586c139cb2bf1f96e4cfc75d8cd247cd8165b407366+tldts@7.4.13+pagegraph-request-evidence-v1+r2-http-status-compat-v1",
+    HISTORICAL_R2_2026_08_TRACKER_CATALOG
+  ),
+  pageGraphTuple("pagegraph-v4-storage-snapshot-active", PAGEGRAPH_R2_NORMALIZATION_VERSION, ACTIVE_TRACKER_CATALOG, {
     methodologyVersion: PAGEGRAPH_R2_METHODOLOGY_VERSION,
     publicLimits: PAGEGRAPH_R2_PUBLIC_LIMITS,
     detectorRegistry: PAGEGRAPH_REGISTRY,

@@ -575,7 +575,13 @@ public API or a 1.0 release.
   95 committed v1 reports measured under the September 21 lists read and pair
   as before.
 
-### Policy PDF path
+### Measurement epoch node-detectors-v12
+
+One epoch, declared before any deploy, covers the policy PDF path, three
+detectors that now end partial beside the evidence they kept, and four v1
+lines for claims r2 withholds.
+
+#### Policy PDF path
 
 - The privacy-policy reader fetches a direct PDF policy with undici 8.11.2
   (from 7.29.0) and reads it with pdf.js 6.3.289 (from 6.2.108), landed as one
@@ -593,26 +599,32 @@ public API or a 1.0 release.
   text-bearing PDFs among the 1,181 that ship with macOS and its applications
   on the maintainer's machine (12.8 million characters). The Docker smoke's
   reading-structure check now reads MarkInfo from the Map pdf.js 6.3 returns.
-- Because extracted text and the fetch can differ on some inputs,
-  `policy-text-cross-check@7` moves to `@8` and `DETECTOR_REGISTRY_VERSION`
-  from `node-detectors-v11` to `node-detectors-v12`, its digest from
-  `80209bf7...e22a` to `516f4eb2...eb25`. Recomputing the v11 digest from the
-  current inputs with only the policy version and the registry label restored
-  reproduces `80209bf7...e22a`, so nothing else moved. The obligation target
-  registries keep v11 as a closed epoch and enforce v12. The methodology, the
-  normalization, the Brave lists, the rest of the toolchain and the corpus
-  cohorts do not move, and a comparison across the two identities names the
-  policy version mismatch on detector findings only.
-- Published reports keep their recorded identities. The deployed producer rows
-  `node-v15-detectors-v11-active-lists-2026-09-28` and
-  `node-v15-detectors-v11-active-no-adblock` are closed to their exact
-  literals (the v15 methodology and normalization, node-detectors-v11 and a
-  frozen copy of the September 28 lists under adblock-rust 0.13.3), byte for
-  byte what `0cf2f128` produced. The new active rows are
-  `node-v16-detectors-v12-active-lists-2026-09-28` and
-  `node-v16-detectors-v12-active-no-adblock`. No PageGraph row moves.
 
-### v1 claims r2 withholds
+#### Detectors that kept evidence
+
+Three scanner branches recorded a detector failed while the visit still
+published what that detector found. The r2 builder refuses evidence from a
+detector that reported no activity, so no r2 report could be built for any
+of these visits: a scan that publishes r2 failed with no report, and a v1
+scan kept its v1 report but lost its r2 shadow copy. Each now ends the
+detector partial with the `scan-failed` reason and the same loss it
+recorded before:
+
+- consent-banner, when the banner search threw or read no frame after the
+  consent interaction had begun: the consent facts already say the
+  interaction was attempted, and the after-interaction reads run in that
+  phase. The v1 consent line is unchanged and still names the failure; r2 no
+  longer tells a search that threw from one that read no frame.
+- cname-uncloaking, when a lookup failed beside another that resolved to a
+  cloak: the cloak publishes with the failed lookups as the detector's loss.
+  With no cloak kept the detector still fails. v1 has no line for a failed
+  lookup, so a v1 report still allows the CNAME cloaking claim r2 withholds
+  there; that divergence stays open.
+- fingerprint-heuristics, when no frame could be read but a worker realm
+  was: the worker's evidence publishes. With no realm read the detector still
+  fails.
+
+#### v1 claims r2 withholds
 
 For the same visit, the v1 report allowed claims the r2 report withholds.
 Each cause below now leaves a v1 line where r2 records its loss, and v1
@@ -650,6 +662,70 @@ as intended.
   withholds the claim. A new fixed warning says the scanner looked up CNAME
   records for only some of those subdomains, and v1 readers withhold the
   claim for it. A failed lookup alone does not add it.
+
+#### Identities
+
+- Recorded identities, old to new:
+  - Detectors: `policy-text-cross-check@7` to `@8` (extracted text and the
+    fetch can differ on some inputs), and `consent-control-and-state@2` to
+    `@3`, `dns-cname-chain@4` to `@5` and `fingerprint-observer@5` to `@6`
+    (the partial outcomes above; the observer script itself is unchanged).
+    `DETECTOR_REGISTRY_VERSION` moves from `node-detectors-v11` to
+    `node-detectors-v12`, and its digest from `80209bf7...e22a` to
+    `30a670c8...da88`. Recomputing it from the current inputs with the four
+    versions, the obligations identity below and the registry label restored
+    reproduces `80209bf7...e22a`, so nothing else moved. `516f4eb2...eb25`,
+    the policy move alone, was never deployed and has no closed epoch.
+  - Obligations: `detector-obligations-v1` (`fb8bd077...22a3`) to
+    `detector-obligations-v2` (`502d1490...0f2b`), which adds one row: a CNAME
+    detector partial with `scan-failed`, owing the same dropped
+    `cname-lookups` loss as the failed one. Readers hold node-detectors-v3 to
+    v11 to the v1 registry, which still hashes to `fb8bd077...22a3`, and
+    node-detectors-v12 to v2, so no closed epoch admits an outcome its
+    producer never emitted. The consent banner's failed `scan-failed` row
+    stays in v2 although the new producer no longer sets it, as other rows
+    the producer never sets stay registered. The obligation target
+    registries keep v11 as a closed epoch and enforce v12.
+  - Node and PageGraph r2 normalization: public-string-policy-v4
+    `63947670...7366` to `52dc3a41...9cd2` under the same `tldts@7.4.13`, a
+    widening by the four admitted warnings above. Removing them from the
+    current policy inputs reproduces `63947670...7366`, and a test holds that.
+    The policy name and the `scanner-warning-patterns-v9` label stay: a
+    widening is not a policy revision, and `isScannerWarning` is unchanged.
+- Because the normalization moves, an r2 comparison that pairs a report
+  from before this epoch with one from after it is ineligible in every
+  family (an environment mismatch), where the policy move alone would have
+  withheld detector findings only. The r2 corpus cohorts do not split, since
+  their key does not include the normalization, and v1 pairs are unaffected.
+- The methodology does not move, and neither does the v1 token (the base Node
+  methodology and corpus cohort key). The corpus pools six metrics, each
+  gated by the third-party services, third-party cookies or fingerprint APIs
+  claim and by one population rule (a complete, pre-consent visit whose
+  request evidence is neither censored nor capped). The storage line censors
+  the storage family alone, and the consent-banner, policy-search and CNAME
+  lines each withhold one claim, none of them pooled; none changes a run's v1
+  outcome. The partial outcomes change r2 detector statuses only: a v1 scan
+  published its v1 report beside the refused r2 build before and still
+  does, and the r2 reports they let publish are measured the same way as any
+  other. So no pooled metric changes meaning, and the 95 committed v1
+  reports on the current line (`+fingerprint-surface-v2`) share a cohort
+  with the reports that follow them. The corpus neutrality snapshot of all
+  1028 managed comparison decisions reads `917f947e...0f64` with the code at
+  `cb3ef421` and with this epoch's.
+- Published reports keep their recorded identities. The deployed producer rows
+  `node-v15-detectors-v11-active-lists-2026-09-28` and
+  `node-v15-detectors-v11-active-no-adblock` are closed to their exact
+  literals (the v15 methodology and normalization, node-detectors-v11 and a
+  frozen copy of the September 28 lists under adblock-rust 0.13.3), byte for
+  byte what `0cf2f128` produced, and `pagegraph-v4-convert-to-blob-active` to
+  its `63947670` normalization and the 2026.08 catalog, byte for byte what
+  `cb3ef421` produced. The outgoing Node and PageGraph normalizations stay
+  readable as superseded identities, the Node one paired with the v15
+  methodology that all three v15 rows ran. The new active rows are
+  `node-v16-detectors-v12-active-lists-2026-09-28`,
+  `node-v16-detectors-v12-active-no-adblock` and
+  `pagegraph-v4-storage-snapshot-active`, which keeps the name of the
+  epoch's first admission.
 
 ## [0.6.0] - 2026-09-06
 
