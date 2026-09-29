@@ -178,8 +178,22 @@ const KEYSTROKE_OUTCOMES = [
 ] as const;
 type KeystrokeOutcome = (typeof KEYSTROKE_OUTCOMES)[number];
 
-const CNAME_OUTCOMES = ["complete", "omitted-candidates", "no-budget", "probe-failed"] as const;
+/**
+ * cname-uncloaking, from resolveCnameCloaksForScan and its caller. The lookup
+ * bound (omittedCandidateCount) and a failed lookup are independent: the
+ * probe's own throw leaves no omitted count, while a lookup that failed inside
+ * the loop can sit beside candidates left past the bound.
+ */
+const CNAME_OUTCOMES = ["complete", "omitted-candidates", "no-budget", "probe-failed", "probe-failed-with-omitted-candidates"] as const;
 type CnameOutcome = (typeof CNAME_OUTCOMES)[number];
+
+function cnameCandidatesOmitted(visit: Visit): boolean {
+  return visit.cname === "omitted-candidates" || visit.cname === "probe-failed-with-omitted-candidates";
+}
+
+function cnameLookupFailed(visit: Visit): boolean {
+  return visit.cname === "probe-failed" || visit.cname === "probe-failed-with-omitted-candidates";
+}
 
 const PIXEL_OUTCOMES = ["complete", "body-capped", "body-unreadable"] as const;
 type PixelOutcome = (typeof PIXEL_OUTCOMES)[number];
@@ -734,13 +748,13 @@ function scannerDraft(visit: Visit): Draft {
   }
 
   // CNAME uncloaking.
-  if (visit.cname === "omitted-candidates" || visit.cname === "probe-failed") {
+  if (cnameCandidatesOmitted(visit)) {
     loss(draft, "detector-output", snapshot, "cap", "cname-lookups");
   }
   if (visit.cname === "no-budget") {
     detector(draft, "cname-uncloaking", "skipped", "budget-unavailable", snapshot);
     loss(draft, "detector-output", snapshot, "cap", "cname-lookups");
-  } else if (visit.cname === "probe-failed") {
+  } else if (cnameLookupFailed(visit)) {
     // A failed lookup beside a found cloak keeps the cloak: partial.
     detector(draft, "cname-uncloaking", cnameCloaks(visit).length > 0 ? "partial" : "failed", "scan-failed", snapshot);
     loss(draft, "detector-output", snapshot, "dropped", "cname-lookups");
@@ -1394,14 +1408,15 @@ const ALLOWED_DIVERGENCES: readonly AllowedDivergence[] = [
       visit.policy === "read-with-truncated-candidates" && violation.kind === "claim" && violation.subject === "privacy-policy"
   },
   // TODO(v1-r2-parity finding P5): CNAME candidates left unresolved at the
-  // lookup bound on a visit that found a cloak. r2 ends the detector partial
-  // and withholds the claim; v1 records the cloak and allows it.
+  // lookup bound on a visit that found a cloak, with or without a failed
+  // lookup beside them. r2 ends the detector partial and withholds the claim;
+  // v1 records the cloak and allows it.
   {
     name: "cname-omitted-candidates-has-no-v1-channel",
     record: "finding P5 (property test, 2026-09-28): scanSiteWithMeasurement, cnameResolution.omittedCandidateCount",
     todo: true,
     covers: (visit, violation) =>
-      visit.cname === "omitted-candidates" && violation.kind === "claim" && violation.subject === "cname-cloaking"
+      cnameCandidatesOmitted(visit) && violation.kind === "claim" && violation.subject === "cname-cloaking"
   },
   // TODO(v1-r2-parity finding P17): P5's shape for a failed lookup. A CNAME
   // lookup that failed beside a found cloak ends the detector partial (the
