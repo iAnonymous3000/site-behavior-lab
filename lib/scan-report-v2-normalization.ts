@@ -97,6 +97,99 @@ export const SUPERSEDED_R2_NORMALIZATIONS: Readonly<
   Record<ObserverKind, readonly string[]>
 > = Object.freeze({
   "node-playwright": Object.freeze([
+    // Retired by the 2026-10 toolchain epoch, which moved the public-suffix
+    // engine to tldts@7.4.16 under the same policy digest. This is the
+    // recorded owner exception in the docblock above, not a widening: it
+    // removes admitted strings. tldts-core 7.4.16 differs from 7.4.13 only in
+    // how its boolean expressions are parenthesized and in the CommonJS
+    // interop helpers its compiler emits, and tldts changes only its suffix
+    // trie: 11 rules added (2 wildcard, 9 exact, all private) and 2 removed
+    // (alpha-myqnapcloud.com and dev-myqnapcloud.com, both private); no
+    // ICANN, section, flag or exception rule moves. The authoritative list
+    // is the rule diff between the two tldts tries. Categories 1 to 4 are
+    // host strings (a request, cookie, frame or script host); category 5 is
+    // a registrable domain the report stores. By category, a host the 7.4.13
+    // sanitizer published:
+    // 1. under one of the 2 removed rules stops being a fixed point when a
+    //    label the older engine kept whole as part of the registrable domain
+    //    is now generalized: "myapp.alpha-myqnapcloud.com" becomes
+    //    "{label}.alpha-myqnapcloud.com" (so do "a.b.X", "cdn.myapp.X" and
+    //    "myapp-1234.X"). A host whose labels below the new registrable
+    //    domain are all ones the allowlist keeps stays fixed
+    //    (api.alpha-myqnapcloud.com, www.dev-myqnapcloud.com). The bare apex
+    //    was published as "{invalid-host}", a terminal marker, and stays so;
+    // 2. that is a direct child of the wildcard-added *.compute.herokuapp.com
+    //    zone stops being a fixed point, whether its label was generalized
+    //    or allowlisted: "{label}.compute.herokuapp.com",
+    //    "api.compute.herokuapp.com" and "www.compute.herokuapp.com" are now
+    //    suffixes and redact to "{invalid-host}"; compute.herokuapp.com itself
+    //    and deeper hosts stay fixed. The other wildcard,
+    //    *.azure.databricksapps.com, moves nothing: databricksapps.com has no
+    //    rule of its own and "azure" is not allowlisted, so the older engine
+    //    published every such host as "{label}.{label}.databricksapps.com",
+    //    which the new one leaves alone;
+    // 3. below one of the 9 exact added rules STAYS a fixed point as a host
+    //    string ("{label}.surge.sh", "api.glideos.app"). The same site as
+    //    the scanned site fails (5);
+    // 4. equal to one of those exact rules, now a suffix itself, stops being
+    //    a fixed point for 6 of the 9 (glideos.app, hosted-by-files.com,
+    //    iqhs.pl, site.hosting-cluster.nl, site.webhosting.be, surge.sh); the
+    //    3 Databricks rules (aws.databricksapps.com, gcp.databricksapps.com,
+    //    aws-gov.databricksapps.us) were published as
+    //    "{label}.databricksapps.com" or ".us" and stay fixed;
+    // 5. stored as a registrable domain the 7.4.13 engine computed is checked
+    //    again under the new engine even where every host string above stays
+    //    fixed. The scanned site's subject.requested and subject.observed
+    //    registrableDomain fail when the new engine redacts them differently:
+    //    a site below one of the 6 rules in (4), which stored the rule itself
+    //    as its registrable domain and now redacts to "{invalid-host}", or a
+    //    non-allowlisted label under a removed rule
+    //    ("myapp.alpha-myqnapcloud.com" becomes "{label}.alpha-myqnapcloud.com");
+    //    a scanned site keeps the allowlist exception (api.alpha-myqnapcloud.com).
+    //    The sanitizer throws unsafe-subject-identity, which the reader
+    //    reports as redaction-not-idempotent and the remediation planner as
+    //    unsupported-report-schema. The domain and entity of a Shields-list
+    //    tracker matched through a CNAME cloak fail when the new engine
+    //    computes a different registrable domain for the stored target: below
+    //    one of those 6 rules (the stored rule recomputes to null) or anywhere
+    //    under a removed rule, allowlisted or not (every stored domain under
+    //    alpha-myqnapcloud.com or dev-myqnapcloud.com recomputes to the bare
+    //    apex); the reader reports that as redaction-not-idempotent and the
+    //    planner as unsupported-report-schema (sanitizer-rejected-evidence).
+    //    A subject or cloak domain under either wildcard zone or the 3
+    //    Databricks rules stays fixed: compute.herokuapp.com and
+    //    databricksapps.com are the stored registrable domains under both
+    //    engines. A Surge, Glide or Heroku compute host is the likeliest live
+    //    case.
+    // readManagedReport enters its fixed-point branch on the redaction
+    // version alone, never the normalization, so every stored redaction-v4 r2
+    // report of every era, not only 344fdfdf ones, is re-redacted with the
+    // new engine when read, and one holding a host in category 1, 2 or 4, or
+    // a stored registrable domain in category 5, fails closed instead of
+    // being served. Read-time party grouping of a host kept whole under a
+    // changed zone also follows the new engine ({label}.surge.sh groups as
+    // itself, no longer under surge.sh).
+    // Committed corpus: every host-like token and URL in the 1029 committed
+    // reports, their provenance sidecars, the index, the allowlists, the
+    // tracker catalogs and every other tracked text file (30766 host tokens
+    // and 5389 URLs) parses to the same domain, suffix and ICANN/private
+    // flags and redacts to the same bytes under both engines; none falls
+    // inside a changed rule's zone as a host or as one of the 3970 stored
+    // registrable domains, each checked as a subject key and as a cloak
+    // tracker domain (the committed reports carry 61 tokens at a
+    // registrableDomain key and 59 at a cnameCloaks position, none in a
+    // changed zone), and reports:remediate --check reports every report and
+    // sidecar current under both engines, so every committed report stays a
+    // fixed point. Of 117 synthetic probes around the changed rules, 19
+    // published host strings, 62 stored subject keys and 70 cloak tracker
+    // domains stop being fixed points; those are the shapes above. Live
+    // store: the application stops serving a share at its 7-day expiry and
+    // the bucket's reports-retention-backstop-8d rule deletes the reports/
+    // prefix at 8 days (research/ops-receipts/r2-lifecycle-readback.json), so
+    // exposure is bounded to reports saved in the 8 days before the deploy
+    // that hold such a host. The owner accepted orphaning those reports
+    // instead of remediating them.
+    "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:344fdfdf1404e1c1a6b287c18dfd098107da18bd3b6143b7c76d2db056391563+tldts@7.4.13+node-evidence-policy-v1+r2-http-status-compat-v1",
     // Retired by the node-detectors-v12 measurement epoch, which admits five
     // exact fixed scanner warnings this pass replaced with "[redacted
     // warning]", each the v1 line beside an r2 loss that withholds a claim:
@@ -326,6 +419,11 @@ export const SUPERSEDED_R2_NORMALIZATIONS: Readonly<
     "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:6c78c05523e1f16c88264d0144af33587bd6dc11e04d337a6af2d58190639266+tldts@7.4.9+node-evidence-policy-v1+r2-http-status-compat-v1"
   ]),
   "pagegraph-import": Object.freeze([
+    // Retired by the 2026-10 toolchain epoch's move to tldts@7.4.16; see the
+    // node-playwright entry. A PageGraph import records requests and a
+    // subject, so of the positions listed there the host-string and subject
+    // ones apply.
+    "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:344fdfdf1404e1c1a6b287c18dfd098107da18bd3b6143b7c76d2db056391563+tldts@7.4.13+pagegraph-request-evidence-v1+r2-http-status-compat-v1",
     // Retired by node-detectors-v12's widening (the storage-snapshot,
     // consent-banner-check, policy-link-search, CNAME-candidate and
     // CNAME-lookup warnings);

@@ -802,6 +802,159 @@ test("the planner and reader refuse a stored report holding a host the tldts@7.4
   }
 });
 
+test("the planner and reader refuse a stored report holding a host the tldts@7.4.16 refresh moved", () => {
+  // The 2026-10 toolchain epoch keeps accepting the tldts@7.4.13 identity, but
+  // the managed reader re-sanitizes every stored v4 report with the current
+  // engine. These are the exact bytes the 7.4.13 engine published for hosts in
+  // the failing categories of changed zone (see the
+  // SUPERSEDED_R2_NORMALIZATIONS entry). Under 7.4.16 none is a fixed point,
+  // so the remediation Worker's dry run (which runs this planner) must count
+  // each as an issue, and the reader must refuse it rather than serve bytes
+  // the current sanitizer would change. The controls stay readable.
+  const retired = SUPERSEDED_R2_NORMALIZATIONS["node-playwright"].find((normalization) =>
+    normalization.includes(
+      "public-string-policy-v4:344fdfdf1404e1c1a6b287c18dfd098107da18bd3b6143b7c76d2db056391563+tldts@7.4.13+"
+    )
+  );
+  assert.notEqual(retired, undefined);
+  const tuple = NODE_R2_PRODUCER_TUPLES.find(
+    (candidate) => candidate.normalizationVersion === retired && candidate.adblockIdentity === null
+  );
+  assert.equal(tuple?.id, "node-v16-detectors-v12-active-no-adblock");
+
+  function storedWith(substitute: (run: ScanRunV2R2) => void) {
+    const report = makePublicSingleReportV2R2();
+    const run = report.run;
+    run.privacy.redactionVersion = REDACTION_VERSION;
+    run.toolchain.normalizationVersion = retired!;
+    run.provenance.methodologyVersion = tuple!.methodologyVersion;
+    run.provenance.detectorRegistry = { ...tuple!.detectorRegistry };
+    run.toolchain.trackerCatalog = { ...tuple!.trackerCatalog };
+    run.toolchain.adblock = null;
+    for (const id of Object.keys(run.detectors) as Array<keyof typeof run.detectors>) {
+      run.detectors[id] = { ...run.detectors[id], version: tuple!.detectorVersions[id] };
+    }
+    run.evidence.requests.push({
+      id: 2,
+      url: "https://cdn.tracker-example.com/app.js",
+      domain: "cdn.tracker-example.com",
+      method: "GET",
+      resourceType: "script",
+      status: 200,
+      thirdParty: true,
+      tracker: null,
+      startedAtMs: 20,
+      phaseId: 0
+    });
+    run.fingerprints = buildFingerprints({
+      conditions: run.conditions,
+      provenance: run.provenance,
+      toolchain: run.toolchain,
+      detectors: run.detectors
+    });
+    // Sanitize under the current engine first, then substitute the bytes the
+    // 7.4.13 engine published, so the substituted field is the only difference.
+    const stored = redactPublicScanReportV2R2(report);
+    if (stored.reportType !== "single") throw new Error("fixture invariant");
+    substitute(stored.run);
+    const sidecar = buildProvenanceEntry({
+      reportId: REPORT_ID,
+      publicReport: stored,
+      writtenAt: CLOCK.createdAt,
+      createdAt: CLOCK.createdAt,
+      expiresAt: CLOCK.expiresAt
+    });
+    return { reportContents: JSON.stringify(stored), sidecarContents: JSON.stringify(sidecar) };
+  }
+
+  for (const [domain, readable] of [
+    // A direct child of the wildcard-added *.compute.herokuapp.com zone is now
+    // a suffix, whether its label was generalized or allowlisted.
+    ["{label}.compute.herokuapp.com", false],
+    ["api.compute.herokuapp.com", false],
+    // alpha-myqnapcloud.com is no longer a suffix, so its label is generalized.
+    ["myapp.alpha-myqnapcloud.com", false],
+    // An exact host that was a registrable domain and is now a suffix.
+    ["surge.sh", false],
+    ["glideos.app", false],
+    // Controls: as REQUEST hosts, the Heroku zone's apex and a grandchild, an
+    // allowlisted label under the removed rule, a site host below an exact
+    // added rule (its stored registrable domain still fails: subject rows
+    // below) and a Databricks app host, which the older engine already
+    // generalized below databricksapps.com, are unchanged.
+    ["compute.herokuapp.com", true],
+    ["{label}.{label}.compute.herokuapp.com", true],
+    ["api.alpha-myqnapcloud.com", true],
+    ["{label}.surge.sh", true],
+    ["{label}.{label}.databricksapps.com", true],
+    ["cdn.tracker-example.com", true]
+  ] as const) {
+    const { reportContents, sidecarContents } = storedWith((run) => {
+      const request = run.evidence.requests.find((entry) => entry.id === 2);
+      if (!request) throw new Error("fixture invariant");
+      request.url = `https://${domain}/{seg}`;
+      request.domain = domain;
+    });
+    assertStoredOutcome(domain, reportContents, sidecarContents, readable);
+  }
+
+  // A registrable domain the report STORES is recomputed on read too: the
+  // scanned site's subject keys. A site below an exact added rule keeps a
+  // fixed-point host string ("{label}.surge.sh") but the registrable domain
+  // 7.4.13 stored for it is now a suffix, and a site whose registrable domain
+  // the older engine kept whole under a removed rule now generalizes, so the
+  // report fails even though the same host as a request host stays readable.
+  // The sanitizer throws unsafe-subject-identity: the reader reports that as
+  // redaction-not-idempotent and the planner as unsupported-report-schema.
+  for (const [origin, registrableDomain, readable] of [
+    ["https://{label}.surge.sh", "surge.sh", false],
+    ["https://{label}.glideos.app", "glideos.app", false],
+    ["https://myapp.alpha-myqnapcloud.com", "myapp.alpha-myqnapcloud.com", false],
+    // Controls: a scanned site keeps the allowlist exception under the removed
+    // rule, and substituting an unchanged site through the same path reads.
+    ["https://api.alpha-myqnapcloud.com", "api.alpha-myqnapcloud.com", true],
+    ["https://{label}.contoso-apps.com", "contoso-apps.com", true]
+  ] as const) {
+    const { reportContents, sidecarContents } = storedWith((run) => {
+      run.subject.requested = { ...run.subject.requested, origin, registrableDomain };
+      run.subject.observed = { ...run.subject.observed, origin, registrableDomain };
+    });
+    assertStoredOutcome(`subject ${registrableDomain}`, reportContents, sidecarContents, readable, {
+      issue: "unsupported-report-schema",
+      detail: "unsafe-subject-identity"
+    });
+  }
+
+  function assertStoredOutcome(
+    label: string,
+    reportContents: string,
+    sidecarContents: string,
+    readable: boolean,
+    planRefusal: { issue: string; detail?: string } = { issue: "redaction-not-idempotent" }
+  ) {
+    const read = readManagedReport({ reportId: REPORT_ID, reportContents, sidecarContents, retention: CLOCK });
+    const plan = planR2ReportRemediation({
+      reportId: REPORT_ID,
+      reportContents,
+      sidecarContents,
+      retentionSource: METADATA_SOURCE,
+      writtenAt: WRITTEN_AT,
+      now: WRITTEN_AT
+    });
+    if (readable) {
+      assert.equal(read.ok, true, label);
+      assert.equal(plan.ok && plan.action, "current", label);
+    } else {
+      assert.deepEqual(read.ok ? "ok" : read.reason, "redaction-not-idempotent", label);
+      assert.deepEqual(
+        plan.ok ? plan.action : { issue: plan.issue, ...(plan.detail ? { detail: plan.detail } : {}) },
+        planRefusal,
+        label
+      );
+    }
+  }
+});
+
 test("a stored share under the identity public-string-policy-v4 retired reads unless it holds a string v4 removes", () => {
   // public-string-policy-v4 is a reviewed narrowing: the retired identity stays
   // declarable, and the reader re-runs the current sanitizer, so a share the

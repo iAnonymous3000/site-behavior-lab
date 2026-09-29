@@ -751,6 +751,75 @@ as intended.
   `pagegraph-v4-storage-snapshot-active`, which keeps the name of the
   epoch's first admission.
 
+### Toolchain epoch 2026-10
+
+- Toolchain epoch 2026-10 moves two inputs in one reviewed step and holds the
+  rest: tldts 7.4.13 to 7.4.16 (7.4.14 and 7.4.15 passed over; no 7.4.17
+  exists), and wasm-bindgen 0.2.126 to 0.2.129 with the vendored adblock WASM
+  rebuilt from the locked Cargo graph (`sbl_adblock_wasm_bg.wasm` `4034076e`
+  to `7dda4b30`, the linked walrus 0.26.4 to 0.27.2, syn 3.0.6 added beside
+  syn 2.0.118 as a proc-macro dependency). adblock-rust stays 0.13.3, and
+  Playwright stays 1.63.0 with Chromium 153.0.8010.12 and the container base
+  `mcr.microsoft.com/playwright:v1.63.0-noble` at index digest `eff16c30`:
+  Chromium 154 waits for Playwright 1.64 to reach a stable release. The WASM
+  reproducibility contract now proves the wasm-bindgen CLI from the binary's
+  producers section, because 0.2.129 no longer embeds the crate's source path.
+- Recorded identities, old to new: the Node and PageGraph r2 normalizations
+  move from `tldts@7.4.13` to `tldts@7.4.16` under the same
+  public-string-policy-v4 digest `344fdfdf...1563`. Nothing else a report
+  records moves. The base Node methodology (the v1 token and corpus cohort
+  key) and the r2 methodology keep their adblock-rust 0.13.3 and Playwright
+  1.63.0 components, so the reviewed corpus line does not advance and no
+  outgoing methodology joins the historical list; the disclosed engine
+  version, the request-context identity and the September 28 list identity
+  are unchanged; no detector, obligation or policy digest moves. The rebuilt
+  WASM changes no recorded identity: no identity names wasm-bindgen or the
+  WASM bytes, and the engine differential over the committed list snapshot
+  (107,388 hosts, two sources, four resource types, GET and POST: 1,718,220
+  tuples) found no changed block decision between the two builds.
+- The tldts move is not a widening. tldts changes only its suffix trie: 11
+  private rules added (`*.azure.databricksapps.com`, `*.compute.herokuapp.com`
+  and 9 exact rules, among them `surge.sh`, `glideos.app` and three Databricks
+  app suffixes) and 2 removed (`alpha-myqnapcloud.com`, `dev-myqnapcloud.com`).
+  Every stored report is re-redacted with the new engine when it is read,
+  whatever its era, so one holding a host whose redaction the new engine
+  changes fails closed instead of being served: a non-allowlisted label below
+  a removed rule (`myapp.alpha-myqnapcloud.com`), a direct child of
+  `*.compute.herokuapp.com`, or a host equal to one of six added rules that is
+  now a suffix itself (`surge.sh`). So does one whose stored registrable
+  domain the new engine computes differently: a scanned site or CNAME-cloaked
+  tracker below those six rules (a Surge or Glide host is the likeliest live
+  case) or under a removed rule. Measured over the committed corpus (1029
+  reports, their sidecars, the index and every other tracked text file:
+  30,766 host-like tokens and 5,389 URLs), both engines agree on every token
+  and on every one of 3,970 stored registrable domains, no token sits in a
+  changed rule's zone, and `reports:remediate --check` reports every report
+  and sidecar current under both engines; of 117 synthetic probes around the
+  changed rules, 19 published host strings, 62 stored subject keys and 70
+  cloak tracker domains stop being fixed points. For the live store the owner
+  accepted that instead of remediating: shares expire after 7 days and the
+  storage bucket deletes them at 8, so only reports saved in the 8 days
+  before the deploy can be affected. The corpus neutrality snapshot of all
+  1028 managed comparison decisions reads `917f947e...0f64` under both
+  engines and with this epoch's identity bookkeeping applied.
+- Published reports keep their recorded identities. The deployed producer
+  rows `node-v16-detectors-v12-active-lists-2026-09-28` and
+  `node-v16-detectors-v12-active-no-adblock` are closed to their exact
+  literals (the v15 methodology, the `344fdfdf` normalization under tldts
+  7.4.13, node-detectors-v12 and a frozen copy of the September 28 lists
+  under adblock-rust 0.13.3), byte for byte what `f9d6c46e` produced, and
+  `pagegraph-v4-storage-snapshot-active` to its `344fdfdf` normalization
+  under tldts 7.4.13 and the 2026.08 catalog. The outgoing normalization
+  identities stay accepted (not readable) as the recorded owner exception in
+  `SUPERSEDED_R2_NORMALIZATIONS`, the Node one paired with the v15
+  methodology both v16 rows ran. The new active rows are
+  `node-v17-toolchain-2026-10-active-lists-2026-09-28`,
+  `node-v17-toolchain-2026-10-active-no-adblock` and
+  `pagegraph-v4-tldts7416-active`. Because the normalization moves, an r2
+  comparison that pairs a report from before this epoch with one from after
+  it is ineligible in every family; the r2 corpus cohorts do not split, and
+  v1 pairs are unaffected.
+
 ## [0.6.0] - 2026-09-06
 
 Declared on 2026-09-06 (the date above) and tagged `v0.6.0` on 2026-09-24 at

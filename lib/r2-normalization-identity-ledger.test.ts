@@ -49,7 +49,8 @@ import {
  *      CLI. There are two exceptions, each an owner decision recorded in its
  *      SUPERSEDED_R2_NORMALIZATIONS entry with everything that file's docblock
  *      requires: an engine refresh the owner accepts without remediation (the
- *      tldts 7.4.10 to 7.4.13 move is one), and a reviewed sanitizer narrowing
+ *      tldts 7.4.10 to 7.4.13 and 7.4.13 to 7.4.16 moves are two), and a
+ *      reviewed sanitizer narrowing
  *      the owner accepts (public-string-policy-v4 is one). The narrowing also
  *      moves PUBLIC_STRING_POLICY_VERSION, replaces every committed report
  *      holding a removed string through a privacy replacement in the same
@@ -72,9 +73,9 @@ import {
  *   5. Only then update the two literals below to the new identity.
  */
 const ACTIVE_NODE_R2_NORMALIZATION_LITERAL =
-  "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:344fdfdf1404e1c1a6b287c18dfd098107da18bd3b6143b7c76d2db056391563+tldts@7.4.13+node-evidence-policy-v1+r2-http-status-compat-v1";
+  "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:344fdfdf1404e1c1a6b287c18dfd098107da18bd3b6143b7c76d2db056391563+tldts@7.4.16+node-evidence-policy-v1+r2-http-status-compat-v1";
 const ACTIVE_PAGEGRAPH_R2_NORMALIZATION_LITERAL =
-  "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:344fdfdf1404e1c1a6b287c18dfd098107da18bd3b6143b7c76d2db056391563+tldts@7.4.13+pagegraph-request-evidence-v1+r2-http-status-compat-v1";
+  "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:344fdfdf1404e1c1a6b287c18dfd098107da18bd3b6143b7c76d2db056391563+tldts@7.4.16+pagegraph-request-evidence-v1+r2-http-status-compat-v1";
 
 /**
  * The identities the latest NARROWING retired, pinned as exact literals beside
