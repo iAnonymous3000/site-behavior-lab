@@ -129,6 +129,7 @@ import {
   MAX_RECORDED_REQUEST_URL_CHARS,
   PAGE_LEFT_SUBJECT_BEFORE_STATE_WARNING,
   PIXEL_DECODE_CAPTURE_LOSS_WARNING,
+  POLICY_LINK_SEARCH_INCOMPLETE_WARNING,
   STORAGE_SNAPSHOT_CAPTURE_LOSS_WARNING,
   UNSETTLED_ROUTED_REQUEST_WARNING,
   ScanNetworkRecorder,
@@ -2991,6 +2992,9 @@ export async function scanSiteWithMeasurement(
         count: 1,
         detail: "policy-link-candidates"
       });
+      // v1 publishes a policy it read beside this loss with no quality block,
+      // so the line is its only record that the search behind it was cut.
+      warnings.add(POLICY_LINK_SEARCH_INCOMPLETE_WARNING);
     }
     // Same rule as the keystroke and CNAME probes: a policy visit the scanner
     // could not make or could not finish censors its family instead of leaving

@@ -60,6 +60,7 @@ import {
   LISTENER_DETECTION_WITHHELD_WARNING,
   PAGE_LEFT_SUBJECT_BEFORE_STATE_WARNING,
   PIXEL_DECODE_CAPTURE_LOSS_WARNING,
+  POLICY_LINK_SEARCH_INCOMPLETE_WARNING,
   STORAGE_SNAPSHOT_CAPTURE_LOSS_WARNING,
   UNSETTLED_ROUTED_REQUEST_WARNING
 } from "./scan-runtime";
@@ -393,6 +394,9 @@ const FIXED_SCANNER_WARNINGS = new Set([
   // node-detectors-v12: observe mode's banner-visibility read did not
   // complete, where r2 withholds the consent-banner claim over its detector.
   CONSENT_BANNER_CHECK_INCOMPLETE_WARNING,
+  // node-detectors-v12: the privacy-policy link search did not cover every
+  // link, where r2 withholds the privacy-policy claim over its loss.
+  POLICY_LINK_SEARCH_INCOMPLETE_WARNING,
   GPC_WORKER_CAPTURE_LOSS_WARNING,
   CONSENT_RELOAD_DISCLOSURE,
   "The consent interaction left the recorded site; later page state was not used and the active input probe was skipped.",

@@ -58,6 +58,7 @@ import {
   MAX_RECORDED_REQUESTS,
   PAGE_LEFT_SUBJECT_BEFORE_STATE_WARNING,
   PIXEL_DECODE_CAPTURE_LOSS_WARNING,
+  POLICY_LINK_SEARCH_INCOMPLETE_WARNING,
   STORAGE_SNAPSHOT_CAPTURE_LOSS_WARNING,
   UNSETTLED_ROUTED_REQUEST_WARNING
 } from "./scan-runtime";
@@ -898,7 +899,10 @@ function applyPolicy(draft: Draft, visit: Visit): void {
   const policyLoss = (kind: "cap" | "dropped", phaseId: number | null) =>
     loss(draft, "detector-output", phaseId, kind, "policy-visit");
   if (visit.policy === "read-with-truncated-candidates" || (visit.policy === "candidates-truncated" && !subjectInvalid(visit))) {
-    if (stateRead(visit)) loss(draft, "detector-output", draft.policy, "truncated", "policy-link-candidates");
+    if (stateRead(visit)) {
+      loss(draft, "detector-output", draft.policy, "truncated", "policy-link-candidates");
+      line(draft, POLICY_LINK_SEARCH_INCOMPLETE_WARNING);
+    }
   }
   if (draft.policy !== null) {
     if (visit.policy === "visit-failed") {
@@ -1375,16 +1379,6 @@ const ALLOWED_DIVERGENCES: readonly AllowedDivergence[] = [
       (loss.family === "requests" || loss.family === "cookies" || loss.family === "storage") &&
       loss.detail === undefined &&
       loss.phaseId === phasePlan(visit).consent
-  },
-  // TODO(v1-r2-parity finding P4): a policy read after a truncated link
-  // search. r2 scopes the policy-link-candidates loss to the privacy-policy
-  // claim; v1 publishes the policy summary and allows the claim.
-  {
-    name: "policy-candidates-truncated-has-no-v1-channel",
-    record: "finding P4 (property test, 2026-09-28): scanSiteWithMeasurement, policyLinksTruncated",
-    todo: true,
-    covers: (visit, violation) =>
-      visit.policy === "read-with-truncated-candidates" && violation.kind === "claim" && violation.subject === "privacy-policy"
   },
   // TODO(v1-r2-parity finding P5): CNAME candidates left unresolved at the
   // lookup bound on a visit that found a cloak, with or without a failed

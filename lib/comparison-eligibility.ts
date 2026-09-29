@@ -76,6 +76,7 @@ const UNSETTLED_ROUTED_REQUEST_WARNING_FRAGMENT =
   "still being handled, so this visit's request evidence is incomplete";
 const PROXY_TRAFFIC_BUDGET_WARNING_FRAGMENT = "connection and target safety budget";
 const STORAGE_SNAPSHOT_WARNING_FRAGMENT = "could not read this page's storage in full";
+const POLICY_LINK_SEARCH_WARNING_FRAGMENT = "search of this page for a privacy-policy link did not cover every link";
 // The six sentences consentInteractionWarning (lib/consent-interaction.ts)
 // writes for a banner search or choice that did not complete, and observe
 // mode's banner-visibility line. Fragments rather than an import: that module
@@ -761,6 +762,17 @@ export function runConsentInteractionLeftSubject(run: Pick<ScanResult, "warnings
  */
 export function runHitStorageSnapshotCaptureLoss(run: Pick<ScanResult, "warnings">): boolean {
   return run.warnings.some((warning) => warning.includes(STORAGE_SNAPSHOT_WARNING_FRAGMENT));
+}
+
+/**
+ * Whether a legacy run's search for privacy-policy links did not cover every
+ * link. The r2 twin is a `policy-link-candidates` detector-output loss, scoped
+ * to the privacy-policy claim, which it withholds whether or not a policy was
+ * read; readers censor that claim alone. It never enters
+ * runRequestEvidenceCapped or comparison eligibility.
+ */
+export function runHitPolicyLinkSearchIncomplete(run: Pick<ScanResult, "warnings">): boolean {
+  return run.warnings.some((warning) => warning.includes(POLICY_LINK_SEARCH_WARNING_FRAGMENT));
 }
 
 /**

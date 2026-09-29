@@ -635,6 +635,12 @@ of these lines, so none reads differently.
   new fixed warning says the scanner could not complete it. The existing line
   for a post-consent reload that left the recorded site now withholds the
   claim too, as r2's dropped consent-verification loss does.
+- A privacy policy read after a link search that did not cover every link
+  kept the privacy-policy claim standing on v1, although a link the search
+  never reached may be the policy and r2 withholds the claim. A new fixed
+  warning says the search did not cover every link, and v1 readers withhold
+  the claim for it. A failed load, where the policy probe is withheld on
+  purpose, adds neither the loss nor the line.
 
 ## [0.6.0] - 2026-09-06
 

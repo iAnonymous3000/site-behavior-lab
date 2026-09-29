@@ -229,6 +229,20 @@ export const PIXEL_DECODE_CAPTURE_LOSS_WARNING =
  */
 export const CONSENT_BANNER_CHECK_INCOMPLETE_WARNING =
   "The scanner could not complete its check for a visible cookie/consent banner on this page, so consent-banner findings for this visit are incomplete.";
+/**
+ * The scanner's search of the page for privacy-policy links stopped before it
+ * covered every link: more links than it inspects, a link it could not read
+ * or bound, a label cut before a match could be ruled out, or the candidate
+ * bound reached with links left. A link it did not reach may be the policy,
+ * so r2 records a `policy-link-candidates` detector-output loss, scoped to the
+ * privacy-policy claim, which it withholds whether or not a policy was then
+ * read. v1 has no quality block, so this line is its only channel; v1 readers
+ * censor the privacy-policy claim alone for it. A failed load, where the
+ * policy probe is withheld on purpose, adds neither. It must never contain
+ * another line's recognition fragment.
+ */
+export const POLICY_LINK_SEARCH_INCOMPLETE_WARNING =
+  "The scanner's search of this page for a privacy-policy link did not cover every link, so privacy-policy findings for this visit are incomplete.";
 export const STORAGE_SNAPSHOT_CAPTURE_LOSS_WARNING =
   "The scanner could not read this page's storage in full at the end of the visit, so storage evidence for this visit is incomplete.";
 const SCAN_TIMEOUT_MESSAGE = "The scan exceeded the maximum scan duration.";

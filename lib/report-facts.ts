@@ -41,6 +41,7 @@ import {
   LEGACY_KEYSTROKE_PROBE_TEST_INCOMPLETE_REASON,
   LEGACY_LISTENER_DETECTION_WITHHELD_REASON,
   LEGACY_PAGE_LEFT_SUBJECT_BEFORE_STATE_REASON,
+  LEGACY_POLICY_LINK_CANDIDATES_REASON,
   requestEvidenceState,
   unsupportedEvidenceFamilies,
   type RequestEvidenceState,
@@ -382,6 +383,11 @@ export const REPORT_CLAIM_REQUIREMENTS: Readonly<Record<ReportClaimId, ClaimRequ
         "public-policy-claims",
         "public-policy-entities"
       ]
+    },
+    // The v1 channel for r2's policy-link-candidates loss, which withholds
+    // this claim alone, whether or not a policy was read.
+    legacyReasons: {
+      "detector-output": [LEGACY_POLICY_LINK_CANDIDATES_REASON]
     },
     detectors: ["privacy-policy"],
     count: "none"

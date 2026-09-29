@@ -18,6 +18,7 @@ import {
   runHitKeystrokeProbeRequestUnread,
   runHitKeystrokeProbeTestIncomplete,
   runHitPixelDecodeCaptureLoss,
+  runHitPolicyLinkSearchIncomplete,
   runHitRequestCap,
   runHitResponseByteCap,
   runHitStorageSnapshotCaptureLoss,
@@ -42,6 +43,7 @@ import {
   MAX_RECORDED_REQUESTS,
   PAGE_LEFT_SUBJECT_BEFORE_STATE_WARNING,
   PIXEL_DECODE_CAPTURE_LOSS_WARNING,
+  POLICY_LINK_SEARCH_INCOMPLETE_WARNING,
   ScanRequestBudget,
   ScanWarningCollector,
   STORAGE_SNAPSHOT_CAPTURE_LOSS_WARNING,
@@ -511,7 +513,8 @@ test("lines for a storage read or a detector r2 records as incomplete are not re
     [STORAGE_SNAPSHOT_CAPTURE_LOSS_WARNING, runHitStorageSnapshotCaptureLoss],
     [CONSENT_BANNER_CHECK_INCOMPLETE_WARNING, runConsentBannerIncomplete],
     [consentInteractionWarning({ mode: "accept-all", clicked: false }, "search-interrupted"), runConsentBannerIncomplete],
-    [CONSENT_RELOAD_SUBJECT_WARNING, runConsentReloadLeftSubject]
+    [CONSENT_RELOAD_SUBJECT_WARNING, runConsentReloadLeftSubject],
+    [POLICY_LINK_SEARCH_INCOMPLETE_WARNING, runHitPolicyLinkSearchIncomplete]
   ];
   for (const [warning, predicate] of lines) {
     const run = makeRun({ totalRequests: 20 });

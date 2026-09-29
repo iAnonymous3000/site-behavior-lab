@@ -93,6 +93,7 @@ import {
   MAX_CAPTURED_STORAGE_KEY_CHARS,
   PAGE_LEFT_SUBJECT_BEFORE_STATE_WARNING,
   PIXEL_DECODE_CAPTURE_LOSS_WARNING,
+  POLICY_LINK_SEARCH_INCOMPLETE_WARNING,
   STORAGE_SNAPSHOT_CAPTURE_LOSS_WARNING
 } from "./scan-runtime";
 import { resolveScannerEgressLabel, resolveScannerEgressRegion } from "./scanner-egress";
@@ -1935,6 +1936,7 @@ test("HTTP-200 robot pages and unavailable subject collectors fail quality and s
       false,
       "Zillow-style error pages stay silent even when their policy-link candidates hit the cap"
     );
+    assert.equal(zillow.result.warnings.includes(POLICY_LINK_SEARCH_INCOMPLETE_WARNING), false);
 
     const policyCap = await scanSiteWithMeasurement(
       {
@@ -1966,6 +1968,8 @@ test("HTTP-200 robot pages and unavailable subject collectors fail quality and s
       ),
       false
     );
+    // Beside that loss, the line v1 readers take it from.
+    assert.equal(policyCap.result.warnings.includes(POLICY_LINK_SEARCH_INCOMPLETE_WARNING), true);
 
     const legitimate = await scanSiteWithMeasurement(
       {
@@ -7549,6 +7553,67 @@ test("an observe-mode banner check that read no frame or not every frame withhol
     assert.equal(complete.measurement.measurement.detectors["consent-banner"].status, "complete");
     assert.equal(complete.result.warnings.includes(CONSENT_BANNER_CHECK_INCOMPLETE_WARNING), false);
     assert.equal(bothWireDisplayFacts(complete).v1.claims["consent-banner"].allowed, true);
+  } finally {
+    if (previousConsentVerification === undefined) delete process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
+    else process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = previousConsentVerification;
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+});
+
+test("a policy read after a cut link search withholds the privacy-policy claim on v1 as r2 does", { timeout: 60_000 }, async () => {
+  // The search keeps at most twelve candidates. With more policy links after
+  // them, a link it never reached may be the policy, so r2 records a
+  // policy-link-candidates loss and withholds the privacy-policy claim even
+  // though the first candidate was read. v1 published the read policy with no
+  // line, and its reader allowed the claim.
+  const policyText = "We collect information and use cookies for analytics and advertising. ".repeat(12);
+  const upstream = createServer((request, response) => {
+    const url = request.url ?? "/";
+    response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+    if (url.startsWith("/privacy")) {
+      response.end(`<!doctype html><title>Privacy</title><h1>Privacy Policy</h1><p>${policyText}</p>`);
+      return;
+    }
+    response.end(`<!doctype html><title>Policy search fixture</title><main><p>fixture</p>
+      <a href="/privacy">Privacy Policy</a>
+      ${Array.from({ length: 14 }, (_, index) => `<a href="/privacy-${index}">Privacy notice ${index}</a>`).join("")}
+      </main>`);
+  });
+  await new Promise<void>((resolve, reject) => {
+    upstream.once("error", reject);
+    upstream.listen(0, "127.0.0.1", resolve);
+  });
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+  const previousConsentVerification = process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
+  process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = "1";
+  try {
+    const visit = await scanSiteWithMeasurement(
+      { url: "http://www.policy-search.net/", device: "desktop", gpcEnabled: false, consentMode: "observe" },
+      {
+        publicUrlAlreadyVerified: true,
+        verifyPublicUrl: async () => undefined,
+        resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+        connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"),
+        resolveCnameChain: async () => []
+      }
+    );
+    const policyPhase = visit.measurement.measurement.phases.find((phase) => phase.kind === "policy-analysis");
+    assert.ok(policyPhase, "the first candidate must be visited");
+    assert.ok(visit.result.privacyPolicy, "the policy must be read");
+    assert.equal(visit.measurement.measurement.detectors["privacy-policy"].status, "complete");
+    assert.deepEqual(
+      visit.measurement.measurement.qualityFacts.captureLoss.filter((loss) => loss.detail === "policy-link-candidates"),
+      [{ family: "detector-output", phaseId: policyPhase.phaseId, kind: "truncated", count: 1, detail: "policy-link-candidates" }]
+    );
+    assert.equal(visit.result.warnings.includes(POLICY_LINK_SEARCH_INCOMPLETE_WARNING), true);
+    const { r2, v1, v1Report } = bothWireDisplayFacts(visit);
+    assert.equal(v1Report.warnings.includes(POLICY_LINK_SEARCH_INCOMPLETE_WARNING), true);
+    assert.ok(v1Report.privacyPolicy, "v1 still publishes the read policy");
+    assert.equal(r2.claims["privacy-policy"].allowed, false);
+    assert.equal(v1.claims["privacy-policy"].allowed, false);
+    assertV1WithholdsEachClaimR2Withholds(r2, v1);
   } finally {
     if (previousConsentVerification === undefined) delete process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
     else process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = previousConsentVerification;

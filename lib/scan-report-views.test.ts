@@ -35,6 +35,7 @@ import {
   LEGACY_KEYSTROKE_PROBE_TEST_INCOMPLETE_REASON,
   LEGACY_LISTENER_DETECTION_WITHHELD_REASON,
   LEGACY_PAGE_LEFT_SUBJECT_BEFORE_STATE_REASON,
+  LEGACY_POLICY_LINK_CANDIDATES_REASON,
   LEGACY_STORAGE_SNAPSHOT_REASON,
   requestEvidenceState,
   runHitRequestRecordingCap,
@@ -58,6 +59,7 @@ import {
   runHitKeystrokeProbeRequestUnread,
   runHitKeystrokeProbeTestIncomplete,
   runHitListenerDetectionWithheld,
+  runHitPolicyLinkSearchIncomplete,
   runHitStorageSnapshotCaptureLoss,
   runHitUnsettledRoutedRequests,
   runKeystrokeProbeLeftSubject,
@@ -88,6 +90,7 @@ import {
   LISTENER_DETECTION_WITHHELD_WARNING,
   PAGE_LEFT_SUBJECT_BEFORE_STATE_WARNING,
   PIXEL_DECODE_CAPTURE_LOSS_WARNING,
+  POLICY_LINK_SEARCH_INCOMPLETE_WARNING,
   STORAGE_SNAPSHOT_CAPTURE_LOSS_WARNING,
   UNSETTLED_ROUTED_REQUEST_WARNING
 } from "./scan-runtime";
@@ -768,6 +771,11 @@ test("each probe and request-loss line is recognized by its own predicate alone"
     ["before-state", PAGE_LEFT_SUBJECT_BEFORE_STATE_WARNING],
     ["auxiliary", AUXILIARY_PAGE_REQUESTS_BLOCKED_WARNING],
     ["storage", STORAGE_SNAPSHOT_CAPTURE_LOSS_WARNING],
+    ["policy-search", POLICY_LINK_SEARCH_INCOMPLETE_WARNING],
+    [
+      "policy-read",
+      "Read the site's privacy policy (https://probe-fixture.net/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ],
     ["banner-check", CONSENT_BANNER_CHECK_INCOMPLETE_WARNING],
     ...CONSENT_FAILURES.map((failure): [string, string] => [
       `consent-${failure}`,
@@ -790,6 +798,7 @@ test("each probe and request-loss line is recognized by its own predicate alone"
     ["before-state", runPageLeftSubjectBeforeState, ["before-state"]],
     ["auxiliary", runHitAuxiliaryPageRequestsBlocked, ["auxiliary"]],
     ["storage", runHitStorageSnapshotCaptureLoss, ["storage"]],
+    ["policy-search", runHitPolicyLinkSearchIncomplete, ["policy-search"]],
     ["banner", runConsentBannerIncomplete, ["banner-check", ...CONSENT_FAILURES.map((failure) => `consent-${failure}`)]],
     ["reload", runConsentReloadLeftSubject, ["reload-subject"]]
   ];
@@ -1209,6 +1218,16 @@ test("each v1 line for a read or detector r2 records as incomplete withholds wha
       calm: false,
       note: /cookie\/consent banner search or choice did not complete, so consent-banner findings are incomplete/
     })),
+    // r2 scopes its policy-link-candidates loss to the privacy-policy claim,
+    // which it withholds over the read policy beside it.
+    {
+      warning: POLICY_LINK_SEARCH_INCOMPLETE_WARNING,
+      reasons: [LEGACY_POLICY_LINK_CANDIDATES_REASON],
+      censored: [],
+      withheld: ["privacy-policy"],
+      calm: false,
+      note: /search for a privacy-policy link did not cover every link on the page, so privacy-policy findings are incomplete/
+    },
     // The reload's dropped consent-verification loss withholds the
     // consent-banner claim, and the probe it skipped the keystroke claim.
     {

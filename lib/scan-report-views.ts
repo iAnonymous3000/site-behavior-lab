@@ -31,6 +31,7 @@ import {
   runHitListenerDetectionWithheld,
   runHitPixelDecodeCaptureLoss,
   runHitPageSubjectUnverified,
+  runHitPolicyLinkSearchIncomplete,
   runHitProxyTrafficBudget,
   runHitRequestCap,
   runHitResponseByteCap,
@@ -731,6 +732,14 @@ export const LEGACY_CONSENT_BANNER_INCOMPLETE_REASON = "capture-loss:consent-ban
  */
 export const LEGACY_CONSENT_RELOAD_LEFT_SUBJECT_REASON = "capture-loss:consent-reload-left-subject";
 
+/**
+ * The legacy reason for a v1 privacy-policy link search that did not cover
+ * every link. Named for the r2 capture-loss detail that records it, and like
+ * it scoped to the privacy-policy claim alone (REPORT_CLAIM_REQUIREMENTS
+ * `legacyReasons`), never to a family through familyCensoredOnRun.
+ */
+export const LEGACY_POLICY_LINK_CANDIDATES_REASON = "capture-loss:policy-link-candidates";
+
 function runViewFromV1(result: ScanResult, label: RunView["label"], scannedAt: string | null): RunView {
   // v1 never recorded quality; derive the run-level outcome from the same
   // facts the interim gate uses (status, cap) and mark it legacy-derived so it
@@ -805,6 +814,9 @@ function runViewFromV1(result: ScanResult, label: RunView["label"], scannedAt: s
   // claim on r2 and nothing else v1 records.
   if (runConsentBannerIncomplete(result)) reasons.push(LEGACY_CONSENT_BANNER_INCOMPLETE_REASON);
   if (runConsentReloadLeftSubject(result)) reasons.push(LEGACY_CONSENT_RELOAD_LEFT_SUBJECT_REASON);
+  // A cut policy-link search withholds the privacy-policy claim on r2, read
+  // policy or not.
+  if (runHitPolicyLinkSearchIncomplete(result)) reasons.push(LEGACY_POLICY_LINK_CANDIDATES_REASON);
   return {
     label,
     domain: result.summary.firstPartyDomain,
@@ -1401,7 +1413,8 @@ export function familyCensoredOnRun(run: RunView, family: string): boolean {
   // claim takes it through its own `legacyReasons` in report-facts, and the
   // unread-request, test-incomplete and subject-lost probe reasons reach the
   // keystroke claim the same way, as the consent-banner and reload reasons
-  // reach the consent-banner claim.
+  // reach the consent-banner claim and the policy-search reason the
+  // privacy-policy claim.
   if (
     (family === "fingerprinting" || family === "detector-output") &&
     run.quality.reasons.includes("capture-loss:fingerprint-observer")

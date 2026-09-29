@@ -65,6 +65,10 @@ const QUALITY_REASON_NOTES: Record<string, string> = {
     "the scanner's cookie/consent banner search or choice did not complete, so consent-banner findings are incomplete",
   "capture-loss:consent-reload-left-subject":
     "the post-consent reload left the recorded site, so the consent verification is incomplete",
+  // v1 only (LEGACY_POLICY_LINK_CANDIDATES_REASON). r2 reports the same search
+  // as a policy-link-candidates capture loss.
+  "capture-loss:policy-link-candidates":
+    "the scanner's search for a privacy-policy link did not cover every link on the page, so privacy-policy findings are incomplete",
   // v1 only (LEGACY_LISTENER_DETECTION_WITHHELD_REASON). r2 reports the same
   // drop as a capture-loss detail, never as this reason.
   "capture-loss:public-fingerprint-detections":
