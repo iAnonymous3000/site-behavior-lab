@@ -584,8 +584,9 @@ lines for claims r2 withholds.
 #### Policy PDF path
 
 - The privacy-policy reader fetches a direct PDF policy with undici 8.11.2
-  (from 7.29.0) and reads it with pdf.js 6.3.289 (from 6.2.108), landed as one
-  declared change. undici 8 offers HTTP/2 in ALPN by default, through the scan
+  (from 7.29.1, the 7.x security patch for GHSA-3wwx-pv8p-q78v that main took
+  first, f0c45978) and reads it with pdf.js 6.3.289 (from 6.2.108), landed as
+  one declared change. undici 8 offers HTTP/2 in ALPN by default, through the scan
   proxy's CONNECT tunnel too, so the policy fetch now sets `allowH2: false` and
   still asks the site for HTTP/1.1 alone, as it did under undici 7. The 8.x
   line also changes connection handling the fetch can meet: 8.11.1 fixes a
