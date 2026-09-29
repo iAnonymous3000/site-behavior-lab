@@ -59,6 +59,7 @@ import {
   LISTENER_DETECTION_WITHHELD_WARNING,
   PAGE_LEFT_SUBJECT_BEFORE_STATE_WARNING,
   PIXEL_DECODE_CAPTURE_LOSS_WARNING,
+  STORAGE_SNAPSHOT_CAPTURE_LOSS_WARNING,
   UNSETTLED_ROUTED_REQUEST_WARNING
 } from "./scan-runtime";
 import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "./gpc-injection";
@@ -384,6 +385,10 @@ const FIXED_SCANNER_WARNINGS = new Set([
   PAGE_LEFT_SUBJECT_BEFORE_STATE_WARNING,
   AUXILIARY_PAGE_REQUESTS_BLOCKED_WARNING,
   PIXEL_DECODE_CAPTURE_LOSS_WARNING,
+  // node-detectors-v12: the end-of-visit storage read, the one v1 publishes,
+  // failed or was cut at its bounds, where r2 records a storage-snapshot loss
+  // that censors the storage family.
+  STORAGE_SNAPSHOT_CAPTURE_LOSS_WARNING,
   GPC_WORKER_CAPTURE_LOSS_WARNING,
   CONSENT_RELOAD_DISCLOSURE,
   "The consent interaction left the recorded site; later page state was not used and the active input probe was skipped.",

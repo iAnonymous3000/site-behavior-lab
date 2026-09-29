@@ -32,6 +32,7 @@ import {
   runHitProxyTrafficBudget,
   runHitRequestCap,
   runHitResponseByteCap,
+  runHitStorageSnapshotCaptureLoss,
   runHitSuspectedChallengeOrSoftBlock,
   runHitUnsettledRoutedRequests,
   runHitUploadByteCap,
@@ -703,6 +704,14 @@ export const LEGACY_PAGE_LEFT_SUBJECT_BEFORE_STATE_REASON = "capture-loss:page-l
  */
 export const LEGACY_AUXILIARY_PAGE_REQUESTS_BLOCKED_REASON = "capture-loss:auxiliary-page-requests-blocked";
 
+/**
+ * The legacy reason for a v1 end-of-visit storage read that failed or was cut
+ * at its capture bounds. Named for the r2 capture-loss detail that records the
+ * same loss on the storage family, and like it censors that family and
+ * nothing else (familyCensoredOnRun).
+ */
+export const LEGACY_STORAGE_SNAPSHOT_REASON = "capture-loss:storage-snapshot";
+
 function runViewFromV1(result: ScanResult, label: RunView["label"], scannedAt: string | null): RunView {
   // v1 never recorded quality; derive the run-level outcome from the same
   // facts the interim gate uses (status, cap) and mark it legacy-derived so it
@@ -755,6 +764,9 @@ function runViewFromV1(result: ScanResult, label: RunView["label"], scannedAt: s
     reasons.push("capture-loss:fingerprint-observer");
   }
   if (runHitPixelDecodeCaptureLoss(result)) reasons.push("capture-loss:pixel-decode");
+  // The storage read v1 publishes failed or was cut: r2 records that read's
+  // storage-snapshot loss, which censors the storage family alone.
+  if (runHitStorageSnapshotCaptureLoss(result)) reasons.push(LEGACY_STORAGE_SNAPSHOT_REASON);
   if (runHitKeystrokeProbeCaptureLoss(result)) reasons.push("capture-loss:keystroke-probe");
   // Claim-scoped, deliberately absent from familyCensoredOnRun: the sanitizer
   // withheld one listener detection and published every other fingerprinting
@@ -1389,6 +1401,9 @@ export function familyCensoredOnRun(run: RunView, family: string): boolean {
   ) {
     return true;
   }
+  // The end-of-visit storage read v1 publishes failed or was cut, which r2
+  // records as a storage-snapshot loss on that family alone.
+  if (family === "storage" && run.quality.reasons.includes(LEGACY_STORAGE_SNAPSHOT_REASON)) return true;
   // The page leaving while the probe ran drops its requests and its
   // fingerprinting on r2; the cookies and storage read before it stand.
   if (

@@ -128,6 +128,7 @@ import {
   MAX_RECORDED_REQUEST_URL_CHARS,
   PAGE_LEFT_SUBJECT_BEFORE_STATE_WARNING,
   PIXEL_DECODE_CAPTURE_LOSS_WARNING,
+  STORAGE_SNAPSHOT_CAPTURE_LOSS_WARNING,
   UNSETTLED_ROUTED_REQUEST_WARNING,
   ScanNetworkRecorder,
   ScanRequestBudget,
@@ -1688,7 +1689,7 @@ export async function scanSiteWithMeasurement(
         );
       }
     };
-    const collectStorageSnapshot = async (phaseId: number): Promise<StorageRecord[]> => {
+    const collectStorageSnapshot = async (phaseId: number, onTruncated?: () => void): Promise<StorageRecord[]> => {
       const collection = await collectStorageEntriesWithCoverage(page, boundedPageCollectorKey);
       if (collection.truncated) {
         measurementKernel.recordCaptureLoss({
@@ -1698,6 +1699,7 @@ export async function scanSiteWithMeasurement(
           count: Math.max(1, collection.omittedCount),
           detail: "storage-snapshot"
         });
+        onTruncated?.();
       }
       return collection.records;
     };
@@ -2083,6 +2085,10 @@ export async function scanSiteWithMeasurement(
     let tentativeFinalUrl = trustedSubjectUrl;
     let tentativeCookies: CookieRecord[] = [];
     let tentativeStorage: PassiveBoundaryOutcome<StorageRecord[]> = { ok: false, kind: "dropped" };
+    // Whether this state read's storage collection was cut at its bounds. The
+    // collection records its truncated loss itself, whether or not the bundle
+    // is committed below, so the v1 line follows this flag, not the commit.
+    let finalStorageReadTruncated = false;
     let tentativeFingerprintCollection: FingerprintObservationCollection = {
       observations: { events: [], detections: [] },
       attemptedFrames: 0,
@@ -2112,7 +2118,12 @@ export async function scanSiteWithMeasurement(
       if (options.duringSubjectStateReadsForTests) await options.duringSubjectStateReadsForTests(page);
       tentativeCookies = await withScanTimeout(collectCookies(context, trustedSubjectHostname), started);
       tentativeStorage = await capturePassiveBoundary(
-        withScanTimeout(collectStorageSnapshot(stateSnapshotPhaseId), started)
+        withScanTimeout(
+          collectStorageSnapshot(stateSnapshotPhaseId, () => {
+            finalStorageReadTruncated = true;
+          }),
+          started
+        )
       );
       tentativeFingerprintCollection = await withScanTimeout(
         collectFingerprintObservationsWithCoverage(page.frames(), readWorkerRealmsAtFreeze()),
@@ -2290,6 +2301,14 @@ export async function scanSiteWithMeasurement(
           detail: "storage-snapshot"
         });
       }
+    }
+    // v1 publishes only this read's storage, with no quality block, so without
+    // a line an unread or cut list reads as the page's whole storage. Added
+    // exactly where r2 records this read's storage-snapshot loss: a committed
+    // read that failed, or a read cut at its bounds (recorded as it ran, so
+    // also when the page then left and the bundle was not committed).
+    if ((subjectStateTrusted && !finalStorage.ok) || finalStorageReadTruncated) {
+      warnings.add(STORAGE_SNAPSHOT_CAPTURE_LOSS_WARNING);
     }
     if (!subjectStateTrusted) {
       measurementKernel.recordCaptureLoss({

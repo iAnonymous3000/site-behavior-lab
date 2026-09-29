@@ -89,8 +89,10 @@ import {
   KEYSTROKE_PROBE_PAGE_LEFT_WARNING,
   KEYSTROKE_PROBE_REQUEST_UNREAD_WARNING,
   KEYSTROKE_PROBE_TEST_INCOMPLETE_WARNING,
+  MAX_CAPTURED_STORAGE_KEY_CHARS,
   PAGE_LEFT_SUBJECT_BEFORE_STATE_WARNING,
-  PIXEL_DECODE_CAPTURE_LOSS_WARNING
+  PIXEL_DECODE_CAPTURE_LOSS_WARNING,
+  STORAGE_SNAPSHOT_CAPTURE_LOSS_WARNING
 } from "./scan-runtime";
 import { resolveScannerEgressLabel, resolveScannerEgressRegion } from "./scanner-egress";
 import { buildReportFacts } from "./report-facts";
@@ -5026,6 +5028,13 @@ test("a page that left the site before its state was read withholds on v1 each c
     assert.equal(measurement.measurement.phases.some((phase) => phase.kind === "active-probe"), false);
     assert.equal(result.warnings.includes(ACTIVE_PROBE_SUBJECT_WARNING), true);
     assert.equal(result.warnings.filter((warning) => warning === PAGE_LEFT_SUBJECT_BEFORE_STATE_WARNING).length, 1);
+    // No storage read ran, so r2 records no storage-snapshot loss and v1 no
+    // storage-read line: the line above carries the storage family.
+    assert.equal(
+      measurement.measurement.qualityFacts.captureLoss.some((loss) => loss.detail === "storage-snapshot"),
+      false
+    );
+    assert.equal(result.warnings.includes(STORAGE_SNAPSHOT_CAPTURE_LOSS_WARNING), false);
 
     const { r2, v1, v1Report } = bothWireDisplayFacts(visit);
     assert.equal(v1Report.warnings.includes(PAGE_LEFT_SUBJECT_BEFORE_STATE_WARNING), true);
@@ -7284,3 +7293,130 @@ for (const variant of ["child-frame", "main-frame"] as const) {
     }
   });
 }
+
+test("a storage read v1 publishes that was cut at its bounds withholds storage keys on v1 as r2 does", { timeout: 60_000 }, async () => {
+  // A key past the key bound is left out of the read, which records a
+  // truncated storage-snapshot loss. On the end-of-visit read, the one v1
+  // publishes, r2 censors the storage family and withholds storage keys; v1
+  // published the cut list with no line, so its reader allowed and
+  // benchmarked the claim. The passive-boundary read of a consent visit is
+  // never published on v1, so a key the click removes cuts that read alone
+  // and adds no line.
+  const longKey = "k".repeat(MAX_CAPTURED_STORAGE_KEY_CHARS + 1);
+  const upstream = createServer((request, response) => {
+    const host = request.headers.host?.split(":")[0] ?? "";
+    response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+    if (host === "www.storage-passive.net") {
+      response.end(`<!doctype html><title>Passive storage fixture</title>
+        <script>
+          localStorage.setItem("seen", "1");
+          localStorage.setItem(${JSON.stringify(longKey)}, "1");
+          window.acceptAll = () => {
+            localStorage.removeItem(${JSON.stringify(longKey)});
+            document.getElementById("consent-banner").hidden = true;
+          };
+        </script>
+        <div id="consent-banner"><button onclick="acceptAll()">Accept all</button></div>`);
+      return;
+    }
+    response.end(`<!doctype html><title>Storage cut fixture</title>
+      <script>
+        localStorage.setItem("seen", "1");
+        localStorage.setItem(${JSON.stringify(longKey)}, "1");
+      </script>`);
+  });
+  await new Promise<void>((resolve, reject) => {
+    upstream.once("error", reject);
+    upstream.listen(0, "127.0.0.1", resolve);
+  });
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+  const previousConsentVerification = process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
+  process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = "1";
+  const options = {
+    publicUrlAlreadyVerified: true,
+    verifyPublicUrl: async () => undefined,
+    resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 as const }],
+    connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"),
+    resolveCnameChain: async () => []
+  };
+  try {
+    const cut = await scanSiteWithMeasurement(
+      { url: "http://www.storage-cut.net/", device: "desktop", gpcEnabled: false, consentMode: "observe" },
+      options
+    );
+    assert.equal(cut.result.storage.length, 1, "the read keeps the key inside its bounds");
+    assert.deepEqual(
+      cut.measurement.measurement.qualityFacts.captureLoss.filter((loss) => loss.family === "storage"),
+      [{ family: "storage", phaseId: 0, kind: "truncated", count: 1, detail: "storage-snapshot" }]
+    );
+    assert.equal(cut.result.warnings.includes(STORAGE_SNAPSHOT_CAPTURE_LOSS_WARNING), true);
+    const { r2, v1, v1Report } = bothWireDisplayFacts(cut);
+    assert.equal(v1Report.warnings.includes(STORAGE_SNAPSHOT_CAPTURE_LOSS_WARNING), true, "the sanitizer admits the line");
+    assert.equal(r2.evidence.storage.state, "censored");
+    assert.equal(v1.evidence.storage.state, "censored");
+    assert.equal(r2.claims["storage-keys"].allowed, false);
+    assert.equal(v1.claims["storage-keys"].allowed, false);
+    assert.equal(v1.claims["storage-keys"].benchmarkAllowed, false);
+    for (const family of ["requests", "cookies", "fingerprinting", "detector-output"] as const) {
+      assert.equal(v1.evidence[family].state, "complete", family);
+    }
+    assertV1WithholdsEachClaimR2Withholds(r2, v1);
+
+    // The same read failing outright publishes no storage and records the loss
+    // as dropped. The hook makes the page's storage collector call throw.
+    const failed = await scanSiteWithMeasurement(
+      { url: "http://www.storage-cut.net/", device: "desktop", gpcEnabled: false, consentMode: "observe" },
+      {
+        ...options,
+        duringSubjectStateReadsForTests: async (page) => {
+          type Evaluate = (...args: unknown[]) => Promise<unknown>;
+          const evaluate = (page.evaluate as Evaluate).bind(page);
+          (page as unknown as { evaluate: Evaluate }).evaluate = async (...args) => {
+            if ((args[1] as { method?: unknown } | undefined)?.method === "storage") {
+              throw new Error("synthetic storage read failure");
+            }
+            return evaluate(...args);
+          };
+        }
+      }
+    );
+    assert.equal(failed.result.storage.length, 0);
+    assert.deepEqual(
+      failed.measurement.measurement.qualityFacts.captureLoss.filter((loss) => loss.family === "storage"),
+      [{ family: "storage", phaseId: 0, kind: "dropped", count: 1, detail: "storage-snapshot" }]
+    );
+    assert.equal(failed.result.warnings.includes(STORAGE_SNAPSHOT_CAPTURE_LOSS_WARNING), true);
+    const failedFacts = bothWireDisplayFacts(failed);
+    assert.equal(failedFacts.v1.claims["storage-keys"].allowed, false);
+    assertV1WithholdsEachClaimR2Withholds(failedFacts.r2, failedFacts.v1);
+
+    const passive = await scanSiteWithMeasurement(
+      { url: "http://www.storage-passive.net/", device: "desktop", gpcEnabled: false, consentMode: "accept-all" },
+      options
+    );
+    assert.equal(passive.result.consentInteraction?.clicked, true, "the fixture's control must register the click");
+    const phaseOf = (kind: string) =>
+      passive.measurement.measurement.phases.find((phase) => phase.kind === kind)?.phaseId ?? null;
+    // The fixture sets the long key again on the verification reload, which
+    // the reload's own read also reports; neither read is published on v1.
+    assert.deepEqual(
+      passive.measurement.measurement.qualityFacts.captureLoss
+        .filter((loss) => loss.family === "storage")
+        .map((loss) => [loss.phaseId, loss.kind, loss.detail]),
+      [
+        [phaseOf("passive-load"), "truncated", "storage-snapshot"],
+        [phaseOf("post-choice-reload"), "truncated", "storage-snapshot"]
+      ],
+      "the end-of-visit read at the consent phase was not cut"
+    );
+    assert.notEqual(phaseOf("consent-interaction"), null);
+    assert.equal(passive.result.storage.length, 1);
+    assert.equal(passive.result.warnings.includes(STORAGE_SNAPSHOT_CAPTURE_LOSS_WARNING), false);
+  } finally {
+    if (previousConsentVerification === undefined) delete process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
+    else process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = previousConsentVerification;
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+});

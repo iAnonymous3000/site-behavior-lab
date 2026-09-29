@@ -33,6 +33,7 @@ import {
   LEGACY_KEYSTROKE_PROBE_TEST_INCOMPLETE_REASON,
   LEGACY_LISTENER_DETECTION_WITHHELD_REASON,
   LEGACY_PAGE_LEFT_SUBJECT_BEFORE_STATE_REASON,
+  LEGACY_STORAGE_SNAPSHOT_REASON,
   requestEvidenceState,
   runHitRequestRecordingCap,
   runInCorpusDistributionPopulation,
@@ -53,6 +54,7 @@ import {
   runHitKeystrokeProbeRequestUnread,
   runHitKeystrokeProbeTestIncomplete,
   runHitListenerDetectionWithheld,
+  runHitStorageSnapshotCaptureLoss,
   runHitUnsettledRoutedRequests,
   runKeystrokeProbeLeftSubject,
   runKeystrokeProbePageLeft,
@@ -80,6 +82,7 @@ import {
   LISTENER_DETECTION_WITHHELD_WARNING,
   PAGE_LEFT_SUBJECT_BEFORE_STATE_WARNING,
   PIXEL_DECODE_CAPTURE_LOSS_WARNING,
+  STORAGE_SNAPSHOT_CAPTURE_LOSS_WARNING,
   UNSETTLED_ROUTED_REQUEST_WARNING
 } from "./scan-runtime";
 import type { ScanResult } from "./types";
@@ -753,7 +756,8 @@ test("each probe and request-loss line is recognized by its own predicate alone"
     ["historical-typed-omitted", `${HISTORICAL_TYPED_FIELD_DISCLOSURE} ${REQUESTS_OMITTED_TAIL}`],
     ["probe-page-left", KEYSTROKE_PROBE_PAGE_LEFT_WARNING],
     ["before-state", PAGE_LEFT_SUBJECT_BEFORE_STATE_WARNING],
-    ["auxiliary", AUXILIARY_PAGE_REQUESTS_BLOCKED_WARNING]
+    ["auxiliary", AUXILIARY_PAGE_REQUESTS_BLOCKED_WARNING],
+    ["storage", STORAGE_SNAPSHOT_CAPTURE_LOSS_WARNING]
   ];
   const predicates: [string, (run: { warnings: string[] }) => boolean, string[]][] = [
     ["incomplete", runHitKeystrokeProbeCaptureLoss, ["incomplete"]],
@@ -767,7 +771,8 @@ test("each probe and request-loss line is recognized by its own predicate alone"
     ["omitted", runHitKeystrokeProbeRequestsOmitted, ["typed-omitted", "historical-typed-omitted"]],
     ["probe-page-left", runKeystrokeProbePageLeft, ["probe-page-left"]],
     ["before-state", runPageLeftSubjectBeforeState, ["before-state"]],
-    ["auxiliary", runHitAuxiliaryPageRequestsBlocked, ["auxiliary"]]
+    ["auxiliary", runHitAuxiliaryPageRequestsBlocked, ["auxiliary"]],
+    ["storage", runHitStorageSnapshotCaptureLoss, ["storage"]]
   ];
   for (const [predicateName, predicate, own] of predicates) {
     for (const [lineName, line] of lines) {
@@ -1121,6 +1126,76 @@ test("v1 lines for a page that left the site or opened a window censor the famil
   for (const line of [PAGE_LEFT_SUBJECT_BEFORE_STATE_WARNING, KEYSTROKE_PROBE_PAGE_LEFT_WARNING]) {
     assert.deepEqual(outcome([line]).facts.claims["keystroke-exfiltration"], clean.facts.claims["keystroke-exfiltration"], line);
   }
+});
+
+test("each v1 line for a read or detector r2 records as incomplete withholds what r2 withholds and nothing else", () => {
+  // Each line is added exactly where r2 records the loss named beside it, and
+  // v1 readers used to read the visit as complete: the claim stood, and a
+  // counted one was benchmarked. A line whose r2 loss censors a whole family
+  // censors that family; a line whose r2 loss is scoped to one claim censors
+  // that claim alone. None is request loss. Each run goes through the real
+  // sanitizer, view, facts and corpus accumulator.
+  const outcome = (warnings: string[]) => {
+    const input = makeScanReportV1() as ScanResult;
+    input.summary.firstPartyDomain = "probe-fixture.net";
+    input.conditions.requestedUrl = "https://probe-fixture.net/";
+    input.conditions.finalUrl = "https://probe-fixture.net/";
+    input.fingerprintDetections = [];
+    input.pixelEvents = [];
+    input.cnameCloaks = [];
+    input.warnings = warnings;
+    const report = redactScanResultV1(input).report;
+    const view = viewFromV1Report(report);
+    const corpus = createCorpusStatsAccumulator(new Date("2026-09-25T00:00:00.000Z"));
+    corpus.add(`20260709-${"e".repeat(32)}`, view);
+    return { report, view, run: view.runs[0], facts: buildReportFacts(view).display, cohorts: corpus.finish().cohorts };
+  };
+  const clean = outcome([]);
+  const families = ["requests", "cookies", "storage", "fingerprinting", "detector-output", "consent-verification"] as const;
+  const cases: {
+    warning: string;
+    reason: string;
+    censored: readonly (typeof families)[number][];
+    withheld: readonly string[];
+    note: RegExp;
+  }[] = [
+    {
+      warning: STORAGE_SNAPSHOT_CAPTURE_LOSS_WARNING,
+      reason: LEGACY_STORAGE_SNAPSHOT_REASON,
+      censored: ["storage"],
+      withheld: ["storage-keys"],
+      note: /could not read the page's storage in full at the end of the visit, so the storage evidence is incomplete/
+    }
+  ];
+  assert.deepEqual(clean.run.quality.reasons, []);
+  for (const { warning, reason, censored, withheld, note } of cases) {
+    const lost = outcome([warning]);
+    assert.deepEqual(lost.report.warnings, [warning], warning);
+    assert.deepEqual(lost.run.quality.reasons, [reason], warning);
+    assert.equal(lost.run.quality.outcome, "complete", warning);
+    for (const family of families) {
+      assert.equal(familyCensoredOnRun(lost.run, family), censored.includes(family), `${warning}: ${family}`);
+    }
+    assert.equal(runRequestEvidenceCapped(lost.report), false, warning);
+    assert.equal(requestEvidenceState(lost.run), "complete", warning);
+    assert.equal(runInCorpusDistributionPopulation(lost.run), true, warning);
+    assert.deepEqual(lost.cohorts, clean.cohorts, warning);
+    for (const claim of Object.keys(clean.facts.claims) as (keyof typeof clean.facts.claims)[]) {
+      if (!withheld.includes(claim)) {
+        assert.deepEqual(lost.facts.claims[claim], clean.facts.claims[claim], `${warning}: ${claim}`);
+        continue;
+      }
+      assert.equal(clean.facts.claims[claim].allowed, true, `${warning}: ${claim}`);
+      assert.equal(lost.facts.claims[claim].allowed, false, `${warning}: ${claim}`);
+      assert.deepEqual(lost.facts.claims[claim].blockers, ["family-censored"], `${warning}: ${claim}`);
+      assert.equal(lost.facts.claims[claim].benchmarkAllowed, false, `${warning}: ${claim}`);
+    }
+    const notes = runCensorshipNotes(lost.run).join(" ");
+    assert.match(notes, note, warning);
+    assert.doesNotMatch(notes, /capture-loss:/, warning);
+    assert.notEqual(degradedRunNotice(lost.view), null, warning);
+  }
+  assert.equal(clean.facts.claims["storage-keys"].benchmarkAllowed, true);
 });
 
 test("a timed-out v1 synthetic-input probe censors detector and request evidence", () => {

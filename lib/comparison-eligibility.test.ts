@@ -18,6 +18,7 @@ import {
   runHitPixelDecodeCaptureLoss,
   runHitRequestCap,
   runHitResponseByteCap,
+  runHitStorageSnapshotCaptureLoss,
   runHitUploadByteCap,
   runRequestEvidenceCapped,
   temporalPairEligibility
@@ -39,6 +40,7 @@ import {
   PIXEL_DECODE_CAPTURE_LOSS_WARNING,
   ScanRequestBudget,
   ScanWarningCollector,
+  STORAGE_SNAPSHOT_CAPTURE_LOSS_WARNING,
   UNSETTLED_ROUTED_REQUEST_WARNING
 } from "./scan-runtime";
 import { SCAN_REPORT_SCHEMA_VERSION, type ComparisonScanResult, type ScanConditions, type ScanResult } from "./types";
@@ -496,6 +498,25 @@ test("the input probe's other claim-scoped lines are not request loss", () => {
   const consentLeft = makeRun({ totalRequests: 20 });
   consentLeft.warnings = [CONSENT_INTERACTION_LEFT_SUBJECT_WARNING];
   assert.equal(runRequestEvidenceCapped(consentLeft), true);
+});
+
+test("lines for a storage read or a detector r2 records as incomplete are not request loss", () => {
+  // Each is read as the storage family or one claim, where r2 records its
+  // loss. None may make a pair ineligible or read as request-evidence loss.
+  const lines: [string, (run: Pick<ScanResult, "warnings">) => boolean][] = [
+    [STORAGE_SNAPSHOT_CAPTURE_LOSS_WARNING, runHitStorageSnapshotCaptureLoss]
+  ];
+  for (const [warning, predicate] of lines) {
+    const run = makeRun({ totalRequests: 20 });
+    run.warnings = [warning];
+    assert.equal(predicate(run), true, warning);
+    assert.equal(runRequestEvidenceCapped(run), false, warning);
+    assert.deepEqual(
+      comparisonEligibility(shieldsPair(makeRun({}), run)),
+      comparisonEligibility(shieldsPair(makeRun({}), makeRun({ totalRequests: 20 }))),
+      warning
+    );
+  }
 });
 
 test("mismatched subjects, devices, and pipelines each disqualify", () => {

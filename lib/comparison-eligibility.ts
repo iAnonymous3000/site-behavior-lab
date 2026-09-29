@@ -75,6 +75,7 @@ const INVALID_UPSTREAM_RESPONSE_WARNING_FRAGMENT = "scan proxy rejected one or m
 const UNSETTLED_ROUTED_REQUEST_WARNING_FRAGMENT =
   "still being handled, so this visit's request evidence is incomplete";
 const PROXY_TRAFFIC_BUDGET_WARNING_FRAGMENT = "connection and target safety budget";
+const STORAGE_SNAPSHOT_WARNING_FRAGMENT = "could not read this page's storage in full";
 
 export function comparisonEligibility(report: ComparisonScanResult): ComparisonEligibility {
   const reasons: string[] = [];
@@ -733,6 +734,18 @@ export function runKeystrokeProbeLeftSubject(run: Pick<ScanResult, "warnings">):
  */
 export function runConsentInteractionLeftSubject(run: Pick<ScanResult, "warnings">): boolean {
   return run.warnings.includes(CONSENT_INTERACTION_LEFT_SUBJECT_WARNING);
+}
+
+/**
+ * Whether a legacy run's end-of-visit storage read, the one v1 publishes,
+ * failed or was cut at its capture bounds. The r2 twin is a `storage-snapshot`
+ * capture loss on the storage family at the state read's phase, which censors
+ * that family, so readers censor the storage family for it. It says nothing
+ * about requests, so it never enters runRequestEvidenceCapped or comparison
+ * eligibility.
+ */
+export function runHitStorageSnapshotCaptureLoss(run: Pick<ScanResult, "warnings">): boolean {
+  return run.warnings.some((warning) => warning.includes(STORAGE_SNAPSHOT_WARNING_FRAGMENT));
 }
 
 export function runRequestEvidenceCapped(run: ScanResult): boolean {

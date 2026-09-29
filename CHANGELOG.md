@@ -612,6 +612,20 @@ public API or a 1.0 release.
   `node-v16-detectors-v12-active-lists-2026-09-28` and
   `node-v16-detectors-v12-active-no-adblock`. No PageGraph row moves.
 
+### v1 claims r2 withholds
+
+For the same visit, the v1 report allowed claims the r2 report withholds.
+Each cause below now leaves a v1 line where r2 records its loss, and v1
+readers withhold what r2 withholds there. No committed v1 report carries any
+of these lines, so none reads differently.
+
+- The end-of-visit storage read, the one v1 publishes, that failed or was cut
+  at its bounds left v1 publishing the empty or cut list with no line, so the
+  storage keys stood and were benchmarked. A new fixed warning now says the
+  scanner could not read the page's storage in full, and v1 readers censor the
+  storage family for it, as r2 does. The passive-boundary and reload reads,
+  which v1 never publishes, do not add it.
+
 ## [0.6.0] - 2026-09-06
 
 Declared on 2026-09-06 (the date above) and tagged `v0.6.0` on 2026-09-24 at

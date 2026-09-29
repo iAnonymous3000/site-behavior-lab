@@ -53,6 +53,10 @@ const QUALITY_REASON_NOTES: Record<string, string> = {
     "the page opened one or more new windows or tabs whose requests were blocked and left out of the request log, so the request evidence is incomplete",
   "capture-loss:page-subject-validity":
     "the bounded page-content collector was unavailable or unreadable, so the scanner could not verify the rendered document",
+  // v1 only (LEGACY_STORAGE_SNAPSHOT_REASON). r2 reports the same read as a
+  // storage-snapshot capture loss on the storage family.
+  "capture-loss:storage-snapshot":
+    "the scanner could not read the page's storage in full at the end of the visit, so the storage evidence is incomplete",
   // v1 only (LEGACY_LISTENER_DETECTION_WITHHELD_REASON). r2 reports the same
   // drop as a capture-loss detail, never as this reason.
   "capture-loss:public-fingerprint-detections":

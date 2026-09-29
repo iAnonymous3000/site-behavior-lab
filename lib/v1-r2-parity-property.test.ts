@@ -57,6 +57,7 @@ import {
   MAX_RECORDED_REQUESTS,
   PAGE_LEFT_SUBJECT_BEFORE_STATE_WARNING,
   PIXEL_DECODE_CAPTURE_LOSS_WARNING,
+  STORAGE_SNAPSHOT_CAPTURE_LOSS_WARNING,
   UNSETTLED_ROUTED_REQUEST_WARNING
 } from "./scan-runtime";
 import { recordedDetails, stringConstants } from "./producer-loss-source";
@@ -696,6 +697,10 @@ function scannerDraft(visit: Visit): Draft {
     if (finalFrame || finalListener || finalWorker) loss(draft, "fingerprinting", snapshot, "dropped", "fingerprint-observer");
     if (visit.losses.includes("final-storage-failed")) loss(draft, "storage", snapshot, "dropped", "storage-snapshot");
     else if (visit.losses.includes("final-storage-truncated")) loss(draft, "storage", snapshot, "truncated", "storage-snapshot");
+    // Beside exactly that loss (finalStorageReadTruncated or a committed read that failed).
+    if (visit.losses.includes("final-storage-failed") || visit.losses.includes("final-storage-truncated")) {
+      line(draft, STORAGE_SNAPSHOT_CAPTURE_LOSS_WARNING);
+    }
     if (visit.fingerprint === "frame-failed") {
       detector(draft, "fingerprint-heuristics", "failed", "engine-unavailable", snapshot);
     } else if (
@@ -1346,23 +1351,6 @@ const ALLOWED_DIVERGENCES: readonly AllowedDivergence[] = [
       visit.evidence.listener === "unpublishable" &&
       loss.family === "detector-output" &&
       loss.detail === "public-fingerprint-detections"
-  },
-  // TODO(v1-r2-parity finding P1): a final storage read that failed or was
-  // truncated. r2 records a storage-snapshot loss; v1 publishes the empty or
-  // cut list with no line, so its storage-keys claim stands and is
-  // benchmarked. Closing it needs a new admitted v1 line (an identity change).
-  {
-    name: "final-storage-read-lost-has-no-v1-line",
-    record: "finding P1 (property test, 2026-09-28): scanSiteWithMeasurement, the finalStorage branch",
-    todo: true,
-    covers: (visit, violation) =>
-      (visit.losses.includes("final-storage-failed") || visit.losses.includes("final-storage-truncated")) &&
-      violation.subject === "storage-keys",
-    coversLoss: (visit, loss) =>
-      (visit.losses.includes("final-storage-failed") || visit.losses.includes("final-storage-truncated")) &&
-      loss.family === "storage" &&
-      loss.detail === "storage-snapshot" &&
-      loss.phaseId === phasePlan(visit).snapshot
   },
   // TODO(v1-r2-parity finding P2): an interrupted post-click settle. r2
   // records dropped request, cookie and storage losses at the consent phase;
