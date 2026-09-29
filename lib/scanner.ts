@@ -1969,18 +1969,21 @@ export async function scanSiteWithMeasurement(
           phaseId: consentPhaseId
         });
         recordConsentCoverageLoss(consentPhaseId, "dropped", verificationEnabled);
-      } else if (consentProbeState.failure === "dispatch-unconfirmed") {
+      } else if (
+        consentProbeState.failure === "dispatch-unconfirmed" ||
+        consentProbeState.failure === "scan-failed" ||
+        consentProbeState.failure === "engine-unavailable"
+      ) {
+        // A search that threw, or that read no frame, is partial too, never
+        // failed. The phase began, so the consent facts claim an attempt and
+        // the after-interaction reads below still run in it: the detector
+        // reported activity, and failed beside that attempt is a report the
+        // r2 consent evaluator refuses, which failed the whole public scan.
+        // Partial admits no engine-unavailable reason, and what was lost in
+        // each case is the search's own evaluation, so all three say
+        // scan-failed. The failure itself still names the v1 consent line.
         measurementKernel.setDetector("consent-banner", "partial", {
           reason: "scan-failed",
-          phaseId: consentPhaseId
-        });
-        recordConsentCoverageLoss(consentPhaseId, "dropped", verificationEnabled);
-      } else if (consentProbeState.failure === "scan-failed") {
-        measurementKernel.setDetector("consent-banner", "failed", { reason: "scan-failed", phaseId: consentPhaseId });
-        recordConsentCoverageLoss(consentPhaseId, "dropped", verificationEnabled);
-      } else if (consentProbeState.failure === "engine-unavailable") {
-        measurementKernel.setDetector("consent-banner", "failed", {
-          reason: "engine-unavailable",
           phaseId: consentPhaseId
         });
         recordConsentCoverageLoss(consentPhaseId, "dropped", verificationEnabled);
@@ -2300,12 +2303,20 @@ export async function scanSiteWithMeasurement(
         reason: "load-failed",
         phaseId: stateSnapshotPhaseId
       });
-    } else if (fingerprintFrameCoverage === "failed") {
+    } else if (fingerprintFrameCoverage === "failed" && fingerprintCollection.readableWorkerRealms === 0) {
       measurementKernel.setDetector("fingerprint-heuristics", "failed", {
         reason: "engine-unavailable",
         phaseId: stateSnapshotPhaseId
       });
-    } else if (fingerprintCoverageIncomplete || fingerprintAttribution.attributionIncomplete) {
+    } else if (
+      // No frame was readable, but a worker realm was, and its evidence
+      // publishes: the detector reported activity with the frames lost, as
+      // for a partly readable page. Recorded failed beside that evidence, the
+      // r2 evaluator refused the report and the whole public scan failed.
+      fingerprintFrameCoverage === "failed" ||
+      fingerprintCoverageIncomplete ||
+      fingerprintAttribution.attributionIncomplete
+    ) {
       measurementKernel.setDetector("fingerprint-heuristics", "partial", {
         reason: "scan-failed",
         phaseId: stateSnapshotPhaseId
@@ -2898,7 +2909,12 @@ export async function scanSiteWithMeasurement(
         detail: "cname-lookups"
       });
     } else if (cnameProbeFailed) {
-      measurementKernel.setDetector("cname-uncloaking", "failed", {
+      // A lookup that failed beside one that resolved to a cloak keeps the
+      // cloak, which publishes, so the detector reported activity with the
+      // failed lookups lost: partial. Recorded failed beside that evidence,
+      // the r2 evaluator refused the report and the whole public scan failed.
+      // With no cloak kept, nothing publishes and the probe stays failed.
+      measurementKernel.setDetector("cname-uncloaking", cnameCloaks.length > 0 ? "partial" : "failed", {
         reason: "scan-failed",
         phaseId: stateSnapshotPhaseId
       });

@@ -256,6 +256,19 @@ export const DETECTOR_OBLIGATION_REGISTRY: readonly DetectorObligationRule[] = O
       "detector-phase"
     )
   }),
+  // A lookup that failed beside a found cloak: the cloak publishes, so the
+  // detector is partial, with the failed lookups as its loss.
+  Object.freeze({
+    detector: "cname-uncloaking",
+    status: "partial",
+    reason: "scan-failed",
+    loss: freezeLoss(
+      "detector-output",
+      "cname-lookups",
+      ["dropped"],
+      "detector-phase"
+    )
+  }),
   Object.freeze({
     detector: "cname-uncloaking",
     status: "skipped",

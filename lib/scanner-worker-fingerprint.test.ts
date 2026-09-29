@@ -2,7 +2,9 @@ import assert from "node:assert/strict";
 import { createServer, type Server } from "node:http";
 import { connect } from "node:net";
 import { test } from "node:test";
+import type { Page } from "playwright";
 import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "./gpc-injection";
+import { DETECTOR_VERSIONS } from "./measurement-kernel";
 import type { NodeScanMeasurementEnvelope } from "./node-scan-measurement";
 import { buildReportFacts } from "./report-facts";
 import {
@@ -415,6 +417,85 @@ test("a page that starts a shared worker never reads clean: one unread realm on 
   assert.equal(accounting.v1Benchmark, false);
   assert.equal(accounting.r2Benchmark, false);
   assert.equal(accounting.r2WorkerLine, true);
+});
+
+/**
+ * Make every frame's fingerprint snapshot read at the final freeze reject, as
+ * it does for a frame whose document is replaced mid-read, and count them.
+ * The page cannot do this itself: the snapshot accessor is not configurable.
+ */
+function rejectFingerprintFrameReads(page: Page, rejected: { count: number }): void {
+  for (const frame of page.frames()) {
+    const evaluate = frame.evaluate.bind(frame) as (fn: unknown, arg?: unknown) => Promise<unknown>;
+    Object.defineProperty(frame, "evaluate", {
+      configurable: true,
+      writable: true,
+      value: (fn: unknown, arg?: unknown) => {
+        if (!String(fn).includes("__siteBehaviorLabFingerprintSnapshot")) return evaluate(fn, arg);
+        rejected.count += 1;
+        return Promise.reject(new Error("Execution context was destroyed, most likely because of a navigation"));
+      }
+    });
+  }
+}
+
+/**
+ * No frame is readable at the final read, and a dedicated worker realm is.
+ * The worker's canvas readback publishes, so the detector reported activity:
+ * recorded failed beside that evidence, the r2 evaluator refused the report
+ * and the whole public scan failed. With no realm read at all the detector
+ * still fails, and nothing publishes beside it.
+ */
+test("unreadable frames beside a read worker realm publish a partial detector; with no realm read it stays failed", { timeout: 90_000 }, async (t) => {
+  withConsentVerification(t);
+  const { port, done } = await startWorkerPage(t, {
+    page: `<!doctype html><title>Unreadable frames</title><main><p>Ordinary public page.</p></main>
+      <script>new Worker("/canvas.js");</script>`,
+    scripts: { "/canvas.js": `${CANVAS_READ_SOURCE} fetch(self.location.origin + "/done/canvas");` }
+  });
+
+  const readRejections = { count: 0 };
+  const workerRead = fingerprintAccounting(
+    await scanSiteWithMeasurement(
+      { url: "http://www.unreadable-frames.com/", device: "desktop", gpcEnabled: false, consentMode: "observe" },
+      { ...scanOptions(port), duringSubjectStateReadsForTests: async (page) => rejectFingerprintFrameReads(page, readRejections) }
+    )
+  );
+  assert.equal(readRejections.count, 1, "the one frame's final fingerprint read must be the one refused");
+  assert.deepEqual(workerRead.heuristics, ["openwpm-canvas-v1"], "the worker's canvas readback is kept");
+  assert.deepEqual(workerRead.detector, {
+    version: DETECTOR_VERSIONS["fingerprint-heuristics"],
+    status: "partial",
+    reason: "scan-failed",
+    phaseId: 0
+  });
+  assert.deepEqual(workerRead.lines, { frame: true, listener: false, workerRealm: false });
+  assert.deepEqual(workerRead.losses, [[0, "dropped", 1]], "the one unreadable frame is the loss");
+  assert.equal(workerRead.v1Benchmark, false);
+  assert.equal(workerRead.r2Benchmark, false);
+
+  const noRealmRejections = { count: 0 };
+  const noRealmRead = fingerprintAccounting(
+    await scanSiteWithMeasurement(
+      { url: "http://www.unreadable-frames-no-channel.com/", device: "desktop", gpcEnabled: false, consentMode: "observe" },
+      {
+        ...scanOptions(port),
+        forceWorkerRealmChannelUnavailableForTests: true,
+        duringSubjectStateReadsForTests: async (page) => rejectFingerprintFrameReads(page, noRealmRejections)
+      }
+    )
+  );
+  assert.deepEqual(done, ["canvas", "canvas"], "the worker ran in both visits");
+  assert.equal(noRealmRejections.count, 1);
+  assert.deepEqual(noRealmRead.heuristics, []);
+  assert.deepEqual(noRealmRead.detector, {
+    version: DETECTOR_VERSIONS["fingerprint-heuristics"],
+    status: "failed",
+    reason: "engine-unavailable",
+    phaseId: 0
+  });
+  assert.deepEqual(noRealmRead.lines, { frame: true, listener: false, workerRealm: true });
+  assert.deepEqual(noRealmRead.losses, [[0, "dropped", 2]], "the unreadable frame and the unread realm");
 });
 
 /** Design test 4, end to end: a nested worker is observed in its own realm and costs nothing. */

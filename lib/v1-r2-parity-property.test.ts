@@ -614,14 +614,15 @@ function scannerDraft(visit: Visit): Draft {
     } else if (failure === "search-interrupted") {
       detector(draft, "consent-banner", "partial", "load-failed", draft.consent);
       consentCoverageLoss(draft.consent, "dropped", true);
-    } else if (failure === "frames-unreadable" || failure === "dispatch-unconfirmed") {
+    } else if (
+      failure === "frames-unreadable" ||
+      failure === "dispatch-unconfirmed" ||
+      failure === "scan-failed" ||
+      failure === "engine-unavailable"
+    ) {
+      // Once the phase began, a search that threw or read no frame is
+      // partial like the rest: the consent facts claim the attempt.
       detector(draft, "consent-banner", "partial", "scan-failed", draft.consent);
-      consentCoverageLoss(draft.consent, "dropped", true);
-    } else if (failure === "scan-failed") {
-      detector(draft, "consent-banner", "failed", "scan-failed", draft.consent);
-      consentCoverageLoss(draft.consent, "dropped", true);
-    } else if (failure === "engine-unavailable") {
-      detector(draft, "consent-banner", "failed", "engine-unavailable", draft.consent);
       consentCoverageLoss(draft.consent, "dropped", true);
     } else {
       detector(draft, "consent-banner", "complete", undefined, draft.consent);
@@ -681,9 +682,11 @@ function scannerDraft(visit: Visit): Draft {
     if (finalFrame || finalListener || finalWorker) loss(draft, "fingerprinting", snapshot, "dropped", "fingerprint-observer");
     if (visit.losses.includes("final-storage-failed")) loss(draft, "storage", snapshot, "dropped", "storage-snapshot");
     else if (visit.losses.includes("final-storage-truncated")) loss(draft, "storage", snapshot, "truncated", "storage-snapshot");
-    if (frameFailed) {
+    if (visit.fingerprint === "frame-failed") {
       detector(draft, "fingerprint-heuristics", "failed", "engine-unavailable", snapshot);
     } else if (
+      // frame-failed-worker-evidence: no frame read, a worker realm read and
+      // its evidence published, so the detector reported activity.
       finalFrame ||
       finalListener ||
       finalWorker ||
@@ -738,7 +741,8 @@ function scannerDraft(visit: Visit): Draft {
     detector(draft, "cname-uncloaking", "skipped", "budget-unavailable", snapshot);
     loss(draft, "detector-output", snapshot, "cap", "cname-lookups");
   } else if (visit.cname === "probe-failed") {
-    detector(draft, "cname-uncloaking", "failed", "scan-failed", snapshot);
+    // A failed lookup beside a found cloak keeps the cloak: partial.
+    detector(draft, "cname-uncloaking", cnameCloaks(visit).length > 0 ? "partial" : "failed", "scan-failed", snapshot);
     loss(draft, "detector-output", snapshot, "dropped", "cname-lookups");
   } else if (visit.cname === "omitted-candidates") {
     detector(draft, "cname-uncloaking", "partial", "evidence-cap-reached", snapshot);
@@ -1399,6 +1403,22 @@ const ALLOWED_DIVERGENCES: readonly AllowedDivergence[] = [
     covers: (visit, violation) =>
       visit.cname === "omitted-candidates" && violation.kind === "claim" && violation.subject === "cname-cloaking"
   },
+  // TODO(v1-r2-parity finding P17): P5's shape for a failed lookup. A CNAME
+  // lookup that failed beside a found cloak ends the detector partial (the
+  // R3 fix; before it the r2 builder refused the visit outright, so this
+  // divergence was unreachable) and r2 withholds the claim; v1 records the
+  // cloak, has no line for the failed lookup, and allows it. Closes by a v1
+  // line for the failed lookup, which is a new public string.
+  {
+    name: "cname-lookup-failure-beside-a-cloak-has-no-v1-channel",
+    record: "finding P17 (property test, R3 fix, 2026-09-28): scanSiteWithMeasurement, cnameProbeFailed beside a kept cloak",
+    todo: true,
+    covers: (visit, violation) =>
+      visit.cname === "probe-failed" &&
+      cnameCloaks(visit).length > 0 &&
+      violation.kind === "claim" &&
+      violation.subject === "cname-cloaking"
+  },
   // TODO(v1-r2-parity finding P6): a cookie or storage snapshot lost at the
   // passive boundary or the verification reload of a consent visit. The loss
   // is of r2's phase attribution: v1 publishes only the final snapshot, which
@@ -1558,46 +1578,16 @@ const ALLOWED_DIVERGENCES: readonly AllowedDivergence[] = [
  * Visits the scanner can produce that the r2 builder refuses outright, so the
  * public scan fails instead of publishing. Each is a finding held open like a
  * `todo` divergence above, and each must still be reached (the hit check).
+ *
+ * None is open. Findings R2 to R4 (a consent search that threw or read no
+ * frame after its phase began, a CNAME lookup failure beside a found cloak,
+ * unreadable frames beside a read worker realm) each ended a detector failed
+ * beside evidence it kept; the scanner now ends each partial, and any refusal
+ * the draws reach fails the property.
  */
 type KnownRefusal = { name: string; record: string; covers(visit: Visit, clause: string): boolean };
 
-const KNOWN_BUILDER_REFUSALS: readonly KnownRefusal[] = [
-  // TODO(v1-r2-parity finding R2): a consent search that threw or read no
-  // frame after the interaction phase began. The scanner records the
-  // detector failed with interactionAttempted true; the r2 consent evaluator
-  // requires activity (complete or partial) once an attempt is claimed.
-  {
-    name: "consent-search-failed-after-the-phase-began",
-    record: "finding R2 (property test, 2026-09-28): scan-report-v2-r2-evaluators.ts consent activity rule",
-    covers: (visit, clause) =>
-      (visit.banner === "search-threw" || visit.banner === "engine-unavailable") &&
-      consentPhaseBegan(visit) &&
-      visit.subject !== "consent-left" &&
-      clause.includes("consent evidence present but the consent-banner detector did not report activity")
-  },
-  // TODO(v1-r2-parity finding R3): a CNAME probe where one host's lookup
-  // failed and another resolved to a cloak. The scanner ends the detector
-  // failed and keeps the cloak; the r2 evaluator refuses findings from a
-  // detector that did not report activity.
-  {
-    name: "cname-lookup-failure-beside-a-found-cloak",
-    record: "finding R3 (property test, 2026-09-28): resolveCnameCloaks keeps cloaks after onResolutionFailure",
-    covers: (visit, clause) =>
-      visit.cname === "probe-failed" &&
-      visit.evidence.cnameCloak &&
-      clause.includes("evidence contains CNAME findings but the cname-uncloaking detector did not report activity")
-  },
-  // TODO(v1-r2-parity finding R4): no frame readable but a worker realm read
-  // returned evidence. The scanner ends the detector failed and publishes
-  // the worker's events; the r2 evaluator refuses them.
-  {
-    name: "unreadable-frames-beside-worker-evidence",
-    record: "finding R4 (property test, 2026-09-28): collectFingerprintObservationsWithCoverage merges worker realms",
-    covers: (visit, clause) =>
-      visit.fingerprint === "frame-failed-worker-evidence" &&
-      clause.includes("evidence contains fingerprint observations but the fingerprint-heuristics detector did not report activity")
-  }
-];
+const KNOWN_BUILDER_REFUSALS: readonly KnownRefusal[] = [];
 
 /** The refusal each clause of a builder error matches, or null when any clause is unknown. */
 function knownRefusals(visit: Visit, message: string): KnownRefusal[] | null {
@@ -1859,7 +1849,7 @@ function allVisitFeatures(): string[] {
  * source fact that says so. Every other registry outcome must be one the
  * model draws, so a new outcome the scanner learns to set cannot go unmodeled.
  */
-const OUTCOMES_THE_NODE_SCANNER_NEVER_SETS: ReadonlyArray<{ tuple: string; because: RegExp }> = [
+const OUTCOMES_THE_NODE_SCANNER_NEVER_SETS: ReadonlyArray<{ tuple: string; because: RegExp; absent?: RegExp }> = [
   // The Node scanner declares both probes on for every visit, so neither
   // probe-off exception applies to it.
   ...["keystroke-exfiltration", "privacy-policy"].flatMap((detector) =>
@@ -1872,7 +1862,15 @@ const OUTCOMES_THE_NODE_SCANNER_NEVER_SETS: ReadonlyArray<{ tuple: string; becau
   ...["load-failed", "engine-unavailable"].map((reason) => ({
     tuple: `keystroke-exfiltration/failed/${reason}`,
     because: /status: "failed", reason: "scan-failed", detection: null/
-  }))
+  })),
+  // A consent search that threw once its phase began is partial (finding R2);
+  // the tuple stays registered for the closed epochs that set it.
+  {
+    tuple: "consent-banner/failed/scan-failed",
+    because:
+      /consentProbeState\.failure === "scan-failed" \|\|\s+consentProbeState\.failure === "engine-unavailable"\s+\) \{(?:\s+\/\/[^\n]*)+\s+measurementKernel\.setDetector\("consent-banner", "partial", \{\s+reason: "scan-failed"/,
+    absent: /setDetector\("consent-banner", "failed", \{\s*reason: "scan-failed"/
+  }
 ];
 
 /**
@@ -1971,8 +1969,9 @@ test("the scanner model reaches every loss detail the Node scanner records and e
   // Detector outcomes: the obligation registry is the closed set the active
   // producer may set.
   const neverSet = new Set<string>();
-  for (const { tuple, because } of OUTCOMES_THE_NODE_SCANNER_NEVER_SETS) {
+  for (const { tuple, because, absent } of OUTCOMES_THE_NODE_SCANNER_NEVER_SETS) {
     assert.match(scannerSource, because, `${tuple}: the scanner no longer shows why it never sets this outcome`);
+    if (absent) assert.doesNotMatch(scannerSource, absent, `${tuple}: the scanner sets this outcome again`);
     neverSet.add(tuple);
   }
   for (const rule of DETECTOR_OBLIGATION_REGISTRY) {

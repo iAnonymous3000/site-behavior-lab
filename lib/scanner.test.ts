@@ -7,7 +7,7 @@ import { createSecureServer } from "node:http2";
 import { connect, createServer as createNetServer, type Socket } from "node:net";
 import { getCACertificates, setDefaultCACertificates } from "node:tls";
 import { test } from "node:test";
-import type { Frame } from "playwright";
+import type { Frame, Page } from "playwright";
 import {
   PAGE_SUBJECT_CAPTURE_LOSS_DETAIL,
   PAGE_SUBJECT_UNVERIFIED_WARNING,
@@ -17,13 +17,14 @@ import { RedactionPass, redactScanResultV1, redactScannerWarnings } from "./reda
 import { createConsentComparisonReport } from "./compare-reports";
 import { legacyComparisonDecision } from "./comparison-decision";
 import { comparisonEligibility, runHitKeystrokeProbeRequestsOmitted } from "./comparison-eligibility";
+import { consentInteractionWarning, findAndClickConsentControl } from "./consent-interaction";
 import { CONSENT_INTERACTION_LEFT_SUBJECT_WARNING } from "./consent-subject-loss-warning";
 import { ACTIVE_PROBE_SUBJECT_WARNING } from "./active-probe-subject-warnings";
 import { PublicScanError } from "./public-errors";
 import { TCF_API_METHOD } from "./consent-verification";
 import { GPC_WORKER_CAPTURE_LOSS_WARNING, gpcWorkerCaptureLossCount } from "./gpc-injection";
 import { createSentinel, sentinelEncodings } from "./keystroke-exfiltration";
-import { MeasurementKernel } from "./measurement-kernel";
+import { DETECTOR_VERSIONS, MeasurementKernel } from "./measurement-kernel";
 import { buildScanConditions, buildScanResult } from "./scan-result-builder";
 import {
   MAX_RECORDED_REQUEST_URL_CHARS,
@@ -2662,6 +2663,89 @@ test("CNAME resolution does not let a filter-list match override a reviewed nont
       phaseId: 0
     });
   } finally {
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+});
+
+test("a CNAME lookup that fails beside a found cloak publishes a partial detector with the cloak kept", { timeout: 20_000 }, async () => {
+  // One DNS failure beside a resolved cloak. The cloak is real evidence and
+  // is kept on both wires; a detector recorded failed beside it is a report
+  // the r2 evaluator refuses (evidence from a detector that reported no
+  // activity), so the whole public scan failed instead of publishing.
+  const upstream = createServer((request, response) => {
+    const host = request.headers.host?.split(":")[0] ?? "";
+    if (host === "cname-split.com") {
+      response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+      response.end(
+        "<!doctype html><title>CNAME split fixture</title>" +
+          "<script src='http://metrics.cname-split.com/m.js'></script>" +
+          "<script src='http://assets.cname-split.com/a.js'></script>"
+      );
+      return;
+    }
+    response.writeHead(200, { "content-type": "application/javascript" });
+    response.end("globalThis.loaded = true");
+  });
+  await new Promise<void>((resolve, reject) => {
+    upstream.once("error", reject);
+    upstream.listen(0, "127.0.0.1", resolve);
+  });
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+  const previousConsentVerification = process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
+  process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = "1";
+  const resolvedHosts: string[] = [];
+
+  try {
+    const visit = await scanSiteWithMeasurement(
+      {
+        url: "http://cname-split.com/",
+        device: "desktop",
+        gpcEnabled: false,
+        consentMode: "observe"
+      },
+      {
+        publicUrlAlreadyVerified: true,
+        verifyPublicUrl: async () => undefined,
+        resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+        connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"),
+        resolveCnameChain: async (host) => {
+          resolvedHosts.push(host);
+          if (host === "assets.cname-split.com") throw new Error("synthetic CNAME resolver failure");
+          return host === "metrics.cname-split.com" ? ["cname-split.sc.omtrdc.net"] : [];
+        }
+      }
+    );
+    const { result, measurement } = visit;
+
+    assert.deepEqual([...resolvedHosts].sort(), ["assets.cname-split.com", "metrics.cname-split.com"]);
+    assert.deepEqual((result.cnameCloaks ?? []).map((cloak) => cloak.host), ["metrics.cname-split.com"]);
+    assert.deepEqual(
+      measurement.evidence.cnameCloaks.map((cloak) => [cloak.host, cloak.cname]),
+      [["metrics.cname-split.com", "cname-split.sc.omtrdc.net"]]
+    );
+    assert.deepEqual(measurement.measurement.detectors["cname-uncloaking"], {
+      version: DETECTOR_VERSIONS["cname-uncloaking"],
+      status: "partial",
+      reason: "scan-failed",
+      phaseId: 0
+    });
+    assert.deepEqual(
+      measurement.measurement.qualityFacts.captureLoss.filter((loss) => loss.detail === "cname-lookups"),
+      [{ family: "detector-output", phaseId: 0, kind: "dropped", count: 1, detail: "cname-lookups" }]
+    );
+    // The visit publishes, with the cloak on the public r2 wire.
+    const report = toPublicScanReportR2(
+      buildRuntimeScanReportV2R2(visit, "public-api", {
+        SITE_BEHAVIOR_LAB_BUILD_COMMIT: "a".repeat(40)
+      } as NodeJS.ProcessEnv)
+    );
+    assert.deepEqual(report.run.evidence.cnameCloaks.map((cloak) => cloak.host), ["metrics.cname-split.com"]);
+    assert.equal(report.run.detectors["cname-uncloaking"].status, "partial");
+  } finally {
+    if (previousConsentVerification === undefined) delete process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
+    else process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = previousConsentVerification;
     await closeSharedBrowserForTests();
     await new Promise<void>((resolve) => upstream.close(() => resolve()));
   }
@@ -5358,6 +5442,136 @@ test("an unrelated detached subframe is disclosed as lost coverage, not a page t
     assert.doesNotMatch(consentWarnings[0], /moved out from under the search/);
     assert.doesNotMatch(consentWarnings[0], /no recognizable control was found/);
   } finally {
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+});
+
+test("a consent search that threw or read no frame after its phase began publishes a partial consent detector", { timeout: 60_000 }, async () => {
+  // Once the consent-interaction phase begins, the consent facts claim an
+  // attempt and the phase carries the after-interaction reads. A detector
+  // recorded failed beside that attempt is a report the r2 consent evaluator
+  // refuses, so the whole public scan failed instead of publishing. The v1
+  // consent line still names what actually happened to the search.
+  const upstream = createServer((request, response) => {
+    const host = request.headers.host?.split(":")[0] ?? "";
+    response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+    response.end(
+      host === "www.consent-search-threw.com"
+        ? `<!doctype html><title>Consent search fixture</title>
+            <p>No consent control in the top document.</p>
+            <iframe title="Embedded content"></iframe>`
+        : `<!doctype html><title>Consent search fixture</title>
+            <p>No consent control in the top document.</p>`
+    );
+  });
+  await new Promise<void>((resolve, reject) => {
+    upstream.once("error", reject);
+    upstream.listen(0, "127.0.0.1", resolve);
+  });
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+  const previousConsentVerification = process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
+  process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = "1";
+  const baseOptions = {
+    publicUrlAlreadyVerified: true,
+    verifyPublicUrl: async () => undefined,
+    resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 as const }],
+    connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"),
+    resolveCnameChain: async () => []
+  };
+
+  try {
+    let subframeHookThrows = 0;
+    let consentSearchRejections = 0;
+    const cases = [
+      {
+        // A throwing hook sits outside the per-frame catch, so the whole
+        // search rejects: applyConsentChoice's caller records scan-failed.
+        failure: "scan-failed" as const,
+        url: "http://www.consent-search-threw.com/",
+        options: {
+          ...baseOptions,
+          beforeConsentSubframeEvaluationForTests: async () => {
+            subframeHookThrows += 1;
+            throw new Error("synthetic consent search failure");
+          }
+        }
+      },
+      {
+        // Every consent evaluation of the only frame rejects: zero readable
+        // frames and no other failure, which the scanner names engine-unavailable.
+        failure: "engine-unavailable" as const,
+        url: "http://www.consent-search-unread.com/",
+        options: {
+          ...baseOptions,
+          beforePassiveShieldsBoundaryForTests: async (page: Page) => {
+            const frame = page.mainFrame();
+            const evaluate = frame.evaluate.bind(frame) as (fn: unknown, arg?: unknown) => Promise<unknown>;
+            Object.defineProperty(frame, "evaluate", {
+              configurable: true,
+              writable: true,
+              value: (fn: unknown, arg?: unknown) => {
+                if (fn !== findAndClickConsentControl) return evaluate(fn, arg);
+                consentSearchRejections += 1;
+                return Promise.reject(new Error("Execution context was destroyed, most likely because of a navigation"));
+              }
+            });
+          }
+        }
+      }
+    ];
+
+    for (const { failure, url, options } of cases) {
+      const visit = await scanSiteWithMeasurement(
+        { url, device: "desktop", gpcEnabled: false, consentMode: "accept-all" },
+        options
+      );
+      const { result, measurement: staged } = visit;
+      const consentPhase = staged.measurement.phases.find((phase) => phase.kind === "consent-interaction");
+      assert.ok(consentPhase, `${failure}: the consent phase must begin`);
+      assert.equal(staged.consent?.interactionAttempted, true, failure);
+      assert.equal(staged.consent?.controlActivated, false, failure);
+      assert.deepEqual(
+        staged.measurement.detectors["consent-banner"],
+        {
+          version: DETECTOR_VERSIONS["consent-banner"],
+          status: "partial",
+          reason: "scan-failed",
+          phaseId: consentPhase.phaseId
+        },
+        failure
+      );
+      assert.deepEqual(
+        staged.measurement.qualityFacts.captureLoss
+          .filter((loss) => loss.detail === "consent-banner" || loss.detail === "consent-verification")
+          .map((loss) => [loss.family, loss.phaseId, loss.kind]),
+        [
+          ["detector-output", consentPhase.phaseId, "dropped"],
+          ["consent-verification", consentPhase.phaseId, "dropped"]
+        ],
+        failure
+      );
+      // The v1 line is the one the failure names, byte for byte.
+      assert.deepEqual(
+        result.warnings.filter((warning) => warning.startsWith("This visit was asked to choose")),
+        [consentInteractionWarning({ mode: "accept-all", clicked: false }, failure)],
+        failure
+      );
+      // The visit publishes.
+      const report = toPublicScanReportR2(
+        buildRuntimeScanReportV2R2(visit, "public-api", {
+          SITE_BEHAVIOR_LAB_BUILD_COMMIT: "a".repeat(40)
+        } as NodeJS.ProcessEnv)
+      );
+      assert.equal(report.run.detectors["consent-banner"].status, "partial", failure);
+      assert.equal(report.run.evidence.consent?.interactionAttempted, true, failure);
+    }
+    assert.equal(subframeHookThrows, 1, "the throwing hook must be what ended the first search");
+    assert.ok(consentSearchRejections > 0, "the second search must have been refused every frame read");
+  } finally {
+    if (previousConsentVerification === undefined) delete process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
+    else process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = previousConsentVerification;
     await closeSharedBrowserForTests();
     await new Promise<void>((resolve) => upstream.close(() => resolve()));
   }
