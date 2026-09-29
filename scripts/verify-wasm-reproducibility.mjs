@@ -20,7 +20,7 @@ const OUTPUT_PATHS = [
   "lib/adblock-wasm/sbl_adblock_wasm_bg.wasm.d.ts"
 ];
 const RUSTC_COMMIT = "31fca3adb283cc9dfd56b49cdee9a96eb9c96ffd";
-const WASM_BINDGEN_VERSION = "0.2.126";
+const WASM_BINDGEN_VERSION = "0.2.129";
 // wasm-pack 0.14.0 downloads binaryen version_117 into its tool cache when no
 // wasm-opt is on PATH. The WASM records no marker for it, so this entry is
 // declarative: it binds the documented toolchain, not observed bytes.
@@ -38,6 +38,54 @@ function fileRecord(root, relativePath) {
     bytes: bytes.length,
     sha256: createHash("sha256").update(bytes).digest("hex")
   };
+}
+
+// wasm-bindgen 0.2.129 stopped embedding its own crate source path: its
+// externref slab uses try_borrow_mut so no #[track_caller] location survives
+// an optimized build. The `producers` custom section still names the
+// wasm-bindgen CLI that processed the binary, which is what
+// requiredBuild.wasmBindgenCli declares, so that entry is the marker.
+export function producersProcessedBy(wasm) {
+  const processedBy = new Map();
+  if (!wasm.subarray(0, 4).equals(Buffer.from("\0asm", "latin1"))) return processedBy;
+  let offset = 8;
+  const uleb = () => {
+    let value = 0;
+    let shift = 0;
+    let byte;
+    do {
+      byte = wasm[offset++] ?? 0;
+      value += (byte & 0x7f) * 2 ** shift;
+      shift += 7;
+    } while (byte & 0x80);
+    return value;
+  };
+  const name = () => {
+    const length = uleb();
+    const value = wasm.subarray(offset, offset + length).toString("utf8");
+    offset += length;
+    return value;
+  };
+  while (offset < wasm.length) {
+    const id = wasm[offset++];
+    const size = uleb();
+    const end = offset + size;
+    if (end > wasm.length) break;
+    if (id === 0 && name() === "producers") {
+      const fieldCount = uleb();
+      for (let field = 0; field < fieldCount; field += 1) {
+        const fieldName = name();
+        const valueCount = uleb();
+        for (let value = 0; value < valueCount; value += 1) {
+          const toolName = name();
+          const toolVersion = name();
+          if (fieldName === "processed-by") processedBy.set(toolName, toolVersion);
+        }
+      }
+    }
+    offset = end;
+  }
+  return processedBy;
 }
 
 export function buildObservedWasmContract(root = ROOT) {
@@ -73,7 +121,7 @@ export function buildObservedWasmContract(root = ROOT) {
     ],
     observedBinaryMarkers: {
       rustcCommit: wasm.includes(Buffer.from(`/rustc/${RUSTC_COMMIT}/`, "utf8")),
-      wasmBindgenCrateVersion: wasmText.includes(`/wasm-bindgen-${WASM_BINDGEN_VERSION}/`),
+      wasmBindgenProducerVersion: producersProcessedBy(wasm).get("wasm-bindgen") === WASM_BINDGEN_VERSION,
       hostCargoRegistryPath: /\/(?:Users|home)\/[^/\0]+\/\.cargo\/registry\//.test(wasmText)
     },
     inputs: INPUT_PATHS.map((entry) => fileRecord(root, entry)),
@@ -105,9 +153,9 @@ export function verifyWasmContract(root = ROOT) {
   assertWasmContractMatches(contract, observed);
   assert.equal(observed.observedBinaryMarkers.rustcCommit, true, "vendored WASM lost its recorded rustc marker");
   assert.equal(
-    observed.observedBinaryMarkers.wasmBindgenCrateVersion,
+    observed.observedBinaryMarkers.wasmBindgenProducerVersion,
     true,
-    "vendored WASM lost its locked wasm-bindgen marker"
+    "vendored WASM's producers section does not name the locked wasm-bindgen"
   );
   assert.equal(
     observed.observedBinaryMarkers.hostCargoRegistryPath,

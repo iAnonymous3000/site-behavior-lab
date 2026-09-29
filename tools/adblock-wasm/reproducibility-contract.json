@@ -11,7 +11,7 @@
     "rustcCommit": "31fca3adb283cc9dfd56b49cdee9a96eb9c96ffd",
     "cargo": "1.96.1",
     "wasmPack": "0.14.0",
-    "wasmBindgenCli": "0.2.126",
+    "wasmBindgenCli": "0.2.129",
     "wasmOpt": "117",
     "pathRemapping": "required-before-activation"
   },
@@ -28,7 +28,7 @@
   ],
   "observedBinaryMarkers": {
     "rustcCommit": true,
-    "wasmBindgenCrateVersion": true,
+    "wasmBindgenProducerVersion": true,
     "hostCargoRegistryPath": true
   },
   "inputs": [
@@ -39,8 +39,8 @@
     },
     {
       "path": "tools/adblock-wasm/Cargo.lock",
-      "bytes": 16224,
-      "sha256": "c745cfc603b1f621238abda26953f56219fa711e0c23b8960c3f82e79fcbdb6e"
+      "bytes": 16536,
+      "sha256": "106c97247df0f699510239c5db330d513d09832a9206eaecf54ef54bc5beff35"
     },
     {
       "path": "tools/adblock-wasm/src/lib.rs",
@@ -52,17 +52,17 @@
     {
       "path": "lib/adblock-wasm/sbl_adblock_wasm.js",
       "bytes": 6366,
-      "sha256": "4046ec7a1a85b7d608bc8495460428c3981ecd117501cb87bb80b5dcedea71ed"
+      "sha256": "7021d2c92dc55bf0347e3a465f17313e1f9590ebe06a989aa95d50f383a9cc31"
     },
     {
       "path": "lib/adblock-wasm/sbl_adblock_wasm.d.ts",
       "bytes": 1024,
-      "sha256": "0d808eb178fd591cd4702e9ec549683ff9713c866f34b3c464f195a9fb615603"
+      "sha256": "919759b3a73fc490df296a07b1685273e5c2d298c315ab6996480007de246885"
     },
     {
       "path": "lib/adblock-wasm/sbl_adblock_wasm_bg.wasm",
-      "bytes": 2006098,
-      "sha256": "4034076ed79f1b8aa7c023c03ec87b7c3c84ae01c447097d4d9650b93a4a1082"
+      "bytes": 2005939,
+      "sha256": "7dda4b30ce6d4cc9fb9722b6763cfade690f85ff5f2d8a4bdb992fdae6d1d3cc"
     },
     {
       "path": "lib/adblock-wasm/sbl_adblock_wasm_bg.wasm.d.ts",

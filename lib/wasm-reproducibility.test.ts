@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { test } from "node:test";
@@ -13,7 +14,7 @@ type WasmContract = {
   activationCriteria: string[];
   observedBinaryMarkers: {
     rustcCommit: boolean;
-    wasmBindgenCrateVersion: boolean;
+    wasmBindgenProducerVersion: boolean;
     hostCargoRegistryPath: boolean;
   };
   inputs: FileRecord[];
@@ -24,6 +25,7 @@ type Helpers = {
   buildObservedWasmContract(root?: string): WasmContract;
   assertWasmContractMatches(contract: WasmContract, observed: WasmContract): void;
   verifyWasmContract(root?: string): WasmContract;
+  producersProcessedBy(wasm: Buffer): Map<string, string>;
 };
 
 const nativeImport = new Function("specifier", "return import(specifier)") as (
@@ -51,7 +53,7 @@ test("vendored WASM source and output bytes stay bound to an explicitly blocked 
     rustcCommit: "31fca3adb283cc9dfd56b49cdee9a96eb9c96ffd",
     cargo: "1.96.1",
     wasmPack: "0.14.0",
-    wasmBindgenCli: "0.2.126",
+    wasmBindgenCli: "0.2.129",
     wasmOpt: "117",
     pathRemapping: "required-before-activation"
   });
@@ -70,9 +72,39 @@ test("vendored WASM source and output bytes stay bound to an explicitly blocked 
   assert.equal(contract.outputs.length, 4);
   assert.deepEqual(contract.observedBinaryMarkers, {
     rustcCommit: true,
-    wasmBindgenCrateVersion: true,
+    wasmBindgenProducerVersion: true,
     hostCargoRegistryPath: true
   });
+});
+
+test("the wasm-bindgen marker reads the producers section, not an incidental path string", async () => {
+  const { producersProcessedBy } = await helpers;
+  const vendored = readFileSync(path.join(process.cwd(), "lib/adblock-wasm/sbl_adblock_wasm_bg.wasm"));
+  assert.equal(producersProcessedBy(vendored).get("wasm-bindgen"), "0.2.129");
+  // 0.2.129 no longer embeds the crate's own source path, so the path marker
+  // the 0.2.126 binary carried cannot stand in for the CLI version.
+  assert.equal(vendored.toString("latin1").includes("/wasm-bindgen-0.2.129/"), false);
+
+  const name = (value: string) => Buffer.concat([Buffer.from([value.length]), Buffer.from(value, "utf8")]);
+  const producers = Buffer.concat([
+    name("producers"),
+    Buffer.from([1]),
+    name("processed-by"),
+    Buffer.from([2]),
+    name("walrus"),
+    name("0.27.2"),
+    name("wasm-bindgen"),
+    name("0.2.0")
+  ]);
+  const synthetic = Buffer.concat([
+    Buffer.from("\0asm", "latin1"),
+    Buffer.from([1, 0, 0, 0]),
+    Buffer.from([0, producers.length]),
+    producers
+  ]);
+  assert.equal(producersProcessedBy(synthetic).get("wasm-bindgen"), "0.2.0");
+  assert.equal(producersProcessedBy(synthetic).get("walrus"), "0.27.2");
+  assert.equal(producersProcessedBy(Buffer.from("not wasm", "utf8")).size, 0);
 });
 
 test("WASM integrity verification rejects a stale or optimistic contract", async () => {

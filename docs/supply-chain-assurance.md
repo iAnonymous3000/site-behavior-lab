@@ -176,15 +176,20 @@ file or any blocker policy changes without a reviewed contract update.
 
 That check is an integrity contract, not a reproducible-build receipt. The
 current binary identifies rustc 1.96.1 commit
-`31fca3adb283cc9dfd56b49cdee9a96eb9c96ffd` and wasm-bindgen 0.2.126, but it
-also embeds the building host's Cargo registry paths. The adblock-rust 0.13.3
-rebuild recorded its wasm-pack command and generator versions in the commit
-that vendored it, and clean rebuilds with that command on that host produced
-the vendored bytes. Those bytes also depend on wasm-opt. wasm-pack 0.14.0
+`31fca3adb283cc9dfd56b49cdee9a96eb9c96ffd` and, in its `producers` section,
+the wasm-bindgen 0.2.129 CLI that processed it (0.2.129 stopped embedding the
+wasm-bindgen crate's own source path, which the 0.2.126 binary carried), but
+it also embeds the building host's Cargo registry paths. The wasm-bindgen
+0.2.129 rebuild of adblock-rust 0.13.3 recorded its wasm-pack command and
+generator versions in the commit that vendored it, and clean rebuilds with
+that command on that host produced the vendored bytes. wasm-pack installs that
+CLI with an unlocked `cargo install`, so the walrus it links (0.27.2 in the
+current binary's `producers` section) is pinned by nothing checked in. Those
+bytes also depend on wasm-opt. wasm-pack 0.14.0
 downloads binaryen `version_117` from the upstream GitHub release into its
 local tool cache and verifies no checksum; with no cached copy and
 `--mode no-install` it skips wasm-opt and writes different bytes. The cached
-copy on the host that built 0.13.3 (arm64-macos), with which a rebuild
+copy on the host that built the vendored set (arm64-macos), with which a rebuild
 reproduces all four vendored files, has `bin/wasm-opt` SHA-256
 `e541f303219f9b6caa1661daea44510249da278736b7f2e320910051e7bbd4cd` and
 `lib/libbinaryen.dylib` SHA-256
@@ -200,7 +205,7 @@ alone.
 Do not call this artifact reproducible until one reviewed change does all of
 the following:
 
-1. Pins rustc 1.96.1, Cargo 1.96.1, wasm-pack 0.14.0, wasm-bindgen CLI 0.2.126,
+1. Pins rustc 1.96.1, Cargo 1.96.1, wasm-pack 0.14.0, wasm-bindgen CLI 0.2.129,
    wasm-opt (binaryen `version_117`), and the `wasm32-unknown-unknown` target
    from independently reviewed sources.
 2. Builds with `Cargo.lock`, a fixed source-date policy, and fixed path-prefix
