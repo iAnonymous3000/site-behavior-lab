@@ -1488,12 +1488,17 @@ const ALLOWED_DIVERGENCES: readonly AllowedDivergence[] = [
   // TODO(v1-r2-parity findings P11 to P16): detector losses r2 scopes to one
   // claim but still counts against its family, where v1 has no reason that
   // censors the family and reads it complete. r2 readers then show the visit
-  // as evidence-incomplete (degradedRunNotice, censorshipNotes) and v1
-  // readers show nothing. Section 4 of the 2026-09-22 review records this
-  // only for the consent line and the probe that lost the page, and the v1
-  // reader records it only for the keystroke and listener reasons (all
-  // above); nothing records these causes. Each closes by a v1 reason that
-  // censors the family or by recording the residue as deliberate.
+  // as evidence-incomplete (degradedRunNotice, censorshipNotes). For the
+  // causes P3 to P5 closed at the claim (a consent-banner detector that did
+  // not complete, the reload that left the site, a cut policy-link search,
+  // CNAME candidates past the lookup bound) v1 now carries a claim-scoped
+  // reason those readers also show, so only the family state diverges; for
+  // the rest v1 readers show nothing. Section 4 of the 2026-09-22 review
+  // records this only for the consent line and the probe that lost the page,
+  // and the v1 reader records its claim-scoped reasons as never reaching a
+  // family only for the keystroke and listener reasons (all above); nothing
+  // records these causes. Each closes by a v1 reason that censors the family
+  // or by recording the residue as deliberate.
   //
   // P11: the consent-banner detector's own losses (its observe-mode
   // visibility read, a consent search that failed or ran out of budget, a
@@ -1509,7 +1514,8 @@ const ALLOWED_DIVERGENCES: readonly AllowedDivergence[] = [
         (loss.family === "consent-verification" && loss.detail === "consent-verification"))
   },
   // P12: the post-consent reload that left the site, a consent-verification
-  // loss with no detail beside CONSENT_RELOAD_SUBJECT_WARNING.
+  // loss with no detail beside CONSENT_RELOAD_SUBJECT_WARNING, which v1 now
+  // reads for the consent-banner claim alone.
   {
     name: "consent-reload-left-verification-loss-is-r2-family-only",
     record: "finding P12 (property test review, 2026-09-28): scanSiteWithMeasurement, markPostConsentReloadSubjectLoss",
@@ -1521,7 +1527,8 @@ const ALLOWED_DIVERGENCES: readonly AllowedDivergence[] = [
       loss.phaseId === phasePlan(visit).reload
   },
   // P13: the privacy-policy detector's losses (a visit or link read that
-  // failed, no budget, truncated link candidates).
+  // failed, no budget, truncated link candidates; only the last has a v1
+  // line, which reaches the claim alone).
   {
     name: "policy-losses-are-r2-family-only",
     record: "finding P13 (property test review, 2026-09-28): the privacy-policy branches of scanSiteWithMeasurement",
@@ -1531,7 +1538,8 @@ const ALLOWED_DIVERGENCES: readonly AllowedDivergence[] = [
       loss.family === "detector-output" &&
       (loss.detail === "policy-visit" || loss.detail === "policy-link-candidates")
   },
-  // P14: the CNAME lookup bound, budget and failures.
+  // P14: the CNAME lookup bound, budget and failures (only the bound has a v1
+  // line, which reaches the claim alone).
   {
     name: "cname-lookup-losses-are-r2-family-only",
     record: "finding P14 (property test review, 2026-09-28): scanSiteWithMeasurement, cnameResolution",

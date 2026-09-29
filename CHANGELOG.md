@@ -617,7 +617,10 @@ public API or a 1.0 release.
 For the same visit, the v1 report allowed claims the r2 report withholds.
 Each cause below now leaves a v1 line where r2 records its loss, and v1
 readers withhold what r2 withholds there. No committed v1 report carries any
-of these lines, so none reads differently.
+of these lines, so no committed report reads differently. The consent-banner
+item reads lines the scanner already wrote, so a stored v1 report outside
+the committed corpus that carries one now withholds the consent-banner claim,
+as intended.
 
 - The end-of-visit storage read, the one v1 publishes, that failed or was cut
   at its bounds left v1 publishing the empty or cut list with no line, so the
