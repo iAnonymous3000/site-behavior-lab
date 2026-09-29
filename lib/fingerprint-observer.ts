@@ -77,9 +77,13 @@ export type FingerprintObserverRealmArgs = {
  * (node-detectors-v11) is the first version with this reach: OffscreenCanvas
  * 2D work in a document, and every dedicated worker realm. Reports recording
  * @4 or earlier observed neither. `@6` (node-detectors-v12) keeps this script
- * and changes only the detector status the scanner records: a visit that read
- * no frame but read a worker realm ends partial beside the worker's evidence,
- * where @5 recorded it failed and the r2 builder refused the visit.
+ * and changes only the detector status the scanner records, in two branches
+ * that @5 recorded failed and @6 records partial. A visit that read no frame
+ * but read a worker realm is one, with or without evidence from that realm. A
+ * consent-mode visit that lost its subject after a passive read that read a
+ * frame but was incomplete is the other; that read's record publishes in
+ * place of the unread state. In either branch, when the record held evidence,
+ * the r2 builder refused @5's report for the visit.
  *
  * `firstPartySiteKey` is the scanned site's registrable domain (computed with
  * the real public-suffix list in Node, e.g. "capitalone.com"), so the in-page

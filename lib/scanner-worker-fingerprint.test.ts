@@ -3,6 +3,7 @@ import { createServer, type Server } from "node:http";
 import { connect } from "node:net";
 import { test } from "node:test";
 import type { Page } from "playwright";
+import { CONSENT_INTERACTION_LEFT_SUBJECT_WARNING } from "./consent-subject-loss-warning";
 import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "./gpc-injection";
 import { DETECTOR_VERSIONS } from "./measurement-kernel";
 import type { NodeScanMeasurementEnvelope } from "./node-scan-measurement";
@@ -757,4 +758,90 @@ test("in a consent visit a shared worker started before the click withholds ever
   const observeWithShared = await visit("www.with-shared-observe.com", "observe");
   assert.deepEqual(observeWithShared.r2, [["openwpm-canvas-v1", 0]]);
   assert.equal(observeWithShared.detector, "partial");
+});
+
+/**
+ * A consent click that leaves the recorded site leaves the state unread, and
+ * the scan publishes the read taken just before the click in its place, on
+ * both wires. Here that read is readable but incomplete: the shared worker the
+ * page started makes it an incomplete boundary, while its one frame is read,
+ * so the page's canvas readback publishes at the passive phase. Recorded
+ * failed beside that evidence, the r2 evaluator refused the report (finding
+ * R5), so the whole public scan failed. The same visit with a passive read
+ * that could read no frame publishes nothing, and the detector stays failed.
+ */
+test("a consent click that leaves the site after a readable but incomplete passive read publishes a partial detector", { timeout: 90_000 }, async (t) => {
+  withConsentVerification(t);
+  const pageCanvas =
+    "const canvas = document.createElement('canvas'); canvas.width = 200; canvas.height = 60; " +
+    "canvas.getContext('2d').fillText('abcdefghijklmnopqrstuvwxyz0123', 2, 20); canvas.toDataURL();";
+  const { port } = await startWorkerPage(t, {
+    page: `<!doctype html><title>Consent click leaves the site</title><main><p>Ordinary public page.</p></main>
+      <div id="onetrust-banner-sdk">
+        <button id="onetrust-accept-btn-handler" onclick="location.href = 'http://account.passive-left.com/';">Accept all</button>
+      </div>
+      <script>if (location.hostname.startsWith("www.")) { ${pageCanvas} new SharedWorker("/idle-shared.js").port.start(); }</script>`,
+    scripts: { "/idle-shared.js": "onconnect = () => {};" }
+  });
+  const visit = async (options: Parameters<typeof scanSiteWithMeasurement>[1] = {}) => {
+    const envelope = await scanSiteWithMeasurement(
+      { url: "http://www.passive-left.com/", device: "desktop", gpcEnabled: false, consentMode: "accept-all" },
+      { ...scanOptions(port), ...options }
+    );
+    const { result, measurement } = envelope;
+    assert.ok(measurement);
+    const consentPhase = measurement.measurement.phases.find((phase) => phase.kind === "consent-interaction");
+    assert.ok(consentPhase, "the consent phase must begin");
+    // The build throws for a report the r2 evaluator refuses.
+    const report = toPublicScanReportR2(
+      buildRuntimeScanReportV2R2(envelope, "public-api", {
+        SITE_BEHAVIOR_LAB_BUILD_COMMIT: "a".repeat(40)
+      } as NodeJS.ProcessEnv)
+    );
+    return {
+      left: result.warnings.includes(CONSENT_INTERACTION_LEFT_SUBJECT_WARNING),
+      consentPhaseId: consentPhase.phaseId,
+      detector: measurement.measurement.detectors["fingerprint-heuristics"],
+      passiveLoss: measurement.measurement.qualityFacts.captureLoss.some(
+        (loss) => loss.family === "fingerprinting" && loss.phaseId === 0 && loss.detail === "fingerprint-observer"
+      ),
+      events: measurement.evidence.fingerprintEvents.map((event) => [event.api, event.phaseId]),
+      detections: measurement.evidence.fingerprintDetections.map((detection) => [detection.heuristic, detection.phaseId]),
+      v1Events: result.fingerprintEvents.map((event) => event.api),
+      published: {
+        status: report.run.detectors["fingerprint-heuristics"].status,
+        events: report.run.evidence.fingerprintEvents.length,
+        detections: report.run.evidence.fingerprintDetections.length
+      }
+    };
+  };
+
+  const readable = await visit();
+  assert.equal(readable.left, true, "the click must leave the recorded site");
+  assert.equal(readable.passiveLoss, true, "the shared worker makes the passive read incomplete");
+  assert.deepEqual(readable.detector, {
+    version: DETECTOR_VERSIONS["fingerprint-heuristics"],
+    status: "partial",
+    reason: "load-failed",
+    phaseId: readable.consentPhaseId
+  });
+  assert.deepEqual(readable.events, [["canvas.toDataURL", 0]], "the passive read's evidence publishes at its phase");
+  assert.deepEqual(readable.detections, [["openwpm-canvas-v1", 0]]);
+  assert.deepEqual(readable.v1Events, ["canvas.toDataURL"], "v1 publishes the same passive record");
+  assert.deepEqual(readable.published, { status: "partial", events: 1, detections: 1 });
+
+  const rejected = { count: 0 };
+  const unreadable = await visit({
+    beforePassiveShieldsBoundaryForTests: async (page) => rejectFingerprintFrameReads(page, rejected)
+  });
+  assert.equal(unreadable.left, true);
+  assert.ok(rejected.count > 0, "the passive read must have been refused its frame");
+  assert.deepEqual(unreadable.detector, {
+    version: DETECTOR_VERSIONS["fingerprint-heuristics"],
+    status: "failed",
+    reason: "load-failed",
+    phaseId: unreadable.consentPhaseId
+  });
+  assert.deepEqual([unreadable.events, unreadable.detections, unreadable.v1Events], [[], [], []]);
+  assert.deepEqual(unreadable.published, { status: "failed", events: 0, detections: 0 });
 });

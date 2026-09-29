@@ -602,13 +602,13 @@ lines for claims r2 withholds.
 
 #### Detectors that kept evidence
 
-Three scanner branches recorded a detector failed while the visit still
+Four scanner branches recorded a detector failed while the visit still
 published what that detector found. The r2 builder refuses evidence from a
-detector that reported no activity, so no r2 report could be built for any
-of these visits: a scan that publishes r2 failed with no report, and a v1
-scan kept its v1 report but lost its r2 shadow copy. Each now ends the
-detector partial with the `scan-failed` reason and the same loss it
-recorded before:
+detector that reported no activity, so no r2 report could be built for such
+a visit: a scan that publishes r2 failed with no report, and a v1 scan kept
+its v1 report but lost its r2 shadow copy. Each now ends the detector
+partial with the same loss it recorded before, and with the `scan-failed`
+reason in the first three branches and `load-failed` in the fourth:
 
 - consent-banner, when the banner search threw or read no frame after the
   consent interaction had begun: the consent facts already say the
@@ -621,8 +621,17 @@ recorded before:
   lookup, so a v1 report still allows the CNAME cloaking claim r2 withholds
   there; that divergence stays open.
 - fingerprint-heuristics, when no frame could be read but a worker realm
-  was: the worker's evidence publishes. With no realm read the detector still
-  fails.
+  was: the worker's evidence publishes. A realm read with no evidence in it
+  now ends partial too, where its r2 report was already built. With no realm
+  read the detector still fails.
+- fingerprint-heuristics, when a consent-mode visit lost its subject (the
+  click, or the page before its state was read, left the recorded site)
+  after the read taken just before the click read a frame but was
+  incomplete: a frame it could not read, bounded listener attribution, or a
+  worker realm it could not read, a shared worker included. That read's
+  record publishes on both wires in place of the unread state, as it already
+  did beside a complete read, which already ended partial. With no frame
+  read there, nothing publishes and the detector still fails.
 
 #### v1 claims r2 withholds
 

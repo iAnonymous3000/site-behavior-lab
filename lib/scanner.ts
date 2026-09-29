@@ -2327,7 +2327,13 @@ export async function scanSiteWithMeasurement(
         count: 1,
         detail: "fingerprint-observer"
       });
-      measurementKernel.setDetector("fingerprint-heuristics", passiveBoundary.fingerprinting ? "partial" : "failed", {
+      // With the state unread, the passive read stands in for it and
+      // publishes whenever it read a frame, complete or not (a complete
+      // boundary always did): the detector reported activity with the later
+      // state lost. Recorded failed beside a readable but incomplete passive
+      // read, the r2 evaluator refused the report and the whole public scan
+      // failed. With no frame read there, nothing publishes and it stays failed.
+      measurementKernel.setDetector("fingerprint-heuristics", passiveFingerprintObservations !== null ? "partial" : "failed", {
         reason: "load-failed",
         phaseId: stateSnapshotPhaseId
       });

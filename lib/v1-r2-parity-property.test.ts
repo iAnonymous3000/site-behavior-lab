@@ -343,6 +343,17 @@ function stateRead(visit: Visit): boolean {
   return visit.subject !== "left-before-state" && visit.subject !== "consent-left";
 }
 
+/**
+ * With the state unread, a consent mode publishes the read it took just
+ * before the click in its place, on both wires, whenever that read had a
+ * readable frame (passiveFingerprintObservations, on the scanner's
+ * !subjectStateTrusted branch). Only a passive read that failed publishes
+ * nothing.
+ */
+function passiveFingerprintPublished(visit: Visit): boolean {
+  return !stateRead(visit) && passiveBoundaryRead(visit) && visit.fingerprint !== "passive-read-failed";
+}
+
 function reloadRan(visit: Visit): boolean {
   return visit.reload && clicked(visit) && stateRead(visit);
 }
@@ -724,8 +735,10 @@ function scannerDraft(visit: Visit): Draft {
       detector(draft, "fingerprint-heuristics", "complete", undefined, snapshot);
     }
   } else {
+    // The passive read publishes in the state's place whenever it read a
+    // frame, complete or not, so the detector reported activity (finding R5).
     loss(draft, "fingerprinting", snapshot, "dropped", "fingerprint-observer");
-    detector(draft, "fingerprint-heuristics", passiveFingerprintRead ? "partial" : "failed", "load-failed", snapshot);
+    detector(draft, "fingerprint-heuristics", passiveFingerprintPublished(visit) ? "partial" : "failed", "load-failed", snapshot);
   }
 
   // The post-consent verification reload.
@@ -1012,9 +1025,18 @@ function pixelEvents(visit: Visit): PixelEventSummary[] {
   return [{ platform: "Meta", product: "Meta Pixel", events: ["PageView"], advancedMatching: [], requests: 1 }];
 }
 
+/** The fingerprint API calls both wires publish: the state read's, or the passive read's in its place. */
+function fingerprintEvents(visit: Visit): Array<{ api: string; count: number }> {
+  if (visit.fingerprint === "frame-failed-worker-evidence") return [{ api: "canvas.toDataURL", count: 2 }];
+  if (!visit.evidence.fingerprintEvents || visit.fingerprint === "frame-failed") return [];
+  if (!stateRead(visit) && !passiveFingerprintPublished(visit)) return [];
+  return [{ api: "canvas.toDataURL", count: 2 }];
+}
+
 function fingerprintDetections(visit: Visit): FingerprintDetectionSummary[] {
   // Listener coverage is read from frames only; a worker realm registers no listeners.
-  if (visit.evidence.listener === "none" || !stateRead(visit) || visit.fingerprint.startsWith("frame-failed")) return [];
+  if (visit.evidence.listener === "none" || visit.fingerprint.startsWith("frame-failed")) return [];
+  if (!stateRead(visit) && !passiveFingerprintPublished(visit)) return [];
   return [
     {
       kind: "session-recording",
@@ -1069,11 +1091,10 @@ function buildWires(visit: Visit): Wires {
   const storageRecords: StorageRecord[] = visit.evidence.storage && state && !storageFailed
     ? [{ area: "localStorage", key: "_ga_session", valueBytes: 24 }]
     : [];
-  const fingerprintEvents =
-    (visit.evidence.fingerprintEvents && state && visit.fingerprint !== "frame-failed") ||
-    visit.fingerprint === "frame-failed-worker-evidence"
-      ? [{ api: "canvas.toDataURL", count: 2 }]
-      : [];
+  const events = fingerprintEvents(visit);
+  // The phase the published fingerprint record belongs to: the passive read's
+  // when it stands in for the unread state.
+  const fingerprintPhase = state ? draft.snapshot : draft.passive;
   const detections = fingerprintDetections(visit);
   const cloaks = cnameCloaks(visit);
   const pixels = pixelEvents(visit);
@@ -1104,7 +1125,7 @@ function buildWires(visit: Visit): Wires {
     cookies,
     storage: storageRecords,
     fingerprintDetections: detections,
-    fingerprintEvents,
+    fingerprintEvents: events,
     cnameCloaks: cloaks,
     pixelEvents: pixels,
     privacyPolicy: policy,
@@ -1134,8 +1155,8 @@ function buildWires(visit: Visit): Wires {
       cookiesFinal: cookies,
       storageMutations: storageFailed ? [] : deriveStorageMutations(storageSnapshots),
       storageFinal: storageRecords,
-      fingerprintEvents: fingerprintEvents.map((event) => ({ ...event, phaseId: draft.snapshot })),
-      fingerprintDetections: detections.map((detection) => ({ ...detection, phaseId: draft.snapshot })),
+      fingerprintEvents: events.map((event) => ({ ...event, phaseId: fingerprintPhase })),
+      fingerprintDetections: detections.map((detection) => ({ ...detection, phaseId: fingerprintPhase })),
       cnameCloaks: cloaks,
       pixelEvents: pixels.map((event) => ({ ...event, phaseId: draft.passive })),
       ...(policy !== undefined ? { privacyPolicy: policy } : {})
@@ -1568,11 +1589,14 @@ const ALLOWED_DIVERGENCES: readonly AllowedDivergence[] = [
  * public scan fails instead of publishing. Each is a finding held open like a
  * `todo` divergence above, and each must still be reached (the hit check).
  *
- * None is open. Findings R2 to R4 (a consent search that threw or read no
+ * None is open. Findings R2 to R5 (a consent search that threw or read no
  * frame after its phase began, a CNAME lookup failure beside a found cloak,
- * unreadable frames beside a read worker realm) each ended a detector failed
- * beside evidence it kept; the scanner now ends each partial, and any refusal
- * the draws reach fails the property.
+ * unreadable frames beside a read worker realm, and a consent-mode visit that
+ * lost its subject after a passive read that read a frame but was
+ * incomplete) each ended a detector failed beside evidence it kept; the
+ * scanner now ends each partial, and any refusal the draws reach fails the
+ * property. R5 was unreachable here until the model published the passive
+ * read in the unread state's place, as the scanner does.
  */
 type KnownRefusal = { name: string; record: string; covers(visit: Visit, clause: string): boolean };
 
@@ -1799,6 +1823,47 @@ test("a family r2 censors is allowed only when every loss it recorded there is a
     assert.ok(entries.length > 0, family);
     assert.deepEqual([...new Set(entries)], ["consent-left-and-probe-page-left-detector-residue"], family);
   }
+});
+
+test("with the state unread, a consent visit publishes its passive read on both wires and ends the detector by it", () => {
+  // The model's side of the browser test in lib/scanner-worker-fingerprint.test.ts
+  // (finding R5): the consent click left the site after a passive read that
+  // read its frame but was incomplete, or after one that read no frame.
+  const evidence = { ...fixedVisit({}).evidence, fingerprintEvents: true, listener: "publishable" as const };
+  for (const subject of ["consent-left", "left-before-state"] as const) {
+    for (const fingerprint of ["complete", "passive-frame", "passive-listener", "passive-worker", "passive-read-failed"] as const) {
+      const visit = fixedVisit({
+        mode: "accept-all",
+        banner: subject === "consent-left" ? "clicked" : "no-budget-for-phase",
+        subject,
+        fingerprint,
+        evidence
+      });
+      assert.equal(visit.subject, subject);
+      assert.equal(visit.fingerprint, fingerprint);
+      const label = `${subject}/${fingerprint}`;
+      const published = fingerprint !== "passive-read-failed";
+      assert.equal(fingerprintEvents(visit).length > 0, published, label);
+      assert.equal(fingerprintDetections(visit).length > 0, published, label);
+      const draft = scannerDraft(visit);
+      assert.deepEqual(
+        draft.detectors["fingerprint-heuristics"],
+        {
+          version: DETECTOR_VERSIONS["fingerprint-heuristics"],
+          status: published ? "partial" : "failed",
+          reason: "load-failed",
+          phaseId: draft.snapshot
+        },
+        label
+      );
+      assert.equal(parityOf(visit).kind, "held", label);
+    }
+  }
+  // Observe mode reads no passive boundary, so a page that left before its
+  // state was read publishes nothing and the detector fails.
+  const observeLeft = fixedVisit({ subject: "left-before-state", evidence });
+  assert.deepEqual([fingerprintEvents(observeLeft), fingerprintDetections(observeLeft)], [[], []]);
+  assert.equal(scannerDraft(observeLeft).detectors["fingerprint-heuristics"].status, "failed");
 });
 
 function visitFeatures(visit: Visit): string[] {

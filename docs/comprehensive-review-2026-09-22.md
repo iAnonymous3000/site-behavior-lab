@@ -586,12 +586,17 @@ shared workers and worklets stay unobserved.
 
 **Update, 2026-09-29, node-detectors-v12.** The next detector epoch bundles
 three changes. The policy PDF path moves to undici 8.11.2 and pdf.js 6.3.289
-(`policy-text-cross-check@8`). Three detectors that recorded failed beside
-evidence the visit still published, which made the r2 builder refuse the
-whole visit, now end partial: the consent banner after its interaction phase
-began (`consent-control-and-state@3`), a CNAME lookup that failed beside a
-found cloak (`dns-cname-chain@5`), and a fingerprint read with no readable
-frame but a read worker realm (`fingerprint-observer@6`). And four v1
+(`policy-text-cross-check@8`). Four scanner branches that recorded a
+detector failed beside evidence the visit still published, which made the r2
+builder refuse the whole visit, now end it partial: the consent banner after
+its interaction phase began (`consent-control-and-state@3`), a CNAME lookup
+that failed beside a found cloak (`dns-cname-chain@5`), and two fingerprint
+branches (`fingerprint-observer@6`): a read with no readable frame but a read
+worker realm, and a consent-mode visit that lost its subject after a passive
+read that read a frame but was incomplete, whose record publishes in place
+of the unread state (finding R5). The two fingerprint branches end partial
+also when that record holds no evidence, where the r2 report was already
+built. And four v1
 overclaims are closed with new admitted lines, for a failed or cut storage
 read, an incomplete banner check in observe mode, a policy link search that
 did not cover every link, and CNAME candidates left past the lookup bound;
@@ -604,13 +609,12 @@ pair across the deploy is ineligible in every family; the v15 producer rows
 and the PageGraph row that ran the outgoing identity are closed to their
 literals. Neither methodology moves: no pooled corpus metric or
 population rule reads the new lines or the new statuses, so the 95 committed
-reports on the `+fingerprint-surface-v2` line keep their cohort. Two
-divergences stay open: v1 has no line for a failed CNAME lookup, so its CNAME
-cloaking claim stands where r2 withholds it, and a consent-mode visit that
-lost its subject after a readable but incomplete passive read still records
-the fingerprint detector failed beside published passive observations, the
-shape of the three refusals above. The v1-r2 parity property holds the first
-open as a `todo` divergence (finding P17); it does not model the second yet.
+reports on the `+fingerprint-surface-v2` line keep their cohort. v1 has no
+line for a failed CNAME lookup, so its CNAME cloaking claim stands where r2
+withholds it; the v1-r2 parity property holds that open as a `todo`
+divergence (finding P17). The property now models the passive record a
+consent-mode visit publishes in place of its unread state, which is how it
+reaches R5, and it fails on any builder refusal its draws reach.
 
 ## 5. Confirmed and left for other reasons
 
