@@ -24,7 +24,9 @@ import {
 import {
   familyCensoredOnRun,
   LEGACY_AUXILIARY_PAGE_REQUESTS_BLOCKED_REASON,
+  LEGACY_CONSENT_BANNER_INCOMPLETE_REASON,
   LEGACY_CONSENT_INTERACTION_LEFT_SUBJECT_REASON,
+  LEGACY_CONSENT_RELOAD_LEFT_SUBJECT_REASON,
   LEGACY_KEYSTROKE_PROBE_NAVIGATION_STOPPED_REASON,
   LEGACY_KEYSTROKE_PROBE_PAGE_LEFT_REASON,
   LEGACY_KEYSTROKE_PROBE_REQUESTS_OMITTED_REASON,
@@ -43,7 +45,9 @@ import {
 import { degradedRunNotice, runCensorshipNotes } from "./scan-report-censorship";
 import { evaluateQuality } from "./scan-report-v2-evaluators";
 import {
+  runConsentBannerIncomplete,
   runConsentInteractionLeftSubject,
+  runConsentReloadLeftSubject,
   runHitAuxiliaryPageRequestsBlocked,
   runHitFingerprintListenerAttributionLoss,
   runHitFingerprintObserverCaptureLoss,
@@ -61,6 +65,7 @@ import {
   runPageLeftSubjectBeforeState,
   runRequestEvidenceCapped
 } from "./comparison-eligibility";
+import { CONSENT_PROBE_OUTCOMES, consentInteractionWarning } from "./consent-interaction";
 import { CONSENT_INTERACTION_LEFT_SUBJECT_WARNING } from "./consent-subject-loss-warning";
 import { ACTIVE_PROBE_SUBJECT_WARNING, CONSENT_RELOAD_SUBJECT_WARNING } from "./active-probe-subject-warnings";
 import { createCorpusStatsAccumulator } from "./corpus-stats-builder";
@@ -70,6 +75,7 @@ import { buildReportHeadline } from "./report-headline";
 import { redactScanResultV1 } from "./redact-scan-report-v1";
 import {
   AUXILIARY_PAGE_REQUESTS_BLOCKED_WARNING,
+  CONSENT_BANNER_CHECK_INCOMPLETE_WARNING,
   FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING,
   FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING,
   FINGERPRINT_WORKER_REALM_CAPTURE_LOSS_WARNING,
@@ -734,6 +740,10 @@ const HISTORICAL_TYPED_FIELD_DISCLOSURE =
 const HISTORICAL_RETAINED_TAIL =
   "Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts.";
 
+// Every consent-mode sentence for a banner search or choice that did not
+// complete (lib/consent-interaction.ts).
+const CONSENT_FAILURES = CONSENT_PROBE_OUTCOMES.filter((failure) => failure !== null);
+
 test("each probe and request-loss line is recognized by its own predicate alone", () => {
   // Every probe line opens with the same words and two share their tail with
   // the unsettled line, so a fragment that also matched a sibling would move
@@ -757,7 +767,14 @@ test("each probe and request-loss line is recognized by its own predicate alone"
     ["probe-page-left", KEYSTROKE_PROBE_PAGE_LEFT_WARNING],
     ["before-state", PAGE_LEFT_SUBJECT_BEFORE_STATE_WARNING],
     ["auxiliary", AUXILIARY_PAGE_REQUESTS_BLOCKED_WARNING],
-    ["storage", STORAGE_SNAPSHOT_CAPTURE_LOSS_WARNING]
+    ["storage", STORAGE_SNAPSHOT_CAPTURE_LOSS_WARNING],
+    ["banner-check", CONSENT_BANNER_CHECK_INCOMPLETE_WARNING],
+    ...CONSENT_FAILURES.map((failure): [string, string] => [
+      `consent-${failure}`,
+      consentInteractionWarning({ mode: "accept-all", clicked: false }, failure)
+    ]),
+    ["consent-no-control", consentInteractionWarning({ mode: "reject-all", clicked: false })],
+    ["consent-click", consentInteractionWarning({ mode: "accept-all", clicked: true, cmp: "OneTrust" })]
   ];
   const predicates: [string, (run: { warnings: string[] }) => boolean, string[]][] = [
     ["incomplete", runHitKeystrokeProbeCaptureLoss, ["incomplete"]],
@@ -772,7 +789,9 @@ test("each probe and request-loss line is recognized by its own predicate alone"
     ["probe-page-left", runKeystrokeProbePageLeft, ["probe-page-left"]],
     ["before-state", runPageLeftSubjectBeforeState, ["before-state"]],
     ["auxiliary", runHitAuxiliaryPageRequestsBlocked, ["auxiliary"]],
-    ["storage", runHitStorageSnapshotCaptureLoss, ["storage"]]
+    ["storage", runHitStorageSnapshotCaptureLoss, ["storage"]],
+    ["banner", runConsentBannerIncomplete, ["banner-check", ...CONSENT_FAILURES.map((failure) => `consent-${failure}`)]],
+    ["reload", runConsentReloadLeftSubject, ["reload-subject"]]
   ];
   for (const [predicateName, predicate, own] of predicates) {
     for (const [lineName, line] of lines) {
@@ -786,9 +805,10 @@ test("every other v1 line for an incomplete input probe censors the keystroke cl
   // Besides the unread-request line, v1 records that with the line for a test
   // the probe did not complete and with the three lines for a page that was
   // off the recorded site when the probe was skipped or stopped. The consent
-  // interaction's line also censors the four families r2 drops beside it, so
-  // it has its own test below. Each run goes through the real sanitizer, view,
-  // facts and corpus accumulator.
+  // interaction's line also censors the four families r2 drops beside it, and
+  // the reload's line also the consent-banner claim, so each has its own test
+  // below. Each run goes through the real sanitizer, view, facts and corpus
+  // accumulator.
   const outcome = (warnings: string[], fingerprintEvents = 4) => {
     const input = makeScanReportV1() as ScanResult;
     input.summary.firstPartyDomain = "probe-fixture.net";
@@ -819,7 +839,6 @@ test("every other v1 line for an incomplete input probe censors the keystroke cl
   const clean = outcome([]);
   const cases: [string, string, RegExp][] = [
     [KEYSTROKE_PROBE_TEST_INCOMPLETE_WARNING, LEGACY_KEYSTROKE_PROBE_TEST_INCOMPLETE_REASON, /probe did not complete its test/],
-    [CONSENT_RELOAD_SUBJECT_WARNING, LEGACY_KEYSTROKE_PROBE_SUBJECT_LOST_REASON, /off the recorded site before or during the synthetic form-input probe/],
     [ACTIVE_PROBE_SUBJECT_WARNING, LEGACY_KEYSTROKE_PROBE_SUBJECT_LOST_REASON, /off the recorded site before or during the synthetic form-input probe/]
   ];
   for (const [warning, reason, note] of cases) {
@@ -1134,7 +1153,8 @@ test("each v1 line for a read or detector r2 records as incomplete withholds wha
   // counted one was benchmarked. A line whose r2 loss censors a whole family
   // censors that family; a line whose r2 loss is scoped to one claim censors
   // that claim alone. None is request loss. Each run goes through the real
-  // sanitizer, view, facts and corpus accumulator.
+  // sanitizer, view, facts and corpus accumulator, on a quiet visit whose
+  // policy was read, so every claim stands and the calm headline is open.
   const outcome = (warnings: string[]) => {
     const input = makeScanReportV1() as ScanResult;
     input.summary.firstPartyDomain = "probe-fixture.net";
@@ -1143,6 +1163,13 @@ test("each v1 line for a read or detector r2 records as incomplete withholds wha
     input.fingerprintDetections = [];
     input.pixelEvents = [];
     input.cnameCloaks = [];
+    input.privacyPolicy = {
+      url: "https://probe-fixture.net/privacy",
+      claims: [],
+      mentionedEntities: [],
+      unmentionedEntities: [],
+      policyTextLength: 4000
+    };
     input.warnings = warnings;
     const report = redactScanResultV1(input).report;
     const view = viewFromV1Report(report);
@@ -1154,24 +1181,51 @@ test("each v1 line for a read or detector r2 records as incomplete withholds wha
   const families = ["requests", "cookies", "storage", "fingerprinting", "detector-output", "consent-verification"] as const;
   const cases: {
     warning: string;
-    reason: string;
+    reasons: string[];
     censored: readonly (typeof families)[number][];
     withheld: readonly string[];
+    /** Whether the calm headline stays open: it requires every claim but storage keys. */
+    calm: boolean;
     note: RegExp;
   }[] = [
     {
       warning: STORAGE_SNAPSHOT_CAPTURE_LOSS_WARNING,
-      reason: LEGACY_STORAGE_SNAPSHOT_REASON,
+      reasons: [LEGACY_STORAGE_SNAPSHOT_REASON],
       censored: ["storage"],
       withheld: ["storage-keys"],
+      calm: true,
       note: /could not read the page's storage in full at the end of the visit, so the storage evidence is incomplete/
+    },
+    // r2 withholds the consent-banner claim over a detector that is not
+    // complete, and scopes its consent-banner loss to that claim.
+    ...[
+      CONSENT_BANNER_CHECK_INCOMPLETE_WARNING,
+      ...CONSENT_FAILURES.map((failure) => consentInteractionWarning({ mode: "reject-all", clicked: false }, failure))
+    ].map((warning) => ({
+      warning,
+      reasons: [LEGACY_CONSENT_BANNER_INCOMPLETE_REASON],
+      censored: [],
+      withheld: ["consent-banner"],
+      calm: false,
+      note: /cookie\/consent banner search or choice did not complete, so consent-banner findings are incomplete/
+    })),
+    // The reload's dropped consent-verification loss withholds the
+    // consent-banner claim, and the probe it skipped the keystroke claim.
+    {
+      warning: CONSENT_RELOAD_SUBJECT_WARNING,
+      reasons: [LEGACY_KEYSTROKE_PROBE_SUBJECT_LOST_REASON, LEGACY_CONSENT_RELOAD_LEFT_SUBJECT_REASON],
+      censored: [],
+      withheld: ["keystroke-exfiltration", "consent-banner"],
+      calm: false,
+      note: /post-consent reload left the recorded site, so the consent verification is incomplete/
     }
   ];
   assert.deepEqual(clean.run.quality.reasons, []);
-  for (const { warning, reason, censored, withheld, note } of cases) {
+  assert.equal(clean.facts.calmEligible, true);
+  for (const { warning, reasons, censored, withheld, calm, note } of cases) {
     const lost = outcome([warning]);
     assert.deepEqual(lost.report.warnings, [warning], warning);
-    assert.deepEqual(lost.run.quality.reasons, [reason], warning);
+    assert.deepEqual(lost.run.quality.reasons, reasons, warning);
     assert.equal(lost.run.quality.outcome, "complete", warning);
     for (const family of families) {
       assert.equal(familyCensoredOnRun(lost.run, family), censored.includes(family), `${warning}: ${family}`);
@@ -1190,6 +1244,7 @@ test("each v1 line for a read or detector r2 records as incomplete withholds wha
       assert.deepEqual(lost.facts.claims[claim].blockers, ["family-censored"], `${warning}: ${claim}`);
       assert.equal(lost.facts.claims[claim].benchmarkAllowed, false, `${warning}: ${claim}`);
     }
+    assert.equal(lost.facts.calmEligible, calm, warning);
     const notes = runCensorshipNotes(lost.run).join(" ");
     assert.match(notes, note, warning);
     assert.doesNotMatch(notes, /capture-loss:/, warning);

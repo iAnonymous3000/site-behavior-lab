@@ -81,6 +81,7 @@ import {
 } from "./node-scan-measurement";
 import {
   AUXILIARY_PAGE_REQUESTS_BLOCKED_WARNING,
+  CONSENT_BANNER_CHECK_INCOMPLETE_WARNING,
   FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING,
   FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING,
   INVALID_UPSTREAM_RESPONSE_WARNING,
@@ -4318,6 +4319,14 @@ test("observe-mode consent timeout anchors detector and loss to the passive phas
       }
     );
     assert.equal(consentBannerObserveCalibrationFact(envelope), undefined);
+    // v1 has no detector ledger: the observe line is its record that r2
+    // withholds the consent-banner claim here.
+    // (The fixture's .test host has no registrable domain, so no r2 report
+    // is built here; the skip withholds the claim on r2 by its status.)
+    assert.equal(envelope.result.warnings.includes(CONSENT_BANNER_CHECK_INCOMPLETE_WARNING), true);
+    const v1Report = redactScanResultV1(envelope.result).report;
+    assert.equal(v1Report.warnings.includes(CONSENT_BANNER_CHECK_INCOMPLETE_WARNING), true);
+    assert.equal(buildReportFacts(viewFromV1Report(v1Report)).display.claims["consent-banner"].allowed, false);
   } finally {
     delete process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
     await closeSharedBrowserForTests();
@@ -4928,6 +4937,11 @@ test("a consent interaction that left the site withholds on v1 each claim r2 wit
   }
 });
 
+/** The v1 display facts of one visit's scanner result, through the public sanitizer and reader. */
+function v1ResultDisplayFacts(result: ScanResult) {
+  return buildReportFacts(viewFromV1Report(redactScanResultV1(result).report)).display;
+}
+
 /** The display facts each wire publishes for one visit, through its own producer and reader. */
 function bothWireDisplayFacts(visit: Awaited<ReturnType<typeof scanSiteWithMeasurement>>) {
   const r2 = buildReportFacts(
@@ -5305,6 +5319,9 @@ test("a consent control that reloads the page is not reported as a missing contr
     assert.equal(consentWarnings.length, 1, consentWarnings.join(" | "));
     assert.doesNotMatch(consentWarnings[0], /no recognizable control was found/);
     assert.match(consentWarnings[0], /moved out from under the search/);
+    // r2 ends the detector partial here and withholds the consent-banner
+    // claim; the failure sentence is v1's record of that.
+    assert.equal(v1ResultDisplayFacts(result).claims["consent-banner"].allowed, false);
     assert.equal(staged!.measurement.detectors["consent-banner"].status, "partial");
     assert.equal(staged!.measurement.detectors["consent-banner"].reason, "load-failed");
     assert.ok(
@@ -5361,6 +5378,7 @@ test("a consent control that never responds is disclosed as a click, not an empt
     assert.equal(consentWarnings.length, 1, consentWarnings.join(" | "));
     assert.match(consentWarnings[0], /clicked a control that never visibly responded/);
     assert.doesNotMatch(consentWarnings[0], /no recognizable control was found/);
+    assert.equal(v1ResultDisplayFacts(result).claims["consent-banner"].allowed, false);
     assert.deepEqual(staged!.measurement.detectors["consent-banner"], {
       version: "consent-control-and-state@2",
       status: "partial",
@@ -5450,6 +5468,7 @@ test("an unrelated detached subframe is disclosed as lost coverage, not a page t
     assert.match(consentWarnings[0], /no control was clicked/);
     assert.doesNotMatch(consentWarnings[0], /moved out from under the search/);
     assert.doesNotMatch(consentWarnings[0], /no recognizable control was found/);
+    assert.equal(v1ResultDisplayFacts(result).claims["consent-banner"].allowed, false);
   } finally {
     await closeSharedBrowserForTests();
     await new Promise<void>((resolve) => upstream.close(() => resolve()));
@@ -5575,6 +5594,11 @@ test("a consent search that threw or read no frame after its phase began publish
       );
       assert.equal(report.run.detectors["consent-banner"].status, "partial", failure);
       assert.equal(report.run.evidence.consent?.interactionAttempted, true, failure);
+      // v1 has no detector ledger; the failure sentence withholds the claim.
+      const { r2, v1 } = bothWireDisplayFacts(visit);
+      assert.equal(r2.claims["consent-banner"].allowed, false, failure);
+      assert.equal(v1.claims["consent-banner"].allowed, false, failure);
+      assertV1WithholdsEachClaimR2Withholds(r2, v1);
     }
     assert.equal(subframeHookThrows, 1, "the throwing hook must be what ended the first search");
     assert.ok(consentSearchRejections > 0, "the second search must have been refused every frame read");
@@ -5673,6 +5697,11 @@ test("post-consent cross-site reload evidence is rejected and the active input p
       staged!.consent?.bannerTransition?.observations.some((observation) => observation.phaseId === reloadPhase.phaseId),
       false
     );
+    // The reload's dropped consent-verification loss withholds the
+    // consent-banner claim on r2; the reload's line withholds it on v1.
+    const v1 = v1ResultDisplayFacts(result);
+    assert.equal(v1.claims["consent-banner"].allowed, false);
+    assert.equal(v1.claims["keystroke-exfiltration"].allowed, false);
   } finally {
     delete process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
     await closeSharedBrowserForTests();
@@ -7413,6 +7442,113 @@ test("a storage read v1 publishes that was cut at its bounds withholds storage k
     assert.notEqual(phaseOf("consent-interaction"), null);
     assert.equal(passive.result.storage.length, 1);
     assert.equal(passive.result.warnings.includes(STORAGE_SNAPSHOT_CAPTURE_LOSS_WARNING), false);
+  } finally {
+    if (previousConsentVerification === undefined) delete process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
+    else process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = previousConsentVerification;
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+});
+
+test("an observe-mode banner check that read no frame or not every frame withholds the consent-banner claim on v1 as r2 does", { timeout: 60_000 }, async () => {
+  // Observe mode's one banner-visibility read ends the consent-banner detector
+  // failed when it read no frame and partial when it could not read an
+  // attached frame, and r2 withholds the consent-banner claim, which the calm
+  // headline requires. v1 carries no consent evidence in observe mode and no
+  // detector ledger, so it had no line and its reader allowed the claim.
+  const upstream = createServer((request, response) => {
+    const host = request.headers.host?.split(":")[0] ?? "";
+    response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+    response.end(
+      host === "www.banner-frame.net"
+        ? "<!doctype html><title>Banner frame fixture</title><iframe title=\"Embedded\"></iframe><p>fixture</p>"
+        : "<!doctype html><title>Banner main fixture</title><p>fixture</p>"
+    );
+  });
+  await new Promise<void>((resolve, reject) => {
+    upstream.once("error", reject);
+    upstream.listen(0, "127.0.0.1", resolve);
+  });
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+  const previousConsentVerification = process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
+  process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = "1";
+  const options = {
+    publicUrlAlreadyVerified: true,
+    verifyPublicUrl: async () => undefined,
+    resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 as const }],
+    connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"),
+    resolveCnameChain: async () => []
+  };
+  try {
+    // No frame read: the main frame's banner search rejects, as for a
+    // document replaced mid-read.
+    let mainFrameSearches = 0;
+    const unread = await scanSiteWithMeasurement(
+      { url: "http://www.banner-main.net/", device: "desktop", gpcEnabled: false, consentMode: "observe" },
+      {
+        ...options,
+        beforePassiveShieldsBoundaryForTests: async (page) => {
+          const main = page.mainFrame();
+          type Evaluate = (...args: unknown[]) => Promise<unknown>;
+          const evaluate = (main.evaluate as Evaluate).bind(main);
+          Object.defineProperty(main, "evaluate", {
+            configurable: true,
+            writable: true,
+            value: async (...args: unknown[]) => {
+              if (typeof args[0] === "function" && args[0].name === "findVisibleConsentControl") {
+                mainFrameSearches += 1;
+                throw new Error("Execution context was destroyed, most likely because of a navigation");
+              }
+              return evaluate(...args);
+            }
+          });
+        }
+      }
+    );
+    assert.equal(mainFrameSearches, 1);
+    // An attached subframe it could not read beside a readable main frame.
+    const partial = await scanSiteWithMeasurement(
+      { url: "http://www.banner-frame.net/", device: "desktop", gpcEnabled: false, consentMode: "observe" },
+      {
+        ...options,
+        beforeConsentVisibilitySubframeEvaluationForTests: async (frame) => {
+          assert.equal(frame.isDetached(), false);
+          rejectNextFrameEvaluation(frame);
+        }
+      }
+    );
+    for (const [visit, status, reason] of [
+      [unread, "failed", "engine-unavailable"],
+      [partial, "partial", "scan-failed"]
+    ] as const) {
+      assert.deepEqual(visit.measurement.measurement.detectors["consent-banner"], {
+        version: DETECTOR_VERSIONS["consent-banner"],
+        status,
+        reason,
+        phaseId: 0
+      });
+      assert.deepEqual(
+        visit.measurement.measurement.qualityFacts.captureLoss.filter((loss) => loss.detail === "consent-banner"),
+        [{ family: "detector-output", phaseId: 0, kind: "dropped", count: 1, detail: "consent-banner" }],
+        status
+      );
+      assert.equal(visit.result.warnings.includes(CONSENT_BANNER_CHECK_INCOMPLETE_WARNING), true, status);
+      const { r2, v1, v1Report } = bothWireDisplayFacts(visit);
+      assert.equal(v1Report.warnings.includes(CONSENT_BANNER_CHECK_INCOMPLETE_WARNING), true, status);
+      assert.equal(r2.claims["consent-banner"].allowed, false, status);
+      assert.equal(v1.claims["consent-banner"].allowed, false, status);
+      assertV1WithholdsEachClaimR2Withholds(r2, v1);
+    }
+    // A check that read every frame and found no banner is complete, and
+    // adds no line.
+    const complete = await scanSiteWithMeasurement(
+      { url: "http://www.banner-frame.net/", device: "desktop", gpcEnabled: false, consentMode: "observe" },
+      options
+    );
+    assert.equal(complete.measurement.measurement.detectors["consent-banner"].status, "complete");
+    assert.equal(complete.result.warnings.includes(CONSENT_BANNER_CHECK_INCOMPLETE_WARNING), false);
+    assert.equal(bothWireDisplayFacts(complete).v1.claims["consent-banner"].allowed, true);
   } finally {
     if (previousConsentVerification === undefined) delete process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
     else process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = previousConsentVerification;

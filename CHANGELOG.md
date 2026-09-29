@@ -625,6 +625,16 @@ of these lines, so none reads differently.
   scanner could not read the page's storage in full, and v1 readers censor the
   storage family for it, as r2 does. The passive-boundary and reload reads,
   which v1 never publishes, do not add it.
+- A consent-banner detector that did not complete left the consent-banner
+  claim, which the calm headline requires, standing on v1. In the consent
+  modes the existing sentences for a banner search that ran out of time,
+  failed, read no frame or not every frame, was interrupted by a page that
+  moved, or clicked a control that never responded already say so, and v1
+  readers now withhold the claim for each; the completed search that found no
+  control does not. Observe mode's banner-visibility check had no line, so a
+  new fixed warning says the scanner could not complete it. The existing line
+  for a post-consent reload that left the recorded site now withholds the
+  claim too, as r2's dropped consent-verification loss does.
 
 ## [0.6.0] - 2026-09-06
 

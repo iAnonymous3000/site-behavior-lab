@@ -47,6 +47,7 @@ import { scannerDisclosure, type ScanConditionsProfile } from "./scan-condition-
 import { PUBLIC_SCANNER_EGRESS_LABELS } from "./scanner-egress";
 import {
   AUXILIARY_PAGE_REQUESTS_BLOCKED_WARNING,
+  CONSENT_BANNER_CHECK_INCOMPLETE_WARNING,
   FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING,
   FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING,
   FINGERPRINT_WORKER_REALM_CAPTURE_LOSS_WARNING,
@@ -389,6 +390,9 @@ const FIXED_SCANNER_WARNINGS = new Set([
   // failed or was cut at its bounds, where r2 records a storage-snapshot loss
   // that censors the storage family.
   STORAGE_SNAPSHOT_CAPTURE_LOSS_WARNING,
+  // node-detectors-v12: observe mode's banner-visibility read did not
+  // complete, where r2 withholds the consent-banner claim over its detector.
+  CONSENT_BANNER_CHECK_INCOMPLETE_WARNING,
   GPC_WORKER_CAPTURE_LOSS_WARNING,
   CONSENT_RELOAD_DISCLOSURE,
   "The consent interaction left the recorded site; later page state was not used and the active input probe was skipped.",

@@ -76,6 +76,21 @@ const UNSETTLED_ROUTED_REQUEST_WARNING_FRAGMENT =
   "still being handled, so this visit's request evidence is incomplete";
 const PROXY_TRAFFIC_BUDGET_WARNING_FRAGMENT = "connection and target safety budget";
 const STORAGE_SNAPSHOT_WARNING_FRAGMENT = "could not read this page's storage in full";
+// The six sentences consentInteractionWarning (lib/consent-interaction.ts)
+// writes for a banner search or choice that did not complete, and observe
+// mode's banner-visibility line. Fragments rather than an import: that module
+// carries the whole control catalog, which does not belong in the client
+// bundles this one reaches. A test pins each to the producer's sentence in
+// both modes and holds the completed-search and click sentences out.
+const CONSENT_BANNER_INCOMPLETE_WARNING_FRAGMENTS = [
+  "the scan's time budget ran out before the banner search could run",
+  "the banner search itself failed before it could complete",
+  "no frame could be read to search for one",
+  "clicked a control that never visibly responded",
+  "so the search did not cover the whole page",
+  "the page moved out from under the search before it finished",
+  "could not complete its check for a visible cookie/consent banner"
+] as const;
 
 export function comparisonEligibility(report: ComparisonScanResult): ComparisonEligibility {
   const reasons: string[] = [];
@@ -746,6 +761,38 @@ export function runConsentInteractionLeftSubject(run: Pick<ScanResult, "warnings
  */
 export function runHitStorageSnapshotCaptureLoss(run: Pick<ScanResult, "warnings">): boolean {
   return run.warnings.some((warning) => warning.includes(STORAGE_SNAPSHOT_WARNING_FRAGMENT));
+}
+
+/**
+ * Whether a legacy run's consent-banner detector did not complete: the consent
+ * modes' search ran out of time, threw, read no frame or not every frame, was
+ * interrupted by a page that moved, or clicked a control that never responded
+ * (each named by its own consentInteractionWarning sentence), or observe
+ * mode's banner-visibility read did not complete. The r2 twin is the
+ * consent-banner detector ending other than complete with a `consent-banner`
+ * detector-output loss, which withholds the consent-banner claim. Readers
+ * censor that claim alone: the requests, cookies and storage around the
+ * banner were recorded, so it never enters runRequestEvidenceCapped or
+ * comparison eligibility. The completed search that found no control, and a
+ * registered click, are not matched.
+ */
+export function runConsentBannerIncomplete(run: Pick<ScanResult, "warnings">): boolean {
+  return run.warnings.some((warning) =>
+    CONSENT_BANNER_INCOMPLETE_WARNING_FRAGMENTS.some((fragment) => warning.includes(fragment))
+  );
+}
+
+/**
+ * Whether a legacy consent visit's post-consent verification reload left the
+ * recorded site. The producer adds the line only beside r2's dropped
+ * consent-verification loss at the reload's phase, which withholds the
+ * consent-banner claim; readers censor that claim for it. The keystroke claim
+ * takes the same line through runKeystrokeProbeLeftSubject. It is not request
+ * loss: the reload's traffic is never in the request log. Matched exactly
+ * against the producer's own constant.
+ */
+export function runConsentReloadLeftSubject(run: Pick<ScanResult, "warnings">): boolean {
+  return run.warnings.includes(CONSENT_RELOAD_SUBJECT_WARNING);
 }
 
 export function runRequestEvidenceCapped(run: ScanResult): boolean {

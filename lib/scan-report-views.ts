@@ -16,7 +16,9 @@ import {
   type ComparisonDecision
 } from "./comparison-decision";
 import {
+  runConsentBannerIncomplete,
   runConsentInteractionLeftSubject,
+  runConsentReloadLeftSubject,
   runHitAuxiliaryPageRequestsBlocked,
   fingerprintObserverLossLines,
   runHitGpcWorkerCaptureLoss,
@@ -712,6 +714,23 @@ export const LEGACY_AUXILIARY_PAGE_REQUESTS_BLOCKED_REASON = "capture-loss:auxil
  */
 export const LEGACY_STORAGE_SNAPSHOT_REASON = "capture-loss:storage-snapshot";
 
+/**
+ * The legacy reason for a v1 consent-banner detector that did not complete
+ * (runConsentBannerIncomplete). Named for the r2 capture-loss detail that
+ * records it, and like it scoped to the consent-banner claim alone
+ * (REPORT_CLAIM_REQUIREMENTS `legacyReasons`), never to a family through
+ * familyCensoredOnRun.
+ */
+export const LEGACY_CONSENT_BANNER_INCOMPLETE_REASON = "capture-loss:consent-banner";
+
+/**
+ * The legacy reason for a v1 post-consent reload that left the recorded site.
+ * r2 records a dropped consent-verification loss beside the same line, which
+ * withholds the consent-banner claim; this reason reaches that claim through
+ * its `legacyReasons`, never a family through familyCensoredOnRun.
+ */
+export const LEGACY_CONSENT_RELOAD_LEFT_SUBJECT_REASON = "capture-loss:consent-reload-left-subject";
+
 function runViewFromV1(result: ScanResult, label: RunView["label"], scannedAt: string | null): RunView {
   // v1 never recorded quality; derive the run-level outcome from the same
   // facts the interim gate uses (status, cap) and mark it legacy-derived so it
@@ -781,6 +800,11 @@ function runViewFromV1(result: ScanResult, label: RunView["label"], scannedAt: s
   if (runHitKeystrokeProbeRequestUnread(result)) reasons.push(LEGACY_KEYSTROKE_PROBE_REQUEST_UNREAD_REASON);
   if (runHitKeystrokeProbeTestIncomplete(result)) reasons.push(LEGACY_KEYSTROKE_PROBE_TEST_INCOMPLETE_REASON);
   if (runKeystrokeProbeLeftSubject(result)) reasons.push(LEGACY_KEYSTROKE_PROBE_SUBJECT_LOST_REASON);
+  // Claim-scoped as well: a consent-banner detector that did not complete, or
+  // a verification reload that left the site, withholds the consent-banner
+  // claim on r2 and nothing else v1 records.
+  if (runConsentBannerIncomplete(result)) reasons.push(LEGACY_CONSENT_BANNER_INCOMPLETE_REASON);
+  if (runConsentReloadLeftSubject(result)) reasons.push(LEGACY_CONSENT_RELOAD_LEFT_SUBJECT_REASON);
   return {
     label,
     domain: result.summary.firstPartyDomain,
@@ -1376,7 +1400,8 @@ export function familyCensoredOnRun(run: RunView, family: string): boolean {
   // censor the pixel, CNAME, consent, policy and keystroke claims. The listener
   // claim takes it through its own `legacyReasons` in report-facts, and the
   // unread-request, test-incomplete and subject-lost probe reasons reach the
-  // keystroke claim the same way.
+  // keystroke claim the same way, as the consent-banner and reload reasons
+  // reach the consent-banner claim.
   if (
     (family === "fingerprinting" || family === "detector-output") &&
     run.quality.reasons.includes("capture-loss:fingerprint-observer")

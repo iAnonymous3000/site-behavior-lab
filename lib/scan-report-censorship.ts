@@ -57,6 +57,14 @@ const QUALITY_REASON_NOTES: Record<string, string> = {
   // storage-snapshot capture loss on the storage family.
   "capture-loss:storage-snapshot":
     "the scanner could not read the page's storage in full at the end of the visit, so the storage evidence is incomplete",
+  // v1 only (LEGACY_CONSENT_BANNER_INCOMPLETE_REASON and
+  // LEGACY_CONSENT_RELOAD_LEFT_SUBJECT_REASON). r2 reports the first as a
+  // consent-banner detector that is not complete, the second as a dropped
+  // consent-verification capture loss.
+  "capture-loss:consent-banner":
+    "the scanner's cookie/consent banner search or choice did not complete, so consent-banner findings are incomplete",
+  "capture-loss:consent-reload-left-subject":
+    "the post-consent reload left the recorded site, so the consent verification is incomplete",
   // v1 only (LEGACY_LISTENER_DETECTION_WITHHELD_REASON). r2 reports the same
   // drop as a capture-loss detail, never as this reason.
   "capture-loss:public-fingerprint-detections":

@@ -45,6 +45,7 @@ import {
 import {
   aggregateByteBudgetWarning,
   AUXILIARY_PAGE_REQUESTS_BLOCKED_WARNING,
+  CONSENT_BANNER_CHECK_INCOMPLETE_WARNING,
   FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING,
   FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING,
   FINGERPRINT_WORKER_REALM_CAPTURE_LOSS_WARNING,
@@ -649,16 +650,20 @@ function scannerDraft(visit: Visit): Draft {
     detector(draft, "consent-banner", "skipped", "budget-unavailable");
     consentCoverageLoss(null, "cap", true);
   } else if (!invalid) {
-    // Observe mode with the verification flag on: one banner-visibility read.
+    // Observe mode with the verification flag on: one banner-visibility read,
+    // whose every incomplete outcome adds the observe line.
     if (visit.banner === "unreadable") {
       detector(draft, "consent-banner", "failed", "engine-unavailable", passive);
       consentCoverageLoss(passive, "dropped", false);
+      line(draft, CONSENT_BANNER_CHECK_INCOMPLETE_WARNING);
     } else if (visit.banner === "not-calibration-usable") {
       detector(draft, "consent-banner", "partial", "scan-failed", passive);
       consentCoverageLoss(passive, "dropped", false);
+      line(draft, CONSENT_BANNER_CHECK_INCOMPLETE_WARNING);
     } else if (visit.banner === "no-budget") {
       detector(draft, "consent-banner", "skipped", "budget-unavailable", passive);
       consentCoverageLoss(passive, "cap", false);
+      line(draft, CONSENT_BANNER_CHECK_INCOMPLETE_WARNING);
     } else {
       detector(draft, "consent-banner", "complete", undefined, passive);
     }
@@ -1370,20 +1375,6 @@ const ALLOWED_DIVERGENCES: readonly AllowedDivergence[] = [
       (loss.family === "requests" || loss.family === "cookies" || loss.family === "storage") &&
       loss.detail === undefined &&
       loss.phaseId === phasePlan(visit).consent
-  },
-  // TODO(v1-r2-parity finding P3): a consent-banner detector that did not
-  // complete (the observe-mode visibility read, a consent search that failed
-  // or ran out of budget, a reload that left the site). r2 withholds the
-  // consent-banner claim, which the calm headline requires; v1 has no
-  // detector ledger and no line its readers map, so it allows the claim.
-  {
-    name: "consent-banner-detector-incomplete-has-no-v1-channel",
-    record: "finding P3 (property test, 2026-09-28): the consent-banner branches of scanSiteWithMeasurement",
-    todo: true,
-    covers: (visit, violation) =>
-      violation.kind === "claim" &&
-      violation.subject === "consent-banner" &&
-      ((visit.banner !== "complete" && visit.banner !== "clicked") || visit.subject === "reload-left")
   },
   // TODO(v1-r2-parity finding P4): a policy read after a truncated link
   // search. r2 scopes the policy-link-candidates loss to the privacy-policy

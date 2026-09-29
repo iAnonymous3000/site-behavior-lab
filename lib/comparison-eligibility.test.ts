@@ -11,6 +11,8 @@ import {
   COMPARISON_REQUEST_CAP,
   comparableSubjectHosts,
   comparisonEligibility,
+  runConsentBannerIncomplete,
+  runConsentReloadLeftSubject,
   runHitKeystrokeProbeCaptureLoss,
   runHitKeystrokeProbeNavigationStopped,
   runHitKeystrokeProbeRequestUnread,
@@ -24,11 +26,13 @@ import {
   temporalPairEligibility
 } from "./comparison-eligibility";
 import { legacyComparisonDecision } from "./comparison-decision";
+import { CONSENT_CMP_SELECTORS, CONSENT_PROBE_OUTCOMES, consentInteractionWarning } from "./consent-interaction";
 import { CONSENT_INTERACTION_LEFT_SUBJECT_WARNING } from "./consent-subject-loss-warning";
 import { ACTIVE_PROBE_SUBJECT_WARNING, CONSENT_RELOAD_SUBJECT_WARNING } from "./active-probe-subject-warnings";
 import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "./gpc-injection";
 import {
   AUXILIARY_PAGE_REQUESTS_BLOCKED_WARNING,
+  CONSENT_BANNER_CHECK_INCOMPLETE_WARNING,
   INVALID_UPSTREAM_RESPONSE_WARNING,
   KEYSTROKE_PROBE_INCOMPLETE_WARNING,
   KEYSTROKE_PROBE_NAVIGATION_STOPPED_WARNING,
@@ -504,7 +508,10 @@ test("lines for a storage read or a detector r2 records as incomplete are not re
   // Each is read as the storage family or one claim, where r2 records its
   // loss. None may make a pair ineligible or read as request-evidence loss.
   const lines: [string, (run: Pick<ScanResult, "warnings">) => boolean][] = [
-    [STORAGE_SNAPSHOT_CAPTURE_LOSS_WARNING, runHitStorageSnapshotCaptureLoss]
+    [STORAGE_SNAPSHOT_CAPTURE_LOSS_WARNING, runHitStorageSnapshotCaptureLoss],
+    [CONSENT_BANNER_CHECK_INCOMPLETE_WARNING, runConsentBannerIncomplete],
+    [consentInteractionWarning({ mode: "accept-all", clicked: false }, "search-interrupted"), runConsentBannerIncomplete],
+    [CONSENT_RELOAD_SUBJECT_WARNING, runConsentReloadLeftSubject]
   ];
   for (const [warning, predicate] of lines) {
     const run = makeRun({ totalRequests: 20 });
@@ -517,6 +524,32 @@ test("lines for a storage read or a detector r2 records as incomplete are not re
       warning
     );
   }
+});
+
+test("the incomplete consent-banner predicate matches the producer's own failure sentences and no other", () => {
+  // The predicate restates consentInteractionWarning's failure sentences as
+  // fragments. Each of them, in both modes, must match; the completed search
+  // that found no control and every click sentence must not, since r2 ends the
+  // detector complete there. 230 committed reports carry the first.
+  const cmps = [...new Set(CONSENT_CMP_SELECTORS.map((entry) => entry.cmp))];
+  assert.ok(cmps.length > 3);
+  for (const mode of ["accept-all", "reject-all"] as const) {
+    for (const failure of CONSENT_PROBE_OUTCOMES) {
+      const warning = consentInteractionWarning({ mode, clicked: false }, failure);
+      assert.equal(runConsentBannerIncomplete({ warnings: [warning] }), failure !== null, `${mode} ${failure}`);
+      assert.equal(runConsentReloadLeftSubject({ warnings: [warning] }), false, `${mode} ${failure}`);
+    }
+    for (const cmp of cmps) {
+      const warning = consentInteractionWarning({ mode, clicked: true, cmp });
+      assert.equal(runConsentBannerIncomplete({ warnings: [warning] }), false, `${mode} ${cmp}`);
+    }
+    for (const summary of [{ mode, clicked: true, matchedText: "Accept all" }, { mode, clicked: true }]) {
+      assert.equal(runConsentBannerIncomplete({ warnings: [consentInteractionWarning(summary)] }), false, mode);
+    }
+  }
+  assert.equal(runConsentBannerIncomplete({ warnings: [CONSENT_BANNER_CHECK_INCOMPLETE_WARNING] }), true);
+  assert.equal(runConsentReloadLeftSubject({ warnings: [CONSENT_RELOAD_SUBJECT_WARNING] }), true);
+  assert.equal(runConsentBannerIncomplete({ warnings: [CONSENT_RELOAD_SUBJECT_WARNING] }), false);
 });
 
 test("mismatched subjects, devices, and pipelines each disqualify", () => {

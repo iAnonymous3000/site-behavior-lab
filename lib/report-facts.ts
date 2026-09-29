@@ -33,7 +33,9 @@ import {
   displayRunView,
   familyCensoredOnRun,
   familyUnsupportedOnRun,
+  LEGACY_CONSENT_BANNER_INCOMPLETE_REASON,
   LEGACY_CONSENT_INTERACTION_LEFT_SUBJECT_REASON,
+  LEGACY_CONSENT_RELOAD_LEFT_SUBJECT_REASON,
   LEGACY_KEYSTROKE_PROBE_REQUEST_UNREAD_REASON,
   LEGACY_KEYSTROKE_PROBE_SUBJECT_LOST_REASON,
   LEGACY_KEYSTROKE_PROBE_TEST_INCOMPLETE_REASON,
@@ -357,6 +359,14 @@ export const REPORT_CLAIM_REQUIREMENTS: Readonly<Record<ReportClaimId, ClaimRequ
     familyDetails: {
       "detector-output": ["consent-banner"],
       "consent-verification": ["consent-verification", "public-consent-observations"]
+    },
+    // The v1 channels for an r2 consent-banner detector that is not complete
+    // and for a verification reload that left the site. Each censors this
+    // claim alone, where r2 scopes the detector's loss to it and the reload's
+    // loss falls on a family no other claim reads.
+    legacyReasons: {
+      "detector-output": [LEGACY_CONSENT_BANNER_INCOMPLETE_REASON],
+      "consent-verification": [LEGACY_CONSENT_RELOAD_LEFT_SUBJECT_REASON]
     },
     detectors: ["consent-banner"],
     count: "none"

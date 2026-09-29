@@ -215,6 +215,20 @@ export const PIXEL_DECODE_CAPTURE_LOSS_WARNING =
  * publishes, do not add it. It must never contain another line's recognition
  * fragment.
  */
+/**
+ * Observe mode's one banner-visibility read, taken when consent verification
+ * is on, did not complete: no frame could be read, a frame it could not read
+ * left the result unusable, or the scan's time ran out. r2 records the
+ * consent-banner detector as failed, partial or skipped with a
+ * `consent-banner` detector-output loss, and withholds the consent-banner
+ * claim, which the calm headline requires. v1 has no detector ledger and
+ * carries no consent evidence in observe mode, so this line is its only
+ * channel; v1 readers censor the consent-banner claim alone for it, as for the
+ * consent modes' failure sentences (consentInteractionWarning). It must never
+ * contain another line's recognition fragment.
+ */
+export const CONSENT_BANNER_CHECK_INCOMPLETE_WARNING =
+  "The scanner could not complete its check for a visible cookie/consent banner on this page, so consent-banner findings for this visit are incomplete.";
 export const STORAGE_SNAPSHOT_CAPTURE_LOSS_WARNING =
   "The scanner could not read this page's storage in full at the end of the visit, so storage evidence for this visit is incomplete.";
 const SCAN_TIMEOUT_MESSAGE = "The scan exceeded the maximum scan duration.";

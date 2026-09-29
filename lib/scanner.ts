@@ -116,6 +116,7 @@ import {
   collectBoundedPageHeadings,
   collectBoundedPageTitle,
   collectStorageEntriesWithCoverage,
+  CONSENT_BANNER_CHECK_INCOMPLETE_WARNING,
   FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING,
   FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING,
   FINGERPRINT_WORKER_REALM_CAPTURE_LOSS_WARNING,
@@ -2013,12 +2014,14 @@ export async function scanSiteWithMeasurement(
             phaseId: passivePhaseId
           });
           recordConsentCoverageLoss(passivePhaseId, "dropped", false);
+          warnings.add(CONSENT_BANNER_CHECK_INCOMPLETE_WARNING);
         } else if (!visibility.calibrationUsable) {
           measurementKernel.setDetector("consent-banner", "partial", {
             reason: "scan-failed",
             phaseId: passivePhaseId
           });
           recordConsentCoverageLoss(passivePhaseId, "dropped", false);
+          warnings.add(CONSENT_BANNER_CHECK_INCOMPLETE_WARNING);
         } else {
           consentBannerObserveCalibration = {
             detector: "consent-banner",
@@ -2037,6 +2040,10 @@ export async function scanSiteWithMeasurement(
           phaseId: passivePhaseId
         });
         recordConsentCoverageLoss(passivePhaseId, "cap", false);
+        // Each incomplete read takes the line: v1 carries no consent evidence
+        // in observe mode and no detector ledger, so it is v1's only record
+        // that r2 withholds the consent-banner claim here.
+        warnings.add(CONSENT_BANNER_CHECK_INCOMPLETE_WARNING);
       }
     } else if (pageSubjectInvalid) {
       measurementKernel.setDetector("consent-banner", "skipped", { reason: "load-failed" });
