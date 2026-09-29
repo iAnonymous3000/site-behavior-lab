@@ -490,7 +490,7 @@ const HISTORICAL_NODE_V14_NORMALIZATION = "redaction-v4+allowlists-v3:269f631f04
 // normalization stayed active then and needed no superseded entry.
 // node-detectors-v12 then closed the rest of that producer, its September 28
 // list and no-list rows, under the same two literals, and retired the
-// normalization: it admits four fixed v1 warnings (see the 63947670 entry in
+// normalization: it admits five fixed v1 warnings (see the 63947670 entry in
 // SUPERSEDED_R2_NORMALIZATIONS). The methodology literal still equals the
 // live constant, since that epoch does not move it; it is spelled out so the
 // closed rows stay put when a later epoch does.
@@ -500,7 +500,7 @@ const HISTORICAL_NODE_V15_METHODOLOGY = "shields-request-context-v2-adblock-rust
 export const HISTORICAL_NODE_R2_V4_METHODOLOGIES_BY_NORMALIZATION: Readonly<
   Record<string, readonly string[]>
 > = Object.freeze({
-  // The 63947670 identity closed when node-detectors-v12 admitted four fixed
+  // The 63947670 identity closed when node-detectors-v12 admitted five fixed
   // v1 warnings. Only the node-detectors-v11 production rows ran it (the
   // September 21 and September 28 list rows and the no-list row), all under
   // the one v15 methodology.
@@ -1253,7 +1253,7 @@ function nodeTuple(
 // fingerprint detectors (consent-control-and-state@3, dns-cname-chain@5,
 // fingerprint-observer@6), which end partial rather than failed beside the
 // evidence they kept. The obligations move to detector-obligations-v2, and the
-// public-string policy digest in the normalization widens by four admitted
+// public-string policy digest in the normalization widens by five admitted
 // v1 warnings. The methodology, lists, toolchain and every other field are
 // unchanged from v15, whose three rows are closed below in
 // NODE_R2_PRODUCER_TUPLES.
@@ -1786,11 +1786,11 @@ export const PAGEGRAPH_R2_PRODUCER_TUPLES: readonly PageGraphR2ProducerTuple[] =
     "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:359b216f1168c4caf2f107e9f5220cbab5e0da9b4dad686129922a9ab3e4e9bc+tldts@7.4.13+pagegraph-request-evidence-v1+r2-http-status-compat-v1",
     HISTORICAL_R2_2026_08_TRACKER_CATALOG
   ),
-  // Closed by node-detectors-v12, which admits four fixed v1 warnings (the
-  // storage-snapshot, consent-banner-check, policy-link-search and
-  // CNAME-candidate lines); the public-string policy is shared by both
-  // observers, although a PageGraph import emits none of them. The active row
-  // after it keeps the name of the first admission.
+  // Closed by node-detectors-v12, which admits five fixed v1 warnings (the
+  // storage-snapshot, consent-banner-check, policy-link-search,
+  // CNAME-candidate and CNAME-lookup lines); the public-string policy is
+  // shared by both observers, although a PageGraph import emits none of them.
+  // The active row after it keeps the name of the first admission.
   pageGraphTuple("pagegraph-v4-convert-to-blob-active",
     "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:63947670fad8ad7124d54586c139cb2bf1f96e4cfc75d8cd247cd8165b407366+tldts@7.4.13+pagegraph-request-evidence-v1+r2-http-status-compat-v1",
     HISTORICAL_R2_2026_08_TRACKER_CATALOG

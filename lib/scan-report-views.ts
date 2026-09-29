@@ -21,6 +21,7 @@ import {
   runConsentReloadLeftSubject,
   runHitAuxiliaryPageRequestsBlocked,
   runHitCnameCandidatesOmitted,
+  runHitCnameLookupFailed,
   fingerprintObserverLossLines,
   runHitGpcWorkerCaptureLoss,
   runHitInvalidUpstreamResponseCaptureLoss,
@@ -750,6 +751,15 @@ export const LEGACY_POLICY_LINK_CANDIDATES_REASON = "capture-loss:policy-link-ca
  */
 export const LEGACY_CNAME_CANDIDATES_OMITTED_REASON = "capture-loss:cname-candidates-omitted";
 
+/**
+ * The legacy reason for a v1 CNAME probe that had a lookup fail, or failed
+ * itself. Named for its cause rather than r2's `cname-lookups` detail, which
+ * also records candidates left past the lookup bound and a probe with no time
+ * to run. Scoped to the cname-cloaking claim alone (REPORT_CLAIM_REQUIREMENTS
+ * `legacyReasons`), never to a family through familyCensoredOnRun.
+ */
+export const LEGACY_CNAME_LOOKUP_FAILED_REASON = "capture-loss:cname-lookup-failed";
+
 function runViewFromV1(result: ScanResult, label: RunView["label"], scannedAt: string | null): RunView {
   // v1 never recorded quality; derive the run-level outcome from the same
   // facts the interim gate uses (status, cap) and mark it legacy-derived so it
@@ -830,6 +840,9 @@ function runViewFromV1(result: ScanResult, label: RunView["label"], scannedAt: s
   // CNAME candidates left past the lookup bound withhold the cname-cloaking
   // claim on r2, found cloak or not.
   if (runHitCnameCandidatesOmitted(result)) reasons.push(LEGACY_CNAME_CANDIDATES_OMITTED_REASON);
+  // A failed CNAME lookup withholds the cname-cloaking claim on r2, found
+  // cloak or not.
+  if (runHitCnameLookupFailed(result)) reasons.push(LEGACY_CNAME_LOOKUP_FAILED_REASON);
   return {
     label,
     domain: result.summary.firstPartyDomain,
@@ -1427,8 +1440,8 @@ export function familyCensoredOnRun(run: RunView, family: string): boolean {
   // unread-request, test-incomplete and subject-lost probe reasons reach the
   // keystroke claim the same way, as the consent-banner and reload reasons
   // reach the consent-banner claim, the policy-search reason the
-  // privacy-policy claim and the omitted-CNAME reason the cname-cloaking
-  // claim.
+  // privacy-policy claim and the omitted-CNAME and failed-CNAME reasons the
+  // cname-cloaking claim.
   if (
     (family === "fingerprinting" || family === "detector-output") &&
     run.quality.reasons.includes("capture-loss:fingerprint-observer")

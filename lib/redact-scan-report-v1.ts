@@ -48,6 +48,7 @@ import { PUBLIC_SCANNER_EGRESS_LABELS } from "./scanner-egress";
 import {
   AUXILIARY_PAGE_REQUESTS_BLOCKED_WARNING,
   CNAME_CANDIDATES_OMITTED_WARNING,
+  CNAME_LOOKUP_FAILED_WARNING,
   CONSENT_BANNER_CHECK_INCOMPLETE_WARNING,
   FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING,
   FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING,
@@ -401,6 +402,9 @@ const FIXED_SCANNER_WARNINGS = new Set([
   // node-detectors-v12: the CNAME probe left candidates past its lookup
   // bound, where r2 withholds the cname-cloaking claim over its loss.
   CNAME_CANDIDATES_OMITTED_WARNING,
+  // node-detectors-v12: a CNAME lookup, or the probe, failed, where r2
+  // withholds the cname-cloaking claim over its loss.
+  CNAME_LOOKUP_FAILED_WARNING,
   GPC_WORKER_CAPTURE_LOSS_WARNING,
   CONSENT_RELOAD_DISCLOSURE,
   "The consent interaction left the recorded site; later page state was not used and the active input probe was skipped.",

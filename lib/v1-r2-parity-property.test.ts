@@ -46,6 +46,7 @@ import {
   aggregateByteBudgetWarning,
   AUXILIARY_PAGE_REQUESTS_BLOCKED_WARNING,
   CNAME_CANDIDATES_OMITTED_WARNING,
+  CNAME_LOOKUP_FAILED_WARNING,
   CONSENT_BANNER_CHECK_INCOMPLETE_WARNING,
   FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING,
   FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING,
@@ -784,6 +785,7 @@ function scannerDraft(visit: Visit): Draft {
     // A failed lookup beside a found cloak keeps the cloak: partial.
     detector(draft, "cname-uncloaking", cnameCloaks(visit).length > 0 ? "partial" : "failed", "scan-failed", snapshot);
     loss(draft, "detector-output", snapshot, "dropped", "cname-lookups");
+    line(draft, CNAME_LOOKUP_FAILED_WARNING);
   } else if (visit.cname === "omitted-candidates") {
     detector(draft, "cname-uncloaking", "partial", "evidence-cap-reached", snapshot);
   } else {
@@ -1403,24 +1405,6 @@ const ALLOWED_DIVERGENCES: readonly AllowedDivergence[] = [
       loss.detail === undefined &&
       loss.phaseId === phasePlan(visit).consent
   },
-  // TODO(v1-r2-parity finding P17): the shape of closed finding P5 (the
-  // lookup bound, now CNAME_CANDIDATES_OMITTED_WARNING) for a failed lookup
-  // alone. A CNAME lookup that failed beside a found cloak ends the detector
-  // partial (the R3 fix; before it the r2 builder refused the visit outright,
-  // so this divergence was unreachable) and r2 withholds the claim; v1
-  // records the cloak, has no line for the failed lookup, and allows it.
-  // Beside candidates left past the bound, the omitted line withholds it.
-  // Closes by a v1 line for the failed lookup, which is a new public string.
-  {
-    name: "cname-lookup-failure-beside-a-cloak-has-no-v1-channel",
-    record: "finding P17 (property test, R3 fix, 2026-09-28): scanSiteWithMeasurement, cnameProbeFailed beside a kept cloak",
-    todo: true,
-    covers: (visit, violation) =>
-      visit.cname === "probe-failed" &&
-      cnameCloaks(visit).length > 0 &&
-      violation.kind === "claim" &&
-      violation.subject === "cname-cloaking"
-  },
   // TODO(v1-r2-parity finding P6): a cookie or storage snapshot lost at the
   // passive boundary or the verification reload of a consent visit. The loss
   // is of r2's phase attribution: v1 publishes only the final snapshot, which
@@ -1510,11 +1494,11 @@ const ALLOWED_DIVERGENCES: readonly AllowedDivergence[] = [
   // claim but still counts against its family, where v1 has no reason that
   // censors the family and reads it complete. r2 readers then show the visit
   // as evidence-incomplete (degradedRunNotice, censorshipNotes). For the
-  // causes P3 to P5 closed at the claim (a consent-banner detector that did
-  // not complete, the reload that left the site, a cut policy-link search,
-  // CNAME candidates past the lookup bound) v1 now carries a claim-scoped
-  // reason those readers also show, so only the family state diverges; for
-  // the rest v1 readers show nothing. Section 4 of the 2026-09-22 review
+  // causes P3 to P5 and P17 closed at the claim (a consent-banner detector
+  // that did not complete, the reload that left the site, a cut policy-link
+  // search, CNAME candidates past the lookup bound, a failed CNAME lookup) v1
+  // now carries a claim-scoped reason those readers also show, so only the
+  // family state diverges; for the rest v1 readers show nothing. Section 4 of the 2026-09-22 review
   // records this only for the consent line and the probe that lost the page,
   // and the v1 reader records its claim-scoped reasons as never reaching a
   // family only for the keystroke and listener reasons (all above); nothing
@@ -1559,8 +1543,9 @@ const ALLOWED_DIVERGENCES: readonly AllowedDivergence[] = [
       loss.family === "detector-output" &&
       (loss.detail === "policy-visit" || loss.detail === "policy-link-candidates")
   },
-  // P14: the CNAME lookup bound, budget and failures (only the bound has a v1
-  // line, which reaches the claim alone).
+  // P14: the CNAME lookup bound, budget and failures (the bound and a failed
+  // lookup have v1 lines, which reach the claim alone; a probe with no time
+  // to run has none).
   {
     name: "cname-lookup-losses-are-r2-family-only",
     record: "finding P14 (property test review, 2026-09-28): scanSiteWithMeasurement, cnameResolution",

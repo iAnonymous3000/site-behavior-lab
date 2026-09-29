@@ -578,7 +578,7 @@ public API or a 1.0 release.
 ### Measurement epoch node-detectors-v12
 
 One epoch, declared before any deploy, covers the policy PDF path, three
-detectors that now end partial beside the evidence they kept, and four v1
+detectors that now end partial beside the evidence they kept, and five v1
 lines for claims r2 withholds.
 
 #### Policy PDF path
@@ -617,9 +617,8 @@ reason in the first three branches and `load-failed` in the fourth:
   longer tells a search that threw from one that read no frame.
 - cname-uncloaking, when a lookup failed beside another that resolved to a
   cloak: the cloak publishes with the failed lookups as the detector's loss.
-  With no cloak kept the detector still fails. v1 has no line for a failed
-  lookup, so a v1 report still allows the CNAME cloaking claim r2 withholds
-  there; that divergence stays open.
+  With no cloak kept the detector still fails. The failed lookup's v1 line is
+  new in this epoch (below).
 - fingerprint-heuristics, when no frame could be read but a worker realm
   was: the worker's evidence publishes. A realm read with no evidence in it
   now ends partial too, where its r2 report was already built. With no realm
@@ -670,7 +669,14 @@ as intended.
   standing on v1, although one left unresolved may be a cloaked tracker and r2
   withholds the claim. A new fixed warning says the scanner looked up CNAME
   records for only some of those subdomains, and v1 readers withhold the
-  claim for it. A failed lookup alone does not add it.
+  claim for it. A failed lookup adds its own line instead (next item).
+- A CNAME cloak found beside a lookup that failed kept the CNAME cloaking
+  claim standing on v1, although the subdomain that lookup was for may be a
+  cloaked tracker and r2 withholds the claim. A new fixed warning says the
+  scanner could not complete one or more CNAME lookups, and v1 readers
+  withhold the claim for it. The scanner adds it for every failed lookup, and
+  for a probe that failed outright, with or without a cloak; beside
+  candidates left past the bound a visit carries both lines.
 
 #### Identities
 
@@ -696,8 +702,8 @@ as intended.
     the producer never sets stay registered. The obligation target
     registries keep v11 as a closed epoch and enforce v12.
   - Node and PageGraph r2 normalization: public-string-policy-v4
-    `63947670...7366` to `52dc3a41...9cd2` under the same `tldts@7.4.13`, a
-    widening by the four admitted warnings above. Removing them from the
+    `63947670...7366` to `344fdfdf...1563` under the same `tldts@7.4.13`, a
+    widening by the five admitted warnings above. Removing them from the
     current policy inputs reproduces `63947670...7366`, and a test holds that.
     The policy name and the `scanner-warning-patterns-v9` label stay: a
     widening is not a policy revision, and `isScannerWarning` is unchanged.

@@ -251,11 +251,25 @@ export const POLICY_LINK_SEARCH_INCOMPLETE_WARNING =
  * also beside a cloak it found. v1 has no quality block and publishes found
  * cloaks with their own line, so this line is its only channel; v1 readers
  * censor the cname-cloaking claim alone for it. A failed lookup is a
- * different cause and does not add it. It must never contain another line's
- * recognition fragment.
+ * different cause with its own line (CNAME_LOOKUP_FAILED_WARNING) and does not
+ * add this one. It must never contain another line's recognition fragment.
  */
 export const CNAME_CANDIDATES_OMITTED_WARNING =
   "The scanner looked up CNAME records for only some of the first-party subdomains this page contacted, so CNAME cloaking findings for this visit are incomplete.";
+/**
+ * One or more of the CNAME probe's lookups failed, or the probe itself did
+ * (cnameProbeFailed). The subdomain a failed lookup was for may be a cloaked
+ * tracker, so r2 records a dropped `cname-lookups` loss, scoped to the
+ * cname-cloaking claim, and withholds the claim, also beside a cloak another
+ * lookup found (the detector then ends partial, otherwise failed). v1 has no
+ * quality block and publishes found cloaks with their own line, so this line
+ * is its only channel; v1 readers censor the cname-cloaking claim alone for
+ * it. Candidates left past the lookup bound are a different cause with their
+ * own line; a visit can carry both. It must never contain another line's
+ * recognition fragment.
+ */
+export const CNAME_LOOKUP_FAILED_WARNING =
+  "The scanner could not complete one or more CNAME lookups for the first-party subdomains this page contacted, so CNAME cloaking findings for this visit are incomplete.";
 export const STORAGE_SNAPSHOT_CAPTURE_LOSS_WARNING =
   "The scanner could not read this page's storage in full at the end of the visit, so storage evidence for this visit is incomplete.";
 const SCAN_TIMEOUT_MESSAGE = "The scan exceeded the maximum scan duration.";

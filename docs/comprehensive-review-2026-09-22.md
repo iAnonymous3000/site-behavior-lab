@@ -596,23 +596,22 @@ worker realm, and a consent-mode visit that lost its subject after a passive
 read that read a frame but was incomplete, whose record publishes in place
 of the unread state (finding R5). The two fingerprint branches end partial
 also when that record holds no evidence, where the r2 report was already
-built. And four v1
-overclaims are closed with new admitted lines, for a failed or cut storage
-read, an incomplete banner check in observe mode, a policy link search that
-did not cover every link, and CNAME candidates left past the lookup bound;
-the consent modes' existing failure lines and the reload line now withhold
+built. And five v1 overclaims are closed with new admitted lines, for a
+failed or cut storage read, an incomplete banner check in observe mode, a
+policy link search that did not cover every link, CNAME candidates left past
+the lookup bound, and a failed CNAME lookup (finding P17, which the R3 fix
+had made reachable); the consent modes' existing failure lines and the
+reload line now withhold
 the consent-banner claim too. The CNAME partial outcome needs one new
 obligation row, so the obligations move to `detector-obligations-v2`, and
 readers hold every earlier epoch to the v1 registry it hashed. The
-normalization widens from `63947670...7366` to `52dc3a41...9cd2`, so an r2
+normalization widens from `63947670...7366` to `344fdfdf...1563`, so an r2
 pair across the deploy is ineligible in every family; the v15 producer rows
 and the PageGraph row that ran the outgoing identity are closed to their
 literals. Neither methodology moves: no pooled corpus metric or
 population rule reads the new lines or the new statuses, so the 95 committed
-reports on the `+fingerprint-surface-v2` line keep their cohort. v1 has no
-line for a failed CNAME lookup, so its CNAME cloaking claim stands where r2
-withholds it; the v1-r2 parity property holds that open as a `todo`
-divergence (finding P17). The property now models the passive record a
+reports on the `+fingerprint-surface-v2` line keep their cohort. The v1-r2
+parity property enforces all five lines. It now models the passive record a
 consent-mode visit publishes in place of its unread state, which is how it
 reaches R5, and it fails on any builder refusal its draws reach.
 

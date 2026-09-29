@@ -82,6 +82,7 @@ import {
 import {
   AUXILIARY_PAGE_REQUESTS_BLOCKED_WARNING,
   CNAME_CANDIDATES_OMITTED_WARNING,
+  CNAME_LOOKUP_FAILED_WARNING,
   CONSENT_BANNER_CHECK_INCOMPLETE_WARNING,
   FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING,
   FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING,
@@ -2297,6 +2298,8 @@ test("scanSite stages live phase-aware readbacks while returning only v1", { tim
       ),
       "a failed CNAME probe must censor detector-output evidence"
     );
+    // v1's only record of the failure, where r2 withholds the claim.
+    assert.equal(result.warnings.includes(CNAME_LOOKUP_FAILED_WARNING), true);
     assert.ok(staged!.evidence.requests.length > 0);
     assert.equal(staged!.evidence.requests.every((request) => Number.isInteger(request.phaseId)), true);
     assert.equal(staged!.evidence.requests[0].phaseId, 0);
@@ -2595,6 +2598,7 @@ test("CNAME candidate overflow records detector-output loss instead of a complet
 
     assert.equal(resolvedHosts.length, 10);
     assert.equal(result.warnings.includes(CNAME_CANDIDATES_OMITTED_WARNING), true);
+    assert.equal(result.warnings.includes(CNAME_LOOKUP_FAILED_WARNING), false, "no lookup failed");
     assert.deepEqual(measurement.measurement.detectors["cname-uncloaking"], {
       version: "dns-cname-chain@5",
       status: "partial",
@@ -2744,9 +2748,17 @@ test("a CNAME lookup that fails beside a found cloak publishes a partial detecto
       measurement.measurement.qualityFacts.captureLoss.filter((loss) => loss.detail === "cname-lookups"),
       [{ family: "detector-output", phaseId: 0, kind: "dropped", count: 1, detail: "cname-lookups" }]
     );
-    // No candidate was left past the bound, so no omitted line (finding P17
-    // holds this failed lookup's own v1 channel open).
+    // No candidate was left past the bound, so no omitted line; the failed
+    // lookup has its own (finding P17), and v1 withholds the CNAME cloaking
+    // claim beside the cloak it still publishes, as r2 does.
     assert.equal(result.warnings.includes(CNAME_CANDIDATES_OMITTED_WARNING), false);
+    assert.equal(result.warnings.includes(CNAME_LOOKUP_FAILED_WARNING), true);
+    const { r2, v1, v1Report } = bothWireDisplayFacts(visit);
+    assert.equal(v1Report.warnings.includes(CNAME_LOOKUP_FAILED_WARNING), true, "the sanitizer admits the line");
+    assert.deepEqual((v1Report.cnameCloaks ?? []).map((cloak) => cloak.host), ["metrics.cname-split.com"]);
+    assert.equal(r2.claims["cname-cloaking"].allowed, false);
+    assert.equal(v1.claims["cname-cloaking"].allowed, false);
+    assertV1WithholdsEachClaimR2Withholds(r2, v1);
     // The visit publishes, with the cloak on the public r2 wire.
     const report = toPublicScanReportR2(
       buildRuntimeScanReportV2R2(visit, "public-api", {
@@ -7633,7 +7645,8 @@ test("CNAME candidates left past the lookup bound beside a found cloak withhold 
   // cname-lookups cap loss, ends the detector partial and withholds the
   // cname-cloaking claim beside the cloak it found. v1 published the cloak
   // with no line for the rest, and its reader allowed the claim. A lookup that
-  // also failed changes the detector's reason, not the line.
+  // also failed changes the detector's reason and adds its own line beside
+  // this one.
   const upstream = createServer((request, response) => {
     const host = request.headers.host?.split(":")[0] ?? "";
     if (host === "www.cname-over.net") {
@@ -7691,6 +7704,7 @@ test("CNAME candidates left past the lookup bound beside a found cloak withhold 
         reason
       );
       assert.equal(visit.result.warnings.includes(CNAME_CANDIDATES_OMITTED_WARNING), true, reason);
+      assert.equal(visit.result.warnings.includes(CNAME_LOOKUP_FAILED_WARNING), failing !== null, reason);
       const { r2, v1, v1Report } = bothWireDisplayFacts(visit);
       assert.equal(v1Report.warnings.includes(CNAME_CANDIDATES_OMITTED_WARNING), true, reason);
       assert.equal((v1Report.cnameCloaks ?? []).length, 1, "v1 still publishes the cloak");

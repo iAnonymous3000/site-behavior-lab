@@ -73,6 +73,10 @@ const QUALITY_REASON_NOTES: Record<string, string> = {
   // bound as a cname-lookups capture loss.
   "capture-loss:cname-candidates-omitted":
     "the scanner looked up CNAME records for only some of the first-party subdomains the page contacted, so CNAME cloaking findings are incomplete",
+  // v1 only (LEGACY_CNAME_LOOKUP_FAILED_REASON). r2 reports the same failure
+  // as a cname-lookups capture loss.
+  "capture-loss:cname-lookup-failed":
+    "the scanner could not complete one or more CNAME lookups for the first-party subdomains the page contacted, so CNAME cloaking findings are incomplete",
   // v1 only (LEGACY_LISTENER_DETECTION_WITHHELD_REASON). r2 reports the same
   // drop as a capture-loss detail, never as this reason.
   "capture-loss:public-fingerprint-detections":

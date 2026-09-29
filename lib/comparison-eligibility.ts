@@ -78,6 +78,7 @@ const PROXY_TRAFFIC_BUDGET_WARNING_FRAGMENT = "connection and target safety budg
 const STORAGE_SNAPSHOT_WARNING_FRAGMENT = "could not read this page's storage in full";
 const POLICY_LINK_SEARCH_WARNING_FRAGMENT = "search of this page for a privacy-policy link did not cover every link";
 const CNAME_CANDIDATES_OMITTED_WARNING_FRAGMENT = "looked up CNAME records for only some of the first-party subdomains";
+const CNAME_LOOKUP_FAILED_WARNING_FRAGMENT = "could not complete one or more CNAME lookups";
 // The six sentences consentInteractionWarning (lib/consent-interaction.ts)
 // writes for a banner search or choice that did not complete, and observe
 // mode's banner-visibility line. Fragments rather than an import: that module
@@ -785,6 +786,17 @@ export function runHitPolicyLinkSearchIncomplete(run: Pick<ScanResult, "warnings
  */
 export function runHitCnameCandidatesOmitted(run: Pick<ScanResult, "warnings">): boolean {
   return run.warnings.some((warning) => warning.includes(CNAME_CANDIDATES_OMITTED_WARNING_FRAGMENT));
+}
+
+/**
+ * Whether a legacy run's CNAME probe had a lookup fail, or failed itself. The
+ * r2 twin is a dropped `cname-lookups` loss, scoped to the cname-cloaking
+ * claim, beside a partial detector when another lookup found a cloak and a
+ * failed one otherwise; r2 withholds the claim, and readers censor that claim
+ * alone. It never enters runRequestEvidenceCapped or comparison eligibility.
+ */
+export function runHitCnameLookupFailed(run: Pick<ScanResult, "warnings">): boolean {
+  return run.warnings.some((warning) => warning.includes(CNAME_LOOKUP_FAILED_WARNING_FRAGMENT));
 }
 
 /**

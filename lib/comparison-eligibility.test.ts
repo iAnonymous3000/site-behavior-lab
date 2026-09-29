@@ -14,6 +14,7 @@ import {
   runConsentBannerIncomplete,
   runConsentReloadLeftSubject,
   runHitCnameCandidatesOmitted,
+  runHitCnameLookupFailed,
   runHitKeystrokeProbeCaptureLoss,
   runHitKeystrokeProbeNavigationStopped,
   runHitKeystrokeProbeRequestUnread,
@@ -35,6 +36,7 @@ import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "./gpc-injection";
 import {
   AUXILIARY_PAGE_REQUESTS_BLOCKED_WARNING,
   CNAME_CANDIDATES_OMITTED_WARNING,
+  CNAME_LOOKUP_FAILED_WARNING,
   CONSENT_BANNER_CHECK_INCOMPLETE_WARNING,
   INVALID_UPSTREAM_RESPONSE_WARNING,
   KEYSTROKE_PROBE_INCOMPLETE_WARNING,
@@ -517,7 +519,8 @@ test("lines for a storage read or a detector r2 records as incomplete are not re
     [consentInteractionWarning({ mode: "accept-all", clicked: false }, "search-interrupted"), runConsentBannerIncomplete],
     [CONSENT_RELOAD_SUBJECT_WARNING, runConsentReloadLeftSubject],
     [POLICY_LINK_SEARCH_INCOMPLETE_WARNING, runHitPolicyLinkSearchIncomplete],
-    [CNAME_CANDIDATES_OMITTED_WARNING, runHitCnameCandidatesOmitted]
+    [CNAME_CANDIDATES_OMITTED_WARNING, runHitCnameCandidatesOmitted],
+    [CNAME_LOOKUP_FAILED_WARNING, runHitCnameLookupFailed]
   ];
   for (const [warning, predicate] of lines) {
     const run = makeRun({ totalRequests: 20 });

@@ -116,6 +116,7 @@ import {
   collectBoundedPageHeadings,
   collectBoundedPageTitle,
   CNAME_CANDIDATES_OMITTED_WARNING,
+  CNAME_LOOKUP_FAILED_WARNING,
   collectStorageEntriesWithCoverage,
   CONSENT_BANNER_CHECK_INCOMPLETE_WARNING,
   FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING,
@@ -2962,6 +2963,9 @@ export async function scanSiteWithMeasurement(
         count: 1,
         detail: "cname-lookups"
       });
+      // v1 publishes a found cloak with its own line and no quality block, so
+      // this is its only record that a lookup, or the probe, failed.
+      warnings.add(CNAME_LOOKUP_FAILED_WARNING);
     } else if (cnameResolution.omittedCandidateCount > 0) {
       measurementKernel.setDetector("cname-uncloaking", "partial", {
         reason: "evidence-cap-reached",

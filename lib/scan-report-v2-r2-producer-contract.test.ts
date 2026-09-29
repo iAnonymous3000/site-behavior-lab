@@ -17,6 +17,7 @@ import {
 import { PUBLIC_STRING_POLICY_DIGEST, publicStringPolicyInputs } from "./redact-scan-report-v1";
 import {
   CNAME_CANDIDATES_OMITTED_WARNING,
+  CNAME_LOOKUP_FAILED_WARNING,
   CONSENT_BANNER_CHECK_INCOMPLETE_WARNING,
   FINGERPRINT_WORKER_REALM_CAPTURE_LOSS_WARNING,
   POLICY_LINK_SEARCH_INCOMPLETE_WARNING,
@@ -741,8 +742,8 @@ test("every exact PageGraph normalization row replays and mixed tracker identiti
     mixedVersion: "hand-curated-2026.07"
   });
   // The 63947670 identity, closed by the node-detectors-v12 widening (the
-  // storage-snapshot, consent-banner-check, policy-link-search and
-  // CNAME-candidate warnings).
+  // storage-snapshot, consent-banner-check, policy-link-search,
+  // CNAME-candidate and CNAME-lookup warnings).
   oracle.push({
     normalizationVersion: "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:63947670fad8ad7124d54586c139cb2bf1f96e4cfc75d8cd247cd8165b407366+tldts@7.4.13+pagegraph-request-evidence-v1+r2-http-status-compat-v1",
     catalog: serviceRoleTracker,
@@ -1357,7 +1358,7 @@ test("the node-detectors-v11 measurement epoch preserves every outgoing producti
   assert.equal(sha256Hex(canonicalJson(pagegraph)), "b1c07862469fa1f8adbb68eae6383ee3d1c91138bdaf871fc6168f520a73013c");
 });
 
-// The v15 normalizations, which node-detectors-v12 retired, and the four
+// The v15 normalizations, which node-detectors-v12 retired, and the five
 // fixed warnings whose admission retired them.
 const RETIRED_V15_NODE_NORMALIZATION =
   "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:63947670fad8ad7124d54586c139cb2bf1f96e4cfc75d8cd247cd8165b407366+tldts@7.4.13+node-evidence-policy-v1+r2-http-status-compat-v1";
@@ -1367,7 +1368,8 @@ const NODE_DETECTORS_V12_ADMITTED_WARNINGS: readonly string[] = [
   STORAGE_SNAPSHOT_CAPTURE_LOSS_WARNING,
   CONSENT_BANNER_CHECK_INCOMPLETE_WARNING,
   POLICY_LINK_SEARCH_INCOMPLETE_WARNING,
-  CNAME_CANDIDATES_OMITTED_WARNING
+  CNAME_CANDIDATES_OMITTED_WARNING,
+  CNAME_LOOKUP_FAILED_WARNING
 ];
 
 test("closed v14 reports keep their exact identity when v15 moves the methodology, the fingerprint observer and the policy digest", () => {
@@ -1452,7 +1454,7 @@ test("closed v14 reports keep their exact identity when v15 moves the methodolog
   // pass admitted was removed and nothing else was added, which is what lets
   // the superseded entry below stay readable without remediation. The epoch
   // declares one combined widening from the deployed identity; the digest
-  // with the token alone was never deployed and has no entry. The four
+  // with the token alone was never deployed and has no entry. The five
   // warnings node-detectors-v12 admitted later come out first.
   const inputs = publicStringPolicyInputs();
   const withoutToken = (apis: readonly string[]) => apis.filter((api) => api !== "canvas.convertToBlob");
@@ -1693,7 +1695,7 @@ test("closed v15 reports keep their exact identity when v16 moves four detectors
     assert.doesNotThrow(() => assertR2ProducerContract(runForTuple(current)), current.id);
   }
   assert.notEqual(PUBLIC_STRING_POLICY_DIGEST, "63947670fad8ad7124d54586c139cb2bf1f96e4cfc75d8cd247cd8165b407366");
-  // The widening is exactly the four admitted warnings: taking them out of
+  // The widening is exactly the five admitted warnings: taking them out of
   // the fixed warnings recomputes the outgoing digest, so nothing an older
   // pass admitted was removed and nothing else was added, which is what lets
   // the superseded entries stay readable without remediation.

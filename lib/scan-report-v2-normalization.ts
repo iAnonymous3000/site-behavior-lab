@@ -97,15 +97,16 @@ export const SUPERSEDED_R2_NORMALIZATIONS: Readonly<
   Record<ObserverKind, readonly string[]>
 > = Object.freeze({
   "node-playwright": Object.freeze([
-    // Retired by the node-detectors-v12 measurement epoch, which admits four
+    // Retired by the node-detectors-v12 measurement epoch, which admits five
     // exact fixed scanner warnings this pass replaced with "[redacted
     // warning]", each the v1 line beside an r2 loss that withholds a claim:
     // the end-of-visit storage read failed or cut at its bounds
     // (STORAGE_SNAPSHOT_CAPTURE_LOSS_WARNING), observe mode's banner
     // visibility check left incomplete (CONSENT_BANNER_CHECK_INCOMPLETE_WARNING),
     // a privacy-policy link search that did not cover every link
-    // (POLICY_LINK_SEARCH_INCOMPLETE_WARNING), and CNAME candidates left past
-    // the lookup bound (CNAME_CANDIDATES_OMITTED_WARNING). Its producer emitted
+    // (POLICY_LINK_SEARCH_INCOMPLETE_WARNING), CNAME candidates left past the
+    // lookup bound (CNAME_CANDIDATES_OMITTED_WARNING), and a CNAME lookup that
+    // failed (CNAME_LOOKUP_FAILED_WARNING). Its producer emitted
     // none of them. Nothing an older pass admitted was removed, the
     // isScannerWarning patterns are unchanged and the public-suffix engine is
     // unchanged, so every published report stays a fixed point. A widening is
@@ -326,7 +327,8 @@ export const SUPERSEDED_R2_NORMALIZATIONS: Readonly<
   ]),
   "pagegraph-import": Object.freeze([
     // Retired by node-detectors-v12's widening (the storage-snapshot,
-    // consent-banner-check, policy-link-search and CNAME-candidate warnings);
+    // consent-banner-check, policy-link-search, CNAME-candidate and
+    // CNAME-lookup warnings);
     // see the node-playwright entry. A PageGraph import emits none of them,
     // but the public-string policy is shared by both observers.
     "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:63947670fad8ad7124d54586c139cb2bf1f96e4cfc75d8cd247cd8165b407366+tldts@7.4.13+pagegraph-request-evidence-v1+r2-http-status-compat-v1",

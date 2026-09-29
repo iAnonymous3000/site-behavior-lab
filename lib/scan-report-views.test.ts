@@ -25,6 +25,7 @@ import {
   familyCensoredOnRun,
   LEGACY_AUXILIARY_PAGE_REQUESTS_BLOCKED_REASON,
   LEGACY_CNAME_CANDIDATES_OMITTED_REASON,
+  LEGACY_CNAME_LOOKUP_FAILED_REASON,
   LEGACY_CONSENT_BANNER_INCOMPLETE_REASON,
   LEGACY_CONSENT_INTERACTION_LEFT_SUBJECT_REASON,
   LEGACY_CONSENT_RELOAD_LEFT_SUBJECT_REASON,
@@ -52,6 +53,7 @@ import {
   runConsentReloadLeftSubject,
   runHitAuxiliaryPageRequestsBlocked,
   runHitCnameCandidatesOmitted,
+  runHitCnameLookupFailed,
   runHitFingerprintListenerAttributionLoss,
   runHitFingerprintObserverCaptureLoss,
   runHitFingerprintWorkerRealmLoss,
@@ -80,6 +82,7 @@ import { redactScanResultV1 } from "./redact-scan-report-v1";
 import {
   AUXILIARY_PAGE_REQUESTS_BLOCKED_WARNING,
   CNAME_CANDIDATES_OMITTED_WARNING,
+  CNAME_LOOKUP_FAILED_WARNING,
   CONSENT_BANNER_CHECK_INCOMPLETE_WARNING,
   FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING,
   FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING,
@@ -781,6 +784,7 @@ test("each probe and request-loss line is recognized by its own predicate alone"
     ],
     ["banner-check", CONSENT_BANNER_CHECK_INCOMPLETE_WARNING],
     ["cname-omitted", CNAME_CANDIDATES_OMITTED_WARNING],
+    ["cname-failed", CNAME_LOOKUP_FAILED_WARNING],
     [
       "cname-cloak",
       "Resolved 1 first-party subdomain that is a CNAME alias for a third-party tracker (CNAME cloaking), which request-URL matching alone would miss."
@@ -808,6 +812,7 @@ test("each probe and request-loss line is recognized by its own predicate alone"
     ["storage", runHitStorageSnapshotCaptureLoss, ["storage"]],
     ["policy-search", runHitPolicyLinkSearchIncomplete, ["policy-search"]],
     ["cname-omitted", runHitCnameCandidatesOmitted, ["cname-omitted"]],
+    ["cname-failed", runHitCnameLookupFailed, ["cname-failed"]],
     ["banner", runConsentBannerIncomplete, ["banner-check", ...CONSENT_FAILURES.map((failure) => `consent-${failure}`)]],
     ["reload", runConsentReloadLeftSubject, ["reload-subject"]]
   ];
@@ -1246,6 +1251,16 @@ test("each v1 line for a read or detector r2 records as incomplete withholds wha
       withheld: ["cname-cloaking"],
       calm: false,
       note: /looked up CNAME records for only some of the first-party subdomains the page contacted, so CNAME cloaking findings are incomplete/
+    },
+    // r2 scopes its cname-lookups loss to the cname-cloaking claim, which it
+    // withholds when a lookup failed, cloak or not.
+    {
+      warning: CNAME_LOOKUP_FAILED_WARNING,
+      reasons: [LEGACY_CNAME_LOOKUP_FAILED_REASON],
+      censored: [],
+      withheld: ["cname-cloaking"],
+      calm: false,
+      note: /could not complete one or more CNAME lookups for the first-party subdomains the page contacted, so CNAME cloaking findings are incomplete/
     },
     // The reload's dropped consent-verification loss withholds the
     // consent-banner claim, and the probe it skipped the keystroke claim.
