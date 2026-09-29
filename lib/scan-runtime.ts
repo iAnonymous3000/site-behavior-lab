@@ -211,10 +211,15 @@ export const PIXEL_DECODE_CAPTURE_LOSS_WARNING =
  * read's phase, which censors that family. v1 has no quality block, so this
  * line is its only channel; v1 readers censor the storage family for it and
  * nothing else, so it never enters runRequestEvidenceCapped or comparison
- * eligibility. The passive-boundary and reload reads, which v1 never
- * publishes, do not add it. It must never contain another line's recognition
- * fragment.
+ * eligibility. The storage read taken after the verification reload is never
+ * published on v1. The one a consent-mode visit takes just before its consent
+ * click is published on v1 only when the page then left the recorded site
+ * before its state was kept, and the line for that departure already censors
+ * storage there. Neither adds this line. It must never contain another line's
+ * recognition fragment.
  */
+export const STORAGE_SNAPSHOT_CAPTURE_LOSS_WARNING =
+  "The scanner could not read this page's storage in full at the end of the visit, so storage evidence for this visit is incomplete.";
 /**
  * Observe mode's one banner-visibility read, taken when consent verification
  * is on, did not complete: no frame could be read, a frame it could not read
@@ -270,8 +275,6 @@ export const CNAME_CANDIDATES_OMITTED_WARNING =
  */
 export const CNAME_LOOKUP_FAILED_WARNING =
   "The scanner could not complete one or more CNAME lookups for the first-party subdomains this page contacted, so CNAME cloaking findings for this visit are incomplete.";
-export const STORAGE_SNAPSHOT_CAPTURE_LOSS_WARNING =
-  "The scanner could not read this page's storage in full at the end of the visit, so storage evidence for this visit is incomplete.";
 const SCAN_TIMEOUT_MESSAGE = "The scan exceeded the maximum scan duration.";
 
 export class ScanWarningCollector {

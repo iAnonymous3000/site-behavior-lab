@@ -587,13 +587,16 @@ lines for claims r2 withholds.
   (from 7.29.0) and reads it with pdf.js 6.3.289 (from 6.2.108), landed as one
   declared change. undici 8 offers HTTP/2 in ALPN by default, through the scan
   proxy's CONNECT tunnel too, so the policy fetch now sets `allowH2: false` and
-  still asks the site for HTTP/1.1 alone, as it did under undici 7. pdf.js 6.3
-  changes how it infers characters for some fonts that embed no font program
-  and no ToUnicode map: a CID-keyed TrebuchetMS is now read by the Macintosh
-  glyph order it follows, where 6.2 read its right single quote as a middle
-  dot and so lost the no-cookies claim in "We don't use cookies." The release
-  also changes the inference for a CID-keyed Symbol font and three private-use
-  math glyphs, which fixtures built for them did not reproduce. Every PDF the
+  still asks the site for HTTP/1.1 alone, as it did under undici 7. The 8.x
+  line also changes connection handling the fetch can meet: 8.11.1 fixes a
+  hang on a 3xx response with a large body, and 8.11.2 stops reconnecting
+  aborted requests. pdf.js 6.3 changes how it infers characters for some
+  fonts that embed no font program and no ToUnicode map: a CID-keyed
+  TrebuchetMS is now read by the Macintosh glyph order it follows, where 6.2
+  read its right single quote as a middle dot and so lost the no-cookies claim
+  in "We don't use cookies." The release also changes the inference for a
+  CID-keyed Symbol font and three private-use math glyphs, which fixtures
+  built for them did not reproduce. Every PDF the
   tests parse extracts byte-identical text under both versions except the
   TrebuchetMS fixture built to show the change, and so do all 261
   text-bearing PDFs among the 1,181 that ship with macOS and its applications
@@ -636,7 +639,9 @@ reason in the first three branches and `load-failed` in the fourth:
 
 For the same visit, the v1 report allowed claims the r2 report withholds.
 Each cause below now leaves a v1 line where r2 records its loss, and v1
-readers withhold what r2 withholds there. No committed v1 report carries any
+readers withhold what r2 withholds there. Other causes stay open, each named
+in `lib/v1-r2-parity-property.test.ts` and listed in the 2026-09-29 update of
+`docs/comprehensive-review-2026-09-22.md`. No committed v1 report carries any
 of these lines, so no committed report reads differently. The consent-banner
 item reads lines the scanner already wrote, so a stored v1 report outside
 the committed corpus that carries one now withholds the consent-banner claim,
@@ -646,8 +651,11 @@ as intended.
   at its bounds left v1 publishing the empty or cut list with no line, so the
   storage keys stood and were benchmarked. A new fixed warning now says the
   scanner could not read the page's storage in full, and v1 readers censor the
-  storage family for it, as r2 does. The passive-boundary and reload reads,
-  which v1 never publishes, do not add it.
+  storage family for it, as r2 does. The read taken after the verification
+  reload, which v1 never publishes, does not add it, and neither does the one
+  taken just before a consent click, which v1 publishes only when the page
+  then left the recorded site before its state was kept, where the line for
+  that departure already marks storage incomplete.
 - A consent-banner detector that did not complete left the consent-banner
   claim, which the calm headline requires, standing on v1. In the consent
   modes the existing sentences for a banner search that ran out of time,

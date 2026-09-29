@@ -594,26 +594,61 @@ that failed beside a found cloak (`dns-cname-chain@5`), and two fingerprint
 branches (`fingerprint-observer@6`): a read with no readable frame but a read
 worker realm, and a consent-mode visit that lost its subject after a passive
 read that read a frame but was incomplete, whose record publishes in place
-of the unread state (finding R5). The two fingerprint branches end partial
-also when that record holds no evidence, where the r2 report was already
-built. And five v1 overclaims are closed with new admitted lines, for a
-failed or cut storage read, an incomplete banner check in observe mode, a
-policy link search that did not cover every link, CNAME candidates left past
-the lookup bound, and a failed CNAME lookup (finding P17, which the R3 fix
-had made reachable); the consent modes' existing failure lines and the
-reload line now withhold
-the consent-banner claim too. The CNAME partial outcome needs one new
-obligation row, so the obligations move to `detector-obligations-v2`, and
-readers hold every earlier epoch to the v1 registry it hashed. The
-normalization widens from `63947670...7366` to `344fdfdf...1563`, so an r2
-pair across the deploy is ineligible in every family; the v15 producer rows
-and the PageGraph row that ran the outgoing identity are closed to their
-literals. Neither methodology moves: no pooled corpus metric or
-population rule reads the new lines or the new statuses, so the 95 committed
-reports on the `+fingerprint-surface-v2` line keep their cohort. The v1-r2
-parity property enforces all five lines. It now models the passive record a
-consent-mode visit publishes in place of its unread state, which is how it
-reaches R5, and it fails on any builder refusal its draws reach.
+of the unread state (finding R5, a builder refusal). The two fingerprint
+branches end partial also when that record holds no evidence, where the r2
+report was already built. And five v1 overclaims are closed with new
+admitted lines, for a failed or cut storage read, an incomplete banner check
+in observe mode, a policy link search that did not cover every link, CNAME
+candidates left past the lookup bound, and a failed CNAME lookup (finding
+P17, which the R3 fix had made reachable); the consent modes' existing
+failure lines and the reload line now withhold the consent-banner claim
+too. The CNAME partial outcome needs one new obligation row, so the
+obligations move to `detector-obligations-v2`, and readers hold every
+earlier epoch to the v1 registry it hashed. The normalization widens from
+`63947670...7366` to `344fdfdf...1563`, so an r2 pair across the deploy is
+ineligible in every family; the v15 producer rows and the PageGraph row that
+ran the outgoing identity are closed to their literals. Neither methodology
+moves: no pooled corpus metric or population rule reads the new lines or
+the new statuses, so the 95 committed reports on the
+`+fingerprint-surface-v2` line keep their cohort. The v1-r2 parity property
+enforces all five lines. It now models the passive record a consent-mode
+visit publishes in place of its unread state, which is how it reaches R5,
+and it fails on any builder refusal its draws reach; none is open.
+
+What stays open. The 2026-09-25 statement above, that every claim r2
+withholds is withheld on v1 too, holds for the two probe fixtures it
+describes, not in general. The parity property in
+`lib/v1-r2-parity-property.test.ts` holds each remaining divergence open as
+a named `todo` exception that its draws must still reach:
+
+- Claims or the corpus population, where v1 allows what r2 withholds: P2 (a
+  post-click settle the page or context interrupted), P6 (a cookie or
+  storage read lost at the passive boundary or the reload of a consent
+  visit), P7 (fingerprint summaries that changed across the click but cannot
+  be differenced), P8 (a request or navigation HTTP status the r2 schema
+  cannot carry), P9 (a request whose host is itself a public suffix, such as
+  a path-style S3 URL) and P10 (listener attribution lost at the read just
+  before the click).
+- The family state only, where r2 counts a loss it scopes to one claim
+  against its whole family and v1 reads that family complete: P11 (the
+  consent-banner detector's losses), P12 (the post-consent reload that left
+  the site), P13 (the privacy-policy detector's losses), P14 (the CNAME
+  lookups' losses), P15 (a page title cut at its bound) and P16 (a page
+  subject the bounded read could not verify). For some of their causes (a
+  consent-banner detector that did not complete, the reload that left the
+  site, a cut policy-link search, CNAME candidates past the lookup bound and
+  a failed CNAME lookup), v1 now reaches the claim itself through a
+  claim-scoped reason; for the rest, v1 readers show no reason at all.
+
+`lib/redaction-property.test.ts` holds four redaction findings open the same
+way. B1 (an IPv4 address under the nine-digit phone threshold in a policy
+quote) and B4 (nine or more digits joined by underscores) survive the quote
+span table and wait on an owner decision to narrow the public-string policy.
+B2 (a quote over the 200-character cap cut on a space, so it is not a fixed
+point) needs the span-policy label and the identity ritual, and only a quote
+from another producer reaches it. B3 (a curated tracker match on a bare
+hosting-suffix host, which converges only on the second sanitizer pass)
+waits on an owner decision too.
 
 ## 5. Confirmed and left for other reasons
 

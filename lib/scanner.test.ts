@@ -7350,8 +7350,10 @@ test("a storage read v1 publishes that was cut at its bounds withholds storage k
   // publishes, r2 censors the storage family and withholds storage keys; v1
   // published the cut list with no line, so its reader allowed and
   // benchmarked the claim. The passive-boundary read of a consent visit is
-  // never published on v1, so a key the click removes cuts that read alone
-  // and adds no line.
+  // not the read v1 publishes while the page stays on the site (it is only
+  // when the page leaves before its state is kept, under that departure's
+  // own line), so a key the click removes cuts that read alone and adds no
+  // line.
   const longKey = "k".repeat(MAX_CAPTURED_STORAGE_KEY_CHARS + 1);
   const upstream = createServer((request, response) => {
     const host = request.headers.host?.split(":")[0] ?? "";
