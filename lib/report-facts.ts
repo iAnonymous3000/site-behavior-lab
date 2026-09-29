@@ -33,6 +33,7 @@ import {
   displayRunView,
   familyCensoredOnRun,
   familyUnsupportedOnRun,
+  LEGACY_CNAME_CANDIDATES_OMITTED_REASON,
   LEGACY_CONSENT_BANNER_INCOMPLETE_REASON,
   LEGACY_CONSENT_INTERACTION_LEFT_SUBJECT_REASON,
   LEGACY_CONSENT_RELOAD_LEFT_SUBJECT_REASON,
@@ -342,6 +343,11 @@ export const REPORT_CLAIM_REQUIREMENTS: Readonly<Record<ReportClaimId, ClaimRequ
     families: ["detector-output"],
     familyDetails: {
       "detector-output": ["cname-lookups", "public-cname-cloaks"]
+    },
+    // The v1 channel for r2's cname-lookups loss when candidates were left
+    // past the lookup bound: it withholds this claim alone, found cloak or not.
+    legacyReasons: {
+      "detector-output": [LEGACY_CNAME_CANDIDATES_OMITTED_REASON]
     },
     detectors: ["cname-uncloaking"],
     count: "none"

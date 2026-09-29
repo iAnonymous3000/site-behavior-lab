@@ -81,6 +81,7 @@ import {
 } from "./node-scan-measurement";
 import {
   AUXILIARY_PAGE_REQUESTS_BLOCKED_WARNING,
+  CNAME_CANDIDATES_OMITTED_WARNING,
   CONSENT_BANNER_CHECK_INCOMPLETE_WARNING,
   FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING,
   FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING,
@@ -2573,7 +2574,7 @@ test("CNAME candidate overflow records detector-output loss instead of a complet
   const resolvedHosts: string[] = [];
 
   try {
-    const { measurement } = await scanSiteWithMeasurement(
+    const { result, measurement } = await scanSiteWithMeasurement(
       {
         url: "http://cname-cap.test/",
         device: "desktop",
@@ -2593,6 +2594,7 @@ test("CNAME candidate overflow records detector-output loss instead of a complet
     );
 
     assert.equal(resolvedHosts.length, 10);
+    assert.equal(result.warnings.includes(CNAME_CANDIDATES_OMITTED_WARNING), true);
     assert.deepEqual(measurement.measurement.detectors["cname-uncloaking"], {
       version: "dns-cname-chain@4",
       status: "partial",
@@ -2742,6 +2744,9 @@ test("a CNAME lookup that fails beside a found cloak publishes a partial detecto
       measurement.measurement.qualityFacts.captureLoss.filter((loss) => loss.detail === "cname-lookups"),
       [{ family: "detector-output", phaseId: 0, kind: "dropped", count: 1, detail: "cname-lookups" }]
     );
+    // No candidate was left past the bound, so no omitted line (finding P17
+    // holds this failed lookup's own v1 channel open).
+    assert.equal(result.warnings.includes(CNAME_CANDIDATES_OMITTED_WARNING), false);
     // The visit publishes, with the cloak on the public r2 wire.
     const report = toPublicScanReportR2(
       buildRuntimeScanReportV2R2(visit, "public-api", {
@@ -7614,6 +7619,85 @@ test("a policy read after a cut link search withholds the privacy-policy claim o
     assert.equal(r2.claims["privacy-policy"].allowed, false);
     assert.equal(v1.claims["privacy-policy"].allowed, false);
     assertV1WithholdsEachClaimR2Withholds(r2, v1);
+  } finally {
+    if (previousConsentVerification === undefined) delete process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
+    else process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = previousConsentVerification;
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+});
+
+test("CNAME candidates left past the lookup bound beside a found cloak withhold the claim on v1 as r2 does", { timeout: 60_000 }, async () => {
+  // More first-party subdomains than the bound of ten: those past it are
+  // never looked up and may be cloaked trackers, so r2 records a
+  // cname-lookups cap loss, ends the detector partial and withholds the
+  // cname-cloaking claim beside the cloak it found. v1 published the cloak
+  // with no line for the rest, and its reader allowed the claim. A lookup that
+  // also failed changes the detector's reason, not the line.
+  const upstream = createServer((request, response) => {
+    const host = request.headers.host?.split(":")[0] ?? "";
+    if (host === "www.cname-over.net") {
+      response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+      response.end(`<!doctype html><title>CNAME bound fixture</title><script>
+        Promise.all(Array.from({ length: 11 }, (_, index) =>
+          fetch("http://h" + index + ".cname-over.net/pixel", { mode: "no-cors" })
+        )).catch(() => undefined);
+      </script>`);
+      return;
+    }
+    response.writeHead(204);
+    response.end();
+  });
+  await new Promise<void>((resolve, reject) => {
+    upstream.once("error", reject);
+    upstream.listen(0, "127.0.0.1", resolve);
+  });
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+  const previousConsentVerification = process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
+  process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = "1";
+  const scan = (failing: string | null) =>
+    scanSiteWithMeasurement(
+      { url: "http://www.cname-over.net/", device: "desktop", gpcEnabled: false, consentMode: "observe" },
+      {
+        publicUrlAlreadyVerified: true,
+        verifyPublicUrl: async () => undefined,
+        resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+        connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"),
+        resolveCnameChain: async (host) => {
+          if (host === failing) throw new Error("synthetic CNAME resolver failure");
+          return host === "h0.cname-over.net" ? ["cname-over.sc.omtrdc.net"] : [];
+        }
+      }
+    );
+  try {
+    for (const [failing, reason] of [
+      [null, "evidence-cap-reached"],
+      ["h1.cname-over.net", "scan-failed"]
+    ] as const) {
+      const visit = await scan(failing);
+      assert.equal((visit.result.cnameCloaks ?? []).length, 1, reason);
+      assert.deepEqual(visit.measurement.evidence.cnameCloaks.map((cloak) => cloak.host), ["h0.cname-over.net"], reason);
+      assert.deepEqual(visit.measurement.measurement.detectors["cname-uncloaking"], {
+        version: DETECTOR_VERSIONS["cname-uncloaking"],
+        status: "partial",
+        reason,
+        phaseId: 0
+      });
+      assert.ok(
+        visit.measurement.measurement.qualityFacts.captureLoss.some(
+          (loss) => loss.detail === "cname-lookups" && loss.kind === "cap" && loss.count > 0
+        ),
+        reason
+      );
+      assert.equal(visit.result.warnings.includes(CNAME_CANDIDATES_OMITTED_WARNING), true, reason);
+      const { r2, v1, v1Report } = bothWireDisplayFacts(visit);
+      assert.equal(v1Report.warnings.includes(CNAME_CANDIDATES_OMITTED_WARNING), true, reason);
+      assert.equal((v1Report.cnameCloaks ?? []).length, 1, "v1 still publishes the cloak");
+      assert.equal(r2.claims["cname-cloaking"].allowed, false, reason);
+      assert.equal(v1.claims["cname-cloaking"].allowed, false, reason);
+      assertV1WithholdsEachClaimR2Withholds(r2, v1);
+    }
   } finally {
     if (previousConsentVerification === undefined) delete process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
     else process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = previousConsentVerification;

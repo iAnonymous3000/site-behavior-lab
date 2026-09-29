@@ -243,6 +243,19 @@ export const CONSENT_BANNER_CHECK_INCOMPLETE_WARNING =
  */
 export const POLICY_LINK_SEARCH_INCOMPLETE_WARNING =
   "The scanner's search of this page for a privacy-policy link did not cover every link, so privacy-policy findings for this visit are incomplete.";
+/**
+ * The CNAME probe reached its lookup bound with first-party subdomains of the
+ * page's requests left unresolved (omittedCandidateCount). One of them may be
+ * a cloaked tracker, so r2 records a `cname-lookups` cap loss, scoped to the
+ * cname-cloaking claim, ends the detector partial and withholds the claim,
+ * also beside a cloak it found. v1 has no quality block and publishes found
+ * cloaks with their own line, so this line is its only channel; v1 readers
+ * censor the cname-cloaking claim alone for it. A failed lookup is a
+ * different cause and does not add it. It must never contain another line's
+ * recognition fragment.
+ */
+export const CNAME_CANDIDATES_OMITTED_WARNING =
+  "The scanner looked up CNAME records for only some of the first-party subdomains this page contacted, so CNAME cloaking findings for this visit are incomplete.";
 export const STORAGE_SNAPSHOT_CAPTURE_LOSS_WARNING =
   "The scanner could not read this page's storage in full at the end of the visit, so storage evidence for this visit is incomplete.";
 const SCAN_TIMEOUT_MESSAGE = "The scan exceeded the maximum scan duration.";

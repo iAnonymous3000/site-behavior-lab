@@ -13,6 +13,7 @@ import {
   comparisonEligibility,
   runConsentBannerIncomplete,
   runConsentReloadLeftSubject,
+  runHitCnameCandidatesOmitted,
   runHitKeystrokeProbeCaptureLoss,
   runHitKeystrokeProbeNavigationStopped,
   runHitKeystrokeProbeRequestUnread,
@@ -33,6 +34,7 @@ import { ACTIVE_PROBE_SUBJECT_WARNING, CONSENT_RELOAD_SUBJECT_WARNING } from "./
 import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "./gpc-injection";
 import {
   AUXILIARY_PAGE_REQUESTS_BLOCKED_WARNING,
+  CNAME_CANDIDATES_OMITTED_WARNING,
   CONSENT_BANNER_CHECK_INCOMPLETE_WARNING,
   INVALID_UPSTREAM_RESPONSE_WARNING,
   KEYSTROKE_PROBE_INCOMPLETE_WARNING,
@@ -514,7 +516,8 @@ test("lines for a storage read or a detector r2 records as incomplete are not re
     [CONSENT_BANNER_CHECK_INCOMPLETE_WARNING, runConsentBannerIncomplete],
     [consentInteractionWarning({ mode: "accept-all", clicked: false }, "search-interrupted"), runConsentBannerIncomplete],
     [CONSENT_RELOAD_SUBJECT_WARNING, runConsentReloadLeftSubject],
-    [POLICY_LINK_SEARCH_INCOMPLETE_WARNING, runHitPolicyLinkSearchIncomplete]
+    [POLICY_LINK_SEARCH_INCOMPLETE_WARNING, runHitPolicyLinkSearchIncomplete],
+    [CNAME_CANDIDATES_OMITTED_WARNING, runHitCnameCandidatesOmitted]
   ];
   for (const [warning, predicate] of lines) {
     const run = makeRun({ totalRequests: 20 });

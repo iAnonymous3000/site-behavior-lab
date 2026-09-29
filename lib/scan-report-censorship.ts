@@ -69,6 +69,10 @@ const QUALITY_REASON_NOTES: Record<string, string> = {
   // as a policy-link-candidates capture loss.
   "capture-loss:policy-link-candidates":
     "the scanner's search for a privacy-policy link did not cover every link on the page, so privacy-policy findings are incomplete",
+  // v1 only (LEGACY_CNAME_CANDIDATES_OMITTED_REASON). r2 reports the same
+  // bound as a cname-lookups capture loss.
+  "capture-loss:cname-candidates-omitted":
+    "the scanner looked up CNAME records for only some of the first-party subdomains the page contacted, so CNAME cloaking findings are incomplete",
   // v1 only (LEGACY_LISTENER_DETECTION_WITHHELD_REASON). r2 reports the same
   // drop as a capture-loss detail, never as this reason.
   "capture-loss:public-fingerprint-detections":

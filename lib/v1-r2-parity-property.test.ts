@@ -45,6 +45,7 @@ import {
 import {
   aggregateByteBudgetWarning,
   AUXILIARY_PAGE_REQUESTS_BLOCKED_WARNING,
+  CNAME_CANDIDATES_OMITTED_WARNING,
   CONSENT_BANNER_CHECK_INCOMPLETE_WARNING,
   FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING,
   FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING,
@@ -761,6 +762,7 @@ function scannerDraft(visit: Visit): Draft {
   // CNAME uncloaking.
   if (cnameCandidatesOmitted(visit)) {
     loss(draft, "detector-output", snapshot, "cap", "cname-lookups");
+    line(draft, CNAME_CANDIDATES_OMITTED_WARNING);
   }
   if (visit.cname === "no-budget") {
     detector(draft, "cname-uncloaking", "skipped", "budget-unavailable", snapshot);
@@ -1380,23 +1382,14 @@ const ALLOWED_DIVERGENCES: readonly AllowedDivergence[] = [
       loss.detail === undefined &&
       loss.phaseId === phasePlan(visit).consent
   },
-  // TODO(v1-r2-parity finding P5): CNAME candidates left unresolved at the
-  // lookup bound on a visit that found a cloak, with or without a failed
-  // lookup beside them. r2 ends the detector partial and withholds the claim;
-  // v1 records the cloak and allows it.
-  {
-    name: "cname-omitted-candidates-has-no-v1-channel",
-    record: "finding P5 (property test, 2026-09-28): scanSiteWithMeasurement, cnameResolution.omittedCandidateCount",
-    todo: true,
-    covers: (visit, violation) =>
-      cnameCandidatesOmitted(visit) && violation.kind === "claim" && violation.subject === "cname-cloaking"
-  },
-  // TODO(v1-r2-parity finding P17): P5's shape for a failed lookup. A CNAME
-  // lookup that failed beside a found cloak ends the detector partial (the
-  // R3 fix; before it the r2 builder refused the visit outright, so this
-  // divergence was unreachable) and r2 withholds the claim; v1 records the
-  // cloak, has no line for the failed lookup, and allows it. Closes by a v1
-  // line for the failed lookup, which is a new public string.
+  // TODO(v1-r2-parity finding P17): the shape of closed finding P5 (the
+  // lookup bound, now CNAME_CANDIDATES_OMITTED_WARNING) for a failed lookup
+  // alone. A CNAME lookup that failed beside a found cloak ends the detector
+  // partial (the R3 fix; before it the r2 builder refused the visit outright,
+  // so this divergence was unreachable) and r2 withholds the claim; v1
+  // records the cloak, has no line for the failed lookup, and allows it.
+  // Beside candidates left past the bound, the omitted line withholds it.
+  // Closes by a v1 line for the failed lookup, which is a new public string.
   {
     name: "cname-lookup-failure-beside-a-cloak-has-no-v1-channel",
     record: "finding P17 (property test, R3 fix, 2026-09-28): scanSiteWithMeasurement, cnameProbeFailed beside a kept cloak",

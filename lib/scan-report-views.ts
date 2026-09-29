@@ -20,6 +20,7 @@ import {
   runConsentInteractionLeftSubject,
   runConsentReloadLeftSubject,
   runHitAuxiliaryPageRequestsBlocked,
+  runHitCnameCandidatesOmitted,
   fingerprintObserverLossLines,
   runHitGpcWorkerCaptureLoss,
   runHitInvalidUpstreamResponseCaptureLoss,
@@ -740,6 +741,15 @@ export const LEGACY_CONSENT_RELOAD_LEFT_SUBJECT_REASON = "capture-loss:consent-r
  */
 export const LEGACY_POLICY_LINK_CANDIDATES_REASON = "capture-loss:policy-link-candidates";
 
+/**
+ * The legacy reason for a v1 CNAME probe that left candidates unresolved at
+ * its lookup bound. Named for its cause rather than r2's `cname-lookups`
+ * detail, which also records failed lookups and a probe with no time to run.
+ * Scoped to the cname-cloaking claim alone (REPORT_CLAIM_REQUIREMENTS
+ * `legacyReasons`), never to a family through familyCensoredOnRun.
+ */
+export const LEGACY_CNAME_CANDIDATES_OMITTED_REASON = "capture-loss:cname-candidates-omitted";
+
 function runViewFromV1(result: ScanResult, label: RunView["label"], scannedAt: string | null): RunView {
   // v1 never recorded quality; derive the run-level outcome from the same
   // facts the interim gate uses (status, cap) and mark it legacy-derived so it
@@ -817,6 +827,9 @@ function runViewFromV1(result: ScanResult, label: RunView["label"], scannedAt: s
   // A cut policy-link search withholds the privacy-policy claim on r2, read
   // policy or not.
   if (runHitPolicyLinkSearchIncomplete(result)) reasons.push(LEGACY_POLICY_LINK_CANDIDATES_REASON);
+  // CNAME candidates left past the lookup bound withhold the cname-cloaking
+  // claim on r2, found cloak or not.
+  if (runHitCnameCandidatesOmitted(result)) reasons.push(LEGACY_CNAME_CANDIDATES_OMITTED_REASON);
   return {
     label,
     domain: result.summary.firstPartyDomain,
@@ -1413,8 +1426,9 @@ export function familyCensoredOnRun(run: RunView, family: string): boolean {
   // claim takes it through its own `legacyReasons` in report-facts, and the
   // unread-request, test-incomplete and subject-lost probe reasons reach the
   // keystroke claim the same way, as the consent-banner and reload reasons
-  // reach the consent-banner claim and the policy-search reason the
-  // privacy-policy claim.
+  // reach the consent-banner claim, the policy-search reason the
+  // privacy-policy claim and the omitted-CNAME reason the cname-cloaking
+  // claim.
   if (
     (family === "fingerprinting" || family === "detector-output") &&
     run.quality.reasons.includes("capture-loss:fingerprint-observer")

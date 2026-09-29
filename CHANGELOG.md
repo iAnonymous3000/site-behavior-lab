@@ -641,6 +641,12 @@ of these lines, so none reads differently.
   warning says the search did not cover every link, and v1 readers withhold
   the claim for it. A failed load, where the policy probe is withheld on
   purpose, adds neither the loss nor the line.
+- A CNAME cloak found on a visit whose lookups stopped at their bound, with
+  first-party subdomains left unresolved, kept the CNAME cloaking claim
+  standing on v1, although one left unresolved may be a cloaked tracker and r2
+  withholds the claim. A new fixed warning says the scanner looked up CNAME
+  records for only some of those subdomains, and v1 readers withhold the
+  claim for it. A failed lookup alone does not add it.
 
 ## [0.6.0] - 2026-09-06
 

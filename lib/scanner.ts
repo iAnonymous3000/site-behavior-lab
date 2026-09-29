@@ -115,6 +115,7 @@ import {
   collectBoundedPageContentText,
   collectBoundedPageHeadings,
   collectBoundedPageTitle,
+  CNAME_CANDIDATES_OMITTED_WARNING,
   collectStorageEntriesWithCoverage,
   CONSENT_BANNER_CHECK_INCOMPLETE_WARNING,
   FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING,
@@ -2919,6 +2920,9 @@ export async function scanSiteWithMeasurement(
         count: cnameResolution.omittedCandidateCount,
         detail: "cname-lookups"
       });
+      // v1 publishes a found cloak with its own line and no quality block, so
+      // this is its only record that other candidates went unresolved.
+      warnings.add(CNAME_CANDIDATES_OMITTED_WARNING);
     }
     if (!cnameBudgetAvailable) {
       measurementKernel.setDetector("cname-uncloaking", "skipped", {
