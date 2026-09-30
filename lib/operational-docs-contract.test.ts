@@ -621,3 +621,23 @@ test("the supply-chain docs count the Cargo packages and filter-list sources the
     `docs/supply-chain-assurance.md must count ${cargo.unknown} Cargo packages and ${filterLists.unknown} filter-list sources`
   );
 });
+
+test("the supply-chain docs count the npm entries the lockfile leaves outside development", () => {
+  // REGRESSION. docs/supply-chain-assurance.md said "61 of the 149 npm
+  // entries" from 2026-08-09 until the 2026-10 toolchain epoch, while the
+  // inventory had grown to 75 of 167. Derive both numbers from the inventory
+  // rows the sentence describes.
+  const inventory = JSON.parse(source("THIRD_PARTY_INVENTORY.json")) as {
+    summary: { npm: { total: number } };
+    npm: Array<{ developmentOnly: boolean }>;
+  };
+  const total = inventory.npm.length;
+  const runtime = inventory.npm.filter((entry) => entry.developmentOnly !== true).length;
+  assert.equal(total, inventory.summary.npm.total, "the inventory's npm rows and summary disagree");
+  assert.ok(runtime > 0 && runtime < total, "the guard would be vacuous without both kinds of entry");
+  assert.match(
+    source("docs/supply-chain-assurance.md"),
+    new RegExp(`${runtime} of the ${total} npm entries are not marked\\s+development-only in \`package-lock\\.json\``),
+    `docs/supply-chain-assurance.md must say ${runtime} of the ${total} npm entries are not development-only`
+  );
+});
