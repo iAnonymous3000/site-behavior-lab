@@ -121,7 +121,19 @@ COPY --from=build /app/next.config.mjs ./next.config.mjs
 # "bad" plugin set that the Chromium-only scanner never loads. The build stage
 # above still uses the base's npm; this stage must end with no package manager
 # at all, and container release evidence independently asserts that absence.
-RUN apt-get purge -y gstreamer1.0-plugins-bad libgstreamer-plugins-bad1.0-0 \
+#
+# The pinned base predates CVE-2026-84782 (HIGH, OpenSSL), so its libssl3t64
+# and openssl sit at 3.0.13-0ubuntu3.15 and the image scan refuses the build.
+# Upgrade exactly those two to the patched Ubuntu revision; neither Node nor
+# the bundled Chromium links the system libssl, so the scanner's TLS stacks are
+# unchanged. The container package ledger keys packages by upstream version, so
+# a revision-only upgrade leaves it as it is. Drop the pin when a base digest
+# ships 3.0.13-0ubuntu3.16 or later.
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends --only-upgrade \
+    libssl3t64=3.0.13-0ubuntu3.16 openssl=3.0.13-0ubuntu3.16 \
+  && apt-get purge -y gstreamer1.0-plugins-bad libgstreamer-plugins-bad1.0-0 \
+  && apt-get clean \
   && rm -rf /var/lib/apt/lists/* \
   && rm -rf /usr/lib/node_modules /usr/local/lib/node_modules \
   && rm -f /usr/bin/npm /usr/bin/npx /usr/bin/corepack /usr/bin/yarn /usr/bin/yarnpkg \
