@@ -1544,10 +1544,10 @@
       "notes": null
     },
     {
-      "key": "npm:brace-expansion@5.0.9",
+      "key": "npm:brace-expansion@5.0.12",
       "ecosystem": "npm",
       "name": "brace-expansion",
-      "version": "5.0.9",
+      "version": "5.0.12",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -1684,10 +1684,10 @@
       "notes": null
     },
     {
-      "key": "npm:fast-uri@3.1.7",
+      "key": "npm:fast-uri@3.1.8",
       "ecosystem": "npm",
       "name": "fast-uri",
-      "version": "3.1.7",
+      "version": "3.1.8",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "BSD-3-Clause",
