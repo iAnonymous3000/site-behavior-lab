@@ -822,17 +822,21 @@ test("the planner and reader refuse a stored report holding a host the tldts@7.4
   );
   assert.equal(tuple?.id, "node-v16-detectors-v12-active-no-adblock");
 
-  function storedWith(substitute: (run: ScanRunV2R2) => void) {
+  function storedWith(
+    substitute: (run: ScanRunV2R2) => void,
+    options: { producer?: (typeof NODE_R2_PRODUCER_TUPLES)[number]; raw?: (run: ScanRunV2R2) => void } = {}
+  ) {
+    const producer = options.producer ?? tuple!;
     const report = makePublicSingleReportV2R2();
     const run = report.run;
     run.privacy.redactionVersion = REDACTION_VERSION;
     run.toolchain.normalizationVersion = retired!;
-    run.provenance.methodologyVersion = tuple!.methodologyVersion;
-    run.provenance.detectorRegistry = { ...tuple!.detectorRegistry };
-    run.toolchain.trackerCatalog = { ...tuple!.trackerCatalog };
-    run.toolchain.adblock = null;
+    run.provenance.methodologyVersion = producer.methodologyVersion;
+    run.provenance.detectorRegistry = { ...producer.detectorRegistry };
+    run.toolchain.trackerCatalog = { ...producer.trackerCatalog };
+    run.toolchain.adblock = producer.adblockIdentity === null ? null : { ...producer.adblockIdentity };
     for (const id of Object.keys(run.detectors) as Array<keyof typeof run.detectors>) {
-      run.detectors[id] = { ...run.detectors[id], version: tuple!.detectorVersions[id] };
+      run.detectors[id] = { ...run.detectors[id], version: producer.detectorVersions[id] };
     }
     run.evidence.requests.push({
       id: 2,
@@ -846,6 +850,9 @@ test("the planner and reader refuse a stored report holding a host the tldts@7.4
       startedAtMs: 20,
       phaseId: 0
     });
+    // A row's raw evidence in producer shape, sanitized under the current
+    // engine below with everything else.
+    options.raw?.(run);
     run.fingerprints = buildFingerprints({
       conditions: run.conditions,
       provenance: run.provenance,
@@ -904,15 +911,26 @@ test("the planner and reader refuse a stored report holding a host the tldts@7.4
   // 7.4.13 stored for it is now a suffix, and a site whose registrable domain
   // the older engine kept whole under a removed rule now generalizes, so the
   // report fails even though the same host as a request host stays readable.
-  // The sanitizer throws unsafe-subject-identity: the reader reports that as
+  // The subject's stored origin is re-redacted as a URL too, so a site whose
+  // origin host is now a suffix fails with its stored domain intact. The
+  // sanitizer throws unsafe-subject-identity: the reader reports that as
   // redaction-not-idempotent and the planner as unsupported-report-schema.
   for (const [origin, registrableDomain, readable] of [
     ["https://{label}.surge.sh", "surge.sh", false],
     ["https://{label}.glideos.app", "glideos.app", false],
     ["https://myapp.alpha-myqnapcloud.com", "myapp.alpha-myqnapcloud.com", false],
+    // A site at a direct child of *.compute.herokuapp.com stored
+    // compute.herokuapp.com, which stays fixed, but its origin host is now a
+    // suffix with no public host boundary, so the subject fails all the same.
+    ["https://{label}.compute.herokuapp.com", "compute.herokuapp.com", false],
+    ["https://api.compute.herokuapp.com", "compute.herokuapp.com", false],
     // Controls: a scanned site keeps the allowlist exception under the removed
-    // rule, and substituting an unchanged site through the same path reads.
+    // rule; the Heroku zone's apex and a site deeper than a direct child keep
+    // both stored positions; and substituting an unchanged site through the
+    // same path reads.
     ["https://api.alpha-myqnapcloud.com", "api.alpha-myqnapcloud.com", true],
+    ["https://compute.herokuapp.com", "compute.herokuapp.com", true],
+    ["https://{label}.{label}.compute.herokuapp.com", "compute.herokuapp.com", true],
     ["https://{label}.contoso-apps.com", "contoso-apps.com", true]
   ] as const) {
     const { reportContents, sidecarContents } = storedWith((run) => {
@@ -922,6 +940,96 @@ test("the planner and reader refuse a stored report holding a host the tldts@7.4
     assertStoredOutcome(`subject ${registrableDomain}`, reportContents, sidecarContents, readable, {
       issue: "unsupported-report-schema",
       detail: "unsafe-subject-identity"
+    });
+  }
+
+  // The domain and entity of a Shields-list match are recomputed on read from
+  // the stored host it was matched on, in both positions that store one: a
+  // request's tracker from the request's domain (redactRequest) and a CNAME
+  // cloak's tracker from the cloak's cname. These are the bytes 7.4.13
+  // published for each; under 7.4.16 the recomputed registrable domain
+  // differs, so a request's match publishes as null (the reader and the
+  // planner report redaction-not-idempotent) and a cloak's match throws (the
+  // planner reports unsupported-report-schema, sanitizer-rejected-evidence).
+  // The producer emits a Shields-list match only with the engine loaded, so
+  // these rows carry the closed lists row's identity.
+  const listsTuple = NODE_R2_PRODUCER_TUPLES.find(
+    (candidate) => candidate.normalizationVersion === retired && candidate.adblockIdentity !== null
+  );
+  assert.equal(listsTuple?.id, "node-v16-detectors-v12-active-lists-2026-09-28");
+  const shieldsMatch = (domain: string) => ({
+    domain,
+    entity: domain,
+    category: "tracking (Brave Shields list)",
+    confidence: "shields-list" as const
+  });
+  for (const [host, trackerDomain, readable] of [
+    // Below an exact added rule the host string stays fixed but the stored
+    // rule now recomputes to the host's own registrable domain.
+    ["{label}.surge.sh", "surge.sh", false],
+    // Under a removed rule every stored domain recomputes to the bare apex,
+    // allowlisted or not: the request-host allowlist exception does not hold
+    // for a stored tracker domain.
+    ["api.alpha-myqnapcloud.com", "api.alpha-myqnapcloud.com", false],
+    // Deeper than a direct child of *.compute.herokuapp.com the host string
+    // stays fixed but compute.herokuapp.com is no longer its registrable
+    // domain.
+    ["{label}.{label}.compute.herokuapp.com", "compute.herokuapp.com", false],
+    // Controls: the Heroku zone's apex, a Databricks app host and an
+    // unchanged tracker host keep their stored domain.
+    ["compute.herokuapp.com", "compute.herokuapp.com", true],
+    ["{label}.{label}.{label}.databricksapps.com", "databricksapps.com", true],
+    ["cdn.tracker-example.com", "tracker-example.com", true]
+  ] as const) {
+    const request = storedWith(
+      (run) => {
+        const entry = run.evidence.requests.find((candidate) => candidate.id === 2);
+        if (!entry) throw new Error("fixture invariant");
+        entry.url = `https://${host}/{seg}`;
+        entry.domain = host;
+        entry.tracker = shieldsMatch(trackerDomain);
+      },
+      {
+        producer: listsTuple!,
+        raw: (run) => {
+          const entry = run.evidence.requests.find((candidate) => candidate.id === 2);
+          if (!entry) throw new Error("fixture invariant");
+          entry.tracker = shieldsMatch("tracker-example.com");
+        }
+      }
+    );
+    assertStoredOutcome(`request tracker ${host}`, request.reportContents, request.sidecarContents, readable);
+    const cloak = storedWith(
+      (run) => {
+        const entry = run.evidence.cnameCloaks[0];
+        if (!entry) throw new Error("fixture invariant");
+        entry.cname = host;
+        entry.tracker = { ...entry.tracker, domain: trackerDomain, entity: trackerDomain };
+      },
+      {
+        producer: listsTuple!,
+        raw: (run) => {
+          run.evidence.requests.push({
+            id: 3,
+            url: "https://metrics.example.com/collect",
+            domain: "metrics.example.com",
+            method: "GET",
+            resourceType: "script",
+            status: 200,
+            thirdParty: false,
+            tracker: null,
+            startedAtMs: 30,
+            phaseId: 0
+          });
+          run.evidence.cnameCloaks = [
+            { host: "metrics.example.com", cname: "cdn.tracker-example.com", tracker: shieldsMatch("tracker-example.com") }
+          ];
+        }
+      }
+    );
+    assertStoredOutcome(`cloak tracker ${host}`, cloak.reportContents, cloak.sidecarContents, readable, {
+      issue: "unsupported-report-schema",
+      detail: "sanitizer-rejected-evidence"
     });
   }
 

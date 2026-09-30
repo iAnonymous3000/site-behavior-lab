@@ -787,18 +787,31 @@ as intended.
   a removed rule (`myapp.alpha-myqnapcloud.com`), a direct child of
   `*.compute.herokuapp.com`, or a host equal to one of six added rules that is
   now a suffix itself (`surge.sh`). So does one whose stored registrable
-  domain the new engine computes differently: a scanned site or CNAME-cloaked
-  tracker below those six rules (a Surge or Glide host is the likeliest live
-  case) or under a removed rule. Measured over the committed corpus (1029
-  reports, their sidecars, the index and every other tracked text file:
-  30,766 host-like tokens and 5,389 URLs), both engines agree on every token
-  and on every one of 3,970 stored registrable domains, no token sits in a
-  changed rule's zone, and `reports:remediate --check` reports every report
-  and sidecar current under both engines; of 117 synthetic probes around the
-  changed rules, 19 published host strings, 62 stored subject keys and 70
-  cloak tracker domains stop being fixed points. For the live store the owner
-  accepted that instead of remediating: shares expire after 7 days and the
-  storage bucket deletes them at 8, so only reports saved in the 8 days
+  domain the new engine computes differently, in any of the three positions
+  that store one: a scanned site at or below those six rules or under a
+  removed rule, or at a direct child of `*.compute.herokuapp.com` (its stored
+  `compute.herokuapp.com` stays fixed, but its origin host is now a suffix);
+  and a Shields-list tracker, matched on a request or through a CNAME cloak,
+  whose stored domain the new engine no longer derives from the stored host:
+  at or below those six rules, anywhere under a removed rule, allowlisted or
+  not, and anywhere under `*.compute.herokuapp.com` but its apex (a Surge,
+  Glide or Heroku compute host is the likeliest live case). Measured over the
+  committed corpus (1029 reports, their sidecars, the index and every other
+  tracked text file: 30,766 host-like tokens and 5,389 URLs), both engines
+  agree on every token and on every one of 3,970 stored registrable domains,
+  no token sits in a changed rule's zone (the reports store a Shields-list
+  tracker at 203 CNAME-cloak positions over 13 domains and at no request
+  position), and `reports:remediate --check` reports every report and
+  sidecar current under both engines. Of 117 synthetic probes around the
+  changed rules (each changed rule as the apex and under eight label shapes),
+  sanitized by the 7.4.13 engine and read back through the managed reader
+  and the remediation planner under 7.4.16, 19 published host strings, 67
+  stored subject keys, 78 request tracker domains and 78 cloak tracker
+  domains stop being fixed points. For the live store, publishing this epoch
+  is the owner's acceptance of that instead of remediating: shares expire
+  after 7 days and the storage bucket deletes them at 8 (the
+  `reports-retention-backstop-8d` rule as read back on 2026-07-31; this
+  candidate carries no newer readback), so only reports saved in the 8 days
   before the deploy can be affected. The corpus neutrality snapshot of all
   1028 managed comparison decisions reads `917f947e...0f64` under both
   engines and with this epoch's identity bookkeeping applied.

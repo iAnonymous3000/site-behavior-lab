@@ -139,28 +139,50 @@ export const SUPERSEDED_R2_NORMALIZATIONS: Readonly<
     //    "{label}.databricksapps.com" or ".us" and stay fixed;
     // 5. stored as a registrable domain the 7.4.13 engine computed is checked
     //    again under the new engine even where every host string above stays
-    //    fixed. The scanned site's subject.requested and subject.observed
-    //    registrableDomain fail when the new engine redacts them differently:
-    //    a site below one of the 6 rules in (4), which stored the rule itself
-    //    as its registrable domain and now redacts to "{invalid-host}", or a
+    //    fixed. The scanned site's subject.requested and subject.observed fail
+    //    when the new engine redacts the stored registrableDomain differently
+    //    or finds no public host boundary in the stored origin: a site at or
+    //    below one of the 6 rules in (4), which stored the rule itself as its
+    //    registrable domain and now redacts to "{invalid-host}"; a
     //    non-allowlisted label under a removed rule
     //    ("myapp.alpha-myqnapcloud.com" becomes "{label}.alpha-myqnapcloud.com");
-    //    a scanned site keeps the allowlist exception (api.alpha-myqnapcloud.com).
-    //    The sanitizer throws unsafe-subject-identity, which the reader
-    //    reports as redaction-not-idempotent and the remediation planner as
+    //    and a site at a direct child of *.compute.herokuapp.com, whose stored
+    //    compute.herokuapp.com stays fixed but whose origin host is now a
+    //    suffix ("https://{label}.compute.herokuapp.com" and
+    //    "https://api.compute.herokuapp.com" redact to "{invalid-url}"). A
+    //    scanned site keeps the allowlist exception under a removed rule
+    //    (api.alpha-myqnapcloud.com), and one at the Heroku zone's apex or
+    //    deeper than a direct child
+    //    ("https://{label}.{label}.compute.herokuapp.com") reads. The
+    //    sanitizer throws unsafe-subject-identity, which the reader reports
+    //    as redaction-not-idempotent and the remediation planner as
     //    unsupported-report-schema. The domain and entity of a Shields-list
-    //    tracker matched through a CNAME cloak fail when the new engine
-    //    computes a different registrable domain for the stored target: below
-    //    one of those 6 rules (the stored rule recomputes to null) or anywhere
-    //    under a removed rule, allowlisted or not (every stored domain under
-    //    alpha-myqnapcloud.com or dev-myqnapcloud.com recomputes to the bare
-    //    apex); the reader reports that as redaction-not-idempotent and the
-    //    planner as unsupported-report-schema (sanitizer-rejected-evidence).
-    //    A subject or cloak domain under either wildcard zone or the 3
-    //    Databricks rules stays fixed: compute.herokuapp.com and
-    //    databricksapps.com are the stored registrable domains under both
-    //    engines. A Surge, Glide or Heroku compute host is the likeliest live
-    //    case.
+    //    tracker are recomputed from the stored host it was matched on, in
+    //    both positions that store one: evidence.requests[].tracker from the
+    //    request's domain and evidence.cnameCloaks[].tracker from the cloak's
+    //    cname (redactTrackerMatch). They fail when the new engine computes a
+    //    different registrable domain for that stored host: at or below one
+    //    of those 6 rules (the stored rule recomputes to null at the apex and
+    //    to the host's own registrable domain below it: "{label}.surge.sh"
+    //    no longer stores surge.sh); anywhere under a removed rule,
+    //    allowlisted or not (every stored domain under alpha-myqnapcloud.com
+    //    or dev-myqnapcloud.com recomputes to the bare apex); and anywhere
+    //    under *.compute.herokuapp.com but its apex (a direct child recomputes
+    //    to null, a deeper host to itself:
+    //    "{label}.{label}.compute.herokuapp.com" no longer stores
+    //    compute.herokuapp.com). A request whose match fails publishes
+    //    tracker null, so the reader and the planner report
+    //    redaction-not-idempotent; a cloak whose match fails throws, so the
+    //    reader reports redaction-not-idempotent and the planner
+    //    unsupported-report-schema (sanitizer-rejected-evidence). Only the
+    //    apex compute.herokuapp.com keeps every stored position under the
+    //    Heroku wildcard, and nothing under *.azure.databricksapps.com or the
+    //    3 Databricks rules moves in any position: databricksapps.com is the
+    //    stored registrable domain under both engines. The committed list
+    //    snapshot carries host-blocking rules in one changed zone
+    //    (||violation-*.surge.sh^$doc and three siblings), so the request
+    //    position is live for a Surge document. A Surge, Glide or Heroku
+    //    compute host is the likeliest live case.
     // readManagedReport enters its fixed-point branch on the redaction
     // version alone, never the normalization, so every stored redaction-v4 r2
     // report of every era, not only 344fdfdf ones, is re-redacted with the
@@ -175,20 +197,31 @@ export const SUPERSEDED_R2_NORMALIZATIONS: Readonly<
     // and 5389 URLs) parses to the same domain, suffix and ICANN/private
     // flags and redacts to the same bytes under both engines; none falls
     // inside a changed rule's zone as a host or as one of the 3970 stored
-    // registrable domains, each checked as a subject key and as a cloak
-    // tracker domain (the committed reports carry 61 tokens at a
-    // registrableDomain key and 59 at a cnameCloaks position, none in a
-    // changed zone), and reports:remediate --check reports every report and
-    // sidecar current under both engines, so every committed report stays a
-    // fixed point. Of 117 synthetic probes around the changed rules, 19
-    // published host strings, 62 stored subject keys and 70 cloak tracker
-    // domains stop being fixed points; those are the shapes above. Live
-    // store: the application stops serving a share at its 7-day expiry and
-    // the bucket's reports-retention-backstop-8d rule deletes the reports/
-    // prefix at 8 days (research/ops-receipts/r2-lifecycle-readback.json), so
-    // exposure is bounded to reports saved in the 8 days before the deploy
-    // that hold such a host. The owner accepted orphaning those reports
-    // instead of remediating them.
+    // registrable domains, each checked as a subject key and as a request or
+    // cloak tracker domain (the committed reports carry 61 tokens at a
+    // registrableDomain key and 59 at a cnameCloaks position, and store a
+    // Shields-list tracker at 203 cnameCloaks positions over 13 domains and
+    // at no request position, none in a changed zone), and
+    // reports:remediate --check reports every report and sidecar current
+    // under both engines, so every committed report stays a fixed point. Of
+    // 117 synthetic probes around the changed rules (each of the 13 changed
+    // rules as the apex and under eight label shapes), each placed in every
+    // stored position of a raw report, sanitized by the 7.4.13 engine, proved
+    // a fixed point there and read back through readManagedReport and the
+    // remediation planner under 7.4.16: 19 of 117 published host strings, 67
+    // of 115 stored subject keys, 78 of 115 request tracker domains and 78
+    // of 115 cloak tracker domains stop being fixed points (the two removed
+    // apexes store no registrable domain under 7.4.13); those are the shapes
+    // above. Live store: the application stops serving a share at its 7-day
+    // expiry and the bucket's reports-retention-backstop-8d rule deletes the
+    // reports/ prefix at 8 days, as read back with wrangler on 2026-07-31
+    // (research/ops-receipts/r2-lifecycle-readback.json); this candidate
+    // carries no newer readback, so the integrator re-reads the rule before
+    // the deploy. Exposure is bounded to reports saved in the 8 days before
+    // the deploy that hold such a host. Publishing this candidate is the
+    // owner's acceptance of orphaning those reports instead of remediating
+    // them, as the owner accepted for the 7.4.13 move; the epoch record
+    // (docs/toolchain-epoch-2026-10.md) dates that push.
     "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:344fdfdf1404e1c1a6b287c18dfd098107da18bd3b6143b7c76d2db056391563+tldts@7.4.13+node-evidence-policy-v1+r2-http-status-compat-v1",
     // Retired by the node-detectors-v12 measurement epoch, which admits five
     // exact fixed scanner warnings this pass replaced with "[redacted
@@ -421,8 +454,9 @@ export const SUPERSEDED_R2_NORMALIZATIONS: Readonly<
   "pagegraph-import": Object.freeze([
     // Retired by the 2026-10 toolchain epoch's move to tldts@7.4.16; see the
     // node-playwright entry. A PageGraph import records requests and a
-    // subject, so of the positions listed there the host-string and subject
-    // ones apply.
+    // subject and no Shields-list match (its rows carry no ad-block
+    // identity), so of the positions listed there the host-string and
+    // subject ones apply.
     "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:344fdfdf1404e1c1a6b287c18dfd098107da18bd3b6143b7c76d2db056391563+tldts@7.4.13+pagegraph-request-evidence-v1+r2-http-status-compat-v1",
     // Retired by node-detectors-v12's widening (the storage-snapshot,
     // consent-banner-check, policy-link-search, CNAME-candidate and
