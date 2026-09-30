@@ -812,9 +812,9 @@ as intended.
   domains stop being fixed points. For the live store, publishing this epoch
   is the owner's acceptance of that instead of remediating: shares expire
   after 7 days and the storage bucket deletes them at 8 (the
-  `reports-retention-backstop-8d` rule as read back on 2026-07-31; this
-  candidate carries no newer readback), so only reports saved in the 8 days
-  before the deploy can be affected. The corpus neutrality snapshot of all
+  `reports-retention-backstop-8d` rule, read back with wrangler for this
+  epoch on 2026-09-30, enabled and unchanged), so only reports saved in the
+  8 days before the deploy can be affected. The corpus neutrality snapshot of all
   1028 managed comparison decisions reads `917f947e...0f64` under both
   engines and with this epoch's identity bookkeeping applied.
 - Published reports keep their recorded identities. The deployed producer

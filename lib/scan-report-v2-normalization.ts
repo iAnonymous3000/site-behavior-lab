@@ -214,11 +214,10 @@ export const SUPERSEDED_R2_NORMALIZATIONS: Readonly<
     // apexes store no registrable domain under 7.4.13); those are the shapes
     // above. Live store: the application stops serving a share at its 7-day
     // expiry and the bucket's reports-retention-backstop-8d rule deletes the
-    // reports/ prefix at 8 days, as read back with wrangler on 2026-07-31
-    // (research/ops-receipts/r2-lifecycle-readback.json); this candidate
-    // carries no newer readback, so the integrator re-reads the rule before
-    // the deploy. Exposure is bounded to reports saved in the 8 days before
-    // the deploy that hold such a host. Publishing this candidate is the
+    // reports/ prefix at 8 days (research/ops-receipts/r2-lifecycle-readback.json;
+    // the integrator read the rule back with wrangler for this epoch on
+    // 2026-09-30, enabled and unchanged). Exposure is bounded to reports
+    // saved in the 8 days before the deploy that hold such a host. Publishing this candidate is the
     // owner's acceptance of orphaning those reports instead of remediating
     // them, as the owner accepted for the 7.4.13 move; the epoch record
     // (docs/toolchain-epoch-2026-10.md) dates that push.
