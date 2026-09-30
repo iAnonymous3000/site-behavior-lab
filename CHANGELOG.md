@@ -834,6 +834,40 @@ as intended.
   comparison that pairs a report from before this epoch with one from after
   it is ineligible in every family; the r2 corpus cohorts do not split, and
   v1 pairs are unaffected.
+- The exact-build staging A/B between `f9d6c46e` and `34d6847b` failed under
+  its gate twice, each time on a detector-output capture-loss signature that
+  differed between the builds: in round 1 one baseline Guardian run dropped
+  the consent-banner probe, and in round 2 one candidate python.org run
+  truncated the privacy-policy link search (a baseline Guardian run again
+  dropped the consent-banner probe). No canary metric is counted from
+  detector output, and the compared medians were within tolerance in both
+  rounds (a diagnostic re-run of the gate's median comparison over the
+  metric-feeding families, all 44 compared panel medians; not the gate). The
+  owner published the epoch on 2026-09-30 under a recorded exception to the
+  A/B gate, with the gate, its tolerances and the panel unchanged. Two
+  commits followed on `main` before publication, neither staged nor
+  scanned: `4dfd0ca1` patched the dev-only brace-expansion and fast-uri
+  advisories that failed main CI's audit gate, and `5d908f89`, the
+  published commit, upgraded the runtime image's OpenSSL past
+  CVE-2026-84782, which failed main CI's image scan for every build on the
+  pinned base. The full record, with all four canary receipts, is in
+  [docs/toolchain-epoch-2026-10.md](docs/toolchain-epoch-2026-10.md).
+- Security patches beside the epoch, as `f0c45978` took undici 7.29.1
+  before the node-detectors-v12 epoch. `4dfd0ca1`: the brace-expansion
+  override moves from 5.0.9 to 5.0.12 (GHSA-q2hr-2g5m-vwhr,
+  GHSA-qhr7-859c-m2p7, GHSA-6j4f-fj2g-mc7p and siblings, high) and fast-uri
+  from 3.1.7 to 3.1.8 through ajv (GHSA-hrr3-gc8f-f4qj, moderate),
+  advisories published 2026-09-30 that main CI's whole-lockfile `npm audit`
+  at `--audit-level=low` fails on; both are development-only in the lock,
+  so the pruned runtime image contains neither. `5d908f89`: the runner
+  stage upgrades exactly libssl3t64 and openssl from 3.0.13-0ubuntu3.15 to
+  3.0.13-0ubuntu3.16, past CVE-2026-84782 (HIGH, published 2026-09-29) in
+  the pinned Playwright base, which main CI's Trivy image scan refuses on
+  every build of that base; neither Node nor the bundled Chromium links the
+  system OpenSSL, so the scanner's TLS stacks are unchanged, and the
+  container package ledger, keyed by upstream version, does not move. The
+  pin is dropped once a base digest ships the fix. No measurement identity
+  moves in either commit.
 
 ## [0.6.0] - 2026-09-06
 
