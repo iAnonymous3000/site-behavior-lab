@@ -40,6 +40,26 @@ Record the Rust-side generator versions in the release record, rebuild from a cl
 
 The generators include wasm-opt, and the vendored bytes depend on it. wasm-pack 0.14.0 runs a `wasm-opt` from `PATH` first, and otherwise the binaryen `version_117` build it downloaded into its tool cache (`$WASM_PACK_CACHE`, by default `~/Library/Caches/.wasm-pack` on macOS and `~/.cache/.wasm-pack` on Linux). `--mode no-install` never downloads: with no cached copy the build logs "Skipping wasm-opt", exits 0, and writes a different, larger `sbl_adblock_wasm_bg.wasm`. So require that no `wasm-opt` is on `PATH` and exactly one cached copy exists, record its version and SHA-256 (on macOS also the `libbinaryen.dylib` it loads), and require the build log to show wasm-opt ran from the cache. wasm-pack chooses wasm-bindgen the same way: a copy on `PATH` only when its version equals the `wasm-bindgen` pin in `tools/adblock-wasm/Cargo.lock`, and otherwise a cached copy, logging "Installing wasm-bindgen...". A `wasm-bindgen --version` on `PATH` is therefore not evidence of the binary the build ran, so require none on `PATH` and record the cached copy. On Apple Silicon macOS, where wasm-pack has no prebuilt wasm-bindgen, that copy is `wasm-bindgen-cargo-install-<version>`; on Intel macOS and Linux wasm-pack tries a prebuilt copy in a hashed `wasm-bindgen-<hash>` directory first, so record that one instead and require exactly one cached wasm-bindgen for the locked version. The commands below are for an Apple Silicon macOS build host; on Linux, also point the cache path at the Linux default and hash only `bin/wasm-opt`.
 
+The cache holds a wasm-bindgen only for the versions it has already installed. When the epoch moves the `wasm-bindgen` pin in `tools/adblock-wasm/Cargo.lock` (`cargo update -p wasm-bindgen --precise <version>` in `tools/adblock-wasm`), populate the cache before the checks below, or the cached-copy `--version` step fails with no such file. wasm-pack installs the CLI itself, and only in its default mode: one build without `--mode no-install` runs `cargo install wasm-bindgen-cli` at exactly the locked version into `wasm-bindgen-cargo-install-<version>`. That install is unlocked (its log reads "Locking N packages to latest compatible versions"), so the walrus the CLI links, and with it the bytes the CLI emits, are resolved on the day of the install and pinned by nothing checked in; that is why the reproducibility contract proves the CLI and its walrus from the vendored binary's `producers` section. Run that build once from a clean target, keep its log, record the cached binary's SHA-256 and the versions in the `producers` section of the binary it wrote, and discard its output: the copied build is a later `--mode no-install` run from a clean target, checked exactly as below. The 2026-10 epoch populated 0.2.129 this way (walrus 0.27.2).
+
+```sh
+test -z "$(command -v wasm-opt)"
+test -z "$(command -v wasm-bindgen)"
+WASM_PACK_CACHE_DIR="${WASM_PACK_CACHE:-$HOME/Library/Caches/.wasm-pack}"
+WASM_BINDGEN_LOCKED="$(awk '/^name = "wasm-bindgen"$/{getline; gsub(/"/,"",$3); print $3}' tools/adblock-wasm/Cargo.lock)"
+test ! -e "$WASM_PACK_CACHE_DIR/wasm-bindgen-cargo-install-$WASM_BINDGEN_LOCKED"
+rm -rf tools/adblock-wasm/pkg tools/adblock-wasm/target
+wasm-pack build tools/adblock-wasm --target nodejs --release -- --locked 2> /private/tmp/toolchain-wasm-install.log
+grep -F 'Installing wasm-bindgen...' /private/tmp/toolchain-wasm-install.log
+grep -F "Installing wasm-bindgen-cli v$WASM_BINDGEN_LOCKED" /private/tmp/toolchain-wasm-install.log
+grep -F 'Locking ' /private/tmp/toolchain-wasm-install.log
+grep -F 'Optimizing wasm binaries with `wasm-opt`' /private/tmp/toolchain-wasm-install.log
+! grep -F 'found wasm-opt at' /private/tmp/toolchain-wasm-install.log
+shasum -a 256 "$WASM_PACK_CACHE_DIR/wasm-bindgen-cargo-install-$WASM_BINDGEN_LOCKED/wasm-bindgen"
+node -e 'import("./scripts/verify-wasm-reproducibility.mjs").then((m) => console.log(m.producersProcessedBy(require("node:fs").readFileSync("tools/adblock-wasm/pkg/sbl_adblock_wasm_bg.wasm"))))'
+rm -rf tools/adblock-wasm/pkg tools/adblock-wasm/target
+```
+
 The contract binds the SHA-256 of the Cargo inputs and all four outputs, so it moves with any rebuilt byte. `--print` regenerates it from the verifier's constants without checking the binary markers, so if the epoch moves rustc and cargo, wasm-pack, wasm-bindgen or wasm-opt (a wasm-pack move can move wasm-opt, whose binaryen version wasm-pack hardcodes), first update `RUSTC_COMMIT`, `WASM_BINDGEN_VERSION`, `WASM_OPT_VERSION` and every `requiredBuild` pin in `scripts/verify-wasm-reproducibility.mjs`, including `wasmPack`, `rustc` and `cargo`, together with their assertions in `lib/wasm-reproducibility.test.ts`. Then run:
 
 ```sh
