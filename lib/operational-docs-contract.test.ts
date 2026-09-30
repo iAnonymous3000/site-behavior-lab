@@ -579,3 +579,45 @@ test("calibration docs never assert a corpus size the corpus contradicts", () =>
       "its regex no longer sees the docs' own phrasing"
   );
 });
+
+test("the supply-chain docs count the Cargo packages and filter-list sources the inventory leaves unlicensed", () => {
+  // REGRESSION. docs/limitations.md and docs/supply-chain-assurance.md each
+  // state how many third-party Cargo packages and filter-list sources the
+  // checked inventories establish no license for. The 2026-10 toolchain epoch
+  // added syn 3.0.6 to tools/adblock-wasm/Cargo.lock, THIRD_PARTY_INVENTORY.json
+  // moved from 68 to 69 Cargo packages, and both sentences kept saying 68:
+  // nothing read them against the inventory. Derive both counts from the
+  // inventory's own summary so the next Cargo graph move cannot leave them
+  // stale. The inventory's Cargo total already excludes the workspace crate.
+  const inventory = JSON.parse(source("THIRD_PARTY_INVENTORY.json")) as {
+    summary: {
+      cargo: { total: number; unknown: number };
+      filterLists: { total: number; unknown: number };
+    };
+  };
+  const cargo = inventory.summary.cargo;
+  const filterLists = inventory.summary.filterLists;
+  assert.ok(cargo.total > 0 && filterLists.total > 0, "the inventory summary is empty; the guard would be vacuous");
+  // Both sentences claim that NONE of the packages or sources has an
+  // established license. If a review ever declares one, the sentences need a
+  // different shape ("N of M"), not a new number.
+  assert.equal(cargo.unknown, cargo.total, "the docs say no Cargo package has an established license");
+  assert.equal(filterLists.unknown, filterLists.total, "the docs say no filter-list source has an established license");
+
+  const limitations = source("docs/limitations.md");
+  const assurance = source("docs/supply-chain-assurance.md");
+  assert.match(
+    limitations,
+    new RegExp(
+      `do not establish licenses for ${cargo.unknown} third-party Cargo packages or any of the ${filterLists.unknown} filter-list sources`
+    ),
+    `docs/limitations.md must count ${cargo.unknown} Cargo packages and ${filterLists.unknown} filter-list sources`
+  );
+  assert.match(
+    assurance,
+    new RegExp(
+      `Cargo\\.lock proves no\\s+licenses for its ${cargo.unknown} third-party packages, and the filter metadata proves no\\s+licenses for its ${filterLists.unknown} sources`
+    ),
+    `docs/supply-chain-assurance.md must count ${cargo.unknown} Cargo packages and ${filterLists.unknown} filter-list sources`
+  );
+});

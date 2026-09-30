@@ -104,7 +104,7 @@ The tracker/service catalog is a US-biased, hand-curated, in-repo list of high-p
 
 Coverage is intentionally a lower bound: the curated list names recognizable services rather than every tracker. The Shields filter-list-match and block-simulation signals are computed separately, with Brave's own ad-block engine (the [`adblock`](https://github.com/brave/adblock-rust) Rust crate compiled to WASM, built from `tools/adblock-wasm/`) over Brave's default filter lists, vendored as a pinned snapshot; those lists do not assign the service/entity labels shown by the curated catalog.
 
-[`THIRD_PARTY_INVENTORY.json`](../THIRD_PARTY_INVENTORY.json) is the deterministic dependency and filter-source evidence inventory. It is not a complete notice set: the checked lockfiles do not establish licenses for 68 third-party Cargo packages or any of the 31 filter-list sources, so legal review and any required notice/source-offer work remain release gates. The automated dependency/CVE checks, WASM reproducibility boundary, and artifact-attestation gate are documented in [`docs/supply-chain-assurance.md`](supply-chain-assurance.md).
+[`THIRD_PARTY_INVENTORY.json`](../THIRD_PARTY_INVENTORY.json) is the deterministic dependency and filter-source evidence inventory. It is not a complete notice set: the checked lockfiles do not establish licenses for 69 third-party Cargo packages or any of the 31 filter-list sources, so legal review and any required notice/source-offer work remain release gates. The automated dependency/CVE checks, WASM reproducibility boundary, and artifact-attestation gate are documented in [`docs/supply-chain-assurance.md`](supply-chain-assurance.md).
 
 
 ## Important Limitations

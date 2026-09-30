@@ -71,7 +71,7 @@ hard link. An existing file, symlink, directory, or racing destination is
 refused rather than replaced.
 
 The inventory is deliberately not named a notices file. Cargo.lock proves no
-licenses for its 68 third-party packages, and the filter metadata proves no
+licenses for its 69 third-party packages, and the filter metadata proves no
 licenses for its 31 sources; those entries remain `UNKNOWN`. A legal review
 must locate authoritative terms, decide redistribution/notice/source-offer
 obligations, and add any required license texts before a critical release.
