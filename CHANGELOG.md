@@ -754,9 +754,10 @@ as intended.
 ### Toolchain epoch 2026-10
 
 - Toolchain epoch 2026-10 moves two inputs in one reviewed step and holds the
-  rest: tldts 7.4.13 to 7.4.16 (7.4.14 and 7.4.15 passed over; no 7.4.17
-  exists), and wasm-bindgen 0.2.126 to 0.2.129 with the vendored adblock WASM
-  rebuilt from the locked Cargo graph (`sbl_adblock_wasm_bg.wasm` `4034076e`
+  rest: tldts 7.4.13 to 7.4.16, the registry's latest at the cut (published
+  2026-09-27; 7.4.14, published 2026-09-21, and 7.4.15, published 2026-09-23,
+  passed over), and wasm-bindgen 0.2.126 to 0.2.129 with the vendored adblock
+  WASM rebuilt from the locked Cargo graph (`sbl_adblock_wasm_bg.wasm` `4034076e`
   to `7dda4b30`, the linked walrus 0.26.4 to 0.27.2, syn 3.0.6 added beside
   syn 2.0.118 as a proc-macro dependency). adblock-rust stays 0.13.3, and
   Playwright stays 1.63.0 with Chromium 153.0.8010.12 and the container base
@@ -775,8 +776,9 @@ as intended.
   are unchanged; no detector, obligation or policy digest moves. The rebuilt
   WASM changes no recorded identity: no identity names wasm-bindgen or the
   WASM bytes, and the engine differential over the committed list snapshot
-  (107,388 hosts, two sources, four resource types, GET and POST: 1,718,220
-  tuples) found no changed block decision between the two builds.
+  (107,388 hosts, two sources, four resource types, GET and POST: 1,718,208
+  tuples, plus 12 synthetic control tuples) found no changed block decision
+  between the two builds.
 - The tldts move is not a widening. tldts changes only its suffix trie: 11
   private rules added (`*.azure.databricksapps.com`, `*.compute.herokuapp.com`
   and 9 exact rules, among them `surge.sh`, `glideos.app` and three Databricks
