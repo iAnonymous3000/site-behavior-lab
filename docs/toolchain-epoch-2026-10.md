@@ -108,6 +108,8 @@ The four receipts are committed byte for byte beside this record in [`toolchain-
 
 From a checkout that contains this record (the canary code and the panel are unchanged since the baseline; the receipts are what earlier checkouts lack):
 
+> Addendum, 2026-10-02: from the canary gate refinement on (section 3 of [the playbook](./toolchain-epoch.md)), these commands print PASS with `NOTED` lines for these receipts, in both rounds. The FAIL output quoted below reproduces from a checkout that has this record and predates the refinement, such as `eecb7335`.
+
 ```sh
 npm run toolchain:canary -- compare \
   --baseline docs/toolchain-epoch-2026-10/round-1-baseline-receipt.json \
@@ -178,6 +180,8 @@ The playbook says: do not relax a tolerance or edit the panel for the current ep
 On 2026-09-30 the owner decided to publish the candidate with a recorded exception to the A/B gate: two rounds, each failing on one detector-output loss signature (one in each arm), no metric-feeding family differing on any site, the diagnostic medians within tolerance in both rounds, and no scanner source shared with the failing detectors changed between the builds. The push of `34d6847b` to `main` (main CI run started 15:54 UTC, after the 15:53 UTC teardown readback) is the act; this record dates it. The gate itself, its tolerances and the panel are unchanged, and the two committed receipts per round reproduce each FAIL.
 
 ### Proposed gate refinement (a proposal, not applied)
+
+> Addendum, 2026-10-02: the gate was refined before the next baseline capture, in a form that differs from this proposal (it still fails a systematic difference between the builds); the applied rule is in section 3 of [the playbook](./toolchain-epoch.md). This epoch's result under the gate that ran is unchanged.
 
 Proposed for review before the next baseline capture: compare capture loss like with like only for the signatures of families that feed a canary metric (requests, cookies, storage, fingerprinting), and print a differing detector-output signature as an informational row instead of a FAIL, so that one dropped consent-banner probe on an ad-heavy news page does not decide the epoch while any loss in a metric-feeding family that differs between builds still fails it. It is not applied to this epoch, and it would not make this epoch's gate pass in retrospect: a refined gate is a new gate, and this record states the gate that ran.
 
