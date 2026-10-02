@@ -878,16 +878,27 @@ as intended.
   family feeds. A loss in any other family, such as detector output or
   consent verification, now fails the comparison only when more than half of
   one build's runs of a site carry it and none of the other build's do;
-  otherwise `compare` prints it as `NOTED`, recorded and not compared. The
-  2026-10 epoch failed its A/B twice on detector-output signatures, each
-  carried by 1 of 3 runs of one build and none of the other, while all 44
-  medians the gate would have compared stayed within tolerance; the owner
-  approved the refinement on 2026-10-02, before the next baseline capture. Receipts and their version do not change. Under the refined gate
-  the committed 2026-10 receipts pass with those signatures noted, which does
-  not change that epoch's record: it was published under a recorded
-  exception, and its FAIL output reproduces from a checkout that predates
-  this change. The 2026-09 receipts compare the same under both rules. The
-  rule is in [docs/toolchain-epoch.md](docs/toolchain-epoch.md).
+  otherwise `compare` prints it as `NOTED` with both builds' run counts,
+  recorded and not compared, including a loss every run of both builds
+  carries. The 2026-10 epoch failed its A/B twice on detector-output
+  signatures, each carried by 1 of 3 runs of one build and none of the
+  other, while all 44 medians the gate would have compared stayed within
+  tolerance. On 2026-10-02, before the next baseline capture, the owner
+  chose to refine the gate along the lines of that epoch's recorded
+  proposal; this rule goes beyond the proposal: it still fails a systematic
+  difference, it covers every family that feeds no metric, not only
+  detector output, and it notes a loss every run of both builds carries.
+  Receipts and their version do not change. Under the refined gate the
+  committed 2026-10 receipts pass with those signatures noted beside
+  github's every-run keystroke-probe truncation; that does not change that
+  epoch's record: it was published under a recorded exception, and the FAIL
+  output it quotes reproduces only from a checkout that predates this
+  change, such as `eecb7335`. The 2026-09 receipts pass under both rules
+  with the same compared medians; the refined gate adds one `NOTED` line,
+  for github's keystroke-probe truncation, and the noted count to the PASS
+  line, so the output the 2026-09 record quotes also reproduces verbatim
+  only from a checkout that predates this change. The rule is in
+  [docs/toolchain-epoch.md](docs/toolchain-epoch.md).
 
 ## [0.6.0] - 2026-09-06
 

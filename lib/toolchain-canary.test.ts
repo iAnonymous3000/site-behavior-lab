@@ -310,7 +310,7 @@ test("a capture loss every run of both builds shares leaves out only the metrics
     assert.equal(result.results.some((row) => row.caseId === heavy && row.metric === "fingerprintEvents"), false);
   }
   // A shared detector-output loss feeds no canary metric, so nothing is left
-  // out, and a loss every run of both builds records is not noted either.
+  // out; it is noted with both counts, recorded and not compared.
   {
     const { baseline, candidate } = await fresh();
     withLoss(baseline, typed, keystrokeLoss);
@@ -318,7 +318,9 @@ test("a capture loss every run of both builds shares leaves out only the metrics
     const result = h.compareReceipts(baseline, candidate, panel, digest);
     assert.equal(result.pass, true);
     assert.deepEqual(result.excluded, []);
-    assert.deepEqual(result.noted, []);
+    assert.deepEqual(result.noted, [
+      { caseId: typed, signature: "detector-output/truncated/keystroke-probe-capture", baselineRuns: 3, baselineTotal: 3, candidateRuns: 3, candidateTotal: 3 }
+    ]);
     assert.equal(result.results.length, panel.cases.length * h.METRICS.length);
   }
   // A loss only one build records is itself a difference between the builds.
@@ -607,9 +609,10 @@ test("a capture-loss difference in a metric-feeding family still fails, even bes
   }
 });
 
-test("a capture loss that feeds no metric, recorded on every run of both builds, passes with nothing noted or left out", async () => {
+test("a capture loss that feeds no metric, recorded on every run of both builds, passes noted on every site and left out of nothing", async () => {
   const h = await helpers;
   const digest = committedPanelDigest(h);
+  const total = panel.repetitions;
   for (const loss of NON_METRIC_LOSSES) {
     const { baseline, candidate } = await freshPair();
     for (const entry of panel.cases) {
@@ -618,7 +621,11 @@ test("a capture loss that feeds no metric, recorded on every run of both builds,
     }
     const result = h.compareReceipts(baseline, candidate, panel, digest);
     assert.equal(result.pass, true, loss.family);
-    assert.deepEqual(result.noted, [], loss.family);
+    assert.deepEqual(
+      result.noted,
+      panel.cases.map((entry) => ({ caseId: entry.id, signature: signatureOf(loss), baselineRuns: total, baselineTotal: total, candidateRuns: total, candidateTotal: total })),
+      loss.family
+    );
     assert.deepEqual(result.excluded, [], loss.family);
     assert.equal(result.results.length, panel.cases.length * h.METRICS.length, loss.family);
   }
@@ -637,6 +644,9 @@ function movedMedians(result: Comparison) {
 }
 
 const GUARDIAN_FINGERPRINT_LEFT_OUT = [{ caseId: "guardian", metric: "fingerprintEvents", family: "fingerprinting" }];
+// github's keystroke-probe truncation is on every run of both builds in the
+// 2026-09 pair and in both 2026-10 rounds; it is noted, not compared.
+const GITHUB_KEYSTROKE_NOTED: Noted = { caseId: "github", signature: "detector-output/truncated/keystroke-probe-capture", baselineRuns: 3, baselineTotal: 3, candidateRuns: 3, candidateTotal: 3 };
 
 test("the committed 2026-09 receipts pass the refined gate with the medians their record states", async () => {
   const h = await helpers;
@@ -652,8 +662,7 @@ test("the committed 2026-09 receipts pass the refined gate with the medians thei
   assert.equal(result.results.length, 44);
   assert.equal(result.results.every((row) => row.pass), true);
   assert.deepEqual(result.excluded, GUARDIAN_FINGERPRINT_LEFT_OUT);
-  // github's keystroke-probe truncation is on every run of both builds.
-  assert.deepEqual(result.noted, []);
+  assert.deepEqual(result.noted, [GITHUB_KEYSTROKE_NOTED]);
   assert.deepEqual(movedMedians(result), [
     ["guardian", "totalRequests", 202, 182, 20, 40.4],
     ["guardian", "thirdPartyRequests", 169, 152, 17, 42.25],
@@ -666,17 +675,18 @@ test("the committed 2026-09 receipts pass the refined gate with the medians thei
   ]);
 });
 
-test("the committed 2026-10 receipts pass the refined gate with exactly the sporadic detector-output losses their record describes noted", async () => {
+test("the committed 2026-10 receipts pass the refined gate with github's every-run loss and the sporadic losses their record describes noted", async () => {
   const h = await helpers;
   const digest = committedPanelDigest(h);
   const consentBanner = { caseId: "guardian", signature: "detector-output/dropped/consent-banner", baselineRuns: 1, baselineTotal: 3, candidateRuns: 0, candidateTotal: 3 };
   const rounds: Array<[string, Noted[], Array<Array<string | number>>]> = [
-    ["round-1", [consentBanner], [
+    ["round-1", [GITHUB_KEYSTROKE_NOTED, consentBanner], [
       ["guardian", "totalRequests", 188, 184, 4, 37.6],
       ["guardian", "thirdPartyRequests", 158, 154, 4, 39.5],
       ["guardian", "shieldsBlockedRequests", 70, 71, 1, 21]
     ]],
     ["round-2", [
+      GITHUB_KEYSTROKE_NOTED,
       { caseId: "python", signature: "detector-output/truncated/policy-link-candidates", baselineRuns: 0, baselineTotal: 3, candidateRuns: 1, candidateTotal: 3 },
       consentBanner
     ], [
@@ -706,25 +716,31 @@ test("the committed 2026-10 receipts pass the refined gate with exactly the spor
 });
 
 test("the compare CLI prints each noted loss as recorded and not compared, before its PASS line", () => {
-  const result = spawnSync(
-    process.execPath,
-    [
-      "--no-warnings",
-      path.join("scripts", "toolchain-canary.mjs"),
-      "compare",
-      "--baseline",
-      path.join("docs", "toolchain-epoch-2026-10", "round-2-baseline-receipt.json"),
-      "--candidate",
-      path.join("docs", "toolchain-epoch-2026-10", "round-2-candidate-receipt.json")
-    ],
-    { cwd: process.cwd(), encoding: "utf8" }
-  );
-  assert.equal(result.status, 0, result.stderr);
-  assert.equal(result.stderr, "");
-  assert.deepEqual(result.stdout.trimEnd().split("\n"), [
-    "LEFT OUT guardian.fingerprintEvents: every run of both builds records fingerprinting capture loss",
-    "NOTED python: detector-output/truncated/policy-link-candidates capture loss on 0 of 3 baseline and 1 of 3 candidate runs; recorded, not compared: its family feeds no canary metric",
-    "NOTED guardian: detector-output/dropped/consent-banner capture loss on 1 of 3 baseline and 0 of 3 candidate runs; recorded, not compared: its family feeds no canary metric",
-    "PASS f9d6c46e744c60a3485eba3951f0b168b9170941 -> 34d6847b54d804c449bed160a53129ca2e1f16ef: all 44 compared fixed-panel medians are within tolerance; 1 left out for shared capture loss; 2 noted and not compared."
-  ]);
+  const compare = (baselineFile: string, candidateFile: string) =>
+    spawnSync(process.execPath, ["--no-warnings", path.join("scripts", "toolchain-canary.mjs"), "compare", "--baseline", path.join("docs", baselineFile), "--candidate", path.join("docs", candidateFile)], {
+      cwd: process.cwd(),
+      encoding: "utf8"
+    });
+  const leftOut = "LEFT OUT guardian.fingerprintEvents: every run of both builds records fingerprinting capture loss";
+  const githubNoted = "NOTED github: detector-output/truncated/keystroke-probe-capture capture loss on 3 of 3 baseline and 3 of 3 candidate runs; recorded, not compared: its family feeds no canary metric";
+  const cases: Array<[string, string, string[]]> = [
+    ["toolchain-epoch-2026-10/round-2-baseline-receipt.json", "toolchain-epoch-2026-10/round-2-candidate-receipt.json", [
+      leftOut,
+      githubNoted,
+      "NOTED python: detector-output/truncated/policy-link-candidates capture loss on 0 of 3 baseline and 1 of 3 candidate runs; recorded, not compared: its family feeds no canary metric",
+      "NOTED guardian: detector-output/dropped/consent-banner capture loss on 1 of 3 baseline and 0 of 3 candidate runs; recorded, not compared: its family feeds no canary metric",
+      "PASS f9d6c46e744c60a3485eba3951f0b168b9170941 -> 34d6847b54d804c449bed160a53129ca2e1f16ef: all 44 compared fixed-panel medians are within tolerance; 1 left out for shared capture loss; 3 capture-loss signatures noted and not compared."
+    ]],
+    ["toolchain-epoch-2026-09/baseline-receipt.json", "toolchain-epoch-2026-09/candidate-receipt.json", [
+      leftOut,
+      githubNoted,
+      "PASS cd43c7bce9a980037a74f7ee2a05b722c2638b17 -> c8b189ac59f50121e6f1777dabe12ba4854f6090: all 44 compared fixed-panel medians are within tolerance; 1 left out for shared capture loss; 1 capture-loss signature noted and not compared."
+    ]]
+  ];
+  for (const [baselineFile, candidateFile, expected] of cases) {
+    const result = compare(baselineFile, candidateFile);
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(result.stderr, "", baselineFile);
+    assert.deepEqual(result.stdout.trimEnd().split("\n"), expected, baselineFile);
+  }
 });

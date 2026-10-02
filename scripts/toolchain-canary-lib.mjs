@@ -383,8 +383,8 @@ export function compareReceipts(baselineInput, candidateInput, expectedPanel, pa
   // A loss in any other family feeds no compared median. It fails the
   // comparison only when it differs systematically between the builds: more
   // than half of one build's runs of a site carry it and none of the other
-  // build's runs do. Otherwise, unless every run of both builds carries it, it
-  // is returned in `noted`: recorded, not compared. The 2026-10 epoch failed
+  // build's runs do. Otherwise it is returned in `noted`, even when every run
+  // of both builds carries it: recorded, not compared. The 2026-10 epoch failed
   // the stricter rule twice on detector-output losses that 1 of 3 runs of one
   // build carried and no run of the other (docs/toolchain-epoch-2026-10.md).
   const lossyFamiliesBySite = new Map();
@@ -405,7 +405,6 @@ export function compareReceipts(baselineInput, candidateInput, expectedPanel, pa
       const candidateRuns = candidateOther.filter((runSignatures) => runSignatures.includes(signature)).length;
       const baselineTotal = baselineCaseRuns.length;
       const candidateTotal = candidateCaseRuns.length;
-      if (baselineRuns === baselineTotal && candidateRuns === candidateTotal) continue;
       requireValue(
         !(baselineRuns * 2 > baselineTotal && candidateRuns === 0) && !(candidateRuns * 2 > candidateTotal && baselineRuns === 0),
         `Capture loss ${signature} differs systematically between the builds on ${panelCase.id}: ${baselineRuns} of ${baselineTotal} baseline runs vs ${candidateRuns} of ${candidateTotal} candidate runs.`

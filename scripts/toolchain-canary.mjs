@@ -90,7 +90,7 @@ async function compare(flags) {
     console.log(`NOTED ${row.caseId}: ${row.signature} capture loss on ${row.baselineRuns} of ${row.baselineTotal} baseline and ${row.candidateRuns} of ${row.candidateTotal} candidate runs; recorded, not compared: its family feeds no canary metric`);
   }
   if (!result.pass) throw new Error("Toolchain canary metric tolerances failed.");
-  console.log(`PASS ${result.baselineBuild} -> ${result.candidateBuild}: all ${result.results.length} compared fixed-panel medians are within tolerance${result.excluded.length ? `; ${result.excluded.length} left out for shared capture loss` : ""}${result.noted.length ? `; ${result.noted.length} noted and not compared` : ""}.`);
+  console.log(`PASS ${result.baselineBuild} -> ${result.candidateBuild}: all ${result.results.length} compared fixed-panel medians are within tolerance${result.excluded.length ? `; ${result.excluded.length} left out for shared capture loss` : ""}${result.noted.length ? `; ${result.noted.length} capture-loss signature${result.noted.length === 1 ? "" : "s"} noted and not compared` : ""}.`);
 }
 
 async function captureOne(input) {
