@@ -869,6 +869,26 @@ as intended.
   keyed by upstream version, does not move. The pin is dropped once a base
   digest ships the fix. No measurement identity moves in either commit.
 
+### Toolchain canary gate
+
+- The toolchain canary compares capture loss strictly only in the evidence
+  families its metrics are counted from (requests, cookies, storage and
+  fingerprinting): every run of a site in both builds must still record the
+  same signatures there, and a shared loss still leaves out the metrics its
+  family feeds. A loss in any other family, such as detector output or
+  consent verification, now fails the comparison only when more than half of
+  one build's runs of a site carry it and none of the other build's do;
+  otherwise `compare` prints it as `NOTED`, recorded and not compared. The
+  2026-10 epoch failed its A/B twice on detector-output signatures, each
+  carried by 1 of 3 runs of one build and none of the other, while all 44
+  medians the gate would have compared stayed within tolerance; the owner
+  approved the refinement on 2026-10-02, before the next baseline capture. Receipts and their version do not change. Under the refined gate
+  the committed 2026-10 receipts pass with those signatures noted, which does
+  not change that epoch's record: it was published under a recorded
+  exception, and its FAIL output reproduces from a checkout that predates
+  this change. The 2026-09 receipts compare the same under both rules. The
+  rule is in [docs/toolchain-epoch.md](docs/toolchain-epoch.md).
+
 ## [0.6.0] - 2026-09-06
 
 Declared on 2026-09-06 (the date above) and tagged `v0.6.0` on 2026-09-24 at

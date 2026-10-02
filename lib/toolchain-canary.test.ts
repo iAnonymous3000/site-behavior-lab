@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import path from "node:path";
@@ -17,13 +18,19 @@ type Helpers = {
   assertPanelCatalogMembership(panel: Panel, catalogs: Record<string, unknown>): void;
   buildReceipt(input: Record<string, unknown>): Receipt;
   extractCapturedRun(report: unknown, input: Record<string, unknown>): Record<string, unknown>;
-  compareReceipts(baseline: Receipt, candidate: Receipt, panel: Panel, digest: string): {
-    pass: boolean;
-    results: Array<{ pass: boolean; caseId: string; metric: string }>;
-    excluded: Array<{ caseId: string; metric: string; family: string }>;
-  };
+  compareReceipts(baseline: Receipt, candidate: Receipt, panel: Panel, digest: string): Comparison;
   METRICS: readonly string[];
   METRIC_EVIDENCE_FAMILIES: Readonly<Record<string, string>>;
+  METRIC_FEEDING_FAMILIES: readonly string[];
+};
+type Noted = { caseId: string; signature: string; baselineRuns: number; baselineTotal: number; candidateRuns: number; candidateTotal: number };
+type Comparison = {
+  pass: boolean;
+  baselineBuild: string;
+  candidateBuild: string;
+  results: Array<{ pass: boolean; caseId: string; metric: string; baseline: number; candidate: number; delta: number; allowed: number }>;
+  excluded: Array<{ caseId: string; metric: string; family: string }>;
+  noted: Noted[];
 };
 type Loss = { family: string; kind: string; detail?: string; count: number; phaseId: number };
 type Panel = { panelVersion: number; panelId: string; repetitions: number; conditions: object; metricTolerances: Record<string, { absolute: number; relative: number }>; cases: Array<{ id: string; catalog: string; domain: string; url: string }> };
@@ -298,10 +305,12 @@ test("a capture loss every run of both builds shares leaves out only the metrics
     const result = h.compareReceipts(baseline, candidate, panel, digest);
     assert.equal(result.pass, true);
     assert.deepEqual(result.excluded, [{ caseId: heavy, metric: "fingerprintEvents", family: "fingerprinting" }]);
+    assert.deepEqual(result.noted, []);
     assert.equal(result.results.length, panel.cases.length * h.METRICS.length - 1);
     assert.equal(result.results.some((row) => row.caseId === heavy && row.metric === "fingerprintEvents"), false);
   }
-  // A shared detector-output loss feeds no canary metric, so nothing is left out.
+  // A shared detector-output loss feeds no canary metric, so nothing is left
+  // out, and a loss every run of both builds records is not noted either.
   {
     const { baseline, candidate } = await fresh();
     withLoss(baseline, typed, keystrokeLoss);
@@ -309,6 +318,7 @@ test("a capture loss every run of both builds shares leaves out only the metrics
     const result = h.compareReceipts(baseline, candidate, panel, digest);
     assert.equal(result.pass, true);
     assert.deepEqual(result.excluded, []);
+    assert.deepEqual(result.noted, []);
     assert.equal(result.results.length, panel.cases.length * h.METRICS.length);
   }
   // A loss only one build records is itself a difference between the builds.
@@ -418,4 +428,303 @@ test("a capture loss every run of both builds shares leaves out only the metrics
     reordered.reasons = [...reordered.reasons].reverse();
     assert.equal(h.compareReceipts(baseline, candidate, panel, digest).pass, true);
   }
+});
+
+const BASELINE_VERSIONS: Versions = { playwright: null, adblock: "0.13.0", tldts: "7.4.3" };
+const CANDIDATE_VERSIONS: Versions = { playwright: "1.61.1", adblock: "0.13.2", tldts: "7.4.9" };
+
+async function freshPair() {
+  return {
+    baseline: await receipt("forward", "a".repeat(40), "149.0", 10, BASELINE_VERSIONS),
+    candidate: await receipt("reverse", "b".repeat(40), "150.0", 11, CANDIDATE_VERSIONS)
+  };
+}
+
+function committedPanelDigest(h: Helpers) {
+  return createHash("sha256").update(h.stableCompareJson(panel)).digest("hex");
+}
+
+function onRepetitions(target: Receipt, caseId: string, loss: Loss, repetitions: number[]) {
+  return withLoss(target, caseId, loss, (entry) => repetitions.includes(entry.repetition));
+}
+
+const signatureOf = (loss: Loss) => `${loss.family}/${loss.kind}/${loss.detail ?? ""}`;
+
+// Losses the scanner records in families no canary metric is counted from:
+// the consent-banner probe drop (detector output, as on the 2026-10 Guardian
+// runs), the consent-verification coverage drop, and the undetailed
+// post-consent reload loss.
+const NON_METRIC_LOSSES: Loss[] = [
+  { family: "detector-output", kind: "dropped", detail: "consent-banner", count: 1, phaseId: 0 },
+  { family: "consent-verification", kind: "dropped", detail: "consent-verification", count: 1, phaseId: 0 },
+  { family: "consent-verification", kind: "dropped", count: 1, phaseId: 2 }
+];
+const METRIC_LOSSES: Loss[] = [
+  { family: "requests", kind: "dropped", detail: "request-log", count: 1, phaseId: 0 },
+  { family: "cookies", kind: "dropped", detail: "cookie-snapshot", count: 1, phaseId: 0 },
+  { family: "storage", kind: "dropped", detail: "storage-snapshot", count: 1, phaseId: 0 },
+  { family: "fingerprinting", kind: "dropped", detail: "fingerprint-observer", count: 1, phaseId: 0 }
+];
+
+test("capture loss is compared strictly in exactly the families the canary metrics are counted from", async () => {
+  const h = await helpers;
+  assert.deepEqual([...h.METRIC_FEEDING_FAMILIES], [...new Set(Object.values(h.METRIC_EVIDENCE_FAMILIES))].sort());
+  assert.equal(Object.isFrozen(h.METRIC_FEEDING_FAMILIES), true);
+  assert.deepEqual(METRIC_LOSSES.map((loss) => loss.family).sort(), [...h.METRIC_FEEDING_FAMILIES]);
+  for (const loss of NON_METRIC_LOSSES) assert.equal(h.METRIC_FEEDING_FAMILIES.includes(loss.family), false, loss.family);
+});
+
+test("a sporadic capture loss in a family that feeds no canary metric is noted, not compared and not failed", async () => {
+  const h = await helpers;
+  const digest = committedPanelDigest(h);
+  const site = panel.cases[4].id;
+  const total = panel.repetitions;
+  // Not systematic: no build carries it on most runs while the other carries
+  // it on none.
+  const cases: Array<[number[], number[]]> = [
+    [[2], []],
+    [[], [1]],
+    [[1, 3], [2]],
+    [[3], [1, 2]],
+    [[1, 2, 3], [2]],
+    [[3], [1, 2, 3]],
+    [[1, 2], [2, 3]],
+    [[1], [3]]
+  ];
+  for (const loss of NON_METRIC_LOSSES) {
+    for (const [inBaseline, inCandidate] of cases) {
+      const context = `${signatureOf(loss)}: ${inBaseline.length} of ${total} baseline vs ${inCandidate.length} of ${total} candidate`;
+      const { baseline, candidate } = await freshPair();
+      onRepetitions(baseline, site, loss, inBaseline);
+      onRepetitions(candidate, site, loss, inCandidate);
+      const result = h.compareReceipts(baseline, candidate, panel, digest);
+      assert.equal(result.pass, true, context);
+      assert.deepEqual(
+        result.noted,
+        [{ caseId: site, signature: signatureOf(loss), baselineRuns: inBaseline.length, baselineTotal: total, candidateRuns: inCandidate.length, candidateTotal: total }],
+        context
+      );
+      assert.deepEqual(result.excluded, [], context);
+      assert.equal(result.results.length, panel.cases.length * h.METRICS.length, context);
+      assert.equal(result.results.every((row) => row.pass), true, context);
+    }
+  }
+  // Noted entries follow the panel order, then the signature order.
+  {
+    const { baseline, candidate } = await freshPair();
+    onRepetitions(baseline, site, NON_METRIC_LOSSES[0], [1]);
+    onRepetitions(baseline, site, NON_METRIC_LOSSES[1], [2]);
+    onRepetitions(candidate, panel.cases[2].id, NON_METRIC_LOSSES[0], [3]);
+    const result = h.compareReceipts(baseline, candidate, panel, digest);
+    assert.equal(result.pass, true);
+    assert.deepEqual(result.noted.map((row) => [row.caseId, row.signature]), [
+      ["python", "detector-output/dropped/consent-banner"],
+      ["guardian", "consent-verification/dropped/consent-verification"],
+      ["guardian", "detector-output/dropped/consent-banner"]
+    ]);
+  }
+});
+
+test("a capture loss in a family that feeds no metric fails when most runs of one build carry it and no run of the other does", async () => {
+  const h = await helpers;
+  const digest = committedPanelDigest(h);
+  const site = panel.cases[4].id;
+  const total = panel.repetitions;
+  const cases: Array<[number[], number[]]> = [
+    [[1, 2], []],
+    [[1, 2, 3], []],
+    [[], [2, 3]],
+    [[], [1, 2, 3]],
+    [[1, 3], []],
+    [[], [1, 3]]
+  ];
+  for (const loss of NON_METRIC_LOSSES) {
+    for (const [inBaseline, inCandidate] of cases) {
+      const { baseline, candidate } = await freshPair();
+      onRepetitions(baseline, site, loss, inBaseline);
+      onRepetitions(candidate, site, loss, inCandidate);
+      assert.throws(
+        () => h.compareReceipts(baseline, candidate, panel, digest),
+        {
+          message: `Capture loss ${signatureOf(loss)} differs systematically between the builds on ${site}: ${inBaseline.length} of ${total} baseline runs vs ${inCandidate.length} of ${total} candidate runs.`
+        },
+        `${signatureOf(loss)}: ${inBaseline.length} vs ${inCandidate.length}`
+      );
+    }
+  }
+  // A detail that changes between builds is a systematic difference in both
+  // signatures, as it was a difference under the like-with-like rule.
+  {
+    const { baseline, candidate } = await freshPair();
+    withLoss(baseline, site, NON_METRIC_LOSSES[0]);
+    withLoss(candidate, site, { ...NON_METRIC_LOSSES[0], detail: "consent-banner-frame" });
+    assert.throws(() => h.compareReceipts(baseline, candidate, panel, digest), /differs systematically between the builds on guardian: 3 of 3 baseline runs vs 0 of 3 candidate runs/);
+  }
+  // A shared loss on the same site does not mask a systematic one.
+  {
+    const { baseline, candidate } = await freshPair();
+    const shared: Loss = { family: "detector-output", kind: "truncated", detail: "keystroke-probe-capture", count: 1, phaseId: 1 };
+    withLoss(baseline, site, shared);
+    withLoss(candidate, site, shared);
+    onRepetitions(candidate, site, NON_METRIC_LOSSES[1], [1, 2]);
+    assert.throws(() => h.compareReceipts(baseline, candidate, panel, digest), /differs systematically between the builds on guardian: 0 of 3 baseline runs vs 2 of 3 candidate runs/);
+  }
+});
+
+test("a capture-loss difference in a metric-feeding family still fails, even beside a sporadic one that feeds no metric", async () => {
+  const h = await helpers;
+  const digest = committedPanelDigest(h);
+  const site = panel.cases[4].id;
+  // One run of one build, in either direction, is already a difference.
+  for (const loss of METRIC_LOSSES) {
+    for (const [inBaseline, inCandidate] of [[[2], []], [[], [1]]] as Array<[number[], number[]]>) {
+      const { baseline, candidate } = await freshPair();
+      onRepetitions(baseline, site, loss, inBaseline);
+      onRepetitions(candidate, site, loss, inCandidate);
+      assert.throws(() => h.compareReceipts(baseline, candidate, panel, digest), /Capture loss differs between runs of guardian: /, loss.family);
+    }
+  }
+  // The strict message lists only the metric-feeding signatures; the sporadic
+  // detector-output loss beside it neither masks nor joins the failure.
+  {
+    const { baseline, candidate } = await freshPair();
+    withLoss(candidate, site, METRIC_LOSSES[3]);
+    onRepetitions(baseline, site, NON_METRIC_LOSSES[0], [2]);
+    assert.throws(
+      () => h.compareReceipts(baseline, candidate, panel, digest),
+      { message: 'Capture loss differs between runs of guardian: [] vs ["fingerprinting/dropped/fingerprint-observer"].' }
+    );
+  }
+  {
+    const { baseline, candidate } = await freshPair();
+    withLoss(baseline, site, METRIC_LOSSES[2]);
+    withLoss(candidate, site, METRIC_LOSSES[2], (entry) => entry.repetition !== 3);
+    onRepetitions(candidate, site, NON_METRIC_LOSSES[1], [3]);
+    assert.throws(
+      () => h.compareReceipts(baseline, candidate, panel, digest),
+      { message: 'Capture loss differs between runs of guardian: ["storage/dropped/storage-snapshot"] vs [].' }
+    );
+  }
+});
+
+test("a capture loss that feeds no metric, recorded on every run of both builds, passes with nothing noted or left out", async () => {
+  const h = await helpers;
+  const digest = committedPanelDigest(h);
+  for (const loss of NON_METRIC_LOSSES) {
+    const { baseline, candidate } = await freshPair();
+    for (const entry of panel.cases) {
+      withLoss(baseline, entry.id, loss);
+      withLoss(candidate, entry.id, loss);
+    }
+    const result = h.compareReceipts(baseline, candidate, panel, digest);
+    assert.equal(result.pass, true, loss.family);
+    assert.deepEqual(result.noted, [], loss.family);
+    assert.deepEqual(result.excluded, [], loss.family);
+    assert.equal(result.results.length, panel.cases.length * h.METRICS.length, loss.family);
+  }
+});
+
+function committedReceipt(file: string): Receipt {
+  return JSON.parse(readFileSync(path.join(process.cwd(), "docs", file), "utf8")) as Receipt;
+}
+
+// The medians that moved between the builds, as [site, metric, baseline,
+// candidate, delta, allowed]; every other compared median is identical.
+function movedMedians(result: Comparison) {
+  return result.results
+    .filter((row) => row.delta !== 0)
+    .map((row) => [row.caseId, row.metric, row.baseline, row.candidate, row.delta, Number(row.allowed.toFixed(2))]);
+}
+
+const GUARDIAN_FINGERPRINT_LEFT_OUT = [{ caseId: "guardian", metric: "fingerprintEvents", family: "fingerprinting" }];
+
+test("the committed 2026-09 receipts pass the refined gate with the medians their record states", async () => {
+  const h = await helpers;
+  const result = h.compareReceipts(
+    committedReceipt("toolchain-epoch-2026-09/baseline-receipt.json"),
+    committedReceipt("toolchain-epoch-2026-09/candidate-receipt.json"),
+    panel,
+    committedPanelDigest(h)
+  );
+  assert.equal(result.pass, true);
+  assert.equal(result.baselineBuild, "cd43c7bce9a980037a74f7ee2a05b722c2638b17");
+  assert.equal(result.candidateBuild, "c8b189ac59f50121e6f1777dabe12ba4854f6090");
+  assert.equal(result.results.length, 44);
+  assert.equal(result.results.every((row) => row.pass), true);
+  assert.deepEqual(result.excluded, GUARDIAN_FINGERPRINT_LEFT_OUT);
+  // github's keystroke-probe truncation is on every run of both builds.
+  assert.deepEqual(result.noted, []);
+  assert.deepEqual(movedMedians(result), [
+    ["guardian", "totalRequests", 202, 182, 20, 40.4],
+    ["guardian", "thirdPartyRequests", 169, 152, 17, 42.25],
+    ["guardian", "knownTrackerRequests", 30, 27, 3, 9],
+    ["guardian", "thirdPartyDomains", 30, 29, 1, 7.5],
+    ["guardian", "cookies", 22, 23, 1, 6.6],
+    ["guardian", "thirdPartyCookies", 6, 5, 1, 3],
+    ["guardian", "storageEntries", 24, 26, 2, 7.2],
+    ["guardian", "shieldsBlockedRequests", 78, 69, 9, 23.4]
+  ]);
+});
+
+test("the committed 2026-10 receipts pass the refined gate with exactly the sporadic detector-output losses their record describes noted", async () => {
+  const h = await helpers;
+  const digest = committedPanelDigest(h);
+  const consentBanner = { caseId: "guardian", signature: "detector-output/dropped/consent-banner", baselineRuns: 1, baselineTotal: 3, candidateRuns: 0, candidateTotal: 3 };
+  const rounds: Array<[string, Noted[], Array<Array<string | number>>]> = [
+    ["round-1", [consentBanner], [
+      ["guardian", "totalRequests", 188, 184, 4, 37.6],
+      ["guardian", "thirdPartyRequests", 158, 154, 4, 39.5],
+      ["guardian", "shieldsBlockedRequests", 70, 71, 1, 21]
+    ]],
+    ["round-2", [
+      { caseId: "python", signature: "detector-output/truncated/policy-link-candidates", baselineRuns: 0, baselineTotal: 3, candidateRuns: 1, candidateTotal: 3 },
+      consentBanner
+    ], [
+      ["guardian", "totalRequests", 189, 195, 6, 37.8],
+      ["guardian", "thirdPartyRequests", 159, 165, 6, 39.75],
+      ["guardian", "knownTrackerRequests", 27, 29, 2, 8.1],
+      ["guardian", "thirdPartyDomains", 29, 30, 1, 7.25],
+      ["guardian", "shieldsBlockedRequests", 71, 76, 5, 21.3]
+    ]]
+  ];
+  for (const [round, noted, moved] of rounds) {
+    const result = h.compareReceipts(
+      committedReceipt(`toolchain-epoch-2026-10/${round}-baseline-receipt.json`),
+      committedReceipt(`toolchain-epoch-2026-10/${round}-candidate-receipt.json`),
+      panel,
+      digest
+    );
+    assert.equal(result.pass, true, round);
+    assert.equal(result.baselineBuild, "f9d6c46e744c60a3485eba3951f0b168b9170941", round);
+    assert.equal(result.candidateBuild, "34d6847b54d804c449bed160a53129ca2e1f16ef", round);
+    assert.equal(result.results.length, 44, round);
+    assert.equal(result.results.every((row) => row.pass), true, round);
+    assert.deepEqual(result.excluded, GUARDIAN_FINGERPRINT_LEFT_OUT, round);
+    assert.deepEqual(result.noted, noted, round);
+    assert.deepEqual(movedMedians(result), moved, round);
+  }
+});
+
+test("the compare CLI prints each noted loss as recorded and not compared, before its PASS line", () => {
+  const result = spawnSync(
+    process.execPath,
+    [
+      "--no-warnings",
+      path.join("scripts", "toolchain-canary.mjs"),
+      "compare",
+      "--baseline",
+      path.join("docs", "toolchain-epoch-2026-10", "round-2-baseline-receipt.json"),
+      "--candidate",
+      path.join("docs", "toolchain-epoch-2026-10", "round-2-candidate-receipt.json")
+    ],
+    { cwd: process.cwd(), encoding: "utf8" }
+  );
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(result.stderr, "");
+  assert.deepEqual(result.stdout.trimEnd().split("\n"), [
+    "LEFT OUT guardian.fingerprintEvents: every run of both builds records fingerprinting capture loss",
+    "NOTED python: detector-output/truncated/policy-link-candidates capture loss on 0 of 3 baseline and 1 of 3 candidate runs; recorded, not compared: its family feeds no canary metric",
+    "NOTED guardian: detector-output/dropped/consent-banner capture loss on 1 of 3 baseline and 0 of 3 candidate runs; recorded, not compared: its family feeds no canary metric",
+    "PASS f9d6c46e744c60a3485eba3951f0b168b9170941 -> 34d6847b54d804c449bed160a53129ca2e1f16ef: all 44 compared fixed-panel medians are within tolerance; 1 left out for shared capture loss; 2 noted and not compared."
+  ]);
 });

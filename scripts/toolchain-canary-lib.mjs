@@ -36,6 +36,15 @@ export const METRIC_EVIDENCE_FAMILIES = Object.freeze({
   shieldsBlockedRequests: "requests"
 });
 
+/**
+ * The families whose capture loss compareReceipts compares strictly: exactly
+ * the families METRIC_EVIDENCE_FAMILIES counts a canary metric from. A loss in
+ * any other family (detector output, consent verification, or a family added
+ * later) feeds no compared median, so it fails the comparison only when it
+ * differs systematically between the builds, and is otherwise noted.
+ */
+export const METRIC_FEEDING_FAMILIES = Object.freeze([...new Set(Object.values(METRIC_EVIDENCE_FAMILIES))].sort());
+
 const SHA40 = /^[0-9a-f]{40}$/;
 const SHA256 = /^[0-9a-f]{64}$/;
 const REPORT_ID = /^[0-9]{8}-[0-9a-f]{32}$/;
@@ -175,8 +184,10 @@ function assertCompleteRun(run, expectedBuild, { allowUnrecordedPlaywright = fal
   );
   requireValue(run.qualityFacts?.status >= 200 && run.qualityFacts.status <= 399 && run.qualityFacts.botWallTitleMatched === false && run.qualityFacts.navigationSettled === true && Array.isArray(run.qualityFacts.budgetsExhausted) && run.qualityFacts.budgetsExhausted.length === 0, "Saved report has failed, bot-wall, timeout, or budget quality facts.");
   // Capture loss is admitted here and judged across builds in compareReceipts:
-  // a site keeps a loss only if every run of it in both receipts records the
-  // same one, and the metrics its family feeds are then left out.
+  // in a family that feeds a canary metric, a site keeps a loss only if every
+  // run of it in both receipts records the same one, and the metrics that
+  // family feeds are then left out; in any other family a loss fails only when
+  // it differs systematically between the builds.
   requireValue(
     Array.isArray(run.qualityFacts.captureLoss) &&
       run.qualityFacts.captureLoss.every((loss) =>
@@ -316,15 +327,20 @@ function normalizationTemplate(value) {
   return value.replace(matches[0], "tldts@<version>");
 }
 
+const feedsMetric = (family) => METRIC_FEEDING_FAMILIES.includes(family);
+const feedsNoMetric = (family) => !feedsMetric(family);
+
 /**
- * A run's capture losses as sorted family/kind/detail signatures; loss counts
- * vary run to run and are not compared. A loss recorded without a detail is
- * identified by family and kind alone, so two undetailed causes of the same
- * family and kind read as one; either way only metrics already left out for
- * that site are affected.
+ * A run's capture losses in the families `keep` accepts, as sorted
+ * family/kind/detail signatures; loss counts vary run to run and are not
+ * compared. A loss recorded without a detail is identified by family and kind
+ * alone, so two undetailed causes of the same family and kind read as one. In
+ * a metric-feeding family that touches only metrics already left out for that
+ * site; in any other family a run carrying either cause counts once toward
+ * that one signature.
  */
-function captureLossSignatures(run) {
-  return [...new Set(run.qualityFacts.captureLoss.map((loss) => `${loss.family}/${loss.kind}/${loss.detail ?? ""}`))].sort();
+function captureLossSignatures(run, keep) {
+  return [...new Set(run.qualityFacts.captureLoss.filter((loss) => keep(loss.family)).map((loss) => `${loss.family}/${loss.kind}/${loss.detail ?? ""}`))].sort();
 }
 
 function median(values) {
@@ -358,20 +374,44 @@ export function compareReceipts(baselineInput, candidateInput, expectedPanel, pa
       `Conditions or provenance changed outside Playwright, browser, adblock engine, tldts, and build for ${key}.`
     );
   }
-  // Capture loss is compared like with like: every run of a site in both
-  // receipts must record the same family/kind/detail loss signatures, or the
-  // loss is itself a difference between the builds. A shared loss leaves out
-  // only the metrics its family feeds, for that site.
+  // Capture loss in a family that feeds a canary metric is compared like with
+  // like: every run of a site in both receipts must record the same
+  // family/kind/detail signatures in those families, or the loss is itself a
+  // difference between the builds. A shared loss leaves out only the metrics
+  // its family feeds, for that site.
+  //
+  // A loss in any other family feeds no compared median. It fails the
+  // comparison only when it differs systematically between the builds: more
+  // than half of one build's runs of a site carry it and none of the other
+  // build's runs do. Otherwise, unless every run of both builds carries it, it
+  // is returned in `noted`: recorded, not compared. The 2026-10 epoch failed
+  // the stricter rule twice on detector-output losses that 1 of 3 runs of one
+  // build carried and no run of the other (docs/toolchain-epoch-2026-10.md).
   const lossyFamiliesBySite = new Map();
+  const noted = [];
   for (const panelCase of expectedPanel.cases) {
-    const signatures = [...baseline.runs, ...candidate.runs]
-      .filter((run) => run.caseId === panelCase.id)
-      .map((run) => JSON.stringify(captureLossSignatures(run)));
+    const baselineCaseRuns = baseline.runs.filter((run) => run.caseId === panelCase.id);
+    const candidateCaseRuns = candidate.runs.filter((run) => run.caseId === panelCase.id);
+    const signatures = [...baselineCaseRuns, ...candidateCaseRuns].map((run) => JSON.stringify(captureLossSignatures(run, feedsMetric)));
     requireValue(
       signatures.every((signature) => signature === signatures[0]),
       `Capture loss differs between runs of ${panelCase.id}: ${[...new Set(signatures)].join(" vs ")}.`
     );
-    lossyFamiliesBySite.set(panelCase.id, new Set(JSON.parse(signatures[0]).map((signature) => signature.split("/")[0])));
+    lossyFamiliesBySite.set(panelCase.id, new Set(baselineCaseRuns[0].qualityFacts.captureLoss.map((loss) => loss.family).filter(feedsMetric)));
+    const baselineOther = baselineCaseRuns.map((run) => captureLossSignatures(run, feedsNoMetric));
+    const candidateOther = candidateCaseRuns.map((run) => captureLossSignatures(run, feedsNoMetric));
+    for (const signature of [...new Set([...baselineOther, ...candidateOther].flat())].sort()) {
+      const baselineRuns = baselineOther.filter((runSignatures) => runSignatures.includes(signature)).length;
+      const candidateRuns = candidateOther.filter((runSignatures) => runSignatures.includes(signature)).length;
+      const baselineTotal = baselineCaseRuns.length;
+      const candidateTotal = candidateCaseRuns.length;
+      if (baselineRuns === baselineTotal && candidateRuns === candidateTotal) continue;
+      requireValue(
+        !(baselineRuns * 2 > baselineTotal && candidateRuns === 0) && !(candidateRuns * 2 > candidateTotal && baselineRuns === 0),
+        `Capture loss ${signature} differs systematically between the builds on ${panelCase.id}: ${baselineRuns} of ${baselineTotal} baseline runs vs ${candidateRuns} of ${candidateTotal} candidate runs.`
+      );
+      noted.push({ caseId: panelCase.id, signature, baselineRuns, baselineTotal, candidateRuns, candidateTotal });
+    }
   }
   for (const metric of METRICS) {
     requireValue(
@@ -396,5 +436,5 @@ export function compareReceipts(baselineInput, candidateInput, expectedPanel, pa
       results.push({ caseId: panelCase.id, metric, baseline: left, candidate: right, delta, allowed, pass: delta <= allowed });
     }
   }
-  return { pass: results.every((result) => result.pass), baselineBuild: baseline.expectedBuild, candidateBuild: candidate.expectedBuild, results, excluded };
+  return { pass: results.every((result) => result.pass), baselineBuild: baseline.expectedBuild, candidateBuild: candidate.expectedBuild, results, excluded, noted };
 }
