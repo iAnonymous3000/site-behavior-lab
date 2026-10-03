@@ -35,7 +35,10 @@ found:
    `SITE_BEHAVIOR_LAB_BUILD_COMMIT`. A scanner refusal filed as a site's row
    drops the site from the eligible pool for a reason the site never caused,
    and nothing in the August artifact tells those rows apart. Fixed in
-   0694781e and 591c3096 ("Collect fails closed", below).
+   0694781e and 591c3096, and completed by the egress, clock, and checkout
+   checks that followed them, because the instrument's own outages and
+   sleeps return the same answers as an unreachable site ("Collect fails
+   closed", below).
 2. **The development exclusion missed development-visited domains.** The
    universe builder read a `config/` directory that has never existed and
    never read the featured catalog, the corpus seed, or the pixel-events
@@ -96,7 +99,12 @@ commit on main that lands this section. It carries the fail-closed driver
 and the corrected exclusion derivation by ancestry, and the universe above
 reproduces from it. Every restarted round runs from an isolated worktree
 checked out at exactly that commit, with `SITE_BEHAVIOR_LAB_BUILD_COMMIT`
-set to its full sha, which the driver now compares with every report. A
+set to its full sha. The driver compares that value with every report's
+`run.provenance.buildCommit`, and refuses to start unless its own checkout's
+HEAD is that commit with no tracked change. Nothing can read back what the
+server was built from (its `buildCommit` is only the same environment
+variable), so the server is built fresh with `npm run build` from that same
+clean checkout before the first round, never reused from another tree. A
 document cannot name its own commit, so read it from main:
 
 ```bash
@@ -115,12 +123,16 @@ this document (5 scheduled, at least 4 usable, rounds 1 and 2 the
 eligibility pair at least 48 hours apart, each round at least 24 hours after
 the previous one), from the operator's Mac on the home connection:
 `SWEEP_RUNNER_LABEL=operator-macos-arm64`,
-`SWEEP_EGRESS=as19108-optimum-residential`, and the fixed desktop / observe /
-GPC-off condition. The machine stays awake for the whole of every round.
-`caffeinate -is` alone is not enough: its `-s` assertion holds only on AC
-power, and the August operator script already wrapped `collect` in it. Keep
-the machine on AC power with the lid open. Nothing in the driver detects a
-sleep; that is a known gap, not a preregistered rule.
+`SWEEP_EGRESS=as19108-optimum-residential`,
+`SWEEP_EGRESS_PROBE_URL=https://sitebehavior.org/` (this project's own
+public site, requested with HEAD on a fresh connection before case 1 and
+after every answer), and the fixed desktop / observe / GPC-off condition.
+The machine stays awake for the whole of every round. `caffeinate -is`
+alone is not enough: its `-s` assertion holds only on AC power, and the
+August operator script already wrapped `collect` in it. Keep the machine on
+AC power with the lid open. The driver now stops a round on any scan that
+spans a sleep ("Collect fails closed", below), so a sleep costs the whole
+round; detecting it does not make one harmless.
 
 **The feasibility gate for the restarted study.** The rule is preregistered
 here; its number comes from restarted round 1. Let C be the bare-load-valid
@@ -223,29 +235,57 @@ receipt binds the candidate set and every round artifact by digest; the
 bound artifact binds the receipt by digest and records the method
 parameters, so a stranger can recompute every number.
 
-**Collect fails closed.** A round records a row for a site outcome only:
-a report, or a refusal the server declared against the target
-(`target-unreachable`, `private-target`, `page-load-timeout`, or the
-scanner's cause-less navigation failure, HTTP 502), which projects to the
-all-ineligible row exactly as before. Every other answer stops the round:
-a transport failure to the local server; a scanner-side refusal (our access
-gate, our own rate limit, an r2 producer that is misconfigured or cannot
-persist, an internal error, a busy, asynchronous or durable deployment, any
-other declared cause, an unknown cause, or a cause-less refusal); a
-malformed body; and any report that is not a ScanReport v2 r2 single report
-whose `run.provenance.buildCommit` equals `SITE_BEHAVIOR_LAB_BUILD_COMMIT`
-under the declared condition, or that carries no per-family quality ledger.
-Every case is checked, not only the first. The stop prints the server's
-error and declared cause, exits non-zero, and leaves the round artifact as
-the previous case wrote it; that partial round is re-run in full, never
-resumed, and receipt assembly refuses it. Filing a scanner refusal as the
-site's row would drop the site from the eligible pool for a reason the site
-never caused. A refusal that repeats on every re-run at the same case (for
-example `invalid-url`) is a candidate-set or scanner defect to adjudicate,
-not a site outcome to record. The split lives in
+**Collect fails closed.** A round records a row only for a report, or for
+the scanner's declared failure to measure the target (`target-unreachable`,
+`private-target`, `page-load-timeout`, or the scanner's cause-less
+navigation failure, HTTP 502), which projects to the all-ineligible row.
+Those four are the scanner's observation, not proof about the site: the
+same answers come back when the instrument itself fails. The gate reads
+getaddrinfo `ENOTFOUND` as an authoritative "no such name", and a Mac with
+no network or no reachable resolver daemon answers `ENOTFOUND` for every
+name in milliseconds; the scan proxy's own resolution and upstream failures
+become the cause-less 502; and the scanner's 45-second budget is wall-clock,
+so a scan that spans a sleep times out. So a row is recorded only while the
+instrument was sound for that scan:
+
+- **Egress.** `SWEEP_EGRESS_PROBE_URL` is requested before case 1 and again
+  after every answer, each time on a fresh getaddrinfo lookup and a fresh
+  connection. A failed probe before case 1 starts nothing; a failed probe
+  after an answer stops the round on that case, whatever the answer was.
+- **Clock.** A scan whose wall-clock and monotonic durations differ by more
+  than 5 seconds (the machine slept, or its clock was stepped), or whose
+  wall-clock duration exceeds the driver's 180-second deadline, stops the
+  round, reports included.
+- **Checkout.** `collect` refuses to start unless the driver's own checkout
+  is at `SITE_BEHAVIOR_LAB_BUILD_COMMIT` with no tracked change.
+
+Every other answer stops the round too: a transport failure to the local
+server; a scanner-side refusal (our access gate, our own rate limit, an r2
+producer that is misconfigured or cannot persist, an internal error, a
+busy, asynchronous or durable deployment, any other declared cause, an
+unknown cause, or a cause-less refusal); a malformed body; and any report
+that is not a ScanReport v2 r2 single report whose
+`run.provenance.buildCommit` equals `SITE_BEHAVIOR_LAB_BUILD_COMMIT` under
+the declared condition, or that carries no per-family quality ledger. Every
+case is checked, not only the first. The stop prints the server's error and
+declared cause and the probe's result, exits non-zero, and leaves the round
+artifact as the previous case wrote it; that partial round is re-run in
+full, never resumed, and receipt assembly refuses it. Filing a scanner
+refusal as the site's row would drop the site from the eligible pool for a
+reason the site never caused. A refusal that repeats on every re-run at the
+same case (for example `invalid-url`) is a candidate-set or scanner defect
+to adjudicate, not a site outcome to record. The split lives in
 `scripts/calibration-reliability-sweep-response-lib.mjs`, pinned by test to
 the `ScanFailureCause` union and to the single producer of the cause-less
-502.
+502; the instrument checks live in
+`scripts/calibration-reliability-sweep-instrument-lib.mjs`.
+
+Two residuals remain recorded as site outcomes, because nothing outside
+the scanner can see them: an outage that begins and ends strictly inside
+one scan (the probes on either side both answer), and an awake instrument
+too slow to finish a healthy page inside the scanner's 45-second budget.
+Separating either needs the scanner to declare a scanner-side cause, which
+it does not today.
 
 ## Prevalence and sizing
 

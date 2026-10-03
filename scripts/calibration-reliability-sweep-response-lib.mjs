@@ -20,11 +20,14 @@
  *     (run.provenance.buildCommit equal to SITE_BEHAVIOR_LAB_BUILD_COMMIT),
  *     under the declared condition. Only this disposition reaches
  *     bareLoadOutcome as a report.
- *   - "target": the scan was attempted and the TARGET could not be measured,
- *     declared by the server as one of SWEEP_TARGET_FAILURE_CAUSES, or the
- *     scanner's navigation-failure answer (HTTP 502, no declared cause). The
- *     sweep records these as observations: bareLoadOutcome(null) yields the
- *     all-ineligible row, exactly as before.
+ *   - "target": the scanner declared it could not measure the target, as one
+ *     of SWEEP_TARGET_FAILURE_CAUSES, or answered with its navigation failure
+ *     (HTTP 502, no declared cause). These are the scanner's observation, not
+ *     proof about the site: the same answers come back when the instrument's
+ *     own resolver, egress or clock failed. So "target" is necessary, not
+ *     sufficient, for a row: the driver records bareLoadOutcome(null), the
+ *     all-ineligible row, only when its egress probe and clock checks
+ *     (calibration-reliability-sweep-instrument-lib.mjs) also pass.
  *   - "stop": everything else. A declared scanner-side cause, an unknown
  *     cause, a cause-less refusal other than the navigation failure, a job
  *     submission, a redirect, a malformed body, a non-r2 report, a report
@@ -50,14 +53,20 @@ import { parseStrictJson } from "../lib/strict-json.ts";
  * a stop, and the test requires the key set to equal the ScanFailureCause
  * union in lib/scan-failure-causes.ts in both directions.
  *
- * "target" is reserved for causes that are a statement about the address the
- * sweep asked for: its name does not resolve, it resolves somewhere private,
- * or its page did not load inside the scan's budget. Everything else is the
- * scanner, its deployment, or the request the driver sent, and says nothing
- * about the site. invalid-url is deliberately a stop: the candidate grammar
- * admits only https URLs the server should accept, so a refusal means the
- * candidate set and the server's URL policy disagree, which is a tooling
- * defect to adjudicate, not a site that failed to load.
+ * "target" is reserved for causes in which the scanner reports what happened
+ * when it tried the address the sweep asked for: the name did not resolve, it
+ * resolved somewhere private, or the page did not load inside the scan's
+ * budget. Each is a statement about the site only while the instrument was
+ * sound: lib/url-safety.ts reads getaddrinfo ENOTFOUND as authoritative, and a
+ * machine with no network or no resolver daemon answers ENOTFOUND for every
+ * name; the scanner's budget is wall-clock, so a scan that spans a sleep times
+ * out. The driver's egress probe and clock checks decide that, not this map.
+ * Everything else is the scanner, its deployment, or the request the driver
+ * sent, and is not recorded as anything about the site. invalid-url is
+ * deliberately a stop: the candidate grammar admits only https URLs the
+ * server should accept, so a refusal means the candidate set and the server's
+ * URL policy disagree, which is a tooling defect to adjudicate, not a site
+ * that failed to load.
  */
 export const SWEEP_SCAN_CAUSE_DISPOSITIONS = Object.freeze({
   "invalid-url": "stop",
@@ -84,9 +93,11 @@ export const SWEEP_TARGET_FAILURE_CAUSES = Object.freeze(
 /**
  * The scanner's answer when page navigation itself failed for a reason other
  * than a timeout or a private address (TLS and HTTP/2 errors, resets, sites
- * refusing automated browsers): lib/scanner.ts throws it with this status and
- * no declared cause. It is the only cause-less answer the sweep records as a
- * site outcome.
+ * refusing automated browsers, and also the scan proxy failing to resolve or
+ * reach the upstream, which classifyNavigationFailure does not separate):
+ * lib/scanner.ts throws it with this status and no declared cause. It is the
+ * only cause-less answer the sweep may record as a site outcome, under the
+ * same instrument checks as the declared target causes.
  */
 export const SWEEP_NAVIGATION_FAILURE_STATUS = 502;
 

@@ -20,19 +20,32 @@
  * instrument. The server must run with SITE_BEHAVIOR_LAB_PUBLIC_R2_REPORTS=1
  * plus its prerequisites, from the build SITE_BEHAVIOR_LAB_BUILD_COMMIT names.
  *
- * COLLECT FAILS CLOSED. Every answer goes through classifyScanResponse
- * (calibration-reliability-sweep-response-lib.mjs). A site outcome (the
- * server declared the target unreachable, private, or too slow to load, or
- * navigation failed) is recorded as the all-ineligible row, as an
- * observation. Anything else stops the round: a transport failure to the
- * local server, a scanner-side refusal (access gate, our own rate limit, a
- * misconfigured r2 producer, a persistence failure, an internal error, a busy
- * or async/durable deployment), a malformed body, and any report that is not
- * an r2 single report from the declared build under the declared condition,
- * or whose projection finds no quality ledger. Every case is checked, not
- * only the first. The stop prints the server's own error and declared cause,
- * exits non-zero, and leaves the artifact as written through the previous
- * case: a partial round is re-run in full, never resumed or assembled.
+ * collect also requires SWEEP_EGRESS_PROBE_URL, an http(s) URL whose host is
+ * a name: the egress probe (calibration-reliability-sweep-instrument-lib.mjs)
+ * requests it on a fresh connection before case 1 and after every answer. It
+ * has no default, so nothing in this file contacts a host on its own.
+ *
+ * COLLECT FAILS CLOSED. Before case 1 the driver refuses unless its own git
+ * checkout is at SITE_BEHAVIOR_LAB_BUILD_COMMIT with no tracked change, and
+ * unless the egress probe answers. Then every answer goes through
+ * classifyScanResponse (calibration-reliability-sweep-response-lib.mjs). The
+ * scanner's declared failure to measure the target (unreachable, private, too
+ * slow to load, or a failed navigation) is recorded as the all-ineligible row,
+ * but only while the instrument was sound for that scan: the egress probe
+ * after the answer succeeded, and the scan's wall-clock and monotonic
+ * durations agree and stay inside the driver's deadline. Anything else stops
+ * the round: a failed probe or a scan that spanned a sleep (whatever the
+ * answer, reports included), a transport failure to the local server, a
+ * scanner-side refusal (access gate, our own rate limit, a misconfigured r2
+ * producer, a persistence failure, an internal error, a busy or async/durable
+ * deployment, a resolver timeout or failure, any cause-less refusal other than
+ * the navigation failure), a malformed body, and any report that is not an r2
+ * single report from the declared build under the declared condition, or
+ * whose projection finds no quality ledger. Every case is checked, not only
+ * the first. The stop prints the server's own error and declared cause and the
+ * probe's result, exits non-zero, and leaves the artifact as written through
+ * the previous case: a partial round is re-run in full, never resumed or
+ * assembled.
  *
  * The full report exists in this process only between the response and the
  * projection on the next line. Nothing but the closed bare-load record is
@@ -41,9 +54,19 @@
  */
 
 import { readFileSync, writeFileSync } from "node:fs";
+import path from "node:path";
+import { performance } from "node:perf_hooks";
+import { fileURLToPath } from "node:url";
 import { readResponseTextWithinLimit } from "./http-response.mjs";
 import { bareLoadOutcome } from "./calibration-reliability-sweep-lib.mjs";
 import { classifyScanResponse } from "./calibration-reliability-sweep-response-lib.mjs";
+import {
+  caseClockVerdict,
+  checkoutBindingVerdict,
+  parseEgressProbeUrl,
+  probeEgress,
+  readDriverCheckout
+} from "./calibration-reliability-sweep-instrument-lib.mjs";
 import {
   assembleReceiptFromRounds,
   buildPassArtifact,
@@ -85,11 +108,38 @@ function identityFromEnv() {
   };
 }
 
+function egressProbeFromEnv() {
+  try {
+    return parseEgressProbeUrl(requiredEnv("SWEEP_EGRESS_PROBE_URL"));
+  } catch (error) {
+    fail(error.message);
+  }
+}
+
+/**
+ * The checkout this file runs from must be the build the round artifact will
+ * name. Resolved from this module's own location, never from the working
+ * directory: a driver run from another checkout is the defect being refused.
+ */
+function bindCheckout(buildCommit) {
+  let checkout;
+  try {
+    checkout = readDriverCheckout(path.dirname(fileURLToPath(import.meta.url)));
+  } catch (error) {
+    fail(`collect refused: ${error.message}`);
+  }
+  const refusal = checkoutBindingVerdict({ ...checkout, buildCommit });
+  if (refusal !== null) fail(`collect refused: ${refusal}`);
+  return checkout;
+}
+
 /**
  * One synchronous scan. Returns the HTTP status and the exact body text, or
  * throws: a refused connection, a reset, a redirect, the deadline, or a body
  * over the byte limit are all transport failures, and the caller stops the
- * round on them rather than filing them against the site.
+ * round on them rather than filing them against the site. The deadline is a
+ * monotonic timer, which does not advance while the machine sleeps; the
+ * caller's clock verdict covers that.
  */
 async function scanOnce(url) {
   const response = await fetch(`${BASE}/api/scan`, {
@@ -120,7 +170,7 @@ function describeTransportError(error) {
  * on disk is left exactly as the previous case wrote it. The exit code is set
  * rather than forcing process.exit, so stderr drains completely first.
  */
-function stopRound({ index, total, caseId, pass, outPath, persisted, httpStatus, error, cause, reason }) {
+function stopRound({ index, total, caseId, pass, outPath, persisted, httpStatus, error, cause, reason, egress }) {
   process.stdout.write("STOPPED\n");
   const lines = [
     "",
@@ -128,6 +178,7 @@ function stopRound({ index, total, caseId, pass, outPath, persisted, httpStatus,
     `  HTTP status:   ${httpStatus === null ? "none (transport failure to the local server)" : httpStatus}`,
     `  server error:  ${error === null ? "none" : JSON.stringify(error)}`,
     `  server cause:  ${cause === null ? "none declared" : cause}`,
+    `  egress probe:  ${egress}`,
     `  reason:        ${reason}`,
     persisted > 0
       ? `  persisted:     ${persisted} of ${total} outcomes in ${outPath}, written through case ${persisted}; this case recorded nothing`
@@ -142,6 +193,20 @@ async function collect(pass, candidatesPath, outPath) {
   const bytes = readFileSync(candidatesPath, "utf8");
   const { studyId, candidates, candidateSetDigest } = parseCandidateSet(bytes);
   const identity = identityFromEnv();
+  const egressProbeUrl = egressProbeFromEnv();
+  const checkout = bindCheckout(identity.buildCommit);
+  const preflight = await probeEgress(egressProbeUrl);
+  if (!preflight.ok) {
+    console.error(
+      `ROUND ${pass} NOT STARTED: the egress probe to ${egressProbeUrl.href} failed before case 1 (${preflight.detail}). ` +
+        "Without working name resolution and egress every scan would be filed as an unreachable site. Nothing was scanned and no artifact was written."
+    );
+    process.exitCode = 1;
+    return;
+  }
+  console.log(
+    `checkout ${checkout.root} at ${checkout.head}, no tracked changes; egress probe ${egressProbeUrl.href}: ${preflight.detail}`
+  );
   const outcomes = [];
   for (const [index, candidate] of candidates.entries()) {
     process.stdout.write(
@@ -159,25 +224,64 @@ async function collect(pass, candidatesPath, outPath) {
         ...details
       });
 
-    let response;
+    // The scan's window, on both clocks. Read before the request and after
+    // the body, so the window is the server's whole answer and nothing else.
+    const wallStart = Date.now();
+    const monotonicStart = performance.now();
+    let response = null;
+    let transportError = null;
     try {
       response = await scanOnce(candidate.url);
     } catch (error) {
+      transportError = error;
+    }
+    const clock = caseClockVerdict({
+      wallElapsedMs: Date.now() - wallStart,
+      monotonicElapsedMs: performance.now() - monotonicStart,
+      deadlineMs: SCAN_TIMEOUT_MS
+    });
+    // Egress right after the answer, on a fresh lookup and connection: an
+    // answer the instrument's own outage could have produced is never
+    // recorded while the probe fails.
+    const probe = await probeEgress(egressProbeUrl);
+    const egress = probe.ok ? `ok (${probe.detail})` : `FAILED (${probe.detail})`;
+    const verdict =
+      response === null
+        ? null
+        : classifyScanResponse({
+            ...response,
+            expectedBuildCommit: identity.buildCommit,
+            condition: CONDITION
+          });
+    const answer = {
+      httpStatus: response?.httpStatus ?? null,
+      error: verdict?.error ?? null,
+      cause: verdict?.cause ?? null,
+      egress
+    };
+
+    if (clock !== null) {
+      stopHere({ ...answer, reason: clock });
+      return;
+    }
+    if (transportError !== null) {
       stopHere({
-        httpStatus: null,
-        error: null,
-        cause: null,
-        reason: `transport failure talking to ${BASE}/api/scan: ${describeTransportError(error)}`
+        ...answer,
+        reason: `transport failure talking to ${BASE}/api/scan: ${describeTransportError(transportError)}`
       });
       return;
     }
-    const verdict = classifyScanResponse({
-      ...response,
-      expectedBuildCommit: identity.buildCommit,
-      condition: CONDITION
-    });
+    if (!probe.ok) {
+      stopHere({
+        ...answer,
+        reason:
+          `the egress probe to ${egressProbeUrl.href} failed right after this answer, so the instrument's own resolver ` +
+          "or network may have been down, and that produces the same answers as an unreachable site; this answer cannot be attributed to the site"
+      });
+      return;
+    }
     if (verdict.disposition === "stop") {
-      stopHere(verdict);
+      stopHere({ ...verdict, egress });
       return;
     }
 
@@ -190,9 +294,7 @@ async function collect(pass, candidatesPath, outPath) {
       // this driver exists to refuse. Checked on every case.
       if (outcome.runOutcome === "unavailable") {
         stopHere({
-          httpStatus: response.httpStatus,
-          error: null,
-          cause: null,
+          ...answer,
           reason:
             "the r2 report carries no per-family quality ledger, so its projection is unverified; that is a producer defect, not a site outcome"
         });
@@ -202,10 +304,10 @@ async function collect(pass, candidatesPath, outPath) {
         `${outcome.loaded ? "loaded" : "not-loaded"} status=${outcome.status} censoredFamilies=${outcome.censoredFamilies.join(",") || "none"}`
       );
     } else {
-      // A site outcome: the scan was attempted and the target could not be
-      // measured. bareLoadOutcome projects the absent report to the
-      // all-ineligible record, which is the correct statement, and the
-      // planned denominator stays whole.
+      // The scanner declared it could not measure the target, and the egress
+      // probe and both clocks say the instrument was sound for this scan.
+      // bareLoadOutcome projects the absent report to the all-ineligible
+      // record and the planned denominator stays whole.
       outcome = bareLoadOutcome(candidate.caseId, null, { pass, observedAt });
       console.log(
         `not-loaded target ${verdict.cause ?? `navigation-failure (HTTP ${verdict.httpStatus})`}: ${verdict.error}`
