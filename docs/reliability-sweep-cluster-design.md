@@ -483,6 +483,37 @@ identity rules are unchanged. The loss-bound artifact is version 2,
 because its per-family censor bounds now count a lost row as censored; no
 bound has been computed over a version 4 round.
 
+**Collection SHA (2026-10-03).** A second review of the rulings'
+implementation, made before restarted round 1 began, moved the collection
+SHA to `d29146d80cbb77f6ab714da6df60c3003a2ed295`, the commit "Pin every
+scanner failure sentence in the featured taxonomy and retry the
+unattributed one", the last of that review's code commits; the one before
+it, 33258803, holds its scanner, proxy and driver changes. It supersedes
+ed6c02e4, on which no attempt of restarted round 1 ran. Between the two,
+the review changed how three navigation answers are handled, each now as
+the table above states: a page address the site answers with a file to
+download (an attachment, or a PDF) declares `page-is-download`, a site
+row, where it was a cause-less 502 that stopped the round on every
+attempt at that case; the page route's re-check of the navigation's host,
+when it refuses it as private, unresolvable, past its lookup deadline or
+with too many addresses, ends the scan with the gate's own declared
+refusal, a site row, where it was a cause-less 502 that stopped the round;
+and a socket error the scanner's own host raises on the upstream
+connection (`EMFILE`, `ENOBUFS`, `EADDRNOTAVAIL` and the like) leaves the
+navigation failure cause-less, so it stops the round, where it was
+`page-load-failed`, a site row. Every restarted round runs from an
+isolated worktree checked out at exactly this commit, with
+`SITE_BEHAVIOR_LAB_BUILD_COMMIT` set to it and the server built fresh from
+that clean checkout, as above. No stopped attempt of restarted round 1 is
+recorded as of this addition.
+
+The pass artifact stays version 4 and the loss-bound artifact version 2:
+`page-is-download` joined the site answers `SWEEP_ROW_ANSWERS` admits, no
+field changed, and no version 4 round exists. The review also changed the
+featured-corpus refresh's failure taxonomy, which is not collection code:
+the cause-less navigation failure now counts against the scanner there and
+is retried once.
+
 ## Why two passes were not enough
 
 The adopted censoring decision sizes per-detector policies from a defensible
