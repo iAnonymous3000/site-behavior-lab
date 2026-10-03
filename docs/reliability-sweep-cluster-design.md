@@ -107,6 +107,25 @@ PRECOMMITTED DISJOINT PILOT, preregistered here in full:
   free parameter through which a partition could be steered, and any auditor
   re-derives the identical split from the artifacts alone. The provenance
   records the method, seed, and frame size.
+- **Development exclusion.** Repository data may only REMOVE a candidate.
+  The frame drops every domain that a repository surface records as visited
+  by this project's scanner or studies; the surfaces are the closed list
+  `DEVELOPMENT_EXCLUSION_SURFACES` in
+  scripts/calibration-development-exclusions-lib.mjs, and every other file
+  under the scoped roots is classified there with the reason it is not read.
+  Each recorded host contributes its www-stripped form and its registrable
+  domain (redaction placeholders such as `{label}` dropped first). A declared
+  surface that is missing or unparseable, or a record that names no domain,
+  refuses the build instead of shrinking the set. This study's own
+  artifacts under `calibration/cname-uncloaking-*` are never read, so a
+  rebuild cannot exclude its own pilot. The set is a function of the whole
+  tree, so a universe re-derives only from the commit it was built at. The
+  2026-08 universe predates this derivation: its builder read a `config/`
+  directory that never existed and skipped the featured catalog, the corpus
+  seed, and the screening rows, and it admitted seven development-visited
+  frame domains (cnn.com, forbes.com, spiegel.de, elpais.com,
+  telegraph.co.uk, dailymail.co.uk, washingtonpost.com). The restarted study
+  `cname-uncloaking-2026-10` is built with this derivation.
 - **Pilot size**: at least `PREREGISTERED_PILOT_MINIMUM` = 100, because the
   Wilson 95% half-width at the worst case (p = 0.5) is 0.096 at n = 100,
   inside the programme's 0.10 half-width convention. The builder refuses a
