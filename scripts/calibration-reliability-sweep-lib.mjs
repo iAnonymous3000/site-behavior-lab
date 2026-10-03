@@ -442,6 +442,27 @@ export function allEvidenceFamiliesComplete(outcome) {
   );
 }
 
+/**
+ * The evidence families one row counts as censored, for every per-family
+ * count and bound: the receipt's familyCensorCounts, the round summary's, and
+ * the cluster bound's censoredByFamily all read this one rule.
+ *
+ *   - A report row: the families its ledger censored.
+ *   - A lost row: every expected family. The scanner measured the visit and
+ *     then lost all of its evidence, and the 2026-10-03 R1 ruling counts
+ *     instrument loss against completeness. Counting it in each family's
+ *     denominator only, as the rows first did, lowered every per-family loss
+ *     bound by the lost share, the anti-conservative direction.
+ *   - A site row: none. The site gave the scanner nothing to measure, so the
+ *     row is in every denominator as a case that is not valid, not as
+ *     detector-input loss, as the design has counted it since the first
+ *     sweep.
+ */
+export function rowCensoredFamilies(outcome) {
+  assertBareLoadOnly(outcome, "censoring input");
+  return SWEEP_ROW_ANSWERS[outcome.answer] === "lost" ? EXPECTED_EVIDENCE_FAMILIES : outcome.censoredFamilies;
+}
+
 export const SWEEP_MINIMUM_PASS_SEPARATION_MS = 48 * 60 * 60 * 1000;
 
 /**
@@ -594,7 +615,7 @@ export function buildReliabilitySweepReceipt({
   let allFamiliesCompleteBothPasses = 0;
   for (const entry of cases) {
     for (const pass of entry.passes) {
-      for (const family of pass.censoredFamilies) {
+      for (const family of rowCensoredFamilies(pass)) {
         familyCensorCounts[family] = (familyCensorCounts[family] ?? 0) + 1;
       }
     }

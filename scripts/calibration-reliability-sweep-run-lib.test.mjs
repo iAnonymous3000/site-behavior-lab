@@ -438,7 +438,11 @@ test("lost rows stay in every denominator and are counted apart from site rows",
     report: 1,
     "report-redaction-unstable": 1
   });
-  assert.deepEqual(summary.familyCensorCounts, {});
+  // The lost row is censored in every family; site rows in none.
+  assert.deepEqual(
+    summary.familyCensorCounts,
+    Object.fromEntries([...EXPECTED_EVIDENCE_FAMILIES].sort().map((family) => [family, 1]))
+  );
 });
 
 test("a round with lost rows is complete, assembles, and its lost cases count against the bound", () => {
@@ -483,6 +487,21 @@ test("a round with lost rows is complete, assembles, and its lost cases count ag
   assert.equal(bound.bounds.bareLoadValid.lo, valid.lo);
   assert.equal(bound.bounds.bareLoadValid.hi, valid.hi);
   assert.ok(bound.bounds.bareLoadValid.lo < 1, "the lost row must lower the bare-load-valid bound");
+  assert.equal(bound.boundVersion, 2);
+  // Instrument loss is detector-input loss in every family: each family's
+  // censor bound is the shared implementation over the lost row as censored,
+  // never the lost row counted in the denominator only.
+  const lostCensors = clusterInterval(outcomes, (o) => o.answer === "report-redaction-unstable", (o) => o.pass);
+  assert.ok(lostCensors.hi > 0);
+  for (const family of EXPECTED_EVIDENCE_FAMILIES) {
+    assert.deepEqual(bound.bounds.censoredByFamily[family], { lo: lostCensors.lo, hi: lostCensors.hi }, family);
+  }
+  // The receipt's diagnostic counts it the same way, and its validator
+  // reconstructs that count.
+  assert.deepEqual(
+    receipt.diagnostics.familyCensorCounts,
+    Object.fromEntries([...EXPECTED_EVIDENCE_FAMILIES].sort().map((family) => [family, 1]))
+  );
 
   // A hand edit that turns the lost row into a valid one is refused at
   // read-back, before any receipt or bound.

@@ -384,11 +384,17 @@ every bounded quantity, so a lost row lowers C, the eligible pool, and
 both loss bounds exactly as a site row does. A candidate with a site or
 lost row in round 1 or round 2 is not eligible. A round whose 2,255 rows
 include site or lost rows is still complete under the definition above,
-because the driver wrote every case without a stop. One place a lost row
-does not count as loss: no ledger was read, so it is censored in no
-evidence family, like every site row; the per-family censor bounds count
-it in their denominators only. `collect` prints the round's rows by answer
-and its lost count beside the bare-load-valid count.
+because the driver wrote every case without a stop. A lost row also counts
+as censored in every evidence family: the scanner measured the visit and
+then lost all of its evidence, so it is detector-input loss in each family
+(`rowCensoredFamilies` in scripts/calibration-reliability-sweep-lib.mjs,
+the one rule the receipt's `familyCensorCounts`, `collect`'s summary and
+the bound's per-family censor bounds all read; the bound artifact is
+version 2 for this). A site row is censored in no family: the site gave
+the scanner nothing to measure, so it counts in every denominator as a
+case that is not valid, as site rows always have. `collect` prints the
+round's rows by answer and its lost count beside the bare-load-valid
+count.
 
 The pass artifact is version 4. Version 3 rows had no way to say why a row
 carried no report, so a lost case was indistinguishable from a site that

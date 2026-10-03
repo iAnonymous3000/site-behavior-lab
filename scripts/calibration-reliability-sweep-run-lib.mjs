@@ -34,6 +34,7 @@ import {
   bareLoadValid,
   buildReliabilitySweepReceipt,
   candidateEligible,
+  rowCensoredFamilies,
   serializeReliabilitySweepReceipt
 } from "./calibration-reliability-sweep-lib.mjs";
 import {
@@ -66,7 +67,13 @@ export const SWEEP_PASS_ARTIFACT_VERSION = 4;
 export const SWEEP_BOUND_MINIMUM_ROUNDS = 4;
 export const SWEEP_LOSS_BOUND_KIND =
   "site-behavior-calibration-reliability-loss-bound";
-export const SWEEP_LOSS_BOUND_VERSION = 1;
+/**
+ * Version 2 counts a lost row as censored in every evidence family
+ * (rowCensoredFamilies). No version 1 bound was ever computed over a version
+ * 4 round, and a version 1 bound counted the 2026-10-03 lost rows in each
+ * family's denominator only.
+ */
+export const SWEEP_LOSS_BOUND_VERSION = 2;
 
 const ISO_UTC = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?Z$/;
 
@@ -355,7 +362,7 @@ export function summarizeSweepOutcomes(outcomes) {
     if (outcome.loaded) loaded += 1;
     if (bareLoadValid(outcome)) valid += 1;
     if (allEvidenceFamiliesComplete(outcome)) allFamiliesComplete += 1;
-    for (const family of outcome.censoredFamilies) {
+    for (const family of rowCensoredFamilies(outcome)) {
       familyCensorCounts[family] = (familyCensorCounts[family] ?? 0) + 1;
     }
   }
@@ -476,7 +483,7 @@ export function validateSweepReceipt(receipt, receiptBytes) {
   let pairComplete = 0;
   for (const entry of receipt.cases) {
     for (const pass of entry.passes) {
-      for (const family of pass.censoredFamilies) {
+      for (const family of rowCensoredFamilies(pass)) {
         familyCensorCounts[family] = (familyCensorCounts[family] ?? 0) + 1;
       }
     }
@@ -575,7 +582,7 @@ export function computeClusterLossBound({ candidateSetBytes, roundEntries, recei
   const censoredByFamily = Object.fromEntries(
     EXPECTED_EVIDENCE_FAMILIES.map((family) => [
       family,
-      boundFor((outcome) => outcome.censoredFamilies.includes(family), `censored ${family}`)
+      boundFor((outcome) => rowCensoredFamilies(outcome).includes(family), `censored ${family}`)
     ])
   );
 
