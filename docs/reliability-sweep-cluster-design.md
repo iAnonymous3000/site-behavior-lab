@@ -436,9 +436,11 @@ stopped attempt of restarted round 1 is recorded as of this addition.
 
 **Collection SHA (2026-10-03).** A review of the rulings' implementation,
 made before restarted round 1 began, moved the collection SHA to
-`44963e4393b4fea345d66b79e1396ad2f21444e4`, the commit "Declare a scan
-budget spent in the scanner's own setup as a service error". It supersedes
-15158e58, on which no attempt of restarted round 1 ran. Between the two,
+`ed6c02e46315449387f2d1a510338b71a40e81a4`, the commit "Follow the
+setup-phase deadline in the context-cache source pin", the last of the
+review's commits; it changes a test only, and the one before it, 44963e43,
+holds the last collection-code change. It supersedes 15158e58, on which no
+attempt of restarted round 1 ran. Between the two,
 the review changed how four answer classes are handled, each now as the
 table above states: the scanner declares `page-load-failed` only for a
 navigation failure it attributes to the site, and the cause-less 502 now
