@@ -1,5 +1,46 @@
 # CNAME prevalence-pilot runbook
 
+## Restarted study (2026-10): this identity supersedes the 2026-08 one
+
+On 2026-10-02 the owner restarted the step-5 reliability sweep. The 2026-08
+universe admitted seven development-visited frame domains, because its
+builder never read several repository surfaces that record visits; commit
+505c3019 fixed the exclusion set (docs/reliability-sweep-cluster-design.md,
+"Development exclusion"). A corrected exclusion set changes the partition
+seed, so the restart is a new study with a freshly drawn pilot, never an
+edit of the 2026-08 one:
+
+- universe studyId: `cname-uncloaking-2026-10`; pilot studyId:
+  `cname-uncloaking-2026-10-prevalence-pilot`
+- pilot set: calibration/cname-uncloaking-2026-10-prevalence-pilot/pilot-set.json
+  (100 cases, sha256
+  `06dd74369c4b3092dff23f67b2b2cda51f0bad37c0552344334592e0f97f6c55`),
+  bound by pilotSetSha256 inside universe-provenance.json in the same
+  directory (sha256
+  `2eab6ea4732cee93a601118781fd3313744699e666a9e6da4e8635e5d4674102`)
+- built from the tree at 505c3019 with the same pinned sources as 2026-08
+  (Tranco N2Q7W; ercexpo us-news-domains v2.0.0 at
+  61505468f330000f15494ed302e0d1d719895b83): 2,375 domains after the
+  category intersection, 20 excluded, frame 2,355 = 2,255 pool + 100 pilot.
+  The pool's candidate set (sha256
+  `bc4a846142a92ca8018a87ccfd2f41684c52cbbc76eb5c7d9916f0ff553e7d80`)
+  stays outside the repository, as in 2026-08. The partition seed hashes
+  the WHOLE derived exclusion list (183 domains, sha256
+  `1c22b3d71c5da0d14da7fbc2257e3387bbd8c548b2904304594fc0a61cf89ee7`
+  under tldts 7.4.16), not only the 20 that hit the frame, so a rebuild
+  reproduces these bytes only from a tree whose derived list has exactly
+  that digest. Any recorded domain added or removed anywhere, news or not,
+  or a different tldts, changes the seed and the pilot.
+
+No ceremony step has run for this study: no sealing keypair, no carrier K,
+no frame F, no labels. When it runs, every command below takes the 2026-10
+study id and directory in place of the 2026-08 ones. The 2026-08 pilot set
+and provenance stay committed as the historical record and are not used.
+The step-7 feasibility figures come from the 2026-08 round 1 and do not
+bind this study.
+
+## The procedure (written for the 2026-08 identity)
+
 The complete operator procedure for the 100-site prevalence pilot, in
 order, with what refuses if a step is skipped. Study identity:
 
