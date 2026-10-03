@@ -9,7 +9,9 @@ import {
   bareLoadOutcome
 } from "./calibration-reliability-sweep-lib.mjs";
 import {
+  SWEEP_ADMITTED_REPORT,
   SWEEP_NAVIGATION_FAILURE_STATUS,
+  SWEEP_REPORT_READ_PATHS,
   SWEEP_SCAN_CAUSE_DISPOSITIONS,
   SWEEP_TARGET_FAILURE_CAUSES,
   classifyScanResponse
@@ -189,7 +191,7 @@ test("a 200 is admitted only as an r2 single report from the declared build unde
       r2Report({ conditions: { gpc: false, consent: "observe", device: { kind: "mobile" } } }),
       /measured under/
     ],
-    ["no conditions", r2Report({ conditions: null }), /measured under null/]
+    ["no conditions", r2Report({ conditions: null }), /measured under \{"device":null,"consent":null,"gpc":null\}/]
   ];
   for (const [label, body, reason] of cases) {
     const verdict = classify(200, body);
@@ -366,4 +368,59 @@ test("a 502 public error has exactly one producer: the scanner's cause-less navi
       `no public error declares ${cause}`
     );
   }
+});
+
+test("every path the classifier reads resolves on the real r2 single report type to what it compares", () => {
+  // The fixtures above are hand-written to the classifier's own names, so
+  // they cannot catch a field the producer renamed or moved. Resolve each
+  // read path through PublicSingleReportV2R2 with the TypeScript checker
+  // (Omit, intersections and aliases included) and require the leaf type the
+  // comparison assumes.
+  const configPath = path.join(repoRoot, "tsconfig.json");
+  const config = ts.readConfigFile(configPath, ts.sys.readFile);
+  assert.equal(config.error, undefined);
+  const { options } = ts.parseJsonConfigFileContent(config.config, ts.sys, repoRoot);
+  const entry = path.join(repoRoot, "lib", "scan-report-v2-r2.ts");
+  const program = ts.createProgram([entry], { ...options, noEmit: true, incremental: false, plugins: [] });
+  const checker = program.getTypeChecker();
+  const sourceFile = program.getSourceFile(entry);
+  let alias = null;
+  walk(sourceFile, (node) => {
+    if (ts.isTypeAliasDeclaration(node) && node.name.text === "PublicSingleReportV2R2") alias = node;
+  });
+  assert.ok(alias, "PublicSingleReportV2R2 not found");
+  const reportType = checker.getTypeAtLocation(alias.name);
+
+  const resolve = (keys) => {
+    let current = reportType;
+    for (const key of keys) {
+      const property = checker.getPropertyOfType(checker.getApparentType(current), key);
+      assert.ok(property, `PublicSingleReportV2R2 has no ${keys.join(".")} (missing "${key}")`);
+      current = checker.getNonNullableType(checker.getTypeOfSymbolAtLocation(property, alias));
+    }
+    return current;
+  };
+  const literalValues = (type) =>
+    (type.isUnion() ? type.types : [type]).filter((member) => member.isLiteral()).map((member) => member.value);
+
+  assert.deepEqual(literalValues(resolve(SWEEP_REPORT_READ_PATHS.schemaVersion)), [SWEEP_ADMITTED_REPORT.schemaVersion]);
+  assert.deepEqual(
+    literalValues(resolve(SWEEP_REPORT_READ_PATHS.schemaRevision)),
+    [SWEEP_ADMITTED_REPORT.schemaRevision]
+  );
+  assert.deepEqual(literalValues(resolve(SWEEP_REPORT_READ_PATHS.reportType)), [SWEEP_ADMITTED_REPORT.reportType]);
+  assert.equal(checker.typeToString(resolve(SWEEP_REPORT_READ_PATHS.buildCommit)), "string");
+  assert.ok(literalValues(resolve(SWEEP_REPORT_READ_PATHS.device)).includes(CONDITION.device));
+  assert.ok(literalValues(resolve(SWEEP_REPORT_READ_PATHS.consentMode)).includes(CONDITION.consentMode));
+  assert.equal(checker.typeToString(resolve(SWEEP_REPORT_READ_PATHS.gpcEnabled)), "boolean");
+  // Every exported path is pinned above; a new one must be added here too.
+  assert.deepEqual(Object.keys(SWEEP_REPORT_READ_PATHS).sort(), [
+    "buildCommit",
+    "consentMode",
+    "device",
+    "gpcEnabled",
+    "reportType",
+    "schemaRevision",
+    "schemaVersion"
+  ]);
 });

@@ -90,11 +90,40 @@ export const SWEEP_TARGET_FAILURE_CAUSES = Object.freeze(
  */
 export const SWEEP_NAVIGATION_FAILURE_STATUS = 502;
 
-const REPORT_SCHEMA_VERSION = 2;
-const REPORT_SCHEMA_REVISION = 2;
+/**
+ * The report this sweep admits, and the only paths it reads to decide that.
+ * Exported so the test can resolve every path against the real report types
+ * (PublicSingleReportV2R2 in lib/scan-report-v2-r2.ts) with the TypeScript
+ * checker: a renamed field or a moved provenance block fails there, instead
+ * of every real report stopping at case 1 while hand-written fixtures pass.
+ */
+export const SWEEP_ADMITTED_REPORT = Object.freeze({
+  schemaVersion: 2,
+  schemaRevision: 2,
+  reportType: "single"
+});
+
+export const SWEEP_REPORT_READ_PATHS = Object.freeze({
+  schemaVersion: Object.freeze(["schemaVersion"]),
+  schemaRevision: Object.freeze(["schemaRevision"]),
+  reportType: Object.freeze(["reportType"]),
+  buildCommit: Object.freeze(["run", "provenance", "buildCommit"]),
+  device: Object.freeze(["run", "conditions", "device", "kind"]),
+  consentMode: Object.freeze(["run", "conditions", "consent"]),
+  gpcEnabled: Object.freeze(["run", "conditions", "gpc"])
+});
 
 function isRecord(value) {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function readPath(value, keys) {
+  let current = value;
+  for (const key of keys) {
+    if (!isRecord(current) || !Object.hasOwn(current, key)) return undefined;
+    current = current[key];
+  }
+  return current;
 }
 
 function stop(httpStatus, reason, { cause = null, error = null } = {}) {
@@ -115,39 +144,37 @@ function describeErrorBody(body) {
 
 function reportMismatch(body, expectedBuildCommit, condition) {
   if (!isRecord(body)) return "the body is not a JSON object";
+  const read = (field) => readPath(body, SWEEP_REPORT_READ_PATHS[field]);
+  const schemaVersion = read("schemaVersion");
+  const schemaRevision = read("schemaRevision");
   if (
-    body.schemaVersion !== REPORT_SCHEMA_VERSION ||
-    body.schemaRevision !== REPORT_SCHEMA_REVISION
+    schemaVersion !== SWEEP_ADMITTED_REPORT.schemaVersion ||
+    schemaRevision !== SWEEP_ADMITTED_REPORT.schemaRevision
   ) {
-    return `the body is not a ScanReport v2 r2 (schemaVersion ${JSON.stringify(body.schemaVersion)}, schemaRevision ${JSON.stringify(body.schemaRevision)}); start the server with SITE_BEHAVIOR_LAB_PUBLIC_R2_REPORTS=1 and its prerequisites`;
+    return `the body is not a ScanReport v2 r2 (schemaVersion ${JSON.stringify(schemaVersion)}, schemaRevision ${JSON.stringify(schemaRevision)}); start the server with SITE_BEHAVIOR_LAB_PUBLIC_R2_REPORTS=1 and its prerequisites`;
   }
-  if (body.reportType !== "single") {
-    return `the report type is ${JSON.stringify(body.reportType)}, not the single report the sweep requested`;
+  const reportType = read("reportType");
+  if (reportType !== SWEEP_ADMITTED_REPORT.reportType) {
+    return `the report type is ${JSON.stringify(reportType)}, not the single report the sweep requested`;
   }
-  const run = body.run;
-  if (!isRecord(run) || !isRecord(run.provenance)) {
-    return "the report carries no run provenance";
+  const reported = read("buildCommit");
+  if (reported === undefined) {
+    return "the report carries no run provenance build commit";
   }
-  const reported = run.provenance.buildCommit;
   if (reported !== expectedBuildCommit) {
     return `the report was produced by build ${JSON.stringify(reported)}, not the declared SITE_BEHAVIOR_LAB_BUILD_COMMIT ${expectedBuildCommit}; the round would attribute another build's measurements to this one`;
   }
-  const conditions = run.conditions;
+  const measured = {
+    device: read("device"),
+    consent: read("consentMode"),
+    gpc: read("gpcEnabled")
+  };
   if (
-    !isRecord(conditions) ||
-    !isRecord(conditions.device) ||
-    conditions.device.kind !== condition.device ||
-    conditions.consent !== condition.consentMode ||
-    conditions.gpc !== condition.gpcEnabled
+    measured.device !== condition.device ||
+    measured.consent !== condition.consentMode ||
+    measured.gpc !== condition.gpcEnabled
   ) {
-    const reportedCondition = isRecord(conditions)
-      ? {
-          device: isRecord(conditions.device) ? conditions.device.kind : undefined,
-          consent: conditions.consent,
-          gpc: conditions.gpc
-        }
-      : null;
-    return `the report was measured under ${JSON.stringify(reportedCondition)}, not the declared condition ${JSON.stringify(condition)}`;
+    return `the report was measured under ${JSON.stringify(measured, (key, value) => (value === undefined ? null : value))}, not the declared condition ${JSON.stringify(condition)}`;
   }
   return null;
 }
