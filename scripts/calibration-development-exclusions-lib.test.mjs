@@ -15,6 +15,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { before, test } from "node:test";
+import { PRODUCTION_SYNTHETIC_TARGETS } from "../lib/production-synthetic.ts";
 import {
   DEVELOPMENT_EXCLUSION_SCOPE,
   DEVELOPMENT_EXCLUSION_SURFACES,
@@ -34,31 +35,61 @@ const BUILD_CLI = path.join(moduleDir, "calibration-candidate-universe-build.mjs
 // were admitted to the 2026-08 frame. These spawn the REAL build CLI with a
 // synthetic external source whose first lines are domains the repository
 // records as visited; every one must come back in excludedDomains.
+//
+// Two kinds of probe. The catalogs and the production synthetic are edited
+// on purpose, so their probes are DERIVED here, by a reader independent of
+// the library's (a plain JSON field, the real exported constant): a
+// deliberate edit changes the probes instead of turning an unrelated suite
+// red. The committed research records do not change, and the restart's named
+// domains are a finding, so those stay pinned, each with what to decide if a
+// deliberate edit ever drops one.
 // ---------------------------------------------------------------------------
 
-const PROBES = {
-  featured: ["washingtonpost.com", "fidelity.com", "studentaid.gov"],
-  corpusSeed: ["redcross.org", "stackoverflow.com"],
-  screening: ["forbes.com"],
-  screeningTcf: ["spiegel.de", "elpais.com", "telegraph.co.uk", "dailymail.co.uk"],
-  pixelPilot: ["gap.com", "lowes.com"],
-  registrable: ["ycombinator.com", "clevelandclinic.org", "europa.eu"],
-  synthetic: ["iana.org"],
-  // The seven frame domains the 2026-10 restart analysis found admitted.
-  restartNamed: [
-    "cnn.com",
-    "forbes.com",
-    "spiegel.de",
-    "elpais.com",
-    "telegraph.co.uk",
-    "dailymail.co.uk",
-    "washingtonpost.com"
-  ]
-};
+function catalogDomains(relativePath) {
+  const sites = JSON.parse(readFileSync(path.join(repoRoot, relativePath), "utf8")).sites;
+  assert.ok(Array.isArray(sites) && sites.length > 0, `${relativePath} lists no sites`);
+  return sites.map((site, index) => {
+    assert.equal(typeof site?.domain, "string", `${relativePath} sites[${index}] names no domain`);
+    return site.domain;
+  });
+}
 
+function derivedProbes() {
+  return {
+    // Every catalog entry, eligible or deferred by scanAvailability: the
+    // featured refresh scans the eligible ones every run, and a deferral
+    // records a refused visit. Deferral itself is pinned on the synthetic
+    // tree below (featured-deferred.example).
+    featured: catalogDomains("public/featured-sites.json"),
+    corpusSeed: catalogDomains("public/corpus-seed-sites.json"),
+    // The hosts the hourly production synthetic scans, read from the real
+    // constant rather than by the library's own literal parser.
+    synthetic: PRODUCTION_SYNTHETIC_TARGETS.map((target) => new URL(target).hostname.replace(/^www\./, "")),
+    screening: ["forbes.com"],
+    screeningTcf: ["spiegel.de", "elpais.com", "telegraph.co.uk", "dailymail.co.uk"],
+    pixelPilot: ["gap.com", "lowes.com"],
+    registrable: ["ycombinator.com", "clevelandclinic.org", "europa.eu"],
+    // The seven frame domains the 2026-10 restart analysis found admitted.
+    restartNamed: [
+      "cnn.com",
+      "forbes.com",
+      "spiegel.de",
+      "elpais.com",
+      "telegraph.co.uk",
+      "dailymail.co.uk",
+      "washingtonpost.com"
+    ]
+  };
+}
+
+let PROBES = null;
 let cliRun = null;
 
 before(() => {
+  PROBES = derivedProbes();
+  for (const [kind, domains] of Object.entries(PROBES)) {
+    assert.ok(domains.length > 0, `no ${kind} probe could be derived`);
+  }
   const dir = mkdtempSync(path.join(tmpdir(), "universe-exclusions-"));
   const probes = [...new Set(Object.values(PROBES).flat())];
   const filler = Array.from({ length: 101 }, (_, index) => `filler-${index}.example`);
@@ -101,42 +132,53 @@ before(() => {
   rmSync(dir, { recursive: true, force: true });
 });
 
-function assertExcluded(domains) {
+function assertExcluded(domains, ifDropped = null) {
   const admitted = domains.filter((domain) => !cliRun.excluded.has(domain));
-  assert.deepEqual(admitted, [], `development-visited domains admitted to the frame: ${admitted.join(", ")}`);
+  assert.deepEqual(
+    admitted,
+    [],
+    `development-visited domains admitted to the frame: ${admitted.join(", ")}` +
+      (ifDropped === null ? "" : `. ${ifDropped}`)
+  );
 }
 
-test("the featured catalog's sites are excluded, deferred entries included", () => {
-  // washingtonpost.com has no committed report: it exists only as a featured
-  // entry deferred by scanAvailability, which records a refused visit.
+const PINNED_RECORD =
+  "This probe is pinned to a committed record. If a deliberate edit removed that record, the visit it recorded still " +
+  "happened: decide whether the domain still needs exclusion (a surface that records it) before changing the probe";
+
+test("every featured catalog site is excluded, eligible or deferred", () => {
   assertExcluded(PROBES.featured);
 });
 
-test("the corpus seed catalog's sites are excluded", () => {
+test("every corpus seed catalog site is excluded", () => {
   assertExcluded(PROBES.corpusSeed);
 });
 
 test("the pixel-events screening rows are excluded, both the main and the TCF set", () => {
-  assertExcluded(PROBES.screening);
-  assertExcluded(PROBES.screeningTcf);
+  assertExcluded(PROBES.screening, PINNED_RECORD);
+  assertExcluded(PROBES.screeningTcf, PINNED_RECORD);
 });
 
 test("the pixel-events calibration pilot's frame is excluded", () => {
-  assertExcluded(PROBES.pixelPilot);
+  assertExcluded(PROBES.pixelPilot, PINNED_RECORD);
 });
 
 test("a visit recorded under a subdomain or a redacted label excludes its registrable domain", () => {
   // news.ycombinator.com, {label}.clevelandclinic.org, {label}.europa.eu:
   // matched exactly, none of these ever removed a registrable candidate.
-  assertExcluded(PROBES.registrable);
+  assertExcluded(PROBES.registrable, PINNED_RECORD);
 });
 
-test("the production synthetic's fixed targets are excluded", () => {
+test("every production synthetic target is excluded", () => {
   assertExcluded(PROBES.synthetic);
 });
 
 test("the seven frame domains the restart analysis found admitted are excluded", () => {
-  assertExcluded(PROBES.restartNamed);
+  // washingtonpost.com is an eligible featured entry (no scanAvailability)
+  // that the featured refresh scans on every run; no committed report has
+  // ever named it, so the featured catalog is its only record. cnn.com is a
+  // deferred featured entry; the other five are screening rows.
+  assertExcluded(PROBES.restartNamed, PINNED_RECORD);
 });
 
 test("the build prints every surface it read", () => {
@@ -304,7 +346,7 @@ function syntheticTree() {
   w("lib/__fixtures__/pagegraph/real-wikipedia-2026-07-19.meta.json", { capture: { requestedUrl: `https://www.${p["lib/__fixtures__/pagegraph/real-wikipedia-2026-07-19.meta.json"]}/`, finalUrl: `https://www.${p["lib/__fixtures__/pagegraph/real-wikipedia-2026-07-19.meta.json"]}/` } });
   w(
     "lib/production-synthetic.ts",
-    `export const PRODUCTION_SYNTHETIC_TARGETS: readonly string[] = Object.freeze([\n  "https://www.${p["lib/production-synthetic.ts"]}/domains/reserved"\n]);\n`
+    `export const PRODUCTION_SYNTHETIC_TARGETS: readonly string[] = Object.freeze([\n  "https://www.${p["lib/production-synthetic.ts"]}/domains/reserved",\n  "https://www.second-synthetic-target.example/TR/"\n]);\n`
   );
   return rootDir;
 }
@@ -322,6 +364,9 @@ test("every declared surface contributes its own domain, by the shape that surfa
       Object.keys(SURFACE_PROBES).sort(),
       "the declared surface list changed: give the new surface a probe here"
     );
+    // Every synthetic target, not only the first: the real constant lists
+    // more than one host.
+    assert.ok(domains.includes("second-synthetic-target.example"), "a later synthetic target was not read");
     for (const subject of [
       "v2-comparison.example",
       "v2-single.example",
