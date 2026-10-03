@@ -18,9 +18,21 @@
  * or an in-process import: the server is the producer whose r2 quality ledger
  * the projection reads, and driving it any other way reads a different
  * instrument. The server must run with SITE_BEHAVIOR_LAB_PUBLIC_R2_REPORTS=1
- * plus its prerequisites; a v1 body has no per-family quality ledger, so
- * every projection would come out unverified while the run exits clean. The
- * driver refuses that shape loudly on the first case instead.
+ * plus its prerequisites, from the build SITE_BEHAVIOR_LAB_BUILD_COMMIT names.
+ *
+ * COLLECT FAILS CLOSED. Every answer goes through classifyScanResponse
+ * (calibration-reliability-sweep-response-lib.mjs). A site outcome (the
+ * server declared the target unreachable, private, or too slow to load, or
+ * navigation failed) is recorded as the all-ineligible row, as an
+ * observation. Anything else stops the round: a transport failure to the
+ * local server, a scanner-side refusal (access gate, our own rate limit, a
+ * misconfigured r2 producer, a persistence failure, an internal error, a busy
+ * or async/durable deployment), a malformed body, and any report that is not
+ * an r2 single report from the declared build under the declared condition,
+ * or whose projection finds no quality ledger. Every case is checked, not
+ * only the first. The stop prints the server's own error and declared cause,
+ * exits non-zero, and leaves the artifact as written through the previous
+ * case: a partial round is re-run in full, never resumed or assembled.
  *
  * The full report exists in this process only between the response and the
  * projection on the next line. Nothing but the closed bare-load record is
@@ -31,6 +43,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { readResponseTextWithinLimit } from "./http-response.mjs";
 import { bareLoadOutcome } from "./calibration-reliability-sweep-lib.mjs";
+import { classifyScanResponse } from "./calibration-reliability-sweep-response-lib.mjs";
 import {
   assembleReceiptFromRounds,
   buildPassArtifact,
@@ -72,22 +85,57 @@ function identityFromEnv() {
   };
 }
 
+/**
+ * One synchronous scan. Returns the HTTP status and the exact body text, or
+ * throws: a refused connection, a reset, a redirect, the deadline, or a body
+ * over the byte limit are all transport failures, and the caller stops the
+ * round on them rather than filing them against the site.
+ */
 async function scanOnce(url) {
   const response = await fetch(`${BASE}/api/scan`, {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ url, ...CONDITION, gpcEnabled: CONDITION.gpcEnabled }),
+    body: JSON.stringify({ url, ...CONDITION }),
+    redirect: "error",
     signal: AbortSignal.timeout(SCAN_TIMEOUT_MS)
   });
-  const text = await readResponseTextWithinLimit(response, {
+  const bodyText = await readResponseTextWithinLimit(response, {
     maxBytes: SCAN_RESPONSE_MAX_BYTES,
     label: `sweep scan ${url}`
   });
-  const body = JSON.parse(text);
-  if (!response.ok || body.ok === false) {
-    return { ok: false, reason: body.error ?? `HTTP ${response.status}` };
-  }
-  return { ok: true, report: body.report ?? body };
+  return { httpStatus: response.status, bodyText };
+}
+
+function describeTransportError(error) {
+  const message = String(error?.message ?? error);
+  const code = error?.cause?.code ?? error?.code;
+  const detail = error?.cause?.message;
+  return [message, code ? `code ${code}` : null, detail && detail !== message ? detail : null]
+    .filter(Boolean)
+    .join("; ");
+}
+
+/**
+ * Stop the round. Nothing is recorded for the failing case and the artifact
+ * on disk is left exactly as the previous case wrote it. The exit code is set
+ * rather than forcing process.exit, so stderr drains completely first.
+ */
+function stopRound({ index, total, caseId, pass, outPath, persisted, httpStatus, error, cause, reason }) {
+  process.stdout.write("STOPPED\n");
+  const lines = [
+    "",
+    `ROUND ${pass} STOPPED at case ${index + 1}/${total} (${caseId}): the answer is not a site outcome, so it cannot be recorded as one.`,
+    `  HTTP status:   ${httpStatus === null ? "none (transport failure to the local server)" : httpStatus}`,
+    `  server error:  ${error === null ? "none" : JSON.stringify(error)}`,
+    `  server cause:  ${cause === null ? "none declared" : cause}`,
+    `  reason:        ${reason}`,
+    persisted > 0
+      ? `  persisted:     ${persisted} of ${total} outcomes in ${outPath}, written through case ${persisted}; this case recorded nothing`
+      : `  persisted:     nothing; this invocation wrote no artifact (any file already at ${outPath} is from an earlier invocation)`,
+    "A partial round is re-run in full as a fresh session; it is never resumed, and receipt assembly refuses it."
+  ];
+  console.error(lines.join("\n"));
+  process.exitCode = 1;
 }
 
 async function collect(pass, candidatesPath, outPath) {
@@ -100,27 +148,68 @@ async function collect(pass, candidatesPath, outPath) {
       `[${index + 1}/${candidates.length}] pass ${pass} ${candidate.caseId} ... `
     );
     const observedAt = new Date().toISOString();
-    let outcome;
-    try {
-      const result = await scanOnce(candidate.url);
-      // A refused or failed scan still yields a row: bareLoadOutcome projects
-      // an absent report to the all-ineligible record, which is the correct
-      // statement ("unverified"), and the planned denominator stays whole.
-      outcome = bareLoadOutcome(candidate.caseId, result.ok ? result.report : null, {
+    const stopHere = (details) =>
+      stopRound({
+        index,
+        total: candidates.length,
+        caseId: candidate.caseId,
         pass,
-        observedAt
+        outPath,
+        persisted: outcomes.length,
+        ...details
       });
-      if (result.ok && index === 0 && outcome.runOutcome === "unavailable") {
-        fail(
-          "first scan returned a body with no per-family quality ledger; the server is not producing r2 reports, so every projection would read unverified. Start the server with SITE_BEHAVIOR_LAB_PUBLIC_R2_REPORTS=1 and its prerequisites."
-        );
+
+    let response;
+    try {
+      response = await scanOnce(candidate.url);
+    } catch (error) {
+      stopHere({
+        httpStatus: null,
+        error: null,
+        cause: null,
+        reason: `transport failure talking to ${BASE}/api/scan: ${describeTransportError(error)}`
+      });
+      return;
+    }
+    const verdict = classifyScanResponse({
+      ...response,
+      expectedBuildCommit: identity.buildCommit,
+      condition: CONDITION
+    });
+    if (verdict.disposition === "stop") {
+      stopHere(verdict);
+      return;
+    }
+
+    let outcome;
+    if (verdict.disposition === "report") {
+      outcome = bareLoadOutcome(candidate.caseId, verdict.report, { pass, observedAt });
+      // An r2 report always carries the per-family quality ledger. A report
+      // that passed the envelope checks and still projects to "unavailable"
+      // is malformed, and filing it as the site's row would be the fail-open
+      // this driver exists to refuse. Checked on every case.
+      if (outcome.runOutcome === "unavailable") {
+        stopHere({
+          httpStatus: response.httpStatus,
+          error: null,
+          cause: null,
+          reason:
+            "the r2 report carries no per-family quality ledger, so its projection is unverified; that is a producer defect, not a site outcome"
+        });
+        return;
       }
       console.log(
         `${outcome.loaded ? "loaded" : "not-loaded"} status=${outcome.status} censoredFamilies=${outcome.censoredFamilies.join(",") || "none"}`
       );
-    } catch (error) {
+    } else {
+      // A site outcome: the scan was attempted and the target could not be
+      // measured. bareLoadOutcome projects the absent report to the
+      // all-ineligible record, which is the correct statement, and the
+      // planned denominator stays whole.
       outcome = bareLoadOutcome(candidate.caseId, null, { pass, observedAt });
-      console.log(`unverified (${String(error?.message ?? error).slice(0, 80)})`);
+      console.log(
+        `not-loaded target ${verdict.cause ?? `navigation-failure (HTTP ${verdict.httpStatus})`}: ${verdict.error}`
+      );
     }
     outcomes.push(outcome);
     // Persist after every case so an interrupted pass loses one scan, not the

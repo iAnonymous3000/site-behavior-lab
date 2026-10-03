@@ -66,6 +66,30 @@ receipt binds the candidate set and every round artifact by digest; the
 bound artifact binds the receipt by digest and records the method
 parameters, so a stranger can recompute every number.
 
+**Collect fails closed.** A round records a row for a site outcome only:
+a report, or a refusal the server declared against the target
+(`target-unreachable`, `private-target`, `page-load-timeout`, or the
+scanner's cause-less navigation failure, HTTP 502), which projects to the
+all-ineligible row exactly as before. Every other answer stops the round:
+a transport failure to the local server; a scanner-side refusal (our access
+gate, our own rate limit, an r2 producer that is misconfigured or cannot
+persist, an internal error, a busy, asynchronous or durable deployment, any
+other declared cause, an unknown cause, or a cause-less refusal); a
+malformed body; and any report that is not a ScanReport v2 r2 single report
+whose `run.provenance.buildCommit` equals `SITE_BEHAVIOR_LAB_BUILD_COMMIT`
+under the declared condition, or that carries no per-family quality ledger.
+Every case is checked, not only the first. The stop prints the server's
+error and declared cause, exits non-zero, and leaves the round artifact as
+the previous case wrote it; that partial round is re-run in full, never
+resumed, and receipt assembly refuses it. Filing a scanner refusal as the
+site's row would drop the site from the eligible pool for a reason the site
+never caused. A refusal that repeats on every re-run at the same case (for
+example `invalid-url`) is a candidate-set or scanner defect to adjudicate,
+not a site outcome to record. The split lives in
+`scripts/calibration-reliability-sweep-response-lib.mjs`, pinned by test to
+the `ScanFailureCause` union and to the single producer of the cause-less
+502.
+
 ## Prevalence and sizing
 
 The withdrawn 0.50 base-rate assumption is not replaced by another
