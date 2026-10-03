@@ -6,9 +6,13 @@ import { normalizeHttpUrlInput } from "./url-normalization";
 export const PUBLIC_URL_DNS_TIMEOUT_MS = 5_000;
 export const PUBLIC_URL_MAX_RESOLVED_ADDRESSES = 64;
 
+/**
+ * The lookup ran past its deadline. Declared `host-lookup-timeout`, the same
+ * cause as the scan gate's own verification deadline, which races this one.
+ */
 export class PublicUrlDnsTimeoutError extends PublicScanError {
   constructor(readonly timeoutMs: number) {
-    super("Public host verification timed out. Try again shortly.", 503);
+    super("Public host verification timed out. Try again shortly.", 503, "host-lookup-timeout");
     this.name = "PublicUrlDnsTimeoutError";
   }
 }
@@ -127,7 +131,9 @@ export async function assertPublicHttpUrl(
   // would blame the lookup for a policy ceiling.
   if (addresses.length > PUBLIC_URL_MAX_RESOLVED_ADDRESSES) {
     throw new PublicScanError(
-      `The host resolved to more than ${PUBLIC_URL_MAX_RESOLVED_ADDRESSES} addresses, which this scanner will not verify.`
+      `The host resolved to more than ${PUBLIC_URL_MAX_RESOLVED_ADDRESSES} addresses, which this scanner will not verify.`,
+      400,
+      "address-fanout-target"
     );
   }
 

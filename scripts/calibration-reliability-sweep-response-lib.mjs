@@ -73,6 +73,13 @@ export const SWEEP_SCAN_CAUSE_DISPOSITIONS = Object.freeze({
   "private-target": "target",
   "target-unreachable": "target",
   "page-load-timeout": "target",
+  // Newly declared by the scan API. Until this driver records them, each
+  // stops the round exactly as its cause-less form did.
+  "host-lookup-timeout": "stop",
+  "public-suffix-target": "stop",
+  "generalized-tenant-target": "stop",
+  "address-fanout-target": "stop",
+  "report-redaction-unstable": "stop",
   "scanner-busy": "stop",
   "request-limit": "stop",
   "challenge-required": "stop",

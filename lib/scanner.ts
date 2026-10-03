@@ -890,7 +890,7 @@ export async function scanSiteWithMeasurement(
         timeoutMs: PUBLIC_URL_DNS_TIMEOUT_MS,
         signal: options.signal,
         createTimeoutError: () =>
-          new PublicScanError("Public host verification timed out. Try again shortly.", 503, "target-unreachable")
+          new PublicScanError("Public host verification timed out. Try again shortly.", 503, "host-lookup-timeout")
       }
     );
   }

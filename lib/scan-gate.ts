@@ -47,15 +47,22 @@ export const PRIVATE_SUFFIX_TENANT_SUBJECT_MESSAGE =
  */
 function assertRegistrableScanSubject(url: URL): void {
   const hostname = url.hostname.toLowerCase().replace(/\.+$/, "");
-  if (isExactPublicSuffixHost(hostname)) throw new PublicScanError(PUBLIC_SUFFIX_SUBJECT_MESSAGE);
+  if (isExactPublicSuffixHost(hostname)) {
+    throw new PublicScanError(PUBLIC_SUFFIX_SUBJECT_MESSAGE, 400, "public-suffix-target");
+  }
   if (isGeneralizedPrivateSuffixTenantHost(hostname)) {
-    throw new PublicScanError(PRIVATE_SUFFIX_TENANT_SUBJECT_MESSAGE);
+    throw new PublicScanError(PRIVATE_SUFFIX_TENANT_SUBJECT_MESSAGE, 400, "generalized-tenant-target");
   }
 }
 
+/**
+ * The whole target verification ran past its deadline. The resolver's own
+ * deadline (PublicUrlDnsTimeoutError) runs at the same 5 s and either can win
+ * the race, so both declare `host-lookup-timeout`.
+ */
 export class ScanTargetVerificationTimeoutError extends PublicScanError {
   constructor(readonly timeoutMs: number) {
-    super("Public host verification timed out. Try again shortly.", 503);
+    super("Public host verification timed out. Try again shortly.", 503, "host-lookup-timeout");
     this.name = "ScanTargetVerificationTimeoutError";
   }
 }

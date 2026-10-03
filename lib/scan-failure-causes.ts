@@ -44,6 +44,30 @@ export type ScanFailureCause =
   | "target-unreachable"
   /** The page did not finish loading inside the scan's time budget. */
   | "page-load-timeout"
+  /**
+   * Looking up the host's addresses ran past the verification deadline, so
+   * whether the target is public was never established. A slow name server
+   * for the site and a stalled lookup inside the scanner both produce it, so
+   * its words blame neither the address nor the site.
+   */
+  | "host-lookup-timeout"
+  /** The host is itself a public suffix (github.io, gov.uk), not a site. */
+  | "public-suffix-target"
+  /**
+   * The host's tenant label under a private suffix is address-, timestamp- or
+   * token-shaped, which published reports generalize, so no report could name
+   * the site.
+   */
+  | "generalized-tenant-target"
+  /** The host resolved to more addresses than the scanner will verify. */
+  | "address-fanout-target"
+  /**
+   * The scan ran, but its report failed the managed reader's check that
+   * redacting it again changes nothing (`redaction-not-idempotent`), so the
+   * scanner refused to publish it. Only that reason: every other reason the
+   * reader can refuse a report for stays undeclared.
+   */
+  | "report-redaction-unstable"
   /** The scanner itself is at capacity right now. */
   | "scanner-busy"
   /**
@@ -100,6 +124,42 @@ const NOTICES: Record<ScanFailureCause, ScanFailureNotice> = {
   "page-load-timeout": {
     message: "The page didn't finish loading inside the scan's time limit. It may be very slow or very large.",
     action: "Try again, or try a lighter page on the same site.",
+    retryable: true
+  },
+  "host-lookup-timeout": {
+    // Nothing established whether the site's name servers or the scanner's
+    // own lookup was slow, so this says what happened and blames neither.
+    message:
+      "The scanner couldn't confirm that this address is public, because looking up its name took too long. Nothing was visited.",
+    action: "Try again shortly.",
+    retryable: true
+  },
+  "public-suffix-target": {
+    message:
+      "That host is a registry boundary (a public suffix such as github.io or gov.uk), not a site that can be scanned on its own.",
+    action: "Enter a site under it, for example example.github.io.",
+    retryable: false
+  },
+  "generalized-tenant-target": {
+    message:
+      "That host's name under its hosting provider looks like a network address, timestamp, or one-time token. Published reports generalize such names, so a report could not name the site.",
+    action: "Scan the site's stable address instead.",
+    retryable: false
+  },
+  "address-fanout-target": {
+    // A ceiling the scanner declines to verify, not a lookup that failed.
+    message:
+      "That host's name points to more addresses than the scanner will check, so the scanner couldn't confirm it is public. Nothing was visited.",
+    action: null,
+    retryable: false
+  },
+  "report-redaction-unstable": {
+    // Page content met a scanner limit: the report could not be shown to be
+    // fully redacted, so it was withheld. Neither the address nor the site
+    // did anything wrong, and a later visit to a changing page may pass.
+    message:
+      "The scan ran, but its report didn't pass the scanner's own privacy-redaction check, so it was not published. This is a limit of the scanner on this page, not a problem with the address you gave it.",
+    action: "Try again later. If it keeps happening, the scanner can't publish a report for this page yet.",
     retryable: true
   },
   "scanner-busy": {

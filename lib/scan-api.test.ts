@@ -4,17 +4,21 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, test } from "node:test";
 import { CONSENT_VERIFICATION_ENV } from "./consent-verification";
-import { PublicScanError } from "./public-errors";
+import { PublicScanError, toPublicError } from "./public-errors";
+import { REDACTION_VERSION } from "./redaction-v2";
+import { PUBLIC_SUFFIX_SUBJECT_MESSAGE } from "./scan-gate";
+import type { EphemeralSingleReportR2 } from "./scan-report-v2-r2";
 import { RATE_LIMIT_MAX, resetScanLimitStateForTests, scanLimitStateForTests } from "./scan-limits";
 import {
   executePreparedScan,
   prepareScanRequest,
+  REPORT_REDACTION_UNSTABLE_MESSAGE,
   runScanRequest,
   type PreparedScanRequest,
   type ReportSaver,
   type ScanRunner
 } from "./scan-api";
-import { readStoredScanReportById, saveScanReport } from "./report-store";
+import { readStoredScanReportById, saveScanReport, UnreadableManagedReportError } from "./report-store";
 import {
   makeConsentInterventionReportV2R2,
   makeGpcInterventionReportV2R2,
@@ -558,6 +562,112 @@ test("public r2 failures never fall back to or persist a v1 report", async () =>
   );
   assert.equal(scanCalls, 0);
   assert.equal(saveCalls, 0);
+});
+
+const PUBLIC_R2_SINGLE: PreparedScanRequest = {
+  clientKey: "public-r2-persistence-refusal",
+  url: "https://1.1.1.1/",
+  device: "desktop",
+  gpcEnabled: true,
+  compareGpc: false,
+  compareShields: false,
+  compareConsent: false,
+  rateLimitCost: 1
+};
+
+async function captureConsoleError<T>(fn: () => Promise<T>): Promise<{ logged: unknown[]; outcome: T | unknown }> {
+  const logged: unknown[] = [];
+  const originalConsoleError = console.error;
+  console.error = (...args: unknown[]) => {
+    logged.push(args[0]);
+  };
+  try {
+    return { logged, outcome: await fn().catch((error: unknown) => error) };
+  } finally {
+    console.error = originalConsoleError;
+  }
+}
+
+test("a public r2 report the managed reader refuses as not idempotent declares its own cause", async () => {
+  enablePublicR2();
+  // The real persistence path: a shell that only relabels an unsafe page
+  // title as current fails the reader's check that redacting it again
+  // changes nothing (report-store.test.ts pins the same shell).
+  const unsafe = makePublicSingleReportV2R2();
+  unsafe.run.privacy.redactionVersion = REDACTION_VERSION;
+  const shell: EphemeralSingleReportR2 = { ...unsafe, ephemeral: { screenshot: null } };
+  const save: ReportSaver = async (report) => {
+    await saveScanReport(shell);
+    return report;
+  };
+  const { logged, outcome } = await captureConsoleError(() =>
+    executePreparedScan(
+      PUBLIC_R2_SINGLE,
+      async () => scanMeasurementEnvelopeWithR2Run(makePublicSingleReportV2R2().run),
+      save,
+      undefined,
+      false
+    )
+  );
+  assert.ok(outcome instanceof PublicScanError, "the refusal must reach the route as a declared public error");
+  // Before, this was the unexpected branch's cause-less 500, and the sweep
+  // could not tell it from any other internal failure.
+  assert.deepEqual(toPublicError(outcome), {
+    message: REPORT_REDACTION_UNSTABLE_MESSAGE,
+    status: 500,
+    cause: "report-redaction-unstable"
+  });
+  assert.doesNotMatch(REPORT_REDACTION_UNSTABLE_MESSAGE, /redaction-not-idempotent|managed report/);
+  // The reader's reason stays in the operator's log, as before.
+  assert.ok(
+    logged.some(
+      (entry) => entry instanceof UnreadableManagedReportError && entry.reason === "redaction-not-idempotent"
+    ),
+    "the original refusal must still be logged"
+  );
+});
+
+test("every other persistence refusal stays the cause-less 500", async () => {
+  enablePublicR2();
+  // Only the ruled reason is declared. A producer-contract mismatch is a
+  // deployment that cannot publish anything, and the others are scanner
+  // defects; none may reach a caller as anything but the unexpected branch.
+  const refusals: Error[] = [
+    new UnreadableManagedReportError("producer-contract-mismatch"),
+    new UnreadableManagedReportError("invalid-report"),
+    new UnreadableManagedReportError("redaction-version-mismatch"),
+    new Error("Refusing to persist a ScanReport v2/r2 larger than 1 public bytes after attaching its share.")
+  ];
+  for (const refusal of refusals) {
+    const { outcome } = await captureConsoleError(() =>
+      executePreparedScan(
+        PUBLIC_R2_SINGLE,
+        async () => scanMeasurementEnvelopeWithR2Run(makePublicSingleReportV2R2().run),
+        async () => {
+          throw refusal;
+        },
+        undefined,
+        false
+      )
+    );
+    assert.equal(outcome, refusal, refusal.message);
+    const { outcome: publicError } = await captureConsoleError(async () => toPublicError(refusal));
+    assert.deepEqual(publicError, {
+      message: "The service could not complete this request. Try again later.",
+      status: 500
+    });
+  }
+});
+
+test("a public-suffix subject reaches the caller with its declared cause", async () => {
+  await assert.rejects(runScanRequest(makeScanRequest("https://github.io/")), (error: unknown) => {
+    assert.deepEqual(toPublicError(error), {
+      message: PUBLIC_SUFFIX_SUBJECT_MESSAGE,
+      status: 400,
+      cause: "public-suffix-target"
+    });
+    return true;
+  });
 });
 
 test("public r2 keeps independently enabled shadow emission off the response path", async () => {

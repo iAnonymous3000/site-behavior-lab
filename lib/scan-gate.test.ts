@@ -25,7 +25,12 @@ test("scan preparation returns at its target-verification deadline when an injec
   await assert.rejects(
     gate.prepare(request),
     (error: unknown) =>
-      error instanceof ScanTargetVerificationTimeoutError && error.timeoutMs === 5
+      error instanceof ScanTargetVerificationTimeoutError &&
+      error.timeoutMs === 5 &&
+      error.status === 503 &&
+      // The same event as the resolver's own deadline, which races this one
+      // at the same 5 s: both must declare the same cause.
+      error.failureCause === "host-lookup-timeout"
   );
   assert.ok(Date.now() - started < 1_000, "the 5ms verification deadline must win, not the 5s default");
 });
@@ -94,6 +99,7 @@ test("a public-suffix target is refused before quota, DNS, or Chromium", async (
       (error: unknown) =>
         error instanceof PublicScanError &&
         error.status === 400 &&
+        error.failureCause === "public-suffix-target" &&
         /registry boundary/.test(error.message),
       host
     );
@@ -144,6 +150,7 @@ test("a token-shaped private-suffix tenant is refused before quota, DNS, or Chro
       (error: unknown) =>
         error instanceof PublicScanError &&
         error.status === 400 &&
+        error.failureCause === "generalized-tenant-target" &&
         error.message === PRIVATE_SUFFIX_TENANT_SUBJECT_MESSAGE,
       url
     );

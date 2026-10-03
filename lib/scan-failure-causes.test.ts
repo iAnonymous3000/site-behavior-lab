@@ -24,6 +24,11 @@ const CAUSE_KEYS: Record<ScanFailureCause, true> = {
   "private-target": true,
   "target-unreachable": true,
   "page-load-timeout": true,
+  "host-lookup-timeout": true,
+  "public-suffix-target": true,
+  "generalized-tenant-target": true,
+  "address-fanout-target": true,
+  "report-redaction-unstable": true,
   "scanner-busy": true,
   "request-limit": true,
   "challenge-required": true,
@@ -114,6 +119,53 @@ test("the three messages that used to be mis-mapped now carry a truthful cause",
     const rendered = `${notice.message} ${notice.action ?? ""}`;
     assert.doesNotMatch(rendered, mustNotSay, `${cause} still renders the old wrong text`);
   }
+});
+
+test("a host-lookup timeout is never told to the visitor as a bad or dead address", () => {
+  // The lookup ran out of time, which a slow name server for the site and a
+  // stalled lookup inside the scanner both produce. The notice may say what
+  // happened and offer a retry; it may not say the address is private,
+  // unresolvable, or down, because nothing established that.
+  const notice = scanFailureNotice("host-lookup-timeout");
+  const words = `${notice.message} ${notice.action ?? ""}`;
+  assert.doesNotMatch(words, /only visits public web pages|site may be down|does not exist|doesn't exist|could not be resolved|not resolve/i);
+  assert.match(notice.message, /took too long/);
+  assert.match(notice.action ?? "", /try again/i);
+  assert.equal(notice.retryable, true);
+});
+
+test("a subject refusal keeps the instruction its server message carried", () => {
+  // A declared cause replaces the server's sentence with this notice, so the
+  // instruction the gate's own message gave must survive in the notice.
+  const suffix = scanFailureNotice("public-suffix-target");
+  assert.match(suffix.message, /registry boundary/);
+  assert.match(suffix.action ?? "", /example\.github\.io/);
+  assert.equal(suffix.retryable, false);
+
+  const tenant = scanFailureNotice("generalized-tenant-target");
+  assert.match(tenant.message, /network address, timestamp, or one-time token/);
+  assert.match(tenant.action ?? "", /stable address/);
+  assert.equal(tenant.retryable, false);
+
+  // A ceiling the scanner declines to verify, not a lookup that failed.
+  const fanout = scanFailureNotice("address-fanout-target");
+  assert.match(fanout.message, /more addresses than the scanner will check/);
+  assert.doesNotMatch(fanout.message, /could not be resolved|not resolve/i);
+  assert.equal(fanout.action, null);
+  assert.equal(fanout.retryable, false);
+});
+
+test("a report the scanner would not publish is the scanner's limit, not the visitor's address", () => {
+  // The scan ran and produced a report, but the report failed the scanner's
+  // own check that redacting it again changes nothing, so it was not saved.
+  // That is page content meeting a scanner limit: the notice blames neither
+  // the address nor the site, and says nothing was published.
+  const notice = scanFailureNotice("report-redaction-unstable");
+  const words = `${notice.message} ${notice.action ?? ""}`;
+  assert.match(notice.message, /not published/);
+  assert.match(notice.message, /not a problem with the address you gave it/);
+  assert.doesNotMatch(words, /site may be down|blocking|only visits public web pages|access key/i);
+  assert.equal(notice.retryable, true);
 });
 
 test("a failed challenge tells the visitor to solve it again", () => {

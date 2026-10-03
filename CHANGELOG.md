@@ -9,6 +9,20 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- Five scan refusals that reached the visitor without a declared cause now
+  carry one, with their own notice: a host lookup that ran past its 5 s
+  deadline (`host-lookup-timeout`, 503, worded to blame neither the address
+  nor the site; the scanner's direct entrypoint, which called the same
+  timeout `target-unreachable`, now declares it too), a public-suffix host
+  (`public-suffix-target`, 400), a token-shaped tenant under a private suffix
+  (`generalized-tenant-target`, 400), a host with more than 64 addresses
+  (`address-fanout-target`, 400), and a finished r2 report the scanner
+  withheld because redacting it again would change it
+  (`report-redaction-unstable`, 500; this was the generic "could not
+  complete" error, and the reason still goes to the server log). Every other
+  persistence refusal, and a resolver failure such as `EAI_AGAIN`, still has
+  no declared cause. A page built before this change renders the server's own
+  sentence for the new causes, as for any unknown cause.
 - A scan whose privacy-policy link read threw before any policy visit, for a
   reason other than the scan budget, no longer fails to publish on r2. The
   scanner records that as a failed policy detector with no policy phase, which

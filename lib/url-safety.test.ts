@@ -118,7 +118,13 @@ test("assertPublicHttpUrl returns at its DNS deadline when the resolver ignores 
       lookup: async () => new Promise(() => undefined),
       timeoutMs: 5
     }),
-    (error: unknown) => error instanceof PublicUrlDnsTimeoutError && error.timeoutMs === 5
+    // Declared, so a caller can tell a lookup that ran out of time from every
+    // other refusal without reading the sentence.
+    (error: unknown) =>
+      error instanceof PublicUrlDnsTimeoutError &&
+      error.timeoutMs === 5 &&
+      error.status === 503 &&
+      error.failureCause === "host-lookup-timeout"
   );
   assert.ok(Date.now() - started < 1_000, "the 5ms DNS deadline must win, not the 5s default");
 });
@@ -148,6 +154,7 @@ test("assertPublicHttpUrl propagates caller cancellation and caps resolver fan-o
     (error: unknown) =>
       error instanceof PublicScanError &&
       error.status === 400 &&
+      error.failureCause === "address-fanout-target" &&
       /resolved to more than 64 addresses/.test(error.message)
   );
 });
@@ -169,8 +176,13 @@ test("a resolver that fails is a scanner outage, never a verdict about the host"
         lookup: rejectingLookup(code),
         timeoutMs: 1_000
       }),
+      // No declared cause: a resolver failure is neither a lookup timeout nor
+      // a verdict about the host, and nothing has ruled what it is.
       (error: unknown) =>
-        error instanceof PublicUrlDnsUnavailableError && error.status === 503 && error.code === code,
+        error instanceof PublicUrlDnsUnavailableError &&
+        error.status === 503 &&
+        error.code === code &&
+        error.failureCause === undefined,
       `${code} must refuse as unavailable, not as an invalid request`
     );
   }

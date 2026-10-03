@@ -25,7 +25,8 @@ import {
   readStoredScanReportById,
   reconcilePreparedScanReportBundle,
   reportStoreStatus,
-  saveScanReport
+  saveScanReport,
+  UnreadableManagedReportError
 } from "./report-store";
 import { makeGpcInterventionReportV2R2, makePublicSingleReportV2R2 } from "./scan-report-v2-r2-fixtures";
 import { NODE_SCAN_REPORT_V2_R2_MAX_PUBLIC_BYTES } from "./scan-report-v2-r2-limits";
@@ -671,7 +672,16 @@ test("saveScanReport rejects an ephemeral r2 shell that only relabels unsafe byt
     ...publicReport,
     ephemeral: { screenshot: "data:image/png;base64,PRIVATE" }
   };
-  await assert.rejects(() => saveScanReport(report), /redaction-not-idempotent/);
+  // Typed with the reader's reason, so the scan API can declare a cause for
+  // this one reason without matching the message, which keeps it verbatim
+  // for operator logs and CLIs.
+  await assert.rejects(
+    () => saveScanReport(report),
+    (error: unknown) =>
+      error instanceof UnreadableManagedReportError &&
+      error.reason === "redaction-not-idempotent" &&
+      error.message === "Refusing to persist an unreadable managed report (redaction-not-idempotent)."
+  );
   assert.deepEqual(await readdir(reportDir), []);
 });
 

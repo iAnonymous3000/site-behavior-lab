@@ -1030,4 +1030,13 @@ test("a scanner-side verification outage is never rewritten as a bad address", (
     assert.doesNotMatch(friendly, /site may be down/, message);
     assert.equal(friendly, message, "the scanner's own honest sentence must reach the reader");
   }
+  // The lookup timeout now declares its cause, and a declared cause renders
+  // the notice instead of the server's sentence. The notice is held to the
+  // same rule: it blames neither the address nor the site.
+  const timeout = new PublicUrlDnsTimeoutError(5_000);
+  const declared = friendlyScanError(new ScanRequestError(timeout.message, timeout.failureCause), true);
+  assert.notEqual(declared, timeout.message, "the declared cause must reach the notice");
+  assert.doesNotMatch(declared, /only visits public web pages/);
+  assert.doesNotMatch(declared, /site may be down/);
+  assert.match(declared, /took too long/);
 });

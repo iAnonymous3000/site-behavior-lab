@@ -12,7 +12,7 @@ import {
   createShieldsComparisonReport,
   type ComparisonExecutedFirst
 } from "./compare-reports";
-import { assertReportStoreAvailable, saveScanReport } from "./report-store";
+import { assertReportStoreAvailable, saveScanReport, UnreadableManagedReportError } from "./report-store";
 import {
   emitShadowComparisonScanReportV2R2,
   emitShadowScanReportV2R2,
@@ -371,9 +371,37 @@ async function saveScanReportRequired<T extends RuntimeScanReport>(
   throwIfCancelled(control.signal);
   await control.beforeSave?.(report);
   throwIfCancelled(control.signal);
-  const saved = await saveReport(report);
+  let saved: T;
+  try {
+    saved = await saveReport(report);
+  } catch (error) {
+    throw declaredPersistenceRefusal(error);
+  }
   throwIfCancelled(control.signal);
   return saved;
+}
+
+export const REPORT_REDACTION_UNSTABLE_MESSAGE =
+  "The scan finished, but its report did not pass the scanner's privacy-redaction check, so it was not published.";
+
+/**
+ * One persistence refusal gets a declared cause: the managed reader found
+ * that redacting the finished report again would change it
+ * (`redaction-not-idempotent`), which page content triggers. Before, it
+ * reached the caller as the unexpected branch's cause-less 500, so nothing
+ * could tell it from an internal failure. It is still logged here exactly as
+ * that branch logged it, so the operator keeps the reader's reason.
+ *
+ * Every other refusal is returned unchanged and stays the cause-less 500: a
+ * producer-contract mismatch is a deployment that can publish nothing, and
+ * the other reasons are scanner defects nobody has ruled on.
+ */
+function declaredPersistenceRefusal(error: unknown): unknown {
+  if (!(error instanceof UnreadableManagedReportError) || error.reason !== "redaction-not-idempotent") {
+    return error;
+  }
+  console.error(error);
+  return new PublicScanError(REPORT_REDACTION_UNSTABLE_MESSAGE, 500, "report-redaction-unstable");
 }
 
 async function saveRuntimeR2Report<T extends RuntimeScanReport>(
