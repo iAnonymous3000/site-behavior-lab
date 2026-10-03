@@ -24,6 +24,7 @@ const CAUSE_KEYS: Record<ScanFailureCause, true> = {
   "private-target": true,
   "target-unreachable": true,
   "page-load-timeout": true,
+  "page-load-failed": true,
   "host-lookup-timeout": true,
   "public-suffix-target": true,
   "generalized-tenant-target": true,
@@ -131,6 +132,17 @@ test("a host-lookup timeout is never told to the visitor as a bad or dead addres
   assert.doesNotMatch(words, /only visits public web pages|site may be down|does not exist|doesn't exist|could not be resolved|not resolve/i);
   assert.match(notice.message, /took too long/);
   assert.match(notice.action ?? "", /try again/i);
+  assert.equal(notice.retryable, true);
+});
+
+test("a page load the scanner attributes to the site names the site, never the address", () => {
+  // Declared only when the scanner attributes the failure to the site, so the
+  // notice may name the site. It must not call the address private, invalid
+  // or unresolvable, and the same visit can succeed later.
+  const notice = scanFailureNotice("page-load-failed");
+  const words = `${notice.message} ${notice.action ?? ""}`;
+  assert.match(notice.message, /load the page from the site/);
+  assert.doesNotMatch(words, /only visits public web pages|doesn't look like|not a scannable|could not be resolved/i);
   assert.equal(notice.retryable, true);
 });
 
@@ -324,7 +336,7 @@ test("every cause in the vocabulary is declared by a producer or listed as undec
   // Words for a case no producer throws describe behavior the product does not
   // have, and the next reader of the module believes the case is handled.
   // "target-refused-automation" was that: written, tested, and never declared,
-  // because the navigation-failure 502 cannot tell a refusal from an outage.
+  // because the 502 navigation failure cannot tell a refusal from an outage.
   //
   // Causes no producer declares today. Allowed, not required: when one gets a
   // producer this test still passes, and the entry can simply be dropped.

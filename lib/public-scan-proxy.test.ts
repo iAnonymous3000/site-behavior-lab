@@ -245,6 +245,39 @@ test("public scan proxy records a DNS failure as resolution-failed, not a privat
   assert.deepEqual(proxy.blockedTargets, [{ target: "http://dead.test/", reason: "resolution-failed" }]);
 });
 
+test("the resolver's authoritative no-such-name is name-not-found, and every other DNS failure is resolution-failed", async (t) => {
+  // The same reading the scan target check gives a getaddrinfo code
+  // (isAuthoritativeDnsFailure in url-safety.ts): ENOTFOUND, ENODATA and an
+  // empty answer are a property of the name, and a temporary failure or an
+  // error with no code is a failure of the resolver, which proves nothing.
+  const dnsError = (code: string | undefined, host: string) =>
+    Object.assign(new Error(`getaddrinfo ${code ?? "failed"} ${host}`), code === undefined ? {} : { code });
+  const answers: Record<string, () => Promise<Array<{ address: string; family: number }>>> = {
+    "nxdomain.test": () => Promise.reject(dnsError("ENOTFOUND", "nxdomain.test")),
+    "nodata.test": () => Promise.reject(dnsError("ENODATA", "nodata.test")),
+    "empty.test": async () => [],
+    "servfail.test": () => Promise.reject(dnsError("EAI_AGAIN", "servfail.test")),
+    "uncoded.test": () => Promise.reject(dnsError(undefined, "uncoded.test"))
+  };
+  const proxy = await startPublicScanProxy({ resolveHost: (hostname) => answers[hostname]!() });
+  t.after(() => proxy.close());
+
+  for (const host of Object.keys(answers)) {
+    const response = await settleWithin(rawProxyConnect(proxy.server, `${host}:443`), 2_000);
+    assert.match(response.toString("latin1"), /^HTTP\/1\.1 403 Forbidden/, host);
+  }
+  await assert.rejects(() => proxyGet(proxy.server, "http://nxdomain.test/pixel"));
+
+  assert.deepEqual(proxy.blockedTargets, [
+    { target: "https://nxdomain.test/", reason: "name-not-found" },
+    { target: "https://nodata.test/", reason: "name-not-found" },
+    { target: "https://empty.test/", reason: "name-not-found" },
+    { target: "https://servfail.test/", reason: "resolution-failed" },
+    { target: "https://uncoded.test/", reason: "resolution-failed" },
+    { target: "http://nxdomain.test/", reason: "name-not-found" }
+  ]);
+});
+
 test("a DNS lookup that outlives its backstop is refused as resolution-failed and never reissued", async (t) => {
   // A lookup that never returned held its CONNECT, and every later one to the
   // same host, until the scan ended. Ending it must not start another lookup

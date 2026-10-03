@@ -343,7 +343,11 @@ test("collect records site outcomes as rows and completes the round", async () =
     refusal(400, "The host could not be resolved to a public address.", "target-unreachable"),
     refusal(400, "Local and private network targets are blocked.", "private-target"),
     refusal(504, "The page did not load before the scan timeout.", "page-load-timeout"),
-    refusal(502, "The page could not be loaded. The site may be down, unreachable, or blocking automated visits."),
+    refusal(
+      502,
+      "The page could not be loaded. The site may be down, unreachable, or blocking automated visits.",
+      "page-load-failed"
+    ),
     // The site refused the visit: a report, so a row read from the report.
     json(200, r2Report({ status: 403 })),
     json(200, r2Report()),
@@ -380,7 +384,7 @@ test("collect records site outcomes as rows and completes the round", async () =
     assert.match(result.stdout, /not-loaded target target-unreachable: The host could not be resolved/);
     assert.match(result.stdout, /not-loaded target private-target/);
     assert.match(result.stdout, /not-loaded target page-load-timeout/);
-    assert.match(result.stdout, /not-loaded target navigation-failure \(HTTP 502\): The page could not be loaded/);
+    assert.match(result.stdout, /not-loaded target page-load-failed: The page could not be loaded/);
     assert.match(result.stdout, /not-loaded target host-lookup-timeout: Public host verification timed out/);
     assert.match(result.stdout, /not-loaded target public-suffix-target: That host is a registry boundary/);
     assert.match(result.stdout, /not-loaded target generalized-tenant-target/);
@@ -392,7 +396,7 @@ test("collect records site outcomes as rows and completes the round", async () =
     assert.match(result.stdout, /pass 1: observed 12, loaded 2/);
     assert.match(result.stdout, /bare-load valid 2 \(16\.7%\)/);
     assert.match(result.stdout, /lost to the instrument: 1 of 12, counted as neither valid nor complete/);
-    assert.match(result.stdout, /rows by answer: \{"address-fanout-target":1,"generalized-tenant-target":1,"host-lookup-timeout":1,"navigation-failure":1,"page-load-timeout":1,"private-target":1,"public-suffix-target":1,"report":3,"report-redaction-unstable":1,"target-unreachable":1\}/);
+    assert.match(result.stdout, /rows by answer: \{"address-fanout-target":1,"generalized-tenant-target":1,"host-lookup-timeout":1,"page-load-failed":1,"page-load-timeout":1,"private-target":1,"public-suffix-target":1,"report":3,"report-redaction-unstable":1,"target-unreachable":1\}/);
     assert.doesNotMatch(result.stderr, /STOPPED/);
   });
   const artifact = JSON.parse(readFileSync(outPath, "utf8"));
@@ -405,7 +409,7 @@ test("collect records site outcomes as rows and completes the round", async () =
       ["case2.example", "target-unreachable", "unavailable", null, false],
       ["case3.example", "private-target", "unavailable", null, false],
       ["case4.example", "page-load-timeout", "unavailable", null, false],
-      ["case5.example", "navigation-failure", "unavailable", null, false],
+      ["case5.example", "page-load-failed", "unavailable", null, false],
       ["case6.example", "report", "complete", 403, false],
       ["case7.example", "report", "complete", 200, true],
       ["case8.example", "host-lookup-timeout", "unavailable", null, false],
@@ -505,6 +509,16 @@ const STOP_CASES = [
     label: "resolver failure",
     handler: refusal(503, "Public host verification could not complete. Try again shortly."),
     expect: [/could not complete/, /server cause: +none declared/]
+  },
+  {
+    // A navigation failure the scanner could not attribute to the site: its
+    // own proxy, resolver or browser may have failed.
+    label: "cause-less navigation failure",
+    handler: refusal(
+      502,
+      "The page could not be loaded, and the scanner could not tell whether the site or its own network path failed. Try again shortly."
+    ),
+    expect: [/HTTP status: +502/, /could not attribute to the site/, /server cause: +none declared/]
   },
 
   {

@@ -23,6 +23,17 @@ public API or a 1.0 release.
   persistence refusal, and a resolver failure such as `EAI_AGAIN`, still has
   no declared cause. A page built before this change renders the server's own
   sentence for the new causes, as for any unknown cause.
+- A failed page load the scanner can attribute to the site now declares
+  `page-load-failed` (502) with its own notice: Chromium named a network
+  error from the site's side (TLS, HTTP, a refused or dropped connection),
+  and the scan proxy recorded no failure of its own on the target or a
+  redirect hop. Every other navigation failure (the proxy's resolver failure
+  or traffic bound on the navigation, the scanner's own route abort, a
+  browser that closed) stays a cause-less 502, and its sentence no longer
+  blames the site. The scan proxy records the resolver's authoritative
+  no-such-name (`ENOTFOUND`, `ENODATA`, or an empty answer) as
+  `name-not-found`, apart from other resolution failures, the reading the
+  scan target check already gave it.
 - A scan whose privacy-policy link read threw before any policy visit, for a
   reason other than the scan budget, no longer fails to publish on r2. The
   scanner records that as a failed policy detector with no policy phase, which

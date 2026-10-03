@@ -11,9 +11,11 @@
  *     authoritative "no such name", and a Mac whose network is down or whose
  *     resolver daemon is unreachable answers ENOTFOUND for every name, in
  *     milliseconds, without charging any rate limit;
- *   - the cause-less 502: lib/scanner.ts keeps only the proxy's
- *     non-public-address block, so a proxy that could not resolve or reach
- *     the upstream becomes the generic navigation failure;
+ *   - page-load-failed: lib/scanner.ts declares it only when the proxy's
+ *     record names the site (no resolver failure or traffic bound of its
+ *     own on the navigation), but an upstream connection refused because
+ *     the instrument's own egress went down reads the same as a site that
+ *     refused it;
  *   - page-load-timeout: the scanner's 45 s budget is wall-clock
  *     (lib/scan-runtime.ts), so a scan that spans a machine sleep times out.
  *

@@ -4,7 +4,7 @@ import net from "node:net";
 import { type Duplex, type Readable, type Writable } from "node:stream";
 import { RESPONSE_BYTE_CAPTURE_LOSS_DETAIL } from "./capture-loss-detail-contract";
 import { isIpAddress, isPublicIpAddress, normalizeHostname } from "./ip-safety";
-import { assertPublicHttpUrlShape } from "./url-safety";
+import { assertPublicHttpUrlShape, isAuthoritativeDnsFailure } from "./url-safety";
 
 export type ResolvedHostAddress = {
   address: string;
@@ -18,7 +18,12 @@ export type BlockedProxyTarget = {
   /**
    * Why the proxy refused or failed the connection. Consumers word user-facing
    * copy from this: only "non-public-address" is a private/local-network guard
-   * block. "resolution-failed" is a DNS failure, "upstream-failed" an
+   * block. "name-not-found" is the resolver's authoritative answer that the
+   * name has no address (getaddrinfo ENOTFOUND or ENODATA, or an empty
+   * answer), the same reading the scan target check gives it;
+   * "resolution-failed" is every other DNS failure, a failure of the resolver
+   * itself (EAI_AGAIN, a lookup abandoned at its backstop, anything else),
+   * which proves nothing about the name. "upstream-failed" is an
    * ordinary TCP or HTTP-client failure (the host may simply be down),
    * "invalid-upstream-response" an upstream response that cannot be safely
    * reflected, "blocked-port" the standard-ports policy, "upgrade-blocked"
@@ -29,6 +34,7 @@ export type BlockedProxyTarget = {
   reason:
     | "invalid-target"
     | "non-public-address"
+    | "name-not-found"
     | "resolution-failed"
     | "blocked-port"
     | "upgrade-blocked"
@@ -640,12 +646,15 @@ async function resolvePinnedTarget(
     try {
       addresses = await state.resolveHost(hostname);
     } catch (error) {
-      throw new ProxyTargetBlockedError("resolution-failed", error instanceof ProxyDnsLookupTimeoutError);
+      if (error instanceof ProxyDnsLookupTimeoutError) {
+        throw new ProxyTargetBlockedError("resolution-failed", true);
+      }
+      throw new ProxyTargetBlockedError(isAuthoritativeDnsFailure(error) ? "name-not-found" : "resolution-failed");
     }
   }
 
   if (addresses.length === 0) {
-    throw new ProxyTargetBlockedError("resolution-failed");
+    throw new ProxyTargetBlockedError("name-not-found");
   }
 
   if (!addresses.every(({ address }) => isPublicIpAddress(address))) {

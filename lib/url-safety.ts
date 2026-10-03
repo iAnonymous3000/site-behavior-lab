@@ -51,6 +51,18 @@ function dnsFailureCode(error: unknown): string | null {
   return typeof code === "string" && code !== "" ? code : null;
 }
 
+/**
+ * Whether a lookup failure is the resolver's authoritative "no such name / no
+ * such record" rather than a failure of the resolver itself. The one reading
+ * of a getaddrinfo error: the target check below and the scan proxy's
+ * connect-time lookup (lib/public-scan-proxy.ts) both use it, so a code
+ * cannot be a property of the site in one and an outage in the other.
+ */
+export function isAuthoritativeDnsFailure(error: unknown): boolean {
+  const code = dnsFailureCode(error);
+  return code !== null && AUTHORITATIVE_DNS_FAILURE_CODES.has(code);
+}
+
 export type PublicUrlDnsLookup = (
   hostname: string
 ) => Promise<Array<{ address: string; family: number }>>;
@@ -112,9 +124,8 @@ export async function assertPublicHttpUrl(
     // A resolver failure is not a verdict about the host. Only an authoritative
     // "no such name / no such record" is; anything else means verification did
     // not run, which is a scanner-side outage the caller may retry.
-    const code = dnsFailureCode(error);
-    if (code === null || !AUTHORITATIVE_DNS_FAILURE_CODES.has(code)) {
-      throw new PublicUrlDnsUnavailableError(code);
+    if (!isAuthoritativeDnsFailure(error)) {
+      throw new PublicUrlDnsUnavailableError(dnsFailureCode(error));
     }
     throw new PublicScanError("The host could not be resolved to a public address.", 400, "target-unreachable");
   } finally {

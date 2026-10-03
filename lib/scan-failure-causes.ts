@@ -45,6 +45,14 @@ export type ScanFailureCause =
   /** The page did not finish loading inside the scan's time budget. */
   | "page-load-timeout"
   /**
+   * The page's own load failed for a reason the scanner attributes to the
+   * site: its server refused or dropped the connection, its TLS or HTTP
+   * answer was broken, its name had no address, or it redirected where the
+   * scanner does not go. A navigation failure the scanner cannot attribute
+   * (its own proxy, resolver or browser failing) declares no cause.
+   */
+  | "page-load-failed"
+  /**
    * Looking up the host's addresses ran past the verification deadline, so
    * whether the target is public was never established. A slow name server
    * for the site and a stalled lookup inside the scanner both produce it, so
@@ -124,6 +132,14 @@ const NOTICES: Record<ScanFailureCause, ScanFailureNotice> = {
   "page-load-timeout": {
     message: "The page didn't finish loading inside the scan's time limit. It may be very slow or very large.",
     action: "Try again, or try a lighter page on the same site.",
+    retryable: true
+  },
+  "page-load-failed": {
+    // Only declared when the scanner attributes the failure to the site, so
+    // the site may be named; the address itself is not called invalid.
+    message:
+      "The scanner couldn't load the page from the site. The site may be down, refusing the connection, or answering in a way the scanner can't use, such as with a certificate error.",
+    action: "Check that the page opens in a browser, or try again later.",
     retryable: true
   },
   "host-lookup-timeout": {

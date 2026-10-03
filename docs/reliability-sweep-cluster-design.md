@@ -294,10 +294,24 @@ under the definition above.
   report whose observed URL, after a redirect, has no registrable domain,
   as a cause-less 500. The server does not attribute it to the target with
   a declared cause, so it stays a stop. The site-specific server errors the
-  server does attribute to the target are the 504 `page-load-timeout` and
-  the cause-less 502 navigation failure, both already site rows. Each site
-  answer is recorded as the all-ineligible record with its cause as its
-  `answer` (the 502 as `navigation-failure`). The driver records them at
+  server attributes to the target with a declared cause are the 504
+  `page-load-timeout`, already a site row, and the 502 `page-load-failed`.
+  The scanner's navigation failure was a cause-less 502 when the rulings
+  were made, and it also carried the scan proxy's own failures (a resolver
+  failure on the navigation, the proxy's traffic bound), so under this
+  ruling it could not stay a site row by status. The scanner now declares
+  `page-load-failed` only for a navigation failure it attributes to the
+  site: Chromium names a network error that is not the scanner's own
+  machine's or Chromium's generic one, the scanner's own route did not
+  abort the navigation, no proxy budget refused a stream and its block
+  record is not full, every proxy refusal of the target or a redirect hop
+  is the site's answer (its name has no address by the resolver's
+  authoritative answer, its server refused or dropped the connection or
+  sent an unusable response, or it redirected to a port the scanner does
+  not open), and a proxy or tunnel error has such a refusal on record. Any
+  other navigation failure stays a cause-less 502 and stops the round. Each
+  site answer is recorded as the all-ineligible record with its cause as
+  its `answer`. The driver records them at
   the first occurrence, with no retry: these answers repeat at the same
   case, so they never stop a round and the repeat question in decision 2
   does not arise for them. Infrastructure failures still stop the round,
@@ -323,7 +337,7 @@ otherwise.
 | 400 `target-unreachable` (`ENOTFOUND`, `ENODATA`, or no address) | site row | `target-unreachable` |
 | 400 `private-target` | site row | `private-target` |
 | 504 `page-load-timeout` | site row | `page-load-timeout` |
-| 502 with no declared cause (the scanner's navigation failure) | site row | `navigation-failure` |
+| 502 `page-load-failed` (a navigation failure the scanner attributes to the site) | site row | `page-load-failed` |
 | 503 `host-lookup-timeout` (R2) | site row | `host-lookup-timeout` |
 | 400 `public-suffix-target` (R2) | site row | `public-suffix-target` |
 | 400 `generalized-tenant-target` (R2) | site row | `generalized-tenant-target` |
@@ -331,6 +345,7 @@ otherwise.
 | 500 `report-redaction-unstable` (R1) | lost row | `report-redaction-unstable` |
 | 500 with no declared cause: every other managed-reader refusal (`producer-contract-mismatch` and the rest), the oversized-report refusal, a builder refusal such as a redirect to a host with no registrable domain, any internal error | stop | none |
 | 503 with no declared cause: a resolver failure ("Public host verification could not complete": `EAI_AGAIN` and every getaddrinfo code but `ENOTFOUND` and `ENODATA`), a misconfigured r2 producer | stop | none |
+| 502 with no declared cause: a navigation failure the scanner could not attribute to the site (a resolver failure or the proxy's traffic bound on the navigation, the scanner's own route abort, a proxy budget refusal, a tunnel failure with no recorded reason, a browser that closed) | stop | none |
 | any other answer with no declared cause, such as the 400 for more than one comparison mode | stop | none |
 | a declared `invalid-url`, `scanner-busy`, `request-limit`, `challenge-required`, `access-key-required`, `request-rejected`, `feature-unavailable`, `scan-conflict` or `service-error`, or a cause the driver does not know | stop | none |
 | 202 (asynchronous or durable admission), a redirect, any other non-error status | stop | none |
@@ -451,10 +466,10 @@ parameters, so a stranger can recompute every number.
 
 **Collect fails closed.** A round records a row only for a report; for
 the scanner's declared failure to measure the target, a site row
-(`target-unreachable`, `private-target`, `page-load-timeout`, the scanner's
-cause-less navigation failure, HTTP 502, and, under the 2026-10-03 owner
-rulings, `host-lookup-timeout`, `public-suffix-target`,
-`generalized-tenant-target` and `address-fanout-target`); or for the
+(`target-unreachable`, `private-target`, `page-load-timeout`, and, under
+the 2026-10-03 owner rulings, `page-load-failed`, `host-lookup-timeout`,
+`public-suffix-target`, `generalized-tenant-target` and
+`address-fanout-target`); or for the
 scanner losing a measurement it made, a lost row
 (`report-redaction-unstable`). Site and lost rows are the all-ineligible
 record and carry their answer, so instrument loss is never read as a site
@@ -463,8 +478,10 @@ answers are the scanner's observation, not proof about the site: the same
 answers come back when the instrument itself fails. The gate reads
 getaddrinfo `ENOTFOUND` as an authoritative "no such name", and a Mac with
 no network or no reachable resolver daemon answers `ENOTFOUND` for every
-name in milliseconds; the scan proxy's own resolution and upstream failures
-become the cause-less 502; and the scanner's 45-second budget is wall-clock,
+name in milliseconds; an upstream connection that fails because the
+instrument's own egress went down reads, to the scan proxy, like a site
+that refused it, and `page-load-failed` is declared on it; and the
+scanner's 45-second budget is wall-clock,
 so a scan that spans a sleep times out. So a row is recorded only while the
 instrument was sound for that scan:
 
@@ -483,10 +500,11 @@ Every other answer stops the round too: a transport failure to the local
 server; a scanner-side refusal (our access gate, our own rate limit, an r2
 producer that is misconfigured or cannot persist for any reason but the
 unstable redaction, an internal error, a busy, asynchronous or durable
-deployment, any other declared cause, an unknown cause, or a cause-less
-refusal other than the 502, which includes the resolver's failures such
-as `EAI_AGAIN`, every cause-less 500, and, from a server older than the
-2026-10-03 causes, the lookup timeout and the subject refusals); a
+deployment, any other declared cause, an unknown cause, or any cause-less
+refusal, which includes the resolver's failures such as `EAI_AGAIN`, every
+cause-less 500, the 502 navigation failure the scanner could not attribute
+to the site, and, from a server older than the 2026-10-03 causes, the
+lookup timeout, the subject refusals and every navigation failure); a
 malformed body; and any report that is not a ScanReport v2 r2 single
 report whose
 `run.provenance.buildCommit` equals `SITE_BEHAVIOR_LAB_BUILD_COMMIT` under
@@ -503,7 +521,7 @@ itself causes, and what happens when a stop repeats after round 1 has
 begun, are decided by the 2026-10-03 owner rulings in "Restart
 (2026-10-02)" above. The split lives in
 `scripts/calibration-reliability-sweep-response-lib.mjs`, pinned by test to
-the `ScanFailureCause` union, to the single producer of the cause-less 502
+the `ScanFailureCause` union, to the single producers of `page-load-failed`
 and of the lost cause, and to the row answers; the instrument checks live
 in `scripts/calibration-reliability-sweep-instrument-lib.mjs`.
 

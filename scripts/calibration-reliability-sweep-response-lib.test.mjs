@@ -12,8 +12,6 @@ import {
 import {
   SWEEP_ADMITTED_REPORT,
   SWEEP_LOST_CAUSES,
-  SWEEP_NAVIGATION_FAILURE_ANSWER,
-  SWEEP_NAVIGATION_FAILURE_STATUS,
   SWEEP_REPORT_READ_PATHS,
   SWEEP_SCAN_CAUSE_DISPOSITIONS,
   SWEEP_TARGET_FAILURE_CAUSES,
@@ -82,14 +80,17 @@ test("an r2 single report from the declared build under the declared condition i
   assert.equal(outcome.runOutcome, "complete");
 });
 
-test("site outcomes are recorded as observations: the declared target causes and the navigation failure", () => {
+test("site outcomes are recorded as observations: the declared target causes", () => {
   const cases = [
     [400, refusal("The host could not be resolved to a public address.", "target-unreachable")],
     [400, refusal("Local and private network targets are blocked.", "private-target")],
     [504, refusal("The page did not load before the scan timeout.", "page-load-timeout")],
     [
       502,
-      refusal("The page could not be loaded. The site may be down, unreachable, or blocking automated visits.")
+      refusal(
+        "The page could not be loaded. The site may be down, unreachable, or blocking automated visits.",
+        "page-load-failed"
+      )
     ],
     // The 2026-10-03 rulings: refusals the target causes, now declared.
     [503, refusal("Public host verification timed out. Try again shortly.", "host-lookup-timeout")],
@@ -112,21 +113,38 @@ test("site outcomes are recorded as observations: the declared target causes and
     assert.equal(verdict.httpStatus, status);
     assert.equal(verdict.cause, body.cause ?? null);
     assert.equal(verdict.error, body.error);
-    // The row answer is the declared cause, or the navigation failure's name.
-    assert.equal(verdict.answer, body.cause ?? "navigation-failure");
+    // The row answer is the declared cause.
+    assert.equal(verdict.answer, body.cause);
     assert.equal(SWEEP_ROW_ANSWERS[verdict.answer], "site", verdict.answer);
   }
   assert.deepEqual(SWEEP_TARGET_FAILURE_CAUSES, [
     "address-fanout-target",
     "generalized-tenant-target",
     "host-lookup-timeout",
+    "page-load-failed",
     "page-load-timeout",
     "private-target",
     "public-suffix-target",
     "target-unreachable"
   ]);
-  assert.equal(SWEEP_NAVIGATION_FAILURE_STATUS, 502);
-  assert.equal(SWEEP_NAVIGATION_FAILURE_ANSWER, "navigation-failure");
+});
+
+test("a navigation failure is a site row only when the scanner declares it the site's", () => {
+  // The cause-less 502 also carries the scan proxy's own resolver failures and
+  // traffic bound, a browser that closed, and the scanner's own route abort.
+  // Its status says nothing about which side failed, so it stops, whatever
+  // its sentence says.
+  for (const error of [
+    "The page could not be loaded, and the scanner could not tell whether the site or its own network path failed. Try again shortly.",
+    "The page could not be loaded. The site may be down, unreachable, or blocking automated visits."
+  ]) {
+    const verdict = classify(502, refusal(error));
+    assert.equal(verdict.disposition, "stop", error);
+    assert.equal(verdict.cause, null);
+    assert.equal(verdict.answer, undefined);
+    assert.match(verdict.reason, /could not attribute to the site/);
+  }
+  assert.equal(Object.hasOwn(SWEEP_ROW_ANSWERS, "navigation-failure"), false);
 });
 
 test("a report the scanner measured and would not publish is instrument loss, never a site outcome", () => {
@@ -311,7 +329,7 @@ test("the restart section's answer table states exactly what the driver does", (
     const recorded = /^`([a-z-]+)`$/.exec(rowAnswer)?.[1];
     assert.ok(recorded, `row answer "${rowAnswer}" is not a single answer`);
     stated[rowClass].push(recorded);
-    if (rowClass !== "report" && recorded !== SWEEP_NAVIGATION_FAILURE_ANSWER) {
+    if (rowClass !== "report") {
       assert.match(answer, new RegExp(`\`${recorded}\``), `the ${recorded} row must name the cause it records`);
     }
   }
@@ -390,11 +408,11 @@ test("the row answers are exactly the classifier's site and lost answers, in bot
       .map(([answer]) => answer)
       .sort();
   assert.deepEqual(byClass("report"), ["report"]);
-  assert.deepEqual(byClass("site"), [...SWEEP_TARGET_FAILURE_CAUSES, SWEEP_NAVIGATION_FAILURE_ANSWER].sort());
+  assert.deepEqual(byClass("site"), [...SWEEP_TARGET_FAILURE_CAUSES]);
   assert.deepEqual(byClass("lost"), [...SWEEP_LOST_CAUSES]);
   assert.deepEqual(
     Object.keys(SWEEP_ROW_ANSWERS).sort(),
-    ["report", ...SWEEP_TARGET_FAILURE_CAUSES, SWEEP_NAVIGATION_FAILURE_ANSWER, ...SWEEP_LOST_CAUSES].sort()
+    ["report", ...SWEEP_TARGET_FAILURE_CAUSES, ...SWEEP_LOST_CAUSES].sort()
   );
 });
 
@@ -462,7 +480,7 @@ function publicErrorConstructions(sources) {
   return { classes, calls };
 }
 
-test("a 502 public error has exactly one producer: the scanner's cause-less navigation failure", () => {
+test("the navigation failure's site cause has one producer, and every 502 is the scanner's navigation failure", () => {
   const { classes, calls } = publicErrorConstructions(productionSourceFiles());
   // The walk must actually see the hierarchy and the throws, or every
   // assertion below would pass over an empty list.
@@ -479,20 +497,29 @@ test("a 502 public error has exactly one producer: the scanner's cause-less navi
     "subclass super() calls were not found"
   );
 
-  const status502 = calls.filter((call) =>
-    call.args.some((arg) => arg === String(SWEEP_NAVIGATION_FAILURE_STATUS))
+  // The scanner's navigation failure is the only 502: one construction
+  // declares page-load-failed, for a failure the scanner attributes to the
+  // site, and one declares nothing, for every failure it cannot attribute.
+  // The classifier reads the cause, so the cause-less one stops; a 502 from
+  // anywhere else would be a new answer to classify, and fails here first.
+  const status502 = calls.filter((call) => call.args.some((arg) => arg === "502"));
+  assert.deepEqual(
+    status502.map(({ file, callee, args }) => ({ file, callee, args })),
+    [
+      {
+        file: path.join("lib", "scanner.ts"),
+        callee: "PublicScanError",
+        args: ["PAGE_LOAD_FAILED_MESSAGE", "502", '"page-load-failed"']
+      },
+      {
+        file: path.join("lib", "scanner.ts"),
+        callee: "PublicScanError",
+        args: ["UNATTRIBUTED_NAVIGATION_FAILURE_MESSAGE", "502"]
+      }
+    ]
   );
-  assert.equal(
-    status502.length,
-    1,
-    `expected one 502 public error, found ${JSON.stringify(status502.map(({ file, callee }) => ({ file, callee })))}`
-  );
-  const [navigation] = status502;
-  assert.equal(navigation.file, path.join("lib", "scanner.ts"));
-  assert.equal(navigation.callee, "PublicScanError");
-  assert.match(navigation.args[0], /The page could not be loaded/);
-  // (message, status) and nothing else: no declared cause.
-  assert.equal(navigation.args.length, 2, "the navigation failure gained a cause; reclassify it in the sweep");
+  const pageLoadFailed = calls.filter((call) => call.args.includes('"page-load-failed"'));
+  assert.equal(pageLoadFailed.length, 1, "page-load-failed must have exactly the attributed navigation failure as its producer");
 
   // The declared target causes are what the scan path actually throws for a
   // site that cannot be measured, so the map is not reasoning about causes

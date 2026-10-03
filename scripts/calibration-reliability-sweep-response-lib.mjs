@@ -21,8 +21,7 @@
  *     under the declared condition. Only this disposition reaches
  *     bareLoadOutcome as a report.
  *   - "target": the scanner declared it could not measure the target, as one
- *     of SWEEP_TARGET_FAILURE_CAUSES, or answered with its navigation failure
- *     (HTTP 502, no declared cause, recorded as "navigation-failure"). These
+ *     of SWEEP_TARGET_FAILURE_CAUSES. These
  *     are the scanner's observation, not proof about the site: the same
  *     answers come back when the instrument's own resolver, egress or clock
  *     failed. So "target" is necessary, not sufficient, for a site row: the
@@ -33,20 +32,25 @@
  *     the measurement itself (SWEEP_LOST_CAUSES): instrument loss, recorded
  *     as a lost row under the same instrument checks, never as a site row.
  *   - "stop": everything else. A declared scanner-side cause, an unknown
- *     cause, a cause-less refusal other than the navigation failure, a job
- *     submission, a redirect, a malformed body, a non-r2 report, a report
- *     from another build or condition. The driver stops the round on it.
+ *     cause, every cause-less refusal (the 502 navigation failure the scanner
+ *     could not attribute to the site among them), a job submission, a
+ *     redirect, a malformed body, a non-r2 report, a report from another
+ *     build or condition. The driver stops the round on it.
  *
  * Which causes are site rows and which are lost rows is the owner's ruling
  * of 2026-10-03 (docs/reliability-sweep-cluster-design.md, "Restart
  * (2026-10-02)"), not this module's inference.
  *
- * Classification reads the declared `cause`, never the message: matching
- * prose is the defect lib/scan-failure-causes.ts exists to remove. The one
- * status-only rule (502 without a cause) is pinned to its single producer in
- * lib/scanner.ts by a guard in this module's test, and the cause map is
- * pinned to the ScanFailureCause union there, so a new cause or a second 502
- * producer fails a test instead of being silently filed as a site outcome.
+ * Classification reads the declared `cause`, never the message or the
+ * status alone: matching prose is the defect lib/scan-failure-causes.ts exists
+ * to remove, and a status says nothing about which side failed. The cause map
+ * is pinned to the ScanFailureCause union in this module's test, and the
+ * site and lost causes to their producers, so a new cause fails a test instead
+ * of being silently filed as a site outcome. Until the 2026-10-03 review the
+ * cause-less 502 was recorded as a site row by status; it carried the scan
+ * proxy's own resolver and traffic-bound failures, so it now stops, and the
+ * navigation failures the scanner attributes to the site declare
+ * page-load-failed.
  *
  * This module reads envelope and identity fields only (schema version and
  * revision, report type, run.provenance.buildCommit, run.conditions). It
@@ -64,7 +68,8 @@ import { parseStrictJson } from "../lib/strict-json.ts";
  * "target" is reserved for causes in which the scanner reports what happened
  * when it tried the address the sweep asked for: the name did not resolve, it
  * resolved somewhere private, the page did not load inside the scan's
- * budget, the name lookup ran out of time, or the host is not a subject the
+ * budget, the page's load failed for a reason the scanner attributes to the
+ * site, the name lookup ran out of time, or the host is not a subject the
  * report format can name (a public suffix, a generalized tenant, a host with
  * more addresses than the scanner verifies). Each is a statement about the
  * site only while the instrument was sound: lib/url-safety.ts reads
@@ -89,6 +94,7 @@ export const SWEEP_SCAN_CAUSE_DISPOSITIONS = Object.freeze({
   "private-target": "target",
   "target-unreachable": "target",
   "page-load-timeout": "target",
+  "page-load-failed": "target",
   "host-lookup-timeout": "target",
   "public-suffix-target": "target",
   "generalized-tenant-target": "target",
@@ -114,19 +120,6 @@ const causesWithDisposition = (wanted) =>
 
 export const SWEEP_TARGET_FAILURE_CAUSES = causesWithDisposition("target");
 export const SWEEP_LOST_CAUSES = causesWithDisposition("lost");
-
-/**
- * The scanner's answer when page navigation itself failed for a reason other
- * than a timeout or a private address (TLS and HTTP/2 errors, resets, sites
- * refusing automated browsers, and also the scan proxy failing to resolve or
- * reach the upstream, which classifyNavigationFailure does not separate):
- * lib/scanner.ts throws it with this status and no declared cause. It is the
- * only cause-less answer the sweep may record as a site outcome, under the
- * same instrument checks as the declared target causes.
- */
-export const SWEEP_NAVIGATION_FAILURE_STATUS = 502;
-/** The row answer the cause-less navigation failure is recorded under. */
-export const SWEEP_NAVIGATION_FAILURE_ANSWER = "navigation-failure";
 
 /**
  * The report this sweep admits, and the only paths it reads to decide that.
@@ -302,14 +295,13 @@ export function classifyScanResponse({ httpStatus, bodyText, expectedBuildCommit
     );
   }
 
-  if (httpStatus === SWEEP_NAVIGATION_FAILURE_STATUS) {
-    return { disposition: "target", answer: SWEEP_NAVIGATION_FAILURE_ANSWER, httpStatus, cause: null, error };
-  }
   return stop(
     httpStatus,
     httpStatus === 500
       ? "HTTP 500 without a declared cause is the server's unexpected-error branch; the underlying error is only in the server's own log"
-      : `HTTP ${httpStatus} without a declared cause: the server refused without measuring, and nothing in the answer attributes the refusal to the site`,
+      : httpStatus === 502
+        ? "HTTP 502 without a declared cause is a navigation failure the scanner could not attribute to the site (its own proxy, resolver or browser may have failed); the server log names the network error"
+        : `HTTP ${httpStatus} without a declared cause: the server refused without measuring, and nothing in the answer attributes the refusal to the site`,
     { error }
   );
 }

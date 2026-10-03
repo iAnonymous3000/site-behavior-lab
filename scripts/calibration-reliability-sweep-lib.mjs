@@ -93,9 +93,9 @@ export const EXPECTED_EVIDENCE_FAMILIES = Object.freeze([
  *     field is read from it by bareLoadOutcome.
  *   - "site": the scanner declared it could not measure the target, for a
  *     reason the target causes: it did not resolve, resolved somewhere
- *     private, did not load in time, failed navigation (the cause-less 502,
- *     recorded as "navigation-failure"), its name lookup ran out of time, or
- *     it is not a subject the report format can name. A site row is the
+ *     private, did not load in time, failed to load for a reason the scanner
+ *     attributes to it ("page-load-failed"), its name lookup ran out of time,
+ *     or it is not a subject the report format can name. A site row is the
  *     scanner's observation of the target, recorded only while the
  *     instrument checks pass.
  *   - "lost": the scanner measured the target and then lost the measurement
@@ -114,7 +114,7 @@ export const SWEEP_ROW_ANSWERS = Object.freeze({
   "target-unreachable": "site",
   "private-target": "site",
   "page-load-timeout": "site",
-  "navigation-failure": "site",
+  "page-load-failed": "site",
   "host-lookup-timeout": "site",
   "public-suffix-target": "site",
   "generalized-tenant-target": "site",

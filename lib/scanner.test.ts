@@ -70,6 +70,7 @@ import {
   ScanWarningCollector,
   probeKeystrokeExfiltration,
   proxyEndpointKey,
+  proxyRecordIncomplete,
   sameScanSubjectUrl,
   typeSentinelIntoFields,
   type KeystrokeProbeLifecycle,
@@ -79,6 +80,11 @@ import {
   consentBannerObserveCalibrationFact,
   createNodeScanMeasurementEnvelope
 } from "./node-scan-measurement";
+import {
+  MAX_RECORDED_PROXY_BLOCKS,
+  type BlockedProxyTarget,
+  type PublicScanProxyDiagnostics
+} from "./public-scan-proxy";
 import {
   AUXILIARY_PAGE_REQUESTS_BLOCKED_WARNING,
   CNAME_CANDIDATES_OMITTED_WARNING,
@@ -5755,30 +5761,48 @@ test("scanSite blocks a browser request when the connect-time resolver returns a
 });
 
 test("scanSite reports a DNS-failed target as an honest load failure, never a private-address block", { timeout: 20_000 }, async () => {
+  // The connect-time resolver says the name has no address: the site's own
+  // answer, so the failure declares page-load-failed. A resolver failure
+  // proves nothing about the site and stays cause-less, worded so it blames
+  // neither side.
+  const dnsError = (code: string) => Object.assign(new Error(`getaddrinfo ${code} gone.test`), { code });
+  const scanGone = (resolverError: Error) =>
+    scanSite(
+      {
+        url: "http://gone.test/",
+        device: "desktop",
+        gpcEnabled: false,
+        consentMode: "observe"
+      },
+      {
+        publicUrlAlreadyVerified: true,
+        verifyPublicUrl: async () => undefined,
+        resolvePublicHost: async () => {
+          throw resolverError;
+        }
+      }
+    );
   try {
     await assert.rejects(
-      () =>
-        scanSite(
-          {
-            url: "http://gone.test/",
-            device: "desktop",
-            gpcEnabled: false,
-            consentMode: "observe"
-          },
-          {
-            publicUrlAlreadyVerified: true,
-            verifyPublicUrl: async () => undefined,
-            resolvePublicHost: async () => {
-              throw new Error("getaddrinfo ENOTFOUND gone.test");
-            }
-          }
-        ),
+      () => scanGone(dnsError("ENOTFOUND")),
       (error) =>
         error instanceof PublicScanError &&
         error.status === 502 &&
+        error.failureCause === "page-load-failed" &&
         /down, unreachable, or blocking automated visits/.test(error.message) &&
         !/local or private network address/.test(error.message)
     );
+    for (const resolverError of [dnsError("EAI_AGAIN"), new Error("getaddrinfo ENOTFOUND gone.test")]) {
+      await assert.rejects(
+        () => scanGone(resolverError),
+        (error) =>
+          error instanceof PublicScanError &&
+          error.status === 502 &&
+          error.failureCause === undefined &&
+          /could not tell whether the site or its own network path failed/.test(error.message) &&
+          !/local or private network address/.test(error.message)
+      );
+    }
   } finally {
     await closeSharedBrowserForTests();
   }
@@ -5898,7 +5922,7 @@ test("a navigation failure is blamed on a private target only when the navigatio
 
   // An unrelated page-initiated probe never turns a failure into a private target.
   assert.equal(classifyNavigationFailure(timeout, [loopbackProbe], navigation), "page-load-timeout");
-  assert.equal(classifyNavigationFailure(reset, [loopbackProbe], navigation), "load-failed");
+  assert.equal(classifyNavigationFailure(reset, [loopbackProbe], navigation), "page-load-failed");
   // A block on the navigation chain does, unless the navigation timed out.
   assert.equal(classifyNavigationFailure(reset, [loopbackProbe, redirectHop], navigation), "private-target");
   assert.equal(classifyNavigationFailure(timeout, [redirectHop], navigation), "page-load-timeout");
@@ -5907,7 +5931,130 @@ test("a navigation failure is blamed on a private target only when the navigatio
     classifyNavigationFailure(reset, [{ target: "http://10.1.2.3/", reason: "resolution-failed" }], navigation),
     "load-failed"
   );
-  assert.equal(classifyNavigationFailure(reset, [], navigation), "load-failed");
+  assert.equal(classifyNavigationFailure(reset, [], navigation), "page-load-failed");
+});
+
+test("a navigation failure is the site's only when the scanner can attribute it", () => {
+  // The cause-less 502 used to carry every failure that was neither a
+  // timeout nor a private block, including the scan proxy's own resolver
+  // failures and traffic bound. Only a failure the scanner can attribute to
+  // the site declares page-load-failed; the rest stay cause-less.
+  const navigation = new Set(["site.test:443", "www.site.test:443"]);
+  const netError = (code: string) => new Error(`page.goto: net::${code} at https://site.test/`);
+  const hop = (reason: BlockedProxyTarget["reason"]) => ({ target: "https://www.site.test/", reason });
+  const unrelated = (reason: BlockedProxyTarget["reason"]) => ({ target: "https://ads.test/", reason });
+
+  // The site's own TLS, HTTP and connection failures, as August's 53 were.
+  for (const code of [
+    "ERR_HTTP2_PROTOCOL_ERROR",
+    "ERR_CERT_COMMON_NAME_INVALID",
+    "ERR_SSL_VERSION_OR_CIPHER_MISMATCH",
+    "ERR_CONNECTION_CLOSED",
+    "ERR_CERT_DATE_INVALID",
+    "ERR_SSL_UNRECOGNIZED_NAME_ALERT",
+    "ERR_EMPTY_RESPONSE",
+    "ERR_CERT_AUTHORITY_INVALID",
+    "ERR_TOO_MANY_REDIRECTS"
+  ]) {
+    assert.equal(classifyNavigationFailure(netError(code), [], navigation), "page-load-failed", code);
+    // A refusal of a host the navigation never requested changes nothing.
+    assert.equal(
+      classifyNavigationFailure(netError(code), [unrelated("resolution-failed"), unrelated("resource-limit")], navigation),
+      "page-load-failed",
+      code
+    );
+  }
+
+  // The proxy's tunnel failed: the site's only when the proxy recorded why,
+  // and the reason is the site's answer.
+  const tunnel = netError("ERR_TUNNEL_CONNECTION_FAILED");
+  for (const reason of ["name-not-found", "upstream-failed", "invalid-upstream-response", "blocked-port"] as const) {
+    assert.equal(classifyNavigationFailure(tunnel, [hop(reason)], navigation), "page-load-failed", reason);
+  }
+  assert.equal(classifyNavigationFailure(tunnel, [], navigation), "load-failed", "no recorded reason");
+  assert.equal(classifyNavigationFailure(tunnel, [unrelated("upstream-failed")], navigation), "load-failed");
+  assert.equal(classifyNavigationFailure(netError("ERR_PROXY_CONNECTION_FAILED"), [], navigation), "load-failed");
+
+  // The scanner's own refusals of a navigation endpoint are never the site's,
+  // whatever Chromium then reports, and even beside a refusal that is.
+  for (const reason of ["resolution-failed", "resource-limit", "invalid-target", "upgrade-blocked"] as const) {
+    assert.equal(classifyNavigationFailure(tunnel, [hop(reason)], navigation), "load-failed", reason);
+    assert.equal(
+      classifyNavigationFailure(netError("ERR_EMPTY_RESPONSE"), [hop("upstream-failed"), hop(reason)], navigation),
+      "load-failed",
+      reason
+    );
+  }
+
+  // No network error at all: the browser or page closed, or Playwright
+  // failed. Nothing names the site.
+  assert.equal(
+    classifyNavigationFailure(new Error("page.goto: Target page, context or browser has been closed"), [], navigation),
+    "load-failed"
+  );
+  // Errors of the scanner's own machine, or Chromium's generic one.
+  for (const code of ["ERR_FAILED", "ERR_INTERNET_DISCONNECTED", "ERR_NETWORK_CHANGED", "ERR_NAME_NOT_RESOLVED", "ERR_BLOCKED_BY_CLIENT"]) {
+    assert.equal(classifyNavigationFailure(netError(code), [], navigation), "load-failed", code);
+  }
+  // The scanner's own route aborted the navigation, or the proxy's record
+  // may be missing a refusal.
+  const reset = netError("ERR_CONNECTION_RESET");
+  assert.equal(classifyNavigationFailure(reset, [], navigation, { scannerAbortedNavigation: true }), "load-failed");
+  assert.equal(classifyNavigationFailure(reset, [], navigation, { proxyRecordIncomplete: true }), "load-failed");
+  assert.equal(
+    classifyNavigationFailure(reset, [], navigation, { scannerAbortedNavigation: false, proxyRecordIncomplete: false }),
+    "page-load-failed"
+  );
+});
+
+test("the proxy record is incomplete once a budget refused a stream or the examples list filled", () => {
+  const sound: PublicScanProxyDiagnostics = {
+    invalidUpstreamResponseCount: 0,
+    trafficBudget: {
+      name: "proxy-traffic",
+      family: "requests",
+      transactionLimit: 2_000,
+      transactionsSeen: 3,
+      uniqueTargetLimit: 256,
+      uniqueTargetsSeen: 2,
+      captureLoss: null
+    },
+    responseByteBudget: {
+      name: "response-bytes",
+      family: "requests",
+      limitBytes: 10,
+      forwardedBytes: 1,
+      remainingBytes: 9,
+      limitReached: false,
+      captureLoss: null
+    },
+    uploadByteBudget: {
+      name: "request-upload",
+      family: "requests",
+      limitBytes: 10,
+      forwardedBytes: 0,
+      remainingBytes: 10,
+      limitReached: false,
+      captureLoss: null
+    }
+  };
+  assert.equal(proxyRecordIncomplete(sound, []), false);
+  const loss = { family: "requests", phaseId: null, kind: "cap", count: 1 } as const;
+  assert.equal(
+    proxyRecordIncomplete({ ...sound, trafficBudget: { ...sound.trafficBudget, captureLoss: { ...loss, detail: "proxy-traffic" } } }, []),
+    true
+  );
+  assert.equal(
+    proxyRecordIncomplete({ ...sound, responseByteBudget: { ...sound.responseByteBudget, captureLoss: { ...loss, detail: "response-bytes" } } }, []),
+    true
+  );
+  assert.equal(
+    proxyRecordIncomplete({ ...sound, uploadByteBudget: { ...sound.uploadByteBudget, captureLoss: { ...loss, detail: "request-upload" } } }, []),
+    true
+  );
+  const block = { target: "https://ads.test/", reason: "upstream-failed" } as const;
+  assert.equal(proxyRecordIncomplete(sound, Array(MAX_RECORDED_PROXY_BLOCKS - 1).fill(block)), false);
+  assert.equal(proxyRecordIncomplete(sound, Array(MAX_RECORDED_PROXY_BLOCKS).fill(block)), true);
 });
 
 test("proxy endpoints compare host and port under each URL's own default port", () => {

@@ -102,6 +102,7 @@ import {
 } from "./fingerprint-observer";
 import { extractPolicyTextFromPdf, MAX_POLICY_PDF_BYTES, MAX_POLICY_PDF_PARSE_MS } from "./policy-pdf";
 import {
+  MAX_RECORDED_PROXY_BLOCKS,
   startPublicScanProxy,
   type BlockedProxyTarget,
   type PublicScanProxyDiagnostics,
@@ -1138,6 +1139,11 @@ export async function scanSiteWithMeasurement(
     const requestsBlockedByShields = new WeakSet<Request>();
     const requestsBlockedByGuard = new WeakSet<Request>();
     const requestsAbortedByProbe = new WeakSet<Request>();
+    // Set before the scanner's own page route aborts a main-frame navigation
+    // request, never after: the navigation's rejection can arrive before the
+    // abort's own acknowledgement. Read only by the goto failure
+    // classification, which must not blame the site for the scanner's abort.
+    let scannerAbortedMainFrameNavigation = false;
     // The source document can navigate or detach before report construction.
     // Keep only the route-time boolean keyed by Playwright's Request identity:
     // raw frame/worker URLs remain transient and never enter the public wire.
@@ -1236,6 +1242,7 @@ export async function scanSiteWithMeasurement(
           // v1's only record of that loss, added with it and before the abort
           // is awaited, so both wires carry it whether or not the abort holds.
           warnings.add(KEYSTROKE_PROBE_NAVIGATION_STOPPED_WARNING);
+          if (isMainFrameNavigationRequest(request, page)) scannerAbortedMainFrameNavigation = true;
           // ERR_ABORTED, not the default ERR_FAILED: Chromium then keeps the
           // current document instead of committing an error page, so the
           // scanner's own block of a main-frame navigation is not read as the
@@ -1273,6 +1280,7 @@ export async function scanSiteWithMeasurement(
           return;
         }
 
+        if (isMainFrameNavigationRequest(request, page)) scannerAbortedMainFrameNavigation = true;
         try {
           await route.abort();
         } catch (error) {
@@ -1371,7 +1379,10 @@ export async function scanSiteWithMeasurement(
       })
       .catch((error: unknown) => {
         throwIfScanAborted(options.signal);
-        const failure = classifyNavigationFailure(error, scanProxy.blockedTargets, navigationEndpoints);
+        const failure = classifyNavigationFailure(error, scanProxy.blockedTargets, navigationEndpoints, {
+          scannerAbortedNavigation: scannerAbortedMainFrameNavigation,
+          proxyRecordIncomplete: proxyRecordIncomplete(scanProxy.getDiagnostics(), scanProxy.blockedTargets)
+        });
         if (failure === "private-target") {
           throw new PublicScanError("The page could not be loaded because it resolved to a local or private network address.", 400, "private-target");
         }
@@ -1384,14 +1395,21 @@ export async function scanSiteWithMeasurement(
         // error. Surface them as an honest load failure. Log a redacted target
         // plus the failure reason only -- the raw Playwright message embeds the
         // full URL (query string included), which must never reach the logs.
+        const attributed = failure === "page-load-failed";
         console.error("Scan navigation failed", {
           target: redactUrlV2(targetUrl.toString()).value,
-          reason: navigationFailureReason(error)
+          reason: navigationFailureReason(error),
+          declaredCause: attributed ? "page-load-failed" : null
         });
-        throw new PublicScanError(
-          "The page could not be loaded. The site may be down, unreachable, or blocking automated visits.",
-          502
-        );
+        // The failure the scanner can attribute to the site declares
+        // page-load-failed. Every other navigation failure (the scanner's own
+        // proxy or route refusing, a resolver failure, a browser that closed)
+        // stays cause-less and says that nothing established which side
+        // failed.
+        if (attributed) {
+          throw new PublicScanError(PAGE_LOAD_FAILED_MESSAGE, 502, "page-load-failed");
+        }
+        throw new PublicScanError(UNATTRIBUTED_NAVIGATION_FAILURE_MESSAGE, 502);
       });
     // The first document's status. A script navigation can still replace that
     // document before the subject is frozen, so this is only the fallback for
@@ -4920,6 +4938,81 @@ export function isTimeoutError(error: unknown): boolean {
   return /Timeout \d+ms exceeded/i.test(error.message);
 }
 
+export const PAGE_LOAD_FAILED_MESSAGE =
+  "The page could not be loaded. The site may be down, unreachable, or blocking automated visits.";
+
+export const UNATTRIBUTED_NAVIGATION_FAILURE_MESSAGE =
+  "The page could not be loaded, and the scanner could not tell whether the site or its own network path failed. Try again shortly.";
+
+export type NavigationFailureContext = {
+  /** The scanner's own page route aborted a main-frame navigation request. */
+  scannerAbortedNavigation?: boolean;
+  /**
+   * The proxy's block record may not hold every refusal of this visit: a
+   * traffic or byte budget refused a stream (the byte budgets record no
+   * block at all), or the bounded examples list is full.
+   */
+  proxyRecordIncomplete?: boolean;
+};
+
+/**
+ * Proxy refusals of a navigation endpoint that the site's own answer caused:
+ * its name has no address (the resolver's authoritative answer), its server
+ * refused or dropped the connection, it sent a response that cannot be
+ * reflected, or it redirected to a port the scanner does not open. Every other
+ * reason recorded on a navigation endpoint is the scanner's: a resolver
+ * failure, its own traffic bound, a malformed proxy request, its WebSocket
+ * policy.
+ */
+const TARGET_ATTRIBUTABLE_PROXY_BLOCKS: ReadonlySet<BlockedProxyTarget["reason"]> = new Set([
+  "name-not-found",
+  "upstream-failed",
+  "invalid-upstream-response",
+  "blocked-port"
+]);
+
+/**
+ * Chromium network errors that arise on the scanner's own machine or say
+ * nothing about where the failure was, so they never name the site:
+ * the machine's network went away or changed, Chromium ran out of resources,
+ * something on the client side blocked the load, Chromium resolved a name
+ * itself although every request goes through the scan proxy, or the error is
+ * Chromium's generic one.
+ */
+const INSTRUMENT_SIDE_NET_ERRORS: ReadonlySet<string> = new Set([
+  "ERR_FAILED",
+  "ERR_INTERNET_DISCONNECTED",
+  "ERR_NETWORK_CHANGED",
+  "ERR_NETWORK_IO_SUSPENDED",
+  "ERR_NETWORK_ACCESS_DENIED",
+  "ERR_INSUFFICIENT_RESOURCES",
+  "ERR_OUT_OF_MEMORY",
+  "ERR_BLOCKED_BY_CLIENT",
+  "ERR_BLOCKED_BY_ADMINISTRATOR",
+  "ERR_NAME_NOT_RESOLVED",
+  "ERR_NAME_RESOLUTION_FAILED"
+]);
+
+/** Chromium's errors for its connection to the proxy or the proxy's tunnel. */
+const PROXY_NET_ERROR = /^ERR_[A-Z0-9_]*(?:PROXY|TUNNEL)/;
+
+/**
+ * Whether the proxy's record of this visit can be read as complete: no budget
+ * refused a stream (a byte-budget refusal records no block) and the bounded
+ * examples list never filled.
+ */
+export function proxyRecordIncomplete(
+  diagnostics: PublicScanProxyDiagnostics,
+  blockedTargets: readonly BlockedProxyTarget[]
+): boolean {
+  return (
+    diagnostics.trafficBudget.captureLoss !== null ||
+    diagnostics.responseByteBudget.captureLoss !== null ||
+    diagnostics.uploadByteBudget.captureLoss !== null ||
+    blockedTargets.length >= MAX_RECORDED_PROXY_BLOCKS
+  );
+}
+
 /**
  * Why a main-frame navigation failed, for the one error its requester sees.
  *
@@ -4935,19 +5028,57 @@ export function isTimeoutError(error: unknown): boolean {
  * redirect hop). Page scripts open connections routing never sees, such as a
  * WebSocket to ws://127.0.0.1 used as a localhost port probe, and the proxy
  * refusing that says nothing about where the page itself resolved.
+ *
+ * Any other failure is "page-load-failed" only when the scanner can attribute
+ * it to the site, and "load-failed" (no declared cause) otherwise. It is the
+ * site's when Chromium names a network error (a closed browser or page names
+ * none), that error is not one the scanner's own machine or proxy produces,
+ * the scanner's own route did not abort the navigation, the proxy's record is
+ * complete, and every proxy refusal of a navigation endpoint is one the site
+ * caused. A proxy or tunnel error also needs such a refusal on record, since
+ * the proxy is what failed. Everything else is a failure nothing established
+ * was the site's: a resolver failure on a redirect hop, the proxy's own
+ * traffic bound, and the browser closing all stay cause-less.
  */
 export function classifyNavigationFailure(
   error: unknown,
   blockedTargets: readonly BlockedProxyTarget[],
-  navigationEndpoints: ReadonlySet<string>
-): "page-load-timeout" | "private-target" | "load-failed" {
+  navigationEndpoints: ReadonlySet<string>,
+  context: NavigationFailureContext = {}
+): "page-load-timeout" | "private-target" | "page-load-failed" | "load-failed" {
   if (isTimeoutError(error)) return "page-load-timeout";
-  const blockedNavigation = blockedTargets.some((blocked) => {
-    if (blocked.reason !== "non-public-address") return false;
+  const navigationBlocks = blockedTargets.filter((blocked) => {
     const endpoint = proxyEndpointKey(blocked.target);
     return endpoint !== null && navigationEndpoints.has(endpoint);
   });
-  return blockedNavigation ? "private-target" : "load-failed";
+  if (navigationBlocks.some((blocked) => blocked.reason === "non-public-address")) return "private-target";
+
+  const code = chromiumNetErrorCode(error);
+  if (
+    code === null ||
+    INSTRUMENT_SIDE_NET_ERRORS.has(code) ||
+    context.scannerAbortedNavigation === true ||
+    context.proxyRecordIncomplete === true ||
+    navigationBlocks.some((blocked) => !TARGET_ATTRIBUTABLE_PROXY_BLOCKS.has(blocked.reason))
+  ) {
+    return "load-failed";
+  }
+  if (PROXY_NET_ERROR.test(code) && navigationBlocks.length === 0) return "load-failed";
+  return "page-load-failed";
+}
+
+function chromiumNetErrorCode(error: unknown): string | null {
+  const message = error instanceof Error ? error.message : String(error);
+  return message.match(/net::(ERR_[A-Z0-9_]+)/)?.[1] ?? null;
+}
+
+function isMainFrameNavigationRequest(request: Request, page: Page): boolean {
+  try {
+    return request.isNavigationRequest() && safeRequestFrame(request) === safeMainFrame(page);
+  } catch {
+    // Unknowable is treated as the main frame: the flag only withholds blame.
+    return true;
+  }
 }
 
 const DEFAULT_ENDPOINT_PORTS: Readonly<Record<string, string>> = {

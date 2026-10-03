@@ -38,9 +38,10 @@
  *     under the declared condition that carries its quality ledger;
  *   - a site row, the all-ineligible record under the scanner's declared
  *     reason it could not measure the target (unreachable, private, too slow
- *     to load, a failed navigation, a name lookup that ran out of time, or a
- *     subject the report format cannot name: a public suffix, a generalized
- *     tenant, a host with more than 64 addresses);
+ *     to load, a failed page load the scanner attributes to the site, a name
+ *     lookup that ran out of time, or a subject the report format cannot
+ *     name: a public suffix, a generalized tenant, a host with more than 64
+ *     addresses);
  *   - a lost row, the all-ineligible record for a measurement the scanner
  *     made and then lost (a finished report it would not publish because its
  *     redaction is not a fixed point): instrument loss, not valid, counted
@@ -51,8 +52,9 @@
  * local server, a scanner-side refusal (access gate, our own rate limit, a
  * misconfigured r2 producer, any other persistence or internal failure, a
  * busy or async/durable deployment, a resolver failure, any cause-less
- * refusal other than the navigation failure, any cause this driver does not
- * know), a malformed body, and any report that is not an r2 single report
+ * refusal, the 502 navigation failure the scanner could not attribute to
+ * the site among them, any cause this driver does not know), a malformed
+ * body, and any report that is not an r2 single report
  * from the declared build under the declared condition, or whose projection
  * finds no quality ledger. Every case is checked, not only the first. The
  * stop prints the server's own error and declared cause and the probe's
