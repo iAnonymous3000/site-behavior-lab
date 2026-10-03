@@ -70,6 +70,14 @@ export type ScanFailureCause =
   /** The host resolved to more addresses than the scanner will verify. */
   | "address-fanout-target"
   /**
+   * The visit ran, but the address requested or the one the visit ended on
+   * after its redirects has no name an r2 report can carry as its subject: an
+   * IP literal, a public suffix, or a generalized tenant under a private
+   * suffix. The gate refuses the last two before a visit when they are
+   * requested; a redirect reaches them only after one.
+   */
+  | "unnameable-subject-target"
+  /**
    * The scan ran, but its report failed the managed reader's check that
    * redacting it again changes nothing (`redaction-not-idempotent`) for a
    * reason its own content produced, so the scanner refused to publish it.
@@ -168,6 +176,15 @@ const NOTICES: Record<ScanFailureCause, ScanFailureNotice> = {
     message:
       "That host's name points to more addresses than the scanner will check, so the scanner couldn't confirm it is public. Nothing was visited.",
     action: null,
+    retryable: false
+  },
+  "unnameable-subject-target": {
+    // Usually a redirect the site itself sends, so the visitor's own
+    // address may be fine; the notice names the limit and asks nothing that
+    // cannot help.
+    message:
+      "The page was visited, but the address requested or the one the visit ended on has no site name a report can carry: a bare network address, a registry boundary such as github.io, or a hosting name shaped like an address, timestamp or one-time token. No report was published.",
+    action: "Scan the site's own stable address instead, if it has one.",
     retryable: false
   },
   "report-redaction-unstable": {

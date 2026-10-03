@@ -71,7 +71,8 @@ import { parseStrictJson } from "../lib/strict-json.ts";
  * budget, the page's load failed for a reason the scanner attributes to the
  * site, the name lookup ran out of time, or the host is not a subject the
  * report format can name (a public suffix, a generalized tenant, a host with
- * more addresses than the scanner verifies). Each is a statement about the
+ * more addresses than the scanner verifies, or, after the visit, a requested
+ * or redirected-to address no report can name). Each is a statement about the
  * site only while the instrument was sound: lib/url-safety.ts reads
  * getaddrinfo ENOTFOUND as authoritative, and a machine with no network or no
  * resolver daemon answers ENOTFOUND for every name and times out lookups; the
@@ -99,6 +100,7 @@ export const SWEEP_SCAN_CAUSE_DISPOSITIONS = Object.freeze({
   "public-suffix-target": "target",
   "generalized-tenant-target": "target",
   "address-fanout-target": "target",
+  "unnameable-subject-target": "target",
   "report-redaction-unstable": "lost",
   "scanner-busy": "stop",
   "request-limit": "stop",

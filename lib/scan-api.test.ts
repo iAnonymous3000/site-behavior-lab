@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtemp, rm } from "node:fs/promises";
+import { mkdtemp, readdir, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, test } from "node:test";
@@ -29,6 +29,7 @@ import {
   scanMeasurementEnvelopeWithR2Run,
   testMeasurementEnvelopeForResult
 } from "./scan-report-v2-runtime-fixtures";
+import { UNNAMEABLE_SUBJECT_MESSAGE } from "./scan-report-v2-runtime-builder";
 import {
   createNodeScanMeasurementEnvelope,
   type NodeScanMeasurement,
@@ -627,6 +628,28 @@ test("a public r2 report the managed reader refuses as not idempotent declares i
   );
 });
 
+test("a subject the managed reader's redaction would rename declares the subject cause, not loss", async () => {
+  enablePublicR2();
+  const refusal = new UnreadableManagedReportError("redaction-not-idempotent", "unsafe-subject-identity");
+  const { logged, outcome } = await captureConsoleError(() =>
+    executePreparedScan(
+      PUBLIC_R2_SINGLE,
+      async () => scanMeasurementEnvelopeWithR2Run(makePublicSingleReportV2R2().run),
+      async () => {
+        throw refusal;
+      },
+      undefined,
+      false
+    )
+  );
+  assert.deepEqual(toPublicError(outcome), {
+    message: UNNAMEABLE_SUBJECT_MESSAGE,
+    status: 400,
+    cause: "unnameable-subject-target"
+  });
+  assert.ok(logged.includes(refusal));
+});
+
 test("a fixed-point failure the report's own content produces declares the unstable-redaction cause", async () => {
   enablePublicR2();
   for (const kind of ["digest-mismatch", "sanitizer-rejected-evidence", "generated-report-inconsistent"] as const) {
@@ -688,6 +711,83 @@ test("every other persistence refusal stays the cause-less 500", async () => {
       status: 500
     });
   }
+});
+
+function envelopeEndingOn(
+  source: ReturnType<typeof makePublicSingleReportV2R2>["run"],
+  observedHost: string,
+  options: { moveFirstPartyEvidence?: boolean } = {}
+): NodeScanMeasurementEnvelope {
+  // A visit whose redirects ended on another host. Moving the first-party
+  // evidence with it keeps the fixture a consistent visit, as a real scan's
+  // evidence is, so only the subject can refuse it.
+  const base = scanMeasurementEnvelopeWithR2Run(source);
+  const measurement = structuredClone(base.measurement) as NodeScanMeasurement;
+  measurement.emissionInputs.observedUrl = `https://${observedHost}/landing`;
+  if (options.moveFirstPartyEvidence) {
+    for (const request of measurement.evidence.requests) {
+      const url = new URL(request.url);
+      if (url.hostname !== "shop.example.com") continue;
+      url.hostname = observedHost;
+      request.url = url.toString();
+      request.domain = observedHost;
+    }
+  }
+  return createNodeScanMeasurementEnvelope(structuredClone(base.result), measurement);
+}
+
+test("a visit that ends on a subject no report can name is a declared refusal on the real persistence path", async () => {
+  enablePublicR2();
+  // Before: an IP literal or a public suffix reached after a redirect was the
+  // builder's cause-less 500, and a generalized tenant was refused by the
+  // managed reader as a redaction failure. All three are the addresses' own,
+  // and each repeats at the same site, so each declares the subject cause.
+  const cases: Array<[string, string, boolean, RegExp]> = [
+    ["IP literal", "93.184.216.34", false, /R2SubjectNotNameableError/],
+    ["public suffix", "github.io", false, /R2SubjectNotNameableError/],
+    ["generalized tenant", "198-51-100-7-clienttons-s.akamaihd.net", true, /UnreadableManagedReportError/]
+  ];
+  for (const [label, host, moveFirstPartyEvidence, loggedAs] of cases) {
+    const { logged, outcome } = await captureConsoleError(() =>
+      executePreparedScan(
+        PUBLIC_R2_SINGLE,
+        async () => envelopeEndingOn(makePublicSingleReportV2R2().run, host, { moveFirstPartyEvidence }),
+        saveScanReport,
+        undefined,
+        false
+      )
+    );
+    assert.deepEqual(toPublicError(outcome), {
+      message: UNNAMEABLE_SUBJECT_MESSAGE,
+      status: 400,
+      cause: "unnameable-subject-target"
+    }, label);
+    assert.ok(logged.some((entry) => loggedAs.test(String(entry))), `${label}: the underlying refusal stays in the log`);
+  }
+  assert.deepEqual(await readdir(reportDir), [], "nothing was persisted");
+});
+
+test("a comparison arm that ends on a subject no report can name declares the same refusal", async () => {
+  enablePublicR2();
+  const fixture = makeGpcInterventionReportV2R2();
+  const { outcome } = await captureConsoleError(() =>
+    executePreparedScan(
+      { ...PUBLIC_R2_SINGLE, compareGpc: true, rateLimitCost: 2 },
+      async (payload) =>
+        payload.gpcEnabled
+          ? envelopeEndingOn(fixture.variant, "github.io")
+          : scanMeasurementEnvelopeWithR2Run(fixture.baseline),
+      saveScanReport,
+      undefined,
+      false,
+      { drawComparisonFirstArm: () => "baseline" }
+    )
+  );
+  assert.deepEqual(toPublicError(outcome), {
+    message: UNNAMEABLE_SUBJECT_MESSAGE,
+    status: 400,
+    cause: "unnameable-subject-target"
+  });
 });
 
 test("a public-suffix subject reaches the caller with its declared cause", async () => {

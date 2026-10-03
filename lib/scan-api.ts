@@ -21,7 +21,8 @@ import {
 } from "./scan-report-v2-emission";
 import {
   buildRuntimeComparisonScanReportV2R2,
-  buildRuntimeScanReportV2R2
+  buildRuntimeScanReportV2R2,
+  UNNAMEABLE_SUBJECT_MESSAGE
 } from "./scan-report-v2-runtime-builder";
 import { runtimeReportAcquisition } from "./scan-report-acquisition";
 import {
@@ -415,6 +416,19 @@ const CONTENT_REDACTION_FAILURES: ReadonlySet<ManagedReportRedactionFailure> = n
  * and the other reasons are scanner defects nobody has ruled on.
  */
 function declaredPersistenceRefusal(error: unknown): unknown {
+  if (
+    error instanceof UnreadableManagedReportError &&
+    error.reason === "redaction-not-idempotent" &&
+    error.redactionFailure === "unsafe-subject-identity"
+  ) {
+    // The subject the visit requested or ended on is one redaction renames
+    // (a tenant label under a private suffix shaped like an address,
+    // timestamp or token), so the reader refuses its subject key. The
+    // address caused it, as the builder's own subject refusal is caused, and
+    // it gets the same declared cause.
+    console.error(error);
+    return new PublicScanError(UNNAMEABLE_SUBJECT_MESSAGE, 400, "unnameable-subject-target");
+  }
   if (
     !(error instanceof UnreadableManagedReportError) ||
     error.reason !== "redaction-not-idempotent" ||

@@ -1423,6 +1423,20 @@ function assertSummaryInputs(summary: NodeScanReportV2R2Input["summary"], phases
   }
 }
 
+/**
+ * A subject URL whose host has no registrable domain (an IP literal, or a
+ * host that is itself a public suffix), so no r2 subject key can name it.
+ * Typed so a producer can tell this refusal, which the address the visit
+ * requested or ended on causes, from every other builder refusal; the
+ * message is unchanged for logs.
+ */
+export class R2SubjectNotNameableError extends Error {
+  constructor(readonly label: string) {
+    super(`${label} has no registrable domain.`);
+    this.name = "R2SubjectNotNameableError";
+  }
+}
+
 function subjectKey(rawUrl: string, counters: RedactionCounters, label: string): SubjectKey {
   let parsed: URL;
   try {
@@ -1434,7 +1448,7 @@ function subjectKey(rawUrl: string, counters: RedactionCounters, label: string):
     throw new Error(`${label} must be an HTTP(S) URL with a hostname.`);
   }
   const registrableDomain = publicRegistrableDomain(parsed.hostname);
-  if (registrableDomain === null) throw new Error(`${label} has no registrable domain.`);
+  if (registrableDomain === null) throw new R2SubjectNotNameableError(label);
 
   const redacted = redactUrlV2(rawUrl, { preserveQueryKeys: false });
   addRedactionCounters(counters, redacted.counters);

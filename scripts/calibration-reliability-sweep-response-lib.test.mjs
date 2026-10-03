@@ -105,6 +105,13 @@ test("site outcomes are recorded as observations: the declared target causes", (
     [
       400,
       refusal("The host resolved to more than 64 addresses, which this scanner will not verify.", "address-fanout-target")
+    ],
+    [
+      400,
+      refusal(
+        "The page was visited, but the address requested or the one the visit ended on has no site name a report can carry.",
+        "unnameable-subject-target"
+      )
     ]
   ];
   for (const [status, body] of cases) {
@@ -125,7 +132,8 @@ test("site outcomes are recorded as observations: the declared target causes", (
     "page-load-timeout",
     "private-target",
     "public-suffix-target",
-    "target-unreachable"
+    "target-unreachable",
+    "unnameable-subject-target"
   ]);
 });
 

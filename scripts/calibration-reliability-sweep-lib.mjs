@@ -119,6 +119,7 @@ export const SWEEP_ROW_ANSWERS = Object.freeze({
   "public-suffix-target": "site",
   "generalized-tenant-target": "site",
   "address-fanout-target": "site",
+  "unnameable-subject-target": "site",
   "report-redaction-unstable": "lost"
 });
 

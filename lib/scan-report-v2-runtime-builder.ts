@@ -2,9 +2,11 @@ import { randomBytes } from "node:crypto";
 import { BUILD_COMMIT_ENV, recordedBuildCommit } from "./build-provenance";
 import type { AcquisitionKind } from "./scan-report-v2";
 import type { EphemeralComparisonReportR2, EphemeralSingleReportR2 } from "./scan-report-v2-r2";
+import { PublicScanError } from "./public-errors";
 import {
   buildNodeComparisonScanReportV2R2,
   buildNodeScanReportV2R2,
+  R2SubjectNotNameableError,
   type NodeScanReportV2R2Input
 } from "./scan-result-v2-r2-builder";
 import type {
@@ -28,6 +30,25 @@ export class RuntimeR2BuildPrerequisiteError extends Error {
   }
 }
 
+export const UNNAMEABLE_SUBJECT_MESSAGE =
+  "The page was visited, but the address requested or the one the visit ended on has no site name a report can carry (a bare network address, a registry boundary such as github.io, or a hosting name shaped like an address, timestamp or token), so no report was made.";
+
+/**
+ * The r2 subject refusal a visit's own addresses cause, declared. A subject
+ * key carries the registrable domain of the address requested and the one
+ * the visit ended on after its redirects, so an IP literal or an exact public
+ * suffix on either is refused by the builder after the visit. Before, that
+ * was the unexpected branch's cause-less 500. The scan API declares the same
+ * cause for a subject the managed reader's redaction would rename (a
+ * generalized tenant), which is refused at persistence. Logged as the
+ * unexpected branch logged it, so the operator keeps the builder's label.
+ */
+function declaredSubjectRefusal(error: unknown): unknown {
+  if (!(error instanceof R2SubjectNotNameableError)) return error;
+  console.error(error);
+  return new PublicScanError(UNNAMEABLE_SUBJECT_MESSAGE, 400, "unnameable-subject-target");
+}
+
 /** Build one screenshot-bearing immediate r2 result from a completed Node visit. */
 export function buildRuntimeScanReportV2R2(
   envelope: NodeScanMeasurementEnvelope,
@@ -37,10 +58,14 @@ export function buildRuntimeScanReportV2R2(
   const measurement = requireMeasurementEnvelope(envelope);
   assertMeasurementEnvelopeConsistent(envelope.result, measurement);
   assertBuildProvenance(env);
-  return buildNodeScanReportV2R2(
-    nodeBuilderInput(measurement, acquisition, mintRunId(measurement.emissionInputs.startedAt)),
-    env
-  );
+  try {
+    return buildNodeScanReportV2R2(
+      nodeBuilderInput(measurement, acquisition, mintRunId(measurement.emissionInputs.startedAt)),
+      env
+    );
+  } catch (error) {
+    throw declaredSubjectRefusal(error);
+  }
 }
 
 /** Build one complete screenshot-bearing r2 intervention pair from two visits. */
@@ -56,15 +81,19 @@ export function buildRuntimeComparisonScanReportV2R2(
   assertMeasurementEnvelopeConsistent(baselineEnvelope.result, baseline);
   assertMeasurementEnvelopeConsistent(variantEnvelope.result, variant);
   assertBuildProvenance(env);
-  return buildNodeComparisonScanReportV2R2(
-    {
-      pairId: `pair-${randomBytes(16).toString("hex")}`,
-      executedFirst,
-      baseline: nodeBuilderInput(baseline, acquisition, mintRunId(baseline.emissionInputs.startedAt)),
-      variant: nodeBuilderInput(variant, acquisition, mintRunId(variant.emissionInputs.startedAt))
-    },
-    env
-  );
+  try {
+    return buildNodeComparisonScanReportV2R2(
+      {
+        pairId: `pair-${randomBytes(16).toString("hex")}`,
+        executedFirst,
+        baseline: nodeBuilderInput(baseline, acquisition, mintRunId(baseline.emissionInputs.startedAt)),
+        variant: nodeBuilderInput(variant, acquisition, mintRunId(variant.emissionInputs.startedAt))
+      },
+      env
+    );
+  } catch (error) {
+    throw declaredSubjectRefusal(error);
+  }
 }
 
 function assertBuildProvenance(env: NodeJS.ProcessEnv): void {

@@ -25,6 +25,11 @@ public API or a 1.0 release.
   sanitizer), every other persistence refusal, and a resolver failure such
   as `EAI_AGAIN` still have no declared cause. A page built before this change renders the server's own
   sentence for the new causes, as for any unknown cause.
+- A visit whose requested address, or the address its redirects ended on,
+  has no name an r2 report can carry now declares `unnameable-subject-target`
+  (400) with its own notice. An IP literal or a public suffix there was the
+  builder's generic 500, and a generalized tenant was refused at persistence
+  as a redaction failure; nothing is published in either case, as before.
 - A failed page load the scanner can attribute to the site now declares
   `page-load-failed` (502) with its own notice: Chromium named a network
   error from the site's side (TLS, HTTP, a refused or dropped connection),

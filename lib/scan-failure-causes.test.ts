@@ -29,6 +29,7 @@ const CAUSE_KEYS: Record<ScanFailureCause, true> = {
   "public-suffix-target": true,
   "generalized-tenant-target": true,
   "address-fanout-target": true,
+  "unnameable-subject-target": true,
   "report-redaction-unstable": true,
   "scanner-busy": true,
   "request-limit": true,
@@ -165,6 +166,18 @@ test("a subject refusal keeps the instruction its server message carried", () =>
   assert.doesNotMatch(fanout.message, /could not be resolved|not resolve/i);
   assert.equal(fanout.action, null);
   assert.equal(fanout.retryable, false);
+});
+
+test("a subject no report can name is refused without blaming the site or calling the address invalid", () => {
+  // Usually reached by a redirect the site sends, after a visit, so the
+  // notice says a visit happened and nothing was published, and never that
+  // the address is malformed, private, unreachable or down.
+  const notice = scanFailureNotice("unnameable-subject-target");
+  const words = `${notice.message} ${notice.action ?? ""}`;
+  assert.match(notice.message, /was visited/);
+  assert.match(notice.message, /No report was published/);
+  assert.doesNotMatch(words, /doesn't look like|only visits public web pages|could not be resolved|site may be down/i);
+  assert.equal(notice.retryable, false);
 });
 
 test("a report the scanner would not publish is the scanner's limit, not the visitor's address", () => {

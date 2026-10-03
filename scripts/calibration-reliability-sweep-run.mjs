@@ -41,7 +41,8 @@
  *     to load, a failed page load the scanner attributes to the site, a name
  *     lookup that ran out of time, or a subject the report format cannot
  *     name: a public suffix, a generalized tenant, a host with more than 64
- *     addresses);
+ *     addresses, or a requested or redirected-to address found unnameable
+ *     after the visit);
  *   - a lost row, the all-ineligible record for a measurement the scanner
  *     made and then lost (a finished report it would not publish because its
  *     redaction is not a fixed point): instrument loss, not valid, counted

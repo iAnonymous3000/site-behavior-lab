@@ -336,7 +336,7 @@ const LOOKUP_TIMEOUT = refusal(503, "Public host verification timed out. Try aga
 
 test("collect records site outcomes as rows and completes the round", async () => {
   const dir = mkdtempSync(path.join(tmpdir(), "sweep-collect-"));
-  const candidatesPath = candidateFile(dir, 12);
+  const candidatesPath = candidateFile(dir, 13);
   const outPath = path.join(dir, "round-1.json");
   const handlers = [
     json(200, r2Report()),
@@ -361,14 +361,19 @@ test("collect records site outcomes as rows and completes the round", async () =
     ),
     refusal(400, "That host's name under its hosting provider looks like a network address.", "generalized-tenant-target"),
     refusal(400, "The host resolved to more than 64 addresses, which this scanner will not verify.", "address-fanout-target"),
-    REDACTION_UNSTABLE
+    REDACTION_UNSTABLE,
+    refusal(
+      400,
+      "The page was visited, but the address requested or the one the visit ended on has no site name a report can carry.",
+      "unnameable-subject-target"
+    )
   ];
   await withFakeScanServer(handlers, async (baseUrl, requests, { probeLog }) => {
     const result = await collect(baseUrl, candidatesPath, outPath);
     assert.equal(result.status, 0, result.stderr);
-    assert.equal(requests.length, 12);
+    assert.equal(requests.length, 13);
     // One probe before case 1 and one after every answer, each a HEAD.
-    assert.deepEqual(probeLog, Array(13).fill("HEAD"));
+    assert.deepEqual(probeLog, Array(14).fill("HEAD"));
     assert.match(
       result.stdout,
       new RegExp(`checkout \\S+ at ${COLLECT_BUILD}, no tracked changes; egress probe http://localhost:\\d+/egress-probe: HTTP 204`)
@@ -393,10 +398,11 @@ test("collect records site outcomes as rows and completes the round", async () =
       result.stdout,
       /lost report-redaction-unstable \(instrument loss, not a site outcome\): The scan finished, but its report did not pass/
     );
-    assert.match(result.stdout, /pass 1: observed 12, loaded 2/);
-    assert.match(result.stdout, /bare-load valid 2 \(16\.7%\)/);
-    assert.match(result.stdout, /lost to the instrument: 1 of 12, counted as neither valid nor complete/);
-    assert.match(result.stdout, /rows by answer: \{"address-fanout-target":1,"generalized-tenant-target":1,"host-lookup-timeout":1,"page-load-failed":1,"page-load-timeout":1,"private-target":1,"public-suffix-target":1,"report":3,"report-redaction-unstable":1,"target-unreachable":1\}/);
+    assert.match(result.stdout, /not-loaded target unnameable-subject-target: The page was visited/);
+    assert.match(result.stdout, /pass 1: observed 13, loaded 2/);
+    assert.match(result.stdout, /bare-load valid 2 \(15\.4%\)/);
+    assert.match(result.stdout, /lost to the instrument: 1 of 13, counted as neither valid nor complete/);
+    assert.match(result.stdout, /rows by answer: \{"address-fanout-target":1,"generalized-tenant-target":1,"host-lookup-timeout":1,"page-load-failed":1,"page-load-timeout":1,"private-target":1,"public-suffix-target":1,"report":3,"report-redaction-unstable":1,"target-unreachable":1,"unnameable-subject-target":1\}/);
     assert.doesNotMatch(result.stderr, /STOPPED/);
   });
   const artifact = JSON.parse(readFileSync(outPath, "utf8"));
@@ -416,7 +422,8 @@ test("collect records site outcomes as rows and completes the round", async () =
       ["case9.example", "public-suffix-target", "unavailable", null, false],
       ["case10.example", "generalized-tenant-target", "unavailable", null, false],
       ["case11.example", "address-fanout-target", "unavailable", null, false],
-      ["case12.example", "report-redaction-unstable", "unavailable", null, false]
+      ["case12.example", "report-redaction-unstable", "unavailable", null, false],
+      ["case13.example", "unnameable-subject-target", "unavailable", null, false]
     ]
   );
 });

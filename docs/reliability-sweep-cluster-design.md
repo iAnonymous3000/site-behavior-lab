@@ -297,10 +297,16 @@ under the definition above.
   causes, these are every subject-validity refusal the scan gate returns
   before a visit; `invalid-url` refuses the address as written, and the
   candidate grammar admits only addresses the server accepts, so it stays a
-  stop. One subject refusal comes after a visit: the r2 builder refuses a
-  report whose observed URL, after a redirect, has no registrable domain,
-  as a cause-less 500. The server does not attribute it to the target with
-  a declared cause, so it stays a stop. The site-specific server errors the
+  stop. Subject refusals also come after a visit, when the address the
+  visit ended on after its redirects is one no report can name: the r2
+  builder refused an IP literal or a public suffix there as a cause-less
+  500, and the managed reader refused a generalized tenant there as a
+  redaction failure, which R1 would have filed as a lost row. Both now
+  declare `unnameable-subject-target` (400), which is a site row: the
+  address the site redirects to is the site's own and repeats at the case.
+  It also covers a requested IP literal, which the gate admits and the
+  builder refuses after the visit; the candidate grammar admits no IP
+  literal. The site-specific server errors the
   server attributes to the target with a declared cause are the 504
   `page-load-timeout`, already a site row, and the 502 `page-load-failed`.
   The scanner's navigation failure was a cause-less 502 when the rulings
@@ -349,8 +355,9 @@ otherwise.
 | 400 `public-suffix-target` (R2) | site row | `public-suffix-target` |
 | 400 `generalized-tenant-target` (R2) | site row | `generalized-tenant-target` |
 | 400 `address-fanout-target` (R2) | site row | `address-fanout-target` |
+| 400 `unnameable-subject-target` (R2: after the visit, the address requested or the one it ended on is an IP literal, a public suffix, or a generalized tenant) | site row | `unnameable-subject-target` |
 | 500 `report-redaction-unstable` (R1) | lost row | `report-redaction-unstable` |
-| 500 with no declared cause: every other managed-reader refusal (`producer-contract-mismatch` and the rest), a `redaction-not-idempotent` refusal the build produces (an unreviewed normalization identity, an unsupported or mixed redaction version, an exception in the sanitizer), the oversized-report refusal, a builder refusal such as a redirect to a host with no registrable domain, any internal error | stop | none |
+| 500 with no declared cause: every other managed-reader refusal (`producer-contract-mismatch` and the rest), a `redaction-not-idempotent` refusal the build produces (an unreviewed normalization identity, an unsupported or mixed redaction version, an exception in the sanitizer), the oversized-report refusal, every other builder refusal, any internal error | stop | none |
 | 503 with no declared cause: a resolver failure ("Public host verification could not complete": `EAI_AGAIN` and every getaddrinfo code but `ENOTFOUND` and `ENODATA`), a misconfigured r2 producer | stop | none |
 | 502 with no declared cause: a navigation failure the scanner could not attribute to the site (a resolver failure or the proxy's traffic bound on the navigation, the scanner's own route abort, a proxy budget refusal, a tunnel failure with no recorded reason, a browser that closed) | stop | none |
 | any other answer with no declared cause, such as the 400 for more than one comparison mode | stop | none |
@@ -475,8 +482,8 @@ parameters, so a stranger can recompute every number.
 the scanner's declared failure to measure the target, a site row
 (`target-unreachable`, `private-target`, `page-load-timeout`, and, under
 the 2026-10-03 owner rulings, `page-load-failed`, `host-lookup-timeout`,
-`public-suffix-target`, `generalized-tenant-target` and
-`address-fanout-target`); or for the
+`public-suffix-target`, `generalized-tenant-target`,
+`address-fanout-target` and `unnameable-subject-target`); or for the
 scanner losing a measurement it made, a lost row
 (`report-redaction-unstable`). Site and lost rows are the all-ineligible
 record and carry their answer, so instrument loss is never read as a site
