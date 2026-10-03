@@ -352,9 +352,14 @@ export function bareLoadOutcome(caseId, report, { pass, observedAt } = {}) {
     familyLedgerComplete: EXPECTED_EVIDENCE_FAMILIES.every(
       (family) => byFamily[family]?.outcome === "complete"
     ),
+    // Sorted, because assertBareLoadOnly requires the persisted list in
+    // lexicographic order and EXPECTED_EVIDENCE_FAMILIES is not: a visit that
+    // censored requests and detector output at once used to throw here. No
+    // 2026-08 round-1 row censored two families, so nothing exercised it until
+    // the restarted round 1 stopped on such a visit.
     censoredFamilies: EXPECTED_EVIDENCE_FAMILIES.filter(
       (family) => byFamily[family]?.outcome === "censored"
-    ),
+    ).sort(),
     // Per-family agreement between the two ledgers, in the one direction this
     // module refuses: every RECORDED loss must name a family the derived
     // ledger admits is censored. A loss against a family claiming complete is

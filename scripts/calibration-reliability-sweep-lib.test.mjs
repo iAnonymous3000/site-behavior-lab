@@ -247,6 +247,29 @@ test("input losses sink readiness, never validity: the step-3 split", () => {
   assert.equal(candidateEligible([lossy, p2]), true);
 });
 
+test("every combination of censored families projects to a sorted list the validator accepts", () => {
+  // REGRESSION. The restarted 2026-10 round 1 stopped on its sixth case: the
+  // projection listed censored families in EXPECTED_EVIDENCE_FAMILIES order
+  // (requests before detector-output), and assertBareLoadOnly, which requires
+  // lexicographic order, threw on a visit that censored both. Every subset of
+  // the six families must project, validate and come back sorted and unique.
+  const families = [...EXPECTED_EVIDENCE_FAMILIES];
+  assert.equal(families.length, 6, "the subset enumeration below assumes six families");
+  for (let mask = 0; mask < 1 << families.length; mask += 1) {
+    const censored = families.filter((_, index) => (mask >> index) & 1);
+    const byFamily = Object.fromEntries(
+      families.map((family) => [
+        family,
+        { outcome: censored.includes(family) ? "censored" : "complete", reasons: [] }
+      ])
+    );
+    const report = soundReport({ quality: { run: { outcome: "complete" }, byFamily } });
+    const outcome = bareLoadOutcome(`case-${mask}`, report, { pass: 1, observedAt: PASS_1 });
+    assert.deepEqual(outcome.censoredFamilies, [...censored].sort(), `subset ${censored.join(",") || "(none)"}`);
+    assert.doesNotThrow(() => assertBareLoadOnly(outcome), `subset ${censored.join(",") || "(none)"}`);
+  }
+});
+
 test("ledger consistency is per family: one censored family absolves nothing else", () => {
   // The adversarial review proved the whole-run version of this clause
   // accepted a loss recorded against a COMPLETE-claiming family whenever any
