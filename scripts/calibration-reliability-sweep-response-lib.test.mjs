@@ -92,6 +92,13 @@ test("site outcomes are recorded as observations: the declared target causes", (
         "page-load-failed"
       )
     ],
+    [
+      422,
+      refusal(
+        "The site answered this address with a file to download, such as a PDF, instead of a web page, so there was no page to scan. Scan the web page that links to the file instead.",
+        "page-is-download"
+      )
+    ],
     // The 2026-10-03 rulings: refusals the target causes, now declared.
     [503, refusal("Public host verification timed out. Try again shortly.", "host-lookup-timeout")],
     [
@@ -128,6 +135,7 @@ test("site outcomes are recorded as observations: the declared target causes", (
     "address-fanout-target",
     "generalized-tenant-target",
     "host-lookup-timeout",
+    "page-is-download",
     "page-load-failed",
     "page-load-timeout",
     "private-target",

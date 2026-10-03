@@ -38,8 +38,9 @@
  *     under the declared condition that carries its quality ledger;
  *   - a site row, the all-ineligible record under the scanner's declared
  *     reason it could not measure the target (unreachable, private, too slow
- *     to load, a failed page load the scanner attributes to the site, a name
- *     lookup that ran out of time, or a subject the report format cannot
+ *     to load, a failed page load the scanner attributes to the site, a page
+ *     address the site answers with a file to download, a name lookup that
+ *     ran out of time, or a subject the report format cannot
  *     name: a public suffix, a generalized tenant, a host with more than 64
  *     addresses, or a requested or redirected-to address found unnameable
  *     after the visit);

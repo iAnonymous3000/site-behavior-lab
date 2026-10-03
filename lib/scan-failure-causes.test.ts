@@ -25,6 +25,7 @@ const CAUSE_KEYS: Record<ScanFailureCause, true> = {
   "target-unreachable": true,
   "page-load-timeout": true,
   "page-load-failed": true,
+  "page-is-download": true,
   "host-lookup-timeout": true,
   "public-suffix-target": true,
   "generalized-tenant-target": true,
@@ -145,6 +146,16 @@ test("a page load the scanner attributes to the site names the site, never the a
   assert.match(notice.message, /load the page from the site/);
   assert.doesNotMatch(words, /only visits public web pages|doesn't look like|not a scannable|could not be resolved/i);
   assert.equal(notice.retryable, true);
+});
+
+test("a page that answers with a download is the site's answer, with no retry advice and no blame", () => {
+  // The same address gives the same file every time, so telling the visitor
+  // to try again cannot help, and nothing failed or refused.
+  const notice = scanFailureNotice("page-is-download");
+  const words = `${notice.message} ${notice.action ?? ""}`;
+  assert.match(notice.message, /file to download, such as a PDF/);
+  assert.doesNotMatch(words, /try again|shortly|later|\bdown\b|refus|block|could not be resolved|only visits public web pages/i);
+  assert.equal(notice.retryable, false);
 });
 
 test("a subject refusal keeps the instruction its server message carried", () => {

@@ -24,7 +24,11 @@ export type BlockedProxyTarget = {
    * "resolution-failed" is every other DNS failure, a failure of the resolver
    * itself (EAI_AGAIN, a lookup abandoned at its backstop, anything else),
    * which proves nothing about the name. "upstream-failed" is an
-   * ordinary TCP or HTTP-client failure (the host may simply be down),
+   * ordinary TCP or HTTP-client failure (the host may simply be down; a
+   * refusal, reset or timeout on the network between, or from an outage of
+   * the scanner's own egress, records the same), "local-upstream-failure" a
+   * socket error the scanner's own host raised for the upstream connection
+   * (LOCAL_UPSTREAM_ERROR_CODES), which says nothing about the site,
    * "invalid-upstream-response" an upstream response that cannot be safely
    * reflected, "blocked-port" the standard-ports policy, "upgrade-blocked"
    * the WebSocket-proxying refusal, "resource-limit" the independent proxy
@@ -39,9 +43,38 @@ export type BlockedProxyTarget = {
     | "blocked-port"
     | "upgrade-blocked"
     | "upstream-failed"
+    | "local-upstream-failure"
     | "invalid-upstream-response"
     | "resource-limit";
 };
+
+/**
+ * Upstream socket errors the scanner's own host raises: it ran out of file
+ * descriptors, buffers or memory, had no local address or port to bind, or
+ * its own policy refused the socket. They are recorded as
+ * "local-upstream-failure", never as the site's "upstream-failed". Routing
+ * errors (ENETUNREACH, EHOSTUNREACH) and the remote side's refusals, resets
+ * and timeouts stay "upstream-failed": a dead host or a router on the path
+ * produces them too, and an outage of the scanner's own network is what the
+ * sweep's separate egress probe checks after every answer. These errors
+ * arise inside the scanner's process, where that probe cannot see them.
+ */
+export const LOCAL_UPSTREAM_ERROR_CODES: ReadonlySet<string> = new Set([
+  "EMFILE",
+  "ENFILE",
+  "ENOBUFS",
+  "ENOMEM",
+  "EADDRNOTAVAIL",
+  "EADDRINUSE",
+  "EACCES",
+  "EPERM"
+]);
+
+function upstreamFailureReason(error: unknown): "upstream-failed" | "local-upstream-failure" {
+  const code =
+    error !== null && typeof error === "object" && "code" in error ? (error as { code?: unknown }).code : undefined;
+  return typeof code === "string" && LOCAL_UPSTREAM_ERROR_CODES.has(code) ? "local-upstream-failure" : "upstream-failed";
+}
 
 export type PublicScanProxy = {
   server: string;
@@ -349,10 +382,10 @@ async function handleHttpProxyRequest(
 
   let uploadCapped = false;
   let upstreamOutcomeRecorded = false;
-  const recordUpstreamFailure = () => {
+  const recordUpstreamFailure = (error: unknown) => {
     if (uploadCapped || upstreamOutcomeRecorded) return;
     upstreamOutcomeRecorded = true;
-    recordBlockedTarget(state.blockedTargets, safeTargetLabel(targetUrl), "upstream-failed");
+    recordBlockedTarget(state.blockedTargets, safeTargetLabel(targetUrl), upstreamFailureReason(error));
   };
   const recordInvalidUpstreamResponse = () => {
     if (upstreamOutcomeRecorded) return;
@@ -403,7 +436,7 @@ async function handleHttpProxyRequest(
     if (isHttpParserError(error)) {
       recordInvalidUpstreamResponse();
     } else {
-      recordUpstreamFailure();
+      recordUpstreamFailure(error);
     }
     if (!response.destroyed) response.destroy();
   });
@@ -512,8 +545,8 @@ async function handleHttpsConnect(
     });
   });
 
-  upstream.once("error", () => {
-    if (!uploadCapped) recordBlockedTarget(state.blockedTargets, safeTargetLabel(targetUrl), "upstream-failed");
+  upstream.once("error", (error) => {
+    if (!uploadCapped) recordBlockedTarget(state.blockedTargets, safeTargetLabel(targetUrl), upstreamFailureReason(error));
     if (tunnelEstablished) {
       // An upstream reset AFTER the tunnel opened (the ordinary case: the site
       // RSTs mid-response) must terminate the tunnel, never write to it.

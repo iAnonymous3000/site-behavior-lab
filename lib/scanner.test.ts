@@ -21,6 +21,7 @@ import { consentInteractionWarning, findAndClickConsentControl } from "./consent
 import { CONSENT_INTERACTION_LEFT_SUBJECT_WARNING } from "./consent-subject-loss-warning";
 import { ACTIVE_PROBE_SUBJECT_WARNING } from "./active-probe-subject-warnings";
 import { PublicScanError } from "./public-errors";
+import { PublicUrlDnsTimeoutError, PublicUrlDnsUnavailableError } from "./url-safety";
 import { TCF_API_METHOD } from "./consent-verification";
 import { GPC_WORKER_CAPTURE_LOSS_WARNING, gpcWorkerCaptureLossCount } from "./gpc-injection";
 import { createSentinel, sentinelEncodings } from "./keystroke-exfiltration";
@@ -71,6 +72,10 @@ import {
   NAVIGATION_WINDOW_CUT_MESSAGE,
   setupScanTimeout,
   navigationTimeoutError,
+  navigationGuardRefusal,
+  PAGE_IS_DOWNLOAD_MESSAGE,
+  PAGE_LOAD_FAILED_MESSAGE,
+  UNATTRIBUTED_NAVIGATION_FAILURE_MESSAGE,
   ScanWarningCollector,
   probeKeystrokeExfiltration,
   proxyEndpointKey,
@@ -5812,6 +5817,172 @@ test("scanSite reports a DNS-failed target as an honest load failure, never a pr
   }
 });
 
+test("scanSite declares a page address answered with a file to download as the site's answer", { timeout: 60_000 }, async () => {
+  // Headless Chromium downloads an attachment and a PDF instead of rendering
+  // them, and Playwright rejects the navigation with no network error. The
+  // site is up and gives the same answer every time, so the scan declares
+  // page-is-download with no retry advice, never the cause-less failure
+  // that told the visitor to try again shortly.
+  const upstream = createServer((request, response) => {
+    if (request.url === "/attachment") {
+      response.writeHead(200, { "content-type": "text/html", "content-disposition": "attachment; filename=page.html" });
+      response.end("<!doctype html><title>Saved</title><p>saved");
+    } else if (request.url === "/policy.pdf") {
+      response.writeHead(200, { "content-type": "application/pdf" });
+      response.end("%PDF-1.4\n%%EOF\n");
+    } else if (request.url === "/policy") {
+      response.writeHead(302, { location: "/policy.pdf" });
+      response.end();
+    } else {
+      response.writeHead(404);
+      response.end();
+    }
+  });
+  await new Promise<void>((resolve) => upstream.listen(0, "127.0.0.1", () => resolve()));
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+  try {
+    for (const pathname of ["/attachment", "/policy.pdf", "/policy"]) {
+      await assert.rejects(
+        () =>
+          scanSite(
+            { url: `http://files.test${pathname}`, device: "desktop", gpcEnabled: false, consentMode: "observe" },
+            {
+              publicUrlAlreadyVerified: true,
+              verifyPublicUrl: async () => undefined,
+              resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+              connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"),
+              resolveCnameChain: async () => []
+            }
+          ),
+        (error) =>
+          error instanceof PublicScanError &&
+          error.status === 422 &&
+          error.failureCause === "page-is-download" &&
+          error.message === PAGE_IS_DOWNLOAD_MESSAGE,
+        pathname
+      );
+    }
+    assert.doesNotMatch(PAGE_IS_DOWNLOAD_MESSAGE, /try again|shortly|\bdown\b|refus|block/i);
+  } finally {
+    await closeSharedBrowserForTests();
+    upstream.closeAllConnections();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+});
+
+test("scanSite ends a navigation the route guard refused for its host with the gate's own answer", { timeout: 90_000 }, async () => {
+  // Production verifies the target at the gate, then the page route re-runs
+  // the public-host check on the navigation request. A second lookup that
+  // disagrees with the first (a private address in a round-robin answer, no
+  // address, a lookup past its deadline, too many addresses) is the gate's
+  // own subject refusal, never the cause-less failure the scanner's own
+  // aborts give. Every other guard refusal stays the scanner's.
+  const upstream = createServer((_request, response) => {
+    response.writeHead(200, { "content-type": "text/html" });
+    response.end("<!doctype html><title>Never reached</title>");
+  });
+  await new Promise<void>((resolve) => upstream.listen(0, "127.0.0.1", () => resolve()));
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+  const scanRefusedBy = (refusal: Error) =>
+    scanSite(
+      { url: "http://flaky-dns.test/", device: "desktop", gpcEnabled: false, consentMode: "observe" },
+      {
+        publicUrlAlreadyVerified: true,
+        verifyPublicUrl: async () => {
+          throw refusal;
+        },
+        resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+        connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"),
+        resolveCnameChain: async () => []
+      }
+    );
+  try {
+    for (const refusal of [
+      new PublicScanError("Local and private network targets are blocked.", 400, "private-target"),
+      new PublicScanError("The host could not be resolved to a public address.", 400, "target-unreachable"),
+      new PublicUrlDnsTimeoutError(5_000),
+      new PublicScanError("The host resolved to more than 64 addresses, which this scanner will not verify.", 400, "address-fanout-target")
+    ]) {
+      await assert.rejects(() => scanRefusedBy(refusal), (error) => error === refusal, String(refusal.failureCause));
+    }
+    for (const refusal of [new PublicUrlDnsUnavailableError("EAI_AGAIN"), new Error("resolver exploded")]) {
+      await assert.rejects(
+        () => scanRefusedBy(refusal),
+        (error) =>
+          error instanceof PublicScanError &&
+          error.status === 502 &&
+          error.failureCause === undefined &&
+          error.message === UNATTRIBUTED_NAVIGATION_FAILURE_MESSAGE,
+        refusal.message
+      );
+    }
+  } finally {
+    await closeSharedBrowserForTests();
+    upstream.closeAllConnections();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+});
+
+test("scanSite never blames the site for an upstream socket error its own host raised", { timeout: 60_000 }, async () => {
+  // The scan proxy records "upstream-failed" for the site's connection
+  // failures and "local-upstream-failure" for an errno raised on the
+  // scanner's own host (out of descriptors here), which says nothing about
+  // the site, so only the first declares page-load-failed.
+  // An upstream that accepts and never answers, so the only thing that ends
+  // the request is the socket error the test raises on it.
+  const accepted = new Set<Socket>();
+  const upstream = createNetServer((socket) => {
+    accepted.add(socket);
+    socket.on("error", () => undefined);
+    socket.once("close", () => accepted.delete(socket));
+  });
+  await new Promise<void>((resolve) => upstream.listen(0, "127.0.0.1", () => resolve()));
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+  const failingSocket = (code: string): Socket => {
+    const socket = connect(address.port, "127.0.0.1");
+    socket.once("connect", () => {
+      setTimeout(() => socket.destroy(Object.assign(new Error(`read ${code}`), { code })), 50);
+    });
+    return socket;
+  };
+  const scanFailingWith = (code: string) =>
+    scanSite(
+      { url: "http://errno.test/", device: "desktop", gpcEnabled: false, consentMode: "observe" },
+      {
+        publicUrlAlreadyVerified: true,
+        verifyPublicUrl: async () => undefined,
+        resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+        connectProxyUpstreamForTests: () => failingSocket(code),
+        resolveCnameChain: async () => []
+      }
+    );
+  try {
+    await assert.rejects(
+      () => scanFailingWith("ECONNREFUSED"),
+      (error) =>
+        error instanceof PublicScanError &&
+        error.status === 502 &&
+        error.failureCause === "page-load-failed" &&
+        error.message === PAGE_LOAD_FAILED_MESSAGE
+    );
+    await assert.rejects(
+      () => scanFailingWith("EMFILE"),
+      (error) =>
+        error instanceof PublicScanError &&
+        error.status === 502 &&
+        error.failureCause === undefined &&
+        error.message === UNATTRIBUTED_NAVIGATION_FAILURE_MESSAGE
+    );
+  } finally {
+    await closeSharedBrowserForTests();
+    for (const socket of accepted) socket.destroy();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+});
+
 test("scanSite forces loopback literals through the connect-time proxy", { timeout: 20_000 }, async () => {
   try {
     await assert.rejects(
@@ -6067,8 +6238,15 @@ test("a navigation failure is the site's only when the scanner can attribute it"
   assert.equal(classifyNavigationFailure(netError("ERR_PROXY_CONNECTION_FAILED"), [], navigation), "load-failed");
 
   // The scanner's own refusals of a navigation endpoint are never the site's,
-  // whatever Chromium then reports, and even beside a refusal that is.
-  for (const reason of ["resolution-failed", "resource-limit", "invalid-target", "upgrade-blocked"] as const) {
+  // whatever Chromium then reports, and even beside a refusal that is. A
+  // socket error the scanner's own host raised is one of them.
+  for (const reason of [
+    "resolution-failed",
+    "resource-limit",
+    "invalid-target",
+    "upgrade-blocked",
+    "local-upstream-failure"
+  ] as const) {
     assert.equal(classifyNavigationFailure(tunnel, [hop(reason)], navigation), "load-failed", reason);
     assert.equal(
       classifyNavigationFailure(netError("ERR_EMPTY_RESPONSE"), [hop("upstream-failed"), hop(reason)], navigation),
@@ -6096,6 +6274,96 @@ test("a navigation failure is the site's only when the scanner can attribute it"
     classifyNavigationFailure(reset, [], navigation, { scannerAbortedNavigation: false, proxyRecordIncomplete: false }),
     "page-load-failed"
   );
+});
+
+test("a navigation that became a download is the site's answer, whatever else the visit recorded", () => {
+  // Playwright rejects a navigation whose answer became a download with no
+  // net:: code, which used to fall into the cause-less failure. The site
+  // answered; the answer is the same every time.
+  const navigation = new Set(["site.test:443"]);
+  const download = new Error("page.goto: Download is starting\nCall log:\n  - navigating to \"https://site.test/policy.pdf\"");
+  assert.equal(classifyNavigationFailure(download, [], navigation), "page-is-download");
+  // A download still streaming through the proxy can trip a byte budget
+  // before the failure is read, and a refusal of the navigation chain the
+  // scanner owns says nothing against an answer that arrived.
+  assert.equal(
+    classifyNavigationFailure(download, [{ target: "https://site.test/", reason: "resource-limit" }], navigation, {
+      proxyRecordIncomplete: true
+    }),
+    "page-is-download"
+  );
+  // A timeout or a private-address block of the navigation still decides first.
+  const timeout = Object.assign(new Error("page.goto: Timeout 30000ms exceeded."), { name: "TimeoutError" });
+  assert.equal(classifyNavigationFailure(timeout, [], navigation), "page-load-timeout");
+  assert.equal(
+    classifyNavigationFailure(download, [{ target: "https://site.test/", reason: "non-public-address" }], navigation),
+    "private-target"
+  );
+  // Without Playwright's download words, a failure with no network error is
+  // still nothing the scanner can attribute.
+  assert.equal(classifyNavigationFailure(new Error("page.goto: Target page, context or browser has been closed"), [], navigation), "load-failed");
+});
+
+test("only the route guard's target verdicts on a navigation are rethrown as the gate's answer", () => {
+  // The guard re-runs the public-host check at request time. Its verdicts
+  // about the target are the gate's own subject refusals; everything else it
+  // refuses stays the scanner's abort.
+  for (const error of [
+    new PublicScanError("Local and private network targets are blocked.", 400, "private-target"),
+    new PublicScanError("The host could not be resolved to a public address.", 400, "target-unreachable"),
+    new PublicUrlDnsTimeoutError(5_000),
+    new PublicScanError("The host resolved to more than 64 addresses, which this scanner will not verify.", 400, "address-fanout-target")
+  ]) {
+    assert.equal(navigationGuardRefusal(error), error, String(error.failureCause));
+  }
+  for (const error of [
+    new PublicUrlDnsUnavailableError("EAI_AGAIN"),
+    new PublicScanError("Only standard HTTP and HTTPS ports can be scanned.", 400, "invalid-url"),
+    new PublicScanError("The scanner could not complete this request.", 503, "service-error"),
+    new Error("resolved to a private address"),
+    undefined
+  ]) {
+    assert.equal(navigationGuardRefusal(error), null, String(error));
+  }
+});
+
+test("decideRoutedRequest hands the verification error to its caller on a fresh and on a shared check", async () => {
+  const warnings = new ScanWarningCollector();
+  const requestBudget = new ScanRequestBudget(warnings);
+  const publicHostChecks = new Map<string, Promise<void>>();
+  const refusal = new PublicScanError("Local and private network targets are blocked.", 400, "private-target");
+  let release: () => void = () => assert.fail("verification did not start");
+  const gate = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  const seen: unknown[] = [];
+  const options = {
+    page: routePage,
+    targetUrl: new URL("https://example.com/"),
+    warnings,
+    requestBudget,
+    publicHostChecks,
+    verifyPublicUrl: async () => {
+      await gate;
+      throw refusal;
+    },
+    onVerificationRefused: (error: unknown) => seen.push(error)
+  };
+  const first = decideRoutedRequest({ ...options, request: routeRequest({ url: "https://example.com/" }) });
+  const shared = decideRoutedRequest({ ...options, request: routeRequest({ url: "https://example.com/again" }) });
+  release();
+  assert.deepEqual(await Promise.all([first, shared]), [
+    { action: "abort", blockedByShields: false },
+    { action: "abort", blockedByShields: false }
+  ]);
+  assert.deepEqual(seen, [refusal, refusal]);
+  // A request the guard refuses before any verification reports nothing.
+  seen.length = 0;
+  assert.deepEqual(
+    await decideRoutedRequest({ ...options, request: routeRequest({ url: "ftp://example.com/file" }) }),
+    { action: "abort", blockedByShields: false }
+  );
+  assert.deepEqual(seen, []);
 });
 
 test("the proxy record is incomplete once a budget refused a stream or the examples list filled", () => {

@@ -94,7 +94,8 @@ export const EXPECTED_EVIDENCE_FAMILIES = Object.freeze([
  *   - "site": the scanner declared it could not measure the target, for a
  *     reason the target causes: it did not resolve, resolved somewhere
  *     private, did not load in time, failed to load for a reason the scanner
- *     attributes to it ("page-load-failed"), its name lookup ran out of time,
+ *     attributes to it ("page-load-failed"), answered with a file to download
+ *     instead of a page ("page-is-download"), its name lookup ran out of time,
  *     or it is not a subject the report format can name. A site row is the
  *     scanner's observation of the target, recorded only while the
  *     instrument checks pass.
@@ -115,6 +116,7 @@ export const SWEEP_ROW_ANSWERS = Object.freeze({
   "private-target": "site",
   "page-load-timeout": "site",
   "page-load-failed": "site",
+  "page-is-download": "site",
   "host-lookup-timeout": "site",
   "public-suffix-target": "site",
   "generalized-tenant-target": "site",

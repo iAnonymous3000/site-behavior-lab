@@ -325,19 +325,31 @@ under the definition above.
   `page-load-failed` only for a navigation failure it attributes to the
   site: Chromium names a network error that is not the scanner's own
   machine's or Chromium's generic one, the scanner's own route did not
-  abort the navigation, no proxy budget refused a stream and its block
-  record is not full, every proxy refusal of the target or a redirect hop
-  is the site's answer (its name has no address by the resolver's
-  authoritative answer, its server refused or dropped the connection or
+  abort the navigation, no proxy budget refused a stream during the visit
+  and its block record is not full, every proxy refusal of the target or a
+  redirect hop is one it reads as the site's answer (its name has no
+  address by the resolver's authoritative answer, the upstream connection
+  failed with an error other than one the scanner's own host raised, it
   sent an unusable response, or it redirected to a port the scanner does
-  not open), and a proxy or tunnel error has such a refusal on record. Any
-  other navigation failure stays a cause-less 502 and stops the round. Each
-  site answer is recorded as the all-ineligible record with its cause as
-  its `answer`. The driver records them at
-  the first occurrence, with no retry: these answers repeat at the same
-  case, so they never stop a round and the repeat question in decision 2
-  does not arise for them. Infrastructure failures still stop the round,
-  as listed below.
+  not open), and a proxy or tunnel error has such a refusal on record. A
+  refused, reset or timed-out upstream connection is read as the site's
+  even though the network between, or an outage of the instrument's own
+  egress, produces the same; the egress probe after every answer is what
+  catches the latter. Two more navigation outcomes are the site's answer
+  with their own declared causes. A page address the site answers with a
+  file to download (an attachment, or a PDF, which headless Chromium does
+  not render) declares `page-is-download` (422). And when the page route's
+  own re-check of the navigation's host, made seconds after the gate's,
+  refuses it as private, unresolvable, past its lookup deadline, or with
+  too many addresses, the scan ends with the gate's own declared refusal
+  (`private-target`, `target-unreachable`, `host-lookup-timeout` or
+  `address-fanout-target`). Any other navigation failure stays a cause-less
+  502 and stops the round. Each site answer is recorded as the
+  all-ineligible record with its cause as its `answer`. The driver records
+  them at the first occurrence, with no retry: these answers repeat at the
+  same case, so they never stop a round and the repeat question in
+  decision 2 does not arise for them. Infrastructure failures still stop
+  the round, as listed below.
 - **R3. "Development-visited" means a site the scanner opened as the page
   under test**, requested or landed on. A host recorded only as a third
   party inside another subject's report, or named only in code or prose,
@@ -356,19 +368,20 @@ otherwise.
 | Answer from `/api/scan` | Handling | Row `answer` |
 | --- | --- | --- |
 | 200, a ScanReport v2 r2 single report from the declared build under the declared condition, with its quality ledger | report row, read from the report | `report` |
-| 400 `target-unreachable` (`ENOTFOUND`, `ENODATA`, or no address) | site row | `target-unreachable` |
-| 400 `private-target` | site row | `private-target` |
+| 400 `target-unreachable` (`ENOTFOUND`, `ENODATA`, or no address; from the gate, or from the page route's re-check of the navigation's host) | site row | `target-unreachable` |
+| 400 `private-target` (from the gate, the scan proxy's block of the navigation, or the page route's re-check of its host) | site row | `private-target` |
 | 504 `page-load-timeout` | site row | `page-load-timeout` |
 | 502 `page-load-failed` (a navigation failure the scanner attributes to the site) | site row | `page-load-failed` |
-| 503 `host-lookup-timeout` (R2) | site row | `host-lookup-timeout` |
+| 422 `page-is-download` (the site answered the page address with a file to download, such as a PDF) | site row | `page-is-download` |
+| 503 `host-lookup-timeout` (R2; from the gate, or from the page route's re-check of the navigation's host) | site row | `host-lookup-timeout` |
 | 400 `public-suffix-target` (R2) | site row | `public-suffix-target` |
 | 400 `generalized-tenant-target` (R2) | site row | `generalized-tenant-target` |
-| 400 `address-fanout-target` (R2) | site row | `address-fanout-target` |
+| 400 `address-fanout-target` (R2; from the gate, or from the page route's re-check of the navigation's host) | site row | `address-fanout-target` |
 | 400 `unnameable-subject-target` (R2: after the visit, the address requested or the one it ended on is an IP literal, a public suffix, or a generalized tenant) | site row | `unnameable-subject-target` |
 | 500 `report-redaction-unstable` (R1) | lost row | `report-redaction-unstable` |
 | 500 with no declared cause: every other managed-reader refusal (`producer-contract-mismatch` and the rest), a `redaction-not-idempotent` refusal the build produces (an unreviewed normalization identity, an unsupported or mixed redaction version, an exception in the sanitizer), the oversized-report refusal, every other builder refusal, any internal error | stop | none |
 | 503 with no declared cause: a resolver failure ("Public host verification could not complete": `EAI_AGAIN` and every getaddrinfo code but `ENOTFOUND` and `ENODATA`), a misconfigured r2 producer | stop | none |
-| 502 with no declared cause: a navigation failure the scanner could not attribute to the site (a resolver failure or the proxy's traffic bound on the navigation, the scanner's own route abort, a proxy budget refusal, a tunnel failure with no recorded reason, a browser that closed) | stop | none |
+| 502 with no declared cause: a navigation failure the scanner could not attribute to the site (a resolver failure or the proxy's traffic bound on the navigation, a socket error the scanner's own host raised on it, the scanner's own route abort, any proxy budget refusal during the visit, a full proxy block record, Chromium's generic or machine-side errors, a tunnel failure with no recorded reason, a browser that closed) | stop | none |
 | any other answer with no declared cause, such as the 400 for more than one comparison mode | stop | none |
 | a declared `invalid-url`, `scanner-busy`, `request-limit`, `challenge-required`, `access-key-required`, `request-rejected`, `feature-unavailable`, `scan-conflict` or `service-error`, or a cause the driver does not know | stop | none |
 | 202 (asynchronous or durable admission), a redirect, any other non-error status | stop | none |

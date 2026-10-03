@@ -69,7 +69,8 @@ import { parseStrictJson } from "../lib/strict-json.ts";
  * when it tried the address the sweep asked for: the name did not resolve, it
  * resolved somewhere private, the page did not load inside the scan's
  * budget, the page's load failed for a reason the scanner attributes to the
- * site, the name lookup ran out of time, or the host is not a subject the
+ * site, the site answered the page's address with a file to download instead
+ * of a page, the name lookup ran out of time, or the host is not a subject the
  * report format can name (a public suffix, a generalized tenant, a host with
  * more addresses than the scanner verifies, or, after the visit, a requested
  * or redirected-to address no report can name). Each is a statement about the
@@ -96,6 +97,7 @@ export const SWEEP_SCAN_CAUSE_DISPOSITIONS = Object.freeze({
   "target-unreachable": "target",
   "page-load-timeout": "target",
   "page-load-failed": "target",
+  "page-is-download": "target",
   "host-lookup-timeout": "target",
   "public-suffix-target": "target",
   "generalized-tenant-target": "target",

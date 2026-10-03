@@ -46,12 +46,21 @@ export type ScanFailureCause =
   | "page-load-timeout"
   /**
    * The page's own load failed for a reason the scanner attributes to the
-   * site: its server refused or dropped the connection, its TLS or HTTP
-   * answer was broken, its name had no address, or it redirected where the
-   * scanner does not go. A navigation failure the scanner cannot attribute
-   * (its own proxy, resolver or browser failing) declares no cause.
+   * site: the connection to its server was refused, reset or timed out (the
+   * network between the scanner and the site can produce these too), its TLS
+   * or HTTP answer was broken, its name had no address, or it redirected
+   * where the scanner does not go. A navigation failure the scanner cannot
+   * attribute (its own proxy, resolver, host or browser failing) declares no
+   * cause.
    */
   | "page-load-failed"
+  /**
+   * The site answered the page's address with a file to download (an
+   * attachment, or a type headless Chromium does not render, a PDF among
+   * them) instead of a web page, so there was no page to scan. The same
+   * address gives the same answer again, so nothing invites a retry.
+   */
+  | "page-is-download"
   /**
    * Looking up the host's addresses ran past the verification deadline, so
    * whether the target is public was never established. A slow name server
@@ -150,6 +159,14 @@ const NOTICES: Record<ScanFailureCause, ScanFailureNotice> = {
       "The scanner couldn't load the page from the site. The site may be down, refusing the connection, or answering in a way the scanner can't use, such as with a certificate error.",
     action: "Check that the page opens in a browser, or try again later.",
     retryable: true
+  },
+  "page-is-download": {
+    // The site's own answer, and the same one every time: no retry advice,
+    // and no claim that the site refused or failed anything.
+    message:
+      "The site answered this address with a file to download, such as a PDF, instead of a web page, so there was no page to scan.",
+    action: "Scan the web page that links to the file instead.",
+    retryable: false
   },
   "host-lookup-timeout": {
     // Nothing established whether the site's name servers or the scanner's

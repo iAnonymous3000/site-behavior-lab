@@ -85,6 +85,7 @@ import {
 import type { NetworkRequestRecord, TrackerMatch } from "./types";
 import { promises as dnsPromises } from "node:dns";
 import { PublicScanError } from "./public-errors";
+import type { ScanFailureCause } from "./scan-failure-causes";
 import {
   assertPublicHttpUrl,
   normalizeUrl,
@@ -1150,6 +1151,13 @@ export async function scanSiteWithMeasurement(
     // abort's own acknowledgement. Read only by the goto failure
     // classification, which must not blame the site for the scanner's abort.
     let scannerAbortedMainFrameNavigation = false;
+    // The route guard's public-host re-check refused a main-frame navigation
+    // request with a declared target cause (navigationGuardRefusal). Set with
+    // the flag above, also before the abort, and read only by the same goto
+    // failure handling, which rethrows it when the navigation failed with the
+    // error the guard's abort produces: the gate's own answer for that host,
+    // never a failure nothing attributes.
+    let mainFrameNavigationGuardRefusal: PublicScanError | null = null;
     // The source document can navigate or detach before report construction.
     // Keep only the route-time boolean keyed by Playwright's Request identity:
     // raw frame/worker URLs remain transient and never enter the public wire.
@@ -1266,6 +1274,7 @@ export async function scanSiteWithMeasurement(
           request,
           mapRequestType(request.resourceType(), { subFrame: requestIsSubFrameNavigation(request) })
         );
+        let verificationRefusal: unknown;
         const decision = await decideRoutedRequest({
           request,
           page,
@@ -1275,7 +1284,10 @@ export async function scanSiteWithMeasurement(
           publicHostChecks,
           shieldsBlockingEnabled: options.shieldsBlockingEnabled,
           adblockEngine: routedAdblockEngineFor(request),
-          verifyPublicUrl
+          verifyPublicUrl,
+          onVerificationRefused: (error) => {
+            verificationRefusal = error;
+          }
         });
         if (decision.shieldsMatched !== undefined) {
           shieldsMatches.set(request, decision.shieldsMatched);
@@ -1286,7 +1298,12 @@ export async function scanSiteWithMeasurement(
           return;
         }
 
-        if (isMainFrameNavigationRequest(request, page)) scannerAbortedMainFrameNavigation = true;
+        if (isMainFrameNavigationRequest(request, page)) {
+          // The flag still withholds blame if the navigation then fails in a
+          // way the guard's abort does not produce.
+          scannerAbortedMainFrameNavigation = true;
+          mainFrameNavigationGuardRefusal = navigationGuardRefusal(verificationRefusal) ?? mainFrameNavigationGuardRefusal;
+        }
         try {
           await route.abort();
         } catch (error) {
@@ -1389,6 +1406,19 @@ export async function scanSiteWithMeasurement(
       })
       .catch((error: unknown) => {
         throwIfScanAborted(options.signal);
+        // The route guard's own verdict on the navigation's host, re-checked
+        // at request time, refused it with a declared target cause: the same
+        // answer the scan gate gives for that host before a visit, so the
+        // same error, not a navigation failure nothing attributes. Only when
+        // the navigation failed with the error the guard's abort produces.
+        if (mainFrameNavigationGuardRefusal !== null && chromiumNetErrorCode(error) === "ERR_FAILED") {
+          console.error("Scan navigation failed", {
+            target: redactUrlV2(targetUrl.toString()).value,
+            reason: "route guard refused the navigation",
+            declaredCause: mainFrameNavigationGuardRefusal.failureCause ?? null
+          });
+          throw mainFrameNavigationGuardRefusal;
+        }
         const failure = classifyNavigationFailure(error, scanProxy.blockedTargets, navigationEndpoints, {
           scannerAbortedNavigation: scannerAbortedMainFrameNavigation,
           proxyRecordIncomplete: proxyRecordIncomplete(scanProxy.getDiagnostics(), scanProxy.blockedTargets)
@@ -1405,18 +1435,24 @@ export async function scanSiteWithMeasurement(
         // error. Surface them as an honest load failure. Log a redacted target
         // plus the failure reason only -- the raw Playwright message embeds the
         // full URL (query string included), which must never reach the logs.
-        const attributed = failure === "page-load-failed";
+        const declaredCause =
+          failure === "page-load-failed" || failure === "page-is-download" ? failure : null;
         console.error("Scan navigation failed", {
           target: redactUrlV2(targetUrl.toString()).value,
           reason: navigationFailureReason(error),
-          declaredCause: attributed ? "page-load-failed" : null
+          declaredCause
         });
+        // The site answered with a file, not a page: its own answer, the same
+        // every time, so its sentence gives no retry advice.
+        if (failure === "page-is-download") {
+          throw new PublicScanError(PAGE_IS_DOWNLOAD_MESSAGE, 422, "page-is-download");
+        }
         // The failure the scanner can attribute to the site declares
         // page-load-failed. Every other navigation failure (the scanner's own
         // proxy or route refusing, a resolver failure, a browser that closed)
         // stays cause-less and says that nothing established which side
         // failed.
-        if (attributed) {
+        if (failure === "page-load-failed") {
           throw new PublicScanError(PAGE_LOAD_FAILED_MESSAGE, 502, "page-load-failed");
         }
         throw new PublicScanError(UNATTRIBUTED_NAVIGATION_FAILURE_MESSAGE, 502);
@@ -3614,7 +3650,8 @@ export async function decideRoutedRequest({
   publicHostChecks,
   shieldsBlockingEnabled,
   adblockEngine,
-  verifyPublicUrl = assertPublicHttpUrl
+  verifyPublicUrl = assertPublicHttpUrl,
+  onVerificationRefused
 }: {
   request: RoutedRequestLike;
   page: RoutePageLike;
@@ -3625,6 +3662,13 @@ export async function decideRoutedRequest({
   shieldsBlockingEnabled?: boolean;
   adblockEngine?: RouteAdblockEngine | null;
   verifyPublicUrl?: (url: URL) => Promise<void>;
+  /**
+   * Called with the error this request's public-host verification rejected
+   * with, before the request is aborted for it, whether the check ran for
+   * this request or was shared with an earlier one. The decision itself
+   * carries no error.
+   */
+  onVerificationRefused?: (error: unknown) => void;
 }): Promise<ScanRouteDecision> {
   const requestUrl = request.url();
   // Capture synchronously, before DNS/public-host verification awaits: a frame
@@ -3667,6 +3711,7 @@ export async function decideRoutedRequest({
             publicHostChecks.delete(hostCheckKey);
           }
         }
+        onVerificationRefused?.(error);
         throw error;
       }
     }
@@ -4959,6 +5004,40 @@ export const PAGE_LOAD_FAILED_MESSAGE =
 export const UNATTRIBUTED_NAVIGATION_FAILURE_MESSAGE =
   "The page could not be loaded, and the scanner could not tell whether the site or its own network path failed. Try again shortly.";
 
+export const PAGE_IS_DOWNLOAD_MESSAGE =
+  "The site answered this address with a file to download, such as a PDF, instead of a web page, so there was no page to scan. Scan the web page that links to the file instead.";
+
+/**
+ * The route guard's public-host verdicts that name the target, exactly the
+ * subject refusals the scan gate files before a visit with these causes.
+ * Every other way the guard refuses (a resolver failure, which declares no
+ * cause; its request budget; a non-HTTP or oversized URL) stays the
+ * scanner's own abort.
+ */
+const NAVIGATION_GUARD_TARGET_CAUSES: ReadonlySet<ScanFailureCause> = new Set<ScanFailureCause>([
+  "private-target",
+  "target-unreachable",
+  "host-lookup-timeout",
+  "address-fanout-target"
+]);
+
+/**
+ * The error a refused main-frame navigation should end the scan with, when
+ * the route guard's re-check of its host refused it with a target cause.
+ * The guard re-runs the public-host check at request time, seconds after
+ * the gate, and a second lookup can disagree with the first (round-robin
+ * answers that include private addresses, inconsistent name servers, a
+ * lookup that runs past its deadline). Its verdict is then the gate's own,
+ * not a failure nothing attributes.
+ */
+export function navigationGuardRefusal(error: unknown): PublicScanError | null {
+  return error instanceof PublicScanError &&
+    error.failureCause !== undefined &&
+    NAVIGATION_GUARD_TARGET_CAUSES.has(error.failureCause)
+    ? error
+    : null;
+}
+
 export type NavigationFailureContext = {
   /** The scanner's own page route aborted a main-frame navigation request. */
   scannerAbortedNavigation?: boolean;
@@ -4971,13 +5050,16 @@ export type NavigationFailureContext = {
 };
 
 /**
- * Proxy refusals of a navigation endpoint that the site's own answer caused:
- * its name has no address (the resolver's authoritative answer), its server
- * refused or dropped the connection, it sent a response that cannot be
- * reflected, or it redirected to a port the scanner does not open. Every other
- * reason recorded on a navigation endpoint is the scanner's: a resolver
- * failure, its own traffic bound, a malformed proxy request, its WebSocket
- * policy.
+ * Proxy refusals of a navigation endpoint the scanner reads as the site's
+ * answer: its name has no address (the resolver's authoritative answer), the
+ * upstream connection failed with an error the scanner's own host did not
+ * raise (refused, reset or timed out, which the network between produces
+ * too, and which an outage of the scanner's own egress also produces; the
+ * sweep's egress probe is what catches that), it sent a response that cannot
+ * be reflected, or it redirected to a port the scanner does not open. Every
+ * other reason recorded on a navigation endpoint is the scanner's: a
+ * resolver failure, a socket error the scanner's own host raised, its own
+ * traffic bound, a malformed proxy request, its WebSocket policy.
  */
 const TARGET_ATTRIBUTABLE_PROXY_BLOCKS: ReadonlySet<BlockedProxyTarget["reason"]> = new Set([
   "name-not-found",
@@ -5044,29 +5126,38 @@ export function proxyRecordIncomplete(
  * WebSocket to ws://127.0.0.1 used as a localhost port probe, and the proxy
  * refusing that says nothing about where the page itself resolved.
  *
+ * A navigation whose answer became a download is "page-is-download": the
+ * site answered with an attachment, or with a type headless Chromium does
+ * not render (a PDF among them), and Playwright rejects the navigation
+ * ("Download is starting") with no network error at all. That is the site's
+ * own answer, decided before the checks below, which a download still
+ * streaming through the proxy (a byte budget it trips) must not override.
+ *
  * Any other failure is "page-load-failed" only when the scanner can attribute
  * it to the site, and "load-failed" (no declared cause) otherwise. It is the
  * site's when Chromium names a network error (a closed browser or page names
  * none), that error is not one the scanner's own machine or proxy produces,
  * the scanner's own route did not abort the navigation, the proxy's record is
- * complete, and every proxy refusal of a navigation endpoint is one the site
- * caused. A proxy or tunnel error also needs such a refusal on record, since
- * the proxy is what failed. Everything else is a failure nothing established
- * was the site's: a resolver failure on a redirect hop, the proxy's own
- * traffic bound, and the browser closing all stay cause-less.
+ * complete, and every proxy refusal of a navigation endpoint is one the
+ * scanner reads as the site's answer. A proxy or tunnel error also needs such
+ * a refusal on record, since the proxy is what failed. Everything else is a
+ * failure nothing established was the site's: a resolver failure on a
+ * redirect hop, the proxy's own traffic bound, a socket error the scanner's
+ * own host raised, and the browser closing all stay cause-less.
  */
 export function classifyNavigationFailure(
   error: unknown,
   blockedTargets: readonly BlockedProxyTarget[],
   navigationEndpoints: ReadonlySet<string>,
   context: NavigationFailureContext = {}
-): "page-load-timeout" | "private-target" | "page-load-failed" | "load-failed" {
+): "page-load-timeout" | "private-target" | "page-is-download" | "page-load-failed" | "load-failed" {
   if (isTimeoutError(error)) return "page-load-timeout";
   const navigationBlocks = blockedTargets.filter((blocked) => {
     const endpoint = proxyEndpointKey(blocked.target);
     return endpoint !== null && navigationEndpoints.has(endpoint);
   });
   if (navigationBlocks.some((blocked) => blocked.reason === "non-public-address")) return "private-target";
+  if (isDownloadNavigationError(error)) return "page-is-download";
 
   const code = chromiumNetErrorCode(error);
   if (
@@ -5085,6 +5176,16 @@ export function classifyNavigationFailure(
 function chromiumNetErrorCode(error: unknown): string | null {
   const message = error instanceof Error ? error.message : String(error);
   return message.match(/net::(ERR_[A-Z0-9_]+)/)?.[1] ?? null;
+}
+
+/**
+ * Playwright's rejection of a navigation that became a download. Its words
+ * are Playwright's, so a scanner test serves a real attachment and a real
+ * PDF to pin them to the installed version.
+ */
+function isDownloadNavigationError(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error);
+  return /\bDownload is starting\b/.test(message);
 }
 
 function isMainFrameNavigationRequest(request: Request, page: Page): boolean {
@@ -5122,6 +5223,7 @@ export function proxyEndpointKey(url: string): string | null {
 // code if present, otherwise a generic label. Never the raw message, which
 // embeds the full target URL (query string and all).
 function navigationFailureReason(error: unknown): string {
+  if (isDownloadNavigationError(error)) return "download";
   const message = error instanceof Error ? error.message : String(error);
   return message.match(/net::[A-Z0-9_]+/)?.[0] ?? "navigation failed";
 }

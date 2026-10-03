@@ -12,6 +12,7 @@ import {
   PUBLIC_SCAN_PROXY_DNS_LOOKUP_TIMEOUT_MS,
   PUBLIC_SCAN_PROXY_RESPONSE_BYTE_BUDGET_NAME,
   isValidPublicScanProxyUpstreamStatusLine,
+  LOCAL_UPSTREAM_ERROR_CODES,
   startPublicScanProxy
 } from "./public-scan-proxy";
 
@@ -507,6 +508,63 @@ test("ordinary upstream connection failures remain distinct and do not increment
     { target: `http://public.test:${unavailablePort}/`, reason: "upstream-failed" }
   ]);
   assert.equal(proxy.getDiagnostics().invalidUpstreamResponseCount, 0);
+});
+
+test("an upstream socket error the scanner's own host raised is recorded apart from the site's upstream failure", async (t) => {
+  // "upstream-failed" is read as the site's answer, so an errno that only the
+  // scanner's own host raises (out of descriptors, buffers or local
+  // addresses, or a local permission refusal) must not be recorded as it.
+  // Routing errors and the remote side's refusals, resets and timeouts stay
+  // "upstream-failed": a dead host or a router on the path produces them.
+  const accepted = new Set<net.Socket>();
+  const silent = net.createServer((socket) => {
+    accepted.add(socket);
+    socket.on("error", () => {});
+    socket.once("close", () => accepted.delete(socket));
+  });
+  await listen(silent);
+  const silentPort = portOf(silent);
+  let nextCode = "";
+  const proxy = await startPublicScanProxy({
+    resolveHost: async () => [{ address: "1.1.1.1", family: 4 }],
+    connectUpstreamForTests: () => {
+      const code = nextCode;
+      const socket = net.connect({ host: "127.0.0.1", port: silentPort });
+      socket.once("connect", () => {
+        setTimeout(() => socket.destroy(Object.assign(new Error(`read ${code}`), { code })), 20);
+      });
+      return socket;
+    }
+  });
+  t.after(async () => {
+    await proxy.close();
+    for (const socket of accepted) socket.destroy();
+    await closeServer(silent);
+  });
+
+  const cases: Array<[string, string]> = [
+    ...[...LOCAL_UPSTREAM_ERROR_CODES].map((code): [string, string] => [code, "local-upstream-failure"]),
+    ...["ECONNREFUSED", "ECONNRESET", "ETIMEDOUT", "EPIPE", "ENETUNREACH", "EHOSTUNREACH"].map(
+      (code): [string, string] => [code, "upstream-failed"]
+    )
+  ];
+  assert.deepEqual(
+    [...LOCAL_UPSTREAM_ERROR_CODES].sort(),
+    ["EACCES", "EADDRINUSE", "EADDRNOTAVAIL", "EMFILE", "ENFILE", "ENOBUFS", "ENOMEM", "EPERM"]
+  );
+  for (const [code] of cases) {
+    nextCode = code;
+    const host = `${code.toLowerCase()}.test`;
+    await settleWithin(rawProxyConnect(proxy.server, `${host}:443`).catch(() => Buffer.alloc(0)), 2_000);
+    await settleWithin(rawProxyGet(proxy.server, `http://${host}/`).catch(() => Buffer.alloc(0)), 2_000);
+  }
+  assert.deepEqual(
+    proxy.blockedTargets,
+    cases.flatMap(([code, reason]) => [
+      { target: `https://${code.toLowerCase()}.test/`, reason },
+      { target: `http://${code.toLowerCase()}.test/`, reason }
+    ])
+  );
 });
 
 test("public scan proxy close destroys an outstanding upstream socket", { timeout: 2_000 }, async () => {
