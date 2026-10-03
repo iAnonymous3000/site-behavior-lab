@@ -83,8 +83,10 @@ pool + 100 pilot.
   derived in part from the whole development-exclusion list (183 domains),
   sha256 `1c22b3d71c5da0d14da7fbc2257e3387bbd8c548b2904304594fc0a61cf89ee7`
 
-From a checkout of the collection SHA, with the two pinned sources and their
-manifests, this reproduces all three files byte for byte:
+The universe was built from the tree at 505c3019, the commit that
+introduced the corrected derivation. From a checkout of that commit, with
+the two pinned sources and their manifests, this reproduces all three files
+byte for byte:
 
 ```bash
 node scripts/calibration-candidate-universe-build.mjs cname-uncloaking-2026-10 \
@@ -94,18 +96,17 @@ node scripts/calibration-candidate-universe-build.mjs cname-uncloaking-2026-10 \
   --pilot 100 cname-uncloaking-2026-10-pilot.json
 ```
 
-**The collection SHA.** The collection SHA of the restarted sweep is the
+The exclusion set is a function of the whole tree, so a later checkout
+reproduces these files only while its derivation still yields the
+exclusion-list digest above, which the build's provenance output names. A
+later tree that records more development visits derives another list and
+another seed; that never redraws this study, which is fixed by the
+committed digests.
+
+**The landing commit and the collection SHA.** The landing commit is the
 commit on main that lands this section. It carries the fail-closed driver
-and the corrected exclusion derivation by ancestry, and the universe above
-reproduces from it. Every restarted round runs from an isolated worktree
-checked out at exactly that commit, with `SITE_BEHAVIOR_LAB_BUILD_COMMIT`
-set to its full sha. The driver compares that value with every report's
-`run.provenance.buildCommit`, and refuses to start unless its own checkout's
-HEAD is that commit with no tracked change. Nothing can read back what the
-server was built from (its `buildCommit` is only the same environment
-variable), so the server is built fresh with `npm run build` from that same
-clean checkout before the first round, never reused from another tree. A
-document cannot name its own commit, so read it from main:
+and the corrected exclusion derivation by ancestry. A document cannot name
+its own commit, so read it from main:
 
 ```bash
 git fetch origin
@@ -113,10 +114,30 @@ git log origin/main --reverse --format=%H \
   -S'## Restart (2026-10-02)' -- docs/reliability-sweep-cluster-design.md | head -n 1
 ```
 
+The collection SHA is the landing commit until a dated addition to this
+section names another commit; from then on the latest such addition names
+it, and the command above still prints the landing commit, not the
+collection SHA. Every restarted round runs from an isolated worktree
+checked out at exactly the collection SHA, with
+`SITE_BEHAVIOR_LAB_BUILD_COMMIT` set to its full sha. The driver compares
+that value with every report's `run.provenance.buildCommit`, and refuses to
+start unless its own checkout's HEAD is that commit with no tracked change.
+Nothing can read back what the server was built from (its `buildCommit` is
+only the same environment variable), so the server is built fresh with
+`npm run build` from that same clean checkout before the first round, never
+reused from another tree.
+
 If collection code must change after this section lands and before
 restarted round 1 begins, the designation moves only by a dated addition to
-this section naming the new commit. Once round 1 has begun nothing moves
-it: a different collection build is a new sweep, starting again at round 1.
+this section naming the new commit. Round 1 has begun only when a complete
+round-1 artifact exists: one that `collect` wrote through all 2,255 pool
+cases on the collection SHA and that ended without a stop. An attempt the
+driver stopped, or that was interrupted, is not a round and does not begin
+one; the designation may still move after it, and the dated addition that
+moves it lists every stopped attempt with its start time, the case it
+stopped at, and the reason the driver printed. Once round 1 has begun
+nothing moves the designation: a different collection build is a new
+sweep, starting again at round 1.
 
 **Rounds, runner, condition.** Rounds 1 to 5 run again under every rule in
 this document (5 scheduled, at least 4 usable, rounds 1 and 2 the
@@ -175,6 +196,72 @@ receipt's rounds-1/2 eligible count. An empty band, or a resolved pilot
 outside it, stops the study, and the remedy is a larger universe and fresh
 sweep rounds over the enlarged set; never a relaxed exclusion, a reused
 pilot site, or a narrowed population.
+
+**Open owner decisions, blocking restarted round 1.** Recorded 2026-10-02
+by the review of the restart; each is decided by a dated addition to this
+section before restarted round 1 starts, and this text decides none of
+them.
+
+1. **Stop classes a target may cause.** The fail-closed driver stops the
+   round on each answer below, where the August driver filed an
+   all-ineligible row. Each is a stop because the server declared no cause,
+   so nothing in the answer separates a scanner-side failure from a
+   property of the site. Some can repeat at the same case on every attempt,
+   and once round 1 has begun a repeat has no remedy under this section: a
+   scanner fix is a different collection build, so a new sweep, and
+   dropping the case changes the candidate digest, so a new study.
+   - Cause-less 503 "Public host verification timed out"
+     (`PublicUrlDnsTimeoutError` in lib/url-safety.ts,
+     `ScanTargetVerificationTimeoutError` in lib/scan-gate.ts): resolution
+     took more than 5 seconds, which a target's slow or broken
+     authoritative DNS causes as well as a slow local resolver.
+   - Cause-less 503 "Public host verification could not complete"
+     (`PublicUrlDnsUnavailableError`): every getaddrinfo code except
+     `ENOTFOUND` and `ENODATA`, such as `EAI_AGAIN` after a SERVFAIL, which
+     a target's broken DNS can return every time. The split is asymmetric:
+     `ENOTFOUND` is filed as `target-unreachable`, a row recorded only
+     behind the egress probe, while `EAI_AGAIN` and timeouts stop.
+   - Cause-less 400 for a host that resolved to more than 64 addresses, a
+     property of the target's DNS.
+   - Cause-less 400 for a public-suffix or private-suffix-tenant subject,
+     fixed by the URL. The gate's own checks, run offline
+     (`ScanGate.prepare` with DNS, access and rate limits stubbed) over the
+     2,255 pool URLs, refuse none, so no pool case is known to stop here.
+   - Cause-less 500, including "Refusing to persist an unreadable managed
+     report (redaction-not-idempotent)", which page content triggers. The
+     August server log on bd68cf4 holds 142 of these across 2,262 cases,
+     about 6%. Its rate at the collection SHA is unknown: later commits
+     changed the redaction path, but nothing has measured the rate since.
+     At an August-like rate a complete round is practically unreachable,
+     with about 140 stops expected in each 2,255-case attempt.
+
+   The decision is per class: a stop, as now; a target outcome recorded as
+   the all-ineligible row; or a separately counted declared outcome, which
+   changes the pass-artifact format.
+2. **A stop that repeats at the same case after round 1 has begun.** Either
+   a preregistered bounded rule (for example: re-run the round after a
+   delay, and if the same case stops again with the same answer, record a
+   declared, separately counted outcome) or an explicit statement that the
+   sweep then restarts, accepted knowingly.
+3. **The development-exclusion definition.** The derivation reads report
+   subjects only (`reportSubjectValues` in
+   scripts/calibration-development-exclusions-lib.mjs), as preregistered.
+   Eight more frame domains appear in the repository, none in the 2026-10
+   pilot and all in the 2,255 pool:
+   - named only in code or prose: philly.com, cbslocal.com, inquirer.com,
+     cbsnews.com;
+   - recorded by the scanner as third-party request or iframe hosts in
+     other subjects' published reports: outbrain.com (58 reports),
+     bbc.co.uk (13, every one with subject bbc.com), foxbusiness.com (12,
+     every one with subject foxnews.com), and ap.org (1,
+     public/reports/20260817-14a52cff14d570ff6c87d9fcd1a70f5d.json, subject
+     apnews.com).
+
+   The ruling keeps the subject-only definition or widens it. A widening
+   changes the exclusion list and so the seed, the pilot, and the pool:
+   the universe, pilot set, and provenance are then rebuilt and committed
+   by addition before any round runs, never by rewriting the committed
+   2026-10 files.
 
 ## Why two passes were not enough
 
@@ -263,7 +350,9 @@ Every other answer stops the round too: a transport failure to the local
 server; a scanner-side refusal (our access gate, our own rate limit, an r2
 producer that is misconfigured or cannot persist, an internal error, a
 busy, asynchronous or durable deployment, any other declared cause, an
-unknown cause, or a cause-less refusal); a malformed body; and any report
+unknown cause, or a cause-less refusal, which includes the resolver's
+timeouts and failures, the address fan-out and public-suffix refusals, and
+every cause-less 500); a malformed body; and any report
 that is not a ScanReport v2 r2 single report whose
 `run.provenance.buildCommit` equals `SITE_BEHAVIOR_LAB_BUILD_COMMIT` under
 the declared condition, or that carries no per-family quality ledger. Every
@@ -274,7 +363,10 @@ full, never resumed, and receipt assembly refuses it. Filing a scanner
 refusal as the site's row would drop the site from the eligible pool for a
 reason the site never caused. A refusal that repeats on every re-run at the
 same case (for example `invalid-url`) is a candidate-set or scanner defect
-to adjudicate, not a site outcome to record. The split lives in
+to adjudicate, not a site outcome to record; the cause-less classes a
+target itself may cause, and what happens when one repeats after round 1
+has begun, are open owner decisions recorded in "Restart (2026-10-02)"
+above. The split lives in
 `scripts/calibration-reliability-sweep-response-lib.mjs`, pinned by test to
 the `ScanFailureCause` union and to the single producer of the cause-less
 502; the instrument checks live in
