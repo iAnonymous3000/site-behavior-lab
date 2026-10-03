@@ -100,6 +100,14 @@ export function featuredTransientRetryLimit(raw, fallback = 1, maximum = 2) {
  * allowed only for explicit capacity/transport failures, scan deadlines, HTTP
  * 429, or HTTP 5xx. Bot/challenge pages, sparse/capped observations, permanent
  * HTTP errors, and validation/publishing failures are never retried.
+ *
+ * The scanner's unattributed navigation failure is a transport failure here:
+ * it is the sentence for a load the scanner could not attribute to the site
+ * (its own proxy's resolver failure or traffic bound, its own route abort, an
+ * errno its own host raised, Chromium's generic error), which tells a human
+ * to try again shortly, so the retry agrees with the advice. The failure the
+ * scanner attributes to the site ("down, unreachable, or blocking automated
+ * visits") and a page answered with a file to download are never retried.
  */
 export function featuredScanRetryReason(diagnostic) {
   if (typeof diagnostic !== "string") return null;
@@ -126,6 +134,9 @@ export function featuredScanRetryReason(diagnostic) {
   }
   if (/scan job status remained temporarily unavailable/i.test(message)) {
     return "scan status transport";
+  }
+  if (/could not tell whether the site or its own network path failed/i.test(message)) {
+    return "unattributed navigation failure";
   }
   if (/\bfetch failed\b|\bECONN(?:RESET|REFUSED|ABORTED)\b|\bEAI_AGAIN\b|\bUND_ERR_[A-Z_]+\b|\b(?:net::)?ERR_HTTP2_PROTOCOL_ERROR\b|socket hang up/i.test(message)) {
     return "transport failure";

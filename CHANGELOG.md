@@ -41,15 +41,41 @@ public API or a 1.0 release.
   Both sentences keep the phrase the featured-scan retry recognizes.
 - A failed page load the scanner can attribute to the site now declares
   `page-load-failed` (502) with its own notice: Chromium named a network
-  error from the site's side (TLS, HTTP, a refused or dropped connection),
-  and the scan proxy recorded no failure of its own on the target or a
-  redirect hop. Every other navigation failure (the proxy's resolver failure
-  or traffic bound on the navigation, the scanner's own route abort, a
-  browser that closed) stays a cause-less 502, and its sentence no longer
-  blames the site. The scan proxy records the resolver's authoritative
-  no-such-name (`ENOTFOUND`, `ENODATA`, or an empty answer) as
-  `name-not-found`, apart from other resolution failures, the reading the
-  scan target check already gave it.
+  error from the site's side (TLS, HTTP, a refused, reset or timed-out
+  connection), and the scan proxy recorded only refusals it reads as the
+  site's answer on the target or a redirect hop. A refused, reset or
+  timed-out upstream connection is read that way although the network
+  between, or an outage of the scanner's own egress, produces the same.
+  Every other navigation failure stays a cause-less 502, and its sentence
+  no longer blames the site: the proxy's resolver failure, traffic bound or
+  a socket error the scanner's own host raised (`EMFILE`, `ENOBUFS`,
+  `EADDRNOTAVAIL` and the like, now recorded apart from the site's upstream
+  failure) on the navigation, any proxy budget refusal during the visit, a
+  full proxy block record, Chromium's generic or machine-side network
+  errors (`ERR_FAILED`, `ERR_NETWORK_CHANGED`, `ERR_NAME_NOT_RESOLVED` and
+  the like), the scanner's own route abort, a browser that closed. The scan
+  proxy records the resolver's authoritative no-such-name (`ENOTFOUND`,
+  `ENODATA`, or an empty answer) as `name-not-found`, apart from other
+  resolution failures, the reading the scan target check already gave it.
+  The featured-corpus refresh's failure taxonomy, which reads the sentence,
+  now counts the cause-less navigation failure against the scanner (an
+  unrecognized failure) instead of excusing it as a site that refused an
+  automated visit, and retries it once as transient, since its sentence
+  advises trying again shortly. Only the failure attributed to the site
+  still leaves the scanner's success-rate denominator.
+- A page address the site answers with a file to download (an attachment,
+  or a PDF, which headless Chromium does not render) now declares
+  `page-is-download` (422) with its own notice and no retry advice. It was a
+  cause-less 502 that told the visitor to try again shortly, which cannot
+  help. The featured refresh counts it against the scanner and never
+  retries it.
+- When the page route's own re-check of the navigation's host, made
+  seconds after the scan gate's, refuses it as private, unresolvable, past
+  its lookup deadline, or with too many addresses, the scan now ends with
+  the gate's own declared refusal (`private-target`, `target-unreachable`,
+  `host-lookup-timeout` or `address-fanout-target`) instead of the cause-less
+  navigation failure the scanner's own aborts give. A resolver failure on
+  that re-check stays cause-less.
 - A scan whose privacy-policy link read threw before any policy visit, for a
   reason other than the scan budget, no longer fails to publish on r2. The
   scanner records that as a failed policy detector with no policy phase, which

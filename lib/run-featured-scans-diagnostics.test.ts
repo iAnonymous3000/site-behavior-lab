@@ -154,6 +154,23 @@ test("featured transient retries stay bounded and classify only explicit transie
     null,
     "an ambiguous load failure may be an automation block and must not be retried"
   );
+  // The scanner's own unattributed navigation failure tells a human to try
+  // again shortly, so the retry agrees with that advice; a page the site
+  // answers with a file gives the same answer every time and is never retried.
+  // Both sentences are pinned verbatim to lib/scanner.ts by
+  // scripts/run-featured-scans-taxonomy.test.mjs.
+  assert.equal(
+    featuredScanRetryReason(
+      "The page could not be loaded, and the scanner could not tell whether the site or its own network path failed. Try again shortly."
+    ),
+    "unattributed navigation failure"
+  );
+  assert.equal(
+    featuredScanRetryReason(
+      "The site answered this address with a file to download, such as a PDF, instead of a web page, so there was no page to scan. Scan the web page that links to the file instead."
+    ),
+    null
+  );
 });
 
 test("featured catalog unavailability is versioned, evidenced, and review-bounded", async () => {

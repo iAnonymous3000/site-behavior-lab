@@ -116,14 +116,54 @@ test("every sentence the producer can emit lands where its cause belongs", () =>
  * denominator. Mentioning a refusal's status code is therefore not enough: the
  * scanner's own status route answers 429 too, and its private-address guard
  * also says the page "could not be loaded". Each sentence is pinned verbatim to
- * its producer, the scanner's by reading lib/scanner.ts and the status route's
- * by running the real poller, so a reword fails here instead of moving the gate.
+ * its producer, the scanner's by reading its source file and the status
+ * route's by running the real poller, so a reword fails here instead of
+ * moving the gate.
+ *
+ * The adopted rule for the scanner's navigation failures (2026-10-03): only
+ * the failure the scanner attributes to the site is a refusal. The
+ * unattributed one ("could not tell whether the site or its own network path
+ * failed": the scanner's own resolver, traffic bound, route abort or host
+ * errno among its causes) is counted against the scanner, as every failure
+ * not established as the site's is, and is retried once as transient
+ * (featuredScanRetryReason). A page answered with a file to download, a
+ * subject no report can name, and the gate's subject refusals the page route
+ * also raises are not refusals either. Before the scanner split the sentence,
+ * every one of its navigation failures read as a refusal here.
  */
 const PRE_REPORT_OUTCOMES = [
-  ["The page could not be loaded. The site may be down, unreachable, or blocking automated visits.", "target-refused"],
-  ["The page could not be loaded because it resolved to a local or private network address.", "unclassified"],
-  ["The page did not load before the scan timeout.", "scanner-timeout"],
-  ["The scan exceeded the maximum scan duration.", "scanner-timeout"]
+  ["The page could not be loaded. The site may be down, unreachable, or blocking automated visits.", "target-refused", "lib/scanner.ts"],
+  [
+    "The page could not be loaded, and the scanner could not tell whether the site or its own network path failed. Try again shortly.",
+    "unclassified",
+    "lib/scanner.ts"
+  ],
+  [
+    "The site answered this address with a file to download, such as a PDF, instead of a web page, so there was no page to scan. Scan the web page that links to the file instead.",
+    "unclassified",
+    "lib/scanner.ts"
+  ],
+  ["The page could not be loaded because it resolved to a local or private network address.", "unclassified", "lib/scanner.ts"],
+  ["The page did not load before the scan timeout.", "scanner-timeout", "lib/scanner.ts"],
+  ["The scan exceeded the maximum scan duration.", "scanner-timeout", "lib/scanner.ts"],
+  [
+    "The scan exceeded the maximum scan duration before the page had its full navigation window: the scanner's own browser setup took the time. Try again shortly.",
+    "scanner-timeout",
+    "lib/scanner.ts"
+  ],
+  [
+    "The page did not load inside a navigation window the scanner's own slow setup had cut short, so the scan exceeded the maximum scan duration without a fair attempt. Try again shortly.",
+    "scanner-timeout",
+    "lib/scanner.ts"
+  ],
+  [
+    "The page was visited, but the address requested or the one the visit ended on has no site name a report can carry (a bare network address, a registry boundary such as github.io, or a hosting name shaped like an address, timestamp or token), so no report was made.",
+    "unclassified",
+    "lib/scan-report-v2-runtime-builder.ts"
+  ],
+  ["Local and private network targets are blocked.", "unclassified", "lib/url-safety.ts"],
+  ["The host could not be resolved to a public address.", "unclassified", "lib/url-safety.ts"],
+  ["Public host verification timed out. Try again shortly.", "unclassified", "lib/url-safety.ts"]
 ];
 
 async function statusRouteFailure(status) {
@@ -146,10 +186,22 @@ const kindsOf = (message) => [
 ];
 
 test("a pre-report sentence is a refusal only when it is the target's own answer", async () => {
-  const scanner = readFileSync(new URL("../lib/scanner.ts", import.meta.url), "utf8");
-  for (const [sentence, expected] of PRE_REPORT_OUTCOMES) {
-    assert.ok(scanner.includes(`"${sentence}"`), `lib/scanner.ts no longer emits "${sentence}"`);
+  for (const [sentence, expected, source] of PRE_REPORT_OUTCOMES) {
+    const producer = readFileSync(new URL(`../${source}`, import.meta.url), "utf8");
+    assert.ok(producer.includes(`"${sentence}"`), `${source} no longer emits "${sentence}"`);
     assert.deepEqual(kindsOf(sentence), [expected], sentence);
+  }
+  // A new failure sentence the scanner names as a constant must be pinned
+  // here with its kind before it can move the gate unnoticed, as splitting
+  // the navigation failure's sentence once did.
+  const scanner = readFileSync(new URL("../lib/scanner.ts", import.meta.url), "utf8");
+  const named = [...scanner.matchAll(/export const [A-Z_]+_MESSAGE =\s*"([^"]+)";/g)].map((match) => match[1]);
+  assert.ok(named.length >= 5, `found only ${named.length} named scanner messages`);
+  for (const sentence of named) {
+    assert.ok(
+      PRE_REPORT_OUTCOMES.some(([pinned]) => pinned === sentence),
+      `lib/scanner.ts names "${sentence}" without a pinned featured kind`
+    );
   }
 
   for (const status of [429, 503]) {
