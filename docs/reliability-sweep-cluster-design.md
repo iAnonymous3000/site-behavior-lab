@@ -434,6 +434,40 @@ The locator command above still prints the landing commit, which predates
 the instrument checks and these rulings; it is not the collection SHA. No
 stopped attempt of restarted round 1 is recorded as of this addition.
 
+**Collection SHA (2026-10-03).** A review of the rulings' implementation,
+made before restarted round 1 began, moved the collection SHA to
+`44963e4393b4fea345d66b79e1396ad2f21444e4`, the commit "Declare a scan
+budget spent in the scanner's own setup as a service error". It supersedes
+15158e58, on which no attempt of restarted round 1 ran. Between the two,
+the review changed how four answer classes are handled, each now as the
+table above states: the scanner declares `page-load-failed` only for a
+navigation failure it attributes to the site, and the cause-less 502 now
+stops the round (R2 admits a server error as a site row only with a
+declared cause); a redirect to an address no report can name declares
+`unnameable-subject-target`, a site row, where it was a cause-less 500 or
+a lost row (R2's subject refusals); the unstable-redaction loss is
+declared only for a report's own fixed-point failure, and the same reader
+reason produced by the build stops the round (R1); and a scan budget spent
+in the scanner's own setup, or a navigation window its setup cut short,
+declares `service-error` and stops the round instead of being a
+`page-load-timeout` site row (R2). The durable path declares the same
+persistence refusals, and the per-family censor counts and bounds count a
+lost row as censored in every family. Every restarted round runs from an
+isolated worktree checked out at exactly this commit, with
+`SITE_BEHAVIOR_LAB_BUILD_COMMIT` set to it and the server built fresh from
+that clean checkout, as above. No stopped attempt of restarted round 1 is
+recorded as of this addition.
+
+The pass artifact stays version 4. The review changed the values its
+closed `answer` field admits (`navigation-failure` became
+`page-load-failed`, and `unnameable-subject-target` joined the site
+answers), not its fields, and no version 4 round exists, so no artifact
+holds the retired value; every validator reads `SWEEP_ROW_ANSWERS`, so a
+row with any other answer is refused wherever it is read. The assembly and
+identity rules are unchanged. The loss-bound artifact is version 2,
+because its per-family censor bounds now count a lost row as censored; no
+bound has been computed over a version 4 round.
+
 ## Why two passes were not enough
 
 The adopted censoring decision sizes per-detector policies from a defensible
@@ -558,6 +592,13 @@ Two residuals remain recorded as site outcomes, because nothing outside
 the scanner can see them: an outage that begins and ends strictly inside
 one scan (the probes on either side both answer), and an awake instrument
 too slow to finish a healthy page inside the scanner's 45-second budget.
+Separating either needs the scanner to declare a scanner-side cause. Since
+the 2026-10-03 review it does so for the part of the second it can see: a
+budget spent in its own setup, before the page is requested, or a
+navigation window its setup cut below the 30-second navigation timeout,
+declares `service-error` and stops the round ("Owner rulings", R2, above).
+A slow collection after a full navigation window, and an outage inside one
+scan, still read as the site's.
 
 A third residual follows from the 2026-10-03 ruling that a lookup timeout
 is a site row, and the egress probe as built does not separate it. The
@@ -568,12 +609,22 @@ answer together, while the gate refuses a target lookup after 5 seconds. A
 resolver that degrades on the instrument's side, slow but not dead, can
 therefore turn every uncached target lookup into a `host-lookup-timeout`
 site row while the probe after each answer still passes, and the round
-completes. Before the ruling the same answers stopped the round. It is
-recorded here, not mitigated: the rulings authorize no rule against it, and
-a mitigation that needs code is a new collection build, named by a further
-dated addition before round 1 begins.
-Separating either needs the scanner to declare a scanner-side cause, which
-it does not today.
+completes. Before the ruling the same answers stopped the round. One
+mechanism inside the server is bounded by configuration rather than code:
+`dns.lookup` runs on libuv's thread pool, four threads by default, the scan
+proxy resolves every host a page reaches on that pool and cannot cancel a
+lookup, and the gate's 5-second target lookup counts time spent queued
+behind them, so lookups left over from one case can push the next case's
+lookup past its deadline (docs/critical-use-audit-2026-09-01.md records the
+mechanism; it was not reproduced). The production image sets
+`UV_THREADPOOL_SIZE=16` for it (Dockerfile). The operator's sweep script,
+stage-and-collect-2026-10.sh, kept outside the repository, starts the sweep
+server with the same `UV_THREADPOOL_SIZE=16` and records it in the server
+environment every later round must match, so it is fixed before round 1.
+That narrows the queueing; it does not remove a slow upstream resolver.
+The rest is recorded here, not mitigated: the rulings authorize no rule
+against it, and a mitigation that needs code is a new collection build,
+named by a further dated addition before round 1 begins.
 
 ## Prevalence and sizing
 
