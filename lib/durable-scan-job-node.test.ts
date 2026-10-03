@@ -14,7 +14,8 @@ import {
   DURABLE_SCAN_JOB_REPORT_MIN_SURVIVAL_MS,
   REPORT_MAX_AGE_DAYS_ENV,
   REPORT_MIN_SURVIVAL_MS_ENV,
-  prepareScanReportBundle
+  prepareScanReportBundle,
+  UnreadableManagedReportError
 } from "./report-store";
 import {
   activateDurableScanJob,
@@ -29,7 +30,7 @@ import {
   waitForScanJobForTests
 } from "./scan-jobs";
 import { resetScanLimitStateForTests, scanLimitStateForTests } from "./scan-limits";
-import type { PreparedScanRequest, ScanRunner } from "./scan-api";
+import { REPORT_REDACTION_UNSTABLE_MESSAGE, type PreparedScanRequest, type ScanRunner } from "./scan-api";
 import { makePublicSingleReportV2R2 } from "./scan-report-v2-r2-fixtures";
 import { scanMeasurementEnvelopeWithR2Run } from "./scan-report-v2-runtime-fixtures";
 import { BUILD_COMMIT_ENV, PUBLIC_R2_REPORTS_ENV, type RuntimeScanReport } from "./runtime-scan-report";
@@ -463,6 +464,35 @@ test("a definitive heartbeat conflict aborts stale execution without resolving i
   assert.equal(getScanJobStatus(JOB_ID)?.status, "cancelled");
   assert.deepEqual(durableScanJobFenceForTests(JOB_ID)?.owner, owner(1, LEASE_ONE));
   assert.equal(resolveCalls, 0);
+});
+
+test("a durable job's bundle the managed reader refuses for its own content fails with the declared refusal", async () => {
+  // The durable path prepares its bundle in beforeSave, not in the saver, so
+  // the persistence refusal must be declared there too. Job records carry
+  // the public message only, never a cause.
+  const preparation = await durablePreparation();
+  const events: string[] = [];
+  await activateDurableScanJob(activation(preparation, 1, LEASE_ONE), {
+    coordinator: recordingCoordinator(events),
+    scan: async () => r2ScanResult(),
+    publication: {
+      ...inMemoryPublication(),
+      prepare: () => {
+        throw new UnreadableManagedReportError("redaction-not-idempotent", "digest-mismatch");
+      }
+    }
+  });
+  const originalConsoleError = console.error;
+  console.error = () => undefined;
+  try {
+    await waitForScanJobForTests(JOB_ID);
+  } finally {
+    console.error = originalConsoleError;
+  }
+  const status = getScanJobStatus(JOB_ID);
+  assert.equal(status?.status, "failed");
+  assert.equal(status?.error, REPORT_REDACTION_UNSTABLE_MESSAGE);
+  assert.deepEqual(events, ["heartbeat:1", "resolve:failed:1"]);
 });
 
 test("a missing post-commit reconciliation detaches without inventing a terminal result", async () => {

@@ -23,7 +23,10 @@ public API or a 1.0 release.
   refusal produced by the build on every report alike (a normalization
   identity or redaction version the reader cannot read, an exception in the
   sanitizer), every other persistence refusal, and a resolver failure such
-  as `EAI_AGAIN` still have no declared cause. A page built before this change renders the server's own
+  as `EAI_AGAIN` still have no declared cause. The synchronous scan route
+  carries the cause; a scan job, durable or in-process, records only a
+  message, so its failed status carries the declared refusal's sentence and
+  no cause. A page built before this change renders the server's own
   sentence for the new causes, as for any unknown cause.
 - A visit whose requested address, or the address its redirects ended on,
   has no name an r2 report can carry now declares `unnameable-subject-target`

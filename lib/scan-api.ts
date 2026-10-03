@@ -371,10 +371,13 @@ async function saveScanReportRequired<T extends RuntimeScanReport>(
   control: ScanExecutionControl
 ): Promise<T> {
   throwIfCancelled(control.signal);
-  await control.beforeSave?.(report);
-  throwIfCancelled(control.signal);
   let saved: T;
   try {
+    // The durable path prepares its bundle, and so runs the managed reader,
+    // inside beforeSave rather than in the saver, so the declared refusals
+    // cover both.
+    await control.beforeSave?.(report);
+    throwIfCancelled(control.signal);
     saved = await saveReport(report);
   } catch (error) {
     throw declaredPersistenceRefusal(error);
