@@ -65,17 +65,18 @@ public API or a 1.0 release.
   still leaves the scanner's success-rate denominator.
 - A page address the site answers with a file to download (an attachment,
   or a PDF, which headless Chromium does not render) now declares
-  `page-is-download` (422) with its own notice and no retry advice. It was a
-  cause-less 502 that told the visitor to try again shortly, which cannot
-  help. The featured refresh counts it against the scanner and never
-  retries it.
+  `page-is-download` (422) with its own notice and no retry advice. It was
+  the cause-less 502 that said the site may be down, unreachable, or
+  blocking automated visits, although the site had answered. The featured
+  refresh counts it against the scanner and never retries it.
 - When the page route's own re-check of the navigation's host, made
   seconds after the scan gate's, refuses it as private, unresolvable, past
   its lookup deadline, or with too many addresses, the scan now ends with
   the gate's own declared refusal (`private-target`, `target-unreachable`,
   `host-lookup-timeout` or `address-fanout-target`) instead of the cause-less
-  navigation failure the scanner's own aborts give. A resolver failure on
-  that re-check stays cause-less.
+  502 that said the site may be down, unreachable, or blocking automated
+  visits. A resolver failure on that re-check stays a cause-less 502, with
+  the sentence that blames neither side.
 - A scan whose privacy-policy link read threw before any policy visit, for a
   reason other than the scan budget, no longer fails to publish on r2. The
   scanner records that as a failed policy detector with no policy phase, which
