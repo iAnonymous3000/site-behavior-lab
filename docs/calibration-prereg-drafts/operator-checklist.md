@@ -74,7 +74,11 @@ owners and the current gaps attached.
 
 The freeze window opens no earlier than 2026-08-10, and the drafts carry
 declaredAt 2026-08-19T00:00:00.000Z, matching the operations doc's own
-example date and the deferral re-adjudication window. The chain that must
+example date and the deferral re-adjudication window. The one exception is
+plan-cname-uncloaking.draft.json, which carries 2026-10-02T00:00:00.000Z:
+the 2026-10-02 restart of the step-5 sweep made it the new study
+cname-uncloaking-2026-10, which did not exist on 2026-08-19
+(docs/reliability-sweep-cluster-design.md, "Restart (2026-10-02)"). The chain that must
 complete before that date: frame tooling, runner, keygen, and labeler
 commitments. The two long poles are the runner and the labelers;
 both are OPERATOR items with lead time, which is why they are listed first.

@@ -387,6 +387,14 @@ test("the runbook, the sweep design, the draft plan and the usage examples bind 
   const plan = JSON.parse(read("docs/calibration-prereg-drafts/plan-cname-uncloaking.draft.json"));
   assert.equal(plan.studyId, provenance.studyId);
   assert.equal(plan.labelSealingKey.publicKeyPath, `calibration/${provenance.studyId}/label-sealing-public-key.pem`);
+  // The plan's declaredAt flows into the study's preregistration: it cannot
+  // predate the restart that created the study.
+  const restartDate = /^## Restart \((\d{4}-\d{2}-\d{2})\)/m.exec(design)?.[1];
+  assert.ok(restartDate, "the restart heading carries its date");
+  assert.ok(
+    Date.parse(plan.declaredAt) >= Date.parse(`${restartDate}T00:00:00.000Z`),
+    `the draft plan declares ${provenance.studyId} at ${plan.declaredAt}, before the ${restartDate} restart that created it`
+  );
 
   for (const script of ["scripts/calibration-cname-reference.mjs", "scripts/calibration-v4-pilot-carrier-check.mjs"]) {
     const named = studyTokens(read(script));

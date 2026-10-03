@@ -111,11 +111,11 @@ for (const { caseId, url } of cases) {
   // and would otherwise be recorded as a determined ABSENT with no candidates
   // and no DNS: the most consequential label, from evidence of nothing. It is
   // recorded as NOT determined and the run continues. Refusing the whole run
-  // was worse than the defect: subjects in this study's own pilot set now
-  // answer on other registrable domains (philly.com serves www.inquirer.com,
-  // cbslocal.com serves www.cbsnews.com), so a refusal produced no worksheet
+  // was worse than the defect: subjects in the superseded August pilot set
+  // answered on other registrable domains (philly.com served www.inquirer.com,
+  // cbslocal.com served www.cbsnews.com), so a refusal produced no worksheet
   // at all for a hundred cases because of a handful, and no partial worksheet
-  // can be sealed.
+  // can be sealed. Any pilot set can hold such subjects.
   const subjectLoaded = harCoversSubject(har, url, publicSuffixes);
   if (!subjectLoaded) uncovered.push(caseId);
   // Candidates are examined either way: whatever the capture DID contact is
