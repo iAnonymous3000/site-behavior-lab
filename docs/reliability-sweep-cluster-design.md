@@ -125,7 +125,8 @@ start unless its own checkout's HEAD is that commit with no tracked change.
 Nothing can read back what the server was built from (its `buildCommit` is
 only the same environment variable), so the server is built fresh with
 `npm run build` from that same clean checkout before the first round, never
-reused from another tree.
+reused from another tree. The server runs from the driver's own worktree,
+so the checkout check also refuses a build that changed a tracked file.
 
 If collection code must change after this section lands and before
 restarted round 1 begins, the designation moves only by a dated addition to
@@ -227,10 +228,12 @@ them.
      fixed by the URL. The gate's own checks, run offline
      (`ScanGate.prepare` with DNS, access and rate limits stubbed) over the
      2,255 pool URLs, refuse none, so no pool case is known to stop here.
-   - Cause-less 500, including "Refusing to persist an unreadable managed
-     report (redaction-not-idempotent)", which page content triggers. The
-     August server log on bd68cf4 holds 142 of these across 2,262 cases,
-     about 6%. Its rate at the collection SHA is unknown: later commits
+   - Cause-less 500: the server's generic "The service could not complete
+     this request" answer, whose reason is only in the server's log. That
+     includes the persistence refusal the log records as "Refusing to
+     persist an unreadable managed report (redaction-not-idempotent)",
+     which page content triggers. The August server log on bd68cf4 holds
+     142 of these across 2,262 cases, about 6%. Its rate at the collection SHA is unknown: later commits
      changed the redaction path, but nothing has measured the rate since.
      At an August-like rate a complete round is practically unreachable,
      with about 140 stops expected in each 2,255-case attempt.
