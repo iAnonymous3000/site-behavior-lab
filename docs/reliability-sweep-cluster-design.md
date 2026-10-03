@@ -309,6 +309,15 @@ under the definition above.
   literal. The site-specific server errors the
   server attributes to the target with a declared cause are the 504
   `page-load-timeout`, already a site row, and the 502 `page-load-failed`.
+  The scanner declared `page-load-timeout` for any exhaustion of its
+  45-second budget, including one in its own setup (the browser, the
+  Shields engine, the scan proxy, the context, page and DevTools sessions)
+  before the page was requested, which a wedged browser causes. It now
+  declares `page-load-timeout` only for a navigation that timed out inside
+  the full 30-second navigation window and for a budget that ran out after
+  the page had that window, during collection; a budget exhausted in setup,
+  or a navigation that timed out inside a window the setup cut short,
+  declares `service-error` (503) and stops the round.
   The scanner's navigation failure was a cause-less 502 when the rulings
   were made, and it also carried the scan proxy's own failures (a resolver
   failure on the navigation, the proxy's traffic bound), so under this

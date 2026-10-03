@@ -33,6 +33,12 @@ public API or a 1.0 release.
   (400) with its own notice. An IP literal or a public suffix there was the
   builder's generic 500, and a generalized tenant was refused at persistence
   as a redaction failure; nothing is published in either case, as before.
+- A scan budget that runs out in the scanner's own setup (browser, Shields
+  engine, scan proxy, context and page), before the page is requested, now
+  declares `service-error` (503) instead of `page-load-timeout`, whose notice
+  told the visitor the page was slow; so does a navigation that times out
+  inside a window the setup cut below the 30-second navigation timeout.
+  Both sentences keep the phrase the featured-scan retry recognizes.
 - A failed page load the scanner can attribute to the site now declares
   `page-load-failed` (502) with its own notice: Chromium named a network
   error from the site's side (TLS, HTTP, a refused or dropped connection),

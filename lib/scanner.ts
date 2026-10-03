@@ -456,6 +456,12 @@ export type ScanSiteOptions = {
     NonNullable<Parameters<typeof startPublicScanProxy>[0]>["transactionLimit"]
   >;
   /**
+   * Start the scan with this many milliseconds of its budget already spent,
+   * in scanner integration tests only, as a scanner whose setup was slow
+   * would. Production always starts with the whole budget.
+   */
+  scanBudgetSpentMsForTests?: number;
+  /**
    * Shorten only the non-mutating consent-visibility evaluation deadline in
    * scanner integration tests. Production always uses the absolute scan
    * deadline.
@@ -874,7 +880,7 @@ export async function scanSiteWithMeasurement(
   options: ScanSiteOptions = {}
 ): Promise<NodeScanMeasurementEnvelope> {
   throwIfScanAborted(options.signal);
-  const started = Date.now();
+  const started = Date.now() - (options.scanBudgetSpentMsForTests ?? 0);
   const measurementKernel = new MeasurementKernel<Request>(started);
   let keystrokeActivePhase: number | null = null;
   const passivePhaseId = measurementKernel.beginPhase("passive-load");
@@ -911,10 +917,10 @@ export async function scanSiteWithMeasurement(
   // so a wedged Playwright or DNS call held one of only two scan slots with no
   // deadline to end it. The browser and engine are process-wide singletons that
   // other scans reuse, so they are bounded but never disposed here.
-  const browser = await withScanTimeout(getSharedBrowser(), started);
+  const browser = await withSetupTimeout(getSharedBrowser(), started);
   throwIfScanAborted(options.signal);
   const chromiumVersion = browser.version();
-  const adblockEngine = await withScanTimeout(getAdblockEngine(), started);
+  const adblockEngine = await withSetupTimeout(getAdblockEngine(), started);
   throwIfScanAborted(options.signal);
   if (!adblockEngine) {
     warnings.add("Brave Shields classification was unavailable for this scan; tracker labels use the curated catalog only.");
@@ -943,7 +949,7 @@ export async function scanSiteWithMeasurement(
   // handler and the final cleanup can both reach it.
   let workerRealmChannel: DedicatedWorkerAttachSession | null = null;
   let context: BrowserContext | null = null;
-  const scanProxy = await withScanTimeoutDisposing(
+  const scanProxy = await withSetupTimeoutDisposing(
     () =>
       startPublicScanProxy({
         resolveHost: options.resolvePublicHost,
@@ -968,7 +974,7 @@ export async function scanSiteWithMeasurement(
   try {
     throwIfScanAborted(options.signal);
     try {
-      context = await withScanTimeoutDisposing(
+      context = await withSetupTimeoutDisposing(
         () => browser.newContext(createContextOptions(payload, scanProxy.server)),
         started,
         (created) => created.close(),
@@ -993,9 +999,9 @@ export async function scanSiteWithMeasurement(
       throw error;
     }
     throwIfScanAborted(options.signal);
-    await withScanTimeout(context.addInitScript(installBoundedPageCollector, boundedPageCollectorKey), started);
+    await withSetupTimeout(context.addInitScript(installBoundedPageCollector, boundedPageCollectorKey), started);
     if (payload.consentMode !== "observe" || verificationFlagOn) {
-      await withScanTimeout(
+      await withSetupTimeout(
         context.addInitScript(
           installConsentShadowRootCapture,
           consentShadowRootCaptureArgs(consentShadowRootCapability)
@@ -1004,16 +1010,16 @@ export async function scanSiteWithMeasurement(
       );
     }
     if (gpcWorkerInjection) {
-      await withScanTimeout(
+      await withSetupTimeout(
         context.exposeBinding(gpcWorkerInjection.bindingName, (source, value) => {
           gpcWorkerInjection.register(source, value);
         }),
         started
       );
-      await withScanTimeout(context.setExtraHTTPHeaders({ "Sec-GPC": "1" }), started);
+      await withSetupTimeout(context.setExtraHTTPHeaders({ "Sec-GPC": "1" }), started);
     }
 
-    const page = await withScanTimeout(context.newPage(), started);
+    const page = await withSetupTimeout(context.newPage(), started);
 
     // Request attribution: who asked for each request.
     //
@@ -1032,12 +1038,12 @@ export async function scanSiteWithMeasurement(
     const initiatorIndex = new RequestInitiatorIndex();
     let initiatorSession: CDPSession | null = null;
     try {
-      initiatorSession = await withScanTimeout(context.newCDPSession(page), started);
+      initiatorSession = await withSetupTimeout(context.newCDPSession(page), started);
       initiatorSession.on("Network.requestWillBeSent", (params: unknown) => {
         const observation = initiatorObservationFromCdpParams(params);
         if (observation) initiatorIndex.record(observation);
       });
-      await withScanTimeout(initiatorSession.send("Network.enable"), started);
+      await withSetupTimeout(initiatorSession.send("Network.enable"), started);
     } catch {
       // Chromium refused the session or it raced page teardown. Leave the index
       // empty; every row stays unattributed, which is what the report already
@@ -1056,7 +1062,7 @@ export async function scanSiteWithMeasurement(
       // frames. Popups and the later out-of-evidence policy page are outside
       // the measured session, so their constructions must not enter its
       // worker accounting.
-      await withScanTimeout(
+      await withSetupTimeout(
         page.addInitScript(
           installGlobalPrivacyControlWithWorkerRegistration,
           gpcWorkerInjection.initScriptArgs
@@ -1088,7 +1094,7 @@ export async function scanSiteWithMeasurement(
       // after the scan deadline must close its DevTools socket rather than
       // leak it for the shared browser's lifetime.
       const establishedContext = context;
-      workerRealmChannel = await withScanTimeoutDisposing(
+      workerRealmChannel = await withSetupTimeoutDisposing(
         async () => {
           if (options.forceWorkerRealmChannelUnavailableForTests) {
             throw new Error("The worker realm channel was made unavailable for this test.");
@@ -1133,8 +1139,8 @@ export async function scanSiteWithMeasurement(
     // Read environment metadata from the pristine about:blank page before any
     // target script can shadow Navigator getters. The configured locale is
     // producer-owned and must never be replaced with page testimony.
-    const configuredUserAgent = await withScanTimeout(page.evaluate(() => navigator.userAgent), started);
-    await withScanTimeout(installFingerprintObserver(page, fingerprintObserverSiteKey), started);
+    const configuredUserAgent = await withSetupTimeout(page.evaluate(() => navigator.userAgent), started);
+    await withSetupTimeout(installFingerprintObserver(page, fingerprintObserverSiteKey), started);
 
     const requestsBlockedByShields = new WeakSet<Request>();
     const requestsBlockedByGuard = new WeakSet<Request>();
@@ -1372,10 +1378,14 @@ export async function scanSiteWithMeasurement(
     });
 
     options.onProgress?.("navigating");
+    // The last setup-phase read of the budget: an exhausted budget here is
+    // the scanner's setup, never the site, and a window the setup cut short
+    // gives the site less than the navigation timeout every other site gets.
+    const navigationTimeoutMs = setupScanTimeout(started, NAVIGATION_TIMEOUT_MS);
     const response = await page
       .goto(targetUrl.toString(), {
         waitUntil: "domcontentloaded",
-        timeout: scanTimeout(started, NAVIGATION_TIMEOUT_MS)
+        timeout: navigationTimeoutMs
       })
       .catch((error: unknown) => {
         throwIfScanAborted(options.signal);
@@ -1387,7 +1397,7 @@ export async function scanSiteWithMeasurement(
           throw new PublicScanError("The page could not be loaded because it resolved to a local or private network address.", 400, "private-target");
         }
         if (failure === "page-load-timeout") {
-          throw new PublicScanError("The page did not load before the scan timeout.", 504, "page-load-timeout");
+          throw navigationTimeoutError(navigationTimeoutMs);
         }
         // Navigation failures (TLS/HTTP2 errors, connection resets, sites that
         // refuse automated browsers) would otherwise be scrubbed to the opaque
@@ -3958,6 +3968,11 @@ async function reserveLoopbackPort(): Promise<number> {
 }
 
 export async function closeSharedBrowserForTests(): Promise<void> {
+  // A scan that failed in setup can leave its launch in flight (the deadline
+  // adopts it), and that launch would land after this close and keep the
+  // test process alive. The launch has its own deadline, so this is bounded.
+  const launching = browserLaunchPromise;
+  if (launching) await launching.catch(() => undefined);
   const browser = sharedBrowser;
   sharedBrowser = null;
   browserLaunchPromise = null;
@@ -5123,18 +5138,60 @@ async function withScanTimeout<T>(operation: Promise<T>, started: number): Promi
   return withScanDeadline(operation, started, MAX_SCAN_DURATION_MS, scanTimeoutError);
 }
 
-/** {@link withDeadlineDisposing} bound to this scanner's absolute scan deadline. */
-async function withScanTimeoutDisposing<T>(
+function scanTimeoutError(): PublicScanError {
+  return new PublicScanError("The scan exceeded the maximum scan duration.", 504, "page-load-timeout");
+}
+
+export const SCAN_SETUP_TIMEOUT_MESSAGE =
+  "The scan exceeded the maximum scan duration before the page had its full navigation window: the scanner's own browser setup took the time. Try again shortly.";
+
+/**
+ * The scan budget ran out in the scanner's own setup: launching or reusing
+ * the browser, the Shields engine, the scan proxy, the context, page and
+ * DevTools sessions, before the page was requested. A browser that cannot
+ * produce a context inside a whole budget is wedged (see the context
+ * creation above). None of that touches the site, so the budget expiring
+ * there is the scanner's failure, declared service-error, never the
+ * page-load-timeout the same budget means once the page has its window.
+ * A navigation that timed out inside a window the setup cut below the
+ * navigation timeout is declared the same way (navigationTimeoutError).
+ */
+function scanSetupTimeoutError(): PublicScanError {
+  return new PublicScanError(SCAN_SETUP_TIMEOUT_MESSAGE, 503, "service-error");
+}
+
+/**
+ * The error for a main-frame navigation that timed out inside a window of
+ * `navigationTimeoutMs`. The site's only when it had the full navigation
+ * timeout every site gets; a window the scanner's own setup cut short is the
+ * setup's.
+ */
+export function navigationTimeoutError(navigationTimeoutMs: number): PublicScanError {
+  if (navigationTimeoutMs < NAVIGATION_TIMEOUT_MS) {
+    return new PublicScanError(NAVIGATION_WINDOW_CUT_MESSAGE, 503, "service-error");
+  }
+  return new PublicScanError("The page did not load before the scan timeout.", 504, "page-load-timeout");
+}
+
+export const NAVIGATION_WINDOW_CUT_MESSAGE =
+  "The page did not load inside a navigation window the scanner's own slow setup had cut short, so the scan exceeded the maximum scan duration without a fair attempt. Try again shortly.";
+
+export function setupScanTimeout(started: number, preferredMs: number, now = Date.now()): number {
+  return scanTimeoutMs(started, MAX_SCAN_DURATION_MS, preferredMs, now, scanSetupTimeoutError);
+}
+
+async function withSetupTimeout<T>(operation: Promise<T>, started: number): Promise<T> {
+  return withScanDeadline(operation, started, MAX_SCAN_DURATION_MS, scanSetupTimeoutError);
+}
+
+/** {@link withDeadlineDisposing} bound to the scan deadline during setup. */
+async function withSetupTimeoutDisposing<T>(
   start: () => Promise<T>,
   started: number,
   dispose: (value: T) => Promise<unknown> | unknown,
   signal?: AbortSignal
 ): Promise<T> {
-  return withDeadlineDisposing(start, started, MAX_SCAN_DURATION_MS, dispose, scanTimeoutError, signal);
-}
-
-function scanTimeoutError(): PublicScanError {
-  return new PublicScanError("The scan exceeded the maximum scan duration.", 504, "page-load-timeout");
+  return withDeadlineDisposing(start, started, MAX_SCAN_DURATION_MS, dispose, scanSetupTimeoutError, signal);
 }
 
 function scannerEgressDescription(): string {

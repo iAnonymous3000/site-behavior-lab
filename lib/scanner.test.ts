@@ -67,6 +67,10 @@ import {
   scanSite,
   scanSiteWithMeasurement,
   scanTimeout,
+  SCAN_SETUP_TIMEOUT_MESSAGE,
+  NAVIGATION_WINDOW_CUT_MESSAGE,
+  setupScanTimeout,
+  navigationTimeoutError,
   ScanWarningCollector,
   probeKeystrokeExfiltration,
   proxyEndpointKey,
@@ -5905,6 +5909,93 @@ test("a public page that stalls after a loopback WebSocket probe is a load timeo
         error.status === 504 &&
         error.failureCause === "page-load-timeout" &&
         !/local or private network address/.test(error.message)
+    );
+  } finally {
+    await closeSharedBrowserForTests();
+    upstream.closeAllConnections();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+});
+
+test("a scan budget that runs out in the scanner's own setup is the scanner's, never a page-load timeout", () => {
+  const started = 1_000_000;
+  // The same budget, read in setup and after the page has its window.
+  assert.equal(setupScanTimeout(started, 30_000, started + 1_000), 30_000);
+  assert.equal(setupScanTimeout(started, 30_000, started + 20_000), 25_000);
+  assert.throws(
+    () => setupScanTimeout(started, 30_000, started + 45_000),
+    (error) =>
+      error instanceof PublicScanError &&
+      error.status === 503 &&
+      error.failureCause === "service-error" &&
+      error.message === SCAN_SETUP_TIMEOUT_MESSAGE
+  );
+  assert.throws(
+    () => scanTimeout(started, 30_000, started + 45_000),
+    (error) => error instanceof PublicScanError && error.status === 504 && error.failureCause === "page-load-timeout"
+  );
+  // A navigation timeout is the site's only inside the full window.
+  const full = navigationTimeoutError(30_000);
+  assert.equal(full.status, 504);
+  assert.equal(full.failureCause, "page-load-timeout");
+  const cut = navigationTimeoutError(29_999);
+  assert.equal(cut.status, 503);
+  assert.equal(cut.failureCause, "service-error");
+  assert.equal(cut.message, NAVIGATION_WINDOW_CUT_MESSAGE);
+  // The featured-scan retry still recognizes both as the scan deadline.
+  assert.match(SCAN_SETUP_TIMEOUT_MESSAGE, /scan exceeded the maximum scan duration/);
+  assert.match(NAVIGATION_WINDOW_CUT_MESSAGE, /scan exceeded the maximum scan duration/);
+});
+
+test("scanSite declares a scanner-side cause when the budget is gone before the page is requested", { timeout: 30_000 }, async () => {
+  // The whole budget is spent before setup begins, so the first setup step
+  // (the shared browser) already finds it exhausted. Before, that was the
+  // site's page-load-timeout.
+  try {
+    await assert.rejects(
+      () =>
+        scanSiteWithMeasurement(
+          { url: "http://never-requested.test/", device: "desktop", gpcEnabled: false, consentMode: "observe" },
+          { publicUrlAlreadyVerified: true, verifyPublicUrl: async () => undefined, scanBudgetSpentMsForTests: 46_000 }
+        ),
+      (error) =>
+        error instanceof PublicScanError &&
+        error.status === 503 &&
+        error.failureCause === "service-error" &&
+        error.message === SCAN_SETUP_TIMEOUT_MESSAGE
+    );
+  } finally {
+    await closeSharedBrowserForTests();
+  }
+});
+
+test("scanSite declares a navigation timeout the scanner's setup cut short as the scanner's", { timeout: 40_000 }, async () => {
+  // 35 s of the 45 s budget are spent before setup, so the page gets at most
+  // a 10 s window instead of the 30 s navigation timeout, and a stalled
+  // upstream times it out. Before, that was the site's page-load-timeout.
+  const upstream = createServer(() => undefined);
+  await new Promise<void>((resolve) => upstream.listen(0, "127.0.0.1", () => resolve()));
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+  try {
+    await assert.rejects(
+      () =>
+        scanSiteWithMeasurement(
+          { url: "http://stall.test/", device: "desktop", gpcEnabled: false, consentMode: "observe" },
+          {
+            publicUrlAlreadyVerified: true,
+            verifyPublicUrl: async () => undefined,
+            resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+            connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"),
+            resolveCnameChain: async () => [],
+            scanBudgetSpentMsForTests: 35_000
+          }
+        ),
+      (error) =>
+        error instanceof PublicScanError &&
+        error.status === 503 &&
+        error.failureCause === "service-error" &&
+        error.message === NAVIGATION_WINDOW_CUT_MESSAGE
     );
   } finally {
     await closeSharedBrowserForTests();
