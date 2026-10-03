@@ -514,6 +514,29 @@ featured-corpus refresh's failure taxonomy, which is not collection code:
 the cause-less navigation failure now counts against the scanner there and
 is retried once.
 
+**Collection SHA (2026-10-03).** The first attempt of restarted round 1
+stopped on a defect in the sweep's own projection, and the fix moved the
+collection SHA to `7e761290a6470bfdcb8674a997cd312019fd1e0d`, the commit
+"Sort a sweep row's censored families before validating them". It
+supersedes d29146d8. One stopped attempt of restarted round 1 is recorded:
+attempt r1-20261003T152326Z on d29146d8, started 2026-10-03T15:23:28Z and
+ended 15:24:36Z, wrote 5 rows (bbc.co.uk, wsj.com, bloomberg.com,
+globo.com, businessinsider.com) and stopped on the sixth case,
+sina.com.cn, when `bareLoadOutcome` threw "censoredFamilies must be sorted
+and unique": the projection listed censored families in
+`EXPECTED_EVIDENCE_FAMILIES` order, requests before detector-output, and
+the validator requires lexicographic order. The validator has required
+it since 61a9a173, but no row of the 2026-08 round 1 censored two
+families, so nothing exercised the path before. The attempt is not a
+round: its partial artifact (sha256
+011b1161501414607f8b795916d0e8755963e1aca094632e397b1a387d072041, kept
+as `round-1.stopped-r1-20261003T152326Z.json` outside the repository) is
+never assembled, and restarted round 1 runs again from its first case on
+the new collection SHA, from an isolated worktree checked out at exactly
+that commit with the server built fresh from it. The projection's output
+for every other visit is unchanged: the fix only orders the list, and a
+test now enumerates every subset of the six families.
+
 ## Why two passes were not enough
 
 The adopted censoring decision sizes per-detector policies from a defensible
