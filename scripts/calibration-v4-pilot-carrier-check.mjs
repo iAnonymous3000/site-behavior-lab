@@ -4,7 +4,7 @@
  * commit it names. Read-only; refuses rather than repairs.
  *
  *   node scripts/calibration-v4-pilot-carrier-check.mjs \
- *     --study-dir calibration/cname-uncloaking-2026-08-prevalence-pilot \
+ *     --study-dir calibration/cname-uncloaking-2026-10-prevalence-pilot \
  *     [--upstream-ref origin/main]
  *
  * Run it in the frame-freeze PR (CI runs it too) and again before dispatching

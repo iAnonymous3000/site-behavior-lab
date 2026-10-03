@@ -20,8 +20,12 @@
   designation moved once more: the step-5 cluster-design amendment
   ([reliability-sweep-cluster-design.md](reliability-sweep-cluster-design.md))
   found the two-pass plan could not produce the decision's defensible loss
-  bound, so the merge landing THAT design is the collection SHA every sweep
-  round binds to.
+  bound, so the merge landing THAT design became the collection SHA every
+  sweep round binds to. It moved again on 2026-10-02, when the owner
+  restarted the sweep as study `cname-uncloaking-2026-10`: the collection
+  SHA is now the commit that lands that design's "Restart (2026-10-02)"
+  section, and the August round-1 build (bd68cf4) and the feasibility
+  figures derived from its round are historical.
 
 ## The circularity this removes
 

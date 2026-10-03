@@ -336,7 +336,7 @@ test("the sealing PUBLIC key can be committed and the private half cannot", () =
     );
     const ignored = (repoPath) =>
       spawnSync("git", ["-C", root, "check-ignore", "-q", repoPath], { encoding: "utf8" }).status === 0;
-    const study = "calibration/cname-uncloaking-2026-08-prevalence-pilot";
+    const study = "calibration/cname-uncloaking-2026-10-prevalence-pilot";
     assert.equal(
       ignored(`${study}/label-sealing-public-key.pem`),
       false,

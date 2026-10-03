@@ -18,6 +18,12 @@ import {
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 
+// The CNAME pilot the runbook drives today (the 2026-10 restart of the step-5
+// sweep, docs/reliability-sweep-cluster-design.md) and the superseded pilots
+// that stay committed as the historical record.
+const LIVE_PILOT = "cname-uncloaking-2026-10-prevalence-pilot";
+const HISTORICAL_PILOTS = ["cname-uncloaking-2026-08-prevalence-pilot"];
+
 const SUFFIXES = new Set(["com", "co.uk", "net", "org"]);
 
 function har(urls) {
@@ -316,25 +322,77 @@ test("the candidate set has ONE reader, shared with the sweep, and it refuses th
   )}\n`;
   assert.throws(() => parseCandidateSet(dup), /duplicate caseId/);
   assert.throws(() => parseCandidateSet(good.replace("https://", "http://")), /must be https/);
-  // The COMMITTED pilot set parses under that one reader, and its digest is
-  // the digest the runbook and the universe provenance both name.
+  // Every COMMITTED pilot set parses under that one reader, and its digest is
+  // the digest its universe provenance names: the live 2026-10 pilot and the
+  // superseded 2026-08 one, which stays committed as the historical record.
   const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-  const committed = readFileSync(
-    path.join(repoRoot, "calibration", "cname-uncloaking-2026-08-prevalence-pilot", "pilot-set.json"),
-    "utf8"
-  );
-  const parsed = parseCandidateSet(committed);
-  assert.equal(parsed.candidates.length, 100);
-  assert.equal(parsed.studyId, "cname-uncloaking-2026-08-prevalence-pilot");
-  assert.equal(
-    parsed.candidateSetDigest,
-    JSON.parse(
-      readFileSync(
-        path.join(repoRoot, "calibration", "cname-uncloaking-2026-08-prevalence-pilot", "universe-provenance.json"),
-        "utf8"
-      )
-    ).pilotSetSha256
-  );
+  for (const pilot of [LIVE_PILOT, ...HISTORICAL_PILOTS]) {
+    const committed = readFileSync(path.join(repoRoot, "calibration", pilot, "pilot-set.json"), "utf8");
+    const parsed = parseCandidateSet(committed);
+    assert.equal(parsed.candidates.length, 100, pilot);
+    assert.equal(parsed.studyId, pilot);
+    assert.equal(
+      parsed.candidateSetDigest,
+      JSON.parse(readFileSync(path.join(repoRoot, "calibration", pilot, "universe-provenance.json"), "utf8"))
+        .pilotSetSha256,
+      pilot
+    );
+  }
+});
+
+test("the runbook, the sweep design, the draft plan and the usage examples bind the LIVE pilot by its committed digests", () => {
+  const repoRoot = path.resolve(here, "..");
+  const read = (relative) => readFileSync(path.join(repoRoot, relative), "utf8");
+  const digestOf = (relative) => sha256Hex(readFileSync(path.join(repoRoot, relative)));
+  const studyTokens = (text) => [...text.matchAll(/cname-uncloaking-\d{4}-\d{2}[\w-]*/g)].map((match) => match[0]);
+
+  const liveDir = `calibration/${LIVE_PILOT}`;
+  const provenance = JSON.parse(read(`${liveDir}/universe-provenance.json`));
+  const pilotSetSha256 = digestOf(`${liveDir}/pilot-set.json`);
+  const provenanceSha256 = digestOf(`${liveDir}/universe-provenance.json`);
+  assert.equal(LIVE_PILOT, `${provenance.studyId}-prevalence-pilot`);
+
+  // An operator copies commands, not prose: one stale study path inside a
+  // fence binds a ceremony step to the superseded study. The count guard
+  // keeps a runbook with no fences from passing in silence.
+  const runbook = read("docs/calibration-pilot-runbook.md");
+  const fenced = [...runbook.matchAll(/^```[^\n]*\n([\s\S]*?)^```/gm)].flatMap((match) => studyTokens(match[1]));
+  assert.ok(fenced.length > 0, "the runbook's commands name no study at all");
+  assert.deepEqual([...new Set(fenced)], [LIVE_PILOT]);
+  assert.ok(runbook.includes(pilotSetSha256), "the runbook names the live pilot set's committed digest");
+  assert.ok(runbook.includes(provenanceSha256), "the runbook names the live provenance's committed digest");
+  for (const pilot of HISTORICAL_PILOTS) {
+    const historical = digestOf(`calibration/${pilot}/pilot-set.json`);
+    assert.ok(runbook.includes(historical), `the runbook keeps ${pilot}'s digest as the historical record`);
+  }
+
+  // The preregistration amendment names the live study and the digests that
+  // fix its partition, read here from the committed bytes, not restated.
+  const design = read("docs/reliability-sweep-cluster-design.md");
+  const start = design.indexOf("\n## Restart (2026-10-02)");
+  assert.ok(start >= 0, "the sweep design records the restart");
+  const end = design.indexOf("\n## ", start + 1);
+  const restart = design.slice(start, end === -1 ? undefined : end);
+  for (const value of [
+    provenance.studyId,
+    provenanceSha256,
+    pilotSetSha256,
+    provenance.candidateSetSha256,
+    provenance.partition.seedSha256,
+    provenance.exclusionListSha256
+  ]) {
+    assert.ok(restart.includes(value), `the restart section names ${value}`);
+  }
+
+  const plan = JSON.parse(read("docs/calibration-prereg-drafts/plan-cname-uncloaking.draft.json"));
+  assert.equal(plan.studyId, provenance.studyId);
+  assert.equal(plan.labelSealingKey.publicKeyPath, `calibration/${provenance.studyId}/label-sealing-public-key.pem`);
+
+  for (const script of ["scripts/calibration-cname-reference.mjs", "scripts/calibration-v4-pilot-carrier-check.mjs"]) {
+    const named = studyTokens(read(script));
+    assert.ok(named.length > 0, `${script} carries a usage example`);
+    assert.deepEqual([...new Set(named)], [LIVE_PILOT], script);
+  }
 });
 
 test("a capture that never LOADED the subject is refused, not read as a confident absent", async () => {

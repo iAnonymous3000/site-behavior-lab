@@ -33,26 +33,28 @@ edit of the 2026-08 one:
   or a different tldts, changes the seed and the pilot.
 
 No ceremony step has run for this study: no sealing keypair, no carrier K,
-no frame F, no labels. When it runs, every command below takes the 2026-10
-study id and directory in place of the 2026-08 ones. The 2026-08 pilot set
-and provenance stay committed as the historical record and are not used.
-The step-7 feasibility figures come from the 2026-08 round 1 and do not
-bind this study.
+no frame F, no labels. Every command below names the 2026-10 study. The
+2026-08 pilot set and provenance stay committed as the historical record
+and are not used ("Historical: the 2026-08 identity", at the end). The
+sweep that sizes this study restarts too: its preregistration amendment,
+collection SHA, and feasibility gate are in
+docs/reliability-sweep-cluster-design.md, "Restart (2026-10-02)". The
+August round-1 feasibility figures do not bind this study.
 
-## The procedure (written for the 2026-08 identity)
+## The procedure
 
 The complete operator procedure for the 100-site prevalence pilot, in
 order, with what refuses if a step is skipped. Study identity:
 
-- studyId: `cname-uncloaking-2026-08-prevalence-pilot`
+- studyId: `cname-uncloaking-2026-10-prevalence-pilot`
 - detector: `cname-uncloaking`
 - protocol: `independent-labeling-protocol@1`, exact bytes
   docs/calibration-prereg-drafts/labeling-protocol.md, sha256
   `d292f4608bfaf67256bfba0cfdb5e6d1f65ded98941e06c93a8cdf749e0c564f`
   (pinned inside the approved policy artifact; do not edit the file)
-- pilot set: calibration/cname-uncloaking-2026-08-prevalence-pilot/pilot-set.json
+- pilot set: calibration/cname-uncloaking-2026-10-prevalence-pilot/pilot-set.json
   (100 cases, sha256
-  `b1760d060c4022ef9bb6b34c82d1bc404c121160a9956afe1f1606cc7236b3f4`,
+  `06dd74369c4b3092dff23f67b2b2cda51f0bad37c0552344334592e0f97f6c55`,
   bound by pilotSetSha256 inside
   universe-provenance.json in the same directory)
 - shared classification definitions (from the approved artifact; every
@@ -96,7 +98,7 @@ reviewer's machine.
 openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:3072 \
   -out /secure/offline/pilot-label-reveal-private.pem
 openssl pkey -in /secure/offline/pilot-label-reveal-private.pem -pubout \
-  -out calibration/cname-uncloaking-2026-08-prevalence-pilot/label-sealing-public-key.pem
+  -out calibration/cname-uncloaking-2026-10-prevalence-pilot/label-sealing-public-key.pem
 ```
 
 Commit ONLY the public half. `.gitignore` ignores `*.pem` with a single
@@ -141,7 +143,7 @@ The claim that F's frame really derives from K is checked, not asserted:
 
 ```bash
 npm run calibration:v4-pilot-carrier-check -- \
-  --study-dir calibration/cname-uncloaking-2026-08-prevalence-pilot
+  --study-dir calibration/cname-uncloaking-2026-10-prevalence-pilot
 ```
 
 It extracts K's tree, runs K's OWN frame producer against K's pilot set and
@@ -187,13 +189,13 @@ doing anything, because the remedies are not interchangeable:
 ```bash
 git fetch origin && git checkout <K>
 npm run calibration:v4-frame-tasks -- build \
-  --study-id cname-uncloaking-2026-08-prevalence-pilot \
+  --study-id cname-uncloaking-2026-10-prevalence-pilot \
   --detector cname-uncloaking \
   --candidate-commit <K> \
   --protocol-id independent-labeling-protocol@1 \
   --protocol-file docs/calibration-prereg-drafts/labeling-protocol.md \
-  --cases calibration/cname-uncloaking-2026-08-prevalence-pilot/pilot-set.json \
-  --output-root calibration/cname-uncloaking-2026-08-prevalence-pilot
+  --cases calibration/cname-uncloaking-2026-10-prevalence-pilot/pilot-set.json \
+  --output-root calibration/cname-uncloaking-2026-10-prevalence-pilot
 ```
 
 Refuses while the decision is pending, if the detector were held, or if
@@ -205,6 +207,11 @@ trailing newline; run the carrier check from step 2 before requesting
 review.
 
 ## 4. Reviewer dispatch (two labelers, one blind tiebreaker)
+
+Precondition: the restarted round 1's feasibility band is already recorded
+on main in docs/reliability-sweep-cluster-design.md ("Restart
+(2026-10-02)"). Dispatching earlier would let a pilot label exist before
+the gate it is judged against.
 
 Each reviewer works from a clean checkout of **F**, the frame-freeze
 commit (the frame files exist only there; K carries the inputs). They
@@ -218,8 +225,9 @@ otherwise look identical to a clean site: a subject that redirects to
 another registrable domain, a navigation that failed, and a HAR from the
 wrong tab. The run continues and lists those cases at the end.
 
-This is not hypothetical for this pilot set: `philly.com` answers on
-`www.inquirer.com` and `cbslocal.com` on `www.cbsnews.com` today. Re-capture
+This is not hypothetical: in the superseded 2026-08 pilot set, `philly.com`
+answered on `www.inquirer.com` and `cbslocal.com` on `www.cbsnews.com`
+when this runbook was first written. Re-capture
 if the cause was your browser or your network. If the subject genuinely
 serves another domain now, tell the operator: replacing a case is a decision
 about the study's universe, and it changes the pilot set, its digest, and
@@ -232,10 +240,10 @@ git fetch origin && git checkout <F>
 shasum -a 256 downloaded-trackers.txt downloaded-psl.dat
 
 npm run calibration:cname-reference -- \
-  --study-id cname-uncloaking-2026-08-prevalence-pilot \
-  --cases calibration/cname-uncloaking-2026-08-prevalence-pilot/pilot-set.json \
+  --study-id cname-uncloaking-2026-10-prevalence-pilot \
+  --cases calibration/cname-uncloaking-2026-10-prevalence-pilot/pilot-set.json \
   --har-dir <their-har-dir> \
-  --frame-tasks calibration/cname-uncloaking-2026-08-prevalence-pilot/frame-tasks.json \
+  --frame-tasks calibration/cname-uncloaking-2026-10-prevalence-pilot/frame-tasks.json \
   --tracker-source downloaded-trackers.txt \
   --tracker-source-sha256 cd0f8ab54229dced42f7613f99951be527c582ab9ef8f74a35a70c3a55d8c648 \
   --public-suffix-source downloaded-psl.dat \
@@ -256,16 +264,16 @@ npm run calibration:cname-reference -- \
 # instrument, rather than overriding the evidence in your own batch.
 npm run calibration:v4-reviewer-batch -- \
   --worksheet worksheet.json \
-  --frame-tasks calibration/cname-uncloaking-2026-08-prevalence-pilot/frame-tasks.json \
-  --tasks-dir calibration/cname-uncloaking-2026-08-prevalence-pilot/tasks \
+  --frame-tasks calibration/cname-uncloaking-2026-10-prevalence-pilot/frame-tasks.json \
+  --tasks-dir calibration/cname-uncloaking-2026-10-prevalence-pilot/tasks \
   --role labeler --actor <their-github-login> \
   [--decisions decisions.json] --out batch.json
 
 npm run calibration:v4-seal-label-batch -- \
   --role labeler --actor <their-github-login> \
-  --public-key calibration/cname-uncloaking-2026-08-prevalence-pilot/label-sealing-public-key.pem \
-  --frame-tasks calibration/cname-uncloaking-2026-08-prevalence-pilot/frame-tasks.json \
-  --tasks-dir calibration/cname-uncloaking-2026-08-prevalence-pilot/tasks \
+  --public-key calibration/cname-uncloaking-2026-10-prevalence-pilot/label-sealing-public-key.pem \
+  --frame-tasks calibration/cname-uncloaking-2026-10-prevalence-pilot/frame-tasks.json \
+  --tasks-dir calibration/cname-uncloaking-2026-10-prevalence-pilot/tasks \
   --input batch.json --output sealed-envelope.json
 ```
 
@@ -326,10 +334,10 @@ file per commitment into a directory, then:
 
 ```bash
 npm run calibration:v4-pilot-close -- \
-  --frame-tasks calibration/cname-uncloaking-2026-08-prevalence-pilot/frame-tasks.json \
+  --frame-tasks calibration/cname-uncloaking-2026-10-prevalence-pilot/frame-tasks.json \
   --commitments-dir <fetched-records-dir> \
-  --public-key calibration/cname-uncloaking-2026-08-prevalence-pilot/label-sealing-public-key.pem \
-  --out calibration/cname-uncloaking-2026-08-prevalence-pilot/pilot-labeling-authorization.json
+  --public-key calibration/cname-uncloaking-2026-10-prevalence-pilot/label-sealing-public-key.pem \
+  --out calibration/cname-uncloaking-2026-10-prevalence-pilot/pilot-labeling-authorization.json
 ```
 
 The close freezes the labeling-close instant and the authorized commitment
@@ -361,7 +369,7 @@ authorization commit. "Verified" is these three commands, not a feeling:
 ```bash
 git fetch origin && git checkout <authorization-commit>
 git status --porcelain            # must print nothing
-shasum -a 256 calibration/cname-uncloaking-2026-08-prevalence-pilot/pilot-labeling-authorization.json
+shasum -a 256 calibration/cname-uncloaking-2026-10-prevalence-pilot/pilot-labeling-authorization.json
 ```
 
 The digest must equal the one the close printed and the authorization PR
@@ -374,9 +382,9 @@ Then:
 ```bash
 CALIBRATION_LABEL_REVEAL_PRIVATE_KEY="$(cat /secure/offline/pilot-label-reveal-private.pem)" \
 npm run calibration:v4-reveal -- \
-  --frame-tasks calibration/cname-uncloaking-2026-08-prevalence-pilot/frame-tasks.json \
-  --tasks-dir calibration/cname-uncloaking-2026-08-prevalence-pilot/tasks \
-  --authorization calibration/cname-uncloaking-2026-08-prevalence-pilot/pilot-labeling-authorization.json \
+  --frame-tasks calibration/cname-uncloaking-2026-10-prevalence-pilot/frame-tasks.json \
+  --tasks-dir calibration/cname-uncloaking-2026-10-prevalence-pilot/tasks \
+  --authorization calibration/cname-uncloaking-2026-10-prevalence-pilot/pilot-labeling-authorization.json \
   --commitments-dir <fetched-records-dir> \
   --out-dir <reveal-out>
 ```
@@ -399,16 +407,19 @@ authorization.
 ```bash
 npm run calibration:v4-pilot-sizing -- \
   --resolved-labels <reveal-out>/resolved-labels.json \
-  --frame-tasks calibration/cname-uncloaking-2026-08-prevalence-pilot/frame-tasks.json \
+  --frame-tasks calibration/cname-uncloaking-2026-10-prevalence-pilot/frame-tasks.json \
   --swept-eligible-pool <rounds-1-2 eligible count> \
-  --out calibration/cname-uncloaking-2026-08-prevalence-pilot/pilot-sizing.json
+  --out calibration/cname-uncloaking-2026-10-prevalence-pilot/pilot-sizing.json
 ```
 
 N derives through the preregistered uncertainty envelope. The
-preregistered gate (docs/reliability-sweep-cluster-design.md): at the
-round-1 optimistic ceiling of 1,126, the pilot must resolve 18..82
-present (necessary-only, zero-uncertain boundary). INFEASIBLE means a
-larger universe and fresh sweep rounds; never a relaxed rule.
+preregistered early gate is the rule in
+docs/reliability-sweep-cluster-design.md ("Restart (2026-10-02)"): the
+band of present counts whose zero-uncertain N fits under the restarted
+round 1's bare-load-valid count, recorded there before step 4
+(necessary-only, zero-uncertain boundary). The August figures are
+superseded and do not apply to this study. INFEASIBLE means a larger
+universe and fresh sweep rounds; never a relaxed rule.
 
 The gate is enforced, not merely printed: an INFEASIBLE determination
 writes its artifact and then exits non-zero, so no later step runs on it.
@@ -417,8 +428,8 @@ determination would otherwise read exactly like a run that passed.
 
 **The pool is the one number nothing can check for you.** No committed
 artifact states it yet, so CI can only confirm that the feasibility verdict
-follows FROM the pool the artifact declares. A mistyped pool (11260 for
-1126) turns an infeasible pilot feasible and every check still passes. Quote
+follows FROM the pool the artifact declares. A mistyped pool (10000 for
+1000) turns an infeasible pilot feasible and every check still passes. Quote
 it from the sweep's own receipt, read it back before you commit the
 artifact, and record in the sizing PR where you took it from. The
 claimed-class floor is NOT typed here: it comes from the approved policy
@@ -448,3 +459,22 @@ and the volume's key is discarded. Record which of the two you did.
 Record the destruction instant in the sizing PR's description. The
 keypair is one-use: nothing may ever be sealed to it again, and a future
 pilot mints a fresh pair.
+
+## Historical: the 2026-08 identity
+
+Superseded on 2026-10-02 and kept only as the record of what was drawn. No
+ceremony step ever ran for it: no sealing key, carrier, frame, or label
+exists. Nothing above may be run against it.
+
+- studyId: `cname-uncloaking-2026-08-prevalence-pilot` (universe
+  `cname-uncloaking-2026-08`)
+- pilot set: calibration/cname-uncloaking-2026-08-prevalence-pilot/pilot-set.json
+  (100 cases, sha256
+  `b1760d060c4022ef9bb6b34c82d1bc404c121160a9956afe1f1606cc7236b3f4`),
+  bound by pilotSetSha256 inside universe-provenance.json in the same
+  directory (sha256
+  `6f67a243648b585c35e799d4d5eab5d61a817542c2496d4398069c9001c7ea62`)
+- why superseded: its frame admitted seven development-visited domains, and
+  the sweep that would have sized it collected one round on a build whose
+  driver failed open (docs/reliability-sweep-cluster-design.md, "Restart
+  (2026-10-02)")

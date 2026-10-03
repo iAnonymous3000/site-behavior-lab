@@ -17,7 +17,7 @@ import {
  * Reviewer instrument for independent `cname-uncloaking` reference labels.
  *
  *   npm run calibration:cname-reference -- \
- *     --study-id cname-uncloaking-2026-08-prevalence-pilot \
+ *     --study-id cname-uncloaking-2026-10-prevalence-pilot \
  *     --cases /abs/pilot-set.json \
  *     --har-dir /abs/har \
  *     --frame-tasks /abs/frame-tasks.json \

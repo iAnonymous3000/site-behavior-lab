@@ -1,11 +1,168 @@
 # Step-5 reliability sweep: the cluster design
 
 Preregistered before any collection. This document amends the two-pass
-collection plan and supersedes it: the merge landing this design is the
+collection plan and supersedes it: the merge landing this design became the
 collection SHA both the eligibility pair and every sizing round bind to, and
 the "final step-4 SHA" note in
 [calibration-v4-reference-architecture.md](calibration-v4-reference-architecture.md)
-is superseded accordingly.
+is superseded accordingly. The 2026-10-02 restart below moves that
+designation again and names the live study; read it first.
+
+## Restart (2026-10-02): the live study is cname-uncloaking-2026-10
+
+Recorded by owner decision on 2026-10-02, before any restarted round exists
+and before any pilot label exists. Where this section and the rest of the
+document disagree, this section wins; everything it does not change stands.
+
+**What ran in August, and why it is not continued.** The August collection
+ran one round: round 1 of study `cname-uncloaking-2026-08`, on build
+`bd68cf4ad171c84eb02ab21fbe866fcc575753ec`, runner `operator-macos-arm64`,
+egress `as19108-optimum-residential`, 2,262 cases observed from
+2026-08-24T02:03Z to 2026-08-24T18:22Z, artifact sha256
+`7dfc91056e1f194ae2b53c6807d0c6ffe0064b58dbb3fce817ffe05dd81e00e3` (kept
+outside the repository, never assembled). Round 2 never launched, and by
+2026-10-02 bd68cf4 was 353 commits behind main. Continuing would have bound
+four more rounds to a build with three defects that a read-only review
+found:
+
+1. **The driver failed open.** Every server refusal (our access gate's 401,
+   our own rate limit's 429, a misconfigured r2 producer's 503, a
+   persistence failure's 500, any other scanner-side error) and every
+   transport error to the local server became a silent all-ineligible row.
+   The round still validated, the refusal reason was returned but never
+   printed, only case 1 was checked for an r2 report, and no report's
+   `run.provenance.buildCommit` was compared with
+   `SITE_BEHAVIOR_LAB_BUILD_COMMIT`. A scanner refusal filed as a site's row
+   drops the site from the eligible pool for a reason the site never caused,
+   and nothing in the August artifact tells those rows apart. Fixed in
+   0694781e and 591c3096 ("Collect fails closed", below).
+2. **The development exclusion missed development-visited domains.** The
+   universe builder read a `config/` directory that has never existed and
+   never read the featured catalog, the corpus seed, or the pixel-events
+   screening rows, so seven development-visited domains entered the 2026-08
+   frame (cnn.com, forbes.com, spiegel.de, elpais.com, telegraph.co.uk,
+   dailymail.co.uk, washingtonpost.com). Fixed in 505c3019 ("Development
+   exclusion", below). The corrected set changes the partition seed, and a
+   different seed is a different partition: redrawing under the old study
+   id would mean changing the preregistered inputs the seed derives from,
+   so the restart is a new study, never an edit of the old one.
+3. **Round 1 was not one contiguous session.** It lost about 9.1 of its
+   16.3 hours to the machine sleeping: 36 inter-case gaps of 449 to 1,609
+   seconds, each longer than the driver's 180-second per-scan timeout,
+   against a median gap of about 12 seconds. The feasibility figures derived
+   from it describe no round this design defines.
+
+**Superseded, kept as history.** bd68cf4 as the collection SHA; the August
+round-1 artifact; the 2026-08 universe and pilot
+(calibration/cname-uncloaking-2026-08-prevalence-pilot/, committed and
+unchanged); and the August feasibility figures, the 1,126 ceiling and the
+18..82 band ("Early feasibility gate (2026-08)", below). None of them binds
+the restarted study, and no August round can be assembled with a restarted
+one: receipt assembly refuses rounds of different studies, candidate sets,
+or builds.
+
+**The live study.** `cname-uncloaking-2026-10`, built by the corrected
+derivation from the same pinned sources as 2026-08 (Tranco N2Q7W; ercexpo
+us-news-domains v2.0.0 at 61505468f330000f15494ed302e0d1d719895b83): 2,375
+domains after the category intersection, 20 excluded, frame 2,355 = 2,255
+pool + 100 pilot.
+
+- universe provenance:
+  calibration/cname-uncloaking-2026-10-prevalence-pilot/universe-provenance.json,
+  sha256 `2eab6ea4732cee93a601118781fd3313744699e666a9e6da4e8635e5d4674102`
+- pilot set: pilot-set.json in the same directory, sha256
+  `06dd74369c4b3092dff23f67b2b2cda51f0bad37c0552344334592e0f97f6c55`
+- pool candidate set, the 2,255 cases every restarted round sweeps (kept
+  outside the repository, as in 2026-08), sha256
+  `bc4a846142a92ca8018a87ccfd2f41684c52cbbc76eb5c7d9916f0ff553e7d80`
+- partition seed
+  `f3e66dafcc3e92bc3297283eaefe1d7c4852aecc7ab1d1b548e7cf71a9f6ae43`,
+  derived in part from the whole development-exclusion list (183 domains),
+  sha256 `1c22b3d71c5da0d14da7fbc2257e3387bbd8c548b2904304594fc0a61cf89ee7`
+
+From a checkout of the collection SHA, with the two pinned sources and their
+manifests, this reproduces all three files byte for byte:
+
+```bash
+node scripts/calibration-candidate-universe-build.mjs cname-uncloaking-2026-10 \
+  tranco-N2Q7W-top1m.csv tranco-N2Q7W-manifest.json 2255 \
+  cname-uncloaking-2026-10-candidates.json cname-uncloaking-2026-10-provenance.json \
+  --category ercexpo-us-news-domains-v2.0.0.csv ercexpo-manifest.json \
+  --pilot 100 cname-uncloaking-2026-10-pilot.json
+```
+
+**The collection SHA.** The collection SHA of the restarted sweep is the
+commit on main that lands this section. It carries the fail-closed driver
+and the corrected exclusion derivation by ancestry, and the universe above
+reproduces from it. Every restarted round runs from an isolated worktree
+checked out at exactly that commit, with `SITE_BEHAVIOR_LAB_BUILD_COMMIT`
+set to its full sha, which the driver now compares with every report. A
+document cannot name its own commit, so read it from main:
+
+```bash
+git fetch origin
+git log origin/main --reverse --format=%H \
+  -S'## Restart (2026-10-02)' -- docs/reliability-sweep-cluster-design.md | head -n 1
+```
+
+If collection code must change after this section lands and before
+restarted round 1 begins, the designation moves only by a dated addition to
+this section naming the new commit. Once round 1 has begun nothing moves
+it: a different collection build is a new sweep, starting again at round 1.
+
+**Rounds, runner, condition.** Rounds 1 to 5 run again under every rule in
+this document (5 scheduled, at least 4 usable, rounds 1 and 2 the
+eligibility pair at least 48 hours apart, each round at least 24 hours after
+the previous one), from the operator's Mac on the home connection:
+`SWEEP_RUNNER_LABEL=operator-macos-arm64`,
+`SWEEP_EGRESS=as19108-optimum-residential`, and the fixed desktop / observe /
+GPC-off condition. The machine stays awake for the whole of every round.
+`caffeinate -is` alone is not enough: its `-s` assertion holds only on AC
+power, and the August operator script already wrapped `collect` in it. Keep
+the machine on AC power with the lid open. Nothing in the driver detects a
+sleep; that is a known gap, not a preregistered rule.
+
+**The feasibility gate for the restarted study.** The rule is preregistered
+here; its number comes from restarted round 1. Let C be the bare-load-valid
+count of the complete restarted round 1: the `valid` count
+`summarizeSweepOutcomes` returns over the round artifact that swept all
+2,255 pool cases on the collection SHA, which is the "bare-load valid"
+count `collect` prints when the round ends. A candidate joins the eligible
+pool only if rounds 1 and 2 are both bare-load valid, so the rounds-1/2
+eligible pool can never exceed C. A
+present count p of the 100-case pilot is inside the band when the
+zero-uncertain rule derives a frame size for it and that size is at most C:
+`tryDeriveFrameSizeFromPilotEnvelope({ present: p, absent: 100 - p,
+uncertain: 0, minimumPerClass })` returns `sized: true` with
+`derivedN <= C`, where `minimumPerClass` is the floor the approved policy
+artifact pins (100 for `two-class-accuracy`). A p for which no frame size
+derives is outside the band. The band is computed by:
+
+```bash
+node --input-type=module -e '
+import { tryDeriveFrameSizeFromPilotEnvelope } from "./scripts/calibration-pilot-sizing-lib.mjs";
+const ceiling = Number(process.argv[1]);
+const band = [];
+for (let present = 0; present <= 100; present += 1) {
+  const derived = tryDeriveFrameSizeFromPilotEnvelope({ present, absent: 100 - present, uncertain: 0, minimumPerClass: 100 });
+  if (derived.sized && derived.derivedN <= ceiling) band.push(present);
+}
+console.log(band.length === 0 ? "empty" : band.join(","));
+' <C>
+```
+
+At the August ceiling, 1126, it prints exactly 18 through 82: the
+superseded band below is this rule applied to a round that no longer
+counts. After restarted round 1 completes, C, that round artifact's sha256,
+and the printed band are recorded by a dated addition to this section,
+which lands on main before any reviewer is dispatched for the 2026-10
+pilot, and so before any pilot label exists. The band is NECESSARY only:
+uncertain labels narrow it through the envelope, round 2 sets the real
+ceiling, and the binding gate stays `assertFrameFeasible` against the
+receipt's rounds-1/2 eligible count. An empty band, or a resolved pilot
+outside it, stops the study, and the remedy is a larger universe and fresh
+sweep rounds over the enlarged set; never a relaxed exclusion, a reused
+pilot site, or a narrowed population.
 
 ## Why two passes were not enough
 
@@ -155,8 +312,10 @@ PRECOMMITTED DISJOINT PILOT, preregistered here in full:
   rule's search. With zero uncertain labels this reduces exactly to the
   rule above, and the envelope N is monotonically at or above the point
   rule's N.
-- **Early feasibility gate** (recorded 2026-08-24 against round 1 of the
-  sweep, artifact sha256
+- **Early feasibility gate (2026-08), SUPERSEDED by the 2026-10-02
+  restart and kept as history.** The restarted study's gate is the rule in
+  "Restart (2026-10-02)" above; nothing in this bullet binds it. As
+  recorded 2026-08-24 against round 1 of the August sweep (artifact sha256
   `7dfc91056e1f194ae2b53c6807d0c6ffe0064b58dbb3fce817ffe05dd81e00e3`):
   round 1 observed 1,126 bare-load-valid cases of
   2,262, so the rounds-1/2 eligible pool can never exceed 1,126. At that

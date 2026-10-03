@@ -104,8 +104,9 @@ export function deriveFrameSizeFromPilot({
  * (present+uncertain)/total). With zero uncertain labels this reduces
  * EXACTLY to deriveFrameSizeFromPilot. The derived N is monotonically at
  * or above the point rule's, never below: uncertainty can only demand
- * more, and the 18..82 present-count band is therefore a NECESSARY
- * condition at any pool ceiling, not a sufficient one.
+ * more, and the zero-uncertain present-count band at a pool ceiling
+ * (docs/reliability-sweep-cluster-design.md, the feasibility gate) is
+ * therefore a NECESSARY condition, not a sufficient one.
  */
 export function deriveFrameSizeFromPilotEnvelope(input) {
   const derived = deriveEnvelope(input);

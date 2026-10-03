@@ -1,4 +1,8 @@
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
+import { readFileSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { test } from "node:test";
 import { wilsonInterval } from "./cluster-interval-lib.mjs";
 import {
@@ -125,14 +129,17 @@ test("the uncertainty envelope reduces exactly to the point rule at zero uncerta
   );
 });
 
-test("the round-1 feasibility band: 18..82 present of 100 is NECESSARY at the optimistic 1,126 ceiling", () => {
-  // Round 1 of the reliability sweep (artifact sha256
+test("the superseded August band, a worked example of the gate rule: 18..82 present of 100 at a 1,126 ceiling", () => {
+  // HISTORICAL. August round 1 of the cname-uncloaking-2026-08 sweep
+  // (artifact sha256
   // 7dfc91056e1f194ae2b53c6807d0c6ffe0064b58dbb3fce817ffe05dd81e00e3)
-  // observed 1,126 bare-load-valid cases of 2,262: the rounds-1/2 eligible
-  // pool can never exceed that ceiling. This band is the ZERO-UNCERTAIN
-  // boundary case and therefore necessary only: uncertain labels narrow it
-  // through the envelope. Outside the band the run stops and the universe
-  // is enlarged; never a relaxed rule.
+  // observed 1,126 bare-load-valid cases of 2,262. The 2026-10-02 restart
+  // superseded that round and this band
+  // (docs/reliability-sweep-cluster-design.md, "Restart (2026-10-02)"):
+  // the live gate is the same rule applied to the restarted round 1's
+  // count. The arithmetic below is a property of the rule and stays true.
+  // The band is the ZERO-UNCERTAIN boundary case and therefore necessary
+  // only: uncertain labels narrow it through the envelope.
   const ceiling = 1126;
   for (const [present, fits] of [[17, false], [18, true], [82, true], [83, false]]) {
     const derived = deriveFrameSizeFromPilot({
@@ -148,6 +155,54 @@ test("the round-1 feasibility band: 18..82 present of 100 is NECESSARY at the op
   }
   assert.equal(deriveFrameSizeFromPilot({ pilotPresent: 18, pilotTotal: 100, minimumPerClass: 100 }).derivedN, 1053);
   assert.equal(deriveFrameSizeFromPilot({ pilotPresent: 17, pilotTotal: 100, minimumPerClass: 100 }).derivedN, 1132);
+});
+
+test("the restarted study's published gate command computes the rule, and reproduces the August band at 1,126", () => {
+  // The cname-uncloaking-2026-10 gate is preregistered as a RULE whose
+  // number comes from the restarted round 1. The command an operator will
+  // copy is executed here from the document's own bytes, so the published
+  // command cannot drift from the rule. The expected band is derived through
+  // the point rule, a different entry than the envelope the command calls.
+  const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+  const design = readFileSync(path.join(repoRoot, "docs", "reliability-sweep-cluster-design.md"), "utf8");
+  const start = design.indexOf("\n## Restart (2026-10-02)");
+  assert.ok(start >= 0, "the sweep design records the restart");
+  const end = design.indexOf("\n## ", start + 1);
+  const section = design.slice(start, end === -1 ? undefined : end);
+  const commands = [...section.matchAll(/^```bash\n([\s\S]*?)^```/gm)]
+    .map((match) => match[1])
+    .filter((body) => body.includes("tryDeriveFrameSizeFromPilotEnvelope"));
+  assert.equal(commands.length, 1, "the restart section publishes exactly one band command");
+  assert.equal(commands[0].split("<C>").length, 2, "the command takes the ceiling in one place");
+  const published = (ceiling) => {
+    const result = spawnSync("/bin/sh", ["-c", commands[0].replace("<C>", String(ceiling))], {
+      cwd: repoRoot,
+      encoding: "utf8"
+    });
+    assert.equal(result.status, 0, result.stderr);
+    return result.stdout.trim();
+  };
+  const ruled = (ceiling) => {
+    const band = [];
+    for (let present = 0; present <= 100; present += 1) {
+      let derivedN = null;
+      try {
+        ({ derivedN } = deriveFrameSizeFromPilot({ pilotPresent: present, pilotTotal: 100, minimumPerClass: 100 }));
+      } catch (error) {
+        assert.match(error.message, /cannot support this study's claimed classes/);
+      }
+      if (derivedN !== null && derivedN <= ceiling) band.push(present);
+    }
+    return band.length === 0 ? "empty" : band.join(",");
+  };
+  const august = Array.from({ length: 65 }, (_, index) => 18 + index).join(",");
+  assert.equal(ruled(1126), august);
+  // 1,126 is the superseded August ceiling; 295 and 294 straddle the
+  // smallest N any pilot can derive (50/100), where an inclusive comparison
+  // and an empty band are each decided by one case.
+  for (const [ceiling, expected] of [[1126, august], [295, "50"], [294, "empty"], [5000, ruled(5000)]]) {
+    assert.equal(published(ceiling), expected, `ceiling ${ceiling}`);
+  }
 });
 
 test("an unsizable pilot is a DETERMINATION for the artifact, and still an assertion for callers", async () => {
