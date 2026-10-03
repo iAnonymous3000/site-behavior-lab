@@ -12,7 +12,7 @@
  * tell "the site could not be loaded" from "our instrument refused to try"
  * selects its frame on the instrument's own failures.
  *
- * So every answer is put in exactly one of three dispositions, and the
+ * So every answer is put in exactly one of four dispositions, and the
  * default is the one that stops:
  *
  *   - "report": HTTP 200 whose strict-JSON body IS a ScanReport v2 r2 single
@@ -22,16 +22,24 @@
  *     bareLoadOutcome as a report.
  *   - "target": the scanner declared it could not measure the target, as one
  *     of SWEEP_TARGET_FAILURE_CAUSES, or answered with its navigation failure
- *     (HTTP 502, no declared cause). These are the scanner's observation, not
- *     proof about the site: the same answers come back when the instrument's
- *     own resolver, egress or clock failed. So "target" is necessary, not
- *     sufficient, for a row: the driver records bareLoadOutcome(null), the
- *     all-ineligible row, only when its egress probe and clock checks
+ *     (HTTP 502, no declared cause, recorded as "navigation-failure"). These
+ *     are the scanner's observation, not proof about the site: the same
+ *     answers come back when the instrument's own resolver, egress or clock
+ *     failed. So "target" is necessary, not sufficient, for a site row: the
+ *     driver records unmeasuredOutcome with the verdict's answer only when
+ *     its egress probe and clock checks
  *     (calibration-reliability-sweep-instrument-lib.mjs) also pass.
+ *   - "lost": the scanner declared that it measured the target and then lost
+ *     the measurement itself (SWEEP_LOST_CAUSES): instrument loss, recorded
+ *     as a lost row under the same instrument checks, never as a site row.
  *   - "stop": everything else. A declared scanner-side cause, an unknown
  *     cause, a cause-less refusal other than the navigation failure, a job
  *     submission, a redirect, a malformed body, a non-r2 report, a report
  *     from another build or condition. The driver stops the round on it.
+ *
+ * Which causes are site rows and which are lost rows is the owner's ruling
+ * of 2026-10-03 (docs/reliability-sweep-cluster-design.md, "Restart
+ * (2026-10-02)"), not this module's inference.
  *
  * Classification reads the declared `cause`, never the message: matching
  * prose is the defect lib/scan-failure-causes.ts exists to remove. The one
@@ -55,31 +63,37 @@ import { parseStrictJson } from "../lib/strict-json.ts";
  *
  * "target" is reserved for causes in which the scanner reports what happened
  * when it tried the address the sweep asked for: the name did not resolve, it
- * resolved somewhere private, or the page did not load inside the scan's
- * budget. Each is a statement about the site only while the instrument was
- * sound: lib/url-safety.ts reads getaddrinfo ENOTFOUND as authoritative, and a
- * machine with no network or no resolver daemon answers ENOTFOUND for every
- * name; the scanner's budget is wall-clock, so a scan that spans a sleep times
- * out. The driver's egress probe and clock checks decide that, not this map.
+ * resolved somewhere private, the page did not load inside the scan's
+ * budget, the name lookup ran out of time, or the host is not a subject the
+ * report format can name (a public suffix, a generalized tenant, a host with
+ * more addresses than the scanner verifies). Each is a statement about the
+ * site only while the instrument was sound: lib/url-safety.ts reads
+ * getaddrinfo ENOTFOUND as authoritative, and a machine with no network or no
+ * resolver daemon answers ENOTFOUND for every name and times out lookups; the
+ * scanner's budget is wall-clock, so a scan that spans a sleep times out. The
+ * driver's egress probe (a fresh lookup and connection after every answer)
+ * and clock checks decide that, not this map.
+ *
+ * "lost" is reserved for the scanner losing a measurement it made:
+ * report-redaction-unstable is the r2 persistence refusing a finished report
+ * whose redaction is not a fixed point, which page content triggers.
+ *
  * Everything else is the scanner, its deployment, or the request the driver
- * sent, and is not recorded as anything about the site. invalid-url is
- * deliberately a stop: the candidate grammar admits only https URLs the
- * server should accept, so a refusal means the candidate set and the server's
- * URL policy disagree, which is a tooling defect to adjudicate, not a site
- * that failed to load.
+ * sent, and is not recorded as anything. invalid-url is deliberately a stop:
+ * the candidate grammar admits only https URLs the server should accept, so a
+ * refusal means the candidate set and the server's URL policy disagree, which
+ * is a tooling defect to adjudicate, not a site that failed to load.
  */
 export const SWEEP_SCAN_CAUSE_DISPOSITIONS = Object.freeze({
   "invalid-url": "stop",
   "private-target": "target",
   "target-unreachable": "target",
   "page-load-timeout": "target",
-  // Newly declared by the scan API. Until this driver records them, each
-  // stops the round exactly as its cause-less form did.
-  "host-lookup-timeout": "stop",
-  "public-suffix-target": "stop",
-  "generalized-tenant-target": "stop",
-  "address-fanout-target": "stop",
-  "report-redaction-unstable": "stop",
+  "host-lookup-timeout": "target",
+  "public-suffix-target": "target",
+  "generalized-tenant-target": "target",
+  "address-fanout-target": "target",
+  "report-redaction-unstable": "lost",
   "scanner-busy": "stop",
   "request-limit": "stop",
   "challenge-required": "stop",
@@ -90,12 +104,16 @@ export const SWEEP_SCAN_CAUSE_DISPOSITIONS = Object.freeze({
   "service-error": "stop"
 });
 
-export const SWEEP_TARGET_FAILURE_CAUSES = Object.freeze(
-  Object.entries(SWEEP_SCAN_CAUSE_DISPOSITIONS)
-    .filter(([, disposition]) => disposition === "target")
-    .map(([cause]) => cause)
-    .sort()
-);
+const causesWithDisposition = (wanted) =>
+  Object.freeze(
+    Object.entries(SWEEP_SCAN_CAUSE_DISPOSITIONS)
+      .filter(([, disposition]) => disposition === wanted)
+      .map(([cause]) => cause)
+      .sort()
+  );
+
+export const SWEEP_TARGET_FAILURE_CAUSES = causesWithDisposition("target");
+export const SWEEP_LOST_CAUSES = causesWithDisposition("lost");
 
 /**
  * The scanner's answer when page navigation itself failed for a reason other
@@ -107,6 +125,8 @@ export const SWEEP_TARGET_FAILURE_CAUSES = Object.freeze(
  * same instrument checks as the declared target causes.
  */
 export const SWEEP_NAVIGATION_FAILURE_STATUS = 502;
+/** The row answer the cause-less navigation failure is recorded under. */
+export const SWEEP_NAVIGATION_FAILURE_ANSWER = "navigation-failure";
 
 /**
  * The report this sweep admits, and the only paths it reads to decide that.
@@ -269,8 +289,9 @@ export function classifyScanResponse({ httpStatus, bodyText, expectedBuildCommit
     const disposition = Object.hasOwn(SWEEP_SCAN_CAUSE_DISPOSITIONS, cause)
       ? SWEEP_SCAN_CAUSE_DISPOSITIONS[cause]
       : null;
-    if (disposition === "target") {
-      return { disposition: "target", httpStatus, cause, error };
+    if (disposition === "target" || disposition === "lost") {
+      // The row answer is the declared cause itself.
+      return { disposition, answer: cause, httpStatus, cause, error };
     }
     return stop(
       httpStatus,
@@ -282,7 +303,7 @@ export function classifyScanResponse({ httpStatus, bodyText, expectedBuildCommit
   }
 
   if (httpStatus === SWEEP_NAVIGATION_FAILURE_STATUS) {
-    return { disposition: "target", httpStatus, cause: null, error };
+    return { disposition: "target", answer: SWEEP_NAVIGATION_FAILURE_ANSWER, httpStatus, cause: null, error };
   }
   return stop(
     httpStatus,

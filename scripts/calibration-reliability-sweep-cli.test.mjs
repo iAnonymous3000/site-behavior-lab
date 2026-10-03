@@ -326,9 +326,17 @@ function collect(baseUrl, candidatesPath, outPath, { probeUrl, env = {}, nodeArg
   });
 }
 
+// The scan API's exact answers for the 2026-10-03 rulings' classes.
+const REDACTION_UNSTABLE = refusal(
+  500,
+  "The scan finished, but its report did not pass the scanner's privacy-redaction check, so it was not published.",
+  "report-redaction-unstable"
+);
+const LOOKUP_TIMEOUT = refusal(503, "Public host verification timed out. Try again shortly.", "host-lookup-timeout");
+
 test("collect records site outcomes as rows and completes the round", async () => {
   const dir = mkdtempSync(path.join(tmpdir(), "sweep-collect-"));
-  const candidatesPath = candidateFile(dir, 7);
+  const candidatesPath = candidateFile(dir, 12);
   const outPath = path.join(dir, "round-1.json");
   const handlers = [
     json(200, r2Report()),
@@ -338,14 +346,25 @@ test("collect records site outcomes as rows and completes the round", async () =
     refusal(502, "The page could not be loaded. The site may be down, unreachable, or blocking automated visits."),
     // The site refused the visit: a report, so a row read from the report.
     json(200, r2Report({ status: 403 })),
-    json(200, r2Report())
+    json(200, r2Report()),
+    // The 2026-10-03 rulings: four refusals the target causes are site rows,
+    // and the unstable-redaction persistence refusal is a lost row.
+    LOOKUP_TIMEOUT,
+    refusal(
+      400,
+      "That host is a registry boundary (a public suffix such as github.io or gov.uk), not a site that can be scanned on its own.",
+      "public-suffix-target"
+    ),
+    refusal(400, "That host's name under its hosting provider looks like a network address.", "generalized-tenant-target"),
+    refusal(400, "The host resolved to more than 64 addresses, which this scanner will not verify.", "address-fanout-target"),
+    REDACTION_UNSTABLE
   ];
   await withFakeScanServer(handlers, async (baseUrl, requests, { probeLog }) => {
     const result = await collect(baseUrl, candidatesPath, outPath);
     assert.equal(result.status, 0, result.stderr);
-    assert.equal(requests.length, 7);
+    assert.equal(requests.length, 12);
     // One probe before case 1 and one after every answer, each a HEAD.
-    assert.deepEqual(probeLog, Array(8).fill("HEAD"));
+    assert.deepEqual(probeLog, Array(13).fill("HEAD"));
     assert.match(
       result.stdout,
       new RegExp(`checkout \\S+ at ${COLLECT_BUILD}, no tracked changes; egress probe http://localhost:\\d+/egress-probe: HTTP 204`)
@@ -362,22 +381,38 @@ test("collect records site outcomes as rows and completes the round", async () =
     assert.match(result.stdout, /not-loaded target private-target/);
     assert.match(result.stdout, /not-loaded target page-load-timeout/);
     assert.match(result.stdout, /not-loaded target navigation-failure \(HTTP 502\): The page could not be loaded/);
-    assert.match(result.stdout, /pass 1: observed 7, loaded 2/);
+    assert.match(result.stdout, /not-loaded target host-lookup-timeout: Public host verification timed out/);
+    assert.match(result.stdout, /not-loaded target public-suffix-target: That host is a registry boundary/);
+    assert.match(result.stdout, /not-loaded target generalized-tenant-target/);
+    assert.match(result.stdout, /not-loaded target address-fanout-target: The host resolved to more than 64 addresses/);
+    assert.match(
+      result.stdout,
+      /lost report-redaction-unstable \(instrument loss, not a site outcome\): The scan finished, but its report did not pass/
+    );
+    assert.match(result.stdout, /pass 1: observed 12, loaded 2/);
+    assert.match(result.stdout, /bare-load valid 2 \(16\.7%\)/);
+    assert.match(result.stdout, /lost to the instrument: 1 of 12, counted as neither valid nor complete/);
+    assert.match(result.stdout, /rows by answer: \{"address-fanout-target":1,"generalized-tenant-target":1,"host-lookup-timeout":1,"navigation-failure":1,"page-load-timeout":1,"private-target":1,"public-suffix-target":1,"report":3,"report-redaction-unstable":1,"target-unreachable":1\}/);
     assert.doesNotMatch(result.stderr, /STOPPED/);
   });
   const artifact = JSON.parse(readFileSync(outPath, "utf8"));
-  assert.equal(artifact.version, 3, "the pass-artifact format is unchanged");
+  assert.equal(artifact.version, 4, "the pass artifact carries the row answer");
   assert.equal(artifact.identity.buildCommit, COLLECT_BUILD);
   assert.deepEqual(
-    artifact.outcomes.map((outcome) => [outcome.caseId, outcome.runOutcome, outcome.status, outcome.loaded]),
+    artifact.outcomes.map((outcome) => [outcome.caseId, outcome.answer, outcome.runOutcome, outcome.status, outcome.loaded]),
     [
-      ["case1.example", "complete", 200, true],
-      ["case2.example", "unavailable", null, false],
-      ["case3.example", "unavailable", null, false],
-      ["case4.example", "unavailable", null, false],
-      ["case5.example", "unavailable", null, false],
-      ["case6.example", "complete", 403, false],
-      ["case7.example", "complete", 200, true]
+      ["case1.example", "report", "complete", 200, true],
+      ["case2.example", "target-unreachable", "unavailable", null, false],
+      ["case3.example", "private-target", "unavailable", null, false],
+      ["case4.example", "page-load-timeout", "unavailable", null, false],
+      ["case5.example", "navigation-failure", "unavailable", null, false],
+      ["case6.example", "report", "complete", 403, false],
+      ["case7.example", "report", "complete", 200, true],
+      ["case8.example", "host-lookup-timeout", "unavailable", null, false],
+      ["case9.example", "public-suffix-target", "unavailable", null, false],
+      ["case10.example", "generalized-tenant-target", "unavailable", null, false],
+      ["case11.example", "address-fanout-target", "unavailable", null, false],
+      ["case12.example", "report-redaction-unstable", "unavailable", null, false]
     ]
   );
 });
@@ -455,10 +490,23 @@ const STOP_CASES = [
     expect: [/server cause: +invalid-url/]
   },
   {
+    // A server from before the 2026-10-03 causes: the cause-less forms of
+    // the newly recorded answers still stop.
     label: "cause-less 400",
     handler: refusal(400, "The host resolved to more than 64 addresses, which this scanner will not verify."),
     expect: [/more than 64 addresses/, /server cause: +none declared/]
   },
+  {
+    label: "cause-less lookup timeout",
+    handler: refusal(503, "Public host verification timed out. Try again shortly."),
+    expect: [/HTTP status: +503/, /verification timed out/, /server cause: +none declared/]
+  },
+  {
+    label: "resolver failure",
+    handler: refusal(503, "Public host verification could not complete. Try again shortly."),
+    expect: [/could not complete/, /server cause: +none declared/]
+  },
+
   {
     label: "unknown declared cause",
     handler: refusal(418, "A refusal from the future.", "a-cause-this-driver-has-never-seen"),
@@ -614,6 +662,32 @@ test("an outage-shaped answer stream stops the round on the failed egress probe 
     artifact.outcomes.map((outcome) => outcome.caseId),
     ["case1.example"],
     "only the case answered while egress worked is a row"
+  );
+});
+
+test("a lost answer is recorded only while the instrument is sound, like a site row", async () => {
+  const dir = mkdtempSync(path.join(tmpdir(), "sweep-lost-probe-"));
+  const candidatesPath = candidateFile(dir, 3);
+  const outPath = path.join(dir, "round-1.json");
+  // Case 1 is lost with egress up and becomes a lost row; case 2 is lost
+  // while the probe fails, and stops the round instead of being recorded.
+  await withFakeScanServer(
+    [REDACTION_UNSTABLE, REDACTION_UNSTABLE, json(200, r2Report())],
+    async (baseUrl, requests) => {
+      const result = await collect(baseUrl, candidatesPath, outPath);
+      assert.equal(result.status, 1, result.stdout);
+      assert.equal(requests.length, 2);
+      assert.match(result.stdout, /\[1\/3\] pass 1 case1\.example \.\.\. lost report-redaction-unstable/);
+      assert.match(result.stderr, /ROUND 1 STOPPED at case 2\/3 \(case2\.example\)/);
+      assert.match(result.stderr, /server cause: +report-redaction-unstable/);
+      assert.match(result.stderr, /egress probe: +FAILED \(/);
+    },
+    { probes: [probeOk, probeOk, probeDown] }
+  );
+  const artifact = JSON.parse(readFileSync(outPath, "utf8"));
+  assert.deepEqual(
+    artifact.outcomes.map((outcome) => [outcome.caseId, outcome.answer]),
+    [["case1.example", "report-redaction-unstable"]]
   );
 });
 

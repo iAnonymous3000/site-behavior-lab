@@ -2,12 +2,14 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
   bareLoadOutcome,
-  EXPECTED_EVIDENCE_FAMILIES
+  EXPECTED_EVIDENCE_FAMILIES,
+  unmeasuredOutcome
 } from "./calibration-reliability-sweep-lib.mjs";
 import {
   SWEEP_BOUND_MINIMUM_ROUNDS,
   validateSweepReceipt,
   SWEEP_PASS_ARTIFACT_KIND,
+  SWEEP_PASS_ARTIFACT_VERSION,
   assembleReceiptFromRounds,
   assertRoundsConsistent,
   buildPassArtifact,
@@ -364,7 +366,7 @@ test("the bound computes only over what the sources actually say: the reviewed f
 test("the summary lower-bounds detector-input readiness from load facts only", () => {
   const observedAt = "2026-08-23T01:00:00.000Z";
   const sound = soundOutcome("alpha.example", 1, observedAt);
-  const unverified = bareLoadOutcome("beta.example", null, { pass: 1, observedAt });
+  const unverified = unmeasuredOutcome("beta.example", "target-unreachable", { pass: 1, observedAt });
   const lossy = bareLoadOutcome(
     "gamma.example",
     (() => {
@@ -394,6 +396,99 @@ test("the summary lower-bounds detector-input readiness from load facts only", (
 
 test("the pass artifact kind is pinned", () => {
   assert.equal(SWEEP_PASS_ARTIFACT_KIND, "site-behavior-calibration-reliability-sweep-pass");
+});
+
+test("pass artifact version 4 carries the row answer, and a version 3 round is refused", () => {
+  assert.equal(SWEEP_PASS_ARTIFACT_VERSION, 4);
+  const artifact = passArtifact(1, "2026-08-23T01:00:00.000Z");
+  assert.equal(artifact.version, 4);
+  assert.ok(artifact.outcomes.every((outcome) => outcome.answer === "report"));
+  const roundTripped = JSON.parse(JSON.stringify(artifact));
+  assert.deepEqual(validatePassArtifact(roundTripped, 1), artifact);
+
+  // A version 3 artifact, exactly as the August driver wrote one: no row
+  // says why it has no report, so a lost case reads as a site that failed.
+  const v3 = JSON.parse(JSON.stringify(artifact));
+  v3.version = 3;
+  for (const outcome of v3.outcomes) delete outcome.answer;
+  assert.throws(() => validatePassArtifact(v3, 1), /version 3 predates the row answer/);
+  // Relabelled as version 4, its rows are still refused, one by one.
+  assert.throws(() => validatePassArtifact({ ...v3, version: 4 }, 1), /answer undefined is not a sweep row answer/);
+  assert.throws(() => validatePassArtifact({ ...roundTripped, version: 5 }, 1), /version mismatch: 5, expected 4/);
+});
+
+test("lost rows stay in every denominator and are counted apart from site rows", () => {
+  const observedAt = "2026-08-23T01:00:00.000Z";
+  const outcomes = [
+    soundOutcome("alpha.example", 1, observedAt),
+    unmeasuredOutcome("beta.example", "report-redaction-unstable", { pass: 1, observedAt }),
+    unmeasuredOutcome("gamma.example", "host-lookup-timeout", { pass: 1, observedAt }),
+    unmeasuredOutcome("delta.example", "public-suffix-target", { pass: 1, observedAt })
+  ];
+  const summary = summarizeSweepOutcomes(outcomes);
+  assert.equal(summary.observed, 4);
+  assert.equal(summary.valid, 1);
+  assert.equal(summary.allFamiliesComplete, 1);
+  assert.equal(summary.validFraction, 0.25);
+  assert.equal(summary.allFamiliesCompleteFraction, 0.25);
+  assert.equal(summary.lost, 1);
+  assert.deepEqual(summary.byAnswer, {
+    "host-lookup-timeout": 1,
+    "public-suffix-target": 1,
+    report: 1,
+    "report-redaction-unstable": 1
+  });
+  assert.deepEqual(summary.familyCensorCounts, {});
+});
+
+test("a round with lost rows is complete, assembles, and its lost cases count against the bound", () => {
+  const entry = (artifact) => ({ artifact, bytes: JSON.stringify(artifact) });
+  const at = [
+    "2026-08-23T01:00:00.000Z",
+    "2026-08-25T02:00:00.000Z",
+    "2026-08-26T03:00:00.000Z",
+    "2026-08-27T04:00:00.000Z"
+  ];
+  // beta is lost to the instrument in round 1 only.
+  const rounds = at.map((when, index) =>
+    passArtifact(index + 1, when, {
+      outcomes: [
+        soundOutcome("alpha.example", index + 1, when),
+        index === 0
+          ? unmeasuredOutcome("beta.example", "report-redaction-unstable", { pass: 1, observedAt: when })
+          : soundOutcome("beta.example", index + 1, when)
+      ]
+    })
+  );
+  const receipt = assembleReceiptFromRounds({
+    rounds: rounds.map(entry),
+    candidateSetBytes: CANDIDATE_BYTES,
+    sweptAt: "2026-08-27T05:00:00.000Z"
+  });
+  assert.equal(receipt.observedCandidates, 2);
+  assert.equal(receipt.eligibleCandidates, 1, "a lost case in round 1 makes the candidate ineligible");
+  const receiptBytes = serializeReliabilitySweepReceipt(receipt);
+  assert.equal(validateSweepReceipt(JSON.parse(receiptBytes), receiptBytes).eligibleCandidates, 1);
+  const bound = computeClusterLossBound({
+    candidateSetBytes: CANDIDATE_BYTES,
+    roundEntries: rounds.map((artifact) => ({ bytes: JSON.stringify(artifact) })),
+    receiptBytes
+  });
+  // Eight observations, one lost: the lost row is in the denominator as a
+  // case that is neither valid nor complete, so the bound's point set is
+  // the shared implementation over all eight.
+  assert.equal(bound.observations, 8);
+  const outcomes = receipt.cases.flatMap((c) => c.passes);
+  const valid = clusterInterval(outcomes, (o) => o.answer === "report", (o) => o.pass);
+  assert.equal(bound.bounds.bareLoadValid.lo, valid.lo);
+  assert.equal(bound.bounds.bareLoadValid.hi, valid.hi);
+  assert.ok(bound.bounds.bareLoadValid.lo < 1, "the lost row must lower the bare-load-valid bound");
+
+  // A hand edit that turns the lost row into a valid one is refused at
+  // read-back, before any receipt or bound.
+  const forged = JSON.parse(JSON.stringify(rounds[0]));
+  forged.outcomes[1] = { ...soundOutcome("beta.example", 1, at[0]), answer: "report-redaction-unstable" };
+  assert.throws(() => validatePassArtifact(forged, 1), /is a lost row \(report-redaction-unstable\) but its loaded is true/);
 });
 
 test("the receipt validator reconstructs, so a tampered receipt cannot reach the bound", () => {

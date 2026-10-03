@@ -28,6 +28,7 @@ import {
   MAX_SWEEP_ROUNDS,
   SWEEP_MINIMUM_PASS_SEPARATION_MS,
   SWEEP_MINIMUM_ROUND_SEPARATION_MS,
+  SWEEP_ROW_ANSWERS,
   allEvidenceFamiliesComplete,
   assertBareLoadOnly,
   bareLoadValid,
@@ -44,7 +45,15 @@ import { sha256Hex } from "./scanner-fidelity-study-lib.mjs";
 
 export const SWEEP_PASS_ARTIFACT_KIND =
   "site-behavior-calibration-reliability-sweep-pass";
-export const SWEEP_PASS_ARTIFACT_VERSION = 3;
+/**
+ * Version 4 adds the row `answer` (SWEEP_ROW_ANSWERS): under the 2026-10-03
+ * owner rulings a round records site rows by reason and lost rows for
+ * instrument loss, and a version 3 row cannot tell a lost case from a site
+ * that failed to load. Every validator requires the answer, so a version 3
+ * round (the superseded August round 1 among them) is never assembled with a
+ * version 4 one.
+ */
+export const SWEEP_PASS_ARTIFACT_VERSION = 4;
 
 /**
  * The preregistered fail-closed minimum for the loss bound
@@ -179,7 +188,12 @@ export function validatePassArtifact(value, expectedPass) {
     "pass artifact"
   );
   require(value.kind === SWEEP_PASS_ARTIFACT_KIND, "pass artifact kind mismatch");
-  require(value.version === SWEEP_PASS_ARTIFACT_VERSION, "pass artifact version mismatch");
+  require(
+    value.version === SWEEP_PASS_ARTIFACT_VERSION,
+    value.version === 3
+      ? "pass artifact version 3 predates the row answer: it cannot tell a lost case from a site that failed to load, so it is never assembled with a version 4 round"
+      : `pass artifact version mismatch: ${JSON.stringify(value.version)}, expected ${SWEEP_PASS_ARTIFACT_VERSION}`
+  );
   // Re-run the constructor's checks over the stored fields; a hand-edited or
   // truncated artifact must fail here, not inside receipt assembly.
   const rebuilt = buildPassArtifact({
@@ -320,16 +334,24 @@ function buildReceiptForVerification({ rounds, candidateSetBytes, sweptAt }) {
  * families were lost (familyCensorCounts): the step-3 decision sizes
  * per-detector policies from per-family loss structure, and the
  * anti-selection property lives at the eligibility boundary, not in
- * blindness here.
+ * blindness here. `byAnswer` counts rows by what the scanner answered, and
+ * `lost` counts the instrument's own losses, which stay in every
+ * denominator as cases neither valid nor complete.
  */
 export function summarizeSweepOutcomes(outcomes) {
   require(Array.isArray(outcomes) && outcomes.length > 0, "summary requires outcomes");
   let loaded = 0;
   let valid = 0;
   let allFamiliesComplete = 0;
+  let lost = 0;
   const familyCensorCounts = {};
+  const byAnswer = {};
   for (const outcome of outcomes) {
     assertBareLoadOnly(outcome, "summary input");
+    byAnswer[outcome.answer] = (byAnswer[outcome.answer] ?? 0) + 1;
+    // Instrument loss is counted, never excluded: a lost row stays in every
+    // denominator below as a case that is neither valid nor complete.
+    if (SWEEP_ROW_ANSWERS[outcome.answer] === "lost") lost += 1;
     if (outcome.loaded) loaded += 1;
     if (bareLoadValid(outcome)) valid += 1;
     if (allEvidenceFamiliesComplete(outcome)) allFamiliesComplete += 1;
@@ -342,6 +364,8 @@ export function summarizeSweepOutcomes(outcomes) {
     loaded,
     valid,
     allFamiliesComplete,
+    lost,
+    byAnswer: Object.fromEntries(Object.entries(byAnswer).sort(([a], [b]) => a.localeCompare(b))),
     loadedFraction: loaded / outcomes.length,
     validFraction: valid / outcomes.length,
     allFamiliesCompleteFraction: allFamiliesComplete / outcomes.length,

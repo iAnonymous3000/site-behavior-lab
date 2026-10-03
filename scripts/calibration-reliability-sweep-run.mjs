@@ -28,23 +28,36 @@
  * COLLECT FAILS CLOSED. Before case 1 the driver refuses unless its own git
  * checkout is at SITE_BEHAVIOR_LAB_BUILD_COMMIT with no tracked change, and
  * unless the egress probe answers. Then every answer goes through
- * classifyScanResponse (calibration-reliability-sweep-response-lib.mjs). The
- * scanner's declared failure to measure the target (unreachable, private, too
- * slow to load, or a failed navigation) is recorded as the all-ineligible row,
- * but only while the instrument was sound for that scan: the egress probe
- * after the answer succeeded, and the scan's wall-clock and monotonic
- * durations agree and stay inside the driver's deadline. Anything else stops
- * the round: a failed probe or a scan that spanned a sleep (whatever the
- * answer, reports included), a transport failure to the local server, a
- * scanner-side refusal (access gate, our own rate limit, a misconfigured r2
- * producer, a persistence failure, an internal error, a busy or async/durable
- * deployment, a resolver timeout or failure, any cause-less refusal other than
- * the navigation failure), a malformed body, and any report that is not an r2
- * single report from the declared build under the declared condition, or
- * whose projection finds no quality ledger. Every case is checked, not only
- * the first. The stop prints the server's own error and declared cause and the
- * probe's result, exits non-zero, and leaves the artifact as written through
- * the previous case: a partial round is re-run in full, never resumed or
+ * classifyScanResponse (calibration-reliability-sweep-response-lib.mjs), and
+ * is recorded only while the instrument was sound for that scan: the egress
+ * probe after the answer succeeded, and the scan's wall-clock and monotonic
+ * durations agree and stay inside the driver's deadline. Under the 2026-10-03
+ * owner rulings a row is one of three kinds, named by its `answer`:
+ *
+ *   - a report row, read from an r2 single report from the declared build
+ *     under the declared condition that carries its quality ledger;
+ *   - a site row, the all-ineligible record under the scanner's declared
+ *     reason it could not measure the target (unreachable, private, too slow
+ *     to load, a failed navigation, a name lookup that ran out of time, or a
+ *     subject the report format cannot name: a public suffix, a generalized
+ *     tenant, a host with more than 64 addresses);
+ *   - a lost row, the all-ineligible record for a measurement the scanner
+ *     made and then lost (a finished report it would not publish because its
+ *     redaction is not a fixed point): instrument loss, not valid, counted
+ *     against completeness, never a site outcome.
+ *
+ * Anything else stops the round: a failed probe or a scan that spanned a
+ * sleep (whatever the answer, reports included), a transport failure to the
+ * local server, a scanner-side refusal (access gate, our own rate limit, a
+ * misconfigured r2 producer, any other persistence or internal failure, a
+ * busy or async/durable deployment, a resolver failure, any cause-less
+ * refusal other than the navigation failure, any cause this driver does not
+ * know), a malformed body, and any report that is not an r2 single report
+ * from the declared build under the declared condition, or whose projection
+ * finds no quality ledger. Every case is checked, not only the first. The
+ * stop prints the server's own error and declared cause and the probe's
+ * result, exits non-zero, and leaves the artifact as written through the
+ * previous case: a partial round is re-run in full, never resumed or
  * assembled.
  *
  * The full report exists in this process only between the response and the
@@ -58,7 +71,7 @@ import path from "node:path";
 import { performance } from "node:perf_hooks";
 import { fileURLToPath } from "node:url";
 import { readResponseTextWithinLimit } from "./http-response.mjs";
-import { bareLoadOutcome } from "./calibration-reliability-sweep-lib.mjs";
+import { bareLoadOutcome, unmeasuredOutcome } from "./calibration-reliability-sweep-lib.mjs";
 import { classifyScanResponse } from "./calibration-reliability-sweep-response-lib.mjs";
 import {
   caseClockVerdict,
@@ -303,15 +316,27 @@ async function collect(pass, candidatesPath, outPath) {
       console.log(
         `${outcome.loaded ? "loaded" : "not-loaded"} status=${outcome.status} censoredFamilies=${outcome.censoredFamilies.join(",") || "none"}`
       );
-    } else {
+    } else if (verdict.disposition === "target") {
       // The scanner declared it could not measure the target, and the egress
-      // probe and both clocks say the instrument was sound for this scan.
-      // bareLoadOutcome projects the absent report to the all-ineligible
-      // record and the planned denominator stays whole.
-      outcome = bareLoadOutcome(candidate.caseId, null, { pass, observedAt });
+      // probe and both clocks say the instrument was sound for this scan. The
+      // site row is the all-ineligible record under the declared reason, and
+      // the planned denominator stays whole.
+      outcome = unmeasuredOutcome(candidate.caseId, verdict.answer, { pass, observedAt });
       console.log(
-        `not-loaded target ${verdict.cause ?? `navigation-failure (HTTP ${verdict.httpStatus})`}: ${verdict.error}`
+        `not-loaded target ${verdict.cause ?? `${verdict.answer} (HTTP ${verdict.httpStatus})`}: ${verdict.error}`
       );
+    } else if (verdict.disposition === "lost") {
+      // The scanner measured the target and lost the measurement itself.
+      // Instrument loss: recorded so the round stays whole and the case
+      // counts as neither valid nor complete, under its own answer so it is
+      // never read as a site outcome.
+      outcome = unmeasuredOutcome(candidate.caseId, verdict.answer, { pass, observedAt });
+      console.log(`lost ${verdict.answer} (instrument loss, not a site outcome): ${verdict.error}`);
+    } else {
+      // classifyScanResponse returns four dispositions; a fifth is a defect
+      // here, and filing it as anything would be the fail-open this refuses.
+      stopHere({ ...answer, reason: `unknown classifier disposition ${JSON.stringify(verdict.disposition)}` });
+      return;
     }
     outcomes.push(outcome);
     // Persist after every case so an interrupted pass loses one scan, not the
@@ -333,6 +358,9 @@ async function collect(pass, candidatesPath, outPath) {
       `all-families-complete ${summary.allFamiliesComplete} (${(100 * summary.allFamiliesCompleteFraction).toFixed(1)}%)`
   );
   console.log(`per-family censor counts: ${JSON.stringify(summary.familyCensorCounts)}`);
+  console.log(
+    `rows by answer: ${JSON.stringify(summary.byAnswer)}; lost to the instrument: ${summary.lost} of ${summary.observed}, counted as neither valid nor complete`
+  );
   console.log(
     "eligibility is bare-load validity; input losses are reported for sizing, never screened on. Sizing reads the receipt, not this console line"
   );

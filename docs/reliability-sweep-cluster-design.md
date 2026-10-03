@@ -201,7 +201,7 @@ pilot site, or a narrowed population.
 **Open owner decisions, blocking restarted round 1.** Recorded 2026-10-02
 by the review of the restart; each is decided by a dated addition to this
 section before restarted round 1 starts, and this text decides none of
-them.
+them. The owner rulings of 2026-10-03, below, decide all three.
 
 1. **Stop classes a target may cause.** The fail-closed driver stops the
    round on each answer below, where the August driver filed an
@@ -266,6 +266,116 @@ them.
    by addition before any round runs, never by rewriting the committed
    2026-10 files.
 
+**Owner rulings (2026-10-03), made before restarted round 1 began.** The
+owner decided the three open decisions above on 2026-10-03. No complete
+restarted round-1 artifact existed, so restarted round 1 had not begun
+under the definition above.
+
+- **R1. The unstable-redaction persistence refusal is instrument loss.** The
+  scan API now declares it: a finished r2 report whose redaction is not a
+  fixed point (the managed reader's `redaction-not-idempotent`) is refused
+  as HTTP 500 with cause `report-redaction-unstable`, and the reason still
+  goes to the server's log. The driver records that answer as a lost row:
+  the all-ineligible record with `answer` `report-redaction-unstable`, not
+  bare-load valid, counted against completeness, and never a site outcome.
+  Every other cause-less or unknown 500 still stops the round.
+- **R2. Refusals the target causes are site rows with their own reason.**
+  The scan API now declares a cause for each one that answered without
+  one: the host lookup that ran past its 5-second deadline
+  (`host-lookup-timeout`, 503, from both deadlines that race at 5 seconds),
+  a public-suffix subject (`public-suffix-target`, 400), a token-shaped
+  tenant under a private suffix (`generalized-tenant-target`, 400), and a
+  host with more than 64 addresses (`address-fanout-target`, 400). With
+  `private-target` and `target-unreachable`, which already had declared
+  causes, these are every subject-validity refusal the scan gate returns
+  before a visit; `invalid-url` refuses the address as written, and the
+  candidate grammar admits only addresses the server accepts, so it stays a
+  stop. One subject refusal comes after a visit: the r2 builder refuses a
+  report whose observed URL, after a redirect, has no registrable domain,
+  as a cause-less 500. The server does not attribute it to the target with
+  a declared cause, so it stays a stop. The site-specific server errors the
+  server does attribute to the target are the 504 `page-load-timeout` and
+  the cause-less 502 navigation failure, both already site rows. Each site
+  answer is recorded as the all-ineligible record with its cause as its
+  `answer` (the 502 as `navigation-failure`). The driver records them at
+  the first occurrence, with no retry: these answers repeat at the same
+  case, so they never stop a round and the repeat question in decision 2
+  does not arise for them. Infrastructure failures still stop the round,
+  as listed below.
+- **R3. "Development-visited" means a site the scanner opened as the page
+  under test**, requested or landed on. A host recorded only as a third
+  party inside another subject's report, or named only in code or prose,
+  is not development-visited. outbrain.com, bbc.co.uk, foxbusiness.com and
+  ap.org (recorded only as third-party hosts inside other scans) and
+  philly.com, cbslocal.com, inquirer.com and cbsnews.com (named only in
+  code or prose) stay in the pool. The derivation already applied this
+  definition, so the universe, the pilot set, the provenance, the seed, and
+  every digest above are unchanged.
+
+Every answer class, and how the restarted rounds handle it. A row is
+recorded only while the egress probe after the answer succeeds and the
+scan's clocks agree; any answer, a report included, stops the round
+otherwise.
+
+| Answer from `/api/scan` | Handling | Row `answer` |
+| --- | --- | --- |
+| 200, a ScanReport v2 r2 single report from the declared build under the declared condition, with its quality ledger | report row, read from the report | `report` |
+| 400 `target-unreachable` (`ENOTFOUND`, `ENODATA`, or no address) | site row | `target-unreachable` |
+| 400 `private-target` | site row | `private-target` |
+| 504 `page-load-timeout` | site row | `page-load-timeout` |
+| 502 with no declared cause (the scanner's navigation failure) | site row | `navigation-failure` |
+| 503 `host-lookup-timeout` (R2) | site row | `host-lookup-timeout` |
+| 400 `public-suffix-target` (R2) | site row | `public-suffix-target` |
+| 400 `generalized-tenant-target` (R2) | site row | `generalized-tenant-target` |
+| 400 `address-fanout-target` (R2) | site row | `address-fanout-target` |
+| 500 `report-redaction-unstable` (R1) | lost row | `report-redaction-unstable` |
+| 500 with no declared cause: every other managed-reader refusal (`producer-contract-mismatch` and the rest), the oversized-report refusal, a builder refusal such as a redirect to a host with no registrable domain, any internal error | stop | none |
+| 503 with no declared cause: a resolver failure ("Public host verification could not complete": `EAI_AGAIN` and every getaddrinfo code but `ENOTFOUND` and `ENODATA`), a misconfigured r2 producer | stop | none |
+| any other answer with no declared cause, such as the 400 for more than one comparison mode | stop | none |
+| a declared `invalid-url`, `scanner-busy`, `request-limit`, `challenge-required`, `access-key-required`, `request-rejected`, `feature-unavailable`, `scan-conflict` or `service-error`, or a cause the driver does not know | stop | none |
+| 202 (asynchronous or durable admission), a redirect, any other non-error status | stop | none |
+| a 200 that is not an r2 single report, is from another build or condition, or carries no quality ledger; a malformed body | stop | none |
+| a transport failure to the local server (a dead server included) | stop | none |
+| the egress probe failing after an answer, or a scan whose wall-clock and monotonic durations differ by more than 5 seconds or exceed 180 seconds | stop | none |
+| the driver's checkout not at the declared build with no tracked change, or the egress probe failing before case 1 | the round does not start | none |
+
+Two consequences follow, and both are deliberate. The asymmetry recorded
+under decision 1 remains: `ENOTFOUND` is a site row and a resolver
+failure such as `EAI_AGAIN` stops, because the rulings name the lookup
+timeout and not the resolver failure. And a stop class that repeats at the
+same case after round 1 has begun is still cleared only by a fix that does
+not change the collection build; otherwise it starts a new sweep, as
+above.
+
+How site and lost rows count. Both are the all-ineligible record: not
+bare-load valid, not all-families-complete, and in the denominator of
+every bounded quantity, so a lost row lowers C, the eligible pool, and
+both loss bounds exactly as a site row does. A candidate with a site or
+lost row in round 1 or round 2 is not eligible. A round whose 2,255 rows
+include site or lost rows is still complete under the definition above,
+because the driver wrote every case without a stop. One place a lost row
+does not count as loss: no ledger was read, so it is censored in no
+evidence family, like every site row; the per-family censor bounds count
+it in their denominators only. `collect` prints the round's rows by answer
+and its lost count beside the bare-load-valid count.
+
+The pass artifact is version 4. Version 3 rows had no way to say why a row
+carried no report, so a lost case was indistinguishable from a site that
+failed to load. Every row now carries `answer`, closed by value
+(`SWEEP_ROW_ANSWERS` in scripts/calibration-reliability-sweep-lib.mjs, pinned
+to the classifier's site and lost causes in both directions), and a site or
+lost row must equal the all-ineligible record field by field. The check
+runs wherever a row is read: building and reading a pass artifact, receipt
+assembly and validation, the summary, eligibility, and the bound's
+reassembly. `validatePassArtifact` refuses version 3, so no version 3 round,
+the superseded August round 1 among them, can be assembled with a
+restarted one; the identity rules (study, candidate set, build, runner,
+egress, condition) are unchanged. The receipt keeps its shape, and its rows
+carry the same `answer`.
+
+These rulings change collection code (the scan API and the driver), so the
+collection SHA moves by the dated addition that follows.
+
 ## Why two passes were not enough
 
 The adopted censoring decision sizes per-detector policies from a defensible
@@ -325,12 +435,18 @@ receipt binds the candidate set and every round artifact by digest; the
 bound artifact binds the receipt by digest and records the method
 parameters, so a stranger can recompute every number.
 
-**Collect fails closed.** A round records a row only for a report, or for
-the scanner's declared failure to measure the target (`target-unreachable`,
-`private-target`, `page-load-timeout`, or the scanner's cause-less
-navigation failure, HTTP 502), which projects to the all-ineligible row.
-Those four are the scanner's observation, not proof about the site: the
-same answers come back when the instrument itself fails. The gate reads
+**Collect fails closed.** A round records a row only for a report; for
+the scanner's declared failure to measure the target, a site row
+(`target-unreachable`, `private-target`, `page-load-timeout`, the scanner's
+cause-less navigation failure, HTTP 502, and, under the 2026-10-03 owner
+rulings, `host-lookup-timeout`, `public-suffix-target`,
+`generalized-tenant-target` and `address-fanout-target`); or for the
+scanner losing a measurement it made, a lost row
+(`report-redaction-unstable`). Site and lost rows are the all-ineligible
+record and carry their answer, so instrument loss is never read as a site
+outcome ("Owner rulings (2026-10-03)" above has the full table). The site
+answers are the scanner's observation, not proof about the site: the same
+answers come back when the instrument itself fails. The gate reads
 getaddrinfo `ENOTFOUND` as an authoritative "no such name", and a Mac with
 no network or no reachable resolver daemon answers `ENOTFOUND` for every
 name in milliseconds; the scan proxy's own resolution and upstream failures
@@ -351,12 +467,14 @@ instrument was sound for that scan:
 
 Every other answer stops the round too: a transport failure to the local
 server; a scanner-side refusal (our access gate, our own rate limit, an r2
-producer that is misconfigured or cannot persist, an internal error, a
-busy, asynchronous or durable deployment, any other declared cause, an
-unknown cause, or a cause-less refusal, which includes the resolver's
-timeouts and failures, the address fan-out and public-suffix refusals, and
-every cause-less 500); a malformed body; and any report
-that is not a ScanReport v2 r2 single report whose
+producer that is misconfigured or cannot persist for any reason but the
+unstable redaction, an internal error, a busy, asynchronous or durable
+deployment, any other declared cause, an unknown cause, or a cause-less
+refusal other than the 502, which includes the resolver's failures such
+as `EAI_AGAIN`, every cause-less 500, and, from a server older than the
+2026-10-03 causes, the lookup timeout and the subject refusals); a
+malformed body; and any report that is not a ScanReport v2 r2 single
+report whose
 `run.provenance.buildCommit` equals `SITE_BEHAVIOR_LAB_BUILD_COMMIT` under
 the declared condition, or that carries no per-family quality ledger. Every
 case is checked, not only the first. The stop prints the server's error and
@@ -366,14 +484,14 @@ full, never resumed, and receipt assembly refuses it. Filing a scanner
 refusal as the site's row would drop the site from the eligible pool for a
 reason the site never caused. A refusal that repeats on every re-run at the
 same case (for example `invalid-url`) is a candidate-set or scanner defect
-to adjudicate, not a site outcome to record; the cause-less classes a
-target itself may cause, and what happens when one repeats after round 1
-has begun, are open owner decisions recorded in "Restart (2026-10-02)"
-above. The split lives in
+to adjudicate, not a site outcome to record; which answers a target
+itself causes, and what happens when a stop repeats after round 1 has
+begun, are decided by the 2026-10-03 owner rulings in "Restart
+(2026-10-02)" above. The split lives in
 `scripts/calibration-reliability-sweep-response-lib.mjs`, pinned by test to
-the `ScanFailureCause` union and to the single producer of the cause-less
-502; the instrument checks live in
-`scripts/calibration-reliability-sweep-instrument-lib.mjs`.
+the `ScanFailureCause` union, to the single producer of the cause-less 502
+and of the lost cause, and to the row answers; the instrument checks live
+in `scripts/calibration-reliability-sweep-instrument-lib.mjs`.
 
 Two residuals remain recorded as site outcomes, because nothing outside
 the scanner can see them: an outage that begins and ends strictly inside

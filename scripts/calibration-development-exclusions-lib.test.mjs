@@ -562,6 +562,17 @@ test("a host a report records only as a third party is not development-visited",
   }
 });
 
+test("the restart section records the definition and the eight borderline domains", () => {
+  const design = readFileSync(path.join(repoRoot, "docs", "reliability-sweep-cluster-design.md"), "utf8");
+  const start = design.indexOf("\n## Restart (2026-10-02)");
+  const end = design.indexOf("\n## ", start + 1);
+  const restart = design.slice(start, end).replace(/\s+/g, " ");
+  const rulings = restart.slice(restart.indexOf("**Owner rulings (2026-10-03)"));
+  assert.ok(start >= 0 && rulings.length > 0, "the restart section records the 2026-10-03 rulings");
+  assert.match(rulings, /"Development-visited" means a site the scanner opened as the page under test/);
+  for (const domain of BORDERLINE) assert.ok(rulings.includes(domain), `the rulings name ${domain}`);
+});
+
 test("the eight borderline frame domains stay in the 2026-10 universe", () => {
   const dir = path.join(repoRoot, "calibration", "cname-uncloaking-2026-10-prevalence-pilot");
   const provenance = JSON.parse(readFileSync(path.join(dir, "universe-provenance.json"), "utf8"));

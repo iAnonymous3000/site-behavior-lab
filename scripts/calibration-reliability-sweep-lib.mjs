@@ -40,11 +40,16 @@
  * moves to the eligibility boundary instead: `candidateEligible` reads load
  * validity only, so the frame can never be selected on input completeness,
  * and predictions remain unrepresentable in this vocabulary either way.
+ *
+ * `answer` says what the scanner answered for the case, from the closed
+ * SWEEP_ROW_ANSWERS vocabulary. It is a load fact (how the visit ended),
+ * never a detector output.
  */
 export const BARE_LOAD_OUTCOME_FIELDS = Object.freeze([
   "caseId",
   "pass",
   "observedAt",
+  "answer",
   "loaded",
   "status",
   "statusAgrees",
@@ -79,6 +84,44 @@ export const EXPECTED_EVIDENCE_FAMILIES = Object.freeze([
   "consent-verification"
 ]);
 
+/**
+ * Every answer a sweep row may record, and its class (owner rulings of
+ * 2026-10-03, docs/reliability-sweep-cluster-design.md, "Restart
+ * (2026-10-02)"). Closed by value: any other answer is not a row.
+ *
+ *   - "report": the scanner returned an admitted r2 report, and every other
+ *     field is read from it by bareLoadOutcome.
+ *   - "site": the scanner declared it could not measure the target, for a
+ *     reason the target causes: it did not resolve, resolved somewhere
+ *     private, did not load in time, failed navigation (the cause-less 502,
+ *     recorded as "navigation-failure"), its name lookup ran out of time, or
+ *     it is not a subject the report format can name. A site row is the
+ *     scanner's observation of the target, recorded only while the
+ *     instrument checks pass.
+ *   - "lost": the scanner measured the target and then lost the measurement
+ *     itself. "report-redaction-unstable" is the scanner refusing to publish
+ *     a finished report whose redaction is not a fixed point. It is instrument
+ *     loss, never a site outcome: the row is not valid and counts against
+ *     every completeness quantity, and its answer keeps it apart from site
+ *     rows.
+ *
+ * Site and lost rows carry no report, so every load field is the ineligible
+ * value (unmeasuredOutcome). The site and lost answers are pinned to the
+ * scan-response classifier's dispositions in its test, in both directions.
+ */
+export const SWEEP_ROW_ANSWERS = Object.freeze({
+  report: "report",
+  "target-unreachable": "site",
+  "private-target": "site",
+  "page-load-timeout": "site",
+  "navigation-failure": "site",
+  "host-lookup-timeout": "site",
+  "public-suffix-target": "site",
+  "generalized-tenant-target": "site",
+  "address-fanout-target": "site",
+  "report-redaction-unstable": "lost"
+});
+
 const BARE_LOAD_FIELD_SET = new Set(BARE_LOAD_OUTCOME_FIELDS);
 
 const ISO_UTC = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?Z$/;
@@ -100,12 +143,47 @@ function isRecord(value) {
 }
 
 /**
+ * The record for a case the scanner did not measure into a report: every
+ * load field at its ineligible value. Absence of evidence is never evidence
+ * of soundness.
+ */
+function ineligibleRecord(caseId, pass, observedAt, answer) {
+  return {
+    caseId,
+    pass,
+    observedAt,
+    answer,
+    loaded: false,
+    status: null,
+    statusAgrees: false,
+    navigationSettled: false,
+    subjectVerified: false,
+    botWalled: true,
+    runOutcome: "unavailable",
+    factsLedgerRecorded: false,
+    recordedCaptureLosses: 0,
+    budgetsExhausted: 0,
+    familyLedgerReported: false,
+    familyLedgerComplete: false,
+    ledgersConsistent: false,
+    censoredFamilies: [],
+    requestEvidenceComplete: false
+  };
+}
+
+/**
  * Refuse anything carrying a key outside the load vocabulary.
  *
  * This is the enforcement the frame-construction draft said nothing currently
  * provided. It runs on every projected case AND on the assembled receipt, so
  * neither a widened projection nor a receipt field added later can carry a
  * prediction into a published artifact.
+ *
+ * It also closes `answer` by value and requires it on every row, so a row
+ * from before the answer existed (pass artifact version 3) is refused
+ * wherever it appears, and a site or lost row must be exactly the ineligible
+ * record: a hand-edited row cannot claim the scanner answered without a
+ * report and still carry a loaded page.
  */
 export function assertBareLoadOnly(outcome, context = "bare-load outcome") {
   require(isRecord(outcome), `${context} must be a record`);
@@ -114,6 +192,19 @@ export function assertBareLoadOnly(outcome, context = "bare-load outcome") {
       BARE_LOAD_FIELD_SET.has(key),
       `${context} carries "${key}", which is not a bare-load field; the reliability sweep must never observe detector output`
     );
+  }
+  require(
+    typeof outcome.answer === "string" && Object.hasOwn(SWEEP_ROW_ANSWERS, outcome.answer),
+    `${context} answer ${JSON.stringify(outcome.answer)} is not a sweep row answer (${Object.keys(SWEEP_ROW_ANSWERS).join(", ")})`
+  );
+  if (SWEEP_ROW_ANSWERS[outcome.answer] !== "report") {
+    const expected = ineligibleRecord(outcome.caseId, outcome.pass, outcome.observedAt, outcome.answer);
+    for (const field of BARE_LOAD_OUTCOME_FIELDS) {
+      require(
+        JSON.stringify(outcome[field]) === JSON.stringify(expected[field]),
+        `${context} is a ${SWEEP_ROW_ANSWERS[outcome.answer]} row (${outcome.answer}) but its ${field} is ${JSON.stringify(outcome[field])}; a row without a report carries the ineligible value ${JSON.stringify(expected[field])}`
+      );
+    }
   }
   // The one array-valued field is closed by VALUE as well as by key: a
   // hand-edited artifact must not be able to smuggle arbitrary strings
@@ -136,14 +227,7 @@ export function assertBareLoadOnly(outcome, context = "bare-load outcome") {
   return outcome;
 }
 
-/**
- * Project a scan report down to load facts.
- *
- * Takes the whole report and returns only the closed record. Callers never see
- * the report again, so there is no path by which sweep logic can consult
- * evidence: the narrowing happens once, here, at ingestion.
- */
-export function bareLoadOutcome(caseId, report, { pass, observedAt } = {}) {
+function requireRowIdentity(caseId, pass, observedAt) {
   require(
     typeof caseId === "string" && caseId.length > 0,
     "bare-load outcome requires a case id"
@@ -156,6 +240,40 @@ export function bareLoadOutcome(caseId, report, { pass, observedAt } = {}) {
     typeof observedAt === "string" && ISO_UTC.test(observedAt),
     "bare-load outcome requires an ISO-8601 UTC observedAt supplied by the caller"
   );
+}
+
+/**
+ * The row for a case the scanner answered without a report: a site answer
+ * or a lost answer from SWEEP_ROW_ANSWERS. Every load field is ineligible,
+ * so the row is never bare-load valid and never all-families-complete, and
+ * its answer says why there was no report.
+ */
+export function unmeasuredOutcome(caseId, answer, { pass, observedAt } = {}) {
+  requireRowIdentity(caseId, pass, observedAt);
+  require(
+    typeof answer === "string" &&
+      Object.hasOwn(SWEEP_ROW_ANSWERS, answer) &&
+      SWEEP_ROW_ANSWERS[answer] !== "report",
+    `an unmeasured row needs a site or lost answer, not ${JSON.stringify(answer)}`
+  );
+  return assertBareLoadOnly(ineligibleRecord(caseId, pass, observedAt, answer));
+}
+
+/**
+ * Project a scan report down to load facts.
+ *
+ * Takes the whole report and returns only the closed record. Callers never see
+ * the report again, so there is no path by which sweep logic can consult
+ * evidence: the narrowing happens once, here, at ingestion.
+ */
+export function bareLoadOutcome(caseId, report, { pass, observedAt } = {}) {
+  requireRowIdentity(caseId, pass, observedAt);
+  // A report row needs the scanner's report. A case answered without one is
+  // a site or lost row, and its answer has to say which.
+  require(
+    report !== null && report !== undefined,
+    "bare-load outcome requires the report the scanner returned; record a case answered without one with unmeasuredOutcome and its answer"
+  );
 
   // EVERY field below defaults to the INELIGIBLE value. Absence of evidence is
   // never evidence of soundness: a report missing its quality ledger tells us
@@ -163,26 +281,7 @@ export function bareLoadOutcome(caseId, report, { pass, observedAt } = {}) {
   // function defaulted navigationSettled, runOutcome and requestEvidenceComplete
   // the other way, and `{run:{summary:{status:200}}}` -- a report with no
   // quality data at all -- came out eligible.
-  const unverified = {
-    caseId,
-    pass,
-    observedAt,
-    loaded: false,
-    status: null,
-    statusAgrees: false,
-    navigationSettled: false,
-    subjectVerified: false,
-    botWalled: true,
-    runOutcome: "unavailable",
-    factsLedgerRecorded: false,
-    recordedCaptureLosses: 0,
-    budgetsExhausted: 0,
-    familyLedgerReported: false,
-    familyLedgerComplete: false,
-    ledgersConsistent: false,
-    censoredFamilies: [],
-    requestEvidenceComplete: false
-  };
+  const unverified = ineligibleRecord(caseId, pass, observedAt, "report");
 
   const run = isRecord(report) ? (report.run ?? report.baseline ?? null) : null;
   // qualityFacts is required, not optional: it is where the producer records
@@ -223,6 +322,7 @@ export function bareLoadOutcome(caseId, report, { pass, observedAt } = {}) {
     caseId,
     pass,
     observedAt,
+    answer: "report",
     loaded: status !== null && status >= 200 && status < 400,
     status,
     statusAgrees,

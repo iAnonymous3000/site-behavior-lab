@@ -7,13 +7,15 @@ import {
   BARE_LOAD_OUTCOME_FIELDS,
   EXPECTED_EVIDENCE_FAMILIES,
   SWEEP_MINIMUM_PASS_SEPARATION_MS,
+  SWEEP_ROW_ANSWERS,
   allEvidenceFamiliesComplete,
   assertBareLoadOnly,
   bareLoadOutcome,
   bareLoadValid,
   buildReliabilitySweepReceipt,
   candidateEligible,
-  serializeReliabilitySweepReceipt
+  serializeReliabilitySweepReceipt,
+  unmeasuredOutcome
 } from "./calibration-reliability-sweep-lib.mjs";
 
 const moduleDir = path.dirname(fileURLToPath(import.meta.url));
@@ -736,9 +738,104 @@ test("the expected family list matches the schema that defines it", () => {
 test("a missing or unusable report is recorded as a failed pass, never skipped", () => {
   // Silently dropping unloadable cases biases the frame toward sites that
   // happen to cooperate, which is the same selection hazard by another route.
-  const missing = project("case-c", null, 1, PASS_1);
+  const missing = unmeasuredOutcome("case-c", "target-unreachable", { pass: 1, observedAt: PASS_1 });
   assert.equal(missing.runOutcome, "unavailable");
   assert.equal(bareLoadValid(missing), false);
+  const unusable = project("case-c", {}, 1, PASS_1);
+  assert.equal(unusable.answer, "report");
+  assert.equal(unusable.runOutcome, "unavailable");
+  assert.equal(bareLoadValid(unusable), false);
+  // A case answered without a report must say why: the answer is what keeps
+  // instrument loss apart from a site that failed to load.
+  assert.throws(() => project("case-c", null, 1, PASS_1), /record a case answered without one with unmeasuredOutcome/);
+  assert.throws(() => project("case-c", undefined, 1, PASS_1), /unmeasuredOutcome/);
+});
+
+// ---------------------------------------------------------------------------
+// The row answer (owner rulings, 2026-10-03). Every row says what the scanner
+// answered: a report, a site outcome by its reason, or instrument loss. Site
+// and lost rows are the ineligible record and nothing else.
+// ---------------------------------------------------------------------------
+
+test("every row carries its answer, closed by value", () => {
+  assert.equal(project("case-a", soundReport(), 1, PASS_1).answer, "report");
+  for (const [answer, rowClass] of Object.entries(SWEEP_ROW_ANSWERS)) {
+    if (rowClass === "report") continue;
+    const row = unmeasuredOutcome("case-a", answer, { pass: 1, observedAt: PASS_1 });
+    assert.equal(row.answer, answer);
+    assert.deepEqual(Object.keys(row).sort(), [...BARE_LOAD_OUTCOME_FIELDS].sort());
+  }
+  const sound = project("case-a", soundReport(), 1, PASS_1);
+  // A row with no answer is a version 3 row, from before rows said why.
+  const { answer: _dropped, ...unanswered } = sound;
+  assert.throws(() => assertBareLoadOnly(unanswered), /answer undefined is not a sweep row answer/);
+  for (const forged of ["unavailable", "service-error", "invalid-url", "lost", "site", "", 7, null]) {
+    assert.throws(() => assertBareLoadOnly({ ...sound, answer: forged }), /is not a sweep row answer/, String(forged));
+  }
+  for (const refused of ["report", "service-error", "nonsense", undefined]) {
+    assert.throws(
+      () => unmeasuredOutcome("case-a", refused, { pass: 1, observedAt: PASS_1 }),
+      /needs a site or lost answer/,
+      String(refused)
+    );
+  }
+  assert.throws(() => unmeasuredOutcome("case-a", "target-unreachable", { pass: 1 }), /ISO-8601 UTC observedAt/);
+  assert.throws(() => unmeasuredOutcome("case-a", "target-unreachable", { pass: 0, observedAt: PASS_1 }), /explicit sweep round number/);
+});
+
+test("a site or lost row is exactly the ineligible record, so no edit can make one valid", () => {
+  const lost = unmeasuredOutcome("case-a", "report-redaction-unstable", { pass: 1, observedAt: PASS_1 });
+  const site = unmeasuredOutcome("case-a", "host-lookup-timeout", { pass: 1, observedAt: PASS_1 });
+  for (const row of [lost, site]) {
+    assert.equal(bareLoadValid(row), false);
+    assert.equal(allEvidenceFamiliesComplete(row), false);
+    assert.deepEqual(row.censoredFamilies, []);
+  }
+  // Relabelling a sound report row as a site or lost answer, or giving a
+  // lost row a sound field, is refused field by field.
+  const sound = project("case-a", soundReport(), 1, PASS_1);
+  assert.equal(bareLoadValid(sound), true);
+  assert.throws(() => assertBareLoadOnly({ ...sound, answer: "report-redaction-unstable" }), /is a lost row .* but its loaded is true/);
+  assert.throws(() => assertBareLoadOnly({ ...sound, answer: "page-load-timeout" }), /is a site row .* but its loaded is true/);
+  for (const [field, value] of [
+    ["loaded", true],
+    ["status", 200],
+    ["statusAgrees", true],
+    ["navigationSettled", true],
+    ["subjectVerified", true],
+    ["botWalled", false],
+    ["runOutcome", "complete"],
+    ["factsLedgerRecorded", true],
+    ["recordedCaptureLosses", 1],
+    ["budgetsExhausted", 1],
+    ["familyLedgerReported", true],
+    ["familyLedgerComplete", true],
+    ["ledgersConsistent", true],
+    ["censoredFamilies", ["requests"]],
+    ["requestEvidenceComplete", true]
+  ]) {
+    assert.throws(() => assertBareLoadOnly({ ...lost, [field]: value }), new RegExp(`its ${field} is`), field);
+  }
+  const { loaded: _missing, ...partial } = lost;
+  assert.throws(() => assertBareLoadOnly(partial), /its loaded is undefined/);
+});
+
+test("a lost row counts against eligibility and completeness like any failed visit", () => {
+  // Instrument loss is not valid and is never dropped: the candidate is not
+  // eligible, and it stays in the receipt's denominator.
+  const outcomes = [
+    project("case-a", soundReport(), 1, PASS_1),
+    project("case-a", soundReport(), 2, PASS_2),
+    unmeasuredOutcome("case-b", "report-redaction-unstable", { pass: 1, observedAt: PASS_1 }),
+    project("case-b", soundReport(), 2, PASS_2)
+  ];
+  assert.equal(candidateEligible(outcomes.filter((outcome) => outcome.caseId === "case-b")), false);
+  const receipt = buildReliabilitySweepReceipt(receiptArgs({ outcomes }));
+  assert.equal(receipt.observedCandidates, 2);
+  assert.equal(receipt.eligibleCandidates, 1);
+  assert.equal(receipt.eligibleFraction, 0.5);
+  const caseB = receipt.cases.find((entry) => entry.caseId === "case-b");
+  assert.deepEqual(caseB.passes.map((pass) => pass.answer), ["report-redaction-unstable", "report"]);
 });
 
 test("the projection refuses an unlabelled round or timestamp", () => {
@@ -771,7 +868,7 @@ test("the receipt binds the sweep to a candidate set, condition, and producer", 
         project("case-a", soundReport(), 1, PASS_1),
         project("case-a", soundReport(), 2, PASS_2),
         project("case-b", soundReport(), 1, PASS_1),
-        project("case-c", null, 1, PASS_1)
+        unmeasuredOutcome("case-c", "target-unreachable", { pass: 1, observedAt: PASS_1 })
       ]
     })
   );

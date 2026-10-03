@@ -6,10 +6,13 @@ import { test } from "node:test";
 import ts from "typescript";
 import {
   EXPECTED_EVIDENCE_FAMILIES,
+  SWEEP_ROW_ANSWERS,
   bareLoadOutcome
 } from "./calibration-reliability-sweep-lib.mjs";
 import {
   SWEEP_ADMITTED_REPORT,
+  SWEEP_LOST_CAUSES,
+  SWEEP_NAVIGATION_FAILURE_ANSWER,
   SWEEP_NAVIGATION_FAILURE_STATUS,
   SWEEP_REPORT_READ_PATHS,
   SWEEP_SCAN_CAUSE_DISPOSITIONS,
@@ -87,6 +90,20 @@ test("site outcomes are recorded as observations: the declared target causes and
     [
       502,
       refusal("The page could not be loaded. The site may be down, unreachable, or blocking automated visits.")
+    ],
+    // The 2026-10-03 rulings: refusals the target causes, now declared.
+    [503, refusal("Public host verification timed out. Try again shortly.", "host-lookup-timeout")],
+    [
+      400,
+      refusal(
+        "That host is a registry boundary (a public suffix such as github.io or gov.uk), not a site that can be scanned on its own.",
+        "public-suffix-target"
+      )
+    ],
+    [400, refusal("That host's name under its hosting provider looks like a network address.", "generalized-tenant-target")],
+    [
+      400,
+      refusal("The host resolved to more than 64 addresses, which this scanner will not verify.", "address-fanout-target")
     ]
   ];
   for (const [status, body] of cases) {
@@ -95,9 +112,39 @@ test("site outcomes are recorded as observations: the declared target causes and
     assert.equal(verdict.httpStatus, status);
     assert.equal(verdict.cause, body.cause ?? null);
     assert.equal(verdict.error, body.error);
+    // The row answer is the declared cause, or the navigation failure's name.
+    assert.equal(verdict.answer, body.cause ?? "navigation-failure");
+    assert.equal(SWEEP_ROW_ANSWERS[verdict.answer], "site", verdict.answer);
   }
-  assert.deepEqual(SWEEP_TARGET_FAILURE_CAUSES, ["page-load-timeout", "private-target", "target-unreachable"]);
+  assert.deepEqual(SWEEP_TARGET_FAILURE_CAUSES, [
+    "address-fanout-target",
+    "generalized-tenant-target",
+    "host-lookup-timeout",
+    "page-load-timeout",
+    "private-target",
+    "public-suffix-target",
+    "target-unreachable"
+  ]);
   assert.equal(SWEEP_NAVIGATION_FAILURE_STATUS, 502);
+  assert.equal(SWEEP_NAVIGATION_FAILURE_ANSWER, "navigation-failure");
+});
+
+test("a report the scanner measured and would not publish is instrument loss, never a site outcome", () => {
+  const body = refusal(
+    "The scan finished, but its report did not pass the scanner's privacy-redaction check, so it was not published.",
+    "report-redaction-unstable"
+  );
+  const verdict = classify(500, body);
+  assert.equal(verdict.disposition, "lost");
+  assert.equal(verdict.answer, "report-redaction-unstable");
+  assert.equal(verdict.cause, "report-redaction-unstable");
+  assert.equal(verdict.httpStatus, 500);
+  assert.equal(verdict.error, body.error);
+  assert.equal(SWEEP_ROW_ANSWERS[verdict.answer], "lost");
+  assert.deepEqual(SWEEP_LOST_CAUSES, ["report-redaction-unstable"]);
+  // The cause decides, not the status: the same refusal without its cause is
+  // the server's unexpected branch, and that still stops.
+  assert.equal(classify(500, refusal(body.error)).disposition, "stop");
 });
 
 test("every scanner-side refusal stops the round and carries the server's own error and cause", () => {
@@ -114,7 +161,15 @@ test("every scanner-side refusal stops the round and carries the server's own er
     ["persistence or internal failure", 500, refusal("The service could not complete this request. Try again later.")],
     ["busy", 503, refusal("Scanner is busy. Try again shortly.", "scanner-busy")],
     ["dns resolver outage", 503, refusal("Public host verification could not complete. Try again shortly.")],
-    ["dns verification timeout", 503, refusal("Public host verification timed out. Try again shortly.")],
+    // A server from before the 2026-10-03 causes: the cause-less forms of
+    // the newly recorded answers still stop, because nothing in them is
+    // declared.
+    ["cause-less dns verification timeout", 503, refusal("Public host verification timed out. Try again shortly.")],
+    [
+      "cause-less address fan-out",
+      400,
+      refusal("The host resolved to more than 64 addresses, which this scanner will not verify.")
+    ],
     ["lifecycle conflict", 409, refusal("This scan job has already finished and cannot be cancelled.", "scan-conflict")],
     ["malformed request", 400, refusal("Request body must be valid JSON.", "request-rejected")],
     ["oversized request", 413, refusal("Request body is too large.", "request-rejected")],
@@ -219,6 +274,67 @@ test("the classifier refuses to run without the declared identity and condition"
   assert.throws(() => classifyScanResponse({ ...base, bodyText: null }), /body text/);
 });
 
+test("the restart section's answer table states exactly what the driver does", () => {
+  // The owner rulings are restated as a table in the design document, and a
+  // restatement drifts. Every row's handling and answer must be the code's.
+  const design = readFileSync(path.join(repoRoot, "docs", "reliability-sweep-cluster-design.md"), "utf8");
+  const start = design.indexOf("\n## Restart (2026-10-02)");
+  const end = design.indexOf("\n## ", start + 1);
+  const restart = design.slice(start, end);
+  const tableStart = restart.indexOf("| Answer from `/api/scan` | Handling | Row `answer` |");
+  assert.ok(start >= 0 && tableStart >= 0, "the restart section carries the answer table");
+  const rows = restart
+    .slice(tableStart)
+    .split("\n\n")[0]
+    .split("\n")
+    .slice(2)
+    .map((line) => line.split("|").slice(1, -1).map((cell) => cell.trim()));
+  assert.ok(rows.length >= 15, `parsed only ${rows.length} table rows`);
+  const stated = { report: [], site: [], lost: [] };
+  let stopCauses = null;
+  for (const [answer, handling, rowAnswer] of rows) {
+    const rowClass = handling.startsWith("report row")
+      ? "report"
+      : handling === "site row"
+        ? "site"
+        : handling === "lost row"
+          ? "lost"
+          : null;
+    if (rowClass === null) {
+      assert.ok(handling === "stop" || handling === "the round does not start", `unknown handling "${handling}"`);
+      assert.equal(rowAnswer, "none", `a ${handling} row records no answer: ${answer}`);
+      if (answer.startsWith("a declared ")) {
+        stopCauses = [...answer.matchAll(/`([a-z-]+)`/g)].map((match) => match[1]).sort();
+      }
+      continue;
+    }
+    const recorded = /^`([a-z-]+)`$/.exec(rowAnswer)?.[1];
+    assert.ok(recorded, `row answer "${rowAnswer}" is not a single answer`);
+    stated[rowClass].push(recorded);
+    if (rowClass !== "report" && recorded !== SWEEP_NAVIGATION_FAILURE_ANSWER) {
+      assert.match(answer, new RegExp(`\`${recorded}\``), `the ${recorded} row must name the cause it records`);
+    }
+  }
+  for (const rowClass of ["report", "site", "lost"]) {
+    assert.deepEqual(
+      stated[rowClass].sort(),
+      Object.entries(SWEEP_ROW_ANSWERS)
+        .filter(([, value]) => value === rowClass)
+        .map(([answer]) => answer)
+        .sort(),
+      `the table's ${rowClass} rows`
+    );
+  }
+  assert.deepEqual(
+    stopCauses,
+    Object.entries(SWEEP_SCAN_CAUSE_DISPOSITIONS)
+      .filter(([, disposition]) => disposition === "stop")
+      .map(([cause]) => cause)
+      .sort(),
+    "the table's declared stop causes"
+  );
+});
+
 // ---------------------------------------------------------------------------
 // Drift guards: the classification restates two server contracts, so each is
 // pinned to its source. A new cause, or a second producer of a cause-less 502,
@@ -259,8 +375,27 @@ test("the cause map classifies exactly the ScanFailureCause union, in both direc
   assert.ok(causes.length >= 10, `parsed only ${causes.length} causes`);
   assert.deepEqual(Object.keys(SWEEP_SCAN_CAUSE_DISPOSITIONS).sort(), [...causes].sort());
   for (const disposition of Object.values(SWEEP_SCAN_CAUSE_DISPOSITIONS)) {
-    assert.ok(disposition === "target" || disposition === "stop");
+    assert.ok(disposition === "target" || disposition === "lost" || disposition === "stop");
   }
+});
+
+test("the row answers are exactly the classifier's site and lost answers, in both directions", () => {
+  // One contract in two files: the classifier decides which causes are rows,
+  // and the narrowing layer closes the row vocabulary. Each half passing its
+  // own tests while they disagree would stop a round on a valid row, or
+  // admit an answer the classifier never gives.
+  const byClass = (wanted) =>
+    Object.entries(SWEEP_ROW_ANSWERS)
+      .filter(([, rowClass]) => rowClass === wanted)
+      .map(([answer]) => answer)
+      .sort();
+  assert.deepEqual(byClass("report"), ["report"]);
+  assert.deepEqual(byClass("site"), [...SWEEP_TARGET_FAILURE_CAUSES, SWEEP_NAVIGATION_FAILURE_ANSWER].sort());
+  assert.deepEqual(byClass("lost"), [...SWEEP_LOST_CAUSES]);
+  assert.deepEqual(
+    Object.keys(SWEEP_ROW_ANSWERS).sort(),
+    ["report", ...SWEEP_TARGET_FAILURE_CAUSES, SWEEP_NAVIGATION_FAILURE_ANSWER, ...SWEEP_LOST_CAUSES].sort()
+  );
 });
 
 function productionSourceFiles() {
@@ -366,6 +501,16 @@ test("a 502 public error has exactly one producer: the scanner's cause-less navi
     assert.ok(
       calls.some((call) => call.args.includes(`"${cause}"`)),
       `no public error declares ${cause}`
+    );
+  }
+  // The lost cause has one producer: the scan API's persistence mapping, as
+  // a 500, so nothing but that refusal can be recorded as instrument loss.
+  for (const cause of SWEEP_LOST_CAUSES) {
+    const producers = calls.filter((call) => call.args.includes(`"${cause}"`));
+    assert.deepEqual(
+      producers.map(({ file, callee, args }) => ({ file, callee, status: args[1] })),
+      [{ file: path.join("lib", "scan-api.ts"), callee: "PublicScanError", status: "500" }],
+      `${cause} must have exactly the persistence mapping as its producer`
     );
   }
 });
