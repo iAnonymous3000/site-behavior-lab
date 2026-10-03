@@ -23,9 +23,11 @@
   bound, so the merge landing THAT design became the collection SHA every
   sweep round binds to. It moved again on 2026-10-02, when the owner
   restarted the sweep as study `cname-uncloaking-2026-10`: the collection
-  SHA is now the commit that lands that design's "Restart (2026-10-02)"
+  SHA became the commit that lands that design's "Restart (2026-10-02)"
   section, and the August round-1 build (bd68cf4) and the feasibility
-  figures derived from its round are historical.
+  figures derived from its round are historical. Since 2026-10-03 the
+  collection SHA is the commit the latest dated addition to that section
+  names, which carries the owner rulings of that date.
 
 ## The circularity this removes
 

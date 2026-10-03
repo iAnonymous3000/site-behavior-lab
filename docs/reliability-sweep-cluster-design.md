@@ -345,7 +345,9 @@ failure such as `EAI_AGAIN` stops, because the rulings name the lookup
 timeout and not the resolver failure. And a stop class that repeats at the
 same case after round 1 has begun is still cleared only by a fix that does
 not change the collection build; otherwise it starts a new sweep, as
-above.
+above. A third follows that is not deliberate, and is recorded under "Collect
+fails closed" below: a slow resolver on the instrument's side can produce
+`host-lookup-timeout` site rows that the egress probe does not catch.
 
 How site and lost rows count. Both are the all-ineligible record: not
 bare-load valid, not all-families-complete, and in the denominator of
@@ -509,6 +511,20 @@ Two residuals remain recorded as site outcomes, because nothing outside
 the scanner can see them: an outage that begins and ends strictly inside
 one scan (the probes on either side both answer), and an awake instrument
 too slow to finish a healthy page inside the scanner's 45-second budget.
+
+A third residual follows from the 2026-10-03 ruling that a lookup timeout
+is a site row, and the egress probe as built does not separate it. The
+probe resolves one fixed host, so the system resolver can answer it from
+its cache while lookups of uncached target names go upstream, and it allows
+10 seconds (`SWEEP_EGRESS_PROBE_TIMEOUT_MS`) for its lookup, connection and
+answer together, while the gate refuses a target lookup after 5 seconds. A
+resolver that degrades on the instrument's side, slow but not dead, can
+therefore turn every uncached target lookup into a `host-lookup-timeout`
+site row while the probe after each answer still passes, and the round
+completes. Before the ruling the same answers stopped the round. It is
+recorded here, not mitigated: the rulings authorize no rule against it, and
+a mitigation that needs code is a new collection build, named by a further
+dated addition before round 1 begins.
 Separating either needs the scanner to declare a scanner-side cause, which
 it does not today.
 
