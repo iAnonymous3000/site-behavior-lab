@@ -167,7 +167,7 @@ test("a browser that cannot open a context is dropped from the cache, not closed
   const scanner = source("lib/scanner.ts");
   const block = sliceToNext(
     scanner,
-    "context = await withScanTimeoutDisposing(",
+    "context = await withSetupTimeoutDisposing(",
     "throwIfScanAborted(options.signal);",
     "lib/scanner.ts"
   );
