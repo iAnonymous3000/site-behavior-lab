@@ -376,6 +376,18 @@ carry the same `answer`.
 These rulings change collection code (the scan API and the driver), so the
 collection SHA moves by the dated addition that follows.
 
+**Collection SHA (2026-10-03).** The collection SHA is
+`15158e58d25050572d95d0f6fab6d70886504cb6`, the commit "Record target-caused refusals as site rows and the
+unstable redaction refusal as loss", which implements the rulings above.
+It carries by ancestry the fail-closed driver, the corrected exclusion
+derivation, the egress, clock and checkout checks, and the declared causes
+the rulings rely on. Every restarted round runs from an isolated worktree
+checked out at exactly this commit, with `SITE_BEHAVIOR_LAB_BUILD_COMMIT`
+set to it and the server built fresh from that clean checkout, as above.
+The locator command above still prints the landing commit, which predates
+the instrument checks and these rulings; it is not the collection SHA. No
+stopped attempt of restarted round 1 is recorded as of this addition.
+
 ## Why two passes were not enough
 
 The adopted censoring decision sizes per-detector policies from a defensible
