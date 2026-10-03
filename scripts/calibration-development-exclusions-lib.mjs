@@ -10,6 +10,15 @@
  * by this project's scanner or its studies, and nothing else ranks, admits,
  * or orders a candidate.
  *
+ * WHAT "DEVELOPMENT-VISITED" MEANS (owner ruling, 2026-10-03): a site the
+ * scanner opened as the page under test, requested or landed on. A host a
+ * scan recorded only as a third party inside another subject's report (a
+ * request, frame, cookie or tracker host), or a domain named only in code or
+ * prose, was never opened as the page under test and is not excluded. So
+ * reports contribute their subject fields only (reportSubjectValues), and
+ * outbrain.com, bbc.co.uk, foxbusiness.com, ap.org, philly.com,
+ * cbslocal.com, inquirer.com and cbsnews.com stay in the 2026-10 universe.
+ *
  * Three rules, each learned from a way the earlier derivation leaked:
  *
  * 1. CLOSED SURFACE LIST, FAIL CLOSED. Every surface below must exist and

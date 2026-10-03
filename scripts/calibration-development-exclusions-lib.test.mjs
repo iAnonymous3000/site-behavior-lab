@@ -473,3 +473,118 @@ test("a recorded value names its www-stripped host and its registrable domain, n
     assert.deepEqual(developmentDomainsOf(nothing), [], String(nothing));
   }
 });
+
+// ---------------------------------------------------------------------------
+// The 2026-10-03 owner ruling on the definition: "development-visited" means
+// a site the scanner opened as the page under test. A host recorded only as a
+// third party inside another subject's report, or named only in code or
+// prose, is not one. Eight frame domains sit exactly there, and the ruling
+// keeps them in the 2026-10 pool, so the universe does not change.
+// ---------------------------------------------------------------------------
+
+const BORDERLINE_POOL_DOMAINS = Object.freeze({
+  thirdPartyOnly: Object.freeze(["outbrain.com", "bbc.co.uk", "foxbusiness.com", "ap.org"]),
+  namedOnly: Object.freeze(["philly.com", "cbslocal.com", "inquirer.com", "cbsnews.com"])
+});
+const BORDERLINE = Object.freeze([...BORDERLINE_POOL_DOMAINS.thirdPartyOnly, ...BORDERLINE_POOL_DOMAINS.namedOnly]);
+
+test("a host a report records only as a third party is not development-visited", () => {
+  const rootDir = syntheticTree();
+  try {
+    // A v1 comparison and a v2 single, each carrying third-party hosts in the
+    // places real reports carry them: request and initiator URLs, the domain
+    // rows, cookies, trackers, the diff, and the v2 evidence.
+    writeTreeFile(rootDir, "public/reports/20261003-11111111111111111111111111111111.json", {
+      schemaVersion: 1,
+      reportType: "comparison",
+      requestedUrl: "https://page-under-test-v1.example/",
+      baseline: {
+        summary: { firstPartyDomain: "page-under-test-v1.example" },
+        requests: [
+          {
+            url: "https://{label}.request-host.example/{seg}",
+            domain: "{label}.request-host.example",
+            provenance: {
+              initiatorUrl: "https://initiator-host.example/{seg}",
+              initiatorDomain: "initiator-host.example"
+            },
+            tracker: { domain: "tracker-host.example" }
+          }
+        ],
+        domains: [{ domain: "domain-row-host.example", tracker: { domain: "tracker-host.example" } }],
+        cookies: [{ domain: ".cookie-host.example" }, { domain: "host-only-cookie.example" }],
+        frames: [{ url: "https://frame-host.example/embed" }]
+      },
+      diff: { removedDomains: [{ domain: "diff-host.example" }], removedCookies: [{ domain: ".diff-cookie-host.example" }] }
+    });
+    writeTreeFile(rootDir, "public/reports/20261003-22222222222222222222222222222222.json", {
+      schemaVersion: 2,
+      schemaRevision: 2,
+      reportType: "single",
+      run: {
+        subject: {
+          requested: { origin: "https://page-under-test-v2.example", registrableDomain: "page-under-test-v2.example" },
+          observed: { origin: "https://page-under-test-v2.example", registrableDomain: "page-under-test-v2.example" }
+        },
+        evidence: {
+          requests: [{ url: "https://v2-request-host.example/{seg}", domain: "v2-request-host.example" }],
+          frames: [{ url: "https://v2-frame-host.example/" }],
+          cookiesFinal: [{ domain: ".v2-cookie-host.example" }, { domain: "v2-host-only-cookie.example" }]
+        }
+      }
+    });
+    const { domains } = deriveDevelopmentExclusions({ rootDir });
+    for (const subject of ["page-under-test-v1.example", "page-under-test-v2.example"]) {
+      assert.ok(domains.includes(subject), `the page under test ${subject} was not excluded`);
+    }
+    const thirdParties = [
+      "request-host.example",
+      "initiator-host.example",
+      "tracker-host.example",
+      "domain-row-host.example",
+      "cookie-host.example",
+      "host-only-cookie.example",
+      "frame-host.example",
+      "diff-host.example",
+      "diff-cookie-host.example",
+      "v2-request-host.example",
+      "v2-frame-host.example",
+      "v2-cookie-host.example",
+      "v2-host-only-cookie.example"
+    ];
+    assert.deepEqual(
+      thirdParties.filter((host) => domains.includes(host)),
+      [],
+      "a host the scanner never opened as the page under test was excluded; the 2026-10-03 ruling defines development-visited by the page under test"
+    );
+  } finally {
+    rmSync(rootDir, { recursive: true, force: true });
+  }
+});
+
+test("the eight borderline frame domains stay in the 2026-10 universe", () => {
+  const dir = path.join(repoRoot, "calibration", "cname-uncloaking-2026-10-prevalence-pilot");
+  const provenance = JSON.parse(readFileSync(path.join(dir, "universe-provenance.json"), "utf8"));
+  const pilot = JSON.parse(readFileSync(path.join(dir, "pilot-set.json"), "utf8"));
+  assert.equal(provenance.studyId, "cname-uncloaking-2026-10");
+  assert.ok(Array.isArray(provenance.excludedDomains) && provenance.excludedDomains.length === 20);
+  assert.ok(Array.isArray(pilot.candidates) && pilot.candidates.length === 100);
+  for (const domain of BORDERLINE) {
+    assert.equal(provenance.excludedDomains.includes(domain), false, `${domain} is in the committed exclusion list`);
+    assert.equal(
+      pilot.candidates.some((candidate) => candidate.caseId === domain),
+      false,
+      `${domain} is in the committed pilot; the restart recorded all eight in the pool`
+    );
+  }
+  // The committed files are fixed by their digests. This is the tripwire for
+  // the tree: none of the eight may become a page under test while the study
+  // runs, because each is a pool case.
+  const { domains } = deriveDevelopmentExclusions({ rootDir: repoRoot });
+  assert.deepEqual(
+    BORDERLINE.filter((domain) => domains.includes(domain)),
+    [],
+    "a 2026-10 pool domain is now recorded as a page under test. The study's universe is fixed by its committed digests and keeps it, " +
+      "so this is a development visit to a pool case during the study: report it to the owner instead of editing this list"
+  );
+});
