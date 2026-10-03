@@ -71,9 +71,10 @@ export type ScanFailureCause =
   | "address-fanout-target"
   /**
    * The scan ran, but its report failed the managed reader's check that
-   * redacting it again changes nothing (`redaction-not-idempotent`), so the
-   * scanner refused to publish it. Only that reason: every other reason the
-   * reader can refuse a report for stays undeclared.
+   * redacting it again changes nothing (`redaction-not-idempotent`) for a
+   * reason its own content produced, so the scanner refused to publish it.
+   * Only that: the same reason produced by the build, and every other reason
+   * the reader can refuse a report for, stay undeclared.
    */
   | "report-redaction-unstable"
   /** The scanner itself is at capacity right now. */

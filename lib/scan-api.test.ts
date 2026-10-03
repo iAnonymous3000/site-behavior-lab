@@ -627,6 +627,30 @@ test("a public r2 report the managed reader refuses as not idempotent declares i
   );
 });
 
+test("a fixed-point failure the report's own content produces declares the unstable-redaction cause", async () => {
+  enablePublicR2();
+  for (const kind of ["digest-mismatch", "sanitizer-rejected-evidence", "generated-report-inconsistent"] as const) {
+    const refusal = new UnreadableManagedReportError("redaction-not-idempotent", kind);
+    const { logged, outcome } = await captureConsoleError(() =>
+      executePreparedScan(
+        PUBLIC_R2_SINGLE,
+        async () => scanMeasurementEnvelopeWithR2Run(makePublicSingleReportV2R2().run),
+        async () => {
+          throw refusal;
+        },
+        undefined,
+        false
+      )
+    );
+    assert.deepEqual(toPublicError(outcome), {
+      message: REPORT_REDACTION_UNSTABLE_MESSAGE,
+      status: 500,
+      cause: "report-redaction-unstable"
+    }, kind);
+    assert.ok(logged.includes(refusal), `${kind}: the reader's refusal stays in the log`);
+  }
+});
+
 test("every other persistence refusal stays the cause-less 500", async () => {
   enablePublicR2();
   // Only the ruled reason is declared. A producer-contract mismatch is a
@@ -636,6 +660,13 @@ test("every other persistence refusal stays the cause-less 500", async () => {
     new UnreadableManagedReportError("producer-contract-mismatch"),
     new UnreadableManagedReportError("invalid-report"),
     new UnreadableManagedReportError("redaction-version-mismatch"),
+    // A fixed-point failure the build produces refuses every report alike,
+    // so a round of them would complete as nothing but lost rows: these stop.
+    new UnreadableManagedReportError("redaction-not-idempotent", "unreviewed-normalization-identity"),
+    new UnreadableManagedReportError("redaction-not-idempotent", "unsupported-redaction-version"),
+    new UnreadableManagedReportError("redaction-not-idempotent", "mixed-redaction-versions"),
+    new UnreadableManagedReportError("redaction-not-idempotent", "exception"),
+    new UnreadableManagedReportError("redaction-not-idempotent"),
     new Error("Refusing to persist a ScanReport v2/r2 larger than 1 public bytes after attaching its share.")
   ];
   for (const refusal of refusals) {

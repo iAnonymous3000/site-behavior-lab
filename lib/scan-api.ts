@@ -13,6 +13,7 @@ import {
   type ComparisonExecutedFirst
 } from "./compare-reports";
 import { assertReportStoreAvailable, saveScanReport, UnreadableManagedReportError } from "./report-store";
+import type { ManagedReportRedactionFailure } from "./managed-report-reader";
 import {
   emitShadowComparisonScanReportV2R2,
   emitShadowScanReportV2R2,
@@ -385,19 +386,41 @@ export const REPORT_REDACTION_UNSTABLE_MESSAGE =
   "The scan finished, but its report did not pass the scanner's privacy-redaction check, so it was not published.";
 
 /**
+ * The fixed-point failures a report's own content produces: redacting it
+ * again changed it, the sanitizer refused evidence the page supplied, or the
+ * redacted report broke its own invariants. The managed reader names every
+ * other `redaction-not-idempotent` failure too, and those are the build's,
+ * the same on every report: a redaction version, a mixed version, or a
+ * normalization identity it cannot read, a subject identity, or an exception
+ * thrown by the sanitizer itself.
+ */
+const CONTENT_REDACTION_FAILURES: ReadonlySet<ManagedReportRedactionFailure> = new Set([
+  "digest-mismatch",
+  "sanitizer-rejected-evidence",
+  "generated-report-inconsistent"
+]);
+
+/**
  * One persistence refusal gets a declared cause: the managed reader found
- * that redacting the finished report again would change it
- * (`redaction-not-idempotent`), which page content triggers. Before, it
+ * that the finished report is not a fixed point of its redaction
+ * (`redaction-not-idempotent`) for a reason its content produces. Before, it
  * reached the caller as the unexpected branch's cause-less 500, so nothing
  * could tell it from an internal failure. It is still logged here exactly as
- * that branch logged it, so the operator keeps the reader's reason.
+ * that branch logged it, so the operator keeps the reader's reason and its
+ * fixed-point detail.
  *
  * Every other refusal is returned unchanged and stays the cause-less 500: a
- * producer-contract mismatch is a deployment that can publish nothing, and
- * the other reasons are scanner defects nobody has ruled on.
+ * producer-contract mismatch is a deployment that can publish nothing, a
+ * fixed-point failure the build produces would refuse every report alike,
+ * and the other reasons are scanner defects nobody has ruled on.
  */
 function declaredPersistenceRefusal(error: unknown): unknown {
-  if (!(error instanceof UnreadableManagedReportError) || error.reason !== "redaction-not-idempotent") {
+  if (
+    !(error instanceof UnreadableManagedReportError) ||
+    error.reason !== "redaction-not-idempotent" ||
+    error.redactionFailure === null ||
+    !CONTENT_REDACTION_FAILURES.has(error.redactionFailure)
+  ) {
     return error;
   }
   console.error(error);

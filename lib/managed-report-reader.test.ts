@@ -203,7 +203,77 @@ test("a current sidecar cannot bless r2 bytes that only relabel unsafe evidence 
       sidecarContents: JSON.stringify(sidecar),
       retention: RETENTION
     }),
-    { ok: false, error: "invalid", reason: "redaction-not-idempotent" }
+    { ok: false, error: "invalid", reason: "redaction-not-idempotent", redactionFailure: "digest-mismatch" }
+  );
+});
+
+test("a fixed-point failure names whether the report's content or the build refused it", () => {
+  // The reason stays redaction-not-idempotent, which CLIs and verifiers pin.
+  // The detail beside it separates a report whose own content is not a fixed
+  // point from a refusal the build would give every report alike, so a
+  // caller can count the first as the report's and stop on the second.
+  const read = (report: ReturnType<typeof makePublicSingleReportV2R2>) => {
+    const sidecar = buildProvenanceEntry({
+      reportId: REPORT_ID,
+      publicReport: report,
+      writtenAt: RETENTION.createdAt,
+      createdAt: RETENTION.createdAt,
+      expiresAt: RETENTION.expiresAt
+    });
+    return readManagedReport({
+      reportId: REPORT_ID,
+      reportContents: JSON.stringify(report),
+      sidecarContents: JSON.stringify(sidecar),
+      retention: RETENTION
+    });
+  };
+  const current = () => {
+    const report = makePublicSingleReportV2R2();
+    report.run.privacy.redactionVersion = REDACTION_VERSION;
+    return report;
+  };
+  const failureOf = (result: ReturnType<typeof readManagedReport>) =>
+    result.ok ? null : { reason: result.reason, redactionFailure: result.redactionFailure };
+
+  // Unredacted evidence relabelled as current: redacting it again changes it.
+  const unredacted = current();
+  unredacted.run.summary.pageTitle = "Alice's private account";
+  assert.deepEqual(failureOf(read(unredacted)), {
+    reason: "redaction-not-idempotent",
+    redactionFailure: "digest-mismatch"
+  });
+
+  // A normalization identity this build has never reviewed: the build's
+  // refusal, the same for every report that declares it.
+  const unreviewed = current();
+  unreviewed.run.toolchain.normalizationVersion = "node-r2-unreviewed";
+  unreviewed.run.fingerprints = buildFingerprints(unreviewed.run);
+  assert.deepEqual(failureOf(read(unreviewed)), {
+    reason: "redaction-not-idempotent",
+    redactionFailure: "unreviewed-normalization-identity"
+  });
+
+  // A subject redaction would rename: a tenant label under a private suffix.
+  const tenant = current();
+  tenant.run.subject.observed = {
+    origin: "https://{label}.akamaihd.net",
+    registrableDomain: "198-51-100-7-clienttons-s.akamaihd.net",
+    routeShape: "/"
+  };
+  assert.deepEqual(failureOf(read(tenant)), {
+    reason: "redaction-not-idempotent",
+    redactionFailure: "unsafe-subject-identity"
+  });
+
+  // Every other reason carries no detail.
+  assert.deepEqual(
+    readManagedReport({
+      reportId: REPORT_ID,
+      reportContents: JSON.stringify(current()),
+      sidecarContents: null,
+      retention: RETENTION
+    }),
+    { ok: false, error: "invalid", reason: "no-sidecar" }
   );
 });
 
@@ -375,7 +445,7 @@ test("a current sidecar cannot bless unredacted v1 bytes or a foreign embedded s
       sidecarContents: JSON.stringify(rawSidecar),
       retention: RETENTION
     }),
-    { ok: false, error: "invalid", reason: "redaction-not-idempotent" }
+    { ok: false, error: "invalid", reason: "redaction-not-idempotent", redactionFailure: "digest-mismatch" }
   );
 
   const foreignId = "20260712-" + "f".repeat(32);

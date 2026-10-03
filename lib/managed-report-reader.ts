@@ -18,7 +18,11 @@ import {
   type ReadStoredScanReportError,
   type StoredScanReport
 } from "./scan-report-reader";
-import { redactPublicScanReportV2R2 } from "./scan-report-v2-r2-remediation";
+import {
+  R2RedactionRemediationError,
+  redactPublicScanReportV2R2,
+  type R2RedactionRemediationFailure
+} from "./scan-report-v2-r2-remediation";
 import { R2ProducerContractError } from "./scan-report-v2-r2-producer-contract";
 import { parseStrictJson } from "./strict-json";
 
@@ -40,6 +44,16 @@ export type ManagedReportReadFailureReason =
   | "malformed-retention-metadata"
   | "retention-metadata-mismatch";
 
+/**
+ * Why a report failed the fixed-point check, carried beside the
+ * `redaction-not-idempotent` reason and never in place of it (CLIs and
+ * verifiers pin the reason). "digest-mismatch" is the check itself: redacting
+ * the report again changed it. A remediation failure kind is the sanitizer
+ * refusing the report's content or declarations. "exception" is anything
+ * else the sanitizer threw, a defect rather than an answer about the report.
+ */
+export type ManagedReportRedactionFailure = "digest-mismatch" | R2RedactionRemediationFailure | "exception";
+
 /** Runtime objects have a concrete expiry; committed corpus reports use null. */
 export type ManagedReportClock = {
   createdAt: string;
@@ -59,6 +73,8 @@ export type ManagedReportReadResult =
       error: ReadStoredScanReportError;
       reason: ManagedReportReadFailureReason;
       violations?: string[];
+      /** Present exactly when `reason` is `redaction-not-idempotent`. */
+      redactionFailure?: ManagedReportRedactionFailure;
     };
 
 /**
@@ -121,7 +137,7 @@ export function readManagedReport(input: {
     reportRead.stored.schemaVersion === 1 &&
     publicReportDigest(redactScanReportV1(reportRead.stored.report).report) !== provenance.entry.publicDigest
   ) {
-    return failure("redaction-not-idempotent");
+    return redactionFailure("digest-mismatch");
   }
 
   // Schema-r2 is mutable only at an explicit remediation boundary. A report
@@ -137,10 +153,13 @@ export function readManagedReport(input: {
     try {
       const redacted = redactPublicScanReportV2R2(reportRead.stored.report);
       if (publicReportDigest(redacted) !== provenance.entry.publicDigest) {
-        return failure("redaction-not-idempotent");
+        return redactionFailure("digest-mismatch");
       }
     } catch (error) {
-      return failure((error instanceof R2ProducerContractError || (error instanceof Error && error.cause instanceof R2ProducerContractError)) ? "producer-contract-mismatch" : "redaction-not-idempotent");
+      if (error instanceof R2ProducerContractError || (error instanceof Error && error.cause instanceof R2ProducerContractError)) {
+        return failure("producer-contract-mismatch");
+      }
+      return redactionFailure(error instanceof R2RedactionRemediationError ? error.reason : "exception");
     }
   }
 
@@ -193,8 +212,12 @@ function provenanceFailure(match: Exclude<ProvenanceMatch, { status: "matched" }
   return failure(match.status === "digest-mismatch" ? "digest-mismatch" : match.reason);
 }
 
-function failure(reason: ManagedReportReadFailureReason): ManagedReportReadResult {
+function failure(reason: Exclude<ManagedReportReadFailureReason, "redaction-not-idempotent">): ManagedReportReadResult {
   return { ok: false, error: "invalid", reason };
+}
+
+function redactionFailure(kind: ManagedReportRedactionFailure): ManagedReportReadResult {
+  return { ok: false, error: "invalid", reason: "redaction-not-idempotent", redactionFailure: kind };
 }
 
 function isManagedReportClock(value: unknown): value is ManagedReportClock {

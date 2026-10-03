@@ -17,11 +17,13 @@ public API or a 1.0 release.
   (`public-suffix-target`, 400), a token-shaped tenant under a private suffix
   (`generalized-tenant-target`, 400), a host with more than 64 addresses
   (`address-fanout-target`, 400), and a finished r2 report the scanner
-  withheld because redacting it again would change it
+  withheld because its own content is not a fixed point of redaction
   (`report-redaction-unstable`, 500; this was the generic "could not
-  complete" error, and the reason still goes to the server log). Every other
-  persistence refusal, and a resolver failure such as `EAI_AGAIN`, still has
-  no declared cause. A page built before this change renders the server's own
+  complete" error, and the reason still goes to the server log). The same
+  refusal produced by the build on every report alike (a normalization
+  identity or redaction version the reader cannot read, an exception in the
+  sanitizer), every other persistence refusal, and a resolver failure such
+  as `EAI_AGAIN` still have no declared cause. A page built before this change renders the server's own
   sentence for the new causes, as for any unknown cause.
 - A failed page load the scanner can attribute to the site now declares
   `page-load-failed` (502) with its own notice: Chromium named a network

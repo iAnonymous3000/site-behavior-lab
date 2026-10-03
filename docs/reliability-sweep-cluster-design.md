@@ -273,9 +273,16 @@ under the definition above.
 
 - **R1. The unstable-redaction persistence refusal is instrument loss.** The
   scan API now declares it: a finished r2 report whose redaction is not a
-  fixed point (the managed reader's `redaction-not-idempotent`) is refused
-  as HTTP 500 with cause `report-redaction-unstable`, and the reason still
-  goes to the server's log. The driver records that answer as a lost row:
+  fixed point (the managed reader's `redaction-not-idempotent`) for a reason
+  its own content produced (redacting it again changed it, the sanitizer
+  refused evidence the page supplied, or the redacted report broke its own
+  invariants) is refused as HTTP 500 with cause `report-redaction-unstable`,
+  and the reason and its detail still go to the server's log. The reader
+  gives the same reason for refusals the build produces on every report
+  alike (a normalization identity or redaction version it cannot read, an
+  exception thrown by the sanitizer itself); those stay cause-less 500s and
+  stop the round, so a build that cannot read its own reports never
+  completes a round of lost rows. The driver records the declared answer as a lost row:
   the all-ineligible record with `answer` `report-redaction-unstable`, not
   bare-load valid, counted against completeness, and never a site outcome.
   Every other cause-less or unknown 500 still stops the round.
@@ -343,7 +350,7 @@ otherwise.
 | 400 `generalized-tenant-target` (R2) | site row | `generalized-tenant-target` |
 | 400 `address-fanout-target` (R2) | site row | `address-fanout-target` |
 | 500 `report-redaction-unstable` (R1) | lost row | `report-redaction-unstable` |
-| 500 with no declared cause: every other managed-reader refusal (`producer-contract-mismatch` and the rest), the oversized-report refusal, a builder refusal such as a redirect to a host with no registrable domain, any internal error | stop | none |
+| 500 with no declared cause: every other managed-reader refusal (`producer-contract-mismatch` and the rest), a `redaction-not-idempotent` refusal the build produces (an unreviewed normalization identity, an unsupported or mixed redaction version, an exception in the sanitizer), the oversized-report refusal, a builder refusal such as a redirect to a host with no registrable domain, any internal error | stop | none |
 | 503 with no declared cause: a resolver failure ("Public host verification could not complete": `EAI_AGAIN` and every getaddrinfo code but `ENOTFOUND` and `ENODATA`), a misconfigured r2 producer | stop | none |
 | 502 with no declared cause: a navigation failure the scanner could not attribute to the site (a resolver failure or the proxy's traffic bound on the navigation, the scanner's own route abort, a proxy budget refusal, a tunnel failure with no recorded reason, a browser that closed) | stop | none |
 | any other answer with no declared cause, such as the 400 for more than one comparison mode | stop | none |

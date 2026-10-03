@@ -1,5 +1,9 @@
 import { randomBytes } from "node:crypto";
-import { readManagedReport, type ManagedReportReadFailureReason } from "./managed-report-reader";
+import {
+  readManagedReport,
+  type ManagedReportReadFailureReason,
+  type ManagedReportRedactionFailure
+} from "./managed-report-reader";
 import {
   buildProvenanceEntry,
   isProvenanceEntry,
@@ -125,13 +129,18 @@ export type ScanReportBundleReconciliation =
 
 /**
  * The exact bundle a publication would write failed the managed reader, so
- * nothing was written. `reason` is the reader's own failure, carried as data
- * so a caller can act on one reason without matching the message. The
- * message names the reason for operator logs and CLIs and is never a public
- * sentence.
+ * nothing was written. `reason` is the reader's own failure, and
+ * `redactionFailure` its fixed-point detail when the reason is
+ * `redaction-not-idempotent` (null otherwise), both carried as data so a
+ * caller can act on them without matching the message. The message names the
+ * reason for operator logs and CLIs, unchanged by the detail, and is never a
+ * public sentence.
  */
 export class UnreadableManagedReportError extends Error {
-  constructor(readonly reason: ManagedReportReadFailureReason) {
+  constructor(
+    readonly reason: ManagedReportReadFailureReason,
+    readonly redactionFailure: ManagedReportRedactionFailure | null = null
+  ) {
     super(`Refusing to persist an unreadable managed report (${reason}).`);
     this.name = "UnreadableManagedReportError";
   }
@@ -204,7 +213,7 @@ export function prepareScanReportBundle<T extends RuntimeScanReport>(
     retention
   });
   if (!managed.ok) {
-    throw new UnreadableManagedReportError(managed.reason);
+    throw new UnreadableManagedReportError(managed.reason, managed.redactionFailure ?? null);
   }
 
   const reportBytes = Buffer.byteLength(reportWire, "utf8");

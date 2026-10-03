@@ -680,6 +680,7 @@ test("saveScanReport rejects an ephemeral r2 shell that only relabels unsafe byt
     (error: unknown) =>
       error instanceof UnreadableManagedReportError &&
       error.reason === "redaction-not-idempotent" &&
+      error.redactionFailure === "digest-mismatch" &&
       error.message === "Refusing to persist an unreadable managed report (redaction-not-idempotent)."
   );
   assert.deepEqual(await readdir(reportDir), []);

@@ -357,7 +357,20 @@ test("managed v4 reads reject forged values in every public evidence family", ()
       sidecarContents: JSON.stringify(sidecar),
       retention: clock
     });
-    assert.deepEqual(read, { ok: false, error: "invalid", reason: "redaction-not-idempotent" }, fixture.name);
+    // Forged content is the report's own fixed-point failure, never one the
+    // build would give every report: the scan API declares these as the
+    // unstable-redaction loss and stops on the build's kinds.
+    const sanitizerRefused = fixture.name === "fingerprint event API" || fixture.name === "CNAME tracker vocabulary";
+    assert.deepEqual(
+      read,
+      {
+        ok: false,
+        error: "invalid",
+        reason: "redaction-not-idempotent",
+        redactionFailure: sanitizerRefused ? "sanitizer-rejected-evidence" : "digest-mismatch"
+      },
+      fixture.name
+    );
   }
 });
 
@@ -382,7 +395,7 @@ test("managed v4 reads reject forged consent interaction strings", () => {
         sidecarContents: JSON.stringify(sidecar),
         retention: clock
       }),
-      { ok: false, error: "invalid", reason: "redaction-not-idempotent" },
+      { ok: false, error: "invalid", reason: "redaction-not-idempotent", redactionFailure: "digest-mismatch" },
       field
     );
   }
