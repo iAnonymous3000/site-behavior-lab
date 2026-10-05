@@ -1,0 +1,2456 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Brave-list blocking off/on comparison",
+  "runLabels": {
+    "baseline": "No blocking",
+    "variant": "Brave-list blocking"
+  },
+  "requestedUrl": "https://neocities.org/",
+  "scannedAt": "2026-10-05T16:22:07.228Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 5491,
+      "firstPartyDomain": "neocities.org",
+      "totalRequests": 56,
+      "thirdPartyRequests": 7,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 4,
+      "cookies": 1,
+      "thirdPartyCookies": 1,
+      "storageEntries": 1,
+      "fingerprintEvents": 117,
+      "shieldsBlockedRequests": 0
+    },
+    "conditions": {
+      "requestedUrl": "https://neocities.org/",
+      "finalUrl": "https://neocities.org/",
+      "scannedAt": "2026-10-05T16:22:12.396Z",
+      "chromiumVersion": "153.0.8010.12",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-09-28T13:50:37.752Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.63.0 from github-actions-ubuntu with browser 153.0.8010.12, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://neocities.org/",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 57
+      },
+      {
+        "id": 2,
+        "url": "https://neocities.org/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 408
+      },
+      {
+        "id": 3,
+        "url": "https://neocities.org/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 409
+      },
+      {
+        "id": 4,
+        "url": "https://neocities.org/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 410
+      },
+      {
+        "id": 5,
+        "url": "https://neocities.org/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 410
+      },
+      {
+        "id": 6,
+        "url": "https://neocities.org/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 467
+      },
+      {
+        "id": 7,
+        "url": "https://neocities.org/{seg}/{n}/{n}/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 468
+      },
+      {
+        "id": 8,
+        "url": "https://neocities.org/{seg}/{n}/{n}/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 503
+      },
+      {
+        "id": 9,
+        "url": "https://neocities.org/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/{seg}/{seg}",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 521
+      },
+      {
+        "id": 10,
+        "url": "https://neocities.org/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/{seg}/{seg}",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 521
+      },
+      {
+        "id": 11,
+        "url": "https://neocities.org/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/{seg}/{seg}",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 522
+      },
+      {
+        "id": 12,
+        "url": "https://neocities.org/{seg}/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/{seg}/{seg}",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 523
+      },
+      {
+        "id": 13,
+        "url": "https://neocities.org/{seg}/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/{seg}/{seg}",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 523
+      },
+      {
+        "id": 14,
+        "url": "https://neocities.org/{seg}/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/{seg}/{seg}",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 523
+      },
+      {
+        "id": 15,
+        "url": "https://neocities.org/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 581
+      },
+      {
+        "id": 16,
+        "url": "https://neocities.org/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 600
+      },
+      {
+        "id": 17,
+        "url": "https://neocities.org/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 634
+      },
+      {
+        "id": 18,
+        "url": "https://hcaptcha.com/{n}/{seg}",
+        "domain": "hcaptcha.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 634
+      },
+      {
+        "id": 19,
+        "url": "https://neocities.org/{seg}/{n}/{n}/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 635
+      },
+      {
+        "id": 20,
+        "url": "https://neocities.org/{seg}/{n}/{n}/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 635
+      },
+      {
+        "id": 21,
+        "url": "https://neocities.org/{seg}/{n}/{n}/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 635
+      },
+      {
+        "id": 22,
+        "url": "https://neocities.org/{seg}/{n}/{n}/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 636
+      },
+      {
+        "id": 23,
+        "url": "https://neocities.org/{seg}/{n}/{n}/{n}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 636
+      },
+      {
+        "id": 24,
+        "url": "https://neocities.org/{seg}/{n}/{n}/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 636
+      },
+      {
+        "id": 25,
+        "url": "https://neocities.org/{seg}/{n}/{n}/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 637
+      },
+      {
+        "id": 26,
+        "url": "https://neocities.org/{seg}/{n}/{n}/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 637
+      },
+      {
+        "id": 27,
+        "url": "https://neocities.org/{seg}/{n}/{n}/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 637
+      },
+      {
+        "id": 28,
+        "url": "https://neocities.org/{seg}/{n}/{n}/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 638
+      },
+      {
+        "id": 29,
+        "url": "https://neocities.org/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/{seg}/{seg}",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 677
+      },
+      {
+        "id": 30,
+        "url": "https://neocities.org/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/{seg}/{seg}",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 678
+      },
+      {
+        "id": 31,
+        "url": "https://neocities.org/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 680
+      },
+      {
+        "id": 32,
+        "url": "https://neocities.org/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 680
+      },
+      {
+        "id": 33,
+        "url": "https://neocities.org/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 681
+      },
+      {
+        "id": 34,
+        "url": "https://neocities.org/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 681
+      },
+      {
+        "id": 35,
+        "url": "https://neocities.org/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/{seg}/{seg}",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 681
+      },
+      {
+        "id": 36,
+        "url": "https://neocities.org/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/{seg}/{seg}",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 682
+      },
+      {
+        "id": 37,
+        "url": "https://neocities.org/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/{seg}/{seg}",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 682
+      },
+      {
+        "id": 38,
+        "url": "https://neocities.org/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/{seg}/{seg}",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 682
+      },
+      {
+        "id": 39,
+        "url": "https://neocities.org/{seg}/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 683
+      },
+      {
+        "id": 40,
+        "url": "https://neocities.org/{seg}/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 683
+      },
+      {
+        "id": 41,
+        "url": "https://neocities.org/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/{seg}/{seg}",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 683
+      },
+      {
+        "id": 42,
+        "url": "https://neocities.org/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/{seg}/{seg}",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 683
+      },
+      {
+        "id": 43,
+        "url": "https://{label}.{label}.hcaptcha.com/{seg}",
+        "domain": "{label}.{label}.hcaptcha.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://hcaptcha.com/{n}/{seg}",
+          "initiatorDomain": "hcaptcha.com"
+        },
+        "startedAtMs": 783
+      },
+      {
+        "id": 44,
+        "url": "https://{label}.hcaptcha.com/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "{label}.hcaptcha.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://hcaptcha.com/{n}/{seg}",
+          "initiatorDomain": "hcaptcha.com"
+        },
+        "startedAtMs": 800
+      },
+      {
+        "id": 45,
+        "url": "https://{label}.hcaptcha.com/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "{label}.hcaptcha.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://hcaptcha.com/{n}/{seg}",
+          "initiatorDomain": "hcaptcha.com"
+        },
+        "startedAtMs": 801
+      },
+      {
+        "id": 46,
+        "url": "https://{label}.{label}.hcaptcha.com/{seg}",
+        "domain": "{label}.{label}.hcaptcha.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.hcaptcha.com/{seg}/{seg}/{seg}/static/{seg}",
+          "initiatorDomain": "{label}.hcaptcha.com"
+        },
+        "startedAtMs": 1058
+      },
+      {
+        "id": 47,
+        "url": "https://api.hcaptcha.com/{seg}?v=&%5Bredacted%5D=",
+        "domain": "api.hcaptcha.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.hcaptcha.com/{seg}/{seg}/{seg}/static/{seg}",
+          "initiatorDomain": "{label}.hcaptcha.com"
+        },
+        "startedAtMs": 1059
+      },
+      {
+        "id": 48,
+        "url": "https://{label}.hcaptcha.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.hcaptcha.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.hcaptcha.com/{seg}/{seg}/{seg}/static/{seg}",
+          "initiatorDomain": "{label}.hcaptcha.com"
+        },
+        "startedAtMs": 1118
+      },
+      {
+        "id": 49,
+        "url": "https://neocities.org/{seg}",
+        "domain": "neocities.org",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/{seg}/{seg}",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 2739
+      },
+      {
+        "id": 50,
+        "url": "https://neocities.org/{seg}",
+        "domain": "neocities.org",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/{seg}/{seg}",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 2740
+      },
+      {
+        "id": 51,
+        "url": "https://neocities.org/{seg}",
+        "domain": "neocities.org",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/{seg}/{seg}",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 2816
+      },
+      {
+        "id": 52,
+        "url": "https://neocities.org/{seg}",
+        "domain": "neocities.org",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/{seg}/{seg}",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 2817
+      },
+      {
+        "id": 53,
+        "url": "https://neocities.org/{seg}",
+        "domain": "neocities.org",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/{seg}/{seg}",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 2892
+      },
+      {
+        "id": 54,
+        "url": "https://neocities.org/{seg}",
+        "domain": "neocities.org",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/{seg}/{seg}",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 2892
+      },
+      {
+        "id": 55,
+        "url": "https://neocities.org/{seg}",
+        "domain": "neocities.org",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/{seg}/{seg}",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 2970
+      },
+      {
+        "id": 56,
+        "url": "https://neocities.org/{seg}",
+        "domain": "neocities.org",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/{seg}/{seg}",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 2971
+      }
+    ],
+    "domains": [
+      {
+        "domain": "{label}.hcaptcha.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.hcaptcha.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "hcaptcha.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "api.hcaptcha.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "neocities.org",
+        "requests": 49,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "script",
+          "image",
+          "font",
+          "xhr"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "__cf_bm",
+        "domain": ".hcaptcha.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 5
+      }
+    ],
+    "fingerprintEvents": [
+      {
+        "api": "audio.OfflineAudioContext.createAnalyser",
+        "count": 1
+      },
+      {
+        "api": "audio.OfflineAudioContext.createDynamicsCompressor",
+        "count": 1
+      },
+      {
+        "api": "audio.OfflineAudioContext.createOscillator",
+        "count": 1
+      },
+      {
+        "api": "audio.OfflineAudioContext.startRendering",
+        "count": 1
+      },
+      {
+        "api": "canvas.getImageData",
+        "count": 2
+      },
+      {
+        "api": "canvas.measureText",
+        "count": 104
+      },
+      {
+        "api": "canvas.toDataURL",
+        "count": 5
+      },
+      {
+        "api": "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 1
+      },
+      {
+        "api": "webgl2.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 1
+      }
+    ],
+    "fingerprintDetections": [
+      {
+        "kind": "audio-fingerprinting",
+        "heuristic": "audio-rendering-v1",
+        "count": 1,
+        "evidence": {
+          "apis": [
+            "audio.OfflineAudioContext.createAnalyser",
+            "audio.OfflineAudioContext.createDynamicsCompressor",
+            "audio.OfflineAudioContext.createOscillator",
+            "audio.OfflineAudioContext.startRendering"
+          ],
+          "offlineRenderCalls": 1,
+          "oscillatorCalls": 1,
+          "compressorCalls": 1,
+          "analyserCalls": 1
+        }
+      },
+      {
+        "kind": "canvas-fingerprinting",
+        "heuristic": "openwpm-canvas-v1",
+        "count": 1,
+        "evidence": {
+          "readApis": [
+            "canvas.toDataURL"
+          ],
+          "maxCanvasWidth": 96,
+          "maxCanvasHeight": 48,
+          "maxDistinctTextCharacters": 17,
+          "maxTextWriteCalls": 2
+        }
+      },
+      {
+        "kind": "canvas-font-fingerprinting",
+        "heuristic": "canvas-font-probing-v1",
+        "count": 1,
+        "evidence": {
+          "measureTextCalls": 104,
+          "maxDistinctFonts": 12,
+          "maxDistinctTextSamples": 94,
+          "maxTextLength": 11
+        }
+      },
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "change",
+            "input",
+            "keydown",
+            "keyup",
+            "paste"
+          ],
+          "listenerTargets": [
+            "body",
+            "other"
+          ],
+          "thirdPartyOrigins": [
+            "https://hcaptcha.com/"
+          ],
+          "totalListenerCalls": 7
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "input",
+            "keydown",
+            "keyup",
+            "mousedown",
+            "mousemove",
+            "mouseup",
+            "pointermove",
+            "scroll",
+            "touchmove",
+            "touchstart"
+          ],
+          "listenerTargets": [
+            "body",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://hcaptcha.com/"
+          ],
+          "totalListenerCalls": 19
+        }
+      }
+    ],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "The synthetic form-input probe did not complete its test, so input-capture conclusions for this visit are incomplete.",
+      "This scan typed a synthetic test value into 4 form fields with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored. Observed requests during typing and the following wait are included in the request log. Teardown-only transmissions are not measured."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 5159,
+      "firstPartyDomain": "neocities.org",
+      "totalRequests": 56,
+      "thirdPartyRequests": 7,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 4,
+      "cookies": 1,
+      "thirdPartyCookies": 1,
+      "storageEntries": 1,
+      "fingerprintEvents": 117,
+      "shieldsBlockedRequests": 0
+    },
+    "conditions": {
+      "requestedUrl": "https://neocities.org/",
+      "finalUrl": "https://neocities.org/",
+      "scannedAt": "2026-10-05T16:22:07.228Z",
+      "chromiumVersion": "153.0.8010.12",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-09-28T13:50:37.752Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.63.0 from github-actions-ubuntu with browser 153.0.8010.12, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://neocities.org/",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 52
+      },
+      {
+        "id": 2,
+        "url": "https://neocities.org/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 165
+      },
+      {
+        "id": 3,
+        "url": "https://neocities.org/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 165
+      },
+      {
+        "id": 4,
+        "url": "https://neocities.org/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 166
+      },
+      {
+        "id": 5,
+        "url": "https://neocities.org/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 167
+      },
+      {
+        "id": 6,
+        "url": "https://neocities.org/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 239
+      },
+      {
+        "id": 7,
+        "url": "https://neocities.org/{seg}/{n}/{n}/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 252
+      },
+      {
+        "id": 8,
+        "url": "https://neocities.org/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/{seg}/{seg}",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 261
+      },
+      {
+        "id": 9,
+        "url": "https://neocities.org/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/{seg}/{seg}",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 261
+      },
+      {
+        "id": 10,
+        "url": "https://neocities.org/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/{seg}/{seg}",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 261
+      },
+      {
+        "id": 11,
+        "url": "https://neocities.org/{seg}/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/{seg}/{seg}",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 261
+      },
+      {
+        "id": 12,
+        "url": "https://neocities.org/{seg}/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/{seg}/{seg}",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 262
+      },
+      {
+        "id": 13,
+        "url": "https://neocities.org/{seg}/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/{seg}/{seg}",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 262
+      },
+      {
+        "id": 14,
+        "url": "https://neocities.org/{seg}/{n}/{n}/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 265
+      },
+      {
+        "id": 15,
+        "url": "https://neocities.org/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 276
+      },
+      {
+        "id": 16,
+        "url": "https://neocities.org/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 315
+      },
+      {
+        "id": 17,
+        "url": "https://neocities.org/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 316
+      },
+      {
+        "id": 18,
+        "url": "https://hcaptcha.com/{n}/{seg}",
+        "domain": "hcaptcha.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 317
+      },
+      {
+        "id": 19,
+        "url": "https://neocities.org/{seg}/{n}/{n}/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 317
+      },
+      {
+        "id": 20,
+        "url": "https://neocities.org/{seg}/{n}/{n}/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 318
+      },
+      {
+        "id": 21,
+        "url": "https://neocities.org/{seg}/{n}/{n}/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 318
+      },
+      {
+        "id": 22,
+        "url": "https://neocities.org/{seg}/{n}/{n}/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 319
+      },
+      {
+        "id": 23,
+        "url": "https://neocities.org/{seg}/{n}/{n}/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 319
+      },
+      {
+        "id": 24,
+        "url": "https://neocities.org/{seg}/{n}/{n}/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 319
+      },
+      {
+        "id": 25,
+        "url": "https://neocities.org/{seg}/{n}/{n}/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 320
+      },
+      {
+        "id": 26,
+        "url": "https://neocities.org/{seg}/{n}/{n}/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 320
+      },
+      {
+        "id": 27,
+        "url": "https://neocities.org/{seg}/{n}/{n}/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 322
+      },
+      {
+        "id": 28,
+        "url": "https://neocities.org/{seg}/{n}/{n}/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 322
+      },
+      {
+        "id": 29,
+        "url": "https://neocities.org/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/{seg}/{seg}",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 370
+      },
+      {
+        "id": 30,
+        "url": "https://neocities.org/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/{seg}/{seg}",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 371
+      },
+      {
+        "id": 31,
+        "url": "https://neocities.org/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 372
+      },
+      {
+        "id": 32,
+        "url": "https://neocities.org/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 372
+      },
+      {
+        "id": 33,
+        "url": "https://neocities.org/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 372
+      },
+      {
+        "id": 34,
+        "url": "https://neocities.org/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 373
+      },
+      {
+        "id": 35,
+        "url": "https://neocities.org/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/{seg}/{seg}",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 373
+      },
+      {
+        "id": 36,
+        "url": "https://neocities.org/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/{seg}/{seg}",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 374
+      },
+      {
+        "id": 37,
+        "url": "https://neocities.org/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/{seg}/{seg}",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 374
+      },
+      {
+        "id": 38,
+        "url": "https://neocities.org/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/{seg}/{seg}",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 375
+      },
+      {
+        "id": 39,
+        "url": "https://neocities.org/{seg}/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 375
+      },
+      {
+        "id": 40,
+        "url": "https://neocities.org/{seg}/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 375
+      },
+      {
+        "id": 41,
+        "url": "https://neocities.org/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/{seg}/{seg}",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 376
+      },
+      {
+        "id": 42,
+        "url": "https://neocities.org/{seg}/{seg}",
+        "domain": "neocities.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/{seg}/{seg}",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 376
+      },
+      {
+        "id": 43,
+        "url": "https://{label}.{label}.hcaptcha.com/{seg}",
+        "domain": "{label}.{label}.hcaptcha.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://hcaptcha.com/{n}/{seg}",
+          "initiatorDomain": "hcaptcha.com"
+        },
+        "startedAtMs": 467
+      },
+      {
+        "id": 44,
+        "url": "https://{label}.hcaptcha.com/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "{label}.hcaptcha.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://hcaptcha.com/{n}/{seg}",
+          "initiatorDomain": "hcaptcha.com"
+        },
+        "startedAtMs": 476
+      },
+      {
+        "id": 45,
+        "url": "https://{label}.hcaptcha.com/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "{label}.hcaptcha.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://hcaptcha.com/{n}/{seg}",
+          "initiatorDomain": "hcaptcha.com"
+        },
+        "startedAtMs": 477
+      },
+      {
+        "id": 46,
+        "url": "https://{label}.{label}.hcaptcha.com/{seg}",
+        "domain": "{label}.{label}.hcaptcha.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.hcaptcha.com/{seg}/{seg}/{seg}/static/{seg}",
+          "initiatorDomain": "{label}.hcaptcha.com"
+        },
+        "startedAtMs": 721
+      },
+      {
+        "id": 47,
+        "url": "https://api.hcaptcha.com/{seg}?v=&%5Bredacted%5D=",
+        "domain": "api.hcaptcha.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.hcaptcha.com/{seg}/{seg}/{seg}/static/{seg}",
+          "initiatorDomain": "{label}.hcaptcha.com"
+        },
+        "startedAtMs": 732
+      },
+      {
+        "id": 48,
+        "url": "https://{label}.hcaptcha.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.hcaptcha.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.hcaptcha.com/{seg}/{seg}/{seg}/static/{seg}",
+          "initiatorDomain": "{label}.hcaptcha.com"
+        },
+        "startedAtMs": 777
+      },
+      {
+        "id": 49,
+        "url": "https://neocities.org/{seg}",
+        "domain": "neocities.org",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/{seg}/{seg}",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 2411
+      },
+      {
+        "id": 50,
+        "url": "https://neocities.org/{seg}",
+        "domain": "neocities.org",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/{seg}/{seg}",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 2411
+      },
+      {
+        "id": 51,
+        "url": "https://neocities.org/{seg}",
+        "domain": "neocities.org",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/{seg}/{seg}",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 2484
+      },
+      {
+        "id": 52,
+        "url": "https://neocities.org/{seg}",
+        "domain": "neocities.org",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/{seg}/{seg}",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 2485
+      },
+      {
+        "id": 53,
+        "url": "https://neocities.org/{seg}",
+        "domain": "neocities.org",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/{seg}/{seg}",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 2561
+      },
+      {
+        "id": 54,
+        "url": "https://neocities.org/{seg}",
+        "domain": "neocities.org",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/{seg}/{seg}",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 2562
+      },
+      {
+        "id": 55,
+        "url": "https://neocities.org/{seg}",
+        "domain": "neocities.org",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/{seg}/{seg}",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 2638
+      },
+      {
+        "id": 56,
+        "url": "https://neocities.org/{seg}",
+        "domain": "neocities.org",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://neocities.org/{seg}/{seg}",
+          "initiatorDomain": "neocities.org"
+        },
+        "startedAtMs": 2639
+      }
+    ],
+    "domains": [
+      {
+        "domain": "{label}.hcaptcha.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.hcaptcha.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "hcaptcha.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "api.hcaptcha.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "neocities.org",
+        "requests": 49,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "script",
+          "image",
+          "font",
+          "xhr"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "__cf_bm",
+        "domain": ".hcaptcha.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 5
+      }
+    ],
+    "fingerprintEvents": [
+      {
+        "api": "audio.OfflineAudioContext.createAnalyser",
+        "count": 1
+      },
+      {
+        "api": "audio.OfflineAudioContext.createDynamicsCompressor",
+        "count": 1
+      },
+      {
+        "api": "audio.OfflineAudioContext.createOscillator",
+        "count": 1
+      },
+      {
+        "api": "audio.OfflineAudioContext.startRendering",
+        "count": 1
+      },
+      {
+        "api": "canvas.getImageData",
+        "count": 2
+      },
+      {
+        "api": "canvas.measureText",
+        "count": 104
+      },
+      {
+        "api": "canvas.toDataURL",
+        "count": 5
+      },
+      {
+        "api": "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 1
+      },
+      {
+        "api": "webgl2.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 1
+      }
+    ],
+    "fingerprintDetections": [
+      {
+        "kind": "audio-fingerprinting",
+        "heuristic": "audio-rendering-v1",
+        "count": 1,
+        "evidence": {
+          "apis": [
+            "audio.OfflineAudioContext.createAnalyser",
+            "audio.OfflineAudioContext.createDynamicsCompressor",
+            "audio.OfflineAudioContext.createOscillator",
+            "audio.OfflineAudioContext.startRendering"
+          ],
+          "offlineRenderCalls": 1,
+          "oscillatorCalls": 1,
+          "compressorCalls": 1,
+          "analyserCalls": 1
+        }
+      },
+      {
+        "kind": "canvas-fingerprinting",
+        "heuristic": "openwpm-canvas-v1",
+        "count": 1,
+        "evidence": {
+          "readApis": [
+            "canvas.toDataURL"
+          ],
+          "maxCanvasWidth": 96,
+          "maxCanvasHeight": 48,
+          "maxDistinctTextCharacters": 17,
+          "maxTextWriteCalls": 2
+        }
+      },
+      {
+        "kind": "canvas-font-fingerprinting",
+        "heuristic": "canvas-font-probing-v1",
+        "count": 1,
+        "evidence": {
+          "measureTextCalls": 104,
+          "maxDistinctFonts": 12,
+          "maxDistinctTextSamples": 94,
+          "maxTextLength": 11
+        }
+      },
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "change",
+            "input",
+            "keydown",
+            "keyup",
+            "paste"
+          ],
+          "listenerTargets": [
+            "body",
+            "other"
+          ],
+          "thirdPartyOrigins": [
+            "https://hcaptcha.com/"
+          ],
+          "totalListenerCalls": 7
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "input",
+            "keydown",
+            "keyup",
+            "mousedown",
+            "mousemove",
+            "mouseup",
+            "pointermove",
+            "scroll",
+            "touchmove",
+            "touchstart"
+          ],
+          "listenerTargets": [
+            "body",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://hcaptcha.com/"
+          ],
+          "totalListenerCalls": 19
+        }
+      }
+    ],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "The synthetic form-input probe did not complete its test, so input-capture conclusions for this visit are incomplete.",
+      "This scan typed a synthetic test value into 4 form fields with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored. Observed requests during typing and the following wait are included in the request log. Teardown-only transmissions are not measured."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 56,
+      "after": 56,
+      "delta": 0
+    },
+    "thirdPartyRequests": {
+      "before": 7,
+      "after": 7,
+      "delta": 0
+    },
+    "knownTrackerRequests": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "thirdPartyDomains": {
+      "before": 4,
+      "after": 4,
+      "delta": 0
+    },
+    "cookies": {
+      "before": 1,
+      "after": 1,
+      "delta": 0
+    },
+    "thirdPartyCookies": {
+      "before": 1,
+      "after": 1,
+      "delta": 0
+    },
+    "storageEntries": {
+      "before": 1,
+      "after": 1,
+      "delta": 0
+    },
+    "fingerprintEvents": {
+      "before": 117,
+      "after": 117,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [],
+    "addedEntities": [],
+    "removedEntities": [],
+    "addedCookies": [],
+    "removedCookies": [],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [],
+    "removedProvenance": [],
+    "shieldsBlockedRequests": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    }
+  },
+  "warnings": [
+    "Brave-list blocking comparison runs should be collected under matched crawl conditions, and the blocking run is a simulation with Brave's engine and default lists in this scanner's browser, not a live Brave visit. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "The two visits ran in randomized order; the \"Brave-list blocking\" visit ran first.",
+    "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "No blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "No blocking: The synthetic form-input probe did not complete its test, so input-capture conclusions for this visit are incomplete.",
+    "No blocking: This scan typed a synthetic test value into 4 form fields with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored. Observed requests during typing and the following wait are included in the request log. Teardown-only transmissions are not measured.",
+    "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+    "Brave-list blocking: The synthetic form-input probe did not complete its test, so input-capture conclusions for this visit are incomplete.",
+    "Brave-list blocking: This scan typed a synthetic test value into 4 form fields with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored. Observed requests during typing and the following wait are included in the request log. Teardown-only transmissions are not measured."
+  ],
+  "share": {
+    "id": "20261005-4102713976a0bc022242d243041df131",
+    "path": "/reports/20261005-4102713976a0bc022242d243041df131/",
+    "jsonPath": "/reports/20261005-4102713976a0bc022242d243041df131.json"
+  }
+}

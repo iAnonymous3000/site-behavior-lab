@@ -1,0 +1,3100 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Brave-list blocking off/on comparison",
+  "runLabels": {
+    "baseline": "No blocking",
+    "variant": "Brave-list blocking"
+  },
+  "requestedUrl": "https://www.canada.ca/{seg}",
+  "scannedAt": "2026-10-05T16:18:22.939Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 22223,
+      "firstPartyDomain": "www.canada.ca",
+      "totalRequests": 76,
+      "thirdPartyRequests": 18,
+      "knownTrackerRequests": 9,
+      "thirdPartyDomains": 8,
+      "cookies": 17,
+      "thirdPartyCookies": 2,
+      "storageEntries": 7,
+      "fingerprintEvents": 1,
+      "shieldsBlockedRequests": 9
+    },
+    "conditions": {
+      "requestedUrl": "https://www.canada.ca/{seg}",
+      "finalUrl": "https://www.canada.ca/{seg}",
+      "scannedAt": "2026-10-05T16:18:00.703Z",
+      "chromiumVersion": "153.0.8010.12",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-09-28T13:50:37.752Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.63.0 from github-actions-ubuntu with browser 153.0.8010.12, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.canada.ca/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 51
+      },
+      {
+        "id": 2,
+        "url": "https://assets.adobedtm.com/{seg}/{seg}/{seg}",
+        "domain": "assets.adobedtm.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adobedtm.com",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 2108
+      },
+      {
+        "id": 3,
+        "url": "https://{label}.fontawesome.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.fontawesome.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 2110
+      },
+      {
+        "id": 4,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 2110
+      },
+      {
+        "id": 5,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 2110
+      },
+      {
+        "id": 6,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 2111
+      },
+      {
+        "id": 7,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 2111
+      },
+      {
+        "id": 8,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 2111
+      },
+      {
+        "id": 9,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 2111
+      },
+      {
+        "id": 10,
+        "url": "https://{label}.demdex.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.demdex.net",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://assets.adobedtm.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.adobedtm.com"
+        },
+        "startedAtMs": 2210
+      },
+      {
+        "id": 12,
+        "url": "https://{label}.{label}.omtrdc.net/{seg}/{seg}/{seg}?%5Bredacted%5D=&version=",
+        "domain": "{label}.{label}.omtrdc.net",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "omtrdc.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://assets.adobedtm.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.adobedtm.com"
+        },
+        "startedAtMs": 2319
+      },
+      {
+        "id": 13,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 3147
+      },
+      {
+        "id": 14,
+        "url": "https://cdn.{label}.{label}.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.{label}.{label}.canada.ca",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 4145
+      },
+      {
+        "id": 15,
+        "url": "https://cdn.{label}.{label}.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.{label}.{label}.canada.ca",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 4146
+      },
+      {
+        "id": 16,
+        "url": "https://cdn.{label}.{label}.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.{label}.{label}.canada.ca",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.{label}.{label}.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "cdn.{label}.{label}.canada.ca"
+        },
+        "startedAtMs": 4308
+      },
+      {
+        "id": 17,
+        "url": "https://cdn.{label}.{label}.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.{label}.{label}.canada.ca",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.{label}.{label}.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "cdn.{label}.{label}.canada.ca"
+        },
+        "startedAtMs": 4308
+      },
+      {
+        "id": 18,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 5160
+      },
+      {
+        "id": 19,
+        "url": "https://{label}.go-mpulse.net/{seg}/{seg}",
+        "domain": "{label}.go-mpulse.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 5165
+      },
+      {
+        "id": 20,
+        "url": "https://ajax.googleapis.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "ajax.googleapis.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 5171
+      },
+      {
+        "id": 21,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 5175
+      },
+      {
+        "id": 22,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 5176
+      },
+      {
+        "id": 23,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 5177
+      },
+      {
+        "id": 24,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 5177
+      },
+      {
+        "id": 25,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 5181
+      },
+      {
+        "id": 26,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 5182
+      },
+      {
+        "id": 27,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 5182
+      },
+      {
+        "id": 28,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 5182
+      },
+      {
+        "id": 29,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 5183
+      },
+      {
+        "id": 30,
+        "url": "https://cdn.{label}.{label}.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.{label}.{label}.canada.ca",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.{label}.{label}.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "cdn.{label}.{label}.canada.ca"
+        },
+        "startedAtMs": 5183
+      },
+      {
+        "id": 31,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 5183
+      },
+      {
+        "id": 32,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 5183
+      },
+      {
+        "id": 33,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 5184
+      },
+      {
+        "id": 34,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 5184
+      },
+      {
+        "id": 35,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 5184
+      },
+      {
+        "id": 36,
+        "url": "https://assets.adobedtm.com/{seg}/{seg}/{seg}",
+        "domain": "assets.adobedtm.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adobedtm.com",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://assets.adobedtm.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.adobedtm.com"
+        },
+        "startedAtMs": 5184
+      },
+      {
+        "id": 37,
+        "url": "https://assets.adobedtm.com/{seg}/{seg}/{seg}",
+        "domain": "assets.adobedtm.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adobedtm.com",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://assets.adobedtm.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.adobedtm.com"
+        },
+        "startedAtMs": 5185
+      },
+      {
+        "id": 38,
+        "url": "https://{label}.everesttech.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.everesttech.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 5185
+      },
+      {
+        "id": 39,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 5219
+      },
+      {
+        "id": 40,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 5219
+      },
+      {
+        "id": 41,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 5220
+      },
+      {
+        "id": 42,
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 5220
+      },
+      {
+        "id": 43,
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 5220
+      },
+      {
+        "id": 44,
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 5221
+      },
+      {
+        "id": 45,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 5221
+      },
+      {
+        "id": 46,
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 5221
+      },
+      {
+        "id": 47,
+        "url": "https://{label}.demdex.net/{seg}",
+        "domain": "{label}.demdex.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 5240
+      },
+      {
+        "id": 48,
+        "url": "https://{label}.demdex.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.demdex.net",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://assets.adobedtm.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.adobedtm.com"
+        },
+        "startedAtMs": 5250
+      },
+      {
+        "id": 49,
+        "url": "https://cdn.{label}.{label}.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.{label}.{label}.canada.ca",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.{label}.{label}.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "cdn.{label}.{label}.canada.ca"
+        },
+        "startedAtMs": 5280
+      },
+      {
+        "id": 50,
+        "url": "https://{label}.go-mpulse.net/api/{seg}?%5Bredacted%5D=&t=&v=",
+        "domain": "{label}.go-mpulse.net",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.go-mpulse.net/{seg}/{seg}",
+          "initiatorDomain": "{label}.go-mpulse.net"
+        },
+        "startedAtMs": 5307
+      },
+      {
+        "id": 51,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 8224
+      },
+      {
+        "id": 52,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 8246
+      },
+      {
+        "id": 53,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 10265
+      },
+      {
+        "id": 54,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 10266
+      },
+      {
+        "id": 55,
+        "url": "https://assets.adobedtm.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.adobedtm.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adobedtm.com",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 11299
+      },
+      {
+        "id": 56,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 11551
+      },
+      {
+        "id": 57,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 11552
+      },
+      {
+        "id": 58,
+        "url": "https://assets.adobedtm.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.adobedtm.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adobedtm.com",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 13606
+      },
+      {
+        "id": 59,
+        "url": "https://apps.canada.ca/search/{seg}",
+        "domain": "apps.canada.ca",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 14257
+      },
+      {
+        "id": 60,
+        "url": "https://apps.canada.ca/search/{seg}",
+        "domain": "apps.canada.ca",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 14260
+      },
+      {
+        "id": 61,
+        "url": "https://apps.canada.ca/search/{seg}",
+        "domain": "apps.canada.ca",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 14263
+      },
+      {
+        "id": 62,
+        "url": "https://apps.canada.ca/search/{seg}",
+        "domain": "apps.canada.ca",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 14266
+      },
+      {
+        "id": 63,
+        "url": "https://apps.canada.ca/search/{seg}",
+        "domain": "apps.canada.ca",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 14268
+      },
+      {
+        "id": 64,
+        "url": "https://apps.canada.ca/search/{seg}",
+        "domain": "apps.canada.ca",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 14272
+      },
+      {
+        "id": 65,
+        "url": "https://apps.canada.ca/search/{seg}",
+        "domain": "apps.canada.ca",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 14274
+      },
+      {
+        "id": 66,
+        "url": "https://apps.canada.ca/search/{seg}",
+        "domain": "apps.canada.ca",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 14277
+      },
+      {
+        "id": 67,
+        "url": "https://apps.canada.ca/search/{seg}",
+        "domain": "apps.canada.ca",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 14280
+      },
+      {
+        "id": 68,
+        "url": "https://apps.canada.ca/search/{seg}",
+        "domain": "apps.canada.ca",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 14283
+      },
+      {
+        "id": 69,
+        "url": "https://apps.canada.ca/search/{seg}",
+        "domain": "apps.canada.ca",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 14288
+      },
+      {
+        "id": 70,
+        "url": "https://apps.canada.ca/search/{seg}",
+        "domain": "apps.canada.ca",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 14291
+      },
+      {
+        "id": 71,
+        "url": "https://apps.canada.ca/search/{seg}",
+        "domain": "apps.canada.ca",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 14293
+      },
+      {
+        "id": 72,
+        "url": "https://apps.canada.ca/search/{seg}",
+        "domain": "apps.canada.ca",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 14296
+      },
+      {
+        "id": 73,
+        "url": "https://apps.canada.ca/search/{seg}",
+        "domain": "apps.canada.ca",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 14303
+      },
+      {
+        "id": 74,
+        "url": "https://apps.canada.ca/search/{seg}",
+        "domain": "apps.canada.ca",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 14308
+      },
+      {
+        "id": 75,
+        "url": "https://apps.canada.ca/search/{seg}",
+        "domain": "apps.canada.ca",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 14312
+      },
+      {
+        "id": 76,
+        "url": "https://apps.canada.ca/search/{seg}",
+        "domain": "apps.canada.ca",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 14316
+      },
+      {
+        "id": 77,
+        "url": "https://apps.canada.ca/search/{seg}",
+        "domain": "apps.canada.ca",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 14321
+      }
+    ],
+    "domains": [
+      {
+        "domain": "assets.adobedtm.com",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adobedtm.com",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.demdex.net",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr",
+          "image",
+          "document"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.omtrdc.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "omtrdc.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "{label}.gstatic.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "font"
+        ]
+      },
+      {
+        "domain": "{label}.go-mpulse.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "{label}.fontawesome.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet"
+        ]
+      },
+      {
+        "domain": "ajax.googleapis.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.everesttech.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          302
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "www.canada.ca",
+        "requests": 33,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "script",
+          "stylesheet",
+          "image",
+          "font",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "apps.canada.ca",
+        "requests": 19,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "cdn.{label}.{label}.canada.ca",
+        "requests": 6,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "stylesheet"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "[redacted]",
+        "domain": ".demdex.net",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".{label}.demdex.net",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".canada.ca",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".canada.ca",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".canada.ca",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".canada.ca",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".canada.ca",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".canada.ca",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".canada.ca",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".canada.ca",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".canada.ca",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".canada.ca",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".canada.ca",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.canada.ca",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.canada.ca",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "AWSALB",
+        "domain": "www.canada.ca",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "AWSALBCORS",
+        "domain": "www.canada.ca",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 5
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 62
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 4
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 5
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 1
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 358
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 24805
+      }
+    ],
+    "fingerprintEvents": [
+      {
+        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 1
+      }
+    ],
+    "fingerprintDetections": [],
+    "privacyPolicy": {
+      "url": "https://www.canada.ca/en/{seg}/{seg}",
+      "claims": [],
+      "mentionedEntities": [
+        "Adobe"
+      ],
+      "unmentionedEntities": [],
+      "policyTextLength": 12454
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "Blocked a request that could not be verified as public: {invalid-url}",
+      "This scan typed a synthetic test value into 1 form field with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored. Observed requests during typing and the following wait are included in the request log. Teardown-only transmissions are not measured.",
+      "Read the site's privacy policy (https://www.canada.ca/en/{seg}/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 26950,
+      "firstPartyDomain": "www.canada.ca",
+      "totalRequests": 66,
+      "thirdPartyRequests": 8,
+      "knownTrackerRequests": 2,
+      "thirdPartyDomains": 5,
+      "cookies": 8,
+      "thirdPartyCookies": 0,
+      "storageEntries": 6,
+      "fingerprintEvents": 1,
+      "shieldsBlockedRequests": 7
+    },
+    "conditions": {
+      "requestedUrl": "https://www.canada.ca/{seg}",
+      "finalUrl": "https://www.canada.ca/{seg}",
+      "scannedAt": "2026-10-05T16:18:22.939Z",
+      "chromiumVersion": "153.0.8010.12",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-09-28T13:50:37.752Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.63.0 from github-actions-ubuntu with browser 153.0.8010.12, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.canada.ca/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 56
+      },
+      {
+        "id": 2,
+        "url": "https://assets.adobedtm.com/{seg}/{seg}/{seg}",
+        "domain": "assets.adobedtm.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adobedtm.com",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 3183
+      },
+      {
+        "id": 3,
+        "url": "https://{label}.fontawesome.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.fontawesome.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 3183
+      },
+      {
+        "id": 4,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 3186
+      },
+      {
+        "id": 5,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 3186
+      },
+      {
+        "id": 6,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 3186
+      },
+      {
+        "id": 7,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 3186
+      },
+      {
+        "id": 8,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 3187
+      },
+      {
+        "id": 9,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 3187
+      },
+      {
+        "id": 12,
+        "url": "https://{label}.{label}.omtrdc.net/{seg}/{seg}/{seg}?%5Bredacted%5D=&version=",
+        "domain": "{label}.{label}.omtrdc.net",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "omtrdc.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://assets.adobedtm.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.adobedtm.com"
+        },
+        "startedAtMs": 3321
+      },
+      {
+        "id": 14,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 4224
+      },
+      {
+        "id": 15,
+        "url": "https://cdn.{label}.{label}.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.{label}.{label}.canada.ca",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 5244
+      },
+      {
+        "id": 16,
+        "url": "https://cdn.{label}.{label}.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.{label}.{label}.canada.ca",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 5244
+      },
+      {
+        "id": 17,
+        "url": "https://cdn.{label}.{label}.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.{label}.{label}.canada.ca",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.{label}.{label}.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "cdn.{label}.{label}.canada.ca"
+        },
+        "startedAtMs": 5289
+      },
+      {
+        "id": 18,
+        "url": "https://cdn.{label}.{label}.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.{label}.{label}.canada.ca",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.{label}.{label}.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "cdn.{label}.{label}.canada.ca"
+        },
+        "startedAtMs": 5290
+      },
+      {
+        "id": 19,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 6226
+      },
+      {
+        "id": 21,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 6249
+      },
+      {
+        "id": 22,
+        "url": "https://ajax.googleapis.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "ajax.googleapis.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 6255
+      },
+      {
+        "id": 23,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 6257
+      },
+      {
+        "id": 24,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 6258
+      },
+      {
+        "id": 25,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 6261
+      },
+      {
+        "id": 26,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 6265
+      },
+      {
+        "id": 27,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 6265
+      },
+      {
+        "id": 28,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 6266
+      },
+      {
+        "id": 29,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 6266
+      },
+      {
+        "id": 30,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 6266
+      },
+      {
+        "id": 31,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 6267
+      },
+      {
+        "id": 32,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 6267
+      },
+      {
+        "id": 33,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 6268
+      },
+      {
+        "id": 34,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 6268
+      },
+      {
+        "id": 35,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 6269
+      },
+      {
+        "id": 38,
+        "url": "https://cdn.{label}.{label}.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.{label}.{label}.canada.ca",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.{label}.{label}.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "cdn.{label}.{label}.canada.ca"
+        },
+        "startedAtMs": 6270
+      },
+      {
+        "id": 39,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 6324
+      },
+      {
+        "id": 40,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 6326
+      },
+      {
+        "id": 41,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 6326
+      },
+      {
+        "id": 42,
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 6327
+      },
+      {
+        "id": 43,
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 6327
+      },
+      {
+        "id": 44,
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 6327
+      },
+      {
+        "id": 45,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 6327
+      },
+      {
+        "id": 46,
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 6327
+      },
+      {
+        "id": 47,
+        "url": "https://cdn.{label}.{label}.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.{label}.{label}.canada.ca",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.{label}.{label}.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "cdn.{label}.{label}.canada.ca"
+        },
+        "startedAtMs": 6375
+      },
+      {
+        "id": 48,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 9316
+      },
+      {
+        "id": 49,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 9339
+      },
+      {
+        "id": 50,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 10364
+      },
+      {
+        "id": 51,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 10364
+      },
+      {
+        "id": 52,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.canada.ca"
+        },
+        "startedAtMs": 13650
+      },
+      {
+        "id": 53,
+        "url": "https://www.canada.ca/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.canada.ca",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 13650
+      },
+      {
+        "id": 56,
+        "url": "https://apps.canada.ca/search/{seg}",
+        "domain": "apps.canada.ca",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 16319
+      },
+      {
+        "id": 57,
+        "url": "https://apps.canada.ca/search/{seg}",
+        "domain": "apps.canada.ca",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 16321
+      },
+      {
+        "id": 58,
+        "url": "https://apps.canada.ca/search/{seg}",
+        "domain": "apps.canada.ca",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 16324
+      },
+      {
+        "id": 59,
+        "url": "https://apps.canada.ca/search/{seg}",
+        "domain": "apps.canada.ca",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 16326
+      },
+      {
+        "id": 60,
+        "url": "https://apps.canada.ca/search/{seg}",
+        "domain": "apps.canada.ca",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 16333
+      },
+      {
+        "id": 61,
+        "url": "https://apps.canada.ca/search/{seg}",
+        "domain": "apps.canada.ca",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 16336
+      },
+      {
+        "id": 62,
+        "url": "https://apps.canada.ca/search/{seg}",
+        "domain": "apps.canada.ca",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 16339
+      },
+      {
+        "id": 63,
+        "url": "https://apps.canada.ca/search/{seg}",
+        "domain": "apps.canada.ca",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 16342
+      },
+      {
+        "id": 64,
+        "url": "https://apps.canada.ca/search/{seg}",
+        "domain": "apps.canada.ca",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 16344
+      },
+      {
+        "id": 65,
+        "url": "https://apps.canada.ca/search/{seg}",
+        "domain": "apps.canada.ca",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 16347
+      },
+      {
+        "id": 66,
+        "url": "https://apps.canada.ca/search/{seg}",
+        "domain": "apps.canada.ca",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 16349
+      },
+      {
+        "id": 67,
+        "url": "https://apps.canada.ca/search/{seg}",
+        "domain": "apps.canada.ca",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 16352
+      },
+      {
+        "id": 68,
+        "url": "https://apps.canada.ca/search/{seg}",
+        "domain": "apps.canada.ca",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 16355
+      },
+      {
+        "id": 69,
+        "url": "https://apps.canada.ca/search/{seg}",
+        "domain": "apps.canada.ca",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 16358
+      },
+      {
+        "id": 70,
+        "url": "https://apps.canada.ca/search/{seg}",
+        "domain": "apps.canada.ca",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 16361
+      },
+      {
+        "id": 71,
+        "url": "https://apps.canada.ca/search/{seg}",
+        "domain": "apps.canada.ca",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 16363
+      },
+      {
+        "id": 72,
+        "url": "https://apps.canada.ca/search/{seg}",
+        "domain": "apps.canada.ca",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 16368
+      },
+      {
+        "id": 73,
+        "url": "https://apps.canada.ca/search/{seg}",
+        "domain": "apps.canada.ca",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 16370
+      },
+      {
+        "id": 74,
+        "url": "https://apps.canada.ca/search/{seg}",
+        "domain": "apps.canada.ca",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 16373
+      }
+    ],
+    "domains": [
+      {
+        "domain": "assets.adobedtm.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adobedtm.com",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.omtrdc.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "omtrdc.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "{label}.gstatic.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "font"
+        ]
+      },
+      {
+        "domain": "{label}.fontawesome.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet"
+        ]
+      },
+      {
+        "domain": "ajax.googleapis.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "www.canada.ca",
+        "requests": 33,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "script",
+          "stylesheet",
+          "image",
+          "font",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "apps.canada.ca",
+        "requests": 19,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "cdn.{label}.{label}.canada.ca",
+        "requests": 6,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "stylesheet"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "[redacted]",
+        "domain": ".canada.ca",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".canada.ca",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".canada.ca",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".canada.ca",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.canada.ca",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "AWSALB",
+        "domain": "www.canada.ca",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "AWSALBCORS",
+        "domain": "www.canada.ca",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.canada.ca",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 5
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 4
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 5
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 1
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 358
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 51160
+      }
+    ],
+    "fingerprintEvents": [
+      {
+        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 1
+      }
+    ],
+    "fingerprintDetections": [],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "Blocked a request that could not be verified as public: {invalid-url}",
+      "This scan typed a synthetic test value into 1 form field with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored. Observed requests during typing and the following wait are included in the request log. Teardown-only transmissions are not measured."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 76,
+      "after": 66,
+      "delta": -10
+    },
+    "thirdPartyRequests": {
+      "before": 18,
+      "after": 8,
+      "delta": -10
+    },
+    "knownTrackerRequests": {
+      "before": 9,
+      "after": 2,
+      "delta": -7
+    },
+    "thirdPartyDomains": {
+      "before": 8,
+      "after": 5,
+      "delta": -3
+    },
+    "cookies": {
+      "before": 17,
+      "after": 8,
+      "delta": -9
+    },
+    "thirdPartyCookies": {
+      "before": 2,
+      "after": 0,
+      "delta": -2
+    },
+    "storageEntries": {
+      "before": 7,
+      "after": 6,
+      "delta": -1
+    },
+    "fingerprintEvents": {
+      "before": 1,
+      "after": 1,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "{label}.demdex.net",
+        "requests": 3,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.go-mpulse.net",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.everesttech.net",
+        "requests": 1,
+        "tracker": null
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [],
+    "addedCookies": [],
+    "removedCookies": [
+      {
+        "name": "[redacted]",
+        "domain": ".{label}.demdex.net",
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".demdex.net",
+        "thirdParty": true
+      }
+    ],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [],
+    "removedProvenance": [
+      {
+        "domain": "{label}.demdex.net",
+        "requests": 2,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "initiator": "assets.adobedtm.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "assets.adobedtm.com",
+        "requests": 2,
+        "tracker": {
+          "domain": "adobedtm.com",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "initiator": "assets.adobedtm.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.demdex.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "initiator": "www.canada.ca",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.everesttech.net",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "www.canada.ca",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.go-mpulse.net",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "www.canada.ca",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.go-mpulse.net",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "{label}.go-mpulse.net",
+        "script": null,
+        "injectedBy": null
+      }
+    ],
+    "shieldsBlockedRequests": {
+      "before": 9,
+      "after": 7,
+      "delta": -2
+    }
+  },
+  "warnings": [
+    "Brave-list blocking comparison runs should be collected under matched crawl conditions, and the blocking run is a simulation with Brave's engine and default lists in this scanner's browser, not a live Brave visit. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "The two visits ran in randomized order; the \"No blocking\" visit ran first.",
+    "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "No blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "No blocking: Blocked a request that could not be verified as public: {invalid-url}",
+    "No blocking: This scan typed a synthetic test value into 1 form field with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored. Observed requests during typing and the following wait are included in the request log. Teardown-only transmissions are not measured.",
+    "No blocking: Read the site's privacy policy (https://www.canada.ca/en/{seg}/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+    "Brave-list blocking: Blocked a request that could not be verified as public: {invalid-url}",
+    "Brave-list blocking: This scan typed a synthetic test value into 1 form field with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored. Observed requests during typing and the following wait are included in the request log. Teardown-only transmissions are not measured."
+  ],
+  "share": {
+    "id": "20261005-aee4cf2f120eed4e5f283c4a1f40fe82",
+    "path": "/reports/20261005-aee4cf2f120eed4e5f283c4a1f40fe82/",
+    "jsonPath": "/reports/20261005-aee4cf2f120eed4e5f283c4a1f40fe82.json"
+  }
+}
