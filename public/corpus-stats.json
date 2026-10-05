@@ -1,6 +1,6 @@
 {
   "version": 4,
-  "generatedAt": "2026-09-28T16:59:23.721Z",
+  "generatedAt": "2026-10-05T16:36:01.239Z",
   "metricContractVersion": "metric-contract-v1",
   "metricContractDigest": "19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680",
   "sampleSize": 86,
@@ -534,7 +534,7 @@
       "metricContractVersion": "metric-contract-v1",
       "metricContractDigest": "19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680",
       "sampleSize": 86,
-      "latestRunAt": "2026-09-28T15:49:00.198Z",
+      "latestRunAt": "2026-10-05T16:22:07.228Z",
       "metrics": {
         "thirdPartyRequests": {
           "count": 86,

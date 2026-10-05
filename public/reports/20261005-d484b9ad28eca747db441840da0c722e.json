@@ -1,0 +1,1338 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Brave-list blocking off/on comparison",
+  "runLabels": {
+    "baseline": "No blocking",
+    "variant": "Brave-list blocking"
+  },
+  "requestedUrl": "https://lobste.rs/",
+  "scannedAt": "2026-10-05T16:19:40.558Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 804,
+      "firstPartyDomain": "lobste.rs",
+      "totalRequests": 34,
+      "thirdPartyRequests": 0,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 0,
+      "cookies": 0,
+      "thirdPartyCookies": 0,
+      "storageEntries": 0,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 0
+    },
+    "conditions": {
+      "requestedUrl": "https://lobste.rs/",
+      "finalUrl": "https://lobste.rs/",
+      "scannedAt": "2026-10-05T16:19:41.377Z",
+      "chromiumVersion": "153.0.8010.12",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-09-28T13:50:37.752Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.63.0 from github-actions-ubuntu with browser 153.0.8010.12, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://lobste.rs/",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 50
+      },
+      {
+        "id": 2,
+        "url": "https://lobste.rs/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 101
+      },
+      {
+        "id": 3,
+        "url": "https://lobste.rs/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 101
+      },
+      {
+        "id": 4,
+        "url": "https://lobste.rs/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 102
+      },
+      {
+        "id": 5,
+        "url": "https://lobste.rs/{seg}/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/{seg}",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 145
+      },
+      {
+        "id": 6,
+        "url": "https://lobste.rs/{seg}/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/{seg}",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 147
+      },
+      {
+        "id": 7,
+        "url": "https://lobste.rs/{seg}/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/{seg}",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 147
+      },
+      {
+        "id": 8,
+        "url": "https://lobste.rs/{seg}/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/{seg}",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 148
+      },
+      {
+        "id": 9,
+        "url": "https://lobste.rs/{seg}/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/{seg}",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 174
+      },
+      {
+        "id": 10,
+        "url": "https://lobste.rs/{seg}/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 190
+      },
+      {
+        "id": 11,
+        "url": "https://lobste.rs/{seg}/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 190
+      },
+      {
+        "id": 12,
+        "url": "https://lobste.rs/{seg}/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 190
+      },
+      {
+        "id": 13,
+        "url": "https://lobste.rs/{seg}/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 191
+      },
+      {
+        "id": 14,
+        "url": "https://lobste.rs/{seg}/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 191
+      },
+      {
+        "id": 15,
+        "url": "https://lobste.rs/{seg}/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 193
+      },
+      {
+        "id": 16,
+        "url": "https://lobste.rs/{seg}/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 194
+      },
+      {
+        "id": 17,
+        "url": "https://lobste.rs/{seg}/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 194
+      },
+      {
+        "id": 18,
+        "url": "https://lobste.rs/{seg}/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 194
+      },
+      {
+        "id": 19,
+        "url": "https://lobste.rs/{seg}/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 195
+      },
+      {
+        "id": 20,
+        "url": "https://lobste.rs/{seg}/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 197
+      },
+      {
+        "id": 21,
+        "url": "https://lobste.rs/{seg}/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 198
+      },
+      {
+        "id": 22,
+        "url": "https://lobste.rs/{seg}/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 198
+      },
+      {
+        "id": 23,
+        "url": "https://lobste.rs/{seg}/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 199
+      },
+      {
+        "id": 24,
+        "url": "https://lobste.rs/{seg}/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 199
+      },
+      {
+        "id": 25,
+        "url": "https://lobste.rs/{seg}/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 199
+      },
+      {
+        "id": 26,
+        "url": "https://lobste.rs/{seg}/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 199
+      },
+      {
+        "id": 27,
+        "url": "https://lobste.rs/{seg}/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 200
+      },
+      {
+        "id": 28,
+        "url": "https://lobste.rs/{seg}/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 200
+      },
+      {
+        "id": 29,
+        "url": "https://lobste.rs/{seg}/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 200
+      },
+      {
+        "id": 30,
+        "url": "https://lobste.rs/{seg}/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 200
+      },
+      {
+        "id": 31,
+        "url": "https://lobste.rs/{seg}/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 200
+      },
+      {
+        "id": 32,
+        "url": "https://lobste.rs/{seg}/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 200
+      },
+      {
+        "id": 33,
+        "url": "https://lobste.rs/{seg}/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 203
+      },
+      {
+        "id": 34,
+        "url": "https://lobste.rs/{seg}/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 203
+      }
+    ],
+    "domains": [
+      {
+        "domain": "lobste.rs",
+        "requests": 34,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "script",
+          "image"
+        ]
+      }
+    ],
+    "cookies": [],
+    "storage": [],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 813,
+      "firstPartyDomain": "lobste.rs",
+      "totalRequests": 34,
+      "thirdPartyRequests": 0,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 0,
+      "cookies": 0,
+      "thirdPartyCookies": 0,
+      "storageEntries": 0,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 0
+    },
+    "conditions": {
+      "requestedUrl": "https://lobste.rs/",
+      "finalUrl": "https://lobste.rs/",
+      "scannedAt": "2026-10-05T16:19:40.558Z",
+      "chromiumVersion": "153.0.8010.12",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-09-28T13:50:37.752Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.63.0 from github-actions-ubuntu with browser 153.0.8010.12, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://lobste.rs/",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 49
+      },
+      {
+        "id": 2,
+        "url": "https://lobste.rs/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 100
+      },
+      {
+        "id": 3,
+        "url": "https://lobste.rs/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 101
+      },
+      {
+        "id": 4,
+        "url": "https://lobste.rs/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 101
+      },
+      {
+        "id": 5,
+        "url": "https://lobste.rs/{seg}/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/{seg}",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 145
+      },
+      {
+        "id": 6,
+        "url": "https://lobste.rs/{seg}/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/{seg}",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 146
+      },
+      {
+        "id": 7,
+        "url": "https://lobste.rs/{seg}/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/{seg}",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 146
+      },
+      {
+        "id": 8,
+        "url": "https://lobste.rs/{seg}/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/{seg}",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 147
+      },
+      {
+        "id": 9,
+        "url": "https://lobste.rs/{seg}/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/{seg}",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 173
+      },
+      {
+        "id": 10,
+        "url": "https://lobste.rs/{seg}/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 196
+      },
+      {
+        "id": 11,
+        "url": "https://lobste.rs/{seg}/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 197
+      },
+      {
+        "id": 12,
+        "url": "https://lobste.rs/{seg}/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 197
+      },
+      {
+        "id": 13,
+        "url": "https://lobste.rs/{seg}/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 197
+      },
+      {
+        "id": 14,
+        "url": "https://lobste.rs/{seg}/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 198
+      },
+      {
+        "id": 15,
+        "url": "https://lobste.rs/{seg}/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 198
+      },
+      {
+        "id": 16,
+        "url": "https://lobste.rs/{seg}/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 198
+      },
+      {
+        "id": 17,
+        "url": "https://lobste.rs/{seg}/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 198
+      },
+      {
+        "id": 18,
+        "url": "https://lobste.rs/{seg}/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 199
+      },
+      {
+        "id": 19,
+        "url": "https://lobste.rs/{seg}/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 199
+      },
+      {
+        "id": 20,
+        "url": "https://lobste.rs/{seg}/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 199
+      },
+      {
+        "id": 21,
+        "url": "https://lobste.rs/{seg}/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 200
+      },
+      {
+        "id": 22,
+        "url": "https://lobste.rs/{seg}/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 200
+      },
+      {
+        "id": 23,
+        "url": "https://lobste.rs/{seg}/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 200
+      },
+      {
+        "id": 24,
+        "url": "https://lobste.rs/{seg}/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 201
+      },
+      {
+        "id": 25,
+        "url": "https://lobste.rs/{seg}/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 201
+      },
+      {
+        "id": 26,
+        "url": "https://lobste.rs/{seg}/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 201
+      },
+      {
+        "id": 27,
+        "url": "https://lobste.rs/{seg}/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 202
+      },
+      {
+        "id": 28,
+        "url": "https://lobste.rs/{seg}/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 202
+      },
+      {
+        "id": 29,
+        "url": "https://lobste.rs/{seg}/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 207
+      },
+      {
+        "id": 30,
+        "url": "https://lobste.rs/{seg}/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 207
+      },
+      {
+        "id": 31,
+        "url": "https://lobste.rs/{seg}/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 208
+      },
+      {
+        "id": 32,
+        "url": "https://lobste.rs/{seg}/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 208
+      },
+      {
+        "id": 33,
+        "url": "https://lobste.rs/{seg}/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 208
+      },
+      {
+        "id": 34,
+        "url": "https://lobste.rs/{seg}/{seg}",
+        "domain": "lobste.rs",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://lobste.rs/",
+          "initiatorDomain": "lobste.rs"
+        },
+        "startedAtMs": 209
+      }
+    ],
+    "domains": [
+      {
+        "domain": "lobste.rs",
+        "requests": 34,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "script",
+          "image"
+        ]
+      }
+    ],
+    "cookies": [],
+    "storage": [],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 34,
+      "after": 34,
+      "delta": 0
+    },
+    "thirdPartyRequests": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "knownTrackerRequests": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "thirdPartyDomains": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "cookies": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "thirdPartyCookies": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "storageEntries": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "fingerprintEvents": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [],
+    "addedEntities": [],
+    "removedEntities": [],
+    "addedCookies": [],
+    "removedCookies": [],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [],
+    "removedProvenance": [],
+    "shieldsBlockedRequests": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    }
+  },
+  "warnings": [
+    "Brave-list blocking comparison runs should be collected under matched crawl conditions, and the blocking run is a simulation with Brave's engine and default lists in this scanner's browser, not a live Brave visit. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "The two visits ran in randomized order; the \"Brave-list blocking\" visit ran first.",
+    "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "No blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals."
+  ],
+  "share": {
+    "id": "20261005-d484b9ad28eca747db441840da0c722e",
+    "path": "/reports/20261005-d484b9ad28eca747db441840da0c722e/",
+    "jsonPath": "/reports/20261005-d484b9ad28eca747db441840da0c722e.json"
+  }
+}
