@@ -613,7 +613,7 @@ jobs:
       # Direct-file transfer also avoids extracting candidate-controlled ZIPs.
       - name: Hand the one receipt to the isolated attestation job
         id: receipt_artifact
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           # Name it exactly as the file. The attestation job refuses any handoff
           # whose immutable artifact metadata does not carry this name, so the
@@ -631,7 +631,7 @@ jobs:
       # recompute every digest itself instead of trusting the manifest.
       - name: Hand the built static bytes to the isolated attestation job
         id: static_artifact
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: site-behavior-lab-static-${{ github.run_id }}-${{ github.run_attempt }}
           path: out
@@ -657,14 +657,14 @@ jobs:
       attest_run_attempt: ${{ steps.validate.outputs.attest_run_attempt }}
     steps:
       - name: Download only the immutable receipt artifact
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           artifact-ids: ${{ needs.prepare.outputs.receipt_artifact_id }}
           path: ${{ runner.temp }}/release-receipt
           digest-mismatch: error
 
       - name: Download the built static bytes the receipt claims to describe
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           artifact-ids: ${{ needs.prepare.outputs.static_artifact_id }}
           path: ${{ runner.temp }}/release-static
@@ -1225,7 +1225,7 @@ jobs:
           test -s "$BUNDLE_PATH"
 
       - name: Preserve the validated release receipt
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: site-behavior-lab-release-${{ needs.prepare.outputs.release_version }}
           path: ${{ runner.temp }}/release-receipt/${{ steps.validate.outputs.receipt_file }}
