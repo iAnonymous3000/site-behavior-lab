@@ -338,7 +338,7 @@ jobs:
 
       - name: Upload immutable label-free acquisition
         id: acquisition_artifact
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: site-behavior-calibration-${{ inputs.study_id }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/calibration-acquisition/
@@ -523,7 +523,7 @@ jobs:
           git bundle verify "$RUNNER_TEMP/calibration-prepared.bundle"
 
       - name: Upload the exact prepared commit bundle
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: calibration-prepared-commit-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/calibration-prepared.bundle
@@ -532,7 +532,7 @@ jobs:
           retention-days: 90
 
       - name: Upload the exact runtime receipt for isolated attestation
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: calibration-runtime-receipt-${{ github.run_id }}-${{ github.run_attempt }}
           path: calibration/${{ inputs.study_id }}/runtime-receipt.json
@@ -556,7 +556,7 @@ jobs:
       artifact-metadata: write
     steps:
       - name: Download only the exact prepared runtime receipt
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: calibration-runtime-receipt-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/calibration-runtime-receipt
@@ -603,7 +603,7 @@ jobs:
           install -m 600 "$BUNDLE_PATH" "$RUNNER_TEMP/calibration-runtime-attestation/runtime-receipt.sigstore.json"
 
       - name: Upload the attestation bundle for finalization
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: calibration-runtime-attestation-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/calibration-runtime-attestation/runtime-receipt.sigstore.json
@@ -658,7 +658,7 @@ jobs:
           echo "SITE_BEHAVIOR_LAB_SCHEMA_DIST_READY=1" >> "$GITHUB_ENV"
 
       - name: Download the exact prepared commit bundle
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: calibration-prepared-commit-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/calibration-prepared
@@ -681,7 +681,7 @@ jobs:
           git checkout --detach FETCH_HEAD
 
       - name: Download only the exact attestation bundle
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: calibration-runtime-attestation-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/calibration-runtime-attestation

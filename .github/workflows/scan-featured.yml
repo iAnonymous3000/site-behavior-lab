@@ -379,7 +379,7 @@ jobs:
       - name: Upload featured re-adjudication outcomes
         id: readjudication_artifact
         if: always() && github.event_name == 'schedule' && github.event.schedule == '23 5 * * 1'
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: featured-readjudication-outcomes-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/featured-readjudication-outcomes.json
@@ -448,7 +448,7 @@ jobs:
         if: >-
           steps.refresh_policy.outputs.publishable == 'true' &&
           steps.corpus_stats.outcome == 'success'
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: site-behavior-featured-publication-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/report-publication/
@@ -622,7 +622,7 @@ jobs:
 
       - name: Upload exact controlled-publication evidence
         if: steps.controlled_publication.outcome == 'success'
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: site-behavior-controlled-publication-evidence-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ github.workspace }}/${{ steps.controlled_publication.outputs.relative_path }}/
