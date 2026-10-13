@@ -149,7 +149,7 @@ jobs:
           persist-credentials: false
 
       - name: Set up exact Node
-        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24.14.1
           cache: npm
@@ -263,7 +263,7 @@ jobs:
           path: trusted-carrier
 
       - name: Set up exact Node
-        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24.14.1
 
@@ -391,7 +391,7 @@ jobs:
           persist-credentials: false
 
       - name: Set up exact Node
-        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24.14.1
           cache: npm
@@ -638,7 +638,7 @@ jobs:
           fetch-depth: 0
 
       - name: Set up exact Node
-        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24.14.1
           cache: npm
