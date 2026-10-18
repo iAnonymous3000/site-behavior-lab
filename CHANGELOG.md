@@ -64,6 +64,15 @@ public API or a 1.0 release.
   a consent result naming an `Object.prototype` member is refused instead of
   throwing; and a Turnstile transport failure answers with a fixed sentence,
   logging the transport text.
+- Security: next moves to 16.3.8, the sharp override to 0.35.5 and
+  source-map-js to 1.2.2, past GHSA-cjq9-62q9-8jv4 (CVE-2026-94483, high,
+  server-side request forgery in Image Optimization) and five moderate or
+  low Next.js advisories fixed in the same release, GHSA-wq5f-xc86-pv6w
+  (high, bundled librsvg) and GHSA-68fv-2mgg-jv7q (CVE-2026-93749, high,
+  event-loop denial of service through postcss's source maps), which made
+  main CI's `npm audit` and both Trivy scans fail at `ab164b80`. next stays
+  on the 16.3 line, and no other package changes version except next's and
+  sharp's platform binaries and @next/env. No measurement identity moves.
 - Five scan refusals that reached the visitor without a declared cause now
   carry one, with their own notice: a host lookup that ran past its 5 s
   deadline (`host-lookup-timeout`, 503, worded to blame neither the address
