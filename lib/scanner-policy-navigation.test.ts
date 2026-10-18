@@ -506,13 +506,12 @@ test("a policy still fetching its text when the settle wait ends is never read a
   assert.equal(result.warnings.some((warning) => warning.startsWith("Read the site's privacy policy")), false);
 });
 
-test("a policy visit after the scan's proxy budget has refused a request is skipped as the scanner's budget", { timeout: 60_000 }, async () => {
+test("a policy visit after the scan's proxy transactions are spent is skipped as the scanner's budget", { timeout: 60_000 }, async () => {
   // The homepage spends seven proxy transactions (the document, four images,
-  // and the pixel's request and its HSTS upgrade); a limit of three refuses
-  // the rest of it. The policy page opens
-  // through the same proxy, so its requests would be refused too: before,
-  // that visit failed in milliseconds and was published as a policy that
-  // failed to load.
+  // and the pixel's request and its HSTS upgrade); a limit of three spends
+  // them before it finishes. The policy page opens through the same proxy,
+  // so it could not load at all: before, that visit failed in milliseconds
+  // and was published as a policy that failed to load.
   const { scanned, policyRequests } = await scanClientRenderedPolicy({
     site: "spent-budget.test",
     noticeDelayMs: 0,
@@ -622,3 +621,119 @@ test("a long policy is read even while its page keeps a background fetch open", 
     await new Promise<void>((resolve) => upstream.close(() => resolve()));
   }
 });
+
+test("a policy on a host the visit contacted is read after the proxy refused a new host", { timeout: 60_000 }, async () => {
+  // A distinct-host cap of one admits the site and refuses the pixel's host,
+  // so the proxy has refused a request before the policy visit begins. The
+  // policy lives on the site's own host, which the cap already admitted: 24
+  // capped visits in the October news sweep read full policies this way, and
+  // skipping every visit after any refusal discarded them.
+  const filler = "We collect the information you give us and information about how you use the site. ".repeat(48);
+  const footer = `<footer>Example Lamps. <a href="/privacy-policy">Privacy Policy</a> Terms of use.</footer>`;
+  const pixel = `<img src="http://www.google-analytics.com/collect?v=1&t=pageview" width="1" height="1" alt="">`;
+  let policyRequests = 0;
+  const upstream = createServer((request, response) => {
+    const path = new URL(request.url ?? "/", "http://fixture.test").pathname;
+    response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+    if (path === "/privacy-policy") {
+      policyRequests += 1;
+      response.end(
+        `<!doctype html><title>Privacy Policy | Example Lamps</title><main><h1>Privacy Policy</h1>` +
+          `<p>This privacy policy explains what we collect. We use Google Analytics to measure visits. ${filler}</p></main>`
+      );
+      return;
+    }
+    response.end(
+      `<!doctype html><title>Example Lamps</title><main><h1>Welcome</h1><p>${"Lamps for every room. ".repeat(40)}</p></main>${footer}${pixel}`
+    );
+  });
+  await new Promise<void>((resolve, reject) => {
+    upstream.once("error", reject);
+    upstream.listen(0, "127.0.0.1", resolve);
+  });
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+  try {
+    const { result, measurement } = await scanSiteWithMeasurement(
+      { url: "http://host-capped.test/", device: "desktop", gpcEnabled: false, consentMode: "observe" },
+      {
+        publicUrlAlreadyVerified: true,
+        verifyPublicUrl: async () => undefined,
+        resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+        connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"),
+        resolveCnameChain: async () => [],
+        proxyUniqueTargetLimitForTests: 1
+      }
+    );
+    assert.ok(
+      measurement.measurement.qualityFacts.budgetsExhausted.includes("proxy-traffic"),
+      "the fixture must refuse a request before the policy visit"
+    );
+    const policyPhase = measurement.measurement.phases.find((phase) => phase.kind === "policy-analysis");
+    assert.deepEqual(measurement.measurement.detectors["privacy-policy"], {
+      version: DETECTOR_VERSIONS["privacy-policy"],
+      status: "complete",
+      phaseId: policyPhase!.phaseId
+    });
+    assert.equal(policyRequests, 1);
+    assert.ok((result.privacyPolicy?.policyTextLength ?? 0) > 3_000);
+    assert.deepEqual(result.privacyPolicy?.unmentionedEntities, []);
+  } finally {
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+});
+
+test("a policy on a host the proxy can no longer admit is skipped as the scanner's budget", { timeout: 60_000 }, async () => {
+  // The USA TODAY Network shape: the policy lives on another host of the
+  // site, which the visit never contacted, and the proxy's distinct-host
+  // slots are taken. The proxy refused that document with resource-limit and
+  // the visit was published as a policy that failed to load.
+  const footer = `<footer>Example Lamps. <a href="http://legal.cap-two.test/privacy-policy">Privacy Policy</a></footer>`;
+  let policyRequests = 0;
+  const upstream = createServer((request, response) => {
+    const host = request.headers.host?.split(":")[0] ?? "";
+    response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+    if (host === "legal.cap-two.test") {
+      policyRequests += 1;
+      response.end("<!doctype html><title>Privacy Policy</title><h1>Privacy Policy</h1>");
+      return;
+    }
+    response.end(`<!doctype html><title>Example Lamps</title><main><h1>Welcome</h1><p>${"Lamps for every room. ".repeat(40)}</p></main>${footer}`);
+  });
+  await new Promise<void>((resolve, reject) => {
+    upstream.once("error", reject);
+    upstream.listen(0, "127.0.0.1", resolve);
+  });
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+  try {
+    const { result, measurement } = await scanSiteWithMeasurement(
+      { url: "http://www.cap-two.test/", device: "desktop", gpcEnabled: false, consentMode: "observe" },
+      {
+        publicUrlAlreadyVerified: true,
+        verifyPublicUrl: async () => undefined,
+        resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+        connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"),
+        resolveCnameChain: async () => [],
+        proxyUniqueTargetLimitForTests: 1
+      }
+    );
+    assert.equal(measurement.measurement.phases.some((phase) => phase.kind === "policy-analysis"), false);
+    assert.deepEqual(measurement.measurement.detectors["privacy-policy"], {
+      version: DETECTOR_VERSIONS["privacy-policy"],
+      status: "skipped",
+      reason: "budget-unavailable"
+    });
+    assert.equal(
+      measurement.measurement.qualityFacts.captureLoss.some((loss) => loss.detail === "policy-visit" && loss.kind === "cap"),
+      true
+    );
+    assert.equal(result.privacyPolicy, undefined);
+    assert.equal(policyRequests, 0, "the scanner never opened a policy page its proxy would refuse");
+  } finally {
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+});
+

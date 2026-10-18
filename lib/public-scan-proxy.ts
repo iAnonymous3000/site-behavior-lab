@@ -85,6 +85,12 @@ export type PublicScanProxy = {
    * `captureLoss` into request-family quality facts without persisting URLs.
    */
   getDiagnostics: () => PublicScanProxyDiagnostics;
+  /**
+   * Whether the traffic budget would admit a new transaction to this target
+   * now: a transaction is left, and the target is one the scan already
+   * reached or a distinct-host slot is free. Claims nothing.
+   */
+  admitsTarget: (target: URL) => boolean;
   close: () => Promise<void>;
 };
 
@@ -335,6 +341,7 @@ export async function startPublicScanProxy(options: StartPublicScanProxyOptions 
       responseByteBudget: responseByteBudget.snapshot(),
       uploadByteBudget: uploadByteBudget.snapshot()
     }),
+    admitsTarget: (target) => trafficBudget.wouldAdmit(target),
     close: async () => {
       closing = true;
       // The proxy lives for one scan, so this is what clamps a lookup deadline
@@ -939,6 +946,12 @@ class ProxyTrafficBudget {
     }
     this.uniqueTargets.add(key);
     return true;
+  }
+
+  /** The admission `claim` would grant this target now, without claiming. */
+  wouldAdmit(target: URL): boolean {
+    if (this.transactionsSeen >= this.transactionLimit) return false;
+    return this.uniqueTargets.has(proxyTargetKey(target)) || this.uniqueTargets.size < this.uniqueTargetLimit;
   }
 
   snapshot(): PublicScanProxyDiagnostics["trafficBudget"] {

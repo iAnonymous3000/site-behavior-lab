@@ -468,6 +468,10 @@ export type ScanSiteOptions = {
   proxyTransactionLimitForTests?: NonNullable<
     NonNullable<Parameters<typeof startPublicScanProxy>[0]>["transactionLimit"]
   >;
+  /** Force the proxy's distinct-host cap in scanner integration tests. */
+  proxyUniqueTargetLimitForTests?: NonNullable<
+    NonNullable<Parameters<typeof startPublicScanProxy>[0]>["uniqueTargetLimit"]
+  >;
   /**
    * Start the scan with this many milliseconds of its budget already spent,
    * in scanner integration tests only, as a scanner whose setup was slow
@@ -967,7 +971,8 @@ export async function scanSiteWithMeasurement(
       startPublicScanProxy({
         resolveHost: options.resolvePublicHost,
         connectUpstreamForTests: options.connectProxyUpstreamForTests,
-        transactionLimit: options.proxyTransactionLimitForTests
+        transactionLimit: options.proxyTransactionLimitForTests,
+        uniqueTargetLimit: options.proxyUniqueTargetLimitForTests
       }),
     started,
     (proxy) => proxy.close(),
@@ -3073,16 +3078,24 @@ export async function scanSiteWithMeasurement(
     // policy visit, not a page with no policy link (see offersPrivacyPolicyLink).
     const policyCandidate = !pageSubjectInvalid && offersPrivacyPolicyLink(policyLinks, finalParsed.hostname);
     // The policy page opens through this scan's proxy, whose traffic budget
-    // the visit has already been spending. Once that budget has refused a
-    // request, the policy page's own requests are refused too: in the October
-    // news sweep, 52 of 68 budget-capped USA TODAY Network visits failed the
-    // policy read in about 90 ms on the proxy's own 509 and published it as a
-    // policy load failure, and 16 more read a shell whose policy text was never
-    // fetched. Both are the scanner's budget, so the probe is skipped and
-    // counted as budget-unavailable before it starts.
+    // the visit has already been spending. When the budget would refuse the
+    // policy document itself (no transaction left, the response bytes spent,
+    // or a policy host the visit never reached once every distinct-host slot
+    // is taken), the page cannot load, so the probe is skipped and counted as
+    // budget-unavailable before it starts. That is the USA TODAY Network case:
+    // its policy lives on a cm. subdomain the visit never contacted, and the
+    // proxy refused it with resource-limit, which was published as a policy
+    // that failed to load. A capped proxy can still serve a policy from a host
+    // the visit reached: 24 capped visits in the October news sweep read full
+    // policies of 32,000 to 92,000 characters. Where it refuses the policy
+    // page's own subresources instead (a OneTrust notice host), the refusal
+    // check around the read withholds a short result.
+    const policyTargetUrl = policyCandidate ? pickPrivacyPolicyLink(policyLinks, finalParsed.hostname, finalParsed.href) : null;
+    const policyTarget = policyTargetUrl === null ? null : safeParseUrl(policyTargetUrl);
     const policyBudgetAvailable =
       MAX_SCAN_DURATION_MS - (Date.now() - started) >= PRIVACY_POLICY_MIN_BUDGET_MS &&
-      policyProxyCapacityAvailable(scanProxy.getDiagnostics());
+      policyProxyCapacityAvailable(scanProxy.getDiagnostics()) &&
+      (policyTarget === null || scanProxy.admitsTarget(policyTarget));
     const policyPhaseId = policyCandidate && policyBudgetAvailable ? measurementKernel.beginPhase("policy-analysis") : null;
     if (policyLinksTruncated && !pageSubjectInvalid) {
       measurementKernel.recordCaptureLoss({
@@ -4916,17 +4929,16 @@ function proxyRefusalCount(diagnostics: PublicScanProxyDiagnostics): number {
 }
 
 /**
- * Whether the scan's proxy can still carry the policy visit: it has refused
- * nothing, and has a transaction and a host slot left for a policy served
- * from a host the visit did not contact. A refusal during the visit is
- * caught separately by comparing proxyRefusalCount around the read.
+ * Whether the scan's proxy can still carry a policy visit at all: a
+ * transaction left and response bytes not spent. A proxy that has refused a
+ * new host can still serve a policy from a host the visit contacted; a
+ * refusal of the policy page's own requests is caught by comparing
+ * proxyRefusalCount around the read.
  */
 export function policyProxyCapacityAvailable(diagnostics: PublicScanProxyDiagnostics): boolean {
-  const traffic = diagnostics.trafficBudget;
   return (
-    proxyRefusalCount(diagnostics) === 0 &&
-    traffic.transactionsSeen < traffic.transactionLimit &&
-    traffic.uniqueTargetsSeen < traffic.uniqueTargetLimit
+    diagnostics.trafficBudget.transactionsSeen < diagnostics.trafficBudget.transactionLimit &&
+    diagnostics.responseByteBudget.captureLoss === null
   );
 }
 

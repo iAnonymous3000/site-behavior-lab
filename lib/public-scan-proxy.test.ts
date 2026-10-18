@@ -1470,3 +1470,40 @@ test("an upstream error after the tunnel opens never writes a status line into t
   assert.doesNotMatch(afterEstablished, /Bad Gateway/);
   assert.equal(afterEstablished, "", "the tunnel must close silently, not answer in plaintext");
 });
+
+test("admitsTarget answers what the traffic budget would grant, without claiming", async (t) => {
+  // The scanner asks before it opens a policy page: a policy on a host the
+  // scan never reached cannot load once every distinct-host slot is taken,
+  // and that refusal used to be published as the site's policy failing.
+  const upstream = responseServer(() => "ok");
+  await listen(upstream);
+  const port = portOf(upstream);
+  const proxy = await startPublicScanProxy({
+    allowNonStandardPortsForTests: true,
+    resolveHost: async () => [{ address: "93.184.216.34", family: 4 }],
+    connectUpstreamForTests: () => net.connect({ host: "127.0.0.1", port }),
+    uniqueTargetLimit: 1,
+    transactionLimit: 3
+  });
+  t.after(async () => {
+    await proxy.close();
+    await closeServer(upstream);
+  });
+  const reached = new URL(`http://reached.test:${port}/`);
+  const other = new URL(`http://other.test:${port}/policy`);
+
+  assert.equal(proxy.admitsTarget(other), true, "a free slot admits any host");
+  assert.equal(proxy.admitsTarget(other), true, "asking claims nothing");
+  assert.equal(proxy.getDiagnostics().trafficBudget.transactionsSeen, 0);
+
+  assert.equal(await proxyGet(proxy.server, `http://reached.test:${port}/a`), "ok");
+  assert.equal(proxy.admitsTarget(new URL(`http://reached.test:${port}/b`)), true, "a reached host keeps its slot");
+  assert.equal(proxy.admitsTarget(reached), true);
+  assert.equal(proxy.admitsTarget(other), false, "no slot is left for a new host");
+
+  assert.equal(await proxyGet(proxy.server, `http://reached.test:${port}/c`), "ok");
+  assert.equal(await proxyGet(proxy.server, `http://reached.test:${port}/d`), "ok");
+  assert.equal(proxy.admitsTarget(reached), false, "no transaction is left for any host");
+  assert.equal(proxy.getDiagnostics().trafficBudget.transactionsSeen, 3);
+});
+

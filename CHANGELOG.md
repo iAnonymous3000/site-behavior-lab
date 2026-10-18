@@ -18,14 +18,19 @@ public API or a 1.0 release.
   news sweep, 19 USA TODAY Network reports published 688 characters of
   navigation as the policy, listing every observed tracker as one the policy
   does not name, beside a 62,512-character policy that names Google and
-  Facebook; 52 more failed in about 90 ms on the proxy's own refusal and were
-  published as a policy that failed to load. The read now also waits, within
-  the scan budget, for the policy page's network to go quiet; withholds a
-  read under 3,000 characters taken while a document, script or data request
-  was still open, or after the proxy refused or cut short a request during
-  the visit; and skips the visit as `budget-unavailable` with a
-  `policy-visit` cap loss once the proxy budget has refused anything. A long
-  read stands even while tracking or chat fetches stay open.
+  Facebook; 52 more failed in about 90 ms, published as a policy that
+  failed to load, consistent with the proxy refusing the policy's own host
+  (a rescan of press-citizen.com recorded exactly that `resource-limit`
+  refusal of its cm. host). The read now also waits,
+  within the scan budget and at most 4 s, for the policy page's network to
+  go quiet, which adds up to about 3 s to a scan whose policy page never
+  does; withholds a read under 3,000 characters taken while a document,
+  script or data request was still open, or after the proxy refused or cut
+  short a request during the visit; and skips the visit as
+  `budget-unavailable` with a `policy-visit` cap loss when the proxy would
+  refuse the policy document itself. A long read stands even while tracking
+  or chat fetches stay open, and a capped proxy that can still reach the
+  policy's host reads it (24 such sweep visits read full policies).
 - Reports from those earlier cross-checks no longer publish an omission or
   a "policy read" result from a read under 3,000 characters: the policy card
   says the cross-check was not established, as it already did for a policy
