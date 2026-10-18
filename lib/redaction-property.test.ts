@@ -24,6 +24,8 @@ import { buildScanConditions, buildScanResult } from "./scan-result-builder";
 import type { PublicSingleReportV2R2 } from "./scan-report-v2-r2";
 import { toPublicScanReportR2 } from "./scan-report-v2-r2-projection";
 import { redactPublicScanReportV2R2 } from "./scan-report-v2-r2-remediation";
+import { prepareScanReportBundle } from "./report-store";
+import { REPORT_RESOURCE_LIMITS } from "./report-resource-policy";
 import { buildNodeScanReportV2R2, type NodeScanReportV2R2Input } from "./scan-result-v2-r2-builder";
 import { assertProperty, seededRandom, withoutOne, type SeededRandom } from "./seeded-property";
 import { findTrackerMatch } from "./tracker-catalog";
@@ -120,10 +122,28 @@ function label(random: SeededRandom): string {
   }
 }
 
+/**
+ * A host as deep as DNS allows, of the short per-visit labels that generalize
+ * to a longer marker. Hosts from 17 generalized labels up were where the
+ * redactor stopped being a fixed point and its output outgrew the managed
+ * reader's hostname cap; shallower draws never reached either.
+ */
+function deepHostname(random: SeededRandom): string {
+  const suffix = `${random.pick(WORDS)}.${random.pick(ICANN_SUFFIXES)}`;
+  const target = random.pick([80, 140, 200, 253]);
+  const labels: string[] = [];
+  for (;;) {
+    const next = random.pick([() => label(random), () => digits(random, 1 + random.int(3)), () => `a${random.int(10)}`])();
+    if ([next, ...labels, suffix].join(".").length > target) break;
+    labels.unshift(next);
+  }
+  return [...labels, suffix].join(".");
+}
+
 /** A hostname-valued field: a registered name, a hosting tenant, an address, or junk. */
 function hostname(random: SeededRandom): string {
   const labels = (count: number) => Array.from({ length: count }, () => label(random));
-  switch (random.int(9)) {
+  switch (random.int(10)) {
     case 0:
       return [...labels(random.int(3)), random.pick(WORDS), random.pick(ICANN_SUFFIXES)].join(".");
     case 1:
@@ -145,6 +165,8 @@ function hostname(random: SeededRandom): string {
       return [...labels(1 + random.int(2)), random.pick(UNPUBLISHABLE_SUFFIXES)].join(".");
     case 7:
       return random.pick(PRIVATE_SUFFIXES);
+    case 8:
+      return deepHostname(random);
     default:
       return random.pick(MARKERS);
   }
@@ -368,6 +390,9 @@ test("the hostname redactor is a fixed point and publishes no address, port, lon
       const first = redactHostnameV2(input).value;
       const idempotence = secondPassFailure(first, redactHostnameV2(first));
       if (idempotence) return idempotence;
+      if (first.length > REPORT_RESOURCE_LIMITS.hostnameChars) {
+        return `published a ${first.length}-character host, past the managed reader's hostname field cap`;
+      }
       const leaks = hostnameLeaks(first);
       if (/:\d/.test(first)) leaks.push({ name: "explicit port", match: first });
       return leaks.length === 0 ? null : `published ${JSON.stringify(first)} holds ${leaks.map((leak) => `a ${leak.name} (${leak.match})`).join(", ")}`;
@@ -392,6 +417,10 @@ test("the URL redactor is a fixed point in both query modes and publishes no add
         const first = redactUrlV2(input, { preserveQueryKeys }).value;
         const idempotence = secondPassFailure(first, redactUrlV2(first, { preserveQueryKeys }));
         if (idempotence) return idempotence;
+        const host = /^[a-z]+:\/\/([^/?#]*)/i.exec(first)?.[1] ?? "";
+        if (host.length > REPORT_RESOURCE_LIMITS.hostnameChars) {
+          return `published a ${host.length}-character URL host, past the managed reader's hostname field cap`;
+        }
         const leaks = urlLeaks(first);
         return leaks.length === 0 ? null : `published ${JSON.stringify(first)} holds ${leaks.map((leak) => `a ${leak.name} (${leak.match})`).join(", ")}`;
       }
@@ -906,7 +935,7 @@ test("a built r2 report is a fixed point of the managed sanitizer over generated
       screenshot: null
     };
   };
-  const reached = { generalizedHosts: 0, cookies: 0, cookieMutations: 0, storageMutations: 0, listenerOrigins: 0, quotes: 0 };
+  const reached = { generalizedHosts: 0, deepHosts: 0, cookies: 0, cookieMutations: 0, storageMutations: 0, listenerOrigins: 0, quotes: 0 };
   assertProperty({
     name: "r2 managed sanitizer fixed point",
     seed: SEED,
@@ -914,9 +943,11 @@ test("a built r2 report is a fixed point of the managed sanitizer over generated
     generate: (random) => reportDraw(random),
     shrink: shrinkDraw,
     property: (draw) => {
-      const published = toPublicScanReportR2(buildNodeScanReportV2R2(input(draw), BUILD_ENV));
+      const built = buildNodeScanReportV2R2(input(draw), BUILD_ENV);
+      const published = toPublicScanReportR2(built);
       const evidence = published.run.evidence;
       reached.generalizedHosts += evidence.requests.filter((request) => request.domain.includes("{label}")).length;
+      reached.deepHosts += evidence.requests.filter((request) => request.domain.split("{label}").length > 17).length;
       reached.cookies += evidence.cookiesFinal.length;
       reached.cookieMutations += evidence.cookieMutations.length;
       reached.storageMutations += evidence.storageMutations.length;
@@ -924,6 +955,14 @@ test("a built r2 report is a fixed point of the managed sanitizer over generated
       reached.quotes += evidence.privacyPolicy?.claims.length ?? 0;
       const leaks = r2ReportLeaks(published);
       if (leaks.length > 0) return `published ${leaks.map((leak) => `a ${leak.name} (${leak.match})`).join(", ")}`;
+      // The exact persistence bundle must also pass the managed reader. A
+      // report the sanitizer keeps can still be refused there, and that
+      // refusal discards a finished scan.
+      try {
+        prepareScanReportBundle(built);
+      } catch (error) {
+        return `persistence refused the built report: ${error instanceof Error ? error.message : String(error)}`;
+      }
       const again = redactPublicScanReportV2R2(published);
       return publicReportDigest(again) === publicReportDigest(published)
         ? null

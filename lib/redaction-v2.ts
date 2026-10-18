@@ -1,5 +1,6 @@
 import { parse } from "tldts";
 import allowlists from "./redaction-allowlists.json";
+import { REPORT_RESOURCE_LIMITS } from "./report-resource-policy";
 import type { PrivacyStats } from "./scan-report-v2";
 import { sha256Hex } from "./sha256";
 import {
@@ -51,6 +52,18 @@ export const INVALID_URL_MARKER = "{invalid-url}";
 export const INVALID_HOST_MARKER = "{invalid-host}";
 const LEADING_DOT_INVALID_HOST_MARKER = `.${INVALID_HOST_MARKER}`;
 const GENERALIZED_LABEL = "{label}";
+/**
+ * tldts refuses the marker's braces, so a published host is parsed with each
+ * marker standing in as an ordinary label. The stand-in is exactly as long as
+ * the marker because tldts also refuses a hostname over 253 characters: the
+ * longer stand-in this replaced ("redacted-label") pushed every published host
+ * with 17 or more generalized labels over that limit on re-read, so the next
+ * boundary redacted it to the invalid-host marker and the report failed its
+ * own fixed-point check.
+ */
+const PARSE_SAFE_GENERALIZED_LABEL = "x".repeat(GENERALIZED_LABEL.length);
+/** A published hostname field must fit the managed reader's hostname cap. */
+const MAX_PUBLIC_HOST_CHARS = REPORT_RESOURCE_LIMITS.hostnameChars;
 const GENERALIZED_SEGMENT = "{seg}";
 const GENERALIZED_NUMERIC_SEGMENT = "{n}";
 const REDACTED_KEY = "[redacted]";
@@ -190,7 +203,11 @@ function dropQuery(params: URLSearchParams, counters: RedactionCounters): "" {
   return "";
 }
 
-function redactCanonicalHostname(hostname: string, counters: RedactionCounters): string {
+function redactCanonicalHostname(
+  hostname: string,
+  counters: RedactionCounters,
+  maxChars: number = MAX_PUBLIC_HOST_CHARS
+): string {
   const canonicalHostname = hostname.replace(/\.+$/, "");
   if (!canonicalHostname) {
     counters.malformedUrlsDropped += 1;
@@ -212,6 +229,10 @@ function redactCanonicalHostname(hostname: string, counters: RedactionCounters):
   const publicRegistrable = registrable.isPrivate
     ? generalizePrivateSuffixTenant(registrable.domain, counters)
     : registrable.domain;
+  if (publicRegistrable.length > maxChars) {
+    counters.malformedUrlsDropped += 1;
+    return INVALID_HOST_MARKER;
+  }
   if (registrable.domain === canonicalHostname) return publicRegistrable;
   if (!canonicalHostname.endsWith(`.${registrable.domain}`)) return INVALID_HOST_MARKER;
   const prefix = canonicalHostname.slice(0, canonicalHostname.length - registrable.domain.length - 1);
@@ -225,7 +246,26 @@ function redactCanonicalHostname(hostname: string, counters: RedactionCounters):
     }
     return label;
   });
-  return `${labels.join(".")}.${publicRegistrable}`;
+  // The marker is longer than a short label ("a1" becomes "{label}"), so a
+  // valid 253-character host can generalize to several hundred characters.
+  // The managed reader refuses a hostname field that long, which made one
+  // request to a deep subdomain leave a finished scan unpublishable. Drop
+  // the outermost labels until the host fits, the way a path drops segments
+  // beyond its cap. A dropped marker was counted when it was generalized; a
+  // dropped reviewed literal is generalized away here and counted now. A host
+  // that already fits, which includes every host published before this rule,
+  // is unchanged.
+  let kept = 0;
+  let length = publicRegistrable.length;
+  for (let index = labels.length - 1; index >= 0; index -= 1) {
+    if (length + labels[index].length + 1 > maxChars) break;
+    length += labels[index].length + 1;
+    kept += 1;
+  }
+  for (const dropped of labels.slice(0, labels.length - kept)) {
+    if (dropped && dropped !== GENERALIZED_LABEL) counters.subdomainLabelsGeneralized += 1;
+  }
+  return [...labels.slice(labels.length - kept), publicRegistrable].join(".");
 }
 
 /**
@@ -252,7 +292,7 @@ function publicRegistrableParts(hostname: string): { domain: string; isPrivate: 
   if (!canonicalHostname) return null;
   const originalLabels = canonicalHostname.split(".");
   const markerSafeHostname = originalLabels
-    .map((label) => label === GENERALIZED_LABEL ? "redacted-label" : label)
+    .map((label) => label === GENERALIZED_LABEL ? PARSE_SAFE_GENERALIZED_LABEL : label)
     .join(".");
   const parsed = parse(markerSafeHostname, { allowPrivateDomains: true });
   if (!parsed.domain || (!parsed.isIcann && !parsed.isPrivate)) return null;
@@ -416,7 +456,8 @@ export function redactHostnameV2(hostname: string): RedactedUrl {
     counters.malformedUrlsDropped += 1;
     return { value: INVALID_HOST_MARKER, counters };
   }
-  const value = redactCanonicalHostname(canonical, counters);
+  // The kept leading dot counts toward the published field's length.
+  const value = redactCanonicalHostname(canonical, counters, MAX_PUBLIC_HOST_CHARS - (leadingDot ? 1 : 0));
   return { value: `${leadingDot ? "." : ""}${value}`, counters };
 }
 

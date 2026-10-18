@@ -246,6 +246,54 @@ test("all public markers are byte-idempotent across repeated boundaries", () => 
   assert.equal(redactHostnameV2(INVALID_HOST_MARKER).value, INVALID_HOST_MARKER);
 });
 
+test("a deep host publishes within the reader's hostname cap and stays a fixed point", () => {
+  // One request to a deep subdomain left a finished scan unpublishable. The
+  // marker is longer than a short label, so a valid 253-character host
+  // generalized to several hundred characters, past the managed reader's
+  // 253-character hostname field cap; and from 17 generalized labels the
+  // re-read pushed the host past tldts's own limit, so the next boundary
+  // published the invalid-host marker and the fixed-point check failed.
+  const deepHost = (label: string): string => {
+    let host = "example.net";
+    while (`${label}.${host}`.length <= 253) host = `${label}.${host}`;
+    return host;
+  };
+  for (const label of ["1", "a1", "k1z", "aa11", "a8f3c9d2e1b4f6a7"]) {
+    for (const leadingDot of [false, true]) {
+      const host = deepHost(label);
+      const first = redactHostnameV2(`${leadingDot ? "." : ""}${host}`);
+      assert.ok(first.value.length <= 253, `${label}: published ${first.value.length} characters`);
+      assert.match(first.value, leadingDot ? /^\.(?:\{label\}\.)+example\.net$/ : /^(?:\{label\}\.)+example\.net$/);
+      // Every generalized label is counted once, whether it was kept or dropped.
+      assert.equal(first.counters.subdomainLabelsGeneralized, host.split(".").length - 2);
+      const second = redactHostnameV2(first.value);
+      assert.equal(second.value, first.value);
+      assert.deepEqual(second.counters, emptyRedactionCounters());
+    }
+  }
+
+  // Seventeen generalized labels fit the cap and were the first count the
+  // re-read refused.
+  const seventeen = `${Array.from({ length: 17 }, (_, index) => `a${index % 10}`).join(".")}.example.net`;
+  const once = redactHostnameV2(seventeen).value;
+  assert.equal(once, `${"{label}.".repeat(17)}example.net`);
+  assert.equal(redactHostnameV2(once).value, once);
+  assert.equal(publicRegistrableDomain(once), "example.net");
+  assert.equal(redactUrlV2(`https://${once}/`).value, `https://${once}/`);
+
+  // A URL's host obeys the same cap, and a reviewed literal dropped from the
+  // outside of the host is counted as generalized.
+  const deepUrl = redactUrlV2(`https://www.${"a1.".repeat(79)}example.net/x`);
+  const urlHost = deepUrl.value.slice("https://".length, deepUrl.value.indexOf("/", "https://".length));
+  assert.ok(urlHost.length <= 253);
+  assert.match(urlHost, /^(?:\{label\}\.)+example\.net$/);
+  assert.equal(deepUrl.counters.subdomainLabelsGeneralized, 80);
+  assert.equal(redactUrlV2(deepUrl.value).value, deepUrl.value);
+
+  // A host that already fits is unchanged, including its reviewed literals.
+  assert.equal(redactHostnameV2("www.a8f3c9d2e1b4f6a7.cdn.example.net").value, "www.{label}.cdn.example.net");
+});
+
 test("a leading-dot invalid-host marker is terminal and moves no counter", () => {
   // A leading-dot cookie domain that fails the host policy publishes the
   // marker with its dot kept. A later boundary (store, export, remediation,

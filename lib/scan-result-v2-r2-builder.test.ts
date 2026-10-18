@@ -23,6 +23,7 @@ import { toPublicScanReportR2 } from "./scan-report-v2-r2-projection";
 import { scanReportV2R2SemanticViolations } from "./scan-report-v2-r2-evaluators";
 import { isEphemeralScanReportR2, isPublicScanReportV2R2 } from "./scan-report-v2-r2-validation";
 import type { DetectorLedger } from "./scan-report-v2";
+import type { PublicSingleReportV2R2 } from "./scan-report-v2-r2";
 import {
   NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION,
   NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION,
@@ -140,6 +141,61 @@ test("real Node producer output is an exact managed-sanitizer fixed point", () =
   });
   assert.equal(prepared.reportWire.includes("ephemeral"), false);
   assert.equal(prepared.manifest.reportId, `20260721-${"e".repeat(32)}`);
+});
+
+test("a request, cookie or CNAME alias on a deep host still persists", () => {
+  // A page decides which hosts it contacts. One request to a deep subdomain
+  // made the finished scan unpublishable: from 17 generalized labels the
+  // persistence check refused it as redaction-not-idempotent, and from about
+  // 31 as report-resource-limit, which reached the caller as a cause-less 500.
+  const deepUnder = (registrable: string, label = "a1"): string => {
+    let host = registrable;
+    while (`${label}.${host}`.length <= 253) host = `${label}.${host}`;
+    return host;
+  };
+  const seventeen = `${Array.from({ length: 17 }, (_, index) => `t${index % 10}`).join(".")}.example.net`;
+  const google = findTrackerMatch("google-analytics.com");
+  assert.notEqual(google, null);
+  for (const [name, host, firstParty] of [
+    ["seventeen-label third-party host", seventeen, false],
+    ["253-character third-party host", deepUnder("example.net"), false],
+    ["253-character first-party host", deepUnder("example.com"), true]
+  ] as const) {
+    const input = baseInput();
+    input.evidence.requests.push({
+      ...input.evidence.requests[0],
+      id: 2,
+      url: `https://${host}/collect`,
+      domain: host,
+      resourceType: "script",
+      thirdParty: !firstParty,
+      startedAtMs: 30
+    });
+    const cookie = {
+      name: "_ga",
+      domain: `.${host}`,
+      path: "/",
+      sameSite: "Lax" as const,
+      secure: true,
+      httpOnly: false,
+      session: false,
+      thirdParty: !firstParty
+    };
+    input.evidence.cookiesFinal.push(cookie);
+    input.evidence.cookieMutations.push({ phaseId: 0, op: "added", cookie });
+    if (firstParty) input.evidence.cnameCloaks.push({ host, cname: "google-analytics.com", tracker: google! });
+
+    const report = buildNodeScanReportV2R2(input);
+    const bundle = prepareScanReportBundle(report);
+    const stored = JSON.parse(bundle.reportWire) as PublicSingleReportV2R2;
+    const published = stored.run.evidence;
+    const registrable = firstParty ? "example.com" : "example.net";
+    for (const field of [published.requests[1].domain, published.cookiesFinal[0].domain, ...published.cnameCloaks.map((cloak) => cloak.host)]) {
+      assert.ok(field.length <= 253, `${name}: a ${field.length}-character host field`);
+      assert.ok(field.endsWith(`.${registrable}`), `${name}: ${field}`);
+    }
+    assert.equal(published.cnameCloaks.length, firstParty ? 1 : 0, name);
+  }
 });
 
 test("a leading-dot IP cookie domain the builder admits stays a managed-sanitizer fixed point", () => {
