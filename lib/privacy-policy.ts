@@ -459,10 +459,11 @@ export function policyProseCharacters(text: string): number {
  * whose site keeps its policy on another page it links to. Reading a hub as
  * the policy published every tracker its navigation never names as one the
  * policy does not name: theguardian.com's link reaches /info/privacy, link
- * cards around no prose at all, and its report listed Amazon Ads, The Trade
- * Desk, LiveRamp, Criteo and Comscore as unnamed, all of which the policy at
- * /help/privacy-policy names. Five such hubs carried 120 of the committed
- * corpus's 1,369 policy reads; this recognizes four of them.
+ * cards around no prose at all, and a report's policy card listed The Trade
+ * Desk, LiveRamp, Criteo and Comscore among the companies the policy does
+ * not name, all four named at /help/privacy-policy. Five such hubs account
+ * for 60 committed reports, 52 of them showing an omission card; this
+ * recognizes four of the five.
  *
  * All three must hold:
  *   1. Neither the title nor any h1 names the page as a policy, notice,

@@ -9,19 +9,20 @@ public API or a 1.0 release.
 
 ### Fixed
 
-- The privacy-policy cross-check no longer reads a privacy hub as the
-  policy (policy-text-cross-check@10, node-detectors-v14). A site's policy
-  link can lead to a landing page whose policy is on another page it links
-  to: theguardian.com's reaches /info/privacy, link cards around no prose,
-  and its report listed Amazon Ads, The Trade Desk, LiveRamp, Criteo and
-  Comscore as companies the policy does not name, all named at
-  /help/privacy-policy. Rendering every page the committed corpus and the
-  October news sweep read as a policy found five such hubs (the Guardian,
-  Discover, Capital One, Home Depot, Walgreens), all in the committed corpus:
-  120 of its 1,369 policy reads, 77 of which still publish an omission card
-  carrying 118 omissions the site's policy contradicts; none of the 238
-  sweep reads classified. A read is now withheld (failed/`load-failed` with
-  a `policy-visit` drop) when its title and h1 headings name no policy,
+- The privacy-policy cross-check no longer reads a privacy hub as the policy
+  (policy-text-cross-check@10, node-detectors-v14). A site's policy link can
+  lead to a landing page whose policy is on another page it links to:
+  theguardian.com's reaches /info/privacy, link cards around no prose, and
+  its September report's policy card listed nine companies the policy does
+  not name, among them The Trade Desk, LiveRamp, Criteo and Comscore, all
+  four named at /help/privacy-policy. Rendering every page the committed
+  corpus and the October news sweep read as a policy found five such hubs
+  (the Guardian, Discover, Capital One, Home Depot, Walgreens), all in the
+  committed corpus: 60 of its reports, 52 of which still show an omission
+  card; those cards list 219 omissions in all, 92 of them companies the
+  site's own policy names. None of the 238 sweep reports that could be
+  classified read a hub. A read is now withheld (failed/`load-failed` with a
+  `policy-visit` drop) when its title and h1 headings name no policy,
   notice, statement, terms or practices, its text carries under 3,000
   characters of prose sentences, and it links to another document the
   selector would read as the site's policy. The policy-page link search
@@ -30,9 +31,10 @@ public API or a 1.0 release.
   Guardian, Discover, Capital One and Home Depot and no policy: unlabeled
   policies that link to another policy document carry 37,327 (Cleveland
   Clinic) or 50,424 (every USA TODAY Network page) characters of prose, and
-  short ones call themselves policies. Walgreens' privacy center, whose cards hide 7,457 characters of
-  dialog prose, is still read. The linked page is not read in place of a
-  hub: Home Depot's links first to a summary. Stored reports are unchanged.
+  short ones call themselves policies. Walgreens' privacy center, whose
+  cards hide 7,457 characters of dialog prose, is still read. The linked
+  page is not read in place of a hub: Home Depot's links first to a summary.
+  Stored reports are unchanged.
 - The privacy-policy cross-check no longer publishes a page shell as the
   policy (policy-text-cross-check@9, node-detectors-v13). The read waited a
   fixed second after DOMContentLoaded, so a client-rendered policy (a
