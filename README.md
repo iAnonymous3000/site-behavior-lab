@@ -275,9 +275,10 @@ closed producer row and adopting the `NODE_R2_CURRENT_ADBLOCK_IDENTITY`
 literal that `npm run lists:adoption` prints; until then the proposal stays
 open. Setting the `SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE` repository variable to
 `1` quiesces the refresh. A separate job in the same workflow compares the
-pinned adblock crate, Playwright, tldts, and bundled Chromium with their
-upstream stable releases and keeps the measurement-toolchain drift issue open
-while an actionable upgrade is available.
+pinned adblock crate, Playwright, tldts, bundled Chromium, and the pdf.js and
+undici versions the privacy-policy detector reads policy PDFs with against
+their upstream stable releases and keeps the measurement-toolchain drift issue
+open while an actionable upgrade is available.
 
 ## API
 

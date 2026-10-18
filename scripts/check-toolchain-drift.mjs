@@ -28,6 +28,8 @@ const CRATES_IO_SOURCES = new Set([
 const CRATES_IO_ADBLOCK_URL = "https://crates.io/api/v1/crates/adblock";
 const NPM_PLAYWRIGHT_URL = "https://registry.npmjs.org/playwright/latest";
 const NPM_TLDTS_URL = "https://registry.npmjs.org/tldts/latest";
+const NPM_PDFJS_URL = "https://registry.npmjs.org/pdfjs-dist/latest";
+const NPM_UNDICI_URL = "https://registry.npmjs.org/undici/latest";
 const PLAYWRIGHT_TAG_BROWSERS_URL = (version) =>
   `https://raw.githubusercontent.com/microsoft/playwright/v${version}/packages/playwright-core/browsers.json`;
 const PLAYWRIGHT_TAG_SECCOMP_URL = (version) =>
@@ -102,6 +104,21 @@ function exactLockedDependency(packageLock, name) {
   return version;
 }
 
+// pdfjs-dist is declared as a range, so the version that counts is the one the
+// lock resolves: npm ci installs it for the scanner, and
+// lib/policy-pdf-libraries.test.ts holds it to the privacy-policy detector's
+// version.
+export function resolvedLockedDependency(packageLock, name) {
+  const declared = packageLock?.packages?.[""]?.dependencies?.[name];
+  if (typeof declared !== "string" || declared.length === 0) {
+    throw new Error(`package-lock.json must declare ${name} as a dependency.`);
+  }
+  return requiredString(
+    packageLock?.packages?.[`node_modules/${name}`]?.version,
+    `package-lock.json resolved ${name} version`
+  );
+}
+
 function chromiumDescriptor(payload, label) {
   const entries = Array.isArray(payload?.browsers)
     ? payload.browsers.filter((entry) => entry?.name === "chromium")
@@ -172,7 +189,9 @@ async function localPins() {
     playwright,
     chromium: chromiumDescriptor(installedBrowsers, "installed playwright-core/browsers.json"),
     seccompProfile: parseJson(seccompProfileSource, "scripts/playwright-seccomp-profile.json"),
-    tldts
+    tldts,
+    pdfjs: resolvedLockedDependency(packageLock, "pdfjs-dist"),
+    undici: resolvedLockedDependency(packageLock, "undici")
   };
 }
 
@@ -204,18 +223,25 @@ async function fetchJson(label, url) {
 }
 
 async function upstreamVersions(pinnedPlaywright) {
-  const [adblockPayload, playwrightPayload, tldtsPayload, taggedBrowsersPayload, taggedSeccompProfile, chromePayload] =
-    await Promise.all([
-      fetchJson("crates.io adblock", CRATES_IO_ADBLOCK_URL),
-      fetchJson("npm playwright", NPM_PLAYWRIGHT_URL),
-      fetchJson("npm tldts", NPM_TLDTS_URL),
-      fetchJson(`Playwright v${pinnedPlaywright} browsers.json`, PLAYWRIGHT_TAG_BROWSERS_URL(pinnedPlaywright)),
-      fetchJson(
-        `Playwright v${pinnedPlaywright} seccomp profile`,
-        PLAYWRIGHT_TAG_SECCOMP_URL(pinnedPlaywright)
-      ),
-      fetchJson("Chrome VersionHistory stable", CHROME_STABLE_URL)
-    ]);
+  const [
+    adblockPayload,
+    playwrightPayload,
+    tldtsPayload,
+    pdfjsPayload,
+    undiciPayload,
+    taggedBrowsersPayload,
+    taggedSeccompProfile,
+    chromePayload
+  ] = await Promise.all([
+    fetchJson("crates.io adblock", CRATES_IO_ADBLOCK_URL),
+    fetchJson("npm playwright", NPM_PLAYWRIGHT_URL),
+    fetchJson("npm tldts", NPM_TLDTS_URL),
+    fetchJson("npm pdfjs-dist", NPM_PDFJS_URL),
+    fetchJson("npm undici", NPM_UNDICI_URL),
+    fetchJson(`Playwright v${pinnedPlaywright} browsers.json`, PLAYWRIGHT_TAG_BROWSERS_URL(pinnedPlaywright)),
+    fetchJson(`Playwright v${pinnedPlaywright} seccomp profile`, PLAYWRIGHT_TAG_SECCOMP_URL(pinnedPlaywright)),
+    fetchJson("Chrome VersionHistory stable", CHROME_STABLE_URL)
+  ]);
 
   if (!Array.isArray(chromePayload?.versions) || chromePayload.versions.length !== 1) {
     throw new Error("Chrome VersionHistory must return exactly one Linux stable version.");
@@ -230,13 +256,21 @@ async function upstreamVersions(pinnedPlaywright) {
       "Chrome VersionHistory Linux stable version",
       CHROME_VERSION_PATTERN
     ),
-    tldts: requiredString(tldtsPayload?.version, "npm tldts latest version")
+    tldts: requiredString(tldtsPayload?.version, "npm tldts latest version"),
+    pdfjs: requiredString(pdfjsPayload?.version, "npm pdfjs-dist latest version"),
+    undici: requiredString(undiciPayload?.version, "npm undici latest version")
   };
 }
 
 function major(version) {
   return Number.parseInt(version.split(".", 1)[0], 10);
 }
+
+// undici fetches and pdf.js reads the policy PDFs the privacy-policy detector
+// cross-checks, so either one moves only with that detector's version.
+const POLICY_PDF_LIBRARY_ACTION =
+  "Move it only in a detector epoch: update the lockfile, move policy-text-cross-check and " +
+  "DETECTOR_REGISTRY_VERSION to new versions, and add the new version's row to lib/policy-pdf-libraries.test.ts.";
 
 export function driftRows(pinned, upstream) {
   return [
@@ -274,6 +308,22 @@ export function driftRows(pinned, upstream) {
       drift: pinned.tldts !== upstream.tldts,
       actionable: pinned.tldts !== upstream.tldts,
       action: "Update the exact npm pin, lockfile, and public-suffix provenance disclosure together."
+    },
+    {
+      component: "pdfjs-dist",
+      pinned: pinned.pdfjs,
+      upstream: upstream.pdfjs,
+      drift: pinned.pdfjs !== upstream.pdfjs,
+      actionable: pinned.pdfjs !== upstream.pdfjs,
+      action: POLICY_PDF_LIBRARY_ACTION
+    },
+    {
+      component: "undici",
+      pinned: pinned.undici,
+      upstream: upstream.undici,
+      drift: pinned.undici !== upstream.undici,
+      actionable: pinned.undici !== upstream.undici,
+      action: POLICY_PDF_LIBRARY_ACTION
     }
   ];
 }
@@ -316,7 +366,7 @@ ${table}
 
 ${actions}
 
-The adblock version comes from the exact resolved package in \`tools/adblock-wasm/Cargo.lock\`. npm pins must match exactly across \`package.json\`, \`package-lock.json\`, and the resolved lockfile packages. The bundled browser comes from the integrity-checked Playwright package and must match \`playwright-core/browsers.json\` at the exact pinned Playwright Git tag. The Docker seccomp profile must likewise match \`utils/docker/seccomp_profile.json\` at that tag. Chrome Stable is the Linux consumer stable channel from Google's VersionHistory API and is compared by major version only.
+The adblock version comes from the exact resolved package in \`tools/adblock-wasm/Cargo.lock\`. The Playwright and tldts npm pins must match exactly across \`package.json\`, \`package-lock.json\`, and the resolved lockfile packages. pdfjs-dist and undici, which read and fetch the policy PDFs the privacy-policy detector cross-checks, are compared at the version \`package-lock.json\` resolves, since \`package.json\` declares pdfjs-dist as a range. The bundled browser comes from the integrity-checked Playwright package and must match \`playwright-core/browsers.json\` at the exact pinned Playwright Git tag. The Docker seccomp profile must likewise match \`utils/docker/seccomp_profile.json\` at that tag. Chrome Stable is the Linux consumer stable channel from Google's VersionHistory API and is compared by major version only.
 
 Only rows marked \`upgrade available\` open or reopen the maintenance issue. Browser-channel lag remains visible here, but is informational until a newer stable Playwright release provides the supported upgrade path.
 

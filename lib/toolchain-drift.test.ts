@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { test } from "node:test";
 import { pathToFileURL } from "node:url";
@@ -13,17 +13,22 @@ type ToolchainDriftHelpers = {
       playwright: string;
       chromium: { version: string };
       tldts: string;
+      pdfjs: string;
+      undici: string;
     },
     upstream: {
       adblock: string;
       playwright: string;
       chromeStable: string;
       tldts: string;
+      pdfjs: string;
+      undici: string;
     }
   ): Array<{
     component: string;
     drift: boolean;
     actionable: boolean;
+    action: string;
   }>;
   markdownReport(
     rows: Array<{
@@ -36,6 +41,7 @@ type ToolchainDriftHelpers = {
     }>,
     checkedAt: string
   ): string;
+  resolvedLockedDependency(packageLock: unknown, name: string): string;
 };
 
 const nativeImport = new Function("specifier", "return import(specifier)") as (
@@ -103,13 +109,17 @@ test("browser-channel lag stays visible without opening an unactionable maintena
       adblock: "0.13.2",
       playwright: "1.61.1",
       chromium: { version: "149.0.7827.55" },
-      tldts: "7.4.9"
+      tldts: "7.4.9",
+      pdfjs: "6.3.289",
+      undici: "8.11.2"
     },
     {
       adblock: "0.13.2",
       playwright: "1.61.1",
       chromeStable: "150.0.7871.128",
-      tldts: "7.4.9"
+      tldts: "7.4.9",
+      pdfjs: "6.3.289",
+      undici: "8.11.2"
     }
   );
 
@@ -125,13 +135,17 @@ test("browser-channel lag stays visible without opening an unactionable maintena
       adblock: "0.13.2",
       playwright: "1.61.1",
       chromium: { version: "149.0.7827.55" },
-      tldts: "7.4.9"
+      tldts: "7.4.9",
+      pdfjs: "6.3.289",
+      undici: "8.11.2"
     },
     {
       adblock: "0.13.2",
       playwright: "1.61.1",
       chromeStable: "150.0.7871.128",
-      tldts: "7.4.9"
+      tldts: "7.4.9",
+      pdfjs: "6.3.289",
+      undici: "8.11.2"
     }
   ).map((row) => ({ ...row, pinned: "pinned", upstream: "upstream", action: "upgrade" }));
   const report = markdownReport(reportRows, "2026-07-21T00:00:00.000Z");
@@ -147,13 +161,17 @@ test("supported package upgrades remain actionable", async () => {
       adblock: "0.13.1",
       playwright: "1.60.0",
       chromium: { version: "148.0.0.0" },
-      tldts: "7.4.8"
+      tldts: "7.4.8",
+      pdfjs: "6.3.289",
+      undici: "8.11.2"
     },
     {
       adblock: "0.13.2",
       playwright: "1.61.1",
       chromeStable: "150.0.0.0",
-      tldts: "7.4.9"
+      tldts: "7.4.9",
+      pdfjs: "6.4.299",
+      undici: "8.12.2"
     }
   );
 
@@ -163,7 +181,60 @@ test("supported package upgrades remain actionable", async () => {
       ["adblock-rust", true],
       ["Playwright", true],
       ["Bundled Chromium / Chrome Stable (Linux)", false],
-      ["tldts", true]
+      ["tldts", true],
+      ["pdfjs-dist", true],
+      ["undici", true]
     ]
   );
+});
+
+test("pdf.js and undici drift at the version the lock resolves and move only through their detector guard", async () => {
+  const { driftRows, resolvedLockedDependency } = await helpers;
+  // package.json declares pdfjs-dist as a range, so a regenerated lock can
+  // resolve a newer release than the range names. npm ci installs that one.
+  const packageLock = {
+    packages: {
+      "": { dependencies: { "pdfjs-dist": "^6.3.289", undici: "8.11.2" } },
+      "node_modules/pdfjs-dist": { version: "6.4.299" },
+      "node_modules/undici": { version: "8.11.2" }
+    }
+  };
+  assert.equal(resolvedLockedDependency(packageLock, "pdfjs-dist"), "6.4.299");
+  assert.equal(resolvedLockedDependency(packageLock, "undici"), "8.11.2");
+  assert.throws(
+    () => resolvedLockedDependency({ packages: { "node_modules/undici": { version: "8.11.2" } } }, "undici"),
+    /must declare undici/
+  );
+  assert.throws(
+    () => resolvedLockedDependency({ packages: { "": { dependencies: { undici: "8.11.2" } } } }, "undici"),
+    /resolved undici version is missing or malformed/
+  );
+
+  const rows = driftRows(
+    {
+      adblock: "0.13.3",
+      playwright: "1.63.0",
+      chromium: { version: "153.0.8010.12" },
+      tldts: "7.4.16",
+      pdfjs: "6.3.289",
+      undici: "8.11.2"
+    },
+    {
+      adblock: "0.13.3",
+      playwright: "1.63.0",
+      chromeStable: "153.0.8010.70",
+      tldts: "7.4.16",
+      pdfjs: "6.3.289",
+      undici: "8.12.2"
+    }
+  );
+  assert.deepEqual(
+    rows.filter((row) => row.actionable).map((row) => row.component),
+    ["undici"]
+  );
+  for (const row of rows.filter((candidate) => ["pdfjs-dist", "undici"].includes(candidate.component))) {
+    assert.match(row.action, /detector epoch/);
+    const guard = /lib\/[\w.-]+\.test\.ts/.exec(row.action)?.[0];
+    assert.ok(guard && existsSync(path.join(process.cwd(), guard)), `${row.component} must name its existing guard`);
+  }
 });

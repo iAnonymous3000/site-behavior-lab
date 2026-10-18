@@ -23,15 +23,16 @@ updates:
         # reads it, so lib/policy-pdf-libraries.test.ts refuses either at any
         # version but the one the current policy-text-cross-check reads with,
         # and a group PR that includes one (#266 had both) arrives red. They
-        # move only in a detector epoch. They are excluded but not ignored:
-        # the weekly drift issue does not track them, so their own PRs, red
-        # by design, are the only notice of an upstream release.
+        # move only in a detector epoch, and the weekly drift issue reports
+        # their upstream releases, so their version updates are ignored too.
         patterns: ["*"]
         exclude-patterns: ["playwright", "tldts", "pdfjs-dist", "undici"]
         update-types: ["minor", "patch"]
     ignore:
       - dependency-name: "playwright"
       - dependency-name: "tldts"
+      - dependency-name: "pdfjs-dist"
+      - dependency-name: "undici"
 
   - package-ecosystem: "cargo"
     directory: "/tools/adblock-wasm"
