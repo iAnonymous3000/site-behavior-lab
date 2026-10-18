@@ -815,6 +815,16 @@ public API or a 1.0 release.
 ### Brave Shields lists
 
 - The Shields simulation uses the Brave default filter lists fetched
+  2026-10-18 (31 lists, manifest `01437eff`), replacing the September 28
+  snapshot the status page had marked stale. The September 28 snapshot stays
+  readable as a closed producer identity: the node-detectors-v17 list row is
+  closed to its exact literals as
+  `node-v22-detectors-v17-active-lists-2026-09-28`, byte for byte what
+  `3e885607` produced, and the new active list row is
+  `node-v22-detectors-v17-active-lists-2026-10-18`. The no-list row, the
+  methodology, the normalization and the corpus cohorts do not move, and
+  reports production wrote with the September 28 lists read as before.
+- The Shields simulation uses the Brave default filter lists fetched
   2026-09-28 (31 lists, manifest `2e8c9278`), adopted from the weekly refresh
   proposal. The September 21 snapshot stays readable as a closed producer
   identity: the node-detectors-v11 list row is closed to its exact literals as

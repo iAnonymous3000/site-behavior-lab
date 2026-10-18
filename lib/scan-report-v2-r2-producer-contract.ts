@@ -655,8 +655,8 @@ export const HISTORICAL_NODE_R2_V4_ADBLOCK_IDENTITY = Object.freeze({
 export const NODE_R2_CURRENT_ADBLOCK_IDENTITY = Object.freeze({
   source: "Brave default ad-block lists",
   lists: 31,
-  fetchedAt: "2026-09-28T13:50:37.752Z",
-  manifestDigest: "2e8c9278c65ff2872c7cefacf0ea485dba9c93bab01bdd954aeddabe49d49668",
+  fetchedAt: "2026-10-18T18:25:24.776Z",
+  manifestDigest: "01437eff7c7cecaee35b2d31aee0d67e447114b1dd6cfdeed4ec00c91af094fb",
   engineVersion: NODE_ADBLOCK_ENGINE_VERSION
 } satisfies NonNullable<Toolchain["adblock"]>);
 
@@ -716,10 +716,9 @@ export const HISTORICAL_R2_LISTS_2026_09_21_ADBLOCK_0_13_3_IDENTITY = Object.fre
 /**
  * Frozen copy of the September 28 list snapshot under adblock-rust 0.13.3, as
  * the node-detectors-v11 production rows published it until node-detectors-v12
- * closed them, and the node-detectors-v12 rows after them until the 2026-10
- * toolchain epoch closed those. Equal to the live constant today; the live
- * constant follows the next list adoption or engine move and this closed copy
- * never does.
+ * closed them, and every later list row through node-detectors-v17 until the
+ * October 18 list adoption closed the last of them. The live constant follows
+ * each adoption; this closed copy never does.
  */
 export const HISTORICAL_R2_LISTS_2026_09_28_ADBLOCK_0_13_3_IDENTITY = Object.freeze({
   source: "Brave default ad-block lists",
@@ -1496,6 +1495,57 @@ const HISTORICAL_NODE_V16_FIELDS: NodeTupleFields = Object.freeze({
   phaseOmissionContractVersion: "phase-omission-v2",
 });
 
+// Exact node-detectors-v17 producer fields, frozen when the October 18 list
+// adoption closed the v22 list row: v16's fields with the registry and the
+// fingerprint observer that v17 moved. The no-list v22 row still follows the
+// live fields, since a list-only adoption does not mint a new one.
+const HISTORICAL_NODE_V17_FIELDS: NodeTupleFields = Object.freeze({
+  detectorRegistry: Object.freeze({
+    "version": "node-detectors-v17",
+    "digest": "40b13770367bbb9e3e74c389110d5bca75a57fa803e46cb09b5a3ec69259b9f8"
+  } as const),
+  detectorVersions: Object.freeze({
+    "fingerprint-heuristics": "fingerprint-observer@9",
+    "keystroke-exfiltration": "synthetic-sentinel@5",
+    "cname-uncloaking": "dns-cname-chain@5",
+    "pixel-events": "pixel-request-decoder@6",
+    "consent-banner": "consent-control-and-state@3",
+    "privacy-policy": "policy-text-cross-check@10"
+  } as const),
+  detectorStatusContractVersion: "detector-status-v2",
+  detectorObligations: Object.freeze({
+    "version": "detector-obligations-v2",
+    "digest": "502d149030a4b771031a41ec71760e02d801a569ef0fe9725b01036351b10f2b"
+  } as const),
+  serviceRoleTaxonomy: Object.freeze({
+    "version": "service-role-taxonomy-v1",
+    "digest": "dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67"
+  } as const),
+  trackerCatalog: Object.freeze({
+    "source": "Hand-curated service catalog",
+    "version": "hand-curated-2026.08",
+    "entries": 146,
+    "digest": "e94970de235fc80254de8ed99b94316a252e52aa1c2e748c8fbfc3c093b908f4"
+  } as const),
+  publicLimits: Object.freeze({
+    "phases": 16,
+    "warnings": 64,
+    "requests": 1000,
+    "cookieRecords": 1000,
+    "cookieMutations": 2000,
+    "storageRecords": 1000,
+    "storageMutations": 2000,
+    "fingerprintEvents": 1000,
+    "fingerprintDetections": 256,
+    "cnameCloaks": 256,
+    "pixelEvents": 512,
+    "consentObservations": 32,
+    "policyClaims": 32,
+    "policyEntities": 100
+  } as const),
+  phaseOmissionContractVersion: "phase-omission-v2",
+});
+
 const ACTIVE_DETECTOR_STATUS_CONTRACT_VERSION: DetectorStatusContractVersion =
   isDetectorReasonCode("evidence-cap-reached") ? "detector-status-v2" : "detector-status-v1";
 const ACTIVE_NODE_FIELDS: NodeTupleFields = Object.freeze({
@@ -1539,7 +1589,9 @@ function nodeTuple(
 // cannot be shown current is unread only when its whole snapshot records
 // something) with the registry; the methodology, normalization, lists,
 // toolchain and every other field are unchanged from v21, whose two rows are
-// closed below in NODE_R2_PRODUCER_TUPLES.
+// closed below in NODE_R2_PRODUCER_TUPLES. The October 18 list adoption closed
+// the v22 list row as it ran with the September 28 lists; the live list row
+// carries the October 18 lists, and the no-list row is unchanged.
 const ACTIVE_NODE_WIRE_IDENTITY_IS_DISTINCT =
   String(NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION) !== HISTORICAL_NODE_V15_METHODOLOGY ||
   String(NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION) !== HISTORICAL_NODE_V20_NORMALIZATION ||
@@ -1548,7 +1600,7 @@ const ACTIVE_NODE_WIRE_IDENTITY_IS_DISTINCT =
 const ACTIVE_NODE_TUPLES: readonly NodeR2ProducerTuple[] = ACTIVE_NODE_WIRE_IDENTITY_IS_DISTINCT
   ? Object.freeze([
       nodeTuple(
-        "node-v22-detectors-v17-active-lists-2026-09-28",
+        "node-v22-detectors-v17-active-lists-2026-10-18",
         NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION,
         NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION,
         ACTIVE_NODE_FIELDS,
@@ -2042,6 +2094,14 @@ export const NODE_R2_PRODUCER_TUPLES: readonly NodeR2ProducerTuple[] = Object.fr
   nodeTuple("node-v21-detectors-v16-active-no-adblock",
     HISTORICAL_NODE_V20_NORMALIZATION, HISTORICAL_NODE_V15_METHODOLOGY,
     HISTORICAL_NODE_V16_FIELDS, null
+  ),
+  // The node-detectors-v17 list row with the September 28 lists, closed to its
+  // exact source identity by the October 18 list adoption: the v15
+  // methodology, the bc719d41 policy digest under tldts 7.4.16,
+  // node-detectors-v17 and adblock-rust 0.13.3. Only the list snapshot moved.
+  nodeTuple("node-v22-detectors-v17-active-lists-2026-09-28",
+    HISTORICAL_NODE_V20_NORMALIZATION, HISTORICAL_NODE_V15_METHODOLOGY,
+    HISTORICAL_NODE_V17_FIELDS, HISTORICAL_R2_LISTS_2026_09_28_ADBLOCK_0_13_3_IDENTITY
   ),
   ...ACTIVE_NODE_TUPLES
 ]);
