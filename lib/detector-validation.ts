@@ -139,6 +139,16 @@ export const DETECTOR_VALIDATION_FIXTURES: readonly DetectorValidationFixture[] 
       "Text drawn on an OffscreenCanvas and read back through getImageData or exported through convertToBlob produces the same canvas finding a page canvas does, with the export named as convertToBlob."
   },
   {
+    detector: "fingerprint-heuristics",
+    kind: "adversarial",
+    environment: "real-chromium",
+    file: "lib/worker-fingerprint-realm.test.ts",
+    testName:
+      "real Chromium: a worker that ends before it can vouch for its owner read is no loss when it recorded nothing, and unread when it fingerprinted",
+    verifies:
+      "Two dedicated workers that end themselves while the owner read's frame tree is held, so neither can vouch for its document: the one that recorded nothing costs nothing, and the one that drew and read a canvas is one unread realm whose evidence is never credited."
+  },
+  {
     detector: "keystroke-exfiltration",
     kind: "positive",
     environment: "unit",

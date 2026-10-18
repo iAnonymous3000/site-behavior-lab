@@ -346,7 +346,12 @@ function readoutTerms(readout: WorkerFingerprintRealmReadout) {
       ([key, value]) => value !== 0 && key !== "observedDedicated" && key !== "attachedDedicated" && key !== "attachedNested"
     )
   );
-  return { snapshots: readout.readableSnapshots, unread: readout.unreadRealms, terms: nonZero };
+  return {
+    snapshots: readout.readableSnapshots,
+    unread: readout.unreadRealms,
+    ...(readout.unscopedSnapshots.length > 0 ? { unscoped: readout.unscopedSnapshots } : {}),
+    terms: nonZero
+  };
 }
 
 /** A barrier each test answers by hand, per worker session. */
@@ -512,12 +517,17 @@ test("readout: a closed channel leaves every worker still attached unread, and e
   realms.scripted.drop();
   // Three witnessed: the two attached, and one that started after the drop.
   // The gone worker's stream is whole, but with no channel its owner cannot
-  // be checked against the current frames.
-  assert.deepEqual(readoutTerms(await realms.readout(3)), {
+  // be checked against the current frames, so it is handed over unscoped, and
+  // the call it recorded makes it unread in the collection.
+  const readout = await realms.readout(3);
+  assert.deepEqual(readoutTerms(readout), {
     snapshots: [],
-    unread: 3,
+    unread: 2,
+    unscoped: [READ_SNAPSHOT],
     terms: { channelLostAlive: 1, ownerUnknown: 1, unattachedDedicated: 1 }
   });
+  const collection = await collectFingerprintObservationsWithCoverage([], readout);
+  assert.deepEqual([collection.attemptedWorkerRealms, collection.readableWorkerRealms], [3, 0]);
 });
 
 test("readout: with no channel at all, every witnessed worker is unread", async () => {
@@ -616,9 +626,15 @@ test("readout: a worker that has gone is read only while its owner document is c
     unread: 0,
     terms: { readable: 2 }
   });
-  // Current frames that cannot be read never exclude a worker silently.
+  // Current frames that cannot be read never exclude a worker silently, nor
+  // credit it: each is handed over unscoped.
   realms.setFrameTree(() => new Error("Page.getFrameTree failed"));
-  assert.deepEqual(readoutTerms(await realms.readout(2)), { snapshots: [], unread: 2, terms: { ownerUnknown: 2 } });
+  assert.deepEqual(readoutTerms(await realms.readout(2)), {
+    snapshots: [],
+    unread: 0,
+    unscoped: [READ_SNAPSHOT, READ_SNAPSHOT],
+    terms: { ownerUnknown: 2 }
+  });
 });
 
 /**
@@ -668,14 +684,26 @@ test("readout: a gone worker of a replaced document is excluded whatever state i
   });
 });
 
-test("readout: a worker whose owner could not be recorded during its pause is unread, and its nested child inherits that", async () => {
+test("readout: a worker whose owner could not be recorded during its pause is unscoped, and its nested child inherits that", async () => {
   const realms = await scriptedWorkerRealms({ frameTree: () => new Error("Page.getFrameTree failed") });
   await realms.attach("orphan");
   realms.scripted.emit(attachEvent("child", "worker", { arrivedOn: "orphan" }));
   await realms.session.settle(1_000);
   // A nested worker's owner is its parent's: no frame tree is read for it.
   assert.equal(commandsFor(realms.scripted.sent, "orphan").includes("Page.getFrameTree"), false);
-  assert.deepEqual(readoutTerms(await realms.readout(2)), { snapshots: [], unread: 2, terms: { ownerUnknown: 2 } });
+  realms.emit("orphan", 2, "open");
+  realms.emit("orphan", 3, "closed", READ_SNAPSHOT);
+  const readout = await realms.readout(2);
+  assert.deepEqual(readoutTerms(readout), {
+    snapshots: [],
+    unread: 0,
+    unscoped: [READ_SNAPSHOT, EMPTY_SNAPSHOT],
+    terms: { ownerUnknown: 2 }
+  });
+  // The orphan recorded a call it cannot be credited with, so it is unread;
+  // its child recorded nothing, so nothing of the child is unread.
+  const collection = await collectFingerprintObservationsWithCoverage([], readout);
+  assert.deepEqual([collection.attemptedWorkerRealms, collection.readableWorkerRealms], [1, 0]);
 });
 
 test("readout: a worker that died while held ran nothing and is excluded, although its install failed", async () => {
@@ -726,7 +754,7 @@ function heldFrameTrees() {
  * a pending navigation can hold for seconds. The worker's release and the
  * install's own count wait only for the install on the worker's session; the
  * owner lands on the record whenever its read answers, and until then a read
- * worker is unread for want of an owner, never read unscoped.
+ * worker is handed over unscoped for want of an owner, never credited.
  */
 test("the release and the install's count never wait for the owner read, whose answer lands whenever it comes", async () => {
   const installer = new FingerprintWorkerRealmInstaller(FIXTURE_SITE_KEY);
@@ -753,7 +781,12 @@ test("the release and the install's count never wait for the owner read, whose a
   assert.deepEqual(installer.installDiagnostics(), { installedWorkerCount: 1, installFailedWorkerCount: 0 });
   const readout = (settleMs: number) => installer.readout({ session, witness: { count: () => 1 }, settleMs });
   // The owner read is still held: the drain waits for it to its bound.
-  assert.deepEqual(readoutTerms(await readout(50)), { snapshots: [], unread: 1, terms: { ownerUnknown: 1 } });
+  assert.deepEqual(readoutTerms(await readout(50)), {
+    snapshots: [],
+    unread: 0,
+    unscoped: [READ_SNAPSHOT],
+    terms: { ownerUnknown: 1 }
+  });
   // Answered and vouched for: the same worker is read.
   trees.answerAll();
   assert.deepEqual(readoutTerms(await readout(200)), { snapshots: [READ_SNAPSHOT], unread: 0, terms: { readable: 1 } });
@@ -764,8 +797,9 @@ test("the release and the install's count never wait for the owner read, whose a
  * got to it, which can be after a navigation replaced the worker's owner. It
  * counts only when the worker answers a command sent once the answer is in
  * hand: a worker that has gone by then, whose command errors, or that goes
- * while its command is in flight leaves its owner unknown, a disclosed loss,
- * never a guess that credits or excludes it.
+ * while its command is in flight leaves its owner unknown, never a guess that
+ * credits or excludes it: it is handed over unscoped, and the collection
+ * counts it unread, a disclosed loss, since each of these recorded a call.
  */
 test("an owner answer counts only when the worker vouches for it after it arrives", async () => {
   const installer = new FingerprintWorkerRealmInstaller(FIXTURE_SITE_KEY);
@@ -808,11 +842,117 @@ test("an owner answer counts only when the worker vouches for it after it arrive
   readingOut = true;
   const pending = installer.readout({ session, witness: { count: () => workers.length }, settleMs: 100 });
   trees.answerAll();
-  assert.deepEqual(readoutTerms(await pending), {
+  const readout = await pending;
+  assert.deepEqual(readoutTerms(readout), {
     snapshots: [READ_SNAPSHOT],
-    unread: 3,
+    unread: 0,
+    unscoped: [READ_SNAPSHOT, READ_SNAPSHOT, READ_SNAPSHOT],
     terms: { readable: 1, ownerUnknown: 3 }
   });
+  const collection = await collectFingerprintObservationsWithCoverage([], readout);
+  assert.deepEqual([collection.attemptedWorkerRealms, collection.readableWorkerRealms], [4, 1]);
+});
+
+/**
+ * The October news sweep's commonest worker loss. A blob worker runs one job
+ * and ends, often within a second, while the page's busy main thread holds the
+ * owner read's frame tree; by the time the answer arrives the worker can no
+ * longer vouch for it, so its owner stays unknown although its document never
+ * changed. Its whole stream is in hand all the same. One that recorded nothing
+ * has nothing to credit to any document and is no loss; one that recorded a
+ * call stays one unread realm, never credited.
+ */
+test("readout: a worker gone before it could vouch for its owner read is no loss when it recorded nothing, and unread when it recorded a call", async () => {
+  const installer = new FingerprintWorkerRealmInstaller(FIXTURE_SITE_KEY);
+  const trees = heldFrameTrees();
+  let readingOut = false;
+  const scripted = scriptedChannel((command) => {
+    if (command.method === "Target.attachToTarget") return { sessionId: "page-session" };
+    if (command.method === "Page.getFrameTree") {
+      const tree = { frame: { id: "main-frame", loaderId: "loader-1" } };
+      return readingOut ? { frameTree: tree } : trees.frameTree(tree);
+    }
+    if (command.method === "Runtime.evaluate") {
+      scripted.emit(emission(installer, command.sessionId!, 1, "closed"));
+      return { result: { type: "boolean", value: true } };
+    }
+    return {};
+  });
+  const session = new DedicatedWorkerAttachSession(scripted.channel, [installer]);
+  await session.attachToPage("page-target-id");
+  for (const sessionId of ["quiet", "fingerprinted"]) scripted.emit(attachEvent(sessionId));
+  await session.settle(1_000);
+  scripted.emit(emission(installer, "fingerprinted", 2, "open"));
+  scripted.emit(emission(installer, "fingerprinted", 3, "closed", READ_SNAPSHOT));
+  // Both end before the held owner answer arrives: neither can vouch for it.
+  for (const sessionId of ["quiet", "fingerprinted"]) {
+    scripted.emit({ method: "Target.detachedFromTarget", sessionId: "page-session", params: { sessionId } });
+  }
+  trees.answerAll();
+  await new Promise((resolve) => setImmediate(resolve));
+
+  readingOut = true;
+  const readout = await installer.readout({ session, witness: { count: () => 2 }, settleMs: 100 });
+  const collection = await collectFingerprintObservationsWithCoverage([], readout);
+  assert.deepEqual(
+    [collection.attemptedWorkerRealms, collection.readableWorkerRealms],
+    [1, 0],
+    "only the worker that recorded a call is a loss"
+  );
+  assert.deepEqual(collection.observations, { events: [], detections: [] }, "an unscoped worker is never credited");
+  assert.deepEqual(readoutTerms(readout), {
+    snapshots: [],
+    unread: 0,
+    unscoped: [EMPTY_SNAPSHOT, READ_SNAPSHOT],
+    terms: { ownerUnknown: 2 }
+  });
+});
+
+/**
+ * What the collection makes of an unscoped realm: unread whenever its whole
+ * snapshot records anything at all (a call count, a detection, a withheld
+ * summary) or is not one the observer emits, and no realm at all when it
+ * records nothing. Never credited, and never read: one that recorded nothing
+ * must not make a visit that read no frame look read.
+ */
+test("an unscoped worker realm is unread whenever its snapshot records anything, and no realm at all when it records nothing", async () => {
+  const canvasDetection = {
+    kind: "canvas-fingerprinting",
+    heuristic: "openwpm-canvas-v1",
+    count: 1,
+    evidence: { readApis: ["canvas.getImageData"], maxCanvasWidth: 200, maxCanvasHeight: 60, maxDistinctTextCharacters: 30, maxTextWriteCalls: 1 }
+  };
+  const recordedSomething = [
+    READ_SNAPSHOT,
+    JSON.stringify({ detections: [canvasDetection], events: {} }),
+    JSON.stringify({ detections: [], events: {}, canvasFontEvidenceBounded: true }),
+    "not json",
+    JSON.stringify({ detections: [], events: { "canvas.getImageData": 0 } })
+  ];
+  for (const snapshot of recordedSomething) {
+    const collection = await collectFingerprintObservationsWithCoverage([], {
+      readableSnapshots: [],
+      unscopedSnapshots: [snapshot],
+      unreadRealms: 0
+    });
+    assert.deepEqual([collection.attemptedWorkerRealms, collection.readableWorkerRealms], [1, 0], snapshot);
+    assert.deepEqual(collection.observations, { events: [], detections: [] }, `${snapshot}: never credited`);
+  }
+  const nothing = await collectFingerprintObservationsWithCoverage([], {
+    readableSnapshots: [],
+    unscopedSnapshots: [EMPTY_SNAPSHOT, EMPTY_SNAPSHOT],
+    unreadRealms: 0
+  });
+  assert.deepEqual([nothing.attemptedWorkerRealms, nothing.readableWorkerRealms], [0, 0]);
+  // Beside a read realm and an unread one it moves neither count, and an
+  // unscoped realm that recorded a call adds one unread realm and no evidence.
+  const beside = await collectFingerprintObservationsWithCoverage([], {
+    readableSnapshots: [READ_SNAPSHOT],
+    unscopedSnapshots: [EMPTY_SNAPSHOT, LATER_SNAPSHOT],
+    unreadRealms: 1
+  });
+  assert.deepEqual([beside.attemptedWorkerRealms, beside.readableWorkerRealms], [3, 1]);
+  assert.deepEqual(beside.observations.events, [{ api: "canvas.getImageData", count: 1 }]);
 });
 
 test("a nested worker's owner follows its parent's read, however late it answers", async () => {
@@ -923,10 +1063,12 @@ test("the same snapshot text merges identically as a frame and as a worker realm
   ]);
   const asFrameAndWorker = await collectFingerprintObservationsWithCoverage([{ evaluate: async () => first }], {
     readableSnapshots: [second],
+    unscopedSnapshots: [],
     unreadRealms: 0
   });
   const asWorkers = await collectFingerprintObservationsWithCoverage([], {
     readableSnapshots: [first, second],
+    unscopedSnapshots: [],
     unreadRealms: 0
   });
   assert.deepEqual(asFrameAndWorker.observations, asFrames.observations);
@@ -958,6 +1100,7 @@ test("the same snapshot text merges identically as a frame and as a worker realm
       JSON.stringify({ detections: [], events: { "canvas.toDataURL": 1 }, canvasEvidenceBounded: true }),
       first
     ],
+    unscopedSnapshots: [],
     unreadRealms: 2
   });
   assert.deepEqual(
@@ -1095,7 +1238,7 @@ function readWorkerRealms(harness: PausedWorkerHarness, settleMs = 2_000): Promi
 
 /** One worker realm's snapshot through the collection every frame goes through. */
 function collectWorkerSnapshot(snapshot: string) {
-  return collectFingerprintObservationsWithCoverage([], { readableSnapshots: [snapshot], unreadRealms: 0 });
+  return collectFingerprintObservationsWithCoverage([], { readableSnapshots: [snapshot], unscopedSnapshots: [], unreadRealms: 0 });
 }
 
 type WorkerFixtureRoutes = {
@@ -1892,12 +2035,17 @@ test("real Chromium: a worker started during its document's pending navigation r
 
   const readout = await readWorkerRealms(harness, 500);
   assert.deepEqual(
-    [readout.diagnostics.readable, readout.diagnostics.ownerUnknown, readout.unreadRealms],
-    [0, 1, 1],
+    [readout.diagnostics.readable, readout.diagnostics.ownerUnknown, readout.unscopedSnapshots.length, readout.unreadRealms],
+    [0, 1, 1, 0],
     JSON.stringify(readout.diagnostics)
   );
   const collection = await collectFingerprintObservationsWithCoverage([], readout);
   assert.deepEqual(collection.observations.detections, [], "the interstitial's worker must not be credited to the next document");
+  assert.deepEqual(
+    [collection.attemptedWorkerRealms, collection.readableWorkerRealms],
+    [1, 0],
+    "the interstitial's worker fingerprinted, so it is one unread realm"
+  );
 });
 
 /**
@@ -1975,11 +2123,16 @@ test("real Chromium: a held owner answer is vouched after a 204 or a download, a
     const heuristics = collection.observations.detections.map((detection) => detection.heuristic);
     if (pending === "cross-site") {
       assert.deepEqual(
-        [readout.diagnostics.readable, readout.diagnostics.ownerUnknown, readout.unreadRealms],
-        [0, 1, 1],
+        [readout.diagnostics.readable, readout.diagnostics.ownerUnknown, readout.unscopedSnapshots.length, readout.unreadRealms],
+        [0, 1, 1, 0],
         `${pending}: ${JSON.stringify(readout.diagnostics)}`
       );
       assert.deepEqual(heuristics, [], "the replaced document's worker must not be credited to the next site");
+      assert.deepEqual(
+        [collection.attemptedWorkerRealms, collection.readableWorkerRealms],
+        [1, 0],
+        "the replaced document's worker fingerprinted, so it is one unread realm"
+      );
     } else {
       assert.equal(harness.workers[0].detached, false, `${pending}: the navigation never committed, so the worker lives on`);
       assert.deepEqual(
@@ -1990,6 +2143,74 @@ test("real Chromium: a held owner answer is vouched after a 204 or a download, a
       assert.deepEqual(heuristics, ["openwpm-canvas-v1"]);
     }
   }
+});
+
+/**
+ * The race the October news sweep lost most, in real Chromium. A navigation
+ * that never commits (a 204) holds the owner read's frame tree as a news
+ * page's busy main thread does, and two workers run their one job and end
+ * themselves before the answer arrives, so neither can vouch for it. The
+ * document stays current throughout, and each worker's whole stream is in
+ * hand: the one that recorded nothing is no loss, and the one that drew and
+ * read a canvas first is one unread realm, never credited, since nothing shows
+ * whose it was. Through fingerprint-observer@8 both were unread. The test
+ * answers the navigation only once both workers have ended, so the owner
+ * read's answer always comes after them, however slow the machine.
+ */
+test("real Chromium: a worker that ends before it can vouch for its owner read is no loss when it recorded nothing, and unread when it fingerprinted", { timeout: 60_000 }, async (t) => {
+  let navigationAnsweredAt = 0;
+  const held: { answer: (() => void) | null } = { answer: null };
+  const port = await startFixtureServer(t, (request, response) => {
+    const url = new URL(request.url ?? "/", "http://fixture.test");
+    if (url.pathname === "/quiet.js" || url.pathname === "/fingerprints.js") {
+      response.writeHead(200, { "content-type": "text/javascript" });
+      response.end(url.pathname === "/quiet.js" ? "self.close();" : `${CANVAS_READ_SOURCE} self.close();`);
+      return;
+    }
+    if (url.pathname === "/no-content") {
+      held.answer = () => {
+        held.answer = null;
+        navigationAnsweredAt = Date.now();
+        response.writeHead(204);
+        response.end();
+      };
+      return;
+    }
+    response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+    response.end(
+      `<!doctype html><title>short-lived workers</title><script>location.href = "/no-content"; new Worker("/quiet.js"); new Worker("/fingerprints.js");</script>`
+    );
+  });
+  // A worker that never ends must fail the assertions below, not hang the
+  // held navigation.
+  const fallback = setTimeout(() => held.answer?.(), 20_000);
+  t.after(() => clearTimeout(fallback));
+  const harness = await openPausedWorkerHarness(t);
+  await harness.page.goto(`http://127.0.0.1:${port}/`, { waitUntil: "commit", timeout: 10_000 }).catch(() => undefined);
+  await waitFor(() => harness.workers.length === 2 && harness.workers.every((worker) => worker.detached), 15_000);
+  held.answer?.();
+  await waitFor(() => navigationAnsweredAt > 0, 15_000);
+  await new Promise((resolve) => setTimeout(resolve, 300));
+  assert.equal(harness.workers.length, 2, "both workers must have attached");
+  assert.ok(
+    harness.workers.every((worker) => worker.released && worker.detached && !worker.detachedWhilePaused),
+    "both workers must have run and then ended on their own"
+  );
+  assert.equal(harness.crashed(), false);
+
+  const readout = await readWorkerRealms(harness);
+  const collection = await collectFingerprintObservationsWithCoverage([], readout);
+  assert.deepEqual(
+    [collection.attemptedWorkerRealms, collection.readableWorkerRealms],
+    [1, 0],
+    `only the worker that fingerprinted is a loss: ${JSON.stringify(readout.diagnostics)}`
+  );
+  assert.deepEqual(collection.observations.detections, [], "an unscoped worker's canvas readback must not be credited");
+  assert.deepEqual(
+    [readout.diagnostics.readable, readout.diagnostics.ownerUnknown, readout.unscopedSnapshots.length, readout.unreadRealms],
+    [0, 2, 2, 0],
+    JSON.stringify(readout.diagnostics)
+  );
 });
 
 /**

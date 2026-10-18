@@ -13,7 +13,7 @@ import {
 
 test("public detector validation manifest is complete and mechanically valid", () => {
   assert.deepEqual(validateDetectorValidationManifest(DETECTOR_VALIDATION_FIXTURES), []);
-  assert.equal(DETECTOR_VALIDATION_FIXTURES.length, 27);
+  assert.equal(DETECTOR_VALIDATION_FIXTURES.length, 28);
   assert.equal(detectorValidationRows().length, DETECTOR_IDS.length);
   // fingerprint-heuristics carries three more positive cases: the two-vendor
   // chain fixture proving multi-origin chains detect instead of censoring, the
@@ -43,14 +43,15 @@ test("public detector validation manifest is complete and mechanically valid", (
     detectorValidationRows().filter((row) => row.detector !== "privacy-policy").every((row) => row.negativeCases === 1),
     true
   );
-  // fingerprint-heuristics carries two more adversarial cases: the
+  // fingerprint-heuristics carries three more adversarial cases: the
   // depth-bound coverage-loss fixture that pairs with the wrapper-delegation
-  // fixture, and a widget's headline layout overflowing the measured-string
-  // bound beside real canvas and audio fingerprinting.
+  // fixture, a widget's headline layout overflowing the measured-string
+  // bound beside real canvas and audio fingerprinting, and two workers that
+  // end before they can vouch for their owner read.
   assert.equal(detectorValidationRows().every((row) => row.adversarialCases >= 1), true);
   assert.equal(
     detectorValidationRows().find((row) => row.detector === "fingerprint-heuristics")?.adversarialCases,
-    3
+    4
   );
   assert.equal(
     detectorValidationRows().filter((row) => row.detector !== "fingerprint-heuristics").every((row) => row.adversarialCases === 1),
@@ -58,9 +59,9 @@ test("public detector validation manifest is complete and mechanically valid", (
   );
   // Four of them are privacy-policy cases: the two settle cases (rendered
   // late, still loading) and the two hub cases (a labeled short policy, a
-  // hub); one is the widget headline-layout case and one the React-shaped
-  // commit traversal.
-  assert.equal(detectorValidationRows().reduce((sum, row) => sum + row.realChromiumCases, 0), 12);
+  // hub); one is the widget headline-layout case, one the React-shaped
+  // commit traversal and one the workers that end before they can vouch.
+  assert.equal(detectorValidationRows().reduce((sum, row) => sum + row.realChromiumCases, 0), 13);
 });
 
 test("every public validation case points to an exact source-controlled test", () => {
@@ -78,7 +79,7 @@ test("every public validation case points to an exact source-controlled test", (
 
 test("validation matrix digest covers the exact public fixture inventory", () => {
   assert.equal(detectorValidationMetadata.version, "detector-fixture-matrix-v1");
-  assert.equal(detectorValidationMetadata.registryVersion, "node-detectors-v16");
+  assert.equal(detectorValidationMetadata.registryVersion, "node-detectors-v17");
   assert.equal(
     createHash("sha256").update(JSON.stringify(DETECTOR_VALIDATION_FIXTURES)).digest("hex"),
     detectorValidationMetadata.digest

@@ -9,6 +9,34 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- A dedicated Web Worker that ends before the scanner can tie it to its
+  document, having recorded nothing, no longer marks the visit's
+  fingerprinting evidence incomplete (fingerprint-observer@9,
+  node-detectors-v17). A worker's evidence is credited to the visit only when
+  the worker, still running, answers a command sent after the page's frame
+  tree came back; on a busy news page that tree comes back hundreds of
+  milliseconds late, and a blob worker that runs one job and ends within a
+  second is gone by then. Through @8 every such worker was an unread realm:
+  the report carried the Web Workers line, a fingerprinting capture loss and
+  a partial detector. In the October news sweep 41 of 500 reports carry the
+  line. On 2026-10-18 a build that logs every worker's readout made 54
+  visits to those sites and four others, and the line came from two causes
+  alone: 45 workers on 19 visits that ended before they could vouch for their
+  owner, every one of which had recorded no call at all, and shared workers
+  on 6 visits (a blob SharedWorker on abc10.com and on a wthr.com frame, and
+  AdScore's `js.ad-score.com` on thehour.com, lifezette.com and
+  theintelligencer.com), which are never instrumented and still mark the
+  evidence incomplete. A worker read in full whose document can be shown
+  neither current nor replaced now counts as no realm when its whole
+  snapshot records nothing, and stays one unread realm, its evidence never
+  credited, when it records anything. In before and after scans of 14 sites
+  the same hour, the line fell from 15 of 27 visits to 5 of 28, all 5 on
+  abc10.com, lifezette.com or thehour.com, whose logged visits started a
+  shared worker. The registry digest moves from `fe7a02dd...c129` to
+  `40b13770...b9f8`; the normalization, methodology and every other producer
+  field are unchanged, and the `node-v21-detectors-v16` rows are closed to
+  their exact literals. Reports already published keep their detector
+  version.
 - The fingerprint observer no longer reads a frame's own deep framework code
   as unattributable listener registrations (fingerprint-observer@8,
   node-detectors-v16). A registration whose script is not the running one is

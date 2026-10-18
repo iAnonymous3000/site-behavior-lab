@@ -46,9 +46,10 @@ export type FingerprintObservationCollection = {
   summaryWithheldFrames: number;
   /**
    * Worker realms that ran page code: the dedicated ones of current
-   * documents, readable or not, and every shared worker the page started,
-   * which is never readable (lib/worker-fingerprint-realm.ts decides which is
-   * which).
+   * documents, readable or not, those read in full whose document could not
+   * be shown current and that recorded something, and every shared worker the
+   * page started, which is never readable (lib/worker-fingerprint-realm.ts
+   * decides which is which).
    */
   attemptedWorkerRealms: number;
   /** Worker realms whose one cumulative snapshot this collection merged. */
@@ -64,6 +65,14 @@ export type FingerprintObservationCollection = {
 export type FingerprintWorkerRealmReadout = {
   /** One cumulative closed snapshot per worker realm that can be read. */
   readonly readableSnapshots: readonly string[];
+  /**
+   * One cumulative closed snapshot per worker realm read in full whose owner
+   * document could be shown neither current nor replaced at the freeze: most
+   * often a worker that went away before it could vouch for its owner read.
+   * Its evidence cannot be credited to the visit, so the collection counts it
+   * unread, unless the snapshot records nothing at all.
+   */
+  readonly unscopedSnapshots: readonly string[];
   /** Worker realms that ran page code but cannot be read in full. */
   readonly unreadRealms: number;
 };
@@ -119,7 +128,14 @@ export type FingerprintObserverRealmArgs = {
  * fingerprinting evidence incomplete, and the frame's own framework code
  * (React 19's commit traversal, YouTube's embed render, Preact's diff)
  * registers that deep on ordinary news pages. A chain that fills 512 frames
- * still bounds the frame's listener attribution.
+ * still bounds the frame's listener attribution. `@9` (node-detectors-v17)
+ * keeps this script and changes how the collection counts a worker realm read
+ * in full whose owner document could be shown neither current nor replaced:
+ * unread when its snapshot records anything, and no realm at all when it
+ * records nothing. Through @8 every such realm was unread, and on news pages
+ * most were blob workers that ended within a second, before they could vouch
+ * for the owner read the page's busy main thread held, having recorded no
+ * call.
  *
  * `firstPartySiteKey` is the scanned site's registrable domain (computed with
  * the real public-suffix list in Node, e.g. "capitalone.com"), so the in-page
@@ -2171,6 +2187,19 @@ export async function collectFingerprintObservationsWithCoverage(
       readableWorkerRealms += 1;
       mergeSnapshot(normalized);
     }
+    // A realm read in full whose document could be shown neither current nor
+    // replaced cannot have its evidence credited to the visit, so it is
+    // unread. A whole snapshot that records nothing is the exception:
+    // whichever document the realm belonged to, it contributed nothing to it,
+    // and nothing of it is unread. Such a realm is neither attempted nor
+    // read, as a replaced document's is not, so it cannot make a visit that
+    // read no frame look read. A snapshot that does not normalize stays
+    // unread.
+    for (const snapshot of readout.unscopedSnapshots) {
+      const normalized = normalizeFingerprintSnapshot(snapshot);
+      if (normalized && snapshotRecordsNothing(normalized)) continue;
+      attemptedWorkerRealms += 1;
+    }
   }
 
   return {
@@ -2201,6 +2230,13 @@ type NormalizedFingerprintSnapshot = {
 
 function snapshotWithheldSummary(snapshot: NormalizedFingerprintSnapshot): boolean {
   return snapshot.listenerAttributionLost || snapshot.canvasEvidenceBounded || snapshot.canvasFontEvidenceBounded;
+}
+
+/** No call recorded, no detection, no summary withheld: a realm that observed nothing. */
+function snapshotRecordsNothing(snapshot: NormalizedFingerprintSnapshot): boolean {
+  return (
+    snapshot.detections.length === 0 && Object.keys(snapshot.events).length === 0 && !snapshotWithheldSummary(snapshot)
+  );
 }
 
 // Each flag names the detection kinds its frame withheld.

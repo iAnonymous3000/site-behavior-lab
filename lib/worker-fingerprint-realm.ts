@@ -58,6 +58,15 @@ import {
  * document is in the page's frame trees read at the freeze. An interstitial
  * that fingerprints in a worker and then navigates to the site is therefore
  * not credited to the site.
+ *
+ * A worker that goes away before it answers that command leaves its owner
+ * unknown, whatever its document did, and on news pages that is the common
+ * case: a blob worker that runs one job and ends within a second, while the
+ * page's busy main thread holds the frame tree read. Its whole snapshot is
+ * handed to the observer's collection unscoped, never credited: the
+ * collection counts it unread when it records anything, and as no realm at
+ * all when it records nothing, since a realm that observed nothing has
+ * nothing to credit to any document.
  */
 
 /** Serialized once per process: the same text for every worker of every scan. */
@@ -132,7 +141,9 @@ export type WorkerFingerprintInstallDiagnostics = {
 /**
  * Every term of one readout, so each can be asserted. Excluded workers ran no
  * page code at the freeze or belong to a document that is no longer current;
- * unread ones ran page code whose evidence cannot be read in full.
+ * unread ones ran page code whose evidence cannot be read in full; unscoped
+ * ones were read in full, but their document could be shown neither current
+ * nor replaced.
  */
 export type WorkerFingerprintReadoutDiagnostics = {
   /** The browser-side witness at the freeze. */
@@ -167,9 +178,11 @@ export type WorkerFingerprintReadoutDiagnostics = {
   /** Unread: the channel closed while the worker was alive, so its later emissions cannot arrive. */
   channelLostAlive: number;
   /**
-   * Unread: its owner document could not be recorded (no answer, or one the
-   * worker did not vouch for, by the end of the drain), or the frame trees at
-   * the freeze could not be read.
+   * Unscoped: its whole snapshot is in hand, but its owner document could not
+   * be recorded (no answer, or one the worker did not vouch for, by the end of
+   * the drain), or the frame trees at the freeze could not be read. Each one's
+   * snapshot is in `unscopedSnapshots`, never in `unreadRealms`: the
+   * observer's collection counts it unread unless it records nothing.
    */
   ownerUnknown: number;
   /** Unread: witnessed by the browser but never attached by the channel. */
@@ -396,7 +409,9 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
    *    gone since. A worker that went mid-task after the freeze is therefore
    *    cut off, a disclosed loss, never excluded. Attached is not taken to
    *    mean current: a worker whose document was just replaced can still be
-   *    attached, its detach not yet arrived.
+   *    attached, its detach not yet arrived. A worker with its whole snapshot
+   *    in hand whose document can be shown neither current nor replaced is
+   *    returned unscoped, for the collection to count.
    *
    * Shared workers are unread, one each, for the whole visit so far: the
    * channel's discovery count after the drain.
@@ -462,6 +477,7 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
       typeof record.owner === "object" ? record.owner : null;
 
     const readableSnapshots: string[] = [];
+    const unscopedSnapshots: string[] = [];
     for (const realm of frozen) {
       if (realm.state === "excluded") {
         diagnostics[realm.reason] += 1;
@@ -496,10 +512,11 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
       }
       // A realm with its snapshot in hand still needs an owner shown current:
       // one with no vouched owner, or with frames at the freeze that could not
-      // be read, cannot be shown current or replaced, and is never excluded
-      // silently.
+      // be read, cannot be shown current or replaced. It is never credited and
+      // never excluded silently: the collection reads its snapshot unscoped.
       if (owner === null || currentDocuments === null) {
         diagnostics.ownerUnknown += 1;
+        unscopedSnapshots.push(snapshot);
         continue;
       }
       diagnostics.readable += 1;
@@ -508,13 +525,13 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
 
     return {
       readableSnapshots,
+      unscopedSnapshots,
       unreadRealms:
         diagnostics.installFailed +
         diagnostics.attachedLate +
         diagnostics.cutOff +
         diagnostics.streamBroken +
         diagnostics.channelLostAlive +
-        diagnostics.ownerUnknown +
         diagnostics.unattachedDedicated +
         diagnostics.discoveredShared,
       diagnostics

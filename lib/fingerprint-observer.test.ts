@@ -3292,7 +3292,7 @@ test("fingerprintObserverInitScript requires both WebGL parameter and pixel entr
   // them apart only by evidence shape (isSingleSignalWebglDetection). Pinned
   // beside the detector version: changing the rule needs a version bump and
   // a reader that keys on it, so re-pin both together.
-  assert.equal(DETECTOR_VERSIONS["fingerprint-heuristics"], "fingerprint-observer@8");
+  assert.equal(DETECTOR_VERSIONS["fingerprint-heuristics"], "fingerprint-observer@9");
 
   const parameterHarness = installWebglHarness();
   try {

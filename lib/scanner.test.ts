@@ -3003,7 +3003,7 @@ test("scanSite marks fingerprint coverage partial when a poisoned main frame is 
       }
     );
     assert.deepEqual(staged!.measurement.detectors["fingerprint-heuristics"], {
-      version: "fingerprint-observer@8",
+      version: "fingerprint-observer@9",
       status: "partial",
       reason: "scan-failed",
       phaseId: 0
@@ -3099,7 +3099,7 @@ test("passive fingerprint loss remains causal when the consent snapshot is later
     assert.deepEqual(
       staged.measurement.detectors["fingerprint-heuristics"],
       {
-        version: "fingerprint-observer@8",
+        version: "fingerprint-observer@9",
         status: "partial",
         reason: "scan-failed",
         phaseId: consentPhase.phaseId
@@ -3314,7 +3314,7 @@ test("a saturated listener stack publishes the frame's canvas and WebGL evidence
     // the detector status, the capture-loss ledger, and the v1 warning. Every
     // frame was read, so the v1 line is the listener one, never the frame one.
     assert.deepEqual(staged.measurement.detectors["fingerprint-heuristics"], {
-      version: "fingerprint-observer@8",
+      version: "fingerprint-observer@9",
       status: "partial",
       reason: "scan-failed",
       phaseId: 0
@@ -3450,7 +3450,7 @@ test("a passive read with bounded listener attribution cannot credit a later rec
       "no fingerprint detection may be credited to the consent phase"
     );
     assert.deepEqual(staged.measurement.detectors["fingerprint-heuristics"], {
-      version: "fingerprint-observer@8",
+      version: "fingerprint-observer@9",
       status: "partial",
       reason: "scan-failed",
       phaseId: consentPhase.phaseId

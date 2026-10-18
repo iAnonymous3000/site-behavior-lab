@@ -380,6 +380,91 @@ test("a worker terminated or still running mid-task at the read is one unread re
 });
 
 /**
+ * The October news sweep's commonest worker loss, end to end. After load the
+ * page starts a navigation that never commits (a 204 the test holds), which
+ * holds the owner read's frame tree as a news page's busy main thread does,
+ * and starts one worker that does its one job and ends itself before the
+ * test answers the navigation, so the worker can never vouch for its owner.
+ * Through fingerprint-observer@8 such a worker was an unread realm whatever
+ * it did. One that recorded nothing now costs nothing: the visit reads clean.
+ * One that drew and read a canvas first is still one unread realm, with the
+ * worker line and a partial detector, and its readback is never credited to
+ * the page, since nothing shows whose it was. The test answers the navigation
+ * half a second after the worker's beacon. The quiet visit cannot tell a race
+ * it won from one that never happened; the canvas visit can, since a worker
+ * that vouched would have its readback credited, so a machine slow enough to
+ * let the vouch win fails that visit loudly.
+ */
+test("a worker that ends before it can vouch for its owner costs nothing when it recorded nothing, and one unread realm when it fingerprinted", { timeout: 90_000 }, async (t) => {
+  withConsentVerification(t);
+  const visit = async (script: "quiet" | "fingerprints") => {
+    const { port, done, releaseGo } = await startWorkerPage(t, {
+      page: `<!doctype html><title>Short-lived worker</title><main><p>Ordinary public page.</p></main>
+        <script>
+          addEventListener("load", () => setTimeout(() => {
+            location.href = "/go";
+            new Worker("/${script}.js");
+          }, 0));
+        </script>`,
+      scripts: {
+        "/quiet.js": `fetch(self.location.origin + "/done/quiet").finally(() => self.close());`,
+        "/fingerprints.js": `${CANVAS_READ_SOURCE} fetch(self.location.origin + "/done/fingerprints").finally(() => self.close());`
+      }
+    });
+    // The held navigation is answered once the worker has ended, and never
+    // later than the fallback, so a worker that never runs fails the
+    // assertions below instead of hanging the visit.
+    const fallback = setTimeout(releaseGo, 15_000);
+    const poll = setInterval(() => {
+      if (!done.includes(script)) return;
+      clearInterval(poll);
+      setTimeout(releaseGo, 500);
+    }, 20);
+    t.after(() => {
+      clearTimeout(fallback);
+      clearInterval(poll);
+    });
+    let established: EstablishedWorkerRealmChannelForTests | null = null;
+    const accounting = fingerprintAccounting(
+      await scanSiteWithMeasurement(
+        { url: `http://www.${script}-short-lived.com/`, device: "desktop", gpcEnabled: false, consentMode: "observe" },
+        {
+          ...scanOptions(port),
+          onWorkerRealmChannelEstablishedForTests: (channel) => {
+            established = channel;
+          }
+        }
+      )
+    );
+    assert.deepEqual(done, [script], `${script}: the worker ran`);
+    assert.ok(established);
+    assert.deepEqual((established as EstablishedWorkerRealmChannelForTests).fingerprintInstallDiagnostics(), {
+      installedWorkerCount: 1,
+      installFailedWorkerCount: 0
+    });
+    return accounting;
+  };
+
+  const quiet = await visit("quiet");
+  assert.deepEqual(quiet.lines, { frame: false, listener: false, workerRealm: false }, "a worker that recorded nothing is no loss");
+  assert.deepEqual(quiet.losses, []);
+  assert.equal(quiet.detector.status, "complete");
+  assert.equal(quiet.v1Benchmark, true);
+  assert.equal(quiet.r2Benchmark, true);
+
+  const fingerprints = await visit("fingerprints");
+  assert.deepEqual(fingerprints.lines, { frame: false, listener: false, workerRealm: true });
+  assert.deepEqual(fingerprints.losses, [[0, "dropped", 1]], "the worker that fingerprinted is the one unread realm");
+  assert.deepEqual(
+    fingerprints.detector,
+    { version: fingerprints.detector.version, status: "partial", reason: "scan-failed", phaseId: 0 }
+  );
+  assert.deepEqual(fingerprints.heuristics, [], "an unscoped worker's canvas readback is never credited to the page");
+  assert.equal(fingerprints.v1Benchmark, false);
+  assert.equal(fingerprints.r2Benchmark, false);
+});
+
+/**
  * Design test 14, and the owner's rule that a page which ran code in a realm
  * the observer cannot see never reads clean. The shared worker fingerprints;
  * nothing of it is observed, and the channel's discovery turns it into one
