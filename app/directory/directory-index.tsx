@@ -47,8 +47,13 @@ export async function DirectoryIndex({ page }: { page: number }) {
           <nav className="category-chips" aria-label="Browse a category">
             {categoryPages.map((category) => (
               <Link className="category-chip" href={`${category.path}/`} key={category.id}>
-                {category.label}
-                <span>{category.sites.length}</span>
+                {category.label}{" "}
+                {/* The count is the sites in the category page's one cohort; without
+                    the word it read as "Banking & money9". */}
+                <span>
+                  {category.sites.length}
+                  <span className="visually-hidden"> sites</span>
+                </span>
               </Link>
             ))}
           </nav>

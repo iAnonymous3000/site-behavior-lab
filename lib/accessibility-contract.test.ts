@@ -666,3 +666,17 @@ test("font weights come from the two shared tokens", () => {
     );
   }
 });
+
+test("the scan field names why Scan is off while the browser check runs", () => {
+  // A disabled button takes no focus, so Enter in the field was silent for a
+  // keyboard or screen-reader user until the check passed.
+  const scanControls = source("app/_components/scan-controls.tsx");
+  assert.match(scanControls, /awaitingTurnstile \? "scan-check-note" : null/);
+  assert.match(scanControls, /<p className="scanner-status-note" id="scan-check-note" role="status">/);
+});
+
+test("category chips name what their count counts", () => {
+  const directory = source("app/directory/directory-index.tsx");
+  assert.match(directory, /\{category\.label\}\{" "\}/);
+  assert.match(directory, /\{category\.sites\.length\}\s*<span className="visually-hidden"> sites<\/span>/);
+});

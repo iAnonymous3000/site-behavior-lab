@@ -36,6 +36,11 @@ public API or a 1.0 release.
 - The reassuring severity badge reads "Not flagged" instead of "Nothing
   observed", which sat above cards that report what was observed, such as
   "Google Analytics present, no remarketing signal".
+- While the browser check runs, the scan field names the note that says why
+  Scan is off: the button is disabled and takes no focus, so pressing Enter
+  in the field was silent for a keyboard or screen-reader user. Each
+  directory category chip names its count as sites ("Banking & money 9
+  sites").
 - A request, cookie or CNAME alias on a deep subdomain no longer leaves a
   finished scan unpublishable. Generalizing short labels lengthened a valid
   253-character host past the managed reader's hostname cap, and from 17

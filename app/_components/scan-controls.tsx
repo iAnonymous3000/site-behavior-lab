@@ -169,7 +169,11 @@ export function ScanControls({
           autoComplete="url"
           spellCheck={false}
           aria-invalid={urlError ? true : undefined}
-          aria-describedby={urlError ? "url-error" : urlNotice ? "url-notice" : undefined}
+          aria-describedby={
+            [urlError ? "url-error" : urlNotice ? "url-notice" : null, awaitingTurnstile ? "scan-check-note" : null]
+              .filter(Boolean)
+              .join(" ") || undefined
+          }
           value={form.url}
           onChange={(event) => {
             clearUrlNotice();
@@ -352,7 +356,11 @@ export function ScanControls({
       )}
 
       {awaitingTurnstile && (
-        <p className="scanner-status-note" role="status">
+        // The Scan button stays disabled until the check passes, and a disabled
+        // button takes no focus, so Enter in the field did nothing a keyboard
+        // or screen-reader user could hear. The field names this note while
+        // the check runs.
+        <p className="scanner-status-note" id="scan-check-note" role="status">
           Finishing a quick browser check above. Scan turns on once it passes; if the check does not load you can retry it there.
         </p>
       )}
