@@ -4,10 +4,10 @@
   "notice": "Rows are created unreviewed by scripts/third-party-reviews.mjs --sync. A human review fills reviewer, reviewedAt, determinedLicense, and obligations, and sets status to reviewed. A version bump is a new row and re-enters review.",
   "reviews": [
     {
-      "key": "npm:@axe-core/playwright@4.13.0",
+      "key": "npm:@axe-core/playwright@4.14.0",
       "ecosystem": "npm",
       "name": "@axe-core/playwright",
-      "version": "4.13.0",
+      "version": "4.14.0",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "MPL-2.0",
@@ -74,10 +74,10 @@
       "notes": null
     },
     {
-      "key": "npm:@cloudflare/workerd-darwin-64@1.20260923.1",
+      "key": "npm:@cloudflare/workerd-darwin-64@1.20261012.1",
       "ecosystem": "npm",
       "name": "@cloudflare/workerd-darwin-64",
-      "version": "1.20260923.1",
+      "version": "1.20261012.1",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "Apache-2.0",
@@ -102,10 +102,10 @@
       "notes": null
     },
     {
-      "key": "npm:@cloudflare/workerd-darwin-arm64@1.20260923.1",
+      "key": "npm:@cloudflare/workerd-darwin-arm64@1.20261012.1",
       "ecosystem": "npm",
       "name": "@cloudflare/workerd-darwin-arm64",
-      "version": "1.20260923.1",
+      "version": "1.20261012.1",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "Apache-2.0",
@@ -130,10 +130,10 @@
       "notes": null
     },
     {
-      "key": "npm:@cloudflare/workerd-linux-64@1.20260923.1",
+      "key": "npm:@cloudflare/workerd-linux-64@1.20261012.1",
       "ecosystem": "npm",
       "name": "@cloudflare/workerd-linux-64",
-      "version": "1.20260923.1",
+      "version": "1.20261012.1",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "Apache-2.0",
@@ -158,10 +158,10 @@
       "notes": null
     },
     {
-      "key": "npm:@cloudflare/workerd-linux-arm64@1.20260923.1",
+      "key": "npm:@cloudflare/workerd-linux-arm64@1.20261012.1",
       "ecosystem": "npm",
       "name": "@cloudflare/workerd-linux-arm64",
-      "version": "1.20260923.1",
+      "version": "1.20261012.1",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "Apache-2.0",
@@ -186,10 +186,10 @@
       "notes": null
     },
     {
-      "key": "npm:@cloudflare/workerd-windows-64@1.20260923.1",
+      "key": "npm:@cloudflare/workerd-windows-64@1.20261012.1",
       "ecosystem": "npm",
       "name": "@cloudflare/workerd-windows-64",
-      "version": "1.20260923.1",
+      "version": "1.20261012.1",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "Apache-2.0",
@@ -200,10 +200,10 @@
       "notes": null
     },
     {
-      "key": "npm:@cloudflare/workers-types@5.20260925.1",
+      "key": "npm:@cloudflare/workers-types@5.20261018.1",
       "ecosystem": "npm",
       "name": "@cloudflare/workers-types",
-      "version": "5.20260925.1",
+      "version": "5.20261018.1",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "MIT OR Apache-2.0",
@@ -242,10 +242,10 @@
       "notes": null
     },
     {
-      "key": "npm:@esbuild/aix-ppc64@0.28.1",
+      "key": "npm:@esbuild/aix-ppc64@0.28.2",
       "ecosystem": "npm",
       "name": "@esbuild/aix-ppc64",
-      "version": "0.28.1",
+      "version": "0.28.2",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -256,10 +256,10 @@
       "notes": null
     },
     {
-      "key": "npm:@esbuild/android-arm@0.28.1",
+      "key": "npm:@esbuild/android-arm@0.28.2",
       "ecosystem": "npm",
       "name": "@esbuild/android-arm",
-      "version": "0.28.1",
+      "version": "0.28.2",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -270,10 +270,10 @@
       "notes": null
     },
     {
-      "key": "npm:@esbuild/android-arm64@0.28.1",
+      "key": "npm:@esbuild/android-arm64@0.28.2",
       "ecosystem": "npm",
       "name": "@esbuild/android-arm64",
-      "version": "0.28.1",
+      "version": "0.28.2",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -284,10 +284,10 @@
       "notes": null
     },
     {
-      "key": "npm:@esbuild/android-x64@0.28.1",
+      "key": "npm:@esbuild/android-x64@0.28.2",
       "ecosystem": "npm",
       "name": "@esbuild/android-x64",
-      "version": "0.28.1",
+      "version": "0.28.2",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -298,10 +298,10 @@
       "notes": null
     },
     {
-      "key": "npm:@esbuild/darwin-arm64@0.28.1",
+      "key": "npm:@esbuild/darwin-arm64@0.28.2",
       "ecosystem": "npm",
       "name": "@esbuild/darwin-arm64",
-      "version": "0.28.1",
+      "version": "0.28.2",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -312,10 +312,10 @@
       "notes": null
     },
     {
-      "key": "npm:@esbuild/darwin-x64@0.28.1",
+      "key": "npm:@esbuild/darwin-x64@0.28.2",
       "ecosystem": "npm",
       "name": "@esbuild/darwin-x64",
-      "version": "0.28.1",
+      "version": "0.28.2",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -326,10 +326,10 @@
       "notes": null
     },
     {
-      "key": "npm:@esbuild/freebsd-arm64@0.28.1",
+      "key": "npm:@esbuild/freebsd-arm64@0.28.2",
       "ecosystem": "npm",
       "name": "@esbuild/freebsd-arm64",
-      "version": "0.28.1",
+      "version": "0.28.2",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -340,10 +340,10 @@
       "notes": null
     },
     {
-      "key": "npm:@esbuild/freebsd-x64@0.28.1",
+      "key": "npm:@esbuild/freebsd-x64@0.28.2",
       "ecosystem": "npm",
       "name": "@esbuild/freebsd-x64",
-      "version": "0.28.1",
+      "version": "0.28.2",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -354,10 +354,10 @@
       "notes": null
     },
     {
-      "key": "npm:@esbuild/linux-arm@0.28.1",
+      "key": "npm:@esbuild/linux-arm@0.28.2",
       "ecosystem": "npm",
       "name": "@esbuild/linux-arm",
-      "version": "0.28.1",
+      "version": "0.28.2",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -368,10 +368,10 @@
       "notes": null
     },
     {
-      "key": "npm:@esbuild/linux-arm64@0.28.1",
+      "key": "npm:@esbuild/linux-arm64@0.28.2",
       "ecosystem": "npm",
       "name": "@esbuild/linux-arm64",
-      "version": "0.28.1",
+      "version": "0.28.2",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -382,10 +382,10 @@
       "notes": null
     },
     {
-      "key": "npm:@esbuild/linux-ia32@0.28.1",
+      "key": "npm:@esbuild/linux-ia32@0.28.2",
       "ecosystem": "npm",
       "name": "@esbuild/linux-ia32",
-      "version": "0.28.1",
+      "version": "0.28.2",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -396,10 +396,10 @@
       "notes": null
     },
     {
-      "key": "npm:@esbuild/linux-loong64@0.28.1",
+      "key": "npm:@esbuild/linux-loong64@0.28.2",
       "ecosystem": "npm",
       "name": "@esbuild/linux-loong64",
-      "version": "0.28.1",
+      "version": "0.28.2",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -410,10 +410,10 @@
       "notes": null
     },
     {
-      "key": "npm:@esbuild/linux-mips64el@0.28.1",
+      "key": "npm:@esbuild/linux-mips64el@0.28.2",
       "ecosystem": "npm",
       "name": "@esbuild/linux-mips64el",
-      "version": "0.28.1",
+      "version": "0.28.2",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -424,10 +424,10 @@
       "notes": null
     },
     {
-      "key": "npm:@esbuild/linux-ppc64@0.28.1",
+      "key": "npm:@esbuild/linux-ppc64@0.28.2",
       "ecosystem": "npm",
       "name": "@esbuild/linux-ppc64",
-      "version": "0.28.1",
+      "version": "0.28.2",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -438,10 +438,10 @@
       "notes": null
     },
     {
-      "key": "npm:@esbuild/linux-riscv64@0.28.1",
+      "key": "npm:@esbuild/linux-riscv64@0.28.2",
       "ecosystem": "npm",
       "name": "@esbuild/linux-riscv64",
-      "version": "0.28.1",
+      "version": "0.28.2",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -452,10 +452,10 @@
       "notes": null
     },
     {
-      "key": "npm:@esbuild/linux-s390x@0.28.1",
+      "key": "npm:@esbuild/linux-s390x@0.28.2",
       "ecosystem": "npm",
       "name": "@esbuild/linux-s390x",
-      "version": "0.28.1",
+      "version": "0.28.2",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -466,10 +466,10 @@
       "notes": null
     },
     {
-      "key": "npm:@esbuild/linux-x64@0.28.1",
+      "key": "npm:@esbuild/linux-x64@0.28.2",
       "ecosystem": "npm",
       "name": "@esbuild/linux-x64",
-      "version": "0.28.1",
+      "version": "0.28.2",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -480,10 +480,10 @@
       "notes": null
     },
     {
-      "key": "npm:@esbuild/netbsd-arm64@0.28.1",
+      "key": "npm:@esbuild/netbsd-arm64@0.28.2",
       "ecosystem": "npm",
       "name": "@esbuild/netbsd-arm64",
-      "version": "0.28.1",
+      "version": "0.28.2",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -494,10 +494,10 @@
       "notes": null
     },
     {
-      "key": "npm:@esbuild/netbsd-x64@0.28.1",
+      "key": "npm:@esbuild/netbsd-x64@0.28.2",
       "ecosystem": "npm",
       "name": "@esbuild/netbsd-x64",
-      "version": "0.28.1",
+      "version": "0.28.2",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -508,10 +508,10 @@
       "notes": null
     },
     {
-      "key": "npm:@esbuild/openbsd-arm64@0.28.1",
+      "key": "npm:@esbuild/openbsd-arm64@0.28.2",
       "ecosystem": "npm",
       "name": "@esbuild/openbsd-arm64",
-      "version": "0.28.1",
+      "version": "0.28.2",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -522,10 +522,10 @@
       "notes": null
     },
     {
-      "key": "npm:@esbuild/openbsd-x64@0.28.1",
+      "key": "npm:@esbuild/openbsd-x64@0.28.2",
       "ecosystem": "npm",
       "name": "@esbuild/openbsd-x64",
-      "version": "0.28.1",
+      "version": "0.28.2",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -536,10 +536,10 @@
       "notes": null
     },
     {
-      "key": "npm:@esbuild/openharmony-arm64@0.28.1",
+      "key": "npm:@esbuild/openharmony-arm64@0.28.2",
       "ecosystem": "npm",
       "name": "@esbuild/openharmony-arm64",
-      "version": "0.28.1",
+      "version": "0.28.2",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -550,10 +550,10 @@
       "notes": null
     },
     {
-      "key": "npm:@esbuild/sunos-x64@0.28.1",
+      "key": "npm:@esbuild/sunos-x64@0.28.2",
       "ecosystem": "npm",
       "name": "@esbuild/sunos-x64",
-      "version": "0.28.1",
+      "version": "0.28.2",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -564,10 +564,10 @@
       "notes": null
     },
     {
-      "key": "npm:@esbuild/win32-arm64@0.28.1",
+      "key": "npm:@esbuild/win32-arm64@0.28.2",
       "ecosystem": "npm",
       "name": "@esbuild/win32-arm64",
-      "version": "0.28.1",
+      "version": "0.28.2",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -578,10 +578,10 @@
       "notes": null
     },
     {
-      "key": "npm:@esbuild/win32-ia32@0.28.1",
+      "key": "npm:@esbuild/win32-ia32@0.28.2",
       "ecosystem": "npm",
       "name": "@esbuild/win32-ia32",
-      "version": "0.28.1",
+      "version": "0.28.2",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -592,10 +592,10 @@
       "notes": null
     },
     {
-      "key": "npm:@esbuild/win32-x64@0.28.1",
+      "key": "npm:@esbuild/win32-x64@0.28.2",
       "ecosystem": "npm",
       "name": "@esbuild/win32-x64",
-      "version": "0.28.1",
+      "version": "0.28.2",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -1194,10 +1194,10 @@
       "notes": null
     },
     {
-      "key": "npm:@next/env@16.3.8",
+      "key": "npm:@next/env@16.4.2",
       "ecosystem": "npm",
       "name": "@next/env",
-      "version": "16.3.8",
+      "version": "16.4.2",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -1208,10 +1208,10 @@
       "notes": null
     },
     {
-      "key": "npm:@next/swc-darwin-arm64@16.3.8",
+      "key": "npm:@next/swc-darwin-arm64@16.4.2",
       "ecosystem": "npm",
       "name": "@next/swc-darwin-arm64",
-      "version": "16.3.8",
+      "version": "16.4.2",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -1222,10 +1222,10 @@
       "notes": null
     },
     {
-      "key": "npm:@next/swc-darwin-x64@16.3.8",
+      "key": "npm:@next/swc-darwin-x64@16.4.2",
       "ecosystem": "npm",
       "name": "@next/swc-darwin-x64",
-      "version": "16.3.8",
+      "version": "16.4.2",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -1236,10 +1236,10 @@
       "notes": null
     },
     {
-      "key": "npm:@next/swc-linux-arm64-gnu@16.3.8",
+      "key": "npm:@next/swc-linux-arm64-gnu@16.4.2",
       "ecosystem": "npm",
       "name": "@next/swc-linux-arm64-gnu",
-      "version": "16.3.8",
+      "version": "16.4.2",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -1250,10 +1250,10 @@
       "notes": null
     },
     {
-      "key": "npm:@next/swc-linux-arm64-musl@16.3.8",
+      "key": "npm:@next/swc-linux-arm64-musl@16.4.2",
       "ecosystem": "npm",
       "name": "@next/swc-linux-arm64-musl",
-      "version": "16.3.8",
+      "version": "16.4.2",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -1264,10 +1264,10 @@
       "notes": null
     },
     {
-      "key": "npm:@next/swc-linux-x64-gnu@16.3.8",
+      "key": "npm:@next/swc-linux-x64-gnu@16.4.2",
       "ecosystem": "npm",
       "name": "@next/swc-linux-x64-gnu",
-      "version": "16.3.8",
+      "version": "16.4.2",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -1278,10 +1278,10 @@
       "notes": null
     },
     {
-      "key": "npm:@next/swc-linux-x64-musl@16.3.8",
+      "key": "npm:@next/swc-linux-x64-musl@16.4.2",
       "ecosystem": "npm",
       "name": "@next/swc-linux-x64-musl",
-      "version": "16.3.8",
+      "version": "16.4.2",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -1292,10 +1292,10 @@
       "notes": null
     },
     {
-      "key": "npm:@next/swc-win32-arm64-msvc@16.3.8",
+      "key": "npm:@next/swc-win32-arm64-msvc@16.4.2",
       "ecosystem": "npm",
       "name": "@next/swc-win32-arm64-msvc",
-      "version": "16.3.8",
+      "version": "16.4.2",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -1306,10 +1306,10 @@
       "notes": null
     },
     {
-      "key": "npm:@next/swc-win32-x64-msvc@16.3.8",
+      "key": "npm:@next/swc-win32-x64-msvc@16.4.2",
       "ecosystem": "npm",
       "name": "@next/swc-win32-x64-msvc",
-      "version": "16.3.8",
+      "version": "16.4.2",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -1418,10 +1418,10 @@
       "notes": null
     },
     {
-      "key": "npm:@types/node@26.6.2",
+      "key": "npm:@types/node@26.6.5",
       "ecosystem": "npm",
       "name": "@types/node",
-      "version": "26.6.2",
+      "version": "26.6.5",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -1436,7 +1436,7 @@
       "ecosystem": "npm",
       "name": "@types/react",
       "version": "19.3.0",
-      "runtime": false,
+      "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "MIT",
       "determinedLicense": null,
@@ -1488,10 +1488,10 @@
       "notes": null
     },
     {
-      "key": "npm:axe-core@4.13.0",
+      "key": "npm:axe-core@4.14.0",
       "ecosystem": "npm",
       "name": "axe-core",
-      "version": "4.13.0",
+      "version": "4.14.0",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "MPL-2.0",
@@ -1618,7 +1618,7 @@
       "ecosystem": "npm",
       "name": "csstype",
       "version": "3.2.3",
-      "runtime": false,
+      "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "MIT",
       "determinedLicense": null,
@@ -1656,10 +1656,10 @@
       "notes": null
     },
     {
-      "key": "npm:esbuild@0.28.1",
+      "key": "npm:esbuild@0.28.2",
       "ecosystem": "npm",
       "name": "esbuild",
-      "version": "0.28.1",
+      "version": "0.28.2",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -1782,10 +1782,10 @@
       "notes": null
     },
     {
-      "key": "npm:lucide-react@1.48.0",
+      "key": "npm:lucide-react@1.59.0",
       "ecosystem": "npm",
       "name": "lucide-react",
-      "version": "1.48.0",
+      "version": "1.59.0",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "ISC",
@@ -1810,10 +1810,10 @@
       "notes": null
     },
     {
-      "key": "npm:miniflare@5.20260923.0-alpha",
+      "key": "npm:miniflare@5.20261012.1-beta",
       "ecosystem": "npm",
       "name": "miniflare",
-      "version": "5.20260923.0-alpha",
+      "version": "5.20261012.1-beta",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -1866,10 +1866,10 @@
       "notes": null
     },
     {
-      "key": "npm:next@16.3.8",
+      "key": "npm:next@16.4.2",
       "ecosystem": "npm",
       "name": "next",
-      "version": "16.3.8",
+      "version": "16.4.2",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -2006,10 +2006,10 @@
       "notes": null
     },
     {
-      "key": "npm:react@19.3.0",
+      "key": "npm:react@19.3.1",
       "ecosystem": "npm",
       "name": "react",
-      "version": "19.3.0",
+      "version": "19.3.1",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -2020,10 +2020,10 @@
       "notes": null
     },
     {
-      "key": "npm:react-dom@19.3.0",
+      "key": "npm:react-dom@19.3.1",
       "ecosystem": "npm",
       "name": "react-dom",
-      "version": "19.3.0",
+      "version": "19.3.1",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -2272,10 +2272,10 @@
       "notes": null
     },
     {
-      "key": "npm:workerd@1.20260923.1",
+      "key": "npm:workerd@1.20261012.1",
       "ecosystem": "npm",
       "name": "workerd",
-      "version": "1.20260923.1",
+      "version": "1.20261012.1",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "Apache-2.0",
@@ -2286,10 +2286,10 @@
       "notes": null
     },
     {
-      "key": "npm:wrangler@4.140.0",
+      "key": "npm:wrangler@4.151.1",
       "ecosystem": "npm",
       "name": "wrangler",
-      "version": "4.140.0",
+      "version": "4.151.1",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "MIT OR Apache-2.0",
