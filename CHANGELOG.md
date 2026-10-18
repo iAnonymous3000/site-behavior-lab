@@ -25,9 +25,17 @@ public API or a 1.0 release.
   was still open, or after the proxy refused or cut short a request during
   the visit; and skips the visit as `budget-unavailable` with a
   `policy-visit` cap loss once the proxy budget has refused anything. A long
-  read stands even while tracking or chat fetches stay open. Reports the
-  earlier versions published are unchanged; whether to withhold their
-  short-read omission claims is open (see the audit record).
+  read stands even while tracking or chat fetches stay open.
+- Reports from those earlier cross-checks no longer publish an omission or
+  a "policy read" result from a read under 3,000 characters: the policy card
+  says the cross-check was not established, as it already did for a policy
+  link that led to the homepage. No stored report changes. In the committed
+  corpus this withdraws 25 "does not appear to name" cards (Khan Academy's
+  612-character read named Google as unnamed; its policy names it) and 10
+  "made no statement this scan can check" cards.
+- The reassuring severity badge reads "Not flagged" instead of "Nothing
+  observed", which sat above cards that report what was observed, such as
+  "Google Analytics present, no remarketing signal".
 - A request, cookie or CNAME alias on a deep subdomain no longer leaves a
   finished scan unpublishable. Generalizing short labels lengthened a valid
   253-character host past the managed reader's hostname cap, and from 17

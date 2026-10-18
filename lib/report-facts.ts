@@ -80,14 +80,16 @@ export type ReportSeverity = "ok" | "quiet" | "info" | "warn" | "loud";
  * no shape, no text, and nothing in the prose that states which rank a card
  * holds. These are descriptions of what the evidence is, not verdicts about the
  * site: "review-worthy" says a person should look, which is the whole claim
- * this project makes.
+ * this project makes. "ok" was "Nothing observed", which sat above cards that
+ * report what was observed ("Google Analytics present, no remarketing signal",
+ * fewer requests in a blocking visit); it says no flag was raised instead.
  */
 export const REPORT_SEVERITY_LABELS: Record<ReportSeverity, string> = {
   loud: "Review-worthy",
   warn: "Worth checking",
   info: "Context",
   quiet: "Low signal",
-  ok: "Nothing observed"
+  ok: "Not flagged"
 };
 
 export type EvidenceState = "complete" | "censored" | "unsupported";

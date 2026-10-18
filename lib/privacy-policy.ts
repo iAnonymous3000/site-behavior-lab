@@ -42,6 +42,18 @@ const MAX_UNMENTIONED_ENTITIES = 12;
 // Below this the "policy" is more likely an error page, interstitial, or bot
 // block than a real policy; treat the fetch as failed rather than analyze it.
 export const MIN_POLICY_TEXT_LENGTH = 500;
+/**
+ * Below this length a policy read may be the page shell rather than the
+ * policy. The scanner withholds such a read when the page had not finished
+ * loading, and the findings layer withholds the company-mention results of
+ * any read this short from versions that did not check. Every read under
+ * 3,000 characters examined was a shell or a hub: 688 for the USA TODAY
+ * Network shell, 612 and 974 for Khan Academy's policy, which renders 27,886
+ * characters. Reads of 3,000 to 5,000 include genuine short policies
+ * (lobste.rs, nih.gov, irs.gov), and 214 of 249 policy reads in the October
+ * news sweep were over 10,000.
+ */
+export const POLICY_SHELL_SUSPECT_MAX_CHARS = 3_000;
 
 // Services that host other sites' privacy policies (consent/policy platforms).
 // A policy link to one of these is still the SITE'S policy; any other off-site

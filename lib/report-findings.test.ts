@@ -9,7 +9,7 @@ import {
 import { createConsentComparisonReport, createGpcComparisonReport, createShieldsComparisonReport } from "./compare-reports";
 import { corpusCohortIdentityForView } from "./corpus-cohort";
 import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "./gpc-injection";
-import { buildReportFacts } from "./report-facts";
+import { buildReportFacts, REPORT_SEVERITY_LABELS } from "./report-facts";
 import { buildFindings, provenanceChangeText, requestProvenanceSummary, type Finding, type FindingIconKey } from "./report-findings";
 import { buildReportHeadline } from "./report-headline";
 import { frozenReportView, ledgerPinnedReportView, ledgerPinnedReportWire } from "./pinned-reports";
@@ -3633,4 +3633,59 @@ test("a censored run hedges only the Shields numerator, never the evaluated deno
     /retained requests? the engine evaluated|(?:at least |≥)2,416/,
     "the evaluated denominator must never inherit the capture-loss hedge"
   );
+});
+
+test("a short policy read from a cross-check that did not wait for the policy is not established", () => {
+  // Before policy-text-cross-check@9 the read could be the policy page's
+  // shell: a 612-character Khan Academy read published "Google is not named"
+  // over a 27,886-character policy that names it, and 688-character USA TODAY
+  // Network shells listed every observed tracker. A short historical read
+  // supports no omission; a settled read, or a long one, keeps its result.
+  const cardFor = (version: string, policyTextLength: number) => {
+    const report = makePublicSingleReportV2R2();
+    const id = report.run.evidence.requests.length + 1;
+    const tracker = findTrackerMatch("google-analytics.com");
+    assert.equal(tracker?.entity, "Google");
+    report.run.evidence.requests.push({
+      id, url: "https://www.google-analytics.com/{seg}", domain: "www.google-analytics.com", method: "GET",
+      resourceType: "script", status: 200, thirdParty: true, tracker, startedAtMs: 20 + id, phaseId: 0
+    });
+    report.run.evidence.privacyPolicy = {
+      url: "https://news.example.com/privacy",
+      claims: [],
+      mentionedEntities: [],
+      unmentionedEntities: ["Google"],
+      policyTextLength
+    };
+    report.run.detectors["privacy-policy"] = { version, status: "complete", phaseId: 0 };
+    return byId(buildFindings(viewFromV2(report, 2), null), "privacy-policy");
+  };
+
+  const shell = cardFor("policy-text-cross-check@8", 688);
+  assert.equal(shell.title, "Privacy-policy cross-check not established");
+  assert.equal(shell.methodology, true);
+  assert.equal(shell.level, "info");
+  assert.equal(shell.claim?.mode, "unavailable");
+  assert.match(shell.lead, /held 688 characters of text, short enough to be the page before its policy loaded/);
+  assert.equal(`${shell.title} ${shell.lead} ${shell.detail} ${shell.evidence}`.includes("Google"), false);
+  assert.equal(shell.evidence, "Page recorded as the policy: https://news.example.com/privacy (688 characters of text); no policy text compared.");
+
+  // The boundary, a long historical read, and every settled read keep the
+  // recorded result.
+  for (const [version, length] of [
+    ["policy-text-cross-check@8", 3_000],
+    ["policy-text-cross-check@8", 62_512],
+    ["policy-text-cross-check@9", 688]
+  ] as const) {
+    const card = cardFor(version, length);
+    assert.equal(card.title, "Tracking companies the privacy policy does not appear to name", `${version} ${length}`);
+    assert.equal(card.claim?.mode, "presence", `${version} ${length}`);
+  }
+});
+
+test("the reassuring badge says no flag was raised, not that nothing was observed", () => {
+  // The "ok" level sits above cards that report what was observed: "Google
+  // Analytics present, no remarketing signal" was badged "Nothing observed".
+  assert.equal(REPORT_SEVERITY_LABELS.ok, "Not flagged");
+  assert.equal(Object.values(REPORT_SEVERITY_LABELS).some((label) => /nothing observed/i.test(label)), false);
 });

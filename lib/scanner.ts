@@ -65,6 +65,7 @@ import {
 import { inspectPixelRequest, summarizePixelEvents, type PixelEventInput } from "./pixel-events";
 import {
   buildPrivacyPolicySummary,
+  POLICY_SHELL_SUSPECT_MAX_CHARS,
   isAllowedPrivacyPolicyUrl,
   offersPrivacyPolicyLink,
   pickPrivacyPolicyLink,
@@ -401,16 +402,7 @@ const PRIVACY_POLICY_RENDER_WAIT_MS = 1_000;
 const PRIVACY_POLICY_SETTLE_WAIT_MS = 4_000;
 /** Requests whose responses can still change what the policy page says. */
 const POLICY_RENDER_RESOURCE_TYPES: ReadonlySet<string> = new Set(["document", "script", "xhr", "fetch"]);
-/**
- * Below this length a policy read may be the page shell rather than the
- * policy, so a sign that the page had not finished loading withholds it.
- * Every read under 3,000 characters examined was a shell or a hub: 688 for
- * the USA TODAY Network shell, 612 and 974 for Khan Academy's policy, which
- * renders 27,886 characters. Reads of 3,000 to 5,000 include genuine short
- * policies (lobste.rs, nih.gov, irs.gov), and 214 of 249 policy reads in the
- * October news sweep were over 10,000.
- */
-const POLICY_SHELL_SUSPECT_MAX_CHARS = 3_000;
+
 const MAX_POLICY_PDF_REDIRECTS = 5;
 const MAX_POLICY_LINK_CANDIDATES = 12;
 export const MAX_POLICY_LINKS_INSPECTED = 2_000;

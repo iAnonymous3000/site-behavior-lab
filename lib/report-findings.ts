@@ -47,7 +47,7 @@ import {
 import {
   reviewedOwnershipRelationship
 } from "./reviewed-ownership";
-import { isCurrentlyCheckablePolicyClaim, policyUrlIsSiteRoot } from "./privacy-policy";
+import { isCurrentlyCheckablePolicyClaim, POLICY_SHELL_SUSPECT_MAX_CHARS, policyUrlIsSiteRoot } from "./privacy-policy";
 import {
   comparisonArmViews,
   familyCensoredOnRun,
@@ -247,6 +247,14 @@ const POLICY_ALIAS_RELIABLE_FROM: Readonly<Record<string, number>> = {
   Magnite: 7,
   "Microsoft Clarity": 7
 };
+
+/**
+ * The first cross-check that does not publish a page shell as the policy.
+ * Earlier ones read the policy page a fixed second after it began loading, so
+ * a read could be the shell before a client-rendered policy arrived, or after
+ * the scan's own proxy budget had refused the page's requests.
+ */
+const POLICY_READ_SETTLED_FROM = 9;
 
 /** The recorded cross-check ordinal; v1 and non-Node producers count as oldest. */
 function policyCrossCheckOrdinal(version: string | undefined): number {
@@ -718,7 +726,28 @@ export function buildFindings(
   }
 
   const policy = run.evidence.privacyPolicy;
-  if (policy && policyUrlIsSiteRoot(policy.url)) {
+  // A short read from a cross-check that did not wait for the policy to load
+  // may be the page shell, whose silence about a company says nothing about
+  // the policy: a 612-character Khan Academy read published "Google is not
+  // named" over a 27,886-character policy that names it. It supports neither
+  // an omission nor a statement, so it takes the site-root card's shape.
+  const policyReadMayBeShell =
+    policy != null &&
+    policyCrossCheckOrdinal(run.detectors?.["privacy-policy"]?.version) < POLICY_READ_SETTLED_FROM &&
+    policy.policyTextLength < POLICY_SHELL_SUSPECT_MAX_CHARS;
+  if (policy && !policyUrlIsSiteRoot(policy.url) && policyReadMayBeShell) {
+    findings.push({
+      id: "privacy-policy",
+      icon: "file-text",
+      methodology: true,
+      level: "info",
+      title: "Privacy-policy cross-check not established",
+      lead: `The page this scan read as the privacy policy held ${policy.policyTextLength.toLocaleString()} characters of text, short enough to be the page before its policy loaded, so no policy text was compared against this visit's evidence. That is a limit of the automated check, not a finding about the site either way.`,
+      detail: "The scanner that recorded this visit read a policy page a fixed second after it began loading. Some pages render their policy later, and some had requests refused by the scan's own traffic budget, so a short read can be the page around a policy that never arrived. Company mentions and policy statements recorded from it are not used; later scanner versions wait for the page to settle and withhold such a read.",
+      evidence: `Page recorded as the policy: ${policy.url} (${plural(policy.policyTextLength, "character")} of text); no policy text compared.`,
+      claim: findingClaim(facts, "privacy-policy", "unavailable")
+    });
+  } else if (policy && policyUrlIsSiteRoot(policy.url)) {
     // The document read as the policy was the site root: the homepage, not a
     // policy. Its text supports neither an omission nor a contradiction, so
     // the card takes the same shape as any other cross-check this scan could
