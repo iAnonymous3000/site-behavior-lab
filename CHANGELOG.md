@@ -93,6 +93,11 @@ public API or a 1.0 release.
   short ones call themselves policies. Walgreens' privacy center, whose
   cards hide 7,457 characters of dialog prose, is still read. The linked
   page is not read in place of a hub: Home Depot's links first to a summary.
+  Only a page whose letters are mostly Latin script is judged, since the
+  prose measure reads no other script, and a link to the page itself over
+  http or on its www host is the same document. Both were added before this
+  version was first published, after it withheld naver.com's
+  34,003-character Korean policy, which policy-text-cross-check@9 had read.
   Stored reports are unchanged.
 - The privacy-policy cross-check no longer publishes a page shell as the
   policy (policy-text-cross-check@9, node-detectors-v13). The read waited a

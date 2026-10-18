@@ -455,6 +455,35 @@ export function policyProseCharacters(text: string): number {
 }
 
 /**
+ * Whether policyProseCharacters can judge a page's text: at least half of its
+ * letters, counted in code points, are Latin script. The prose measure counts
+ * only Latin-script words, so a policy written in another script measures
+ * almost nothing however long it is, and when its title is in a language the
+ * label check does not read, two of the hub conditions hold by construction.
+ * naver.com's 34,003-character Korean policy ("개인정보 처리방침") measured 444
+ * characters of prose in a reference render and links to a notice about the
+ * policy, so the hub rule as first written withheld it where
+ * policy-text-cross-check@9 had read it.
+ * A page outside this scope is never judged a hub, which is how every earlier
+ * cross-check read every page. A page with no letters is in scope.
+ */
+function policyProseMeasureApplies(text: string): boolean {
+  const letters = text.replace(/\P{L}+/gu, "");
+  const latinLetters = letters.replace(/\P{Script=Latin}+/gu, "");
+  return codePointCount(latinLetters) * 2 >= codePointCount(letters);
+}
+
+// Every UTF-16 unit but a low surrogate starts a code point.
+function codePointCount(value: string): number {
+  let count = 0;
+  for (let index = 0; index < value.length; index += 1) {
+    const unit = value.charCodeAt(index);
+    if (unit < 0xdc00 || unit > 0xdfff) count += 1;
+  }
+  return count;
+}
+
+/**
  * Whether a page the policy link led to is a privacy hub: a landing page
  * whose site keeps its policy on another page it links to. Reading a hub as
  * the policy published every tracker its navigation never names as one the
@@ -473,7 +502,13 @@ export function policyProseCharacters(text: string): number {
  *   2. Its text carries less than POLICY_HUB_MAX_PROSE_CHARS of prose.
  *   3. It links to another document the selector would read as the site's
  *      policy: a link into the page itself, or to its selected or landed URL
- *      in any query or case, does not count.
+ *      in any query, case or scheme or on its www host, does not count.
+ * Only a page whose letters are mostly Latin script is judged at all
+ * (policyProseMeasureApplies), since the prose measure reads no other script:
+ * a hub written in another script is read as the policy, as every earlier
+ * cross-check read it. Both that scope and the scheme and www rule in 3 were
+ * added before policy-text-cross-check@10 was first published, after the rule
+ * withheld naver.com's Korean policy.
  * Each condition alone is what keeps some real policy read: 1 the short
  * policies that link to a state notice (python.org, nhbr.com, lifezette.com),
  * 2 the policies titled with only the site's name that link to one (every
@@ -494,6 +529,7 @@ export function privacyPolicyPageIsHub(input: {
   firstPartyHostname: string;
 }): boolean {
   if ([input.title, ...input.headings].some(labelNamesPolicyDocument)) return false;
+  if (!policyProseMeasureApplies(input.text)) return false;
   if (policyProseCharacters(input.text) >= POLICY_HUB_MAX_PROSE_CHARS) return false;
   const readDocuments = new Set([policyDocumentIdentity(input.selectedUrl), policyDocumentIdentity(input.landedUrl)]);
   const elsewhere = input.links.filter((link) => {
@@ -503,7 +539,12 @@ export function privacyPolicyPageIsHub(input: {
   return pickPrivacyPolicyLink(elsewhere, input.firstPartyHostname, input.landedUrl) !== null;
 }
 
-/** Origin and path without a trailing slash, case folded: one document. */
+/**
+ * Host and path without a trailing slash, case folded, with the scheme and a
+ * leading "www." left out: one document. A footer link to the page itself
+ * over http, or on the www host of a page served without it, is the same
+ * document, not another policy the page links to.
+ */
 function policyDocumentIdentity(url: string): string | null {
   let parsed: URL;
   try {
@@ -511,7 +552,7 @@ function policyDocumentIdentity(url: string): string | null {
   } catch {
     return null;
   }
-  return `${parsed.protocol}//${parsed.host}${parsed.pathname.replace(/\/+$/, "") || "/"}`.toLowerCase();
+  return `${parsed.host.replace(/^www\./i, "")}${parsed.pathname.replace(/\/+$/, "") || "/"}`.toLowerCase();
 }
 
 // A first-person subject followed by a negation, e.g. "we do not", "we never",

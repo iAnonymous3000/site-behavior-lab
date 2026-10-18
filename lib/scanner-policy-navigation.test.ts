@@ -824,6 +824,19 @@ async function scanPolicyPageShape(site: string): Promise<{
           `<p>${opening} ${prose(6)}</p><footer><a href="/privacy-policy/?ref=footer">Privacy Policy</a></footer>`
         )
       }
+    },
+    // naver.com: a policy titled and written in Korean, prose the measure
+    // cannot read, linking to a notice about the policy.
+    "korean-policy.test": {
+      policyPath: "/policy/privacy.html",
+      pages: {
+        "/policy/privacy.html": page(
+          "개인정보 처리방침",
+          "개인정보 처리방침",
+          `<p>${"개인정보 처리방침은 이용자의 개인정보를 보호하기 위한 회사의 원칙입니다. 회사는 방문 측정을 위해 Google Analytics를 사용합니다. ".repeat(60)}</p>` +
+            `<p><a href="/notices/privacypolicy/18572">개인정보 처리방침 변경 안내</a></p><footer>Privacy Policy</footer>`
+        )
+      }
     }
   };
   const shape = shapes[site];
@@ -929,4 +942,12 @@ test("a policy titled with only the site's name is read when it has prose, thoug
 test("a short policy titled with only the site's name is read when it links to no other policy document", { timeout: 60_000 }, async () => {
   const { scanned } = await scanPolicyPageShape("unlabeled-short.test");
   assertPolicyRead(scanned, "unlabeled short policy");
+});
+
+test("a policy written in a script the prose measure cannot read is read, though it links to another policy document", { timeout: 60_000 }, async () => {
+  // Before, the hub rule withheld it: its Korean title names no policy the
+  // label check knows, and its prose measured nothing.
+  const { scanned, requests } = await scanPolicyPageShape("korean-policy.test");
+  assertPolicyRead(scanned, "Korean policy");
+  assert.equal(requests.get("/notices/privacypolicy/18572"), undefined);
 });

@@ -873,3 +873,90 @@ test("a privacy hub is a page that calls itself no policy, has little prose, and
     "a link back to the address the redirect left is the same document"
   );
 });
+
+test("a hub is judged only on a page whose letters are mostly Latin script", () => {
+  // naver.com's policy: a Korean title the label check cannot read, prose in a
+  // script the prose measure does not count, and a link to a notice about the
+  // policy. policy-text-cross-check@9 read it as the policy.
+  const korean = "개인정보 처리방침은 이용자의 개인정보를 보호하기 위한 회사의 원칙입니다. 회사는 방문 측정을 위해 Google Analytics를 사용합니다. ".repeat(80);
+  const naver = {
+    selectedUrl: "https://policy.example.com/policy/privacy.html",
+    landedUrl: "https://policy.example.com/policy/privacy.html",
+    title: "개인정보 처리방침",
+    headings: ["N 정책"],
+    text: `${korean} Privacy Policy Terms of Use Example Corp.`,
+    links: [{ href: "https://notice.example.com/notices/privacypolicy/18572", text: "개인정보 처리방침 변경 안내" }],
+    firstPartyHostname: "www.example.com"
+  };
+  assert.ok(policyProseCharacters(naver.text) < POLICY_HUB_MAX_PROSE_CHARS, "the prose measure cannot read it");
+  assert.equal(privacyPolicyPageIsHub(naver), false);
+  // A Japanese policy linking to its English version, a Russian one to its
+  // cookie policy, each titled in its own language.
+  const japanese = "当社は、お客様の個人情報を適切に管理し、定められた目的の範囲内でのみ利用します。".repeat(80);
+  assert.equal(
+    privacyPolicyPageIsHub({
+      ...naver,
+      title: "プライバシーポリシー | 株式会社Example",
+      headings: ["プライバシーポリシー"],
+      text: japanese,
+      links: [{ href: "https://policy.example.com/en/privacy/", text: "English" }]
+    }),
+    false
+  );
+  const russian = "Мы обрабатываем ваши персональные данные только в целях, указанных в этой политике. ".repeat(80);
+  assert.equal(
+    privacyPolicyPageIsHub({
+      ...naver,
+      title: "Политика конфиденциальности",
+      headings: ["Политика конфиденциальности"],
+      text: russian,
+      links: [{ href: "https://policy.example.com/privacy/cookies", text: "Политика cookie" }]
+    }),
+    false
+  );
+
+  // An English hub keeps its shape beside a language switcher in other
+  // scripts; the scope counts letters, so it takes a page mostly in another
+  // script to leave it. A hub written in another script is read, as every
+  // earlier cross-check read it.
+  const cards = "Privacy Cookies Your choices Privacy settings Contact Support us Newsletters Sign in ".repeat(12);
+  const hub = {
+    selectedUrl: "https://www.example.com/info/privacy",
+    landedUrl: "https://www.example.com/info/privacy",
+    title: "Privacy | Example News",
+    headings: [] as string[],
+    text: `${cards} 日本語 한국어 Русский 中文 Ελληνικά`,
+    links: [{ href: "https://www.example.com/help/privacy-policy", text: "" }],
+    firstPartyHostname: "www.example.com"
+  };
+  assert.equal(privacyPolicyPageIsHub(hub), true);
+  // The cards hold 876 Latin letters: 840 Hangul syllables beside them leave
+  // the page mostly Latin, 1,120 do not.
+  const koreanCards = (count: number) => "개인정보 보호 쿠키 설정 고객센터 ".repeat(count);
+  assert.equal(privacyPolicyPageIsHub({ ...hub, text: `${cards} ${koreanCards(60)}` }), true);
+  assert.equal(privacyPolicyPageIsHub({ ...hub, text: `${cards} ${koreanCards(80)}` }), false);
+  // Letters are counted in code points: an Extension B ideograph is one
+  // letter, as a Latin letter is.
+  const latin = "a".repeat(50);
+  assert.equal(privacyPolicyPageIsHub({ ...hub, text: `${latin} ${"𠀀".repeat(50)}` }), true);
+  assert.equal(privacyPolicyPageIsHub({ ...hub, text: `${latin} ${"𠀀".repeat(51)}` }), false);
+});
+
+test("a policy's link to itself over http or on its www host is not another document", () => {
+  const sentence = "We collect the information you give us when you order, and we use it to deliver.";
+  const policy = {
+    selectedUrl: "https://example.com/privacy",
+    landedUrl: "https://example.com/privacy",
+    title: "Example",
+    headings: [] as string[],
+    text: Array.from({ length: 6 }, () => sentence).join(" "),
+    firstPartyHostname: "example.com"
+  };
+  for (const href of ["http://example.com/privacy", "https://www.example.com/privacy", "http://WWW.example.com/privacy/"]) {
+    assert.equal(privacyPolicyPageIsHub({ ...policy, links: [{ href, text: "Privacy Policy" }] }), false, href);
+  }
+  // Another document on either host still counts.
+  for (const href of ["https://www.example.com/privacy-policy", "http://example.com/legal/privacy"]) {
+    assert.equal(privacyPolicyPageIsHub({ ...policy, links: [{ href, text: "Privacy Policy" }] }), true, href);
+  }
+});
