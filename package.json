@@ -138,16 +138,16 @@
     "aws4fetch": "^1.0.20",
     "lucide-react": "^1.59.0",
     "next": "^16.4.2",
-    "pdfjs-dist": "^6.3.289",
+    "pdfjs-dist": "^6.4.299",
     "playwright": "1.63.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "tldts": "7.4.16",
-    "undici": "8.11.2"
+    "undici": "8.12.2"
   },
   "overrides": {
     "brace-expansion": "5.0.12",
-    "undici": "8.11.2",
+    "undici": "8.12.2",
     "postcss": "8.5.25",
     "sharp": "0.35.5",
     "nanoid": "3.3.18"
