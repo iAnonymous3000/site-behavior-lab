@@ -109,9 +109,14 @@ export type RedactedV1<T extends ScanReport> = {
   counters: RedactionCounters;
 };
 
-const MAX_POLICY_QUOTE_CHARS = 200;
+/**
+ * Public text caps, counted in code points (capCharacters). The managed
+ * reader enforces the same two numbers as policyQuoteChars and warningChars
+ * and reads them in code points too; a test pins the pairs equal.
+ */
+export const MAX_POLICY_QUOTE_CHARS = 200;
 const MAX_POLICY_TEXT_CHARS = 400_000;
-const MAX_WARNING_CHARS = 600;
+export const MAX_WARNING_CHARS = 600;
 const MAX_COMPARISON_TITLE_CHARS = 160;
 const MAX_RUN_LABEL_CHARS = 80;
 const REDACTED_PUBLIC_STRING = "[redacted]";

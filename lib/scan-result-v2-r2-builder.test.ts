@@ -39,7 +39,7 @@ import { findTrackerMatch } from "./tracker-catalog";
 import { publicReportDigest } from "./canonical-json";
 import { redactPublicScanReportV2R2 } from "./scan-report-v2-r2-remediation";
 import { LISTENER_DETECTION_WITHHELD_WARNING } from "./scan-runtime";
-import { prepareScanReportBundle } from "./report-store";
+import { prepareScanReportBundle, UnreadableManagedReportError } from "./report-store";
 
 const BUILD_COMMIT_ENV = "SITE_BEHAVIOR_LAB_BUILD_COMMIT";
 process.env[BUILD_COMMIT_ENV] = "a".repeat(40);
@@ -196,6 +196,53 @@ test("a request, cookie or CNAME alias on a deep host still persists", () => {
     }
     assert.equal(published.cnameCloaks.length, firstParty ? 1 : 0, name);
   }
+});
+
+test("a policy quote of supplementary-plane text with a scrubbed address still persists", () => {
+  // The producer bounds a quote in code points; the reader read the same
+  // bound in UTF-16 units. Scrubbing an address into the longer marker and
+  // re-marking the quote left 200 code points of 204 units, so a policy
+  // sentence in emoji or CJK Extension B text refused the finished scan.
+  const input = baseInput();
+  input.conditions.probes.policyVisit = true;
+  input.measurement.phases.push({ phaseId: 1, kind: "policy-analysis", startedAtMs: 1000, endedAtMs: 1100 });
+  input.measurement.detectors["privacy-policy"] = {
+    version: DETECTOR_VERSIONS["privacy-policy"],
+    status: "complete",
+    phaseId: 1
+  };
+  input.summary.durationMs = 1100;
+  // lib/privacy-policy.ts truncateQuote, the producer's own cut.
+  const sentence = `We honor Global Privacy Control. Questions: a@b.co ${"\u{1F512}".repeat(100)}`;
+  const quote = `${sentence.slice(0, 197).trimEnd()}...`;
+  input.evidence.privacyPolicy = {
+    url: "https://example.com/privacy",
+    claims: [{ kind: "honors-gpc", quote }],
+    mentionedEntities: [],
+    unmentionedEntities: [],
+    policyTextLength: 1_000
+  };
+  const stored = JSON.parse(prepareScanReportBundle(buildNodeScanReportV2R2(input)).reportWire) as PublicSingleReportV2R2;
+  const published = stored.run.evidence.privacyPolicy!.claims[0].quote;
+  assert.equal(published.includes("[redacted]"), true);
+  assert.ok(published.length > 200, "the case needs a quote over the cap in UTF-16 units");
+  assert.ok(Array.from(published).length <= 200);
+});
+
+test("a persistence refusal for size names the limit and path for the operator log", () => {
+  const report = buildNodeScanReportV2R2(baseInput());
+  report.run.evidence.requests[0].domain = `${"{label}.".repeat(40)}example.com`;
+  assert.throws(
+    () => prepareScanReportBundle(report),
+    (error: unknown) => {
+      assert.ok(error instanceof UnreadableManagedReportError);
+      assert.equal(error.reason, "report-resource-limit");
+      assert.deepEqual(error.resourceViolation, { limit: "string-chars:253", path: "$.run.evidence.requests[0].domain" });
+      // CLIs and verifiers pin the message; the detail rides beside it.
+      assert.equal(error.message, "Refusing to persist an unreadable managed report (report-resource-limit).");
+      return true;
+    }
+  );
 });
 
 test("a leading-dot IP cookie domain the builder admits stays a managed-sanitizer fixed point", () => {

@@ -48,6 +48,20 @@ export const REPORT_RESOURCE_LIMITS = Object.freeze({
   diffDetectionKinds: 256
 });
 
+/**
+ * The first admission limit a payload breaks, and where. Operators read it in
+ * logs: a refusal that names neither left a stopped collection run with no
+ * cause to act on. The path is built from the report's own keys, truncated,
+ * and never carries a string value.
+ */
+export type ReportResourceViolation = {
+  limit: string;
+  path: string;
+};
+
+const MAX_VIOLATION_PATH_KEY_CHARS = 64;
+const MAX_VIOLATION_PATH_CHARS = 512;
+
 function arrayAtMost(value: unknown, maximum: number): boolean {
   return !Array.isArray(value) || value.length <= maximum;
 }
@@ -61,41 +75,87 @@ type GraphEntry = {
   value: unknown;
   depth: number;
   maxStringChars: number;
+  /**
+   * The producer caps this field in code points (redact-scan-report-v1
+   * capCharacters), so the cap is read in code points too. Read in UTF-16
+   * units, a quote at the producer's cap that holds supplementary-plane
+   * characters (CJK Extension B, emoji) overran it, and persistence refused
+   * the whole finished scan.
+   */
+  codePoints: boolean;
   screenshot: boolean;
+  parent: GraphEntry | null;
+  key: string | number | null;
 };
 
 const SCREENSHOT_KEYS = new Set(["screenshot", "baselineScreenshot", "variantScreenshot"]);
 const HOSTNAME_KEYS = /(?:^|_)(?:domain|host|hostname|cname)$/i;
 const LABEL_KEYS = /(?:title|label|entity|category|name|key|method|product)$/i;
 
-function childStringPolicy(key: string, value: unknown): Pick<GraphEntry, "maxStringChars" | "screenshot"> {
+function childStringPolicy(
+  key: string,
+  value: unknown
+): Pick<GraphEntry, "maxStringChars" | "codePoints" | "screenshot"> {
   if (SCREENSHOT_KEYS.has(key) && typeof value === "string") {
     return isSafeInlineScreenshotDataUri(value)
-      ? { maxStringChars: REPORT_RESOURCE_LIMITS.maxScreenshotChars, screenshot: true }
-      : { maxStringChars: -1, screenshot: false };
+      ? { maxStringChars: REPORT_RESOURCE_LIMITS.maxScreenshotChars, codePoints: false, screenshot: true }
+      : { maxStringChars: -1, codePoints: false, screenshot: false };
   }
   if (key === "warnings") {
-    return { maxStringChars: REPORT_RESOURCE_LIMITS.warningChars, screenshot: false };
+    return { maxStringChars: REPORT_RESOURCE_LIMITS.warningChars, codePoints: true, screenshot: false };
   }
   if (key === "quote") {
-    return { maxStringChars: REPORT_RESOURCE_LIMITS.policyQuoteChars, screenshot: false };
+    return { maxStringChars: REPORT_RESOURCE_LIMITS.policyQuoteChars, codePoints: true, screenshot: false };
   }
   if (HOSTNAME_KEYS.test(key)) {
-    return { maxStringChars: REPORT_RESOURCE_LIMITS.hostnameChars, screenshot: false };
+    return { maxStringChars: REPORT_RESOURCE_LIMITS.hostnameChars, codePoints: false, screenshot: false };
   }
   if (LABEL_KEYS.test(key)) {
-    return { maxStringChars: REPORT_RESOURCE_LIMITS.labelChars, screenshot: false };
+    return { maxStringChars: REPORT_RESOURCE_LIMITS.labelChars, codePoints: false, screenshot: false };
   }
-  return { maxStringChars: REPORT_RESOURCE_LIMITS.maxAnyStringChars, screenshot: false };
+  return { maxStringChars: REPORT_RESOURCE_LIMITS.maxAnyStringChars, codePoints: false, screenshot: false };
+}
+
+/** Whether a string fits a cap read in code points. Never walks past twice the cap. */
+function codePointsAtMost(value: string, maximum: number): boolean {
+  // A code point is at most two UTF-16 units, so anything longer than twice
+  // the cap is over it without counting.
+  if (value.length > maximum * 2) return false;
+  let count = 0;
+  for (const _codePoint of value) {
+    count += 1;
+    if (count > maximum) return false;
+  }
+  return true;
+}
+
+function graphPath(entry: GraphEntry): string {
+  const parts: string[] = [];
+  for (let current: GraphEntry | null = entry; current !== null && current.key !== null; current = current.parent) {
+    parts.push(
+      typeof current.key === "number"
+        ? `[${current.key}]`
+        : `.${current.key.length > MAX_VIOLATION_PATH_KEY_CHARS ? `${current.key.slice(0, MAX_VIOLATION_PATH_KEY_CHARS)}...` : current.key}`
+    );
+  }
+  const path = `$${parts.reverse().join("")}`;
+  return path.length > MAX_VIOLATION_PATH_CHARS ? `${path.slice(0, MAX_VIOLATION_PATH_CHARS)}...` : path;
+}
+
+function violation(limit: string, entry: GraphEntry): ReportResourceViolation {
+  return { limit, path: graphPath(entry) };
 }
 
 /** Total graph guard that makes compact JSON cardinality amplification finite. */
-function hasBoundedCollectionGraph(root: unknown): boolean {
+function collectionGraphViolation(root: unknown): ReportResourceViolation | null {
   const stack: GraphEntry[] = [{
     value: root,
     depth: 0,
     maxStringChars: REPORT_RESOURCE_LIMITS.maxAnyStringChars,
-    screenshot: false
+    codePoints: false,
+    screenshot: false,
+    parent: null,
+    key: null
   }];
   const seen = new WeakSet<object>();
   let totalArrayEntries = 0;
@@ -105,16 +165,24 @@ function hasBoundedCollectionGraph(root: unknown): boolean {
 
   while (stack.length > 0) {
     const current = stack.pop()!;
-    if (current.depth > REPORT_RESOURCE_LIMITS.maxNestingDepth) return false;
+    if (current.depth > REPORT_RESOURCE_LIMITS.maxNestingDepth) return violation("maxNestingDepth", current);
     if (typeof current.value === "string") {
-      if (current.value.length > current.maxStringChars) return false;
+      if (
+        current.value.length > current.maxStringChars &&
+        !(current.codePoints && codePointsAtMost(current.value, current.maxStringChars))
+      ) {
+        return violation(
+          current.maxStringChars < 0 ? "inline-screenshot" : `string-chars:${current.maxStringChars}`,
+          current
+        );
+      }
       totalStringChars += current.value.length;
       if (!current.screenshot) totalNonScreenshotStringChars += current.value.length;
-      if (
-        totalStringChars > REPORT_RESOURCE_LIMITS.maxTotalStringChars ||
-        totalNonScreenshotStringChars > REPORT_RESOURCE_LIMITS.maxTotalNonScreenshotStringChars
-      ) {
-        return false;
+      if (totalStringChars > REPORT_RESOURCE_LIMITS.maxTotalStringChars) {
+        return violation("maxTotalStringChars", current);
+      }
+      if (totalNonScreenshotStringChars > REPORT_RESOURCE_LIMITS.maxTotalNonScreenshotStringChars) {
+        return violation("maxTotalNonScreenshotStringChars", current);
       }
       continue;
     }
@@ -124,25 +192,32 @@ function hasBoundedCollectionGraph(root: unknown): boolean {
 
     try {
       if (Array.isArray(current.value)) {
-        if (Object.getPrototypeOf(current.value) !== Array.prototype) return false;
-        if (current.value.length > REPORT_RESOURCE_LIMITS.maxAnyArray) return false;
+        if (Object.getPrototypeOf(current.value) !== Array.prototype) return violation("plain-array", current);
+        if (current.value.length > REPORT_RESOURCE_LIMITS.maxAnyArray) return violation("maxAnyArray", current);
         totalArrayEntries += current.value.length;
-        if (totalArrayEntries > REPORT_RESOURCE_LIMITS.maxTotalArrayEntries) return false;
+        if (totalArrayEntries > REPORT_RESOURCE_LIMITS.maxTotalArrayEntries) {
+          return violation("maxTotalArrayEntries", current);
+        }
         for (let index = 0; index < current.value.length; index += 1) {
           const descriptor = Object.getOwnPropertyDescriptor(current.value, String(index));
-          if (!descriptor || !("value" in descriptor) || !descriptor.enumerable) return false;
+          if (!descriptor || !("value" in descriptor) || !descriptor.enumerable) {
+            return violation("own-data-property", current);
+          }
           stack.push({
             value: descriptor.value,
             depth: current.depth + 1,
             maxStringChars: current.maxStringChars,
-            screenshot: current.screenshot
+            codePoints: current.codePoints,
+            screenshot: current.screenshot,
+            parent: current,
+            key: index
           });
         }
         continue;
       }
 
       const prototype = Object.getPrototypeOf(current.value);
-      if (prototype !== Object.prototype && prototype !== null) return false;
+      if (prototype !== Object.prototype && prototype !== null) return violation("plain-object", current);
       let objectProperties = 0;
       // Parsed JSON is a plain own-data-property graph. Avoid Object.values(),
       // which allocates a second attacker-sized values array before a cap can
@@ -151,180 +226,176 @@ function hasBoundedCollectionGraph(root: unknown): boolean {
         if (!Object.prototype.hasOwnProperty.call(current.value, key)) continue;
         objectProperties += 1;
         totalObjectProperties += 1;
-        if (
-          objectProperties > REPORT_RESOURCE_LIMITS.maxObjectProperties ||
-          totalObjectProperties > REPORT_RESOURCE_LIMITS.maxTotalObjectProperties ||
-          key.length > REPORT_RESOURCE_LIMITS.maxObjectKeyChars
-        ) {
-          return false;
+        if (objectProperties > REPORT_RESOURCE_LIMITS.maxObjectProperties) {
+          return violation("maxObjectProperties", current);
         }
+        if (totalObjectProperties > REPORT_RESOURCE_LIMITS.maxTotalObjectProperties) {
+          return violation("maxTotalObjectProperties", current);
+        }
+        if (key.length > REPORT_RESOURCE_LIMITS.maxObjectKeyChars) return violation("maxObjectKeyChars", current);
         totalStringChars += key.length;
         totalNonScreenshotStringChars += key.length;
-        if (
-          totalStringChars > REPORT_RESOURCE_LIMITS.maxTotalStringChars ||
-          totalNonScreenshotStringChars > REPORT_RESOURCE_LIMITS.maxTotalNonScreenshotStringChars
-        ) {
-          return false;
+        if (totalStringChars > REPORT_RESOURCE_LIMITS.maxTotalStringChars) {
+          return violation("maxTotalStringChars", current);
+        }
+        if (totalNonScreenshotStringChars > REPORT_RESOURCE_LIMITS.maxTotalNonScreenshotStringChars) {
+          return violation("maxTotalNonScreenshotStringChars", current);
         }
         const descriptor = Object.getOwnPropertyDescriptor(current.value, key);
-        if (!descriptor || !("value" in descriptor) || !descriptor.enumerable) return false;
+        if (!descriptor || !("value" in descriptor) || !descriptor.enumerable) {
+          return violation("own-data-property", current);
+        }
         const policy = childStringPolicy(key, descriptor.value);
-        stack.push({ value: descriptor.value, depth: current.depth + 1, ...policy });
+        stack.push({ value: descriptor.value, depth: current.depth + 1, ...policy, parent: current, key });
       }
     } catch {
       // JSON.parse cannot create accessors or proxies. Refuse exotic in-memory
       // objects without allowing their traps to escape into the UI lifecycle.
-      return false;
+      return violation("exotic-object", current);
     }
   }
-  return true;
+  return null;
 }
 
-function hasBoundedDetectionEvidence(detections: unknown): boolean {
-  if (!Array.isArray(detections)) return true;
-  return detections.every((detection) => {
-    if (!isRecord(detection) || !isRecord(detection.evidence)) return true;
-    return Object.values(detection.evidence).every(
-      (value) => !Array.isArray(value) || value.length <= REPORT_RESOURCE_LIMITS.fingerprintEvidenceEntries
-    );
-  });
+type LimitName = keyof typeof REPORT_RESOURCE_LIMITS;
+/** One family cap: the field's path below its run or report, its value, and the limit it answers to. */
+type CapCheck = readonly [field: string, value: unknown, limit: LimitName];
+
+/** Checks run in order and stop at the first field over its cap. */
+function firstOverCap(prefix: string, checks: Iterable<CapCheck>): ReportResourceViolation | null {
+  for (const [field, value, limit] of checks) {
+    if (!arrayAtMost(value, REPORT_RESOURCE_LIMITS[limit])) return { limit, path: `${prefix}.${field}` };
+  }
+  return null;
 }
 
-function hasBoundedPixelDetails(events: unknown): boolean {
-  if (!Array.isArray(events)) return true;
-  return events.every(
-    (event) =>
-      !isRecord(event) ||
-      (arrayAtMost(event.events, REPORT_RESOURCE_LIMITS.pixelEventNames) &&
-        arrayAtMost(event.advancedMatching, REPORT_RESOURCE_LIMITS.pixelMatchFields))
-  );
-}
-
-function hasBoundedRun(run: unknown): boolean {
-  if (!isRecord(run)) return true;
+function* runCaps(run: Record<string, unknown>): Generator<CapCheck> {
   const facts = isRecord(run.qualityFacts) ? run.qualityFacts : null;
   const quality = isRecord(run.quality) ? run.quality : null;
   const summary = isRecord(run.summary) ? run.summary : null;
   const evidence = isRecord(run.evidence) ? run.evidence : null;
-  if (
-    !arrayAtMost(run.phases, REPORT_RESOURCE_LIMITS.phases) ||
-    !arrayAtMost(run.warnings, REPORT_RESOURCE_LIMITS.warnings) ||
-    (facts !== null &&
-      (!arrayAtMost(facts.budgetsExhausted, REPORT_RESOURCE_LIMITS.qualityEntries) ||
-        !arrayAtMost(facts.captureLoss, REPORT_RESOURCE_LIMITS.qualityEntries))) ||
-    (summary !== null && !arrayAtMost(summary.countsByPhase, REPORT_RESOURCE_LIMITS.phases))
-  ) {
-    return false;
+  yield ["phases", run.phases, "phases"];
+  yield ["warnings", run.warnings, "warnings"];
+  if (facts !== null) {
+    yield ["qualityFacts.budgetsExhausted", facts.budgetsExhausted, "qualityEntries"];
+    yield ["qualityFacts.captureLoss", facts.captureLoss, "qualityEntries"];
   }
+  if (summary !== null) yield ["summary.countsByPhase", summary.countsByPhase, "phases"];
 
   if (quality !== null) {
-    const runOutcome = isRecord(quality.run) ? quality.run : null;
-    if (runOutcome !== null && !arrayAtMost(runOutcome.reasons, REPORT_RESOURCE_LIMITS.qualityEntries)) return false;
+    if (isRecord(quality.run)) yield ["quality.run.reasons", quality.run.reasons, "qualityEntries"];
     if (isRecord(quality.byFamily)) {
-      for (const outcome of Object.values(quality.byFamily)) {
-        if (isRecord(outcome) && !arrayAtMost(outcome.reasons, REPORT_RESOURCE_LIMITS.qualityEntries)) return false;
+      for (const [family, outcome] of Object.entries(quality.byFamily)) {
+        if (isRecord(outcome)) yield [`quality.byFamily.${family}.reasons`, outcome.reasons, "qualityEntries"];
       }
     }
   }
 
-  if (evidence === null) return true;
-  if (
-    !arrayAtMost(evidence.requests, REPORT_RESOURCE_LIMITS.requests) ||
-    !arrayAtMost(evidence.cookieMutations, REPORT_RESOURCE_LIMITS.cookieMutations) ||
-    !arrayAtMost(evidence.cookiesFinal, REPORT_RESOURCE_LIMITS.cookies) ||
-    !arrayAtMost(evidence.storageMutations, REPORT_RESOURCE_LIMITS.storageMutations) ||
-    !arrayAtMost(evidence.storageFinal, REPORT_RESOURCE_LIMITS.storage) ||
-    !arrayAtMost(evidence.fingerprintEvents, REPORT_RESOURCE_LIMITS.fingerprintEvents) ||
-    !arrayAtMost(evidence.fingerprintDetections, REPORT_RESOURCE_LIMITS.fingerprintDetections) ||
-    !arrayAtMost(evidence.cnameCloaks, REPORT_RESOURCE_LIMITS.cnameCloaks) ||
-    !arrayAtMost(evidence.pixelEvents, REPORT_RESOURCE_LIMITS.pixelEvents) ||
-    !hasBoundedDetectionEvidence(evidence.fingerprintDetections) ||
-    !hasBoundedPixelDetails(evidence.pixelEvents)
-  ) {
-    return false;
+  if (evidence === null) return;
+  yield ["evidence.requests", evidence.requests, "requests"];
+  yield ["evidence.cookieMutations", evidence.cookieMutations, "cookieMutations"];
+  yield ["evidence.cookiesFinal", evidence.cookiesFinal, "cookies"];
+  yield ["evidence.storageMutations", evidence.storageMutations, "storageMutations"];
+  yield ["evidence.storageFinal", evidence.storageFinal, "storage"];
+  yield ["evidence.fingerprintEvents", evidence.fingerprintEvents, "fingerprintEvents"];
+  yield ["evidence.fingerprintDetections", evidence.fingerprintDetections, "fingerprintDetections"];
+  yield ["evidence.cnameCloaks", evidence.cnameCloaks, "cnameCloaks"];
+  yield ["evidence.pixelEvents", evidence.pixelEvents, "pixelEvents"];
+  if (Array.isArray(evidence.fingerprintDetections)) {
+    for (const [index, detection] of evidence.fingerprintDetections.entries()) {
+      if (!isRecord(detection) || !isRecord(detection.evidence)) continue;
+      for (const [name, value] of Object.entries(detection.evidence)) {
+        yield [`evidence.fingerprintDetections[${index}].evidence.${name}`, value, "fingerprintEvidenceEntries"];
+      }
+    }
+  }
+  if (Array.isArray(evidence.pixelEvents)) {
+    for (const [index, event] of evidence.pixelEvents.entries()) {
+      if (!isRecord(event)) continue;
+      yield [`evidence.pixelEvents[${index}].events`, event.events, "pixelEventNames"];
+      yield [`evidence.pixelEvents[${index}].advancedMatching`, event.advancedMatching, "pixelMatchFields"];
+    }
   }
 
   if (isRecord(evidence.privacyPolicy)) {
-    if (
-      !arrayAtMost(evidence.privacyPolicy.claims, REPORT_RESOURCE_LIMITS.policyClaims) ||
-      !arrayAtMost(evidence.privacyPolicy.mentionedEntities, REPORT_RESOURCE_LIMITS.policyEntities) ||
-      !arrayAtMost(evidence.privacyPolicy.unmentionedEntities, REPORT_RESOURCE_LIMITS.policyEntities)
-    ) {
-      return false;
-    }
+    yield ["evidence.privacyPolicy.claims", evidence.privacyPolicy.claims, "policyClaims"];
+    yield ["evidence.privacyPolicy.mentionedEntities", evidence.privacyPolicy.mentionedEntities, "policyEntities"];
+    yield ["evidence.privacyPolicy.unmentionedEntities", evidence.privacyPolicy.unmentionedEntities, "policyEntities"];
   }
   if (isRecord(evidence.consent)) {
-    if (!arrayAtMost(evidence.consent.verificationObservations, REPORT_RESOURCE_LIMITS.consentObservations)) {
-      return false;
-    }
-    if (
-      isRecord(evidence.consent.bannerTransition) &&
-      !arrayAtMost(evidence.consent.bannerTransition.observations, REPORT_RESOURCE_LIMITS.bannerObservations)
-    ) {
-      return false;
+    yield ["evidence.consent.verificationObservations", evidence.consent.verificationObservations, "consentObservations"];
+    if (isRecord(evidence.consent.bannerTransition)) {
+      yield ["evidence.consent.bannerTransition.observations", evidence.consent.bannerTransition.observations, "bannerObservations"];
     }
   }
-  return true;
 }
 
-function hasBoundedComparison(report: Record<string, unknown>): boolean {
+function* comparisonCaps(report: Record<string, unknown>): Generator<CapCheck> {
   if (isRecord(report.comparability)) {
-    if (isRecord(report.comparability.pairValidity) &&
-      !arrayAtMost(report.comparability.pairValidity.reasons, REPORT_RESOURCE_LIMITS.comparisonReasons)) {
-      return false;
+    if (isRecord(report.comparability.pairValidity)) {
+      yield ["comparability.pairValidity.reasons", report.comparability.pairValidity.reasons, "comparisonReasons"];
     }
     if (isRecord(report.comparability.perMetric)) {
-      for (const eligibility of Object.values(report.comparability.perMetric)) {
-        if (isRecord(eligibility) && !arrayAtMost(eligibility.reasons, REPORT_RESOURCE_LIMITS.comparisonReasons)) {
-          return false;
-        }
+      for (const [metric, eligibility] of Object.entries(report.comparability.perMetric)) {
+        if (isRecord(eligibility)) yield [`comparability.perMetric.${metric}.reasons`, eligibility.reasons, "comparisonReasons"];
       }
     }
   }
 
   if (isRecord(report.diff) && isRecord(report.diff.families)) {
     const tracker = report.diff.families["tracker-classification"];
-    if (
-      isRecord(tracker) &&
-      (!arrayAtMost(tracker.addedTrackerDomains, REPORT_RESOURCE_LIMITS.diffTrackerDomains) ||
-        !arrayAtMost(tracker.removedTrackerDomains, REPORT_RESOURCE_LIMITS.diffTrackerDomains))
-    ) {
-      return false;
+    if (isRecord(tracker)) {
+      yield ["diff.families.tracker-classification.addedTrackerDomains", tracker.addedTrackerDomains, "diffTrackerDomains"];
+      yield ["diff.families.tracker-classification.removedTrackerDomains", tracker.removedTrackerDomains, "diffTrackerDomains"];
     }
     const detectors = report.diff.families["detector-findings"];
-    if (
-      isRecord(detectors) &&
-      (!arrayAtMost(detectors.addedDetectionKinds, REPORT_RESOURCE_LIMITS.diffDetectionKinds) ||
-        !arrayAtMost(detectors.removedDetectionKinds, REPORT_RESOURCE_LIMITS.diffDetectionKinds))
-    ) {
-      return false;
+    if (isRecord(detectors)) {
+      yield ["diff.families.detector-findings.addedDetectionKinds", detectors.addedDetectionKinds, "diffDetectionKinds"];
+      yield ["diff.families.detector-findings.removedDetectionKinds", detectors.removedDetectionKinds, "diffDetectionKinds"];
     }
   }
-  return true;
 }
 
 /**
  * Version-aware shared preflight. Structural validators remain authoritative
- * for shape; this rejects cardinality amplification before they walk it.
+ * for shape; this rejects cardinality amplification before they walk it, and
+ * names the first limit a refused payload breaks.
  */
-export function hasSafeReportCollections(payload: unknown): boolean {
-  if (!hasBoundedCollectionGraph(payload)) return false;
+export function reportResourceViolation(payload: unknown): ReportResourceViolation | null {
+  const graph = collectionGraphViolation(payload);
+  if (graph !== null) return graph;
   const report = reportPayload(payload);
-  if (!isRecord(report) || report.schemaVersion !== 2) return true;
+  if (!isRecord(report) || report.schemaVersion !== 2) return null;
+  const root = report === payload ? "$" : "$.report";
 
-  const runs: unknown[] = [];
-  if (report.reportType === "single") runs.push(report.run);
-  if (report.reportType === "comparison") runs.push(report.baseline, report.variant);
+  const runs: Array<readonly [string, unknown]> = [];
+  if (report.reportType === "single") runs.push([`${root}.run`, report.run]);
+  if (report.reportType === "comparison") runs.push([`${root}.baseline`, report.baseline], [`${root}.variant`, report.variant]);
 
   if (report.reportType === "comparison" && isRecord(report.experiment)) {
     const pairs = report.experiment.supportingPairs;
-    if (!arrayAtMost(pairs, REPORT_RESOURCE_LIMITS.supportingPairs)) return false;
+    const pairCap = firstOverCap(`${root}.experiment`, [["supportingPairs", pairs, "supportingPairs"]]);
+    if (pairCap !== null) return pairCap;
     if (Array.isArray(pairs)) {
-      for (const pair of pairs) {
-        if (isRecord(pair)) runs.push(pair.baseline, pair.variant);
+      for (const [index, pair] of pairs.entries()) {
+        if (!isRecord(pair)) continue;
+        runs.push(
+          [`${root}.experiment.supportingPairs[${index}].baseline`, pair.baseline],
+          [`${root}.experiment.supportingPairs[${index}].variant`, pair.variant]
+        );
       }
     }
-    if (!hasBoundedComparison(report)) return false;
+    const comparison = firstOverCap(root, comparisonCaps(report));
+    if (comparison !== null) return comparison;
   }
-  return runs.every(hasBoundedRun);
+  for (const [path, run] of runs) {
+    if (!isRecord(run)) continue;
+    const capped = firstOverCap(path, runCaps(run));
+    if (capped !== null) return capped;
+  }
+  return null;
+}
+
+export function hasSafeReportCollections(payload: unknown): boolean {
+  return reportResourceViolation(payload) === null;
 }

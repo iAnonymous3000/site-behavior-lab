@@ -5,6 +5,8 @@ import {
   hasBrowserSafeReportCollections
 } from "./client-report-resource-policy";
 import { BROWSER_PUBLIC_REPORT_JSON_MAX_BYTES } from "./report-resource-limits";
+import { REPORT_RESOURCE_LIMITS, reportResourceViolation } from "./report-resource-policy";
+import { MAX_POLICY_QUOTE_CHARS, MAX_WARNING_CHARS } from "./redact-scan-report-v1";
 import { NODE_R2_PUBLIC_LIMITS } from "./scan-report-v2-r2-producer-contract";
 import { readStoredScanReport } from "./scan-report-reader";
 import { parseStrictJson } from "./strict-json";
@@ -164,4 +166,90 @@ test("strict JSON yields own plain data properties and exotic graphs fail closed
   });
   assert.doesNotThrow(() => hasBrowserSafeReportCollections(proxy));
   assert.equal(hasBrowserSafeReportCollections(proxy), false);
+});
+
+test("a refusal names the first limit it breaks and where, never a value", () => {
+  assert.equal(reportResourceViolation(makePublicSingleReportV2R2()), null);
+
+  const overCap = makePublicSingleReportV2R2() as unknown as AnyRecord;
+  overCap.run.evidence.requests = Array.from(
+    { length: REPORT_RESOURCE_LIMITS.requests + 1 },
+    () => overCap.run.evidence.requests[0]
+  );
+  assert.deepEqual(reportResourceViolation(overCap), { limit: "requests", path: "$.run.evidence.requests" });
+
+  const longHost = makePublicSingleReportV2R2() as unknown as AnyRecord;
+  longHost.run.evidence.requests[0].domain = `${"{label}.".repeat(40)}example.net`;
+  const hostViolation = reportResourceViolation(longHost);
+  assert.deepEqual(hostViolation, { limit: "string-chars:253", path: "$.run.evidence.requests[0].domain" });
+  assert.equal(JSON.stringify(hostViolation).includes("example.net"), false);
+
+  const wideObject = makePublicSingleReportV2R2() as unknown as AnyRecord;
+  wideObject.run.conditions.extra = Object.fromEntries(
+    Array.from({ length: REPORT_RESOURCE_LIMITS.maxObjectProperties + 1 }, (_, index) => [`k${index}`, index])
+  );
+  assert.deepEqual(reportResourceViolation(wideObject), { limit: "maxObjectProperties", path: "$.run.conditions.extra" });
+
+  // A job-status wrapper reports the path inside its report.
+  assert.deepEqual(reportResourceViolation({ status: "succeeded", report: overCap }), {
+    limit: "requests",
+    path: "$.report.run.evidence.requests"
+  });
+
+  // An attacker-sized key is truncated in the path, which stays bounded.
+  const deep: AnyRecord = {};
+  let cursor = deep;
+  for (let depth = 0; depth <= REPORT_RESOURCE_LIMITS.maxNestingDepth; depth += 1) {
+    cursor = cursor["k".repeat(REPORT_RESOURCE_LIMITS.maxObjectKeyChars)] = {};
+  }
+  const depthViolation = reportResourceViolation(deep);
+  assert.equal(depthViolation?.limit, "maxNestingDepth");
+  assert.ok(depthViolation!.path.length <= 515, `${depthViolation!.path.length}-character path`);
+});
+
+test("quotes and warnings at the producer's code-point cap are admitted in every Unicode plane", () => {
+  // One contract in two files: the sanitizer caps both fields, the reader
+  // admits them, and the two must name the same number in the same unit.
+  assert.equal(REPORT_RESOURCE_LIMITS.policyQuoteChars, MAX_POLICY_QUOTE_CHARS);
+  assert.equal(REPORT_RESOURCE_LIMITS.warningChars, MAX_WARNING_CHARS);
+  // The producer caps both fields in code points, so a quote at its cap made
+  // of supplementary-plane characters is twice as long in UTF-16 units. Read
+  // in units, that refused a finished scan whose policy quoted such text.
+  const withQuote = (quote: string): AnyRecord => {
+    const report = makePublicSingleReportV2R2() as unknown as AnyRecord;
+    report.run.evidence.privacyPolicy = {
+      url: "https://example.com/privacy",
+      claims: [{ kind: "honors-gpc", quote }],
+      mentionedEntities: [],
+      unmentionedEntities: [],
+      policyTextLength: 1000
+    };
+    return report;
+  };
+  const astral = "\u{20000}";
+  const cap = REPORT_RESOURCE_LIMITS.policyQuoteChars;
+  assert.equal(reportResourceViolation(withQuote(astral.repeat(cap))), null);
+  assert.equal(reportResourceViolation(withQuote(`Write to [redacted] ${astral.repeat(cap - 23)}...`)), null);
+  assert.deepEqual(reportResourceViolation(withQuote(astral.repeat(cap + 1))), {
+    limit: `string-chars:${cap}`,
+    path: "$.run.evidence.privacyPolicy.claims[0].quote"
+  });
+  assert.deepEqual(reportResourceViolation(withQuote("x".repeat(cap + 1))), {
+    limit: `string-chars:${cap}`,
+    path: "$.run.evidence.privacyPolicy.claims[0].quote"
+  });
+
+  const warned = makePublicSingleReportV2R2() as unknown as AnyRecord;
+  warned.run.warnings = [astral.repeat(REPORT_RESOURCE_LIMITS.warningChars)];
+  assert.equal(reportResourceViolation(warned), null);
+  warned.run.warnings = [astral.repeat(REPORT_RESOURCE_LIMITS.warningChars + 1)];
+  assert.deepEqual(reportResourceViolation(warned), {
+    limit: `string-chars:${REPORT_RESOURCE_LIMITS.warningChars}`,
+    path: "$.run.warnings[0]"
+  });
+
+  // Every other field keeps its UTF-16 cap: a hostname is ASCII on the wire.
+  const host = makePublicSingleReportV2R2() as unknown as AnyRecord;
+  host.run.evidence.requests[0].domain = astral.repeat(REPORT_RESOURCE_LIMITS.hostnameChars);
+  assert.equal(reportResourceViolation(host)?.limit, `string-chars:${REPORT_RESOURCE_LIMITS.hostnameChars}`);
 });

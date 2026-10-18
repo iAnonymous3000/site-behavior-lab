@@ -299,27 +299,38 @@ test("partial and malformed managed states fail closed", () => {
 });
 
 test("managed reports reject amplified arrays, strings, and property sets before validation", () => {
-  const payloads: unknown[] = [
-    {
-      schemaVersion: 1,
-      extra: Array.from({ length: REPORT_RESOURCE_LIMITS.maxAnyArray + 1 }, () => 0)
-    },
-    {
-      schemaVersion: 1,
-      extra: "x".repeat(REPORT_RESOURCE_LIMITS.maxAnyStringChars + 1)
-    },
-    {
-      schemaVersion: 1,
-      extra: Object.fromEntries(
-        Array.from(
-          { length: REPORT_RESOURCE_LIMITS.maxObjectProperties + 1 },
-          (_, index) => [`property${index}`, 0]
+  // Each refusal names the limit it broke and where, so an operator log can
+  // say why a finished scan was not persisted.
+  const payloads: Array<[unknown, { limit: string; path: string }]> = [
+    [
+      {
+        schemaVersion: 1,
+        extra: Array.from({ length: REPORT_RESOURCE_LIMITS.maxAnyArray + 1 }, () => 0)
+      },
+      { limit: "maxAnyArray", path: "$.extra" }
+    ],
+    [
+      {
+        schemaVersion: 1,
+        extra: "x".repeat(REPORT_RESOURCE_LIMITS.maxAnyStringChars + 1)
+      },
+      { limit: `string-chars:${REPORT_RESOURCE_LIMITS.maxAnyStringChars}`, path: "$.extra" }
+    ],
+    [
+      {
+        schemaVersion: 1,
+        extra: Object.fromEntries(
+          Array.from(
+            { length: REPORT_RESOURCE_LIMITS.maxObjectProperties + 1 },
+            (_, index) => [`property${index}`, 0]
+          )
         )
-      )
-    }
+      },
+      { limit: "maxObjectProperties", path: "$.extra" }
+    ]
   ];
 
-  for (const payload of payloads) {
+  for (const [payload, resourceViolation] of payloads) {
     assert.deepEqual(
       readManagedReport({
         reportId: REPORT_ID,
@@ -327,7 +338,7 @@ test("managed reports reject amplified arrays, strings, and property sets before
         sidecarContents: null,
         retention: null
       }),
-      { ok: false, error: "invalid", reason: "report-resource-limit" }
+      { ok: false, error: "invalid", reason: "report-resource-limit", resourceViolation }
     );
   }
 });

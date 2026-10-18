@@ -7,7 +7,7 @@ import {
   SERVER_STORED_REPORT_JSON_MAX_BYTES
 } from "./report-resource-limits";
 import { isCanonicalReportShare } from "./report-locator";
-import { hasSafeReportCollections } from "./report-resource-policy";
+import { reportResourceViolation, type ReportResourceViolation } from "./report-resource-policy";
 import {
   matchProvenance,
   type ProvenanceMatch,
@@ -75,6 +75,11 @@ export type ManagedReportReadResult =
       violations?: string[];
       /** Present exactly when `reason` is `redaction-not-idempotent`. */
       redactionFailure?: ManagedReportRedactionFailure;
+      /**
+       * Present exactly when `reason` is `report-resource-limit`: the first
+       * limit the report breaks and where, for operator logs.
+       */
+      resourceViolation?: ReportResourceViolation;
     };
 
 /**
@@ -99,8 +104,9 @@ export function readManagedReport(input: {
   // cardinality. Reject amplified arrays, property sets, and render strings
   // before schema guards, semantic evaluation, redaction checks, or SSR walk
   // attacker-controlled collections.
-  if (!hasSafeReportCollections(publicReport)) {
-    return failure("report-resource-limit");
+  const resourceViolation = reportResourceViolation(publicReport);
+  if (resourceViolation !== null) {
+    return { ok: false, error: "invalid", reason: "report-resource-limit", resourceViolation };
   }
 
   const reportRead = readStoredScanReport(publicReport);
@@ -212,7 +218,9 @@ function provenanceFailure(match: Exclude<ProvenanceMatch, { status: "matched" }
   return failure(match.status === "digest-mismatch" ? "digest-mismatch" : match.reason);
 }
 
-function failure(reason: Exclude<ManagedReportReadFailureReason, "redaction-not-idempotent">): ManagedReportReadResult {
+function failure(
+  reason: Exclude<ManagedReportReadFailureReason, "redaction-not-idempotent" | "report-resource-limit">
+): ManagedReportReadResult {
   return { ok: false, error: "invalid", reason };
 }
 

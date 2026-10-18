@@ -25,6 +25,7 @@ import {
   type StoredReportEntry
 } from "./report-store-backend";
 import { R2_LIST_MAX_HEAD_CANDIDATES, ReportStoreRequestTimeoutError } from "./report-store-r2";
+import type { ReportResourceViolation } from "./report-resource-policy";
 import { REPORT_ID_PATTERN } from "./report-validation";
 import type { ReadStoredScanReportError, StoredScanReport } from "./scan-report-reader";
 import { sha256Hex } from "./sha256";
@@ -129,17 +130,19 @@ export type ScanReportBundleReconciliation =
 
 /**
  * The exact bundle a publication would write failed the managed reader, so
- * nothing was written. `reason` is the reader's own failure, and
+ * nothing was written. `reason` is the reader's own failure,
  * `redactionFailure` its fixed-point detail when the reason is
- * `redaction-not-idempotent` (null otherwise), both carried as data so a
- * caller can act on them without matching the message. The message names the
- * reason for operator logs and CLIs, unchanged by the detail, and is never a
- * public sentence.
+ * `redaction-not-idempotent`, and `resourceViolation` the first limit broken
+ * and its path when the reason is `report-resource-limit` (each null
+ * otherwise), all carried as data so a caller can act on them without
+ * matching the message. The message names the reason for operator logs and
+ * CLIs, unchanged by the detail, and is never a public sentence.
  */
 export class UnreadableManagedReportError extends Error {
   constructor(
     readonly reason: ManagedReportReadFailureReason,
-    readonly redactionFailure: ManagedReportRedactionFailure | null = null
+    readonly redactionFailure: ManagedReportRedactionFailure | null = null,
+    readonly resourceViolation: ReportResourceViolation | null = null
   ) {
     super(`Refusing to persist an unreadable managed report (${reason}).`);
     this.name = "UnreadableManagedReportError";
@@ -213,7 +216,11 @@ export function prepareScanReportBundle<T extends RuntimeScanReport>(
     retention
   });
   if (!managed.ok) {
-    throw new UnreadableManagedReportError(managed.reason, managed.redactionFailure ?? null);
+    throw new UnreadableManagedReportError(
+      managed.reason,
+      managed.redactionFailure ?? null,
+      managed.resourceViolation ?? null
+    );
   }
 
   const reportBytes = Buffer.byteLength(reportWire, "utf8");
