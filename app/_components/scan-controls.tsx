@@ -284,7 +284,7 @@ export function ScanControls({
               aria-describedby="run-mode-consent-description"
               className={form.compareConsent ? "active" : ""}
               disabled={!consentComparisonEnabled}
-              aria-label="Consent comparison (accept all versus reject all)"
+              aria-label="Consent, experimental (accept all versus reject all)"
               onClick={() =>
                 setForm((current) => ({
                   ...current,
