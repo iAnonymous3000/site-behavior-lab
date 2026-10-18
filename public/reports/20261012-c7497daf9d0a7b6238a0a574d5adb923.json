@@ -1,0 +1,1291 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Brave-list blocking off/on comparison",
+  "runLabels": {
+    "baseline": "No blocking",
+    "variant": "Brave-list blocking"
+  },
+  "requestedUrl": "https://www.python.org/",
+  "scannedAt": "2026-10-12T16:52:51.751Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 6598,
+      "firstPartyDomain": "www.python.org",
+      "totalRequests": 29,
+      "thirdPartyRequests": 4,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 2,
+      "cookies": 0,
+      "thirdPartyCookies": 0,
+      "storageEntries": 0,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 1
+    },
+    "conditions": {
+      "requestedUrl": "https://www.python.org/",
+      "finalUrl": "https://www.python.org/",
+      "scannedAt": "2026-10-12T16:52:58.495Z",
+      "chromiumVersion": "153.0.8010.12",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-09-28T13:50:37.752Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.63.0 from github-actions-ubuntu with browser 153.0.8010.12, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.python.org/",
+        "domain": "www.python.org",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 56
+      },
+      {
+        "id": 2,
+        "url": "https://analytics.python.org/{seg}/{seg}",
+        "domain": "analytics.python.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.python.org/",
+          "initiatorDomain": "www.python.org"
+        },
+        "startedAtMs": 632
+      },
+      {
+        "id": 3,
+        "url": "https://www.python.org/static/{seg}/{seg}/{seg}",
+        "domain": "www.python.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.python.org/",
+          "initiatorDomain": "www.python.org"
+        },
+        "startedAtMs": 635
+      },
+      {
+        "id": 4,
+        "url": "https://www.python.org/static/{seg}/{seg}",
+        "domain": "www.python.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.python.org/",
+          "initiatorDomain": "www.python.org"
+        },
+        "startedAtMs": 635
+      },
+      {
+        "id": 5,
+        "url": "https://www.python.org/static/{seg}/{seg}",
+        "domain": "www.python.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.python.org/",
+          "initiatorDomain": "www.python.org"
+        },
+        "startedAtMs": 635
+      },
+      {
+        "id": 6,
+        "url": "https://www.python.org/static/{seg}/{seg}",
+        "domain": "www.python.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.python.org/",
+          "initiatorDomain": "www.python.org"
+        },
+        "startedAtMs": 636
+      },
+      {
+        "id": 7,
+        "url": "https://ajax.googleapis.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "ajax.googleapis.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.python.org/",
+          "initiatorDomain": "www.python.org"
+        },
+        "startedAtMs": 636
+      },
+      {
+        "id": 8,
+        "url": "https://www.python.org/static/{seg}/{seg}",
+        "domain": "www.python.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.python.org/",
+          "initiatorDomain": "www.python.org"
+        },
+        "startedAtMs": 637
+      },
+      {
+        "id": 9,
+        "url": "https://ajax.googleapis.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "ajax.googleapis.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.python.org/",
+          "initiatorDomain": "www.python.org"
+        },
+        "startedAtMs": 639
+      },
+      {
+        "id": 10,
+        "url": "https://ajax.googleapis.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "ajax.googleapis.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.python.org/",
+          "initiatorDomain": "www.python.org"
+        },
+        "startedAtMs": 657
+      },
+      {
+        "id": 11,
+        "url": "https://www.python.org/static/{seg}/{seg}/{seg}",
+        "domain": "www.python.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.python.org/",
+          "initiatorDomain": "www.python.org"
+        },
+        "startedAtMs": 669
+      },
+      {
+        "id": 12,
+        "url": "https://www.python.org/static/{seg}/{seg}/{seg}",
+        "domain": "www.python.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.python.org/",
+          "initiatorDomain": "www.python.org"
+        },
+        "startedAtMs": 910
+      },
+      {
+        "id": 13,
+        "url": "https://www.python.org/static/{seg}/{seg}",
+        "domain": "www.python.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.python.org/",
+          "initiatorDomain": "www.python.org"
+        },
+        "startedAtMs": 932
+      },
+      {
+        "id": 14,
+        "url": "https://www.python.org/static/{seg}/{seg}",
+        "domain": "www.python.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.python.org/static/{seg}/{seg}",
+          "initiatorDomain": "www.python.org"
+        },
+        "startedAtMs": 1280
+      },
+      {
+        "id": 15,
+        "url": "https://www.python.org/static/{seg}/{seg}",
+        "domain": "www.python.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.python.org/static/{seg}/{seg}",
+          "initiatorDomain": "www.python.org"
+        },
+        "startedAtMs": 1281
+      },
+      {
+        "id": 16,
+        "url": "https://www.python.org/static/{seg}/{seg}",
+        "domain": "www.python.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.python.org/static/{seg}/{seg}",
+          "initiatorDomain": "www.python.org"
+        },
+        "startedAtMs": 1283
+      },
+      {
+        "id": 17,
+        "url": "https://www.python.org/static/{seg}/{seg}",
+        "domain": "www.python.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.python.org/static/{seg}/{seg}",
+          "initiatorDomain": "www.python.org"
+        },
+        "startedAtMs": 1284
+      },
+      {
+        "id": 18,
+        "url": "https://www.python.org/static/{seg}/{seg}",
+        "domain": "www.python.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.python.org/static/{seg}/{seg}",
+          "initiatorDomain": "www.python.org"
+        },
+        "startedAtMs": 1284
+      },
+      {
+        "id": 19,
+        "url": "https://www.python.org/static/{seg}/{seg}",
+        "domain": "www.python.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.python.org/static/{seg}/{seg}",
+          "initiatorDomain": "www.python.org"
+        },
+        "startedAtMs": 1285
+      },
+      {
+        "id": 20,
+        "url": "https://www.python.org/{seg}",
+        "domain": "www.python.org",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://ajax.googleapis.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "ajax.googleapis.com"
+        },
+        "startedAtMs": 1310
+      },
+      {
+        "id": 21,
+        "url": "https://{label}.python.org/{seg}",
+        "domain": "{label}.python.org",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://ajax.googleapis.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "ajax.googleapis.com"
+        },
+        "startedAtMs": 1332
+      },
+      {
+        "id": 22,
+        "url": "https://{label}.statuspage.io/api/{seg}/{seg}",
+        "domain": "{label}.statuspage.io",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://ajax.googleapis.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "ajax.googleapis.com"
+        },
+        "startedAtMs": 1333
+      },
+      {
+        "id": 23,
+        "url": "https://www.python.org/{seg}/{seg}",
+        "domain": "www.python.org",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://ajax.googleapis.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "ajax.googleapis.com"
+        },
+        "startedAtMs": 1606
+      },
+      {
+        "id": 24,
+        "url": "https://www.python.org/{seg}/{seg}",
+        "domain": "www.python.org",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://ajax.googleapis.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "ajax.googleapis.com"
+        },
+        "startedAtMs": 1607
+      },
+      {
+        "id": 25,
+        "url": "https://www.python.org/{seg}/{seg}",
+        "domain": "www.python.org",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://ajax.googleapis.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "ajax.googleapis.com"
+        },
+        "startedAtMs": 1607
+      },
+      {
+        "id": 26,
+        "url": "https://www.python.org/{seg}/{seg}",
+        "domain": "www.python.org",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://ajax.googleapis.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "ajax.googleapis.com"
+        },
+        "startedAtMs": 1609
+      },
+      {
+        "id": 27,
+        "url": "https://www.python.org/{seg}/{seg}",
+        "domain": "www.python.org",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://ajax.googleapis.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "ajax.googleapis.com"
+        },
+        "startedAtMs": 1610
+      },
+      {
+        "id": 28,
+        "url": "https://www.python.org/{seg}/{seg}",
+        "domain": "www.python.org",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://ajax.googleapis.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "ajax.googleapis.com"
+        },
+        "startedAtMs": 1610
+      },
+      {
+        "id": 29,
+        "url": "https://www.python.org/{seg}/{seg}",
+        "domain": "www.python.org",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://ajax.googleapis.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "ajax.googleapis.com"
+        },
+        "startedAtMs": 1610
+      }
+    ],
+    "domains": [
+      {
+        "domain": "ajax.googleapis.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet",
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.statuspage.io",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "www.python.org",
+        "requests": 23,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "script",
+          "stylesheet",
+          "image",
+          "font",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "analytics.python.org",
+        "requests": 1,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.python.org",
+        "requests": 1,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      }
+    ],
+    "cookies": [],
+    "storage": [],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [],
+    "privacyPolicy": {
+      "url": "https://{label}.python.org/{seg}/{seg}",
+      "claims": [],
+      "mentionedEntities": [],
+      "unmentionedEntities": [],
+      "policyTextLength": 11618
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "This scan typed a synthetic test value into 1 form field with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored. Observed requests during typing and the following wait are included in the request log. Teardown-only transmissions are not measured.",
+      "The scanner's search of this page for a privacy-policy link did not cover every link, so privacy-policy findings for this visit are incomplete.",
+      "Read the site's privacy policy (https://{label}.python.org/{seg}/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 6732,
+      "firstPartyDomain": "www.python.org",
+      "totalRequests": 28,
+      "thirdPartyRequests": 4,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 2,
+      "cookies": 0,
+      "thirdPartyCookies": 0,
+      "storageEntries": 0,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 1
+    },
+    "conditions": {
+      "requestedUrl": "https://www.python.org/",
+      "finalUrl": "https://www.python.org/",
+      "scannedAt": "2026-10-12T16:52:51.751Z",
+      "chromiumVersion": "153.0.8010.12",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-09-28T13:50:37.752Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.63.0 from github-actions-ubuntu with browser 153.0.8010.12, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.python.org/",
+        "domain": "www.python.org",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 50
+      },
+      {
+        "id": 3,
+        "url": "https://www.python.org/static/{seg}/{seg}/{seg}",
+        "domain": "www.python.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.python.org/",
+          "initiatorDomain": "www.python.org"
+        },
+        "startedAtMs": 275
+      },
+      {
+        "id": 4,
+        "url": "https://www.python.org/static/{seg}/{seg}",
+        "domain": "www.python.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.python.org/",
+          "initiatorDomain": "www.python.org"
+        },
+        "startedAtMs": 277
+      },
+      {
+        "id": 5,
+        "url": "https://www.python.org/static/{seg}/{seg}",
+        "domain": "www.python.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.python.org/",
+          "initiatorDomain": "www.python.org"
+        },
+        "startedAtMs": 277
+      },
+      {
+        "id": 6,
+        "url": "https://www.python.org/static/{seg}/{seg}",
+        "domain": "www.python.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.python.org/",
+          "initiatorDomain": "www.python.org"
+        },
+        "startedAtMs": 278
+      },
+      {
+        "id": 7,
+        "url": "https://ajax.googleapis.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "ajax.googleapis.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.python.org/",
+          "initiatorDomain": "www.python.org"
+        },
+        "startedAtMs": 278
+      },
+      {
+        "id": 8,
+        "url": "https://www.python.org/static/{seg}/{seg}",
+        "domain": "www.python.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.python.org/",
+          "initiatorDomain": "www.python.org"
+        },
+        "startedAtMs": 278
+      },
+      {
+        "id": 9,
+        "url": "https://ajax.googleapis.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "ajax.googleapis.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.python.org/",
+          "initiatorDomain": "www.python.org"
+        },
+        "startedAtMs": 278
+      },
+      {
+        "id": 10,
+        "url": "https://ajax.googleapis.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "ajax.googleapis.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.python.org/",
+          "initiatorDomain": "www.python.org"
+        },
+        "startedAtMs": 301
+      },
+      {
+        "id": 11,
+        "url": "https://www.python.org/static/{seg}/{seg}/{seg}",
+        "domain": "www.python.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.python.org/",
+          "initiatorDomain": "www.python.org"
+        },
+        "startedAtMs": 313
+      },
+      {
+        "id": 12,
+        "url": "https://www.python.org/static/{seg}/{seg}/{seg}",
+        "domain": "www.python.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.python.org/",
+          "initiatorDomain": "www.python.org"
+        },
+        "startedAtMs": 371
+      },
+      {
+        "id": 13,
+        "url": "https://www.python.org/static/{seg}/{seg}",
+        "domain": "www.python.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.python.org/",
+          "initiatorDomain": "www.python.org"
+        },
+        "startedAtMs": 483
+      },
+      {
+        "id": 14,
+        "url": "https://www.python.org/static/{seg}/{seg}",
+        "domain": "www.python.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.python.org/static/{seg}/{seg}",
+          "initiatorDomain": "www.python.org"
+        },
+        "startedAtMs": 537
+      },
+      {
+        "id": 15,
+        "url": "https://www.python.org/static/{seg}/{seg}",
+        "domain": "www.python.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.python.org/static/{seg}/{seg}",
+          "initiatorDomain": "www.python.org"
+        },
+        "startedAtMs": 537
+      },
+      {
+        "id": 16,
+        "url": "https://www.python.org/static/{seg}/{seg}",
+        "domain": "www.python.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.python.org/static/{seg}/{seg}",
+          "initiatorDomain": "www.python.org"
+        },
+        "startedAtMs": 540
+      },
+      {
+        "id": 17,
+        "url": "https://www.python.org/static/{seg}/{seg}",
+        "domain": "www.python.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.python.org/static/{seg}/{seg}",
+          "initiatorDomain": "www.python.org"
+        },
+        "startedAtMs": 541
+      },
+      {
+        "id": 18,
+        "url": "https://www.python.org/static/{seg}/{seg}",
+        "domain": "www.python.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.python.org/static/{seg}/{seg}",
+          "initiatorDomain": "www.python.org"
+        },
+        "startedAtMs": 541
+      },
+      {
+        "id": 19,
+        "url": "https://www.python.org/static/{seg}/{seg}",
+        "domain": "www.python.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.python.org/static/{seg}/{seg}",
+          "initiatorDomain": "www.python.org"
+        },
+        "startedAtMs": 542
+      },
+      {
+        "id": 20,
+        "url": "https://www.python.org/{seg}",
+        "domain": "www.python.org",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://ajax.googleapis.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "ajax.googleapis.com"
+        },
+        "startedAtMs": 558
+      },
+      {
+        "id": 21,
+        "url": "https://{label}.python.org/{seg}",
+        "domain": "{label}.python.org",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://ajax.googleapis.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "ajax.googleapis.com"
+        },
+        "startedAtMs": 593
+      },
+      {
+        "id": 22,
+        "url": "https://{label}.statuspage.io/api/{seg}/{seg}",
+        "domain": "{label}.statuspage.io",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://ajax.googleapis.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "ajax.googleapis.com"
+        },
+        "startedAtMs": 594
+      },
+      {
+        "id": 23,
+        "url": "https://www.python.org/{seg}/{seg}",
+        "domain": "www.python.org",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://ajax.googleapis.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "ajax.googleapis.com"
+        },
+        "startedAtMs": 664
+      },
+      {
+        "id": 24,
+        "url": "https://www.python.org/{seg}/{seg}",
+        "domain": "www.python.org",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://ajax.googleapis.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "ajax.googleapis.com"
+        },
+        "startedAtMs": 664
+      },
+      {
+        "id": 25,
+        "url": "https://www.python.org/{seg}/{seg}",
+        "domain": "www.python.org",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://ajax.googleapis.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "ajax.googleapis.com"
+        },
+        "startedAtMs": 665
+      },
+      {
+        "id": 26,
+        "url": "https://www.python.org/{seg}/{seg}",
+        "domain": "www.python.org",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://ajax.googleapis.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "ajax.googleapis.com"
+        },
+        "startedAtMs": 665
+      },
+      {
+        "id": 27,
+        "url": "https://www.python.org/{seg}/{seg}",
+        "domain": "www.python.org",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://ajax.googleapis.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "ajax.googleapis.com"
+        },
+        "startedAtMs": 667
+      },
+      {
+        "id": 28,
+        "url": "https://www.python.org/{seg}/{seg}",
+        "domain": "www.python.org",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://ajax.googleapis.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "ajax.googleapis.com"
+        },
+        "startedAtMs": 667
+      },
+      {
+        "id": 29,
+        "url": "https://www.python.org/{seg}/{seg}",
+        "domain": "www.python.org",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://ajax.googleapis.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "ajax.googleapis.com"
+        },
+        "startedAtMs": 668
+      }
+    ],
+    "domains": [
+      {
+        "domain": "ajax.googleapis.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet",
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.statuspage.io",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "www.python.org",
+        "requests": 23,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "script",
+          "stylesheet",
+          "image",
+          "font",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "{label}.python.org",
+        "requests": 1,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      }
+    ],
+    "cookies": [],
+    "storage": [],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [],
+    "privacyPolicy": {
+      "url": "https://{label}.python.org/{seg}/{seg}",
+      "claims": [],
+      "mentionedEntities": [],
+      "unmentionedEntities": [],
+      "policyTextLength": 11618
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "This scan typed a synthetic test value into 1 form field with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored. Observed requests during typing and the following wait are included in the request log. Teardown-only transmissions are not measured.",
+      "The scanner's search of this page for a privacy-policy link did not cover every link, so privacy-policy findings for this visit are incomplete.",
+      "Read the site's privacy policy (https://{label}.python.org/{seg}/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 29,
+      "after": 28,
+      "delta": -1
+    },
+    "thirdPartyRequests": {
+      "before": 4,
+      "after": 4,
+      "delta": 0
+    },
+    "knownTrackerRequests": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "thirdPartyDomains": {
+      "before": 2,
+      "after": 2,
+      "delta": 0
+    },
+    "cookies": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "thirdPartyCookies": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "storageEntries": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "fingerprintEvents": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "analytics.python.org",
+        "requests": 1,
+        "tracker": null
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [],
+    "addedCookies": [],
+    "removedCookies": [],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [],
+    "removedProvenance": [],
+    "shieldsBlockedRequests": {
+      "before": 1,
+      "after": 1,
+      "delta": 0
+    }
+  },
+  "warnings": [
+    "Brave-list blocking comparison runs should be collected under matched crawl conditions, and the blocking run is a simulation with Brave's engine and default lists in this scanner's browser, not a live Brave visit. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "The two visits ran in randomized order; the \"Brave-list blocking\" visit ran first.",
+    "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "No blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "No blocking: This scan typed a synthetic test value into 1 form field with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored. Observed requests during typing and the following wait are included in the request log. Teardown-only transmissions are not measured.",
+    "No blocking: The scanner's search of this page for a privacy-policy link did not cover every link, so privacy-policy findings for this visit are incomplete.",
+    "No blocking: Read the site's privacy policy (https://{label}.python.org/{seg}/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+    "Brave-list blocking: This scan typed a synthetic test value into 1 form field with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored. Observed requests during typing and the following wait are included in the request log. Teardown-only transmissions are not measured.",
+    "Brave-list blocking: The scanner's search of this page for a privacy-policy link did not cover every link, so privacy-policy findings for this visit are incomplete.",
+    "Brave-list blocking: Read the site's privacy policy (https://{label}.python.org/{seg}/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+  ],
+  "share": {
+    "id": "20261012-c7497daf9d0a7b6238a0a574d5adb923",
+    "path": "/reports/20261012-c7497daf9d0a7b6238a0a574d5adb923/",
+    "jsonPath": "/reports/20261012-c7497daf9d0a7b6238a0a574d5adb923.json"
+  }
+}
