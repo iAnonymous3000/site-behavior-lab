@@ -18,8 +18,16 @@ updates:
         # includes one arrives red. They move only through the coordinated
         # toolchain process tracked by the weekly drift issue, and new
         # advisories still fail the npm audit gate regardless of this file.
+        # pdfjs-dist and undici are inputs of the privacy-policy detector:
+        # undici fetches a direct PDF policy through the scan proxy and pdf.js
+        # reads it, so lib/policy-pdf-libraries.test.ts refuses either at any
+        # version but the one the current policy-text-cross-check reads with,
+        # and a group PR that includes one (#266 had both) arrives red. They
+        # move only in a detector epoch. They are excluded but not ignored:
+        # the weekly drift issue does not track them, so their own PRs, red
+        # by design, are the only notice of an upstream release.
         patterns: ["*"]
-        exclude-patterns: ["playwright", "tldts"]
+        exclude-patterns: ["playwright", "tldts", "pdfjs-dist", "undici"]
         update-types: ["minor", "patch"]
     ignore:
       - dependency-name: "playwright"
