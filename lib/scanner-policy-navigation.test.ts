@@ -3,6 +3,7 @@ import { createServer } from "node:http";
 import { connect } from "node:net";
 import { test } from "node:test";
 import { closeSharedBrowserForTests, scanSiteWithMeasurement } from "./scanner";
+import { DETECTOR_VERSIONS } from "./measurement-kernel";
 
 test("privacy-policy probing rejects server redirects and render-time navigation to another party", { timeout: 30_000 }, async () => {
   const foreignPolicyHits: string[] = [];
@@ -202,7 +203,7 @@ test("privacy-policy probing reads only a same-site document that is a policy", 
       assert.notEqual(policyPhase, undefined, `${site}: the page offered a policy link, so the visit was attempted`);
       assert.deepEqual(
         measurement.measurement.detectors["privacy-policy"],
-        { version: "policy-text-cross-check@8", status: "failed", reason: "load-failed", phaseId: policyPhase!.phaseId },
+        { version: "policy-text-cross-check@9", status: "failed", reason: "load-failed", phaseId: policyPhase!.phaseId },
         site
       );
       assert.equal(measurement.evidence.privacyPolicy, undefined, site);
@@ -224,7 +225,7 @@ test("privacy-policy probing reads only a same-site document that is a policy", 
     const { result, measurement } = await scan("real-policy");
     const policyPhase = measurement.measurement.phases.find((phase) => phase.kind === "policy-analysis");
     assert.deepEqual(measurement.measurement.detectors["privacy-policy"], {
-      version: "policy-text-cross-check@8",
+      version: "policy-text-cross-check@9",
       status: "complete",
       phaseId: policyPhase!.phaseId
     });
@@ -300,7 +301,7 @@ test("privacy-policy text never counts a vendor loader in the page body as namin
     );
     const policyPhase = measurement.measurement.phases.find((phase) => phase.kind === "policy-analysis");
     assert.deepEqual(measurement.measurement.detectors["privacy-policy"], {
-      version: "policy-text-cross-check@8",
+      version: "policy-text-cross-check@9",
       status: "complete",
       phaseId: policyPhase!.phaseId
     });
@@ -381,6 +382,242 @@ test("observe-mode consent probing ignores page-owned geometry navigation hooks"
     }
   } finally {
     delete process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+});
+
+/**
+ * A policy page that fetches its own text after DOMContentLoaded, the way a
+ * OneTrust privacy notice does. The shell carries the site's chrome and a
+ * "Privacy Policy" heading, so it passes for a policy; only the fetched text
+ * names Google, whose pixel the homepage loads. Reading the shell published
+ * "Google is not named in the privacy policy" over a policy that names it.
+ */
+async function scanClientRenderedPolicy(options: {
+  site: string;
+  noticeDelayMs: number;
+  proxyTransactionLimitForTests?: number;
+}): Promise<{
+  scanned: Awaited<ReturnType<typeof scanSiteWithMeasurement>>;
+  policyRequests: number;
+}> {
+  const filler = "Lamps, rugs and chairs for every room, delivered to your door. ".repeat(12);
+  const nav = `<nav>${"Shop Lighting Rugs Chairs Help Contact Careers Press Accessibility Sitemap ".repeat(6)}</nav>`;
+  const footer = `<footer>Example Lamps. <a href="/privacy-policy">Privacy Policy</a> Terms of use.</footer>`;
+  const pixel = `<img src="http://www.google-analytics.com/collect?v=1&t=pageview" width="1" height="1" alt="">`;
+  const shell =
+    `<!doctype html><title>Privacy Policy | Example Lamps</title>${nav}<main><h1>Privacy Policy</h1>` +
+    `<div id="notice"></div></main>${footer}` +
+    `<script>fetch("/privacy-notice.json").then((r) => r.json()).then((notice) => {` +
+    `document.getElementById("notice").textContent = notice.text; });</script>`;
+  const notice = JSON.stringify({
+    text: `This privacy policy explains what we collect. We use Google Analytics to measure visits. ${filler}`
+  });
+  let policyRequests = 0;
+  const upstream = createServer((request, response) => {
+    const host = request.headers.host?.split(":")[0] ?? "";
+    const path = new URL(request.url ?? "/", "http://fixture.test").pathname;
+    if (host === "www.google-analytics.com") {
+      response.writeHead(204);
+      response.end();
+      return;
+    }
+    if (path === "/privacy-notice.json") {
+      setTimeout(() => {
+        response.writeHead(200, { "content-type": "application/json" });
+        response.end(notice);
+      }, options.noticeDelayMs);
+      return;
+    }
+    response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+    if (path === "/privacy-policy") {
+      policyRequests += 1;
+      response.end(shell);
+      return;
+    }
+    const images = Array.from({ length: 4 }, (_, index) => `<img src="/room-${index}.png" alt="">`).join("");
+    response.end(
+      `<!doctype html><title>Example Lamps</title><main><h1>Welcome</h1><p>${filler}</p>${images}</main>${footer}${pixel}`
+    );
+  });
+  await new Promise<void>((resolve, reject) => {
+    upstream.once("error", reject);
+    upstream.listen(0, "127.0.0.1", resolve);
+  });
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+  try {
+    const scanned = await scanSiteWithMeasurement(
+      { url: `http://${options.site}/`, device: "desktop", gpcEnabled: false, consentMode: "observe" },
+      {
+        publicUrlAlreadyVerified: true,
+        verifyPublicUrl: async () => undefined,
+        resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+        connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"),
+        resolveCnameChain: async () => [],
+        ...(options.proxyTransactionLimitForTests === undefined
+          ? {}
+          : { proxyTransactionLimitForTests: options.proxyTransactionLimitForTests })
+      }
+    );
+    return { scanned, policyRequests };
+  } finally {
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+}
+
+test("a policy that renders its text after the render delay is read in full", { timeout: 60_000 }, async () => {
+  // 1.6 s is past the fixed one-second render delay the read used to take.
+  const { scanned } = await scanClientRenderedPolicy({ site: "late-notice.test", noticeDelayMs: 1_600 });
+  const { result, measurement } = scanned;
+  const policyPhase = measurement.measurement.phases.find((phase) => phase.kind === "policy-analysis");
+  assert.deepEqual(measurement.measurement.detectors["privacy-policy"], {
+    version: DETECTOR_VERSIONS["privacy-policy"],
+    status: "complete",
+    phaseId: policyPhase!.phaseId
+  });
+  assert.deepEqual(result.privacyPolicy?.mentionedEntities, ["Google"]);
+  assert.deepEqual(result.privacyPolicy?.unmentionedEntities, []);
+  assert.ok((result.privacyPolicy?.policyTextLength ?? 0) > 700, "the read includes the fetched policy text");
+});
+
+test("a policy still fetching its text when the settle wait ends is never read as the policy", { timeout: 60_000 }, async () => {
+  // Past the render delay and the settle bound together: the shell is all the
+  // page holds when the wait ends, and its silence about Google is not the
+  // policy's.
+  const { scanned } = await scanClientRenderedPolicy({ site: "stalled-notice.test", noticeDelayMs: 6_500 });
+  const { result, measurement } = scanned;
+  const policyPhase = measurement.measurement.phases.find((phase) => phase.kind === "policy-analysis");
+  assert.deepEqual(measurement.measurement.detectors["privacy-policy"], {
+    version: DETECTOR_VERSIONS["privacy-policy"],
+    status: "failed",
+    reason: "load-failed",
+    phaseId: policyPhase!.phaseId
+  });
+  assert.equal(result.privacyPolicy, undefined);
+  assert.equal(
+    measurement.measurement.qualityFacts.captureLoss.some(
+      (loss) => loss.detail === "policy-visit" && loss.kind === "dropped" && loss.phaseId === policyPhase!.phaseId
+    ),
+    true
+  );
+  assert.equal(result.warnings.some((warning) => warning.startsWith("Read the site's privacy policy")), false);
+});
+
+test("a policy visit after the scan's proxy budget has refused a request is skipped as the scanner's budget", { timeout: 60_000 }, async () => {
+  // The homepage spends seven proxy transactions (the document, four images,
+  // and the pixel's request and its HSTS upgrade); a limit of three refuses
+  // the rest of it. The policy page opens
+  // through the same proxy, so its requests would be refused too: before,
+  // that visit failed in milliseconds and was published as a policy that
+  // failed to load.
+  const { scanned, policyRequests } = await scanClientRenderedPolicy({
+    site: "spent-budget.test",
+    noticeDelayMs: 0,
+    proxyTransactionLimitForTests: 3
+  });
+  const { result, measurement } = scanned;
+  assert.equal(measurement.measurement.phases.some((phase) => phase.kind === "policy-analysis"), false);
+  assert.deepEqual(measurement.measurement.detectors["privacy-policy"], {
+    version: DETECTOR_VERSIONS["privacy-policy"],
+    status: "skipped",
+    reason: "budget-unavailable"
+  });
+  assert.equal(
+    measurement.measurement.qualityFacts.captureLoss.some((loss) => loss.detail === "policy-visit" && loss.kind === "cap"),
+    true
+  );
+  assert.equal(result.privacyPolicy, undefined);
+  assert.equal(policyRequests, 0, "the scanner never opened the policy page it could not finish");
+});
+
+test("a policy page whose own request the proxy refuses mid-visit is never read as the policy", { timeout: 60_000 }, async () => {
+  // The homepage spends seven proxy transactions: the document, four images,
+  // and the pixel's request and its HSTS upgrade. The policy document is the
+  // eighth, so a limit of eight admits the policy page and refuses only the
+  // request carrying its text: the up-front check passes and the refusal
+  // happens during the read. The shell's silence about Google must not be
+  // published as the policy's.
+  const { scanned, policyRequests } = await scanClientRenderedPolicy({
+    site: "mid-visit-budget.test",
+    noticeDelayMs: 0,
+    proxyTransactionLimitForTests: 8
+  });
+  const { result, measurement } = scanned;
+  const policyPhase = measurement.measurement.phases.find((phase) => phase.kind === "policy-analysis");
+  assert.equal(policyRequests, 1, "the policy page itself was admitted and served");
+  assert.deepEqual(measurement.measurement.detectors["privacy-policy"], {
+    version: DETECTOR_VERSIONS["privacy-policy"],
+    status: "failed",
+    reason: "load-failed",
+    phaseId: policyPhase!.phaseId
+  });
+  assert.equal(result.privacyPolicy, undefined);
+  assert.equal(result.warnings.some((warning) => warning.startsWith("Read the site's privacy policy")), false);
+});
+
+test("a long policy is read even while its page keeps a background fetch open", { timeout: 60_000 }, async () => {
+  // Real policy pages keep tracking and chat fetches open long after the
+  // policy has rendered: a USA TODAY Network policy page held a DoubleClick
+  // activity fetch and nine chat logging calls open past the settle wait.
+  // Withholding every such read discarded complete 62,000-character policies,
+  // so only a short read is suspect.
+  const filler = "We collect the information you give us and information about how you use the site. ".repeat(48);
+  const policy =
+    `<!doctype html><title>Privacy Policy | Example Lamps</title><main><h1>Privacy Policy</h1>` +
+    `<p>This privacy policy explains what we collect. We use Google Analytics to measure visits. ${filler}</p></main>` +
+    `<script>fetch("/beacon-that-never-answers");</script>`;
+  const footer = `<footer>Example Lamps. <a href="/privacy-policy">Privacy Policy</a> Terms of use.</footer>`;
+  const pixel = `<img src="http://www.google-analytics.com/collect?v=1&t=pageview" width="1" height="1" alt="">`;
+  const held: Array<{ end: () => void }> = [];
+  const upstream = createServer((request, response) => {
+    const host = request.headers.host?.split(":")[0] ?? "";
+    const path = new URL(request.url ?? "/", "http://fixture.test").pathname;
+    if (host === "www.google-analytics.com") {
+      response.writeHead(204);
+      response.end();
+      return;
+    }
+    if (path === "/beacon-that-never-answers") {
+      held.push(response);
+      return;
+    }
+    response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+    response.end(
+      path === "/privacy-policy"
+        ? policy
+        : `<!doctype html><title>Example Lamps</title><main><h1>Welcome</h1><p>${"Lamps for every room. ".repeat(40)}</p></main>${footer}${pixel}`
+    );
+  });
+  await new Promise<void>((resolve, reject) => {
+    upstream.once("error", reject);
+    upstream.listen(0, "127.0.0.1", resolve);
+  });
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+  try {
+    const { result, measurement } = await scanSiteWithMeasurement(
+      { url: "http://busy-policy.test/", device: "desktop", gpcEnabled: false, consentMode: "observe" },
+      {
+        publicUrlAlreadyVerified: true,
+        verifyPublicUrl: async () => undefined,
+        resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+        connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"),
+        resolveCnameChain: async () => []
+      }
+    );
+    const policyPhase = measurement.measurement.phases.find((phase) => phase.kind === "policy-analysis");
+    assert.deepEqual(measurement.measurement.detectors["privacy-policy"], {
+      version: DETECTOR_VERSIONS["privacy-policy"],
+      status: "complete",
+      phaseId: policyPhase!.phaseId
+    });
+    assert.deepEqual(result.privacyPolicy?.mentionedEntities, ["Google"]);
+    assert.ok((result.privacyPolicy?.policyTextLength ?? 0) > 3_000);
+  } finally {
+    for (const response of held) response.end();
     await closeSharedBrowserForTests();
     await new Promise<void>((resolve) => upstream.close(() => resolve()));
   }

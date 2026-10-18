@@ -237,6 +237,22 @@ export const DETECTOR_VALIDATION_FIXTURES: readonly DetectorValidationFixture[] 
     file: "lib/privacy-policy.test.ts",
     testName: "pickPrivacyPolicyLink accepts a known policy-hosting service but not arbitrary off-site policies",
     verifies: "An unrelated company's policy cannot be attributed to the scanned site."
+  },
+  {
+    detector: "privacy-policy",
+    kind: "positive",
+    environment: "real-chromium",
+    file: "lib/scanner-policy-navigation.test.ts",
+    testName: "a policy that renders its text after the render delay is read in full",
+    verifies: "A policy page that fetches its text after load, as a CMP-hosted notice does, is read once its network goes quiet, and the company it names counts as named."
+  },
+  {
+    detector: "privacy-policy",
+    kind: "negative",
+    environment: "real-chromium",
+    file: "lib/scanner-policy-navigation.test.ts",
+    testName: "a policy still fetching its text when the settle wait ends is never read as the policy",
+    verifies: "A short page shell read while its policy request is still open publishes no policy and no company the policy does not name."
   }
 ] as const;
 

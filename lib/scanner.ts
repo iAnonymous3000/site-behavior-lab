@@ -386,11 +386,31 @@ const CONSENT_RELOAD_SETTLE_IDLE_TIMEOUT_MS = 1_500;
 const PROXY_TRAFFIC_BUDGET_WARNING =
   "The scan stopped opening additional proxy requests after reaching its connection and target safety budget.";
 // Privacy-policy cross-check: budget needed for the extra page visit, its own
-// navigation timeout, a short wait for JS-rendered policies (CMP-hosted pages),
-// and hard caps on links considered, subresources loaded, and text analyzed.
+// navigation timeout, a wait for JS-rendered policies (CMP-hosted pages) to
+// finish fetching and rendering, and hard caps on links considered,
+// subresources loaded, and text analyzed.
 const PRIVACY_POLICY_MIN_BUDGET_MS = 7_000;
 const PRIVACY_POLICY_NAV_TIMEOUT_MS = 8_000;
 const PRIVACY_POLICY_RENDER_WAIT_MS = 1_000;
+/**
+ * How long the policy read waits, beyond the render delay, for the page's
+ * network to go quiet. A OneTrust notice fetches the policy over three
+ * sequential requests and injects it about a second after DOMContentLoaded,
+ * so the fixed render delay alone read the page shell on slower visits.
+ */
+const PRIVACY_POLICY_SETTLE_WAIT_MS = 4_000;
+/** Requests whose responses can still change what the policy page says. */
+const POLICY_RENDER_RESOURCE_TYPES: ReadonlySet<string> = new Set(["document", "script", "xhr", "fetch"]);
+/**
+ * Below this length a policy read may be the page shell rather than the
+ * policy, so a sign that the page had not finished loading withholds it.
+ * Every read under 3,000 characters examined was a shell or a hub: 688 for
+ * the USA TODAY Network shell, 612 and 974 for Khan Academy's policy, which
+ * renders 27,886 characters. Reads of 3,000 to 5,000 include genuine short
+ * policies (lobste.rs, nih.gov, irs.gov), and 214 of 249 policy reads in the
+ * October news sweep were over 10,000.
+ */
+const POLICY_SHELL_SUSPECT_MAX_CHARS = 3_000;
 const MAX_POLICY_PDF_REDIRECTS = 5;
 const MAX_POLICY_LINK_CANDIDATES = 12;
 export const MAX_POLICY_LINKS_INSPECTED = 2_000;
@@ -3060,7 +3080,17 @@ export async function scanSiteWithMeasurement(
     // "/" offers one the scanner cannot read as a policy. That is a failed
     // policy visit, not a page with no policy link (see offersPrivacyPolicyLink).
     const policyCandidate = !pageSubjectInvalid && offersPrivacyPolicyLink(policyLinks, finalParsed.hostname);
-    const policyBudgetAvailable = MAX_SCAN_DURATION_MS - (Date.now() - started) >= PRIVACY_POLICY_MIN_BUDGET_MS;
+    // The policy page opens through this scan's proxy, whose traffic budget
+    // the visit has already been spending. Once that budget has refused a
+    // request, the policy page's own requests are refused too: in the October
+    // news sweep, 52 of 68 budget-capped USA TODAY Network visits failed the
+    // policy read in about 90 ms on the proxy's own 509 and published it as a
+    // policy load failure, and 16 more read a shell whose policy text was never
+    // fetched. Both are the scanner's budget, so the probe is skipped and
+    // counted as budget-unavailable before it starts.
+    const policyBudgetAvailable =
+      MAX_SCAN_DURATION_MS - (Date.now() - started) >= PRIVACY_POLICY_MIN_BUDGET_MS &&
+      policyProxyCapacityAvailable(scanProxy.getDiagnostics());
     const policyPhaseId = policyCandidate && policyBudgetAvailable ? measurementKernel.beginPhase("policy-analysis") : null;
     if (policyLinksTruncated && !pageSubjectInvalid) {
       measurementKernel.recordCaptureLoss({
@@ -3116,6 +3146,7 @@ export async function scanSiteWithMeasurement(
             scannedPageUrl: finalParsed.href,
             requests: publicRequests,
             proxyServer: scanProxy.server,
+            proxyRefusals: () => proxyRefusalCount(scanProxy.getDiagnostics()),
             started,
             verifyPublicUrl,
             warnings: policyWarnings
@@ -4587,6 +4618,8 @@ async function probePrivacyPolicy(input: {
   scannedPageUrl: string;
   requests: NetworkRequestRecord[];
   proxyServer: string;
+  /** Requests this scan's proxy has refused or cut short so far, by any page. */
+  proxyRefusals: () => number;
   started: number;
   verifyPublicUrl: (url: URL) => Promise<void>;
   warnings: ScanWarningCollector;
@@ -4649,7 +4682,19 @@ async function probePrivacyPolicy(input: {
 
   const policyPage = await input.context.newPage();
   let requestCount = 0;
+  // The policy page's document, script and data requests still in flight. A
+  // read taken while one is open may be the page before its policy arrived.
+  const openRenderRequests = new Set<Request>();
+  const refusalsBefore = input.proxyRefusals();
   try {
+    policyPage.on("request", (request) => {
+      if (POLICY_RENDER_RESOURCE_TYPES.has(request.resourceType())) openRenderRequests.add(request);
+    });
+    const closeRenderRequest = (request: Request): void => {
+      openRenderRequests.delete(request);
+    };
+    policyPage.on("requestfinished", closeRenderRequest);
+    policyPage.on("requestfailed", closeRenderRequest);
     await policyPage.route("**/*", async (route) => {
       requestCount += 1;
       const resourceType = route.request().resourceType();
@@ -4677,10 +4722,30 @@ async function probePrivacyPolicy(input: {
     const policyStatus = policyResponse?.status() ?? null;
     if (policyStatus === null || policyStatus < 200 || policyStatus >= 400) return null;
     assertAllowedPrivacyPolicyPage(policyPage.url(), input.firstPartyHostname);
-    // CMP-hosted policies often render their text client-side after load.
-    const renderWait = Math.min(PRIVACY_POLICY_RENDER_WAIT_MS, MAX_SCAN_DURATION_MS - (Date.now() - input.started) - 500);
-    if (renderWait > 0) await policyPage.waitForTimeout(renderWait);
+    // CMP-hosted policies render their text client-side after load. The fixed
+    // render delay alone read the page shell whenever the policy arrived later:
+    // 19 of 82 USA TODAY Network visits in the October news sweep published 688
+    // characters of navigation as the policy, and listed every observed
+    // tracker as one it does not name, beside a 62,512-character policy that
+    // names Google and Facebook. Wait out the delay and, within the budget,
+    // for the page's network to go quiet.
+    const remainingMs = (): number => MAX_SCAN_DURATION_MS - (Date.now() - input.started) - 500;
+    const renderWait = Math.min(PRIVACY_POLICY_RENDER_WAIT_MS, remainingMs());
+    const settleWait = Math.min(PRIVACY_POLICY_SETTLE_WAIT_MS, remainingMs());
+    let networkQuiet = false;
+    await Promise.all([
+      renderWait > 0 ? policyPage.waitForTimeout(renderWait) : undefined,
+      settleWait > 0
+        ? policyPage.waitForLoadState("networkidle", { timeout: settleWait }).then(
+            () => {
+              networkQuiet = true;
+            },
+            () => undefined
+          )
+        : undefined
+    ]);
     assertAllowedPrivacyPolicyPage(policyPage.url(), input.firstPartyHostname);
+    const stillLoading = !networkQuiet && openRenderRequests.size > 0;
 
     const policyTextWire = await withScanDeadline(
       callBoundedPageCollector(
@@ -4710,6 +4775,19 @@ async function probePrivacyPolicy(input: {
     // attribute to the original scan subject.
     const observedPolicyUrl = policyPage.url();
     assertAllowedPrivacyPolicyPage(observedPolicyUrl, input.firstPartyHostname);
+    // A short read taken while the page was still fetching, or after this
+    // scan's proxy refused or cut short a request during the visit (one that
+    // may have carried the policy itself, as a CMP-hosted notice does), may be
+    // the shell. Publish nothing rather than what the shell lacks as what the
+    // policy does not say. A long read stands: real policy pages keep tracking
+    // and chat fetches open long after the policy has rendered, and the
+    // refusal may belong to the scanned page's own background traffic.
+    if (
+      policyText.length < POLICY_SHELL_SUSPECT_MAX_CHARS &&
+      (stillLoading || input.proxyRefusals() > refusalsBefore)
+    ) {
+      return null;
+    }
     // Same party is not enough: a policy link that redirects to the homepage,
     // or a soft 404 answered with status 200, is the site's own page and still
     // not its policy. Reading either published the homepage as "the site's
@@ -4838,6 +4916,26 @@ async function discardPolicyPdfBody(body: Dispatcher.ResponseData["body"]): Prom
 
 function firstHeaderValue(value: string | string[] | undefined): string | undefined {
   return Array.isArray(value) ? value[0] : value;
+}
+
+/** Requests this scan's proxy has refused (traffic budget) or cut short (response bytes). */
+function proxyRefusalCount(diagnostics: PublicScanProxyDiagnostics): number {
+  return (diagnostics.trafficBudget.captureLoss?.count ?? 0) + (diagnostics.responseByteBudget.captureLoss?.count ?? 0);
+}
+
+/**
+ * Whether the scan's proxy can still carry the policy visit: it has refused
+ * nothing, and has a transaction and a host slot left for a policy served
+ * from a host the visit did not contact. A refusal during the visit is
+ * caught separately by comparing proxyRefusalCount around the read.
+ */
+export function policyProxyCapacityAvailable(diagnostics: PublicScanProxyDiagnostics): boolean {
+  const traffic = diagnostics.trafficBudget;
+  return (
+    proxyRefusalCount(diagnostics) === 0 &&
+    traffic.transactionsSeen < traffic.transactionLimit &&
+    traffic.uniqueTargetsSeen < traffic.uniqueTargetLimit
+  );
 }
 
 export function boundedPolicyTextFromWire(wire: string | null): string {

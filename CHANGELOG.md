@@ -9,6 +9,36 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- The privacy-policy cross-check no longer publishes a page shell as the
+  policy (policy-text-cross-check@9, node-detectors-v13). The read waited a
+  fixed second after DOMContentLoaded, so a client-rendered policy (a
+  OneTrust privacy notice fetches its text over three requests) was read
+  before it arrived, and the scan proxy's shared traffic budget, once spent
+  by the scanned page, refused the policy page's requests. In the October
+  news sweep, 19 USA TODAY Network reports published 688 characters of
+  navigation as the policy, listing every observed tracker as one the policy
+  does not name, beside a 62,512-character policy that names Google and
+  Facebook; 52 more failed in about 90 ms on the proxy's own refusal and were
+  published as a policy that failed to load. The read now also waits, within
+  the scan budget, for the policy page's network to go quiet; withholds a
+  read under 3,000 characters taken while a document, script or data request
+  was still open, or after the proxy refused or cut short a request during
+  the visit; and skips the visit as `budget-unavailable` with a
+  `policy-visit` cap loss once the proxy budget has refused anything. A long
+  read stands even while tracking or chat fetches stay open. Reports the
+  earlier versions published are unchanged; whether to withhold their
+  short-read omission claims is open (see the audit record).
+- A request, cookie or CNAME alias on a deep subdomain no longer leaves a
+  finished scan unpublishable. Generalizing short labels lengthened a valid
+  253-character host past the managed reader's hostname cap, and from 17
+  generalized labels the re-read refused the host as invalid, so the bundle
+  failed as `report-resource-limit` (a cause-less 500) or
+  `redaction-not-idempotent`. Hosts that fit before are unchanged.
+- The managed reader reads the sanitizer's two code-point caps (policy
+  quotes, warnings) in code points, so a quote of emoji or CJK Extension B
+  text with a scrubbed address no longer refuses its report; and a
+  resource-limit refusal names the limit and path it broke in the server
+  log.
 - Five scan refusals that reached the visitor without a declared cause now
   carry one, with their own notice: a host lookup that ran past its 5 s
   deadline (`host-lookup-timeout`, 503, worded to blame neither the address
