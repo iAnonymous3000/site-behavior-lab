@@ -2,7 +2,8 @@
 // Maintain THIRD_PARTY_REVIEWS.json against THIRD_PARTY_INVENTORY.json.
 //
 //   --sync   create missing rows (unreviewed), drop rows whose item left the
-//            inventory, preserve every reviewed row verbatim
+//            inventory, refresh the inventory-copied fields of unreviewed
+//            rows, preserve every reviewed row verbatim
 //   --check  fail when ledger and inventory drift or a reviewed row is
 //            incomplete; prints review coverage per ecosystem either way
 import { readFileSync, writeFileSync } from "node:fs";

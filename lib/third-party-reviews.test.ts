@@ -240,6 +240,45 @@ test("a hand-edited runtime flag is drift, not opinion", async () => {
   );
 });
 
+test("sync carries an inventory identity change into unreviewed rows and leaves reviewed rows to the check", async () => {
+  const { syncReviewLedger, checkReviewLedger } = await reviewsLib();
+  const { ledger } = syncReviewLedger(INVENTORY, null);
+  // A dev-only package becomes runtime with no version change, as
+  // @types/react did when lucide-react 1.59 declared it an optional peer.
+  const promoted = structuredClone(INVENTORY);
+  promoted.npm[1] = { ...promoted.npm[1], developmentOnly: false };
+  const annotated = structuredClone(ledger);
+  annotated.reviews.find((row: { key: string }) => row.key === "npm:dev-tool@2.0.0").notes = "license text located";
+  assert.equal(checkReviewLedger(promoted, annotated).ok, false, "the stale flag is drift before a resync");
+
+  const resynced = syncReviewLedger(promoted, annotated);
+  assert.deepEqual([resynced.added, resynced.removed], [[], []]);
+  const row = resynced.ledger.reviews.find((candidate: { key: string }) => candidate.key === "npm:dev-tool@2.0.0");
+  assert.equal(row.runtime, true);
+  assert.equal(row.status, "unreviewed");
+  assert.equal(row.notes, "license text located", "what a person wrote on an unreviewed row survives");
+  assert.equal(checkReviewLedger(promoted, resynced.ledger).ok, true, "--sync is the remedy the check names");
+
+  // A reviewed row is preserved verbatim, so the change sends it back for
+  // review instead of silently rewriting what a person signed off on.
+  const reviewed = structuredClone(ledger);
+  Object.assign(
+    reviewed.reviews.find((candidate: { key: string }) => candidate.key === "npm:dev-tool@2.0.0"),
+    { status: "reviewed", reviewer: "iAnonymous3000", reviewedAt: "2026-08-01", determinedLicense: "ISC", obligations: [] }
+  );
+  const kept = syncReviewLedger(promoted, reviewed);
+  assert.equal(
+    kept.ledger.reviews.find((candidate: { key: string }) => candidate.key === "npm:dev-tool@2.0.0").runtime,
+    false
+  );
+  assert.equal(
+    checkReviewLedger(promoted, kept.ledger).problems.some((problem: string) =>
+      /npm:dev-tool@2\.0\.0 declares runtime=false but the inventory says true/.test(problem)
+    ),
+    true
+  );
+});
+
 test("downloaded build-tool scope and redistribution posture are inventory truth", async () => {
   const { syncReviewLedger, checkReviewLedger } = await reviewsLib();
   const { ledger } = syncReviewLedger(INVENTORY, null);

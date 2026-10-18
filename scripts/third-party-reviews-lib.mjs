@@ -173,14 +173,45 @@ function emptyRow(item) {
   return row;
 }
 
-/** Bring the ledger in line with the inventory; reviewed rows are preserved verbatim. */
+const COPIED_IDENTITY_FIELDS = ["ecosystem", "name", "version", "runtime", "declaredLicense"];
+const OPTIONAL_COPIED_IDENTITY_FIELDS = ["redistributed", "usage", "sourceUrl"];
+
+/**
+ * An unreviewed row records no human judgment yet, so the fields it copies from
+ * the inventory follow the inventory, and anything a person wrote on it stays.
+ * Without this an inventory change that keeps the key had no remedy: the check
+ * reported the drift and told the operator to run --sync, which preserved the
+ * stale row. lucide-react 1.59 declared @types/react an optional peer, npm
+ * stopped marking @types/react and csstype dev-only, and both rows kept
+ * runtime=false.
+ */
+function refreshUnreviewedRow(row, item) {
+  const fresh = emptyRow(item);
+  const refreshed = { ...row };
+  for (const field of COPIED_IDENTITY_FIELDS) refreshed[field] = fresh[field];
+  for (const field of OPTIONAL_COPIED_IDENTITY_FIELDS) {
+    if (Object.hasOwn(fresh, field)) refreshed[field] = fresh[field];
+    else delete refreshed[field];
+  }
+  return refreshed;
+}
+
+/**
+ * Bring the ledger in line with the inventory. Reviewed rows are preserved
+ * verbatim, so an inventory change under one still fails the check and sends it
+ * back for review; unreviewed rows take the inventory's copied identity fields.
+ */
 export function syncReviewLedger(inventory, ledger) {
   const existing = new Map(
     (isRecord(ledger) && Array.isArray(ledger.reviews) ? ledger.reviews : []).map((row) => [row.key, row])
   );
   const items = inventoryItemKeys(inventory);
   const itemKeys = new Set(items.map((item) => item.key));
-  const reviews = items.map((item) => existing.get(item.key) ?? emptyRow(item));
+  const reviews = items.map((item) => {
+    const row = existing.get(item.key);
+    if (!row) return emptyRow(item);
+    return row.status === "unreviewed" ? refreshUnreviewedRow(row, item) : row;
+  });
   const removed = [...existing.keys()].filter((key) => !itemKeys.has(key));
   const added = items.filter((item) => !existing.has(item.key)).map((item) => item.key);
   return {
