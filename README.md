@@ -5,35 +5,34 @@
 
 **Turn a website visit into evidence you can inspect.**
 
-Site Behavior Lab visits a public website in controlled, headless Chromium and
-records its requests, cookies, storage keys, browser signals, and consent
-behavior. Reports connect plain-language findings to the recorded evidence,
-with scan conditions, missing coverage, and later corrections kept visible.
-Each report describes the measured visit; it is not a privacy score or a legal
-verdict.
+Site Behavior Lab visits a public website in headless Chromium and records its
+requests, cookies, storage keys, browser signals, and consent behavior. Each
+report ties plain-language findings to that evidence and keeps scan
+conditions, missing coverage, and later corrections visible. A report
+describes one measured visit, not a privacy score or a legal verdict.
 
 [**Scan a website**](https://sitebehavior.org) ·
 [Browse reports](https://sitebehavior.org/directory/) ·
 [Read the methodology](https://sitebehavior.org/methodology/) ·
 [See measurement limits](https://sitebehavior.org/catalog/)
 
-[![A historical GitHub report with its visit identity, reviewed clarification, and evidence-linked findings](docs/images/report-overview.jpg)](https://sitebehavior.org/reports/20260824-4f89a805b50169b2c0e8b01a975018c9/)
+[![A wikipedia.org report in the current r2 format, with its visit identity, reviewed clarification, and plain-language headline](docs/images/report-overview.jpg)](https://sitebehavior.org/reports/20260814-31e105d7971825fbd0f3fffa099188fe/)
 
-*The live report interface, captured September 6, 2026. This historical paired
-report records August 24 visits and retains its reviewed clarification; it does
-not describe GitHub's current behavior.*
+*The live report page, captured October 18, 2026. This historical GPC
+comparison records August 14 visits and carries a reviewed clarification; it
+does not describe Wikipedia's current behavior.*
 
 | Start here | |
 |---|---|
-| **Understand a visit** | Follow findings into the request log, browser signals, and coverage details. Export the report as JSON, an evidence bundle with CSV, or a printable PDF. |
-| **Compare conditions** | Inspect paired GPC, consent-choice, or Brave Shields simulation visits, with the intervention and visit order disclosed. |
+| **Understand a visit** | Follow findings into the request log, browser signals, and coverage details. Export JSON, an evidence bundle with CSV, or a printable PDF. |
+| **Compare conditions** | Paired GPC, consent-choice, or Brave Shields simulation visits, with the intervention and visit order disclosed. |
 | **Run your own instance** | [Local setup](#run-it-locally) · [Self-hosting](#self-host) |
 | **Check or contribute** | [Verify a report](#verify-a-report) · [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md) |
 
 **Version:** `0.6.0` is the current release, tagged
-[`v0.6.0`](https://github.com/iAnonymous3000/site-behavior-lab/tree/v0.6.0) with its release receipt archived.
-Product versions are independent of the report contracts: v1 remains frozen,
-and v2/r1 and v2/r2 remain byte-immutable. See the [changelog](CHANGELOG.md) and
+[`v0.6.0`](https://github.com/iAnonymous3000/site-behavior-lab/tree/v0.6.0).
+Product versions are independent of the report contracts: v1 is frozen, and
+v2/r1 and v2/r2 are byte-immutable. See the [changelog](CHANGELOG.md) and
 [release status](RELEASE.md#current-release-state).
 
 ## What it does
@@ -42,82 +41,76 @@ One scan is one automated visit from one place at one time. The scanner:
 
 - loads the page through a per-scan proxy that pins every connection to a
   verified public IP address at connect time, so redirects and DNS rebinding
-  cannot steer the browser into a private network;
+  cannot reach a private network;
 - records requests (up to a cap), third-party domains, curated service and
   tracker labels, cookies (names and flags, never values), storage keys (never
-  values), and the scan conditions (browser and Playwright version, viewport,
-  locale, timezone, Global Privacy Control state, egress, catalog and
+  values), and the scan conditions (browser and Playwright versions, viewport,
+  locale, timezone, Global Privacy Control state, egress, and catalog and
   methodology versions);
-- observes high-entropy browser API use and fingerprinting heuristics, and
+- observes high-entropy browser API use, fingerprinting heuristics, and
   third-party session-recording and input-monitoring listeners;
-- types a synthetic, non-personal sentinel into up to eight supported form fields already in the viewport
-  and watches whether it leaves the site, in plain, base64, hex, or hashed
-  form. Native form submission is blocked; focus, input and blur callbacks can
-  run and send requests. Unsupported, offscreen and failed attempts count as
-  omitted coverage. Teardown-only transmissions are not measured. A visit where
-  at least one field accepted the value discloses how many fields were typed
-  into; a visit where no field accepted it carries no such statement;
-- resolves first-party subdomains' CNAME chains to catch trackers hidden behind
-  the site's own hostname;
+- types a synthetic, non-personal sentinel into up to eight supported fields
+  in the viewport and watches whether it leaves the site, in plain, base64,
+  hex, or hashed form. Submission is blocked, though focus, input, and blur
+  callbacks can still send requests; unsupported, offscreen, and failed fields
+  count as omitted coverage, and teardown-only sends are not measured. A visit
+  where at least one field accepted the value discloses how many fields were
+  typed into; a visit where no field accepted it carries no such statement;
+- resolves first-party subdomains' CNAME chains to catch trackers hidden
+  behind the site's own hostname;
 - decodes the events Meta, TikTok, and X pixels fire and whether their
-  advanced-matching identifier fields were populated (the values are checked
-  only for being non-empty, in memory, and never stored);
+  advanced-matching fields were populated (checked in memory for being
+  non-empty, never stored);
 - detects consent tooling and, in consent comparison mode only, clicks one
   accept-all or reject-all control on the banner's first layer and reads back
   the registered consent state where the site exposes it;
-- reads the site's own privacy policy (HTML or a direct PDF, through the same
-  network guard) and reports sentences that contradict the observed evidence,
-  quoting each sentence so a reader can check it in context;
-- can run two paired visits to compare GPC off against on, a plain visit
-  against a Brave Shields block simulation (Brave's own ad-block engine over a
-  pinned snapshot of its default lists, not a live Brave browser), or
-  accept-all against reject-all consent. The two visits run in random order and
-  the order is disclosed.
+- reads the site's privacy policy (HTML or a direct PDF, through the same
+  network guard), quotes sentences the evidence contradicts, and lists
+  observed tracking companies the policy does not appear to name;
+- can pair two visits, in a random order it discloses: GPC off and on, a
+  plain visit and a Brave Shields block simulation (Brave's ad-block engine
+  over a pinned snapshot of its default lists, not a live Brave browser), or
+  accept-all and reject-all consent.
 
-The output is a report page with a plain-language headline and a
-severity-ranked findings board, the underlying JSON, a request CSV bundled with
-its source report and correction context,
-and a printable PDF. Reports produced by the public instance are stored for a
-bounded window; a curated corpus of committed reports under `public/reports/`
-drives the site directory, per-site history pages, category pages, and the
-corpus percentiles a report is ranked against. Each publication is appended to
-a transparency log whose head is anchored with OpenTimestamps through a weekly
+Each report has a page (a plain-language headline over severity-ranked
+findings), its JSON, a request CSV bundled with the source report and its
+correction context, and a printable PDF. The public instance keeps reports for a
+bounded window. A curated corpus of committed reports under `public/reports/`
+drives the directory, per-site history, category pages, and the corpus
+percentiles a report is ranked against. Each publication is appended to a
+transparency log whose head is anchored with OpenTimestamps through a weekly
 proposal that a maintainer merges.
 
 ## What a report proves, and what it does not
 
-- **One visit, not the site.** The report is what one automated Chromium
-  visit from the configured scanner saw. Sites vary behaviour by region,
-  browser, IP reputation, login state, consent state, bot detection, and time.
-- **Counts describe the instrumented visit.** Retained request counts can be
-  lower bounds when capture is incomplete; cookie and storage snapshots can
-  change in either direction. None estimates an ordinary browser visit.
-  Service Workers are blocked by design, a
-  SharedWorker's traffic beyond its entry script is not recorded, WebSocket
-  traffic is not recorded at all, storage is read from the top frame only, the
-  input probe does not scroll to reach offscreen fields, and the service catalog is a
-  curated, US-biased list rather than an inventory.
+- **One visit, not the site.** A report is what one automated Chromium visit
+  from the configured scanner saw. Sites vary by region, browser, IP
+  reputation, login and consent state, bot detection, and time.
+- **Counts describe the instrumented visit.** Request counts can be lower
+  bounds when capture is incomplete; cookie and storage snapshots can change
+  either way. None estimates an ordinary browser visit. Service Workers are blocked by design, a SharedWorker's traffic
+  beyond its entry script and all WebSocket traffic go unrecorded, storage is
+  read from the top frame only, the input probe does not scroll to offscreen
+  fields, and the service catalog is a curated, US-biased list, not an
+  inventory.
 - **A failed or challenged load is not a clean result.** Sites that refuse
   undisguised automated browsers are reported as refusals, never evaded.
-- **No detector accuracy is published.** No claim-bearing detector
-  (keystroke exfiltration, pixel events, consent banner, fingerprinting
-  heuristics, CNAME uncloaking, privacy policy) has an eligible calibration
-  study yet, so there are no precision or recall figures to quote. Findings
-  are observations to verify, not measurements with known error rates.
-- **The claim boundary is investigative evidence requiring independent
-  corroboration.** Standalone legal determinations and sole-court-exhibit use
-  are explicitly excluded. That decision is recorded, with the other release
-  decisions, in `RELEASE_READINESS.json`.
+- **No detector accuracy is published.** No claim-bearing detector has an
+  eligible calibration study yet, so there are no precision or recall
+  figures. Findings are observations to verify.
+- **Investigative evidence, not a verdict.** Findings require independent
+  corroboration; standalone legal determinations and use as a sole court
+  exhibit are excluded, as recorded in `RELEASE_READINESS.json`.
 - **Attribution is not causation.** The script-to-request map records the
   initiator Chromium reported, which may itself have been told what to fetch.
 - **Consent evidence spans the click.** Even a verified reject-all visit
   records traffic from before and after the choice, so a tracker seen there
   may be pre-choice, strictly necessary, or claimed under legitimate interest.
-- **Percentiles need a cohort.** Corpus-relative severity is used only when
+- **Percentiles need a cohort.** Corpus-relative severity applies only when
   the report's exact measurement cohort and the metric both hold at least 50
   sites; otherwise fixed thresholds apply and the report says so.
 
-The published coverage boundary, per detector, is on the
+The per-detector coverage boundary is on the
 [catalog page](https://sitebehavior.org/catalog/); each entry states
 whether a test enforces it against the scanner source or it rests on review.
 
@@ -139,57 +132,43 @@ Hard bounds in the Node scanner (`lib/scanner.ts`, `lib/scan-runtime.ts`,
 | Privacy-policy PDF | 8 MiB, 64 pages |
 | Public instance, per client (edge quota) | 6 scans per minute, 120 per day; a comparison costs two |
 
-What the reference deployment keeps switched off, deliberately, and what that
-means: durable (restart-safe) jobs, container sharding, and encrypted
-scheduled rescans are all implemented behind flags and all committed at `0`.
-Production runs the in-process queue; a scan interrupted by a container
-restart is lost and must be re-run. Aggregate product metrics are also off.
+**Off in the reference deployment.** Durable (restart-safe) jobs, container
+sharding, and encrypted scheduled rescans are implemented behind flags
+committed at `0`, and aggregate product metrics are off. A scan interrupted by
+a container restart is lost and must be re-run.
 
-Road to 1.0: the [investigative-v1 qualification contract](docs/v1-release-qualification.md)
+**Road to 1.0.** The [investigative-v1 qualification contract](docs/v1-release-qualification.md)
 requires independently checked scan outcomes bound to the release candidate,
-alongside the applicable provider, licensing, source, and release-authority
-evidence. `npm run release:readiness` evaluates the committed evidence; a green
-build or healthy deployment does not establish qualification. Formal detector
-calibration and the research A/A repeatability study remain separate 1.1
-milestones. There is no stable public API and no npm package.
+plus provider, licensing, source, and release-authority evidence.
+`npm run release:readiness` evaluates it; a green build or healthy deployment
+is not qualification. There is no stable public API and no npm package.
 
-Retention: reports saved by the public instance are kept for seven days or
-500 reports, whichever prunes first (the R2 backend clamps the count to 936);
-the committed corpus under `public/reports/` is the currently retained
-research corpus and follows its own age, count, and cohort rules, and
-reports cited by the corrections ledger are retention-pinned. Published reports are
-never rewritten in place; corrections go through the append-only ledger in
-`docs/corrections-ledger.md`. A privacy replacement is the one case where a
-cited report is removed: when a report published data redaction should have
-removed, a redacted copy is published under a new report ID, the original is
-removed, and a ledger event names both.
+**Retention.** The public instance keeps saved reports for seven days or 500
+reports, whichever prunes first; operators may allow up to 936 reports, never
+more than seven days. The committed corpus under `public/reports/` is the currently retained research corpus, with its own rules, and
+reports cited by the corrections ledger are retention-pinned. Published reports
+are never rewritten in place; corrections go through the append-only
+`docs/corrections-ledger.md`, and a cited report is removed only when a privacy
+replacement publishes a redacted copy under a new report ID.
 
-Network boundary: the Node scanner refuses loopback, private, link-local,
-carrier-grade NAT, multicast, and reserved ranges in both IP families, on
-standard ports only, and re-checks every address at connect time. On the
-reference Cloudflare Containers deployment that connect-time proxy is the only
-egress control; an independent platform-level egress backstop is tracked as an
-open release gate, so an application-layer bypass would not be caught by a
-second layer there. See `SECURITY.md`.
+**Network boundary.** The scanner refuses loopback, private, link-local,
+carrier-grade NAT, multicast, and reserved addresses in both IP families,
+allows standard ports only, and re-checks every address at connect time. On
+the reference deployment that proxy is the only egress control; a
+platform-level backstop is an open release gate (see `SECURITY.md`).
 
-Published data: cookie and storage values, credentials, URL fragments, query
-values, and screenshots never enter a saved report. Query keys survive only
-from a reviewed allow-list; unknown keys, path segments, subdomain labels,
-cookie names, and storage keys are generalized, and so is a hosting tenant name
-under a shared provider suffix (such as `akamaihd.net`) when it is shaped like
-a network address, timestamp, or token. Policy sentences are quoted up to a
-length cap, which is a deliberate, documented exception; inside a quote, an
-email address (also one written with `[at]` or `(at)`), an `@` handle, a URL
-with a scheme, a `www.` host, a host with a path, and a phone-shaped run of
-nine or more digits (seven or more after `+`) are replaced with `[redacted]`,
-and that quote is marked incomplete and never checked. A bare hostname and a
-shorter number are kept. These
-rules are named by the public-string policy in each r2 report's normalization
-identity (currently `public-string-policy-v4`). A saved r2 report holding a
-string a later rule removes is no longer served and is not rewritten, and a
-committed report holding one is replaced for privacy (above). The replacement
-reduces what is served; git history and earlier release archives still hold
-the original bytes.
+**Published data.** Cookie and storage values, credentials, URL fragments,
+query values, and screenshots never enter a saved report. Query keys outside a
+reviewed allow-list, path segments, subdomain labels, cookie names, storage
+keys, and a hosting tenant name under a shared provider suffix (such as
+`akamaihd.net`) shaped like an address, timestamp, or token are generalized. Policy quotes are a documented exception, capped in length, with
+emails, handles, URLs, `www.` hosts, hosts with a path, and phone-shaped
+numbers replaced by `[redacted]`; such a quote is marked incomplete and never
+checked. The public-string policy in each r2 report's normalization identity
+names these rules (currently `public-string-policy-v4`). A saved r2 report
+holding a string a later rule removes is no longer served, and a committed
+report is replaced for privacy; git history and earlier release archives keep the
+original bytes.
 
 ## Run it locally
 
@@ -203,11 +182,11 @@ npm run dev
 ```
 
 Open `http://127.0.0.1:3000`. Development needs no environment variables. A
-local scan uses the same scanner, proxy, and limits as production, and by
-default produces the legacy v1 report format; the public r2 format is a
-fail-closed opt-in (below).
+local scan uses the production scanner, proxy, and limits, and by default
+produces the legacy v1 report format; the public r2 format is a fail-closed
+opt-in (below).
 
-Anything that runs `next build` needs the public origin, and refuses to guess
+Anything that runs `next build` needs the public origin and refuses to guess
 one:
 
 ```bash
@@ -216,9 +195,8 @@ NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL=https://example.org npm run check
 
 `npm run check` runs the TypeScript and Cloudflare type checks, the unit suite,
 and the production build. `npm run test:unit` recreates `.unit-test-dist/` on
-every run, so never run two of them in one checkout at once. The static export
-and its smoke test are `npm run build:pages` followed by `npm run
-test:smoke:static`.
+every run, so never run two at once in one checkout. The static export and its
+smoke test are `npm run build:pages` then `npm run test:smoke:static`.
 
 ## Self-host
 
@@ -234,86 +212,76 @@ docker build \
   -t site-behavior-lab .
 ```
 
-The three build arguments are baked into the client bundle: the exact commit
-the container reports in `/api/health`, the origin the scanner is served from,
-and the origin of the static site it belongs to. The container runs as a
-non-root user, launches Chromium with an explicit environment allow-list, and
-removes every package manager from the runtime image.
-
-The decisions that matter when you configure it:
+These build arguments are baked into the client bundle: the exact commit the
+container reports in `/api/health`, the scanner's origin, and the origin of its
+static site. The container runs as a non-root user, launches Chromium with an
+explicit environment allow-list, and removes every package manager from the
+runtime image.
 
 | Variable | Default | What it decides |
 |---|---|---|
-| `SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN` | unset | When set, `/api/scan` requires it in `Authorization: Bearer`, `x-site-behavior-lab-access-token`, or the legacy `x-sbl-scan-token` header. Leave it unset only for trusted local use or an intentionally open deployment with external abuse controls. |
-| `SITE_BEHAVIOR_LAB_PUBLIC_R2_REPORTS` | unset | `1` makes the scanner return and persist the public ScanReport v2/r2 format. It requires `SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION=1`, a full 40-character `SITE_BEHAVIOR_LAB_BUILD_COMMIT`, and an available report store, and refuses scans rather than silently emitting v1 when any of those is missing. Unset, the scanner emits the legacy v1 format. |
-| `SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION` | unset | `1` reads back the registered consent state after a banner click (TCF and OneTrust interpreters) and attempts one disclosed post-choice reload. Required by r2. |
-| `SITE_BEHAVIOR_LAB_REPORT_STORE_BACKEND` | `filesystem` | `filesystem` needs a persistent volume; `r2` needs `SITE_BEHAVIOR_LAB_R2_BUCKET`, `_ENDPOINT`, `_ACCESS_KEY_ID`, and `_SECRET_ACCESS_KEY`, and is what a public or multi-node deployment needs. |
-| `SITE_BEHAVIOR_LAB_REPORT_MAX_AGE_DAYS` / `_MAX_COUNT` | `7` / `500` | Retention for saved shares; the R2 backend clamps age below the bucket's own deletion rule and count to 936. |
-| `SITE_BEHAVIOR_LAB_TRUST_PROXY_HEADERS` | unset | `1` only behind a proxy that controls forwarding headers and blocks direct origin access; the rate-limit identity then reads the rightmost `X-Forwarded-For` entry. |
-| `SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN` | `*` | Browser CORS allow-list for the `/api` routes. |
-| `SITE_BEHAVIOR_LAB_ASYNC_SCANS` | unset | `1` makes `/api/scan` return `202` with a job id to poll at `/api/scans/:id`; single-process, in-memory. |
-| `SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX` | unset | `1` enables Chromium's sandbox (production does); needs unprivileged user namespaces on the host. |
-| `SITE_BEHAVIOR_LAB_SCANNER_EGRESS` / `_EGRESS_REGION` | `this scanner instance` / unset | The disclosed egress label and region recorded in reports. Declare a region only when it is true; without one, r2 comparison deltas are refused. |
+| `SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN` | unset | When set, `/api/scan` requires it as `Authorization: Bearer`, `x-site-behavior-lab-access-token`, or the legacy `x-sbl-scan-token`. Leave it unset only for trusted local use or a deliberately open deployment with other abuse controls. |
+| `SITE_BEHAVIOR_LAB_PUBLIC_R2_REPORTS` | unset | `1` returns and persists the public ScanReport v2/r2 format. It needs `SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION=1`, a full 40-character `SITE_BEHAVIOR_LAB_BUILD_COMMIT`, and a report store, and refuses scans rather than fall back to v1. Unset, the scanner emits v1. |
+| `SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION` | unset | `1` reads back the registered consent state after a banner click (TCF and OneTrust) and attempts one disclosed post-choice reload. Required by r2. |
+| `SITE_BEHAVIOR_LAB_REPORT_STORE_BACKEND` | `filesystem` | `filesystem` needs a persistent volume. `r2` needs `SITE_BEHAVIOR_LAB_R2_BUCKET`, `_ENDPOINT`, `_ACCESS_KEY_ID`, and `_SECRET_ACCESS_KEY`, and suits a public or multi-node deployment. |
+| `SITE_BEHAVIOR_LAB_REPORT_MAX_AGE_DAYS` / `_MAX_COUNT` | `7` / `500` | Retention for saved shares (see Retention). |
+| `SITE_BEHAVIOR_LAB_TRUST_PROXY_HEADERS` | unset | `1` only behind a proxy that controls forwarding headers and blocks direct origin access; rate limits then key on the rightmost `X-Forwarded-For` entry. |
+| `SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN` | `*` | CORS allow-list for the `/api` routes. |
+| `SITE_BEHAVIOR_LAB_ASYNC_SCANS` | unset | `1` makes `/api/scan` answer `202` with a job to poll at `/api/scans/:id`; single process, in memory. |
+| `SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX` | unset | `1` enables Chromium's sandbox, as production does; needs unprivileged user namespaces on the host. |
+| `SITE_BEHAVIOR_LAB_SCANNER_EGRESS` / `_EGRESS_REGION` | `this scanner instance` / unset | The egress label and region recorded in reports. Declare a region only when it is true; without one, r2 comparison deltas are refused. |
 
-The complete variable reference, including the Cloudflare-only quota,
-Turnstile, durable-job, sharding, and watch settings, is in
-`docs/configuration.md`, with `.env.example` as a starting point. The
-Cloudflare Containers runbook is `docs/deploy-cloudflare-containers.md`; a
-generic single-node runbook is `docs/deploy-node-container.md`; the topology
-decision record is `docs/deployment-topology.md`.
+The complete reference, including the Cloudflare-only quota, Turnstile,
+durable-job, sharding, and watch settings, is `docs/configuration.md`, with
+`.env.example` as a starting point. Runbooks:
+`docs/deploy-cloudflare-containers.md` (Cloudflare Containers),
+`docs/deploy-node-container.md` (a generic single node), and
+`docs/deployment-topology.md` (the topology decision).
 
 ## The public deployment
 
 [sitebehavior.org](https://sitebehavior.org) is a static Cloudflare Pages
-export of this repository (report viewer, gallery, directory, corpus).
-[scan.sitebehavior.org](https://scan.sitebehavior.org) runs the container
-scanner on Cloudflare Containers behind a front Worker that enforces Turnstile
-and an atomic per-client quota, stores reports in R2, and emits public r2.
-Both track the `production` branch, which CI fast-forwards to the exact SHA
-it tested only after five gates pass: supply-chain security, typecheck and
-unit tests and build, Chromium smoke, Docker runtime and public R2 smoke, and
-exact-SHA evidence attestation. The revision each surface is serving is
-published at [`/api/health`](https://scan.sitebehavior.org/api/health) and
+export of this repository. [scan.sitebehavior.org](https://scan.sitebehavior.org)
+runs the container scanner on Cloudflare Containers behind a front Worker that
+enforces Turnstile and an atomic per-client quota, stores reports in R2, and
+emits public r2. Both track the `production` branch, which CI fast-forwards to
+the exact SHA it tested only after five gates pass: supply-chain security,
+typecheck and unit tests and build, Chromium smoke, Docker runtime and public
+R2 smoke, and exact-SHA evidence attestation. The production workflows deploy
+the artifacts main CI built after verifying their exact-source attestations,
+and each surface publishes the revision it serves at
+[`/api/health`](https://scan.sitebehavior.org/api/health) and
 [`/deployment.json`](https://sitebehavior.org/deployment.json).
-Scanner non-production builds are disabled. Pages automatic preview deployments
-are disabled; existing preview deployments remain Access-protected.
-Main CI produces both deployment artifacts. The production workflows verify
-their exact-source attestations before uploading the tested Pages export or
-selecting the tested container digest. Cloudflare automatic builds are disabled
-after each artifact handoff is activated, avoiding a second build. The Pages
-wrapper retains only compiler caches across freshly generated CI exports.
+Scanner non-production builds are disabled.
+Pages automatic preview deployments are disabled, and existing preview deployments remain Access-protected.
 
-The hourly production synthetic is active (a neutral scan, a public r2 result,
-a persisted read-back, and a rendered report page), and the separate
-authenticated R2 delete canary is also active and required. The WAF ceiling,
-log-retention, and independent egress backstop controls rest on point-in-time
-operator receipts recorded in the runbook, not on committed evidence, and the
-corresponding release gates stay open until they are re-captured.
+Production health checks are scheduled four times an hour. The hourly production synthetic is active (a neutral scan, a public r2 result, a persisted
+read-back, and a rendered report page), and the separate authenticated R2 delete canary is also active and required.
+The WAF ceiling, log-retention, and independent egress backstop controls rest
+on point-in-time operator receipts recorded in the runbook, not committed
+evidence, so their release gates stay open until they are re-captured.
 
-Scheduled automation: featured-site rescans run weekly in two legs (the
-gallery catalog and the de-bias seed catalog), each opening a pull request that
-a human must approve and merge (never hand-merged); a weekly run submits the
-current transparency-log head to OpenTimestamps calendars and adds the anchor
-to one standing anchor proposal, which a human must approve and merge before
-the published log carries it; production health is checked every quarter hour and
-hourly; Dependabot proposals get their derived manifests regenerated
-automatically but still need a human. The weekly Brave Shields list refresh
-fetches and validates the lists, then force-updates one proposal branch,
-`automation/brave-list-refresh`, and opens or updates its pull request. When
-upstream rules have moved, the snapshot is a new measurement identity that only
-a human can declare: `npm run lists:adoption` prints the
-`NODE_R2_CURRENT_ADBLOCK_IDENTITY` literal to adopt, and the outgoing identity
-must first be frozen as a closed producer row, so the proposal stays open until
-a maintainer does both. Setting the `SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE`
-repository variable to `1` quiesces the refresh. A separate job in the same
-workflow compares the pinned adblock crate, Playwright, tldts, and bundled
-Chromium with their upstream stable releases, and keeps the
-measurement-toolchain drift issue open while an actionable upgrade is
-available.
+No scheduled workflow pushes to `main`. Featured-site rescans run weekly in two
+legs (the gallery and the de-bias seed catalogs), each opening a pull request a
+human must merge; the weekly transparency-log anchor extends one standing
+anchor proposal a human must merge; Dependabot proposals get their derived
+manifests regenerated and still need a human.
+
+The weekly Brave Shields list refresh fetches and validates the lists, then
+force-updates the proposal branch `automation/brave-list-refresh` and its pull
+request. When upstream rules have moved, the snapshot is a new measurement
+identity only a human can declare, by freezing the outgoing identity as a
+closed producer row and adopting the `NODE_R2_CURRENT_ADBLOCK_IDENTITY`
+literal that `npm run lists:adoption` prints; until then the proposal stays
+open. Setting the `SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE` repository variable to
+`1` quiesces the refresh. A separate job in the same workflow compares the
+pinned adblock crate, Playwright, tldts, and bundled Chromium with their
+upstream stable releases and keeps the measurement-toolchain drift issue open
+while an actionable upgrade is available.
 
 ## API
 
-`POST /api/scan` with a JSON body of `url`, `device` (`desktop` or `mobile`),
+`POST /api/scan` takes a JSON body of `url`, `device` (`desktop` or `mobile`),
 `gpcEnabled`, and at most one of `compareGpc`, `compareShields`,
 `compareConsent`. A synchronous deployment answers with the report; an async
 one answers `202` with `jobId` and `statusPath`, and `DELETE /api/scans/:id`
@@ -321,7 +289,7 @@ cancels cooperatively until publication begins. Refusals are `400` for an
 invalid or non-public target, `401` for a missing token, `413` for an oversize
 body, `429` for the per-client limit, and `503` when the scanner is busy, a
 producer is misconfigured, or public-host verification could not complete.
-`GET /api/reports/:id` returns the stored wire byte-for-byte, and
+`GET /api/reports/:id` returns the stored wire byte for byte, and
 `GET /api/reports/:id/pdf` renders it. `GET /api/health` reports readiness,
 the build commit, and the effective state of every producer flag.
 
@@ -332,12 +300,10 @@ npm run verify:report -- <report-id>
 ```
 
 That replays the digest chain from the committed report to the transparency
-log; add `--from <dir>` to check bytes you saved yourself. Anchors cover a
-prefix of the log: entries published since the most recently anchored head
-carry no anchor in the published log until an anchor proposal for a later
-head is merged. Read
-`docs/verify-a-report.md` and `docs/evidence-custody.md` before relying on a
-report, and note that a printed copy is a rendering whose footer carries the
+log; add `--from <dir>` to check bytes you saved yourself. Anchors cover a prefix of the log: entries published since the most recently anchored head
+carry no anchor in the published log until an anchor proposal for a later head
+is merged. Read `docs/verify-a-report.md` and `docs/evidence-custody.md` before
+relying on a report; a printed copy is a rendering whose footer carries the
 wire digest, not the evidence.
 
 ## Measurement identity
@@ -349,15 +315,16 @@ and production r2 reports extend it with the phase-kernel, boundary-state,
 consent, resource-budget, proxy-traffic, service-worker-block,
 detector-accountability, service-role-taxonomy, GPC worker-application,
 active-probe, auxiliary-context-block, and worker-fingerprint components,
-recorded verbatim in `provenance.methodologyVersion`. The Shields
-simulation uses the `adblock` Rust crate compiled to WASM from
-`tools/adblock-wasm/` over a pinned snapshot of Brave's default lists whose
-manifest digest is part of the identity; the curated service catalog is
-`lib/tracker-catalog.ts`, versioned by digest. Corpus statistics keep a
-separate cohort for every exact combination of schema, methodology, catalog,
-taxonomy, metric contract, producer, and requested GPC state, so a value is
-never compared across instruments. Changing any of these is a measurement
-identity change and follows `RELEASE.md`, not a routine edit.
+recorded verbatim in `provenance.methodologyVersion`. Each detector's version
+and the detector registry are recorded too. The Shields simulation uses the `adblock`
+Rust crate compiled to WASM from `tools/adblock-wasm/` over a pinned snapshot
+of Brave's default lists whose manifest digest is part of the identity; the
+curated service catalog is `lib/tracker-catalog.ts`, versioned by digest.
+Corpus statistics keep a separate cohort for every exact combination of
+schema, methodology, catalog, taxonomy, metric contract, producer, and
+requested GPC state, so a value is never compared across instruments. Changing
+any of these is a measurement identity change and follows `RELEASE.md`, not a
+routine edit.
 
 ## Where the details live
 
@@ -365,6 +332,8 @@ identity change and follows `RELEASE.md`, not a routine edit.
   and the job lifecycle.
 - `docs/scan-report-v2-rfc.md`, `docs/compatibility-promise.md`: the report
   contract and what may change in a committed report.
+- `docs/limitations.md`: acceptable use, data attribution, and each
+  measurement's limits in detail.
 - `docs/research-evidence-model.md`, `docs/calibration-study-operations.md`,
   `docs/calibration-findings.md`: the evidence model and the calibration
   program that gates published detector accuracy.
@@ -374,10 +343,9 @@ identity change and follows `RELEASE.md`, not a routine edit.
   `CHANGELOG.md`: what a tag claims and what still blocks 1.0.
 - `docs/pagegraph-adapter.md`, `docs/native-shields-differential.md`:
   research-only importers and comparisons that never write public reports.
-- `docs/comprehensive-review-2026-09-22.md`: the most recent review of the
-  whole repository, with what was found, fixed, deliberately left for the next
-  measurement epoch, and refuted. `docs/critical-use-audit-2026-09-01.md` is
-  the earlier audit against the critical-use definition.
+- `docs/audit-2026-10-17.md`: the most recent audit, with what changed, how
+  it was verified, and what stays open; `docs/comprehensive-review-2026-09-22.md`
+  and `docs/critical-use-audit-2026-09-01.md` came before it.
 
 ## Contributing, security, license
 
@@ -385,7 +353,6 @@ Read `CONTRIBUTING.md` before opening a change; the rule that matters most is
 that a published claim never outruns the recorded evidence. Report
 vulnerabilities through the private advisory channel described in
 `SECURITY.md`, never in a public issue. The scanner is for inspecting publicly
-reachable websites where that is allowed; it is not a tool for attacking or
-probing systems you do not own. The code is licensed under
-AGPL-3.0-or-later (`LICENSE`); the curated catalog ships with it and bundles
-no third-party dataset.
+reachable websites where that is allowed, not for attacking or probing systems
+you do not own. The code is licensed under AGPL-3.0-or-later (`LICENSE`); the
+curated catalog ships with it and bundles no third-party dataset.
