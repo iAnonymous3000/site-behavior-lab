@@ -67,13 +67,29 @@ test("a consent arm whose click left the site is not an accept-versus-reject res
   // at the pre-click boundary but still records the dispatch as a click, so
   // without this reason a committed consent pair stayed comparable and its
   // "Accept-all click" vs "Reject-all click" deltas diffed pre-choice evidence.
+  // Retention decides whether the committed corpus holds an eligible v1
+  // consent pair at all (the October 12 refresh left none), so a pair from the
+  // producer always runs the check, and every committed one runs it too.
+  const clickedArm = (mode: "accept-all" | "reject-all"): ScanResult => {
+    const run = makeRun({});
+    run.conditions = { ...run.conditions, consentMode: mode };
+    run.consentInteraction = { mode, clicked: true };
+    return run;
+  };
+  const produced = createConsentComparisonReport(clickedArm("accept-all"), clickedArm("reject-all"));
+  // Pinned literally, so the expected reason below cannot agree with a wrong
+  // label by reading it back from the same report.
+  assert.deepEqual(produced.runLabels, { baseline: "Accept-all click", variant: "Reject-all click" });
+  const pairs: Array<[string, ComparisonScanResult]> = [["the produced pair", produced]];
   const reportsDir = path.join(process.cwd(), "public", "reports");
-  let pairs = 0;
   for (const name of readdirSync(reportsDir).filter((entry) => /^\d{8}-[0-9a-f]{32}\.json$/.test(entry))) {
     const report = JSON.parse(readFileSync(path.join(reportsDir, name), "utf8")) as ComparisonScanResult & { schemaVersion: number };
     if (report.schemaVersion !== 1 || report.reportType !== "comparison" || report.comparisonType !== "consent") continue;
     if (!comparisonEligibility(report).eligible) continue;
-    pairs += 1;
+    pairs.push([name, report]);
+  }
+  for (const [name, report] of pairs) {
+    assert.deepEqual(comparisonEligibility(report), { eligible: true, reasons: [] }, `${name} before the warning`);
     for (const arm of ["baseline", "variant"] as const) {
       const mutated = structuredClone(report);
       mutated[arm].warnings.push(CONSENT_INTERACTION_LEFT_SUBJECT_WARNING);
@@ -88,7 +104,6 @@ test("a consent arm whose click left the site is not an accept-versus-reject res
       assert.equal(legacyComparisonDecision(mutated).mode, "raw-only", `${name} ${arm}`);
     }
   }
-  assert.ok(pairs > 0, "the committed corpus must carry an eligible v1 consent pair for this check");
 });
 
 test("a matched, uncapped, loaded pair is eligible", () => {
