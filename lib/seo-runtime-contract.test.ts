@@ -59,3 +59,13 @@ test("the static sitemap reuses the validated corpus overview", () => {
   assert.doesNotMatch(sitemapRoute, /toReportView/);
   assert.match(corpusOverview, /lastModifiedAt: view\.latestRunAt \?\? view\.scannedAt \?\? ""/);
 });
+
+test("the container build keeps Next's image optimizer off, as the static export does", () => {
+  // The site renders no next/image. A live /_next/image fetched local paths
+  // through the app, so a caller could loop it over a report's print route
+  // and drive uncached renders outside the report-read quota.
+  const nextConfig = readFileSync(path.join(root, "next.config.mjs"), "utf8");
+  const nodeBranch = nextConfig.slice(nextConfig.indexOf("    : {"));
+  assert.match(nodeBranch, /images: \{\s*unoptimized: true\s*\}/);
+  assert.equal((nextConfig.match(/unoptimized: true/g) ?? []).length, 2);
+});

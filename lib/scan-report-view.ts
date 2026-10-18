@@ -162,7 +162,14 @@ export function readScanTransportPayload(payload: unknown): ScanTransportResult 
     };
   }
   if (payload.status === "succeeded" && "report" in payload) {
-    // A completed poll wraps the report; unwrap exactly one level.
+    // A completed poll wraps the report; unwrap exactly one level. What it
+    // wraps must be the report itself. The shared resource preflight reads
+    // one level only, so a second envelope inside carried its report past
+    // the per-family caps on an imported file. No report root has a status
+    // or an ok of false; an envelope or API error does.
+    if (isRecord(payload.report) && ("status" in payload.report || payload.report.ok === false)) {
+      return { kind: "unreadable", error: "invalid" };
+    }
     return readScanTransportPayload(payload.report);
   }
 

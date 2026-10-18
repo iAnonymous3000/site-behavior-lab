@@ -75,6 +75,16 @@ const nextConfig = {
           : {})
       }
     : {
+        // The site renders no next/image, but Next keeps its image optimizer
+        // live at /_next/image unless told otherwise. On the container that
+        // endpoint fetched local paths through the app, so a caller could
+        // loop /_next/image?url=/reports/<id>/print over the default widths
+        // and drive an uncached full report render and storage read per
+        // request, outside the report-read quota. Static export already sets
+        // this.
+        images: {
+          unoptimized: true
+        },
         async headers() {
           // Next.js dev mode (React Refresh / webpack HMR) evaluates module code with
           // eval(), so the dev CSP must allow 'unsafe-eval' or the client bundle never

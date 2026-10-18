@@ -7,6 +7,7 @@ import {
 import { BROWSER_PUBLIC_REPORT_JSON_MAX_BYTES } from "./report-resource-limits";
 import { REPORT_RESOURCE_LIMITS, reportResourceViolation } from "./report-resource-policy";
 import { MAX_POLICY_QUOTE_CHARS, MAX_WARNING_CHARS } from "./redact-scan-report-v1";
+import { readScanTransportPayload } from "./scan-report-view";
 import { NODE_R2_PUBLIC_LIMITS } from "./scan-report-v2-r2-producer-contract";
 import { readStoredScanReport } from "./scan-report-reader";
 import { parseStrictJson } from "./strict-json";
@@ -252,4 +253,18 @@ test("quotes and warnings at the producer's code-point cap are admitted in every
   const host = makePublicSingleReportV2R2() as unknown as AnyRecord;
   host.run.evidence.requests[0].domain = astral.repeat(REPORT_RESOURCE_LIMITS.hostnameChars);
   assert.equal(reportResourceViolation(host)?.limit, `string-chars:${REPORT_RESOURCE_LIMITS.hostnameChars}`);
+});
+
+test("a report wrapped in two succeeded envelopes is not read, so it cannot skip the per-family caps", () => {
+  // The preflight unwraps one envelope and the transport reader used to
+  // unwrap any number, so a second wrap carried an over-cap report past the
+  // per-family caps and loaded it from an imported file.
+  const report = makePublicSingleReportV2R2() as unknown as AnyRecord;
+  assert.equal(readScanTransportPayload({ status: "succeeded", report }).kind, "report");
+  const overCap = structuredClone(report);
+  overCap.run.warnings = Array.from({ length: REPORT_RESOURCE_LIMITS.warnings + 1 }, (_, index) => `Warning ${index}`);
+  const doubleWrapped = { status: "succeeded", report: { status: "succeeded", report: overCap } };
+  assert.equal(readScanTransportPayload(doubleWrapped).kind, "unreadable");
+  assert.equal(readScanTransportPayload({ status: "succeeded", report: { status: "succeeded", report } }).kind, "unreadable");
+  assert.equal(readScanTransportPayload({ status: "succeeded", report: { ok: false, error: "x" } }).kind, "unreadable");
 });

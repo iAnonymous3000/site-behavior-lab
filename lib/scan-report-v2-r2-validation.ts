@@ -87,8 +87,11 @@ function isObservationResult(value: unknown): value is ConsentObservationResultR
   if (value.outcome === "read" || value.outcome === "unreadable") {
     return only(value, RESULT_BASE_KEYS);
   }
+  // An own-property check: "constructor" or "toString" would otherwise find
+  // an Object.prototype member, and codes.has would throw on an imported
+  // file instead of refusing it.
+  if (!Object.hasOwn(RESULT_ERROR_CODES, value.outcome)) return false;
   const codes = RESULT_ERROR_CODES[value.outcome];
-  if (codes === undefined) return false;
   return only(value, RESULT_ERROR_KEYS) && typeof value.errorCode === "string" && codes.has(value.errorCode);
 }
 

@@ -19,7 +19,12 @@
 import { PublicFacingError } from "./public-errors";
 import type { ScanFailureCause } from "./scan-failure-causes";
 import { scanTokenFromHeaders } from "./scan-token";
-import { fetchJsonResponseWithPolicy } from "./client-fetch-policy";
+import {
+  ClientFetchTimeoutError,
+  ClientInvalidJsonError,
+  ClientResponseTooLargeError,
+  fetchJsonResponseWithPolicy
+} from "./client-fetch-policy";
 
 export class EdgeScanGateError extends PublicFacingError {
   constructor(message: string, status: number, failureCause?: ScanFailureCause, retryAfterSeconds?: number) {
@@ -246,8 +251,19 @@ export async function assertTurnstileToken(options: {
       }
     ));
   } catch (error) {
+    // The fetch policy's own timeout, size and JSON errors are fixed
+    // sentences built from the label, and a cancellation carries the caller's
+    // own abort reason; those stay in the answer. Any other failure's message
+    // is transport text that can name an internal host or address, so it goes
+    // to the operator log only.
+    const policyError =
+      error instanceof ClientFetchTimeoutError ||
+      error instanceof ClientResponseTooLargeError ||
+      error instanceof ClientInvalidJsonError ||
+      (error instanceof Error && (error.name === "AbortError" || error.name === "TimeoutError"));
+    if (!policyError) console.error("Turnstile verification transport failed", error);
     throw new EdgeScanGateError(
-      error instanceof Error && error.message
+      policyError && error.message
         ? `Turnstile verification is unavailable: ${error.message}`
         : "Turnstile verification is unavailable.",
       503,

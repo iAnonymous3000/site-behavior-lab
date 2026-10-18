@@ -697,3 +697,24 @@ test("a retry-after window of one second reads as one second", () => {
   assert.equal(formatPublicScanRetryAfter(90), "2 minutes");
   assert.equal(formatPublicScanRetryAfter(5400), "2 hours");
 });
+
+test("a Turnstile transport failure answers with a fixed sentence, never the transport error text", async () => {
+  const failingFetch = (async () => {
+    throw new TypeError("internal error; reference = abc123 upstream 10.0.0.7:8443");
+  }) as unknown as typeof fetch;
+  const originalError = console.error;
+  console.error = () => undefined;
+  try {
+    await assert.rejects(
+      () => assertTurnstileToken({ secret: "k", token: "t", fetchImpl: failingFetch }),
+      (error: unknown) => {
+        assert.ok(error instanceof Error);
+        assert.equal(error.message, "Turnstile verification is unavailable.");
+        assert.equal(error.message.includes("10.0.0.7"), false);
+        return true;
+      }
+    );
+  } finally {
+    console.error = originalError;
+  }
+});

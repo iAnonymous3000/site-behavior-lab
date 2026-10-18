@@ -39,6 +39,13 @@ public API or a 1.0 release.
   text with a scrubbed address no longer refuses its report; and a
   resource-limit refusal names the limit and path it broke in the server
   log.
+- Security: the container build turns off Next's unused image optimizer,
+  whose `/_next/image` route rendered a report's print page per request
+  outside the report-read quota; the transport reader unwraps exactly one
+  job envelope, so a doubly wrapped import cannot skip the per-family caps;
+  a consent result naming an `Object.prototype` member is refused instead of
+  throwing; and a Turnstile transport failure answers with a fixed sentence,
+  logging the transport text.
 - Five scan refusals that reached the visitor without a declared cause now
   carry one, with their own notice: a host lookup that ran past its 5 s
   deadline (`host-lookup-timeout`, 503, worded to blame neither the address

@@ -723,3 +723,15 @@ test("an arm-swapped intervention pair is design-invalid at every evaluator vers
     assert.equal(swappedV1.pairValidity.eligible, false, `${label}: swapped at evaluator 1`);
   }
 });
+
+test("a consent result outcome named after an Object.prototype member is refused, never thrown", () => {
+  // The error-code table is a plain object literal, so an imported file could
+  // name "constructor" or "toString" as an outcome and reach an inherited
+  // function, whose missing .has threw out of the validator.
+  for (const outcome of ["constructor", "__proto__", "toString", "hasOwnProperty", "valueOf"]) {
+    const report = makeConsentSingleReportV2R2() as unknown as { run: { evidence: { consent: { verificationObservations: Array<{ result: unknown }> } } } };
+    report.run.evidence.consent.verificationObservations[0].result = { outcome, sequence: 0, errorCode: "x" };
+    assert.doesNotThrow(() => isPublicScanReportV2R2(report), outcome);
+    assert.equal(isPublicScanReportV2R2(report), false, outcome);
+  }
+});
