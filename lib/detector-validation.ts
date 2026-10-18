@@ -98,7 +98,17 @@ export const DETECTOR_VALIDATION_FIXTURES: readonly DetectorValidationFixture[] 
     file: "lib/fingerprint-observer.test.ts",
     testName: "a wrapper chain deeper than the stack bound records coverage loss instead of a clean read",
     verifies:
-      "A wrapper chain that saturates the bounded stack capture keeps the frame readable and counts it as listener-attribution loss instead of a clean, complete read."
+      "A wrapper chain that saturates even the deeper 512-frame stack capture keeps the frame readable and counts it as listener-attribution loss instead of a clean, complete read."
+  },
+  {
+    detector: "fingerprint-heuristics",
+    kind: "positive",
+    environment: "real-chromium",
+    file: "lib/fingerprint-observer.test.ts",
+    testName:
+      "React 19's commit recursion past 64 frames reads as the frame's own registration and keeps its listener findings",
+    verifies:
+      "A page whose own React-shaped commit traversal registers a listener 64 or 82 frames below its scheduler task reads as a first-party registration instead of bounded coverage, and a third-party session recorder beside it publishes its finding."
   },
   {
     detector: "fingerprint-heuristics",

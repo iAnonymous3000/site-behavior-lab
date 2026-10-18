@@ -3003,7 +3003,7 @@ test("scanSite marks fingerprint coverage partial when a poisoned main frame is 
       }
     );
     assert.deepEqual(staged!.measurement.detectors["fingerprint-heuristics"], {
-      version: "fingerprint-observer@7",
+      version: "fingerprint-observer@8",
       status: "partial",
       reason: "scan-failed",
       phaseId: 0
@@ -3099,7 +3099,7 @@ test("passive fingerprint loss remains causal when the consent snapshot is later
     assert.deepEqual(
       staged.measurement.detectors["fingerprint-heuristics"],
       {
-        version: "fingerprint-observer@7",
+        version: "fingerprint-observer@8",
         status: "partial",
         reason: "scan-failed",
         phaseId: consentPhase.phaseId
@@ -3194,16 +3194,17 @@ test("a fingerprint observer that read no frame at all records the same capture 
   }
 });
 
-// A first-party wrapper that pads every addEventListener call past the
-// observer's 64-frame stack capture, the shape Zone.js and deep React render
-// chains produce on real sites.
+// A first-party wrapper that pads every addEventListener call past both of the
+// observer's stack captures (64 frames, then 512 for a capture that saturated
+// with no third-party frame), the shape Zone.js and deep React render chains
+// produce on real sites, made deeper than any the October news sweep showed.
 const SATURATING_WRAPPER_SCRIPT =
   "const observerAdd = EventTarget.prototype.addEventListener;" +
   "function pad(target, args, depth) {" +
   "  if (depth > 0) return pad(target, args, depth - 1);" +
   "  return observerAdd.apply(target, args);" +
   "}" +
-  "EventTarget.prototype.addEventListener = function deepAdd(...args) { return pad(this, args, 100); };";
+  "EventTarget.prototype.addEventListener = function deepAdd(...args) { return pad(this, args, 600); };";
 
 // A deferred third-party task: canvas text readback, the unmasked WebGL
 // renderer read plus a pixel read, then input listeners registered through
@@ -3313,7 +3314,7 @@ test("a saturated listener stack publishes the frame's canvas and WebGL evidence
     // the detector status, the capture-loss ledger, and the v1 warning. Every
     // frame was read, so the v1 line is the listener one, never the frame one.
     assert.deepEqual(staged.measurement.detectors["fingerprint-heuristics"], {
-      version: "fingerprint-observer@7",
+      version: "fingerprint-observer@8",
       status: "partial",
       reason: "scan-failed",
       phaseId: 0
@@ -3449,7 +3450,7 @@ test("a passive read with bounded listener attribution cannot credit a later rec
       "no fingerprint detection may be credited to the consent phase"
     );
     assert.deepEqual(staged.measurement.detectors["fingerprint-heuristics"], {
-      version: "fingerprint-observer@7",
+      version: "fingerprint-observer@8",
       status: "partial",
       reason: "scan-failed",
       phaseId: consentPhase.phaseId

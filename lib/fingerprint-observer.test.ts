@@ -721,26 +721,32 @@ test("a first-party wrapper deep in the bounded stack still yields the third-par
   // fell past the truncation point and the frame read clean and complete with
   // zero detections. The raised bound keeps the registrant inside the capture,
   // so this exact page now produces the detection instead of a clean read.
-  const coverage = await coverageWithPaddedWrapper(40);
-  assert.equal(coverage.attemptedFrames, 1);
-  assert.equal(coverage.readableFrames, 1);
-  assert.equal(coverage.listenerAttributionLostFrames, 0);
-  assert.equal(coverage.observations.detections[0]?.kind, "input-monitoring");
-  assert.deepEqual(
-    coverage.observations.detections[0]?.evidence.thirdPartyOrigins,
-    ["https://recorder.example.net"]
-  );
+  // One hundred pad frames put it at frame 103, past the first 64-frame
+  // capture; the deeper capture that follows a saturated one reaches it
+  // (fingerprint-observer@8), where @7 counted the frame as lost.
+  for (const padDepth of [40, 100]) {
+    const coverage = await coverageWithPaddedWrapper(padDepth);
+    assert.equal(coverage.attemptedFrames, 1, `pad ${padDepth}`);
+    assert.equal(coverage.readableFrames, 1, `pad ${padDepth}`);
+    assert.equal(coverage.listenerAttributionLostFrames, 0, `pad ${padDepth}`);
+    assert.equal(coverage.observations.detections[0]?.kind, "input-monitoring", `pad ${padDepth}`);
+    assert.deepEqual(
+      coverage.observations.detections[0]?.evidence.thirdPartyOrigins,
+      ["https://recorder.example.net"],
+      `pad ${padDepth}`
+    );
+  }
 });
 
 test("a wrapper chain deeper than the stack bound records coverage loss instead of a clean read", async () => {
-  // One hundred pad frames exceed the observer's raised bound, so the capture
-  // saturates with first-party frames and the third-party registrant is
-  // structurally invisible. The honest wire outcome is a bounded read: the
-  // frame stays readable but is counted as listener-attribution loss, which
-  // the scanner records as fingerprint capture loss with a partial detector.
-  // A clean complete read here would let any page hide a registrant behind a
-  // deep first-party wrapper.
-  const coverage = await coverageWithPaddedWrapper(100);
+  // Six hundred pad frames exceed even the observer's deeper 512-frame
+  // capture, so both captures saturate with first-party frames and the
+  // third-party registrant is structurally invisible. The honest wire outcome
+  // is a bounded read: the frame stays readable but is counted as
+  // listener-attribution loss, which the scanner records as fingerprint
+  // capture loss with a partial detector. A clean complete read here would let
+  // any page hide a registrant behind a deep first-party wrapper.
+  const coverage = await coverageWithPaddedWrapper(600);
   assert.equal(coverage.attemptedFrames, 1);
   assert.equal(coverage.readableFrames, 1);
   assert.equal(coverage.listenerAttributionLostFrames, 1);
@@ -755,7 +761,8 @@ test("a saturated listener stack keeps the frame's canvas and WebGL evidence and
   // stack attribution. The registrant stays unknown, so the frame's
   // listener-coverage summaries are withheld, including the input-monitoring
   // summary a second vendor's resolvable registrations would otherwise earn.
-  const coverage = await coverageWithPaddedWrapper(100, true);
+  // Six hundred pad frames saturate the deeper capture too.
+  const coverage = await coverageWithPaddedWrapper(600, true);
   assert.equal(coverage.attemptedFrames, 1);
   assert.equal(coverage.readableFrames, 1);
   assert.equal(coverage.listenerAttributionLostFrames, 1);
@@ -790,6 +797,298 @@ test("a saturated listener stack keeps the frame's canvas and WebGL evidence and
     (inputMonitoring?.evidence as { thirdPartyOrigins: string[] }).thirdPartyOrigins,
     ["https://direct.example.org", "https://recorder.example.net"]
   );
+});
+
+// The depth cases below port the fixtures of the 2026-10-18 trial of the
+// October news sweep's listener-attribution loss (react-shape.html,
+// embed-host.html with embed.html and player.js, tp-beyond.html and
+// timer-deep.html), served from memory for every page of one context. Each
+// registration runs from a task (a MessageChannel message or a timer), never a
+// promise callback: a callback queued by a classic script runs at that
+// script's microtask checkpoint while document.currentScript is still set, and
+// the observer then never reads the stack. Chromium 153 counts the page frames
+// below the observer's addEventListener as 2 * depth + 2 for the React shape,
+// 2 * depth + 3 for the player and depth + 2 for the timer recursion.
+async function coverageOfRoutedPages(routes: Readonly<Record<string, string>>, pageUrls: readonly string[]) {
+  const browser = await chromium.launch({ headless: true });
+  try {
+    const context = await browser.newContext();
+    await context.addInitScript(fingerprintObserverInitScript, "example.com");
+    await context.route(/.*/, (route) => {
+      const url = new URL(route.request().url());
+      const body = routes[`${url.origin}${url.pathname}`];
+      return body === undefined
+        ? route.abort()
+        : route.fulfill({ body, contentType: url.pathname.endsWith(".js") ? "text/javascript" : "text/html" });
+    });
+    const coverages: Awaited<ReturnType<typeof collectFingerprintObservationsWithCoverage>>[] = [];
+    for (const pageUrl of pageUrls) {
+      const page = await context.newPage();
+      await page.goto(pageUrl);
+      await page.waitForTimeout(100);
+      coverages.push(await collectFingerprintObservationsWithCoverage(page.frames()));
+      await page.close();
+    }
+    return coverages;
+  } finally {
+    await browser.close();
+  }
+}
+
+// timer-deep.html: a first-party recursion `depth` calls deep, entered from a
+// timer, registers one keydown listener on the document.
+const TIMER_DEEP_ROUTES: Readonly<Record<string, string>> = {
+  "https://example.com/": '<!doctype html><title>timer deep</title><script src="/deep-timer.js"></script>',
+  "https://example.com/locked": '<!doctype html><title>timer deep, locked</title><script src="/lock.js"></script><script src="/deep-timer.js"></script>',
+  "https://example.com/lock.js":
+    'const writable = new URLSearchParams(location.search).get("writable") === "1";' +
+    'Object.defineProperty(Error, "stackTraceLimit", { value: 64, writable, configurable: false });',
+  "https://example.com/deep-timer.js":
+    'function deepTimer(k) { if (k === 0) { document.addEventListener("keydown", function timerKey() {}); return; } deepTimer(k - 1); }' +
+    'const depth = Number(new URLSearchParams(location.search).get("depth"));' +
+    "setTimeout(function timerEntry() { deepTimer(depth); }, 0);"
+};
+
+test("React 19's commit recursion past 64 frames reads as the frame's own registration and keeps its listener findings", async () => {
+  // The trial's top mechanism (13 of the 30 October reports with the listener
+  // line by its count; 6 revisited, 5 of them in a Next.js top frame):
+  // react-dom's passive-effect traversal alternates two functions per fiber
+  // level from a MessageChannel task, so a useEffect that adds a document
+  // listener sat 67 to 224 frames deep with no third-party frame anywhere in
+  // the chain.
+  // fingerprint-observer@7 counted that frame as lost at 64 frames and
+  // withheld its session-recording and input-monitoring findings; on
+  // thehour.com the withheld top frame held 20 third-party origins on the
+  // session-recording list. @8 captures again at 512 frames when the first
+  // capture saturates and reads the whole chain as the frame's own
+  // registration, so the recorder beside it publishes. Depth 20 (42 frames) is
+  // the control both versions read clean.
+  const routes = {
+    "https://example.com/":
+      "<!doctype html><title>react-shaped commit recursion</title>" +
+      "<script>" +
+      "function makeTree(depth) { return depth === 0 ? { effect: true, children: [] } : { children: [makeTree(depth - 1)] }; }" +
+      "function traverse(fiber) { for (const child of fiber.children) commitOnFiber(child); }" +
+      "function commitOnFiber(fiber) {" +
+      "  traverse(fiber);" +
+      '  if (fiber.effect) document.addEventListener("visibilitychange", function onVisibility() {});' +
+      "}" +
+      'const depth = Number(new URLSearchParams(location.search).get("depth") || "40");' +
+      "const channel = new MessageChannel();" +
+      "channel.port1.onmessage = function performWorkUntilDeadline() { commitOnFiber(makeTree(depth)); };" +
+      "channel.port2.postMessage(null);" +
+      "</script>" +
+      '<script src="https://recorder.example.net/recorder.js"></script>',
+    "https://recorder.example.net/recorder.js":
+      "setTimeout(function recordSession() {" +
+      '  for (const type of ["click","mousedown","mousemove","mouseup","pointerdown","pointermove","scroll","wheel"])' +
+      "    document.addEventListener(type, function recorderListener() {});" +
+      "}, 0);"
+  };
+  const depths = [20, 31, 40];
+  const coverages = await coverageOfRoutedPages(
+    routes,
+    depths.map((depth) => `https://example.com/?depth=${depth}`)
+  );
+  depths.forEach((depth, index) => {
+    const coverage = coverages[index];
+    assert.equal(coverage.attemptedFrames, 1, `depth ${depth}`);
+    assert.equal(coverage.readableFrames, 1, `depth ${depth}`);
+    assert.equal(coverage.listenerAttributionLostFrames, 0, `depth ${depth}`);
+    assert.deepEqual(
+      coverage.observations.detections,
+      [
+        {
+          kind: "session-recording",
+          heuristic: "interaction-listener-coverage-v1",
+          count: 1,
+          evidence: {
+            eventTypes: ["click", "mousedown", "mousemove", "mouseup", "pointerdown", "pointermove", "scroll", "wheel"],
+            listenerTargets: ["document"],
+            thirdPartyOrigins: ["https://recorder.example.net"],
+            totalListenerCalls: 8
+          }
+        }
+      ],
+      `depth ${depth}`
+    );
+  });
+});
+
+test("an embedded player's own deep render reads as that cross-site frame's registration", async () => {
+  // The YouTube (12 of the 30 reports by the trial's count, 2 revisited),
+  // Sourcepoint, Acast and omny.fm shape: a cross-site iframe whose own script
+  // renders nested components from a task and adds touch listeners at the
+  // leaf. @7 counted the iframe as lost at 64 frames, which marked the whole
+  // visit's fingerprinting evidence incomplete although a subframe never
+  // publishes listener findings. Depth 40 is the trial's validated fixture (83
+  // frames); depth 136 is 275 frames, the deepest chain the trial captured
+  // (YouTube's ytembeds render).
+  const routes = {
+    "https://example.com/":
+      "<!doctype html><title>embed host</title><p>host page</p>" +
+      "<script>" +
+      'const frame = document.createElement("iframe");' +
+      'frame.src = "https://embed.example.net/embed.html?depth=" + new URLSearchParams(location.search).get("depth");' +
+      "document.body.appendChild(frame);" +
+      "</script>",
+    "https://embed.example.net/embed.html":
+      '<!doctype html><title>embed</title><div id="player"></div><script src="/player.js"></script>',
+    "https://embed.example.net/player.js":
+      "function renderComponent(depth) { return renderChildren(depth); }" +
+      "function renderChildren(depth) {" +
+      "  if (depth === 0) {" +
+      '    const el = document.createElement("div");' +
+      '    document.getElementById("player").appendChild(el);' +
+      '    el.addEventListener("touchstart", function onTouchStart() {}, { passive: true });' +
+      '    el.addEventListener("touchmove", function onTouchMove() {}, { passive: true });' +
+      "    return;" +
+      "  }" +
+      "  return renderComponent(depth - 1);" +
+      "}" +
+      'const depth = Number(new URL(location.href).searchParams.get("depth") || "40");' +
+      "setTimeout(function scheduledRender() { renderComponent(depth); }, 0);"
+  };
+  const depths = [40, 136];
+  const coverages = await coverageOfRoutedPages(
+    routes,
+    depths.map((depth) => `https://example.com/?depth=${depth}`)
+  );
+  depths.forEach((depth, index) => {
+    assert.deepEqual(
+      { ...coverages[index], observations: undefined },
+      {
+        observations: undefined,
+        attemptedFrames: 2,
+        readableFrames: 2,
+        listenerAttributionLostFrames: 0,
+        canvasEvidenceBoundedFrames: 0,
+        canvasFontEvidenceBoundedFrames: 0,
+        summaryWithheldFrames: 0,
+        attemptedWorkerRealms: 0,
+        readableWorkerRealms: 0
+      },
+      `depth ${depth}`
+    );
+    assert.deepEqual(coverages[index].observations.detections, [], `depth ${depth}`);
+  });
+});
+
+test("a third-party registrant past the first 64 frames of a first-party helper is attributed to its third party", async () => {
+  // tp-beyond.html: a third-party script calls a first-party helper from a
+  // timer, and the helper recurses 80 calls before it registers, so the
+  // third-party frame sits at frame 82. @7 saw only first-party frames in its
+  // 64-frame capture and counted the frame as lost; the deeper capture
+  // reaches the third party and attributes the registrations to it.
+  const [coverage] = await coverageOfRoutedPages(
+    {
+      "https://example.com/":
+        '<!doctype html><title>third party beyond the bound</title><input id="field">' +
+        '<script src="/fp-lib.js"></script><script src="https://recorder.example.net/tp.js"></script>',
+      "https://example.com/fp-lib.js":
+        "window.fpDeepRegister = function fpDeepRegister(k, target) {" +
+        "  if (k === 0) {" +
+        '    for (const type of ["input","keydown","change","paste"]) target.addEventListener(type, function fpListener() {});' +
+        "    return;" +
+        "  }" +
+        "  fpDeepRegister(k - 1, target);" +
+        "};",
+      "https://recorder.example.net/tp.js":
+        'setTimeout(function tpEntry() { window.fpDeepRegister(80, document.querySelector("#field")); }, 0);'
+    },
+    ["https://example.com/"]
+  );
+  assert.equal(coverage.readableFrames, 1);
+  assert.equal(coverage.listenerAttributionLostFrames, 0);
+  assert.deepEqual(coverage.observations.detections, [
+    {
+      kind: "input-monitoring",
+      heuristic: "input-listener-coverage-v1",
+      count: 1,
+      evidence: {
+        eventTypes: ["change", "input", "keydown", "paste"],
+        listenerTargets: ["input"],
+        thirdPartyOrigins: ["https://recorder.example.net"],
+        totalListenerCalls: 4
+      }
+    }
+  ]);
+});
+
+test("the deeper capture reads a first-party chain up to 511 frames and counts one that fills 512 as lost", async () => {
+  // timer-deep.html at the two bounds: 63 and 64 frames, where @7's capture
+  // saturated at 64, and 511 and 512, where the deeper capture does. A chain
+  // that fills the deeper capture may continue past it, so it still reads as
+  // bounded listener attribution, never as a clean first-party registration.
+  const depths = [61, 62, 509, 510];
+  const coverages = await coverageOfRoutedPages(
+    TIMER_DEEP_ROUTES,
+    depths.map((depth) => `https://example.com/?depth=${depth}`)
+  );
+  assert.deepEqual(
+    coverages.map((coverage) => [coverage.readableFrames, coverage.listenerAttributionLostFrames]),
+    [
+      [1, 0],
+      [1, 0],
+      [1, 0],
+      [1, 1]
+    ]
+  );
+});
+
+test("a page that locks Error.stackTraceLimit at the first bound keeps a deep chain bounded, not unreadable", async () => {
+  // A limit locked at exactly 64 is the observer's own first bound, so the
+  // first capture still reads, as it did under @7. The deeper capture cannot
+  // raise a non-writable limit: the registration keeps @7's outcome, bounded
+  // listener attribution on a readable frame, and never the integrity exit
+  // that nulls the frame. A writable lock is raised to the deeper bound for
+  // the second capture: a chain inside 512 frames resolves, and one past it
+  // stays bounded instead of reading as ended at the locked 64.
+  const coverages = await coverageOfRoutedPages(TIMER_DEEP_ROUTES, [
+    "https://example.com/locked?depth=80",
+    "https://example.com/locked?depth=20",
+    "https://example.com/locked?depth=80&writable=1",
+    "https://example.com/locked?depth=600&writable=1"
+  ]);
+  assert.deepEqual(
+    coverages.map((coverage) => [coverage.readableFrames, coverage.listenerAttributionLostFrames]),
+    [
+      [1, 1],
+      [1, 0],
+      [1, 0],
+      [1, 1]
+    ]
+  );
+});
+
+test("a registration the first capture attributes keeps exactly that capture's origins", async () => {
+  // The deeper capture runs only for a capture that saturated with no
+  // third-party frame, so every registration @7 attributed is attributed
+  // alike. Here an outer vendor's timer reaches an inner vendor's registrar
+  // through 81 first-party frames: the inner vendor is frame 1 and the outer
+  // one frame 83, past the first capture, and only the inner one is named.
+  const [coverage] = await coverageOfRoutedPages(
+    {
+      "https://example.com/":
+        '<!doctype html><title>attributed inside the first capture</title><input id="field">' +
+        '<script src="/pad.js"></script>' +
+        '<script src="https://inner.example.net/inner.js"></script>' +
+        '<script src="https://outer.example.org/outer.js"></script>',
+      "https://example.com/pad.js":
+        "window.padThen = function padThen(k, fn) { if (k === 0) return fn(); return padThen(k - 1, fn); };",
+      "https://inner.example.net/inner.js":
+        "window.innerRegister = function innerRegister() {" +
+        '  const field = document.querySelector("#field");' +
+        '  for (const type of ["input","keydown","change","paste"]) field.addEventListener(type, function innerListener() {});' +
+        "};",
+      "https://outer.example.org/outer.js":
+        "setTimeout(function outerEntry() { window.padThen(80, window.innerRegister); }, 0);"
+    },
+    ["https://example.com/"]
+  );
+  assert.equal(coverage.listenerAttributionLostFrames, 0);
+  assert.equal(coverage.observations.detections[0]?.kind, "input-monitoring");
+  assert.deepEqual(coverage.observations.detections[0]?.evidence.thirdPartyOrigins, ["https://inner.example.net"]);
 });
 
 test("two third-party origins in one registration chain attribute the chain instead of censoring the frame", async () => {
@@ -2993,7 +3292,7 @@ test("fingerprintObserverInitScript requires both WebGL parameter and pixel entr
   // them apart only by evidence shape (isSingleSignalWebglDetection). Pinned
   // beside the detector version: changing the rule needs a version bump and
   // a reader that keys on it, so re-pin both together.
-  assert.equal(DETECTOR_VERSIONS["fingerprint-heuristics"], "fingerprint-observer@7");
+  assert.equal(DETECTOR_VERSIONS["fingerprint-heuristics"], "fingerprint-observer@8");
 
   const parameterHarness = installWebglHarness();
   try {

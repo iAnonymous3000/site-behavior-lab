@@ -13,15 +13,17 @@ import {
 
 test("public detector validation manifest is complete and mechanically valid", () => {
   assert.deepEqual(validateDetectorValidationManifest(DETECTOR_VALIDATION_FIXTURES), []);
-  assert.equal(DETECTOR_VALIDATION_FIXTURES.length, 26);
+  assert.equal(DETECTOR_VALIDATION_FIXTURES.length, 27);
   assert.equal(detectorValidationRows().length, DETECTOR_IDS.length);
-  // fingerprint-heuristics carries two more positive cases: the two-vendor
-  // chain fixture proving multi-origin chains detect instead of censoring, and
-  // the OffscreenCanvas readback fixture proving that surface is observed.
+  // fingerprint-heuristics carries three more positive cases: the two-vendor
+  // chain fixture proving multi-origin chains detect instead of censoring, the
+  // OffscreenCanvas readback fixture proving that surface is observed, and a
+  // React-shaped commit traversal past 64 frames that reads as the frame's own
+  // registration and keeps a third-party recorder's finding.
   assert.equal(detectorValidationRows().every((row) => row.positiveCases >= 1), true);
   assert.equal(
     detectorValidationRows().find((row) => row.detector === "fingerprint-heuristics")?.positiveCases,
-    3
+    4
   );
   // privacy-policy carries two more positive and two more negative cases: a
   // policy that renders its text after load is read in full, and a shell read
@@ -56,8 +58,9 @@ test("public detector validation manifest is complete and mechanically valid", (
   );
   // Four of them are privacy-policy cases: the two settle cases (rendered
   // late, still loading) and the two hub cases (a labeled short policy, a
-  // hub); one is the widget headline-layout case.
-  assert.equal(detectorValidationRows().reduce((sum, row) => sum + row.realChromiumCases, 0), 11);
+  // hub); one is the widget headline-layout case and one the React-shaped
+  // commit traversal.
+  assert.equal(detectorValidationRows().reduce((sum, row) => sum + row.realChromiumCases, 0), 12);
 });
 
 test("every public validation case points to an exact source-controlled test", () => {
@@ -75,7 +78,7 @@ test("every public validation case points to an exact source-controlled test", (
 
 test("validation matrix digest covers the exact public fixture inventory", () => {
   assert.equal(detectorValidationMetadata.version, "detector-fixture-matrix-v1");
-  assert.equal(detectorValidationMetadata.registryVersion, "node-detectors-v15");
+  assert.equal(detectorValidationMetadata.registryVersion, "node-detectors-v16");
   assert.equal(
     createHash("sha256").update(JSON.stringify(DETECTOR_VALIDATION_FIXTURES)).digest("hex"),
     detectorValidationMetadata.digest

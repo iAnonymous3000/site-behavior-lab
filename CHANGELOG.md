@@ -9,6 +9,36 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- The fingerprint observer no longer reads a frame's own deep framework code
+  as unattributable listener registrations (fingerprint-observer@8,
+  node-detectors-v16). A registration whose script is not the running one is
+  attributed from its call stack, which the observer captured 64 frames deep;
+  a capture that filled with no third-party frame counted the frame as lost,
+  withheld its session-recording and input-monitoring findings and marked the
+  visit's fingerprinting evidence incomplete. In the October news sweep that
+  happened on 30 of 500 reports. On the 11 of those sites revisited two weeks
+  later, the registrant was the lost frame's own code (React 19's commit
+  traversal in Next.js pages, YouTube's embedded player, Sourcepoint's Preact
+  privacy manager and an Acast player), registering 67 to 275 frames below
+  its task with no third-party frame anywhere in the chain; markers seen only
+  in listener-line reports (a YouTube embed, Hearst's platform scripts, a
+  Sourcepoint frame) place the other 19 with them. On thehour.com the
+  withheld top frame held 20 third-party origins on the session-recording
+  list and 11 on the input-monitoring list. A capture that fills its 64 frames with no
+  third-party frame is now taken once more, 512 frames deep: a chain that ends
+  inside it reads as the frame's own registration, or as its third-party
+  registrant when one sits past frame 64, and a chain that fills 512 frames
+  still bounds the frame's listener attribution. A registration the first
+  capture attributes keeps exactly that capture's answer, and a page that
+  keeps the second capture from going deeper stays bounded, never unreadable.
+  Rescanned on 2026-10-18, thehour.com and myplainview.com published their
+  top frames' session-recording (17 to 21 origins) and input-monitoring (10
+  to 13) findings, and attn.com, colorlines.com, kxxv.com and
+  dailynorthwestern.com moved from a partial detector to complete.
+  The registry digest moves from `940c0c9e...59e0` to `fe7a02dd...c129`; the
+  normalization, methodology and every other producer field are unchanged,
+  and the `node-v20-detectors-v15` rows are closed to their exact literals.
+  Reports already published keep their detector version.
 - The fingerprint observer no longer discards a whole frame when one of its
   canvas or font-measurement bounds overflows (fingerprint-observer@7,
   node-detectors-v15). Through @6 more than 128 distinct strings measured with

@@ -111,7 +111,15 @@ export type FingerprintObserverRealmArgs = {
  * @6 those bounds nulled the frame's whole snapshot, and a recommendation
  * widget's headline layout (Taboola's ellipsis code measures thousands of
  * one- and two-character strings) discarded every fingerprint finding of the
- * main frame it ran in.
+ * main frame it ran in. `@8` (node-detectors-v16) takes a listener
+ * registration's stack once more, 512 frames deep, when the 64-frame capture
+ * fills with no third-party frame, and attributes a chain that ends inside it.
+ * From @4 through @7 such a registration withheld its frame's
+ * session-recording and input-monitoring summaries and marked the visit's
+ * fingerprinting evidence incomplete, and the frame's own framework code
+ * (React 19's commit traversal, YouTube's embed render, Preact's diff)
+ * registers that deep on ordinary news pages. A chain that fills 512 frames
+ * still bounds the frame's listener attribution.
  *
  * `firstPartySiteKey` is the scanned site's registrable domain (computed with
  * the real public-suffix list in Node, e.g. "capitalone.com"), so the in-page
@@ -209,15 +217,20 @@ export function fingerprintObserverInitScript(
     stackTraceLimit?: number;
   };
   const errorCaptureStackTrace = StackError.captureStackTrace;
-  // Deep enough that ordinary synchronous framework wrappers keep the real
-  // registrant inside the capture, still bounded so one registration cannot
-  // allocate an arbitrarily deep stack. A chain that saturates this bound
-  // without resolving attribution records listener-attribution loss, never a
-  // clean read.
+  // The first capture is deep enough that ordinary synchronous framework
+  // wrappers keep the real registrant inside it. One that fills its bound with
+  // no third-party frame is taken again at the deeper bound
+  // (fingerprint-observer@8): on news pages React 19's commit traversal,
+  // YouTube's embed render and Preact's diff register listeners 67 to 275
+  // frames below their task, every frame the registering frame's own code.
+  // Both bounds keep one registration from allocating an arbitrarily deep
+  // stack, and a chain that fills the deeper one without resolving
+  // attribution records listener-attribution loss, never a clean read.
   const observerStackTraceLimit = mathMax(
     64,
     typeof StackError.stackTraceLimit === "number" ? StackError.stackTraceLimit : 0
   );
+  const observerDeepStackTraceLimit = mathMax(512, observerStackTraceLimit);
   const maxTrackedCanvases = 256;
   const maxUniqueCanvasFontValues = 128;
   const maxUniqueCanvasTextCharacters = 256;
@@ -1511,15 +1524,19 @@ export function fingerprintObserverInitScript(
   // "unavailable": no trustworthy stack could be read at all (prepareStackTrace
   // not neutralized, stackTraceLimit unusable, an empty stack). That is an
   // integrity signal about the frame and still withholds its whole snapshot.
-  // "saturated": a stack was read, but the capture filled the observer's bound
-  // with first-party frames only, so this registration's registrant is
+  // "saturated": a stack was read, but the deepest capture taken filled its
+  // bound with first-party frames only, so this registration's registrant is
   // unknown. Nothing else the frame recorded depends on that answer.
   type StackAttribution =
     | { status: "resolved"; origins: string[] }
     | { status: "saturated" }
     | { status: "unavailable" };
 
-  const scriptOriginFromStack = (skipUntil?: Function): StackAttribution => {
+  // One capture of the registration's stack below `skipUntil`, at most `limit`
+  // frames deep, with the page's prepareStackTrace neutralized and its
+  // stackTraceLimit pinned for the capture alone. Null when no trustworthy
+  // stack could be read.
+  const captureBoundedStack = (limit: number, skipUntil?: Function): string | null => {
     const previousPrepareStackTraceDescriptor = objectGetOwnPropertyDescriptor(StackError, "prepareStackTrace");
     const previousStackTraceLimitDescriptor = objectGetOwnPropertyDescriptor(StackError, "stackTraceLimit");
     let prepareStackTraceNeutralized = false;
@@ -1556,18 +1573,18 @@ export function fingerprintObserverInitScript(
       // Pin stack capture to the observer's bounded depth. Accepting a larger
       // page-controlled value lets one listener registration allocate an
       // arbitrarily deep stack.
-      if (typeof currentStackTraceLimit !== "number" || currentStackTraceLimit !== observerStackTraceLimit) {
+      if (typeof currentStackTraceLimit !== "number" || currentStackTraceLimit !== limit) {
         if (!previousStackTraceLimitDescriptor || previousStackTraceLimitDescriptor.configurable) {
           objectDefineProperty(StackError, "stackTraceLimit", {
             configurable: true,
             enumerable: previousStackTraceLimitDescriptor?.enumerable ?? false,
-            value: observerStackTraceLimit,
+            value: limit,
             writable: true
           });
           raisedStackTraceLimit = true;
         } else if ("value" in previousStackTraceLimitDescriptor && previousStackTraceLimitDescriptor.writable) {
           objectDefineProperty(StackError, "stackTraceLimit", {
-            value: observerStackTraceLimit
+            value: limit
           });
           raisedStackTraceLimit = true;
         }
@@ -1576,7 +1593,7 @@ export function fingerprintObserverInitScript(
       }
       if (raisedStackTraceLimit) stackTraceLimitUsable = true;
     } catch {
-      /* restoration below; the caller marks this frame's coverage unavailable */
+      /* restoration below; the caller decides what a missing stack means */
     }
 
     try {
@@ -1615,10 +1632,12 @@ export function fingerprintObserverInitScript(
       }
     }
 
-    if (!prepareStackTraceNeutralized || !stackTraceLimitUsable || stack === "") {
-      return { status: "unavailable" };
-    }
+    return prepareStackTraceNeutralized && stackTraceLimitUsable && stack !== "" ? stack : null;
+  };
 
+  // What one capture holds: every distinct third-party origin in the captured
+  // chain, the nearest origin of any party, and how many frames it holds.
+  const readCapturedChain = (stack: string) => {
     const stackLines = reflectApply(stringSplit, stack, ["\n"]) as string[];
     let nearestOrigin: string | null = null;
     const chainThirdPartyOrigins: string[] = [];
@@ -1668,22 +1687,38 @@ export function fingerprintObserverInitScript(
         /* keep looking */
       }
     }
+    return { chainThirdPartyOrigins, frameLineCount, nearestOrigin };
+  };
 
-    if (chainThirdPartyOrigins.length > 0) {
-      return { status: "resolved", origins: chainThirdPartyOrigins };
+  const scriptOriginFromStack = (skipUntil?: Function): StackAttribution => {
+    const stack = captureBoundedStack(observerStackTraceLimit, skipUntil);
+    if (stack === null) return { status: "unavailable" };
+    let chain = readCapturedChain(stack);
+    // No third-party frame inside a capture that filled its bound: the walk
+    // exhausted the captured frames without resolving attribution, and the
+    // registrant may sit beyond the truncation point. The chain is captured
+    // once more at the deeper bound, and only then, so every registration the
+    // first capture attributes keeps exactly that capture's answer. A page
+    // that keeps the second capture from going deeper (a stackTraceLimit it
+    // locked at the first bound) leaves the registration bounded, as the
+    // first capture alone did, never the integrity exit: that capture was
+    // trustworthy. A wrapper chain deeper than the deeper bound must read as
+    // bounded listener coverage, never as a clean first-party registration.
+    if (chain.chainThirdPartyOrigins.length === 0 && chain.frameLineCount >= observerStackTraceLimit) {
+      const deeperStack = captureBoundedStack(observerDeepStackTraceLimit, skipUntil);
+      if (deeperStack === null) return { status: "saturated" };
+      chain = readCapturedChain(deeperStack);
+      if (chain.chainThirdPartyOrigins.length === 0 && chain.frameLineCount >= observerDeepStackTraceLimit) {
+        return { status: "saturated" };
+      }
     }
-    // No third-party frame inside a capture that saturated the observer's
-    // bound: the walk exhausted the captured frames without resolving
-    // attribution, and the registrant may sit beyond the truncation point. A
-    // wrapper chain deeper than the bound must read as bounded listener
-    // coverage, never as a clean first-party registration.
-    if (frameLineCount >= observerStackTraceLimit) {
-      return { status: "saturated" };
+    if (chain.chainThirdPartyOrigins.length > 0) {
+      return { status: "resolved", origins: chain.chainThirdPartyOrigins };
     }
     // A healthy stack may contain only non-HTTP frames in harnesses or browser
     // internals. That is unattributed, not evidence that stack capture itself
     // was disabled.
-    return { status: "resolved", origins: nearestOrigin === null ? [] : [nearestOrigin] };
+    return { status: "resolved", origins: chain.nearestOrigin === null ? [] : [chain.nearestOrigin] };
   };
 
   const isThirdPartyOrigin = (origin: string | null): origin is string => {

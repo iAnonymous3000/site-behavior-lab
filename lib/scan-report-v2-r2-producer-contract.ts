@@ -510,6 +510,13 @@ const HISTORICAL_NODE_V16_NORMALIZATION = "redaction-v4+allowlists-v3:269f631f04
 // lines of fingerprint-observer@7, a widening, so it is superseded for both
 // observers.
 const HISTORICAL_NODE_V17_NORMALIZATION = "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:344fdfdf1404e1c1a6b287c18dfd098107da18bd3b6143b7c76d2db056391563+tldts@7.4.16+node-evidence-policy-v1+r2-http-status-compat-v1";
+// Exact normalization of the node-detectors-v15 producer (the bc719d41 policy
+// digest under tldts 7.4.16), closed with its two rows by node-detectors-v16,
+// which moves only the fingerprint observer and the registry. The literal
+// still equals the live constant, since that epoch does not move it; it is
+// spelled out so the closed rows stay put when a later epoch does. Not a
+// retirement: the normalization stays active and needs no superseded entry.
+const HISTORICAL_NODE_V20_NORMALIZATION = "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:bc719d41df186ae38fdb34695df43780a816d32b41068a6107cd35035269844e+tldts@7.4.16+node-evidence-policy-v1+r2-http-status-compat-v1";
 
 export const HISTORICAL_NODE_R2_V4_METHODOLOGIES_BY_NORMALIZATION: Readonly<
   Record<string, readonly string[]>
@@ -1387,6 +1394,56 @@ const HISTORICAL_NODE_V14_FIELDS: NodeTupleFields = Object.freeze({
   phaseOmissionContractVersion: "phase-omission-v2",
 });
 
+// Exact node-detectors-v15 producer fields, frozen when node-detectors-v16
+// closed the v20 rows: v14's fields with the registry and the fingerprint
+// observer that v15 moved.
+const HISTORICAL_NODE_V15_FIELDS: NodeTupleFields = Object.freeze({
+  detectorRegistry: Object.freeze({
+    "version": "node-detectors-v15",
+    "digest": "940c0c9e40976a953c24ee0919311d41901d531909ddad9ff3b7c25b294759e0"
+  } as const),
+  detectorVersions: Object.freeze({
+    "fingerprint-heuristics": "fingerprint-observer@7",
+    "keystroke-exfiltration": "synthetic-sentinel@5",
+    "cname-uncloaking": "dns-cname-chain@5",
+    "pixel-events": "pixel-request-decoder@6",
+    "consent-banner": "consent-control-and-state@3",
+    "privacy-policy": "policy-text-cross-check@10"
+  } as const),
+  detectorStatusContractVersion: "detector-status-v2",
+  detectorObligations: Object.freeze({
+    "version": "detector-obligations-v2",
+    "digest": "502d149030a4b771031a41ec71760e02d801a569ef0fe9725b01036351b10f2b"
+  } as const),
+  serviceRoleTaxonomy: Object.freeze({
+    "version": "service-role-taxonomy-v1",
+    "digest": "dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67"
+  } as const),
+  trackerCatalog: Object.freeze({
+    "source": "Hand-curated service catalog",
+    "version": "hand-curated-2026.08",
+    "entries": 146,
+    "digest": "e94970de235fc80254de8ed99b94316a252e52aa1c2e748c8fbfc3c093b908f4"
+  } as const),
+  publicLimits: Object.freeze({
+    "phases": 16,
+    "warnings": 64,
+    "requests": 1000,
+    "cookieRecords": 1000,
+    "cookieMutations": 2000,
+    "storageRecords": 1000,
+    "storageMutations": 2000,
+    "fingerprintEvents": 1000,
+    "fingerprintDetections": 256,
+    "cnameCloaks": 256,
+    "pixelEvents": 512,
+    "consentObservations": 32,
+    "policyClaims": 32,
+    "policyEntities": 100
+  } as const),
+  phaseOmissionContractVersion: "phase-omission-v2",
+});
+
 const ACTIVE_DETECTOR_STATUS_CONTRACT_VERSION: DetectorStatusContractVersion =
   isDetectorReasonCode("evidence-cap-reached") ? "detector-status-v2" : "detector-status-v1";
 const ACTIVE_NODE_FIELDS: NodeTupleFields = Object.freeze({
@@ -1424,30 +1481,30 @@ function nodeTuple(
   });
 }
 
-// Closed rows retain their exact literals; the node-detectors-v15 detector
-// epoch defines v20. It moves the fingerprint observer
-// (fingerprint-observer@7, which withholds only the canvas or canvas-font
-// summary an overflowed canvas or font-measurement bound limits instead of
-// discarding the frame) with the registry, and the public-string policy
-// digest in the normalization (a widening by its two canvas evidence lines);
-// the methodology, lists, toolchain and every other field are unchanged from
-// v19, whose two rows are closed below in NODE_R2_PRODUCER_TUPLES.
+// Closed rows retain their exact literals; the node-detectors-v16 detector
+// epoch defines v21. It moves only the fingerprint observer
+// (fingerprint-observer@8, which captures a listener registration's stack
+// again, 512 frames deep, when the 64-frame capture fills with no third-party
+// frame, and attributes a chain that ends inside it) with the registry; the
+// methodology, normalization, lists, toolchain and every other field are
+// unchanged from v20, whose two rows are closed below in
+// NODE_R2_PRODUCER_TUPLES.
 const ACTIVE_NODE_WIRE_IDENTITY_IS_DISTINCT =
   String(NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION) !== HISTORICAL_NODE_V15_METHODOLOGY ||
-  String(NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION) !== HISTORICAL_NODE_V17_NORMALIZATION ||
-  canonicalJson(ACTIVE_NODE_FIELDS) !== canonicalJson(HISTORICAL_NODE_V14_FIELDS);
+  String(NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION) !== HISTORICAL_NODE_V20_NORMALIZATION ||
+  canonicalJson(ACTIVE_NODE_FIELDS) !== canonicalJson(HISTORICAL_NODE_V15_FIELDS);
 
 const ACTIVE_NODE_TUPLES: readonly NodeR2ProducerTuple[] = ACTIVE_NODE_WIRE_IDENTITY_IS_DISTINCT
   ? Object.freeze([
       nodeTuple(
-        "node-v20-detectors-v15-active-lists-2026-09-28",
+        "node-v21-detectors-v16-active-lists-2026-09-28",
         NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION,
         NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION,
         ACTIVE_NODE_FIELDS,
         NODE_R2_CURRENT_ADBLOCK_IDENTITY
       ),
       nodeTuple(
-        "node-v20-detectors-v15-active-no-adblock",
+        "node-v21-detectors-v16-active-no-adblock",
         NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION,
         NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION,
         ACTIVE_NODE_FIELDS,
@@ -1910,6 +1967,18 @@ export const NODE_R2_PRODUCER_TUPLES: readonly NodeR2ProducerTuple[] = Object.fr
   nodeTuple("node-v19-detectors-v14-active-no-adblock",
     HISTORICAL_NODE_V17_NORMALIZATION, HISTORICAL_NODE_V15_METHODOLOGY,
     HISTORICAL_NODE_V14_FIELDS, null
+  ),
+  // The node-detectors-v15 producer, with and without the September 28
+  // lists, closed to its exact source identity by node-detectors-v16: the v15
+  // methodology, the bc719d41 policy digest under tldts 7.4.16,
+  // node-detectors-v15 and adblock-rust 0.13.3.
+  nodeTuple("node-v20-detectors-v15-active-lists-2026-09-28",
+    HISTORICAL_NODE_V20_NORMALIZATION, HISTORICAL_NODE_V15_METHODOLOGY,
+    HISTORICAL_NODE_V15_FIELDS, HISTORICAL_R2_LISTS_2026_09_28_ADBLOCK_0_13_3_IDENTITY
+  ),
+  nodeTuple("node-v20-detectors-v15-active-no-adblock",
+    HISTORICAL_NODE_V20_NORMALIZATION, HISTORICAL_NODE_V15_METHODOLOGY,
+    HISTORICAL_NODE_V15_FIELDS, null
   ),
   ...ACTIVE_NODE_TUPLES
 ]);
