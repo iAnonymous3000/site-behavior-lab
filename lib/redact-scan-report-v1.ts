@@ -50,6 +50,8 @@ import {
   CNAME_CANDIDATES_OMITTED_WARNING,
   CNAME_LOOKUP_FAILED_WARNING,
   CONSENT_BANNER_CHECK_INCOMPLETE_WARNING,
+  FINGERPRINT_CANVAS_EVIDENCE_BOUNDED_WARNING,
+  FINGERPRINT_CANVAS_FONT_EVIDENCE_BOUNDED_WARNING,
   FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING,
   FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING,
   FINGERPRINT_WORKER_REALM_CAPTURE_LOSS_WARNING,
@@ -372,6 +374,11 @@ const FIXED_SCANNER_WARNINGS = new Set([
   // or a shared worker it does not instrument. Admitted beside both lines
   // above, since a run can carry either with it.
   FINGERPRINT_WORKER_REALM_CAPTURE_LOSS_WARNING,
+  // fingerprint-observer@7: every frame read, a canvas or font-measurement
+  // bound overflowed. Admitted beside the listener and worker lines, since a
+  // run can carry them together.
+  FINGERPRINT_CANVAS_EVIDENCE_BOUNDED_WARNING,
+  FINGERPRINT_CANVAS_FONT_EVIDENCE_BOUNDED_WARNING,
   // Emitted by this sanitizer, not the scanner: a listener detection whose
   // script origin has no publishable registrable domain was withheld.
   LISTENER_DETECTION_WITHHELD_WARNING,

@@ -24,6 +24,27 @@ export type FingerprintObservationCollection = {
    */
   listenerAttributionLostFrames: number;
   /**
+   * Readable frames that withheld their canvas-fingerprinting summary because
+   * a canvas evidence bound overflowed: more canvases than the observer
+   * tracks, more distinct characters on one canvas than it keeps, or a drawn
+   * string longer than it keeps (fingerprint-observer@7). Their other
+   * detections and event counts were kept.
+   */
+  canvasEvidenceBoundedFrames: number;
+  /**
+   * Readable frames that withheld their canvas-font summary because a
+   * font-measurement bound overflowed: more distinct measured strings or
+   * fonts than the observer keeps, or a measured string or font longer than
+   * it keeps. Their other detections and event counts were kept.
+   */
+  canvasFontEvidenceBoundedFrames: number;
+  /**
+   * Readable frames that withheld at least one heuristic summary, for any of
+   * the three causes above; a frame with two causes counts once. Detector
+   * coverage is incomplete whenever this is non-zero.
+   */
+  summaryWithheldFrames: number;
+  /**
    * Worker realms that ran page code: the dedicated ones of current
    * documents, readable or not, and every shared worker the page started,
    * which is never readable (lib/worker-fingerprint-realm.ts decides which is
@@ -83,7 +104,14 @@ export type FingerprintObserverRealmArgs = {
  * consent-mode visit that lost its subject after a passive read that read a
  * frame but was incomplete is the other; that read's record publishes in
  * place of the unread state. In either branch, when the record held evidence,
- * the r2 builder refused @5's report for the visit.
+ * the r2 builder refused @5's report for the visit. `@7` (node-detectors-v15)
+ * stops discarding a frame for its canvas and font-measurement bounds: an
+ * overflowed bound withholds only the canvas or canvas-font summary it limits
+ * and flags the frame, as bounded listener attribution has since @4. Through
+ * @6 those bounds nulled the frame's whole snapshot, and a recommendation
+ * widget's headline layout (Taboola's ellipsis code measures thousands of
+ * one- and two-character strings) discarded every fingerprint finding of the
+ * main frame it ran in.
  *
  * `firstPartySiteKey` is the scanned site's registrable domain (computed with
  * the real public-suffix list in Node, e.g. "capitalone.com"), so the in-page
@@ -330,6 +358,18 @@ export function fingerprintObserverInitScript(
   // observations or the event counters, none of which read a stack or an
   // origin. Only the two listener-coverage summaries are withheld.
   let listenerAttributionLost = false;
+  // Scoped the same way, one canvas heuristic each (fingerprint-observer@7).
+  // The canvas bounds (256 tracked canvases, 256 distinct characters kept per
+  // canvas, 4,096 characters kept per drawn string) limit only what the
+  // canvas-fingerprinting summary can say, and the font-measurement bounds
+  // (128 distinct measured strings, 128 distinct fonts, 4,096 characters kept
+  // per measured string or font) only the canvas-font summary. Overflowing one
+  // withholds exactly that summary and flags the frame; the other detections
+  // and every event count, which no bound limits, are kept. A recommendation
+  // widget that measures thousands of one- and two-character strings to fit
+  // its headlines overflows the measured-string bound on ordinary text layout.
+  let canvasEvidenceBounded = false;
+  let canvasFontEvidenceBounded = false;
   type CanvasState = {
     maxReadHeight: number;
     maxReadWidth: number;
@@ -497,11 +537,19 @@ export function fingerprintObserverInitScript(
   const markListenerAttributionLost = (): void => {
     listenerAttributionLost = true;
   };
+  const markCanvasEvidenceBounded = (): void => {
+    canvasEvidenceBounded = true;
+  };
+  const markCanvasFontEvidenceBounded = (): void => {
+    canvasFontEvidenceBounded = true;
+  };
+  // Every bounded set names the summary it limits, so an overflow withholds
+  // that summary alone and never the frame.
   const addBoundedUniqueString = (
     values: Set<string>,
     value: string,
     limit: number,
-    onOverflow: () => void = markObserverCoverageLost
+    onOverflow: () => void
   ): void => {
     if (safeSetHas(values, value)) return;
     if (safeSetSize(values) >= limit) {
@@ -614,8 +662,10 @@ export function fingerprintObserverInitScript(
   const getCanvasState = (canvas: TrackedCanvas): CanvasState | null => {
     let state = safeMapGet(canvasStates, canvas);
     if (!state) {
+      // An untracked canvas could be the one that qualified, so the canvas
+      // summary is withheld; its reads still count as events.
       if (safeMapSize(canvasStates) >= maxTrackedCanvases) {
-        observerCoverageLost = true;
+        markCanvasEvidenceBounded();
         return null;
       }
       state = {
@@ -728,7 +778,7 @@ export function fingerprintObserverInitScript(
   const inheritTextProvenance = (state: CanvasState, provenance: CanvasTextProvenance): void => {
     reflectApply(setForEach, provenance.textCharacters, [
       (character: string) => {
-        addBoundedUniqueString(state.textCharacters, character, maxUniqueCanvasTextCharacters);
+        addBoundedUniqueString(state.textCharacters, character, maxUniqueCanvasTextCharacters, markCanvasEvidenceBounded);
       }
     ]);
     state.textWriteCalls = mathMax(state.textWriteCalls, provenance.textWriteCalls);
@@ -992,31 +1042,33 @@ export function fingerprintObserverInitScript(
   // emission carries.
   const buildSnapshot = (): string | null => {
     // The scanner treats a non-snapshot as an unreadable frame and records
-    // detector coverage loss. Never turn a compromised stack reader or an
-    // overflowed evidence bound into a publishable zero.
+    // detector coverage loss. Never turn a compromised stack reader, a
+    // promise call the observer could not follow or a broken worker stream
+    // into a publishable zero.
     if (observerCoverageLost) return null;
     const detections: FingerprintDetectionSummary[] = [];
     const appendDetections = (items: FingerprintDetectionSummary[]) => {
       for (let index = 0; index < items.length; index += 1) safeArrayAppend(detections, items[index]);
     };
-    appendDetections(summarizeCanvasDetections());
-    appendDetections(summarizeCanvasFontDetections());
+    // A bounded heuristic withholds exactly the summaries its evidence feeds
+    // and flags the frame, so the scanner records the loss instead of reading
+    // a clean frame: a canvas or font-measurement bound its canvas summary,
+    // bounded listener attribution the two summaries built from attributed
+    // registrations.
+    if (!canvasEvidenceBounded) appendDetections(summarizeCanvasDetections());
+    if (!canvasFontEvidenceBounded) appendDetections(summarizeCanvasFontDetections());
     appendDetections(summarizeHighEntropyDetections());
-    // Bounded listener attribution withholds exactly the summaries built
-    // from attributed registrations and flags the frame, so the scanner
-    // records the loss instead of reading a clean frame.
-    if (listenerAttributionLost) {
-      return trustedJsonSnapshot({
-        detections,
-        events: snapshotEventCounts(),
-        listenerAttributionLost: true
-      });
-    }
-    appendDetections(summarizeInteractionDetections());
-    return trustedJsonSnapshot({
-      detections,
-      events: snapshotEventCounts()
-    });
+    if (!listenerAttributionLost) appendDetections(summarizeInteractionDetections());
+    const snapshot: Record<string, unknown> = { detections, events: snapshotEventCounts() };
+    // Defined, never assigned, so a setter the page put on Object.prototype
+    // cannot swallow a flag.
+    const flagSnapshot = (key: string) => {
+      objectDefineProperty(snapshot, key, { configurable: true, enumerable: true, value: true, writable: true });
+    };
+    if (listenerAttributionLost) flagSnapshot("listenerAttributionLost");
+    if (canvasEvidenceBounded) flagSnapshot("canvasEvidenceBounded");
+    if (canvasFontEvidenceBounded) flagSnapshot("canvasFontEvidenceBounded");
+    return trustedJsonSnapshot(snapshot);
   };
 
   if (!workerRealm) {
@@ -1196,9 +1248,9 @@ export function fingerprintObserverInitScript(
       if (state) {
         state.textWriteCalls += 1;
         const retainedLength = text.length > maxRetainedCanvasTextLength ? maxRetainedCanvasTextLength : text.length;
-        if (retainedLength !== text.length) observerCoverageLost = true;
+        if (retainedLength !== text.length) markCanvasEvidenceBounded();
         for (let index = 0; index < retainedLength; index += 1) {
-          addBoundedUniqueString(state.textCharacters, text[index], maxUniqueCanvasTextCharacters);
+          addBoundedUniqueString(state.textCharacters, text[index], maxUniqueCanvasTextCharacters, markCanvasEvidenceBounded);
         }
       }
       return result;
@@ -1332,12 +1384,13 @@ export function fingerprintObserverInitScript(
       canvasFontState.measureTextCalls += 1;
       canvasFontState.maxMeasuredTextLength = mathMax(canvasFontState.maxMeasuredTextLength, measuredText.length);
       if (measuredText.length > maxRetainedCanvasTextLength) {
-        observerCoverageLost = true;
+        markCanvasFontEvidenceBounded();
       } else {
         addBoundedUniqueString(
           canvasFontState.measuredTextSamples,
           measuredText,
-          maxUniqueCanvasTextSamples
+          maxUniqueCanvasTextSamples,
+          markCanvasFontEvidenceBounded
         );
       }
 
@@ -1352,9 +1405,14 @@ export function fingerprintObserverInitScript(
       const normalizedFont = typeof contextFont === "string" ? (reflectApply(stringTrim, contextFont, []) as string) : "";
       if (normalizedFont) {
         if (normalizedFont.length > maxRetainedCanvasTextLength) {
-          observerCoverageLost = true;
+          markCanvasFontEvidenceBounded();
         } else {
-          addBoundedUniqueString(canvasFontState.fontValues, normalizedFont, maxUniqueCanvasFontValues);
+          addBoundedUniqueString(
+            canvasFontState.fontValues,
+            normalizedFont,
+            maxUniqueCanvasFontValues,
+            markCanvasFontEvidenceBounded
+          );
         }
       }
       return result;
@@ -2022,6 +2080,9 @@ export async function collectFingerprintObservationsWithCoverage(
   const detections = new Map<FingerprintDetectionSummary["kind"], FingerprintDetectionSummary>();
   let readableFrames = 0;
   let listenerAttributionLostFrames = 0;
+  let canvasEvidenceBoundedFrames = 0;
+  let canvasFontEvidenceBoundedFrames = 0;
+  let summaryWithheldFrames = 0;
   const mergeSnapshot = (normalized: NonNullable<ReturnType<typeof normalizeFingerprintSnapshot>>) => {
     for (const [api, count] of Object.entries(normalized.events)) {
       merged.set(api, (merged.get(api) ?? 0) + count);
@@ -2052,6 +2113,9 @@ export async function collectFingerprintObservationsWithCoverage(
     if (!normalized) continue;
     readableFrames += 1;
     if (normalized.listenerAttributionLost) listenerAttributionLostFrames += 1;
+    if (normalized.canvasEvidenceBounded) canvasEvidenceBoundedFrames += 1;
+    if (normalized.canvasFontEvidenceBounded) canvasFontEvidenceBoundedFrames += 1;
+    if (snapshotWithheldSummary(normalized)) summaryWithheldFrames += 1;
     mergeSnapshot(normalized);
   }
 
@@ -2064,7 +2128,11 @@ export async function collectFingerprintObservationsWithCoverage(
       const normalized = normalizeFingerprintSnapshot(snapshot);
       // A worker realm registers no listeners through the observer, so a
       // snapshot flagging bounded listener attribution is not one it produces.
-      if (!normalized || normalized.listenerAttributionLost) continue;
+      // A worker realm whose canvas or font-measurement evidence overflowed a
+      // bound stays unread, as its null snapshot made it before
+      // fingerprint-observer@7: worker evidence has no per-summary loss of
+      // its own, and the realm's unread count already discloses it.
+      if (!normalized || snapshotWithheldSummary(normalized)) continue;
       readableWorkerRealms += 1;
       mergeSnapshot(normalized);
     }
@@ -2080,16 +2148,34 @@ export async function collectFingerprintObservationsWithCoverage(
     attemptedFrames: frames.length,
     readableFrames,
     listenerAttributionLostFrames,
+    canvasEvidenceBoundedFrames,
+    canvasFontEvidenceBoundedFrames,
+    summaryWithheldFrames,
     attemptedWorkerRealms,
     readableWorkerRealms
   };
 }
 
-function normalizeFingerprintSnapshot(snapshot: unknown): {
+type NormalizedFingerprintSnapshot = {
   detections: FingerprintDetectionSummary[];
   events: Record<string, number>;
   listenerAttributionLost: boolean;
-} | null {
+  canvasEvidenceBounded: boolean;
+  canvasFontEvidenceBounded: boolean;
+};
+
+function snapshotWithheldSummary(snapshot: NormalizedFingerprintSnapshot): boolean {
+  return snapshot.listenerAttributionLost || snapshot.canvasEvidenceBounded || snapshot.canvasFontEvidenceBounded;
+}
+
+// Each flag names the detection kinds its frame withheld.
+const WITHHELD_DETECTION_KINDS = {
+  listenerAttributionLost: ["session-recording", "input-monitoring"],
+  canvasEvidenceBounded: ["canvas-fingerprinting"],
+  canvasFontEvidenceBounded: ["canvas-font-fingerprinting"]
+} as const satisfies Record<string, readonly FingerprintDetectionSummary["kind"][]>;
+
+function normalizeFingerprintSnapshot(snapshot: unknown): NormalizedFingerprintSnapshot | null {
   let candidate = snapshot;
   const serialized = typeof candidate === "string";
   if (typeof candidate === "string") {
@@ -2105,26 +2191,27 @@ function normalizeFingerprintSnapshot(snapshot: unknown): {
     if (!isRecord(candidate.events) || !Array.isArray(candidate.detections)) return null;
     const events = numericRecord(candidate.events);
     if (!events) return null;
-    // The observer writes this flag only as `true`. Any other value, or a
-    // flagged frame that still carries a listener-coverage summary, is not a
+    // The observer writes each flag only as `true`. Any other value, or a
+    // flagged frame that still carries a summary its flag withheld, is not a
     // snapshot the observer produces and reads as an unreadable frame.
-    const listenerAttributionLost = "listenerAttributionLost" in candidate;
-    if (listenerAttributionLost && candidate.listenerAttributionLost !== true) return null;
+    const flags = { listenerAttributionLost: false, canvasEvidenceBounded: false, canvasFontEvidenceBounded: false };
+    const withheldKinds = new Set<FingerprintDetectionSummary["kind"]>();
+    for (const flag of Object.keys(WITHHELD_DETECTION_KINDS) as (keyof typeof WITHHELD_DETECTION_KINDS)[]) {
+      if (!(flag in candidate)) continue;
+      if (candidate[flag] !== true) return null;
+      flags[flag] = true;
+      for (const kind of WITHHELD_DETECTION_KINDS[flag]) withheldKinds.add(kind);
+    }
     const detections: FingerprintDetectionSummary[] = [];
     for (const detection of candidate.detections) {
       if (!isFingerprintDetectionSummary(detection)) return null;
-      if (
-        listenerAttributionLost &&
-        (detection.kind === "session-recording" || detection.kind === "input-monitoring")
-      ) {
-        return null;
-      }
+      if (withheldKinds.has(detection.kind)) return null;
       detections.push(detection);
     }
     return {
       detections,
       events,
-      listenerAttributionLost
+      ...flags
     };
   }
 
@@ -2133,7 +2220,9 @@ function normalizeFingerprintSnapshot(snapshot: unknown): {
   return {
     detections: [],
     events: legacyEvents,
-    listenerAttributionLost: false
+    listenerAttributionLost: false,
+    canvasEvidenceBounded: false,
+    canvasFontEvidenceBounded: false
   };
 }
 

@@ -9,6 +9,35 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- The fingerprint observer no longer discards a whole frame when one of its
+  canvas or font-measurement bounds overflows (fingerprint-observer@7,
+  node-detectors-v15). Through @6 more than 128 distinct strings measured with
+  `measureText`, more than 128 fonts, more than 256 canvases, more than 256
+  distinct characters drawn on one canvas, or a drawn or measured string or
+  font longer than 4,096 characters nulled the frame's snapshot, and the
+  report published no fingerprint call or finding from that frame. Taboola's
+  recommendation widget fits its headlines by measuring every character and
+  character pair in the widget's fonts (1,482 to 4,993 calls on four news
+  pages across three of its publisher networks). In the October news sweep
+  all 121 pages that rendered the widget lost a frame, against 1 of the other
+  379; on the four pages rescanned it was the main frame, and abc10.com's
+  held a canvas fingerprinting and an offline audio fingerprinting finding
+  the report omitted. An
+  overflowed bound now withholds only the finding it limits (the
+  canvas-fingerprinting finding for the canvas bounds, the canvas-font
+  finding for the measurement bounds); the frame's other findings and every
+  API call count publish, the fingerprinting family stays censored and the
+  detector partial, and v1 reports carry one of two new lines saying which
+  finding is incomplete. The canvas-font finding is never published from
+  overflowed measurements: making the frames readable without that rule
+  would have reported canvas font fingerprinting on every widget page from
+  text layout. A dedicated worker that overflows a bound stays unread, as
+  before. The two admitted lines widen the public-string policy (digest
+  `344fdfdf...1563` to `bc719d41...844e`); the outgoing Node and PageGraph
+  normalizations stay readable as superseded identities, and the
+  `node-v19-detectors-v14` rows and `pagegraph-v4-tldts7416-active` are
+  closed to their exact literals. Reports already published keep their
+  detector version.
 - The privacy-policy cross-check no longer reads a privacy hub as the policy
   (policy-text-cross-check@10, node-detectors-v14). A site's policy link can
   lead to a landing page whose policy is on another page it links to:

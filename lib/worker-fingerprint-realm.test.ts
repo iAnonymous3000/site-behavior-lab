@@ -939,6 +939,9 @@ test("the same snapshot text merges identically as a frame and as a worker realm
       attemptedFrames: 1,
       readableFrames: 1,
       listenerAttributionLostFrames: 0,
+      canvasEvidenceBoundedFrames: 0,
+      canvasFontEvidenceBoundedFrames: 0,
+      summaryWithheldFrames: 0,
       attemptedWorkerRealms: 1,
       readableWorkerRealms: 1
     }
@@ -948,6 +951,11 @@ test("the same snapshot text merges identically as a frame and as a worker realm
     readableSnapshots: [
       "not json",
       JSON.stringify({ detections: [], events: { "canvas.toDataURL": 1 }, listenerAttributionLost: true }),
+      // fingerprint-observer@7: a worker realm whose canvas or font
+      // measurements overflowed a bound stays unread, as its null snapshot
+      // made it before, rather than merging with the bounded summary missing.
+      JSON.stringify({ detections: [], events: { "canvas.measureText": 200 }, canvasFontEvidenceBounded: true }),
+      JSON.stringify({ detections: [], events: { "canvas.toDataURL": 1 }, canvasEvidenceBounded: true }),
       first
     ],
     unreadRealms: 2
@@ -959,7 +967,10 @@ test("the same snapshot text merges identically as a frame and as a worker realm
       attemptedFrames: 0,
       readableFrames: 0,
       listenerAttributionLostFrames: 0,
-      attemptedWorkerRealms: 5,
+      canvasEvidenceBoundedFrames: 0,
+      canvasFontEvidenceBoundedFrames: 0,
+      summaryWithheldFrames: 0,
+      attemptedWorkerRealms: 7,
       readableWorkerRealms: 1
     }
   );

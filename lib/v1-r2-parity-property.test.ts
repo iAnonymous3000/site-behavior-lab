@@ -48,6 +48,8 @@ import {
   CNAME_CANDIDATES_OMITTED_WARNING,
   CNAME_LOOKUP_FAILED_WARNING,
   CONSENT_BANNER_CHECK_INCOMPLETE_WARNING,
+  FINGERPRINT_CANVAS_EVIDENCE_BOUNDED_WARNING,
+  FINGERPRINT_CANVAS_FONT_EVIDENCE_BOUNDED_WARNING,
   FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING,
   FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING,
   FINGERPRINT_WORKER_REALM_CAPTURE_LOSS_WARNING,
@@ -149,10 +151,16 @@ const FINGERPRINT_OUTCOMES = [
   "worker",
   "frame-and-worker",
   "listener-and-worker",
+  // fingerprint-observer@7: every frame read, a frame's canvas or
+  // font-measurement bound overflowed and withheld that one summary.
+  "canvas",
+  "canvas-font",
+  "listener-and-canvas-font",
   // Consent mode only: the passive read just before the click.
   "passive-worker",
   "passive-frame",
   "passive-listener",
+  "passive-canvas-font",
   "passive-read-failed",
   "attribution-incomplete"
 ] as const;
@@ -310,6 +318,7 @@ const PASSIVE_BOUNDARY_FINGERPRINT = new Set<FingerprintOutcome>([
   "passive-worker",
   "passive-frame",
   "passive-listener",
+  "passive-canvas-font",
   "passive-read-failed"
 ]);
 const PASSIVE_BOUNDARY_LOSSES = new Set<LossEvent>([
@@ -615,6 +624,7 @@ function scannerDraft(visit: Visit): Draft {
     } else if (
       visit.fingerprint === "passive-frame" ||
       visit.fingerprint === "passive-listener" ||
+      visit.fingerprint === "passive-canvas-font" ||
       visit.fingerprint === "passive-worker"
     ) {
       loss(draft, "fingerprinting", passive, "dropped", "fingerprint-observer");
@@ -704,16 +714,26 @@ function scannerDraft(visit: Visit): Draft {
   const state = stateRead(visit);
   const frameFailed = visit.fingerprint === "frame-failed" || visit.fingerprint === "frame-failed-worker-evidence";
   const finalFrame = visit.fingerprint === "frame-partial" || frameFailed || visit.fingerprint === "frame-and-worker";
-  const finalListener = visit.fingerprint === "listener" || visit.fingerprint === "listener-and-worker";
+  const finalListener =
+    visit.fingerprint === "listener" ||
+    visit.fingerprint === "listener-and-worker" ||
+    visit.fingerprint === "listener-and-canvas-font";
   const finalWorker = visit.fingerprint === "worker" || visit.fingerprint === "frame-and-worker" || visit.fingerprint === "listener-and-worker";
+  const finalCanvas = visit.fingerprint === "canvas";
+  const finalCanvasFont = visit.fingerprint === "canvas-font" || visit.fingerprint === "listener-and-canvas-font";
+  const finalSummaryWithheld = finalListener || finalCanvas || finalCanvasFont;
   const frameCoverageComplete = state ? !finalFrame : passiveFingerprintRead;
   if (!frameCoverageComplete) line(draft, FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING);
-  else if (state && finalListener) line(draft, FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING);
+  else if (state) {
+    if (finalListener) line(draft, FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING);
+    if (finalCanvas) line(draft, FINGERPRINT_CANVAS_EVIDENCE_BOUNDED_WARNING);
+    if (finalCanvasFont) line(draft, FINGERPRINT_CANVAS_FONT_EVIDENCE_BOUNDED_WARNING);
+  }
   if ((state && finalWorker) || visit.fingerprint === "passive-worker") line(draft, FINGERPRINT_WORKER_REALM_CAPTURE_LOSS_WARNING);
   if (state) {
     if (visit.losses.includes("page-title-truncated")) loss(draft, "detector-output", snapshot, "truncated", "page-title");
     if (visit.fingerprint === "attribution-incomplete") loss(draft, "fingerprinting", snapshot, "dropped", "fingerprint-observer");
-    if (finalFrame || finalListener || finalWorker) loss(draft, "fingerprinting", snapshot, "dropped", "fingerprint-observer");
+    if (finalFrame || finalSummaryWithheld || finalWorker) loss(draft, "fingerprinting", snapshot, "dropped", "fingerprint-observer");
     if (visit.losses.includes("final-storage-failed")) loss(draft, "storage", snapshot, "dropped", "storage-snapshot");
     else if (visit.losses.includes("final-storage-truncated")) loss(draft, "storage", snapshot, "truncated", "storage-snapshot");
     // Beside exactly that loss (finalStorageReadTruncated or a committed read that failed).
@@ -726,7 +746,7 @@ function scannerDraft(visit: Visit): Draft {
       // frame-failed-worker-evidence: no frame read, a worker realm read and
       // its evidence published, so the detector reported activity.
       finalFrame ||
-      finalListener ||
+      finalSummaryWithheld ||
       finalWorker ||
       visit.fingerprint === "attribution-incomplete" ||
       (draft.consent !== null && !passiveFingerprintRead)
@@ -1444,19 +1464,25 @@ const ALLOWED_DIVERGENCES: readonly AllowedDivergence[] = [
   },
   // TODO(v1-r2-parity finding P10): listener attribution lost at the read
   // just before the click (the passive boundary's
-  // listenerAttributionLostFrames). r2 withholds the visit's fingerprint
-  // evidence as for a frame or worker realm that read could not cover; v1
-  // keeps it with no line. The limitations page names frames, dedicated
-  // workers and shared workers for that withholding, not listener
-  // attribution, so this cause is not the documented passive boundary above.
+  // listenerAttributionLostFrames), and since node-detectors-v14 a canvas or
+  // font-measurement bound overflowed there, which the same summaryWithheldFrames
+  // condition makes the same incomplete boundary. r2 withholds the visit's
+  // fingerprint evidence as for a frame or worker realm that read could not
+  // cover; v1 keeps it with no line. The limitations page names frames,
+  // dedicated workers and shared workers for that withholding, not these
+  // causes, so they are not the documented passive boundary above.
   {
     name: "consent-passive-listener-attribution-is-r2-only",
-    record: "finding P10 (property test review, 2026-09-28): scanSiteWithMeasurement, the passive boundary's listenerAttributionLostFrames",
+    record:
+      "finding P10 (property test review, 2026-09-28; the canvas bounds joined it with node-detectors-v14, 2026-10-18): " +
+      "scanSiteWithMeasurement, the passive boundary's summaryWithheldFrames",
     todo: true,
     covers: (visit, violation) =>
-      visit.fingerprint === "passive-listener" && violation.kind !== "population" && FINGERPRINT_CLAIMS.has(violation.subject),
+      (visit.fingerprint === "passive-listener" || visit.fingerprint === "passive-canvas-font") &&
+      violation.kind !== "population" &&
+      FINGERPRINT_CLAIMS.has(violation.subject),
     coversLoss: (visit, loss) =>
-      visit.fingerprint === "passive-listener" &&
+      (visit.fingerprint === "passive-listener" || visit.fingerprint === "passive-canvas-font") &&
       loss.family === "fingerprinting" &&
       loss.detail === "fingerprint-observer" &&
       loss.phaseId === phasePlan(visit).passive
@@ -1817,7 +1843,14 @@ test("with the state unread, a consent visit publishes its passive read on both 
   // read its frame but was incomplete, or after one that read no frame.
   const evidence = { ...fixedVisit({}).evidence, fingerprintEvents: true, listener: "publishable" as const };
   for (const subject of ["consent-left", "left-before-state"] as const) {
-    for (const fingerprint of ["complete", "passive-frame", "passive-listener", "passive-worker", "passive-read-failed"] as const) {
+    for (const fingerprint of [
+      "complete",
+      "passive-frame",
+      "passive-listener",
+      "passive-canvas-font",
+      "passive-worker",
+      "passive-read-failed"
+    ] as const) {
       const visit = fixedVisit({
         mode: "accept-all",
         banner: subject === "consent-left" ? "clicked" : "no-budget-for-phase",

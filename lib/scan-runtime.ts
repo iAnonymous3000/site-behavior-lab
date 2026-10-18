@@ -180,6 +180,36 @@ export const FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING =
 export const FINGERPRINT_WORKER_REALM_CAPTURE_LOSS_WARNING =
   "The fingerprint observer could not read one or more Web Workers the page started, so fingerprint-like API calls and heuristics for this visit are incomplete.";
 /**
+ * Every frame was read, but at least one overflowed a canvas evidence bound:
+ * more canvases than the observer tracks, more distinct characters on one
+ * canvas than it keeps, or a drawn string longer than it keeps
+ * (fingerprint-observer@7 withholds that frame's canvas-fingerprinting
+ * summary instead of discarding the frame). Its other detections and event
+ * counts were kept.
+ *
+ * Like the listener line, it says the frame was read, so it is emitted only
+ * when every frame was, and v1 readers censor the whole fingerprinting family
+ * for it exactly as for the frame line, so the published population is
+ * unchanged. It must never contain another fingerprint line's recognition
+ * fragment.
+ */
+export const FINGERPRINT_CANVAS_EVIDENCE_BOUNDED_WARNING =
+  "The in-page fingerprint observer read every frame, but one or more used more canvases or drew more canvas text than it keeps, so canvas fingerprinting findings for this visit are incomplete.";
+/**
+ * Every frame was read, but at least one overflowed a font-measurement bound:
+ * more distinct measured strings or fonts than the observer keeps, or a
+ * measured string or font longer than it keeps (fingerprint-observer@7
+ * withholds that frame's canvas-font summary instead of discarding the
+ * frame). A recommendation widget fitting its headlines can do this with
+ * ordinary text layout. Its other detections and event counts, the measured
+ * call count included, were kept.
+ *
+ * Emitted, censored and kept apart from the other lines exactly as the
+ * canvas line above is.
+ */
+export const FINGERPRINT_CANVAS_FONT_EVIDENCE_BOUNDED_WARNING =
+  "The in-page fingerprint observer read every frame, but one or more measured more canvas text or fonts than it keeps, so canvas font fingerprinting findings for this visit are incomplete.";
+/**
  * The v1 sanitizer withheld a session-recording or input-monitoring detection
  * because a script origin it named redacted to the invalid-URL marker (a
  * path-style S3 host, a bare-IP CDN, a host that is itself a public suffix, a

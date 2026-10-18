@@ -101,6 +101,9 @@ test("collectFingerprintObservationsWithCoverage accepts only validated primitiv
     attemptedFrames: 4,
     readableFrames: 1,
     listenerAttributionLostFrames: 0,
+    canvasEvidenceBoundedFrames: 0,
+    canvasFontEvidenceBoundedFrames: 0,
+    summaryWithheldFrames: 0,
     attemptedWorkerRealms: 0,
     readableWorkerRealms: 0
   });
@@ -168,6 +171,60 @@ test("collectFingerprintObservationsWithCoverage keeps a listener-bounded frame 
     attemptedFrames: 4,
     readableFrames: 1,
     listenerAttributionLostFrames: 1,
+    canvasEvidenceBoundedFrames: 0,
+    canvasFontEvidenceBoundedFrames: 0,
+    summaryWithheldFrames: 1,
+    attemptedWorkerRealms: 0,
+    readableWorkerRealms: 0
+  });
+});
+
+test("collectFingerprintObservationsWithCoverage keeps a canvas-bounded frame, rejects contradictory flags and counts two causes once", async () => {
+  const canvasDetection: FingerprintDetectionSummary = {
+    kind: "canvas-fingerprinting",
+    heuristic: "openwpm-canvas-v1",
+    count: 1,
+    evidence: {
+      readApis: ["canvas.toDataURL"],
+      maxCanvasWidth: 240,
+      maxCanvasHeight: 110,
+      maxDistinctTextCharacters: 18,
+      maxTextWriteCalls: 2
+    }
+  };
+  const fontDetection: FingerprintDetectionSummary = {
+    kind: "canvas-font-fingerprinting",
+    heuristic: "canvas-font-probing-v1",
+    count: 1,
+    evidence: { measureTextCalls: 58, maxDistinctFonts: 57, maxDistinctTextSamples: 1, maxTextLength: 13 }
+  };
+  const frame = (snapshot: Record<string, unknown>) => ({ evaluate: async () => JSON.stringify(snapshot) });
+  const collection = await collectFingerprintObservationsWithCoverage([
+    frame({ detections: [canvasDetection], events: { "canvas.measureText": 2762 }, canvasFontEvidenceBounded: true }),
+    frame({ detections: [fontDetection], events: { "canvas.toDataURL": 1 }, canvasEvidenceBounded: true }),
+    // Bounded for two causes, counted once.
+    frame({ detections: [], events: { "canvas.measureText": 1 }, listenerAttributionLost: true, canvasFontEvidenceBounded: true }),
+    frame({ detections: [], events: { "canvas.toDataURL": 1 }, canvasEvidenceBounded: false }),
+    frame({ detections: [], events: { "canvas.toDataURL": 1 }, canvasFontEvidenceBounded: "true" }),
+    // A bounded frame never carries the summary its flag withheld.
+    frame({ detections: [fontDetection], events: { "canvas.measureText": 1 }, canvasFontEvidenceBounded: true }),
+    frame({ detections: [canvasDetection], events: { "canvas.toDataURL": 1 }, canvasEvidenceBounded: true })
+  ]);
+
+  assert.deepEqual(collection, {
+    observations: {
+      detections: [canvasDetection, fontDetection],
+      events: [
+        { api: "canvas.measureText", count: 2763 },
+        { api: "canvas.toDataURL", count: 1 }
+      ]
+    },
+    attemptedFrames: 7,
+    readableFrames: 3,
+    listenerAttributionLostFrames: 1,
+    canvasEvidenceBoundedFrames: 1,
+    canvasFontEvidenceBoundedFrames: 2,
+    summaryWithheldFrames: 3,
     attemptedWorkerRealms: 0,
     readableWorkerRealms: 0
   });
@@ -510,6 +567,9 @@ test("stack-reader integrity exits still withhold the whole frame after canvas a
           attemptedFrames: 1,
           readableFrames: 0,
           listenerAttributionLostFrames: 0,
+          canvasEvidenceBoundedFrames: 0,
+          canvasFontEvidenceBoundedFrames: 0,
+          summaryWithheldFrames: 0,
           attemptedWorkerRealms: 0,
           readableWorkerRealms: 0
         },
@@ -982,7 +1042,7 @@ test("fingerprintObserverInitScript records only native-successful calls in real
   }
 });
 
-test("fingerprintObserverInitScript fails a real Chromium frame closed when canvas tracking reaches its cap", async () => {
+test("fingerprintObserverInitScript withholds only the canvas summary when canvas tracking reaches its cap in real Chromium", async () => {
   const browser = await chromium.launch({ headless: true });
   try {
     const context = await browser.newContext();
@@ -998,13 +1058,124 @@ test("fingerprintObserverInitScript fails a real Chromium frame closed when canv
         const canvas = document.createElement("canvas");
         canvas.getContext("2d")?.fillText("abcdefghij", 0, 16);
       }
+      const canvas = document.createElement("canvas");
+      canvas.getContext("2d")?.fillText("abcdefghijklmnop", 0, 16);
+      canvas.toDataURL();
       const fingerprintWindow = window as Window & { __siteBehaviorLabFingerprintSnapshot?: () => unknown };
       return fingerprintWindow.__siteBehaviorLabFingerprintSnapshot?.();
     });
-    assert.equal(raw, null);
+    // The canvas past the cap could be the one that qualified, so no canvas
+    // finding is published from what the tracked canvases show; the read
+    // itself still counts.
+    assert.deepEqual(JSON.parse(raw as string), {
+      detections: [],
+      events: { "canvas.toDataURL": 1 },
+      canvasEvidenceBounded: true
+    });
     const coverage = await collectFingerprintObservationsWithCoverage(page.frames());
     assert.equal(coverage.attemptedFrames, 1);
-    assert.equal(coverage.readableFrames, 0);
+    assert.equal(coverage.readableFrames, 1);
+    assert.equal(coverage.canvasEvidenceBoundedFrames, 1);
+    assert.equal(coverage.summaryWithheldFrames, 1);
+    assert.deepEqual(coverage.observations.events, [{ api: "canvas.toDataURL", count: 1 }]);
+  } finally {
+    await browser.close();
+  }
+});
+
+test("a widget's headline layout keeps a frame's canvas and audio fingerprinting and withholds only the canvas-font summary in real Chromium", async () => {
+  // The shape of abc10.com's main frame on 2026-10-18. Taboola's ellipsis
+  // code measured 2,762 one- and two-character strings in five fonts to fit
+  // recommendation headlines, beside a real canvas readback and an
+  // OfflineAudioContext render. fingerprint-observer@6 nulled the whole
+  // snapshot at the 129th distinct string, and the report published no
+  // fingerprint finding for the page at all.
+  const browser = await chromium.launch({ headless: true });
+  try {
+    const context = await browser.newContext();
+    await context.addInitScript(fingerprintObserverInitScript, "example.com");
+    const page = await context.newPage();
+    await page.route("https://example.com/**", (route) =>
+      route.fulfill({ body: "<!doctype html><title>widget layout</title>", contentType: "text/html" })
+    );
+    await page.goto("https://example.com/");
+
+    const result = await page.evaluate(async () => {
+      const probe = document.createElement("canvas");
+      probe.width = 240;
+      probe.height = 110;
+      probe.getContext("2d")?.fillText("Cwm fjordbank glyphs vext quiz", 2, 20);
+      probe.toDataURL();
+      const audio = new OfflineAudioContext(1, 4410, 44100);
+      const oscillator = audio.createOscillator();
+      const compressor = audio.createDynamicsCompressor();
+      oscillator.connect(compressor);
+      compressor.connect(audio.destination);
+      oscillator.start(0);
+      await audio.startRendering();
+      const headlines = [
+        "Recommended For You: 71 Things Nobody Tells You About Retirement (And What To Do Now)",
+        "Doctors Stunned: Local Man's Quick Trick To Fix Joint Pain Without Pills",
+        "The Best Hotels In Every State, Ranked By Travelers Who Stayed In 2026",
+        "Why Thousands Of Homeowners Are Switching Their Insurance This Week"
+      ];
+      const layout = document.createElement("canvas").getContext("2d");
+      const measured = new Set<string>();
+      let calls = 0;
+      for (const font of [
+        "bold 20px widget-poppins",
+        "bold 16px arial, helvetica, sans-serif",
+        "600 16px montserrat, sans-serif",
+        "bold 18px arial, helvetica, sans-serif"
+      ]) {
+        if (layout) layout.font = font;
+        for (const headline of headlines) {
+          for (let index = 0; index < headline.length; index += 1) {
+            for (const text of [headline[index], headline.slice(index, index + 2)]) {
+              layout?.measureText(text);
+              measured.add(text);
+              calls += 1;
+            }
+          }
+        }
+      }
+      const fingerprintWindow = window as Window & { __siteBehaviorLabFingerprintSnapshot?: () => unknown };
+      return { raw: fingerprintWindow.__siteBehaviorLabFingerprintSnapshot?.(), calls, distinct: measured.size };
+    });
+    assert.ok(result.distinct > 128, `the layout measures ${result.distinct} distinct strings, past the 128 kept`);
+    assert.equal(typeof result.raw, "string", "the frame stays readable");
+    const snapshot = JSON.parse(result.raw as string) as ObserverSnapshot & Record<string, unknown>;
+    assertKernelVocabulary(snapshot);
+    assert.equal(snapshot.canvasFontEvidenceBounded, true);
+    assert.equal("canvasEvidenceBounded" in snapshot, false);
+    assert.equal("listenerAttributionLost" in snapshot, false);
+    assert.deepEqual(
+      snapshot.detections.map((detection) => detection.kind).sort(),
+      ["audio-fingerprinting", "canvas-fingerprinting"]
+    );
+    assert.equal(snapshot.events["canvas.measureText"], result.calls, "every measurement is counted");
+    assert.equal(snapshot.events["canvas.toDataURL"], 1);
+    assert.equal(snapshot.events["audio.OfflineAudioContext.startRendering"], 1);
+
+    const coverage = await collectFingerprintObservationsWithCoverage(page.frames());
+    assert.deepEqual(
+      { ...coverage, observations: undefined },
+      {
+        observations: undefined,
+        attemptedFrames: 1,
+        readableFrames: 1,
+        listenerAttributionLostFrames: 0,
+        canvasEvidenceBoundedFrames: 0,
+        canvasFontEvidenceBoundedFrames: 1,
+        summaryWithheldFrames: 1,
+        attemptedWorkerRealms: 0,
+        readableWorkerRealms: 0
+      }
+    );
+    assert.deepEqual(
+      coverage.observations.detections.map((detection) => detection.kind).sort(),
+      ["audio-fingerprinting", "canvas-fingerprinting"]
+    );
   } finally {
     await browser.close();
   }
@@ -1878,10 +2049,13 @@ test("fingerprintObserverInitScript counts OffscreenCanvas toward the canvas tra
       const fingerprintWindow = window as Window & { __siteBehaviorLabFingerprintSnapshot?: () => unknown };
       return fingerprintWindow.__siteBehaviorLabFingerprintSnapshot?.();
     });
-    assert.equal(raw, null);
+    // Past the shared cap the canvas summary is withheld (fingerprint-observer@7
+    // keeps the frame); with 256 page canvases alone it would not be.
+    assert.deepEqual(JSON.parse(raw as string), { detections: [], events: {}, canvasEvidenceBounded: true });
     const coverage = await collectFingerprintObservationsWithCoverage(page.frames());
     assert.equal(coverage.attemptedFrames, 1);
-    assert.equal(coverage.readableFrames, 0);
+    assert.equal(coverage.readableFrames, 1);
+    assert.equal(coverage.canvasEvidenceBoundedFrames, 1);
   } finally {
     await browser.close();
   }
@@ -2819,7 +2993,7 @@ test("fingerprintObserverInitScript requires both WebGL parameter and pixel entr
   // them apart only by evidence shape (isSingleSignalWebglDetection). Pinned
   // beside the detector version: changing the rule needs a version bump and
   // a reader that keys on it, so re-pin both together.
-  assert.equal(DETECTOR_VERSIONS["fingerprint-heuristics"], "fingerprint-observer@6");
+  assert.equal(DETECTOR_VERSIONS["fingerprint-heuristics"], "fingerprint-observer@7");
 
   const parameterHarness = installWebglHarness();
   try {
@@ -3204,57 +3378,155 @@ test("fingerprintObserverInitScript keeps evidence when page serialization intri
   assert.equal(snapshot.detections[0].kind, "canvas-fingerprinting");
 });
 
-test("fingerprintObserverInitScript latches coverage loss when attacker-controlled cardinality caps are exceeded", () => {
-  const canvasHarness = installCanvasHarness();
-  try {
-    fingerprintObserverInitScript();
-    for (let index = 0; index <= 256; index += 1) {
-      new canvasHarness.Context(new canvasHarness.Canvas()).fillText("abcdefghij", 0, 0);
+test("fingerprintObserverInitScript bounds only the canvas summary a canvas or font-measurement bound limits", () => {
+  // Through fingerprint-observer@6 each of these bounds nulled the frame's
+  // whole snapshot. Each now withholds exactly the summary its evidence feeds
+  // and flags the frame; the other canvas heuristic, run beside it in every
+  // case, still publishes, and the event counters, which no bound limits,
+  // keep every call.
+  type Harness = ReturnType<typeof installCanvasHarness>;
+  const canvasProbe = (harness: Harness) => {
+    const canvas = new harness.Canvas();
+    new harness.Context(canvas).fillText("abcdefghijklmnop", 0, 0);
+    canvas.toDataURL();
+  };
+  const fontProbe = (harness: Harness) => {
+    const context = new harness.Context(new harness.Canvas());
+    for (const font of ["12px probe-a", "12px probe-b", "12px probe-c", "12px probe-d"]) {
+      context.font = font;
+      context.measureText("mmmmmmmmmmlli");
+      context.measureText("mmmmmmmmmmlli");
     }
-    assert.equal(readRawSnapshot(canvasHarness.window), null);
-  } finally {
-    canvasHarness.restore();
-  }
-
-  const provenanceHarness = installCanvasHarness();
-  try {
-    fingerprintObserverInitScript();
-    const firstSource = new provenanceHarness.Canvas();
-    const secondSource = new provenanceHarness.Canvas();
-    const target = new provenanceHarness.Canvas();
-    const distinctText = (offset: number) =>
-      Array.from({ length: 256 }, (_value, index) => String.fromCharCode(offset + index)).join("");
-    new provenanceHarness.Context(firstSource).fillText(distinctText(0), 0, 0);
-    new provenanceHarness.Context(secondSource).fillText(distinctText(256), 0, 0);
-    const targetContext = new provenanceHarness.Context(target);
-    targetContext.drawImage(firstSource, 0, 0);
-    targetContext.drawImage(secondSource, 0, 0);
-    assert.equal(readRawSnapshot(provenanceHarness.window), null);
-  } finally {
-    provenanceHarness.restore();
-  }
-
-  const sampleHarness = installCanvasHarness();
-  try {
-    fingerprintObserverInitScript();
-    const context = new sampleHarness.Context(new sampleHarness.Canvas());
-    for (let index = 0; index <= 128; index += 1) context.measureText(`sample-${index}`);
-    assert.equal(readRawSnapshot(sampleHarness.window), null);
-  } finally {
-    sampleHarness.restore();
-  }
-
-  const fontHarness = installCanvasHarness();
-  try {
-    fingerprintObserverInitScript();
-    const context = new fontHarness.Context(new fontHarness.Canvas());
-    for (let index = 0; index <= 128; index += 1) {
-      context.font = `12px font-${index}`;
-      context.measureText("constant");
+  };
+  const distinctText = (offset: number) =>
+    Array.from({ length: 256 }, (_value, index) => String.fromCharCode(offset + index)).join("");
+  const cases: Record<
+    string,
+    { bounded: "canvasEvidenceBounded" | "canvasFontEvidenceBounded"; overflow: (harness: Harness) => void }
+  > = {
+    "more than 256 tracked canvases": {
+      bounded: "canvasEvidenceBounded",
+      overflow: (harness) => {
+        for (let index = 0; index <= 256; index += 1) {
+          new harness.Context(new harness.Canvas()).fillText("abcdefghij", 0, 0);
+        }
+      }
+    },
+    "more than 256 distinct characters inherited by one canvas": {
+      bounded: "canvasEvidenceBounded",
+      overflow: (harness) => {
+        const firstSource = new harness.Canvas();
+        const secondSource = new harness.Canvas();
+        new harness.Context(firstSource).fillText(distinctText(0), 0, 0);
+        new harness.Context(secondSource).fillText(distinctText(256), 0, 0);
+        const targetContext = new harness.Context(new harness.Canvas());
+        targetContext.drawImage(firstSource, 0, 0);
+        targetContext.drawImage(secondSource, 0, 0);
+      }
+    },
+    "more than 256 distinct characters drawn on one canvas": {
+      bounded: "canvasEvidenceBounded",
+      overflow: (harness) => {
+        new harness.Context(new harness.Canvas()).fillText(distinctText(0) + distinctText(256), 0, 0);
+      }
+    },
+    "a drawn string longer than 4,096 characters": {
+      bounded: "canvasEvidenceBounded",
+      overflow: (harness) => {
+        new harness.Context(new harness.Canvas()).strokeText("a".repeat(5000), 0, 0);
+      }
+    },
+    "more than 128 distinct measured strings": {
+      bounded: "canvasFontEvidenceBounded",
+      overflow: (harness) => {
+        const context = new harness.Context(new harness.Canvas());
+        for (let index = 0; index <= 128; index += 1) context.measureText(`sample-${index}`);
+      }
+    },
+    "more than 128 distinct fonts": {
+      bounded: "canvasFontEvidenceBounded",
+      overflow: (harness) => {
+        const context = new harness.Context(new harness.Canvas());
+        for (let index = 0; index <= 128; index += 1) {
+          context.font = `12px font-${index}`;
+          context.measureText("constant");
+        }
+      }
+    },
+    "a measured string longer than 4,096 characters": {
+      bounded: "canvasFontEvidenceBounded",
+      overflow: (harness) => {
+        new harness.Context(new harness.Canvas()).measureText("a".repeat(5000));
+      }
+    },
+    "a font longer than 4,096 characters": {
+      bounded: "canvasFontEvidenceBounded",
+      overflow: (harness) => {
+        const context = new harness.Context(new harness.Canvas());
+        context.font = `12px ${"a".repeat(5000)}`;
+        context.measureText("constant");
+      }
     }
-    assert.equal(readRawSnapshot(fontHarness.window), null);
+  };
+  for (const [label, { bounded, overflow }] of Object.entries(cases)) {
+    const harness = installCanvasHarness();
+    try {
+      fingerprintObserverInitScript();
+      canvasProbe(harness);
+      fontProbe(harness);
+      overflow(harness);
+      const raw = readRawSnapshot(harness.window);
+      assert.equal(typeof raw, "string", `${label}: the frame stays readable`);
+      const snapshot = JSON.parse(raw as string) as ObserverSnapshot & Record<string, unknown>;
+      assert.equal(snapshot[bounded], true, `${label}: the frame is flagged`);
+      const otherFlag = bounded === "canvasEvidenceBounded" ? "canvasFontEvidenceBounded" : "canvasEvidenceBounded";
+      assert.equal(otherFlag in snapshot, false, `${label}: the other canvas summary is not flagged`);
+      assert.equal("listenerAttributionLost" in snapshot, false, label);
+      assert.deepEqual(
+        snapshot.detections.map((detection) => detection.kind),
+        [bounded === "canvasEvidenceBounded" ? "canvas-font-fingerprinting" : "canvas-fingerprinting"],
+        `${label}: only the bounded summary is withheld`
+      );
+      assert.equal(snapshot.events["canvas.toDataURL"], 1, label);
+      assert.ok((snapshot.events["canvas.measureText"] ?? 0) >= 8, `${label}: every measurement is still counted`);
+    } finally {
+      harness.restore();
+    }
+  }
+
+  // A frame that overflows both keeps neither canvas summary and is flagged
+  // for each.
+  const both = installCanvasHarness();
+  try {
+    fingerprintObserverInitScript();
+    canvasProbe(both);
+    fontProbe(both);
+    cases["more than 256 distinct characters drawn on one canvas"].overflow(both);
+    cases["more than 128 distinct measured strings"].overflow(both);
+    const snapshot = JSON.parse(readRawSnapshot(both.window) as string) as Record<string, unknown>;
+    assert.deepEqual(snapshot.detections, []);
+    assert.equal(snapshot.canvasEvidenceBounded, true);
+    assert.equal(snapshot.canvasFontEvidenceBounded, true);
   } finally {
-    fontHarness.restore();
+    both.restore();
+  }
+
+  // Exactly at each bound nothing is withheld: 128 measured strings and 256
+  // distinct characters still read clean.
+  const atBound = installCanvasHarness();
+  try {
+    fingerprintObserverInitScript();
+    canvasProbe(atBound);
+    fontProbe(atBound);
+    const context = new atBound.Context(new atBound.Canvas());
+    for (let index = 0; index < 127; index += 1) context.measureText(`sample-${index}`);
+    new atBound.Context(new atBound.Canvas()).fillText(distinctText(0), 0, 0);
+    const snapshot = JSON.parse(readRawSnapshot(atBound.window) as string) as Record<string, unknown>;
+    assert.equal("canvasEvidenceBounded" in snapshot, false);
+    assert.equal("canvasFontEvidenceBounded" in snapshot, false);
+    assert.equal((snapshot.detections as FingerprintDetectionSummary[]).length, 2);
+  } finally {
+    atBound.restore();
   }
 });
 

@@ -27,7 +27,7 @@ const ANALYSIS_CONTEXT: DetectorCalibrationAnalysisContext = {
 test("acceptance fixtures remain explicitly separate from calibration evidence", () => {
   assert.deepEqual(detectorCalibrationReadiness(), {
     status: "external-labeled-corpus-required",
-    acceptanceFixtureCases: 25,
+    acceptanceFixtureCases: 26,
     acceptanceFixturesExcludedFromCalibration: true,
     calibrationStudies: 0,
     eligibleCalibrationStudies: 0,

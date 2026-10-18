@@ -123,6 +123,8 @@ import {
   CNAME_LOOKUP_FAILED_WARNING,
   collectStorageEntriesWithCoverage,
   CONSENT_BANNER_CHECK_INCOMPLETE_WARNING,
+  FINGERPRINT_CANVAS_EVIDENCE_BOUNDED_WARNING,
+  FINGERPRINT_CANVAS_FONT_EVIDENCE_BOUNDED_WARNING,
   FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING,
   FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING,
   FINGERPRINT_WORKER_REALM_CAPTURE_LOSS_WARNING,
@@ -296,25 +298,27 @@ export function fingerprintWorkerRealmLoss(
 
 /**
  * Observer realms whose fingerprint evidence is incomplete: every unreadable
- * frame, every readable frame whose listener attribution was bounded, and
- * every unread worker realm. All are the same `fingerprinting` capture loss
- * under the one `fingerprint-observer` detail. Only the unreadable frames
- * lower frame coverage, because a bounded frame still contributed its other
- * detections and event counts, and a worker is not a frame.
+ * frame, every readable frame that withheld a heuristic summary (bounded
+ * listener attribution, or an overflowed canvas or font-measurement bound,
+ * counted once per frame whatever the causes), and every unread worker realm.
+ * All are the same `fingerprinting` capture loss under the one
+ * `fingerprint-observer` detail. Only the unreadable frames lower frame
+ * coverage, because a bounded frame still contributed its other detections
+ * and event counts, and a worker is not a frame.
  */
 export function fingerprintObserverLossRealms(
   coverage: Pick<
     FingerprintObservationCollection,
     | "attemptedFrames"
     | "readableFrames"
-    | "listenerAttributionLostFrames"
+    | "summaryWithheldFrames"
     | "attemptedWorkerRealms"
     | "readableWorkerRealms"
   >
 ): number {
   return (
     Math.max(0, coverage.attemptedFrames - coverage.readableFrames) +
-    coverage.listenerAttributionLostFrames +
+    coverage.summaryWithheldFrames +
     fingerprintWorkerRealmLoss(coverage)
   );
 }
@@ -1910,16 +1914,17 @@ export async function scanSiteWithMeasurement(
       if (passiveFingerprint.ok) {
         passiveFingerprintWorkerRealmLoss = fingerprintWorkerRealmLoss(passiveFingerprint.value);
       }
-      // A passive read with bounded listener attribution is not phase-pure
-      // for the listener summaries it withheld: a later read of a fresh
-      // document could otherwise credit a pre-consent recorder to the consent
+      // A passive read that withheld a summary (bounded listener attribution,
+      // or an overflowed canvas or font-measurement bound) is not phase-pure
+      // for the summaries it withheld: a later read of a fresh document could
+      // otherwise credit a pre-consent recorder or canvas probe to the consent
       // phase. It stays an incomplete boundary like an unreadable frame, and
       // so does a read with an unread worker realm, whose passive-phase work
       // is unknown.
       if (
         passiveFingerprint.ok &&
         passiveFingerprintCoverage === "complete" &&
-        passiveFingerprint.value.listenerAttributionLostFrames === 0 &&
+        passiveFingerprint.value.summaryWithheldFrames === 0 &&
         passiveFingerprintWorkerRealmLoss === 0
       ) {
         passiveBoundary.fingerprinting = true;
@@ -2186,6 +2191,9 @@ export async function scanSiteWithMeasurement(
       attemptedFrames: 0,
       readableFrames: 0,
       listenerAttributionLostFrames: 0,
+      canvasEvidenceBoundedFrames: 0,
+      canvasFontEvidenceBoundedFrames: 0,
+      summaryWithheldFrames: 0,
       attemptedWorkerRealms: 0,
       readableWorkerRealms: 0
     };
@@ -2278,9 +2286,12 @@ export async function scanSiteWithMeasurement(
           observations: passiveFingerprintObservations ?? { events: [], detections: [] },
           attemptedFrames: passiveBoundary.fingerprinting ? 1 : 0,
           readableFrames: passiveBoundary.fingerprinting ? 1 : 0,
-          // passiveBoundary.fingerprinting is set only for a passive read with
-          // no bounded listener attribution and no unread worker realm.
+          // passiveBoundary.fingerprinting is set only for a passive read that
+          // withheld no summary and left no worker realm unread.
           listenerAttributionLostFrames: 0,
+          canvasEvidenceBoundedFrames: 0,
+          canvasFontEvidenceBoundedFrames: 0,
+          summaryWithheldFrames: 0,
           attemptedWorkerRealms: 0,
           readableWorkerRealms: 0
         };
@@ -2291,6 +2302,11 @@ export async function scanSiteWithMeasurement(
     // still incomplete, so it records the same loss and partial detector as a
     // partially readable page.
     const fingerprintListenerAttributionLost = fingerprintCollection.listenerAttributionLostFrames > 0;
+    // The same for a frame that withheld its canvas or canvas-font summary
+    // when a canvas or font-measurement bound overflowed.
+    const fingerprintCanvasEvidenceBounded = fingerprintCollection.canvasEvidenceBoundedFrames > 0;
+    const fingerprintCanvasFontEvidenceBounded = fingerprintCollection.canvasFontEvidenceBoundedFrames > 0;
+    const fingerprintSummaryWithheld = fingerprintCollection.summaryWithheldFrames > 0;
     // Worker realms of the final read that ran page code and could not be
     // read, shared workers included. The readable ones' evidence publishes,
     // and the family is incomplete exactly as for a partially readable page.
@@ -2300,13 +2316,16 @@ export async function scanSiteWithMeasurement(
     // executed looks exactly like a run that looked and found nothing, and the
     // report publishes an unhedged "No fingerprint-like API calls observed".
     // An unreadable frame keeps the frame warning, which already covers any
-    // bounded listener attribution beside it. When every frame was read and
-    // only listener attribution was bounded, that warning would be false, so
-    // the listener line says what was lost; v1 readers censor both alike.
+    // withheld summary beside it. When every frame was read and only a
+    // summary was withheld, that warning would be false, so a line per cause
+    // says what was lost (a frame can carry two); v1 readers censor all of
+    // them alike.
     if (fingerprintFrameCoverage !== "complete") {
       warnings.add(FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING);
-    } else if (fingerprintListenerAttributionLost) {
-      warnings.add(FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING);
+    } else {
+      if (fingerprintListenerAttributionLost) warnings.add(FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING);
+      if (fingerprintCanvasEvidenceBounded) warnings.add(FINGERPRINT_CANVAS_EVIDENCE_BOUNDED_WARNING);
+      if (fingerprintCanvasFontEvidenceBounded) warnings.add(FINGERPRINT_CANVAS_FONT_EVIDENCE_BOUNDED_WARNING);
     }
     // Neither line above is true of a worker, and a run can carry either
     // beside a worker loss, so the worker line stands on its own. It follows
@@ -2318,7 +2337,7 @@ export async function scanSiteWithMeasurement(
     }
     const fingerprintCoverageIncomplete =
       fingerprintFrameCoverage === "partial" ||
-      fingerprintListenerAttributionLost ||
+      fingerprintSummaryWithheld ||
       fingerprintWorkerRealmsLost ||
       (consentPhaseId !== null && !passiveBoundary.fingerprinting);
     const canAttributeConsentFingerprinting =
@@ -2370,7 +2389,7 @@ export async function scanSiteWithMeasurement(
     // warning above already covers both states; the r2 facts now agree with it.
     if (
       subjectStateTrusted &&
-      (fingerprintFrameCoverage !== "complete" || fingerprintListenerAttributionLost || fingerprintWorkerRealmsLost)
+      (fingerprintFrameCoverage !== "complete" || fingerprintSummaryWithheld || fingerprintWorkerRealmsLost)
     ) {
       measurementKernel.recordCaptureLoss({
         family: "fingerprinting",

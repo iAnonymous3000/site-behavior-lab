@@ -99,6 +99,8 @@ import {
   CNAME_CANDIDATES_OMITTED_WARNING,
   CNAME_LOOKUP_FAILED_WARNING,
   CONSENT_BANNER_CHECK_INCOMPLETE_WARNING,
+  FINGERPRINT_CANVAS_EVIDENCE_BOUNDED_WARNING,
+  FINGERPRINT_CANVAS_FONT_EVIDENCE_BOUNDED_WARNING,
   FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING,
   FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING,
   INVALID_UPSTREAM_RESPONSE_WARNING,
@@ -2956,6 +2958,15 @@ test("a Meta Pixel sendBeacon(FormData) request decodes its multipart fields", {
   }
 });
 
+// A stack the observer cannot trust is an integrity exit, which still nulls
+// the frame: the page locks Error.prepareStackTrace, then registers input
+// listeners from a task, where no current script names the registrant. Since
+// fingerprint-observer@7 a canvas flood no longer does; it withholds only the
+// canvas summary.
+const STACK_LOCKED_LISTENER_SCRIPT =
+  '<script>try { Object.defineProperty(Error, "prepareStackTrace", { configurable: false, writable: false, value: () => "" }); } catch (error) {}' +
+  ' setTimeout(() => { for (const type of ["keydown", "input", "mousemove", "click"]) document.addEventListener(type, () => undefined); }, 0);</script>';
+
 test("scanSite marks fingerprint coverage partial when a poisoned main frame is masked by a readable iframe", { timeout: 20_000 }, async () => {
   const upstream = createServer((request, response) => {
     const host = request.headers.host?.split(":")[0];
@@ -2966,12 +2977,7 @@ test("scanSite marks fingerprint coverage partial when a poisoned main frame is 
     }
     response.end(`<!doctype html><title>partial fingerprint coverage</title>
       <iframe src="http://clean-fingerprint-frame.test/frame"></iframe>
-      <script>
-        for (let index = 0; index <= 256; index += 1) {
-          const canvas = document.createElement("canvas");
-          canvas.getContext("2d").fillText("abcdefghij", 0, 16);
-        }
-      </script>`);
+      ${STACK_LOCKED_LISTENER_SCRIPT}`);
   });
   await new Promise<void>((resolve, reject) => {
     upstream.once("error", reject);
@@ -2997,7 +3003,7 @@ test("scanSite marks fingerprint coverage partial when a poisoned main frame is 
       }
     );
     assert.deepEqual(staged!.measurement.detectors["fingerprint-heuristics"], {
-      version: "fingerprint-observer@6",
+      version: "fingerprint-observer@7",
       status: "partial",
       reason: "scan-failed",
       phaseId: 0
@@ -3049,6 +3055,9 @@ test("passive fingerprint loss remains causal when the consent snapshot is later
           </div>
           <iframe src="http://clean-fingerprint-phase.test/frame"></iframe>
           <script>
+            // A canvas flood: since fingerprint-observer@7 the passive read
+            // withholds the main frame's canvas summary, which leaves the
+            // boundary as incomplete as the unreadable frame it once was.
             for (let index = 0; index <= 256; index += 1) {
               const canvas = document.createElement("canvas");
               canvas.getContext("2d").fillText("abcdefghij", 0, 16);
@@ -3090,7 +3099,7 @@ test("passive fingerprint loss remains causal when the consent snapshot is later
     assert.deepEqual(
       staged.measurement.detectors["fingerprint-heuristics"],
       {
-        version: "fingerprint-observer@6",
+        version: "fingerprint-observer@7",
         status: "partial",
         reason: "scan-failed",
         phaseId: consentPhase.phaseId
@@ -3132,16 +3141,11 @@ test("a fingerprint observer that read no frame at all records the same capture 
   // calls observed". The v1 warning covered both states all along.
   const upstream = createServer((_request, response) => {
     response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
-    // Same canvas flood the partial-coverage test uses, but with no readable
+    // Same locked stack the partial-coverage test uses, but with no readable
     // iframe beside it: the observer loses coverage in the only frame there is,
     // so readableFrames is 0 and the status is "failed" rather than "partial".
     response.end(`<!doctype html><title>no readable fingerprint frame</title>
-      <script>
-        for (let index = 0; index <= 256; index += 1) {
-          const canvas = document.createElement("canvas");
-          canvas.getContext("2d").fillText("abcdefghij", 0, 16);
-        }
-      </script>`);
+      ${STACK_LOCKED_LISTENER_SCRIPT}`);
   });
   await new Promise<void>((resolve, reject) => {
     upstream.once("error", reject);
@@ -3216,14 +3220,17 @@ const PROBE_THEN_REGISTER_SCRIPT =
   '  ["input","keydown","change","paste"].forEach(type => field.addEventListener(type, () => undefined));' +
   "};";
 
-test("fingerprintObserverLossRealms counts unreadable frames, listener-bounded frames and unread worker realms once each", () => {
+test("fingerprintObserverLossRealms counts unreadable frames, summary-withheld frames and unread worker realms once each", () => {
+  // summaryWithheldFrames already counts a frame with two causes (bounded
+  // listener attribution and an overflowed canvas bound) once; the collector
+  // test holds that.
   const realms = (
     attemptedFrames: number,
     readableFrames: number,
-    listenerAttributionLostFrames: number,
+    summaryWithheldFrames: number,
     attemptedWorkerRealms = 0,
     readableWorkerRealms = 0
-  ) => ({ attemptedFrames, readableFrames, listenerAttributionLostFrames, attemptedWorkerRealms, readableWorkerRealms });
+  ) => ({ attemptedFrames, readableFrames, summaryWithheldFrames, attemptedWorkerRealms, readableWorkerRealms });
   assert.equal(fingerprintObserverLossRealms(realms(3, 3, 0)), 0);
   assert.equal(fingerprintObserverLossRealms(realms(3, 2, 0)), 1);
   assert.equal(fingerprintObserverLossRealms(realms(3, 3, 2)), 2);
@@ -3306,7 +3313,7 @@ test("a saturated listener stack publishes the frame's canvas and WebGL evidence
     // the detector status, the capture-loss ledger, and the v1 warning. Every
     // frame was read, so the v1 line is the listener one, never the frame one.
     assert.deepEqual(staged.measurement.detectors["fingerprint-heuristics"], {
-      version: "fingerprint-observer@6",
+      version: "fingerprint-observer@7",
       status: "partial",
       reason: "scan-failed",
       phaseId: 0
@@ -3442,7 +3449,366 @@ test("a passive read with bounded listener attribution cannot credit a later rec
       "no fingerprint detection may be credited to the consent phase"
     );
     assert.deepEqual(staged.measurement.detectors["fingerprint-heuristics"], {
-      version: "fingerprint-observer@6",
+      version: "fingerprint-observer@7",
+      status: "partial",
+      reason: "scan-failed",
+      phaseId: consentPhase.phaseId
+    });
+  } finally {
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+});
+
+// A third-party recommendation widget as Taboola's ellipsis code behaves on
+// augusta.com, nwfdailynews.com, wdam.com and abc10.com: it fits headlines by
+// measuring every character and adjacent pair in the widget's fonts, several
+// hundred distinct one- and two-character strings, while the page beside it
+// reads canvas text back and renders an OfflineAudioContext.
+const WIDGET_LAYOUT_SCRIPT =
+  "window.renderWidget = async function renderWidget() {" +
+  '  const probe = document.querySelector("#c");' +
+  '  probe.getContext("2d").fillText("Cwm fjordbank glyphs vext quiz", 2, 20);' +
+  "  probe.toDataURL();" +
+  "  const audio = new OfflineAudioContext(1, 4410, 44100);" +
+  "  const oscillator = audio.createOscillator();" +
+  "  const compressor = audio.createDynamicsCompressor();" +
+  "  oscillator.connect(compressor); compressor.connect(audio.destination); oscillator.start(0);" +
+  "  await audio.startRendering();" +
+  "  window.renderLayout();" +
+  "};" +
+  "window.renderLayout = function renderLayout() {" +
+  '  const layout = document.createElement("canvas").getContext("2d");' +
+  "  const headlines = [" +
+  '    "Recommended For You: 71 Things Nobody Tells You About Retirement (And What To Do Now)",' +
+  '    "Doctors Stunned: Local Man\'s Quick Trick To Fix Joint Pain Without Pills",' +
+  '    "The Best Hotels In Every State, Ranked By Travelers Who Stayed In 2026",' +
+  '    "Why Thousands Of Homeowners Are Switching Their Insurance This Week"' +
+  "  ];" +
+  '  for (const font of ["bold 20px widget-poppins", "bold 16px arial, helvetica, sans-serif", "600 16px montserrat, sans-serif", "bold 18px arial, helvetica, sans-serif"]) {' +
+  "    layout.font = font;" +
+  "    for (const headline of headlines) for (let index = 0; index < headline.length; index += 1) {" +
+  "      layout.measureText(headline[index]); layout.measureText(headline.slice(index, index + 2));" +
+  "    }" +
+  "  }" +
+  "};";
+
+test("a widget's headline layout publishes the frame's canvas and audio evidence and censors the family", { timeout: 30_000 }, async () => {
+  // fingerprint-observer@6 nulled this frame at the 129th distinct measured
+  // string, so the report published no fingerprint event and no detection
+  // for a page that read canvas text back and rendered offline audio. Only
+  // the font-measurement summary is now unknown, and that is what stays
+  // censored, as capture loss with a partial detector.
+  const upstream = createServer((request, response) => {
+    const host = request.headers.host?.split(":")[0] ?? "";
+    if (host === "widget.example.net") {
+      response.writeHead(200, { "content-type": "text/javascript" });
+      response.end(WIDGET_LAYOUT_SCRIPT);
+      return;
+    }
+    response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+    response.end(`<!doctype html><title>widget headline layout</title>
+      <canvas id="c" width="240" height="110"></canvas>
+      <script src="http://widget.example.net/loader.js"></script>
+      <script>setTimeout(() => window.renderWidget(), 0)</script>`);
+  });
+  await new Promise<void>((resolve, reject) => {
+    upstream.once("error", reject);
+    upstream.listen(0, "127.0.0.1", resolve);
+  });
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+  const previousConsentVerification = process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
+  process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = "1";
+
+  try {
+    const visit = await scanSiteWithMeasurement(
+      {
+        url: "http://widget-layout.example.com/",
+        device: "desktop",
+        gpcEnabled: false,
+        consentMode: "observe"
+      },
+      {
+        publicUrlAlreadyVerified: true,
+        verifyPublicUrl: async () => undefined,
+        resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+        connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"),
+        resolveCnameChain: async () => []
+      }
+    );
+    const { result, measurement: staged } = visit;
+
+    // The retained evidence publishes; the font heuristic is withheld, never
+    // published from Taboola-shaped layout calls.
+    assert.deepEqual(
+      (result.fingerprintDetections ?? []).map((detection) => detection.kind),
+      ["audio-fingerprinting", "canvas-fingerprinting"]
+    );
+    for (const api of ["canvas.toDataURL", "canvas.measureText", "audio.OfflineAudioContext.startRendering"]) {
+      assert.equal(
+        result.fingerprintEvents.some((event) => event.api === api && event.count >= 1),
+        true,
+        `${api} must survive the bounded measurement`
+      );
+    }
+    assert.ok((result.fingerprintEvents.find((event) => event.api === "canvas.measureText")?.count ?? 0) > 128);
+    assert.deepEqual(staged.measurement.detectors["fingerprint-heuristics"], {
+      version: DETECTOR_VERSIONS["fingerprint-heuristics"],
+      status: "partial",
+      reason: "scan-failed",
+      phaseId: 0
+    });
+    assert.deepEqual(
+      staged.measurement.qualityFacts.captureLoss.filter((loss) => loss.detail === "fingerprint-observer"),
+      [{ family: "fingerprinting", phaseId: 0, kind: "dropped", count: 1, detail: "fingerprint-observer" }]
+    );
+    // Every frame was read, so the v1 line is the font-measurement one,
+    // never the frame line, and no other fingerprint line is claimed.
+    assert.equal(result.warnings.includes(FINGERPRINT_CANVAS_FONT_EVIDENCE_BOUNDED_WARNING), true);
+    for (const line of [
+      FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING,
+      FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING,
+      FINGERPRINT_CANVAS_EVIDENCE_BOUNDED_WARNING
+    ]) {
+      assert.equal(result.warnings.includes(line), false, line);
+    }
+
+    // Population invariant: this run stays out of the fingerprintEvents
+    // population on both wires, exactly as it did when the frame was nulled.
+    const r2 = toPublicScanReportR2(
+      buildRuntimeScanReportV2R2(visit, "public-api", {
+        SITE_BEHAVIOR_LAB_BUILD_COMMIT: "a".repeat(40)
+      } as NodeJS.ProcessEnv)
+    );
+    const r2View = viewFromV2(r2, 2);
+    const r2Facts = buildReportFacts(r2View).display;
+    assert.deepEqual(
+      r2View.runs[0].evidence.fingerprintDetections.map((detection) => detection.kind).sort(),
+      ["audio-fingerprinting", "canvas-fingerprinting"]
+    );
+    assert.equal(r2Facts.claims["fingerprint-apis"].benchmarkAllowed, false);
+    assert.equal(r2Facts.claims["fingerprint-apis"].exactCountAllowed, false);
+    assert.deepEqual([...r2Facts.claims["fingerprint-apis"].blockers].sort(), ["detector-incomplete", "family-censored"]);
+    // The admitted line survives the public r2 boundary verbatim.
+    assert.equal(r2View.runs[0].warnings.includes(FINGERPRINT_CANVAS_FONT_EVIDENCE_BOUNDED_WARNING), true);
+    const v1Facts = buildReportFacts(viewFromV1Report(result)).display;
+    assert.equal(v1Facts.claims["fingerprint-apis"].benchmarkAllowed, false);
+    assert.deepEqual(v1Facts.claims["fingerprint-apis"].blockers, ["family-censored"]);
+  } finally {
+    if (previousConsentVerification === undefined) {
+      delete process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
+    } else {
+      process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = previousConsentVerification;
+    }
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+});
+
+// Two observe-mode visits against the loopback, each frame's evidence set by
+// a fixture, for the v1 lines and the capture-loss count in combination.
+async function scanFingerprintFixture(
+  hostname: string,
+  respond: (host: string, url: string, response: import("node:http").ServerResponse) => void
+) {
+  const upstream = createServer((request, response) => {
+    respond(request.headers.host?.split(":")[0] ?? "", request.url ?? "/", response);
+  });
+  await new Promise<void>((resolve, reject) => {
+    upstream.once("error", reject);
+    upstream.listen(0, "127.0.0.1", resolve);
+  });
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+  const previousConsentVerification = process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
+  process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = "1";
+  try {
+    return await scanSiteWithMeasurement(
+      { url: `http://${hostname}/`, device: "desktop", gpcEnabled: false, consentMode: "observe" },
+      {
+        publicUrlAlreadyVerified: true,
+        verifyPublicUrl: async () => undefined,
+        resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+        connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"),
+        resolveCnameChain: async () => []
+      }
+    );
+  } finally {
+    if (previousConsentVerification === undefined) {
+      delete process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
+    } else {
+      process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = previousConsentVerification;
+    }
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+}
+
+test("a frame bounded for listener attribution and font measurement carries both lines and counts once", { timeout: 30_000 }, async () => {
+  const { result, measurement: staged } = await scanFingerprintFixture("two-causes.example.com", (host, url, response) => {
+    if (host === "recorder.example.net" || host === "widget.example.net") {
+      response.writeHead(200, { "content-type": "text/javascript" });
+      response.end(host === "recorder.example.net" ? PROBE_THEN_REGISTER_SCRIPT : WIDGET_LAYOUT_SCRIPT);
+      return;
+    }
+    if (url === "/wrapper.js") {
+      response.writeHead(200, { "content-type": "text/javascript" });
+      response.end(SATURATING_WRAPPER_SCRIPT);
+      return;
+    }
+    response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+    response.end(`<!doctype html><title>two causes in one frame</title>
+      <input id="field"><canvas id="c" width="64" height="32"></canvas><canvas id="g" width="32" height="32"></canvas>
+      <script src="/wrapper.js"></script>
+      <script src="http://recorder.example.net/recorder.js"></script>
+      <script src="http://widget.example.net/loader.js"></script>
+      <script>setTimeout(() => { window.probeThenRegister(); window.renderLayout(); }, 0)</script>`);
+  });
+  // One frame, read, with two summaries withheld: both lines say what was
+  // lost, the frame line is not claimed, and the frame counts once.
+  assert.equal(result.warnings.includes(FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING), true);
+  assert.equal(result.warnings.includes(FINGERPRINT_CANVAS_FONT_EVIDENCE_BOUNDED_WARNING), true);
+  assert.equal(result.warnings.includes(FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING), false);
+  assert.equal(result.warnings.includes(FINGERPRINT_CANVAS_EVIDENCE_BOUNDED_WARNING), false);
+  assert.deepEqual(
+    staged.measurement.qualityFacts.captureLoss.filter((loss) => loss.detail === "fingerprint-observer"),
+    [{ family: "fingerprinting", phaseId: 0, kind: "dropped", count: 1, detail: "fingerprint-observer" }]
+  );
+  assert.deepEqual(
+    (result.fingerprintDetections ?? []).map((detection) => detection.kind),
+    ["canvas-fingerprinting", "webgl-fingerprinting"]
+  );
+  assert.equal(staged.measurement.detectors["fingerprint-heuristics"].status, "partial");
+});
+
+test("an unreadable frame beside a font-bounded frame keeps the frame line alone and counts both", { timeout: 30_000 }, async () => {
+  const { result, measurement: staged } = await scanFingerprintFixture("frame-and-bound.example.com", (host, _url, response) => {
+    if (host === "widget.example.net") {
+      response.writeHead(200, { "content-type": "text/javascript" });
+      response.end(WIDGET_LAYOUT_SCRIPT);
+      return;
+    }
+    response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+    if (host === "tamper.example.net") {
+      // A stack the observer cannot trust is an integrity exit: this frame
+      // stays unreadable, as before.
+      response.end(`<!doctype html><title>locked stack</title><script>
+        try { Object.defineProperty(Error, "prepareStackTrace", { configurable: false, writable: false, value: () => "" }); } catch (error) {}
+        setTimeout(() => { for (const type of ["keydown", "input", "mousemove", "click"]) document.addEventListener(type, () => undefined); }, 20);
+      </script>`);
+      return;
+    }
+    response.end(`<!doctype html><title>unreadable frame beside a bounded one</title>
+      <canvas id="c" width="240" height="110"></canvas>
+      <iframe src="http://tamper.example.net/frame"></iframe>
+      <script src="http://widget.example.net/loader.js"></script>
+      <script>setTimeout(() => window.renderWidget(), 0)</script>`);
+  });
+  // The frame line already covers the withheld summary beside it; the
+  // font-measurement line would say every frame was read.
+  assert.equal(result.warnings.includes(FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING), true);
+  for (const line of [
+    FINGERPRINT_CANVAS_FONT_EVIDENCE_BOUNDED_WARNING,
+    FINGERPRINT_CANVAS_EVIDENCE_BOUNDED_WARNING,
+    FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING
+  ]) {
+    assert.equal(result.warnings.includes(line), false, line);
+  }
+  // One unreadable frame and one summary-withheld frame.
+  assert.deepEqual(
+    staged.measurement.qualityFacts.captureLoss.filter((loss) => loss.detail === "fingerprint-observer"),
+    [{ family: "fingerprinting", phaseId: 0, kind: "dropped", count: 2, detail: "fingerprint-observer" }]
+  );
+  assert.deepEqual(
+    (result.fingerprintDetections ?? []).map((detection) => detection.kind),
+    ["audio-fingerprinting", "canvas-fingerprinting"]
+  );
+  assert.equal(staged.measurement.detectors["fingerprint-heuristics"].status, "partial");
+});
+
+test("a passive read with a bounded font measurement cannot credit a later font probe to the consent phase", { timeout: 30_000 }, async () => {
+  // Every passive frame is readable, but the widget's layout overflowed the
+  // measured-string bound, so the passive read withheld its canvas-font
+  // summary. If that read counted as a complete passive boundary, the
+  // reloaded post-consent document's font probe would be missing from it and
+  // would be published as starting after the click. The boundary stays
+  // incomplete instead.
+  const upstream = createServer((request, response) => {
+    const host = request.headers.host?.split(":")[0] ?? "";
+    if (host === "widget.example.net") {
+      response.writeHead(200, { "content-type": "text/javascript" });
+      response.end(
+        request.url === "/probe.js"
+          ? 'const probe = document.createElement("canvas").getContext("2d");' +
+              'for (const font of ["12px probe-a", "12px probe-b", "12px probe-c", "12px probe-d"]) {' +
+              '  probe.font = font; probe.measureText("mmmmmmmmmmlli"); probe.measureText("mmmmmmmmmmlli");' +
+              "}"
+          : WIDGET_LAYOUT_SCRIPT
+      );
+      return;
+    }
+    response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+    const consented = (request.headers.cookie ?? "").includes("cmp-choice=granted");
+    response.end(
+      consented
+        ? `<!doctype html><title>post-consent font probe</title>
+          <script src="http://widget.example.net/probe.js"></script>`
+        : `<!doctype html><title>passive widget layout</title>
+          <div id="onetrust-banner-sdk">
+            <button id="onetrust-accept-btn-handler"
+              onclick="document.cookie='cmp-choice=granted; path=/'; location.reload();">
+              Accept all
+            </button>
+          </div>
+          <script src="http://widget.example.net/loader.js"></script>
+          <script>setTimeout(() => window.renderLayout(), 0)</script>`
+    );
+  });
+  await new Promise<void>((resolve, reject) => {
+    upstream.once("error", reject);
+    upstream.listen(0, "127.0.0.1", resolve);
+  });
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+
+  try {
+    const { measurement: staged } = await scanSiteWithMeasurement(
+      {
+        url: "http://fingerprint-font-bounded-phase.test/",
+        device: "desktop",
+        gpcEnabled: false,
+        consentMode: "accept-all"
+      },
+      {
+        publicUrlAlreadyVerified: true,
+        verifyPublicUrl: async () => undefined,
+        resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+        connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"),
+        resolveCnameChain: async () => []
+      }
+    );
+
+    const consentPhase = staged.measurement.phases.find((phase) => phase.kind === "consent-interaction");
+    assert.ok(consentPhase);
+    assert.equal(
+      staged.measurement.qualityFacts.captureLoss.some(
+        (loss) =>
+          loss.family === "fingerprinting" &&
+          loss.phaseId === 0 &&
+          loss.kind === "dropped" &&
+          loss.detail === "fingerprint-observer"
+      ),
+      true,
+      "the bounded passive read is recorded as passive capture loss"
+    );
+    assert.equal(
+      staged.evidence.fingerprintDetections.some((detection) => detection.phaseId === consentPhase.phaseId),
+      false,
+      "no fingerprint detection may be credited to the consent phase"
+    );
+    assert.deepEqual(staged.measurement.detectors["fingerprint-heuristics"], {
+      version: DETECTOR_VERSIONS["fingerprint-heuristics"],
       status: "partial",
       reason: "scan-failed",
       phaseId: consentPhase.phaseId

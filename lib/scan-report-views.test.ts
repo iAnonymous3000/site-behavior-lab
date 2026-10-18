@@ -54,6 +54,8 @@ import {
   runHitAuxiliaryPageRequestsBlocked,
   runHitCnameCandidatesOmitted,
   runHitCnameLookupFailed,
+  runHitFingerprintCanvasEvidenceBounded,
+  runHitFingerprintCanvasFontEvidenceBounded,
   runHitFingerprintListenerAttributionLoss,
   runHitFingerprintObserverCaptureLoss,
   runHitFingerprintWorkerRealmLoss,
@@ -84,6 +86,8 @@ import {
   CNAME_CANDIDATES_OMITTED_WARNING,
   CNAME_LOOKUP_FAILED_WARNING,
   CONSENT_BANNER_CHECK_INCOMPLETE_WARNING,
+  FINGERPRINT_CANVAS_EVIDENCE_BOUNDED_WARNING,
+  FINGERPRINT_CANVAS_FONT_EVIDENCE_BOUNDED_WARNING,
   FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING,
   FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING,
   FINGERPRINT_WORKER_REALM_CAPTURE_LOSS_WARNING,
@@ -554,6 +558,142 @@ test("a v1 worker realm line censors fingerprinting exactly as the frame line, a
   const frameAndWorker = outcome([FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING, FINGERPRINT_WORKER_REALM_CAPTURE_LOSS_WARNING]);
   assert.match(frameAndWorker.notes, /could not read every frame/);
   assert.doesNotMatch(frameAndWorker.notes, workerNote);
+});
+
+test("a v1 canvas evidence line censors fingerprinting exactly as the frame line, and each note says what its own line says", () => {
+  // Five lines stand for one capture-loss detail. Each predicate recognizes
+  // only its own line, the GPC worker line and the withheld-listener line
+  // included.
+  const lines = [
+    FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING,
+    FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING,
+    FINGERPRINT_WORKER_REALM_CAPTURE_LOSS_WARNING,
+    FINGERPRINT_CANVAS_EVIDENCE_BOUNDED_WARNING,
+    FINGERPRINT_CANVAS_FONT_EVIDENCE_BOUNDED_WARNING
+  ];
+  const predicates = (warnings: string[]) => [
+    runHitFingerprintObserverCaptureLoss({ warnings }),
+    runHitFingerprintListenerAttributionLoss({ warnings }),
+    runHitFingerprintWorkerRealmLoss({ warnings }),
+    runHitFingerprintCanvasEvidenceBounded({ warnings }),
+    runHitFingerprintCanvasFontEvidenceBounded({ warnings })
+  ];
+  lines.forEach((line, index) => {
+    assert.deepEqual(
+      predicates([line]),
+      lines.map((_other, otherIndex) => otherIndex === index),
+      line
+    );
+  });
+  for (const unrelated of [GPC_WORKER_CAPTURE_LOSS_WARNING, LISTENER_DETECTION_WITHHELD_WARNING]) {
+    assert.deepEqual(predicates([unrelated]), [false, false, false, false, false], unrelated);
+  }
+
+  // Every variant runs through the real view, facts and corpus accumulator.
+  const outcome = (warnings: string[]) => {
+    const report = makeScanReportV1() as ScanResult;
+    report.summary.firstPartyDomain = "canvas-fixture.net";
+    report.conditions.requestedUrl = "https://canvas-fixture.net/";
+    report.conditions.finalUrl = "https://canvas-fixture.net/";
+    report.summary.totalRequests = 12;
+    report.summary.thirdPartyRequests = 5;
+    report.summary.fingerprintEvents = 4;
+    report.fingerprintEvents = [{ api: "canvas.measureText", count: 4 }];
+    report.warnings = warnings;
+    const view = viewFromV1Report(report);
+    const run = view.runs[0];
+    const facts = buildReportFacts(view).display;
+    const corpus = createCorpusStatsAccumulator(new Date("2026-10-18T00:00:00.000Z"));
+    corpus.add(`20260709-${"d".repeat(32)}`, view);
+    return {
+      run,
+      reasons: run.quality.reasons,
+      censored: ["requests", "cookies", "storage", "fingerprinting", "detector-output"].map((family) =>
+        familyCensoredOnRun(run, family as Parameters<typeof familyCensoredOnRun>[1])
+      ),
+      claims: {
+        fingerprint: facts.claims["fingerprint-apis"],
+        listeners: facts.claims["session-recording-input-monitoring"],
+        requests: facts.claims["third-party-services"]
+      },
+      cohorts: corpus.finish().cohorts,
+      notes: runCensorshipNotes(run).join(" ")
+    };
+  };
+  const frame = outcome([FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING]);
+  const clean = outcome([]);
+  for (const line of [FINGERPRINT_CANVAS_EVIDENCE_BOUNDED_WARNING, FINGERPRINT_CANVAS_FONT_EVIDENCE_BOUNDED_WARNING]) {
+    const bounded = outcome([line]);
+    assert.deepEqual(bounded.reasons, ["capture-loss:fingerprint-observer"], line);
+    assert.deepEqual(bounded.reasons, frame.reasons, line);
+    assert.deepEqual(bounded.censored, frame.censored, line);
+    assert.deepEqual(bounded.censored, [false, false, false, true, true], line);
+    assert.deepEqual(bounded.claims, frame.claims, line);
+    assert.equal(bounded.claims.fingerprint.benchmarkAllowed, false, line);
+    assert.deepEqual(bounded.claims.fingerprint.blockers, ["family-censored"], line);
+    assert.deepEqual(bounded.cohorts, frame.cohorts, line);
+    assert.equal(bounded.cohorts[0]?.metrics.fingerprintEvents, undefined, line);
+    assert.equal(bounded.cohorts[0]?.metrics.thirdPartyRequests?.count, 1, line);
+  }
+  assert.equal(clean.cohorts[0]?.metrics.fingerprintEvents?.count, 1);
+
+  // Precedence: frame, worker, listener, canvas, font, so the note is always
+  // true of the run.
+  const canvasNote = /used more canvases or drew more canvas text than the in-page fingerprint observer keeps/;
+  const fontNote = /measured more canvas text or fonts than the in-page fingerprint observer keeps/;
+  const canvas = outcome([FINGERPRINT_CANVAS_EVIDENCE_BOUNDED_WARNING]);
+  assert.match(canvas.notes, canvasNote);
+  assert.doesNotMatch(canvas.notes, /could not read every frame|attribute every event listener|Web Workers/);
+  assert.doesNotMatch(canvas.notes, fontNote);
+  const font = outcome([FINGERPRINT_CANVAS_FONT_EVIDENCE_BOUNDED_WARNING]);
+  assert.match(font.notes, fontNote);
+  assert.doesNotMatch(font.notes, /could not read every frame|attribute every event listener|Web Workers/);
+  assert.doesNotMatch(font.notes, canvasNote);
+  assert.match(outcome([FINGERPRINT_CANVAS_EVIDENCE_BOUNDED_WARNING, FINGERPRINT_CANVAS_FONT_EVIDENCE_BOUNDED_WARNING]).notes, canvasNote);
+  const listenerAndFont = outcome([FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING, FINGERPRINT_CANVAS_FONT_EVIDENCE_BOUNDED_WARNING]);
+  assert.match(listenerAndFont.notes, /could not attribute every event listener/);
+  assert.doesNotMatch(listenerAndFont.notes, fontNote);
+  const frameAndFont = outcome([FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING, FINGERPRINT_CANVAS_FONT_EVIDENCE_BOUNDED_WARNING]);
+  assert.match(frameAndFont.notes, /could not read every frame/);
+  assert.doesNotMatch(frameAndFont.notes, fontNote);
+});
+
+test("an r2 canvas evidence loss is named as that loss, and no other fingerprint sentence stands in for it", () => {
+  const render = (warnings: string[]) => {
+    const report = makePublicSingleReportV2R2();
+    report.run.warnings.push(...warnings);
+    report.run.qualityFacts.captureLoss = [
+      { family: "fingerprinting", phaseId: 0, kind: "dropped", count: 1, detail: "fingerprint-observer" }
+    ];
+    report.run.quality = evaluateQuality(report.run.qualityFacts, {
+      observedRequests: report.run.summary.counts.totalRequests
+    });
+    const view = viewFromV2(report, 2);
+    assert.equal(familyCensoredOnRun(view.runs[0], "fingerprinting"), true);
+    return runCensorshipNotes(view.runs[0]).filter((note) => note.startsWith("fingerprinting evidence"));
+  };
+
+  const font = render([FINGERPRINT_CANVAS_FONT_EVIDENCE_BOUNDED_WARNING]);
+  assert.equal(font.length, 1);
+  assert.match(
+    font[0],
+    /the in-page fingerprint observer kept only part of the font measurements: one or more frames measured more canvas text or fonts than it keeps \(recorded loss count: 1\)$/
+  );
+  const canvas = render([FINGERPRINT_CANVAS_EVIDENCE_BOUNDED_WARNING, FINGERPRINT_CANVAS_FONT_EVIDENCE_BOUNDED_WARNING]);
+  assert.match(
+    canvas[0],
+    /the in-page fingerprint observer kept only part of the canvas evidence: one or more frames used more canvases or drew more canvas text than it keeps \(recorded loss count: 1\)$/
+  );
+  for (const note of [...font, ...canvas]) assert.doesNotMatch(note, /did not finish|attribute every event listener|Web Workers/);
+  // A listener or frame line beside it keeps its own sentence.
+  assert.match(
+    render([FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING, FINGERPRINT_CANVAS_FONT_EVIDENCE_BOUNDED_WARNING])[0],
+    /could not attribute every event listener/
+  );
+  assert.match(
+    render([FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING, FINGERPRINT_CANVAS_EVIDENCE_BOUNDED_WARNING])[0],
+    /the in-page fingerprint observer did not finish \(recorded loss count: 1\)$/
+  );
 });
 
 test("a v1 withheld listener detection censors the listener claim and nothing else", () => {

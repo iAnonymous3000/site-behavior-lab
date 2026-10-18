@@ -137,6 +137,14 @@ export function captureLossDetailNote(
      * beside frames, and only the warning says a worker was among them.
      */
     fingerprintWorkerRealmLoss?: boolean;
+    /**
+     * The run's warnings carry a canvas evidence line (fingerprint-observer@7)
+     * and none of the frame, worker or listener lines: every frame was read
+     * and the loss is a withheld canvas summary.
+     */
+    fingerprintCanvasEvidenceOnly?: boolean;
+    /** The same for the font-measurement line, with no canvas line either. */
+    fingerprintCanvasFontEvidenceOnly?: boolean;
   } = {}
 ): string {
   const detail = loss.detail;
@@ -160,6 +168,18 @@ export function captureLossDetailNote(
     // listener line proves, and never that every frame was read: in a consent
     // mode an entry from the passive-boundary read can be either state.
     return `${presentation[0]} could not attribute every event listener to the script that registered it (${recordedLossCount(
+      loss.count
+    )})`;
+  }
+  if (detail === "fingerprint-observer" && options.fingerprintCanvasEvidenceOnly) {
+    // Every frame was read and its other evidence kept; like the listener
+    // sentence, this claims only what its line proves.
+    return `${presentation[0]} kept only part of the canvas evidence: one or more frames used more canvases or drew more canvas text than it keeps (${recordedLossCount(
+      loss.count
+    )})`;
+  }
+  if (detail === "fingerprint-observer" && options.fingerprintCanvasFontEvidenceOnly) {
+    return `${presentation[0]} kept only part of the font measurements: one or more frames measured more canvas text or fonts than it keeps (${recordedLossCount(
       loss.count
     )})`;
   }

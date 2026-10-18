@@ -102,6 +102,16 @@ export const DETECTOR_VALIDATION_FIXTURES: readonly DetectorValidationFixture[] 
   },
   {
     detector: "fingerprint-heuristics",
+    kind: "adversarial",
+    environment: "real-chromium",
+    file: "lib/fingerprint-observer.test.ts",
+    testName:
+      "a widget's headline layout keeps a frame's canvas and audio fingerprinting and withholds only the canvas-font summary in real Chromium",
+    verifies:
+      "A recommendation widget that measures hundreds of distinct one- and two-character strings to fit its headlines, beside a real canvas readback and an offline audio render, keeps the frame readable: the canvas and audio findings publish, and the canvas-font summary is withheld as bounded coverage instead of published from layout calls or nulling the frame."
+  },
+  {
+    detector: "fingerprint-heuristics",
     kind: "positive",
     environment: "real-chromium",
     file: "lib/fingerprint-observer.test.ts",

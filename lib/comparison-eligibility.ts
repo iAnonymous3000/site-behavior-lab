@@ -47,6 +47,10 @@ const FINGERPRINT_OBSERVER_WARNING_FRAGMENT = "in-page fingerprint observer coul
 const FINGERPRINT_LISTENER_ATTRIBUTION_WARNING_FRAGMENT =
   "could not attribute every event listener to the script that registered it";
 const FINGERPRINT_WORKER_REALM_WARNING_FRAGMENT = "could not read one or more Web Workers the page started";
+// Not the opening: both lines open "The in-page fingerprint observer read
+// every frame, but one or more", and each tail names its own heuristic.
+const FINGERPRINT_CANVAS_EVIDENCE_WARNING_FRAGMENT = "used more canvases or drew more canvas text than it keeps";
+const FINGERPRINT_CANVAS_FONT_EVIDENCE_WARNING_FRAGMENT = "measured more canvas text or fonts than it keeps";
 // Not the tail: the listener-attribution line ends with the same "findings for
 // this visit are incomplete" clause, so each predicate would fire on the other.
 const LISTENER_DETECTION_WITHHELD_WARNING_FRAGMENT =
@@ -579,7 +583,28 @@ export function runHitFingerprintWorkerRealmLoss(run: Pick<ScanResult, "warnings
 }
 
 /**
- * The fingerprint observer's three v1 loss lines, which all stand for the one
+ * Whether a legacy run's fingerprint observer read every frame but withheld a
+ * frame's canvas-fingerprinting summary because a canvas evidence bound
+ * overflowed (fingerprint-observer@7): more canvases than it tracks, more
+ * distinct characters on one canvas than it keeps, or a drawn string longer
+ * than it keeps. Readers censor the fingerprinting family for it exactly as
+ * for an unreadable frame, through the same quality reason.
+ */
+export function runHitFingerprintCanvasEvidenceBounded(run: Pick<ScanResult, "warnings">): boolean {
+  return run.warnings.some((warning) => warning.includes(FINGERPRINT_CANVAS_EVIDENCE_WARNING_FRAGMENT));
+}
+
+/**
+ * Whether a legacy run's fingerprint observer read every frame but withheld a
+ * frame's canvas-font summary because a font-measurement bound overflowed
+ * (fingerprint-observer@7). Censored exactly as the canvas line above.
+ */
+export function runHitFingerprintCanvasFontEvidenceBounded(run: Pick<ScanResult, "warnings">): boolean {
+  return run.warnings.some((warning) => warning.includes(FINGERPRINT_CANVAS_FONT_EVIDENCE_WARNING_FRAGMENT));
+}
+
+/**
+ * The fingerprint observer's five v1 loss lines, which all stand for the one
  * `fingerprint-observer` capture-loss detail. The detail cannot say which
  * state a run was in; only the lines can, so every reader that names the loss
  * chooses its wording from this one classification.
@@ -588,11 +613,15 @@ export function fingerprintObserverLossLines(run: Pick<ScanResult, "warnings">):
   frame: boolean;
   listener: boolean;
   workerRealm: boolean;
+  canvasEvidence: boolean;
+  canvasFontEvidence: boolean;
 } {
   return {
     frame: runHitFingerprintObserverCaptureLoss(run),
     listener: runHitFingerprintListenerAttributionLoss(run),
-    workerRealm: runHitFingerprintWorkerRealmLoss(run)
+    workerRealm: runHitFingerprintWorkerRealmLoss(run),
+    canvasEvidence: runHitFingerprintCanvasEvidenceBounded(run),
+    canvasFontEvidence: runHitFingerprintCanvasFontEvidenceBounded(run)
   };
 }
 

@@ -97,6 +97,18 @@ export const SUPERSEDED_R2_NORMALIZATIONS: Readonly<
   Record<ObserverKind, readonly string[]>
 > = Object.freeze({
   "node-playwright": Object.freeze([
+    // Retired by the node-detectors-v15 detector epoch, which admits two
+    // exact fixed scanner warnings, the v1 lines for a frame that
+    // fingerprint-observer@7 read but whose canvas or font-measurement
+    // evidence overflowed a bound (FINGERPRINT_CANVAS_EVIDENCE_BOUNDED_WARNING
+    // and FINGERPRINT_CANVAS_FONT_EVIDENCE_BOUNDED_WARNING). This pass
+    // replaced each with "[redacted warning]"; its producer emitted neither.
+    // Nothing an older pass admitted was removed, the isScannerWarning
+    // patterns are unchanged and the public-suffix engine is unchanged, so
+    // every published report stays a fixed point. A widening is not a policy
+    // revision, so PUBLIC_STRING_POLICY_VERSION stays public-string-policy-v4
+    // and only its digest moves.
+    "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:344fdfdf1404e1c1a6b287c18dfd098107da18bd3b6143b7c76d2db056391563+tldts@7.4.16+node-evidence-policy-v1+r2-http-status-compat-v1",
     // Retired by the 2026-10 toolchain epoch, which moved the public-suffix
     // engine to tldts@7.4.16 under the same policy digest. This is the
     // recorded owner exception in the docblock above, not a widening: it
@@ -451,6 +463,11 @@ export const SUPERSEDED_R2_NORMALIZATIONS: Readonly<
     "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:6c78c05523e1f16c88264d0144af33587bd6dc11e04d337a6af2d58190639266+tldts@7.4.9+node-evidence-policy-v1+r2-http-status-compat-v1"
   ]),
   "pagegraph-import": Object.freeze([
+    // Retired by node-detectors-v15's widening (the two canvas evidence
+    // lines); see the node-playwright entry. A PageGraph import records no
+    // fingerprint events and never emits either line, but the public-string
+    // policy is shared by both observers.
+    "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:344fdfdf1404e1c1a6b287c18dfd098107da18bd3b6143b7c76d2db056391563+tldts@7.4.16+pagegraph-request-evidence-v1+r2-http-status-compat-v1",
     // Retired by the 2026-10 toolchain epoch's move to tldts@7.4.16; see the
     // node-playwright entry. A PageGraph import records requests and a
     // subject and no Shields-list match (its rows carry no ad-block

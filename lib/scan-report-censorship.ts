@@ -100,6 +100,12 @@ const FINGERPRINT_LISTENER_ATTRIBUTION_NOTE =
 const FINGERPRINT_WORKER_REALM_NOTE =
   "the fingerprint observer could not read one or more Web Workers the page started, so the fingerprinting evidence is incomplete";
 
+const FINGERPRINT_CANVAS_EVIDENCE_NOTE =
+  "one or more frames used more canvases or drew more canvas text than the in-page fingerprint observer keeps, so the fingerprinting evidence is incomplete";
+
+const FINGERPRINT_CANVAS_FONT_EVIDENCE_NOTE =
+  "one or more frames measured more canvas text or fonts than the in-page fingerprint observer keeps, so the fingerprinting evidence is incomplete";
+
 const RESPONSE_BYTE_LIMIT_WARNING = /reaching the ([1-9][0-9,]* MiB) aggregate response-byte budget/;
 const UPLOAD_BYTE_LIMIT_WARNING = /reaching the ([1-9][0-9,]* MiB) aggregate upload-byte budget/;
 const REQUEST_RECORDING_LIMIT_WARNING = /stopped recording or loading additional requests after ([1-9][0-9,]*) requests/;
@@ -151,15 +157,18 @@ function ownNote(table: Readonly<Record<string, string>>, key: string): string |
  * party capture-loss details are rendered below from their semantic registry.
  */
 function qualityReasonNote(run: RunView, reason: string): string {
-  // One legacy reason, three v1 warnings, and each note is true only of its
+  // One legacy reason, five v1 warnings, and each note is true only of its
   // own line's state. The frame note wins when its line is present, since an
   // unreadable frame is the widest loss; otherwise the worker note, which
   // says nothing about frames; the listener note only when neither is there,
-  // because it implies every frame was read.
+  // because it implies every frame was read; then the canvas note and the
+  // font note, which imply the same.
   if (reason === "capture-loss:fingerprint-observer") {
     const lines = fingerprintObserverLossLines(run);
     if (!lines.frame && lines.workerRealm) return FINGERPRINT_WORKER_REALM_NOTE;
     if (!lines.frame && lines.listener) return FINGERPRINT_LISTENER_ATTRIBUTION_NOTE;
+    if (!lines.frame && lines.canvasEvidence) return FINGERPRINT_CANVAS_EVIDENCE_NOTE;
+    if (!lines.frame && lines.canvasFontEvidence) return FINGERPRINT_CANVAS_FONT_EVIDENCE_NOTE;
   }
   const mapped = ownNote(QUALITY_REASON_NOTES, reason);
   if (mapped) return mapped;
@@ -223,12 +232,20 @@ function censoredFamilyDetailNote(run: RunView, family: string): string {
       (loss) => loss.family === family && loss.detail === RESPONSE_BYTE_CAPTURE_LOSS_DETAIL
     );
   // The r2 twin of the v1 rule in qualityReasonNote: one capture-loss detail,
-  // three warnings, only the warnings say which state the run was in, and the
-  // precedence is the same, frame, then worker, then listener.
+  // five warnings, only the warnings say which state the run was in, and the
+  // precedence is the same: frame, worker, listener, canvas, font.
   const fingerprintLines = fingerprintObserverLossLines(run);
   const fingerprintWorkerRealmLoss = !fingerprintLines.frame && fingerprintLines.workerRealm;
   const fingerprintListenerAttributionOnly =
     fingerprintLines.listener && !fingerprintLines.frame && !fingerprintLines.workerRealm;
+  const fingerprintCanvasEvidenceOnly =
+    fingerprintLines.canvasEvidence && !fingerprintLines.frame && !fingerprintLines.workerRealm && !fingerprintLines.listener;
+  const fingerprintCanvasFontEvidenceOnly =
+    fingerprintLines.canvasFontEvidence &&
+    !fingerprintLines.frame &&
+    !fingerprintLines.workerRealm &&
+    !fingerprintLines.listener &&
+    !fingerprintLines.canvasEvidence;
   const details = Array.from(
     new Set(
       (run.quality.facts?.captureLoss ?? [])
@@ -239,7 +256,9 @@ function censoredFamilyDetailNote(run: RunView, family: string): string {
             ...(uploadByteLimit === null ? {} : { uploadByteLimit }),
             ...(historicalMergedRequestAndByteLoss ? { historicalMergedRequestAndByteLoss: true } : {}),
             ...(fingerprintWorkerRealmLoss ? { fingerprintWorkerRealmLoss: true } : {}),
-            ...(fingerprintListenerAttributionOnly ? { fingerprintListenerAttributionOnly: true } : {})
+            ...(fingerprintListenerAttributionOnly ? { fingerprintListenerAttributionOnly: true } : {}),
+            ...(fingerprintCanvasEvidenceOnly ? { fingerprintCanvasEvidenceOnly: true } : {}),
+            ...(fingerprintCanvasFontEvidenceOnly ? { fingerprintCanvasFontEvidenceOnly: true } : {})
           })
         )
     )
