@@ -70,6 +70,7 @@ import {
   offersPrivacyPolicyLink,
   pickPrivacyPolicyLink,
   privacyPolicyDocumentQualifies,
+  privacyPolicyPageIsHub,
   type PolicyLinkCandidate
 } from "./privacy-policy";
 import {
@@ -4564,17 +4565,23 @@ export type PolicyLinkCollection = {
   truncated: boolean;
 };
 
-/** Links on the loaded page that plausibly point at a privacy policy. */
+/**
+ * Links on the loaded page that plausibly point at a privacy policy. With
+ * `skipDocument` (a page's own URL without its fragment), links into that
+ * document are left out, so a policy page's anchors do not fill the list.
+ */
 export async function collectPrivacyPolicyLinks(
   page: Page,
-  boundedPageCollectorKey: string
+  boundedPageCollectorKey: string,
+  options: { skipDocument?: string } = {}
 ): Promise<PolicyLinkCollection> {
   const wire = await callBoundedPageCollector(page, boundedPageCollectorKey, "links", {
     maxCandidates: MAX_POLICY_LINK_CANDIDATES,
     maxHrefChars: MAX_POLICY_LINK_HREF_CHARS,
     maxInspected: MAX_POLICY_LINKS_INSPECTED,
     maxMatchTextChars: MAX_POLICY_LINK_MATCH_TEXT_CHARS,
-    maxTextChars: MAX_POLICY_LINK_TEXT_CHARS
+    maxTextChars: MAX_POLICY_LINK_TEXT_CHARS,
+    ...(options.skipDocument === undefined ? {} : { skipDocument: options.skipDocument })
   });
   if (typeof wire !== "string" || wire.length > 256 * 1024) {
     return { links: [], truncated: true };
@@ -4764,12 +4771,17 @@ async function probePrivacyPolicy(input: {
       scanTimeoutError
     );
     const policyText = boundedPolicyTextFromWire(policyTextWire);
-    // The title and top-level headings decide below whether this document is a
-    // policy at all. Read them before the final URL check so it covers them too.
-    const { policyTitle, policyHeadings } = await withScanDeadline(
+    // The title, top-level headings and the page's own policy links decide
+    // below whether this document is a policy at all, or a hub that keeps the
+    // policy on another page. Read them before the final URL check so it
+    // covers them too.
+    const { policyTitle, policyHeadings, policyPageLinks } = await withScanDeadline(
       (async () => ({
         policyTitle: await collectBoundedPageTitle(policyPage, input.boundedPageCollectorKey),
-        policyHeadings: await collectBoundedPageHeadings(policyPage, input.boundedPageCollectorKey)
+        policyHeadings: await collectBoundedPageHeadings(policyPage, input.boundedPageCollectorKey),
+        policyPageLinks: await collectPrivacyPolicyLinks(policyPage, input.boundedPageCollectorKey, {
+          skipDocument: policyPage.url().split("#", 1)[0]
+        })
       }))(),
       input.started,
       MAX_SCAN_DURATION_MS,
@@ -4806,6 +4818,24 @@ async function probePrivacyPolicy(input: {
         title: policyTitle.value,
         headings: policyHeadings.values,
         text: policyText
+      })
+    ) {
+      return null;
+    }
+    // A privacy hub is the site's own page and passes every check above, yet
+    // its policy is on another page it links to; what its link cards never
+    // name is not what the policy omits. Withheld like any other page that is
+    // not the policy. The linked page is not read in its place: the first one
+    // a hub links to can be a summary of the policy rather than the policy.
+    if (
+      privacyPolicyPageIsHub({
+        selectedUrl: policyUrl,
+        landedUrl: observedPolicyUrl,
+        title: policyTitle.value,
+        headings: policyHeadings.values,
+        text: policyText,
+        links: policyPageLinks.links,
+        firstPartyHostname: input.firstPartyHostname
       })
     ) {
       return null;

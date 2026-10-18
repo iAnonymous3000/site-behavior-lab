@@ -140,17 +140,17 @@ test("boundary snapshots derive added, changed, and removed cookie/storage recor
 });
 
 test("detector registry identity is stable and non-empty", () => {
-  assert.equal(DETECTOR_REGISTRY_VERSION, "node-detectors-v13");
+  assert.equal(DETECTOR_REGISTRY_VERSION, "node-detectors-v14");
   assert.equal(DETECTOR_VERSIONS["cname-uncloaking"], "dns-cname-chain@5");
   assert.equal(DETECTOR_VERSIONS["consent-banner"], "consent-control-and-state@3");
   assert.equal(DETECTOR_VERSIONS["fingerprint-heuristics"], "fingerprint-observer@6");
   assert.equal(DETECTOR_VERSIONS["keystroke-exfiltration"], "synthetic-sentinel@5");
   assert.equal(DETECTOR_VERSIONS["pixel-events"], "pixel-request-decoder@6");
-  assert.equal(DETECTOR_VERSIONS["privacy-policy"], "policy-text-cross-check@9");
+  assert.equal(DETECTOR_VERSIONS["privacy-policy"], "policy-text-cross-check@10");
   // Detector behavior is published provenance. Completeness, cancellation,
   // and truncation semantics moved together with the detector versions rather
   // than silently presenting the new behavior as the old release.
-  assert.equal(DETECTOR_REGISTRY_DIGEST, "ee3fa1c032693bfc9203e2a1e6801d6c1687e3dd7c077f6c370b6630de525523");
+  assert.equal(DETECTOR_REGISTRY_DIGEST, "f38208f66f7073b73f933c9c6315955e56332d3aa1eea3ef79b73268b9df35b6");
   assert.deepEqual(DETECTOR_OBLIGATION_TARGET_REGISTRY, {
     detectorRegistryVersion: DETECTOR_REGISTRY_VERSION,
     detectorRegistryDigest: DETECTOR_REGISTRY_DIGEST

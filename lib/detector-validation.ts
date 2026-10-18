@@ -253,6 +253,22 @@ export const DETECTOR_VALIDATION_FIXTURES: readonly DetectorValidationFixture[] 
     file: "lib/scanner-policy-navigation.test.ts",
     testName: "a policy still fetching its text when the settle wait ends is never read as the policy",
     verifies: "A short page shell read while its policy request is still open publishes no policy and no company the policy does not name."
+  },
+  {
+    detector: "privacy-policy",
+    kind: "positive",
+    environment: "real-chromium",
+    file: "lib/scanner-policy-navigation.test.ts",
+    testName: "a short page that names itself a policy is read even when it links to another policy document",
+    verifies: "A short policy that calls itself one is read, and the company it names counts as named, though it links to a state notice."
+  },
+  {
+    detector: "privacy-policy",
+    kind: "negative",
+    environment: "real-chromium",
+    file: "lib/scanner-policy-navigation.test.ts",
+    testName: "a privacy hub that keeps its policy on another page is never read as the policy",
+    verifies: "A privacy landing page that calls itself no policy, carries no prose and links to the policy elsewhere publishes no policy and no company the policy does not name."
   }
 ] as const;
 

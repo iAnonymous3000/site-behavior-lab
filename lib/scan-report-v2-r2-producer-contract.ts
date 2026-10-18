@@ -509,7 +509,9 @@ const HISTORICAL_NODE_V16_NORMALIZATION = "redaction-v4+allowlists-v3:269f631f04
 // privacy-policy cross-check and the registry. The literal still equals the
 // live constant, since that epoch does not move it; it is spelled out so the
 // closed rows stay put when a later epoch does. Not a retirement: the
-// normalization stays active and needs no superseded entry.
+// normalization stays active and needs no superseded entry. The
+// node-detectors-v13 rows that node-detectors-v14 closes ran this same
+// literal.
 const HISTORICAL_NODE_V17_NORMALIZATION = "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:344fdfdf1404e1c1a6b287c18dfd098107da18bd3b6143b7c76d2db056391563+tldts@7.4.16+node-evidence-policy-v1+r2-http-status-compat-v1";
 
 export const HISTORICAL_NODE_R2_V4_METHODOLOGIES_BY_NORMALIZATION: Readonly<
@@ -1282,6 +1284,57 @@ const HISTORICAL_NODE_V12_FIELDS: NodeTupleFields = Object.freeze({
   phaseOmissionContractVersion: "phase-omission-v2",
 });
 
+// Exact node-detectors-v13 producer fields, frozen when node-detectors-v14
+// closed the v18 rows. They differ from the v12 copy only in the registry and
+// the privacy-policy cross-check; the closed v18 rows keep this copy now that
+// node-detectors-v14 has moved that cross-check again.
+const HISTORICAL_NODE_V13_FIELDS: NodeTupleFields = Object.freeze({
+  detectorRegistry: Object.freeze({
+    "version": "node-detectors-v13",
+    "digest": "ee3fa1c032693bfc9203e2a1e6801d6c1687e3dd7c077f6c370b6630de525523"
+  } as const),
+  detectorVersions: Object.freeze({
+    "fingerprint-heuristics": "fingerprint-observer@6",
+    "keystroke-exfiltration": "synthetic-sentinel@5",
+    "cname-uncloaking": "dns-cname-chain@5",
+    "pixel-events": "pixel-request-decoder@6",
+    "consent-banner": "consent-control-and-state@3",
+    "privacy-policy": "policy-text-cross-check@9"
+  } as const),
+  detectorStatusContractVersion: "detector-status-v2",
+  detectorObligations: Object.freeze({
+    "version": "detector-obligations-v2",
+    "digest": "502d149030a4b771031a41ec71760e02d801a569ef0fe9725b01036351b10f2b"
+  } as const),
+  serviceRoleTaxonomy: Object.freeze({
+    "version": "service-role-taxonomy-v1",
+    "digest": "dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67"
+  } as const),
+  trackerCatalog: Object.freeze({
+    "source": "Hand-curated service catalog",
+    "version": "hand-curated-2026.08",
+    "entries": 146,
+    "digest": "e94970de235fc80254de8ed99b94316a252e52aa1c2e748c8fbfc3c093b908f4"
+  } as const),
+  publicLimits: Object.freeze({
+    "phases": 16,
+    "warnings": 64,
+    "requests": 1000,
+    "cookieRecords": 1000,
+    "cookieMutations": 2000,
+    "storageRecords": 1000,
+    "storageMutations": 2000,
+    "fingerprintEvents": 1000,
+    "fingerprintDetections": 256,
+    "cnameCloaks": 256,
+    "pixelEvents": 512,
+    "consentObservations": 32,
+    "policyClaims": 32,
+    "policyEntities": 100
+  } as const),
+  phaseOmissionContractVersion: "phase-omission-v2",
+});
+
 const ACTIVE_DETECTOR_STATUS_CONTRACT_VERSION: DetectorStatusContractVersion =
   isDetectorReasonCode("evidence-cap-reached") ? "detector-status-v2" : "detector-status-v1";
 const ACTIVE_NODE_FIELDS: NodeTupleFields = Object.freeze({
@@ -1319,31 +1372,29 @@ function nodeTuple(
   });
 }
 
-// Closed rows retain their exact literals; the node-detectors-v13 detector
-// epoch defines v18. It moves only the privacy-policy cross-check
-// (policy-text-cross-check@9, which waits for a client-rendered policy to
-// settle, withholds a short read taken while the page was still loading or
-// after the scan proxy refused a request during the visit, and skips the
-// visit as budget-unavailable once the proxy budget has refused anything)
-// with the registry; the methodology, normalization, lists, toolchain and
-// every other field are unchanged from v17, whose two rows are closed below
-// in NODE_R2_PRODUCER_TUPLES.
+// Closed rows retain their exact literals; the node-detectors-v14 detector
+// epoch defines v19. It moves only the privacy-policy cross-check
+// (policy-text-cross-check@10, which withholds a privacy hub: a page that
+// calls itself no policy, carries little prose, and links to another of the
+// site's policy documents) with the registry; the methodology, normalization,
+// lists, toolchain and every other field are unchanged from v18, whose two
+// rows are closed below in NODE_R2_PRODUCER_TUPLES.
 const ACTIVE_NODE_WIRE_IDENTITY_IS_DISTINCT =
   String(NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION) !== HISTORICAL_NODE_V15_METHODOLOGY ||
   String(NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION) !== HISTORICAL_NODE_V17_NORMALIZATION ||
-  canonicalJson(ACTIVE_NODE_FIELDS) !== canonicalJson(HISTORICAL_NODE_V12_FIELDS);
+  canonicalJson(ACTIVE_NODE_FIELDS) !== canonicalJson(HISTORICAL_NODE_V13_FIELDS);
 
 const ACTIVE_NODE_TUPLES: readonly NodeR2ProducerTuple[] = ACTIVE_NODE_WIRE_IDENTITY_IS_DISTINCT
   ? Object.freeze([
       nodeTuple(
-        "node-v18-detectors-v13-active-lists-2026-09-28",
+        "node-v19-detectors-v14-active-lists-2026-09-28",
         NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION,
         NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION,
         ACTIVE_NODE_FIELDS,
         NODE_R2_CURRENT_ADBLOCK_IDENTITY
       ),
       nodeTuple(
-        "node-v18-detectors-v13-active-no-adblock",
+        "node-v19-detectors-v14-active-no-adblock",
         NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION,
         NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION,
         ACTIVE_NODE_FIELDS,
@@ -1782,6 +1833,18 @@ export const NODE_R2_PRODUCER_TUPLES: readonly NodeR2ProducerTuple[] = Object.fr
   nodeTuple("node-v17-toolchain-2026-10-active-no-adblock",
     HISTORICAL_NODE_V17_NORMALIZATION, HISTORICAL_NODE_V15_METHODOLOGY,
     HISTORICAL_NODE_V12_FIELDS, null
+  ),
+  // The node-detectors-v13 producer, with and without the September 28 lists,
+  // closed to its exact source identity by node-detectors-v14: the v15
+  // methodology, the 344fdfdf policy digest under tldts 7.4.16,
+  // node-detectors-v13 and adblock-rust 0.13.3.
+  nodeTuple("node-v18-detectors-v13-active-lists-2026-09-28",
+    HISTORICAL_NODE_V17_NORMALIZATION, HISTORICAL_NODE_V15_METHODOLOGY,
+    HISTORICAL_NODE_V13_FIELDS, HISTORICAL_R2_LISTS_2026_09_28_ADBLOCK_0_13_3_IDENTITY
+  ),
+  nodeTuple("node-v18-detectors-v13-active-no-adblock",
+    HISTORICAL_NODE_V17_NORMALIZATION, HISTORICAL_NODE_V15_METHODOLOGY,
+    HISTORICAL_NODE_V13_FIELDS, null
   ),
   ...ACTIVE_NODE_TUPLES
 ]);

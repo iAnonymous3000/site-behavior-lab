@@ -382,6 +382,45 @@ test("an image map does not cost the page its privacy-policy candidates", async 
   }
 });
 
+test("links into the page being read are left out only when the caller names that page", async () => {
+  // A policy page's own URL names privacy, so each "#" control or contents
+  // entry on it matches as a candidate: fourteen of them filled the list
+  // before its link to another document. The scanned page's own collection
+  // names no document and must be unchanged, including when the page plants
+  // a skipDocument of its own on Object.prototype.
+  const { chromium } = await import("playwright");
+  const browser = await chromium.launch();
+  try {
+    const context = await browser.newContext();
+    const key = createBoundedPageCollectorKey();
+    await context.addInitScript(installBoundedPageCollector, key);
+    const page = await context.newPage();
+    await page.route("https://example.com/**", (route) =>
+      route.fulfill({
+        contentType: "text/html",
+        body:
+          Array.from({ length: 14 }, (_, index) => `<a href="#section-${index}">Section ${index}</a>`).join("") +
+          `<a href="/privacy/full-policy">Full privacy policy</a>` +
+          `<script>Object.prototype.skipDocument = "https://example.com/privacy";</script>`
+      })
+    );
+    await page.goto("https://example.com/privacy");
+
+    const scannedPage = await collectPrivacyPolicyLinks(page, key);
+    assert.deepEqual(
+      scannedPage.links.map((link) => link.href),
+      Array.from({ length: 12 }, (_, index) => `https://example.com/privacy#section-${index}`)
+    );
+    assert.equal(scannedPage.truncated, true);
+
+    const policyPage = await collectPrivacyPolicyLinks(page, key, { skipDocument: "https://example.com/privacy" });
+    assert.deepEqual(policyPage.links, [{ href: "https://example.com/privacy/full-policy", text: "Full privacy policy" }]);
+    assert.equal(policyPage.truncated, false);
+  } finally {
+    await browser.close();
+  }
+});
+
 test("a typed field is only counted when the scanner's sentinel actually landed", async () => {
   const key = createBoundedPageCollectorKey();
   const realm = hostileDomRealm();

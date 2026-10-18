@@ -203,7 +203,7 @@ test("privacy-policy probing reads only a same-site document that is a policy", 
       assert.notEqual(policyPhase, undefined, `${site}: the page offered a policy link, so the visit was attempted`);
       assert.deepEqual(
         measurement.measurement.detectors["privacy-policy"],
-        { version: "policy-text-cross-check@9", status: "failed", reason: "load-failed", phaseId: policyPhase!.phaseId },
+        { version: "policy-text-cross-check@10", status: "failed", reason: "load-failed", phaseId: policyPhase!.phaseId },
         site
       );
       assert.equal(measurement.evidence.privacyPolicy, undefined, site);
@@ -225,7 +225,7 @@ test("privacy-policy probing reads only a same-site document that is a policy", 
     const { result, measurement } = await scan("real-policy");
     const policyPhase = measurement.measurement.phases.find((phase) => phase.kind === "policy-analysis");
     assert.deepEqual(measurement.measurement.detectors["privacy-policy"], {
-      version: "policy-text-cross-check@9",
+      version: "policy-text-cross-check@10",
       status: "complete",
       phaseId: policyPhase!.phaseId
     });
@@ -301,7 +301,7 @@ test("privacy-policy text never counts a vendor loader in the page body as namin
     );
     const policyPhase = measurement.measurement.phases.find((phase) => phase.kind === "policy-analysis");
     assert.deepEqual(measurement.measurement.detectors["privacy-policy"], {
-      version: "policy-text-cross-check@9",
+      version: "policy-text-cross-check@10",
       status: "complete",
       phaseId: policyPhase!.phaseId
     });
@@ -737,3 +737,196 @@ test("a policy on a host the proxy can no longer admit is skipped as the scanner
   }
 });
 
+
+/**
+ * Privacy hubs, and the policies that must still be read beside them. Each
+ * homepage loads a Google Analytics pixel and links "Privacy Policy" to the
+ * site's policy page; only a real policy names Google. The hub is the
+ * theguardian.com shape: /info/privacy is navigation and link cards around no
+ * prose, its footer calls it the privacy policy, and the policy itself is at
+ * /help/privacy-policy, which the hub links to from a card with no text.
+ */
+async function scanPolicyPageShape(site: string): Promise<{
+  scanned: Awaited<ReturnType<typeof scanSiteWithMeasurement>>;
+  requests: Map<string, number>;
+}> {
+  const nav = `<nav>${"Shop Lighting Rugs Chairs Help Contact Careers Press Accessibility Sitemap ".repeat(8)}</nav>`;
+  const pixel = `<img src="http://www.google-analytics.com/collect?v=1&t=pageview" width="1" height="1" alt="">`;
+  const prose = (count: number) =>
+    Array.from(
+      { length: count },
+      (_, index) => `We keep the details you give us for order ${index + 1} only as long as we need them to deliver it.`
+    ).join(" ");
+  const opening = "This privacy policy explains what we collect. We use Google Analytics to measure visits.";
+  const page = (title: string, h1: string | null, body: string) =>
+    `<!doctype html><title>${title}</title>${nav}<main>${h1 === null ? "" : `<h1>${h1}</h1>`}${body}</main>`;
+  const fullPolicy = page("Privacy Policy | Example Lamps", "Privacy Policy", `<p>${opening} ${prose(40)}</p>`);
+  const shapes: Record<string, { policyPath: string; pages: Record<string, string> }> = {
+    "hub.test": {
+      policyPath: "/info/privacy",
+      pages: {
+        "/info/privacy": page(
+          "Privacy | Example Lamps",
+          null,
+          `<a href="/help/privacy-policy"><img alt=""></a><a href="/help/cookies"><img alt=""></a>` +
+            `<footer>Example Lamps <a href="/info/privacy">Privacy policy</a> <a href="/help/terms">Terms of use</a></footer>`
+        ),
+        "/help/privacy-policy": fullPolicy
+      }
+    },
+    // The discover.com shape: a privacy center whose own address names
+    // privacy, so its "#" controls match as policy links and, a dozen of them
+    // first, fill the bounded candidate list.
+    "crowded-hub.test": {
+      policyPath: "/privacy-center",
+      pages: {
+        "/privacy-center": page(
+          "Privacy Center | Example Lamps",
+          "Privacy Center",
+          Array.from({ length: 14 }, (_, index) => `<a href="#">Menu ${index + 1}</a>`).join(" ") +
+            ` <a href="/legal/privacy-policy">Our privacy policy</a> <a href="/legal/cookies">Cookies</a>`
+        ),
+        "/legal/privacy-policy": fullPolicy
+      }
+    },
+    // nhbr.com, lifezette.com: a short policy that calls itself one and
+    // links to a state notice.
+    "labeled-short.test": {
+      policyPath: "/privacy-policy",
+      pages: {
+        "/privacy-policy": page(
+          "Privacy Policy | Example Lamps",
+          "Privacy Policy",
+          `<p>${opening} ${prose(6)}</p><p><a href="/privacy/california">California Privacy Notice</a></p>`
+        )
+      }
+    },
+    // The USA TODAY Network shape: titled with the site's name alone, linking
+    // to a state notice, and long.
+    "unlabeled-long.test": {
+      policyPath: "/privacy/",
+      pages: {
+        "/privacy/": page(
+          "Example Lamps",
+          null,
+          `<p>${opening} ${prose(40)}</p><p><a href="/privacy-policy/">California Notice at Collection</a></p>`
+        )
+      }
+    },
+    // cdapress.com: titled with the site's name alone and short, linking only
+    // to itself (here at a variant address).
+    "unlabeled-short.test": {
+      policyPath: "/privacy-policy",
+      pages: {
+        "/privacy-policy": page(
+          "Example Lamps",
+          null,
+          `<p>${opening} ${prose(6)}</p><footer><a href="/privacy-policy/?ref=footer">Privacy Policy</a></footer>`
+        )
+      }
+    }
+  };
+  const shape = shapes[site];
+  assert.ok(shape, site);
+  const requests = new Map<string, number>();
+  const upstream = createServer((request, response) => {
+    const host = request.headers.host?.split(":")[0] ?? "";
+    const path = new URL(request.url ?? "/", "http://fixture.test").pathname;
+    if (host === "www.google-analytics.com") {
+      response.writeHead(204);
+      response.end();
+      return;
+    }
+    requests.set(path, (requests.get(path) ?? 0) + 1);
+    response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+    response.end(
+      shape.pages[path] ??
+        `<!doctype html><title>Example Lamps</title><main><h1>Welcome</h1><p>${"Lamps for every room. ".repeat(40)}</p></main>` +
+          `<footer>Example Lamps. <a href="${shape.policyPath}">Privacy Policy</a> Terms of use.</footer>${pixel}`
+    );
+  });
+  await new Promise<void>((resolve, reject) => {
+    upstream.once("error", reject);
+    upstream.listen(0, "127.0.0.1", resolve);
+  });
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+  try {
+    const scanned = await scanSiteWithMeasurement(
+      { url: `http://${site}/`, device: "desktop", gpcEnabled: false, consentMode: "observe" },
+      {
+        publicUrlAlreadyVerified: true,
+        verifyPublicUrl: async () => undefined,
+        resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+        connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"),
+        resolveCnameChain: async () => []
+      }
+    );
+    return { scanned, requests };
+  } finally {
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+}
+
+function assertPolicyWithheld(scanned: Awaited<ReturnType<typeof scanSiteWithMeasurement>>, label: string): void {
+  const { result, measurement } = scanned;
+  const policyPhase = measurement.measurement.phases.find((phase) => phase.kind === "policy-analysis");
+  assert.notEqual(policyPhase, undefined, `${label}: the visit was made`);
+  assert.deepEqual(
+    measurement.measurement.detectors["privacy-policy"],
+    { version: DETECTOR_VERSIONS["privacy-policy"], status: "failed", reason: "load-failed", phaseId: policyPhase!.phaseId },
+    label
+  );
+  assert.equal(result.privacyPolicy, undefined, label);
+  assert.equal(measurement.evidence.privacyPolicy, undefined, label);
+  assert.equal(
+    measurement.measurement.qualityFacts.captureLoss.some(
+      (loss) => loss.detail === "policy-visit" && loss.kind === "dropped" && loss.phaseId === policyPhase!.phaseId
+    ),
+    true,
+    `${label}: the withheld read censors its family`
+  );
+  assert.equal(result.warnings.some((warning) => warning.startsWith("Read the site's privacy policy")), false, label);
+}
+
+function assertPolicyRead(scanned: Awaited<ReturnType<typeof scanSiteWithMeasurement>>, label: string): void {
+  const { result, measurement } = scanned;
+  const policyPhase = measurement.measurement.phases.find((phase) => phase.kind === "policy-analysis");
+  assert.deepEqual(
+    measurement.measurement.detectors["privacy-policy"],
+    { version: DETECTOR_VERSIONS["privacy-policy"], status: "complete", phaseId: policyPhase!.phaseId },
+    label
+  );
+  assert.deepEqual(result.privacyPolicy?.mentionedEntities, ["Google"], label);
+  assert.deepEqual(result.privacyPolicy?.unmentionedEntities, [], label);
+}
+
+test("a privacy hub that keeps its policy on another page is never read as the policy", { timeout: 60_000 }, async () => {
+  // Before, the hub's silence about Google was published as the policy's.
+  const { scanned, requests } = await scanPolicyPageShape("hub.test");
+  assertPolicyWithheld(scanned, "hub");
+  assert.equal(requests.get("/info/privacy"), 1);
+  assert.equal(requests.get("/help/privacy-policy"), undefined, "the page the hub links to is not read in its place");
+});
+
+test("a privacy hub is recognized past a dozen links into itself", { timeout: 60_000 }, async () => {
+  const { scanned, requests } = await scanPolicyPageShape("crowded-hub.test");
+  assertPolicyWithheld(scanned, "crowded hub");
+  assert.equal(requests.get("/legal/privacy-policy"), undefined);
+});
+
+test("a short page that names itself a policy is read even when it links to another policy document", { timeout: 60_000 }, async () => {
+  const { scanned } = await scanPolicyPageShape("labeled-short.test");
+  assertPolicyRead(scanned, "labeled short policy");
+});
+
+test("a policy titled with only the site's name is read when it has prose, though it links to another policy document", { timeout: 60_000 }, async () => {
+  const { scanned } = await scanPolicyPageShape("unlabeled-long.test");
+  assertPolicyRead(scanned, "unlabeled long policy");
+});
+
+test("a short policy titled with only the site's name is read when it links to no other policy document", { timeout: 60_000 }, async () => {
+  const { scanned } = await scanPolicyPageShape("unlabeled-short.test");
+  assertPolicyRead(scanned, "unlabeled short policy");
+});

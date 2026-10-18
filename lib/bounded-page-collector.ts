@@ -450,6 +450,17 @@ export function installBoundedPageCollector(key: string): void {
       if (!maxCandidates || !maxHrefChars || !maxInspected || !maxTextChars || !maxMatchTextChars) {
         return failWire("links");
       }
+      // Read on a policy page, whose own URL names privacy: every "#" control
+      // and table-of-contents entry there matched as a candidate, and a dozen
+      // of them filled the list before any link to another document. When
+      // the caller names the page's own address (without its fragment), links
+      // into it are not candidates. Read as an own property only, so a page
+      // cannot supply one through Object.prototype on the scanned page.
+      const skipDescriptor = nativeGetOwnDescriptor(limits, "skipDocument");
+      const skipDocument =
+        skipDescriptor && typeof skipDescriptor.value === "string" && skipDescriptor.value.length <= maxHrefChars
+          ? skipDescriptor.value
+          : null;
       const documentValue = call(windowDocumentGetter, globalThis, []);
       const collection = call(documentLinksGetter, documentValue, []);
       const rawLength = call(collectionLengthGetter, collection, []);
@@ -468,6 +479,11 @@ export function installBoundedPageCollector(key: string): void {
           // candidate, so the candidate list really is incomplete.
           truncated = true;
           continue;
+        }
+        if (skipDocument !== null) {
+          const fragmentAt = call(nativeStringIndexOf, href, ["#"]) as number;
+          const linkDocument = fragmentAt >= 0 ? (call(nativeStringSlice, href, [0, fragmentAt]) as string) : href;
+          if (linkDocument === skipDocument) continue;
         }
         // Read far more text than is stored. The stored label is display copy
         // and stays short; the MATCH needs enough of the link to decide

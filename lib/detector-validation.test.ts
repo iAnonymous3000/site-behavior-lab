@@ -13,7 +13,7 @@ import {
 
 test("public detector validation manifest is complete and mechanically valid", () => {
   assert.deepEqual(validateDetectorValidationManifest(DETECTOR_VALIDATION_FIXTURES), []);
-  assert.equal(DETECTOR_VALIDATION_FIXTURES.length, 23);
+  assert.equal(DETECTOR_VALIDATION_FIXTURES.length, 25);
   assert.equal(detectorValidationRows().length, DETECTOR_IDS.length);
   // fingerprint-heuristics carries two more positive cases: the two-vendor
   // chain fixture proving multi-origin chains detect instead of censoring, and
@@ -23,9 +23,11 @@ test("public detector validation manifest is complete and mechanically valid", (
     detectorValidationRows().find((row) => row.detector === "fingerprint-heuristics")?.positiveCases,
     3
   );
-  // privacy-policy carries one more positive and one more negative case: a
+  // privacy-policy carries two more positive and two more negative cases: a
   // policy that renders its text after load is read in full, and a shell read
-  // while its policy request is still open publishes nothing.
+  // while its policy request is still open publishes nothing; a short page
+  // that names itself a policy is read beside its link to a state notice, and
+  // a privacy hub that keeps the policy on another page publishes nothing.
   assert.equal(
     detectorValidationRows()
       .filter((row) => row.detector !== "fingerprint-heuristics" && row.detector !== "privacy-policy")
@@ -33,8 +35,8 @@ test("public detector validation manifest is complete and mechanically valid", (
     true
   );
   const policyRow = detectorValidationRows().find((row) => row.detector === "privacy-policy");
-  assert.equal(policyRow?.positiveCases, 2);
-  assert.equal(policyRow?.negativeCases, 2);
+  assert.equal(policyRow?.positiveCases, 3);
+  assert.equal(policyRow?.negativeCases, 3);
   assert.equal(
     detectorValidationRows().filter((row) => row.detector !== "privacy-policy").every((row) => row.negativeCases === 1),
     true
@@ -50,9 +52,9 @@ test("public detector validation manifest is complete and mechanically valid", (
     detectorValidationRows().filter((row) => row.detector !== "fingerprint-heuristics").every((row) => row.adversarialCases === 1),
     true
   );
-  // Two of them are the privacy-policy settle cases (rendered late, still
-  // loading).
-  assert.equal(detectorValidationRows().reduce((sum, row) => sum + row.realChromiumCases, 0), 8);
+  // Four of them are privacy-policy cases: the two settle cases (rendered
+  // late, still loading) and the two hub cases (a labeled short policy, a hub).
+  assert.equal(detectorValidationRows().reduce((sum, row) => sum + row.realChromiumCases, 0), 10);
 });
 
 test("every public validation case points to an exact source-controlled test", () => {
@@ -70,7 +72,7 @@ test("every public validation case points to an exact source-controlled test", (
 
 test("validation matrix digest covers the exact public fixture inventory", () => {
   assert.equal(detectorValidationMetadata.version, "detector-fixture-matrix-v1");
-  assert.equal(detectorValidationMetadata.registryVersion, "node-detectors-v13");
+  assert.equal(detectorValidationMetadata.registryVersion, "node-detectors-v14");
   assert.equal(
     createHash("sha256").update(JSON.stringify(DETECTOR_VALIDATION_FIXTURES)).digest("hex"),
     detectorValidationMetadata.digest

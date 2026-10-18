@@ -50,10 +50,27 @@ export const MIN_POLICY_TEXT_LENGTH = 500;
  * 3,000 characters examined was a shell or a hub: 688 for the USA TODAY
  * Network shell, 612 and 974 for Khan Academy's policy, which renders 27,886
  * characters. Reads of 3,000 to 5,000 include genuine short policies
- * (lobste.rs, nih.gov, irs.gov), and 214 of 249 policy reads in the October
- * news sweep were over 10,000.
+ * (lbpost.com, nih.gov, irs.gov; lobste.rs's were its privacy tag page, a
+ * list of stories), and 214 of 249 policy reads in the October news sweep
+ * were over 10,000. A hub can be longer than this: see
+ * privacyPolicyPageIsHub.
  */
 export const POLICY_SHELL_SUSPECT_MAX_CHARS = 3_000;
+/**
+ * Below this many characters of prose (policyProseCharacters), a page that
+ * calls itself no policy and links to another of the site's policy documents
+ * is a privacy hub (privacyPolicyPageIsHub). Counted in prose sentences, not
+ * text length: a hub's own text is navigation and link cards, and those run
+ * to tens of thousands of characters when a mega menu sits in the page. Four
+ * hubs the committed corpus read as policies carry 0 (the Guardian), 1,403
+ * (Discover), 2,219 (Capital One) and 2,352 (Home Depot); the unlabeled
+ * policies that link to another policy document carry 37,327 (Cleveland
+ * Clinic) and 50,424 (every USA TODAY Network page). The bound sits just
+ * above the hubs, so it withholds as little as the evidence allows: the
+ * pages between, Walgreens' privacy center at 7,457 and two privacy pages
+ * that are not policies, are still read.
+ */
+export const POLICY_HUB_MAX_PROSE_CHARS = 3_000;
 
 // Services that host other sites' privacy policies (consent/policy platforms).
 // A policy link to one of these is still the SITE'S policy; any other off-site
@@ -403,6 +420,97 @@ export function privacyPolicyDocumentQualifies(input: {
   if (labels.some(labelNamesPrivacyPolicy)) return true;
   const text = normalizePolicySignal(input.text);
   return POLICY_PHRASES_IN_DOCUMENT.some((pattern) => pattern.test(text));
+}
+
+// A title or h1 word that names the page as a document of its own: "Privacy
+// & Cookie Policy", "Privacy Notices and Choices", "Privacy and Terms".
+const POLICY_DOCUMENT_WORD = /\b(?:polic(?:y|ies)|notices?|statements?|terms|practices)\b/;
+
+function labelNamesPolicyDocument(label: string): boolean {
+  const normalized = normalizePolicySignal(label);
+  return POLICY_DOCUMENT_WORD.test(normalized) || POLICY_PHRASES_IN_DOCUMENT.some((pattern) => pattern.test(normalized));
+}
+
+/**
+ * Characters of running prose in a page's text: sentences of 10 to 120
+ * words and at most 600 characters that end in sentence punctuation, at least
+ * half of whose words begin in lowercase. Menus, mega menus and link cards
+ * are runs of capitalized labels without sentence punctuation, so they count
+ * for nothing whether shown or hidden; a policy's text counts whether shown
+ * or folded into a collapsed section. Words are Latin-script words, so a
+ * page in a script without them measures zero.
+ */
+export function policyProseCharacters(text: string): number {
+  let total = 0;
+  for (const part of text.replace(/\s+/g, " ").trim().split(/(?<=[.!?])\s+/)) {
+    const sentence = part.trim();
+    if (sentence.length > 600 || !/[.!?]["')\]]?$/.test(sentence)) continue;
+    const words = sentence.split(" ").filter((word) => /[a-z]/i.test(word));
+    if (words.length < 10 || words.length > 120) continue;
+    const lowercase = words.filter((word) => /^[("'“]?[a-z]/.test(word)).length;
+    if (lowercase * 2 < words.length) continue;
+    total += sentence.length;
+  }
+  return total;
+}
+
+/**
+ * Whether a page the policy link led to is a privacy hub: a landing page
+ * whose site keeps its policy on another page it links to. Reading a hub as
+ * the policy published every tracker its navigation never names as one the
+ * policy does not name: theguardian.com's link reaches /info/privacy, link
+ * cards around no prose at all, and its report listed Amazon Ads, The Trade
+ * Desk, LiveRamp, Criteo and Comscore as unnamed, all of which the policy at
+ * /help/privacy-policy names. Five such hubs carried 120 of the committed
+ * corpus's 1,369 policy reads; this recognizes four of them.
+ *
+ * All three must hold:
+ *   1. Neither the title nor any h1 names the page as a policy, notice,
+ *      statement, terms or practices ("Privacy", "Privacy Center", "Privacy
+ *      Protections"). Many real policies are titled with only the site's
+ *      name, so this alone is not enough.
+ *   2. Its text carries less than POLICY_HUB_MAX_PROSE_CHARS of prose.
+ *   3. It links to another document the selector would read as the site's
+ *      policy: a link into the page itself, or to its selected or landed URL
+ *      in any query or case, does not count.
+ * Each condition alone is what keeps some real policy read: 1 the short
+ * policies that link to a state notice (python.org, nhbr.com, lifezette.com),
+ * 2 the policies titled with only the site's name that link to one (every
+ * USA TODAY Network page, Cleveland Clinic), 3 the short ones titled that way
+ * (cdapress.com, dailyinterlake.com). A short policy titled only "Privacy"
+ * that links to a page beneath it, such as a cookie notice, would be
+ * withheld; no page in the corpus has that shape. What the hub links to is
+ * not read in its place: Home Depot's hub links first to a 7,810-character
+ * summary, not its 71,987-character statement.
+ */
+export function privacyPolicyPageIsHub(input: {
+  selectedUrl: string;
+  landedUrl: string;
+  title: string;
+  headings: readonly string[];
+  text: string;
+  links: readonly PolicyLinkCandidate[];
+  firstPartyHostname: string;
+}): boolean {
+  if ([input.title, ...input.headings].some(labelNamesPolicyDocument)) return false;
+  if (policyProseCharacters(input.text) >= POLICY_HUB_MAX_PROSE_CHARS) return false;
+  const readDocuments = new Set([policyDocumentIdentity(input.selectedUrl), policyDocumentIdentity(input.landedUrl)]);
+  const elsewhere = input.links.filter((link) => {
+    const identity = policyDocumentIdentity(link.href);
+    return identity !== null && !readDocuments.has(identity);
+  });
+  return pickPrivacyPolicyLink(elsewhere, input.firstPartyHostname, input.landedUrl) !== null;
+}
+
+/** Origin and path without a trailing slash, case folded: one document. */
+function policyDocumentIdentity(url: string): string | null {
+  let parsed: URL;
+  try {
+    parsed = new URL(url);
+  } catch {
+    return null;
+  }
+  return `${parsed.protocol}//${parsed.host}${parsed.pathname.replace(/\/+$/, "") || "/"}`.toLowerCase();
 }
 
 // A first-person subject followed by a negation, e.g. "we do not", "we never",

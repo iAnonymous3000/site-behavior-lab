@@ -13,8 +13,11 @@ import {
   MIN_POLICY_TEXT_LENGTH,
   offersPrivacyPolicyLink,
   pickPrivacyPolicyLink,
+  POLICY_HUB_MAX_PROSE_CHARS,
+  policyProseCharacters,
   policyUrlIsSiteRoot,
-  privacyPolicyDocumentQualifies
+  privacyPolicyDocumentQualifies,
+  privacyPolicyPageIsHub
 } from "./privacy-policy";
 import { isTrackingRelatedEntity } from "./service-role";
 import { trackerCatalogRecords } from "./tracker-catalog";
@@ -790,4 +793,83 @@ test("reviewed trade names name their catalog entities, and ordinary clarity nam
   }
   // Naming the product still names its parent company.
   assert.deepEqual(classifyEntityMentions("We use Microsoft Clarity.", ["Microsoft"]).mentioned, ["Microsoft"]);
+});
+
+test("policy prose counts sentences, never navigation or link labels", () => {
+  const menu = "Shop Lighting Rugs Chairs Help Contact Careers Press Accessibility Sitemap ".repeat(40);
+  assert.equal(policyProseCharacters(menu), 0);
+  // Hidden or shown, a mega menu is labels without sentence punctuation.
+  assert.equal(policyProseCharacters(`${menu}\n\n${menu}`), 0);
+
+  const sentence = "We collect the information you give us when you order, and we use it to deliver.";
+  assert.equal(policyProseCharacters(`${sentence} ${sentence}`), sentence.length * 2);
+  // Whitespace inside and around sentences is collapsed before measuring.
+  assert.equal(policyProseCharacters(`  ${sentence}\n\n\t${sentence}  `), sentence.length * 2);
+  // Too short, too long, unpunctuated, or mostly capitalized labels.
+  assert.equal(policyProseCharacters("We collect the information you give us today."), 0);
+  assert.equal(policyProseCharacters(`${"we collect your information and ".repeat(20)}more.`), 0);
+  assert.equal(policyProseCharacters(sentence.replace(/\.$/, "")), 0);
+  assert.equal(policyProseCharacters("Read Our Privacy Policy And Cookie Policy For More Details On Data Use Today."), 0);
+});
+
+test("a privacy hub is a page that calls itself no policy, has little prose, and links to the policy elsewhere", () => {
+  const cards = "Privacy Cookies Your choices Privacy settings Contact Support us Newsletters Sign in ".repeat(12);
+  const hub = {
+    selectedUrl: "https://www.example.com/info/privacy",
+    landedUrl: "https://www.example.com/info/privacy",
+    title: "Privacy | Example News",
+    headings: [] as string[],
+    text: cards,
+    links: [{ href: "https://www.example.com/help/privacy-policy", text: "" }],
+    firstPartyHostname: "www.example.com"
+  };
+  assert.equal(policyProseCharacters(hub.text), 0);
+  assert.equal(privacyPolicyPageIsHub(hub), true);
+  // A policy-hosting service still holds the site's policy.
+  assert.equal(
+    privacyPolicyPageIsHub({ ...hub, links: [{ href: "https://app.termly.io/policy-viewer/policy.html?policyUUID=x", text: "Privacy Policy" }] }),
+    true
+  );
+
+  // 1. A page that names itself a policy document is read as one.
+  for (const title of ["Privacy Policy | Example News", "Privacy Notice", "Privacy & Cookie Policy", "Privacy Notices and Choices", "Privacy and Terms", "Politique de confidentialité"]) {
+    assert.equal(privacyPolicyPageIsHub({ ...hub, title }), false, title);
+  }
+  assert.equal(privacyPolicyPageIsHub({ ...hub, headings: ["Online Privacy Statement"] }), false);
+
+  // 2. Prose at the bound or above is a policy, whatever it is titled.
+  const sentence = "We collect the information you give us when you order, and we use it to deliver.";
+  const prose = Array.from({ length: Math.ceil(POLICY_HUB_MAX_PROSE_CHARS / (sentence.length + 1)) }, () => sentence).join(" ");
+  const shorter = prose.slice(0, prose.length - sentence.length - 1);
+  assert.ok(policyProseCharacters(prose) >= POLICY_HUB_MAX_PROSE_CHARS);
+  assert.ok(policyProseCharacters(shorter) < POLICY_HUB_MAX_PROSE_CHARS);
+  assert.equal(privacyPolicyPageIsHub({ ...hub, text: `${prose} ${cards}` }), false);
+  assert.equal(privacyPolicyPageIsHub({ ...hub, text: `${shorter} ${cards}` }), true);
+  // A sentence run straight on from a menu is part of an unpunctuated run past
+  // 600 characters and is not counted: the measure errs low, toward a hub.
+  assert.equal(policyProseCharacters(`${cards} ${sentence}`), 0);
+
+  // 3. Only a link to another document of the site's counts: not one into the
+  // page itself or its selected or landed address in any query or case, not
+  // another party's policy, not the site root.
+  for (const href of [
+    "https://www.example.com/info/privacy#cards",
+    "https://www.example.com/info/privacy/",
+    "https://www.example.com/INFO/privacy?ref=footer",
+    "https://other-party.example.net/privacy-policy",
+    "https://www.example.com/"
+  ]) {
+    assert.equal(privacyPolicyPageIsHub({ ...hub, links: [{ href, text: "Privacy Policy" }] }), false, href);
+  }
+  assert.equal(privacyPolicyPageIsHub({ ...hub, links: [] }), false);
+  assert.equal(
+    privacyPolicyPageIsHub({
+      ...hub,
+      selectedUrl: "https://www.example.com/privacy",
+      landedUrl: "https://www.example.com/privacy/overview",
+      links: [{ href: "https://www.example.com/privacy", text: "Privacy Policy" }]
+    }),
+    false,
+    "a link back to the address the redirect left is the same document"
+  );
 });
