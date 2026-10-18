@@ -77,7 +77,7 @@ jobs:
           persist-credentials: false
 
       - name: Use the exact Node toolchain
-        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24.14.1
 
@@ -163,7 +163,7 @@ jobs:
 
       - name: Preserve exact context, bundle, source metadata, and public artifacts
         id: handoff
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: hosted-evidence-${{ inputs.profile }}-${{ steps.collect.outputs.subject_sha256 }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/hosted-handoff/
@@ -192,7 +192,7 @@ jobs:
           fetch-depth: 0
 
       - name: Use the exact Node toolchain
-        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24.14.1
 
@@ -211,7 +211,7 @@ jobs:
         run: npm run build:schema
 
       - name: Download only the exact attested handoff
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           artifact-ids: ${{ needs.attest.outputs.handoff_artifact_id }}
           path: ${{ runner.temp }}/hosted-handoff

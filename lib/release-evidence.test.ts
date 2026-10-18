@@ -298,7 +298,7 @@ test("container and CI source contracts preserve exact-SHA evidence after the re
   assert.match(attest, /subject-path:[^\n]*site-behavior-lab-container-release-evidence\.json/);
   assert.match(attest, /name: exact-sha-provenance-attestations-\$\{\{ github\.sha \}\}/);
   assert.equal(
-    (workflow.match(/actions\/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a/g) ?? []).length >= 2,
+    (workflow.match(/actions\/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9/g) ?? []).length >= 2,
     true
   );
 });

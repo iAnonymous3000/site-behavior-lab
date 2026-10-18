@@ -662,7 +662,7 @@ test("the scheduled fidelity workflow handles one-off manual runs and pins attem
       workflow.indexOf("npx playwright install --with-deps chromium")
   );
   assert.doesNotMatch(workflow, /--no-sandbox/);
-  assert.match(workflow, /actions\/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a/);
+  assert.match(workflow, /actions\/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9/);
 });
 
 function wireRun(thirdPartyRequests: number, domain: string) {

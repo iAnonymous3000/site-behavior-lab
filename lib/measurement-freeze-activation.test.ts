@@ -612,11 +612,11 @@ test("the activation workflow is manual, read-only, pinned, ordered, and append-
   );
   assert.match(
     workflow,
-    /actions\/setup-node@a0853c24544627f65ddf259abe73b1d18a591444/
+    /actions\/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1/
   );
   assert.match(
     workflow,
-    /actions\/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a/
+    /actions\/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9/
   );
   assert.match(
     workflow,

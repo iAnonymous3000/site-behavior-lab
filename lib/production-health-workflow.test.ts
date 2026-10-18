@@ -60,7 +60,7 @@ test("production health derives the durable-jobs expectation from the checked-ou
   assert.match(workflow, /with:\n\s+ref: production/);
   assert.match(
     workflow,
-    /uses: actions\/setup-node@a0853c24544627f65ddf259abe73b1d18a591444[\s\S]*?node-version: 24\.14\.1/
+    /uses: actions\/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1[\s\S]*?node-version: 24\.14\.1/
   );
   assert.match(workflow, /test "\$\(node --version\)" = "v24\.14\.1"/);
   assert.match(workflow, /test "\$\(npm --version\)" = "11\.11\.0"/);

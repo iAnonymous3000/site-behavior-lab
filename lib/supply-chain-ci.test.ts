@@ -60,7 +60,7 @@ test("provenance attestation is isolated, immutable, and limited to exact eviden
   assert.doesNotMatch(attestJob, /actions\/checkout|npm (?:ci|run)|docker |site-behavior-lab:smoke/);
 
   assert.equal(
-    (attestJob.match(/actions\/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8\.0\.1/g) ?? [])
+    (attestJob.match(/actions\/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8\.0\.2/g) ?? [])
       .length,
     3
   );
@@ -100,7 +100,7 @@ test("provenance attestation is isolated, immutable, and limited to exact eviden
   assert.match(attestJob, /attestation-results\.json/);
   assert.match(
     attestJob,
-    /uses: actions\/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7\.0\.1/
+    /uses: actions\/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7\.0\.2/
   );
   assert.match(attestJob, /name: exact-sha-provenance-attestations-\$\{\{ github\.sha \}\}/);
   assert.match(attestJob, /path: \$\{\{ runner\.temp \}\}\/site-behavior-lab-attestations\//);
@@ -202,7 +202,7 @@ test("all machine-readable reports upload on failure before outcomes are enforce
   assert.match(steps, /id: supply_chain_report_upload\n\s+if: always\(\)/);
   assert.match(
     steps,
-    /uses: actions\/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7\.0\.1/
+    /uses: actions\/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7\.0\.2/
   );
   assert.match(steps, /path: \$\{\{ runner\.temp \}\}\/site-behavior-lab-supply-chain\//);
   assert.match(steps, /if-no-files-found: error/);
@@ -339,7 +339,7 @@ test("exact-image OS licenses are normalized, review-bound, preserved, and indep
   assert.match(dockerJob, /id: trivy_image_report_upload\n\s+if: always\(\)/);
   assert.match(
     dockerJob,
-    /uses: actions\/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7\.0\.1/
+    /uses: actions\/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7\.0\.2/
   );
   assert.match(dockerJob, /if-no-files-found: error/);
   assert.match(
@@ -366,7 +366,7 @@ test("exact-image OS licenses are normalized, review-bound, preserved, and indep
 });
 
 test("every CI Node job verifies the exact reviewed Node and npm runtime", () => {
-  const setupCount = (workflow.match(/uses: actions\/setup-node@a0853c24544627f65ddf259abe73b1d18a591444/g) ?? []).length;
+  const setupCount = (workflow.match(/uses: actions\/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1/g) ?? []).length;
   assert.equal(setupCount, 5);
   assert.equal((workflow.match(/node-version: 24\.14\.1/g) ?? []).length, setupCount);
   assert.equal((workflow.match(/test "\$\(node --version\)" = "v24\.14\.1"/g) ?? []).length, setupCount);

@@ -59,8 +59,8 @@ test("official actions are pinned to reviewed Node-24-compatible releases", () =
   const approvedPins = new Map([
     ["actions/checkout", "3d3c42e5aac5ba805825da76410c181273ba90b1"],
     ["actions/create-github-app-token", "bcd2ba49218906704ab6c1aa796996da409d3eb1"],
-    ["actions/setup-node", "a0853c24544627f65ddf259abe73b1d18a591444"],
-    ["actions/upload-artifact", "043fb46d1a93c77aae656e7c1c64a875d1fc6a0a"]
+    ["actions/setup-node", "949feb2413d6458794dcd2491c4babbbce0c15c1"],
+    ["actions/upload-artifact", "cf430e030ddbb5b0abf93d22962f4752f3646cd9"]
   ]);
   const workflowsDir = path.join(root, ".github", "workflows");
   for (const name of readdirSync(workflowsDir).filter((entry) => entry.endsWith(".yml"))) {

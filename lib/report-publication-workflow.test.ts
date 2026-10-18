@@ -21,7 +21,7 @@ test("hostile-site acquisition jobs have read-only authority and a fail-closed s
     assert.match(acquisition, /featured-report-preflight-cli\.js[\s\S]*Install Chromium/);
     assert.match(acquisition, /health\?\.checks\?\.chromiumSandbox === "enabled"/);
     assert.match(acquisition, /--prepare[\s\S]*--artifact-dir "\$RUNNER_TEMP\/report-publication"/);
-    assert.match(acquisition, /actions\/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7\.0\.1/);
+    assert.match(acquisition, /actions\/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7\.0\.2/);
     assert.match(acquisition, /name: site-behavior-(?:report|featured)-publication-\$\{\{ github\.run_id \}\}-\$\{\{ github\.run_attempt \}\}/);
     assert.match(acquisition, /path: \$\{\{ runner\.temp \}\}\/report-publication\//);
     assert.doesNotMatch(acquisition, /steps\.scan\.outputs\.(?:report_path|sidecar_path)/);
