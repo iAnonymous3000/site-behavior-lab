@@ -12,10 +12,13 @@ import { readResponseBytesWithinLimit, readResponseTextWithinLimit } from "./htt
 const sha256 = (data) => createHash("sha256").update(data).digest("hex");
 const compact = (text) => text.replace(/\s+/g, "");
 // Immutable published witnesses; expected populations are not derived from the renderer.
+// Retention prunes any report the corrections ledger does not pin, so every
+// witness but the single-run one (no pinned single-run report exists) is pinned;
+// lib/report-export-acceptance.test.ts holds that.
 export const PDF_EXPORT_WITNESSES = [
   { id: "20260730-748f7a920c0fdcf86c9a348a8660d395", rows: [6] },
   { id: "20260814-f47e5f1cd64def348acb6072ca7dae41", rows: [150, 91], corrected: true },
-  { id: "20260625-2bfb0a20225479c5400ff86da338ad75", rows: [1000, 53], capped: true },
+  { id: "20260727-509bb57e6b43e7ea7003a5f4577209b6", rows: [1000, 51], capped: true, corrected: true },
   { id: "20260824-4f89a805b50169b2c0e8b01a975018c9", rows: [183, 180], corrected: true }
 ];
 
