@@ -3,6 +3,8 @@
 import { useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { usePrintComplete } from "./print-mode";
+import { staticAssetPath } from "../client-runtime";
+import { comparisonVisitOrderLine } from "@/lib/comparison-visit-order";
 import { comparisonArmViews, comparisonDiffView, type ReportView } from "@/lib/scan-report-views";
 import {
   comparisonSupportsExactClaimDelta,
@@ -48,6 +50,10 @@ function ComparisonPanel({ view, facts }: { view: ReportView; facts: ReportFacts
   // Labels come from the view (wire runLabels or the per-axis defaults), the
   // same source the JSON-LD dataset names its per-arm variables with.
   const labels = view.comparison?.runLabels ?? { baseline: "Baseline", variant: "Variant" };
+  // Which visit ran first, or that the order was not recorded. Disclosure, not
+  // a claim, so it renders whether or not the pair supports any delta; a
+  // temporal pair has no line, because Before and After already are the order.
+  const visitOrder = view.comparison ? comparisonVisitOrderLine(view.comparison.visitOrder, labels) : null;
   const pairGate = view.claims.pairComparison;
   const pairAllowed = pairGate?.allowed === true;
   const families = view.claims.familyDeltas;
@@ -172,6 +178,18 @@ function ComparisonPanel({ view, facts }: { view: ReportView; facts: ReportFacts
           <span>
             {labels.variant}: {arms.variant.durationMs.toLocaleString("en-US")}ms
           </span>
+          {visitOrder && (
+            <span>
+              {visitOrder.text}
+              {/* The link names its page, so the line still says where the
+                  reason is on paper and in the PDF, where it cannot be followed. */}
+              {visitOrder.seeMethodology && (
+                <>
+                  {" "}(see <a href={staticAssetPath("/methodology/#comparisons")}>Methodology</a>)
+                </>
+              )}
+            </span>
+          )}
         </div>
       </div>
       {!pairAllowed && pairGate && (

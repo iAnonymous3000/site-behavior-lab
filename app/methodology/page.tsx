@@ -177,7 +177,7 @@ export default function MethodologyPage() {
         </p>
       </section>
 
-      <section className="legal-section">
+      <section className="legal-section" id="comparisons">
         <h2>Comparisons</h2>
         <p>
           A comparison is two sequential visits that differ in one declared condition: Global Privacy Control off
@@ -186,8 +186,11 @@ export default function MethodologyPage() {
           time-ordered site behavior is not systematically assigned to the same arm across scans. Post-release v1
           report warnings name the visit that ran first; post-release v2 JSON records <code>AB</code> for baseline
           first or <code>BA</code> for variant first. Comparisons captured before that release used a fixed
-          baseline-then-variant order and carry no randomized-order disclosure. A single two-visit report is not
-          counterbalanced; only an aggregate containing independent AB and BA pairs can make that claim. Before any
+          baseline-then-variant order and carry no order record. A report&apos;s comparison section says which visit
+          ran first from its order record; without one, it says the order was not recorded and, when the two
+          visits&apos; recorded start times differ, names the visit that started first. A before/after pair states
+          no order, because its labels already give it. A single two-visit report is not counterbalanced; only an
+          aggregate containing independent AB and BA pairs can make that claim. Before any
           comparative wording is used, an eligibility gate checks that both visits completed, hit no recording caps,
           and held the non-compared conditions constant; ineligible pairs render as two independent visits with the
           reasons stated. Differences between two visits can still reflect timing, experiments, caching, consent

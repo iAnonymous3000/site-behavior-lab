@@ -9,6 +9,22 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- Every comparison report now says which visit ran first, or that the order
+  was not recorded. The order was recorded but easy to miss or not shown at
+  all: a v1 report carried it as one row among its measurement caveats, and
+  the r2 `experiment.order` field rendered nowhere. The comparison section now states it beside the two
+  visits' durations, in the scan result, the evidence explorer, the printed
+  report and the PDF. "Ran first" names the visit the record names; a
+  comparison captured before order randomization shipped recorded no order,
+  so it reads "order not recorded" with the visit whose recorded start time
+  is earlier, and links the methodology page. A before/after pair states no
+  order, because its labels already give it. Every recorded order agrees with
+  its visits' start times, which a new corpus test checks. This changes the
+  rendered text of 1,028 of the 1,029 committed reports at a1686ebe (861 v1
+  and 63 r2 comparisons with a recorded order, and 104 without one; the
+  corpus holds no before/after pair). No stored report changes and no claim
+  is corrected, so it takes no corrections event. docs/limitations.md and the
+  methodology page describe the line.
 - An absence card no longer leads with the absence its title withholds.
   When a card's absence claim was not established (evidence collection was
   cut short, a detector did not finish, or the visit returned an error or

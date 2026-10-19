@@ -8,13 +8,14 @@
  * dragging the validators into the first-load bundle (the deep readers live in
  * scan-report-view.ts, which is lazy-loaded via lib/client-report-reader.ts).
  */
-import { compareRunFacts, consentComparisonTitle } from "./compare-reports";
+import { compareRunFacts, comparisonOrderDisclosure, consentComparisonTitle } from "./compare-reports";
 import { consentControlQualification } from "./consent-control-semantics";
 import {
   legacyComparisonDecision,
   v2ComparisonDecision,
   type ComparisonDecision
 } from "./comparison-decision";
+import { comparisonVisitOrder, type ComparisonVisitOrder } from "./comparison-visit-order";
 import {
   runConsentBannerIncomplete,
   runConsentInteractionLeftSubject,
@@ -51,6 +52,7 @@ import { mergePixelEventSummaries } from "./pixel-event-merge";
 import type {
   CnameCloak,
   ComparisonDiff,
+  ComparisonScanResult,
   CookieRecord,
   DomainSummary,
   FingerprintDetectionSummary,
@@ -383,8 +385,20 @@ export type ComparisonView = {
    * `claims.interventionAttribution`.
    */
   verification: { baseline: ArmVerification; variant: ArmVerification } | null;
-  /** Recorded arm order (RFC 4.3, counterbalancing); null on v1 and non-intervention designs. */
+  /**
+   * The v2 recorded arm order (RFC 4.3): which arm ran first in this one
+   * randomized pair, which on its own is not counterbalanced. null on v1,
+   * whose order is recorded only as a warning sentence, and on
+   * non-intervention designs. Renderers state the order from `visitOrder`.
+   */
   order: "AB" | "BA" | null;
+  /**
+   * Which visit ran first as the report may state it, on every generation
+   * (lib/comparison-visit-order.ts): recorded from v1's order sentence or the
+   * v2 `order`, otherwise not recorded (with the start-time order only when
+   * the start times strictly differ), and not applicable on a temporal pair.
+   */
+  visitOrder: ComparisonVisitOrder;
   /** Recorded evidence strength (RFC 4.2); null on v1 and non-intervention designs. */
   evidenceStrength: EvidenceStrength | null;
   /** Count of embedded replication pairs (r2, RFC 15.6); null when the design cannot carry them. */
@@ -1198,10 +1212,18 @@ export function viewFromV1Report(report: ScanReport): ReportView {
         axis,
         temporalPair: report.comparisonType === "temporal",
         runLabels: displayRunLabels(report.runLabels, axis, report.comparisonType === "temporal", consentDispatch),
-        // v1 never recorded arm verification, ordering, or evidence strength;
-        // null means "never recorded", and no renderer may read it as verified.
+        // v1 never recorded arm verification or evidence strength, and it
+        // recorded the executed order only as a warning sentence, which
+        // visitOrder reads; these structured fields stay null. null means
+        // "never recorded", and no renderer may read it as verified.
         verification: null,
         order: null,
+        visitOrder: comparisonVisitOrder({
+          temporalPair: report.comparisonType === "temporal",
+          recordedFirst: v1RecordedFirstArm(report),
+          baselineStartedAt: runs[0].startedAt,
+          variantStartedAt: runs[1].startedAt
+        }),
         evidenceStrength: null,
         supportingPairs: null
       },
@@ -1224,6 +1246,23 @@ export function viewFromV1Report(report: ScanReport): ReportView {
     comparison: null,
     claims: deniedClaims()
   };
+}
+
+/**
+ * The arm a v1 producer recorded as executed first. Frozen v1 has no order
+ * field: the record is the disclosure sentence, which the producer built from
+ * the WIRE run labels (the display labels can differ, see displayRunLabels),
+ * so it is matched exactly against comparisonOrderDisclosure for each arm. No
+ * wire labels, equal labels (both sentences read the same), or both sentences
+ * present leave the order unrecorded rather than guessed.
+ */
+function v1RecordedFirstArm(report: ComparisonScanResult): "baseline" | "variant" | null {
+  const labels = report.runLabels;
+  if (!labels || labels.baseline === labels.variant) return null;
+  const baselineFirst = report.warnings.includes(comparisonOrderDisclosure(labels, "baseline"));
+  const variantFirst = report.warnings.includes(comparisonOrderDisclosure(labels, "variant"));
+  if (baselineFirst === variantFirst) return null;
+  return baselineFirst ? "baseline" : "variant";
 }
 
 /**
@@ -1325,6 +1364,12 @@ export function viewFromV2(report: PublicScanReportV2 | PublicScanReportV2R2, re
           ? { baseline: { ...intervention.verification.baseline }, variant: { ...intervention.verification.variant } }
           : null,
         order: intervention ? intervention.order : null,
+        visitOrder: comparisonVisitOrder({
+          temporalPair: experiment.kind === "temporal",
+          recordedFirst: intervention ? (intervention.order === "AB" ? "baseline" : "variant") : null,
+          baselineStartedAt: report.baseline.startedAt,
+          variantStartedAt: report.variant.startedAt
+        }),
         evidenceStrength: intervention ? intervention.evidence.strength : null,
         supportingPairs
       },

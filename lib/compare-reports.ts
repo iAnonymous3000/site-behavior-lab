@@ -34,7 +34,7 @@ import { SCAN_REPORT_SCHEMA_VERSION } from "./types";
  */
 export const MAX_DIFF_LIST = 100;
 
-/** Which comparison arm the producer actually executed first (counterbalancing). */
+/** Which comparison arm the producer actually executed first, drawn at random per pair (one pair is not counterbalanced). */
 export type ComparisonExecutedFirst = "baseline" | "variant";
 
 /**
@@ -42,6 +42,10 @@ export type ComparisonExecutedFirst = "baseline" | "variant";
  * order field, so this sentence is the record: the public warning boundary
  * (lib/redact-scan-report-v1.ts) admits it by exact shape with a known run
  * label, and readers recover the order from it or from the per-run timestamps.
+ * The view layer reads it back by exact match with this function's output
+ * (viewFromV1Report), so rewording it would leave every stored v1 report's
+ * order unrecorded; lib/comparison-visit-order-corpus.test.ts fails if that
+ * happens.
  */
 export function comparisonOrderDisclosure(runLabels: ComparisonRunLabels, executedFirst: ComparisonExecutedFirst): string {
   return `The two visits ran in randomized order; the "${runLabels[executedFirst]}" visit ran first.`;
@@ -190,7 +194,7 @@ export function createComparisonReport({
   baseline: ScanResult;
   variant: ScanResult;
   warningPrefix: string;
-  /** Recorded only when the producer really counterbalanced this pair. */
+  /** Recorded only when the producer really drew this pair's order at random. */
   executedFirst?: ComparisonExecutedFirst;
 }): ComparisonScanResult {
   const diff = compareScanResults(baseline, variant);

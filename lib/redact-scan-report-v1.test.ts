@@ -202,7 +202,7 @@ function sensitiveSingle(): ScanResult {
     'The two visits ran in randomized order; the "GPC on" visit ran first.',
     `Blocked a request that could not be verified as public: https://${TOKEN_HOST}/users/anna?token=secret`,
     "Patient Anna's private warning",
-    // A page-controlled label must never ride the counterbalancing sentence.
+    // A page-controlled label must never ride the order sentence.
     'The two visits ran in randomized order; the "Anna Schmidt" visit ran first.'
   ];
   return report;

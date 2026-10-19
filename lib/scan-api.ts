@@ -61,7 +61,7 @@ export type ScanExecutionControl = {
   beforeSave?: (report: RuntimeScanReport) => void | Promise<void>;
   /** Validated coarse lifecycle progress for accepted asynchronous jobs. */
   onProgress?: (progress: ScanJobProgress) => void;
-  /** Deterministic counterbalancing draw for tests; production draws randomly. */
+  /** Deterministic order draw for tests; production draws randomly. */
   drawComparisonFirstArm?: () => ComparisonExecutedFirst;
   /**
    * Schedule diagnostic work after the public report publication attempt. The primary
