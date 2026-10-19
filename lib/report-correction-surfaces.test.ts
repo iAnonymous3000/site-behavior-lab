@@ -173,11 +173,20 @@ test("the static smoke expects every report's correction context the site gives 
   // smoke must expect that rather than fail the build that did it.
   const privacy = ledger.entries.find(event => event.state === "privacy-superseded")!;
   const replacementId = privacy.replacementReportIds![0];
+  // The appended event takes the ID after the last committed one and a later
+  // date. A fixed ID and date stop parsing as soon as the ledger publishes
+  // that ID, or any event dated after them.
+  const last = ledger.entries.at(-1)!;
+  const publishedAt = new Date(Date.parse(last.publishedAt) + 1_000).toISOString();
+  const year = publishedAt.slice(0, 4);
+  const sequence = last.eventId.startsWith(`SBL-CORR-${year}-`)
+    ? Number(last.eventId.slice(last.eventId.lastIndexOf("-") + 1)) + 1
+    : 1;
   const later = {
     ...ledger,
     entries: [...ledger.entries, {
-      eventId: "SBL-CORR-2026-005",
-      publishedAt: privacy.publishedAt,
+      eventId: `SBL-CORR-${year}-${String(sequence).padStart(3, "0")}`,
+      publishedAt,
       state: "corrected",
       reportIds: [privacy.reportIds[0]],
       summary: "A later correction of the measurement both IDs record.",

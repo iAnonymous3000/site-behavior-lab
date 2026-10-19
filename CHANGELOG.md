@@ -230,9 +230,10 @@ public API or a 1.0 release.
   four named at /help/privacy-policy. Rendering every page the committed
   corpus and the October news sweep read as a policy found five such hubs
   (the Guardian, Discover, Capital One, Home Depot, Walgreens), all in the
-  committed corpus: 60 of its reports, 52 of which still show an omission
-  card; those cards list 219 omissions in all, 92 of them companies the
-  site's own policy names. None of the 238 sweep reports that could be
+  committed corpus. At a0223c82, 56 of its reports read one as the policy
+  and 52 of them still show an omission card; those cards list 245
+  omissions in all, 100 of them companies the site's own policy names.
+  None of the 238 sweep reports that could be
   classified read a hub. A read is now withheld (failed/`load-failed` with a
   `policy-visit` drop) when its title and h1 headings name no policy,
   notice, statement, terms or practices, its text carries under 3,000
@@ -252,6 +253,19 @@ public API or a 1.0 release.
   version was first published, after it withheld naver.com's
   34,003-character Korean policy, which policy-text-cross-check@9 had read.
   Stored reports are unchanged.
+- `SBL-CORR-2026-005`, a reviewed clarification (active), names the 52
+  committed reports at a0223c82 whose privacy-policy card lists companies
+  the policy does not appear to name from a privacy hub read; its record is
+  https://sitebehavior.org/corrections/policy-hub-reads/. The claim is wrong
+  and still renders, which docs/corrections-ledger.md says takes an event.
+  The cards render unchanged, and the clarification becomes each report's
+  current notice in its subhead, share text, social card and site feed, in
+  place of `SBL-CORR-2026-001` on 22 reports and `SBL-CORR-2026-002` on 6.
+  Every cited report is retention-pinned, and the 24 that no earlier event
+  cited now refuse temporal comparison. Two of the 52 are privacy
+  replacements, which the event names through their removed originals, the
+  only form the ledger accepts. No stored report, corpus statistic or
+  manifest changes.
 - The privacy-policy cross-check no longer publishes a page shell as the
   policy (policy-text-cross-check@9, node-detectors-v13). The read waited a
   fixed second after DOMContentLoaded, so a client-rendered policy (a
