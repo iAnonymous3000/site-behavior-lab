@@ -133,13 +133,23 @@ export type Finding = {
     mode: "presence" | "categorical-absence" | "qualified-absence" | "unavailable";
     scope: "requested-page" | "returned-document";
     eligibility: ClaimEligibility;
+    /** On an absence claim: how its card's lead is scoped (see absenceCopy). */
+    leadScope?: AbsenceLeadScope;
   };
 };
+
+/**
+ * Whether an absence card's lead states the absence as fact or confines it to
+ * the retained evidence. absenceCopy decides it together with the title, and
+ * the report-consistency gate checks it against the claim's fact gate.
+ */
+type AbsenceLeadScope = "categorical" | "retained-evidence";
 
 function findingClaim(
   facts: RunFacts,
   id: ReportClaimId,
-  mode: "presence" | "absence" | "unavailable"
+  mode: "presence" | "absence" | "unavailable",
+  leadScope?: AbsenceLeadScope
 ): NonNullable<Finding["claim"]> {
   const eligibility = facts.claims[id];
   return {
@@ -153,7 +163,8 @@ function findingClaim(
             ? "categorical-absence"
             : "qualified-absence",
     scope: facts.subject.describesSubject ? "requested-page" : "returned-document",
-    eligibility
+    eligibility,
+    ...(mode === "absence" && leadScope !== undefined ? { leadScope } : {})
   };
 }
 
@@ -183,6 +194,26 @@ function scopedAbsenceTitle(facts: RunFacts, id: ReportClaimId, title: string): 
     return `Incomplete detector evidence: ${title} in the completed portion of this visit`;
   }
   return `Limited evidence: ${title} in the available portion of this visit`;
+}
+
+/**
+ * An absence card's title and lead from ONE eligibility decision. The title was
+ * scoped while each lead was chosen on its own, so a card could read
+ * "Incomplete evidence: ... in retained evidence" over a lead that stated the
+ * absence as fact ("This visit did not contact Google Analytics."). Both now
+ * switch together, and leadScope records which lead was used.
+ */
+function absenceCopy(
+  facts: RunFacts,
+  id: ReportClaimId,
+  copy: { title: string; lead: string; retainedEvidenceLead: string }
+): { title: string; lead: string; leadScope: AbsenceLeadScope } {
+  if (facts.claims[id].allowed) return { title: copy.title, lead: copy.lead, leadScope: "categorical" };
+  return {
+    title: scopedAbsenceTitle(facts, id, copy.title),
+    lead: copy.retainedEvidenceLead,
+    leadScope: "retained-evidence"
+  };
 }
 
 type BenchmarkMetric = "thirdPartyDomains" | "trackerEntities" | "thirdPartyCookies" | "fingerprintEvents";
@@ -877,6 +908,11 @@ export function buildFindings(
       conditionalConflicts.length === 0 &&
       unmentionedTrackingEntities.length === 0 &&
       (policyAbsenceIneligible || noCheckableClaims);
+    const policyAbsence = absenceCopy(facts, "privacy-policy", {
+      title: "Privacy policy read; no checked statement contradicted",
+      lead: `The policy's checkable statements did not contradict this visit's evidence (${coverage}).`,
+      retainedEvidenceLead: `The policy's checkable statements did not contradict the retained evidence (${coverage}).`
+    });
     findings.push({
       id: "privacy-policy",
       icon: "file-text",
@@ -898,11 +934,7 @@ export function buildFindings(
               ? "Tracking companies the privacy policy does not appear to name"
               : noCheckableClaims
                 ? "Privacy policy read; it made no statement this scan can check"
-                : scopedAbsenceTitle(
-                    facts,
-                    "privacy-policy",
-                    "Privacy policy read; no checked statement contradicted"
-                  ),
+                : policyAbsence.title,
       lead:
         conflicts.length > 0
           ? `Comparing the site's own privacy policy against this visit: ${humanList(conflicts, 3)}.`
@@ -912,7 +944,7 @@ export function buildFindings(
               ? `${humanList(unmentionedTrackingEntities)} ${unmentionedTrackingEntities.length === 1 ? "was" : "were"} sent requests during this visit, but the policy text matched none of the names this scan knows ${unmentionedTrackingEntities.length === 1 ? "that company" : "those companies"} by.`
               : noCheckableClaims
                 ? `None of the statements this scan knows how to check appear in the policy text, so nothing was compared against this visit's evidence (${coverage}). That is a limit of the automated check, not a finding about the site either way.`
-                : `The policy's checkable statements did not contradict this visit's evidence (${coverage}).`,
+                : policyAbsence.lead,
       detail:
         conflicts.length > 0 || conditionalConflicts.length > 0
           ? `Matched policy wording: ${quotes.map((quote) => `"${quote}"`).join(" / ")}. This is an automated sentence match against the policy's own text, quoted so it can be verified in context. Policies can define terms narrowly (such as what counts as selling or sharing), so treat this as a documented discrepancy to review, not a legal conclusion.`
@@ -927,11 +959,18 @@ export function buildFindings(
           ? "presence"
           : noCheckableClaims
             ? "unavailable"
-            : "absence"
+            : "absence",
+        policyAbsence.leadScope
       )
     });
   }
 
+  const servicesAbsence = absenceCopy(facts, "third-party-services", {
+    title: "No known services matched",
+    lead: "This scan did not match any third-party domains to the service catalog or another identity source.",
+    retainedEvidenceLead:
+      "No third-party domain in the retained evidence matched the service catalog or another identity source."
+  });
   findings.push({
     id: "third-party-services",
     icon: "globe",
@@ -969,7 +1008,7 @@ export function buildFindings(
                   run.counts.thirdPartyDomains,
                   "cross-site host"
                 )} recorded, none matched to the service catalog`
-            : scopedAbsenceTitle(facts, "third-party-services", "No known services matched"),
+            : servicesAbsence.title,
     lead:
       trackingEntities.length > 0
         ? `${humanList(trackingNames)} appeared in the request log.`
@@ -983,7 +1022,7 @@ export function buildFindings(
             ? `${humanList(nonCatalogOutsideIdentityNames)} were named by consent-platform signatures, reviewed ownership, or CNAME evidence without being classified as tracking services.`
             : nonCatalogSameOrganizationNames.length > 0
               ? `${humanList(nonCatalogSameOrganizationNames)} were named across a registrable-domain boundary, but the reviewed ownership map groups them with the site rather than an outside company.`
-            : "This scan did not match any third-party domains to the service catalog or another identity source.",
+            : servicesAbsence.lead,
     detail:
       trackingEntities.length > 0
         ? `A catalog match identifies a maintainer-reviewed service/domain mapping; it does not establish why an individual request occurred, what it carried, or whether profiling happened.${topCategories.length > 0 ? ` Functional catalog labels include ${humanList(topCategories)}.` : ""}${catalogCoverageNote}${sessionReplayNote}${operationalNote}${unclassifiedNote}${sameOrganizationNote}`
@@ -1045,10 +1084,17 @@ export function buildFindings(
         unclassifiedEntities.length > 0 ||
         nonCatalogIdentityNames.length > 0
         ? "presence"
-        : "absence"
+        : "absence",
+      servicesAbsence.leadScope
     )
   });
 
+  const platformsAbsence = absenceCopy(facts, "named-platforms", {
+    title: "No requests to major-platform domains were recorded",
+    lead: "No requests to catalogued Google, Meta, TikTok, X, Microsoft, LinkedIn, or Pinterest domains were observed in this visit.",
+    retainedEvidenceLead:
+      "No requests to catalogued Google, Meta, TikTok, X, Microsoft, LinkedIn, or Pinterest domains appear in the retained evidence."
+  });
   findings.push({
     id: "named-platforms",
     icon: "network",
@@ -1072,7 +1118,7 @@ export function buildFindings(
           ? "Major-platform domains matched within the site's reviewed organization"
           : uncataloguedPlatformOrganizations.length > 0
             ? "Requests were dispatched to major-platform domains the catalog does not carry"
-            : scopedAbsenceTitle(facts, "named-platforms", "No requests to major-platform domains were recorded"),
+            : platformsAbsence.title,
     lead:
       headlineNames.length > 0
         ? `This visit dispatched requests to catalogued domains for ${humanList(headlineNames)}.`
@@ -1084,7 +1130,7 @@ export function buildFindings(
             ? `This visit dispatched requests to ${humanList(
                 uncataloguedPlatformOrganizations
               )} domains that the reviewed ownership map names, though the service catalog carries no entry for them.`
-            : "No requests to catalogued Google, Meta, TikTok, X, Microsoft, LinkedIn, or Pinterest domains were observed in this visit.",
+            : platformsAbsence.lead,
     detail:
       headlineNames.length > 0
         ? `The domain matches identify services, not the requests' purpose, payload, or whether any profile linking occurred.${sameOrganizationNote}`
@@ -1132,7 +1178,8 @@ export function buildFindings(
         sameOrganizationPlatformNames.length > 0 ||
         uncataloguedPlatformOrganizations.length > 0
         ? "presence"
-        : "absence"
+        : "absence",
+      platformsAbsence.leadScope
     )
   });
 
@@ -1196,20 +1243,26 @@ export function buildFindings(
     });
   }
 
+  const gaAbsence = googleAnalyticsPresent
+    ? absenceCopy(facts, "ga-remarketing", {
+        title: "Google Analytics present, no remarketing signal",
+        lead: "Google Analytics was observed, but no DoubleClick remarketing sync appeared in this visit.",
+        retainedEvidenceLead:
+          "Google Analytics was observed, but no DoubleClick remarketing sync appears in the retained evidence."
+      })
+    : absenceCopy(facts, "ga-remarketing", {
+        title: "No Google Analytics observed",
+        lead: "This visit did not contact Google Analytics.",
+        retainedEvidenceLead: "No Google Analytics request appears in the retained evidence."
+      });
   findings.push({
     id: "ga-remarketing",
     icon: "radar",
     level: gaRemarketingOn ? "warn" : requestsCensored ? "info" : "ok",
-    title: gaRemarketingOn
-      ? "Google Analytics remarketing signal detected"
-      : googleAnalyticsPresent
-        ? scopedAbsenceTitle(facts, "ga-remarketing", "Google Analytics present, no remarketing signal")
-        : scopedAbsenceTitle(facts, "ga-remarketing", "No Google Analytics observed"),
+    title: gaRemarketingOn ? "Google Analytics remarketing signal detected" : gaAbsence.title,
     lead: gaRemarketingOn
       ? "Google Analytics fired a sync to stats.g.doubleclick.net, the request Blacklight treats as the marker that advertising and remarketing features are on."
-      : googleAnalyticsPresent
-        ? "Google Analytics was observed, but no DoubleClick remarketing sync appeared in this visit."
-        : "This visit did not contact Google Analytics.",
+      : gaAbsence.lead,
     detail: gaRemarketingOn
       ? "This Analytics-to-DoubleClick request pattern is consistent with an advertising or remarketing integration. It does not prove that an audience was populated, a profile was matched, or what the request carried."
       : googleAnalyticsPresent
@@ -1221,9 +1274,14 @@ export function buildFindings(
         ? "Google Analytics host observed; no stats.g.doubleclick.net request."
         : "No google-analytics.com or googletagmanager.com requests."
     ,
-    claim: findingClaim(facts, "ga-remarketing", gaRemarketingOn ? "presence" : "absence")
+    claim: findingClaim(facts, "ga-remarketing", gaRemarketingOn ? "presence" : "absence", gaAbsence.leadScope)
   });
 
+  const cookiesAbsence = absenceCopy(facts, "third-party-cookies", {
+    title: "No third-party cookies observed",
+    lead: "The automated visit did not observe third-party cookies.",
+    retainedEvidenceLead: "No third-party cookies appear in the retained evidence."
+  });
   findings.push({
     id: "third-party-cookies",
     icon: "cookie",
@@ -1239,13 +1297,13 @@ export function buildFindings(
       ? "Cookie evidence was not captured"
       : run.counts.thirdPartyCookies > 0
         ? "Third-party cookies were present"
-        : scopedAbsenceTitle(facts, "third-party-cookies", "No third-party cookies observed"),
+        : cookiesAbsence.title,
     lead:
       cookiesUnsupported
         ? "This request-only PageGraph import does not capture cookie evidence."
         : run.counts.thirdPartyCookies > 0
         ? `${plural(run.counts.thirdPartyCookies, "third-party cookie")} showed up during the visit.`
-        : "The automated visit did not observe third-party cookies.",
+        : cookiesAbsence.lead,
     detail:
       cookiesUnsupported
         ? "The report's zero-valued cookie fields are schema placeholders for an unavailable measurement, not evidence that the site set no cookies."
@@ -1264,7 +1322,8 @@ export function buildFindings(
     claim: findingClaim(
       facts,
       "third-party-cookies",
-      cookiesUnsupported ? "unavailable" : run.counts.thirdPartyCookies > 0 ? "presence" : "absence"
+      cookiesUnsupported ? "unavailable" : run.counts.thirdPartyCookies > 0 ? "presence" : "absence",
+      cookiesAbsence.leadScope
     )
   });
 
@@ -1398,6 +1457,11 @@ export function buildFindings(
         run.evidence.fingerprintEvents.length,
         "API event record"
       )}; no exact API-family total is available.`;
+  const fingerprintAbsence = absenceCopy(facts, "fingerprint-apis", {
+    title: "No fingerprint-like API calls observed",
+    lead: "The scan did not observe the instrumented high-entropy browser APIs.",
+    retainedEvidenceLead: "The retained evidence holds no calls to the instrumented high-entropy browser APIs."
+  });
   findings.push({
     id: "fingerprint-apis",
     icon: "fingerprint",
@@ -1430,7 +1494,7 @@ export function buildFindings(
           ? "WebGL entropy-read heuristic matched only under the earlier single-signal rule"
         : run.counts.fingerprintEvents > 0
           ? "Fingerprint-like browser APIs were called"
-          : scopedAbsenceTitle(facts, "fingerprint-apis", "No fingerprint-like API calls observed"),
+          : fingerprintAbsence.title,
     lead:
       detectorUnsupported
         ? "This request-only PageGraph import does not capture fingerprinting or detector evidence."
@@ -1443,7 +1507,7 @@ export function buildFindings(
           ? `${detectorCensored ? "In retained evidence, a" : "A"} WebGL detection satisfied only the earlier single-signal rule, so it is shown as an observation, not counted as a heuristic match.`
         : run.counts.fingerprintEvents > 0
           ? fingerprintEventLead
-          : "The scan did not observe the instrumented high-entropy browser APIs.",
+          : fingerprintAbsence.lead,
     detail:
       detectorUnsupported
         ? "The report's zero-valued fingerprint fields are schema placeholders for an unavailable measurement, not an observed absence of fingerprint-like behavior."
@@ -1480,7 +1544,8 @@ export function buildFindings(
         ? "unavailable"
         : highEntropyDetections.length > 0 || singleSignalWebglOnly || run.counts.fingerprintEvents > 0
           ? "presence"
-          : "absence"
+          : "absence",
+      fingerprintAbsence.leadScope
     )
   });
 
@@ -1886,6 +1951,14 @@ export function buildFindings(
     // prints the same number exactly on the same page.
     const evaluated = shieldsMeasurement.evaluated;
     const evaluatedPhrase = evaluated === null ? null : plural(evaluated, "request");
+    const shieldsAbsence = absenceCopy(facts, "shields-blocked", {
+      title: simulated
+        ? "No requests were stopped by Brave's blocking engine"
+        : "No requests matched Brave Shields filter lists",
+      lead: "No requests matched the default filter lists of Brave Shields, the ad and tracker blocker built into the Brave browser.",
+      retainedEvidenceLead:
+        "No request in the retained evidence matched the default filter lists of Brave Shields, the ad and tracker blocker built into the Brave browser."
+    });
     findings.unshift({
       id: "shields-blocked",
       icon: "shield-check",
@@ -1899,19 +1972,13 @@ export function buildFindings(
               : requestState === "complete"
                 ? `${blocked.toLocaleString("en-US")} of ${evaluatedPhrase} the engine evaluated matched Brave Shields filter lists`
                 : `${blockedPhrase} out of ${evaluatedPhrase} the engine evaluated matched Brave Shields filter lists`
-          : scopedAbsenceTitle(
-              facts,
-              "shields-blocked",
-              simulated
-                ? "No requests were stopped by Brave's blocking engine"
-                : "No requests matched Brave Shields filter lists"
-            ),
+          : shieldsAbsence.title,
       lead:
         blocked > 0
           ? simulated
             ? `Brave's ad-block engine running Shields' default filter lists stopped ${blockedPhrase} from loading, a block simulation in this scanner's browser, not a live Brave-browser visit.`
             : `${blockedPhrase} matched the default filter lists of Brave Shields, the ad and tracker blocker built into the Brave browser, while loading normally.`
-          : "No requests matched the default filter lists of Brave Shields, the ad and tracker blocker built into the Brave browser.",
+          : shieldsAbsence.lead,
       detail: simulated
         ? "Measured with Brave's own ad-block engine and default filter lists actively blocking (network requests only, so no cosmetic or CNAME-based blocking). Blocked requests are not in this run's totals, and requests a blocked script would have made never started."
         : "Computed with Brave's own ad-block engine and default filter lists in classification mode: matched requests were not blocked by the scanner and remain in this report's observed request counts. Matching shows what Shields would target on this visit's traffic; an actual Shields visit blocks these and also prevents their follow-on requests, so this number is neither a measured block count nor the total effect.",
@@ -1924,7 +1991,7 @@ export function buildFindings(
         "request rows",
         requestState
       )} in this visit.`,
-      claim: findingClaim(facts, "shields-blocked", blocked > 0 ? "presence" : "absence")
+      claim: findingClaim(facts, "shields-blocked", blocked > 0 ? "presence" : "absence", shieldsAbsence.leadScope)
     });
   }
 

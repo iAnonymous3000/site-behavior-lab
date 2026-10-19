@@ -91,6 +91,7 @@ test("every committed bundle stays faithful across every public report surface",
   const corpus = await readProductionCorpusStats();
   const bundles: AcceptedBundle[] = [];
   let censorshipNoteCount = 0;
+  let retainedEvidenceLeads = 0;
   markedSubjectUrls = 0;
 
   for (const id of ids) {
@@ -125,6 +126,9 @@ test("every committed bundle stays faithful across every public report surface",
 
     const presentation = validateReportPresentation(loaded.view, corpus);
     assert.deepEqual(presentation.violations, [], `${id}: presentation consistency contradictions`);
+    retainedEvidenceLeads += presentation.findings.filter(
+      (finding) => finding.claim?.leadScope === "retained-evidence"
+    ).length;
     assert.equal(presentation.facts.view, loaded.view, `${id}: presentation facts use another view`);
     assert.notEqual(presentation.headline.headline.trim(), "", `${id}: empty headline`);
     assert.notEqual(presentation.headline.subhead.trim(), "", `${id}: empty headline explanation`);
@@ -173,6 +177,11 @@ test("every committed bundle stays faithful across every public report surface",
     markedSubjectUrls > 0,
     true,
     "no committed report carries a redaction marker in its subject URL, so the JSON-LD marker rule was never exercised"
+  );
+  assert.equal(
+    retainedEvidenceLeads > 0,
+    true,
+    "no committed absence card leads with the retained evidence, so the scoped-lead rule was never exercised"
   );
 
   await assertCorpusProjection(bundles, corpus);

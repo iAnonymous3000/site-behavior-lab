@@ -9,6 +9,19 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- An absence card no longer leads with the absence its title withholds.
+  When a card's absence claim was not established (evidence collection was
+  cut short, a detector did not finish, or the visit returned an error or
+  block page), its title said so, as in "Incomplete evidence: No Google
+  Analytics observed in retained evidence before collection stopped", while
+  its lead stated the absence as fact: "This visit did not contact Google
+  Analytics." The title and lead of the seven absence cards now come from
+  one eligibility decision, the lead confines the absence to the retained
+  evidence ("No Google Analytics request appears in the retained
+  evidence."), and the report-consistency gate checks the recorded choice
+  against the claim's fact gate on every committed report. This changes the
+  rendered text of 222 of the 1,029 committed reports at c45a9fba; no stored
+  report changes.
 - A dedicated Web Worker that ends before the scanner can tie it to its
   document, having recorded nothing, no longer marks the visit's
   fingerprinting evidence incomplete (fingerprint-observer@9,

@@ -13,7 +13,7 @@ import {
 } from "./scan-report-v2-fixtures";
 import { buildComparisonDiffV2, evaluateComparability } from "./scan-report-v2-evaluators";
 import type { PublicComparisonReportV2 } from "./scan-report-v2";
-import { makeConsentInterventionReportV2R2 } from "./scan-report-v2-r2-fixtures";
+import { makeConsentInterventionReportV2R2, makePublicSingleReportV2R2 } from "./scan-report-v2-r2-fixtures";
 import { viewFromV1Report, viewFromV2 } from "./scan-report-views";
 import type { ScanReport, ScanResult } from "./types";
 
@@ -394,5 +394,51 @@ test("detects a per-run headline above a card that describes another visit", () 
       buildFindings(view, null, presentation.facts)
     ),
     []
+  );
+});
+
+test("an absence lead that states the absence as fact under a closed fact gate is a violation", () => {
+  // A scoped title over a lead that states the absence as fact still tells the
+  // reader the thing is absent. absenceCopy records which lead it chose, and
+  // the gate checks that record against the claim's fact gate.
+  const view = viewFromV2(makePublicSingleReportV2R2(), 2);
+  const run = view.runs[0];
+  run.quality.byFamily = {
+    ...(run.quality.byFamily ?? {}),
+    requests: { outcome: "censored", reasons: ["budget-exhausted:public-request-records"] }
+  };
+  const presentation = validateReportPresentation(view);
+  assert.deepEqual(presentation.violations, []);
+  const gaClaim = presentation.findings.find((finding) => finding.claim?.id === "ga-remarketing")?.claim;
+  assert.equal(gaClaim?.mode, "qualified-absence", "this test needs a qualified Google Analytics absence");
+  assert.equal(gaClaim?.leadScope, "retained-evidence");
+
+  const withLead = (leadScope: "categorical" | "omitted"): Finding[] =>
+    presentation.findings.map((finding) => {
+      if (finding.claim?.id !== "ga-remarketing") return finding;
+      const { leadScope: _chosen, ...claim } = finding.claim;
+      return { ...finding, claim: leadScope === "omitted" ? claim : { ...claim, leadScope } };
+    });
+  for (const leadScope of ["categorical", "omitted"] as const) {
+    assert.deepEqual(
+      reportConsistencyViolations(presentation.facts, presentation.headline, withLead(leadScope)).map(
+        (violation) => violation.id
+      ),
+      ["unscoped-absence-lead-under-incomplete-evidence"],
+      leadScope
+    );
+  }
+
+  // A card hedged to a qualified absence after the fact (the error-page path)
+  // is held to the same rule even while its own fact gate stays open.
+  const clean = validateReportPresentation(viewFromV2(makePublicSingleReportV2R2(), 2));
+  const hedged = clean.findings.map((finding) =>
+    finding.claim?.id === "ga-remarketing" && finding.claim.mode === "categorical-absence"
+      ? { ...finding, claim: { ...finding.claim, mode: "qualified-absence" as const } }
+      : finding
+  );
+  assert.deepEqual(
+    reportConsistencyViolations(clean.facts, clean.headline, hedged).map((violation) => violation.id),
+    ["unscoped-absence-lead-under-incomplete-evidence"]
   );
 });

@@ -11,6 +11,7 @@ export type ReportConsistencyRuleId =
   | "quiet-copy-over-loud-finding"
   | "identity-conflict"
   | "unsafe-categorical-title-under-incomplete-evidence"
+  | "unscoped-absence-lead-under-incomplete-evidence"
   | "error-page-signals-attributed-to-site"
   | "headline-describes-another-visit";
 
@@ -134,6 +135,23 @@ export function reportConsistencyViolations(
       add(
         "unsafe-categorical-title-under-incomplete-evidence",
         `${finding.id} rendered a categorical absence while its fact gate was closed.`
+      );
+    }
+  }
+  // The lead sits directly under the title, so a scoped title over a lead that
+  // states the absence as fact still tells the reader the thing is absent.
+  // A qualified absence, or any absence whose fact gate is closed, must carry
+  // the retained-evidence lead absenceCopy chooses with the scoped title.
+  for (const finding of findings) {
+    const claim = finding.claim;
+    if (claim?.mode !== "categorical-absence" && claim?.mode !== "qualified-absence") continue;
+    if (
+      (claim.mode === "qualified-absence" || !run.claims[claim.id].allowed) &&
+      claim.leadScope !== "retained-evidence"
+    ) {
+      add(
+        "unscoped-absence-lead-under-incomplete-evidence",
+        `${finding.id} led with an unscoped absence while its claim was qualified or its fact gate was closed.`
       );
     }
   }

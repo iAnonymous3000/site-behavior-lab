@@ -2780,6 +2780,17 @@ test("a fingerprint observer that never read a frame cannot publish a clean abse
   const card = byId(buildFindings(view, null), "fingerprint-apis");
   assert.notEqual(card.level, "ok");
   assert.match(card.detail, /covers only what was recorded before the cutoff/);
+  // The lead sits directly under the title. It said "The scan did not observe
+  // the instrumented high-entropy browser APIs." under this scoped title, which
+  // states the absence the title withholds; title and lead now switch together.
+  assert.equal(
+    card.title,
+    "Incomplete evidence: No fingerprint-like API calls observed in retained evidence before collection stopped"
+  );
+  assert.equal(card.lead, "The retained evidence holds no calls to the instrumented high-entropy browser APIs.");
+  assert.equal(card.claim?.leadScope, "retained-evidence");
+  assert.equal(clean.lead, "The scan did not observe the instrumented high-entropy browser APIs.");
+  assert.equal(clean.claim?.leadScope, "categorical");
   const bottomLine = byId(buildFindings(view, null), "bottom-line");
   assert.doesNotMatch(bottomLine.title, /activity evidence was cut short/);
   // The defect this now also covers: an unfinished detector is not an
@@ -2807,6 +2818,37 @@ test("a fingerprint observer that never read a frame cannot publish a clean abse
     runCensorshipNotes(run).some((note) => note.includes("in-page fingerprint observer")),
     true
   );
+});
+
+test("an absence card whose fact gate is closed leads with the retained evidence, never the absence", () => {
+  // Every absence card scoped its title but chose its lead on its own, so a
+  // request log cut short read "Incomplete evidence: No Google Analytics
+  // observed in retained evidence before collection stopped" over "This visit
+  // did not contact Google Analytics.". Title and lead now come from one
+  // decision, and the clean board keeps its categorical sentences.
+  const clean = buildFindings(viewFromV2(makePublicSingleReportV2R2(), 2), null);
+  const view = viewFromV2(makePublicSingleReportV2R2(), 2);
+  const run = view.runs[0];
+  run.quality.byFamily = {
+    ...(run.quality.byFamily ?? {}),
+    requests: { outcome: "censored", reasons: ["budget-exhausted:public-request-records"] },
+    cookies: { outcome: "censored", reasons: ["budget-exhausted:public-cookie-records"] }
+  };
+  const censored = buildFindings(view, null);
+  const scoped = censored.filter((finding) => finding.claim?.mode === "qualified-absence");
+  assert.ok(
+    scoped.length >= 3,
+    `expected several qualified absence cards, got: ${scoped.map((finding) => finding.id).join(", ")}`
+  );
+  for (const finding of scoped) {
+    assert.equal(finding.claim?.leadScope, "retained-evidence", finding.id);
+    assert.match(finding.lead, /retained evidence/, finding.id);
+    const before = clean.find((candidate) => candidate.id === finding.id);
+    assert.ok(before, finding.id);
+    assert.equal(before.claim?.mode, "categorical-absence", finding.id);
+    assert.equal(before.claim?.leadScope, "categorical", finding.id);
+    assert.notEqual(finding.lead, before.lead, finding.id);
+  }
 });
 
 test("a partial fingerprint detector never presents retained API counts as exact totals", () => {
