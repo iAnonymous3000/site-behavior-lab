@@ -30,6 +30,11 @@ public API or a 1.0 release.
   complete its test. The rendered notes of 8 committed reports change; no
   stored report changes. docs/limitations.md now also says that hidden and
   zero-size fields are never probe candidates.
+- CSV exports neutralize a formula character that follows a semicolon or a
+  tab, past any spaces or quotes, as they already did for a leading one.
+  Excel opens a .csv with the locale's list separator, a semicolon in much of
+  Europe, so "ok;=HYPERLINK(1)" became a field beginning "=HYPERLINK(1)".
+  No committed export changes.
 - A dedicated Web Worker that ends before the scanner can tie it to its
   document, having recorded nothing, no longer marks the visit's
   fingerprinting evidence incomplete (fingerprint-observer@9,

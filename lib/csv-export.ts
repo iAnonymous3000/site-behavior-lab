@@ -75,8 +75,12 @@ export function csvCell(value: string | number): string {
   // exempt: a program-generated number's leading "-" is a sign, not page
   // content, and prefixing it would break numeric parsing of signed columns
   // (delta and Shields-change fields) in R/pandas.
-  if (typeof value !== "number" && /^[=+\-@\t\r]/.test(text)) {
-    text = `'${text}`;
+  if (typeof value !== "number") {
+    if (/^[=+\-@\t\r]/.test(text)) text = `'${text}`;
+    // A reader that splits on ";" (Excel where the locale's list separator is
+    // a semicolon) or on tabs starts a new field after either, so a formula
+    // character there, past any spaces or quotes, is neutralized the same way.
+    text = text.replace(/([;\t][\s"']*)(?=[=+\-@])/g, "$1'");
   }
   // RFC 4180 quoting for separators, quotes, and newlines.
   return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;

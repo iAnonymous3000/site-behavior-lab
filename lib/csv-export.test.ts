@@ -30,6 +30,31 @@ test("csvCell neutralizes spreadsheet formula injection (CWE-1236)", () => {
   assert.equal(csvCell(-3), "-3");
 });
 
+test("csvCell neutralizes a formula that a semicolon or tab reader would start a field with", () => {
+  // Excel opens a .csv with the locale's list separator, a semicolon in much of
+  // Europe, and a TSV import splits on tabs: "ok;=HYPERLINK(1)" passed through
+  // and became a field "=HYPERLINK(1)" for such a reader.
+  assert.equal(csvCell("ok;=HYPERLINK(1)"), "ok;'=HYPERLINK(1)");
+  assert.equal(csvCell(";=HYPERLINK(1)"), ";'=HYPERLINK(1)");
+  assert.equal(csvCell("ok; =1"), "ok; '=1");
+  assert.equal(csvCell("a\t-1+2"), "a\t'-1+2");
+  assert.equal(csvCell('a;"=1'), '"a;""\'=1"');
+  // Ordinary prose and numbers are unchanged.
+  assert.equal(csvCell("one; two"), "one; two");
+  assert.equal(csvCell(-5), "-5");
+
+  const formulaStart = /^[=+\-@\t\r]/;
+  const hostile = ["ok;=1", "x;+cmd", "y;-2", "z;@SUM(A1)", "a; \"=1", "b;'=1", "c\t=1", "d;;=1", "=e;=1"];
+  for (const value of hostile) {
+    const cell = csvCell(value);
+    const unquoted = cell.startsWith('"') ? cell.slice(1, -1).replace(/""/g, '"') : cell;
+    for (const field of unquoted.split(/[;\t]/)) {
+      const trimmed = field.replace(/^[\s"]+/, "");
+      assert.doesNotMatch(trimmed, formulaStart, `${JSON.stringify(value)} -> ${JSON.stringify(cell)}`);
+    }
+  }
+});
+
 test("requestLogToCsv escapes a hostile domain/url without breaking columns", () => {
   const requests: NetworkRequestRecord[] = [
     {
