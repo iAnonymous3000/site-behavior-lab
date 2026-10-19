@@ -9,6 +9,17 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- The Browser Behavior Signals list in the evidence explorer prints the
+  hosts a synthetic test value reached with "*" for a hidden subdomain
+  label, as the keystroke card does. It printed the stored token, as in
+  "typed value was sent to {label}.arcgis.com as plain, from 2 fields". The
+  fingerprinting card quotes the same evidence lines only for its canvas,
+  WebGL, audio and WebRTC heuristics, so no card changes. A test fails on
+  any sanitizer token in that list on any visit of a committed report. This
+  changes the rendered text of 15 of the 1,029 committed reports at
+  d437e995, all of it in this list, which renders in the browser and not in
+  the static export. No stored report changes and no claim is corrected, so
+  it takes no corrections event.
 - No findings-card sentence runs past 30 words, the length of the bottom-line
   card's method sentence. The 35-word pass left sentences of 31 to 35 words:
   the Brave Shields filter-list card's detail on 1,023 of the 1,029 committed

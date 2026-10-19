@@ -14,7 +14,7 @@ import {
   isOperationalOnlyEntity as hasOperationalOnlyServiceRoles,
   isTrackingRelatedEntity as hasTrackingRelatedServiceRole
 } from "./service-role";
-import { displayPublicUrl, formatCount, humanList, plural } from "./text-format";
+import { displayHost, displayPublicUrl, formatCount, humanList, plural } from "./text-format";
 import type {
   DomainSummary,
   FingerprintDetectionSummary,
@@ -586,7 +586,7 @@ export function detectionEvidence(detection: FingerprintDetectionSummary): strin
   }
 
   if (detection.kind === "keystroke-exfiltration") {
-    return `typed value was sent to ${humanList(detection.evidence.recipients)} as ${humanList(
+    return `typed value was sent to ${humanList(detection.evidence.recipients.map(displayHost))} as ${humanList(
       detection.evidence.encodings
     )}, from ${plural(detection.evidence.fieldsTyped, "field")}`;
   }

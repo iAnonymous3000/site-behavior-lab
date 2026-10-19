@@ -1,10 +1,11 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { test } from "node:test";
 import {
 
   detectionEvidence,
+  detectionLabel,
   gpcRunMeasurement,
   isOperationalEntity,
   isTrackingEntity,
@@ -18,7 +19,15 @@ import {
   trackerResponseQualification,
   trackingServiceRequests
 } from "./report-insights";
-import type { DomainSummary, InputMonitoringDetectionSummary, NetworkRequestRecord, SessionRecordingDetectionSummary } from "./types";
+import { readStoredScanReport } from "./scan-report-reader";
+import { toReportView } from "./scan-report-views";
+import type {
+  DomainSummary,
+  InputMonitoringDetectionSummary,
+  KeystrokeExfiltrationDetectionSummary,
+  NetworkRequestRecord,
+  SessionRecordingDetectionSummary
+} from "./types";
 
 function requestRows(
   count: number,
@@ -480,4 +489,66 @@ test("listener-coverage evidence states chain presence, never that the third par
   // Never the accusative registrant claim, in either of its shapes.
   assert.doesNotMatch(rendered, /third-party addEventListener call/);
   assert.doesNotMatch(rendered, /calls? from /);
+});
+
+test("keystroke evidence prints a hidden recipient label as * the way the findings card does", () => {
+  // The sanitizer stores an unreviewed subdomain label as "{label}". The
+  // detections table printed it ("typed value was sent to {label}.arcgis.com")
+  // while the keystroke card on the same report read "*.arcgis.com".
+  const detection: KeystrokeExfiltrationDetectionSummary = {
+    kind: "keystroke-exfiltration",
+    heuristic: "input-sentinel-exfiltration-v1",
+    count: 1,
+    evidence: {
+      recipients: ["{label}.arcgis.com", "{label}.{label}.collect.example"],
+      encodings: ["plain"],
+      fieldsTyped: 2,
+      fieldTypes: ["search"]
+    }
+  };
+
+  assert.equal(
+    detectionEvidence(detection),
+    "typed value was sent to *.arcgis.com and *.*.collect.example as plain, from 2 fields"
+  );
+});
+
+/**
+ * A sanitizer token in reader text. assertNoPrivacyTokens in
+ * report-findings.test.ts applies the same pattern to card text; change the
+ * two together.
+ */
+const SANITIZER_TOKEN =
+  /\{(?:label|seg|n|invalid-host|invalid-url)\}|%7B(?:label|seg|n|invalid-host|invalid-url)%7D|\[redacted[^\]]*\]|%5Bredacted/i;
+
+test("no committed report's detections table prints a sanitizer token", () => {
+  // The evidence explorer's detections table (report-tables.tsx) prints each
+  // detection's label and evidence line and each instrumented API's name, on
+  // whichever arm the reader picks, so every arm of every committed report.
+  const reportsDir = path.join(process.cwd(), "public", "reports");
+  const files = readdirSync(reportsDir).filter((name) => /^[0-9]{8}-[0-9a-f]{32}\.json$/.test(name));
+  assert.ok(files.length > 0, "no committed reports under public/reports; this test would be vacuous");
+  let detections = 0;
+  let recordedWithToken = 0;
+  for (const name of files) {
+    const read = readStoredScanReport(JSON.parse(readFileSync(path.join(reportsDir, name), "utf8")));
+    assert.equal(read.ok, true, `reader rejected committed report ${name}`);
+    if (!read.ok) continue;
+    for (const [arm, run] of toReportView(read.stored).runs.entries()) {
+      for (const detection of run.evidence.fingerprintDetections) {
+        detections += 1;
+        if (SANITIZER_TOKEN.test(JSON.stringify(detection.evidence))) recordedWithToken += 1;
+        for (const text of [detectionLabel(detection), detectionEvidence(detection)]) {
+          assert.doesNotMatch(text, SANITIZER_TOKEN, `${name}, arm ${arm}: ${detection.kind} prints a sanitizer token: ${text}`);
+        }
+      }
+      for (const event of run.evidence.fingerprintEvents) {
+        assert.doesNotMatch(event.api, SANITIZER_TOKEN, `${name}, arm ${arm}: API name prints a sanitizer token: ${event.api}`);
+      }
+    }
+  }
+  assert.ok(detections > 0, "no committed report has a detection; this test would be vacuous");
+  // Recorded hosts and URLs carry tokens on many reports; if none did, this
+  // test would no longer exercise the formatting it guards.
+  assert.ok(recordedWithToken > 0, "no committed detection records a sanitizer token; this test would be vacuous");
 });
