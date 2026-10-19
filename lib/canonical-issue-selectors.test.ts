@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
-import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { test } from "node:test";
+import { spawnSyncBounded } from "./bounded-spawn";
 
 // Four reconcile steps hold issues:write and pick the one canonical issue they
 // may rewrite, retitle, reopen or close by running an inline node program over
@@ -31,7 +31,7 @@ function selectorPrograms(name: string): string[] {
 type Issue = Record<string, unknown>;
 
 function select(program: string, env: Record<string, string>, issues: Issue[]) {
-  const result = spawnSync(process.execPath, ["-e", program], {
+  const result = spawnSyncBounded(process.execPath, ["-e", program], {
     // gh api --paginate --slurp hands the program an array of pages.
     input: JSON.stringify([issues]),
     env: { ...process.env, ...env },

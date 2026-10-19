@@ -1,11 +1,11 @@
 import assert from "node:assert/strict";
-import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { cpSync, existsSync, readFileSync, readdirSync } from "node:fs";
 import { chmod, copyFile, mkdir, mkdtemp, readFile, rename, rm, symlink, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { test, type TestContext } from "node:test";
+import { spawnSyncBounded } from "./bounded-spawn";
 import { runFixtureGit } from "./git-fixture";
 import { receiptFollowingCandidateCitationViolation } from "./measurement-candidate-binding";
 
@@ -867,7 +867,7 @@ function runEvidence(cwd: string, args: string[], overrides: NodeJS.ProcessEnv =
     delete env[name];
   }
   Object.assign(env, overrides);
-  return spawnSync(process.execPath, [path.join(cwd, "scripts", "release-evidence.mjs"), ...args], {
+  return spawnSyncBounded(process.execPath, [path.join(cwd, "scripts", "release-evidence.mjs"), ...args], {
     cwd,
     env,
     encoding: "utf8"
@@ -1419,7 +1419,7 @@ test("the release workflow tags only a promoted, CI-green revision and attests i
   // text executed there can never be two different things.
   const inlineControllers = releaseControllers(workflow);
   for (const [index, controller] of inlineControllers.entries()) {
-    const checked = spawnSync(process.execPath, ["--check"], { input: controller, encoding: "utf8" });
+    const checked = spawnSyncBounded(process.execPath, ["--check"], { input: controller, encoding: "utf8" });
     assert.equal(checked.status, 0, `inline release controller ${index + 1} must parse: ${checked.stderr}`);
   }
 
@@ -1998,7 +1998,7 @@ async function attestContext(
 }
 
 function runValidator(controller: string, context: AttestContext, overrides: NodeJS.ProcessEnv = {}) {
-  return spawnSync(process.execPath, ["--input-type=commonjs", "-e", controller], {
+  return spawnSyncBounded(process.execPath, ["--input-type=commonjs", "-e", controller], {
     cwd: context.runnerTemp,
     env: { ...context.env, ...overrides },
     encoding: "utf8"
@@ -2053,7 +2053,7 @@ test("the validator bounds the handoff attempt to this run and no later than thi
   const artifactOf = async (context: AttestContext, file: string) =>
     JSON.parse(await readFile(path.join(context.contextDir, file), "utf8"));
   const refuse = (context: AttestContext, env: NodeJS.ProcessEnv, expected: RegExp, name: string) => {
-    const run = spawnSync(process.execPath, ["--input-type=commonjs", "-e", controller], {
+    const run = spawnSyncBounded(process.execPath, ["--input-type=commonjs", "-e", controller], {
       cwd: context.runnerTemp,
       env,
       encoding: "utf8"
@@ -2397,7 +2397,7 @@ async function tagReconciliationContext(t: TestContext): Promise<TagReconciliati
 }
 
 function runTagReconciliation(controller: string, context: TagReconciliationContext) {
-  return spawnSync(process.execPath, ["--input-type=commonjs", "-e", controller], {
+  return spawnSyncBounded(process.execPath, ["--input-type=commonjs", "-e", controller], {
     encoding: "utf8",
     env: { PATH: process.env.PATH, RUNNER_TEMP: context.runnerTemp }
   });
@@ -2424,7 +2424,7 @@ test("the atomic tag publisher remains valid bash around its HTTP reconciliation
     .split("\n")
     .map((line) => (line.startsWith(" ".repeat(10)) ? line.slice(10) : line))
     .join("\n");
-  const syntax = spawnSync("bash", ["-n"], {
+  const syntax = spawnSyncBounded("bash", ["-n"], {
     input: shell,
     encoding: "utf8"
   });
@@ -2452,7 +2452,7 @@ test("the tag preflight requires an absent ref whenever the attestation was mint
   await chmod(path.join(stubs, "curl"), 0o755);
 
   const run = (current: string, attested: string, status: string) =>
-    spawnSync("bash", ["-c", script], {
+    spawnSyncBounded("bash", ["-c", script], {
       encoding: "utf8",
       env: {
         PATH: `${stubs}${path.delimiter}${process.env.PATH}`,
@@ -2620,7 +2620,7 @@ test("release trust-root snapshot and version classifier fail closed", async (t)
   const binding = "b".repeat(64);
   const runSnapshot = async (measurement: string) => {
     const output = path.join(root, `snapshot-${measurement || "empty"}-${Date.now()}`);
-    const result = spawnSync("bash", ["-c", snapshot], {
+    const result = spawnSyncBounded("bash", ["-c", snapshot], {
       encoding: "utf8",
       env: {
         PATH: process.env.PATH,
@@ -2646,7 +2646,7 @@ test("release trust-root snapshot and version classifier fail closed", async (t)
 
   const runClassify = (version: string, resolved: string, digest: string) => {
     const output = path.join(root, `classify-${Math.random()}`);
-    const result = spawnSync("bash", ["-c", classify], {
+    const result = spawnSyncBounded("bash", ["-c", classify], {
       encoding: "utf8",
       env: {
         PATH: process.env.PATH,
@@ -2749,7 +2749,7 @@ test("pre-authority measurement trust root rejects skeletons and skips all 0.x f
         behind_by: 0
       })
     );
-    const result = spawnSync("bash", ["-c", controller], {
+    const result = spawnSyncBounded("bash", ["-c", controller], {
       encoding: "utf8",
       env: {
         PATH: `${bin}:${process.env.PATH}`,
@@ -2871,7 +2871,7 @@ test("the dedicated-release-App configuration executes as a real separation gate
     promotionSlug = "site-behavior-promotion",
     receiptSha256 = "a".repeat(64)
   ) =>
-    spawnSync("bash", ["-c", script], {
+    spawnSyncBounded("bash", ["-c", script], {
       encoding: "utf8",
       env: {
         PATH: process.env.PATH,
@@ -2957,7 +2957,7 @@ test("the approved-release-actor step executes as a real shell gate", { skip: ho
     .join("\n");
 
   const run = (list: string, actor: string, triggering: string) =>
-    spawnSync("bash", ["-c", script], {
+    spawnSyncBounded("bash", ["-c", script], {
       encoding: "utf8",
       env: { PATH: process.env.PATH, APPROVED_RELEASE_ACTORS: list, ACTOR: actor, TRIGGERING_ACTOR: triggering }
     });

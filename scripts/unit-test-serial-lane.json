@@ -1,6 +1,7 @@
 {
   "lib/admission-attempt-limit.test.ts": "boots a wrangler bundle in Miniflare under a 45 s test timeout",
   "lib/bounded-page-collector.test.ts": "launches Chromium and serializes functions into the page",
+  "lib/bounded-spawn.test.ts": "gives a child process that waits on a ten-second timer a 250 ms spawn bound",
   "lib/brave-list-fetch.test.ts": "asserts a 250 ms settle watchdog",
   "lib/client-fetch-policy.test.ts": "races 10 ms connect and operation timeouts",
   "lib/cname-uncloaking.test.ts": "asserts elapsed time under 1000 ms",

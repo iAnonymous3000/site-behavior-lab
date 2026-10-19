@@ -12,6 +12,7 @@ import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 import { pathToFileURL } from "node:url";
+import { spawnSyncBounded } from "./bounded-spawn";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type ScriptExports = Record<string, any>;
@@ -757,7 +758,7 @@ test("release workflow snapshots external selectors before checkout or environme
   const digest = "a".repeat(64);
   const run = (value: string) => {
     const output = path.join(runnerTemp, `output-${Math.random()}`);
-    const result = spawnSync("bash", ["-c", shell], {
+    const result = spawnSyncBounded("bash", ["-c", shell], {
       encoding: "utf8",
       env: {
         PATH: process.env.PATH,
@@ -957,7 +958,7 @@ test("release workflow executes the pinned governance validator against exact li
     const measurementBindingDigest = createHash("sha256")
       .update(bindingBytes)
       .digest("hex");
-    return spawnSync(process.execPath, ["--input-type=commonjs", "-e", controller], {
+    return spawnSyncBounded(process.execPath, ["--input-type=commonjs", "-e", controller], {
       encoding: "utf8",
       env: {
         ...process.env,

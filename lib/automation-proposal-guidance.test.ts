@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
-import { spawnSync } from "node:child_process";
 import { chmodSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
+import { spawnSyncBounded } from "./bounded-spawn";
 
 const workflowsDirectory = path.join(process.cwd(), ".github", "workflows");
 const expectedProposalWorkflows = [
@@ -215,7 +215,7 @@ test("an anchor proposal pushed without its pull request is opened on the re-run
       runs += 1;
       const log = path.join(root, `calls-${runs}.log`);
       writeFileSync(log, "");
-      const result = spawnSync("bash", ["-c", script], {
+      const result = spawnSyncBounded("bash", ["-c", script], {
         cwd: root,
         encoding: "utf8",
         env: {

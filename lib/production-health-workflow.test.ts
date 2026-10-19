@@ -4,6 +4,7 @@ import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
+import { spawnSyncBounded } from "./bounded-spawn";
 import { requireIndex, sliceBetween } from "./source-markers";
 import {
   PRODUCTION_SYNTHETIC_TARGET,
@@ -145,7 +146,7 @@ function runProductionConfigController(config: string): { status: number; stderr
   const envFile = path.join(path.dirname(configFile), "github-env");
   writeFileSync(configFile, config);
   writeFileSync(envFile, "");
-  const run = spawnSync(process.execPath, ["--input-type=commonjs", "-e", controller], {
+  const run = spawnSyncBounded(process.execPath, ["--input-type=commonjs", "-e", controller], {
     encoding: "utf8",
     env: { ...process.env, PRODUCTION_CONFIG_FILE: configFile, GITHUB_ENV: envFile }
   });

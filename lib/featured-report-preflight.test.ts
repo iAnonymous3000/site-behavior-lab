@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
-import { spawnSync } from "node:child_process";
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
+import { spawnSyncBounded } from "./bounded-spawn";
 import { featuredReportPreflight, type FeaturedReportPreflightInput } from "./featured-report-preflight";
 
 const COMMIT = "a".repeat(40);
@@ -447,5 +447,5 @@ function embeddedHealthValidator(workflow: string): string {
 }
 
 function runHealthValidator(source: string, args: string[]): number | null {
-  return spawnSync(process.execPath, ["-e", source, ...args], { encoding: "utf8" }).status;
+  return spawnSyncBounded(process.execPath, ["-e", source, ...args], { encoding: "utf8" }).status;
 }

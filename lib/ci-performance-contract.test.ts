@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
-import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import test from "node:test";
+import { spawnSyncBounded } from "./bounded-spawn";
 
 const root = process.cwd();
 const ci = readFileSync(path.join(root, ".github/workflows/ci.yml"), "utf8");
@@ -25,7 +25,7 @@ test("the existing required check fails for every unsuccessful parallel dependen
   assert.ok(script);
   for (const tests of ["success", "failure", "cancelled", "skipped", ""]) {
     for (const builds of ["success", "failure", "cancelled", "skipped", ""]) {
-      const result = spawnSync("bash", ["-c", script], {
+      const result = spawnSyncBounded("bash", ["-c", script], {
         env: { ...process.env, TEST_RESULT: tests, BUILD_RESULT: builds }, encoding: "utf8"
       });
       assert.equal(result.status === 0, tests === "success" && builds === "success", `${tests}/${builds}: ${result.stderr}`);
