@@ -38,6 +38,13 @@ public API or a 1.0 release.
   after about 7 days on the reference deployment. The number comes from
   lib/report-share-retention.ts, which the report store uses as its default
   and the privacy page now reads instead of a hand copy. No report changes.
+- The printable report fits a phone screen. Its guide printed the
+  64-character correction-context SHA-256 as unbreakable inline code, which
+  made /reports/<id>/print/ 513 px wide at a 375 px viewport; the print-only
+  CSS was not the cause. The guide's digests now wrap on screen only, and the
+  Chromium smoke checks the printable page at phone width. Exporter PDFs of
+  four committed reports (175 pages) render identical page images at 150 dpi
+  with and without the rule. No report changes.
 - Every comparison report now says which visit ran first, or that the order
   was not recorded. The order was recorded but easy to miss or not shown at
   all: a v1 report carried it as one row among its measurement caveats, and

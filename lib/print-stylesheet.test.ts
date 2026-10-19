@@ -326,6 +326,41 @@ test("printing resolves the ink palette whatever theme the reader is in", async 
   }
 });
 
+test("the printable guide's digests fit a phone screen and keep their paper layout", async () => {
+  // The guide prints a 64-character SHA-256 and a 40-character commit as
+  // inline code. Unbreakable, the SHA-256 made /reports/<id>/print/ 513 px
+  // wide on a 375 px phone (measured 2026-10-17 and again 2026-10-18).
+  const guide = `<!doctype html>
+<html><head><style>${globalsCss}</style></head><body>
+  <div class="app-shell report-page-shell printable-report"><main>
+    <section class="print-document-guide">
+      <h2>How to use this report</h2>
+      <p>Correction context SHA-256: <code id="digest">${"8b4dc650".repeat(8)}</code></p>
+      <p>Renderer revision: <code id="commit">${"a1686ebe".repeat(5)}</code></p>
+    </section>
+  </main></div>
+</body></html>`;
+  const page = await browser.newPage({ viewport: { width: 375, height: 812 } });
+  try {
+    await page.emulateMedia({ media: "screen" });
+    await page.setContent(guide, { waitUntil: "load" });
+    const screen = await page.evaluate(() => ({
+      scrollWidth: document.documentElement.scrollWidth,
+      innerWidth: window.innerWidth
+    }));
+    assert.ok(screen.scrollWidth <= screen.innerWidth, `the guide made a 375 px screen ${screen.scrollWidth} px wide`);
+
+    // The rule is screen-only, so a printed guide breaks nowhere it did not.
+    await page.emulateMedia({ media: "print" });
+    const paper = await page.evaluate(() =>
+      ["digest", "commit"].map((id) => getComputedStyle(document.getElementById(id)!).overflowWrap)
+    );
+    assert.deepEqual(paper, ["normal", "normal"]);
+  } finally {
+    await page.close();
+  }
+});
+
 /** WCAG relative-contrast of a #rrggbb value against white. */
 function contrastOnWhite(hex: string): number {
   const match = /^#([0-9a-f]{6})$/i.exec(hex);

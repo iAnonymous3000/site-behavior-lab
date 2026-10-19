@@ -5678,6 +5678,14 @@ details[open] > summary .disclosure-chevron {
   }
 }
 
+/* The printable report's guide prints two digests as inline code, a 64-character
+   SHA-256 and a 40-character commit. Unbreakable, the SHA-256 alone made the page
+   513 px wide on a 375 px phone. On screen they wrap; a printed line is wide
+   enough for both, so the paper layout is left exactly as it was. */
+@media screen {
+  .print-document-guide code { overflow-wrap: anywhere; }
+}
+
 /* The document has its own reading scale; wide evidence never shrinks the whole report. */
 .export-error { padding: 12px; border: 1px solid var(--sig-loud); color: var(--sig-loud); }
 @media print {

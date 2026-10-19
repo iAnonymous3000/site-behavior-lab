@@ -349,6 +349,14 @@ async function uiChecks() {
     const reportOverflow = await hasHorizontalOverflow(page);
     if (reportOverflow) fail("mobile report has page-level horizontal overflow");
     pass("mobile report layout fits viewport");
+
+    // The printable version is linked from every saved report. Its guide
+    // printed a 64-character SHA-256 as unbreakable code, which made the page
+    // 513 px wide on a 375 px phone.
+    await page.goto(`${baseUrl}${shareHref.replace(/\/+$/, "")}/print/`, { waitUntil: "networkidle" });
+    await page.waitForFunction(() => document.documentElement.dataset.reportPrintReady === "true", null, { timeout: 30_000 });
+    if (await hasHorizontalOverflow(page)) fail("mobile printable report has page-level horizontal overflow");
+    pass("mobile printable report fits viewport");
   } finally {
     await browser.close();
   }
