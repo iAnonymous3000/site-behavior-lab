@@ -6,6 +6,7 @@ import {
 import { CONSENT_INTERACTION_LEFT_SUBJECT_WARNING } from "./consent-subject-loss-warning";
 import { ACTIVE_PROBE_SUBJECT_WARNING, CONSENT_RELOAD_SUBJECT_WARNING } from "./active-probe-subject-warnings";
 import { legacyV1MethodologyIdentity } from "./legacy-methodology";
+import { displayHost, displayPublicUrl } from "./text-format";
 
 /**
  * The single comparison-eligibility gate.
@@ -16,9 +17,9 @@ import { legacyV1MethodologyIdentity } from "./legacy-methodology";
  * or mismatched run can never produce definitive comparison wording in one
  * place while another still shows it.
  *
- * Intentionally dependency-light (types plus the tiny v1 methodology-token
- * parser) so it runs in the React client, in server-side `generateMetadata`,
- * and in the `next/og` route.
+ * Intentionally dependency-light (types, the tiny v1 methodology-token
+ * parser, and the reader's host and URL presenters) so it runs in the React
+ * client, in server-side `generateMetadata`, and in the `next/og` route.
  */
 
 export type ComparisonEligibility = {
@@ -182,7 +183,7 @@ export function comparisonEligibility(report: ComparisonScanResult): ComparisonE
   const subjectFacts = legacyComparisonSubjectFacts(report);
   if (!subjectFacts.hostsMatch) {
     reasons.push(
-      `The two visits landed on different sites (${report.baseline.summary.firstPartyDomain} vs ${report.variant.summary.firstPartyDomain}), so their difference is not a comparison of one site.`
+      `The two visits landed on different sites (${shownPair(report.baseline.summary.firstPartyDomain, report.variant.summary.firstPartyDomain, displayHost)}), so their difference is not a comparison of one site.`
     );
   }
   // The unknown rule applies to the subject itself: a visit whose recorded
@@ -218,7 +219,7 @@ export function comparisonEligibility(report: ComparisonScanResult): ComparisonE
   // earn comparative wording just because both loaded.
   if (!subjectFacts.requestedMatch) {
     reasons.push(
-      `The two visits requested different pages (${report.baseline.conditions.requestedUrl} vs ${report.variant.conditions.requestedUrl}), so their difference is not a comparison of one page.`
+      `The two visits requested different pages (${shownPair(report.baseline.conditions.requestedUrl, report.variant.conditions.requestedUrl, displayPublicUrl)}), so their difference is not a comparison of one page.`
     );
   }
   if (
@@ -257,12 +258,12 @@ export function comparisonEligibility(report: ComparisonScanResult): ComparisonE
   if (report.comparisonType === "consent") {
     if (!subjectFacts.observedMatch) {
       reasons.push(
-        `The two consent visits ended on different or unprovable origins (${report.baseline.conditions.finalUrl} vs ${report.variant.conditions.finalUrl}), so their difference is not a comparison of choices on one site origin.`
+        `The two consent visits ended on different or unprovable origins (${shownPair(report.baseline.conditions.finalUrl, report.variant.conditions.finalUrl, displayPublicUrl)}), so their difference is not a comparison of choices on one site origin.`
       );
     }
   } else if (!subjectFacts.observedMatch) {
     reasons.push(
-      `The two visits ended on different pages (${report.baseline.conditions.finalUrl} vs ${report.variant.conditions.finalUrl}), so their difference is not a comparison of one page.`
+      `The two visits ended on different pages (${shownPair(report.baseline.conditions.finalUrl, report.variant.conditions.finalUrl, displayPublicUrl)}), so their difference is not a comparison of one page.`
     );
   }
 
@@ -476,6 +477,20 @@ function legacyComparisonSubjectFacts(report: ComparisonScanResult): LegacyCompa
 export function legacyComparisonSubjectsMatch(report: ComparisonScanResult): boolean {
   const facts = legacyComparisonSubjectFacts(report);
   return facts.hostsMatch && facts.urlsKnown.every(Boolean) && facts.requestedMatch && facts.observedMatch;
+}
+
+/**
+ * Two recorded subject values for a reason sentence, in the form every other
+ * report surface prints: a hidden host label as "*" and a run of hidden path
+ * segments as one ellipsis. Values that differ only where that form hides
+ * them would otherwise read "X vs X".
+ */
+function shownPair(baseline: string, variant: string, display: (value: string) => string): string {
+  const shownBaseline = display(baseline);
+  const shownVariant = display(variant);
+  return shownBaseline === shownVariant && baseline !== variant
+    ? `both shown here as ${shownBaseline}`
+    : `${shownBaseline} vs ${shownVariant}`;
 }
 
 /**

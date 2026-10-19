@@ -596,6 +596,52 @@ test("mismatched subjects, devices, and pipelines each disqualify", () => {
   assert.match(differentPipeline.reasons[0], /different scanner pipelines \(playwright-chromium vs brave-pagegraph\)/);
 });
 
+test("reason sentences print recorded hosts and URLs the way readers see them", () => {
+  // The comparison panel lists these sentences and inconclusive-comparison
+  // cards quote them, so the sanitizer's tokens read as they do on every other
+  // surface: "*" for a hidden host label, one ellipsis for hidden segments.
+  const later = (firstPartyDomain: string, patch: Partial<ScanConditions>): ScanResult => {
+    const run = makeRun({ firstPartyDomain });
+    run.conditions = { ...run.conditions, scannedAt: new Date(60_000).toISOString(), ...patch };
+    return run;
+  };
+  const reasons = comparisonEligibility(
+    createTemporalComparisonReport(
+      makeRun({}),
+      later("{label}.blogspot.com", {
+        requestedUrl: "https://example.com/{seg}/{n}",
+        finalUrl: "https://{label}.example.com/{seg}"
+      })
+    )
+  ).reasons.join(" ");
+  assert.match(reasons, /landed on different sites \(example\.com vs \*\.blogspot\.com\)/);
+  assert.match(reasons, /requested different pages \(https:\/\/example\.com\/ vs https:\/\/example\.com\/…\)/);
+  assert.match(reasons, /ended on different pages \(https:\/\/example\.com\/ vs https:\/\/\*\.example\.com\/…\)/);
+  assert.doesNotMatch(reasons, /\{(?:label|seg|n)\}/);
+
+  // Two recorded URLs that differ only where the display hides them must not
+  // read "X vs X".
+  const hiddenBaseline = makeRun({});
+  hiddenBaseline.conditions = { ...hiddenBaseline.conditions, requestedUrl: "https://example.com/{seg}" };
+  const hiddenOnly = comparisonEligibility(
+    createTemporalComparisonReport(hiddenBaseline, later("example.com", { requestedUrl: "https://example.com/{seg}/{seg}" }))
+  );
+  assert.deepEqual(hiddenOnly.reasons, [
+    "The two visits requested different pages (both shown here as https://example.com/…), so their difference is not a comparison of one page."
+  ]);
+
+  const accepted = makeRun({});
+  accepted.conditions = { ...accepted.conditions, consentMode: "accept-all", finalUrl: "https://example.com/accepted" };
+  accepted.consentInteraction = { mode: "accept-all", clicked: true };
+  const rejected = makeRun({});
+  rejected.conditions = { ...rejected.conditions, consentMode: "reject-all", finalUrl: "https://{label}.example.com/{seg}" };
+  rejected.consentInteraction = { mode: "reject-all", clicked: true };
+  assert.match(
+    comparisonEligibility(createConsentComparisonReport(accepted, rejected)).reasons.join(" "),
+    /different or unprovable origins \(https:\/\/example\.com\/accepted vs https:\/\/\*\.example\.com\/…\)/
+  );
+});
+
 test("mismatched or unrecorded environments disqualify: route, viewport, browser, timezone, locale, egress, headless", () => {
   // RFC 3.1/3.2: comparability requires the recorded environment to match on
   // every dimension that shapes what a page serves, and an unrecorded

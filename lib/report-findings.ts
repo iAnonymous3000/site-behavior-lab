@@ -665,7 +665,9 @@ export function buildFindings(
   // and drop to "info" instead of "ok".
   const keystrokeDetection = fingerprintDetection(run.evidence, "keystroke-exfiltration");
   if (keystrokeDetection) {
-    const recipients = humanList(keystrokeDetection.evidence.recipients);
+    // Readers see the wildcard form the evidence tables use; the ownership
+    // check below reads the recorded hosts.
+    const recipients = humanList(keystrokeDetection.evidence.recipients.map(displayHost));
     const recipientCount = plural(keystrokeDetection.evidence.recipients.length, "cross-site domain");
     const sameOrganizationRecipients = keystrokeDetection.evidence.recipients.filter(
       (recipient) => reviewedOwnershipRelationship(run.domain, recipient).kind === "same-organization"
@@ -725,7 +727,7 @@ export function buildFindings(
       detail:
         "The scanner followed DNS CNAME chains from first-party subdomains and checked resolved targets against the service catalog and Brave filter lists. These matches do not establish a request's purpose, profiling, or an intent to conceal tracking. A filter-list match alone is not a verified service identity or proof of tracking.",
       evidence: humanList(
-        cnameCloaks.map((cloak) => `${cloak.host} → ${cloak.cname} (${cloak.tracker.confidence === "curated" ? `${cloak.tracker.entity}; catalog match` : "Brave filter-list match; operator unverified"})`),
+        cnameCloaks.map((cloak) => `${dnsAliasText(cloak)} (${cloak.tracker.confidence === "curated" ? `${cloak.tracker.entity}; catalog match` : "Brave filter-list match; operator unverified"})`),
         4
       ),
       claim: findingClaim(facts, "cname-cloaking", "presence")
@@ -787,7 +789,7 @@ export function buildFindings(
         'A request to the platform\'s loader proves the page attempted to fetch consent tooling; an observed response supports delivery, but neither fact proves a banner was visibly shown to this scanner. Banner display can vary by region and visit context. The scanner never clicks a banner in this mode, so this report records requests made before the scanner made a consent choice. It does not determine whether any request required consent or whether the site\'s behavior complied with applicable law. More tracking-service entities or requests may appear after "Accept" than this report captures, so the counts here are lower bounds for users who consent.',
       evidence: `${
         frameworkEndpoint ? "Consent framework endpoint" : "Consent platform"
-      } detected via a request to ${consentPlatform.domain}.`,
+      } detected via a request to ${displayHost(consentPlatform.domain)}.`,
       claim: findingClaim(facts, "consent-banner", "presence")
     });
   }
@@ -811,7 +813,7 @@ export function buildFindings(
       title: "Privacy-policy cross-check not established",
       lead: `The page this scan read as the privacy policy held ${policy.policyTextLength.toLocaleString()} characters of text, short enough to be the page before its policy loaded, so no policy text was compared against this visit's evidence. That is a limit of the automated check, not a finding about the site either way.`,
       detail: "The scanner that recorded this visit read a policy page a fixed second after it began loading. Some pages render their policy later, and some had requests refused by the scan's own traffic budget, so a short read can be the page around a policy that never arrived. Company mentions and policy statements recorded from it are not used; later scanner versions wait for the page to settle and withhold such a read.",
-      evidence: `Page recorded as the policy: ${policy.url} (${plural(policy.policyTextLength, "character")} of text); no policy text compared.`,
+      evidence: `Page recorded as the policy: ${displayPublicUrl(policy.url)} (${plural(policy.policyTextLength, "character")} of text); no policy text compared.`,
       claim: findingClaim(facts, "privacy-policy", "unavailable")
     });
   } else if (policy && policyUrlIsSiteRoot(policy.url)) {
@@ -834,7 +836,7 @@ export function buildFindings(
       detail: `The scanner that recorded this visit read whatever document the page's privacy-policy link led to; here that was a site root, for example because the link redirected to or pointed at the homepage. Company mentions and policy statements recorded from that text are not used.${
         policyReadNoteShown ? " The measurement note that the privacy policy was read refers to this homepage text." : ""
       }`,
-      evidence: `Page recorded as the policy: ${policy.url} (the site root); no policy text compared.`,
+      evidence: `Page recorded as the policy: ${displayPublicUrl(policy.url)} (the site root); no policy text compared.`,
       claim: findingClaim(facts, "privacy-policy", "unavailable")
     });
   } else if (policy) {
@@ -995,7 +997,7 @@ export function buildFindings(
           : unmentionedTrackingEntities.length > 0
             ? `Policies often disclose vendor categories rather than company names, so an unnamed vendor is a transparency gap worth reviewing, not automatically a violation.${namedCount > 0 ? ` Named in the policy: ${humanList(mentionedTrackingEntities)}.` : ""}`
             : `Statements checked automatically: blanket no-cookie claims, third-party-cookie claims, and combined do-not-sell-or-share claims against advertising-pixel identifier fields. Global Privacy Control claims are never checked against request counts, which cannot show whether selling or sharing stopped.${policyEvidenceCensored ? CENSORED_ABSENCE_NOTE : ""}`,
-      evidence: `Policy at ${policy.url}; ${plural(checkablePolicyClaims.length, "checkable statement")} matched; ${coverage}.${unknownPolicyMentionsNote}`,
+      evidence: `Policy at ${displayPublicUrl(policy.url)}; ${plural(checkablePolicyClaims.length, "checkable statement")} matched; ${coverage}.${unknownPolicyMentionsNote}`,
       claim: findingClaim(
         facts,
         "privacy-policy",
@@ -1088,7 +1090,7 @@ export function buildFindings(
       trackingEntities.length === 0 && namedTrackingCnameCloaks.length > 0
         ? humanList(
             namedTrackingCnameCloaks.map(
-              (cloak) => `${cloak.host} → ${cloak.cname} (${cloak.tracker.entity})`
+              (cloak) => `${dnsAliasText(cloak)} (${cloak.tracker.entity})`
             ),
             4
           )
@@ -2530,4 +2532,12 @@ function provenanceActorDisplay(domain: string | undefined, url: string | undefi
   const normalizedType = type?.trim().toLowerCase();
   if (!normalizedType || normalizedType === "script" || normalizedType === "unknown") return actor;
   return `${normalizedType} ${actor}`;
+}
+
+/**
+ * A first-party DNS alias and the target it resolved to, in the wildcard form
+ * readers see on every other surface. Both cards that list aliases use it.
+ */
+function dnsAliasText(cloak: { host: string; cname: string }): string {
+  return `${displayHost(cloak.host)} → ${displayHost(cloak.cname)}`;
 }

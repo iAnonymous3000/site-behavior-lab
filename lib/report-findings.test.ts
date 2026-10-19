@@ -41,7 +41,8 @@ import {
   requestEvidenceState,
   toReportView,
   viewFromV1Report,
-  viewFromV2
+  viewFromV2,
+  type ReportView
 } from "./scan-report-views";
 import { runCensorshipNotes } from "./scan-report-censorship";
 import { formatCount } from "./text-format";
@@ -642,11 +643,15 @@ test("no sentence on a committed report's findings cards runs past 35 words", as
     assert.equal(read.ok, true, `reader rejected committed report ${name}`);
     if (!read.ok) continue;
     const view = toReportView(read.stored);
+    // The comparison panel lists these reasons, and inconclusive-comparison
+    // cards quote them.
+    assertNoPrivacyTokens(`${name}: claim-policy reasons`, claimPolicyReasons(view));
     const facts = buildReportFacts(view);
     const headline = buildReportHeadline(view, facts);
     for (const finding of buildFindings(view, corpus, facts, renderedEvidenceArm(view, headline))) {
       assertSentencesAtMost(finding, 35);
       cards += 1;
+      assertNoPrivacyTokens(`${name}: ${finding.id}`, Object.values(finding));
     }
   }
   assert.ok(cards > files.length, `only ${cards} cards across ${files.length} reports`);
@@ -2065,9 +2070,10 @@ test("a policy read recorded at the site root presents the cross-check as not es
 
   // Redacted and ordinary policy paths keep their recorded cross-check. Both
   // read frozen copies, since retention will prune the published originals.
-  for (const [id, url] of [
-    ["20260702-037b2fee08bbbab57b9367afd51e7a84", "https://www.eharmony.com/{seg}"],
-    ["20260702-01ec5d5bf8e198ade542e392ea70146d", "https://www.nasa.gov/privacy"]
+  // The card shows a hidden path segment as an ellipsis.
+  for (const [id, url, shown] of [
+    ["20260702-037b2fee08bbbab57b9367afd51e7a84", "https://www.eharmony.com/{seg}", "https://www.eharmony.com/…"],
+    ["20260702-01ec5d5bf8e198ade542e392ea70146d", "https://www.nasa.gov/privacy", "https://www.nasa.gov/privacy"]
   ] as const) {
     const view = frozenReportView(id);
     assert.equal(displayRunView(view).evidence.privacyPolicy?.url, url);
@@ -2075,7 +2081,7 @@ test("a policy read recorded at the site root presents the cross-check as not es
     assert.equal(card.title, "Tracking companies the privacy policy does not appear to name", id);
     assert.equal(card.methodology, undefined);
     assert.equal(card.claim?.mode, "presence");
-    assert.ok(card.evidence.startsWith(`Policy at ${url}; `), card.evidence);
+    assert.ok(card.evidence.startsWith(`Policy at ${shown}; `), card.evidence);
   }
 });
 
@@ -3927,4 +3933,112 @@ test("the reassuring badge says no flag was raised, not that nothing was observe
   // Analytics present, no remarketing signal" was badged "Nothing observed".
   assert.equal(REPORT_SEVERITY_LABELS.ok, "Not flagged");
   assert.equal(Object.values(REPORT_SEVERITY_LABELS).some((label) => /nothing observed/i.test(label)), false);
+});
+
+/**
+ * Fails on a sanitizer token in reader text. The canonical report keeps typed
+ * tokens for a hidden host label ("{label}"), hidden path segments ("{seg}",
+ * "{n}") and a hidden query key or string ("[redacted]"); readers see "*" and
+ * one ellipsis instead (displayHost and displayPublicUrl, lib/text-format.ts).
+ */
+function assertNoPrivacyTokens(where: string, values: readonly unknown[]) {
+  const token =
+    /\{(?:label|seg|n|invalid-host|invalid-url)\}|%7B(?:label|seg|n|invalid-host|invalid-url)%7D|\[redacted[^\]]*\]|%5Bredacted/i;
+  for (const value of values) {
+    if (typeof value === "string") assert.doesNotMatch(value, token, `${where} prints a sanitizer token: ${value}`);
+  }
+}
+
+/** Every reason sentence the claim policy carries, pair and family alike. */
+function claimPolicyReasons(view: ReportView): string[] {
+  const { decision, pairComparison, familyDeltas } = view.claims;
+  return [
+    ...(decision?.reasons ?? []),
+    ...Object.values(decision?.families ?? {}).flatMap((family) => family.reasons),
+    ...(pairComparison?.reasons ?? []),
+    ...Object.values(familyDeltas ?? {}).flatMap((gate) => gate.reasons)
+  ];
+}
+
+test("cards print recorded hosts and URLs the way the evidence tables do", () => {
+  // Each card that quotes a recorded host or URL, fed the sanitizer's tokens.
+  // The corpus test reaches most of these; no committed report reaches the
+  // site-root policy read, the services card's alias evidence, or a
+  // requested-page mismatch.
+  const policyCard = (url: string, policyTextLength: number) => {
+    const result = makeResult({});
+    result.privacyPolicy = { url, claims: [], mentionedEntities: [], unmentionedEntities: [], policyTextLength };
+    return byId(buildFindings(viewFromV1Report(result), null), "privacy-policy");
+  };
+  const policyUrl = "https://{label}.example.org/{seg}/{n}/privacy";
+  assert.match(policyCard(policyUrl, 5_000).evidence, /^Policy at https:\/\/\*\.example\.org\/…\/privacy; /);
+  assert.match(
+    policyCard(policyUrl, 500).evidence,
+    /^Page recorded as the policy: https:\/\/\*\.example\.org\/…\/privacy \(500 characters of text\);/
+  );
+  assert.match(
+    policyCard("https://{label}.example.org/", 5_000).evidence,
+    /^Page recorded as the policy: https:\/\/\*\.example\.org\/ \(the site root\);/
+  );
+
+  const aliased: ScanResult = {
+    ...makeResult({ thirdPartyDomains: 2, thirdPartyRequests: 4 }),
+    cnameCloaks: [
+      {
+        host: "{label}.shop.example",
+        cname: "{label}.{label}.eulerian.net",
+        tracker: { domain: "eulerian.net", entity: "Eulerian", category: "advertising", confidence: "curated" }
+      }
+    ]
+  };
+  const aliasFindings = buildFindings(viewFromV1Report(aliased), null);
+  assert.equal(
+    byId(aliasFindings, "cname-cloaking").evidence,
+    "*.shop.example → *.*.eulerian.net (Eulerian; catalog match)"
+  );
+  assert.equal(byId(aliasFindings, "third-party-services").evidence, "*.shop.example → *.*.eulerian.net (Eulerian)");
+
+  const consentPlatform: DomainSummary = {
+    domain: "{label}.cookieyes.com",
+    requests: 1,
+    thirdParty: true,
+    tracker: null,
+    statuses: [200],
+    resourceTypes: ["script"]
+  };
+  assert.equal(
+    byId(buildFindings(viewFromV1Report(makeResult({ domains: [consentPlatform] })), null), "consent-banner").evidence,
+    "Consent platform detected via a request to *.cookieyes.com."
+  );
+
+  const keystroke = makeKeystrokeDetection(["plain"]);
+  keystroke.evidence = { ...keystroke.evidence, recipients: ["{label}.arcgis.com", "{label}.{label}.collect.example"] };
+  const keystrokeCard = byId(
+    buildFindings(viewFromV1Report(makeResult({ fingerprintDetections: [keystroke] })), null),
+    "keystroke-exfiltration"
+  );
+  assert.match(keystrokeCard.lead, /appeared in requests to \*\.arcgis\.com and \*\.\*\.collect\.example \(plain\)/);
+  assert.equal(
+    keystrokeCard.evidence,
+    "Synthetic test value appeared in requests to *.arcgis.com and *.*.collect.example via plain."
+  );
+
+  // The comparison reasons are formatted where they are written
+  // (lib/comparison-eligibility.ts), so the card and the panel agree.
+  const elsewhere = makeResult({ firstPartyDomain: "{label}.blogspot.com" });
+  elsewhere.conditions = {
+    ...elsewhere.conditions,
+    requestedUrl: "https://example.com/{seg}/{n}",
+    finalUrl: "https://{label}.example.com/{seg}"
+  };
+  const pairView = viewFromV1Report(shieldsPair(makeResult({}), elsewhere));
+  const comparisonCard = byId(buildFindings(pairView, null), "shields-comparison");
+  assert.match(comparisonCard.lead, /landed on different sites \(example\.com vs \*\.blogspot\.com\)/);
+  assert.match(comparisonCard.lead, /requested different pages \(https:\/\/example\.com\/ vs https:\/\/example\.com\/…\)/);
+  assert.match(comparisonCard.lead, /ended on different pages \(https:\/\/example\.com\/ vs https:\/\/\*\.example\.com\/…\)/);
+  assertNoPrivacyTokens("the claim policy", claimPolicyReasons(pairView));
+
+  for (const finding of [...aliasFindings, keystrokeCard, comparisonCard, policyCard(policyUrl, 500)]) {
+    assertNoPrivacyTokens(finding.id, Object.values(finding));
+  }
 });

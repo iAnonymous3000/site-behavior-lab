@@ -9,6 +9,20 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- Findings cards print a hidden part of a host or URL the way the evidence
+  tables do: "*" for a subdomain label and one ellipsis for path segments.
+  The sanitizer stores these as "{label}", "{seg}" and "{n}", and several
+  cards printed the stored form, as in "{label}.nike.com →
+  {label}.{label}.omtrdc.net" in the DNS-alias evidence. The privacy-policy
+  evidence, the consent platform's host and the hosts a synthetic test value
+  reached did the same. So did the reasons an inconclusive comparison lists
+  on its card and in the comparison panel. Where two compared pages differ
+  only in hidden parts, a reason now says both are shown as one URL rather
+  than printing it twice. The stored reports and their JSON keep the tokens.
+  A test fails on any sanitizer token in a committed report's card text or
+  comparison reasons. This changes the rendered text of 526 of the 1,029
+  committed reports at d920a91d. No stored report changes and no claim is
+  corrected, so it takes no corrections event.
 - Findings cards no longer carry sentences of up to 62 words. On 970 of the
   1,029 committed reports, at least one card sentence ran past 35 words. Some
   cards joined whole sentences into one list. On 103 reports an inconclusive
