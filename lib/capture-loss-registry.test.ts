@@ -115,3 +115,28 @@ test("the compiler-backed presentation switch covers every semantic detail and f
     }
   }
 });
+
+test("keystroke probe losses say the test was incomplete, never that a readback did not finish", () => {
+  // keystroke-probe-capture counts request rows the probe could not read in
+  // full together with candidate fields it skipped or could not finish testing
+  // (an offscreen field, an unsupported type, the field bound). The note said
+  // "the synthetic keystroke probe's readback did not finish", which is false
+  // whenever the loss was a skipped field.
+  for (const detail of ["keystroke-probe-capture", "keystroke-probe"] as const) {
+    for (const family of CAPTURE_LOSS_DETAIL_FAMILIES[detail]) {
+      for (const kind of ["dropped", "truncated"] as const) {
+        const note = captureLossDetailNote({ family, phaseId: null, kind, count: 3, detail });
+        assert.match(note, /recorded loss count: 3/, `${detail}/${family}/${kind}`);
+        assert.doesNotMatch(note, /did not finish|readback/, `${detail}/${family}/${kind}`);
+      }
+    }
+  }
+  assert.equal(
+    captureLossDetailNote({ family: "detector-output", phaseId: null, kind: "truncated", count: 1, detail: "keystroke-probe-capture" }),
+    "the synthetic keystroke probe did not fully test every field it found, or could not read every request in full (recorded loss count: 1)"
+  );
+  assert.equal(
+    captureLossDetailNote({ family: "detector-output", phaseId: null, kind: "dropped", count: 1, detail: "keystroke-probe" }),
+    "the synthetic keystroke probe did not complete its test (recorded loss count: 1)"
+  );
+});

@@ -58,7 +58,7 @@ function captureLossPresentation(detail: KnownCaptureLossDetail): CaptureLossPre
     case "policy-link-candidates":
       return ["the privacy-policy link search"];
     case "keystroke-probe-capture":
-      return ["the synthetic keystroke probe's readback"];
+      return ["the synthetic keystroke probe"];
     case "page-title":
       return ["the page title capture"];
     case "page-subject-validity":
@@ -182,6 +182,21 @@ export function captureLossDetailNote(
     return `${presentation[0]} kept only part of the font measurements: one or more frames measured more canvas text or fonts than it keeps (${recordedLossCount(
       loss.count
     )})`;
+  }
+  if (detail === "keystroke-probe-capture") {
+    // The recorded count mixes request rows the probe could not read in full
+    // with candidate fields it skipped (outside the viewport, an unsupported
+    // type, past its field bound) or could not finish testing, and no warning
+    // line separates the two. "The readback did not finish" was false whenever
+    // the loss was a skipped field, so the sentence names both causes.
+    return `${presentation[0]} did not fully test every field it found, or could not read every request in full (${recordedLossCount(
+      loss.count
+    )})`;
+  }
+  if (detail === "keystroke-probe") {
+    // Both of this detail's losses, a bound and a value the field refused,
+    // leave the test incomplete rather than unfinished mid-run.
+    return `${presentation[0]} did not complete its test (${recordedLossCount(loss.count)})`;
   }
   if (detail === "request-capture" && options.historicalMergedRequestAndByteLoss) {
     return `request recording and response-byte loading did not finish; the historical wire carries a combined ${recordedLossCount(

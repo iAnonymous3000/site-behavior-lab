@@ -22,6 +22,14 @@ public API or a 1.0 release.
   against the claim's fact gate on every committed report. This changes the
   rendered text of 222 of the 1,029 committed reports at c45a9fba; no stored
   report changes.
+- The input probe's loss notes no longer say a readback "did not finish".
+  The `keystroke-probe-capture` count mixes request rows the probe could not
+  read in full with candidate fields it skipped (offscreen, an unsupported
+  type, past its field bound) or could not finish testing, so its note now
+  names both causes, and the `keystroke-probe` note says the probe did not
+  complete its test. The rendered notes of 8 committed reports change; no
+  stored report changes. docs/limitations.md now also says that hidden and
+  zero-size fields are never probe candidates.
 - A dedicated Web Worker that ends before the scanner can tie it to its
   document, having recorded nothing, no longer marks the visit's
   fingerprinting evidence incomplete (fingerprint-observer@9,
