@@ -8,6 +8,8 @@ import test from "node:test";
 import { fileURLToPath } from "node:url";
 import {
   SERIAL_LANE_FILE,
+  TEST_BOUND_FLAGS,
+  TEST_TIMEOUT_MS,
   parseLaneArguments,
   partitionCompiledTests,
   readSerialLane
@@ -20,6 +22,27 @@ const libTests = readdirSync(path.join(root, "lib"))
   .filter((name) => name.endsWith(".test.ts"))
   .map((name) => `lib/${name}`)
   .sort();
+// A fixture run of the lanes takes well under a second. A lane that never
+// finishes must fail its test instead of hanging this file, and spawnSync
+// blocks this process, so no node --test timeout could interrupt it.
+const FIXTURE_TIMEOUT_MS = 60_000;
+
+// Every `&&` step test:unit executes, following `npm run` hops, including the
+// alongside command the lanes start.
+function testUnitSteps() {
+  const visited = new Set();
+  const steps = [];
+  const visit = (name) => {
+    if (visited.has(name)) return;
+    visited.add(name);
+    for (const step of packageJson.scripts[name].split(" && ")) {
+      if (!/^npm run [\w:-]+$/.test(step)) steps.push(step);
+      for (const hop of step.matchAll(/npm run ([\w:-]+)/g)) visit(hop[1]);
+    }
+  };
+  visit("test:unit");
+  return steps;
+}
 
 // A lib test matching any of these can pass or fail depending on machine load
 // or on a resource other processes share, so it must run in the serial lane,
@@ -78,6 +101,64 @@ test("test:unit runs every compiled lib test exactly once, through the lanes, be
   assert.ok(run < testUnit.indexOf("npm run test:calibration-producer"), "the lanes must finish before dist/schema is built");
 });
 
+test("every stage of test:unit that runs tests bounds each test at TEST_TIMEOUT_MS", () => {
+  const launcher = readFileSync(path.join(root, "scripts", "run-schema-cli.mjs"), "utf8");
+  let lanes = 0;
+  let nodeTest = 0;
+  for (const step of testUnitSteps()) {
+    const [command, ...args] = step.split(" ");
+    if (command !== "node") continue;
+    const script = args.find((arg) => !arg.startsWith("-"));
+    if (args.includes("--test")) {
+      nodeTest += 1;
+      assert.deepEqual(
+        args.filter((arg) => /^--test-(?:timeout|force-exit)/.test(arg)),
+        TEST_BOUND_FLAGS,
+        `${step}\nmust carry ${TEST_BOUND_FLAGS.join(" ")}, each exactly once`
+      );
+    } else if (script === "scripts/unit-test-lanes.mjs") {
+      // The lanes add TEST_BOUND_FLAGS to both lanes; the fixtures below prove it.
+      lanes += 1;
+    } else {
+      // The dist/schema launcher names the file it runs in its own table.
+      const name = args[args.indexOf(script) + 1];
+      const target =
+        script === "scripts/run-schema-cli.mjs"
+          ? [...(launcher.match(new RegExp(`"${name}": \\[([^\\]]*)\\]`))?.[1] ?? "").matchAll(/"([^"]+)"/g)]
+              .map((part) => part[1])
+              .join("/")
+          : script;
+      if (!/\.test\.m?js$/.test(target)) continue;
+      // A suite run as a plain script gets none of the flags. That is safe only
+      // while every test in it is synchronous: only an asynchronous test can
+      // wait forever on a promise.
+      assert.doesNotMatch(
+        readFileSync(path.join(root, target), "utf8"),
+        /\basync\b|\bawait\b|\bPromise\b|\.then\(/,
+        `${target} runs outside node --test, so an asynchronous test there has no bound; run it with ${TEST_BOUND_FLAGS.join(" ")} first`
+      );
+    }
+  }
+  assert.equal(lanes, 1, "test:unit must run the lib tests through the lanes exactly once");
+  assert.ok(nodeTest > 0, "no node --test stage was found in test:unit");
+});
+
+test("TEST_TIMEOUT_MS lets two stuck tests fail by name inside CI's budget for the tests job", () => {
+  const ci = readFileSync(path.join(root, ".github", "workflows", "ci.yml"), "utf8");
+  const testsJob = ci.slice(ci.indexOf("\n  tests:"), ci.indexOf("\n  pages:"));
+  assert.match(testsJob, /\n\s+run: npm run test:unit\n/, "the tests job no longer runs test:unit");
+  const budget = Number(/\n {4}timeout-minutes: (\d+)\n/.exec(testsJob)?.[1]) * 60_000;
+  assert.ok(budget > 0, "the tests job pins no timeout-minutes");
+  assert.ok(Number.isInteger(TEST_TIMEOUT_MS) && TEST_TIMEOUT_MS > 0);
+  // The suite itself needs about 14 of the job's minutes on a CI runner. With
+  // each stuck test given at most a third of the budget, two of them in a row
+  // still print node's "test timed out" before Actions cancels the job.
+  assert.ok(
+    3 * TEST_TIMEOUT_MS <= budget,
+    `TEST_TIMEOUT_MS (${TEST_TIMEOUT_MS} ms) must stay within a third of the tests job's ${budget} ms`
+  );
+});
+
 test("the partition keeps glob order, refuses stale or foreign entries, and never drops a file", () => {
   const files = ["a", "b", "c", "d"].map((name) => `.unit-test-dist/lib/${name}.test.js`);
   const lane = { "lib/b.test.ts": "launches a browser", "lib/d.test.ts": "asserts elapsed time" };
@@ -100,21 +181,35 @@ test("the partition keeps glob order, refuses stale or foreign entries, and neve
 
 // Runs the real CLI over a throwaway package: three parallel tests, an
 // alongside script and two serial tests, each appending its name to one log
-// when it runs. `fail` names the one piece that should fail; `writeDist` names
-// a parallel test that also writes into dist/; `serialLane` replaces the lane.
+// when it runs, and each test recording the bound flags its process was given.
+// `fail` names the one piece that should fail; `writeDist` names a parallel
+// test that also writes into dist/; `leak` names tests that pass but leave a
+// server listening; `serialLane` replaces the lane.
 async function runFixture(
   t,
-  { fail = "none", writeDist = "none", serialLane = { "lib/s1.test.ts": "fixture serial test", "lib/s2.test.ts": "fixture serial test" } } = {}
+  {
+    fail = "none",
+    writeDist = "none",
+    leak = [],
+    serialLane = { "lib/s1.test.ts": "fixture serial test", "lib/s2.test.ts": "fixture serial test" }
+  } = {}
 ) {
   const dir = await mkdtemp(path.join(os.tmpdir(), "unit-test-lanes-"));
   t.after(() => rm(dir, { recursive: true, force: true }));
   const log = path.join(dir, "finished.log");
+  const boundLog = path.join(dir, "bound.log");
   await mkdir(path.join(dir, ".unit-test-dist", "lib"), { recursive: true });
   await mkdir(path.join(dir, "scripts"));
   const body = (name) =>
     `const { appendFileSync, mkdirSync, writeFileSync } = require("node:fs");\n` +
-    `require("node:test")(${JSON.stringify(name)}, () => {\n` +
+    `require("node:test")(${JSON.stringify(name)}, async () => {\n` +
     `  appendFileSync(${JSON.stringify(log)}, ${JSON.stringify(`${name}\n`)});\n` +
+    `  const bound = new Set(process.execArgv.filter((arg) => /^--test-(?:timeout|force-exit)/.test(arg)));\n` +
+    `  appendFileSync(${JSON.stringify(boundLog)}, JSON.stringify([${JSON.stringify(name)}, ...bound]) + "\\n");\n` +
+    `  if (${JSON.stringify(leak)}.includes(${JSON.stringify(name)})) {\n` +
+    `    const server = require("node:net").createServer();\n` +
+    `    await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));\n` +
+    `  }\n` +
     `  if (${JSON.stringify(writeDist)} === ${JSON.stringify(name)}) {\n` +
     `    mkdirSync(${JSON.stringify(path.join(dir, "dist", "schema"))}, { recursive: true });\n` +
     `    writeFileSync(${JSON.stringify(path.join(dir, "dist", "schema", "rebuilt.js"))}, "");\n` +
@@ -136,6 +231,7 @@ async function runFixture(
   const result = spawnSync(process.execPath, [runner, "--alongside", "npm run side", ...files], {
     cwd: dir,
     encoding: "utf8",
+    timeout: FIXTURE_TIMEOUT_MS,
     // node:test marks its own children through NODE_TEST_CONTEXT, and a nested
     // `node --test` that inherits it skips its files instead of running them.
     env: {
@@ -143,8 +239,22 @@ async function runFixture(
       npm_config_update_notifier: "false"
     }
   });
+  const output = `${result.stdout}${result.stderr}`;
+  // A killed run has no exit status, which the failure cases' notEqual(status,
+  // 0) would read as a failing lane, so a run that never finished fails here.
+  assert.equal(result.error, undefined, `the lanes did not finish within ${FIXTURE_TIMEOUT_MS} ms:\n${output}`);
+  assert.equal(result.signal, null, `the lanes were killed by ${result.signal}:\n${output}`);
   const finished = (await readFile(log, "utf8").catch(() => "")).split("\n").filter(Boolean);
-  return { status: result.status, output: `${result.stdout}${result.stderr}`, finished };
+  const bound = new Map(
+    (await readFile(boundLog, "utf8").catch(() => ""))
+      .split("\n")
+      .filter(Boolean)
+      .map((line) => {
+        const [name, ...flags] = JSON.parse(line);
+        return [name, flags.sort()];
+      })
+  );
+  return { status: result.status, output, finished, bound };
 }
 
 test("the serial lane starts only after the parallel lane and the alongside command both pass", async (t) => {
@@ -154,6 +264,22 @@ test("the serial lane starts only after the parallel lane and the alongside comm
   const firstSerial = Math.min(finished.indexOf("s1"), finished.indexOf("s2"));
   for (const earlier of ["p1", "p2", "p3", "side"]) assert.ok(finished.indexOf(earlier) < firstSerial, earlier);
   assert.ok(finished.indexOf("s1") < finished.indexOf("s2"), "the serial lane keeps glob order");
+});
+
+test("both lanes run every lib test file under TEST_BOUND_FLAGS", async (t) => {
+  const { status, output, bound } = await runFixture(t);
+  assert.equal(status, 0, output);
+  for (const name of ["p1", "p2", "p3", "s1", "s2"]) {
+    assert.deepEqual(bound.get(name), [...TEST_BOUND_FLAGS].sort(), `${name} ran without ${TEST_BOUND_FLAGS.join(" ")}`);
+  }
+});
+
+test("a lib test that passes but leaves a server listening does not hold its lane open", async (t) => {
+  // The server keeps that file's process alive after its last test and node
+  // --test waits for the process, so without --test-force-exit neither lane ends.
+  const { status, output, finished } = await runFixture(t, { leak: ["p2", "s1"] });
+  assert.equal(status, 0, output);
+  assert.deepEqual([...finished].sort(), ["p1", "p2", "p3", "s1", "s2", "side"]);
 });
 
 for (const [failing, where] of [

@@ -77,8 +77,10 @@ test("the calibration ceremony suites run after the launcher that builds dist/sc
   assert.ok(producer >= 0, "test:unit must run the calibration producer suite");
   assert.ok(ceremony > producer, "test:unit must run the ceremony suites after dist/schema is built");
 
+  // scripts/unit-test-lanes.test.mjs holds the per-test bound flags to their
+  // one value; this pins which suites the command runs.
   assert.equal(
-    packageJson.scripts["test:calibration-ceremony"],
+    packageJson.scripts["test:calibration-ceremony"].replace(/ --test-timeout=\d+ --test-force-exit /, " "),
     "node --test scripts/calibration-acquisition-authorization-lib.test.mjs scripts/calibration-label-roster-lib.test.mjs scripts/calibration-assemble-custody-lib.test.mjs"
   );
 });

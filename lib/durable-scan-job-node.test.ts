@@ -1157,8 +1157,9 @@ function deferred<T = void>() {
  * coordinator's beginPublishing ran, which is exactly what an unregistered
  * refreshed adblock identity causes), fail immediately with a diagnostic
  * instead of awaiting a deferred that can no longer resolve. Without this
- * guard such a regression deadlocks the file under node --test's default
- * zero test timeout and eats the whole CI job budget.
+ * guard such a regression stalls the test until the suite's ten-minute
+ * per-test bound (TEST_TIMEOUT_MS in scripts/unit-test-lanes.mjs) fails it
+ * with no diagnostic.
  */
 async function milestoneOrSettledJob(
   jobId: string,

@@ -19,6 +19,13 @@
 // The former single pass reported every failing lib file at once; now serial
 // files are not reached until the parallel phase passes. The gate is the same.
 //
+// Every node --test this runner starts carries TEST_BOUND_FLAGS: a per-test
+// timeout and --test-force-exit. Node's own default timeout is Infinity, so a
+// test awaiting a promise that never settles, a server that never closes or a
+// child that never exits would otherwise hang its lane, and with it a local
+// gate or a CI job, until someone killed it. The other node --test stages of
+// test:unit spell the same flags in package.json.
+//
 // dist/ is the one shared build output tests read: several load
 // dist/schema/lib/*.js before falling back to .unit-test-dist, and tsc rewrites
 // those files in place. A test that recompiles it belongs in the serial lane, so
@@ -27,10 +34,11 @@
 //
 // scripts/unit-test-lanes.test.mjs forces every lib test that matches a
 // browser, timing, timer, git-spawning or Worker-runtime pattern into the
-// serial lane, and proves this runner fails when any lane fails or dist/
-// changes. Those patterns are a heuristic, not a proof: a deadline hidden in a
-// helper module can still slip past them, so a test that ever fails only in
-// the parallel lane belongs in the serial lane, never behind a retry.
+// serial lane, proves this runner fails when any lane fails or dist/ changes,
+// and holds every node --test stage of test:unit to TEST_TIMEOUT_MS. Those
+// patterns are a heuristic, not a proof: a deadline hidden in a helper module
+// can still slip past them, so a test that ever fails only in the parallel
+// lane belongs in the serial lane, never behind a retry.
 
 import { spawn } from "node:child_process";
 import { existsSync, lstatSync, readFileSync, readdirSync } from "node:fs";
@@ -42,6 +50,25 @@ export const SERIAL_LANE_FILE = path.join("scripts", "unit-test-serial-lane.json
 // without queueing work behind it. More cores do not raise this: the parallel
 // lane holds no timing-sensitive test, so a slower machine only takes longer.
 export const PARALLEL_FILES = 3;
+// The per-test bound. A test, subtest or hook that sets no timeout of its own
+// fails at this one with node's "test timed out after 600000ms"; one that sets
+// its own keeps it. The slowest test without one is the corpus-overview
+// group's walk of every committed bundle (committed-corpus-surface-fidelity):
+// 135 to 183 s on CI runners and 72 to 94 s on a busy Mac in October 2026,
+// growing with the corpus. A timeout there means the corpus outgrew this
+// bound, not a deadlock. Ten minutes still lets two stuck tests in a row fail
+// by name inside the 45 minutes CI gives the whole tests job.
+export const TEST_TIMEOUT_MS = 600_000;
+// --test-timeout alone fails a stuck test on time, but a server, socket or
+// child process that test left open keeps its file's process alive, and node
+// --test waits for that process to exit. --test-force-exit ends each test
+// process once its tests and hooks have finished. The cost: asynchronous
+// activity after a file's last test, such as a late rejection, goes
+// unreported, because the process is gone before it happens. One hang remains
+// out of reach: a child that never exits and shares the test process's stdout
+// (stdio "inherit", say) keeps open the pipe node --test reads results from.
+// A child that shares only stderr does not.
+export const TEST_BOUND_FLAGS = [`--test-timeout=${TEST_TIMEOUT_MS}`, "--test-force-exit"];
 
 const COMPILED_TEST = /^\.unit-test-dist\/lib\/[A-Za-z0-9._-]+\.test\.js$/;
 const SOURCE_TEST = /^lib\/[A-Za-z0-9._-]+\.test\.ts$/;
@@ -116,7 +143,7 @@ const live = new Set();
 // under the working directory, so an empty lane is skipped instead.
 function runLane(files, concurrency) {
   if (files.length === 0) return Promise.resolve({ ok: true, skipped: true, seconds: 0, output: Buffer.alloc(0) });
-  return run(process.execPath, ["--test", `--test-concurrency=${concurrency}`, ...files]);
+  return run(process.execPath, ["--test", `--test-concurrency=${concurrency}`, ...TEST_BOUND_FLAGS, ...files]);
 }
 
 function run(command, args, { capture = false } = {}) {
