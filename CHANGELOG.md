@@ -178,10 +178,13 @@ public API or a 1.0 release.
 - Reports from those earlier cross-checks no longer publish an omission or
   a "policy read" result from a read under 3,000 characters: the policy card
   says the cross-check was not established, as it already did for a policy
-  link that led to the homepage. No stored report changes. In the committed
-  corpus this withdraws 25 "does not appear to name" cards (Khan Academy's
-  612-character read named Google as unnamed; its policy names it) and 10
-  "made no statement this scan can check" cards.
+  link that led to the homepage. No stored report changes. At c45a9fba this
+  withdraws 21 "does not appear to name" cards (Khan Academy's 612-character
+  read named Google as unnamed; its policy names it) and 12 "made no
+  statement this scan can check" cards, one per report. It takes no
+  corrections-ledger event because it only withdraws a claim, which
+  docs/corrections-ledger.md now states; docs/limitations.md describes the
+  rule.
 - The reassuring severity badge reads "Not flagged" instead of "Nothing
   observed", which sat above cards that report what was observed, such as
   "Google Analytics present, no remarketing signal".

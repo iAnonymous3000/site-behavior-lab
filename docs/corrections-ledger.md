@@ -54,6 +54,14 @@ public/corrections.schema.json.
   record name the defect class, never the removed value.
 - Event IDs are sequential within a calendar year:
   SBL-CORR-YYYY-NNN.
+- A reader change that only withdraws or narrows a claim for a class of
+  reports, leaving every stored report unchanged, takes no event. It is
+  disclosed in CHANGELOG.md with the number of committed reports whose
+  rendered text it changes, and in docs/limitations.md when it states a
+  lasting limit of what those reports can show. The short-read rule for
+  policy reads before policy-text-cross-check@9 and the retained-evidence
+  leads of absence cards were disclosed this way. A claim that is wrong and
+  still renders as stated takes an event.
 
 ## Review workflow
 
