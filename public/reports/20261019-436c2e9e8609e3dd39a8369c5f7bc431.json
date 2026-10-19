@@ -1,0 +1,3233 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Brave-list blocking off/on comparison",
+  "runLabels": {
+    "baseline": "No blocking",
+    "variant": "Brave-list blocking"
+  },
+  "requestedUrl": "https://www.khanacademy.org/",
+  "scannedAt": "2026-10-19T11:06:15.774Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 12646,
+      "firstPartyDomain": "www.khanacademy.org",
+      "totalRequests": 89,
+      "thirdPartyRequests": 68,
+      "knownTrackerRequests": 1,
+      "thirdPartyDomains": 4,
+      "cookies": 9,
+      "thirdPartyCookies": 0,
+      "storageEntries": 1,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 5
+    },
+    "conditions": {
+      "requestedUrl": "https://www.khanacademy.org/",
+      "finalUrl": "https://www.khanacademy.org/",
+      "scannedAt": "2026-10-19T11:06:22.262Z",
+      "chromiumVersion": "153.0.8010.12",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-10-18T18:25:24.776Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.63.0 from github-actions-ubuntu with browser 153.0.8010.12, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.khanacademy.org/",
+        "domain": "www.khanacademy.org",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 70
+      },
+      {
+        "id": 2,
+        "url": "https://www.khanacademy.org/{seg}/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 121
+      },
+      {
+        "id": 3,
+        "url": "https://www.khanacademy.org/{seg}/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 122
+      },
+      {
+        "id": 4,
+        "url": "https://www.khanacademy.org/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 135
+      },
+      {
+        "id": 5,
+        "url": "https://www.khanacademy.org/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 144
+      },
+      {
+        "id": 6,
+        "url": "https://www.khanacademy.org/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 162
+      },
+      {
+        "id": 7,
+        "url": "https://www.khanacademy.org/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 172
+      },
+      {
+        "id": 8,
+        "url": "https://www.khanacademy.org/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/{seg}/{seg}",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 204
+      },
+      {
+        "id": 9,
+        "url": "https://www.khanacademy.org/",
+        "domain": "www.khanacademy.org",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 222
+      },
+      {
+        "id": 10,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 340
+      },
+      {
+        "id": 11,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 340
+      },
+      {
+        "id": 12,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 371
+      },
+      {
+        "id": 13,
+        "url": "https://www.googletagmanager.com/{seg}?id=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 373
+      },
+      {
+        "id": 14,
+        "url": "https://{label}.trustarc.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.trustarc.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 548
+      },
+      {
+        "id": 15,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 549
+      },
+      {
+        "id": 16,
+        "url": "https://www.khanacademy.org/api/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 552
+      },
+      {
+        "id": 17,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 701
+      },
+      {
+        "id": 18,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 703
+      },
+      {
+        "id": 19,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 703
+      },
+      {
+        "id": 20,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 703
+      },
+      {
+        "id": 21,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 704
+      },
+      {
+        "id": 22,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 704
+      },
+      {
+        "id": 23,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 706
+      },
+      {
+        "id": 24,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 706
+      },
+      {
+        "id": 25,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 707
+      },
+      {
+        "id": 26,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 721
+      },
+      {
+        "id": 27,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 721
+      },
+      {
+        "id": 28,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 722
+      },
+      {
+        "id": 29,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 722
+      },
+      {
+        "id": 30,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 723
+      },
+      {
+        "id": 31,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 723
+      },
+      {
+        "id": 32,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 724
+      },
+      {
+        "id": 33,
+        "url": "https://www.khanacademy.org/api/{seg}/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 764
+      },
+      {
+        "id": 34,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 775
+      },
+      {
+        "id": 35,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 776
+      },
+      {
+        "id": 36,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 776
+      },
+      {
+        "id": 37,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 777
+      },
+      {
+        "id": 38,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 777
+      },
+      {
+        "id": 39,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 777
+      },
+      {
+        "id": 40,
+        "url": "https://www.khanacademy.org/api/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 802
+      },
+      {
+        "id": 41,
+        "url": "https://www.khanacademy.org/api/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 804
+      },
+      {
+        "id": 42,
+        "url": "https://www.khanacademy.org/api/{seg}/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 805
+      },
+      {
+        "id": 43,
+        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=",
+        "domain": "fonts.googleapis.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 818
+      },
+      {
+        "id": 44,
+        "url": "https://{label}.trustarc.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.trustarc.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.trustarc.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.trustarc.com"
+        },
+        "startedAtMs": 819
+      },
+      {
+        "id": 45,
+        "url": "https://{label}.trustarc.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.trustarc.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.trustarc.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.trustarc.com"
+        },
+        "startedAtMs": 819
+      },
+      {
+        "id": 46,
+        "url": "https://www.khanacademy.org/api/{seg}/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 829
+      },
+      {
+        "id": 47,
+        "url": "https://www.khanacademy.org/api/{seg}/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 829
+      },
+      {
+        "id": 48,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 925
+      },
+      {
+        "id": 49,
+        "url": "https://{label}.trustarc.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.trustarc.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.trustarc.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.trustarc.com"
+        },
+        "startedAtMs": 926
+      },
+      {
+        "id": 50,
+        "url": "https://{label}.trustarc.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.trustarc.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 927
+      },
+      {
+        "id": 51,
+        "url": "https://{label}.trustarc.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.trustarc.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 927
+      },
+      {
+        "id": 52,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1011
+      },
+      {
+        "id": 53,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1013
+      },
+      {
+        "id": 54,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1013
+      },
+      {
+        "id": 55,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1014
+      },
+      {
+        "id": 56,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1029
+      },
+      {
+        "id": 57,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1033
+      },
+      {
+        "id": 58,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1033
+      },
+      {
+        "id": 59,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1034
+      },
+      {
+        "id": 60,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1034
+      },
+      {
+        "id": 61,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1035
+      },
+      {
+        "id": 62,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1035
+      },
+      {
+        "id": 63,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1038
+      },
+      {
+        "id": 64,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1041
+      },
+      {
+        "id": 65,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1042
+      },
+      {
+        "id": 66,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1044
+      },
+      {
+        "id": 67,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1045
+      },
+      {
+        "id": 68,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1062
+      },
+      {
+        "id": 69,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1104
+      },
+      {
+        "id": 70,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1143
+      },
+      {
+        "id": 71,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1144
+      },
+      {
+        "id": 72,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1144
+      },
+      {
+        "id": 73,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1145
+      },
+      {
+        "id": 74,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1145
+      },
+      {
+        "id": 75,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1215
+      },
+      {
+        "id": 76,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1216
+      },
+      {
+        "id": 77,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1216
+      },
+      {
+        "id": 78,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1216
+      },
+      {
+        "id": 79,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 1217
+      },
+      {
+        "id": 80,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1242
+      },
+      {
+        "id": 81,
+        "url": "https://www.khanacademy.org/api/{seg}/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 1260
+      },
+      {
+        "id": 82,
+        "url": "https://www.khanacademy.org/api/{seg}/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 1265
+      },
+      {
+        "id": 83,
+        "url": "https://www.khanacademy.org/api/{seg}/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 1265
+      },
+      {
+        "id": 84,
+        "url": "https://www.khanacademy.org/api/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 1266
+      },
+      {
+        "id": 85,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1297
+      },
+      {
+        "id": 86,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1298
+      },
+      {
+        "id": 87,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1388
+      },
+      {
+        "id": 88,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 1407
+      },
+      {
+        "id": 89,
+        "url": "https://www.khanacademy.org/api/{seg}/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 1433
+      }
+    ],
+    "domains": [
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "cdn.kastatic.org",
+        "requests": 60,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet",
+          "script",
+          "image",
+          "font"
+        ]
+      },
+      {
+        "domain": "{label}.trustarc.com",
+        "requests": 6,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "fetch",
+          "xhr",
+          "image"
+        ]
+      },
+      {
+        "domain": "fonts.googleapis.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet"
+        ]
+      },
+      {
+        "domain": "www.khanacademy.org",
+        "requests": 21,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "font",
+          "stylesheet",
+          "script",
+          "fetch",
+          "image"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "[redacted]",
+        "domain": ".khanacademy.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".khanacademy.org",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".khanacademy.org",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted:long-token]",
+        "domain": "www.khanacademy.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted:long-token]",
+        "domain": "www.khanacademy.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.khanacademy.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.khanacademy.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.khanacademy.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.khanacademy.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 235938
+      }
+    ],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "change",
+            "input",
+            "keydown",
+            "keypress",
+            "keyup",
+            "paste"
+          ],
+          "listenerTargets": [
+            "document",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://cdn.kastatic.org/",
+            "https://{label}.trustarc.com/"
+          ],
+          "totalListenerCalls": 47
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "input",
+            "keydown",
+            "keyup",
+            "mousedown",
+            "mousemove",
+            "mouseup",
+            "pointerdown",
+            "pointermove",
+            "pointerup",
+            "scroll",
+            "selectionchange",
+            "touchmove",
+            "touchstart",
+            "visibilitychange",
+            "wheel"
+          ],
+          "listenerTargets": [
+            "body",
+            "document",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://cdn.kastatic.org/",
+            "https://{label}.trustarc.com/",
+            "https://www.googletagmanager.com/"
+          ],
+          "totalListenerCalls": 113
+        }
+      }
+    ],
+    "privacyPolicy": {
+      "url": "https://www.khanacademy.org/about/privacy-policy",
+      "claims": [],
+      "mentionedEntities": [
+        "Google"
+      ],
+      "unmentionedEntities": [],
+      "policyTextLength": 29317
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "The page did not reach network idle before the scan window ended.",
+      "Read the site's privacy policy (https://www.khanacademy.org/about/privacy-policy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 6475,
+      "firstPartyDomain": "www.khanacademy.org",
+      "totalRequests": 84,
+      "thirdPartyRequests": 65,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 3,
+      "cookies": 9,
+      "thirdPartyCookies": 0,
+      "storageEntries": 1,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 5
+    },
+    "conditions": {
+      "requestedUrl": "https://www.khanacademy.org/",
+      "finalUrl": "https://www.khanacademy.org/",
+      "scannedAt": "2026-10-19T11:06:15.774Z",
+      "chromiumVersion": "153.0.8010.12",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-10-18T18:25:24.776Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.63.0 from github-actions-ubuntu with browser 153.0.8010.12, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.khanacademy.org/",
+        "domain": "www.khanacademy.org",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 60
+      },
+      {
+        "id": 2,
+        "url": "https://www.khanacademy.org/{seg}/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 97
+      },
+      {
+        "id": 3,
+        "url": "https://www.khanacademy.org/{seg}/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 98
+      },
+      {
+        "id": 4,
+        "url": "https://www.khanacademy.org/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 110
+      },
+      {
+        "id": 5,
+        "url": "https://www.khanacademy.org/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 118
+      },
+      {
+        "id": 6,
+        "url": "https://www.khanacademy.org/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 133
+      },
+      {
+        "id": 7,
+        "url": "https://www.khanacademy.org/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 145
+      },
+      {
+        "id": 8,
+        "url": "https://www.khanacademy.org/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/{seg}/{seg}",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 180
+      },
+      {
+        "id": 9,
+        "url": "https://www.khanacademy.org/",
+        "domain": "www.khanacademy.org",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 197
+      },
+      {
+        "id": 10,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 305
+      },
+      {
+        "id": 11,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 306
+      },
+      {
+        "id": 12,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 416
+      },
+      {
+        "id": 14,
+        "url": "https://{label}.trustarc.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.trustarc.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 574
+      },
+      {
+        "id": 15,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 575
+      },
+      {
+        "id": 16,
+        "url": "https://www.khanacademy.org/api/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 578
+      },
+      {
+        "id": 17,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 687
+      },
+      {
+        "id": 18,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 688
+      },
+      {
+        "id": 19,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 689
+      },
+      {
+        "id": 20,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 690
+      },
+      {
+        "id": 21,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 690
+      },
+      {
+        "id": 22,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 691
+      },
+      {
+        "id": 23,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 691
+      },
+      {
+        "id": 24,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 692
+      },
+      {
+        "id": 25,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 692
+      },
+      {
+        "id": 26,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 713
+      },
+      {
+        "id": 27,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 718
+      },
+      {
+        "id": 28,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 720
+      },
+      {
+        "id": 29,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 721
+      },
+      {
+        "id": 30,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 721
+      },
+      {
+        "id": 31,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 721
+      },
+      {
+        "id": 32,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 722
+      },
+      {
+        "id": 33,
+        "url": "https://www.khanacademy.org/api/{seg}/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 728
+      },
+      {
+        "id": 34,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 747
+      },
+      {
+        "id": 35,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 749
+      },
+      {
+        "id": 36,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 750
+      },
+      {
+        "id": 37,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 750
+      },
+      {
+        "id": 38,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 751
+      },
+      {
+        "id": 39,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 753
+      },
+      {
+        "id": 40,
+        "url": "https://www.khanacademy.org/api/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 777
+      },
+      {
+        "id": 41,
+        "url": "https://www.khanacademy.org/api/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 778
+      },
+      {
+        "id": 42,
+        "url": "https://www.khanacademy.org/api/{seg}/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 779
+      },
+      {
+        "id": 43,
+        "url": "https://www.khanacademy.org/api/{seg}/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 784
+      },
+      {
+        "id": 44,
+        "url": "https://www.khanacademy.org/api/{seg}/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 786
+      },
+      {
+        "id": 45,
+        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=",
+        "domain": "fonts.googleapis.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 801
+      },
+      {
+        "id": 47,
+        "url": "https://{label}.trustarc.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.trustarc.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.trustarc.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.trustarc.com"
+        },
+        "startedAtMs": 802
+      },
+      {
+        "id": 48,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 901
+      },
+      {
+        "id": 50,
+        "url": "https://{label}.trustarc.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.trustarc.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 903
+      },
+      {
+        "id": 51,
+        "url": "https://{label}.trustarc.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.trustarc.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 903
+      },
+      {
+        "id": 52,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 984
+      },
+      {
+        "id": 53,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 985
+      },
+      {
+        "id": 54,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 986
+      },
+      {
+        "id": 55,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 986
+      },
+      {
+        "id": 56,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1001
+      },
+      {
+        "id": 57,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1003
+      },
+      {
+        "id": 58,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1003
+      },
+      {
+        "id": 59,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1004
+      },
+      {
+        "id": 60,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1004
+      },
+      {
+        "id": 61,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1004
+      },
+      {
+        "id": 62,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1005
+      },
+      {
+        "id": 63,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1005
+      },
+      {
+        "id": 64,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1005
+      },
+      {
+        "id": 65,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1009
+      },
+      {
+        "id": 66,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1015
+      },
+      {
+        "id": 67,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1016
+      },
+      {
+        "id": 68,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1030
+      },
+      {
+        "id": 69,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1091
+      },
+      {
+        "id": 70,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1102
+      },
+      {
+        "id": 71,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1104
+      },
+      {
+        "id": 72,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1105
+      },
+      {
+        "id": 73,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1105
+      },
+      {
+        "id": 74,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1106
+      },
+      {
+        "id": 75,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1181
+      },
+      {
+        "id": 76,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1182
+      },
+      {
+        "id": 77,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1184
+      },
+      {
+        "id": 78,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1185
+      },
+      {
+        "id": 79,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 1185
+      },
+      {
+        "id": 80,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1208
+      },
+      {
+        "id": 81,
+        "url": "https://www.khanacademy.org/api/{seg}/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 1223
+      },
+      {
+        "id": 83,
+        "url": "https://www.khanacademy.org/api/{seg}/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 1228
+      },
+      {
+        "id": 84,
+        "url": "https://www.khanacademy.org/api/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 1228
+      },
+      {
+        "id": 85,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1261
+      },
+      {
+        "id": 86,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1264
+      },
+      {
+        "id": 87,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1387
+      },
+      {
+        "id": 88,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 1405
+      }
+    ],
+    "domains": [
+      {
+        "domain": "cdn.kastatic.org",
+        "requests": 60,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet",
+          "script",
+          "image",
+          "font"
+        ]
+      },
+      {
+        "domain": "{label}.trustarc.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr",
+          "image"
+        ]
+      },
+      {
+        "domain": "fonts.googleapis.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet"
+        ]
+      },
+      {
+        "domain": "www.khanacademy.org",
+        "requests": 19,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "font",
+          "stylesheet",
+          "script",
+          "fetch",
+          "image"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "[redacted]",
+        "domain": ".khanacademy.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".khanacademy.org",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".khanacademy.org",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted:long-token]",
+        "domain": "www.khanacademy.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted:long-token]",
+        "domain": "www.khanacademy.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.khanacademy.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.khanacademy.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.khanacademy.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.khanacademy.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 235938
+      }
+    ],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "change",
+            "input",
+            "keydown",
+            "keypress",
+            "keyup",
+            "paste"
+          ],
+          "listenerTargets": [
+            "document",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://cdn.kastatic.org/",
+            "https://{label}.trustarc.com/"
+          ],
+          "totalListenerCalls": 47
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "input",
+            "keydown",
+            "keyup",
+            "mousedown",
+            "mousemove",
+            "mouseup",
+            "pointerdown",
+            "pointermove",
+            "pointerup",
+            "scroll",
+            "selectionchange",
+            "touchmove",
+            "touchstart",
+            "visibilitychange",
+            "wheel"
+          ],
+          "listenerTargets": [
+            "body",
+            "document",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://cdn.kastatic.org/",
+            "https://{label}.trustarc.com/"
+          ],
+          "totalListenerCalls": 111
+        }
+      }
+    ],
+    "privacyPolicy": {
+      "url": "https://www.khanacademy.org/about/privacy-policy",
+      "claims": [],
+      "mentionedEntities": [],
+      "unmentionedEntities": [],
+      "policyTextLength": 29317
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "Read the site's privacy policy (https://www.khanacademy.org/about/privacy-policy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 89,
+      "after": 84,
+      "delta": -5
+    },
+    "thirdPartyRequests": {
+      "before": 68,
+      "after": 65,
+      "delta": -3
+    },
+    "knownTrackerRequests": {
+      "before": 1,
+      "after": 0,
+      "delta": -1
+    },
+    "thirdPartyDomains": {
+      "before": 4,
+      "after": 3,
+      "delta": -1
+    },
+    "cookies": {
+      "before": 9,
+      "after": 9,
+      "delta": 0
+    },
+    "thirdPartyCookies": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "storageEntries": {
+      "before": 1,
+      "after": 1,
+      "delta": 0
+    },
+    "fingerprintEvents": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [
+      {
+        "entity": "Google",
+        "requests": 1,
+        "domains": 1
+      }
+    ],
+    "addedCookies": [],
+    "removedCookies": [],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [
+      {
+        "domain": "{label}.trustarc.com",
+        "requests": 2,
+        "tracker": null,
+        "initiator": "www.khanacademy.org",
+        "script": null,
+        "injectedBy": null
+      }
+    ],
+    "removedProvenance": [
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "initiator": "www.khanacademy.org",
+        "script": null,
+        "injectedBy": null
+      }
+    ],
+    "shieldsBlockedRequests": {
+      "before": 5,
+      "after": 5,
+      "delta": 0
+    }
+  },
+  "warnings": [
+    "Brave-list blocking comparison runs should be collected under matched crawl conditions, and the blocking run is a simulation with Brave's engine and default lists in this scanner's browser, not a live Brave visit. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "The two visits ran in randomized order; the \"Brave-list blocking\" visit ran first.",
+    "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "No blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "No blocking: The page did not reach network idle before the scan window ended.",
+    "No blocking: Read the site's privacy policy (https://www.khanacademy.org/about/privacy-policy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+    "Brave-list blocking: Read the site's privacy policy (https://www.khanacademy.org/about/privacy-policy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+  ],
+  "share": {
+    "id": "20261019-436c2e9e8609e3dd39a8369c5f7bc431",
+    "path": "/reports/20261019-436c2e9e8609e3dd39a8369c5f7bc431/",
+    "jsonPath": "/reports/20261019-436c2e9e8609e3dd39a8369c5f7bc431.json"
+  }
+}

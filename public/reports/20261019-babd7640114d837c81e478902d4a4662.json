@@ -1,0 +1,2093 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Brave-list blocking off/on comparison",
+  "runLabels": {
+    "baseline": "No blocking",
+    "variant": "Brave-list blocking"
+  },
+  "requestedUrl": "https://www.google.com/",
+  "scannedAt": "2026-10-19T11:16:48.037Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 6964,
+      "firstPartyDomain": "www.google.com",
+      "totalRequests": 53,
+      "thirdPartyRequests": 2,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 1,
+      "cookies": 3,
+      "thirdPartyCookies": 0,
+      "storageEntries": 4,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 11
+    },
+    "conditions": {
+      "requestedUrl": "https://www.google.com/",
+      "finalUrl": "https://www.google.com/",
+      "scannedAt": "2026-10-19T11:16:41.055Z",
+      "chromiumVersion": "153.0.8010.12",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-10-18T18:25:24.776Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.63.0 from github-actions-ubuntu with browser 153.0.8010.12, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.google.com/",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 64
+      },
+      {
+        "id": 2,
+        "url": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 208
+      },
+      {
+        "id": 3,
+        "url": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 210
+      },
+      {
+        "id": 4,
+        "url": "https://www.gstatic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 239
+      },
+      {
+        "id": 5,
+        "url": "https://www.google.com/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 274
+      },
+      {
+        "id": 6,
+        "url": "https://www.gstatic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 292
+      },
+      {
+        "id": 7,
+        "url": "https://www.google.com/{seg}",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 293
+      },
+      {
+        "id": 8,
+        "url": "https://{label}.{label}.google.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.google.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 363
+      },
+      {
+        "id": 9,
+        "url": "https://www.google.com/{seg}",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 371
+      },
+      {
+        "id": 10,
+        "url": "https://www.google.com/{seg}",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 514
+      },
+      {
+        "id": 11,
+        "url": "https://www.google.com/{seg}",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 516
+      },
+      {
+        "id": 12,
+        "url": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 531
+      },
+      {
+        "id": 13,
+        "url": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 532
+      },
+      {
+        "id": 14,
+        "url": "https://www.google.com/{seg}",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 533
+      },
+      {
+        "id": 15,
+        "url": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 611
+      },
+      {
+        "id": 16,
+        "url": "https://www.google.com/{seg}",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 612
+      },
+      {
+        "id": 17,
+        "url": "https://www.google.com/{seg}",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 613
+      },
+      {
+        "id": 18,
+        "url": "https://www.google.com/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 614
+      },
+      {
+        "id": 19,
+        "url": "https://www.google.com/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 615
+      },
+      {
+        "id": 20,
+        "url": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 647
+      },
+      {
+        "id": 21,
+        "url": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 649
+      },
+      {
+        "id": 22,
+        "url": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 650
+      },
+      {
+        "id": 23,
+        "url": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 738
+      },
+      {
+        "id": 24,
+        "url": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 739
+      },
+      {
+        "id": 25,
+        "url": "https://www.google.com/{seg}",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 740
+      },
+      {
+        "id": 26,
+        "url": "https://www.google.com/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 741
+      },
+      {
+        "id": 27,
+        "url": "https://www.google.com/{seg}",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 747
+      },
+      {
+        "id": 28,
+        "url": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 769
+      },
+      {
+        "id": 29,
+        "url": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 770
+      },
+      {
+        "id": 30,
+        "url": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 794
+      },
+      {
+        "id": 31,
+        "url": "https://{label}.google.com/{seg}",
+        "domain": "{label}.google.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1330
+      },
+      {
+        "id": 32,
+        "url": "https://www.google.com/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 1457
+      },
+      {
+        "id": 33,
+        "url": "https://www.google.com/{seg}",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 1459
+      },
+      {
+        "id": 34,
+        "url": "https://www.google.com/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 1471
+      },
+      {
+        "id": 35,
+        "url": "https://www.google.com/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 1482
+      },
+      {
+        "id": 36,
+        "url": "https://www.google.com/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 1493
+      },
+      {
+        "id": 37,
+        "url": "https://www.google.com/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 1504
+      },
+      {
+        "id": 38,
+        "url": "https://www.google.com/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 1514
+      },
+      {
+        "id": 39,
+        "url": "https://www.google.com/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 1522
+      },
+      {
+        "id": 40,
+        "url": "https://www.google.com/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 1531
+      },
+      {
+        "id": 41,
+        "url": "https://www.google.com/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 1540
+      },
+      {
+        "id": 42,
+        "url": "https://www.google.com/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 1550
+      },
+      {
+        "id": 43,
+        "url": "https://www.google.com/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 1558
+      },
+      {
+        "id": 44,
+        "url": "https://www.google.com/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 1567
+      },
+      {
+        "id": 45,
+        "url": "https://www.google.com/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 1575
+      },
+      {
+        "id": 46,
+        "url": "https://www.google.com/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 1584
+      },
+      {
+        "id": 47,
+        "url": "https://www.google.com/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 1593
+      },
+      {
+        "id": 48,
+        "url": "https://www.google.com/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 1604
+      },
+      {
+        "id": 49,
+        "url": "https://www.google.com/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 1614
+      },
+      {
+        "id": 50,
+        "url": "https://www.google.com/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 1624
+      },
+      {
+        "id": 51,
+        "url": "https://www.google.com/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 1634
+      },
+      {
+        "id": 52,
+        "url": "https://www.google.com/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 1644
+      },
+      {
+        "id": 53,
+        "url": "https://www.google.com/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 1652
+      }
+    ],
+    "domains": [
+      {
+        "domain": "www.gstatic.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "stylesheet"
+        ]
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 49,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "script",
+          "xhr",
+          "ping",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.google.com",
+        "requests": 1,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "{label}.google.com",
+        "requests": 1,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "[redacted]",
+        "domain": ".google.com",
+        "path": "/",
+        "sameSite": "Strict",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "AEC",
+        "domain": ".google.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "NID",
+        "domain": ".google.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 1031
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 131
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 23
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 24
+      }
+    ],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "keydown",
+            "keyup"
+          ],
+          "listenerTargets": [
+            "document",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://www.gstatic.com/"
+          ],
+          "totalListenerCalls": 12
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "keydown",
+            "keyup",
+            "mousemove",
+            "visibilitychange"
+          ],
+          "listenerTargets": [
+            "document",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://www.gstatic.com/"
+          ],
+          "totalListenerCalls": 18
+        }
+      }
+    ],
+    "privacyPolicy": {
+      "url": "https://{label}.google.com/privacy",
+      "claims": [],
+      "mentionedEntities": [],
+      "unmentionedEntities": [],
+      "policyTextLength": 66797
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "This scan typed a synthetic test value into 1 form field with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored. Observed requests during typing and the following wait are included in the request log. Teardown-only transmissions are not measured.",
+      "Read the site's privacy policy (https://{label}.google.com/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 6853,
+      "firstPartyDomain": "www.google.com",
+      "totalRequests": 44,
+      "thirdPartyRequests": 4,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 2,
+      "cookies": 3,
+      "thirdPartyCookies": 0,
+      "storageEntries": 4,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 13
+    },
+    "conditions": {
+      "requestedUrl": "https://www.google.com/",
+      "finalUrl": "https://www.google.com/",
+      "scannedAt": "2026-10-19T11:16:48.037Z",
+      "chromiumVersion": "153.0.8010.12",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-10-18T18:25:24.776Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.63.0 from github-actions-ubuntu with browser 153.0.8010.12, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.google.com/",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 72
+      },
+      {
+        "id": 2,
+        "url": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 205
+      },
+      {
+        "id": 3,
+        "url": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 210
+      },
+      {
+        "id": 5,
+        "url": "https://www.gstatic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 217
+      },
+      {
+        "id": 6,
+        "url": "https://www.google.com/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 247
+      },
+      {
+        "id": 7,
+        "url": "https://www.gstatic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 260
+      },
+      {
+        "id": 9,
+        "url": "https://{label}.{label}.google.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.google.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 312
+      },
+      {
+        "id": 13,
+        "url": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 475
+      },
+      {
+        "id": 14,
+        "url": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 477
+      },
+      {
+        "id": 16,
+        "url": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 555
+      },
+      {
+        "id": 19,
+        "url": "https://www.google.com/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 559
+      },
+      {
+        "id": 20,
+        "url": "https://www.google.com/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 560
+      },
+      {
+        "id": 21,
+        "url": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 580
+      },
+      {
+        "id": 22,
+        "url": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 581
+      },
+      {
+        "id": 23,
+        "url": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 583
+      },
+      {
+        "id": 24,
+        "url": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 661
+      },
+      {
+        "id": 25,
+        "url": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 662
+      },
+      {
+        "id": 27,
+        "url": "https://www.google.com/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 664
+      },
+      {
+        "id": 29,
+        "url": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 687
+      },
+      {
+        "id": 30,
+        "url": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 689
+      },
+      {
+        "id": 31,
+        "url": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 704
+      },
+      {
+        "id": 33,
+        "url": "https://www.google.com/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 1360
+      },
+      {
+        "id": 35,
+        "url": "https://www.google.com/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 1375
+      },
+      {
+        "id": 36,
+        "url": "https://www.google.com/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 1385
+      },
+      {
+        "id": 37,
+        "url": "https://www.google.com/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 1394
+      },
+      {
+        "id": 38,
+        "url": "https://www.google.com/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 1406
+      },
+      {
+        "id": 39,
+        "url": "https://www.google.com/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 1417
+      },
+      {
+        "id": 40,
+        "url": "https://{label}.gstatic.com/{seg}?q=&%5Bredacted%5D=",
+        "domain": "{label}.gstatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1438
+      },
+      {
+        "id": 41,
+        "url": "https://{label}.gstatic.com/{seg}?q=&%5Bredacted%5D=",
+        "domain": "{label}.gstatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1438
+      },
+      {
+        "id": 42,
+        "url": "https://www.google.com/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 1446
+      },
+      {
+        "id": 43,
+        "url": "https://www.google.com/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 1464
+      },
+      {
+        "id": 44,
+        "url": "https://www.google.com/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 1479
+      },
+      {
+        "id": 45,
+        "url": "https://www.google.com/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 1490
+      },
+      {
+        "id": 46,
+        "url": "https://www.google.com/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 1498
+      },
+      {
+        "id": 47,
+        "url": "https://www.google.com/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 1513
+      },
+      {
+        "id": 48,
+        "url": "https://www.google.com/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 1527
+      },
+      {
+        "id": 49,
+        "url": "https://www.google.com/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 1538
+      },
+      {
+        "id": 50,
+        "url": "https://www.google.com/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 1547
+      },
+      {
+        "id": 51,
+        "url": "https://www.google.com/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 1556
+      },
+      {
+        "id": 52,
+        "url": "https://www.google.com/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 1564
+      },
+      {
+        "id": 53,
+        "url": "https://www.google.com/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 1573
+      },
+      {
+        "id": 54,
+        "url": "https://www.google.com/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 1581
+      },
+      {
+        "id": 55,
+        "url": "https://www.google.com/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 1589
+      },
+      {
+        "id": 56,
+        "url": "https://www.google.com/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 1597
+      }
+    ],
+    "domains": [
+      {
+        "domain": "www.gstatic.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "stylesheet"
+        ]
+      },
+      {
+        "domain": "{label}.gstatic.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 39,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "script",
+          "xhr",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.google.com",
+        "requests": 1,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "[redacted]",
+        "domain": ".google.com",
+        "path": "/",
+        "sameSite": "Strict",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "AEC",
+        "domain": ".google.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "NID",
+        "domain": ".google.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 893
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 23
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 131
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 24
+      }
+    ],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "keydown",
+            "keyup"
+          ],
+          "listenerTargets": [
+            "document",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://www.gstatic.com/"
+          ],
+          "totalListenerCalls": 12
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "keydown",
+            "keyup",
+            "mousemove",
+            "visibilitychange"
+          ],
+          "listenerTargets": [
+            "document",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://www.gstatic.com/"
+          ],
+          "totalListenerCalls": 18
+        }
+      }
+    ],
+    "privacyPolicy": {
+      "url": "https://{label}.google.com/privacy",
+      "claims": [],
+      "mentionedEntities": [],
+      "unmentionedEntities": [],
+      "policyTextLength": 66797
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "This scan typed a synthetic test value into 1 form field with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored. Observed requests during typing and the following wait are included in the request log. Teardown-only transmissions are not measured.",
+      "Read the site's privacy policy (https://{label}.google.com/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 53,
+      "after": 44,
+      "delta": -9
+    },
+    "thirdPartyRequests": {
+      "before": 2,
+      "after": 4,
+      "delta": 2
+    },
+    "knownTrackerRequests": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "thirdPartyDomains": {
+      "before": 1,
+      "after": 2,
+      "delta": 1
+    },
+    "cookies": {
+      "before": 3,
+      "after": 3,
+      "delta": 0
+    },
+    "thirdPartyCookies": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "storageEntries": {
+      "before": 4,
+      "after": 4,
+      "delta": 0
+    },
+    "fingerprintEvents": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "addedDomains": [
+      {
+        "domain": "{label}.gstatic.com",
+        "requests": 2,
+        "tracker": null
+      }
+    ],
+    "removedDomains": [
+      {
+        "domain": "{label}.google.com",
+        "requests": 1,
+        "tracker": null
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [],
+    "addedCookies": [],
+    "removedCookies": [],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [],
+    "removedProvenance": [],
+    "shieldsBlockedRequests": {
+      "before": 11,
+      "after": 13,
+      "delta": 2
+    }
+  },
+  "warnings": [
+    "Brave-list blocking comparison runs should be collected under matched crawl conditions, and the blocking run is a simulation with Brave's engine and default lists in this scanner's browser, not a live Brave visit. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "The two visits ran in randomized order; the \"No blocking\" visit ran first.",
+    "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "No blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "No blocking: This scan typed a synthetic test value into 1 form field with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored. Observed requests during typing and the following wait are included in the request log. Teardown-only transmissions are not measured.",
+    "No blocking: Read the site's privacy policy (https://{label}.google.com/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+    "Brave-list blocking: This scan typed a synthetic test value into 1 form field with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored. Observed requests during typing and the following wait are included in the request log. Teardown-only transmissions are not measured.",
+    "Brave-list blocking: Read the site's privacy policy (https://{label}.google.com/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+  ],
+  "share": {
+    "id": "20261019-babd7640114d837c81e478902d4a4662",
+    "path": "/reports/20261019-babd7640114d837c81e478902d4a4662/",
+    "jsonPath": "/reports/20261019-babd7640114d837c81e478902d4a4662.json"
+  }
+}
