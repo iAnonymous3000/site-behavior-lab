@@ -9,7 +9,7 @@ import type { RunFacts } from "@/lib/report-facts";
 import { safeNavigableHttpUrl } from "@/lib/report-url";
 import { displayHost, displayPublicUrl } from "@/lib/text-format";
 import {
-  schemaProvenanceLabel,
+  reportFormatChip,
   type ReportView
 } from "@/lib/scan-report-views";
 import type { ReportShare } from "@/lib/types";
@@ -44,6 +44,7 @@ export function ReportHeader({
   pdfExportQuery?: string;
 }) {
   const run = runFacts.run;
+  const formatChip = reportFormatChip(view);
   const sharePath = reportSharePath(share, liveApiServesReportPages);
   const pdfHref = reportPdfHref(share, liveApiServesReportPages);
   // Keep the rendered anchor origin-relative for static prerendering, but make
@@ -111,7 +112,7 @@ export function ReportHeader({
       <div>
         <p className="eyebrow">
           {view.reportType === "comparison" ? "Comparison Report" : "Scan Report"}
-          <span className="report-provenance">{schemaProvenanceLabel(view)}</span>
+          {formatChip && <span className="report-provenance">{formatChip}</span>}
           {selectedRequestEvidence !== "complete" && (
             <span
               aria-describedby="request-evidence-explanation"

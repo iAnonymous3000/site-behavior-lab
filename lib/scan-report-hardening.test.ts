@@ -4,6 +4,8 @@
  * reject-on-read, hardened v1 boundary, and the consumer seam.
  */
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { test } from "node:test";
 import {
   makeEphemeralSingleReport,
@@ -21,6 +23,7 @@ import {
   familyCensoredOnRun,
   publicWireForExportOrPersistence,
   readScanTransportPayload,
+  reportFormatChip,
   requestEvidenceState,
   runHitRequestRecordingCap,
   schemaProvenanceLabel,
@@ -698,6 +701,35 @@ test("schema provenance and run quality read as honest human labels", () => {
 
   const r2 = viewFromV2(makeGpcInterventionReportV2R2(), 2);
   assert.equal(schemaProvenanceLabel(r2), "v2 schema (r2)");
+});
+
+test("the report header chip states the format caveats in reader words", () => {
+  // RFC 10.1 and 15.7: a legacy-derived report must say its facts were not
+  // recorded and that it is descriptive, and an r1 report that it is limited.
+  const v1 = readStoredScanReport(makeScanReportV1());
+  assert.equal(v1.ok, true);
+  if (v1.ok) {
+    assert.equal(reportFormatChip(toReportView(v1.stored)), "Older format: some facts reconstructed, descriptive only");
+  }
+  const r1 = readStoredScanReport(makePublicSingleReportV2());
+  assert.equal(r1.ok, true);
+  if (r1.ok) assert.equal(reportFormatChip(toReportView(r1.stored)), "Earlier format: limited, descriptive only");
+  assert.equal(reportFormatChip(viewFromV2(makeGpcInterventionReportV2R2(), 2)), null);
+
+  // The chip leads both report headers; the precise label stays in the
+  // receipt's and the methodology block's Schema fields.
+  const source = (file: string) => readFileSync(path.join(process.cwd(), file), "utf8");
+  const context = source("app/_components/report-page-context.tsx");
+  const header = source("app/_components/report-header.tsx");
+  for (const [file, contents] of [["report-page-context.tsx", context], ["report-header.tsx", header]]) {
+    assert.match(contents, /\{formatChip && <span className="report-provenance">\{formatChip\}<\/span>\}/, file);
+    assert.doesNotMatch(contents, /className="report-provenance">\{schemaProvenanceLabel/, file);
+  }
+  assert.match(context, /<ReceiptFact term="Schema"><span>\{schemaProvenanceLabel\(view\)\}<\/span><\/ReceiptFact>/);
+  assert.match(
+    source("app/_components/report-renderer.tsx"),
+    /<div><dt>Schema<\/dt><dd>\{schemaProvenanceLabel\(reportView\)\}<\/dd><\/div>/
+  );
 });
 
 /**

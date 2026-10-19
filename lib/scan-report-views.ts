@@ -1607,6 +1607,23 @@ export function schemaProvenanceLabel(view: ReportView): string {
 }
 
 /**
+ * The same caveats in reader words, for the chip beside a report's eyebrow.
+ *
+ * The header used to lead with `schemaProvenanceLabel`, so 966 committed
+ * reports opened on "v1 schema · facts legacy-derived · descriptive report":
+ * a wire generation and a derivation term a non-expert cannot read. The chip
+ * still says what RFC 10.1 and 15.7 require the UI to carry (some facts were
+ * reconstructed rather than recorded, and the report is descriptive or
+ * limited), and the precise label stays in the Schema fields. A current r2
+ * report has no caveat to state, so it gets no chip.
+ */
+export function reportFormatChip(view: ReportView): string | null {
+  if (view.origin === "legacy-derived") return "Older format: some facts reconstructed, descriptive only";
+  if (view.revision === 1) return "Earlier format: limited, descriptive only";
+  return null;
+}
+
+/**
  * The run a report page leads with: the newer run for pairs DESIGNED as
  * before/after observations, the baseline (off / unprotected) run otherwise.
  * Keyed on the explicit `temporalPair` design marker, never on "axis is

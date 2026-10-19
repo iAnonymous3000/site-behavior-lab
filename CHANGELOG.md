@@ -9,6 +9,17 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- A report's header names its format in plain words. The chip beside a v1
+  report's eyebrow read "v1 schema · facts legacy-derived · descriptive
+  report", which names a wire generation and a derivation step rather than
+  what they mean for a reader. It now reads "Older format: some facts
+  reconstructed, descriptive only", and an r1 report's reads "Earlier format:
+  limited, descriptive only" (no committed report is r1). Both still state
+  what RFC 10.1 and 15.7 require the interface to carry, and the precise label
+  stays in the evidence receipt's and the methodology block's Schema fields. A
+  current r2 report has no caveat to state, so its header carries no chip.
+  This changes the rendered header of all 1,029 committed reports at a1686ebe
+  (966 v1 and 63 r2); no stored report changes.
 - Every comparison report now says which visit ran first, or that the order
   was not recorded. The order was recorded but easy to miss or not shown at
   all: a v1 report carried it as one row among its measurement caveats, and

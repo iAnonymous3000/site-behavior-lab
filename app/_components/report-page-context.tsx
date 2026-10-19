@@ -17,6 +17,7 @@ import {
   completedVisitsPhrase,
   displayRunView,
   reportDetectorScope,
+  reportFormatChip,
   runVisitLabel,
   schemaProvenanceLabel,
   type ReportView,
@@ -61,6 +62,7 @@ export function ReportPageContext({
   const activation = reportActivation({ id, reportUrl, siteHistoryAvailable: permanent, view });
   const degradedNotice = degradedRunNotice(view);
   const run = displayRunView(view);
+  const formatChip = reportFormatChip(view);
   const profileHref = activation.profilePath
     ? `${sitePagesBasePath()}${activation.profilePath}/`
     : null;
@@ -89,7 +91,7 @@ export function ReportPageContext({
               timestamp and run quality that follow all come from the display
               run, so a pair count here would caption one visit with two. */}
           <p className="eyebrow">
-            {runVisitLabel(run)} <span className="report-provenance">{schemaProvenanceLabel(view)}</span>
+            {runVisitLabel(run)} {formatChip && <span className="report-provenance">{formatChip}</span>}
           </p>
           <h1>{displayHost(run.domain)}</h1>
           <p className="report-url">
