@@ -28,6 +28,7 @@ const ROUTE_FILES_WITH_OWN_CHROME = [
   "app/directory/directory-index.tsx",
   "app/glossary/page.tsx",
   "app/methodology/page.tsx",
+  "app/not-found.tsx",
   "app/privacy/page.tsx",
   "app/security/page.tsx",
   "app/sites/[domain]/page.tsx",
@@ -559,6 +560,26 @@ test("the 404 page carries its own metadata instead of inheriting the home page'
   assert.match(notFound, /export const metadata: Metadata = \{/);
   assert.match(notFound, /title: "Report or page not available"/);
   assert.match(notFound, /robots: \{ index: false/);
+});
+
+test("the share retention a reader is told comes from the store's own default", () => {
+  // An expired share link is the usual way a reader reaches the 404, which
+  // used to say a link "may be expired" without saying when links expire. The
+  // privacy page stated the number from a hand copy of the store's constant.
+  const declaration = source("lib/report-share-retention.ts");
+  assert.match(declaration, /^export const DEFAULT_REPORT_MAX_AGE_DAYS = \d+;$/m);
+  assert.doesNotMatch(declaration, /^import /m, "an import here would pull it into every page that states it");
+  assert.match(source("lib/report-store.ts"), /import \{ DEFAULT_REPORT_MAX_AGE_DAYS \} from "\.\/report-share-retention";/);
+  assert.doesNotMatch(source("lib/report-store.ts"), /const DEFAULT_REPORT_MAX_AGE_DAYS/);
+  for (const [file, sentence] of [
+    ["app/not-found.tsx", /Shared links to live scan reports expire after about \{DEFAULT_REPORT_MAX_AGE_DAYS\} days on the reference\s+deployment\./],
+    ["app/privacy/page.tsx", /expire after about \{DEFAULT_REPORT_MAX_AGE_DAYS\} days<\/strong> on the reference deployment/]
+  ] as const) {
+    const contents = source(file);
+    assert.match(contents, /import \{ DEFAULT_REPORT_MAX_AGE_DAYS \} from "@\/lib\/report-share-retention";/, file);
+    assert.match(contents, sentence, file);
+    assert.doesNotMatch(contents, /expire after about (?:<[^>]+>)?\d+ days/, `${file} states the share retention by hand`);
+  }
 });
 
 test("scan failures and evidence-load failures relocate keyboard focus", () => {

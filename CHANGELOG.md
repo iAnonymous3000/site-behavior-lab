@@ -32,6 +32,12 @@ public API or a 1.0 release.
   the card ranks against a cohort. This changes the rendered text of 880 of
   the 1,029 committed reports at a1686ebe and drops nothing from the page; no
   stored report changes.
+- The unavailable-report page renders in the site shell, so a reader who
+  follows an expired or mistyped link keeps the navigation, the footer and
+  the skip link, and it says that shared links to live scan reports expire
+  after about 7 days on the reference deployment. The number comes from
+  lib/report-share-retention.ts, which the report store uses as its default
+  and the privacy page now reads instead of a hand copy. No report changes.
 - Every comparison report now says which visit ran first, or that the order
   was not recorded. The order was recorded but easy to miss or not shown at
   all: a v1 report carried it as one row among its measurement caveats, and

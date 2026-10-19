@@ -26,12 +26,12 @@ import {
 } from "./report-store-backend";
 import { R2_LIST_MAX_HEAD_CANDIDATES, ReportStoreRequestTimeoutError } from "./report-store-r2";
 import type { ReportResourceViolation } from "./report-resource-policy";
+import { DEFAULT_REPORT_MAX_AGE_DAYS } from "./report-share-retention";
 import { REPORT_ID_PATTERN } from "./report-validation";
 import type { ReadStoredScanReportError, StoredScanReport } from "./scan-report-reader";
 import { sha256Hex } from "./sha256";
 import type { ReportShare, ScanReport } from "./types";
 
-const DEFAULT_REPORT_MAX_AGE_DAYS = 7;
 /**
  * The R2 bucket's own `reports-retention-backstop-8d` lifecycle rule, in days.
  *
