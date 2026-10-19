@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { copyFile, mkdtemp, readFile, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 import { readLoadedReport } from "../client-report-reader";
@@ -186,6 +187,9 @@ test("every committed bundle stays faithful across every public report surface",
 
   await assertCorpusProjection(bundles, corpus);
   await assertManifestProjection(reportsDir, bundles);
+  // Last, after the corpus counters, so its notes and markers cannot stand in
+  // for a committed zero.
+  await assertFrozenFailedLeadRun(corpus);
 });
 
 async function readProductionCorpusStats(): Promise<CorpusStats> {
@@ -194,6 +198,54 @@ async function readProductionCorpusStats(): Promise<CorpusStats> {
   );
   assert.equal(isCorpusStats(value), true, "the committed production corpus stats must be readable");
   return value as CorpusStats;
+}
+
+// Retention decides whether the committed corpus still holds a report whose
+// lead visit failed. The last six (HTTP 401, 403 and 429 refusals scanned on
+// July 2 and 6; none newer was published) are retired by the October 19
+// gallery refresh. One of them is frozen with its provenance sidecar under
+// test-fixtures/reports, byte for byte as published, so a real failed lead
+// visit always runs the managed bundle reader, presentation consistency and
+// JSON-LD fidelity checks a committed bundle gets, then the manifest
+// projection, built from a directory holding only that bundle, where its
+// request evidence must read incomplete. Every committed failed lead row still
+// runs the corpus export check.
+const FROZEN_FAILED_LEAD_REPORT_ID = "20260706-63cc447d3ff3e2cd01aad0a7613831b2";
+
+async function assertFrozenFailedLeadRun(corpus: CorpusStats): Promise<void> {
+  const id = FROZEN_FAILED_LEAD_REPORT_ID;
+  const reportsDir = await mkdtemp(path.join(tmpdir(), "sbl-failed-lead-"));
+  try {
+    for (const name of [`${id}.json`, `${id}.provenance.json`]) {
+      await copyFile(path.join(process.cwd(), "test-fixtures", "reports", name), path.join(reportsDir, name));
+    }
+    const managed = await readStaticReportBundle(reportsDir, id);
+    assert.equal(managed.outcome, "found", `${id}: frozen managed bundle reader`);
+    if (managed.outcome !== "found") return;
+    const loaded = loadedReportFromStored(managed.stored);
+    const lead = displayRunView(loaded.view);
+    // Pinned literally, so a swapped fixture cannot pass by agreeing with itself.
+    assert.equal(lead.quality.outcome, "failed", `${id}: frozen lead visit outcome`);
+    assert.equal(lead.status, 401, `${id}: frozen lead visit status`);
+    const presentation = validateReportPresentation(loaded.view, corpus);
+    assert.deepEqual(presentation.violations, [], `${id}: presentation consistency contradictions`);
+    assertJsonLdFidelity(id, loaded.view, presentation);
+    const bundle: AcceptedBundle = {
+      id,
+      stored: managed.stored,
+      wire: managed.wire,
+      view: loaded.view,
+      presentation
+    };
+    assert.equal(
+      expectedManifestEntry(bundle)?.requestEvidenceComplete,
+      false,
+      `${id}: a failed lead visit's request evidence must read incomplete`
+    );
+    await assertManifestProjection(reportsDir, [bundle]);
+  } finally {
+    await rm(reportsDir, { recursive: true, force: true });
+  }
 }
 
 /** Subject URLs carrying a redaction marker, counted so the marker rule cannot pass vacuously. */
@@ -364,7 +416,6 @@ async function assertCorpusProjection(bundles: AcceptedBundle[], corpus: CorpusS
   );
 
   const bundleById = new Map(publicBundles.map((bundle) => [bundle.id, bundle]));
-  let failedLeadRows = 0;
   for (const row of rows) {
     const bundle = bundleById.get(row.id);
     assert.ok(bundle, `${row.id}: corpus row has no committed bundle`);
@@ -427,7 +478,6 @@ async function assertCorpusProjection(bundles: AcceptedBundle[], corpus: CorpusS
     // of family censoring. Restated here rather than read from the helper so
     // the two cannot agree by construction.
     const runFailed = run.quality.outcome === "failed";
-    if (runFailed) failedLeadRows += 1;
     assert.equal(
       row.requestEvidenceComplete,
       !runFailed && !familyCensoredOnRun(run, "requests"),
@@ -484,7 +534,6 @@ async function assertCorpusProjection(bundles: AcceptedBundle[], corpus: CorpusS
     assert.equal(row.reportUrl, `${SITE_ORIGIN}/reports/${row.id}/`, `${row.id}: corpus report URL`);
     assert.equal(row.jsonUrl, `${SITE_ORIGIN}/reports/${row.id}.json`, `${row.id}: corpus JSON URL`);
   }
-  assert.ok(failedLeadRows > 0, "the completeness rule for failed visits must be exercised by a real failed lead run");
 
   const expectedCounts = independentCorpusSiteCounts(publicBundles);
   assert.equal(overview.attemptedSiteCount, expectedCounts.attempted, "corpus attempted-site count");
