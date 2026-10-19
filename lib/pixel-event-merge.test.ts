@@ -81,7 +81,7 @@ test("a v2 pixel that fired in two phases is one platform on every reader surfac
     pixel.lead,
     "Meta Pixel attached populated personal-identifier fields (email and external ID) to requests observed in this visit."
   );
-  assert.equal(pixel.evidence, "Meta Pixel: Lead and PageView; identifiers email and external ID (3 requests)");
+  assert.equal(pixel.evidence, "Meta Pixel: Lead and PageView; identifiers email and external ID (3 requests).");
 
   const policy = findings.find((finding) => finding.id === "privacy-policy");
   assert.ok(policy);

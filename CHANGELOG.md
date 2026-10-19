@@ -9,6 +9,28 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- No findings-card sentence runs past 30 words, the length of the bottom-line
+  card's method sentence. The 35-word pass left sentences of 31 to 35 words:
+  the Brave Shields filter-list card's detail on 1,023 of the 1,029 committed
+  reports, the privacy-policy card's leads where no policy text was compared
+  and its lead naming companies the policy does not, and the consent-banner
+  and Brave-list comparison caveats. Each is now two sentences, and every
+  clause, caveat and count still renders. A card that names a list now names
+  it in sentences of its own, so no list can carry a sentence past the limit:
+  each DNS alias, pixel and unclassified service has a sentence, and the
+  keystroke card's lead states how many domains received the test value, then
+  names them and the encodings. A sentence that follows a list no longer opens
+  with a numeral. Branches no committed report reaches were split too, among
+  them a consent framework endpoint with no tracker, a GPC pair that moved
+  every metric and a listener lead naming all ten event categories. The
+  consent card's Reject-all lead names that visit as its title does, so three
+  long service names that recorded no response stay within the limit. The test
+  that builds every committed report's cards fails on any sentence over 30
+  words, and fixtures built from the catalog's longest names, every keystroke
+  encoding and every identifier label hold each list template under it. This
+  changes the rendered text of 1,023 of the 1,029 committed reports at
+  7ceac3be. No stored report changes and no claim is corrected, so it takes no
+  corrections event.
 - A comparison report's permalink says which visit ran first, or that the
   order was not recorded, before the evidence explorer opens and without
   JavaScript. The line added for the comparison section reached a permalink

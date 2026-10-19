@@ -554,9 +554,15 @@ export function buildFindings(
     operationalNames.length > 0
       ? ` The role taxonomy assigns these additional services explicitly non-tracking operational, support, security, consent-management, or hosting roles: ${humanList(operationalNames)}.`
       : "";
+  // One sentence per service: as a list after the colon, three names ran this
+  // explanation past 30 words.
   const unclassifiedNote =
     unclassifiedNames.length > 0
-      ? ` The role taxonomy leaves at least one catalog category unclassified for these identified services and assigns none a tracking-related role, so they are not counted as tracking-related: ${humanList(unclassifiedNames)}.`
+      ? ` The role taxonomy leaves at least one catalog category unclassified for these identified services and assigns none a tracking-related role, so they are not counted as tracking-related. ${sentenceSequence(
+          unclassifiedNames.map((name) => `Unclassified service: ${name}`),
+          3,
+          (count) => `Plus ${plural(count, "other unclassified service")}.`
+        )}`
       : "";
   // Opens with words, not the count: a sentence that starts with a numeral
   // reads as a continuation of the one before it.
@@ -570,7 +576,7 @@ export function buildFindings(
   const sessionReplayNames = facts.signals.fingerprint.sessionReplayNames;
   const sessionReplayNote =
     sessionReplayNames.length > 0
-      ? ` Catalog labels include session-replay or behavior-analytics services: ${humanList(sessionReplayNames)}; the domain match alone does not prove that a recording occurred.`
+      ? ` Catalog labels include session-replay or behavior-analytics services: ${humanList(sessionReplayNames)}. The domain match alone does not prove that a recording occurred.`
       : "";
 
   // Major-platform findings are request-row claims. Domain/entity summaries
@@ -672,15 +678,22 @@ export function buildFindings(
     const sameOrganizationRecipients = keystrokeDetection.evidence.recipients.filter(
       (recipient) => reviewedOwnershipRelationship(run.domain, recipient).kind === "same-organization"
     );
+    // Opens with words, not the count, like sameOrganizationNote.
     const recipientOwnershipNote =
       sameOrganizationRecipients.length > 0
-        ? ` ${plural(
-            sameOrganizationRecipients.length,
-            "recipient domain"
-          )} ${
+        ? ` Of the recipient domains, ${sameOrganizationRecipients.length.toLocaleString("en-US")} ${
             sameOrganizationRecipients.length === 1 ? "belongs" : "belong"
           } to the site's same reviewed organization, so that portion is not disclosure to an outside company.`
         : "";
+    // The recipients and encodings are named in sentences of their own: inside
+    // the lead's one sentence, three of each ran it to about 38 words. Both
+    // lists hold single tokens capped at three plus a count, so neither
+    // sentence grows with its list.
+    const namedRecipientsAndEncodings = ` ${
+      keystrokeDetection.evidence.recipients.length === 1 ? "Recipient" : "Recipients"
+    }: ${recipients}. ${keystrokeDetection.evidence.encodings.length === 1 ? "Encoding" : "Encodings"}: ${humanList(
+      keystrokeDetection.evidence.encodings
+    )}.`;
     const fields = plural(keystrokeDetection.evidence.fieldsTyped, "form field");
     // A one-way hash is a stronger transformation signal and retains the loud
     // level, but neither encoding nor this frozen summary proves recipient
@@ -694,8 +707,8 @@ export function buildFindings(
         ? `A hashed form of synthetic input reached ${recipientCount} before submission`
         : `Synthetic form input reached ${recipientCount} before submission`,
       lead: hashed
-        ? `When the scanner typed a unique test value into ${fields}, a one-way hash of that value appeared in requests to ${recipients} (${humanList(keystrokeDetection.evidence.encodings)}) without the form being submitted.`
-        : `When the scanner typed a unique test value into ${fields}, that value appeared in requests to ${recipients} (${humanList(keystrokeDetection.evidence.encodings)}) without the form being submitted.`,
+        ? `When the scanner typed a unique test value into ${fields}, a one-way hash of that value appeared in requests to ${recipientCount} without the form being submitted.${namedRecipientsAndEncodings}`
+        : `When the scanner typed a unique test value into ${fields}, that value appeared in requests to ${recipientCount} without the form being submitted.${namedRecipientsAndEncodings}`,
       detail: hashed
         ? `The synthetic value was hashed (${humanList(
             keystrokeDetection.evidence.encodings
@@ -720,15 +733,19 @@ export function buildFindings(
         trackingCnameNames.length > 0
           ? `Recorded DNS aliases resolve to catalogued tracking-related services: ${humanList(trackingCnameNames)}.`
           : "",
+        // Opens with words, not the count: after the names, a sentence that
+        // starts with a numeral reads as part of the one before it.
         listMatches.length > 0
-          ? `${plural(listMatches.length, "resolved target")} matched Brave filter lists; those matches do not identify the operators.`
+          ? `Of the resolved targets, ${listMatches.length.toLocaleString("en-US")} matched Brave filter lists; those matches do not identify the operators.`
           : ""
       ].filter(Boolean).join(" "),
       detail:
         "The scanner followed DNS CNAME chains from first-party subdomains and checked resolved targets against the service catalog and Brave filter lists. These matches do not establish a request's purpose, profiling, or an intent to conceal tracking. A filter-list match alone is not a verified service identity or proof of tracking.",
-      evidence: humanList(
-        cnameCloaks.map((cloak) => `${dnsAliasText(cloak)} (${cloak.tracker.confidence === "curated" ? `${cloak.tracker.entity}; catalog match` : "Brave filter-list match; operator unverified"})`),
-        4
+      // One sentence per alias: four of them in one list ran to 34 words.
+      evidence: sentenceSequence(
+        cnameCloaks.map((cloak) => `DNS alias: ${dnsAliasText(cloak)} (${cloak.tracker.confidence === "curated" ? `${cloak.tracker.entity}; catalog match` : "Brave filter-list match; operator unverified"})`),
+        4,
+        (count) => `Plus ${plural(count, "other DNS alias", "other DNS aliases")}.`
       ),
       claim: findingClaim(facts, "cname-cloaking", "presence")
     });
@@ -767,7 +784,9 @@ export function buildFindings(
               ? "A consent management platform answered"
               : "A consent management platform was requested",
       // The tracker count is a sentence of its own: after the platform phrase,
-      // the lead ran 39 words, and about 55 with a framework endpoint's.
+      // the lead ran 39 words, and about 55 with a framework endpoint's. With
+      // no tracker, the timing is its own sentence: a framework endpoint's
+      // phrase ran that lead to 35 words.
       lead:
         preConsentTrackers > 0
           ? `${visibleDomain} sent a request to ${consentPlatformPhrase}. The request log included ${retainedCountPhrase(
@@ -782,11 +801,11 @@ export function buildFindings(
                   ? "; none of the retained matches recorded a response before collection stopped"
                   : "; none recorded a response"
             }.`
-          : `${visibleDomain} sent a request to ${consentPlatformPhrase}, before the scanner made any consent choice.${
+          : `${visibleDomain} sent a request to ${consentPlatformPhrase}. The request came before the scanner made any consent choice.${
               frameworkEndpoint ? " This scan could not name the platform that served it." : ""
             } Tracker-service observations are reported separately so this positive tooling signal does not imply an absence.`,
       detail:
-        'A request to the platform\'s loader proves the page attempted to fetch consent tooling; an observed response supports delivery, but neither fact proves a banner was visibly shown to this scanner. Banner display can vary by region and visit context. The scanner never clicks a banner in this mode, so this report records requests made before the scanner made a consent choice. It does not determine whether any request required consent or whether the site\'s behavior complied with applicable law. More tracking-service entities or requests may appear after "Accept" than this report captures, so the counts here are lower bounds for users who consent.',
+        'A request to the platform\'s loader proves the page attempted to fetch consent tooling. An observed response supports delivery, but neither fact proves a banner was visibly shown to this scanner. Banner display can vary by region and visit context. The scanner never clicks a banner in this mode, so this report records requests made before the scanner made a consent choice. It does not determine whether any request required consent or whether the site\'s behavior complied with applicable law. More tracking-service entities or requests may appear after "Accept" than this report captures, so the counts here are lower bounds for users who consent.',
       evidence: `${
         frameworkEndpoint ? "Consent framework endpoint" : "Consent platform"
       } detected via a request to ${displayHost(consentPlatform.domain)}.`,
@@ -811,8 +830,8 @@ export function buildFindings(
       methodology: true,
       level: "info",
       title: "Privacy-policy cross-check not established",
-      lead: `The page this scan read as the privacy policy held ${policy.policyTextLength.toLocaleString()} characters of text, short enough to be the page before its policy loaded, so no policy text was compared against this visit's evidence. That is a limit of the automated check, not a finding about the site either way.`,
-      detail: "The scanner that recorded this visit read a policy page a fixed second after it began loading. Some pages render their policy later, and some had requests refused by the scan's own traffic budget, so a short read can be the page around a policy that never arrived. Company mentions and policy statements recorded from it are not used; later scanner versions wait for the page to settle and withhold such a read.",
+      lead: `The page this scan read as the privacy policy held ${policy.policyTextLength.toLocaleString()} characters of text, short enough to be the page before its policy loaded. As a result, no policy text was compared against this visit's evidence. That is a limit of the automated check, not a finding about the site either way.`,
+      detail: "The scanner that recorded this visit read a policy page a fixed second after it began loading. Some pages render their policy later, and some had requests refused by the scan's own traffic budget. A short read can therefore be the page around a policy that never arrived. Company mentions and policy statements recorded from it are not used; later scanner versions wait for the page to settle and withhold such a read.",
       evidence: `Page recorded as the policy: ${displayPublicUrl(policy.url)} (${plural(policy.policyTextLength, "character")} of text); no policy text compared.`,
       claim: findingClaim(facts, "privacy-policy", "unavailable")
     });
@@ -832,8 +851,8 @@ export function buildFindings(
       methodology: true,
       level: "info",
       title: "Privacy-policy cross-check not established",
-      lead: "The page this scan recorded as the privacy policy is a homepage (the root of its site), not a policy document, so no policy text was compared against this visit's evidence. That is a limit of the automated check, not a finding about the site either way.",
-      detail: `The scanner that recorded this visit read whatever document the page's privacy-policy link led to; here that was a site root, for example because the link redirected to or pointed at the homepage. Company mentions and policy statements recorded from that text are not used.${
+      lead: "The page this scan recorded as the privacy policy is a homepage (the root of its site), not a policy document. As a result, no policy text was compared against this visit's evidence. That is a limit of the automated check, not a finding about the site either way.",
+      detail: `The scanner that recorded this visit read whatever document the page's privacy-policy link led to. Here that was a site root, for example because the link redirected to or pointed at the homepage. Company mentions and policy statements recorded from that text are not used.${
         policyReadNoteShown ? " The measurement note that the privacy policy was read refers to this homepage text." : ""
       }`,
       evidence: `Page recorded as the policy: ${displayPublicUrl(policy.url)} (the site root); no policy text compared.`,
@@ -980,16 +999,18 @@ export function buildFindings(
                 ? "Privacy policy read; it made no statement this scan can check"
                 : policyAbsence.title,
       // Each conflict is its own sentence after the first: joined with "and",
-      // the two count checks made a 40-word sentence.
+      // the two count checks made a 40-word sentence. The unnamed companies
+      // and the policy's silence about them are two sentences: one ran three
+      // long names to 31 words.
       lead:
         conflicts.length > 0 || conditionalConflicts.length > 0
           ? `Comparing the site's own privacy policy against this visit: ${(conflicts.length > 0 ? conflicts : conditionalConflicts)
               .map((conflict, index) => `${index === 0 ? conflict : capitalizeSentence(conflict)}.`)
               .join(" ")}`
           : unmentionedTrackingEntities.length > 0
-            ? `${humanList(unmentionedTrackingEntities)} ${unmentionedTrackingEntities.length === 1 ? "was" : "were"} sent requests during this visit, but the policy text matched none of the names this scan knows ${unmentionedTrackingEntities.length === 1 ? "that company" : "those companies"} by.`
+            ? `${humanList(unmentionedTrackingEntities)} ${unmentionedTrackingEntities.length === 1 ? "was" : "were"} sent requests during this visit. However, the policy text matched none of the names this scan knows ${unmentionedTrackingEntities.length === 1 ? "that company" : "those companies"} by.`
             : noCheckableClaims
-              ? `None of the statements this scan knows how to check appear in the policy text, so nothing was compared against this visit's evidence (${coverage}).${unknownPolicyMentionsNote} That is a limit of the automated check, not a finding about the site either way.`
+              ? `None of the statements this scan knows how to check appear in the policy text. As a result, nothing was compared against this visit's evidence (${coverage}).${unknownPolicyMentionsNote} That is a limit of the automated check, not a finding about the site either way.`
               : policyAbsence.lead,
       detail:
         conflicts.length > 0 || conditionalConflicts.length > 0
@@ -1088,11 +1109,13 @@ export function buildFindings(
     // boundaries overstated how many separate parties the visit reached.
     evidence:
       trackingEntities.length === 0 && namedTrackingCnameCloaks.length > 0
-        ? humanList(
+        ? // One sentence per alias, like the DNS-alias card's evidence.
+          sentenceSequence(
             namedTrackingCnameCloaks.map(
-              (cloak) => `${dnsAliasText(cloak)} (${cloak.tracker.entity})`
+              (cloak) => `DNS alias: ${dnsAliasText(cloak)} (${cloak.tracker.entity})`
             ),
-            4
+            4,
+            (count) => `Plus ${plural(count, "other DNS alias", "other DNS aliases")}.`
           )
         : `${retainedCountPhrase(
             run.counts.thirdPartyRequests,
@@ -1258,7 +1281,13 @@ export function buildFindings(
           : pixelDetectorCensored
             ? "Pixel decoding was incomplete for one or more request bodies, so whether other pixel requests carried advanced-matching identifier fields is unknown. Retained labels describe request contents, not verified user actions or successful delivery."
             : "No advanced-matching identifier fields are recorded in the decoded evidence. Unsupported payload formats and later interactions may carry other fields; older decoders did not record every decoding gap. Event labels do not establish user actions or successful delivery.",
-      evidence: humanList(pixelEvents.map(pixelEventEvidence), 4),
+      // One sentence per pixel, each opening with its product: in one list,
+      // every platform's events and identifiers ran into a single sentence.
+      evidence: sentenceSequence(
+        pixelEvents.map(pixelEventEvidence),
+        4,
+        (count) => `Plus ${plural(count, "other pixel")}.`
+      ),
       claim: findingClaim(facts, "pixel-events", "presence")
     });
   }
@@ -1457,10 +1486,12 @@ export function buildFindings(
           ? `The page registered broad interaction listeners through call chains that included ${scriptPhrase}, and contacted a known session-replay service.${scriptOperatorNote}`
           : sessionRecordingDetection
             ? sessionCategories.length > 0
-              ? `Broad ${humanList(
+              ? // The call chains are a sentence of their own: after all ten
+                // categories, one sentence ran 31 words.
+                `Broad ${humanList(
                   sessionCategories,
                   LISTENER_EVENT_CATEGORIES.length
-                )} listener coverage was registered during the visit through call chains that included ${scriptPhrase}.${scriptOperatorNote}`
+                )} listener coverage was registered during the visit. It was registered through call chains that included ${scriptPhrase}.${scriptOperatorNote}`
               : `Broad interaction listener coverage was registered during the visit through call chains that included ${scriptPhrase}.${scriptOperatorNote}`
             : `${humanList(sessionReplayNames)} appeared in the request log.`,
       // Every clause here is a hedge an audit asked for; the sentences were
@@ -1729,7 +1760,7 @@ export function buildFindings(
               : `${simulationNote} Compared with the unblocked visit, it showed ${humanList(changedParts, 4)}.`,
           detail: `${
             removedEntityNames.length > 0 ? `Services only seen in the unblocked visit: ${humanList(removedEntityNames)}. ` : ""
-          }${engineNote ? `${engineNote.trim()} ` : ""}A single paired comparison can also reflect run-to-run variance (ad rotation, caching, experiments), so treat this as ${
+          }${engineNote ? `${engineNote.trim()} ` : ""}A single paired comparison can also reflect run-to-run variance (ad rotation, caching, experiments). Treat this as ${
             direction === "flat" && removedEntityNames.length === 0
               ? "no observed difference for this pair of visits, not evidence that blocking removes nothing"
               : "an observed difference, not a measured blocking rate"
@@ -1839,13 +1870,15 @@ export function buildFindings(
                 : direction === "mixed"
                   ? "Mixed changes observed in the visit with a privacy signal"
                   : "No change observed in the visit with a privacy signal",
+          // The setup is a sentence of its own, as on the Shields card: with
+          // four changed metrics, one sentence ran 31 words.
           lead:
             direction === "flat"
-              ? `The visit configured with a "do not sell or share" (GPC) signal showed no change in the comparable metrics (${humanList(
+              ? `One visit was configured with a "do not sell or share" (GPC) signal. Compared with the visit without the signal, it showed no change in the comparable metrics (${humanList(
                   signedDeltas.map((delta) => delta.label),
                   4
                 )}).`
-              : `The visit configured with a "do not sell or share" (GPC) signal showed ${humanList(changedParts, 4)}.`,
+              : `One visit was configured with a "do not sell or share" (GPC) signal. Compared with the visit without the signal, it showed ${humanList(changedParts, 4)}.`,
           // The card's own title and lead say "no change" on the flat branch,
           // so asserting "An observed difference" in the same card contradicts
           // it. Same sentence d3fd83e removed from the headline.
@@ -2042,7 +2075,7 @@ export function buildFindings(
           : shieldsAbsence.lead,
       detail: simulated
         ? "Measured with Brave's own ad-block engine and default filter lists actively blocking (network requests only, so no cosmetic or CNAME-based blocking). Blocked requests are not in this run's totals, and requests a blocked script would have made never started."
-        : "Computed with Brave's own ad-block engine and default filter lists in classification mode: matched requests were not blocked by the scanner and remain in this report's observed request counts. Matching shows what Shields would target on this visit's traffic; an actual Shields visit blocks these and also prevents their follow-on requests, so this number is neither a measured block count nor the total effect.",
+        : "Computed with Brave's own ad-block engine and default filter lists in classification mode: matched requests were not blocked by the scanner and remain in this report's observed request counts. Matching shows what Shields would target on this visit's traffic. An actual Shields visit blocks these and also prevents their follow-on requests, so this number is neither a measured block count nor the total effect.",
       // The catalog count is run-wide: it is a separate labeling layer, not a
       // proven subset of the Shields-matched requests, so the sentence must
       // not chain the two sets together.
@@ -2369,8 +2402,10 @@ function buildConsentComparisonFinding(
       // classification-family juxtaposition; without that family the card
       // keeps the reject-click visit's own facts only. It is a sentence of
       // its own: as a second parenthetical after the response qualification's
-      // own, it ran a two-name lead to 38 words.
-      lead: `In the visit where the scanner clicked Reject all, ${humanList(rejectTracking.map((entity) => entity.entity))} ${trackerResponseQualification(rejectTracking, rejectResponded)}.${
+      // own, it ran a two-name lead to 38 words. The visit goes by the name
+      // the title gives it: with three long names that recorded no response,
+      // "the visit where the scanner clicked" ran the first sentence to 31.
+      lead: `In the visit that clicked Reject all, ${humanList(rejectTracking.map((entity) => entity.entity))} ${trackerResponseQualification(rejectTracking, rejectResponded)}.${
         classificationAllowed
           ? ` In the request log for the visit that clicked Accept all, ${plural(acceptTracking.length, "distinct catalogued tracking-related service")} appeared.`
           : ""
@@ -2411,7 +2446,7 @@ function buildConsentComparisonFinding(
     // "An observed difference" is only true when there was one. This card also
     // fires when NEITHER visit recorded a catalogued tracking-related service,
     // where the honest caveat is about the absence rather than about a delta.
-    detail: `${registration} ${CONSENT_WHOLE_VISIT_CAVEAT} A single paired comparison can also reflect run-to-run variance (ad rotation, caching, experiments), so treat this as ${
+    detail: `${registration} ${CONSENT_WHOLE_VISIT_CAVEAT} A single paired comparison can also reflect run-to-run variance (ad rotation, caching, experiments). Treat this as ${
       classificationAllowed && acceptTracking.length > 0
         ? "an observed difference for this pair of visits"
         : "what these two visits recorded, not evidence that the choice made no difference"

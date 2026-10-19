@@ -1063,7 +1063,7 @@ test("a verified consent pair leads with the Reject-all visit when only the clas
   assert.ok(allowedCard);
   assert.equal(
     allowedCard.lead,
-    "In the visit where the scanner clicked Reject all, Google answered requests. In the request log for the visit that clicked Accept all, 1 distinct catalogued tracking-related service appeared."
+    "In the visit that clicked Reject all, Google answered requests. In the request log for the visit that clicked Accept all, 1 distinct catalogued tracking-related service appeared."
   );
 });
 

@@ -49,9 +49,11 @@ import { formatCount } from "./text-format";
 import { findTrackerMatch } from "./tracker-catalog";
 import {
   SCAN_REPORT_SCHEMA_VERSION,
+  type CnameCloak,
   type DomainSummary,
   type FingerprintDetectionSummary,
   type NetworkRequestRecord,
+  type PixelMatchField,
   type PrivacyPolicyClaimKind,
   type ScanResult
 } from "./types";
@@ -69,6 +71,9 @@ const VALID_ICON_KEYS: Set<FindingIconKey> = new Set([
   "alert",
   "file-text"
 ]);
+
+/** The longest sentence a findings card may show, like the bottom line's method sentence. */
+const MAX_CARD_SENTENCE_WORDS = 30;
 
 function byId(findings: Finding[], id: string): Finding {
   const finding = findings.find((item) => item.id === id);
@@ -594,7 +599,7 @@ test("uses measured percentile wording when the corpus is usable, fixed threshol
   );
   assert.doesNotMatch(ranked.detail, /legacy-v1|successful load|62/);
   assert.equal(ranked.detail, byId(withCorpus, "bottom-line").detail);
-  assertSentencesAtMost(ranked, 35);
+  assertSentencesAtMost(ranked, MAX_CARD_SENTENCE_WORDS);
 
   const withoutCorpus = buildFindings(viewFromV1Report(result), null);
   const fixedBenchmark = byId(withoutCorpus, "third-party-services").benchmark ?? "";
@@ -619,19 +624,25 @@ function assertSentencesAtMost(finding: Finding, limit: number) {
     finding.benchmark ?? "",
     finding.benchmarkScope ?? ""
   ]) {
-    assert.doesNotMatch(text, /[.!?](?:,| and) /, `${finding.id} joins whole sentences into a list: ${text}`);
-    for (const sentence of text.split(/(?<=[.!?])\s+(?=[A-Z"(])/)) {
-      const words = sentence.match(/\S+/g)?.length ?? 0;
-      assert.ok(words <= limit, `${finding.id}: ${words} words: ${sentence}`);
-    }
+    assertTextSentencesAtMost(finding.id, text, limit);
   }
 }
 
-test("no sentence on a committed report's findings cards runs past 35 words", async () => {
+function assertTextSentencesAtMost(id: string, text: string, limit: number) {
+  assert.doesNotMatch(text, /[.!?](?:,| and) /, `${id} joins whole sentences into a list: ${text}`);
+  for (const sentence of text.split(/(?<=[.!?])\s+(?=[A-Z"(])/)) {
+    const words = sentence.match(/\S+/g)?.length ?? 0;
+    assert.ok(words <= limit, `${id}: ${words} words: ${sentence}`);
+  }
+}
+
+test("no sentence on a committed report's findings cards runs past 30 words", async () => {
   // Every committed report's board, built the way its permalink builds it:
   // the committed corpus statistics and the headline's focus arm. Sentences
   // of up to 63 words used to reach readers here, most of them lists of
-  // whole sentences or clauses joined with commas.
+  // whole sentences or clauses joined with commas. A list a card names in
+  // its own sentences is bounded by the fixtures below, never by what the
+  // committed corpus happens to hold.
   const reportsDir = path.join(process.cwd(), "public", "reports");
   const files = readdirSync(reportsDir).filter((name) => /^[0-9]{8}-[0-9a-f]{32}\.json$/.test(name));
   assert.ok(files.length > 0, "no committed reports under public/reports; this test would be vacuous");
@@ -649,7 +660,7 @@ test("no sentence on a committed report's findings cards runs past 35 words", as
     const facts = buildReportFacts(view);
     const headline = buildReportHeadline(view, facts);
     for (const finding of buildFindings(view, corpus, facts, renderedEvidenceArm(view, headline))) {
-      assertSentencesAtMost(finding, 35);
+      assertSentencesAtMost(finding, MAX_CARD_SENTENCE_WORDS);
       cards += 1;
       assertNoPrivacyTokens(`${name}: ${finding.id}`, Object.values(finding));
     }
@@ -673,7 +684,7 @@ test("card sentences stay short on branches no committed report reaches", () => 
   ]) {
     const card = byId(buildFindings(viewFromV1Report(consentPair(accept, reject)), null), "consent-comparison");
     assert.match(card.title, /^Only the (?:Accept|Reject) all control's activation was recorded$/);
-    assertSentencesAtMost(card, 35);
+    assertSentencesAtMost(card, MAX_CARD_SENTENCE_WORDS);
   }
 
   // A shared framework endpoint, whose description is the longest platform
@@ -700,7 +711,57 @@ test("card sentences stay short on branches no committed report reaches", () => 
   );
   assert.match(framework.lead, /shared by many consent management platforms/);
   assert.match(framework.lead, /before the scanner made any consent choice; 1 company answered\.$/);
-  assertSentencesAtMost(framework, 35);
+  assertSentencesAtMost(framework, MAX_CARD_SENTENCE_WORDS);
+  // The same endpoint with no catalogued tracker, then with every tracker
+  // silent in a request log that was cut short.
+  const frameworkOnly = byId(
+    buildFindings(viewFromV1Report(makeResult({ domains: [frameworkDomain] })), null),
+    "consent-banner"
+  );
+  assertSentencesAtMost(frameworkOnly, MAX_CARD_SENTENCE_WORDS);
+  assert.match(frameworkOnly.lead, /rather than one named platform\. The request came before the scanner made any consent choice\./);
+  const frameworkCapped: ScanResult = {
+    ...makeResult({
+      domains: [frameworkDomain, silentTracker, { ...makeTrackerDomain("ads.example", 3, "AdCo", "advertising"), statuses: [] }],
+      totalRequests: 1200
+    }),
+    warnings: ["The scan stopped loading additional response bytes after reaching the 64 MiB aggregate response-byte budget."]
+  };
+  const frameworkCappedCard = byId(buildFindings(viewFromV1Report(frameworkCapped), null), "consent-banner");
+  assertSentencesAtMost(frameworkCappedCard, MAX_CARD_SENTENCE_WORDS);
+  assert.match(frameworkCappedCard.lead, /included at least 2 retained distinct catalogued tracking-related services before the scanner made any consent choice; none of the retained matches recorded a response before collection stopped\.$/);
+
+  // An eligible GPC pair that moved every comparable family.
+  const gpcReport = makeGpcInterventionReportV2R2();
+  gpcReport.baseline.summary.counts = {
+    ...gpcReport.baseline.summary.counts,
+    thirdPartyRequests: 900,
+    thirdPartyCookies: 1234,
+    fingerprintEvents: 1234
+  };
+  gpcReport.variant.summary.counts = {
+    ...gpcReport.variant.summary.counts,
+    thirdPartyRequests: 10,
+    thirdPartyCookies: 3,
+    fingerprintEvents: 2
+  };
+  const gpcView = viewFromV2(gpcReport, 2);
+  for (const [label, requests] of [["baseline", 30], ["variant", 8]] as const) {
+    const arm = gpcView.runs.find((run) => run.label === label);
+    if (!arm) throw new Error("fixture invariant");
+    arm.evidence.requests = makeResult({ domains: [makeTrackerDomain("ads.example", requests, "AdCo", "advertising")] }).requests;
+  }
+  const gpcCard = byId(buildFindings(gpcView, null), "gpc-comparison");
+  assertSentencesAtMost(gpcCard, MAX_CARD_SENTENCE_WORDS);
+  assert.match(
+    gpcCard.lead,
+    / it showed 890 fewer third-party requests, 1,231 fewer third-party cookies, 22 fewer tracking-related service requests and 1,232 fewer fingerprint-like calls\.$/
+  );
+
+  // A verified Reject-all visit with no catalogued tracker in either visit.
+  const quietConsent = byId(buildFindings(viewFromV2(makeConsentInterventionReportV2R2(), 2), null), "consent-comparison");
+  assert.match(quietConsent.title, /had no catalogued trackers/);
+  assertSentencesAtMost(quietConsent, MAX_CARD_SENTENCE_WORDS);
 
   // Both count checks contradicted at once, and the conditional pixel check.
   const counted = makeResult({ thirdPartyCookies: 3 });
@@ -719,7 +780,7 @@ test("card sentences stay short on branches no committed report reaches", () => 
     countedCard.lead,
     "Comparing the site's own privacy policy against this visit: the policy says third-party cookies are not used, but 3 third-party cookies appeared in this visit. The policy says cookies are not used, but 3 cookies appeared in this visit."
   );
-  assertSentencesAtMost(countedCard, 35);
+  assertSentencesAtMost(countedCard, MAX_CARD_SENTENCE_WORDS);
   const pixels = makeResult({});
   pixels.pixelEvents = ["Meta Pixel", "TikTok Pixel", "LinkedIn Insight Tag", "Pinterest Tag"].map((product) => ({
     platform: product.split(" ")[0]!,
@@ -739,7 +800,7 @@ test("card sentences stay short on branches no committed report reaches", () => 
   assert.match(pixelCard.title, /may conflict/);
   assert.match(pixelCard.lead, /IF those fields held real visitor data, many regulators treat that as sharing\./);
   assert.match(pixelCard.lead, /never stores the values\.$/);
-  assertSentencesAtMost(pixelCard, 35);
+  assertSentencesAtMost(pixelCard, MAX_CARD_SENTENCE_WORDS);
 
   // A cut-short quiet visit with three recorded causes.
   const capped: ScanResult = {
@@ -753,7 +814,218 @@ test("card sentences stay short on branches no committed report reaches", () => 
   const bottomLine = byId(buildFindings(viewFromV1Report(capped), null), "bottom-line");
   assert.match(bottomLine.title, /cut short/);
   assert.match(bottomLine.lead, / Recorded cause: [^.]+\. Another recorded cause: [^.]+\. The report records 1 other cause\.$/);
-  assertSentencesAtMost(bottomLine, 35);
+  assertSentencesAtMost(bottomLine, MAX_CARD_SENTENCE_WORDS);
+});
+
+test("list-driven card sentences stay short whatever the lists hold", () => {
+  // Worst cases from the real vocabularies: the catalog's longest tracking
+  // names, every encoding the keystroke probe matches, the decoder's pixel
+  // products and identifier labels, every listener category. A list a card
+  // names stands in sentences of its own, so neither its length nor its order
+  // can carry a sentence past the limit on a report the corpus does not hold.
+
+  // Five recipients, two of them the site's own organization, and every
+  // encoding: hashed, then reversible ones past the list's limit.
+  for (const encodings of [
+    ["plain", "hex", "base64", "base64url", "md5", "sha1", "sha256"],
+    ["plain", "hex", "base64", "base64url"]
+  ]) {
+    const keystroke = makeResult({
+      firstPartyDomain: "youtube.com",
+      fingerprintDetections: [
+        {
+          kind: "keystroke-exfiltration",
+          heuristic: "input-sentinel-exfiltration-v1",
+          count: 1,
+          evidence: {
+            recipients: ["www.google.com", "stats.g.doubleclick.net", "collect.example", "px.example.net", "ingest.example.org"],
+            encodings,
+            fieldsTyped: 1234,
+            fieldTypes: ["email", "search"]
+          }
+        }
+      ]
+    });
+    const card = byId(buildFindings(viewFromV1Report(keystroke), null), "keystroke-exfiltration");
+    assertSentencesAtMost(card, MAX_CARD_SENTENCE_WORDS);
+    assert.match(
+      card.lead,
+      /requests to 5 cross-site domains without the form being submitted\. Recipients: www\.google\.com, stats\.g\.doubleclick\.net and collect\.example, plus 2 others\. Encodings: plain, hex and base64, plus (?:4 others|1 other)\.$/
+    );
+    assert.match(card.detail, / Of the recipient domains, 2 belong to the site's same reviewed organization, /);
+  }
+
+  // Aliases past the evidence's limit, catalogued and list-only, with the
+  // longest names first in the alphabetical order the lead names them in.
+  const alias = (index: number, entity: string | null): CnameCloak => ({
+    host: `{label}.{label}.metrics${index}.shop.example`,
+    cname: `{label}.{label}.{label}.edge${index}.tracker.example`,
+    tracker:
+      entity === null
+        ? { domain: "com.akadns.net", entity: "com.akadns.net", category: "tracking (Brave Shields list)", confidence: "shields-list" }
+        : { domain: "tracker.example", entity, category: "advertising", confidence: "curated" }
+  });
+  const cloaked: ScanResult = {
+    ...makeResult({ firstPartyDomain: "shop.example" }),
+    cnameCloaks: [
+      alias(0, "The Trade Desk"),
+      alias(1, null),
+      alias(2, "Amazon Ads"),
+      alias(3, null),
+      alias(4, "Index Exchange"),
+      alias(5, null),
+      alias(6, "Oracle Advertising"),
+      alias(7, "Yahoo Advertising")
+    ]
+  };
+  const cloakedFindings = buildFindings(viewFromV1Report(cloaked), null);
+  const cname = byId(cloakedFindings, "cname-cloaking");
+  assertSentencesAtMost(cname, MAX_CARD_SENTENCE_WORDS);
+  assert.equal(
+    cname.lead,
+    "Recorded DNS aliases resolve to catalogued tracking-related services: Amazon Ads, Index Exchange and Oracle Advertising, plus 2 others. Of the resolved targets, 3 matched Brave filter lists; those matches do not identify the operators."
+  );
+  assert.match(cname.evidence, /^DNS alias: \S+ → \S+ \(The Trade Desk; catalog match\)\. DNS alias: \S+ → \S+ \(Brave filter-list match; operator unverified\)\. /);
+  assert.match(cname.evidence, / Plus 4 other DNS aliases\.$/);
+  // With no tracking service in the request log, the services card names the
+  // catalogued aliases the same way.
+  const aliasServices = byId(cloakedFindings, "third-party-services");
+  assertSentencesAtMost(aliasServices, MAX_CARD_SENTENCE_WORDS);
+  assert.equal(aliasServices.title, "Tracking services were identified behind first-party aliases");
+  assert.match(aliasServices.evidence, /^DNS alias: \S+ → \S+ \(The Trade Desk\)\. DNS alias: \S+ → \S+ \(Amazon Ads\)\. /);
+  assert.match(aliasServices.evidence, / Plus 1 other DNS alias\.$/);
+
+  // Replay vendors, operational tools and unclassified services past each
+  // list's limit, on a site whose own organization carries some traffic.
+  const roles = makeResult({
+    firstPartyDomain: "youtube.com",
+    domains: [
+      makeTrackerDomain("www.google-analytics.com", 9, "Google", "analytics"),
+      ...["Microsoft Clarity", "Crazy Egg", "Lucky Orange", "Quantum Metric"].map((name, index) =>
+        makeTrackerDomain(`replay${index}.example`, 8 - index, name, "session replay")
+      ),
+      ...["Microsoft Azure", "New Relic", "HUMAN Security", "Sentry"].map((name, index) =>
+        makeTrackerDomain(`ops${index}.example`, 4, name, "error monitoring")
+      ),
+      ...["Braze", "Optimizely", "Example Experiments", "Sample Messaging Suite"].map((name, index) =>
+        makeTrackerDomain(`roles${index}.example`, 3, name, "experimentation")
+      )
+    ]
+  });
+  const services = byId(buildFindings(viewFromV1Report(roles), null), "third-party-services");
+  assertSentencesAtMost(services, MAX_CARD_SENTENCE_WORDS);
+  assert.match(services.detail, /: Microsoft Clarity, Crazy Egg and Lucky Orange, plus 1 other\. The domain match alone does not prove that a recording occurred\./);
+  assert.match(
+    services.detail,
+    / Unclassified service: Braze\. Unclassified service: Example Experiments\. Unclassified service: Optimizely\. Plus 1 other unclassified service\./
+  );
+  assert.match(services.detail, / Of the catalogued cross-site domains, 1 belongs to the same reviewed Google domain family as the site, /);
+
+  // Every decoder product with its longest events, and every identifier label,
+  // the longest first.
+  const identifiers: PixelMatchField[] = ["address", "date_of_birth", "external_id", "email", "phone", "name", "gender"];
+  const pixels = makeResult({});
+  pixels.pixelEvents = [
+    {
+      platform: "Meta",
+      product: "Meta Pixel",
+      events: ["custom event", "AddPaymentInfo", "CompleteRegistration", "InitiateCheckout", "SubmitApplication", "Purchase"],
+      advancedMatching: identifiers,
+      requests: 1234
+    },
+    {
+      platform: "TikTok",
+      product: "TikTok Pixel",
+      events: ["custom event", "CompletePayment", "CompleteRegistration", "InitiateCheckout", "PlaceAnOrder", "Pageview"],
+      advancedMatching: identifiers,
+      requests: 1234
+    },
+    {
+      platform: "X",
+      product: "X (Twitter) Pixel",
+      events: ["Conversion tracking", "Purchase"],
+      advancedMatching: identifiers,
+      requests: 1234
+    }
+  ];
+  const pixelCard = byId(buildFindings(viewFromV1Report(pixels), null), "pixel-events");
+  assertSentencesAtMost(pixelCard, MAX_CARD_SENTENCE_WORDS);
+  assert.match(pixelCard.lead, /\(postal address, date of birth and external ID, plus 4 others\)/);
+  assert.match(pixelCard.evidence, /^Meta Pixel: [^.]+\. TikTok Pixel: [^.]+\. X \(Twitter\) Pixel: [^.]+\.$/);
+  // Two products a v1 report can carry take the evidence past its limit.
+  pixels.pixelEvents.push(
+    { platform: "LinkedIn", product: "LinkedIn Insight Tag", events: ["PageView"], advancedMatching: ["email"], requests: 1 },
+    { platform: "Pinterest", product: "Pinterest Tag", events: ["PageView"], advancedMatching: ["email"], requests: 1 }
+  );
+  const pastLimit = byId(buildFindings(viewFromV1Report(pixels), null), "pixel-events");
+  assertTextSentencesAtMost(pastLimit.id, pastLimit.evidence, MAX_CARD_SENTENCE_WORDS);
+  assert.match(pastLimit.evidence, / LinkedIn Insight Tag: PageView; identifiers email \(1 request\)\. Plus 1 other pixel\.$/);
+
+  // Every listener category, through a script no catalog or ownership record
+  // attributes to another operator.
+  const listeners = makeResult({
+    fingerprintDetections: [
+      {
+        kind: "session-recording",
+        heuristic: "interaction-listener-coverage-v1",
+        count: 1,
+        evidence: {
+          eventTypes: ["mousemove", "pointermove", "touchstart", "click", "scroll", "wheel", "selectionchange", "visibilitychange", "keydown", "input"],
+          listenerTargets: ["document", "window"],
+          thirdPartyOrigins: ["https://cdn.example.net"],
+          totalListenerCalls: 1234
+        }
+      }
+    ]
+  });
+  const listenerCard = byId(buildFindings(viewFromV1Report(listeners), null), "session-recording-input-monitoring");
+  assertSentencesAtMost(listenerCard, MAX_CARD_SENTENCE_WORDS);
+  assert.match(
+    listenerCard.lead,
+    /^Broad mouse, pointer, touch, click, scroll, wheel, selection, visibility, keyboard and input listener coverage was registered during the visit\. It was registered through call chains that included a script served from another registrable domain\./
+  );
+
+  // A policy that names none of the longest names; four of them fall under the
+  // historical alias matcher, whose misses are unknown rather than omissions.
+  const reliable = ["The Trade Desk", "Index Exchange", "Crazy Egg", "Lucky Orange", "Quantum Metric"];
+  const unreliable = ["Amazon Ads", "Oracle Advertising", "Yahoo Advertising", "Twilio Segment"];
+  const unnamed = makeResult({
+    domains: [...reliable, ...unreliable].map((name, index) =>
+      makeTrackerDomain(`vendor${index}.example`, 20 - index, name, "advertising")
+    )
+  });
+  unnamed.privacyPolicy = {
+    url: "https://example.com/privacy",
+    claims: [],
+    mentionedEntities: [],
+    unmentionedEntities: [...reliable, ...unreliable],
+    policyTextLength: 5000
+  };
+  const policyCard = byId(buildFindings(viewFromV1Report(unnamed), null), "privacy-policy");
+  assertSentencesAtMost(policyCard, MAX_CARD_SENTENCE_WORDS);
+  assert.match(
+    policyCard.lead,
+    /^The Trade Desk, Index Exchange and Crazy Egg, plus 2 others were sent requests during this visit\. However, the policy text matched none of the names this scan knows those companies by\.$/
+  );
+  assert.match(policyCard.evidence, / Policy mentions of Amazon Ads, Oracle Advertising and Yahoo Advertising, plus 1 other are unknown /);
+
+  // A verified Reject-all visit whose catalogued services, the longest names
+  // first, recorded no response.
+  const consentView = viewFromV2(makeConsentInterventionReportV2R2(), 2);
+  const rejectArm = consentView.runs.find((run) => run.label === "variant");
+  if (!rejectArm) throw new Error("fixture invariant");
+  rejectArm.evidence.requests = makeResult({
+    domains: ["The Trade Desk", "Index Exchange", "Oracle Advertising", "Yahoo Advertising", "Amazon Ads"].map((name, index) => ({
+      ...makeTrackerDomain(`vendor${index}.example`, 10 - index, name, "advertising"),
+      statuses: []
+    }))
+  }).requests;
+  const rejectCard = byId(buildFindings(consentView, null), "consent-comparison");
+  assertSentencesAtMost(rejectCard, MAX_CARD_SENTENCE_WORDS);
+  assert.match(
+    rejectCard.lead,
+    /^In the visit that clicked Reject all, The Trade Desk, Index Exchange and Oracle Advertising, plus 2 others were sent requests that recorded no response, so receipt is unproven\./
+  );
 });
 
 test("a v2 view is never benchmarked against the v1-only corpus", () => {
@@ -805,7 +1077,7 @@ test("a version-2 corpus benchmarks only the report's exact methodology cohort",
     "Severity percentiles come from this report's exact schema, methodology, tracker-catalog, ServiceRole-taxonomy, metric-contract, producer, and Global Privacy Control cohort. Each percentile card's measured sites are among 99 sites with a successful load across all cohorts. Other methodologies, request-capped visits, and post-choice consent visits are excluded from each card's denominator, while failed or block-page attempts are outside that coverage."
   );
   assert.equal(covered.detail, byId(matched, "bottom-line").detail);
-  assertSentencesAtMost(covered, 35);
+  assertSentencesAtMost(covered, MAX_CARD_SENTENCE_WORDS);
 
   const mismatched: CorpusStats = {
     ...matching,
@@ -2164,7 +2436,7 @@ test("frozen-v1 policy arrays retain actual tracking entities and discard non-tr
   // the policy text is not retained, so an absolute "never names" cannot be
   // re-verified for any committed report.
   assert.match(card.title, /does not appear to name/);
-  assert.match(card.lead, /Criteo was sent requests during this visit, but the policy text matched none of the names this scan knows that company by/);
+  assert.match(card.lead, /Criteo was sent requests during this visit\. However, the policy text matched none of the names this scan knows that company by/);
   assert.doesNotMatch(`${card.lead} ${card.detail}`, /Optimizely|Braze|Google/);
   assert.match(card.detail, /not automatically a violation/);
   assert.match(card.evidence, /0 of 1 observed tracking company named in the policy/);
@@ -3994,9 +4266,9 @@ test("cards print recorded hosts and URLs the way the evidence tables do", () =>
   const aliasFindings = buildFindings(viewFromV1Report(aliased), null);
   assert.equal(
     byId(aliasFindings, "cname-cloaking").evidence,
-    "*.shop.example → *.*.eulerian.net (Eulerian; catalog match)"
+    "DNS alias: *.shop.example → *.*.eulerian.net (Eulerian; catalog match)."
   );
-  assert.equal(byId(aliasFindings, "third-party-services").evidence, "*.shop.example → *.*.eulerian.net (Eulerian)");
+  assert.equal(byId(aliasFindings, "third-party-services").evidence, "DNS alias: *.shop.example → *.*.eulerian.net (Eulerian).");
 
   const consentPlatform: DomainSummary = {
     domain: "{label}.cookieyes.com",
@@ -4017,7 +4289,7 @@ test("cards print recorded hosts and URLs the way the evidence tables do", () =>
     buildFindings(viewFromV1Report(makeResult({ fingerprintDetections: [keystroke] })), null),
     "keystroke-exfiltration"
   );
-  assert.match(keystrokeCard.lead, /appeared in requests to \*\.arcgis\.com and \*\.\*\.collect\.example \(plain\)/);
+  assert.match(keystrokeCard.lead, / Recipients: \*\.arcgis\.com and \*\.\*\.collect\.example\. Encoding: plain\.$/);
   assert.equal(
     keystrokeCard.evidence,
     "Synthetic test value appeared in requests to *.arcgis.com and *.*.collect.example via plain."
