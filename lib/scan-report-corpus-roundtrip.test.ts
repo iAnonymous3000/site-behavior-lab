@@ -16,13 +16,9 @@ const reportsDir = path.join(process.cwd(), "public", "reports");
 const reportFilePattern = /^[0-9]{8}-[0-9a-f]{32}\.json$/;
 
 test("every committed report reads and projects without data loss", () => {
-  let files: string[] = [];
-  try {
-    files = readdirSync(reportsDir).filter((name) => reportFilePattern.test(name));
-  } catch {
-    // A checkout without the committed corpus has nothing to gate.
-    return;
-  }
+  // A checkout without the committed corpus fails here instead of passing
+  // over zero reports.
+  const files = readdirSync(reportsDir).filter((name) => reportFilePattern.test(name));
   assert.equal(files.length > 0, true, "expected a committed corpus");
 
   let projected = 0;

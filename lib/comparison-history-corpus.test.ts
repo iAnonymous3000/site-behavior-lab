@@ -37,13 +37,10 @@ test("independent passive-history eligibility requires an exact requested URL", 
 });
 
 test("every committed passive-history cohort exposes a safe loaded pair", () => {
-  let files: string[];
-  try {
-    files = readdirSync(reportsDir).filter((name) => reportFilePattern.test(name));
-  } catch {
-    return;
-  }
-  if (files.length === 0) return;
+  // A missing or empty corpus fails here: returning early let this test pass
+  // over zero records, and the v1 floor below never ran.
+  const files = readdirSync(reportsDir).filter((name) => reportFilePattern.test(name));
+  assert.ok(files.length > 0, "no committed reports under public/reports; this test would be vacuous");
 
   const visits: CorpusVisit[] = [];
   let v1Reports = 0;
