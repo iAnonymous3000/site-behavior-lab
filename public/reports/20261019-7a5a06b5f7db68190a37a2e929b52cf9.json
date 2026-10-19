@@ -1,0 +1,2728 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Brave-list blocking off/on comparison",
+  "runLabels": {
+    "baseline": "No blocking",
+    "variant": "Brave-list blocking"
+  },
+  "requestedUrl": "https://tinder.com/",
+  "scannedAt": "2026-10-19T11:04:12.322Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 3995,
+      "firstPartyDomain": "tinder.com",
+      "totalRequests": 71,
+      "thirdPartyRequests": 2,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 1,
+      "cookies": 4,
+      "thirdPartyCookies": 0,
+      "storageEntries": 4,
+      "fingerprintEvents": 8,
+      "shieldsBlockedRequests": 0
+    },
+    "conditions": {
+      "requestedUrl": "https://tinder.com/",
+      "finalUrl": "https://tinder.com/",
+      "scannedAt": "2026-10-19T11:04:08.315Z",
+      "chromiumVersion": "153.0.8010.12",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-10-18T18:25:24.776Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.63.0 from github-actions-ubuntu with browser 153.0.8010.12, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://tinder.com/",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 68
+      },
+      {
+        "id": 2,
+        "url": "https://tinder.com/static/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 380
+      },
+      {
+        "id": 3,
+        "url": "https://tinder.com/static/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 380
+      },
+      {
+        "id": 4,
+        "url": "https://tinder.com/static/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 381
+      },
+      {
+        "id": 5,
+        "url": "https://tinder.com/static/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 383
+      },
+      {
+        "id": 6,
+        "url": "https://tinder.com/static/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 384
+      },
+      {
+        "id": 7,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 384
+      },
+      {
+        "id": 8,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 384
+      },
+      {
+        "id": 9,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 385
+      },
+      {
+        "id": 10,
+        "url": "https://tinder.com/static/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 385
+      },
+      {
+        "id": 11,
+        "url": "https://tinder.com/static/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 386
+      },
+      {
+        "id": 12,
+        "url": "https://tinder.com/static/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 386
+      },
+      {
+        "id": 13,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 685
+      },
+      {
+        "id": 14,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 688
+      },
+      {
+        "id": 15,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 719
+      },
+      {
+        "id": 16,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 755
+      },
+      {
+        "id": 17,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 758
+      },
+      {
+        "id": 18,
+        "url": "https://api.gotinder.com/{seg}/{seg}?locale=",
+        "domain": "api.gotinder.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 760
+      },
+      {
+        "id": 19,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 761
+      },
+      {
+        "id": 20,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 811
+      },
+      {
+        "id": 21,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 841
+      },
+      {
+        "id": 22,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 925
+      },
+      {
+        "id": 23,
+        "url": "https://tinder.com/static/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 998
+      },
+      {
+        "id": 24,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1000
+      },
+      {
+        "id": 25,
+        "url": "https://tinder.com/static/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1002
+      },
+      {
+        "id": 26,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1002
+      },
+      {
+        "id": 27,
+        "url": "https://tinder.com/static/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1004
+      },
+      {
+        "id": 28,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1004
+      },
+      {
+        "id": 29,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1005
+      },
+      {
+        "id": 30,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1005
+      },
+      {
+        "id": 31,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1005
+      },
+      {
+        "id": 32,
+        "url": "https://tinder.com/static/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1006
+      },
+      {
+        "id": 33,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1006
+      },
+      {
+        "id": 34,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1011
+      },
+      {
+        "id": 35,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1015
+      },
+      {
+        "id": 36,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1073
+      },
+      {
+        "id": 37,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1075
+      },
+      {
+        "id": 38,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1102
+      },
+      {
+        "id": 39,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1104
+      },
+      {
+        "id": 40,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1105
+      },
+      {
+        "id": 41,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1105
+      },
+      {
+        "id": 42,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1106
+      },
+      {
+        "id": 43,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1106
+      },
+      {
+        "id": 44,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1108
+      },
+      {
+        "id": 45,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1124
+      },
+      {
+        "id": 46,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1259
+      },
+      {
+        "id": 47,
+        "url": "https://api.gotinder.com/{seg}/{seg}/{seg}?locale=",
+        "domain": "api.gotinder.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1266
+      },
+      {
+        "id": 48,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1273
+      },
+      {
+        "id": 49,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1274
+      },
+      {
+        "id": 50,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1277
+      },
+      {
+        "id": 51,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1278
+      },
+      {
+        "id": 52,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1279
+      },
+      {
+        "id": 53,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1281
+      },
+      {
+        "id": 54,
+        "url": "https://tinder.com/static/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1303
+      },
+      {
+        "id": 55,
+        "url": "https://tinder.com/static/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1304
+      },
+      {
+        "id": 56,
+        "url": "https://tinder.com/static/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1304
+      },
+      {
+        "id": 57,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1312
+      },
+      {
+        "id": 58,
+        "url": "https://tinder.com/static/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1382
+      },
+      {
+        "id": 59,
+        "url": "https://tinder.com/static/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1384
+      },
+      {
+        "id": 60,
+        "url": "https://tinder.com/static/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1384
+      },
+      {
+        "id": 61,
+        "url": "https://tinder.com/static/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1385
+      },
+      {
+        "id": 62,
+        "url": "https://tinder.com/static/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1385
+      },
+      {
+        "id": 63,
+        "url": "https://tinder.com/static/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1385
+      },
+      {
+        "id": 64,
+        "url": "https://tinder.com/static/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1387
+      },
+      {
+        "id": 65,
+        "url": "https://tinder.com/static/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1388
+      },
+      {
+        "id": 66,
+        "url": "https://tinder.com/static/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1388
+      },
+      {
+        "id": 67,
+        "url": "https://tinder.com/static/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1388
+      },
+      {
+        "id": 68,
+        "url": "https://tinder.com/static/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1391
+      },
+      {
+        "id": 69,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1445
+      },
+      {
+        "id": 70,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1446
+      },
+      {
+        "id": 71,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1573
+      }
+    ],
+    "domains": [
+      {
+        "domain": "api.gotinder.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "tinder.com",
+        "requests": 69,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "script",
+          "font",
+          "stylesheet",
+          "image"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "[redacted]",
+        "domain": "tinder.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "tinder.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "AWSALB",
+        "domain": "tinder.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "AWSALBCORS",
+        "domain": "tinder.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 36
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 36
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 0
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 3481
+      }
+    ],
+    "fingerprintEvents": [
+      {
+        "api": "canvas.toDataURL",
+        "count": 6
+      },
+      {
+        "api": "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 1
+      },
+      {
+        "api": "webgl2.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 1
+      }
+    ],
+    "fingerprintDetections": [
+      {
+        "kind": "canvas-fingerprinting",
+        "heuristic": "openwpm-canvas-v1",
+        "count": 3,
+        "evidence": {
+          "readApis": [
+            "canvas.toDataURL"
+          ],
+          "maxCanvasWidth": 230,
+          "maxCanvasHeight": 60,
+          "maxDistinctTextCharacters": 36,
+          "maxTextWriteCalls": 4
+        }
+      }
+    ],
+    "privacyPolicy": {
+      "url": "https://tinder.com/privacy/{seg}/en",
+      "claims": [],
+      "mentionedEntities": [],
+      "unmentionedEntities": [],
+      "policyTextLength": 33822
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "Read the site's privacy policy (https://tinder.com/privacy/{seg}/en) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 3909,
+      "firstPartyDomain": "tinder.com",
+      "totalRequests": 71,
+      "thirdPartyRequests": 2,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 1,
+      "cookies": 4,
+      "thirdPartyCookies": 0,
+      "storageEntries": 4,
+      "fingerprintEvents": 8,
+      "shieldsBlockedRequests": 0
+    },
+    "conditions": {
+      "requestedUrl": "https://tinder.com/",
+      "finalUrl": "https://tinder.com/",
+      "scannedAt": "2026-10-19T11:04:12.322Z",
+      "chromiumVersion": "153.0.8010.12",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-10-18T18:25:24.776Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.63.0 from github-actions-ubuntu with browser 153.0.8010.12, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://tinder.com/",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 72
+      },
+      {
+        "id": 2,
+        "url": "https://tinder.com/static/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 322
+      },
+      {
+        "id": 3,
+        "url": "https://tinder.com/static/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 323
+      },
+      {
+        "id": 4,
+        "url": "https://tinder.com/static/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 324
+      },
+      {
+        "id": 5,
+        "url": "https://tinder.com/static/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 325
+      },
+      {
+        "id": 6,
+        "url": "https://tinder.com/static/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 325
+      },
+      {
+        "id": 7,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 325
+      },
+      {
+        "id": 8,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 326
+      },
+      {
+        "id": 9,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 326
+      },
+      {
+        "id": 10,
+        "url": "https://tinder.com/static/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 326
+      },
+      {
+        "id": 11,
+        "url": "https://tinder.com/static/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 326
+      },
+      {
+        "id": 12,
+        "url": "https://tinder.com/static/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 326
+      },
+      {
+        "id": 13,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 619
+      },
+      {
+        "id": 14,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 620
+      },
+      {
+        "id": 15,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 648
+      },
+      {
+        "id": 16,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 683
+      },
+      {
+        "id": 17,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 684
+      },
+      {
+        "id": 18,
+        "url": "https://api.gotinder.com/{seg}/{seg}?locale=",
+        "domain": "api.gotinder.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 685
+      },
+      {
+        "id": 19,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 690
+      },
+      {
+        "id": 20,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 735
+      },
+      {
+        "id": 21,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 764
+      },
+      {
+        "id": 22,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 846
+      },
+      {
+        "id": 23,
+        "url": "https://tinder.com/static/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 911
+      },
+      {
+        "id": 24,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 912
+      },
+      {
+        "id": 25,
+        "url": "https://tinder.com/static/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 912
+      },
+      {
+        "id": 26,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 914
+      },
+      {
+        "id": 27,
+        "url": "https://tinder.com/static/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 915
+      },
+      {
+        "id": 28,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 915
+      },
+      {
+        "id": 29,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 915
+      },
+      {
+        "id": 30,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 916
+      },
+      {
+        "id": 31,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 916
+      },
+      {
+        "id": 32,
+        "url": "https://tinder.com/static/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 917
+      },
+      {
+        "id": 33,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 917
+      },
+      {
+        "id": 34,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 924
+      },
+      {
+        "id": 35,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 977
+      },
+      {
+        "id": 36,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 997
+      },
+      {
+        "id": 37,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1015
+      },
+      {
+        "id": 38,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1016
+      },
+      {
+        "id": 39,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1017
+      },
+      {
+        "id": 40,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1018
+      },
+      {
+        "id": 41,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1018
+      },
+      {
+        "id": 42,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1021
+      },
+      {
+        "id": 43,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1022
+      },
+      {
+        "id": 44,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1039
+      },
+      {
+        "id": 45,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1146
+      },
+      {
+        "id": 46,
+        "url": "https://api.gotinder.com/{seg}/{seg}/{seg}?locale=",
+        "domain": "api.gotinder.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1151
+      },
+      {
+        "id": 47,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1161
+      },
+      {
+        "id": 48,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1162
+      },
+      {
+        "id": 49,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1164
+      },
+      {
+        "id": 50,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1165
+      },
+      {
+        "id": 51,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1167
+      },
+      {
+        "id": 52,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1168
+      },
+      {
+        "id": 53,
+        "url": "https://tinder.com/static/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1192
+      },
+      {
+        "id": 54,
+        "url": "https://tinder.com/static/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1193
+      },
+      {
+        "id": 55,
+        "url": "https://tinder.com/static/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1194
+      },
+      {
+        "id": 56,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1196
+      },
+      {
+        "id": 57,
+        "url": "https://tinder.com/static/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1276
+      },
+      {
+        "id": 58,
+        "url": "https://tinder.com/static/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1282
+      },
+      {
+        "id": 59,
+        "url": "https://tinder.com/static/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1283
+      },
+      {
+        "id": 60,
+        "url": "https://tinder.com/static/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1284
+      },
+      {
+        "id": 61,
+        "url": "https://tinder.com/static/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1284
+      },
+      {
+        "id": 62,
+        "url": "https://tinder.com/static/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1285
+      },
+      {
+        "id": 63,
+        "url": "https://tinder.com/static/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1285
+      },
+      {
+        "id": 64,
+        "url": "https://tinder.com/static/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1285
+      },
+      {
+        "id": 65,
+        "url": "https://tinder.com/static/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1285
+      },
+      {
+        "id": 66,
+        "url": "https://tinder.com/static/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1286
+      },
+      {
+        "id": 67,
+        "url": "https://tinder.com/static/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1290
+      },
+      {
+        "id": 68,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1348
+      },
+      {
+        "id": 69,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1349
+      },
+      {
+        "id": 70,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1374
+      },
+      {
+        "id": 71,
+        "url": "https://tinder.com/static/{seg}/{seg}/{seg}",
+        "domain": "tinder.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://tinder.com/static/{seg}/{seg}",
+          "initiatorDomain": "tinder.com"
+        },
+        "startedAtMs": 1466
+      }
+    ],
+    "domains": [
+      {
+        "domain": "api.gotinder.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "tinder.com",
+        "requests": 69,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "script",
+          "font",
+          "stylesheet",
+          "image"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "[redacted]",
+        "domain": "tinder.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "tinder.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "AWSALB",
+        "domain": "tinder.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "AWSALBCORS",
+        "domain": "tinder.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 36
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 36
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 0
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 3481
+      }
+    ],
+    "fingerprintEvents": [
+      {
+        "api": "canvas.toDataURL",
+        "count": 6
+      },
+      {
+        "api": "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 1
+      },
+      {
+        "api": "webgl2.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 1
+      }
+    ],
+    "fingerprintDetections": [
+      {
+        "kind": "canvas-fingerprinting",
+        "heuristic": "openwpm-canvas-v1",
+        "count": 3,
+        "evidence": {
+          "readApis": [
+            "canvas.toDataURL"
+          ],
+          "maxCanvasWidth": 230,
+          "maxCanvasHeight": 60,
+          "maxDistinctTextCharacters": 36,
+          "maxTextWriteCalls": 4
+        }
+      }
+    ],
+    "privacyPolicy": {
+      "url": "https://tinder.com/privacy/{seg}/en",
+      "claims": [],
+      "mentionedEntities": [],
+      "unmentionedEntities": [],
+      "policyTextLength": 33822
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "Read the site's privacy policy (https://tinder.com/privacy/{seg}/en) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 71,
+      "after": 71,
+      "delta": 0
+    },
+    "thirdPartyRequests": {
+      "before": 2,
+      "after": 2,
+      "delta": 0
+    },
+    "knownTrackerRequests": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "thirdPartyDomains": {
+      "before": 1,
+      "after": 1,
+      "delta": 0
+    },
+    "cookies": {
+      "before": 4,
+      "after": 4,
+      "delta": 0
+    },
+    "thirdPartyCookies": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "storageEntries": {
+      "before": 4,
+      "after": 4,
+      "delta": 0
+    },
+    "fingerprintEvents": {
+      "before": 8,
+      "after": 8,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [],
+    "addedEntities": [],
+    "removedEntities": [],
+    "addedCookies": [],
+    "removedCookies": [],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [],
+    "removedProvenance": [],
+    "shieldsBlockedRequests": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    }
+  },
+  "warnings": [
+    "Brave-list blocking comparison runs should be collected under matched crawl conditions, and the blocking run is a simulation with Brave's engine and default lists in this scanner's browser, not a live Brave visit. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "The two visits ran in randomized order; the \"No blocking\" visit ran first.",
+    "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "No blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "No blocking: Read the site's privacy policy (https://tinder.com/privacy/{seg}/en) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+    "Brave-list blocking: Read the site's privacy policy (https://tinder.com/privacy/{seg}/en) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+  ],
+  "share": {
+    "id": "20261019-7a5a06b5f7db68190a37a2e929b52cf9",
+    "path": "/reports/20261019-7a5a06b5f7db68190a37a2e929b52cf9/",
+    "jsonPath": "/reports/20261019-7a5a06b5f7db68190a37a2e929b52cf9.json"
+  }
+}
