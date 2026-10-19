@@ -20,6 +20,18 @@ public API or a 1.0 release.
   current r2 report has no caveat to state, so its header carries no chip.
   This changes the rendered header of all 1,029 committed reports at a1686ebe
   (966 v1 and 63 r2); no stored report changes.
+- The bottom-line card's method sentence no longer runs 88 words. On 880
+  committed reports one sentence named the report's exact schema,
+  methodology, tracker-catalog, ServiceRole-taxonomy, metric-contract,
+  producer and Global Privacy Control cohort, then the corpus coverage in a
+  parenthetical. The card keeps the not-a-random-sample caveat and the
+  per-card denominator, and its longest sentence is now 30 words. The cohort
+  and its coverage are stated in the methodology block and, on a report
+  permalink, whose methodology block waits for the evidence explorer, in the
+  evidence receipt. Both read them from the card, so they appear exactly when
+  the card ranks against a cohort. This changes the rendered text of 880 of
+  the 1,029 committed reports at a1686ebe and drops nothing from the page; no
+  stored report changes.
 - Every comparison report now says which visit ran first, or that the order
   was not recorded. The order was recorded but easy to miss or not shown at
   all: a v1 report carried it as one row among its measurement caveats, and

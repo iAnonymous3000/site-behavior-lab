@@ -575,20 +575,39 @@ test("uses measured percentile wording when the corpus is usable, fixed threshol
   const withCorpus = buildFindings(viewFromV1Report(result), makeCorpus(60));
   assert.match(byId(withCorpus, "third-party-services").benchmark ?? "", /90th-percentile mark for .* across the 60 sites measured for this metric/);
   assert.match(byId(withCorpus, "bottom-line").detail, /each percentile card naming its metric-specific measured-site denominator/);
+  assert.match(byId(withCorpus, "bottom-line").detail, /a curated set of popular, mostly commercial sites, not a random sample of the web/);
+  assert.equal(byId(withCorpus, "bottom-line").benchmarkScope, "Severity percentiles come from the legacy-v1 cohort.");
 
   // A corpus that also records its coverage names both concepts without
-  // mislabeling loaded coverage as every attempted scan.
+  // mislabeling loaded coverage as every attempted scan. The cohort and its
+  // coverage are stated beside the methodology, not in the card: inside it
+  // they made one sentence 88 words long.
   const withCoverage = buildFindings(viewFromV1Report(result), { ...makeCorpus(60), coverageSiteCount: 62 });
-  assert.match(
-    byId(withCoverage, "bottom-line").detail,
-    /legacy-v1 cohort, with each percentile card naming its metric-specific measured-site denominator \(among 62 sites with a successful load; request-capped, post-choice consent, and v2 loads are included in that coverage but excluded from this legacy-v1 cohort, while failed or block-page attempts are outside it\)/
+  const ranked = byId(withCoverage, "bottom-line");
+  assert.equal(
+    ranked.benchmarkScope,
+    "Severity percentiles come from the legacy-v1 cohort. Each percentile card's measured sites are among 62 sites with a successful load. Request-capped, post-choice consent, and v2 loads are included in that coverage but excluded from this legacy-v1 cohort, while failed or block-page attempts are outside it."
   );
+  assert.doesNotMatch(ranked.detail, /legacy-v1|successful load|62/);
+  assert.equal(ranked.detail, byId(withCorpus, "bottom-line").detail);
+  assertSentencesAtMost(ranked, 35);
 
   const withoutCorpus = buildFindings(viewFromV1Report(result), null);
   const fixedBenchmark = byId(withoutCorpus, "third-party-services").benchmark ?? "";
   assert.doesNotMatch(fixedBenchmark, /fully measured sites/);
   assert.match(byId(withoutCorpus, "bottom-line").detail, /fixed reference thresholds/);
+  assert.equal(byId(withoutCorpus, "bottom-line").benchmarkScope, undefined);
 });
+
+/** No sentence of a card's visible text runs past `limit` words. */
+function assertSentencesAtMost(finding: Finding, limit: number) {
+  for (const text of [finding.title, finding.lead, finding.detail, finding.evidence, finding.benchmarkScope ?? ""]) {
+    for (const sentence of text.split(/(?<=[.!?])\s+(?=[A-Z"(])/)) {
+      const words = sentence.match(/\S+/g)?.length ?? 0;
+      assert.ok(words <= limit, `${words} words: ${sentence}`);
+    }
+  }
+}
 
 test("a v2 view is never benchmarked against the v1-only corpus", () => {
   // A legacy v1-only artifact carries no v2 cohort, so ranking a v2 report
@@ -599,6 +618,7 @@ test("a v2 view is never benchmarked against the v1-only corpus", () => {
   const findings = buildFindings(view, makeCorpus(60));
   assert.doesNotMatch(byId(findings, "third-party-services").benchmark ?? "", /fully measured sites/);
   assert.match(byId(findings, "bottom-line").detail, /fixed reference thresholds/);
+  assert.equal(byId(findings, "bottom-line").benchmarkScope, undefined, "no cohort is named for an unranked card");
 });
 
 test("a version-2 corpus benchmarks only the report's exact methodology cohort", () => {
@@ -625,11 +645,20 @@ test("a version-2 corpus benchmarks only the report's exact methodology cohort",
     /each percentile card naming its metric-specific measured-site denominator/,
     "the matching r1 methodology cohort is usable"
   );
-  assert.match(
-    byId(matched, "bottom-line").detail,
-    /exact schema, methodology, tracker-catalog, ServiceRole-taxonomy, metric-contract, producer, and Global Privacy Control cohort/
+  assert.equal(
+    byId(matched, "bottom-line").benchmarkScope,
+    "Severity percentiles come from this report's exact schema, methodology, tracker-catalog, ServiceRole-taxonomy, metric-contract, producer, and Global Privacy Control cohort."
   );
-  assert.doesNotMatch(byId(matched, "bottom-line").detail, /legacy-v1 distribution/);
+  assert.doesNotMatch(byId(matched, "bottom-line").detail, /legacy-v1 distribution|ServiceRole-taxonomy/);
+
+  // With coverage recorded, the scope adds it in its own sentences.
+  const covered = byId(buildFindings(view, { ...matching, coverageSiteCount: 99 }), "bottom-line");
+  assert.equal(
+    covered.benchmarkScope,
+    "Severity percentiles come from this report's exact schema, methodology, tracker-catalog, ServiceRole-taxonomy, metric-contract, producer, and Global Privacy Control cohort. Each percentile card's measured sites are among 99 sites with a successful load across all cohorts. Other methodologies, request-capped visits, and post-choice consent visits are excluded from each card's denominator, while failed or block-page attempts are outside that coverage."
+  );
+  assert.equal(covered.detail, byId(matched, "bottom-line").detail);
+  assertSentencesAtMost(covered, 35);
 
   const mismatched: CorpusStats = {
     ...matching,
@@ -637,6 +666,25 @@ test("a version-2 corpus benchmarks only the report's exact methodology cohort",
   };
   const rejected = buildFindings(view, mismatched);
   assert.match(byId(rejected, "bottom-line").detail, /fixed reference thresholds/);
+  assert.equal(byId(rejected, "bottom-line").benchmarkScope, undefined);
+});
+
+test("the methodology block and the receipt state the bottom line's cohort from its card", () => {
+  // Read from the card, never recomputed: a separately gated note could name
+  // a cohort on a page whose card fell back to fixed thresholds.
+  const source = (file: string) => readFileSync(path.join(process.cwd(), file), "utf8");
+  const renderer = source("app/_components/report-renderer.tsx");
+  assert.match(renderer, /const benchmarkScope = findings\.find\(\(finding\) => finding\.id === "bottom-line"\)\?\.benchmarkScope;/);
+  assert.match(renderer, /\{benchmarkScope && <p>\{benchmarkScope\}<\/p>\}/);
+  assert.equal(renderer.match(/benchmarkScope=\{benchmarkScope\}/g)?.length, 2, "both the screen and the print visits");
+  assert.match(
+    source("app/reports/[id]/page.tsx"),
+    /benchmarkScope=\{findings\.find\(\(finding\) => finding\.id === "bottom-line"\)\?\.benchmarkScope\}/
+  );
+  assert.match(
+    source("app/_components/report-page-context.tsx"),
+    /\{benchmarkScope && <p className="evidence-receipt-note">\{benchmarkScope\}<\/p>\}/
+  );
 });
 
 test("the board withholds a percentile rank from a run the corpus builder excludes, even where the claim gate allows one", () => {
@@ -702,6 +750,10 @@ test("the board withholds a percentile rank from a run the corpus builder exclud
   );
   assert.equal(byId(censored.findings, "third-party-services").benchmark, undefined);
   assert.match(byId(censored.findings, "bottom-line").detail, /not ranked against corpus percentiles/);
+  // The corpus is usable here, so only the ranking gate keeps the methodology
+  // block and the receipt from naming a cohort this card does not rank against.
+  assert.equal(byId(censored.findings, "bottom-line").benchmarkScope, undefined);
+  assert.match(byId(complete.findings, "bottom-line").benchmarkScope ?? "", /^Severity percentiles come from this report's exact schema/);
 
   // The 1,000-request recording cap on a v2 run is warning-derived rather than
   // a censored family; the builder excludes it through the same predicate.

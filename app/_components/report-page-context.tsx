@@ -164,6 +164,7 @@ export function ReportPageContext({
  * exist to catch.
  */
 export function ReportEvidenceReceipt({
+  benchmarkScope,
   id,
   jsonHref,
   evidenceSha256,
@@ -171,6 +172,12 @@ export function ReportEvidenceReceipt({
   provenanceHref,
   view
 }: {
+  /**
+   * The cohort the server-rendered bottom line ranks against, when it ranks
+   * (Finding.benchmarkScope). The permalink has no methodology block until
+   * the explorer opens, so the receipt states it there.
+   */
+  benchmarkScope?: string;
   id: string;
   jsonHref: string;
   evidenceSha256?: string;
@@ -261,6 +268,9 @@ export function ReportEvidenceReceipt({
             )}{" "}
             <Link href="/methodology/#detector-calibration">How detector accuracy is measured</Link>.
           </p>
+          {/* The bottom-line card says it ranks against this report's cohort;
+              which cohort, and its coverage, is stated here. */}
+          {benchmarkScope && <p className="evidence-receipt-note">{benchmarkScope}</p>}
           {CLAIM_BOUNDARY && (
             <p className="evidence-receipt-note">
               Approved use boundary: {claimBoundaryParagraph(CLAIM_BOUNDARY)}{" "}

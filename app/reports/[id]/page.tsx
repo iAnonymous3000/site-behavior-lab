@@ -154,6 +154,7 @@ export default async function SavedReportPage({ params }: { params: Promise<{ id
         }
         receipt={
           <ReportEvidenceReceipt
+            benchmarkScope={findings.find((finding) => finding.id === "bottom-line")?.benchmarkScope}
             evidenceSha256={result.wireSha256}
             id={id}
             jsonHref={jsonUrl}

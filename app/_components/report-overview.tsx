@@ -28,7 +28,7 @@ import {
   fetchJsonWithPolicy
 } from "@/lib/client-fetch-policy";
 import { isCorpusStats, type CorpusStats } from "@/lib/corpus-stats";
-import { buildFindings } from "@/lib/report-findings";
+import { buildFindings, type Finding } from "@/lib/report-findings";
 import type { HeadlineTone, ReportHeadline } from "@/lib/report-headline";
 import {
   claimCountValue,
@@ -260,21 +260,32 @@ function useCorpusStats(): CorpusStats | null {
   return corpus;
 }
 
-export function FindingsBoard({
-  view,
-  facts,
-  headline
-}: {
-  view: ReportView;
-  facts: ReportFacts;
-  headline: ReportHeadline;
-}) {
+/**
+ * The board's cards, built once per render. The renderer reads the bottom
+ * line's benchmark scope from these same cards for its methodology block, so
+ * the block names a cohort exactly when the card ranks against one.
+ */
+export function useReportFindings(
+  view: ReportView,
+  facts: ReportFacts,
+  headline: ReportHeadline
+): { evidenceArm: EvidenceArm | undefined; findings: Finding[] } {
   const corpus = useCorpusStats();
   const evidenceArm: EvidenceArm | undefined = renderedEvidenceArm(view, headline);
   // The board describes the same arm as the headline, the stat chips, the
   // tables, and the evidence links this component already derives below.
-  const findings = buildFindings(view, corpus, facts, evidenceArm);
+  return { evidenceArm, findings: buildFindings(view, corpus, facts, evidenceArm) };
+}
 
+export function FindingsBoard({
+  evidenceArm,
+  facts,
+  findings
+}: {
+  evidenceArm: EvidenceArm | undefined;
+  facts: ReportFacts;
+  findings: Finding[];
+}) {
   return (
     <FindingsList
       findings={findings}

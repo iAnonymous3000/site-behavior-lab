@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { clientReportRuntime } from "../client-runtime";
 import { CausalityGraph } from "./causality-graph";
 import { ComparisonPanel } from "./comparison-panel";
-import { FindingsBoard, HeadlineBanner, MetricGrid, TrafficViz } from "./report-overview";
+import { FindingsBoard, HeadlineBanner, MetricGrid, TrafficViz, useReportFindings } from "./report-overview";
 import { ReportHeader } from "./report-header";
 import { ReportSectionNav, type ReportSection } from "./report-section-nav";
 import {
@@ -79,6 +79,8 @@ export function ReportRenderer({
     () => buildReportHeadline(reportView, reportFacts),
     [reportFacts, reportView]
   );
+  const { evidenceArm, findings } = useReportFindings(reportView, reportFacts, headline);
+  const benchmarkScope = findings.find((finding) => finding.id === "bottom-line")?.benchmarkScope;
   const primaryRun = reportFacts.display.run;
   const arms = comparisonArmViews(reportView);
   const [selectedArm, setSelectedArm] = useState<"baseline" | "variant" | null>(null);
@@ -199,7 +201,7 @@ export function ReportRenderer({
             headline={headline}
             liveApiServesReportPages={liveApiServesReportPages}
           />
-          <FindingsBoard view={reportView} facts={reportFacts} headline={headline} />
+          <FindingsBoard evidenceArm={evidenceArm} facts={reportFacts} findings={findings} />
           {reportView.reportType === "comparison" && (
             <ComparisonPanel view={reportView} facts={reportFacts} />
           )}
@@ -241,20 +243,24 @@ export function ReportRenderer({
       {printComplete && reportFacts.arms ? (
         (["baseline", "variant"] as const).map((arm) => (
           <PrintVisitProvider key={arm} arm={arm}>
-            <RunEvidence reportView={reportView} displayedFacts={reportFacts.arms![arm]} arm={arm} printComplete />
+            <RunEvidence reportView={reportView} displayedFacts={reportFacts.arms![arm]} arm={arm} printComplete
+              benchmarkScope={benchmarkScope} />
           </PrintVisitProvider>
         ))
       ) : (
         <RunEvidence reportView={reportView} displayedFacts={displayedFacts}
-          arm={arms ? displayedArmLabel : undefined} printComplete={printComplete} overview={printComplete ? undefined : overview} />
+          arm={arms ? displayedArmLabel : undefined} printComplete={printComplete} overview={printComplete ? undefined : overview}
+          benchmarkScope={benchmarkScope} />
       )}
     </PrintCompleteProvider>
   );
 }
 
 /** Shared per-visit evidence: the screen selects one; paper renders every visit. */
-function RunEvidence({ reportView, displayedFacts, arm, printComplete, overview }: {
+function RunEvidence({ reportView, displayedFacts, arm, printComplete, overview, benchmarkScope }: {
   reportView: ReportView; displayedFacts: RunFacts; arm?: "baseline" | "variant"; printComplete: boolean; overview?: ReactNode;
+  /** The cohort the bottom line ranks against, when it ranks; see Finding.benchmarkScope. */
+  benchmarkScope?: string;
 }) {
   const evidenceId = useEvidenceIds();
   const displayedRun = displayedFacts.run;
@@ -435,6 +441,7 @@ function RunEvidence({ reportView, displayedFacts, arm, printComplete, overview 
                 </div>
               )}
             </dl>
+            {benchmarkScope && <p>{benchmarkScope}</p>}
             {displayedRun.conditions.disclosure && <p>{displayedRun.conditions.disclosure}</p>}
           </section>
         </aside>

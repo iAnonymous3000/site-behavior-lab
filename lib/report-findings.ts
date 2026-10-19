@@ -104,6 +104,13 @@ export type Finding = {
   evidence: string;
   benchmark?: string;
   /**
+   * On the bottom-line card, set exactly when it ranks this visit against
+   * corpus percentiles: the cohort and coverage those percentiles come from.
+   * The card does not render it; the methodology block and the evidence
+   * receipt do, so they state a cohort only when the card ranks against one.
+   */
+  benchmarkScope?: string;
+  /**
    * True on cards that describe this REPORT's methodology (an ineligible
    * pair) rather than the site's observed behavior. The bottom line
    * summarizes observed signals, so these never flip it to "review-worthy".
@@ -324,18 +331,29 @@ function listenerCoverageCategories(eventTypes: string[]): string[] {
   ).map((entry) => entry.category);
 }
 
+/**
+ * The cohort a ranked bottom line's percentiles come from, and that cohort's
+ * coverage, for the methodology block and the evidence receipt.
+ *
+ * Both used to sit inside the bottom-line card, in the middle of one 88-word
+ * sentence on 880 committed reports. The card keeps the two things a reader
+ * needs beside the verdict (the corpus is not a random sample, and each
+ * percentile card names its own denominator); this states the rest, in
+ * sentences, wherever the report states its method.
+ */
 function corpusBenchmarkScope(corpus: CorpusStats): string {
   const coverage = corpus.coverageSiteCount;
+  const coverageStated = typeof coverage === "number" && coverage > corpus.sampleSize;
   if (corpus.cohorts && corpus.primaryCohortId) {
-    return `report's exact schema, methodology, tracker-catalog, ServiceRole-taxonomy, metric-contract, producer, and Global Privacy Control cohort, with each percentile card naming its metric-specific measured-site denominator${
-      typeof coverage === "number" && coverage > corpus.sampleSize
-        ? ` (among ${coverage.toLocaleString("en-US")} sites with a successful load across all cohorts; other methodologies, request-capped visits, and post-choice consent visits are excluded from this denominator, while failed or block-page attempts are outside that coverage)`
+    return `Severity percentiles come from this report's exact schema, methodology, tracker-catalog, ServiceRole-taxonomy, metric-contract, producer, and Global Privacy Control cohort.${
+      coverageStated
+        ? ` Each percentile card's measured sites are among ${coverage.toLocaleString("en-US")} sites with a successful load across all cohorts. Other methodologies, request-capped visits, and post-choice consent visits are excluded from each card's denominator, while failed or block-page attempts are outside that coverage.`
         : ""
     }`;
   }
-  return `legacy-v1 cohort, with each percentile card naming its metric-specific measured-site denominator${
-    typeof coverage === "number" && coverage > corpus.sampleSize
-      ? ` (among ${coverage.toLocaleString("en-US")} sites with a successful load; request-capped, post-choice consent, and v2 loads are included in that coverage but excluded from this legacy-v1 cohort, while failed or block-page attempts are outside it)`
+  return `Severity percentiles come from the legacy-v1 cohort.${
+    coverageStated
+      ? ` Each percentile card's measured sites are among ${coverage.toLocaleString("en-US")} sites with a successful load. Request-capped, post-choice consent, and v2 loads are included in that coverage but excluded from this legacy-v1 cohort, while failed or block-page attempts are outside it.`
       : ""
   }`;
 }
@@ -2060,6 +2078,12 @@ export function buildFindings(
       .filter((finding) => finding.methodology !== true && finding.incompleteOnly !== true)
       .map((finding) => finding.level)
   );
+  // One gate for both halves: the card says it ranks against a cohort, and
+  // the methodology block and receipt name that cohort, only when it does.
+  const benchmarkScope =
+    corpusIsUsable(corpus) && (domainsBenchmarkAllowed || cookiesBenchmarkAllowed)
+      ? corpusBenchmarkScope(corpus)
+      : null;
   const detectorQuiet =
     !censoredQuiet &&
     !unsupportedQuiet &&
@@ -2102,8 +2126,8 @@ export function buildFindings(
                 ? " Some detector evidence was incomplete; each affected detector card states its own retained or unavailable scope, while completed request, cookie, and storage measurements keep their recorded exactness."
               : ""
           }`,
-    detail: corpusIsUsable(corpus) && (domainsBenchmarkAllowed || cookiesBenchmarkAllowed)
-      ? `The cards below translate the evidence into plain language. Where a measured distribution exists, severity ranks this visit against percentiles from the ${corpusBenchmarkScope(corpus)}, a curated set of popular, mostly commercial sites, not a random sample of the web, and otherwise uses fixed reference thresholds. The request log, domain table, and methodology remain below for verification.`
+    detail: benchmarkScope !== null
+      ? "The cards below translate the evidence into plain language. Where a measured distribution exists, severity ranks this visit against percentiles from this report's cohort, with each percentile card naming its metric-specific measured-site denominator; otherwise it uses fixed reference thresholds. That cohort is drawn from a curated set of popular, mostly commercial sites, not a random sample of the web. The request log, domain table, and methodology remain below for verification."
       : corpusIsUsable(corpus)
         ? "The cards below translate the evidence into plain language. This failed or incomplete evidence is not ranked against corpus percentiles; positive signals remain visible as lower bounds. The request log, domain table, and methodology remain below for verification."
         : "The cards below translate the evidence into plain language; severity reflects fixed reference thresholds, not measured population percentiles. The request log, domain table, and methodology remain below for verification.",
@@ -2112,7 +2136,8 @@ export function buildFindings(
       "request",
       "requests",
       facts.evidence.requests.state
-    )} observed in one controlled visit.`
+    )} observed in one controlled visit.`,
+    ...(benchmarkScope !== null ? { benchmarkScope } : {})
   });
 
   // Emit every finding. The conditionals above bound this to at most ~9 cards,
