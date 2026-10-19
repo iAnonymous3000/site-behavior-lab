@@ -8,7 +8,9 @@ import {
 } from "./bot-wall-classifier";
 import { createConsentComparisonReport, createGpcComparisonReport, createShieldsComparisonReport } from "./compare-reports";
 import { corpusCohortIdentityForView } from "./corpus-cohort";
+import { loadCommittedCorpusStats } from "./current-scan-cohort";
 import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "./gpc-injection";
+import { renderedEvidenceArm } from "./report-evidence-navigation";
 import { buildReportFacts, REPORT_SEVERITY_LABELS } from "./report-facts";
 import { buildFindings, provenanceChangeText, requestProvenanceSummary, type Finding, type FindingIconKey } from "./report-findings";
 import { buildReportHeadline } from "./report-headline";
@@ -37,6 +39,7 @@ import {
   displayRunView,
   familyCensoredOnRun,
   requestEvidenceState,
+  toReportView,
   viewFromV1Report,
   viewFromV2
 } from "./scan-report-views";
@@ -599,15 +602,154 @@ test("uses measured percentile wording when the corpus is usable, fixed threshol
   assert.equal(byId(withoutCorpus, "bottom-line").benchmarkScope, undefined);
 });
 
-/** No sentence of a card's visible text runs past `limit` words. */
+/**
+ * No sentence of a card's visible text runs past `limit` words, and no list
+ * joins whole sentences with a comma or "and" ("...as matching., The baseline
+ * visit ..."), which reads as one sentence however short its parts are. The
+ * split is deliberately conservative: a sentence that opens with a numeral or
+ * a lowercase word counts as part of the one before it.
+ */
 function assertSentencesAtMost(finding: Finding, limit: number) {
-  for (const text of [finding.title, finding.lead, finding.detail, finding.evidence, finding.benchmarkScope ?? ""]) {
+  for (const text of [
+    finding.title,
+    finding.lead,
+    finding.detail,
+    finding.evidence,
+    finding.benchmark ?? "",
+    finding.benchmarkScope ?? ""
+  ]) {
+    assert.doesNotMatch(text, /[.!?](?:,| and) /, `${finding.id} joins whole sentences into a list: ${text}`);
     for (const sentence of text.split(/(?<=[.!?])\s+(?=[A-Z"(])/)) {
       const words = sentence.match(/\S+/g)?.length ?? 0;
-      assert.ok(words <= limit, `${words} words: ${sentence}`);
+      assert.ok(words <= limit, `${finding.id}: ${words} words: ${sentence}`);
     }
   }
 }
+
+test("no sentence on a committed report's findings cards runs past 35 words", async () => {
+  // Every committed report's board, built the way its permalink builds it:
+  // the committed corpus statistics and the headline's focus arm. Sentences
+  // of up to 63 words used to reach readers here, most of them lists of
+  // whole sentences or clauses joined with commas.
+  const reportsDir = path.join(process.cwd(), "public", "reports");
+  const files = readdirSync(reportsDir).filter((name) => /^[0-9]{8}-[0-9a-f]{32}\.json$/.test(name));
+  assert.ok(files.length > 0, "no committed reports under public/reports; this test would be vacuous");
+  const corpus = await loadCommittedCorpusStats();
+  assert.ok(corpus, "public/corpus-stats.json must load, or the percentile sentences go unchecked");
+  let cards = 0;
+  for (const name of files) {
+    const read = readStoredScanReport(JSON.parse(readFileSync(path.join(reportsDir, name), "utf8")));
+    assert.equal(read.ok, true, `reader rejected committed report ${name}`);
+    if (!read.ok) continue;
+    const view = toReportView(read.stored);
+    const facts = buildReportFacts(view);
+    const headline = buildReportHeadline(view, facts);
+    for (const finding of buildFindings(view, corpus, facts, renderedEvidenceArm(view, headline))) {
+      assertSentencesAtMost(finding, 35);
+      cards += 1;
+    }
+  }
+  assert.ok(cards > files.length, `only ${cards} cards across ${files.length} reports`);
+});
+
+test("card sentences stay short on branches no committed report reaches", () => {
+  // Both one-sided consent pairs.
+  const clicked = (mode: "accept-all" | "reject-all") => ({
+    ...makeResult({ firstPartyDomain: "shop.example", thirdPartyRequests: 20 }),
+    consentInteraction: { mode, clicked: true, cmp: "Cookiebot" }
+  });
+  const unclicked = (mode: "accept-all" | "reject-all") => ({
+    ...makeResult({ firstPartyDomain: "shop.example", thirdPartyRequests: 18 }),
+    consentInteraction: { mode, clicked: false }
+  });
+  for (const [accept, reject] of [
+    [clicked("accept-all"), unclicked("reject-all")],
+    [unclicked("accept-all"), clicked("reject-all")]
+  ]) {
+    const card = byId(buildFindings(viewFromV1Report(consentPair(accept, reject)), null), "consent-comparison");
+    assert.match(card.title, /^Only the (?:Accept|Reject) all control's activation was recorded$/);
+    assertSentencesAtMost(card, 35);
+  }
+
+  // A shared framework endpoint, whose description is the longest platform
+  // phrase, ahead of catalogued trackers that did not all answer.
+  const frameworkDomain: DomainSummary = {
+    domain: "mysite.mgr.consensu.org",
+    requests: 2,
+    thirdParty: true,
+    tracker: null,
+    statuses: [200],
+    resourceTypes: ["script"]
+  };
+  const silentTracker = { ...makeTrackerDomain("pixel.example", 2, "PixelCo", "advertising"), statuses: [] };
+  const framework = byId(
+    buildFindings(
+      viewFromV1Report(
+        makeResult({
+          domains: [frameworkDomain, makeTrackerDomain("ads.example", 3, "AdCo", "advertising"), silentTracker]
+        })
+      ),
+      null
+    ),
+    "consent-banner"
+  );
+  assert.match(framework.lead, /shared by many consent management platforms/);
+  assert.match(framework.lead, /before the scanner made any consent choice; 1 company answered\.$/);
+  assertSentencesAtMost(framework, 35);
+
+  // Both count checks contradicted at once, and the conditional pixel check.
+  const counted = makeResult({ thirdPartyCookies: 3 });
+  counted.privacyPolicy = {
+    url: "https://example.com/privacy",
+    claims: [
+      { kind: "no-third-party-cookies", quote: "We do not use third-party cookies." },
+      { kind: "no-cookies", quote: "We do not use cookies." }
+    ],
+    mentionedEntities: [],
+    unmentionedEntities: [],
+    policyTextLength: 5000
+  };
+  const countedCard = byId(buildFindings(viewFromV1Report(counted), null), "privacy-policy");
+  assert.equal(
+    countedCard.lead,
+    "Comparing the site's own privacy policy against this visit: the policy says third-party cookies are not used, but 3 third-party cookies appeared in this visit. The policy says cookies are not used, but 3 cookies appeared in this visit."
+  );
+  assertSentencesAtMost(countedCard, 35);
+  const pixels = makeResult({});
+  pixels.pixelEvents = ["Meta Pixel", "TikTok Pixel", "LinkedIn Insight Tag", "Pinterest Tag"].map((product) => ({
+    platform: product.split(" ")[0]!,
+    product,
+    events: ["PageView"],
+    advancedMatching: ["email"],
+    requests: 1
+  }));
+  pixels.privacyPolicy = {
+    url: "https://example.com/privacy",
+    claims: [{ kind: "no-selling-or-sharing", quote: "We do not sell or share your personal information." }],
+    mentionedEntities: [],
+    unmentionedEntities: [],
+    policyTextLength: 5000
+  };
+  const pixelCard = byId(buildFindings(viewFromV1Report(pixels), null), "privacy-policy");
+  assert.match(pixelCard.title, /may conflict/);
+  assert.match(pixelCard.lead, /IF those fields held real visitor data, many regulators treat that as sharing\./);
+  assert.match(pixelCard.lead, /never stores the values\.$/);
+  assertSentencesAtMost(pixelCard, 35);
+
+  // A cut-short quiet visit with three recorded causes.
+  const capped: ScanResult = {
+    ...makeResult({ firstPartyDomain: "quiet.example", totalRequests: 1200 }),
+    warnings: [
+      "The scan stopped loading additional response bytes after reaching the 64 MiB aggregate response-byte budget.",
+      "The scan stopped forwarding additional request bytes after reaching the 8 MiB aggregate upload-byte budget."
+    ]
+  };
+  assert.equal(runCensorshipNotes(displayRunView(viewFromV1Report(capped))).length, 3);
+  const bottomLine = byId(buildFindings(viewFromV1Report(capped), null), "bottom-line");
+  assert.match(bottomLine.title, /cut short/);
+  assert.match(bottomLine.lead, / Recorded cause: [^.]+\. Another recorded cause: [^.]+\. The report records 1 other cause\.$/);
+  assertSentencesAtMost(bottomLine, 35);
+});
 
 test("a v2 view is never benchmarked against the v1-only corpus", () => {
   // A legacy v1-only artifact carries no v2 cohort, so ranking a v2 report
@@ -1750,7 +1892,10 @@ test("a listener origin is called a third-party script only when the report attr
   assert.equal(ownCdnCard.title, "Input-monitoring signal involving a script from another domain");
   assert.doesNotMatch(ownCdnCard.title, /third-party/);
   assert.doesNotMatch(ownCdnCard.lead, /third-party script/);
-  assert.match(ownCdnCard.lead, /a script served from another registrable domain, whose operator this scan did not establish/);
+  assert.match(
+    ownCdnCard.lead,
+    /a script served from another registrable domain\. This scan did not establish the operator of that script\.$/
+  );
   assert.match(ownCdnCard.evidence, /shopassets\.example/);
 
   // The same origin with a catalog match on its requests is attributed to a
@@ -3001,7 +3146,7 @@ test("committed WebGL detections under the earlier single-signal rule read at in
   assert.match(capitaloneCard.detail, /The WebGL detection satisfied only the earlier single-signal rule/);
   assert.match(
     capitaloneCard.evidence,
-    /WebGL entropy-read heuristic \(earlier single-signal rule\): 0 parameter reads and 1 pixel readback$/
+    /WebGL entropy-read heuristic \(earlier single-signal rule\): 0 parameter reads and 1 pixel readback\.$/
   );
 
   // Keyed on evidence shape, not on the report: the same run with both

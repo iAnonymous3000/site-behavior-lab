@@ -332,6 +332,23 @@ function listenerCoverageCategories(eventTypes: string[]): string[] {
 }
 
 /**
+ * Complete sentences, one after another, for a card a non-expert reads.
+ * humanList joins with commas and "and", which suits names and breaks
+ * sentences: an ineligible pair's reasons rendered as "...never counts as
+ * matching., The baseline visit ... totals. and The variant visit ...", one
+ * 63-word run-on. Items past `limit` are counted in a closing sentence.
+ */
+function sentenceSequence(items: readonly string[], limit: number, overflow: (count: number) => string): string {
+  const shown = items.slice(0, limit).map((item) => (/[.!?]$/.test(item) ? item : `${item}.`));
+  const remaining = items.length - shown.length;
+  return [...shown, ...(remaining > 0 ? [overflow(remaining)] : [])].join(" ");
+}
+
+function capitalizeSentence(text: string): string {
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
+/**
  * The cohort a ranked bottom line's percentiles come from, and that cohort's
  * coverage, for the methodology block and the evidence receipt.
  *
@@ -541,12 +558,11 @@ export function buildFindings(
     unclassifiedNames.length > 0
       ? ` The role taxonomy leaves at least one catalog category unclassified for these identified services and assigns none a tracking-related role, so they are not counted as tracking-related: ${humanList(unclassifiedNames)}.`
       : "";
+  // Opens with words, not the count: a sentence that starts with a numeral
+  // reads as a continuation of the one before it.
   const sameOrganizationNote =
     ownership.sameOrganizationDomainCount > 0
-      ? ` ${plural(
-          ownership.sameOrganizationDomainCount,
-          "catalogued cross-site domain"
-        )} ${
+      ? ` Of the catalogued cross-site domains, ${ownership.sameOrganizationDomainCount.toLocaleString("en-US")} ${
           ownership.sameOrganizationDomainCount === 1 ? "belongs" : "belong"
         } to the same reviewed ${ownership.sameOrganizationName ?? "organization"} domain family as the site, so that traffic is not evidence of disclosure to an outside company.`
       : "";
@@ -748,9 +764,11 @@ export function buildFindings(
             : consentPlatformAnswered
               ? "A consent management platform answered"
               : "A consent management platform was requested",
+      // The tracker count is a sentence of its own: after the platform phrase,
+      // the lead ran 39 words, and about 55 with a framework endpoint's.
       lead:
         preConsentTrackers > 0
-          ? `${visibleDomain} sent a request to ${consentPlatformPhrase}, and the request log included ${retainedCountPhrase(
+          ? `${visibleDomain} sent a request to ${consentPlatformPhrase}. The request log included ${retainedCountPhrase(
               preConsentTrackers,
               "distinct catalogued tracking-related service",
               "distinct catalogued tracking-related services",
@@ -850,10 +868,12 @@ export function buildFindings(
     const noSellingOrSharing = policyClaim("no-selling-or-sharing");
     const pixelsWithIdentifiers = pixelEventSummaries(run.evidence).filter((pixel) => pixel.advancedMatching.length > 0);
     if (noSellingOrSharing && pixelsWithIdentifiers.length > 0) {
+      // Four sentences, not one: as a single clause with its condition and
+      // its limit, this entry ran the lead to about 60 words.
       conditionalConflicts.push(
-        `the policy says personal information is not sold or shared, and advertising events to ${humanList(
+        `the policy says personal information is not sold or shared. Advertising events to ${humanList(
           pixelsWithIdentifiers.map((pixel) => pixel.product)
-        )} carried populated personal-identifier fields in this visit; IF those fields held real visitor data, many regulators treat that as sharing, but the scanner only checks those fields for being non-empty and never stores the values`
+        )} carried populated personal-identifier fields in this visit. IF those fields held real visitor data, many regulators treat that as sharing. However, the scanner only checks those fields for being non-empty and never stores the values`
       );
       quotes.push(noSellingOrSharing.quote);
     }
@@ -894,13 +914,17 @@ export function buildFindings(
     );
     const namedCount = mentionedTrackingEntities.length;
     const totalObserved = namedCount + unmentionedTrackingEntities.length;
-    const coverage = (
+    const coverage =
       totalObserved > 0
         ? `${namedCount} of ${plural(totalObserved, "observed tracking company", "observed tracking companies")} named in the policy`
         : unknownPolicyMentions.length > 0
           ? "no reliable company-mention results available"
-          : "no catalogued tracking companies observed to check against it") +
-      (unknownPolicyMentions.length ? `; policy mentions of ${humanList(unknownPolicyMentions)} are unknown because the historical alias matcher was incomplete` : "");
+          : "no catalogued tracking companies observed to check against it";
+    // A sentence of its own after the coverage, never inside its parenthetical,
+    // where it ran a lead to 47 words.
+    const unknownPolicyMentionsNote = unknownPolicyMentions.length
+      ? ` Policy mentions of ${humanList(unknownPolicyMentions)} are unknown because the historical alias matcher was incomplete.`
+      : "";
 
     // A "nothing contradicted" reassurance is itself an absence claim over
     // the checked evidence, so censored collection hedges it.
@@ -928,8 +952,8 @@ export function buildFindings(
       (policyAbsenceIneligible || noCheckableClaims);
     const policyAbsence = absenceCopy(facts, "privacy-policy", {
       title: "Privacy policy read; no checked statement contradicted",
-      lead: `The policy's checkable statements did not contradict this visit's evidence (${coverage}).`,
-      retainedEvidenceLead: `The policy's checkable statements did not contradict the retained evidence (${coverage}).`
+      lead: `The policy's checkable statements did not contradict this visit's evidence (${coverage}).${unknownPolicyMentionsNote}`,
+      retainedEvidenceLead: `The policy's checkable statements did not contradict the retained evidence (${coverage}).${unknownPolicyMentionsNote}`
     });
     findings.push({
       id: "privacy-policy",
@@ -953,23 +977,25 @@ export function buildFindings(
               : noCheckableClaims
                 ? "Privacy policy read; it made no statement this scan can check"
                 : policyAbsence.title,
+      // Each conflict is its own sentence after the first: joined with "and",
+      // the two count checks made a 40-word sentence.
       lead:
-        conflicts.length > 0
-          ? `Comparing the site's own privacy policy against this visit: ${humanList(conflicts, 3)}.`
-          : conditionalConflicts.length > 0
-            ? `Comparing the site's own privacy policy against this visit: ${humanList(conditionalConflicts, 2)}.`
-            : unmentionedTrackingEntities.length > 0
-              ? `${humanList(unmentionedTrackingEntities)} ${unmentionedTrackingEntities.length === 1 ? "was" : "were"} sent requests during this visit, but the policy text matched none of the names this scan knows ${unmentionedTrackingEntities.length === 1 ? "that company" : "those companies"} by.`
-              : noCheckableClaims
-                ? `None of the statements this scan knows how to check appear in the policy text, so nothing was compared against this visit's evidence (${coverage}). That is a limit of the automated check, not a finding about the site either way.`
-                : policyAbsence.lead,
+        conflicts.length > 0 || conditionalConflicts.length > 0
+          ? `Comparing the site's own privacy policy against this visit: ${(conflicts.length > 0 ? conflicts : conditionalConflicts)
+              .map((conflict, index) => `${index === 0 ? conflict : capitalizeSentence(conflict)}.`)
+              .join(" ")}`
+          : unmentionedTrackingEntities.length > 0
+            ? `${humanList(unmentionedTrackingEntities)} ${unmentionedTrackingEntities.length === 1 ? "was" : "were"} sent requests during this visit, but the policy text matched none of the names this scan knows ${unmentionedTrackingEntities.length === 1 ? "that company" : "those companies"} by.`
+            : noCheckableClaims
+              ? `None of the statements this scan knows how to check appear in the policy text, so nothing was compared against this visit's evidence (${coverage}).${unknownPolicyMentionsNote} That is a limit of the automated check, not a finding about the site either way.`
+              : policyAbsence.lead,
       detail:
         conflicts.length > 0 || conditionalConflicts.length > 0
           ? `Matched policy wording: ${quotes.map((quote) => `"${quote}"`).join(" / ")}. This is an automated sentence match against the policy's own text, quoted so it can be verified in context. Policies can define terms narrowly (such as what counts as selling or sharing), so treat this as a documented discrepancy to review, not a legal conclusion.`
           : unmentionedTrackingEntities.length > 0
             ? `Policies often disclose vendor categories rather than company names, so an unnamed vendor is a transparency gap worth reviewing, not automatically a violation.${namedCount > 0 ? ` Named in the policy: ${humanList(mentionedTrackingEntities)}.` : ""}`
             : `Statements checked automatically: blanket no-cookie claims, third-party-cookie claims, and combined do-not-sell-or-share claims against advertising-pixel identifier fields. Global Privacy Control claims are never checked against request counts, which cannot show whether selling or sharing stopped.${policyEvidenceCensored ? CENSORED_ABSENCE_NOTE : ""}`,
-      evidence: `Policy at ${policy.url}; ${plural(checkablePolicyClaims.length, "checkable statement")} matched; ${coverage}.`,
+      evidence: `Policy at ${policy.url}; ${plural(checkablePolicyClaims.length, "checkable statement")} matched; ${coverage}.${unknownPolicyMentionsNote}`,
       claim: findingClaim(
         facts,
         "privacy-policy",
@@ -1372,10 +1398,16 @@ export function buildFindings(
         ? `${plural(calls, noun)} attributed across ${names} and same-site origins the probe could not separate`
         : `${plural(calls, noun)} with ${names} in the registration call chain`;
     };
+    // One labeled sentence per note: joined into one list they read as a
+    // single sentence of up to 46 words.
     const behaviorNotes = [
-      listenerNote(sessionRecordingDetection, "interaction-listener registration"),
-      listenerNote(inputMonitoringDetection, "input-listener registration"),
-      sessionReplayNames.length > 0 ? `known session-replay vendor(s): ${humanList(sessionReplayNames)}` : ""
+      sessionRecordingDetection
+        ? `${detectionLabel(sessionRecordingDetection.detection)}: ${listenerNote(sessionRecordingDetection, "interaction-listener registration")}.`
+        : "",
+      inputMonitoringDetection
+        ? `${detectionLabel(inputMonitoringDetection.detection)}: ${listenerNote(inputMonitoringDetection, "input-listener registration")}.`
+        : "",
+      sessionReplayNames.length > 0 ? `Known session-replay vendor(s): ${humanList(sessionReplayNames)}.` : ""
     ].filter(Boolean);
     const replayCorroborated = Boolean(sessionRecordingDetection && sessionReplayNames.length > 0);
     // "Third-party script" only when the report attributes at least one
@@ -1391,9 +1423,9 @@ export function buildFindings(
       listenerOriginAttributedToOutsideOperator(run.evidence, run.domain, origin)
     );
     const scriptNoun = outsideOperatorAttributed ? "a third-party script" : "a script from another domain";
-    const scriptPhrase = outsideOperatorAttributed
-      ? "a third-party script"
-      : "a script served from another registrable domain, whose operator this scan did not establish";
+    const scriptPhrase = outsideOperatorAttributed ? "a third-party script" : "a script served from another registrable domain";
+    // Its own sentence: as a relative clause it ran the lead to 38 words.
+    const scriptOperatorNote = outsideOperatorAttributed ? "" : " This scan did not establish the operator of that script.";
     // Named from this detection's own event types, never from the vocabulary
     // the gate draws on, so the lead cannot claim coverage of an event class
     // no listener in this visit was registered for.
@@ -1418,20 +1450,22 @@ export function buildFindings(
             ? `Interaction-monitoring signal involving ${scriptNoun}`
             : "Session-replay vendor observed",
       lead: inputMonitoringDetection
-        ? `Listener coverage that could observe typing-related input events was registered through call chains that included ${scriptPhrase}.`
+        ? `Listener coverage that could observe typing-related input events was registered through call chains that included ${scriptPhrase}.${scriptOperatorNote}`
         : replayCorroborated
-          ? `The page registered broad interaction listeners through call chains that included ${scriptPhrase}, and contacted a known session-replay service.`
+          ? `The page registered broad interaction listeners through call chains that included ${scriptPhrase}, and contacted a known session-replay service.${scriptOperatorNote}`
           : sessionRecordingDetection
             ? sessionCategories.length > 0
               ? `Broad ${humanList(
                   sessionCategories,
                   LISTENER_EVENT_CATEGORIES.length
-                )} listener coverage was registered during the visit through call chains that included ${scriptPhrase}.`
-              : `Broad interaction listener coverage was registered during the visit through call chains that included ${scriptPhrase}.`
+                )} listener coverage was registered during the visit through call chains that included ${scriptPhrase}.${scriptOperatorNote}`
+              : `Broad interaction listener coverage was registered during the visit through call chains that included ${scriptPhrase}.${scriptOperatorNote}`
             : `${humanList(sessionReplayNames)} appeared in the request log.`,
+      // Every clause here is a hedge an audit asked for; the sentences were
+      // split, never trimmed, when three of them ran 37 to 45 words.
       detail:
-        "This is a behavioral instrumentation signal from listener registration, stack-attributed script origins, and known-vendor requests: it shows the page was instrumented to observe interaction, not that anything was transmitted. Stack attribution records the script origins present in the bounded registration call chain; a cross-site origin in that chain does not by itself establish that the cross-site script registered the listener, because first-party code can register its own listeners through a helper served from elsewhere. A different registrable domain is also not by itself a different operator: sites commonly serve their own scripts from a separate asset domain, so the card says third party only when the catalog or reviewed ownership attributes an origin to another organization. On scanners that run the active keystroke-capture probe, actual transmission is tested separately (a synthetic value is typed, never real input, and no typed values are collected); treat this card as a review prompt rather than proof.",
-      evidence: humanList(behaviorNotes, 4),
+        "This is a behavioral instrumentation signal from listener registration, stack-attributed script origins, and known-vendor requests: it shows the page was instrumented to observe interaction, not that anything was transmitted. Stack attribution records the script origins present in the bounded registration call chain. A cross-site origin in that chain does not by itself establish that the cross-site script registered the listener. That is because first-party code can register its own listeners through a helper served from elsewhere. A different registrable domain is also not by itself a different operator: sites commonly serve their own scripts from a separate asset domain. The card therefore says third party only when the catalog or reviewed ownership attributes an origin to another organization. On scanners that run the active keystroke-capture probe, actual transmission is tested separately (a synthetic value is typed, never real input, and no typed values are collected). Treat this card as a review prompt rather than proof.",
+      evidence: behaviorNotes.join(" "),
       claim: findingClaim(facts, "session-recording-input-monitoring", "presence")
     });
   }
@@ -1532,7 +1566,7 @@ export function buildFindings(
         : highEntropyDetections.length > 0
         ? `These heuristics look for behavior patterns such as canvas readback after drawing, repeated canvas font measurement, WebGL entropy reads, offline audio rendering, or WebRTC peer-connection setup. They are review prompts for this visit, not proof of cross-site identity tracking.${
             singleSignalWebglDetections.length > 0
-              ? ` The WebGL detection satisfied only the earlier single-signal rule (${SINGLE_SIGNAL_WEBGL_RULE}), so it is listed in the evidence but not counted among these heuristics.`
+              ? ` The WebGL detection satisfied only the earlier single-signal rule, so it is listed in the evidence but not counted among these heuristics. ${capitalizeSentence(SINGLE_SIGNAL_WEBGL_RULE)}.`
               : ""
           }`
         : singleSignalWebglOnly
@@ -1544,13 +1578,16 @@ export function buildFindings(
       detectorUnsupported
         ? "Unsupported by the request-only PageGraph r2 producer."
         : highEntropyDetections.length > 0
-        ? humanList(
-            [
-              ...highEntropyDetections.map(detectionEvidence),
-              ...singleSignalWebglDetections.map((detection) => `${detectionLabel(detection)}: ${detectionEvidence(detection)}`)
-            ],
+        ? // One labeled sentence per detection. Joined into one list, each
+          // detection's own semicolons ran together into a 50-word sentence
+          // whose numbers no longer said which heuristic they belonged to.
+          sentenceSequence(
+            [...highEntropyDetections, ...singleSignalWebglDetections].map(
+              (detection) => `${detectionLabel(detection)}: ${detectionEvidence(detection)}.`
+            ),
             // The detail promises the single-signal entry is listed here.
-            4 + singleSignalWebglDetections.length
+            4 + singleSignalWebglDetections.length,
+            (count) => `Plus ${plural(count, "other detection")}.`
           )
         : singleSignalWebglOnly
           ? humanList(singleSignalWebglDetections.map(detectionEvidence), 4)
@@ -1647,7 +1684,7 @@ export function buildFindings(
         engineBlocks && engineBlocks.kind === "engine-blocked"
           ? direction === "decreased"
             ? ` The blocking visit's engine directly blocked ${plural(engineBlocks.count, "request")}; the remaining difference may include follow-on requests that never started once their sources were blocked.`
-            : ` The blocking visit's engine directly blocked ${plural(engineBlocks.count, "request")}; ad rotation, experiments, or caching between the two visits can offset or outweigh what blocking removed, which is how totals can hold steady or rise despite direct blocks.`
+            : ` The blocking visit's engine directly blocked ${plural(engineBlocks.count, "request")}. Ad rotation, experiments, or caching between the two visits can offset or outweigh what blocking removed, which is how totals can hold steady or rise despite direct blocks.`
           : "";
 
       if (signedDeltas.length === 0) {
@@ -1662,9 +1699,13 @@ export function buildFindings(
         // "Brave-list blocking", never "Brave Shields on": the blocking arm
         // ran Brave's ad-block engine and default Shields lists as a block
         // SIMULATION in this scanner's browser, not a live Brave visit.
+        // The setup and that caveat are sentences of their own. Inside one
+        // parenthetical they made the lead a 47-word sentence on most committed
+        // Shields comparisons, and the flat branch nested one parenthesis in
+        // another.
         const simulationNote = view.claims.interventionAttribution
-          ? "Brave's ad-block engine and default Shields filter lists verified as actively blocking (a simulation in this scanner's browser, not a live Brave-browser visit)"
-          : "the scanner configured to apply Brave's ad-block engine and default Shields filter lists (a simulation in this scanner's browser, not a live Brave-browser visit; application was not verified)";
+          ? "The blocking visit ran with Brave's ad-block engine and default Shields filter lists verified as actively blocking. It was a simulation in this scanner's browser, not a live Brave-browser visit."
+          : "The blocking visit ran with the scanner configured to apply Brave's ad-block engine and default Shields filter lists. It was a simulation in this scanner's browser, not a live Brave-browser visit, and application was not verified.";
         findings.unshift({
           id: "shields-comparison",
           icon: "shield-check",
@@ -1679,11 +1720,11 @@ export function buildFindings(
                   : "No change observed in the Brave-list blocking attempt",
           lead:
             direction === "flat"
-              ? `The blocking visit (${simulationNote}) showed no change in the comparable metrics (${humanList(
+              ? `${simulationNote} Compared with the unblocked visit, it showed no change in the comparable metrics (${humanList(
                   signedDeltas.map((delta) => delta.label),
                   4
                 )}).`
-              : `With ${simulationNote}, this paired visit showed ${humanList(changedParts, 4)}.`,
+              : `${simulationNote} Compared with the unblocked visit, it showed ${humanList(changedParts, 4)}.`,
           detail: `${
             removedEntityNames.length > 0 ? `Services only seen in the unblocked visit: ${humanList(removedEntityNames)}. ` : ""
           }${engineNote ? `${engineNote.trim()} ` : ""}A single paired comparison can also reflect run-to-run variance (ad rotation, caching, experiments), so treat this as ${
@@ -2014,6 +2055,13 @@ export function buildFindings(
   }
 
   const censorshipNotes = runCensorshipNotes(run);
+  // One sentence per recorded cause: two causes joined with "and" made a
+  // sentence of about 60 words.
+  const recordedCauses = [
+    censorshipNotes.length > 0 ? ` Recorded cause: ${censorshipNotes[0]}.` : "",
+    censorshipNotes.length > 1 ? ` Another recorded cause: ${censorshipNotes[1]}.` : "",
+    censorshipNotes.length > 2 ? ` The report records ${plural(censorshipNotes.length - 2, "other cause")}.` : ""
+  ].join("");
   const unsupportedFamilies = unsupportedEvidenceFamilies(run);
   const activityCensoredFamilies = [
     facts.evidence.requests.state === "censored"
@@ -2106,17 +2154,11 @@ export function buildFindings(
     lead: censoredQuiet
       ? `Evidence collection did not finish for ${humanList(
           activityCensoredFamilies.map((entry) => entry.label)
-        )}, so the quiet result reflects incomplete activity evidence, not a verdict about the site. The scoped effect is that ${activityCensoringEffects}.${
-          censorshipNotes.length > 0
-            ? ` Recorded cause: ${humanList(censorshipNotes, 2)}.`
-            : ""
-        }`
+        )}, so the quiet result reflects incomplete activity evidence, not a verdict about the site. The scoped effect is that ${activityCensoringEffects}.${recordedCauses}`
       : unsupportedQuiet
         ? `Request evidence was recorded, but ${humanList(unsupportedFamilies)} evidence is unsupported by this producer. Those zero-valued fields are unavailable measurements, not observed absences.`
       : detectorQuiet
-        ? `The automated visit did not observe known third-party services, third-party cookies, or instrumented fingerprint-like calls. A detector did not finish, so that absence is not established for its scope; its own card states what was retained.${
-            censorshipNotes.length > 0 ? ` Recorded cause: ${humanList(censorshipNotes, 2)}.` : ""
-          }`
+        ? `The automated visit did not observe known third-party services, third-party cookies, or instrumented fingerprint-like calls. A detector did not finish, so that absence is not established for its scope; its own card states what was retained.${recordedCauses}`
       : quietEnough
         ? "The automated visit did not observe known third-party services, third-party cookies, or instrumented fingerprint-like calls."
         : `The scan observed signals a non-expert should not have to decode from raw request tables.${
@@ -2220,7 +2262,11 @@ function ineligibleComparisonFinding(id: string, title: string, gate: ClaimGate)
     level: "info",
     methodology: true,
     title,
-    lead: humanList(gate.reasons, 3),
+    lead: sentenceSequence(
+      gate.reasons,
+      3,
+      (count) => `The report's claim policy names ${plural(count, "other disqualifying condition")}.`
+    ),
     detail:
       "The raw request logs of both visits remain below for transparency, but the diff between them supports no claim about what the compared condition changed.",
     evidence: `${plural(gate.reasons.length, "disqualifying condition")} named by the report's claim policy.`
@@ -2283,7 +2329,7 @@ function buildConsentComparisonFinding(
       title: "No consent control activation was recorded in either visit",
       lead: "Neither visit recorded a control activation, so neither can be shown to reflect the choice it attempted, and this diff mostly shows run-to-run variance.",
       detail:
-        "Many consent banners are only shown to visitors in regions where the law requires them (the EEA, UK, or California), so this scanner's location may simply not be served one; a banner may also use controls this scanner's catalog does not recognize, or a click may have been dispatched on a candidate that showed no observable reaction within the scanner's confirmation window. No claim about the site's consent behavior can be made from this pair of visits.",
+        "Many consent banners are only shown to visitors in regions where the law requires them (the EEA, UK, or California), so this scanner's location may simply not be served one. A banner may also use controls this scanner's catalog does not recognize. Or a click may have been dispatched on a candidate that showed no observable reaction within the scanner's confirmation window. No claim about the site's consent behavior can be made from this pair of visits.",
       evidence
     };
   }
@@ -2302,10 +2348,10 @@ function buildConsentComparisonFinding(
       // detail offering only missing-control and unmatched-control causes, both
       // state as fact something this pair of visits did not establish.
       title: `Only the ${clickedLabel} control's activation was recorded`,
-      lead: `The ${clickedLabel} visit clicked the banner, but the ${missingLabel} visit recorded no control activation, so that run cannot be shown to reflect its choice and this diff does not measure the ${missingLabel.toLowerCase()} choice.`,
+      lead: `The ${clickedLabel} visit clicked the banner, but the ${missingLabel} visit recorded no control activation. That run therefore cannot be shown to reflect its choice, and this diff does not measure the ${missingLabel.toLowerCase()} choice.`,
       detail:
         missingLabel === "Reject all"
-          ? "Several situations produce this record and the report cannot tell them apart: the banner may offer no first-layer reject control and put refusal behind a settings layer this scanner does not navigate, the control may have been present in a form this scanner's catalog does not match, or a click may have been dispatched on a candidate that showed no observable reaction within the scanner's confirmation window. Treat the asymmetry as a prompt to check the banner yourself, not as a finding about how the banner is built."
+          ? "Several situations produce this record, and the report cannot tell them apart. The banner may offer no first-layer reject control and put refusal behind a settings layer this scanner does not navigate. The control may instead have been present in a form this scanner's catalog does not match. Or a click may have been dispatched on a candidate that showed no observable reaction within the scanner's confirmation window. Treat the asymmetry as a prompt to check the banner yourself, not as a finding about how the banner is built."
           : "The accept visit recorded no control activation, so the accept side of this diff cannot be shown to reflect that choice. Treat the comparison as incomplete rather than as evidence about the site's consent behavior.",
       evidence
     };
@@ -2319,12 +2365,14 @@ function buildConsentComparisonFinding(
       title: `Requests were sent to ${plural(rejectTracking.length, "distinct catalogued tracking-related service")} in the visit that clicked Reject all`,
       // The cross-arm contrast ("N appeared in the accept-click visit") is a
       // classification-family juxtaposition; without that family the card
-      // keeps the reject-click visit's own facts only.
-      lead: `In the visit where the scanner clicked Reject all, ${humanList(rejectTracking.map((entity) => entity.entity))} ${trackerResponseQualification(rejectTracking, rejectResponded)}${
+      // keeps the reject-click visit's own facts only. It is a sentence of
+      // its own: as a second parenthetical after the response qualification's
+      // own, it ran a two-name lead to 38 words.
+      lead: `In the visit where the scanner clicked Reject all, ${humanList(rejectTracking.map((entity) => entity.entity))} ${trackerResponseQualification(rejectTracking, rejectResponded)}.${
         classificationAllowed
-          ? ` (${plural(acceptTracking.length, "distinct catalogued tracking-related service")} appeared in the request log for the visit that clicked Accept all)`
+          ? ` In the request log for the visit that clicked Accept all, ${plural(acceptTracking.length, "distinct catalogued tracking-related service")} appeared.`
           : ""
-      }.`,
+      }`,
       // The comparison panel renders its per-arm entity lists only under the
       // classification family, so the pointer to them needs it too.
       detail: `${registration} ${CONSENT_WHOLE_VISIT_CAVEAT} It is a documented observation to review against the banner's promises, not a violation ruling.${

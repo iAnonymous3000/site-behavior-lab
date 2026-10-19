@@ -9,6 +9,25 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- Findings cards no longer carry sentences of up to 62 words. On 970 of the
+  1,029 committed reports, at least one card sentence ran past 35 words. Some
+  cards joined whole sentences into one list. On 103 reports an inconclusive
+  comparison's reasons read "...never counts as matching., The baseline
+  visit ... totals. and The variant visit ...". The fingerprinting and
+  listener cards ran each detection's evidence together, so the numbers no
+  longer said which heuristic they belonged to. Other cards held a caveat in
+  a parenthetical or after a semicolon, as in the Brave-list blocking card's
+  lead of up to 47 words. Each long sentence is now two or more shorter
+  ones, and nothing is dropped: every clause, caveat and count still
+  renders, and each evidence sentence names its detection. Branches no
+  committed report reaches were split too, among them a one-sided consent
+  pair, a privacy policy contradicted on two counts or on advertising
+  identifiers, and a cut-short visit with several recorded causes. A test
+  builds every committed report's cards the way its permalink does. It fails
+  on any sentence over 35 words or any list of joined sentences. This
+  changes the rendered text of 1,007 of the 1,029 committed reports at
+  a2f4077a. No stored report changes and no claim is corrected, so it takes
+  no corrections event.
 - A report's header names its format in plain words. The chip beside a v1
   report's eyebrow read "v1 schema · facts legacy-derived · descriptive
   report", which names a wire generation and a derivation step rather than

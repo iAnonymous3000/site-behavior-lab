@@ -85,7 +85,7 @@ test("a v2 pixel that fired in two phases is one platform on every reader surfac
 
   const policy = findings.find((finding) => finding.id === "privacy-policy");
   assert.ok(policy);
-  assert.match(policy.lead, /advertising events to Meta Pixel carried populated personal-identifier fields/);
+  assert.match(policy.lead, /Advertising events to Meta Pixel carried populated personal-identifier fields/);
   assert.doesNotMatch(policy.lead, /Meta Pixel and Meta Pixel/);
 
   // The wire is untouched: the per-phase rows stay the published record.

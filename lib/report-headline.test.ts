@@ -1050,9 +1050,21 @@ test("a verified consent pair leads with the Reject-all visit when only the clas
   // classification family, so the card may not point at them either.
   assert.doesNotMatch(card.detail, /diff below lists/);
 
-  const allowed = buildReportHeadline(verifiedConsentView({ acceptTrackers: true, rejectTrackers: true, classification: true }));
+  const allowedView = verifiedConsentView({ acceptTrackers: true, rejectTrackers: true, classification: true });
+  const allowed = buildReportHeadline(allowedView);
   assert.match(allowed.headline, /^example\.com still contacted 1 distinct/);
   assert.match(allowed.subhead, /The diff lists the services that appeared only in the visit that clicked Accept all\.$/);
+  // Under that family the card states the Accept-all count in a sentence of
+  // its own. As a second parenthetical after the response qualification's
+  // own, it ran a two-name lead to 38 words.
+  const allowedCard = buildFindings(allowedView, null, undefined, "variant").find(
+    (finding) => finding.id === "consent-comparison"
+  );
+  assert.ok(allowedCard);
+  assert.equal(
+    allowedCard.lead,
+    "In the visit where the scanner clicked Reject all, Google answered requests. In the request log for the visit that clicked Accept all, 1 distinct catalogued tracking-related service appeared."
+  );
 });
 
 test("a clean Reject-all visit keeps its absence headline, with cross-arm clauses only under their families", () => {
