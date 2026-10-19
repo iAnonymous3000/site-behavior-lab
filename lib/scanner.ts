@@ -4790,17 +4790,25 @@ async function probePrivacyPolicy(input: {
       scanTimeoutError
     );
     const policyText = boundedPolicyTextFromWire(policyTextWire);
-    // The title, top-level headings and the page's own policy links decide
-    // below whether this document is a policy at all, or a hub that keeps the
-    // policy on another page. Read them before the final URL check so it
-    // covers them too.
-    const { policyTitle, policyHeadings, policyPageLinks } = await withScanDeadline(
+    // The title, top-level headings, the page's own policy links and its text
+    // without its closed panels decide below whether this document is a policy
+    // at all, or a hub that keeps the policy on another page. Read them before
+    // the final URL check so it covers them too.
+    const { policyTitle, policyHeadings, policyPageLinks, policyTextWithoutClosedPanels } = await withScanDeadline(
       (async () => ({
         policyTitle: await collectBoundedPageTitle(policyPage, input.boundedPageCollectorKey),
         policyHeadings: await collectBoundedPageHeadings(policyPage, input.boundedPageCollectorKey),
         policyPageLinks: await collectPrivacyPolicyLinks(policyPage, input.boundedPageCollectorKey, {
           skipDocument: policyPage.url().split("#", 1)[0]
-        })
+        }),
+        policyTextWithoutClosedPanels: boundedTextWithoutClosedPanelsFromWire(
+          await callBoundedPageCollector(
+            policyPage,
+            input.boundedPageCollectorKey,
+            "textWithoutClosedPanels",
+            MAX_POLICY_TEXT_CHARS
+          )
+        )
       }))(),
       input.started,
       MAX_SCAN_DURATION_MS,
@@ -4853,6 +4861,7 @@ async function probePrivacyPolicy(input: {
         title: policyTitle.value,
         headings: policyHeadings.values,
         text: policyText,
+        textWithoutClosedPanels: policyTextWithoutClosedPanels,
         links: policyPageLinks.links,
         firstPartyHostname: input.firstPartyHostname
       })
@@ -5007,6 +5016,29 @@ export function boundedPolicyTextFromWire(wire: string | null): string {
       : "";
   } catch {
     return "";
+  }
+}
+
+/**
+ * A policy page's text without its closed panels, from the bounded
+ * collector's textWithoutClosedPanels wire, or null when it was not read in
+ * full: a missing or malformed wire, a collector that could not run its
+ * rendering check, or a read cut short by the character or node bound.
+ * privacyPolicyPageIsHub then measures the page's whole text, as
+ * policy-text-cross-check@10 did, rather than a partial read that could
+ * undercount a policy's prose.
+ */
+export function boundedTextWithoutClosedPanelsFromWire(wire: string | null): string | null {
+  if (typeof wire !== "string" || wire.length > MAX_POLICY_TEXT_CHARS * 6 + 128) return null;
+  try {
+    const value = JSON.parse(wire) as { value?: unknown; truncated?: unknown };
+    return typeof value?.value === "string" &&
+      value.value.length <= MAX_POLICY_TEXT_CHARS &&
+      value.truncated === false
+      ? value.value
+      : null;
+  } catch {
+    return null;
   }
 }
 

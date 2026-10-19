@@ -812,6 +812,12 @@ test("policy prose counts sentences, never navigation or link labels", () => {
   assert.equal(policyProseCharacters("Read Our Privacy Policy And Cookie Policy For More Details On Data Use Today."), 0);
 });
 
+// The page's whole text and its text without closed panels, for a page that
+// keeps nothing in an unopened dialog or an unselected tab.
+function shown(text: string): { text: string; textWithoutClosedPanels: string } {
+  return { text, textWithoutClosedPanels: text };
+}
+
 test("a privacy hub is a page that calls itself no policy, has little prose, and links to the policy elsewhere", () => {
   const cards = "Privacy Cookies Your choices Privacy settings Contact Support us Newsletters Sign in ".repeat(12);
   const hub = {
@@ -819,7 +825,7 @@ test("a privacy hub is a page that calls itself no policy, has little prose, and
     landedUrl: "https://www.example.com/info/privacy",
     title: "Privacy | Example News",
     headings: [] as string[],
-    text: cards,
+    ...shown(cards),
     links: [{ href: "https://www.example.com/help/privacy-policy", text: "" }],
     firstPartyHostname: "www.example.com"
   };
@@ -843,8 +849,8 @@ test("a privacy hub is a page that calls itself no policy, has little prose, and
   const shorter = prose.slice(0, prose.length - sentence.length - 1);
   assert.ok(policyProseCharacters(prose) >= POLICY_HUB_MAX_PROSE_CHARS);
   assert.ok(policyProseCharacters(shorter) < POLICY_HUB_MAX_PROSE_CHARS);
-  assert.equal(privacyPolicyPageIsHub({ ...hub, text: `${prose} ${cards}` }), false);
-  assert.equal(privacyPolicyPageIsHub({ ...hub, text: `${shorter} ${cards}` }), true);
+  assert.equal(privacyPolicyPageIsHub({ ...hub, ...shown(`${prose} ${cards}`) }), false);
+  assert.equal(privacyPolicyPageIsHub({ ...hub, ...shown(`${shorter} ${cards}`) }), true);
   // A sentence run straight on from a menu is part of an unpunctuated run past
   // 600 characters and is not counted: the measure errs low, toward a hub.
   assert.equal(policyProseCharacters(`${cards} ${sentence}`), 0);
@@ -884,7 +890,7 @@ test("a hub is judged only on a page whose letters are mostly Latin script", () 
     landedUrl: "https://policy.example.com/policy/privacy.html",
     title: "개인정보 처리방침",
     headings: ["N 정책"],
-    text: `${korean} Privacy Policy Terms of Use Example Corp.`,
+    ...shown(`${korean} Privacy Policy Terms of Use Example Corp.`),
     links: [{ href: "https://notice.example.com/notices/privacypolicy/18572", text: "개인정보 처리방침 변경 안내" }],
     firstPartyHostname: "www.example.com"
   };
@@ -898,7 +904,7 @@ test("a hub is judged only on a page whose letters are mostly Latin script", () 
       ...naver,
       title: "プライバシーポリシー | 株式会社Example",
       headings: ["プライバシーポリシー"],
-      text: japanese,
+      ...shown(japanese),
       links: [{ href: "https://policy.example.com/en/privacy/", text: "English" }]
     }),
     false
@@ -909,7 +915,7 @@ test("a hub is judged only on a page whose letters are mostly Latin script", () 
       ...naver,
       title: "Политика конфиденциальности",
       headings: ["Политика конфиденциальности"],
-      text: russian,
+      ...shown(russian),
       links: [{ href: "https://policy.example.com/privacy/cookies", text: "Политика cookie" }]
     }),
     false
@@ -925,7 +931,7 @@ test("a hub is judged only on a page whose letters are mostly Latin script", () 
     landedUrl: "https://www.example.com/info/privacy",
     title: "Privacy | Example News",
     headings: [] as string[],
-    text: `${cards} 日本語 한국어 Русский 中文 Ελληνικά`,
+    ...shown(`${cards} 日本語 한국어 Русский 中文 Ελληνικά`),
     links: [{ href: "https://www.example.com/help/privacy-policy", text: "" }],
     firstPartyHostname: "www.example.com"
   };
@@ -933,13 +939,13 @@ test("a hub is judged only on a page whose letters are mostly Latin script", () 
   // The cards hold 876 Latin letters: 840 Hangul syllables beside them leave
   // the page mostly Latin, 1,120 do not.
   const koreanCards = (count: number) => "개인정보 보호 쿠키 설정 고객센터 ".repeat(count);
-  assert.equal(privacyPolicyPageIsHub({ ...hub, text: `${cards} ${koreanCards(60)}` }), true);
-  assert.equal(privacyPolicyPageIsHub({ ...hub, text: `${cards} ${koreanCards(80)}` }), false);
+  assert.equal(privacyPolicyPageIsHub({ ...hub, ...shown(`${cards} ${koreanCards(60)}`) }), true);
+  assert.equal(privacyPolicyPageIsHub({ ...hub, ...shown(`${cards} ${koreanCards(80)}`) }), false);
   // Letters are counted in code points: an Extension B ideograph is one
   // letter, as a Latin letter is.
   const latin = "a".repeat(50);
-  assert.equal(privacyPolicyPageIsHub({ ...hub, text: `${latin} ${"𠀀".repeat(50)}` }), true);
-  assert.equal(privacyPolicyPageIsHub({ ...hub, text: `${latin} ${"𠀀".repeat(51)}` }), false);
+  assert.equal(privacyPolicyPageIsHub({ ...hub, ...shown(`${latin} ${"𠀀".repeat(50)}`) }), true);
+  assert.equal(privacyPolicyPageIsHub({ ...hub, ...shown(`${latin} ${"𠀀".repeat(51)}`) }), false);
 });
 
 test("a policy's link to itself over http or on its www host is not another document", () => {
@@ -949,7 +955,7 @@ test("a policy's link to itself over http or on its www host is not another docu
     landedUrl: "https://example.com/privacy",
     title: "Example",
     headings: [] as string[],
-    text: Array.from({ length: 6 }, () => sentence).join(" "),
+    ...shown(Array.from({ length: 6 }, () => sentence).join(" ")),
     firstPartyHostname: "example.com"
   };
   for (const href of ["http://example.com/privacy", "https://www.example.com/privacy", "http://WWW.example.com/privacy/"]) {
@@ -959,4 +965,85 @@ test("a policy's link to itself over http or on its www host is not another docu
   for (const href of ["https://www.example.com/privacy-policy", "http://example.com/legal/privacy"]) {
     assert.equal(privacyPolicyPageIsHub({ ...policy, links: [{ href, text: "Privacy Policy" }] }), true, href);
   }
+});
+
+test("a privacy hub is judged by its prose outside closed panels", () => {
+  // walgreens.com/privacycenter: link cards around a few sentences, beside a
+  // consent manager's preference center the page has not opened and two tabs
+  // it has not selected, 7,457 characters of prose in all. Measured over the
+  // whole text, as policy-text-cross-check@10 measured it, the closed panels'
+  // prose read the hub as the policy.
+  const cards = "Cookies Learn More Do Not Sell My Data Learn More State Privacy Rights Learn More Contact Us Learn More ".repeat(6);
+  const intro = "You trust us with your health and wellness needs, and we take that responsibility seriously.";
+  const sentence = "To opt out of the sale or sharing of your data, select the toggle above and save your preferences below.";
+  const hidden = Array.from({ length: Math.ceil(POLICY_HUB_MAX_PROSE_CHARS / (sentence.length + 1)) + 20 }, () => sentence).join(" ");
+  const hub = {
+    selectedUrl: "https://www.example.com/privacycenter",
+    landedUrl: "https://www.example.com/privacycenter",
+    title: "Privacy Center | Example Pharmacy",
+    headings: ["Privacy Center"],
+    text: `${cards} ${intro} ${cards} ${hidden}`,
+    textWithoutClosedPanels: `${cards} ${intro} ${cards}`,
+    links: [{ href: "https://www.example.com/help/privacy-policy", text: "Online Privacy & Security Policy" }],
+    firstPartyHostname: "www.example.com"
+  };
+  assert.ok(policyProseCharacters(hub.text) >= POLICY_HUB_MAX_PROSE_CHARS);
+  assert.ok(policyProseCharacters(hub.textWithoutClosedPanels) < POLICY_HUB_MAX_PROSE_CHARS);
+  assert.equal(privacyPolicyPageIsHub(hub), true);
+  // The same prose outside a panel, folded in place or shown, is a policy's,
+  // and the label and link conditions still keep a page with closed panels
+  // read.
+  assert.equal(privacyPolicyPageIsHub({ ...hub, textWithoutClosedPanels: hub.text }), false);
+  assert.equal(privacyPolicyPageIsHub({ ...hub, title: "Privacy Policy | Example Pharmacy", headings: [] }), false);
+  assert.equal(privacyPolicyPageIsHub({ ...hub, links: [] }), false);
+});
+
+test("a page whose text without closed panels was not read in full, or holds no letter, is judged on its whole text", () => {
+  // As policy-text-cross-check@10 judged every page. A read that failed or
+  // was cut short could undercount a policy's prose, and a page whose every
+  // letter sits in a panel it has not opened shows no link cards of its own.
+  const cards = "Privacy Cookies Your choices Privacy settings Contact Support us Newsletters Sign in ".repeat(12);
+  const sentence = "We collect the information you give us when you order, and we use it to deliver.";
+  const prose = Array.from({ length: Math.ceil(POLICY_HUB_MAX_PROSE_CHARS / (sentence.length + 1)) }, () => sentence).join(" ");
+  const page = {
+    selectedUrl: "https://www.example.com/info/privacy",
+    landedUrl: "https://www.example.com/info/privacy",
+    title: "Example News",
+    headings: [] as string[],
+    links: [{ href: "https://www.example.com/help/privacy-policy", text: "" }],
+    firstPartyHostname: "www.example.com"
+  };
+  for (const textWithoutClosedPanels of [null, "", " \n\t ", "© 2026 | 1 2 3 · •"]) {
+    const label = JSON.stringify(textWithoutClosedPanels);
+    assert.equal(privacyPolicyPageIsHub({ ...page, text: `${prose} ${cards}`, textWithoutClosedPanels }), false, label);
+    assert.equal(privacyPolicyPageIsHub({ ...page, text: cards, textWithoutClosedPanels }), true, label);
+  }
+  // A page with a letter outside its closed panels is judged on that text.
+  assert.equal(privacyPolicyPageIsHub({ ...page, text: `${prose} ${cards}`, textWithoutClosedPanels: "Menu" }), true);
+});
+
+test("the script scope is judged on the text the hub rule measures", () => {
+  // A Korean policy beside a consent manager that keeps an English
+  // preference center in the page, unopened. Its whole text is mostly Latin
+  // letters and its text outside that panel, the policy, is not; judged on
+  // the whole text, the policy would measure no prose and be withheld.
+  const korean = "개인정보 처리방침은 이용자의 개인정보를 보호하기 위한 회사의 원칙입니다. ".repeat(40);
+  const sentence = "We and our partners use cookies to measure visits and to show you advertising that matches your interests.";
+  const hiddenPreferences = Array.from({ length: 60 }, () => sentence).join(" ");
+  const letters = (value: string, script: RegExp) => [...value].filter((character) => script.test(character)).length;
+  const text = `${korean} ${hiddenPreferences}`;
+  assert.ok(letters(text, /\p{Script=Latin}/u) > letters(text, /\p{Script=Hangul}/u));
+  const policy = {
+    selectedUrl: "https://policy.example.com/policy/privacy.html",
+    landedUrl: "https://policy.example.com/policy/privacy.html",
+    title: "개인정보 처리방침",
+    headings: [] as string[],
+    text,
+    textWithoutClosedPanels: korean,
+    links: [{ href: "https://notice.example.com/notices/privacypolicy/18572", text: "개인정보 처리방침 변경 안내" }],
+    firstPartyHostname: "www.example.com"
+  };
+  assert.equal(privacyPolicyPageIsHub(policy), false);
+  // The other two conditions hold, so the scope is what keeps it read.
+  assert.equal(privacyPolicyPageIsHub({ ...policy, textWithoutClosedPanels: "Privacy Cookies Your choices Contact" }), true);
 });

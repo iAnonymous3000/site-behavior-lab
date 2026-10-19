@@ -517,7 +517,8 @@ const HISTORICAL_NODE_V17_NORMALIZATION = "redaction-v4+allowlists-v3:269f631f04
 // spelled out so the closed rows stay put when a later epoch does. Not a
 // retirement: the normalization stays active and needs no superseded entry.
 // The node-detectors-v16 rows that node-detectors-v17 closes ran this same
-// literal.
+// literal, and so did the node-detectors-v17 rows that node-detectors-v18
+// closes.
 const HISTORICAL_NODE_V20_NORMALIZATION = "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:bc719d41df186ae38fdb34695df43780a816d32b41068a6107cd35035269844e+tldts@7.4.16+node-evidence-policy-v1+r2-http-status-compat-v1";
 
 export const HISTORICAL_NODE_R2_V4_METHODOLOGIES_BY_NORMALIZATION: Readonly<
@@ -725,6 +726,20 @@ export const HISTORICAL_R2_LISTS_2026_09_28_ADBLOCK_0_13_3_IDENTITY = Object.fre
   lists: 31,
   fetchedAt: "2026-09-28T13:50:37.752Z",
   manifestDigest: "2e8c9278c65ff2872c7cefacf0ea485dba9c93bab01bdd954aeddabe49d49668",
+  engineVersion: "adblock-rust-0.13.3"
+} satisfies NonNullable<Toolchain["adblock"]>);
+
+/**
+ * Frozen copy of the October 18 list snapshot under adblock-rust 0.13.3, as
+ * the node-detectors-v17 list row published it from the October 18 list
+ * adoption until node-detectors-v18 closed it. The live constant follows each
+ * adoption; this closed copy never does.
+ */
+export const HISTORICAL_R2_LISTS_2026_10_18_ADBLOCK_0_13_3_IDENTITY = Object.freeze({
+  source: "Brave default ad-block lists",
+  lists: 31,
+  fetchedAt: "2026-10-18T18:25:24.776Z",
+  manifestDigest: "01437eff7c7cecaee35b2d31aee0d67e447114b1dd6cfdeed4ec00c91af094fb",
   engineVersion: "adblock-rust-0.13.3"
 } satisfies NonNullable<Toolchain["adblock"]>);
 
@@ -1497,8 +1512,9 @@ const HISTORICAL_NODE_V16_FIELDS: NodeTupleFields = Object.freeze({
 
 // Exact node-detectors-v17 producer fields, frozen when the October 18 list
 // adoption closed the v22 list row: v16's fields with the registry and the
-// fingerprint observer that v17 moved. The no-list v22 row still follows the
-// live fields, since a list-only adoption does not mint a new one.
+// fingerprint observer that v17 moved. node-detectors-v18 closed the other
+// two v22 rows, the October 18 list row and the no-list row, to these same
+// fields.
 const HISTORICAL_NODE_V17_FIELDS: NodeTupleFields = Object.freeze({
   detectorRegistry: Object.freeze({
     "version": "node-detectors-v17",
@@ -1583,31 +1599,30 @@ function nodeTuple(
   });
 }
 
-// Closed rows retain their exact literals; the node-detectors-v17 detector
-// epoch defines v22. It moves only the fingerprint observer
-// (fingerprint-observer@9, under which a worker realm whose owner document
-// cannot be shown current is unread only when its whole snapshot records
-// something) with the registry; the methodology, normalization, lists,
-// toolchain and every other field are unchanged from v21, whose two rows are
-// closed below in NODE_R2_PRODUCER_TUPLES. The October 18 list adoption closed
-// the v22 list row as it ran with the September 28 lists; the live list row
-// carries the October 18 lists, and the no-list row is unchanged.
+// Closed rows retain their exact literals; the node-detectors-v18 detector
+// epoch defines v23. It moves only the privacy-policy cross-check
+// (policy-text-cross-check@11, which measures a privacy hub's prose in the
+// text the page renders) with the registry; the methodology, normalization,
+// lists, toolchain and every other field are unchanged from v22, whose two
+// live rows, the October 18 list row and the no-list row, are closed below in
+// NODE_R2_PRODUCER_TUPLES beside the September 28 list row the October 18
+// list adoption closed.
 const ACTIVE_NODE_WIRE_IDENTITY_IS_DISTINCT =
   String(NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION) !== HISTORICAL_NODE_V15_METHODOLOGY ||
   String(NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION) !== HISTORICAL_NODE_V20_NORMALIZATION ||
-  canonicalJson(ACTIVE_NODE_FIELDS) !== canonicalJson(HISTORICAL_NODE_V16_FIELDS);
+  canonicalJson(ACTIVE_NODE_FIELDS) !== canonicalJson(HISTORICAL_NODE_V17_FIELDS);
 
 const ACTIVE_NODE_TUPLES: readonly NodeR2ProducerTuple[] = ACTIVE_NODE_WIRE_IDENTITY_IS_DISTINCT
   ? Object.freeze([
       nodeTuple(
-        "node-v22-detectors-v17-active-lists-2026-10-18",
+        "node-v23-detectors-v18-active-lists-2026-10-18",
         NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION,
         NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION,
         ACTIVE_NODE_FIELDS,
         NODE_R2_CURRENT_ADBLOCK_IDENTITY
       ),
       nodeTuple(
-        "node-v22-detectors-v17-active-no-adblock",
+        "node-v23-detectors-v18-active-no-adblock",
         NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION,
         NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION,
         ACTIVE_NODE_FIELDS,
@@ -2102,6 +2117,18 @@ export const NODE_R2_PRODUCER_TUPLES: readonly NodeR2ProducerTuple[] = Object.fr
   nodeTuple("node-v22-detectors-v17-active-lists-2026-09-28",
     HISTORICAL_NODE_V20_NORMALIZATION, HISTORICAL_NODE_V15_METHODOLOGY,
     HISTORICAL_NODE_V17_FIELDS, HISTORICAL_R2_LISTS_2026_09_28_ADBLOCK_0_13_3_IDENTITY
+  ),
+  // The node-detectors-v17 producer, with the October 18 lists and without
+  // lists, closed to its exact source identity by node-detectors-v18: the v15
+  // methodology, the bc719d41 policy digest under tldts 7.4.16,
+  // node-detectors-v17 and adblock-rust 0.13.3.
+  nodeTuple("node-v22-detectors-v17-active-lists-2026-10-18",
+    HISTORICAL_NODE_V20_NORMALIZATION, HISTORICAL_NODE_V15_METHODOLOGY,
+    HISTORICAL_NODE_V17_FIELDS, HISTORICAL_R2_LISTS_2026_10_18_ADBLOCK_0_13_3_IDENTITY
+  ),
+  nodeTuple("node-v22-detectors-v17-active-no-adblock",
+    HISTORICAL_NODE_V20_NORMALIZATION, HISTORICAL_NODE_V15_METHODOLOGY,
+    HISTORICAL_NODE_V17_FIELDS, null
   ),
   ...ACTIVE_NODE_TUPLES
 ]);

@@ -299,6 +299,22 @@ export const DETECTOR_VALIDATION_FIXTURES: readonly DetectorValidationFixture[] 
     file: "lib/scanner-policy-navigation.test.ts",
     testName: "a privacy hub that keeps its policy on another page is never read as the policy",
     verifies: "A privacy landing page that calls itself no policy, carries no prose and links to the policy elsewhere publishes no policy and no company the policy does not name."
+  },
+  {
+    detector: "privacy-policy",
+    kind: "negative",
+    environment: "real-chromium",
+    file: "lib/scanner-policy-navigation.test.ts",
+    testName: "a privacy hub that keeps its prose in closed panels is never read as the policy",
+    verifies: "A privacy center whose prose sits in tabs it has not selected and a consent preference center it has not opened, and which links to the policy elsewhere, publishes no policy and no company the policy does not name."
+  },
+  {
+    detector: "privacy-policy",
+    kind: "positive",
+    environment: "real-chromium",
+    file: "lib/scanner-policy-navigation.test.ts",
+    testName: "a policy titled with only the site's name is read with its collapsed sections, though it links to another policy document",
+    verifies: "A policy titled with only the site's name that links to a state notice and folds most of its prose into collapsed sections, beside a consent dialog it has not opened, is read, and the company it names counts as named."
   }
 ] as const;
 

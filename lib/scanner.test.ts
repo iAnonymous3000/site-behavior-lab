@@ -34,6 +34,7 @@ import type { FingerprintDetectionSummary, ScanResult } from "./types";
 import {
   blockedNavigationMayCarrySentinel,
   boundedPolicyTextFromWire,
+  boundedTextWithoutClosedPanelsFromWire,
   browserProcessEnvironment,
   captureProbeRequest,
   classifyNavigationFailure,
@@ -1918,7 +1919,7 @@ test("HTTP-200 robot pages and unavailable subject collectors fail quality and s
       reason: "load-failed"
     });
     assert.deepEqual(measurement.measurement.detectors["privacy-policy"], {
-      version: "policy-text-cross-check@10",
+      version: "policy-text-cross-check@11",
       status: "skipped",
       reason: "load-failed"
     });
@@ -1944,7 +1945,7 @@ test("HTTP-200 robot pages and unavailable subject collectors fail quality and s
     );
     assert.equal(zillow.result.summary.status, 403);
     assert.deepEqual(zillow.measurement.measurement.detectors["privacy-policy"], {
-      version: "policy-text-cross-check@10",
+      version: "policy-text-cross-check@11",
       status: "skipped",
       reason: "load-failed"
     });
@@ -1967,7 +1968,7 @@ test("HTTP-200 robot pages and unavailable subject collectors fail quality and s
       options
     );
     assert.deepEqual(policyCap.measurement.measurement.detectors["privacy-policy"], {
-      version: "policy-text-cross-check@10",
+      version: "policy-text-cross-check@11",
       status: "skipped",
       reason: "evidence-cap-reached"
     });
@@ -2041,7 +2042,7 @@ test("HTTP-200 robot pages and unavailable subject collectors fail quality and s
       reason: "load-failed"
     });
     assert.deepEqual(unavailable.measurement.measurement.detectors["privacy-policy"], {
-      version: "policy-text-cross-check@10",
+      version: "policy-text-cross-check@11",
       status: "skipped",
       reason: "load-failed"
     });
@@ -2179,7 +2180,7 @@ test("the recorded HTTP status is the frozen subject's document after a script r
       reason: "load-failed"
     });
     assert.deepEqual(blocked.measurement.measurement.detectors["privacy-policy"], {
-      version: "policy-text-cross-check@10",
+      version: "policy-text-cross-check@11",
       status: "skipped",
       reason: "load-failed"
     });
@@ -4071,7 +4072,7 @@ test("a direct PDF privacy policy completes through the bounded scan proxy", { t
     assert.ok(result.privacyPolicy, "the PDF policy produced a stored cross-check summary");
     assert.ok((result.privacyPolicy?.policyTextLength ?? 0) >= 500);
     assert.deepEqual(staged!.measurement.detectors["privacy-policy"], {
-      version: "policy-text-cross-check@10",
+      version: "policy-text-cross-check@11",
       status: "complete",
       phaseId: 2
     });
@@ -4138,8 +4139,8 @@ test("a PDF privacy policy link that redirects or is missing cannot crash the pr
 
   try {
     for (const [route, expected] of [
-      ["/", { version: "policy-text-cross-check@10", status: "complete", phaseId: 2 }],
-      ["/missing", { version: "policy-text-cross-check@10", status: "failed", reason: "load-failed", phaseId: 2 }]
+      ["/", { version: "policy-text-cross-check@11", status: "complete", phaseId: 2 }],
+      ["/missing", { version: "policy-text-cross-check@11", status: "failed", reason: "load-failed", phaseId: 2 }]
     ] as const) {
       const { measurement: staged } = await scanSiteWithMeasurement(
         { url: `http://policy-pdf-hop.test${route}`, device: "desktop", gpcEnabled: false, consentMode: "observe" },
@@ -4217,7 +4218,7 @@ test("an HTTPS PDF privacy policy is requested offering HTTP/1.1 alone", { timeo
     assert.ok(offers.length > 0, "the policy fetch never reached the TLS upstream");
     for (const protocols of offers) assert.deepEqual(protocols, ["http/1.1"]);
     assert.deepEqual(staged!.measurement.detectors["privacy-policy"], {
-      version: "policy-text-cross-check@10",
+      version: "policy-text-cross-check@11",
       status: "failed",
       reason: "load-failed",
       phaseId: 2
@@ -4290,7 +4291,7 @@ test("an HTTPS PDF privacy policy completes over HTTP/1.1 through the scan proxy
     );
 
     assert.deepEqual(staged!.measurement.detectors["privacy-policy"], {
-      version: "policy-text-cross-check@10",
+      version: "policy-text-cross-check@11",
       status: "complete",
       phaseId: 2
     });
@@ -6977,6 +6978,30 @@ test("the widened policy wire allowance still enforces the character cap", () =>
   assert.equal(boundedPolicyTextFromWire(null), "");
   assert.equal(boundedPolicyTextFromWire("not json"), "");
   assert.equal(boundedPolicyTextFromWire(JSON.stringify({ truncated: true })), "");
+});
+
+test("a policy page's text without closed panels counts only when it was read in full", () => {
+  // The hub rule measures a privacy hub's prose outside its closed panels. A
+  // partial read could undercount a policy's prose and withhold it, so a read
+  // cut short by a bound, or one the collector could not make, is no such
+  // text at all and the rule falls back to the page's whole text.
+  assert.equal(boundedTextWithoutClosedPanelsFromWire(JSON.stringify({ value: "Shown text.", truncated: false })), "Shown text.");
+  assert.equal(boundedTextWithoutClosedPanelsFromWire(JSON.stringify({ value: "", truncated: false })), "");
+  assert.equal(boundedTextWithoutClosedPanelsFromWire(JSON.stringify({ value: "Shown text.", truncated: true })), null);
+  // The collector's own failure wire: no rendering check could run.
+  assert.equal(boundedTextWithoutClosedPanelsFromWire(JSON.stringify({ value: "", truncated: true })), null);
+  assert.equal(boundedTextWithoutClosedPanelsFromWire(JSON.stringify({ value: "Shown text." })), null);
+  assert.equal(boundedTextWithoutClosedPanelsFromWire(JSON.stringify({ truncated: false })), null);
+  assert.equal(boundedTextWithoutClosedPanelsFromWire(null), null);
+  assert.equal(boundedTextWithoutClosedPanelsFromWire("not json"), null);
+  assert.equal(
+    boundedTextWithoutClosedPanelsFromWire(JSON.stringify({ value: "a".repeat(MAX_POLICY_TEXT_CHARS + 1), truncated: false })),
+    null
+  );
+  assert.equal(boundedTextWithoutClosedPanelsFromWire("x".repeat(MAX_POLICY_TEXT_CHARS * 6 + 129)), null);
+  const line = `${"a".repeat(126)}\n`;
+  const capped = line.repeat(Math.ceil(MAX_POLICY_TEXT_CHARS / line.length)).slice(0, MAX_POLICY_TEXT_CHARS);
+  assert.equal(boundedTextWithoutClosedPanelsFromWire(JSON.stringify({ value: capped, truncated: false })), capped);
 });
 
 test("a probe that throws after typing still discloses the fields it typed into", async () => {

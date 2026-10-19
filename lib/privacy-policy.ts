@@ -57,18 +57,23 @@ export const MIN_POLICY_TEXT_LENGTH = 500;
  */
 export const POLICY_SHELL_SUSPECT_MAX_CHARS = 3_000;
 /**
- * Below this many characters of prose (policyProseCharacters), a page that
- * calls itself no policy and links to another of the site's policy documents
- * is a privacy hub (privacyPolicyPageIsHub). Counted in prose sentences, not
- * text length: a hub's own text is navigation and link cards, and those run
- * to tens of thousands of characters when a mega menu sits in the page. Four
- * hubs the committed corpus read as policies carry 0 (the Guardian), 1,403
- * (Discover), 2,219 (Capital One) and 2,352 (Home Depot); the unlabeled
- * policies that link to another policy document carry 37,327 (Cleveland
- * Clinic) and 50,424 (every USA TODAY Network page). The bound sits just
- * above the hubs, so it withholds as little as the evidence allows: the
- * pages between, Walgreens' privacy center at 7,457 and two privacy pages
- * that are not policies, are still read.
+ * Below this many characters of prose (policyProseCharacters) outside its
+ * closed panels, a page that calls itself no policy and links to another of
+ * the site's policy documents is a privacy hub (privacyPolicyPageIsHub).
+ * Counted in prose sentences, not text length: a hub's own text is
+ * navigation and link cards, and those run to tens of thousands of
+ * characters when a mega menu sits in the page. Four hubs the committed
+ * corpus read as policies carry 0 (the Guardian), 1,403 (Discover), 2,219
+ * (Capital One) and 2,352 (Home Depot, 2,007 at a phone's width), and
+ * Walgreens' privacy center 935 (894 at a phone's width) once its closed
+ * panels are left out; the unlabeled pages that link to another policy
+ * document and are not hubs carry 3,463 to 3,755 (EFF's privacy issue page,
+ * from render to render) or more, and the policies among them 37,327
+ * (Cleveland Clinic) and 50,424 (every USA TODAY Network page). The bound
+ * sits just above the hubs, so it withholds as little as the evidence
+ * allows. Through policy-text-cross-check@10 the closed panels counted too,
+ * and Walgreens' privacy center measured 7,457, most of it in a consent
+ * manager's preference center and two tabs the page does not show.
  */
 export const POLICY_HUB_MAX_PROSE_CHARS = 3_000;
 
@@ -437,8 +442,10 @@ function labelNamesPolicyDocument(label: string): boolean {
  * half of whose words begin in lowercase. Menus, mega menus and link cards
  * are runs of capitalized labels without sentence punctuation, so they count
  * for nothing whether shown or hidden; a policy's text counts whether shown
- * or folded into a collapsed section. Words are Latin-script words, so a
- * page in a script without them measures zero.
+ * or folded into a collapsed section. The hub rule leaves out a page's closed
+ * panels, its unopened dialogs and unselected tabs, before measuring
+ * (privacyPolicyPageIsHub). Words are Latin-script words, so a page in a
+ * script without them measures zero.
  */
 export function policyProseCharacters(text: string): number {
   let total = 0;
@@ -492,18 +499,28 @@ function codePointCount(value: string): number {
  * Desk, LiveRamp, Criteo and Comscore among the companies the policy does
  * not name, all four named at /help/privacy-policy. Five such hubs account
  * for 60 committed reports, 52 of them showing an omission card; this
- * recognizes four of the five.
+ * recognizes all five.
  *
  * All three must hold:
  *   1. Neither the title nor any h1 names the page as a policy, notice,
  *      statement, terms or practices ("Privacy", "Privacy Center", "Privacy
  *      Protections"). Many real policies are titled with only the site's
  *      name, so this alone is not enough.
- *   2. Its text carries less than POLICY_HUB_MAX_PROSE_CHARS of prose.
+ *   2. Its text outside its closed panels carries less than
+ *      POLICY_HUB_MAX_PROSE_CHARS of prose. A closed panel is a dialog the
+ *      page has not opened or a tab panel it has not selected (the collector
+ *      reads the browser's own answer to whether either renders): content
+ *      the page shows over itself or in place of what it shows, not its own
+ *      text folded in place, so a collapsed section still counts.
+ *      walgreens.com's privacy center keeps most of its prose in a consent
+ *      manager's preference center and two tabs it does not show, and
+ *      policy-text-cross-check@10, which measured the whole text, read it as
+ *      the policy. When that text was not read in full, or holds no letter,
+ *      the whole text is measured, as @10 measured it.
  *   3. It links to another document the selector would read as the site's
  *      policy: a link into the page itself, or to its selected or landed URL
  *      in any query, case or scheme or on its www host, does not count.
- * Only a page whose letters are mostly Latin script is judged at all
+ * Only a page whose measured text is mostly Latin script is judged at all
  * (policyProseMeasureApplies), since the prose measure reads no other script:
  * a hub written in another script is read as the policy, as every earlier
  * cross-check read it. Both that scope and the scheme and www rule in 3 were
@@ -515,9 +532,15 @@ function codePointCount(value: string): number {
  * USA TODAY Network page, Cleveland Clinic), 3 the short ones titled that way
  * (cdapress.com, dailyinterlake.com). A short policy titled only "Privacy"
  * that links to a page beneath it, such as a cookie notice, would be
- * withheld; no page in the corpus has that shape. What the hub links to is
- * not read in its place: Home Depot's hub links first to a 7,810-character
- * summary, not its 71,987-character statement.
+ * withheld; no page in the corpus has that shape. So would a policy titled
+ * with only the site's name that links to another policy document and keeps
+ * all but the bound's worth of its prose in unselected tabs or unopened
+ * dialogs; none of the reference pages does. Leaving out everything the
+ * browser does not render instead withheld a real policy: at a phone's
+ * width Cleveland Clinic's collapses into sections that render 195 of its
+ * 37,327 characters of prose. What the hub links to is not read in its
+ * place: Home Depot's hub links first to a 7,810-character summary, not its
+ * 71,987-character statement.
  */
 export function privacyPolicyPageIsHub(input: {
   selectedUrl: string;
@@ -525,18 +548,31 @@ export function privacyPolicyPageIsHub(input: {
   title: string;
   headings: readonly string[];
   text: string;
+  textWithoutClosedPanels: string | null;
   links: readonly PolicyLinkCandidate[];
   firstPartyHostname: string;
 }): boolean {
   if ([input.title, ...input.headings].some(labelNamesPolicyDocument)) return false;
-  if (!policyProseMeasureApplies(input.text)) return false;
-  if (policyProseCharacters(input.text) >= POLICY_HUB_MAX_PROSE_CHARS) return false;
+  const measured = hubMeasuredText(input.text, input.textWithoutClosedPanels);
+  if (!policyProseMeasureApplies(measured)) return false;
+  if (policyProseCharacters(measured) >= POLICY_HUB_MAX_PROSE_CHARS) return false;
   const readDocuments = new Set([policyDocumentIdentity(input.selectedUrl), policyDocumentIdentity(input.landedUrl)]);
   const elsewhere = input.links.filter((link) => {
     const identity = policyDocumentIdentity(link.href);
     return identity !== null && !readDocuments.has(identity);
   });
   return pickPrivacyPolicyLink(elsewhere, input.firstPartyHostname, input.landedUrl) !== null;
+}
+
+/**
+ * The text the hub rule measures: the page's text without its closed panels,
+ * or its whole text when that read is missing (not read in full) or holds no
+ * letter at all, which is a page whose every word sits in a panel it has not
+ * opened rather than one that shows link cards. The whole text is what
+ * policy-text-cross-check@10 measured.
+ */
+function hubMeasuredText(text: string, textWithoutClosedPanels: string | null): string {
+  return textWithoutClosedPanels !== null && /\p{L}/u.test(textWithoutClosedPanels) ? textWithoutClosedPanels : text;
 }
 
 /**

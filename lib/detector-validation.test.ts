@@ -13,7 +13,7 @@ import {
 
 test("public detector validation manifest is complete and mechanically valid", () => {
   assert.deepEqual(validateDetectorValidationManifest(DETECTOR_VALIDATION_FIXTURES), []);
-  assert.equal(DETECTOR_VALIDATION_FIXTURES.length, 28);
+  assert.equal(DETECTOR_VALIDATION_FIXTURES.length, 30);
   assert.equal(detectorValidationRows().length, DETECTOR_IDS.length);
   // fingerprint-heuristics carries three more positive cases: the two-vendor
   // chain fixture proving multi-origin chains detect instead of censoring, the
@@ -25,11 +25,13 @@ test("public detector validation manifest is complete and mechanically valid", (
     detectorValidationRows().find((row) => row.detector === "fingerprint-heuristics")?.positiveCases,
     4
   );
-  // privacy-policy carries two more positive and two more negative cases: a
-  // policy that renders its text after load is read in full, and a shell read
-  // while its policy request is still open publishes nothing; a short page
-  // that names itself a policy is read beside its link to a state notice, and
-  // a privacy hub that keeps the policy on another page publishes nothing.
+  // privacy-policy carries three more positive and three more negative
+  // cases: a policy that renders its text after load is read in full, and a
+  // shell read while its policy request is still open publishes nothing; a
+  // short page that names itself a policy is read beside its link to a state
+  // notice, and a privacy hub that keeps the policy on another page publishes
+  // nothing; a policy that folds most of its prose into collapsed sections is
+  // read, and a hub whose prose sits in closed panels publishes nothing.
   assert.equal(
     detectorValidationRows()
       .filter((row) => row.detector !== "fingerprint-heuristics" && row.detector !== "privacy-policy")
@@ -37,8 +39,8 @@ test("public detector validation manifest is complete and mechanically valid", (
     true
   );
   const policyRow = detectorValidationRows().find((row) => row.detector === "privacy-policy");
-  assert.equal(policyRow?.positiveCases, 3);
-  assert.equal(policyRow?.negativeCases, 3);
+  assert.equal(policyRow?.positiveCases, 4);
+  assert.equal(policyRow?.negativeCases, 4);
   assert.equal(
     detectorValidationRows().filter((row) => row.detector !== "privacy-policy").every((row) => row.negativeCases === 1),
     true
@@ -57,11 +59,12 @@ test("public detector validation manifest is complete and mechanically valid", (
     detectorValidationRows().filter((row) => row.detector !== "fingerprint-heuristics").every((row) => row.adversarialCases === 1),
     true
   );
-  // Four of them are privacy-policy cases: the two settle cases (rendered
-  // late, still loading) and the two hub cases (a labeled short policy, a
-  // hub); one is the widget headline-layout case, one the React-shaped
-  // commit traversal and one the workers that end before they can vouch.
-  assert.equal(detectorValidationRows().reduce((sum, row) => sum + row.realChromiumCases, 0), 13);
+  // Six of them are privacy-policy cases: the two settle cases (rendered
+  // late, still loading) and the four hub cases (a labeled short policy, a
+  // hub, a folded policy, a hub whose prose sits in closed panels); one is
+  // the widget headline-layout case, one the React-shaped commit traversal
+  // and one the workers that end before they can vouch.
+  assert.equal(detectorValidationRows().reduce((sum, row) => sum + row.realChromiumCases, 0), 15);
 });
 
 test("every public validation case points to an exact source-controlled test", () => {
@@ -79,7 +82,7 @@ test("every public validation case points to an exact source-controlled test", (
 
 test("validation matrix digest covers the exact public fixture inventory", () => {
   assert.equal(detectorValidationMetadata.version, "detector-fixture-matrix-v1");
-  assert.equal(detectorValidationMetadata.registryVersion, "node-detectors-v17");
+  assert.equal(detectorValidationMetadata.registryVersion, "node-detectors-v18");
   assert.equal(
     createHash("sha256").update(JSON.stringify(DETECTOR_VALIDATION_FIXTURES)).digest("hex"),
     detectorValidationMetadata.digest

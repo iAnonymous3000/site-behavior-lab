@@ -67,6 +67,12 @@ test("pre-page native collector survives hostile DOM getters and prototype poiso
     value: "Policy body",
     truncated: false
   });
+  // This realm has no rendering check to capture, so the read without closed
+  // panels fails closed and the scanner measures the whole text instead.
+  assert.deepEqual(JSON.parse((await callBoundedPageCollector(realm.page, key, "textWithoutClosedPanels", 4_096)) ?? "null"), {
+    value: "",
+    truncated: true
+  });
 
   assert.equal(await callBoundedElementCollector(realm.element, key, "fieldType"), "email");
   assert.equal(await callBoundedElementCollector(realm.element, key, "blur"), true);
@@ -416,6 +422,90 @@ test("links into the page being read are left out only when the caller names tha
     const policyPage = await collectPrivacyPolicyLinks(page, key, { skipDocument: "https://example.com/privacy" });
     assert.deepEqual(policyPage.links, [{ href: "https://example.com/privacy/full-policy", text: "Full privacy policy" }]);
     assert.equal(policyPage.truncated, false);
+  } finally {
+    await browser.close();
+  }
+});
+
+test("the text without closed panels leaves out only unopened dialogs and unselected tabs, whatever the page replaces", async () => {
+  // The privacy hub rule measures prose outside a page's closed panels: a
+  // dialog the page has not opened (a dialog element, role dialog or
+  // alertdialog, aria-modal) and a tab panel it has not selected, which the
+  // browser does not render. A collapsed details body, a menu kept
+  // display: none and text hidden in place still count, as a policy's folded
+  // sections must; so do an open dialog, the selected tab and a panel that is
+  // a display: contents wrapper, which has no box of its own but renders its
+  // content. The page's own replacements for the checks the collector uses
+  // change nothing.
+  const { chromium } = await import("playwright");
+  const browser = await chromium.launch();
+  try {
+    const context = await browser.newContext();
+    const key = createBoundedPageCollectorKey();
+    await context.addInitScript(installBoundedPageCollector, key);
+    const page = await context.newPage();
+    await page.route("https://example.com/**", (route) =>
+      route.fulfill({
+        contentType: "text/html",
+        body:
+          `<!doctype html><title>Privacy Center</title><body>` +
+          `<p>Shown.</p>` +
+          `<div style="display:none"><p>Menu kept display none.</p></div>` +
+          `<div hidden><p>Hidden attribute.</p></div>` +
+          `<details><summary>Summary shown.</summary><p>Collapsed body.</p></details>` +
+          `<div role="tablist"><button role="tab" aria-selected="true">One</button></div>` +
+          `<div role="tabpanel"><p>Selected tab.</p></div>` +
+          `<div role="tabpanel" hidden><p>Unselected tab.</p></div>` +
+          `<div role=" TabPanel " style="display:none"><p>Unselected tab, spelled loosely.</p></div>` +
+          `<div style="display:none"><div role="alertdialog" aria-modal="true"><p>Preference center.</p></div></div>` +
+          `<div aria-modal="true" style="display:none"><p>Modal without a role.</p></div>` +
+          `<div role="dialog" style="display:none"><p>Dialog by role alone.</p></div>` +
+          `<dialog><p>Closed dialog.</p></dialog>` +
+          `<dialog open><p>Open dialog.</p></dialog>` +
+          `<div role="dialog" style="display:contents">Dialog wrapper text. <span>Wrapped span.</span></div>` +
+          `<div role="tabpanel" style="display:contents"><p>Tab wrapper text.</p></div>` +
+          `<div role="region" style="display:none"><p>Hidden region.</p></div>` +
+          `<script>` +
+          `Element.prototype.checkVisibility = function () { return true; };` +
+          `Element.prototype.getAttribute = function () { return null; };` +
+          `window.getComputedStyle = function () { return { getPropertyValue: function () { return "contents"; } }; };` +
+          `CSSStyleDeclaration.prototype.getPropertyValue = function () { return "contents"; };` +
+          `</script></body>`
+      })
+    );
+    await page.goto("https://example.com/privacycenter");
+
+    const read = async (method: "text" | "textWithoutClosedPanels") => {
+      const wire = JSON.parse((await callBoundedPageCollector(page, key, method, 4_096)) ?? "null") as {
+        value: string;
+        truncated: boolean;
+      };
+      return { value: wire.value.replace(/\s+/g, " ").trim(), truncated: wire.truncated };
+    };
+    assert.deepEqual(await read("textWithoutClosedPanels"), {
+      value:
+        "Shown. Menu kept display none. Hidden attribute. Summary shown. Collapsed body. One Selected tab. " +
+        "Open dialog. Dialog wrapper text. Wrapped span. Tab wrapper text. Hidden region.",
+      truncated: false
+    });
+    // The policy text compared against the visit keeps everything.
+    assert.deepEqual(await read("text"), {
+      value:
+        "Shown. Menu kept display none. Hidden attribute. Summary shown. Collapsed body. One Selected tab. " +
+        "Unselected tab. Unselected tab, spelled loosely. Preference center. Modal without a role. Dialog by role alone. " +
+        "Closed dialog. " +
+        "Open dialog. Dialog wrapper text. Wrapped span. Tab wrapper text. Hidden region.",
+      truncated: false
+    });
+
+    // The rendering check is the browser's answer now: a page that stops
+    // rendering its body has closed every panel in it, and keeps the rest.
+    await page.evaluate(() => document.body.setAttribute("style", "display:none"));
+    assert.deepEqual(await read("textWithoutClosedPanels"), {
+      value:
+        "Shown. Menu kept display none. Hidden attribute. Summary shown. Collapsed body. One Hidden region.",
+      truncated: false
+    });
   } finally {
     await browser.close();
   }

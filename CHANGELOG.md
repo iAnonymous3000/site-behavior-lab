@@ -9,6 +9,42 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- The privacy-policy cross-check no longer reads Walgreens' privacy center
+  as the policy (policy-text-cross-check@11, node-detectors-v18). @10
+  withholds an unlabeled page with under 3,000 characters of prose that
+  links to another policy document, and it counted that prose in the
+  page's whole text. walgreens.com's privacy center keeps most of its prose
+  in a consent manager's preference center it has not opened and in two
+  tabs it has not selected, 7,457 characters in all, so each weekly gallery
+  leg read it as the policy and published the companies its cards never
+  name as ones the policy does not appear to name. In this change's own
+  scans before it, @10 listed 6 to 12 of them, among them Adobe, Google,
+  Criteo and Microsoft. Prose is now counted without the page's closed
+  panels: a dialog it has not opened (a dialog element, the dialog or
+  alertdialog role, or aria-modal) and a tab panel it has not selected, as
+  the browser reports whether each renders, read through the same bounded
+  collector. A section the page folds in place still counts, as a policy's
+  folded text must. A measure of only what the page renders was tried first
+  and withheld Cleveland Clinic's policy at a phone's width, where it
+  renders 195 of its 37,327 characters of prose. A read that fails or is cut
+  short, or that leaves no letter, is measured on the whole text as before.
+  Judged by both builds on the same render of each of the 313 reference
+  pages, at desktop and phone widths, only Walgreens changes: 935
+  characters of prose outside its closed panels, 894 at a phone's width.
+  The Guardian, Discover, Capital One and Home Depot stay withheld, and the
+  nearest unlabeled page that links to another policy document and is not a
+  hub carries 3,463 to 3,755 (EFF's privacy issue page, from render to
+  render). Real sites, both builds back to back over two rounds:
+  walgreens.com moves from complete to withheld at both widths, the four
+  other hubs stay withheld, and lbpost.com, naver.com, Cleveland Clinic and
+  the USA TODAY Network policy (augusta.com, usatoday.com) read the same
+  policies under both wherever the scan's proxy budget let both visits reach
+  them. The registry digest moves from `40b13770...b9f8` to
+  `5d13b8ac...b95e`; the normalization, methodology and every other producer
+  field are unchanged, and the two live `node-v22-detectors-v17` rows are
+  closed to their exact literals. Reports already published keep their
+  detector version, and the reports `SBL-CORR-2026-005` cites keep its
+  notice.
 - The Browser Behavior Signals list in the evidence explorer prints the
   hosts a synthetic test value reached with "*" for a hidden subdomain
   label, as the keystroke card does. It printed the stored token, as in

@@ -152,10 +152,18 @@ export function installBoundedPageCollector(key: string): void {
   const textAreaPrototype = typeof HTMLTextAreaElement === "function" ? HTMLTextAreaElement.prototype : null;
   const textAreaValueGetter = getter(textAreaPrototype, "value");
   const elementTextContentGetter = getter(nodePrototype, "textContent");
+  const elementCheckVisibility = method(elementPrototype, "checkVisibility");
+  const windowGetComputedStyle = method(globalThis, "getComputedStyle");
+  const styleDeclarationPrototype = typeof CSSStyleDeclaration === "function" ? CSSStyleDeclaration.prototype : null;
+  const styleGetPropertyValue = method(styleDeclarationPrototype, "getPropertyValue");
 
-  const failWire = (kind: "title" | "headings" | "storage" | "links" | "text" | "contentText"): string => {
+  const failWire = (
+    kind: "title" | "headings" | "storage" | "links" | "text" | "textWithoutClosedPanels" | "contentText"
+  ): string => {
     const output = record();
-    if (kind === "title" || kind === "text" || kind === "contentText") set(output, "value", "");
+    if (kind === "title" || kind === "text" || kind === "textWithoutClosedPanels" || kind === "contentText") {
+      set(output, "value", "");
+    }
     if (kind === "contentText") set(output, "available", false);
     if (kind === "headings") set(output, "values", list());
     if (kind === "storage") {
@@ -184,11 +192,45 @@ export function installBoundedPageCollector(key: string): void {
     return bytes;
   };
 
+  // A panel is content a page opens over itself on request or shows in place
+  // of another view: a dialog (a dialog element, an element whose role is
+  // dialog or alertdialog, or one marked aria-modal="true") or a tab panel
+  // (role tabpanel). A closed panel is one the browser does not render.
+  const attributeIs = (element: object, name: string, values: readonly string[]): boolean => {
+    const value = call(elementGetAttribute, element, [name]);
+    if (typeof value !== "string") return false;
+    const normalized = call(nativeStringLower, call(nativeStringTrim, value, []), []) as string;
+    for (let index = 0; index < values.length; index += 1) if (normalized === values[index]) return true;
+    return false;
+  };
+  const isPanel = (element: object, tagName: unknown): boolean =>
+    tagName === "DIALOG" ||
+    attributeIs(element, "role", ["dialog", "alertdialog", "tabpanel"]) ||
+    attributeIs(element, "aria-modal", ["true"]);
+  // Whether the browser renders an element's content. checkVisibility()
+  // answers false for an element with no box of its own, one inside
+  // display: none, and one under content-visibility: hidden. It also answers
+  // false for a display: contents element, whose content renders in its
+  // parent's box, so such an element renders when its nearest ancestor that
+  // is not display: contents does.
+  const rendersContent = (element: object): boolean => {
+    let current: object | null = element;
+    for (let depth = 0; current && depth < 256; depth += 1) {
+      if (call(elementCheckVisibility, current, []) === true) return true;
+      const style = call(windowGetComputedStyle, globalThis, [current]);
+      if (call(styleGetPropertyValue, style, ["display"]) !== "contents") return false;
+      const parent = call(nodeParentGetter, current, []) as object | null;
+      current = parent && call(nodeTypeGetter, parent, []) === 1 ? parent : null;
+    }
+    return false;
+  };
+
   const boundedNodeText = (
     root: object,
     maxChars: number,
     maxNodes: number,
-    skipNonContent = false
+    skipNonContent = false,
+    skipClosedPanels = false
   ): { value: string; truncated: boolean } => {
     let value = "";
     let visited = 0;
@@ -226,7 +268,8 @@ export function installBoundedPageCollector(key: string): void {
           tagName === "SCRIPT" ||
           tagName === "STYLE" ||
           tagName === "NOSCRIPT" ||
-          tagName === "TEMPLATE";
+          tagName === "TEMPLATE" ||
+          (skipClosedPanels && isPanel(current, tagName) && !rendersContent(current));
       }
       const child = skipChildren ? null : call(nodeFirstChildGetter, current, []) as object | null;
       if (child) {
@@ -625,6 +668,32 @@ export function installBoundedPageCollector(key: string): void {
     }
   });
 
+  // The same text without its closed panels (isPanel, rendersContent): a
+  // dialog the page has not opened, such as a consent manager's preference
+  // center, and a tab panel that is not selected. A collapsed section, a menu
+  // kept display: none and anything else the page hides in place still count.
+  // Read only to decide whether a page reached through a privacy-policy link
+  // is a privacy hub; the policy text compared against the visit is the text
+  // above. Without the rendering check to call, it fails closed.
+  set(api, "textWithoutClosedPanels", (maxCharsInput: unknown): string => {
+    try {
+      const maxChars = boundedPositiveInteger(maxCharsInput, 400_000);
+      if (!maxChars || !elementCheckVisibility || !windowGetComputedStyle || !styleGetPropertyValue) {
+        return failWire("textWithoutClosedPanels");
+      }
+      const documentValue = call(windowDocumentGetter, globalThis, []);
+      const body = call(documentBodyGetter, documentValue, []);
+      if (!body) return failWire("textWithoutClosedPanels");
+      const text = boundedNodeText(body as object, maxChars, 20_000, true, true);
+      const output = record();
+      set(output, "value", text.value);
+      set(output, "truncated", text.truncated);
+      return stringify(output);
+    } catch {
+      return failWire("textWithoutClosedPanels");
+    }
+  });
+
   // Main-document content used only for interstitial classification. Exclude
   // script/style/template text so a small legitimate page cannot be failed by
   // a challenge phrase embedded in code or hidden fallback markup. This is not
@@ -669,7 +738,7 @@ export type BoundedCollectorEvaluateLike = {
 export async function callBoundedPageCollector(
   page: BoundedCollectorEvaluateLike,
   key: string,
-  method: "title" | "headings" | "storage" | "links" | "text" | "contentText",
+  method: "title" | "headings" | "storage" | "links" | "text" | "textWithoutClosedPanels" | "contentText",
   input: unknown
 ): Promise<string | null> {
   return page.evaluate((arg) => {

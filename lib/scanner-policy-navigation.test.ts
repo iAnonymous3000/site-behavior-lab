@@ -203,7 +203,7 @@ test("privacy-policy probing reads only a same-site document that is a policy", 
       assert.notEqual(policyPhase, undefined, `${site}: the page offered a policy link, so the visit was attempted`);
       assert.deepEqual(
         measurement.measurement.detectors["privacy-policy"],
-        { version: "policy-text-cross-check@10", status: "failed", reason: "load-failed", phaseId: policyPhase!.phaseId },
+        { version: "policy-text-cross-check@11", status: "failed", reason: "load-failed", phaseId: policyPhase!.phaseId },
         site
       );
       assert.equal(measurement.evidence.privacyPolicy, undefined, site);
@@ -225,7 +225,7 @@ test("privacy-policy probing reads only a same-site document that is a policy", 
     const { result, measurement } = await scan("real-policy");
     const policyPhase = measurement.measurement.phases.find((phase) => phase.kind === "policy-analysis");
     assert.deepEqual(measurement.measurement.detectors["privacy-policy"], {
-      version: "policy-text-cross-check@10",
+      version: "policy-text-cross-check@11",
       status: "complete",
       phaseId: policyPhase!.phaseId
     });
@@ -301,7 +301,7 @@ test("privacy-policy text never counts a vendor loader in the page body as namin
     );
     const policyPhase = measurement.measurement.phases.find((phase) => phase.kind === "policy-analysis");
     assert.deepEqual(measurement.measurement.detectors["privacy-policy"], {
-      version: "policy-text-cross-check@10",
+      version: "policy-text-cross-check@11",
       status: "complete",
       phaseId: policyPhase!.phaseId
     });
@@ -825,6 +825,72 @@ async function scanPolicyPageShape(site: string): Promise<{
         )
       }
     },
+    // The walgreens.com shape: a privacy center whose prose sits in closed
+    // panels, two tabs it has not selected and a consent manager's preference
+    // center it has not opened, beside link cards and one sentence of its
+    // own, and whose cards link to the policy.
+    "dialog-hub.test": {
+      policyPath: "/privacycenter",
+      pages: {
+        "/privacycenter": page(
+          "Privacy Center | Example Lamps",
+          "Privacy Center",
+          `<p>You trust us with your home, and we take that responsibility seriously every day.</p>` +
+            `<div role="tablist"><button role="tab" aria-selected="true">Customer</button>` +
+            `<button role="tab" aria-selected="false">Trade</button><button role="tab" aria-selected="false">Rentals</button></div>` +
+            `<div role="tabpanel"><h3>Cookies</h3><a href="/help/cookies">Learn More</a>` +
+            `<h3>Your choices</h3><a href="/help/choices">Learn More</a>` +
+            `<a href="/help/privacy-policy">Online Privacy &amp; Security Policy</a></div>` +
+            // Either kind of closed panel alone holds more prose than the bound.
+            `<div role="tabpanel" hidden><p>${prose(22)}</p></div>` +
+            `<div role="tabpanel" hidden><p>${prose(22)}</p></div>` +
+            `<div id="preference-center" style="display:none"><div role="alertdialog" aria-modal="true">` +
+            `<p>${prose(44)}</p></div></div>`
+        ),
+        "/help/privacy-policy": fullPolicy
+      }
+    },
+    // The clevelandclinic.org shape at a phone's width: titled with the
+    // site's name alone, linking to a state notice, and rendering a short
+    // opening above sections it has collapsed, some in details elements and
+    // some kept display: none until opened, beside a consent dialog it has
+    // not opened.
+    "unlabeled-folded.test": {
+      policyPath: "/about/privacy",
+      pages: {
+        "/about/privacy": page(
+          "Example Lamps",
+          null,
+          `<p>${opening} ${prose(4)}</p>` +
+            Array.from(
+              { length: 3 },
+              (_, index) => `<details><summary>Section ${index + 1}</summary><p>${prose(12)}</p></details>`
+            ).join("") +
+            Array.from(
+              { length: 3 },
+              (_, index) =>
+                `<button aria-expanded="false" aria-controls="part-${index}">Part ${index + 1}</button>` +
+                `<div id="part-${index}" style="display:none"><p>${prose(12)}</p></div>`
+            ).join("") +
+            `<p><a href="/privacy/california">California Notice at Collection</a></p>` +
+            `<div style="display:none"><div role="alertdialog" aria-modal="true"><p>${prose(16)}</p></div></div>`
+        )
+      }
+    },
+    // The unlabeled long shape again, inside its selected tab, a tab panel
+    // that is a display: contents wrapper with no box of its own.
+    "contents-panel-policy.test": {
+      policyPath: "/privacy/",
+      pages: {
+        "/privacy/": page(
+          "Example Lamps",
+          null,
+          `<div role="tablist"><button role="tab" aria-selected="true">Policy</button></div>` +
+            `<div role="tabpanel" style="display:contents">${opening} ${prose(40)}</div>` +
+            `<p><a href="/privacy-policy/">California Notice at Collection</a></p>`
+        )
+      }
+    },
     // naver.com: a policy titled and written in Korean, prose the measure
     // cannot read, linking to a notice about the policy.
     "korean-policy.test": {
@@ -942,6 +1008,28 @@ test("a policy titled with only the site's name is read when it has prose, thoug
 test("a short policy titled with only the site's name is read when it links to no other policy document", { timeout: 60_000 }, async () => {
   const { scanned } = await scanPolicyPageShape("unlabeled-short.test");
   assertPolicyRead(scanned, "unlabeled short policy");
+});
+
+test("a privacy hub that keeps its prose in closed panels is never read as the policy", { timeout: 60_000 }, async () => {
+  // Before, policy-text-cross-check@10 counted the prose in its unselected
+  // tabs and unopened preference center and read it as the policy.
+  const { scanned, requests } = await scanPolicyPageShape("dialog-hub.test");
+  assertPolicyWithheld(scanned, "dialog hub");
+  assert.equal(requests.get("/privacycenter"), 1);
+  assert.equal(requests.get("/help/privacy-policy"), undefined, "the page the hub links to is not read in its place");
+});
+
+test("a policy titled with only the site's name is read with its collapsed sections, though it links to another policy document", { timeout: 60_000 }, async () => {
+  // Its opening renders under 3,000 characters of prose; the sections it
+  // folds in place count, as they always did. A measure of only what renders
+  // withheld Cleveland Clinic's policy at a phone's width.
+  const { scanned } = await scanPolicyPageShape("unlabeled-folded.test");
+  assertPolicyRead(scanned, "unlabeled folded policy");
+});
+
+test("a policy in a selected tab panel that is a display: contents wrapper is read", { timeout: 60_000 }, async () => {
+  const { scanned } = await scanPolicyPageShape("contents-panel-policy.test");
+  assertPolicyRead(scanned, "display: contents tab panel");
 });
 
 test("a policy written in a script the prose measure cannot read is read, though it links to another policy document", { timeout: 60_000 }, async () => {

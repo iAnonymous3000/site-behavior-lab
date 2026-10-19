@@ -18,7 +18,10 @@ const reviewedPolicyPdfLibraries: Readonly<Record<string, { "pdfjs-dist": string
   // node-detectors-v13 (d64612b9) and v14 (ac89fc6b) changed which policy page
   // the reader accepts, not either library.
   "policy-text-cross-check@9": { "pdfjs-dist": "6.3.289", undici: "8.11.2" },
-  "policy-text-cross-check@10": { "pdfjs-dist": "6.3.289", undici: "8.11.2" }
+  "policy-text-cross-check@10": { "pdfjs-dist": "6.3.289", undici: "8.11.2" },
+  // node-detectors-v18 changed how a privacy hub's prose is measured, not
+  // either library.
+  "policy-text-cross-check@11": { "pdfjs-dist": "6.3.289", undici: "8.11.2" }
 };
 
 test("pdf.js and undici move only with the privacy-policy detector's version", () => {

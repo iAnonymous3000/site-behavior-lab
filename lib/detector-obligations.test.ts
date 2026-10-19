@@ -115,6 +115,10 @@ test("the obligation contract keeps every accountability registry epoch active",
     {
       detectorRegistryVersion: "node-detectors-v17",
       detectorRegistryDigest: "40b13770367bbb9e3e74c389110d5bca75a57fa803e46cb09b5a3ec69259b9f8"
+    },
+    {
+      detectorRegistryVersion: "node-detectors-v18",
+      detectorRegistryDigest: "5d13b8acc52693d727fe9c180d79301fc77fcd6b842eee5a1a749d6f40c0b95e"
     }
   ]);
   assert.equal(
@@ -129,7 +133,7 @@ test("the obligation contract keeps every accountability registry epoch active",
     DETECTOR_OBLIGATION_TARGET_REGISTRIES[2],
     HISTORICAL_WRAPPED_VISIT_DETECTOR_OBLIGATION_TARGET_REGISTRY
   );
-  assert.equal(DETECTOR_OBLIGATION_TARGET_REGISTRIES[14], DETECTOR_OBLIGATION_TARGET_REGISTRY);
+  assert.equal(DETECTOR_OBLIGATION_TARGET_REGISTRIES[15], DETECTOR_OBLIGATION_TARGET_REGISTRY);
   assert.equal(Object.isFrozen(DETECTOR_OBLIGATION_TARGET_REGISTRIES), true);
 });
 
@@ -295,7 +299,7 @@ test("each accountability epoch is held to the obligation contract its registry 
     loss: { family: "detector-output", detail: "cname-lookups", kinds: ["dropped"], phaseRule: "detector-phase" }
   }]);
   assert.equal(HISTORICAL_DETECTOR_OBLIGATION_REGISTRY.length, DETECTOR_OBLIGATION_REGISTRY.length - 1);
-  // Every closed epoch before node-detectors-v12 keeps v1; v12 through v17
+  // Every closed epoch before node-detectors-v12 keeps v1; v12 through v18
   // are held to v2.
   assert.deepEqual(
     DETECTOR_OBLIGATION_TARGET_REGISTRIES.map((epoch) => [epoch.detectorRegistryVersion, detectorObligationContractVersion(epoch)]),
@@ -314,7 +318,8 @@ test("each accountability epoch is held to the obligation contract its registry 
       ["node-detectors-v14", "detector-obligations-v2"],
       ["node-detectors-v15", "detector-obligations-v2"],
       ["node-detectors-v16", "detector-obligations-v2"],
-      ["node-detectors-v17", "detector-obligations-v2"]
+      ["node-detectors-v17", "detector-obligations-v2"],
+      ["node-detectors-v18", "detector-obligations-v2"]
     ]
   );
   assert.equal(detectorObligationContractVersion(NODE_V12_EPOCH), "detector-obligations-v2");
