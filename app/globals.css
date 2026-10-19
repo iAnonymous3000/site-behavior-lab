@@ -2735,6 +2735,13 @@ a {
   max-width: 56ch;
 }
 
+/* The compact permalink's visit-order line: a disclosure beside the caveat,
+   in the caveat's register rather than a finding's. */
+.headline-visit-order {
+  color: var(--text-subtle);
+  font-size: 12.5px;
+}
+
 .headline-actions {
   display: flex;
   flex-wrap: wrap;

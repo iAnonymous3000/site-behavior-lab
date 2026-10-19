@@ -236,6 +236,7 @@ async function main() {
   await assertStaticExportSize();
   const manifest = await readManifest();
   const phaseReport = await findR2PhaseSmokeReport(manifest);
+  const unorderedComparison = findUnorderedComparisonSmokeReport(manifest);
   const longestOgReport = await findLongestOgReport(manifest);
   const server = createStaticServer();
   await listen(server);
@@ -776,11 +777,37 @@ async function main() {
     await noScriptPage.goto(`${baseUrl}/reports/${phaseReport.id}/`, { waitUntil: "domcontentloaded" });
     await expectText(noScriptPage.locator(".headline-banner"), "Observed in");
     await expectText(noScriptPage.getByRole("link", { name: "Open report JSON" }), "Open report JSON");
-    await noScriptContext.close();
     pass("static report permalink ships a compact summary and direct download without JavaScript");
+
+    // A comparison permalink says which visit ran first, or that the order was
+    // not recorded, before any script runs. An r2 intervention records its
+    // order. A comparison captured before order randomization recorded none,
+    // so its line says so and links the methodology section that says why.
+    const phaseVisitOrder = await compactVisitOrderLine(noScriptPage, "r2 comparison permalink");
+    if (!phaseVisitOrder.startsWith("Ran first: ")) {
+      fail(`r2 comparison permalink does not state its recorded visit order: ${JSON.stringify(phaseVisitOrder)}`);
+    }
+    await noScriptPage.goto(`${baseUrl}/reports/${unorderedComparison.id}/`, { waitUntil: "domcontentloaded" });
+    const unorderedVisitOrder = await compactVisitOrderLine(noScriptPage, "pre-randomization comparison permalink");
+    if (!/order not recorded \(see Methodology\)$/i.test(unorderedVisitOrder)) {
+      fail(`pre-randomization comparison permalink does not say its visit order was not recorded: ${JSON.stringify(unorderedVisitOrder)}`);
+    }
+    const methodologyLink = new URL(
+      await noScriptPage.locator(".report-page-summary .headline-visit-order a").getAttribute("href"),
+      `${baseUrl}/`
+    );
+    if (`${methodologyLink.origin}${methodologyLink.pathname}` !== `${baseUrl}/methodology/` || methodologyLink.hash !== "#comparisons") {
+      fail(`visit-order line links ${methodologyLink.href}, not the methodology page's comparison section`);
+    }
+    if (!(await readFile(path.join(outDir, "methodology", "index.html"), "utf8")).includes('id="comparisons"')) {
+      fail("the methodology page has no comparisons section for the visit-order line to link");
+    }
+    await noScriptContext.close();
+    pass("comparison permalinks state which visit ran first, or that the order was not recorded, without JavaScript");
 
     await page.goto(`${baseUrl}/reports/${phaseReport.id}/`, { waitUntil: "networkidle" });
     const summaryFindings = await page.locator(".findings-board .finding-card").allTextContents();
+    const summaryVisitOrder = await compactVisitOrderLine(page, "hydrated r2 comparison permalink");
     const findingLink = page.locator('.findings-board a[href^="#evidence="]').first();
     const findingHash = await findingLink.getAttribute("href");
     if (!findingHash) fail("saved report findings expose no evidence navigation");
@@ -795,6 +822,7 @@ async function main() {
     if (JSON.stringify(summaryFindings) !== JSON.stringify(explorerFindings)) {
       fail("saved report summary and loaded explorer disagree on their findings");
     }
+    await assertVisitOrderMovedToPanel(page, summaryVisitOrder, "r2 comparison permalink");
     pass("server-rendered findings agree with the explorer and open their evidence");
 
     await page.goto(`${baseUrl}/reports/${phaseReport.id}/`, { waitUntil: "networkidle" });
@@ -836,6 +864,13 @@ async function main() {
     await r2RequestLog.locator('td[data-label="Phase"]').first().waitFor({ state: "visible" });
     await expectText(r2RequestLog, "P0 · Initial page load");
     pass("committed r2 report renders phase spans, snapshot changes, and request phase labels");
+
+    await page.goto(`${baseUrl}/reports/${unorderedComparison.id}/`, { waitUntil: "networkidle" });
+    await assertNoSeriousAxeViolations(page, "compact comparison permalink with an unrecorded visit order");
+    await page.getByRole("button", { name: "Explore full evidence" }).click();
+    await page.locator(".comparison-runs").waitFor();
+    await assertVisitOrderMovedToPanel(page, unorderedVisitOrder, "pre-randomization comparison permalink");
+    pass("the explorer's comparison panel states the compact permalink's visit-order line once, in the same words");
 
     const profileKey = staticProfileKey(firstReport.domain);
     if (!profileKey) fail(`cannot derive a canonical site profile from ${firstReport.domain}`);
@@ -1480,6 +1515,49 @@ async function findR2PhaseSmokeReport(manifest) {
   }
 
   fail("committed corpus has no r2 consent report with phase counts, request labels, and snapshot changes");
+}
+
+/**
+ * The oldest comparison in the manifest. Comparisons captured before order
+ * randomization shipped (commit 5b28f16a, 2026-07-13) recorded no visit order,
+ * and the corrections ledger pins some of them against retention, so the
+ * oldest comparison stays one whose permalink must say the order was not
+ * recorded.
+ */
+function findUnorderedComparisonSmokeReport(manifest) {
+  let oldest = null;
+  for (const entry of manifest.reports) {
+    if (entry.reportType !== "comparison" || entry.comparisonType === "temporal") continue;
+    if (!oldest || Date.parse(entry.scannedAt) < Date.parse(oldest.scannedAt)) oldest = entry;
+  }
+  if (!oldest || !(Date.parse(oldest.scannedAt) < Date.parse("2026-07-13T20:25:14Z"))) {
+    fail("committed corpus has no comparison captured before order randomization shipped");
+  }
+  return oldest;
+}
+
+/** The compact summary's visit-order line, which must render exactly once. */
+async function compactVisitOrderLine(page, label) {
+  const line = page.locator(".report-page-summary .headline-visit-order");
+  if (await line.count() !== 1) fail(`${label} does not state its visit order once in its compact summary`);
+  return (await line.textContent()).replace(/\s+/g, " ").trim();
+}
+
+/**
+ * Once the explorer opens, the summary is gone and the comparison panel states
+ * the visit-order line instead: exactly once, in the same words. Agreement is
+ * checked against the rendered summary, never a restated expectation.
+ */
+async function assertVisitOrderMovedToPanel(page, compactLine, label) {
+  if (await page.locator(".headline-visit-order").count() !== 0) {
+    fail(`${label} still shows its compact visit-order line after the explorer opened`);
+  }
+  const panelLines = (await page.locator(".comparison-runs > span").allTextContents())
+    .map((text) => text.replace(/\s+/g, " ").trim())
+    .filter((text) => text === compactLine);
+  if (panelLines.length !== 1) {
+    fail(`${label}: the comparison panel does not state the compact visit-order line ${JSON.stringify(compactLine)} once`);
+  }
 }
 
 function createStaticServer() {

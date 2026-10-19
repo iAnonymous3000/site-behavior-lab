@@ -9,6 +9,20 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- A comparison report's permalink says which visit ran first, or that the
+  order was not recorded, before the evidence explorer opens and without
+  JavaScript. The line added for the comparison section reached a permalink
+  only once the explorer opened; the compact page a shared link opens showed
+  each visit's start time only inside the collapsed provenance receipt. The
+  same line, with the same methodology link when no order was recorded, now
+  follows the summary's caveat, and the comparison section takes it over
+  when the explorer opens, so the page states it once either way. The static
+  smoke checks a recorded and an unrecorded order without JavaScript, and
+  that the explorer then states the same words. This changes the rendered
+  text of 1,028 of the 1,029 committed reports at a0223c82, the commit
+  that last changed the corpus: 1,008 with a recorded order and 20 without
+  one. No stored report changes and no claim is corrected, so it takes no
+  corrections event.
 - Findings cards print a hidden part of a host or URL the way the evidence
   tables do: "*" for a subdomain label and one ellipsis for path segments.
   The sanitizer stores these as "{label}", "{seg}" and "{n}", and several

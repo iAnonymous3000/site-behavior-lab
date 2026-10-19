@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 import corrections from "@/public/corrections.json";
+import { comparisonVisitOrderLine } from "@/lib/comparison-visit-order";
 import { buildReportHeadline, reportPageTitle, type ReportHeadline } from "@/lib/report-headline";
 import { buildReportFacts } from "@/lib/report-facts";
 import { buildFindings, type Finding } from "@/lib/report-findings";
@@ -171,6 +172,11 @@ export default async function SavedReportPage({ params }: { params: Promise<{ id
             findings={findings}
             evidenceArm={evidenceArm}
             automation={facts.display.run.conditions.automation}
+            visitOrder={
+              view.comparison
+                ? comparisonVisitOrderLine(view.comparison.visitOrder, view.comparison.runLabels)
+                : null
+            }
           />
         }
       />
@@ -191,17 +197,27 @@ export default async function SavedReportPage({ params }: { params: Promise<{ id
  * restated here as a second header. They now live once, in the always-rendered
  * `ReportPageContext` identity block, so opening the evidence explorer no
  * longer swaps one copy of those facts for another.
+ *
+ * A comparison's visit-order line is the exception, on purpose. The comparison
+ * panel states it in the explorer, the printable route and the PDF, and the
+ * identity block and the receipt stay beside that panel once the explorer
+ * opens and on the printable route, so either of them would state the line
+ * twice. This summary is the one block the explorer replaces, so the line is
+ * stated once in every state.
  */
 function ReportPageSummary({
   headline,
   findings,
   evidenceArm,
-  automation
+  automation,
+  visitOrder
 }: {
   headline: ReportHeadline;
   findings: readonly Finding[];
   evidenceArm: EvidenceArm | undefined;
   automation: string;
+  /** The comparison's visit-order line; null for a single scan or a before/after pair. */
+  visitOrder: ReturnType<typeof comparisonVisitOrderLine>;
 }) {
   return (
     <div className="report-page-summary">
@@ -219,7 +235,21 @@ function ReportPageSummary({
             ))}
           </div>
         )}
-        <div className="headline-footer"><span className="headline-caveat">{headline.caveat}</span></div>
+        <div className="headline-footer">
+          <span className="headline-caveat">{headline.caveat}</span>
+          {/* Same text and link as the comparison panel's line, which
+              replaces this one when the explorer opens. */}
+          {visitOrder && (
+            <span className="headline-visit-order">
+              {visitOrder.text}
+              {visitOrder.seeMethodology && (
+                <>
+                  {" "}(see <a href={`${sitePagesBasePath()}/methodology/#comparisons`}>Methodology</a>)
+                </>
+              )}
+            </span>
+          )}
+        </div>
       </section>
       <FindingsList
         findings={findings}
