@@ -1,4 +1,5 @@
 import { publishedReportCorrections } from "@/lib/published-report-corrections";
+import { completeDocumentExportRefusal } from "@/lib/complete-document-export";
 import { reportPdfExportQuery } from "@/lib/report-pdf-export-query";
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -186,7 +187,9 @@ export function ReportEvidenceReceipt({
   view: ReportView;
 }) {
   const detectorScope = reportDetectorScope(view);
-  const pdfHref = reportPdfHref(id);
+  // No printable or PDF control for a report those documents cannot carry in
+  // full; the explorer's header hides its PDF control the same way.
+  const pdfHref = completeDocumentExportRefusal(view) ? null : reportPdfHref(id);
   const boundPdfHref = pdfHref && `${pdfHref}?${reportPdfExportQuery(id, evidenceSha256)}`;
   return (
     <section className="evidence-receipt" id="receipt" aria-labelledby="evidence-receipt-title">

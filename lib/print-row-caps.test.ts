@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import test from "node:test";
+import { completeDocumentExportRefusal } from "./complete-document-export";
 import { PRINT_ROW_CAPS } from "./print-row-caps";
 import { toReportView } from "./scan-report-views";
 import { listStaticReportCandidateIds, readStaticReportBundle } from "./static-report-files";
@@ -30,6 +31,8 @@ type Observed = {
   stateChanges: number;
   runs: number;
   reports: number;
+  /** Reports the printable page and the PDF refuse (lib/complete-document-export.ts). */
+  exportRefusals: string[];
 };
 
 /** Walking 574 bundles through the managed reader costs ~19s; do it once. */
@@ -48,7 +51,8 @@ async function walkCorpus(): Promise<Observed> {
     storage: 0,
     stateChanges: 0,
     runs: 0,
-    reports: 0
+    reports: 0,
+    exportRefusals: []
   };
 
   for (const id of await listStaticReportCandidateIds(reportsDir)) {
@@ -56,6 +60,7 @@ async function walkCorpus(): Promise<Observed> {
     if (read.outcome !== "found") continue;
     worst.reports += 1;
     const view = toReportView(read.stored);
+    if (completeDocumentExportRefusal(view)) worst.exportRefusals.push(id);
     for (const run of view.runs) {
       worst.runs += 1;
       worst.requests = Math.max(worst.requests, run.evidence.requests.length);
@@ -84,6 +89,18 @@ test("every print row cap clears the corpus maximum it claims to be derived from
         "deliberately, or change the docblock's claim that paper truncates only where the scan did."
     );
   }
+});
+
+test("every committed report can be printed and exported in full", async () => {
+  // The printable page and the PDF refuse a report whose supporting pairs
+  // neither prints. None is committed, and the public scanner records none, so
+  // one that arrives must fail here: printing those visits, or withdrawing the
+  // document controls from a corpus report, is a decision rather than a quiet
+  // loss.
+  const observed = await observedMaxima();
+  const manifest = JSON.parse(readFileSync(path.join(reportsDir, "index.json"), "utf8")) as { reports: unknown[] };
+  assert.equal(observed.reports, manifest.reports.length, "every committed report must have been read");
+  assert.deepEqual(observed.exportRefusals, [], "committed reports the printable page and PDF refuse");
 });
 
 test("the caps are ceilings above the screen limits, not a second set of screen limits", async () => {

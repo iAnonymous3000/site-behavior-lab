@@ -10,7 +10,12 @@ service: it preserves Chromium's tagged PDF and bookmarks without rewriting it.
 
 The PDF starts with the findings and limits, followed by evidence for every
 recorded visit and the provenance receipt. Comparisons print both arms in source
-order. Request tables use landscape pages and 9-point text. References such as
+order. A comparison that also embeds supporting pairs (replication visits, RFC
+15.6) gets no PDF and no printable page, because both print only the two
+primary visits: the export answers 422, the printable page says why, and the
+report hides its printable-version and PDF controls. No committed report has
+supporting pairs. Request tables use landscape pages and 9-point text.
+References such as
 `B:R0001` identify the baseline's first retained request; `V` means variant and
 `S` means single. These are presentation references, not new recorded facts.
 The JSON array order defines them. The scanner's collection limits still apply.

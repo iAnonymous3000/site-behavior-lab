@@ -9,6 +9,17 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- A report that records supporting visit pairs is no longer exported as a
+  printable page or PDF that leaves them out. Both documents print a
+  comparison's two primary visits and say they carry the evidence for every
+  recorded visit, but an r2 intervention report can also embed supporting
+  pairs, complete replication visits that neither printed. Both now refuse
+  that shape: the PDF and the evidence package answer 422 before the render
+  limit is charged or a browser starts, the printable page says why and
+  links the report and its JSON, and the report hides its printable-version
+  and PDF controls. No committed report has supporting pairs and the public
+  scanner never records them, though the committed publisher accepts them,
+  so no committed report, page or PDF changes.
 - Evidence links in a report opened on the home page no longer stop
   working while a scheduled-rescan management link is in the address. The
   scheduled-rescan panel handles a fragment change first and, in the same

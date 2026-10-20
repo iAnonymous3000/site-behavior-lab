@@ -1,6 +1,7 @@
 "use client";
 
 import { publishedReportCorrections } from "@/lib/published-report-corrections";
+import { completeDocumentExportRefusal } from "@/lib/complete-document-export";
 import { AlertCircle, CheckCircle2, Copy, Download, ExternalLink } from "lucide-react";
 import type { MouseEvent } from "react";
 import { useEffect, useState } from "react";
@@ -46,7 +47,9 @@ export function ReportHeader({
   const run = runFacts.run;
   const formatChip = reportFormatChip(view);
   const sharePath = reportSharePath(share, liveApiServesReportPages);
-  const pdfHref = reportPdfHref(share, liveApiServesReportPages);
+  // Hidden with the receipt's controls when the PDF could not carry every
+  // recorded visit; the renderer would answer 422.
+  const pdfHref = completeDocumentExportRefusal(view) ? null : reportPdfHref(share, liveApiServesReportPages);
   // Keep the rendered anchor origin-relative for static prerendering, but make
   // clipboard/native-share values absolute once the browser origin exists.
   const [shareUrl, setShareUrl] = useState<string | null>(null);

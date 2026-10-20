@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 import corrections from "@/public/corrections.json";
+import { completeDocumentExportRefusal } from "@/lib/complete-document-export";
 import { buildReportHeadline, reportPageTitle } from "@/lib/report-headline";
 import { parseCorrectionsLedger, reportCorrections } from "@/lib/corrections-ledger";
 import { readStoredReportForId } from "@/lib/report-source";
@@ -98,6 +99,26 @@ export default async function PrintableReportPage({ params, searchParams }: {
   const committed = result.origin === "committed";
   const reportUrl = `${siteBaseUrl()}/reports/${id}/`;
   const jsonUrl = `${siteOrigin()}/api/reports/${id}`;
+
+  // A document that says it carries every recorded visit is not printed
+  // without some of them. The report's own controls never link here for this
+  // shape, and the PDF route refuses it before rendering this page.
+  const exportRefusal = completeDocumentExportRefusal(view);
+  if (exportRefusal) {
+    return (
+      <main className="app-shell route-state-shell" aria-labelledby="printable-refused-title">
+        <section className="side-card route-state-card">
+          <p className="eyebrow">Printable version unavailable</p>
+          <h1 id="printable-refused-title">This report has no complete printable version.</h1>
+          <p>{exportRefusal}</p>
+          <div className="route-state-actions">
+            <a className="primary-button" href={reportUrl}>Open the report</a>
+            <a className="secondary-button" href={jsonUrl}>Open report JSON</a>
+          </div>
+        </section>
+      </main>
+    );
+  }
 
   return (
     <div className="app-shell report-page-shell printable-report">

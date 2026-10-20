@@ -1,3 +1,4 @@
+import { completeDocumentExportRefusal } from "@/lib/complete-document-export";
 import { reportDocumentBundle } from "@/lib/report-document-bundle";
 import { sha256Hex } from "@/lib/sha256";
 import { publishedReportCorrectionWire } from "@/lib/published-report-corrections";
@@ -89,9 +90,17 @@ async function handleReportPdf(
     if (expectedCorrections && expectedCorrections !== sha256Hex(corrections)) {
       return NextResponse.json({ ok: false, error: "The renderer has different correction context. Retry after deployment finishes." }, { status: 409 });
     }
+    // A shape the printable page cannot print in full is refused here, before
+    // the render budget is charged or a browser starts, for the PDF and the
+    // package alike.
+    const view = toReportView(result.stored);
+    const exportRefusal = completeDocumentExportRefusal(view);
+    if (exportRefusal) {
+      return NextResponse.json({ ok: false, error: exportRefusal }, { status: 422 });
+    }
     assertReportPdfRateLimit(clientKey);
     const pdf = await renderReportPdf(id, { signal: request.signal, expectedWireSha256: result.wireSha256 });
-    const filename = reportPdfFilename(id, toReportView(result.stored).domain);
+    const filename = reportPdfFilename(id, view.domain);
 
     if (new URL(request.url).searchParams.get("download") === "bundle") {
       const commit = process.env.SITE_BEHAVIOR_LAB_BUILD_COMMIT ?? "";
