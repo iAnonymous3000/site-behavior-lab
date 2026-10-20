@@ -621,7 +621,13 @@ function useEvidenceTarget(section: EvidenceSection): EvidenceTarget | null {
       const parsed = parseEvidenceHash(hash);
       setTarget(parsed?.section === section ? parsed : null);
     }
-    const readCurrentTarget = () => readTarget(window.location.hash);
+    // A navigation's target is the fragment the event navigated to, not what
+    // the address bar says when this listener runs. On the home page
+    // ScheduledRescans listens first and, inside the same dispatch, puts a
+    // retained `#watch=` management link back in the address, so reading
+    // location.hash here lost every evidence link followed after a schedule
+    // was created or recovered.
+    const readNavigatedTarget = (event: HashChangeEvent) => readTarget(new URL(event.newURL).hash);
 
     // A same-hash link does not emit `hashchange`. Re-apply it when a reader
     // has adjusted the filters manually and then asks for the same evidence
@@ -634,11 +640,11 @@ function useEvidenceTarget(section: EvidenceSection): EvidenceTarget | null {
       readTarget(anchor.hash);
     }
 
-    readCurrentTarget();
-    window.addEventListener("hashchange", readCurrentTarget);
+    readTarget(window.location.hash);
+    window.addEventListener("hashchange", readNavigatedTarget);
     document.addEventListener("click", readRepeatedTarget);
     return () => {
-      window.removeEventListener("hashchange", readCurrentTarget);
+      window.removeEventListener("hashchange", readNavigatedTarget);
       document.removeEventListener("click", readRepeatedTarget);
     };
   }, [section]);

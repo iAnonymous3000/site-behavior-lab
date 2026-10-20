@@ -9,6 +9,7 @@ import {
   parseEvidenceHash,
   requestTimingSummary
 } from "./report-evidence-navigation";
+import { requireIndex } from "./source-markers";
 import type { DomainSummary, NetworkRequestRecord, TrackerMatch } from "./types";
 
 const tracker: TrackerMatch = {
@@ -163,10 +164,37 @@ test("report components wire neutral comparisons, deep-link filters, and a non-d
   assert.match(tables, /setSignalFilter\(evidenceTarget\.signal \?\? "all"\)/);
   assert.match(tables, /detailsRef\.current\.open = true/);
 
-  assert.match(renderer, /selectLinkedEvidenceArm\(window\.location\.hash\)/);
+  // The address bar is read once, when the report mounts. After that each
+  // navigation names its own target; see the listener test below.
+  assert.match(renderer, /selectLinkedEvidenceArm\(window\.location\.hash\);/);
+  assert.match(tables, /readTarget\(window\.location\.hash\);/);
   assert.match(renderer, /setSelectedArm\(target\.arm\)/);
   assert.match(renderer, /document\.addEventListener\("click", selectRepeatedLinkedEvidenceArm\)/);
   assert.match(renderer, /aria-label="Supporting report evidence"/);
+});
+
+/**
+ * Every evidence reader's hashchange listener, by the definition its
+ * registration names. On the home page ScheduledRescans registers first and,
+ * inside the same dispatch, writes a retained `#watch=` management link back
+ * into the address, so a listener that read location.hash saw the capability
+ * and dropped the evidence link: the log stayed closed and the arm unswitched.
+ * A source contract cannot see listener order; scripts/smoke-static-site.mjs
+ * follows the links in a browser with a retained capability.
+ */
+test("evidence readers take each navigation's target from its hashchange event", () => {
+  const root = process.cwd();
+  for (const file of ["report-tables.tsx", "report-renderer.tsx"]) {
+    const label = `app/_components/${file}`;
+    const source = readFileSync(path.join(root, "app", "_components", file), "utf8");
+    const listeners = [...source.matchAll(/window\.addEventListener\("hashchange", (\w+)\)/g)].map((match) => match[1]);
+    assert.equal(listeners.length, 1, `${label} registers one hashchange listener`);
+    const start = requireIndex(source, `const ${listeners[0]} = (event: HashChangeEvent) =>`, label);
+    const definition = source.slice(start, requireIndex(source, ";\n", label, start));
+    assert.match(definition, /\(new URL\(event\.newURL\)\.hash\)$/, `${label}: ${definition}`);
+    assert.doesNotMatch(definition, /location/, `${label} reads the address bar in its hashchange listener`);
+    assert.match(source, new RegExp(`window\\.removeEventListener\\("hashchange", ${listeners[0]}\\)`));
+  }
 });
 
 /**

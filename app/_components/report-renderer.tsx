@@ -94,7 +94,11 @@ export function ReportRenderer({
       const target = parseEvidenceHash(hash);
       if (target?.arm) setSelectedArm(target.arm);
     }
-    const selectCurrentLinkedEvidenceArm = () => selectLinkedEvidenceArm(window.location.hash);
+    // The fragment the navigation went to, not location.hash, which an
+    // earlier listener can already have replaced (useEvidenceTarget in
+    // report-tables.tsx says which one).
+    const selectNavigatedLinkedEvidenceArm = (event: HashChangeEvent) =>
+      selectLinkedEvidenceArm(new URL(event.newURL).hash);
     function selectRepeatedLinkedEvidenceArm(event: MouseEvent) {
       if (!(event.target instanceof Element)) return;
       const anchor = event.target.closest<HTMLAnchorElement>("a");
@@ -103,11 +107,11 @@ export function ReportRenderer({
       selectLinkedEvidenceArm(anchor.hash);
     }
 
-    selectCurrentLinkedEvidenceArm();
-    window.addEventListener("hashchange", selectCurrentLinkedEvidenceArm);
+    selectLinkedEvidenceArm(window.location.hash);
+    window.addEventListener("hashchange", selectNavigatedLinkedEvidenceArm);
     document.addEventListener("click", selectRepeatedLinkedEvidenceArm);
     return () => {
-      window.removeEventListener("hashchange", selectCurrentLinkedEvidenceArm);
+      window.removeEventListener("hashchange", selectNavigatedLinkedEvidenceArm);
       document.removeEventListener("click", selectRepeatedLinkedEvidenceArm);
     };
   }, [loaded]);

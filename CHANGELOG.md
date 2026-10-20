@@ -9,6 +9,17 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- Evidence links in a report opened on the home page no longer stop
+  working while a scheduled-rescan management link is in the address. The
+  scheduled-rescan panel handles a fragment change first and, in the same
+  event, puts its retained `#watch=` link back, so the request log, the
+  domain table and the evidence switcher, reading the address after it, saw
+  the capability instead of the link: a findings link left the request log
+  closed and unfiltered, and a comparison link left the switcher on the
+  other visit. They now take each link's target from the event and read the
+  address only when a report opens. Encrypted watches are off in
+  production, so only a hand-made management link reaches this, and report
+  pages never show the panel. Client only: no stored report changes.
 - Cancelling a scan while Chromium was opening its browsing context no
   longer leaves a whole browser running. The scanner read the cancel as a
   stuck browser, dropped that browser from its cache without closing it and

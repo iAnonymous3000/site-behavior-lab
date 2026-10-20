@@ -2,6 +2,7 @@
 
 import { createServer } from "node:http";
 import { execFileSync } from "node:child_process";
+import { createHash, randomBytes } from "node:crypto";
 import { existsSync } from "node:fs";
 import { readFile, readdir, stat } from "node:fs/promises";
 import path from "node:path";
@@ -1035,6 +1036,11 @@ async function main() {
     if (await page.getByRole("link", { name: "Share", exact: true }).count()) fail("local re-export enabled an unverified share link");
     pass("corrected report retains its identity and notices across browser import, export and reopen");
 
+    if (scannerFixture) {
+      await assertRetainedWatchKeepsEvidenceLinks(context, baseUrl, manifest, singleReportFixture);
+      pass("evidence links still open their filters and visits while a scheduled-rescan link stays in the address");
+    }
+
     await page.setViewportSize({ width: 390, height: 900 });
     await page.goto(`${baseUrl}/`, { waitUntil: "networkidle" });
     await loadStaticArchive(page);
@@ -1685,6 +1691,124 @@ async function expectCardCount(page, expected) {
 async function expectRequestRowCount(page, expected) {
   const actual = await page.locator(".request-table tbody tr").count();
   if (actual !== expected) fail(`expected ${expected} request rows, got ${actual}`);
+}
+
+/**
+ * A scheduled-rescan management link the home page keeps in the address
+ * (`#watch=...`) must not swallow the report's own evidence links. The panel
+ * registers its hashchange listener before any report mounts and, inside the
+ * same dispatch, writes the retained capability back over the fragment a link
+ * just navigated to. Readers that took their target from location.hash then
+ * saw `#watch=` and did nothing: the request log stayed closed and unfiltered
+ * and the evidence switcher stayed on the other visit. Encrypted watches are
+ * off in production, so only this fixture reaches the state; its scanner
+ * routes abort the schedule's status read. Each part opens a fresh page,
+ * because a goto that changes only the fragment never reloads the document.
+ */
+async function assertRetainedWatchKeepsEvidenceLinks(context, baseUrl, manifest, singleReportFixture) {
+  const watch = mintedWatchFragment();
+
+  const single = await openHomeWithRetainedWatch(context, baseUrl, watch);
+  await uploadHomeReport(single, singleReportFixture);
+  const findingLink = single.locator('.findings-board a[href="#evidence=requests&signal=third-party"]').first();
+  if ((await findingLink.count()) !== 1) fail("the single-report fixture no longer links its third-party finding to the request log");
+  await findingLink.click();
+  await waitForEvidenceState(single, { open: true, chip: "Third-party" },
+    "a findings link followed beside a retained #watch= link did not open the request log on its filter");
+  await expectRequestRowCount(single, 2);
+  await expectRetainedWatch(single, watch, "following a findings link");
+  // With the address already back on #watch=, the same link navigates again.
+  // It must re-apply its filter after the reader has reset it by hand.
+  await single.locator(".request-filter-chips").getByRole("button", { name: "All", exact: true }).click();
+  await waitForEvidenceState(single, { open: true, chip: "All" }, "resetting the request filter by hand did not apply");
+  await findingLink.click();
+  await waitForEvidenceState(single, { open: true, chip: "Third-party" },
+    "repeating a findings link beside a retained #watch= link did not re-apply its filter");
+  await expectRequestRowCount(single, 2);
+  await expectRetainedWatch(single, watch, "repeating a findings link");
+  await single.close();
+
+  const { page: comparison, href: armHref } = await openShieldsComparisonWithArmLink(context, baseUrl, watch, manifest);
+  const target = new URLSearchParams(armHref.slice(1));
+  const linkArm = target.get("arm") === "variant" ? 1 : 0;
+  // Show the other visit first, so only the link can switch it back.
+  await comparison.locator(".arm-switcher .arm-option").nth(1 - linkArm).click();
+  await waitForEvidenceState(comparison, { open: false, arm: 1 - linkArm }, "the evidence switcher did not change visits by hand");
+  await comparison.locator(`a[href="${armHref}"]`).first().click();
+  await waitForEvidenceState(comparison, { open: true, arm: linkArm, query: target.get("query") },
+    "a comparison link followed beside a retained #watch= link did not switch to its visit and filter the request log");
+  await expectRetainedWatch(comparison, watch, "following a comparison link");
+  await comparison.reload({ waitUntil: "networkidle" });
+  await comparison.locator("#scheduled-rescan-title", { hasText: "Manage scheduled rescan" }).waitFor();
+  await expectRetainedWatch(comparison, watch, "reloading the page");
+  await comparison.close();
+}
+
+/** A self-consistent capability, its id derived as lib/encrypted-watch-contract.ts derives it. */
+function mintedWatchFragment() {
+  const token = randomBytes(32);
+  const domain = Buffer.from("site-behavior-lab/encrypted-watch/id/v1", "utf8");
+  const id = createHash("sha256").update(Buffer.concat([domain, Buffer.from([0]), token])).digest().subarray(0, 16);
+  return `#watch=${id.toString("hex")}.${token.toString("base64url")}`;
+}
+
+async function openHomeWithRetainedWatch(context, baseUrl, watch) {
+  const page = await context.newPage();
+  await page.goto(`${baseUrl}/${watch}`, { waitUntil: "networkidle" });
+  await page.locator("#scheduled-rescan-title", { hasText: "Manage scheduled rescan" }).waitFor();
+  // The same heading also titles an invalid link, which the page discards
+  // rather than retains, so the minted capability must not read as one.
+  if (await page.getByText("This scheduled rescan management link is invalid.").count()) {
+    fail("the minted scheduled-rescan link no longer matches the client's capability derivation");
+  }
+  return page;
+}
+
+async function uploadHomeReport(page, file) {
+  await openHomepageTools(page);
+  await page.locator("label.file-button", { hasText: "Open report file" }).first().locator('input[type="file"]').setInputFiles(file);
+  await page.locator(".report-header").waitFor({ state: "visible" });
+}
+
+/**
+ * The oldest committed Shields comparison that renders a request link naming
+ * a visit, chosen at run time because retention prunes the oldest reports.
+ */
+async function openShieldsComparisonWithArmLink(context, baseUrl, watch, manifest) {
+  const candidates = manifest.reports
+    .filter((entry) => entry.reportType === "comparison" && entry.comparisonType === "shields")
+    .sort((a, b) => Date.parse(a.scannedAt) - Date.parse(b.scannedAt) || a.id.localeCompare(b.id))
+    .slice(0, 3);
+  for (const entry of candidates) {
+    const page = await openHomeWithRetainedWatch(context, baseUrl, watch);
+    await uploadHomeReport(page, path.join(outDir, "reports", `${entry.id}.json`));
+    const links = page.locator('a[href^="#evidence=requests&arm="]');
+    if ((await links.count()) > 0) return { page, href: await links.first().getAttribute("href") };
+    await page.close();
+  }
+  fail(`none of the ${candidates.length} oldest committed Shields comparisons renders a request link that names a visit`);
+}
+
+async function waitForEvidenceState(page, expected, message) {
+  try {
+    await page.waitForFunction((state) => {
+      const log = [...document.querySelectorAll("details.data-section")]
+        .find((details) => details.querySelector("h2")?.textContent?.trim() === "Request log");
+      if (!log || log.open !== state.open) return false;
+      const chip = log.querySelector('.request-filter-chips button[aria-pressed="true"]')?.textContent?.trim();
+      if (state.chip !== undefined && chip !== state.chip) return false;
+      if (state.query !== undefined && log.querySelector('input[aria-label="Filter requests"]')?.value !== state.query) return false;
+      const arms = document.querySelectorAll(".arm-switcher .arm-option");
+      return state.arm === undefined || arms[state.arm]?.getAttribute("aria-pressed") === "true";
+    }, expected, { timeout: 10_000 });
+  } catch {
+    fail(message);
+  }
+}
+
+async function expectRetainedWatch(page, watch, action) {
+  const hash = await page.evaluate(() => window.location.hash);
+  if (hash !== watch) fail(`${action} replaced the retained scheduled-rescan link with ${JSON.stringify(hash.slice(0, 40))}`);
 }
 
 async function assertMinimumTargetSize(locator, minimumCssPixels, label) {
