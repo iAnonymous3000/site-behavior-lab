@@ -12,7 +12,7 @@ import {
   SlidersHorizontal,
   Smartphone
 } from "lucide-react";
-import type { Dispatch, FormEventHandler, SetStateAction } from "react";
+import type { Dispatch, FormEventHandler, ReactNode, SetStateAction } from "react";
 import { useEffect, useRef, useState } from "react";
 import {
   LIVE_SCAN_TURNSTILE_SITE_KEY,
@@ -67,6 +67,8 @@ type ScanControlsProps = {
   examples: { url: string; hint: string }[];
   onPickExample: (url: string) => void;
   knownSites: HomepageKnownSite[];
+  /** Server-rendered statement of what a scan does to the page, shown under the URL field. */
+  disclosure?: ReactNode;
 };
 
 const TURNSTILE_SCRIPT_SRC = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
@@ -147,7 +149,8 @@ export function ScanControls({
   onAccessKeyChange,
   examples,
   onPickExample,
-  knownSites
+  knownSites,
+  disclosure
 }: ScanControlsProps) {
   const turnstileSiteKeyConfigured = Boolean(LIVE_SCAN_TURNSTILE_SITE_KEY);
   const knownSite = matchingKnownSite(form.url, knownSites);
@@ -193,6 +196,7 @@ export function ScanControls({
 
       {urlNotice && <p className="scanner-status-note url-privacy-note" id="url-notice">{urlNotice}</p>}
       {urlError && <p className="scanner-status-note scanner-status-note-error" id="url-error" role="alert">{urlError}</p>}
+      {disclosure}
 
       {knownSite ? (
         <div className="known-evidence" role="status">
@@ -314,13 +318,17 @@ export function ScanControls({
         <p className="run-mode-hint" aria-live="polite">{runModeHint(selectedRunMode(form))}</p>
       </div>
 
+      {/* The operator status line (rate limits, storage, comparison list)
+          sits under More options. A failure stays here, with its retry: the
+          live region is always mounted so the failure is announced when it
+          arrives, and one inside a closed disclosure would not be. */}
       <div className="scanner-health-row">
         <p
           className={`scanner-status-note${scannerStatusError ? " scanner-status-note-error" : ""}`}
           role="status"
           aria-live="polite"
         >
-          {scannerStatus}
+          {scannerStatusError ? scannerStatus : ""}
         </p>
         {scannerStatusError && (
           <button className="ghost-button scanner-health-retry" type="button" onClick={onRetryScannerHealth}>
@@ -371,6 +379,7 @@ export function ScanControls({
           <span>More options</span>
           <ChevronDown className="disclosure-chevron" size={15} aria-hidden="true" />
         </summary>
+        {!scannerStatusError && <p className="scanner-status-note">{scannerStatus}</p>}
         <div className="controls-grid">
           <fieldset className="control-group">
             <legend>Device</legend>

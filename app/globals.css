@@ -1053,11 +1053,34 @@ a {
   margin: 10px 0 0;
 }
 
+/* The live region stays mounted while it has nothing to say; it takes no room
+   until a failure fills it. */
+.scanner-status-note:empty {
+  margin: 0;
+}
+
 .scanner-health-row {
   align-items: baseline;
   display: flex;
   flex-wrap: wrap;
   gap: 8px 12px;
+}
+
+/* What a scan does to the page, directly under the URL field. Muted like the
+   other notes under the field, but at reading size: it is the disclosure a
+   visitor reads before pressing Scan, not a status. */
+.scan-disclosure {
+  color: var(--text-muted);
+  display: grid;
+  font-size: 12.5px;
+  gap: 4px;
+  line-height: 1.5;
+  margin-top: 10px;
+  max-width: 78ch;
+}
+
+.scan-disclosure p {
+  margin: 0;
 }
 
 .scanner-health-retry {

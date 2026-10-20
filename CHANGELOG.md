@@ -9,6 +9,22 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- The scan form now says what a scan does to the page before anyone presses
+  Scan. Under the URL field, in the scanner's own words: a single scan is one
+  automated, headless Chromium visit from a fixed en-US / UTC profile, with no
+  scrolling, clicking or consent interaction; each visit types a made-up test
+  value into form fields, never submitting the form, and reads the site's
+  privacy policy when it finds one; comparison modes run two visits, and
+  consent mode tries to click the banner's Accept all in one and Reject all in
+  the other.
+  The homepage used to say only that the visit reads "what the page actually
+  loaded", and the typing test was disclosed only after submission, under the
+  progress bar. The copy is rendered on the server and handed to the form as
+  markup, so it adds HTML, not homepage JavaScript. The operator status line
+  (rate limits, storage, the comparison list) moves under More options; a
+  scanner failure and its Retry status button stay under the field, in a live
+  region that is always mounted so the failure is still announced. No report
+  page changes.
 - A report page now says what was checked and what the visit could not
   see, directly after its bottom line and before any card that counts or
   ranks what the visit recorded. "What was checked" gives the page (the

@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { test } from "node:test";
+import { clientImportTrails } from "./client-import-graph";
 import { createGpcComparisonReport, createShieldsComparisonReport } from "./compare-reports";
 import { CONSENT_RELOAD_DISCLOSURE } from "./consent-verification";
 import { loadCommittedCorpusStats } from "./current-scan-cohort";
@@ -492,55 +493,17 @@ test("every claim the board can withhold has a reader name", () => {
  * modules, and only the two server report routes build it; the explorer's
  * board receives the block as markup. In the App Router a "use client"
  * directive is inherited through imports, so grepping each file for the
- * directive cannot answer this; walk the graph from every client root, as the
- * claim-boundary guard does.
+ * directive cannot answer this; walk the graph from every client root
+ * (lib/client-import-graph.ts).
  */
 test("the visit summary stays on the server, out of every client bundle", () => {
-  const root = process.cwd();
-  const sourceFiles = (dir: string): string[] =>
-    readdirSync(path.join(root, dir), { withFileTypes: true }).flatMap((entry) => {
-      if (entry.name === "node_modules" || entry.name.startsWith(".")) return [];
-      const relative = path.posix.join(dir, entry.name);
-      if (entry.isDirectory()) return sourceFiles(relative);
-      return /\.tsx?$/.test(entry.name) ? [relative] : [];
-    });
-  const files = new Set([...sourceFiles("app"), ...sourceFiles("lib")]);
-  const source = (file: string) => readFileSync(path.join(root, file), "utf8");
-  const resolve = (from: string, specifier: string): string | null => {
-    const base = specifier.startsWith("@/")
-      ? specifier.slice(2)
-      : specifier.startsWith(".")
-        ? path.posix.join(path.posix.dirname(from), specifier)
-        : null;
-    if (base === null) return null;
-    return [base, `${base}.ts`, `${base}.tsx`, `${base}/index.ts`, `${base}/index.tsx`].find((candidate) => files.has(candidate)) ?? null;
-  };
-  const importsOf = (file: string) =>
-    [...source(file).matchAll(/(?:from\s*|import\s*\()\s*["']([^"']+)["']/g)]
-      .map((match) => resolve(file, match[1]))
-      .filter((resolved): resolved is string => resolved !== null);
-  const clientRoots = [...files].filter((file) => /^\s*["']use client["']/m.test(source(file)));
-  assert.ok(clientRoots.length > 0, "the walk must start somewhere; no client components were found");
-  const reached: string[] = [];
-  for (const start of clientRoots) {
-    const seen = new Set([start]);
-    const queue = [[start]];
-    while (queue.length > 0) {
-      const trail = queue.shift()!;
-      for (const next of importsOf(trail[trail.length - 1])) {
-        if (seen.has(next)) continue;
-        seen.add(next);
-        if (next === "lib/report-visit-summary.ts" || next === "app/_components/report-visit-summary-block.tsx") {
-          reached.push([...trail, next].join(" -> "));
-        }
-        queue.push([...trail, next]);
-      }
-    }
+  for (const target of ["lib/report-visit-summary.ts", "app/_components/report-visit-summary-block.tsx"]) {
+    assert.deepEqual(clientImportTrails(target), [], `a client component reaches ${target} through its import graph`);
   }
-  assert.deepEqual(reached, [], "a client component reaches the visit summary through its import graph");
-  // The walk does reach the modules from their real server importers.
+  // Its importers are the two server report routes.
   for (const route of ["app/reports/[id]/page.tsx", "app/reports/[id]/print/page.tsx"]) {
-    assert.match(source(route), /from "@\/lib\/report-visit-summary"/, route);
-    assert.match(source(route), /from "@\/app\/_components\/report-visit-summary-block"/, route);
+    const source = readFileSync(path.join(process.cwd(), route), "utf8");
+    assert.match(source, /from "@\/lib\/report-visit-summary"/, route);
+    assert.match(source, /from "@\/app\/_components\/report-visit-summary-block"/, route);
   }
 });

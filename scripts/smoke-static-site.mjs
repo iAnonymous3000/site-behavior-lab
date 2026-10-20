@@ -279,6 +279,36 @@ async function main() {
     });
     pass("static home defers saved-report tools on first load");
 
+    if (liveScanApiBase) {
+      // What a scan does to the page is stated directly under the URL field,
+      // from server markup, before any script runs (lib/scan-disclosure.ts).
+      const homeContext = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 375, height: 812 } });
+      const homePage = await homeContext.newPage();
+      await homePage.goto(`${baseUrl}/`, { waitUntil: "domcontentloaded" });
+      const disclosure = homePage.locator(".scan-panel .scan-disclosure");
+      for (const clause of [
+        "one automated, headless Chromium visit",
+        "never submitting the form",
+        "privacy policy",
+        "Comparison modes run two visits",
+        "Accept all",
+        "Reject all"
+      ]) {
+        await expectText(disclosure, clause);
+      }
+      const [fieldBottom, disclosureTop, examplesTop] = await homePage.evaluate(() =>
+        [".url-row", ".scan-disclosure", ".scan-examples, .known-evidence"].map((selector, index) => {
+          const rect = document.querySelector(selector)?.getBoundingClientRect();
+          return rect ? (index === 0 ? rect.bottom : rect.top) : Number.NaN;
+        })
+      );
+      if (!(disclosureTop >= fieldBottom && disclosureTop < examplesTop && disclosureTop < 812)) {
+        fail(`the scan disclosure is not directly under the URL field in a phone's first screen (${disclosureTop}px)`);
+      }
+      await homeContext.close();
+      pass("the scan form discloses the typing test and the visit's interactions under the URL field without JavaScript");
+    }
+
     // Before the hook resolves the OS preference the button is named neutrally, so the
     // locator must not depend on the effect having already run.
     const themeToggle = page.getByRole("button", { name: /Switch (?:to (?:light|dark) )?colour theme/ });

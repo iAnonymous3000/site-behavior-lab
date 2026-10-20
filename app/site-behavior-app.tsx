@@ -11,7 +11,7 @@ import {
   Network,
   Radar
 } from "lucide-react";
-import { lazy, Suspense, useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState, type ReactNode } from "react";
 import {
   PageGraphR2UploadButton,
   ReportUploadButton,
@@ -90,11 +90,14 @@ type SiteBehaviorAppProps = {
   corpusHighlights?: CorpusHighlights | null;
   /** Small server-selected homepage payload; never the full report manifest. */
   homepageDiscovery?: HomepageDiscovery | null;
+  /** What a scan does to the page, rendered by the server page (app/page.tsx). */
+  scanDisclosure?: ReactNode;
 };
 
 export function SiteBehaviorApp({
   corpusHighlights = null,
-  homepageDiscovery = null
+  homepageDiscovery = null,
+  scanDisclosure = null
 }: SiteBehaviorAppProps) {
   const {
     form,
@@ -316,6 +319,7 @@ export function SiteBehaviorApp({
       examples={EXAMPLES}
       onPickExample={useExample}
       knownSites={homepageDiscovery?.knownSites ?? []}
+      disclosure={scanDisclosure}
     />
   );
   const scanForm = (

@@ -3,6 +3,7 @@ import { buildCategoryEvidencePages } from "@/lib/directory-view";
 import { isFeaturedSiteConfig } from "@/lib/featured-sites";
 import { buildHomepageDiscovery, type HomepageReportSource } from "@/lib/homepage-discovery";
 import featuredSiteConfigJson from "@/public/featured-sites.json";
+import { ScanDisclosure } from "./_components/scan-disclosure";
 import { SiteBehaviorApp } from "./site-behavior-app";
 
 export default async function Home() {
@@ -56,5 +57,13 @@ export default async function Home() {
   }));
   const homepageDiscovery = buildHomepageDiscovery(featuredSiteConfigJson, discoveryReports);
 
-  return <SiteBehaviorApp corpusHighlights={corpusHighlights} homepageDiscovery={homepageDiscovery} />;
+  // Rendered here, on the server, and handed to the client form as markup, so
+  // the disclosure costs HTML rather than homepage JavaScript.
+  return (
+    <SiteBehaviorApp
+      corpusHighlights={corpusHighlights}
+      homepageDiscovery={homepageDiscovery}
+      scanDisclosure={<ScanDisclosure />}
+    />
+  );
 }
