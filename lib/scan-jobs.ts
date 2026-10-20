@@ -13,13 +13,20 @@ import {
   isScanReportPublicationManifest,
   prepareScanReportBundle,
   reconcilePreparedScanReportBundle,
+  ReportStoreCapacityExhaustedError,
   reportStoreStatus,
   saveScanReport,
   type PreparedScanReportBundle,
   type ScanReportBundleReconciliation,
   type ScanReportPublicationManifest
 } from "./report-store";
-import { assertRateLimit, MAX_CONCURRENT_SCANS, MAX_QUEUED_JOBS, QUEUE_TIMEOUT_MS } from "./scan-limits";
+import {
+  assertRateLimit,
+  MAX_CONCURRENT_SCANS,
+  MAX_QUEUED_JOBS,
+  QUEUE_TIMEOUT_MS,
+  SCANNER_BUSY_MESSAGE
+} from "./scan-limits";
 import { PublicScanError, toPublicError } from "./public-errors";
 import {
   type RuntimeScanJobStatusResponse,
@@ -901,6 +908,16 @@ async function commitPreparedBundleOrReconcile(
         publication.commit(bundle, operation.signal)
       );
     } catch (commitError) {
+      // The store refused before its first write, so the outcome is known and
+      // there is nothing to read back. Reconciling would find "missing" and
+      // call it outcome-unknown, failing an in-process job with an unexplained
+      // 500 and detaching a durable one to wait for a lease expiry that can
+      // only find the same nothing. The share store's capacity is the
+      // scanner's own, so the refusal is the scanner-busy one.
+      if (commitError instanceof ReportStoreCapacityExhaustedError) {
+        console.warn(commitError);
+        throw new PublicScanError(SCANNER_BUSY_MESSAGE, 503, "scanner-busy");
+      }
       let reconciliation: ScanReportBundleReconciliation;
       try {
         reconciliation = await awaitOperationOrAbort(operation.signal, () =>

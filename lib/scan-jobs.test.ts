@@ -10,10 +10,12 @@ import { committedSidecarFilename } from "./redaction-provenance";
 import {
   MAX_QUEUED_JOBS,
   RATE_LIMIT_MAX,
+  SCANNER_BUSY_MESSAGE,
   resetScanLimitStateForTests,
   scanLimitStateForTests
 } from "./scan-limits";
 import {
+  REPORT_PUBLICATION_CAPACITY,
   commitPreparedScanReportBundle,
   prepareScanReportBundle,
   readStoredScanReportById,
@@ -576,6 +578,44 @@ test("an in-process job whose commit never landed still fails and publishes noth
   assert.equal(status?.error, "The service could not complete this request. Try again later.");
   assert.equal(status?.report, undefined);
   assert.equal(reconcileCalls, 1);
+  assert.deepEqual(await readStoredScanReportById(submission.reportId), { outcome: "not-found" });
+});
+
+test("an in-process job the report store refuses at capacity fails as scanner-busy without reconciling", async () => {
+  process.env[PUBLIC_R2_REPORTS_ENV] = "1";
+  process.env[BUILD_COMMIT_ENV] = "a".repeat(40);
+  process.env[CONSENT_VERIFICATION_ENV] = "1";
+  // The real local store, full of committed shares still inside their survival
+  // window, so the refusal is the store's own and not a fixture's.
+  const createdAt = new Date(Date.now() - 1_000).toISOString();
+  const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1_000).toISOString();
+  for (let index = 0; index < REPORT_PUBLICATION_CAPACITY; index += 1) {
+    const id = `20260718-${index.toString(16).padStart(32, "0")}`;
+    writeFileSync(path.join(reportDir, `${id}.json`), "{}\n");
+    writeFileSync(path.join(reportDir, `${id}.retention.json`), `${JSON.stringify({ createdAt, expiresAt })}\n`);
+    writeFileSync(path.join(reportDir, committedSidecarFilename(id)), "{}\n");
+  }
+  const scan: ScanRunner = async () =>
+    scanMeasurementEnvelopeWithR2Run(makePublicSingleReportV2R2().run);
+  let reconcileCalls = 0;
+  const submission = enqueuePreparedScanJob(makePreparedScanRequest(), {
+    scan,
+    publication: {
+      prepare: (report, reportId) => prepareScanReportBundle(report, { shareId: reportId }),
+      commit: (bundle, signal) => commitPreparedScanReportBundle(bundle, { signal }),
+      reconcile: (manifest, signal) => {
+        reconcileCalls += 1;
+        return reconcilePreparedScanReportBundle(manifest, { signal });
+      }
+    }
+  });
+  await waitForScanJobForTests(submission.jobId);
+
+  const status = getScanJobStatus(submission.jobId);
+  assert.equal(status?.status, "failed");
+  assert.equal(status?.error, SCANNER_BUSY_MESSAGE);
+  assert.equal(status?.report, undefined);
+  assert.equal(reconcileCalls, 0, "a refusal before the first write leaves nothing to read back");
   assert.deepEqual(await readStoredScanReportById(submission.reportId), { outcome: "not-found" });
 });
 

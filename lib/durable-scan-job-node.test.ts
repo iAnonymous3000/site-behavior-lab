@@ -15,6 +15,7 @@ import {
   REPORT_MAX_AGE_DAYS_ENV,
   REPORT_MIN_SURVIVAL_MS_ENV,
   prepareScanReportBundle,
+  ReportStoreCapacityExhaustedError,
   UnreadableManagedReportError
 } from "./report-store";
 import {
@@ -29,7 +30,7 @@ import {
   scanJobStateForTests,
   waitForScanJobForTests
 } from "./scan-jobs";
-import { resetScanLimitStateForTests, scanLimitStateForTests } from "./scan-limits";
+import { SCANNER_BUSY_MESSAGE, resetScanLimitStateForTests, scanLimitStateForTests } from "./scan-limits";
 import { REPORT_REDACTION_UNSTABLE_MESSAGE, type PreparedScanRequest, type ScanRunner } from "./scan-api";
 import { makePublicSingleReportV2R2 } from "./scan-report-v2-r2-fixtures";
 import { scanMeasurementEnvelopeWithR2Run } from "./scan-report-v2-runtime-fixtures";
@@ -493,6 +494,36 @@ test("a durable job's bundle the managed reader refuses for its own content fail
   assert.equal(status?.status, "failed");
   assert.equal(status?.error, REPORT_REDACTION_UNSTABLE_MESSAGE);
   assert.deepEqual(events, ["heartbeat:1", "resolve:failed:1"]);
+});
+
+test("a durable job the report store refuses at capacity resolves failed as scanner-busy without reconciling", async () => {
+  // The store refuses before its first write, so the outcome is known. Read
+  // back as outcome-unknown, it would detach the job to wait for a lease
+  // expiry that could only find the same nothing.
+  const preparation = await durablePreparation();
+  const events: string[] = [];
+  let reconcileCalls = 0;
+  await activateDurableScanJob(activation(preparation, 1, LEASE_ONE), {
+    coordinator: recordingCoordinator(events),
+    scan: async () => r2ScanResult(),
+    publication: {
+      ...inMemoryPublication(),
+      commit: async () => {
+        throw new ReportStoreCapacityExhaustedError();
+      },
+      reconcile: async () => {
+        reconcileCalls += 1;
+        return { outcome: "missing" as const };
+      }
+    }
+  });
+  await waitForScanJobForTests(JOB_ID);
+
+  const status = getScanJobStatus(JOB_ID);
+  assert.equal(status?.status, "failed");
+  assert.equal(status?.error, SCANNER_BUSY_MESSAGE);
+  assert.equal(reconcileCalls, 0);
+  assert.deepEqual(events, ["heartbeat:1", "begin:1", "resolve:failed:1"]);
 });
 
 test("a missing post-commit reconciliation detaches without inventing a terminal result", async () => {

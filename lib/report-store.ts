@@ -52,6 +52,13 @@ const DEFAULT_REPORT_MAX_COUNT = 500;
  * store at its configured maximum still lists successfully.
  */
 const REPORT_UNCOMMITTED_HEAD_HEADROOM = 64;
+/**
+ * The most committed shares a publication may leave standing. reportMaxCount()
+ * clamps to it, which holds count pruning under it, but shares inside their
+ * survival window are exempt from count pruning and a burst of them can
+ * outgrow it, so publication refuses past it too.
+ */
+export const REPORT_PUBLICATION_CAPACITY = R2_LIST_MAX_HEAD_CANDIDATES - REPORT_UNCOMMITTED_HEAD_HEADROOM;
 const DEFAULT_REPORT_MIN_SURVIVAL_MS = 60_000;
 export const DURABLE_SCAN_JOB_REPORT_MIN_SURVIVAL_MS = 75 * 60 * 1_000;
 // Durable jobs retain their capability for 75 minutes. Deployments may pin a
@@ -146,6 +153,21 @@ export class UnreadableManagedReportError extends Error {
   ) {
     super(`Refusing to persist an unreadable managed report (${reason}).`);
     this.name = "UnreadableManagedReportError";
+  }
+}
+
+/**
+ * A publication refused before its first write because it would overfill the
+ * store: more committed shares standing than REPORT_PUBLICATION_CAPACITY, or
+ * more report objects than one retention listing reads. Nothing was written,
+ * so there is nothing to reconcile, and the prune pass that decided it had
+ * already done its retention work. The message is for operator logs and is
+ * never a public sentence.
+ */
+export class ReportStoreCapacityExhaustedError extends Error {
+  constructor() {
+    super("Report publication refused: the share store is at capacity.");
+    this.name = "ReportStoreCapacityExhaustedError";
   }
 }
 
@@ -259,20 +281,27 @@ export async function commitPreparedScanReportBundle<T extends RuntimeScanReport
     withReportStoreMutationLock(async () => {
       boundedOptions.signal?.throwIfAborted();
       // Prune before exposing new bytes, reserving one count slot for this
-      // bundle. Refuse publication only when a delete actually FAILED, which
-      // leaves physical state unknown and is the condition this guard exists
-      // for. A pass that merely hit its bounded per-pass delete cap deleted
-      // everything it attempted and simply has more to do, which is the normal
-      // shape of a burst of reports expiring on the same day. Refusing that too
-      // rejected the next scan after Chromium had already run and the caller's
-      // rate-limit token was spent. Retention still reports unhealthy and keeps
-      // draining on later passes either way.
+      // bundle. Of the pass's retention outcomes, refuse publication only when
+      // a delete actually FAILED, which leaves physical state unknown and is
+      // the condition this guard exists for. A pass that merely hit its bounded
+      // per-pass delete cap deleted everything it attempted and simply has more
+      // to do, which is the normal shape of a burst of reports expiring on the
+      // same day. Refusing that too rejected the next scan after Chromium had
+      // already run and the caller's rate-limit token was spent. Retention still
+      // reports unhealthy and keeps draining on later passes either way.
       const pruning = await pruneStoredReportsUnlocked(backend, Date.now(), boundedOptions, 1);
       if (pruning.physicalStateUnknown) {
         throw new Error(
           "Report publication refused while physical retention maintenance is pending."
         );
       }
+      // Refuse before the first write when this bundle would overfill the store.
+      // Shares inside their survival window are exempt from count pruning, so a
+      // burst of them outgrows the count target, and past the listing ceiling
+      // one listing no longer reads every retention clock. The pass above has
+      // already done its retention work, so a refused publication still drains
+      // the store.
+      if (pruning.capacityExhausted) throw new ReportStoreCapacityExhaustedError();
       // Deliberately non-atomic and ordered: a crash/failure after the report PUT
       // leaves no matching sidecar, so reads fail closed rather than trusting an
       // unattested object. The local mutation lock prevents another in-process
@@ -500,6 +529,8 @@ async function pruneStoredReportsUnlocked(
   continuationPending: boolean;
   /** A delete failed before this pass and was not retried, so an object may outlive what retention reports. */
   physicalStateUnknown: boolean;
+  /** Writing `incomingCount` more bundles would overfill the store this pass leaves behind. */
+  capacityExhausted: boolean;
 }> {
   const priorState = await backend.retentionState(options);
   const priorDebtKeys = new Set(priorState.debts.map(retentionDebtKey));
@@ -513,6 +544,9 @@ async function pruneStoredReportsUnlocked(
   };
   const entries = await backend.list(options);
   const kept: StoredReportEntry[] = [];
+  const reportIds = new Set<string>();
+  let listingPartial = false;
+  let unreadCommittedCount = 0;
 
   for (const entry of entries) {
     if (!entry.reportPresent) {
@@ -534,6 +568,17 @@ async function pruneStoredReportsUnlocked(
           scheduleDeletion({ id: entry.id, scope: "sidecar" });
         }
       }
+      continue;
+    }
+    reportIds.add(entry.id);
+    if (entry.retentionUnread) {
+      // The listing held more retention candidates than one listing reads and
+      // left this one unread. Unknown is not missing: the fail-closed branch
+      // below would delete a share for a clock nobody read. Leave it to a later
+      // pass, which reads it once deletes bring the store back under the
+      // listing ceiling, and count it as standing until then.
+      listingPartial = true;
+      if (entry.committed) unreadCommittedCount += 1;
       continue;
     }
     if (!entry.committed) {
@@ -573,11 +618,32 @@ async function pruneStoredReportsUnlocked(
     .filter((entry) => now - Date.parse(entry.retention!.createdAt) >= minimumSurvivalMs);
   for (const entry of removable) scheduleDeletion({ id: entry.id, scope: "bundle" });
 
+  // Publication capacity, read from this same listing as two quantities.
+  // Committed shares left standing count every scheduled delete as done: a
+  // backlog already past its survival window is draining, and refusing on it
+  // would turn retention lag into failed scans. Crash orphans do not count
+  // there, since the headroom under the ceiling exists for them; counting them
+  // would refuse every publication for a week at the clamped maximum plus one
+  // orphan. The listing ceiling counts every report object still present once
+  // this pass's deletes land, orphans included, because each one is a
+  // retention candidate a later listing must read.
+  const standingCommittedCount = kept.length - removable.length + unreadCommittedCount;
+  const capacityExhaustedAfter = (deletedReportCount: number): boolean =>
+    standingCommittedCount + incomingCount > REPORT_PUBLICATION_CAPACITY ||
+    reportIds.size - deletedReportCount + incomingCount > R2_LIST_MAX_HEAD_CANDIDATES;
+
   if (deletions.length === 0) {
-    if (priorState.maintenanceRequired) {
-      await backend.setRetentionMaintenanceRequired(false, options);
+    // A partial listing left retention clocks unread, so another pass is owed
+    // even when this one had nothing to delete.
+    if (priorState.maintenanceRequired !== listingPartial) {
+      await backend.setRetentionMaintenanceRequired(listingPartial, options);
     }
-    return { maintenanceRequired: false, continuationPending: false, physicalStateUnknown: false };
+    return {
+      maintenanceRequired: listingPartial,
+      continuationPending: false,
+      physicalStateUnknown: false,
+      capacityExhausted: capacityExhaustedAfter(0)
+    };
   }
 
   // One save/prune invocation can never fan out into an unbounded delete storm.
@@ -599,10 +665,10 @@ async function pruneStoredReportsUnlocked(
   // about whether the store is in a known state.
   //
   // `physicalStateUnknown` means a delete actually failed, so an object may
-  // still be there when retention says it is gone. That is the only condition
-  // that may refuse to publish new bytes. A delete that failed in THIS pass
-  // has already rejected it above, so what is left to find is a debt that was
-  // outstanding before this pass began and that this pass did not retry.
+  // still be there when retention says it is gone. That is the only retention
+  // outcome that may refuse to publish new bytes. A delete that failed in THIS
+  // pass has already rejected it above, so what is left to find is a debt that
+  // was outstanding before this pass began and that this pass did not retry.
   //
   // Conflating them refused publication on an ordinary backlog, and it did so
   // AFTER Chromium had already run and the caller's rate-limit token was
@@ -622,9 +688,19 @@ async function pruneStoredReportsUnlocked(
     const key = retentionDebtKey(debt);
     return priorDebtKeys.has(key) && !retriedDebtKeys.has(key);
   });
-  const maintenanceRequired = continuationPending || after.debts.length > 0;
+  const maintenanceRequired = continuationPending || listingPartial || after.debts.length > 0;
   await backend.setRetentionMaintenanceRequired(maintenanceRequired, options);
-  return { maintenanceRequired, continuationPending, physicalStateUnknown };
+  // Every selected delete succeeded or the pass would have thrown, so the
+  // report objects it removed are exactly its bundle deletes of listed ones.
+  const deletedReportCount = selected.filter(
+    (debt) => debt.scope === "bundle" && reportIds.has(debt.id)
+  ).length;
+  return {
+    maintenanceRequired,
+    continuationPending,
+    physicalStateUnknown,
+    capacityExhausted: capacityExhaustedAfter(deletedReportCount)
+  };
 }
 
 export function reportStoreStatus(): ReportStoreStatus {
@@ -1011,13 +1087,12 @@ function reportMaxAgeDays(): number {
 }
 
 /**
- * Clamped to the R2 backend's own retention listing ceiling. Prune walks HEAD
- * candidates and refuses past R2_LIST_MAX_HEAD_CANDIDATES, so an operator
- * count above that ceiling produces a store that can never be pruned back
- * under its own limit: every maintenance pass refuses, retention debt only
- * grows, and the health check reports an unhealthy store with no operator
- * action that fixes it. Refusing the impossible value up front is the honest
- * failure mode.
+ * Clamped to REPORT_PUBLICATION_CAPACITY, the R2 backend's own retention
+ * listing ceiling less its uncommitted-head headroom. Publication refuses once
+ * the committed shares left standing would exceed that capacity, so an
+ * operator count above it would never engage count pruning before the refusal
+ * did: the store would stop publishing for up to a whole retention window.
+ * Refusing the impossible value up front is the honest failure mode.
  *
  * The clamp must land STRICTLY BELOW the ceiling. HEAD candidates count aged
  * report-only objects as well as committed bundles, and prune is required to
@@ -1031,7 +1106,7 @@ function reportMaxAgeDays(): number {
  */
 function reportMaxCount(): number {
   const requested = Math.max(1, Math.floor(positiveNumberFromEnv(REPORT_MAX_COUNT_ENV, DEFAULT_REPORT_MAX_COUNT)));
-  return Math.min(requested, R2_LIST_MAX_HEAD_CANDIDATES - REPORT_UNCOMMITTED_HEAD_HEADROOM);
+  return Math.min(requested, REPORT_PUBLICATION_CAPACITY);
 }
 
 function reportMinimumSurvivalMs(): number {

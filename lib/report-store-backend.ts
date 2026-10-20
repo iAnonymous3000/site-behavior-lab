@@ -35,6 +35,12 @@ export type StoredReportEntry = {
    * another process is still completing between its report and sidecar writes.
    */
   committed: boolean;
+  /**
+   * The listing held more retention candidates than one listing may read and
+   * left this one unread, so `retention` is unknown rather than missing. Prune
+   * must neither rank nor delete it until a later listing reads it.
+   */
+  retentionUnread?: true;
 };
 
 export type ReportRetentionMetadata = {

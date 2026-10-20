@@ -9,6 +9,19 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- A burst of saved scans can no longer stop the scanner saving reports for
+  a week. The R2 retention listing refused to read more than 1,000 report
+  objects, and saving a report prunes first, so once a burst of new shares,
+  each exempt from count pruning for 75 minutes, pushed the store past
+  1,000, every save, maintenance pass and health probe failed until the
+  bucket's 8-day lifecycle rule emptied it. A save that would leave more
+  than 936 shares count pruning cannot yet remove, or more than 1,000 report
+  objects, is now refused before anything is written, and an async scan job
+  reports it as "Scanner is busy. Try again shortly." A listing past 1,000
+  reads the oldest 1,000 and leaves the rest for a later pass, so retention
+  keeps draining. Reaching the bound takes 1,001 saved scans within 75
+  minutes, which the per-client limits and the scanner's throughput leave
+  to deliberate abuse. Runtime only: no stored report changes.
 - A privacy-policy read that may have stopped at the scanner's
   400,000-character limit no longer lists the observed companies it did not
   find as ones the policy does not appear to name. An HTML read stops at

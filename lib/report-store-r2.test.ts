@@ -748,20 +748,64 @@ test("R2 list caps the unique report/sidecar union before maps or metadata reque
   assert.deepEqual(requests.map((request) => request.method), ["GET"]);
 });
 
-test("R2 list caps retention HEAD candidates before dispatching any HEAD request", async () => {
-  const ids = Array.from(
+test("R2 list reads at most its bounded retention HEADs and returns the other candidates unread", async () => {
+  // Past the bound the listing used to throw before any HEAD, and prune lists
+  // before it deletes, so a store that got past the bound could never be
+  // pruned back under it. Committed bundles are read before report-only ones,
+  // oldest first: here the newest committed bundle and an aged orphan wait.
+  const committedIds = Array.from(
     { length: R2_LIST_MAX_HEAD_CANDIDATES + 1 },
     (_, index) => listReportId(index)
   );
+  const [newestId] = committedIds;
+  const orphanId = listReportId(committedIds.length);
+  const page = listPage({ reportIds: committedIds.slice(1), sidecarIds: committedIds }).replace(
+    "<IsTruncated>",
+    `<Contents><Key>reports/${newestId}.json</Key><LastModified>2026-06-21T12:00:00.000Z</LastModified></Contents>` +
+      `<Contents><Key>reports/${orphanId}.json</Key><LastModified>2026-06-19T12:00:00.000Z</LastModified></Contents>` +
+      "<IsTruncated>"
+  );
   const { backend, requests } = backendWith([
-    new Response(listPage({ reportIds: ids, sidecarIds: ids }), { status: 200 })
+    new Response(page, { status: 200 }),
+    ...Array.from(
+      { length: R2_LIST_MAX_HEAD_CANDIDATES },
+      () => new Response(null, { status: 200, headers: retentionHeaders() })
+    )
   ]);
 
-  await assert.rejects(
-    () => backend.list(),
-    new RegExp(`exceeded ${R2_LIST_MAX_HEAD_CANDIDATES} retention HEAD candidates`)
+  const entries = await backend.list();
+  const heads = requests.filter((request) => request.method === "HEAD");
+  assert.equal(heads.length, R2_LIST_MAX_HEAD_CANDIDATES);
+  assert.equal(heads.some((request) => request.url.endsWith(`/${newestId}.json`)), false);
+  assert.equal(heads.some((request) => request.url.endsWith(`/${orphanId}.json`)), false);
+  assert.equal(entries.length, committedIds.length + 1);
+  assert.deepEqual(
+    entries.filter((entry) => entry.retentionUnread),
+    [
+      {
+        id: newestId,
+        lastModifiedMs: Date.parse("2026-06-21T12:00:00.000Z"),
+        retention: null,
+        reportPresent: true,
+        sidecarPresent: true,
+        committed: true,
+        retentionUnread: true
+      },
+      {
+        id: orphanId,
+        lastModifiedMs: Date.parse("2026-06-19T12:00:00.000Z"),
+        retention: null,
+        reportPresent: true,
+        sidecarPresent: false,
+        committed: false,
+        retentionUnread: true
+      }
+    ]
   );
-  assert.deepEqual(requests.map((request) => request.method), ["GET"]);
+  assert.equal(
+    entries.filter((entry) => !entry.retentionUnread).every((entry) => entry.committed && entry.retention !== null),
+    true
+  );
 });
 
 test("R2 list exposes reports without sidecars as uncommitted bundles without issuing HEAD", async () => {

@@ -30,6 +30,9 @@ export const MAX_CONCURRENT_REPORT_PDF_RENDERS = Math.min(1, MAX_CONCURRENT_SCAN
 // download several reports in a sitting, and no more.
 export const REPORT_PDF_RATE_LIMIT_MAX = 10;
 export const QUEUE_TIMEOUT_MS = 15_000;
+// The generic public sentence for a "scanner-busy" refusal, shared so that a
+// producer reusing it elsewhere cannot drift from the words this module sends.
+export const SCANNER_BUSY_MESSAGE = "Scanner is busy. Try again shortly.";
 export const RATE_LIMIT_WINDOW_MS = 60_000;
 export const RATE_LIMIT_MAX = AUTHENTICATED_SCAN_RATE_LIMIT_PER_MINUTE;
 export const REPORT_READ_RATE_LIMIT_WINDOW_MS = 60_000;
@@ -176,7 +179,7 @@ export async function acquireScanSlot(queueTimeoutMs = QUEUE_TIMEOUT_MS, signal?
   // backpressure before the post-slot rate-limit charge, so a burst from one
   // client cannot create an unbounded pile of pending requests.
   if (queue.length >= MAX_QUEUED_SCANS) {
-    throw new PublicScanError("Scanner is busy. Try again shortly.", 503, "scanner-busy");
+    throw new PublicScanError(SCANNER_BUSY_MESSAGE, 503, "scanner-busy");
   }
 
   return new Promise((resolve, reject) => {
@@ -187,7 +190,7 @@ export async function acquireScanSlot(queueTimeoutMs = QUEUE_TIMEOUT_MS, signal?
         const index = queue.indexOf(waiter);
         if (index >= 0) queue.splice(index, 1);
         signal?.removeEventListener("abort", waiter.onAbort!);
-        reject(new PublicScanError("Scanner is busy. Try again shortly.", 503, "scanner-busy"));
+        reject(new PublicScanError(SCANNER_BUSY_MESSAGE, 503, "scanner-busy"));
       }, queueTimeoutMs),
       signal
     };
@@ -323,7 +326,7 @@ export function resetScanLimitStateForTests(): void {
     // its timer is cleared and its abort listener removed, so no other path
     // remains. A test that reset between cases hung on the previous case's
     // waiter instead of failing, which is the worst way for this to surface.
-    waiter.reject(new PublicScanError("Scanner is busy. Try again shortly.", 503, "scanner-busy"));
+    waiter.reject(new PublicScanError(SCANNER_BUSY_MESSAGE, 503, "scanner-busy"));
   }
   activeScans = 0;
   lastRateLimitSweepMs = 0;

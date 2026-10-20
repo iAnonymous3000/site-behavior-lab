@@ -10,10 +10,13 @@ import { createComparisonReport, createGpcComparisonReport } from "./compare-rep
 import { buildProvenanceEntry, matchProvenance } from "./redaction-provenance";
 import { REDACTION_VERSION } from "./redaction-v2";
 import { classifyReportStoreFailure } from "./report-store-failure-reason";
+import { createReportStoreRetentionHealthProbe } from "./report-store-retention-health";
+import { DEFAULT_REPORT_MAX_AGE_DAYS } from "./report-share-retention";
 import {
   DURABLE_SCAN_JOB_REPORT_MIN_SURVIVAL_MS,
   REPORT_MAX_AGE_DAYS_ENV,
   REPORT_MIN_SURVIVAL_MS_ENV,
+  REPORT_PUBLICATION_CAPACITY,
   REPORT_STORE_OPERATION_TIMEOUT_MS_ENV,
   commitPreparedScanReportBundle,
   isScanReportPublicationManifest,
@@ -24,6 +27,7 @@ import {
   reportStoreRetentionStatus,
   readStoredScanReportById,
   reconcilePreparedScanReportBundle,
+  ReportStoreCapacityExhaustedError,
   reportStoreStatus,
   saveScanReport,
   UnreadableManagedReportError
@@ -1389,11 +1393,10 @@ function makeScanResult(options: { gpcEnabled?: boolean; screenshot?: string | n
 }
 
 test("an operator report count above the backend listing ceiling is clamped, not accepted", async () => {
-  // Prune walks HEAD candidates and refuses past R2_LIST_MAX_HEAD_CANDIDATES,
-  // so a configured count above that ceiling produces a store that can never be
-  // pruned back under its own limit: every maintenance pass refuses, retention
-  // debt only grows, and the health check reports an unhealthy store with no
-  // operator action that fixes it.
+  // Publication refuses once the committed shares left standing would exceed
+  // the listing ceiling less its headroom, so a configured count above that
+  // would never engage count pruning before the refusal did, and the store
+  // would stop publishing for up to a whole retention window.
   const REPORT_MAX_COUNT_ENV = "SITE_BEHAVIOR_LAB_REPORT_MAX_COUNT";
   const previous = process.env[REPORT_MAX_COUNT_ENV];
   try {
@@ -1540,6 +1543,314 @@ test("a debt outstanding before the pass that it could not retry still refuses p
     maintenanceRequired: true,
     healthy: false
   });
+});
+
+type InMemoryR2Object = {
+  body: string;
+  createdAt: string | null;
+  expiresAt: string | null;
+  lastModifiedMs: number;
+};
+
+type InMemoryR2 = { objects: Map<string, InMemoryR2Object>; requests: string[] };
+
+const MINUTE_MS = 60_000;
+const SEEDED_MAX_AGE_MS = DEFAULT_REPORT_MAX_AGE_DAYS * 24 * 60 * MINUTE_MS;
+const STORED_REPORT_KEY = /^reports\/[0-9]{8}-[0-9a-f]{32}\.json$/;
+
+/**
+ * An in-memory bucket behind configureFakeR2 for retention tests that need a
+ * store of real size. A PUT keeps the retention headers it carried and a HEAD
+ * or GET returns them; LIST pages through the keys in order, as R2 does. Every
+ * object request is recorded as "METHOD key".
+ */
+function configureInMemoryR2(): InMemoryR2 {
+  const objects = new Map<string, InMemoryR2Object>();
+  const requests: string[] = [];
+  configureFakeR2(async (request) => {
+    const url = new URL(request.url);
+    if (request.method === "GET" && url.searchParams.get("list-type") === "2") {
+      const prefix = url.searchParams.get("prefix") ?? "";
+      const after = url.searchParams.get("continuation-token");
+      const keys = [...objects.keys()]
+        .filter((key) => key.startsWith(prefix) && (after === null || key > after))
+        .sort();
+      const page = keys.slice(0, 1_000);
+      const truncated = page.length < keys.length;
+      return new Response(
+        `<ListBucketResult>${page
+          .map(
+            (key) =>
+              `<Contents><Key>${key}</Key><LastModified>${new Date(objects.get(key)!.lastModifiedMs).toISOString()}</LastModified></Contents>`
+          )
+          .join("")}<IsTruncated>${truncated}</IsTruncated>${
+          truncated ? `<NextContinuationToken>${page.at(-1)}</NextContinuationToken>` : ""
+        }</ListBucketResult>`,
+        { status: 200 }
+      );
+    }
+    const key = decodeURIComponent(url.pathname).replace("/test-reports/", "");
+    requests.push(`${request.method} ${key}`);
+    const stored = objects.get(key);
+    if (request.method === "PUT") {
+      if (request.headers.get("if-none-match") === "*" && stored) return new Response(null, { status: 412 });
+      objects.set(key, {
+        body: await request.text(),
+        createdAt: request.headers.get("x-amz-meta-created-at"),
+        expiresAt: request.headers.get("x-amz-meta-expires-at"),
+        lastModifiedMs: Date.now()
+      });
+      return new Response(null, { status: 200 });
+    }
+    if (request.method === "DELETE") {
+      objects.delete(key);
+      return new Response(null, { status: 204 });
+    }
+    if (request.method === "HEAD" || request.method === "GET") {
+      if (!stored) return new Response(null, { status: 404 });
+      return new Response(request.method === "GET" ? stored.body : null, {
+        status: 200,
+        headers: {
+          "last-modified": new Date(stored.lastModifiedMs).toUTCString(),
+          ...(stored.createdAt && stored.expiresAt
+            ? { "x-amz-meta-created-at": stored.createdAt, "x-amz-meta-expires-at": stored.expiresAt }
+            : {})
+        }
+      });
+    }
+    throw new Error(`Unexpected fake R2 request: ${request.method} ${key}`);
+  });
+  return { objects, requests };
+}
+
+function seededBundleId(group: string, index: number): string {
+  return `20260718-${group}${index.toString(16).padStart(31, "0")}`;
+}
+
+/** A crash orphan: its report PUT landed and its sidecar PUT never did. */
+function seedReportOnly(r2: InMemoryR2, id: string, createdMs: number): void {
+  r2.objects.set(`reports/${id}.json`, {
+    body: "{}\n",
+    createdAt: new Date(createdMs).toISOString(),
+    expiresAt: new Date(createdMs + SEEDED_MAX_AGE_MS).toISOString(),
+    lastModifiedMs: createdMs
+  });
+}
+
+/** A bundle as a completed commit leaves it: the report, then its commit marker. */
+function seedCommittedBundle(r2: InMemoryR2, id: string, createdMs: number): void {
+  seedReportOnly(r2, id, createdMs);
+  r2.objects.set(`reports/${id}.json.provenance.json`, {
+    body: "{}\n",
+    createdAt: null,
+    expiresAt: null,
+    lastModifiedMs: createdMs
+  });
+}
+
+/** Committed shares created three seconds apart, the newest three seconds ago. */
+function seedYoungBurst(r2: InMemoryR2, group: string, count: number, now: number): void {
+  for (let index = 0; index < count; index += 1) {
+    seedCommittedBundle(r2, seededBundleId(group, index), now - (count - index) * 3_000);
+  }
+}
+
+/** Report-only orphans past the listing's 15-minute grace, so each is a retention candidate. */
+function seedAgedOrphans(r2: InMemoryR2, group: string, count: number, now: number): void {
+  for (let index = 0; index < count; index += 1) {
+    seedReportOnly(r2, seededBundleId(group, index), now - 30 * MINUTE_MS - index * 1_000);
+  }
+}
+
+function storedReportCount(r2: InMemoryR2): number {
+  return [...r2.objects.keys()].filter((key) => STORED_REPORT_KEY.test(key)).length;
+}
+
+/** The capacity refusal, and proof that it came before either PUT. */
+async function assertRefusedBeforeWriting(r2: InMemoryR2): Promise<void> {
+  const prepared = prepareScanReportBundle(makeScanResult());
+  await assert.rejects(() => commitPreparedScanReportBundle(prepared), ReportStoreCapacityExhaustedError);
+  assert.equal(
+    r2.requests.some((request) => request.startsWith("PUT ") && request.includes(prepared.manifest.reportId)),
+    false,
+    "a refused publication never sends its report or sidecar PUT"
+  );
+}
+
+async function drainToMaxCount(r2: InMemoryR2, now: number): Promise<void> {
+  const { maxCount } = reportStoreStatus();
+  for (let pass = 0; pass < 40 && storedReportCount(r2) > maxCount; pass += 1) {
+    await pruneStoredReports(now);
+  }
+  assert.equal(storedReportCount(r2), maxCount);
+}
+
+test("a burst of young shares at the listing ceiling is refused before writing and drains once survival lapses", async () => {
+  // Shares inside their survival window are exempt from count pruning, so a
+  // burst of them outgrows the count target. It used to be committed anyway,
+  // and the first commit past the listing ceiling made every later prune throw
+  // before it deleted anything: publication and maintenance both stopped until
+  // the bucket's own lifecycle rule emptied the store about a week later.
+  process.env[REPORT_MIN_SURVIVAL_MS_ENV] = String(DURABLE_SCAN_JOB_REPORT_MIN_SURVIVAL_MS);
+  const r2 = configureInMemoryR2();
+  const now = Date.now();
+  seedYoungBurst(r2, "a", R2_LIST_MAX_HEAD_CANDIDATES, now);
+  // A delete an earlier pass left in the ledger.
+  const priorDebtKey = `reports/_retention-debt/${seededBundleId("d", 0)}.json`;
+  r2.objects.set(priorDebtKey, { body: "1\n", createdAt: null, expiresAt: null, lastModifiedMs: now });
+
+  await assertRefusedBeforeWriting(r2);
+  // The refusing pass still did its retention work: it retried the debt and
+  // settled the maintenance signal.
+  assert.equal(r2.objects.has(priorDebtKey), false, "the refusing pass retried the outstanding debt");
+  assert.deepEqual(await reportStoreRetentionStatus(), { debtCount: 0, maintenanceRequired: false, healthy: true });
+
+  const later = now + DURABLE_SCAN_JOB_REPORT_MIN_SURVIVAL_MS + 1;
+  await pruneStoredReports(later);
+  assert.equal(storedReportCount(r2), R2_LIST_MAX_HEAD_CANDIDATES - REPORT_PRUNE_MAX_DELETES_PER_PASS);
+  await drainToMaxCount(r2, later);
+  const saved = await saveScanReport(makeScanResult());
+  assert.ok(saved.share?.id, "publication resumes once count pruning has drained the burst");
+});
+
+test("a store at the clamped maximum plus one aged crash orphan still publishes", async () => {
+  // The headroom under the listing ceiling exists for exactly this state. A
+  // capacity that counted orphans against the committed limit would refuse
+  // every publication here until the orphan's immutable expiry, a week out.
+  process.env[REPORT_MIN_SURVIVAL_MS_ENV] = String(DURABLE_SCAN_JOB_REPORT_MIN_SURVIVAL_MS);
+  process.env[REPORT_MAX_COUNT_ENV] = String(REPORT_PUBLICATION_CAPACITY);
+  assert.equal(reportStoreStatus().maxCount, REPORT_PUBLICATION_CAPACITY);
+  const r2 = configureInMemoryR2();
+  const now = Date.now();
+  for (let index = 0; index < REPORT_PUBLICATION_CAPACITY - 1; index += 1) {
+    seedCommittedBundle(r2, seededBundleId("a", index), now - 2 * 60 * MINUTE_MS - index * 1_000);
+  }
+  seedAgedOrphans(r2, "b", 1, now);
+
+  const saved = await saveScanReport(makeScanResult());
+  assert.ok(saved.share?.id, "the clamped maximum plus one orphan keeps publishing");
+});
+
+test("aged crash orphans that fill the listing ceiling refuse publication while retention keeps working", async () => {
+  // The young shares fit the committed capacity, but every report-only orphan
+  // is a retention candidate until its expiry, and together they fill the
+  // listing. One more commit used to make the next prune throw.
+  process.env[REPORT_MIN_SURVIVAL_MS_ENV] = String(DURABLE_SCAN_JOB_REPORT_MIN_SURVIVAL_MS);
+  const r2 = configureInMemoryR2();
+  const now = Date.now();
+  const orphans = 100;
+  seedYoungBurst(r2, "a", R2_LIST_MAX_HEAD_CANDIDATES - orphans, now);
+  seedAgedOrphans(r2, "b", orphans, now);
+  // A retried delete of a bundle that is already gone frees no listing slot.
+  const priorDebtKey = `reports/_retention-debt/${seededBundleId("d", 0)}.json`;
+  r2.objects.set(priorDebtKey, { body: "1\n", createdAt: null, expiresAt: null, lastModifiedMs: now });
+
+  await assertRefusedBeforeWriting(r2);
+  assert.equal(r2.objects.has(priorDebtKey), false, "the refusing pass retried the outstanding debt");
+  await pruneStoredReports(now + DURABLE_SCAN_JOB_REPORT_MIN_SURVIVAL_MS + 1);
+  assert.equal(
+    storedReportCount(r2),
+    R2_LIST_MAX_HEAD_CANDIDATES - REPORT_PRUNE_MAX_DELETES_PER_PASS,
+    "count pruning proceeds once the young shares age out"
+  );
+});
+
+test("one save fills the committed capacity under the listing ceiling and the next is refused", async () => {
+  process.env[REPORT_MIN_SURVIVAL_MS_ENV] = String(DURABLE_SCAN_JOB_REPORT_MIN_SURVIVAL_MS);
+  const r2 = configureInMemoryR2();
+  seedYoungBurst(r2, "a", REPORT_PUBLICATION_CAPACITY - 1, Date.now());
+
+  const saved = await saveScanReport(makeScanResult());
+  assert.ok(saved.share?.id, "the last committed slot still publishes");
+  assert.equal(storedReportCount(r2), REPORT_PUBLICATION_CAPACITY);
+  await assertRefusedBeforeWriting(r2);
+  assert.equal(storedReportCount(r2), REPORT_PUBLICATION_CAPACITY);
+});
+
+test("one save brings the report objects to the listing ceiling exactly and the next is refused", async () => {
+  process.env[REPORT_MIN_SURVIVAL_MS_ENV] = String(DURABLE_SCAN_JOB_REPORT_MIN_SURVIVAL_MS);
+  const r2 = configureInMemoryR2();
+  const now = Date.now();
+  const orphans = 100;
+  seedYoungBurst(r2, "a", R2_LIST_MAX_HEAD_CANDIDATES - orphans - 1, now);
+  seedAgedOrphans(r2, "b", orphans, now);
+
+  const saved = await saveScanReport(makeScanResult());
+  assert.ok(saved.share?.id, "the last listing slot still publishes");
+  assert.equal(storedReportCount(r2), R2_LIST_MAX_HEAD_CANDIDATES);
+  await assertRefusedBeforeWriting(r2);
+  assert.equal(storedReportCount(r2), R2_LIST_MAX_HEAD_CANDIDATES);
+});
+
+test("a store already past the listing ceiling is pruned back under it once survival lapses", async () => {
+  // The state the old listing bound could not leave: every prune, maintenance
+  // pass, and publication threw before any delete, so health stayed degraded
+  // and nothing published until the bucket's lifecycle rule emptied the store.
+  process.env[REPORT_MIN_SURVIVAL_MS_ENV] = String(DURABLE_SCAN_JOB_REPORT_MIN_SURVIVAL_MS);
+  const r2 = configureInMemoryR2();
+  const now = Date.now();
+  const stored = R2_LIST_MAX_HEAD_CANDIDATES + 1;
+  seedYoungBurst(r2, "a", stored, now);
+
+  // Inside the survival window nothing may go, and the listing could not read
+  // every clock, so maintenance completes and reports another pass owed.
+  const probe = createReportStoreRetentionHealthProbe(maintainReportStoreRetention, reportStoreRetentionStatus);
+  const health = await probe();
+  assert.equal(health.error, null);
+  assert.deepEqual(health.retention, { debtCount: 0, maintenanceRequired: true, healthy: false });
+  assert.equal(r2.requests.filter((request) => request.startsWith("HEAD ")).length, R2_LIST_MAX_HEAD_CANDIDATES);
+  assert.equal(storedReportCount(r2), stored, "an unread clock never reads as a missing one");
+  await assertRefusedBeforeWriting(r2);
+
+  const later = now + DURABLE_SCAN_JOB_REPORT_MIN_SURVIVAL_MS + 1;
+  await pruneStoredReports(later);
+  assert.equal(storedReportCount(r2), stored - REPORT_PRUNE_MAX_DELETES_PER_PASS);
+  await drainToMaxCount(r2, later);
+  assert.deepEqual(await maintainReportStoreRetention(), { debtCount: 0, maintenanceRequired: false, healthy: true });
+  const saved = await saveScanReport(makeScanResult());
+  assert.ok(saved.share?.id, "publication resumes once the store is back under its ceilings");
+});
+
+test("a partial listing counts the committed shares it could not read as standing", async () => {
+  // The listing reads the oldest committed bundles first, so the youngest is
+  // the one left unread here. Its clock is unknown, so it can be neither ranked
+  // nor deleted, and assuming it gone would admit a share past the capacity.
+  process.env[REPORT_MIN_SURVIVAL_MS_ENV] = String(DURABLE_SCAN_JOB_REPORT_MIN_SURVIVAL_MS);
+  process.env[REPORT_MAX_COUNT_ENV] = String(REPORT_PUBLICATION_CAPACITY);
+  const r2 = configureInMemoryR2();
+  const now = Date.now();
+  const expired = R2_LIST_MAX_HEAD_CANDIDATES + 1 - REPORT_PUBLICATION_CAPACITY;
+  for (let index = 0; index < expired; index += 1) {
+    seedCommittedBundle(r2, seededBundleId("e", index), now - SEEDED_MAX_AGE_MS - 60 * MINUTE_MS - index * 1_000);
+  }
+  seedYoungBurst(r2, "a", REPORT_PUBLICATION_CAPACITY, now);
+
+  await assertRefusedBeforeWriting(r2);
+  assert.equal(
+    storedReportCount(r2),
+    R2_LIST_MAX_HEAD_CANDIDATES + 1 - REPORT_PRUNE_MAX_DELETES_PER_PASS,
+    "the refusing pass deleted its bounded share of the expired bundles"
+  );
+});
+
+test("a partial listing counts the report objects it could not read against the listing ceiling", async () => {
+  // Committed bundles are read before orphans, so the newest orphan is the one
+  // left unread. It still occupies a listing slot.
+  process.env[REPORT_MIN_SURVIVAL_MS_ENV] = String(DURABLE_SCAN_JOB_REPORT_MIN_SURVIVAL_MS);
+  const r2 = configureInMemoryR2();
+  const now = Date.now();
+  const { maxCount } = reportStoreStatus();
+  for (let index = 0; index < maxCount; index += 1) {
+    seedCommittedBundle(r2, seededBundleId("a", index), now - 2 * 60 * MINUTE_MS - index * 1_000);
+  }
+  seedAgedOrphans(r2, "b", R2_LIST_MAX_HEAD_CANDIDATES + 1 - maxCount, now);
+
+  await assertRefusedBeforeWriting(r2);
+  assert.equal(
+    storedReportCount(r2),
+    R2_LIST_MAX_HEAD_CANDIDATES,
+    "the refusing pass still deleted the share count pruning made removable"
+  );
 });
 
 test("the public permalink read is bounded by the same whole-operation deadline", async () => {

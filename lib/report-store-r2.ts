@@ -580,21 +580,31 @@ export function createR2ReportStoreBackend(
       // an in-flight cross-process save and do not need an immediate HEAD.
       const listedReportIds = new Set(listedEntries.map((entry) => entry.id));
       const listingNow = now();
-      let headCandidateCount = 0;
-      for (const entry of listedEntries) {
-        const sidecarPresent = listedSidecars.has(entry.id);
-        if (
-          sidecarPresent ||
-          listingNow - entry.lastModifiedMs >= R2_UNCOMMITTED_HEAD_GRACE_MS
-        ) {
-          headCandidateCount += 1;
-          if (headCandidateCount > R2_LIST_MAX_HEAD_CANDIDATES) {
-            throw new ReportStoreListBoundsError(
-              `R2 report listing exceeded ${R2_LIST_MAX_HEAD_CANDIDATES} retention HEAD candidates.`
-            );
-          }
-        }
-      }
+      // One listing reads at most R2_LIST_MAX_HEAD_CANDIDATES retention clocks.
+      // Past that it used to throw before any HEAD, and prune lists before it
+      // deletes, so a store that got past the bound could never be pruned back
+      // under it: every prune, maintenance pass, and publication threw the same
+      // way until the bucket's lifecycle rule emptied it. Read committed bundles
+      // first and the oldest of them first, since only committed bundles are
+      // count-deletable and the oldest are the ones past survival. LastModified
+      // only orders the reads; no deletion ever rests on it. The rest come back
+      // unread for a later listing, once deletes bring the store under the bound.
+      const retentionReadIds = new Set(
+        listedEntries
+          .filter(
+            (entry) =>
+              listedSidecars.has(entry.id) ||
+              listingNow - entry.lastModifiedMs >= R2_UNCOMMITTED_HEAD_GRACE_MS
+          )
+          .sort(
+            (a, b) =>
+              Number(listedSidecars.has(b.id)) - Number(listedSidecars.has(a.id)) ||
+              a.lastModifiedMs - b.lastModifiedMs ||
+              a.id.localeCompare(b.id)
+          )
+          .slice(0, R2_LIST_MAX_HEAD_CANDIDATES)
+          .map((entry) => entry.id)
+      );
       const enrichedCandidates = await mapWithConcurrency(
         listedEntries,
         R2_LIST_HEAD_CONCURRENCY,
@@ -604,6 +614,9 @@ export function createR2ReportStoreBackend(
           const shouldReadUncommittedRetention =
             !sidecarPresent && listingNow - entry.lastModifiedMs >= R2_UNCOMMITTED_HEAD_GRACE_MS;
           if (!sidecarPresent && !shouldReadUncommittedRetention) return entry;
+          if (!retentionReadIds.has(entry.id)) {
+            return { ...entry, sidecarPresent, committed: sidecarPresent, retentionUnread: true };
+          }
 
           try {
             const metadata = await headRetention(entry.id, options?.signal);
