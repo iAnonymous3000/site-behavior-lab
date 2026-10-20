@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { cache } from "react";
+import { cache, type ReactNode } from "react";
 import corrections from "@/public/corrections.json";
 import { comparisonVisitOrderLine } from "@/lib/comparison-visit-order";
 import { buildReportHeadline, reportPageTitle, type ReportHeadline } from "@/lib/report-headline";
@@ -13,6 +13,7 @@ import { serializeJsonLd } from "@/lib/jsonld-script";
 import { buildReportDataset } from "@/lib/report-jsonld";
 import { reportPdfExportQuery } from "@/lib/report-pdf-export-query";
 import { readStoredReportForId } from "@/lib/report-source";
+import { buildReportVisitSummary } from "@/lib/report-visit-summary";
 import { requireFreshRuntimeReportRequest } from "@/lib/report-route-freshness";
 import { correctionMetadataDescription, reportMetadataDescription, reportMetadataTitle } from "@/lib/seo-metadata";
 import { toReportView } from "@/lib/scan-report-views";
@@ -20,6 +21,7 @@ import { siteBaseUrl, siteOrigin, sitePagesBasePath } from "@/lib/site-url";
 import { FindingsList } from "@/app/_components/findings-list";
 import { PrintEvidenceFooter } from "@/app/_components/print-evidence-footer";
 import { ReportEvidenceReceipt, ReportPageContext } from "@/app/_components/report-page-context";
+import { ReportVisitSummaryBlock } from "@/app/_components/report-visit-summary-block";
 import { SavedReportClient } from "./saved-report-client";
 
 const STATIC_EXPORT = process.env.NEXT_PUBLIC_SITE_BEHAVIOR_LAB_STATIC_EXPORT === "1";
@@ -122,6 +124,13 @@ export default async function SavedReportPage({ params }: { params: Promise<{ id
   const headline = buildReportHeadline(view, facts);
   const evidenceArm = renderedEvidenceArm(view, headline);
   const findings = buildFindings(view, await loadCommittedCorpusStats(), facts, evidenceArm);
+  // What was checked and what the visit could not see, for the board to render
+  // directly after its bottom line. Built once, from the cards the board shows,
+  // and handed to both the summary and the explorer, so it stays in place when
+  // the explorer replaces the summary.
+  const visitSummary = (
+    <ReportVisitSummaryBlock summary={buildReportVisitSummary({ view, facts, findings, evidenceArm })} />
+  );
   const correction = reportCorrections(correctionsLedger, id);
   const reportUrl = publicReportUrl(id);
   const jsonUrl = STATIC_EXPORT ? `${siteBaseUrl()}/reports/${id}.json` : `${siteOrigin()}/api/reports/${id}`;
@@ -177,8 +186,10 @@ export default async function SavedReportPage({ params }: { params: Promise<{ id
                 ? comparisonVisitOrderLine(view.comparison.visitOrder, view.comparison.runLabels)
                 : null
             }
+            visitSummary={visitSummary}
           />
         }
+        visitSummary={visitSummary}
       />
       <PrintEvidenceFooter
         committed={result.origin === "committed"}
@@ -194,9 +205,12 @@ export default async function SavedReportPage({ params }: { params: Promise<{ id
  * Compact, crawlable report content. Raw evidence arrays stay server-side.
  *
  * The site, the requested URL, the run quality and the timestamp used to be
- * restated here as a second header. They now live once, in the always-rendered
- * `ReportPageContext` identity block, so opening the evidence explorer no
- * longer swaps one copy of those facts for another.
+ * restated here as a second header. The site, the address and the timestamp
+ * now live once, in the always-rendered `ReportPageContext` identity block,
+ * and the run quality in the receipt, so opening the evidence explorer no
+ * longer swaps one copy of those facts for another. The visit summary the
+ * board renders after its bottom line is handed to the explorer too, for the
+ * same reason.
  *
  * A comparison's visit-order line is the exception, on purpose. The comparison
  * panel states it in the explorer, the printable route and the PDF, and the
@@ -210,7 +224,8 @@ function ReportPageSummary({
   findings,
   evidenceArm,
   automation,
-  visitOrder
+  visitOrder,
+  visitSummary
 }: {
   headline: ReportHeadline;
   findings: readonly Finding[];
@@ -218,6 +233,8 @@ function ReportPageSummary({
   automation: string;
   /** The comparison's visit-order line; null for a single scan or a before/after pair. */
   visitOrder: ReturnType<typeof comparisonVisitOrderLine>;
+  /** What was checked and what the visit could not see, after the bottom line. */
+  visitSummary: ReactNode;
 }) {
   return (
     <div className="report-page-summary">
@@ -256,6 +273,7 @@ function ReportPageSummary({
         evidenceArm={evidenceArm}
         automation={automation}
         glossaryHref={`${sitePagesBasePath()}/glossary/`}
+        afterBottomLine={visitSummary}
       />
     </div>
   );

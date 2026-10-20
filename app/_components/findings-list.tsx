@@ -11,10 +11,12 @@ import {
   Radar,
   ShieldCheck
 } from "lucide-react";
+import { Fragment, type ReactNode } from "react";
 import type { Finding, FindingIconKey } from "@/lib/report-findings";
 import { REPORT_SEVERITY_LABELS } from "@/lib/report-facts";
 import {
   buildEvidenceHash,
+  findingCardDomId,
   findingEvidenceLink,
   type EvidenceArm
 } from "@/lib/report-evidence-navigation";
@@ -55,14 +57,23 @@ export function FindingsList({
   findings,
   evidenceArm,
   automation,
-  glossaryHref
+  glossaryHref,
+  afterBottomLine
 }: {
   findings: readonly Finding[];
   evidenceArm: EvidenceArm | undefined;
   /** The scanner identity the board is describing, shown beside the heading. */
   automation: string;
   glossaryHref: string;
+  /**
+   * Server-built markup for directly after the bottom line and before every
+   * other card (the report pages' ReportVisitSummaryBlock). A board with no
+   * bottom line, a withheld report's single correction card, takes it after
+   * its cards.
+   */
+  afterBottomLine?: ReactNode;
 }) {
+  const hasBottomLine = findings.some((finding) => finding.id === "bottom-line");
   return (
     <section className="findings-board" id="findings">
       <div className="findings-heading">
@@ -79,8 +90,10 @@ export function FindingsList({
         {findings.map((finding) => {
           const Icon = FINDING_ICONS[finding.icon];
           const evidenceLink = findingEvidenceLink(finding.id, evidenceArm);
-          return (
-            <article className={`finding-card tile-${finding.level}`} key={finding.id}>
+          // The id is the target of the visit summary's "What this visit
+          // could not see" links; the board renders once per document.
+          const card = (
+            <article className={`finding-card tile-${finding.level}`} id={findingCardDomId(finding.id)} key={finding.id}>
               <div className="finding-icon">
                 <Icon size={18} aria-hidden="true" />
               </div>
@@ -111,7 +124,14 @@ export function FindingsList({
               </div>
             </article>
           );
+          return finding.id === "bottom-line" && afterBottomLine ? (
+            <Fragment key={finding.id}>
+              {card}
+              {afterBottomLine}
+            </Fragment>
+          ) : card;
         })}
+        {!hasBottomLine && afterBottomLine}
       </div>
     </section>
   );

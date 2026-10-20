@@ -19,7 +19,7 @@ import {
   Shield,
   ShieldCheck
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { clientReportRuntime, staticAssetPath } from "../client-runtime";
 import { FindingsList } from "./findings-list";
 import {
@@ -280,11 +280,14 @@ export function useReportFindings(
 export function FindingsBoard({
   evidenceArm,
   facts,
-  findings
+  findings,
+  afterBottomLine
 }: {
   evidenceArm: EvidenceArm | undefined;
   facts: ReportFacts;
   findings: Finding[];
+  /** A report page's server-built visit summary, for directly after the bottom line. */
+  afterBottomLine?: ReactNode;
 }) {
   return (
     <FindingsList
@@ -292,6 +295,7 @@ export function FindingsBoard({
       evidenceArm={evidenceArm}
       automation={facts.display.run.conditions.automation}
       glossaryHref={staticAssetPath("/glossary/")}
+      afterBottomLine={afterBottomLine}
     />
   );
 }

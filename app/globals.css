@@ -1867,18 +1867,6 @@ a {
   white-space: nowrap;
 }
 
-/* Full-width and left-aligned: run quality is a sentence, not a stat. Ranged
-   right against the URL it wrapped into a ragged column that read as a second
-   heading. */
-.report-identity-quality {
-  color: var(--text-muted);
-  font-size: 12.5px;
-  grid-column: 1 / -1;
-  line-height: 1.5;
-  margin: 0;
-  max-width: 92ch;
-}
-
 .report-identity-actions {
   align-items: center;
   display: flex;
@@ -2626,6 +2614,61 @@ a {
   min-width: 0;
   overflow-wrap: anywhere;
   padding: 4px 8px;
+}
+
+/* What was checked, and what the visit could not see: framed like the cards
+   it sits between, directly after the bottom line, but with no severity edge,
+   since it ranks nothing. Two columns where there is room for both to read as
+   lists; sentences, not stats, so they stay left-aligned at a reading
+   measure. */
+.report-visit-summary {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  display: grid;
+  gap: 14px 32px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+  padding: 14px;
+}
+
+.report-visit-heading {
+  font-size: var(--text-sm);
+  letter-spacing: 0;
+  margin: 0 0 6px;
+}
+
+.report-visit-checked dl {
+  display: grid;
+  gap: 5px;
+  margin: 0;
+}
+
+.report-visit-checked dl > div {
+  column-gap: 12px;
+  display: grid;
+  grid-template-columns: 6.5rem minmax(0, 1fr);
+}
+
+.report-visit-checked dt {
+  color: var(--text-muted);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+.report-visit-checked dd,
+.report-visit-limits li {
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0;
+  max-width: 78ch;
+  overflow-wrap: anywhere;
+}
+
+.report-visit-limits ul {
+  display: grid;
+  gap: 5px;
+  margin: 0;
+  padding-left: 18px;
 }
 
 /* The tone's shape channel, so severity is not hue alone. */
@@ -5083,6 +5126,12 @@ details[open] > summary .disclosure-chevron {
 
   .report-identity-when {
     text-align: left;
+  }
+
+  /* One column: a term column beside each fact would leave the facts a third
+     of a phone's width. */
+  .report-visit-checked dl > div {
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .report-evidence-loader {

@@ -31,7 +31,8 @@ export function SavedReportClient({
   title,
   context,
   receipt,
-  summary
+  summary,
+  visitSummary
 }: {
   id: string;
   evidenceHref: string;
@@ -47,6 +48,12 @@ export function SavedReportClient({
   /** Integrity and provenance, rendered after the evidence rather than before it. */
   receipt: ReactNode;
   summary: ReactNode;
+  /**
+   * The same server-built visit summary the summary slot's board renders after
+   * its bottom line, handed to the explorer's board so it stays in place once
+   * the explorer replaces the summary.
+   */
+  visitSummary: ReactNode;
 }) {
   const [loaded, setLoaded] = useState<LoadedReport | null>(null);
   const [loading, setLoading] = useState(false);
@@ -197,7 +204,8 @@ export function SavedReportClient({
               tabIndex={-1}
             >
               <Suspense fallback={<p className="muted">Preparing the evidence explorer…</p>}>
-                <LazyReportRenderer loaded={loaded} liveApiServesReportPages pdfExportQuery={pdfExportQuery} />
+                <LazyReportRenderer loaded={loaded} liveApiServesReportPages pdfExportQuery={pdfExportQuery}
+                  visitSummary={visitSummary} />
               </Suspense>
             </section>
           )}

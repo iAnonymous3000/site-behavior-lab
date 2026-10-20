@@ -54,7 +54,8 @@ export function ReportRenderer({
   liveApiServesReportPages,
   pdfExportQuery,
   printComplete = false,
-  printGuide
+  printGuide,
+  visitSummary
 }: {
   loaded: LoadedReport;
   liveApiServesReportPages: boolean;
@@ -67,6 +68,12 @@ export function ReportRenderer({
    */
   printComplete?: boolean;
   printGuide?: ReactNode;
+  /**
+   * What was checked and what the visit could not see, built by the report
+   * page on the server and rendered by the board directly after its bottom
+   * line. Absent for a live scan, which has no stored report to summarize.
+   */
+  visitSummary?: ReactNode;
 }) {
   useEffect(() => {
     if (!printComplete) return;
@@ -205,7 +212,7 @@ export function ReportRenderer({
             headline={headline}
             liveApiServesReportPages={liveApiServesReportPages}
           />
-          <FindingsBoard evidenceArm={evidenceArm} facts={reportFacts} findings={findings} />
+          <FindingsBoard evidenceArm={evidenceArm} facts={reportFacts} findings={findings} afterBottomLine={visitSummary} />
           {reportView.reportType === "comparison" && (
             <ComparisonPanel view={reportView} facts={reportFacts} />
           )}

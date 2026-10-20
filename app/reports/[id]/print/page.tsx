@@ -5,9 +5,14 @@ import { notFound } from "next/navigation";
 import { cache } from "react";
 import corrections from "@/public/corrections.json";
 import { completeDocumentExportRefusal } from "@/lib/complete-document-export";
+import { loadCommittedCorpusStats } from "@/lib/current-scan-cohort";
+import { renderedEvidenceArm } from "@/lib/report-evidence-navigation";
+import { buildReportFacts } from "@/lib/report-facts";
+import { buildFindings } from "@/lib/report-findings";
 import { buildReportHeadline, reportPageTitle } from "@/lib/report-headline";
 import { parseCorrectionsLedger, reportCorrections } from "@/lib/corrections-ledger";
 import { readStoredReportForId } from "@/lib/report-source";
+import { buildReportVisitSummary } from "@/lib/report-visit-summary";
 import { requireFreshRuntimeReportRequest } from "@/lib/report-route-freshness";
 import { loadedReportFromStored } from "@/lib/scan-report-view";
 import { toReportView } from "@/lib/scan-report-views";
@@ -16,6 +21,7 @@ import { siteBaseUrl, siteOrigin } from "@/lib/site-url";
 import { PrintEvidenceFooter } from "@/app/_components/print-evidence-footer";
 import { ReportEvidenceReceipt, ReportPageContext } from "@/app/_components/report-page-context";
 import { ReportRenderer } from "@/app/_components/report-renderer";
+import { ReportVisitSummaryBlock } from "@/app/_components/report-visit-summary-block";
 
 /**
  * The complete printable rendering of one report.
@@ -94,7 +100,13 @@ export default async function PrintableReportPage({ params, searchParams }: {
     throw new Error("The source evidence changed before PDF rendering. Reopen the report and retry.");
   }
   const view = toReportView(result.stored);
-  const headline = buildReportHeadline(view);
+  // The same facts, headline, arm and cards the permalink builds, so the visit
+  // summary links the same cards the printed board renders, and sits in the
+  // same place: directly after the bottom line.
+  const facts = buildReportFacts(view);
+  const headline = buildReportHeadline(view, facts);
+  const evidenceArm = renderedEvidenceArm(view, headline);
+  const findings = buildFindings(view, await loadCommittedCorpusStats(), facts, evidenceArm);
   const correction = reportCorrections(correctionsLedger, id);
   const committed = result.origin === "committed";
   const reportUrl = `${siteBaseUrl()}/reports/${id}/`;
@@ -139,6 +151,9 @@ export default async function PrintableReportPage({ params, searchParams }: {
           loaded={loadedReportFromStored(result.stored)}
           liveApiServesReportPages={false}
           printComplete
+          visitSummary={
+            <ReportVisitSummaryBlock summary={buildReportVisitSummary({ view, facts, findings, evidenceArm })} />
+          }
           printGuide={
             <section className="print-document-guide">
               <h2>How to use this report</h2>

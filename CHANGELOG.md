@@ -9,6 +9,34 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- A report page now says what was checked and what the visit could not
+  see, directly after its bottom line and before any card that counts or
+  ranks what the visit recorded. "What was checked" gives the page (the
+  requested address, and where the visit landed when that was another
+  address: 94 reports, most of them a redirect to another path), when the
+  visit ran, the setup (headless Chromium, the recorded window size, en-US
+  and UTC, where it ran from, that its network region was not recorded, and
+  whether it sent GPC), one visit or two and what they were configured to
+  differ in, what the scanner did to the page, and the outcome in plain
+  words. The typing test is named from the scanner's own disclosure, and a
+  visit without one says no typing was recorded, never that the page had no
+  form fields, since a visit that typed into nothing writes no line. A banner
+  choice reads as a click only where the consent facts record an activated
+  control. "What this visit could not see" names other pages, signed-in
+  visitors and other regions, anything that loads after interaction, and
+  services the US-biased catalog does not name, each only where every visit
+  carries the warning that says so, then each check whose evidence was
+  incomplete, linked to its card where the board describes the visit that
+  lost it. Apart from the date, these facts appeared only in the evidence
+  explorer, about 16,000 px down a phone. The lists follow the verdict
+  rather than lead the page, so the headline banner and the bottom line
+  keep their place: the identity block above them only loses its
+  machine-worded run-quality line, whose "recorded by the scanner" or
+  "derived from status and warnings" the receipt already states beside each
+  visit's exact quality, and no banner starts lower than it did. Every
+  committed report page changes (1,029); 359 of them list incomplete checks.
+  The explorer, the printable page and the PDF carry the lists in the same
+  place. No report, warning or admitted string changes.
 - Three detectors stop reporting more than they measured
   (node-detectors-v19). The privacy-policy cross-check kept an HTML policy
   read the collector cut short, at 400,000 characters or after visiting

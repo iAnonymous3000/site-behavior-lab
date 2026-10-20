@@ -771,6 +771,72 @@ async function main() {
     if (await noScriptPage.locator(".findings-board .finding-card").count() === 0) {
       fail("saved report findings are absent without JavaScript");
     }
+    // What was checked and what the visit could not see are on the page
+    // before any script runs (lib/report-visit-summary.ts), directly after
+    // the bottom line: the verdict keeps its place, and the lists come before
+    // every card that counts or ranks.
+    const visitSummary = noScriptPage.locator(".findings-board .report-visit-summary");
+    await expectText(visitSummary, "What was checked");
+    await expectText(visitSummary, "could not see");
+    // The banner keeps its first-screen position: on a phone, taking the
+    // lists out of the page does not move it, and they start right after the
+    // bottom-line card.
+    const phoneContext = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 375, height: 812 } });
+    const phonePage = await phoneContext.newPage();
+    await phonePage.goto(`${baseUrl}/reports/${firstReport.id}/`, { waitUntil: "domcontentloaded" });
+    const placement = await phonePage.evaluate(() => {
+      const banner = document.querySelector(".headline-banner");
+      const lists = document.querySelector(".report-visit-summary");
+      const bottomLine = document.querySelector("#finding-bottom-line");
+      if (!banner || !lists || !bottomLine) return null;
+      const bannerTop = banner.getBoundingClientRect().top;
+      const follows = lists.previousElementSibling === bottomLine;
+      const gap = lists.getBoundingClientRect().top - bottomLine.getBoundingClientRect().bottom;
+      lists.remove();
+      return { bannerTop, bannerTopWithoutLists: banner.getBoundingClientRect().top, follows, gap };
+    });
+    await phoneContext.close();
+    if (!placement) fail("the first report renders no banner, bottom line or visit summary to place");
+    if (placement.bannerTop !== placement.bannerTopWithoutLists) {
+      fail(`the visit summary moves the banner on a 375x812 phone (${Math.round(placement.bannerTopWithoutLists)} to ${Math.round(placement.bannerTop)}px)`);
+    }
+    if (!placement.follows || placement.gap < 0 || placement.gap > 24) {
+      fail(`the visit summary does not start directly after the bottom line on a phone (${Math.round(placement.gap)}px after it)`);
+    }
+    // Every exported report, in source order: the identity header holds no
+    // lists; then the banner, the bottom-line card, the lists, and every other
+    // card. A withheld report's board has no bottom line and takes them after
+    // its cards. Every check the lists link lands on exactly one card.
+    let summaryLinks = 0;
+    for (const report of manifest.reports) {
+      const reportPage = await readFile(path.join(outDir, "reports", report.id, "index.html"), "utf8");
+      const listsAt = reportPage.indexOf('<div class="report-visit-summary">');
+      if (listsAt < 0) fail(`report ${report.id} renders no visit summary`);
+      if (reportPage.indexOf('<div class="report-visit-summary">', listsAt + 1) >= 0) fail(`report ${report.id} renders the visit summary twice`);
+      const headerAt = reportPage.indexOf('<header class="report-identity">');
+      const bannerAt = reportPage.indexOf("headline-banner tone-");
+      if (headerAt < 0 || bannerAt < 0) fail(`report ${report.id} renders no identity header or banner`);
+      if (!(reportPage.indexOf("</header>", headerAt) < bannerAt && bannerAt < listsAt)) {
+        fail(`report ${report.id} states its visit summary before its banner`);
+      }
+      const cards = [...reportPage.matchAll(/<article class="finding-card /g)].map((match) => match.index);
+      const bottomLineAt = reportPage.indexOf('id="finding-bottom-line"');
+      if (bottomLineAt >= 0) {
+        const bottomLineEnd = reportPage.indexOf("</article>", bottomLineAt) + "</article>".length;
+        if (reportPage.slice(bottomLineEnd, listsAt).replace(/<!--[\s\S]*?-->/g, "").trim() !== "") {
+          fail(`report ${report.id} does not state its visit summary directly after the bottom line`);
+        }
+      } else if (cards.some((at) => at > listsAt)) {
+        fail(`report ${report.id} has no bottom line but states its visit summary before a card`);
+      }
+      const nextCard = cards.find((at) => at > listsAt);
+      const lists = reportPage.slice(listsAt, nextCard ?? reportPage.indexOf("</section>", listsAt));
+      for (const [, target] of lists.matchAll(/href="#(finding-[a-z0-9-]+)"/g)) {
+        summaryLinks += 1;
+        if (reportPage.split(`id="${target}"`).length !== 2) fail(`report ${report.id} links #${target}, which is not exactly one card`);
+      }
+    }
+    pass(`report permalinks state what was checked directly after the bottom line without JavaScript, and the banner keeps its place; ${summaryLinks} incomplete-check links land on their cards`);
 
     const phaseReportHtmlPath = path.join(outDir, "reports", phaseReport.id, "index.html");
     const phaseReportHtml = await readFile(phaseReportHtmlPath, "utf8");
@@ -808,6 +874,7 @@ async function main() {
 
     await page.goto(`${baseUrl}/reports/${phaseReport.id}/`, { waitUntil: "networkidle" });
     const summaryFindings = await page.locator(".findings-board .finding-card").allTextContents();
+    const summaryVisitSummary = await page.locator(".findings-board .report-visit-summary").textContent();
     const summaryVisitOrder = await compactVisitOrderLine(page, "hydrated r2 comparison permalink");
     const findingLink = page.locator('.findings-board a[href^="#evidence="]').first();
     const findingHash = await findingLink.getAttribute("href");
@@ -823,8 +890,16 @@ async function main() {
     if (JSON.stringify(summaryFindings) !== JSON.stringify(explorerFindings)) {
       fail("saved report summary and loaded explorer disagree on their findings");
     }
+    // The explorer's board keeps the same lists in the same place.
+    const explorerVisitSummary = await page.evaluate(() => {
+      const lists = document.querySelectorAll(".findings-board .report-visit-summary");
+      return lists.length === 1 && lists[0].previousElementSibling?.id === "finding-bottom-line" ? lists[0].textContent : null;
+    });
+    if (!summaryVisitSummary || explorerVisitSummary !== summaryVisitSummary) {
+      fail("the loaded explorer does not state the visit summary directly after its bottom line, as the summary did");
+    }
     await assertVisitOrderMovedToPanel(page, summaryVisitOrder, "r2 comparison permalink");
-    pass("server-rendered findings agree with the explorer and open their evidence");
+    pass("server-rendered findings agree with the explorer, keep the visit summary after the bottom line, and open their evidence");
 
     await page.goto(`${baseUrl}/reports/${phaseReport.id}/`, { waitUntil: "networkidle" });
     const exploreEvidence = page.getByRole("button", { name: "Explore full evidence" });

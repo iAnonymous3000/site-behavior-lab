@@ -12,6 +12,7 @@ import {
 import { committedDetectorCalibrationReaderClaims } from "@/lib/detector-calibration-source";
 import { COVERAGE_BOUNDARY_PATH, coverageBoundarySentence } from "@/lib/detector-coverage-boundary";
 import { reportActivation } from "@/lib/report-trust";
+import { formatReportTimestamp } from "@/lib/report-visit-summary";
 import { degradedRunNotice, runQualitySummary } from "@/lib/scan-report-censorship";
 import { crossSiteLandingLines, crossSiteLandingNote } from "@/lib/report-subject-landing";
 import {
@@ -46,6 +47,12 @@ const SOURCE_REPOSITORY = "https://github.com/iAnonymous3000/site-behavior-lab";
  * finding and it already leads the banner below; making it the heading too
  * printed the same sentence three times on one page. It also gives the report
  * page the same subject-first heading as `/sites/<domain>/`.
+ *
+ * The run-quality line ("complete; recorded by the scanner") no longer sits
+ * under the address: the receipt states each visit's exact quality with that
+ * basis, and the board says what was checked, and the outcome in plain words,
+ * right after its bottom line (ReportVisitSummaryBlock). Nothing else here
+ * changed, so the verdict banner below starts no lower than it did.
  */
 export function ReportPageContext({
   corrections,
@@ -88,9 +95,9 @@ export function ReportPageContext({
 
       <header className="report-identity">
         <div className="report-identity-title">
-          {/* Names the arm below it, not the report. The domain, URL,
-              timestamp and run quality that follow all come from the display
-              run, so a pair count here would caption one visit with two. */}
+          {/* Names the arm below it, not the report. The domain, URL and
+              timestamp that follow all come from the display run, so a pair
+              count here would caption one visit with two. */}
           <p className="eyebrow">
             {runVisitLabel(run)} {formatChip && <span className="report-provenance">{formatChip}</span>}
           </p>
@@ -107,7 +114,6 @@ export function ReportPageContext({
           ))}
         </div>
         <p className="report-identity-when">{formatTimestamp(run.startedAt ?? view.scannedAt)}</p>
-        <p className="report-identity-quality">{runQualitySummary(run)}</p>
         {/* Actions, not prose. The retention sentence these used to sit beside
             is a statement about provenance, so it moved down to the receipt and
             left the three things a reader can DO with this report right under
@@ -395,18 +401,5 @@ function CommitValue({ value }: { value: string }) {
   ) : <code>{value}</code>;
 }
 
-function formatTimestamp(value: string | null): string {
-  if (!value) return "not recorded";
-  const date = new Date(value);
-  return Number.isNaN(date.getTime())
-    ? "not recorded"
-    : date.toLocaleString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-        hour: "numeric",
-        minute: "2-digit",
-        timeZone: "UTC",
-        timeZoneName: "short"
-      });
-}
+/** One formatter for every timestamp on the page, the visit summary's included. */
+const formatTimestamp = formatReportTimestamp;

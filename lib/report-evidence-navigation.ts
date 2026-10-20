@@ -183,6 +183,16 @@ export function domainRequestDeltas(
     );
 }
 
+/**
+ * The DOM id of a findings card. The board renders it on every card and the
+ * report's "What this visit could not see" list links to it, so the two read
+ * one function. The board renders once per document (the permalink's summary
+ * board is replaced, not joined, when the explorer opens), so the id is unique.
+ */
+export function findingCardDomId(findingId: string): string {
+  return `finding-${findingId}`;
+}
+
 /** Findings whose supporting rows exist in the domain/request evidence tables. */
 export function findingEvidenceLink(findingId: string, arm?: EvidenceArm): FindingEvidenceLink | null {
   const withArm = <T extends EvidenceTarget>(target: T): T => (arm ? { ...target, arm } : target);
