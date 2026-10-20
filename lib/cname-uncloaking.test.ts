@@ -99,6 +99,37 @@ test("resolveCnameCloaks skips a host whose DNS resolution throws", async () => 
   assert.equal(omittedCandidateCount, 0);
 });
 
+test("resolveCnameCloaks reports a chain the resolver could not finish as a failed lookup, unless it reached a tracker", async () => {
+  // A chain left at the resolver's hop bound or on a loop may point past its
+  // last followed name at a tracker. With no tracker in the part followed it
+  // is a lookup that did not complete; a tracker it reached is a cloak however
+  // the chain goes on. A plain array is a chain followed to its end.
+  const requests = [
+    makeRequest("long.shop.example", false),
+    makeRequest("cloaked.shop.example", false),
+    makeRequest("short.shop.example", false),
+    makeRequest("plain.shop.example", false)
+  ];
+  const resolutions: Record<string, string[] | { chain: string[]; terminated: boolean }> = {
+    "long.shop.example": { chain: Array.from({ length: 10 }, (_, index) => `hop${index}.cdnvendor.example`), terminated: false },
+    "cloaked.shop.example": {
+      chain: ["edge.cdnvendor.example", "shop.eulerian.net", "more.cdnvendor.example"],
+      terminated: false
+    },
+    "short.shop.example": { chain: ["edge.cdnvendor.example"], terminated: true },
+    "plain.shop.example": ["edge.cdnvendor.example"]
+  };
+  const failures: string[] = [];
+  const { cloaks, omittedCandidateCount } = await resolveCnameCloaks(requests, "shop.example", {
+    ...deps,
+    onResolutionFailure: (host) => failures.push(host),
+    resolveCnameChain: async (host) => resolutions[host] ?? []
+  });
+  assert.deepEqual(failures, ["long.shop.example"]);
+  assert.deepEqual(cloaks.map((cloak) => [cloak.host, cloak.cname]), [["cloaked.shop.example", "shop.eulerian.net"]]);
+  assert.equal(omittedCandidateCount, 0);
+});
+
 test("resolveCnameCloaks reports every candidate omitted by the lookup cap", async () => {
   const requests = Array.from({ length: 11 }, (_, index) => makeRequest(`h${index}.shop.example`, false));
   const resolved: string[] = [];
@@ -131,8 +162,8 @@ function makeRequest(domain: string, thirdParty: boolean): NetworkRequestRecord 
 }
 
 test("a scan deadline bounds the whole probe, not just each lookup", async () => {
-  // Hop and per-lookup bounds are per host: ten hosts of three hops at 1.5s
-  // each is 45s of DNS that could begin with three seconds of scan budget
+  // Hop and per-lookup bounds are per host: ten hosts of ten hops at 1.5s
+  // each is 150s of DNS that could begin with three seconds of scan budget
   // left, so the advertised scan duration bounded nothing. The deadline must
   // bind every lookup, and exhausting it must be disclosed as a failure to
   // observe rather than reported as a finished chain.

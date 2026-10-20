@@ -308,6 +308,14 @@ const POLICY_READ_SETTLED_FROM = 9;
  */
 const POLICY_READ_CUT_SUSPECT_MIN_CHARS = Math.floor(MAX_POLICY_TEXT_CHARS * 0.95);
 
+/**
+ * The first cross-check that withholds a read cut short at the text cap or the
+ * collector's node bound, so every read it stores is a whole policy page and a
+ * long one is a long policy. The rule above reads only earlier cross-checks and
+ * v1 reports, which record no cross-check version.
+ */
+const POLICY_READ_CUT_WITHHELD_FROM = 12;
+
 /** The recorded cross-check ordinal; v1 and non-Node producers count as oldest. */
 function policyCrossCheckOrdinal(version: string | undefined): number {
   const match = /^policy-text-cross-check@([1-9][0-9]{0,3})$/.exec(version ?? "");
@@ -943,6 +951,7 @@ export function buildFindings(
     for (const entity of unknownPolicyMentions) policyUnmentionedEntityNames.delete(entity);
     // Silence in a read that may have been cut short supports no omission.
     const cutPolicyMentions =
+      policyDetectorOrdinal < POLICY_READ_CUT_WITHHELD_FROM &&
       policy.policyTextLength >= POLICY_READ_CUT_SUSPECT_MIN_CHARS
         ? trackingNames.filter((entity) => policyUnmentionedEntityNames.has(entity))
         : [];

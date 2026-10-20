@@ -83,22 +83,39 @@ subdomains from certificate transparency instead would find cloaked hosts the
 page never contacted, and score the detector wrong for correctly ignoring them.
 That is a scope difference, not a detector error.
 
-### The two declared recall ceilings
+### The three declared recall ceilings
 
-The detector sees only subdomains contacted during one visit, and resolves at
-most `maxHosts` of them (the scanner passes `MAX_CNAME_LOOKUPS = 10`, lib/scanner.ts; the library default of 12 is not what ships). Both are already handled correctly and neither is
-a hidden false-negative source:
+The detector sees only subdomains contacted during one visit, resolves at
+most `maxHosts` of them (the scanner passes `MAX_CNAME_LOOKUPS = 10`, lib/scanner.ts; the library default of 12 is not what ships), and follows each one's
+chain for at most `CNAME_MAX_HOPS = 10` lookups (lib/scanner.ts), the reference
+instrument's own `maxHops` default; a test pins the two equal. From
+`dns-cname-chain@6` all three are handled and none is a hidden false-negative
+source:
 
 - Truncation sets the detector ledger to `partial` / `evidence-cap-reached`
   (`lib/scanner.ts:2380`), a probe failure sets `failed`, an unavailable budget
   sets `skipped`.
+- A chain still going at the hop bound, or one that loops, with no tracker in
+  the names followed, is recorded as a failed lookup (`failed`, or `partial`
+  beside a cloak another lookup found); a tracker found within the bound stands
+  as a cloak.
 - The producer censors any case whose ledger is not `complete`
   (`scripts/calibration-study-lib.mjs:1166`), so a truncated lookup becomes an
   `eligibility-criteria-not-met` censored case rather than a scored negative.
 
+The hop bound was not handled before @6: `dns-cname-chain@5` and earlier
+followed three lookups and reported every chain they cut as a whole one, with
+the ledger `complete`, so a tracker four or more aliases down was a scored
+negative. The stopped cname-uncloaking reliability sweep must restart on a
+build with @6 for this reason, and no case measured with an earlier detector
+belongs in the study.
+
 The reference instrument mirrors this: a case where any candidate failed to
-resolve is marked `determined: false`, because a reference that could not look
-cannot honestly answer "absent".
+resolve, or whose chain reached `maxHops`, is marked `determined: false`,
+because a reference that could not look cannot honestly answer "absent". The
+two differ on a loop: the reference ends a chain that returns to a name it has
+recorded and reads the chain as determined, while the scanner records it as a
+failed lookup.
 
 Under zero-censoring these become population boundaries rather than error
 sources: **the declared population must exclude sites whose visit exceeds the
@@ -225,7 +242,7 @@ Built and verified:
 - The analyzer, its 20 ineligibility reasons, Wilson intervals, and the
   fail-closed layering (`lib/detector-calibration.ts`).
 - The prediction seam for every detector, including `cname-uncloaking`, with
-  both recall ceilings censoring correctly
+  all three recall ceilings censoring correctly from `dns-cname-chain@6`
   (`scripts/calibration-study-lib.mjs:1154`, `scripts/calibration-study-acquire.mjs:168`).
 - Independent recomputation of every prediction by the binding verifier
   (`lib/measurement-candidate-binding.ts:5494`).

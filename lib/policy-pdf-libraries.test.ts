@@ -21,7 +21,10 @@ const reviewedPolicyPdfLibraries: Readonly<Record<string, { "pdfjs-dist": string
   "policy-text-cross-check@10": { "pdfjs-dist": "6.3.289", undici: "8.11.2" },
   // node-detectors-v18 changed how a privacy hub's prose is measured, not
   // either library.
-  "policy-text-cross-check@11": { "pdfjs-dist": "6.3.289", undici: "8.11.2" }
+  "policy-text-cross-check@11": { "pdfjs-dist": "6.3.289", undici: "8.11.2" },
+  // node-detectors-v19 withholds an HTML read cut short, as a PDF whose text
+  // runs past the cap already was, and moved neither library.
+  "policy-text-cross-check@12": { "pdfjs-dist": "6.3.289", undici: "8.11.2" }
 };
 
 test("pdf.js and undici move only with the privacy-policy detector's version", () => {

@@ -315,6 +315,54 @@ export const DETECTOR_VALIDATION_FIXTURES: readonly DetectorValidationFixture[] 
     file: "lib/scanner-policy-navigation.test.ts",
     testName: "a policy titled with only the site's name is read with its collapsed sections, though it links to another policy document",
     verifies: "A policy titled with only the site's name that links to a state notice and folds most of its prose into collapsed sections, beside a consent dialog it has not opened, is read, and the company it names counts as named."
+  },
+  {
+    detector: "privacy-policy",
+    kind: "negative",
+    environment: "real-chromium",
+    file: "lib/scanner-policy-navigation.test.ts",
+    testName: "a policy read cut at the scanner's character cap is withheld, not compared as the whole policy",
+    verifies: "A policy longer than the 400,000 characters the scanner reads, which names its company only past them, publishes no policy and no company the policy does not name."
+  },
+  {
+    detector: "privacy-policy",
+    kind: "negative",
+    environment: "real-chromium",
+    file: "lib/scanner-policy-navigation.test.ts",
+    testName: "a policy read cut at the collector's node bound is withheld, not compared as the whole policy",
+    verifies: "A policy behind a menu past the collector's 20,000-node bound, a read with no sign of the cut, publishes no policy and no company the policy does not name."
+  },
+  {
+    detector: "keystroke-exfiltration",
+    kind: "negative",
+    environment: "real-chromium",
+    file: "lib/scanner.test.ts",
+    testName: "a typed value the Shields engine stops names no recipient on either wire, and the visit without blocking still names it",
+    verifies: "In a Brave Shields block simulation, a typed value whose every request the engine stopped names no recipient on either wire, while the visit without blocking names the recipient that received it."
+  },
+  {
+    detector: "keystroke-exfiltration",
+    kind: "positive",
+    environment: "real-chromium",
+    file: "lib/scanner.test.ts",
+    testName: "a typed value the route guard refuses still names its recipient, never a complete finding that it stayed",
+    verifies: "A typed value sent to a host the scanner's own public-address guard refuses still names that recipient rather than reading as a value that stayed."
+  },
+  {
+    detector: "cname-uncloaking",
+    kind: "positive",
+    environment: "real-chromium",
+    file: "lib/scanner.test.ts",
+    testName: "a CNAME chain whose tracker sits four names down yields the cloak",
+    verifies: "A first-party subdomain whose CNAME chain reaches a curated tracker after three other aliases is reported as a cloak."
+  },
+  {
+    detector: "cname-uncloaking",
+    kind: "adversarial",
+    environment: "real-chromium",
+    file: "lib/scanner.test.ts",
+    testName: "a CNAME loop records the failed-lookup loss, never a complete negative",
+    verifies: "A CNAME chain that loops back to a name it passed is recorded as a lookup that did not complete, never as a complete absence."
   }
 ] as const;
 

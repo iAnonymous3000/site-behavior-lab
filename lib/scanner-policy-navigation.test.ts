@@ -203,7 +203,7 @@ test("privacy-policy probing reads only a same-site document that is a policy", 
       assert.notEqual(policyPhase, undefined, `${site}: the page offered a policy link, so the visit was attempted`);
       assert.deepEqual(
         measurement.measurement.detectors["privacy-policy"],
-        { version: "policy-text-cross-check@11", status: "failed", reason: "load-failed", phaseId: policyPhase!.phaseId },
+        { version: "policy-text-cross-check@12", status: "failed", reason: "load-failed", phaseId: policyPhase!.phaseId },
         site
       );
       assert.equal(measurement.evidence.privacyPolicy, undefined, site);
@@ -225,7 +225,7 @@ test("privacy-policy probing reads only a same-site document that is a policy", 
     const { result, measurement } = await scan("real-policy");
     const policyPhase = measurement.measurement.phases.find((phase) => phase.kind === "policy-analysis");
     assert.deepEqual(measurement.measurement.detectors["privacy-policy"], {
-      version: "policy-text-cross-check@11",
+      version: "policy-text-cross-check@12",
       status: "complete",
       phaseId: policyPhase!.phaseId
     });
@@ -301,7 +301,7 @@ test("privacy-policy text never counts a vendor loader in the page body as namin
     );
     const policyPhase = measurement.measurement.phases.find((phase) => phase.kind === "policy-analysis");
     assert.deepEqual(measurement.measurement.detectors["privacy-policy"], {
-      version: "policy-text-cross-check@11",
+      version: "policy-text-cross-check@12",
       status: "complete",
       phaseId: policyPhase!.phaseId
     });
@@ -761,6 +761,16 @@ async function scanPolicyPageShape(site: string): Promise<{
   const page = (title: string, h1: string | null, body: string) =>
     `<!doctype html><title>${title}</title>${nav}<main>${h1 === null ? "" : `<h1>${h1}</h1>`}${body}</main>`;
   const fullPolicy = page("Privacy Policy | Example Lamps", "Privacy Policy", `<p>${opening} ${prose(40)}</p>`);
+  // Paragraphs of 90,000 characters that name no company, so the policy below
+  // names Google only after them.
+  const longParagraphs = (count: number) => {
+    const unit = "We collect the information you give us and information about how you use the site. ";
+    const paragraph = unit.repeat(Math.ceil(90_000 / unit.length)).slice(0, 90_000);
+    return Array.from({ length: count }, () => `<p>${paragraph}</p>`).join("");
+  };
+  // A store menu of three page nodes an item, ahead of the policy text.
+  const storeMenu = (items: number) =>
+    `<nav><ul>${Array.from({ length: items }, (_, index) => `<li><a href="/c/${index}">Category ${index}</a></li>`).join("")}</ul></nav>`;
   const shapes: Record<string, { policyPath: string; pages: Record<string, string> }> = {
     "hub.test": {
       policyPath: "/info/privacy",
@@ -889,6 +899,38 @@ async function scanPolicyPageShape(site: string): Promise<{
             `<div role="tabpanel" style="display:contents">${opening} ${prose(40)}</div>` +
             `<p><a href="/privacy-policy/">California Notice at Collection</a></p>`
         )
+      }
+    },
+    // A policy past the scanner's 400,000-character read: five long
+    // paragraphs in a few page nodes, then the sentence naming Google.
+    "char-cap.test": {
+      policyPath: "/privacy-policy",
+      pages: {
+        "/privacy-policy": page("Privacy Policy | Example Lamps", "Privacy Policy", `${longParagraphs(5)}<p>${opening}</p>`)
+      }
+    },
+    // The same policy with four of the paragraphs, 360,000 characters, under
+    // the cap.
+    "char-control.test": {
+      policyPath: "/privacy-policy",
+      pages: {
+        "/privacy-policy": page("Privacy Policy | Example Lamps", "Privacy Policy", `${longParagraphs(4)}<p>${opening}</p>`)
+      }
+    },
+    // A policy behind a 7,000-item store menu, about 21,000 page nodes, so the
+    // collector's 20,000-node bound stops inside the menu, at about 90,000
+    // characters, before the policy names Google.
+    "node-cap.test": {
+      policyPath: "/privacy-policy",
+      pages: {
+        "/privacy-policy": page("Privacy Policy | Example Lamps", "Privacy Policy", `${storeMenu(7_000)}<p>${opening} ${prose(40)}</p>`)
+      }
+    },
+    // The same policy behind a 3,000-item menu, under the node bound.
+    "node-control.test": {
+      policyPath: "/privacy-policy",
+      pages: {
+        "/privacy-policy": page("Privacy Policy | Example Lamps", "Privacy Policy", `${storeMenu(3_000)}<p>${opening} ${prose(40)}</p>`)
       }
     },
     // naver.com: a policy titled and written in Korean, prose the measure
@@ -1038,4 +1080,34 @@ test("a policy written in a script the prose measure cannot read is read, though
   const { scanned, requests } = await scanPolicyPageShape("korean-policy.test");
   assertPolicyRead(scanned, "Korean policy");
   assert.equal(requests.get("/notices/privacypolicy/18572"), undefined);
+});
+
+test("a policy read cut at the scanner's character cap is withheld, not compared as the whole policy", { timeout: 60_000 }, async () => {
+  // Before, policy-text-cross-check@11 kept the first 400,000 characters and
+  // published Google, which the policy names past them, as a company the
+  // policy does not appear to name.
+  const { scanned, requests } = await scanPolicyPageShape("char-cap.test");
+  assertPolicyWithheld(scanned, "policy past the character cap");
+  assert.equal(requests.get("/privacy-policy"), 1);
+});
+
+test("a policy under the character cap is read whole, and the company it names last counts as named", { timeout: 60_000 }, async () => {
+  const { scanned } = await scanPolicyPageShape("char-control.test");
+  assertPolicyRead(scanned, "policy under the character cap");
+  assert.ok((scanned.result.privacyPolicy?.policyTextLength ?? 0) > 360_000, "the control is as long as it was built");
+});
+
+test("a policy read cut at the collector's node bound is withheld, not compared as the whole policy", { timeout: 60_000 }, async () => {
+  // Before, @11 kept the menu text the collector read up to its 20,000-node
+  // bound, about 90,000 characters that carry no sign of the cut, and
+  // published Google, named after the menu, as a company the policy does not
+  // appear to name.
+  const { scanned, requests } = await scanPolicyPageShape("node-cap.test");
+  assertPolicyWithheld(scanned, "policy past the node bound");
+  assert.equal(requests.get("/privacy-policy"), 1);
+});
+
+test("a policy under the node bound is read whole, and the company it names after its menu counts as named", { timeout: 60_000 }, async () => {
+  const { scanned } = await scanPolicyPageShape("node-control.test");
+  assertPolicyRead(scanned, "policy under the node bound");
 });

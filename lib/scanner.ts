@@ -82,6 +82,7 @@ import {
 import { isThirdParty, partyKey } from "./domain-utils";
 import {
   resolveCnameCloaks,
+  type CnameChainResolution,
   type CnameChainResolver,
   type CnameCloakResolution
 } from "./cname-uncloaking";
@@ -375,7 +376,14 @@ const FILLABLE_FIELD_SELECTOR =
 const MAX_CNAME_LOOKUPS = 10;
 const CNAME_PROBE_MIN_BUDGET_MS = 3_000;
 const CNAME_LOOKUP_TIMEOUT_MS = 1_500;
-const CNAME_MAX_HOPS = 3;
+/**
+ * CNAME lookups one chain may take before it counts as unfinished: the bound
+ * the reviewer-side reference follows (resolveCnameChain's maxHops in
+ * scripts/calibration-cname-reference-lib.mjs, which takes nothing from the
+ * scanner), so one contract is not written twice with two bounds. A test pins
+ * the two equal. dns-cname-chain@5 and earlier stopped at three.
+ */
+export const CNAME_MAX_HOPS = 10;
 // Consent-choice click (accept-all / reject-all modes): budget needed to bother,
 // a short retry window for banners that render late, and the settle wait that
 // lets the post-choice tracker burst land in the request log before collection.
@@ -781,6 +789,19 @@ export type KeystrokeProbeLifecycle = {
   cancelled: boolean;
   typedFieldCount: number;
   stopCapture: () => void;
+};
+
+/**
+ * The page route's decisions, as the input probe reads them before matching
+ * (synthetic-sentinel@6). The request event the probe captures on fires
+ * before the route decides, so a captured request may then have been
+ * aborted; settle resolves once every routed request in flight has its
+ * decision, and abortedByShields says whether the Shields engine's abort of
+ * one was confirmed.
+ */
+export type KeystrokeProbeRouting = {
+  settle: () => Promise<void>;
+  abortedByShields: (request: Request) => boolean;
 };
 
 export function completedKeystrokeProbeOutcome(
@@ -2717,7 +2738,11 @@ async function scanSiteWithMeasurementOnLeasedBrowser(
             started,
             warnings,
             boundedPageCollectorKey,
-            keystrokeProbeLifecycle
+            keystrokeProbeLifecycle,
+            {
+              settle: () => settleRoutedRequests(inFlightRouteHandlers, started, options.signal),
+              abortedByShields: (request) => requestsBlockedByShields.has(request)
+            }
           ),
           started
         );
@@ -4363,7 +4388,8 @@ export async function probeKeystrokeExfiltration(
   started: number,
   warnings: ScanWarningCollector,
   boundedPageCollectorKey: string,
-  lifecycle: KeystrokeProbeLifecycle
+  lifecycle: KeystrokeProbeLifecycle,
+  routing?: KeystrokeProbeRouting
 ): Promise<KeystrokeProbeOutcome> {
   // Every exit that leaves r2's keystroke detector other than complete adds a
   // v1 line its readers censor the keystroke claim for, since v1 has no
@@ -4380,6 +4406,9 @@ export async function probeKeystrokeExfiltration(
   const sentinel = createSentinel(randomBytes(6).toString("hex"));
   const encodings = sentinelEncodings(sentinel);
   const captured = createProbeRequestCaptureState();
+  // Each kept entry's request, so the route's decision on it can be read
+  // before matching.
+  const capturedRequests = new Map<CapturedRequest, Request>();
   const onRequest = (request: Request) => {
     if (lifecycle.cancelled) return;
     // The page route aborts these for as long as this listener lives, and the
@@ -4393,7 +4422,8 @@ export async function probeKeystrokeExfiltration(
       }
       return;
     }
-    captureProbeRequest(captured, request, firstPartyHostname);
+    const entry = captureProbeRequest(captured, request, firstPartyHostname);
+    if (entry) capturedRequests.set(entry, request);
   };
 
   page.on("request", onRequest);
@@ -4468,6 +4498,10 @@ export async function probeKeystrokeExfiltration(
       addKeystrokeProbeDisclosure(warnings, typed.count, false);
       return { status: "partial", reason: "load-failed", detection: null, subjectLost: true };
     }
+    // The wait is over. Close the capture, then let the route's decision on
+    // every captured request land before reading any of them below.
+    lifecycle.stopCapture();
+    await routing?.settle();
   } catch {
     if (!lifecycle.cancelled) {
       if (lifecycle.typedFieldCount > 0) addKeystrokeProbeDisclosure(warnings, lifecycle.typedFieldCount);
@@ -4510,8 +4544,23 @@ export async function probeKeystrokeExfiltration(
     Number.MAX_SAFE_INTEGER,
     captured.failureLossCount + typed.preventedFieldCount
   );
+  // A request the Shields engine aborted in a blocking visit never left the
+  // browser, so it names no recipient, and the comparison shows that change.
+  // Through synthetic-sentinel@5 it was matched like any other. The route
+  // guard's aborts stay: an address that is not public or cannot be verified,
+  // a URL that is not HTTP, and a request past the routed-request budget are
+  // the scanner's own refusals, and no loss leaves the input claim incomplete
+  // for any of them, so dropping one would turn the page sending the value
+  // into a complete finding that it did not. A URL over the recorded-URL cap
+  // never reaches this list; the capture counted it as loss.
+  const matched = routing
+    ? captured.requests.filter((entry) => {
+        const request = capturedRequests.get(entry);
+        return request === undefined || !routing.abortedByShields(request);
+      })
+    : captured.requests;
   const detection = buildKeystrokeExfiltrationDetection(
-    findSentinelLeaks(encodings, captured.requests),
+    findSentinelLeaks(encodings, matched),
     {
       fieldsTyped: typed.count,
       fieldTypes: typed.types
@@ -4768,8 +4817,8 @@ async function probePrivacyPolicy(input: {
   // gets a body to inspect. Fetch direct policy PDFs through the exact same
   // connect-time SSRF proxy, retain only a bounded body, and parse them with
   // an all-or-nothing text ceiling: a PDF whose text runs past it is not used.
-  // An HTML read is cut at the same ceiling instead, and that cut is not
-  // recorded (boundedPolicyTextFromWire keeps the cut text).
+  // An HTML read the collector cuts at the same ceiling, or at its node bound,
+  // is not used either (boundedPolicyTextFromWire).
   if (/\.pdf$/i.test(parsed.pathname)) {
     const fetched = await fetchBoundedPolicyPdf({
       firstPartyHostname: input.firstPartyHostname,
@@ -5094,6 +5143,15 @@ export function policyProxyCapacityAvailable(diagnostics: PublicScanProxyDiagnos
   );
 }
 
+/**
+ * A policy page's text from the bounded collector's text wire, or "" when it
+ * was not read in full: a missing or malformed wire, a collector that could
+ * not run, or a read cut short by the character cap or the collector's node
+ * bound. Through policy-text-cross-check@11 a cut read was kept and compared
+ * as the whole policy, so a company named past the cut was published as one
+ * the policy does not name; from @12 it takes the failed-read path, as a
+ * policy PDF whose text runs past the cap does.
+ */
 export function boundedPolicyTextFromWire(wire: string | null): string {
   // JSON escaping can expand one input character to six wire characters, the
   // same accounting collectBoundedPageContentText applies to this wire shape.
@@ -5104,8 +5162,10 @@ export function boundedPolicyTextFromWire(wire: string | null): string {
   // length checked below, not this one, is what enforces the character cap.
   if (typeof wire !== "string" || wire.length > MAX_POLICY_TEXT_CHARS * 6 + 128) return "";
   try {
-    const value = JSON.parse(wire) as { value?: unknown };
-    return typeof value?.value === "string" && value.value.length <= MAX_POLICY_TEXT_CHARS
+    const value = JSON.parse(wire) as { value?: unknown; truncated?: unknown };
+    return typeof value?.value === "string" &&
+      value.value.length <= MAX_POLICY_TEXT_CHARS &&
+      value.truncated === false
       ? value.value
       : "";
   } catch {
@@ -5177,39 +5237,46 @@ function addProbeCaptureLoss(
   state[key] = Math.min(Number.MAX_SAFE_INTEGER, state[key] + 1);
 }
 
-/** Retain only bounded request evidence while the active probe listener is live. */
+/**
+ * Retain only bounded request evidence while the active probe listener is
+ * live. Returns the entry kept, or null for a request the capture counted as
+ * loss instead.
+ */
 export function captureProbeRequest(
   state: ProbeRequestCaptureState,
   request: Pick<Request, "postData" | "url">,
   firstPartyHostname: string
-): void {
+): CapturedRequest | null {
   if (state.requests.length >= MAX_PROBE_CAPTURED_REQUESTS) {
     addProbeCaptureLoss(state, "cap");
-    return;
+    return null;
   }
 
   try {
     const url = request.url();
     if (url.length > MAX_RECORDED_REQUEST_URL_CHARS) {
       addProbeCaptureLoss(state, "cap");
-      return;
+      return null;
     }
     const hostname = safeParseUrl(url)?.hostname;
     if (!hostname) {
       addProbeCaptureLoss(state, "failure");
-      return;
+      return null;
     }
     const body = safeRequestPostDataWithCoverage(request);
     if (body.truncated) addProbeCaptureLoss(state, "cap");
     if (body.unreadable) addProbeCaptureLoss(state, "failure");
-    state.requests.push({
+    const entry: CapturedRequest = {
       domain: hostname,
       thirdParty: isThirdParty(firstPartyHostname, hostname),
       url,
       body: body.value
-    });
+    };
+    state.requests.push(entry);
+    return entry;
   } catch {
     addProbeCaptureLoss(state, "failure");
+    return null;
   }
 }
 
@@ -5602,17 +5669,26 @@ async function resolveCnameCloaksForScan(
 
 /**
  * Follow a hostname's CNAME chain via DNS, bounded by hops, a per-lookup
- * timeout, AND the scan's own deadline.
+ * timeout, AND the scan's own deadline, and say whether the chain ended.
  *
- * The hop and lookup bounds alone are per-host: ten hosts of three hops at
- * 1.5 s each is 45 s of DNS that could begin with three seconds of scan budget
+ * The hop and lookup bounds alone are per-host: ten hosts of ten hops at 1.5 s
+ * each is 150 s of DNS that could begin with three seconds of scan budget
  * left, so the advertised scan duration bounded nothing here. The deadline is
  * therefore checked before every lookup and also caps each one, and exhausting
  * it throws so the caller discloses the loss instead of reporting a short chain
- * as if the probe had finished.
+ * as if the probe had finished, or as one the hop bound left unfinished, whose
+ * tracker found before the cut would stand.
+ *
+ * Only ENODATA ends a chain. One that reaches the hop bound with a name still
+ * to look up, or comes back to a name it has passed, has not ended
+ * (`terminated: false`), and resolveCnameCloaks records it as a failed lookup
+ * unless it has already reached a tracker. Through dns-cname-chain@5 the
+ * bound was three and every chain it cut was returned as a whole one.
  */
-async function resolveCnameChainViaDns(host: string, deadline: number): Promise<string[]> {
+export async function resolveCnameChainViaDns(host: string, deadline: number): Promise<CnameChainResolution> {
   const chain: string[] = [];
+  const nameKey = (name: string): string => name.trim().toLowerCase().replace(/\.$/, "");
+  const passed = new Set<string>([nameKey(host)]);
   let current = host;
   for (let hop = 0; hop < CNAME_MAX_HOPS; hop += 1) {
     const remaining = deadline - Date.now();
@@ -5627,15 +5703,17 @@ async function resolveCnameChainViaDns(host: string, deadline: number): Promise<
       // detector could not observe. Collapsing those into an empty chain let a
       // detector that never resolved anything publish as complete evidence,
       // so they propagate and the caller records the loss.
-      if ((error as NodeJS.ErrnoException | undefined)?.code === "ENODATA") break;
+      if ((error as NodeJS.ErrnoException | undefined)?.code === "ENODATA") return { chain, terminated: true };
       throw error;
     }
     const next = records[0];
-    if (!next) break;
+    if (!next) return { chain, terminated: true };
+    if (passed.has(nameKey(next))) return { chain, terminated: false };
+    passed.add(nameKey(next));
     chain.push(next);
     current = next;
   }
-  return chain;
+  return { chain, terminated: false };
 }
 
 function withDnsTimeout(operation: Promise<string[]>, timeoutMs = CNAME_LOOKUP_TIMEOUT_MS): Promise<string[]> {

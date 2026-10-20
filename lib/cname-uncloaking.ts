@@ -90,7 +90,20 @@ export function classifyCnameCloak(
   return null;
 }
 
-export type CnameChainResolver = (host: string) => Promise<string[]>;
+/**
+ * A followed CNAME chain: the names after the host, in order, and whether the
+ * chain ended. `terminated` is false when the resolver stopped at its hop bound
+ * or on a loop before any name answered that it has no CNAME, so a name past
+ * the last one followed may still be a tracker.
+ */
+export type CnameChainResolution = { chain: string[]; terminated: boolean };
+
+/**
+ * A plain array is a chain the resolver followed to its end, the form an
+ * injected test resolver returns; the scanner's DNS resolver also says whether
+ * the chain ended (dns-cname-chain@6).
+ */
+export type CnameChainResolver = (host: string) => Promise<string[] | CnameChainResolution>;
 
 export type CnameCloakResolution = {
   cloaks: CnameCloak[];
@@ -104,7 +117,9 @@ export type CnameCloakResolution = {
  * supplies `node:dns`; tests a fixture map) so this stays unit-testable. Bounded
  * by `maxHosts`; omitted candidates are returned as measurement loss instead of
  * silently looking like a complete negative. A resolution failure for one host
- * is skipped, never thrown.
+ * is skipped, never thrown, and so is a chain the resolver could not follow to
+ * its end with no tracker among the names it did follow: both are reported
+ * through `onResolutionFailure`.
  */
 export async function resolveCnameCloaks(
   requests: NetworkRequestRecord[],
@@ -118,14 +133,23 @@ export async function resolveCnameCloaks(
   const seen = new Set<string>();
 
   for (const host of candidates) {
-    let chain: string[];
+    let resolution: CnameChainResolution;
     try {
-      chain = await deps.resolveCnameChain(host);
+      const resolved = await deps.resolveCnameChain(host);
+      resolution = Array.isArray(resolved) ? { chain: resolved, terminated: true } : resolved;
     } catch {
       deps.onResolutionFailure?.(host);
       continue;
     }
-    const cloak = classifyCnameCloak(host, chain, firstPartyDomain, deps);
+    const cloak = classifyCnameCloak(host, resolution.chain, firstPartyDomain, deps);
+    // Through dns-cname-chain@5 the resolver stopped after three names and
+    // reported them as the whole chain. A chain it could not finish, with no
+    // tracker in the part it followed, is a lookup that did not complete: the
+    // name past it may be the tracker. A tracker it did reach stands.
+    if (!cloak && !resolution.terminated) {
+      deps.onResolutionFailure?.(host);
+      continue;
+    }
     if (cloak && !seen.has(cloak.host)) {
       seen.add(cloak.host);
       cloaks.push(cloak);

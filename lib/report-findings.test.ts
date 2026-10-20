@@ -2486,6 +2486,45 @@ test("a policy read that may have stopped at the text cap lists no company as un
   assert.doesNotMatch(complete.evidence, /may have stopped/);
 });
 
+test("a long policy read from a cross-check that withholds cut reads keeps its omissions", () => {
+  // From policy-text-cross-check@12 the scanner withholds a read cut short at
+  // the text cap or the node bound, so a stored @12 read is a whole policy
+  // page however long it is. The cut rule above stays for earlier
+  // cross-checks and for v1 reports, which record no cross-check version.
+  const policyCard = (version: string) => {
+    const report = makePublicSingleReportV2R2();
+    const id = report.run.evidence.requests.length + 1;
+    const tracker = findTrackerMatch("track.criteo.com");
+    assert.equal(tracker?.entity, "Criteo");
+    report.run.evidence.requests.push({
+      id, url: "https://track.criteo.com/{seg}", domain: "track.criteo.com", method: "GET", resourceType: "script",
+      status: 200, thirdParty: true, tracker, startedAtMs: 20 + id, phaseId: 0
+    });
+    report.run.evidence.privacyPolicy = {
+      url: "https://shop.example.com/privacy",
+      claims: [],
+      mentionedEntities: [],
+      unmentionedEntities: ["Criteo"],
+      policyTextLength: 390_000
+    };
+    report.run.detectors["privacy-policy"] = { version, status: "complete", phaseId: 0 };
+    return byId(buildFindings(viewFromV2(report, 2), null), "privacy-policy");
+  };
+
+  const whole = policyCard("policy-text-cross-check@12");
+  assertSentencesAtMost(whole, MAX_CARD_SENTENCE_WORDS);
+  assert.match(whole.title, /does not appear to name/);
+  assert.equal(whole.claim?.mode, "presence");
+  assert.match(whole.lead, /Criteo was sent requests/);
+  assert.doesNotMatch(`${whole.lead} ${whole.evidence}`, /may have stopped/);
+
+  // The same read from @11, which kept a cut read as if it were whole.
+  const suspect = policyCard("policy-text-cross-check@11");
+  assert.doesNotMatch(suspect.title, /does not appear to name/);
+  assert.notEqual(suspect.claim?.mode, "presence");
+  assert.match(suspect.evidence, /Policy mentions of Criteo are unknown because this read may have stopped/);
+});
+
 test("policy alias misses are unknown per entity until the cross-check version that could name it", () => {
   // @6 re-keyed Amazon and Oracle; @7 added the trade names the other five are
   // usually written under. The Trade Desk is written as its catalog name, so
