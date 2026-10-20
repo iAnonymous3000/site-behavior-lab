@@ -8,6 +8,7 @@ import { comparisonVisitOrderLine } from "@/lib/comparison-visit-order";
 import { comparisonArmViews, comparisonDiffView, type ReportView } from "@/lib/scan-report-views";
 import {
   comparisonSupportsExactClaimDelta,
+  comparisonSupportsStorageDelta,
   type ReportFacts
 } from "@/lib/report-facts";
 import { provenanceChangeText } from "@/lib/report-findings";
@@ -58,6 +59,9 @@ function ComparisonPanel({ view, facts }: { view: ReportView; facts: ReportFacts
   const pairAllowed = pairGate?.allowed === true;
   const families = view.claims.familyDeltas;
   const rawCountsAllowed = pairAllowed && families?.["raw-counts"]?.allowed === true;
+  // Storage rides on raw-counts but also needs both storage reads complete: a
+  // v1 storage-snapshot loss leaves raw-counts open for the request deltas.
+  const storageDeltaAllowed = comparisonSupportsStorageDelta(view, facts);
   const classificationAllowed = pairAllowed && families?.["tracker-classification"]?.allowed === true;
   const detectorAllowed = pairAllowed && families?.["detector-findings"]?.allowed === true;
   const fingerprintDeltaAllowed = comparisonSupportsExactClaimDelta(
@@ -100,10 +104,10 @@ function ComparisonPanel({ view, facts }: { view: ReportView; facts: ReportFacts
           { label: "Third-party requests", metric: diff.thirdPartyRequests },
           { label: "Third-party domains", metric: diff.thirdPartyDomains },
           { label: "Cookies", metric: diff.cookies },
-          { label: "Third-party cookies", metric: diff.thirdPartyCookies },
-          { label: "Storage keys", metric: diff.storageEntries }
+          { label: "Third-party cookies", metric: diff.thirdPartyCookies }
         ]
       : []),
+    ...(storageDeltaAllowed ? [{ label: "Storage keys", metric: diff.storageEntries }] : []),
     ...(classificationAllowed ? [{ label: "Catalog-matched requests", metric: diff.knownTrackerRequests }] : []),
     ...(fingerprintDeltaAllowed
       ? [{ label: "Fingerprint events", metric: diff.fingerprintEvents }]
@@ -122,7 +126,9 @@ function ComparisonPanel({ view, facts }: { view: ReportView; facts: ReportFacts
   const storageNamesPrivacyFiltered = [arms.baseline, arms.variant].some((arm) =>
     arm.evidence.storage.some((entry) => !isReviewedStorageKey(entry.key))
   );
-  const hasPrivacyFilteredNames = cookieNamesPrivacyFiltered || storageNamesPrivacyFiltered;
+  // The note explains the name lists that render, so withheld storage lists
+  // neither trigger it nor appear in it.
+  const hasPrivacyFilteredNames = cookieNamesPrivacyFiltered || (storageDeltaAllowed && storageNamesPrivacyFiltered);
 
   // Families whose deltas are not comparable across these two visits, from
   // the single reason-bearing decision: the FULL reason list (never just the
@@ -158,6 +164,14 @@ function ComparisonPanel({ view, facts }: { view: ReportView; facts: ReportFacts
         label: "Ad-pixel deltas",
         mode: "raw-only",
         reasons: ["At least one visit did not complete the pixel measurement, so no exact cross-visit delta is shown."]
+      });
+    }
+    // Only when raw-counts is open: otherwise its own note already names storage.
+    if (rawCountsAllowed && !storageDeltaAllowed) {
+      familyNotes.push({
+        label: "Storage-key deltas",
+        mode: "raw-only",
+        reasons: ["At least one visit did not read the page's storage in full, so no exact cross-visit delta is shown."]
       });
     }
   }
@@ -239,7 +253,7 @@ function ComparisonPanel({ view, facts }: { view: ReportView; facts: ReportFacts
           )}
           {rawCountsAllowed && hasPrivacyFilteredNames && (
             <p className="muted comparison-privacy-note">
-              Cookie and storage count deltas include every observation. Name-level lists show only reviewed names; unreviewed names are not itemized because they can contain identifiers.
+              {storageDeltaAllowed ? "Cookie and storage count deltas" : "Cookie count deltas"} include every observation. Name-level lists show only reviewed names; unreviewed names are not itemized because they can contain identifiers.
             </p>
           )}
           <div className="comparison-lists">
@@ -270,6 +284,10 @@ function ComparisonPanel({ view, facts }: { view: ReportView; facts: ReportFacts
                   privacyFiltered={cookieNamesPrivacyFiltered}
                   producerCapped={(diff.removedCookies ?? []).length >= MAX_DIFF_LIST}
                 />
+              </>
+            )}
+            {storageDeltaAllowed && (
+              <>
                 <StorageChangeList
                   title={`${storageNamesPrivacyFiltered ? "Visible storage keys" : "Storage keys"} only with ${labels.variant}`}
                   changes={addedStorageKeys}

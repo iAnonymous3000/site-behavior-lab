@@ -6,9 +6,12 @@ import {
   buildRunFacts,
   claimCountValue,
   comparisonArmsHaveExactClaimMeasurements,
+  comparisonSupportsStorageDelta,
   retainedCountLabel,
   type RunFacts
 } from "./report-facts";
+import { createShieldsComparisonReport } from "./compare-reports";
+import { STORAGE_SNAPSHOT_CAPTURE_LOSS_WARNING } from "./scan-runtime";
 import {
   reportConsistencyViolations,
   validateReportPresentation
@@ -449,6 +452,37 @@ test("request loss yields retained lower bounds while cookie and storage loss st
   const cappedFacts = factsForV1(capped);
   assert.equal(cappedFacts.requestEvidenceState, "capped");
   assert.equal(cappedFacts.evidence.requests.state, "censored");
+});
+
+test("a v1 storage delta needs both storage reads complete, not only the request gate", () => {
+  // The storage-snapshot line is not request loss, so raw-counts stays open
+  // for the request deltas while neither storage count is exact.
+  const shieldsPair = (baselineLoss: boolean, variantLoss: boolean) => {
+    const baseline = makeV1Result();
+    const variant = makeV1Result();
+    const adblock = { active: true, source: "brave", lists: 3, fetchedAt: "2026-01-01T00:00:00.000Z" };
+    baseline.conditions = { ...baseline.conditions, shieldsMode: "classification", adblock: { ...adblock } };
+    variant.conditions = { ...variant.conditions, shieldsMode: "block-simulation", adblock: { ...adblock } };
+    if (baselineLoss) baseline.warnings = [...baseline.warnings, STORAGE_SNAPSHOT_CAPTURE_LOSS_WARNING];
+    if (variantLoss) variant.warnings = [...variant.warnings, STORAGE_SNAPSHOT_CAPTURE_LOSS_WARNING];
+    const view = viewFromV1Report(createShieldsComparisonReport(baseline, variant));
+    return { view, facts: buildReportFacts(view) };
+  };
+
+  const clean = shieldsPair(false, false);
+  assert.equal(clean.view.claims.familyDeltas?.["raw-counts"]?.allowed, true, "the control pair must open raw-counts");
+  assert.equal(comparisonSupportsStorageDelta(clean.view, clean.facts), true, "a complete pair keeps its storage delta");
+
+  for (const [baselineLoss, variantLoss] of [
+    [true, true],
+    [true, false],
+    [false, true]
+  ] as const) {
+    const label = `storage loss on baseline ${baselineLoss}, variant ${variantLoss}`;
+    const { view, facts } = shieldsPair(baselineLoss, variantLoss);
+    assert.equal(view.claims.familyDeltas?.["raw-counts"]?.allowed, true, `${label}: request deltas stay comparable`);
+    assert.equal(comparisonSupportsStorageDelta(view, facts), false, label);
+  }
 });
 
 test("calm eligibility is conservative, signal-aware, and scoped to calm claims", () => {

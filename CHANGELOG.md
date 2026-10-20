@@ -9,6 +9,20 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- A v1 comparison no longer shows a storage-key delta when either visit's
+  storage read was incomplete. The comparison panel took storage from the
+  request-count gate, which a v1 storage-snapshot loss leaves open on
+  purpose, since it is not request loss. So two abcya.com Shields pairs whose
+  storage reads were both cut showed "Storage keys" with no change, empty
+  storage change lists and a note that the deltas include every
+  observation, beside per-visit tiles that call each snapshot incomplete.
+  Storage tiles and lists now also need both visits' storage measurements
+  exact, and the panel says why storage is withheld; r2 pairs already gated
+  storage this way. This changes the evidence explorer, printable view and
+  PDF of 2 of the 1,029 committed reports (20261012-1f2f9090 and
+  20261019-aed823a4), none of it in the static export. No stored report
+  changes and the withdrawn claim no longer renders, so it takes no
+  corrections event; a PDF saved before this change still shows the tile.
 - The privacy-policy cross-check no longer reads Walgreens' privacy center
   as the policy (policy-text-cross-check@11, node-detectors-v18). @10
   withholds an unlabeled page with under 3,000 characters of prose that

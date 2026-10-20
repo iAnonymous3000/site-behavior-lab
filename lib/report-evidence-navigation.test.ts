@@ -142,6 +142,12 @@ test("report components wire neutral comparisons, deep-link filters, and a non-d
   assert.match(comparison, /<DomainRequestDeltaList changes=\{perDomainDeltas\} labels=\{labels\} \/>/);
   assert.match(comparison, /comparisonSupportsExactClaimDelta\(\s*view,\s*facts,\s*"fingerprint-apis"\s*\)/);
   assert.match(comparison, /comparisonSupportsExactClaimDelta\(\s*view,\s*facts,\s*"pixel-events"\s*\)/);
+  // Storage tiles and lists read their own gate, never raw-counts alone.
+  assert.match(comparison, /const storageDeltaAllowed = comparisonSupportsStorageDelta\(view, facts\)/);
+  assert.match(comparison, /storageDeltaAllowed \? \[\{ label: "Storage keys", metric: diff\.storageEntries \}\]/);
+  assert.equal(comparison.match(/label: "Storage keys"/g)?.length, 1, "no second, ungated storage tile");
+  assert.match(comparison, /\{storageDeltaAllowed && \(\s*<>\s*<StorageChangeList/);
+  assert.equal(comparison.match(/<StorageChangeList\b/g)?.length, 2);
   assert.match(comparison, /Catalog-matched request and entity deltas/);
   assert.doesNotMatch(comparison, /Known-service and entity deltas/);
   assert.match(renderer, /<ComparisonPanel view=\{reportView\} facts=\{reportFacts\} \/>/);

@@ -17,6 +17,7 @@ import { isCorpusStats, type CorpusStats } from "../corpus-stats";
 import { serializeJsonLd } from "../jsonld-script";
 import { isReservedReportDomain } from "../reserved-report-domains";
 import { validateReportPresentation } from "../report-consistency";
+import { comparisonSupportsStorageDelta } from "../report-facts";
 import { trackingServiceRequests } from "../report-insights";
 import {
   METRIC_CONTRACT_DIGEST,
@@ -131,6 +132,15 @@ test("every committed bundle stays faithful across every public report surface",
       (finding) => finding.claim?.leadScope === "retained-evidence"
     ).length;
     assert.equal(presentation.facts.view, loaded.view, `${id}: presentation facts use another view`);
+    if (comparisonSupportsStorageDelta(loaded.view, presentation.facts)) {
+      for (const arm of ["baseline", "variant"] as const) {
+        assert.equal(
+          presentation.facts.arms?.[arm].evidence.storage.state,
+          "complete",
+          `${id}: a storage delta would render over the ${arm} visit's incomplete storage read`
+        );
+      }
+    }
     assert.notEqual(presentation.headline.headline.trim(), "", `${id}: empty headline`);
     assert.notEqual(presentation.headline.subhead.trim(), "", `${id}: empty headline explanation`);
     assert.equal(presentation.findings.length > 0, true, `${id}: empty findings board`);

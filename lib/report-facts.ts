@@ -573,6 +573,24 @@ export function comparisonSupportsExactClaimDelta(
   return !globallySharedBlocker;
 }
 
+/**
+ * Storage-key deltas render with the raw-counts family, but that gate is not
+ * enough on its own. A v1 pair's raw-counts gate reads request eligibility
+ * only, and the storage-snapshot loss stays out of it on purpose (it is not
+ * request loss), so a pair whose storage read failed or was cut passes it
+ * while neither storage count is exact. r2 gates storage inside raw-counts,
+ * where this adds nothing.
+ */
+export function comparisonSupportsStorageDelta(
+  view: Pick<ReportView, "claims">,
+  facts: ReportFacts
+): boolean {
+  return (
+    view.claims.familyDeltas?.["raw-counts"]?.allowed === true &&
+    comparisonSupportsExactClaimDelta(view, facts, "storage-keys")
+  );
+}
+
 export function retainedCountLabel(value: number, state: EvidenceState): string {
   return state === "censored" ? `≥${value.toLocaleString("en-US")}` : value.toLocaleString("en-US");
 }
