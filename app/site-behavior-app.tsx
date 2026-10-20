@@ -149,6 +149,7 @@ export function SiteBehaviorApp({
     turnstileRequired,
     turnstileUnsupported,
     awaitingTurnstile,
+    awaitingScannerHealth,
     scannerUnavailable,
     scanBlocked
   } = policy;
@@ -314,6 +315,7 @@ export function SiteBehaviorApp({
       gpcComparisonEnabled={gpcComparisonEnabled}
       shieldsComparisonEnabled={shieldsComparisonEnabled}
       consentComparisonEnabled={consentComparisonEnabled}
+      awaitingScannerHealth={awaitingScannerHealth}
       scannerRequiresAccessKey={scannerRequiresAccessKey}
       onAccessKeyChange={updateAccessKey}
       examples={EXAMPLES}

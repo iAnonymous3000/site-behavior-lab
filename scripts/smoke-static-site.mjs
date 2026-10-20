@@ -305,8 +305,24 @@ async function main() {
       if (!(disclosureTop >= fieldBottom && disclosureTop < examplesTop && disclosureTop < 812)) {
         fail(`the scan disclosure is not directly under the URL field in a phone's first screen (${disclosureTop}px)`);
       }
-      await homeContext.close();
       pass("the scan form discloses the typing test and the visit's interactions under the URL field without JavaScript");
+      // Until health answers, no comparison is offered or refused
+      // (lib/run-mode-copy.ts): the server render is that state.
+      await expectText(homePage.locator(".run-mode-descriptions .run-mode-checking"), "Checking which comparisons this scanner offers.");
+      if ((await homePage.locator(".run-mode-unavailable").count()) !== 0) {
+        fail("the first paint says a comparison is unavailable before the scanner's health answered");
+      }
+      for (const name of ["GPC diff", "Blocker comparison (Brave Shields)", "Consent, experimental (accept all versus reject all)"]) {
+        if (await homePage.getByRole("button", { name, exact: true }).isEnabled()) {
+          fail(`${name} is offered before the scanner's health answered`);
+        }
+      }
+      await homeContext.close();
+      // Once the test-only health answers with every comparison, the checking
+      // line is gone and nothing reads as refused.
+      if ((await page.locator(".run-mode-checking").count()) !== 0) fail("the run modes still say checking after health answered");
+      if ((await page.locator(".run-mode-unavailable").count()) !== 0) fail("a comparison reads unavailable although health offered it");
+      pass("run modes show checking until health answers, never a premature unavailable");
     }
 
     // Before the hook resolves the OS preference the button is named neutrally, so the

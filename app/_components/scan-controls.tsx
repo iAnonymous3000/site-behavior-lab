@@ -27,7 +27,15 @@ import {
 import { selectTurnstileWidgetSize, type TurnstileWidgetSize } from "@/lib/turnstile-widget-size";
 import type { HomepageKnownSite } from "@/lib/homepage-discovery";
 import { committedReportLocation } from "@/lib/report-locator";
-import { RUN_MODE_LABELS, RUN_MODE_TITLES, runModeHint, type RunMode } from "@/lib/run-mode-copy";
+import {
+  RUN_MODE_CHECKING_NOTE,
+  RUN_MODE_LABELS,
+  RUN_MODE_TITLES,
+  runModeAvailability,
+  runModeDescription,
+  runModeHint,
+  type RunMode
+} from "@/lib/run-mode-copy";
 import { displayHost } from "@/lib/text-format";
 import type { ScanDevice } from "@/lib/types";
 
@@ -62,6 +70,8 @@ type ScanControlsProps = {
   gpcComparisonEnabled: boolean;
   shieldsComparisonEnabled: boolean;
   consentComparisonEnabled: boolean;
+  /** Health has not answered: no comparison is offered or refused yet. */
+  awaitingScannerHealth: boolean;
   scannerRequiresAccessKey: boolean;
   onAccessKeyChange: (accessKey: string) => void;
   examples: { url: string; hint: string }[];
@@ -145,6 +155,7 @@ export function ScanControls({
   gpcComparisonEnabled,
   shieldsComparisonEnabled,
   consentComparisonEnabled,
+  awaitingScannerHealth,
   scannerRequiresAccessKey,
   onAccessKeyChange,
   examples,
@@ -154,6 +165,14 @@ export function ScanControls({
 }: ScanControlsProps) {
   const turnstileSiteKeyConfigured = Boolean(LIVE_SCAN_TURNSTILE_SITE_KEY);
   const knownSite = matchingKnownSite(form.url, knownSites);
+  // Until health answers, a comparison is neither offered nor refused: the
+  // buttons stay off and one line says the scanner is being checked.
+  const gpcAvailability = runModeAvailability(gpcComparisonEnabled, awaitingScannerHealth);
+  const shieldsAvailability = runModeAvailability(shieldsComparisonEnabled, awaitingScannerHealth);
+  const consentAvailability = runModeAvailability(consentComparisonEnabled, awaitingScannerHealth);
+  const gpcDescription = runModeDescription("gpc", gpcAvailability);
+  const shieldsDescription = runModeDescription("shields", shieldsAvailability);
+  const consentDescription = runModeDescription("consent", consentAvailability);
   // The verification widget failing is a problem with this control, not with a
   // scan. Routing it up to the shell let a challenge error tear down the
   // progress UI of a scan that was still running.
@@ -250,7 +269,7 @@ export function ScanControls({
               aria-pressed={form.compareGpc}
               aria-describedby="run-mode-gpc-description"
               className={form.compareGpc ? "active" : ""}
-              disabled={!gpcComparisonEnabled}
+              disabled={gpcAvailability !== "available"}
               onClick={() =>
                 setForm((current) => ({
                   ...current,
@@ -268,7 +287,7 @@ export function ScanControls({
               aria-pressed={form.compareShields}
               aria-describedby="run-mode-shields-description"
               className={form.compareShields ? "active" : ""}
-              disabled={!shieldsComparisonEnabled}
+              disabled={shieldsAvailability !== "available"}
               aria-label="Blocker comparison (Brave Shields)"
               onClick={() =>
                 setForm((current) => ({
@@ -287,7 +306,7 @@ export function ScanControls({
               aria-pressed={form.compareConsent}
               aria-describedby="run-mode-consent-description"
               className={form.compareConsent ? "active" : ""}
-              disabled={!consentComparisonEnabled}
+              disabled={consentAvailability !== "available"}
               aria-label="Consent, experimental (accept all versus reject all)"
               onClick={() =>
                 setForm((current) => ({
@@ -304,15 +323,16 @@ export function ScanControls({
           </div>
           <div className="run-mode-descriptions">
             <p className="visually-hidden" id="run-mode-single-description">{RUN_MODE_TITLES.single}</p>
-            <p className={gpcComparisonEnabled ? "visually-hidden" : "run-mode-unavailable"} id="run-mode-gpc-description">
-              {gpcComparisonEnabled ? RUN_MODE_TITLES.gpc : "GPC comparison is not available from this scanner."}
+            <p className={gpcDescription.shown ? "run-mode-unavailable" : "visually-hidden"} id="run-mode-gpc-description">
+              {gpcDescription.text}
             </p>
-            <p className={shieldsComparisonEnabled ? "visually-hidden" : "run-mode-unavailable"} id="run-mode-shields-description">
-              {shieldsComparisonEnabled ? RUN_MODE_TITLES.shields : "Blocker comparison requires the Node scanner."}
+            <p className={shieldsDescription.shown ? "run-mode-unavailable" : "visually-hidden"} id="run-mode-shields-description">
+              {shieldsDescription.text}
             </p>
-            <p className={consentComparisonEnabled ? "visually-hidden" : "run-mode-unavailable"} id="run-mode-consent-description">
-              {consentComparisonEnabled ? RUN_MODE_TITLES.consent : "Consent comparison requires the Node scanner."}
+            <p className={consentDescription.shown ? "run-mode-unavailable" : "visually-hidden"} id="run-mode-consent-description">
+              {consentDescription.text}
             </p>
+            {awaitingScannerHealth && <p className="run-mode-checking">{RUN_MODE_CHECKING_NOTE}</p>}
           </div>
         </fieldset>
         <p className="run-mode-hint" aria-live="polite">{runModeHint(selectedRunMode(form))}</p>

@@ -12,6 +12,42 @@ export const RUN_MODE_LABELS: Record<RunMode, string> = {
   consent: "Consent · experimental"
 };
 
+export type ComparisonRunMode = Exclude<RunMode, "single">;
+
+/**
+ * Whether a comparison mode may be offered. Until the scanner's health check
+ * answers, nothing is claimed either way: the static build rendered all three
+ * comparisons as unavailable on first paint ("GPC comparison is not available
+ * from this scanner") and the dynamic build as available, and both flipped
+ * once health arrived (journey audit gap 18).
+ */
+export type RunModeAvailability = "checking" | "available" | "unavailable";
+
+export function runModeAvailability(enabled: boolean, awaitingScannerHealth: boolean): RunModeAvailability {
+  if (awaitingScannerHealth) return "checking";
+  return enabled ? "available" : "unavailable";
+}
+
+/** Shown once, in place of any availability claim, while health is pending. */
+export const RUN_MODE_CHECKING_NOTE = "Checking which comparisons this scanner offers.";
+
+/** Why a comparison is off, once health has answered without it. */
+export const RUN_MODE_UNAVAILABLE_NOTES: Readonly<Record<ComparisonRunMode, string>> = {
+  gpc: "GPC comparison is not available from this scanner.",
+  shields: "Blocker comparison requires the Node scanner.",
+  consent: "Consent comparison requires the Node scanner."
+};
+
+/** A comparison button's description: what the mode does, or, once known, why it is off. */
+export function runModeDescription(
+  mode: ComparisonRunMode,
+  availability: RunModeAvailability
+): { text: string; shown: boolean } {
+  return availability === "unavailable"
+    ? { text: RUN_MODE_UNAVAILABLE_NOTES[mode], shown: true }
+    : { text: RUN_MODE_TITLES[mode], shown: false };
+}
+
 export const RUN_MODE_TITLES: Record<RunMode, string> = {
   single: "One controlled visit.",
   gpc: "Two visits: with and without the Global Privacy Control opt-out signal.",

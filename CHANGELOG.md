@@ -9,6 +9,14 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- The scan form no longer says a comparison is unavailable before the
+  scanner has answered. Until its health check returned, the published site
+  showed "GPC comparison is not available from this scanner" and two "requires
+  the Node scanner" lines on first paint, then offered all three a moment
+  later; a dynamic build offered them before the scanner could refuse. While
+  health is pending the comparison buttons now stay off under one line,
+  "Checking which comparisons this scanner offers.", and each mode is offered
+  or refused only once health has answered. No report page changes.
 - A report's bottom line now says what its own level means. The title had
   two forms over five levels, so 694 committed reports printed "this visit
   has review-worthy signals" under a "Worth checking" (497) or "Context"
