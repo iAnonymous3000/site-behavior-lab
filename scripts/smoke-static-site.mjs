@@ -867,6 +867,27 @@ async function main() {
       }
     }
     pass(`report permalinks state what was checked directly after the bottom line without JavaScript, and the banner keeps its place; ${summaryLinks} incomplete-check links land on their cards`);
+    // Every bottom-line title names its own level, and every banner keeps
+    // the headline's own tone, the one the report index carries.
+    const titleNamesLevel = {
+      loud: (title) => title === "Bottom line: this visit has review-worthy signals",
+      warn: (title) => title === "Bottom line: this visit has signals worth checking",
+      info: (title) => !/review-worthy|few review signals/.test(title),
+      quiet: (title) => !/review-worthy|worth checking/.test(title),
+      ok: (title) => !/review-worthy|worth checking/.test(title)
+    };
+    let titledPages = 0;
+    for (const report of manifest.reports) {
+      const reportPage = await readFile(path.join(outDir, "reports", report.id, "index.html"), "utf8");
+      const banner = reportPage.match(/headline-banner tone-([a-z]+)/)?.[1];
+      if (!banner || banner !== report.tone) fail(`report ${report.id} renders a ${banner} banner where its index entry carries ${report.tone}`);
+      const bottomLine = reportPage.match(/<article class="finding-card tile-([a-z]+)" id="finding-bottom-line">[\s\S]*?<h3>([^<]*)<\/h3>/);
+      // A withheld report's board is one correction card with no bottom line.
+      if (!bottomLine) continue;
+      titledPages += 1;
+      if (!titleNamesLevel[bottomLine[1]]?.(bottomLine[2])) fail(`report ${report.id} titles a ${bottomLine[1]} bottom line "${bottomLine[2]}"`);
+    }
+    pass(`${manifest.reports.length} report banners keep their index tone, and ${titledPages} bottom-line titles name their own level`);
 
     const phaseReportHtmlPath = path.join(outDir, "reports", phaseReport.id, "index.html");
     const phaseReportHtml = await readFile(phaseReportHtmlPath, "utf8");
@@ -905,6 +926,7 @@ async function main() {
     await page.goto(`${baseUrl}/reports/${phaseReport.id}/`, { waitUntil: "networkidle" });
     const summaryFindings = await page.locator(".findings-board .finding-card").allTextContents();
     const summaryVisitSummary = await page.locator(".findings-board .report-visit-summary").textContent();
+    const summaryBanner = await page.locator(".headline-banner").getAttribute("class");
     const summaryVisitOrder = await compactVisitOrderLine(page, "hydrated r2 comparison permalink");
     const findingLink = page.locator('.findings-board a[href^="#evidence="]').first();
     const findingHash = await findingLink.getAttribute("href");
@@ -927,6 +949,11 @@ async function main() {
     });
     if (!summaryVisitSummary || explorerVisitSummary !== summaryVisitSummary) {
       fail("the loaded explorer does not state the visit summary directly after its bottom line, as the summary did");
+    }
+    // The explorer's banner keeps the headline's own tone, as the summary's does.
+    const explorerBanner = await page.locator(".headline-banner").getAttribute("class");
+    if (explorerBanner !== summaryBanner) {
+      fail(`the explorer's banner (${explorerBanner}) carries a different tone from the summary's (${summaryBanner})`);
     }
     await assertVisitOrderMovedToPanel(page, summaryVisitOrder, "r2 comparison permalink");
     pass("server-rendered findings agree with the explorer, keep the visit summary after the bottom line, and open their evidence");

@@ -12,7 +12,14 @@ import { loadCommittedCorpusStats } from "./current-scan-cohort";
 import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "./gpc-injection";
 import { renderedEvidenceArm } from "./report-evidence-navigation";
 import { buildReportFacts, REPORT_SEVERITY_LABELS } from "./report-facts";
-import { buildFindings, provenanceChangeText, requestProvenanceSummary, type Finding, type FindingIconKey } from "./report-findings";
+import {
+  bottomLineSignalTitle,
+  buildFindings,
+  provenanceChangeText,
+  requestProvenanceSummary,
+  type Finding,
+  type FindingIconKey
+} from "./report-findings";
 import { buildReportHeadline } from "./report-headline";
 import { frozenReportView, ledgerPinnedReportView, ledgerPinnedReportWire } from "./pinned-reports";
 import { HEADLINE_PLATFORMS, detectionLabel, isTrackingTrackerMatch } from "./report-insights";
@@ -1405,7 +1412,7 @@ test("a contradicted registered state is disclosed as a warning, never an outcom
 
   const bottomLine = byId(buildFindings(view, null), "bottom-line");
   assert.equal(bottomLine.level, "warn");
-  assert.match(bottomLine.title, /review-worthy signals/);
+  assert.equal(bottomLine.title, "Bottom line: this visit has signals worth checking");
 });
 
 test("a no-click contradiction is non-calm evidence with explicit no-dispatch copy", () => {
@@ -3597,7 +3604,7 @@ test("a warn-level Shields card raises the bottom line instead of being outranke
   assert.equal(shields.level, "warn");
   const bottomLine = byId(findings, "bottom-line");
   assert.equal(bottomLine.level, "warn");
-  assert.match(bottomLine.title, /review-worthy signals/);
+  assert.equal(bottomLine.title, "Bottom line: this visit has signals worth checking");
   // The Shields card still renders immediately under the bottom line.
   assert.equal(findings[0].id, "bottom-line");
   assert.equal(findings[1].id, "shields-blocked");
@@ -4395,4 +4402,59 @@ test("cards print recorded hosts and URLs the way the evidence tables do", () =>
   for (const finding of [...aliasFindings, keystrokeCard, comparisonCard, policyCard(policyUrl, 500)]) {
     assertNoPrivacyTokens(finding.id, Object.values(finding));
   }
+});
+
+/**
+ * Journey audit gap 7. The bottom line's title had two forms over five levels,
+ * so a "Worth checking" or "Context" label sat over "this visit has
+ * review-worthy signals". The title now names its own level. The headline
+ * banner's tone is not part of this: it stays the headline's own until the
+ * headline and severity decisions are made.
+ */
+test("each level of the bottom line says what it means", () => {
+  assert.equal(bottomLineSignalTitle("loud"), "Bottom line: this visit has review-worthy signals");
+  assert.equal(bottomLineSignalTitle("warn"), "Bottom line: this visit has signals worth checking");
+  // Context is a real observation: neither an all-clear nor review-worthy.
+  assert.equal(bottomLineSignalTitle("info"), "Bottom line: this visit has signals, none ranked worth checking");
+  for (const level of ["warn", "info"] as const) {
+    assert.doesNotMatch(bottomLineSignalTitle(level), /review-worthy|few review signals/);
+  }
+});
+
+test("every committed bottom line names its own level", async () => {
+  const reportsDir = path.join(process.cwd(), "public", "reports");
+  const files = readdirSync(reportsDir).filter((name) => /^[0-9]{8}-[0-9a-f]{32}\.json$/.test(name));
+  assert.ok(files.length > 0, "no committed reports under public/reports; this test would be vacuous");
+  const corpus = await loadCommittedCorpusStats();
+  assert.ok(corpus);
+  const levels = new Map<string, number>();
+  for (const name of files) {
+    const read = readStoredScanReport(JSON.parse(readFileSync(path.join(reportsDir, name), "utf8")));
+    assert.equal(read.ok, true, name);
+    if (!read.ok) continue;
+    const view = toReportView(read.stored);
+    const facts = buildReportFacts(view);
+    const headline = buildReportHeadline(view, facts);
+    const findings: Finding[] = buildFindings(view, corpus, facts, renderedEvidenceArm(view, headline));
+    const bottomLine = findings.find((finding) => finding.id === "bottom-line");
+    if (!bottomLine) continue;
+    levels.set(bottomLine.level, (levels.get(bottomLine.level) ?? 0) + 1);
+    if (/review-worthy/.test(bottomLine.title)) {
+      assert.equal(bottomLine.level, "loud", `${name}: "${bottomLine.title}" under a ${bottomLine.level} label`);
+    }
+    if (bottomLine.level === "warn") assert.match(bottomLine.title, /worth checking/, name);
+    if (bottomLine.level === "info" || bottomLine.level === "warn") {
+      assert.doesNotMatch(bottomLine.title, /few review signals/, `${name}: an all-clear title over ${bottomLine.level}`);
+    }
+  }
+  assert.ok(levels.size > 1, `the committed boards span only ${[...levels.keys()].join(", ")}`);
+});
+
+test("both headline banners keep the headline's own tone", () => {
+  const source = (file: string) => readFileSync(path.join(process.cwd(), file), "utf8");
+  assert.match(source("app/reports/[id]/page.tsx"), /<section className=\{`headline-banner tone-\$\{headline\.tone\}`\}/);
+  const overview = source("app/_components/report-overview.tsx");
+  const banner = overview.slice(overview.indexOf("export function HeadlineBanner"), overview.indexOf("// Module-level cache"));
+  assert.match(banner, /className=\{`headline-banner tone-\$\{headline\.tone\}`\}/);
+  assert.match(banner, /<ToneIcon tone=\{headline\.tone\} \/>/);
 });

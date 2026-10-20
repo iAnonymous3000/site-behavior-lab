@@ -85,6 +85,30 @@ import {
 
 export type FindingLevel = ReportSeverity;
 
+/**
+ * The bottom line's title over a board whose strongest observed card holds
+ * this level, worded so the title says what its own label means.
+ *
+ * The title had two forms over five levels: "few review signals" for ok and
+ * quiet, and "this visit has review-worthy signals" for everything else, so
+ * 694 committed boards printed "Worth checking" or "Context" directly above a
+ * title calling the visit review-worthy (journey audit gap 7). "Context"
+ * (info) is a real observation, never an all-clear, and it is not
+ * review-worthy either. The titles name no finding: which observations lead
+ * the bottom line is a separate, owner-level decision, and so is the headline
+ * banner's tone, which stays the headline's own.
+ */
+export function bottomLineSignalTitle(level: "info" | "warn" | "loud"): string {
+  switch (level) {
+    case "loud":
+      return "Bottom line: this visit has review-worthy signals";
+    case "warn":
+      return "Bottom line: this visit has signals worth checking";
+    case "info":
+      return "Bottom line: this visit has signals, none ranked worth checking";
+  }
+}
+
 /** Semantic icon key. The report UI maps each to a lucide component. */
 export type FindingIconKey =
   | "globe"
@@ -2217,7 +2241,7 @@ export function buildFindings(
         ? "Bottom line: no listed activity observed, but a detector did not finish"
       : quietEnough
         ? "Bottom line: few review signals in this visit"
-        : "Bottom line: this visit has review-worthy signals",
+        : bottomLineSignalTitle(overallLevel),
     lead: censoredQuiet
       ? `Evidence collection did not finish for ${humanList(
           activityCensoredFamilies.map((entry) => entry.label)

@@ -9,6 +9,17 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- A report's bottom line now says what its own level means. The title had
+  two forms over five levels, so 694 committed reports printed "this visit
+  has review-worthy signals" under a "Worth checking" (497) or "Context"
+  (197) label. Those now read "this visit has signals worth checking" and
+  "this visit has signals, none ranked worth checking": Context is an
+  observation, neither an all-clear nor review-worthy. "Review-worthy"
+  (198), "few review signals" (127) and the cut-short title (4) are
+  unchanged, and the bottom line still names no finding. The headline
+  banner keeps the headline's own tone on every surface; whether it should
+  follow the bottom line waits on the headline and severity decisions.
+  694 reports change.
 - The scan form now says what a scan does to the page before anyone presses
   Scan. Under the URL field, in the scanner's own words: a single scan is one
   automated, headless Chromium visit from a fixed en-US / UTC profile, with no
