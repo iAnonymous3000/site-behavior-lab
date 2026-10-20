@@ -9,6 +9,21 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- Production Health no longer calls a rollout stale when production
+  advances while a run is polling. Each run pins the production revision
+  when it starts and used to accept a live revision only if it was that one
+  or an earlier one, so a newer promotion whose Pages deploy (one to two
+  minutes) landed inside the run's six polls failed the run and reopened
+  the canonical issue. When both live revisions are reported and the pin is
+  inside its rollout budget, the run now re-reads production, and if
+  production has fast-forwarded from the pin and both live revisions equal
+  or precede it, it reports the rollout as pending with a "Production
+  advanced during the probe" warning and leaves the posture checks to the
+  runs the newer revision's deploys request. A forked, force-moved or
+  unpromoted revision still fails. None of the 13 failed runs among 1,000
+  from August 21 to October 20 was this case. Release readiness requires
+  this workflow's bytes to match between a durable-jobs soak and its
+  candidate, so this lands before any durable-enable candidate.
 - A report that records supporting visit pairs is no longer exported as a
   printable page or PDF that leaves them out. Both documents print a
   comparison's two primary visits and say they carry the evidence for every

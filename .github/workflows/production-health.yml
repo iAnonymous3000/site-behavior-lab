@@ -214,6 +214,33 @@ jobs:
                 } >> "$GITHUB_STEP_SUMMARY"
                 break
               fi
+              # Production can also advance AFTER this run pinned its revision.
+              # A newer promotion's Pages deploy takes one to two minutes, so it
+              # can land inside these polls, and a revision newer than the pin
+              # is not its ancestor: calling that stale failed the run and
+              # reopened the canonical issue for an ordinary deploy. Re-read the
+              # authoritative ref and accept only a fast-forward of the pin that
+              # both live revisions equal or precede, inside the pin's budget; a
+              # forked, force-moved or unpromoted revision still fails. The
+              # checks below were derived from the pinned config, so they are
+              # deferred to the runs the newer revision's deploys request
+              # rather than re-pinned mid-run.
+              if [[ -n "$scanner" && -n "$pages" ]] && (( age_minutes < ROLLOUT_BUDGET_MINUTES )) &&
+                git fetch --quiet --no-tags origin "+refs/heads/production:refs/remotes/origin/production" 2>/dev/null; then
+                latest=$(git rev-parse --verify --quiet "refs/remotes/origin/production^{commit}" || true)
+                if [[ -n "$latest" && "$latest" != "$EXPECTED_PRODUCTION_SHA" ]] &&
+                  git merge-base --is-ancestor "$EXPECTED_PRODUCTION_SHA" "$latest" 2>/dev/null &&
+                  git merge-base --is-ancestor "$scanner" "$latest" 2>/dev/null &&
+                  git merge-base --is-ancestor "$pages" "$latest" 2>/dev/null; then
+                  echo "pending=true" >> "$GITHUB_OUTPUT"
+                  echo "::warning title=Production advanced during the probe::pinned ${EXPECTED_PRODUCTION_SHA}, production is now ${latest}; scanner serves ${scanner}, Pages serves ${pages}. The newer revision's deploys request their own production health runs."
+                  {
+                    echo "- Rollout: **production advanced during the probe** (pinned \`${EXPECTED_PRODUCTION_SHA}\`, production is now \`${latest}\`; scanner \`${scanner}\`, Pages \`${pages}\`)"
+                    echo "- Posture checks: **deferred** to the runs the newer revision's deploys request"
+                  } >> "$GITHUB_STEP_SUMMARY"
+                  break
+                fi
+              fi
               echo "::error title=Production rollout stale::expected $EXPECTED_PRODUCTION_SHA, scanner=${scanner:-unavailable}, Pages=${pages:-unavailable}"
               exit 1
             fi

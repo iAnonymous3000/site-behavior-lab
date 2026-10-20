@@ -1,10 +1,11 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { chmodSync, cpSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 import { spawnSyncBounded } from "./bounded-spawn";
+import { gitFixtureEnv, initFixtureRepo, removeFixtureTree, runFixtureGit } from "./git-fixture";
 import { requireIndex, sliceBetween } from "./source-markers";
 import {
   PRODUCTION_SYNTHETIC_TARGET,
@@ -444,6 +445,196 @@ test("production health treats an in-flight rollout as pending, not as a product
   // evaluated against the one still being replaced.
   const deferred = workflow.match(/if: steps\.rollout\.outputs\.pending != 'true'/g) ?? [];
   assert.equal(deferred.length >= 3, true);
+});
+
+/**
+ * PATH stand-ins for everything the rollout step reaches outside git: the two
+ * live receipts, the promoting-run lookup and the 15-second waits. jq is one
+ * too, because the Docker build stage that also runs this suite installs none.
+ * Each refuses any call the step does not make. The comma lists are split
+ * without a here-string, which bash 5 feeds through a pipe.
+ */
+const ROLLOUT_SHIMS: Readonly<Record<string, string>> = {
+  curl: [
+    'url="${!#}"',
+    'if [[ "$url" == "$HEALTH_URL" ]]; then kind=scanner; list="$SHIM_SCANNER"',
+    'elif [[ "$url" == "$PAGES_DEPLOYMENT_URL?"* ]]; then kind=pages; list="$SHIM_PAGES"',
+    'else echo "unexpected curl $*" >&2; exit 2; fi',
+    'count=$(( $(cat "$SHIM_STATE/$kind.count" 2>/dev/null || echo 0) + 1 ))',
+    'echo "$count" > "$SHIM_STATE/$kind.count"',
+    "values=(${list//,/ })",
+    "index=$(( count < ${#values[@]} ? count - 1 : ${#values[@]} - 1 ))",
+    'if [[ "${values[$index]}" == - ]]; then echo "curl: (22) The requested URL returned error: 503" >&2; exit 22; fi',
+    `printf '{"deployment":"%s"}\\n' "\${values[$index]}"`
+  ].join("\n"),
+  jq: [
+    `[[ "$#" == 3 && "$1" == -r && "$2" == '.deployment // empty' ]] || { echo "unexpected jq $*" >&2; exit 2; }`,
+    `sed -n 's/^{"deployment":"\\([0-9a-f]*\\)"}$/\\1/p' "$3"`
+  ].join("\n"),
+  gh: [
+    '[[ "$*" == *"actions/workflows/ci.yml/runs?head_sha=${EXPECTED_PRODUCTION_SHA}&status=success"* ]] ||',
+    '  { echo "unexpected gh $*" >&2; exit 2; }',
+    'echo "$SHIM_PROMOTED_AT"'
+  ].join("\n"),
+  sleep: "exit 0"
+};
+
+type RolloutCase = {
+  name: string;
+  /** Live revision per poll, by commit label; the last repeats. "-" is an unreachable endpoint. */
+  scanner: string;
+  pages: string;
+  /** Minutes since the pinned revision was promoted. */
+  age: number;
+  /** The checkout already holds B, A's child on main (else B landed after it). */
+  bKnown?: boolean;
+  /** Where origin's production branch points while the step polls. */
+  production?: "A" | "B" | "F";
+  expected: { status: 0 | 1; pending: "true" | "false"; title: string | null };
+};
+
+/**
+ * A throwaway origin and two checkouts of its production branch, both pinned
+ * at A, a child of Z: one cloned before B landed on main and one after. F is a
+ * fork from Z that production never held. Built once; each case runs in its
+ * own copy of a checkout, which still fetches from this origin.
+ */
+function rolloutFixture(dir: string) {
+  const origin = path.join(dir, "origin");
+  const shims = path.join(dir, "bin");
+  for (const directory of [origin, shims]) mkdirSync(directory);
+  initFixtureRepo(origin);
+  let commits = 0;
+  const commit = (label: string): string => {
+    commits += 1;
+    writeFileSync(path.join(origin, "revision.txt"), `${label} ${commits}\n`);
+    runFixtureGit(origin, ["add", "revision.txt"]);
+    runFixtureGit(origin, ["commit", "-q", "-m", label]);
+    return runFixtureGit(origin, ["rev-parse", "HEAD"]).trim();
+  };
+  const shas: Record<string, string> = {};
+  shas.Z = commit("Z");
+  shas.A = commit("A");
+  runFixtureGit(origin, ["branch", "production", shas.A]);
+  runFixtureGit(origin, ["checkout", "-q", "-b", "fork", shas.Z]);
+  shas.F = commit("F");
+  runFixtureGit(origin, ["checkout", "-q", "main"]);
+  const checkouts = { withoutB: path.join(dir, "checkout-without-b"), withB: path.join(dir, "checkout-with-b") };
+  runFixtureGit(dir, ["clone", "-q", "--no-local", "--branch", "production", origin, checkouts.withoutB]);
+  shas.B = commit("B");
+  runFixtureGit(dir, ["clone", "-q", "--no-local", "--branch", "production", origin, checkouts.withB]);
+  for (const [name, body] of Object.entries(ROLLOUT_SHIMS)) {
+    writeFileSync(path.join(shims, name), `#!/usr/bin/env bash\nset -euo pipefail\n${body}\n`);
+    chmodSync(path.join(shims, name), 0o755);
+  }
+  return { dir, origin, shims, shas, checkouts };
+}
+
+/**
+ * Run the rollout step's own shell, the way release-evidence.test.ts runs
+ * release.yml's: real git and bash in a checkout of the fixture origin, every
+ * other command a shim. A text match cannot tell an ancestry gate that passes
+ * from one that never does.
+ */
+function runRolloutStep(
+  step: string,
+  fixture: ReturnType<typeof rolloutFixture>,
+  rolloutCase: RolloutCase,
+  index: number
+): { status: number | null; pending: string | undefined; titles: string[]; fetchedProduction: string } {
+  const { shas } = fixture;
+  const runner = path.join(fixture.dir, `case-${index}`);
+  const state = path.join(fixture.dir, `case-${index}-state`);
+  cpSync(rolloutCase.bKnown ? fixture.checkouts.withB : fixture.checkouts.withoutB, runner, { recursive: true });
+  mkdirSync(state);
+  runFixtureGit(fixture.origin, ["branch", "-f", "production", shas[rolloutCase.production ?? "A"]]);
+  const output = path.join(state, "github-output");
+  writeFileSync(output, "");
+  const revisions = (labels: string) => labels.split(",").map((label) => (label === "-" ? "-" : shas[label])).join(",");
+  const now = Math.floor(Date.now() / 1000);
+  const run = spawnSyncBounded("bash", ["--noprofile", "--norc", "-e", "-c", step], {
+    cwd: runner,
+    encoding: "utf8",
+    env: gitFixtureEnv({
+      PATH: `${fixture.shims}:${process.env.PATH ?? ""}`,
+      SHIM_STATE: state,
+      SHIM_SCANNER: revisions(rolloutCase.scanner),
+      SHIM_PAGES: revisions(rolloutCase.pages),
+      SHIM_PROMOTED_AT: String(now - rolloutCase.age * 60),
+      EXPECTED_PRODUCTION_SHA: shas.A,
+      HEALTH_URL: "https://scan.sitebehavior.org/api/health",
+      PAGES_DEPLOYMENT_URL: "https://sitebehavior.org/deployment.json",
+      ROLLOUT_BUDGET_MINUTES: "45",
+      GH_TOKEN: "fixture",
+      GITHUB_OUTPUT: output,
+      GITHUB_STEP_SUMMARY: path.join(state, "step-summary"),
+      RUNNER_TEMP: state,
+      GITHUB_RUN_ID: "1",
+      GITHUB_RUN_ATTEMPT: "1",
+      GITHUB_REPOSITORY: "fixture/site-behavior-lab"
+    })
+  });
+  return {
+    status: run.status,
+    pending: [...readFileSync(output, "utf8").matchAll(/^pending=(\w+)$/gm)].at(-1)?.[1],
+    titles: [...`${run.stdout}${run.stderr}`.matchAll(/^::(?:warning|error) title=([^:]+)::/gm)].map((match) => match[1]),
+    fetchedProduction: runFixtureGit(runner, ["rev-parse", "refs/remotes/origin/production"]).trim()
+  };
+}
+
+test("production health defers to a production revision that advanced during its probe, and to nothing else", () => {
+  // A promotion that lands after this run pinned production deploys Pages in
+  // one to two minutes, inside the six polls. Its revision is newer than the
+  // pin, so it is not an ancestor, and the step used to call it stale: the run
+  // failed and reopened the canonical issue for an ordinary deploy.
+  const stepStart = requireIndex(workflow, "- name: Wait for exact scanner and Pages revisions", WORKFLOW);
+  const stepEnd = requireIndex(workflow, "- name: Fetch live Pages report contract", WORKFLOW, stepStart);
+  const run = requireIndex(workflow, "run: |\n", WORKFLOW, stepStart);
+  assert.ok(run < stepEnd, "the rollout step must carry a literal shell block");
+  const step = workflow
+    .slice(run + "run: |\n".length, stepEnd)
+    .split("\n")
+    .map((line) => line.replace(/^ {10}/, ""))
+    .join("\n");
+  assert.ok(step.startsWith("set -euo pipefail\n"), "the extracted block must be the whole step");
+  assert.match(step, /::error title=Production rollout stale::/);
+
+  const pending = { status: 0, pending: "true" } as const;
+  const advanced = { ...pending, title: "Production advanced during the probe" };
+  const stale = { status: 1, pending: "false", title: "Production rollout stale" } as const;
+  const cases: RolloutCase[] = [
+    { name: "both serve the pin", scanner: "A", pages: "A", age: 3, expected: { status: 0, pending: "false", title: null } },
+    { name: "an earlier revision in budget", scanner: "Z", pages: "A", age: 3, expected: { ...pending, title: "Production rollout in progress" } },
+    { name: "an earlier revision past budget", scanner: "Z", pages: "A", age: 60, expected: stale },
+    { name: "a fork the pin never contained", scanner: "F", pages: "A", age: 3, expected: stale },
+    { name: "an unreachable scanner", scanner: "-", pages: "A", age: 3, expected: stale },
+    { name: "Pages reaches the advance at the last poll", scanner: "Z", pages: "A,A,A,A,A,B", age: 3, bKnown: true, production: "B", expected: advanced },
+    { name: "the advance was never fetched by the checkout", scanner: "Z", pages: "A,A,A,A,A,B", age: 3, production: "B", expected: advanced },
+    { name: "the pin and the advance", scanner: "A", pages: "Z,Z,Z,Z,Z,B", age: 3, bKnown: true, production: "B", expected: advanced },
+    { name: "both serve the advance", scanner: "B", pages: "B", age: 3, production: "B", expected: advanced },
+    { name: "a descendant production never held", scanner: "Z", pages: "B", age: 3, bKnown: true, expected: stale },
+    { name: "Pages on a fork while production advanced", scanner: "Z", pages: "F", age: 3, bKnown: true, production: "B", expected: stale },
+    { name: "the scanner on a fork while production advanced", scanner: "F", pages: "B", age: 3, bKnown: true, production: "B", expected: stale },
+    { name: "an advance past the pin's budget", scanner: "Z", pages: "B", age: 60, bKnown: true, production: "B", expected: stale },
+    { name: "production force-moved onto a fork", scanner: "Z", pages: "F", age: 3, production: "F", expected: stale }
+  ];
+  const fixture = rolloutFixture(mkdtempSync(path.join(tmpdir(), "production-rollout-")));
+  try {
+    for (const [index, rolloutCase] of cases.entries()) {
+      const result = runRolloutStep(step, fixture, rolloutCase, index);
+      const { expected } = rolloutCase;
+      assert.equal(result.status, expected.status, `${rolloutCase.name}: exit status`);
+      assert.equal(result.pending, expected.pending, `${rolloutCase.name}: pending output`);
+      assert.deepEqual(result.titles, expected.title ? [expected.title] : [], `${rolloutCase.name}: annotations`);
+      if (rolloutCase.name === "the advance was never fetched by the checkout") {
+        // The checkout's own ref still held the pin, so the verdict came from
+        // the step's fresh read of production.
+        assert.equal(result.fetchedProduction, fixture.shas.B);
+      }
+    }
+  } finally {
+    removeFixtureTree(fixture.dir);
+  }
 });
 
 test("an unactivated operator canary is a disclosed gap, never a production incident", () => {
