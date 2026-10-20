@@ -42,6 +42,7 @@
   "lib/report-pdf.test.ts": "asserts elapsed time under 5000 ms",
   "lib/report-store-r2.test.ts": "races millisecond deadlines",
   "lib/report-store.test.ts": "asserts elapsed time under 1000 ms twice",
+  "lib/request-initiator-fixture.test.ts": "launches Chromium twice, the second time with --site-per-process, and waits on fixture visits under 10 s deadlines",
   "lib/run-featured-scans-plan.test.ts": "spawns the featured scan planner with a 25 ms delay setting",
   "lib/scan-api.test.ts": "runs under a 1000 ms test timeout",
   "lib/scan-client-orchestration.test.ts": "races millisecond response timeouts",
