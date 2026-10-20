@@ -9,6 +9,24 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- A privacy-policy read that may have stopped at the scanner's
+  400,000-character limit no longer lists the observed companies it did not
+  find as ones the policy does not appear to name. An HTML read stops at
+  that limit, or after visiting 20,000 page nodes, without recording that it
+  did, so a company the policy names past that point was never seen. Six
+  cvs.com reports from August 7 to September 7, 2026 stored reads of 399,900
+  to 400,000 characters and listed 34 omissions across 6 companies, Google
+  in every one, although the complete CVS reads of July 21 (28,494
+  characters) and September 28 (32,683) name Google. The September 28 read
+  leaves the other five unnamed too, but a read that may be cut cannot
+  establish that. A stored read within 5% of the limit now says those companies'
+  mentions are unknown. This changes the privacy-policy card of 6 of the
+  1,029 committed reports and no headline. No stored report changes and the
+  withdrawn omissions no longer render, so it takes no corrections event; a
+  PDF saved before this change still lists them. A read stopped by the node
+  bound can be shorter and still reads as complete, which only a scanner
+  change can fix. docs/limitations.md said HTML policy text, like a PDF's,
+  was used only when it fit the limit in full; it now says what happens.
 - A v1 comparison no longer shows a storage-key delta when either visit's
   storage read was incomplete. The comparison panel took storage from the
   request-count gate, which a v1 storage-snapshot loss leaves open on

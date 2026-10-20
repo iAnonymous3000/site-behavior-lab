@@ -57,6 +57,12 @@ export const MIN_POLICY_TEXT_LENGTH = 500;
  */
 export const POLICY_SHELL_SUSPECT_MAX_CHARS = 3_000;
 /**
+ * The most text the scanner reads from a policy, in characters. An HTML read
+ * stops here without recording that it did; a PDF whose text runs past it is
+ * not used at all. Readers import it from here, never from the scanner.
+ */
+export const MAX_POLICY_TEXT_CHARS = 400_000;
+/**
  * Below this many characters of prose (policyProseCharacters) outside its
  * closed panels, a page that calls itself no policy and links to another of
  * the site's policy documents is a privacy hub (privacyPolicyPageIsHub).

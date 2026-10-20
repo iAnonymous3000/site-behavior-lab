@@ -65,6 +65,7 @@ import {
 import { inspectPixelRequest, summarizePixelEvents, type PixelEventInput } from "./pixel-events";
 import {
   buildPrivacyPolicySummary,
+  MAX_POLICY_TEXT_CHARS,
   POLICY_SHELL_SUSPECT_MAX_CHARS,
   isAllowedPrivacyPolicyUrl,
   offersPrivacyPolicyLink,
@@ -421,7 +422,7 @@ export const MAX_POLICY_LINK_TEXT_CHARS = 80;
  */
 export const MAX_POLICY_LINK_MATCH_TEXT_CHARS = 512;
 const MAX_POLICY_PAGE_REQUESTS = 150;
-export const MAX_POLICY_TEXT_CHARS = 400_000;
+export { MAX_POLICY_TEXT_CHARS };
 let sharedBrowser: Browser | null = null;
 let browserLaunchPromise: Promise<Browser> | null = null;
 /**
@@ -4675,7 +4676,9 @@ async function probePrivacyPolicy(input: {
   // rejects page.goto("Download is starting"), so the HTML collector never
   // gets a body to inspect. Fetch direct policy PDFs through the exact same
   // connect-time SSRF proxy, retain only a bounded body, and parse them with
-  // the same all-or-nothing text ceiling as HTML policies.
+  // an all-or-nothing text ceiling: a PDF whose text runs past it is not used.
+  // An HTML read is cut at the same ceiling instead, and that cut is not
+  // recorded (boundedPolicyTextFromWire keeps the cut text).
   if (/\.pdf$/i.test(parsed.pathname)) {
     const fetched = await fetchBoundedPolicyPdf({
       firstPartyHostname: input.firstPartyHostname,

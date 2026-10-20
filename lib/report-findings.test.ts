@@ -16,7 +16,7 @@ import { buildFindings, provenanceChangeText, requestProvenanceSummary, type Fin
 import { buildReportHeadline } from "./report-headline";
 import { frozenReportView, ledgerPinnedReportView, ledgerPinnedReportWire } from "./pinned-reports";
 import { HEADLINE_PLATFORMS, detectionLabel, isTrackingTrackerMatch } from "./report-insights";
-import { COMPARED_POLICY_CLAIM_KINDS } from "./privacy-policy";
+import { COMPARED_POLICY_CLAIM_KINDS, MAX_POLICY_TEXT_CHARS } from "./privacy-policy";
 import { reviewedOwnershipRelationship } from "./reviewed-ownership";
 import type { CorpusStats } from "./corpus-stats";
 import { readStoredScanReport } from "./scan-report-reader";
@@ -2441,6 +2441,49 @@ test("frozen-v1 policy arrays retain actual tracking entities and discard non-tr
   assert.match(card.detail, /not automatically a violation/);
   assert.match(card.evidence, /0 of 1 observed tracking company named in the policy/);
   assert.equal(card.claim?.mode, "presence");
+});
+
+test("a policy read that may have stopped at the text cap lists no company as unnamed", () => {
+  // The wire keeps no truncation flag, only the read's length. Six CVS
+  // reads stored 399,900 to 400,000 characters and listed Google as unnamed
+  // although CVS's full policy names it.
+  const policyCard = (policyTextLength: number) => {
+    const result = makeResult({
+      domains: [
+        makeTrackerDomain("track.criteo.com", 4, "Criteo", "advertising"),
+        makeTrackerDomain("stats.g.doubleclick.net", 3, "Google", "advertising")
+      ],
+      thirdPartyDomains: 2
+    });
+    result.privacyPolicy = {
+      url: "https://example.com/privacy",
+      claims: [],
+      mentionedEntities: ["Google"],
+      unmentionedEntities: ["Criteo"],
+      policyTextLength
+    };
+    return byId(buildFindings(viewFromV1Report(result), null), "privacy-policy");
+  };
+
+  assert.equal(MAX_POLICY_TEXT_CHARS, 400_000);
+  for (const length of [400_000, 399_900, 380_000]) {
+    const card = policyCard(length);
+    assertSentencesAtMost(card, MAX_CARD_SENTENCE_WORDS);
+    assert.doesNotMatch(card.title, /does not appear to name/, `${length}`);
+    assert.notEqual(card.claim?.mode, "presence", `${length}`);
+    assert.doesNotMatch(`${card.lead} ${card.detail}`, /Criteo (was|were) sent requests/, `${length}`);
+    assert.match(
+      card.evidence,
+      /Policy mentions of Criteo are unknown because this read may have stopped at the scanner's 400,000-character limit\./,
+      `${length}`
+    );
+    assert.match(card.evidence, /1 of 1 observed tracking company named in the policy/, `${length}: a mention still counts`);
+  }
+
+  const complete = policyCard(379_999);
+  assert.match(complete.title, /does not appear to name/);
+  assert.equal(complete.claim?.mode, "presence");
+  assert.doesNotMatch(complete.evidence, /may have stopped/);
 });
 
 test("policy alias misses are unknown per entity until the cross-check version that could name it", () => {

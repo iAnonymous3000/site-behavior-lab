@@ -47,7 +47,12 @@ import {
 import {
   reviewedOwnershipRelationship
 } from "./reviewed-ownership";
-import { isCurrentlyCheckablePolicyClaim, POLICY_SHELL_SUSPECT_MAX_CHARS, policyUrlIsSiteRoot } from "./privacy-policy";
+import {
+  isCurrentlyCheckablePolicyClaim,
+  MAX_POLICY_TEXT_CHARS,
+  POLICY_SHELL_SUSPECT_MAX_CHARS,
+  policyUrlIsSiteRoot
+} from "./privacy-policy";
 import {
   comparisonArmViews,
   familyCensoredOnRun,
@@ -293,6 +298,15 @@ const POLICY_ALIAS_RELIABLE_FROM: Readonly<Record<string, number>> = {
  * the scan's own proxy budget had refused the page's requests.
  */
 const POLICY_READ_SETTLED_FROM = 9;
+
+/**
+ * A stored policy read this long may have stopped at the scanner's text cap,
+ * so a company named past that point was never seen. The wire records no
+ * truncation flag. Reads before September 28, 2026 also counted script text
+ * toward the cap and can store a little under it, hence the margin. A read
+ * stopped by the node bound can be shorter still; this cannot see it.
+ */
+const POLICY_READ_CUT_SUSPECT_MIN_CHARS = Math.floor(MAX_POLICY_TEXT_CHARS * 0.95);
 
 /** The recorded cross-check ordinal; v1 and non-Node producers count as oldest. */
 function policyCrossCheckOrdinal(version: string | undefined): number {
@@ -927,6 +941,12 @@ export function buildFindings(
     const unknownPolicyMentions = trackingNames.filter(entity =>
       unreliablePolicyAliases.includes(entity) && policyUnmentionedEntityNames.has(entity));
     for (const entity of unknownPolicyMentions) policyUnmentionedEntityNames.delete(entity);
+    // Silence in a read that may have been cut short supports no omission.
+    const cutPolicyMentions =
+      policy.policyTextLength >= POLICY_READ_CUT_SUSPECT_MIN_CHARS
+        ? trackingNames.filter((entity) => policyUnmentionedEntityNames.has(entity))
+        : [];
+    for (const entity of cutPolicyMentions) policyUnmentionedEntityNames.delete(entity);
     const mentionedTrackingEntities = trackingNames.filter((entity) =>
       policyMentionedEntityNames.has(entity)
     );
@@ -938,14 +958,17 @@ export function buildFindings(
     const coverage =
       totalObserved > 0
         ? `${namedCount} of ${plural(totalObserved, "observed tracking company", "observed tracking companies")} named in the policy`
-        : unknownPolicyMentions.length > 0
+        : unknownPolicyMentions.length > 0 || cutPolicyMentions.length > 0
           ? "no reliable company-mention results available"
           : "no catalogued tracking companies observed to check against it";
     // A sentence of its own after the coverage, never inside its parenthetical,
     // where it ran a lead to 47 words.
-    const unknownPolicyMentionsNote = unknownPolicyMentions.length
-      ? ` Policy mentions of ${humanList(unknownPolicyMentions)} are unknown because the historical alias matcher was incomplete.`
+    const cutPolicyMentionsNote = cutPolicyMentions.length
+      ? ` Policy mentions of ${humanList(cutPolicyMentions)} are unknown because this read may have stopped at the scanner's ${MAX_POLICY_TEXT_CHARS.toLocaleString("en-US")}-character limit.`
       : "";
+    const unknownPolicyMentionsNote = (unknownPolicyMentions.length
+      ? ` Policy mentions of ${humanList(unknownPolicyMentions)} are unknown because the historical alias matcher was incomplete.`
+      : "") + cutPolicyMentionsNote;
 
     // A "nothing contradicted" reassurance is itself an absence claim over
     // the checked evidence, so censored collection hedges it.
