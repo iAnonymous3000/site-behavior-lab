@@ -9,6 +9,16 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- Cancelling a scan while Chromium was opening its browsing context no
+  longer leaves a whole browser running. The scanner read the cancel as a
+  stuck browser, dropped that browser from its cache without closing it and
+  launched a new one, so each such cancel held about 150 MB until the
+  container restarted; a browser that really was stuck was left running the
+  same way. A cancel now keeps the browser, and a stuck one closes once the
+  last scan using it finishes. A scan still finishing on a replaced browser
+  also dialed the new browser's DevTools port, lost its worker channel and
+  reported the page's dedicated workers as unread; each scan now dials its
+  own browser. Runtime only: no detector version or stored report changes.
 - A burst of saved scans can no longer stop the scanner saving reports for
   a week. The R2 retention listing refused to read more than 1,000 report
   objects, and saving a report prunes first, so once a burst of new shares,

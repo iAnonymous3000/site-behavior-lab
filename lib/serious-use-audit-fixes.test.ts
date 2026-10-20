@@ -4,7 +4,7 @@ import path from "node:path";
 import test from "node:test";
 import { isPublicIpAddress } from "./ip-safety";
 import { normalizeScanUrl } from "./scan-prefill";
-import { requireIndex, sliceBetween, sliceToNext } from "./source-markers";
+import { assertOrdered, requireIndex, sliceBetween, sliceToNext } from "./source-markers";
 
 /**
  * Regression guards for the 12 Aug serious-use audit.
@@ -163,7 +163,10 @@ test("the third-party badge names every metric that set the card's level", () =>
   );
 });
 
-test("a browser that cannot open a context is dropped from the cache, not closed", () => {
+test("a browser that cannot open a context leaves the cache and closes after its last lease, and a cancel keeps it", () => {
+  // The behaviour is held by the real-Chromium cases in
+  // lib/scanner-resource-lifecycle.test.ts. This pins the half of the guard
+  // they cannot stage: a budget spent before the browser was asked.
   const scanner = source("lib/scanner.ts");
   const block = sliceToNext(
     scanner,
@@ -171,11 +174,30 @@ test("a browser that cannot open a context is dropped from the cache, not closed
     "throwIfScanAborted(options.signal);",
     "lib/scanner.ts"
   );
+  assert.match(
+    block,
+    /contextCreationStarted = true;\s*return browser\.newContext\(/,
+    "the flag must be set inside the factory, right before the browser is asked"
+  );
+  // A cancel, or a budget gone before the browser was asked, says nothing
+  // about the browser, so it rethrows before anything is retired.
+  assertOrdered(
+    block,
+    [
+      "if (options.signal?.aborted || !contextCreationStarted) throw error;",
+      "if (sharedBrowser === browser)",
+      "retireSharedBrowser(browser);"
+    ],
+    "lib/scanner.ts context creation"
+  );
   assert.match(block, /sharedBrowser = null;/, "a wedged browser must leave the cache");
   assert.match(block, /browserLaunchPromise = null;/);
   // Never close it here: a sibling scan may still hold contexts on it.
   assert.doesNotMatch(block, /browser\.close\(\)/, "closing would break an in-flight sibling scan");
   assert.match(block, /if \(sharedBrowser === browser\)/, "only drop the instance that actually failed");
+  // The close belongs to the last lease of a retired browser.
+  const close = sliceToNext(scanner, "function closeRetiredSharedBrowserIfIdle(", "\n}\n", "lib/scanner.ts");
+  assert.match(close, /if \(!state\.retired \|\| state\.leases > 0 \|\| state\.closing\) return;/);
 });
 
 /**

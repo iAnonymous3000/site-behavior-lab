@@ -425,18 +425,35 @@ const MAX_POLICY_PAGE_REQUESTS = 150;
 export { MAX_POLICY_TEXT_CHARS };
 let sharedBrowser: Browser | null = null;
 let browserLaunchPromise: Promise<Browser> | null = null;
+
+type SharedBrowserState = {
+  /**
+   * Loopback DevTools port of this browser. Every arm opens a client against
+   * it, the worker realm channel (lib/devtools-worker-channel.ts), which holds
+   * each dedicated worker of the measured page paused before its first
+   * statement while the arm's installers run. Every arm installs the
+   * fingerprint observer (lib/worker-fingerprint-realm.ts); the GPC arm first
+   * delivers and verifies the worker signal (lib/gpc-worker-verification.ts).
+   * Reserved per launch because the port must be known before Chromium
+   * starts; a lost bind race fails that one launch, which is not cached, and
+   * the next scan reserves a fresh port.
+   */
+  readonly devtoolsPort: number;
+  /** Visits holding this browser, from getSharedBrowser to the end of their own cleanup. */
+  leases: number;
+  /** Out of the cache because it could not open a context (retireSharedBrowser). */
+  retired: boolean;
+  /** Its close was issued, which happens once. */
+  closing: boolean;
+};
+
 /**
- * Loopback DevTools port of the shared browser. Every arm opens a client
- * against it, the worker realm channel (lib/devtools-worker-channel.ts), which
- * holds each dedicated worker of the measured page paused before its first
- * statement while the arm's installers run. Every arm installs the fingerprint
- * observer (lib/worker-fingerprint-realm.ts); the GPC arm first delivers and
- * verifies the worker signal (lib/gpc-worker-verification.ts). Reserved
- * per launch because the port must be known before Chromium starts; a lost
- * bind race fails that one launch, which is not cached, and the next scan
- * reserves a fresh port.
+ * The state of every browser getSharedBrowser launched, per instance rather
+ * than one module-wide value: a retired browser outlives the launch that
+ * replaces it while a sibling visit finishes on it, and that visit must still
+ * dial its own browser's DevTools port, not the new one's.
  */
-let sharedBrowserDevtoolsPort: number | null = null;
+const sharedBrowserStates = new WeakMap<Browser, SharedBrowserState>();
 
 /**
  * Chromium flags every scan browser launches with. WebRTC must not carry
@@ -902,6 +919,25 @@ export async function scanSiteWithMeasurement(
   payload: ScanRequestPayload,
   options: ScanSiteOptions = {}
 ): Promise<NodeScanMeasurementEnvelope> {
+  // The visit gives its lease on the shared browser back here, on every path
+  // out of it and only after its own cleanup has closed its context, so a
+  // retired browser closes once the last visit on it is done.
+  const browserLease: SharedBrowserLease = { release: () => undefined };
+  try {
+    return await scanSiteWithMeasurementOnLeasedBrowser(payload, options, browserLease);
+  } finally {
+    browserLease.release();
+  }
+}
+
+/** A no-op until the visit holds its browser (leaseSharedBrowser). */
+type SharedBrowserLease = { release: () => void };
+
+async function scanSiteWithMeasurementOnLeasedBrowser(
+  payload: ScanRequestPayload,
+  options: ScanSiteOptions,
+  browserLease: SharedBrowserLease
+): Promise<NodeScanMeasurementEnvelope> {
   throwIfScanAborted(options.signal);
   const started = Date.now() - (options.scanBudgetSpentMsForTests ?? 0);
   const measurementKernel = new MeasurementKernel<Request>(started);
@@ -941,6 +977,7 @@ export async function scanSiteWithMeasurement(
   // deadline to end it. The browser and engine are process-wide singletons that
   // other scans reuse, so they are bounded but never disposed here.
   const browser = await withSetupTimeout(getSharedBrowser(), started);
+  browserLease.release = leaseSharedBrowser(browser);
   throwIfScanAborted(options.signal);
   const chromiumVersion = browser.version();
   const adblockEngine = await withSetupTimeout(getAdblockEngine(), started);
@@ -997,20 +1034,34 @@ export async function scanSiteWithMeasurement(
 
   try {
     throwIfScanAborted(options.signal);
+    // Set inside the factory, which withDeadlineDisposing never calls when the
+    // budget is already spent or the visit already cancelled.
+    let contextCreationStarted = false;
     try {
       context = await withSetupTimeoutDisposing(
-        () => browser.newContext(createContextOptions(payload, scanProxy.server)),
+        () => {
+          const contextOptions = createContextOptions(payload, scanProxy.server);
+          contextCreationStarted = true;
+          return browser.newContext(contextOptions);
+        },
         started,
         (created) => created.close(),
         options.signal
       );
     } catch (error) {
+      // A cancelled visit learned nothing about the browser, and neither did
+      // one whose budget was gone before the browser was asked for a context.
+      // Both rethrow and keep it cached. Dropping it on a cancel launched a
+      // fresh Chromium after every cancel and stranded the one it replaced.
+      if (options.signal?.aborted || !contextCreationStarted) throw error;
       // Creating a context is cheap. A browser that cannot produce one inside a
       // whole scan budget is wedged, and every later scan reusing this cached
-      // instance would inherit that. Drop the CACHE only, never close the
-      // browser: a sibling scan may still be using it, and the concurrency cap
-      // is 2. The next scan then launches a fresh one and this instance is
-      // collected when its last context goes.
+      // instance would inherit that. Drop it from the CACHE and retire it, but
+      // never close it here: a sibling scan may still be using it, and the
+      // concurrency cap is 2. The next scan then launches a fresh one, and this
+      // instance closes when the last visit holding it gives back its lease
+      // (retireSharedBrowser). Nothing else would close it: Chromium keeps
+      // running after its last context closes.
       //
       // This is the honest signal, unlike a slow context.close(): a 2s cleanup
       // timeout cannot tell "wedged" from "merely slow", so invalidating there
@@ -1020,6 +1071,7 @@ export async function scanSiteWithMeasurement(
         sharedBrowser = null;
         browserLaunchPromise = null;
       }
+      retireSharedBrowser(browser);
       throw error;
     }
     throwIfScanAborted(options.signal);
@@ -3958,7 +4010,7 @@ async function getSharedBrowser(): Promise<Browser> {
         chromiumSandbox: chromiumSandboxEnabled(),
         env: browserProcessEnvironment()
       });
-      sharedBrowserDevtoolsPort = devtoolsPort;
+      sharedBrowserStates.set(browser, { devtoolsPort, leases: 0, retired: false, closing: false });
       return browser;
     },
     {
@@ -3979,7 +4031,6 @@ async function getSharedBrowser(): Promise<Browser> {
         if (sharedBrowser === browser) {
           sharedBrowser = null;
           browserLaunchPromise = null;
-          sharedBrowserDevtoolsPort = null;
         }
       });
       return browser;
@@ -3994,6 +4045,44 @@ async function getSharedBrowser(): Promise<Browser> {
   );
 
   return browserLaunchPromise;
+}
+
+/**
+ * Count one visit as holding `browser` until the returned release runs. The
+ * release is idempotent, and the last one of a retired browser closes it.
+ * Every browser getSharedBrowser returns has its state.
+ */
+function leaseSharedBrowser(browser: Browser): () => void {
+  const state = sharedBrowserStates.get(browser);
+  if (!state) return () => undefined;
+  state.leases += 1;
+  let released = false;
+  return () => {
+    if (released) return;
+    released = true;
+    state.leases -= 1;
+    closeRetiredSharedBrowserIfIdle(browser, state);
+  };
+}
+
+/**
+ * Mark a browser that could not open a context as retired, once the caller
+ * has taken it out of the cache. It closes when no visit holds it, never
+ * sooner, since a sibling visit may still be using it.
+ */
+function retireSharedBrowser(browser: Browser): void {
+  const state = sharedBrowserStates.get(browser);
+  if (!state) return;
+  state.retired = true;
+  closeRetiredSharedBrowserIfIdle(browser, state);
+}
+
+function closeRetiredSharedBrowserIfIdle(browser: Browser, state: SharedBrowserState): void {
+  if (!state.retired || state.leases > 0 || state.closing) return;
+  state.closing = true;
+  // Detached, so no visit's response waits on it, and bounded, because
+  // Playwright sends Browser.close with no deadline.
+  void runScannerCleanupWithinDeadline([{ label: "retired Chromium close", run: () => browser.close() }]);
 }
 
 /**
@@ -4013,7 +4102,10 @@ async function establishWorkerRealmChannel(
   page: Page,
   installers: readonly WorkerRealmInstaller[]
 ): Promise<DedicatedWorkerAttachSession> {
-  const devtoolsPort = sharedBrowserDevtoolsPort;
+  // The port of the browser this context belongs to, not of whichever browser
+  // launched last: a visit finishing on a retired browser dials its own.
+  const owner = context.browser();
+  const devtoolsPort = owner ? (sharedBrowserStates.get(owner)?.devtoolsPort ?? null) : null;
   if (devtoolsPort === null) {
     throw new Error("The shared browser exposes no DevTools port for the worker realm channel.");
   }
@@ -4078,7 +4170,6 @@ export async function closeSharedBrowserForTests(): Promise<void> {
   const browser = sharedBrowser;
   sharedBrowser = null;
   browserLaunchPromise = null;
-  sharedBrowserDevtoolsPort = null;
   if (browser) {
     await runScannerCleanupWithinDeadline([
       { label: "shared Chromium test cleanup", run: () => browser.close() }
