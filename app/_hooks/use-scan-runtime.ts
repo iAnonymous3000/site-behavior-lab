@@ -146,6 +146,14 @@ export function useScanRuntime({
     };
 
     applyScanPrefill();
+    // The popstate registration is what keeps a prefill working beside a
+    // retained scheduled-rescan link. A fragment navigation fires popstate
+    // synchronously, before the queued hashchange, so this reads the prefill
+    // before ScheduledRescans' hashchange listener puts `#watch=` back; the
+    // hashchange call then reads that link and does nothing. Taking the
+    // target from the hashchange event's newURL instead, as the evidence
+    // readers do, would rerun the cleanup over the restored capability.
+    // scripts/smoke-static-site.mjs follows a prefill beside one.
     window.addEventListener("hashchange", applyScanPrefill);
     window.addEventListener("popstate", applyScanPrefill);
     return () => {

@@ -1037,6 +1037,8 @@ async function main() {
     pass("corrected report retains its identity and notices across browser import, export and reopen");
 
     if (scannerFixture) {
+      await assertRetainedWatchKeepsScanPrefill(context, baseUrl);
+      pass("a scan prefill still fills the URL field while a scheduled-rescan link stays in the address");
       await assertRetainedWatchKeepsEvidenceLinks(context, baseUrl, manifest, singleReportFixture);
       pass("evidence links still open their filters and visits while a scheduled-rescan link stays in the address");
     }
@@ -1742,6 +1744,43 @@ async function assertRetainedWatchKeepsEvidenceLinks(context, baseUrl, manifest,
   await comparison.locator("#scheduled-rescan-title", { hasText: "Manage scheduled rescan" }).waitFor();
   await expectRetainedWatch(comparison, watch, "reloading the page");
   await comparison.close();
+}
+
+/**
+ * A scan prefill (`#scan?url=...`) followed on the home page beside a
+ * retained management link must still fill the URL field, and the address
+ * must end on the capability, not on the prefill's `#scan` cleanup. It works
+ * because a fragment navigation fires popstate synchronously, before the
+ * queued hashchange: useScanRuntime's popstate listener strips the prefill
+ * from the address and fills the field, ScheduledRescans' hashchange restore
+ * then puts `#watch=` back, and the prefill's own hashchange listener reads
+ * the capability and does nothing. Dropping the popstate listener swallows
+ * the prefill. Taking the target from the hashchange event's newURL, as the
+ * evidence readers do, reruns the cleanup over the capability. The goto
+ * changes only the fragment, as an address-bar edit does.
+ */
+async function assertRetainedWatchKeepsScanPrefill(context, baseUrl) {
+  const watch = mintedWatchFragment();
+  const page = await openHomeWithRetainedWatch(context, baseUrl, watch);
+  // The query and fragment are private parts that neither the field nor the address may keep.
+  const target = "https://example.com/account?token=static-smoke-secret#receipt";
+  const prefilled = "https://example.com/account";
+  await page.goto(`${baseUrl}/#scan?url=${encodeURIComponent(target)}`);
+  try {
+    await page.waitForFunction((value) => document.getElementById("url")?.value === value, prefilled, { timeout: 10_000 });
+  } catch {
+    fail("a scan prefill followed beside a retained #watch= link did not fill the URL field");
+  }
+  // The field fills on popstate, and the capability returns on the hashchange after it.
+  try {
+    await page.waitForFunction((fragment) => window.location.hash === fragment, watch, { timeout: 10_000 });
+  } catch {
+    await expectRetainedWatch(page, watch, "following a scan prefill");
+  }
+  if ((await page.locator("#url").inputValue()) !== prefilled) {
+    fail("the prefilled URL field lost its value when the scheduled-rescan link returned to the address");
+  }
+  await page.close();
 }
 
 /** A self-consistent capability, its id derived as lib/encrypted-watch-contract.ts derives it. */
