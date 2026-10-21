@@ -9,6 +9,21 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- The scan form now holds what it needs to say, for a site that already has
+  evidence, what reading that evidence gives and what a new check would do
+  instead. Each corpus site the form recognizes carries its newest report's
+  requested URL, its headline and its run mode, all from the report index;
+  the run mode names a report's kind in the Run control's own labels, and a
+  temporal or custom comparison gets no kind. The browser reads the share
+  retention the scanner itself reports in its health
+  (`checks.reportStore.maxAgeDays`), and only as a finite positive number:
+  while health is pending, after it fails, and for zero, negative, non-finite,
+  non-numeric or missing values it has no number, and nothing falls back to
+  the build's default. A value it cannot use never fails the health check
+  itself, since the Node scanner reports 0 when its store cannot be built.
+  The site history page's sentence about live rescans now comes from one
+  shared clause, so the form can say it in the same words. Nothing renders
+  differently yet.
 - The coverage boundary, the README, the capabilities doc and the request
   attribution map now say what a recorded initiator can stand for beyond a
   loader that was told what to fetch. A script that wraps fetch or

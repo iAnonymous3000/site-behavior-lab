@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { siteProfileComparableVisitsNote } from "@/lib/comparable-visits-note";
 import { entryEligibleForCorpusRollups, loadCorpusOverview, type DirectoryEntry } from "@/lib/corpus-overview";
+import { LIVE_RESCAN_HISTORY_CLAUSE } from "@/lib/live-rescan-copy";
 import { reportPagePath } from "@/lib/report-locator";
 import { scanPrefillHref } from "@/lib/scan-prefill";
 import { conciseMetadataText, publicPageMetadata } from "@/lib/seo-metadata";
@@ -120,8 +121,7 @@ export default async function SiteProfilePage({ params }: { params: Promise<{ do
         <p className="lede">{latest.headline}</p>
         <p className="page-meta">
           {profile.entries.length} {profile.entries.length === 1 ? "report" : "reports"} retained. This timeline
-          contains reviewed reports published into the curated public corpus; a live rescan remains a standalone
-          share report until a later corpus publication includes it.
+          contains reviewed reports published into the curated public corpus; {LIVE_RESCAN_HISTORY_CLAUSE}.
         </p>
         <div className="page-actions">
           <Link className="primary-button" href={rescanHref}>

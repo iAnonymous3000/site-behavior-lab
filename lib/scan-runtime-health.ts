@@ -106,6 +106,15 @@ export type ScanRuntimeHealth = {
       status: "enabled" | "disabled" | "misconfigured";
       backend: "filesystem" | "r2" | "none";
     };
+    /**
+     * The share-report store's retention as the Node producer publishes it
+     * (lib/runtime-status.ts carries more; the browser reads only this).
+     * Read it through shareReportMaxAgeDays, never directly: the validator
+     * below does not check it, on purpose.
+     */
+    reportStore?: {
+      maxAgeDays?: number;
+    };
   };
   capabilities?: ScanRuntimeCapabilities;
   limits?: {
@@ -140,6 +149,23 @@ export function isScanRuntimeHealth(value: unknown): value is ScanRuntimeHealth 
   if (value.checks !== undefined && !isChecks(value.checks)) return false;
   if (value.capabilities !== undefined && !isCapabilities(value.capabilities)) return false;
   return true;
+}
+
+/**
+ * How many days the scanner keeps a live share report, from its own health
+ * (`checks.reportStore.maxAgeDays`), or null when health has not answered,
+ * failed, or carries no finite positive number. A caller with null states no
+ * number: falling back to the build's default would publish a retention this
+ * scanner never reported.
+ *
+ * Validated here and not in isScanRuntimeHealth, because that validator gates
+ * the whole payload for the browser and for the edge's health overlay. The
+ * Node producer reports 0 when its store backend cannot be built, so refusing
+ * the payload over this field would turn a degraded scanner into a dead one.
+ */
+export function shareReportMaxAgeDays(health: ScanRuntimeHealth | null): number | null {
+  const value: unknown = health?.checks?.reportStore?.maxAgeDays;
+  return typeof value === "number" && Number.isFinite(value) && value > 0 ? value : null;
 }
 
 function isScanRuntimeStatus(value: unknown): value is ScanRuntimeStatus {

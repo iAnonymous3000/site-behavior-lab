@@ -120,6 +120,40 @@ test("Look closer views are built on the server or in the renderer chunk, never 
   holds(print, /<ReportRenderer[\s\S]*?printComplete\s/, "the printable route renders its board for paper");
 });
 
+test("the scan form's known-site note reads no retention default and keeps its imports light", () => {
+  const read = (...parts: string[]) => readFileSync(path.join(root, ...parts), "utf8");
+  const importsOf = (source: string) =>
+    [...source.matchAll(/^import\s+([\s\S]*?)\s+from\s+"([^"]+)";/gm)].map((match) => ({ clause: match[1], from: match[2] }));
+  // The copy module the homepage bundles: three small copy and text modules,
+  // and the known site only as a type.
+  const copy = importsOf(read("lib", "known-site-evidence.ts"));
+  assert.deepEqual(
+    copy.map((entry) => entry.from).sort(),
+    ["./homepage-discovery", "./live-rescan-copy", "./run-mode-copy", "./text-format"]
+  );
+  assert.ok(
+    /^type\s/.test(copy.find((entry) => entry.from === "./homepage-discovery")?.clause ?? ""),
+    "the copy module imports the known site only as a type"
+  );
+  assert.deepEqual(importsOf(read("lib", "live-rescan-copy.ts")), [], "the shared clause module imports nothing");
+  // A number reaches the note only from the scanner's health. The build's
+  // default is the privacy page's statement about the reference deployment,
+  // never this scanner's answer.
+  for (const parts of [
+    ["lib", "known-site-evidence.ts"],
+    ["lib", "scan-runtime-health.ts"],
+    ["lib", "scan-client-orchestration.ts"],
+    ["app", "_components", "scan-controls.tsx"],
+    ["app", "_hooks", "use-scan-runtime.ts"],
+    ["app", "site-behavior-app.tsx"]
+  ]) {
+    assert.ok(
+      !/report-share-retention|DEFAULT_REPORT_MAX_AGE_DAYS/.test(read(...parts)),
+      `${parts.join("/")} reads the build's retention default`
+    );
+  }
+});
+
 test("report pages pass compact server output instead of serializing stored evidence into the client", () => {
   const page = readFileSync(path.join(root, "app", "reports", "[id]", "page.tsx"), "utf8");
   assert.doesNotMatch(page, /stored=\{result\.stored\}/);

@@ -15,6 +15,20 @@ export const RUN_MODE_LABELS: Record<RunMode, string> = {
 export type ComparisonRunMode = Exclude<RunMode, "single">;
 
 /**
+ * The run mode a published report came from, so a surface can name a report's
+ * kind in the Run control's own labels rather than a vocabulary of its own.
+ * Null for a kind the form cannot run (a temporal or custom comparison).
+ */
+export function reportRunMode(report: {
+  reportType: "single" | "comparison";
+  comparisonType?: string | null;
+}): RunMode | null {
+  if (report.reportType === "single") return "single";
+  const type = report.comparisonType;
+  return type === "gpc" || type === "shields" || type === "consent" ? type : null;
+}
+
+/**
  * Whether a comparison mode may be offered. Until the scanner's health check
  * answers, nothing is claimed either way: the static build rendered all three
  * comparisons as unavailable on first paint ("GPC comparison is not available

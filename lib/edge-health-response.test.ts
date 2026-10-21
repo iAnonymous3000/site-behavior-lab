@@ -78,6 +78,17 @@ test("edge health accepts only an unambiguous shared health contract", () => {
     warnings: []
   });
   assert.equal(parseEdgeHealthResponseText(healthy).ok, true);
+  // The Node producer's store-unavailable shape (maxAgeDays 0) is degraded, not
+  // a broken contract: the overlay must keep answering for it.
+  const storeUnavailable = JSON.stringify({
+    ok: true,
+    status: "degraded",
+    scansAvailable: false,
+    checks: { reportStore: { kind: "unavailable", maxAgeDays: 0 } },
+    capabilities: { savedReports: false },
+    warnings: ["The report store backend is misconfigured and unavailable (configuration)."]
+  });
+  assert.equal(parseEdgeHealthResponseText(storeUnavailable).status, "degraded");
   assert.throws(() => parseEdgeHealthResponseText("not-json"));
   assert.throws(() => parseEdgeHealthResponseText("[]"));
   assert.throws(() => parseEdgeHealthResponseText('{"ok":true}'));

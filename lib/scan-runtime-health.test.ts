@@ -184,6 +184,25 @@ test("isScanRuntimeHealth rejects malformed payloads", () => {
   assert.equal(isScanRuntimeHealth({ ok: true, capabilities: { scheduledRescans: "maybe" } }), false);
 });
 
+test("a share retention the browser cannot use never fails the shared health contract", () => {
+  // The browser and the edge both gate the whole payload on this validator, and
+  // the Node producer reports maxAgeDays 0 when its store cannot be built. A
+  // retention value it cannot use must cost the form its number, not its scanner.
+  for (const reportStore of [
+    { maxAgeDays: 7 },
+    { maxAgeDays: 0 },
+    { maxAgeDays: -1 },
+    { maxAgeDays: "7" },
+    { maxAgeDays: null },
+    {},
+    null,
+    "r2",
+    7
+  ]) {
+    assert.equal(isScanRuntimeHealth({ ok: true, checks: { reportStore } }), true, JSON.stringify(reportStore));
+  }
+});
+
 test("asScanRuntimeHealth returns its argument unchanged", () => {
   const health = { ok: true, status: "ok" as const };
   assert.equal(asScanRuntimeHealth(health), health);

@@ -28,10 +28,12 @@ function report(index: number, overrides: Partial<HomepageReportSource> = {}): H
     // under the reserved `.example` name have no public suffix, so they key to
     // themselves.
     siteKey: siteProfileKey(domain) ?? domain.toLowerCase(),
+    requestedUrl: `https://${domain}/`,
     headline: `Report ${index}`,
     tone: "info",
     scannedAt: `2026-07-${String(index + 1).padStart(2, "0")}T00:00:00.000Z`,
     reportType: "single",
+    comparisonType: null,
     thirdPartyRequests: index,
     trackerRequests: index,
     requestCapped: false,
@@ -92,7 +94,14 @@ test("a generalized lead host is never a site's latest report on the homepage", 
   ]);
 
   assert.deepEqual(discovery.knownSites, [
-    { domain: "site-0.com", latestReportId: "flagship", scannedAt: "2026-08-24T08:14:17.900Z" }
+    {
+      domain: "site-0.com",
+      latestReportId: "flagship",
+      scannedAt: "2026-08-24T08:14:17.900Z",
+      requestedUrl: "https://site-0.com/",
+      headline: "Report 0",
+      runMode: "single"
+    }
   ]);
   assert.equal(discovery.latestReport, null, "the newest successful report names no site");
   assert.equal(discovery.reportCount, 2);
@@ -106,8 +115,60 @@ test("discovery emits only each site's latest successful evidence", () => {
   ]);
 
   assert.deepEqual(discovery.knownSites, [
-    { domain: "site-0.com", latestReportId: "new", scannedAt: "2026-07-20T00:00:00.000Z" }
+    {
+      domain: "site-0.com",
+      latestReportId: "new",
+      scannedAt: "2026-07-20T00:00:00.000Z",
+      requestedUrl: "https://www.site-0.com/",
+      headline: "Report 0",
+      runMode: "single"
+    }
   ]);
   assert.equal(discovery.latestReport?.latestReportId, "new");
   assert.equal(discovery.reportCount, 3);
+});
+
+test("a known site carries its newest report's requested URL, headline and run mode", () => {
+  const discovery = buildHomepageDiscovery(config, [
+    report(0, {
+      id: "older-gpc",
+      scannedAt: "2026-07-01T00:00:00.000Z",
+      reportType: "comparison",
+      comparisonType: "gpc",
+      headline: "Older headline"
+    }),
+    report(0, {
+      id: "newest-blocker",
+      scannedAt: "2026-07-20T00:00:00.000Z",
+      requestedUrl: "https://www.site-0.com/en",
+      reportType: "comparison",
+      comparisonType: "shields",
+      headline: "site-0.com loaded 4 fewer third-party requests with Shields on."
+    }),
+    report(1, { id: "temporal", reportType: "comparison", comparisonType: "temporal" }),
+    report(2, { id: "consent", reportType: "comparison", comparisonType: "consent" })
+  ]);
+
+  assert.deepEqual(
+    discovery.knownSites.map(({ domain, latestReportId, requestedUrl, headline, runMode }) => ({
+      domain,
+      latestReportId,
+      requestedUrl,
+      headline,
+      runMode
+    })),
+    [
+      {
+        domain: "site-0.com",
+        latestReportId: "newest-blocker",
+        requestedUrl: "https://www.site-0.com/en",
+        headline: "site-0.com loaded 4 fewer third-party requests with Shields on.",
+        runMode: "shields"
+      },
+      { domain: "site-1.com", latestReportId: "temporal", requestedUrl: "https://site-1.com/", headline: "Report 1", runMode: null },
+      { domain: "site-2.com", latestReportId: "consent", requestedUrl: "https://site-2.com/", headline: "Report 2", runMode: "consent" }
+    ]
+  );
+  // The homepage's "Open latest report" needs none of it, so the newest report stays small.
+  assert.deepEqual(Object.keys(discovery.latestReport ?? {}).sort(), ["domain", "latestReportId", "scannedAt"]);
 });

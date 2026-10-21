@@ -5,6 +5,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, test } from "node:test";
 import { runtimeStatus } from "./runtime-status";
+import { isScanRuntimeHealth, shareReportMaxAgeDays, type ScanRuntimeHealth } from "./scan-runtime-health";
 
 const SCAN_ACCESS_TOKEN_ENV = "SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN";
 const REPORT_STORE_DIR_ENV = "SITE_BEHAVIOR_LAB_REPORT_STORE_DIR";
@@ -95,6 +96,25 @@ test("runtimeStatus degrades instead of throwing when the store backend is misco
   assert.equal(publicR2Status.scansAvailable, false);
   assert.deepEqual(publicR2Status.checks.publicR2Reports, { status: "misconfigured" });
   assert.equal(publicR2Status.warnings.some((warning) => warning.includes("required report persistence")), true);
+});
+
+test("the scan form reads the share retention this producer publishes, and no number from a broken store", async () => {
+  // The producer's real output, through the wire and the browser's own reader,
+  // so the two halves of this contract cannot drift apart unnoticed.
+  const read = async () => {
+    const wire: unknown = JSON.parse(JSON.stringify(await runtimeStatus(loadedAdblock)));
+    assert.equal(isScanRuntimeHealth(wire), true);
+    return shareReportMaxAgeDays(wire as ScanRuntimeHealth);
+  };
+  process.env[SCAN_ACCESS_TOKEN_ENV] = "secret-key";
+  process.env[SCANNER_EGRESS_ENV] = "github-actions-ubuntu";
+  assert.equal(await read(), 7);
+  process.env[REPORT_MAX_AGE_DAYS_ENV] = "3";
+  assert.equal(await read(), 3);
+  delete process.env[REPORT_MAX_AGE_DAYS_ENV];
+  // A store that cannot be built reports 0 days: the form states no number.
+  process.env[REPORT_STORE_BACKEND_ENV] = "r2";
+  assert.equal(await read(), null);
 });
 
 test("runtimeStatus reports degraded status for open local defaults", async () => {

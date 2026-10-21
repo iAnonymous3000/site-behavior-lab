@@ -1,4 +1,6 @@
 import { domainsMatch, type FeaturedSiteConfig } from "./featured-sites";
+import { reportRunMode, type RunMode } from "./run-mode-copy";
+import type { ComparisonType } from "./types";
 
 /**
  * Small, server-built discovery payload for the homepage. The full report
@@ -14,10 +16,13 @@ export type HomepageReportSource = {
    * newest report of the apex it sits under.
    */
   siteKey: string | null;
+  /** The lead run's published requested URL (origin and path, privacy-reduced). */
+  requestedUrl: string;
   headline: string;
   tone: "alarm" | "warn" | "info" | "calm";
   scannedAt: string;
   reportType: "single" | "comparison";
+  comparisonType: ComparisonType | null;
   thirdPartyRequests: number;
   trackerRequests: number;
   requestCapped: boolean;
@@ -44,16 +49,29 @@ export type HomepageFeaturedGroup = {
   items: HomepageFeaturedCard[];
 };
 
-export type HomepageKnownSite = {
+export type HomepageLatestReport = {
   /** Registrable domain and public site-profile key. */
   domain: string;
   latestReportId: string;
   scannedAt: string;
 };
 
+/**
+ * A corpus site the scan form recognizes, with what its note says about the
+ * site's newest report. Everything here is already public on the report.
+ */
+export type HomepageKnownSite = HomepageLatestReport & {
+  /** The report's published requested URL: the page its evidence is for. */
+  requestedUrl: string;
+  /** The report's headline, verbatim: the field the featured cards carry. */
+  headline: string;
+  /** The Run control's mode the report came from; null for a kind the form cannot run. */
+  runMode: RunMode | null;
+};
+
 export type HomepageDiscovery = {
   reportCount: number;
-  latestReport: HomepageKnownSite | null;
+  latestReport: HomepageLatestReport | null;
   knownSites: HomepageKnownSite[];
   featuredGroups: HomepageFeaturedGroup[];
 };
@@ -161,7 +179,10 @@ export function buildHomepageDiscovery(
     newestBySite.set(domain, {
       domain,
       latestReportId: report.id,
-      scannedAt: report.scannedAt
+      scannedAt: report.scannedAt,
+      requestedUrl: report.requestedUrl,
+      headline: report.headline,
+      runMode: reportRunMode(report)
     });
   }
 

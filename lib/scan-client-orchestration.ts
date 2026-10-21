@@ -26,7 +26,7 @@ import {
   ScanJobEndedError,
   type AcceptedScanJobPoll
 } from "./scan-job-polling";
-import { isScanRuntimeHealth, type ScanRuntimeHealth } from "./scan-runtime-health";
+import { isScanRuntimeHealth, shareReportMaxAgeDays, type ScanRuntimeHealth } from "./scan-runtime-health";
 import type { LoadedReport } from "./scan-report-view";
 import type { ScanDevice, ScanJobProgress, ScanJobSubmissionResponse } from "./types";
 
@@ -77,6 +77,8 @@ export type ScanRuntimePolicy = {
   awaitingTurnstile: boolean;
   awaitingScannerHealth: boolean;
   scanBlocked: boolean;
+  /** The scanner's own share retention in days; null while pending, after a failure, or when it reports none. */
+  shareReportMaxAgeDays: number | null;
 };
 
 export function deriveScanRuntimePolicy(input: {
@@ -146,7 +148,8 @@ export function deriveScanRuntimePolicy(input: {
     turnstileUnsupported,
     awaitingTurnstile,
     awaitingScannerHealth,
-    scanBlocked
+    scanBlocked,
+    shareReportMaxAgeDays: shareReportMaxAgeDays(input.health)
   };
 }
 

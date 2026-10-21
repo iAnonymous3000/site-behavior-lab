@@ -7,10 +7,24 @@ import {
   RUN_MODE_LABELS,
   RUN_MODE_TITLES,
   RUN_MODE_UNAVAILABLE_NOTES,
+  reportRunMode,
   runModeAvailability,
   runModeDescription,
   runModeHint
 } from "./run-mode-copy";
+
+test("a published report names its kind by the Run control's mode, or by none the form cannot run", () => {
+  assert.equal(reportRunMode({ reportType: "single" }), "single");
+  assert.equal(reportRunMode({ reportType: "single", comparisonType: null }), "single");
+  assert.equal(reportRunMode({ reportType: "comparison", comparisonType: "gpc" }), "gpc");
+  assert.equal(reportRunMode({ reportType: "comparison", comparisonType: "shields" }), "shields");
+  assert.equal(reportRunMode({ reportType: "comparison", comparisonType: "consent" }), "consent");
+  // Kinds the Run control cannot produce get no mode, never a borrowed one.
+  assert.equal(reportRunMode({ reportType: "comparison", comparisonType: "temporal" }), null);
+  assert.equal(reportRunMode({ reportType: "comparison", comparisonType: "custom" }), null);
+  assert.equal(reportRunMode({ reportType: "comparison", comparisonType: null }), null);
+  assert.equal(reportRunMode({ reportType: "comparison" }), null);
+});
 
 test("run-mode labels lead with function, not Brave-internal vocabulary", () => {
   assert.equal(RUN_MODE_LABELS.shields, "Blocker");
