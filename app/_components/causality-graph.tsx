@@ -144,7 +144,7 @@ function CausalityGraph({
         <span className="muted">
           {instrumented
             ? "Which recorded actor each third-party request is attributed to, from the supplied PageGraph provenance. Asterisks mark subdomain labels hidden for privacy."
-            : "Which actor each third-party request is attributed to, from the initiator the browser reported. Attribution, not causation: an initiator may itself have been told what to fetch, and requests with no reported initiator are not distinguished from ones fetched from several. Asterisks mark subdomain labels hidden for privacy."}
+            : "Which actor each third-party request is attributed to, from the initiator the browser reported. Attribution, not causation: an initiator may itself have been told what to fetch, a script that wraps fetch or XHR is credited with the requests it relays, and a script can choose the name it is credited under. Requests made by dedicated workers are not observed. Asterisks mark subdomain labels hidden for privacy."}
         </span>
       </div>
       <dl className="attribution-coverage" aria-label="Request attribution coverage">
@@ -164,10 +164,12 @@ function CausalityGraph({
       {coverage.notAttributableRequests > 0 && (
         <p className="attribution-coverage-note">
           No unique actor could be assigned to{" "}
-          {coverage.notAttributableValue} of these requests. That includes requests for
-          which the browser reported no usable initiator, and repeated URLs seen with
-          conflicting initiators. This report does not distinguish those causes, so they
-          are counted together rather than drawn.
+          {coverage.notAttributableValue} of these requests.{" "}
+          {instrumented
+            ? "That includes requests for which the browser reported no usable initiator, and repeated URLs seen with conflicting initiators."
+            : "That includes requests for which the browser reported no usable initiator, repeated URLs seen with conflicting initiators, and URLs requested more times than the scan received an initiator for them, such as one a dedicated worker also requested."}{" "}
+          This report does not distinguish those causes, so they are counted together
+          rather than drawn.
         </p>
       )}
       <p className={`attribution-coverage-note${coverage.lowerBound ? " is-lower-bound" : ""}`}>

@@ -9,6 +9,24 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- The coverage boundary, the README, the capabilities doc and the request
+  attribution map now say what a recorded initiator can stand for beyond a
+  loader that was told what to fetch. A script that wraps fetch or
+  XMLHttpRequest is credited with every request it relays: 217 committed
+  rows in 24 runs credit Datadog's browser agent, among them requests to
+  Google Analytics, Amazon Ads, Permutive and Lotame. A script can give
+  itself any name with a sourceURL comment, and is credited under that
+  name. Requests made by dedicated workers are not observed. The boundary
+  and the map's coverage note add the rows the join now refuses, a URL
+  requested more times than the scan received an initiator for it, and the
+  boundary says that a report made before that rule can show the page's
+  initiator on a worker's row, with nothing in its methodology to say
+  which rule it was made under. A report adapted from PageGraph keeps its
+  map subtitle and coverage note. Report JSON is unchanged. All 1,029
+  committed reports draw the map, so each shows the new subtitle in the
+  evidence explorer and on the printable page and PDF the scanner serves,
+  and 730 of them also show the new coverage note. The static permalink
+  does not render the map, since the explorer loads lazily.
 - A live scan no longer credits a dedicated worker's request with the
   page's initiator. The initiator join pairs the request log's rows with
   Chromium's initiator reports by URL, and the session it reads sees only

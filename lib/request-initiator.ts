@@ -1,17 +1,18 @@
 /**
  * Who asked for this request?
  *
- * Every request row in every live report renders "Not attributed", because
- * `NetworkRequestProvenance` is populated only by the PageGraph import path. The
- * slot is already on the frozen r2 wire; a live scan simply never filled it. So
- * a reader can see that a page contacted a tracker and cannot see what on the
- * page reached for it, which is the single question a reader with DevTools open
- * answers in one glance.
+ * A request log shows that a page contacted a tracker. What on the page reached
+ * for it is the question a reader with DevTools open answers in one glance.
+ * The scanner records Chromium's answer here, from a second CDP session on the
+ * measured page, and after the visit writes what each row can claim into its
+ * `NetworkRequestProvenance` slot as `initiatorUrl` and `initiatorDomain`,
+ * redacted like a request URL. A row with no claim renders "Not attributed".
+ * Reports adapted from PageGraph fill the same slot from their own graph.
  *
  * WHAT THIS DELIBERATELY DOES NOT CLAIM.
  *
- * Chromium reports an `initiator` for each request, with a type
- * (`parser`, `script`, `preload`, `other`) plus a URL and sometimes a JS stack.
+ * Chromium reports an `initiator` for each request, with a type such as
+ * `parser`, `script`, `preload` or `other`, plus a URL and sometimes a JS stack.
  * This module takes ONLY the URL. It never populates `initiatorType`, for a
  * reason that is easy to get wrong: that field is redacted against a PageGraph
  * NODE-TYPE vocabulary, where `parser` and `script` also appear but mean
@@ -20,12 +21,16 @@
  * would widen an admitted public string, which retires the r2 normalization
  * identity for every already-published report.
  *
- * So the claim this supports is narrower and true: "the request for X was
- * initiated by Y". It is NOT script-to-request causality. A script URL in an
- * initiator position may be a loader that was itself told what to fetch, and a
- * `parser`-initiated request carries the document's URL rather than the markup
- * that referenced it. Only PageGraph's instrumented causal graph supports the
- * stronger statement, and reports built from it say so.
+ * So the claim this supports is narrower and true: "when Chromium created the
+ * request for X, it named Y". It is NOT script-to-request causality. Y is the
+ * document or stylesheet whose parsing produced the request, the module that
+ * imported it, or the innermost code on the call stack that had a name. So a
+ * script URL in an initiator position may be a loader that was itself told
+ * what to fetch, a wrapper around fetch or XMLHttpRequest credited with the
+ * call it relayed, or a name the code gave itself with a sourceURL comment,
+ * and a `parser`-initiated request carries the document's URL rather than the
+ * markup that referenced it. Only PageGraph's instrumented causal graph
+ * supports the stronger statement, and reports built from it say so.
  *
  * ATTRIBUTE ONLY WHAT CORRELATES UNAMBIGUOUSLY.
  *
@@ -90,8 +95,13 @@ function topStackUrl(stack: unknown): string | null {
       if (isRecord(frame) && typeof frame.url === "string" && frame.url) return frame.url;
     }
   }
-  // An async chain's parent can hold the URL when the immediate frames are
-  // anonymous (a common shape for tag managers).
+  // Kept for a stack that carries an async parent, which a live scan never
+  // receives: V8 records async stacks only once a client raises the async
+  // call stack depth, and neither the scanner nor Playwright does, so a
+  // callback's stack holds only its own frames. Case 5 of
+  // lib/request-initiator-fixture.test.ts fails first if a parent ever
+  // arrives, and following one would credit the code that scheduled the
+  // callback, a weaker claim.
   return topStackUrl(stack.parent);
 }
 

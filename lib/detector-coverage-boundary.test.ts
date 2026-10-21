@@ -20,6 +20,7 @@ import {
 import { NODE_SCANNER_METHODOLOGY_VERSION } from "./legacy-methodology";
 import { NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION } from "./scan-report-v2-r2-producer-contract";
 import { DETECTOR_VERSIONS } from "./measurement-kernel";
+import { RequestInitiatorIndex } from "./request-initiator";
 
 const root = process.cwd();
 
@@ -484,4 +485,83 @@ test("the cross-realm canvas entry tells a reader which reports observed Offscre
   assert.match(entry.explanation, /\bonly through drawImage\b/);
   assert.match(entry.explanation, /any other route[^.]*is not traced, for either kind of canvas/);
   assert.match(entry.explanation, /still pending when the visit's evidence is collected/);
+});
+
+/**
+ * Every report links to this catalog, including the reports made before the
+ * initiator join counted requests. The causality entry must say what
+ * lib/request-initiator-fixture.test.ts observed in the scan browser: a fetch
+ * wrapper is credited with what it relays, a script can name itself, and a
+ * dedicated worker's requests are never observed. It must name the rows the
+ * join refuses for that last reason, and say that earlier reports carry no
+ * marker of the rule. Each of those is a claim about code, so each is pinned
+ * to the code that makes it true.
+ */
+test("the causality entry discloses wrappers, self-naming and unobserved workers, and which reports refuse a worker's URL", () => {
+  const entry = COVERAGE_BOUNDARY_ENTRIES.find((candidate) => candidate.id === "script-to-request-causality");
+  assert.ok(entry, "the causality boundary entry must exist");
+  assert.match(
+    entry.explanation,
+    /\bwraps fetch or XMLHttpRequest\b[^.]*\bis credited with every request it relays\b/,
+    "the entry must say a wrapper is credited with the requests it relays (fixture case 4)"
+  );
+  assert.match(
+    entry.explanation,
+    /\bany name with a sourceURL comment\b/,
+    "the entry must say a script can choose the name it is credited under (fixture case 7)"
+  );
+  assert.match(
+    entry.explanation,
+    /\bRequests made by a dedicated worker are not observed\b/,
+    "the entry must say a dedicated worker's requests are not observed (fixture cases 9 and 11)"
+  );
+
+  const kinds = /\bThree kinds of row carry no attribution\b[^.]*\./.exec(entry.explanation)?.[0];
+  assert.ok(kinds, "the entry must name every kind of row that carries no attribution");
+  assert.match(kinds, /\bno usable initiator\b/);
+  assert.match(kinds, /\bmore than one initiator\b/);
+  assert.match(kinds, /\brequested more times than the scan received an initiator for it\b/);
+  assert.match(kinds, /\bdedicated worker\b/);
+
+  // The third kind is a claim about the join: a URL requested twice and
+  // observed once must be refused.
+  const index = new RequestInitiatorIndex();
+  index.record({ requestUrl: "https://t.example/shared", initiatorUrl: "https://s.example/main.js" });
+  index.noteRequest("https://t.example/shared");
+  index.noteRequest("https://t.example/shared");
+  assert.equal(
+    index.claim("https://t.example/shared"),
+    null,
+    "the entry says a URL requested more times than it was observed carries no attribution, so the join must refuse it"
+  );
+  // And a claim about the live producer: the count must come from the page's
+  // own request listener, registered before the visit navigates. A count of
+  // the recorded rows, or one that starts late, misses requests the session
+  // observed and lets one of them stand in for a worker's row
+  // (lib/scanner.test.ts pins the behavior in a real scan).
+  const scanner = readFileSync(path.join(root, "lib", "scanner.ts"), "utf8");
+  const registration = scanner.indexOf('page.on("request", noteInitiatorRequest)');
+  const navigation = scanner.indexOf(".goto(targetUrl.toString()");
+  assert.ok(registration >= 0, "the live producer must count every request the page reports, or the third kind overstates");
+  assert.ok(navigation >= 0, "the scanner's navigation was not found");
+  assert.ok(registration < navigation, "the live producer must start counting before the visit navigates");
+
+  // Option (i) of the 2026-10-20 attribution design note: no methodology
+  // component marks the rule. If one ever does, the entry must name it, as
+  // the cross-realm canvas entry names its markers, instead of saying that
+  // nothing marks it.
+  const earlier = /\bBefore the scan compared those two counts\b[^.]*\./.exec(entry.explanation)?.[0];
+  assert.ok(earlier, "the entry must say what reports made before the rule can show");
+  assert.match(earlier, /\bthe page's initiator on every row, the worker's included\b/);
+  const components = [NODE_SCANNER_METHODOLOGY_VERSION, NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION].flatMap((version) =>
+    version.split("+")
+  );
+  const marker = components.find((component) => /initiator/i.test(component));
+  assert.equal(
+    /\bnothing in a report's methodology says which rule it was made under\b/.test(earlier),
+    marker === undefined,
+    marker === undefined
+      ? "no methodology component marks the rule, so the entry must say a report's methodology does not say which rule it was made under"
+      : `${marker} now marks the initiator rule, so the entry must name it instead of saying nothing marks it`
+  );
 });

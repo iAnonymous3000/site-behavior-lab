@@ -102,7 +102,10 @@ proposal that a maintainer merges.
   corroboration; standalone legal determinations and use as a sole court
   exhibit are excluded, as recorded in `RELEASE_READINESS.json`.
 - **Attribution is not causation.** The script-to-request map records the
-  initiator Chromium reported, which may itself have been told what to fetch.
+  initiator Chromium reported, which may itself have been told what to fetch,
+  may be a fetch or XHR wrapper credited with another script's request, and
+  may be a name the script gave itself. Requests made by dedicated workers are
+  not observed, so a URL a worker requests carries no attribution on any row.
 - **Consent evidence spans the click.** Even a verified reject-all visit
   records traffic from before and after the choice, so a tracker seen there
   may be pre-choice, strictly necessary, or claimed under legitimate interest.

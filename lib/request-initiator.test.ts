@@ -32,8 +32,8 @@ test("the initiator falls back to the nearest stack frame that names a URL", () 
 });
 
 test("an async parent stack is followed when the immediate frames are anonymous", () => {
-  // The common tag-manager shape: the synchronous frames are anonymous and the
-  // URL only appears on the async parent.
+  // What the parser does with a parent, not a shape a live scan receives: no
+  // stack the scanner reads carries one (see the comment on topStackUrl).
   const observation = initiatorObservationFromCdpParams({
     request: { url: "https://tracker.example/p" },
     initiator: {
