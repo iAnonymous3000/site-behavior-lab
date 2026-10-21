@@ -405,12 +405,14 @@ export function ScanControls({
       )}
 
       {awaitingTurnstile && (
-        // The Scan button stays disabled until the check passes, and a disabled
+        // The submit button stays disabled until the check passes, and a disabled
         // button takes no focus, so Enter in the field did nothing a keyboard
         // or screen-reader user could hear. The field names this note while
-        // the check runs.
+        // the check runs. It names no button label: the button can read Scan,
+        // Compare, Check now or Compare now, and a status that changed with
+        // each keystroke would be announced again.
         <p className="scanner-status-note" id="scan-check-note" role="status">
-          Finishing a quick browser check above. Scan turns on once it passes; if the check does not load you can retry it there.
+          Finishing a quick browser check above. Scanning turns on once it passes; if the check does not load you can retry it there.
         </p>
       )}
 

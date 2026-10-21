@@ -9,6 +9,9 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- While the browser check runs, the note under the scan form now says
+  scanning turns on once the check passes. It said "Scan", but the button
+  beside the address can read Scan, Compare, Check now or Compare now.
 - On the homepage, an address whose site already has evidence now leads with
   that evidence instead of a one-line hint. The note under the field offers
   "Read the report from <date>" as the primary action, keeps "View history",
