@@ -32,12 +32,20 @@ const FIXTURE_TIMEOUT_MS = 60_000;
 
 // Each fixture test loads this module to report whether its process was
 // started with the lanes' preload and whether its stdout blocks. Node has no
-// call that reads a descriptor's flags, but WASI's fd_fdstat_get does: node's
-// WASI reports the descriptor's O_NONBLOCK as FDFLAGS_NONBLOCK, bit 2.
-// Turning blocking off for a moment must show that bit, or the reading proves
-// nothing.
+// call that reads a descriptor's flags. On Linux the kernel shows them in
+// /proc/self/fdinfo, in octal, where O_NONBLOCK is 04000; elsewhere WASI's
+// fd_fdstat_get reads them: node's WASI reports the descriptor's O_NONBLOCK
+// as FDFLAGS_NONBLOCK, bit 2. On Linux, CI's runners and the container
+// build, the WASI reading never showed the bit (2026-10-21). Turning blocking
+// off for a moment must show it, or the reading proves nothing.
 const STDOUT_PROBE = `
 function stdoutNonBlocking() {
+  if (process.platform === "linux") {
+    const fdinfo = require("node:fs").readFileSync("/proc/self/fdinfo/1", "utf8");
+    const flags = /^flags:[ \\t]+([0-7]+)$/m.exec(fdinfo);
+    if (!flags) throw new Error("/proc/self/fdinfo/1 has no flags line");
+    return (parseInt(flags[1], 8) & 0o4000) !== 0;
+  }
   // node:wasi warns, once, as it loads, that it is experimental.
   const emitWarning = process.emitWarning;
   process.emitWarning = () => {};

@@ -9,6 +9,11 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- The runner's test that every lib test file's process writes to a blocking
+  stdout now reads the descriptor's flags from /proc on Linux. Its WASI
+  reading never showed O_NONBLOCK on CI's Linux runners or in the container
+  build, so the test failed there although both lanes passed; macOS keeps
+  the WASI reading.
 - A lib test file's last results are no longer dropped when node --test falls
   behind reading them. With --test-force-exit, a file's process could exit
   while results it had written were still queued for node --test, and the
