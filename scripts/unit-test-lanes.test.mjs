@@ -1,15 +1,17 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { mkdtemp, mkdir, readFile, rm, symlink, writeFile } from "node:fs/promises";
-import { readdirSync, readFileSync } from "node:fs";
+import { closeSync, openSync, readdirSync, readFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import fileSummaries, {
+  BLOCKING_STDOUT_PRELOAD,
   SERIAL_LANE_FILE,
   TEST_BOUND_FLAGS,
   TEST_TIMEOUT_MS,
+  blocksStdoutIn,
   filesWithoutSummary,
   parseLaneArguments,
   partitionCompiledTests,
@@ -27,6 +29,42 @@ const libTests = readdirSync(path.join(root, "lib"))
 // finishes must fail its test instead of hanging this file, and spawnSync
 // blocks this process, so no node --test timeout could interrupt it.
 const FIXTURE_TIMEOUT_MS = 60_000;
+
+// Each fixture test loads this module to report whether its process was
+// started with the lanes' preload and whether its stdout blocks. Node has no
+// call that reads a descriptor's flags, but WASI's fd_fdstat_get does: node's
+// WASI reports the descriptor's O_NONBLOCK as FDFLAGS_NONBLOCK, bit 2.
+// Turning blocking off for a moment must show that bit, or the reading proves
+// nothing.
+const STDOUT_PROBE = `
+function stdoutNonBlocking() {
+  // node:wasi warns, once, as it loads, that it is experimental.
+  const emitWarning = process.emitWarning;
+  process.emitWarning = () => {};
+  let WASI;
+  try {
+    ({ WASI } = require("node:wasi"));
+  } finally {
+    process.emitWarning = emitWarning;
+  }
+  // WASI writes its answers into an instance's memory, and needs nothing else
+  // from the instance, so a bare memory stands in for one.
+  const wasi = new WASI({ version: "preview1" });
+  const memory = new WebAssembly.Memory({ initial: 1 });
+  wasi.initialize({ exports: { memory } });
+  const errno = wasi.wasiImport.fd_fdstat_get(1, 0);
+  if (errno !== 0) throw new Error("fd_fdstat_get(1) returned errno " + errno);
+  // The fdstat record keeps its 16-bit flags at byte 2.
+  return (new DataView(memory.buffer).getUint16(2, true) & 4) !== 0;
+}
+module.exports = () => {
+  const blocking = !stdoutNonBlocking();
+  process.stdout._handle.setBlocking(false);
+  const flagVisible = stdoutNonBlocking();
+  process.stdout._handle.setBlocking(blocking);
+  return { preloaded: process.execArgv.includes(${JSON.stringify(BLOCKING_STDOUT_PRELOAD)}), flagVisible, blocking };
+};
+`;
 
 // Every `&&` step test:unit executes, following `npm run` hops, including the
 // alongside command the lanes start.
@@ -207,14 +245,71 @@ test("a file counts as finished only through its own summary, under any spelling
   assert.deepEqual(filesWithoutSummary(files, path.join(dir, "never-written"), real), files);
 });
 
+test("the stdout preload acts only in a lane test file's own process, and only where it was named", () => {
+  // A test file's process as node --test starts it in a lane.
+  const testFile = {
+    env: { NODE_TEST_CONTEXT: "child-v8" },
+    argv: [process.execPath, "/repo/.unit-test-dist/lib/a.test.js"],
+    execArgv: [BLOCKING_STDOUT_PRELOAD, ...TEST_BOUND_FLAGS],
+    mainThread: true
+  };
+  assert.equal(blocksStdoutIn(testFile), true);
+  // node --test itself loads the preload too. Its argv[1] is its first test
+  // file, and its stdout is the gate's own.
+  assert.equal(
+    blocksStdoutIn({ ...testFile, env: {}, argv: [process.execPath, ".unit-test-dist/lib/a.test.js"] }),
+    false,
+    "node --test itself"
+  );
+  // A worker thread loads --require preloads as well, and is handed any argv.
+  assert.equal(blocksStdoutIn({ ...testFile, mainThread: false }), false, "a worker thread");
+  // A program a test forks inherits NODE_TEST_CONTEXT and the preload.
+  assert.equal(
+    blocksStdoutIn({ ...testFile, argv: [process.execPath, "/repo/.unit-test-dist/lib/fixture-server.js"] }),
+    false,
+    "a forked program"
+  );
+  // A test file that imports the runner, as this one does, without the preload.
+  assert.equal(
+    blocksStdoutIn({ ...testFile, argv: [process.execPath, fileURLToPath(import.meta.url)], execArgv: [...TEST_BOUND_FLAGS] }),
+    false,
+    "a test file that only imports the runner"
+  );
+});
+
+test("a test file's process says so on stderr when its stdout cannot be made blocking", async (t) => {
+  // A file is not a stream libuv can switch, so setBlocking is unavailable
+  // there, as it would be if a future node dropped the method.
+  const dir = await mkdtemp(path.join(os.tmpdir(), "unit-test-lanes-preload-"));
+  t.after(() => rm(dir, { recursive: true, force: true }));
+  const testFile = path.join(dir, "a.test.js");
+  await writeFile(testFile, "");
+  const stdout = openSync(path.join(dir, "stdout"), "w");
+  let result;
+  try {
+    result = spawnSync(process.execPath, [BLOCKING_STDOUT_PRELOAD, testFile], {
+      encoding: "utf8",
+      timeout: FIXTURE_TIMEOUT_MS,
+      stdio: ["ignore", stdout, "pipe"],
+      env: { ...process.env, NODE_TEST_CONTEXT: "child-v8" }
+    });
+  } finally {
+    closeSync(stdout);
+  }
+  assert.equal(result.error, undefined);
+  assert.equal(result.signal, null);
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stderr, /setBlocking on this test file's stdout returned undefined, so --test-force-exit can still drop/);
+});
+
 // Runs the real CLI over a throwaway package: three parallel tests, an
 // alongside script and two serial tests, each appending its name to one log
-// when it runs, and each test recording the bound flags its process was given.
-// `fail` names the one piece that should fail; `writeDist` names a parallel
-// test that also writes into dist/; `leak` names tests that pass but leave a
-// server listening; `cut` names test files whose process exits 0 in a second
-// test, before writing the summary that ends its results; `serialLane`
-// replaces the lane.
+// when it runs, and each test recording the bound flags its process was given
+// and what STDOUT_PROBE found there. `fail` names the one piece that should
+// fail; `writeDist` names a parallel test that also writes into dist/; `leak`
+// names tests that pass but leave a server listening; `cut` names test files
+// whose process exits 0 in a second test, before writing the summary that ends
+// its results; `serialLane` replaces the lane.
 async function runFixture(
   t,
   {
@@ -229,14 +324,19 @@ async function runFixture(
   t.after(() => rm(dir, { recursive: true, force: true }));
   const log = path.join(dir, "finished.log");
   const boundLog = path.join(dir, "bound.log");
+  const stdoutLog = path.join(dir, "stdout.log");
+  const stdoutProbe = path.join(dir, "stdout-probe.js");
   await mkdir(path.join(dir, ".unit-test-dist", "lib"), { recursive: true });
   await mkdir(path.join(dir, "scripts"));
+  await writeFile(stdoutProbe, STDOUT_PROBE);
   const body = (name) =>
     `const { appendFileSync, mkdirSync, writeFileSync } = require("node:fs");\n` +
     `require("node:test")(${JSON.stringify(name)}, async () => {\n` +
     `  appendFileSync(${JSON.stringify(log)}, ${JSON.stringify(`${name}\n`)});\n` +
     `  const bound = new Set(process.execArgv.filter((arg) => /^--test-(?:timeout|force-exit)/.test(arg)));\n` +
     `  appendFileSync(${JSON.stringify(boundLog)}, JSON.stringify([${JSON.stringify(name)}, ...bound]) + "\\n");\n` +
+    `  const stdout = require(${JSON.stringify(stdoutProbe)})();\n` +
+    `  appendFileSync(${JSON.stringify(stdoutLog)}, JSON.stringify([${JSON.stringify(name)}, stdout]) + "\\n");\n` +
     `  if (${JSON.stringify(leak)}.includes(${JSON.stringify(name)})) {\n` +
     `    const server = require("node:net").createServer();\n` +
     `    await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));\n` +
@@ -288,7 +388,13 @@ async function runFixture(
         return [name, flags.sort()];
       })
   );
-  return { status: result.status, output, finished, bound };
+  const stdout = new Map(
+    (await readFile(stdoutLog, "utf8").catch(() => ""))
+      .split("\n")
+      .filter(Boolean)
+      .map((line) => JSON.parse(line))
+  );
+  return { status: result.status, output, finished, bound, stdout };
 }
 
 test("the serial lane starts only after the parallel lane and the alongside command both pass", async (t) => {
@@ -310,6 +416,21 @@ test("both lanes run every lib test file under TEST_BOUND_FLAGS", async (t) => {
   for (const name of ["p1", "p2", "p3", "s1", "s2"]) {
     assert.deepEqual(bound.get(name), [...TEST_BOUND_FLAGS].sort(), `${name} ran without ${TEST_BOUND_FLAGS.join(" ")}`);
   }
+});
+
+test("both lanes give every lib test file's process a blocking stdout, so force-exit finds no results queued", async (t) => {
+  // On 2026-10-21 --test-force-exit dropped the last 45 of a file's results
+  // while they waited in its process for node --test to read them. A blocking
+  // stdout cannot hold any back.
+  const { status, output, stdout } = await runFixture(t);
+  assert.equal(status, 0, output);
+  for (const name of ["p1", "p2", "p3", "s1", "s2"]) {
+    const found = stdout.get(name);
+    assert.equal(found?.preloaded, true, `${name}'s process was started without ${BLOCKING_STDOUT_PRELOAD}`);
+    assert.equal(found.flagVisible, true, `${name} could not see O_NONBLOCK on its stdout, so its reading proves nothing`);
+    assert.equal(found.blocking, true, `${name}'s stdout does not block`);
+  }
+  assert.doesNotMatch(output, /setBlocking on this test file's stdout/);
 });
 
 test("a lib test that passes but leaves a server listening does not hold its lane open", async (t) => {

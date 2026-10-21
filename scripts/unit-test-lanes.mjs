@@ -29,7 +29,9 @@
 // A lane passes only if every one of its files delivered the summary its
 // process writes last. node --test passes a file whose process exits 0 on the
 // results that reached it, however few; this runner names the file instead.
-// See fileSummaries below.
+// See fileSummaries below. Each file's process also writes to a blocking
+// stdout, so --test-force-exit finds none of its results still queued to
+// drop. See BLOCKING_STDOUT_PRELOAD below.
 //
 // dist/ is the one shared build output tests read: several load
 // dist/schema/lib/*.js before falling back to .unit-test-dist, and tsc rewrites
@@ -40,17 +42,19 @@
 // scripts/unit-test-lanes.test.mjs forces every lib test that matches a
 // browser, timing, timer, git-spawning or Worker-runtime pattern into the
 // serial lane, proves this runner fails when any lane fails, a file's results
-// stop short or dist/ changes, and holds every node --test stage of test:unit
-// to TEST_TIMEOUT_MS. Those patterns are a heuristic, not a proof: a deadline
-// hidden in a helper module can still slip past them, so a test that ever
-// fails only in the parallel lane belongs in the serial lane, never behind a
-// retry.
+// stop short or dist/ changes, reads O_NONBLOCK on the stdout of every test
+// file's process in both lanes, and holds every node --test stage of
+// test:unit to TEST_TIMEOUT_MS. Those patterns are a heuristic, not a proof:
+// a deadline hidden in a helper module can still slip past them, so a test
+// that ever fails only in the parallel lane belongs in the serial lane, never
+// behind a retry.
 
 import { spawn } from "node:child_process";
 import { existsSync, lstatSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { isMainThread } from "node:worker_threads";
 
 export const SERIAL_LANE_FILE = path.join("scripts", "unit-test-serial-lane.json");
 // Three test files plus the alongside process keep a 4-vCPU CI runner busy
@@ -71,11 +75,12 @@ export const TEST_TIMEOUT_MS = 600_000;
 // --test waits for that process to exit. --test-force-exit ends each test
 // process once its tests and hooks have finished. The cost: asynchronous
 // activity after a file's last test, such as a late rejection, goes
-// unreported, because the process is gone before it happens, and so can the
-// end of the file's own results (see fileSummaries). One hang remains out of
-// reach: a child that never exits and shares the test process's stdout (stdio
-// "inherit", say) keeps open the pipe node --test reads results from. A child
-// that shares only stderr does not.
+// unreported, because the process is gone before it happens. The end of the
+// file's own results could go the same way: BLOCKING_STDOUT_PRELOAD keeps
+// them, and fileSummaries fails the file if they go anyway. One hang remains
+// out of reach: a child that never exits and shares the test process's stdout
+// (stdio "inherit", say) keeps open the pipe node --test reads results from.
+// A child that shares only stderr does not.
 export const TEST_BOUND_FLAGS = [`--test-timeout=${TEST_TIMEOUT_MS}`, "--test-force-exit"];
 
 // node --test runs each test file in its own process, which streams its
@@ -134,6 +139,67 @@ function canonicalPath(file) {
   } catch {
     return path.resolve(file);
   }
+}
+
+// --test-force-exit's process.exit() drops only the results a test file's
+// process still holds queued for stdout, and a process whose stdout blocks
+// holds none: each write returns once node --test's pipe has taken the bytes,
+// waiting while that pipe is full. So both lanes preload this module into
+// every test file's process, where it makes stdout blocking with
+// Pipe#setBlocking, the undocumented method Node itself applies to terminals
+// in lib/tty.js and to pipes on Windows in lib/net.js. Any status but 0 is
+// reported on stderr, and fileSummaries still fails a file whose results go
+// some other way.
+//
+// node --test hands its own options to each file's process, and --require
+// loads this ES module there synchronously. --import would too, but it sends
+// every CommonJS entry point through the ES module loader, which would change
+// how every compiled lib test loads. The costs: a few milliseconds to start
+// each test file's process, and while node --test falls behind, that process
+// now waits in write() where it used to queue, so none of its timers,
+// --test-timeout's included, can fire until node --test reads again. A node
+// program that shares that stdout (stdio "inherit") and writes to it makes it
+// non-blocking again while it runs, and leaves it so if it is killed, and a
+// signal that interrupts a large blocked write leaves the rest of that write
+// queued. Results can then be dropped as before, and fileSummaries names the
+// file.
+export const BLOCKING_STDOUT_PRELOAD = `--require=${fileURLToPath(import.meta.url)}`;
+
+// The preload also runs in node --test itself, whose argv[1] is its first test
+// file and whose stdout is the gate's own; in worker threads; and in any
+// program a test forks, which inherits NODE_TEST_CONTEXT and these options.
+// It acts only in a test file's own process, and only where that process's
+// command line names it, so importing this module, as its tests do, changes
+// nothing.
+export function blocksStdoutIn({ env, argv, execArgv, mainThread }) {
+  return (
+    env.NODE_TEST_CONTEXT === "child-v8" &&
+    mainThread &&
+    /\.test\.m?js$/.test(argv[1] ?? "") &&
+    execArgv.includes(BLOCKING_STDOUT_PRELOAD)
+  );
+}
+
+if (blocksStdoutIn({ env: process.env, argv: process.argv, execArgv: process.execArgv, mainThread: isMainThread })) {
+  const status = process.stdout._handle?.setBlocking?.(true);
+  if (status !== 0) {
+    process.stderr.write(
+      `unit-test-lanes: setBlocking on this test file's stdout returned ${status}, ` +
+        `so --test-force-exit can still drop the end of its results\n`
+    );
+  }
+}
+
+// Everything a lane hands node --test, its files last.
+export function laneArguments(files, concurrency, summaryLog) {
+  return [
+    BLOCKING_STDOUT_PRELOAD,
+    "--test",
+    `--test-concurrency=${concurrency}`,
+    ...TEST_BOUND_FLAGS,
+    ...laneReporterFlags(summaryLog),
+    ...files
+  ];
 }
 
 const COMPILED_TEST = /^\.unit-test-dist\/lib\/[A-Za-z0-9._-]+\.test\.js$/;
@@ -215,13 +281,7 @@ async function runLane(files, concurrency) {
   scratch.add(dir);
   try {
     const summaryLog = path.join(dir, "summaries");
-    const result = await run(process.execPath, [
-      "--test",
-      `--test-concurrency=${concurrency}`,
-      ...TEST_BOUND_FLAGS,
-      ...laneReporterFlags(summaryLog),
-      ...files
-    ]);
+    const result = await run(process.execPath, laneArguments(files, concurrency, summaryLog));
     // A lane that never started has already failed and wrote no summaries.
     const unfinished = result.error ? [] : filesWithoutSummary(files, summaryLog);
     return { ...result, ok: result.ok && unfinished.length === 0, unfinished };

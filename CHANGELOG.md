@@ -9,6 +9,19 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- A lib test file's last results are no longer dropped when node --test falls
+  behind reading them. With --test-force-exit, a file's process could exit
+  while results it had written were still queued for node --test, and the
+  check that every file's summary arrived then failed the lane, as it did in
+  3 of 6 runs of five real files at load 6 to 13. Both lanes now preload the
+  runner into every test file's process, where it makes stdout blocking, so a
+  write waits for node --test instead of queueing. In 6 runs of those files
+  at load 5 to 14, no result was ever left queued, while one of 3 runs
+  without the preload came up 4 tests short. A node program that shares a
+  test's stdout and writes to it, or a signal during a large write, can still
+  leave results queued, and the summary check names the file either way; no
+  lib test shares its stdout today. Which tests run, and what each asserts,
+  is unchanged.
 - The unit test lanes now fail when a lib test file's results stop short.
   node --test passes a file whose process exits 0 on whatever results reached
   it, and with --test-force-exit a file's process can exit before node --test
