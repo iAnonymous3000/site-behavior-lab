@@ -26,6 +26,15 @@ import {
 } from "@/lib/turnstile-script-loader";
 import { selectTurnstileWidgetSize, type TurnstileWidgetSize } from "@/lib/turnstile-widget-size";
 import type { HomepageKnownSite } from "@/lib/homepage-discovery";
+import {
+  isScanAgainArrival,
+  knownEvidenceDifference,
+  knownEvidenceReport,
+  knownEvidenceTarget,
+  leadsWithExistingReport,
+  matchingKnownSite,
+  scanSubmitLabel
+} from "@/lib/known-site-evidence";
 import { committedReportLocation } from "@/lib/report-locator";
 import {
   RUN_MODE_CHECKING_NOTE,
@@ -77,6 +86,10 @@ type ScanControlsProps = {
   examples: { url: string; hint: string }[];
   onPickExample: (url: string) => void;
   knownSites: HomepageKnownSite[];
+  /** The address a site's own "Scan ... again" link prefilled, if the visitor arrived that way. */
+  prefilledUrl: string | null;
+  /** The scanner's own share retention in days, from its health; null states no number. */
+  shareReportMaxAgeDays: number | null;
   /** Server-rendered statement of what a scan does to the page, shown under the URL field. */
   disclosure?: ReactNode;
 };
@@ -116,24 +129,6 @@ function selectedRunMode(form: ScanFormState): RunMode {
   return form.compareShields ? "shields" : form.compareGpc ? "gpc" : form.compareConsent ? "consent" : "single";
 }
 
-function hostnameFromInput(value: string): string | null {
-  const trimmed = value.trim();
-  if (!trimmed) return null;
-  try {
-    const parsed = new URL(/^[a-z][a-z0-9+.-]*:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`);
-    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return null;
-    return parsed.hostname.toLowerCase().replace(/\.$/, "");
-  } catch {
-    return null;
-  }
-}
-
-function matchingKnownSite(value: string, knownSites: HomepageKnownSite[]): HomepageKnownSite | null {
-  const hostname = hostnameFromInput(value);
-  if (!hostname) return null;
-  return knownSites.find((site) => hostname === site.domain || hostname.endsWith(`.${site.domain}`)) ?? null;
-}
-
 export function ScanControls({
   form,
   setForm,
@@ -161,10 +156,24 @@ export function ScanControls({
   examples,
   onPickExample,
   knownSites,
+  prefilledUrl,
+  shareReportMaxAgeDays,
   disclosure
 }: ScanControlsProps) {
   const turnstileSiteKeyConfigured = Boolean(LIVE_SCAN_TURNSTILE_SITE_KEY);
   const knownSite = matchingKnownSite(form.url, knownSites);
+  const comparison = isComparisonMode(form);
+  // For a site with evidence the existing report is the primary action and the
+  // one submit button offers "Check now", so the button keeps every gate it
+  // already has. A visitor who followed the site's own "Scan ... again" link
+  // asked to scan, and a running or retained scan keeps the usual button: in
+  // those cases the button stays primary and the report link steps down.
+  const leadsWithReport = leadsWithExistingReport({
+    siteMatched: knownSite !== null,
+    scanAgainArrival: isScanAgainArrival(prefilledUrl, form.url),
+    scanBusy: loading || activeScanJob
+  });
+  const evidenceTarget = knownSite ? knownEvidenceTarget(form.url, knownSite.requestedUrl) : null;
   // Until health answers, a comparison is neither offered nor refused: the
   // buttons stay off and one line says the scanner is being checked.
   const gpcAvailability = runModeAvailability(gpcComparisonEnabled, awaitingScannerHealth);
@@ -204,12 +213,13 @@ export function ScanControls({
           placeholder="https://example.com"
         />
         <button
-          className={`primary-button${loading ? " is-loading" : ""}`}
+          className={`${leadsWithReport ? "secondary-button" : "primary-button"}${loading ? " is-loading" : ""}`}
           type="submit"
           disabled={loading || scanBlocked || activeScanJob}
+          aria-describedby={knownSite ? "known-evidence-difference" : undefined}
         >
           {loading ? <Loader2 className="spin" size={18} aria-hidden="true" /> : <Search size={18} aria-hidden="true" />}
-          {isComparisonMode(form) ? "Compare" : "Scan"}
+          {scanSubmitLabel({ comparison, leadsWithReport })}
         </button>
       </div>
 
@@ -217,17 +227,28 @@ export function ScanControls({
       {urlError && <p className="scanner-status-note scanner-status-note-error" id="url-error" role="alert">{urlError}</p>}
       {disclosure}
 
+      {/* Nothing in this live region is the typed text itself: it changes when
+          the matched site, the run mode, the page the evidence is for, or the
+          scanner's retention changes, never on each keystroke. */}
       {knownSite ? (
         <div className="known-evidence" role="status">
-          <span>
+          <p>
             Evidence already exists for <strong>{displayHost(knownSite.domain)}</strong> from {formatKnownEvidenceDate(knownSite.scannedAt)}.
-          </span>
-          <span className="known-evidence-actions">
-            <a href={committedReportLocation(knownSite.latestReportId, clientReportRuntime()).pagePath}>
-              Open latest evidence
+            {evidenceTarget && <> {evidenceTarget}</>}
+          </p>
+          <div className="known-evidence-actions">
+            <a
+              className={leadsWithReport ? "primary-button" : "secondary-button"}
+              href={committedReportLocation(knownSite.latestReportId, clientReportRuntime()).pagePath}
+            >
+              Read the report from {formatKnownEvidenceDate(knownSite.scannedAt)}
             </a>
             <a href={staticAssetPath(`/sites/${encodeURIComponent(knownSite.domain)}/`)}>View history</a>
-          </span>
+          </div>
+          <p>{knownEvidenceReport(knownSite)}</p>
+          <p id="known-evidence-difference">
+            {knownEvidenceDifference({ comparison, maxAgeDays: shareReportMaxAgeDays })}
+          </p>
         </div>
       ) : (
         <div className="scan-examples" aria-label="Example sites">

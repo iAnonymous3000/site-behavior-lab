@@ -123,6 +123,7 @@ export function SiteBehaviorApp({
     setTurnstileToken,
     urlNotice,
     urlError,
+    prefilledUrl,
     clearUrlNotice,
     policy,
     scannerStatus,
@@ -151,7 +152,8 @@ export function SiteBehaviorApp({
     awaitingTurnstile,
     awaitingScannerHealth,
     scannerUnavailable,
-    scanBlocked
+    scanBlocked,
+    shareReportMaxAgeDays
   } = policy;
   const [staticReports, setStaticReports] = useState<StaticReportManifestEntry[] | null>(null);
   const [staticReportsError, setStaticReportsError] = useState<string | null>(null);
@@ -321,6 +323,8 @@ export function SiteBehaviorApp({
       examples={EXAMPLES}
       onPickExample={useExample}
       knownSites={homepageDiscovery?.knownSites ?? []}
+      prefilledUrl={prefilledUrl}
+      shareReportMaxAgeDays={shareReportMaxAgeDays}
       disclosure={scanDisclosure}
     />
   );

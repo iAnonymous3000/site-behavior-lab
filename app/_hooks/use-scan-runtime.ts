@@ -111,6 +111,9 @@ export function useScanRuntime({
   const [scheduledRescanCreateBusy, setScheduledRescanCreateBusy] = useState(false);
   const [urlNotice, setUrlNotice] = useState("");
   const [urlError, setUrlError] = useState("");
+  // The address a site's own "Scan ... again" link prefilled, so the form can
+  // tell that arrival from typing. It changes no key the prefill accepts.
+  const [prefilledUrl, setPrefilledUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (reportPage) return;
@@ -141,6 +144,7 @@ export function useScanRuntime({
 
       if (navigation.targetUrl) {
         setForm((current) => ({ ...current, url: navigation.targetUrl ?? current.url }));
+        setPrefilledUrl(navigation.targetUrl);
       }
       if (navigation.scrollToScan) document.getElementById("scan")?.scrollIntoView();
     };
@@ -888,6 +892,7 @@ export function useScanRuntime({
     setTurnstileToken,
     urlNotice,
     urlError,
+    prefilledUrl,
     clearUrlNotice: () => {
       setUrlNotice("");
       setUrlError("");

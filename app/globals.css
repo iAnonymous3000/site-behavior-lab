@@ -823,19 +823,24 @@ a {
   line-height: 1.35;
 }
 
+/* The choice for a site that already has evidence: its newest report first,
+   then what a new check would do instead. The report link comes before the
+   longer text so it stays on a phone's first screen. */
 .known-evidence {
-  align-items: center;
   background: var(--sig-ok-soft);
   border: 1px solid color-mix(in srgb, var(--sig-ok) 35%, var(--border));
   border-radius: var(--radius-sm);
   color: var(--text-muted);
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
   font-size: 12.5px;
-  gap: 8px 16px;
-  justify-content: space-between;
+  gap: 8px;
+  line-height: 1.5;
   margin-top: 10px;
   padding: 9px 11px;
+}
+
+.known-evidence p {
+  margin: 0;
 }
 
 .known-evidence strong {
@@ -843,18 +848,30 @@ a {
 }
 
 .known-evidence-actions {
+  align-items: center;
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px 16px;
 }
 
-.known-evidence-actions a {
+/* A button-styled link may wrap inside a narrow phone column instead of
+   pushing the page sideways. */
+.known-evidence-actions .primary-button,
+.known-evidence-actions .secondary-button {
+  max-width: 100%;
+  text-align: center;
+  white-space: normal;
+}
+
+/* Scoped to the plain link: as `.known-evidence-actions a` this outranked
+   .primary-button's colour and put accent text on the accent fill. */
+.known-evidence-actions a:not(.primary-button):not(.secondary-button) {
   color: var(--accent-strong);
   font-weight: var(--weight-medium);
   text-decoration: none;
 }
 
-.known-evidence-actions a:hover {
+.known-evidence-actions a:not(.primary-button):not(.secondary-button):hover {
   text-decoration: underline;
 }
 
@@ -5230,11 +5247,6 @@ details[open] > summary .disclosure-chevron {
 
   .homepage-featured-groups {
     grid-template-columns: minmax(0, 1fr);
-  }
-
-  .known-evidence {
-    align-items: flex-start;
-    flex-direction: column;
   }
 
   .homepage-discovery-actions,

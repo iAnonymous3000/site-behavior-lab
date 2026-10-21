@@ -296,8 +296,11 @@ async function main() {
       ]) {
         await expectText(disclosure, clause);
       }
+      // Without JavaScript nothing is typed, so the example chips follow the
+      // disclosure; the known-site note's place is checked once a corpus site
+      // is typed (assertKnownSiteLeadsWithItsReport).
       const [fieldBottom, disclosureTop, examplesTop] = await homePage.evaluate(() =>
-        [".url-row", ".scan-disclosure", ".scan-examples, .known-evidence"].map((selector, index) => {
+        [".url-row", ".scan-disclosure", ".scan-examples"].map((selector, index) => {
           const rect = document.querySelector(selector)?.getBoundingClientRect();
           return rect ? (index === 0 ? rect.bottom : rect.top) : Number.NaN;
         })
@@ -323,6 +326,7 @@ async function main() {
       if ((await page.locator(".run-mode-checking").count()) !== 0) fail("the run modes still say checking after health answered");
       if ((await page.locator(".run-mode-unavailable").count()) !== 0) fail("a comparison reads unavailable although health offered it");
       pass("run modes show checking until health answers, never a premature unavailable");
+      if (scannerFixture) await assertKnownSiteLeadsWithItsReport(browser, baseUrl, manifest);
     }
 
     // Before the hook resolves the OS preference the button is named neutrally, so the
@@ -2050,6 +2054,147 @@ async function assertRetainedWatchKeepsEvidenceLinks(context, baseUrl, manifest,
   await comparison.locator("#scheduled-rescan-title", { hasText: "Manage scheduled rescan" }).waitFor();
   await expectRetainedWatch(comparison, watch, "reloading the page");
   await comparison.close();
+}
+
+/**
+ * Journey audit gap 8: an address whose site already has evidence leads with
+ * that site's newest report, and the one submit button offers "Check now".
+ * The newest manifest report is its own site's newest (the site page's latest
+ * evidence link pins the same oracle). The test-only health reports no share
+ * retention, so the note must state no number: a fallback to the build's
+ * default would show one. The stubbed browser check never issues a token, so
+ * the submit button stays disabled throughout, which is the state the report
+ * link must still work in. Nothing is submitted.
+ */
+async function assertKnownSiteLeadsWithItsReport(browser, baseUrl, manifest) {
+  const newest = manifest.reports[0];
+  const key = staticProfileKey(newest.domain);
+  if (!key) fail(`cannot derive a site key from ${newest.domain}`);
+  const context = await browser.newContext({ viewport: { width: 375, height: 812 } });
+  await installScannerFixture(context);
+  const page = await context.newPage();
+  const field = page.locator("#url");
+  const note = page.locator(".scan-panel .known-evidence");
+  const submit = page.locator('.scan-panel button[type="submit"]');
+  const readLink = note.getByRole("link", { name: /^Read the report from / });
+  const difference = note.locator("#known-evidence-difference");
+  const submitState = () =>
+    submit.evaluate((button) => ({
+      text: button.textContent.trim(),
+      primary: button.classList.contains("primary-button"),
+      secondary: button.classList.contains("secondary-button"),
+      disabled: button.disabled,
+      describedBy: button.getAttribute("aria-describedby")
+    }));
+  const readLinkIs = (className) => readLink.evaluate((link, name) => link.classList.contains(name), className);
+  try {
+    await page.goto(`${baseUrl}/`, { waitUntil: "networkidle" });
+    await page.locator(".run-mode-checking").waitFor({ state: "detached" });
+    if ((await submit.count()) !== 1) fail("the scan form does not have exactly one submit control");
+
+    // An address with no evidence changes nothing.
+    await field.fill("example.com");
+    if ((await note.count()) !== 0 || (await page.locator(".scan-panel .scan-examples").count()) !== 1) {
+      fail("an address with no evidence lost the example chips or gained a known-site note");
+    }
+    const unknown = await submitState();
+    if (unknown.text !== "Scan" || !unknown.primary || unknown.describedBy !== null) {
+      fail(`an address with no evidence changed the submit button: ${JSON.stringify(unknown)}`);
+    }
+
+    // The corpus site, typed bare.
+    await field.fill(key);
+    await note.waitFor();
+    if ((await note.getAttribute("role")) !== "status") fail("the known-site note is no longer a status region");
+    const readHref = await readLink.getAttribute("href");
+    if (!readHref?.endsWith(`/reports/${newest.id}/`)) fail(`the read link does not open ${key}'s newest report: ${readHref}`);
+    if (!(await readLinkIs("primary-button"))) fail("the read link is not the primary action");
+    const typed = await submitState();
+    if (typed.text !== "Check now" || typed.primary || !typed.secondary) {
+      fail(`a typed corpus site does not offer "Check now" in the secondary style: ${JSON.stringify(typed)}`);
+    }
+    if (!typed.disabled) fail("the stubbed browser check no longer holds the submit button disabled");
+    if (typed.describedBy !== "known-evidence-difference") fail("the submit button is not described by the difference line");
+    await expectText(note, newest.headline);
+    await expectText(difference, "a live rescan remains a standalone share report until a later corpus publication includes it");
+    await expectText(difference, "kept for a limited time");
+    if (/\d/.test((await difference.textContent()) ?? "")) {
+      fail("the difference line states a number the scanner's health never gave");
+    }
+    const layout = await page.evaluate(() => {
+      const top = (element) => element?.getBoundingClientRect().top ?? Number.NaN;
+      const link = [...document.querySelectorAll(".known-evidence a")].find((anchor) =>
+        anchor.textContent.startsWith("Read the report from")
+      );
+      return {
+        fieldBottom: document.querySelector(".url-row")?.getBoundingClientRect().bottom ?? Number.NaN,
+        disclosureTop: top(document.querySelector(".scan-disclosure")),
+        noteTop: top(document.querySelector(".known-evidence")),
+        readBottom: link?.getBoundingClientRect().bottom ?? Number.NaN,
+        viewport: window.innerHeight
+      };
+    });
+    if (
+      !(layout.disclosureTop >= layout.fieldBottom && layout.noteTop > layout.disclosureTop && layout.readBottom <= layout.viewport)
+    ) {
+      fail(`the read link is not under the disclosure on a phone's first screen: ${JSON.stringify(layout)}`);
+    }
+    await assertNoHorizontalOverflow(page, "home with a known-site note at 375px");
+    await assertNoSeriousAxeViolations(page, "known-site note in light theme");
+    await page.getByRole("button", { name: /Switch (?:to (?:light|dark) )?colour theme/ }).click();
+    await page.waitForFunction(() => document.documentElement.dataset.theme === "dark");
+    await assertNoSeriousAxeViolations(page, "known-site note in dark theme");
+    pass("a typed corpus site leads with its newest report, and the one submit button offers Check now");
+
+    // A deep path names the report's page, never the typed one, and typing on
+    // within that path changes nothing the status region reports.
+    await field.fill(`${newest.requestedUrl.replace(/\/+$/, "")}/gap-eight-deep-path`);
+    await expectText(note, "This evidence is for ");
+    if (!newest.requestedUrl.includes("{")) await expectText(note, `This evidence is for ${newest.requestedUrl}.`);
+    const settled = (await note.textContent()) ?? "";
+    if (settled.includes("gap-eight")) fail("the note presents the evidence as the typed page's");
+    await field.pressSequentially("/and-on");
+    if ((await note.textContent()) !== settled) fail("the known-site note changed on keystrokes that changed nothing it reports");
+    pass("a deep path names the page the evidence is for, not the typed page");
+
+    // A comparison mode reads Compare now and counts two visits.
+    await page.getByRole("button", { name: "GPC diff", exact: true }).click();
+    const compared = await submitState();
+    if (compared.text !== "Compare now" || !compared.secondary) {
+      fail(`a comparison mode does not offer "Compare now": ${JSON.stringify(compared)}`);
+    }
+    await expectText(difference, "two visits");
+    await page.getByRole("button", { name: "Single", exact: true }).click();
+
+    // The read link works while the browser check still holds the button.
+    await field.fill(key);
+    if (!(await submitState()).disabled) fail("the submit button was enabled before the browser check passed");
+    await Promise.all([
+      page.waitForURL((url) => url.pathname.endsWith(`/reports/${newest.id}/`)),
+      readLink.click()
+    ]);
+    await expectText(page.locator("h1"), newest.domain);
+    pass("the read link opens the report while the submit button waits for the browser check");
+
+    // An arrival from the site's own "Scan this site again" link keeps the
+    // usual primary button beside the note; the first edit hands it back.
+    const prefilled = `https://${key}/`;
+    await page.goto(`${baseUrl}/#scan?url=${encodeURIComponent(prefilled)}`, { waitUntil: "networkidle" });
+    try {
+      await page.waitForFunction((value) => document.getElementById("url")?.value === value, prefilled, { timeout: 10_000 });
+    } catch {
+      fail("a scan-again link did not fill the URL field");
+    }
+    await note.waitFor();
+    const arrival = await submitState();
+    if (arrival.text !== "Scan" || !arrival.primary) fail(`a scan-again arrival lost the usual button: ${JSON.stringify(arrival)}`);
+    if (!(await readLinkIs("secondary-button"))) fail("the read link stays primary beside the arrival's primary button");
+    await field.fill(`${prefilled}gap-eight`);
+    if ((await submitState()).text !== "Check now") fail("editing a scan-again arrival does not offer Check now");
+    pass("a scan-again arrival keeps the usual Scan button, with the note, until the field is edited");
+  } finally {
+    await context.close();
+  }
 }
 
 /**

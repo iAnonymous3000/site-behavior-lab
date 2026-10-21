@@ -205,3 +205,26 @@ test("the site states what becomes of a live rescan one way", () => {
   );
   assert.deepEqual(restated, []);
 });
+
+test("the form wires the note, the one submit button and the arrival as the copy module decides", () => {
+  const source = (file: string) => readFileSync(path.join(process.cwd(), file), "utf8");
+  // Fail with a sentence, never the file: a failing match carrying a whole
+  // source file has stalled the test runner's parent.
+  const holds = (text: string, pattern: RegExp, expectation: string) => assert.ok(pattern.test(text), `expected ${expectation}`);
+  const controls = source("app/_components/scan-controls.tsx");
+  assert.equal(controls.match(/type="submit"/g)?.length, 1, "expected exactly one submit control: it carries every scan gate");
+  holds(controls, /scanAgainArrival: isScanAgainArrival\(prefilledUrl, form\.url\),\s*scanBusy: loading \|\| activeScanJob/, "the arrival and a busy scan both decide whether the report leads");
+  holds(controls, /className=\{`\$\{leadsWithReport \? "secondary-button" : "primary-button"\}\$\{loading \? " is-loading" : ""\}`\}/, "the submit button steps down only while the report leads");
+  holds(controls, /disabled=\{loading \|\| scanBlocked \|\| activeScanJob\}\s*aria-describedby=\{knownSite \? "known-evidence-difference" : undefined\}/, "the one submit button keeps its gates and is described by the difference line");
+  holds(controls, /\{scanSubmitLabel\(\{ comparison, leadsWithReport \}\)\}/, "the button's label comes from the copy module");
+  holds(controls, /<div className="known-evidence" role="status">/, "the note stays a status region");
+  holds(controls, /className=\{leadsWithReport \? "primary-button" : "secondary-button"\}/, "the report link is primary exactly when the button is not");
+  holds(controls, /Read the report from \{formatKnownEvidenceDate\(knownSite\.scannedAt\)\}/, "the report link names its date");
+  const note = controls.slice(controls.indexOf('<div className="known-evidence" role="status">'), controls.indexOf('<div className="scan-examples"'));
+  const order = ["Read the report from", "knownEvidenceReport(knownSite)", 'id="known-evidence-difference"'].map((marker) => note.indexOf(marker));
+  assert.ok(order.every((index, position) => index !== -1 && (position === 0 || index > order[position - 1])), "expected the report link before the longer lines");
+  assert.ok(!/form\.url/.test(note), "expected no typed text rendered in the live region");
+  const hook = source("app/_hooks/use-scan-runtime.ts");
+  holds(hook, /if \(navigation\.targetUrl\) \{\s*setForm\(\(current\) => \(\{ \.\.\.current, url: navigation\.targetUrl \?\? current\.url \}\)\);\s*setPrefilledUrl\(navigation\.targetUrl\);/, "the hook records the address a prefill put in the field");
+  holds(source("app/site-behavior-app.tsx"), /prefilledUrl=\{prefilledUrl\}\s*shareReportMaxAgeDays=\{shareReportMaxAgeDays\}/, "the app hands the form the arrival and the scanner's retention");
+});

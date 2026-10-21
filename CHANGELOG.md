@@ -9,6 +9,23 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- On the homepage, an address whose site already has evidence now leads with
+  that evidence instead of a one-line hint. The note under the field offers
+  "Read the report from <date>" as the primary action, keeps "View history",
+  names the report's kind in the Run control's own label and gives its
+  headline ("Run: Blocker. Lead finding: ..."), and, when the typed host or
+  path is not the page that report requested, says which page the evidence
+  is for. The one submit button reads "Check now", or "Compare now" in a
+  comparison mode, in the secondary style, with every gate it had; a second
+  submit control would have duplicated them. A line under the note, which
+  also describes the button, says what it does: a new check runs one visit,
+  or two for a comparison, in the selected mode and makes a separate share
+  report, kept for up to about the number of days the scanner's own health
+  reports, or "for a limited time" when it reports none; it is not added to
+  the site's history, in the site history page's own words. A visitor who
+  followed a site's own "Scan this site again" link keeps the usual primary
+  Scan button, with the note, until the field is edited, and a running scan
+  keeps it too. An address with no evidence changes nothing.
 - The scan form now holds what it needs to say, for a site that already has
   evidence, what reading that evidence gives and what a new check would do
   instead. Each corpus site the form recognizes carries its newest report's
