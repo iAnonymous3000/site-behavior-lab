@@ -9,6 +9,25 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- A findings card can now decide a new visit beside its Look closer view: a
+  link that opens the scan form ready for a comparison and never runs one.
+  The only one minted is on the Brave-list card when requests matched on a
+  normal load: "Compare with blocking on. Opens the scan form ready to visit
+  this page twice, once simulating Brave's default filter-list blocking;
+  nothing runs until you press Compare." It links to
+  `/#scan?url=<page>&mode=shields`. The card's branch decides it, never its
+  level, and only where the Look closer draft's gates pass: the report is a
+  single visit or a GPC comparison, never a Blocker or consent comparison or
+  another kind of pair; the visit's request evidence is complete; the visit
+  established the requested page; it is not a PageGraph import; and the page
+  can be visited again, by its exact route or, when only the site root can
+  be, because the report requested that root. The page is the one the report
+  header's "Scan this site again" and "Scan this exact route again" links
+  already use, now derived in one place for both. It is for fresh results
+  only, the homepage's own live scan and that scan's runtime share: no
+  committed report offers it, since every corpus site already holds newer
+  Blocker comparisons, and 52 committed GPC comparisons would offer it if
+  they were fresh. Nothing renders it yet.
 - A scan link can now ask the form for a comparison mode
   (`#scan?url=<address>&mode=shields`, or `gpc` or `consent`). The form
   keeps the address and holds the mode while the scanner's health is

@@ -74,12 +74,26 @@ test("Look closer views are built on the server or in the renderer chunk, never 
       `${parts.join("/")} imports a module a Look closer view is built from`
     );
   }
-  // The view module reads only the evidence-hash helpers and, as a type, the
-  // card: no React, no scan form, no corpus read.
+  // The view module reads only the evidence-hash helpers, the scan link
+  // builder and, as types, the card and the run modes: no React, no scan
+  // form, no corpus read.
   const module = read("lib", "finding-look-closer.ts");
   const imports = [...module.matchAll(/^import\s+([\s\S]*?)\s+from\s+"([^"]+)";/gm)];
-  assert.deepEqual(imports.map((match) => match[2]).sort(), ["./report-evidence-navigation", "./report-findings"]);
+  assert.deepEqual(
+    imports.map((match) => match[2]).sort(),
+    ["./report-evidence-navigation", "./report-findings", "./run-mode-copy", "./scan-prefill"]
+  );
   holds(imports.find((match) => match[2] === "./report-findings")?.[1] ?? "", /^type\s/, "the view module imports the card only as a type");
+  holds(imports.find((match) => match[2] === "./run-mode-copy")?.[1] ?? "", /^type\s/, "the view module imports the run modes only as a type");
+  // A new visit's page comes from the light rescan-target module, which the
+  // report header's rescan links read too. It reads neither the site
+  // identity nor the public-suffix list, which reportActivation's history
+  // path needs, so the explorer's chunk does not grow by them.
+  const targets = read("lib", "report-rescan-targets.ts");
+  assert.deepEqual(
+    [...targets.matchAll(/^import\s+([\s\S]*?)\s+from\s+"([^"]+)";/gm)].map((match) => match[2]).sort(),
+    ["./report-url", "./scan-report-views"]
+  );
   // One renderer, the shared server-safe board markup.
   const list = read("app", "_components", "findings-list.tsx");
   holds(

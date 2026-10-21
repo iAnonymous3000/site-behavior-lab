@@ -1,4 +1,4 @@
-import { safeNavigableHttpUrl } from "./report-url";
+import { reportRescanTargets } from "./report-rescan-targets";
 import { scanPrefillHref } from "./scan-prefill";
 import { displayRunView, type ReportView } from "./scan-report-views";
 import { corpusSiteKeyForRun } from "./corpus-site-domain";
@@ -22,7 +22,9 @@ export type ReportActivation = {
  * Build the permanent-report navigation actions from the normalized public
  * view. Exact-route rescans are deliberately limited to legacy reports whose
  * already-redacted URL still identifies a real HTTP(S) page. V2 route shapes
- * contain privacy markers and must never become navigation targets.
+ * contain privacy markers and must never become navigation targets; the
+ * targets come from lib/report-rescan-targets.ts, which a findings card's new
+ * visit reads too.
  */
 export function reportActivation(input: {
   id: string;
@@ -30,13 +32,7 @@ export function reportActivation(input: {
   siteHistoryAvailable: boolean;
   view: ReportView;
 }): ReportActivation {
-  const run = displayRunView(input.view);
-  const exactTarget = run.conditions.urlsAreRouteShapes
-    ? null
-    : safeNavigableHttpUrl(run.conditions.requestedUrl);
-  // The domain is already public in this report, so the site root is always a
-  // safe replay target even when the exact route is a privacy-marked shape.
-  const siteTarget = exactTarget ?? safeNavigableHttpUrl(`https://${input.view.domain}/`);
+  const { exactTarget, siteTarget } = reportRescanTargets(input.view);
 
   return {
     profilePath: reportSiteProfilePath(input.view, input.siteHistoryAvailable),

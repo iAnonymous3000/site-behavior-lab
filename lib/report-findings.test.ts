@@ -6,15 +6,26 @@ import {
   PAGE_SUBJECT_UNVERIFIED_WARNING,
   SUSPECTED_CHALLENGE_OR_SOFT_BLOCK_WARNING
 } from "./bot-wall-classifier";
-import { createConsentComparisonReport, createGpcComparisonReport, createShieldsComparisonReport } from "./compare-reports";
+import {
+  createConsentComparisonReport,
+  createGpcComparisonReport,
+  createShieldsComparisonReport,
+  createTemporalComparisonReport
+} from "./compare-reports";
 import { corpusCohortIdentityForView } from "./corpus-cohort";
 import { loadCommittedCorpusStats } from "./current-scan-cohort";
 import {
   findingLookCloser,
+  findingNewVisit,
   LOOK_CLOSER_CARD,
+  NEW_VISIT_CARD,
+  NEW_VISIT_MODE,
   type FindingLookCloser,
+  type FindingNewVisit,
   type LookCloserVariant
 } from "./finding-look-closer";
+import { reportNewVisitTarget } from "./report-rescan-targets";
+import { normalizeScanUrl, resolveScanPrefillNavigation } from "./scan-prefill";
 import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "./gpc-injection";
 import {
   buildEvidenceHash,
@@ -47,12 +58,15 @@ import {
 } from "./scan-runtime";
 import { buildComparisonDiffV2, evaluateQuality } from "./scan-report-v2-evaluators";
 import { R2_NAVIGATION_STATUS_UNREPRESENTABLE } from "./scan-report-v2-http-status";
+import type { ScanRunV2R2 } from "./scan-report-v2-r2";
 import { evaluateComparabilityR2 } from "./scan-report-v2-r2-evaluators";
 import {
   makeConsentInterventionReportV2R2,
+  makeDescriptiveReportV2R2,
   makeGpcInterventionReportV2R2,
   makePublicSingleReportV2R2,
-  makeShieldsInterventionReportV2R2
+  makeShieldsInterventionReportV2R2,
+  makeTemporalReportV2R2
 } from "./scan-report-v2-r2-fixtures";
 import { makeInterventionComparisonReportV2, makePublicSingleReportV2 } from "./scan-report-v2-fixtures";
 import {
@@ -737,7 +751,37 @@ function assertLookCloserView(
   return view;
 }
 
-test("no sentence on a committed report's findings cards runs past 30 words", async () => {
+/**
+ * Holds a card's new visit to the draft's rules: an imperative label of at
+ * most five words; one sentence of at most 30 words saying what the link
+ * does and that nothing runs until the visitor presses Compare; no sanitizer
+ * token, dash or verdict word; never on the bottom line; and a link that
+ * opens the scan form through the fragment prefill with this report's page
+ * and the Blocker comparison, the only mode any card mints.
+ */
+function assertNewVisit(where: string, finding: Finding, visit: FindingNewVisit, target: string, basePath = "") {
+  const at = `${where}: ${finding.id} ${visit.variant}`;
+  assert.equal(NEW_VISIT_CARD[visit.variant], finding.id, `${at}: a new visit on another card's variant`);
+  assert.ok(!["bottom-line", "public-correction"].includes(finding.id), `${at}: no card there may offer a new visit`);
+  assert.match(visit.label, /^[A-Z][a-z]+ \S/, `${at}: the label is not an imperative: ${visit.label}`);
+  assert.ok((visit.label.match(/\S+/g) ?? []).length <= LOOK_CLOSER_LABEL_WORDS, `${at}: label over five words: ${visit.label}`);
+  assert.doesNotMatch(visit.label, /[.!?;:]$/, `${at}: the label is a phrase, not a sentence`);
+  assert.match(visit.sentence, /^Opens the scan form .+; nothing runs until you press Compare\.$/, `${at}: the sentence does not say what the link does`);
+  assert.equal(visit.sentence.split(/(?<=[.!?])\s+(?=[A-Z"(])/).length, 1, `${at}: more than one sentence: ${visit.sentence}`);
+  assertTextSentencesAtMost(at, visit.sentence, MAX_CARD_SENTENCE_WORDS);
+  for (const text of [visit.label, visit.sentence]) {
+    assert.doesNotMatch(text, LOOK_CLOSER_VERDICT_WORDS, `${at}: a verdict word: ${text}`);
+    assert.doesNotMatch(text, LOOK_CLOSER_DASHES, `${at}: a dash: ${text}`);
+  }
+  assertNoPrivacyTokens(at, [visit.label, visit.sentence, visit.href, decodeURIComponent(visit.href)]);
+  assert.ok(visit.href.startsWith(`${basePath}/#scan?`), `${at}: the link does not open the scan form: ${visit.href}`);
+  const navigation = resolveScanPrefillNavigation(new URL(visit.href.slice(basePath.length), "https://sitebehavior.org").toString());
+  assert.equal(navigation?.targetUrl, normalizeScanUrl(target), `${at}: the form would be filled with another page`);
+  assert.equal(navigation?.mode, NEW_VISIT_MODE[visit.variant], `${at}: the form would select another comparison`);
+  assert.equal(navigation?.mode, "shields", `${at}: only Blocker links are minted`);
+}
+
+test("no sentence on a committed report's findings cards runs past 30 words", async (t) => {
   // Every committed report's board, built the way its permalink builds it:
   // the committed corpus statistics and the headline's focus arm. Sentences
   // of up to 63 words used to reach readers here, most of them lists of
@@ -753,6 +797,13 @@ test("no sentence on a committed report's findings cards runs past 30 words", as
   // Each card's Look closer view, built as the permalink builds it, with a
   // stand-in history target so every cookie card's view is checked too.
   let views = 0;
+  const reportsWithViews = new Set<string>();
+  // A new visit is for fresh results only: no committed report offers one,
+  // since every corpus site already holds newer Blocker comparisons. The same
+  // boards built as if they were fresh hold the gates to the draft and keep
+  // that check from passing vacuously.
+  const freshReach = new Set<string>();
+  const freshKinds = new Set<string>();
   for (const name of files) {
     const read = readStoredScanReport(JSON.parse(readFileSync(path.join(reportsDir, name), "utf8")));
     assert.equal(read.ok, true, `reader rejected committed report ${name}`);
@@ -765,17 +816,39 @@ test("no sentence on a committed report's findings cards runs past 30 words", as
     const headline = buildReportHeadline(view, facts);
     const arm = renderedEvidenceArm(view, headline);
     const board = buildFindings(view, corpus, facts, arm);
+    const committedTarget = reportNewVisitTarget(view, false);
+    const freshTarget = reportNewVisitTarget(view, true);
     for (const finding of board) {
       assertSentencesAtMost(finding, MAX_CARD_SENTENCE_WORDS);
       cards += 1;
       assertNoPrivacyTokens(`${name}: ${finding.id}`, Object.values(finding));
-      if (assertLookCloserView(name, finding, board, facts, arm)) views += 1;
+      if (assertLookCloserView(name, finding, board, facts, arm)) {
+        views += 1;
+        reportsWithViews.add(name);
+      }
+      assert.equal(
+        findingNewVisit(finding, { newVisitTarget: committedTarget, basePath: "" }),
+        null,
+        `${name}: a committed report offers a new visit on ${finding.id}`
+      );
+      const asIfFresh = findingNewVisit(finding, { newVisitTarget: freshTarget, basePath: "" });
+      if (asIfFresh && freshTarget) {
+        assertNewVisit(name, finding, asIfFresh, freshTarget);
+        freshReach.add(name);
+        freshKinds.add(view.comparison?.axis ?? view.reportType);
+      }
     }
   }
   assert.ok(cards > files.length, `only ${cards} cards across ${files.length} reports`);
   // Not pinned to a count: retention moves the corpus, and the fixtures below
   // reach every variant whatever it holds.
   assert.ok(views > 0, "no committed card offered a Look closer view, so the view rules went unchecked");
+  assert.ok(freshReach.size > 0, "no committed board would offer a new visit even if fresh, so its rules went unchecked");
+  for (const kind of freshKinds) assert.ok(kind === "single" || kind === "gpc", `a ${kind} report would offer a new visit`);
+  t.diagnostic(
+    `${views} Look closer views on ${reportsWithViews.size} of ${files.length} committed reports; ` +
+      `0 offer a new visit, and ${freshReach.size} would if fresh (${[...freshKinds].sort().join(", ")})`
+  );
 });
 
 test("card sentences stay short on branches no committed report reaches", () => {
@@ -1446,6 +1519,227 @@ test("Look closer is keyed by card and branch, never by level", () => {
   // A boolean, so a failure reports the sentence rather than the module's source.
   const module = readFileSync(path.join(process.cwd(), "lib", "finding-look-closer.ts"), "utf8");
   assert.ok(!/\.(?:level|title|lead|detail|claim)\b/.test(module), "a view must not read the card's level or copy");
+});
+
+/** A v1 visit whose requests matched Brave's lists on a normal load, the matched-requests branch. */
+function matchedShieldsResult(overrides: ResultOverrides = {}): ScanResult {
+  const result = makeResult({ thirdPartyRequests: 10, thirdPartyDomains: 4, totalRequests: 25, ...overrides });
+  result.summary = { ...result.summary, shieldsBlockedRequests: 12 };
+  result.conditions = {
+    ...result.conditions,
+    adblock: { active: true, source: "brave-default", lists: 5, fetchedAt: new Date(0).toISOString() }
+  };
+  return result;
+}
+
+/** Brave's lists matched on an r2 run's normal load, as the engine's readback records it. */
+function matchShieldsOnRun(run: ScanRunV2R2) {
+  run.verificationFacts = {
+    shields: {
+      method: "shields-engine-status@1",
+      engineLoaded: true,
+      applied: false,
+      requestsEvaluated: 40,
+      requestsMatched: 12,
+      requestsActuallyBlocked: 0,
+      phaseId: 0
+    }
+  };
+  run.summary.counts.shieldsBlockedRequests = 12;
+}
+
+/** An r2 report's every run requested and landed on the site root. */
+function atSiteRoot<T extends { run?: unknown; baseline?: unknown; variant?: unknown }>(report: T): T {
+  for (const run of [report.run, report.baseline, report.variant] as Array<{ subject: unknown } | undefined>) {
+    if (!run) continue;
+    const root = { origin: "https://www.example.com", registrableDomain: "example.com", routeShape: "/" };
+    run.subject = { requested: { ...root }, observed: { ...root } };
+  }
+  return report;
+}
+
+/** A board's new visit, built the way the permalink and the explorer build it, for a fresh report or not. */
+function newVisitFixture(view: ReportView, fresh = true, basePath = "") {
+  const facts = buildReportFacts(view);
+  const arm = renderedEvidenceArm(view, buildReportHeadline(view, facts));
+  const board = buildFindings(view, null, facts, arm);
+  const newVisitTarget = reportNewVisitTarget(view, fresh);
+  const offered = board.flatMap((finding) => {
+    const visit = findingNewVisit(finding, { newVisitTarget, basePath });
+    return visit ? [{ finding, visit }] : [];
+  });
+  assert.ok(offered.length <= 1, "a board offers each new visit at most once");
+  for (const { finding, visit } of offered) assertNewVisit("fixture", finding, visit, newVisitTarget ?? "", basePath);
+  return { card: board.find((finding) => finding.id === "shields-blocked") ?? null, visit: offered[0]?.visit ?? null };
+}
+
+test("a fresh Single or GPC result whose requests matched Brave's lists offers Compare with blocking on", () => {
+  const blocker = {
+    variant: "blocker-comparison",
+    label: "Compare with blocking on",
+    sentence:
+      "Opens the scan form ready to visit this page twice, once simulating Brave's default filter-list blocking; nothing runs until you press Compare."
+  };
+  // A legacy single visit replays its exact route.
+  const single = newVisitFixture(viewFromV1Report(matchedShieldsResult()));
+  assert.match(single.card?.title ?? "", /^12 requests matched Brave Shields filter lists$/);
+  assert.deepEqual(single.visit, { ...blocker, href: "/#scan?url=https%3A%2F%2Fexample.com%2F&mode=shields" });
+  // A legacy GPC pair, on the visit its board describes.
+  const gpc = newVisitFixture(viewFromV1Report(gpcPair(matchedShieldsResult(), matchedShieldsResult())));
+  assert.deepEqual(gpc.visit, { ...blocker, href: "/#scan?url=https%3A%2F%2Fexample.com%2F&mode=shields" });
+  // r2 single and GPC results visit the site root they requested.
+  const r2Single = makePublicSingleReportV2R2();
+  matchShieldsOnRun(r2Single.run);
+  const r2SingleVisit = newVisitFixture(viewFromV2(atSiteRoot(r2Single), 2)).visit;
+  assert.deepEqual(r2SingleVisit, { ...blocker, href: "/#scan?url=https%3A%2F%2Fexample.com%2F&mode=shields" });
+  const r2Gpc = makeGpcInterventionReportV2R2();
+  matchShieldsOnRun(r2Gpc.baseline);
+  matchShieldsOnRun(r2Gpc.variant);
+  assert.deepEqual(newVisitFixture(viewFromV2(atSiteRoot(r2Gpc), 2)).visit, r2SingleVisit);
+  // The scan form's address starts with the deployment's base path.
+  assert.equal(
+    newVisitFixture(viewFromV1Report(matchedShieldsResult()), true, "/site-behavior-lab").visit?.href,
+    "/site-behavior-lab/#scan?url=https%3A%2F%2Fexample.com%2F&mode=shields"
+  );
+});
+
+test("every gate withholds the Blocker comparison, and only a fresh result has one", () => {
+  // Each case below keeps a matched-requests card, so a missing follow-up is
+  // the gate's doing, never an absent card.
+  const withheld = (view: ReportView, reason: string, fresh = true) => {
+    const fixture = newVisitFixture(view, fresh);
+    assert.match(fixture.card?.title ?? "", /matched Brave Shields filter lists$/, `${reason}: the matched-requests card`);
+    assert.equal(fixture.visit, null, `${reason} offered ${fixture.visit?.label}`);
+    return fixture.card;
+  };
+
+  // Fresh only: a committed report, a file opened from disk, an archive comparison.
+  assert.notEqual(withheld(viewFromV1Report(matchedShieldsResult()), "a report that is not fresh", false)?.newVisit, undefined);
+
+  // G1: a Blocker, consent, temporal or descriptive pair, legacy and r2.
+  for (const [view, reason] of [
+    [viewFromV1Report(shieldsPair(matchedShieldsResult(), matchedShieldsResult())), "a legacy Blocker comparison"],
+    [viewFromV1Report(consentPair(matchedShieldsResult(), matchedShieldsResult())), "a legacy consent comparison"],
+    [
+      viewFromV1Report(
+        createTemporalComparisonReport(
+          matchedShieldsResult(),
+          { ...matchedShieldsResult(), conditions: { ...matchedShieldsResult().conditions, scannedAt: new Date(86_400_000).toISOString() } }
+        )
+      ),
+      "a legacy before-and-after pair"
+    ]
+  ] as const) {
+    assert.equal(withheld(view, reason)?.newVisit, undefined, reason);
+  }
+  for (const [make, reason] of [
+    [makeShieldsInterventionReportV2R2, "an r2 Blocker comparison"],
+    [makeConsentInterventionReportV2R2, "an r2 consent comparison"],
+    [makeTemporalReportV2R2, "an r2 before-and-after pair"],
+    [makeDescriptiveReportV2R2, "an r2 descriptive pair"]
+  ] as const) {
+    const report = make();
+    matchShieldsOnRun(report.baseline);
+    matchShieldsOnRun(report.variant);
+    const view = viewFromV2(atSiteRoot(report), 2);
+    const card = buildFindings(view, null).find((finding) => finding.id === "shields-blocked");
+    assert.ok(card, `${reason}: the board keeps its Brave-list card`);
+    assert.equal(card?.newVisit, undefined, reason);
+    assert.equal(newVisitFixture(view).visit, null, reason);
+  }
+
+  // The blocking visit itself, and nothing matched.
+  const simulated = matchedShieldsResult();
+  simulated.conditions = { ...simulated.conditions, shieldsMode: "block-simulation" };
+  const simulatedCard = byId(buildFindings(viewFromV1Report(simulated), null), "shields-blocked");
+  assert.match(simulatedCard.title, /blocking engine stopped/);
+  assert.equal(simulatedCard.newVisit, undefined, "the blocking arm");
+  const unmatched = matchedShieldsResult();
+  unmatched.summary = { ...unmatched.summary, shieldsBlockedRequests: 0 };
+  assert.equal(byId(buildFindings(viewFromV1Report(unmatched), null), "shields-blocked").newVisit, undefined, "nothing matched");
+
+  // G2: the visit's request evidence is incomplete: a recording cap, or a
+  // censored request family.
+  assert.equal(withheld(viewFromV1Report(matchedShieldsResult({ totalRequests: 1200 })), "a capped legacy visit")?.newVisit, undefined);
+  const censored = makePublicSingleReportV2R2();
+  matchShieldsOnRun(censored.run);
+  const censoredView = viewFromV2(atSiteRoot(censored), 2);
+  censoredView.runs[0].quality.byFamily = {
+    ...(censoredView.runs[0].quality.byFamily ?? {}),
+    requests: { outcome: "censored", reasons: ["budget-exhausted:public-request-records"] }
+  };
+  assert.equal(withheld(censoredView, "a censored r2 request family")?.newVisit, undefined);
+  const capped = makePublicSingleReportV2R2();
+  matchShieldsOnRun(capped.run);
+  const cappedView = viewFromV2(atSiteRoot(capped), 2);
+  cappedView.runs[0].warnings = [...cappedView.runs[0].warnings, "The scan stopped recording or loading additional requests after 1000 requests."];
+  assert.equal(requestEvidenceState(cappedView.runs[0]), "capped");
+  assert.equal(withheld(cappedView, "an r2 visit at the recording cap")?.newVisit, undefined);
+
+  // G3 holds by construction: a visit that did not establish the requested
+  // page (an HTTP error, an unverified subject, a suspected challenge, a
+  // failed load) keeps no Brave-list card at all, so nothing offers a visit.
+  const notEstablished: [ReportView, string][] = [[viewFromV1Report(matchedShieldsResult({ status: 403 })), "an HTTP 403"]];
+  for (const warning of [PAGE_SUBJECT_UNVERIFIED_WARNING, SUSPECTED_CHALLENGE_OR_SOFT_BLOCK_WARNING]) {
+    const result = matchedShieldsResult();
+    result.warnings = [warning];
+    notEstablished.push([viewFromV1Report(result), warning]);
+  }
+  const failedLoad = makePublicSingleReportV2R2();
+  matchShieldsOnRun(failedLoad.run);
+  const failedView = viewFromV2(atSiteRoot(failedLoad), 2);
+  failedView.runs[0].quality.outcome = "failed";
+  notEstablished.push([failedView, "an r2 failed load"]);
+  for (const [view, reason] of notEstablished) {
+    assert.notEqual(buildReportFacts(view).display.subject.describesSubject, true, `${reason}: the subject is not established`);
+    const fixture = newVisitFixture(view);
+    assert.equal(fixture.card, null, `${reason}: the board keeps a Brave-list card`);
+    assert.equal(fixture.visit, null, reason);
+  }
+
+  // G4: the exact route cannot be replayed and the report did not request the
+  // site root. The card keeps its key; only the page to visit again is missing.
+  const subpage = makePublicSingleReportV2R2();
+  matchShieldsOnRun(subpage.run);
+  assert.notEqual(withheld(viewFromV2(subpage, 2), "an r2 subpage")?.newVisit, undefined);
+  const redacted = matchedShieldsResult();
+  redacted.conditions = { ...redacted.conditions, requestedUrl: "https://example.com/{seg}/settings" };
+  assert.notEqual(withheld(viewFromV1Report(redacted), "a privacy-marked legacy route")?.newVisit, undefined);
+
+  // G5: a PageGraph import.
+  const pagegraph = matchedShieldsResult();
+  pagegraph.conditions = { ...pagegraph.conditions, automation: "brave-pagegraph" };
+  assert.equal(withheld(viewFromV1Report(pagegraph), "a PageGraph import")?.newVisit, undefined);
+});
+
+test("the Blocker comparison is keyed by its card and branch, never by level, and mints no other mode", () => {
+  const fixture = newVisitFixture(viewFromV1Report(matchedShieldsResult()));
+  assert.ok(fixture.card && fixture.visit, "fixture invariant");
+  if (!fixture.card || !fixture.visit) return;
+  const context = { newVisitTarget: "https://example.com/", basePath: "" };
+  for (const level of ["ok", "quiet", "info", "warn", "loud"] as const) {
+    const moved: Finding = { ...fixture.card, level };
+    assert.deepEqual(findingNewVisit(moved, context), fixture.visit, level);
+  }
+  // The same branch at another level, from a smaller match count.
+  const few = matchedShieldsResult();
+  few.summary = { ...few.summary, shieldsBlockedRequests: 2 };
+  const fewFixture = newVisitFixture(viewFromV1Report(few));
+  assert.notEqual(fewFixture.card?.level, fixture.card.level);
+  assert.deepEqual(fewFixture.visit, fixture.visit);
+  // A key on any card but its own offers nothing, and no key names the bottom line.
+  assert.equal(findingNewVisit({ ...fixture.card, id: "shields-comparison" }, context), null);
+  assert.equal(findingNewVisit({ ...fixture.card, id: "bottom-line" }, context), null);
+  assert.equal(findingNewVisit(fixture.card, { ...context, newVisitTarget: null }), null);
+  for (const card of Object.values(NEW_VISIT_CARD)) {
+    assert.ok(!["bottom-line", "public-correction"].includes(card), `${card} may not offer a new visit`);
+  }
+  // Only Blocker links are minted: the consent journey is parked, and GPC
+  // waits for its legal review and the operator check.
+  assert.deepEqual(Object.values(NEW_VISIT_MODE), ["shields"]);
+  const module = readFileSync(path.join(process.cwd(), "lib", "finding-look-closer.ts"), "utf8");
+  assert.ok(!/scanPrefillHref\([^)]*"(?:gpc|consent)"/.test(module), "a new visit must not mint a GPC or consent link");
+  assert.ok(!/\bhonou?rs?\b|\bignores?\b|\bcompl(?:y|ies)\b|\bproves?\b/i.test(module.slice(module.indexOf("export type NewVisitKey"))), "a new visit's copy must not read as a verdict");
 });
 
 test("a v2 view is never benchmarked against the v1-only corpus", () => {

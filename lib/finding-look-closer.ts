@@ -5,6 +5,8 @@ import {
   type EvidenceTarget
 } from "./report-evidence-navigation";
 import type { Finding } from "./report-findings";
+import type { ComparisonRunMode } from "./run-mode-copy";
+import { scanPrefillHref } from "./scan-prefill";
 
 /**
  * "Look closer": one follow-up per findings card, a VIEW that opens recorded
@@ -33,6 +35,12 @@ import type { Finding } from "./report-findings";
  *
  * React-free and free of the scan form, so the permalink builds it on the
  * server and the explorer in its lazy chunk (lib/client-boundary.test.ts).
+ *
+ * A card may also offer one NEW VISIT (batch 2 of the draft, below): a link
+ * that opens the scan form filled with the page and the comparison to run,
+ * which never starts anything on its own. The same rules hold, but its
+ * result is a separate pair of visits, so it can neither confirm nor refute
+ * the card that offered it.
  */
 
 /** What the group is called wherever a card renders its view. */
@@ -190,5 +198,74 @@ export function findingLookCloser(
             context.siteHistoryHref
           )
         : null;
+  }
+}
+
+/**
+ * The branch a card offers a new visit from. buildFindings records it at
+ * that branch, and only where the draft's gates about the report and the
+ * card's own visit pass (G1, G2, G3 and G5); whether the report is fresh, and
+ * the page to visit again (G4), arrive in NewVisitContext. Only Blocker is
+ * minted: the consent journey is parked, and GPC waits for its legal review
+ * and the operator check.
+ */
+export type NewVisitKey =
+  /** shields-blocked: requests matched Brave's lists on a normal, unblocked load. */
+  { variant: "blocker-comparison" };
+
+export type NewVisitVariant = NewVisitKey["variant"];
+
+/** The card each new visit belongs to. A key on any other card offers nothing. */
+export const NEW_VISIT_CARD: Readonly<Record<NewVisitVariant, string>> = {
+  "blocker-comparison": "shields-blocked"
+};
+
+/** The comparison each new visit asks the scan form for. */
+export const NEW_VISIT_MODE: Readonly<Record<NewVisitVariant, ComparisonRunMode>> = {
+  "blocker-comparison": "shields"
+};
+
+export type NewVisitContext = {
+  /**
+   * The page a new visit would visit again (reportNewVisitTarget in
+   * lib/report-rescan-targets.ts): a fresh result's rescan target, or null
+   * for every report that is not fresh or fails G4. The permalink computes
+   * it on the server and its explorer from the same view and freshness.
+   */
+  newVisitTarget: string | null;
+  /** The deployment's base path, which the scan form's address starts with. */
+  basePath: string;
+};
+
+export type FindingNewVisit = {
+  variant: NewVisitVariant;
+  label: string;
+  /** One sentence, shown with the link, saying what the link does. */
+  sentence: string;
+  href: string;
+};
+
+/**
+ * The card's new visit, or null when its branch offers none or the report
+ * has no page to visit again. The link fills the scan form through the
+ * fragment prefill, address and mode both, and the form submits nothing.
+ */
+export function findingNewVisit(
+  finding: Pick<Finding, "id" | "newVisit">,
+  context: NewVisitContext
+): FindingNewVisit | null {
+  const key = finding.newVisit;
+  if (!key || NEW_VISIT_CARD[key.variant] !== finding.id || !context.newVisitTarget) return null;
+  const prefill = scanPrefillHref(context.newVisitTarget, NEW_VISIT_MODE[key.variant]);
+  if (!prefill) return null;
+  switch (key.variant) {
+    case "blocker-comparison":
+      return {
+        variant: key.variant,
+        label: "Compare with blocking on",
+        sentence:
+          "Opens the scan form ready to visit this page twice, once simulating Brave's default filter-list blocking; nothing runs until you press Compare.",
+        href: `${context.basePath}${prefill}`
+      };
   }
 }

@@ -57,6 +57,7 @@ import {
 import {
   comparisonArmViews,
   familyCensoredOnRun,
+  requestEvidenceState,
   runInCorpusDistributionPopulation,
   unsupportedEvidenceFamilies,
   type ClaimGate,
@@ -64,7 +65,7 @@ import {
   type RunView
 } from "./scan-report-views";
 import { runCensorshipNotes } from "./scan-report-censorship";
-import type { LookCloserKey } from "./finding-look-closer";
+import type { LookCloserKey, NewVisitKey } from "./finding-look-closer";
 import {
   requestMatchesQuery,
   requestMatchesSignalFilter,
@@ -184,6 +185,15 @@ export type Finding = {
    * does not read it.
    */
   lookCloser?: LookCloserKey;
+  /**
+   * The new visit this card's branch offers (lib/finding-look-closer.ts):
+   * the scan form, filled and never submitted. Set at the branch that writes
+   * the card, never from its level or title, and only where the report and
+   * this card's visit pass the draft's gates. Freshness and the page to visit
+   * again are the rendering page's to decide. Not read by the
+   * report-consistency gate: a new visit claims nothing.
+   */
+  newVisit?: NewVisitKey;
   /** Structured meaning for fact-to-render consistency checks. */
   claim?: {
     id: ReportClaimId;
@@ -2221,6 +2231,27 @@ export function buildFindings(
       retainedEvidenceLead:
         "No request in the retained evidence matched the default filter lists of Brave Shields, the ad and tracker blocker built into the Brave browser."
     });
+    // Requests matched on a normal load offer a new Blocker comparison of
+    // this page (the Look closer draft's batch 2), keyed by this branch and
+    // never by the level. Not the blocking visit itself, and only where the
+    // draft's gates pass. G1: the report is a single visit or a GPC
+    // comparison, never a Blocker or consent comparison or any other pair.
+    // G2: this visit's request evidence is complete, since a cap, a budget, a
+    // stopped probe or a capture loss would likely end the new pair the same
+    // way. G3 holds by construction: a visit that did not establish the
+    // requested page (an HTTP error, an unverified subject, a suspected
+    // challenge or a failed load) returned above, before this card. G5: the
+    // visit is not a PageGraph import, the only source of an unsupported
+    // request family. Whether the report is fresh, and the page to visit again
+    // (G4), are decided where the board renders. A before-and-after pair
+    // never has an axis, so a GPC axis is never one; a legacy GPC comparison
+    // is descriptive and still has the GPC axis.
+    const offersBlockerComparison =
+      blocked > 0 &&
+      !simulated &&
+      (view.reportType === "single" || axis === "gpc") &&
+      requestEvidenceState(run) === "complete" &&
+      run.conditions.automation !== "brave-pagegraph";
     findings.unshift({
       id: "shields-blocked",
       icon: "shield-check",
@@ -2253,6 +2284,7 @@ export function buildFindings(
         "request rows",
         requestState
       )} in this visit.`,
+      ...(offersBlockerComparison ? { newVisit: { variant: "blocker-comparison" as const } } : {}),
       claim: findingClaim(facts, "shields-blocked", blocked > 0 ? "presence" : "absence", shieldsAbsence.leadScope)
     });
   }
