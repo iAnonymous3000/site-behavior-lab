@@ -26,6 +26,11 @@
 // gate or a CI job, until someone killed it. The other node --test stages of
 // test:unit spell the same flags in package.json.
 //
+// A lane passes only if every one of its files delivered the summary its
+// process writes last. node --test passes a file whose process exits 0 on the
+// results that reached it, however few; this runner names the file instead.
+// See fileSummaries below.
+//
 // dist/ is the one shared build output tests read: several load
 // dist/schema/lib/*.js before falling back to .unit-test-dist, and tsc rewrites
 // those files in place. A test that recompiles it belongs in the serial lane, so
@@ -34,14 +39,16 @@
 //
 // scripts/unit-test-lanes.test.mjs forces every lib test that matches a
 // browser, timing, timer, git-spawning or Worker-runtime pattern into the
-// serial lane, proves this runner fails when any lane fails or dist/ changes,
-// and holds every node --test stage of test:unit to TEST_TIMEOUT_MS. Those
-// patterns are a heuristic, not a proof: a deadline hidden in a helper module
-// can still slip past them, so a test that ever fails only in the parallel
-// lane belongs in the serial lane, never behind a retry.
+// serial lane, proves this runner fails when any lane fails, a file's results
+// stop short or dist/ changes, and holds every node --test stage of test:unit
+// to TEST_TIMEOUT_MS. Those patterns are a heuristic, not a proof: a deadline
+// hidden in a helper module can still slip past them, so a test that ever
+// fails only in the parallel lane belongs in the serial lane, never behind a
+// retry.
 
 import { spawn } from "node:child_process";
-import { existsSync, lstatSync, readFileSync, readdirSync } from "node:fs";
+import { existsSync, lstatSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync } from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -64,11 +71,70 @@ export const TEST_TIMEOUT_MS = 600_000;
 // --test waits for that process to exit. --test-force-exit ends each test
 // process once its tests and hooks have finished. The cost: asynchronous
 // activity after a file's last test, such as a late rejection, goes
-// unreported, because the process is gone before it happens. One hang remains
-// out of reach: a child that never exits and shares the test process's stdout
-// (stdio "inherit", say) keeps open the pipe node --test reads results from.
-// A child that shares only stderr does not.
+// unreported, because the process is gone before it happens, and so can the
+// end of the file's own results (see fileSummaries). One hang remains out of
+// reach: a child that never exits and shares the test process's stdout (stdio
+// "inherit", say) keeps open the pipe node --test reads results from. A child
+// that shares only stderr does not.
 export const TEST_BOUND_FLAGS = [`--test-timeout=${TEST_TIMEOUT_MS}`, "--test-force-exit"];
+
+// node --test runs each test file in its own process, which streams its
+// results back over a pipe and ends the stream with that file's test:summary.
+// --test-force-exit ends the process with process.exit() once its reporter has
+// handed the last result to stdout, without waiting for the pipe to take it,
+// and on POSIX node writes to a pipe asynchronously: results still queued in
+// the process at that moment are discarded. node --test then sees exit code 0
+// and passes the file on the results that did arrive, with no error. A file
+// whose tests never yield to the event loop writes its whole stream at once
+// when they end, so it is enough for node --test to fall behind while that
+// burst fills the pipe. On 2026-10-21 a local gate passed a lane in which
+// measurement-candidate-binding.test.js had reported 51 of its 96 results.
+// A process that calls process.exit(0) before its tests end looks the same,
+// and there the tests after it never ran at all.
+//
+// The summary is the last thing a file's process writes, so its arrival means
+// everything before it arrived. Each lane names this module's default export
+// as a second reporter, writing every file's summary to a scratch file, and
+// fails if any of its files has none. Naming any reporter replaces node's
+// default, so spec on stdout is named again first.
+export function laneReporterFlags(summaryLog) {
+  return [
+    "--test-reporter=spec",
+    "--test-reporter-destination=stdout",
+    `--test-reporter=${import.meta.url}`,
+    `--test-reporter-destination=${summaryLog}`
+  ];
+}
+
+export default async function* fileSummaries(source) {
+  for await (const event of source) {
+    // The run's cumulative summary names no file and vouches for none.
+    if (event.type === "test:summary" && typeof event.data.file === "string") {
+      yield `${JSON.stringify(event.data.file)}\n`;
+    }
+  }
+}
+
+// A file's process names itself by the absolute path it was started with, so
+// both sides are compared with symlinks resolved (macOS's temporary directory
+// is one). A summary log that was never written leaves every file unfinished.
+export function filesWithoutSummary(files, summaryLog, root = process.cwd()) {
+  const summarized = new Set(
+    (existsSync(summaryLog) ? readFileSync(summaryLog, "utf8") : "")
+      .split("\n")
+      .filter(Boolean)
+      .map((line) => canonicalPath(JSON.parse(line)))
+  );
+  return files.filter((file) => !summarized.has(canonicalPath(path.resolve(root, file))));
+}
+
+function canonicalPath(file) {
+  try {
+    return realpathSync(file);
+  } catch {
+    return path.resolve(file);
+  }
+}
 
 const COMPILED_TEST = /^\.unit-test-dist\/lib\/[A-Za-z0-9._-]+\.test\.js$/;
 const SOURCE_TEST = /^lib\/[A-Za-z0-9._-]+\.test\.ts$/;
@@ -138,12 +204,31 @@ export function distFingerprint(root = process.cwd()) {
 }
 
 const live = new Set();
+// The scratch directory of each running lane, which holds its summary log.
+const scratch = new Set();
 
 // With no file arguments node --test would discover and run every test file
 // under the working directory, so an empty lane is skipped instead.
-function runLane(files, concurrency) {
-  if (files.length === 0) return Promise.resolve({ ok: true, skipped: true, seconds: 0, output: Buffer.alloc(0) });
-  return run(process.execPath, ["--test", `--test-concurrency=${concurrency}`, ...TEST_BOUND_FLAGS, ...files]);
+async function runLane(files, concurrency) {
+  if (files.length === 0) return { ok: true, skipped: true, seconds: 0, output: Buffer.alloc(0), unfinished: [] };
+  const dir = mkdtempSync(path.join(os.tmpdir(), "unit-test-lane-"));
+  scratch.add(dir);
+  try {
+    const summaryLog = path.join(dir, "summaries");
+    const result = await run(process.execPath, [
+      "--test",
+      `--test-concurrency=${concurrency}`,
+      ...TEST_BOUND_FLAGS,
+      ...laneReporterFlags(summaryLog),
+      ...files
+    ]);
+    // A lane that never started has already failed and wrote no summaries.
+    const unfinished = result.error ? [] : filesWithoutSummary(files, summaryLog);
+    return { ...result, ok: result.ok && unfinished.length === 0, unfinished };
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+    scratch.delete(dir);
+  }
 }
 
 function run(command, args, { capture = false } = {}) {
@@ -168,14 +253,28 @@ function run(command, args, { capture = false } = {}) {
 
 function describe(label, result) {
   if (result.skipped) return `${label} skipped: no files`;
-  const status = result.ok
-    ? "passed"
-    : result.error
-      ? `could not start (${result.error.message})`
-      : result.signal
-        ? `was killed by ${result.signal}`
-        : `failed with exit code ${result.code}`;
-  return `${label} ${status} after ${result.seconds.toFixed(1)} s`;
+  const status = result.error
+    ? `could not start (${result.error.message})`
+    : result.signal
+      ? `was killed by ${result.signal}`
+      : result.code !== 0
+        ? `failed with exit code ${result.code}`
+        : result.ok
+          ? "passed"
+          : "exited 0 but did not pass";
+  const line = `${label} ${status} after ${result.seconds.toFixed(1)} s`;
+  const unfinished = result.unfinished ?? [];
+  if (unfinished.length === 0) return line;
+  const one = unfinished.length === 1;
+  const listed = unfinished.slice(0, 10).join(", ") + (unfinished.length > 10 ? `, and ${unfinished.length - 10} more` : "");
+  return (
+    `${line}\n` +
+    `${one ? "One of its files" : `${unfinished.length} of its files`} ended without the summary a test file's ` +
+    `process writes last, so the results above stop short for ${one ? "it" : "them"} and the counts leave out ` +
+    `whatever was lost: ${listed}. Rerun ${one ? "it" : "each"} alone. A file cut short there too ends its own ` +
+    `process before its tests finish; one that completes there lost the end of its results while node --test ` +
+    `fell behind reading them, so check \`uptime\` for host load.`
+  );
 }
 
 async function main() {
@@ -185,6 +284,7 @@ async function main() {
   for (const signal of ["SIGINT", "SIGTERM"]) {
     process.on(signal, () => {
       for (const child of live) child.kill(signal);
+      for (const dir of scratch) rmSync(dir, { recursive: true, force: true });
       process.exit(signal === "SIGINT" ? 130 : 143);
     });
   }

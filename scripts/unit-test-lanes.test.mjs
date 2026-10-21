@@ -1,15 +1,16 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdtemp, mkdir, readFile, rm, symlink, writeFile } from "node:fs/promises";
 import { readdirSync, readFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
-import {
+import fileSummaries, {
   SERIAL_LANE_FILE,
   TEST_BOUND_FLAGS,
   TEST_TIMEOUT_MS,
+  filesWithoutSummary,
   parseLaneArguments,
   partitionCompiledTests,
   readSerialLane
@@ -179,18 +180,48 @@ test("the partition keeps glob order, refuses stale or foreign entries, and neve
   });
 });
 
+test("the lane reporter records each file's summary and never the run's cumulative one", async () => {
+  async function* events() {
+    yield { type: "test:pass", data: { name: "a test", nesting: 0, file: "/repo/.unit-test-dist/lib/a.test.js" } };
+    yield { type: "test:summary", data: { file: "/repo/.unit-test-dist/lib/a.test.js", success: true, counts: {} } };
+    yield { type: "test:summary", data: { file: undefined, success: true, counts: {} } };
+  }
+  const lines = [];
+  for await (const line of fileSummaries(events())) lines.push(line);
+  assert.deepEqual(lines, [`${JSON.stringify("/repo/.unit-test-dist/lib/a.test.js")}\n`]);
+});
+
+test("a file counts as finished only through its own summary, under any spelling of its path", async (t) => {
+  const dir = await mkdtemp(path.join(os.tmpdir(), "unit-test-lanes-summary-"));
+  t.after(() => rm(dir, { recursive: true, force: true }));
+  const real = path.join(dir, "real");
+  await mkdir(path.join(real, ".unit-test-dist", "lib"), { recursive: true });
+  const files = ["a", "b"].map((name) => `.unit-test-dist/lib/${name}.test.js`);
+  for (const file of files) await writeFile(path.join(real, file), "");
+  await symlink(real, path.join(dir, "link"));
+  // a's process names itself through a symlink to the lane's directory; b's
+  // summary never arrived.
+  const log = path.join(dir, "summaries");
+  await writeFile(log, `${JSON.stringify(path.join(dir, "link", files[0]))}\n`);
+  assert.deepEqual(filesWithoutSummary(files, log, real), [files[1]]);
+  assert.deepEqual(filesWithoutSummary(files, path.join(dir, "never-written"), real), files);
+});
+
 // Runs the real CLI over a throwaway package: three parallel tests, an
 // alongside script and two serial tests, each appending its name to one log
 // when it runs, and each test recording the bound flags its process was given.
 // `fail` names the one piece that should fail; `writeDist` names a parallel
 // test that also writes into dist/; `leak` names tests that pass but leave a
-// server listening; `serialLane` replaces the lane.
+// server listening; `cut` names test files whose process exits 0 in a second
+// test, before writing the summary that ends its results; `serialLane`
+// replaces the lane.
 async function runFixture(
   t,
   {
     fail = "none",
     writeDist = "none",
     leak = [],
+    cut = [],
     serialLane = { "lib/s1.test.ts": "fixture serial test", "lib/s2.test.ts": "fixture serial test" }
   } = {}
 ) {
@@ -215,7 +246,10 @@ async function runFixture(
     `    writeFileSync(${JSON.stringify(path.join(dir, "dist", "schema", "rebuilt.js"))}, "");\n` +
     `  }\n` +
     `  if (${JSON.stringify(fail)} === ${JSON.stringify(name)}) throw new Error("deliberate failure");\n` +
-    `});\n`;
+    `});\n` +
+    `if (${JSON.stringify(cut)}.includes(${JSON.stringify(name)})) {\n` +
+    `  require("node:test")(${JSON.stringify(`${name} after the cut`)}, () => process.exit(0));\n` +
+    `}\n`;
   const names = ["p1", "p2", "p3", "s1", "s2"];
   for (const name of names) {
     await writeFile(path.join(dir, ".unit-test-dist", "lib", `${name}.test.js`), body(name));
@@ -264,6 +298,10 @@ test("the serial lane starts only after the parallel lane and the alongside comm
   const firstSerial = Math.min(finished.indexOf("s1"), finished.indexOf("s2"));
   for (const earlier of ["p1", "p2", "p3", "side"]) assert.ok(finished.indexOf(earlier) < firstSerial, earlier);
   assert.ok(finished.indexOf("s1") < finished.indexOf("s2"), "the serial lane keeps glob order");
+  // The lanes name a reporter of their own, which replaces node's default, so
+  // spec's lines on stdout must still be there. FORCE_COLOR would colour them.
+  const plain = output.replace(/\x1b\[[0-9;]*m/g, "");
+  for (const name of ["p1", "p2", "p3", "s1", "s2"]) assert.match(plain, new RegExp(`^✔ ${name} \\(`, "m"), name);
 });
 
 test("both lanes run every lib test file under TEST_BOUND_FLAGS", async (t) => {
@@ -297,6 +335,37 @@ for (const [failing, where] of [
     }
   });
 }
+
+// node --test passes a file whose process exits 0 on whatever results reached
+// it. A process that exits before its tests end is the plain case. On
+// 2026-10-21 a gate passed a file that had delivered 51 of its 96 results, and
+// --test-force-exit ending a process while its results are still queued
+// reproduces that.
+for (const [cut, lane] of [
+  ["p2", "Parallel lib lane (3 files)"],
+  ["s1", "Serial lib lane (2 files)"]
+]) {
+  test(`the lanes fail when ${cut}'s results stop short, though its process exits 0`, async (t) => {
+    const { status, output, finished } = await runFixture(t, { cut: [cut] });
+    assert.notEqual(status, 0, output);
+    assert.ok(finished.includes(cut), `${cut} must have run`);
+    assert.match(output, new RegExp(`${lane.replace(/[()]/g, "\\$&")} exited 0 but did not pass`));
+    assert.match(output, new RegExp(`One of its files ended without the summary .*: \\.unit-test-dist/lib/${cut}\\.test\\.js\\.`));
+    if (cut === "p2") {
+      assert.ok(!finished.includes("s1") && !finished.includes("s2"), "no serial test may start after a cut");
+      assert.match(output, /stopped before the serial lane/);
+    }
+  });
+}
+
+test("a file whose results stop short is named even when another file has failed its lane", async (t) => {
+  // A failure the lost results held would show only as node's bare "test
+  // failed" for the file, so the cut must be named beside it.
+  const { status, output } = await runFixture(t, { fail: "p1", cut: ["p2"] });
+  assert.notEqual(status, 0, output);
+  assert.match(output, /Parallel lib lane \(3 files\) failed with exit code 1/);
+  assert.match(output, /One of its files ended without the summary .*: \.unit-test-dist\/lib\/p2\.test\.js\./);
+});
 
 test("an empty lane is skipped, never handed to node --test with no files", async (t) => {
   // With no file arguments node --test falls back to discovering every test

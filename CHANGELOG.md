@@ -9,6 +9,16 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- The unit test lanes now fail when a lib test file's results stop short.
+  node --test passes a file whose process exits 0 on whatever results reached
+  it, and with --test-force-exit a file's process can exit before node --test
+  has read the results it wrote last. On 2026-10-21 a local gate's parallel
+  lane passed with the last 45 of measurement-candidate-binding's 96 results
+  missing, and nothing in its log said so; its count read 2,691 tests, 45
+  short. Each lane now records, through a second reporter beside spec, the
+  summary every file's process writes last, and fails and names any file
+  whose summary never arrived. Which tests run, and what each asserts, is
+  unchanged.
 - The privacy page and the page shown for an unavailable report now say a
   live share can be deleted before about 7 days. They stated only the age,
   but the store keeps the newest 500 shares and deletes older ones to make

@@ -67,10 +67,12 @@ to PR #222's tested head `3ebef9dc17da14e69fd7f727f6ffc472504b0caf`.
   files at a time and each in its own process, while the corpus-overview group
   runs beside them. `scripts/unit-test-lanes.test.mjs` forces any lib test that
   matches a browser, timing, timer, direct Git or Miniflare pattern into the
-  serial lane, and the runner fails if the parallel phase changes `dist/`. The
-  same tests run with the same assertions, timeouts and tolerances. A test that
-  ever fails only in the parallel lane belongs in the serial lane, never behind
-  a retry.
+  serial lane, and the runner fails if the parallel phase changes `dist/`. It
+  also fails a lane in which any file's results stop short of the summary its
+  process writes last, a file node --test itself passes when that process
+  exits 0. The same tests run with the same assertions, timeouts and
+  tolerances. A test that ever fails only in the parallel lane belongs in the
+  serial lane, never behind a retry.
 - The carrier archive error test first verifies the intact fixture, then makes
   the real Git archive command read an empty object store. It checks fresh and
   deliberately packed repositories and requires Git's actual diagnostic to be
