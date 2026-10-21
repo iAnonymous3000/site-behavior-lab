@@ -26,6 +26,7 @@ import { consentVerificationSummary } from "@/lib/report-consent-copy";
 import { buildReportHeadline } from "@/lib/report-headline";
 import { buildReportFacts, type RunFacts } from "@/lib/report-facts";
 import { parseEvidenceHash } from "@/lib/report-evidence-navigation";
+import { reportNewVisitTarget } from "@/lib/report-rescan-targets";
 import {
   displayableScreenshot,
   gpcRunMeasurement
@@ -56,7 +57,8 @@ export function ReportRenderer({
   printComplete = false,
   printGuide,
   visitSummary,
-  siteHistoryHref = null
+  siteHistoryHref = null,
+  freshResult = false
 }: {
   loaded: LoadedReport;
   liveApiServesReportPages: boolean;
@@ -81,6 +83,14 @@ export function ReportRenderer({
    * has no site history; the board renders no view at all on paper.
    */
   siteHistoryHref?: string | null;
+  /**
+   * Whether this is a fresh result: the homepage's own live scan, or that
+   * scan's runtime share permalink, whose server decides it and renders its
+   * summary board from the same value. Only a fresh result's cards offer a
+   * new visit; a committed report, an opened file and an archive comparison
+   * leave it false.
+   */
+  freshResult?: boolean;
 }) {
   useEffect(() => {
     if (!printComplete) return;
@@ -94,6 +104,7 @@ export function ReportRenderer({
     [reportFacts, reportView]
   );
   const { evidenceArm, findings } = useReportFindings(reportView, reportFacts, headline);
+  const newVisitTarget = reportNewVisitTarget(reportView, freshResult);
   const benchmarkScope = findings.find((finding) => finding.id === "bottom-line")?.benchmarkScope;
   const primaryRun = reportFacts.display.run;
   const arms = comparisonArmViews(reportView);
@@ -220,7 +231,7 @@ export function ReportRenderer({
             liveApiServesReportPages={liveApiServesReportPages}
           />
           <FindingsBoard evidenceArm={evidenceArm} facts={reportFacts} findings={findings} siteHistoryHref={siteHistoryHref}
-            afterBottomLine={visitSummary} />
+            newVisitTarget={newVisitTarget} afterBottomLine={visitSummary} />
           {reportView.reportType === "comparison" && (
             <ComparisonPanel view={reportView} facts={reportFacts} />
           )}

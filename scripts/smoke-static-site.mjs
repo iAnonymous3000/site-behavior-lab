@@ -329,6 +329,7 @@ async function main() {
       if (scannerFixture) {
         await assertKnownSiteLeadsWithItsReport(browser, baseUrl, manifest);
         await assertModeLinkWaitsForHealth(browser, baseUrl, manifest);
+        await assertBlockerComparisonOnlyOnFreshResults(browser, baseUrl, manifest);
       }
     }
 
@@ -1876,6 +1877,12 @@ async function assertLookCloserMarkup(manifest) {
     if (reportPage.split('class="finding-look-closer"').length - 1 !== inCards) {
       fail(`report ${report.id} renders a Look closer view outside a findings card`);
     }
+    // A new visit is for fresh results only: a committed report, its
+    // permalink and its explorer alike, never offers one, and no committed
+    // page links the scan form with a mode.
+    if (reportPage.includes('data-look-closer="blocker-comparison"') || /href="[^"]*#scan\?[^"]*mode=/.test(reportPage)) {
+      fail(`committed report ${report.id} offers a new visit`);
+    }
     for (const [, cardId, body] of cards) {
       const views = [...body.matchAll(/<div class="finding-look-closer" data-look-closer="([a-z-]+)">([\s\S]*?)<\/div>/g)];
       if (views.length === 0) continue;
@@ -2383,6 +2390,135 @@ async function assertModeLinkWaitsForHealth(browser, baseUrl, manifest) {
     pass("a corpus site's mode link keeps the known-site note, history clause included, and adds no second line");
   } finally {
     await corpusContext.close();
+  }
+}
+
+/**
+ * The newest committed report a fresh result like it would offer "Compare
+ * with blocking on" for, chosen at run time because retention moves the
+ * corpus: a GPC comparison with complete request evidence whose Brave-list
+ * card says requests matched, and an r2 report, so the page to visit again is
+ * the site root it requested.
+ */
+async function findBlockerFollowUpCandidate(manifest) {
+  for (const report of manifest.reports) {
+    if (report.comparisonType !== "gpc" || report.requestEvidenceComplete !== true) continue;
+    const wire = JSON.parse(await readFile(path.join(outDir, "reports", `${report.id}.json`), "utf8"));
+    if (wire.schemaVersion !== 2) continue;
+    const page = await readFile(path.join(outDir, "reports", report.id, "index.html"), "utf8");
+    const card = /<article class="finding-card [^"]*" id="finding-shields-blocked">([\s\S]*?)<\/article>/.exec(page)?.[1] ?? "";
+    if (/<h3>[^<]*matched Brave Shields filter lists<\/h3>/.test(card)) return { report, wire };
+  }
+  fail("no committed GPC comparison has a Brave-list card with matched requests to stand in for a fresh result");
+}
+
+/**
+ * "Compare with blocking on" is for fresh results only. A committed
+ * permalink offers none, nor does its explorer, which the server tells the
+ * report is not fresh; a file opened from disk offers none either. A fresh
+ * result does: here the homepage's own scan, answered by this test with the
+ * committed report's bytes (no scan runs, and health needs no browser
+ * check). Its link fills the form with the site root and Blocker, on screen,
+ * beside the result, and sends nothing more.
+ */
+async function assertBlockerComparisonOnlyOnFreshResults(browser, baseUrl, manifest) {
+  const { report, wire } = await findBlockerFollowUpCandidate(manifest);
+  const reportJson = path.join(outDir, "reports", `${report.id}.json`);
+  const target = `https://${wire.baseline.subject.observed.registrableDomain}/`;
+  const expectedHref = `${basePath}/#scan?url=${encodeURIComponent(target)}&mode=shields`;
+  const followUp = (page) => page.locator('#finding-shields-blocked .finding-look-closer[data-look-closer="blocker-comparison"]');
+  // Every link anywhere on the page that opens the scan form with a mode.
+  const anyNewVisit = (page) => page.locator('a[href*="#scan?"][href*="mode="]');
+
+  // The committed permalink and its explorer.
+  const committedContext = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
+  await installScannerFixture(committedContext);
+  try {
+    const page = await committedContext.newPage();
+    await page.goto(`${baseUrl}/reports/${report.id}/`, { waitUntil: "networkidle" });
+    if ((await page.locator("#finding-shields-blocked").count()) !== 1) fail(`report ${report.id} lost its Brave-list card`);
+    if ((await anyNewVisit(page).count()) !== 0) fail(`committed report ${report.id} offers a new visit before the explorer opens`);
+    await page.getByRole("button", { name: "Explore full evidence" }).click();
+    await page.locator(".report-focus-target .findings-board #finding-shields-blocked").waitFor();
+    if ((await anyNewVisit(page).count()) !== 0) fail(`committed report ${report.id}'s explorer offers a new visit`);
+  } finally {
+    await committedContext.close();
+  }
+
+  const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
+  const scanBodies = [];
+  const sent = [];
+  await context.route(`${liveScanApiBase}/**`, async (route) => {
+    const request = route.request();
+    const pathname = new URL(request.url()).pathname;
+    const cors = { "access-control-allow-origin": "*" };
+    if (request.method() === "GET" && pathname === "/api/health") {
+      return route.fulfill({ status: 200, contentType: "application/json", headers: cors,
+        body: JSON.stringify({ ...scannerFixture, turnstile: false }) });
+    }
+    if (request.method() === "OPTIONS") {
+      return route.fulfill({ status: 204, headers: { ...cors, "access-control-allow-methods": "GET, POST",
+        "access-control-allow-headers": request.headers()["access-control-request-headers"] ?? "content-type" } });
+    }
+    sent.push(`${request.method()} ${pathname}`);
+    if (request.method() === "POST" && pathname === "/api/scan") {
+      scanBodies.push(request.postData() ?? "");
+      return route.fulfill({ status: 200, contentType: "application/json", headers: cors, body: await readFile(reportJson, "utf8") });
+    }
+    return route.abort();
+  });
+  try {
+    const page = await context.newPage();
+    await page.goto(`${baseUrl}/`, { waitUntil: "networkidle" });
+    await page.locator(".run-mode-checking").waitFor({ state: "detached" });
+
+    // A file opened from disk is not a fresh result.
+    await uploadHomeReport(page, reportJson);
+    await page.locator("#finding-shields-blocked").waitFor();
+    if ((await anyNewVisit(page).count()) !== 0) fail("a report opened from a file offers a new visit");
+
+    // The homepage's own scan of the site, answered with the same report.
+    await page.locator("#url").fill(target);
+    await page.getByRole("button", { name: "GPC diff", exact: true }).click();
+    await page.locator('.scan-panel button[type="submit"]').click();
+    await followUp(page).waitFor({ timeout: 30_000 });
+    if (sent.length !== 1 || scanBodies.length !== 1) fail(`the scan sent ${sent.join(", ")}`);
+    const link = followUp(page).locator(".finding-look-closer-link");
+    if ((await link.textContent())?.trim() !== "Compare with blocking on") fail("the fresh result's follow-up lost its label");
+    if ((await link.getAttribute("href")) !== expectedHref) fail(`the fresh result's follow-up links ${await link.getAttribute("href")}, not ${expectedHref}`);
+    if (!(await link.getAttribute("aria-label"))?.startsWith("Compare with blocking on for ")) fail("the follow-up's name does not say its action and its card");
+    await expectText(
+      followUp(page).locator(".finding-look-closer-sentence"),
+      "Opens the scan form ready to visit this page twice, once simulating Brave's default filter-list blocking; nothing runs until you press Compare."
+    );
+    if ((await anyNewVisit(page).count()) !== 1 || (await page.locator(".finding-look-closer[data-look-closer=\"blocker-comparison\"]").count()) !== 1) {
+      fail("a fresh result offers more than one new visit");
+    }
+
+    // Following it fills the form beside the result, and runs nothing.
+    await link.click();
+    try {
+      await page.waitForFunction((expected) => document.getElementById("url")?.value === expected, target, { timeout: 10_000 });
+      await page.waitForFunction(() =>
+        document.querySelector('button[aria-label="Blocker comparison (Brave Shields)"]')?.getAttribute("aria-pressed") === "true",
+      null, { timeout: 10_000 });
+    } catch {
+      fail("following Compare with blocking on did not fill the form with the site root and Blocker");
+    }
+    if (!(await page.evaluate(() => window.location.href)).endsWith("#scan")) fail("the follow-up's prefill stayed in the address");
+    if ((await page.locator(".report-header").count()) !== 1) fail("following the follow-up replaced the fresh result");
+    const arrival = await page.evaluate(() => {
+      const field = document.getElementById("url")?.getBoundingClientRect();
+      return { top: field?.top ?? Number.NaN, bottom: field?.bottom ?? Number.NaN, viewport: window.innerHeight };
+    });
+    if (!(arrival.top >= 0 && arrival.bottom <= arrival.viewport)) {
+      fail(`the URL field is not on screen after following the follow-up: ${JSON.stringify(arrival)}`);
+    }
+    await page.waitForTimeout(1_500);
+    if (sent.length !== 1) fail(`following the follow-up sent ${sent.slice(1).join(", ")}`);
+    pass(`a fresh result of ${report.domain} offers Compare with blocking on, which fills the form with Blocker and sends nothing; its committed permalink, explorer and opened file offer none`);
+  } finally {
+    await context.close();
   }
 }
 

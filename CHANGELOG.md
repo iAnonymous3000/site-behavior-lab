@@ -9,6 +9,20 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- A fresh Single or GPC result whose requests matched Brave's lists now
+  offers "Compare with blocking on" in its Brave-list card's Look closer
+  group, with the sentence that says the scan form opens ready to visit the
+  page twice and nothing runs until you press Compare. Following it fills
+  the form with the page and Blocker, beside the result, and runs nothing.
+  A fresh result is the homepage's own live scan, for as long as the result
+  shown is the one that scan returned, and that scan's runtime share
+  permalink, whose server decides it from where it read the report and hands
+  the same answer to the evidence explorer, so both boards offer the same
+  follow-up. A committed report and its explorer, a file opened from disk
+  and a comparison built in the archive offer none, and neither the
+  printable page nor the PDF renders it. It is built in the explorer's lazy
+  chunk and on the server; the homepage's own code gains only the flag that
+  says its result is fresh. Committed report pages are unchanged.
 - A findings card can now decide a new visit beside its Look closer view: a
   link that opens the scan form ready for a comparison and never runs one.
   The only one minted is on the Brave-list card when requests matched on a

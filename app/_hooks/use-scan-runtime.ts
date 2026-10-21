@@ -83,6 +83,10 @@ export function useScanRuntime({
 }: UseScanRuntimeOptions) {
   const [form, setForm] = useState<ScanFormState>(INITIAL_SCAN_FORM);
   const [loaded, setLoaded] = useState<LoadedReport | null>(initialLoaded);
+  // The report this tab's own live scan returned. A file the visitor opens and
+  // a comparison built in the archive replace `loaded` too, so the result is
+  // fresh only while it is still this very object.
+  const [liveScanResult, setLiveScanResult] = useState<LoadedReport | null>(null);
   const [error, setError] = useState<string | null>(initialError);
   const [loading, setLoading] = useState(initialLoading);
   const [scanning, setScanning] = useState(false);
@@ -249,7 +253,7 @@ export function useScanRuntime({
     })
       .then((nextLoaded) => {
         if (disposed || !operationOwnerRef.current.owns(operation)) return;
-        setLoaded(nextLoaded);
+        showLiveScanResult(nextLoaded);
         releaseActiveScanSession(operation);
       })
       .catch((scanError: unknown) => {
@@ -433,6 +437,12 @@ export function useScanRuntime({
     );
   }
 
+  /** Every path that ends a live scan of this tab (submit, resume, restore, admission recovery) shows its result here. */
+  function showLiveScanResult(next: LoadedReport): void {
+    setLoaded(next);
+    setLiveScanResult(next);
+  }
+
   function releaseActiveScanSession(operation: ScanLifecycleOperation): void {
     assertClientOperationOwner(operationOwnerRef.current, operation);
     forceReleaseActiveScanSession();
@@ -553,7 +563,7 @@ export function useScanRuntime({
         }
       });
       assertClientOperationOwner(operationOwnerRef.current, operation);
-      setLoaded(nextLoaded);
+      showLiveScanResult(nextLoaded);
       releaseActiveScanSession(operation);
     } catch (recoveryError) {
       if (!operationOwnerRef.current.owns(operation) || isAbortError(recoveryError)) return;
@@ -663,7 +673,7 @@ export function useScanRuntime({
         }
       });
       assertClientOperationOwner(operationOwnerRef.current, operation);
-      setLoaded(nextLoaded);
+      showLiveScanResult(nextLoaded);
       releaseActiveScanSession(operation);
     } catch (scanError) {
       if (!operationOwnerRef.current.owns(operation) || isAbortError(scanError)) return;
@@ -712,7 +722,7 @@ export function useScanRuntime({
         }
       });
       assertClientOperationOwner(operationOwnerRef.current, operation);
-      setLoaded(nextLoaded);
+      showLiveScanResult(nextLoaded);
       releaseActiveScanSession(operation);
     } catch (scanError) {
       if (!operationOwnerRef.current.owns(operation) || isAbortError(scanError)) return;
@@ -914,6 +924,8 @@ export function useScanRuntime({
     setForm,
     loaded,
     setLoaded,
+    // Fresh while the result shown is the one this tab's live scan returned.
+    freshScanResult: loaded !== null && loaded === liveScanResult,
     error,
     setError,
     loading,

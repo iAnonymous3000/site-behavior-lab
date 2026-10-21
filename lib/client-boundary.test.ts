@@ -70,7 +70,7 @@ test("Look closer views are built on the server or in the renderer chunk, never 
   ]) {
     never(
       read(...parts),
-      /finding-look-closer|report-site-history|request-log-filters|corpus-overview"/,
+      /finding-look-closer|report-site-history|report-rescan-targets|request-log-filters|corpus-overview"/,
       `${parts.join("/")} imports a module a Look closer view is built from`
     );
   }
@@ -98,8 +98,8 @@ test("Look closer views are built on the server or in the renderer chunk, never 
   const list = read("app", "_components", "findings-list.tsx");
   holds(
     list,
-    /^import \{ findingLookCloser, LOOK_CLOSER_NAME \} from "@\/lib\/finding-look-closer";$/m,
-    "the shared board markup renders the views"
+    /^import \{ findingLookCloser, findingNewVisit, LOOK_CLOSER_NAME \} from "@\/lib\/finding-look-closer";$/m,
+    "the shared board markup renders the views and the new visits"
   );
   never(list, /"use client"/, "the shared board markup became a client module");
   // The permalink reads the site's history once, on the server, and hands the
@@ -113,24 +113,42 @@ test("Look closer views are built on the server or in the renderer chunk, never 
     "the permalink hands the history target to its explorer"
   );
   holds(page, /<ReportPageSummary[\s\S]*?siteHistoryHref=\{siteHistoryHref\}[\s\S]*?\/>/, "the permalink hands it to its summary");
-  holds(page, /lookCloser=\{\{ siteHistoryHref \}\}/, "the summary board renders the views");
   holds(
-    read("app", "reports", "[id]", "saved-report-client.tsx"),
-    /<LazyReportRenderer[^>]*siteHistoryHref=\{siteHistoryHref\}/,
-    "the saved-report client passes the history target to the explorer"
+    page,
+    /lookCloser=\{\{ siteHistoryHref, newVisitTarget, basePath: sitePagesBasePath\(\) \}\}/,
+    "the summary board renders the views and the new visits"
   );
-  holds(
-    read("app", "_components", "report-renderer.tsx"),
-    /<FindingsBoard [^>]*siteHistoryHref=\{siteHistoryHref\}/,
-    "the explorer passes it to its board"
-  );
+  const client = read("app", "reports", "[id]", "saved-report-client.tsx");
+  holds(client, /<LazyReportRenderer[^>]*siteHistoryHref=\{siteHistoryHref\}/, "the saved-report client passes the history target to the explorer");
+  const renderer = read("app", "_components", "report-renderer.tsx");
+  holds(renderer, /<FindingsBoard [^>]*siteHistoryHref=\{siteHistoryHref\}/, "the explorer passes it to its board");
   holds(
     read("app", "_components", "report-overview.tsx"),
-    /const printComplete = usePrintComplete\(\);[\s\S]*?lookCloser=\{printComplete \? undefined : \{ siteHistoryHref \}\}/,
-    "the explorer's board renders no view on paper"
+    /const printComplete = usePrintComplete\(\);[\s\S]*?lookCloser=\{printComplete \? undefined : \{ siteHistoryHref, newVisitTarget, basePath: STATIC_BASE_PATH \}\}/,
+    "the explorer's board renders no view or new visit on paper"
   );
+  // The fresh input reaches both boards: the permalink decides it once, from
+  // where it read the report, and builds its summary board's target from it;
+  // the explorer, on the permalink and on the homepage, builds its own from
+  // the same value and the same view through the same function.
+  assert.equal(page.match(/result\.origin === "share-store"/g)?.length, 1, "the permalink decides freshness once");
+  holds(page, /const freshResult = result\.origin === "share-store";\s*const newVisitTarget = reportNewVisitTarget\(view, freshResult\);/, "the permalink builds the summary board's target from that freshness");
+  holds(page, /<ReportPageSummary[\s\S]*?newVisitTarget=\{newVisitTarget\}[\s\S]*?\/>/, "the permalink hands the target to its summary");
+  holds(page, /siteHistoryHref=\{siteHistoryHref\}\s*freshResult=\{freshResult\}/, "the permalink hands its freshness to the explorer");
+  holds(client, /<LazyReportRenderer[^>]*freshResult=\{freshResult\}/, "the saved-report client passes the freshness on");
+  holds(renderer, /const newVisitTarget = reportNewVisitTarget\(reportView, freshResult\);/, "the explorer builds its target from the freshness");
+  holds(renderer, /<FindingsBoard [^>]*newVisitTarget=\{newVisitTarget\}/, "the explorer's board gets that target");
+  holds(renderer, /freshResult = false/, "a renderer is not fresh unless told");
+  // On the homepage, only the result this tab's live scan returned is fresh.
+  const app = read("app", "site-behavior-app.tsx");
+  holds(app, /<LazyReportRenderer [^>]*freshResult=\{freshScanResult\}/, "the homepage hands its result's freshness to the explorer");
+  const hook = read("app", "_hooks", "use-scan-runtime.ts");
+  holds(hook, /freshScanResult: loaded !== null && loaded === liveScanResult/, "freshness is the live scan's own result, by identity");
+  assert.equal(hook.match(/setLiveScanResult\(/g)?.length, 1, "only showLiveScanResult records a live result");
+  assert.equal(hook.match(/showLiveScanResult\(nextLoaded\)/g)?.length, 4, "submit, resume, restore and admission recovery show a live result");
+  never(hook, /setLoaded\(nextLoaded\)/, "a live scan result reached the result region without being recorded as fresh");
   const print = read("app", "reports", "[id]", "print", "page.tsx");
-  never(print, /siteHistoryHref|lookCloser/, "the printable route hands its board a Look closer input");
+  never(print, /siteHistoryHref|lookCloser|freshResult|newVisitTarget/, "the printable route hands its board a Look closer input");
   holds(print, /<ReportRenderer[\s\S]*?printComplete\s/, "the printable route renders its board for paper");
 });
 

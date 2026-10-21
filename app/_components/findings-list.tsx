@@ -12,7 +12,7 @@ import {
   ShieldCheck
 } from "lucide-react";
 import { Fragment, type ReactNode } from "react";
-import { findingLookCloser, LOOK_CLOSER_NAME } from "@/lib/finding-look-closer";
+import { findingLookCloser, findingNewVisit, LOOK_CLOSER_NAME } from "@/lib/finding-look-closer";
 import type { Finding, FindingIconKey } from "@/lib/report-findings";
 import { REPORT_SEVERITY_LABELS } from "@/lib/report-facts";
 import {
@@ -75,11 +75,13 @@ export function FindingsList({
    */
   afterBottomLine?: ReactNode;
   /**
-   * What each card's Look closer view needs beyond the card itself, or absent
-   * to render none, as the printable route does. A report page builds the
-   * history target on the server and hands the same value to its explorer.
+   * What each card's Look closer view and new visit need beyond the card
+   * itself, or absent to render none, as the printable route does. A report
+   * page builds the history target on the server and hands the same value to
+   * its explorer; the page a new visit would visit again is built on each
+   * board from the same view and the same freshness.
    */
-  lookCloser?: { siteHistoryHref: string | null };
+  lookCloser?: { siteHistoryHref: string | null; newVisitTarget: string | null; basePath: string };
 }) {
   const hasBottomLine = findings.some((finding) => finding.id === "bottom-line");
   return (
@@ -101,6 +103,14 @@ export function FindingsList({
           const view = lookCloser
             ? findingLookCloser(finding, findings, { arm: evidenceArm, siteHistoryHref: lookCloser.siteHistoryHref })
             : null;
+          // A card offers a view or a new visit, never both: the two kinds
+          // key disjoint cards (lib/report-findings.test.ts holds that), so
+          // the group shows one link and its sentence either way.
+          const followUp =
+            view ??
+            (lookCloser
+              ? findingNewVisit(finding, { newVisitTarget: lookCloser.newVisitTarget, basePath: lookCloser.basePath })
+              : null);
           const viewSentenceId = `${findingCardDomId(finding.id)}-look-closer`;
           // The id is the target of the visit summary's "What this visit
           // could not see" links; the board renders once per document.
@@ -133,23 +143,24 @@ export function FindingsList({
                     </a>
                   )}
                 </div>
-                {/* One view per card, after everything the card states: it
-                    opens rows, a card or the site's history the reader could
-                    reach already, and its sentence says what it opens before
-                    anyone follows it. The link names its card, like the
-                    evidence link above, and points at the sentence. */}
-                {view && (
-                  <div className="finding-look-closer" data-look-closer={view.variant}>
+                {/* One follow-up per card, after everything the card states:
+                    a view opens rows, a card or the site's history the reader
+                    could reach already, and a new visit opens the scan form,
+                    filled and never submitted. Its sentence says what it
+                    opens before anyone follows it. The link names its card,
+                    like the evidence link above, and points at the sentence. */}
+                {followUp && (
+                  <div className="finding-look-closer" data-look-closer={followUp.variant}>
                     <p className="finding-look-closer-name">{LOOK_CLOSER_NAME}</p>
                     <a
                       className="finding-look-closer-link"
-                      href={view.href}
-                      aria-label={`${view.label} for ${finding.title}`}
+                      href={followUp.href}
+                      aria-label={`${followUp.label} for ${finding.title}`}
                       aria-describedby={viewSentenceId}
                     >
-                      {view.label}
+                      {followUp.label}
                     </a>
-                    <p className="finding-look-closer-sentence" id={viewSentenceId}>{view.sentence}</p>
+                    <p className="finding-look-closer-sentence" id={viewSentenceId}>{followUp.sentence}</p>
                   </div>
                 )}
               </div>

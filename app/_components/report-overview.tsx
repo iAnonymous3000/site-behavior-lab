@@ -20,7 +20,7 @@ import {
   ShieldCheck
 } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { clientReportRuntime, staticAssetPath } from "../client-runtime";
+import { STATIC_BASE_PATH, clientReportRuntime, staticAssetPath } from "../client-runtime";
 import { FindingsList } from "./findings-list";
 import {
   LatestClientOperation,
@@ -282,7 +282,8 @@ export function FindingsBoard({
   facts,
   findings,
   afterBottomLine,
-  siteHistoryHref = null
+  siteHistoryHref = null,
+  newVisitTarget = null
 }: {
   evidenceArm: EvidenceArm | undefined;
   facts: ReportFacts;
@@ -291,9 +292,11 @@ export function FindingsBoard({
   afterBottomLine?: ReactNode;
   /** A report page's server-built history target for the cookie card's view. */
   siteHistoryHref?: string | null;
+  /** The page a card's new visit would visit again: a fresh result's only (lib/report-rescan-targets.ts). */
+  newVisitTarget?: string | null;
 }) {
-  // Look closer views are links to follow on screen. The printable route and
-  // the PDF render none, so the paper document is the one it was before them.
+  // Look closer follow-ups are links to follow on screen. The printable route
+  // and the PDF render none, so the paper document is the one it was before them.
   const printComplete = usePrintComplete();
   return (
     <FindingsList
@@ -302,7 +305,7 @@ export function FindingsBoard({
       automation={facts.display.run.conditions.automation}
       glossaryHref={staticAssetPath("/glossary/")}
       afterBottomLine={afterBottomLine}
-      lookCloser={printComplete ? undefined : { siteHistoryHref }}
+      lookCloser={printComplete ? undefined : { siteHistoryHref, newVisitTarget, basePath: STATIC_BASE_PATH }}
     />
   );
 }

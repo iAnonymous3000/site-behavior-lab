@@ -33,7 +33,8 @@ export function SavedReportClient({
   receipt,
   summary,
   visitSummary,
-  siteHistoryHref
+  siteHistoryHref,
+  freshResult
 }: {
   id: string;
   evidenceHref: string;
@@ -61,6 +62,12 @@ export function SavedReportClient({
    * view exactly when the summary board did.
    */
   siteHistoryHref: string | null;
+  /**
+   * Whether the server read this report from the runtime share store, a live
+   * scan's fresh result: the explorer's board then offers the same new visit
+   * the summary board did, from the same value.
+   */
+  freshResult: boolean;
 }) {
   const [loaded, setLoaded] = useState<LoadedReport | null>(null);
   const [loading, setLoading] = useState(false);
@@ -212,7 +219,7 @@ export function SavedReportClient({
             >
               <Suspense fallback={<p className="muted">Preparing the evidence explorer…</p>}>
                 <LazyReportRenderer loaded={loaded} liveApiServesReportPages pdfExportQuery={pdfExportQuery}
-                  visitSummary={visitSummary} siteHistoryHref={siteHistoryHref} />
+                  visitSummary={visitSummary} siteHistoryHref={siteHistoryHref} freshResult={freshResult} />
               </Suspense>
             </section>
           )}

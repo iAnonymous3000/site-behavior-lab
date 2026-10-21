@@ -1734,6 +1734,11 @@ test("the Blocker comparison is keyed by its card and branch, never by level, an
   for (const card of Object.values(NEW_VISIT_CARD)) {
     assert.ok(!["bottom-line", "public-correction"].includes(card), `${card} may not offer a new visit`);
   }
+  // A card offers a view or a new visit, never both: the two kinds key
+  // disjoint cards, which the board's one Look closer group relies on
+  // (app/_components/findings-list.tsx shows one follow-up per card).
+  const viewCards = new Set(Object.values(LOOK_CLOSER_CARD));
+  assert.deepEqual(Object.values(NEW_VISIT_CARD).filter((card) => viewCards.has(card)), []);
   // Only Blocker links are minted: the consent journey is parked, and GPC
   // waits for its legal review and the operator check.
   assert.deepEqual(Object.values(NEW_VISIT_MODE), ["shields"]);

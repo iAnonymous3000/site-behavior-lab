@@ -12,6 +12,7 @@ import { parseCorrectionsLedger, reportCorrections } from "@/lib/corrections-led
 import { serializeJsonLd } from "@/lib/jsonld-script";
 import { buildReportDataset } from "@/lib/report-jsonld";
 import { reportPdfExportQuery } from "@/lib/report-pdf-export-query";
+import { reportNewVisitTarget } from "@/lib/report-rescan-targets";
 import { siteHistoryLookCloserHref } from "@/lib/report-site-history";
 import { readStoredReportForId } from "@/lib/report-source";
 import { buildReportVisitSummary } from "@/lib/report-visit-summary";
@@ -142,6 +143,12 @@ export default async function SavedReportPage({ params }: { params: Promise<{ id
   const siteHistoryHref = STATIC_EXPORT
     ? await siteHistoryLookCloserHref({ id, view, committed: result.origin === "committed" })
     : null;
+  // A runtime share is a live scan's fresh result, the only report whose
+  // cards may offer a new visit; a committed report's site already holds the
+  // corpus evidence. The summary board and the explorer read the same value,
+  // so both boards offer the same follow-ups.
+  const freshResult = result.origin === "share-store";
+  const newVisitTarget = reportNewVisitTarget(view, freshResult);
   const correction = reportCorrections(correctionsLedger, id);
   const reportUrl = publicReportUrl(id);
   const jsonUrl = STATIC_EXPORT ? `${siteBaseUrl()}/reports/${id}.json` : `${siteOrigin()}/api/reports/${id}`;
@@ -164,6 +171,7 @@ export default async function SavedReportPage({ params }: { params: Promise<{ id
         expectedEvidenceSha256={result.wireSha256}
         pdfExportQuery={reportPdfExportQuery(id, result.wireSha256)}
         siteHistoryHref={siteHistoryHref}
+        freshResult={freshResult}
         title={reportPageTitle(headline)}
         context={
           <ReportPageContext
@@ -199,6 +207,7 @@ export default async function SavedReportPage({ params }: { params: Promise<{ id
                 : null
             }
             siteHistoryHref={siteHistoryHref}
+            newVisitTarget={newVisitTarget}
             visitSummary={visitSummary}
           />
         }
@@ -239,7 +248,8 @@ function ReportPageSummary({
   automation,
   visitOrder,
   visitSummary,
-  siteHistoryHref
+  siteHistoryHref,
+  newVisitTarget
 }: {
   headline: ReportHeadline;
   findings: readonly Finding[];
@@ -251,6 +261,8 @@ function ReportPageSummary({
   visitSummary: ReactNode;
   /** The cookie card's history view target, the same value the explorer receives. */
   siteHistoryHref: string | null;
+  /** The page a card's new visit would visit again, a runtime share's only. */
+  newVisitTarget: string | null;
 }) {
   return (
     <div className="report-page-summary">
@@ -290,7 +302,7 @@ function ReportPageSummary({
         automation={automation}
         glossaryHref={`${sitePagesBasePath()}/glossary/`}
         afterBottomLine={visitSummary}
-        lookCloser={{ siteHistoryHref }}
+        lookCloser={{ siteHistoryHref, newVisitTarget, basePath: sitePagesBasePath() }}
       />
     </div>
   );
