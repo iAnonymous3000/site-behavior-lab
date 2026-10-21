@@ -1280,7 +1280,7 @@ test("each Look closer view opens what its sentence says, from its card's branch
   assert.deepEqual(gpc.view, {
     variant: "gpc-visit-matches",
     label: "Show the GPC visit's matches",
-    sentence: "Opens the request log for the visit that sent the GPC signal, at its catalog-matched rows.",
+    sentence: "Opens the request log for the visit configured with the GPC signal, at its catalog-matched rows.",
     href: "#evidence=requests&arm=variant&signal=known-service"
   });
 

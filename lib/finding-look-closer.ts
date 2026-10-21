@@ -179,7 +179,7 @@ export function findingLookCloser(
     case "gpc-visit-matches":
       return view(
         "Show the GPC visit's matches",
-        "Opens the request log for the visit that sent the GPC signal, at its catalog-matched rows.",
+        "Opens the request log for the visit configured with the GPC signal, at its catalog-matched rows.",
         inTheVariantVisit({ section: "requests", signal: "known-service" })
       );
     case "cookie-history":
