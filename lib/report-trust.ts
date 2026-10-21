@@ -37,12 +37,9 @@ export function reportActivation(input: {
   // The domain is already public in this report, so the site root is always a
   // safe replay target even when the exact route is a privacy-marked shape.
   const siteTarget = exactTarget ?? safeNavigableHttpUrl(`https://${input.view.domain}/`);
-  // The history page lists this report only under the site the corpus keys
-  // it to; a visit asked for a generalized host is listed under none.
-  const siteKey = corpusSiteKeyForRun(run);
 
   return {
-    profilePath: input.siteHistoryAvailable && siteKey ? siteProfilePath(siteKey) : null,
+    profilePath: reportSiteProfilePath(input.view, input.siteHistoryAvailable),
     exactRescanHref: exactTarget ? scanPrefillHref(exactTarget) : null,
     siteRescanHref: siteTarget ? scanPrefillHref(siteTarget) : null,
     evidenceIssueUrl: evidenceProblemUrl({
@@ -52,6 +49,17 @@ export function reportActivation(input: {
       scannedAt: input.view.latestRunAt ?? input.view.scannedAt
     })
   };
+}
+
+/**
+ * The site history page a report is listed under, or null when it has none:
+ * the report is not in the public corpus, or its visit was asked for a
+ * generalized host. The history page lists a report only under the site the
+ * corpus keys it to, and keys a visit asked for a generalized host to none.
+ */
+export function reportSiteProfilePath(view: ReportView, siteHistoryAvailable: boolean): string | null {
+  const siteKey = corpusSiteKeyForRun(displayRunView(view));
+  return siteHistoryAvailable && siteKey ? siteProfilePath(siteKey) : null;
 }
 
 /**

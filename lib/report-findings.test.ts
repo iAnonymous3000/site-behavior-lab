@@ -9,9 +9,22 @@ import {
 import { createConsentComparisonReport, createGpcComparisonReport, createShieldsComparisonReport } from "./compare-reports";
 import { corpusCohortIdentityForView } from "./corpus-cohort";
 import { loadCommittedCorpusStats } from "./current-scan-cohort";
+import {
+  findingLookCloser,
+  LOOK_CLOSER_CARD,
+  type FindingLookCloser,
+  type LookCloserVariant
+} from "./finding-look-closer";
 import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "./gpc-injection";
-import { renderedEvidenceArm } from "./report-evidence-navigation";
-import { buildReportFacts, REPORT_SEVERITY_LABELS } from "./report-facts";
+import {
+  buildEvidenceHash,
+  findingCardDomId,
+  parseEvidenceHash,
+  renderedEvidenceArm,
+  type EvidenceArm
+} from "./report-evidence-navigation";
+import { buildReportFacts, REPORT_SEVERITY_LABELS, type ReportFacts } from "./report-facts";
+import { requestMatchesQuery, requestMatchesSignalFilter } from "./request-log-filters";
 import {
   bottomLineSignalTitle,
   buildFindings,
@@ -53,7 +66,7 @@ import {
 } from "./scan-report-views";
 import { runCensorshipNotes } from "./scan-report-censorship";
 import { formatCount } from "./text-format";
-import { findTrackerMatch } from "./tracker-catalog";
+import { findTrackerMatch, trackerCatalogRecords } from "./tracker-catalog";
 import {
   SCAN_REPORT_SCHEMA_VERSION,
   type CnameCloak,
@@ -643,6 +656,87 @@ function assertTextSentencesAtMost(id: string, text: string, limit: number) {
   }
 }
 
+/** The single-report fixture's one pinned evidence link (scripts/smoke-static-site.mjs); no view may reuse it. */
+const SMOKE_PINNED_EVIDENCE_HREF = "#evidence=requests&signal=third-party";
+/** A stand-in for the server-built history target, so every cookie card's view is built and checked. */
+const LOOK_CLOSER_HISTORY_HREF = "/sites/example.com/#history";
+const LOOK_CLOSER_LABEL_WORDS = 5;
+/** The views open rows; none of them may read as a verdict about the site. */
+const LOOK_CLOSER_VERDICT_WORDS = /\b(?:honou?rs?|ignor(?:es?|ed)|compl(?:y|ies|ied)|prov(?:es?|ed))\b/i;
+/** En and em dashes, built from their code points so this file spells neither. */
+const LOOK_CLOSER_DASHES = new RegExp(`[${String.fromCharCode(0x2013, 0x2014)}]`);
+
+/**
+ * Builds a card's Look closer view and holds it to the draft's rules: an
+ * imperative label of at most five words; one sentence of at most 30 words
+ * saying what the link does; no sanitizer token, dash or verdict word; never
+ * on the bottom line; and a link that lands. An evidence hash must round-trip,
+ * must not be the smoke fixture's pinned link, must carry the board's arm (the
+ * Reject-all and GPC views pin the variant visit), must name its filter in the
+ * label, and must leave at least one retained row on the visit it opens, by
+ * the request log's own predicates. A card link must name one card on this
+ * board, and a history link is the server's, on the cookie card only.
+ */
+function assertLookCloserView(
+  where: string,
+  finding: Finding,
+  board: readonly Finding[],
+  facts: ReportFacts,
+  arm: EvidenceArm | undefined,
+  siteHistoryHref: string | null = LOOK_CLOSER_HISTORY_HREF
+): FindingLookCloser | null {
+  const view = findingLookCloser(finding, board, { arm, siteHistoryHref });
+  if (!view) return null;
+  const at = `${where}: ${finding.id} ${view.variant}`;
+  assert.notEqual(finding.id, "bottom-line", `${at}: the bottom line offers no view`);
+  assert.notEqual(finding.id, "public-correction", `${at}: a withheld report offers no view`);
+  assert.equal(LOOK_CLOSER_CARD[view.variant], finding.id, `${at}: a view on another card's variant`);
+
+  assert.match(view.label, /^(?:Show|See) \S/, `${at}: the label is not an imperative: ${view.label}`);
+  assert.ok((view.label.match(/\S+/g) ?? []).length <= LOOK_CLOSER_LABEL_WORDS, `${at}: label over five words: ${view.label}`);
+  assert.doesNotMatch(view.label, /[.!?;:]$/, `${at}: the label is a phrase, not a sentence`);
+  assert.match(view.sentence, /^(?:Opens|Moves) .+\.$/, `${at}: the sentence does not say what the link does`);
+  assert.equal(view.sentence.split(/(?<=[.!?])\s+(?=[A-Z"(])/).length, 1, `${at}: more than one sentence: ${view.sentence}`);
+  assertTextSentencesAtMost(at, view.sentence, MAX_CARD_SENTENCE_WORDS);
+  for (const text of [view.label, view.sentence]) {
+    assert.doesNotMatch(text, LOOK_CLOSER_VERDICT_WORDS, `${at}: a verdict word: ${text}`);
+    assert.doesNotMatch(text, LOOK_CLOSER_DASHES, `${at}: a dash: ${text}`);
+  }
+  assertNoPrivacyTokens(at, [view.label, view.sentence, view.href, decodeURIComponent(view.href)]);
+
+  if (view.href.startsWith("#evidence=")) {
+    assert.notEqual(view.href, SMOKE_PINNED_EVIDENCE_HREF, `${at}: reuses the single-report fixture's pinned link`);
+    const target = parseEvidenceHash(view.href);
+    assert.ok(target, `${at}: the link does not parse: ${view.href}`);
+    assert.equal(buildEvidenceHash(target), view.href, `${at}: the link does not round-trip: ${view.href}`);
+    assert.equal(target.section, "requests", `${at}: a view opens the request log`);
+    const pinned: readonly LookCloserVariant[] = ["reject-all-visit-matches", "gpc-visit-matches"];
+    assert.equal(target.arm, pinned.includes(view.variant) ? "variant" : arm, `${at}: the link carries the wrong visit`);
+    if (target.query) {
+      assert.ok(view.label.endsWith(target.query), `${at}: the label does not name its filter ${target.query}`);
+      assert.ok(view.sentence.includes(`filtered to ${target.query}`), `${at}: the sentence does not name its filter`);
+    }
+    const opened = target.arm ? facts.arms?.[target.arm] : facts.display;
+    assert.ok(opened, `${at}: the link names a visit this report does not have`);
+    const kept = opened.run.evidence.requests.filter(
+      (request) =>
+        requestMatchesQuery(request, target.query ?? "") &&
+        (target.signal === undefined || requestMatchesSignalFilter(request, target.signal))
+    );
+    assert.ok(kept.length > 0, `${at}: the view opens a log with no retained row`);
+  } else if (view.href.startsWith("#")) {
+    assert.equal(
+      board.filter((card) => `#${findingCardDomId(card.id)}` === view.href).length,
+      1,
+      `${at}: ${view.href} does not land on exactly one card of this board`
+    );
+  } else {
+    assert.equal(finding.id, "third-party-cookies", `${at}: only the cookie card opens the site's history`);
+    assert.equal(view.href, siteHistoryHref, `${at}: the history link is not the server's`);
+  }
+  return view;
+}
+
 test("no sentence on a committed report's findings cards runs past 30 words", async () => {
   // Every committed report's board, built the way its permalink builds it:
   // the committed corpus statistics and the headline's focus arm. Sentences
@@ -656,6 +750,9 @@ test("no sentence on a committed report's findings cards runs past 30 words", as
   const corpus = await loadCommittedCorpusStats();
   assert.ok(corpus, "public/corpus-stats.json must load, or the percentile sentences go unchecked");
   let cards = 0;
+  // Each card's Look closer view, built as the permalink builds it, with a
+  // stand-in history target so every cookie card's view is checked too.
+  let views = 0;
   for (const name of files) {
     const read = readStoredScanReport(JSON.parse(readFileSync(path.join(reportsDir, name), "utf8")));
     assert.equal(read.ok, true, `reader rejected committed report ${name}`);
@@ -666,13 +763,19 @@ test("no sentence on a committed report's findings cards runs past 30 words", as
     assertNoPrivacyTokens(`${name}: claim-policy reasons`, claimPolicyReasons(view));
     const facts = buildReportFacts(view);
     const headline = buildReportHeadline(view, facts);
-    for (const finding of buildFindings(view, corpus, facts, renderedEvidenceArm(view, headline))) {
+    const arm = renderedEvidenceArm(view, headline);
+    const board = buildFindings(view, corpus, facts, arm);
+    for (const finding of board) {
       assertSentencesAtMost(finding, MAX_CARD_SENTENCE_WORDS);
       cards += 1;
       assertNoPrivacyTokens(`${name}: ${finding.id}`, Object.values(finding));
+      if (assertLookCloserView(name, finding, board, facts, arm)) views += 1;
     }
   }
   assert.ok(cards > files.length, `only ${cards} cards across ${files.length} reports`);
+  // Not pinned to a count: retention moves the corpus, and the fixtures below
+  // reach every variant whatever it holds.
+  assert.ok(views > 0, "no committed card offered a Look closer view, so the view rules went unchecked");
 });
 
 test("card sentences stay short on branches no committed report reaches", () => {
@@ -1033,6 +1136,316 @@ test("list-driven card sentences stay short whatever the lists hold", () => {
     rejectCard.lead,
     /^In the visit that clicked Reject all, The Trade Desk, Index Exchange and Oracle Advertising, plus 2 others were sent requests that recorded no response, so receipt is unproven\./
   );
+});
+
+/** A card's view on a board built the way the permalink builds it. */
+function lookCloserFixture(view: ReportView, id: string, siteHistoryHref: string | null = LOOK_CLOSER_HISTORY_HREF) {
+  const facts = buildReportFacts(view);
+  const arm = renderedEvidenceArm(view, buildReportHeadline(view, facts));
+  const board = buildFindings(view, null, facts, arm);
+  const card = byId(board, id);
+  return { card, board, view: assertLookCloserView("fixture", card, board, facts, arm, siteHistoryHref) };
+}
+
+/** A request target the fixture's log records, so a view filtered to it keeps a row. */
+function recordedHost(domain: string, resourceType = "xhr"): DomainSummary {
+  return { domain, requests: 2, thirdParty: true, tracker: null, statuses: [200], resourceTypes: [resourceType] };
+}
+
+test("each Look closer view opens what its sentence says, from its card's branch", () => {
+  // The typing test's recipient, as an r2 report records it.
+  const keystroke = makeKeystrokeDetection(["plain"]);
+  keystroke.evidence = { ...keystroke.evidence, recipients: ["{label}.arcgis.com", "collect.example"] };
+  const typed = lookCloserFixture(
+    viewFromV1Report(makeResult({ domains: [recordedHost("{label}.arcgis.com")], fingerprintDetections: [keystroke] })),
+    "keystroke-exfiltration"
+  );
+  assert.deepEqual(typed.view, {
+    variant: "keystroke-recipient",
+    label: "Show requests to *.arcgis.com",
+    sentence:
+      "Opens this report's request log filtered to *.arcgis.com, without marking which of those requests carried the test value.",
+    href: "#evidence=requests&query=*.arcgis.com"
+  });
+
+  // Before any consent choice: tracking-related services, then the platform alone.
+  const cmp = recordedHost("{label}.cookieyes.com", "script");
+  const beforeChoice = lookCloserFixture(
+    viewFromV1Report(makeResult({ domains: [cmp, makeTrackerDomain("ads.example", 3, "AdCo", "advertising")] })),
+    "consent-banner"
+  );
+  assert.match(beforeChoice.card.title, /appeared before any choice$/);
+  assert.deepEqual(beforeChoice.view, {
+    variant: "consent-banner-catalog-matches",
+    label: "Show catalog-matched requests",
+    sentence:
+      "Opens the request log at its catalog-matched rows, which include requests to the tracking-related services counted here; this visit never clicked the banner.",
+    href: "#evidence=requests&signal=known-service"
+  });
+  const platformOnly = lookCloserFixture(viewFromV1Report(makeResult({ domains: [cmp] })), "consent-banner");
+  assert.equal(platformOnly.card.title, "A consent management platform answered");
+  assert.deepEqual(platformOnly.view, {
+    variant: "consent-banner-platform",
+    label: "Show requests to *.cookieyes.com",
+    sentence: "Opens this report's request log filtered to *.cookieyes.com, the consent platform's address.",
+    href: "#evidence=requests&query=*.cookieyes.com"
+  });
+
+  // The listener card: the typing test's own card first, then a catalogued
+  // replay vendor, then the first script origin in a listener's call chain.
+  const listener = makeListenerDetection("input-monitoring", ["https://{label}.cdn.example.net/"]);
+  const withTypingCard = lookCloserFixture(
+    viewFromV1Report(
+      makeResult({
+        domains: [recordedHost("{label}.arcgis.com"), recordedHost("{label}.cdn.example.net", "script")],
+        fingerprintDetections: [keystroke, listener]
+      })
+    ),
+    "session-recording-input-monitoring"
+  );
+  assert.deepEqual(withTypingCard.view, {
+    variant: "listener-typing-test",
+    label: "See the typing test result",
+    sentence: "Moves to the card where this visit's typing test found its made-up value in a cross-site request.",
+    href: "#finding-keystroke-exfiltration"
+  });
+  const withVendor = lookCloserFixture(
+    viewFromV1Report(
+      makeResult({
+        domains: [
+          makeTrackerDomain("clarity.example", 2, "Microsoft Clarity", "session replay / behavior analytics"),
+          recordedHost("{label}.cdn.example.net", "script")
+        ],
+        fingerprintDetections: [listener]
+      })
+    ),
+    "session-recording-input-monitoring"
+  );
+  assert.deepEqual(withVendor.view, {
+    variant: "listener-replay-vendor",
+    label: "Show requests to Microsoft Clarity",
+    sentence:
+      "Opens this report's request log filtered to Microsoft Clarity; listener registrations are not request rows, so the log cannot show what was observed.",
+    href: "#evidence=requests&query=Microsoft+Clarity"
+  });
+  const originOnly = lookCloserFixture(
+    viewFromV1Report(makeResult({ domains: [recordedHost("{label}.cdn.example.net", "script")], fingerprintDetections: [listener] })),
+    "session-recording-input-monitoring"
+  );
+  assert.deepEqual(originOnly.view, {
+    variant: "listener-script-origin",
+    label: "Show requests involving *.cdn.example.net",
+    sentence:
+      "Opens this report's request log filtered to *.cdn.example.net, a script origin recorded in the listener's call chain.",
+    href: "#evidence=requests&query=*.cdn.example.net"
+  });
+
+  // Companies the policy does not appear to name.
+  const unnamed = makeResult({ domains: [makeTrackerDomain("vendor.example", 4, "The Trade Desk", "advertising")] });
+  unnamed.privacyPolicy = {
+    url: "https://example.com/privacy",
+    claims: [],
+    mentionedEntities: [],
+    unmentionedEntities: ["The Trade Desk"],
+    policyTextLength: 5000
+  };
+  const policy = lookCloserFixture(viewFromV1Report(unnamed), "privacy-policy");
+  assert.equal(policy.card.title, "Tracking companies the privacy policy does not appear to name");
+  assert.deepEqual(policy.view, {
+    variant: "policy-unnamed-companies",
+    label: "Show catalog-matched requests",
+    sentence:
+      "Opens the request log at its catalog-matched rows, which include the requests to the companies this card names.",
+    href: "#evidence=requests&signal=known-service"
+  });
+
+  // The visit that clicked Reject all, whatever visit the board describes.
+  const consentView = viewFromV2(makeConsentInterventionReportV2R2(), 2);
+  const rejectArm = consentView.runs.find((run) => run.label === "variant");
+  if (!rejectArm) throw new Error("fixture invariant");
+  rejectArm.evidence.requests = makeResult({ domains: [makeTrackerDomain("ads.example", 3, "AdCo", "advertising")] }).requests;
+  const reject = lookCloserFixture(consentView, "consent-comparison");
+  assert.match(reject.card.title, /in the visit that clicked Reject all$/);
+  assert.deepEqual(reject.view, {
+    variant: "reject-all-visit-matches",
+    label: "Show the Reject-all visit's matches",
+    sentence:
+      "Opens the request log for the visit that clicked Reject all, at its catalog-matched rows, which can include requests made before the click.",
+    href: "#evidence=requests&arm=variant&signal=known-service"
+  });
+
+  // A conclusive GPC pair, which no committed report is.
+  const gpc = lookCloserFixture(conclusiveGpcView(), "gpc-comparison");
+  assert.equal(gpc.card.methodology, undefined);
+  assert.deepEqual(gpc.view, {
+    variant: "gpc-visit-matches",
+    label: "Show the GPC visit's matches",
+    sentence: "Opens the request log for the visit that sent the GPC signal, at its catalog-matched rows.",
+    href: "#evidence=requests&arm=variant&signal=known-service"
+  });
+
+  // Third-party cookies, with a site history to open.
+  const cookies = lookCloserFixture(viewFromV1Report(makeResult({ thirdPartyCookies: 3 })), "third-party-cookies");
+  assert.deepEqual(cookies.view, {
+    variant: "cookie-history",
+    label: "See other visits' cookie counts",
+    sentence:
+      "Opens this site's history page, which lists the third-party cookie count each of its retained reports recorded.",
+    href: LOOK_CLOSER_HISTORY_HREF
+  });
+});
+
+/** An eligible GPC pair whose comparable families all moved, its GPC visit holding catalogued requests. */
+function conclusiveGpcView(): ReportView {
+  const report = makeGpcInterventionReportV2R2();
+  const view = viewFromV2(report, 2);
+  for (const [label, requests] of [["baseline", 30], ["variant", 8]] as const) {
+    const arm = view.runs.find((run) => run.label === label);
+    if (!arm) throw new Error("fixture invariant");
+    arm.evidence.requests = makeResult({ domains: [makeTrackerDomain("ads.example", requests, "AdCo", "advertising")] }).requests;
+  }
+  return view;
+}
+
+test("a Look closer view is withheld when what it would open is not there", () => {
+  const none = (view: ReportView, id: string, siteHistoryHref: string | null = LOOK_CLOSER_HISTORY_HREF) => {
+    const fixture = lookCloserFixture(view, id, siteHistoryHref);
+    assert.equal(fixture.view, null, `${id} offered ${fixture.view?.label}`);
+    return fixture.card;
+  };
+
+  // A recipient the sanitizer could not record, and one no retained row names.
+  const unrecorded = makeKeystrokeDetection(["plain"]);
+  unrecorded.evidence = { ...unrecorded.evidence, recipients: ["{invalid-host}", "{label}.arcgis.com"] };
+  none(
+    viewFromV1Report(makeResult({ domains: [recordedHost("{label}.arcgis.com")], fingerprintDetections: [unrecorded] })),
+    "keystroke-exfiltration"
+  );
+  none(viewFromV1Report(makeResult({ fingerprintDetections: [makeKeystrokeDetection(["plain"])] })), "keystroke-exfiltration");
+
+  // A shared framework endpoint is not "the consent platform's address".
+  const framework = none(
+    viewFromV1Report(makeResult({ domains: [recordedHost("mysite.mgr.consensu.org", "script")] })),
+    "consent-banner"
+  );
+  assert.match(framework.title, /shared consent framework endpoint/);
+  // Tracking-related services counted before any choice, but no retained row the catalog matched.
+  const unmatched = makeResult({
+    domains: [recordedHost("{label}.cookieyes.com", "script"), makeTrackerDomain("ads.example", 3, "AdCo", "advertising")]
+  });
+  unmatched.requests = unmatched.requests.map((request) => ({ ...request, tracker: null }));
+  const unmatchedCard = none(viewFromV1Report(unmatched), "consent-banner");
+  assert.match(unmatchedCard.title, /appeared before any choice$/);
+
+  // A listener origin the sanitizer could not record.
+  none(
+    viewFromV1Report(
+      makeResult({
+        domains: [recordedHost("{label}.cdn.example.net", "script")],
+        fingerprintDetections: [makeListenerDetection("session-recording", ["{invalid-url}"])]
+      })
+    ),
+    "session-recording-input-monitoring"
+  );
+
+  // The policy's other branches, statements and methodology alike.
+  const checked = makeResult({ thirdPartyCookies: 3, domains: [makeTrackerDomain("vendor.example", 4, "The Trade Desk", "advertising")] });
+  checked.privacyPolicy = {
+    url: "https://example.com/privacy",
+    claims: [{ kind: "no-third-party-cookies", quote: "We do not use third-party cookies." }],
+    mentionedEntities: [],
+    unmentionedEntities: ["The Trade Desk"],
+    policyTextLength: 5000
+  };
+  assert.equal(none(viewFromV1Report(checked), "privacy-policy").title, "The privacy policy says one thing; this visit shows another");
+  const silent = makeResult({});
+  silent.privacyPolicy = { url: "https://example.com/privacy", claims: [], mentionedEntities: [], unmentionedEntities: [], policyTextLength: 5000 };
+  assert.equal(none(viewFromV1Report(silent), "privacy-policy").methodology, true);
+
+  // A GPC pair whose tracker classification is not comparable keeps its card
+  // and offers no view of catalog matches.
+  const gated = makeGpcInterventionReportV2R2();
+  gated.comparability = {
+    ...gated.comparability,
+    perMetric: {
+      ...gated.comparability.perMetric,
+      "tracker-classification": { eligible: false, reasons: ["unknown-dimension:egress.region" as const] }
+    }
+  };
+  const gatedView = viewFromV2(gated, 2);
+  for (const run of gatedView.runs) {
+    run.evidence.requests = makeResult({ domains: [makeTrackerDomain("ads.example", 9, "AdCo", "advertising")] }).requests;
+  }
+  assert.equal(none(gatedView, "gpc-comparison").methodology, undefined);
+
+  // No history to open: a share, a homepage result, or a site with one report.
+  none(viewFromV1Report(makeResult({ thirdPartyCookies: 3 })), "third-party-cookies", null);
+  // And no view on an absence.
+  none(viewFromV1Report(makeResult({})), "third-party-cookies");
+});
+
+test("Look closer views stay within the card guard whatever the recorded subject holds", () => {
+  // The draft's worst cases: a long host, a host behind several hidden labels,
+  // and every catalogued session-replay name, the longest of them two words.
+  const longHost = "{label}.{label}.securepubads.g.doubleclick-long-subdomain.example.net";
+  const keystroke = makeKeystrokeDetection(["sha256"]);
+  keystroke.evidence = { ...keystroke.evidence, recipients: [longHost] };
+  const long = lookCloserFixture(
+    viewFromV1Report(makeResult({ domains: [recordedHost(longHost)], fingerprintDetections: [keystroke] })),
+    "keystroke-exfiltration"
+  );
+  assert.equal(long.view?.label, "Show requests to *.*.securepubads.g.doubleclick-long-subdomain.example.net");
+  const longOrigin = lookCloserFixture(
+    viewFromV1Report(
+      makeResult({
+        domains: [recordedHost(longHost, "script")],
+        fingerprintDetections: [makeListenerDetection("session-recording", [`https://${longHost}/`])]
+      })
+    ),
+    "session-recording-input-monitoring"
+  );
+  assert.equal(longOrigin.view?.variant, "listener-script-origin");
+
+  const replayNames = trackerCatalogRecords()
+    .filter((record) => record.category.toLowerCase().includes("session replay"))
+    .map((record) => record.entity);
+  assert.ok(replayNames.length > 5, "the catalog's session-replay vocabulary was not read");
+  for (const name of new Set(replayNames)) {
+    const fixture = lookCloserFixture(
+      viewFromV1Report(makeResult({ domains: [makeTrackerDomain("replay.example", 2, name, "session replay")] })),
+      "session-recording-input-monitoring"
+    );
+    assert.equal(fixture.view?.label, `Show requests to ${name}`, name);
+  }
+});
+
+test("Look closer is keyed by card and branch, never by level", () => {
+  // The same branch at two levels offers the same view, and so does a card
+  // whose level a severity decision moved after it was built.
+  const at = (thirdPartyCookies: number) =>
+    lookCloserFixture(viewFromV1Report(makeResult({ thirdPartyCookies })), "third-party-cookies");
+  const modest = at(1);
+  const high = at(40);
+  assert.notEqual(modest.card.level, high.card.level);
+  assert.deepEqual(modest.view, high.view);
+  const context = { arm: undefined, siteHistoryHref: LOOK_CLOSER_HISTORY_HREF };
+  for (const level of ["ok", "quiet", "info", "warn", "loud"] as const) {
+    const moved: Finding = { ...modest.card, level };
+    assert.deepEqual(findingLookCloser(moved, modest.board, context), modest.view, level);
+  }
+  // A key on any card but its own offers nothing, and no key names the bottom line.
+  assert.equal(findingLookCloser({ ...modest.card, id: "named-platforms" }, modest.board, context), null);
+  assert.equal(
+    findingLookCloser({ id: "session-recording-input-monitoring", lookCloser: { variant: "listener-typing-test" } }, [], context),
+    null,
+    "the typing test view needs the typing test's card on the board"
+  );
+  for (const card of Object.values(LOOK_CLOSER_CARD)) {
+    assert.ok(!["bottom-line", "public-correction"].includes(card), `${card} may not offer a view`);
+  }
+  // A boolean, so a failure reports the sentence rather than the module's source.
+  const module = readFileSync(path.join(process.cwd(), "lib", "finding-look-closer.ts"), "utf8");
+  assert.ok(!/\.(?:level|title|lead|detail|claim)\b/.test(module), "a view must not read the card's level or copy");
 });
 
 test("a v2 view is never benchmarked against the v1-only corpus", () => {

@@ -9,6 +9,32 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- Findings cards no longer stop at an explanation and an evidence link.
+  Six kinds of card now decide one "Look closer" view each: a link the
+  reader could already follow, aimed at fewer rows, with one sentence
+  saying what it opens. A view establishes nothing new. It is keyed by its
+  card's branch, never by its level, so a severity decision moves none. A
+  view of the request log is offered only when its filter keeps a retained
+  row on the visit it opens, asked with the log's own predicates, which the
+  table and the cards now share. A filtered log over-matches by design, so
+  its sentence says "filtered to", never "the requests that carried". The
+  bottom line gets no view, and a shared consent framework endpoint gets no
+  platform view, since it is not one platform. Counts are committed reports.
+  - The typing test's card filters the request log to its first recipient
+    (15).
+  - The consent-banner card opens its catalog-matched requests, or with no
+    tracking-related service the platform's own requests (185 and 4).
+  - The listener card moves to the typing test's card, or filters the log
+    to a catalogued replay vendor, or to the first script origin in a
+    listener's call chain (1, 113 and 401).
+  - The policy card that lists companies the policy does not appear to
+    name opens the catalog-matched requests (344).
+  - The Reject-all card opens that visit's catalog matches (1), as a
+    conclusive GPC pair's card does for the visit with the signal (none
+    committed).
+  - The cookie card opens the site's history, which lists each retained
+    report's cookie count, wherever that history holds another report
+    (532).
 - The scan form no longer says a comparison is unavailable before the
   scanner has answered. Until its health check returned, the published site
   showed "GPC comparison is not available from this scanner" and two "requires

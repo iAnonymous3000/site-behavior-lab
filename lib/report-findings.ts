@@ -35,6 +35,7 @@ import {
   isTrackingEntity,
   isTrackingTrackerMatch,
   keystrokeLeakHashed,
+  normalizeOriginHost,
   pixelEventEvidence,
   pixelEventSummaries,
   pixelFieldLabel,
@@ -63,6 +64,12 @@ import {
   type RunView
 } from "./scan-report-views";
 import { runCensorshipNotes } from "./scan-report-censorship";
+import type { LookCloserKey } from "./finding-look-closer";
+import {
+  requestMatchesQuery,
+  requestMatchesSignalFilter,
+  requestProvenanceSummary
+} from "./request-log-filters";
 import { displayHost, displayPublicUrl, humanList, plural } from "./text-format";
 import type { NetworkRequestRecord, PrivacyPolicyClaimKind, ProvenanceChange } from "./types";
 import {
@@ -82,6 +89,10 @@ import {
   type ReportSeverity,
   type RunFacts
 } from "./report-facts";
+
+// The request log's provenance text moved beside its row predicates; readers
+// that took it from here still do.
+export { requestProvenanceSearchText, requestProvenanceSummary } from "./request-log-filters";
 
 export type FindingLevel = ReportSeverity;
 
@@ -163,6 +174,16 @@ export type Finding = {
    * report-consistency gate reads this field to check that seam.
    */
   arm?: "variant";
+  /**
+   * The "Look closer" view this card's branch offers (lib/finding-look-closer.ts
+   * turns it into a label, a sentence and a link). Set at the branch that
+   * writes the card, never from its level or title. A view of the request log
+   * is set only when its filter keeps at least one retained row on the visit
+   * it opens; the module withholds a card or history view whose target is
+   * absent. A view establishes nothing new, so the report-consistency gate
+   * does not read it.
+   */
+  lookCloser?: LookCloserKey;
   /** Structured meaning for fact-to-render consistency checks. */
   claim?: {
     id: ReportClaimId;
@@ -392,6 +413,40 @@ function sentenceSequence(items: readonly string[], limit: number, overflow: (co
 
 function capitalizeSentence(text: string): string {
   return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
+/**
+ * A recorded host a Look closer view may filter the request log to, in the
+ * form the card names it (`*` for a hidden label), or null when the sanitizer
+ * recorded no host ({invalid-host}, {invalid-url}). The request log matches the
+ * wildcard form against stored tokens (hostMatchesQuery), so the view's link
+ * never carries a sanitizer token.
+ */
+function lookCloserHost(value: string | undefined): string | null {
+  if (!value || /\{invalid-(?:host|url)\}/i.test(value)) return null;
+  const visible = displayHost(value).trim();
+  return visible === "" ? null : visible;
+}
+
+/**
+ * Whether the request log a Look closer view opens, filtered the way the view
+ * filters it, still holds a retained row. It asks with the table's own
+ * predicates (lib/request-log-filters.ts), so a card never offers a view the
+ * log then shows empty.
+ */
+function lookCloserKeepsRows(
+  requests: readonly NetworkRequestRecord[],
+  filter: { query: string } | { signal: "known-service" }
+): boolean {
+  return requests.some((request) =>
+    "query" in filter
+      ? requestMatchesQuery(request, filter.query)
+      : requestMatchesSignalFilter(request, filter.signal)
+  );
+}
+
+function withLookCloser(key: LookCloserKey | null): { lookCloser?: LookCloserKey } {
+  return key ? { lookCloser: key } : {};
 }
 
 /**
@@ -745,6 +800,9 @@ export function buildFindings(
     // level, but neither encoding nor this frozen summary proves recipient
     // purpose, real-user handling, or timing within typing/blur/unload.
     const hashed = keystrokeLeakHashed(keystrokeDetection.evidence.encodings);
+    // The first recipient the card names, never one the sanitizer could not
+    // record. The log does not mark which row carried the value.
+    const recipientHost = lookCloserHost(keystrokeDetection.evidence.recipients[0]);
     findings.push({
       id: "keystroke-exfiltration",
       icon: "keyboard",
@@ -763,7 +821,12 @@ export function buildFindings(
             keystrokeDetection.evidence.encodings
           )}). The report does not establish whether transmission happened during typing, blur, or unload, why it was sent, or whether real visitor input follows the same path. The scanner types only synthetic values and never submits the form.${recipientOwnershipNote}`,
       evidence: `Synthetic test value appeared in requests to ${recipients} via ${humanList(keystrokeDetection.evidence.encodings)}.`,
-      claim: findingClaim(facts, "keystroke-exfiltration", "presence")
+      claim: findingClaim(facts, "keystroke-exfiltration", "presence"),
+      ...withLookCloser(
+        recipientHost && lookCloserKeepsRows(run.evidence.requests, { query: recipientHost })
+          ? { variant: "keystroke-recipient", host: recipientHost }
+          : null
+      )
     });
   }
 
@@ -815,6 +878,9 @@ export function buildFindings(
     const consentPlatformPhrase = frameworkEndpoint
       ? `${consentPlatform.name}, a consent framework endpoint shared by many consent management platforms (the tooling that shows cookie banners) rather than one named platform`
       : `${consentPlatform.name}, a consent management platform (the tooling that shows cookie banners)`;
+    // The platform view calls its host "the consent platform's address", which
+    // a framework endpoint is not, so that card offers no view.
+    const consentPlatformHost = frameworkEndpoint ? null : lookCloserHost(consentPlatform.domain);
     findings.push({
       id: "consent-banner",
       icon: "cookie",
@@ -855,7 +921,16 @@ export function buildFindings(
       evidence: `${
         frameworkEndpoint ? "Consent framework endpoint" : "Consent platform"
       } detected via a request to ${displayHost(consentPlatform.domain)}.`,
-      claim: findingClaim(facts, "consent-banner", "presence")
+      claim: findingClaim(facts, "consent-banner", "presence"),
+      ...withLookCloser(
+        preConsentTrackers > 0
+          ? lookCloserKeepsRows(run.evidence.requests, { signal: "known-service" })
+            ? { variant: "consent-banner-catalog-matches" }
+            : null
+          : consentPlatformHost && lookCloserKeepsRows(run.evidence.requests, { query: consentPlatformHost })
+            ? { variant: "consent-banner-platform", host: consentPlatformHost }
+            : null
+      )
     });
   }
 
@@ -1084,6 +1159,16 @@ export function buildFindings(
             ? "unavailable"
             : "absence",
         policyAbsence.leadScope
+      ),
+      // Only the branch titled "Tracking companies the privacy policy does
+      // not appear to name": its view opens the requests to those companies.
+      ...withLookCloser(
+        conflicts.length === 0 &&
+          conditionalConflicts.length === 0 &&
+          unmentionedTrackingEntities.length > 0 &&
+          lookCloserKeepsRows(run.evidence.requests, { signal: "known-service" })
+          ? { variant: "policy-unnamed-companies" }
+          : null
       )
     });
   }
@@ -1455,7 +1540,10 @@ export function buildFindings(
       "third-party-cookies",
       cookiesUnsupported ? "unavailable" : run.counts.thirdPartyCookies > 0 ? "presence" : "absence",
       cookiesAbsence.leadScope
-    )
+    ),
+    // The other retained visits' counts, on the site's history page. Offered
+    // only where the server says that page lists another report for this site.
+    ...withLookCloser(!cookiesUnsupported && run.counts.thirdPartyCookies > 0 ? { variant: "cookie-history" } : null)
   });
 
   // Restricted to genuinely cross-site listener origins: the in-page probe's
@@ -1519,6 +1607,22 @@ export function buildFindings(
     const sessionCategories = sessionRecordingDetection
       ? listenerCoverageCategories(sessionRecordingDetection.detection.evidence.eventTypes)
       : [];
+    // The typing test's own card answers the closest question, then a
+    // catalogued replay vendor's requests, then the first script origin in a
+    // listener's call chain, in the order the card's evidence names them.
+    // Listener registrations are not request rows, so no view shows them.
+    const replayVendor = sessionReplayNames[0];
+    const listenerOriginHost =
+      listenerOrigins[0] === undefined ? null : lookCloserHost(normalizeOriginHost(listenerOrigins[0]));
+    const listenerView: LookCloserKey | null = keystrokeDetection
+      ? { variant: "listener-typing-test" }
+      : replayVendor !== undefined
+        ? lookCloserKeepsRows(run.evidence.requests, { query: replayVendor })
+          ? { variant: "listener-replay-vendor", vendor: replayVendor }
+          : null
+        : listenerOriginHost && lookCloserKeepsRows(run.evidence.requests, { query: listenerOriginHost })
+          ? { variant: "listener-script-origin", host: listenerOriginHost }
+          : null;
 
     findings.push({
       id: "session-recording-input-monitoring",
@@ -1555,7 +1659,8 @@ export function buildFindings(
       detail:
         "This is a behavioral instrumentation signal from listener registration, stack-attributed script origins, and known-vendor requests: it shows the page was instrumented to observe interaction, not that anything was transmitted. Stack attribution records the script origins present in the bounded registration call chain. A cross-site origin in that chain does not by itself establish that the cross-site script registered the listener. That is because first-party code can register its own listeners through a helper served from elsewhere. A different registrable domain is also not by itself a different operator: sites commonly serve their own scripts from a separate asset domain. The card therefore says third party only when the catalog or reviewed ownership attributes an origin to another organization. On scanners that run the active keystroke-capture probe, actual transmission is tested separately (a synthetic value is typed, never real input, and no typed values are collected). Treat this card as a review prompt rather than proof.",
       evidence: behaviorNotes.join(" "),
-      claim: findingClaim(facts, "session-recording-input-monitoring", "presence")
+      claim: findingClaim(facts, "session-recording-input-monitoring", "presence"),
+      ...withLookCloser(listenerView)
     });
   }
 
@@ -1953,7 +2058,14 @@ export function buildFindings(
               ? "No observed difference for this pair of visits, which is not proof the site received or honored the signal"
               : "An observed difference for this pair of visits, not proof the site received or honored the signal"
           }. A single paired comparison can also reflect run-to-run variance (ad rotation, caching, experiments).`,
-          evidence: `Signed per-metric differences between the two visits; nothing is summed across metrics.`
+          evidence: `Signed per-metric differences between the two visits; nothing is summed across metrics.`,
+          // The visit with the signal's catalog-matched rows, only where the
+          // pair's tracker classification is comparable.
+          ...withLookCloser(
+            classificationAllowed && lookCloserKeepsRows(arms.variant.evidence.requests, { signal: "known-service" })
+              ? { variant: "gpc-visit-matches" }
+              : null
+          )
         });
       }
     }
@@ -2472,7 +2584,12 @@ function buildConsentComparisonFinding(
         classificationAllowed ? " The diff below lists the services that appeared only in the visit that clicked Accept all." : ""
       }`,
       evidence,
-      arm: "variant"
+      arm: "variant",
+      ...withLookCloser(
+        lookCloserKeepsRows(variant.evidence.requests, { signal: "known-service" })
+          ? { variant: "reject-all-visit-matches" }
+          : null
+      )
     };
   }
 
@@ -2572,30 +2689,6 @@ function requestProvenanceHighlights(requests: NetworkRequestRecord[]): string[]
   return highlights;
 }
 
-export function requestProvenanceSummary(request: NetworkRequestRecord): { primary: string; secondary?: string } | null {
-  const provenance = request.provenance;
-  if (!provenance) return null;
-
-  const script = provenanceActorDisplay(provenance.scriptDomain, provenance.scriptUrl, "script");
-  const initiator = provenanceActorDisplay(provenance.initiatorDomain, provenance.initiatorUrl, provenance.initiatorType);
-  const injectedBy = provenanceActorDisplay(provenance.injectedByDomain, provenance.injectedByUrl);
-
-  if (script) {
-    return {
-      primary: `script ${script}`,
-      secondary: injectedBy ? `injected by ${injectedBy}` : initiator && initiator !== script ? `initiated by ${initiator}` : undefined
-    };
-  }
-  if (initiator) return { primary: `initiated by ${initiator}`, secondary: injectedBy ? `injected by ${injectedBy}` : undefined };
-  if (injectedBy) return { primary: `injected by ${injectedBy}` };
-  return null;
-}
-
-export function requestProvenanceSearchText(request: NetworkRequestRecord): string {
-  const summary = requestProvenanceSummary(request);
-  return summary ? `${summary.primary} ${summary.secondary ?? ""}` : "";
-}
-
 export function provenanceChangeText(change: ProvenanceChange): string {
   const parts = [
     change.script ? `script ${displayProvenanceChangeActor(change.script)}` : "",
@@ -2615,14 +2708,6 @@ function displayProvenanceChangeActor(value: string): string {
     return `${value.slice(0, urlIndex)}${displayPublicUrl(value.slice(urlIndex))}`;
   }
   return displayHost(value);
-}
-
-function provenanceActorDisplay(domain: string | undefined, url: string | undefined, type?: string): string | null {
-  const actor = domain ? displayHost(domain) : url ? displayPublicUrl(url) : undefined;
-  if (!actor) return null;
-  const normalizedType = type?.trim().toLowerCase();
-  if (!normalizedType || normalizedType === "script" || normalizedType === "unknown") return actor;
-  return `${normalizedType} ${actor}`;
 }
 
 /**

@@ -3,7 +3,7 @@ import { useEvidenceIds, usePrintVisit } from "./print-mode";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AlertTriangle, CheckCircle2, ChevronDown, Database, Fingerprint, Radar } from "lucide-react";
-import { requestProvenanceSearchText, requestProvenanceSummary } from "@/lib/report-findings";
+import { requestMatchesQuery, requestMatchesSignalFilter, requestProvenanceSummary } from "@/lib/request-log-filters";
 import { visitPhaseLabel } from "@/lib/report-phase-evidence";
 import { displayHost, displayPublicUrl, hostMatchesQuery, plural } from "@/lib/text-format";
 import { detectionEvidence, detectionLabel, isSingleSignalWebglDetection, pixelFieldLabel } from "@/lib/report-insights";
@@ -264,17 +264,9 @@ function RequestTable({
       if (!requestMatchesSignalFilter(request, signalFilter)) return false;
       if (!requestMatchesStatusFilter(request, statusFilter)) return false;
       if (resourceFilter !== "all" && request.resourceType !== resourceFilter) return false;
-      if (!q) return true;
-      return (
-        hostMatchesQuery(request.domain, q) ||
-        request.url.toLowerCase().includes(q) ||
-        displayPublicUrl(request.url).toLowerCase().includes(q) ||
-        request.method.toLowerCase().includes(q) ||
-        request.resourceType.toLowerCase().includes(q) ||
-        requestProvenanceSearchText(request).toLowerCase().includes(q) ||
-        request.tracker?.entity.toLowerCase().includes(q) ||
-        request.tracker?.category.toLowerCase().includes(q)
-      );
+      // The same predicates a findings card's Look closer view checks before
+      // it offers a filtered log (lib/request-log-filters.ts).
+      return requestMatchesQuery(request, q);
     });
   }, [
     attributionPair,
@@ -564,21 +556,6 @@ const REQUEST_SIGNAL_FILTERS: { value: RequestSignalFilter; label: string; title
     title: "Requests whose recorded provenance can be shown: the initiator, script, or injecting actor the request is attributed to."
   }
 ];
-
-function requestMatchesSignalFilter(request: NetworkRequestRecord, filter: RequestSignalFilter): boolean {
-  if (filter === "third-party") return request.thirdParty;
-  if (filter === "known-service") return Boolean(request.tracker);
-  if (filter === "shields-blocked") return request.blockedByShields === true;
-  if (filter === "fingerprinting") return (request.tracker?.fingerprinting ?? 0) > 0;
-  // Match what the row can actually show, not merely that a provenance object
-  // exists. The adapter deliberately retains id-only provenance (graph join
-  // keys with no url or domain), so Boolean(request.provenance) matched rows
-  // the table then rendered with no causal chain at all, while the report was
-  // simultaneously warning that no provenance was supplied. The summary is the
-  // same predicate the row itself uses.
-  if (filter === "provenance") return requestProvenanceSummary(request) !== null;
-  return true;
-}
 
 function requestMatchesStatusFilter(request: NetworkRequestRecord, filter: RequestStatusFilter): boolean {
   const status = request.status;

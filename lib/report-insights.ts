@@ -377,7 +377,8 @@ export function listenerOriginAttributedToOutsideOperator(
   );
 }
 
-function normalizeOriginHost(value: string): string {
+/** The host a recorded listener origin names: a URL or a bare host, lowercased. */
+export function normalizeOriginHost(value: string): string {
   return value
     .trim()
     .toLowerCase()
