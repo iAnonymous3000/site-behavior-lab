@@ -9,6 +9,14 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- The privacy page and the page shown for an unavailable report now say a
+  live share can be deleted before about 7 days. They stated only the age,
+  but the store keeps the newest 500 shares and deletes older ones to make
+  room once each has lasted its minimum survival time, as the README's
+  retention note already said. Both numbers come from the store's own
+  defaults, now declared side by side, and a test holds the reference
+  deployment's configuration to those defaults, since both pages describe
+  that deployment.
 - While the browser check runs, the note under the scan form now says
   scanning turns on once the check passes. It said "Scan", but the button
   beside the address can read Scan, Compare, Check now or Compare now.

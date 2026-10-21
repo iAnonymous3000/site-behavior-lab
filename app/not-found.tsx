@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { FileQuestion } from "lucide-react";
-import { DEFAULT_REPORT_MAX_AGE_DAYS } from "@/lib/report-share-retention";
+import { DEFAULT_REPORT_MAX_AGE_DAYS, DEFAULT_REPORT_MAX_COUNT } from "@/lib/report-share-retention";
 import { staticAssetPath } from "./client-runtime";
 import { SiteChrome } from "./_components/site-chrome";
 
@@ -34,7 +34,7 @@ export default function NotFound() {
         </p>
         <p>
           Shared links to live scan reports expire after about {DEFAULT_REPORT_MAX_AGE_DAYS} days on the reference
-          deployment.
+          deployment, and sooner once {DEFAULT_REPORT_MAX_COUNT} newer shares have been saved.
         </p>
         <div className="route-state-actions">
           <a className="primary-button" href={staticAssetPath("/")}>Scan a site</a>

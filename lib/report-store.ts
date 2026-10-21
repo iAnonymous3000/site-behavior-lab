@@ -26,7 +26,7 @@ import {
 } from "./report-store-backend";
 import { R2_LIST_MAX_HEAD_CANDIDATES, ReportStoreRequestTimeoutError } from "./report-store-r2";
 import type { ReportResourceViolation } from "./report-resource-policy";
-import { DEFAULT_REPORT_MAX_AGE_DAYS } from "./report-share-retention";
+import { DEFAULT_REPORT_MAX_AGE_DAYS, DEFAULT_REPORT_MAX_COUNT } from "./report-share-retention";
 import { REPORT_ID_PATTERN } from "./report-validation";
 import type { ReadStoredScanReportError, StoredScanReport } from "./scan-report-reader";
 import { sha256Hex } from "./sha256";
@@ -44,7 +44,6 @@ import type { ReportShare, ScanReport } from "./types";
  * silently outliving or under-living the published expiry.
  */
 const REPORT_BUCKET_BACKSTOP_DAYS = 8;
-const DEFAULT_REPORT_MAX_COUNT = 500;
 /**
  * Listing slots reserved for objects prune must tolerate but cannot yet delete:
  * report-only crash orphans awaiting their immutable expiry, plus bundles

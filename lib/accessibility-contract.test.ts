@@ -562,23 +562,53 @@ test("the 404 page carries its own metadata instead of inheriting the home page'
   assert.match(notFound, /robots: \{ index: false/);
 });
 
-test("the share retention a reader is told comes from the store's own default", () => {
+test("the share retention a reader is told comes from the store's own defaults", () => {
   // An expired share link is the usual way a reader reaches the 404, which
   // used to say a link "may be expired" without saying when links expire. The
   // privacy page stated the number from a hand copy of the store's constant.
+  // Both pages then stated only the age, though count pruning deletes the
+  // oldest shares once the newest DEFAULT_REPORT_MAX_COUNT are standing, so a
+  // share can go well before the age.
   const declaration = source("lib/report-share-retention.ts");
   assert.match(declaration, /^export const DEFAULT_REPORT_MAX_AGE_DAYS = \d+;$/m);
+  assert.match(declaration, /^export const DEFAULT_REPORT_MAX_COUNT = \d+;$/m);
   assert.doesNotMatch(declaration, /^import /m, "an import here would pull it into every page that states it");
-  assert.match(source("lib/report-store.ts"), /import \{ DEFAULT_REPORT_MAX_AGE_DAYS \} from "\.\/report-share-retention";/);
-  assert.doesNotMatch(source("lib/report-store.ts"), /const DEFAULT_REPORT_MAX_AGE_DAYS/);
-  for (const [file, sentence] of [
-    ["app/not-found.tsx", /Shared links to live scan reports expire after about \{DEFAULT_REPORT_MAX_AGE_DAYS\} days on the reference\s+deployment\./],
-    ["app/privacy/page.tsx", /expire after about \{DEFAULT_REPORT_MAX_AGE_DAYS\} days<\/strong> on the reference deployment/]
+  assert.match(
+    source("lib/report-store.ts"),
+    /import \{ DEFAULT_REPORT_MAX_AGE_DAYS, DEFAULT_REPORT_MAX_COUNT \} from "\.\/report-share-retention";/
+  );
+  assert.doesNotMatch(source("lib/report-store.ts"), /const DEFAULT_REPORT_MAX_(?:AGE_DAYS|COUNT)\b/);
+  // Both pages say "on the reference deployment", which holds only while its
+  // configuration leaves both defaults in force.
+  assert.doesNotMatch(
+    source("wrangler.container.jsonc"),
+    /SITE_BEHAVIOR_LAB_REPORT_MAX_(?:AGE_DAYS|COUNT)/,
+    "the reference deployment overrides a retention default the pages state"
+  );
+  for (const [file, sentences] of [
+    [
+      "app/not-found.tsx",
+      [
+        /Shared links to live scan reports expire after about \{DEFAULT_REPORT_MAX_AGE_DAYS\} days on the reference\s+deployment, and sooner once \{DEFAULT_REPORT_MAX_COUNT\} newer shares have been saved\./
+      ]
+    ],
+    [
+      "app/privacy/page.tsx",
+      [
+        /expire after about \{DEFAULT_REPORT_MAX_AGE_DAYS\} days<\/strong> on the reference deployment/,
+        /A share\s+can also be deleted sooner: the reference deployment keeps only the newest \{DEFAULT_REPORT_MAX_COUNT\} shares,\s+so once that many newer ones have been saved, the oldest are deleted to make room\./
+      ]
+    ]
   ] as const) {
     const contents = source(file);
-    assert.match(contents, /import \{ DEFAULT_REPORT_MAX_AGE_DAYS \} from "@\/lib\/report-share-retention";/, file);
-    assert.match(contents, sentence, file);
+    assert.match(
+      contents,
+      /import \{ DEFAULT_REPORT_MAX_AGE_DAYS, DEFAULT_REPORT_MAX_COUNT \} from "@\/lib\/report-share-retention";/,
+      file
+    );
+    for (const sentence of sentences) assert.match(contents, sentence, file);
     assert.doesNotMatch(contents, /expire after about (?:<[^>]+>)?\d+ days/, `${file} states the share retention by hand`);
+    assert.doesNotMatch(contents, /newest \d[\d,]* shares|once \d[\d,]* newer shares/, `${file} states the share count by hand`);
   }
 });
 
