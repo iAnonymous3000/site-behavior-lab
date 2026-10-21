@@ -12,6 +12,7 @@ import {
   ShieldCheck
 } from "lucide-react";
 import { Fragment, type ReactNode } from "react";
+import { findingLookCloser, LOOK_CLOSER_NAME } from "@/lib/finding-look-closer";
 import type { Finding, FindingIconKey } from "@/lib/report-findings";
 import { REPORT_SEVERITY_LABELS } from "@/lib/report-facts";
 import {
@@ -58,7 +59,8 @@ export function FindingsList({
   evidenceArm,
   automation,
   glossaryHref,
-  afterBottomLine
+  afterBottomLine,
+  lookCloser
 }: {
   findings: readonly Finding[];
   evidenceArm: EvidenceArm | undefined;
@@ -72,6 +74,12 @@ export function FindingsList({
    * its cards.
    */
   afterBottomLine?: ReactNode;
+  /**
+   * What each card's Look closer view needs beyond the card itself, or absent
+   * to render none, as the printable route does. A report page builds the
+   * history target on the server and hands the same value to its explorer.
+   */
+  lookCloser?: { siteHistoryHref: string | null };
 }) {
   const hasBottomLine = findings.some((finding) => finding.id === "bottom-line");
   return (
@@ -90,6 +98,10 @@ export function FindingsList({
         {findings.map((finding) => {
           const Icon = FINDING_ICONS[finding.icon];
           const evidenceLink = findingEvidenceLink(finding.id, evidenceArm);
+          const view = lookCloser
+            ? findingLookCloser(finding, findings, { arm: evidenceArm, siteHistoryHref: lookCloser.siteHistoryHref })
+            : null;
+          const viewSentenceId = `${findingCardDomId(finding.id)}-look-closer`;
           // The id is the target of the visit summary's "What this visit
           // could not see" links; the board renders once per document.
           const card = (
@@ -121,6 +133,25 @@ export function FindingsList({
                     </a>
                   )}
                 </div>
+                {/* One view per card, after everything the card states: it
+                    opens rows, a card or the site's history the reader could
+                    reach already, and its sentence says what it opens before
+                    anyone follows it. The link names its card, like the
+                    evidence link above, and points at the sentence. */}
+                {view && (
+                  <div className="finding-look-closer" data-look-closer={view.variant}>
+                    <p className="finding-look-closer-name">{LOOK_CLOSER_NAME}</p>
+                    <a
+                      className="finding-look-closer-link"
+                      href={view.href}
+                      aria-label={`${view.label} for ${finding.title}`}
+                      aria-describedby={viewSentenceId}
+                    >
+                      {view.label}
+                    </a>
+                    <p className="finding-look-closer-sentence" id={viewSentenceId}>{view.sentence}</p>
+                  </div>
+                )}
               </div>
             </article>
           );

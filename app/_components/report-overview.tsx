@@ -1,5 +1,5 @@
 "use client";
-import { useEvidenceIds } from "./print-mode";
+import { useEvidenceIds, usePrintComplete } from "./print-mode";
 
 import {
   AlertOctagon,
@@ -281,14 +281,20 @@ export function FindingsBoard({
   evidenceArm,
   facts,
   findings,
-  afterBottomLine
+  afterBottomLine,
+  siteHistoryHref = null
 }: {
   evidenceArm: EvidenceArm | undefined;
   facts: ReportFacts;
   findings: Finding[];
   /** A report page's server-built visit summary, for directly after the bottom line. */
   afterBottomLine?: ReactNode;
+  /** A report page's server-built history target for the cookie card's view. */
+  siteHistoryHref?: string | null;
 }) {
+  // Look closer views are links to follow on screen. The printable route and
+  // the PDF render none, so the paper document is the one it was before them.
+  const printComplete = usePrintComplete();
   return (
     <FindingsList
       findings={findings}
@@ -296,6 +302,7 @@ export function FindingsBoard({
       automation={facts.display.run.conditions.automation}
       glossaryHref={staticAssetPath("/glossary/")}
       afterBottomLine={afterBottomLine}
+      lookCloser={printComplete ? undefined : { siteHistoryHref }}
     />
   );
 }

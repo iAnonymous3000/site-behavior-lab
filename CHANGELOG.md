@@ -9,6 +9,21 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- Report pages now show each findings card's "Look closer" view at the
+  foot of the card: the link, which names its card, and the sentence that
+  says what it opens. The permalink renders it before any script runs, and
+  the evidence explorer renders the same view in the same place. Views
+  never print: the printable page and the PDF render none, and a printed
+  permalink hides them with the other controls. The cookie card's history
+  view needs to know that the site's history lists another report, which
+  only the committed corpus can say, so the static export decides it while
+  it builds and hands the same answer to the explorer. A report served by
+  the scanner itself offers no history view, since there that read would
+  cost a first request about 12 seconds. The views live in the explorer's
+  lazy chunk, so the homepage's initial JavaScript gains no code; only its
+  reference to that chunk is renumbered. The report JSON and the social
+  cards are byte-identical, and so is the report index apart from its build
+  time. 694 of 1,029 committed reports gain a view.
 - Findings cards no longer stop at an explanation and an evidence link.
   Six kinds of card now decide one "Look closer" view each: a link the
   reader could already follow, aimed at fewer rows, with one sentence

@@ -883,6 +883,10 @@ async function main() {
       }
     }
     pass(`report permalinks state what was checked directly after the bottom line without JavaScript, and the banner keeps its place; ${summaryLinks} incomplete-check links land on their cards`);
+    const lookCloserViews = await assertLookCloserMarkup(manifest);
+    pass(`findings cards offer at most one Look closer view each, none on the bottom line, each landing: ${
+      [...lookCloserViews].map(([variant, count]) => `${variant} ${count}`).join(", ")
+    }`);
     // Every bottom-line title names its own level, and every banner keeps
     // the headline's own tone, the one the report index carries.
     const titleNamesLevel = {
@@ -973,6 +977,8 @@ async function main() {
     }
     await assertVisitOrderMovedToPanel(page, summaryVisitOrder, "r2 comparison permalink");
     pass("server-rendered findings agree with the explorer, keep the visit summary after the bottom line, and open their evidence");
+    await assertLookCloserViewsLand(context, baseUrl, manifest);
+    pass("a consent-banner view opens the request log at its catalog matches, and a cookie card's history view, the same in the explorer, lands on the site's report table");
 
     await page.goto(`${baseUrl}/reports/${phaseReport.id}/`, { waitUntil: "networkidle" });
     const exploreEvidence = page.getByRole("button", { name: "Explore full evidence" });
@@ -1841,6 +1847,158 @@ async function expectCardCount(page, expected) {
 async function expectRequestRowCount(page, expected) {
   const actual = await page.locator(".request-table tbody tr").count();
   if (actual !== expected) fail(`expected ${expected} request rows, got ${actual}`);
+}
+
+/**
+ * Every findings card's Look closer view in the export, read from the markup a
+ * reader gets before any script runs (lib/finding-look-closer.ts). A view sits
+ * inside a card, at most one per card and none on the bottom line, which
+ * summarizes the cards. Its link is never the single-report fixture's pinned
+ * `#evidence=requests&signal=third-party` link, and it lands: an evidence hash
+ * opens the request log at a filter with no sanitizer token in it, a card link
+ * names exactly one card on the page, and the cookie card's history link names
+ * a generated site history page that has its report table. Returns how many
+ * cards offer each view.
+ */
+async function assertLookCloserMarkup(manifest) {
+  const counts = new Map();
+  for (const report of manifest.reports) {
+    const reportPage = await readFile(path.join(outDir, "reports", report.id, "index.html"), "utf8");
+    const cards = [...reportPage.matchAll(/<article class="finding-card [^"]*" id="(finding-[a-z0-9-]+)">([\s\S]*?)<\/article>/g)];
+    const inCards = cards.reduce((total, [, , body]) => total + body.split('class="finding-look-closer"').length - 1, 0);
+    if (reportPage.split('class="finding-look-closer"').length - 1 !== inCards) {
+      fail(`report ${report.id} renders a Look closer view outside a findings card`);
+    }
+    for (const [, cardId, body] of cards) {
+      const views = [...body.matchAll(/<div class="finding-look-closer" data-look-closer="([a-z-]+)">([\s\S]*?)<\/div>/g)];
+      if (views.length === 0) continue;
+      if (views.length > 1) fail(`report ${report.id} card ${cardId} offers ${views.length} Look closer views`);
+      if (cardId === "finding-bottom-line" || cardId === "finding-public-correction") {
+        fail(`report ${report.id} offers a Look closer view on ${cardId}`);
+      }
+      const [, variant, view] = views[0];
+      const href = view.match(/<a class="finding-look-closer-link" href="([^"]*)"/)?.[1]?.replaceAll("&amp;", "&");
+      if (!href) fail(`report ${report.id} card ${cardId} offers a Look closer view with no link`);
+      if (/\{(?:label|seg|n|invalid-host|invalid-url)\}|%7B|\[redacted|%5B/i.test(href)) {
+        fail(`report ${report.id} card ${cardId} links a sanitizer token: ${href}`);
+      }
+      if (href === "#evidence=requests&signal=third-party") {
+        fail(`report ${report.id} card ${cardId} reuses the single-report fixture's pinned evidence link`);
+      }
+      if (href.startsWith("#evidence=")) {
+        const target = new URLSearchParams(href.slice(1));
+        const arm = target.get("arm");
+        const signal = target.get("signal");
+        if (
+          target.get("evidence") !== "requests" ||
+          (arm !== null && arm !== "baseline" && arm !== "variant") ||
+          (signal !== null && signal !== "known-service") ||
+          (signal === null && !target.get("query"))
+        ) {
+          fail(`report ${report.id} card ${cardId} links an evidence view that does not filter the request log: ${href}`);
+        }
+      } else if (href.startsWith("#")) {
+        if (reportPage.split(`id="${href.slice(1)}"`).length !== 2) {
+          fail(`report ${report.id} card ${cardId} links ${href}, which is not exactly one card`);
+        }
+      } else {
+        const prefix = `${basePath}/sites/`;
+        if (cardId !== "finding-third-party-cookies" || !href.startsWith(prefix) || !href.endsWith("/#history")) {
+          fail(`report ${report.id} card ${cardId} links a page that is not its site history: ${href}`);
+        }
+        const site = decodeURIComponent(href.slice(prefix.length, -"/#history".length));
+        const history = await readFile(path.join(outDir, "sites", site, "index.html"), "utf8").catch(() => "");
+        if (!history.includes('id="history"')) fail(`report ${report.id} links ${href}, which has no report table`);
+      }
+      counts.set(variant, (counts.get(variant) ?? 0) + 1);
+    }
+  }
+  if (counts.size === 0) fail("no exported findings card offers a Look closer view");
+  return counts;
+}
+
+/**
+ * Two Look closer views followed in a real browser, on reports chosen at run
+ * time because retention moves the corpus. A consent-banner view opens the
+ * explorer from the permalink at the request log's Catalog matches chip, with
+ * rows, on screen. A cookie card's history view is the same in the explorer as
+ * on the permalink, which only a history target handed to the explorer by the
+ * server can make it, points where the report's own "View site history" does,
+ * and lands on that page's report table with the table on screen.
+ */
+async function assertLookCloserViewsLand(context, baseUrl, manifest) {
+  const firstOffering = async (variant) => {
+    for (const report of manifest.reports) {
+      const reportPage = await readFile(path.join(outDir, "reports", report.id, "index.html"), "utf8");
+      if (reportPage.includes(`data-look-closer="${variant}"`)) return report;
+    }
+    fail(`no exported report offers a ${variant} Look closer view to follow`);
+  };
+  const onScreen = async (page, selector, message) => {
+    try {
+      await page.waitForFunction((css) => {
+        const top = document.querySelector(css)?.getBoundingClientRect().top;
+        return top !== undefined && top >= 0 && top < window.innerHeight;
+      }, selector, { timeout: 10_000 });
+    } catch {
+      fail(message);
+    }
+  };
+
+  const page = await context.newPage();
+  try {
+    const consent = await firstOffering("consent-banner-catalog-matches");
+    await page.goto(`${baseUrl}/reports/${consent.id}/`, { waitUntil: "networkidle" });
+    const consentView = page.locator("#finding-consent-banner .finding-look-closer-link");
+    const consentHref = await consentView.getAttribute("href");
+    if (!(await consentView.getAttribute("aria-label"))?.startsWith("Show catalog-matched requests for ")) {
+      fail(`report ${consent.id}: the consent-banner view's name does not say its action and its card`);
+    }
+    await consentView.click();
+    await page.locator(".report-focus-target").waitFor();
+    if (new URL(page.url()).hash !== consentHref) fail(`report ${consent.id}: the consent-banner view lost its destination`);
+    const arm = new URLSearchParams(consentHref.slice(1)).get("arm");
+    await waitForEvidenceState(
+      page,
+      { open: true, chip: "Catalog matches", query: "", ...(arm ? { arm: arm === "variant" ? 1 : 0 } : {}) },
+      `report ${consent.id}: the consent-banner view did not open the request log at its catalog matches`
+    );
+    if ((await page.locator(".request-table tbody tr").count()) === 0) {
+      fail(`report ${consent.id}: the consent-banner view opened a request log with no row`);
+    }
+    await onScreen(page, "details.data-section .request-log-tools", `report ${consent.id}: the request log the view opened is not on screen`);
+
+    const cookies = await firstOffering("cookie-history");
+    await page.goto(`${baseUrl}/reports/${cookies.id}/`, { waitUntil: "networkidle" });
+    const card = page.locator("#finding-third-party-cookies");
+    const summaryCard = await card.textContent();
+    const historyHref = await card.locator(".finding-look-closer-link").getAttribute("href");
+    const siteHistoryHref = await page.locator(".report-identity-actions").getByRole("link", { name: "View site history" }).getAttribute("href");
+    if (historyHref !== `${siteHistoryHref}#history`) {
+      fail(`report ${cookies.id}: the history view links ${historyHref}, not the report's own site history ${siteHistoryHref}`);
+    }
+    await page.getByRole("button", { name: "Explore full evidence" }).click();
+    await page.locator(".report-focus-target .findings-board").waitFor();
+    try {
+      await page.waitForFunction((expected) => document.querySelector("#finding-third-party-cookies")?.textContent === expected, summaryCard, { timeout: 10_000 });
+    } catch {
+      fail(`report ${cookies.id}: the explorer's cookie card does not offer the history view the permalink's did`);
+    }
+    if ((await card.locator(".finding-look-closer-link").getAttribute("href")) !== historyHref) {
+      fail(`report ${cookies.id}: the explorer's history view links somewhere else`);
+    }
+    await card.locator(".finding-look-closer-link").click();
+    const expected = new URL(historyHref, `${baseUrl}/`);
+    try {
+      await page.waitForURL((url) => url.pathname === expected.pathname && url.hash === "#history", { timeout: 10_000 });
+    } catch {
+      fail(`report ${cookies.id}: the history view did not land on ${expected.pathname}#history`);
+    }
+    await onScreen(page, "#history", `report ${cookies.id}: the site's report table is not on screen after the history view`);
+    await expectText(page.locator("#history"), "Third-party cookies");
+  } finally {
+    await page.close();
+  }
 }
 
 /**

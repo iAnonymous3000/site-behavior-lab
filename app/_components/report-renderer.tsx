@@ -55,7 +55,8 @@ export function ReportRenderer({
   pdfExportQuery,
   printComplete = false,
   printGuide,
-  visitSummary
+  visitSummary,
+  siteHistoryHref = null
 }: {
   loaded: LoadedReport;
   liveApiServesReportPages: boolean;
@@ -74,6 +75,12 @@ export function ReportRenderer({
    * line. Absent for a live scan, which has no stored report to summarize.
    */
   visitSummary?: ReactNode;
+  /**
+   * The cookie card's Look closer target, built by the report page on the
+   * server (lib/report-site-history.ts). Absent on the homepage, whose result
+   * has no site history; the board renders no view at all on paper.
+   */
+  siteHistoryHref?: string | null;
 }) {
   useEffect(() => {
     if (!printComplete) return;
@@ -212,7 +219,8 @@ export function ReportRenderer({
             headline={headline}
             liveApiServesReportPages={liveApiServesReportPages}
           />
-          <FindingsBoard evidenceArm={evidenceArm} facts={reportFacts} findings={findings} afterBottomLine={visitSummary} />
+          <FindingsBoard evidenceArm={evidenceArm} facts={reportFacts} findings={findings} siteHistoryHref={siteHistoryHref}
+            afterBottomLine={visitSummary} />
           {reportView.reportType === "comparison" && (
             <ComparisonPanel view={reportView} facts={reportFacts} />
           )}

@@ -41,6 +41,15 @@ const FIXTURE_BODY = `<body>
       <div class="report-actions" id="reportactions"><button type="button">Download CSV</button></div>
       <div class="headline-actions" id="headlineactions"><button type="button">Share</button></div>
       <div class="report-identity-actions" id="activationactions"><a href="#">Scan again</a></div>
+      <article class="finding-card tile-warn">
+        <div><h3>Third-party cookies were present</h3><p id="findinglead">12 third-party cookies showed up during the visit.</p>
+          <div class="finding-look-closer" id="lookcloser">
+            <p class="finding-look-closer-name">Look closer</p>
+            <a class="finding-look-closer-link" href="/sites/example.com/#history">See other visits' cookie counts</a>
+            <p class="finding-look-closer-sentence">Opens this site's history page.</p>
+          </div>
+        </div>
+      </article>
       <section class="report-evidence-loader" id="loader">
         <h2>Open the interactive evidence explorer</h2>
       </section>
@@ -115,6 +124,8 @@ const PROBED_IDS = [
   "reportactions",
   "headlineactions",
   "activationactions",
+  "findinglead",
+  "lookcloser",
   "loader",
   "count",
   "chevron",
@@ -188,6 +199,8 @@ test("evidence and its qualifications survive onto paper", () => {
   // The text equivalent of the attribution map: the SVG may not survive page width.
   assert.equal(visible.mapheading, true, "the attribution map text equivalent must print");
   assert.equal(visible.maplist, true, "the attribution map relationship list must print");
+  // A findings card's own statements, beside the view that hides.
+  assert.equal(visible.findinglead, true, "a findings card's statement must print");
   // The digest and the standing scope caveat.
   assert.equal(visible.printfooter, true, "the evidence footer must print");
   assert.equal(visible.caveat, true, "the standing scope caveat must print");
@@ -213,6 +226,9 @@ test("controls and screen-reader scaffolding stay off paper", () => {
   assert.equal(visible.reportactions, false, "report action buttons are not evidence");
   assert.equal(visible.headlineactions, false, "headline action buttons are not evidence");
   assert.equal(visible.activationactions, false, "activation links are not evidence");
+  // A view opens rows, a card or a history page on screen; paper can follow
+  // none of them, and the printable route renders none.
+  assert.equal(visible.lookcloser, false, "a findings card's Look closer view is navigation, not evidence");
   assert.equal(visible.tools, false, "filter tooling is not evidence");
   assert.equal(visible.chips, false, "request signal filter chips are not evidence");
   assert.equal(visible.filter, false, "a search box is not evidence");

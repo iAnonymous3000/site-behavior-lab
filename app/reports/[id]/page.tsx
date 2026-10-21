@@ -12,6 +12,7 @@ import { parseCorrectionsLedger, reportCorrections } from "@/lib/corrections-led
 import { serializeJsonLd } from "@/lib/jsonld-script";
 import { buildReportDataset } from "@/lib/report-jsonld";
 import { reportPdfExportQuery } from "@/lib/report-pdf-export-query";
+import { siteHistoryLookCloserHref } from "@/lib/report-site-history";
 import { readStoredReportForId } from "@/lib/report-source";
 import { buildReportVisitSummary } from "@/lib/report-visit-summary";
 import { requireFreshRuntimeReportRequest } from "@/lib/report-route-freshness";
@@ -131,6 +132,16 @@ export default async function SavedReportPage({ params }: { params: Promise<{ id
   const visitSummary = (
     <ReportVisitSummaryBlock summary={buildReportVisitSummary({ view, facts, findings, evidenceArm })} />
   );
+  // The cookie card's Look closer view opens this site's history, offered only
+  // where that page lists another report for the site. Counting them reads the
+  // whole committed corpus (measured at 12.6 s and 450 MB cold, October 2026):
+  // a build-time cost in the static export, where every committed permalink is
+  // generated, but a request-time one on a runtime server, so a runtime-served
+  // report offers no history view. The same value reaches the explorer's
+  // board, so both boards offer the same views.
+  const siteHistoryHref = STATIC_EXPORT
+    ? await siteHistoryLookCloserHref({ id, view, committed: result.origin === "committed" })
+    : null;
   const correction = reportCorrections(correctionsLedger, id);
   const reportUrl = publicReportUrl(id);
   const jsonUrl = STATIC_EXPORT ? `${siteBaseUrl()}/reports/${id}.json` : `${siteOrigin()}/api/reports/${id}`;
@@ -152,6 +163,7 @@ export default async function SavedReportPage({ params }: { params: Promise<{ id
         evidenceHref={evidenceHref}
         expectedEvidenceSha256={result.wireSha256}
         pdfExportQuery={reportPdfExportQuery(id, result.wireSha256)}
+        siteHistoryHref={siteHistoryHref}
         title={reportPageTitle(headline)}
         context={
           <ReportPageContext
@@ -186,6 +198,7 @@ export default async function SavedReportPage({ params }: { params: Promise<{ id
                 ? comparisonVisitOrderLine(view.comparison.visitOrder, view.comparison.runLabels)
                 : null
             }
+            siteHistoryHref={siteHistoryHref}
             visitSummary={visitSummary}
           />
         }
@@ -225,7 +238,8 @@ function ReportPageSummary({
   evidenceArm,
   automation,
   visitOrder,
-  visitSummary
+  visitSummary,
+  siteHistoryHref
 }: {
   headline: ReportHeadline;
   findings: readonly Finding[];
@@ -235,6 +249,8 @@ function ReportPageSummary({
   visitOrder: ReturnType<typeof comparisonVisitOrderLine>;
   /** What was checked and what the visit could not see, after the bottom line. */
   visitSummary: ReactNode;
+  /** The cookie card's history view target, the same value the explorer receives. */
+  siteHistoryHref: string | null;
 }) {
   return (
     <div className="report-page-summary">
@@ -274,6 +290,7 @@ function ReportPageSummary({
         automation={automation}
         glossaryHref={`${sitePagesBasePath()}/glossary/`}
         afterBottomLine={visitSummary}
+        lookCloser={{ siteHistoryHref }}
       />
     </div>
   );

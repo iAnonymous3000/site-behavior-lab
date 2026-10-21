@@ -32,7 +32,8 @@ export function SavedReportClient({
   context,
   receipt,
   summary,
-  visitSummary
+  visitSummary,
+  siteHistoryHref
 }: {
   id: string;
   evidenceHref: string;
@@ -54,6 +55,12 @@ export function SavedReportClient({
    * the explorer replaces the summary.
    */
   visitSummary: ReactNode;
+  /**
+   * The cookie card's Look closer target, built on the server: the explorer
+   * has no corpus to count a site's reports from, so it renders the history
+   * view exactly when the summary board did.
+   */
+  siteHistoryHref: string | null;
 }) {
   const [loaded, setLoaded] = useState<LoadedReport | null>(null);
   const [loading, setLoading] = useState(false);
@@ -205,7 +212,7 @@ export function SavedReportClient({
             >
               <Suspense fallback={<p className="muted">Preparing the evidence explorer…</p>}>
                 <LazyReportRenderer loaded={loaded} liveApiServesReportPages pdfExportQuery={pdfExportQuery}
-                  visitSummary={visitSummary} />
+                  visitSummary={visitSummary} siteHistoryHref={siteHistoryHref} />
               </Suspense>
             </section>
           )}
