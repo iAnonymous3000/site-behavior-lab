@@ -9,6 +9,23 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- A scan link can now ask the form for a comparison mode
+  (`#scan?url=<address>&mode=shields`, or `gpc` or `consent`). The form
+  keeps the address and holds the mode while the scanner's health is
+  pending, when the run modes read "checking", then selects that comparison
+  if health offers it, or keeps Single beside the run control's note that
+  the comparison is not available. The link never submits anything: nothing
+  runs until the visitor presses the button. A link with only an address
+  behaves exactly as before. Any other key, a repeated key or any other mode
+  refuses the whole link, address included, as an unknown key always has,
+  and every link is scrubbed from the address bar as before. Once a link's
+  comparison is selected for an address with no evidence on record, a line
+  under the field says what the comparison makes: "A new check runs two
+  visits in the selected mode and makes a separate share report, kept for
+  up to about N days", N from the scanner's own health, or "for a limited
+  time" without one. That is the first sentence of the known-site note's
+  line, and a corpus site keeps the whole note, history clause included.
+  Nothing on the site links with a mode yet.
 - The runner's test that every lib test file's process writes to a blocking
   stdout now reads the descriptor's flags from /proc on Linux. Its WASI
   reading never showed O_NONBLOCK on CI's Linux runners or in the container

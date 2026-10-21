@@ -326,7 +326,10 @@ async function main() {
       if ((await page.locator(".run-mode-checking").count()) !== 0) fail("the run modes still say checking after health answered");
       if ((await page.locator(".run-mode-unavailable").count()) !== 0) fail("a comparison reads unavailable although health offered it");
       pass("run modes show checking until health answers, never a premature unavailable");
-      if (scannerFixture) await assertKnownSiteLeadsWithItsReport(browser, baseUrl, manifest);
+      if (scannerFixture) {
+        await assertKnownSiteLeadsWithItsReport(browser, baseUrl, manifest);
+        await assertModeLinkWaitsForHealth(browser, baseUrl, manifest);
+      }
     }
 
     // Before the hook resolves the OS preference the button is named neutrally, so the
@@ -2194,6 +2197,192 @@ async function assertKnownSiteLeadsWithItsReport(browser, baseUrl, manifest) {
     pass("a scan-again arrival keeps the usual Scan button, with the note, until the field is edited");
   } finally {
     await context.close();
+  }
+}
+
+/**
+ * Test-only scanner health for one context, optionally held until the check
+ * releases it, with every other scanner request aborted and recorded: a scan
+ * POST, had one been sent, is listed. The browser check is the same stub as
+ * installScannerFixture's, and these healths require none, so the submit
+ * button is enabled once health answers and only a press could submit.
+ */
+async function routeScannerHealth(context, health, { held = false } = {}) {
+  if (!liveScanApiBase) fail("scanner UI fixture requires the production scan API build setting");
+  let release = () => {};
+  const answered = held ? new Promise((resolve) => { release = resolve; }) : Promise.resolve();
+  const sent = [];
+  await context.route(`${liveScanApiBase}/**`, async (route) => {
+    const request = route.request();
+    if (request.method() !== "GET" || new URL(request.url()).pathname !== "/api/health") {
+      sent.push(`${request.method()} ${new URL(request.url()).pathname}`);
+      return route.abort();
+    }
+    await answered;
+    return route.fulfill({ status: 200, contentType: "application/json",
+      headers: { "access-control-allow-origin": "*" }, body: JSON.stringify(health) });
+  });
+  await context.route("https://challenges.cloudflare.com/**", (route) => route.fulfill({
+    contentType: "application/javascript", body: "window.turnstile={render:()=>0,remove:()=>{},reset:()=>{}};"
+  }));
+  return { sent, release };
+}
+
+/**
+ * A scan link may ask for a comparison (`#scan?url=...&mode=shields`, what a
+ * fresh result's "Compare with blocking on" mints). The form keeps the URL,
+ * holds the mode while the scanner's health is pending, then selects Blocker
+ * if health offers it, or keeps Single beside the run control's unavailable
+ * note if not. Once Blocker is selected, a line under the field says what the
+ * comparison makes; a corpus site's note already says it. An unknown mode
+ * refuses the link as an unknown key always has. Health here needs no browser
+ * check, so the button is enabled throughout and nothing is sent: the link
+ * never submits.
+ */
+async function assertModeLinkWaitsForHealth(browser, baseUrl, manifest) {
+  const health = { ...scannerFixture, turnstile: false };
+  const target = "https://example.com/";
+  const modeLink = (url, mode) => `${baseUrl}/#scan?url=${encodeURIComponent(url)}&mode=${mode}`;
+  const pressed = (page, name) =>
+    page.getByRole("button", { name, exact: true }).evaluate((button) => button.getAttribute("aria-pressed"));
+  const submitState = (page) =>
+    page.locator('.scan-panel button[type="submit"]').evaluate((button) => ({
+      text: button.textContent.trim(),
+      primary: button.classList.contains("primary-button"),
+      disabled: button.disabled,
+      describedBy: button.getAttribute("aria-describedby")
+    }));
+  const filled = async (page, value, message) => {
+    try {
+      await page.waitForFunction((expected) => document.getElementById("url")?.value === expected, value, { timeout: 10_000 });
+    } catch {
+      fail(message);
+    }
+  };
+  const nothingSent = async (page, sent, label) => {
+    // Long enough for any effect a settled health answer triggers to have run.
+    await page.waitForTimeout(1_500);
+    if (sent.length !== 0) fail(`${label} sent a scanner request on its own: ${sent.join(", ")}`);
+    if ((await page.locator(".loading-state").count()) !== 0) fail(`${label} started a scan on its own`);
+  };
+
+  // Held health: the URL is kept, nothing is offered or refused, and Single
+  // stays selected with no share line, since no comparison is selected yet.
+  const heldContext = await browser.newContext({ viewport: { width: 375, height: 812 } });
+  const held = await routeScannerHealth(heldContext, health, { held: true });
+  try {
+    const page = await heldContext.newPage();
+    await page.goto(modeLink(target, "shields"));
+    await filled(page, target, "a mode link did not keep its URL while the scanner's health was pending");
+    const address = await page.evaluate(() => window.location.href);
+    if (/[?&](?:url|mode)=/.test(address) || !address.endsWith("#scan")) {
+      fail(`a mode link was not scrubbed from the address: ${address}`);
+    }
+    await page.locator(".run-mode-checking").waitFor();
+    if ((await pressed(page, "Single")) !== "true") fail("a mode link selected a comparison before the scanner's health answered");
+    if (await page.getByRole("button", { name: "Blocker comparison (Brave Shields)", exact: true }).isEnabled()) {
+      fail("Blocker is offered before the scanner's health answered");
+    }
+    if ((await page.locator("#mode-link-share-line").count()) !== 0) fail("the share line counts two visits beside Single");
+    held.release();
+    await page.locator(".run-mode-checking").waitFor({ state: "detached" });
+    try {
+      await page.waitForFunction(() =>
+        document.querySelector('button[aria-label="Blocker comparison (Brave Shields)"]')?.getAttribute("aria-pressed") === "true",
+      null, { timeout: 10_000 });
+    } catch {
+      fail("mode=shields did not select Blocker once the scanner's health offered it");
+    }
+    if ((await pressed(page, "Single")) !== "false") fail("Single stayed selected beside Blocker");
+    const selected = await submitState(page);
+    if (selected.text !== "Compare" || !selected.primary || selected.disabled || selected.describedBy !== "mode-link-share-line") {
+      fail(`a mode link's comparison is not the usual enabled Compare, described by the share line: ${JSON.stringify(selected)}`);
+    }
+    const line = page.locator("#mode-link-share-line");
+    await expectText(line, "A new check runs two visits in the selected mode and makes a separate share report, kept for a limited time.");
+    if (/\d/.test((await line.textContent()) ?? "")) fail("the share line states a number the scanner's health never gave");
+    const layout = await page.evaluate(() => {
+      const rect = (selector) => document.querySelector(selector)?.getBoundingClientRect();
+      return {
+        fieldBottom: rect(".url-row")?.bottom ?? Number.NaN,
+        lineTop: rect("#mode-link-share-line")?.top ?? Number.NaN,
+        lineBottom: rect("#mode-link-share-line")?.bottom ?? Number.NaN,
+        viewport: window.innerHeight
+      };
+    });
+    if (!(layout.lineTop > layout.fieldBottom && layout.lineBottom <= layout.viewport)) {
+      fail(`the share line is not under the field on the phone's first screen after the link: ${JSON.stringify(layout)}`);
+    }
+    await assertNoHorizontalOverflow(page, "home after a mode link at 375px");
+    await assertNoSeriousAxeViolations(page, "a mode link's share line in light theme");
+    await nothingSent(page, held.sent, "a mode link");
+    pass("a mode link keeps its URL, holds Blocker until health offers it, then selects it with the share line, and submits nothing");
+  } finally {
+    await heldContext.close();
+  }
+
+  // Health without Blocker: Single, the unavailable note, no share line.
+  const lackingContext = await browser.newContext({ viewport: { width: 375, height: 812 } });
+  const lacking = await routeScannerHealth(lackingContext, {
+    ...health,
+    capabilities: { ...health.capabilities, shieldsComparison: false }
+  });
+  try {
+    const page = await lackingContext.newPage();
+    await page.goto(modeLink(target, "shields"));
+    await filled(page, target, "a mode link the scanner cannot run lost its URL");
+    await page.locator(".run-mode-checking").waitFor({ state: "detached" });
+    if ((await pressed(page, "Single")) !== "true") fail("a mode the scanner lacks did not leave Single selected");
+    const note = page.locator("#run-mode-shields-description");
+    if (!(await note.evaluate((element) => element.classList.contains("run-mode-unavailable")))) {
+      fail("a mode the scanner lacks does not show the run control's unavailable note");
+    }
+    await expectText(note, "Blocker comparison requires the Node scanner.");
+    if ((await page.locator("#mode-link-share-line").count()) !== 0) fail("the share line counts two visits beside the Single fallback");
+    if ((await submitState(page)).text !== "Scan") fail("the Single fallback does not offer the usual Scan");
+    await nothingSent(page, lacking.sent, "a mode link the scanner cannot run");
+
+    // An unknown mode refuses the whole link, URL included, and is scrubbed.
+    // A fresh page: a goto that changes only the fragment keeps the field.
+    const unknown = await lackingContext.newPage();
+    await unknown.goto(modeLink(target, "blocker"));
+    try {
+      await unknown.waitForFunction(() => window.location.hash === "#scan", null, { timeout: 10_000 });
+    } catch {
+      fail("a link with an unknown mode was not scrubbed from the address");
+    }
+    if ((await unknown.locator("#url").inputValue()) !== "") fail("a link with an unknown mode still filled the URL field");
+    if ((await pressed(unknown, "Single")) !== "true") fail("a link with an unknown mode changed the run control");
+    await nothingSent(unknown, lacking.sent, "a link with an unknown mode");
+    pass("a mode the scanner lacks keeps the URL with Single and its unavailable note, and an unknown mode is scrubbed with its URL");
+  } finally {
+    await lackingContext.close();
+  }
+
+  // A corpus site keeps gap 8's whole note, history clause included, and no second line.
+  const newest = manifest.reports[0];
+  const key = staticProfileKey(newest.domain);
+  if (!key) fail(`cannot derive a site key from ${newest.domain}`);
+  const corpusContext = await browser.newContext({ viewport: { width: 375, height: 812 } });
+  const corpus = await routeScannerHealth(corpusContext, health);
+  try {
+    const page = await corpusContext.newPage();
+    await page.goto(modeLink(`https://${key}/`, "shields"));
+    await filled(page, `https://${key}/`, "a corpus site's mode link lost its URL");
+    await page.locator(".run-mode-checking").waitFor({ state: "detached" });
+    if ((await pressed(page, "Blocker comparison (Brave Shields)")) !== "true") fail("a corpus site's mode link did not select Blocker");
+    const difference = page.locator(".known-evidence #known-evidence-difference");
+    await expectText(difference, "A new check runs two visits in the selected mode and makes a separate share report");
+    await expectText(difference, "a live rescan remains a standalone share report until a later corpus publication includes it");
+    if ((await page.locator("#mode-link-share-line").count()) !== 0) fail("a corpus site shows the share line beside its note");
+    const arrival = await submitState(page);
+    if (arrival.text !== "Compare" || !arrival.primary || arrival.describedBy !== "known-evidence-difference") {
+      fail(`a corpus site's mode link lost the arrival's usual Compare: ${JSON.stringify(arrival)}`);
+    }
+    await nothingSent(page, corpus.sent, "a corpus site's mode link");
+    pass("a corpus site's mode link keeps the known-site note, history clause included, and adds no second line");
+  } finally {
+    await corpusContext.close();
   }
 }
 

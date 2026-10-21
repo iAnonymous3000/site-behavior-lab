@@ -11,7 +11,8 @@ import {
   STATIC_LIVE_SCAN_ENABLED,
   scannerApiUrl
 } from "../client-runtime";
-import { normalizeScanUrl, resolveScanPrefillNavigation } from "@/lib/scan-prefill";
+import type { ComparisonRunMode } from "@/lib/run-mode-copy";
+import { heldRunModeOutcome, normalizeScanUrl, resolveScanPrefillNavigation } from "@/lib/scan-prefill";
 import {
   ACTIVE_SCAN_SESSION_MAX_AGE_MS,
   clearActiveScanSession,
@@ -114,6 +115,10 @@ export function useScanRuntime({
   // The address a site's own "Scan ... again" link prefilled, so the form can
   // tell that arrival from typing. It changes no key the prefill accepts.
   const [prefilledUrl, setPrefilledUrl] = useState<string | null>(null);
+  // The comparison that link asked for, if any: kept for the arrival, and held
+  // until the scanner's health says whether it is offered.
+  const [prefilledMode, setPrefilledMode] = useState<ComparisonRunMode | null>(null);
+  const [heldMode, setHeldMode] = useState<ComparisonRunMode | null>(null);
 
   useEffect(() => {
     if (reportPage) return;
@@ -145,6 +150,10 @@ export function useScanRuntime({
       if (navigation.targetUrl) {
         setForm((current) => ({ ...current, url: navigation.targetUrl ?? current.url }));
         setPrefilledUrl(navigation.targetUrl);
+        // A link with only a target leaves the run control as it is, and
+        // drops any mode an earlier link asked for and the form still holds.
+        setPrefilledMode(navigation.mode);
+        setHeldMode(navigation.mode);
       }
       if (navigation.scrollToScan) document.getElementById("scan")?.scrollIntoView();
     };
@@ -349,6 +358,38 @@ export function useScanRuntime({
       compareConsent: current.compareConsent && policy.consentComparisonEnabled
     }));
   }, [policy.consentComparisonEnabled, policy.gpcComparisonEnabled, policy.shieldsComparisonEnabled]);
+
+  // A mode a scan link asked for is applied once, after health answers: the
+  // effect above clears any comparison set before then, since a static build
+  // offers none until health says so. The form selects the mode if offered,
+  // or keeps Single beside the run control's unavailable note. It never
+  // submits: only the visitor's own press of the button does.
+  useEffect(() => {
+    if (heldMode === null) return;
+    const outcome = heldRunModeOutcome({
+      requested: heldMode,
+      awaitingScannerHealth: policy.awaitingScannerHealth,
+      offered: {
+        gpc: policy.gpcComparisonEnabled,
+        shields: policy.shieldsComparisonEnabled,
+        consent: policy.consentComparisonEnabled
+      }
+    });
+    if (outcome === "hold") return;
+    setHeldMode(null);
+    setForm((current) => ({
+      ...current,
+      compareGpc: outcome === "select" && heldMode === "gpc",
+      compareShields: outcome === "select" && heldMode === "shields",
+      compareConsent: outcome === "select" && heldMode === "consent"
+    }));
+  }, [
+    heldMode,
+    policy.awaitingScannerHealth,
+    policy.consentComparisonEnabled,
+    policy.gpcComparisonEnabled,
+    policy.shieldsComparisonEnabled
+  ]);
 
   function resetTurnstileAfterLifecycleOperation(kind: ScanLifecycleOperationKind): void {
     if (kind !== "submit" || !policy.turnstileRequired) return;
@@ -893,6 +934,7 @@ export function useScanRuntime({
     urlNotice,
     urlError,
     prefilledUrl,
+    prefilledMode,
     clearUrlNotice: () => {
       setUrlNotice("");
       setUrlError("");

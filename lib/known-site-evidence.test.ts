@@ -10,8 +10,10 @@ import {
   knownEvidenceTarget,
   leadsWithExistingReport,
   matchingKnownSite,
+  newCheckSentence,
   scanSubmitLabel,
-  shareRetentionClause
+  shareRetentionClause,
+  showsModeLinkShareLine
 } from "./known-site-evidence";
 import { LIVE_RESCAN_HISTORY_CLAUSE } from "./live-rescan-copy";
 import { RUN_MODE_LABELS, type RunMode } from "./run-mode-copy";
@@ -130,6 +132,37 @@ test("the difference line names the visits, the separate share, its retention an
   }
 });
 
+test("a mode link's share line is the difference line's first sentence, with the scanner's retention", () => {
+  assert.equal(
+    newCheckSentence({ comparison: true, maxAgeDays: 7 }),
+    "A new check runs two visits in the selected mode and makes a separate share report, kept for up to about 7 days."
+  );
+  assert.equal(
+    newCheckSentence({ comparison: true, maxAgeDays: null }),
+    "A new check runs two visits in the selected mode and makes a separate share report, kept for a limited time."
+  );
+  // One sentence, the known-site line's own first sentence: the note keeps
+  // its history clause, and the two can never word the share differently.
+  for (const comparison of [false, true]) {
+    for (const maxAgeDays of [7, 1, null]) {
+      const sentence = newCheckSentence({ comparison, maxAgeDays });
+      assert.ok(knownEvidenceDifference({ comparison, maxAgeDays }).startsWith(`${sentence} It is not added to this site's history: `));
+      assert.equal(sentence.split(/(?<=\.) /).length, 1);
+      assert.doesNotMatch(sentence, /history|standalone/);
+    }
+  }
+});
+
+test("the share line shows after a mode link only while a comparison is selected, and never beside the note", () => {
+  const shows = (input: Partial<Parameters<typeof showsModeLinkShareLine>[0]>) =>
+    showsModeLinkShareLine({ prefilledMode: "shields", scanAgainArrival: true, comparison: true, siteMatched: false, ...input });
+  assert.equal(shows({}), true);
+  assert.equal(shows({ prefilledMode: null }), false, "a link with only a target asked for no comparison");
+  assert.equal(shows({ scanAgainArrival: false }), false, "the first edit ends the arrival");
+  assert.equal(shows({ comparison: false }), false, "pending health, or the Single fallback, would count two visits beside Single");
+  assert.equal(shows({ siteMatched: true }), false, "a corpus site's note already states the share and the history");
+});
+
 test("the one submit button reads Check now or Compare now only while the report leads", () => {
   for (const mode of RUN_MODES) {
     const comparison = mode !== "single";
@@ -215,7 +248,21 @@ test("the form wires the note, the one submit button and the arrival as the copy
   assert.equal(controls.match(/type="submit"/g)?.length, 1, "expected exactly one submit control: it carries every scan gate");
   holds(controls, /scanAgainArrival: isScanAgainArrival\(prefilledUrl, form\.url\),\s*scanBusy: loading \|\| activeScanJob/, "the arrival and a busy scan both decide whether the report leads");
   holds(controls, /className=\{`\$\{leadsWithReport \? "secondary-button" : "primary-button"\}\$\{loading \? " is-loading" : ""\}`\}/, "the submit button steps down only while the report leads");
-  holds(controls, /disabled=\{loading \|\| scanBlocked \|\| activeScanJob\}\s*aria-describedby=\{knownSite \? "known-evidence-difference" : undefined\}/, "the one submit button keeps its gates and is described by the difference line");
+  holds(
+    controls,
+    /disabled=\{loading \|\| scanBlocked \|\| activeScanJob\}\s*aria-describedby=\{knownSite \? "known-evidence-difference" : modeLinkShareLine \? "mode-link-share-line" : undefined\}/,
+    "the one submit button keeps its gates and is described by the difference line, or by a mode link's share line"
+  );
+  holds(
+    controls,
+    /const modeLinkShareLine = showsModeLinkShareLine\(\{\s*prefilledMode,\s*scanAgainArrival: isScanAgainArrival\(prefilledUrl, form\.url\),\s*comparison,\s*siteMatched: knownSite !== null\s*\}\);/,
+    "the share line follows the arrival, the selected comparison and the known site"
+  );
+  holds(
+    controls,
+    /\{modeLinkShareLine && \(\s*<p className="mode-link-share-line" id="mode-link-share-line">\s*\{newCheckSentence\(\{ comparison, maxAgeDays: shareReportMaxAgeDays \}\)\}\s*<\/p>\s*\)\}\s*<div className="scan-examples"/,
+    "the share line renders the shared sentence with the scanner's retention, before the example sites"
+  );
   holds(controls, /\{scanSubmitLabel\(\{ comparison, leadsWithReport \}\)\}/, "the button's label comes from the copy module");
   holds(controls, /<div className="known-evidence" role="status">/, "the note stays a status region");
   holds(controls, /className=\{leadsWithReport \? "primary-button" : "secondary-button"\}/, "the report link is primary exactly when the button is not");
@@ -226,5 +273,19 @@ test("the form wires the note, the one submit button and the arrival as the copy
   assert.ok(!/form\.url/.test(note), "expected no typed text rendered in the live region");
   const hook = source("app/_hooks/use-scan-runtime.ts");
   holds(hook, /if \(navigation\.targetUrl\) \{\s*setForm\(\(current\) => \(\{ \.\.\.current, url: navigation\.targetUrl \?\? current\.url \}\)\);\s*setPrefilledUrl\(navigation\.targetUrl\);/, "the hook records the address a prefill put in the field");
+  // The mode a link asked for is kept for the arrival and held, beside the
+  // target the form accepted, and a target-only link clears both.
+  holds(
+    hook,
+    /setPrefilledUrl\(navigation\.targetUrl\);(?:\s*\/\/[^\n]*)*\s*setPrefilledMode\(navigation\.mode\);\s*setHeldMode\(navigation\.mode\);\s*\}/,
+    "the hook keeps and holds the mode a prefill asked for, inside the accepted-target branch"
+  );
+  // Held until health answers, through the one decision the unit tests pin,
+  // then the form's comparison flags, and nothing else.
+  const held = hook.slice(hook.indexOf("if (heldMode === null) return;"), hook.indexOf("function resetTurnstileAfterLifecycleOperation"));
+  holds(held, /heldRunModeOutcome\(\{\s*requested: heldMode,\s*awaitingScannerHealth: policy\.awaitingScannerHealth,/, "the held mode waits for the scanner's health");
+  holds(held, /if \(outcome === "hold"\) return;\s*setHeldMode\(null\);/, "the held mode is applied once");
+  assert.ok(!/runScan|handleSubmit|requestSubmit|submitRuntimeScan|\.click\(/.test(held), "expected applying a held mode never to submit");
   holds(source("app/site-behavior-app.tsx"), /prefilledUrl=\{prefilledUrl\}\s*shareReportMaxAgeDays=\{shareReportMaxAgeDays\}/, "the app hands the form the arrival and the scanner's retention");
+  holds(source("app/site-behavior-app.tsx"), /shareReportMaxAgeDays=\{shareReportMaxAgeDays\}\s*prefilledMode=\{prefilledMode\}/, "the app hands the form the mode the arrival asked for");
 });

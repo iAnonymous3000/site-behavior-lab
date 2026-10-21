@@ -1,3 +1,5 @@
+import type { ComparisonRunMode } from "./run-mode-copy";
+
 /**
  * Normalize a scan target before it can leave the browser. The scanner reports
  * a page by origin and path, while query strings and fragments commonly carry
@@ -53,17 +55,38 @@ export function normalizeScanUrl(value: string): string | null {
 }
 
 /**
+ * The form's comparison modes, the only values a scan link's `mode` may take.
+ * Typed as a record over the run modes, so a comparison mode added to the
+ * form fails to compile until it is named here, and nothing else can be.
+ */
+export const SCAN_PREFILL_MODES: Readonly<Record<ComparisonRunMode, true>> = {
+  gpc: true,
+  shields: true,
+  consent: true
+};
+
+function scanPrefillMode(value: string): ComparisonRunMode | null {
+  return Object.prototype.hasOwnProperty.call(SCAN_PREFILL_MODES, value) ? (value as ComparisonRunMode) : null;
+}
+
+/**
  * Build a deep link whose scan target exists only in the client-side fragment.
  * Normalize first so even copied browser history does not retain target query
- * secrets. Fragments are not included in the HTTP request for the page.
+ * secrets. Fragments are not included in the HTTP request for the page. A
+ * mode asks the form to select that comparison once the scanner's health
+ * says it is offered; the link never submits anything.
  */
-export function scanPrefillHref(value: string): string | null {
+export function scanPrefillHref(value: string, mode?: ComparisonRunMode): string | null {
   const normalized = normalizeScanUrl(value);
-  return normalized ? `/#scan?url=${encodeURIComponent(normalized)}` : null;
+  if (!normalized) return null;
+  const href = `/#scan?url=${encodeURIComponent(normalized)}`;
+  return mode ? `${href}&mode=${mode}` : href;
 }
 
 export type ScanPrefillNavigation = {
   targetUrl: string | null;
+  /** The comparison the link asked for, only beside a target the form accepted. */
+  mode: ComparisonRunMode | null;
   cleanHref: string;
   scrollToScan: boolean;
 };
@@ -72,6 +95,11 @@ export type ScanPrefillNavigation = {
  * Resolve and scrub a scan deep link before React writes the target into UI
  * state. Legacy `?url=` links are cleaned but deliberately not trusted for
  * prefill because their target already crossed an HTTP request boundary.
+ *
+ * A fragment prefill holds exactly one `url` and at most one `mode`, in either
+ * order, the mode one of SCAN_PREFILL_MODES. Any other key, a repeated key, or
+ * any other mode value refuses the whole link, target included, as an unknown
+ * key always has.
  */
 export function resolveScanPrefillNavigation(href: string): ScanPrefillNavigation | null {
   let parsed: URL;
@@ -87,13 +115,18 @@ export function resolveScanPrefillNavigation(href: string): ScanPrefillNavigatio
   const hadFragmentPrefill = parsed.hash.startsWith("#scan?");
   const scrollToScan = hadFragmentPrefill || parsed.hash === "#scan";
   let targetUrl: string | null = null;
+  let mode: ComparisonRunMode | null = null;
 
   if (hadFragmentPrefill) {
     const fragmentParams = new URLSearchParams(parsed.hash.slice("#scan?".length));
     const keys = [...fragmentParams.keys()];
     const targets = fragmentParams.getAll("url");
-    if (keys.length === 1 && keys[0] === "url" && targets.length === 1) {
+    const modes = fragmentParams.getAll("mode");
+    const requestedMode = modes.length === 1 ? scanPrefillMode(modes[0]) : null;
+    const onlyKnownKeys = keys.every((key) => key === "url" || key === "mode");
+    if (onlyKnownKeys && targets.length === 1 && (modes.length === 0 || requestedMode !== null)) {
       targetUrl = normalizeScanUrl(targets[0]);
+      mode = targetUrl ? requestedMode : null;
     }
     // Scrub valid and malformed prefill fragments alike. The stable #scan
     // anchor keeps the intentional landing position without retaining input.
@@ -103,7 +136,24 @@ export function resolveScanPrefillNavigation(href: string): ScanPrefillNavigatio
   if (!hadLegacyQueryPrefill && !hadFragmentPrefill) return null;
   return {
     targetUrl,
+    mode,
     cleanHref: parsed.toString(),
     scrollToScan
   };
+}
+
+/**
+ * What the form does with a mode a scan link asked for. While the scanner's
+ * health has not answered, no comparison is offered or refused (journey audit
+ * gap 18), so the request is held. Once it answers, the form selects the mode
+ * if the scanner offers it, and otherwise keeps Single selected, beside the
+ * unavailable note the run control already shows. Nothing is ever submitted.
+ */
+export function heldRunModeOutcome(input: {
+  requested: ComparisonRunMode;
+  awaitingScannerHealth: boolean;
+  offered: Readonly<Record<ComparisonRunMode, boolean>>;
+}): "hold" | "select" | "single" {
+  if (input.awaitingScannerHealth) return "hold";
+  return input.offered[input.requested] ? "select" : "single";
 }

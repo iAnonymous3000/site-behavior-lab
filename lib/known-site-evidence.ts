@@ -1,6 +1,6 @@
 import type { HomepageKnownSite } from "./homepage-discovery";
 import { LIVE_RESCAN_HISTORY_CLAUSE } from "./live-rescan-copy";
-import { RUN_MODE_LABELS } from "./run-mode-copy";
+import { RUN_MODE_LABELS, type ComparisonRunMode } from "./run-mode-copy";
 import { displayPublicUrl } from "./text-format";
 
 /**
@@ -76,13 +76,37 @@ export function shareRetentionClause(maxAgeDays: number | null): string {
   return `kept for up to about ${days} ${days === "1" ? "day" : "days"}`;
 }
 
-/** What a new check does that reading the existing report does not. */
-export function knownEvidenceDifference(input: { comparison: boolean; maxAgeDays: number | null }): string {
+/**
+ * What a new check runs and what it leaves behind: one visit, or two for a
+ * comparison, and a separate share report kept as long as the scanner's own
+ * retention says. The form states it before a mode link's comparison runs.
+ */
+export function newCheckSentence(input: { comparison: boolean; maxAgeDays: number | null }): string {
   return (
     `A new check runs ${input.comparison ? "two visits" : "one visit"} in the selected mode and makes a separate ` +
-    `share report, ${shareRetentionClause(input.maxAgeDays)}. It is not added to this site's history: ` +
-    `${LIVE_RESCAN_HISTORY_CLAUSE}.`
+    `share report, ${shareRetentionClause(input.maxAgeDays)}.`
   );
+}
+
+/** What a new check does that reading the existing report does not. */
+export function knownEvidenceDifference(input: { comparison: boolean; maxAgeDays: number | null }): string {
+  return `${newCheckSentence(input)} It is not added to this site's history: ${LIVE_RESCAN_HISTORY_CLAUSE}.`;
+}
+
+/**
+ * Whether the form states the share line after a scan link that asked for a
+ * comparison: while the field still holds the address that link put there,
+ * and only once that comparison, or another, is selected, so the line never
+ * counts two visits beside Single. A corpus site shows the known-site note
+ * instead, which already carries the line and the history clause.
+ */
+export function showsModeLinkShareLine(input: {
+  prefilledMode: ComparisonRunMode | null;
+  scanAgainArrival: boolean;
+  comparison: boolean;
+  siteMatched: boolean;
+}): boolean {
+  return input.prefilledMode !== null && input.scanAgainArrival && input.comparison && !input.siteMatched;
 }
 
 /**

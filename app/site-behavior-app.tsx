@@ -124,6 +124,7 @@ export function SiteBehaviorApp({
     urlNotice,
     urlError,
     prefilledUrl,
+    prefilledMode,
     clearUrlNotice,
     policy,
     scannerStatus,
@@ -325,6 +326,7 @@ export function SiteBehaviorApp({
       knownSites={homepageDiscovery?.knownSites ?? []}
       prefilledUrl={prefilledUrl}
       shareReportMaxAgeDays={shareReportMaxAgeDays}
+      prefilledMode={prefilledMode}
       disclosure={scanDisclosure}
     />
   );

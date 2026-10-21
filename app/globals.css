@@ -875,6 +875,16 @@ a {
   text-decoration: underline;
 }
 
+/* After a scan link that asked for a comparison, what the comparison makes,
+   stated before Compare in the known-site note's words and type. */
+.mode-link-share-line {
+  color: var(--text-muted);
+  font-size: 12.5px;
+  line-height: 1.5;
+  margin: 10px 0 0;
+  max-width: 78ch;
+}
+
 .scheduled-rescan-panel {
   display: grid;
   gap: 10px;

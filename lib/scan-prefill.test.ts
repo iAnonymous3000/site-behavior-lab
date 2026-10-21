@@ -2,7 +2,10 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { test } from "node:test";
+import { RUN_MODE_LABELS, RUN_MODE_UNAVAILABLE_NOTES, type RunMode } from "./run-mode-copy";
 import {
+  SCAN_PREFILL_MODES,
+  heldRunModeOutcome,
   isScannableHostname,
   normalizeScanUrl,
   resolveScanPrefillNavigation,
@@ -28,6 +31,7 @@ test("fragment prefills normalize the target and scrub browser history before us
   );
   assert.deepEqual(navigation, {
     targetUrl: "https://example.com/account",
+    mode: null,
     cleanHref: "https://sitebehavior.org/#scan",
     scrollToScan: true
   });
@@ -40,6 +44,7 @@ test("legacy query prefills are removed without trusting their target", () => {
   );
   assert.deepEqual(navigation, {
     targetUrl: null,
+    mode: null,
     cleanHref: "https://sitebehavior.org/?campaign=research#scan",
     scrollToScan: true
   });
@@ -52,9 +57,83 @@ test("malformed fragment prefills are scrubbed and never reach form state", () =
   );
   assert.deepEqual(navigation, {
     targetUrl: null,
+    mode: null,
     cleanHref: "https://sitebehavior.org/#scan",
     scrollToScan: true
   });
+});
+
+test("a scan link may ask for one of the form's comparison modes beside its target", () => {
+  const target = "https://example.com/account?token=bearer-secret#receipt";
+  for (const mode of ["gpc", "shields", "consent"] as const) {
+    const href = scanPrefillHref(target, mode);
+    assert.equal(href, `/#scan?url=https%3A%2F%2Fexample.com%2Faccount&mode=${mode}`);
+    // Minted links round-trip, and the address keeps neither the target nor the mode.
+    assert.deepEqual(resolveScanPrefillNavigation(new URL(href ?? "", "https://sitebehavior.org").toString()), {
+      targetUrl: "https://example.com/account",
+      mode,
+      cleanHref: "https://sitebehavior.org/#scan",
+      scrollToScan: true
+    });
+  }
+  // Key order does not matter.
+  assert.equal(
+    resolveScanPrefillNavigation("https://sitebehavior.org/#scan?mode=shields&url=https%3A%2F%2Fexample.com%2F")?.mode,
+    "shields"
+  );
+  // No mode asked, none given: the link behaves exactly as a target-only link.
+  assert.equal(scanPrefillHref(target), "/#scan?url=https%3A%2F%2Fexample.com%2Faccount");
+  assert.equal(scanPrefillHref("not a url", "shields"), null);
+});
+
+test("the modes a scan link may ask for are exactly the form's comparison modes", () => {
+  assert.deepEqual(
+    Object.keys(SCAN_PREFILL_MODES).sort(),
+    (Object.keys(RUN_MODE_LABELS) as RunMode[]).filter((mode) => mode !== "single").sort()
+  );
+  assert.deepEqual(Object.keys(SCAN_PREFILL_MODES).sort(), Object.keys(RUN_MODE_UNAVAILABLE_NOTES).sort());
+});
+
+test("any other mode, key or repetition refuses the whole link, target included, and is scrubbed", () => {
+  const url = "url=https%3A%2F%2Fexample.com%2F";
+  for (const fragment of [
+    `${url}&mode=blocker`,
+    `${url}&mode=single`,
+    `${url}&mode=Shields`,
+    `${url}&mode=`,
+    `${url}&mode=__proto__`,
+    `${url}&mode=shields&mode=gpc`,
+    `${url}&mode=shields&mode=shields`,
+    `${url}&${url}&mode=shields`,
+    `${url}&mode=shields&token=bearer-secret`,
+    `${url}&modes=shields`,
+    "mode=shields"
+  ]) {
+    assert.deepEqual(
+      resolveScanPrefillNavigation(`https://sitebehavior.org/#scan?${fragment}`),
+      { targetUrl: null, mode: null, cleanHref: "https://sitebehavior.org/#scan", scrollToScan: true },
+      fragment
+    );
+  }
+  // A mode beside a target the form refuses is dropped with it.
+  assert.deepEqual(
+    resolveScanPrefillNavigation("https://sitebehavior.org/#scan?url=javascript%3Aalert(1)&mode=shields"),
+    { targetUrl: null, mode: null, cleanHref: "https://sitebehavior.org/#scan", scrollToScan: true }
+  );
+});
+
+test("a requested mode is held while health is pending, then selected if offered, else Single", () => {
+  const none = { gpc: false, shields: false, consent: false };
+  for (const requested of ["gpc", "shields", "consent"] as const) {
+    const offered = { ...none, [requested]: true };
+    // Pending: nothing is offered or refused yet, even by a build that offers it.
+    assert.equal(heldRunModeOutcome({ requested, awaitingScannerHealth: true, offered }), "hold", requested);
+    assert.equal(heldRunModeOutcome({ requested, awaitingScannerHealth: true, offered: none }), "hold", requested);
+    assert.equal(heldRunModeOutcome({ requested, awaitingScannerHealth: false, offered }), "select", requested);
+    // Another comparison being offered does not stand in for the one asked for.
+    const others = { gpc: true, shields: true, consent: true, [requested]: false };
+    assert.equal(heldRunModeOutcome({ requested, awaitingScannerHealth: false, offered: others }), "single", requested);
+  }
 });
 
 test("scan URL normalization preserves route intent while stripping private data", () => {

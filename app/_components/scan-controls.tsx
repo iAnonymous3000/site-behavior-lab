@@ -33,7 +33,9 @@ import {
   knownEvidenceTarget,
   leadsWithExistingReport,
   matchingKnownSite,
-  scanSubmitLabel
+  newCheckSentence,
+  scanSubmitLabel,
+  showsModeLinkShareLine
 } from "@/lib/known-site-evidence";
 import { committedReportLocation } from "@/lib/report-locator";
 import {
@@ -43,6 +45,7 @@ import {
   runModeAvailability,
   runModeDescription,
   runModeHint,
+  type ComparisonRunMode,
   type RunMode
 } from "@/lib/run-mode-copy";
 import { displayHost } from "@/lib/text-format";
@@ -88,6 +91,8 @@ type ScanControlsProps = {
   knownSites: HomepageKnownSite[];
   /** The address a site's own "Scan ... again" link prefilled, if the visitor arrived that way. */
   prefilledUrl: string | null;
+  /** The comparison that link asked for, if it asked for one. */
+  prefilledMode: ComparisonRunMode | null;
   /** The scanner's own share retention in days, from its health; null states no number. */
   shareReportMaxAgeDays: number | null;
   /** Server-rendered statement of what a scan does to the page, shown under the URL field. */
@@ -157,6 +162,7 @@ export function ScanControls({
   onPickExample,
   knownSites,
   prefilledUrl,
+  prefilledMode,
   shareReportMaxAgeDays,
   disclosure
 }: ScanControlsProps) {
@@ -174,6 +180,15 @@ export function ScanControls({
     scanBusy: loading || activeScanJob
   });
   const evidenceTarget = knownSite ? knownEvidenceTarget(form.url, knownSite.requestedUrl) : null;
+  // A link that asked for a comparison says, before Compare, what the
+  // comparison makes: two visits and a separate share report. A corpus site's
+  // note above already says so, with the site's history.
+  const modeLinkShareLine = showsModeLinkShareLine({
+    prefilledMode,
+    scanAgainArrival: isScanAgainArrival(prefilledUrl, form.url),
+    comparison,
+    siteMatched: knownSite !== null
+  });
   // Until health answers, a comparison is neither offered nor refused: the
   // buttons stay off and one line says the scanner is being checked.
   const gpcAvailability = runModeAvailability(gpcComparisonEnabled, awaitingScannerHealth);
@@ -216,7 +231,7 @@ export function ScanControls({
           className={`${leadsWithReport ? "secondary-button" : "primary-button"}${loading ? " is-loading" : ""}`}
           type="submit"
           disabled={loading || scanBlocked || activeScanJob}
-          aria-describedby={knownSite ? "known-evidence-difference" : undefined}
+          aria-describedby={knownSite ? "known-evidence-difference" : modeLinkShareLine ? "mode-link-share-line" : undefined}
         >
           {loading ? <Loader2 className="spin" size={18} aria-hidden="true" /> : <Search size={18} aria-hidden="true" />}
           {scanSubmitLabel({ comparison, leadsWithReport })}
@@ -251,15 +266,22 @@ export function ScanControls({
           </p>
         </div>
       ) : (
-        <div className="scan-examples" aria-label="Example sites">
-          <span>Try</span>
-          {examples.map((example) => (
-            <button key={example.url} type="button" onClick={() => onPickExample(example.url)}>
-              {example.url}
-              <small>{example.hint}</small>
-            </button>
-          ))}
-        </div>
+        <>
+          {modeLinkShareLine && (
+            <p className="mode-link-share-line" id="mode-link-share-line">
+              {newCheckSentence({ comparison, maxAgeDays: shareReportMaxAgeDays })}
+            </p>
+          )}
+          <div className="scan-examples" aria-label="Example sites">
+            <span>Try</span>
+            {examples.map((example) => (
+              <button key={example.url} type="button" onClick={() => onPickExample(example.url)}>
+                {example.url}
+                <small>{example.hint}</small>
+              </button>
+            ))}
+          </div>
+        </>
       )}
 
       {/* The comparison modes are the differentiator, so they stay visible. Burying
