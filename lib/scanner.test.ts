@@ -5266,6 +5266,113 @@ test("scanSite verifies a consent click end to end when the verification flag is
 });
 
 /**
+ * Request attribution through the scanner's own pipeline. The fixture in
+ * lib/request-initiator-fixture.test.ts repeats the scanner's session setup by
+ * hand, so only a real scan pins the scanner's wiring: every request the page
+ * reports is counted, from before navigation and ahead of the recorder's
+ * filters.
+ *
+ * The page and a dedicated worker both fetch /shared, which the session
+ * observes once. The worker alone fetches /worker-only, and /reload-twin
+ * during the passive load. After the reject-all click, the post-choice reload
+ * runs the page's script again and it fetches /reload-twin: the session
+ * observes that request while the log excludes the reload's traffic. So
+ * /reload-twin has one row, the worker's, and one observation, the page's.
+ * Only a count of every request the page reported refuses it; a count of the
+ * recorded rows would credit the worker's row with main.js.
+ */
+test("a live scan withholds the initiator from every row of a URL whose requests it did not all observe", { timeout: 30_000 }, async () => {
+  const hits = new Map<string, number>();
+  const scripts: Record<string, string> = {
+    "/main.js":
+      `if (localStorage.getItem("cmp-choice") === "rejected") { fetch("/reload-twin"); }` +
+      ` else { fetch("/shared"); fetch("/page-only"); new Worker("/worker.js"); }`,
+    "/worker.js": `fetch("/shared"); fetch("/worker-only"); fetch("/reload-twin");`
+  };
+  const upstream = createServer((request, response) => {
+    const pathname = request.url ?? "/";
+    hits.set(pathname, (hits.get(pathname) ?? 0) + 1);
+    if (Object.hasOwn(scripts, pathname)) {
+      response.writeHead(200, { "content-type": "text/javascript" });
+      response.end(scripts[pathname]);
+      return;
+    }
+    if (pathname !== "/") {
+      response.writeHead(200, { "content-type": "text/plain" });
+      response.end("ok");
+      return;
+    }
+    response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+    response.end(`<!doctype html>
+      <title>Request attribution fixture</title>
+      <script>
+        const rejected = localStorage.getItem("cmp-choice") === "rejected";
+        window.registerRejection = () => {
+          localStorage.setItem("cmp-choice", "rejected");
+          document.getElementById("consent-banner").style.display = "none";
+        };
+      </script>
+      <script src="/main.js"></script>
+      <div id="consent-banner" style="display:none">
+        <button onclick="registerRejection()">Reject all</button>
+      </div>
+      <script>
+        if (!rejected) document.getElementById("consent-banner").style.display = "block";
+      </script>
+      <p>fixture</p>`);
+  });
+  await new Promise<void>((resolve, reject) => {
+    upstream.once("error", reject);
+    upstream.listen(0, "127.0.0.1", resolve);
+  });
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+
+  process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = "1";
+  try {
+    const { result, measurement: staged } = await scanSiteWithMeasurement(
+      {
+        url: "http://attribution.test/",
+        device: "desktop",
+        gpcEnabled: false,
+        consentMode: "reject-all"
+      },
+      {
+        publicUrlAlreadyVerified: true,
+        verifyPublicUrl: async () => undefined,
+        resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+        connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"),
+        resolveCnameChain: async () => []
+      }
+    );
+
+    // The visit really took the shape the assertions below assume: the reload
+    // ran, and each shared URL was requested twice.
+    assert.equal(result.consentInteraction?.clicked, true);
+    assert.equal(staged!.measurement.phases.some((phase) => phase.kind === "post-choice-reload"), true);
+    assert.equal(hits.get("/shared"), 2);
+    assert.equal(hits.get("/reload-twin"), 2);
+
+    const provenanceOf = (pathname: string) =>
+      staged!.evidence.requests
+        .filter((request) => new URL(request.url).pathname === pathname)
+        .map((request) => request.provenance);
+    // Every request for it was observed, so the join still claims it.
+    assert.deepEqual(provenanceOf("/page-only"), [
+      { initiatorUrl: "http://attribution.test/main.js", initiatorDomain: "attribution.test" }
+    ]);
+    // Two rows, one observation: neither row can be shown to be the observed one.
+    assert.deepEqual(provenanceOf("/shared"), [undefined, undefined]);
+    assert.deepEqual(provenanceOf("/worker-only"), [undefined]);
+    assert.deepEqual(provenanceOf("/reload-twin"), [undefined]);
+  } finally {
+    delete process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+});
+
+/**
  * Scan a reject-all fixture whose banner hides on click and whose one subframe
  * is empty, calling `onSubframeRead` before each consent-visibility read of the
  * subframe. The before-click read stops at the visible control in the top

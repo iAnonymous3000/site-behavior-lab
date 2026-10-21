@@ -53,12 +53,16 @@ export type AttributionCoverage = {
   evidenceState: Exclude<EvidenceState, "unsupported">;
   attributedRequests: number;
   /**
-   * Third-party rows this capture could not assign to ONE actor. Two causes
-   * produce it and the wire cannot tell them apart: Chromium reported no
-   * usable initiator, and the same URL was seen with conflicting initiators so
-   * the join could not say which row belonged to which.
-   * `RequestInitiatorStats` counts those separately during collection but is
-   * not persisted, so no breakdown may be published from a report.
+   * Third-party rows this capture could not assign to ONE actor. On a live
+   * scan three causes produce it and the wire cannot tell them apart: Chromium
+   * reported no usable initiator; the same URL was seen with conflicting
+   * initiators, so the join could not say which row belonged to which; or the
+   * page requested the URL more often than the initiator session observed it,
+   * as when a dedicated worker requests it too. Reports made before the join
+   * counted requests have no rows of the third kind: such a row could carry
+   * the page's initiator instead. `RequestInitiatorStats` counts the join's
+   * refusals separately during collection but is not persisted, so no
+   * breakdown may be published from a report.
    */
   notAttributableRequests: number;
   thirdPartyRequests: number;

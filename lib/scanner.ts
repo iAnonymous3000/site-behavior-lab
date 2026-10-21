@@ -1122,16 +1122,15 @@ async function scanSiteWithMeasurementOnLeasedBrowser(
     //
     // Playwright's request events say WHAT was requested and never WHY. Chromium
     // reports an initiator per request over CDP, so a second subscription on the
-    // same page fills the `provenance` slot that until now only the PageGraph
-    // import path ever populated, and every live report rendered as
-    // "Not attributed".
+    // same page fills the `provenance` slot, which reports adapted from
+    // PageGraph fill from their own graph instead.
     //
     // BEST EFFORT BY CONSTRUCTION. A scan that cannot open the session, or a
     // page that outlives it, still produces a complete report with no
     // attribution rather than failing. Attribution is an addition to the
     // evidence, never a precondition for it, and a detach mid-scan simply stops
     // adding observations. See lib/request-initiator.ts for why only the URL is
-    // taken and why ambiguous joins are refused.
+    // taken and why ambiguous or outnumbered joins are refused.
     const initiatorIndex = new RequestInitiatorIndex();
     let initiatorSession: CDPSession | null = null;
     try {
@@ -1147,6 +1146,15 @@ async function scanSiteWithMeasurementOnLeasedBrowser(
       // says when nothing is claimed.
       initiatorSession = null;
     }
+    // Every request the page reports is counted, recorded or not, from before
+    // the visit navigates, so a claim can refuse a URL with more requests than
+    // observations. A dedicated worker's requests reach this event as the
+    // page's and never reach the session. The page's own copies of requests
+    // the log leaves out (blocked, aborted, over the cap, or a reload whose
+    // traffic is excluded) are observed all the same, so counting only the
+    // recorded rows would let one of them stand in for a worker's row.
+    const noteInitiatorRequest = (request: Request) => initiatorIndex.noteRequest(request.url());
+    page.on("request", noteInitiatorRequest);
 
     // The browser-side witness: every dedicated worker Playwright's own
     // recursive auto-attach reports for this page, nested ones included.
@@ -2887,7 +2895,9 @@ async function scanSiteWithMeasurementOnLeasedBrowser(
       // Attribution is claimed HERE, after the visit, not when the row was
       // recorded. The CDP event and Playwright's request event race, so a
       // capture-time lookup would miss initiators that had simply not arrived
-      // yet and would under-attribute in a way that varied per run.
+      // yet and would under-attribute in a way that varied per run. By now
+      // every request the page reported has been counted, so claim() also
+      // refuses a URL whose requests outnumber its observations.
       const initiatorUrl = initiatorIndex.claim(request.url());
       if (initiatorUrl) {
         // Only the URL and its host. `initiatorType` stays unset on purpose:
@@ -2977,10 +2987,12 @@ async function scanSiteWithMeasurementOnLeasedBrowser(
     // Both listeners retire together: a late response cannot corrupt the frozen
     // snapshot (publicRecords already mapped to fresh objects), but leaving one
     // attached keeps its closure alive on the page and rescans up to a thousand
-    // records per straggler for the rest of the context's life.
+    // records per straggler for the rest of the context's life. The initiator
+    // request count retires with them: the claims above were its last reader.
     measuringRequests = false;
     page.off("request", recordRequest);
     page.off("response", recordResponse);
+    page.off("request", noteInitiatorRequest);
     measurementKernel.endPhase();
     // Drain in-flight worker handshakes before freezing the evidence
     // diagnostics, so every attached worker reads as a terminal verified or

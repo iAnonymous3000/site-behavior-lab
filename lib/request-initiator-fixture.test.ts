@@ -17,12 +17,13 @@ import { browserProcessEnvironment, SCAN_CHROMIUM_LAUNCH_ARGS } from "./scanner"
  * (lib/scanner.ts, "Request attribution"): a fresh context, a CDP session
  * opened on the page while it is still about:blank, a bare Network.enable,
  * every Network.requestWillBeSent read by initiatorObservationFromCdpParams
- * into a RequestInitiatorIndex, and after the visit one claim() per Playwright
- * row, keyed by request.url(). Each case then pins the raw initiator shape the
- * page-target session received and what claim() returned for every row, so a
- * Chromium roll that changes either fails here instead of silently changing
- * published attribution. Cases are numbered as in the fixture table of the
- * 2026-10-19 request attribution design note.
+ * into a RequestInitiatorIndex, every request Playwright reports counted with
+ * noteRequest, and after the visit one claim() per Playwright row, keyed by
+ * request.url(). Each case then pins the raw initiator shape the page-target
+ * session received and what claim() returned for every row, so a Chromium
+ * roll that changes either fails here instead of silently changing published
+ * attribution. Cases are numbered as in the fixture table of the 2026-10-19
+ * request attribution design note.
  *
  * WHAT THE PAGE SESSION DOES NOT SEE (observed on Chromium 153, the
  * chrome-headless-shell that Playwright 1.63 launches for headless: true).
@@ -31,10 +32,10 @@ import { browserProcessEnvironment, SCAN_CHROMIUM_LAUNCH_ARGS } from "./scanner"
  * worker's script request, typed "other" and naming the document that created
  * the worker, and none of the requests the worker makes, while Playwright's
  * request log, which the report publishes, holds them all. So a worker-only URL
- * is unattributed (case 11), and a URL the worker shares with the page
- * publishes the page's initiator on the worker's row too (case 9). The join
- * refuses conflicting observations, but only the observations it has: it never
- * compares the number of rows for a URL with the number of observations.
+ * is unattributed (case 11). A URL the worker shares with the page has more
+ * rows than observations, so the join refuses every row of it (case 9): it
+ * cannot tell which row was the observed one. Before the join counted
+ * requests, both rows published the page's initiator.
  *
  * An out-of-process frame is invisible the same way, but the scanner's browser
  * makes none: chrome-headless-shell does not isolate sites by default, and
@@ -345,7 +346,10 @@ async function visit(scan: ScanBrowser, fixture: Fixture, page: string, expected
     await measured.route("**/*", (route) => route.continue());
     const rows: Request[] = [];
     const ended = new Set<Request>();
-    measured.on("request", (request) => rows.push(request));
+    measured.on("request", (request) => {
+      rows.push(request);
+      index.noteRequest(request.url());
+    });
     measured.on("requestfinished", (request) => ended.add(request));
     measured.on("requestfailed", (request) => ended.add(request));
 
@@ -520,7 +524,7 @@ const SCANNER_CASES: FixtureCase[] = [
     }
   },
   {
-    name: "9. a worker's request is never observed, so its row inherits the page's initiator for a shared URL",
+    name: "9. a worker's request is never observed, so a URL it shares with the page is refused on both rows",
     page: "/case9/page.html",
     expected: ({ main }) => {
       const page = `${main}/case9/page.html`;
@@ -531,10 +535,10 @@ const SCANNER_CASES: FixtureCase[] = [
           ...documentRow(page),
           [mainScript]: { observed: [parser(page)], published: [page] },
           [worker]: { observed: [workerScript(page)], published: [page] },
-          // Two rows, one observation. The worker's row publishes main.js,
-          // which never requested it. A rule that refused a URL with more rows
-          // than observations would publish [null, null] here.
-          [`${main}/case9/shared`]: { observed: [script(mainScript)], published: [mainScript, mainScript] },
+          // Two rows, one observation: nothing says which row was observed,
+          // so both are refused. Without the count, both published main.js,
+          // which never made the worker's request.
+          [`${main}/case9/shared`]: { observed: [script(mainScript)], published: [null, null] },
           [`${main}/case9/done`]: { observed: [script(mainScript)], published: [mainScript] }
         },
         targets: [`page ${page}`, `worker ${worker}`]
@@ -602,8 +606,9 @@ test("real Chromium, launched as the scanner launches it: what the initiator joi
  * A control, not the scanner's configuration: case 10's page in a browser that
  * isolates sites. The iframe is then a target of its own, and the page session
  * still sees its document request but none of its subresource requests, exactly
- * as for a worker. The shared URL then inherits the page's initiator instead of
- * being refused, and the iframe's own URLs go unattributed.
+ * as for a worker. The shared URL then has more rows than observations, so it
+ * is refused for that reason rather than as conflicting, and the iframe's own
+ * URLs go unattributed.
  */
 test("real Chromium with --site-per-process: an out-of-process iframe's requests are never observed", { timeout: 60_000 }, async (t) => {
   const fixture = await startFixture(t);
@@ -616,7 +621,7 @@ test("real Chromium with --site-per-process: an out-of-process iframe's requests
     outcomes: {
       ...documentRow(page),
       [listener]: { observed: [parser(page)], published: [page] },
-      [`${main}/case10/shared.png`]: { observed: [parser(page)], published: [page, page] },
+      [`${main}/case10/shared.png`]: { observed: [parser(page)], published: [null, null] },
       [frame]: { observed: [parser(page)], published: [page] },
       [`${cross}/case10/frame-only.png`]: { observed: [], published: [null] },
       [`${cross}/case10/frame.js`]: { observed: [], published: [null] },

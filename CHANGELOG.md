@@ -9,6 +9,22 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- A live scan no longer credits a dedicated worker's request with the
+  page's initiator. The initiator join pairs the request log's rows with
+  Chromium's initiator reports by URL, and the session it reads sees only
+  the page's own target, never a worker's. So when a worker and the page
+  requested one URL, both rows published the page's initiator, as the
+  fixture test of 2026-10-19 observed. The join now counts every request
+  the page reported, kept in the log or not, and claims a URL only when it
+  observed no fewer requests for it than the page made and every
+  observation names one initiator. Requests the log leaves out are counted
+  too, so a reload whose traffic the log excludes cannot stand in for a
+  worker's row. Every row of such a URL is now "Not attributed". The
+  scanner counts these refusals but does not publish the count. No
+  methodology component marks the change, so a report's methodology does
+  not say which rule it was made under. The report wire, the public-string
+  policy and both r2 normalization identities are unchanged, and so are
+  committed reports.
 - Report pages now show each findings card's "Look closer" view at the
   foot of the card: the link, which names its card, and the sentence that
   says what it opens. The permalink renders it before any script runs, and

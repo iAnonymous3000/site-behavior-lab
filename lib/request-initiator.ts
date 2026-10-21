@@ -30,16 +30,29 @@
  * ATTRIBUTE ONLY WHAT CORRELATES UNAMBIGUOUSLY.
  *
  * Playwright's request objects carry no CDP request id, so the two streams are
- * joined on the request URL. A page that fetches one URL several times with
- * different initiators cannot be joined that way, and guessing FIFO would
- * publish an attribution the evidence does not support. Such rows stay
- * unattributed and are counted, so the report can state how much of the log was
- * attributed rather than implying it was all of it.
+ * joined on the request URL, and a URL is claimed only when the join can back
+ * every row of it:
+ *
+ * - Every observation of the URL agrees. A page that fetches one URL several
+ *   times with different initiators cannot be joined that way, and guessing
+ *   FIFO would publish an attribution the evidence does not support.
+ * - The page reported no more requests for the URL than the session observed.
+ *   The session is attached to the page's own target. A dedicated worker is a
+ *   target of its own, so none of the requests it makes are observed, while
+ *   Playwright reports them as the page's. A URL a worker shares with the page
+ *   would otherwise publish the page's initiator on the worker's row too.
+ *
+ * The second rule counts every request the page reported, not only the rows
+ * the log keeps. The session also observes the page's requests that the log
+ * leaves out (blocked, aborted, over the cap, or a reload whose traffic is
+ * excluded), and counting rows alone would let one of those observations stand
+ * in for a worker's row. Refused rows stay unattributed and are counted in
+ * stats(), which the scanner does not persist yet.
  */
 
 import { isRecord } from "./guards";
 
-/** Bounds the join table so a pathological page cannot grow it without limit. */
+/** Bounds each join table so a pathological page cannot grow it without limit. */
 export const MAX_TRACKED_INITIATORS = 4_000;
 
 export type InitiatorObservation = {
@@ -92,27 +105,48 @@ export type RequestInitiatorStats = {
    * one distinct initiator, so the join could not identify which was which.
    */
   ambiguous: number;
-  /** Observations dropped because the table reached its bound. */
+  /**
+   * Rows left unattributed because the page reported more requests for their
+   * URL than the session observed, though every observation named one
+   * initiator. These are the rows the join would otherwise have credited with
+   * an observation that may not be theirs, such as a dedicated worker's copy
+   * of a page request. A row whose request was never counted is refused and
+   * counted here too. A URL with no observation counts as neither this nor
+   * ambiguous.
+   */
+  refusedUnobserved: number;
+  /** Observations dropped because the observation table reached its bound. */
   dropped: number;
+  /** Requests left uncounted because the request table reached its bound. Their rows are refused. */
+  requestsDropped: number;
 };
 
 /**
  * Join table from a request URL to the initiator Chromium reported for it.
  *
- * Records every observation, then answers only when every observation for that
- * URL agrees. Disagreement is reported rather than resolved.
+ * Records every observation and counts every request the page reported, then
+ * answers only when every observation for that URL agrees and there were no
+ * more requests for it than observations. Disagreement and shortfall are
+ * reported rather than resolved.
  */
 export class RequestInitiatorIndex {
-  private readonly byUrl = new Map<string, { initiatorUrl: string | null; conflicting: boolean }>();
+  private readonly byUrl = new Map<
+    string,
+    { initiatorUrl: string | null; conflicting: boolean; observations: number }
+  >();
+  private readonly requestsByUrl = new Map<string, number>();
   private observed = 0;
   private attributed = 0;
   private ambiguous = 0;
+  private refusedUnobserved = 0;
   private dropped = 0;
+  private requestsDropped = 0;
 
   record(observation: InitiatorObservation): void {
     if (observation.initiatorUrl !== null) this.observed += 1;
     const existing = this.byUrl.get(observation.requestUrl);
     if (existing) {
+      existing.observations += 1;
       // A second, different initiator for the same URL makes both unusable:
       // nothing in the joined data says which row belongs to which.
       if (existing.initiatorUrl !== observation.initiatorUrl) existing.conflicting = true;
@@ -124,11 +158,38 @@ export class RequestInitiatorIndex {
     }
     this.byUrl.set(observation.requestUrl, {
       initiatorUrl: observation.initiatorUrl,
-      conflicting: false
+      conflicting: false,
+      observations: 1
     });
   }
 
-  /** The initiator URL for a request row, or null when it cannot be claimed. */
+  /**
+   * Count one request the page reported, whether or not it becomes a row.
+   *
+   * The caller reports every request event of the measured page, from before
+   * the visit navigates until the claims are made, ahead of any filter that
+   * decides whether the request is recorded. Either stream may arrive first.
+   */
+  noteRequest(requestUrl: string): void {
+    const count = this.requestsByUrl.get(requestUrl);
+    if (count !== undefined) {
+      this.requestsByUrl.set(requestUrl, count + 1);
+      return;
+    }
+    if (this.requestsByUrl.size >= MAX_TRACKED_INITIATORS) {
+      this.requestsDropped += 1;
+      return;
+    }
+    this.requestsByUrl.set(requestUrl, 1);
+  }
+
+  /**
+   * The initiator URL for a request row, or null when it cannot be claimed.
+   *
+   * A row whose request was never counted is refused, so a caller that skips
+   * noteRequest gets no attribution rather than the join that let a worker's
+   * row inherit the page's initiator.
+   */
   claim(requestUrl: string): string | null {
     const entry = this.byUrl.get(requestUrl);
     if (!entry) return null;
@@ -137,6 +198,11 @@ export class RequestInitiatorIndex {
       return null;
     }
     if (entry.initiatorUrl === null) return null;
+    const requests = this.requestsByUrl.get(requestUrl) ?? 0;
+    if (requests === 0 || requests > entry.observations) {
+      this.refusedUnobserved += 1;
+      return null;
+    }
     this.attributed += 1;
     return entry.initiatorUrl;
   }
@@ -146,7 +212,9 @@ export class RequestInitiatorIndex {
       observed: this.observed,
       attributed: this.attributed,
       ambiguous: this.ambiguous,
-      dropped: this.dropped
+      refusedUnobserved: this.refusedUnobserved,
+      dropped: this.dropped,
+      requestsDropped: this.requestsDropped
     };
   }
 }
