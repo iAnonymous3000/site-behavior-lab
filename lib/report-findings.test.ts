@@ -24,7 +24,8 @@ import {
   type FindingNewVisit,
   type LookCloserVariant
 } from "./finding-look-closer";
-import { reportNewVisitTarget } from "./report-rescan-targets";
+import { buildReportShare } from "./report-locator";
+import { reportNewVisitFrom, reportNewVisitTarget } from "./report-rescan-targets";
 import { normalizeScanUrl, resolveScanPrefillNavigation } from "./scan-prefill";
 import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "./gpc-injection";
 import {
@@ -757,9 +758,16 @@ function assertLookCloserView(
  * does and that nothing runs until the visitor presses Compare; no sanitizer
  * token, dash or verdict word; never on the bottom line; and a link that
  * opens the scan form through the fragment prefill with this report's page
- * and the Blocker comparison, the only mode any card mints.
+ * and the Blocker comparison, the only mode any card mints, naming this
+ * report's share when it has one (`from`) and nothing otherwise.
  */
-function assertNewVisit(where: string, finding: Finding, visit: FindingNewVisit, target: string, basePath = "") {
+function assertNewVisit(
+  where: string,
+  finding: Finding,
+  visit: FindingNewVisit,
+  target: string,
+  { basePath = "", from = null }: { basePath?: string; from?: string | null } = {}
+) {
   const at = `${where}: ${finding.id} ${visit.variant}`;
   assert.equal(NEW_VISIT_CARD[visit.variant], finding.id, `${at}: a new visit on another card's variant`);
   assert.ok(!["bottom-line", "public-correction"].includes(finding.id), `${at}: no card there may offer a new visit`);
@@ -779,6 +787,8 @@ function assertNewVisit(where: string, finding: Finding, visit: FindingNewVisit,
   assert.equal(navigation?.targetUrl, normalizeScanUrl(target), `${at}: the form would be filled with another page`);
   assert.equal(navigation?.mode, NEW_VISIT_MODE[visit.variant], `${at}: the form would select another comparison`);
   assert.equal(navigation?.mode, "shields", `${at}: only Blocker links are minted`);
+  assert.equal(navigation?.from, from, `${at}: the link names ${navigation?.from}, not this result's share ${from}`);
+  if (from === null) assert.doesNotMatch(visit.href, /[?&]from=/, `${at}: a result without a share names one`);
 }
 
 test("no sentence on a committed report's findings cards runs past 30 words", async (t) => {
@@ -818,6 +828,10 @@ test("no sentence on a committed report's findings cards runs past 30 words", as
     const board = buildFindings(view, corpus, facts, arm);
     const committedTarget = reportNewVisitTarget(view, false);
     const freshTarget = reportNewVisitTarget(view, true);
+    // A committed report names no share; as if fresh, its own.
+    const committedFrom = reportNewVisitFrom(view, false);
+    const freshFrom = reportNewVisitFrom(view, true);
+    assert.equal(committedFrom, null, `${name}: a committed report names a share for a new visit`);
     for (const finding of board) {
       assertSentencesAtMost(finding, MAX_CARD_SENTENCE_WORDS);
       cards += 1;
@@ -827,13 +841,15 @@ test("no sentence on a committed report's findings cards runs past 30 words", as
         reportsWithViews.add(name);
       }
       assert.equal(
-        findingNewVisit(finding, { newVisitTarget: committedTarget, basePath: "" }),
+        findingNewVisit(finding, { newVisitTarget: committedTarget, newVisitFrom: committedFrom, basePath: "" }),
         null,
         `${name}: a committed report offers a new visit on ${finding.id}`
       );
-      const asIfFresh = findingNewVisit(finding, { newVisitTarget: freshTarget, basePath: "" });
+      const asIfFresh = findingNewVisit(finding, { newVisitTarget: freshTarget, newVisitFrom: freshFrom, basePath: "" });
       if (asIfFresh && freshTarget) {
-        assertNewVisit(name, finding, asIfFresh, freshTarget);
+        // Every committed report has a share, so the link names this one.
+        assert.equal(freshFrom, name.replace(/\.json$/, ""), `${name}: as if fresh, the share named is not this report's`);
+        assertNewVisit(name, finding, asIfFresh, freshTarget, { from: freshFrom });
         freshReach.add(name);
         freshKinds.add(view.comparison?.axis ?? view.reportType);
       }
@@ -1564,12 +1580,15 @@ function newVisitFixture(view: ReportView, fresh = true, basePath = "") {
   const arm = renderedEvidenceArm(view, buildReportHeadline(view, facts));
   const board = buildFindings(view, null, facts, arm);
   const newVisitTarget = reportNewVisitTarget(view, fresh);
+  const newVisitFrom = reportNewVisitFrom(view, fresh);
   const offered = board.flatMap((finding) => {
-    const visit = findingNewVisit(finding, { newVisitTarget, basePath });
+    const visit = findingNewVisit(finding, { newVisitTarget, newVisitFrom, basePath });
     return visit ? [{ finding, visit }] : [];
   });
   assert.ok(offered.length <= 1, "a board offers each new visit at most once");
-  for (const { finding, visit } of offered) assertNewVisit("fixture", finding, visit, newVisitTarget ?? "", basePath);
+  for (const { finding, visit } of offered) {
+    assertNewVisit("fixture", finding, visit, newVisitTarget ?? "", { basePath, from: newVisitFrom });
+  }
   return { card: board.find((finding) => finding.id === "shields-blocked") ?? null, visit: offered[0]?.visit ?? null };
 }
 
@@ -1601,6 +1620,41 @@ test("a fresh Single or GPC result whose requests matched Brave's lists offers C
     newVisitFixture(viewFromV1Report(matchedShieldsResult()), true, "/site-behavior-lab").visit?.href,
     "/site-behavior-lab/#scan?url=https%3A%2F%2Fexample.com%2F&mode=shields"
   );
+});
+
+test("Compare with blocking on names the fresh result's own share, and without one is the link it was", () => {
+  const shareId = "20261022-0123456789abcdef0123456789abcdef";
+  const unshared = "/#scan?url=https%3A%2F%2Fexample.com%2F&mode=shields";
+  const withShare = () => viewFromV1Report({ ...matchedShieldsResult(), share: buildReportShare(shareId) });
+  // A fresh result with a share, legacy or r2, names it after the mode.
+  const shared = newVisitFixture(withShare());
+  assert.equal(shared.visit?.href, `${unshared}&from=${shareId}`);
+  const r2 = makePublicSingleReportV2R2();
+  matchShieldsOnRun(r2.run);
+  assert.equal(
+    newVisitFixture(viewFromV2({ ...atSiteRoot(r2), share: buildReportShare(shareId) }, 2)).visit?.href,
+    `/#scan?url=https%3A%2F%2Fwww.example.com%2F&mode=shields&from=${shareId}`
+  );
+  assert.equal(
+    newVisitFixture(withShare(), true, "/site-behavior-lab").visit?.href,
+    `/site-behavior-lab${unshared}&from=${shareId}`
+  );
+  // The same report, not fresh, offers nothing, so it names nothing.
+  assert.equal(newVisitFixture(withShare(), false).visit, null);
+  // Without a share the link is exactly the one it was, label and sentence too.
+  const plain = newVisitFixture(viewFromV1Report(matchedShieldsResult())).visit;
+  assert.equal(plain?.href, unshared);
+  assert.deepEqual({ ...shared.visit, href: "" }, { ...plain, href: "" });
+  // An id the form would refuse is never minted: the link is the one it was.
+  assert.ok(shared.card, "fixture invariant");
+  if (!shared.card) return;
+  for (const malformed of ["", "20261022-0123", shareId.toUpperCase(), `${shareId}\n`, `/reports/${shareId}`]) {
+    assert.equal(
+      findingNewVisit(shared.card, { newVisitTarget: "https://example.com/", newVisitFrom: malformed, basePath: "" })?.href,
+      unshared,
+      JSON.stringify(malformed)
+    );
+  }
 });
 
 test("every gate withholds the Blocker comparison, and only a fresh result has one", () => {
@@ -1716,7 +1770,7 @@ test("the Blocker comparison is keyed by its card and branch, never by level, an
   const fixture = newVisitFixture(viewFromV1Report(matchedShieldsResult()));
   assert.ok(fixture.card && fixture.visit, "fixture invariant");
   if (!fixture.card || !fixture.visit) return;
-  const context = { newVisitTarget: "https://example.com/", basePath: "" };
+  const context = { newVisitTarget: "https://example.com/", newVisitFrom: null, basePath: "" };
   for (const level of ["ok", "quiet", "info", "warn", "loud"] as const) {
     const moved: Finding = { ...fixture.card, level };
     assert.deepEqual(findingNewVisit(moved, context), fixture.visit, level);

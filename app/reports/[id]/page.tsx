@@ -12,7 +12,7 @@ import { parseCorrectionsLedger, reportCorrections } from "@/lib/corrections-led
 import { serializeJsonLd } from "@/lib/jsonld-script";
 import { buildReportDataset } from "@/lib/report-jsonld";
 import { reportPdfExportQuery } from "@/lib/report-pdf-export-query";
-import { reportNewVisitTarget } from "@/lib/report-rescan-targets";
+import { reportNewVisitFrom, reportNewVisitTarget } from "@/lib/report-rescan-targets";
 import { siteHistoryLookCloserHref } from "@/lib/report-site-history";
 import { readStoredReportForId } from "@/lib/report-source";
 import { buildReportVisitSummary } from "@/lib/report-visit-summary";
@@ -146,9 +146,10 @@ export default async function SavedReportPage({ params }: { params: Promise<{ id
   // A runtime share is a live scan's fresh result, the only report whose
   // cards may offer a new visit; a committed report's site already holds the
   // corpus evidence. The summary board and the explorer read the same value,
-  // so both boards offer the same follow-ups.
+  // so both boards offer the same follow-ups, each naming this share.
   const freshResult = result.origin === "share-store";
   const newVisitTarget = reportNewVisitTarget(view, freshResult);
+  const newVisitFrom = reportNewVisitFrom(view, freshResult);
   const correction = reportCorrections(correctionsLedger, id);
   const reportUrl = publicReportUrl(id);
   const jsonUrl = STATIC_EXPORT ? `${siteBaseUrl()}/reports/${id}.json` : `${siteOrigin()}/api/reports/${id}`;
@@ -208,6 +209,7 @@ export default async function SavedReportPage({ params }: { params: Promise<{ id
             }
             siteHistoryHref={siteHistoryHref}
             newVisitTarget={newVisitTarget}
+            newVisitFrom={newVisitFrom}
             visitSummary={visitSummary}
           />
         }
@@ -249,7 +251,8 @@ function ReportPageSummary({
   visitOrder,
   visitSummary,
   siteHistoryHref,
-  newVisitTarget
+  newVisitTarget,
+  newVisitFrom
 }: {
   headline: ReportHeadline;
   findings: readonly Finding[];
@@ -263,6 +266,8 @@ function ReportPageSummary({
   siteHistoryHref: string | null;
   /** The page a card's new visit would visit again, a runtime share's only. */
   newVisitTarget: string | null;
+  /** The share report id a new visit's link names, a runtime share's own. */
+  newVisitFrom: string | null;
 }) {
   return (
     <div className="report-page-summary">
@@ -302,7 +307,7 @@ function ReportPageSummary({
         automation={automation}
         glossaryHref={`${sitePagesBasePath()}/glossary/`}
         afterBottomLine={visitSummary}
-        lookCloser={{ siteHistoryHref, newVisitTarget, basePath: sitePagesBasePath() }}
+        lookCloser={{ siteHistoryHref, newVisitTarget, newVisitFrom, basePath: sitePagesBasePath() }}
       />
     </div>
   );

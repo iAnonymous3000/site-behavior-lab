@@ -233,6 +233,12 @@ export type NewVisitContext = {
    * it on the server and its explorer from the same view and freshness.
    */
   newVisitTarget: string | null;
+  /**
+   * The fresh result's share report id (reportNewVisitFrom), which the link
+   * names so the comparison it opens can link back to this result; null
+   * without one, and the link is then exactly the one it was.
+   */
+  newVisitFrom: string | null;
   /** The deployment's base path, which the scan form's address starts with. */
   basePath: string;
 };
@@ -248,7 +254,8 @@ export type FindingNewVisit = {
 /**
  * The card's new visit, or null when its branch offers none or the report
  * has no page to visit again. The link fills the scan form through the
- * fragment prefill, address and mode both, and the form submits nothing.
+ * fragment prefill, address and mode both, and names this result's share
+ * when it has one; the form submits nothing.
  */
 export function findingNewVisit(
   finding: Pick<Finding, "id" | "newVisit">,
@@ -256,7 +263,7 @@ export function findingNewVisit(
 ): FindingNewVisit | null {
   const key = finding.newVisit;
   if (!key || NEW_VISIT_CARD[key.variant] !== finding.id || !context.newVisitTarget) return null;
-  const prefill = scanPrefillHref(context.newVisitTarget, NEW_VISIT_MODE[key.variant]);
+  const prefill = scanPrefillHref(context.newVisitTarget, NEW_VISIT_MODE[key.variant], context.newVisitFrom);
   if (!prefill) return null;
   switch (key.variant) {
     case "blocker-comparison":

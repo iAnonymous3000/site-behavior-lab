@@ -115,7 +115,7 @@ test("Look closer views are built on the server or in the renderer chunk, never 
   holds(page, /<ReportPageSummary[\s\S]*?siteHistoryHref=\{siteHistoryHref\}[\s\S]*?\/>/, "the permalink hands it to its summary");
   holds(
     page,
-    /lookCloser=\{\{ siteHistoryHref, newVisitTarget, basePath: sitePagesBasePath\(\) \}\}/,
+    /lookCloser=\{\{ siteHistoryHref, newVisitTarget, newVisitFrom, basePath: sitePagesBasePath\(\) \}\}/,
     "the summary board renders the views and the new visits"
   );
   const client = read("app", "reports", "[id]", "saved-report-client.tsx");
@@ -124,7 +124,7 @@ test("Look closer views are built on the server or in the renderer chunk, never 
   holds(renderer, /<FindingsBoard [^>]*siteHistoryHref=\{siteHistoryHref\}/, "the explorer passes it to its board");
   holds(
     read("app", "_components", "report-overview.tsx"),
-    /const printComplete = usePrintComplete\(\);[\s\S]*?lookCloser=\{printComplete \? undefined : \{ siteHistoryHref, newVisitTarget, basePath: STATIC_BASE_PATH \}\}/,
+    /const printComplete = usePrintComplete\(\);[\s\S]*?lookCloser=\{printComplete \? undefined : \{ siteHistoryHref, newVisitTarget, newVisitFrom, basePath: STATIC_BASE_PATH \}\}/,
     "the explorer's board renders no view or new visit on paper"
   );
   // The fresh input reaches both boards: the permalink decides it once, from
@@ -139,6 +139,22 @@ test("Look closer views are built on the server or in the renderer chunk, never 
   holds(renderer, /const newVisitTarget = reportNewVisitTarget\(reportView, freshResult\);/, "the explorer builds its target from the freshness");
   holds(renderer, /<FindingsBoard [^>]*newVisitTarget=\{newVisitTarget\}/, "the explorer's board gets that target");
   holds(renderer, /freshResult = false/, "a renderer is not fresh unless told");
+  // The share a new visit's link names travels the same way: one function of
+  // the same view and the same freshness on every board, so the permalink's
+  // two boards name the same share and its client gains no prop.
+  assert.equal(page.match(/reportNewVisitFrom\(/g)?.length, 1, "the permalink names the share once");
+  holds(
+    page,
+    /const newVisitTarget = reportNewVisitTarget\(view, freshResult\);\s*const newVisitFrom = reportNewVisitFrom\(view, freshResult\);/,
+    "the permalink names its summary board's share from the same view and freshness"
+  );
+  holds(page, /<ReportPageSummary[\s\S]*?newVisitFrom=\{newVisitFrom\}[\s\S]*?\/>/, "the permalink hands the share to its summary");
+  never(client, /newVisitFrom|reportNewVisitFrom/, "the saved-report client carries the share a new visit names");
+  const clientProps = page.slice(page.indexOf("<SavedReportClient"), page.indexOf("context={", page.indexOf("<SavedReportClient")));
+  holds(clientProps, /freshResult=\{freshResult\}/, "the permalink's client props to be the ones read here");
+  never(clientProps, /newVisitFrom/, "the permalink hands its client the share a new visit names, a prop every committed page would serialize");
+  holds(renderer, /const newVisitFrom = reportNewVisitFrom\(reportView, freshResult\);/, "the explorer names the share from its own view and the freshness");
+  holds(renderer, /<FindingsBoard [^>]*newVisitFrom=\{newVisitFrom\}/, "the explorer's board gets that share");
   // On the homepage, only the result this tab's live scan returned is fresh.
   const app = read("app", "site-behavior-app.tsx");
   holds(app, /<LazyReportRenderer [^>]*freshResult=\{freshScanResult\}/, "the homepage hands its result's freshness to the explorer");
@@ -148,7 +164,7 @@ test("Look closer views are built on the server or in the renderer chunk, never 
   assert.equal(hook.match(/showLiveScanResult\(nextLoaded\)/g)?.length, 4, "submit, resume, restore and admission recovery show a live result");
   never(hook, /setLoaded\(nextLoaded\)/, "a live scan result reached the result region without being recorded as fresh");
   const print = read("app", "reports", "[id]", "print", "page.tsx");
-  never(print, /siteHistoryHref|lookCloser|freshResult|newVisitTarget/, "the printable route hands its board a Look closer input");
+  never(print, /siteHistoryHref|lookCloser|freshResult|newVisitTarget|newVisitFrom/, "the printable route hands its board a Look closer input");
   holds(print, /<ReportRenderer[\s\S]*?printComplete\s/, "the printable route renders its board for paper");
 });
 

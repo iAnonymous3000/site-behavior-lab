@@ -2418,16 +2418,19 @@ async function findBlockerFollowUpCandidate(manifest) {
  * report is not fresh; a file opened from disk offers none either. A fresh
  * result does: here the homepage's own scan, answered by this test with the
  * committed report's bytes (no scan runs, and health needs no browser
- * check). Its link fills the form with the front page the report requested
- * and Blocker, on screen, beside the result, and sends nothing more.
+ * check). Its link names the result's share, fills the form with the front
+ * page the report requested and Blocker, on screen, beside the result, and
+ * sends nothing more.
  */
 async function assertBlockerComparisonOnlyOnFreshResults(browser, baseUrl, manifest) {
   const { report, wire } = await findBlockerFollowUpCandidate(manifest);
   const reportJson = path.join(outDir, "reports", `${report.id}.json`);
   const requested = wire.baseline.subject.requested;
   if (requested.routeShape !== "/") fail(`report ${report.id} did not request a front page, so it cannot stand in for this check`);
+  // The stand-in result's share: the id its follow-up names.
+  if (wire.share?.id !== report.id) fail(`report ${report.id} carries no share of its own to name`);
   const target = `${requested.origin}/`;
-  const expectedHref = `${basePath}/#scan?url=${encodeURIComponent(target)}&mode=shields`;
+  const expectedHref = `${basePath}/#scan?url=${encodeURIComponent(target)}&mode=shields&from=${report.id}`;
   const followUp = (page) => page.locator('#finding-shields-blocked .finding-look-closer[data-look-closer="blocker-comparison"]');
   // Every link anywhere on the page that opens the scan form with a mode.
   const anyNewVisit = (page) => page.locator('a[href*="#scan?"][href*="mode="]');
@@ -2518,7 +2521,7 @@ async function assertBlockerComparisonOnlyOnFreshResults(browser, baseUrl, manif
     }
     await page.waitForTimeout(1_500);
     if (sent.length !== 1) fail(`following the follow-up sent ${sent.slice(1).join(", ")}`);
-    pass(`a fresh result of ${report.domain} offers Compare with blocking on, which fills the form with Blocker and sends nothing; its committed permalink, explorer and opened file offer none`);
+    pass(`a fresh result of ${report.domain} offers Compare with blocking on, naming its share, which fills the form with Blocker and sends nothing; its committed permalink, explorer and opened file offer none`);
   } finally {
     await context.close();
   }

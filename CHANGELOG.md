@@ -9,6 +9,17 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- "Compare with blocking on" now names the fresh result it is offered on:
+  its link is `/#scan?url=<page>&mode=shields&from=<share report id>`, the
+  id of that result's own share, the one its share permalink is addressed
+  by. A fresh result without a share, and every report that is not fresh,
+  names none, and its link is exactly the one it was; the label and the
+  sentence are unchanged. Both boards of a runtime share permalink and the
+  homepage's explorer read the id from the same view and the same freshness
+  as the page they visit again, through one function, so the permalink's
+  two boards name the same share and its client gains no prop. Committed
+  report pages are unchanged. The form fills the address and Blocker as
+  before and does not use the id yet.
 - A scan link that asks for a comparison can now also name the result it
   came from: `#scan?url=<address>&mode=shields&from=<share report id>`. The
   form accepts `from` only beside an address and a mode it accepts, and only

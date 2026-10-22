@@ -26,7 +26,7 @@ import { consentVerificationSummary } from "@/lib/report-consent-copy";
 import { buildReportHeadline } from "@/lib/report-headline";
 import { buildReportFacts, type RunFacts } from "@/lib/report-facts";
 import { parseEvidenceHash } from "@/lib/report-evidence-navigation";
-import { reportNewVisitTarget } from "@/lib/report-rescan-targets";
+import { reportNewVisitFrom, reportNewVisitTarget } from "@/lib/report-rescan-targets";
 import {
   displayableScreenshot,
   gpcRunMeasurement
@@ -105,6 +105,7 @@ export function ReportRenderer({
   );
   const { evidenceArm, findings } = useReportFindings(reportView, reportFacts, headline);
   const newVisitTarget = reportNewVisitTarget(reportView, freshResult);
+  const newVisitFrom = reportNewVisitFrom(reportView, freshResult);
   const benchmarkScope = findings.find((finding) => finding.id === "bottom-line")?.benchmarkScope;
   const primaryRun = reportFacts.display.run;
   const arms = comparisonArmViews(reportView);
@@ -231,7 +232,7 @@ export function ReportRenderer({
             liveApiServesReportPages={liveApiServesReportPages}
           />
           <FindingsBoard evidenceArm={evidenceArm} facts={reportFacts} findings={findings} siteHistoryHref={siteHistoryHref}
-            newVisitTarget={newVisitTarget} afterBottomLine={visitSummary} />
+            newVisitTarget={newVisitTarget} newVisitFrom={newVisitFrom} afterBottomLine={visitSummary} />
           {reportView.reportType === "comparison" && (
             <ComparisonPanel view={reportView} facts={reportFacts} />
           )}

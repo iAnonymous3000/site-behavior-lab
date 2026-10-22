@@ -283,7 +283,8 @@ export function FindingsBoard({
   findings,
   afterBottomLine,
   siteHistoryHref = null,
-  newVisitTarget = null
+  newVisitTarget = null,
+  newVisitFrom = null
 }: {
   evidenceArm: EvidenceArm | undefined;
   facts: ReportFacts;
@@ -294,6 +295,8 @@ export function FindingsBoard({
   siteHistoryHref?: string | null;
   /** The page a card's new visit would visit again: a fresh result's only (lib/report-rescan-targets.ts). */
   newVisitTarget?: string | null;
+  /** The share report id a new visit's link names: a fresh result's own, if it has one. */
+  newVisitFrom?: string | null;
 }) {
   // Look closer follow-ups are links to follow on screen. The printable route
   // and the PDF render none, so the paper document is the one it was before them.
@@ -305,7 +308,7 @@ export function FindingsBoard({
       automation={facts.display.run.conditions.automation}
       glossaryHref={staticAssetPath("/glossary/")}
       afterBottomLine={afterBottomLine}
-      lookCloser={printComplete ? undefined : { siteHistoryHref, newVisitTarget, basePath: STATIC_BASE_PATH }}
+      lookCloser={printComplete ? undefined : { siteHistoryHref, newVisitTarget, newVisitFrom, basePath: STATIC_BASE_PATH }}
     />
   );
 }

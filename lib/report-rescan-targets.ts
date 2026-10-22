@@ -55,6 +55,18 @@ export function reportNewVisitTarget(view: ReportView, fresh: boolean): string |
   return exactTarget ?? frontPageTarget;
 }
 
+/**
+ * The share report id a new visit's link carries (`from`), so the comparison
+ * it opens can link back to this result: a fresh result's own share, the one
+ * its permalink is addressed by. Null for a report that is not fresh or has
+ * no share; the link is then exactly the one it was. Both boards of a
+ * permalink, and the homepage's, read it from the same view and freshness as
+ * the page they visit again.
+ */
+export function reportNewVisitFrom(view: ReportView, fresh: boolean): string | null {
+  return fresh ? view.reportId ?? null : null;
+}
+
 function requestedFrontPage(view: ReportView, requestedUrl: string): string | null {
   // A requested URL carrying a privacy marker never names a page it can be
   // shown to be, a front page included.

@@ -78,10 +78,15 @@ export function FindingsList({
    * What each card's Look closer view and new visit need beyond the card
    * itself, or absent to render none, as the printable route does. A report
    * page builds the history target on the server and hands the same value to
-   * its explorer; the page a new visit would visit again is built on each
-   * board from the same view and the same freshness.
+   * its explorer; the page a new visit would visit again, and the share it
+   * names, are built on each board from the same view and the same freshness.
    */
-  lookCloser?: { siteHistoryHref: string | null; newVisitTarget: string | null; basePath: string };
+  lookCloser?: {
+    siteHistoryHref: string | null;
+    newVisitTarget: string | null;
+    newVisitFrom: string | null;
+    basePath: string;
+  };
 }) {
   const hasBottomLine = findings.some((finding) => finding.id === "bottom-line");
   return (
@@ -109,7 +114,11 @@ export function FindingsList({
           const followUp =
             view ??
             (lookCloser
-              ? findingNewVisit(finding, { newVisitTarget: lookCloser.newVisitTarget, basePath: lookCloser.basePath })
+              ? findingNewVisit(finding, {
+                  newVisitTarget: lookCloser.newVisitTarget,
+                  newVisitFrom: lookCloser.newVisitFrom,
+                  basePath: lookCloser.basePath
+                })
               : null);
           const viewSentenceId = `${findingCardDomId(finding.id)}-look-closer`;
           // The id is the target of the visit summary's "What this visit

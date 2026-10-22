@@ -2,12 +2,14 @@ import assert from "node:assert/strict";
 import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { test } from "node:test";
-import { reportNewVisitTarget, reportRescanTargets } from "./report-rescan-targets";
+import { readLoadedReport } from "./client-report-reader";
+import { buildReportShare } from "./report-locator";
+import { reportNewVisitFrom, reportNewVisitTarget, reportRescanTargets } from "./report-rescan-targets";
 import { reportActivation } from "./report-trust";
 import { scanPrefillHref } from "./scan-prefill";
 import { readStoredScanReport } from "./scan-report-reader";
 import { makePublicSingleReportV2R2 } from "./scan-report-v2-r2-fixtures";
-import { makeScanReportV1 } from "./scan-report-v2-fixtures";
+import { makeEphemeralSingleReport, makeScanReportV1 } from "./scan-report-v2-fixtures";
 import { toReportView, viewFromV1Report, type ReportView } from "./scan-report-views";
 import type { ScanResult } from "./types";
 
@@ -62,6 +64,32 @@ test("only a fresh report has a page to visit again", () => {
     assert.equal(reportNewVisitTarget(view, false), null, "a committed report, an opened file or an archive comparison");
     assert.notEqual(reportNewVisitTarget(view, true), null);
   }
+});
+
+test("a new visit's link names a fresh result's own share, read from the view every board builds from", async () => {
+  const shareId = "20261022-0123456789abcdef0123456789abcdef";
+  const share = buildReportShare(shareId);
+  // The homepage's immediate result in each generation a scanner returns, and
+  // the stored report a runtime share permalink reads, carry the share's id
+  // into the view, which is what the explorer and the permalink's server
+  // board build the link from.
+  for (const [payload, kind] of [
+    [{ ...makePublicSingleReportV2R2(), share, ephemeral: { screenshot: null } }, "an r2 immediate result"],
+    [{ ...makeEphemeralSingleReport(), share, ephemeral: { screenshot: null } }, "an r1 immediate result"],
+    [{ ...makeScanReportV1(), share }, "a legacy result"],
+    [{ ...makePublicSingleReportV2R2(), share }, "a stored r2 share"]
+  ] as const) {
+    const read = await readLoadedReport(JSON.parse(JSON.stringify(payload)), "This report");
+    assert.equal(read.ok, true, kind);
+    if (!read.ok) continue;
+    assert.equal(reportNewVisitFrom(read.loaded.view, true), shareId, kind);
+    // A committed report, an opened file and an archive comparison name none.
+    assert.equal(reportNewVisitFrom(read.loaded.view, false), null, kind);
+  }
+  // A fresh result without a share names none, so its link is the one it was.
+  const unshared = await readLoadedReport({ ...makePublicSingleReportV2R2(), ephemeral: { screenshot: null } }, "This report");
+  assert.equal(unshared.ok, true);
+  if (unshared.ok) assert.equal(reportNewVisitFrom(unshared.loaded.view, true), null);
 });
 
 test("without a replayable route, a new visit needs a report that requested a front page (G4)", () => {
