@@ -15,6 +15,7 @@ import {
 import { corpusCohortIdentityForView } from "./corpus-cohort";
 import { loadCommittedCorpusStats } from "./current-scan-cohort";
 import {
+  EARLIER_RESULT_LINK,
   findingLookCloser,
   findingNewVisit,
   LOOK_CLOSER_CARD,
@@ -1799,6 +1800,32 @@ test("the Blocker comparison is keyed by its card and branch, never by level, an
   const module = readFileSync(path.join(process.cwd(), "lib", "finding-look-closer.ts"), "utf8");
   assert.ok(!/scanPrefillHref\([^)]*"(?:gpc|consent)"/.test(module), "a new visit must not mint a GPC or consent link");
   assert.ok(!/\bhonou?rs?\b|\bignores?\b|\bcompl(?:y|ies)\b|\bproves?\b/i.test(module.slice(module.indexOf("export type NewVisitKey"))), "a new visit's copy must not read as a verdict");
+});
+
+test("a connected comparison's link back to the earlier result says only that the visits differ", () => {
+  const { label, sentence } = EARLIER_RESULT_LINK;
+  const at = "the earlier-result line";
+  // A short link, then one sentence within the card limit, held to the
+  // card guard's own splitter.
+  assert.match(label, /^[A-Z][a-z]+ \S/, `${at}: the label is not an imperative: ${label}`);
+  assert.ok((label.match(/\S+/g) ?? []).length <= LOOK_CLOSER_LABEL_WORDS, `${at}: label over five words: ${label}`);
+  assert.doesNotMatch(label, /[.!?;:]$/, `${at}: the label is a phrase, not a sentence`);
+  assert.equal(sentence.split(/(?<=[.!?])\s+(?=[A-Z"(])/).length, 1, `${at}: more than one sentence: ${sentence}`);
+  assertTextSentencesAtMost(at, sentence, MAX_CARD_SENTENCE_WORDS);
+  // It says the pair cannot speak for the earlier card, and nothing else
+  // about it: no verdict, no difference, no count, title or level, and it
+  // never promises the link still works.
+  assert.match(sentence, /different visits, so this pair can neither confirm nor refute what the earlier card showed\.$/, `${at}: ${sentence}`);
+  for (const text of [label, sentence]) {
+    assert.doesNotMatch(text, LOOK_CLOSER_VERDICT_WORDS, `${at}: a verdict word: ${text}`);
+    assert.doesNotMatch(text, LOOK_CLOSER_DASHES, `${at}: a dash: ${text}`);
+    assert.doesNotMatch(text, /\d/, `${at}: a number: ${text}`);
+    assert.doesNotMatch(text, /\b(?:differ(?:ence|ent)? (?:of|from|by)|more|fewer|less|matched|blocked|still|available|kept)\b/i, `${at}: says more than that the visits differ: ${text}`);
+    for (const level of Object.values(REPORT_SEVERITY_LABELS)) {
+      assert.ok(!text.toLowerCase().includes(level.toLowerCase()), `${at}: names a level (${level}): ${text}`);
+    }
+  }
+  assertNoPrivacyTokens(at, [label, sentence]);
 });
 
 test("a v2 view is never benchmarked against the v1-only corpus", () => {

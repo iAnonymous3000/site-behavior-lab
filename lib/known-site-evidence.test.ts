@@ -4,6 +4,7 @@ import path from "node:path";
 import { test } from "node:test";
 import type { HomepageKnownSite } from "./homepage-discovery";
 import {
+  connectedEarlierResult,
   isScanAgainArrival,
   knownEvidenceDifference,
   knownEvidenceReport,
@@ -186,6 +187,50 @@ test("an arrival from the site's own Scan again link keeps the usual button unti
   assert.equal(leads(false, true, true), false);
 });
 
+test("a follow-up's earlier result stays connected only while the field and the comparison are the link's", () => {
+  const prefilledUrl = "https://www.webmd.com/";
+  const earlier = "20261022-0123456789abcdef0123456789abcdef";
+  const none = { gpc: false, shields: false, consent: false };
+  const connected = (overrides: Partial<Parameters<typeof connectedEarlierResult>[0]> = {}) =>
+    connectedEarlierResult({
+      prefilledUrl,
+      prefilledMode: "shields",
+      prefilledFrom: earlier,
+      fieldValue: prefilledUrl,
+      requested: { ...none, shields: true },
+      ...overrides
+    });
+  // The arrival as the link set it: the address, and its comparison alone.
+  assert.equal(connected(), earlier);
+  for (const mode of ["gpc", "shields", "consent"] as const) {
+    assert.equal(connected({ prefilledMode: mode, requested: { ...none, [mode]: true } }), earlier, mode);
+  }
+  // Any edit to the address ends it, however small.
+  for (const fieldValue of ["https://www.webmd.com/x", "https://www.webmd.com", "https://webmd.com/", ` ${prefilledUrl}`, `${prefilledUrl} `, ""]) {
+    assert.equal(connected({ fieldValue }), null, JSON.stringify(fieldValue));
+  }
+  // So does any change of mode: Single (also what shows while health is
+  // pending, or after the Single fallback), another comparison, or two,
+  // whichever of them is listed first.
+  for (const requested of [
+    none,
+    { ...none, gpc: true },
+    { ...none, consent: true },
+    { ...none, shields: true, gpc: true },
+    { ...none, shields: true, consent: true }
+  ]) {
+    assert.equal(connected({ requested }), null, JSON.stringify(requested));
+  }
+  // The rule is derived, as the arrival's is: putting the address and the
+  // comparison back as the link set them restores it, since the scan would
+  // again be the very comparison the link opened.
+  assert.equal(connected({ fieldValue: prefilledUrl, requested: { ...none, shields: true } }), earlier);
+  // A link that named no earlier result, and typing, connect nothing.
+  assert.equal(connected({ prefilledFrom: null }), null);
+  assert.equal(connected({ prefilledUrl: null, prefilledMode: null, prefilledFrom: null }), null);
+  assert.equal(connected({ prefilledUrl: null }), null);
+});
+
 test("the note says which page the evidence is for, never the typed one", () => {
   const webmd = "https://www.webmd.com/";
   const forWebmd = "This evidence is for https://www.webmd.com/.";
@@ -274,12 +319,40 @@ test("the form wires the note, the one submit button and the arrival as the copy
   const hook = source("app/_hooks/use-scan-runtime.ts");
   holds(hook, /if \(navigation\.targetUrl\) \{\s*setForm\(\(current\) => \(\{ \.\.\.current, url: navigation\.targetUrl \?\? current\.url \}\)\);\s*setPrefilledUrl\(navigation\.targetUrl\);/, "the hook records the address a prefill put in the field");
   // The mode a link asked for is kept for the arrival and held, beside the
-  // target the form accepted, and a target-only link clears both.
+  // target the form accepted, and so is the earlier result it named; a
+  // target-only link clears all three.
   holds(
     hook,
-    /setPrefilledUrl\(navigation\.targetUrl\);(?:\s*\/\/[^\n]*)*\s*setPrefilledMode\(navigation\.mode\);\s*setHeldMode\(navigation\.mode\);\s*\}/,
-    "the hook keeps and holds the mode a prefill asked for, inside the accepted-target branch"
+    /setPrefilledUrl\(navigation\.targetUrl\);(?:\s*\/\/[^\n]*)*\s*setPrefilledMode\(navigation\.mode\);\s*setHeldMode\(navigation\.mode\);\s*setPrefilledFrom\(navigation\.from\);\s*\}/,
+    "the hook keeps and holds the mode a prefill asked for, and keeps the earlier result it named, inside the accepted-target branch"
   );
+  // A scan records its connection once it is claimed, through the tested
+  // rule, from the field and the comparisons its request asks for; the
+  // request reads the same flags, and the form's state never holds the id.
+  holds(
+    hook,
+    /const operation = operationOwnerRef\.current\.claim\("submit"\);\s*if \(operation === null\) return;(?:\s*\/\/[^\n]*)*\s*startedScanEarlierResultRef\.current = connectedEarlierResult\(\{\s*prefilledUrl,\s*prefilledMode,\s*prefilledFrom,\s*fieldValue: form\.url,\s*requested: \{\s*gpc: policy\.gpcComparisonEnabled && form\.compareGpc,\s*shields: policy\.shieldsComparisonEnabled && form\.compareShields,\s*consent: policy\.consentComparisonEnabled && form\.compareConsent\s*\}\s*\}\);/,
+    "the hook records a claimed scan's connection from the field and the comparisons it requests"
+  );
+  assert.equal(hook.match(/startedScanEarlierResultRef\.current = /g)?.length, 1, "expected only a claimed scan to record a connection");
+  holds(
+    source("lib/scan-client-orchestration.ts"),
+    /compareGpc: options\.gpcComparisonEnabled && options\.form\.compareGpc,\s*compareShields: options\.shieldsComparisonEnabled && options\.form\.compareShields,\s*compareConsent: options\.consentComparisonEnabled && options\.form\.compareConsent,/,
+    "the scan request to ask for exactly the comparisons the connection reads"
+  );
+  holds(
+    controls,
+    /export type ScanFormState = \{\s*url: string;\s*device: ScanDevice;\s*gpcEnabled: boolean;\s*compareGpc: boolean;\s*compareShields: boolean;\s*compareConsent: boolean;\s*accessKey: string;\s*\};/,
+    "the form's state to carry no earlier result"
+  );
+  // The result a connected scan shows carries the id, and only while it is shown.
+  holds(hook, /setLiveScan\(\{ result: next, earlierResultId: startedScanEarlierResultRef\.current \}\);/, "a live result to carry its scan's connection");
+  holds(
+    hook,
+    /earlierResultId: liveScan !== null && loaded === liveScan\.result \? liveScan\.earlierResultId : null,/,
+    "the earlier result to reach the page only while the connected scan's own result is shown"
+  );
+  holds(source("app/site-behavior-app.tsx"), /<LazyReportRenderer [^>]*earlierResultId=\{earlierResultId\}/, "the app hands its result's connection to the renderer");
   // Held until health answers, through the one decision the unit tests pin,
   // then the form's comparison flags, and nothing else.
   const held = hook.slice(hook.indexOf("if (heldMode === null) return;"), hook.indexOf("function resetTurnstileAfterLifecycleOperation"));

@@ -41,6 +41,10 @@ const FIXTURE_BODY = `<body>
       <div class="report-actions" id="reportactions"><button type="button">Download CSV</button></div>
       <div class="headline-actions" id="headlineactions"><button type="button">Share</button></div>
       <div class="report-identity-actions" id="activationactions"><a href="#">Scan again</a></div>
+      <div class="earlier-result-note" id="earlierresult">
+        <a class="earlier-result-link" href="/reports/20261022-0123456789abcdef0123456789abcdef">Open the earlier result</a>
+        <p>This comparison and the earlier result are different visits.</p>
+      </div>
       <article class="finding-card tile-warn">
         <div><h3>Third-party cookies were present</h3><p id="findinglead">12 third-party cookies showed up during the visit.</p>
           <div class="finding-look-closer" id="lookcloser">
@@ -124,6 +128,7 @@ const PROBED_IDS = [
   "reportactions",
   "headlineactions",
   "activationactions",
+  "earlierresult",
   "findinglead",
   "lookcloser",
   "loader",
@@ -229,6 +234,9 @@ test("controls and screen-reader scaffolding stay off paper", () => {
   // A view opens rows, a card or a history page on screen; paper can follow
   // none of them, and the printable route renders none.
   assert.equal(visible.lookcloser, false, "a findings card's Look closer view is navigation, not evidence");
+  // The homepage prints its result region too; the link back to an earlier
+  // result is a link to follow, and it is never part of a report.
+  assert.equal(visible.earlierresult, false, "a homepage result's link back to the earlier result is navigation, not evidence");
   assert.equal(visible.tools, false, "filter tooling is not evidence");
   assert.equal(visible.chips, false, "request signal filter chips are not evidence");
   assert.equal(visible.filter, false, "a search box is not evidence");

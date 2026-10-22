@@ -22,10 +22,12 @@ import { VisitPhasesAndStateChanges } from "./visit-phases-and-state-changes";
 import { shareForLoadedReport } from "@/lib/client-report-reader";
 import { consentChoiceLabel } from "@/lib/consent-interaction";
 import { requestLogRecordingState, requestLogToCsv } from "@/lib/csv-export";
+import { EARLIER_RESULT_LINK } from "@/lib/finding-look-closer";
 import { consentVerificationSummary } from "@/lib/report-consent-copy";
 import { buildReportHeadline } from "@/lib/report-headline";
 import { buildReportFacts, type RunFacts } from "@/lib/report-facts";
 import { parseEvidenceHash } from "@/lib/report-evidence-navigation";
+import { locateReport } from "@/lib/report-locator";
 import { reportNewVisitFrom, reportNewVisitTarget } from "@/lib/report-rescan-targets";
 import {
   displayableScreenshot,
@@ -58,7 +60,8 @@ export function ReportRenderer({
   printGuide,
   visitSummary,
   siteHistoryHref = null,
-  freshResult = false
+  freshResult = false,
+  earlierResultId = null
 }: {
   loaded: LoadedReport;
   liveApiServesReportPages: boolean;
@@ -91,6 +94,14 @@ export function ReportRenderer({
    * leave it false.
    */
   freshResult?: boolean;
+  /**
+   * The share report id of the earlier result whose new visit opened this
+   * scan, handed over by the homepage for its own result of a scan that
+   * started with that link's arrival intact (app/_hooks/use-scan-runtime.ts),
+   * and only while that result is shown. A permalink, its explorer and the
+   * printable route pass none.
+   */
+  earlierResultId?: string | null;
 }) {
   useEffect(() => {
     if (!printComplete) return;
@@ -106,6 +117,13 @@ export function ReportRenderer({
   const { evidenceArm, findings } = useReportFindings(reportView, reportFacts, headline);
   const newVisitTarget = reportNewVisitTarget(reportView, freshResult);
   const newVisitFrom = reportNewVisitFrom(reportView, freshResult);
+  // The earlier result was a fresh one, so its share lives wherever this
+  // runtime reaches a freshly produced report: this origin on the Node app,
+  // the scan API's own origin behind a static build. Where that API serves
+  // no report pages there is nothing to link to, and nothing shows.
+  const earlierResultHref = earlierResultId
+    ? locateReport(earlierResultId, { ...clientReportRuntime(), liveApiServesReportPages }).pagePath
+    : null;
   const benchmarkScope = findings.find((finding) => finding.id === "bottom-line")?.benchmarkScope;
   const primaryRun = reportFacts.display.run;
   const arms = comparisonArmViews(reportView);
@@ -226,6 +244,17 @@ export function ReportRenderer({
             pdfExportQuery={pdfExportQuery}
           />
           {exportError && <p role="alert" className="export-error">{exportError}</p>}
+          {/* Where this comparison came from, beside the report's identity and
+              outside its verdict: a link back to the earlier result and why
+              this pair cannot speak for the card that offered it. */}
+          {earlierResultHref && (
+            <div className="earlier-result-note">
+              <a className="earlier-result-link" href={earlierResultHref} aria-describedby="earlier-result-sentence">
+                {EARLIER_RESULT_LINK.label}
+              </a>
+              <p id="earlier-result-sentence">{EARLIER_RESULT_LINK.sentence}</p>
+            </div>
+          )}
           <HeadlineBanner
             share={shareForLoadedReport(loaded)}
             headline={headline}

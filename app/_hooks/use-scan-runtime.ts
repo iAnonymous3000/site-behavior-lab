@@ -11,6 +11,7 @@ import {
   STATIC_LIVE_SCAN_ENABLED,
   scannerApiUrl
 } from "../client-runtime";
+import { connectedEarlierResult } from "@/lib/known-site-evidence";
 import type { ComparisonRunMode } from "@/lib/run-mode-copy";
 import { heldRunModeOutcome, normalizeScanUrl, resolveScanPrefillNavigation } from "@/lib/scan-prefill";
 import {
@@ -83,10 +84,15 @@ export function useScanRuntime({
 }: UseScanRuntimeOptions) {
   const [form, setForm] = useState<ScanFormState>(INITIAL_SCAN_FORM);
   const [loaded, setLoaded] = useState<LoadedReport | null>(initialLoaded);
-  // The report this tab's own live scan returned. A file the visitor opens and
-  // a comparison built in the archive replace `loaded` too, so the result is
-  // fresh only while it is still this very object.
-  const [liveScanResult, setLiveScanResult] = useState<LoadedReport | null>(null);
+  // The report this tab's own live scan returned, and the earlier result that
+  // scan was connected to, if any. A file the visitor opens and a comparison
+  // built in the archive replace `loaded` too, so the result is fresh, and
+  // links back, only while it is still this very object.
+  const [liveScan, setLiveScan] = useState<{ result: LoadedReport; earlierResultId: string | null } | null>(null);
+  // The earlier result the scan this tab started last was connected to, set
+  // once that scan is claimed and read by whichever path shows its result in
+  // this page load. A scan restored from an earlier page load carries none.
+  const startedScanEarlierResultRef = useRef<string | null>(null);
   const [error, setError] = useState<string | null>(initialError);
   const [loading, setLoading] = useState(initialLoading);
   const [scanning, setScanning] = useState(false);
@@ -123,6 +129,10 @@ export function useScanRuntime({
   // until the scanner's health says whether it is offered.
   const [prefilledMode, setPrefilledMode] = useState<ComparisonRunMode | null>(null);
   const [heldMode, setHeldMode] = useState<ComparisonRunMode | null>(null);
+  // The share report id of the result whose follow-up minted that link, kept
+  // for the arrival beside the address and the mode. It never enters the form
+  // state or the scan request.
+  const [prefilledFrom, setPrefilledFrom] = useState<string | null>(null);
 
   useEffect(() => {
     if (reportPage) return;
@@ -155,9 +165,11 @@ export function useScanRuntime({
         setForm((current) => ({ ...current, url: navigation.targetUrl ?? current.url }));
         setPrefilledUrl(navigation.targetUrl);
         // A link with only a target leaves the run control as it is, and
-        // drops any mode an earlier link asked for and the form still holds.
+        // drops any mode an earlier link asked for and the form still holds,
+        // and any earlier result it named.
         setPrefilledMode(navigation.mode);
         setHeldMode(navigation.mode);
+        setPrefilledFrom(navigation.from);
       }
       if (navigation.scrollToScan) document.getElementById("scan")?.scrollIntoView();
     };
@@ -440,7 +452,7 @@ export function useScanRuntime({
   /** Every path that ends a live scan of this tab (submit, resume, restore, admission recovery) shows its result here. */
   function showLiveScanResult(next: LoadedReport): void {
     setLoaded(next);
-    setLiveScanResult(next);
+    setLiveScan({ result: next, earlierResultId: startedScanEarlierResultRef.current });
   }
 
   function releaseActiveScanSession(operation: ScanLifecycleOperation): void {
@@ -641,6 +653,21 @@ export function useScanRuntime({
 
     const operation = operationOwnerRef.current.claim("submit");
     if (operation === null) return;
+    // Whether this scan starts with a follow-up's connection intact: the
+    // field and the comparison the request asks for are still the ones that
+    // link set. Only a claimed scan records it, so a refused submit never
+    // overwrites the connection of a scan this tab is still waiting on.
+    startedScanEarlierResultRef.current = connectedEarlierResult({
+      prefilledUrl,
+      prefilledMode,
+      prefilledFrom,
+      fieldValue: form.url,
+      requested: {
+        gpc: policy.gpcComparisonEnabled && form.compareGpc,
+        shields: policy.shieldsComparisonEnabled && form.compareShields,
+        consent: policy.consentComparisonEnabled && form.compareConsent
+      }
+    });
     const pendingForSubmission = pendingScanAdmissionRef.current;
     setLoading(true);
     setScanning(true);
@@ -925,7 +952,9 @@ export function useScanRuntime({
     loaded,
     setLoaded,
     // Fresh while the result shown is the one this tab's live scan returned.
-    freshScanResult: loaded !== null && loaded === liveScanResult,
+    freshScanResult: liveScan !== null && loaded === liveScan.result,
+    // The earlier result that scan was connected to, only while it is shown.
+    earlierResultId: liveScan !== null && loaded === liveScan.result ? liveScan.earlierResultId : null,
     error,
     setError,
     loading,

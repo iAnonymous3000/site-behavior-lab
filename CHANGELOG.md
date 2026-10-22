@@ -9,6 +9,28 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- The comparison that "Compare with blocking on" opens now links back to
+  the result it came from. The form keeps the earlier result's id while the
+  field still holds exactly the address the link put there and the one
+  comparison selected is the mode it asked for, the arrival rule the form
+  already uses; editing the address or changing the mode ends it, and
+  putting both back as the link set them restores it. A scan that starts
+  with the connection intact carries it to its result in this tab only, by
+  whichever path shows that result in this page load; a reload, another tab,
+  an opened file and the scan request itself never carry it, and the form's
+  state never holds it. That result, on the homepage only, shows "Open the
+  earlier result", a link to the earlier result's share permalink, with one
+  sentence: "This comparison and the earlier result are different visits,
+  so this pair can neither confirm nor refute what the earlier card
+  showed." It sits under the result's header, ahead of its headline, and
+  says nothing about the earlier card's numbers, title or level. The link
+  resolves as any freshly produced report's share does, on the scan API's
+  own origin behind a static build, and nothing shows where that API serves
+  no report pages. It renders in the explorer's lazy chunk, never on a
+  report page or the printable route, and the print stylesheet hides it.
+  Nothing in any saved report, report identity, index, social card or
+  permalink changes, so a share permalink of the new comparison shows no
+  link back.
 - "Compare with blocking on" now names the fresh result it is offered on:
   its link is `/#scan?url=<page>&mode=shields&from=<share report id>`, the
   id of that result's own share, the one its share permalink is addressed

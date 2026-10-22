@@ -159,13 +159,30 @@ test("Look closer views are built on the server or in the renderer chunk, never 
   const app = read("app", "site-behavior-app.tsx");
   holds(app, /<LazyReportRenderer [^>]*freshResult=\{freshScanResult\}/, "the homepage hands its result's freshness to the explorer");
   const hook = read("app", "_hooks", "use-scan-runtime.ts");
-  holds(hook, /freshScanResult: loaded !== null && loaded === liveScanResult/, "freshness is the live scan's own result, by identity");
-  assert.equal(hook.match(/setLiveScanResult\(/g)?.length, 1, "only showLiveScanResult records a live result");
+  holds(hook, /freshScanResult: liveScan !== null && loaded === liveScan\.result,/, "freshness is the live scan's own result, by identity");
+  assert.equal(hook.match(/setLiveScan\(/g)?.length, 1, "only showLiveScanResult records a live result");
   assert.equal(hook.match(/showLiveScanResult\(nextLoaded\)/g)?.length, 4, "submit, resume, restore and admission recovery show a live result");
   never(hook, /setLoaded\(nextLoaded\)/, "a live scan result reached the result region without being recorded as fresh");
   const print = read("app", "reports", "[id]", "print", "page.tsx");
-  never(print, /siteHistoryHref|lookCloser|freshResult|newVisitTarget|newVisitFrom/, "the printable route hands its board a Look closer input");
+  never(print, /siteHistoryHref|lookCloser|freshResult|newVisitTarget|newVisitFrom|earlierResultId/, "the printable route hands its board a Look closer input");
   holds(print, /<ReportRenderer[\s\S]*?printComplete\s/, "the printable route renders its board for paper");
+  // The link back to an earlier result: the homepage hands its connected
+  // result's id to the renderer, the only place it renders, and resolves it
+  // as a freshly produced report's share; a permalink, its client and the
+  // printable route hand none, and nothing else renders the line.
+  holds(renderer, /earlierResultId = null/, "a renderer links back to nothing unless told");
+  holds(
+    renderer,
+    /const earlierResultHref = earlierResultId\s*\? locateReport\(earlierResultId, \{ \.\.\.clientReportRuntime\(\), liveApiServesReportPages \}\)\.pagePath\s*: null;/,
+    "the back-link resolves as a freshly produced report's share permalink"
+  );
+  holds(renderer, /\{earlierResultHref && \(\s*<div className="earlier-result-note">/, "the line renders only with a share to link to");
+  for (const [source, where] of [[page, "the permalink"], [client, "the saved-report client"]] as const) {
+    never(source, /earlierResultId|earlier-result/, `${where} hands its explorer an earlier result`);
+  }
+  for (const parts of [["app", "site-behavior-app.tsx"], ["app", "_hooks", "use-scan-runtime.ts"], ["app", "_components", "findings-list.tsx"]]) {
+    never(read(...parts), /earlier-result-note|EARLIER_RESULT_LINK/, `${parts.join("/")} renders the back-link line`);
+  }
 });
 
 test("the scan form's known-site note reads no retention default and keeps its imports light", () => {

@@ -46,6 +46,29 @@ export function isScanAgainArrival(prefilledUrl: string | null, fieldValue: stri
 }
 
 /**
+ * The earlier result a follow-up's scan link named (`from`), for as long as
+ * that arrival lasts by the rule above: the field still holds exactly the
+ * address the link put there, and the one comparison the scan would ask for
+ * is the mode the link asked for. Editing the address or changing the mode
+ * ends it, and putting both back as the link set them restores it, since
+ * the scan would again be the very comparison the link opened. A scan that
+ * starts while it holds carries the id to its result; otherwise null, as it
+ * is for a link that named no earlier result.
+ */
+export function connectedEarlierResult(input: {
+  prefilledUrl: string | null;
+  prefilledMode: ComparisonRunMode | null;
+  prefilledFrom: string | null;
+  fieldValue: string;
+  /** Each comparison the scan request would ask for: offered and selected. */
+  requested: Readonly<Record<ComparisonRunMode, boolean>>;
+}): string | null {
+  if (!isScanAgainArrival(input.prefilledUrl, input.fieldValue)) return null;
+  const requested = (Object.keys(input.requested) as ComparisonRunMode[]).filter((mode) => input.requested[mode]);
+  return requested.length === 1 && requested[0] === input.prefilledMode ? input.prefilledFrom : null;
+}
+
+/**
  * Whether the form leads with the existing report: a site matched, the visitor
  * did not ask to scan again, and no scan is loading or retained. While one is,
  * the submit button is exactly the usual one.

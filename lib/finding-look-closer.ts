@@ -276,3 +276,20 @@ export function findingNewVisit(
       };
   }
 }
+
+/**
+ * What the homepage result of a scan a new visit opened shows, when that
+ * scan started with the link's arrival intact (owner's approval,
+ * 2026-10-22): a link to the earlier result's share permalink and one
+ * sentence saying this pair cannot speak for the card that offered it. The
+ * id is only what the scan link named, and that share may have expired
+ * since, so the copy asserts nothing about the earlier report: never a
+ * verdict or a difference, never its numbers, title or level. It lives on
+ * that page alone: never in a saved report or on a share permalink, and
+ * never on paper.
+ */
+export const EARLIER_RESULT_LINK = {
+  label: "Open the earlier result",
+  sentence:
+    "This comparison and the earlier result are different visits, so this pair can neither confirm nor refute what the earlier card showed."
+} as const;

@@ -1883,6 +1883,9 @@ async function assertLookCloserMarkup(manifest) {
     if (reportPage.includes('data-look-closer="blocker-comparison"') || /href="[^"]*#scan\?[^"]*mode=/.test(reportPage)) {
       fail(`committed report ${report.id} offers a new visit`);
     }
+    // The link back to an earlier result lives on the homepage's connected
+    // result alone, never on a report page.
+    if (reportPage.includes('class="earlier-result-note"')) fail(`committed report ${report.id} links back to an earlier result`);
     for (const [, cardId, body] of cards) {
       const views = [...body.matchAll(/<div class="finding-look-closer" data-look-closer="([a-z-]+)">([\s\S]*?)<\/div>/g)];
       if (views.length === 0) continue;
@@ -2420,11 +2423,26 @@ async function findBlockerFollowUpCandidate(manifest) {
  * committed report's bytes (no scan runs, and health needs no browser
  * check). Its link names the result's share, fills the form with the front
  * page the report requested and Blocker, on screen, beside the result, and
- * sends nothing more.
+ * sends nothing more. Pressing Compare then runs that comparison, answered
+ * with the site's newest committed Blocker comparison: its result links back
+ * to the earlier result's share, with the sentence that this pair cannot
+ * speak for that card, and the request carries no id. The first scan, typed,
+ * and a comparison run after the address is edited show no such line.
  */
 async function assertBlockerComparisonOnlyOnFreshResults(browser, baseUrl, manifest) {
   const { report, wire } = await findBlockerFollowUpCandidate(manifest);
   const reportJson = path.join(outDir, "reports", `${report.id}.json`);
+  // What the comparison the follow-up opens is answered with, as a live
+  // scanner would answer it: the site's newest committed Blocker comparison.
+  // Every site a fresh result like this stands in for holds newer Blocker
+  // comparisons, which is why no committed page offers the follow-up.
+  const blocker = manifest.reports.find((entry) => entry.comparisonType === "shields" && entry.domain === report.domain);
+  if (!blocker) fail(`no committed Blocker comparison of ${report.domain} to answer the comparison its follow-up opens`);
+  const blockerJson = path.join(outDir, "reports", `${blocker.id}.json`);
+  const earlierResultHref = `${liveScanApiBase}/reports/${report.id}`;
+  const earlierResultSentence =
+    "This comparison and the earlier result are different visits, so this pair can neither confirm nor refute what the earlier card showed.";
+  const backLink = (page) => page.locator(".earlier-result-note");
   const requested = wire.baseline.subject.requested;
   if (requested.routeShape !== "/") fail(`report ${report.id} did not request a front page, so it cannot stand in for this check`);
   // The stand-in result's share: the id its follow-up names.
@@ -2467,8 +2485,16 @@ async function assertBlockerComparisonOnlyOnFreshResults(browser, baseUrl, manif
     }
     sent.push(`${request.method()} ${pathname}`);
     if (request.method() === "POST" && pathname === "/api/scan") {
-      scanBodies.push(request.postData() ?? "");
-      return route.fulfill({ status: 200, contentType: "application/json", headers: cors, body: await readFile(reportJson, "utf8") });
+      const body = request.postData() ?? "";
+      scanBodies.push(body);
+      let comparesBlocker = false;
+      try {
+        comparesBlocker = JSON.parse(body).compareShields === true;
+      } catch {
+        /* an unreadable body gets the first answer, and the checks below say why */
+      }
+      return route.fulfill({ status: 200, contentType: "application/json", headers: cors,
+        body: await readFile(comparesBlocker ? blockerJson : reportJson, "utf8") });
     }
     return route.abort();
   });
@@ -2488,6 +2514,8 @@ async function assertBlockerComparisonOnlyOnFreshResults(browser, baseUrl, manif
     await page.locator('.scan-panel button[type="submit"]').click();
     await followUp(page).waitFor({ timeout: 30_000 });
     if (sent.length !== 1 || scanBodies.length !== 1) fail(`the scan sent ${sent.join(", ")}`);
+    // A scan typed into the form came from no earlier result.
+    if ((await backLink(page).count()) !== 0) fail("a typed scan's result links back to an earlier result");
     const link = followUp(page).locator(".finding-look-closer-link");
     if ((await link.textContent())?.trim() !== "Compare with blocking on") fail("the fresh result's follow-up lost its label");
     if ((await link.getAttribute("href")) !== expectedHref) fail(`the fresh result's follow-up links ${await link.getAttribute("href")}, not ${expectedHref}`);
@@ -2522,6 +2550,80 @@ async function assertBlockerComparisonOnlyOnFreshResults(browser, baseUrl, manif
     await page.waitForTimeout(1_500);
     if (sent.length !== 1) fail(`following the follow-up sent ${sent.slice(1).join(", ")}`);
     pass(`a fresh result of ${report.domain} offers Compare with blocking on, naming its share, which fills the form with Blocker and sends nothing; its committed permalink, explorer and opened file offer none`);
+
+    // Pressing Compare runs the comparison the link opened, its arrival
+    // intact. The request names no earlier result: the id stays in the tab.
+    await page.locator('.scan-panel button[type="submit"]').click();
+    try {
+      await backLink(page).waitFor({ timeout: 30_000 });
+    } catch {
+      fail("the comparison the follow-up opened does not link back to the earlier result");
+    }
+    if (sent.length !== 2 || scanBodies.length !== 2) fail(`the comparison sent ${sent.slice(1).join(", ")}`);
+    const comparison = JSON.parse(scanBodies[1]);
+    if (comparison.url !== target || comparison.compareShields !== true || comparison.compareGpc !== false) {
+      fail(`the comparison the follow-up opened asked for ${scanBodies[1]}`);
+    }
+    if (scanBodies[1].includes(report.id) || /"from"|earlier/i.test(scanBodies[1])) {
+      fail(`the comparison's request carries the earlier result: ${scanBodies[1]}`);
+    }
+    if ((await backLink(page).count()) !== 1) fail("the connected comparison links back more than once");
+    const back = backLink(page).locator("a.earlier-result-link");
+    if ((await back.getAttribute("href")) !== earlierResultHref) {
+      fail(`the connected comparison links back to ${await back.getAttribute("href")}, not ${earlierResultHref}`);
+    }
+    if ((await back.textContent())?.trim() !== "Open the earlier result") fail("the link back to the earlier result lost its label");
+    if ((await back.getAttribute("aria-describedby")) !== "earlier-result-sentence") fail("the link back is not described by its sentence");
+    await expectText(backLink(page).locator("#earlier-result-sentence"), earlierResultSentence);
+    if ((await backLink(page).locator("#earlier-result-sentence").textContent())?.trim() !== earlierResultSentence) {
+      fail("the line back to the earlier result says more than its one sentence");
+    }
+    // It sits with the result's identity, ahead of its verdict, on screen
+    // where the result lands, and the comparison offers no visit of its own.
+    const placement = await page.evaluate(() => {
+      const note = document.querySelector(".earlier-result-note");
+      const header = document.querySelector("#report .report-header");
+      const banner = document.querySelector("#report .headline-banner");
+      const follows = (a, b) => Boolean(a && b && a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING);
+      const rect = note?.getBoundingClientRect();
+      return {
+        afterHeader: follows(header, note),
+        beforeBanner: follows(note, banner),
+        top: rect?.top ?? Number.NaN,
+        bottom: rect?.bottom ?? Number.NaN,
+        viewport: window.innerHeight
+      };
+    });
+    if (!placement.afterHeader || !placement.beforeBanner) {
+      fail(`the link back is not between the result's header and its headline: ${JSON.stringify(placement)}`);
+    }
+    if (!(placement.top >= 0 && placement.bottom <= placement.viewport)) {
+      fail(`the link back is not on screen where the comparison's result lands: ${JSON.stringify(placement)}`);
+    }
+    if ((await anyNewVisit(page).count()) !== 0) fail("the connected Blocker comparison offers a new visit of its own");
+    const axe = await new AxeBuilder({ page })
+      .include(".earlier-result-note")
+      .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa", "best-practice"])
+      .analyze();
+    const serious = axe.violations.filter((violation) => violation.impact === "critical" || violation.impact === "serious");
+    if (serious.length > 0) fail(`the link back has serious accessibility violations: ${serious.map((violation) => violation.id).join(", ")}`);
+
+    // An edit to the address ends the connection: that comparison's result
+    // links back to nothing.
+    const edited = `${target}about/`;
+    await page.locator("#url").fill(edited);
+    await page.locator('.scan-panel button[type="submit"]').click();
+    try {
+      await page.waitForFunction(() =>
+        Boolean(document.querySelector("#report .report-header")) &&
+        !document.querySelector(".loading-state") &&
+        !document.querySelector(".earlier-result-note"),
+      null, { timeout: 30_000 });
+    } catch {
+      fail("a comparison run after the address was edited links back to the earlier result");
+    }
+    if (scanBodies.length !== 3 || JSON.parse(scanBodies[2]).url !== edited) fail(`the edited comparison sent ${scanBodies.slice(2).join(", ")}`);
+    pass(`the comparison it opens links back to ${report.id}'s share with its one sentence and sends no id; a typed scan and a comparison after an edit show none`);
   } finally {
     await context.close();
   }
