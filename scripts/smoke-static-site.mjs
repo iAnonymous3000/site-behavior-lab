@@ -2398,7 +2398,7 @@ async function assertModeLinkWaitsForHealth(browser, baseUrl, manifest) {
  * with blocking on" for, chosen at run time because retention moves the
  * corpus: a GPC comparison with complete request evidence whose Brave-list
  * card says requests matched, and an r2 report, so the page to visit again is
- * the site root it requested.
+ * the front page it requested, as itself.
  */
 async function findBlockerFollowUpCandidate(manifest) {
   for (const report of manifest.reports) {
@@ -2418,13 +2418,15 @@ async function findBlockerFollowUpCandidate(manifest) {
  * report is not fresh; a file opened from disk offers none either. A fresh
  * result does: here the homepage's own scan, answered by this test with the
  * committed report's bytes (no scan runs, and health needs no browser
- * check). Its link fills the form with the site root and Blocker, on screen,
- * beside the result, and sends nothing more.
+ * check). Its link fills the form with the front page the report requested
+ * and Blocker, on screen, beside the result, and sends nothing more.
  */
 async function assertBlockerComparisonOnlyOnFreshResults(browser, baseUrl, manifest) {
   const { report, wire } = await findBlockerFollowUpCandidate(manifest);
   const reportJson = path.join(outDir, "reports", `${report.id}.json`);
-  const target = `https://${wire.baseline.subject.observed.registrableDomain}/`;
+  const requested = wire.baseline.subject.requested;
+  if (requested.routeShape !== "/") fail(`report ${report.id} did not request a front page, so it cannot stand in for this check`);
+  const target = `${requested.origin}/`;
   const expectedHref = `${basePath}/#scan?url=${encodeURIComponent(target)}&mode=shields`;
   const followUp = (page) => page.locator('#finding-shields-blocked .finding-look-closer[data-look-closer="blocker-comparison"]');
   // Every link anywhere on the page that opens the scan form with a mode.
@@ -2503,7 +2505,7 @@ async function assertBlockerComparisonOnlyOnFreshResults(browser, baseUrl, manif
         document.querySelector('button[aria-label="Blocker comparison (Brave Shields)"]')?.getAttribute("aria-pressed") === "true",
       null, { timeout: 10_000 });
     } catch {
-      fail("following Compare with blocking on did not fill the form with the site root and Blocker");
+      fail("following Compare with blocking on did not fill the form with the requested front page and Blocker");
     }
     if (!(await page.evaluate(() => window.location.href)).endsWith("#scan")) fail("the follow-up's prefill stayed in the address");
     if ((await page.locator(".report-header").count()) !== 1) fail("following the follow-up replaced the fresh result");

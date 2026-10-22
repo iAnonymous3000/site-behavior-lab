@@ -1587,11 +1587,11 @@ test("a fresh Single or GPC result whose requests matched Brave's lists offers C
   // A legacy GPC pair, on the visit its board describes.
   const gpc = newVisitFixture(viewFromV1Report(gpcPair(matchedShieldsResult(), matchedShieldsResult())));
   assert.deepEqual(gpc.visit, { ...blocker, href: "/#scan?url=https%3A%2F%2Fexample.com%2F&mode=shields" });
-  // r2 single and GPC results visit the site root they requested.
+  // r2 single and GPC results visit the front page they requested, as itself.
   const r2Single = makePublicSingleReportV2R2();
   matchShieldsOnRun(r2Single.run);
   const r2SingleVisit = newVisitFixture(viewFromV2(atSiteRoot(r2Single), 2)).visit;
-  assert.deepEqual(r2SingleVisit, { ...blocker, href: "/#scan?url=https%3A%2F%2Fexample.com%2F&mode=shields" });
+  assert.deepEqual(r2SingleVisit, { ...blocker, href: "/#scan?url=https%3A%2F%2Fwww.example.com%2F&mode=shields" });
   const r2Gpc = makeGpcInterventionReportV2R2();
   matchShieldsOnRun(r2Gpc.baseline);
   matchShieldsOnRun(r2Gpc.variant);

@@ -43,13 +43,13 @@ test("the header's rescan links and a new visit read one derivation of the targe
     v1View("https://www.example.com/account/settings"),
     v1View("https://example.com/{seg}/settings")
   ]) {
-    const { exactTarget, siteTarget } = reportRescanTargets(view);
+    const { exactTarget, siteTarget, frontPageTarget } = reportRescanTargets(view);
     const activation = reportActivation({ id: "id", reportUrl: "https://sitebehavior.org/reports/id/", siteHistoryAvailable: false, view });
     assert.equal(activation.exactRescanHref, exactTarget ? scanPrefillHref(exactTarget) : null);
     assert.equal(activation.siteRescanHref, siteTarget ? scanPrefillHref(siteTarget) : null);
-    // A new visit's page is one of these, never a third.
+    // A new visit's page is one of the shared targets, never a derivation of its own.
     const target = reportNewVisitTarget(view, true);
-    assert.ok(target === null || target === exactTarget || target === siteTarget, `${target} is a second derivation`);
+    assert.ok(target === null || target === exactTarget || target === frontPageTarget, `${target} is a derivation of its own`);
   }
   // reportActivation reads the shared module, not a copy of it.
   const trust = readFileSync(path.join(process.cwd(), "lib", "report-trust.ts"), "utf8");
@@ -64,18 +64,22 @@ test("only a fresh report has a page to visit again", () => {
   }
 });
 
-test("without a replayable route, a new visit needs a report that requested the site root (G4)", () => {
+test("without a replayable route, a new visit needs a report that requested a front page (G4)", () => {
   // A legacy exact route replays, subpage or not.
   assert.equal(reportNewVisitTarget(v1View("https://www.example.com/account/settings"), true), "https://www.example.com/account/settings");
   assert.equal(reportNewVisitTarget(v1View("https://example.com/{seg}/settings"), true), null, "a privacy-marked legacy route");
-  // Every v2 route is a shape: the target is the site root, https://<domain>/.
+  // Every v2 route is a shape: the target is the front page the report requested, as itself.
   assert.equal(reportNewVisitTarget(r2View("https://example.com/"), true), "https://example.com/");
-  assert.equal(reportNewVisitTarget(r2View("https://www.example.com/"), true), "https://example.com/", "the www front door is the site root");
+  assert.equal(
+    reportNewVisitTarget(r2View("https://www.example.com/"), true),
+    "https://www.example.com/",
+    "the www front page is visited as itself, so the card's \"this page\" stays true"
+  );
+  assert.equal(reportNewVisitTarget(r2View("https://shop.example.com/"), true), "https://shop.example.com/", "another host's front page on this site");
   for (const [requested, observed, reason] of [
     ["https://shop.example.com/products/{seg}", undefined, "a subpage"],
     ["https://www.example.com/about", undefined, "a named subpage"],
     ["https://www.example.com/?lang=fr", undefined, "the root with a query"],
-    ["https://shop.example.com/", undefined, "another subdomain's root"],
     ["https://{label}.example.com/", undefined, "a hidden label's root"],
     ["https://other.example/", "https://www.example.com/", "a landing on another site"]
   ] as const) {

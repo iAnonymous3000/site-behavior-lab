@@ -42,10 +42,13 @@ public API or a 1.0 release.
   single visit or a GPC comparison, never a Blocker or consent comparison or
   another kind of pair; the visit's request evidence is complete; the visit
   established the requested page; it is not a PageGraph import; and the page
-  can be visited again, by its exact route or, when only the site root can
-  be, because the report requested that root. The page is the one the report
-  header's "Scan this site again" and "Scan this exact route again" links
-  already use, now derived in one place for both. It is for fresh results
+  can be visited again, by its exact route or, where only a shape of the
+  route was kept, because the report requested a front page on its own site.
+  That front page is visited as itself, so a report that requested
+  `https://www.<domain>/` compares `https://www.<domain>/`, not the bare
+  domain, and "this page" stays true. Every target comes from one module,
+  the one behind the report header's "Scan this site again" and "Scan this
+  exact route again" links, which keep their own targets. It is for fresh results
   only, the homepage's own live scan and that scan's runtime share: no
   committed report offers it, since every corpus site already holds newer
   Blocker comparisons, and 52 committed GPC comparisons would offer it if
