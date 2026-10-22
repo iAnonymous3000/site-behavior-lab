@@ -9,6 +9,14 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- The Chromium smoke now follows a scan link that asks for Blocker against
+  the Node scanner's own health, at the start of its UI checks: the form
+  must keep the address, select Blocker once health offers it, or keep
+  Single when it does not, and send no scan request. It presses nothing and
+  scans nothing. The follow-up on a fresh result is not pinned there, since
+  that smoke's only scan target, example.com, matches no Brave-list request;
+  the static smoke shows it on a fresh result its test answers with a
+  committed report.
 - A fresh Single or GPC result whose requests matched Brave's lists now
   offers "Compare with blocking on" in its Brave-list card's Look closer
   group, with the sentence that says the scan form opens ready to visit the

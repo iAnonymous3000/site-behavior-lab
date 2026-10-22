@@ -211,12 +211,52 @@ function smokeResponseSummary(value) {
   });
 }
 
+/**
+ * A scan link that asks for Blocker (`#scan?url=...&mode=shields`, what a
+ * fresh result's "Compare with blocking on" mints) against this scanner's own
+ * health: the form keeps the URL, selects Blocker once health offers it, or
+ * keeps Single beside the run control's note if it does not, and sends no
+ * scan request. Nothing here scans: the button is never pressed.
+ */
+async function modeLinkChecks(browser) {
+  const { value: health } = await requestJson(`${baseUrl}/api/health`, {}, "/api/health");
+  const offered = health?.capabilities?.shieldsComparison === true;
+  const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
+  const scanRequests = [];
+  page.on("request", (request) => {
+    if (new URL(request.url()).pathname.startsWith("/api/scan")) scanRequests.push(`${request.method()} ${request.url()}`);
+  });
+  try {
+    const target = "https://example.com/";
+    await page.goto(`${baseUrl}/#scan?url=${encodeURIComponent(target)}&mode=shields`, { waitUntil: "networkidle" });
+    await page.waitForFunction((value) => document.getElementById("url")?.value === value, target, { timeout: 10_000 });
+    await page.locator(".run-mode-checking").waitFor({ state: "detached", timeout: 30_000 });
+    const pressed = (name) => page.getByRole("button", { name, exact: true }).getAttribute("aria-pressed");
+    if (offered) {
+      await page.waitForFunction(
+        () => document.querySelector('button[aria-label="Blocker comparison (Brave Shields)"]')?.getAttribute("aria-pressed") === "true",
+        null,
+        { timeout: 10_000 }
+      );
+    } else if ((await pressed("Single")) !== "true") {
+      fail("a mode link the scanner cannot run did not leave Single selected");
+    }
+    await page.waitForTimeout(1_500);
+    if (scanRequests.length !== 0) fail(`a mode link sent a scan request on its own: ${scanRequests.join(", ")}`);
+    if (!(await page.evaluate(() => window.location.href)).endsWith("#scan")) fail("a mode link stayed in the address");
+    pass(offered ? "a mode=shields link selects Blocker once health offers it, and sends nothing" : "a mode=shields link keeps Single when health lacks Blocker, and sends nothing");
+  } finally {
+    await page.close();
+  }
+}
+
 async function uiChecks() {
   const browser = await chromium.launch({ headless: true });
   const context = await browser.newContext({ acceptDownloads: true, viewport: { width: 1440, height: 1000 } });
   const page = await context.newPage();
 
   try {
+    await modeLinkChecks(browser);
     await page.goto(baseUrl, { waitUntil: "networkidle" });
     await expectText(page.locator("h1"), "See what a site does, not just what it says.");
     pass("home page renders tagline");
