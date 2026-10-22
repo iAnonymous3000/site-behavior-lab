@@ -32,6 +32,7 @@ test("fragment prefills normalize the target and scrub browser history before us
   assert.deepEqual(navigation, {
     targetUrl: "https://example.com/account",
     mode: null,
+    from: null,
     cleanHref: "https://sitebehavior.org/#scan",
     scrollToScan: true
   });
@@ -45,6 +46,7 @@ test("legacy query prefills are removed without trusting their target", () => {
   assert.deepEqual(navigation, {
     targetUrl: null,
     mode: null,
+    from: null,
     cleanHref: "https://sitebehavior.org/?campaign=research#scan",
     scrollToScan: true
   });
@@ -58,6 +60,7 @@ test("malformed fragment prefills are scrubbed and never reach form state", () =
   assert.deepEqual(navigation, {
     targetUrl: null,
     mode: null,
+    from: null,
     cleanHref: "https://sitebehavior.org/#scan",
     scrollToScan: true
   });
@@ -72,6 +75,7 @@ test("a scan link may ask for one of the form's comparison modes beside its targ
     assert.deepEqual(resolveScanPrefillNavigation(new URL(href ?? "", "https://sitebehavior.org").toString()), {
       targetUrl: "https://example.com/account",
       mode,
+      from: null,
       cleanHref: "https://sitebehavior.org/#scan",
       scrollToScan: true
     });
@@ -111,14 +115,94 @@ test("any other mode, key or repetition refuses the whole link, target included,
   ]) {
     assert.deepEqual(
       resolveScanPrefillNavigation(`https://sitebehavior.org/#scan?${fragment}`),
-      { targetUrl: null, mode: null, cleanHref: "https://sitebehavior.org/#scan", scrollToScan: true },
+      { targetUrl: null, mode: null, from: null, cleanHref: "https://sitebehavior.org/#scan", scrollToScan: true },
       fragment
     );
   }
   // A mode beside a target the form refuses is dropped with it.
   assert.deepEqual(
     resolveScanPrefillNavigation("https://sitebehavior.org/#scan?url=javascript%3Aalert(1)&mode=shields"),
-    { targetUrl: null, mode: null, cleanHref: "https://sitebehavior.org/#scan", scrollToScan: true }
+    { targetUrl: null, mode: null, from: null, cleanHref: "https://sitebehavior.org/#scan", scrollToScan: true }
+  );
+});
+
+// A share report id in the form the share's own address shows it.
+const EARLIER_RESULT = "20261022-0123456789abcdef0123456789abcdef";
+
+test("a follow-up's scan link may name the result it came from beside its mode", () => {
+  const target = "https://example.com/account?token=bearer-secret#receipt";
+  for (const mode of ["gpc", "shields", "consent"] as const) {
+    const href = scanPrefillHref(target, mode, EARLIER_RESULT);
+    assert.equal(href, `/#scan?url=https%3A%2F%2Fexample.com%2Faccount&mode=${mode}&from=${EARLIER_RESULT}`);
+    // Minted links round-trip, and the address keeps none of the three.
+    assert.deepEqual(resolveScanPrefillNavigation(new URL(href ?? "", "https://sitebehavior.org").toString()), {
+      targetUrl: "https://example.com/account",
+      mode,
+      from: EARLIER_RESULT,
+      cleanHref: "https://sitebehavior.org/#scan",
+      scrollToScan: true
+    });
+  }
+  // Key order does not matter.
+  for (const fragment of [
+    `from=${EARLIER_RESULT}&url=https%3A%2F%2Fexample.com%2F&mode=shields`,
+    `mode=shields&from=${EARLIER_RESULT}&url=https%3A%2F%2Fexample.com%2F`
+  ]) {
+    const navigation = resolveScanPrefillNavigation(`https://sitebehavior.org/#scan?${fragment}`);
+    assert.deepEqual([navigation?.targetUrl, navigation?.mode, navigation?.from], ["https://example.com/", "shields", EARLIER_RESULT], fragment);
+  }
+  // Without an id, or without a mode, the minted link is exactly the one it
+  // was, and the builder never mints an id the parser would refuse.
+  assert.equal(scanPrefillHref(target, "shields", null), "/#scan?url=https%3A%2F%2Fexample.com%2Faccount&mode=shields");
+  assert.equal(scanPrefillHref(target, "shields"), "/#scan?url=https%3A%2F%2Fexample.com%2Faccount&mode=shields");
+  assert.equal(scanPrefillHref(target, undefined, EARLIER_RESULT), "/#scan?url=https%3A%2F%2Fexample.com%2Faccount");
+  for (const malformed of ["", EARLIER_RESULT.toUpperCase(), `${EARLIER_RESULT}\n`, `/reports/${EARLIER_RESULT}`, "20261022-0123", "__proto__"]) {
+    assert.equal(
+      scanPrefillHref(target, "shields", malformed),
+      "/#scan?url=https%3A%2F%2Fexample.com%2Faccount&mode=shields",
+      JSON.stringify(malformed)
+    );
+  }
+  assert.equal(scanPrefillHref("not a url", "shields", EARLIER_RESULT), null);
+});
+
+test("a from the form cannot use refuses the whole link, target and mode included, and is scrubbed", () => {
+  const url = "url=https%3A%2F%2Fexample.com%2F";
+  const from = `from=${EARLIER_RESULT}`;
+  for (const fragment of [
+    // Only beside a mode.
+    from,
+    `${url}&${from}`,
+    `mode=shields&${from}`,
+    `${url}&mode=blocker&${from}`,
+    `${url}&mode=shields&mode=gpc&${from}`,
+    // Only one, and only a share report id exactly as its address shows it.
+    `${url}&mode=shields&${from}&${from}`,
+    `${url}&mode=shields&${from}&from=20261021-ffffffffffffffffffffffffffffffff`,
+    `${url}&mode=shields&from=`,
+    `${url}&mode=shields&from`,
+    `${url}&mode=shields&from=${EARLIER_RESULT.toUpperCase()}`,
+    `${url}&mode=shields&from=${EARLIER_RESULT}%0A`,
+    `${url}&mode=shields&from=%20${EARLIER_RESULT}`,
+    `${url}&mode=shields&from=${EARLIER_RESULT.slice(0, -1)}`,
+    `${url}&mode=shields&from=${EARLIER_RESULT}0`,
+    `${url}&mode=shields&from=x${EARLIER_RESULT}`,
+    `${url}&mode=shields&from=%2Freports%2F${EARLIER_RESULT}`,
+    `${url}&mode=shields&from=__proto__`,
+    // Any other key still refuses it.
+    `${url}&mode=shields&${from}&token=bearer-secret`,
+    `${url}&mode=shields&froms=${EARLIER_RESULT}`
+  ]) {
+    assert.deepEqual(
+      resolveScanPrefillNavigation(`https://sitebehavior.org/#scan?${fragment}`),
+      { targetUrl: null, mode: null, from: null, cleanHref: "https://sitebehavior.org/#scan", scrollToScan: true },
+      fragment
+    );
+  }
+  // A from beside a target the form refuses is dropped with it.
+  assert.deepEqual(
+    resolveScanPrefillNavigation(`https://sitebehavior.org/#scan?url=javascript%3Aalert(1)&mode=shields&${from}`),
+    { targetUrl: null, mode: null, from: null, cleanHref: "https://sitebehavior.org/#scan", scrollToScan: true }
   );
 });
 

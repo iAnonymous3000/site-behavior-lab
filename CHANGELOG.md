@@ -9,6 +9,19 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- A scan link that asks for a comparison can now also name the result it
+  came from: `#scan?url=<address>&mode=shields&from=<share report id>`. The
+  form accepts `from` only beside an address and a mode it accepts, and only
+  as one share report id written exactly as that share's own address shows
+  it; `from` alone, `from` without a mode, a repeated `from`, an empty one or
+  any other value refuses the whole link, address and mode included, as an
+  unknown key always has, and every link is still scrubbed from the address
+  bar. A link with only an address, or an address and a mode, resolves
+  exactly as before. The link builder adds `from` only beside a mode and
+  only for a valid id, so it never mints a link the form would refuse, and
+  without one the link is exactly the one it was. The fragment never
+  reaches a server, and the id is already public in the share's own
+  address. Nothing mints it yet, and the form does not use it yet.
 - The Chromium smoke now follows a scan link that asks for Blocker against
   the Node scanner's own health, at the start of its UI checks: the form
   must keep the address, select Blocker once health offers it, or keep
