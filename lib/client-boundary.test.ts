@@ -161,7 +161,23 @@ test("Look closer views are built on the server or in the renderer chunk, never 
   const hook = read("app", "_hooks", "use-scan-runtime.ts");
   holds(hook, /freshScanResult: liveScan !== null && loaded === liveScan\.result,/, "freshness is the live scan's own result, by identity");
   assert.equal(hook.match(/setLiveScan\(/g)?.length, 1, "only showLiveScanResult records a live result");
-  assert.equal(hook.match(/showLiveScanResult\(nextLoaded\)/g)?.length, 4, "submit, resume, restore and admission recovery show a live result");
+  assert.equal(hook.match(/showLiveScanResult\(nextLoaded[,)]/g)?.length, 4, "submit, resume, restore and admission recovery show a live result");
+  // Only the submit hands over the inspection it asked for: the status poll
+  // re-serves the same shell to a resumed or restored tab, which shows none.
+  assert.equal(hook.match(/showLiveScanResult\(nextLoaded\)/g)?.length, 3, "resume, restore and admission recovery hand over no inspection");
+  holds(
+    hook,
+    /assertClientOperationOwner\(operationOwnerRef\.current, operation\);\s*showLiveScanResult\(nextLoaded, inspectionArrival\);/,
+    "the submit path hands over the inspection its request asked for"
+  );
+  holds(hook, /inspection: liveScan !== null && loaded === liveScan\.result \? liveScan\.inspection : null,/, "the inspection reaches the page only while its own result is shown");
+  holds(app, /<LazyReportRenderer [^>]*inspection=\{inspection\}/, "the homepage hands its result's inspection to the explorer");
+  holds(renderer, /inspection = null/, "a renderer shows no inspection unless told");
+  holds(
+    renderer,
+    /\{inspection && !printComplete && \(\s*<ConnectionInspectionPanel evidence=\{inspection\.evidence\} earlierResultHref=\{inspectedFromHref\} \/>\s*\)\}/,
+    "the panel renders from the handed-over inspection, never on paper"
+  );
   never(hook, /setLoaded\(nextLoaded\)/, "a live scan result reached the result region without being recorded as fresh");
   const print = read("app", "reports", "[id]", "print", "page.tsx");
   never(print, /siteHistoryHref|lookCloser|freshResult|newVisitTarget|newVisitFrom|earlierResultId/, "the printable route hands its board a Look closer input");
@@ -179,7 +195,9 @@ test("Look closer views are built on the server or in the renderer chunk, never 
   holds(renderer, /\{earlierResultHref && \(\s*<div className="earlier-result-note">/, "the line renders only with a share to link to");
   for (const [source, where] of [[page, "the permalink"], [client, "the saved-report client"]] as const) {
     never(source, /earlierResultId|earlier-result/, `${where} hands its explorer an earlier result`);
+    never(source, /inspection=|ConnectionInspection/, `${where} hands its explorer an inspection`);
   }
+  never(print, /inspection=|ConnectionInspection/, "the printable route hands its board an inspection");
   for (const parts of [["app", "site-behavior-app.tsx"], ["app", "_hooks", "use-scan-runtime.ts"], ["app", "_components", "findings-list.tsx"]]) {
     never(read(...parts), /earlier-result-note|EARLIER_RESULT_LINK/, `${parts.join("/")} renders the back-link line`);
   }
@@ -196,7 +214,16 @@ test("Inspect this connection keeps the public-suffix list and the recorder out 
     importsOf(read("lib", "connection-inspection-evidence.ts")).map((entry) => entry.from).sort(),
     ["./connection-inspection-address", "./guards"]
   );
-  assert.deepEqual(importsOf(read("lib", "connection-inspection-copy.ts")).map((entry) => entry.from), ["./text-format"]);
+  const copyImports = importsOf(read("lib", "connection-inspection-copy.ts"));
+  assert.deepEqual(copyImports.map((entry) => entry.from).sort(), ["./connection-inspection-evidence", "./text-format"]);
+  assert.ok(
+    /^type\s/.test(copyImports.find((entry) => entry.from === "./connection-inspection-evidence")?.clause ?? ""),
+    "the copy module imports the evidence only as a type"
+  );
+  // The hook's reading of a result's inspection imports nothing at run time.
+  for (const entry of importsOf(read("lib", "connection-inspection-result.ts"))) {
+    assert.ok(/^type\s/.test(entry.clause), `connection-inspection-result.ts imports ${entry.from} at run time`);
+  }
   // The row link's one minter reads the request contract, its copy and the
   // scan link builder, and the row only as a type.
   const linkImports = importsOf(read("lib", "request-inspection-link.ts"));
@@ -225,10 +252,14 @@ test("Inspect this connection keeps the public-suffix list and the recorder out 
     const source = read(...parts);
     assert.ok(!/["']@\/lib\/connection-inspection["']|["']\.\/connection-inspection["']|redaction-v2/.test(source), `${parts.join("/")} reaches the recorder or the redaction pass`);
   }
-  // The homepage's own code reads only the request contract; the row link and
-  // its copy live in the explorer's lazy chunk.
+  // The homepage's own code reads only the request contract and the
+  // type-only result reader; the row link, the panel and their copy live in
+  // the explorer's lazy chunk.
   for (const parts of [["app", "site-behavior-app.tsx"], ["app", "_hooks", "use-scan-runtime.ts"], ["app", "_components", "scan-controls.tsx"]]) {
-    assert.ok(!/connection-inspection-copy|connection-inspection-evidence/.test(read(...parts)), `${parts.join("/")} bundles reader copy or the validator`);
+    assert.ok(
+      !/connection-inspection-copy|connection-inspection-evidence|connection-inspection-panel|request-inspection-link/.test(read(...parts)),
+      `${parts.join("/")} bundles reader copy, the panel or the validator`
+    );
   }
 });
 

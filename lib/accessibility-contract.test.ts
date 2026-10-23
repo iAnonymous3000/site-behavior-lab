@@ -483,6 +483,9 @@ const INTENTIONALLY_UNSTYLED_CLASS_NAMES = new Set([
   "causal-node-source",
   "change-list-cap-note",
   "comparison-privacy-note",
+  // The inspection panel's did-not-recur paragraph: a test mount point the
+  // smokes select, styled as the panel's other paragraphs are.
+  "connection-inspection-none",
   "domain-request-deltas",
   "provenance-change-list",
   "report-title-block",

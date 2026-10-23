@@ -429,7 +429,11 @@ test("the form wires the note, the one submit button and the arrival as the copy
     "the form's state to carry no earlier result"
   );
   // The result a connected scan shows carries the id, and only while it is shown.
-  holds(hook, /setLiveScan\(\{ result: next, earlierResultId: startedScanEarlierResultRef\.current \}\);/, "a live result to carry its scan's connection");
+  holds(
+    hook,
+    /setLiveScan\(\{\s*result: next,\s*earlierResultId: startedScanEarlierResultRef\.current,\s*inspection: shownConnectionInspection\(next, inspected\)\s*\}\);/,
+    "a live result to carry its scan's connection, and the inspection only its submit hands over"
+  );
   holds(
     hook,
     /earlierResultId: liveScan !== null && loaded === liveScan\.result \? liveScan\.earlierResultId : null,/,

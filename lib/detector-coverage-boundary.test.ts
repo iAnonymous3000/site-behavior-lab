@@ -21,6 +21,7 @@ import { NODE_SCANNER_METHODOLOGY_VERSION } from "./legacy-methodology";
 import { NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION } from "./scan-report-v2-r2-producer-contract";
 import { DETECTOR_VERSIONS } from "./measurement-kernel";
 import { RequestInitiatorIndex } from "./request-initiator";
+import { MAX_INSPECTION_GROUP_HOSTS } from "./connection-inspection-evidence";
 
 const root = process.cwd();
 
@@ -563,5 +564,32 @@ test("the causality entry discloses wrappers, self-naming and unobserved workers
     marker === undefined
       ? "no methodology component marks the rule, so the entry must say a report's methodology does not say which rule it was made under"
       : `${marker} now marks the initiator rule, so the entry must name it instead of saying nothing marks it`
+  );
+});
+
+/**
+ * "Inspect this connection" shows call-stack hosts, and only in an
+ * inspection visit's immediate result. The causality entry must say so and
+ * scope it, each clause pinned to the code that makes it true: at most four
+ * hosts, of scripts that visit requested, never saved, and a request with no
+ * stack not shown to have been started without a script.
+ */
+test("the causality entry says an inspection visit shows stack hosts in its immediate result only", () => {
+  const entry = COVERAGE_BOUNDARY_ENTRIES.find((candidate) => candidate.id === "script-to-request-causality");
+  assert.ok(entry, "the causality boundary entry must exist");
+  const sentence = /\bAn on-demand inspection visit\b[^.]*\./.exec(entry.explanation)?.[0];
+  assert.ok(sentence, "the entry must describe the inspection visit");
+  assert.match(sentence, /\bat most four hosts of scripts that visit requested\b/);
+  assert.match(sentence, /\bin its immediate result only: never in a report, an export or a printed copy\b/);
+  assert.equal(MAX_INSPECTION_GROUP_HOSTS, 4, "the entry says four hosts");
+  // The evidence travels only in the ephemeral block, which persistence drops.
+  const runtimeBuilder = readFileSync(path.join(root, "lib", "scan-report-v2-runtime-builder.ts"), "utf8");
+  assert.match(runtimeBuilder, /ephemeral: \{ \.\.\.report\.ephemeral, inspection:/);
+  const projection = readFileSync(path.join(root, "lib", "scan-report-v2-r2-projection.ts"), "utf8");
+  assert.ok(!/inspection/.test(projection), "the public projection must name no inspection");
+  assert.match(
+    entry.explanation,
+    /\bA request it shows with no call stack is not shown to have been started without a script\b/,
+    "the entry must not let a stackless request read as one no script started (lib/connection-inspection-fixture.test.ts pins why)"
   );
 });

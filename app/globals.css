@@ -2756,6 +2756,47 @@ a {
   max-width: 76ch;
 }
 
+/* An inspection visit's own observation, at the top of its result: framed
+   like the back-link note, with no severity edge, since it ranks nothing.
+   Screen only: a printed result is the ordinary report. */
+.connection-inspection {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  display: grid;
+  gap: 8px;
+  justify-items: start;
+  overflow-wrap: anywhere;
+  padding: 12px 14px;
+}
+
+.connection-inspection h2 {
+  font-size: 15px;
+  line-height: 1.35;
+  margin: 0;
+}
+
+.connection-inspection-lines {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding-left: 18px;
+}
+
+.connection-inspection-lines li,
+.connection-inspection p {
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0;
+  max-width: 76ch;
+}
+
+.connection-inspection .connection-inspection-caveat,
+.connection-inspection .connection-inspection-separation {
+  color: var(--text-muted);
+  font-size: 12.5px;
+}
+
 /* What was checked, and what the visit could not see: framed like the cards
    it sits between, directly after the bottom line, but with no severity edge,
    since it ranks nothing. Two columns where there is room for both to read as
@@ -5637,6 +5678,9 @@ details[open] > summary .disclosure-chevron {
   .earlier-result-note,
   /* And a request row's link to inspect its connection. */
   .inspect-connection-link,
+  /* An inspection's own observation is the immediate result's only, never
+     the report's, so paper shows the ordinary report alone. */
+  .connection-inspection,
   .homepage-discovery-actions,
   .homepage-tools-disclosure,
   .scan-checks,

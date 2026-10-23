@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { STATIC_BASE_PATH, clientReportRuntime } from "../client-runtime";
 import { CausalityGraph } from "./causality-graph";
 import { ComparisonPanel } from "./comparison-panel";
+import { ConnectionInspectionPanel } from "./connection-inspection-panel";
 import { FindingsBoard, HeadlineBanner, MetricGrid, TrafficViz, useReportFindings } from "./report-overview";
 import { ReportHeader } from "./report-header";
 import { ReportSectionNav, type ReportSection } from "./report-section-nav";
@@ -30,6 +31,7 @@ import { parseEvidenceHash } from "@/lib/report-evidence-navigation";
 import { locateReport } from "@/lib/report-locator";
 import { reportNewVisitFrom, reportNewVisitTarget } from "@/lib/report-rescan-targets";
 import type { RequestInspectionContext } from "@/lib/request-inspection-link";
+import type { ShownConnectionInspection } from "@/lib/connection-inspection-result";
 import {
   displayableScreenshot,
   gpcRunMeasurement
@@ -62,7 +64,8 @@ export function ReportRenderer({
   visitSummary,
   siteHistoryHref = null,
   freshResult = false,
-  earlierResultId = null
+  earlierResultId = null,
+  inspection = null
 }: {
   loaded: LoadedReport;
   liveApiServesReportPages: boolean;
@@ -103,6 +106,13 @@ export function ReportRenderer({
    * printable route pass none.
    */
   earlierResultId?: string | null;
+  /**
+   * What an inspection visit recorded, handed over by the homepage for the
+   * result its own submit received (app/_hooks/use-scan-runtime.ts), and
+   * only while that result is shown. A permalink, its explorer and the
+   * printable route pass none, so a reload or a share shows no panel.
+   */
+  inspection?: ShownConnectionInspection | null;
 }) {
   useEffect(() => {
     if (!printComplete) return;
@@ -133,6 +143,12 @@ export function ReportRenderer({
   const earlierResultHref = earlierResultId
     ? locateReport(earlierResultId, { ...clientReportRuntime(), liveApiServesReportPages }).pagePath
     : null;
+  // The inspection's link named the fresh result it was offered on, whose
+  // share resolves the same way.
+  const inspectedFromHref =
+    inspection && inspection.from && !printComplete
+      ? locateReport(inspection.from, { ...clientReportRuntime(), liveApiServesReportPages }).pagePath
+      : null;
   const benchmarkScope = findings.find((finding) => finding.id === "bottom-line")?.benchmarkScope;
   const primaryRun = reportFacts.display.run;
   const arms = comparisonArmViews(reportView);
@@ -241,6 +257,11 @@ export function ReportRenderer({
   ];
 
   const overview = (<>
+          {/* An inspection visit's own observation, ahead of the ordinary
+              result that follows below it as for any single scan. */}
+          {inspection && !printComplete && (
+            <ConnectionInspectionPanel evidence={inspection.evidence} earlierResultHref={inspectedFromHref} />
+          )}
           <ReportHeader
             share={shareForLoadedReport(loaded)}
             view={reportView}

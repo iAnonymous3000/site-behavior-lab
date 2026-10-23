@@ -45,6 +45,10 @@ const FIXTURE_BODY = `<body>
         <a class="earlier-result-link" href="/reports/20261022-0123456789abcdef0123456789abcdef">Open the earlier result</a>
         <p>This comparison and the earlier result are different visits.</p>
       </div>
+      <section class="connection-inspection" id="inspectionpanel">
+        <h2>Which scripts asked for https://pixel.example.net/… in this new visit</h2>
+        <ul class="connection-inspection-lines"><li>2 requests. Scripts on the call stack, innermost first: cdn.example.net.</li></ul>
+      </section>
       <article class="finding-card tile-warn">
         <div><h3>Third-party cookies were present</h3><p id="findinglead">12 third-party cookies showed up during the visit.</p>
           <div class="finding-look-closer" id="lookcloser">
@@ -133,6 +137,7 @@ const PROBED_IDS = [
   "headlineactions",
   "activationactions",
   "earlierresult",
+  "inspectionpanel",
   "findinglead",
   "lookcloser",
   "loader",
@@ -246,6 +251,8 @@ test("controls and screen-reader scaffolding stay off paper", () => {
   // A request row's link to inspect its connection opens a new visit; the
   // row's own address beside it is evidence and prints.
   assert.equal(visible.inspectlink, false, "a request row's inspection link is navigation, not evidence");
+  // An inspection's panel is the homepage result's own, never the report's.
+  assert.equal(visible.inspectionpanel, false, "an inspection's immediate-only panel must not print");
   assert.equal(visible.rowurl, true, "a request row's address must print beside the hidden link");
   assert.equal(visible.tools, false, "filter tooling is not evidence");
   assert.equal(visible.chips, false, "request signal filter chips are not evidence");

@@ -9,6 +9,54 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- An "Inspect this connection" visit's own result now shows, at its top,
+  what that visit recorded: "Which scripts asked for <address> in this new
+  visit", then one line per call-stack group ("2 requests. Scripts on the
+  call stack, innermost first: <host> then <host>."), the redirect hops,
+  the requests with no call stack, the stacks with no script the visit
+  requested and anything a bound kept from being broken down, each in its
+  own sentence and in the singular for one; then the caveat ("A call stack
+  shows which scripts were running when a request was made, not which one
+  decided to make it. Requests made by workers are not observed."), the
+  requests the call-stack recording never observed, and the separation
+  sentence ("This new visit is a different observation from the report you
+  came from, so it can neither confirm nor refute that report's row.") with
+  "Open the earlier result" when the link named one. A visit that made no
+  request to the address says so instead: "This new visit made no request
+  to <address>. Connections can change between visits, so this does not
+  show the earlier one did not happen." The approved sentence for requests
+  with no call stack said they were started "not by a script"; Chromium
+  reports an image a script created exactly as it reports one in the page's
+  markup, so the panel says instead: "<n> requests came with no call stack,
+  so no script is named; the browser gives none for requests the page's
+  HTML starts, nor for images a script creates." The panel renders only from
+  the result this tab's own Inspect press received, never on a resume, a
+  restore, a reload, a share permalink, an export or paper, and only when
+  that result carries evidence for the address asked about, so a result
+  without it never reads as one that made no request. The ordinary result
+  follows below it unchanged. Once per inspection, a frame after the result
+  region takes focus, the panel's top is brought just below the sticky
+  strips: on a phone, an inspection that replaced an earlier result arrived
+  with the panel above the viewport, since focus scrolls only when none of
+  the region is on screen. Focus stays on the result. The coverage
+  boundary's causality entry, the README and docs/capabilities.md now say
+  an on-demand inspection visit can show call-stack hosts in its immediate
+  result only, and that a request it shows with no call stack is not shown
+  to have been started without a script. The static smoke stands a
+  committed comparison's baseline visit in for a fresh single result: its
+  third-party rows, and none of its first-party rows, offer the link with
+  the right address, page and share, which the committed permalink, its
+  explorer and an opened file never do; following it fills the form with
+  Single and Inspect and the line on screen and sends nothing, an edit or a
+  comparison ends it, Inspect sends the address, the answer's panel shows
+  its groups and its counts at the top of its result, a second inspection
+  shows the did-not-recur state, a reload shows none, an unusable
+  inspection link is scrubbed, and on a phone an inspection that replaces
+  an earlier result arrives with its heading on screen below the sticky
+  strips. The Chromium smoke follows an inspection link against the Node
+  app's own build, presses nothing, and checks that the API refuses
+  malformed inspections, and a version 1 scanner every inspection, before
+  any visit.
 - Each third-party row of a fresh result's request log now offers "Inspect
   this connection", whose accessible name adds the row's address as the log
   shows it. It is offered on the homepage's own live result and that scan's

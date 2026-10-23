@@ -106,6 +106,10 @@ proposal that a maintainer merges.
   may be a fetch or XHR wrapper credited with another script's request, and
   may be a name the script gave itself. Requests made by dedicated workers are
   not observed, so a URL a worker requests carries no attribution on any row.
+  A fresh result's request log can open an on-demand inspection visit, which
+  shows the call-stack hosts of its own requests to one address in its
+  immediate result only, never in a report; a request it shows with no stack
+  is not shown to have been started without a script.
 - **Consent evidence spans the click.** Even a verified reject-all visit
   records traffic from before and after the choice, so a tracker seen there
   may be pre-choice, strictly necessary, or claimed under legitimate interest.
@@ -287,7 +291,10 @@ open while an actionable upgrade is available.
 
 `POST /api/scan` takes a JSON body of `url`, `device` (`desktop` or `mobile`),
 `gpcEnabled`, and at most one of `compareGpc`, `compareShields`,
-`compareConsent`. A synchronous deployment answers with the report; an async
+`compareConsent`. A single scan may also name `inspect`, a request row's
+published address without its query; its immediate result then carries what
+that visit recorded about the call stacks of its requests to the address in
+`ephemeral.inspection`, which is never saved. A synchronous deployment answers with the report; an async
 one answers `202` with `jobId` and `statusPath`, and `DELETE /api/scans/:id`
 cancels cooperatively until publication begins. Refusals are `400` for an
 invalid or non-public target, `401` for a missing token, `413` for an oversize

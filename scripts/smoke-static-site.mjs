@@ -330,6 +330,7 @@ async function main() {
         await assertKnownSiteLeadsWithItsReport(browser, baseUrl, manifest);
         await assertModeLinkWaitsForHealth(browser, baseUrl, manifest);
         await assertBlockerComparisonOnlyOnFreshResults(browser, baseUrl, manifest);
+        await assertInspectionOnlyOnFreshResults(browser, baseUrl, manifest);
       }
     }
 
@@ -2626,6 +2627,319 @@ async function assertBlockerComparisonOnlyOnFreshResults(browser, baseUrl, manif
     pass(`the comparison it opens links back to ${report.id}'s share with its one sentence and sends no id; a typed scan and a comparison after an edit show none`);
   } finally {
     await context.close();
+  }
+}
+
+/**
+ * The newest committed r2 GPC comparison that requested a front page as
+ * itself and whose baseline visit holds a third-party row a report could
+ * name, chosen at run time because retention moves the corpus. Its baseline
+ * run stands in for a fresh single result: the corpus commits no r2 single.
+ */
+async function findInspectionCandidate(manifest) {
+  for (const report of manifest.reports) {
+    if (report.comparisonType !== "gpc") continue;
+    const wire = JSON.parse(await readFile(path.join(outDir, "reports", `${report.id}.json`), "utf8"));
+    if (wire.schemaVersion !== 2 || wire.share?.id !== report.id) continue;
+    const requested = wire.baseline.subject.requested;
+    if (requested.routeShape !== "/") continue;
+    const shown = wire.baseline.evidence.requests.slice(0, 80);
+    const row = shown.find((request) => request.thirdParty && request.url !== "{invalid-url}");
+    if (row && shown.some((request) => !request.thirdParty)) return { report, wire, page: `${requested.origin}/`, row };
+  }
+  fail("no committed r2 GPC comparison of a front page holds a third-party row to stand in for a fresh result");
+}
+
+/**
+ * "Inspect this connection" is for fresh results only. A committed permalink
+ * and its explorer offer none, and neither does a file opened from disk. A
+ * fresh result does: the homepage's own single scan, answered by this test
+ * with an r2 single built from a committed comparison's baseline visit (no
+ * scan runs, and health needs no browser check). Each third-party row's link
+ * names the page, the row's address without its query and the result's own
+ * share, and no first-party row offers one. Following it fills the form,
+ * selects Single, labels the button Inspect and states the inspection, on
+ * screen, and sends nothing; an edit or a comparison ends it, and an
+ * inspection the form cannot use is scrubbed with its whole link. Pressing
+ * Inspect sends the address, and the result its answer carries shows the
+ * inspection at its top, groups or the did-not-recur state, with the
+ * separation sentence and the link back; a reload shows none.
+ */
+async function assertInspectionOnlyOnFreshResults(browser, baseUrl, manifest) {
+  const { report, wire, page: target, row } = await findInspectionCandidate(manifest);
+  const reportJson = path.join(outDir, "reports", `${report.id}.json`);
+  const address = row.url.split("?")[0];
+  const expectedHref = `${basePath}/#scan?url=${encodeURIComponent(target)}&inspect=${encodeURIComponent(address)}&from=${report.id}`;
+  const anyInspection = (page) => page.locator('a.inspect-connection-link, a[href*="inspect="]');
+  // The log keeps the open state a reader gave it across results, so open it
+  // only when it is closed.
+  const openRequestLog = async (page) => {
+    const details = page.locator("details#request-evidence");
+    if (!(await details.evaluate((element) => element.open))) await details.locator(":scope > summary").click();
+    await details.locator("[data-request-row]").first().waitFor();
+  };
+  // Press the one submit button and wait until the scan it sent has been
+  // answered and its result rendered.
+  const pressAndAwaitResult = async (page) => {
+    await Promise.all([
+      page.waitForRequest((request) => request.method() === "POST" && new URL(request.url()).pathname === "/api/scan"),
+      page.locator('.scan-panel button[type="submit"]').click()
+    ]);
+    await page.waitForFunction(() => !document.querySelector(".loading-state") && Boolean(document.querySelector("#report .report-header")), null, {
+      timeout: 30_000
+    });
+  };
+  const single = (ephemeral) => JSON.stringify({
+    schemaVersion: 2,
+    schemaRevision: 2,
+    reportType: "single",
+    run: wire.baseline,
+    share: wire.share,
+    ephemeral: { screenshot: null, ...ephemeral }
+  });
+
+  // The committed permalink and its explorer, and the file opened from disk.
+  const committedContext = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
+  await installScannerFixture(committedContext);
+  try {
+    const page = await committedContext.newPage();
+    await page.goto(`${baseUrl}/reports/${report.id}/`, { waitUntil: "networkidle" });
+    if ((await anyInspection(page).count()) !== 0) fail(`committed report ${report.id} offers an inspection before its explorer opens`);
+    await page.getByRole("button", { name: "Explore full evidence" }).click();
+    await page.locator(".report-focus-target .report-header").waitFor();
+    await openRequestLog(page);
+    if ((await anyInspection(page).count()) !== 0) fail(`committed report ${report.id}'s explorer offers an inspection`);
+  } finally {
+    await committedContext.close();
+  }
+
+  // Answers each scan from `answers`, in order, and records every request
+  // and every scan body; health is the fixture's, with no browser check.
+  const answerScans = (context, answers, sent, scanBodies) => context.route(`${liveScanApiBase}/**`, async (route) => {
+    const request = route.request();
+    const pathname = new URL(request.url()).pathname;
+    const cors = { "access-control-allow-origin": "*" };
+    if (request.method() === "GET" && pathname === "/api/health") {
+      return route.fulfill({ status: 200, contentType: "application/json", headers: cors,
+        body: JSON.stringify({ ...scannerFixture, turnstile: false }) });
+    }
+    if (request.method() === "OPTIONS") {
+      return route.fulfill({ status: 204, headers: { ...cors, "access-control-allow-methods": "GET, POST",
+        "access-control-allow-headers": request.headers()["access-control-request-headers"] ?? "content-type" } });
+    }
+    sent.push(`${request.method()} ${pathname}`);
+    if (request.method() === "POST" && pathname === "/api/scan") {
+      scanBodies.push(request.postData() ?? "");
+      const answer = answers.shift();
+      if (!answer) return route.abort();
+      return route.fulfill({ status: 200, contentType: "application/json", headers: cors, body: answer });
+    }
+    return route.abort();
+  });
+
+  const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
+  const scanBodies = [];
+  const sent = [];
+  // What each press is answered with, in order: the typed scan's result,
+  // then an inspection that found the connection, then one that did not.
+  const answers = [];
+  await answerScans(context, answers, sent, scanBodies);
+  try {
+    const page = await context.newPage();
+    await page.goto(`${baseUrl}/`, { waitUntil: "networkidle" });
+    await page.locator(".run-mode-checking").waitFor({ state: "detached" });
+
+    // A file opened from disk is not a fresh result.
+    await uploadHomeReport(page, reportJson);
+    await openRequestLog(page);
+    if ((await anyInspection(page).count()) !== 0) fail("a report opened from a file offers an inspection");
+
+    // The homepage's own single scan of the page, typed.
+    answers.push(single({}));
+    await page.locator("#url").fill(target);
+    await pressAndAwaitResult(page);
+    if (scanBodies.length !== 1 || "inspect" in JSON.parse(scanBodies[0])) fail(`the typed scan sent ${scanBodies.join(", ")}`);
+    if ((await page.locator(".connection-inspection").count()) !== 0) fail("a typed scan's result shows an inspection");
+    await openRequestLog(page);
+    const rows = await page.locator("details#request-evidence [data-request-row]").evaluateAll((elements) =>
+      elements.map((element) => element.querySelectorAll("a.inspect-connection-link").length)
+    );
+    const thirdParty = wire.baseline.evidence.requests.slice(0, rows.length).map((request) => request.thirdParty && request.url !== "{invalid-url}");
+    if (rows.some((links, index) => links !== (thirdParty[index] ? 1 : 0))) {
+      fail(`the fresh result's rows offer inspections unlike its third-party rows: ${JSON.stringify(rows)}`);
+    }
+    const link = page.locator("details#request-evidence a.inspect-connection-link").first();
+    if ((await link.textContent())?.trim() !== "Inspect this connection") fail("the row link lost its label");
+    if ((await link.getAttribute("href")) !== expectedHref) fail(`the row link is ${await link.getAttribute("href")}, not ${expectedHref}`);
+    const name = (await link.getAttribute("aria-label")) ?? "";
+    if (!name.startsWith("Inspect this connection to ")) fail(`the row link's name does not add its address: ${name}`);
+    const shownAddress = name.slice("Inspect this connection to ".length);
+    pass(`a fresh result of ${report.domain} offers Inspect this connection on its third-party rows only, naming the page, the row's address and its share; its committed permalink, explorer and opened file offer none`);
+
+    // Following it fills the form beside the result, and runs nothing.
+    await link.click();
+    try {
+      await page.waitForFunction((expected) => document.getElementById("url")?.value === expected, target, { timeout: 10_000 });
+      await page.locator(".inspection-arrival").waitFor({ timeout: 10_000 });
+    } catch {
+      fail("following Inspect this connection did not fill the form and state the inspection");
+    }
+    if (!(await page.evaluate(() => window.location.href)).endsWith("#scan")) fail("the inspection link stayed in the address");
+    const arrivalText = `Inspecting ${shownAddress}. A new visit to ${target} will record which scripts were running when each request to this address was made. The details show here only and are not saved.`;
+    if ((await page.locator("#inspection-arrival").textContent())?.trim() !== arrivalText) {
+      fail(`the inspection's arrival line reads ${await page.locator("#inspection-arrival").textContent()}`);
+    }
+    const submit = page.locator('.scan-panel button[type="submit"]');
+    if ((await submit.textContent())?.trim() !== "Inspect") fail(`the button reads ${await submit.textContent()} during an inspection`);
+    if (!((await submit.getAttribute("aria-describedby")) ?? "").split(" ").includes("inspection-arrival")) fail("the button is not described by the inspection line");
+    if ((await page.getByRole("button", { name: "Single", exact: true }).getAttribute("aria-pressed")) !== "true") fail("an inspection did not keep Single selected");
+    const arrival = await page.evaluate(() => {
+      const field = document.getElementById("url")?.getBoundingClientRect();
+      const line = document.querySelector(".inspection-arrival")?.getBoundingClientRect();
+      return { field: field?.top ?? Number.NaN, line: line?.bottom ?? Number.NaN, viewport: window.innerHeight };
+    });
+    if (!(arrival.field >= 0 && arrival.line <= arrival.viewport)) fail(`the field and the inspection line are not on screen on arrival: ${JSON.stringify(arrival)}`);
+    await page.waitForTimeout(1_500);
+    if (sent.length !== 1) fail(`following the inspection link sent ${sent.slice(1).join(", ")}`);
+
+    // An edit or a comparison ends it; putting both back restores it. The
+    // button then reads as the form decides without an inspection (a corpus
+    // site leads with its report), never Inspect.
+    const ended = async (what) => {
+      try {
+        await page.locator(".inspection-arrival").waitFor({ state: "detached", timeout: 5_000 });
+      } catch {
+        fail(`${what} did not end the inspection`);
+      }
+      if ((await submit.textContent())?.trim() === "Inspect") fail(`the button still reads Inspect after ${what}`);
+    };
+    await page.locator("#url").fill(`${target}about/`);
+    await ended("an edit");
+    await page.locator("#url").fill(target);
+    await page.locator(".inspection-arrival").waitFor({ timeout: 5_000 });
+    await page.getByRole("button", { name: "GPC diff", exact: true }).click();
+    await ended("a comparison");
+    await page.getByRole("button", { name: "Single", exact: true }).click();
+    await page.locator(".inspection-arrival").waitFor({ timeout: 5_000 });
+    if ((await submit.textContent())?.trim() !== "Inspect") fail("putting the page and Single back did not restore the inspection");
+    pass("following it fills the form with Single, Inspect and the inspection line on screen, sends nothing, and ends on an edit or a comparison");
+
+    // Pressing Inspect sends the address; the answer's inspection shows at
+    // the top of its own result.
+    const groups = [
+      { count: 2, hosts: ["static.example.org", "cdn.example.net"], namedScripts: ["https://static.example.org/{seg}", "https://cdn.example.net/{seg}"] },
+      { count: 1, hosts: ["cdn.example.net"], namedScripts: ["https://cdn.example.net/{seg}"] }
+    ];
+    answers.push(single({ inspection: { address, matched: 5, groups, redirected: 0, withoutStack: 1, withoutNamedScript: 0, notListed: 0, unobserved: 1 } }));
+    await pressAndAwaitResult(page);
+    const panel = page.locator(".connection-inspection");
+    if ((await panel.count()) !== 1) fail("the inspection's result shows no inspection panel");
+    const inspected = JSON.parse(scanBodies[1] ?? "{}");
+    if (inspected.inspect !== address || inspected.url !== target || inspected.compareGpc || inspected.compareShields || inspected.compareConsent) {
+      fail(`the inspection sent ${scanBodies[1]}`);
+    }
+    await expectText(panel.locator("h2"), `Which scripts asked for ${shownAddress} in this new visit`);
+    const lines = await panel.locator(".connection-inspection-lines li").allTextContents();
+    const expectedLines = [
+      "2 requests. Scripts on the call stack, innermost first: static.example.org then cdn.example.net.",
+      "1 request. Scripts on the call stack, innermost first: cdn.example.net.",
+      "1 request came with no call stack, so no script is named; the browser gives none for requests the page's HTML starts, nor for images a script creates."
+    ];
+    if (JSON.stringify(lines) !== JSON.stringify(expectedLines)) fail(`the inspection lists ${JSON.stringify(lines)}`);
+    await expectText(panel, "A call stack shows which scripts were running when a request was made, not which one decided to make it. Requests made by workers are not observed.");
+    await expectText(panel, "1 of this visit's requests to this address was not observed, so nothing is shown for it.");
+    await expectText(panel, "This new visit is a different observation from the report you came from, so it can neither confirm nor refute that report's row.");
+    const back = panel.locator("a.earlier-result-link");
+    if ((await back.getAttribute("href")) !== `${liveScanApiBase}/reports/${report.id}`) fail(`the inspection links back to ${await back.getAttribute("href")}`);
+    if ((await back.textContent())?.trim() !== "Open the earlier result") fail("the inspection's link back lost its label");
+    const placement = await page.evaluate(() => {
+      const shown = document.querySelector(".connection-inspection");
+      const header = document.querySelector("#report .report-header");
+      return { first: Boolean(shown && header && shown.compareDocumentPosition(header) & Node.DOCUMENT_POSITION_FOLLOWING) };
+    });
+    if (!placement.first) fail("the inspection panel is not at the top of its result, ahead of the report header");
+    const axe = await new AxeBuilder({ page })
+      .include(".connection-inspection")
+      .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa", "best-practice"])
+      .analyze();
+    const serious = axe.violations.filter((violation) => violation.impact === "critical" || violation.impact === "serious");
+    if (serious.length > 0) fail(`the inspection panel has serious accessibility violations: ${serious.map((violation) => violation.id).join(", ")}`);
+    pass("pressing Inspect sends the address, and its result shows the groups, counts, caveat, separation and link back at its top");
+
+    // The inspection's own result is fresh too; an inspection that finds
+    // no request says so.
+    await openRequestLog(page);
+    await page.locator("details#request-evidence a.inspect-connection-link").first().click();
+    await page.locator(".inspection-arrival").waitFor({ timeout: 10_000 });
+    answers.push(single({ inspection: { address, matched: 0, groups: [], redirected: 0, withoutStack: 0, withoutNamedScript: 0, notListed: 0, unobserved: 0 } }));
+    await pressAndAwaitResult(page);
+    if ((await page.locator(".connection-inspection-none").count()) !== 1) fail("an inspection that found no request shows no did-not-recur state");
+    await expectText(
+      page.locator(".connection-inspection-none"),
+      `This new visit made no request to ${shownAddress}. Connections can change between visits, so this does not show the earlier one did not happen.`
+    );
+    if ((await page.locator(".connection-inspection-lines").count()) !== 0) fail("the did-not-recur state lists stacks");
+    pass("an inspection that finds no request states the did-not-recur sentence and lists nothing");
+
+    // A reload shows no inspection.
+    await page.reload({ waitUntil: "networkidle" });
+    if ((await page.locator(".connection-inspection").count()) !== 0) fail("a reload shows an inspection");
+
+    // An inspection the form cannot use is scrubbed with its whole link.
+    const scrubbed = await context.newPage();
+    await scrubbed.goto(`${baseUrl}/#scan?url=${encodeURIComponent(target)}&inspect=${encodeURIComponent(`${address}?id=`)}`, { waitUntil: "networkidle" });
+    await scrubbed.locator(".run-mode-checking").waitFor({ state: "detached" });
+    if (!(await scrubbed.evaluate(() => window.location.href)).endsWith("#scan")) fail("an unusable inspection link stayed in the address");
+    if ((await scrubbed.locator("#url").inputValue()) !== "" || (await scrubbed.locator(".inspection-arrival").count()) !== 0) {
+      fail("an unusable inspection link filled the form");
+    }
+    await scrubbed.close();
+    if (sent.length !== 3) fail(`the inspection checks sent ${sent.join(", ")}`);
+    pass("a reload shows no inspection, and an inspection link the form cannot use is scrubbed with its address");
+  } finally {
+    await context.close();
+  }
+
+  // On a phone, an inspection that replaces an earlier result, the way the
+  // row link leads to one, arrives with its panel's heading on screen and
+  // clear of the sticky strips, focus still on the result: the result
+  // region's focus alone leaves the panel above the viewport there.
+  const phone = await browser.newContext({ viewport: { width: 375, height: 812 } });
+  const found = { count: 1, hosts: ["cdn.example.net"], namedScripts: ["https://cdn.example.net/{seg}"] };
+  await answerScans(phone, [
+    single({}),
+    single({ inspection: { address, matched: 1, groups: [found], redirected: 0, withoutStack: 0, withoutNamedScript: 0, notListed: 0, unobserved: 0 } })
+  ], [], []);
+  try {
+    const page = await phone.newPage();
+    await page.goto(`${baseUrl}/`, { waitUntil: "networkidle" });
+    await page.locator(".run-mode-checking").waitFor({ state: "detached" });
+    await page.locator("#url").fill(target);
+    await pressAndAwaitResult(page);
+    await openRequestLog(page);
+    await page.locator("details#request-evidence a.inspect-connection-link").first().click();
+    await page.locator(".inspection-arrival").waitFor({ timeout: 10_000 });
+    await pressAndAwaitResult(page);
+    await page.locator(".connection-inspection h2").waitFor();
+    await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    const landing = await page.evaluate(() => {
+      const heading = document.querySelector(".connection-inspection h2").getBoundingClientRect();
+      const strips = [...document.querySelectorAll(".topbar, .report-section-nav")].map((element) => element.getBoundingClientRect());
+      return {
+        top: Math.round(heading.top),
+        bottom: Math.round(heading.bottom),
+        covered: strips.some((box) => box.height > 0 && box.bottom > heading.top && box.top < heading.bottom),
+        viewport: window.innerHeight,
+        focused: document.activeElement?.id ?? null
+      };
+    });
+    if (landing.covered || landing.top < 0 || landing.bottom > landing.viewport) {
+      fail(`on a phone the inspection's heading arrives off screen or under the sticky strips: ${JSON.stringify(landing)}`);
+    }
+    if (landing.focused !== "report") fail(`bringing the inspection into view moved focus to ${landing.focused}`);
+    pass("on a phone, an inspection that replaces an earlier result arrives with its panel's heading on screen below the sticky strips, focus on the result");
+  } finally {
+    await phone.close();
   }
 }
 

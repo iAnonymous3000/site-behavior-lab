@@ -12,6 +12,7 @@ import {
   scannerApiUrl
 } from "../client-runtime";
 import { INSPECTION_DURABLE_REFUSAL } from "@/lib/connection-inspection-address";
+import { shownConnectionInspection, type ShownConnectionInspection } from "@/lib/connection-inspection-result";
 import { connectedEarlierResult, connectedInspection } from "@/lib/known-site-evidence";
 import type { ComparisonRunMode } from "@/lib/run-mode-copy";
 import { heldRunModeOutcome, normalizeScanUrl, resolveScanPrefillNavigation } from "@/lib/scan-prefill";
@@ -85,11 +86,16 @@ export function useScanRuntime({
 }: UseScanRuntimeOptions) {
   const [form, setForm] = useState<ScanFormState>(INITIAL_SCAN_FORM);
   const [loaded, setLoaded] = useState<LoadedReport | null>(initialLoaded);
-  // The report this tab's own live scan returned, and the earlier result that
-  // scan was connected to, if any. A file the visitor opens and a comparison
-  // built in the archive replace `loaded` too, so the result is fresh, and
-  // links back, only while it is still this very object.
-  const [liveScan, setLiveScan] = useState<{ result: LoadedReport; earlierResultId: string | null } | null>(null);
+  // The report this tab's own live scan returned, the earlier result that
+  // scan was connected to, if any, and what an inspection submit recorded. A
+  // file the visitor opens and a comparison built in the archive replace
+  // `loaded` too, so the result is fresh, links back and shows an
+  // inspection only while it is still this very object.
+  const [liveScan, setLiveScan] = useState<{
+    result: LoadedReport;
+    earlierResultId: string | null;
+    inspection: ShownConnectionInspection | null;
+  } | null>(null);
   // The earlier result the scan this tab started last was connected to, set
   // once that scan is claimed and read by whichever path shows its result in
   // this page load. A scan restored from an earlier page load carries none.
@@ -475,10 +481,19 @@ export function useScanRuntime({
     );
   }
 
-  /** Every path that ends a live scan of this tab (submit, resume, restore, admission recovery) shows its result here. */
-  function showLiveScanResult(next: LoadedReport): void {
+  /**
+   * Every path that ends a live scan of this tab (submit, resume, restore,
+   * admission recovery) shows its result here. Only the submit path hands
+   * over the inspection it asked for, so a resumed or restored result, whose
+   * status poll re-serves the same shell, shows no inspection panel.
+   */
+  function showLiveScanResult(next: LoadedReport, inspected: { address: string; from: string | null } | null = null): void {
     setLoaded(next);
-    setLiveScan({ result: next, earlierResultId: startedScanEarlierResultRef.current });
+    setLiveScan({
+      result: next,
+      earlierResultId: startedScanEarlierResultRef.current,
+      inspection: shownConnectionInspection(next, inspected)
+    });
   }
 
   function releaseActiveScanSession(operation: ScanLifecycleOperation): void {
@@ -733,7 +748,7 @@ export function useScanRuntime({
         ...(inspectionArrival ? { inspect: inspectionArrival.address } : {})
       });
       assertClientOperationOwner(operationOwnerRef.current, operation);
-      showLiveScanResult(nextLoaded);
+      showLiveScanResult(nextLoaded, inspectionArrival);
       releaseActiveScanSession(operation);
     } catch (scanError) {
       if (!operationOwnerRef.current.owns(operation) || isAbortError(scanError)) return;
@@ -988,6 +1003,8 @@ export function useScanRuntime({
     freshScanResult: liveScan !== null && loaded === liveScan.result,
     // The earlier result that scan was connected to, only while it is shown.
     earlierResultId: liveScan !== null && loaded === liveScan.result ? liveScan.earlierResultId : null,
+    // What an inspection submit recorded, only while its own result is shown.
+    inspection: liveScan !== null && loaded === liveScan.result ? liveScan.inspection : null,
     error,
     setError,
     loading,

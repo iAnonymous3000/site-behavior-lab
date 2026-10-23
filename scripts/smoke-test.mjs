@@ -197,6 +197,46 @@ async function apiChecks() {
     fail("malformed JSON did not get a sanitized client error");
   }
   pass("API rejects malformed JSON cleanly");
+
+  await inspectionApiChecks(health);
+}
+
+const inspectionRequestMessage =
+  "An inspection must name one address exactly as a report publishes it, query dropped, on a single scan.";
+const inspectionV1Refusal =
+  "Inspecting a connection needs a scanner that writes revision 2 reports, and this one writes version 1 reports, so no visit was made.";
+
+/**
+ * An inspection request the gate refuses never visits anything: a value that
+ * is not a published address, or one beside a comparison, is refused before
+ * quota or DNS, and a scanner that writes version 1 reports refuses even a
+ * well-formed one with its own sentence. Nothing here scans. A scanner whose
+ * health says it writes r2 reports would run a real visit for a well-formed
+ * inspection, so that request is not sent; the in-process fixture test runs
+ * one end to end instead (lib/connection-inspection-fixture.test.ts).
+ */
+async function inspectionApiChecks(health) {
+  const base = { url: "https://example.com/", device: "desktop", gpcEnabled: true, consentMode: "observe" };
+  const inspect = "https://cdn.example.net/{seg}";
+  for (const [label, body] of [
+    ["a raw URL", { ...base, inspect: "https://cdn.example.net/loader.js?id=1" }],
+    ["a comparison", { ...base, compareGpc: true, inspect }]
+  ]) {
+    const refused = await postScan(body);
+    if (refused.ok || refused.error !== inspectionRequestMessage || refused.cause !== "request-rejected") {
+      fail(`an inspection naming ${label} was not refused before any visit: ${smokeResponseSummary(refused)}`);
+    }
+  }
+  const producer = health.checks?.publicR2Reports?.status;
+  if (producer === "disabled") {
+    const refused = await postScan({ ...base, inspect });
+    if (refused.ok || refused.error !== inspectionV1Refusal || refused.cause !== undefined) {
+      fail(`a version 1 scanner did not refuse an inspection with its sentence: ${smokeResponseSummary(refused)}`);
+    }
+    pass("API refuses malformed inspections, and a version 1 scanner refuses every inspection, before any visit");
+  } else {
+    pass(`API refuses malformed inspections before any visit (producer ${producer}: a well-formed inspection would visit, so none is sent)`);
+  }
 }
 
 function smokeResponseSummary(value) {
@@ -250,6 +290,42 @@ async function modeLinkChecks(browser) {
   }
 }
 
+/**
+ * An "Inspect this connection" link (`#scan?url=...&inspect=...`, what a
+ * fresh result's request log mints) against this scanner's own build: the
+ * form keeps the page, selects Single, labels the button Inspect, states the
+ * inspection, scrubs the link from the address and sends no scan request.
+ * Nothing here scans: the button is never pressed.
+ */
+async function inspectLinkChecks(browser) {
+  const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
+  const scanRequests = [];
+  page.on("request", (request) => {
+    if (new URL(request.url()).pathname.startsWith("/api/scan")) scanRequests.push(`${request.method()} ${request.url()}`);
+  });
+  try {
+    const target = "https://example.com/";
+    const inspect = "https://cdn.example.net/{seg}";
+    await page.goto(`${baseUrl}/#scan?url=${encodeURIComponent(target)}&inspect=${encodeURIComponent(inspect)}`, { waitUntil: "networkidle" });
+    await page.waitForFunction((value) => document.getElementById("url")?.value === value, target, { timeout: 10_000 });
+    await page.locator(".inspection-arrival").waitFor({ timeout: 10_000 });
+    await expectText(page.locator("#inspection-arrival"), "Inspecting https://cdn.example.net/….");
+    await expectText(page.locator("#inspection-arrival"), "The details show here only and are not saved.");
+    if ((await page.locator('.scan-panel button[type="submit"]').textContent())?.trim() !== "Inspect") {
+      fail("an inspection link did not label the button Inspect");
+    }
+    if ((await page.getByRole("button", { name: "Single", exact: true }).getAttribute("aria-pressed")) !== "true") {
+      fail("an inspection link did not keep Single selected");
+    }
+    await page.waitForTimeout(1_500);
+    if (scanRequests.length !== 0) fail(`an inspection link sent a scan request on its own: ${scanRequests.join(", ")}`);
+    if (!(await page.evaluate(() => window.location.href)).endsWith("#scan")) fail("an inspection link stayed in the address");
+    pass("an inspect link fills the form with Single, Inspect and its line, and sends nothing");
+  } finally {
+    await page.close();
+  }
+}
+
 async function uiChecks() {
   const browser = await chromium.launch({ headless: true });
   const context = await browser.newContext({ acceptDownloads: true, viewport: { width: 1440, height: 1000 } });
@@ -257,6 +333,7 @@ async function uiChecks() {
 
   try {
     await modeLinkChecks(browser);
+    await inspectLinkChecks(browser);
     await page.goto(baseUrl, { waitUntil: "networkidle" });
     await expectText(page.locator("h1"), "See what a site does, not just what it says.");
     pass("home page renders tagline");
