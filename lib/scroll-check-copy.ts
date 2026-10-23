@@ -92,7 +92,11 @@ const OUTCOME_SENTENCES: Readonly<Record<ScrollCheckOutcome, string>> = {
   "depth-limit": `The visit scrolled ${MAX_SCROLL_CHECK_SCREENS} screens, its limit; the page continued below that, and nothing further down was reached.`,
   "did-not-move": "The page was taller than the window but did not move when scrolled, so nothing below the first screen was reached.",
   locked: "The page was taller than the window but had scrolling turned off, so the visit did not scroll it.",
-  "nothing-to-scroll": "The page fit in the window, so there was nothing to scroll.",
+  // Corrected draft. Approved: "The page fit in the window, so there was
+  // nothing to scroll." A page that scrolls inside a box of its own fits the
+  // window as a whole while its content runs on, which that sentence denies.
+  "nothing-to-scroll":
+    "The page as a whole fit in the window, so there was nothing to scroll; any box inside it that scrolls on its own was not scrolled.",
   "left-site": "The page left this site during the check, so the check stopped there.",
   // Corrected draft. Approved: "The check stopped early when its time ran
   // out." The scanner also ends a check this way when the page stops

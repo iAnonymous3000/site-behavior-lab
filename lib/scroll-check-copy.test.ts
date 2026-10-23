@@ -212,7 +212,10 @@ test("each outcome reads as approved, and a corrected draft stands in only where
     scrollCheckOutcomeSentence({ outcome: "locked", screens: 0 }),
     "The page was taller than the window but had scrolling turned off, so the visit did not scroll it."
   );
-  assert.equal(scrollCheckOutcomeSentence({ outcome: "nothing-to-scroll", screens: 0 }), "The page fit in the window, so there was nothing to scroll.");
+  assert.equal(
+    scrollCheckOutcomeSentence({ outcome: "nothing-to-scroll", screens: 0 }),
+    "The page as a whole fit in the window, so there was nothing to scroll; any box inside it that scrolls on its own was not scrolled."
+  );
   assert.equal(scrollCheckOutcomeSentence({ outcome: "left-site", screens: 1 }), "The page left this site during the check, so the check stopped there.");
   assert.equal(
     scrollCheckOutcomeSentence({ outcome: "not-run", screens: 0 }),

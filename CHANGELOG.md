@@ -9,6 +9,15 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- A check after scrolling whose page as a whole fit the window now says it in
+  those words: "The page as a whole fit in the window, so there was nothing
+  to scroll; any box inside it that scrolls on its own was not scrolled." The
+  approved sentence, "The page fit in the window, so there was nothing to
+  scroll.", was false for a page that scrolls inside a box of its own, whose
+  document fits the window while its content runs on (the fixture's
+  inner-scroller page ends this way). It is a corrected draft pending the
+  owner's review, with the approved text beside it in
+  lib/scroll-check-copy.ts.
 - A check after scrolling's own result now shows, at its top, what the check
   recorded: "What this page first contacted after scrolling began", then what
   the page first contacted in 10 seconds without scrolling and in the next 10
