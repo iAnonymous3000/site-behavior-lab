@@ -9,10 +9,13 @@ import {
   R2SubjectNotNameableError,
   type NodeScanReportV2R2Input
 } from "./scan-result-v2-r2-builder";
-import type {
-  NodeScanMeasurement,
-  NodeScanMeasurementEnvelope
+import {
+  connectionInspectionEvidence,
+  type NodeScanMeasurement,
+  type NodeScanMeasurementEnvelope
 } from "./node-scan-measurement";
+import type { ConnectionInspectionEvidence } from "./connection-inspection-evidence";
+import { isEphemeralScanReportR2 } from "./scan-report-v2-r2-validation";
 import type { ScanResult } from "./types";
 
 export type RuntimeR2BuildFailureCode =
@@ -49,7 +52,12 @@ function declaredSubjectRefusal(error: unknown): unknown {
   return new PublicScanError(UNNAMEABLE_SUBJECT_MESSAGE, 400, "unnameable-subject-target");
 }
 
-/** Build one screenshot-bearing immediate r2 result from a completed Node visit. */
+/**
+ * Build one screenshot-bearing immediate r2 result from a completed Node
+ * visit. An inspection visit's envelope also carries its evidence, which goes
+ * into this shell's ephemeral block and nowhere else: the public report the
+ * builder made, and so every saved byte, is exactly an ordinary single scan's.
+ */
 export function buildRuntimeScanReportV2R2(
   envelope: NodeScanMeasurementEnvelope,
   acquisition: AcquisitionKind,
@@ -58,14 +66,25 @@ export function buildRuntimeScanReportV2R2(
   const measurement = requireMeasurementEnvelope(envelope);
   assertMeasurementEnvelopeConsistent(envelope.result, measurement);
   assertBuildProvenance(env);
+  let report: EphemeralSingleReportR2;
   try {
-    return buildNodeScanReportV2R2(
+    report = buildNodeScanReportV2R2(
       nodeBuilderInput(measurement, acquisition, mintRunId(measurement.emissionInputs.startedAt)),
       env
     );
   } catch (error) {
     throw declaredSubjectRefusal(error);
   }
+  const inspection = connectionInspectionEvidence(envelope);
+  if (inspection === undefined) return report;
+  const inspected: EphemeralSingleReportR2 = {
+    ...report,
+    ephemeral: { ...report.ephemeral, inspection: structuredClone(inspection) as ConnectionInspectionEvidence }
+  };
+  if (!isEphemeralScanReportR2(inspected)) {
+    throw new Error("Refusing to attach an invalid connection inspection to a ScanReport v2/r2 ephemeral shell.");
+  }
+  return inspected;
 }
 
 /** Build one complete screenshot-bearing r2 intervention pair from two visits. */

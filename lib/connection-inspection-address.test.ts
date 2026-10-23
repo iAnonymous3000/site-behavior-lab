@@ -4,8 +4,11 @@ import path from "node:path";
 import { test } from "node:test";
 import {
   INSPECTED_ADDRESS_MAX_CHARS,
+  INSPECTION_DURABLE_REFUSAL,
+  INSPECTION_V1_PRODUCER_REFUSAL,
   inspectedAddressFromRowUrl,
-  isPublishedAddressShape
+  isPublishedAddressShape,
+  scanBodyNamesInspection
 } from "./connection-inspection-address";
 import { isInspectableAddress } from "./connection-inspection";
 import allowlists from "./redaction-allowlists.json";
@@ -87,6 +90,29 @@ test("every committed third-party row's address is one the grammar and the gate 
     }
   }
   assert.ok(rows > 1_000, `only ${rows} committed third-party rows; this walk would be vacuous`);
+});
+
+// The two dash characters no copy may hold, built from their code points.
+const DASHES = new RegExp(`[${String.fromCharCode(0x2013)}${String.fromCharCode(0x2014)}]`);
+
+test("each refusal is one sentence of at most 30 words with no dash", () => {
+  for (const sentence of [INSPECTION_DURABLE_REFUSAL, INSPECTION_V1_PRODUCER_REFUSAL]) {
+    assert.ok(sentence.split(/\s+/).length <= 30, sentence);
+    assert.equal(sentence.match(/[.!?](\s|$)/g)?.length, 1, sentence);
+    assert.equal(DASHES.test(sentence), false, sentence);
+  }
+  assert.notEqual(INSPECTION_DURABLE_REFUSAL, INSPECTION_V1_PRODUCER_REFUSAL);
+});
+
+test("the durable edge's check finds an inspection key in any scan body that has one", () => {
+  assert.equal(scanBodyNamesInspection(JSON.stringify({ url: "https://www.example.com/", inspect: "https://pixel.example.net/{seg}" })), true);
+  // Any value names one: the edge refuses the key, the gate judges values.
+  assert.equal(scanBodyNamesInspection(JSON.stringify({ url: "https://www.example.com/", inspect: null })), true);
+  assert.equal(scanBodyNamesInspection(JSON.stringify({ url: "https://www.example.com/" })), false);
+  assert.equal(scanBodyNamesInspection(JSON.stringify({ url: "https://www.example.com/", nested: { inspect: "x" } })), false);
+  assert.equal(scanBodyNamesInspection(JSON.stringify([{ inspect: "x" }])), false);
+  assert.equal(scanBodyNamesInspection("{"), false);
+  assert.equal(scanBodyNamesInspection("null"), false);
 });
 
 test("a row link names no address for a row redaction could not publish", () => {

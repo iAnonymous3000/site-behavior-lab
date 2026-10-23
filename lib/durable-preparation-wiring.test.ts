@@ -28,6 +28,22 @@ test("the durable admission path reserves a preparation slot before it buys any 
   );
 });
 
+test("the durable edge refuses a body naming an inspection, with its sentence, before any capability lookup", () => {
+  // The admission commitment is exact-keyed, so such a body could only ever
+  // meet the generic capability error. It must meet its own sentence, after
+  // authorization and before any capability, reservation or preparation.
+  const check = "if (scanBodyNamesInspection(body)) {";
+  assertOrdered(
+    worker,
+    ['gateScanRequest(request, body, env, "authorize"', check, "scanAdmissionStoreKey(request.headers, body)"],
+    WORKER,
+    "the inspection refusal must sit between authorization and the capability lookup"
+  );
+  const branch = worker.slice(requireIndex(worker, check, WORKER), requireIndex(worker, check, WORKER) + 200);
+  assert.match(branch, /throw new EdgeScanGateError\(INSPECTION_DURABLE_REFUSAL, 400\)/);
+  assert.match(worker, /import \{ INSPECTION_DURABLE_REFUSAL, scanBodyNamesInspection \} from "\.\.\/lib\/connection-inspection-address";/);
+});
+
 test("the slot is released on every exit path, and a cleanup failure never becomes the caller's error", () => {
   const tail = worker.slice(requireIndex(worker, "reserveDurablePreparationSlot({", WORKER));
   // The reservation must be released.

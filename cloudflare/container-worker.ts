@@ -33,6 +33,7 @@ import {
   scanAdmissionCredentialFromHeaders,
   scanAdmissionSemanticsFromBody
 } from "../lib/scan-admission-capability";
+import { INSPECTION_DURABLE_REFUSAL, scanBodyNamesInspection } from "../lib/connection-inspection-address";
 import {
   ScanAdmissionCapacityError,
   ScanAdmissionConflictError,
@@ -3026,6 +3027,12 @@ export default {
           // including Siteverify, Node preparation, and DO commit, shares one
           // caller-composed operation deadline.
           await gateScanRequest(request, body, env, "authorize", undefined, signal);
+          // An inspection has no place in the exact-keyed admission
+          // commitment, so a body naming one gets its own sentence here
+          // rather than the capability error it would otherwise meet.
+          if (scanBodyNamesInspection(body)) {
+            throw new EdgeScanGateError(INSPECTION_DURABLE_REFUSAL, 400);
+          }
           replayFaultMode = await readStagingDurableReplayFaultRequest(request, env);
           const scanAdmissionKey = await scanAdmissionStoreKey(request.headers, body);
           throwIfDurableScanJobAdmissionAborted(signal);

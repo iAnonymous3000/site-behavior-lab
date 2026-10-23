@@ -19,6 +19,7 @@ import {
   type ScanAdmissionRandomBytes
 } from "./scan-admission-capability";
 import { scanFailureText, type ScanFailureNotice } from "./scan-failure-causes";
+import { INSPECTION_DURABLE_REFUSAL } from "./connection-inspection-address";
 import { isRecord } from "./guards";
 import { BROWSER_PUBLIC_REPORT_JSON_MAX_BYTES } from "./report-resource-limits";
 import {
@@ -217,7 +218,20 @@ export async function submitRuntimeScan(options: {
   onAdmissionCleared?: () => void | Promise<void>;
   onAccepted: (job: ActiveScanJob) => void | Promise<void>;
   onProgress?: (progress: ScanJobProgress) => void;
+  /**
+   * The published address an "Inspect this connection" visit asks about, only
+   * for a single scan that a scan link's inspection arrival still holds. The
+   * body names it only then, so every other request is byte for byte the one
+   * it was.
+   */
+  inspect?: string;
 }): Promise<LoadedReport> {
+  // A durable admission binds every behavior knob into its commitment, and an
+  // inspection is not one it knows, so it is refused before any credential
+  // is minted or any byte leaves the tab (owner's ruling 3).
+  if (options.inspect !== undefined && options.durableAdmissionEnabled) {
+    throw new Error(INSPECTION_DURABLE_REFUSAL);
+  }
   const fetcher = options.fetcher ?? ((input, init) => fetch(input, init));
   const poller = options.poller ?? pollAcceptedScanJob;
   const accessKey = options.form.accessKey.trim();
@@ -236,7 +250,8 @@ export async function submitRuntimeScan(options: {
     consentMode: "observe" as const,
     ...(options.turnstileRequired && options.turnstileToken
       ? { turnstileToken: options.turnstileToken }
-      : {})
+      : {}),
+    ...(options.inspect === undefined ? {} : { inspect: options.inspect })
   };
 
   let responseStatus: number;

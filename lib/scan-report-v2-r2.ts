@@ -21,6 +21,7 @@ import type {
   ScanRunV2,
   TemporalExperiment
 } from "./scan-report-v2";
+import type { ConnectionInspectionEvidence } from "./connection-inspection-evidence";
 
 export const SCAN_REPORT_V2_SCHEMA_REVISION_2 = 2 as const;
 
@@ -153,8 +154,20 @@ export type PublicComparisonReportV2R2 = Omit<
 
 export type PublicScanReportV2R2 = PublicSingleReportV2R2 | PublicComparisonReportV2R2;
 
+/**
+ * DIVERGES FROM RFC 15.2, by the owner's ruling of 2026-10-22: the RFC calls
+ * its r2 wire-type graph complete and gives this shell's ephemeral block
+ * exactly one key, `screenshot`. The Node scanner's immediate result for an
+ * "Inspect this connection" visit also carries `inspection`
+ * (lib/connection-inspection-evidence.ts), and only that visit's result. The
+ * RFC text is left as it is, since its digest is pinned in
+ * RELEASE_READINESS.json; docs/limitations.md records the divergence. Like
+ * the screenshot, the key is immediate-only: persistence, export and the
+ * published schema never carry it, and no other ephemeral key is accepted.
+ * Comparison shells get none.
+ */
 export type EphemeralSingleReportR2 = PublicSingleReportV2R2 & {
-  ephemeral: { screenshot: string | null };
+  ephemeral: { screenshot: string | null; inspection?: ConnectionInspectionEvidence };
 };
 
 export type EphemeralComparisonReportR2 = PublicComparisonReportV2R2 & {

@@ -7,6 +7,8 @@ import {
   type ReportSaver,
   type ScanRunner
 } from "./scan-api";
+import { INSPECTION_DURABLE_REFUSAL } from "./connection-inspection-address";
+import { assertInspectionRunnable } from "./scan-gate";
 import {
   DURABLE_SCAN_JOB_REPORT_MIN_SURVIVAL_MS,
   commitPreparedScanReportBundle,
@@ -303,6 +305,10 @@ function prepareDurableScanJob(
   prepared: PreparedScanRequest,
   dependencies: Pick<DurableScanJobAdmissionDependencies, "requireReady" | "now" | "createId">
 ): DurableScanJobPreparation {
+  // The durable payload is exact-keyed and has no place for an inspection,
+  // which would otherwise be dropped silently and run as an ordinary scan
+  // (owner's ruling 3). Undeclared, so the visitor reads this sentence.
+  if (prepared.inspect !== undefined) throw new PublicScanError(INSPECTION_DURABLE_REFUSAL, 400);
   (dependencies.requireReady ?? requireDurableScanJobReadiness)();
 
   const nowMs = (dependencies.now ?? Date.now)();
@@ -367,7 +373,9 @@ export function enqueuePreparedScanJob(
   // accepted or its client is charged. The worker checks again at execution
   // time in case deployment configuration changes while a job is queued.
   const admissionSaver = dependencies.saveReport ?? saveScanReport;
-  requireRuntimeScanReportModeForSaver(admissionSaver);
+  // An inspection this runtime cannot carry is refused here too, before the
+  // job is accepted or its client charged.
+  assertInspectionRunnable(prepared, requireRuntimeScanReportModeForSaver(admissionSaver));
   // Explicit aggregate admission: once accepted, a job is a promise of work
   // that must never be silently dropped, so admission is refused up front
   // (before the client is charged) when the queue is full.

@@ -6,6 +6,7 @@
  */
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { ConnectionInspectionRecorder } from "./connection-inspection";
 import { readStoredScanReport } from "./scan-report-reader";
 import { publicWireForExportOrPersistence, readScanTransportPayload, toReportView } from "./scan-report-view";
 import { buildComparisonDiffV2 } from "./scan-report-v2-evaluators";
@@ -243,4 +244,73 @@ test("transport dispatches r2 public and ephemeral payloads", () => {
     ephemeral: { screenshot: null }
   });
   assert.deepEqual(future, { kind: "unreadable", error: "unsupported-revision" });
+});
+
+/** What a real inspection recorder writes, for a visit with one stack group. */
+function inspectionEvidence(): unknown {
+  const recorder = new ConnectionInspectionRecorder("https://pixel.example.net/{seg}");
+  for (const [url, type, frames] of [
+    ["https://cdn.example.net/loader.js", "Script", null],
+    ["https://pixel.example.net/p.gif?a=1", "Image", ["https://cdn.example.net/loader.js"]],
+    ["https://pixel.example.net/p.gif?b=1", "Image", null]
+  ] as const) {
+    recorder.observe({
+      request: { url },
+      type,
+      initiator: frames ? { type: "script", stack: { callFrames: frames.map((frame) => ({ url: frame })) } } : { type: "parser" }
+    });
+    recorder.notePageRequest(url);
+  }
+  const evidence = recorder.evidence();
+  assert.ok(evidence && evidence.matched === 2 && evidence.groups.length === 1);
+  return evidence;
+}
+
+test("a single r2 shell may carry an inspection, which never reaches the public wire", () => {
+  const inspection = inspectionEvidence();
+  const result = readScanTransportPayload({
+    ...makeConsentSingleReportV2R2(),
+    ephemeral: { screenshot: null, inspection }
+  });
+  assert.equal(result.kind, "report");
+  if (result.kind !== "report" || result.loaded.source !== "v2-r2-ephemeral") throw new Error("expected an r2 ephemeral shell");
+  assert.deepEqual((result.loaded.wire.ephemeral as AnyRecord).inspection, inspection);
+  const wire = JSON.stringify(publicWireForExportOrPersistence(result.loaded));
+  assert.equal(wire.includes("inspection"), false);
+  assert.equal(wire.includes("pixel.example.net"), false);
+  assert.equal(wire.includes("ephemeral"), false);
+});
+
+test("an inspection the closed shape refuses, or one on a comparison shell, makes the shell unreadable", () => {
+  const inspection = inspectionEvidence() as AnyRecord;
+  const unreadable = { kind: "unreadable", error: "invalid" };
+  for (const bad of [
+    { ...inspection, functionNames: ["send"] },
+    { ...inspection, matched: inspection.matched + 1 },
+    { ...inspection, groups: [{ ...inspection.groups[0], hosts: ["203.0.113.9"] }] },
+    null,
+    "https://pixel.example.net/{seg}"
+  ]) {
+    assert.deepEqual(
+      readScanTransportPayload({ ...makeConsentSingleReportV2R2(), ephemeral: { screenshot: null, inspection: bad } }),
+      unreadable
+    );
+  }
+  // A comparison shell takes exactly its two screenshots.
+  assert.equal(
+    readScanTransportPayload({
+      ...makeGpcInterventionReportV2R2(),
+      ephemeral: { baselineScreenshot: null, variantScreenshot: null }
+    }).kind,
+    "report"
+  );
+  assert.deepEqual(
+    readScanTransportPayload({
+      ...makeGpcInterventionReportV2R2(),
+      ephemeral: { baselineScreenshot: null, variantScreenshot: null, inspection }
+    }),
+    unreadable
+  );
+  // The screenshot stays required beside it.
+  assert.deepEqual(readScanTransportPayload({ ...makeConsentSingleReportV2R2(), ephemeral: { inspection } }), unreadable);
 });

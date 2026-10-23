@@ -1,9 +1,17 @@
 import assert from "node:assert/strict";
+import { mkdtemp, rm } from "node:fs/promises";
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
 import { connect } from "node:net";
+import { tmpdir } from "node:os";
+import path from "node:path";
 import { test } from "node:test";
+import { CONSENT_VERIFICATION_ENV } from "./consent-verification";
 import { isConnectionInspectionEvidence } from "./connection-inspection-evidence";
 import { connectionInspectionEvidence } from "./node-scan-measurement";
+import { readStoredScanReportById, saveScanReport } from "./report-store";
+import { BUILD_COMMIT_ENV, PUBLIC_R2_REPORTS_ENV } from "./runtime-scan-report";
+import { executePreparedScan, type PreparedScanRequest, type ScanRunner } from "./scan-api";
+import { readScanTransportPayload } from "./scan-report-view";
 import { closeSharedBrowserForTests, scanSiteWithMeasurement, type ScanSiteOptions } from "./scanner";
 
 /**
@@ -166,6 +174,69 @@ test("an inspection visit groups the pixel's requests by the scripts on their ca
   } finally {
     await closeSharedBrowserForTests();
     await new Promise<void>((resolve) => fixture.server.close(() => resolve()));
+  }
+});
+
+test("one inspection end to end: the immediate result shows it and the saved share holds none of it", { timeout: 90_000 }, async () => {
+  const fixture = await startFixture();
+  const storeDir = await mkdtemp(path.join(tmpdir(), "sbl-inspection-store-"));
+  const env = {
+    SITE_BEHAVIOR_LAB_REPORT_STORE_DIR: storeDir,
+    [PUBLIC_R2_REPORTS_ENV]: "1",
+    [BUILD_COMMIT_ENV]: "c".repeat(40),
+    [CONSENT_VERIFICATION_ENV]: "1"
+  };
+  const previous = Object.fromEntries(Object.keys(env).map((name) => [name, process.env[name]]));
+  Object.assign(process.env, env);
+  try {
+    // The scan API's own execution path, the real scanner behind the proxy
+    // hook, and the real report store.
+    const scan: ScanRunner = (payload, options) =>
+      scanSiteWithMeasurement(payload, { ...options, ...visitOptions(fixture.port) });
+    const prepared: PreparedScanRequest = {
+      clientKey: "inspection-fixture",
+      url: PAGE,
+      device: "desktop",
+      gpcEnabled: false,
+      compareGpc: false,
+      compareShields: false,
+      compareConsent: false,
+      rateLimitCost: 1
+    };
+    const inspected = await executePreparedScan({ ...prepared, inspect: ADDRESS }, scan, saveScanReport, undefined, false);
+    if (inspected.schemaVersion !== 2 || inspected.reportType !== "single") throw new Error("expected an r2 single shell");
+    const inspection = inspected.ephemeral.inspection;
+    assert.ok(inspection, "the immediate result carries no inspection");
+    assert.equal(inspection.address, ADDRESS);
+    assert.equal(inspection.matched, 8);
+    assert.deepEqual(
+      inspection.groups.map((group) => group.hosts),
+      [["cdn.example.net"], ["static.example.org", "cdn.example.net"], ["www.example.com"]]
+    );
+    // The client's own reader accepts the shell as it arrives.
+    const read = readScanTransportPayload(JSON.parse(JSON.stringify(inspected)));
+    assert.equal(read.kind === "report" && read.loaded.source, "v2-r2-ephemeral");
+
+    const saved = await readStoredScanReportById(inspected.share?.id ?? "");
+    if (saved.outcome !== "found") throw new Error("the inspection's share was not saved");
+    for (const forbidden of ["inspection", "ephemeral", "namedScripts", "withoutStack", "pixel.example.net/{seg}\""]) {
+      assert.equal(saved.wire.includes(forbidden), false, `the saved share carries ${forbidden}`);
+    }
+    const wire = JSON.parse(saved.wire);
+    assert.equal(wire.reportType, "single");
+    assert.equal(wire.schemaRevision, 2);
+    assert.equal(wire.run.conditions.gpc, false);
+    assert.equal(wire.run.conditions.consent, "observe");
+    // The share's own request log is an ordinary one: the pixel's rows are there.
+    assert.ok(wire.run.evidence.requests.some((request: { url: string }) => request.url.startsWith("http://pixel.example.net/{seg}")));
+  } finally {
+    for (const [name, value] of Object.entries(previous)) {
+      if (value === undefined) delete process.env[name];
+      else process.env[name] = value;
+    }
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => fixture.server.close(() => resolve()));
+    await rm(storeDir, { recursive: true, force: true });
   }
 });
 

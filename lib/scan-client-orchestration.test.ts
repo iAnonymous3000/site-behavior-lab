@@ -27,6 +27,7 @@ import {
   scanAdmissionSemanticsFromBody
 } from "./scan-admission-capability";
 import { ScanJobEndedError } from "./scan-job-polling";
+import { INSPECTION_DURABLE_REFUSAL } from "./connection-inspection-address";
 import { makeScanReportV1 } from "./scan-report-v2-fixtures";
 import { BROWSER_PUBLIC_REPORT_JSON_MAX_BYTES } from "./report-resource-limits";
 
@@ -728,6 +729,78 @@ test("synchronous scan reports still pass through the canonical reader", async (
 
   assert.equal(loaded.source, "v1");
   assert.equal(accepted, false);
+});
+
+const INSPECTION_FORM = {
+  device: "desktop",
+  gpcEnabled: true,
+  compareGpc: false,
+  compareShields: false,
+  compareConsent: false,
+  accessKey: ""
+} as const;
+
+test("an inspection's address rides in the scan body only when the form hands one over", async () => {
+  const bodies: Record<string, unknown>[] = [];
+  const submit = (inspect?: string) =>
+    submitRuntimeScan({
+      targetUrl: "https://www.example.com/",
+      form: INSPECTION_FORM,
+      gpcComparisonEnabled: true,
+      shieldsComparisonEnabled: true,
+      consentComparisonEnabled: true,
+      scannerRequiresAccessKey: false,
+      turnstileRequired: false,
+      turnstileToken: "",
+      resolveApiUrl: (path) => path,
+      fetcher: async (_url, init) => {
+        bodies.push(JSON.parse(String(init.body)));
+        return Response.json(makeScanReportV1());
+      },
+      onAccepted: () => undefined,
+      ...(inspect === undefined ? {} : { inspect })
+    });
+  await submit("https://pixel.example.net/{seg}");
+  await submit();
+  assert.equal(bodies[0].inspect, "https://pixel.example.net/{seg}");
+  // Every other request is byte for byte the one it was.
+  assert.equal(Object.prototype.hasOwnProperty.call(bodies[1], "inspect"), false);
+  const { inspect: _inspect, ...rest } = bodies[0];
+  assert.deepEqual(rest, bodies[1]);
+});
+
+test("under durable admission an inspection is refused with its sentence before a credential or a byte leaves", async () => {
+  let dispatched = false;
+  let retained = false;
+  await assert.rejects(
+    submitRuntimeScan({
+      targetUrl: "https://www.example.com/",
+      form: INSPECTION_FORM,
+      gpcComparisonEnabled: true,
+      shieldsComparisonEnabled: true,
+      consentComparisonEnabled: true,
+      scannerRequiresAccessKey: false,
+      turnstileRequired: false,
+      turnstileToken: "",
+      durableAdmissionEnabled: true,
+      inspect: "https://pixel.example.net/{seg}",
+      resolveApiUrl: (path) => path,
+      fetcher: async () => {
+        dispatched = true;
+        return Response.json({ ok: false, error: "unexpected" }, { status: 400 });
+      },
+      onAdmissionReady: () => {
+        retained = true;
+      },
+      onAdmissionCleared: () => undefined,
+      onAccepted: () => undefined
+    }),
+    (error: unknown) => error instanceof Error && error.message === INSPECTION_DURABLE_REFUSAL
+  );
+  assert.equal(dispatched, false);
+  assert.equal(retained, false);
+  // The visitor reads the sentence itself: no declared cause rewrites it.
+  assert.equal(friendlyScanError(new Error(INSPECTION_DURABLE_REFUSAL), false), INSPECTION_DURABLE_REFUSAL);
 });
 
 test("non-durable scan responses bound stalled headers, stalled bodies, and oversized reports", async () => {

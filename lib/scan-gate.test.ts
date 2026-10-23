@@ -1,10 +1,13 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
+  assertInspectionRunnable,
+  INSPECTION_REQUEST_MESSAGE,
   PRIVATE_SUFFIX_TENANT_SUBJECT_MESSAGE,
   ScanGate,
   ScanTargetVerificationTimeoutError
 } from "./scan-gate";
+import { INSPECTION_V1_PRODUCER_REFUSAL } from "./connection-inspection-address";
 import { PublicScanError } from "./public-errors";
 
 test("scan preparation returns at its target-verification deadline when an injected verifier stalls", async () => {
@@ -170,4 +173,102 @@ test("a token-shaped private-suffix tenant is refused before quota, DNS, or Chro
     await prepare(url);
     assert.equal(verifierCalled, true, url);
   }
+});
+
+function inspectionGate(reportMode: "v1" | "r2" = "r2") {
+  const calls = { quotaPeeked: 0, verified: 0 };
+  const gate = new ScanGate({
+    assertAccess: () => undefined,
+    assertBodySize: () => undefined,
+    clientKeyFromRequest: () => "client",
+    peekRateLimit: () => {
+      calls.quotaPeeked += 1;
+    },
+    verifyPublicUrl: async () => {
+      calls.verified += 1;
+    },
+    targetVerificationTimeoutMs: 1_000,
+    reportMode: () => reportMode
+  });
+  const prepare = (body: Record<string, unknown>) =>
+    gate.prepare(new Request("https://scanner.example/api/scan", { method: "POST", body: JSON.stringify(body) }));
+  return { calls, prepare };
+}
+
+const INSPECTED = "https://pixel.example.net/{seg}";
+
+test("a single scan may name one published address to inspect, as a visit option of one rate-limit token", async () => {
+  const { calls, prepare } = inspectionGate();
+  const prepared = await prepare({ url: "https://www.example.com/", device: "desktop", gpcEnabled: true, inspect: INSPECTED });
+  assert.equal(prepared.inspect, INSPECTED);
+  assert.equal(prepared.rateLimitCost, 1);
+  assert.equal(calls.verified, 1);
+  // A request that names none prepares exactly as before, with no such key.
+  const ordinary = await prepare({ url: "https://www.example.com/", device: "desktop", gpcEnabled: true });
+  assert.equal(Object.prototype.hasOwnProperty.call(ordinary, "inspect"), false);
+  assert.deepEqual(Object.keys(ordinary).sort(), [
+    "clientKey",
+    "compareConsent",
+    "compareGpc",
+    "compareShields",
+    "device",
+    "gpcEnabled",
+    "rateLimitCost",
+    "url"
+  ]);
+});
+
+test("an inspection that is not a published address, or that sits beside a comparison, is refused before quota or DNS", async () => {
+  const { calls, prepare } = inspectionGate();
+  for (const [name, body] of [
+    ["a raw URL", { inspect: "https://pixel.example.net/p.gif" }],
+    ["a query", { inspect: `${INSPECTED}?id=` }],
+    ["an IP host", { inspect: "https://203.0.113.9/{seg}" }],
+    ["a label redaction would generalize", { inspect: "https://x9.example.net/{seg}" }],
+    ["an empty value", { inspect: "" }],
+    ["a null value", { inspect: null }],
+    ["a list", { inspect: [INSPECTED] }],
+    ["a GPC comparison", { inspect: INSPECTED, compareGpc: true }],
+    ["a Blocker comparison", { inspect: INSPECTED, compareShields: true }],
+    ["a consent comparison", { inspect: INSPECTED, compareConsent: true }]
+  ] as const) {
+    await assert.rejects(
+      prepare({ url: "https://www.example.com/", device: "desktop", gpcEnabled: true, ...body }),
+      (error: unknown) =>
+        error instanceof PublicScanError &&
+        error.status === 400 &&
+        error.failureCause === "request-rejected" &&
+        error.message === INSPECTION_REQUEST_MESSAGE,
+      name
+    );
+  }
+  assert.deepEqual(calls, { quotaPeeked: 0, verified: 0 });
+});
+
+test("a scanner that writes version 1 reports refuses an inspection with its own sentence, before quota or DNS", async () => {
+  const { calls, prepare } = inspectionGate("v1");
+  await assert.rejects(
+    prepare({ url: "https://www.example.com/", device: "desktop", gpcEnabled: true, inspect: INSPECTED }),
+    (error: unknown) =>
+      error instanceof PublicScanError &&
+      error.status === 503 &&
+      // Undeclared, so the visitor reads the sentence itself.
+      error.failureCause === undefined &&
+      error.message === INSPECTION_V1_PRODUCER_REFUSAL
+  );
+  assert.deepEqual(calls, { quotaPeeked: 0, verified: 0 });
+  // An ordinary scan on the same scanner is untouched.
+  await prepare({ url: "https://www.example.com/", device: "desktop", gpcEnabled: true });
+  assert.equal(calls.verified, 1);
+});
+
+test("the execution-side check holds a prepared inspection to the same rules", () => {
+  const single = { compareGpc: false, compareShields: false, compareConsent: false };
+  assert.doesNotThrow(() => assertInspectionRunnable({ ...single, inspect: INSPECTED }, "r2"));
+  assert.doesNotThrow(() => assertInspectionRunnable(single, "v1"));
+  assert.throws(() => assertInspectionRunnable({ ...single, inspect: INSPECTED }, "v1"), { message: INSPECTION_V1_PRODUCER_REFUSAL });
+  assert.throws(
+    () => assertInspectionRunnable({ ...single, compareShields: true, inspect: INSPECTED }, "r2"),
+    { message: INSPECTION_REQUEST_MESSAGE }
+  );
 });

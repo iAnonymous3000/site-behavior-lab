@@ -39,7 +39,7 @@ import type {
   ScanReport,
   ScanRequestPayload
 } from "./types";
-import { prepareScanRequest, type PreparedScanRequest } from "./scan-gate";
+import { assertInspectionRunnable, prepareScanRequest, type PreparedScanRequest } from "./scan-gate";
 import { scanAbortError } from "./scan-runtime";
 
 export { prepareScanRequest, ScanGate, scanRateLimitCost, type PreparedScanRequest } from "./scan-gate";
@@ -99,6 +99,9 @@ export async function executePreparedScan(
   // Resolve before consuming a Chromium slot or scan quota. An explicitly
   // requested but unready r2 producer must refuse the scan, never emit v1.
   const reportMode = requireRuntimeScanReportModeForSaver(saveReport);
+  // The gate already refused an inspection this runtime cannot carry; a
+  // prepared request built anywhere else is held to the same rule here.
+  assertInspectionRunnable(prepared, reportMode);
   const acquisition = runtimeReportAcquisition(reportMode);
   const releaseScanSlot = await acquireScanSlot(queueTimeoutMs, control.signal);
   try {
@@ -226,9 +229,13 @@ export async function executePreparedScan(
       return saved;
     }
 
+    // An inspection is a visit option, never a recorded condition: the
+    // payload, and so the report's conditions and methodology, are an
+    // ordinary single scan's.
     const envelope = await scanWithProgress(createScanPayload(prepared.url, prepared.device, prepared.gpcEnabled), {
       publicUrlAlreadyVerified: true,
-      signal: control.signal
+      signal: control.signal,
+      ...(prepared.inspect === undefined ? {} : { inspect: prepared.inspect })
     });
     if (reportMode === "r2") {
       return saveRuntimeR2Report(

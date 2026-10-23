@@ -4,6 +4,9 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, test } from "node:test";
 import { CONSENT_VERIFICATION_ENV } from "./consent-verification";
+import { ConnectionInspectionRecorder } from "./connection-inspection";
+import { INSPECTION_V1_PRODUCER_REFUSAL } from "./connection-inspection-address";
+import type { ConnectionInspectionEvidence } from "./connection-inspection-evidence";
 import { PublicScanError, toPublicError } from "./public-errors";
 import { REDACTION_VERSION } from "./redaction-v2";
 import { PUBLIC_SUFFIX_SUBJECT_MESSAGE } from "./scan-gate";
@@ -875,6 +878,120 @@ test("public r2 preflights default persistence before scan quota or Chromium", a
   );
   assert.equal(injected.schemaVersion, 2);
   assert.equal(scanCalls, 1);
+});
+
+type AnyRecord = Record<string, any>;
+
+const INSPECTED_ADDRESS = "https://pixel.example.net/{seg}";
+
+/** A real recorder's evidence, for an envelope the fake scanner returns. */
+function recordedInspection(): ConnectionInspectionEvidence {
+  const recorder = new ConnectionInspectionRecorder(INSPECTED_ADDRESS);
+  const loader = "https://cdn.example.net/loader.js";
+  for (const [url, type, frames] of [
+    [loader, "Script", null],
+    ["https://pixel.example.net/p.gif?via=loader", "Fetch", [loader]],
+    ["https://pixel.example.net/p.gif?via=html", "Image", null]
+  ] as const) {
+    recorder.observe({
+      request: { url },
+      type,
+      initiator: frames ? { type: "script", stack: { callFrames: frames.map((frame) => ({ url: frame })) } } : { type: "parser" }
+    });
+    recorder.notePageRequest(url);
+  }
+  const evidence = recorder.evidence();
+  assert.ok(evidence);
+  return evidence;
+}
+
+function inspectionScanner(evidence: ConnectionInspectionEvidence) {
+  const calls: Array<{ payload: ScanRequestPayload; inspect: string | undefined }> = [];
+  const scan: ScanRunner = async (payload, options) => {
+    calls.push({ payload, inspect: options?.inspect });
+    const base = scanMeasurementEnvelopeWithR2Run(makePublicSingleReportV2R2().run);
+    return options?.inspect === undefined
+      ? base
+      : createNodeScanMeasurementEnvelope(base.result, structuredClone(base.measurement) as NodeScanMeasurement, undefined, evidence);
+  };
+  return { calls, scan };
+}
+
+test("an inspection runs an ordinary single scan, and only its immediate result carries the evidence", async () => {
+  enablePublicR2();
+  const evidence = recordedInspection();
+  const { calls, scan } = inspectionScanner(evidence);
+  const single: PreparedScanRequest = {
+    clientKey: "inspection",
+    url: "https://www.example.com/",
+    device: "desktop",
+    gpcEnabled: true,
+    compareGpc: false,
+    compareShields: false,
+    compareConsent: false,
+    rateLimitCost: 1
+  };
+
+  const inspected = await executePreparedScan({ ...single, inspect: INSPECTED_ADDRESS }, scan, saveScanReport, undefined, false);
+  const ordinary = await executePreparedScan(single, scan, saveScanReport, undefined, false);
+
+  // The visit option reaches the scanner, and the recorded conditions do not
+  // change: the payload is exactly an ordinary single scan's.
+  assert.deepEqual(calls.map((call) => call.inspect), [INSPECTED_ADDRESS, undefined]);
+  assert.deepEqual(calls[0].payload, calls[1].payload);
+  assert.equal(Object.prototype.hasOwnProperty.call(calls[0].payload, "inspect"), false);
+
+  if (inspected.schemaVersion !== 2 || inspected.reportType !== "single") throw new Error("expected an r2 single shell");
+  if (ordinary.schemaVersion !== 2 || ordinary.reportType !== "single") throw new Error("expected an r2 single shell");
+  assert.deepEqual(inspected.ephemeral.inspection, evidence);
+  assert.equal("inspection" in ordinary.ephemeral, false);
+
+  // The saved share is an ordinary single r2 report of the same kind,
+  // conditions and methodology, and its bytes carry no inspection.
+  const savedInspected = await readStoredScanReportById(inspected.share?.id ?? "");
+  const savedOrdinary = await readStoredScanReportById(ordinary.share?.id ?? "");
+  if (savedInspected.outcome !== "found" || savedOrdinary.outcome !== "found") throw new Error("expected both saved reports");
+  for (const forbidden of ["inspection", "ephemeral", "pixel.example.net/{seg}", "withoutStack", "namedScripts"]) {
+    assert.equal(savedInspected.wire.includes(forbidden), false, `the saved bytes carry ${forbidden}`);
+  }
+  const inspectedWire = JSON.parse(savedInspected.wire);
+  const ordinaryWire = JSON.parse(savedOrdinary.wire);
+  assert.equal(inspectedWire.reportType, "single");
+  assert.equal(inspectedWire.schemaRevision, ordinaryWire.schemaRevision);
+  assert.deepEqual(inspectedWire.run.conditions, ordinaryWire.run.conditions);
+  assert.deepEqual(inspectedWire.run.provenance, ordinaryWire.run.provenance);
+  assert.deepEqual(inspectedWire.run.fingerprints, ordinaryWire.run.fingerprints);
+  // Apart from the ids each scan mints, the saved reports are the same bytes.
+  const comparable = (wire: AnyRecord) => {
+    const { share: _share, ...rest } = wire;
+    return { ...rest, run: { ...rest.run, runId: "run" } };
+  };
+  assert.deepEqual(comparable(inspectedWire), comparable(ordinaryWire));
+});
+
+test("a scanner that writes version 1 reports refuses an inspection before its slot, quota or browser", async () => {
+  const { calls, scan } = inspectionScanner(recordedInspection());
+  await assert.rejects(
+    () =>
+      executePreparedScan(
+        {
+          clientKey: "inspection-v1",
+          url: "https://www.example.com/",
+          device: "desktop",
+          gpcEnabled: true,
+          compareGpc: false,
+          compareShields: false,
+          compareConsent: false,
+          rateLimitCost: 1,
+          inspect: INSPECTED_ADDRESS
+        },
+        scan
+      ),
+    (error) => error instanceof PublicScanError && error.status === 503 && error.message === INSPECTION_V1_PRODUCER_REFUSAL
+  );
+  assert.equal(calls.length, 0);
+  assert.equal(scanLimitStateForTests().activeScans, 0);
+  assert.equal(scanLimitStateForTests().trackedClients, 0);
 });
 
 test("runScanRequest can run and persist a Shields off/on comparison", async () => {

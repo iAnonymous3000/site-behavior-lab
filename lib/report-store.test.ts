@@ -7,6 +7,7 @@ import path from "node:path";
 import { afterEach, beforeEach, test } from "node:test";
 import { BoundedUtf8FileReadError } from "./bounded-utf8-file";
 import { createComparisonReport, createGpcComparisonReport } from "./compare-reports";
+import { ConnectionInspectionRecorder } from "./connection-inspection";
 import { buildProvenanceEntry, matchProvenance } from "./redaction-provenance";
 import { REDACTION_VERSION } from "./redaction-v2";
 import { classifyReportStoreFailure } from "./report-store-failure-reason";
@@ -666,6 +667,37 @@ test("saveScanReport attaches shares to ephemeral r2 responses and persists only
   assert.equal(storedComparison.wire.includes("R2_VARIANT_PRIVATE"), false);
   assert.equal("ephemeral" in JSON.parse(storedComparison.wire), false);
   assert.equal(storedComparison.stored.report.share?.id, savedComparison.share?.id);
+});
+
+test("saveScanReport keeps an inspection in the immediate shell and never in the saved bytes", async () => {
+  const fixture = makePublicSingleReportV2R2();
+  fixture.run.privacy.redactionVersion = REDACTION_VERSION;
+  const publicReport = redactPublicScanReportV2R2(fixture);
+  if (publicReport.reportType !== "single") throw new Error("expected single r2 fixture");
+  const recorder = new ConnectionInspectionRecorder("https://tracking.example.net/{seg}");
+  const loader = "https://cdn.example.net/loader.js";
+  recorder.observe({ request: { url: loader }, type: "Script", initiator: { type: "parser" } });
+  for (const url of ["https://tracking.example.net/p.gif?a=1", "https://tracking.example.net/p.gif?b=2"]) {
+    recorder.observe({ request: { url }, type: "Fetch", initiator: { type: "script", stack: { callFrames: [{ url: loader }] } } });
+    recorder.notePageRequest(url);
+  }
+  const inspection = recorder.evidence();
+  assert.ok(inspection);
+  const shell: EphemeralSingleReportR2 = { ...publicReport, ephemeral: { screenshot: null, inspection } };
+  const ordinary: EphemeralSingleReportR2 = { ...publicReport, ephemeral: { screenshot: null } };
+
+  const saved = await saveScanReport(shell);
+  assert.deepEqual(saved.ephemeral.inspection, inspection);
+  const stored = await readStoredScanReportById(saved.share?.id ?? "");
+  if (stored.outcome !== "found") throw new Error("expected the stored r2 single");
+  for (const forbidden of ["inspection", "ephemeral", "tracking.example.net", "namedScripts", "withoutStack"]) {
+    assert.equal(stored.wire.includes(forbidden), false, `the saved bytes carry ${forbidden}`);
+  }
+  // The saved bytes are exactly the ones an ordinary shell's share would hold.
+  const bundle = prepareScanReportBundle(shell, { shareId: saved.share?.id, now: 0 });
+  const ordinaryBundle = prepareScanReportBundle(ordinary, { shareId: saved.share?.id, now: 0 });
+  assert.equal(bundle.reportWire, ordinaryBundle.reportWire);
+  assert.equal(bundle.sidecarWire, ordinaryBundle.sidecarWire);
 });
 
 test("saveScanReport rejects an ephemeral r2 shell that only relabels unsafe bytes as current", async () => {

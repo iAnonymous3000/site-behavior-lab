@@ -9,6 +9,39 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- The scan API now accepts an optional `inspect` field: the published
+  address, query dropped, of the connection an "Inspect this connection"
+  visit asks about. It is accepted only on a single scan, only as an address
+  the redaction pass would leave unchanged, and is refused otherwise before
+  quota, DNS or Chromium; it costs one rate-limit token like any single
+  scan. It reaches the scanner as a visit option and never the recorded
+  payload, so the visit's conditions, methodology and saved report are an
+  ordinary single scan's: a test saves an inspected and an ordinary scan of
+  the same visit and finds the same bytes apart from the ids each mints, and
+  the seven identity constants print byte-identical before and after. The
+  evidence travels only in the immediate result, in a new optional
+  `inspection` key of the single-report r2 shell's ephemeral block beside the
+  screenshot, which persistence, export and the published schema never
+  carry; the schema generator's digests are unchanged, every other ephemeral
+  key stays refused, and comparison shells take none. That key departs from
+  the RFC's section 15.2, which calls its r2 wire-type graph complete; the
+  RFC text is unchanged and docs/limitations.md records the divergence, as
+  does a comment at the type. An inspection is refused with one sentence of
+  its own on a scanner that writes version 1 reports, whose result has no
+  ephemeral block: "Inspecting a connection needs a scanner that writes
+  revision 2 reports, and this one writes version 1 reports, so no visit was
+  made." It is refused with another while scans run as durable jobs, whose
+  exact-keyed admission commitment has no place for it, by the browser
+  before it mints a credential, by the edge before any capability lookup,
+  and by the Node durable preparation instead of being dropped:
+  "Inspecting a connection is not available while this scanner runs scans
+  as recoverable jobs, so no visit was made." Both are undeclared, so the
+  visitor reads the sentence itself. The browser's scan request carries the
+  field only when the form hands one over, so every other request is byte
+  for byte the one it was. An in-process test runs one inspection through
+  the scan API's own execution path, the real scanner over a local fixture
+  and the real report store: the immediate result carries the evidence and
+  the client's reader accepts it, and the saved share holds none of it.
 - A scan visit can now record, for one published address and only when
   asked, which scripts were on the call stack when its requests to that
   address were made: the groundwork for "Inspect this connection". The

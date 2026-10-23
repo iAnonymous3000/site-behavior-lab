@@ -1,5 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { ConnectionInspectionRecorder } from "./connection-inspection";
+import { isEphemeralScanReportR2 } from "./scan-report-v2-r2-validation";
 import {
   createNodeScanMeasurementEnvelope,
   type NodeScanMeasurement,
@@ -76,5 +78,36 @@ test("runtime r2 production fails closed when the explicit envelope is missing o
       error.code === "measurement-envelope-inconsistent" &&
       /gpc/.test(error.message)
   );
+});
+
+test("an inspection visit's evidence reaches only its exact envelope's immediate shell", () => {
+  const recorder = new ConnectionInspectionRecorder("https://pixel.example.net/{seg}");
+  recorder.observe({ request: { url: "https://pixel.example.net/p.gif" }, type: "Image", initiator: { type: "parser" } });
+  recorder.notePageRequest("https://pixel.example.net/p.gif");
+  const evidence = recorder.evidence();
+  assert.ok(evidence);
+  const template = scanMeasurementEnvelopeWithR2Run(makeScanRunV2R2());
+  const envelope = createNodeScanMeasurementEnvelope(
+    structuredClone(template.result),
+    structuredClone(template.measurement) as NodeScanMeasurement,
+    undefined,
+    evidence
+  );
+  const inspected = buildRuntimeScanReportV2R2(envelope, "public-api", BUILD_ENV);
+  assert.deepEqual(inspected.ephemeral.inspection, evidence);
+  assert.equal(isEphemeralScanReportR2(inspected), true);
+  // Never a member of the envelope or its measurement, so no clone, spread
+  // or builder that reads them carries it.
+  assert.equal(JSON.stringify(envelope.measurement).includes("pixel.example.net"), false);
+  assert.equal(Object.keys(envelope).sort().join(","), "measurement,result");
+  const clone = structuredClone(envelope) as NodeScanMeasurementEnvelope;
+  assert.equal("inspection" in buildRuntimeScanReportV2R2(clone, "public-api", BUILD_ENV).ephemeral, false);
+  assert.equal("inspection" in buildRuntimeScanReportV2R2({ ...envelope }, "public-api", BUILD_ENV).ephemeral, false);
+  // An ordinary visit's shell carries none, and the public report is the same.
+  const ordinary = buildRuntimeScanReportV2R2(template, "public-api", BUILD_ENV);
+  assert.equal("inspection" in ordinary.ephemeral, false);
+  const { runId: _inspectedRunId, ...inspectedRun } = inspected.run;
+  const { runId: _ordinaryRunId, ...ordinaryRun } = ordinary.run;
+  assert.deepEqual(inspectedRun, ordinaryRun);
 });
 

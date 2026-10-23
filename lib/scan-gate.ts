@@ -14,6 +14,9 @@ import { PublicScanError } from "./public-errors";
 import { isExactPublicSuffixHost, isGeneralizedPrivateSuffixTenantHost } from "./redaction-v2";
 import { assertPublicHttpUrl, assertPublicHttpUrlShape, normalizeUrl } from "./url-safety";
 import { assertScanAccess } from "./access-control";
+import { INSPECTION_V1_PRODUCER_REFUSAL } from "./connection-inspection-address";
+import { isInspectableAddress } from "./connection-inspection";
+import { requireRuntimeScanReportMode } from "./runtime-scan-report";
 
 export const SCAN_TARGET_VERIFICATION_TIMEOUT_MS = 5_000;
 
@@ -76,6 +79,13 @@ export type PreparedScanRequest = {
   compareShields: boolean;
   compareConsent: boolean;
   rateLimitCost: 1 | 2;
+  /**
+   * The published address an "Inspect this connection" visit asks about,
+   * present only on a single scan that named one. A visit option, never a
+   * recorded condition, so it is not part of any durable payload, admission
+   * commitment or saved report.
+   */
+  inspect?: string;
 };
 
 type ScanGateDependencies = {
@@ -86,7 +96,52 @@ type ScanGateDependencies = {
   verifyPublicUrl?: (url: URL) => Promise<void>;
   targetVerificationTimeoutMs?: number;
   now?: () => number;
+  /** The runtime producer an inspection is checked against; production reads the deployment's. */
+  reportMode?: () => "v1" | "r2";
 };
+
+/**
+ * Why a request that names an inspection the scan API cannot run is refused:
+ * the address must be one a report publishes, query dropped, and the scan a
+ * single, non-comparison one.
+ */
+export const INSPECTION_REQUEST_MESSAGE =
+  "An inspection must name one address exactly as a report publishes it, query dropped, on a single scan.";
+
+/**
+ * The inspected address a scan body names, or null when it names none. A
+ * value that is not a published address the redaction pass would leave
+ * unchanged is refused before quota, DNS or Chromium. The scan it rides on
+ * is held to a single one by assertInspectionRunnable, which the gate calls
+ * next, so that rule has one statement.
+ */
+export function scanInspectionFromPayload(payload: object): string | null {
+  if (!Object.prototype.hasOwnProperty.call(payload, "inspect")) return null;
+  const value = (payload as { inspect?: unknown }).inspect;
+  if (!isInspectableAddress(value)) {
+    throw new PublicScanError(INSPECTION_REQUEST_MESSAGE, 400, "request-rejected");
+  }
+  return value;
+}
+
+/**
+ * Refuse an inspection the runtime cannot carry: an inspection is never a
+ * comparison, only the r2 producer's immediate shell has an ephemeral
+ * block, and only a single scan's shell takes an inspection. Called by the
+ * gate before quota, DNS or Chromium, and again wherever a prepared request
+ * is executed or queued.
+ */
+export function assertInspectionRunnable(
+  prepared: Pick<PreparedScanRequest, "inspect" | "compareGpc" | "compareShields" | "compareConsent">,
+  reportMode: "v1" | "r2"
+): void {
+  if (prepared.inspect === undefined) return;
+  if (prepared.compareGpc || prepared.compareShields || prepared.compareConsent) {
+    throw new PublicScanError(INSPECTION_REQUEST_MESSAGE, 400, "request-rejected");
+  }
+  // Undeclared on purpose: the visitor reads this sentence itself.
+  if (reportMode === "v1") throw new PublicScanError(INSPECTION_V1_PRODUCER_REFUSAL, 503);
+}
 
 export class ScanGate {
   constructor(private readonly dependencies: ScanGateDependencies = {}) {}
@@ -108,6 +163,18 @@ export class ScanGate {
     if (comparisonModeCount(payload) > 1) {
       throw new PublicScanError(MULTIPLE_COMPARISON_MODES_MESSAGE);
     }
+    const inspect = scanInspectionFromPayload(payload);
+    const prepared = {
+      device: payload.device === "mobile" ? "mobile" : "desktop",
+      gpcEnabled: payload.gpcEnabled === true,
+      compareGpc: payload.compareGpc === true,
+      compareShields: payload.compareShields === true,
+      compareConsent: payload.compareConsent === true,
+      ...(inspect === null ? {} : { inspect })
+    } as const;
+    if (inspect !== null) {
+      assertInspectionRunnable(prepared, (this.dependencies.reportMode ?? requireRuntimeScanReportMode)());
+    }
     const clientKey = requestClientKey(request);
     const cost = scanRateLimitCost(payload);
     rateLimitPeek(clientKey, now(), cost);
@@ -116,11 +183,7 @@ export class ScanGate {
     return {
       clientKey,
       url: targetUrl.toString(),
-      device: payload.device === "mobile" ? "mobile" : "desktop",
-      gpcEnabled: payload.gpcEnabled === true,
-      compareGpc: payload.compareGpc === true,
-      compareShields: payload.compareShields === true,
-      compareConsent: payload.compareConsent === true,
+      ...prepared,
       rateLimitCost: cost
     };
   }

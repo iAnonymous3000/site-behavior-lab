@@ -5,6 +5,9 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, test } from "node:test";
 import { CONSENT_VERIFICATION_ENV } from "./consent-verification";
+import { ConnectionInspectionRecorder } from "./connection-inspection";
+import { INSPECTION_V1_PRODUCER_REFUSAL } from "./connection-inspection-address";
+import { createNodeScanMeasurementEnvelope, type NodeScanMeasurement } from "./node-scan-measurement";
 import { PublicScanError } from "./public-errors";
 import { committedSidecarFilename } from "./redaction-provenance";
 import {
@@ -129,6 +132,53 @@ test("enqueuePreparedScanJob returns a submission and stores the completed repor
     activeJobWorkers: 0,
     retainedJobs: 1
   });
+});
+
+test("an async inspection on a scanner that writes version 1 reports is refused before it is queued or charged", () => {
+  let scans = 0;
+  const scan: ScanRunner = async (payload) => {
+    scans += 1;
+    return testMeasurementEnvelopeForResult(makeScanResult(payload));
+  };
+  assert.throws(
+    () =>
+      enqueuePreparedScanJob(makePreparedScanRequest({ inspect: "https://pixel.example.net/{seg}" }), {
+        scan,
+        saveReport: async (report) => report
+      }),
+    (error: unknown) => error instanceof PublicScanError && error.status === 503 && error.message === INSPECTION_V1_PRODUCER_REFUSAL
+  );
+  assert.equal(scans, 0);
+  assert.equal(scanLimitStateForTests().trackedClients, 0);
+  assert.deepEqual(scanJobStateForTests(), { queuedJobs: 0, activeJobWorkers: 0, retainedJobs: 0 });
+});
+
+test("an async inspection passes its address to the visit and the job serves the shell that carries it", async () => {
+  process.env[PUBLIC_R2_REPORTS_ENV] = "1";
+  process.env[BUILD_COMMIT_ENV] = "a".repeat(40);
+  process.env[CONSENT_VERIFICATION_ENV] = "1";
+  const recorder = new ConnectionInspectionRecorder("https://pixel.example.net/{seg}");
+  recorder.observe({ request: { url: "https://pixel.example.net/p.gif" }, type: "Image", initiator: { type: "parser" } });
+  recorder.notePageRequest("https://pixel.example.net/p.gif");
+  const evidence = recorder.evidence();
+  assert.ok(evidence);
+  const inspected: Array<string | undefined> = [];
+  const scan: ScanRunner = async (_payload, options) => {
+    inspected.push(options?.inspect);
+    const base = scanMeasurementEnvelopeWithR2Run(makePublicSingleReportV2R2().run);
+    return createNodeScanMeasurementEnvelope(base.result, structuredClone(base.measurement) as NodeScanMeasurement, undefined, evidence);
+  };
+  const submission = enqueuePreparedScanJob(
+    makePreparedScanRequest({ url: "https://www.example.com/", inspect: "https://pixel.example.net/{seg}" }),
+    { scan, saveReport: async (report) => report }
+  );
+  await waitForScanJobForTests(submission.jobId);
+  assert.deepEqual(inspected, ["https://pixel.example.net/{seg}"]);
+  const status = getScanJobStatus(submission.jobId);
+  assert.equal(status?.status, "succeeded");
+  const report = status?.report;
+  if (!report || report.schemaVersion !== 2 || report.reportType !== "single") throw new Error("expected an r2 single shell");
+  assert.deepEqual(report.ephemeral.inspection, evidence);
 });
 
 test("enqueuePreparedScanJob reports Shields comparison progress as two runs", async () => {

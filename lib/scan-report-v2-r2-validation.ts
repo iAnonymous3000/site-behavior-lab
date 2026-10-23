@@ -14,6 +14,7 @@
  * chronology, comparability/diff agreement) lives in
  * lib/scan-report-v2-r2-evaluators.ts, exactly like the r1 split.
  */
+import { isConnectionInspectionEvidence } from "./connection-inspection-evidence";
 import { isRecord } from "./guards";
 import { isPublicComparisonReportV2, isPublicSingleReportV2, isScanRunV2 } from "./scan-report-v2-validation";
 import type {
@@ -262,7 +263,13 @@ export function isPublicScanReportV2R2(value: unknown): value is PublicScanRepor
   return isPublicSingleReportV2R2(value);
 }
 
-/** Ephemeral r2 shells: the public shape plus exactly the ephemeral block. */
+/**
+ * Ephemeral r2 shells: the public shape plus exactly the ephemeral block. A
+ * single shell may also carry an inspection visit's `inspection`, a closed
+ * shape of its own; that key diverges from RFC 15.2 by the owner's ruling
+ * (see EphemeralSingleReportR2). Every other key stays refused, and a
+ * comparison shell takes only its two screenshots.
+ */
 export function isEphemeralScanReportR2(value: unknown): value is EphemeralSingleReportR2 | EphemeralComparisonReportR2 {
   if (!isRecord(value) || !isRecord(value.ephemeral)) return false;
   const { ephemeral, ...publicPart } = value;
@@ -271,7 +278,8 @@ export function isEphemeralScanReportR2(value: unknown): value is EphemeralSingl
       ? only(ephemeral, new Set(["baselineScreenshot", "variantScreenshot"])) &&
         (ephemeral.baselineScreenshot === null || typeof ephemeral.baselineScreenshot === "string") &&
         (ephemeral.variantScreenshot === null || typeof ephemeral.variantScreenshot === "string")
-      : only(ephemeral, new Set(["screenshot"])) &&
-        (ephemeral.screenshot === null || typeof ephemeral.screenshot === "string");
+      : only(ephemeral, new Set(["screenshot", "inspection"])) &&
+        (ephemeral.screenshot === null || typeof ephemeral.screenshot === "string") &&
+        (!("inspection" in ephemeral) || isConnectionInspectionEvidence(ephemeral.inspection));
   return shape && isPublicScanReportV2R2(publicPart);
 }

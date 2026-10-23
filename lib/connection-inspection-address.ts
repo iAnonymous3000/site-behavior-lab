@@ -60,3 +60,34 @@ export function inspectedAddressFromRowUrl(rowUrl: string): string | null {
   const address = queryStart === -1 ? rowUrl : rowUrl.slice(0, queryStart);
   return isPublishedAddressShape(address) ? address : null;
 }
+
+/**
+ * The refusal an inspection gets while the scanner admits scans as durable
+ * jobs, whose exact-keyed admission commitment has no place for it (owner's
+ * ruling 3). The browser says it before minting an admission credential,
+ * and the edge and the Node durable preparation say the same.
+ */
+export const INSPECTION_DURABLE_REFUSAL =
+  "Inspecting a connection is not available while this scanner runs scans as recoverable jobs, so no visit was made.";
+
+/**
+ * The refusal an inspection gets from a scanner that writes version 1
+ * reports, which have no immediate-only block to carry its details.
+ */
+export const INSPECTION_V1_PRODUCER_REFUSAL =
+  "Inspecting a connection needs a scanner that writes revision 2 reports, and this one writes version 1 reports, so no visit was made.";
+
+/**
+ * Whether a scan request body names an inspection at all, whatever its
+ * value: the durable edge refuses any such body before it looks for an
+ * admission capability, which such a body could never carry.
+ */
+export function scanBodyNamesInspection(body: string): boolean {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(body);
+  } catch {
+    return false;
+  }
+  return typeof parsed === "object" && parsed !== null && !Array.isArray(parsed) && Object.prototype.hasOwnProperty.call(parsed, "inspect");
+}
