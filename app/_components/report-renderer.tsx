@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { clientReportRuntime } from "../client-runtime";
+import { STATIC_BASE_PATH, clientReportRuntime } from "../client-runtime";
 import { CausalityGraph } from "./causality-graph";
 import { ComparisonPanel } from "./comparison-panel";
 import { FindingsBoard, HeadlineBanner, MetricGrid, TrafficViz, useReportFindings } from "./report-overview";
@@ -29,6 +29,7 @@ import { buildReportFacts, type RunFacts } from "@/lib/report-facts";
 import { parseEvidenceHash } from "@/lib/report-evidence-navigation";
 import { locateReport } from "@/lib/report-locator";
 import { reportNewVisitFrom, reportNewVisitTarget } from "@/lib/report-rescan-targets";
+import type { RequestInspectionContext } from "@/lib/request-inspection-link";
 import {
   displayableScreenshot,
   gpcRunMeasurement
@@ -117,6 +118,14 @@ export function ReportRenderer({
   const { evidenceArm, findings } = useReportFindings(reportView, reportFacts, headline);
   const newVisitTarget = reportNewVisitTarget(reportView, freshResult);
   const newVisitFrom = reportNewVisitFrom(reportView, freshResult);
+  // A fresh result's request log offers "Inspect this connection" on its
+  // third-party rows, for the same page a new visit would visit again, and
+  // only from a scanner whose results can carry an inspection (r2). Never on
+  // paper.
+  const requestInspection: RequestInspectionContext | null =
+    !printComplete && newVisitTarget && (loaded.source === "v2-r2-ephemeral" || loaded.source === "v2-r2-public")
+      ? { page: newVisitTarget, from: newVisitFrom, basePath: STATIC_BASE_PATH }
+      : null;
   // The earlier result was a fresh one, so its share lives wherever this
   // runtime reaches a freshly produced report: this origin on the Node app,
   // the scan API's own origin behind a static build. Where that API serves
@@ -310,17 +319,19 @@ export function ReportRenderer({
       ) : (
         <RunEvidence reportView={reportView} displayedFacts={displayedFacts}
           arm={arms ? displayedArmLabel : undefined} printComplete={printComplete} overview={printComplete ? undefined : overview}
-          benchmarkScope={benchmarkScope} />
+          benchmarkScope={benchmarkScope} requestInspection={requestInspection} />
       )}
     </PrintCompleteProvider>
   );
 }
 
 /** Shared per-visit evidence: the screen selects one; paper renders every visit. */
-function RunEvidence({ reportView, displayedFacts, arm, printComplete, overview, benchmarkScope }: {
+function RunEvidence({ reportView, displayedFacts, arm, printComplete, overview, benchmarkScope, requestInspection = null }: {
   reportView: ReportView; displayedFacts: RunFacts; arm?: "baseline" | "variant"; printComplete: boolean; overview?: ReactNode;
   /** The cohort the bottom line ranks against, when it ranks; see Finding.benchmarkScope. */
   benchmarkScope?: string;
+  /** The request log's inspection links, for a fresh result's screen render only. */
+  requestInspection?: RequestInspectionContext | null;
 }) {
   const evidenceId = useEvidenceIds();
   const displayedRun = displayedFacts.run;
@@ -512,6 +523,10 @@ function RunEvidence({ reportView, displayedFacts, arm, printComplete, overview,
             requests={displayedRun.evidence.requests}
             phases={displayedRun.phases}
             facts={displayedFacts}
+            // A visit that did not establish the page (an HTTP error, an
+            // unverified subject, a suspected challenge or a failed load)
+            // offers no new visit of it, gate G3 of the Look closer draft.
+            inspection={displayedFacts.subject.describesSubject ? requestInspection : null}
           />
         </div>
       </section>

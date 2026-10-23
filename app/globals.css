@@ -885,6 +885,26 @@ a {
   max-width: 78ch;
 }
 
+/* After an "Inspect this connection" link, which address and which page,
+   before Inspect. Framed like the known-site note, with no signal colour,
+   since it reports nothing yet. */
+.inspection-arrival {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  font-size: 12.5px;
+  line-height: 1.5;
+  margin-top: 10px;
+  overflow-wrap: anywhere;
+  padding: 9px 11px;
+}
+
+.inspection-arrival p {
+  margin: 0;
+  max-width: 78ch;
+}
+
 .scheduled-rescan-panel {
   display: grid;
   gap: 10px;
@@ -4550,6 +4570,21 @@ td .mono {
   overflow-wrap: anywhere;
 }
 
+/* A third-party row's "Inspect this connection": a standalone link under
+   the row's address, in the body face, at least 24px tall (WCAG 2.5.8).
+   Hidden on paper with the other links to follow. */
+.inspect-connection-link {
+  align-items: center;
+  display: flex;
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  font-weight: var(--weight-medium);
+  min-height: 24px;
+  text-underline-offset: 3px;
+  white-space: nowrap;
+  width: max-content;
+}
+
 .provenance-cell {
   display: grid;
   gap: 2px;
@@ -5600,6 +5635,8 @@ details[open] > summary .disclosure-chevron {
   .finding-look-closer,
   /* So is a homepage result's link back to the earlier result. */
   .earlier-result-note,
+  /* And a request row's link to inspect its connection. */
+  .inspect-connection-link,
   .homepage-discovery-actions,
   .homepage-tools-disclosure,
   .scan-checks,

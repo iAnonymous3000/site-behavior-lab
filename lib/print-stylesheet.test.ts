@@ -67,7 +67,11 @@ const FIXTURE_BODY = `<body>
           <div class="request-filter-chips" id="chips" role="group"><button type="button">Trackers</button></div>
           <input class="filter-input" id="filter" type="search" />
         </div>
-        <div id="logbody">recorded request rows</div>
+        <div id="logbody">recorded request rows
+          <table class="request-table"><tbody><tr data-request-row><td class="url-cell mono" data-label="URL" id="rowurl">https://pixel.example.net/…
+            <a class="inspect-connection-link" id="inspectlink" href="/#scan?url=https%3A%2F%2Fwww.example.com%2F">Inspect this connection</a>
+          </td></tr></tbody></table>
+        </div>
       </details>
       <p class="muted disclosure-lazy-note" id="lazynote">Open the request log to render its rows.</p>
       <button class="change-list-toggle" id="difftoggle" type="button">Show all 14</button>
@@ -138,6 +142,8 @@ const PROBED_IDS = [
   "chips",
   "filter",
   "logbody",
+  "rowurl",
+  "inspectlink",
   "lazynote",
   "difftoggle",
   "mapfocus",
@@ -237,6 +243,10 @@ test("controls and screen-reader scaffolding stay off paper", () => {
   // The homepage prints its result region too; the link back to an earlier
   // result is a link to follow, and it is never part of a report.
   assert.equal(visible.earlierresult, false, "a homepage result's link back to the earlier result is navigation, not evidence");
+  // A request row's link to inspect its connection opens a new visit; the
+  // row's own address beside it is evidence and prints.
+  assert.equal(visible.inspectlink, false, "a request row's inspection link is navigation, not evidence");
+  assert.equal(visible.rowurl, true, "a request row's address must print beside the hidden link");
   assert.equal(visible.tools, false, "filter tooling is not evidence");
   assert.equal(visible.chips, false, "request signal filter chips are not evidence");
   assert.equal(visible.filter, false, "a search box is not evidence");

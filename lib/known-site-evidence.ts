@@ -69,6 +69,43 @@ export function connectedEarlierResult(input: {
 }
 
 /**
+ * The inspection a scan link asked for (`inspect`), for as long as that
+ * arrival lasts by the same rule: the field still holds exactly the address
+ * the link put there and no comparison is selected, since an inspection is
+ * always a single visit. Editing the address or picking a comparison ends it,
+ * and putting both back restores it. A scan that starts while it holds is an
+ * inspection of that address, connected to the result the link named, if
+ * any; otherwise null, and the scan is an ordinary one.
+ */
+export function connectedInspection(input: {
+  prefilledUrl: string | null;
+  prefilledInspect: string | null;
+  prefilledFrom: string | null;
+  fieldValue: string;
+  /** Whether the scan request would ask for any comparison: offered and selected. */
+  comparison: boolean;
+}): { address: string; from: string | null } | null {
+  if (input.prefilledInspect === null || input.comparison) return null;
+  if (!isScanAgainArrival(input.prefilledUrl, input.fieldValue)) return null;
+  return { address: input.prefilledInspect, from: input.prefilledFrom };
+}
+
+/**
+ * What the scan form says while an inspection arrival holds (owner's
+ * approval, 2026-10-22): which address, which page, and that the details are
+ * not saved. The address and the page are shown as a report shows them.
+ */
+export function inspectionFormSentences(input: { address: string; page: string }): {
+  inspecting: string;
+  visit: string;
+} {
+  return {
+    inspecting: `Inspecting ${displayPublicUrl(input.address)}.`,
+    visit: `A new visit to ${displayPublicUrl(input.page)} will record which scripts were running when each request to this address was made. The details show here only and are not saved.`
+  };
+}
+
+/**
  * Whether the form leads with the existing report: a site matched, the visitor
  * did not ask to scan again, and no scan is loading or retained. While one is,
  * the submit button is exactly the usual one.
@@ -81,8 +118,13 @@ export function leadsWithExistingReport(input: {
   return input.siteMatched && !input.scanAgainArrival && !input.scanBusy;
 }
 
-/** The one submit button's label. Without a lead report it is the usual "Scan" or "Compare". */
-export function scanSubmitLabel(input: { comparison: boolean; leadsWithReport: boolean }): string {
+/**
+ * The one submit button's label. Without a lead report it is the usual "Scan"
+ * or "Compare", and "Inspect" while an inspection arrival holds, which never
+ * leads with a report, since that arrival is a scan-again arrival too.
+ */
+export function scanSubmitLabel(input: { comparison: boolean; leadsWithReport: boolean; inspecting?: boolean }): string {
+  if (input.inspecting) return "Inspect";
   if (input.leadsWithReport) return input.comparison ? "Compare now" : "Check now";
   return input.comparison ? "Compare" : "Scan";
 }

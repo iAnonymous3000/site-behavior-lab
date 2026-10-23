@@ -27,6 +27,7 @@ import {
 import { selectTurnstileWidgetSize, type TurnstileWidgetSize } from "@/lib/turnstile-widget-size";
 import type { HomepageKnownSite } from "@/lib/homepage-discovery";
 import {
+  inspectionFormSentences,
   isScanAgainArrival,
   knownEvidenceDifference,
   knownEvidenceReport,
@@ -93,6 +94,12 @@ type ScanControlsProps = {
   prefilledUrl: string | null;
   /** The comparison that link asked for, if it asked for one. */
   prefilledMode: ComparisonRunMode | null;
+  /**
+   * The published address an "Inspect this connection" link asked about,
+   * while that arrival holds (connectedInspection): the field still holds the
+   * page the link put there and no comparison is selected.
+   */
+  inspectedAddress: string | null;
   /** The scanner's own share retention in days, from its health; null states no number. */
   shareReportMaxAgeDays: number | null;
   /** Server-rendered statement of what a scan does to the page, shown under the URL field. */
@@ -163,6 +170,7 @@ export function ScanControls({
   knownSites,
   prefilledUrl,
   prefilledMode,
+  inspectedAddress,
   shareReportMaxAgeDays,
   disclosure
 }: ScanControlsProps) {
@@ -180,6 +188,9 @@ export function ScanControls({
     scanBusy: loading || activeScanJob
   });
   const evidenceTarget = knownSite ? knownEvidenceTarget(form.url, knownSite.requestedUrl) : null;
+  // An inspection link's arrival names the address and the page before the
+  // visitor presses Inspect, which runs one ordinary single visit.
+  const inspection = inspectedAddress ? inspectionFormSentences({ address: inspectedAddress, page: form.url }) : null;
   // A link that asked for a comparison says, before Compare, what the
   // comparison makes: two visits and a separate share report. A corpus site's
   // note above already says so, with the site's history.
@@ -231,15 +242,24 @@ export function ScanControls({
           className={`${leadsWithReport ? "secondary-button" : "primary-button"}${loading ? " is-loading" : ""}`}
           type="submit"
           disabled={loading || scanBlocked || activeScanJob}
-          aria-describedby={knownSite ? "known-evidence-difference" : modeLinkShareLine ? "mode-link-share-line" : undefined}
+          aria-describedby={
+            [inspection ? "inspection-arrival" : null, knownSite ? "known-evidence-difference" : modeLinkShareLine ? "mode-link-share-line" : null]
+              .filter(Boolean)
+              .join(" ") || undefined
+          }
         >
           {loading ? <Loader2 className="spin" size={18} aria-hidden="true" /> : <Search size={18} aria-hidden="true" />}
-          {scanSubmitLabel({ comparison, leadsWithReport })}
+          {scanSubmitLabel({ comparison, leadsWithReport, inspecting: inspection !== null })}
         </button>
       </div>
 
       {urlNotice && <p className="scanner-status-note url-privacy-note" id="url-notice">{urlNotice}</p>}
       {urlError && <p className="scanner-status-note scanner-status-note-error" id="url-error" role="alert">{urlError}</p>}
+      {inspection && (
+        <div className="inspection-arrival" role="status">
+          <p id="inspection-arrival">{`${inspection.inspecting} ${inspection.visit}`}</p>
+        </div>
+      )}
       {disclosure}
 
       {/* Nothing in this live region is the typed text itself: it changes when

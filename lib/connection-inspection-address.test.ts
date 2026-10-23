@@ -12,6 +12,8 @@ import {
 } from "./connection-inspection-address";
 import { isInspectableAddress } from "./connection-inspection";
 import allowlists from "./redaction-allowlists.json";
+import { requestInspectionLink } from "./request-inspection-link";
+import { resolveScanPrefillNavigation } from "./scan-prefill";
 
 /**
  * Three checks read one address grammar: the scan form's prefill parser and
@@ -66,30 +68,48 @@ test("every reviewed literal fits the grammar's label and segment classes", () =
   }
 });
 
-test("every committed third-party row's address is one the grammar and the gate both accept", () => {
+test("every committed third-party row's link is one the row minter, the form and the gate all accept", () => {
   const reportsDir = path.join(process.cwd(), "public", "reports");
   const files = readdirSync(reportsDir).filter((name) => /^[0-9]{8}-[0-9a-f]{32}\.json$/.test(name));
+  const context = { page: "https://www.example.com/", from: "20261022-0123456789abcdef0123456789abcdef", basePath: "/lab" };
   let rows = 0;
+  let firstParty = 0;
   for (const file of files) {
     const report = JSON.parse(readFileSync(path.join(reportsDir, file), "utf8"));
     if (report.schemaVersion !== 2) continue;
     const runs = report.run ? [report.run] : [report.baseline, report.variant];
     for (const run of runs) {
       for (const request of run.evidence.requests as Array<{ url: string; thirdParty: boolean }>) {
-        if (!request.thirdParty) continue;
-        rows += 1;
-        const address = inspectedAddressFromRowUrl(request.url);
-        if (request.url === "{invalid-url}") {
-          assert.equal(address, null);
+        // The real minter the explorer renders.
+        const link = requestInspectionLink(request, context);
+        if (!request.thirdParty) {
+          firstParty += 1;
+          assert.equal(link, null, `${file}: a first-party row offers an inspection`);
           continue;
         }
-        assert.ok(address, `${file}: ${request.url} names no address`);
-        assert.equal(request.url.startsWith(address), true);
-        assert.equal(isInspectableAddress(address), true, `${file}: the gate refuses ${address}`);
+        rows += 1;
+        if (request.url === "{invalid-url}") {
+          assert.equal(link, null, `${file}: a row redaction could not publish offers an inspection`);
+          continue;
+        }
+        assert.ok(link, `${file}: ${request.url} offers no inspection`);
+        assert.equal(link.address, inspectedAddressFromRowUrl(request.url));
+        assert.equal(request.url.startsWith(link.address), true);
+        // The real form parser reads the link back to the same page and address.
+        assert.ok(link.href.startsWith(`${context.basePath}/#scan?`));
+        const navigation = resolveScanPrefillNavigation(`https://sitebehavior.org${link.href.slice(context.basePath.length)}`);
+        assert.deepEqual(
+          [navigation?.targetUrl, navigation?.mode, navigation?.inspect, navigation?.from],
+          [context.page, null, link.address, context.from],
+          `${file}: the form reads ${link.href} as another inspection`
+        );
+        // And the gate's authoritative check accepts it.
+        assert.equal(isInspectableAddress(link.address), true, `${file}: the gate refuses ${link.address}`);
       }
     }
   }
   assert.ok(rows > 1_000, `only ${rows} committed third-party rows; this walk would be vacuous`);
+  assert.ok(firstParty > 100, `only ${firstParty} committed first-party rows; this walk would be vacuous`);
 });
 
 // The two dash characters no copy may hold, built from their code points.

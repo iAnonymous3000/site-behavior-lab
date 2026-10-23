@@ -11,7 +11,8 @@ import {
   STATIC_LIVE_SCAN_ENABLED,
   scannerApiUrl
 } from "../client-runtime";
-import { connectedEarlierResult } from "@/lib/known-site-evidence";
+import { INSPECTION_DURABLE_REFUSAL } from "@/lib/connection-inspection-address";
+import { connectedEarlierResult, connectedInspection } from "@/lib/known-site-evidence";
 import type { ComparisonRunMode } from "@/lib/run-mode-copy";
 import { heldRunModeOutcome, normalizeScanUrl, resolveScanPrefillNavigation } from "@/lib/scan-prefill";
 import {
@@ -133,6 +134,10 @@ export function useScanRuntime({
   // for the arrival beside the address and the mode. It never enters the form
   // state or the scan request.
   const [prefilledFrom, setPrefilledFrom] = useState<string | null>(null);
+  // The published address an "Inspect this connection" link asked about, kept
+  // for the arrival beside the address. It reaches the scan request only
+  // while that arrival holds (connectedInspection).
+  const [prefilledInspect, setPrefilledInspect] = useState<string | null>(null);
 
   useEffect(() => {
     if (reportPage) return;
@@ -162,13 +167,21 @@ export function useScanRuntime({
       }
 
       if (navigation.targetUrl) {
-        setForm((current) => ({ ...current, url: navigation.targetUrl ?? current.url }));
+        // An inspection is always a single visit, so its link selects Single,
+        // as a mode link's fallback does; nothing is submitted.
+        const inspect = navigation.inspect;
+        setForm((current) => ({
+          ...current,
+          url: navigation.targetUrl ?? current.url,
+          ...(inspect === null ? {} : { compareGpc: false, compareShields: false, compareConsent: false })
+        }));
         setPrefilledUrl(navigation.targetUrl);
         // A link with only a target leaves the run control as it is, and
-        // drops any mode an earlier link asked for and the form still holds,
-        // and any earlier result it named.
+        // drops any mode or inspection an earlier link asked for and the form
+        // still holds, and any earlier result it named.
         setPrefilledMode(navigation.mode);
         setHeldMode(navigation.mode);
+        setPrefilledInspect(inspect);
         setPrefilledFrom(navigation.from);
       }
       if (navigation.scrollToScan) document.getElementById("scan")?.scrollIntoView();
@@ -374,6 +387,19 @@ export function useScanRuntime({
       compareConsent: current.compareConsent && policy.consentComparisonEnabled
     }));
   }, [policy.consentComparisonEnabled, policy.gpcComparisonEnabled, policy.shieldsComparisonEnabled]);
+
+  // The inspection a scan link asked for, while its arrival holds: the field
+  // still holds the address the link put there and no comparison is asked.
+  const inspectionArrival = connectedInspection({
+    prefilledUrl,
+    prefilledInspect,
+    prefilledFrom,
+    fieldValue: form.url,
+    comparison:
+      (policy.gpcComparisonEnabled && form.compareGpc) ||
+      (policy.shieldsComparisonEnabled && form.compareShields) ||
+      (policy.consentComparisonEnabled && form.compareConsent)
+  });
 
   // A mode a scan link asked for is applied once, after health answers: the
   // effect above clears any comparison set before then, since a static build
@@ -650,6 +676,12 @@ export function useScanRuntime({
       setError("Complete the Turnstile check before scanning.");
       return;
     }
+    // Refused here, before a claim, so the Turnstile token this tab holds is
+    // not spent on a request that could never be admitted.
+    if (inspectionArrival && policy.durableAdmissionEnabled) {
+      setError(INSPECTION_DURABLE_REFUSAL);
+      return;
+    }
 
     const operation = operationOwnerRef.current.claim("submit");
     if (operation === null) return;
@@ -697,7 +729,8 @@ export function useScanRuntime({
         onAccepted: (job) => retainActiveScanSession(operation, job),
         onProgress: (progress) => {
           if (operationOwnerRef.current.owns(operation)) setActiveScanProgress(progress);
-        }
+        },
+        ...(inspectionArrival ? { inspect: inspectionArrival.address } : {})
       });
       assertClientOperationOwner(operationOwnerRef.current, operation);
       showLiveScanResult(nextLoaded);
@@ -976,6 +1009,9 @@ export function useScanRuntime({
     urlError,
     prefilledUrl,
     prefilledMode,
+    // The inspection the form shows and the next submit asks for, while a
+    // scan link's inspection arrival holds.
+    inspectionArrival,
     clearUrlNotice: () => {
       setUrlNotice("");
       setUrlError("");

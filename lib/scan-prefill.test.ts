@@ -9,6 +9,7 @@ import {
   isScannableHostname,
   normalizeScanUrl,
   resolveScanPrefillNavigation,
+  scanInspectHref,
   scanPrefillHref
 } from "./scan-prefill";
 
@@ -32,6 +33,7 @@ test("fragment prefills normalize the target and scrub browser history before us
   assert.deepEqual(navigation, {
     targetUrl: "https://example.com/account",
     mode: null,
+    inspect: null,
     from: null,
     cleanHref: "https://sitebehavior.org/#scan",
     scrollToScan: true
@@ -46,6 +48,7 @@ test("legacy query prefills are removed without trusting their target", () => {
   assert.deepEqual(navigation, {
     targetUrl: null,
     mode: null,
+    inspect: null,
     from: null,
     cleanHref: "https://sitebehavior.org/?campaign=research#scan",
     scrollToScan: true
@@ -60,6 +63,7 @@ test("malformed fragment prefills are scrubbed and never reach form state", () =
   assert.deepEqual(navigation, {
     targetUrl: null,
     mode: null,
+    inspect: null,
     from: null,
     cleanHref: "https://sitebehavior.org/#scan",
     scrollToScan: true
@@ -75,6 +79,7 @@ test("a scan link may ask for one of the form's comparison modes beside its targ
     assert.deepEqual(resolveScanPrefillNavigation(new URL(href ?? "", "https://sitebehavior.org").toString()), {
       targetUrl: "https://example.com/account",
       mode,
+      inspect: null,
       from: null,
       cleanHref: "https://sitebehavior.org/#scan",
       scrollToScan: true
@@ -115,14 +120,14 @@ test("any other mode, key or repetition refuses the whole link, target included,
   ]) {
     assert.deepEqual(
       resolveScanPrefillNavigation(`https://sitebehavior.org/#scan?${fragment}`),
-      { targetUrl: null, mode: null, from: null, cleanHref: "https://sitebehavior.org/#scan", scrollToScan: true },
+      { targetUrl: null, mode: null, inspect: null, from: null, cleanHref: "https://sitebehavior.org/#scan", scrollToScan: true },
       fragment
     );
   }
   // A mode beside a target the form refuses is dropped with it.
   assert.deepEqual(
     resolveScanPrefillNavigation("https://sitebehavior.org/#scan?url=javascript%3Aalert(1)&mode=shields"),
-    { targetUrl: null, mode: null, from: null, cleanHref: "https://sitebehavior.org/#scan", scrollToScan: true }
+    { targetUrl: null, mode: null, inspect: null, from: null, cleanHref: "https://sitebehavior.org/#scan", scrollToScan: true }
   );
 });
 
@@ -138,6 +143,7 @@ test("a follow-up's scan link may name the result it came from beside its mode",
     assert.deepEqual(resolveScanPrefillNavigation(new URL(href ?? "", "https://sitebehavior.org").toString()), {
       targetUrl: "https://example.com/account",
       mode,
+      inspect: null,
       from: EARLIER_RESULT,
       cleanHref: "https://sitebehavior.org/#scan",
       scrollToScan: true
@@ -195,14 +201,84 @@ test("a from the form cannot use refuses the whole link, target and mode include
   ]) {
     assert.deepEqual(
       resolveScanPrefillNavigation(`https://sitebehavior.org/#scan?${fragment}`),
-      { targetUrl: null, mode: null, from: null, cleanHref: "https://sitebehavior.org/#scan", scrollToScan: true },
+      { targetUrl: null, mode: null, inspect: null, from: null, cleanHref: "https://sitebehavior.org/#scan", scrollToScan: true },
       fragment
     );
   }
   // A from beside a target the form refuses is dropped with it.
   assert.deepEqual(
     resolveScanPrefillNavigation(`https://sitebehavior.org/#scan?url=javascript%3Aalert(1)&mode=shields&${from}`),
-    { targetUrl: null, mode: null, from: null, cleanHref: "https://sitebehavior.org/#scan", scrollToScan: true }
+    { targetUrl: null, mode: null, inspect: null, from: null, cleanHref: "https://sitebehavior.org/#scan", scrollToScan: true }
+  );
+});
+
+// A third-party row's published address, query dropped, as its link names it.
+const INSPECTED = "https://pixel.example.net/{seg}";
+const INSPECTED_PARAM = "inspect=https%3A%2F%2Fpixel.example.net%2F%7Bseg%7D";
+
+test("an inspection link names the page and one published address, and the result it came from", () => {
+  const page = "https://www.example.com/?utm=secret#frag";
+  const href = scanInspectHref(page, INSPECTED, EARLIER_RESULT);
+  assert.equal(href, `/#scan?url=https%3A%2F%2Fwww.example.com%2F&${INSPECTED_PARAM}&from=${EARLIER_RESULT}`);
+  // Minted links round-trip, and the address bar keeps none of it.
+  assert.deepEqual(resolveScanPrefillNavigation(new URL(href ?? "", "https://sitebehavior.org").toString()), {
+    targetUrl: "https://www.example.com/",
+    mode: null,
+    inspect: INSPECTED,
+    from: EARLIER_RESULT,
+    cleanHref: "https://sitebehavior.org/#scan",
+    scrollToScan: true
+  });
+  // Without a share, the link names no result; key order does not matter.
+  assert.equal(scanInspectHref(page, INSPECTED), `/#scan?url=https%3A%2F%2Fwww.example.com%2F&${INSPECTED_PARAM}`);
+  assert.equal(scanInspectHref(page, INSPECTED, "not-an-id"), `/#scan?url=https%3A%2F%2Fwww.example.com%2F&${INSPECTED_PARAM}`);
+  for (const fragment of [
+    `${INSPECTED_PARAM}&url=https%3A%2F%2Fwww.example.com%2F`,
+    `from=${EARLIER_RESULT}&${INSPECTED_PARAM}&url=https%3A%2F%2Fwww.example.com%2F`
+  ]) {
+    assert.equal(resolveScanPrefillNavigation(`https://sitebehavior.org/#scan?${fragment}`)?.inspect, INSPECTED, fragment);
+  }
+  // The builder never mints a link the form would refuse.
+  assert.equal(scanInspectHref("not a url", INSPECTED), null);
+  for (const address of [`${INSPECTED}?id=`, "https://pixel.example.net/p.gif", "{invalid-url}", ""]) {
+    assert.equal(scanInspectHref(page, address), null, address);
+  }
+});
+
+test("an inspection the form cannot use refuses the whole link, target included, and is scrubbed", () => {
+  const url = "url=https%3A%2F%2Fwww.example.com%2F";
+  const refused = { targetUrl: null, mode: null, inspect: null, from: null, cleanHref: "https://sitebehavior.org/#scan", scrollToScan: true };
+  for (const fragment of [
+    // Never alone, and never beside a mode: an inspection is never a comparison.
+    INSPECTED_PARAM,
+    `${url}&${INSPECTED_PARAM}&mode=shields`,
+    `mode=gpc&${url}&${INSPECTED_PARAM}`,
+    // One value, exactly a published address.
+    `${url}&${INSPECTED_PARAM}&${INSPECTED_PARAM}`,
+    `${url}&inspect=`,
+    `${url}&inspect`,
+    `${url}&inspect=${encodeURIComponent("https://pixel.example.net/p.gif")}`,
+    `${url}&inspect=${encodeURIComponent(`${INSPECTED}?id=`)}`,
+    `${url}&inspect=${encodeURIComponent(`${INSPECTED}#x`)}`,
+    `${url}&inspect=${encodeURIComponent("https://pixel.example.net:8443/{seg}")}`,
+    `${url}&inspect=${encodeURIComponent("https://PIXEL.example.net/{seg}")}`,
+    `${url}&inspect=${encodeURIComponent("https://203.0.113.9/{seg}")}`,
+    `${url}&inspect=${encodeURIComponent("javascript://pixel.example.net/{seg}")}`,
+    `${url}&inspect=${encodeURIComponent(`${INSPECTED}/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}`)}`,
+    `${url}&inspect=${encodeURIComponent(`https://cdn.example.net/${"a".repeat(600)}`)}`,
+    `${url}&inspect=__proto__`,
+    // A from the form cannot use refuses it too, and any other key.
+    `${url}&${INSPECTED_PARAM}&from=`,
+    `${url}&${INSPECTED_PARAM}&from=${EARLIER_RESULT.toUpperCase()}`,
+    `${url}&${INSPECTED_PARAM}&token=bearer-secret`,
+    `${url}&inspects=${encodeURIComponent(INSPECTED)}`
+  ]) {
+    assert.deepEqual(resolveScanPrefillNavigation(`https://sitebehavior.org/#scan?${fragment}`), refused, fragment);
+  }
+  // An inspection beside a target the form refuses is dropped with it.
+  assert.deepEqual(
+    resolveScanPrefillNavigation(`https://sitebehavior.org/#scan?url=javascript%3Aalert(1)&${INSPECTED_PARAM}`),
+    refused
   );
 });
 

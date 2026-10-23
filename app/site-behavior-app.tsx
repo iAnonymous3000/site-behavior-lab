@@ -127,6 +127,7 @@ export function SiteBehaviorApp({
     urlError,
     prefilledUrl,
     prefilledMode,
+    inspectionArrival,
     clearUrlNotice,
     policy,
     scannerStatus,
@@ -329,6 +330,7 @@ export function SiteBehaviorApp({
       prefilledUrl={prefilledUrl}
       shareReportMaxAgeDays={shareReportMaxAgeDays}
       prefilledMode={prefilledMode}
+      inspectedAddress={inspectionArrival?.address ?? null}
       disclosure={scanDisclosure}
     />
   );

@@ -9,6 +9,35 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- Each third-party row of a fresh result's request log now offers "Inspect
+  this connection", whose accessible name adds the row's address as the log
+  shows it. It is offered on the homepage's own live result and that scan's
+  runtime share permalink, decided by the same freshness the Blocker
+  follow-up uses, and only where that follow-up's page can be visited again
+  (reportNewVisitTarget, gates G3 and G4): never on a committed report, a
+  file opened from disk, a comparison built in the archive, a visit that did
+  not establish its page, a report from a scanner whose results cannot carry
+  an inspection, a first-party row, a row redaction could not publish, or
+  paper, where the print stylesheet hides it too. The link is
+  `/#scan?url=<page>&inspect=<address>&from=<share report id>`, the address
+  being the row's published URL without its query, minted by one function
+  the explorer's lazy chunk renders. The scan link parser accepts `inspect`
+  beside an address it accepts, never beside a mode, once, and only in the
+  shape the redaction pass writes, checked syntactically so the homepage
+  bundle reads no public-suffix list; `from` may now sit beside an
+  inspection as beside a mode. Anything else refuses the whole link, and
+  every link is still scrubbed from the address bar. Following one fills
+  the form with the page, selects Single, labels the button "Inspect", and
+  shows "Inspecting <address>. A new visit to <page> will record which
+  scripts were running when each request to this address was made. The
+  details show here only and are not saved." Editing the address or picking
+  a comparison ends it, as the back-link's arrival rule does, and putting
+  both back restores it. Nothing submits on its own; Turnstile and the rate
+  limit apply unchanged. Pressing Inspect sends the address in the scan
+  request, and a scanner running durable jobs is refused before the submit
+  is claimed, so the browser check is not spent. A unit test walks every
+  committed row through the row link's minter, the form's parser and the
+  gate's check, and all three agree.
 - The scan API now accepts an optional `inspect` field: the published
   address, query dropped, of the connection an "Inspect this connection"
   visit asks about. It is accepted only on a single scan, only as an address

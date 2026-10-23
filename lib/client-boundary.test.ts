@@ -185,6 +185,53 @@ test("Look closer views are built on the server or in the renderer chunk, never 
   }
 });
 
+test("Inspect this connection keeps the public-suffix list and the recorder out of every client bundle", () => {
+  const read = (...parts: string[]) => readFileSync(path.join(root, ...parts), "utf8");
+  const importsOf = (source: string) =>
+    [...source.matchAll(/^import\s+([\s\S]*?)\s+from\s+"([^"]+)";/gm)].map((match) => ({ clause: match[1], from: match[2] }));
+  // The request contract the homepage bundles is dependency-free, and the
+  // evidence validator readers use reads only it and the shared guards.
+  assert.deepEqual(importsOf(read("lib", "connection-inspection-address.ts")), []);
+  assert.deepEqual(
+    importsOf(read("lib", "connection-inspection-evidence.ts")).map((entry) => entry.from).sort(),
+    ["./connection-inspection-address", "./guards"]
+  );
+  assert.deepEqual(importsOf(read("lib", "connection-inspection-copy.ts")).map((entry) => entry.from), ["./text-format"]);
+  // The row link's one minter reads the request contract, its copy and the
+  // scan link builder, and the row only as a type.
+  const linkImports = importsOf(read("lib", "request-inspection-link.ts"));
+  assert.deepEqual(
+    linkImports.map((entry) => entry.from).sort(),
+    ["./connection-inspection-address", "./connection-inspection-copy", "./scan-prefill", "./types"]
+  );
+  assert.ok(/^type\s/.test(linkImports.find((entry) => entry.from === "./types")?.clause ?? ""), "the minter imports the row only as a type");
+  // The prefill parser checks an address by its shape only.
+  assert.deepEqual(
+    importsOf(read("lib", "scan-prefill.ts")).map((entry) => entry.from).sort(),
+    ["./connection-inspection-address", "./report-validation", "./run-mode-copy"]
+  );
+  // No client entry point or component reaches the recorder, which holds the
+  // raw stacks and imports the redaction pass with its public-suffix list.
+  for (const parts of [
+    ["app", "site-behavior-app.tsx"],
+    ["app", "_hooks", "use-scan-runtime.ts"],
+    ["app", "_components", "scan-controls.tsx"],
+    ["app", "_components", "report-tables.tsx"],
+    ["app", "_components", "report-renderer.tsx"],
+    ["app", "reports", "[id]", "saved-report-client.tsx"],
+    ["lib", "scan-client-orchestration.ts"],
+    ["lib", "known-site-evidence.ts"]
+  ]) {
+    const source = read(...parts);
+    assert.ok(!/["']@\/lib\/connection-inspection["']|["']\.\/connection-inspection["']|redaction-v2/.test(source), `${parts.join("/")} reaches the recorder or the redaction pass`);
+  }
+  // The homepage's own code reads only the request contract; the row link and
+  // its copy live in the explorer's lazy chunk.
+  for (const parts of [["app", "site-behavior-app.tsx"], ["app", "_hooks", "use-scan-runtime.ts"], ["app", "_components", "scan-controls.tsx"]]) {
+    assert.ok(!/connection-inspection-copy|connection-inspection-evidence/.test(read(...parts)), `${parts.join("/")} bundles reader copy or the validator`);
+  }
+});
+
 test("the scan form's known-site note reads no retention default and keeps its imports light", () => {
   const read = (...parts: string[]) => readFileSync(path.join(root, ...parts), "utf8");
   const importsOf = (source: string) =>

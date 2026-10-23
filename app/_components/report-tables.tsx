@@ -4,6 +4,7 @@ import { useEvidenceIds, usePrintVisit } from "./print-mode";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AlertTriangle, CheckCircle2, ChevronDown, Database, Fingerprint, Radar } from "lucide-react";
 import { requestMatchesQuery, requestMatchesSignalFilter, requestProvenanceSummary } from "@/lib/request-log-filters";
+import { requestInspectionLink, type RequestInspectionContext } from "@/lib/request-inspection-link";
 import { visitPhaseLabel } from "@/lib/report-phase-evidence";
 import { displayHost, displayPublicUrl, hostMatchesQuery, plural } from "@/lib/text-format";
 import { detectionEvidence, detectionLabel, isSingleSignalWebglDetection, pixelFieldLabel } from "@/lib/report-insights";
@@ -215,11 +216,13 @@ function DomainTable({ domains, facts }: { domains: DomainSummary[]; facts: RunF
 function RequestTable({
   requests,
   phases,
-  facts
+  facts,
+  inspection = null
 }: {
   requests: NetworkRequestRecord[];
   phases: PhaseSpan[] | null;
   facts: RunFacts;
+  inspection?: RequestInspectionContext | null;
 }) {
   const evidenceId = useEvidenceIds();
   const printVisit = usePrintVisit();
@@ -441,7 +444,9 @@ function RequestTable({
           <tbody>
             {/* Keyed with the index: v2 evidence rows are phase-tagged, so one
                 request id can legitimately appear in several phases. */}
-            {shown.map((request, index) => (
+            {shown.map((request, index) => {
+              const inspect = inspection ? requestInspectionLink(request, inspection) : null;
+              return (
               <tr key={`${request.id}:${index}`} data-request-row>
                 {printComplete && <td className="request-ref"><code>{`${printVisit ? printVisit[0].toUpperCase() : "S"}:R${String(index + 1).padStart(4, "0")}`}</code></td>}
                 <td className="mono time-cell" data-label="Time">{request.startedAtMs.toLocaleString("en-US")}ms</td>
@@ -458,9 +463,20 @@ function RequestTable({
                 <td data-label="Provenance">
                   <RequestProvenanceCell request={request} />
                 </td>
-                <td className="url-cell mono" data-label="URL">{displayPublicUrl(request.url)}</td>
+                <td className="url-cell mono" data-label="URL">
+                  {displayPublicUrl(request.url)}
+                  {/* A new visit that records which scripts were on the call
+                      stack for this address, opened in the scan form; it
+                      runs nothing until the visitor presses Inspect. */}
+                  {inspect && (
+                    <a className="inspect-connection-link" href={inspect.href} aria-label={inspect.name}>
+                      {inspect.label}
+                    </a>
+                  )}
+                </td>
               </tr>
-            ))}
+              );
+            })}
           </tbody>
         </table>
         {shown.length === 0 && (
