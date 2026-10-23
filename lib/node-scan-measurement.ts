@@ -8,6 +8,7 @@ import type {
   ShieldsVerificationFactsR2
 } from "./scan-report-v2-r2";
 import type { ConditionVector } from "./scan-report-v2";
+import type { ConnectionInspectionEvidence } from "./connection-inspection-evidence";
 import type { ScanResult } from "./types";
 
 /**
@@ -80,6 +81,18 @@ const consentBannerObserveFacts = new WeakMap<
 >();
 
 /**
+ * An inspection visit's evidence (lib/connection-inspection-evidence.ts),
+ * held like the calibration fact above: never a member of the envelope or
+ * its measurement, so neither builder, shadow emission, a clone nor a
+ * serialization can carry it. Only the immediate result's runtime builder
+ * reads it, into the ephemeral block it never persists.
+ */
+const connectionInspectionFacts = new WeakMap<
+  NodeScanMeasurementEnvelope,
+  DeepReadonly<ConnectionInspectionEvidence>
+>();
+
+/**
  * Capture an owned snapshot of the measurement while preserving the exact v1
  * object returned by the scanner. Builders also clone before sanitizing, so
  * neither public nor shadow emission mutates this envelope.
@@ -87,7 +100,8 @@ const consentBannerObserveFacts = new WeakMap<
 export function createNodeScanMeasurementEnvelope(
   result: ScanResult,
   measurement: NodeScanMeasurement,
-  consentBannerObserve?: ConsentBannerObserveCalibrationFact
+  consentBannerObserve?: ConsentBannerObserveCalibrationFact,
+  connectionInspection?: ConnectionInspectionEvidence
 ): NodeScanMeasurementEnvelope {
   const envelope = { result, measurement: deepFreeze(structuredClone(measurement)) };
   Object.defineProperty(envelope, "toJSON", {
@@ -105,7 +119,20 @@ export function createNodeScanMeasurementEnvelope(
       deepFreeze(structuredClone(consentBannerObserve))
     );
   }
+  if (connectionInspection !== undefined) {
+    connectionInspectionFacts.set(frozenEnvelope, deepFreeze(structuredClone(connectionInspection)));
+  }
   return frozenEnvelope;
+}
+
+/**
+ * The inspection evidence of the exact envelope an inspection visit
+ * returned, or undefined for any other visit and for any copy of one.
+ */
+export function connectionInspectionEvidence(
+  envelope: NodeScanMeasurementEnvelope
+): DeepReadonly<ConnectionInspectionEvidence> | undefined {
+  return connectionInspectionFacts.get(envelope);
 }
 
 /**

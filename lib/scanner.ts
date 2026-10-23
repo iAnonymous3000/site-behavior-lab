@@ -16,6 +16,7 @@ import { isDeepStrictEqual } from "node:util";
 import { Client, type Dispatcher, ProxyAgent, request as requestThroughProxy } from "undici";
 import { findTrackerMatch } from "./tracker-catalog";
 import { initiatorObservationFromCdpParams, RequestInitiatorIndex } from "./request-initiator";
+import { ConnectionInspectionRecorder } from "./connection-inspection";
 import { adblockListMeta, getAdblockEngine, mapRequestType } from "./adblock-engine";
 import type {
   CookieRecord,
@@ -483,6 +484,15 @@ export { browserProcessEnvironment };
 export type ScanSiteOptions = {
   publicUrlAlreadyVerified?: boolean;
   shieldsBlockingEnabled?: boolean;
+  /**
+   * The published address an "Inspect this connection" visit asks about
+   * (lib/connection-inspection.ts). A visit option only, never a recorded
+   * condition: the visit, its methodology and its report are an ordinary
+   * single scan's. With it set, the request attribution session's existing
+   * handler also keeps, in memory, the synchronous stack script URLs of the
+   * requests to that address; without it, nothing new is kept.
+   */
+  inspect?: string;
   /** Cooperatively stops the browser visit and closes its isolated context. */
   signal?: AbortSignal;
   /** Coarse, observed browser lifecycle stages; never a percentage or ETA. */
@@ -1132,12 +1142,18 @@ async function scanSiteWithMeasurementOnLeasedBrowser(
     // adding observations. See lib/request-initiator.ts for why only the URL is
     // taken and why ambiguous or outnumbered joins are refused.
     const initiatorIndex = new RequestInitiatorIndex();
+    // An inspection visit's recorder, fed by this same session's handler and
+    // the same page request count below, and by nothing else: no session,
+    // command or domain is added for it (lib/connection-inspection.ts).
+    const connectionInspection =
+      options.inspect === undefined ? null : new ConnectionInspectionRecorder(options.inspect);
     let initiatorSession: CDPSession | null = null;
     try {
       initiatorSession = await withSetupTimeout(context.newCDPSession(page), started);
       initiatorSession.on("Network.requestWillBeSent", (params: unknown) => {
         const observation = initiatorObservationFromCdpParams(params);
         if (observation) initiatorIndex.record(observation);
+        connectionInspection?.observe(params);
       });
       await withSetupTimeout(initiatorSession.send("Network.enable"), started);
     } catch {
@@ -1153,7 +1169,10 @@ async function scanSiteWithMeasurementOnLeasedBrowser(
     // the log leaves out (blocked, aborted, over the cap, or a reload whose
     // traffic is excluded) are observed all the same, so counting only the
     // recorded rows would let one of them stand in for a worker's row.
-    const noteInitiatorRequest = (request: Request) => initiatorIndex.noteRequest(request.url());
+    const noteInitiatorRequest = (request: Request) => {
+      initiatorIndex.noteRequest(request.url());
+      connectionInspection?.notePageRequest(request.url());
+    };
     page.on("request", noteInitiatorRequest);
 
     // The browser-side witness: every dedicated worker Playwright's own
@@ -2989,10 +3008,14 @@ async function scanSiteWithMeasurementOnLeasedBrowser(
     // attached keeps its closure alive on the page and rescans up to a thousand
     // records per straggler for the rest of the context's life. The initiator
     // request count retires with them: the claims above were its last reader.
+    // An inspection stops recording at the same instant, so its stacks and
+    // its count describe the same requests and the later policy visit adds
+    // to neither.
     measuringRequests = false;
     page.off("request", recordRequest);
     page.off("response", recordResponse);
     page.off("request", noteInitiatorRequest);
+    connectionInspection?.freeze();
     measurementKernel.endPhase();
     // Drain in-flight worker handshakes before freezing the evidence
     // diagnostics, so every attached worker reads as a terminal verified or
@@ -3558,7 +3581,8 @@ async function scanSiteWithMeasurementOnLeasedBrowser(
     return createNodeScanMeasurementEnvelope(
       v1Result,
       measurement,
-      consentBannerObserveCalibration
+      consentBannerObserveCalibration,
+      connectionInspection?.evidence() ?? undefined
     );
   } finally {
     options.signal?.removeEventListener("abort", closeOnAbort);

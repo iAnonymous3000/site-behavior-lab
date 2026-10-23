@@ -9,6 +9,36 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- A scan visit can now record, for one published address and only when
+  asked, which scripts were on the call stack when its requests to that
+  address were made: the groundwork for "Inspect this connection". The
+  scanner's request attribution session already receives each request's
+  synchronous initiator stack; with the new `inspect` visit option its
+  existing handler also feeds a recorder, and the page request count it
+  already keeps feeds the same recorder, so no session, command, domain or
+  browser behavior is added and a visit without the option keeps nothing
+  new. Both stop at the visit's evidence boundary. The evidence holds counts,
+  published hosts and published addresses only: requests whose published
+  address, query dropped, equals the inspected one are counted from the
+  page's own request events, a dedicated worker's included; the session's
+  observations of the same URLs are joined to them, at most as many as the
+  page reported; redirect hops, requests with no stack, and stacks with no
+  frame whose address the visit requested as a script or document are
+  counted apart; a stack names at most four hosts, innermost first,
+  consecutive repeats collapsed, and the addresses of the scripts behind
+  them; a sourceURL name counts only when it is an address the visit
+  requested; and anything a bound keeps from being broken down is counted
+  as not listed. The counts always add up, and a closed validator, built
+  without the public-suffix list so a client reader can use it, holds the
+  shape and the sum. It travels only beside the visit's envelope, keyed by
+  that exact object, so no builder, shadow emission, clone or serialization
+  carries it; nothing uses it yet. A fixture test drives the real scanner
+  over a local page: a tag's function called by its loader groups as the
+  tag host then the loader host, an image in the HTML and an image a
+  script created both arrive with no stack (Chromium 153 reports a
+  script-created image as the parser's), a self-named script is named only
+  when its name is an address the visit requested, a redirect hop counts
+  apart, and a worker's fetch counts as unobserved.
 - The comparison that "Compare with blocking on" opens now links back to
   the result it came from. The form keeps the earlier result's id while the
   field still holds exactly the address the link put there and the one
