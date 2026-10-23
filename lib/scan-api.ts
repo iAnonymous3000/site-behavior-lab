@@ -2,7 +2,8 @@ import { randomBytes } from "node:crypto";
 import {
   acquireScanSlot,
   assertRateLimit,
-  QUEUE_TIMEOUT_MS
+  QUEUE_TIMEOUT_MS,
+  reserveScrollCheck
 } from "./scan-limits";
 import { PublicScanError } from "./public-errors";
 import { redactScanReportV1 } from "./redact-scan-report-v1";
@@ -39,7 +40,7 @@ import type {
   ScanReport,
   ScanRequestPayload
 } from "./types";
-import { assertInspectionRunnable, prepareScanRequest, type PreparedScanRequest } from "./scan-gate";
+import { assertInspectionRunnable, assertScrollCheckRunnable, prepareScanRequest, type PreparedScanRequest } from "./scan-gate";
 import { scanAbortError } from "./scan-runtime";
 
 export { prepareScanRequest, ScanGate, scanRateLimitCost, type PreparedScanRequest } from "./scan-gate";
@@ -68,6 +69,12 @@ export type ScanExecutionControl = {
    * result and scan slot never await this work. Tests may inject a collector.
    */
   schedulePostPublication?: (task: () => Promise<unknown>) => void | Promise<unknown>;
+  /**
+   * The async job that runs this request already holds the process's one
+   * after-scrolling check reservation, taken at admission (lib/scan-jobs.ts).
+   * Without it the synchronous path takes its own, before any slot or charge.
+   */
+  scrollCheckReserved?: boolean;
 };
 
 const SHARE_SAVE_WARNING = "Shareable report could not be saved on this host; JSON export is still available.";
@@ -102,8 +109,19 @@ export async function executePreparedScan(
   // The gate already refused an inspection this runtime cannot carry; a
   // prepared request built anywhere else is held to the same rule here.
   assertInspectionRunnable(prepared, reportMode);
+  assertScrollCheckRunnable(prepared, reportMode);
   const acquisition = runtimeReportAcquisition(reportMode);
-  const releaseScanSlot = await acquireScanSlot(queueTimeoutMs, control.signal);
+  // A second after-scrolling check is refused as busy here, before it takes
+  // a slot or is charged (owner call 3).
+  const releaseScrollCheck =
+    prepared.check !== undefined && control.scrollCheckReserved !== true ? reserveScrollCheck() : null;
+  let releaseScanSlot: () => void;
+  try {
+    releaseScanSlot = await acquireScanSlot(queueTimeoutMs, control.signal);
+  } catch (error) {
+    releaseScrollCheck?.();
+    throw error;
+  }
   try {
     let completedRuns = 0;
     const totalRuns = prepared.compareGpc || prepared.compareShields || prepared.compareConsent ? 2 : 1;
@@ -235,8 +253,17 @@ export async function executePreparedScan(
     const envelope = await scanWithProgress(createScanPayload(prepared.url, prepared.device, prepared.gpcEnabled), {
       publicUrlAlreadyVerified: true,
       signal: control.signal,
-      ...(prepared.inspect === undefined ? {} : { inspect: prepared.inspect })
+      ...(prepared.inspect === undefined ? {} : { inspect: prepared.inspect }),
+      ...(prepared.check === undefined ? {} : { scrollCheck: true })
     });
+    if (prepared.check !== undefined) {
+      // Nothing from a check visit is saved (owner call 2): no share, no
+      // shadow emission and no publication boundary. Its immediate result is
+      // its only output, and the ordinary report in it covers the visit
+      // before the check began.
+      throwIfCancelled(control.signal);
+      return buildRuntimeScanReportV2R2(envelope, acquisition);
+    }
     if (reportMode === "r2") {
       return saveRuntimeR2Report(
         buildRuntimeScanReportV2R2(envelope, acquisition),
@@ -250,6 +277,7 @@ export async function executePreparedScan(
     return saved;
   } finally {
     releaseScanSlot();
+    releaseScrollCheck?.();
   }
 }
 

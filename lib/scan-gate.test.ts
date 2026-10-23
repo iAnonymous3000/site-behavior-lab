@@ -2,12 +2,23 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
   assertInspectionRunnable,
+  assertScrollCheckRunnable,
   INSPECTION_REQUEST_MESSAGE,
   PRIVATE_SUFFIX_TENANT_SUBJECT_MESSAGE,
   ScanGate,
+  scanRateLimitCost,
   ScanTargetVerificationTimeoutError
 } from "./scan-gate";
 import { INSPECTION_V1_PRODUCER_REFUSAL } from "./connection-inspection-address";
+import { scanTokenCost } from "./edge-scan-gate";
+import {
+  SCROLL_CHECK_BUSY_REFUSAL,
+  SCROLL_CHECK_DURABLE_REFUSAL,
+  SCROLL_CHECK_SINGLE_ONLY_REFUSAL,
+  SCROLL_CHECK_UNKNOWN_REFUSAL,
+  SCROLL_CHECK_V1_PRODUCER_REFUSAL,
+  scanBodyNamesScrollCheck
+} from "./scroll-check-request";
 import { PublicScanError } from "./public-errors";
 
 test("scan preparation returns at its target-verification deadline when an injected verifier stalls", async () => {
@@ -271,4 +282,110 @@ test("the execution-side check holds a prepared inspection to the same rules", (
     () => assertInspectionRunnable({ ...single, compareShields: true, inspect: INSPECTED }, "r2"),
     { message: INSPECTION_REQUEST_MESSAGE }
   );
+});
+
+test("a single scan may ask for the after-scrolling check, which costs two rate-limit tokens", async () => {
+  const { calls, prepare } = inspectionGate();
+  const prepared = await prepare({ url: "https://www.example.com/", device: "desktop", gpcEnabled: true, check: "scroll" });
+  assert.equal(prepared.check, "scroll");
+  assert.equal(prepared.rateLimitCost, 2);
+  assert.equal(calls.verified, 1);
+  // A request that asks for none prepares exactly as before, with no such key.
+  const ordinary = await prepare({ url: "https://www.example.com/", device: "desktop", gpcEnabled: true });
+  assert.equal(Object.prototype.hasOwnProperty.call(ordinary, "check"), false);
+  assert.equal(ordinary.rateLimitCost, 1);
+});
+
+test("a check beside a comparison or an inspection, or any other check, is refused before quota or DNS", async () => {
+  const { calls, prepare } = inspectionGate();
+  for (const [name, body, message] of [
+    ["a GPC comparison", { check: "scroll", compareGpc: true }, SCROLL_CHECK_SINGLE_ONLY_REFUSAL],
+    ["a Blocker comparison", { check: "scroll", compareShields: true }, SCROLL_CHECK_SINGLE_ONLY_REFUSAL],
+    ["a consent comparison", { check: "scroll", compareConsent: true }, SCROLL_CHECK_SINGLE_ONLY_REFUSAL],
+    ["an inspection", { check: "scroll", inspect: INSPECTED }, SCROLL_CHECK_SINGLE_ONLY_REFUSAL],
+    ["another check", { check: "zoom" }, SCROLL_CHECK_UNKNOWN_REFUSAL],
+    ["a capitalized value", { check: "Scroll" }, SCROLL_CHECK_UNKNOWN_REFUSAL],
+    ["true", { check: true }, SCROLL_CHECK_UNKNOWN_REFUSAL],
+    ["a null value", { check: null }, SCROLL_CHECK_UNKNOWN_REFUSAL],
+    ["a list", { check: ["scroll"] }, SCROLL_CHECK_UNKNOWN_REFUSAL]
+  ] as const) {
+    await assert.rejects(
+      prepare({ url: "https://www.example.com/", device: "desktop", gpcEnabled: true, ...body }),
+      (error: unknown) =>
+        error instanceof PublicScanError &&
+        error.status === 400 &&
+        error.failureCause === "request-rejected" &&
+        error.message === message,
+      name
+    );
+  }
+  assert.deepEqual(calls, { quotaPeeked: 0, verified: 0 });
+});
+
+test("a scanner that writes version 1 reports refuses a check with its own sentence, before quota or DNS", async () => {
+  const { calls, prepare } = inspectionGate("v1");
+  await assert.rejects(
+    prepare({ url: "https://www.example.com/", device: "desktop", gpcEnabled: true, check: "scroll" }),
+    (error: unknown) =>
+      error instanceof PublicScanError &&
+      error.status === 503 &&
+      // Undeclared, so the visitor reads the sentence itself.
+      error.failureCause === undefined &&
+      error.message === SCROLL_CHECK_V1_PRODUCER_REFUSAL
+  );
+  assert.deepEqual(calls, { quotaPeeked: 0, verified: 0 });
+});
+
+test("the execution-side check holds a prepared check to the same rules", () => {
+  const single = { compareGpc: false, compareShields: false, compareConsent: false };
+  assert.doesNotThrow(() => assertScrollCheckRunnable({ ...single, check: "scroll" }, "r2"));
+  assert.doesNotThrow(() => assertScrollCheckRunnable(single, "v1"));
+  assert.throws(() => assertScrollCheckRunnable({ ...single, check: "scroll" }, "v1"), { message: SCROLL_CHECK_V1_PRODUCER_REFUSAL });
+  assert.throws(() => assertScrollCheckRunnable({ ...single, compareGpc: true, check: "scroll" }, "r2"), {
+    message: SCROLL_CHECK_SINGLE_ONLY_REFUSAL
+  });
+  assert.throws(() => assertScrollCheckRunnable({ ...single, inspect: INSPECTED, check: "scroll" }, "r2"), {
+    message: SCROLL_CHECK_SINGLE_ONLY_REFUSAL
+  });
+});
+
+test("the container's charge is the edge's charge for every shape of body", () => {
+  for (const body of [
+    {},
+    { compareGpc: true },
+    { compareShields: true },
+    { compareConsent: true },
+    { check: "scroll" },
+    { check: "zoom" },
+    { compareGpc: false, check: "scroll" }
+  ]) {
+    assert.equal(scanRateLimitCost(body), scanTokenCost(body), JSON.stringify(body));
+  }
+  assert.equal(scanTokenCost({ check: "scroll" }), 2);
+  assert.equal(scanTokenCost({ check: "zoom" }), 1);
+});
+
+test("each check refusal is one sentence of at most 30 words with no dash, and the edge finds a check key in any body", () => {
+  const dashes = new RegExp(`[${String.fromCharCode(0x2013)}${String.fromCharCode(0x2014)}]`);
+  const refusals = [
+    SCROLL_CHECK_SINGLE_ONLY_REFUSAL,
+    SCROLL_CHECK_UNKNOWN_REFUSAL,
+    SCROLL_CHECK_DURABLE_REFUSAL,
+    SCROLL_CHECK_V1_PRODUCER_REFUSAL,
+    SCROLL_CHECK_BUSY_REFUSAL
+  ];
+  for (const sentence of refusals) {
+    assert.ok(sentence.split(/\s+/).length <= 30, sentence);
+    assert.equal(sentence.match(/[.!?](\s|$)/g)?.length, 1, sentence);
+    assert.equal(dashes.test(sentence), false, sentence);
+  }
+  assert.equal(new Set(refusals).size, refusals.length);
+  assert.equal(scanBodyNamesScrollCheck(JSON.stringify({ url: "https://www.example.com/", check: "scroll" })), true);
+  // Any value names one: the edge refuses the key, the gate judges values.
+  assert.equal(scanBodyNamesScrollCheck(JSON.stringify({ url: "https://www.example.com/", check: null })), true);
+  assert.equal(scanBodyNamesScrollCheck(JSON.stringify({ url: "https://www.example.com/" })), false);
+  assert.equal(scanBodyNamesScrollCheck(JSON.stringify({ nested: { check: "scroll" } })), false);
+  assert.equal(scanBodyNamesScrollCheck(JSON.stringify([{ check: "scroll" }])), false);
+  assert.equal(scanBodyNamesScrollCheck("{"), false);
+  assert.equal(scanBodyNamesScrollCheck("null"), false);
 });

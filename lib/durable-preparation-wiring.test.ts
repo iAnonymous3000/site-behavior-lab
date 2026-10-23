@@ -44,6 +44,22 @@ test("the durable edge refuses a body naming an inspection, with its sentence, b
   assert.match(worker, /import \{ INSPECTION_DURABLE_REFUSAL, scanBodyNamesInspection \} from "\.\.\/lib\/connection-inspection-address";/);
 });
 
+test("the durable edge refuses a body naming an after-scrolling check, with its sentence, before any capability lookup", () => {
+  // A check's result is never saved, and the exact-keyed commitment has no
+  // place for it, so such a body meets its own sentence after authorization
+  // and before any capability, reservation or preparation.
+  const check = "if (scanBodyNamesScrollCheck(body)) {";
+  assertOrdered(
+    worker,
+    ['gateScanRequest(request, body, env, "authorize"', check, "scanAdmissionStoreKey(request.headers, body)"],
+    WORKER,
+    "the check refusal must sit between authorization and the capability lookup"
+  );
+  const branch = worker.slice(requireIndex(worker, check, WORKER), requireIndex(worker, check, WORKER) + 200);
+  assert.match(branch, /throw new EdgeScanGateError\(SCROLL_CHECK_DURABLE_REFUSAL, 400\)/);
+  assert.match(worker, /import \{ SCROLL_CHECK_DURABLE_REFUSAL, scanBodyNamesScrollCheck \} from "\.\.\/lib\/scroll-check-request";/);
+});
+
 test("the slot is released on every exit path, and a cleanup failure never becomes the caller's error", () => {
   const tail = worker.slice(requireIndex(worker, "reserveDurablePreparationSlot({", WORKER));
   // The reservation must be released.

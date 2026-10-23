@@ -22,6 +22,7 @@ import type {
   TemporalExperiment
 } from "./scan-report-v2";
 import type { ConnectionInspectionEvidence } from "./connection-inspection-evidence";
+import type { ScrollCheckEvidence } from "./scroll-check-evidence";
 
 export const SCAN_REPORT_V2_SCHEMA_REVISION_2 = 2 as const;
 
@@ -165,9 +166,22 @@ export type PublicScanReportV2R2 = PublicSingleReportV2R2 | PublicComparisonRepo
  * the screenshot, the key is immediate-only: persistence, export and the
  * published schema never carry it, and no other ephemeral key is accepted.
  * Comparison shells get none.
+ *
+ * DIVERGES FROM RFC 15.2 AGAIN, by the owner's approval of 2026-10-23 (the
+ * "Check after scrolling" brief): a check visit's immediate result also
+ * carries `scrollCheck` (lib/scroll-check-evidence.ts), the hosts its page
+ * first contacted while the visit watched and then scrolled it, and only that
+ * visit's result, never beside `inspection`. It is immediate-only like the
+ * screenshot and more so: a check visit saves nothing at all, so no share,
+ * export or printed page exists to carry it. docs/limitations.md records this
+ * divergence beside the inspection's.
  */
 export type EphemeralSingleReportR2 = PublicSingleReportV2R2 & {
-  ephemeral: { screenshot: string | null; inspection?: ConnectionInspectionEvidence };
+  ephemeral: {
+    screenshot: string | null;
+    inspection?: ConnectionInspectionEvidence;
+    scrollCheck?: ScrollCheckEvidence;
+  };
 };
 
 export type EphemeralComparisonReportR2 = PublicComparisonReportV2R2 & {

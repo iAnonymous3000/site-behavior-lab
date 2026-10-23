@@ -11,7 +11,17 @@ import { PublicScanError, toPublicError } from "./public-errors";
 import { REDACTION_VERSION } from "./redaction-v2";
 import { PUBLIC_SUFFIX_SUBJECT_MESSAGE } from "./scan-gate";
 import type { EphemeralSingleReportR2 } from "./scan-report-v2-r2";
-import { RATE_LIMIT_MAX, resetScanLimitStateForTests, scanLimitStateForTests } from "./scan-limits";
+import {
+  acquireScanSlot,
+  RATE_LIMIT_MAX,
+  reserveScrollCheck,
+  resetScanLimitStateForTests,
+  scanLimitStateForTests,
+  scrollCheckReservedForTests
+} from "./scan-limits";
+import { runScrollCheck, SCROLL_CHECK_TIMING, ScrollCheckRecorder } from "./scroll-check";
+import type { ScrollCheckEvidence } from "./scroll-check-evidence";
+import { SCROLL_CHECK_BUSY_REFUSAL, SCROLL_CHECK_V1_PRODUCER_REFUSAL } from "./scroll-check-request";
 import {
   executePreparedScan,
   prepareScanRequest,
@@ -34,6 +44,7 @@ import {
 } from "./scan-report-v2-runtime-fixtures";
 import { UNNAMEABLE_SUBJECT_MESSAGE } from "./scan-report-v2-runtime-builder";
 import {
+  attachScrollCheckEvidence,
   createNodeScanMeasurementEnvelope,
   type NodeScanMeasurement,
   type NodeScanMeasurementEnvelope
@@ -992,6 +1003,182 @@ test("a scanner that writes version 1 reports refuses an inspection before its s
   assert.equal(calls.length, 0);
   assert.equal(scanLimitStateForTests().activeScans, 0);
   assert.equal(scanLimitStateForTests().trackedClients, 0);
+});
+
+/** What a real check writes, over a scripted page that reaches its end. */
+async function recordedScrollCheck(): Promise<ScrollCheckEvidence> {
+  const navigationStartedAt = 1_000_000;
+  let now = navigationStartedAt + 5_000;
+  const recorder = new ScrollCheckRecorder<{ url: string }>(
+    { url: (request) => request.url, redirected: () => false, mainFrameNavigation: () => false },
+    () => now
+  );
+  let top = 0;
+  let emitted = false;
+  const evidence = await runScrollCheck({
+    recorder,
+    timing: SCROLL_CHECK_TIMING,
+    navigationStartedAt,
+    startedAt: now,
+    subjectAvailable: true,
+    firstPartyHostname: "www.example.com",
+    sameSubject: () => true,
+    leftSiteAt: () => null,
+    visitBudgetUsedUp: false,
+    proxyLossCount: () => 0,
+    settleRoutes: async () => undefined,
+    now: () => now,
+    sleep: async (ms, stop) => {
+      if (stop) {
+        await new Promise<void>((resolve) => setImmediate(resolve));
+        if (stop.aborted) return;
+      }
+      now += ms;
+    },
+    page: {
+      url: () => "https://www.example.com/",
+      scrollState: async () => ({ top, height: 980 * 3, viewport: 980, locked: false }),
+      scrollTo: async (target) => {
+        top = Math.min(target, 980 * 2);
+        if (!emitted && target > 0) {
+          emitted = true;
+          const request = { url: "https://player.video.net/embed" };
+          recorder.noteRequest(request);
+          recorder.noteRouted(request, "sent");
+        }
+        return true;
+      }
+    }
+  });
+  assert.equal(evidence.outcome, "reached-end");
+  assert.equal(evidence.scroll?.hostCount, 1);
+  return evidence;
+}
+
+function scrollCheckScanner(evidence: ScrollCheckEvidence, failure?: Error) {
+  const calls: Array<{ payload: ScanRequestPayload; scrollCheck: boolean | undefined }> = [];
+  const scan: ScanRunner = async (payload, options) => {
+    calls.push({ payload, scrollCheck: options?.scrollCheck });
+    if (failure) throw failure;
+    const base = scanMeasurementEnvelopeWithR2Run(makePublicSingleReportV2R2().run);
+    if (options?.scrollCheck !== true) return base;
+    const envelope = createNodeScanMeasurementEnvelope(base.result, structuredClone(base.measurement) as NodeScanMeasurement);
+    attachScrollCheckEvidence(envelope, evidence);
+    return envelope;
+  };
+  return { calls, scan };
+}
+
+const CHECK_SINGLE: PreparedScanRequest = {
+  clientKey: "scroll-check",
+  url: "https://www.example.com/",
+  device: "desktop",
+  gpcEnabled: true,
+  compareGpc: false,
+  compareShields: false,
+  compareConsent: false,
+  rateLimitCost: 2,
+  check: "scroll"
+};
+
+test("a check runs an ordinary single scan and returns its immediate result, and nothing of it is saved", async () => {
+  enablePublicR2();
+  // Shadow emission is on, so an ordinary scan would schedule one.
+  process.env.SITE_BEHAVIOR_LAB_V2_SHADOW_EMISSION = "1";
+  const evidence = await recordedScrollCheck();
+  const { calls, scan } = scrollCheckScanner(evidence);
+  let saves = 0;
+  let publicationBoundaries = 0;
+  let shadowTasks = 0;
+  const countingSaver: ReportSaver = async (report) => {
+    saves += 1;
+    return saveScanReport(report);
+  };
+  const control = {
+    beforeSave: () => {
+      publicationBoundaries += 1;
+    },
+    schedulePostPublication: () => {
+      shadowTasks += 1;
+    }
+  };
+  const checked = await executePreparedScan(CHECK_SINGLE, scan, countingSaver, undefined, true, control);
+  if (checked.schemaVersion !== 2 || checked.reportType !== "single") throw new Error("expected an r2 single shell");
+  assert.deepEqual(checked.ephemeral.scrollCheck, evidence);
+  assert.equal(checked.share, undefined, "a check's result offers a share");
+  assert.deepEqual([saves, publicationBoundaries, shadowTasks], [0, 0, 0]);
+  assert.deepEqual(await readdir(reportDir), [], "a check wrote to the share store");
+  // The visit option reached the scanner, and the payload is exactly an
+  // ordinary single scan's: a check is never a recorded condition.
+  const { ...ordinaryPrepared } = CHECK_SINGLE;
+  delete ordinaryPrepared.check;
+  const ordinary = await executePreparedScan({ ...ordinaryPrepared, rateLimitCost: 1 }, scan, countingSaver, undefined, true, control);
+  assert.deepEqual(calls.map((call) => call.scrollCheck), [true, undefined]);
+  assert.deepEqual(calls[0].payload, calls[1].payload);
+  assert.equal(Object.prototype.hasOwnProperty.call(calls[0].payload, "check"), false);
+  if (ordinary.schemaVersion !== 2 || ordinary.reportType !== "single") throw new Error("expected an r2 single shell");
+  assert.equal("scrollCheck" in ordinary.ephemeral, false);
+  assert.deepEqual([saves, publicationBoundaries, shadowTasks], [1, 1, 1]);
+  // The ordinary report inside the check's result is the ordinary scan's, apart from its ids.
+  const comparable = (report: EphemeralSingleReportR2) => {
+    const { share: _share, ephemeral: _ephemeral, ...rest } = report as EphemeralSingleReportR2 & { share?: unknown };
+    return { ...rest, run: { ...rest.run, runId: "run" } };
+  };
+  assert.deepEqual(comparable(checked), comparable(ordinary));
+  // A check is charged two tokens, after it took its slot.
+  assert.equal(scanLimitStateForTests().trackedClients, 1);
+});
+
+test("a second check is refused as busy before its slot, quota or browser, and the one check is released on every way out", async () => {
+  enablePublicR2();
+  const evidence = await recordedScrollCheck();
+  const busy = (error: unknown) =>
+    error instanceof PublicScanError && error.status === 503 && error.failureCause === undefined && error.message === SCROLL_CHECK_BUSY_REFUSAL;
+
+  // Another check holds the process's one reservation.
+  const held = reserveScrollCheck();
+  const first = scrollCheckScanner(evidence);
+  await assert.rejects(() => executePreparedScan(CHECK_SINGLE, first.scan, saveScanReport, undefined, true), busy);
+  assert.equal(first.calls.length, 0);
+  assert.equal(scanLimitStateForTests().activeScans, 0);
+  assert.equal(scanLimitStateForTests().trackedClients, 0, "a busy check was charged");
+  // An ordinary scan meanwhile runs as before.
+  await executePreparedScan({ ...CHECK_SINGLE, check: undefined, rateLimitCost: 1 }, first.scan, saveScanReport, undefined, false);
+  // A job that already holds the reservation does not take it again.
+  await executePreparedScan(CHECK_SINGLE, first.scan, saveScanReport, undefined, false, { scrollCheckReserved: true });
+  assert.equal(scrollCheckReservedForTests(), true);
+  held();
+  assert.equal(scrollCheckReservedForTests(), false);
+
+  // Released after a check that finished, failed, or was cancelled.
+  await executePreparedScan(CHECK_SINGLE, first.scan, saveScanReport, undefined, false);
+  assert.equal(scrollCheckReservedForTests(), false);
+  const failing = scrollCheckScanner(evidence, new Error("the browser closed"));
+  await assert.rejects(() => executePreparedScan(CHECK_SINGLE, failing.scan, saveScanReport, undefined, false));
+  assert.equal(scrollCheckReservedForTests(), false);
+  const cancelled = new AbortController();
+  cancelled.abort(new DOMException("gone", "AbortError"));
+  await assert.rejects(() =>
+    executePreparedScan(CHECK_SINGLE, first.scan, saveScanReport, undefined, false, { signal: cancelled.signal })
+  );
+  assert.equal(scrollCheckReservedForTests(), false);
+  // And after its slot could not be had.
+  const slots = [await acquireScanSlot(), await acquireScanSlot()];
+  await assert.rejects(() => executePreparedScan(CHECK_SINGLE, first.scan, saveScanReport, 10, false));
+  assert.equal(scrollCheckReservedForTests(), false);
+  for (const release of slots) release();
+});
+
+test("a scanner that writes version 1 reports refuses a check before its slot, quota or browser", async () => {
+  const { calls, scan } = scrollCheckScanner(await recordedScrollCheck());
+  await assert.rejects(
+    () => executePreparedScan(CHECK_SINGLE, scan),
+    (error) => error instanceof PublicScanError && error.status === 503 && error.message === SCROLL_CHECK_V1_PRODUCER_REFUSAL
+  );
+  assert.equal(calls.length, 0);
+  assert.equal(scanLimitStateForTests().activeScans, 0);
+  assert.equal(scanLimitStateForTests().trackedClients, 0);
+  assert.equal(scrollCheckReservedForTests(), false);
 });
 
 test("runScanRequest can run and persist a Shields off/on comparison", async () => {

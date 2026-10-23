@@ -7,8 +7,15 @@ import {
 import {
   comparisonModeCount,
   MULTIPLE_COMPARISON_MODES_MESSAGE,
-  readRequestBodyWithinLimit
+  readRequestBodyWithinLimit,
+  scanTokenCost
 } from "./edge-scan-gate";
+import {
+  SCROLL_CHECK_REQUEST_VALUE,
+  SCROLL_CHECK_SINGLE_ONLY_REFUSAL,
+  SCROLL_CHECK_UNKNOWN_REFUSAL,
+  SCROLL_CHECK_V1_PRODUCER_REFUSAL
+} from "./scroll-check-request";
 import type { ScanDevice, ScanRequestPayload } from "./types";
 import { PublicScanError } from "./public-errors";
 import { isExactPublicSuffixHost, isGeneralizedPrivateSuffixTenantHost } from "./redaction-v2";
@@ -86,6 +93,13 @@ export type PreparedScanRequest = {
    * commitment or saved report.
    */
   inspect?: string;
+  /**
+   * "scroll" on a single scan that asked for the after-scrolling check
+   * (lib/scroll-check.ts), and absent otherwise. A visit option, never a
+   * recorded condition: no durable payload, admission commitment or saved
+   * report names it, and its result is never saved.
+   */
+  check?: typeof SCROLL_CHECK_REQUEST_VALUE;
 };
 
 type ScanGateDependencies = {
@@ -143,6 +157,37 @@ export function assertInspectionRunnable(
   if (reportMode === "v1") throw new PublicScanError(INSPECTION_V1_PRODUCER_REFUSAL, 503);
 }
 
+/**
+ * The check a scan body names: "scroll", or null when it names none. Any
+ * other value is refused before quota, DNS or Chromium. The scan it rides on
+ * is held to a single one by assertScrollCheckRunnable.
+ */
+export function scanScrollCheckFromPayload(payload: object): typeof SCROLL_CHECK_REQUEST_VALUE | null {
+  if (!Object.prototype.hasOwnProperty.call(payload, "check")) return null;
+  if ((payload as { check?: unknown }).check !== SCROLL_CHECK_REQUEST_VALUE) {
+    throw new PublicScanError(SCROLL_CHECK_UNKNOWN_REFUSAL, 400, "request-rejected");
+  }
+  return SCROLL_CHECK_REQUEST_VALUE;
+}
+
+/**
+ * Refuse a check the runtime cannot carry: a check is a single visit, never
+ * a comparison or an inspection, and only the r2 producer's immediate shell
+ * has an ephemeral block to carry it. Called by the gate before quota, DNS or
+ * Chromium, and again wherever a prepared request is executed or queued.
+ */
+export function assertScrollCheckRunnable(
+  prepared: Pick<PreparedScanRequest, "check" | "inspect" | "compareGpc" | "compareShields" | "compareConsent">,
+  reportMode: "v1" | "r2"
+): void {
+  if (prepared.check === undefined) return;
+  if (prepared.inspect !== undefined || prepared.compareGpc || prepared.compareShields || prepared.compareConsent) {
+    throw new PublicScanError(SCROLL_CHECK_SINGLE_ONLY_REFUSAL, 400, "request-rejected");
+  }
+  // Undeclared on purpose: the visitor reads this sentence itself.
+  if (reportMode === "v1") throw new PublicScanError(SCROLL_CHECK_V1_PRODUCER_REFUSAL, 503);
+}
+
 export class ScanGate {
   constructor(private readonly dependencies: ScanGateDependencies = {}) {}
 
@@ -164,16 +209,20 @@ export class ScanGate {
       throw new PublicScanError(MULTIPLE_COMPARISON_MODES_MESSAGE);
     }
     const inspect = scanInspectionFromPayload(payload);
+    const check = scanScrollCheckFromPayload(payload);
     const prepared = {
       device: payload.device === "mobile" ? "mobile" : "desktop",
       gpcEnabled: payload.gpcEnabled === true,
       compareGpc: payload.compareGpc === true,
       compareShields: payload.compareShields === true,
       compareConsent: payload.compareConsent === true,
-      ...(inspect === null ? {} : { inspect })
+      ...(inspect === null ? {} : { inspect }),
+      ...(check === null ? {} : { check })
     } as const;
-    if (inspect !== null) {
-      assertInspectionRunnable(prepared, (this.dependencies.reportMode ?? requireRuntimeScanReportMode)());
+    if (inspect !== null || check !== null) {
+      const reportMode = (this.dependencies.reportMode ?? requireRuntimeScanReportMode)();
+      assertScrollCheckRunnable(prepared, reportMode);
+      if (inspect !== null) assertInspectionRunnable(prepared, reportMode);
     }
     const clientKey = requestClientKey(request);
     const cost = scanRateLimitCost(payload);
@@ -247,8 +296,18 @@ export async function prepareScanRequest(request: Request, gate = new ScanGate()
   return gate.prepare(request);
 }
 
-export function scanRateLimitCost(payload: { compareGpc?: boolean; compareShields?: boolean; compareConsent?: boolean }): 1 | 2 {
-  return payload.compareGpc === true || payload.compareShields === true || payload.compareConsent === true ? 2 : 1;
+/**
+ * The tokens a scan costs: the edge's own rule (scanTokenCost), so the
+ * container and the edge never price one request differently. A comparison
+ * and an after-scrolling check cost two.
+ */
+export function scanRateLimitCost(payload: {
+  compareGpc?: boolean;
+  compareShields?: boolean;
+  compareConsent?: boolean;
+  check?: unknown;
+}): 1 | 2 {
+  return scanTokenCost(payload);
 }
 
 async function readScanPayload(

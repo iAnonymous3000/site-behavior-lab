@@ -20,6 +20,7 @@ import {
 } from "./scan-admission-capability";
 import { scanFailureText, type ScanFailureNotice } from "./scan-failure-causes";
 import { INSPECTION_DURABLE_REFUSAL } from "./connection-inspection-address";
+import { SCROLL_CHECK_DURABLE_REFUSAL, SCROLL_CHECK_REQUEST_VALUE } from "./scroll-check-request";
 import { isRecord } from "./guards";
 import { BROWSER_PUBLIC_REPORT_JSON_MAX_BYTES } from "./report-resource-limits";
 import {
@@ -225,12 +226,22 @@ export async function submitRuntimeScan(options: {
    * it was.
    */
   inspect?: string;
+  /**
+   * An after-scrolling check, only for a single scan that a scan link's
+   * check arrival still holds. The body names it only then, as
+   * `check: "scroll"`, so every other request is byte for byte the one it was.
+   */
+  scrollCheck?: boolean;
 }): Promise<LoadedReport> {
   // A durable admission binds every behavior knob into its commitment, and an
   // inspection is not one it knows, so it is refused before any credential
   // is minted or any byte leaves the tab (owner's ruling 3).
   if (options.inspect !== undefined && options.durableAdmissionEnabled) {
     throw new Error(INSPECTION_DURABLE_REFUSAL);
+  }
+  // The same for an after-scrolling check.
+  if (options.scrollCheck === true && options.durableAdmissionEnabled) {
+    throw new Error(SCROLL_CHECK_DURABLE_REFUSAL);
   }
   const fetcher = options.fetcher ?? ((input, init) => fetch(input, init));
   const poller = options.poller ?? pollAcceptedScanJob;
@@ -251,7 +262,8 @@ export async function submitRuntimeScan(options: {
     ...(options.turnstileRequired && options.turnstileToken
       ? { turnstileToken: options.turnstileToken }
       : {}),
-    ...(options.inspect === undefined ? {} : { inspect: options.inspect })
+    ...(options.inspect === undefined ? {} : { inspect: options.inspect }),
+    ...(options.scrollCheck === true ? { check: SCROLL_CHECK_REQUEST_VALUE } : {})
   };
 
   let responseStatus: number;

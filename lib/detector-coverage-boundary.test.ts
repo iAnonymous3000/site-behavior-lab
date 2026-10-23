@@ -584,7 +584,10 @@ test("the causality entry says an inspection visit shows stack hosts in its imme
   assert.equal(MAX_INSPECTION_GROUP_HOSTS, 4, "the entry says four hosts");
   // The evidence travels only in the ephemeral block, which persistence drops.
   const runtimeBuilder = readFileSync(path.join(root, "lib", "scan-report-v2-runtime-builder.ts"), "utf8");
-  assert.match(runtimeBuilder, /ephemeral: \{ \.\.\.report\.ephemeral, inspection:/);
+  assert.match(
+    runtimeBuilder,
+    /ephemeral: \{\s*\.\.\.report\.ephemeral,\s*\.\.\.\(inspection === undefined \? \{\} : \{ inspection: structuredClone\(inspection\)/
+  );
   const projection = readFileSync(path.join(root, "lib", "scan-report-v2-r2-projection.ts"), "utf8");
   assert.ok(!/inspection/.test(projection), "the public projection must name no inspection");
   assert.match(

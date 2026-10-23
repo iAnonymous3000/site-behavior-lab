@@ -2,6 +2,7 @@ import { PublicScanError } from "./public-errors";
 import type { ScanFailureCause } from "./scan-failure-causes";
 import { AUTHENTICATED_SCAN_RATE_LIMIT_PER_MINUTE } from "./public-scan-rate-limit-store";
 import { scanAbortError } from "./scan-runtime";
+import { SCROLL_CHECK_BUSY_REFUSAL } from "./scroll-check-request";
 
 export const MAX_BODY_BYTES = 4096;
 export const MAX_CONCURRENT_SCANS = 2;
@@ -48,6 +49,29 @@ type Waiter = {
   signal?: AbortSignal;
   onAbort?: () => void;
 };
+
+/**
+ * At most one after-scrolling check runs or waits at a time in this process
+ * (owner call 3), so one of the two scan slots always stays free for
+ * ordinary scans. A second check is refused as busy, never queued: it would
+ * wait longer than the queue allows. The synchronous path reserves before it
+ * takes a slot or charges; the async path at admission, before it charges,
+ * and holds the reservation until its job ends.
+ */
+let scrollCheckReserved = false;
+
+/** Reserve this process's one check, or refuse a second with the busy sentence. The release is idempotent. */
+export function reserveScrollCheck(): () => void {
+  // Undeclared on purpose: the visitor reads this sentence itself.
+  if (scrollCheckReserved) throw new PublicScanError(SCROLL_CHECK_BUSY_REFUSAL, 503);
+  scrollCheckReserved = true;
+  let released = false;
+  return () => {
+    if (released) return;
+    released = true;
+    scrollCheckReserved = false;
+  };
+}
 
 const scanTimestampsByClient = new Map<string, number[]>();
 const reportReadTimestampsByClient = new Map<string, number[]>();
@@ -329,6 +353,7 @@ export function resetScanLimitStateForTests(): void {
     waiter.reject(new PublicScanError(SCANNER_BUSY_MESSAGE, 503, "scanner-busy"));
   }
   activeScans = 0;
+  scrollCheckReserved = false;
   lastRateLimitSweepMs = 0;
   lastReportReadLimitSweepMs = 0;
   // The PDF bucket's cursor was left behind when its map was added here. Every
@@ -344,6 +369,11 @@ function throwIfAborted(signal?: AbortSignal): void {
 
 function abortReason(signal?: AbortSignal): Error {
   return signal ? scanAbortError(signal) : new DOMException("The scan was cancelled.", "AbortError");
+}
+
+/** Whether this process's one after-scrolling check is reserved. */
+export function scrollCheckReservedForTests(): boolean {
+  return scrollCheckReserved;
 }
 
 export function scanLimitStateForTests(): {

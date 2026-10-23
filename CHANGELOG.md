@@ -9,6 +9,39 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- The scan API now accepts an optional `check: "scroll"` on a single scan:
+  an after-scrolling check. It reaches the scanner as a visit option and
+  never the recorded payload, and nothing from such a visit is saved (owner
+  call 2): the scan API returns its immediate result without a share, a
+  shadow copy or a publication boundary, so no report store, export or
+  printed page ever holds it. The check's evidence travels only in that
+  result's ephemeral block, in a new optional `scrollCheck` key of the
+  single-report r2 shell, closed and validated like the rest of the block,
+  never beside `inspection` and never on a comparison shell; every other
+  ephemeral key stays refused. That key departs from the RFC's section 15.2
+  a second time; the RFC text is unchanged and docs/limitations.md records
+  the divergence beside the first, as does a comment at the type, and the
+  published schemas are regenerated unchanged. At most one check runs at a
+  time in a container (owner call 3), so one scan slot always stays free:
+  the synchronous path refuses a second check before it takes a slot or is
+  charged, and the async path at admission, before it charges, holding the
+  check until its job ends however it ends. A check costs two rate-limit
+  tokens, as a comparison does, by one rule: the container's charge now
+  derives from the edge's, so the two never price a request differently.
+  Each refusal is one sentence the visitor reads: beside a comparison or an
+  inspection, "A check after scrolling runs on a single scan only."; on a
+  scanner that writes version 1 reports, "This deployment's scanner cannot
+  carry an after-scrolling check."; while another runs, "Another
+  after-scrolling check is running; try again in a minute."; and while scans
+  run as durable jobs, refused by the browser before it mints a credential,
+  by the edge before any capability lookup and by the Node durable
+  preparation, "This deployment queues scans, and an after-scrolling check
+  cannot run from the queue." Any other value of `check` is refused with a
+  drafted sentence, "The only check a scan can ask for is the after-scrolling
+  check." A fixture test runs one check through the scan API's own
+  execution path, the real scanner and the real report store: the immediate
+  result carries the evidence, the client's reader accepts it, and the
+  store holds nothing.
 - A scan visit can now, only when asked, run a "Check after scrolling" on
   the same page once its ordinary result is complete: the groundwork for
   the check the owner approved on 2026-10-23. With the new `scrollCheck`

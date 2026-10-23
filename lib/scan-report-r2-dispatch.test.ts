@@ -7,6 +7,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { ConnectionInspectionRecorder } from "./connection-inspection";
+import { runScrollCheck, SCROLL_CHECK_TIMING, ScrollCheckRecorder } from "./scroll-check";
 import { readStoredScanReport } from "./scan-report-reader";
 import { publicWireForExportOrPersistence, readScanTransportPayload, toReportView } from "./scan-report-view";
 import { buildComparisonDiffV2 } from "./scan-report-v2-evaluators";
@@ -313,4 +314,68 @@ test("an inspection the closed shape refuses, or one on a comparison shell, make
   );
   // The screenshot stays required beside it.
   assert.deepEqual(readScanTransportPayload({ ...makeConsentSingleReportV2R2(), ephemeral: { inspection } }), unreadable);
+});
+
+/** What a real check writes for a page that failed its load gate. */
+async function scrollCheckEvidence(): Promise<AnyRecord> {
+  return runScrollCheck({
+    recorder: new ScrollCheckRecorder<{ url: string }>({ url: (request) => request.url, redirected: () => false, mainFrameNavigation: () => false }),
+    timing: SCROLL_CHECK_TIMING,
+    navigationStartedAt: 0,
+    startedAt: 0,
+    subjectAvailable: false,
+    firstPartyHostname: "www.example.com",
+    sameSubject: () => true,
+    leftSiteAt: () => null,
+    visitBudgetUsedUp: false,
+    proxyLossCount: () => 0,
+    settleRoutes: async () => undefined,
+    now: () => 0,
+    sleep: async () => undefined,
+    page: { url: () => "https://www.example.com/", scrollState: async () => null, scrollTo: async () => false }
+  }) as Promise<AnyRecord>;
+}
+
+test("a single r2 shell may carry a check, which never reaches the public wire", async () => {
+  const scrollCheck = await scrollCheckEvidence();
+  const result = readScanTransportPayload({ ...makeConsentSingleReportV2R2(), ephemeral: { screenshot: null, scrollCheck } });
+  assert.equal(result.kind, "report");
+  if (result.kind !== "report" || result.loaded.source !== "v2-r2-ephemeral") throw new Error("expected an r2 ephemeral shell");
+  assert.deepEqual((result.loaded.wire.ephemeral as AnyRecord).scrollCheck, scrollCheck);
+  const wire = JSON.stringify(publicWireForExportOrPersistence(result.loaded));
+  assert.equal(wire.includes("scrollCheck"), false);
+  assert.equal(wire.includes("not-run"), false);
+  assert.equal(wire.includes("ephemeral"), false);
+});
+
+test("a check the closed shape refuses, one on a comparison shell, or one beside an inspection makes the shell unreadable", async () => {
+  const scrollCheck = await scrollCheckEvidence();
+  const unreadable = { kind: "unreadable", error: "invalid" };
+  for (const bad of [
+    { ...scrollCheck, urls: ["https://www.example.com/"] },
+    { ...scrollCheck, outcome: "scrolled" },
+    { ...scrollCheck, screens: 9 },
+    null,
+    "not-run"
+  ]) {
+    assert.deepEqual(
+      readScanTransportPayload({ ...makeConsentSingleReportV2R2(), ephemeral: { screenshot: null, scrollCheck: bad } }),
+      unreadable,
+      JSON.stringify(bad)
+    );
+  }
+  assert.deepEqual(
+    readScanTransportPayload({
+      ...makeGpcInterventionReportV2R2(),
+      ephemeral: { baselineScreenshot: null, variantScreenshot: null, scrollCheck }
+    }),
+    unreadable
+  );
+  // A check is never an inspection.
+  assert.deepEqual(
+    readScanTransportPayload({ ...makeConsentSingleReportV2R2(), ephemeral: { screenshot: null, inspection: inspectionEvidence(), scrollCheck } }),
+    unreadable
+  );
+  // The screenshot stays required beside it.
+  assert.deepEqual(readScanTransportPayload({ ...makeConsentSingleReportV2R2(), ephemeral: { scrollCheck } }), unreadable);
 });

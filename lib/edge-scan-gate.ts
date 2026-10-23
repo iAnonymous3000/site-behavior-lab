@@ -18,6 +18,7 @@
 
 import { PublicFacingError } from "./public-errors";
 import type { ScanFailureCause } from "./scan-failure-causes";
+import { SCROLL_CHECK_REQUEST_VALUE } from "./scroll-check-request";
 import { scanTokenFromHeaders } from "./scan-token";
 import {
   ClientFetchTimeoutError,
@@ -84,6 +85,8 @@ export type ComparisonModeFlags = {
   compareGpc?: unknown;
   compareShields?: unknown;
   compareConsent?: unknown;
+  /** "scroll" asks for the after-scrolling check (lib/scroll-check-request.ts). */
+  check?: unknown;
 };
 
 /**
@@ -95,9 +98,15 @@ export function comparisonModeCount(payload: ComparisonModeFlags): number {
   return Number(payload.compareGpc === true) + Number(payload.compareShields === true) + Number(payload.compareConsent === true);
 }
 
-/** Comparison runs (GPC, Shields, or consent accept/reject) make two browser visits and cost two tokens. */
+/**
+ * Comparison runs (GPC, Shields, or consent accept/reject) make two browser
+ * visits and cost two tokens. An after-scrolling check holds its slot about as
+ * long, so it costs two as well (owner call 3). The edge charges this and the
+ * container's gate derives its own charge from it (scanRateLimitCost), so the
+ * two never price a request differently.
+ */
 export function scanTokenCost(payload: ComparisonModeFlags): 1 | 2 {
-  return comparisonModeCount(payload) > 0 ? 2 : 1;
+  return comparisonModeCount(payload) > 0 || payload.check === SCROLL_CHECK_REQUEST_VALUE ? 2 : 1;
 }
 
 /** The one public sentence for a body naming more than one comparison axis. */

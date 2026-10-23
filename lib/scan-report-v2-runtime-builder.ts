@@ -11,10 +11,12 @@ import {
 } from "./scan-result-v2-r2-builder";
 import {
   connectionInspectionEvidence,
+  scrollCheckEvidence,
   type NodeScanMeasurement,
   type NodeScanMeasurementEnvelope
 } from "./node-scan-measurement";
 import type { ConnectionInspectionEvidence } from "./connection-inspection-evidence";
+import type { ScrollCheckEvidence } from "./scroll-check-evidence";
 import { isEphemeralScanReportR2 } from "./scan-report-v2-r2-validation";
 import type { ScanResult } from "./types";
 
@@ -57,6 +59,8 @@ function declaredSubjectRefusal(error: unknown): unknown {
  * visit. An inspection visit's envelope also carries its evidence, which goes
  * into this shell's ephemeral block and nowhere else: the public report the
  * builder made, and so every saved byte, is exactly an ordinary single scan's.
+ * A check visit's envelope carries its own evidence the same way, into the
+ * same block; that shell is never saved at all (lib/scan-api.ts).
  */
 export function buildRuntimeScanReportV2R2(
   envelope: NodeScanMeasurementEnvelope,
@@ -76,15 +80,20 @@ export function buildRuntimeScanReportV2R2(
     throw declaredSubjectRefusal(error);
   }
   const inspection = connectionInspectionEvidence(envelope);
-  if (inspection === undefined) return report;
-  const inspected: EphemeralSingleReportR2 = {
+  const scrollCheck = scrollCheckEvidence(envelope);
+  if (inspection === undefined && scrollCheck === undefined) return report;
+  const attached: EphemeralSingleReportR2 = {
     ...report,
-    ephemeral: { ...report.ephemeral, inspection: structuredClone(inspection) as ConnectionInspectionEvidence }
+    ephemeral: {
+      ...report.ephemeral,
+      ...(inspection === undefined ? {} : { inspection: structuredClone(inspection) as ConnectionInspectionEvidence }),
+      ...(scrollCheck === undefined ? {} : { scrollCheck: structuredClone(scrollCheck) as ScrollCheckEvidence })
+    }
   };
-  if (!isEphemeralScanReportR2(inspected)) {
-    throw new Error("Refusing to attach an invalid connection inspection to a ScanReport v2/r2 ephemeral shell.");
+  if (!isEphemeralScanReportR2(attached)) {
+    throw new Error("Refusing to attach an invalid inspection or check to a ScanReport v2/r2 ephemeral shell.");
   }
-  return inspected;
+  return attached;
 }
 
 /** Build one complete screenshot-bearing r2 intervention pair from two visits. */

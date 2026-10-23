@@ -3,10 +3,14 @@ import { test } from "node:test";
 import { ConnectionInspectionRecorder } from "./connection-inspection";
 import { isEphemeralScanReportR2 } from "./scan-report-v2-r2-validation";
 import {
+  attachScrollCheckEvidence,
   createNodeScanMeasurementEnvelope,
+  scrollCheckEvidence,
   type NodeScanMeasurement,
   type NodeScanMeasurementEnvelope
 } from "./node-scan-measurement";
+import { runScrollCheck, SCROLL_CHECK_TIMING, ScrollCheckRecorder } from "./scroll-check";
+import type { ScrollCheckEvidence } from "./scroll-check-evidence";
 import { makeScanRunV2R2 } from "./scan-report-v2-r2-fixtures";
 import {
   RuntimeR2BuildPrerequisiteError,
@@ -109,5 +113,65 @@ test("an inspection visit's evidence reaches only its exact envelope's immediate
   const { runId: _inspectedRunId, ...inspectedRun } = inspected.run;
   const { runId: _ordinaryRunId, ...ordinaryRun } = ordinary.run;
   assert.deepEqual(inspectedRun, ordinaryRun);
+});
+
+/** The evidence a real check returns for a page that failed its load gate. */
+async function notRunScrollCheck(): Promise<ScrollCheckEvidence> {
+  return runScrollCheck({
+    recorder: new ScrollCheckRecorder<{ url: string }>({ url: (request) => request.url, redirected: () => false, mainFrameNavigation: () => false }),
+    timing: SCROLL_CHECK_TIMING,
+    navigationStartedAt: 0,
+    startedAt: 0,
+    subjectAvailable: false,
+    firstPartyHostname: "www.example.com",
+    sameSubject: () => true,
+    leftSiteAt: () => null,
+    visitBudgetUsedUp: false,
+    proxyLossCount: () => 0,
+    settleRoutes: async () => undefined,
+    now: () => 0,
+    sleep: async () => undefined,
+    page: { url: () => "https://www.example.com/", scrollState: async () => null, scrollTo: async () => false }
+  });
+}
+
+test("a check's evidence attaches once, only to an envelope this module built, and reaches only that envelope's immediate shell", async () => {
+  const evidence = await notRunScrollCheck();
+  const template = scanMeasurementEnvelopeWithR2Run(makeScanRunV2R2());
+  const envelope = createNodeScanMeasurementEnvelope(structuredClone(template.result), structuredClone(template.measurement) as NodeScanMeasurement);
+  assert.equal(scrollCheckEvidence(envelope), undefined);
+  attachScrollCheckEvidence(envelope, evidence);
+  assert.deepEqual(scrollCheckEvidence(envelope), evidence);
+  // Once only, and never to a copy, a foreign object or an inspection's envelope.
+  assert.throws(() => attachScrollCheckEvidence(envelope, evidence), /already carries/);
+  assert.throws(() => attachScrollCheckEvidence({ ...envelope }, evidence), /its own visit built/);
+  assert.throws(() => attachScrollCheckEvidence(structuredClone(template) as NodeScanMeasurementEnvelope, evidence), /its own visit built/);
+  const recorder = new ConnectionInspectionRecorder("https://pixel.example.net/{seg}");
+  recorder.observe({ request: { url: "https://pixel.example.net/p.gif" }, type: "Image", initiator: { type: "parser" } });
+  recorder.notePageRequest("https://pixel.example.net/p.gif");
+  const inspection = recorder.evidence();
+  assert.ok(inspection);
+  const inspected = createNodeScanMeasurementEnvelope(
+    structuredClone(template.result),
+    structuredClone(template.measurement) as NodeScanMeasurement,
+    undefined,
+    inspection
+  );
+  assert.throws(() => attachScrollCheckEvidence(inspected, evidence), /never travels beside an inspection/);
+  // Evidence its readers' validator refuses is refused here too.
+  const fresh = createNodeScanMeasurementEnvelope(structuredClone(template.result), structuredClone(template.measurement) as NodeScanMeasurement);
+  assert.throws(() => attachScrollCheckEvidence(fresh, { ...evidence, screens: 9 }), /validator refuses/);
+  assert.equal(scrollCheckEvidence(fresh), undefined);
+  // The runtime builder carries it into the immediate shell, and the public
+  // report is exactly an ordinary scan's.
+  const checked = buildRuntimeScanReportV2R2(envelope, "public-api", BUILD_ENV);
+  assert.deepEqual(checked.ephemeral.scrollCheck, evidence);
+  assert.equal(isEphemeralScanReportR2(checked), true);
+  assert.equal(JSON.stringify(envelope.measurement).includes("not-run"), false);
+  assert.equal("scrollCheck" in buildRuntimeScanReportV2R2({ ...envelope }, "public-api", BUILD_ENV).ephemeral, false);
+  const ordinary = buildRuntimeScanReportV2R2(template, "public-api", BUILD_ENV);
+  const { runId: _checkedRunId, ...checkedRun } = checked.run;
+  const { runId: _ordinaryRunId, ...ordinaryRun } = ordinary.run;
+  assert.deepEqual(checkedRun, ordinaryRun);
 });
 

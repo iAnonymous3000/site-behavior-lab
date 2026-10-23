@@ -1,11 +1,17 @@
 import assert from "node:assert/strict";
+import { mkdtemp, readdir, rm } from "node:fs/promises";
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
 import { connect } from "node:net";
+import { tmpdir } from "node:os";
+import path from "node:path";
 import { test } from "node:test";
 import type { Page } from "playwright";
 import { CONSENT_VERIFICATION_ENV } from "./consent-verification";
 import { scrollCheckEvidence, type NodeScanMeasurementEnvelope } from "./node-scan-measurement";
-import { BUILD_COMMIT_ENV } from "./runtime-scan-report";
+import { saveScanReport } from "./report-store";
+import { BUILD_COMMIT_ENV, PUBLIC_R2_REPORTS_ENV } from "./runtime-scan-report";
+import { executePreparedScan, type PreparedScanRequest, type ScanRunner } from "./scan-api";
+import { readScanTransportPayload } from "./scan-report-view";
 import { SCROLL_CHECK_TIMING, type ScrollCheckTiming } from "./scroll-check";
 import { isScrollCheckEvidence, type ScrollCheckEvidence } from "./scroll-check-evidence";
 import { buildRuntimeScanReportV2R2 } from "./scan-report-v2-runtime-builder";
@@ -471,6 +477,57 @@ test("a page past the visit's 1,000-request cap: the same capture loss with or w
   } finally {
     await closeSharedBrowserForTests();
     await new Promise<void>((resolve) => fixture.server.close(() => resolve()));
+  }
+});
+
+test("one check end to end through the scan API: its immediate result carries it, and nothing is saved", { timeout: 120_000 }, async () => {
+  const fixture = await startFixture(TEST_TIMING);
+  const storeDir = await mkdtemp(path.join(tmpdir(), "sbl-scroll-check-store-"));
+  const env = {
+    SITE_BEHAVIOR_LAB_REPORT_STORE_DIR: storeDir,
+    [PUBLIC_R2_REPORTS_ENV]: "1",
+    [BUILD_COMMIT_ENV]: "c".repeat(40),
+    [CONSENT_VERIFICATION_ENV]: "1"
+  };
+  const previous = Object.fromEntries(Object.keys(env).map((name) => [name, process.env[name]]));
+  Object.assign(process.env, env);
+  try {
+    // The scan API's own execution path, the real scanner behind the proxy
+    // hook, and the real report store.
+    const scan: ScanRunner = (payload, options) =>
+      scanSiteWithMeasurement(payload, { ...options, ...visitOptions(fixture.port, { scrollCheckTimingForTests: TEST_TIMING }) });
+    const prepared: PreparedScanRequest = {
+      clientKey: "scroll-check-fixture",
+      url: "http://www.example.com/lazy",
+      device: "desktop",
+      gpcEnabled: false,
+      compareGpc: false,
+      compareShields: false,
+      compareConsent: false,
+      rateLimitCost: 2,
+      check: "scroll"
+    };
+    const checked = await executePreparedScan(prepared, scan, saveScanReport, undefined, false);
+    if (checked.schemaVersion !== 2 || checked.reportType !== "single") throw new Error("expected an r2 single shell");
+    const evidence = checked.ephemeral.scrollCheck;
+    assert.ok(evidence, "the immediate result carries no check");
+    assert.equal(evidence.outcome, "reached-end");
+    assert.deepEqual(listed(evidence.control), ["pixel.timer.org"]);
+    assert.equal(evidence.scroll?.hostCount, 4);
+    // The client's own reader accepts the shell as it arrives.
+    const read = readScanTransportPayload(JSON.parse(JSON.stringify(checked)));
+    assert.equal(read.kind === "report" && read.loaded.source, "v2-r2-ephemeral");
+    // No share, and nothing in the store.
+    assert.equal((checked as { share?: unknown }).share, undefined);
+    assert.deepEqual(await readdir(storeDir), [], "a check wrote to the share store");
+  } finally {
+    for (const [name, value] of Object.entries(previous)) {
+      if (value === undefined) delete process.env[name];
+      else process.env[name] = value;
+    }
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => fixture.server.close(() => resolve()));
+    await rm(storeDir, { recursive: true, force: true });
   }
 });
 

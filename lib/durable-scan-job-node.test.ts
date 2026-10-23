@@ -3,6 +3,7 @@ import { afterEach, beforeEach, test } from "node:test";
 import { CONSENT_VERIFICATION_ENV } from "./consent-verification";
 import { INSPECTION_DURABLE_REFUSAL } from "./connection-inspection-address";
 import { PublicScanError } from "./public-errors";
+import { SCROLL_CHECK_DURABLE_REFUSAL } from "./scroll-check-request";
 import {
   DURABLE_SCAN_JOB_INTERNAL_HEADER,
   DurableScanJobCoordinatorError,
@@ -32,7 +33,7 @@ import {
   scanJobStateForTests,
   waitForScanJobForTests
 } from "./scan-jobs";
-import { SCANNER_BUSY_MESSAGE, resetScanLimitStateForTests, scanLimitStateForTests } from "./scan-limits";
+import { SCANNER_BUSY_MESSAGE, resetScanLimitStateForTests, scanLimitStateForTests, scrollCheckReservedForTests } from "./scan-limits";
 import { REPORT_REDACTION_UNSTABLE_MESSAGE, type PreparedScanRequest, type ScanRunner } from "./scan-api";
 import { makePublicSingleReportV2R2 } from "./scan-report-v2-r2-fixtures";
 import { scanMeasurementEnvelopeWithR2Run } from "./scan-report-v2-runtime-fixtures";
@@ -176,6 +177,30 @@ test("durable preparation refuses an inspection with its own sentence instead of
   );
   assert.equal(mintedCapabilities, 0);
   assert.equal(scanLimitStateForTests().trackedClients, 0);
+  assert.deepEqual(scanJobStateForTests(), { queuedJobs: 0, activeJobWorkers: 0, retainedJobs: 0 });
+});
+
+test("durable preparation refuses an after-scrolling check with its own sentence instead of dropping it", async () => {
+  let mintedCapabilities = 0;
+  await assert.rejects(
+    () =>
+      prepareDurableScanJobRequest(new Request("https://scanner.invalid/api/scan"), {
+        prepare: async () => preparedRequest({ check: "scroll", rateLimitCost: 2 }),
+        requireReady: () => undefined,
+        createId: () => {
+          mintedCapabilities += 1;
+          return mintedCapabilities === 1 ? JOB_ID : REPORT_ID;
+        }
+      }),
+    (error: unknown) =>
+      error instanceof PublicScanError &&
+      error.status === 400 &&
+      error.failureCause === undefined &&
+      error.message === SCROLL_CHECK_DURABLE_REFUSAL
+  );
+  assert.equal(mintedCapabilities, 0);
+  assert.equal(scanLimitStateForTests().trackedClients, 0);
+  assert.equal(scrollCheckReservedForTests(), false);
   assert.deepEqual(scanJobStateForTests(), { queuedJobs: 0, activeJobWorkers: 0, retainedJobs: 0 });
 });
 

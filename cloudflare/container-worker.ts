@@ -34,6 +34,7 @@ import {
   scanAdmissionSemanticsFromBody
 } from "../lib/scan-admission-capability";
 import { INSPECTION_DURABLE_REFUSAL, scanBodyNamesInspection } from "../lib/connection-inspection-address";
+import { SCROLL_CHECK_DURABLE_REFUSAL, scanBodyNamesScrollCheck } from "../lib/scroll-check-request";
 import {
   ScanAdmissionCapacityError,
   ScanAdmissionConflictError,
@@ -341,6 +342,8 @@ type ScanGatePayload = {
   compareGpc?: unknown;
   compareShields?: unknown;
   compareConsent?: unknown;
+  /** "scroll" asks for an after-scrolling check, which costs two tokens (scanTokenCost). */
+  check?: unknown;
   turnstileToken?: unknown;
 };
 
@@ -3032,6 +3035,10 @@ export default {
           // rather than the capability error it would otherwise meet.
           if (scanBodyNamesInspection(body)) {
             throw new EdgeScanGateError(INSPECTION_DURABLE_REFUSAL, 400);
+          }
+          // So has an after-scrolling check, whose result is never saved.
+          if (scanBodyNamesScrollCheck(body)) {
+            throw new EdgeScanGateError(SCROLL_CHECK_DURABLE_REFUSAL, 400);
           }
           replayFaultMode = await readStagingDurableReplayFaultRequest(request, env);
           const scanAdmissionKey = await scanAdmissionStoreKey(request.headers, body);

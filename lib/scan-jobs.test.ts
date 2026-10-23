@@ -7,16 +7,21 @@ import { afterEach, beforeEach, test } from "node:test";
 import { CONSENT_VERIFICATION_ENV } from "./consent-verification";
 import { ConnectionInspectionRecorder } from "./connection-inspection";
 import { INSPECTION_V1_PRODUCER_REFUSAL } from "./connection-inspection-address";
-import { createNodeScanMeasurementEnvelope, type NodeScanMeasurement } from "./node-scan-measurement";
+import { attachScrollCheckEvidence, createNodeScanMeasurementEnvelope, type NodeScanMeasurement } from "./node-scan-measurement";
 import { PublicScanError } from "./public-errors";
 import { committedSidecarFilename } from "./redaction-provenance";
 import {
+  assertRateLimit,
   MAX_QUEUED_JOBS,
   RATE_LIMIT_MAX,
   SCANNER_BUSY_MESSAGE,
   resetScanLimitStateForTests,
-  scanLimitStateForTests
+  scanLimitStateForTests,
+  scrollCheckReservedForTests
 } from "./scan-limits";
+import { runScrollCheck, SCROLL_CHECK_TIMING, ScrollCheckRecorder } from "./scroll-check";
+import type { ScrollCheckEvidence } from "./scroll-check-evidence";
+import { SCROLL_CHECK_BUSY_REFUSAL, SCROLL_CHECK_V1_PRODUCER_REFUSAL } from "./scroll-check-request";
 import {
   REPORT_PUBLICATION_CAPACITY,
   commitPreparedScanReportBundle,
@@ -35,7 +40,7 @@ import {
   setScanJobCreatedAtForTests,
   waitForScanJobForTests
 } from "./scan-jobs";
-import type { PreparedScanRequest, ScanRunner } from "./scan-api";
+import type { PreparedScanRequest, ReportSaver, ScanRunner } from "./scan-api";
 import { makePublicSingleReportV2R2 } from "./scan-report-v2-r2-fixtures";
 import {
   scanMeasurementEnvelopeWithR2Run,
@@ -179,6 +184,162 @@ test("an async inspection passes its address to the visit and the job serves the
   const report = status?.report;
   if (!report || report.schemaVersion !== 2 || report.reportType !== "single") throw new Error("expected an r2 single shell");
   assert.deepEqual(report.ephemeral.inspection, evidence);
+});
+
+/** The evidence a real check returns for a page that failed its load gate: its shortest shape. */
+async function notRunScrollCheck(): Promise<ScrollCheckEvidence> {
+  const recorder = new ScrollCheckRecorder<{ url: string }>({
+    url: (request) => request.url,
+    redirected: () => false,
+    mainFrameNavigation: () => false
+  });
+  const evidence = await runScrollCheck({
+    recorder,
+    timing: SCROLL_CHECK_TIMING,
+    navigationStartedAt: 0,
+    startedAt: 0,
+    subjectAvailable: false,
+    firstPartyHostname: "www.example.com",
+    sameSubject: () => true,
+    leftSiteAt: () => null,
+    visitBudgetUsedUp: false,
+    proxyLossCount: () => 0,
+    settleRoutes: async () => undefined,
+    now: () => 0,
+    sleep: async () => undefined,
+    page: { url: () => "https://www.example.com/", scrollState: async () => null, scrollTo: async () => false }
+  });
+  assert.equal(evidence.outcome, "not-run");
+  return evidence;
+}
+
+function enablePublicR2(): void {
+  process.env[PUBLIC_R2_REPORTS_ENV] = "1";
+  process.env[BUILD_COMMIT_ENV] = "a".repeat(40);
+  process.env[CONSENT_VERIFICATION_ENV] = "1";
+}
+
+const isBusyCheck = (error: unknown) =>
+  error instanceof PublicScanError && error.status === 503 && error.failureCause === undefined && error.message === SCROLL_CHECK_BUSY_REFUSAL;
+
+test("an async check holds the one check from admission to its end, and a second is refused before it is queued or charged", async () => {
+  enablePublicR2();
+  const evidence = await notRunScrollCheck();
+  const release = deferred<void>();
+  const checked: Array<boolean | undefined> = [];
+  let saves = 0;
+  const scan: ScanRunner = async (_payload, options) => {
+    checked.push(options?.scrollCheck);
+    await release.promise;
+    const base = scanMeasurementEnvelopeWithR2Run(makePublicSingleReportV2R2().run);
+    const envelope = createNodeScanMeasurementEnvelope(base.result, structuredClone(base.measurement) as NodeScanMeasurement);
+    attachScrollCheckEvidence(envelope, evidence);
+    return envelope;
+  };
+  const saveReport: ReportSaver = async (report) => {
+    saves += 1;
+    return report;
+  };
+  const submission = enqueuePreparedScanJob(
+    makePreparedScanRequest({ url: "https://www.example.com/", check: "scroll", rateLimitCost: 2, clientKey: "first-check" }),
+    { scan, saveReport }
+  );
+  assert.equal(scrollCheckReservedForTests(), true);
+  assert.throws(
+    () => enqueuePreparedScanJob(makePreparedScanRequest({ check: "scroll", rateLimitCost: 2, clientKey: "second-check" }), { scan, saveReport }),
+    isBusyCheck
+  );
+  // Only the first was charged; the second was neither queued nor charged.
+  assert.equal(scanLimitStateForTests().trackedClients, 1);
+  assert.equal(scanJobStateForTests().retainedJobs, 1);
+  release.resolve();
+  await waitForScanJobForTests(submission.jobId);
+  assert.equal(scrollCheckReservedForTests(), false);
+  assert.deepEqual(checked, [true]);
+  const status = getScanJobStatus(submission.jobId);
+  assert.equal(status?.status, "succeeded");
+  const report = status?.report;
+  if (!report || report.schemaVersion !== 2 || report.reportType !== "single") throw new Error("expected an r2 single shell");
+  assert.deepEqual(report.ephemeral.scrollCheck, evidence);
+  assert.equal(saves, 0, "a check job saved its report");
+  // With the first over, a new check is admitted.
+  const next = enqueuePreparedScanJob(makePreparedScanRequest({ check: "scroll", rateLimitCost: 2, clientKey: "third-check" }), {
+    scan: async (payload) => testMeasurementEnvelopeForResult(makeScanResult(payload)),
+    saveReport
+  });
+  await waitForScanJobForTests(next.jobId);
+  assert.equal(scrollCheckReservedForTests(), false);
+});
+
+test("a check job's hold ends when it fails, is cancelled queued or running, expires, or is never charged", async () => {
+  enablePublicR2();
+  // A failed check.
+  const failed = enqueuePreparedScanJob(makePreparedScanRequest({ check: "scroll", rateLimitCost: 2, clientKey: "failing" }), {
+    scan: async () => {
+      throw new Error("the browser closed");
+    }
+  });
+  await waitForScanJobForTests(failed.jobId);
+  assert.equal(getScanJobStatus(failed.jobId)?.status, "failed");
+  assert.equal(scrollCheckReservedForTests(), false);
+
+  // A check cancelled while it runs.
+  const running = enqueuePreparedScanJob(makePreparedScanRequest({ check: "scroll", rateLimitCost: 2, clientKey: "running" }), {
+    scan: (_payload, options) =>
+      new Promise((_resolve, reject) => {
+        options?.signal?.addEventListener("abort", () => reject(options.signal?.reason), { once: true });
+      })
+  });
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.equal(getScanJobStatus(running.jobId)?.status, "running");
+  cancelScanJob(running.jobId);
+  await waitForScanJobForTests(running.jobId);
+  assert.equal(scrollCheckReservedForTests(), false);
+
+  // Checks that wait behind two busy workers: one cancelled, one expired.
+  const occupy: ScanRunner = (_payload, options) =>
+    new Promise((_resolve, reject) => {
+      options?.signal?.addEventListener("abort", () => reject(options.signal?.reason), { once: true });
+    });
+  const workers = [
+    enqueuePreparedScanJob(makePreparedScanRequest({ clientKey: "worker-a" }), { scan: occupy }),
+    enqueuePreparedScanJob(makePreparedScanRequest({ clientKey: "worker-b" }), { scan: occupy })
+  ];
+  const queued = enqueuePreparedScanJob(makePreparedScanRequest({ check: "scroll", rateLimitCost: 2, clientKey: "queued" }), { scan: occupy });
+  assert.equal(getScanJobStatus(queued.jobId)?.status, "queued");
+  cancelScanJob(queued.jobId);
+  await waitForScanJobForTests(queued.jobId);
+  assert.equal(scrollCheckReservedForTests(), false);
+  const stale = enqueuePreparedScanJob(makePreparedScanRequest({ check: "scroll", rateLimitCost: 2, clientKey: "stale" }), { scan: occupy });
+  setScanJobCreatedAtForTests(stale.jobId, Date.now() - 61 * 60 * 1000);
+  advanceScanJobClockForTests(Date.now());
+  assert.equal(getScanJobStatus(stale.jobId)?.status, "expired");
+  assert.equal(scrollCheckReservedForTests(), false);
+  for (const worker of workers) cancelScanJob(worker.jobId);
+
+  // A check its client cannot afford is refused, and holds nothing.
+  assertRateLimit("spent", Date.now(), RATE_LIMIT_MAX);
+  assert.throws(
+    () => enqueuePreparedScanJob(makePreparedScanRequest({ check: "scroll", rateLimitCost: 2, clientKey: "spent" }), { scan: occupy }),
+    (error: unknown) => error instanceof PublicScanError && error.status === 429
+  );
+  assert.equal(scrollCheckReservedForTests(), false);
+});
+
+test("an async check on a scanner that writes version 1 reports is refused before it is queued or charged", () => {
+  let scans = 0;
+  const scan: ScanRunner = async (payload) => {
+    scans += 1;
+    return testMeasurementEnvelopeForResult(makeScanResult(payload));
+  };
+  assert.throws(
+    () => enqueuePreparedScanJob(makePreparedScanRequest({ check: "scroll", rateLimitCost: 2 }), { scan, saveReport: async (report) => report }),
+    (error: unknown) => error instanceof PublicScanError && error.status === 503 && error.message === SCROLL_CHECK_V1_PRODUCER_REFUSAL
+  );
+  assert.equal(scans, 0);
+  assert.equal(scanLimitStateForTests().trackedClients, 0);
+  assert.equal(scrollCheckReservedForTests(), false);
+  assert.deepEqual(scanJobStateForTests(), { queuedJobs: 0, activeJobWorkers: 0, retainedJobs: 0 });
 });
 
 test("enqueuePreparedScanJob reports Shields comparison progress as two runs", async () => {

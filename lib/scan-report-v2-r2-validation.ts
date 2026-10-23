@@ -15,6 +15,7 @@
  * lib/scan-report-v2-r2-evaluators.ts, exactly like the r1 split.
  */
 import { isConnectionInspectionEvidence } from "./connection-inspection-evidence";
+import { isScrollCheckEvidence } from "./scroll-check-evidence";
 import { isRecord } from "./guards";
 import { isPublicComparisonReportV2, isPublicSingleReportV2, isScanRunV2 } from "./scan-report-v2-validation";
 import type {
@@ -265,10 +266,11 @@ export function isPublicScanReportV2R2(value: unknown): value is PublicScanRepor
 
 /**
  * Ephemeral r2 shells: the public shape plus exactly the ephemeral block. A
- * single shell may also carry an inspection visit's `inspection`, a closed
- * shape of its own; that key diverges from RFC 15.2 by the owner's ruling
- * (see EphemeralSingleReportR2). Every other key stays refused, and a
- * comparison shell takes only its two screenshots.
+ * single shell may also carry an inspection visit's `inspection`, or a check
+ * visit's `scrollCheck`, each a closed shape of its own and never both; those
+ * keys diverge from RFC 15.2 by the owner's rulings (see
+ * EphemeralSingleReportR2). Every other key stays refused, and a comparison
+ * shell takes only its two screenshots.
  */
 export function isEphemeralScanReportR2(value: unknown): value is EphemeralSingleReportR2 | EphemeralComparisonReportR2 {
   if (!isRecord(value) || !isRecord(value.ephemeral)) return false;
@@ -278,8 +280,11 @@ export function isEphemeralScanReportR2(value: unknown): value is EphemeralSingl
       ? only(ephemeral, new Set(["baselineScreenshot", "variantScreenshot"])) &&
         (ephemeral.baselineScreenshot === null || typeof ephemeral.baselineScreenshot === "string") &&
         (ephemeral.variantScreenshot === null || typeof ephemeral.variantScreenshot === "string")
-      : only(ephemeral, new Set(["screenshot", "inspection"])) &&
+      : only(ephemeral, new Set(["screenshot", "inspection", "scrollCheck"])) &&
         (ephemeral.screenshot === null || typeof ephemeral.screenshot === "string") &&
-        (!("inspection" in ephemeral) || isConnectionInspectionEvidence(ephemeral.inspection));
+        (!("inspection" in ephemeral) || isConnectionInspectionEvidence(ephemeral.inspection)) &&
+        (!("scrollCheck" in ephemeral) || isScrollCheckEvidence(ephemeral.scrollCheck)) &&
+        // A check is never an inspection.
+        !("inspection" in ephemeral && "scrollCheck" in ephemeral);
   return shape && isPublicScanReportV2R2(publicPart);
 }

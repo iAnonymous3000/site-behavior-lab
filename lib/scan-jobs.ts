@@ -8,7 +8,8 @@ import {
   type ScanRunner
 } from "./scan-api";
 import { INSPECTION_DURABLE_REFUSAL } from "./connection-inspection-address";
-import { assertInspectionRunnable } from "./scan-gate";
+import { assertInspectionRunnable, assertScrollCheckRunnable } from "./scan-gate";
+import { SCROLL_CHECK_DURABLE_REFUSAL } from "./scroll-check-request";
 import {
   DURABLE_SCAN_JOB_REPORT_MIN_SURVIVAL_MS,
   commitPreparedScanReportBundle,
@@ -27,6 +28,7 @@ import {
   MAX_CONCURRENT_SCANS,
   MAX_QUEUED_JOBS,
   QUEUE_TIMEOUT_MS,
+  reserveScrollCheck,
   SCANNER_BUSY_MESSAGE
 } from "./scan-limits";
 import { PublicScanError, toPublicError } from "./public-errors";
@@ -134,6 +136,12 @@ type InternalScanJobRecord = {
   publicationStarted: boolean;
   done: Deferred;
   durable?: DurableExecution;
+  /**
+   * An after-scrolling check job's hold on the process's one check, taken at
+   * admission and released when the record reaches any terminal status
+   * (markSucceeded, markFailed, markCancelled, markExpired).
+   */
+  releaseScrollCheck?: () => void;
 };
 
 export type DurableScanJobActivationResponse = {
@@ -309,6 +317,9 @@ function prepareDurableScanJob(
   // which would otherwise be dropped silently and run as an ordinary scan
   // (owner's ruling 3). Undeclared, so the visitor reads this sentence.
   if (prepared.inspect !== undefined) throw new PublicScanError(INSPECTION_DURABLE_REFUSAL, 400);
+  // The same for an after-scrolling check, which also could not keep its
+  // result off the store a durable job publishes to.
+  if (prepared.check !== undefined) throw new PublicScanError(SCROLL_CHECK_DURABLE_REFUSAL, 400);
   (dependencies.requireReady ?? requireDurableScanJobReadiness)();
 
   const nowMs = (dependencies.now ?? Date.now)();
@@ -373,20 +384,30 @@ export function enqueuePreparedScanJob(
   // accepted or its client is charged. The worker checks again at execution
   // time in case deployment configuration changes while a job is queued.
   const admissionSaver = dependencies.saveReport ?? saveScanReport;
-  // An inspection this runtime cannot carry is refused here too, before the
-  // job is accepted or its client charged.
-  assertInspectionRunnable(prepared, requireRuntimeScanReportModeForSaver(admissionSaver));
+  // An inspection or a check this runtime cannot carry is refused here too,
+  // before the job is accepted or its client charged.
+  const reportMode = requireRuntimeScanReportModeForSaver(admissionSaver);
+  assertInspectionRunnable(prepared, reportMode);
+  assertScrollCheckRunnable(prepared, reportMode);
   // Explicit aggregate admission: once accepted, a job is a promise of work
   // that must never be silently dropped, so admission is refused up front
   // (before the client is charged) when the queue is full.
   if (queuedJobIds.length >= MAX_QUEUED_JOBS) {
     throw new PublicScanError("Scanner queue is full. Try again shortly.", 503, "scanner-busy");
   }
+  // One after-scrolling check at a time, decided at admission and before the
+  // charge (owner call 3); the job holds it until its record ends.
+  const releaseScrollCheck = prepared.check !== undefined ? reserveScrollCheck() : undefined;
   // Charge the per-client rate limit when the job is accepted into the queue.
   // The submit gate only peeks, so without this a burst of submissions could
   // all pass and flood the shared job queue before any charge landed at run
   // time. Jobs opt out of the execution-time charge to avoid double counting.
-  assertRateLimit(prepared.clientKey, Date.now(), prepared.rateLimitCost);
+  try {
+    assertRateLimit(prepared.clientKey, Date.now(), prepared.rateLimitCost);
+  } catch (error) {
+    releaseScrollCheck?.();
+    throw error;
+  }
 
   const now = new Date();
   const id = createJobId(now);
@@ -412,7 +433,8 @@ export function enqueuePreparedScanJob(
     usesDefaultPersistence: admissionSaver === saveScanReport,
     abortController: new AbortController(),
     publicationStarted: false,
-    done: createDeferred()
+    done: createDeferred(),
+    ...(releaseScrollCheck ? { releaseScrollCheck } : {})
   };
 
   jobs.set(id, record);
@@ -728,6 +750,7 @@ export function resetScanJobStateForTests(): void {
   for (const record of jobs.values()) {
     stopDurableHeartbeat(record);
     stopDurableLocalCleanup(record);
+    record.releaseScrollCheck?.();
     if (!record.abortController.signal.aborted) {
       record.abortController.abort(new DOMException(JOB_CANCELLED_MESSAGE, "AbortError"));
     }
@@ -793,7 +816,8 @@ async function runScanJob(record: InternalScanJobRecord): Promise<void> {
       onProgress: (progress) => updateRunningProgress(record, progress),
       beforeSave: record.durable
         ? (pendingReport) => beginDurablePublication(record, pendingReport)
-        : () => markPublicationStarted(record)
+        : () => markPublicationStarted(record),
+      ...(record.releaseScrollCheck ? { scrollCheckReserved: true } : {})
     });
     if (record.status === "cancelled") return;
     markSucceeded(record, report);
@@ -1222,6 +1246,7 @@ function markSucceeded(record: InternalScanJobRecord, report: RuntimeScanReport)
     completedRuns: totalRuns,
     totalRuns
   };
+  record.releaseScrollCheck?.();
   scheduleDurableLocalCleanup(record);
 }
 
@@ -1232,6 +1257,7 @@ function markFailed(record: InternalScanJobRecord, error: string): void {
   record.error = error;
   record.finishedAt = now;
   record.updatedAt = now;
+  record.releaseScrollCheck?.();
   scheduleDurableLocalCleanup(record);
 }
 
@@ -1242,6 +1268,7 @@ function markCancelled(record: InternalScanJobRecord): void {
   record.error = JOB_CANCELLED_MESSAGE;
   record.finishedAt = now;
   record.updatedAt = now;
+  record.releaseScrollCheck?.();
   scheduleDurableLocalCleanup(record);
 }
 
@@ -1272,6 +1299,7 @@ function markExpired(record: InternalScanJobRecord): void {
   record.error = "This scan job expired before it finished.";
   record.finishedAt = now;
   record.updatedAt = now;
+  record.releaseScrollCheck?.();
 }
 
 function createProgress(phase: ScanJobProgress["phase"], prepared: PreparedScanRequest, completedRuns: number): ScanJobProgress {
