@@ -9,6 +9,7 @@ import type {
 } from "./scan-report-v2-r2";
 import type { ConditionVector } from "./scan-report-v2";
 import type { ConnectionInspectionEvidence } from "./connection-inspection-evidence";
+import { isScrollCheckEvidence, type ScrollCheckEvidence } from "./scroll-check-evidence";
 import type { ScanResult } from "./types";
 
 /**
@@ -93,6 +94,17 @@ const connectionInspectionFacts = new WeakMap<
 >();
 
 /**
+ * A "Check after scrolling" visit's evidence (lib/scroll-check-evidence.ts),
+ * held like the inspection above. Unlike it, the evidence exists only after
+ * the envelope: the check runs once the ordinary result is complete, so the
+ * scanner attaches it to the envelope it already built (attachScrollCheckEvidence).
+ */
+const scrollCheckFacts = new WeakMap<NodeScanMeasurementEnvelope, DeepReadonly<ScrollCheckEvidence>>();
+
+/** Every envelope this module built, so nothing else can take a check's evidence. */
+const builtEnvelopes = new WeakSet<NodeScanMeasurementEnvelope>();
+
+/**
  * Capture an owned snapshot of the measurement while preserving the exact v1
  * object returned by the scanner. Builders also clone before sanitizing, so
  * neither public nor shadow emission mutates this envelope.
@@ -122,7 +134,30 @@ export function createNodeScanMeasurementEnvelope(
   if (connectionInspection !== undefined) {
     connectionInspectionFacts.set(frozenEnvelope, deepFreeze(structuredClone(connectionInspection)));
   }
+  builtEnvelopes.add(frozenEnvelope);
   return frozenEnvelope;
+}
+
+/**
+ * Attach a check visit's evidence to the exact envelope that visit built,
+ * once. Refused for any other object, for an envelope that already carries a
+ * check or an inspection (a check is never an inspection), and for evidence
+ * its readers' validator refuses.
+ */
+export function attachScrollCheckEvidence(envelope: NodeScanMeasurementEnvelope, evidence: ScrollCheckEvidence): void {
+  if (!builtEnvelopes.has(envelope)) throw new Error("A check's evidence attaches only to the envelope its own visit built.");
+  if (scrollCheckFacts.has(envelope)) throw new Error("This envelope already carries a check's evidence.");
+  if (connectionInspectionFacts.has(envelope)) throw new Error("A check's evidence never travels beside an inspection.");
+  if (!isScrollCheckEvidence(evidence)) throw new Error("Refusing a check's evidence its readers' validator refuses.");
+  scrollCheckFacts.set(envelope, deepFreeze(structuredClone(evidence)));
+}
+
+/**
+ * The check evidence of the exact envelope a check visit returned, or
+ * undefined for any other visit and for any copy of one.
+ */
+export function scrollCheckEvidence(envelope: NodeScanMeasurementEnvelope): DeepReadonly<ScrollCheckEvidence> | undefined {
+  return scrollCheckFacts.get(envelope);
 }
 
 /**

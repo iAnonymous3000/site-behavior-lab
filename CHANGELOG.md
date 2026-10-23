@@ -9,6 +9,53 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- A scan visit can now, only when asked, run a "Check after scrolling" on
+  the same page once its ordinary result is complete: the groundwork for
+  the check the owner approved on 2026-10-23. With the new `scrollCheck`
+  visit option, a hostnames-only recorder listens on the page's own request
+  events from before the navigation, refused requests included, and stays
+  attached past the evidence boundary, so it holds the visit's whole host
+  history. The scanner builds the envelope first (its result, its r2
+  measurement, its duration and its proxy diagnostics, frozen as today);
+  only then does the check switch the page route to its own allowance of
+  500 routed requests, so the visit's 1,000-request budget and its capture
+  loss never move, let the page settle until 25 s after the navigation
+  began, watch it for 10.5 s with no input, and scroll it by script for
+  10.5 s: up to 8 steps of one window height, 1 s after each, 2 s at the
+  deepest point, one jump back to the top, padded to the window's length.
+  The scroll reads and sets the scrolling element's position through the
+  bounded page collector's accessors, captured before page script runs, with
+  no pointer, wheel or input into any frame, and checks before every step
+  whether the root or the body has scrolling turned off; a locked page is
+  never scrolled. It ends as reached-end, depth-limit, did-not-move,
+  nothing-to-scroll, left-site, cut-short, locked, or not-run when the page
+  subject was not valid, by the gate the consent click and the typing probe
+  use. A host is listed in a window when the page's first request to it
+  started there and the scanner sent it, compared by raw hostname and the
+  report's own third-party rule, published through the report's hostname
+  redaction and grouped by site, at most twenty in all with full counts; a
+  window that did not run to its end lists nothing. What cut collection
+  (the visit's own budget used up before the check, the check's allowance,
+  the proxy's per-visit budgets, a refusal, the recorder's bounds) is
+  named. The check has a 45 s budget of its own, which never falls before
+  its fixed sequence, run on time, has ended, and a cancellation stops it
+  within the step it lands in. It never throws into the visit: every
+  failure ends as an outcome inside its evidence, which travels beside the
+  envelope, keyed by that exact object; nothing uses it yet. Without the
+  option nothing attaches and nothing waits. A fixture test drives the real
+  scanner over local pages: a timer pixel lists in the window without
+  input, a lazy third-party frame, an in-view pixel, two depth beacons and
+  a consent tool's vendor list while scrolling, a host contacted before the
+  window lists in neither, an overflow lock under a modal is never
+  scrolled, a page that snaps back does not move, an endless feed reaches
+  the depth limit, a page that fits or scrolls inside its own container has
+  nothing to scroll, a page that leaves its site ends the check there, a
+  page that changes its own address while scrolling is said to, and a page
+  past 1,000 requests keeps the same capture loss with or without the check
+  while the check still loads within its own allowance. The same page,
+  scanned with and without the check, and with the check made to throw or
+  to hang, yields the same report, and the visit's result and measurement
+  read the same before and after its own check.
 - An "Inspect this connection" visit's own result now shows, at its top,
   what that visit recorded: "Which scripts asked for <address> in this new
   visit", then one line per call-stack group ("2 requests. Scripts on the

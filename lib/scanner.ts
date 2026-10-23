@@ -17,6 +17,15 @@ import { Client, type Dispatcher, ProxyAgent, request as requestThroughProxy } f
 import { findTrackerMatch } from "./tracker-catalog";
 import { initiatorObservationFromCdpParams, RequestInitiatorIndex } from "./request-initiator";
 import { ConnectionInspectionRecorder } from "./connection-inspection";
+import {
+  abortableSleep,
+  parseScrollState,
+  runScrollCheck,
+  SCROLL_CHECK_REQUEST_ALLOWANCE,
+  SCROLL_CHECK_TIMING,
+  ScrollCheckRecorder,
+  type ScrollCheckTiming
+} from "./scroll-check";
 import { adblockListMeta, getAdblockEngine, mapRequestType } from "./adblock-engine";
 import type {
   CookieRecord,
@@ -161,6 +170,7 @@ import {
 import {
   callBoundedElementCollector,
   callBoundedPageCollector,
+  callBoundedScrollCollector,
   createBoundedPageCollectorKey,
   installBoundedPageCollector
 } from "./bounded-page-collector";
@@ -172,6 +182,7 @@ import type {
   GpcVerificationFactsR2
 } from "./scan-report-v2-r2";
 import {
+  attachScrollCheckEvidence,
   createNodeScanMeasurementEnvelope,
   type ConsentBannerObserveCalibrationFact,
   type NodeScanMeasurement,
@@ -493,6 +504,32 @@ export type ScanSiteOptions = {
    * requests to that address; without it, nothing new is kept.
    */
   inspect?: string;
+  /**
+   * A "Check after scrolling" visit (lib/scroll-check.ts). A visit option
+   * only, never a recorded condition. The ordinary single scan runs and
+   * builds its whole result first; only then does the check settle, watch and
+   * scroll the same page, and its evidence travels beside the envelope. With
+   * it set, a hostnames-only recorder listens on the page's request events
+   * from before navigation; without it, nothing attaches and nothing waits.
+   */
+  scrollCheck?: boolean;
+  /** Shorten the check's fixed parameters, in scanner integration tests only. */
+  scrollCheckTimingForTests?: ScrollCheckTiming;
+  /** Change the check's own request allowance, in scanner integration tests only. */
+  scrollCheckRequestAllowanceForTests?: number;
+  /**
+   * Once the check's window without input has run, make it throw, or make
+   * its next page call never answer so its deadline ends it, in scanner
+   * integration tests only.
+   */
+  scrollCheckFaultForTests?: "throw" | "hang";
+  /**
+   * Receive the visit's envelope the moment it is built, before an
+   * after-scrolling check acts, in scanner integration tests only, so a test
+   * can hold the ordinary result as it stood then against what the visit
+   * returns. Production never supplies this hook.
+   */
+  onEnvelopeBuiltForTests?: (envelope: NodeScanMeasurementEnvelope) => void;
   /** Cooperatively stops the browser visit and closes its isolated context. */
   signal?: AbortSignal;
   /** Coarse, observed browser lifecycle stages; never a percentage or ETA. */
@@ -1322,6 +1359,23 @@ async function scanSiteWithMeasurementOnLeasedBrowser(
       requestCapture: networkRecorder.requestBudget.getDiagnostics(),
       gpcWorker: gpcWorkerInjection?.checkpoint() ?? null
     });
+    // The budget the page route admits requests against. Always the visit's
+    // own, except that an after-scrolling check switches it to the check's
+    // own allowance once the envelope is built, so the visit's counters are
+    // never touched again (owner call 5). Without the option it never moves.
+    let routedRequestBudget: ScanRequestBudget = networkRecorder.requestBudget;
+    let scrollCheckAllowance: ScanRequestBudget | null = null;
+    // An after-scrolling check's recorder (lib/scroll-check.ts), and nothing
+    // without the option. It listens beside recordRequest below and is fed
+    // the page route's decisions; it asks the browser for nothing.
+    const scrollCheck =
+      options.scrollCheck === true
+        ? new ScrollCheckRecorder<Request>({
+            url: (request) => request.url(),
+            redirected: (request) => request.redirectedFrom() !== null,
+            mainFrameNavigation: (request) => isMainFrameNavigationRequest(request, page)
+          })
+        : null;
     let beforeExcludedReloadDiagnostics: ScanEvidenceDiagnostics | null = null;
     let afterExcludedReloadDiagnostics: ScanEvidenceDiagnostics | null = null;
     const cookieSnapshots: Array<{ phaseId: number; records: CookieRecord[] }> = [];
@@ -1398,12 +1452,17 @@ async function scanSiteWithMeasurementOnLeasedBrowser(
           mapRequestType(request.resourceType(), { subFrame: requestIsSubFrameNavigation(request) })
         );
         let verificationRefusal: unknown;
-        const decision = await decideRoutedRequest({
+        // The check's allowance decides in the same synchronous step as the
+        // call below (verifyRoutedHttpRequest takes its budget before its
+        // first await), so reading its refusals around the call tells this
+        // request's refusal apart from a concurrent route's.
+        const allowanceRefusalsBefore = scrollCheckAllowance?.getDiagnostics().captureLossCount ?? 0;
+        const pendingDecision = decideRoutedRequest({
           request,
           page,
           targetUrl,
           warnings,
-          requestBudget: networkRecorder.requestBudget,
+          requestBudget: routedRequestBudget,
           publicHostChecks,
           shieldsBlockingEnabled: options.shieldsBlockingEnabled,
           adblockEngine: routedAdblockEngineFor(request),
@@ -1412,14 +1471,19 @@ async function scanSiteWithMeasurementOnLeasedBrowser(
             verificationRefusal = error;
           }
         });
+        const refusedByScrollCheckAllowance =
+          scrollCheckAllowance !== null && scrollCheckAllowance.getDiagnostics().captureLossCount !== allowanceRefusalsBefore;
+        const decision = await pendingDecision;
         if (decision.shieldsMatched !== undefined) {
           shieldsMatches.set(request, decision.shieldsMatched);
         }
 
         if (decision.action === "continue") {
+          scrollCheck?.noteRouted(request, "sent");
           await route.continue();
           return;
         }
+        scrollCheck?.noteRouted(request, refusedByScrollCheckAllowance ? "allowance" : "refused");
 
         if (isMainFrameNavigationRequest(request, page)) {
           // The flag still withholds blame if the navigation then fails in a
@@ -1481,6 +1545,11 @@ async function scanSiteWithMeasurementOnLeasedBrowser(
       networkRecorder.recordRequest(request, Date.now() - started);
     };
     page.on("request", recordRequest);
+    // The check's host history, on the same request stream, from before the
+    // navigation to the end of the check: every request the page asks for,
+    // refused ones included. It stays attached past the evidence boundary,
+    // where the listeners above retire, so the history has no gap.
+    if (scrollCheck) page.on("request", scrollCheck.noteRequest);
     const passiveNavigation = {
       latestResponseRequest: null as Request | null,
       documentResponses: [] as Array<{ request: Request; url: string; status: number }>
@@ -1522,6 +1591,9 @@ async function scanSiteWithMeasurementOnLeasedBrowser(
     // the scanner's setup, never the site, and a window the setup cut short
     // gives the site less than the navigation timeout every other site gets.
     const navigationTimeoutMs = setupScanTimeout(started, NAVIGATION_TIMEOUT_MS);
+    // When the navigation began, which the after-scrolling check settles
+    // from: unlike `started`, it does not count the setup above.
+    const navigationStartedAt = Date.now();
     const response = await page
       .goto(targetUrl.toString(), {
         waitUntil: "domcontentloaded",
@@ -3578,12 +3650,49 @@ async function scanSiteWithMeasurementOnLeasedBrowser(
           : publicRequests.filter((item) => item.blockedByShields).length
         : undefined
     });
-    return createNodeScanMeasurementEnvelope(
+    const envelope = createNodeScanMeasurementEnvelope(
       v1Result,
       measurement,
       consentBannerObserveCalibration,
       connectionInspection?.evidence() ?? undefined
     );
+    options.onEnvelopeBuiltForTests?.(envelope);
+    if (scrollCheck) {
+      // THE INVARIANT: the ordinary result is complete and frozen above, so
+      // from here the check can only fill its own evidence, which travels
+      // beside the envelope. Everything below is the check's.
+      await runScrollCheckPhase({
+        envelope,
+        recorder: scrollCheck,
+        page,
+        boundedPageCollectorKey,
+        navigationStartedAt,
+        // The gate the consent click and the typing probe use, read now: a
+        // valid, verified subject still on its site.
+        subjectAvailable:
+          !pageSubjectInvalid &&
+          subjectStateTrusted &&
+          !consentInteractionLeftSubject &&
+          !postConsentReloadLeftSubject &&
+          !activeProbeSubjectLost &&
+          sameScanSubjectUrl(page.url(), trustedSubjectUrl),
+        trustedSubjectUrl,
+        firstPartyHostname: trustedSubjectHostname,
+        visitBudgetUsedUp: networkRecorder.requestBudget.getDiagnostics().captureLoss,
+        switchRouteBudget: () => {
+          scrollCheckAllowance = new ScanRequestBudget(
+            new ScanWarningCollector(),
+            options.scrollCheckRequestAllowanceForTests ?? SCROLL_CHECK_REQUEST_ALLOWANCE,
+            true
+          );
+          routedRequestBudget = scrollCheckAllowance;
+        },
+        proxyLossCount: () => proxyCaptureLossCount(scanProxy.getDiagnostics()),
+        settleRoutes: (maxMs) => settleRoutesWithin(inFlightRouteHandlers, maxMs),
+        options
+      });
+    }
+    return envelope;
   } finally {
     options.signal?.removeEventListener("abort", closeOnAbort);
     // Detaching the DevTools client resumes any worker still paused for its
@@ -3596,6 +3705,99 @@ async function scanSiteWithMeasurementOnLeasedBrowser(
         : []),
       { label: "scan proxy cleanup", run: () => scanProxy.close() }
     ]);
+  }
+}
+
+/**
+ * The after-scrolling check's phase, run once the visit's envelope is built
+ * and before its cleanup. It switches the page route to the check's own
+ * request allowance before its first await, attaches its evidence beside the
+ * envelope, and never throws into the visit: every failure, its own deadline
+ * and a cancellation end as an outcome inside that evidence
+ * (lib/scroll-check.ts), and the ordinary result is returned unchanged.
+ */
+async function runScrollCheckPhase(input: {
+  envelope: NodeScanMeasurementEnvelope;
+  recorder: ScrollCheckRecorder<Request>;
+  page: Page;
+  boundedPageCollectorKey: string;
+  navigationStartedAt: number;
+  subjectAvailable: boolean;
+  trustedSubjectUrl: string;
+  firstPartyHostname: string;
+  visitBudgetUsedUp: boolean;
+  switchRouteBudget: () => void;
+  proxyLossCount: () => number;
+  settleRoutes: (maxMs: number) => Promise<void>;
+  options: ScanSiteOptions;
+}): Promise<void> {
+  const startedAt = Date.now();
+  input.switchRouteBudget();
+  const { page } = input;
+  // When the main frame first navigated off the site during the check.
+  let leftSiteAt: number | null = null;
+  const noteMainFrameNavigation = (frame: Frame) => {
+    if (leftSiteAt !== null || frame !== page.mainFrame()) return;
+    if (!sameScanSubjectUrl(frame.url(), input.trustedSubjectUrl)) leftSiteAt = Date.now();
+  };
+  page.on("framenavigated", noteMainFrameNavigation);
+  try {
+    const evidence = await runScrollCheck({
+      recorder: input.recorder,
+      page: {
+        url: () => page.url(),
+        scrollState: async () =>
+          parseScrollState(await callBoundedScrollCollector(page, input.boundedPageCollectorKey, "scrollState")),
+        scrollTo: async (top) =>
+          (await callBoundedScrollCollector(page, input.boundedPageCollectorKey, "scrollTo", top)) === true
+      },
+      timing: input.options.scrollCheckTimingForTests ?? SCROLL_CHECK_TIMING,
+      navigationStartedAt: input.navigationStartedAt,
+      startedAt,
+      subjectAvailable: input.subjectAvailable,
+      firstPartyHostname: input.firstPartyHostname,
+      sameSubject: (url) => sameScanSubjectUrl(url, input.trustedSubjectUrl),
+      leftSiteAt: () => leftSiteAt,
+      visitBudgetUsedUp: input.visitBudgetUsedUp,
+      proxyLossCount: input.proxyLossCount,
+      settleRoutes: input.settleRoutes,
+      now: Date.now,
+      sleep: abortableSleep(input.options.signal, (signal) => scanAbortError(signal)),
+      ...(input.options.scrollCheckFaultForTests ? { faultForTests: input.options.scrollCheckFaultForTests } : {})
+    });
+    attachScrollCheckEvidence(input.envelope, evidence);
+  } catch {
+    // runScrollCheck never throws and returns evidence its validator holds,
+    // so nothing lands here; if it did, the check costs the visit its
+    // evidence, never its result.
+  } finally {
+    page.off("request", input.recorder.noteRequest);
+    page.off("framenavigated", noteMainFrameNavigation);
+  }
+}
+
+/** Requests the scan proxy's per-visit traffic and byte budgets have refused or cut, so far. */
+function proxyCaptureLossCount(diagnostics: PublicScanProxyDiagnostics): number {
+  return (
+    (diagnostics.trafficBudget.captureLoss?.count ?? 0) +
+    (diagnostics.responseByteBudget.captureLoss?.count ?? 0) +
+    (diagnostics.uploadByteBudget.captureLoss?.count ?? 0)
+  );
+}
+
+/** Wait for the page route's handlers in flight, at most `maxMs`. */
+async function settleRoutesWithin(inFlight: ReadonlySet<Promise<void>>, maxMs: number): Promise<void> {
+  if (inFlight.size === 0) return;
+  let timer: ReturnType<typeof setTimeout> | null = null;
+  try {
+    await Promise.race([
+      Promise.allSettled([...inFlight]).then(() => undefined),
+      new Promise<void>((resolve) => {
+        timer = setTimeout(resolve, maxMs);
+      })
+    ]);
+  } finally {
+    if (timer) clearTimeout(timer);
   }
 }
 

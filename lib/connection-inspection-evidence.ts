@@ -115,7 +115,12 @@ function isCount(value: unknown): value is number {
   return typeof value === "number" && Number.isSafeInteger(value) && value >= 0;
 }
 
-function isPublishedHost(value: unknown): value is string {
+/**
+ * A host exactly as the report's hostname redaction publishes it. Shared with
+ * the after-scrolling check's evidence (lib/scroll-check-evidence.ts), so the
+ * two closed shapes hold one published-host rule.
+ */
+export function isPublishedHost(value: unknown): value is string {
   // The hostname redaction publishes an IP literal as its marker, never itself.
   return typeof value === "string" && value.length <= 253 && PUBLISHED_HOST.test(value) && !/^\d+\.\d+\.\d+\.\d+$/.test(value);
 }

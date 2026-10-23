@@ -156,6 +156,16 @@ export function installBoundedPageCollector(key: string): void {
   const windowGetComputedStyle = method(globalThis, "getComputedStyle");
   const styleDeclarationPrototype = typeof CSSStyleDeclaration === "function" ? CSSStyleDeclaration.prototype : null;
   const styleGetPropertyValue = method(styleDeclarationPrototype, "getPropertyValue");
+  // The after-scrolling check's accessors (lib/scroll-check.ts), captured now
+  // like every other: it reads and sets the scrolling element's position
+  // programmatically, with no pointer, wheel or input into any frame. Only
+  // that check calls them.
+  const documentScrollingElementGetter = getter(documentObject, "scrollingElement");
+  const documentElementGetter = getter(documentObject, "documentElement");
+  const scrollTopDescriptor = findDescriptor(elementPrototype, "scrollTop");
+  const scrollTopGetter = typeof scrollTopDescriptor?.get === "function" ? scrollTopDescriptor.get : null;
+  const scrollTopSetter = typeof scrollTopDescriptor?.set === "function" ? scrollTopDescriptor.set : null;
+  const scrollHeightGetter = getter(elementPrototype, "scrollHeight");
 
   const failWire = (
     kind: "title" | "headings" | "storage" | "links" | "text" | "textWithoutClosedPanels" | "contentText"
@@ -646,6 +656,56 @@ export function installBoundedPageCollector(key: string): void {
     return call(matchesMethod, element, [":focus"]) === true;
   });
 
+  // Where the page stands, for the after-scrolling check: the scrolling
+  // element's position and height, the window's height, and whether the root
+  // or the body has scrolling turned off (overflow-y hidden or clip, or a
+  // body fixed in place), which the check reads before every step and never
+  // scrolls past. An empty string when any of it cannot be read.
+  set(api, "scrollState", (): string => {
+    try {
+      const documentValue = call(windowDocumentGetter, globalThis, []);
+      const scroller = call(documentScrollingElementGetter, documentValue, []);
+      const root = call(documentElementGetter, documentValue, []);
+      const body = call(documentBodyGetter, documentValue, []);
+      if (!scroller || !root) return "";
+      const computed = (element: unknown, property: string): string => {
+        if (!element) return "";
+        const value = call(styleGetPropertyValue, call(windowGetComputedStyle, globalThis, [element]), [property]);
+        return typeof value === "string" ? value : "";
+      };
+      const rootOverflow = computed(root, "overflow-y");
+      const bodyOverflow = computed(body, "overflow-y");
+      const output = record();
+      set(output, "top", call(scrollTopGetter, scroller, []));
+      set(output, "height", call(scrollHeightGetter, scroller, []));
+      set(output, "viewport", call(viewportHeight, globalThis, []));
+      set(
+        output,
+        "locked",
+        rootOverflow === "hidden" || rootOverflow === "clip" ||
+          bodyOverflow === "hidden" || bodyOverflow === "clip" ||
+          computed(body, "position") === "fixed"
+      );
+      return stringify(output);
+    } catch {
+      return "";
+    }
+  });
+
+  // One programmatic scroll of the scrolling element, for the same check.
+  set(api, "scrollTo", (topInput: unknown): boolean => {
+    try {
+      if (typeof topInput !== "number" || !(topInput >= 0) || topInput > 100_000_000) return false;
+      const documentValue = call(windowDocumentGetter, globalThis, []);
+      const scroller = call(documentScrollingElementGetter, documentValue, []);
+      if (!scroller) return false;
+      call(scrollTopSetter, scroller, [topInput]);
+      return true;
+    } catch {
+      return false;
+    }
+  });
+
   // Privacy-policy text. Script, style, noscript and template text is code or
   // fallback markup, not what the policy says: a vendor's loader snippet in
   // <body> (clarity.ms, cdn.segment.com, google-analytics.com) otherwise
@@ -751,6 +811,25 @@ export async function callBoundedPageCollector(
       return value.input;
     }
   }, { key, method, input });
+}
+
+/**
+ * The after-scrolling check's two calls into the main frame's collector:
+ * read where the page stands, or set its scroll position. Null when the
+ * collector is absent.
+ */
+export async function callBoundedScrollCollector(
+  page: BoundedCollectorEvaluateLike,
+  key: string,
+  method: "scrollState" | "scrollTo",
+  top?: number
+): Promise<unknown> {
+  return page.evaluate((arg) => {
+    const api = (globalThis as Record<string, unknown>)[arg.key] as Record<string, unknown> | undefined;
+    const collector = api?.[arg.method];
+    if (typeof collector !== "function") return null;
+    return arg.method === "scrollTo" ? collector(arg.top) : collector();
+  }, { key, method, top: top ?? null });
 }
 
 export async function callBoundedElementCollector(
