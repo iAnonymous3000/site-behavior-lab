@@ -15,6 +15,7 @@ import { INSPECTION_DURABLE_REFUSAL } from "@/lib/connection-inspection-address"
 import { shownConnectionInspection, type ShownConnectionInspection } from "@/lib/connection-inspection-result";
 import { connectedEarlierResult, connectedInspection, connectedScrollCheck } from "@/lib/known-site-evidence";
 import { SCROLL_CHECK_DURABLE_REFUSAL } from "@/lib/scroll-check-request";
+import { carriesScrollCheck, shownScrollCheck, type ShownScrollCheck } from "@/lib/scroll-check-result";
 import type { ComparisonRunMode } from "@/lib/run-mode-copy";
 import { heldRunModeOutcome, normalizeScanUrl, resolveScanPrefillNavigation } from "@/lib/scan-prefill";
 import {
@@ -88,14 +89,15 @@ export function useScanRuntime({
   const [form, setForm] = useState<ScanFormState>(INITIAL_SCAN_FORM);
   const [loaded, setLoaded] = useState<LoadedReport | null>(initialLoaded);
   // The report this tab's own live scan returned, the earlier result that
-  // scan was connected to, if any, and what an inspection submit recorded. A
-  // file the visitor opens and a comparison built in the archive replace
-  // `loaded` too, so the result is fresh, links back and shows an
-  // inspection only while it is still this very object.
+  // scan was connected to, if any, and what an inspection or a check submit
+  // recorded. A file the visitor opens and a comparison built in the archive
+  // replace `loaded` too, so the result is fresh, links back and shows an
+  // inspection or a check only while it is still this very object.
   const [liveScan, setLiveScan] = useState<{
     result: LoadedReport;
     earlierResultId: string | null;
     inspection: ShownConnectionInspection | null;
+    scrollCheck: ShownScrollCheck | null;
   } | null>(null);
   // The earlier result the scan this tab started last was connected to, set
   // once that scan is claimed and read by whichever path shows its result in
@@ -503,15 +505,27 @@ export function useScanRuntime({
   /**
    * Every path that ends a live scan of this tab (submit, resume, restore,
    * admission recovery) shows its result here. Only the submit path hands
-   * over the inspection it asked for, so a resumed or restored result, whose
-   * status poll re-serves the same shell, shows no inspection panel.
+   * over the inspection or the check it asked for, so a resumed or restored
+   * result, whose status poll re-serves the same shell, shows no inspection
+   * panel. A check visit's result shows only from that submit: nothing from
+   * it is saved, so a resumed, restored or recovered tab shows nothing.
    */
-  function showLiveScanResult(next: LoadedReport, inspected: { address: string; from: string | null } | null = null): void {
+  function showLiveScanResult(
+    next: LoadedReport,
+    inspected: { address: string; from: string | null } | null = null,
+    checked: { from: string | null } | null = null
+  ): void {
+    if (checked === null && carriesScrollCheck(next)) {
+      setLoaded(null);
+      setLiveScan(null);
+      return;
+    }
     setLoaded(next);
     setLiveScan({
       result: next,
       earlierResultId: startedScanEarlierResultRef.current,
-      inspection: shownConnectionInspection(next, inspected)
+      inspection: shownConnectionInspection(next, inspected),
+      scrollCheck: shownScrollCheck(next, checked)
     });
   }
 
@@ -772,7 +786,7 @@ export function useScanRuntime({
         ...(scrollCheckArrival ? { scrollCheck: true } : {})
       });
       assertClientOperationOwner(operationOwnerRef.current, operation);
-      showLiveScanResult(nextLoaded, inspectionArrival);
+      showLiveScanResult(nextLoaded, inspectionArrival, scrollCheckArrival);
       releaseActiveScanSession(operation);
     } catch (scanError) {
       if (!operationOwnerRef.current.owns(operation) || isAbortError(scanError)) return;
@@ -1023,12 +1037,15 @@ export function useScanRuntime({
     setForm,
     loaded,
     setLoaded,
-    // Fresh while the result shown is the one this tab's live scan returned.
-    freshScanResult: liveScan !== null && loaded === liveScan.result,
+    // Fresh while the result shown is the one this tab's live scan returned,
+    // unless it is a check's: that result offers no new visit of its own.
+    freshScanResult: liveScan !== null && loaded === liveScan.result && liveScan.scrollCheck === null,
     // The earlier result that scan was connected to, only while it is shown.
     earlierResultId: liveScan !== null && loaded === liveScan.result ? liveScan.earlierResultId : null,
     // What an inspection submit recorded, only while its own result is shown.
     inspection: liveScan !== null && loaded === liveScan.result ? liveScan.inspection : null,
+    // What a check submit recorded, only while its own result is shown.
+    scrollCheck: liveScan !== null && loaded === liveScan.result ? liveScan.scrollCheck : null,
     error,
     setError,
     loading,

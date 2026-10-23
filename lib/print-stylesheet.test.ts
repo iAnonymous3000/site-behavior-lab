@@ -49,6 +49,14 @@ const FIXTURE_BODY = `<body>
         <h2>Which scripts asked for https://pixel.example.net/… in this new visit</h2>
         <ul class="connection-inspection-lines"><li>2 requests. Scripts on the call stack, innermost first: cdn.example.net.</li></ul>
       </section>
+      <section aria-label="Results" id="report">
+        <section class="scroll-check" id="scrollcheckpanel">
+          <h2>What this page first contacted after scrolling began</h2>
+          <ul class="scroll-check-hosts"><li>example.net: cdn.example.net</li></ul>
+        </section>
+        <p class="scroll-check-report-note" id="scrollchecknote">The report below covers the visit before the check began.</p>
+        <p id="checkedreport">The check visit's ordinary report.</p>
+      </section>
       <div class="report-visit-summary">
         <div class="report-visit-limits">
           <h3 class="report-visit-heading">What this visit could not see</h3>
@@ -149,6 +157,9 @@ const PROBED_IDS = [
   "activationactions",
   "earlierresult",
   "inspectionpanel",
+  "scrollcheckpanel",
+  "scrollchecknote",
+  "checkedreport",
   "visitlimit",
   "visitentry",
   "findinglead",
@@ -271,6 +282,11 @@ test("controls and screen-reader scaffolding stay off paper", () => {
   assert.equal(visible.inspectlink, false, "a request row's inspection link is navigation, not evidence");
   // An inspection's panel is the homepage result's own, never the report's.
   assert.equal(visible.inspectionpanel, false, "an inspection's immediate-only panel must not print");
+  // Nothing from a check visit prints: its panel, the line under it, and the
+  // ordinary report beneath, which describes a visit that went on to scroll.
+  assert.equal(visible.scrollcheckpanel, false, "a check's panel must not print");
+  assert.equal(visible.scrollchecknote, false, "the line under a check's panel must not print");
+  assert.equal(visible.checkedreport, false, "a check visit's ordinary report must not print");
   assert.equal(visible.rowurl, true, "a request row's address must print beside the hidden link");
   assert.equal(visible.tools, false, "filter tooling is not evidence");
   assert.equal(visible.chips, false, "request signal filter chips are not evidence");
@@ -290,6 +306,25 @@ test("controls and screen-reader scaffolding stay off paper", () => {
   // these two would print as body copy.
   assert.equal(visible.newtab, false, "screen-reader link qualifiers must not print");
   assert.equal(visible.live, false, "live-region status text must not print");
+});
+
+test("a homepage result without a check still prints", async () => {
+  const page = await browser.newPage();
+  try {
+    await page.emulateMedia({ media: "print" });
+    await page.setContent(
+      `<!doctype html><html><head><style>${globalsCss}</style></head><body><main>` +
+        `<section aria-label="Results" id="report"><section class="report-header" id="ordinaryheader"><h2>Example</h2></section>` +
+        `<p id="ordinaryresult">An ordinary result's evidence.</p></section></main></body></html>`,
+      { waitUntil: "load" }
+    );
+    const shown = await page.evaluate(() =>
+      ["ordinaryheader", "ordinaryresult"].map((id) => document.getElementById(id)?.checkVisibility({ checkVisibilityCSS: true }) ?? null)
+    );
+    assert.deepEqual(shown, [true, true], "only a result with a check's panel stays off paper");
+  } finally {
+    await page.close();
+  }
 });
 
 test("the fixture exercises every report-page class the print block hides", () => {

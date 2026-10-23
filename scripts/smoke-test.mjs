@@ -199,6 +199,44 @@ async function apiChecks() {
   pass("API rejects malformed JSON cleanly");
 
   await inspectionApiChecks(health);
+  await scrollCheckApiChecks(health);
+}
+
+const scrollCheckSingleOnlyRefusal = "A check after scrolling runs on a single scan only.";
+const scrollCheckUnknownRefusal = "The only check a scan can ask for is the after-scrolling check.";
+const scrollCheckV1Refusal = "This deployment's scanner cannot carry an after-scrolling check.";
+
+/**
+ * A check request the gate refuses never visits anything: one beside a
+ * comparison or an inspection, and any value but "scroll", are refused before
+ * quota or DNS, and a scanner that writes version 1 reports refuses even a
+ * well-formed one with its own sentence. Nothing here scans. A scanner whose
+ * health says it writes r2 reports would run a real visit, about a minute
+ * long, for a well-formed check, so that request is not sent; the in-process
+ * fixture test runs one end to end instead (lib/scroll-check-fixture.test.ts).
+ */
+async function scrollCheckApiChecks(health) {
+  const base = { url: "https://example.com/", device: "desktop", gpcEnabled: false, consentMode: "observe" };
+  for (const [label, body, message] of [
+    ["beside a comparison", { ...base, compareGpc: true, check: "scroll" }, scrollCheckSingleOnlyRefusal],
+    ["beside an inspection", { ...base, inspect: "https://cdn.example.net/{seg}", check: "scroll" }, scrollCheckSingleOnlyRefusal],
+    ["of another kind", { ...base, check: "zoom" }, scrollCheckUnknownRefusal]
+  ]) {
+    const refused = await postScan(body);
+    if (refused.ok || refused.error !== message || refused.cause !== "request-rejected") {
+      fail(`a check ${label} was not refused before any visit: ${smokeResponseSummary(refused)}`);
+    }
+  }
+  const producer = health.checks?.publicR2Reports?.status;
+  if (producer === "disabled") {
+    const refused = await postScan({ ...base, check: "scroll" });
+    if (refused.ok || refused.error !== scrollCheckV1Refusal || refused.cause !== undefined) {
+      fail(`a version 1 scanner did not refuse a check with its sentence: ${smokeResponseSummary(refused)}`);
+    }
+    pass("API refuses malformed checks, and a version 1 scanner refuses every check, before any visit");
+  } else {
+    pass(`API refuses malformed checks before any visit (producer ${producer}: a well-formed check would visit, so none is sent)`);
+  }
 }
 
 const inspectionRequestMessage =
@@ -326,6 +364,45 @@ async function inspectLinkChecks(browser) {
   }
 }
 
+/**
+ * A "Check after scrolling" link (`#scan?url=...&check=scroll`, what a fresh
+ * result's visit summary mints) against this scanner's own build: the form
+ * keeps the page, selects Single, labels the button Check, states the check,
+ * swaps the disclosure's first sentence for the check's, scrubs the link from
+ * the address and sends no scan request. Nothing here scans: the button is
+ * never pressed.
+ */
+async function scrollCheckLinkChecks(browser) {
+  const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
+  const scanRequests = [];
+  page.on("request", (request) => {
+    if (new URL(request.url()).pathname.startsWith("/api/scan")) scanRequests.push(`${request.method()} ${request.url()}`);
+  });
+  try {
+    const target = "https://example.com/";
+    await page.goto(`${baseUrl}/#scan?url=${encodeURIComponent(target)}&check=scroll`, { waitUntil: "networkidle" });
+    await page.waitForFunction((value) => document.getElementById("url")?.value === value, target, { timeout: 10_000 });
+    await page.locator(".scroll-check-arrival").waitFor({ timeout: 10_000 });
+    await expectText(page.locator("#scroll-check-arrival"), "Checking after scrolling. A new visit to https://example.com/ runs as a single scan");
+    await expectText(page.locator("#scroll-check-arrival"), "What it finds shows here only and is not saved. It takes about a minute.");
+    if ((await page.locator('.scan-panel button[type="submit"]').textContent())?.trim() !== "Check") {
+      fail("a check link did not label the button Check");
+    }
+    if ((await page.getByRole("button", { name: "Single", exact: true }).getAttribute("aria-pressed")) !== "true") {
+      fail("a check link did not keep Single selected");
+    }
+    if (!(await page.locator(".scan-disclosure-check-visit").isVisible()) || (await page.locator(".scan-disclosure-visit").isVisible())) {
+      fail("a check link did not swap the disclosure's first sentence for the check's");
+    }
+    await page.waitForTimeout(1_500);
+    if (scanRequests.length !== 0) fail(`a check link sent a scan request on its own: ${scanRequests.join(", ")}`);
+    if (!(await page.evaluate(() => window.location.href)).endsWith("#scan")) fail("a check link stayed in the address");
+    pass("a check link fills the form with Single, Check, its line and the check's disclosure, and sends nothing");
+  } finally {
+    await page.close();
+  }
+}
+
 async function uiChecks() {
   const browser = await chromium.launch({ headless: true });
   const context = await browser.newContext({ acceptDownloads: true, viewport: { width: 1440, height: 1000 } });
@@ -334,6 +411,7 @@ async function uiChecks() {
   try {
     await modeLinkChecks(browser);
     await inspectLinkChecks(browser);
+    await scrollCheckLinkChecks(browser);
     await page.goto(baseUrl, { waitUntil: "networkidle" });
     await expectText(page.locator("h1"), "See what a site does, not just what it says.");
     pass("home page renders tagline");

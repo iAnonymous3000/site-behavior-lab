@@ -161,7 +161,7 @@ export const COVERAGE_BOUNDARY_ENTRIES: readonly CoverageBoundaryEntry[] = [
     label: "Anything that only loads after scrolling or interaction",
     reason: "not-instrumented",
     explanation:
-      "The visit does not scroll, hover, or click, apart from the two disclosed bounded interactions. Tags that fire on scroll depth, lazy-loaded images and iframes, and pixels wired to engagement events therefore never run. Their absence from a report is a property of this instrument, not evidence that the site does not use them."
+      "The visit does not scroll, hover, or click, apart from the two disclosed bounded interactions. Tags that fire on scroll depth, lazy-loaded images and iframes, and pixels wired to engagement events therefore never run. Their absence from a report is a property of this instrument, not evidence that the site does not use them. An on-demand check after scrolling, offered from a fresh result, is a separate visit that scrolls its page by script, up to 8 screens, only once its own report is built, and shows the third-party hosts its page first contacted after scrolling began in its immediate result only: never in a report, an export or a printed copy."
   },
   {
     id: "script-to-request-causality",

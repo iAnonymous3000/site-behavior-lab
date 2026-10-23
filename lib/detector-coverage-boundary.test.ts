@@ -22,6 +22,7 @@ import { NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION } from "./scan-report-v2-r2-
 import { DETECTOR_VERSIONS } from "./measurement-kernel";
 import { RequestInitiatorIndex } from "./request-initiator";
 import { MAX_INSPECTION_GROUP_HOSTS } from "./connection-inspection-evidence";
+import { MAX_SCROLL_CHECK_SCREENS } from "./scroll-check-evidence";
 
 const root = process.cwd();
 
@@ -565,6 +566,39 @@ test("the causality entry discloses wrappers, self-naming and unobserved workers
       ? "no methodology component marks the rule, so the entry must say a report's methodology does not say which rule it was made under"
       : `${marker} now marks the initiator rule, so the entry must name it instead of saying nothing marks it`
   );
+});
+
+/**
+ * "Check after scrolling" shows first-contacted hosts, and only in a check
+ * visit's immediate result. The below-the-fold entry keeps its own claim,
+ * still true of every report, and scopes the check beside it, each clause
+ * pinned to the code that makes it true: a separate visit, scrolled by
+ * script up to the scanner's screen limit only after its report is built,
+ * and never saved.
+ */
+test("the below-the-fold entry says a check after scrolling shows first-contacted hosts in its immediate result only", () => {
+  const entry = COVERAGE_BOUNDARY_ENTRIES.find((candidate) => candidate.id === "below-fold-and-lazy-loaded");
+  assert.ok(entry, "the below-the-fold boundary entry must exist");
+  assert.match(entry.explanation, /^The visit does not scroll, hover, or click, apart from the two disclosed bounded interactions\./);
+  const sentence = /\bAn on-demand check after scrolling\b[^.]*\./.exec(entry.explanation)?.[0];
+  assert.ok(sentence, "the entry must describe the check");
+  assert.match(sentence, /\bis a separate visit that scrolls its page by script, up to 8 screens, only once its own report is built\b/);
+  assert.match(sentence, /\bthe third-party hosts its page first contacted after scrolling began\b/);
+  assert.match(sentence, /\bin its immediate result only: never in a report, an export or a printed copy\b/);
+  assert.equal(MAX_SCROLL_CHECK_SCREENS, 8, "the entry says 8 screens");
+  // The evidence travels only in the ephemeral block, which persistence
+  // drops, and the scan API saves nothing from a check visit.
+  const runtimeBuilder = readFileSync(path.join(root, "lib", "scan-report-v2-runtime-builder.ts"), "utf8");
+  assert.match(runtimeBuilder, /\.\.\.\(scrollCheck === undefined \? \{\} : \{ scrollCheck: structuredClone\(scrollCheck\)/);
+  const projection = readFileSync(path.join(root, "lib", "scan-report-v2-r2-projection.ts"), "utf8");
+  assert.ok(!/scrollCheck|scroll-check/.test(projection), "the public projection must name no check");
+  const api = readFileSync(path.join(root, "lib", "scan-api.ts"), "utf8");
+  assert.match(api, /return buildRuntimeScanReportV2R2\(envelope, acquisition\);/, "a check's result is the unsaved immediate shell");
+  // The scanner runs the check only after the envelope is built.
+  const scanner = readFileSync(path.join(root, "lib", "scanner.ts"), "utf8");
+  const built = scanner.indexOf("const envelope = createNodeScanMeasurementEnvelope(");
+  const checked = scanner.indexOf("await runScrollCheckPhase(");
+  assert.ok(built > 0 && checked > built, "the check must follow the envelope");
 });
 
 /**

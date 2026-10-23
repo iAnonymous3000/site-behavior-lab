@@ -24,7 +24,8 @@ export function ReportHeader({
   onDownload,
   onDownloadCsv,
   liveApiServesReportPages,
-  pdfExportQuery
+  pdfExportQuery,
+  exportsOffered = true
 }: {
   /** The wire report's share pointer, needed only to resolve the permalink. */
   share: ReportShare | null;
@@ -43,6 +44,12 @@ export function ReportHeader({
    * whose exports stay unbound exactly as before.
    */
   pdfExportQuery?: string;
+  /**
+   * False for a "Check after scrolling" visit's own result, from which
+   * nothing is saved, exported or printed (owner call 2): no CSV, JSON or
+   * PDF control renders. It has no share either.
+   */
+  exportsOffered?: boolean;
 }) {
   const run = runFacts.run;
   const formatChip = reportFormatChip(view);
@@ -154,24 +161,28 @@ export function ReportHeader({
             <CopyButton value={shareUrl ?? sharePath} label="share link" />
           </>
         )}
-        <button
-          aria-describedby="csv-export-description"
-          className="secondary-button"
-          type="button"
-          onClick={onDownloadCsv}
-        >
-          <Download size={17} aria-hidden="true" />
-          {csvArmLabel ? `CSV + context · ${csvArmLabel}` : "CSV + context"}
-        </button>
-        <span className="visually-hidden" id="csv-export-description">
-          {csvArmLabel
-            ? `Downloads the ${csvArmLabel} visit's request CSV, source report and correction context in a ZIP. Follows the evidence switcher below.`
-            : "Downloads the request CSV, source report and correction context in a ZIP, including when no requests were recorded."}
-        </span>
-        <button className="secondary-button" type="button" onClick={onDownload}>
-          <Download size={17} aria-hidden="true" />
-          {(publishedReportCorrections(view.reportId).subjectEvents.length + publishedReportCorrections(view.reportId).replacementEvents.length) > 0 ? "JSON + corrections (ZIP)" : "JSON"}
-        </button>
+        {exportsOffered && (
+          <>
+            <button
+              aria-describedby="csv-export-description"
+              className="secondary-button"
+              type="button"
+              onClick={onDownloadCsv}
+            >
+              <Download size={17} aria-hidden="true" />
+              {csvArmLabel ? `CSV + context · ${csvArmLabel}` : "CSV + context"}
+            </button>
+            <span className="visually-hidden" id="csv-export-description">
+              {csvArmLabel
+                ? `Downloads the ${csvArmLabel} visit's request CSV, source report and correction context in a ZIP. Follows the evidence switcher below.`
+                : "Downloads the request CSV, source report and correction context in a ZIP, including when no requests were recorded."}
+            </span>
+            <button className="secondary-button" type="button" onClick={onDownload}>
+              <Download size={17} aria-hidden="true" />
+              {(publishedReportCorrections(view.reportId).subjectEvents.length + publishedReportCorrections(view.reportId).replacementEvents.length) > 0 ? "JSON + corrections (ZIP)" : "JSON"}
+            </button>
+          </>
+        )}
         {/* Rendered by the scanner, not in the browser, so it only appears when
             an origin that can render one is reachable. CSV and JSON are built
             from the wire already in memory and are always available; a PDF is
@@ -179,7 +190,7 @@ export function ReportHeader({
             offering none. A plain anchor rather than a fetch: the response
             carries Content-Disposition, so the browser downloads it without
             this component having to hold a multi-megabyte body in memory. */}
-        {pdfHref && (
+        {exportsOffered && pdfHref && (
           <>
             <a
               aria-describedby="pdf-export-description"

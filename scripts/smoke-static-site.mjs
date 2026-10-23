@@ -331,6 +331,7 @@ async function main() {
         await assertModeLinkWaitsForHealth(browser, baseUrl, manifest);
         await assertBlockerComparisonOnlyOnFreshResults(browser, baseUrl, manifest);
         await assertInspectionOnlyOnFreshResults(browser, baseUrl, manifest);
+        await assertScrollCheckOnlyFromItsLink(browser, baseUrl, manifest);
       }
     }
 
@@ -2938,6 +2939,315 @@ async function assertInspectionOnlyOnFreshResults(browser, baseUrl, manifest) {
     }
     if (landing.focused !== "report") fail(`bringing the inspection into view moved focus to ${landing.focused}`);
     pass("on a phone, an inspection that replaces an earlier result arrives with its panel's heading on screen below the sticky strips, focus on the result");
+  } finally {
+    await phone.close();
+  }
+}
+
+/**
+ * "Check after scrolling" is offered only on a fresh result's permalink,
+ * which the static export never builds (its permalinks are committed
+ * reports), so here no committed permalink, its explorer, an opened file or
+ * the homepage's own result offers it. Following a check link fills the
+ * form, selects Single, labels the button Check, states the check and swaps
+ * the disclosure's first sentence for the check's, on screen, and sends
+ * nothing; an edit or a comparison ends it, and a check the form cannot use
+ * is scrubbed with its whole link. Pressing Check sends the check, and the
+ * result its answer carries (an r2 single built from a committed
+ * comparison's baseline visit, with no share, as a check's is) shows the
+ * check at its top and one sentence before the report, with no share, no
+ * export, no new visit and nothing on paper; a reload shows none.
+ */
+async function assertScrollCheckOnlyFromItsLink(browser, baseUrl, manifest) {
+  const { report, wire, page: target } = await findInspectionCandidate(manifest);
+  const reportJson = path.join(outDir, "reports", `${report.id}.json`);
+  const anyCheckLink = (page) => page.locator('a[href*="check=scroll"], .report-visit-entry');
+  const pressAndAwaitResult = async (page) => {
+    await Promise.all([
+      page.waitForRequest((request) => request.method() === "POST" && new URL(request.url()).pathname === "/api/scan"),
+      page.locator('.scan-panel button[type="submit"]').click()
+    ]);
+    await page.waitForFunction(() => !document.querySelector(".loading-state") && Boolean(document.querySelector("#report .report-header")), null, {
+      timeout: 30_000
+    });
+  };
+  // A check's answer has no share: nothing from the visit is saved.
+  const single = (ephemeral, share = wire.share) => JSON.stringify({
+    schemaVersion: 2,
+    schemaRevision: 2,
+    reportType: "single",
+    run: wire.baseline,
+    ...(share ? { share } : {}),
+    ephemeral: { screenshot: null, ...ephemeral }
+  });
+  const evidence = {
+    outcome: "reached-end",
+    screens: 3,
+    control: { hosts: [{ site: "timer.org", hosts: ["pixel.timer.org"] }], hostCount: 1, siteCount: 1, requests: 2 },
+    scroll: {
+      hosts: [
+        { site: "lazy.net", hosts: ["cdn.lazy.net", "{label}.lazy.net"] },
+        { site: "beacon.org", hosts: ["beacon.org"] }
+      ],
+      hostCount: 3,
+      siteCount: 2,
+      requests: 8,
+      knownHostRequests: 5
+    },
+    incomplete: [],
+    addressChanged: false
+  };
+  // What a fresh result's entry links to; baseUrl carries the base path.
+  const checkLink = `${baseUrl}/#scan?url=${encodeURIComponent(target)}&check=scroll&from=${report.id}`;
+
+  // The committed permalink and its explorer offer no check, beside the very
+  // limit a fresh result's would offer it on.
+  const committedContext = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
+  await installScannerFixture(committedContext);
+  try {
+    const page = await committedContext.newPage();
+    await page.goto(`${baseUrl}/reports/${report.id}/`, { waitUntil: "networkidle" });
+    await expectText(page.locator(".report-visit-limits"), "Anything that loads only after");
+    if ((await anyCheckLink(page).count()) !== 0) fail(`committed report ${report.id} offers a check after scrolling`);
+    await page.getByRole("button", { name: "Explore full evidence" }).click();
+    await page.locator(".report-focus-target .report-header").waitFor();
+    if ((await anyCheckLink(page).count()) !== 0) fail(`committed report ${report.id}'s explorer offers a check after scrolling`);
+  } finally {
+    await committedContext.close();
+  }
+
+  const answers = [];
+  const sent = [];
+  const scanBodies = [];
+  const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
+  await context.route(`${liveScanApiBase}/**`, async (route) => {
+    const request = route.request();
+    const pathname = new URL(request.url()).pathname;
+    const cors = { "access-control-allow-origin": "*" };
+    if (request.method() === "GET" && pathname === "/api/health") {
+      return route.fulfill({ status: 200, contentType: "application/json", headers: cors,
+        body: JSON.stringify({ ...scannerFixture, turnstile: false }) });
+    }
+    if (request.method() === "OPTIONS") {
+      return route.fulfill({ status: 204, headers: { ...cors, "access-control-allow-methods": "GET, POST",
+        "access-control-allow-headers": request.headers()["access-control-request-headers"] ?? "content-type" } });
+    }
+    sent.push(`${request.method()} ${pathname}`);
+    if (request.method() === "POST" && pathname === "/api/scan") {
+      scanBodies.push(request.postData() ?? "");
+      const answer = answers.shift();
+      if (!answer) return route.abort();
+      return route.fulfill({ status: 200, contentType: "application/json", headers: cors, body: answer });
+    }
+    return route.abort();
+  });
+  try {
+    const page = await context.newPage();
+    await page.goto(`${baseUrl}/`, { waitUntil: "networkidle" });
+    await page.locator(".run-mode-checking").waitFor({ state: "detached" });
+
+    // A file opened from disk, and the homepage's own result, offer none.
+    await uploadHomeReport(page, reportJson);
+    if ((await anyCheckLink(page).count()) !== 0) fail("a report opened from a file offers a check after scrolling");
+    answers.push(single({}));
+    await page.locator("#url").fill(target);
+    await pressAndAwaitResult(page);
+    if (scanBodies.length !== 1 || "check" in JSON.parse(scanBodies[0])) fail(`the typed scan sent ${scanBodies.join(", ")}`);
+    if ((await anyCheckLink(page).count()) !== 0 || (await page.locator(".scroll-check").count()) !== 0) {
+      fail("a typed scan's result offers or shows a check after scrolling");
+    }
+    // The ordinary result offers what a check's must not.
+    if ((await page.getByRole("button", { name: /^JSON/ }).count()) !== 1 || (await page.locator("#report .headline-actions").count()) !== 1) {
+      fail("a typed scan's result lost its export or its headline actions");
+    }
+    pass(`no committed permalink, explorer, opened file or homepage result of ${report.domain} offers a check after scrolling`);
+
+    // Following a check link fills the form beside the result, and runs nothing.
+    const arrivalText = `Checking after scrolling. A new visit to ${target} runs as a single scan, lets the page settle, watches it for 10 seconds without input, then scrolls down up to 8 screens. What it finds shows here only and is not saved. It takes about a minute.`;
+    await page.goto(checkLink, { waitUntil: "networkidle" });
+    try {
+      await page.waitForFunction((expected) => document.getElementById("url")?.value === expected, target, { timeout: 10_000 });
+      await page.locator(".scroll-check-arrival").waitFor({ timeout: 10_000 });
+    } catch {
+      fail("following a check link did not fill the form and state the check");
+    }
+    if (!(await page.evaluate(() => window.location.href)).endsWith("#scan")) fail("the check link stayed in the address");
+    if ((await page.locator("#scroll-check-arrival").textContent())?.trim() !== arrivalText) {
+      fail(`the check's arrival line reads ${await page.locator("#scroll-check-arrival").textContent()}`);
+    }
+    const submit = page.locator('.scan-panel button[type="submit"]');
+    if ((await submit.textContent())?.trim() !== "Check") fail(`the button reads ${await submit.textContent()} during a check`);
+    if (!((await submit.getAttribute("aria-describedby")) ?? "").split(" ").includes("scroll-check-arrival")) fail("the button is not described by the check line");
+    if ((await page.getByRole("button", { name: "Single", exact: true }).getAttribute("aria-pressed")) !== "true") fail("a check did not keep Single selected");
+    const disclosure = async () => ({
+      single: await page.locator(".scan-panel .scan-disclosure-visit").isVisible(),
+      check: await page.locator(".scan-panel .scan-disclosure-check-visit").isVisible()
+    });
+    if (JSON.stringify(await disclosure()) !== JSON.stringify({ single: false, check: true })) {
+      fail(`a check's disclosure shows ${JSON.stringify(await disclosure())}, not the check's first sentence alone`);
+    }
+    await expectText(page.locator(".scan-panel .scan-disclosure-check-visit"), "A check is one automated, headless Chromium visit from a fixed en-US / UTC profile: a single scan, then up to 8 screens of scrolling, with no clicking.");
+    const arrival = await page.evaluate(() => {
+      const field = document.getElementById("url")?.getBoundingClientRect();
+      const line = document.querySelector(".scroll-check-arrival")?.getBoundingClientRect();
+      return { field: field?.top ?? Number.NaN, line: line?.bottom ?? Number.NaN, viewport: window.innerHeight };
+    });
+    if (!(arrival.field >= 0 && arrival.line <= arrival.viewport)) fail(`the field and the check line are not on screen on arrival: ${JSON.stringify(arrival)}`);
+    await page.waitForTimeout(1_500);
+    if (sent.length !== 1) fail(`following the check link sent ${sent.slice(1).join(", ")}`);
+
+    // An edit or a comparison ends it; putting both back restores it.
+    const ended = async (what) => {
+      try {
+        await page.locator(".scroll-check-arrival").waitFor({ state: "detached", timeout: 5_000 });
+      } catch {
+        fail(`${what} did not end the check`);
+      }
+      if ((await submit.textContent())?.trim() === "Check") fail(`the button still reads Check after ${what}`);
+      if (JSON.stringify(await disclosure()) !== JSON.stringify({ single: true, check: false })) fail(`${what} left the check's disclosure in place`);
+    };
+    await page.locator("#url").fill(`${target}about/`);
+    await ended("an edit");
+    await page.locator("#url").fill(target);
+    await page.locator(".scroll-check-arrival").waitFor({ timeout: 5_000 });
+    await page.getByRole("button", { name: "GPC diff", exact: true }).click();
+    await ended("a comparison");
+    await page.getByRole("button", { name: "Single", exact: true }).click();
+    await page.locator(".scroll-check-arrival").waitFor({ timeout: 5_000 });
+    if ((await submit.textContent())?.trim() !== "Check") fail("putting the page and Single back did not restore the check");
+    pass("following a check link fills the form with Single, Check, the check line and its disclosure on screen, sends nothing, and ends on an edit or a comparison");
+
+    // Pressing Check sends the check; its result shows the check at its top.
+    answers.push(single({ scrollCheck: evidence }, null));
+    await pressAndAwaitResult(page);
+    const checked = JSON.parse(scanBodies[1] ?? "{}");
+    if (checked.check !== "scroll" || checked.url !== target || checked.compareGpc || checked.compareShields || checked.compareConsent || "inspect" in checked) {
+      fail(`the check sent ${scanBodies[1]}`);
+    }
+    const panel = page.locator(".scroll-check");
+    if ((await panel.count()) !== 1) fail("the check's result shows no check panel");
+    await expectText(panel.locator("h2"), "What this page first contacted after scrolling began");
+    const lines = await panel.locator("p").allTextContents();
+    const expectedLines = [
+      "In 10 seconds without scrolling, the page first contacted 1 new third-party host.",
+      "In the next 10 seconds, while the visit scrolled 3 screens, it first contacted 3 more:",
+      "While scrolling, the page also sent 5 requests to third parties it had already contacted.",
+      "The visit scrolled to the end of the page, then went back to the top.",
+      "Being first contacted while scrolling does not show that scrolling was the reason: pages also load things on timers, which the 10 seconds without scrolling measure.",
+      "The visit scrolled by script, one screen a second, with no mouse, touch or clicks, so content that waits for those was not reached.",
+      "Some sites treat scrolling as agreeing to cookies; this check does not tell whether this page did.",
+      "The check began where the single scan ended, on the page as the scan left it, including any made-up test value the scan typed into its fields.",
+      "This visit scrolled the page after the report below was collected, so nothing from it is saved, shared, exported or printed.",
+      "This new visit is a different observation from the report you came from, so it can neither confirm nor refute anything in it."
+    ];
+    if (JSON.stringify(lines.map((line) => line.trim())) !== JSON.stringify(expectedLines)) fail(`the check panel reads ${JSON.stringify(lines)}`);
+    const hosts = await panel.locator(".scroll-check-hosts li").allTextContents();
+    if (JSON.stringify(hosts) !== JSON.stringify(["timer.org: pixel.timer.org", "lazy.net: cdn.lazy.net, *.lazy.net", "beacon.org"])) {
+      fail(`the check panel lists ${JSON.stringify(hosts)}`);
+    }
+    const back = panel.locator("a.earlier-result-link");
+    if ((await back.getAttribute("href")) !== `${liveScanApiBase}/reports/${report.id}`) fail(`the check links back to ${await back.getAttribute("href")}`);
+    if ((await back.textContent())?.trim() !== "Open the earlier result") fail("the check's link back lost its label");
+    await expectText(page.locator(".scroll-check-report-note"), "The report below covers the visit before the check began.");
+    const placement = await page.evaluate(() => {
+      const shown = document.querySelector(".scroll-check");
+      const note = document.querySelector(".scroll-check-report-note");
+      const header = document.querySelector("#report .report-header");
+      const follows = (a, b) => Boolean(a && b && a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING);
+      return { panelFirst: follows(shown, note) && follows(note, header) };
+    });
+    if (!placement.panelFirst) fail("the check panel and its sentence are not at the top of their result, ahead of the report header");
+    // No share, no export, no new visit.
+    const actions = await page.locator("#report .report-actions").evaluateAll((elements) => elements.map((element) => element.querySelectorAll("a, button").length));
+    if (actions.length !== 1 || actions[0] !== 0) fail(`a check's result offers ${JSON.stringify(actions)} share or export controls`);
+    if ((await page.locator("#report .headline-actions").count()) !== 0) fail("a check's result offers its headline to post or copy");
+    if ((await page.getByRole("button", { name: /^(?:JSON|CSV \+ context)/ }).count()) !== 0) fail("a check's result offers a JSON or CSV export");
+    const details = page.locator("details#request-evidence");
+    if (!(await details.evaluate((element) => element.open))) await details.locator(":scope > summary").click();
+    await details.locator("[data-request-row]").first().waitFor();
+    if ((await page.locator('a.inspect-connection-link, a[href*="inspect="], a[href*="#scan?"][href*="mode="]').count()) !== 0) {
+      fail("a check's result offers a new visit of its own");
+    }
+    // Nothing from the visit reaches paper, the ordinary report included.
+    await page.emulateMedia({ media: "print" });
+    const printed = await page.evaluate(() => document.getElementById("report")?.checkVisibility({ checkVisibilityCSS: true }) ?? null);
+    await page.emulateMedia({ media: "screen" });
+    if (printed !== false) fail("a check's result prints");
+    const axe = await new AxeBuilder({ page })
+      .include(".scroll-check")
+      .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa", "best-practice"])
+      .analyze();
+    const serious = axe.violations.filter((violation) => violation.impact === "critical" || violation.impact === "serious");
+    if (serious.length > 0) fail(`the check panel has serious accessibility violations: ${serious.map((violation) => violation.id).join(", ")}`);
+    pass("pressing Check sends the check, and its result shows the panel and its sentence at its top, with no share, export, new visit or printed copy");
+
+    // A reload shows no check.
+    await page.reload({ waitUntil: "networkidle" });
+    if ((await page.locator(".scroll-check").count()) !== 0) fail("a reload shows a check");
+
+    // A check the form cannot use is scrubbed with its whole link.
+    const scrubbed = await context.newPage();
+    await scrubbed.goto(`${baseUrl}/#scan?url=${encodeURIComponent(target)}&check=zoom`, { waitUntil: "networkidle" });
+    await scrubbed.locator(".run-mode-checking").waitFor({ state: "detached" });
+    if (!(await scrubbed.evaluate(() => window.location.href)).endsWith("#scan")) fail("an unusable check link stayed in the address");
+    if ((await scrubbed.locator("#url").inputValue()) !== "" || (await scrubbed.locator(".scroll-check-arrival").count()) !== 0) {
+      fail("an unusable check link filled the form");
+    }
+    await scrubbed.close();
+    if (sent.length !== 2) fail(`the check's checks sent ${sent.join(", ")}`);
+    pass("a reload shows no check, and a check link the form cannot use is scrubbed with its address");
+  } finally {
+    await context.close();
+  }
+
+  // On a phone, a check that replaces an earlier result arrives with its
+  // panel's heading on screen and clear of the sticky strips.
+  const phone = await browser.newContext({ viewport: { width: 375, height: 812 } });
+  const phoneAnswers = [single({}), single({ scrollCheck: evidence }, null)];
+  await phone.route(`${liveScanApiBase}/**`, async (route) => {
+    const request = route.request();
+    const pathname = new URL(request.url()).pathname;
+    const cors = { "access-control-allow-origin": "*" };
+    if (request.method() === "GET" && pathname === "/api/health") {
+      return route.fulfill({ status: 200, contentType: "application/json", headers: cors, body: JSON.stringify({ ...scannerFixture, turnstile: false }) });
+    }
+    if (request.method() === "OPTIONS") {
+      return route.fulfill({ status: 204, headers: { ...cors, "access-control-allow-methods": "GET, POST",
+        "access-control-allow-headers": request.headers()["access-control-request-headers"] ?? "content-type" } });
+    }
+    const answer = request.method() === "POST" && pathname === "/api/scan" ? phoneAnswers.shift() : undefined;
+    if (!answer) return route.abort();
+    return route.fulfill({ status: 200, contentType: "application/json", headers: cors, body: answer });
+  });
+  try {
+    const page = await phone.newPage();
+    await page.goto(`${baseUrl}/`, { waitUntil: "networkidle" });
+    await page.locator(".run-mode-checking").waitFor({ state: "detached" });
+    await page.locator("#url").fill(target);
+    await pressAndAwaitResult(page);
+    await page.goto(checkLink, { waitUntil: "networkidle" });
+    await page.locator(".scroll-check-arrival").waitFor({ timeout: 10_000 });
+    await pressAndAwaitResult(page);
+    await page.locator(".scroll-check h2").waitFor();
+    await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    const landing = await page.evaluate(() => {
+      const heading = document.querySelector(".scroll-check h2").getBoundingClientRect();
+      const strips = [...document.querySelectorAll(".topbar, .report-section-nav")].map((element) => element.getBoundingClientRect());
+      return {
+        top: Math.round(heading.top),
+        bottom: Math.round(heading.bottom),
+        covered: strips.some((box) => box.height > 0 && box.bottom > heading.top && box.top < heading.bottom),
+        viewport: window.innerHeight,
+        focused: document.activeElement?.id ?? null,
+        overflow: document.documentElement.scrollWidth > window.innerWidth
+      };
+    });
+    if (landing.covered || landing.top < 0 || landing.bottom > landing.viewport) {
+      fail(`on a phone the check's heading arrives off screen or under the sticky strips: ${JSON.stringify(landing)}`);
+    }
+    if (landing.focused !== "report") fail(`bringing the check into view moved focus to ${landing.focused}`);
+    if (landing.overflow) fail("a check's result scrolls sideways on a phone");
+    pass("on a phone, a check that replaces an earlier result arrives with its panel's heading on screen below the sticky strips, focus on the result");
   } finally {
     await phone.close();
   }

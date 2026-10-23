@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { test } from "node:test";
+import { clientImportTrails } from "./client-import-graph";
 
 const root = process.cwd();
 
@@ -159,18 +160,48 @@ test("Look closer views are built on the server or in the renderer chunk, never 
   const app = read("app", "site-behavior-app.tsx");
   holds(app, /<LazyReportRenderer [^>]*freshResult=\{freshScanResult\}/, "the homepage hands its result's freshness to the explorer");
   const hook = read("app", "_hooks", "use-scan-runtime.ts");
-  holds(hook, /freshScanResult: liveScan !== null && loaded === liveScan\.result,/, "freshness is the live scan's own result, by identity");
-  assert.equal(hook.match(/setLiveScan\(/g)?.length, 1, "only showLiveScanResult records a live result");
+  holds(
+    hook,
+    /freshScanResult: liveScan !== null && loaded === liveScan\.result && liveScan\.scrollCheck === null,/,
+    "freshness is the live scan's own result, by identity, and never a check's, which offers no new visit"
+  );
+  // Only showLiveScanResult records a live result, or clears one for a check
+  // shell no submit asked for.
+  const showLive = hook.slice(hook.indexOf("function showLiveScanResult("), hook.indexOf("function releaseActiveScanSession("));
+  assert.equal(hook.match(/setLiveScan\(/g)?.length, 2, "only showLiveScanResult records or clears a live result");
+  assert.equal(showLive.match(/setLiveScan\(/g)?.length, 2, "only showLiveScanResult records or clears a live result");
   assert.equal(hook.match(/showLiveScanResult\(nextLoaded[,)]/g)?.length, 4, "submit, resume, restore and admission recovery show a live result");
   // Only the submit hands over the inspection it asked for: the status poll
   // re-serves the same shell to a resumed or restored tab, which shows none.
   assert.equal(hook.match(/showLiveScanResult\(nextLoaded\)/g)?.length, 3, "resume, restore and admission recovery hand over no inspection");
   holds(
     hook,
-    /assertClientOperationOwner\(operationOwnerRef\.current, operation\);\s*showLiveScanResult\(nextLoaded, inspectionArrival\);/,
-    "the submit path hands over the inspection its request asked for"
+    /assertClientOperationOwner\(operationOwnerRef\.current, operation\);\s*showLiveScanResult\(nextLoaded, inspectionArrival, scrollCheckArrival\);/,
+    "the submit path hands over the inspection or the check its request asked for"
   );
   holds(hook, /inspection: liveScan !== null && loaded === liveScan\.result \? liveScan\.inspection : null,/, "the inspection reaches the page only while its own result is shown");
+  // A check's result shows only from that submit: nothing from it is saved,
+  // so a resumed, restored or recovered shell that carries one shows nothing.
+  holds(
+    hook,
+    /if \(checked === null && carriesScrollCheck\(next\)\) \{\s*setLoaded\(null\);\s*setLiveScan\(null\);\s*return;\s*\}\s*setLoaded\(next\);/,
+    "a check's result shell reaching any other path is dropped before it is shown"
+  );
+  holds(hook, /scrollCheck: shownScrollCheck\(next, checked\)\s*\}\);/, "the check shown is the one the submit asked for");
+  holds(hook, /scrollCheck: liveScan !== null && loaded === liveScan\.result \? liveScan\.scrollCheck : null,/, "the check reaches the page only while its own result is shown");
+  holds(app, /<LazyReportRenderer [^>]*scrollCheck=\{scrollCheck\}/, "the homepage hands its result's check to the explorer");
+  holds(renderer, /scrollCheck = null/, "a renderer shows no check unless told");
+  holds(
+    renderer,
+    /\{scrollCheck && !printComplete && \(\s*<>\s*<ScrollCheckPanel evidence=\{scrollCheck\.evidence\} earlierResultHref=\{checkedFromHref\} \/>\s*<p className="scroll-check-report-note">\{scrollCheckReportNote\(scrollCheck\.evidence\)\}<\/p>\s*<\/>\s*\)\}\s*<ReportHeader/,
+    "the check's panel and its one sentence render from the handed-over check, ahead of the report, never on paper"
+  );
+  holds(renderer, /exportsOffered=\{scrollCheck === null\}/, "a check's result offers no export");
+  holds(renderer, /sharingOffered=\{scrollCheck === null\}/, "a check's result offers no headline to post or copy");
+  holds(read("app", "_components", "report-overview.tsx"), /\{sharingOffered && \(\s*<div className="headline-actions">/, "a banner that offers no sharing renders no share actions");
+  const header = read("app", "_components", "report-header.tsx");
+  holds(header, /\{exportsOffered && pdfHref && \(/, "a result that offers no export offers no PDF");
+  holds(header, /\{exportsOffered && \(\s*<>\s*<button\s*aria-describedby="csv-export-description"/, "a result that offers no export offers no CSV or JSON");
   holds(app, /<LazyReportRenderer [^>]*inspection=\{inspection\}/, "the homepage hands its result's inspection to the explorer");
   holds(renderer, /inspection = null/, "a renderer shows no inspection unless told");
   holds(
@@ -196,8 +227,10 @@ test("Look closer views are built on the server or in the renderer chunk, never 
   for (const [source, where] of [[page, "the permalink"], [client, "the saved-report client"]] as const) {
     never(source, /earlierResultId|earlier-result/, `${where} hands its explorer an earlier result`);
     never(source, /inspection=|ConnectionInspection/, `${where} hands its explorer an inspection`);
+    never(source, /scrollCheck=|ScrollCheckPanel|scroll-check-result/, `${where} hands its explorer a check`);
   }
   never(print, /inspection=|ConnectionInspection/, "the printable route hands its board an inspection");
+  never(print, /scrollCheck|ScrollCheck|scroll-check/, "the printable route hands its board a check");
   for (const parts of [["app", "site-behavior-app.tsx"], ["app", "_hooks", "use-scan-runtime.ts"], ["app", "_components", "findings-list.tsx"]]) {
     never(read(...parts), /earlier-result-note|EARLIER_RESULT_LINK/, `${parts.join("/")} renders the back-link line`);
   }
@@ -261,6 +294,41 @@ test("Inspect this connection keeps the public-suffix list and the recorder out 
     assert.ok(
       !/connection-inspection-copy|connection-inspection-evidence|connection-inspection-panel|request-inspection-link/.test(read(...parts)),
       `${parts.join("/")} bundles reader copy, the panel or the validator`
+    );
+  }
+});
+
+test("Check after scrolling keeps its recorder off the client, and its panel out of the homepage's own code", () => {
+  const read = (...parts: string[]) => readFileSync(path.join(root, ...parts), "utf8");
+  const importsOf = (source: string) =>
+    [...source.matchAll(/^import\s+([\s\S]*?)\s+from\s+"([^"]+)";/gm)].map((match) => ({ clause: match[1], from: match[2] }));
+  // The recorder holds raw hostnames and reads the redaction pass with its
+  // public-suffix list; the entry's minter is the permalink's, on the server.
+  for (const module of ["lib/scroll-check.ts", "lib/scroll-check-entry.ts"]) {
+    assert.deepEqual(clientImportTrails(module), [], `${module} must not reach a client bundle`);
+  }
+  // The evidence validator reads the published-host shape and the shared
+  // guards; the copy reads the evidence's bounds and the text formatter; the
+  // hook's reading of a result's check imports nothing at run time.
+  assert.deepEqual(importsOf(read("lib", "scroll-check-evidence.ts")).map((entry) => entry.from).sort(), ["./connection-inspection-evidence", "./guards"]);
+  assert.deepEqual(importsOf(read("lib", "scroll-check-copy.ts")).map((entry) => entry.from).sort(), ["./scroll-check-evidence", "./text-format"]);
+  for (const entry of importsOf(read("lib", "scroll-check-result.ts"))) {
+    assert.ok(/^type\s/.test(entry.clause), `scroll-check-result.ts imports ${entry.from} at run time`);
+  }
+  // The homepage's own code reads the request contract, the result reader
+  // and the form's line only; the panel and its copy live in the explorer's
+  // lazy chunk.
+  for (const parts of [
+    ["app", "site-behavior-app.tsx"],
+    ["app", "_hooks", "use-scan-runtime.ts"],
+    ["app", "_components", "scan-controls.tsx"],
+    ["lib", "known-site-evidence.ts"],
+    ["lib", "scan-prefill.ts"],
+    ["lib", "scan-client-orchestration.ts"]
+  ]) {
+    assert.ok(
+      !/scroll-check-copy|scroll-check-evidence|scroll-check-panel|scroll-check-entry/.test(read(...parts)),
+      `${parts.join("/")} bundles the check's panel, its copy or its validator`
     );
   }
 });

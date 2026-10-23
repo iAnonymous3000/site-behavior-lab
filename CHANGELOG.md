@@ -9,6 +9,42 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- A check after scrolling's own result now shows, at its top, what the check
+  recorded: "What this page first contacted after scrolling began", then what
+  the page first contacted in 10 seconds without scrolling and in the next 10
+  seconds while the visit scrolled, the hosts listed by site ("lazy.net:
+  cdn.lazy.net, *.lazy.net"), the requests it sent to third parties it had
+  already contacted, how the check ended, whether the page changed its own
+  address, what cut the lists, the timing, mechanism and consent caveats,
+  where the check began, and that nothing from the visit is saved, shared,
+  exported or printed, with the separation sentence and "Open the earlier
+  result" when the link named one. One sentence then says what the ordinary
+  report beneath covers: "The report below covers the visit before the check
+  began." Every sentence is the approved one, a count of one in the
+  singular, and a line that does not apply is left out; where an approved
+  sentence would be false for what a result records, a corrected draft
+  stands in its place pending the owner's review, with the approved text
+  beside it in lib/scroll-check-copy.ts: a page that turned scrolling off or
+  stopped moving after the visit had scrolled some screens, a check that
+  stopped early for a reason other than its time, the not-saved line for a
+  visit that never scrolled, and the line above the report of a check that
+  did not run. "N more are not listed." is drafted. The result offers no
+  share, no CSV, JSON or PDF export, no "Post on X" or "Copy post", and no new
+  visit of its own (no Inspect this connection, no Blocker follow-up); on
+  paper the whole result, its ordinary report included, stays off the page.
+  It renders only from the result the tab's own submit received: a resumed,
+  restored or recovered job's result that carries a check shows nothing, and
+  neither does a reload. The panel and its copy live in the evidence
+  explorer's lazy chunk, and the homepage's own code reads only the type-only
+  result reader, so the scanner's recorder never reaches a client bundle.
+  The coverage boundary's below-the-fold entry, the README, the capabilities
+  list, the methodology page and the limitations page now say that an
+  on-demand check can show, in its immediate result only, the third-party
+  hosts its page first contacted after scrolling began; the scanner's own "no
+  scrolling" sentences stay as they are, since they remain true of every
+  saved report. The static smoke follows a check link and presses Check
+  against a test answer; the Chromium smoke sends the refusals and follows a
+  check link, and scans nothing.
 - A fresh result now offers "Check after scrolling" in its visit summary,
   under "Anything that loads only after interaction or consent" (or "after
   further interaction"), with the approved sentence beside it: "Opens the

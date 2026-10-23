@@ -107,6 +107,7 @@ export function SiteBehaviorApp({
     freshScanResult,
     earlierResultId,
     inspection,
+    scrollCheck,
     error,
     setError,
     loading,
@@ -472,7 +473,7 @@ export function SiteBehaviorApp({
           {loaded && (
             <Suspense fallback={<p className="muted">Preparing the evidence explorer…</p>}>
               <LazyReportRenderer loaded={loaded} liveApiServesReportPages={liveApiServesReportPages} freshResult={freshScanResult}
-                earlierResultId={earlierResultId} inspection={inspection} />
+                earlierResultId={earlierResultId} inspection={inspection} scrollCheck={scrollCheck} />
             </Suspense>
           )}
           </section>

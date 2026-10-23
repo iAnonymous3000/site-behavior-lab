@@ -65,6 +65,11 @@ export default function MethodologyPage() {
           real users, regions, accounts, or network locations, so results are evidence to check, not a verdict.
         </p>
         <p>
+          An on-demand check after scrolling, offered from a fresh result, is a separate visit that scrolls its page by
+          script only once its own report is built, and shows the third-party hosts the page first contacted after
+          scrolling began in that immediate result only. Nothing from that visit is saved, shared, exported or printed.
+        </p>
+        <p>
           The scanner never disguises itself: it is an honest automated browser. Sites that block automation are
           reported as failed loads rather than being scanned through evasion, because a report gathered under a
           disguised identity would misdescribe its own conditions.

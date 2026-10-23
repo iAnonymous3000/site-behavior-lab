@@ -519,7 +519,7 @@ test("the form wires the note, the one submit button and the arrival as the copy
   // The result a connected scan shows carries the id, and only while it is shown.
   holds(
     hook,
-    /setLiveScan\(\{\s*result: next,\s*earlierResultId: startedScanEarlierResultRef\.current,\s*inspection: shownConnectionInspection\(next, inspected\)\s*\}\);/,
+    /setLiveScan\(\{\s*result: next,\s*earlierResultId: startedScanEarlierResultRef\.current,\s*inspection: shownConnectionInspection\(next, inspected\),\s*scrollCheck: shownScrollCheck\(next, checked\)\s*\}\);/,
     "a live result to carry its scan's connection, and the inspection only its submit hands over"
   );
   holds(

@@ -121,12 +121,18 @@ export function absoluteShareUrl(sharePath: string): string {
 export function HeadlineBanner({
   share,
   headline,
-  liveApiServesReportPages
+  liveApiServesReportPages,
+  sharingOffered = true
 }: {
   /** The wire report's share pointer, needed only to resolve the permalink. */
   share: ReportShare | null;
   headline: ReportHeadline;
   liveApiServesReportPages: boolean;
+  /**
+   * False for a "Check after scrolling" visit's own result, from which
+   * nothing is shared (owner call 2): no "Post on X" or "Copy post".
+   */
+  sharingOffered?: boolean;
 }) {
   const [shareLink, setShareLink] = useState("");
   const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">("idle");
@@ -189,23 +195,25 @@ export function HeadlineBanner({
 
       <div className="headline-footer">
         <span className="headline-caveat">{headline.caveat}</span>
-        <div className="headline-actions">
-          <a className="headline-share primary" href={xHref} target="_blank" rel="noreferrer">
-            <ExternalLink size={15} aria-hidden="true" />
-            Post on X
-            <span className="visually-hidden"> (opens in a new tab)</span>
-          </a>
-          <button type="button" className="headline-share" onClick={copyPost} aria-live="polite">
-            {copyState === "copied" ? (
-              <CheckCircle2 size={15} aria-hidden="true" />
-            ) : copyState === "failed" ? (
-              <AlertCircle size={15} aria-hidden="true" />
-            ) : (
-              <Copy size={15} aria-hidden="true" />
-            )}
-            {copyState === "copied" ? "Copied" : copyState === "failed" ? "Copy failed" : "Copy post"}
-          </button>
-        </div>
+        {sharingOffered && (
+          <div className="headline-actions">
+            <a className="headline-share primary" href={xHref} target="_blank" rel="noreferrer">
+              <ExternalLink size={15} aria-hidden="true" />
+              Post on X
+              <span className="visually-hidden"> (opens in a new tab)</span>
+            </a>
+            <button type="button" className="headline-share" onClick={copyPost} aria-live="polite">
+              {copyState === "copied" ? (
+                <CheckCircle2 size={15} aria-hidden="true" />
+              ) : copyState === "failed" ? (
+                <AlertCircle size={15} aria-hidden="true" />
+              ) : (
+                <Copy size={15} aria-hidden="true" />
+              )}
+              {copyState === "copied" ? "Copied" : copyState === "failed" ? "Copy failed" : "Copy post"}
+            </button>
+          </div>
+        )}
       </div>
     </section>
   );

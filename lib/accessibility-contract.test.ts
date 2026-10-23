@@ -489,6 +489,9 @@ const INTENTIONALLY_UNSTYLED_CLASS_NAMES = new Set([
   "domain-request-deltas",
   "provenance-change-list",
   "report-title-block",
+  // A check panel's outcome line: a test mount point the smokes select,
+  // styled as the panel's other paragraphs are.
+  "scroll-check-outcome",
   "visit-phase-evidence"
 ]);
 

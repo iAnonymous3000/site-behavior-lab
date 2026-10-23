@@ -2815,6 +2815,54 @@ a {
   font-size: 12.5px;
 }
 
+/* A check visit's own observation, at the top of its result, framed like an
+   inspection's. Screen only: nothing from a check visit prints. */
+.scroll-check {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  display: grid;
+  gap: 8px;
+  justify-items: start;
+  overflow-wrap: anywhere;
+  padding: 12px 14px;
+}
+
+.scroll-check h2 {
+  font-size: 15px;
+  line-height: 1.35;
+  margin: 0;
+}
+
+.scroll-check-hosts {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding-left: 18px;
+}
+
+.scroll-check-hosts li,
+.scroll-check p {
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0;
+  max-width: 76ch;
+}
+
+.scroll-check .scroll-check-caveat,
+.scroll-check .scroll-check-separation {
+  color: var(--text-muted);
+  font-size: 12.5px;
+}
+
+/* What the report beneath a check's panel covers. */
+.scroll-check-report-note {
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0;
+  max-width: 76ch;
+}
+
 /* What was checked, and what the visit could not see: framed like the cards
    it sits between, directly after the bottom line, but with no severity edge,
    since it ranks nothing. Two columns where there is room for both to read as
@@ -5716,6 +5764,8 @@ details[open] > summary .disclosure-chevron {
   /* An inspection's own observation is the immediate result's only, never
      the report's, so paper shows the ordinary report alone. */
   .connection-inspection,
+  /* So is a check's; below, its whole result stays off paper. */
+  .scroll-check,
   .homepage-discovery-actions,
   .homepage-tools-disclosure,
   .scan-checks,
@@ -5735,6 +5785,13 @@ details[open] > summary .disclosure-chevron {
   .disclosure-chevron,
   .evidence-receipt-links,
   .arm-switcher {
+    display: none !important;
+  }
+
+  /* Nothing from a check visit is saved, exported or printed (owner call 2),
+     the ordinary report beneath its panel included: that report describes a
+     visit that went on to scroll. */
+  #report:has(.scroll-check) {
     display: none !important;
   }
 

@@ -8,6 +8,7 @@ import { ConnectionInspectionPanel } from "./connection-inspection-panel";
 import { FindingsBoard, HeadlineBanner, MetricGrid, TrafficViz, useReportFindings } from "./report-overview";
 import { ReportHeader } from "./report-header";
 import { ReportSectionNav, type ReportSection } from "./report-section-nav";
+import { ScrollCheckPanel } from "./scroll-check-panel";
 import {
   CookieList,
   DomainTable,
@@ -32,6 +33,8 @@ import { locateReport } from "@/lib/report-locator";
 import { reportNewVisitFrom, reportNewVisitTarget } from "@/lib/report-rescan-targets";
 import type { RequestInspectionContext } from "@/lib/request-inspection-link";
 import type { ShownConnectionInspection } from "@/lib/connection-inspection-result";
+import { scrollCheckReportNote } from "@/lib/scroll-check-copy";
+import type { ShownScrollCheck } from "@/lib/scroll-check-result";
 import {
   displayableScreenshot,
   gpcRunMeasurement
@@ -65,7 +68,8 @@ export function ReportRenderer({
   siteHistoryHref = null,
   freshResult = false,
   earlierResultId = null,
-  inspection = null
+  inspection = null,
+  scrollCheck = null
 }: {
   loaded: LoadedReport;
   liveApiServesReportPages: boolean;
@@ -113,6 +117,14 @@ export function ReportRenderer({
    * printable route pass none, so a reload or a share shows no panel.
    */
   inspection?: ShownConnectionInspection | null;
+  /**
+   * What a "Check after scrolling" visit recorded, handed over by the
+   * homepage for the result its own submit received, and only while that
+   * result is shown. Nothing from that visit is saved, so its result offers
+   * no export and never prints; a permalink, its explorer and the printable
+   * route pass none.
+   */
+  scrollCheck?: ShownScrollCheck | null;
 }) {
   useEffect(() => {
     if (!printComplete) return;
@@ -148,6 +160,11 @@ export function ReportRenderer({
   const inspectedFromHref =
     inspection && inspection.from && !printComplete
       ? locateReport(inspection.from, { ...clientReportRuntime(), liveApiServesReportPages }).pagePath
+      : null;
+  // So did a check's.
+  const checkedFromHref =
+    scrollCheck && scrollCheck.from && !printComplete
+      ? locateReport(scrollCheck.from, { ...clientReportRuntime(), liveApiServesReportPages }).pagePath
       : null;
   const benchmarkScope = findings.find((finding) => finding.id === "bottom-line")?.benchmarkScope;
   const primaryRun = reportFacts.display.run;
@@ -262,6 +279,14 @@ export function ReportRenderer({
           {inspection && !printComplete && (
             <ConnectionInspectionPanel evidence={inspection.evidence} earlierResultHref={inspectedFromHref} />
           )}
+          {/* A check visit's own observation, then one sentence saying what
+              the ordinary report beneath it covers. */}
+          {scrollCheck && !printComplete && (
+            <>
+              <ScrollCheckPanel evidence={scrollCheck.evidence} earlierResultHref={checkedFromHref} />
+              <p className="scroll-check-report-note">{scrollCheckReportNote(scrollCheck.evidence)}</p>
+            </>
+          )}
           <ReportHeader
             share={shareForLoadedReport(loaded)}
             view={reportView}
@@ -272,6 +297,7 @@ export function ReportRenderer({
             onDownloadCsv={() => void exportWithFeedback(downloadCsv)}
             liveApiServesReportPages={liveApiServesReportPages}
             pdfExportQuery={pdfExportQuery}
+            exportsOffered={scrollCheck === null}
           />
           {exportError && <p role="alert" className="export-error">{exportError}</p>}
           {/* Where this comparison came from, beside the report's identity and
@@ -289,6 +315,7 @@ export function ReportRenderer({
             share={shareForLoadedReport(loaded)}
             headline={headline}
             liveApiServesReportPages={liveApiServesReportPages}
+            sharingOffered={scrollCheck === null}
           />
           <FindingsBoard evidenceArm={evidenceArm} facts={reportFacts} findings={findings} siteHistoryHref={siteHistoryHref}
             newVisitTarget={newVisitTarget} newVisitFrom={newVisitFrom} afterBottomLine={visitSummary} />

@@ -70,7 +70,13 @@ One scan is one automated visit from one place at one time. The scanner:
 - can pair two visits, in a random order it discloses: GPC off and on, a
   plain visit and a Brave Shields block simulation (Brave's ad-block engine
   over a pinned snapshot of its default lists, not a live Brave browser), or
-  accept-all and reject-all consent.
+  accept-all and reject-all consent;
+- can, from a fresh result, check a page after scrolling: one single visit
+  whose own result is built first, after which the page settles, is watched
+  for about 10 seconds with no input and is scrolled by script, up to 8
+  screens. Its immediate result lists the third-party hosts the page first
+  contacted after scrolling began, and nothing from that visit is saved,
+  shared, exported or printed.
 
 Each report has a page (a plain-language headline over severity-ranked
 findings), its JSON, a request CSV bundled with the source report and its
@@ -92,7 +98,10 @@ proposal that a maintainer merges.
   beyond its entry script and all WebSocket traffic go unrecorded, storage is
   read from the top frame only, the input probe does not scroll to offscreen
   fields, and the service catalog is a curated, US-biased list, not an
-  inventory.
+  inventory. A report's visit never scrolls; an on-demand check after
+  scrolling, opened from a fresh result, is a separate visit that shows the
+  third-party hosts its page first contacted after scrolling began in its
+  immediate result only, never in a report.
 - **A failed or challenged load is not a clean result.** Sites that refuse
   undisguised automated browsers are reported as refusals, never evaded.
 - **No detector accuracy is published.** No claim-bearing detector has an
@@ -294,12 +303,18 @@ open while an actionable upgrade is available.
 `compareConsent`. A single scan may also name `inspect`, a request row's
 published address without its query; its immediate result then carries what
 that visit recorded about the call stacks of its requests to the address in
-`ephemeral.inspection`, which is never saved. A synchronous deployment answers with the report; an async
+`ephemeral.inspection`, which is never saved. A single scan may instead name
+`check: "scroll"`, the after-scrolling check, which costs two rate-limit
+tokens as a comparison does; its immediate result carries the check's
+evidence in `ephemeral.scrollCheck`, and nothing from that visit is saved, so
+it has no share. A synchronous deployment answers with the report; an async
 one answers `202` with `jobId` and `statusPath`, and `DELETE /api/scans/:id`
 cancels cooperatively until publication begins. Refusals are `400` for an
 invalid or non-public target, `401` for a missing token, `413` for an oversize
-body, `429` for the per-client limit, and `503` when the scanner is busy, a
-producer is misconfigured, or public-host verification could not complete.
+body, `429` for the per-client limit, and `503` when the scanner is busy (or
+already running an after-scrolling check), a producer is misconfigured or
+cannot carry what was asked for, or public-host verification could not
+complete.
 `GET /api/reports/:id` returns the stored wire byte for byte, and
 `GET /api/reports/:id/pdf` renders it. `GET /api/health` reports readiness,
 the build commit, and the effective state of every producer flag.
