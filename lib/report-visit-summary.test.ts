@@ -12,6 +12,7 @@ import { findingCardDomId, renderedEvidenceArm } from "./report-evidence-navigat
 import { buildReportFacts, REPORT_CLAIM_REQUIREMENTS } from "./report-facts";
 import { buildFindings } from "./report-findings";
 import { buildReportHeadline } from "./report-headline";
+import { reportNewVisitFrom, reportNewVisitTarget } from "./report-rescan-targets";
 import {
   AFTER_FURTHER_INTERACTION_CLAUSE,
   AFTER_INTERACTION_CLAUSE,
@@ -31,10 +32,12 @@ import {
   type ReportVisitSummary
 } from "./report-visit-summary";
 import { readStoredScanReport } from "./scan-report-reader";
-import { makeConsentInterventionReportV2R2 } from "./scan-report-v2-r2-fixtures";
+import { makeConsentInterventionReportV2R2, makePublicSingleReportV2R2 } from "./scan-report-v2-r2-fixtures";
 import { makeScanReportV1 } from "./scan-report-v2-fixtures";
 import { toReportView, viewFromV1Report, viewFromV2, type ReportView } from "./scan-report-views";
 import { PUBLIC_SCANNER_EGRESS_LABELS } from "./scanner-egress";
+import { SCROLL_CHECK_ENTRY } from "./scroll-check-copy";
+import { scrollCheckEntry } from "./scroll-check-entry";
 import type { ScanReport, ScanResult } from "./types";
 
 /**
@@ -405,6 +408,84 @@ test("where a visit ran from is named in words for every admitted egress label",
   }
 });
 
+test("a fresh result's after-interaction limit offers Check after scrolling, and no other report or limit changes", () => {
+  const id = "20261022-0123456789abcdef0123456789abcdef";
+  /** An r2 single visit that requested and landed on the site root, with the scanner's limit warnings. */
+  const r2View = (edit: (view: ReportView) => void = () => undefined, root = true): ReportView => {
+    const report = makePublicSingleReportV2R2();
+    if (root) {
+      const page = { origin: "https://www.example.com", registrableDomain: "example.com", routeShape: "/" };
+      report.run.subject = { requested: { ...page }, observed: { ...page } };
+    }
+    report.run.warnings = [OBSERVE_LIMITS, OBSERVE_COUNTS];
+    const view = { ...viewFromV2(report, 2), reportId: id };
+    edit(view);
+    return view;
+  };
+  // Built the way the permalink builds it.
+  const summaryAs = (view: ReportView, fresh: boolean, basePath = "") => {
+    const facts = buildReportFacts(view);
+    const evidenceArm = renderedEvidenceArm(view, buildReportHeadline(view, facts));
+    const newVisitTarget = reportNewVisitTarget(view, fresh);
+    const newVisitFrom = reportNewVisitFrom(view, fresh);
+    return buildReportVisitSummary({
+      view,
+      facts,
+      findings: buildFindings(view, null, facts, evidenceArm),
+      evidenceArm,
+      scrollCheckEntry: scrollCheckEntry({ view, facts, newVisitTarget, newVisitFrom, basePath })
+    });
+  };
+  const offered = (summary: ReportVisitSummary) => summary.limits.filter((limit) => limit.entry !== undefined);
+
+  const view = r2View();
+  const fresh = summaryAs(view, true);
+  assert.deepEqual(offered(fresh).map((limit) => limit.id), ["after-interaction"], "only the limit the check answers offers it");
+  assert.deepEqual(offered(fresh)[0].entry, {
+    href: `/#scan?url=https%3A%2F%2Fwww.example.com%2F&check=scroll&from=${id}`,
+    label: SCROLL_CHECK_ENTRY.label,
+    sentence: SCROLL_CHECK_ENTRY.sentence
+  });
+  assert.equal(
+    offered(summaryAs(view, true, "/site-behavior-lab"))[0].entry?.href,
+    `/site-behavior-lab/#scan?url=https%3A%2F%2Fwww.example.com%2F&check=scroll&from=${id}`,
+    "a Pages build's link keeps its base path"
+  );
+  // The entry is the only difference: without it, a fresh result's summary
+  // is exactly a committed one's, which is exactly the summary built with no
+  // entry input at all.
+  const withoutEntry = { ...fresh, limits: fresh.limits.map(({ entry: _entry, ...limit }) => limit) };
+  assert.deepEqual(withoutEntry, summaryAs(view, false));
+  assert.deepEqual(summaryAs(view, false), summaryFor(view));
+  // A share with no id names no result, and still checks.
+  assert.equal(
+    offered(summaryAs({ ...view, reportId: undefined }, true))[0].entry?.href,
+    "/#scan?url=https%3A%2F%2Fwww.example.com%2F&check=scroll"
+  );
+
+  // Never: a committed report, a page gate G4 refuses, a visit that did not
+  // establish its page (G3), a v1 report (its scanner cannot carry a check),
+  // or a report without the after-interaction limit.
+  const failed = r2View((edit) => {
+    edit.runs[0].quality.outcome = "failed";
+  });
+  assert.notEqual(buildReportFacts(failed).display.subject.describesSubject, true);
+  const v1 = { ...publishedV1View(v1Result([OBSERVE_LIMITS, OBSERVE_COUNTS])), reportId: id };
+  assert.ok(reportNewVisitTarget(v1, true) !== null, "the v1 fixture has a page to visit again, so only its scanner refuses");
+  const noLimit = r2View((edit) => {
+    edit.runs[0].warnings = [OBSERVE_LIMITS];
+  });
+  for (const [summary, reason] of [
+    [summaryAs(view, false), "a committed report"],
+    [summaryAs(r2View(undefined, false), true), "a subpage the visit cannot replay"],
+    [summaryAs(failed, true), "a failed load"],
+    [summaryAs(v1, true), "a v1 report"],
+    [summaryAs(noLimit, true), "no after-interaction limit"]
+  ] as const) {
+    assert.deepEqual(offered(summary), [], reason);
+  }
+});
+
 test("the board states the summary right after its bottom line, and the header keeps its place", () => {
   const source = (file: string) => readFileSync(path.join(process.cwd(), file), "utf8");
   const context = source("app/_components/report-page-context.tsx");
@@ -431,9 +512,20 @@ test("the board states the summary right after its bottom line, and the header k
 
   // Both report routes hand the same server-built block to every board they
   // render: the permalink's summary and its explorer, and the printed board.
+  // The permalink's also carries a fresh result's "Check after scrolling",
+  // for the page and share its board's other follow-ups name; paper never.
   const built = /<ReportVisitSummaryBlock summary=\{buildReportVisitSummary\(\{ view, facts, findings, evidenceArm \}\)\} \/>/;
   const permalink = source("app/reports/[id]/page.tsx");
-  assert.match(permalink, new RegExp(`const visitSummary = \\(\\s*${built.source}\\s*\\);`));
+  assert.match(
+    permalink,
+    /const newVisitTarget = reportNewVisitTarget\(view, freshResult\);\s*const newVisitFrom = reportNewVisitFrom\(view, freshResult\);(?:\s*\/\/[^\n]*)*\s*const visitSummary = \(\s*<ReportVisitSummaryBlock\s*summary=\{buildReportVisitSummary\(\{\s*view,\s*facts,\s*findings,\s*evidenceArm,\s*scrollCheckEntry: scrollCheckEntry\(\{ view, facts, newVisitTarget, newVisitFrom, basePath: sitePagesBasePath\(\) \}\)\s*\}\)\}\s*\/>\s*\);/
+  );
+  assert.equal(permalink.match(/scrollCheckEntry\(\{/g)?.length, 1, "the permalink mints the entry once");
+  assert.doesNotMatch(source("app/reports/[id]/print/page.tsx"), /scrollCheckEntry|scroll-check/);
+  assert.match(
+    block,
+    /\{limit\.entry && \(\s*<span className="report-visit-entry">\s*<a className="finding-look-closer-link" href=\{limit\.entry\.href\}>\{limit\.entry\.label\}<\/a>\s*<span className="report-visit-entry-sentence">\{limit\.entry\.sentence\}<\/span>\s*<\/span>\s*\)\}/
+  );
   assert.match(permalink, /<ReportPageSummary[\s\S]*?visitSummary=\{visitSummary\}[\s\S]*?\/>\s*\}\s*visitSummary=\{visitSummary\}\s*\/>/);
   assert.match(permalink, /afterBottomLine=\{visitSummary\}/);
   assert.match(source("app/reports/[id]/print/page.tsx"), new RegExp(`<ReportRenderer[\\s\\S]*?visitSummary=\\{\\s*${built.source}\\s*\\}`));

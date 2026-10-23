@@ -9,6 +9,40 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- A fresh result now offers "Check after scrolling" in its visit summary,
+  under "Anything that loads only after interaction or consent" (or "after
+  further interaction"), with the approved sentence beside it: "Opens the
+  scan form ready for a new visit that lets this page settle and then
+  scrolls it, checking scrolling only; nothing runs until you press Check."
+  It follows the rule the Blocker follow-up and Inspect this connection
+  follow: only a runtime share's permalink offers it, for the page and the
+  share its board's other follow-ups name (gate G4), from a visit that
+  established that page (gate G3), and only on a report of revision 2,
+  since only that scanner can carry a check. A committed report, the
+  printable route, a file opened from disk and an archive comparison offer
+  none, and print hides it. The homepage's own live result shows no visit
+  summary, so it offers none either; its share's permalink does. The link
+  is `/#scan?url=<page>&check=scroll`, with `&from=<share id>` when the
+  result has a share, and like every scan link it fills the form and
+  submits nothing. The form takes at most one of a mode, an inspection or a
+  check, and exactly the value "scroll"; any other value, a repeat, or a
+  check beside a mode or an inspection refuses the whole link, target
+  included, and the address bar keeps none of it. While its arrival holds
+  (the field still holds the link's page and no comparison is selected, as
+  for an inspection), the form selects Single, its one button reads
+  "Check", and a status line the button names says: "Checking after
+  scrolling. A new visit to <page> runs as a single scan, lets the page
+  settle, watches it for 10 seconds without input, then scrolls down up to
+  8 screens. What it finds shows here only and is not saved. It takes about
+  a minute." The disclosure under the field then starts "A check is one
+  automated, headless Chromium visit from a fixed en-US / UTC profile: a
+  single scan, then up to 8 screens of scrolling, with no clicking." in
+  place of the single scan's sentence; the server renders both and the
+  form's state picks one, so the swap costs HTML, not homepage JavaScript,
+  and a page without JavaScript keeps the single scan's. Only then does a
+  scan request ask for the check, and a deployment that queues scans
+  refuses it in the browser, in the approved words, before the submit is
+  claimed.
 - The scan API now accepts an optional `check: "scroll"` on a single scan:
   an after-scrolling check. It reaches the scanner as a visit option and
   never the recorded payload, and nothing from such a visit is saved (owner

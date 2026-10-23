@@ -44,6 +44,14 @@ export function ReportVisitSummaryBlock({ summary }: { summary: ReportVisitSumma
                   <Fragment key={index}>{segment.text}</Fragment>
                 )
               )}
+              {/* A fresh result's new visit that answers this limit: a link
+                  to follow and what it opens. Never on paper. */}
+              {limit.entry && (
+                <span className="report-visit-entry">
+                  <a className="finding-look-closer-link" href={limit.entry.href}>{limit.entry.label}</a>
+                  <span className="report-visit-entry-sentence">{limit.entry.sentence}</span>
+                </span>
+              )}
             </li>
           ))}
         </ul>

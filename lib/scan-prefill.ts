@@ -1,6 +1,7 @@
 import { isPublishedAddressShape } from "./connection-inspection-address";
 import { REPORT_ID_PATTERN } from "./report-validation";
 import type { ComparisonRunMode } from "./run-mode-copy";
+import { SCROLL_CHECK_REQUEST_VALUE } from "./scroll-check-request";
 
 /**
  * Normalize a scan target before it can leave the browser. The scanner reports
@@ -127,6 +128,20 @@ export function scanInspectHref(page: string, address: string, from?: string | n
   return earlierResult ? `${href}&from=${earlierResult}` : href;
 }
 
+/**
+ * Build a "Check after scrolling" link: the page to visit again, and the
+ * share report id of the result it is offered on when that result has one,
+ * so the check's result can link back. Null when the page is not one the form
+ * accepts. Like every scan link it fills the form and submits nothing.
+ */
+export function scanScrollCheckHref(page: string, from?: string | null): string | null {
+  const normalized = normalizeScanUrl(page);
+  if (!normalized) return null;
+  const href = `/#scan?url=${encodeURIComponent(normalized)}&check=${SCROLL_CHECK_REQUEST_VALUE}`;
+  const earlierResult = from ? scanPrefillFrom(from) : null;
+  return earlierResult ? `${href}&from=${earlierResult}` : href;
+}
+
 export type ScanPrefillNavigation = {
   targetUrl: string | null;
   /** The comparison the link asked for, only beside a target the form accepted. */
@@ -137,9 +152,13 @@ export type ScanPrefillNavigation = {
    */
   inspect: string | null;
   /**
+   * "scroll" when the link asks for the after-scrolling check, only beside a
+   * target the form accepted and never beside a mode or an inspection.
+   */
+  check: typeof SCROLL_CHECK_REQUEST_VALUE | null;
+  /**
    * The share report id of the result whose follow-up minted the link, only
-   * beside a target and a mode, or a target and an inspection, the form
-   * accepted.
+   * beside a target and a mode, an inspection or a check the form accepted.
    */
   from: string | null;
   cleanHref: string;
@@ -151,13 +170,14 @@ export type ScanPrefillNavigation = {
  * state. Legacy `?url=` links are cleaned but deliberately not trusted for
  * prefill because their target already crossed an HTTP request boundary.
  *
- * A fragment prefill holds exactly one `url`, at most one `mode` or at most
- * one `inspect` but never both (an inspection is never a comparison), and,
- * only beside a mode or an inspection, at most one `from`, in any order: the
- * mode one of SCAN_PREFILL_MODES, the inspection one published address and
- * the `from` one share report id. Any other key, a repeated key, any other
- * value, a mode beside an inspection, or a `from` beside neither refuses the
- * whole link, target included, as an unknown key always has.
+ * A fragment prefill holds exactly one `url`, at most one of a `mode`, an
+ * `inspect` or a `check` (an inspection and a check are each one single
+ * visit, never a comparison or the other), and, only beside one of them, at
+ * most one `from`, in any order: the mode one of SCAN_PREFILL_MODES, the
+ * inspection one published address, the check "scroll" and the `from` one
+ * share report id. Any other key, a repeated key, any other value, two of
+ * them together, or a `from` beside none refuses the whole link, target
+ * included, as an unknown key always has.
  */
 export function resolveScanPrefillNavigation(href: string): ScanPrefillNavigation | null {
   let parsed: URL;
@@ -175,6 +195,7 @@ export function resolveScanPrefillNavigation(href: string): ScanPrefillNavigatio
   let targetUrl: string | null = null;
   let mode: ComparisonRunMode | null = null;
   let inspect: string | null = null;
+  let check: typeof SCROLL_CHECK_REQUEST_VALUE | null = null;
   let from: string | null = null;
 
   if (hadFragmentPrefill) {
@@ -183,22 +204,29 @@ export function resolveScanPrefillNavigation(href: string): ScanPrefillNavigatio
     const targets = fragmentParams.getAll("url");
     const modes = fragmentParams.getAll("mode");
     const inspections = fragmentParams.getAll("inspect");
+    const checks = fragmentParams.getAll("check");
     const earlierResults = fragmentParams.getAll("from");
     const requestedMode = modes.length === 1 ? scanPrefillMode(modes[0]) : null;
     const requestedInspect = inspections.length === 1 ? scanPrefillInspect(inspections[0]) : null;
+    const requestedCheck = checks.length === 1 && checks[0] === SCROLL_CHECK_REQUEST_VALUE ? SCROLL_CHECK_REQUEST_VALUE : null;
     const requestedFrom = earlierResults.length === 1 ? scanPrefillFrom(earlierResults[0]) : null;
-    const onlyKnownKeys = keys.every((key) => key === "url" || key === "mode" || key === "inspect" || key === "from");
+    const onlyKnownKeys = keys.every(
+      (key) => key === "url" || key === "mode" || key === "inspect" || key === "check" || key === "from"
+    );
     if (
       onlyKnownKeys &&
       targets.length === 1 &&
       (modes.length === 0 || requestedMode !== null) &&
       (inspections.length === 0 || requestedInspect !== null) &&
-      (modes.length === 0 || inspections.length === 0) &&
-      (earlierResults.length === 0 || ((requestedMode !== null || requestedInspect !== null) && requestedFrom !== null))
+      (checks.length === 0 || requestedCheck !== null) &&
+      Number(modes.length > 0) + Number(inspections.length > 0) + Number(checks.length > 0) <= 1 &&
+      (earlierResults.length === 0 ||
+        ((requestedMode !== null || requestedInspect !== null || requestedCheck !== null) && requestedFrom !== null))
     ) {
       targetUrl = normalizeScanUrl(targets[0]);
       mode = targetUrl ? requestedMode : null;
       inspect = targetUrl ? requestedInspect : null;
+      check = targetUrl ? requestedCheck : null;
       from = targetUrl ? requestedFrom : null;
     }
     // Scrub valid and malformed prefill fragments alike. The stable #scan
@@ -211,6 +239,7 @@ export function resolveScanPrefillNavigation(href: string): ScanPrefillNavigatio
     targetUrl,
     mode,
     inspect,
+    check,
     from,
     cleanHref: parsed.toString(),
     scrollToScan

@@ -12,6 +12,7 @@ import {
   type RunView
 } from "./scan-report-views";
 import { DEFAULT_SCANNER_EGRESS_LABEL, PUBLIC_SCANNER_EGRESS_LABELS } from "./scanner-egress";
+import type { ScrollCheckEntry } from "./scroll-check-entry";
 import { displayPublicUrl } from "./text-format";
 
 /**
@@ -66,6 +67,12 @@ export type ReportVisitLimit = {
   id: ReportVisitLimitId;
   lead: string;
   body: ReportVisitTextSegment[];
+  /**
+   * A new visit that answers this limit, rendered after it: a fresh result's
+   * "Check after scrolling", on the after-interaction limit only
+   * (lib/scroll-check-entry.ts). Absent on every other report and limit.
+   */
+  entry?: ScrollCheckEntry;
 };
 
 export type ReportVisitSummary = {
@@ -163,6 +170,12 @@ export function buildReportVisitSummary(input: {
   findings: readonly { id: string }[];
   /** The arm the board describes (renderedEvidenceArm). */
   evidenceArm: EvidenceArm | undefined;
+  /**
+   * A fresh result's "Check after scrolling" (lib/scroll-check-entry.ts),
+   * offered on the after-interaction limit; null or absent on every other
+   * report, the printable route's included.
+   */
+  scrollCheckEntry?: ScrollCheckEntry | null;
 }): ReportVisitSummary {
   const { view, facts } = input;
   const comparison = view.reportType === "comparison" && view.runs.length === 2 && view.comparison !== null;
@@ -183,7 +196,7 @@ export function buildReportVisitSummary(input: {
       { term: "Outcome", text: outcomeText(arms, comparison) }
     ],
     limitsTitle: comparison ? "What these visits could not see" : "What this visit could not see",
-    limits: limits(arms, comparison, input.findings, input.evidenceArm)
+    limits: limits(arms, comparison, input.findings, input.evidenceArm, input.scrollCheckEntry ?? null)
   };
 }
 
@@ -514,7 +527,8 @@ function limits(
   arms: readonly ArmRun[],
   comparison: boolean,
   findings: readonly { id: string }[],
-  evidenceArm: EvidenceArm | undefined
+  evidenceArm: EvidenceArm | undefined,
+  scrollCheckEntry: ScrollCheckEntry | null
 ): ReportVisitLimit[] {
   const out: ReportVisitLimit[] = [];
   const policyRead = arms.some((arm) => arm.run.warnings.some((warning) => POLICY_READ_DISCLOSURE.test(warning)));
@@ -545,17 +559,21 @@ function limits(
   }
   const lowerBound = (clause: string) =>
     everyRunCarries(arms, (warning) => warning.startsWith(LOWER_BOUND_SENTENCE_START) && warning.includes(clause));
+  // A fresh result's check answers this limit, so it sits on it.
+  const entry = scrollCheckEntry ? { entry: scrollCheckEntry } : {};
   if (lowerBound(AFTER_INTERACTION_CLAUSE)) {
     out.push({
       id: "after-interaction",
       lead: "Anything that loads only after interaction or consent.",
-      body: [{ text: "Trackers that load that late are not observed, so counts are a lower bound." }]
+      body: [{ text: "Trackers that load that late are not observed, so counts are a lower bound." }],
+      ...entry
     });
   } else if (lowerBound(AFTER_FURTHER_INTERACTION_CLAUSE)) {
     out.push({
       id: "after-interaction",
       lead: "Anything that loads only after further interaction.",
-      body: [{ text: "Trackers that load that late are not observed, so counts are a lower bound." }]
+      body: [{ text: "Trackers that load that late are not observed, so counts are a lower bound." }],
+      ...entry
     });
   }
   if (everyRunCarries(arms, (warning) => warning.includes(CATALOG_BIAS_CLAUSE))) {

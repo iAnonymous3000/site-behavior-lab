@@ -49,6 +49,17 @@ const FIXTURE_BODY = `<body>
         <h2>Which scripts asked for https://pixel.example.net/… in this new visit</h2>
         <ul class="connection-inspection-lines"><li>2 requests. Scripts on the call stack, innermost first: cdn.example.net.</li></ul>
       </section>
+      <div class="report-visit-summary">
+        <div class="report-visit-limits">
+          <h3 class="report-visit-heading">What this visit could not see</h3>
+          <ul><li id="visitlimit"><strong>Anything that loads only after interaction or consent.</strong> Trackers that load that late are not observed, so counts are a lower bound.
+            <span class="report-visit-entry" id="visitentry">
+              <a class="finding-look-closer-link" href="/#scan?url=https%3A%2F%2Fwww.example.com%2F&amp;check=scroll">Check after scrolling</a>
+              <span class="report-visit-entry-sentence">Opens the scan form ready for a new visit.</span>
+            </span>
+          </li></ul>
+        </div>
+      </div>
       <article class="finding-card tile-warn">
         <div><h3>Third-party cookies were present</h3><p id="findinglead">12 third-party cookies showed up during the visit.</p>
           <div class="finding-look-closer" id="lookcloser">
@@ -138,6 +149,8 @@ const PROBED_IDS = [
   "activationactions",
   "earlierresult",
   "inspectionpanel",
+  "visitlimit",
+  "visitentry",
   "findinglead",
   "lookcloser",
   "loader",
@@ -217,6 +230,8 @@ test("evidence and its qualifications survive onto paper", () => {
   assert.equal(visible.maplist, true, "the attribution map relationship list must print");
   // A findings card's own statements, beside the view that hides.
   assert.equal(visible.findinglead, true, "a findings card's statement must print");
+  // What the visit could not see, beside the new visit that hides.
+  assert.equal(visible.visitlimit, true, "a visit summary's limit must print");
   // The digest and the standing scope caveat.
   assert.equal(visible.printfooter, true, "the evidence footer must print");
   assert.equal(visible.caveat, true, "the standing scope caveat must print");
@@ -245,6 +260,9 @@ test("controls and screen-reader scaffolding stay off paper", () => {
   // A view opens rows, a card or a history page on screen; paper can follow
   // none of them, and the printable route renders none.
   assert.equal(visible.lookcloser, false, "a findings card's Look closer view is navigation, not evidence");
+  // A fresh result's "Check after scrolling" opens a new visit, and the
+  // printable route renders none.
+  assert.equal(visible.visitentry, false, "a visit summary's Check after scrolling is navigation, not evidence");
   // The homepage prints its result region too; the link back to an earlier
   // result is a link to follow, and it is never part of a report.
   assert.equal(visible.earlierresult, false, "a homepage result's link back to the earlier result is navigation, not evidence");

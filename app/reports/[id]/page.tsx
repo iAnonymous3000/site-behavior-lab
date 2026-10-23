@@ -16,6 +16,7 @@ import { reportNewVisitFrom, reportNewVisitTarget } from "@/lib/report-rescan-ta
 import { siteHistoryLookCloserHref } from "@/lib/report-site-history";
 import { readStoredReportForId } from "@/lib/report-source";
 import { buildReportVisitSummary } from "@/lib/report-visit-summary";
+import { scrollCheckEntry } from "@/lib/scroll-check-entry";
 import { requireFreshRuntimeReportRequest } from "@/lib/report-route-freshness";
 import { correctionMetadataDescription, reportMetadataDescription, reportMetadataTitle } from "@/lib/seo-metadata";
 import { toReportView } from "@/lib/scan-report-views";
@@ -126,12 +127,29 @@ export default async function SavedReportPage({ params }: { params: Promise<{ id
   const headline = buildReportHeadline(view, facts);
   const evidenceArm = renderedEvidenceArm(view, headline);
   const findings = buildFindings(view, await loadCommittedCorpusStats(), facts, evidenceArm);
+  // A runtime share is a live scan's fresh result, the only report whose
+  // cards may offer a new visit; a committed report's site already holds the
+  // corpus evidence. The summary board and the explorer read the same value,
+  // so both boards offer the same follow-ups, each naming this share.
+  const freshResult = result.origin === "share-store";
+  const newVisitTarget = reportNewVisitTarget(view, freshResult);
+  const newVisitFrom = reportNewVisitFrom(view, freshResult);
   // What was checked and what the visit could not see, for the board to render
   // directly after its bottom line. Built once, from the cards the board shows,
   // and handed to both the summary and the explorer, so it stays in place when
-  // the explorer replaces the summary.
+  // the explorer replaces the summary. A fresh result's also offers "Check
+  // after scrolling" on its after-interaction limit, for the same page and
+  // share as the board's other follow-ups.
   const visitSummary = (
-    <ReportVisitSummaryBlock summary={buildReportVisitSummary({ view, facts, findings, evidenceArm })} />
+    <ReportVisitSummaryBlock
+      summary={buildReportVisitSummary({
+        view,
+        facts,
+        findings,
+        evidenceArm,
+        scrollCheckEntry: scrollCheckEntry({ view, facts, newVisitTarget, newVisitFrom, basePath: sitePagesBasePath() })
+      })}
+    />
   );
   // The cookie card's Look closer view opens this site's history, offered only
   // where that page lists another report for the site. Counting them reads the
@@ -143,13 +161,6 @@ export default async function SavedReportPage({ params }: { params: Promise<{ id
   const siteHistoryHref = STATIC_EXPORT
     ? await siteHistoryLookCloserHref({ id, view, committed: result.origin === "committed" })
     : null;
-  // A runtime share is a live scan's fresh result, the only report whose
-  // cards may offer a new visit; a committed report's site already holds the
-  // corpus evidence. The summary board and the explorer read the same value,
-  // so both boards offer the same follow-ups, each naming this share.
-  const freshResult = result.origin === "share-store";
-  const newVisitTarget = reportNewVisitTarget(view, freshResult);
-  const newVisitFrom = reportNewVisitFrom(view, freshResult);
   const correction = reportCorrections(correctionsLedger, id);
   const reportUrl = publicReportUrl(id);
   const jsonUrl = STATIC_EXPORT ? `${siteBaseUrl()}/reports/${id}.json` : `${siteOrigin()}/api/reports/${id}`;

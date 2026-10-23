@@ -232,11 +232,13 @@ test("Inspect this connection keeps the public-suffix list and the recorder out 
     ["./connection-inspection-address", "./connection-inspection-copy", "./scan-prefill", "./types"]
   );
   assert.ok(/^type\s/.test(linkImports.find((entry) => entry.from === "./types")?.clause ?? ""), "the minter imports the row only as a type");
-  // The prefill parser checks an address by its shape only.
+  // The prefill parser checks an address by its shape only, and a check by
+  // the request contract's one value, which imports nothing.
   assert.deepEqual(
     importsOf(read("lib", "scan-prefill.ts")).map((entry) => entry.from).sort(),
-    ["./connection-inspection-address", "./report-validation", "./run-mode-copy"]
+    ["./connection-inspection-address", "./report-validation", "./run-mode-copy", "./scroll-check-request"]
   );
+  assert.deepEqual(importsOf(read("lib", "scroll-check-request.ts")), []);
   // No client entry point or component reaches the recorder, which holds the
   // raw stacks and imports the redaction pass with its public-suffix list.
   for (const parts of [

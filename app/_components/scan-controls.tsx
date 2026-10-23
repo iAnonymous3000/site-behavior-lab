@@ -28,6 +28,7 @@ import { selectTurnstileWidgetSize, type TurnstileWidgetSize } from "@/lib/turns
 import type { HomepageKnownSite } from "@/lib/homepage-discovery";
 import {
   inspectionFormSentences,
+  scrollCheckFormSentences,
   isScanAgainArrival,
   knownEvidenceDifference,
   knownEvidenceReport,
@@ -100,6 +101,12 @@ type ScanControlsProps = {
    * page the link put there and no comparison is selected.
    */
   inspectedAddress: string | null;
+  /**
+   * Whether a "Check after scrolling" link's arrival holds
+   * (connectedScrollCheck): the field still holds the page the link put
+   * there and no comparison is selected.
+   */
+  checkingAfterScrolling: boolean;
   /** The scanner's own share retention in days, from its health; null states no number. */
   shareReportMaxAgeDays: number | null;
   /** Server-rendered statement of what a scan does to the page, shown under the URL field. */
@@ -171,6 +178,7 @@ export function ScanControls({
   prefilledUrl,
   prefilledMode,
   inspectedAddress,
+  checkingAfterScrolling,
   shareReportMaxAgeDays,
   disclosure
 }: ScanControlsProps) {
@@ -191,6 +199,9 @@ export function ScanControls({
   // An inspection link's arrival names the address and the page before the
   // visitor presses Inspect, which runs one ordinary single visit.
   const inspection = inspectedAddress ? inspectionFormSentences({ address: inspectedAddress, page: form.url }) : null;
+  // A check link's arrival names the page and what the visit does before the
+  // visitor presses Check, which runs one single visit and then the check.
+  const scrollCheckLine = checkingAfterScrolling ? scrollCheckFormSentences(form.url) : null;
   // A link that asked for a comparison says, before Compare, what the
   // comparison makes: two visits and a separate share report. A corpus site's
   // note above already says so, with the site's history.
@@ -214,7 +225,9 @@ export function ScanControls({
   const [turnstileError, setTurnstileError] = useState<string | null>(null);
 
   return (
-    <form className="scan-panel" onSubmit={onSubmit}>
+    // While a check arrival holds, the server-rendered disclosure under the
+    // field shows the check's own first sentence (app/_components/scan-disclosure.tsx).
+    <form className="scan-panel" onSubmit={onSubmit} data-scroll-check={scrollCheckLine ? "" : undefined}>
       <label className="url-label" htmlFor="url">
         Public URL
       </label>
@@ -243,13 +256,16 @@ export function ScanControls({
           type="submit"
           disabled={loading || scanBlocked || activeScanJob}
           aria-describedby={
-            [inspection ? "inspection-arrival" : null, knownSite ? "known-evidence-difference" : modeLinkShareLine ? "mode-link-share-line" : null]
+            [
+              inspection ? "inspection-arrival" : scrollCheckLine ? "scroll-check-arrival" : null,
+              knownSite ? "known-evidence-difference" : modeLinkShareLine ? "mode-link-share-line" : null
+            ]
               .filter(Boolean)
               .join(" ") || undefined
           }
         >
           {loading ? <Loader2 className="spin" size={18} aria-hidden="true" /> : <Search size={18} aria-hidden="true" />}
-          {scanSubmitLabel({ comparison, leadsWithReport, inspecting: inspection !== null })}
+          {scanSubmitLabel({ comparison, leadsWithReport, inspecting: inspection !== null, checking: scrollCheckLine !== null })}
         </button>
       </div>
 
@@ -258,6 +274,11 @@ export function ScanControls({
       {inspection && (
         <div className="inspection-arrival" role="status">
           <p id="inspection-arrival">{`${inspection.inspecting} ${inspection.visit}`}</p>
+        </div>
+      )}
+      {scrollCheckLine && (
+        <div className="scroll-check-arrival" role="status">
+          <p id="scroll-check-arrival">{scrollCheckLine}</p>
         </div>
       )}
       {disclosure}

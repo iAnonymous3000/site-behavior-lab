@@ -106,6 +106,38 @@ export function inspectionFormSentences(input: { address: string; page: string }
 }
 
 /**
+ * The after-scrolling check a scan link asked for (`check=scroll`), for as
+ * long as that arrival lasts by the same rule as an inspection's: the field
+ * still holds exactly the address the link put there and no comparison is
+ * selected, since a check is always a single visit. Editing the address or
+ * picking a comparison ends it, and putting both back restores it. A scan
+ * that starts while it holds is a check of that page, connected to the
+ * result the link named, if any; otherwise null, and the scan is an ordinary
+ * one.
+ */
+export function connectedScrollCheck(input: {
+  prefilledUrl: string | null;
+  prefilledCheck: boolean;
+  prefilledFrom: string | null;
+  fieldValue: string;
+  /** Whether the scan request would ask for any comparison: offered and selected. */
+  comparison: boolean;
+}): { from: string | null } | null {
+  if (!input.prefilledCheck || input.comparison) return null;
+  if (!isScanAgainArrival(input.prefilledUrl, input.fieldValue)) return null;
+  return { from: input.prefilledFrom };
+}
+
+/**
+ * What the scan form says while a check arrival holds (owner's approval,
+ * 2026-10-23): which page, what the visit does, that nothing it finds is
+ * saved, and how long it takes. The page is shown as a report shows it.
+ */
+export function scrollCheckFormSentences(page: string): string {
+  return `Checking after scrolling. A new visit to ${displayPublicUrl(page)} runs as a single scan, lets the page settle, watches it for 10 seconds without input, then scrolls down up to 8 screens. What it finds shows here only and is not saved. It takes about a minute.`;
+}
+
+/**
  * Whether the form leads with the existing report: a site matched, the visitor
  * did not ask to scan again, and no scan is loading or retained. While one is,
  * the submit button is exactly the usual one.
@@ -120,11 +152,18 @@ export function leadsWithExistingReport(input: {
 
 /**
  * The one submit button's label. Without a lead report it is the usual "Scan"
- * or "Compare", and "Inspect" while an inspection arrival holds, which never
- * leads with a report, since that arrival is a scan-again arrival too.
+ * or "Compare", "Inspect" while an inspection arrival holds and "Check" while
+ * a check arrival holds, neither of which leads with a report, since each is
+ * a scan-again arrival too.
  */
-export function scanSubmitLabel(input: { comparison: boolean; leadsWithReport: boolean; inspecting?: boolean }): string {
+export function scanSubmitLabel(input: {
+  comparison: boolean;
+  leadsWithReport: boolean;
+  inspecting?: boolean;
+  checking?: boolean;
+}): string {
   if (input.inspecting) return "Inspect";
+  if (input.checking) return "Check";
   if (input.leadsWithReport) return input.comparison ? "Compare now" : "Check now";
   return input.comparison ? "Compare" : "Scan";
 }

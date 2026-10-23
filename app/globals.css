@@ -886,9 +886,11 @@ a {
 }
 
 /* After an "Inspect this connection" link, which address and which page,
-   before Inspect. Framed like the known-site note, with no signal colour,
-   since it reports nothing yet. */
-.inspection-arrival {
+   before Inspect, and after a "Check after scrolling" link, which page and
+   what the check does, before Check. Framed like the known-site note, with
+   no signal colour, since neither reports anything yet. */
+.inspection-arrival,
+.scroll-check-arrival {
   background: var(--surface-2);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
@@ -900,7 +902,8 @@ a {
   padding: 9px 11px;
 }
 
-.inspection-arrival p {
+.inspection-arrival p,
+.scroll-check-arrival p {
   margin: 0;
   max-width: 78ch;
 }
@@ -1128,6 +1131,21 @@ a {
 
 .scan-disclosure p {
   margin: 0;
+}
+
+/* While a "Check after scrolling" arrival holds, the disclosure's first
+   sentence is the check's own (lib/scan-disclosure.ts). Without that arrival,
+   and without JavaScript, it is the single scan's. */
+.scan-disclosure-check-visit {
+  display: none;
+}
+
+.scan-panel[data-scroll-check] .scan-disclosure-visit {
+  display: none;
+}
+
+.scan-panel[data-scroll-check] .scan-disclosure-check-visit {
+  display: inline;
 }
 
 .scanner-health-retry {
@@ -2850,6 +2868,21 @@ a {
   gap: 5px;
   margin: 0;
   padding-left: 18px;
+}
+
+/* A fresh result's "Check after scrolling", under the limit it answers: the
+   link to follow and the sentence that says what it opens, set on their own
+   lines like a card's Look closer view. Hidden on paper. */
+.report-visit-entry {
+  display: grid;
+  gap: 2px;
+  justify-items: start;
+  margin-top: 4px;
+}
+
+.report-visit-entry-sentence {
+  color: var(--text-muted);
+  font-size: 12.5px;
 }
 
 /* The tone's shape channel, so severity is not hue alone. */
@@ -5674,6 +5707,8 @@ details[open] > summary .disclosure-chevron {
   .report-identity-actions,
   /* A findings card's Look closer view is a link to follow, not evidence. */
   .finding-look-closer,
+  /* So is a fresh result's "Check after scrolling" in its visit summary. */
+  .report-visit-entry,
   /* So is a homepage result's link back to the earlier result. */
   .earlier-result-note,
   /* And a request row's link to inspect its connection. */

@@ -129,6 +129,7 @@ export function SiteBehaviorApp({
     prefilledUrl,
     prefilledMode,
     inspectionArrival,
+    scrollCheckArrival,
     clearUrlNotice,
     policy,
     scannerStatus,
@@ -332,6 +333,7 @@ export function SiteBehaviorApp({
       shareReportMaxAgeDays={shareReportMaxAgeDays}
       prefilledMode={prefilledMode}
       inspectedAddress={inspectionArrival?.address ?? null}
+      checkingAfterScrolling={scrollCheckArrival !== null}
       disclosure={scanDisclosure}
     />
   );

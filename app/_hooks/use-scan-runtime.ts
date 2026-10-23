@@ -13,7 +13,8 @@ import {
 } from "../client-runtime";
 import { INSPECTION_DURABLE_REFUSAL } from "@/lib/connection-inspection-address";
 import { shownConnectionInspection, type ShownConnectionInspection } from "@/lib/connection-inspection-result";
-import { connectedEarlierResult, connectedInspection } from "@/lib/known-site-evidence";
+import { connectedEarlierResult, connectedInspection, connectedScrollCheck } from "@/lib/known-site-evidence";
+import { SCROLL_CHECK_DURABLE_REFUSAL } from "@/lib/scroll-check-request";
 import type { ComparisonRunMode } from "@/lib/run-mode-copy";
 import { heldRunModeOutcome, normalizeScanUrl, resolveScanPrefillNavigation } from "@/lib/scan-prefill";
 import {
@@ -144,6 +145,10 @@ export function useScanRuntime({
   // for the arrival beside the address. It reaches the scan request only
   // while that arrival holds (connectedInspection).
   const [prefilledInspect, setPrefilledInspect] = useState<string | null>(null);
+  // Whether a "Check after scrolling" link asked for the check, kept for the
+  // arrival beside the address. It reaches the scan request only while that
+  // arrival holds (connectedScrollCheck).
+  const [prefilledCheck, setPrefilledCheck] = useState(false);
 
   useEffect(() => {
     if (reportPage) return;
@@ -173,21 +178,24 @@ export function useScanRuntime({
       }
 
       if (navigation.targetUrl) {
-        // An inspection is always a single visit, so its link selects Single,
-        // as a mode link's fallback does; nothing is submitted.
+        // An inspection and a check are each always a single visit, so their
+        // links select Single, as a mode link's fallback does; nothing is
+        // submitted.
         const inspect = navigation.inspect;
+        const check = navigation.check !== null;
         setForm((current) => ({
           ...current,
           url: navigation.targetUrl ?? current.url,
-          ...(inspect === null ? {} : { compareGpc: false, compareShields: false, compareConsent: false })
+          ...(inspect === null && !check ? {} : { compareGpc: false, compareShields: false, compareConsent: false })
         }));
         setPrefilledUrl(navigation.targetUrl);
         // A link with only a target leaves the run control as it is, and
-        // drops any mode or inspection an earlier link asked for and the form
-        // still holds, and any earlier result it named.
+        // drops any mode, inspection or check an earlier link asked for and
+        // the form still holds, and any earlier result it named.
         setPrefilledMode(navigation.mode);
         setHeldMode(navigation.mode);
         setPrefilledInspect(inspect);
+        setPrefilledCheck(check);
         setPrefilledFrom(navigation.from);
       }
       if (navigation.scrollToScan) document.getElementById("scan")?.scrollIntoView();
@@ -399,6 +407,17 @@ export function useScanRuntime({
   const inspectionArrival = connectedInspection({
     prefilledUrl,
     prefilledInspect,
+    prefilledFrom,
+    fieldValue: form.url,
+    comparison:
+      (policy.gpcComparisonEnabled && form.compareGpc) ||
+      (policy.shieldsComparisonEnabled && form.compareShields) ||
+      (policy.consentComparisonEnabled && form.compareConsent)
+  });
+  // The check a scan link asked for, while its arrival holds, by the same rule.
+  const scrollCheckArrival = connectedScrollCheck({
+    prefilledUrl,
+    prefilledCheck,
     prefilledFrom,
     fieldValue: form.url,
     comparison:
@@ -697,6 +716,10 @@ export function useScanRuntime({
       setError(INSPECTION_DURABLE_REFUSAL);
       return;
     }
+    if (scrollCheckArrival && policy.durableAdmissionEnabled) {
+      setError(SCROLL_CHECK_DURABLE_REFUSAL);
+      return;
+    }
 
     const operation = operationOwnerRef.current.claim("submit");
     if (operation === null) return;
@@ -745,7 +768,8 @@ export function useScanRuntime({
         onProgress: (progress) => {
           if (operationOwnerRef.current.owns(operation)) setActiveScanProgress(progress);
         },
-        ...(inspectionArrival ? { inspect: inspectionArrival.address } : {})
+        ...(inspectionArrival ? { inspect: inspectionArrival.address } : {}),
+        ...(scrollCheckArrival ? { scrollCheck: true } : {})
       });
       assertClientOperationOwner(operationOwnerRef.current, operation);
       showLiveScanResult(nextLoaded, inspectionArrival);
@@ -1029,6 +1053,9 @@ export function useScanRuntime({
     // The inspection the form shows and the next submit asks for, while a
     // scan link's inspection arrival holds.
     inspectionArrival,
+    // The check the form shows and the next submit asks for, while a scan
+    // link's check arrival holds.
+    scrollCheckArrival,
     clearUrlNotice: () => {
       setUrlNotice("");
       setUrlError("");

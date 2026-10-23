@@ -6,8 +6,9 @@ import { clientImportTrails } from "./client-import-graph";
 import { consentChoiceLabel } from "./consent-interaction";
 import { publicStringPolicyInputs, redactScanResultV1 } from "./redact-scan-report-v1";
 import { RUN_MODE_TITLES } from "./run-mode-copy";
-import { SCAN_DISCLOSURE } from "./scan-disclosure";
+import { SCAN_DISCLOSURE, SCAN_DISCLOSURE_VISIT, SCAN_DISCLOSURE_VISIT_REST, SCROLL_CHECK_DISCLOSURE_VISIT } from "./scan-disclosure";
 import { makeScanReportV1 } from "./scan-report-v2-fixtures";
+import { MAX_SCROLL_CHECK_SCREENS } from "./scroll-check-evidence";
 import type { ScanResult } from "./types";
 
 /**
@@ -73,6 +74,32 @@ test("the disclosure reads plainly", () => {
   }
 });
 
+test("a check arrival's disclosure says what a check is, and only its first sentence differs", () => {
+  // The single scan's paragraph is the same text it was, split in two.
+  assert.equal(SCAN_DISCLOSURE[0], `${SCAN_DISCLOSURE_VISIT} ${SCAN_DISCLOSURE_VISIT_REST}`);
+  assert.equal(
+    SCAN_DISCLOSURE[0],
+    "A single scan is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking or consent interaction. Each visit types a made-up test value into form fields, never submitting the form, and reads the site's privacy policy when it finds one."
+  );
+  // The approved sentence (owner, 2026-10-23), restating the scanner's own
+  // visit description and the check's screen limit.
+  assert.equal(
+    SCROLL_CHECK_DISCLOSURE_VISIT,
+    "A check is one automated, headless Chromium visit from a fixed en-US / UTC profile: a single scan, then up to 8 screens of scrolling, with no clicking."
+  );
+  assert.ok(SCROLL_CHECK_DISCLOSURE_VISIT.includes("one automated, headless Chromium visit from a fixed en-US / UTC profile"));
+  assert.ok(SCROLL_CHECK_DISCLOSURE_VISIT.includes(`up to ${MAX_SCROLL_CHECK_SCREENS} screens of scrolling`));
+  assert.ok((SCROLL_CHECK_DISCLOSURE_VISIT.match(/\S+/g) ?? []).length <= 30);
+  assert.doesNotMatch(SCROLL_CHECK_DISCLOSURE_VISIT, new RegExp(`[${String.fromCharCode(0x2013)}${String.fromCharCode(0x2014)}]`));
+  // The page shows the single scan's sentence unless the form marks a check
+  // arrival, so a page without JavaScript never says it scrolls.
+  const css = source("app/globals.css");
+  assert.match(css, /\n\.scan-disclosure-check-visit \{\s*display: none;\s*\}/);
+  assert.match(css, /\n\.scan-panel\[data-scroll-check\] \.scan-disclosure-visit \{\s*display: none;\s*\}/);
+  assert.match(css, /\n\.scan-panel\[data-scroll-check\] \.scan-disclosure-check-visit \{\s*display: inline;\s*\}/);
+  assert.equal(css.match(/scan-disclosure-(?:check-)?visit/g)?.length, 3, "nothing else styles either sentence");
+});
+
 test("the homepage renders the disclosure on the server, under the URL field", () => {
   const page = source("app/page.tsx");
   assert.match(page, /import \{ ScanDisclosure \} from "\.\/_components\/scan-disclosure";/);
@@ -83,7 +110,12 @@ test("the homepage renders the disclosure on the server, under the URL field", (
   const disclosure = controls.indexOf("{disclosure}");
   const examples = controls.indexOf("{knownSite ? (");
   assert.ok(field !== -1 && disclosure > field && disclosure < examples, "the disclosure sits under the URL field, before the examples");
-  assert.match(source("app/_components/scan-disclosure.tsx"), /\{SCAN_DISCLOSURE\.map\(/);
+  // The first paragraph renders both first sentences, then the rest of it;
+  // every other paragraph renders as it is.
+  assert.match(
+    source("app/_components/scan-disclosure.tsx"),
+    /const \[, \.\.\.others\] = SCAN_DISCLOSURE;[\s\S]*?<p>\s*<span className="scan-disclosure-visit">\{SCAN_DISCLOSURE_VISIT\}<\/span>\s*<span className="scan-disclosure-check-visit">\{SCROLL_CHECK_DISCLOSURE_VISIT\}<\/span>\{" "\}\s*\{SCAN_DISCLOSURE_VISIT_REST\}\s*<\/p>\s*\{others\.map\(/
+  );
   // Server-only: as markup it costs HTML, not homepage JavaScript.
   for (const module of ["lib/scan-disclosure.ts", "app/_components/scan-disclosure.tsx"]) {
     assert.deepEqual(clientImportTrails(module), [], `${module} must not reach a client bundle`);
