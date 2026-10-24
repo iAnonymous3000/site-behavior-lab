@@ -9,6 +9,17 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- The scan form no longer tells a check after scrolling that it makes a share
+  report. On a site that already has reports, the note under the form kept
+  its usual line during a check, "A new check runs one visit in the selected
+  mode and makes a separate share report, kept for up to about 7 days. It is
+  not added to this site's history: ...", beside the check's own "What it
+  finds shows here only and is not saved."; a check saves nothing, so the
+  line now reads "A check after scrolling runs one visit and saves nothing,
+  so it makes no share report and is never added to this site's history."
+  while the check's arrival holds, and returns to the usual line once an
+  edit or a comparison ends it. Found by following the entry on the live
+  site at d098bba0; the static smoke now reads the note during a check.
 - The privacy-policy reader fetches a direct PDF policy with undici 8.12.3
   (from 8.11.2), as node-detectors-v20. 8.12.2 patches CVE-2026-109869
   (GHSA-xjj6-f33q-929c, high: an unhandled error on a response with

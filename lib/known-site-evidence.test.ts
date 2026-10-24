@@ -16,6 +16,7 @@ import {
   matchingKnownSite,
   newCheckSentence,
   scanSubmitLabel,
+  SCROLL_CHECK_KNOWN_EVIDENCE_DIFFERENCE,
   scrollCheckFormSentences,
   shareRetentionClause,
   showsModeLinkShareLine
@@ -105,6 +106,25 @@ test("the share retention is the scanner's own, and with no usable value no numb
   const none = differenceFor(null);
   assert.match(none, /, kept for a limited time\. /);
   assert.doesNotMatch(none, /\d/);
+});
+
+test("while a check after scrolling's arrival holds, the difference line says the check saves nothing", () => {
+  assert.equal(
+    SCROLL_CHECK_KNOWN_EVIDENCE_DIFFERENCE,
+    "A check after scrolling runs one visit and saves nothing, so it makes no share report and is never added to this site's history."
+  );
+  for (const maxAgeDays of [7, 1, null]) {
+    const line = knownEvidenceDifference({ comparison: false, maxAgeDays, checking: true });
+    assert.equal(line, SCROLL_CHECK_KNOWN_EVIDENCE_DIFFERENCE);
+    // Nothing a check never does: no separate share, no retention, no rescan.
+    assert.doesNotMatch(line, /separate share|kept for|standalone|rescan/);
+    assert.ok(line.split(/\s+/).length <= 30, "at most 30 words");
+  }
+  // Without the arrival the note is the ordinary one.
+  assert.equal(
+    knownEvidenceDifference({ comparison: false, maxAgeDays: 7, checking: false }),
+    knownEvidenceDifference({ comparison: false, maxAgeDays: 7 })
+  );
 });
 
 test("the retention clause says up to about N days, in days, and nothing more precise than that", () => {
@@ -411,6 +431,11 @@ test("the form wires the note, the one submit button and the arrival as the copy
     controls,
     /\{scanSubmitLabel\(\{ comparison, leadsWithReport, inspecting: inspection !== null, checking: scrollCheckLine !== null \}\)\}/,
     "the button's label comes from the copy module"
+  );
+  holds(
+    controls,
+    /<p id="known-evidence-difference">\s*\{knownEvidenceDifference\(\{ comparison, maxAgeDays: shareReportMaxAgeDays, checking: scrollCheckLine !== null \}\)\}\s*<\/p>/,
+    "the difference line follows a check's arrival"
   );
   // A check arrival's line comes from the copy module, for the page in the
   // field, while the hook's arrival rule holds; it renders in a status region

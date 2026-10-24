@@ -303,7 +303,7 @@ export function ScanControls({
           </div>
           <p>{knownEvidenceReport(knownSite)}</p>
           <p id="known-evidence-difference">
-            {knownEvidenceDifference({ comparison, maxAgeDays: shareReportMaxAgeDays })}
+            {knownEvidenceDifference({ comparison, maxAgeDays: shareReportMaxAgeDays, checking: scrollCheckLine !== null })}
           </p>
         </div>
       ) : (

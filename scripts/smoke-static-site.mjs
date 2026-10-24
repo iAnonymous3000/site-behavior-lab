@@ -3087,6 +3087,16 @@ async function assertScrollCheckOnlyFromItsLink(browser, baseUrl, manifest) {
       fail(`a check's disclosure shows ${JSON.stringify(await disclosure())}, not the check's first sentence alone`);
     }
     await expectText(page.locator(".scan-panel .scan-disclosure-check-visit"), "A check is one automated, headless Chromium visit from a fixed en-US / UTC profile: a single scan, then up to 8 screens of scrolling, with no clicking.");
+    // The page's site already has reports, so its note stands beside the
+    // form; during a check it says the check saves nothing, never the share
+    // report a scan makes.
+    const knownDifference = page.locator(".scan-panel #known-evidence-difference");
+    const checkDifference =
+      "A check after scrolling runs one visit and saves nothing, so it makes no share report and is never added to this site's history.";
+    if ((await knownDifference.count()) !== 1) fail(`${report.domain} shows no known-evidence note beside the check`);
+    if ((await knownDifference.textContent())?.trim() !== checkDifference) {
+      fail(`the known-evidence note beside a check reads ${await knownDifference.textContent()}`);
+    }
     const arrival = await page.evaluate(() => {
       const field = document.getElementById("url")?.getBoundingClientRect();
       const line = document.querySelector(".scroll-check-arrival")?.getBoundingClientRect();
@@ -3105,6 +3115,8 @@ async function assertScrollCheckOnlyFromItsLink(browser, baseUrl, manifest) {
       }
       if ((await submit.textContent())?.trim() === "Check") fail(`the button still reads Check after ${what}`);
       if (JSON.stringify(await disclosure()) !== JSON.stringify({ single: true, check: false })) fail(`${what} left the check's disclosure in place`);
+      const note = (await knownDifference.textContent())?.trim() ?? "";
+      if (note === checkDifference || !note.includes("makes a separate share report")) fail(`${what} left the note reading ${note}`);
     };
     await page.locator("#url").fill(`${target}about/`);
     await ended("an edit");

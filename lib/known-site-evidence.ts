@@ -192,8 +192,17 @@ export function newCheckSentence(input: { comparison: boolean; maxAgeDays: numbe
   );
 }
 
+/**
+ * The same note while a check after scrolling's arrival holds (owner's
+ * approval, 2026-10-24): that visit saves nothing, so the share line and the
+ * history clause would both be false of it.
+ */
+export const SCROLL_CHECK_KNOWN_EVIDENCE_DIFFERENCE =
+  "A check after scrolling runs one visit and saves nothing, so it makes no share report and is never added to this site's history.";
+
 /** What a new check does that reading the existing report does not. */
-export function knownEvidenceDifference(input: { comparison: boolean; maxAgeDays: number | null }): string {
+export function knownEvidenceDifference(input: { comparison: boolean; maxAgeDays: number | null; checking?: boolean }): string {
+  if (input.checking) return SCROLL_CHECK_KNOWN_EVIDENCE_DIFFERENCE;
   return `${newCheckSentence(input)} It is not added to this site's history: ${LIVE_RESCAN_HISTORY_CLAUSE}.`;
 }
 
