@@ -1927,7 +1927,7 @@ test("HTTP-200 robot pages and unavailable subject collectors fail quality and s
       reason: "load-failed"
     });
     assert.deepEqual(measurement.measurement.detectors["privacy-policy"], {
-      version: "policy-text-cross-check@12",
+      version: "policy-text-cross-check@13",
       status: "skipped",
       reason: "load-failed"
     });
@@ -1953,7 +1953,7 @@ test("HTTP-200 robot pages and unavailable subject collectors fail quality and s
     );
     assert.equal(zillow.result.summary.status, 403);
     assert.deepEqual(zillow.measurement.measurement.detectors["privacy-policy"], {
-      version: "policy-text-cross-check@12",
+      version: "policy-text-cross-check@13",
       status: "skipped",
       reason: "load-failed"
     });
@@ -1976,7 +1976,7 @@ test("HTTP-200 robot pages and unavailable subject collectors fail quality and s
       options
     );
     assert.deepEqual(policyCap.measurement.measurement.detectors["privacy-policy"], {
-      version: "policy-text-cross-check@12",
+      version: "policy-text-cross-check@13",
       status: "skipped",
       reason: "evidence-cap-reached"
     });
@@ -2050,7 +2050,7 @@ test("HTTP-200 robot pages and unavailable subject collectors fail quality and s
       reason: "load-failed"
     });
     assert.deepEqual(unavailable.measurement.measurement.detectors["privacy-policy"], {
-      version: "policy-text-cross-check@12",
+      version: "policy-text-cross-check@13",
       status: "skipped",
       reason: "load-failed"
     });
@@ -2188,7 +2188,7 @@ test("the recorded HTTP status is the frozen subject's document after a script r
       reason: "load-failed"
     });
     assert.deepEqual(blocked.measurement.measurement.detectors["privacy-policy"], {
-      version: "policy-text-cross-check@12",
+      version: "policy-text-cross-check@13",
       status: "skipped",
       reason: "load-failed"
     });
@@ -4325,7 +4325,7 @@ test("a direct PDF privacy policy completes through the bounded scan proxy", { t
     assert.ok(result.privacyPolicy, "the PDF policy produced a stored cross-check summary");
     assert.ok((result.privacyPolicy?.policyTextLength ?? 0) >= 500);
     assert.deepEqual(staged!.measurement.detectors["privacy-policy"], {
-      version: "policy-text-cross-check@12",
+      version: "policy-text-cross-check@13",
       status: "complete",
       phaseId: 2
     });
@@ -4392,8 +4392,8 @@ test("a PDF privacy policy link that redirects or is missing cannot crash the pr
 
   try {
     for (const [route, expected] of [
-      ["/", { version: "policy-text-cross-check@12", status: "complete", phaseId: 2 }],
-      ["/missing", { version: "policy-text-cross-check@12", status: "failed", reason: "load-failed", phaseId: 2 }]
+      ["/", { version: "policy-text-cross-check@13", status: "complete", phaseId: 2 }],
+      ["/missing", { version: "policy-text-cross-check@13", status: "failed", reason: "load-failed", phaseId: 2 }]
     ] as const) {
       const { measurement: staged } = await scanSiteWithMeasurement(
         { url: `http://policy-pdf-hop.test${route}`, device: "desktop", gpcEnabled: false, consentMode: "observe" },
@@ -4471,7 +4471,7 @@ test("an HTTPS PDF privacy policy is requested offering HTTP/1.1 alone", { timeo
     assert.ok(offers.length > 0, "the policy fetch never reached the TLS upstream");
     for (const protocols of offers) assert.deepEqual(protocols, ["http/1.1"]);
     assert.deepEqual(staged!.measurement.detectors["privacy-policy"], {
-      version: "policy-text-cross-check@12",
+      version: "policy-text-cross-check@13",
       status: "failed",
       reason: "load-failed",
       phaseId: 2
@@ -4544,7 +4544,7 @@ test("an HTTPS PDF privacy policy completes over HTTP/1.1 through the scan proxy
     );
 
     assert.deepEqual(staged!.measurement.detectors["privacy-policy"], {
-      version: "policy-text-cross-check@12",
+      version: "policy-text-cross-check@13",
       status: "complete",
       phaseId: 2
     });

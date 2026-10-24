@@ -9,6 +9,28 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- The privacy-policy reader fetches a direct PDF policy with undici 8.12.3
+  (from 8.11.2), as node-detectors-v20. 8.12.2 patches CVE-2026-109869
+  (GHSA-xjj6-f33q-929c, high: an unhandled error on a response with
+  excessive content-encodings) and two moderate advisories,
+  GHSA-4qv8-2p9j-2685 (unbounded memory in the EventSource parser) and
+  GHSA-f72v-6w45-q472 (a Subresource Integrity bypass through non-lowercase
+  algorithm tokens), all published after main's last green run at 89432413;
+  main CI's `npm audit` and Trivy (repository and runtime image) then
+  refused every build on 8.11.2, 25a99b95's included, so production stayed
+  on 89432413. The detector moves with the library, as
+  lib/policy-pdf-libraries.test.ts requires since 8cd1e8e2, so no policy read
+  under 8.12.3 shares a version with one under 8.11.2:
+  policy-text-cross-check@13 gets its row there, the registry is
+  node-detectors-v20, the two v24 producer rows (the October 19 list row and
+  the no-list row) close to frozen literals that hash as they ran, and the
+  two v25 rows open with only the cross-check and the registry moved. pdf.js
+  stays at 6.3.289, and the methodology, normalization, lists, toolchain and
+  public strings are unchanged. Beside it, fast-uri moves from 3.1.8 to 3.1.9
+  through a new override (GHSA-w74x-v6f9-j3xg and GHSA-wjr9-j795-jxcr,
+  moderate; GHSA-xhq7-xmqj-769h and GHSA-333x-w4r6-6crp, low); it reaches the
+  lock only through ajv, a development dependency, so the pruned runtime
+  image contains none of it.
 - A check after scrolling whose page as a whole fit the window now says it in
   those words: "The page as a whole fit in the window, so there was nothing
   to scroll; any box inside it that scrolls on its own was not scrolled." The

@@ -24,7 +24,11 @@ const reviewedPolicyPdfLibraries: Readonly<Record<string, { "pdfjs-dist": string
   "policy-text-cross-check@11": { "pdfjs-dist": "6.3.289", undici: "8.11.2" },
   // node-detectors-v19 withholds an HTML read cut short, as a PDF whose text
   // runs past the cap already was, and moved neither library.
-  "policy-text-cross-check@12": { "pdfjs-dist": "6.3.289", undici: "8.11.2" }
+  "policy-text-cross-check@12": { "pdfjs-dist": "6.3.289", undici: "8.11.2" },
+  // node-detectors-v20 moved undici to 8.12.3, the release that patches
+  // CVE-2026-109869 (GHSA-xjj6-f33q-929c) and two moderate advisories, and
+  // left pdf.js where it was.
+  "policy-text-cross-check@13": { "pdfjs-dist": "6.3.289", undici: "8.12.3" }
 };
 
 test("pdf.js and undici move only with the privacy-policy detector's version", () => {

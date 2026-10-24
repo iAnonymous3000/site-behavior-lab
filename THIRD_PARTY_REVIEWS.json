@@ -1684,10 +1684,10 @@
       "notes": null
     },
     {
-      "key": "npm:fast-uri@3.1.8",
+      "key": "npm:fast-uri@3.1.9",
       "ecosystem": "npm",
       "name": "fast-uri",
-      "version": "3.1.8",
+      "version": "3.1.9",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "BSD-3-Clause",
@@ -2216,10 +2216,10 @@
       "notes": null
     },
     {
-      "key": "npm:undici@8.11.2",
+      "key": "npm:undici@8.12.3",
       "ecosystem": "npm",
       "name": "undici",
-      "version": "8.11.2",
+      "version": "8.12.3",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "MIT",

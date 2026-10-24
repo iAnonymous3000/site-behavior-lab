@@ -1629,6 +1629,57 @@ const HISTORICAL_NODE_V18_FIELDS: NodeTupleFields = Object.freeze({
   phaseOmissionContractVersion: "phase-omission-v2",
 });
 
+// Exact node-detectors-v19 producer fields, frozen when node-detectors-v20
+// closed the two v24 rows, the October 19 list row and the no-list row: v18's
+// fields with the registry, the input probe, the CNAME probe and the
+// privacy-policy cross-check that v19 moved.
+const HISTORICAL_NODE_V19_FIELDS: NodeTupleFields = Object.freeze({
+  detectorRegistry: Object.freeze({
+    "version": "node-detectors-v19",
+    "digest": "c6d2528492151bc745e3e6a6248379e979383df6f952f92a95c3e1cdfb52942d"
+  } as const),
+  detectorVersions: Object.freeze({
+    "fingerprint-heuristics": "fingerprint-observer@9",
+    "keystroke-exfiltration": "synthetic-sentinel@6",
+    "cname-uncloaking": "dns-cname-chain@6",
+    "pixel-events": "pixel-request-decoder@6",
+    "consent-banner": "consent-control-and-state@3",
+    "privacy-policy": "policy-text-cross-check@12"
+  } as const),
+  detectorStatusContractVersion: "detector-status-v2",
+  detectorObligations: Object.freeze({
+    "version": "detector-obligations-v2",
+    "digest": "502d149030a4b771031a41ec71760e02d801a569ef0fe9725b01036351b10f2b"
+  } as const),
+  serviceRoleTaxonomy: Object.freeze({
+    "version": "service-role-taxonomy-v1",
+    "digest": "dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67"
+  } as const),
+  trackerCatalog: Object.freeze({
+    "source": "Hand-curated service catalog",
+    "version": "hand-curated-2026.08",
+    "entries": 146,
+    "digest": "e94970de235fc80254de8ed99b94316a252e52aa1c2e748c8fbfc3c093b908f4"
+  } as const),
+  publicLimits: Object.freeze({
+    "phases": 16,
+    "warnings": 64,
+    "requests": 1000,
+    "cookieRecords": 1000,
+    "cookieMutations": 2000,
+    "storageRecords": 1000,
+    "storageMutations": 2000,
+    "fingerprintEvents": 1000,
+    "fingerprintDetections": 256,
+    "cnameCloaks": 256,
+    "pixelEvents": 512,
+    "consentObservations": 32,
+    "policyClaims": 32,
+    "policyEntities": 100
+  } as const),
+  phaseOmissionContractVersion: "phase-omission-v2",
+});
+
 const ACTIVE_DETECTOR_STATUS_CONTRACT_VERSION: DetectorStatusContractVersion =
   isDetectorReasonCode("evidence-cap-reached") ? "detector-status-v2" : "detector-status-v1";
 const ACTIVE_NODE_FIELDS: NodeTupleFields = Object.freeze({
@@ -1666,33 +1717,29 @@ function nodeTuple(
   });
 }
 
-// Closed rows retain their exact literals; the node-detectors-v19 detector
-// epoch defines v24. It moves the privacy-policy cross-check
-// (policy-text-cross-check@12, which withholds a read cut short), the input
-// probe (synthetic-sentinel@6, which names no recipient for a request the
-// Shields engine stopped) and the CNAME probe (dns-cname-chain@6, which
-// follows ten lookups and records a chain it could not finish as a failed
-// lookup) with the registry; the methodology, normalization, lists, toolchain
-// and every other field are unchanged from v23, whose two live rows, the
-// October 19 list row and the no-list row, are closed below in
-// NODE_R2_PRODUCER_TUPLES beside the October 18 list row the October 19 list
-// adoption closed.
+// Closed rows retain their exact literals; the node-detectors-v20 detector
+// epoch defines v25. It moves only the privacy-policy cross-check
+// (policy-text-cross-check@13, which fetches a policy PDF with undici 8.12.3,
+// the release that patches CVE-2026-109869 and two moderate advisories) with
+// the registry; the methodology, normalization, lists, toolchain and every
+// other field are unchanged from v24, whose two live rows, the October 19
+// list row and the no-list row, are closed below in NODE_R2_PRODUCER_TUPLES.
 const ACTIVE_NODE_WIRE_IDENTITY_IS_DISTINCT =
   String(NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION) !== HISTORICAL_NODE_V15_METHODOLOGY ||
   String(NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION) !== HISTORICAL_NODE_V20_NORMALIZATION ||
-  canonicalJson(ACTIVE_NODE_FIELDS) !== canonicalJson(HISTORICAL_NODE_V18_FIELDS);
+  canonicalJson(ACTIVE_NODE_FIELDS) !== canonicalJson(HISTORICAL_NODE_V19_FIELDS);
 
 const ACTIVE_NODE_TUPLES: readonly NodeR2ProducerTuple[] = ACTIVE_NODE_WIRE_IDENTITY_IS_DISTINCT
   ? Object.freeze([
       nodeTuple(
-        "node-v24-detectors-v19-active-lists-2026-10-19",
+        "node-v25-detectors-v20-active-lists-2026-10-19",
         NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION,
         NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION,
         ACTIVE_NODE_FIELDS,
         NODE_R2_CURRENT_ADBLOCK_IDENTITY
       ),
       nodeTuple(
-        "node-v24-detectors-v19-active-no-adblock",
+        "node-v25-detectors-v20-active-no-adblock",
         NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION,
         NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION,
         ACTIVE_NODE_FIELDS,
@@ -2219,6 +2266,18 @@ export const NODE_R2_PRODUCER_TUPLES: readonly NodeR2ProducerTuple[] = Object.fr
   nodeTuple("node-v23-detectors-v18-active-no-adblock",
     HISTORICAL_NODE_V20_NORMALIZATION, HISTORICAL_NODE_V15_METHODOLOGY,
     HISTORICAL_NODE_V18_FIELDS, null
+  ),
+  // The node-detectors-v19 producer, with the October 19 lists and without
+  // lists, closed to its exact source identity by node-detectors-v20: the v15
+  // methodology, the bc719d41 policy digest under tldts 7.4.16,
+  // node-detectors-v19 and adblock-rust 0.13.3.
+  nodeTuple("node-v24-detectors-v19-active-lists-2026-10-19",
+    HISTORICAL_NODE_V20_NORMALIZATION, HISTORICAL_NODE_V15_METHODOLOGY,
+    HISTORICAL_NODE_V19_FIELDS, HISTORICAL_R2_LISTS_2026_10_19_ADBLOCK_0_13_3_IDENTITY
+  ),
+  nodeTuple("node-v24-detectors-v19-active-no-adblock",
+    HISTORICAL_NODE_V20_NORMALIZATION, HISTORICAL_NODE_V15_METHODOLOGY,
+    HISTORICAL_NODE_V19_FIELDS, null
   ),
   ...ACTIVE_NODE_TUPLES
 ]);
