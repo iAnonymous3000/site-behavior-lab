@@ -333,6 +333,7 @@ async function main() {
         await assertInspectionOnlyOnFreshResults(browser, baseUrl, manifest);
         await assertScrollCheckOnlyFromItsLink(browser, baseUrl, manifest);
         await assertScrollCheckStacksSection(browser, baseUrl, manifest);
+        await assertScrollCheckEventsSection(browser, baseUrl, manifest);
       }
     }
 
@@ -3453,6 +3454,203 @@ async function assertScrollCheckStacksSection(browser, baseUrl, manifest) {
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
     if (overflow) fail("the opened call-stack section scrolls the page sideways on a phone");
     pass("on a phone, the call-stack section's summary is a 44 px target, and opened it adds no sideways scroll");
+  } finally {
+    await phone.close();
+  }
+}
+
+/**
+ * A check's analytics events (build brief 2026-10-25): a check whose evidence
+ * carries events shows them in one section, folded by default like the
+ * call-stack section, after the lists and right before how the check ended,
+ * "Analytics events the page sent"; opened, it reads the window without
+ * input's count, the scroll window by destination, the note for an address
+ * on the site itself, the requests not read in full and the caveats, in the
+ * approved words. The same check without its events shows no section, as
+ * every check above, which carries none, shows none. The answer is the
+ * immediate result the real scanner wrote for the serial-lane fixture's page
+ * (lib/scroll-check-events-fixture.test.ts).
+ */
+async function assertScrollCheckEventsSection(browser, baseUrl, manifest) {
+  const { report, wire, page: target } = await findInspectionCandidate(manifest);
+  const checkLink = `${baseUrl}/#scan?url=${encodeURIComponent(target)}&check=scroll&from=${report.id}`;
+  const single = (scrollCheck) => JSON.stringify({
+    schemaVersion: 2,
+    schemaRevision: 2,
+    reportType: "single",
+    run: wire.baseline,
+    ephemeral: { screenshot: null, scrollCheck }
+  });
+  // The check evidence the real scanner wrote for the serial-lane fixture's
+  // page (lib/scroll-check-events-fixture.test.ts pins its events): a timer's
+  // GA4 beacon without input; while scrolling, GA4 batches to the site's own
+  // tagging host, one body past the scanner's cap, and Adobe links.
+  const withEvents = {
+    outcome: "reached-end",
+    screens: 5,
+    control: { hosts: [{ site: "tally.net", hosts: ["collect.tally.net"] }], hostCount: 1, siteCount: 1, requests: 1 },
+    scroll: {
+      hosts: [{ site: "adobeprobe.net", hosts: ["metrics.adobeprobe.net"] }],
+      hostCount: 1,
+      siteCount: 1,
+      requests: 3,
+      knownHostRequests: 1,
+      stacks: [
+        { host: "metrics.adobeprobe.net", requests: 2, groups: [{ count: 1, hosts: ["www.example.com"] }], redirected: 0, withoutStack: 1, withoutNamedScript: 0, notListed: 0, unobserved: 0 }
+      ]
+    },
+    incomplete: [],
+    addressChanged: false,
+    events: {
+      control: {
+        beacons: 1,
+        destinations: [{ format: "GA4", host: "collect.tally.net", ownSite: false, beacons: 1, events: [{ name: "user_engagement", percent: null, count: 1 }], customEvents: 0 }],
+        notDecoded: 0
+      },
+      scroll: {
+        beacons: 5,
+        destinations: [
+          {
+            format: "GA4",
+            host: "{label}.example.com",
+            ownSite: true,
+            beacons: 3,
+            events: [
+              { name: "page_view", percent: null, count: 2 },
+              { name: "scroll", percent: 90, count: 1 },
+              { name: "scroll depth", percent: 20, count: 1 },
+              { name: "scroll depth", percent: 40, count: 1 },
+              { name: "scroll depth", percent: 60, count: 1 }
+            ],
+            customEvents: 1
+          },
+          {
+            format: "Adobe Analytics",
+            host: "metrics.adobeprobe.net",
+            ownSite: false,
+            beacons: 2,
+            events: [
+              { name: "scroll depth", percent: 25, count: 1 },
+              { name: "scroll depth", percent: 50, count: 1 }
+            ],
+            customEvents: 0
+          }
+        ],
+        notDecoded: 1
+      }
+    }
+  };
+  const { events: _events, ...withoutEvents } = withEvents;
+  const expected = [
+    "In 10 seconds without scrolling, the page sent 1 analytics event.",
+    "While scrolling, it sent 9:",
+    "GA4 events to *.example.com, an address on this site: page_view twice, scroll (90%), scroll depth 20%, 40%, 60%, and 1 custom event whose name this check does not show.",
+    "Adobe Analytics events to metrics.adobeprobe.net: scroll depth 25%, 50%.",
+    "An address on this site receives these in GA4's format; the visit cannot see where it passes them on.",
+    "1 request could not be read in full, so some events may be missing.",
+    "Only events in GA4's standard collection format and Adobe Analytics' classic beacons are read; other analytics tools and formats are not.",
+    "Being sent while scrolling does not show that scrolling was the reason, though scroll-depth events are usually sent for it."
+  ];
+  const pressAndAwaitResult = async (page) => {
+    await Promise.all([
+      page.waitForRequest((request) => request.method() === "POST" && new URL(request.url()).pathname === "/api/scan"),
+      page.locator('.scan-panel button[type="submit"]').click()
+    ]);
+    await page.waitForFunction(() => !document.querySelector(".loading-state") && Boolean(document.querySelector("#report .report-header")), null, {
+      timeout: 30_000
+    });
+  };
+  const route = (answers) => async (request) => {
+    const pathname = new URL(request.url()).pathname;
+    const cors = { "access-control-allow-origin": "*" };
+    if (request.method() === "GET" && pathname === "/api/health") {
+      return { status: 200, contentType: "application/json", headers: cors, body: JSON.stringify({ ...scannerFixture, turnstile: false }) };
+    }
+    if (request.method() === "OPTIONS") {
+      return { status: 204, headers: { ...cors, "access-control-allow-methods": "GET, POST",
+        "access-control-allow-headers": request.headers()["access-control-request-headers"] ?? "content-type" } };
+    }
+    const answer = request.method() === "POST" && pathname === "/api/scan" ? answers.shift() : undefined;
+    return answer ? { status: 200, contentType: "application/json", headers: cors, body: answer } : null;
+  };
+  const openContext = async (viewport, answers) => {
+    const context = await browser.newContext({ viewport });
+    const answer = route(answers);
+    await context.route(`${liveScanApiBase}/**`, async (routed) => {
+      const response = await answer(routed.request());
+      return response ? routed.fulfill(response) : routed.abort();
+    });
+    return context;
+  };
+  const checkWith = async (page) => {
+    await page.goto(checkLink, { waitUntil: "networkidle" });
+    await page.locator(".scroll-check-arrival").waitFor({ timeout: 10_000 });
+    await pressAndAwaitResult(page);
+    await page.locator(".scroll-check h2").waitFor();
+  };
+
+  const context = await openContext({ width: 1440, height: 1000 }, [single(withEvents), single(withoutEvents)]);
+  try {
+    const page = await context.newPage();
+    await page.goto(`${baseUrl}/`, { waitUntil: "networkidle" });
+    await page.locator(".run-mode-checking").waitFor({ state: "detached" });
+    await checkWith(page);
+    const section = page.locator(".scroll-check .scroll-check-events");
+    if ((await section.count()) !== 1) fail(`a check whose evidence carries analytics events shows ${await section.count()} event sections`);
+    const arrival = await section.evaluate((element) => ({
+      tag: element.tagName,
+      open: element.open,
+      beforeOutcome: Boolean(element.nextElementSibling?.matches("p.scroll-check-outcome")),
+      afterLists: Boolean(element.parentElement?.querySelector("#scroll-check-scroll")?.compareDocumentPosition(element) & Node.DOCUMENT_POSITION_FOLLOWING),
+      linesShown: [...element.querySelectorAll("li, p")].some((line) => line.checkVisibility())
+    }));
+    if (JSON.stringify(arrival) !== JSON.stringify({ tag: "DETAILS", open: false, beforeOutcome: true, afterLists: true, linesShown: false })) {
+      fail(`the analytics events section arrives as ${JSON.stringify(arrival)}, not folded after the lists and before how the check ended`);
+    }
+    await expectText(section.locator(":scope > summary"), "Analytics events the page sent");
+    await section.locator(":scope > summary").click();
+    if (!(await section.evaluate((element) => element.open))) fail("the analytics events section did not open from its summary");
+    const lines = (await section.locator(":scope > p, :scope > ul > li").allTextContents()).map((line) => line.trim());
+    if (JSON.stringify(lines) !== JSON.stringify(expected)) fail(`the analytics events section reads ${JSON.stringify(lines)}`);
+    const list = await section.evaluate((element) => {
+      const ul = element.querySelector(":scope > ul.scroll-check-event-lines");
+      return ul ? { labelledBy: ul.getAttribute("aria-labelledby"), label: document.getElementById(ul.getAttribute("aria-labelledby") ?? "")?.textContent ?? null } : null;
+    });
+    if (JSON.stringify(list) !== JSON.stringify({ labelledBy: "scroll-check-events-scroll", label: "While scrolling, it sent 9:" })) {
+      fail(`the destination list is labelled as ${JSON.stringify(list)}`);
+    }
+    const axe = await new AxeBuilder({ page })
+      .include(".scroll-check")
+      .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa", "best-practice"])
+      .analyze();
+    const serious = axe.violations.filter((violation) => violation.impact === "critical" || violation.impact === "serious");
+    if (serious.length > 0) fail(`the opened analytics events section has serious accessibility violations: ${serious.map((violation) => violation.id).join(", ")}`);
+    pass("a check whose evidence carries analytics events shows them folded after its lists, and opened they read in the approved words");
+
+    // The same check without its events shows no section.
+    await checkWith(page);
+    if ((await page.locator(".scroll-check .scroll-check-events").count()) !== 0) fail("a check whose evidence carries no analytics events shows an event section");
+    if ((await page.locator(".scroll-check .scroll-check-outcome").count()) !== 1) fail("the check without events lost its outcome line");
+    pass("a check whose evidence carries no analytics events shows no event section");
+  } finally {
+    await context.close();
+  }
+
+  // On a phone, the section opens without scrolling the page sideways, and
+  // its summary keeps a 44 px target.
+  const phone = await openContext({ width: 375, height: 812 }, [single(withEvents)]);
+  try {
+    const page = await phone.newPage();
+    await page.goto(`${baseUrl}/`, { waitUntil: "networkidle" });
+    await page.locator(".run-mode-checking").waitFor({ state: "detached" });
+    await checkWith(page);
+    const summary = page.locator(".scroll-check .scroll-check-events > summary");
+    const height = await summary.evaluate((element) => Math.round(element.getBoundingClientRect().height));
+    if (height < 44) fail(`the analytics events section's summary is a ${height} px target on a phone`);
+    await summary.click();
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
+    if (overflow) fail("the opened analytics events section scrolls the page sideways on a phone");
+    pass("on a phone, the analytics events section's summary is a 44 px target, and opened it adds no sideways scroll");
   } finally {
     await phone.close();
   }

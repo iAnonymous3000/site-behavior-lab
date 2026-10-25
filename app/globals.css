@@ -2856,17 +2856,23 @@ a {
 }
 
 /* Which scripts asked for the hosts first contacted while scrolling: folded
-   by default under the host list it follows, opened by its own summary. */
-.scroll-check-stacks {
+   by default under the host list it follows, opened by its own summary. The
+   analytics events the page sent fold the same way, after the lists. */
+.scroll-check-stacks,
+.scroll-check-events {
   max-width: 100%;
 }
 
 .scroll-check-stacks > ul + p,
-.scroll-check-stacks > p + p {
+.scroll-check-stacks > p + p,
+.scroll-check-events > ul + p,
+.scroll-check-events > p + p,
+.scroll-check-events > p + ul {
   margin-top: 6px;
 }
 
-.scroll-check-stacks > summary {
+.scroll-check-stacks > summary,
+.scroll-check-events > summary {
   color: var(--accent-strong);
   cursor: pointer;
   font-size: 13px;
@@ -2878,14 +2884,16 @@ a {
   width: fit-content;
 }
 
-.scroll-check-stack-lines {
+.scroll-check-stack-lines,
+.scroll-check-event-lines {
   display: grid;
   gap: 4px;
   margin: 0;
   padding-left: 18px;
 }
 
-.scroll-check-stack-lines li {
+.scroll-check-stack-lines li,
+.scroll-check-event-lines li {
   font-size: 13px;
   line-height: 1.5;
   margin: 0;

@@ -23,6 +23,7 @@ import { DETECTOR_VERSIONS } from "./measurement-kernel";
 import { RequestInitiatorIndex } from "./request-initiator";
 import { MAX_INSPECTION_GROUP_HOSTS } from "./connection-inspection-evidence";
 import { MAX_SCROLL_CHECK_SCREENS } from "./scroll-check-evidence";
+import { ANALYTICS_FORMATS } from "./analytics-event-vocabulary";
 
 const root = process.cwd();
 
@@ -661,4 +662,31 @@ test("both entries say a check after scrolling can show call-stack hosts for the
   assert.match(check, /\{ \.\.\.evidence, scroll: \{ \.\.\.evidence\.scroll, stacks: entries \} \}/);
   const evidence = readFileSync(path.join(root, "lib", "scroll-check-evidence.ts"), "utf8");
   assert.match(evidence, /hosts\.length > MAX_INSPECTION_GROUP_HOSTS/);
+});
+
+/**
+ * A check after scrolling can show the GA4 and Adobe Analytics events it saw
+ * its page send, those sent to the site's own collection addresses included,
+ * and only in its immediate result. The below-the-fold entry says so, each
+ * clause pinned to the code that makes it true: the decoder recognizes those
+ * two formats alone, by path and format parameters, never by host; and the
+ * events ride the check's own evidence, which no saved report holds (the
+ * below-the-fold test above pins that).
+ */
+test("the below-the-fold entry says a check after scrolling can show the GA4 and Adobe Analytics events it saw sent, in its immediate result only", () => {
+  const belowFold = COVERAGE_BOUNDARY_ENTRIES.find((candidate) => candidate.id === "below-fold-and-lazy-loaded");
+  assert.ok(belowFold, "the below-the-fold boundary entry must exist");
+  const sentence = /\bIt can also show the GA4 and Adobe Analytics events\b[^.]*\./.exec(belowFold.explanation)?.[0];
+  assert.ok(sentence, "the below-the-fold entry must say the check can show analytics events");
+  assert.match(sentence, /\bit saw the page send in each window\b/);
+  assert.match(sentence, /\bincluding those sent to collection addresses on the site itself\b/);
+  assert.match(sentence, /\bin that immediate result only\b/);
+  assert.match(sentence, /\bonly events in GA4's standard collection format and Adobe Analytics' classic beacons are read, and other analytics tools and formats are not\b/);
+  assert.deepEqual([...ANALYTICS_FORMATS], ["GA4", "Adobe Analytics"], "the entry names the two formats the decoder reads");
+  const decoder = readFileSync(path.join(root, "lib", "analytics-events.ts"), "utf8");
+  assert.match(decoder, /parsed\.pathname\.endsWith\("\/g\/collect"\) && params\.get\("v"\) === "2"/);
+  assert.match(decoder, /parsed\.pathname\.includes\("\/b\/ss\/"\)/);
+  assert.doesNotMatch(decoder, /\.hostname\b/, "the formats are recognized by path, never by host");
+  const check = readFileSync(path.join(root, "lib", "scroll-check.ts"), "utf8");
+  assert.match(check, /\{ \.\.\.evidence, events: \{ control, scroll \} \}/);
 });

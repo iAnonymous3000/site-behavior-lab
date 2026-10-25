@@ -77,8 +77,10 @@ One scan is one automated visit from one place at one time. The scanner:
   screens. Its immediate result lists the third-party hosts the page first
   contacted after scrolling began, with call-stack hosts for the hosts it
   first contacted while scrolling (which requested scripts were on the call
-  stack of their requests), and nothing from that visit is saved, shared,
-  exported or printed.
+  stack of their requests), and the GA4 and Adobe Analytics events it saw
+  the page send in each window, those sent to the site's own collection
+  addresses included. Nothing from that visit is saved, shared, exported or
+  printed.
 
 Each report has a page (a plain-language headline over severity-ranked
 findings), its JSON, a request CSV bundled with the source report and its
@@ -102,8 +104,10 @@ proposal that a maintainer merges.
   fields, and the service catalog is a curated, US-biased list, not an
   inventory. A report's visit never scrolls; an on-demand check after
   scrolling, opened from a fresh result, is a separate visit that shows the
-  third-party hosts its page first contacted after scrolling began in its
-  immediate result only, never in a report.
+  third-party hosts its page first contacted after scrolling began, and the
+  GA4 and Adobe Analytics events it saw sent, in its immediate result only,
+  never in a report. It knows those events by their collection paths, so a
+  renamed collection endpoint and Adobe's newer Web SDK go unread.
 - **A failed or challenged load is not a clean result.** Sites that refuse
   undisguised automated browsers are reported as refusals, never evaded.
 - **No detector accuracy is published.** No claim-bearing detector has an
@@ -311,8 +315,8 @@ that visit recorded about the call stacks of its requests to the address in
 `check: "scroll"`, the after-scrolling check, which costs two rate-limit
 tokens as a comparison does; its immediate result carries the check's
 evidence in `ephemeral.scrollCheck`, call-stack hosts for the hosts it first
-contacted while scrolling included, and nothing from that visit is saved, so
-it has no share. A synchronous deployment answers with the report; an async
+contacted while scrolling and the GA4 and Adobe Analytics events it saw sent
+included, and nothing from that visit is saved, so it has no share. A synchronous deployment answers with the report; an async
 one answers `202` with `jobId` and `statusPath`, and `DELETE /api/scans/:id`
 cancels cooperatively until publication begins. Refusals are `400` for an
 invalid or non-public target, `401` for a missing token, `413` for an oversize

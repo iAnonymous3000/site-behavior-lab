@@ -11,6 +11,7 @@ import {
   type ScrollState
 } from "./scroll-check";
 import * as eventsModule from "./scroll-check-events";
+import { scrollCheckEventsCopy } from "./scroll-check-events-copy";
 import {
   isScrollCheckEvidence,
   MAX_SCROLL_CHECK_EVENT_BEACONS,
@@ -199,6 +200,25 @@ test("each window carries the events its page sent, counted by the recorder's ow
   // still counts.
   assert.deepEqual(evidence.scroll?.hosts, [{ site: "adobeprobe.net", hosts: [ADOBE_HOST] }]);
   assert.deepEqual(evidence.control?.hosts, []);
+});
+
+test("the section's words, for the check's own evidence of the fixture page", async () => {
+  const { evidence } = await check({ scheduled: richPage() });
+  assert.deepEqual(scrollCheckEventsCopy(evidence), {
+    heading: "Analytics events the page sent",
+    control: "In 10 seconds without scrolling, the page sent 1 analytics event.",
+    scroll: "While scrolling, it sent 8:",
+    destinations: [
+      "GA4 events to *.example.com, an address on this site: page_view, scroll (90%), scroll depth 20%, 40%, 60%, and 1 custom event whose name this check does not show.",
+      "Adobe Analytics events to metrics.adobeprobe.net: scroll depth 25%, 50%."
+    ],
+    ownSite: ["An address on this site receives these in GA4's format; the visit cannot see where it passes them on."],
+    notDecoded: null,
+    caveats: [
+      "Only events in GA4's standard collection format and Adobe Analytics' classic beacons are read; other analytics tools and formats are not.",
+      "Being sent while scrolling does not show that scrolling was the reason, though scroll-depth events are usually sent for it."
+    ]
+  });
 });
 
 test("without a body reader, the check decodes nothing and its evidence is as it was", async () => {

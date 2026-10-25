@@ -9,6 +9,41 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- A check after scrolling's result now shows the analytics events it
+  records, in one section folded by default like the call-stack section,
+  after the lists and right before how the check ended, under "Analytics
+  events the page sent" (build brief approved 2026-10-25, section 4, owner
+  calls 2 and 3). Opened, it reads the window without input as one count
+  line ("In 10 seconds without scrolling, the page sent 1 analytics
+  event."), then the scroll window by destination ("While scrolling, it
+  sent 9:", then "GA4 events to *.example.com, an address on this site:
+  page_view twice, scroll (90%), scroll depth 20%, 40%, 60%, and 1 custom
+  event whose name this check does not show."), a note for each format that
+  an address on the site itself receives, naming no company, the requests
+  not read in full, and the scope and timing caveats, in the approved words.
+  Lines the approved copy has no text for are drafted and await the owner: a
+  scroll window that sent none ("While scrolling, it sent no analytics
+  event."), an event sent more than once ("page_view twice", "load 13
+  times"), and a destination whose events are all custom (the approved
+  custom clause without its "and"). And where a bound could have applied,
+  the approved "`<n>` requests could not be read in full, so some events may
+  be missing." would be false for requests read in full and only not listed,
+  so it reads "... could not be read in full or were past this check's
+  limits, ..."; the approved text sits beside the draft. The section and its
+  copy live in the evidence explorer's lazy chunk, and the decoder and the
+  builder reach no client bundle (client-boundary test). The copy test runs
+  a truth table over the evidence shapes the validator admits and pins the
+  section the real check writes for the fixture page. The below-the-fold
+  coverage-boundary entry, README, docs/capabilities.md and the methodology
+  page say a check can show the GA4 and Adobe Analytics events it saw sent,
+  in its immediate result only, pinned by the boundary test;
+  docs/limitations.md and the README's limits name what recognizing the two
+  formats by path misses, a renamed collection endpoint and Adobe's newer
+  Web SDK; and the static
+  smoke renders the section from the check shell the real scanner wrote:
+  folded before the outcome, opened in the approved words and axe-clean,
+  absent without events, and on a phone a 44 px summary with no sideways
+  scroll.
 - A check after scrolling now records the GA4 and Adobe Analytics events its
   page sent in each window, the site's own collection addresses included, in
   its immediate result only (build brief approved 2026-10-25, owner calls 1

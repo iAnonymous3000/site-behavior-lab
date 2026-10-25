@@ -364,6 +364,13 @@ test("Check after scrolling keeps its recorder off the client, and its panel out
     importsOf(read("lib", "scroll-check-stacks-copy.ts")).map((entry) => entry.from).sort(),
     ["./connection-inspection-copy", "./scroll-check-evidence", "./text-format"]
   );
+  // The analytics events section's copy reads the events' vocabulary, the
+  // evidence's bounds and the text formatter, never the decoder or the
+  // builder, which read request bodies and the redaction pass.
+  assert.deepEqual(
+    importsOf(read("lib", "scroll-check-events-copy.ts")).map((entry) => entry.from).sort(),
+    ["./analytics-event-vocabulary", "./scroll-check-evidence", "./text-format"]
+  );
   for (const entry of importsOf(read("lib", "scroll-check-result.ts"))) {
     assert.ok(/^type\s/.test(entry.clause), `scroll-check-result.ts imports ${entry.from} at run time`);
   }
