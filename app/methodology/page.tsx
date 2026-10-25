@@ -67,7 +67,9 @@ export default function MethodologyPage() {
         <p>
           An on-demand check after scrolling, offered from a fresh result, is a separate visit that scrolls its page by
           script only once its own report is built, and shows the third-party hosts the page first contacted after
-          scrolling began in that immediate result only. Nothing from that visit is saved, shared, exported or printed.
+          scrolling began in that immediate result only. For the hosts it first contacted while scrolling, it can also
+          show call-stack hosts: which scripts the visit requested were on the call stack of their requests. Nothing
+          from that visit is saved, shared, exported or printed.
         </p>
         <p>
           The scanner never disguises itself: it is an honest automated browser. Sites that block automation are

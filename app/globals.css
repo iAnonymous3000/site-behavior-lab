@@ -2855,6 +2855,43 @@ a {
   font-size: 12.5px;
 }
 
+/* Which scripts asked for the hosts first contacted while scrolling: folded
+   by default under the host list it follows, opened by its own summary. */
+.scroll-check-stacks {
+  max-width: 100%;
+}
+
+.scroll-check-stacks > ul + p,
+.scroll-check-stacks > p + p {
+  margin-top: 6px;
+}
+
+.scroll-check-stacks > summary {
+  color: var(--accent-strong);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: var(--weight-bold);
+  max-width: 100%;
+  min-height: 44px;
+  overflow-wrap: anywhere;
+  padding-block: 12px;
+  width: fit-content;
+}
+
+.scroll-check-stack-lines {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding-left: 18px;
+}
+
+.scroll-check-stack-lines li {
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0;
+  max-width: 76ch;
+}
+
 /* What the report beneath a check's panel covers. */
 .scroll-check-report-note {
   font-size: 13px;

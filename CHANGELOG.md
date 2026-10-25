@@ -9,6 +9,30 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- A check after scrolling's result now shows the call-stack hosts it records,
+  in one section that follows the scroll window's host list, folded by
+  default under "Which scripts asked for them" (owner call 2, 2026-10-24),
+  and only when the list carries stacks. Opened, it reads each host's stacks
+  in Inspect's approved words prefixed by the host ("pixel.charlie.com: 1
+  request. Scripts on the call stack, innermost first: static.bravo.org then
+  cdn.alpha.net."), the hosts that came with no call stack once, the redirect,
+  no-named-script and unobserved cases once each, worded for "these hosts'
+  requests", and Inspect's caveat verbatim. Two lines are not the approved
+  text and await the owner: the approved "`<host>`: `<n>` more requests had
+  other call stacks, not listed here." would be false for requests past a
+  bound of the recording, which the same count holds, so it reads "...
+  more requests are not broken down here, because the check shows at most 3
+  call stacks per host and keeps a bounded number of them." (the cap clause
+  only beside three listed stacks); and requests with no stack to hosts that
+  also had stacks, which the approved copy has no line for, read "`<n>` more
+  requests to these hosts came with no call stack, so no script is named for
+  them." The section and its copy live in the evidence explorer's lazy chunk,
+  never in the homepage's own code (client-boundary test). The
+  script-to-request-causality and below-the-fold coverage-boundary entries,
+  README, docs/capabilities.md and the methodology page say a check can show
+  call-stack hosts for the hosts it first contacted while scrolling, in its
+  immediate result only, and the static smoke renders the section from check
+  shells the real scanner wrote, folded, opened and absent.
 - A check after scrolling now records, for each host its scroll window lists
   as first contacted (at most 20), which scripts were on the call stack of
   the requests the check counted for it, under Inspect's rules, in its

@@ -630,3 +630,35 @@ test("the causality entry says an inspection visit shows stack hosts in its imme
     "the entry must not let a stackless request read as one no script started (lib/connection-inspection-fixture.test.ts pins why)"
   );
 });
+
+/**
+ * A check after scrolling can show call-stack hosts for the hosts it first
+ * contacted while scrolling, and only in its immediate result. The causality
+ * entry and the below-the-fold entry each say so, each clause pinned to the
+ * code that makes it true: at most four hosts of scripts the visit requested,
+ * carried only by the check's scroll window, which no saved report holds.
+ */
+test("both entries say a check after scrolling can show call-stack hosts for the hosts it first contacted while scrolling, in its immediate result only", () => {
+  const causality = COVERAGE_BOUNDARY_ENTRIES.find((candidate) => candidate.id === "script-to-request-causality");
+  assert.ok(causality, "the causality boundary entry must exist");
+  const sentence = /\bAn on-demand check after scrolling\b[^.]*\./.exec(causality.explanation)?.[0];
+  assert.ok(sentence, "the causality entry must describe the check's call-stack hosts");
+  assert.match(sentence, /\bfor the hosts it first contacted while scrolling\b/);
+  assert.match(sentence, /\bat most four hosts of scripts that visit requested\b/);
+  assert.match(sentence, /\bin its immediate result only: never in a report, an export or a printed copy\b/);
+  assert.equal(MAX_INSPECTION_GROUP_HOSTS, 4, "the entry says four hosts");
+  const belowFold = COVERAGE_BOUNDARY_ENTRIES.find((candidate) => candidate.id === "below-fold-and-lazy-loaded");
+  assert.ok(belowFold, "the below-the-fold boundary entry must exist");
+  const stacks = /\bFor the hosts it first contacted while scrolling\b[^.]*\./.exec(belowFold.explanation)?.[0];
+  assert.ok(stacks, "the below-the-fold entry must say the check can show call-stack hosts");
+  assert.match(stacks, /\bcall-stack hosts\b/);
+  assert.match(stacks, /\bin that immediate result only\b/);
+  // The stacks attach to the scroll window alone, inside the check's own
+  // evidence, and the check's validator caps a stack at the inspection's
+  // four hosts; the check's evidence never reaches a saved report (the
+  // below-the-fold test above pins that).
+  const check = readFileSync(path.join(root, "lib", "scroll-check.ts"), "utf8");
+  assert.match(check, /\{ \.\.\.evidence, scroll: \{ \.\.\.evidence\.scroll, stacks: entries \} \}/);
+  const evidence = readFileSync(path.join(root, "lib", "scroll-check-evidence.ts"), "utf8");
+  assert.match(evidence, /hosts\.length > MAX_INSPECTION_GROUP_HOSTS/);
+});

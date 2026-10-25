@@ -332,6 +332,7 @@ async function main() {
         await assertBlockerComparisonOnlyOnFreshResults(browser, baseUrl, manifest);
         await assertInspectionOnlyOnFreshResults(browser, baseUrl, manifest);
         await assertScrollCheckOnlyFromItsLink(browser, baseUrl, manifest);
+        await assertScrollCheckStacksSection(browser, baseUrl, manifest);
       }
     }
 
@@ -3139,6 +3140,8 @@ async function assertScrollCheckOnlyFromItsLink(browser, baseUrl, manifest) {
     const panel = page.locator(".scroll-check");
     if ((await panel.count()) !== 1) fail("the check's result shows no check panel");
     await expectText(panel.locator("h2"), "What this page first contacted after scrolling began");
+    // This check's evidence carries no call stacks, so it shows no section for them.
+    if ((await panel.locator(".scroll-check-stacks").count()) !== 0) fail("a check whose evidence carries no call stacks shows a call-stack section");
     const lines = await panel.locator("p").allTextContents();
     const expectedLines = [
       "In 10 seconds without scrolling, the page first contacted 1 new third-party host.",
@@ -3260,6 +3263,196 @@ async function assertScrollCheckOnlyFromItsLink(browser, baseUrl, manifest) {
     if (landing.focused !== "report") fail(`bringing the check into view moved focus to ${landing.focused}`);
     if (landing.overflow) fail("a check's result scrolls sideways on a phone");
     pass("on a phone, a check that replaces an earlier result arrives with its panel's heading on screen below the sticky strips, focus on the result");
+  } finally {
+    await phone.close();
+  }
+}
+
+/**
+ * A check's call-stack hosts (build brief 2026-10-24): a check whose scroll
+ * list carries call stacks shows them in one section, folded by default,
+ * right after that list, "Which scripts asked for them"; opened, it reads
+ * each host's stacks and the counted cases in the approved words, then
+ * Inspect's caveat and the unobserved line. A check whose stacks are all
+ * without a call stack reads only that line; one whose scroll window lists no
+ * host shows no section, as the check above, which carries no stacks, shows
+ * none. The answers are the immediate results the real scanner wrote for the
+ * serial-lane fixture's pages (lib/scroll-check-stacks-fixture.test.ts).
+ */
+async function assertScrollCheckStacksSection(browser, baseUrl, manifest) {
+  const { report, wire, page: target } = await findInspectionCandidate(manifest);
+  const checkLink = `${baseUrl}/#scan?url=${encodeURIComponent(target)}&check=scroll&from=${report.id}`;
+  const single = (scrollCheck) => JSON.stringify({
+    schemaVersion: 2,
+    schemaRevision: 2,
+    reportType: "single",
+    run: wire.baseline,
+    ephemeral: { screenshot: null, scrollCheck }
+  });
+  const none = { redirected: 0, withoutStack: 0, withoutNamedScript: 0, notListed: 0, unobserved: 0 };
+  const alpha = [{ count: 1, hosts: ["cdn.alpha.net"] }];
+  const stackHosts = [
+    ["bravo.org", "static.bravo.org"], ["charlie.com", "pixel.charlie.com"], ["delta.net", "img.delta.net"], ["echo.net", "api.echo.net"],
+    ["foxtrot.net", "cdn.foxtrot.net"], ["golf.net", "cdn.golf.net"], ["hotel.net", "cdn.hotel.net"], ["juliet.net", "cdn.juliet.net"],
+    ["lima.net", "{label}.lima.net"]
+  ];
+  const stacked = {
+    outcome: "reached-end",
+    screens: 5,
+    control: { hosts: [{ site: "kilo.net", hosts: ["api.kilo.net"] }], hostCount: 1, siteCount: 1, requests: 1 },
+    scroll: {
+      hosts: stackHosts.map(([site, host]) => ({ site, hosts: [host] })),
+      hostCount: 9,
+      siteCount: 9,
+      requests: 11,
+      knownHostRequests: 1,
+      stacks: [
+        { host: "static.bravo.org", requests: 1, groups: alpha, ...none },
+        { host: "pixel.charlie.com", requests: 1, groups: [{ count: 1, hosts: ["static.bravo.org", "cdn.alpha.net"] }], ...none },
+        { host: "img.delta.net", requests: 1, groups: [], ...none, withoutStack: 1 },
+        { host: "api.echo.net", requests: 1, groups: alpha, ...none },
+        { host: "cdn.foxtrot.net", requests: 1, groups: [], ...none, redirected: 1 },
+        { host: "cdn.golf.net", requests: 1, groups: [], ...none, unobserved: 1 },
+        { host: "cdn.hotel.net", requests: 1, groups: [], ...none, withoutNamedScript: 1 },
+        { host: "cdn.juliet.net", requests: 1, groups: alpha, ...none },
+        { host: "{label}.lima.net", requests: 2, groups: alpha, ...none, withoutStack: 1 }
+      ]
+    },
+    incomplete: [],
+    addressChanged: false
+  };
+  const unstacked = {
+    ...stacked,
+    screens: 4,
+    control: { hosts: [], hostCount: 0, siteCount: 0, requests: 0 },
+    scroll: {
+      hosts: [{ site: "adsync.net", hosts: ["img.adsync.net"] }, { site: "tally.org", hosts: ["pixel.tally.org"] }],
+      hostCount: 2,
+      siteCount: 2,
+      requests: 2,
+      knownHostRequests: 0,
+      stacks: [
+        { host: "img.adsync.net", requests: 1, groups: [], ...none, withoutStack: 1 },
+        { host: "pixel.tally.org", requests: 1, groups: [], ...none, withoutStack: 1 }
+      ]
+    }
+  };
+  const empty = { ...unstacked, scroll: { hosts: [], hostCount: 0, siteCount: 0, requests: 0, knownHostRequests: 0, stacks: [] } };
+  const caveat = "A call stack shows which scripts were running when a request was made, not which one decided to make it. Requests made by workers are not observed.";
+  const noStackHosts = (n) => `${n} of these hosts came with no call stack, so no script is named; the browser gives none for requests the page's HTML starts, nor for images a script creates.`;
+  const expectedLines = [
+    "static.bravo.org: 1 request. Scripts on the call stack, innermost first: cdn.alpha.net.",
+    "pixel.charlie.com: 1 request. Scripts on the call stack, innermost first: static.bravo.org then cdn.alpha.net.",
+    "api.echo.net: 1 request. Scripts on the call stack, innermost first: cdn.alpha.net.",
+    "cdn.juliet.net: 1 request. Scripts on the call stack, innermost first: cdn.alpha.net.",
+    "*.lima.net: 1 request. Scripts on the call stack, innermost first: cdn.alpha.net.",
+    noStackHosts(1),
+    "1 more request to these hosts came with no call stack, so no script is named for it.",
+    "1 of these hosts' requests followed a redirect, so it carries the call stack of the request that started it, and no script is shown for it.",
+    "1 of these hosts' requests had no script on the call stack with an address this visit requested, so no script is named."
+  ];
+  const pressAndAwaitResult = async (page) => {
+    await Promise.all([
+      page.waitForRequest((request) => request.method() === "POST" && new URL(request.url()).pathname === "/api/scan"),
+      page.locator('.scan-panel button[type="submit"]').click()
+    ]);
+    await page.waitForFunction(() => !document.querySelector(".loading-state") && Boolean(document.querySelector("#report .report-header")), null, {
+      timeout: 30_000
+    });
+  };
+  const route = (answers) => async (request) => {
+    const pathname = new URL(request.url()).pathname;
+    const cors = { "access-control-allow-origin": "*" };
+    if (request.method() === "GET" && pathname === "/api/health") {
+      return { status: 200, contentType: "application/json", headers: cors, body: JSON.stringify({ ...scannerFixture, turnstile: false }) };
+    }
+    if (request.method() === "OPTIONS") {
+      return { status: 204, headers: { ...cors, "access-control-allow-methods": "GET, POST",
+        "access-control-allow-headers": request.headers()["access-control-request-headers"] ?? "content-type" } };
+    }
+    const answer = request.method() === "POST" && pathname === "/api/scan" ? answers.shift() : undefined;
+    return answer ? { status: 200, contentType: "application/json", headers: cors, body: answer } : null;
+  };
+  const openContext = async (viewport, answers) => {
+    const context = await browser.newContext({ viewport });
+    const answer = route(answers);
+    await context.route(`${liveScanApiBase}/**`, async (routed) => {
+      const response = await answer(routed.request());
+      return response ? routed.fulfill(response) : routed.abort();
+    });
+    return context;
+  };
+  const checkWith = async (page) => {
+    await page.goto(checkLink, { waitUntil: "networkidle" });
+    await page.locator(".scroll-check-arrival").waitFor({ timeout: 10_000 });
+    await pressAndAwaitResult(page);
+    await page.locator(".scroll-check h2").waitFor();
+  };
+
+  const context = await openContext({ width: 1440, height: 1000 }, [single(stacked), single(unstacked), single(empty)]);
+  try {
+    const page = await context.newPage();
+    await page.goto(`${baseUrl}/`, { waitUntil: "networkidle" });
+    await page.locator(".run-mode-checking").waitFor({ state: "detached" });
+    await checkWith(page);
+    const section = page.locator(".scroll-check .scroll-check-stacks");
+    if ((await section.count()) !== 1) fail(`a check whose scroll list carries call stacks shows ${await section.count()} call-stack sections`);
+    const arrival = await section.evaluate((element) => ({
+      tag: element.tagName,
+      open: element.open,
+      afterList: Boolean(element.previousElementSibling?.matches('ul.scroll-check-hosts[aria-labelledby="scroll-check-scroll"]')),
+      linesShown: [...element.querySelectorAll("li")].some((line) => line.checkVisibility())
+    }));
+    if (JSON.stringify(arrival) !== JSON.stringify({ tag: "DETAILS", open: false, afterList: true, linesShown: false })) {
+      fail(`the call-stack section arrives as ${JSON.stringify(arrival)}, not folded right after the scroll list`);
+    }
+    await expectText(section.locator(":scope > summary"), "Which scripts asked for them");
+    await section.locator(":scope > summary").click();
+    if (!(await section.evaluate((element) => element.open))) fail("the call-stack section did not open from its summary");
+    const lines = (await section.locator(".scroll-check-stack-lines li").allTextContents()).map((line) => line.trim());
+    if (JSON.stringify(lines) !== JSON.stringify(expectedLines)) fail(`the call-stack section reads ${JSON.stringify(lines)}`);
+    const after = (await section.locator(":scope > p").allTextContents()).map((line) => line.trim());
+    if (JSON.stringify(after) !== JSON.stringify([caveat, "1 of these hosts' requests was not observed, so nothing is shown for it."])) {
+      fail(`the call-stack section's caveat reads ${JSON.stringify(after)}`);
+    }
+    const axe = await new AxeBuilder({ page })
+      .include(".scroll-check")
+      .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa", "best-practice"])
+      .analyze();
+    const serious = axe.violations.filter((violation) => violation.impact === "critical" || violation.impact === "serious");
+    if (serious.length > 0) fail(`the opened call-stack section has serious accessibility violations: ${serious.map((violation) => violation.id).join(", ")}`);
+    pass("a check whose scroll list carries call stacks shows them folded right after that list, and opened they read in the approved words");
+
+    // Hosts that all came with no call stack read that one line.
+    await checkWith(page);
+    const bare = page.locator(".scroll-check .scroll-check-stacks");
+    await bare.locator(":scope > summary").click();
+    const bareLines = (await bare.locator(".scroll-check-stack-lines li").allTextContents()).map((line) => line.trim());
+    if (JSON.stringify(bareLines) !== JSON.stringify([noStackHosts(2)])) fail(`a check whose hosts came with no call stack reads ${JSON.stringify(bareLines)}`);
+    if ((await bare.locator(":scope > p").count()) !== 1) fail("a check with nothing unobserved shows an unobserved line");
+    // A scroll window that lists no host shows no section.
+    await checkWith(page);
+    if ((await page.locator(".scroll-check .scroll-check-stacks").count()) !== 0) fail("a check whose scroll window lists no host shows a call-stack section");
+    pass("a check whose hosts came with no call stack reads only that line, and one that lists no host shows no call-stack section");
+  } finally {
+    await context.close();
+  }
+
+  // On a phone, the section opens without scrolling the page sideways, and
+  // its summary keeps a 44 px target.
+  const phone = await openContext({ width: 375, height: 812 }, [single(stacked)]);
+  try {
+    const page = await phone.newPage();
+    await page.goto(`${baseUrl}/`, { waitUntil: "networkidle" });
+    await page.locator(".run-mode-checking").waitFor({ state: "detached" });
+    await checkWith(page);
+    const summary = page.locator(".scroll-check .scroll-check-stacks > summary");
+    const target = await summary.evaluate((element) => Math.round(element.getBoundingClientRect().height));
+    if (target < 44) fail(`the call-stack section's summary is a ${target} px target on a phone`);
+    await summary.click();
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
+    if (overflow) fail("the opened call-stack section scrolls the page sideways on a phone");
+    pass("on a phone, the call-stack section's summary is a 44 px target, and opened it adds no sideways scroll");
   } finally {
     await phone.close();
   }

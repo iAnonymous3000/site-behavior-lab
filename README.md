@@ -75,8 +75,10 @@ One scan is one automated visit from one place at one time. The scanner:
   whose own result is built first, after which the page settles, is watched
   for about 10 seconds with no input and is scrolled by script, up to 8
   screens. Its immediate result lists the third-party hosts the page first
-  contacted after scrolling began, and nothing from that visit is saved,
-  shared, exported or printed.
+  contacted after scrolling began, with call-stack hosts for the hosts it
+  first contacted while scrolling (which requested scripts were on the call
+  stack of their requests), and nothing from that visit is saved, shared,
+  exported or printed.
 
 Each report has a page (a plain-language headline over severity-ranked
 findings), its JSON, a request CSV bundled with the source report and its
@@ -118,7 +120,9 @@ proposal that a maintainer merges.
   A fresh result's request log can open an on-demand inspection visit, which
   shows the call-stack hosts of its own requests to one address in its
   immediate result only, never in a report; a request it shows with no stack
-  is not shown to have been started without a script.
+  is not shown to have been started without a script. A check after
+  scrolling can show call-stack hosts the same way for the hosts it first
+  contacted while scrolling, in its immediate result only.
 - **Consent evidence spans the click.** Even a verified reject-all visit
   records traffic from before and after the choice, so a tracker seen there
   may be pre-choice, strictly necessary, or claimed under legitimate interest.
@@ -306,7 +310,8 @@ that visit recorded about the call stacks of its requests to the address in
 `ephemeral.inspection`, which is never saved. A single scan may instead name
 `check: "scroll"`, the after-scrolling check, which costs two rate-limit
 tokens as a comparison does; its immediate result carries the check's
-evidence in `ephemeral.scrollCheck`, and nothing from that visit is saved, so
+evidence in `ephemeral.scrollCheck`, call-stack hosts for the hosts it first
+contacted while scrolling included, and nothing from that visit is saved, so
 it has no share. A synchronous deployment answers with the report; an async
 one answers `202` with `jobId` and `statusPath`, and `DELETE /api/scans/:id`
 cancels cooperatively until publication begins. Refusals are `400` for an

@@ -345,6 +345,13 @@ test("Check after scrolling keeps its recorder off the client, and its panel out
   // hook's reading of a result's check imports nothing at run time.
   assert.deepEqual(importsOf(read("lib", "scroll-check-evidence.ts")).map((entry) => entry.from).sort(), ["./connection-inspection-evidence", "./guards"]);
   assert.deepEqual(importsOf(read("lib", "scroll-check-copy.ts")).map((entry) => entry.from).sort(), ["./scroll-check-evidence", "./text-format"]);
+  // The call-stack section's copy reads Inspect's approved words, the
+  // evidence's bounds and the text formatter, never the recorder or the
+  // publisher, which read the redaction pass.
+  assert.deepEqual(
+    importsOf(read("lib", "scroll-check-stacks-copy.ts")).map((entry) => entry.from).sort(),
+    ["./connection-inspection-copy", "./scroll-check-evidence", "./text-format"]
+  );
   for (const entry of importsOf(read("lib", "scroll-check-result.ts"))) {
     assert.ok(/^type\s/.test(entry.clause), `scroll-check-result.ts imports ${entry.from} at run time`);
   }
@@ -360,8 +367,8 @@ test("Check after scrolling keeps its recorder off the client, and its panel out
     ["lib", "scan-client-orchestration.ts"]
   ]) {
     assert.ok(
-      !/scroll-check-copy|scroll-check-evidence|scroll-check-panel|scroll-check-entry/.test(read(...parts)),
-      `${parts.join("/")} bundles the check's panel, its copy or its validator`
+      !/scroll-check-copy|scroll-check-evidence|scroll-check-panel|scroll-check-entry|scroll-check-stacks/.test(read(...parts)),
+      `${parts.join("/")} bundles the check's panel, its copy, its call stacks or its validator`
     );
   }
 });

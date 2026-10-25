@@ -20,6 +20,7 @@ import {
   type ScrollCheckScrollWindow
 } from "./scroll-check-evidence";
 import { ScrollCheckStackRecorder } from "./scroll-check-stacks";
+import { scrollCheckStacksCopy } from "./scroll-check-stacks-copy";
 
 /**
  * A check's call-stack hosts over the real check (runScrollCheck, its
@@ -251,6 +252,28 @@ test("each host the scroll window lists gets the call stacks of the requests the
   // The window without input lists its host and carries no stacks.
   assert.deepEqual(evidence.control?.hosts.flatMap((group) => group.hosts), ["api.kilo.net"]);
   assert.equal(JSON.stringify(evidence.control).includes("stacks"), false);
+});
+
+test("the folded section reads the recorder's own stacks for the fixture page in the approved words", async () => {
+  const evidence = await check({ scheduled: richPage() });
+  assert.deepEqual(scrollCheckStacksCopy(evidence.scroll), {
+    heading: "Which scripts asked for them",
+    lines: [
+      "static.bravo.org: 1 request. Scripts on the call stack, innermost first: cdn.alpha.net.",
+      "pixel.charlie.com: 1 request. Scripts on the call stack, innermost first: static.bravo.org then cdn.alpha.net.",
+      "api.echo.net: 1 request. Scripts on the call stack, innermost first: cdn.alpha.net.",
+      "cdn.juliet.net: 1 request. Scripts on the call stack, innermost first: cdn.alpha.net.",
+      "*.lima.net: 1 request. Scripts on the call stack, innermost first: cdn.alpha.net.",
+      "1 of these hosts came with no call stack, so no script is named; the browser gives none for requests the page's HTML starts, nor for images a script creates.",
+      "1 more request to these hosts came with no call stack, so no script is named for it.",
+      "1 of these hosts' requests followed a redirect, so it carries the call stack of the request that started it, and no script is shown for it.",
+      "1 of these hosts' requests had no script on the call stack with an address this visit requested, so no script is named."
+    ],
+    caveat: "A call stack shows which scripts were running when a request was made, not which one decided to make it. Requests made by workers are not observed.",
+    unobserved: "1 of these hosts' requests was not observed, so nothing is shown for it."
+  });
+  // A check whose scroll window lists nothing has no section.
+  assert.equal(scrollCheckStacksCopy((await check({ scheduled: AT_LOAD })).scroll), null);
 });
 
 test("the one count: each entry breaks down exactly the requests the check counted, whenever their observations arrived", async () => {
