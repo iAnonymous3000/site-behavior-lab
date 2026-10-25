@@ -3755,6 +3755,21 @@ async function runScrollCheckPhase(input: {
   const startedAt = Date.now();
   input.switchRouteBudget();
   const { page } = input;
+  // Which requests got an answer (build brief 2026-10-25, part A): a
+  // response at any status, or a failure, which only ends the settle's wait
+  // early. Attached here, after the envelope and before the check's first
+  // await, so neither listener exists during the ordinary visit, and every
+  // request that starts in a window is heard. A failure's error text is never
+  // read.
+  const noteResponse = (response: Response) => {
+    try {
+      input.recorder.noteAnswered(response.request());
+    } catch {
+      // A response this listener could not read leaves its request unanswered.
+    }
+  };
+  page.on("response", noteResponse);
+  page.on("requestfailed", input.recorder.noteFailed);
   // When the main frame first navigated off the site during the check.
   let leftSiteAt: number | null = null;
   const noteMainFrameNavigation = (frame: Frame) => {
@@ -3794,6 +3809,8 @@ async function runScrollCheckPhase(input: {
     // evidence, never its result.
   } finally {
     page.off("request", input.recorder.noteRequest);
+    page.off("response", noteResponse);
+    page.off("requestfailed", input.recorder.noteFailed);
     page.off("framenavigated", noteMainFrameNavigation);
   }
 }

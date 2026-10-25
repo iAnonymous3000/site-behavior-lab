@@ -82,6 +82,9 @@ async function check(options: { scheduled: Scheduled[]; height?: number; postDat
       const { at: _at, decision, ...request } = item;
       recorder.noteRequest(request);
       if (decision !== null && !request.redirected) recorder.noteRouted(request, decision ?? "sent");
+      // The host answers every request the scanner let through: a redirect
+      // hop, or a route decided as sent.
+      if (request.redirected === true || (decision !== null && (decision ?? "sent") === "sent")) recorder.noteAnswered(request);
     }
     now = Math.max(now, until);
   };

@@ -20,6 +20,7 @@ import {
   SCROLL_CHECK_TIMING_CAVEAT,
   SCROLL_CHECK_VISIT_BUDGET,
   SCROLL_CHECK_VISIT_BUDGET_REQUESTS,
+  scrollCheckNoAnswerLine,
   scrollCheckNotListedLine,
   scrollCheckOutcomeSentence,
   scrollCheckPanelCopy,
@@ -93,6 +94,7 @@ function panelLines(copy: ScrollCheckPanelCopy): string[] {
     ...windowLines(copy.control),
     ...windowLines(copy.scroll),
     ...(copy.traffic ? [copy.traffic] : []),
+    ...(copy.noAnswer ? [copy.noAnswer] : []),
     copy.outcome,
     ...(copy.addressChanged ? [copy.addressChanged] : []),
     ...copy.incomplete,
@@ -301,7 +303,9 @@ test("no line is longer than 30 words, or holds a dash or a verdict word", () =>
     ...shapes.flatMap((value) => [...panelLines(scrollCheckPanelCopy(value)), scrollCheckReportNote(value)]),
     SCROLL_CHECK_ENTRY.label,
     SCROLL_CHECK_ENTRY.sentence,
-    scrollCheckNotListedLine(2)
+    scrollCheckNotListedLine(2),
+    scrollCheckNoAnswerLine(1),
+    scrollCheckNoAnswerLine(1_234)
   ];
   for (const text of texts) {
     for (const sentence of sentencesOf(text)) {
@@ -310,6 +314,50 @@ test("no line is longer than 30 words, or holds a dash or a verdict word", () =>
     assert.equal(DASHES.test(text), false, text);
     assert.equal(VERDICT_WORDS.test(text), false, text);
   }
+});
+
+test("requests with no answer read as one total line, after the traffic line, in the singular for one", () => {
+  assert.equal(scrollCheckNoAnswerLine(3), "3 requests got no answer before the check ended, so they are not listed or counted.");
+  // Drafted: the singular.
+  assert.equal(scrollCheckNoAnswerLine(1), "1 request got no answer before the check ended, so it is not listed or counted.");
+  assert.equal(scrollCheckNoAnswerLine(1_234), "1,234 requests got no answer before the check ended, so they are not listed or counted.");
+  // Every shape the validator admits: each window with none, one or more
+  // requests with no answer, and each window run or not.
+  const counts = [undefined, 1, 2];
+  let shapes = 0;
+  for (const outcome of ["reached-end", "left-site", "cut-short", "nothing-to-scroll"] as const) {
+    for (const controlRan of [false, true]) {
+      for (const scrollRan of [false, true]) {
+        for (const controlCount of counts) {
+          for (const scrollCount of counts) {
+            const value = {
+              outcome,
+              screens: scrollRan ? 2 : 0,
+              control: controlRan ? { ...EMPTY_WINDOW, ...(controlCount ? { unanswered: controlCount } : {}) } : null,
+              scroll: scrollRan ? scrollWindow(scrollCount ? { unanswered: scrollCount } : {}) : null,
+              incomplete: [],
+              addressChanged: false
+            };
+            if (!isScrollCheckEvidence(value)) continue;
+            shapes += 1;
+            const label = JSON.stringify(value);
+            const copy = scrollCheckPanelCopy(value);
+            const total = (value.control?.unanswered ?? 0) + (value.scroll?.unanswered ?? 0);
+            assert.equal(copy.noAnswer, total > 0 ? scrollCheckNoAnswerLine(total) : null, label);
+            const lines = panelLines(copy);
+            // Once, and only after the windows' lines and the traffic line.
+            assert.equal(lines.filter((line) => line.includes("got no answer")).length, total > 0 ? 1 : 0, label);
+            if (copy.noAnswer) assert.equal(lines.indexOf(copy.noAnswer), lines.indexOf(copy.outcome) - 1, label);
+          }
+        }
+      }
+    }
+  }
+  assert.ok(shapes >= 20, `only ${shapes} shapes`);
+  // The traffic line, when there is one, comes first.
+  const both = scrollCheckPanelCopy(evidence({ scroll: scrollWindow({ requests: 2, knownHostRequests: 2, unanswered: 4 }) }));
+  const lines = panelLines(both);
+  assert.equal(lines.indexOf(both.noAnswer as string), lines.indexOf(both.traffic as string) + 1);
 });
 
 function shell(scrollCheck?: ScrollCheckEvidence): LoadedReport {

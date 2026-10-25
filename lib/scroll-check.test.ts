@@ -89,7 +89,11 @@ function fakeCheck(options: {
   const emit = (url: string, decision: ScrollCheckRouteDecision | null | undefined, extra: Partial<FakeRequest> = {}) => {
     const request: FakeRequest = { url, ...extra };
     recorder.noteRequest(request);
-    if (decision !== null && !(options.pendingDecisions ?? []).includes(url)) recorder.noteRouted(request, decision ?? "sent");
+    const pending = (options.pendingDecisions ?? []).includes(url);
+    if (decision !== null && !pending) recorder.noteRouted(request, decision ?? "sent");
+    // The host answers every request the scanner let through, as a local
+    // page's server does: a redirect hop, or a route decided as sent.
+    if (decision === null ? extra.redirected === true : !pending && (decision ?? "sent") === "sent") recorder.noteAnswered(request);
   };
   const advance = (until: number) => {
     while (queue.length > 0 && queue[0].at <= until) {
@@ -471,8 +475,10 @@ test("the recorder keeps nothing once frozen, and its listener is one stable fun
   recorder.noteRequest({ url: "https://undecided.example.org/" });
   recorder.freeze();
   // A route decided after the freeze, while the check settles its routes,
-  // still counts: its request started inside the window.
+  // still counts, and so does its answer: its request started inside the
+  // window.
   recorder.noteRouted(decidedLate, "sent");
+  recorder.noteAnswered(decidedLate);
   now = 20;
   // Requests after the freeze reach neither the lists nor the bound.
   for (const name of ["late", "later", "latest"]) recorder.noteRequest({ url: `https://${name}.example.com.au/` });

@@ -1045,6 +1045,7 @@ async function recordedScrollCheck(): Promise<ScrollCheckEvidence> {
           const request = { url: "https://player.video.net/embed" };
           recorder.noteRequest(request);
           recorder.noteRouted(request, "sent");
+          recorder.noteAnswered(request);
         }
         return true;
       }

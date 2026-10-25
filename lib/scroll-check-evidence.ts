@@ -30,7 +30,10 @@ import { isRecord } from "./guards";
  * 2026-10-25): per destination, its format, its published host, whether it is
  * on the visited site, and its events named only in the shared vocabulary's
  * words (lib/analytics-event-vocabulary.ts), with counts; never a site's own
- * event name, a parameter, an identifier or any other value.
+ * event name, a parameter, an identifier or any other value. Every count and
+ * list holds answered requests only (build brief 2026-10-25, part A), and
+ * each window can count, in `unanswered`, the requests it would otherwise
+ * have counted that got no answer; nothing names them.
  *
  * Kept apart from the builder so the client's report reader can validate the
  * block without the public-suffix list the redaction pass needs.
@@ -108,8 +111,17 @@ export type ScrollCheckWindow = {
   hostCount: number;
   /** How many sites those hosts belong to. */
   siteCount: number;
-  /** Third-party requests that started in this window and that the scanner sent. */
+  /** Third-party requests that started in this window, that the scanner sent, and that their hosts answered. */
   requests: number;
+  /**
+   * Requests that started in this window, that the scanner sent, that are
+   * not the page's own navigation, and that got no answer before the check
+   * built its evidence, among those the window would otherwise have counted:
+   * a third-party request, or a beacon in a decoded analytics format, on the
+   * site's own hosts too. Each is counted once. Carried only when above 0
+   * (build brief 2026-10-25, part A).
+   */
+  unanswered?: number;
 };
 
 /** One call stack a listed host's requests came with, as at most four published hosts. */
@@ -134,7 +146,7 @@ export type ScrollCheckStackGroup = {
 export type ScrollCheckHostStacks = {
   /** The listed host, exactly as the window lists it; it covers every raw host first contacted in the window that publishes as it. */
   host: string;
-  /** The requests to it the check itself counted in the scroll window: sent, third party, never the page's own navigation. */
+  /** The requests to it the check itself counted in the scroll window: sent, answered, third party, never the page's own navigation. */
   requests: number;
   /** Requests grouped by their published call stack, the most frequent first, at most three. */
   groups: ScrollCheckStackGroup[];
@@ -275,7 +287,10 @@ export function compareScrollCheckEventDestinations(left: ScrollCheckEventDestin
 const EVIDENCE_KEYS = ["outcome", "screens", "control", "scroll", "incomplete", "addressChanged"] as const;
 const WINDOW_KEYS = ["hosts", "hostCount", "siteCount", "requests"] as const;
 const SCROLL_WINDOW_KEYS = [...WINDOW_KEYS, "knownHostRequests"] as const;
-const SCROLL_WINDOW_STACK_KEYS = [...SCROLL_WINDOW_KEYS, "stacks"] as const;
+/** Keys either window may carry or leave out. */
+const WINDOW_OPTIONAL_KEYS = ["unanswered"] as const;
+/** Keys the scroll window alone may carry or leave out. */
+const SCROLL_WINDOW_OPTIONAL_KEYS = [...WINDOW_OPTIONAL_KEYS, "stacks"] as const;
 const SITE_KEYS = ["site", "hosts"] as const;
 const HOST_STACK_KEYS = [
   "host",
@@ -301,6 +316,11 @@ function hasExactlyKeys(value: Record<string, unknown>, keys: readonly string[])
   return own.length === keys.length && keys.every((key) => Object.prototype.hasOwnProperty.call(value, key));
 }
 
+/** A window's own keys, then whichever of its optional keys it carries. */
+function windowKeys(value: unknown, keys: readonly string[], optional: readonly string[]): string[] {
+  return isRecord(value) ? [...keys, ...optional.filter((key) => Object.prototype.hasOwnProperty.call(value, key))] : [...keys];
+}
+
 function isCount(value: unknown): value is number {
   return typeof value === "number" && Number.isSafeInteger(value) && value >= 0;
 }
@@ -323,6 +343,8 @@ function isWindow(value: unknown, keys: readonly string[]): value is ScrollCheck
   if (!isRecord(value) || !hasExactlyKeys(value, keys)) return false;
   const { hosts, hostCount, siteCount, requests } = value;
   if (![hostCount, siteCount, requests].every(isCount)) return false;
+  // Requests with no answer are carried only when there are some.
+  if ("unanswered" in value && (!isCount(value.unanswered) || value.unanswered === 0)) return false;
   if (!Array.isArray(hosts) || !hosts.every(isSiteHosts)) return false;
   const groups = hosts as ScrollCheckSiteHosts[];
   const listed = groups.reduce((sum, group) => sum + group.hosts.length, 0);
@@ -467,11 +489,11 @@ export function isScrollCheckEvidence(value: unknown): value is ScrollCheckEvide
   if (typeof outcome !== "string" || !(SCROLL_CHECK_OUTCOMES as readonly string[]).includes(outcome)) return false;
   if (!isCount(screens) || screens > MAX_SCROLL_CHECK_SCREENS) return false;
   if (typeof addressChanged !== "boolean") return false;
-  if (control !== null && !isWindow(control, WINDOW_KEYS)) return false;
+  if (control !== null && !isWindow(control, windowKeys(control, WINDOW_KEYS, WINDOW_OPTIONAL_KEYS))) return false;
   if (scroll !== null) {
-    // Call stacks are the scroll window's only optional part.
+    // Call stacks are the scroll window's own optional part.
     const withStacks = isRecord(scroll) && Object.prototype.hasOwnProperty.call(scroll, "stacks");
-    if (!isWindow(scroll, withStacks ? SCROLL_WINDOW_STACK_KEYS : SCROLL_WINDOW_KEYS)) return false;
+    if (!isWindow(scroll, windowKeys(scroll, SCROLL_WINDOW_KEYS, SCROLL_WINDOW_OPTIONAL_KEYS))) return false;
     const window = scroll as ScrollCheckScrollWindow;
     if (!isCount(window.knownHostRequests) || window.requests < window.hostCount + window.knownHostRequests) return false;
     if (withStacks && !areHostStacks(window.stacks, window)) return false;

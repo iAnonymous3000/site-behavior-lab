@@ -9,6 +9,37 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- A check after scrolling now counts a request only once its host answered
+  it, with a response at any status (build brief approved 2026-10-25, part A,
+  owner calls 1 and 2). Until now the check took a request the scanner sent
+  as reached, so a host that never answered was still listed, and its
+  requests still counted toward the call-stack counts, the event counts and
+  the traffic line. The scanner now feeds the check its page's response and
+  requestfailed events, attached in runScrollCheckPhase once the envelope is
+  built and detached in its finally, so neither listener exists during the
+  ordinary visit, and no failure's error text is read. A host is listed when
+  its first request started in the window and the scanner sent it, and one
+  of its requests there was answered, so a failed first try followed by a
+  good retry still lists it; the request counts, the call-stack join and the
+  decoded analytics beacons count answered requests only. Each window
+  carries an optional `unanswered` count, only when above 0: the requests
+  the scanner sent, other than the page's own navigation, that got no
+  answer, among those it would otherwise have counted (a third-party
+  request, or a beacon in a decoded format, the site's own hosts included),
+  each once; a request the scanner refused is never one of them. The settle
+  after the windows now waits, under its one bound of at most 5 seconds
+  within the deadline, for the routing decisions in flight and then for an
+  answer or a failure for every request the scanner sent in the windows it
+  reports, and ends as soon as everything is in. The result's copy gains one
+  line, "`<n>` requests got no answer before the check ended, so they are not
+  listed or counted." (approved, as the single total; the singular is
+  drafted). A serial-lane fixture shows, through the scanner's route, that a
+  sendBeacon beacon, a keepalive fetch, an image, a 204, a 404, a 302 and its
+  hop to a new host, and a dedicated worker's fetch each receive a response;
+  that a refused plain-HTTP connection, a refused tunnel and the scanner's
+  own refusal reach the page as failures; that an answer landing after the
+  scroll window but within the settle counts; and that one past the bound
+  does not. The check's invariant tests pass unchanged.
 - A check after scrolling's result now shows the analytics events it
   records, in one section folded by default like the call-stack section,
   after the lists and right before how the check ended, under "Analytics

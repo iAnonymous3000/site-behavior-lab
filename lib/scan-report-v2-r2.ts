@@ -178,7 +178,9 @@ export type PublicScanReportV2R2 = PublicSingleReportV2R2 | PublicComparisonRepo
  * 2026-10-24, its scroll window can also carry call-stack hosts for the hosts
  * it lists, inside the same closed key, and since the events brief of
  * 2026-10-25, an optional `events` field carries the GA4 and Adobe Analytics
- * events the page sent in each window, inside it too.
+ * events the page sent in each window, inside it too. Since the answers and
+ * labels brief of the same day, each window counts answered requests only and
+ * can carry an optional `unanswered` count, inside it too.
  */
 export type EphemeralSingleReportR2 = PublicSingleReportV2R2 & {
   ephemeral: {

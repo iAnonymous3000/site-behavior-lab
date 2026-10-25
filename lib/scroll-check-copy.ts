@@ -155,6 +155,18 @@ export function scrollCheckTrafficLine(requests: number): string {
     : `While scrolling, the page also sent ${count(requests)} requests to third parties it had already contacted.`;
 }
 
+/**
+ * Requests that got no answer, both windows' as one total (build brief
+ * 2026-10-25, owner call 2), approved: "`<n>` requests got no answer before
+ * the check ended, so they are not listed or counted." DRAFTED for one
+ * request, in the singular.
+ */
+export function scrollCheckNoAnswerLine(n: number): string {
+  return n === 1
+    ? "1 request got no answer before the check ended, so it is not listed or counted."
+    : `${count(n)} requests got no answer before the check ended, so they are not listed or counted.`;
+}
+
 /** Hosts a window counted and did not list. Drafted for the owner's review. */
 export function scrollCheckNotListedLine(n: number): string {
   return n === 1 ? "1 more is not listed." : `${count(n)} more are not listed.`;
@@ -184,6 +196,8 @@ export type ScrollCheckPanelCopy = {
   control: ScrollCheckWindowCopy | null;
   scroll: ScrollCheckWindowCopy | null;
   traffic: string | null;
+  /** Both windows' requests that got no answer, when there are any: after the traffic line, before the analytics events. */
+  noAnswer: string | null;
   outcome: string;
   addressChanged: string | null;
   /** The visit-budget line, then the incomplete line, each when it applies. */
@@ -225,11 +239,13 @@ export function scrollCheckPanelCopy(evidence: ScrollCheckEvidence): ScrollCheck
   if (evidence.scroll && evidence.scroll.hostCount > 0) caveats.push(SCROLL_CHECK_TIMING_CAVEAT);
   if (scrolled) caveats.push(SCROLL_CHECK_MECHANISM_CAVEAT, SCROLL_CHECK_CONSENT_CAVEAT);
   if (evidence.outcome !== "not-run") caveats.push(SCROLL_CHECK_STARTING_POINT);
+  const unanswered = (evidence.control?.unanswered ?? 0) + (evidence.scroll?.unanswered ?? 0);
   return {
     heading: SCROLL_CHECK_HEADING,
     control,
     scroll,
     traffic: evidence.scroll && evidence.scroll.knownHostRequests > 0 ? scrollCheckTrafficLine(evidence.scroll.knownHostRequests) : null,
+    noAnswer: unanswered > 0 ? scrollCheckNoAnswerLine(unanswered) : null,
     outcome: scrollCheckOutcomeSentence(evidence),
     addressChanged: evidence.addressChanged ? SCROLL_CHECK_ADDRESS_CHANGED : null,
     incomplete,

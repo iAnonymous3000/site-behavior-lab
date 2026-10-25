@@ -26,6 +26,7 @@ async function producedEvidence(scheduled: Array<{ at: number; url: string }>, h
       const request = { url: next.url };
       recorder.noteRequest(request);
       recorder.noteRouted(request, "sent");
+      recorder.noteAnswered(request);
     }
     now = Math.max(now, until);
   };

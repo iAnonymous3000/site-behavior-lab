@@ -56,6 +56,21 @@ import type { ScrollCheckListedRequests, ScrollCheckStackRecorder, ScrollCheckSt
  * neither the page's own navigation nor a redirect hop, and whose address is
  * in a decoded format, the site's own hosts included. A body is read only for
  * those, when the check builds its evidence, and never kept.
+ *
+ * ANSWERS (build brief 2026-10-25, part A). A request counts only once its
+ * host answered: a Playwright `response` arrived for it, at any status, and a
+ * failure after that does not undo it. The scanner feeds this recorder its
+ * page's `response` and `requestfailed` events from the moment the check
+ * begins (runScrollCheckPhase, lib/scanner.ts), after the envelope, so no
+ * listener added for this exists during the ordinary visit. A host is listed
+ * when its first request started in the window and the scanner sent it, and
+ * one of its requests in that window was answered; the lists, the request
+ * counts, the call-stack join and the analytics events count answered
+ * requests only. Each window counts, in `unanswered`, the requests it would
+ * otherwise have counted that got no answer before the evidence was built.
+ * After its windows, the check waits, within its existing settle, for an
+ * answer or a failure for every request the scanner sent in them. A failure's
+ * error text is never read.
  */
 
 /** The check's fixed parameters (the measurement's, 2026-10-23). */
@@ -96,7 +111,11 @@ export const MAX_SCROLL_CHECK_HOSTS = 5_000;
 export const MAX_SCROLL_CHECK_WINDOW_REQUESTS = 5_000;
 /** The window's bottom counts as the page's end within this many pixels. */
 export const SCROLL_CHECK_END_SLACK_PX = 2;
-/** The longest the check waits, after its windows, for the scanner's routing decisions. */
+/**
+ * The longest the check waits, after its windows, for the scanner's routing
+ * decisions and then for an answer or a failure for each request the scanner
+ * sent in them: one bound for both (owner call 1, 2026-10-25).
+ */
 export const SCROLL_CHECK_ROUTE_SETTLE_MS = 5_000;
 /**
  * The deadline never falls before the fixed sequence's own end plus this
@@ -142,6 +161,9 @@ export type ScrollCheckRouteDecision = "sent" | "refused" | "allowance";
 
 type WindowKind = "control" | "scroll";
 
+/** A window on the recorder's clock: requests that started at or after `start` and before `end`. */
+type Interval = { start: number; end: number };
+
 type WindowEntry<RequestT> = {
   request: RequestT;
   host: string;
@@ -181,6 +203,14 @@ export class ScrollCheckRecorder<RequestT extends object> {
   private readonly firstEntries = new Map<string, WindowEntry<RequestT>>();
   private readonly entries: WindowEntry<RequestT>[] = [];
   private readonly decisions = new WeakMap<RequestT, ScrollCheckRouteDecision>();
+  /** Requests a response arrived for, at any status: the host answered. */
+  private readonly answered = new WeakSet<RequestT>();
+  /** Requests that failed. Kept only to end the settle's wait early, since a failure is final. */
+  private readonly failed = new WeakSet<RequestT>();
+  /** When each request recorded in a window started. */
+  private readonly entryAt = new WeakMap<RequestT, number>();
+  /** While the settle waits: its windows, the sent requests in them with neither, and what to call once none is left. */
+  private waiting: { intervals: ReadonlyArray<Interval>; requests: Set<RequestT>; settled: () => void } | null = null;
   private window: WindowKind | null = null;
   private frozen = false;
   private boundReached = false;
@@ -221,6 +251,7 @@ export class ScrollCheckRecorder<RequestT extends object> {
         redirected: this.facts.redirected(request)
       };
       this.entries.push(entry);
+      this.entryAt.set(request, at);
       if (first) this.firstEntries.set(host, entry);
     } catch {
       // A request this recorder could not read is a request it lost.
@@ -235,6 +266,75 @@ export class ScrollCheckRecorder<RequestT extends object> {
    */
   noteRouted(request: RequestT, decision: ScrollCheckRouteDecision): void {
     this.decisions.set(request, decision);
+    // A route decided while the settle waits for answers is waited for too.
+    const waiting = this.waiting;
+    if (decision === "sent" && waiting !== null && this.awaitable(request, waiting.intervals)) waiting.requests.add(request);
+  }
+
+  /**
+   * A response arrived for one request (the page's "response" event), at any
+   * status. Taken after the freeze too: a request that started inside a
+   * window can be answered while the check settles.
+   */
+  readonly noteAnswered = (request: RequestT): void => {
+    try {
+      this.answered.add(request);
+      this.settle(request);
+    } catch {
+      // A request this recorder could not note stays unanswered.
+    }
+  };
+
+  /**
+   * One request failed (the page's "requestfailed" event). It only ends the
+   * settle's wait for that request early: a failure after a response does
+   * not undo the answer, and a failure's error text is never read.
+   */
+  readonly noteFailed = (request: RequestT): void => {
+    try {
+      this.failed.add(request);
+      this.settle(request);
+    } catch {
+      // Nothing to undo: the request is simply still waited for.
+    }
+  };
+
+  /**
+   * Calls `settled` once every request the scanner sent that started inside
+   * one of these windows (a redirect hop counts as sent) has an answer or a
+   * failure: at once when none is waiting. Returns a function that stops the
+   * wait. Only one wait is held at a time.
+   */
+  whenAnswered(intervals: ReadonlyArray<Interval>, settled: () => void): () => void {
+    const requests = new Set<RequestT>();
+    for (const entry of this.entries) {
+      const sent = entry.redirected || this.decisions.get(entry.request) === "sent";
+      if (sent && this.awaitable(entry.request, intervals)) requests.add(entry.request);
+    }
+    if (requests.size === 0) {
+      this.waiting = null;
+      settled();
+      return () => undefined;
+    }
+    const waiting = { intervals, requests, settled };
+    this.waiting = waiting;
+    return () => {
+      if (this.waiting === waiting) this.waiting = null;
+    };
+  }
+
+  /** A request that started inside one of these windows and has neither an answer nor a failure. */
+  private awaitable(request: RequestT, intervals: ReadonlyArray<Interval>): boolean {
+    if (this.answered.has(request) || this.failed.has(request)) return false;
+    const at = this.entryAt.get(request);
+    return at !== undefined && intervals.some((interval) => at >= interval.start && at < interval.end);
+  }
+
+  private settle(request: RequestT): void {
+    const waiting = this.waiting;
+    if (waiting === null || !waiting.requests.delete(request) || waiting.requests.size > 0) return;
+    this.waiting = null;
+    waiting.settled();
   }
 
   /** Requests from here on belong to this window, until the next one opens or the recorder freezes. */
@@ -258,11 +358,17 @@ export class ScrollCheckRecorder<RequestT extends object> {
    * facts, also, for the analytics events (lib/scroll-check-events.ts), each
    * window's requests that count for them, in arrival order, by the same rule
    * and clock.
+   *
+   * A request counts only when the scanner sent it and its host answered it.
+   * A host is listed when its first request started in the window and the
+   * scanner sent it, and one of its requests in the window was answered,
+   * which need not be the first: a failed first try followed by a good retry
+   * still lists it.
    */
   windows(input: {
     firstPartyHostname: string;
-    control: { start: number; end: number } | null;
-    scroll: { start: number; end: number } | null;
+    control: Interval | null;
+    scroll: Interval | null;
     scrollRequests?: boolean;
   }): {
     control: ScrollCheckWindow | null;
@@ -274,55 +380,75 @@ export class ScrollCheckRecorder<RequestT extends object> {
     const reasons = new Set<ScrollCheckIncompleteReason>();
     if (this.boundReached && (input.control || input.scroll)) reasons.add("host-bound");
     const facts = this.facts;
-    const window = (interval: { start: number; end: number }, collect: boolean) => {
-      const firstContacted = new Map<string, Set<string>>();
-      // For the call-stack join: the raw hosts first contacted here that
-      // each published host stands for, and every request of each raw host
-      // here, counted or not, in arrival order.
-      const rawHostsOf = new Map<string, Set<string>>();
+    const window = (interval: Interval, collect: boolean) => {
+      // Each raw host first contacted here, in the order its first request
+      // arrived: whether that first request was one the window could count
+      // (sent, third party, not the page's own navigation), and whether one
+      // of its requests here was counted.
+      const firstContactedRaw = new Map<string, { firstSent: boolean; counted: boolean }>();
+      // For the call-stack join: every request of each raw host here, counted
+      // or not, in arrival order.
       const requestsOf = new Map<string, ScrollCheckStackRequest[]>();
-      // For the analytics events: sent, never the page's own navigation or a
-      // redirect hop, in a decoded format, the site's own hosts included.
+      // For the analytics events: sent and answered, never the page's own
+      // navigation or a redirect hop, in a decoded format, the site's own
+      // hosts included.
       const eventRequests: ScrollCheckEventRequest[] = [];
       let requests = 0;
       let knownHostRequests = 0;
+      let unanswered = 0;
       for (const entry of this.entries) {
         if (entry.at < interval.start || entry.at >= interval.end) continue;
         const decision = entry.redirected ? "sent" : this.decisions.get(entry.request) ?? null;
         if (decision === "allowance") reasons.add("check-allowance");
         else if (decision !== "sent") reasons.add("refused");
-        if (facts.postData !== undefined && decision === "sent" && !entry.navigation && !entry.redirected) {
-          const url = facts.url(entry.request);
-          if (analyticsBeaconFormat(url) !== null) {
-            const request = entry.request;
-            eventRequests.push({ host: entry.host, url, body: () => facts.postData?.(request) ?? UNREAD_BODY });
-          }
+        const sent = decision === "sent";
+        const answered = sent && this.answered.has(entry.request);
+        const url = facts.url(entry.request);
+        const beacon = facts.postData !== undefined && sent && !entry.navigation && !entry.redirected && analyticsBeaconFormat(url) !== null;
+        if (beacon && answered) {
+          const request = entry.request;
+          eventRequests.push({ host: entry.host, url, body: () => facts.postData?.(request) ?? UNREAD_BODY });
         }
-        const counted = !entry.navigation && decision === "sent" && isThirdParty(input.firstPartyHostname, entry.host);
+        // Counted but for the answer: sent, third party, not the navigation.
+        const countable = sent && !entry.navigation && isThirdParty(input.firstPartyHostname, entry.host);
+        // Each request the window would otherwise have counted, once.
+        if (!answered && (countable || beacon)) unanswered += 1;
+        const counted = countable && answered;
         if (collect) {
           const own = requestsOf.get(entry.host) ?? [];
-          own.push({ url: this.facts.url(entry.request), counted });
+          own.push({ url, counted });
           requestsOf.set(entry.host, own);
         }
-        if (!counted) continue;
-        requests += 1;
+        if (counted) requests += 1;
         const firstAt = this.firstSeen.get(entry.host);
         if (firstAt === undefined) continue;
         if (firstAt < interval.start) {
-          knownHostRequests += 1;
+          if (counted) knownHostRequests += 1;
           continue;
         }
-        if (this.firstEntries.get(entry.host) !== entry) continue;
-        const published = redactHostnameV2(entry.host).value;
-        const site = redactHostnameV2(partyKey(entry.host)).value;
+        let raw = firstContactedRaw.get(entry.host);
+        if (raw === undefined) {
+          // The host's very first request, if the window holds it.
+          if (this.firstEntries.get(entry.host) !== entry) continue;
+          raw = { firstSent: countable, counted: false };
+          firstContactedRaw.set(entry.host, raw);
+        }
+        if (counted) raw.counted = true;
+      }
+      const firstContacted = new Map<string, Set<string>>();
+      // The raw hosts each listed host stands for: those whose first request
+      // here put it on the list, and no other.
+      const rawHostsOf = new Map<string, Set<string>>();
+      for (const [host, raw] of firstContactedRaw) {
+        if (!raw.firstSent || !raw.counted) continue;
+        const published = redactHostnameV2(host).value;
+        const site = redactHostnameV2(partyKey(host)).value;
         const hosts = firstContacted.get(site) ?? new Set<string>();
         hosts.add(published);
         firstContacted.set(site, hosts);
-        if (collect) {
-          const raw = rawHostsOf.get(published) ?? new Set<string>();
-          raw.add(entry.host);
-          rawHostsOf.set(published, raw);
-        }
+        const raws = rawHostsOf.get(published) ?? new Set<string>();
+        raws.add(host);
+        rawHostsOf.set(published, raws);
       }
       const listed = listedHosts(firstContacted);
       // The join pairs requests per URL, and a URL names one raw host, whose
@@ -332,16 +458,15 @@ export class ScrollCheckRecorder<RequestT extends object> {
             .flatMap((group) => group.hosts)
             .map((host) => ({ host, requests: [...(rawHostsOf.get(host) ?? [])].flatMap((raw) => requestsOf.get(raw) ?? []) }))
         : null;
-      return { window: { ...listed, requests, knownHostRequests }, listedRequests, eventRequests };
+      // Carried only when above 0.
+      const noAnswer = unanswered > 0 ? { unanswered } : {};
+      return { listed, requests, knownHostRequests, noAnswer, listedRequests, eventRequests };
     };
     const controlRun = input.control ? window(input.control, false) : null;
-    const control = controlRun ? controlRun.window : null;
     const scroll = input.scroll ? window(input.scroll, input.scrollRequests === true) : null;
     return {
-      control: control
-        ? { hosts: control.hosts, hostCount: control.hostCount, siteCount: control.siteCount, requests: control.requests }
-        : null,
-      scroll: scroll ? scroll.window : null,
+      control: controlRun ? { ...controlRun.listed, requests: controlRun.requests, ...controlRun.noAnswer } : null,
+      scroll: scroll ? { ...scroll.listed, requests: scroll.requests, knownHostRequests: scroll.knownHostRequests, ...scroll.noAnswer } : null,
       reasons,
       ...(scroll?.listedRequests ? { scrollRequests: scroll.listedRequests } : {}),
       ...(facts.postData !== undefined
@@ -517,11 +642,11 @@ export async function runScrollCheck<RequestT extends object>(run: ScrollCheckRu
   }
   run.recorder.freeze();
   run.stacks?.windowEnded();
-  try {
-    await run.settleRoutes(Math.max(250, Math.min(SCROLL_CHECK_ROUTE_SETTLE_MS, deadline - run.now())));
-  } catch {
-    // Decisions still pending count as not followed; the windows say so.
-  }
+  await settle(
+    run,
+    [progress.control, progress.scroll].filter((interval): interval is Interval => interval !== null),
+    deadline
+  );
   try {
     const windows = run.recorder.windows({
       firstPartyHostname: run.firstPartyHostname,
@@ -548,6 +673,37 @@ export async function runScrollCheck<RequestT extends object>(run: ScrollCheckRu
   } catch {
     run.stacks?.freeze();
     return CUT_SHORT_EVIDENCE;
+  }
+}
+
+/**
+ * The settle after the windows (owner call 1, 2026-10-25). Under one bound,
+ * at most 5 seconds and within the deadline, it waits for the scanner's
+ * routing decisions in flight, then for an answer or a failure for every
+ * request the scanner sent in the windows the check reports, and it ends as
+ * soon as everything is in. What is still pending then counts as it stands:
+ * a route undecided as not followed, a request unanswered as no answer. It
+ * never throws.
+ */
+async function settle<RequestT extends object>(run: ScrollCheckRun<RequestT>, windows: Interval[], deadline: number): Promise<void> {
+  const until = run.now() + Math.max(250, Math.min(SCROLL_CHECK_ROUTE_SETTLE_MS, deadline - run.now()));
+  try {
+    await run.settleRoutes(until - run.now());
+  } catch {
+    // Decisions still pending count as not followed; the windows say so.
+  }
+  const remaining = until - run.now();
+  if (remaining <= 0 || windows.length === 0) return;
+  const answered = new AbortController();
+  let stopWaiting = (): void => undefined;
+  try {
+    stopWaiting = run.recorder.whenAnswered(windows, () => answered.abort());
+    await run.sleep(remaining, answered.signal);
+  } catch {
+    // A cancellation ends the wait; the evidence holds what arrived.
+  } finally {
+    stopWaiting();
+    answered.abort();
   }
 }
 

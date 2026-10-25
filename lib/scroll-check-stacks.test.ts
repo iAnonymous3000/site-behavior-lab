@@ -125,6 +125,9 @@ async function check(options: {
         const request: FakeRequest = { url: item.page, navigation: item.navigation, redirected: item.redirected };
         recorder.noteRequest(request);
         if (item.decision !== null) recorder.noteRouted(request, item.decision ?? "sent");
+        // The host answers every request the scanner let through: a redirect
+        // hop, or a route decided as sent.
+        if (item.decision === null ? item.redirected === true : (item.decision ?? "sent") === "sent") recorder.noteAnswered(request);
       }
     }
     now = Math.max(now, until);
