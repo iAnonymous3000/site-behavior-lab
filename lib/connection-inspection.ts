@@ -1,15 +1,23 @@
+import {
+  categorizeObservation,
+  heldUrlKey,
+  joinObservations,
+  MAX_HELD_URL_CHARS,
+  MAX_REQUESTED_CODE_URLS,
+  MAX_STACK_FRAMES,
+  observedRequest,
+  RequestedCodeUrls,
+  StackTally,
+  type PublishedStack,
+  type StackObservationCategory
+} from "./call-stack-publisher";
 import { isPublishedAddressShape } from "./connection-inspection-address";
 import {
   isConnectionInspectionEvidence,
   MAX_INSPECTION_GROUPS,
-  MAX_INSPECTION_GROUP_HOSTS,
-  MAX_INSPECTION_GROUP_SCRIPTS,
-  type ConnectionInspectionEvidence,
-  type ConnectionInspectionGroup
+  type ConnectionInspectionEvidence
 } from "./connection-inspection-evidence";
-import { isRecord } from "./guards";
-import { redactHostnameV2, redactUrlV2 } from "./redaction-v2";
-import { sha256Hex } from "./sha256";
+import { redactUrlV2 } from "./redaction-v2";
 
 /**
  * The server half of "Inspect this connection": a visit that keeps, in memory
@@ -27,7 +35,9 @@ import { sha256Hex } from "./sha256";
  * domain or browser behavior is added, and a visit that is not an inspection
  * keeps nothing new.
  *
- * WHAT IT COUNTS.
+ * WHAT IT COUNTS. Everything a stack names, and how the page's requests are
+ * joined to the session's observations, is the one stack publisher's
+ * (lib/call-stack-publisher.ts), which a check after scrolling shares. Here:
  *
  * - `matched` counts the page's own request events whose published address,
  *   query dropped, equals the inspected one. A dedicated worker's requests are
@@ -62,19 +72,12 @@ import { sha256Hex } from "./sha256";
 export const MAX_INSPECTION_TRACKED_URLS = 2_000;
 /** Session observations of matched requests kept, across all URLs. */
 export const MAX_INSPECTION_OBSERVATIONS = 2_000;
-/** Distinct Script and Document request URLs kept for naming frames. */
-export const MAX_INSPECTION_CODE_URLS = 4_000;
-/** Frames read from one stack, innermost first (Chromium's own cap is about this). */
-export const MAX_INSPECTION_STACK_FRAMES = 200;
+/** Distinct Script and Document request URLs kept for naming frames (the publisher's bound). */
+export const MAX_INSPECTION_CODE_URLS = MAX_REQUESTED_CODE_URLS;
+/** Frames read from one stack, innermost first (the publisher's bound). */
+export const MAX_INSPECTION_STACK_FRAMES = MAX_STACK_FRAMES;
 /** Raw URLs whose published-address comparison is cached. */
 const MAX_MATCH_CACHE_ENTRIES = 8_000;
-/**
- * A raw URL longer than this is held by its digest, never as itself, so the
- * tables above stay small however long the page makes its URLs (up to the
- * 16,384 characters the redaction pass reads), and a long one is still
- * joined and still names its frames.
- */
-const MAX_HELD_URL_CHARS = 2_048;
 
 /**
  * The authoritative check on an inspected address: the shape a published
@@ -85,47 +88,15 @@ export function isInspectableAddress(value: unknown): value is string {
   return typeof value === "string" && isPublishedAddressShape(value) && redactUrlV2(value).value === value;
 }
 
-type ObservationCategory =
-  | "redirected"
-  | "withoutStack"
-  | "withoutNamedScript"
-  | "notListed"
-  | { group: string };
-
 type TrackedRequestUrl = {
   pageRequests: number;
-  observations: ObservationCategory[];
+  observations: StackObservationCategory[];
   observationsDropped: number;
 };
 
-type PublishedStack = Pick<ConnectionInspectionGroup, "hosts" | "namedScripts">;
-
-function withoutFragment(url: string): string {
-  const hash = url.indexOf("#");
-  return hash === -1 ? url : url.slice(0, hash);
-}
-
-/**
- * The key a raw URL is joined and matched by: the URL itself with its
- * fragment dropped, or that URL's digest when it is long. Two URLs share a
- * key exactly when they are the same URL.
- */
-function heldUrlKey(url: string): string {
-  const key = withoutFragment(url);
-  return key.length <= MAX_HELD_URL_CHARS ? key : `sha256:${sha256Hex(key)}`;
-}
-
-/**
- * The raw URLs of a stack's synchronous frames, innermost first, fragment
- * dropped, or null when Chromium sent no stack or an empty one. An async
- * parent is never followed: the scanner never raises the async stack depth,
- * so a live visit receives none.
- */
-function stackFrameUrls(stack: unknown): string[] | null {
-  if (!isRecord(stack) || !Array.isArray(stack.callFrames) || stack.callFrames.length === 0) return null;
-  return stack.callFrames
-    .slice(0, MAX_INSPECTION_STACK_FRAMES)
-    .map((frame) => (isRecord(frame) && typeof frame.url === "string" ? withoutFragment(frame.url) : ""));
+/** An inspection's groups are keyed by everything they publish: hosts and named scripts. */
+function inspectionStackKey(stack: PublishedStack): string {
+  return JSON.stringify([stack.hosts, stack.namedScripts]);
 }
 
 export class ConnectionInspectionRecorder {
@@ -135,9 +106,8 @@ export class ConnectionInspectionRecorder {
   private matched = 0;
   private untrackedPageRequests = 0;
   private keptObservations = 0;
-  private codeUrlsOverflowed = false;
   private readonly tracked = new Map<string, TrackedRequestUrl>();
-  private readonly codeUrls = new Set<string>();
+  private readonly codeUrls = new RequestedCodeUrls();
   private readonly stacks = new Map<string, PublishedStack>();
   private readonly matchCache = new Map<string, boolean>();
 
@@ -198,63 +168,36 @@ export class ConnectionInspectionRecorder {
   }
 
   private buildEvidence(): ConnectionInspectionEvidence {
-    const groupCounts = new Map<string, number>();
-    let redirected = 0;
-    let withoutStack = 0;
-    let withoutNamedScript = 0;
-    let notListed = this.untrackedPageRequests;
-    let unobserved = 0;
+    const tally = new StackTally();
+    tally.notListed = this.untrackedPageRequests;
     for (const entry of this.tracked.values()) {
-      const joined = Math.min(entry.pageRequests, entry.observations.length);
-      for (const category of entry.observations.slice(0, joined)) {
-        if (category === "redirected") redirected += 1;
-        else if (category === "withoutStack") withoutStack += 1;
-        else if (category === "withoutNamedScript") withoutNamedScript += 1;
-        else if (category === "notListed") notListed += 1;
-        else groupCounts.set(category.group, (groupCounts.get(category.group) ?? 0) + 1);
-      }
-      const missing = entry.pageRequests - joined;
-      const dropped = Math.min(missing, entry.observationsDropped);
-      notListed += dropped;
-      unobserved += missing - dropped;
+      joinObservations(tally, entry.pageRequests, entry.observations, entry.observationsDropped);
     }
-    const ranked = [...groupCounts.entries()]
-      .sort(([leftKey, leftCount], [rightKey, rightCount]) =>
-        rightCount - leftCount || (leftKey < rightKey ? -1 : leftKey > rightKey ? 1 : 0)
-      )
-      .map(([key, count]) => {
-        const stack = this.stacks.get(key);
-        if (!stack) throw new Error("An inspection group lost its published stack.");
-        return { count, hosts: [...stack.hosts], namedScripts: [...stack.namedScripts] };
-      });
+    const ranked = tally.rankedGroups(this.stacks).map(({ count, stack }) => ({
+      count,
+      hosts: [...stack.hosts],
+      namedScripts: [...stack.namedScripts]
+    }));
+    let notListed = tally.notListed;
     for (const group of ranked.slice(MAX_INSPECTION_GROUPS)) notListed += group.count;
     return {
       address: this.address,
       matched: this.matched,
       groups: ranked.slice(0, MAX_INSPECTION_GROUPS),
-      redirected,
-      withoutStack,
-      withoutNamedScript,
+      redirected: tally.redirected,
+      withoutStack: tally.withoutStack,
+      withoutNamedScript: tally.withoutNamedScript,
       notListed,
-      unobserved
+      unobserved: tally.unobserved
     };
   }
 
   private observeUnchecked(params: unknown): void {
-    if (!isRecord(params) || !isRecord(params.request)) return;
-    const rawUrl = params.request.url;
-    if (typeof rawUrl !== "string" || !rawUrl) return;
-    const initiator = isRecord(params.initiator) ? params.initiator : null;
-    // A CORS preflight is the browser's own request, which the page never
-    // reports, so it has no request of the page's to join.
-    if (initiator?.type === "preflight") return;
-    const key = heldUrlKey(rawUrl);
-    // Every script and document address the visit requested names frames,
-    // a redirect's next address included, since a script runs under the
-    // address its response finally came from.
-    if (params.type === "Script" || params.type === "Document") this.noteCodeUrl(key);
-    if (!this.matches(rawUrl)) return;
-    const entry = this.trackedEntry(key);
+    const observed = observedRequest(params);
+    if (observed === null) return;
+    if (observed.code) this.codeUrls.note(observed.key);
+    if (!this.matches(observed.rawUrl)) return;
+    const entry = this.trackedEntry(observed.key);
     // An untracked URL's page requests are counted as not listed.
     if (!entry) return;
     if (this.keptObservations >= MAX_INSPECTION_OBSERVATIONS) {
@@ -262,54 +205,7 @@ export class ConnectionInspectionRecorder {
       return;
     }
     this.keptObservations += 1;
-    entry.observations.push(this.categorize(params, initiator));
-  }
-
-  private categorize(params: Record<string, unknown>, initiator: Record<string, unknown> | null): ObservationCategory {
-    // A redirect hop carries the initiator of the request that started the
-    // chain, which asked for another address.
-    if (isRecord(params.redirectResponse)) return "redirected";
-    const frames = stackFrameUrls(initiator?.stack);
-    if (frames === null) return "withoutStack";
-    // Past this bound a frame's script may be one the visit requested and
-    // this recorder no longer holds, so nothing is named from here on.
-    if (this.codeUrlsOverflowed) return "notListed";
-    const published = this.publishedStack(frames);
-    if (published === null) return "withoutNamedScript";
-    const key = JSON.stringify([published.hosts, published.namedScripts]);
-    if (!this.stacks.has(key)) this.stacks.set(key, published);
-    return { group: key };
-  }
-
-  /**
-   * The hosts and scripts a stack publishes: frames whose URL the visit
-   * requested as a script or document, innermost first, until a fifth host.
-   */
-  private publishedStack(frames: string[]): PublishedStack | null {
-    const hosts: string[] = [];
-    const namedScripts: string[] = [];
-    for (const frameUrl of frames) {
-      if (!frameUrl || !this.codeUrls.has(heldUrlKey(frameUrl))) continue;
-      const host = publishedHost(frameUrl);
-      if (hosts.at(-1) !== host) {
-        if (hosts.length === MAX_INSPECTION_GROUP_HOSTS) break;
-        hosts.push(host);
-      }
-      const script = publishedScript(frameUrl);
-      if (script !== null && !namedScripts.includes(script) && namedScripts.length < MAX_INSPECTION_GROUP_SCRIPTS) {
-        namedScripts.push(script);
-      }
-    }
-    return hosts.length === 0 ? null : { hosts, namedScripts };
-  }
-
-  private noteCodeUrl(key: string): void {
-    if (this.codeUrls.has(key)) return;
-    if (this.codeUrls.size >= MAX_INSPECTION_CODE_URLS) {
-      this.codeUrlsOverflowed = true;
-      return;
-    }
-    this.codeUrls.add(key);
+    entry.observations.push(categorizeObservation(observed, this.codeUrls, this.stacks, inspectionStackKey));
   }
 
   private trackedEntry(key: string): TrackedRequestUrl | null {
@@ -331,21 +227,4 @@ export class ConnectionInspectionRecorder {
     }
     return matched;
   }
-}
-
-/** A frame's host, through the report's own hostname redaction. */
-function publishedHost(frameUrl: string): string {
-  let hostname: string;
-  try {
-    hostname = new URL(frameUrl).hostname;
-  } catch {
-    return redactHostnameV2("").value;
-  }
-  return redactHostnameV2(hostname).value;
-}
-
-/** A frame's script address as a report would publish it, query dropped, or null for none. */
-function publishedScript(frameUrl: string): string | null {
-  const published = redactUrlV2(frameUrl).value;
-  return isPublishedAddressShape(published) ? published : null;
 }

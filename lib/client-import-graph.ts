@@ -10,8 +10,9 @@ import path from "node:path";
  * bundle with it, so grepping each file for the directive cannot answer
  * whether a server-only module stays server-only. This walks the graph from
  * every client root over app/ and lib/, following relative and "@/"
- * specifiers (packages are not followed). Type-only imports count too, which
- * errs toward refusing a module the bundler would have erased.
+ * specifiers (packages are not followed), side-effect imports included.
+ * Type-only imports count too, which errs toward refusing a module the
+ * bundler would have erased.
  */
 export function clientImportTrails(target: string, root = process.cwd()): string[] {
   const sourceFiles = (dir: string): string[] =>
@@ -33,8 +34,10 @@ export function clientImportTrails(target: string, root = process.cwd()): string
     if (base === null) return null;
     return [base, `${base}.ts`, `${base}.tsx`, `${base}/index.ts`, `${base}/index.tsx`].find((candidate) => files.has(candidate)) ?? null;
   };
+  // `from "x"`, `import("x")`, and a side-effect `import "x"`, which bundles
+  // the module as surely as a named import does.
   const importsOf = (file: string) =>
-    [...source(file).matchAll(/(?:from\s*|import\s*\()\s*["']([^"']+)["']/g)]
+    [...source(file).matchAll(/(?:from\s*|import\s*\(|import\s+)\s*["']([^"']+)["']/g)]
       .map((match) => resolve(file, match[1]))
       .filter((resolved): resolved is string => resolved !== null);
   const clientRoots = [...files].filter((file) => /^\s*["']use client["']/m.test(source(file)));

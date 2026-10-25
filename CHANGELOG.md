@@ -9,6 +9,24 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- How a visit publishes a call stack now lives in one module,
+  lib/call-stack-publisher.ts, instead of in Inspect this connection's
+  recorder alone, so the check after scrolling can show call-stack hosts
+  under the same rules without restating them. The module holds the rules
+  the owner ruled on 2026-10-22 (a frame names its script only when its
+  address is a Script or Document the same visit had requested, at most four
+  hosts innermost first through the report's hostname redaction, redirect
+  hops and requests with no stack counted apart, preflights left out) and
+  the per-URL join of the page's requests to the session's observations, in
+  arrival order. It holds no state: each recorder keeps its own requested
+  addresses, stacks and counts, and stops at its own boundary. Inspect's
+  evidence is byte for byte what it was, and its unit tests and serial-lane
+  fixture pass unchanged. lib/call-stack-publisher.test.ts pins the shared
+  rules and holds the recorder to the module, and lib/client-boundary.test.ts
+  keeps the module, which reads the redaction pass and sha256, out of every
+  client bundle. The import walk that test uses (lib/client-import-graph.ts)
+  now follows side-effect imports too, which it had missed: a mutation that
+  added `import "./call-stack-publisher";` to a client module passed it.
 - The scan form no longer tells a check after scrolling that it makes a share
   report. On a site that already has reports, the note under the form kept
   its usual line during a check, "A new check runs one visit in the selected

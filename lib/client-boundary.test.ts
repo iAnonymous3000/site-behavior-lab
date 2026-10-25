@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 import { clientImportTrails } from "./client-import-graph";
@@ -285,7 +286,16 @@ test("Inspect this connection keeps the public-suffix list and the recorder out 
     ["lib", "known-site-evidence.ts"]
   ]) {
     const source = read(...parts);
-    assert.ok(!/["']@\/lib\/connection-inspection["']|["']\.\/connection-inspection["']|redaction-v2/.test(source), `${parts.join("/")} reaches the recorder or the redaction pass`);
+    assert.ok(
+      !/["']@\/lib\/connection-inspection["']|["']\.\/connection-inspection["']|call-stack-publisher|redaction-v2/.test(source),
+      `${parts.join("/")} reaches the recorder, the stack publisher or the redaction pass`
+    );
+  }
+  // The one stack publisher reads the redaction pass and sha256, and the
+  // recorder holds raw stacks: neither reaches any client bundle, by any
+  // trail of imports.
+  for (const module of ["lib/call-stack-publisher.ts", "lib/connection-inspection.ts"]) {
+    assert.deepEqual(clientImportTrails(module), [], `${module} must not reach a client bundle`);
   }
   // The homepage's own code reads only the request contract and the
   // type-only result reader; the row link, the panel and their copy live in
@@ -295,6 +305,28 @@ test("Inspect this connection keeps the public-suffix list and the recorder out 
       !/connection-inspection-copy|connection-inspection-evidence|connection-inspection-panel|request-inspection-link/.test(read(...parts)),
       `${parts.join("/")} bundles reader copy, the panel or the validator`
     );
+  }
+});
+
+test("the client import walk follows named, dynamic and side-effect imports alike", () => {
+  // A side-effect import bundles its module as surely as a named one, so a
+  // walk that missed it would let a server-only module into a client bundle
+  // unseen.
+  const tree = mkdtempSync(path.join(tmpdir(), "sbl-client-graph-"));
+  try {
+    mkdirSync(path.join(tree, "app"));
+    mkdirSync(path.join(tree, "lib"));
+    writeFileSync(
+      path.join(tree, "app", "panel.tsx"),
+      '"use client";\nimport { named } from "../lib/named";\nimport "@/lib/effect";\nconst later = () => import("../lib/dynamic");\nexport { later };\n'
+    );
+    for (const module of ["named", "effect", "dynamic", "unreached"]) writeFileSync(path.join(tree, "lib", `${module}.ts`), "export const named = 1;\n");
+    assert.deepEqual(clientImportTrails("lib/named.ts", tree), ["app/panel.tsx -> lib/named.ts"]);
+    assert.deepEqual(clientImportTrails("lib/effect.ts", tree), ["app/panel.tsx -> lib/effect.ts"]);
+    assert.deepEqual(clientImportTrails("lib/dynamic.ts", tree), ["app/panel.tsx -> lib/dynamic.ts"]);
+    assert.deepEqual(clientImportTrails("lib/unreached.ts", tree), []);
+  } finally {
+    rmSync(tree, { recursive: true, force: true });
   }
 });
 
