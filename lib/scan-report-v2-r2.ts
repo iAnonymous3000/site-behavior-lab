@@ -180,7 +180,10 @@ export type PublicScanReportV2R2 = PublicSingleReportV2R2 | PublicComparisonRepo
  * 2026-10-25, an optional `events` field carries the GA4 and Adobe Analytics
  * events the page sent in each window, inside it too. Since the answers and
  * labels brief of the same day, each window counts answered requests only and
- * can carry an optional `unanswered` count, inside it too.
+ * can carry an optional `unanswered` count, and beside a listed host or a
+ * destination the key can carry the same visit's list labels: an optional
+ * `filterLists`, each window's `matchedHosts` and `uncomparedHosts`, and each
+ * destination's `lists`, inside it too.
  */
 export type EphemeralSingleReportR2 = PublicSingleReportV2R2 & {
   ephemeral: {

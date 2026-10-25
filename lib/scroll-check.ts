@@ -7,8 +7,13 @@ import {
   MAX_SCROLL_CHECK_LISTED_HOSTS,
   MAX_SCROLL_CHECK_SCREENS,
   SCROLL_CHECK_INCOMPLETE_REASONS,
+  scrollCheckListState,
+  strongerScrollCheckListState,
+  type ScrollCheckEvents,
   type ScrollCheckEvidence,
+  type ScrollCheckFilterLists,
   type ScrollCheckIncompleteReason,
+  type ScrollCheckListState,
   type ScrollCheckOutcome,
   type ScrollCheckScrollWindow,
   type ScrollCheckWindow,
@@ -71,6 +76,16 @@ import type { ScrollCheckListedRequests, ScrollCheckStackRecorder, ScrollCheckSt
  * After its windows, the check waits, within its existing settle, for an
  * answer or a failure for every request the scanner sent in them. A failure's
  * error text is never read.
+ *
+ * LABELS (build brief 2026-10-25, part B). With list facts (the scanner's
+ * own page route's records, routeListFacts), each host a window lists and
+ * each analytics destination says how its counted requests compared with the
+ * default filter lists of Brave Shields in the same visit: matched, no match,
+ * or not compared, the strongest across them. A listed host's state is the
+ * strongest across every raw host it stands for, through the one raw-host
+ * mapping the call-stack join uses. Nothing is re-evaluated and no engine is
+ * called: the route already decided every request, check requests included,
+ * after the ordinary result froze its own Shields counts.
  */
 
 /** The check's fixed parameters (the measurement's, 2026-10-23). */
@@ -185,7 +200,53 @@ export type ScrollCheckRequestFacts<RequestT> = {
    * evidence. Without it, the check decodes no analytics events.
    */
   postData?(request: RequestT): AnalyticsBeaconBody;
+  /**
+   * The same visit's list decisions (routeListFacts). Read only for the
+   * requests a window counted, when the check builds its evidence. Without
+   * them, the evidence carries no labels, as before.
+   */
+  filterLists?: ScrollCheckListFacts<RequestT>;
 };
+
+/** What the scanner's page route knows of the lists, for one visit. */
+export type ScrollCheckListFacts<RequestT> = {
+  /** Whether the scanner loaded its list engine; without it nothing was compared. */
+  loaded: boolean;
+  /**
+   * The route's decision on one request: whether it matched, or null when
+   * the engine never ran for it (none loaded, a redirect's hop the route
+   * never sees, or a request the route found ineligible).
+   */
+  listMatch(request: RequestT): boolean | null;
+};
+
+/**
+ * The list facts from the records a scanner's page route already keeps
+ * (build brief 2026-10-25, B1): `classified`, the requests its metered engine
+ * wrapper actually ran on, and `matches`, the decisions it stored. Only
+ * `classified` says a request was compared: an ineligible request
+ * short-circuits to a stored `false` without the engine running, so reading
+ * `matches` alone would call it no match. Nothing here calls the engine.
+ */
+export function routeListFacts<RequestT extends object>(
+  loaded: boolean,
+  classified: WeakSet<RequestT>,
+  matches: WeakMap<RequestT, boolean>
+): ScrollCheckListFacts<RequestT> {
+  return {
+    loaded,
+    listMatch: (request) => (loaded && classified.has(request) ? matches.get(request) === true : null)
+  };
+}
+
+/** Each window's list labels, for the windows that ran, when the lists were compared. */
+export type ScrollCheckWindowLists = {
+  filterLists: ScrollCheckFilterLists;
+  control: ScrollCheckListLabels | null;
+  scroll: ScrollCheckListLabels | null;
+};
+
+type ScrollCheckListLabels = Required<Pick<ScrollCheckWindow, "matchedHosts" | "uncomparedHosts">>;
 
 /** Each window's requests that count for its analytics events, null for a window that did not run. */
 export type ScrollCheckEventRequests = {
@@ -376,16 +437,30 @@ export class ScrollCheckRecorder<RequestT extends object> {
     reasons: Set<ScrollCheckIncompleteReason>;
     scrollRequests?: ScrollCheckListedRequests[];
     events?: ScrollCheckEventRequests;
+    lists?: ScrollCheckWindowLists;
   } {
     const reasons = new Set<ScrollCheckIncompleteReason>();
     if (this.boundReached && (input.control || input.scroll)) reasons.add("host-bound");
     const facts = this.facts;
+    const listFacts = facts.filterLists;
+    const compared = listFacts !== undefined && listFacts.loaded;
+    // A fact that cannot be read costs the check its labels, never anything else.
+    let listsBroken = false;
+    const listMatchOf = (request: RequestT): boolean | null => {
+      try {
+        return listFacts?.listMatch(request) ?? null;
+      } catch {
+        listsBroken = true;
+        return null;
+      }
+    };
     const window = (interval: Interval, collect: boolean) => {
       // Each raw host first contacted here, in the order its first request
       // arrived: whether that first request was one the window could count
-      // (sent, third party, not the page's own navigation), and whether one
-      // of its requests here was counted.
-      const firstContactedRaw = new Map<string, { firstSent: boolean; counted: boolean }>();
+      // (sent, third party, not the page's own navigation), whether one of
+      // its requests here was counted, and, when the lists were compared, the
+      // strongest list state across its counted requests.
+      const firstContactedRaw = new Map<string, { firstSent: boolean; counted: boolean; lists: ScrollCheckListState }>();
       // For the call-stack join: every request of each raw host here, counted
       // or not, in arrival order.
       const requestsOf = new Map<string, ScrollCheckStackRequest[]>();
@@ -407,7 +482,12 @@ export class ScrollCheckRecorder<RequestT extends object> {
         const beacon = facts.postData !== undefined && sent && !entry.navigation && !entry.redirected && analyticsBeaconFormat(url) !== null;
         if (beacon && answered) {
           const request = entry.request;
-          eventRequests.push({ host: entry.host, url, body: () => facts.postData?.(request) ?? UNREAD_BODY });
+          eventRequests.push({
+            host: entry.host,
+            url,
+            body: () => facts.postData?.(request) ?? UNREAD_BODY,
+            ...(compared ? { listMatch: listMatchOf(request) } : {})
+          });
         }
         // Counted but for the answer: sent, third party, not the navigation.
         const countable = sent && !entry.navigation && isThirdParty(input.firstPartyHostname, entry.host);
@@ -430,10 +510,13 @@ export class ScrollCheckRecorder<RequestT extends object> {
         if (raw === undefined) {
           // The host's very first request, if the window holds it.
           if (this.firstEntries.get(entry.host) !== entry) continue;
-          raw = { firstSent: countable, counted: false };
+          raw = { firstSent: countable, counted: false, lists: "not-compared" };
           firstContactedRaw.set(entry.host, raw);
         }
-        if (counted) raw.counted = true;
+        if (!counted) continue;
+        raw.counted = true;
+        // Labels read counted requests only: sent, answered, not the navigation.
+        if (compared) raw.lists = strongerScrollCheckListState(raw.lists, scrollCheckListState(listMatchOf(entry.request)));
       }
       const firstContacted = new Map<string, Set<string>>();
       // The raw hosts each listed host stands for: those whose first request
@@ -458,9 +541,20 @@ export class ScrollCheckRecorder<RequestT extends object> {
             .flatMap((group) => group.hosts)
             .map((host) => ({ host, requests: [...(rawHostsOf.get(host) ?? [])].flatMap((raw) => requestsOf.get(raw) ?? []) }))
         : null;
+      // Each listed host's state is the strongest across the raw hosts it
+      // stands for, by the same mapping the join uses.
+      const stateOf = (host: string): ScrollCheckListState =>
+        [...(rawHostsOf.get(host) ?? [])].reduce<ScrollCheckListState>(
+          (state, raw) => strongerScrollCheckListState(state, firstContactedRaw.get(raw)?.lists ?? "not-compared"),
+          "not-compared"
+        );
+      const order = listed.hosts.flatMap((group) => group.hosts);
+      const labels: ScrollCheckListLabels | null = compared
+        ? { matchedHosts: order.filter((host) => stateOf(host) === "matched"), uncomparedHosts: order.filter((host) => stateOf(host) === "not-compared") }
+        : null;
       // Carried only when above 0.
       const noAnswer = unanswered > 0 ? { unanswered } : {};
-      return { listed, requests, knownHostRequests, noAnswer, listedRequests, eventRequests };
+      return { listed, requests, knownHostRequests, noAnswer, listedRequests, eventRequests, labels };
     };
     const controlRun = input.control ? window(input.control, false) : null;
     const scroll = input.scroll ? window(input.scroll, input.scrollRequests === true) : null;
@@ -471,6 +565,15 @@ export class ScrollCheckRecorder<RequestT extends object> {
       ...(scroll?.listedRequests ? { scrollRequests: scroll.listedRequests } : {}),
       ...(facts.postData !== undefined
         ? { events: { control: controlRun ? controlRun.eventRequests : null, scroll: scroll ? scroll.eventRequests : null } }
+        : {}),
+      ...(listFacts !== undefined && !listsBroken
+        ? {
+            lists: {
+              filterLists: listFacts.loaded ? "compared" : "unavailable",
+              control: controlRun?.labels ?? null,
+              scroll: scroll?.labels ?? null
+            }
+          }
         : {})
     };
   }
@@ -669,7 +772,14 @@ export async function runScrollCheck<RequestT extends object>(run: ScrollCheckRu
       run.stacks?.freeze();
       return CUT_SHORT_EVIDENCE;
     }
-    return withAnalyticsEvents(withCallStacks(evidence, run.stacks, windows.scrollRequests), windows.events, run.firstPartyHostname);
+    const lists = windows.lists;
+    const withEvents = withAnalyticsEvents(
+      withCallStacks(evidence, run.stacks, windows.scrollRequests),
+      windows.events,
+      run.firstPartyHostname,
+      lists?.filterLists === "compared"
+    );
+    return withListLabels(withEvents, lists);
   } catch {
     run.stacks?.freeze();
     return CUT_SHORT_EVIDENCE;
@@ -711,22 +821,72 @@ async function settle<RequestT extends object>(run: ScrollCheckRun<RequestT>, wi
  * The evidence with each window's analytics events, validated again with
  * them; without them when the check reads no bodies, no window received an
  * event or left one unread, or they would not validate. They can cost a check
- * its events, never anything else. It never throws.
+ * its events, never anything else. With `lists`, it also hands back the same
+ * events with each destination's list state, for withListLabels; the
+ * evidence it returns carries none. It never throws.
  */
 function withAnalyticsEvents(
   evidence: ScrollCheckEvidence,
   requests: ScrollCheckEventRequests | undefined,
-  firstPartyHostname: string
-): ScrollCheckEvidence {
-  if (requests === undefined) return evidence;
+  firstPartyHostname: string,
+  lists: boolean
+): { evidence: ScrollCheckEvidence; labelled?: ScrollCheckEvents } {
+  if (requests === undefined) return { evidence };
   try {
     const part = (window: unknown, counted: ScrollCheckEventRequest[] | null): ScrollCheckWindowEvents | null =>
-      window === null || counted === null ? null : scrollCheckWindowEvents(counted, firstPartyHostname);
+      window === null || counted === null ? null : scrollCheckWindowEvents(counted, firstPartyHostname, { lists });
     const control = part(evidence.control, requests.control);
     const scroll = part(evidence.scroll, requests.scroll);
     const shown = [control, scroll].some((events) => events !== null && (events.destinations.length > 0 || events.notDecoded > 0));
-    if (!shown) return evidence;
-    const carried: ScrollCheckEvidence = { ...evidence, events: { control, scroll } };
+    if (!shown) return { evidence };
+    // Validated without the destinations' list states, which the lists'
+    // filterLists must ride beside (withListLabels).
+    const carried: ScrollCheckEvidence = withoutListStates({ ...evidence, events: { control, scroll } });
+    if (!isScrollCheckEvidence(carried)) return { evidence };
+    return lists ? { evidence: carried, labelled: { control, scroll } } : { evidence: carried };
+  } catch {
+    return { evidence };
+  }
+}
+
+/** The evidence with no destination carrying a list state. */
+function withoutListStates(evidence: ScrollCheckEvidence): ScrollCheckEvidence {
+  if (evidence.events === undefined) return evidence;
+  const part = (window: ScrollCheckWindowEvents | null): ScrollCheckWindowEvents | null =>
+    window === null
+      ? null
+      : {
+          ...window,
+          destinations: window.destinations.map(({ lists: _lists, ...destination }) => destination)
+        };
+  return { ...evidence, events: { control: part(evidence.events.control), scroll: part(evidence.events.scroll) } };
+}
+
+/**
+ * The evidence with the lists' labels (build brief 2026-10-25, part B),
+ * validated a third time with them: `filterLists`, and when the lists were
+ * compared, each window's host arrays and each destination's state. Without
+ * them when the check had no list facts or the facts could not be read, and
+ * when the closed shape refuses them, as it does beside nothing to label.
+ * They can cost a check its labels, never anything else. It never throws.
+ */
+function withListLabels(
+  input: { evidence: ScrollCheckEvidence; labelled?: ScrollCheckEvents },
+  lists: ScrollCheckWindowLists | undefined
+): ScrollCheckEvidence {
+  const { evidence, labelled } = input;
+  if (lists === undefined) return evidence;
+  try {
+    const carried: ScrollCheckEvidence =
+      lists.filterLists === "compared"
+        ? {
+            ...evidence,
+            control: evidence.control && lists.control ? { ...evidence.control, ...lists.control } : evidence.control,
+            scroll: evidence.scroll && lists.scroll ? { ...evidence.scroll, ...lists.scroll } : evidence.scroll,
+            ...(evidence.events !== undefined && labelled !== undefined ? { events: labelled } : {}),
+            filterLists: "compared"
+          }
+        : { ...evidence, filterLists: "unavailable" };
     return isScrollCheckEvidence(carried) ? carried : evidence;
   } catch {
     return evidence;

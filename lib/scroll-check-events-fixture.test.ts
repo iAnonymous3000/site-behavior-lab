@@ -124,10 +124,14 @@ const OWN = redactHostnameV2("gtm.example.com").value;
 const line = (name: string, percent: number | null = null, count = 1) => ({ name, percent, count });
 const depth = (percent: number) => line(SCROLL_DEPTH_EVENT, percent);
 
+// Each destination also says how its beacons compared with the default
+// filter lists of Brave Shields in the same visit (build brief 2026-10-25,
+// part B): every one matched, the site's own GA4 address included, through
+// the lists' generic rules for the two formats.
 const EXPECTED_EVENTS = {
   control: {
     beacons: 1,
-    destinations: [{ format: "GA4", host: "collect.tally.net", ownSite: false, beacons: 1, events: [line("user_engagement")], customEvents: 0 }],
+    destinations: [{ format: "GA4", host: "collect.tally.net", ownSite: false, beacons: 1, events: [line("user_engagement")], customEvents: 0, lists: "matched" }],
     notDecoded: 0
   },
   scroll: {
@@ -139,9 +143,10 @@ const EXPECTED_EVENTS = {
         ownSite: true,
         beacons: 3,
         events: [line("page_view", null, 2), line("scroll", 90), depth(20), depth(40), depth(60)],
-        customEvents: 1
+        customEvents: 1,
+        lists: "matched"
       },
-      { format: "Adobe Analytics", host: "metrics.adobeprobe.net", ownSite: false, beacons: 2, events: [depth(25), depth(50)], customEvents: 0 }
+      { format: "Adobe Analytics", host: "metrics.adobeprobe.net", ownSite: false, beacons: 2, events: [depth(25), depth(50)], customEvents: 0, lists: "matched" }
     ],
     // The beacon whose body passed the scanner's cap: its URL's event is
     // counted, its body's are not guessed at.

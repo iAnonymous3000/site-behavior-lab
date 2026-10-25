@@ -20,6 +20,7 @@ import { ConnectionInspectionRecorder } from "./connection-inspection";
 import {
   abortableSleep,
   parseScrollState,
+  routeListFacts,
   runScrollCheck,
   SCROLL_CHECK_REQUEST_ALLOWANCE,
   SCROLL_CHECK_TIMING,
@@ -1385,14 +1386,18 @@ async function scanSiteWithMeasurementOnLeasedBrowser(
     // the page route's decisions; it asks the browser for nothing. Its
     // analytics events read a body only through this scanner's own bounded
     // helper, only for a request in a decoded format, when the check builds
-    // its evidence (lib/scroll-check-events.ts).
+    // its evidence (lib/scroll-check-events.ts). Its list labels read only
+    // what the page route below already records for every request, check
+    // requests included: the requests the metered engine wrapper ran on, and
+    // the decisions it stored. No engine is called for them.
     const scrollCheck =
       options.scrollCheck === true
         ? new ScrollCheckRecorder<Request>({
             url: (request) => request.url(),
             redirected: (request) => request.redirectedFrom() !== null,
             mainFrameNavigation: (request) => isMainFrameNavigationRequest(request, page),
-            postData: (request) => safeRequestPostDataWithCoverage(request)
+            postData: (request) => safeRequestPostDataWithCoverage(request),
+            filterLists: routeListFacts(adblockEngine !== null, shieldsClassifiedRequests, shieldsMatches)
           })
         : null;
     let beforeExcludedReloadDiagnostics: ScanEvidenceDiagnostics | null = null;

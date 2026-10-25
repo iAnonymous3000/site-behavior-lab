@@ -33,7 +33,11 @@ import { isRecord } from "./guards";
  * event name, a parameter, an identifier or any other value. Every count and
  * list holds answered requests only (build brief 2026-10-25, part A), and
  * each window can count, in `unanswered`, the requests it would otherwise
- * have counted that got no answer; nothing names them.
+ * have counted that got no answer; nothing names them. Beside a listed host
+ * or a destination, the evidence can say how the counted requests compared
+ * with the default filter lists of Brave Shields in the same visit (part
+ * B): whether the lists could be compared at all, and for each listed host
+ * and destination one of three states, never which rule matched.
  *
  * Kept apart from the builder so the client's report reader can validate the
  * block without the public-suffix list the redaction pass needs.
@@ -94,6 +98,33 @@ export const MAX_SCROLL_CHECK_EVENT_DESTINATIONS = 10;
  */
 export const MAX_SCROLL_CHECK_EVENT_LINES = 20;
 
+/**
+ * How the requests a check counted for one listed host, or for one analytics
+ * destination, compared with the default filter lists of Brave Shields in
+ * the same visit (build brief 2026-10-25, part B), the strongest across them,
+ * in this order:
+ * - `matched`: a counted request matched;
+ * - `no-match`: a counted request was compared, and none matched;
+ * - `not-compared`: no counted request was compared, as for a redirect's hop,
+ *   which the scanner's route never sees.
+ */
+export const SCROLL_CHECK_LIST_STATES = ["matched", "no-match", "not-compared"] as const;
+export type ScrollCheckListState = (typeof SCROLL_CHECK_LIST_STATES)[number];
+
+/** Whether the check compared its requests with the lists: `unavailable` when the scanner's engine was not loaded. */
+export const SCROLL_CHECK_FILTER_LISTS = ["compared", "unavailable"] as const;
+export type ScrollCheckFilterLists = (typeof SCROLL_CHECK_FILTER_LISTS)[number];
+
+/** One request's state from the same visit's fact: true matched, false compared with no match, null not compared. */
+export function scrollCheckListState(match: boolean | null): ScrollCheckListState {
+  return match === true ? "matched" : match === false ? "no-match" : "not-compared";
+}
+
+/** The stronger of two states. One rule, for listed hosts and destinations. */
+export function strongerScrollCheckListState(left: ScrollCheckListState, right: ScrollCheckListState): ScrollCheckListState {
+  return SCROLL_CHECK_LIST_STATES.indexOf(left) <= SCROLL_CHECK_LIST_STATES.indexOf(right) ? left : right;
+}
+
 /** One site's hosts, as the report publishes them, listed in name order. */
 export type ScrollCheckSiteHosts = {
   /** The site: the published form of the hosts' registrable domain. */
@@ -122,6 +153,16 @@ export type ScrollCheckWindow = {
    * (build brief 2026-10-25, part A).
    */
   unanswered?: number;
+  /**
+   * Of the hosts listed here, in their listed order, those with a counted
+   * request that matched the lists in the same visit. With
+   * `uncomparedHosts`, carried on every window that ran exactly when the
+   * evidence's `filterLists` is "compared", empty included; a listed host in
+   * neither had no match (build brief 2026-10-25, part B).
+   */
+  matchedHosts?: string[];
+  /** Of the hosts listed here, in their listed order, those with no counted request compared with the lists. */
+  uncomparedHosts?: string[];
 };
 
 /** One call stack a listed host's requests came with, as at most four published hosts. */
@@ -206,6 +247,12 @@ export type ScrollCheckEventDestination = {
   events: ScrollCheckEventCount[];
   /** Its events generalized to "custom event" (owner call 1), whose names are not shown. */
   customEvents: number;
+  /**
+   * How the beacons grouped into it compared with the lists in the same
+   * visit, the strongest across them. On every destination exactly when the
+   * evidence's `filterLists` is "compared" (build brief 2026-10-25, part B).
+   */
+  lists?: ScrollCheckListState;
 };
 
 /** The analytics events the page sent in one window. */
@@ -248,7 +295,21 @@ export type ScrollCheckEvidence = {
   addressChanged: boolean;
   /** The analytics events the page sent in its windows; present only when there is one to show or a request could not be read in full. */
   events?: ScrollCheckEvents;
+  /**
+   * Whether the check compared its counted requests with the default filter
+   * lists of Brave Shields, carried only beside something it labels: a host
+   * a window lists, or an event destination (build brief 2026-10-25, part
+   * B). A result from a scanner before labels carries none, beside any list.
+   */
+  filterLists?: ScrollCheckFilterLists;
 };
+
+/** Whether a window lists a host or an event destination: what the lists' labels can sit beside. One rule, for the check and its validator. */
+export function scrollCheckListsSomething(evidence: Pick<ScrollCheckEvidence, "control" | "scroll" | "events">): boolean {
+  const windows = [evidence.control, evidence.scroll];
+  const parts = evidence.events === undefined ? [] : [evidence.events.control, evidence.events.scroll];
+  return windows.some((window) => window !== null && window.hosts.length > 0) || parts.some((part) => part !== null && part.destinations.length > 0);
+}
 
 function compareText(left: string, right: string): number {
   return left < right ? -1 : left > right ? 1 : 0;
@@ -288,7 +349,7 @@ const EVIDENCE_KEYS = ["outcome", "screens", "control", "scroll", "incomplete", 
 const WINDOW_KEYS = ["hosts", "hostCount", "siteCount", "requests"] as const;
 const SCROLL_WINDOW_KEYS = [...WINDOW_KEYS, "knownHostRequests"] as const;
 /** Keys either window may carry or leave out. */
-const WINDOW_OPTIONAL_KEYS = ["unanswered"] as const;
+const WINDOW_OPTIONAL_KEYS = ["unanswered", "matchedHosts", "uncomparedHosts"] as const;
 /** Keys the scroll window alone may carry or leave out. */
 const SCROLL_WINDOW_OPTIONAL_KEYS = [...WINDOW_OPTIONAL_KEYS, "stacks"] as const;
 const SITE_KEYS = ["site", "hosts"] as const;
@@ -303,10 +364,12 @@ const HOST_STACK_KEYS = [
   "unobserved"
 ] as const;
 const STACK_GROUP_KEYS = ["count", "hosts"] as const;
-const EVIDENCE_EVENTS_KEYS = [...EVIDENCE_KEYS, "events"] as const;
+/** Keys the evidence may carry or leave out. */
+const EVIDENCE_OPTIONAL_KEYS = ["events", "filterLists"] as const;
 const EVENTS_KEYS = ["control", "scroll"] as const;
 const WINDOW_EVENTS_KEYS = ["beacons", "destinations", "notDecoded"] as const;
 const DESTINATION_KEYS = ["format", "host", "ownSite", "beacons", "events", "customEvents"] as const;
+const LISTED_DESTINATION_KEYS = [...DESTINATION_KEYS, "lists"] as const;
 const EVENT_COUNT_KEYS = ["name", "percent", "count"] as const;
 const GA4_NAMES = new Set(GA4_STANDARD_EVENT_NAMES);
 const ADOBE_NAMES = new Set(ADOBE_LINK_TYPE_NAMES);
@@ -316,8 +379,8 @@ function hasExactlyKeys(value: Record<string, unknown>, keys: readonly string[])
   return own.length === keys.length && keys.every((key) => Object.prototype.hasOwnProperty.call(value, key));
 }
 
-/** A window's own keys, then whichever of its optional keys it carries. */
-function windowKeys(value: unknown, keys: readonly string[], optional: readonly string[]): string[] {
+/** A shape's own keys, then whichever of its optional keys it carries. */
+function keysCarried(value: unknown, keys: readonly string[], optional: readonly string[]): string[] {
   return isRecord(value) ? [...keys, ...optional.filter((key) => Object.prototype.hasOwnProperty.call(value, key))] : [...keys];
 }
 
@@ -411,6 +474,33 @@ function areHostStacks(value: unknown, window: ScrollCheckScrollWindow): boolean
   return total <= window.requests - window.knownHostRequests;
 }
 
+/**
+ * A window's list labels. With `compared`, both arrays, each holding listed
+ * hosts in their listed order, each once, and none in both; otherwise
+ * neither array.
+ */
+function areListLabels(window: ScrollCheckWindow, compared: boolean): boolean {
+  const matched = Object.prototype.hasOwnProperty.call(window, "matchedHosts");
+  const uncompared = Object.prototype.hasOwnProperty.call(window, "uncomparedHosts");
+  if (!compared) return !matched && !uncompared;
+  if (!matched || !uncompared) return false;
+  const listed = window.hosts.flatMap((group) => group.hosts);
+  const inListedOrder = (hosts: unknown): hosts is string[] => {
+    if (!Array.isArray(hosts)) return false;
+    let last = -1;
+    for (const host of hosts) {
+      // A host not listed reads -1, never after the last.
+      const at = typeof host === "string" ? listed.indexOf(host) : -1;
+      if (at <= last) return false;
+      last = at;
+    }
+    return true;
+  };
+  const { matchedHosts, uncomparedHosts } = window;
+  if (!inListedOrder(matchedHosts) || !inListedOrder(uncomparedHosts)) return false;
+  return !matchedHosts.some((host) => uncomparedHosts.includes(host));
+}
+
 function isPercent(value: unknown): value is number {
   return isCount(value) && value <= 100;
 }
@@ -425,8 +515,10 @@ function isEventCount(value: unknown, format: AnalyticsFormat): value is ScrollC
   return ADOBE_NAMES.has(name) && percent === null;
 }
 
-function isEventDestination(value: unknown): value is ScrollCheckEventDestination {
-  if (!isRecord(value) || !hasExactlyKeys(value, DESTINATION_KEYS)) return false;
+/** A destination; with `compared`, carrying its list state, and otherwise none. */
+function isEventDestination(value: unknown, compared: boolean): value is ScrollCheckEventDestination {
+  if (!isRecord(value) || !hasExactlyKeys(value, compared ? LISTED_DESTINATION_KEYS : DESTINATION_KEYS)) return false;
+  if (compared && !(SCROLL_CHECK_LIST_STATES as readonly unknown[]).includes(value.lists)) return false;
   const { format, host, ownSite, beacons, events, customEvents } = value;
   if (typeof format !== "string" || !(ANALYTICS_FORMATS as readonly string[]).includes(format)) return false;
   if (!isPublishedHost(host) || typeof ownSite !== "boolean") return false;
@@ -442,12 +534,12 @@ function isEventDestination(value: unknown): value is ScrollCheckEventDestinatio
   return format === GA4_FORMAT || total <= beacons;
 }
 
-function isWindowEvents(value: unknown): value is ScrollCheckWindowEvents {
+function isWindowEvents(value: unknown, compared: boolean): value is ScrollCheckWindowEvents {
   if (!isRecord(value) || !hasExactlyKeys(value, WINDOW_EVENTS_KEYS)) return false;
   const { beacons, destinations, notDecoded } = value;
   if (!isCount(beacons) || beacons > MAX_SCROLL_CHECK_EVENT_BEACONS || !isCount(notDecoded)) return false;
   if (!Array.isArray(destinations) || destinations.length > MAX_SCROLL_CHECK_EVENT_DESTINATIONS) return false;
-  if (!destinations.every(isEventDestination)) return false;
+  if (!destinations.every((destination) => isEventDestination(destination, compared))) return false;
   const listed = destinations as ScrollCheckEventDestination[];
   // Each destination once, in the listed order.
   if (listed.some((destination, index) => index > 0 && compareScrollCheckEventDestinations(listed[index - 1], destination) >= 0)) return false;
@@ -460,9 +552,9 @@ function isWindowEvents(value: unknown): value is ScrollCheckWindowEvents {
 /**
  * Both windows' events: each part present exactly when its window is, and
  * the whole carried only when some window received an event or could not be
- * read in full.
+ * read in full. With `compared`, every destination carries its list state.
  */
-function areScrollCheckEvents(value: unknown, control: unknown, scroll: unknown): value is ScrollCheckEvents {
+function areScrollCheckEvents(value: unknown, control: unknown, scroll: unknown, compared: boolean): value is ScrollCheckEvents {
   if (!isRecord(value) || !hasExactlyKeys(value, EVENTS_KEYS)) return false;
   const parts: Array<[unknown, unknown]> = [
     [value.control, control],
@@ -470,7 +562,7 @@ function areScrollCheckEvents(value: unknown, control: unknown, scroll: unknown)
   ];
   for (const [part, window] of parts) {
     if ((part === null) !== (window === null)) return false;
-    if (part !== null && !isWindowEvents(part)) return false;
+    if (part !== null && !isWindowEvents(part, compared)) return false;
   }
   return parts.some(([part]) => part !== null && ((part as ScrollCheckWindowEvents).destinations.length > 0 || (part as ScrollCheckWindowEvents).notDecoded > 0));
 }
@@ -482,21 +574,28 @@ function areScrollCheckEvents(value: unknown, control: unknown, scroll: unknown)
  */
 export function isScrollCheckEvidence(value: unknown): value is ScrollCheckEvidence {
   if (!isRecord(value)) return false;
-  // The analytics events are the evidence's only optional part.
+  // The analytics events and the lists' labels are the evidence's optional parts.
+  if (!hasExactlyKeys(value, keysCarried(value, EVIDENCE_KEYS, EVIDENCE_OPTIONAL_KEYS))) return false;
   const withEvents = Object.prototype.hasOwnProperty.call(value, "events");
-  if (!hasExactlyKeys(value, withEvents ? EVIDENCE_EVENTS_KEYS : EVIDENCE_KEYS)) return false;
+  const withLists = Object.prototype.hasOwnProperty.call(value, "filterLists");
+  if (withLists && !(SCROLL_CHECK_FILTER_LISTS as readonly unknown[]).includes(value.filterLists)) return false;
+  const compared = value.filterLists === "compared";
   const { outcome, screens, control, scroll, incomplete, addressChanged } = value;
   if (typeof outcome !== "string" || !(SCROLL_CHECK_OUTCOMES as readonly string[]).includes(outcome)) return false;
   if (!isCount(screens) || screens > MAX_SCROLL_CHECK_SCREENS) return false;
   if (typeof addressChanged !== "boolean") return false;
-  if (control !== null && !isWindow(control, windowKeys(control, WINDOW_KEYS, WINDOW_OPTIONAL_KEYS))) return false;
+  if (control !== null && !isWindow(control, keysCarried(control, WINDOW_KEYS, WINDOW_OPTIONAL_KEYS))) return false;
   if (scroll !== null) {
     // Call stacks are the scroll window's own optional part.
     const withStacks = isRecord(scroll) && Object.prototype.hasOwnProperty.call(scroll, "stacks");
-    if (!isWindow(scroll, windowKeys(scroll, SCROLL_WINDOW_KEYS, SCROLL_WINDOW_OPTIONAL_KEYS))) return false;
+    if (!isWindow(scroll, keysCarried(scroll, SCROLL_WINDOW_KEYS, SCROLL_WINDOW_OPTIONAL_KEYS))) return false;
     const window = scroll as ScrollCheckScrollWindow;
     if (!isCount(window.knownHostRequests) || window.requests < window.hostCount + window.knownHostRequests) return false;
     if (withStacks && !areHostStacks(window.stacks, window)) return false;
+  }
+  // The lists' labels ride every window that ran when the lists were compared, and none otherwise.
+  for (const window of [control, scroll]) {
+    if (window !== null && !areListLabels(window as ScrollCheckWindow, compared)) return false;
   }
   if (!Array.isArray(incomplete)) return false;
   const reasons = SCROLL_CHECK_INCOMPLETE_REASONS as readonly string[];
@@ -507,7 +606,10 @@ export function isScrollCheckEvidence(value: unknown): value is ScrollCheckEvide
   // only when the visit moved the page; so is a change of address.
   if (scroll !== null && (control === null || screens === 0)) return false;
   if (addressChanged && screens === 0) return false;
-  if (withEvents && !areScrollCheckEvents(value.events, control, scroll)) return false;
+  if (withEvents && !areScrollCheckEvents(value.events, control, scroll, compared)) return false;
+  // Labels sit only beside something they label. One direction only: a
+  // result from a scanner before labels lists hosts and carries none.
+  if (withLists && !scrollCheckListsSomething(value as ScrollCheckEvidence)) return false;
   switch (outcome) {
     case "not-run":
       return screens === 0 && control === null && scroll === null && incomplete.length === 0 && !addressChanged;

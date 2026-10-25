@@ -9,8 +9,11 @@ import {
   MAX_SCROLL_CHECK_EVENT_DESTINATIONS,
   MAX_SCROLL_CHECK_EVENT_LINES,
   scrollCheckDestinationEventTotal,
+  scrollCheckListState,
+  strongerScrollCheckListState,
   type ScrollCheckEventCount,
   type ScrollCheckEventDestination,
+  type ScrollCheckListState,
   type ScrollCheckWindowEvents
 } from "./scroll-check-evidence";
 
@@ -36,6 +39,10 @@ import {
  * - at most 10 destinations, the most events first; the beacons of the rest;
  * - at most 20 event lines per destination, in the listed order; the beacons
  *   that carried the rest.
+ *
+ * LISTS (build brief 2026-10-25, part B). Asked to, it gives each destination
+ * the strongest list state across the beacons grouped into it, from the same
+ * visit's fact the recorder read for each request; nothing is re-evaluated.
  */
 
 /** One request the check's own window counted for its analytics events. */
@@ -45,17 +52,29 @@ export type ScrollCheckEventRequest = {
   url: string;
   /** Its body through the scanner's own bounded helper, read only if the window decodes it. */
   body(): AnalyticsBeaconBody;
+  /** The same visit's list fact for it (lib/scroll-check.ts), when the check compared its requests with the lists. */
+  listMatch?: boolean | null;
 };
 
 type DestinationDraft = {
-  destination: Omit<ScrollCheckEventDestination, "events">;
+  destination: Omit<ScrollCheckEventDestination, "events" | "lists">;
   /** Each line, by name and percent, and the requests that carried it. */
   lines: Map<string, { line: ScrollCheckEventCount; carriers: Set<number> }>;
   requests: number[];
+  /** The strongest list state across its beacons so far. */
+  lists: ScrollCheckListState | null;
 };
 
-/** One window's events from the requests its recorder counted for them, in arrival order. It never reads more than 200 bodies. */
-export function scrollCheckWindowEvents(requests: readonly ScrollCheckEventRequest[], firstPartyHostname: string): ScrollCheckWindowEvents {
+/**
+ * One window's events from the requests its recorder counted for them, in
+ * arrival order. It never reads more than 200 bodies. With `lists`, each
+ * destination carries its list state.
+ */
+export function scrollCheckWindowEvents(
+  requests: readonly ScrollCheckEventRequest[],
+  firstPartyHostname: string,
+  options: { lists?: boolean } = {}
+): ScrollCheckWindowEvents {
   const drafts = new Map<string, DestinationDraft>();
   // Requests whose events were not all read or listed, each once.
   const notRead = new Set<number>();
@@ -75,11 +94,15 @@ export function scrollCheckWindowEvents(requests: readonly ScrollCheckEventReque
     const key = JSON.stringify([decoded.format, host, ownSite]);
     let draft = drafts.get(key);
     if (draft === undefined) {
-      draft = { destination: { format: decoded.format, host, ownSite, beacons: 0, customEvents: 0 }, lines: new Map(), requests: [] };
+      draft = { destination: { format: decoded.format, host, ownSite, beacons: 0, customEvents: 0 }, lines: new Map(), requests: [], lists: null };
       drafts.set(key, draft);
     }
     draft.destination.beacons += 1;
     draft.requests.push(index);
+    if (options.lists === true) {
+      const state = scrollCheckListState(request.listMatch ?? null);
+      draft.lists = draft.lists === null ? state : strongerScrollCheckListState(draft.lists, state);
+    }
     for (const event of decoded.events) {
       if (event.name === CUSTOM_EVENT_LABEL) {
         draft.destination.customEvents += 1;
@@ -111,7 +134,8 @@ export function scrollCheckWindowEvents(requests: readonly ScrollCheckEventReque
       for (const index of carriers) notRead.add(index);
     }
     const events = full.events.slice(0, MAX_SCROLL_CHECK_EVENT_LINES).map((line) => ({ ...line }));
-    return { format: full.format, host: full.host, ownSite: full.ownSite, beacons: full.beacons, events, customEvents: full.customEvents };
+    const listed: ScrollCheckEventDestination = { format: full.format, host: full.host, ownSite: full.ownSite, beacons: full.beacons, events, customEvents: full.customEvents };
+    return options.lists === true ? { ...listed, lists: draft.lists ?? "not-compared" } : listed;
   });
   return { beacons, destinations, notDecoded: pastBound + notRead.size };
 }

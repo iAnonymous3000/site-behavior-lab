@@ -7,6 +7,7 @@ import {
   type ScrollCheckEventCount,
   type ScrollCheckEventDestination,
   type ScrollCheckEvidence,
+  type ScrollCheckListState,
   type ScrollCheckWindowEvents
 } from "./scroll-check-evidence";
 import { displayHost } from "./text-format";
@@ -28,6 +29,11 @@ import { displayHost } from "./text-format";
  * review, and a corrected draft stands where the approved sentence would be
  * false for what a result records, with the approved text beside it: each is
  * named where it is used.
+ *
+ * Since the answers and labels brief of the same day (owner calls 4 and 6), a
+ * destination that carries a list state says it in brackets before its
+ * colon, and a labelled destination on the site itself adds Brave's own
+ * account of its Standard setting, attributed to Brave, once.
  */
 
 /** The folded section's summary, approved. */
@@ -104,13 +110,35 @@ function customEventsClause(k: number, after: boolean): string {
 }
 
 /**
+ * A destination's list state (build brief 2026-10-25, part B), approved, in
+ * brackets before the colon: "GA4 events to analytics.google.com (matched
+ * the default filter lists of Brave Shields): scroll (90%)."
+ */
+export const SCROLL_CHECK_EVENTS_LIST_LABELS: Readonly<Record<ScrollCheckListState, string>> = {
+  matched: "(matched the default filter lists of Brave Shields)",
+  "no-match": "(no match in those lists)",
+  "not-compared": "(not compared with those lists)"
+};
+
+/**
+ * Once, when a destination on the site itself carries a list label (owner
+ * call 4, option a), approved, and attributed to Brave: its policy also names
+ * harmful behaviors it blocks wherever they are, and this check does not
+ * establish Brave's behavior.
+ */
+export const SCROLL_CHECK_EVENTS_STANDARD_SETTING =
+  "Brave says its default Standard setting does not apply these lists to requests to a site's own addresses; its Aggressive setting does.";
+
+/**
  * One destination of the scroll window, approved: "GA4 events to
  * analytics.google.com: scroll (90%)." and "Adobe Analytics events to
  * smetrics.capitalone.com, an address on this site: scroll depth 25%, 50%,
- * 75%, 100%.", its custom events after its named ones.
+ * 75%, 100%.", its custom events after its named ones, and its list label,
+ * when it carries one, before the colon.
  */
 export function scrollCheckEventDestinationLine(destination: ScrollCheckEventDestination): string {
-  const where = `${destination.format} events to ${displayHost(destination.host)}${destination.ownSite ? ", an address on this site" : ""}:`;
+  const label = destination.lists === undefined ? "" : ` ${SCROLL_CHECK_EVENTS_LIST_LABELS[destination.lists]}`;
+  const where = `${destination.format} events to ${displayHost(destination.host)}${destination.ownSite ? ", an address on this site" : ""}${label}:`;
   const named = scrollCheckEventNames(destination.events);
   if (destination.customEvents === 0) return `${where} ${named}.`;
   if (named === "") return `${where} ${customEventsClause(destination.customEvents, false)}.`;
@@ -166,6 +194,8 @@ export type ScrollCheckEventsCopy = {
   destinations: string[];
   /** One note per format of the scroll window's destinations on the visited site. */
   ownSite: string[];
+  /** Brave's Standard setting, once, when a destination on the visited site carries a list label. */
+  standardSetting?: string;
   /** Both windows' requests not read in full or listed, when there are any. */
   notDecoded: string | null;
   /** The scope caveat, then the timing caveat when the scroll window sent events. */
@@ -190,6 +220,9 @@ export function scrollCheckEventsCopy(evidence: Pick<ScrollCheckEvidence, "event
     scroll: scroll === null ? null : scrollCheckEventsScrollLine(sent),
     destinations: destinations.map(scrollCheckEventDestinationLine),
     ownSite: ownSiteFormats.map(scrollCheckEventsOwnSiteNote),
+    ...(destinations.some((destination) => destination.ownSite && destination.lists !== undefined)
+      ? { standardSetting: SCROLL_CHECK_EVENTS_STANDARD_SETTING }
+      : {}),
     notDecoded: notDecoded > 0 ? scrollCheckEventsNotDecodedLine(notDecoded, atABound(events.control) || atABound(scroll)) : null,
     caveats: sent > 0 ? [SCROLL_CHECK_EVENTS_SCOPE, SCROLL_CHECK_EVENTS_TIMING] : [SCROLL_CHECK_EVENTS_SCOPE]
   };

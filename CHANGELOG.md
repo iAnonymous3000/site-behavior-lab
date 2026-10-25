@@ -9,6 +9,41 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- A check after scrolling now labels each host it lists, and each analytics
+  destination, with how its counted requests compared with the default
+  filter lists of Brave Shields in the same visit (build brief approved
+  2026-10-25, part B, owner calls 3, 4 and 6): matched, no match, or not
+  compared, the strongest across them. The labels read only what the
+  scanner's page route already records for every request, check requests
+  included: the requests its metered engine wrapper ran on
+  (`shieldsClassifiedRequests`) and the decisions it stored
+  (`shieldsMatches`). No engine is called for them, and a request outside
+  the classified set reads as not compared even when a decision was stored
+  for it, as an ineligible request's `false` is. A listed host takes the
+  strongest state across every raw host it stands for, through the raw-host
+  mapping the call-stack join uses, and a destination the strongest across
+  the beacons grouped into it. The evidence carries an optional
+  `filterLists`, "compared" or "unavailable" (the engine not loaded), only
+  beside a listed host or an event destination; with "compared", every
+  window that ran carries `matchedHosts` and `uncomparedHosts`, the listed
+  hosts in those states in listed order, and every destination its `lists`.
+  A part the closed validator refuses is dropped alone, and a result
+  without labels, an older container's included, still validates. The
+  result's copy splits a labelled window's hosts under up to three
+  headings, brackets each destination's state before its colon, adds
+  Brave's own account of its Standard setting once beside a labelled
+  destination on the site itself, and adds the report's matching caveat and
+  the approved blocking caveat once when a label shows, or, without the
+  engine, "This check could not compare its requests with the default
+  filter lists of Brave Shields." The heading for hosts not compared is a
+  corrected draft: the approved "`<i>` were reached only through redirects,
+  which this check does not compare with the lists:" names a reason the
+  evidence does not carry, so it reads "`<i>` had no request this check
+  compared with the lists; it does not compare requests that followed a
+  redirect:", the approved text beside it. A serial-lane fixture, through
+  the real scanner, its engine and the vendored lists, shows all three
+  states, a listed host over two raw hosts in different states, and the
+  site's own GA4 address matched.
 - A check after scrolling now counts a request only once its host answered
   it, with a response at any status (build brief approved 2026-10-25, part A,
   owner calls 1 and 2). Until now the check took a request the scanner sent
