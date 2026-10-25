@@ -1,3 +1,12 @@
+import {
+  ADOBE_LINK_TYPE_NAMES,
+  ANALYTICS_FORMATS,
+  GA4_FORMAT,
+  GA4_SCROLL_EVENT,
+  GA4_STANDARD_EVENT_NAMES,
+  SCROLL_DEPTH_EVENT,
+  type AnalyticsFormat
+} from "./analytics-event-vocabulary";
 import { isPublishedHost, MAX_INSPECTION_GROUP_HOSTS } from "./connection-inspection-evidence";
 import { isRecord } from "./guards";
 
@@ -16,6 +25,12 @@ import { isRecord } from "./guards";
  * scroll window lists, it can also hold which scripts were on the call stack
  * of its requests, as hosts only, under Inspect's rules (build brief
  * 2026-10-24): never a script address, function name, position, id or depth.
+ * And for each window, it can hold the GA4 and Adobe Analytics events the
+ * page sent, the site's own collection addresses included (build brief
+ * 2026-10-25): per destination, its format, its published host, whether it is
+ * on the visited site, and its events named only in the shared vocabulary's
+ * words (lib/analytics-event-vocabulary.ts), with counts; never a site's own
+ * event name, a parameter, an identifier or any other value.
  *
  * Kept apart from the builder so the client's report reader can validate the
  * block without the public-suffix list the redaction pass needs.
@@ -65,6 +80,16 @@ export const MAX_SCROLL_CHECK_LISTED_HOSTS = 20;
  * its `notListed`.
  */
 export const MAX_SCROLL_CHECK_STACK_GROUPS = 3;
+/** At most this many analytics beacons are decoded per window; the rest are counted in its `notDecoded`. */
+export const MAX_SCROLL_CHECK_EVENT_BEACONS = 200;
+/** At most this many destinations are listed per window; the beacons of the rest are counted in its `notDecoded`. */
+export const MAX_SCROLL_CHECK_EVENT_DESTINATIONS = 10;
+/**
+ * At most this many event lines (a name, its percent, and a count) are
+ * listed per destination; the beacons that carried the rest are counted in
+ * the window's `notDecoded`.
+ */
+export const MAX_SCROLL_CHECK_EVENT_LINES = 20;
 
 /** One site's hosts, as the report publishes them, listed in name order. */
 export type ScrollCheckSiteHosts = {
@@ -143,6 +168,61 @@ export type ScrollCheckScrollWindow = ScrollCheckWindow & {
   stacks?: ScrollCheckHostStacks[];
 };
 
+/** One kind of event a destination received in a window, and how many. */
+export type ScrollCheckEventCount = {
+  /**
+   * A word of the shared vocabulary (lib/analytics-event-vocabulary.ts): a
+   * GA4 standard event name for a GA4 destination, an Adobe link type for an
+   * Adobe one, or "scroll depth" for either. Never a site's own name.
+   */
+  name: string;
+  /** GA4's percent_scrolled on its scroll event, or a scroll depth's percent (always present for one); otherwise null. */
+  percent: number | null;
+  count: number;
+};
+
+/** One address that received decoded events in a window. */
+export type ScrollCheckEventDestination = {
+  format: AnalyticsFormat;
+  /** The address's host, through the report's own hostname redaction. */
+  host: string;
+  /** Whether that host is on the visited site, by the scanner's own third-party rule. */
+  ownSite: boolean;
+  /** The decoded beacons this destination received in the window. */
+  beacons: number;
+  /** Its events by name, then percent, at most twenty lines. */
+  events: ScrollCheckEventCount[];
+  /** Its events generalized to "custom event" (owner call 1), whose names are not shown. */
+  customEvents: number;
+};
+
+/** The analytics events the page sent in one window. */
+export type ScrollCheckWindowEvents = {
+  /** Requests in a decoded format that the window decoded: at most 200. */
+  beacons: number;
+  /** The destinations that received at least one event, the most events first, at most ten. */
+  destinations: ScrollCheckEventDestination[];
+  /**
+   * Requests whose events were not all read or listed, each once: a body
+   * truncated, unreadable or in no recognized shape, and anything past a
+   * bound (beacons past 200, a destination past ten, an event line past
+   * twenty).
+   */
+  notDecoded: number;
+};
+
+/**
+ * The GA4 and Adobe Analytics events the page sent in each window that ran
+ * to its end, carried only when one of them received an event or could not
+ * be read in full (build brief 2026-10-25, owner call 2: both windows).
+ */
+export type ScrollCheckEvents = {
+  /** The window without input; null exactly when the evidence's own `control` is. */
+  control: ScrollCheckWindowEvents | null;
+  /** The scroll window; null exactly when the evidence's own `scroll` is. */
+  scroll: ScrollCheckWindowEvents | null;
+};
+
 export type ScrollCheckEvidence = {
   outcome: ScrollCheckOutcome;
   /** Screens the visit scrolled, 0 to 8. */
@@ -154,7 +234,43 @@ export type ScrollCheckEvidence = {
   incomplete: ScrollCheckIncompleteReason[];
   /** Whether the page changed its own address while the visit scrolled. */
   addressChanged: boolean;
+  /** The analytics events the page sent in its windows; present only when there is one to show or a request could not be read in full. */
+  events?: ScrollCheckEvents;
 };
+
+function compareText(left: string, right: string): number {
+  return left < right ? -1 : left > right ? 1 : 0;
+}
+
+/** A destination's events, named and custom. */
+export function scrollCheckDestinationEventTotal(destination: Pick<ScrollCheckEventDestination, "events" | "customEvents">): number {
+  return destination.events.reduce((sum, event) => sum + event.count, 0) + destination.customEvents;
+}
+
+/** The listed order of a destination's event lines: by name, then by percent, none first. One rule, for the builder and the validator. */
+export function compareScrollCheckEventCounts(left: Pick<ScrollCheckEventCount, "name" | "percent">, right: Pick<ScrollCheckEventCount, "name" | "percent">): number {
+  const byName = compareText(left.name, right.name);
+  if (byName !== 0) return byName;
+  if (left.percent === right.percent) return 0;
+  if (left.percent === null) return -1;
+  if (right.percent === null) return 1;
+  return left.percent - right.percent;
+}
+
+/**
+ * The listed order of a window's destinations: the most events first, then
+ * the most beacons, then GA4 before Adobe Analytics, then by host, the
+ * site's own address first. One rule, for the builder and the validator.
+ */
+export function compareScrollCheckEventDestinations(left: ScrollCheckEventDestination, right: ScrollCheckEventDestination): number {
+  return (
+    scrollCheckDestinationEventTotal(right) - scrollCheckDestinationEventTotal(left) ||
+    right.beacons - left.beacons ||
+    ANALYTICS_FORMATS.indexOf(left.format) - ANALYTICS_FORMATS.indexOf(right.format) ||
+    compareText(left.host, right.host) ||
+    (left.ownSite === right.ownSite ? 0 : left.ownSite ? -1 : 1)
+  );
+}
 
 const EVIDENCE_KEYS = ["outcome", "screens", "control", "scroll", "incomplete", "addressChanged"] as const;
 const WINDOW_KEYS = ["hosts", "hostCount", "siteCount", "requests"] as const;
@@ -172,6 +288,13 @@ const HOST_STACK_KEYS = [
   "unobserved"
 ] as const;
 const STACK_GROUP_KEYS = ["count", "hosts"] as const;
+const EVIDENCE_EVENTS_KEYS = [...EVIDENCE_KEYS, "events"] as const;
+const EVENTS_KEYS = ["control", "scroll"] as const;
+const WINDOW_EVENTS_KEYS = ["beacons", "destinations", "notDecoded"] as const;
+const DESTINATION_KEYS = ["format", "host", "ownSite", "beacons", "events", "customEvents"] as const;
+const EVENT_COUNT_KEYS = ["name", "percent", "count"] as const;
+const GA4_NAMES = new Set(GA4_STANDARD_EVENT_NAMES);
+const ADOBE_NAMES = new Set(ADOBE_LINK_TYPE_NAMES);
 
 function hasExactlyKeys(value: Record<string, unknown>, keys: readonly string[]): boolean {
   const own = Object.keys(value);
@@ -266,13 +389,80 @@ function areHostStacks(value: unknown, window: ScrollCheckScrollWindow): boolean
   return total <= window.requests - window.knownHostRequests;
 }
 
+function isPercent(value: unknown): value is number {
+  return isCount(value) && value <= 100;
+}
+
+/** A name of the shared vocabulary that fits the destination's format, with the percent only that name can carry. */
+function isEventCount(value: unknown, format: AnalyticsFormat): value is ScrollCheckEventCount {
+  if (!isRecord(value) || !hasExactlyKeys(value, EVENT_COUNT_KEYS)) return false;
+  const { name, percent, count } = value;
+  if (!isCount(count) || count === 0 || typeof name !== "string") return false;
+  if (name === SCROLL_DEPTH_EVENT) return isPercent(percent);
+  if (format === GA4_FORMAT) return GA4_NAMES.has(name) && (percent === null || (name === GA4_SCROLL_EVENT && isPercent(percent)));
+  return ADOBE_NAMES.has(name) && percent === null;
+}
+
+function isEventDestination(value: unknown): value is ScrollCheckEventDestination {
+  if (!isRecord(value) || !hasExactlyKeys(value, DESTINATION_KEYS)) return false;
+  const { format, host, ownSite, beacons, events, customEvents } = value;
+  if (typeof format !== "string" || !(ANALYTICS_FORMATS as readonly string[]).includes(format)) return false;
+  if (!isPublishedHost(host) || typeof ownSite !== "boolean") return false;
+  if (!isCount(beacons) || beacons === 0 || !isCount(customEvents)) return false;
+  if (!Array.isArray(events) || events.length > MAX_SCROLL_CHECK_EVENT_LINES) return false;
+  if (!events.every((event) => isEventCount(event, format as AnalyticsFormat))) return false;
+  // Each name and percent once, in the listed order.
+  if (events.some((event, index) => index > 0 && compareScrollCheckEventCounts(events[index - 1], event) >= 0)) return false;
+  const total = scrollCheckDestinationEventTotal(value as ScrollCheckEventDestination);
+  // A destination is listed for an event it received, and an Adobe
+  // Analytics beacon is one event at most.
+  if (total === 0) return false;
+  return format === GA4_FORMAT || total <= beacons;
+}
+
+function isWindowEvents(value: unknown): value is ScrollCheckWindowEvents {
+  if (!isRecord(value) || !hasExactlyKeys(value, WINDOW_EVENTS_KEYS)) return false;
+  const { beacons, destinations, notDecoded } = value;
+  if (!isCount(beacons) || beacons > MAX_SCROLL_CHECK_EVENT_BEACONS || !isCount(notDecoded)) return false;
+  if (!Array.isArray(destinations) || destinations.length > MAX_SCROLL_CHECK_EVENT_DESTINATIONS) return false;
+  if (!destinations.every(isEventDestination)) return false;
+  const listed = destinations as ScrollCheckEventDestination[];
+  // Each destination once, in the listed order.
+  if (listed.some((destination, index) => index > 0 && compareScrollCheckEventDestinations(listed[index - 1], destination) >= 0)) return false;
+  // Every beacon a destination received is one the window decoded.
+  if (listed.reduce((sum, destination) => sum + destination.beacons, 0) > beacons) return false;
+  // Short of the decode bound, every request not read in full or listed is one the window decoded.
+  return beacons === MAX_SCROLL_CHECK_EVENT_BEACONS || notDecoded <= beacons;
+}
+
+/**
+ * Both windows' events: each part present exactly when its window is, and
+ * the whole carried only when some window received an event or could not be
+ * read in full.
+ */
+function areScrollCheckEvents(value: unknown, control: unknown, scroll: unknown): value is ScrollCheckEvents {
+  if (!isRecord(value) || !hasExactlyKeys(value, EVENTS_KEYS)) return false;
+  const parts: Array<[unknown, unknown]> = [
+    [value.control, control],
+    [value.scroll, scroll]
+  ];
+  for (const [part, window] of parts) {
+    if ((part === null) !== (window === null)) return false;
+    if (part !== null && !isWindowEvents(part)) return false;
+  }
+  return parts.some(([part]) => part !== null && ((part as ScrollCheckWindowEvents).destinations.length > 0 || (part as ScrollCheckWindowEvents).notDecoded > 0));
+}
+
 /**
  * The closed shape above and the facts that tie its parts together. Anything
  * else, an extra key included, is refused, so a field a future producer adds
  * cannot reach a reader that does not know it.
  */
 export function isScrollCheckEvidence(value: unknown): value is ScrollCheckEvidence {
-  if (!isRecord(value) || !hasExactlyKeys(value, EVIDENCE_KEYS)) return false;
+  if (!isRecord(value)) return false;
+  // The analytics events are the evidence's only optional part.
+  const withEvents = Object.prototype.hasOwnProperty.call(value, "events");
+  if (!hasExactlyKeys(value, withEvents ? EVIDENCE_EVENTS_KEYS : EVIDENCE_KEYS)) return false;
   const { outcome, screens, control, scroll, incomplete, addressChanged } = value;
   if (typeof outcome !== "string" || !(SCROLL_CHECK_OUTCOMES as readonly string[]).includes(outcome)) return false;
   if (!isCount(screens) || screens > MAX_SCROLL_CHECK_SCREENS) return false;
@@ -295,6 +485,7 @@ export function isScrollCheckEvidence(value: unknown): value is ScrollCheckEvide
   // only when the visit moved the page; so is a change of address.
   if (scroll !== null && (control === null || screens === 0)) return false;
   if (addressChanged && screens === 0) return false;
+  if (withEvents && !areScrollCheckEvents(value.events, control, scroll)) return false;
   switch (outcome) {
     case "not-run":
       return screens === 0 && control === null && scroll === null && incomplete.length === 0 && !addressChanged;

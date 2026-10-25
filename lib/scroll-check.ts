@@ -1,5 +1,7 @@
+import { analyticsBeaconFormat, type AnalyticsBeaconBody } from "./analytics-events";
 import { isThirdParty, partyKey } from "./domain-utils";
 import { redactHostnameV2 } from "./redaction-v2";
+import { scrollCheckWindowEvents, type ScrollCheckEventRequest } from "./scroll-check-events";
 import {
   isScrollCheckEvidence,
   MAX_SCROLL_CHECK_LISTED_HOSTS,
@@ -9,7 +11,8 @@ import {
   type ScrollCheckIncompleteReason,
   type ScrollCheckOutcome,
   type ScrollCheckScrollWindow,
-  type ScrollCheckWindow
+  type ScrollCheckWindow,
+  type ScrollCheckWindowEvents
 } from "./scroll-check-evidence";
 import type { ScrollCheckListedRequests, ScrollCheckStackRecorder, ScrollCheckStackRequest } from "./scroll-check-stacks";
 
@@ -44,6 +47,15 @@ import type { ScrollCheckListedRequests, ScrollCheckStackRecorder, ScrollCheckSt
  * requests those are is decided here alone, by the rule above and this
  * recorder's clock; the stack recorder only joins the session's observations
  * to them.
+ *
+ * ANALYTICS EVENTS (build brief 2026-10-25). With a body reader in its facts
+ * (the scanner's own bounded helper), each window also carries the GA4 and
+ * Adobe Analytics events its page sent (lib/scroll-check-events.ts). Which
+ * requests count is decided here, by the same window and decision rules: a
+ * request that started inside the window, that the scanner sent, that is
+ * neither the page's own navigation nor a redirect hop, and whose address is
+ * in a decoded format, the site's own hosts included. A body is read only for
+ * those, when the check builds its evidence, and never kept.
  */
 
 /** The check's fixed parameters (the measurement's, 2026-10-23). */
@@ -144,6 +156,19 @@ export type ScrollCheckRequestFacts<RequestT> = {
   url(request: RequestT): string;
   redirected(request: RequestT): boolean;
   mainFrameNavigation(request: RequestT): boolean;
+  /**
+   * The request's body, through the scanner's own bounded helper
+   * (safeRequestPostDataWithCoverage, lib/scanner.ts). Called only for a
+   * request in a decoded analytics format, when the check builds its
+   * evidence. Without it, the check decodes no analytics events.
+   */
+  postData?(request: RequestT): AnalyticsBeaconBody;
+};
+
+/** Each window's requests that count for its analytics events, null for a window that did not run. */
+export type ScrollCheckEventRequests = {
+  control: ScrollCheckEventRequest[] | null;
+  scroll: ScrollCheckEventRequest[] | null;
 };
 
 /**
@@ -229,7 +254,10 @@ export class ScrollCheckRecorder<RequestT extends object> {
    * (lib/scroll-check-stacks.ts), each host the scroll window lists, in its
    * listed order, with every request its raw hosts made in that window, in
    * arrival order, and whether the window counted it: decided here, by this
-   * window's own rule and clock, and nowhere else.
+   * window's own rule and clock, and nowhere else. With a body reader in its
+   * facts, also, for the analytics events (lib/scroll-check-events.ts), each
+   * window's requests that count for them, in arrival order, by the same rule
+   * and clock.
    */
   windows(input: {
     firstPartyHostname: string;
@@ -241,9 +269,11 @@ export class ScrollCheckRecorder<RequestT extends object> {
     scroll: ScrollCheckScrollWindow | null;
     reasons: Set<ScrollCheckIncompleteReason>;
     scrollRequests?: ScrollCheckListedRequests[];
+    events?: ScrollCheckEventRequests;
   } {
     const reasons = new Set<ScrollCheckIncompleteReason>();
     if (this.boundReached && (input.control || input.scroll)) reasons.add("host-bound");
+    const facts = this.facts;
     const window = (interval: { start: number; end: number }, collect: boolean) => {
       const firstContacted = new Map<string, Set<string>>();
       // For the call-stack join: the raw hosts first contacted here that
@@ -251,6 +281,9 @@ export class ScrollCheckRecorder<RequestT extends object> {
       // here, counted or not, in arrival order.
       const rawHostsOf = new Map<string, Set<string>>();
       const requestsOf = new Map<string, ScrollCheckStackRequest[]>();
+      // For the analytics events: sent, never the page's own navigation or a
+      // redirect hop, in a decoded format, the site's own hosts included.
+      const eventRequests: ScrollCheckEventRequest[] = [];
       let requests = 0;
       let knownHostRequests = 0;
       for (const entry of this.entries) {
@@ -258,6 +291,13 @@ export class ScrollCheckRecorder<RequestT extends object> {
         const decision = entry.redirected ? "sent" : this.decisions.get(entry.request) ?? null;
         if (decision === "allowance") reasons.add("check-allowance");
         else if (decision !== "sent") reasons.add("refused");
+        if (facts.postData !== undefined && decision === "sent" && !entry.navigation && !entry.redirected) {
+          const url = facts.url(entry.request);
+          if (analyticsBeaconFormat(url) !== null) {
+            const request = entry.request;
+            eventRequests.push({ host: entry.host, url, body: () => facts.postData?.(request) ?? UNREAD_BODY });
+          }
+        }
         const counted = !entry.navigation && decision === "sent" && isThirdParty(input.firstPartyHostname, entry.host);
         if (collect) {
           const own = requestsOf.get(entry.host) ?? [];
@@ -292,9 +332,10 @@ export class ScrollCheckRecorder<RequestT extends object> {
             .flatMap((group) => group.hosts)
             .map((host) => ({ host, requests: [...(rawHostsOf.get(host) ?? [])].flatMap((raw) => requestsOf.get(raw) ?? []) }))
         : null;
-      return { window: { ...listed, requests, knownHostRequests }, listedRequests };
+      return { window: { ...listed, requests, knownHostRequests }, listedRequests, eventRequests };
     };
-    const control = input.control ? window(input.control, false).window : null;
+    const controlRun = input.control ? window(input.control, false) : null;
+    const control = controlRun ? controlRun.window : null;
     const scroll = input.scroll ? window(input.scroll, input.scrollRequests === true) : null;
     return {
       control: control
@@ -302,10 +343,16 @@ export class ScrollCheckRecorder<RequestT extends object> {
         : null,
       scroll: scroll ? scroll.window : null,
       reasons,
-      ...(scroll?.listedRequests ? { scrollRequests: scroll.listedRequests } : {})
+      ...(scroll?.listedRequests ? { scrollRequests: scroll.listedRequests } : {}),
+      ...(facts.postData !== undefined
+        ? { events: { control: controlRun ? controlRun.eventRequests : null, scroll: scroll ? scroll.eventRequests : null } }
+        : {})
     };
   }
 }
+
+/** What a body reader that could not answer stands for. */
+const UNREAD_BODY: AnalyticsBeaconBody = Object.freeze({ value: null, truncated: false, unreadable: true });
 
 /** The raw hostname of an http(s) request URL, or null for any other: how the check reads every request's host. */
 export function requestHostname(url: string): string | null {
@@ -497,10 +544,36 @@ export async function runScrollCheck<RequestT extends object>(run: ScrollCheckRu
       run.stacks?.freeze();
       return CUT_SHORT_EVIDENCE;
     }
-    return withCallStacks(evidence, run.stacks, windows.scrollRequests);
+    return withAnalyticsEvents(withCallStacks(evidence, run.stacks, windows.scrollRequests), windows.events, run.firstPartyHostname);
   } catch {
     run.stacks?.freeze();
     return CUT_SHORT_EVIDENCE;
+  }
+}
+
+/**
+ * The evidence with each window's analytics events, validated again with
+ * them; without them when the check reads no bodies, no window received an
+ * event or left one unread, or they would not validate. They can cost a check
+ * its events, never anything else. It never throws.
+ */
+function withAnalyticsEvents(
+  evidence: ScrollCheckEvidence,
+  requests: ScrollCheckEventRequests | undefined,
+  firstPartyHostname: string
+): ScrollCheckEvidence {
+  if (requests === undefined) return evidence;
+  try {
+    const part = (window: unknown, counted: ScrollCheckEventRequest[] | null): ScrollCheckWindowEvents | null =>
+      window === null || counted === null ? null : scrollCheckWindowEvents(counted, firstPartyHostname);
+    const control = part(evidence.control, requests.control);
+    const scroll = part(evidence.scroll, requests.scroll);
+    const shown = [control, scroll].some((events) => events !== null && (events.destinations.length > 0 || events.notDecoded > 0));
+    if (!shown) return evidence;
+    const carried: ScrollCheckEvidence = { ...evidence, events: { control, scroll } };
+    return isScrollCheckEvidence(carried) ? carried : evidence;
+  } catch {
+    return evidence;
   }
 }
 

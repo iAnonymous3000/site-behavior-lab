@@ -58,6 +58,7 @@
   "lib/scanner-worker-fingerprint.test.ts": "launches Chromium through the scanner's shared browser and times worker readback under 60 s timeouts",
   "lib/scanner.test.ts": "launches Chromium through the scanner's shared browser, bounds elapsed time and uses 20 s and longer timeouts",
   "lib/script-http-response.test.ts": "asserts elapsed time under 500 ms twice",
+  "lib/scroll-check-events-fixture.test.ts": "launches Chromium through the scanner's shared browser and runs two checks on their test timing under 120 s timeouts",
   "lib/scroll-check-fixture.test.ts": "launches Chromium through the scanner's shared browser, runs one check at its 47 s production timing, and bounds elapsed time under 60 s",
   "lib/scroll-check-stacks-fixture.test.ts": "launches Chromium through the scanner's shared browser and runs two checks on their test timing under 120 s timeouts",
   "lib/scroll-check.test.ts": "pins the check's 45 s deadline and timing literals over a virtual clock that yields on setImmediate",

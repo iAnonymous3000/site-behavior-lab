@@ -1382,13 +1382,17 @@ async function scanSiteWithMeasurementOnLeasedBrowser(
     let scrollCheckAllowance: ScanRequestBudget | null = null;
     // An after-scrolling check's recorder (lib/scroll-check.ts), and nothing
     // without the option. It listens beside recordRequest below and is fed
-    // the page route's decisions; it asks the browser for nothing.
+    // the page route's decisions; it asks the browser for nothing. Its
+    // analytics events read a body only through this scanner's own bounded
+    // helper, only for a request in a decoded format, when the check builds
+    // its evidence (lib/scroll-check-events.ts).
     const scrollCheck =
       options.scrollCheck === true
         ? new ScrollCheckRecorder<Request>({
             url: (request) => request.url(),
             redirected: (request) => request.redirectedFrom() !== null,
-            mainFrameNavigation: (request) => isMainFrameNavigationRequest(request, page)
+            mainFrameNavigation: (request) => isMainFrameNavigationRequest(request, page),
+            postData: (request) => safeRequestPostDataWithCoverage(request)
           })
         : null;
     let beforeExcludedReloadDiagnostics: ScanEvidenceDiagnostics | null = null;

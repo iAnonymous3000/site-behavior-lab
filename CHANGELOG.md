@@ -9,6 +9,37 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- A check after scrolling now records the GA4 and Adobe Analytics events its
+  page sent in each window, the site's own collection addresses included, in
+  its immediate result only (build brief approved 2026-10-25, owner calls 1
+  to 3: names under option c, both windows, first-party addresses labelled by
+  format). Only the check's own recorder decides which requests count, by its
+  window and decision rules: one that started inside the window, that the
+  scanner sent, that is neither the page's own navigation nor a redirect hop,
+  and whose address is in a decoded format. Unlike the host lists, the site's
+  own hosts count, since that is where its collection addresses are. The
+  scanner hands the recorder its own bounded body helper, which the check
+  calls only for those requests, when it builds its evidence, keeping
+  nothing. Each window decodes at most 200 beacons and lists at most 10
+  destinations and 20 event lines per destination; what a bound leaves out,
+  and any body truncated, unreadable or in no recognized shape, is counted
+  once in `notDecoded`. The check's `scrollCheck` block gains an optional,
+  closed `events` with a `control` and a `scroll` part, each null exactly when
+  its window is, carried only when a window received an event or could not
+  read one in full: per destination, its format, its published host, whether
+  it is on the visited site, its beacons, its events by name and percent with
+  counts, and its custom events. The validator admits only the shared
+  vocabulary's words, a percent only on GA4's scroll event or a scroll depth,
+  at most one event per Adobe beacon, and the order rules the builder sorts
+  by; events that fail it are dropped and the rest of the check kept.
+  lib/scroll-check-events.test.ts pins the rules over the real check on a
+  virtual clock, and the serial-lane lib/scroll-check-events-fixture.test.ts
+  runs the real scanner over a local page (a timer's GA4 beacon without
+  input; while scrolling, GA4 batches by sendBeacon to the site's own tagging
+  host, one body past the scanner's cap, and Adobe links by image and by
+  POST) and through the scan API, where the client reads the shell and
+  nothing is saved. The check's existing suites, its invariant tests
+  included, pass unchanged, and docs/limitations.md names the new field.
 - A new decoder, lib/analytics-events.ts, reads the GA4 and Adobe Analytics
   events a request carried, for a check after scrolling (build brief approved
   2026-10-25, owner call 1, option c). It recognizes the two formats by path
