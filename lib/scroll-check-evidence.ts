@@ -1,4 +1,4 @@
-import { isPublishedHost } from "./connection-inspection-evidence";
+import { isPublishedHost, MAX_INSPECTION_GROUP_HOSTS } from "./connection-inspection-evidence";
 import { isRecord } from "./guards";
 
 /**
@@ -12,7 +12,10 @@ import { isRecord } from "./guards";
  * The shape is closed and holds counts, published hosts and fixed facts
  * only: no URL, path, query, body, cookie, storage, script or frame name, and
  * no timing beyond the fixed windows. Hosts are published through the
- * report's own hostname redaction and grouped by site.
+ * report's own hostname redaction and grouped by site. For each host the
+ * scroll window lists, it can also hold which scripts were on the call stack
+ * of its requests, as hosts only, under Inspect's rules (build brief
+ * 2026-10-24): never a script address, function name, position, id or depth.
  *
  * Kept apart from the builder so the client's report reader can validate the
  * block without the public-suffix list the redaction pass needs.
@@ -56,6 +59,12 @@ export type ScrollCheckIncompleteReason = (typeof SCROLL_CHECK_INCOMPLETE_REASON
 export const MAX_SCROLL_CHECK_SCREENS = 8;
 /** At most this many hosts are listed per window, across its sites; the counts stay full. */
 export const MAX_SCROLL_CHECK_LISTED_HOSTS = 20;
+/**
+ * At most this many call stacks are listed for each host the scroll window
+ * lists (owner call 2, 2026-10-24); the rest of its requests are counted in
+ * its `notListed`.
+ */
+export const MAX_SCROLL_CHECK_STACK_GROUPS = 3;
 
 /** One site's hosts, as the report publishes them, listed in name order. */
 export type ScrollCheckSiteHosts = {
@@ -78,9 +87,60 @@ export type ScrollCheckWindow = {
   requests: number;
 };
 
+/** One call stack a listed host's requests came with, as at most four published hosts. */
+export type ScrollCheckStackGroup = {
+  /** The host's counted requests whose call stack published as exactly these hosts. */
+  count: number;
+  /**
+   * At most four published hosts, innermost first, consecutive repeats
+   * collapsed, each the host of a frame whose script address the visit
+   * requested. No script address is published (owner call 2).
+   */
+  hosts: string[];
+};
+
+/**
+ * Which scripts were on the call stack of the requests a check counted for
+ * one host its scroll window lists, under Inspect's rules
+ * (lib/call-stack-publisher.ts). Every counted request is in exactly one
+ * place: requests = the groups' counts + redirected + withoutStack +
+ * withoutNamedScript + notListed + unobserved. The validator holds that sum.
+ */
+export type ScrollCheckHostStacks = {
+  /** The listed host, exactly as the window lists it; it covers every raw host first contacted in the window that publishes as it. */
+  host: string;
+  /** The requests to it the check itself counted in the scroll window: sent, third party, never the page's own navigation. */
+  requests: number;
+  /** Requests grouped by their published call stack, the most frequent first, at most three. */
+  groups: ScrollCheckStackGroup[];
+  /** Requests that followed a redirect, which carry the call stack of the request that started it. */
+  redirected: number;
+  /**
+   * Requests Chromium sent with no call stack: those the page's HTML starts,
+   * and, in Chromium 153, an image a script created. So no count here shows
+   * that no script was involved.
+   */
+  withoutStack: number;
+  /** Requests whose call stack held no frame with an address the visit requested as a script or document. */
+  withoutNamedScript: number;
+  /**
+   * Requests not broken down: those in call stacks beyond the third, and
+   * those past a bound of the check's recording.
+   */
+  notListed: number;
+  /** Requests the call-stack recording never observed, such as a dedicated worker's. */
+  unobserved: number;
+};
+
 export type ScrollCheckScrollWindow = ScrollCheckWindow & {
   /** Of `requests`, those to third-party hosts the page had already contacted before the window. */
   knownHostRequests: number;
+  /**
+   * One entry per listed host, in the listed order: which scripts were on
+   * the call stack of its requests. Present when the check recorded call
+   * stacks, and only in the scroll window (owner call 1, 2026-10-24).
+   */
+  stacks?: ScrollCheckHostStacks[];
 };
 
 export type ScrollCheckEvidence = {
@@ -99,7 +159,19 @@ export type ScrollCheckEvidence = {
 const EVIDENCE_KEYS = ["outcome", "screens", "control", "scroll", "incomplete", "addressChanged"] as const;
 const WINDOW_KEYS = ["hosts", "hostCount", "siteCount", "requests"] as const;
 const SCROLL_WINDOW_KEYS = [...WINDOW_KEYS, "knownHostRequests"] as const;
+const SCROLL_WINDOW_STACK_KEYS = [...SCROLL_WINDOW_KEYS, "stacks"] as const;
 const SITE_KEYS = ["site", "hosts"] as const;
+const HOST_STACK_KEYS = [
+  "host",
+  "requests",
+  "groups",
+  "redirected",
+  "withoutStack",
+  "withoutNamedScript",
+  "notListed",
+  "unobserved"
+] as const;
+const STACK_GROUP_KEYS = ["count", "hosts"] as const;
 
 function hasExactlyKeys(value: Record<string, unknown>, keys: readonly string[]): boolean {
   const own = Object.keys(value);
@@ -153,6 +225,47 @@ function isWindow(value: unknown, keys: readonly string[]): value is ScrollCheck
   return (requests as number) >= (hostCount as number);
 }
 
+function isStackGroup(value: unknown): value is ScrollCheckStackGroup {
+  if (!isRecord(value) || !hasExactlyKeys(value, STACK_GROUP_KEYS)) return false;
+  if (!isCount(value.count) || value.count === 0) return false;
+  const { hosts } = value;
+  if (!Array.isArray(hosts) || hosts.length === 0 || hosts.length > MAX_INSPECTION_GROUP_HOSTS) return false;
+  if (!hosts.every(isPublishedHost)) return false;
+  // Consecutive repeats are collapsed, so no host follows itself.
+  return !hosts.some((host, index) => index > 0 && host === hosts[index - 1]);
+}
+
+function isHostStacks(value: unknown): value is ScrollCheckHostStacks {
+  if (!isRecord(value) || !hasExactlyKeys(value, HOST_STACK_KEYS)) return false;
+  const { host, requests, groups, redirected, withoutStack, withoutNamedScript, notListed, unobserved } = value;
+  if (!isPublishedHost(host)) return false;
+  const counts = [requests, redirected, withoutStack, withoutNamedScript, notListed, unobserved];
+  // A listed host was first contacted by a request the check counted.
+  if (!counts.every(isCount) || requests === 0) return false;
+  if (!Array.isArray(groups) || groups.length > MAX_SCROLL_CHECK_STACK_GROUPS || !groups.every(isStackGroup)) return false;
+  // Groups are keyed by the hosts they publish, so no two publish the same,
+  // and they are listed the most frequent first.
+  if (new Set(groups.map((group) => JSON.stringify(group.hosts))).size !== groups.length) return false;
+  if (groups.some((group, index) => index > 0 && group.count > groups[index - 1].count)) return false;
+  const [counted, ...rest] = counts as number[];
+  const grouped = groups.reduce((sum, group) => sum + group.count, 0);
+  return grouped + rest.reduce((sum, count) => sum + count, 0) === counted;
+}
+
+/**
+ * One entry per host the window lists, in its listed order, whose requests
+ * are some of those the window counted to hosts it had not contacted
+ * before, so together they never exceed them.
+ */
+function areHostStacks(value: unknown, window: ScrollCheckScrollWindow): boolean {
+  if (!Array.isArray(value)) return false;
+  const listed = window.hosts.flatMap((group) => group.hosts);
+  if (value.length !== listed.length) return false;
+  if (!value.every((entry, index) => isHostStacks(entry) && entry.host === listed[index])) return false;
+  const total = (value as ScrollCheckHostStacks[]).reduce((sum, entry) => sum + entry.requests, 0);
+  return total <= window.requests - window.knownHostRequests;
+}
+
 /**
  * The closed shape above and the facts that tie its parts together. Anything
  * else, an extra key included, is refused, so a field a future producer adds
@@ -166,9 +279,12 @@ export function isScrollCheckEvidence(value: unknown): value is ScrollCheckEvide
   if (typeof addressChanged !== "boolean") return false;
   if (control !== null && !isWindow(control, WINDOW_KEYS)) return false;
   if (scroll !== null) {
-    if (!isWindow(scroll, SCROLL_WINDOW_KEYS)) return false;
+    // Call stacks are the scroll window's only optional part.
+    const withStacks = isRecord(scroll) && Object.prototype.hasOwnProperty.call(scroll, "stacks");
+    if (!isWindow(scroll, withStacks ? SCROLL_WINDOW_STACK_KEYS : SCROLL_WINDOW_KEYS)) return false;
     const window = scroll as ScrollCheckScrollWindow;
     if (!isCount(window.knownHostRequests) || window.requests < window.hostCount + window.knownHostRequests) return false;
+    if (withStacks && !areHostStacks(window.stacks, window)) return false;
   }
   if (!Array.isArray(incomplete)) return false;
   const reasons = SCROLL_CHECK_INCOMPLETE_REASONS as readonly string[];

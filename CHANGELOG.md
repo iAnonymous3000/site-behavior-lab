@@ -9,6 +9,35 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- A check after scrolling now records, for each host its scroll window lists
+  as first contacted (at most 20), which scripts were on the call stack of
+  the requests the check counted for it, under Inspect's rules, in its
+  immediate result only (build brief approved 2026-10-24: the scroll window
+  only; hosts only, at most 3 stacks per host, no script addresses). The
+  stacks come from the CDP session the scanner already opens for attribution,
+  which stays attached until cleanup, after the check; no session, page
+  listener, command or domain is added, and the ordinary result is equal with
+  and without the check, thrown or timed out, as before. Only the check's own
+  page-request recorder decides which requests belong to the window and
+  counts them; the stack recorder notes the scripts and documents requested
+  from the navigation's start to the end of the window, keeps the session's
+  third-party observations from one second before the window opens until the
+  check builds its evidence, bounded by the check's 500-request allowance,
+  and joins them per URL, in arrival order, to every request the window
+  recorded for each listed host, counted or not, so a refused request never
+  hands its stack to a later one. An observation a bound drops is counted as
+  not listed, never as unobserved, and a listed host covers every raw host
+  first contacted in the window that publishes as it. Each entry's counts
+  add up to its requests, the entries never exceed the window's requests to
+  new hosts, and the closed validator holds both; stacks that would not
+  validate, or a session that never opened, cost the check its stacks and
+  nothing else. lib/scroll-check-stacks.test.ts and the serial-lane
+  lib/scroll-check-stacks-fixture.test.ts (a loader that inserts a tag on
+  scroll whose fetch names the tag, then the loader; an image a script draws;
+  a redirect hop; a worker's request; self-named scripts; two raw hosts that
+  publish as one) pin it, and a test holds the check and Inspect to the one
+  publisher. The RFC divergence note in docs/limitations.md says the block can
+  carry call-stack hosts; docs/scan-report-v2-rfc.md is unchanged.
 - How a visit publishes a call stack now lives in one module,
   lib/call-stack-publisher.ts, instead of in Inspect this connection's
   recorder alone, so the check after scrolling can show call-stack hosts

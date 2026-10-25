@@ -11,6 +11,7 @@ import {
   type ScrollCheckScrollWindow,
   type ScrollCheckWindow
 } from "./scroll-check-evidence";
+import type { ScrollCheckListedRequests, ScrollCheckStackRecorder, ScrollCheckStackRequest } from "./scroll-check-stacks";
 
 /**
  * The server half of "Check after scrolling" (build brief approved
@@ -36,6 +37,13 @@ import {
  *   refused is not listed and marks the result incomplete.
  * Raw hostnames are compared; a host is published as the report publishes a
  * request log's host, and grouped by site (partyKey).
+ *
+ * CALL STACKS (build brief 2026-10-24). With a stack recorder
+ * (lib/scroll-check-stacks.ts), each host the scroll window lists also gets
+ * the call-stack hosts of the requests this recorder counted for it. Which
+ * requests those are is decided here alone, by the rule above and this
+ * recorder's clock; the stack recorder only joins the session's observations
+ * to them.
  */
 
 /** The check's fixed parameters (the measurement's, 2026-10-23). */
@@ -87,6 +95,15 @@ export const SCROLL_CHECK_ROUTE_SETTLE_MS = 5_000;
  * budget. The budget still bounds a page that stops answering.
  */
 export const SCROLL_CHECK_DEADLINE_MARGIN_MS = 2_000;
+/**
+ * How long before the scroll window opens a check's call-stack recorder
+ * (lib/scroll-check-stacks.ts) starts keeping the session's observations.
+ * The session's observation of a request usually arrives a few milliseconds
+ * before the page's own event for it, which is what decides the window, so
+ * keeping from the window's opening alone would lose the observations of
+ * requests made at that moment.
+ */
+export const SCROLL_CHECK_STACK_LEAD_MS = 1_000;
 
 /**
  * When the check stops, whatever it is doing: its 45 s budget from the moment
@@ -154,7 +171,7 @@ export class ScrollCheckRecorder<RequestT extends object> {
   readonly noteRequest = (request: RequestT): void => {
     if (this.frozen) return;
     try {
-      const host = requestHost(this.facts.url(request));
+      const host = requestHostname(this.facts.url(request));
       if (host === null) return;
       const at = this.now();
       let first = false;
@@ -206,20 +223,34 @@ export class ScrollCheckRecorder<RequestT extends object> {
     this.window = null;
   }
 
-  /** The third-party lists of each window that ran to its end, and what cut collection in them. */
+  /**
+   * The third-party lists of each window that ran to its end, and what cut
+   * collection in them. With `scrollRequests`, also, for the call-stack join
+   * (lib/scroll-check-stacks.ts), each host the scroll window lists, in its
+   * listed order, with every request its raw hosts made in that window, in
+   * arrival order, and whether the window counted it: decided here, by this
+   * window's own rule and clock, and nowhere else.
+   */
   windows(input: {
     firstPartyHostname: string;
     control: { start: number; end: number } | null;
     scroll: { start: number; end: number } | null;
+    scrollRequests?: boolean;
   }): {
     control: ScrollCheckWindow | null;
     scroll: ScrollCheckScrollWindow | null;
     reasons: Set<ScrollCheckIncompleteReason>;
+    scrollRequests?: ScrollCheckListedRequests[];
   } {
     const reasons = new Set<ScrollCheckIncompleteReason>();
     if (this.boundReached && (input.control || input.scroll)) reasons.add("host-bound");
-    const window = (interval: { start: number; end: number }) => {
+    const window = (interval: { start: number; end: number }, collect: boolean) => {
       const firstContacted = new Map<string, Set<string>>();
+      // For the call-stack join: the raw hosts first contacted here that
+      // each published host stands for, and every request of each raw host
+      // here, counted or not, in arrival order.
+      const rawHostsOf = new Map<string, Set<string>>();
+      const requestsOf = new Map<string, ScrollCheckStackRequest[]>();
       let requests = 0;
       let knownHostRequests = 0;
       for (const entry of this.entries) {
@@ -227,8 +258,13 @@ export class ScrollCheckRecorder<RequestT extends object> {
         const decision = entry.redirected ? "sent" : this.decisions.get(entry.request) ?? null;
         if (decision === "allowance") reasons.add("check-allowance");
         else if (decision !== "sent") reasons.add("refused");
-        if (entry.navigation || decision !== "sent") continue;
-        if (!isThirdParty(input.firstPartyHostname, entry.host)) continue;
+        const counted = !entry.navigation && decision === "sent" && isThirdParty(input.firstPartyHostname, entry.host);
+        if (collect) {
+          const own = requestsOf.get(entry.host) ?? [];
+          own.push({ url: this.facts.url(entry.request), counted });
+          requestsOf.set(entry.host, own);
+        }
+        if (!counted) continue;
         requests += 1;
         const firstAt = this.firstSeen.get(entry.host);
         if (firstAt === undefined) continue;
@@ -242,23 +278,37 @@ export class ScrollCheckRecorder<RequestT extends object> {
         const hosts = firstContacted.get(site) ?? new Set<string>();
         hosts.add(published);
         firstContacted.set(site, hosts);
+        if (collect) {
+          const raw = rawHostsOf.get(published) ?? new Set<string>();
+          raw.add(entry.host);
+          rawHostsOf.set(published, raw);
+        }
       }
-      return { ...listedHosts(firstContacted), requests, knownHostRequests };
+      const listed = listedHosts(firstContacted);
+      // The join pairs requests per URL, and a URL names one raw host, whose
+      // requests are listed in arrival order already.
+      const listedRequests = collect
+        ? listed.hosts
+            .flatMap((group) => group.hosts)
+            .map((host) => ({ host, requests: [...(rawHostsOf.get(host) ?? [])].flatMap((raw) => requestsOf.get(raw) ?? []) }))
+        : null;
+      return { window: { ...listed, requests, knownHostRequests }, listedRequests };
     };
-    const control = input.control ? window(input.control) : null;
-    const scroll = input.scroll ? window(input.scroll) : null;
+    const control = input.control ? window(input.control, false).window : null;
+    const scroll = input.scroll ? window(input.scroll, input.scrollRequests === true) : null;
     return {
       control: control
         ? { hosts: control.hosts, hostCount: control.hostCount, siteCount: control.siteCount, requests: control.requests }
         : null,
-      scroll,
-      reasons
+      scroll: scroll ? scroll.window : null,
+      reasons,
+      ...(scroll?.listedRequests ? { scrollRequests: scroll.listedRequests } : {})
     };
   }
 }
 
-/** The raw hostname of an http(s) request URL, or null for any other. */
-function requestHost(url: string): string | null {
+/** The raw hostname of an http(s) request URL, or null for any other: how the check reads every request's host. */
+export function requestHostname(url: string): string | null {
   if (!/^https?:/i.test(url)) return null;
   try {
     const parsed = new URL(url);
@@ -330,6 +380,12 @@ export type ScrollCheckPage = {
 
 export type ScrollCheckRun<RequestT extends object> = {
   recorder: ScrollCheckRecorder<RequestT>;
+  /**
+   * The check's call-stack recorder (lib/scroll-check-stacks.ts), fed by the
+   * scanner's attribution session; without it, the check runs exactly as it
+   * did before call stacks, and its evidence carries none.
+   */
+  stacks?: ScrollCheckStackRecorder;
   page: ScrollCheckPage;
   timing: ScrollCheckTiming;
   /** Read immediately before the visit's navigation began. */
@@ -392,6 +448,7 @@ const CUT_SHORT_EVIDENCE: ScrollCheckEvidence = Object.freeze({
 export async function runScrollCheck<RequestT extends object>(run: ScrollCheckRun<RequestT>): Promise<ScrollCheckEvidence> {
   if (!run.subjectAvailable) {
     run.recorder.freeze();
+    run.stacks?.freeze();
     return { outcome: "not-run", screens: 0, control: null, scroll: null, incomplete: [], addressChanged: false };
   }
   const progress: {
@@ -412,6 +469,7 @@ export async function runScrollCheck<RequestT extends object>(run: ScrollCheckRu
     progress.outcome = error instanceof ScrollCheckStop ? error.outcome : leftSite(run) ? "left-site" : "cut-short";
   }
   run.recorder.freeze();
+  run.stacks?.windowEnded();
   try {
     await run.settleRoutes(Math.max(250, Math.min(SCROLL_CHECK_ROUTE_SETTLE_MS, deadline - run.now())));
   } catch {
@@ -421,7 +479,8 @@ export async function runScrollCheck<RequestT extends object>(run: ScrollCheckRu
     const windows = run.recorder.windows({
       firstPartyHostname: run.firstPartyHostname,
       control: progress.control,
-      scroll: progress.scroll
+      scroll: progress.scroll,
+      ...(run.stacks ? { scrollRequests: true } : {})
     });
     const reasons = windows.reasons;
     if (run.visitBudgetUsedUp) reasons.add("visit-budget");
@@ -434,9 +493,40 @@ export async function runScrollCheck<RequestT extends object>(run: ScrollCheckRu
       incomplete: SCROLL_CHECK_INCOMPLETE_REASONS.filter((reason) => reasons.has(reason)),
       addressChanged: progress.screens > 0 && progress.addressChanged
     };
-    return isScrollCheckEvidence(evidence) ? evidence : CUT_SHORT_EVIDENCE;
+    if (!isScrollCheckEvidence(evidence)) {
+      run.stacks?.freeze();
+      return CUT_SHORT_EVIDENCE;
+    }
+    return withCallStacks(evidence, run.stacks, windows.scrollRequests);
   } catch {
+    run.stacks?.freeze();
     return CUT_SHORT_EVIDENCE;
+  }
+}
+
+/**
+ * The evidence with its scroll window's call stacks, validated a second time
+ * with them; without them when there is no scroll window, the recording
+ * failed, or they would not validate. Call stacks can cost a check its
+ * stacks, never its lists. It never throws.
+ */
+function withCallStacks(
+  evidence: ScrollCheckEvidence,
+  stacks: ScrollCheckStackRecorder | undefined,
+  listed: ScrollCheckListedRequests[] | undefined
+): ScrollCheckEvidence {
+  if (stacks === undefined) return evidence;
+  try {
+    if (evidence.scroll === null || listed === undefined) {
+      stacks.freeze();
+      return evidence;
+    }
+    const entries = stacks.entries(listed);
+    if (entries === null) return evidence;
+    const carried: ScrollCheckEvidence = { ...evidence, scroll: { ...evidence.scroll, stacks: entries } };
+    return isScrollCheckEvidence(carried) ? carried : evidence;
+  } catch {
+    return evidence;
   }
 }
 
@@ -512,6 +602,13 @@ async function sequence<RequestT extends object>(
   // The window with no input.
   const controlStart = run.now();
   run.recorder.openWindow("control");
+  if (run.stacks) {
+    // Call-stack observations are kept from just before the scroll window
+    // opens (SCROLL_CHECK_STACK_LEAD_MS); the window itself is still the
+    // recorder's alone to decide.
+    await waitUntil(Math.max(controlStart, controlStart + timing.controlWindowMs - SCROLL_CHECK_STACK_LEAD_MS));
+    run.stacks.keep(run.firstPartyHostname);
+  }
   await waitUntil(controlStart + timing.controlWindowMs);
   onSite();
   const controlEnd = run.now();

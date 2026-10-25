@@ -174,7 +174,9 @@ export type PublicScanReportV2R2 = PublicSingleReportV2R2 | PublicComparisonRepo
  * visit's result, never beside `inspection`. It is immediate-only like the
  * screenshot and more so: a check visit saves nothing at all, so no share,
  * export or printed page exists to carry it. docs/limitations.md records this
- * divergence beside the inspection's.
+ * divergence beside the inspection's. Since the call-stack brief of
+ * 2026-10-24, its scroll window can also carry call-stack hosts for the hosts
+ * it lists, inside the same closed key.
  */
 export type EphemeralSingleReportR2 = PublicSingleReportV2R2 & {
   ephemeral: {

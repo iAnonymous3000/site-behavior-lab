@@ -16,16 +16,19 @@ import {
   StackTally,
   type PublishedStack
 } from "./call-stack-publisher";
-import { MAX_INSPECTION_CODE_URLS, MAX_INSPECTION_STACK_FRAMES } from "./connection-inspection";
+import { ConnectionInspectionRecorder, MAX_INSPECTION_CODE_URLS, MAX_INSPECTION_STACK_FRAMES } from "./connection-inspection";
 import { MAX_INSPECTION_GROUP_HOSTS } from "./connection-inspection-evidence";
 import { redactHostnameV2 } from "./redaction-v2";
+import { SCROLL_CHECK_REQUEST_ALLOWANCE } from "./scroll-check";
+import { ScrollCheckStackRecorder } from "./scroll-check-stacks";
 
 /**
  * The one stack publisher (lib/call-stack-publisher.ts), on its own: the
- * rules every recorder that publishes call stacks shares, and the pin that
- * holds each recorder to it rather than to a restatement of its own.
- * lib/connection-inspection.test.ts and its fixture hold Inspect's evidence
- * to what it has always been.
+ * rules every recorder that publishes call stacks shares, and what holds both
+ * callers, Inspect's recorder and a check's, to it rather than to a
+ * restatement of their own: the same stream publishes the same in both, and
+ * neither states a rule itself. lib/connection-inspection.test.ts and its
+ * fixture hold Inspect's evidence to what it has always been.
  */
 
 const root = process.cwd();
@@ -182,8 +185,89 @@ test("groups rank largest first, then by key, and a group that lost its stack th
   assert.throws(() => tally.rankedGroups(stacks), /lost its published stack/);
 });
 
+test("Inspect and the check publish the same stream as the same hosts and counts", () => {
+  const tag = "https://static.example.org/tag.js";
+  const loader = "https://cdn.example.net/loader.js";
+  const pixel = (via: string) => `https://pixel.example.net/p.gif?via=${via}`;
+  let id = 0;
+  const payload = (url: string, extra: Record<string, unknown> = {}) => {
+    id += 1;
+    return { requestId: `R${id}`, request: { url }, type: "Fetch", initiator: { type: "parser" }, ...extra };
+  };
+  const script = (urls: string[]) => ({ initiator: { type: "script", stack: frames(...urls) } });
+  // What the page reports (page) and what its session observes (cdp), in order.
+  const stream: Array<{ page?: string; cdp?: Record<string, unknown> }> = [
+    { page: "https://www.example.com/", cdp: payload("https://www.example.com/", { type: "Document", initiator: { type: "other" } }) },
+    { page: loader, cdp: payload(loader, { type: "Script" }) },
+    { page: tag, cdp: payload(tag, { type: "Script", ...script([loader]) }) },
+    { page: pixel("a"), cdp: payload(pixel("a"), script([tag, tag, loader])) },
+    { page: pixel("b"), cdp: payload(pixel("b"), script([tag, loader])) },
+    { page: pixel("c"), cdp: payload(pixel("c"), script([loader])) },
+    { page: pixel("html"), cdp: payload(pixel("html")) },
+    { page: pixel("hop"), cdp: payload(pixel("hop"), { ...script([loader]), redirectResponse: { status: 302 } }) },
+    { page: pixel("forged"), cdp: payload(pixel("forged"), script(["https://forged.example.com/named.js"])) },
+    { page: pixel("inline"), cdp: payload(pixel("inline"), script(["https://www.example.com/"])) },
+    // A worker's request, and a preflight no page request joins.
+    { page: pixel("worker") },
+    { cdp: payload(pixel("b"), { initiator: { type: "preflight" } }) }
+  ];
+  const inspection = new ConnectionInspectionRecorder("https://pixel.example.net/{seg}");
+  const check = new ScrollCheckStackRecorder(SCROLL_CHECK_REQUEST_ALLOWANCE);
+  check.keep("www.example.com");
+  for (const step of stream) {
+    if (step.cdp) {
+      inspection.observe(step.cdp);
+      check.observe(step.cdp);
+    }
+    if (step.page) inspection.notePageRequest(step.page);
+  }
+  const inspected = inspection.evidence();
+  assert.ok(inspected);
+  const pixelRequests = stream.flatMap((step) => (step.page?.startsWith("https://pixel.") ? [{ url: step.page, counted: true }] : []));
+  const [checked] = check.entries([{ host: "pixel.example.net", requests: pixelRequests }]) ?? [];
+  assert.ok(checked);
+  // Inspect keys a group by its hosts and its scripts, the check by its hosts alone.
+  const byHosts = new Map<string, number>();
+  for (const group of inspected.groups) byHosts.set(JSON.stringify(group.hosts), (byHosts.get(JSON.stringify(group.hosts)) ?? 0) + group.count);
+  assert.deepEqual(
+    new Map(checked.groups.map((group) => [JSON.stringify(group.hosts), group.count])),
+    byHosts
+  );
+  assert.ok(byHosts.has(JSON.stringify(["static.example.org", "cdn.example.net"])), JSON.stringify([...byHosts]));
+  for (const count of ["redirected", "withoutStack", "withoutNamedScript", "notListed", "unobserved"] as const) {
+    assert.equal(checked[count], inspected[count], count);
+  }
+  assert.equal(checked.requests, inspected.matched);
+});
+
+test("Inspect keeps stacks that name the same hosts through different scripts apart, and the check, which names no script, merges them", () => {
+  const first = "https://cdn.example.net/loader.js";
+  const second = "https://cdn.example.net/v2/lib/loader.js";
+  const pixel = (via: string) => `https://pixel.example.net/p.gif?via=${via}`;
+  const stream = [
+    { request: { url: first }, type: "Script", initiator: { type: "parser" } },
+    { request: { url: second }, type: "Script", initiator: { type: "parser" } },
+    { request: { url: pixel("a") }, type: "Fetch", initiator: { type: "script", stack: frames(first) } },
+    { request: { url: pixel("b") }, type: "Fetch", initiator: { type: "script", stack: frames(second) } }
+  ];
+  const inspection = new ConnectionInspectionRecorder("https://pixel.example.net/{seg}");
+  const check = new ScrollCheckStackRecorder(SCROLL_CHECK_REQUEST_ALLOWANCE);
+  check.keep("www.example.com");
+  for (const payload of stream) {
+    inspection.observe(payload);
+    check.observe(payload);
+    inspection.notePageRequest(payload.request.url);
+  }
+  // Two groups, each one request, the same hosts, two different scripts.
+  const groups = inspection.evidence()?.groups ?? [];
+  assert.deepEqual(groups.map((group) => [group.count, group.hosts, group.namedScripts.length]), [[1, ["cdn.example.net"], 1], [1, ["cdn.example.net"], 1]]);
+  assert.notDeepEqual(groups[0].namedScripts, groups[1].namedScripts);
+  const [entry] = check.entries([{ host: "pixel.example.net", requests: [pixel("a"), pixel("b")].map((url) => ({ url, counted: true })) }]) ?? [];
+  assert.deepEqual(entry?.groups, [{ count: 2, hosts: ["cdn.example.net"] }]);
+});
+
 test("every recorder publishes through this module and restates none of its rules", () => {
-  for (const file of ["lib/connection-inspection.ts"]) {
+  for (const file of ["lib/connection-inspection.ts", "lib/scroll-check-stacks.ts"]) {
     const source = read(file);
     assert.match(source, /from "\.\/call-stack-publisher";/, `${file} does not publish through the shared module`);
     for (const [rule, pattern] of [

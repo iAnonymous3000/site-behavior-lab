@@ -26,6 +26,7 @@ import {
   ScrollCheckRecorder,
   type ScrollCheckTiming
 } from "./scroll-check";
+import { ScrollCheckStackRecorder } from "./scroll-check-stacks";
 import { adblockListMeta, getAdblockEngine, mapRequestType } from "./adblock-engine";
 import type {
   CookieRecord,
@@ -1184,6 +1185,16 @@ async function scanSiteWithMeasurementOnLeasedBrowser(
     // command or domain is added for it (lib/connection-inspection.ts).
     const connectionInspection =
       options.inspect === undefined ? null : new ConnectionInspectionRecorder(options.inspect);
+    // The routed requests an after-scrolling check may make once the
+    // envelope is built (owner call 5), which also bounds the observations
+    // its call-stack recorder keeps: one value for both.
+    const scrollCheckAllowanceRequests = options.scrollCheckRequestAllowanceForTests ?? SCROLL_CHECK_REQUEST_ALLOWANCE;
+    // A check's call-stack recorder, fed by this same session's handler and
+    // by nothing else (lib/scroll-check-stacks.ts): before the envelope it
+    // only notes which scripts and documents the visit requested. The
+    // session is never detached before the scanner's cleanup, which follows
+    // the check, so its handler still delivers during the check.
+    const scrollCheckStacks = options.scrollCheck === true ? new ScrollCheckStackRecorder(scrollCheckAllowanceRequests) : null;
     let initiatorSession: CDPSession | null = null;
     try {
       initiatorSession = await withSetupTimeout(context.newCDPSession(page), started);
@@ -1191,6 +1202,7 @@ async function scanSiteWithMeasurementOnLeasedBrowser(
         const observation = initiatorObservationFromCdpParams(params);
         if (observation) initiatorIndex.record(observation);
         connectionInspection?.observe(params);
+        scrollCheckStacks?.observe(params);
       });
       await withSetupTimeout(initiatorSession.send("Network.enable"), started);
     } catch {
@@ -1198,6 +1210,9 @@ async function scanSiteWithMeasurementOnLeasedBrowser(
       // empty; every row stays unattributed, which is what the report already
       // says when nothing is claimed.
       initiatorSession = null;
+      // With no session, a check could not tell a request it never observed
+      // from a worker's, so it shows no call stacks at all.
+      scrollCheckStacks?.sessionUnavailable();
     }
     // Every request the page reports is counted, recorded or not, from before
     // the visit navigates, so a claim can refuse a URL with more requests than
@@ -3664,6 +3679,7 @@ async function scanSiteWithMeasurementOnLeasedBrowser(
       await runScrollCheckPhase({
         envelope,
         recorder: scrollCheck,
+        stacks: scrollCheckStacks,
         page,
         boundedPageCollectorKey,
         navigationStartedAt,
@@ -3682,7 +3698,7 @@ async function scanSiteWithMeasurementOnLeasedBrowser(
         switchRouteBudget: () => {
           scrollCheckAllowance = new ScanRequestBudget(
             new ScanWarningCollector(),
-            options.scrollCheckRequestAllowanceForTests ?? SCROLL_CHECK_REQUEST_ALLOWANCE,
+            scrollCheckAllowanceRequests,
             true
           );
           routedRequestBudget = scrollCheckAllowance;
@@ -3719,6 +3735,7 @@ async function scanSiteWithMeasurementOnLeasedBrowser(
 async function runScrollCheckPhase(input: {
   envelope: NodeScanMeasurementEnvelope;
   recorder: ScrollCheckRecorder<Request>;
+  stacks: ScrollCheckStackRecorder | null;
   page: Page;
   boundedPageCollectorKey: string;
   navigationStartedAt: number;
@@ -3744,6 +3761,7 @@ async function runScrollCheckPhase(input: {
   try {
     const evidence = await runScrollCheck({
       recorder: input.recorder,
+      ...(input.stacks ? { stacks: input.stacks } : {}),
       page: {
         url: () => page.url(),
         scrollState: async () =>

@@ -335,8 +335,9 @@ test("Check after scrolling keeps its recorder off the client, and its panel out
   const importsOf = (source: string) =>
     [...source.matchAll(/^import\s+([\s\S]*?)\s+from\s+"([^"]+)";/gm)].map((match) => ({ clause: match[1], from: match[2] }));
   // The recorder holds raw hostnames and reads the redaction pass with its
-  // public-suffix list; the entry's minter is the permalink's, on the server.
-  for (const module of ["lib/scroll-check.ts", "lib/scroll-check-entry.ts"]) {
+  // public-suffix list; the entry's minter is the permalink's, on the server;
+  // the call-stack recorder holds raw URLs and stacks.
+  for (const module of ["lib/scroll-check.ts", "lib/scroll-check-entry.ts", "lib/scroll-check-stacks.ts"]) {
     assert.deepEqual(clientImportTrails(module), [], `${module} must not reach a client bundle`);
   }
   // The evidence validator reads the published-host shape and the shared
