@@ -9,6 +9,27 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- A check after scrolling's result now shows its answers and labels (build
+  brief approved 2026-10-25, section 4, owner calls 2, 3, 4 and 6). The line
+  for requests that got no answer sits after the traffic line, before the
+  analytics events. A labelled window's hosts split under up to three
+  headings, each list labelled by its own heading. In the events section
+  each destination carries its state in brackets before its colon, and
+  Brave's own account of its Standard setting follows the note for an
+  address on the site itself, once. The caveats begin with the report's
+  matching caveat and the approved blocking caveat when a label shows, or
+  with "This check could not compare its requests with the default filter
+  lists of Brave Shields." when the scanner's list engine was not loaded. A
+  result without labels, an older container's included, shows exactly the
+  panel it did. The panel and its copy stay in the evidence explorer's lazy
+  chunk (client-boundary test). The below-the-fold coverage-boundary entry,
+  README, docs/capabilities.md and the methodology page say a check counts
+  only answered requests and can show the same visit's list matches, pinned
+  by the boundary test, and docs/limitations.md names the new fields beside
+  the divergence from the RFC it records; docs/scan-report-v2-rfc.md is
+  unchanged. The static smoke renders the panel from the shells the real
+  scanner wrote for the answers and labels fixtures' pages, and for the
+  labels page with its list engine unavailable, on a desktop and a phone.
 - A check after scrolling now labels each host it lists, and each analytics
   destination, with how its counted requests compared with the default
   filter lists of Brave Shields in the same visit (build brief approved

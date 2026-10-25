@@ -79,7 +79,10 @@ One scan is one automated visit from one place at one time. The scanner:
   first contacted while scrolling (which requested scripts were on the call
   stack of their requests), and the GA4 and Adobe Analytics events it saw
   the page send in each window, those sent to the site's own collection
-  addresses included. Nothing from that visit is saved, shared, exported or
+  addresses included. It counts only requests that got an answer, and can
+  show, for each host it lists and each analytics destination, whether the
+  requests it counted matched the default filter lists of Brave Shields in
+  that same visit. Nothing from that visit is saved, shared, exported or
   printed.
 
 Each report has a page (a plain-language headline over severity-ranked
@@ -107,7 +110,9 @@ proposal that a maintainer merges.
   third-party hosts its page first contacted after scrolling began, and the
   GA4 and Adobe Analytics events it saw sent, in its immediate result only,
   never in a report. It knows those events by their collection paths, so a
-  renamed collection endpoint and Adobe's newer Web SDK go unread.
+  renamed collection endpoint and Adobe's newer Web SDK go unread. It counts
+  only requests that got an answer, and its list matches are computed while
+  the page loads normally, not measured blocks.
 - **A failed or challenged load is not a clean result.** Sites that refuse
   undisguised automated browsers are reported as refusals, never evaded.
 - **No detector accuracy is published.** No claim-bearing detector has an
@@ -315,7 +320,8 @@ that visit recorded about the call stacks of its requests to the address in
 `check: "scroll"`, the after-scrolling check, which costs two rate-limit
 tokens as a comparison does; its immediate result carries the check's
 evidence in `ephemeral.scrollCheck`, call-stack hosts for the hosts it first
-contacted while scrolling and the GA4 and Adobe Analytics events it saw sent
+contacted while scrolling, the GA4 and Adobe Analytics events it saw sent,
+its count of requests that got no answer and its same-visit list matches
 included, and nothing from that visit is saved, so it has no share. A synchronous deployment answers with the report; an async
 one answers `202` with `jobId` and `statusPath`, and `DELETE /api/scans/:id`
 cancels cooperatively until publication begins. Refusals are `400` for an

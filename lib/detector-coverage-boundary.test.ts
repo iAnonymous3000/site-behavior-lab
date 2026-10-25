@@ -690,3 +690,31 @@ test("the below-the-fold entry says a check after scrolling can show the GA4 and
   const check = readFileSync(path.join(root, "lib", "scroll-check.ts"), "utf8");
   assert.match(check, /\{ \.\.\.evidence, events: \{ control, scroll \} \}/);
 });
+
+/**
+ * A check after scrolling counts only the requests that got an answer, and
+ * can show, for each host it lists and each analytics destination, whether
+ * its counted requests matched the default filter lists of Brave Shields in
+ * the same visit (build brief 2026-10-25). The below-the-fold entry says so,
+ * each clause pinned to the code that makes it true: a request counts only
+ * once a response arrived for it, fed from the page's own response events;
+ * the labels read the page route's own records, never a new engine run; and
+ * the words "not a measured block" are the report's own for a match.
+ */
+test("the below-the-fold entry says a check after scrolling counts only answered requests and can show the same visit's list matches", () => {
+  const belowFold = COVERAGE_BOUNDARY_ENTRIES.find((candidate) => candidate.id === "below-fold-and-lazy-loaded");
+  assert.ok(belowFold, "the below-the-fold boundary entry must exist");
+  const answers = /\bIt counts only the requests that got an answer\b[^.]*\./.exec(belowFold.explanation)?.[0];
+  assert.ok(answers, "the below-the-fold entry must say the check counts only answered requests");
+  assert.match(answers, /\bsays how many it did not count for want of one\b/);
+  const labels = /\bFor each host it lists and each analytics destination\b[^.]*\./.exec(belowFold.explanation)?.[0];
+  assert.ok(labels, "the below-the-fold entry must say the check can show the same visit's list matches");
+  assert.match(labels, /\bmatched the default filter lists of Brave Shields in that same visit\b/);
+  assert.match(labels, /\ba match computed while the page loads normally, not a measured block\b/);
+  assert.match(labels, /\bin that immediate result only\b/);
+  const check = readFileSync(path.join(root, "lib", "scroll-check.ts"), "utf8");
+  assert.match(check, /const counted = countable && answered;/);
+  const scanner = readFileSync(path.join(root, "lib", "scanner.ts"), "utf8");
+  assert.match(scanner, /page\.on\("response", noteResponse\);/);
+  assert.match(scanner, /filterLists: routeListFacts\(adblockEngine !== null, shieldsClassifiedRequests, shieldsMatches\)/);
+});

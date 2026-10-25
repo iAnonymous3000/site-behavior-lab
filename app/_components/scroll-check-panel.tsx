@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { Fragment, useEffect, useRef } from "react";
 import { EARLIER_RESULT_LINK } from "@/lib/finding-look-closer";
 import { scrollCheckPanelCopy, type ScrollCheckWindowCopy } from "@/lib/scroll-check-copy";
 import { scrollCheckEventsCopy, type ScrollCheckEventsCopy } from "@/lib/scroll-check-events-copy";
@@ -14,7 +14,12 @@ import { scrollCheckStacksCopy, type ScrollCheckStacksCopy } from "@/lib/scroll-
  */
 const shownOnArrival = new WeakSet<ScrollCheckEvidence>();
 
-/** One window's line, its hosts by site, and what it counted and did not list. */
+/**
+ * One window's line, its hosts by site, and what it counted and did not
+ * list. When its hosts carry the same visit's list labels, they split under
+ * up to three headings (owner call 3, option a, 2026-10-25), each list
+ * labelled by its own heading.
+ */
 function ScrollCheckWindowLines({ copy, id }: { copy: ScrollCheckWindowCopy; id: string }) {
   return (
     <>
@@ -26,6 +31,16 @@ function ScrollCheckWindowLines({ copy, id }: { copy: ScrollCheckWindowCopy; id:
           ))}
         </ul>
       )}
+      {copy.groups?.map((group) => (
+        <Fragment key={group.state}>
+          <p id={`${id}-${group.state}`}>{group.heading}</p>
+          <ul className="scroll-check-hosts" aria-labelledby={`${id}-${group.state}`}>
+            {group.sites.map((site) => (
+              <li key={site}>{site}</li>
+            ))}
+          </ul>
+        </Fragment>
+      ))}
       {copy.notListed && <p>{copy.notListed}</p>}
       {copy.further && <p>{copy.further}</p>}
     </>
@@ -56,7 +71,9 @@ function ScrollCheckStacks({ copy }: { copy: ScrollCheckStacksCopy }) {
  * The GA4 and Adobe Analytics events the page sent, folded by default like
  * the call-stack section (build brief 2026-10-25): the window without input
  * as one count line, the scroll window by destination (owner call 2), and a
- * note for an address on the site itself (owner call 3).
+ * note for an address on the site itself (owner call 3). Since the answers
+ * and labels brief of the same day, a destination can carry its list state,
+ * and Brave's own account of its Standard setting follows those notes once.
  */
 function ScrollCheckEvents({ copy }: { copy: ScrollCheckEventsCopy }) {
   return (
@@ -74,6 +91,7 @@ function ScrollCheckEvents({ copy }: { copy: ScrollCheckEventsCopy }) {
       {copy.ownSite.map((line) => (
         <p key={line}>{line}</p>
       ))}
+      {copy.standardSetting && <p>{copy.standardSetting}</p>}
       {copy.notDecoded && <p>{copy.notDecoded}</p>}
       {copy.caveats.map((line) => (
         <p className="scroll-check-caveat" key={line}>{line}</p>
@@ -88,7 +106,9 @@ function ScrollCheckEvents({ copy }: { copy: ScrollCheckEventsCopy }) {
  * in 10 seconds without input, then while the visit scrolled, with a folded
  * section of the call-stack hosts of the latter's requests when the check
  * recorded them, a folded section of the analytics events the page sent when
- * the check decoded any, how the check ended, and what it cannot tell. It renders
+ * the check decoded any, how the check ended, and what it cannot tell. Its
+ * lists count answered requests only, with one line for those that got no
+ * answer, and can split by the same visit's list matches. It renders
  * only from the result the tab's
  * own submit received, never on a resume, a restore, a reload, a share
  * permalink, an export or paper, and it claims nothing about the report the
@@ -125,6 +145,7 @@ export function ScrollCheckPanel({
       {copy.scroll && <ScrollCheckWindowLines copy={copy.scroll} id="scroll-check-scroll" />}
       {stacks && <ScrollCheckStacks copy={stacks} />}
       {copy.traffic && <p>{copy.traffic}</p>}
+      {copy.noAnswer && <p>{copy.noAnswer}</p>}
       {events && <ScrollCheckEvents copy={events} />}
       <p className="scroll-check-outcome">{copy.outcome}</p>
       {copy.addressChanged && <p>{copy.addressChanged}</p>}

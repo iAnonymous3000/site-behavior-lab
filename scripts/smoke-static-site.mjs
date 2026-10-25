@@ -334,6 +334,7 @@ async function main() {
         await assertScrollCheckOnlyFromItsLink(browser, baseUrl, manifest);
         await assertScrollCheckStacksSection(browser, baseUrl, manifest);
         await assertScrollCheckEventsSection(browser, baseUrl, manifest);
+        await assertScrollCheckAnswersAndLabels(browser, baseUrl, manifest);
       }
     }
 
@@ -3651,6 +3652,300 @@ async function assertScrollCheckEventsSection(browser, baseUrl, manifest) {
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
     if (overflow) fail("the opened analytics events section scrolls the page sideways on a phone");
     pass("on a phone, the analytics events section's summary is a 44 px target, and opened it adds no sideways scroll");
+  } finally {
+    await phone.close();
+  }
+}
+
+/**
+ * A check's answers and same-visit list labels (build brief 2026-10-25,
+ * section 4). The answers are the immediate results the real scanner wrote
+ * for the serial-lane fixtures' pages (lib/scroll-check-answers-fixture.test.ts
+ * and lib/scroll-check-labels-fixture.test.ts), the last with the scanner's
+ * list engine unavailable. The no-answer line follows the lists and comes
+ * right before the analytics events; a labelled window's hosts split under up
+ * to three headings, each list labelled by its own heading, in the approved
+ * words, and the two caveats show once; opened, the events section brackets
+ * each destination's state and follows the note for an address on the site
+ * with Brave's Standard-setting note; without the engine, each window's hosts
+ * read as one list and the panel says the lists could not be compared; on a
+ * phone nothing scrolls sideways.
+ */
+async function assertScrollCheckAnswersAndLabels(browser, baseUrl, manifest) {
+  const { report, wire, page: target } = await findInspectionCandidate(manifest);
+  const checkLink = `${baseUrl}/#scan?url=${encodeURIComponent(target)}&check=scroll&from=${report.id}`;
+  const single = (scrollCheck) => JSON.stringify({
+    schemaVersion: 2,
+    schemaRevision: 2,
+    reportType: "single",
+    run: wire.baseline,
+    ephemeral: { screenshot: null, scrollCheck }
+  });
+  const noStack = { redirected: 0, withoutStack: 0, withoutNamedScript: 0, notListed: 0, unobserved: 0 };
+  const byPage = (host) => ({ host, requests: 1, groups: [{ count: 1, hosts: ["www.example.com"] }], ...noStack });
+  // The answers fixture's page: a refused timer without input; while
+  // scrolling, two refused upstreams, a refused tunnel, a dropped first try,
+  // an answer past the settle's bound and the site's own beacon refused.
+  const answers = {
+    outcome: "reached-end",
+    screens: 4,
+    control: { hosts: [{ site: "timer.org", hosts: ["pixel.timer.org"] }], hostCount: 1, siteCount: 1, requests: 1, unanswered: 1, matchedHosts: [], uncomparedHosts: [] },
+    scroll: {
+      hosts: [
+        { site: "alpha.net", hosts: ["{label}.alpha.net"] }, { site: "bravo.net", hosts: ["{label}.bravo.net"] },
+        { site: "charlie.net", hosts: ["pixel.charlie.net"] }, { site: "echo.net", hosts: ["{label}.echo.net"] },
+        { site: "foxtrot.net", hosts: ["{label}.foxtrot.net"] }, { site: "golf.net", hosts: ["{label}.golf.net"] },
+        { site: "hotel.net", hosts: ["{label}.hotel.net"] }, { site: "india.net", hosts: ["{label}.india.net"] },
+        { site: "juliet.net", hosts: ["{label}.juliet.net"] }, { site: "lima.net", hosts: ["{label}.lima.net"] },
+        { site: "oscar.net", hosts: ["{label}.oscar.net"] }, { site: "tally.net", hosts: ["collect.tally.net"] }
+      ],
+      hostCount: 12,
+      siteCount: 12,
+      requests: 12,
+      knownHostRequests: 0,
+      unanswered: 5,
+      stacks: [
+        byPage("{label}.alpha.net"), byPage("{label}.bravo.net"), { host: "pixel.charlie.net", requests: 1, groups: [], ...noStack, withoutStack: 1 },
+        byPage("{label}.echo.net"), byPage("{label}.foxtrot.net"), byPage("{label}.golf.net"),
+        { host: "{label}.hotel.net", requests: 1, groups: [], ...noStack, redirected: 1 }, { host: "{label}.india.net", requests: 1, groups: [], ...noStack, unobserved: 1 },
+        byPage("{label}.juliet.net"), byPage("{label}.lima.net"), byPage("{label}.oscar.net"), byPage("collect.tally.net")
+      ],
+      matchedHosts: ["{label}.alpha.net", "collect.tally.net"],
+      uncomparedHosts: ["{label}.hotel.net"]
+    },
+    incomplete: ["refused"],
+    addressChanged: false,
+    events: {
+      control: { beacons: 0, destinations: [], notDecoded: 0 },
+      scroll: {
+        beacons: 1,
+        destinations: [{ format: "GA4", host: "collect.tally.net", ownSite: false, beacons: 1, events: [{ name: "page_view", percent: null, count: 1 }], customEvents: 0, lists: "matched" }],
+        notDecoded: 0
+      }
+    },
+    filterLists: "compared"
+  };
+  // The labels fixture's page: hosts in all three states, two names under
+  // lima.net and two under mike.net in different states, and the site's own
+  // GA4 address.
+  const labelledHosts = [
+    { site: "echo.net", hosts: ["api.echo.net", "{label}.echo.net"] }, { site: "adobeprobe.net", hosts: ["metrics.adobeprobe.net"] },
+    { site: "foxtrot.net", hosts: ["cdn.foxtrot.net"] }, { site: "lima.net", hosts: ["{label}.lima.net"] },
+    { site: "mike.net", hosts: ["{label}.mike.net"] }, { site: "quiet.net", hosts: ["cdn.quiet.net"] },
+    { site: "quiet.org", hosts: ["static.quiet.org"] }
+  ];
+  const labelledStacks = [
+    byPage("api.echo.net"), byPage("{label}.echo.net"), { host: "metrics.adobeprobe.net", requests: 1, groups: [], ...noStack, withoutStack: 1 },
+    { host: "cdn.foxtrot.net", requests: 1, groups: [], ...noStack, redirected: 1 }, { host: "{label}.lima.net", requests: 2, groups: [], ...noStack, withoutStack: 2 },
+    { host: "{label}.mike.net", requests: 2, groups: [], ...noStack, redirected: 1, withoutStack: 1 }, byPage("cdn.quiet.net"), byPage("static.quiet.org")
+  ];
+  const destination = (format, host, ownSite, name, percent) => ({ format, host, ownSite, beacons: 1, events: [{ name, percent, count: 1 }], customEvents: 0 });
+  const labelledDestinations = [
+    destination("GA4", "{label}.example.com", true, "scroll", 90),
+    destination("Adobe Analytics", "metrics.adobeprobe.net", false, "scroll depth", 25),
+    destination("Adobe Analytics", "{label}.lima.net", false, "scroll depth", 50)
+  ];
+  const labels = {
+    outcome: "reached-end",
+    screens: 4,
+    control: { hosts: [{ site: "timer.org", hosts: ["static.timer.org"] }], hostCount: 1, siteCount: 1, requests: 1, matchedHosts: [], uncomparedHosts: [] },
+    scroll: {
+      hosts: labelledHosts,
+      hostCount: 8,
+      siteCount: 7,
+      requests: 10,
+      knownHostRequests: 0,
+      stacks: labelledStacks,
+      matchedHosts: ["metrics.adobeprobe.net", "{label}.lima.net"],
+      uncomparedHosts: ["cdn.foxtrot.net"]
+    },
+    incomplete: [],
+    addressChanged: false,
+    events: {
+      control: { beacons: 0, destinations: [], notDecoded: 0 },
+      scroll: { beacons: 3, destinations: labelledDestinations.map((entry) => ({ ...entry, lists: "matched" })), notDecoded: 0 }
+    },
+    filterLists: "compared"
+  };
+  // The same page with the scanner's list engine unavailable.
+  const unavailable = {
+    outcome: "reached-end",
+    screens: 4,
+    control: { hosts: [{ site: "timer.org", hosts: ["static.timer.org"] }], hostCount: 1, siteCount: 1, requests: 1 },
+    scroll: { hosts: labelledHosts, hostCount: 8, siteCount: 7, requests: 10, knownHostRequests: 0, stacks: labelledStacks },
+    incomplete: [],
+    addressChanged: false,
+    events: { control: { beacons: 0, destinations: [], notDecoded: 0 }, scroll: { beacons: 3, destinations: labelledDestinations, notDecoded: 0 } },
+    filterLists: "unavailable"
+  };
+  const matching = "Matching is computed while the page loads normally; it is not a measured block.";
+  const blocking = "With blocking on, what a matched request would load never runs, so a visit with Shields might also skip hosts that had no match.";
+  const unavailableLine = "This check could not compare its requests with the default filter lists of Brave Shields.";
+  const pressAndAwaitResult = async (page) => {
+    await Promise.all([
+      page.waitForRequest((request) => request.method() === "POST" && new URL(request.url()).pathname === "/api/scan"),
+      page.locator('.scan-panel button[type="submit"]').click()
+    ]);
+    await page.waitForFunction(() => !document.querySelector(".loading-state") && Boolean(document.querySelector("#report .report-header")), null, {
+      timeout: 30_000
+    });
+  };
+  const openContext = async (viewport, answersQueue) => {
+    const context = await browser.newContext({ viewport });
+    await context.route(`${liveScanApiBase}/**`, async (routed) => {
+      const request = routed.request();
+      const pathname = new URL(request.url()).pathname;
+      const cors = { "access-control-allow-origin": "*" };
+      if (request.method() === "GET" && pathname === "/api/health") {
+        return routed.fulfill({ status: 200, contentType: "application/json", headers: cors, body: JSON.stringify({ ...scannerFixture, turnstile: false }) });
+      }
+      if (request.method() === "OPTIONS") {
+        return routed.fulfill({ status: 204, headers: { ...cors, "access-control-allow-methods": "GET, POST",
+          "access-control-allow-headers": request.headers()["access-control-request-headers"] ?? "content-type" } });
+      }
+      const answer = request.method() === "POST" && pathname === "/api/scan" ? answersQueue.shift() : undefined;
+      return answer ? routed.fulfill({ status: 200, contentType: "application/json", headers: cors, body: answer }) : routed.abort();
+    });
+    return context;
+  };
+  const checkWith = async (page) => {
+    await page.goto(checkLink, { waitUntil: "networkidle" });
+    await page.locator(".scroll-check-arrival").waitFor({ timeout: 10_000 });
+    await pressAndAwaitResult(page);
+    await page.locator(".scroll-check h2").waitFor();
+  };
+  // Each host list in the panel, with the text of the element its list is labelled by.
+  const hostLists = (page) => page.locator(".scroll-check").evaluate((panel) =>
+    [...panel.querySelectorAll(":scope > ul.scroll-check-hosts")].map((list) => {
+      const label = document.getElementById(list.getAttribute("aria-labelledby") ?? "");
+      return {
+        labelledBy: list.getAttribute("aria-labelledby"),
+        label: label?.textContent?.trim() ?? null,
+        labelPrecedes: list.previousElementSibling === label,
+        sites: [...list.querySelectorAll(":scope > li")].map((item) => item.textContent?.trim())
+      };
+    })
+  );
+  const caveats = (page) => page.locator(".scroll-check > p.scroll-check-caveat").allTextContents();
+
+  const context = await openContext({ width: 1440, height: 1000 }, [single(answers), single(labels), single(unavailable)]);
+  try {
+    const page = await context.newPage();
+    await page.goto(`${baseUrl}/`, { waitUntil: "networkidle" });
+    await page.locator(".run-mode-checking").waitFor({ state: "detached" });
+
+    // Requests with no answer: one line, after the lists and the call-stack
+    // section, right before the analytics events.
+    await checkWith(page);
+    const noAnswer = await page.locator(".scroll-check").evaluate((panel) => {
+      const line = [...panel.querySelectorAll(":scope > p")].find((element) => element.textContent?.includes("got no answer"));
+      return line
+        ? {
+            text: line.textContent?.trim(),
+            afterStacks: Boolean(line.previousElementSibling?.matches("details.scroll-check-stacks")),
+            beforeEvents: Boolean(line.nextElementSibling?.matches("details.scroll-check-events"))
+          }
+        : null;
+    });
+    const expectedNoAnswer = { text: "6 requests got no answer before the check ended, so they are not listed or counted.", afterStacks: true, beforeEvents: true };
+    if (JSON.stringify(noAnswer) !== JSON.stringify(expectedNoAnswer)) fail(`the no-answer line reads ${JSON.stringify(noAnswer)}`);
+    pass("a check whose requests got no answer says how many, once, after its lists and before its analytics events");
+
+    // Labels: each window's hosts under their headings, in the approved words.
+    await checkWith(page);
+    const expectedLists = [
+      { labelledBy: "scroll-check-control-no-match", label: "1 had none that matched:", labelPrecedes: true, sites: ["timer.org: static.timer.org"] },
+      {
+        labelledBy: "scroll-check-scroll-matched",
+        label: "2 had a request that matched the default filter lists of Brave Shields:",
+        labelPrecedes: true,
+        sites: ["adobeprobe.net: metrics.adobeprobe.net", "lima.net: *.lima.net"]
+      },
+      {
+        labelledBy: "scroll-check-scroll-no-match",
+        label: "5 had none that matched:",
+        labelPrecedes: true,
+        sites: ["echo.net: api.echo.net, *.echo.net", "mike.net: *.mike.net", "quiet.net: cdn.quiet.net", "quiet.org: static.quiet.org"]
+      },
+      {
+        labelledBy: "scroll-check-scroll-not-compared",
+        label: "1 had no request this check compared with the lists; it does not compare requests that followed a redirect:",
+        labelPrecedes: true,
+        sites: ["foxtrot.net: cdn.foxtrot.net"]
+      }
+    ];
+    const lists = await hostLists(page);
+    if (JSON.stringify(lists) !== JSON.stringify(expectedLists)) fail(`the labelled host lists read ${JSON.stringify(lists)}`);
+    const labelledCaveats = await caveats(page);
+    if (labelledCaveats.filter((line) => line === matching).length !== 1 || labelledCaveats.filter((line) => line === blocking).length !== 1) {
+      fail(`a labelled check's caveats read ${JSON.stringify(labelledCaveats)}`);
+    }
+    if (labelledCaveats.includes(unavailableLine)) fail("a labelled check says its lists could not be compared");
+    const section = page.locator(".scroll-check .scroll-check-events");
+    await section.locator(":scope > summary").click();
+    const sectionLines = (await section.locator(":scope > p, :scope > ul > li").allTextContents()).map((line) => line.trim());
+    const expectedSection = [
+      "In 10 seconds without scrolling, the page sent no analytics event.",
+      "While scrolling, it sent 3:",
+      "GA4 events to *.example.com, an address on this site (matched the default filter lists of Brave Shields): scroll (90%).",
+      "Adobe Analytics events to metrics.adobeprobe.net (matched the default filter lists of Brave Shields): scroll depth 25%.",
+      "Adobe Analytics events to *.lima.net (matched the default filter lists of Brave Shields): scroll depth 50%.",
+      "An address on this site receives these in GA4's format; the visit cannot see where it passes them on.",
+      "Brave says its default Standard setting does not apply these lists to requests to a site's own addresses; its Aggressive setting does.",
+      "Only events in GA4's standard collection format and Adobe Analytics' classic beacons are read; other analytics tools and formats are not.",
+      "Being sent while scrolling does not show that scrolling was the reason, though scroll-depth events are usually sent for it."
+    ];
+    if (JSON.stringify(sectionLines) !== JSON.stringify(expectedSection)) fail(`the labelled analytics events section reads ${JSON.stringify(sectionLines)}`);
+    const axe = await new AxeBuilder({ page })
+      .include(".scroll-check")
+      .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa", "best-practice"])
+      .analyze();
+    const serious = axe.violations.filter((violation) => violation.impact === "critical" || violation.impact === "serious");
+    if (serious.length > 0) fail(`the labelled check panel has serious accessibility violations: ${serious.map((violation) => violation.id).join(", ")}`);
+    pass("a labelled check splits each window's hosts under its headings, each list labelled by its heading, and opened, its events carry their states");
+
+    // Without the engine: one list per window, and one line saying so.
+    await checkWith(page);
+    const plainLists = await hostLists(page);
+    const expectedPlain = [
+      { labelledBy: "scroll-check-control", label: "In 10 seconds without scrolling, the page first contacted 1 new third-party host.", labelPrecedes: true, sites: ["timer.org: static.timer.org"] },
+      {
+        labelledBy: "scroll-check-scroll",
+        label: "In the next 10 seconds, while the visit scrolled 4 screens, it first contacted 8 more:",
+        labelPrecedes: true,
+        sites: ["echo.net: api.echo.net, *.echo.net", "adobeprobe.net: metrics.adobeprobe.net", "foxtrot.net: cdn.foxtrot.net", "lima.net: *.lima.net", "mike.net: *.mike.net", "quiet.net: cdn.quiet.net", "quiet.org: static.quiet.org"]
+      }
+    ];
+    if (JSON.stringify(plainLists) !== JSON.stringify(expectedPlain)) fail(`a check without its lists' engine lists ${JSON.stringify(plainLists)}`);
+    const plainCaveats = await caveats(page);
+    if (plainCaveats.filter((line) => line === unavailableLine).length !== 1 || plainCaveats.includes(matching) || plainCaveats.includes(blocking)) {
+      fail(`a check without its lists' engine has the caveats ${JSON.stringify(plainCaveats)}`);
+    }
+    const plainSection = page.locator(".scroll-check .scroll-check-events");
+    await plainSection.locator(":scope > summary").click();
+    const plainDestinations = (await plainSection.locator(":scope > ul > li").allTextContents()).map((line) => line.trim());
+    if (plainDestinations.some((line) => line.includes("filter lists") || line.includes("those lists"))) fail(`a check without its lists' engine labels ${JSON.stringify(plainDestinations)}`);
+    pass("a check whose scanner could not load its lists' engine lists its hosts as before and says it could not compare them");
+  } finally {
+    await context.close();
+  }
+
+  // On a phone, the labelled panel and its opened events add no sideways scroll.
+  const phone = await openContext({ width: 375, height: 812 }, [single(labels)]);
+  try {
+    const page = await phone.newPage();
+    await page.goto(`${baseUrl}/`, { waitUntil: "networkidle" });
+    await page.locator(".run-mode-checking").waitFor({ state: "detached" });
+    await checkWith(page);
+    const arrival = await page.evaluate(() => {
+      const heading = document.querySelector(".scroll-check h2")?.getBoundingClientRect();
+      return { onScreen: Boolean(heading && heading.top >= 0 && heading.bottom <= window.innerHeight), overflow: document.documentElement.scrollWidth > window.innerWidth };
+    });
+    if (!arrival.onScreen || arrival.overflow) fail(`a labelled check arrives on a phone as ${JSON.stringify(arrival)}`);
+    await page.locator(".scroll-check .scroll-check-events > summary").click();
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
+    if (overflow) fail("a labelled check's opened analytics events scroll the page sideways on a phone");
+    pass("on a phone, a labelled check arrives with its heading on screen, and neither its lists nor its opened events scroll the page sideways");
   } finally {
     await phone.close();
   }

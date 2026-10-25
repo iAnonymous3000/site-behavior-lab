@@ -70,8 +70,10 @@ export default function MethodologyPage() {
           scrolling began in that immediate result only. For the hosts it first contacted while scrolling, it can also
           show call-stack hosts: which scripts the visit requested were on the call stack of their requests. It can also
           show the GA4 and Adobe Analytics events it saw the page send in each window, including those sent to
-          collection addresses on the site itself, in that immediate result only. Nothing from that visit is saved,
-          shared, exported or printed.
+          collection addresses on the site itself, in that immediate result only. It counts only requests that got an
+          answer, and can show, for each host it lists and each destination, whether the requests it counted matched
+          the default filter lists of Brave Shields in that same visit, a match computed while the page loads normally,
+          not a measured block. Nothing from that visit is saved, shared, exported or printed.
         </p>
         <p>
           The scanner never disguises itself: it is an honest automated browser. Sites that block automation are
