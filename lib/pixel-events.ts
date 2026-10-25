@@ -204,12 +204,12 @@ export const X_PIXEL_PURCHASE_EVENT = "Purchase";
 export const X_PIXEL_CONVERSION_EVENT = "Conversion tracking";
 export const X_EVENT_NAMES: readonly string[] = [X_PIXEL_PURCHASE_EVENT, X_PIXEL_CONVERSION_EVENT];
 
-function buildEventVocabulary(names: string[]): Map<string, string> {
+export function buildEventVocabulary(names: string[]): Map<string, string> {
   return new Map(names.map((name) => [name.toLowerCase(), name]));
 }
 
 /** The catalogued form of a standard event name, or the generalized custom label. */
-function catalogEventName(value: string, vocabulary: Map<string, string>): string {
+export function catalogEventName(value: string, vocabulary: Map<string, string>): string {
   return vocabulary.get(value.trim().toLowerCase()) ?? CUSTOM_EVENT_LABEL;
 }
 
@@ -482,7 +482,7 @@ function firstString(obj: Record<string, unknown>, keys: string[]): string | nul
  * pass are still generalized to "custom event" unless they match the platform's
  * standard vocabulary (see {@link catalogEventName}).
  */
-function isSafeEventToken(value: string): boolean {
+export function isSafeEventToken(value: string): boolean {
   return /^[A-Za-z][A-Za-z0-9 _.-]{0,39}$/.test(value);
 }
 

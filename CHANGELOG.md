@@ -9,6 +9,34 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- A new decoder, lib/analytics-events.ts, reads the GA4 and Adobe Analytics
+  events a request carried, for a check after scrolling (build brief approved
+  2026-10-25, owner call 1, option c). It recognizes the two formats by path
+  and format parameters, never by host, so a collection address on the site's
+  own domain is decoded too: GA4's `/g/collect` with `v=2` and a `G-`
+  measurement id, whose URL's `en` is one event and each line of a batched
+  body another; and Adobe's classic `/b/ss/` beacons, from the URL or from a
+  urlencoded body, each one event named by its link type. A GA4 name in
+  Google's documented vocabulary (lib/analytics-event-vocabulary.ts, which
+  the evidence validator will read too) is shown as catalogued; every other
+  GA4 name, and every Adobe link name, is generalized to "custom event" unless
+  it reads as a scroll depth (it contains "scroll", also "depth", "tracking",
+  "percent" or a % sign, and exactly one integer from 0 to 100), which is
+  shown in the scanner's own words as "scroll depth <N>%". Only two values are
+  read: GA4's percent_scrolled on its scroll event, kept only as an integer
+  from 0 to 100, and Adobe's link name, for that test alone. A body is read
+  only for a request in a decoded format, through a reader the caller hands
+  in, and a truncated, unreadable or unrecognized body is reported as not read
+  in full, never guessed at. The decoder reuses lib/pixel-events.ts's
+  isSafeEventToken, buildEventVocabulary, catalogEventName and
+  CUSTOM_EVENT_LABEL, the first three now exported unchanged; the report's
+  own pixel-events detector (pixel-request-decoder@6) gives byte-identical
+  output, by its unit tests and by a seeded harness over 40,000 pixel inputs
+  run at the parent and at this commit. Nothing uses the decoder yet;
+  lib/analytics-events.test.ts pins both formats, the batched lines, the
+  vocabulary rule, the matcher's positive and negative cases, the one value
+  read, the body's coverage, and that no other parameter or value reaches its
+  output.
 - A check after scrolling's result now shows the call-stack hosts it records,
   in one section that follows the scroll window's host list, folded by
   default under "Which scripts asked for them" (owner call 2, 2026-10-24),
