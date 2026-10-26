@@ -1,0 +1,6544 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Brave-list blocking off/on comparison",
+  "runLabels": {
+    "baseline": "No blocking",
+    "variant": "Brave-list blocking"
+  },
+  "requestedUrl": "https://www.etsy.com/",
+  "scannedAt": "2026-10-26T11:30:59.374Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 16175,
+      "firstPartyDomain": "www.etsy.com",
+      "totalRequests": 172,
+      "thirdPartyRequests": 97,
+      "knownTrackerRequests": 53,
+      "thirdPartyDomains": 30,
+      "cookies": 47,
+      "thirdPartyCookies": 25,
+      "storageEntries": 15,
+      "fingerprintEvents": 10,
+      "shieldsBlockedRequests": 85
+    },
+    "conditions": {
+      "requestedUrl": "https://www.etsy.com/",
+      "finalUrl": "https://www.etsy.com/",
+      "scannedAt": "2026-10-26T11:31:08.530Z",
+      "chromiumVersion": "153.0.8010.12",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-10-19T13:08:56.937Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.63.0 from github-actions-ubuntu with browser 153.0.8010.12, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.etsy.com/",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 46
+      },
+      {
+        "id": 2,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 498
+      },
+      {
+        "id": 3,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 498
+      },
+      {
+        "id": 4,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 498
+      },
+      {
+        "id": 5,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 498
+      },
+      {
+        "id": 6,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 499
+      },
+      {
+        "id": 7,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 499
+      },
+      {
+        "id": 8,
+        "url": "https://{label}.etsystatic.com/{seg}/{seg}/{n}/{seg}?version=",
+        "domain": "{label}.etsystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 500
+      },
+      {
+        "id": 9,
+        "url": "https://{label}.etsystatic.com/{seg}/{seg}/{n}/{seg}?version=",
+        "domain": "{label}.etsystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 500
+      },
+      {
+        "id": 10,
+        "url": "https://{label}.etsystatic.com/{n}/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.etsystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 500
+      },
+      {
+        "id": 11,
+        "url": "https://{label}.etsystatic.com/{n}/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.etsystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 537
+      },
+      {
+        "id": 12,
+        "url": "https://transcend-cdn.com/{seg}/{seg}/{seg}",
+        "domain": "transcend-cdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 538
+      },
+      {
+        "id": 13,
+        "url": "https://{label}.etsystatic.com/{n}/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.etsystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 539
+      },
+      {
+        "id": 14,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 540
+      },
+      {
+        "id": 15,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 540
+      },
+      {
+        "id": 16,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 540
+      },
+      {
+        "id": 17,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 541
+      },
+      {
+        "id": 18,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 541
+      },
+      {
+        "id": 19,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 541
+      },
+      {
+        "id": 20,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 541
+      },
+      {
+        "id": 21,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 542
+      },
+      {
+        "id": 22,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/api",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 543
+      },
+      {
+        "id": 23,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 543
+      },
+      {
+        "id": 24,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 543
+      },
+      {
+        "id": 25,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 543
+      },
+      {
+        "id": 26,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 544
+      },
+      {
+        "id": 27,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 544
+      },
+      {
+        "id": 28,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 544
+      },
+      {
+        "id": 29,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 544
+      },
+      {
+        "id": 30,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 544
+      },
+      {
+        "id": 31,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 544
+      },
+      {
+        "id": 32,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 547
+      },
+      {
+        "id": 33,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 547
+      },
+      {
+        "id": 34,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 547
+      },
+      {
+        "id": 35,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 548
+      },
+      {
+        "id": 36,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 548
+      },
+      {
+        "id": 37,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 548
+      },
+      {
+        "id": 38,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 548
+      },
+      {
+        "id": 39,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 548
+      },
+      {
+        "id": 40,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 548
+      },
+      {
+        "id": 41,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 549
+      },
+      {
+        "id": 42,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 549
+      },
+      {
+        "id": 43,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 549
+      },
+      {
+        "id": 44,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 549
+      },
+      {
+        "id": 45,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 549
+      },
+      {
+        "id": 46,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 549
+      },
+      {
+        "id": 47,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 550
+      },
+      {
+        "id": 48,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 550
+      },
+      {
+        "id": 49,
+        "url": "https://{label}.etsystatic.com/{n}/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "{label}.etsystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 550
+      },
+      {
+        "id": 50,
+        "url": "https://www.etsy.com/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 552
+      },
+      {
+        "id": 51,
+        "url": "https://www.googletagmanager.com/{seg}?id=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 552
+      },
+      {
+        "id": 52,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 604
+      },
+      {
+        "id": 53,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 604
+      },
+      {
+        "id": 54,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 605
+      },
+      {
+        "id": 55,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 605
+      },
+      {
+        "id": 56,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 605
+      },
+      {
+        "id": 57,
+        "url": "https://{label}.etsystatic.com/{seg}/{n}/{n}/{seg}?version=",
+        "domain": "{label}.etsystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 610
+      },
+      {
+        "id": 58,
+        "url": "https://{label}.etsystatic.com/{seg}/{seg}/{n}/{seg}?version=",
+        "domain": "{label}.etsystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 610
+      },
+      {
+        "id": 59,
+        "url": "https://{label}.etsystatic.com/{seg}/{seg}/{n}/{seg}?version=",
+        "domain": "{label}.etsystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 611
+      },
+      {
+        "id": 60,
+        "url": "https://{label}.etsystatic.com/{seg}/{seg}/{n}/{seg}?version=",
+        "domain": "{label}.etsystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 611
+      },
+      {
+        "id": 61,
+        "url": "https://{label}.etsystatic.com/{seg}/{n}/{n}/{seg}?version=",
+        "domain": "{label}.etsystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 611
+      },
+      {
+        "id": 62,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 618
+      },
+      {
+        "id": 63,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 623
+      },
+      {
+        "id": 64,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 624
+      },
+      {
+        "id": 65,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 624
+      },
+      {
+        "id": 66,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 629
+      },
+      {
+        "id": 67,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 631
+      },
+      {
+        "id": 68,
+        "url": "https://www.etsy.com/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 668
+      },
+      {
+        "id": 69,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 678
+      },
+      {
+        "id": 70,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 820
+      },
+      {
+        "id": 71,
+        "url": "https://www.etsy.com/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 833
+      },
+      {
+        "id": 72,
+        "url": "https://www.etsy.com/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 834
+      },
+      {
+        "id": 73,
+        "url": "https://www.etsy.com/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 834
+      },
+      {
+        "id": 74,
+        "url": "https://www.etsy.com/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 846
+      },
+      {
+        "id": 75,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 847
+      },
+      {
+        "id": 76,
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 965
+      },
+      {
+        "id": 77,
+        "url": "https://{label}.axon.ai/{seg}",
+        "domain": "{label}.axon.ai",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 965
+      },
+      {
+        "id": 78,
+        "url": "https://{label}.applovin.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.applovin.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 966
+      },
+      {
+        "id": 79,
+        "url": "https://trkn.us/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "trkn.us",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 966
+      },
+      {
+        "id": 80,
+        "url": "https://{label}.reddit.com/{seg}?id=&%5Bredacted%5D=",
+        "domain": "{label}.reddit.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 966
+      },
+      {
+        "id": 81,
+        "url": "https://www.facebook.com/{seg}?%5Bredacted%5D=&id=&ev=&ud%5Bem%5D=",
+        "domain": "www.facebook.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "facebook.com",
+          "entity": "Meta",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 966
+      },
+      {
+        "id": 82,
+        "url": "https://www.facebook.com/{seg}?%5Bredacted%5D=&id=&ev=&ud%5Bem%5D=",
+        "domain": "www.facebook.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "facebook.com",
+          "entity": "Meta",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 966
+      },
+      {
+        "id": 83,
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 987
+      },
+      {
+        "id": 84,
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "{label}.bing.com",
+          "entity": "Microsoft",
+          "category": "advertising / analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 988
+      },
+      {
+        "id": 85,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 988
+      },
+      {
+        "id": 86,
+        "url": "https://{label}.btncdn.com/{seg}/{seg}",
+        "domain": "{label}.btncdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 988
+      },
+      {
+        "id": 87,
+        "url": "https://analytics.tiktok.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "analytics.tiktok.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.tiktok.com",
+          "entity": "TikTok",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 988
+      },
+      {
+        "id": 88,
+        "url": "https://{label}.adsrvr.org/{seg}",
+        "domain": "{label}.adsrvr.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adsrvr.org",
+          "entity": "The Trade Desk",
+          "category": "advertising / demand-side platform",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 988
+      },
+      {
+        "id": 89,
+        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/{seg}/{seg}",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 988
+      },
+      {
+        "id": 90,
+        "url": "https://ad.doubleclick.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "ad.doubleclick.net",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/{seg}/{seg}",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 988
+      },
+      {
+        "id": 91,
+        "url": "https://{label}.ispot.tv/{seg}/{seg}?%5Bredacted%5D=&type=&cid=",
+        "domain": "{label}.ispot.tv",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 988
+      },
+      {
+        "id": 92,
+        "url": "https://{label}.snapchat.com/{seg}?%5Bredacted%5D=&ev=&v=",
+        "domain": "{label}.snapchat.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 988
+      },
+      {
+        "id": 93,
+        "url": "https://www.etsy.com/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 990
+      },
+      {
+        "id": 94,
+        "url": "https://www.etsy.com/api/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 991
+      },
+      {
+        "id": 95,
+        "url": "https://www.etsy.com/api/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 992
+      },
+      {
+        "id": 96,
+        "url": "https://www.etsy.com/api/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/{seg}/{seg}",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 995
+      },
+      {
+        "id": 97,
+        "url": "https://www.etsy.com/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1005
+      },
+      {
+        "id": 98,
+        "url": "https://www.googleadservices.com/{seg}/{seg}/{n}?%5Bredacted%5D=",
+        "domain": "www.googleadservices.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googleadservices.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/{seg}/{seg}",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 1112
+      },
+      {
+        "id": 99,
+        "url": "https://www.googleadservices.com/{seg}/{seg}/{n}?%5Bredacted%5D=",
+        "domain": "www.googleadservices.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googleadservices.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 1113
+      },
+      {
+        "id": 100,
+        "url": "https://{label}.applovin.com/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.applovin.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.applovin.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.applovin.com"
+        },
+        "startedAtMs": 1132
+      },
+      {
+        "id": 101,
+        "url": "https://{label}.applovin.com/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.applovin.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.applovin.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.applovin.com"
+        },
+        "startedAtMs": 1132
+      },
+      {
+        "id": 102,
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 1208
+      },
+      {
+        "id": 103,
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 1208
+      },
+      {
+        "id": 104,
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 1208
+      },
+      {
+        "id": 105,
+        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&tid=&hl=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/{seg}/{seg}",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 1209
+      },
+      {
+        "id": 106,
+        "url": "https://analytics.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
+        "domain": "analytics.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.google.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/{seg}/{seg}",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 1209
+      },
+      {
+        "id": 107,
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}?v=&tid=&cid=&%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 1210
+      },
+      {
+        "id": 109,
+        "url": "https://ad.doubleclick.net/{seg}",
+        "domain": "ad.doubleclick.net",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/{seg}/{seg}",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 1346
+      },
+      {
+        "id": 110,
+        "url": "https://{label}.{label}.doubleclick.net/{seg}",
+        "domain": "{label}.{label}.doubleclick.net",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 1347
+      },
+      {
+        "id": 111,
+        "url": "https://{label}.bing.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.bing.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "{label}.bing.com",
+          "entity": "Microsoft",
+          "category": "advertising / analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.bing.com/{seg}",
+          "initiatorDomain": "{label}.bing.com"
+        },
+        "startedAtMs": 1367
+      },
+      {
+        "id": 112,
+        "url": "https://{label}.bing.com/{seg}/{seg}/{seg}/{n}",
+        "domain": "{label}.bing.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "{label}.bing.com",
+          "entity": "Microsoft",
+          "category": "advertising / analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.bing.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.bing.com"
+        },
+        "startedAtMs": 1390
+      },
+      {
+        "id": 113,
+        "url": "https://{label}.bing.com/{seg}/{n}?%5Bredacted%5D=&ver=&msclkid=",
+        "domain": "{label}.bing.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "{label}.bing.com",
+          "entity": "Microsoft",
+          "category": "advertising / analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 1391
+      },
+      {
+        "id": 114,
+        "url": "https://{label}.bing.com/{seg}/{n}?%5Bredacted%5D=&ver=&msclkid=",
+        "domain": "{label}.bing.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "{label}.bing.com",
+          "entity": "Microsoft",
+          "category": "advertising / analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 1391
+      },
+      {
+        "id": 115,
+        "url": "https://ad.doubleclick.net/{seg}",
+        "domain": "ad.doubleclick.net",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/{seg}/{seg}",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 1433
+      },
+      {
+        "id": 116,
+        "url": "https://{label}.{label}.doubleclick.net/{seg}",
+        "domain": "{label}.{label}.doubleclick.net",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 1435
+      },
+      {
+        "id": 117,
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{n}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 1486
+      },
+      {
+        "id": 118,
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/{seg}/{seg}",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 1487
+      },
+      {
+        "id": 119,
+        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&tid=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/{seg}/{seg}",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 1488
+      },
+      {
+        "id": 120,
+        "url": "https://{label}.applovin.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.applovin.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/{seg}/{seg}",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 1497
+      },
+      {
+        "id": 121,
+        "url": "https://{label}.applovin.com/{seg}/{seg}",
+        "domain": "{label}.applovin.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.axon.ai/{seg}",
+          "initiatorDomain": "{label}.axon.ai"
+        },
+        "startedAtMs": 1497
+      },
+      {
+        "id": 122,
+        "url": "https://trkn.us/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "trkn.us",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 1498
+      },
+      {
+        "id": 123,
+        "url": "https://{label}.bing.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bing.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "{label}.bing.com",
+          "entity": "Microsoft",
+          "category": "advertising / analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.bing.com/{seg}/{seg}/{seg}/{n}",
+          "initiatorDomain": "{label}.bing.com"
+        },
+        "startedAtMs": 1498
+      },
+      {
+        "id": 124,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 1500
+      },
+      {
+        "id": 125,
+        "url": "https://analytics.tiktok.com/{seg}/{seg}/static/{seg}",
+        "domain": "analytics.tiktok.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.tiktok.com",
+          "entity": "TikTok",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://analytics.tiktok.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "analytics.tiktok.com"
+        },
+        "startedAtMs": 1527
+      },
+      {
+        "id": 126,
+        "url": "https://{label}.pinterest.com/{seg}?tid=&%5Bredacted%5D=&cb=",
+        "domain": "{label}.pinterest.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "{label}.pinterest.com",
+          "entity": "Pinterest",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/{seg}/{seg}",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 1551
+      },
+      {
+        "id": 127,
+        "url": "https://{label}.pinterest.com/{seg}?%5Bredacted%5D=&tid=&cb=",
+        "domain": "{label}.pinterest.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "{label}.pinterest.com",
+          "entity": "Pinterest",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/{seg}/{seg}",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 1551
+      },
+      {
+        "id": 128,
+        "url": "https://{label}.pinterest.com/{seg}?tid=&%5Bredacted%5D=&cb=",
+        "domain": "{label}.pinterest.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "{label}.pinterest.com",
+          "entity": "Pinterest",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/{seg}/{seg}",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 1556
+      },
+      {
+        "id": 129,
+        "url": "https://analytics.tiktok.com/{seg}/{seg}/static/{seg}",
+        "domain": "analytics.tiktok.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.tiktok.com",
+          "entity": "TikTok",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://analytics.tiktok.com/{seg}/{seg}/static/{seg}",
+          "initiatorDomain": "analytics.tiktok.com"
+        },
+        "startedAtMs": 1623
+      },
+      {
+        "id": 130,
+        "url": "https://{label}.tiktokw.us/{seg}/{seg}",
+        "domain": "{label}.tiktokw.us",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://analytics.tiktok.com/{seg}/{seg}/static/{seg}",
+          "initiatorDomain": "analytics.tiktok.com"
+        },
+        "startedAtMs": 1624
+      },
+      {
+        "id": 131,
+        "url": "https://analytics.tiktok.com/api/{seg}/{seg}",
+        "domain": "analytics.tiktok.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.tiktok.com",
+          "entity": "TikTok",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://analytics.tiktok.com/{seg}/{seg}/static/{seg}",
+          "initiatorDomain": "analytics.tiktok.com"
+        },
+        "startedAtMs": 1624
+      },
+      {
+        "id": 132,
+        "url": "https://analytics.tiktok.com/api/{seg}/{seg}",
+        "domain": "analytics.tiktok.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.tiktok.com",
+          "entity": "TikTok",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://analytics.tiktok.com/{seg}/{seg}/static/{seg}",
+          "initiatorDomain": "analytics.tiktok.com"
+        },
+        "startedAtMs": 1627
+      },
+      {
+        "id": 133,
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{n}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/{seg}/{seg}",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 1632
+      },
+      {
+        "id": 134,
+        "url": "https://{label}.bing.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bing.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "{label}.bing.com",
+          "entity": "Microsoft",
+          "category": "advertising / analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/{seg}/{seg}",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 1634
+      },
+      {
+        "id": 135,
+        "url": "https://{label}.{label}.doubleclick.net/{seg}",
+        "domain": "{label}.{label}.doubleclick.net",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 1649
+      },
+      {
+        "id": 136,
+        "url": "https://{label}.{label}.doubleclick.net/{seg}",
+        "domain": "{label}.{label}.doubleclick.net",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 1649
+      },
+      {
+        "id": 137,
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&cid=",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 1657
+      },
+      {
+        "id": 138,
+        "url": "https://{label}.google.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.google.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "{label}.google.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.doubleclick.net/{seg}",
+          "initiatorDomain": "{label}.{label}.doubleclick.net"
+        },
+        "startedAtMs": 1718
+      },
+      {
+        "id": 139,
+        "url": "https://d34r8q7sht0t9k.cloudfront.net/{seg}",
+        "domain": "d34r8q7sht0t9k.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.doubleclick.net/{seg}",
+          "initiatorDomain": "{label}.{label}.doubleclick.net"
+        },
+        "startedAtMs": 1718
+      },
+      {
+        "id": 140,
+        "url": "https://{label}.google.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.google.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "{label}.google.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.doubleclick.net/{seg}",
+          "initiatorDomain": "{label}.{label}.doubleclick.net"
+        },
+        "startedAtMs": 1721
+      },
+      {
+        "id": 141,
+        "url": "https://{label}.podscribe.com/",
+        "domain": "{label}.podscribe.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://d34r8q7sht0t9k.cloudfront.net/{seg}",
+          "initiatorDomain": "d34r8q7sht0t9k.cloudfront.net"
+        },
+        "startedAtMs": 1785
+      },
+      {
+        "id": 142,
+        "url": "https://{label}.pinterest.com/{seg}?%5Bredacted%5D=&tid=&cb=",
+        "domain": "{label}.pinterest.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "{label}.pinterest.com",
+          "entity": "Pinterest",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/{seg}/{seg}",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 1820
+      },
+      {
+        "id": 143,
+        "url": "https://{label}.{label}.qualtrics.com/{seg}?%5Bredacted%5D=&t=",
+        "domain": "{label}.{label}.qualtrics.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 1868
+      },
+      {
+        "id": 144,
+        "url": "https://{label}.pinterest.com/{seg}",
+        "domain": "{label}.pinterest.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "{label}.pinterest.com",
+          "entity": "Pinterest",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 1870
+      },
+      {
+        "id": 145,
+        "url": "https://{label}.{label}.doubleclick.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 1877
+      },
+      {
+        "id": 146,
+        "url": "https://{label}.adsrvr.org/{seg}/{seg}?%5Bredacted%5D=&ref=",
+        "domain": "{label}.adsrvr.org",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adsrvr.org",
+          "entity": "The Trade Desk",
+          "category": "advertising / demand-side platform",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.adsrvr.org/{seg}",
+          "initiatorDomain": "{label}.adsrvr.org"
+        },
+        "startedAtMs": 1880
+      },
+      {
+        "id": 147,
+        "url": "https://{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.qualtrics.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.qualtrics.com/{seg}",
+          "initiatorDomain": "{label}.{label}.qualtrics.com"
+        },
+        "startedAtMs": 1970
+      },
+      {
+        "id": 148,
+        "url": "https://{label}.applovin.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.applovin.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1996
+      },
+      {
+        "id": 149,
+        "url": "https://{label}.podscribe.com/{seg}?%5Bredacted%5D=&source=",
+        "domain": "{label}.podscribe.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2007
+      },
+      {
+        "id": 150,
+        "url": "https://{label}.adsrvr.org/{seg}/{seg}?%5Bredacted%5D=&ref=",
+        "domain": "{label}.adsrvr.org",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adsrvr.org",
+          "entity": "The Trade Desk",
+          "category": "advertising / demand-side platform",
+          "confidence": "curated"
+        },
+        "provenance": {
+          "initiatorUrl": "https://{label}.adsrvr.org/{seg}",
+          "initiatorDomain": "{label}.adsrvr.org"
+        },
+        "startedAtMs": 2030
+      },
+      {
+        "id": 151,
+        "url": "https://{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.qualtrics.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/{seg}/{seg}",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 2058
+      },
+      {
+        "id": 152,
+        "url": "https://{label}.adsrvr.org/{seg}",
+        "domain": "{label}.adsrvr.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adsrvr.org",
+          "entity": "The Trade Desk",
+          "category": "advertising / demand-side platform",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.adsrvr.org/{seg}/{seg}",
+          "initiatorDomain": "{label}.adsrvr.org"
+        },
+        "startedAtMs": 2181
+      },
+      {
+        "id": 153,
+        "url": "https://{label}.demdex.net/{seg}",
+        "domain": "{label}.demdex.net",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.adsrvr.org/{seg}/{seg}",
+          "initiatorDomain": "{label}.adsrvr.org"
+        },
+        "startedAtMs": 2186
+      },
+      {
+        "id": 154,
+        "url": "https://{label}.adnxs.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adnxs.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.adsrvr.org/{seg}/{seg}",
+          "initiatorDomain": "{label}.adsrvr.org"
+        },
+        "startedAtMs": 2187
+      },
+      {
+        "id": 155,
+        "url": "https://pixel.rubiconproject.com/{seg}?v=&%5Bredacted%5D=",
+        "domain": "pixel.rubiconproject.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "rubiconproject.com",
+          "entity": "Magnite",
+          "category": "advertising / supply-side platform",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.adsrvr.org/{seg}/{seg}",
+          "initiatorDomain": "{label}.adsrvr.org"
+        },
+        "startedAtMs": 2187
+      },
+      {
+        "id": 156,
+        "url": "https://{label}.adsrvr.org/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adsrvr.org",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adsrvr.org",
+          "entity": "The Trade Desk",
+          "category": "advertising / demand-side platform",
+          "confidence": "curated"
+        },
+        "provenance": {
+          "initiatorUrl": "https://{label}.adsrvr.org/{seg}/{seg}",
+          "initiatorDomain": "{label}.adsrvr.org"
+        },
+        "startedAtMs": 2331
+      },
+      {
+        "id": 157,
+        "url": "https://www.etsy.com/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 2426
+      },
+      {
+        "id": 158,
+        "url": "https://{label}.demdex.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.demdex.net",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "provenance": {
+          "initiatorUrl": "https://{label}.adsrvr.org/{seg}/{seg}",
+          "initiatorDomain": "{label}.adsrvr.org"
+        },
+        "startedAtMs": 2452
+      },
+      {
+        "id": 159,
+        "url": "https://www.etsy.com/api/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 2475
+      },
+      {
+        "id": 160,
+        "url": "https://{label}.adsrvr.org/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adsrvr.org",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adsrvr.org",
+          "entity": "The Trade Desk",
+          "category": "advertising / demand-side platform",
+          "confidence": "curated"
+        },
+        "provenance": {
+          "initiatorUrl": "https://{label}.adsrvr.org/{seg}/{seg}",
+          "initiatorDomain": "{label}.adsrvr.org"
+        },
+        "startedAtMs": 2599
+      },
+      {
+        "id": 161,
+        "url": "https://{label}.adsrvr.org/{seg}/{seg}",
+        "domain": "{label}.adsrvr.org",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adsrvr.org",
+          "entity": "The Trade Desk",
+          "category": "advertising / demand-side platform",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 2870
+      },
+      {
+        "id": 162,
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{n}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 9006
+      },
+      {
+        "id": 163,
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/{seg}/{seg}",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 9007
+      },
+      {
+        "id": 164,
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{n}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 9007
+      },
+      {
+        "id": 165,
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/{seg}/{seg}",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 9007
+      },
+      {
+        "id": 166,
+        "url": "https://www.etsy.com/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 9011
+      },
+      {
+        "id": 167,
+        "url": "https://www.etsy.com/api/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 9034
+      },
+      {
+        "id": 168,
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&cid=",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 9040
+      },
+      {
+        "id": 169,
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&cid=",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 9065
+      },
+      {
+        "id": 170,
+        "url": "https://www.etsy.com/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/{seg}/{seg}",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 9127
+      },
+      {
+        "id": 171,
+        "url": "https://www.etsy.com/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 9176
+      },
+      {
+        "id": 172,
+        "url": "https://www.etsy.com/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 9286
+      },
+      {
+        "id": 173,
+        "url": "https://www.etsy.com/api/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 9335
+      }
+    ],
+    "domains": [
+      {
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 10,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204,
+          302,
+          200
+        ],
+        "resourceTypes": [
+          "ping",
+          "document",
+          "script",
+          "fetch",
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.bing.com",
+        "requests": 7,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "{label}.bing.com",
+          "entity": "Microsoft",
+          "category": "advertising / analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "script",
+          "image",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "{label}.adsrvr.org",
+        "requests": 7,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adsrvr.org",
+          "entity": "The Trade Desk",
+          "category": "advertising / demand-side platform",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          302
+        ],
+        "resourceTypes": [
+          "script",
+          "document",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 6,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "analytics.tiktok.com",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.tiktok.com",
+          "entity": "TikTok",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "ping"
+        ]
+      },
+      {
+        "domain": "{label}.pinterest.com",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "{label}.pinterest.com",
+          "entity": "Pinterest",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr",
+          "fetch",
+          "document"
+        ]
+      },
+      {
+        "domain": "ad.doubleclick.net",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "www.facebook.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "facebook.com",
+          "entity": "Meta",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "www.googleadservices.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googleadservices.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch",
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.google.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "{label}.google.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.demdex.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          302
+        ],
+        "resourceTypes": [
+          "document"
+        ]
+      },
+      {
+        "domain": "analytics.google.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.google.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "pixel.rubiconproject.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "rubiconproject.com",
+          "entity": "Magnite",
+          "category": "advertising / supply-side platform",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          302
+        ],
+        "resourceTypes": [
+          "document"
+        ]
+      },
+      {
+        "domain": "{label}.etsystatic.com",
+        "requests": 11,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 9,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch",
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.applovin.com",
+        "requests": 6,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "script",
+          "fetch",
+          "ping",
+          "image"
+        ]
+      },
+      {
+        "domain": "trkn.us",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          302,
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.pinimg.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.podscribe.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch",
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.qualtrics.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "transcend-cdn.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.axon.ai",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.reddit.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.btncdn.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.ispot.tv",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.snapchat.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.tiktokw.us",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "ping"
+        ]
+      },
+      {
+        "domain": "d34r8q7sht0t9k.cloudfront.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.qualtrics.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.adnxs.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document"
+        ]
+      },
+      {
+        "domain": "www.etsy.com",
+        "requests": 75,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "script",
+          "image",
+          "font",
+          "ping",
+          "fetch",
+          "xhr"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "[redacted]",
+        "domain": ".adsrvr.org",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".adsrvr.org",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".applovin.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".{label}.bing.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "MUID",
+        "domain": ".bing.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "_pinterest_ct_ua",
+        "domain": ".{label}.pinterest.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".demdex.net",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "IDE",
+        "domain": ".doubleclick.net",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".doubleclick.net",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".doubleclick.net",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".doubleclick.net",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".doubleclick.net",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".doubleclick.net",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".doubleclick.net",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".{label}.demdex.net",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".facebook.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".ispot.tv",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".pinterest.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".rubiconproject.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".rubiconproject.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".rubiconproject.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".rubiconproject.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".snapchat.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "_ttp",
+        "domain": ".tiktok.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".trkn.us",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".etsy.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".etsy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".etsy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".etsy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "_fbp",
+        "domain": ".etsy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".etsy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "datadome",
+        "domain": ".etsy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_gcl_au",
+        "domain": ".etsy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".etsy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ga",
+        "domain": ".etsy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".etsy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".etsy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".etsy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_uetsid",
+        "domain": ".etsy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".etsy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ttp",
+        "domain": ".etsy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted:long-token]",
+        "domain": ".etsy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".etsy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_uetvid",
+        "domain": ".etsy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".etsy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.etsy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.etsy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 8
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 85
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 96
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 277
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 29
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 52
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 29
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 7
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 5
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 17
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 36
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 60
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 20
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 1
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 1
+      }
+    ],
+    "fingerprintEvents": [
+      {
+        "api": "canvas.getImageData",
+        "count": 1
+      },
+      {
+        "api": "canvas.measureText",
+        "count": 3
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 2
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 2
+      },
+      {
+        "api": "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 1
+      },
+      {
+        "api": "webgl2.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 1
+      }
+    ],
+    "fingerprintDetections": [
+      {
+        "kind": "canvas-fingerprinting",
+        "heuristic": "openwpm-canvas-v1",
+        "count": 1,
+        "evidence": {
+          "readApis": [
+            "canvas.getImageData"
+          ],
+          "maxCanvasWidth": 220,
+          "maxCanvasHeight": 30,
+          "maxDistinctTextCharacters": 21,
+          "maxTextWriteCalls": 2
+        }
+      },
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "change",
+            "input",
+            "keydown"
+          ],
+          "listenerTargets": [
+            "document",
+            "other"
+          ],
+          "thirdPartyOrigins": [
+            "https://{label}.axon.ai/",
+            "https://{label}.pinimg.com/",
+            "https://transcend-cdn.com/",
+            "https://www.googletagmanager.com/"
+          ],
+          "totalListenerCalls": 8
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "input",
+            "keydown",
+            "pointerdown",
+            "scroll",
+            "visibilitychange"
+          ],
+          "listenerTargets": [
+            "document",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://analytics.tiktok.com/",
+            "https://{label}.bing.com/",
+            "https://{label}.axon.ai/",
+            "https://www.googletagmanager.com/"
+          ],
+          "totalListenerCalls": 18
+        }
+      }
+    ],
+    "cnameCloaks": [
+      {
+        "host": "www.etsy.com",
+        "cname": "{label}.etsy.map.fastly.net",
+        "tracker": {
+          "domain": "etsy.map.fastly.net",
+          "entity": "etsy.map.fastly.net",
+          "category": "tracking (Brave Shields list)",
+          "confidence": "shields-list"
+        }
+      }
+    ],
+    "pixelEvents": [
+      {
+        "platform": "Meta",
+        "product": "Meta Pixel",
+        "events": [
+          "PageView"
+        ],
+        "advancedMatching": [
+          "email"
+        ],
+        "requests": 2
+      },
+      {
+        "platform": "TikTok",
+        "product": "TikTok Pixel",
+        "events": [
+          "custom event",
+          "Pageview"
+        ],
+        "advancedMatching": [],
+        "requests": 2
+      }
+    ],
+    "privacyPolicy": {
+      "url": "https://www.etsy.com/legal/privacy",
+      "claims": [],
+      "mentionedEntities": [
+        "Google",
+        "Meta"
+      ],
+      "unmentionedEntities": [
+        "Microsoft",
+        "The Trade Desk",
+        "Pinterest",
+        "TikTok",
+        "Adobe",
+        "Magnite"
+      ],
+      "policyTextLength": 42477
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "Blocked a request that could not be verified as public: https://{label}.applovin.com/{seg}/{seg}",
+      "The page did not reach network idle before the scan window ended.",
+      "This scan typed a synthetic test value into 1 form field with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored. Observed requests during typing and the following wait are included in the request log. Teardown-only transmissions are not measured.",
+      "Resolved 1 first-party subdomain that is a CNAME alias for a third-party tracker (CNAME cloaking), which request-URL matching alone would miss.",
+      "Read the site's privacy policy (https://www.etsy.com/legal/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 9142,
+      "firstPartyDomain": "www.etsy.com",
+      "totalRequests": 73,
+      "thirdPartyRequests": 11,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 1,
+      "cookies": 8,
+      "thirdPartyCookies": 0,
+      "storageEntries": 0,
+      "fingerprintEvents": 7,
+      "shieldsBlockedRequests": 16
+    },
+    "conditions": {
+      "requestedUrl": "https://www.etsy.com/",
+      "finalUrl": "https://www.etsy.com/",
+      "scannedAt": "2026-10-26T11:30:59.374Z",
+      "chromiumVersion": "153.0.8010.12",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-10-19T13:08:56.937Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.63.0 from github-actions-ubuntu with browser 153.0.8010.12, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.etsy.com/",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 40
+      },
+      {
+        "id": 2,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 441
+      },
+      {
+        "id": 3,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 442
+      },
+      {
+        "id": 4,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 442
+      },
+      {
+        "id": 5,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 443
+      },
+      {
+        "id": 6,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 444
+      },
+      {
+        "id": 7,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 444
+      },
+      {
+        "id": 8,
+        "url": "https://{label}.etsystatic.com/{seg}/{seg}/{n}/{seg}?version=",
+        "domain": "{label}.etsystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 445
+      },
+      {
+        "id": 9,
+        "url": "https://{label}.etsystatic.com/{seg}/{seg}/{n}/{seg}?version=",
+        "domain": "{label}.etsystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 445
+      },
+      {
+        "id": 10,
+        "url": "https://{label}.etsystatic.com/{n}/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.etsystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 445
+      },
+      {
+        "id": 12,
+        "url": "https://{label}.etsystatic.com/{n}/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.etsystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 472
+      },
+      {
+        "id": 13,
+        "url": "https://{label}.etsystatic.com/{n}/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.etsystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 474
+      },
+      {
+        "id": 14,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 475
+      },
+      {
+        "id": 15,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 475
+      },
+      {
+        "id": 16,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 475
+      },
+      {
+        "id": 17,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 476
+      },
+      {
+        "id": 18,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 476
+      },
+      {
+        "id": 19,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 476
+      },
+      {
+        "id": 20,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 477
+      },
+      {
+        "id": 21,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 477
+      },
+      {
+        "id": 22,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/api",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 478
+      },
+      {
+        "id": 23,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 478
+      },
+      {
+        "id": 24,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 478
+      },
+      {
+        "id": 25,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 478
+      },
+      {
+        "id": 26,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 479
+      },
+      {
+        "id": 27,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 479
+      },
+      {
+        "id": 28,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 479
+      },
+      {
+        "id": 29,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 480
+      },
+      {
+        "id": 30,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 480
+      },
+      {
+        "id": 31,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 480
+      },
+      {
+        "id": 32,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 481
+      },
+      {
+        "id": 33,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 481
+      },
+      {
+        "id": 34,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 481
+      },
+      {
+        "id": 35,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 481
+      },
+      {
+        "id": 36,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 481
+      },
+      {
+        "id": 37,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 481
+      },
+      {
+        "id": 38,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 481
+      },
+      {
+        "id": 39,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 481
+      },
+      {
+        "id": 40,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 482
+      },
+      {
+        "id": 41,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 482
+      },
+      {
+        "id": 42,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 482
+      },
+      {
+        "id": 43,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 482
+      },
+      {
+        "id": 44,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 482
+      },
+      {
+        "id": 45,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 487
+      },
+      {
+        "id": 46,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 487
+      },
+      {
+        "id": 47,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 487
+      },
+      {
+        "id": 48,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 487
+      },
+      {
+        "id": 49,
+        "url": "https://{label}.etsystatic.com/{n}/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.etsystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 488
+      },
+      {
+        "id": 50,
+        "url": "https://www.etsy.com/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 488
+      },
+      {
+        "id": 51,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 502
+      },
+      {
+        "id": 52,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 503
+      },
+      {
+        "id": 53,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 503
+      },
+      {
+        "id": 54,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 513
+      },
+      {
+        "id": 55,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 516
+      },
+      {
+        "id": 56,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 516
+      },
+      {
+        "id": 57,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 516
+      },
+      {
+        "id": 58,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 519
+      },
+      {
+        "id": 59,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 519
+      },
+      {
+        "id": 61,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 546
+      },
+      {
+        "id": 62,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 547
+      },
+      {
+        "id": 63,
+        "url": "https://{label}.etsystatic.com/{seg}/{n}/{n}/{seg}?version=",
+        "domain": "{label}.etsystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 572
+      },
+      {
+        "id": 64,
+        "url": "https://{label}.etsystatic.com/{seg}/{seg}/{n}/{seg}?version=",
+        "domain": "{label}.etsystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 573
+      },
+      {
+        "id": 65,
+        "url": "https://{label}.etsystatic.com/{seg}/{seg}/{n}/{seg}?version=",
+        "domain": "{label}.etsystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 573
+      },
+      {
+        "id": 66,
+        "url": "https://{label}.etsystatic.com/{seg}/{seg}/{n}/{seg}?version=",
+        "domain": "{label}.etsystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 574
+      },
+      {
+        "id": 67,
+        "url": "https://{label}.etsystatic.com/{seg}/{n}/{n}/{seg}?version=",
+        "domain": "{label}.etsystatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 574
+      },
+      {
+        "id": 68,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 614
+      },
+      {
+        "id": 71,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 751
+      },
+      {
+        "id": 76,
+        "url": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 778
+      },
+      {
+        "id": 79,
+        "url": "https://www.etsy.com/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 800
+      },
+      {
+        "id": 80,
+        "url": "https://www.etsy.com/api/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/{seg}/{seg}",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 807
+      },
+      {
+        "id": 82,
+        "url": "https://www.etsy.com/api/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 863
+      },
+      {
+        "id": 83,
+        "url": "https://www.etsy.com/api/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.etsy.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 871
+      },
+      {
+        "id": 87,
+        "url": "https://www.etsy.com/{seg}",
+        "domain": "www.etsy.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.etsy.com/{seg}/{seg}",
+          "initiatorDomain": "www.etsy.com"
+        },
+        "startedAtMs": 2181
+      }
+    ],
+    "domains": [
+      {
+        "domain": "{label}.etsystatic.com",
+        "requests": 11,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "www.etsy.com",
+        "requests": 62,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "script",
+          "font",
+          "image",
+          "xhr",
+          "fetch",
+          "ping"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "[redacted]",
+        "domain": ".etsy.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".etsy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".etsy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".etsy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "_fbp",
+        "domain": ".etsy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".etsy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "datadome",
+        "domain": ".etsy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.etsy.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [],
+    "fingerprintEvents": [
+      {
+        "api": "canvas.measureText",
+        "count": 3
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 2
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 2
+      }
+    ],
+    "fingerprintDetections": [],
+    "cnameCloaks": [
+      {
+        "host": "www.etsy.com",
+        "cname": "{label}.etsy.map.fastly.net",
+        "tracker": {
+          "domain": "etsy.map.fastly.net",
+          "entity": "etsy.map.fastly.net",
+          "category": "tracking (Brave Shields list)",
+          "confidence": "shields-list"
+        }
+      }
+    ],
+    "privacyPolicy": {
+      "url": "https://www.etsy.com/legal/privacy",
+      "claims": [],
+      "mentionedEntities": [],
+      "unmentionedEntities": [],
+      "policyTextLength": 42477
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "This scan typed a synthetic test value into 1 form field with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored. Observed requests during typing and the following wait are included in the request log. Teardown-only transmissions are not measured.",
+      "Resolved 1 first-party subdomain that is a CNAME alias for a third-party tracker (CNAME cloaking), which request-URL matching alone would miss.",
+      "Read the site's privacy policy (https://www.etsy.com/legal/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 172,
+      "after": 73,
+      "delta": -99
+    },
+    "thirdPartyRequests": {
+      "before": 97,
+      "after": 11,
+      "delta": -86
+    },
+    "knownTrackerRequests": {
+      "before": 53,
+      "after": 0,
+      "delta": -53
+    },
+    "thirdPartyDomains": {
+      "before": 30,
+      "after": 1,
+      "delta": -29
+    },
+    "cookies": {
+      "before": 47,
+      "after": 8,
+      "delta": -39
+    },
+    "thirdPartyCookies": {
+      "before": 25,
+      "after": 0,
+      "delta": -25
+    },
+    "storageEntries": {
+      "before": 15,
+      "after": 0,
+      "delta": -15
+    },
+    "fingerprintEvents": {
+      "before": 10,
+      "after": 7,
+      "delta": -3
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 10,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 9,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.adsrvr.org",
+        "requests": 7,
+        "tracker": {
+          "domain": "adsrvr.org",
+          "entity": "The Trade Desk",
+          "category": "advertising / demand-side platform",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.bing.com",
+        "requests": 7,
+        "tracker": {
+          "domain": "{label}.bing.com",
+          "entity": "Microsoft",
+          "category": "advertising / analytics",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.applovin.com",
+        "requests": 6,
+        "tracker": null
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 6,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.pinterest.com",
+        "requests": 5,
+        "tracker": {
+          "domain": "{label}.pinterest.com",
+          "entity": "Pinterest",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "analytics.tiktok.com",
+        "requests": 5,
+        "tracker": {
+          "domain": "analytics.tiktok.com",
+          "entity": "TikTok",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "ad.doubleclick.net",
+        "requests": 3,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.demdex.net",
+        "requests": 2,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.google.com",
+        "requests": 2,
+        "tracker": {
+          "domain": "{label}.google.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.pinimg.com",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.podscribe.com",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.qualtrics.com",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "trkn.us",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "www.facebook.com",
+        "requests": 2,
+        "tracker": {
+          "domain": "facebook.com",
+          "entity": "Meta",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "www.googleadservices.com",
+        "requests": 2,
+        "tracker": {
+          "domain": "googleadservices.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.{label}.qualtrics.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.adnxs.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.axon.ai",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.btncdn.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.ispot.tv",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.reddit.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.snapchat.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.tiktokw.us",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "analytics.google.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "analytics.google.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "d34r8q7sht0t9k.cloudfront.net",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "pixel.rubiconproject.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "rubiconproject.com",
+          "entity": "Magnite",
+          "category": "advertising / supply-side platform",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "transcend-cdn.com",
+        "requests": 1,
+        "tracker": null
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [
+      {
+        "entity": "Google",
+        "requests": 24,
+        "domains": 6
+      },
+      {
+        "entity": "Microsoft",
+        "requests": 7,
+        "domains": 1
+      },
+      {
+        "entity": "The Trade Desk",
+        "requests": 7,
+        "domains": 1
+      },
+      {
+        "entity": "Pinterest",
+        "requests": 5,
+        "domains": 1
+      },
+      {
+        "entity": "TikTok",
+        "requests": 5,
+        "domains": 1
+      },
+      {
+        "entity": "Adobe",
+        "requests": 2,
+        "domains": 1
+      },
+      {
+        "entity": "Meta",
+        "requests": 2,
+        "domains": 1
+      },
+      {
+        "entity": "Magnite",
+        "requests": 1,
+        "domains": 1
+      }
+    ],
+    "addedCookies": [],
+    "removedCookies": [
+      {
+        "name": "[redacted]",
+        "domain": ".{label}.bing.com",
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".{label}.demdex.net",
+        "thirdParty": true
+      },
+      {
+        "name": "_pinterest_ct_ua",
+        "domain": ".{label}.pinterest.com",
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".adsrvr.org",
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".applovin.com",
+        "thirdParty": true
+      },
+      {
+        "name": "MUID",
+        "domain": ".bing.com",
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".demdex.net",
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".doubleclick.net",
+        "thirdParty": true
+      },
+      {
+        "name": "IDE",
+        "domain": ".doubleclick.net",
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".facebook.com",
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".ispot.tv",
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".pinterest.com",
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".rubiconproject.com",
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".snapchat.com",
+        "thirdParty": true
+      },
+      {
+        "name": "_ttp",
+        "domain": ".tiktok.com",
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".trkn.us",
+        "thirdParty": true
+      },
+      {
+        "name": "_ga",
+        "domain": ".etsy.com",
+        "thirdParty": false
+      },
+      {
+        "name": "_gcl_au",
+        "domain": ".etsy.com",
+        "thirdParty": false
+      },
+      {
+        "name": "_ttp",
+        "domain": ".etsy.com",
+        "thirdParty": false
+      },
+      {
+        "name": "_uetsid",
+        "domain": ".etsy.com",
+        "thirdParty": false
+      },
+      {
+        "name": "_uetvid",
+        "domain": ".etsy.com",
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted:long-token]",
+        "domain": ".etsy.com",
+        "thirdParty": false
+      }
+    ],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [
+      {
+        "area": "localStorage",
+        "key": "[redacted]"
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]"
+      }
+    ],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [
+      {
+        "kind": "canvas-fingerprinting",
+        "heuristic": "openwpm-canvas-v1",
+        "count": 1
+      },
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1
+      }
+    ],
+    "addedProvenance": [],
+    "removedProvenance": [
+      {
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 8,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "initiator": "www.googletagmanager.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 7,
+        "tracker": null,
+        "initiator": "www.etsy.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.adsrvr.org",
+        "requests": 5,
+        "tracker": {
+          "domain": "adsrvr.org",
+          "entity": "The Trade Desk",
+          "category": "advertising / demand-side platform",
+          "confidence": "curated"
+        },
+        "initiator": "{label}.adsrvr.org",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 5,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "initiator": "www.googletagmanager.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.pinterest.com",
+        "requests": 4,
+        "tracker": {
+          "domain": "{label}.pinterest.com",
+          "entity": "Pinterest",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "initiator": "www.etsy.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "analytics.tiktok.com",
+        "requests": 4,
+        "tracker": {
+          "domain": "analytics.tiktok.com",
+          "entity": "TikTok",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "initiator": "analytics.tiktok.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.bing.com",
+        "requests": 3,
+        "tracker": {
+          "domain": "{label}.bing.com",
+          "entity": "Microsoft",
+          "category": "advertising / analytics",
+          "confidence": "curated"
+        },
+        "initiator": "{label}.bing.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.bing.com",
+        "requests": 3,
+        "tracker": {
+          "domain": "{label}.bing.com",
+          "entity": "Microsoft",
+          "category": "advertising / analytics",
+          "confidence": "curated"
+        },
+        "initiator": "www.etsy.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "ad.doubleclick.net",
+        "requests": 3,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "initiator": "www.etsy.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.applovin.com",
+        "requests": 2,
+        "tracker": null,
+        "initiator": "{label}.applovin.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.demdex.net",
+        "requests": 2,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "initiator": "{label}.adsrvr.org",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.google.com",
+        "requests": 2,
+        "tracker": {
+          "domain": "{label}.google.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "initiator": "{label}.{label}.doubleclick.net",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "trkn.us",
+        "requests": 2,
+        "tracker": null,
+        "initiator": "www.etsy.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "www.facebook.com",
+        "requests": 2,
+        "tracker": {
+          "domain": "facebook.com",
+          "entity": "Meta",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "initiator": "www.etsy.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "www.googleadservices.com",
+        "requests": 2,
+        "tracker": {
+          "domain": "googleadservices.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "initiator": "www.etsy.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "initiator": "www.etsy.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.{label}.qualtrics.com",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "www.etsy.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.adnxs.com",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "{label}.adsrvr.org",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.adsrvr.org",
+        "requests": 1,
+        "tracker": {
+          "domain": "adsrvr.org",
+          "entity": "The Trade Desk",
+          "category": "advertising / demand-side platform",
+          "confidence": "curated"
+        },
+        "initiator": "www.googletagmanager.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.applovin.com",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "www.googletagmanager.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.applovin.com",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "www.etsy.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.applovin.com",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "{label}.axon.ai",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.axon.ai",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "www.googletagmanager.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.bing.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "{label}.bing.com",
+          "entity": "Microsoft",
+          "category": "advertising / analytics",
+          "confidence": "curated"
+        },
+        "initiator": "www.googletagmanager.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.btncdn.com",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "www.googletagmanager.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.ispot.tv",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "www.etsy.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.pinimg.com",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "www.googletagmanager.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.pinimg.com",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "{label}.pinimg.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.pinterest.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "{label}.pinterest.com",
+          "entity": "Pinterest",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "initiator": "{label}.pinimg.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.podscribe.com",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "d34r8q7sht0t9k.cloudfront.net",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.qualtrics.com",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "{label}.{label}.qualtrics.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.qualtrics.com",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "www.etsy.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.reddit.com",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "www.etsy.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.snapchat.com",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "www.etsy.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.tiktokw.us",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "analytics.tiktok.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "analytics.google.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "analytics.google.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "initiator": "www.etsy.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "analytics.tiktok.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "analytics.tiktok.com",
+          "entity": "TikTok",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "initiator": "www.googletagmanager.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "d34r8q7sht0t9k.cloudfront.net",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "{label}.{label}.doubleclick.net",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "pixel.rubiconproject.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "rubiconproject.com",
+          "entity": "Magnite",
+          "category": "advertising / supply-side platform",
+          "confidence": "curated"
+        },
+        "initiator": "{label}.adsrvr.org",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "transcend-cdn.com",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "www.etsy.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "initiator": "www.etsy.com",
+        "script": null,
+        "injectedBy": null
+      }
+    ],
+    "shieldsBlockedRequests": {
+      "before": 85,
+      "after": 16,
+      "delta": -69
+    },
+    "removedPixelEvents": [
+      {
+        "platform": "Meta",
+        "product": "Meta Pixel",
+        "events": [
+          "PageView"
+        ],
+        "advancedMatching": [
+          "email"
+        ]
+      },
+      {
+        "platform": "TikTok",
+        "product": "TikTok Pixel",
+        "events": [
+          "custom event",
+          "Pageview"
+        ],
+        "advancedMatching": []
+      }
+    ]
+  },
+  "warnings": [
+    "Brave-list blocking comparison runs should be collected under matched crawl conditions, and the blocking run is a simulation with Brave's engine and default lists in this scanner's browser, not a live Brave visit. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "The two visits ran in randomized order; the \"Brave-list blocking\" visit ran first.",
+    "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "No blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "No blocking: Blocked a request that could not be verified as public: https://{label}.applovin.com/{seg}/{seg}",
+    "No blocking: The page did not reach network idle before the scan window ended.",
+    "No blocking: This scan typed a synthetic test value into 1 form field with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored. Observed requests during typing and the following wait are included in the request log. Teardown-only transmissions are not measured.",
+    "No blocking: Resolved 1 first-party subdomain that is a CNAME alias for a third-party tracker (CNAME cloaking), which request-URL matching alone would miss.",
+    "No blocking: Read the site's privacy policy (https://www.etsy.com/legal/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+    "Brave-list blocking: This scan typed a synthetic test value into 1 form field with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored. Observed requests during typing and the following wait are included in the request log. Teardown-only transmissions are not measured.",
+    "Brave-list blocking: Resolved 1 first-party subdomain that is a CNAME alias for a third-party tracker (CNAME cloaking), which request-URL matching alone would miss.",
+    "Brave-list blocking: Read the site's privacy policy (https://www.etsy.com/legal/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+  ],
+  "share": {
+    "id": "20261026-808397bad556bd454a413f2a3ac47d92",
+    "path": "/reports/20261026-808397bad556bd454a413f2a3ac47d92/",
+    "jsonPath": "/reports/20261026-808397bad556bd454a413f2a3ac47d92.json"
+  }
+}
