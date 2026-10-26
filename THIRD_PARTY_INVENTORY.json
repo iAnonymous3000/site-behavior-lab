@@ -19,7 +19,7 @@
     },
     "filterMetadata": {
       "path": "lib/adblock-wasm/brave-default-filters.meta.json",
-      "sha256": "5f5c5b0d8503e6ae8152e8b925163ab0e3fea045d42622a062334a30b67b271b"
+      "sha256": "3190a9995fdc1690f02d0e07221f0c4406e2bf2d3523bc36e12f97868603a046"
     },
     "githubCliBuildTool": {
       "path": "scripts/github-cli-build-tool-manifest.json",
@@ -2765,17 +2765,17 @@
     },
     "bundle": {
       "sourceCount": 31,
-      "sourceManifestSha256": "25bef053aac3c343e99c5ae44836c6ce0550669a75cd7568bc95fda8a3d6f624",
-      "rulesSha256": "b415b0ad772a5b070d4a8d39bd22103a81aada194d9c204d22a30b3e5cede9c7",
-      "rawBytes": 9209417,
-      "gzipBytes": 2776564
+      "sourceManifestSha256": "d2b3a640c70b615b9a969cca9abc48a5f6df43142ab22a0941bb1e403bf4ac22",
+      "rulesSha256": "2a01e18703fdf2d73329b3c93fd8cff3dc609d274d2c5137de73e1ff3c6748f1",
+      "rawBytes": 9031665,
+      "gzipBytes": 2700044
     },
     "sources": [
       {
         "sourceIndex": 0,
         "url": "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/filters.txt",
-        "bytes": 471622,
-        "sha256": "4e46ca72be049ae4c9f7cd79fc9df303ec7bc151bb3aea23f18dc8c095764877",
+        "bytes": 471733,
+        "sha256": "74989580d86d5f9af1f5304becc5c9c33b785361b9b6583520e9b67c4e1a23b4",
         "license": "UNKNOWN",
         "licenseStatus": "unknown-not-recorded-in-filter-metadata",
         "licenseEvidence": null
@@ -2792,8 +2792,8 @@
       {
         "sourceIndex": 2,
         "url": "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/filters-2021.txt",
-        "bytes": 166930,
-        "sha256": "a5bff2ec6eca28776ac6244ae20d8dc4d2d88262de2d5eb13edb3bab3849704d",
+        "bytes": 166671,
+        "sha256": "f8e8dbea4f3f516ff1844528ab48031ffc348f90eca40aef5bfe1c0840000f89",
         "license": "UNKNOWN",
         "licenseStatus": "unknown-not-recorded-in-filter-metadata",
         "licenseEvidence": null
@@ -2801,8 +2801,8 @@
       {
         "sourceIndex": 3,
         "url": "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/filters-2022.txt",
-        "bytes": 157024,
-        "sha256": "21ca4be14e23e107eecd4dc4982dc14b9c78536f778a99d02def5a01480bf920",
+        "bytes": 156913,
+        "sha256": "d1a3349004f87253e4032b6665c53e18f446e019af413e2fdd7963f25a448627",
         "license": "UNKNOWN",
         "licenseStatus": "unknown-not-recorded-in-filter-metadata",
         "licenseEvidence": null
@@ -2810,8 +2810,8 @@
       {
         "sourceIndex": 4,
         "url": "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/filters-2023.txt",
-        "bytes": 214102,
-        "sha256": "03f6d30d6a1768f196974d675fd847400e1a65b8eacbc504a41145058c7bafe7",
+        "bytes": 214253,
+        "sha256": "8ec7d1e6aa157831588601d11dee1d46a60c53b81985e16904f91dd95a92d53a",
         "license": "UNKNOWN",
         "licenseStatus": "unknown-not-recorded-in-filter-metadata",
         "licenseEvidence": null
@@ -2828,8 +2828,8 @@
       {
         "sourceIndex": 6,
         "url": "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/filters-2025.txt",
-        "bytes": 168901,
-        "sha256": "22a52f8a04def6aaed8453ec4d94a8d193d7b3dcc9ed921c9b69eda50420df17",
+        "bytes": 168910,
+        "sha256": "e465a0a317b4bef3b8db1d706644bf891085312db544b300e5aad29efd52c2bf",
         "license": "UNKNOWN",
         "licenseStatus": "unknown-not-recorded-in-filter-metadata",
         "licenseEvidence": null
@@ -2837,8 +2837,8 @@
       {
         "sourceIndex": 7,
         "url": "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/filters-2026.txt",
-        "bytes": 99232,
-        "sha256": "227fd69c14167a46def776c0ee6dac156af48fbf9e83e9b08f0360c3508d3b5b",
+        "bytes": 102127,
+        "sha256": "62f8655b7768f2ca40f548a1ce01c4c5e435960cf823c09c3f0ffbab1a055695",
         "license": "UNKNOWN",
         "licenseStatus": "unknown-not-recorded-in-filter-metadata",
         "licenseEvidence": null
@@ -2846,8 +2846,8 @@
       {
         "sourceIndex": 8,
         "url": "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/filters-general.txt",
-        "bytes": 701567,
-        "sha256": "bc6b97a01049179d1cbf2b8c013891b9d264ecac414740359fb1f18505a67fa5",
+        "bytes": 709090,
+        "sha256": "e1ab45cf034957675f16af123feeed272d6a98a0cb674425db276ae9644e945d",
         "license": "UNKNOWN",
         "licenseStatus": "unknown-not-recorded-in-filter-metadata",
         "licenseEvidence": null
@@ -2855,8 +2855,8 @@
       {
         "sourceIndex": 9,
         "url": "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/badware.txt",
-        "bytes": 261790,
-        "sha256": "424ff8e088b80f77c1f69def64a4647a3ef16c27eb3c7d822528679eb8856643",
+        "bytes": 277883,
+        "sha256": "1cb48da7902ca81f740da8394c4ab1eff804e661991b234841b014d3516cc213",
         "license": "UNKNOWN",
         "licenseStatus": "unknown-not-recorded-in-filter-metadata",
         "licenseEvidence": null
@@ -2873,8 +2873,8 @@
       {
         "sourceIndex": 11,
         "url": "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/unbreak.txt",
-        "bytes": 280985,
-        "sha256": "9214f444caf23d49e4a441818f0bc88fb571a392a874314491bbacdfac77a20c",
+        "bytes": 281383,
+        "sha256": "345f2114e2365f6ee6087d3af22021d380ead84a55a26edb70024d990238bb41",
         "license": "UNKNOWN",
         "licenseStatus": "unknown-not-recorded-in-filter-metadata",
         "licenseEvidence": null
@@ -2882,8 +2882,8 @@
       {
         "sourceIndex": 12,
         "url": "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/quick-fixes.txt",
-        "bytes": 88896,
-        "sha256": "ff485d75c98425be669a00b11d24a5e308a6b4e859c1aae3d5224b1e3cc15143",
+        "bytes": 90364,
+        "sha256": "c6cc1403f066f92da129178a855527b4948eafda4521f08741bed61e876f0ff1",
         "license": "UNKNOWN",
         "licenseStatus": "unknown-not-recorded-in-filter-metadata",
         "licenseEvidence": null
@@ -2891,8 +2891,8 @@
       {
         "sourceIndex": 13,
         "url": "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/ubo-link-shorteners.txt",
-        "bytes": 120310,
-        "sha256": "e9da99ad697489b12dc1c1b7720ae11ec1e2511eff798d4ee70899268f3798a6",
+        "bytes": 121167,
+        "sha256": "3c9912ff1250065d10338a02f4b4af9cecdc141f4c7e53942bd64da7094ea1c0",
         "license": "UNKNOWN",
         "licenseStatus": "unknown-not-recorded-in-filter-metadata",
         "licenseEvidence": null
@@ -2900,8 +2900,8 @@
       {
         "sourceIndex": 14,
         "url": "https://easylist.to/easylist/easylist.txt",
-        "bytes": 2198958,
-        "sha256": "b3b5837a30a1e539c260b83104be6c890ab377d7217bde0a7a3d41a0710ec632",
+        "bytes": 1988616,
+        "sha256": "f5989c76218c406a76cbf037069176ca2e78d4aa9fedaa8f510b827847d39949",
         "license": "UNKNOWN",
         "licenseStatus": "unknown-not-recorded-in-filter-metadata",
         "licenseEvidence": null
@@ -2909,8 +2909,8 @@
       {
         "sourceIndex": 15,
         "url": "https://malware-filter.gitlab.io/malware-filter/urlhaus-filter-agh-online.txt",
-        "bytes": 38041,
-        "sha256": "2dcb7c66e77ad2208cca7037fca29c4cac96827e5a2698fbf2a2bfd1fb084fc2",
+        "bytes": 36371,
+        "sha256": "c0f6f86a804ffed70d7cc7fe4d092b2a8805e28cb95fe897a75bab0ad57a58ce",
         "license": "UNKNOWN",
         "licenseStatus": "unknown-not-recorded-in-filter-metadata",
         "licenseEvidence": null
@@ -2972,8 +2972,8 @@
       {
         "sourceIndex": 22,
         "url": "https://easylist.to/easylist/easyprivacy.txt",
-        "bytes": 1510230,
-        "sha256": "f704e050d960fa2087d3ff00e656b9ae9aca741143000209525ad6b973225c40",
+        "bytes": 1511221,
+        "sha256": "651f8129f92113e6689cd856414838c1d23af07893e8adc64ddb802971d7b8b7",
         "license": "UNKNOWN",
         "licenseStatus": "unknown-not-recorded-in-filter-metadata",
         "licenseEvidence": null
@@ -2981,8 +2981,8 @@
       {
         "sourceIndex": 23,
         "url": "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/privacy.txt",
-        "bytes": 183849,
-        "sha256": "13db98de1f6775fbfd08fdbe9a76d8f37e3914b17c75b7deb9e4c0e74a676428",
+        "bytes": 184384,
+        "sha256": "3ae39ff557d3ba6c2da975578b9b826c312e311d4ea01b6b4029c7309c43e267",
         "license": "UNKNOWN",
         "licenseStatus": "unknown-not-recorded-in-filter-metadata",
         "licenseEvidence": null
@@ -3017,8 +3017,8 @@
       {
         "sourceIndex": 27,
         "url": "https://secure.fanboy.co.nz/fanboy-cookiemonster_ubo.txt",
-        "bytes": 1213703,
-        "sha256": "a22f510d2c4caf98cbeed5df7e2c6056ef14ce0a6dd3fe6b83189e9007279fd7",
+        "bytes": 1216508,
+        "sha256": "6d34a09a4181f5b81efbc47be59e80a3944b43103e6edf5eade5cf28bc8da17d",
         "license": "UNKNOWN",
         "licenseStatus": "unknown-not-recorded-in-filter-metadata",
         "licenseEvidence": null
@@ -3026,8 +3026,8 @@
       {
         "sourceIndex": 28,
         "url": "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/annoyances-cookies.txt",
-        "bytes": 377196,
-        "sha256": "edc918ab3ab4cb7e74f457c783b20e147d499b6f1bd77a2d4898ee7eff84d896",
+        "bytes": 377661,
+        "sha256": "1d6604e48421259d81249ce74e8bcb667b0a66552a83fd119558a517985116a7",
         "license": "UNKNOWN",
         "licenseStatus": "unknown-not-recorded-in-filter-metadata",
         "licenseEvidence": null
@@ -3035,8 +3035,8 @@
       {
         "sourceIndex": 29,
         "url": "https://raw.githubusercontent.com/brave/adblock-lists/master/brave-lists/brave-cookie-specific.txt",
-        "bytes": 24422,
-        "sha256": "1b045ab579824e3ad09b381d004295fc47a50e5219aab76835b328a1102f0d4f",
+        "bytes": 24669,
+        "sha256": "bf1c3fa19ed1732a41291b8d1b09cb539f3f12840212c741bbc74984a9beef40",
         "license": "UNKNOWN",
         "licenseStatus": "unknown-not-recorded-in-filter-metadata",
         "licenseEvidence": null
@@ -3044,8 +3044,8 @@
       {
         "sourceIndex": 30,
         "url": "https://secure.fanboy.co.nz/fanboy-mobile-notifications.txt",
-        "bytes": 50608,
-        "sha256": "e6bd8d3d3b7119aca2d44156505e5e0ac25ffdf8d53c53d9f7fdd93ea7425c3d",
+        "bytes": 50690,
+        "sha256": "148c4df7a573fdc9e2511c2daad3c352a32874da203de1b1e92b1dfc3bc63e04",
         "license": "UNKNOWN",
         "licenseStatus": "unknown-not-recorded-in-filter-metadata",
         "licenseEvidence": null
