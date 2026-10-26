@@ -1,0 +1,3086 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Brave-list blocking off/on comparison",
+  "runLabels": {
+    "baseline": "No blocking",
+    "variant": "Brave-list blocking"
+  },
+  "requestedUrl": "https://duckduckgo.com/",
+  "scannedAt": "2026-10-26T11:35:49.143Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 4788,
+      "firstPartyDomain": "duckduckgo.com",
+      "totalRequests": 97,
+      "thirdPartyRequests": 0,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 0,
+      "cookies": 0,
+      "thirdPartyCookies": 0,
+      "storageEntries": 1,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 9
+    },
+    "conditions": {
+      "requestedUrl": "https://duckduckgo.com/",
+      "finalUrl": "https://duckduckgo.com/",
+      "scannedAt": "2026-10-26T11:35:44.347Z",
+      "chromiumVersion": "153.0.8010.12",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-10-19T13:08:56.937Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.63.0 from github-actions-ubuntu with browser 153.0.8010.12, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://duckduckgo.com/",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 36
+      },
+      {
+        "id": 2,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 79
+      },
+      {
+        "id": 3,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 79
+      },
+      {
+        "id": 4,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 79
+      },
+      {
+        "id": 5,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 80
+      },
+      {
+        "id": 6,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 80
+      },
+      {
+        "id": 7,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 80
+      },
+      {
+        "id": 8,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 91
+      },
+      {
+        "id": 9,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 93
+      },
+      {
+        "id": 10,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 94
+      },
+      {
+        "id": 11,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 94
+      },
+      {
+        "id": 12,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 94
+      },
+      {
+        "id": 13,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 95
+      },
+      {
+        "id": 14,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 95
+      },
+      {
+        "id": 15,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 95
+      },
+      {
+        "id": 16,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 95
+      },
+      {
+        "id": 17,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 95
+      },
+      {
+        "id": 18,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 96
+      },
+      {
+        "id": 19,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 97
+      },
+      {
+        "id": 20,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 97
+      },
+      {
+        "id": 21,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 97
+      },
+      {
+        "id": 22,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 98
+      },
+      {
+        "id": 23,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 98
+      },
+      {
+        "id": 24,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 98
+      },
+      {
+        "id": 25,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 98
+      },
+      {
+        "id": 26,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 98
+      },
+      {
+        "id": 27,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 99
+      },
+      {
+        "id": 28,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 99
+      },
+      {
+        "id": 29,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 99
+      },
+      {
+        "id": 30,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 99
+      },
+      {
+        "id": 31,
+        "url": "https://{label}.duckduckgo.com/{seg}/{seg}",
+        "domain": "{label}.duckduckgo.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 138
+      },
+      {
+        "id": 32,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 138
+      },
+      {
+        "id": 33,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 210
+      },
+      {
+        "id": 34,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 211
+      },
+      {
+        "id": 35,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 211
+      },
+      {
+        "id": 36,
+        "url": "https://duckduckgo.com/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 211
+      },
+      {
+        "id": 37,
+        "url": "https://{label}.duckduckgo.com/{seg}/{seg}",
+        "domain": "{label}.duckduckgo.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 212
+      },
+      {
+        "id": 38,
+        "url": "https://{label}.duckduckgo.com/{seg}",
+        "domain": "{label}.duckduckgo.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 212
+      },
+      {
+        "id": 39,
+        "url": "https://{label}.duckduckgo.com/{seg}/{seg}",
+        "domain": "{label}.duckduckgo.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 212
+      },
+      {
+        "id": 40,
+        "url": "https://{label}.duckduckgo.com/{seg}/{seg}",
+        "domain": "{label}.duckduckgo.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 236
+      },
+      {
+        "id": 41,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 238
+      },
+      {
+        "id": 42,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 238
+      },
+      {
+        "id": 43,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 238
+      },
+      {
+        "id": 44,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 238
+      },
+      {
+        "id": 45,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 238
+      },
+      {
+        "id": 46,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 239
+      },
+      {
+        "id": 47,
+        "url": "https://{label}.duckduckgo.com/{seg}/{seg}",
+        "domain": "{label}.duckduckgo.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 239
+      },
+      {
+        "id": 48,
+        "url": "https://{label}.duckduckgo.com/{seg}/{seg}",
+        "domain": "{label}.duckduckgo.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 239
+      },
+      {
+        "id": 49,
+        "url": "https://{label}.duckduckgo.com/{seg}/{seg}",
+        "domain": "{label}.duckduckgo.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 255
+      },
+      {
+        "id": 50,
+        "url": "https://{label}.duckduckgo.com/{seg}/{seg}",
+        "domain": "{label}.duckduckgo.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 273
+      },
+      {
+        "id": 51,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 325
+      },
+      {
+        "id": 52,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 326
+      },
+      {
+        "id": 53,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 326
+      },
+      {
+        "id": 54,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 326
+      },
+      {
+        "id": 55,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 326
+      },
+      {
+        "id": 56,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 326
+      },
+      {
+        "id": 57,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 326
+      },
+      {
+        "id": 58,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 326
+      },
+      {
+        "id": 59,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 328
+      },
+      {
+        "id": 60,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 328
+      },
+      {
+        "id": 61,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 328
+      },
+      {
+        "id": 62,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 328
+      },
+      {
+        "id": 63,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 328
+      },
+      {
+        "id": 64,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 328
+      },
+      {
+        "id": 65,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 328
+      },
+      {
+        "id": 66,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 329
+      },
+      {
+        "id": 67,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 329
+      },
+      {
+        "id": 68,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 329
+      },
+      {
+        "id": 69,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 329
+      },
+      {
+        "id": 70,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 329
+      },
+      {
+        "id": 71,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 330
+      },
+      {
+        "id": 72,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 331
+      },
+      {
+        "id": 73,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 331
+      },
+      {
+        "id": 74,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 344
+      },
+      {
+        "id": 75,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 345
+      },
+      {
+        "id": 76,
+        "url": "https://{label}.duckduckgo.com/{seg}/{seg}",
+        "domain": "{label}.duckduckgo.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 387
+      },
+      {
+        "id": 77,
+        "url": "https://duckduckgo.com/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 1026
+      },
+      {
+        "id": 78,
+        "url": "https://duckduckgo.com/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 1030
+      },
+      {
+        "id": 79,
+        "url": "https://duckduckgo.com/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 1033
+      },
+      {
+        "id": 80,
+        "url": "https://duckduckgo.com/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 1035
+      },
+      {
+        "id": 81,
+        "url": "https://duckduckgo.com/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 1037
+      },
+      {
+        "id": 82,
+        "url": "https://duckduckgo.com/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 1039
+      },
+      {
+        "id": 83,
+        "url": "https://duckduckgo.com/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 1040
+      },
+      {
+        "id": 84,
+        "url": "https://duckduckgo.com/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 1043
+      },
+      {
+        "id": 85,
+        "url": "https://duckduckgo.com/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 1046
+      },
+      {
+        "id": 86,
+        "url": "https://duckduckgo.com/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 1048
+      },
+      {
+        "id": 87,
+        "url": "https://duckduckgo.com/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 1050
+      },
+      {
+        "id": 88,
+        "url": "https://duckduckgo.com/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 1052
+      },
+      {
+        "id": 89,
+        "url": "https://duckduckgo.com/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 1054
+      },
+      {
+        "id": 90,
+        "url": "https://duckduckgo.com/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 1056
+      },
+      {
+        "id": 91,
+        "url": "https://duckduckgo.com/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 1062
+      },
+      {
+        "id": 92,
+        "url": "https://duckduckgo.com/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 1064
+      },
+      {
+        "id": 93,
+        "url": "https://duckduckgo.com/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 1066
+      },
+      {
+        "id": 94,
+        "url": "https://duckduckgo.com/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 1069
+      },
+      {
+        "id": 95,
+        "url": "https://duckduckgo.com/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 1071
+      },
+      {
+        "id": 96,
+        "url": "https://duckduckgo.com/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 1074
+      },
+      {
+        "id": 97,
+        "url": "https://duckduckgo.com/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 1076
+      }
+    ],
+    "domains": [
+      {
+        "domain": "duckduckgo.com",
+        "requests": 87,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "font",
+          "image",
+          "script",
+          "stylesheet",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "{label}.duckduckgo.com",
+        "requests": 10,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "ping"
+        ]
+      }
+    ],
+    "cookies": [],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 92
+      }
+    ],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [],
+    "privacyPolicy": {
+      "url": "https://duckduckgo.com/privacy",
+      "claims": [],
+      "mentionedEntities": [],
+      "unmentionedEntities": [],
+      "policyTextLength": 13700
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "This scan typed a synthetic test value into 2 form fields with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored. Observed requests during typing and the following wait are included in the request log. Teardown-only transmissions are not measured.",
+      "The scanner's search of this page for a privacy-policy link did not cover every link, so privacy-policy findings for this visit are incomplete.",
+      "Read the site's privacy policy (https://duckduckgo.com/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 4853,
+      "firstPartyDomain": "duckduckgo.com",
+      "totalRequests": 88,
+      "thirdPartyRequests": 0,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 0,
+      "cookies": 0,
+      "thirdPartyCookies": 0,
+      "storageEntries": 1,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 9
+    },
+    "conditions": {
+      "requestedUrl": "https://duckduckgo.com/",
+      "finalUrl": "https://duckduckgo.com/",
+      "scannedAt": "2026-10-26T11:35:49.143Z",
+      "chromiumVersion": "153.0.8010.12",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-10-19T13:08:56.937Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.63.0 from github-actions-ubuntu with browser 153.0.8010.12, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://duckduckgo.com/",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 39
+      },
+      {
+        "id": 2,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 126
+      },
+      {
+        "id": 3,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 127
+      },
+      {
+        "id": 4,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 127
+      },
+      {
+        "id": 5,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 127
+      },
+      {
+        "id": 6,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 128
+      },
+      {
+        "id": 7,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 128
+      },
+      {
+        "id": 8,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 141
+      },
+      {
+        "id": 9,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 142
+      },
+      {
+        "id": 10,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 142
+      },
+      {
+        "id": 11,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 142
+      },
+      {
+        "id": 12,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 142
+      },
+      {
+        "id": 13,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 143
+      },
+      {
+        "id": 14,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 144
+      },
+      {
+        "id": 15,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 144
+      },
+      {
+        "id": 16,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 144
+      },
+      {
+        "id": 17,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 145
+      },
+      {
+        "id": 18,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 145
+      },
+      {
+        "id": 19,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 146
+      },
+      {
+        "id": 20,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 146
+      },
+      {
+        "id": 21,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 146
+      },
+      {
+        "id": 22,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 146
+      },
+      {
+        "id": 23,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 146
+      },
+      {
+        "id": 24,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 146
+      },
+      {
+        "id": 25,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 146
+      },
+      {
+        "id": 26,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 147
+      },
+      {
+        "id": 27,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 147
+      },
+      {
+        "id": 28,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 147
+      },
+      {
+        "id": 29,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 147
+      },
+      {
+        "id": 30,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 147
+      },
+      {
+        "id": 32,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 185
+      },
+      {
+        "id": 33,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 276
+      },
+      {
+        "id": 34,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 277
+      },
+      {
+        "id": 35,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 277
+      },
+      {
+        "id": 36,
+        "url": "https://duckduckgo.com/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 278
+      },
+      {
+        "id": 38,
+        "url": "https://{label}.duckduckgo.com/{seg}",
+        "domain": "{label}.duckduckgo.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 278
+      },
+      {
+        "id": 41,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 304
+      },
+      {
+        "id": 42,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 305
+      },
+      {
+        "id": 43,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 305
+      },
+      {
+        "id": 44,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 306
+      },
+      {
+        "id": 45,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 306
+      },
+      {
+        "id": 46,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 306
+      },
+      {
+        "id": 51,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 394
+      },
+      {
+        "id": 52,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 396
+      },
+      {
+        "id": 53,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 396
+      },
+      {
+        "id": 54,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 396
+      },
+      {
+        "id": 55,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 396
+      },
+      {
+        "id": 56,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 397
+      },
+      {
+        "id": 57,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 398
+      },
+      {
+        "id": 58,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 398
+      },
+      {
+        "id": 59,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 398
+      },
+      {
+        "id": 60,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 398
+      },
+      {
+        "id": 61,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 398
+      },
+      {
+        "id": 62,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 398
+      },
+      {
+        "id": 63,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 399
+      },
+      {
+        "id": 64,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 400
+      },
+      {
+        "id": 65,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 400
+      },
+      {
+        "id": 66,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 400
+      },
+      {
+        "id": 67,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 400
+      },
+      {
+        "id": 68,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 400
+      },
+      {
+        "id": 69,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 401
+      },
+      {
+        "id": 70,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 402
+      },
+      {
+        "id": 71,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 402
+      },
+      {
+        "id": 72,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 402
+      },
+      {
+        "id": 73,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 402
+      },
+      {
+        "id": 74,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 414
+      },
+      {
+        "id": 75,
+        "url": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 415
+      },
+      {
+        "id": 77,
+        "url": "https://duckduckgo.com/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 1099
+      },
+      {
+        "id": 78,
+        "url": "https://duckduckgo.com/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 1103
+      },
+      {
+        "id": 79,
+        "url": "https://duckduckgo.com/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 1106
+      },
+      {
+        "id": 80,
+        "url": "https://duckduckgo.com/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 1109
+      },
+      {
+        "id": 81,
+        "url": "https://duckduckgo.com/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 1112
+      },
+      {
+        "id": 82,
+        "url": "https://duckduckgo.com/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 1116
+      },
+      {
+        "id": 83,
+        "url": "https://duckduckgo.com/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 1118
+      },
+      {
+        "id": 84,
+        "url": "https://duckduckgo.com/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 1121
+      },
+      {
+        "id": 85,
+        "url": "https://duckduckgo.com/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 1123
+      },
+      {
+        "id": 86,
+        "url": "https://duckduckgo.com/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 1125
+      },
+      {
+        "id": 87,
+        "url": "https://duckduckgo.com/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 1127
+      },
+      {
+        "id": 88,
+        "url": "https://duckduckgo.com/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 1130
+      },
+      {
+        "id": 89,
+        "url": "https://duckduckgo.com/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 1134
+      },
+      {
+        "id": 90,
+        "url": "https://duckduckgo.com/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 1136
+      },
+      {
+        "id": 91,
+        "url": "https://duckduckgo.com/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 1138
+      },
+      {
+        "id": 92,
+        "url": "https://duckduckgo.com/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 1140
+      },
+      {
+        "id": 93,
+        "url": "https://duckduckgo.com/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 1142
+      },
+      {
+        "id": 94,
+        "url": "https://duckduckgo.com/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 1145
+      },
+      {
+        "id": 95,
+        "url": "https://duckduckgo.com/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 1150
+      },
+      {
+        "id": 96,
+        "url": "https://duckduckgo.com/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 1152
+      },
+      {
+        "id": 97,
+        "url": "https://duckduckgo.com/{seg}",
+        "domain": "duckduckgo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://duckduckgo.com/{seg}/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "duckduckgo.com"
+        },
+        "startedAtMs": 1154
+      }
+    ],
+    "domains": [
+      {
+        "domain": "duckduckgo.com",
+        "requests": 87,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "font",
+          "image",
+          "script",
+          "stylesheet",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "{label}.duckduckgo.com",
+        "requests": 1,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "ping"
+        ]
+      }
+    ],
+    "cookies": [],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 92
+      }
+    ],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [],
+    "privacyPolicy": {
+      "url": "https://duckduckgo.com/privacy",
+      "claims": [],
+      "mentionedEntities": [],
+      "unmentionedEntities": [],
+      "policyTextLength": 13700
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "This scan typed a synthetic test value into 2 form fields with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored. Observed requests during typing and the following wait are included in the request log. Teardown-only transmissions are not measured.",
+      "The scanner's search of this page for a privacy-policy link did not cover every link, so privacy-policy findings for this visit are incomplete.",
+      "Read the site's privacy policy (https://duckduckgo.com/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 97,
+      "after": 88,
+      "delta": -9
+    },
+    "thirdPartyRequests": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "knownTrackerRequests": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "thirdPartyDomains": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "cookies": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "thirdPartyCookies": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "storageEntries": {
+      "before": 1,
+      "after": 1,
+      "delta": 0
+    },
+    "fingerprintEvents": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [],
+    "addedEntities": [],
+    "removedEntities": [],
+    "addedCookies": [],
+    "removedCookies": [],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [],
+    "removedProvenance": [],
+    "shieldsBlockedRequests": {
+      "before": 9,
+      "after": 9,
+      "delta": 0
+    }
+  },
+  "warnings": [
+    "Brave-list blocking comparison runs should be collected under matched crawl conditions, and the blocking run is a simulation with Brave's engine and default lists in this scanner's browser, not a live Brave visit. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "The two visits ran in randomized order; the \"No blocking\" visit ran first.",
+    "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "No blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "No blocking: This scan typed a synthetic test value into 2 form fields with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored. Observed requests during typing and the following wait are included in the request log. Teardown-only transmissions are not measured.",
+    "No blocking: The scanner's search of this page for a privacy-policy link did not cover every link, so privacy-policy findings for this visit are incomplete.",
+    "No blocking: Read the site's privacy policy (https://duckduckgo.com/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+    "Brave-list blocking: This scan typed a synthetic test value into 2 form fields with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored. Observed requests during typing and the following wait are included in the request log. Teardown-only transmissions are not measured.",
+    "Brave-list blocking: The scanner's search of this page for a privacy-policy link did not cover every link, so privacy-policy findings for this visit are incomplete.",
+    "Brave-list blocking: Read the site's privacy policy (https://duckduckgo.com/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+  ],
+  "share": {
+    "id": "20261026-a3da0789225f3535f7367153b8b361bc",
+    "path": "/reports/20261026-a3da0789225f3535f7367153b8b361bc/",
+    "jsonPath": "/reports/20261026-a3da0789225f3535f7367153b8b361bc.json"
+  }
+}
