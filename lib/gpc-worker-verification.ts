@@ -38,7 +38,11 @@ import { installGlobalPrivacyControl } from "./gpc-injection";
  * SharedWorker is outside this mechanism: the channel cannot attach shared
  * workers from a page session. Shared workers therefore run untouched and are
  * disclosed as unverified through the construction counts kept by
- * lib/gpc-injection.ts.
+ * lib/gpc-injection.ts. The shared-worker attacher that holds them for the
+ * fingerprint observer (lib/shared-worker-attacher.ts) runs only that
+ * observer's install, never this one, and this installer names dedicated
+ * workers as its only kind, so a shared worker the channel ever attached
+ * would not reach it either.
  */
 
 export type GpcWorkerVerificationDiagnostics = WorkerAttachCounts & {
@@ -57,12 +61,16 @@ export const GPC_WORKER_HANDSHAKE_EXPRESSION =
   `navigator.globalPrivacyControl === true;`;
 
 export class GpcWorkerRealmInstaller implements WorkerRealmInstaller {
+  /** GPC delivery reaches dedicated workers only; shared workers stay disclosed as unverified. */
+  readonly workerKinds = ["dedicated"] as const;
   /** Attached workers whose handshake reached its terminal record. */
   private readonly settledWorkers = new WeakSet<AttachedWorker>();
   private verifiedWorkerCount = 0;
   private unverifiedAttachedWorkerCount = 0;
 
   async install(worker: AttachedWorker, channel: DevtoolsChannel): Promise<void> {
+    // Never into a shared worker, whatever path delivers one.
+    if (worker.kind !== "dedicated") return;
     let verified = false;
     try {
       const evaluated = await channel.send(
@@ -87,6 +95,7 @@ export class GpcWorkerRealmInstaller implements WorkerRealmInstaller {
    * unattested. After a readback this is a no-op.
    */
   concluded(worker: AttachedWorker): void {
+    if (worker.kind !== "dedicated") return;
     this.concludeWorker(worker, false);
   }
 

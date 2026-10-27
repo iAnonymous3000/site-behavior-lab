@@ -11,15 +11,29 @@ import {
   type FingerprintObserverRealmArgs,
   type FingerprintWorkerRealmReadout
 } from "./fingerprint-observer";
+import {
+  sharedWorkerEndedAtOnce,
+  type AttachedSharedWorker,
+  type SettledCommandAnswer,
+  type SharedWorkerChange,
+  type SharedWorkerInstallCommand,
+  type SharedWorkerVisitChannel
+} from "./shared-worker-attacher";
 
 /**
- * The fingerprint observer inside dedicated Web Worker realms.
+ * The fingerprint observer inside Web Worker realms: every dedicated worker of
+ * the measured page, and every shared worker of the scan's browser context.
  *
  * A worker's canvas, font and WebGL calls run in the worker's own realm, where
  * the document observer's wrappers never reach. The worker realm channel
  * (lib/devtools-worker-channel.ts) holds each dedicated worker of the measured
- * page paused before its first statement; this module puts the observer into
- * that paused realm and reads the realm's evidence back.
+ * page paused before its first statement, and the shared-worker attacher
+ * (lib/shared-worker-attacher.ts) holds each shared worker at its main script;
+ * this module puts the observer into that paused realm and reads the realm's
+ * evidence back. A dedicated worker's install runs here, on the channel. A
+ * shared worker's runs on the attacher's thread, from the commands this module
+ * hands it (`sharedWorkerInstallCommands`), and its answers come back here to
+ * be judged by the same rule as a dedicated worker's.
  *
  * ONE SOURCE. What runs in the worker is the document observer itself,
  * `fingerprintObserverInitScript`, serialized and called with the worker realm
@@ -34,7 +48,8 @@ import {
  * context creation crashes the renderer, destroying the measured page in
  * every arm. The observer's docblock states the rule, and
  * lib/worker-fingerprint-realm.test.ts installs this exact expression into
- * paused workers of every shape in real Chromium and fails on a crash.
+ * paused workers of every shape in real Chromium, dedicated and shared, and
+ * fails on a crash.
  *
  * READBACK. A worker realm has no read surface. In the pause the installer
  * adds a `Runtime.addBinding` sink on the worker's session, which the observer
@@ -44,20 +59,21 @@ import {
  * snapshot at the task's microtask checkpoint. The host keeps only strings per
  * worker (the last closed snapshot, and one slot per pending freeze) and reads
  * them at the same two instants the page realm is read, under the readout rule
- * on `readout`.
+ * on `readout`. A shared worker's stream and barrier ride the attacher's
+ * thread, which forwards them in the order its connection received them.
  *
  * SCOPE. Worker evidence is scoped to current documents, as the page realm's
  * is: a replaced document's observer state is gone. The installer records each
- * worker's owner document, the frame and its loader, from the page's frame
- * tree, read beside the install and never holding the worker: that read is
- * answered on the page's main thread, which a long task or a pending
+ * dedicated worker's owner document, the frame and its loader, from the page's
+ * frame tree, read beside the install and never holding the worker: that read
+ * is answered on the page's main thread, which a long task or a pending
  * navigation can keep for seconds. A late answer can describe the tree after
  * a navigation replaced the owner, so a loader counts as the owner's only
  * when the worker itself answers a command sent after it (`readOwner`). At a
- * readout every worker, attached or gone, is credited only when its owner
- * document is in the page's frame trees read at the freeze. An interstitial
- * that fingerprints in a worker and then navigates to the site is therefore
- * not credited to the site.
+ * readout every dedicated worker, attached or gone, is credited only when its
+ * owner document is in the page's frame trees read at the freeze. An
+ * interstitial that fingerprints in a worker and then navigates to the site
+ * is therefore not credited to the site.
  *
  * A worker that goes away before it answers that command leaves its owner
  * unknown, whatever its document did, and on news pages that is the common
@@ -67,6 +83,16 @@ import {
  * collection counts it unread when it records anything, and as no realm at
  * all when it records nothing, since a realm that observed nothing has
  * nothing to credit to any document.
+ *
+ * A SHARED WORKER has no one owner document: any document of its origin can
+ * connect to it. It is credited to the visit's main document only when both
+ * hold: its script's origin is that document's origin (a `blob:` URL carries
+ * its creator's origin), and it was created after that document committed,
+ * which the attacher reads as the main document current, on its own
+ * connection, when the worker attached, being the document of the main frame
+ * at the freeze. Otherwise it is unscoped, exactly as a dedicated worker with
+ * an unknown owner is, and never excluded: a shared worker an earlier
+ * document of the site started can still serve the current one.
  */
 
 /** Serialized once per process: the same text for every worker of every scan. */
@@ -104,18 +130,20 @@ export const WORKER_REALM_READOUT_SETTLE_MS = 500;
 const READOUT_BARRIER_METHOD = "Runtime.getIsolateId";
 
 /**
- * The exact expression evaluated inside a paused dedicated worker: the
- * observer's own function, called with the scan's first-party site key (the
- * value the document's init script gets) and the worker realm argument, which
- * names the scan's sink and capability. It evaluates to `true` only when the
- * whole observer ran inside the realm and sent its first closed snapshot.
+ * The exact expression evaluated inside a paused worker: the observer's own
+ * function, called with the scan's first-party site key (the value the
+ * document's init script gets) and the worker realm argument, which names the
+ * scan's sink and capability and the kind of worker the host held. It
+ * evaluates to `true` only when the whole observer ran inside the realm and
+ * sent its first closed snapshot.
  */
 export function fingerprintObserverWorkerInstallExpression(
   firstPartySiteKey: string,
-  sink: { sinkName: string; capability: string }
+  sink: { sinkName: string; capability: string },
+  realm: FingerprintObserverRealmArgs["realm"] = "dedicated-worker"
 ): string {
   const realmArgs: FingerprintObserverRealmArgs = {
-    realm: "dedicated-worker",
+    realm,
     sinkName: sink.sinkName,
     capability: sink.capability
   };
@@ -136,6 +164,55 @@ export type WorkerFingerprintInstallDiagnostics = {
    * uninstrumented; or the worker was already running when it attached.
    */
   installFailedWorkerCount: number;
+};
+
+/** The same two counts for the shared workers the attacher reported, apart from the dedicated ones. */
+export type SharedWorkerFingerprintInstallDiagnostics = {
+  /** Held at their main script, and the install answered `true` with its first snapshot while they were held. */
+  installedWorkerCount: number;
+  /** Held at their main script, and the install failed, came back late or never came back. */
+  installFailedWorkerCount: number;
+  /** Reached late: a first pause at another script, seen running before any pause, or running when attached. */
+  lateWorkerCount: number;
+};
+
+/**
+ * The shared-worker terms of one readout, apart from the dedicated ones,
+ * which they never move. Excluded workers ran no page code at the freeze;
+ * unread ones ran, or may have run, page code whose evidence cannot be read
+ * in full; unscoped ones were read in full but cannot be credited to the
+ * visit's main document; the ones that ended at once are none of these.
+ */
+export type SharedWorkerFingerprintReadoutDiagnostics = {
+  /** The visit channel's discovery witness: every shared worker target it saw in the scan's context. */
+  discovered: number;
+  /** Every shared worker of the context the attacher reported, by the end of the drain. */
+  attached: number;
+  /** Excluded: held at its main script at the freeze, or first held after it. */
+  pausedAtReadout: number;
+  /** Excluded: it went away while held at its main script. */
+  diedPaused: number;
+  /** Read and credited to the visit's main document. */
+  readable: number;
+  /** Read in full but not credited: its snapshot is in `unscopedSnapshots`. */
+  ownerUnscoped: number;
+  /** Unread: held at its main script, but the install failed or came back late. */
+  installFailed: number;
+  /** Unread: reached late, so its code ran before the observer could precede it. */
+  attachedLate: number;
+  /**
+   * Unread: never paused by the end of the drain, or gone without a pause
+   * after a script of it was seen parsed or after living past the bound.
+   */
+  unreached: number;
+  /** Unread, as for a dedicated worker. */
+  cutOff: number;
+  streamBroken: number;
+  channelLostAlive: number;
+  /** Unread: discovered on the visit channel, never reported by the attacher. */
+  unattached: number;
+  /** Neither read nor unread: never reached, and gone within SHARED_WORKER_ENDED_AT_ONCE_MS. */
+  endedAtOnce: number;
 };
 
 /**
@@ -187,12 +264,8 @@ export type WorkerFingerprintReadoutDiagnostics = {
   ownerUnknown: number;
   /** Unread: witnessed by the browser but never attached by the channel. */
   unattachedDedicated: number;
-  /**
-   * Unread: shared workers the channel's discovery saw the scan's browser
-   * context start. The observer is never installed in one, so a page that
-   * ran code there never reads clean.
-   */
-  discoveredShared: number;
+  /** The shared workers of the scan's browser context, term by term. */
+  sharedWorkers: SharedWorkerFingerprintReadoutDiagnostics;
 };
 
 export type WorkerFingerprintRealmReadout = FingerprintWorkerRealmReadout & {
@@ -200,6 +273,12 @@ export type WorkerFingerprintRealmReadout = FingerprintWorkerRealmReadout & {
 };
 
 type OwnerDocument = { frameId: string; loaderId: string };
+
+/** The page's documents at a freeze: every frame's loader, and the main frame's document. */
+type DocumentsAtFreeze = {
+  loaders: Map<string, string>;
+  main: { frameId: string; loaderId: string; securityOrigin: string | null } | null;
+};
 
 /**
  * One worker's freeze, when its state at the call is not final. A running
@@ -212,6 +291,8 @@ type FreezeSlot = { barrier: "pending" | "answered"; freezeSeq: number | null; s
 
 type WorkerRealmRecord = {
   readonly worker: AttachedWorker;
+  /** The channel the worker's commands go over: the dedicated channel, or a shared visit's channel through the attacher. */
+  channel: DevtoolsChannel | null;
   /** Null until the install reached its terminal record. */
   install: "installed" | "failed" | "attached-late" | null;
   /**
@@ -239,10 +320,13 @@ type FrozenRealm =
   | {
       record: WorkerRealmRecord;
       state: "unread";
-      reason: "installFailed" | "attachedLate" | "streamBroken" | "channelLostAlive";
+      reason: "installFailed" | "attachedLate" | "streamBroken" | "channelLostAlive" | "unreached";
     }
   | { record: WorkerRealmRecord; state: "closed"; snapshot: string }
-  | { record: WorkerRealmRecord; state: "waiting"; slot: FreezeSlot };
+  | { record: WorkerRealmRecord; state: "waiting"; slot: FreezeSlot }
+  | { record: WorkerRealmRecord; state: "ended-at-once" }
+  /** A shared worker attached and not yet paused at the freeze: its state is its first move after it. */
+  | { record: WorkerRealmRecord; state: "reaching" };
 
 /**
  * The fingerprint observer's installer on the worker realm channel, in every
@@ -252,28 +336,36 @@ type FrozenRealm =
  * not by the channel before every installer. Only the install itself holds
  * the worker: the owner read runs beside it and is never waited for.
  *
- * Dedicated workers only. The channel does not receive shared workers from a
- * page session; should one ever attach, nothing is installed into it here,
- * since this installer's paused-install guard covers dedicated worker shapes
- * only, and it stays in the channel's shared attach count. The readout counts
- * shared workers from the channel's discovery instead, once each, never from
- * that attach count as well.
+ * Dedicated workers on the channel. The channel does not receive shared
+ * workers from a page session; should one ever attach there, nothing is
+ * installed into it on that path, and it stays in the channel's shared attach
+ * count. Shared workers come from the attacher instead (`watchSharedWorkers`),
+ * and the readout counts each one once: by the attacher's record, joined with
+ * the channel's discovery witness by target.
  */
 export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
   /** The sink's name on every worker session of this scan; random, so no page can guess it. */
   readonly sinkName: string;
   /** Opens every emission of this scan; anything else on the sink is ignored. */
   readonly capability: string;
+  /** Installs into dedicated workers on the channel's path, and never into a shared one there. */
+  readonly workerKinds = ["dedicated"] as const;
   private readonly expression: string;
-  /** Attached dedicated workers whose install reached its terminal record. */
+  private readonly sharedExpression: string;
+  /** Attached workers whose install reached its terminal record. */
   private readonly settledWorkers = new WeakSet<AttachedWorker>();
   private readonly records = new Map<string, WorkerRealmRecord>();
+  /** Shared workers the attacher reported, by session on the attacher's connection. */
+  private readonly sharedRecords = new Map<string, WorkerRealmRecord>();
   private readonly changeWaiters = new Set<() => void>();
   private installedWorkerCount = 0;
   private installFailedWorkerCount = 0;
+  private sharedInstalledWorkerCount = 0;
+  private sharedInstallFailedWorkerCount = 0;
+  private sharedLateWorkerCount = 0;
   private channelLost = false;
-  /** The worker realm channel the installs went over, which the readout barrier uses too. */
-  private channel: DevtoolsChannel | null = null;
+  /** The shared workers' visit channel, or null when the attacher was unavailable. */
+  private sharedVisit: SharedWorkerVisitChannel | null = null;
 
   /** `firstPartySiteKey` is the value the scan's documents get from their init script. */
   constructor(firstPartySiteKey: string, options: { randomBytes?: Uint8Array } = {}) {
@@ -281,16 +373,14 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
     if (randomBytes.length < 16) throw new Error("The worker realm sink requires at least 128 bits of capability entropy.");
     this.capability = bytesToHex(randomBytes);
     this.sinkName = `__siteBehaviorLabFingerprintSink_${this.capability.slice(0, 16)}`;
-    this.expression = fingerprintObserverWorkerInstallExpression(firstPartySiteKey, {
-      sinkName: this.sinkName,
-      capability: this.capability
-    });
+    const sink = { sinkName: this.sinkName, capability: this.capability };
+    this.expression = fingerprintObserverWorkerInstallExpression(firstPartySiteKey, sink, "dedicated-worker");
+    this.sharedExpression = fingerprintObserverWorkerInstallExpression(firstPartySiteKey, sink, "shared-worker");
   }
 
   async install(worker: AttachedWorker, channel: DevtoolsChannel): Promise<void> {
     if (worker.kind !== "dedicated") return;
-    this.channel = channel;
-    const record = this.recordFor(worker);
+    const record = this.recordFor(worker, this.records, channel);
     // Beside the install, never awaited here: its answer comes from the page's
     // main thread, and the worker must not wait on the page's long task or
     // pending navigation to run.
@@ -304,59 +394,59 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
     // One burst on the worker's own session, processed in order by the
     // browser: the sink, then the observer, which finds the sink already on
     // its global. The worker stays held for these two answers only.
-    const binding = channel.send("Runtime.addBinding", { name: this.sinkName }, worker.sessionId);
-    const evaluation = channel.send(
-      "Runtime.evaluate",
-      { expression: this.expression, returnByValue: true },
-      worker.sessionId
+    const answers = await Promise.all(
+      installCommands(this.sinkName, this.expression).map((command) =>
+        channel.send(command.method, command.params, worker.sessionId).then(
+          (value): SettledCommandAnswer => ({ status: "fulfilled", value }),
+          (error: unknown): SettledCommandAnswer => ({ status: "rejected", reason: String(error) })
+        )
+      )
     );
-    const [bound, evaluated] = await Promise.allSettled([binding, evaluation]);
-    let installed = false;
-    if (bound.status === "fulfilled" && evaluated.status === "fulfilled") {
-      const result = evaluated.value.result as { value?: unknown } | undefined;
-      // The realm's first closed snapshot is emitted during the evaluation, so
-      // it precedes the evaluation's answer on the worker's session; an answer
-      // without it means the realm cannot reach the host.
-      installed =
-        evaluated.value.exceptionDetails === undefined &&
-        result?.value === true &&
-        record.lastSeq >= 1 &&
-        !record.broken;
-    }
     // Terminal here, while the channel still holds the worker. A watchdog or
     // settle that concluded the worker first already recorded the install as
     // failed, and this late answer cannot upgrade it.
-    this.concludeWorker(worker, installed ? "installed" : "failed");
+    this.concludeWorker(worker, installAnswered(record, answers) ? "installed" : "failed");
   }
 
   /** A worker concluded without an answer of its own is uninstrumented. After an answer this is a no-op. */
   concluded(worker: AttachedWorker): void {
     if (worker.kind !== "dedicated") return;
-    this.recordFor(worker);
+    this.recordFor(worker, this.records, null);
     this.concludeWorker(worker, "failed");
   }
 
+  /**
+   * The commands the attacher's thread sends, in order, in each shared
+   * worker's main-script pause: the same sink and the same observer as a
+   * dedicated worker's install, with the shared-worker realm.
+   */
+  sharedWorkerInstallCommands(): readonly SharedWorkerInstallCommand[] {
+    return installCommands(this.sinkName, this.sharedExpression);
+  }
+
+  /** Hears every shared worker of the visit's context the attacher holds, reads and releases. */
+  watchSharedWorkers(visit: SharedWorkerVisitChannel): void {
+    if (this.sharedVisit !== null) throw new Error("This installer already watches a shared-worker visit.");
+    this.sharedVisit = visit;
+    visit.onWorkerChange((worker, change, answers) => this.onSharedWorkerChange(worker, change, answers));
+    visit.channel.onEvent((event) => this.onRealmEvent(event, this.sharedRecords));
+    visit.channel.onClose(() => {
+      for (const record of this.sharedRecords.values()) {
+        if (!record.worker.detached) record.lostWithChannel = true;
+      }
+      this.announceChange();
+    });
+  }
+
   onEvent(event: DevtoolsEvent): void {
-    if (event.method === "Target.attachedToTarget") {
-      // A drain may be waiting for the channel's attaches to reach the witness.
+    if (event.method === "Target.attachedToTarget" || event.method === "Target.targetCreated") {
+      // A drain may be waiting for the channel's attaches to reach the
+      // witness, or for the attacher to report a shared worker the channel's
+      // discovery just saw.
       this.announceChange();
       return;
     }
-    if (event.method === "Target.detachedFromTarget") {
-      // A worker that has gone can emit nothing more, so what the host holds
-      // is its whole stream: a barrier still waiting on it is answered by the
-      // detach, which the channel recorded before this.
-      const record = typeof event.params.sessionId === "string" ? this.records.get(event.params.sessionId) : undefined;
-      if (!record) return;
-      for (const slot of record.slots) this.answerBarrier(record, slot);
-      record.markGone();
-      return;
-    }
-    if (event.method !== "Runtime.bindingCalled" || event.params.name !== this.sinkName) return;
-    const record = typeof event.sessionId === "string" ? this.records.get(event.sessionId) : undefined;
-    if (!record) return;
-    this.receive(record, event.params.payload);
-    this.announceChange();
+    this.onRealmEvent(event, this.records);
   }
 
   onChannelClosed(): void {
@@ -375,6 +465,26 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
       installedWorkerCount: this.installedWorkerCount,
       installFailedWorkerCount: this.installFailedWorkerCount
     };
+  }
+
+  sharedInstallDiagnostics(): SharedWorkerFingerprintInstallDiagnostics {
+    return {
+      installedWorkerCount: this.sharedInstalledWorkerCount,
+      installFailedWorkerCount: this.sharedInstallFailedWorkerCount,
+      lateWorkerCount: this.sharedLateWorkerCount
+    };
+  }
+
+  /**
+   * Each shared worker's last closed snapshot as the host holds it now, by
+   * script URL, for the operator's real-site check that names which realm
+   * recorded what. Never read by the scanner.
+   */
+  sharedWorkerSnapshotsForTests(): readonly { url: string; hold: string; lastClosed: string | null }[] {
+    return [...this.sharedRecords.values()].map((record) => {
+      const worker = record.worker as AttachedSharedWorker;
+      return { url: worker.url, hold: worker.hold, lastClosed: record.lastClosed };
+    });
   }
 
   /**
@@ -401,20 +511,28 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
    *    task to end. The drain never waits for a worker's latest state to be
    *    closed, which a worker drawing every frame could starve, and a worker
    *    without its answer or its closed snapshot at the bound is cut off,
-   *    never read at an older state.
-   * 3. Every worker, attached or gone, is checked against the frame trees
-   *    read at the freeze first: one whose document was not current then is
-   *    excluded whatever state its stream was left in, and one whose
+   *    never read at an older state. It also waits for the attacher to
+   *    report each shared worker the channel's discovery saw, and for each
+   *    shared worker attached but not yet paused at the freeze to make its
+   *    first move: a pause at its main script means it ran nothing before
+   *    the freeze, anything else that it may have.
+   * 3. Every dedicated worker, attached or gone, is checked against the frame
+   *    trees read at the freeze first: one whose document was not current
+   *    then is excluded whatever state its stream was left in, and one whose
    *    document was current then is classified by its state, even if it has
    *    gone since. A worker that went mid-task after the freeze is therefore
    *    cut off, a disclosed loss, never excluded. Attached is not taken to
    *    mean current: a worker whose document was just replaced can still be
    *    attached, its detach not yet arrived. A worker with its whole snapshot
    *    in hand whose document can be shown neither current nor replaced is
-   *    returned unscoped, for the collection to count.
+   *    returned unscoped, for the collection to count. A shared worker is
+   *    classified by its state first and never excluded for its document:
+   *    read in full, it is credited only under the ownership rule in the
+   *    module's docblock, and unscoped otherwise.
    *
-   * Shared workers are unread, one each, for the whole visit so far: the
-   * channel's discovery count after the drain.
+   * Shared workers are counted for the whole visit so far, once each: the
+   * union of the attacher's reports and the channel's discovery after the
+   * drain, joined by target.
    *
    * Never rejects. With no channel (it was never established), every
    * witnessed dedicated worker is unread, and no shared worker is witnessed.
@@ -427,9 +545,12 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
     const observedDedicated = options.witness.count();
     // Sent now, before anything is awaited: the page's documents at the
     // freeze. Its answer is awaited only after the drain.
-    const documentsAtFreeze = currentDocumentLoaders(options.session);
+    const documentsAtFreeze = currentDocuments(options.session);
     const frozen: FrozenRealm[] = [];
     for (const record of this.records.values()) frozen.push(this.freeze(record));
+    const sharedFrozen: FrozenRealm[] = [];
+    for (const record of this.sharedRecords.values()) sharedFrozen.push(this.freezeShared(record));
+    const frozenShared = new Set(sharedFrozen.map((realm) => realm.record));
     // A dedicated worker this installer has neither installed nor heard
     // concluded is still held by an installer before it (GPC, in its arm).
     const heldBeforeInstall = Math.max(
@@ -438,16 +559,35 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
     );
 
     try {
-      await this.drain(options.session, observedDedicated, frozen, options.settleMs);
+      await this.drain(options.session, observedDedicated, frozen, sharedFrozen, options.settleMs);
     } finally {
-      for (const realm of frozen) if (realm.state === "waiting") realm.record.slots.delete(realm.slot);
+      for (const realm of [...frozen, ...sharedFrozen]) {
+        if (realm.state === "waiting") realm.record.slots.delete(realm.slot);
+      }
     }
-    const currentDocuments = await documentsAtFreeze;
+    const documents = await documentsAtFreeze;
+    const loaders = documents === null ? null : documents.loaders;
 
     const attachCounts = options.session?.attachCounts() ?? {
       attachedDedicatedWorkerCount: 0,
       attachedNestedDedicatedWorkerCount: 0,
       attachedSharedWorkerCount: 0
+    };
+    const shared: SharedWorkerFingerprintReadoutDiagnostics = {
+      discovered: 0,
+      attached: 0,
+      pausedAtReadout: 0,
+      diedPaused: 0,
+      readable: 0,
+      ownerUnscoped: 0,
+      installFailed: 0,
+      attachedLate: 0,
+      unreached: 0,
+      cutOff: 0,
+      streamBroken: 0,
+      channelLostAlive: 0,
+      unattached: 0,
+      endedAtOnce: 0
     };
     const diagnostics: WorkerFingerprintReadoutDiagnostics = {
       observedDedicated,
@@ -464,7 +604,7 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
       channelLostAlive: 0,
       ownerUnknown: 0,
       unattachedDedicated: Math.max(0, observedDedicated - attachCounts.attachedDedicatedWorkerCount),
-      discoveredShared: options.session?.discoveredSharedWorkerCount() ?? 0
+      sharedWorkers: shared
     };
 
     // Scope before state. A worker of a document the page did not show at the
@@ -484,14 +624,15 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
         continue;
       }
       const owner = ownerOf(realm.record);
-      if (owner !== null && currentDocuments !== null && currentDocuments.get(owner.frameId) !== owner.loaderId) {
+      if (owner !== null && loaders !== null && loaders.get(owner.frameId) !== owner.loaderId) {
         diagnostics.ownerReplaced += 1;
         continue;
       }
       if (realm.state === "unread") {
-        diagnostics[realm.reason] += 1;
+        if (realm.reason !== "unreached") diagnostics[realm.reason] += 1;
         continue;
       }
+      if (realm.state === "ended-at-once" || realm.state === "reaching") continue;
       const snapshot = realm.state === "closed" ? realm.snapshot : realm.slot.snapshot;
       if (snapshot === null) {
         // No whole state for the freeze when the drain ended: open at its
@@ -514,7 +655,7 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
       // one with no vouched owner, or with frames at the freeze that could not
       // be read, cannot be shown current or replaced. It is never credited and
       // never excluded silently: the collection reads its snapshot unscoped.
-      if (owner === null || currentDocuments === null) {
+      if (owner === null || loaders === null) {
         diagnostics.ownerUnknown += 1;
         unscopedSnapshots.push(snapshot);
         continue;
@@ -522,6 +663,60 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
       diagnostics.readable += 1;
       readableSnapshots.push(snapshot);
     }
+
+    // Shared workers: state first, then the ownership rule. The attacher's
+    // records, frozen at the call or attached during the drain, joined with
+    // the channel's discovery witness by target, each counted once.
+    const discovered = options.session?.discoveredSharedWorkerTargets() ?? new Set<string>();
+    shared.discovered = discovered.size;
+    const reportedTargets = new Set<string>();
+    const sharedRealms: FrozenRealm[] = [...sharedFrozen];
+    for (const record of this.sharedRecords.values()) {
+      // Attached after the freeze: whatever it did came after the call,
+      // unless it was not held at its main script.
+      if (!frozenShared.has(record)) sharedRealms.push(this.freezeShared(record, { attachedAfterFreeze: true }));
+    }
+    for (const realm of sharedRealms) {
+      const worker = realm.record.worker as AttachedSharedWorker;
+      reportedTargets.add(worker.targetId);
+      shared.attached += 1;
+      const resolved = realm.state === "reaching" ? this.resolveReaching(realm.record) : realm;
+      if (resolved.state === "excluded") {
+        shared[resolved.reason] += 1;
+        continue;
+      }
+      if (resolved.state === "ended-at-once") {
+        shared.endedAtOnce += 1;
+        continue;
+      }
+      if (resolved.state === "unread") {
+        shared[resolved.reason] += 1;
+        continue;
+      }
+      if (resolved.state === "reaching") {
+        shared.unreached += 1;
+        continue;
+      }
+      const snapshot = resolved.state === "closed" ? resolved.snapshot : resolved.slot.snapshot;
+      if (snapshot === null) {
+        if (resolved.record.lostWithChannel) shared.channelLostAlive += 1;
+        else if (resolved.record.broken) shared.streamBroken += 1;
+        else shared.cutOff += 1;
+        continue;
+      }
+      if (snapshot === "null") {
+        shared.streamBroken += 1;
+        continue;
+      }
+      if (sharedWorkerCredited(worker, documents)) {
+        shared.readable += 1;
+        readableSnapshots.push(snapshot);
+      } else {
+        shared.ownerUnscoped += 1;
+        unscopedSnapshots.push(snapshot);
+      }
+    }
+    for (const targetId of discovered) if (!reportedTargets.has(targetId)) shared.unattached += 1;
 
     return {
       readableSnapshots,
@@ -533,7 +728,14 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
         diagnostics.streamBroken +
         diagnostics.channelLostAlive +
         diagnostics.unattachedDedicated +
-        diagnostics.discoveredShared,
+        shared.installFailed +
+        shared.attachedLate +
+        shared.unreached +
+        shared.cutOff +
+        shared.streamBroken +
+        shared.channelLostAlive +
+        shared.unattached,
+      sharedWorkersEndedAtOnce: shared.endedAtOnce,
       diagnostics
     };
   }
@@ -547,6 +749,56 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
     if (!worker.released) return { record, state: "excluded", reason: "pausedAtReadout" };
     if (record.install === "attached-late") return { record, state: "unread", reason: "attachedLate" };
     if (record.install !== "installed") return { record, state: "unread", reason: "installFailed" };
+    return this.freezeStream(record);
+  }
+
+  /**
+   * A shared worker at the freeze. It is held by its main-script pause, not
+   * from its start, so the state before that pause is not "paused": an
+   * attached worker with no pause yet is reaching, and its first move
+   * decides. One attached after the call was not yet paused at it, so only
+   * its hold at the main script can show it ran nothing then.
+   */
+  private freezeShared(record: WorkerRealmRecord, options: { attachedAfterFreeze?: boolean } = {}): FrozenRealm {
+    const worker = record.worker as AttachedSharedWorker;
+    if (record.lostWithChannel) return { record, state: "unread", reason: "channelLostAlive" };
+    if (worker.detachedWhilePaused) return { record, state: "excluded", reason: "diedPaused" };
+    if (worker.hold === "held") return { record, state: "excluded", reason: "pausedAtReadout" };
+    if (worker.hold === "late") return { record, state: "unread", reason: "attachedLate" };
+    if (worker.hold === "pending") {
+      if (worker.detached) {
+        // Gone with no pause: it ended at once only when the attacher never
+        // saw it run and its life fits the bound.
+        return sharedWorkerEndedAtOnce(worker)
+          ? { record, state: "ended-at-once" }
+          : { record, state: "unread", reason: "unreached" };
+      }
+      return { record, state: "reaching" };
+    }
+    // Released after its hold at its main script.
+    if (options.attachedAfterFreeze) return { record, state: "excluded", reason: "pausedAtReadout" };
+    if (record.install !== "installed") return { record, state: "unread", reason: "installFailed" };
+    return this.freezeStream(record);
+  }
+
+  /** A shared worker reaching at the freeze, by its first move by the end of the drain. */
+  private resolveReaching(record: WorkerRealmRecord): FrozenRealm {
+    const worker = record.worker as AttachedSharedWorker;
+    if (record.lostWithChannel) return { record, state: "unread", reason: "channelLostAlive" };
+    // Paused at its main script after the freeze: it ran nothing before it.
+    if (worker.hold === "held" || worker.hold === "released") return { record, state: "excluded", reason: "pausedAtReadout" };
+    if (worker.hold === "late") return { record, state: "unread", reason: "attachedLate" };
+    if (worker.detached) {
+      return sharedWorkerEndedAtOnce(worker)
+        ? { record, state: "ended-at-once" }
+        : { record, state: "unread", reason: "unreached" };
+    }
+    return { record, state: "reaching" };
+  }
+
+  /** An installed worker's state at the freeze, from its stream; the same for both kinds. */
+  private freezeStream(record: WorkerRealmRecord): FrozenRealm {
+    const worker = record.worker;
     if (record.broken || record.lastWord === null) return { record, state: "unread", reason: "streamBroken" };
     if (worker.detached) {
       // Gone: it can emit nothing more. A task it left open still gets the
@@ -563,7 +815,7 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
     const answer = () => this.answerBarrier(record, slot);
     // An error while the worker is still attached answers nothing: the slot
     // waits for the worker's detach, the channel's loss, or the bound.
-    this.channel
+    record.channel
       ?.send(READOUT_BARRIER_METHOD, {}, worker.sessionId)
       .then(answer, () => {
         if (worker.detached) answer();
@@ -589,21 +841,32 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
     session: DedicatedWorkerAttachSession | null,
     observedDedicated: number,
     frozen: readonly FrozenRealm[],
+    sharedFrozen: readonly FrozenRealm[],
     settleMs: number
   ): Promise<void> {
-    const drained = () => {
+    const realmSettled = (realm: FrozenRealm): boolean =>
+      realm.state === "excluded" ||
+      (realm.record.owner !== "reading" &&
+        (realm.state !== "waiting" ||
+          realm.slot.snapshot !== null ||
+          realm.record.broken ||
+          realm.record.lostWithChannel));
+    const dedicatedDrained = (): boolean => {
       if (this.channelLost || session === null || session.isChannelLost()) return true;
       if (session.attachCounts().attachedDedicatedWorkerCount < observedDedicated) return false;
-      return frozen.every(
-        (realm) =>
-          realm.state === "excluded" ||
-          (realm.record.owner !== "reading" &&
-            (realm.state !== "waiting" ||
-              realm.slot.snapshot !== null ||
-              realm.record.broken ||
-              realm.record.lostWithChannel))
+      return frozen.every(realmSettled);
+    };
+    const sharedDrained = (): boolean => {
+      const visit = this.sharedVisit;
+      if (visit === null || visit.isChannelLost()) return true;
+      const reported = new Set<string>();
+      for (const record of this.sharedRecords.values()) reported.add((record.worker as AttachedSharedWorker).targetId);
+      for (const targetId of session?.discoveredSharedWorkerTargets() ?? []) if (!reported.has(targetId)) return false;
+      return sharedFrozen.every((realm) =>
+        realm.state === "reaching" ? this.resolveReaching(realm.record).state !== "reaching" : realmSettled(realm)
       );
     };
+    const drained = () => dedicatedDrained() && sharedDrained();
     if (drained()) return;
     let timer: ReturnType<typeof setTimeout> | undefined;
     let expiredBound = false;
@@ -629,6 +892,43 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
     } finally {
       clearTimeout(timer);
     }
+  }
+
+  /** A realm's stream and its detach, for the records of the channel it came on. */
+  private onRealmEvent(event: DevtoolsEvent, records: Map<string, WorkerRealmRecord>): void {
+    if (event.method === "Target.detachedFromTarget") {
+      // A worker that has gone can emit nothing more, so what the host holds
+      // is its whole stream: a barrier still waiting on it is answered by the
+      // detach, which the channel recorded before this.
+      const record = typeof event.params.sessionId === "string" ? records.get(event.params.sessionId) : undefined;
+      if (!record) return;
+      for (const slot of record.slots) this.answerBarrier(record, slot);
+      record.markGone();
+      this.announceChange();
+      return;
+    }
+    if (event.method !== "Runtime.bindingCalled" || event.params.name !== this.sinkName) return;
+    const record = typeof event.sessionId === "string" ? records.get(event.sessionId) : undefined;
+    if (!record) return;
+    this.receive(record, event.params.payload);
+    this.announceChange();
+  }
+
+  private onSharedWorkerChange(
+    worker: AttachedSharedWorker,
+    change: SharedWorkerChange,
+    answers: readonly SettledCommandAnswer[] | null
+  ): void {
+    const record = this.recordFor(worker, this.sharedRecords, this.sharedVisit?.channel ?? null);
+    if (change === "installed") {
+      // Judged by the dedicated install's own rule, on the answers the thread
+      // sent back while the worker was still held. No answers means the
+      // thread's watchdog let it run first.
+      this.concludeShared(worker, answers !== null && installAnswered(record, answers) ? "installed" : "failed");
+    } else if (change === "late") {
+      this.concludeShared(worker, "attached-late");
+    }
+    this.announceChange();
   }
 
   private receive(record: WorkerRealmRecord, payload: unknown): void {
@@ -727,8 +1027,12 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
     }
   }
 
-  private recordFor(worker: AttachedWorker): WorkerRealmRecord {
-    let record = this.records.get(worker.sessionId);
+  private recordFor(
+    worker: AttachedWorker,
+    records: Map<string, WorkerRealmRecord>,
+    channel: DevtoolsChannel | null
+  ): WorkerRealmRecord {
+    let record = records.get(worker.sessionId);
     if (!record) {
       let markGone: () => void = () => undefined;
       const gone = new Promise<void>((resolve) => {
@@ -737,6 +1041,7 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
       if (worker.detached) markGone();
       record = {
         worker,
+        channel,
         install: null,
         owner: null,
         ownerRead: null,
@@ -746,10 +1051,13 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
         lastWord: null,
         lastClosed: null,
         broken: false,
-        lostWithChannel: this.channelLost,
+        lostWithChannel:
+          records === this.sharedRecords ? (this.sharedVisit?.isChannelLost() ?? false) && !worker.detached : this.channelLost,
         slots: new Set()
       };
-      this.records.set(worker.sessionId, record);
+      records.set(worker.sessionId, record);
+    } else if (record.channel === null && channel !== null) {
+      record.channel = channel;
     }
     return record;
   }
@@ -767,16 +1075,79 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
     if (install === "installed") this.installedWorkerCount += 1;
     else this.installFailedWorkerCount += 1;
   }
+
+  /** Exactly one terminal state per shared worker the attacher reported held or late. */
+  private concludeShared(worker: AttachedWorker, install: "installed" | "failed" | "attached-late"): void {
+    if (this.settledWorkers.has(worker)) return;
+    this.settledWorkers.add(worker);
+    const record = this.sharedRecords.get(worker.sessionId);
+    if (record) record.install = install;
+    if (install === "installed") this.sharedInstalledWorkerCount += 1;
+    else if (install === "failed") this.sharedInstallFailedWorkerCount += 1;
+    else this.sharedLateWorkerCount += 1;
+  }
 }
 
 /**
- * The page's current documents, as frame id to loader id, from the channel's
- * current frame trees. Null when there is no channel or the trees could not
- * all be read.
+ * The install's commands, one burst on the worker's own session, processed in
+ * order by the browser: the sink, then the observer, which finds the sink
+ * already on its global. The dedicated install sends them on the channel; the
+ * attacher's thread sends the same list in a shared worker's main-script
+ * pause.
  */
-async function currentDocumentLoaders(
-  session: DedicatedWorkerAttachSession | null
-): Promise<Map<string, string> | null> {
+function installCommands(sinkName: string, expression: string): readonly SharedWorkerInstallCommand[] {
+  return [
+    { method: "Runtime.addBinding", params: { name: sinkName } },
+    { method: "Runtime.evaluate", params: { expression, returnByValue: true } }
+  ];
+}
+
+/**
+ * Whether the install's two answers show the observer in place: the sink
+ * added, the evaluation answering `true` without an exception, and the
+ * realm's first closed snapshot already received. That snapshot is emitted
+ * during the evaluation, so it precedes the evaluation's answer on the
+ * worker's session; an answer without it means the realm cannot reach the
+ * host.
+ */
+function installAnswered(record: WorkerRealmRecord, answers: readonly SettledCommandAnswer[]): boolean {
+  const [bound, evaluated] = answers;
+  if (answers.length !== 2 || bound?.status !== "fulfilled" || evaluated?.status !== "fulfilled") return false;
+  const result = evaluated.value.result as { value?: unknown } | undefined;
+  return evaluated.value.exceptionDetails === undefined && result?.value === true && record.lastSeq >= 1 && !record.broken;
+}
+
+/**
+ * Whether a shared worker read in full is credited to the visit's main
+ * document: its creation document, read by the attacher on its own connection
+ * when the worker attached, is the main frame's document at the freeze, and
+ * its script's origin is that document's origin. A `blob:` URL carries its
+ * creator's origin, and a `data:` URL's is opaque and never matches.
+ */
+function sharedWorkerCredited(worker: AttachedSharedWorker, documents: DocumentsAtFreeze | null): boolean {
+  const main = documents?.main ?? null;
+  const created = worker.creationDocument;
+  if (main === null || created === null || main.securityOrigin === null) return false;
+  if (created.frameId !== main.frameId || created.loaderId !== main.loaderId) return false;
+  const origin = scriptOrigin(worker.url);
+  return origin !== null && origin === main.securityOrigin;
+}
+
+function scriptOrigin(url: string): string | null {
+  try {
+    const origin = new URL(url).origin;
+    return origin === "null" || origin === "" ? null : origin;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * The page's current documents, as frame id to loader id, and its main
+ * frame's document, from the channel's current frame trees. Null when there
+ * is no channel or the trees could not all be read.
+ */
+async function currentDocuments(session: DedicatedWorkerAttachSession | null): Promise<DocumentsAtFreeze | null> {
   if (session === null) return null;
   const trees = await session.currentFrameTrees();
   if (trees === null) return null;
@@ -784,7 +1155,17 @@ async function currentDocumentLoaders(
   for (const tree of trees) {
     for (const [frameId, loaderId] of frameLoaderIds(tree)) loaders.set(frameId, loaderId);
   }
-  return loaders;
+  // The page target's tree comes first, and its root is the main frame.
+  const root = (trees[0] as { frame?: { id?: unknown; loaderId?: unknown; securityOrigin?: unknown } } | undefined)?.frame;
+  const main =
+    root && typeof root.id === "string" && typeof root.loaderId === "string"
+      ? {
+          frameId: root.id,
+          loaderId: root.loaderId,
+          securityOrigin: typeof root.securityOrigin === "string" ? root.securityOrigin : null
+        }
+      : null;
+  return { loaders, main };
 }
 
 /** Every frame of one `Page.getFrameTree` result, as frame id to loader id. */

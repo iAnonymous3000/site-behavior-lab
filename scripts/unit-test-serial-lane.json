@@ -64,6 +64,7 @@
   "lib/scroll-check-labels-fixture.test.ts": "launches Chromium through the scanner's shared browser and runs two checks on their test timing under 120 s timeouts",
   "lib/scroll-check-stacks-fixture.test.ts": "launches Chromium through the scanner's shared browser and runs two checks on their test timing under 120 s timeouts",
   "lib/scroll-check.test.ts": "pins the check's 45 s deadline and timing literals over a virtual clock that yields on setImmediate",
+  "lib/shared-worker-attacher.test.ts": "holds scripted shared workers under a 40 ms hold watchdog and asserts a lifetime under the 10 ms ended-at-once bound",
   "lib/staging-teardown-hosted-source.test.ts": "runs git show under 10 s timeouts for every fixture",
   "lib/strict-json.test.ts": "runs under a 2000 ms test timeout",
   "lib/transparency-log-anchoring.test.ts": "asserts a 250 ms settle watchdog",

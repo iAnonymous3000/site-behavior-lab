@@ -11,6 +11,7 @@ import {
   type DevtoolsChannel,
   type DevtoolsEvent
 } from "./devtools-worker-channel";
+import { gpcWorkerCaptureLossCount } from "./gpc-injection";
 import { GPC_WORKER_HANDSHAKE_EXPRESSION, GpcWorkerRealmInstaller } from "./gpc-worker-verification";
 
 type SentCommand = {
@@ -308,7 +309,13 @@ test("auxiliary targets are recursed into and released without entering worker a
   });
 });
 
-test("a shared worker attach, if the browser ever delivers one, is counted in its own column", async () => {
+/**
+ * GPC delivery stays dedicated-only (owner call 6). A shared worker attach,
+ * should the browser ever deliver one on the channel, is counted in its own
+ * column and gets no GPC handshake: the installer is never run in it, never
+ * concluded for it, and the attach offsets no shared construction.
+ */
+test("a shared worker attach, if the browser ever delivers one, is counted in its own column and never gets the GPC handshake", async () => {
   const scripted = scriptedChannel((command) => {
     if (command.method === "Target.attachToTarget") return { sessionId: "page-session" };
     if (command.method === "Runtime.evaluate") return { result: { value: true } };
@@ -323,9 +330,67 @@ test("a shared worker attach, if the browser ever delivers one, is counted in it
     attachedDedicatedWorkerCount: 0,
     attachedNestedDedicatedWorkerCount: 0,
     attachedSharedWorkerCount: 1,
-    verifiedWorkerCount: 1,
+    verifiedWorkerCount: 0,
     unverifiedAttachedWorkerCount: 0
   });
+  assert.deepEqual(
+    scripted.sent.filter((command) => command.sessionId === "shared-session").map((command) => command.method),
+    ["Target.setAutoAttach", "Runtime.runIfWaitingForDebugger"],
+    "no handshake is evaluated in a shared worker"
+  );
+  assert.equal(
+    gpcWorkerCaptureLossCount({
+      ...diagnostics(),
+      dedicatedWorkerConstructionCount: 0,
+      sharedWorkerConstructionCount: 1,
+      observedDedicatedWorkerCount: 0
+    }),
+    1,
+    "the shared construction stays a loss beside its attach"
+  );
+});
+
+test("the GPC installer refuses a shared worker whichever path hands it one", async () => {
+  const installer = new GpcWorkerRealmInstaller();
+  const sent: string[] = [];
+  const channel: DevtoolsChannel = {
+    send: async (method) => {
+      sent.push(method);
+      return { result: { value: true } };
+    },
+    onEvent() {},
+    onClose() {},
+    close() {}
+  };
+  const shared = {
+    sessionId: "shared-session",
+    kind: "shared" as const,
+    nested: false,
+    arrivedOnSessionId: null,
+    ownerFrameId: null,
+    waitingForDebugger: true,
+    released: false,
+    detached: false,
+    detachedWhilePaused: false
+  };
+  assert.deepEqual(installer.workerKinds, ["dedicated"]);
+  await installer.install(shared, channel);
+  installer.concluded(shared);
+  assert.deepEqual(sent, [], "nothing is evaluated in a shared worker");
+  assert.deepEqual(
+    installer.verificationDiagnostics({
+      attachedDedicatedWorkerCount: 0,
+      attachedNestedDedicatedWorkerCount: 0,
+      attachedSharedWorkerCount: 1
+    }),
+    {
+      attachedDedicatedWorkerCount: 0,
+      attachedNestedDedicatedWorkerCount: 0,
+      attachedSharedWorkerCount: 1,
+      verifiedWorkerCount: 0,
+      unverifiedAttachedWorkerCount: 0
+    }
+  );
 });
 
 test("workers attached while an earlier handshake settles are drained by the same settle call", async () => {

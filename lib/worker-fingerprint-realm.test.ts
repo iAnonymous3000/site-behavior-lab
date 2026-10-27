@@ -4,7 +4,7 @@ import { createServer, type IncomingMessage, type ServerResponse } from "node:ht
 import { createServer as createNetServer } from "node:net";
 import path from "node:path";
 import { test, type TestContext } from "node:test";
-import { chromium, type Page } from "playwright";
+import { chromium, type Browser, type Page } from "playwright";
 import {
   DedicatedWorkerAttachSession,
   DedicatedWorkerWitness,
@@ -17,6 +17,12 @@ import {
 } from "./devtools-worker-channel";
 import { collectFingerprintObservationsWithCoverage, fingerprintObserverInitScript } from "./fingerprint-observer";
 import {
+  SHARED_WORKER_ENDED_AT_ONCE_MS,
+  SharedWorkerAttacher,
+  type AttachedSharedWorker,
+  type SharedWorkerVisitChannel
+} from "./shared-worker-attacher";
+import {
   FingerprintWorkerRealmInstaller,
   MAX_WORKER_SNAPSHOT_PAYLOAD_CHARS,
   fingerprintObserverWorkerInstallExpression,
@@ -24,11 +30,12 @@ import {
 } from "./worker-fingerprint-realm";
 
 /**
- * The fingerprint observer in paused dedicated worker realms. The browser
- * tests run against real Chromium on local pages, from the compiled output,
- * never through tsx: the install evaluates the observer's serialized source,
- * and a transpiler that injects helpers into it changes what reaches the
- * realm.
+ * The fingerprint observer in paused dedicated worker realms, and in shared
+ * worker realms held at their main script by the shared-worker attacher. The
+ * browser tests run against real Chromium on local pages, from the compiled
+ * output, never through tsx: the install evaluates the observer's serialized
+ * source, and a transpiler that injects helpers into it changes what reaches
+ * the realm.
  */
 
 const FIXTURE_SITE_KEY = "127.0.0.1";
@@ -341,16 +348,24 @@ async function scriptedWorkerRealms(
 }
 
 function readoutTerms(readout: WorkerFingerprintRealmReadout) {
+  const { sharedWorkers, ...dedicated } = readout.diagnostics;
   const nonZero = Object.fromEntries(
-    Object.entries(readout.diagnostics).filter(
+    Object.entries(dedicated).filter(
       ([key, value]) => value !== 0 && key !== "observedDedicated" && key !== "attachedDedicated" && key !== "attachedNested"
     )
+  );
+  // Shared terms by name, apart from the dedicated ones they never move.
+  const sharedNonZero = Object.fromEntries(
+    Object.entries(sharedWorkers)
+      .filter(([, value]) => value !== 0)
+      .map(([key, value]) => [`shared.${key}`, value])
   );
   return {
     snapshots: readout.readableSnapshots,
     unread: readout.unreadRealms,
     ...(readout.unscopedSnapshots.length > 0 ? { unscoped: readout.unscopedSnapshots } : {}),
-    terms: nonZero
+    ...(readout.sharedWorkersEndedAtOnce > 0 ? { endedAtOnce: readout.sharedWorkersEndedAtOnce } : {}),
+    terms: { ...nonZero, ...sharedNonZero }
   };
 }
 
@@ -537,12 +552,14 @@ test("readout: with no channel at all, every witnessed worker is unread", async 
 });
 
 /**
- * The owner's rule: a shared worker is a realm the observer never runs in, so
- * each one the channel's discovery saw is an unread realm, and a page that
- * starts one never reads clean. Counted from discovery alone, so an attach of
- * the same worker, should the browser ever deliver one, adds nothing.
+ * The witness: a shared worker the channel's discovery saw that the attacher
+ * never reported (here there is no attacher at all, as on a visit whose
+ * attacher could not start) is an unread realm, and a page that starts one
+ * never reads clean. Counted from discovery, so an attach of the same worker
+ * on the channel, should the browser ever deliver one, adds nothing and runs
+ * no installer that names dedicated workers alone.
  */
-test("readout: each shared worker the channel discovered is one unread realm, never counted again from an attach", async () => {
+test("readout: each shared worker the channel discovered and the attacher never reported is one unread realm, never counted again from an attach", async () => {
   const realms = await scriptedWorkerRealms();
   await realms.session.watchSharedWorkers("scan-context");
   for (const targetId of ["shared-a", "shared-b"]) {
@@ -556,8 +573,13 @@ test("readout: each shared worker the channel discovered is one unread realm, ne
   assert.deepEqual(readoutTerms(await realms.readout(1)), {
     snapshots: [EMPTY_SNAPSHOT],
     unread: 2,
-    terms: { readable: 1, discoveredShared: 2 }
+    terms: { readable: 1, "shared.discovered": 2, "shared.unattached": 2 }
   });
+  assert.equal(
+    realms.scripted.sent.filter((command) => command.sessionId === "shared-a" && command.method !== "Target.setAutoAttach").length,
+    1,
+    "the channel's shared attach gets only its release: no installer names shared workers"
+  );
 });
 
 test("readout: the drain waits for the channel's attaches to reach the witness, and what attaches in it was paused at the freeze", async () => {
@@ -933,7 +955,8 @@ test("an unscoped worker realm is unread whenever its snapshot records anything,
     const collection = await collectFingerprintObservationsWithCoverage([], {
       readableSnapshots: [],
       unscopedSnapshots: [snapshot],
-      unreadRealms: 0
+      unreadRealms: 0,
+      sharedWorkersEndedAtOnce: 0
     });
     assert.deepEqual([collection.attemptedWorkerRealms, collection.readableWorkerRealms], [1, 0], snapshot);
     assert.deepEqual(collection.observations, { events: [], detections: [] }, `${snapshot}: never credited`);
@@ -941,7 +964,8 @@ test("an unscoped worker realm is unread whenever its snapshot records anything,
   const nothing = await collectFingerprintObservationsWithCoverage([], {
     readableSnapshots: [],
     unscopedSnapshots: [EMPTY_SNAPSHOT, EMPTY_SNAPSHOT],
-    unreadRealms: 0
+    unreadRealms: 0,
+    sharedWorkersEndedAtOnce: 0
   });
   assert.deepEqual([nothing.attemptedWorkerRealms, nothing.readableWorkerRealms], [0, 0]);
   // Beside a read realm and an unread one it moves neither count, and an
@@ -949,9 +973,39 @@ test("an unscoped worker realm is unread whenever its snapshot records anything,
   const beside = await collectFingerprintObservationsWithCoverage([], {
     readableSnapshots: [READ_SNAPSHOT],
     unscopedSnapshots: [EMPTY_SNAPSHOT, LATER_SNAPSHOT],
-    unreadRealms: 1
+    unreadRealms: 1,
+    sharedWorkersEndedAtOnce: 0
   });
   assert.deepEqual([beside.attemptedWorkerRealms, beside.readableWorkerRealms], [3, 1]);
+  assert.deepEqual(beside.observations.events, [{ api: "canvas.getImageData", count: 1 }]);
+});
+
+/**
+ * fingerprint-observer@10: a shared worker that ended at once is passed
+ * through as counted and is no realm at all, read or unread, beside realms of
+ * either kind.
+ */
+test("shared workers that ended at once pass through the collection apart from every realm term", async () => {
+  const alone = await collectFingerprintObservationsWithCoverage([], {
+    readableSnapshots: [],
+    unscopedSnapshots: [],
+    unreadRealms: 0,
+    sharedWorkersEndedAtOnce: 2
+  });
+  assert.deepEqual(
+    [alone.attemptedWorkerRealms, alone.readableWorkerRealms, alone.sharedWorkersEndedAtOnce],
+    [0, 0, 2]
+  );
+  const beside = await collectFingerprintObservationsWithCoverage([], {
+    readableSnapshots: [READ_SNAPSHOT],
+    unscopedSnapshots: [LATER_SNAPSHOT],
+    unreadRealms: 1,
+    sharedWorkersEndedAtOnce: 1
+  });
+  assert.deepEqual(
+    [beside.attemptedWorkerRealms, beside.readableWorkerRealms, beside.sharedWorkersEndedAtOnce],
+    [3, 1, 1]
+  );
   assert.deepEqual(beside.observations.events, [{ api: "canvas.getImageData", count: 1 }]);
 });
 
@@ -1064,12 +1118,14 @@ test("the same snapshot text merges identically as a frame and as a worker realm
   const asFrameAndWorker = await collectFingerprintObservationsWithCoverage([{ evaluate: async () => first }], {
     readableSnapshots: [second],
     unscopedSnapshots: [],
-    unreadRealms: 0
+    unreadRealms: 0,
+    sharedWorkersEndedAtOnce: 0
   });
   const asWorkers = await collectFingerprintObservationsWithCoverage([], {
     readableSnapshots: [first, second],
     unscopedSnapshots: [],
-    unreadRealms: 0
+    unreadRealms: 0,
+    sharedWorkersEndedAtOnce: 0
   });
   assert.deepEqual(asFrameAndWorker.observations, asFrames.observations);
   assert.deepEqual(asWorkers.observations, asFrames.observations);
@@ -1085,7 +1141,8 @@ test("the same snapshot text merges identically as a frame and as a worker realm
       canvasFontEvidenceBoundedFrames: 0,
       summaryWithheldFrames: 0,
       attemptedWorkerRealms: 1,
-      readableWorkerRealms: 1
+      readableWorkerRealms: 1,
+      sharedWorkersEndedAtOnce: 0
     }
   );
 
@@ -1101,7 +1158,8 @@ test("the same snapshot text merges identically as a frame and as a worker realm
       first
     ],
     unscopedSnapshots: [],
-    unreadRealms: 2
+    unreadRealms: 2,
+    sharedWorkersEndedAtOnce: 0
   });
   assert.deepEqual(
     { ...rejected, observations: undefined },
@@ -1114,7 +1172,8 @@ test("the same snapshot text merges identically as a frame and as a worker realm
       canvasFontEvidenceBoundedFrames: 0,
       summaryWithheldFrames: 0,
       attemptedWorkerRealms: 7,
-      readableWorkerRealms: 1
+      readableWorkerRealms: 1,
+      sharedWorkersEndedAtOnce: 0
     }
   );
 });
@@ -1162,6 +1221,17 @@ type PausedWorkerHarness = {
   /** Every worker the channel attached, in attach order. */
   workers: AttachedWorker[];
   crashed: () => boolean;
+  browser: Browser;
+  devtoolsPort: number;
+  /** The visit's shared-worker channel, when the harness registered one with an attacher. */
+  sharedVisit: SharedWorkerVisitChannel | null;
+};
+
+type SharedWorkerHarnessOptions = {
+  /** Register the visit with this browser's shared-worker attacher, as the scanner does. */
+  attacher?: SharedWorkerAttacher;
+  /** Tests only: lose the attacher's race on purpose. */
+  attachStepDelayMs?: number;
 };
 
 /**
@@ -1169,11 +1239,13 @@ type PausedWorkerHarness = {
  * realm channel attached to that page with the production fingerprint
  * installer and watching the page's browser context for shared workers,
  * exactly as the scanner opens it in an arm without GPC. A test may
- * put one installer ahead of it, as the GPC arm does.
+ * put one installer ahead of it, as the GPC arm does. With `sharedWorkers`
+ * it also opens the browser's shared-worker attacher on its own thread and
+ * registers the visit's context with it, as the scanner does.
  */
 async function openPausedWorkerHarness(
   t: TestContext,
-  options: { before?: WorkerRealmInstaller; launchArgs?: string[] } = {}
+  options: { before?: WorkerRealmInstaller; launchArgs?: string[]; sharedWorkers?: boolean; attachStepDelayMs?: number } = {}
 ): Promise<PausedWorkerHarness> {
   const devtoolsPort = await reserveLoopbackPort();
   const browser = await chromium.launch({
@@ -1181,7 +1253,30 @@ async function openPausedWorkerHarness(
     args: [`--remote-debugging-port=${devtoolsPort}`, ...(options.launchArgs ?? [])]
   });
   t.after(() => browser.close());
+  const attacher = options.sharedWorkers ? await openSharedWorkerAttacher(t, devtoolsPort) : undefined;
+  return openVisitHarness(t, browser, devtoolsPort, {
+    before: options.before,
+    ...(attacher ? { attacher } : {}),
+    ...(options.attachStepDelayMs !== undefined ? { attachStepDelayMs: options.attachStepDelayMs } : {})
+  });
+}
+
+/** The browser's one shared-worker attacher, on its own thread, closed with the test. */
+async function openSharedWorkerAttacher(t: TestContext, devtoolsPort: number): Promise<SharedWorkerAttacher> {
+  const attacher = await SharedWorkerAttacher.open(await devtoolsBrowserWebSocketUrl(devtoolsPort));
+  t.after(() => attacher.close());
+  return attacher;
+}
+
+/** One visit on an already launched browser: its own context, page, channel and installer. */
+async function openVisitHarness(
+  t: TestContext,
+  browser: Browser,
+  devtoolsPort: number,
+  options: { before?: WorkerRealmInstaller } & SharedWorkerHarnessOptions = {}
+): Promise<PausedWorkerHarness> {
   const context = await browser.newContext();
+  t.after(() => context.close().catch(() => undefined));
   const page = await context.newPage();
   let crashed = false;
   page.on("crash", () => {
@@ -1210,7 +1305,30 @@ async function openPausedWorkerHarness(
   t.after(() => session.close());
   await session.watchSharedWorkers(info.targetInfo.browserContextId);
   await session.attachToPage(info.targetInfo.targetId);
-  return { page, channel, session, installer, witness, workers, crashed: () => crashed };
+  let sharedVisit: SharedWorkerVisitChannel | null = null;
+  if (options.attacher) {
+    sharedVisit = await options.attacher.register({
+      browserContextId: info.targetInfo.browserContextId,
+      pageTargetId: info.targetInfo.targetId,
+      installCommands: installer.sharedWorkerInstallCommands(),
+      ...(options.attachStepDelayMs !== undefined ? { attachStepDelayMsForTests: options.attachStepDelayMs } : {})
+    });
+    installer.watchSharedWorkers(sharedVisit);
+    const registered = sharedVisit;
+    t.after(() => registered.unregister());
+  }
+  return {
+    page,
+    channel,
+    session,
+    installer,
+    witness,
+    workers,
+    crashed: () => crashed,
+    browser,
+    devtoolsPort,
+    sharedVisit
+  };
 }
 
 async function waitFor(condition: () => boolean, timeoutMs: number): Promise<void> {
@@ -1238,7 +1356,12 @@ function readWorkerRealms(harness: PausedWorkerHarness, settleMs = 2_000): Promi
 
 /** One worker realm's snapshot through the collection every frame goes through. */
 function collectWorkerSnapshot(snapshot: string) {
-  return collectFingerprintObservationsWithCoverage([], { readableSnapshots: [snapshot], unscopedSnapshots: [], unreadRealms: 0 });
+  return collectFingerprintObservationsWithCoverage([], {
+    readableSnapshots: [snapshot],
+    unscopedSnapshots: [],
+    unreadRealms: 0,
+    sharedWorkersEndedAtOnce: 0
+  });
 }
 
 type WorkerFixtureRoutes = {
@@ -2284,34 +2407,368 @@ test("real Chromium: a frame that navigates while a readout drains keeps the wor
 });
 
 /**
- * A page that starts a shared worker, twice with the same script and name,
- * which is one shared worker, while a second browser context in the same
- * browser, as a concurrent scan would be, starts its own. The page's shared
- * worker is one unread realm; the other context's is not this scan's.
+ * The WebGL reads the real sites' shared workers make (the unmasked GPU vendor
+ * and renderer through the debug renderer extension) and a canvas readback,
+ * with a beacon saying whether the observer preceded the worker's first
+ * statement and whether a shared worker has a Worker constructor at all.
  */
-test("real Chromium: a shared worker the page starts is one unread realm, and another context's is not counted", { timeout: 60_000 }, async (t) => {
+const SHARED_FINGERPRINT_SOURCE =
+  "const gl = new OffscreenCanvas(16, 16).getContext('webgl'); gl.getExtension('WEBGL_debug_renderer_info'); " +
+  "gl.getParameter(37445); gl.getParameter(37446); " +
+  CANVAS_READ_SOURCE;
+// The beacon's path carries the facts, since the fixture records paths only:
+// /done/<worker name>/<observer in place>/<typeof Worker>.
+const SHARED_BEACON_SOURCE =
+  "fetch(self.location.origin + '/done/' + self.name + '/' + " +
+  "String(!Function.prototype.toString.call(OffscreenCanvasRenderingContext2D.prototype.getImageData).includes('[native code]')) + " +
+  "'/' + typeof Worker);";
+
+/** The shared workers a visit's attacher reported, by worker name in the URL query or the script path. */
+function sharedWorkersOf(harness: PausedWorkerHarness): readonly AttachedSharedWorker[] {
+  assert.ok(harness.sharedVisit, "the harness registered no shared-worker visit");
+  return harness.sharedVisit.workers();
+}
+
+/**
+ * On and off. A page starts a shared worker, twice with the same script and
+ * name, which is one shared worker, while a second browser context in the
+ * same browser, as a concurrent scan would be, starts its own. With the
+ * attacher, the page's shared worker is held at its main script, installed
+ * and read, credited to the page's document; without it, the same worker is
+ * one unread realm, as every shared worker was before fingerprint-observer@10.
+ * Either way the other context's worker is not this scan's.
+ */
+test("real Chromium: a shared worker the page starts is read when the attacher holds it, one unread realm without it, and another context's is never counted", { timeout: 60_000 }, async (t) => {
   const { origin, done } = await startWorkerFixture(t, {
     page: `<!doctype html><title>shared worker</title><script>
       for (let i = 0; i < 2; i++) new SharedWorker("/shared.js", { name: "one" }).port.start();
     </script>`,
     scripts: {
-      "/shared.js": `${CANVAS_READ_SOURCE} fetch(self.location.origin + "/done/shared");`
+      "/shared.js": `${SHARED_FINGERPRINT_SOURCE} ${SHARED_BEACON_SOURCE}`
     }
   });
-  const harness = await openPausedWorkerHarness(t);
-  await harness.page.goto(`${origin}/`, { timeout: 10_000 });
-  const concurrent = await harness.page.context().browser()!.newContext();
-  t.after(() => concurrent.close());
-  await (await concurrent.newPage()).goto(`${origin}/`, { timeout: 10_000 });
-  await waitFor(() => done.length >= 2, 15_000);
-  assert.deepEqual(done, ["shared", "shared"], "one shared worker ran in each context");
+  for (const attached of [true, false]) {
+    done.length = 0;
+    const harness = await openPausedWorkerHarness(t, { sharedWorkers: attached });
+    await harness.page.goto(`${origin}/`, { timeout: 10_000 });
+    const concurrent = await harness.browser.newContext();
+    t.after(() => concurrent.close().catch(() => undefined));
+    await (await concurrent.newPage()).goto(`${origin}/`, { timeout: 10_000 });
+    await waitFor(() => done.length >= 2, 15_000);
+    assert.equal(done.length, 2, "one shared worker ran in each context");
 
-  const readout = await readWorkerRealms(harness, 200);
-  assert.deepEqual(readout.readableSnapshots, []);
-  assert.equal(readout.unreadRealms, 1);
-  assert.equal(readout.diagnostics.discoveredShared, 1);
-  assert.deepEqual([readout.diagnostics.observedDedicated, readout.diagnostics.attachedDedicated], [0, 0]);
-  assert.equal(harness.session.attachCounts().attachedSharedWorkerCount, 0, "a shared worker is witnessed, not attached");
+    const readout = await readWorkerRealms(harness, 1_000);
+    assert.deepEqual([readout.diagnostics.observedDedicated, readout.diagnostics.attachedDedicated], [0, 0]);
+    assert.equal(harness.session.attachCounts().attachedSharedWorkerCount, 0, "the channel witnesses a shared worker, never attaches it");
+    assert.equal(readout.diagnostics.sharedWorkers.discovered, 1, "the other context's worker is not witnessed");
+    if (attached) {
+      assert.deepEqual(readoutTerms(readout).terms, { "shared.discovered": 1, "shared.attached": 1, "shared.readable": 1 });
+      assert.equal(readout.unreadRealms, 0);
+      assert.equal(sharedWorkersOf(harness).length, 1, "the visit hears only its own context's worker");
+      assert.deepEqual(
+        done.sort(),
+        ["one/false/undefined", "one/true/undefined"],
+        "the observer preceded this context's worker, and never the other context's"
+      );
+      const collection = await collectFingerprintObservationsWithCoverage([], readout);
+      assert.deepEqual(
+        collection.observations.events.filter((event) => event.api.includes("UNMASKED")),
+        [
+          { api: "webgl.getParameter.UNMASKED_RENDERER_WEBGL", count: 1 },
+          { api: "webgl.getParameter.UNMASKED_VENDOR_WEBGL", count: 1 }
+        ],
+        "the shared worker's unmasked GPU reads must be read back"
+      );
+      assert.ok(collection.observations.detections.some((detection) => detection.heuristic === "openwpm-canvas-v1"));
+    } else {
+      assert.deepEqual(readoutTerms(readout), {
+        snapshots: [],
+        unread: 1,
+        terms: { "shared.discovered": 1, "shared.unattached": 1 }
+      });
+      assert.deepEqual(done, ["one/false/undefined", "one/false/undefined"]);
+    }
+  }
+});
+
+/**
+ * Design test 9 for shared workers, the paused-install crash guard, at the
+ * main-script pause the attacher holds: a classic blob worker, an http(s)
+ * worker, a module worker, a classic worker that imports a second script, a
+ * worker that tries to start a dedicated worker, and one whose first
+ * statement closes it. Each is installed at its pause without crashing the
+ * renderer, and each runnable one runs with the observer already in place.
+ * The importing worker's two scripts each run a `debugger;` statement after
+ * the release: the debugger is off by then, so neither can pause it (V5).
+ * A module worker with a static import is the one shape the main-script rule
+ * cannot hold, since its first script to run is the import: it gets nothing
+ * installed, is reported late and runs unwrapped, without a crash.
+ *
+ * Chromium 153 gives a shared worker no Worker constructor, natively: a
+ * control browser with no DevTools client of the scanner's shows it too. If
+ * a Chromium bump adds one, this fails, since a dedicated worker started
+ * inside a shared worker would then be a realm no record covers.
+ */
+test("real Chromium: installing the observer at the main-script pause of shared workers of every shape never crashes the renderer", { timeout: 90_000 }, async (t) => {
+  const scripts: Record<string, string> = {
+    "/classic.js": `${SHARED_FINGERPRINT_SOURCE} ${SHARED_BEACON_SOURCE}`,
+    "/module.js": `${SHARED_FINGERPRINT_SOURCE} ${SHARED_BEACON_SOURCE}`,
+    "/module-import.js": `import "./dep.js";\n${SHARED_FINGERPRINT_SOURCE} ${SHARED_BEACON_SOURCE}`,
+    "/dep.js": "export const dependency = 1;",
+    "/imports.js": `debugger; importScripts("/imported.js"); ${SHARED_BEACON_SOURCE}`,
+    "/imported.js": `debugger; ${SHARED_FINGERPRINT_SOURCE}`,
+    "/nested.js": `try { new Worker("/classic.js"); } catch (error) { self.nestedError = String(error); } ${SHARED_BEACON_SOURCE}`,
+    "/close.js": "close();"
+  };
+  const { origin, done } = await startWorkerFixture(t, {
+    page: `<!doctype html><title>shared worker shapes</title><script>
+      const blobSource = ${JSON.stringify(`${SHARED_FINGERPRINT_SOURCE} ${SHARED_BEACON_SOURCE}`)};
+      new SharedWorker(URL.createObjectURL(new Blob([blobSource], { type: "text/javascript" })), { name: "blob" }).port.start();
+      new SharedWorker("/classic.js", { name: "http" }).port.start();
+      new SharedWorker("/module.js", { name: "module", type: "module" }).port.start();
+      new SharedWorker("/module-import.js", { name: "moduleimport", type: "module" }).port.start();
+      new SharedWorker("/imports.js", { name: "importscripts" }).port.start();
+      new SharedWorker("/nested.js", { name: "nestedtry" }).port.start();
+      new SharedWorker("/close.js", { name: "closefirst" }).port.start();
+    </script>`,
+    scripts
+  });
+  const harness = await openPausedWorkerHarness(t, { sharedWorkers: true });
+  await harness.page.goto(`${origin}/`, { timeout: 10_000 });
+  const runnable = ["blob", "http", "importscripts", "module", "moduleimport", "nestedtry"];
+  await waitFor(() => done.length >= runnable.length && sharedWorkersOf(harness).length >= 7, 20_000);
+  await waitFor(() => harness.sharedVisit!.heldWorkerCount() === 0, 5_000);
+
+  assert.equal(harness.crashed(), false, "installing the observer at a shared worker's pause crashed the renderer");
+  assert.equal(await pageStillAnswers(harness.page), true, "the measured page must survive every paused install");
+  assert.deepEqual(
+    harness.installer.sharedInstallDiagnostics(),
+    { installedWorkerCount: 6, installFailedWorkerCount: 0, lateWorkerCount: 1 },
+    "every shape but the module with a static import is installed at its main-script pause"
+  );
+  const byName = new Map(done.map((beacon) => [beacon.slice(0, beacon.indexOf("/")), beacon.slice(beacon.indexOf("/") + 1)]));
+  assert.deepEqual([...byName.keys()].sort(), runnable, "every runnable shared worker must still run after its install");
+  for (const name of runnable) {
+    assert.equal(
+      byName.get(name),
+      `${name === "moduleimport" ? "false" : "true"}/undefined`,
+      `${name}: the observer must precede the first statement of every worker held at its main script`
+    );
+  }
+  const late = sharedWorkersOf(harness).filter((worker) => worker.hold === "late");
+  assert.deepEqual(late.map((worker) => [worker.url.endsWith("/module-import.js"), worker.lateReason]), [[true, "other-script"]]);
+  // V5: the debugger was off when each held worker was let run, and the
+  // hold lasted only as long as the install.
+  for (const worker of sharedWorkersOf(harness).filter((candidate) => candidate.hold === "released")) {
+    assert.equal(worker.debuggerOffAtRelease, true, `${worker.url}: the debugger must be off at the release`);
+    assert.ok(worker.holdMs !== null && worker.holdMs < 1_000, `${worker.url}: held ${worker.holdMs} ms`);
+  }
+
+  const readout = await readWorkerRealms(harness, 1_000);
+  assert.equal(readout.diagnostics.sharedWorkers.attachedLate, 1, "the module worker with a static import is unread");
+  assert.equal(readout.diagnostics.sharedWorkers.readable, 6, JSON.stringify(readout.diagnostics.sharedWorkers));
+  const collection = await collectFingerprintObservationsWithCoverage([], readout);
+  assert.equal(
+    collection.observations.events.find((event) => event.api === "webgl.getParameter.UNMASKED_RENDERER_WEBGL")?.count,
+    4,
+    "the blob, http, module and importing workers each read the unmasked renderer once"
+  );
+
+  // The control: a browser no scanner client attaches to, with the same
+  // worker, has no Worker constructor in its shared workers either.
+  const control = await chromium.launch({ headless: true });
+  t.after(() => control.close());
+  const controlBeacons = done.length;
+  await (await (await control.newContext()).newPage()).goto(`${origin}/`, { timeout: 10_000 });
+  await waitFor(() => done.slice(controlBeacons).some((beacon) => beacon.startsWith("nestedtry/")), 10_000);
+  assert.deepEqual(
+    done.slice(controlBeacons).filter((beacon) => beacon.startsWith("nestedtry/")),
+    ["nestedtry/false/undefined"],
+    "Chromium gives a shared worker no Worker constructor of its own accord"
+  );
+});
+
+/**
+ * V2: an attacher that sets its breakpoint only after the worker started, on
+ * purpose, as one that lost the race to Playwright's release would. The
+ * worker runs uninstrumented, gets nothing installed and is unread.
+ */
+test("real Chromium: a shared worker the attacher reaches only after it started is late, gets nothing installed and is unread", { timeout: 60_000 }, async (t) => {
+  const { origin, done } = await startWorkerFixture(t, {
+    page: `<!doctype html><title>late shared worker</title><script>
+      new SharedWorker("/shared.js", { name: "late" }).port.start();
+    </script>`,
+    scripts: { "/shared.js": `${SHARED_FINGERPRINT_SOURCE} ${SHARED_BEACON_SOURCE} onconnect = () => {};` }
+  });
+  const harness = await openPausedWorkerHarness(t, { sharedWorkers: true, attachStepDelayMs: 300 });
+  await harness.page.goto(`${origin}/`, { timeout: 10_000 });
+  await waitFor(() => done.length >= 1 && sharedWorkersOf(harness).some((worker) => worker.hold === "late"), 10_000);
+  assert.deepEqual(done, ["late/false/undefined"], "the worker ran before the breakpoint");
+  const [worker] = sharedWorkersOf(harness);
+  assert.equal(worker.hold, "late");
+  assert.equal(worker.lateReason, "ran-before-breakpoint");
+  assert.deepEqual(harness.installer.sharedInstallDiagnostics(), {
+    installedWorkerCount: 0,
+    installFailedWorkerCount: 0,
+    lateWorkerCount: 1
+  });
+  const readout = await readWorkerRealms(harness, 500);
+  assert.deepEqual(readoutTerms(readout), {
+    snapshots: [],
+    unread: 1,
+    terms: { "shared.discovered": 1, "shared.attached": 1, "shared.attachedLate": 1 }
+  });
+});
+
+/**
+ * V6: two concurrent visits in one browser, each registered with the
+ * browser's one attacher, and a third context no visit registered, all
+ * loading the same page at once. Each visit holds, installs into and reads
+ * its own context's shared worker only. The third context's worker is
+ * detached in its attach event's own step and runs untouched.
+ */
+test("real Chromium: two concurrent visits each hold and read only their own shared worker, and an unregistered context's worker is only detached", { timeout: 60_000 }, async (t) => {
+  const { origin, done } = await startWorkerFixture(t, {
+    page: `<!doctype html><title>concurrent shared workers</title><script>
+      new SharedWorker("/shared.js", { name: "w" + location.search.slice(1) }).port.start();
+    </script>`,
+    scripts: { "/shared.js": `${SHARED_FINGERPRINT_SOURCE} ${SHARED_BEACON_SOURCE}` }
+  });
+  const devtoolsPort = await reserveLoopbackPort();
+  const browser = await chromium.launch({ headless: true, args: [`--remote-debugging-port=${devtoolsPort}`] });
+  t.after(() => browser.close());
+  const attacher = await openSharedWorkerAttacher(t, devtoolsPort);
+  const first = await openVisitHarness(t, browser, devtoolsPort, { attacher });
+  const second = await openVisitHarness(t, browser, devtoolsPort, { attacher });
+  const unregistered = await browser.newContext();
+  t.after(() => unregistered.close().catch(() => undefined));
+  const thirdPage = await unregistered.newPage();
+  await Promise.all([
+    first.page.goto(`${origin}/?a`, { timeout: 10_000 }),
+    second.page.goto(`${origin}/?b`, { timeout: 10_000 }),
+    thirdPage.goto(`${origin}/?c`, { timeout: 10_000 })
+  ]);
+  await waitFor(() => done.length >= 3, 15_000);
+  assert.deepEqual(done.sort(), ["wa/true/undefined", "wb/true/undefined", "wc/false/undefined"]);
+  for (const [visit, name] of [[first, "wa"], [second, "wb"]] as const) {
+    assert.equal(sharedWorkersOf(visit).length, 1, `${name}: a visit hears only its own context's worker`);
+    const readout = await readWorkerRealms(visit, 1_000);
+    assert.deepEqual(
+      [readout.diagnostics.sharedWorkers.readable, readout.unreadRealms, readout.readableSnapshots.length],
+      [1, 0, 1],
+      `${name}: ${JSON.stringify(readout.diagnostics.sharedWorkers)}`
+    );
+  }
+  const foreign = attacher.foreignDetachesForTests().filter((detach) => detach.browserContextId !== null);
+  assert.equal(foreign.length, 1, "the unregistered context's worker was detached, and no other");
+  assert.ok(foreign[0].detachSentAfterMs < 50, `the detach went out ${foreign[0].detachSentAfterMs} ms after the attach`);
+});
+
+/**
+ * Call 4, the ownership rule. A shared worker is credited to the visit's main
+ * document only when its script's origin is that document's origin and it was
+ * created after that document committed; otherwise it is unscoped, never
+ * excluded, and unread when it recorded anything. Here: a cross-origin
+ * iframe's blob shared worker that fingerprints is unscoped and unread, and
+ * an idle one beside it is unscoped and no realm at all; and a document that
+ * started a fingerprinting shared worker and then navigated to another
+ * document of its origin leaves an unscoped, unread realm, not zero.
+ */
+test("real Chromium: a shared worker is credited only to the main document current at its creation, of its own origin, and otherwise unscoped", { timeout: 60_000 }, async (t) => {
+  const frameServer = await startWorkerFixture(t, {
+    page: `<!doctype html><title>frame</title><script>
+      const source = ${JSON.stringify(`${SHARED_FINGERPRINT_SOURCE} ${SHARED_BEACON_SOURCE}`)};
+      new SharedWorker(URL.createObjectURL(new Blob([source], { type: "text/javascript" })), { name: "framed" }).port.start();
+      new SharedWorker(URL.createObjectURL(new Blob(["onconnect = () => {};"], { type: "text/javascript" })), { name: "idle" }).port.start();
+    </script>`
+  });
+  // The same server answers on "localhost", another origin than 127.0.0.1.
+  const framePort = new URL(frameServer.origin).port;
+  let navigated = false;
+  const { origin, done } = await startWorkerFixture(t, () => ({
+    page: navigated
+      ? `<!doctype html><title>next document</title><p>after</p>`
+      : `<!doctype html><title>first document</title><script>
+          if (location.search === "?frame") {
+            const frame = document.createElement("iframe");
+            frame.src = "http://localhost:${framePort}/";
+            document.documentElement.appendChild(frame);
+          } else {
+            new SharedWorker("/shared.js", { name: "replaced" }).port.start();
+          }
+        </script>`,
+    scripts: { "/shared.js": `${SHARED_FINGERPRINT_SOURCE} ${SHARED_BEACON_SOURCE}` }
+  }));
+
+  const framed = await openPausedWorkerHarness(t, { sharedWorkers: true });
+  await framed.page.goto(`${origin}/?frame`, { timeout: 10_000 });
+  await waitFor(() => frameServer.done.length >= 1 && sharedWorkersOf(framed).length >= 2, 10_000);
+  await waitFor(() => framed.sharedVisit!.heldWorkerCount() === 0, 5_000);
+  const framedReadout = await readWorkerRealms(framed, 1_000);
+  assert.deepEqual(
+    [framedReadout.diagnostics.sharedWorkers.readable, framedReadout.diagnostics.sharedWorkers.ownerUnscoped],
+    [0, 2],
+    JSON.stringify(framedReadout.diagnostics.sharedWorkers)
+  );
+  const framedCollection = await collectFingerprintObservationsWithCoverage([], framedReadout);
+  assert.deepEqual(
+    [framedCollection.attemptedWorkerRealms, framedCollection.readableWorkerRealms],
+    [1, 0],
+    "the fingerprinting iframe worker is one unread realm, and the idle one is none"
+  );
+  assert.deepEqual(framedCollection.observations, { events: [], detections: [] }, "never credited to the page");
+
+  const replaced = await openPausedWorkerHarness(t, { sharedWorkers: true });
+  await replaced.page.goto(`${origin}/`, { timeout: 10_000 });
+  await waitFor(() => done.length >= 1, 10_000);
+  navigated = true;
+  await replaced.page.goto(`${origin}/?next`, { timeout: 10_000 });
+  await waitFor(() => sharedWorkersOf(replaced).every((worker) => worker.detached), 10_000);
+  const replacedReadout = await readWorkerRealms(replaced, 1_000);
+  assert.deepEqual(
+    [replacedReadout.diagnostics.sharedWorkers.readable, replacedReadout.diagnostics.sharedWorkers.ownerUnscoped],
+    [0, 1],
+    JSON.stringify(replacedReadout.diagnostics.sharedWorkers)
+  );
+  const replacedCollection = await collectFingerprintObservationsWithCoverage([], replacedReadout);
+  assert.deepEqual([replacedCollection.attemptedWorkerRealms, replacedCollection.readableWorkerRealms], [1, 0]);
+});
+
+/**
+ * Call 3: a shared worker that ends at once. A page starts a blob shared
+ * worker from a frame and removes the frame in the same task, so the worker's
+ * only document is gone at once and the browser ends it within a millisecond
+ * of creating it, as the real sites' never-ran workers end. The attacher
+ * never reaches it, so it is never read, and it is reported apart from the
+ * realms that ran unread, as ended at once when its life, by the attacher's
+ * own receive times, fits the bound.
+ */
+test("real Chromium: a shared worker the attacher never reached that ends at once is reported apart and never read", { timeout: 60_000 }, async (t) => {
+  const port = await startFixtureServer(t, (_request, response) => {
+    response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+    response.end(`<!doctype html><title>shared worker ended at once</title><script>
+      const frame = document.createElement("iframe");
+      document.documentElement.appendChild(frame);
+      new frame.contentWindow.SharedWorker(URL.createObjectURL(new Blob(["onconnect = () => {};"], { type: "text/javascript" })), { name: "gone" });
+      frame.remove();
+    </script>`);
+  });
+  const harness = await openPausedWorkerHarness(t, { sharedWorkers: true });
+  await harness.page.goto(`http://127.0.0.1:${port}/`, { timeout: 10_000 });
+  await waitFor(() => sharedWorkersOf(harness).length >= 1 && sharedWorkersOf(harness).every((worker) => worker.detached), 10_000);
+  const [worker] = sharedWorkersOf(harness);
+  assert.ok(worker, "the worker's target was created");
+  assert.equal(worker.hold, "pending", "it was never paused");
+  assert.equal(worker.endedUnreached, true, "no script of it was seen");
+  assert.ok(worker.lifetimeMs !== null);
+  const readout = await readWorkerRealms(harness, 500);
+  const endedAtOnce = worker.lifetimeMs <= SHARED_WORKER_ENDED_AT_ONCE_MS;
+  assert.deepEqual(
+    [readout.sharedWorkersEndedAtOnce, readout.unreadRealms, readout.readableSnapshots.length],
+    endedAtOnce ? [1, 0, 0] : [0, 1, 0],
+    `lifetime ${worker.lifetimeMs} ms`
+  );
+  assert.ok(endedAtOnce, `the worker lived ${worker.lifetimeMs} ms by the attacher's clock`);
 });
 
 /**

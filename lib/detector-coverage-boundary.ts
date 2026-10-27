@@ -83,8 +83,13 @@ export const COVERAGE_BOUNDARY_SOURCES: readonly string[] = [
   "lib/keystroke-exfiltration.ts",
   "lib/scan-runtime.ts",
   "lib/scanner.ts",
+  // Holds each shared worker at its main script on its own thread and sends
+  // the installer's commands into its realm over DevTools, which neither
+  // derivation below can see.
+  "lib/shared-worker-attacher.ts",
   // Builds the observer expression evaluated inside each paused dedicated
-  // worker; it reaches the realm over DevTools, not through Playwright.
+  // or shared worker; it reaches the realm over DevTools, not through
+  // Playwright.
   "lib/worker-fingerprint-realm.ts"
 ];
 

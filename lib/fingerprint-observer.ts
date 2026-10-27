@@ -45,15 +45,24 @@ export type FingerprintObservationCollection = {
    */
   summaryWithheldFrames: number;
   /**
-   * Worker realms that ran page code: the dedicated ones of current
-   * documents, readable or not, those read in full whose document could not
-   * be shown current and that recorded something, and every shared worker the
-   * page started, which is never readable (lib/worker-fingerprint-realm.ts
-   * decides which is which).
+   * Worker realms that ran page code: the dedicated and shared ones credited
+   * to current documents, readable or not, those read in full whose document
+   * could not be shown current and that recorded something, and every shared
+   * worker the scanner could not hold before its first statement
+   * (lib/worker-fingerprint-realm.ts decides which is which).
    */
   attemptedWorkerRealms: number;
   /** Worker realms whose one cumulative snapshot this collection merged. */
   readableWorkerRealms: number;
+  /**
+   * Shared workers the page started that the scanner never reached and that
+   * ended within SHARED_WORKER_ENDED_AT_ONCE_MS of their creation
+   * (fingerprint-observer@10). Never in `attemptedWorkerRealms`: whether they
+   * ran any code is not known, so they are reported apart from the realms
+   * that ran unread, and the fingerprinting evidence is still incomplete when
+   * there is one.
+   */
+  sharedWorkersEndedAtOnce: number;
 };
 
 /**
@@ -75,6 +84,12 @@ export type FingerprintWorkerRealmReadout = {
   readonly unscopedSnapshots: readonly string[];
   /** Worker realms that ran page code but cannot be read in full. */
   readonly unreadRealms: number;
+  /**
+   * Shared workers the scanner never reached that ended within
+   * SHARED_WORKER_ENDED_AT_ONCE_MS of their creation: not unread realms, and
+   * reported apart from them.
+   */
+  readonly sharedWorkersEndedAtOnce: number;
 };
 
 /**
@@ -82,10 +97,13 @@ export type FingerprintWorkerRealmReadout = {
  * the host builds this: a document gets no second argument (Playwright's
  * init script passes one), and the worker realm installer
  * (lib/worker-fingerprint-realm.ts) passes it while the worker is still
- * paused before its first statement.
+ * paused before its first statement: a dedicated worker held at its start,
+ * or a shared worker held at its main script (fingerprint-observer@10). The
+ * observer runs the same way in both; the realm names only which kind of
+ * worker the host held.
  */
 export type FingerprintObserverRealmArgs = {
-  realm: "dedicated-worker";
+  realm: "dedicated-worker" | "shared-worker";
   /**
    * The name the host gave its `Runtime.addBinding` sink on the worker's
    * session. The observer captures the sink and deletes it from the global
@@ -135,7 +153,14 @@ export type FingerprintObserverRealmArgs = {
  * records nothing. Through @8 every such realm was unread, and on news pages
  * most were blob workers that ended within a second, before they could vouch
  * for the owner read the page's busy main thread held, having recorded no
- * call.
+ * call. `@10` (node-detectors-v21) also runs in shared workers: the scanner
+ * holds each shared worker of the visit at its main script on a thread of its
+ * own (lib/shared-worker-attacher.ts) and installs this same function there
+ * with the "shared-worker" realm, which behaves exactly as the dedicated one.
+ * Through @9 no shared worker was observed: each one the page started was an
+ * unread realm whatever it did. @10 also reports a shared worker the scanner
+ * never reached that ended within 10 ms of its creation apart from the realms
+ * that ran unread, since whether it ran any code is not known.
  *
  * `firstPartySiteKey` is the scanned site's registrable domain (computed with
  * the real public-suffix list in Node, e.g. "capitalone.com"), so the in-page
@@ -173,9 +198,14 @@ export function fingerprintObserverInitScript(
   firstPartySiteKey?: string,
   realmArgs?: FingerprintObserverRealmArgs
 ): boolean | undefined {
-  // Declared by the host, never read from the realm.
+  // Declared by the host, never read from the realm. A shared worker held at
+  // its main script runs exactly as a dedicated worker held at its start.
   const workerRealmArgs =
-    realmArgs !== undefined && realmArgs !== null && realmArgs.realm === "dedicated-worker" ? realmArgs : null;
+    realmArgs !== undefined &&
+    realmArgs !== null &&
+    (realmArgs.realm === "dedicated-worker" || realmArgs.realm === "shared-worker")
+      ? realmArgs
+      : null;
   const workerRealm = workerRealmArgs !== null;
   // Capture the few intrinsics used while collecting the final snapshot. The
   // observed page is adversarial input and can replace globals such as
@@ -2172,9 +2202,12 @@ export async function collectFingerprintObservationsWithCoverage(
 
   let attemptedWorkerRealms = 0;
   let readableWorkerRealms = 0;
+  let sharedWorkersEndedAtOnce = 0;
   if (workerRealms !== undefined) {
     const readout = await workerRealms;
     attemptedWorkerRealms = readout.readableSnapshots.length + readout.unreadRealms;
+    // Passed through as counted: not a realm, so it moves neither term above.
+    sharedWorkersEndedAtOnce = readout.sharedWorkersEndedAtOnce;
     for (const snapshot of readout.readableSnapshots) {
       const normalized = normalizeFingerprintSnapshot(snapshot);
       // A worker realm registers no listeners through the observer, so a
@@ -2216,7 +2249,8 @@ export async function collectFingerprintObservationsWithCoverage(
     canvasFontEvidenceBoundedFrames,
     summaryWithheldFrames,
     attemptedWorkerRealms,
-    readableWorkerRealms
+    readableWorkerRealms,
+    sharedWorkersEndedAtOnce
   };
 }
 

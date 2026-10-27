@@ -227,6 +227,17 @@ test("the disclosed loss counts exactly the unattested workers, in both directio
     ),
     1
   );
+  // GPC reaches dedicated workers only, so a shared attach, should the
+  // channel ever receive one, offsets no shared construction.
+  assert.equal(
+    gpcWorkerCaptureLossCount(
+      rawCounters({
+        sharedWorkerConstructionCount: 2,
+        attachedSharedWorkerCount: 2
+      })
+    ),
+    2
+  );
 });
 
 test("a nested or constructor-bypassing attach cannot stand in for a page-level worker the channel never reached", () => {

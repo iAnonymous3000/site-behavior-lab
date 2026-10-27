@@ -9,6 +9,41 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- The scanner can now hold a shared worker at its main script and install
+  the fingerprint observer there (shared-worker coverage brief, approved
+  2026-10-26, calls 1, 1b, 4 and 6). New in lib/shared-worker-attacher.ts:
+  one attacher per shared browser, on a worker_threads thread of its own,
+  with its own DevTools client and a browser-level auto-attach filtered to
+  shared workers. A shared worker of a context no visit registered is
+  detached in its attach event's own step and nothing else is sent to it.
+  For a registered visit's worker the thread sends `Debugger.enable`, an
+  instrumentation breakpoint before any script and the release of its own
+  start-up hold in that step, and on the first pause, only when it is at the
+  worker's main script, the fingerprint installer's own commands, then turns
+  the debugger off, which resumes the worker. A worker reached late (its
+  first pause at another script, a main script parsed before the breakpoint
+  with no pause ahead of a later answer, or already running) gets nothing
+  installed and reads unread. The installer
+  (lib/worker-fingerprint-realm.ts) hands the thread its commands with a new
+  "shared-worker" realm of the observer, judges the answers by the
+  dedicated install's own rule, reads the stream and the barrier through the
+  thread in the order its connection received them, and credits a shared
+  worker to the visit's main document only when its script's origin is that
+  document's and the document current at its attach, read on the thread's
+  own connection, is the main frame's at the freeze; otherwise it is
+  unscoped, never excluded. The readout's shared terms stand apart from the
+  dedicated ones, which they never move, and a shared worker the thread
+  never reached that ended within 10 ms of its attach is counted apart from
+  the realms that ran unread. GPC stays dedicated-only: the GPC installer
+  names dedicated workers as its only kind, and a shared construction is a
+  GPC loss whether or not a shared attach exists. The scanner does not use
+  the attacher yet, so no report changes in this step. Real-Chromium cases
+  install the observer at the main-script pause of a classic blob, an http,
+  a module, an importing and a closing shared worker and of one that tries
+  to start a dedicated worker (Chromium 153 gives a shared worker no Worker
+  constructor, natively), with no crash; a module worker with a static import
+  is reported late; a deliberately late attacher reads unread; two
+  concurrent visits each read only their own worker.
 - A check after scrolling's result now shows its answers and labels (build
   brief approved 2026-10-25, section 4, owner calls 2, 3, 4 and 6). The line
   for requests that got no answer sits after the traffic line, before the

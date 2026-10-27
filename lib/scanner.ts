@@ -2392,7 +2392,8 @@ async function scanSiteWithMeasurementOnLeasedBrowser(
       canvasFontEvidenceBoundedFrames: 0,
       summaryWithheldFrames: 0,
       attemptedWorkerRealms: 0,
-      readableWorkerRealms: 0
+      readableWorkerRealms: 0,
+      sharedWorkersEndedAtOnce: 0
     };
     let tentativeScreenshot: string | null = null;
     let tentativePolicyLinks: PolicyLinkCandidate[] = [];
@@ -2490,7 +2491,8 @@ async function scanSiteWithMeasurementOnLeasedBrowser(
           canvasFontEvidenceBoundedFrames: 0,
           summaryWithheldFrames: 0,
           attemptedWorkerRealms: 0,
-          readableWorkerRealms: 0
+          readableWorkerRealms: 0,
+          sharedWorkersEndedAtOnce: 0
         };
     const fingerprintObservations = fingerprintCollection.observations;
     const fingerprintFrameCoverage = fingerprintFrameCoverageStatus(fingerprintCollection);

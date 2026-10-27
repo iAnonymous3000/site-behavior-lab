@@ -75,8 +75,10 @@ type GpcWorkerRawCounters = Omit<GpcWorkerInjectionDiagnostics, "captureLossCoun
  *   realm ran without a verified signal;
  * - a dedicated worker the DevTools client never attached ran outside the
  *   verification channel entirely (channel down or never established);
- * - a shared construction beyond the attached shared count cannot be paused
- *   from a page session, so its realm is never attested.
+ * - every shared construction: GPC delivery reaches dedicated workers only
+ *   (lib/gpc-worker-verification.ts names no other kind), so a shared
+ *   worker's realm is never attested, and a shared attach, should the
+ *   channel ever receive one, offsets nothing.
  *
  * The unattached dedicated workers are counted from two records, each netted
  * only against the attaches of its own population, so no attach can stand in
@@ -106,7 +108,7 @@ export function gpcWorkerCaptureLossCount(counters: GpcWorkerRawCounters): numbe
   return (
     counters.unverifiedAttachedWorkerCount +
     Math.max(unattachedConstructions, unattachedObserved) +
-    Math.max(0, counters.sharedWorkerConstructionCount - counters.attachedSharedWorkerCount)
+    counters.sharedWorkerConstructionCount
   );
 }
 

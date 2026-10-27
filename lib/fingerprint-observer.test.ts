@@ -105,7 +105,8 @@ test("collectFingerprintObservationsWithCoverage accepts only validated primitiv
     canvasFontEvidenceBoundedFrames: 0,
     summaryWithheldFrames: 0,
     attemptedWorkerRealms: 0,
-    readableWorkerRealms: 0
+    readableWorkerRealms: 0,
+    sharedWorkersEndedAtOnce: 0
   });
 });
 
@@ -175,7 +176,8 @@ test("collectFingerprintObservationsWithCoverage keeps a listener-bounded frame 
     canvasFontEvidenceBoundedFrames: 0,
     summaryWithheldFrames: 1,
     attemptedWorkerRealms: 0,
-    readableWorkerRealms: 0
+    readableWorkerRealms: 0,
+    sharedWorkersEndedAtOnce: 0
   });
 });
 
@@ -226,7 +228,8 @@ test("collectFingerprintObservationsWithCoverage keeps a canvas-bounded frame, r
     canvasFontEvidenceBoundedFrames: 2,
     summaryWithheldFrames: 3,
     attemptedWorkerRealms: 0,
-    readableWorkerRealms: 0
+    readableWorkerRealms: 0,
+    sharedWorkersEndedAtOnce: 0
   });
 });
 
@@ -571,7 +574,8 @@ test("stack-reader integrity exits still withhold the whole frame after canvas a
           canvasFontEvidenceBoundedFrames: 0,
           summaryWithheldFrames: 0,
           attemptedWorkerRealms: 0,
-          readableWorkerRealms: 0
+          readableWorkerRealms: 0,
+          sharedWorkersEndedAtOnce: 0
         },
         label
       );
@@ -966,7 +970,8 @@ test("an embedded player's own deep render reads as that cross-site frame's regi
         canvasFontEvidenceBoundedFrames: 0,
         summaryWithheldFrames: 0,
         attemptedWorkerRealms: 0,
-        readableWorkerRealms: 0
+        readableWorkerRealms: 0,
+        sharedWorkersEndedAtOnce: 0
       },
       `depth ${depth}`
     );
@@ -1468,7 +1473,8 @@ test("a widget's headline layout keeps a frame's canvas and audio fingerprinting
         canvasFontEvidenceBoundedFrames: 1,
         summaryWithheldFrames: 1,
         attemptedWorkerRealms: 0,
-        readableWorkerRealms: 0
+        readableWorkerRealms: 0,
+        sharedWorkersEndedAtOnce: 0
       }
     );
     assert.deepEqual(

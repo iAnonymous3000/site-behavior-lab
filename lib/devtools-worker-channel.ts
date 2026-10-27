@@ -31,15 +31,20 @@
  * Scope: the client attaches to one page target. Other pages in the browser,
  * including a concurrent scan's, are never attached.
  *
- * SharedWorker is outside the pause: Chromium does not auto-attach shared
- * workers from a page session, and a browser-wide auto-attach would pause the
- * workers of every page in the browser. A shared attach, if the browser ever
- * delivers one, is counted in its own column and runs the installers like a
- * dedicated one. The channel witnesses shared workers instead: browser-level
- * target discovery, filtered to shared workers, reports each one the scan's
- * browser context starts without attaching or pausing it
- * (`watchSharedWorkers`). Discovery rides this channel's socket, so a visit
- * without the channel witnesses none.
+ * SharedWorker is outside this channel's pause: Chromium does not auto-attach
+ * shared workers from a page session, and Playwright's own browser session
+ * releases each one at once. The shared-worker attacher
+ * (lib/shared-worker-attacher.ts), one per browser on its own thread, holds
+ * them at their main script instead. A shared attach on this channel, if the
+ * browser ever delivers one, is counted in its own column and runs only the
+ * installers that name shared workers among their kinds: the GPC installer
+ * names dedicated workers alone, so it never runs in a shared worker. The
+ * channel stays the witness for shared workers: browser-level target
+ * discovery, filtered to shared workers, reports each one the scan's browser
+ * context starts without attaching or pausing it (`watchSharedWorkers`), and
+ * the readout counts a discovered worker the attacher never reported unread.
+ * Discovery rides this channel's socket, so a visit without the channel
+ * witnesses none.
  *
  * Nested attaches are tagged. A worker whose attach event arrives on another
  * worker's session was started by that worker, not by a document, so the
@@ -118,6 +123,12 @@ export type WorkerRealmConclusion = "released" | "watchdog" | "settled";
  * caught, and the next installer and the release still happen.
  */
 export type WorkerRealmInstaller = {
+  /**
+   * The worker kinds this installer runs in on the channel. A worker of any
+   * other kind never reaches it: neither its install nor its conclusion. When
+   * absent, every kind does.
+   */
+  readonly workerKinds?: readonly AttachedWorker["kind"][];
   /**
    * Runs while the worker is paused. Skipped for every installer after the
    * watchdog released the worker, so nothing is installed into a running
@@ -258,6 +269,11 @@ export class DedicatedWorkerAttachSession {
    */
   discoveredSharedWorkerCount(): number {
     return this.discoveredSharedWorkerTargetIds.size;
+  }
+
+  /** The same witness by target, for the readout's join with the shared-worker attacher's reports. */
+  discoveredSharedWorkerTargets(): ReadonlySet<string> {
+    return new Set(this.discoveredSharedWorkerTargetIds);
   }
 
   /** The channel is closed, by close() or by the browser; nothing more can arrive on it. */
@@ -473,7 +489,7 @@ export class DedicatedWorkerAttachSession {
       // Recurse before any install and before releasing, so a worker
       // constructed inside this worker's first statements is itself paused.
       await this.enableAutoAttach(sessionId);
-      for (const installer of this.installers) {
+      for (const installer of this.installersFor(worker)) {
         // Once the watchdog let the worker run, nothing more is installed
         // into it: the realm is no longer before its first statement.
         if (worker.released) break;
@@ -494,12 +510,19 @@ export class DedicatedWorkerAttachSession {
     }
   }
 
-  /** Exactly one conclusion per attached worker, delivered to every installer. */
+  /** The installers that run in this worker's kind, in list order. */
+  private installersFor(worker: AttachedWorker): readonly WorkerRealmInstaller[] {
+    return this.installers.filter(
+      (installer) => installer.workerKinds === undefined || installer.workerKinds.includes(worker.kind)
+    );
+  }
+
+  /** Exactly one conclusion per attached worker, delivered to every installer that runs in its kind. */
   private concludeInstallers(worker: AttachedWorkerRecord, how: WorkerRealmConclusion): void {
     if (worker.concluded) return;
     worker.concluded = true;
     this.openWorkers.delete(worker);
-    for (const installer of this.installers) {
+    for (const installer of this.installersFor(worker)) {
       try {
         installer.concluded(worker, how);
       } catch {
