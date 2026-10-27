@@ -2,6 +2,7 @@ import { RESPONSE_BYTE_CAPTURE_LOSS_DETAIL } from "./capture-loss-detail-contrac
 import { captureLossDetailNote } from "./capture-loss-presentation";
 import { fingerprintObserverLossLines } from "./comparison-eligibility";
 import type { CaptureLossEntry } from "./scan-report-v2";
+import { SHARED_WORKER_ENDED_AT_ONCE_WARNING_FRAGMENT } from "./shared-worker-ended-at-once";
 import {
   runHitRequestRecordingCap,
   runUnsupportedEvidenceNotes,
@@ -106,6 +107,9 @@ const FINGERPRINT_CANVAS_EVIDENCE_NOTE =
 const FINGERPRINT_CANVAS_FONT_EVIDENCE_NOTE =
   "one or more frames measured more canvas text or fonts than the in-page fingerprint observer keeps, so the fingerprinting evidence is incomplete";
 
+// The v1 line's own words, whatever its count (fingerprint-observer@10).
+const FINGERPRINT_SHARED_WORKERS_ENDED_AT_ONCE_NOTE = `the page started one or more shared workers that ${SHARED_WORKER_ENDED_AT_ONCE_WARNING_FRAGMENT} them, so the fingerprinting evidence is incomplete`;
+
 const RESPONSE_BYTE_LIMIT_WARNING = /reaching the ([1-9][0-9,]* MiB) aggregate response-byte budget/;
 const UPLOAD_BYTE_LIMIT_WARNING = /reaching the ([1-9][0-9,]* MiB) aggregate upload-byte budget/;
 const REQUEST_RECORDING_LIMIT_WARNING = /stopped recording or loading additional requests after ([1-9][0-9,]*) requests/;
@@ -157,18 +161,20 @@ function ownNote(table: Readonly<Record<string, string>>, key: string): string |
  * party capture-loss details are rendered below from their semantic registry.
  */
 function qualityReasonNote(run: RunView, reason: string): string {
-  // One legacy reason, five v1 warnings, and each note is true only of its
+  // One legacy reason, six v1 warnings, and each note is true only of its
   // own line's state. The frame note wins when its line is present, since an
   // unreadable frame is the widest loss; otherwise the worker note, which
   // says nothing about frames; the listener note only when neither is there,
   // because it implies every frame was read; then the canvas note and the
-  // font note, which imply the same.
+  // font note, which imply the same; then the note for shared workers that
+  // ended at once, which says nothing about any realm the observer read.
   if (reason === "capture-loss:fingerprint-observer") {
     const lines = fingerprintObserverLossLines(run);
     if (!lines.frame && lines.workerRealm) return FINGERPRINT_WORKER_REALM_NOTE;
     if (!lines.frame && lines.listener) return FINGERPRINT_LISTENER_ATTRIBUTION_NOTE;
     if (!lines.frame && lines.canvasEvidence) return FINGERPRINT_CANVAS_EVIDENCE_NOTE;
     if (!lines.frame && lines.canvasFontEvidence) return FINGERPRINT_CANVAS_FONT_EVIDENCE_NOTE;
+    if (!lines.frame && lines.sharedWorkersEndedAtOnce) return FINGERPRINT_SHARED_WORKERS_ENDED_AT_ONCE_NOTE;
   }
   const mapped = ownNote(QUALITY_REASON_NOTES, reason);
   if (mapped) return mapped;

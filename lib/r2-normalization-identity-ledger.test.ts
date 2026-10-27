@@ -73,9 +73,9 @@ import {
  *   5. Only then update the two literals below to the new identity.
  */
 const ACTIVE_NODE_R2_NORMALIZATION_LITERAL =
-  "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:bc719d41df186ae38fdb34695df43780a816d32b41068a6107cd35035269844e+tldts@7.4.16+node-evidence-policy-v1+r2-http-status-compat-v1";
+  "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:3a2328d7af1e870389650de03af6f4a0cc06561258ee8bd2b42ad6dba27ba1a1+tldts@7.4.16+node-evidence-policy-v1+r2-http-status-compat-v1";
 const ACTIVE_PAGEGRAPH_R2_NORMALIZATION_LITERAL =
-  "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:bc719d41df186ae38fdb34695df43780a816d32b41068a6107cd35035269844e+tldts@7.4.16+pagegraph-request-evidence-v1+r2-http-status-compat-v1";
+  "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:3a2328d7af1e870389650de03af6f4a0cc06561258ee8bd2b42ad6dba27ba1a1+tldts@7.4.16+pagegraph-request-evidence-v1+r2-http-status-compat-v1";
 
 /**
  * The identities the latest NARROWING retired, pinned as exact literals beside
@@ -117,9 +117,9 @@ test("the active r2 normalization identities match their reviewed ledger literal
  * the change as a widening per the ritual above, since an admitted-pattern
  * change is a vocabulary change even though the digest cannot show it).
  */
-const PINNED_DYNAMIC_WARNING_PATTERNS_LABEL = "scanner-warning-patterns-v9";
+const PINNED_DYNAMIC_WARNING_PATTERNS_LABEL = "scanner-warning-patterns-v10";
 const PINNED_IS_SCANNER_WARNING_SHA256 =
-  "5079a0127a6274827ed58561c291b3ab113ded3478eca6605235f5632d24de4d";
+  "3fc659e489bbb5eb440cf641810415a2f522335059ceb5926a325b79c55d1de6";
 
 test("the warning-pattern block matches the version label that names it", () => {
   const source = readFileSync(path.join(process.cwd(), "lib", "redact-scan-report-v1.ts"), "utf8");

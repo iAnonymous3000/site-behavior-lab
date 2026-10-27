@@ -1,5 +1,6 @@
 import { Worker } from "node:worker_threads";
 import type { AttachedWorker, DevtoolsChannel, DevtoolsEvent } from "./devtools-worker-channel";
+import { SHARED_WORKER_ENDED_AT_ONCE_MS } from "./shared-worker-ended-at-once";
 
 /**
  * The scanner's shared-worker attacher: one per shared browser, on a
@@ -69,8 +70,9 @@ import type { AttachedWorker, DevtoolsChannel, DevtoolsEvent } from "./devtools-
  * that.
  */
 
-/** A shared worker the attacher never reached that ended within this many milliseconds of its attach ended at once. */
-export const SHARED_WORKER_ENDED_AT_ONCE_MS = 10;
+// The bound and the words that report it live in one dependency-free module
+// the reader's bundles share (lib/shared-worker-ended-at-once.ts).
+export { SHARED_WORKER_ENDED_AT_ONCE_MS };
 
 const DEFAULT_COMMAND_TIMEOUT_MS = 5_000;
 /** The bound on one hold, as the dedicated channel's watchdog bounds its pause. */

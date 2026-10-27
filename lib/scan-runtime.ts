@@ -167,9 +167,11 @@ export const FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING =
   "The in-page fingerprint observer read every frame but could not attribute every event listener to the script that registered it, so session-recording and input-monitoring findings for this visit are incomplete.";
 /**
  * The observer could not read one or more worker realms the page's code ran
- * in: a dedicated worker whose evidence could not be read in full at one of
- * the visit's evidence reads (lib/worker-fingerprint-realm.ts), or a shared
- * worker, which the observer does not instrument.
+ * in: a dedicated or shared worker whose evidence could not be read in full
+ * at one of the visit's evidence reads (lib/worker-fingerprint-realm.ts),
+ * among them a shared worker the scanner could not hold at its main script
+ * before its first statement (fingerprint-observer@10; through @9 every
+ * shared worker was one).
  *
  * Independent of the two lines above, since a run can carry either beside
  * it, and neither is true of a worker: the frame line says a frame was not
@@ -179,6 +181,19 @@ export const FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING =
  */
 export const FINGERPRINT_WORKER_REALM_CAPTURE_LOSS_WARNING =
   "The fingerprint observer could not read one or more Web Workers the page started, so fingerprint-like API calls and heuristics for this visit are incomplete.";
+/**
+ * The page started shared workers the scanner never reached that ended
+ * within 10 ms of their creation (fingerprint-observer@10, owner call 3): a
+ * line of its own, apart from the worker line above, since whether they ran
+ * any code is not known, so "could not read" would say more than the scanner
+ * knows. It counts them: "The page started 2 shared workers that ended within
+ * 10 ms, before the fingerprint observer could reach them, so whether they ran
+ * any code is not known." The words live in lib/shared-worker-ended-at-once.ts,
+ * which the readers share. v1 readers still censor the fingerprinting family
+ * for it exactly as for the lines above (owner call 3b), and r2 records it as
+ * its own capture-loss detail.
+ */
+export { sharedWorkersEndedAtOnceWarning as fingerprintSharedWorkersEndedAtOnceWarning } from "./shared-worker-ended-at-once";
 /**
  * Every frame was read, but at least one overflowed a canvas evidence bound:
  * more canvases than the observer tracks, more distinct characters on one

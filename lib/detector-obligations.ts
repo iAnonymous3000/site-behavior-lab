@@ -11,16 +11,21 @@ import type {
   ScanRunV2
 } from "./scan-report-v2";
 import type { DetectorReasonCode } from "./detector-status-contract";
+import { FINGERPRINT_SHARED_WORKER_ENDED_DETAIL } from "./shared-worker-ended-at-once";
 
 /**
  * The obligation contract the active detector epoch is published under.
  * detector-obligations-v2 (node-detectors-v12) is v1 with one more row, a
- * CNAME lookup that failed beside a found cloak. Every earlier accountability
- * epoch, node-detectors-v3 to v11, hashed the v1 registry into its registry
- * digest, and a reader holds it to exactly those rules (see
- * detectorObligationViolations).
+ * CNAME lookup that failed beside a found cloak. detector-obligations-v3
+ * (node-detectors-v21) is v2 with one row widened: a partial fingerprint
+ * detector may rest on the loss of shared workers that ended at once
+ * (fingerprint-observer@10), which has its own capture-loss detail, as well as
+ * on the observer's own. Every earlier accountability epoch hashed the v1 or
+ * v2 registry into its registry digest, and a reader holds it to exactly
+ * those rules (see detectorObligationViolations).
  */
-export const DETECTOR_OBLIGATION_CONTRACT_VERSION = "detector-obligations-v2";
+export const DETECTOR_OBLIGATION_CONTRACT_VERSION = "detector-obligations-v3";
+export const HISTORICAL_V2_DETECTOR_OBLIGATION_CONTRACT_VERSION = "detector-obligations-v2";
 export const HISTORICAL_DETECTOR_OBLIGATION_CONTRACT_VERSION = "detector-obligations-v1";
 
 /**
@@ -120,9 +125,14 @@ const HISTORICAL_NODE_V19_OBLIGATION_TARGET_REGISTRY = Object.freeze({
   detectorRegistryDigest: "c6d2528492151bc745e3e6a6248379e979383df6f952f92a95c3e1cdfb52942d"
 });
 
-export const DETECTOR_OBLIGATION_TARGET_REGISTRY = Object.freeze({
+const HISTORICAL_NODE_V20_OBLIGATION_TARGET_REGISTRY = Object.freeze({
   detectorRegistryVersion: "node-detectors-v20",
   detectorRegistryDigest: "30f7aa038ba10a9a0d94404a59023d47e3e0eac6dd358d66300ce7158a9ae75a"
+});
+
+export const DETECTOR_OBLIGATION_TARGET_REGISTRY = Object.freeze({
+  detectorRegistryVersion: "node-detectors-v21",
+  detectorRegistryDigest: "8e5f425873260a8587984c38758831ed400128c9e3c89f4a0f144fdfd4b0a5f9"
 });
 
 export const DETECTOR_OBLIGATION_TARGET_REGISTRIES = Object.freeze([
@@ -143,6 +153,7 @@ export const DETECTOR_OBLIGATION_TARGET_REGISTRIES = Object.freeze([
   HISTORICAL_NODE_V17_OBLIGATION_TARGET_REGISTRY,
   HISTORICAL_NODE_V18_OBLIGATION_TARGET_REGISTRY,
   HISTORICAL_NODE_V19_OBLIGATION_TARGET_REGISTRY,
+  HISTORICAL_NODE_V20_OBLIGATION_TARGET_REGISTRY,
   DETECTOR_OBLIGATION_TARGET_REGISTRY
 ]);
 
@@ -165,6 +176,12 @@ export type DetectorObligationRule = Readonly<{
   status: Exclude<DetectorStatus, "complete">;
   reason: DetectorReasonCode;
   loss?: DetectorLossObligation;
+  /**
+   * detector-obligations-v3: a second causal loss that satisfies the rule in
+   * place of `loss`. Absent from every v1 and v2 rule, so their registries
+   * hash as they did.
+   */
+  alternativeLoss?: DetectorLossObligation;
   silent?: "probe-off" | "policy-unsupported" | "failed-page";
 }>;
 
@@ -201,13 +218,46 @@ const CNAME_LOOKUP_FAILED_BESIDE_CLOAK: DetectorObligationRule = Object.freeze({
 });
 
 /**
- * Immutable causal registry for the active Node detector epoch.
- *
- * Absence from this registry is meaningful: the active producer may not emit
- * that non-complete status/reason tuple. A generic reader can therefore reject
- * a structurally valid but semantically invented detector outcome.
+ * The partial fingerprint detector's scan-failed row as detector-obligations-v1
+ * and v2 hold it: the observer's own loss, and nothing else.
  */
-export const DETECTOR_OBLIGATION_REGISTRY: readonly DetectorObligationRule[] = Object.freeze([
+const FINGERPRINT_PARTIAL_SCAN_FAILED_V2: DetectorObligationRule = Object.freeze({
+  detector: "fingerprint-heuristics",
+  status: "partial",
+  reason: "scan-failed",
+  loss: freezeLoss(
+    "fingerprinting",
+    "fingerprint-observer",
+    ["dropped"],
+    "fingerprint-coverage-phase"
+  )
+});
+
+/**
+ * The one row detector-obligations-v3 widens (node-detectors-v21): the same
+ * detector state may rest instead on the loss of shared workers that ended at
+ * once (fingerprint-observer@10), recorded under their own detail at the same
+ * phases. A visit whose only fingerprinting loss is such workers is partial
+ * with that loss alone; earlier producers never recorded the detail, so their
+ * epochs never admit it.
+ */
+const FINGERPRINT_PARTIAL_SCAN_FAILED_V3: DetectorObligationRule = Object.freeze({
+  ...FINGERPRINT_PARTIAL_SCAN_FAILED_V2,
+  alternativeLoss: freezeLoss(
+    "fingerprinting",
+    FINGERPRINT_SHARED_WORKER_ENDED_DETAIL,
+    ["dropped"],
+    "fingerprint-coverage-phase"
+  )
+});
+
+/**
+ * The detector-obligations-v2 registry (node-detectors-v12 to v20), in its
+ * own order. The active registry and the v1 registry are derived from it, so
+ * none can drift from it in a row they share; a test holds its digest to the
+ * 502d1490...0f2b literal every v2 epoch recorded.
+ */
+export const HISTORICAL_V2_DETECTOR_OBLIGATION_REGISTRY: readonly DetectorObligationRule[] = Object.freeze([
   // Fingerprinting observations.
   Object.freeze({
     detector: "fingerprint-heuristics",
@@ -220,17 +270,7 @@ export const DETECTOR_OBLIGATION_REGISTRY: readonly DetectorObligationRule[] = O
       "fingerprint-coverage-phase"
     )
   }),
-  Object.freeze({
-    detector: "fingerprint-heuristics",
-    status: "partial",
-    reason: "scan-failed",
-    loss: freezeLoss(
-      "fingerprinting",
-      "fingerprint-observer",
-      ["dropped"],
-      "fingerprint-coverage-phase"
-    )
-  }),
+  FINGERPRINT_PARTIAL_SCAN_FAILED_V2,
   Object.freeze({
     detector: "fingerprint-heuristics",
     status: "failed",
@@ -481,6 +521,21 @@ export const DETECTOR_OBLIGATION_REGISTRY: readonly DetectorObligationRule[] = O
   })
 ]);
 
+/**
+ * Immutable causal registry for the active Node detector epoch,
+ * detector-obligations-v3: the v2 registry, in its order, with the partial
+ * fingerprint detector's scan-failed row widened.
+ *
+ * Absence from this registry is meaningful: the active producer may not emit
+ * that non-complete status/reason tuple. A generic reader can therefore reject
+ * a structurally valid but semantically invented detector outcome.
+ */
+export const DETECTOR_OBLIGATION_REGISTRY: readonly DetectorObligationRule[] = Object.freeze(
+  HISTORICAL_V2_DETECTOR_OBLIGATION_REGISTRY.map((rule) =>
+    rule === FINGERPRINT_PARTIAL_SCAN_FAILED_V2 ? FINGERPRINT_PARTIAL_SCAN_FAILED_V3 : rule
+  )
+);
+
 export const DETECTOR_OBLIGATION_REGISTRY_DIGEST = sha256Hex(
   canonicalJson({
     version: DETECTOR_OBLIGATION_CONTRACT_VERSION,
@@ -488,14 +543,22 @@ export const DETECTOR_OBLIGATION_REGISTRY_DIGEST = sha256Hex(
   })
 );
 
+/** The digest every v2 epoch (node-detectors-v12 to v20) hashed into its registry digest. */
+export const HISTORICAL_V2_DETECTOR_OBLIGATION_REGISTRY_DIGEST = sha256Hex(
+  canonicalJson({
+    version: HISTORICAL_V2_DETECTOR_OBLIGATION_CONTRACT_VERSION,
+    rules: HISTORICAL_V2_DETECTOR_OBLIGATION_REGISTRY
+  })
+);
+
 /**
- * The detector-obligations-v1 registry: the active one without the row v2
- * added, in the same order. Derived rather than restated, so the two cannot
- * drift apart in any row they share; a test holds its digest to the
+ * The detector-obligations-v1 registry: the v2 one without the row v2 added,
+ * in the same order. Derived rather than restated, so the two cannot drift
+ * apart in any row they share; a test holds its digest to the
  * fb8bd077...22a3 literal every closed accountability epoch recorded.
  */
 export const HISTORICAL_DETECTOR_OBLIGATION_REGISTRY: readonly DetectorObligationRule[] = Object.freeze(
-  DETECTOR_OBLIGATION_REGISTRY.filter((rule) => rule !== CNAME_LOOKUP_FAILED_BESIDE_CLOAK)
+  HISTORICAL_V2_DETECTOR_OBLIGATION_REGISTRY.filter((rule) => rule !== CNAME_LOOKUP_FAILED_BESIDE_CLOAK)
 );
 
 type ObligationContract = Readonly<{
@@ -515,6 +578,10 @@ function obligationContract(version: string, rules: readonly DetectorObligationR
 const ACTIVE_OBLIGATION_CONTRACT = obligationContract(
   DETECTOR_OBLIGATION_CONTRACT_VERSION,
   DETECTOR_OBLIGATION_REGISTRY
+);
+const HISTORICAL_V2_OBLIGATION_CONTRACT = obligationContract(
+  HISTORICAL_V2_DETECTOR_OBLIGATION_CONTRACT_VERSION,
+  HISTORICAL_V2_DETECTOR_OBLIGATION_REGISTRY
 );
 const HISTORICAL_OBLIGATION_CONTRACT = obligationContract(
   HISTORICAL_DETECTOR_OBLIGATION_CONTRACT_VERSION,
@@ -540,6 +607,19 @@ const DETECTOR_OBLIGATIONS_V1_TARGET_REGISTRIES: ReadonlySet<object> = new Set([
   HISTORICAL_NODE_V11_OBLIGATION_TARGET_REGISTRY
 ]);
 
+/** The target epochs whose registry digest hashed detector-obligations-v2, each held to it alone. */
+const DETECTOR_OBLIGATIONS_V2_TARGET_REGISTRIES: ReadonlySet<object> = new Set([
+  HISTORICAL_NODE_V12_OBLIGATION_TARGET_REGISTRY,
+  HISTORICAL_NODE_V13_OBLIGATION_TARGET_REGISTRY,
+  HISTORICAL_NODE_V14_OBLIGATION_TARGET_REGISTRY,
+  HISTORICAL_NODE_V15_OBLIGATION_TARGET_REGISTRY,
+  HISTORICAL_NODE_V16_OBLIGATION_TARGET_REGISTRY,
+  HISTORICAL_NODE_V17_OBLIGATION_TARGET_REGISTRY,
+  HISTORICAL_NODE_V18_OBLIGATION_TARGET_REGISTRY,
+  HISTORICAL_NODE_V19_OBLIGATION_TARGET_REGISTRY,
+  HISTORICAL_NODE_V20_OBLIGATION_TARGET_REGISTRY
+]);
+
 type ObligationEpoch = Readonly<{ detectorRegistryVersion: string; detectorRegistryDigest: string }>;
 
 function obligationContractFor(epoch: ObligationEpoch): ObligationContract {
@@ -553,9 +633,9 @@ function obligationContractFor(epoch: ObligationEpoch): ObligationContract {
       `${epoch.detectorRegistryVersion} ${epoch.detectorRegistryDigest} is not a detector obligation target epoch`
     );
   }
-  return DETECTOR_OBLIGATIONS_V1_TARGET_REGISTRIES.has(target)
-    ? HISTORICAL_OBLIGATION_CONTRACT
-    : ACTIVE_OBLIGATION_CONTRACT;
+  if (DETECTOR_OBLIGATIONS_V1_TARGET_REGISTRIES.has(target)) return HISTORICAL_OBLIGATION_CONTRACT;
+  if (DETECTOR_OBLIGATIONS_V2_TARGET_REGISTRIES.has(target)) return HISTORICAL_V2_OBLIGATION_CONTRACT;
+  return ACTIVE_OBLIGATION_CONTRACT;
 }
 
 /** The obligation contract version a target epoch is held to. */
@@ -694,6 +774,7 @@ export function detectorObligationViolations(
     }
     if (rule.silent !== undefined && silentRuleSatisfied(rule, run)) continue;
     if (rule.loss && exactCausalLoss(run, detector, rule.loss)) continue;
+    if (rule.alternativeLoss && exactCausalLoss(run, detector, rule.alternativeLoss)) continue;
     if (rule.silent !== undefined && rule.loss === undefined) {
       violations.push(
         `${label}: detector ${detector} does not satisfy its ${rule.silent} exception`

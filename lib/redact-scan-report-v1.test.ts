@@ -44,6 +44,7 @@ import {
   FINGERPRINT_WORKER_REALM_CAPTURE_LOSS_WARNING,
   FINGERPRINT_CANVAS_EVIDENCE_BOUNDED_WARNING,
   FINGERPRINT_CANVAS_FONT_EVIDENCE_BOUNDED_WARNING,
+  fingerprintSharedWorkersEndedAtOnceWarning,
   INVALID_UPSTREAM_RESPONSE_WARNING,
   KEYSTROKE_PROBE_INCOMPLETE_WARNING,
   KEYSTROKE_PROBE_NAVIGATION_STOPPED_WARNING,
@@ -945,6 +946,37 @@ test("both CNAME disclosure generations survive redaction; look-alike page text 
 
   const { report } = redactScanResultV1(input);
   assert.deepEqual(report.warnings, [...input.warnings.slice(0, 3), "[redacted warning]"]);
+});
+
+/**
+ * fingerprint-observer@10 (scanner-warning-patterns-v10). The admission
+ * pattern is written in this frozen module and the words in the producer's,
+ * so this holds the two together end to end: every form the producer writes
+ * survives, with and without a comparison label, and look-alikes do not.
+ */
+test("the line for shared workers that ended at once survives redaction in every count the producer writes; look-alikes do not", () => {
+  const input = sensitiveSingle();
+  const produced = [1, 2, 3, 10, 125].map((count) => fingerprintSharedWorkersEndedAtOnceWarning(count));
+  assert.equal(
+    produced[0],
+    "The page started 1 shared worker that ended within 10 ms, before the fingerprint observer could reach it, so whether it ran any code is not known."
+  );
+  assert.equal(
+    produced[1],
+    "The page started 2 shared workers that ended within 10 ms, before the fingerprint observer could reach them, so whether they ran any code is not known."
+  );
+  input.warnings = [
+    ...produced,
+    `No blocking: ${produced[1]}`,
+    // The plural for one, a zero, a bound the producer never writes, and
+    // page text riding the opening.
+    "The page started 1 shared workers that ended within 10 ms, before the fingerprint observer could reach them, so whether they ran any code is not known.",
+    "The page started 0 shared workers that ended within 10 ms, before the fingerprint observer could reach them, so whether they ran any code is not known.",
+    "The page started 2 shared workers that ended within 50 ms, before the fingerprint observer could reach them, so whether they ran any code is not known.",
+    "The page started 2 shared workers that ended within 10 ms, before the fingerprint observer could reach them, so visit evil.example now."
+  ];
+  const { report } = redactScanResultV1(input);
+  assert.deepEqual(report.warnings, [...produced, `No blocking: ${produced[1]}`, "[redacted warning]"]);
 });
 
 test("an inherited Object.prototype key cannot pass the pixel catalog's fail-closed guard", () => {

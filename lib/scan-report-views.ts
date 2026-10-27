@@ -819,16 +819,18 @@ function runViewFromV1(result: ScanResult, label: RunView["label"], scannedAt: s
   // Not a budget: the instrument itself did not run. Scoped to the families it
   // actually covers rather than censoring the whole run. A read frame whose
   // listener attribution was bounded, one that withheld a canvas summary at a
-  // canvas or font-measurement bound, and a worker realm the observer could
-  // not read take the same reason, so all five warnings censor the same
-  // families and leave the same corpus population.
+  // canvas or font-measurement bound, a worker realm the observer could not
+  // read, and shared workers that ended before it could reach them
+  // (fingerprint-observer@10, owner call 3b) take the same reason, so all six
+  // warnings censor the same families and leave the same corpus population.
   const fingerprintLossLines = fingerprintObserverLossLines(result);
   if (
     fingerprintLossLines.frame ||
     fingerprintLossLines.listener ||
     fingerprintLossLines.workerRealm ||
     fingerprintLossLines.canvasEvidence ||
-    fingerprintLossLines.canvasFontEvidence
+    fingerprintLossLines.canvasFontEvidence ||
+    fingerprintLossLines.sharedWorkersEndedAtOnce
   ) {
     reasons.push("capture-loss:fingerprint-observer");
   }

@@ -5,6 +5,7 @@ import {
   type KnownCaptureLossDetail
 } from "./capture-loss-detail-contract";
 import type { CaptureLossEntry } from "./scan-report-v2";
+import { FINGERPRINT_SHARED_WORKER_ENDED_DETAIL, sharedWorkersEndedAtOnceClause } from "./shared-worker-ended-at-once";
 
 type CaptureLossPresentation = readonly [
   /** Human subject for losses whose recorded count has no stable unit. */
@@ -45,6 +46,8 @@ function captureLossPresentation(detail: KnownCaptureLossDetail): CaptureLossPre
       return [null, "snapshot operation"];
     case "fingerprint-observer":
       return ["the in-page fingerprint observer"];
+    case FINGERPRINT_SHARED_WORKER_ENDED_DETAIL:
+      return [null, "shared worker that ended at once", "shared workers that ended at once"];
     case "keystroke-probe":
       return ["the synthetic keystroke probe"];
     case "cname-lookups":
@@ -153,6 +156,12 @@ export function captureLossDetailNote(
   }
 
   const presentation = captureLossPresentation(detail);
+  if (detail === FINGERPRINT_SHARED_WORKER_ENDED_DETAIL && Number.isSafeInteger(loss.count) && loss.count > 0) {
+    // Its own detail and its own words (fingerprint-observer@10): the v1
+    // line's clause, which says what is known and that whether they ran is
+    // not. No warning is needed to choose it.
+    return sharedWorkersEndedAtOnceClause(loss.count);
+  }
   if (detail === "fingerprint-observer" && options.fingerprintWorkerRealmLoss) {
     // Every frame of the final read was read, so "did not finish" would be
     // false of the page's own observer. Like the listener sentence below,

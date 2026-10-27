@@ -9,6 +9,68 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- The scanner reads a page's shared workers (fingerprint-observer@10,
+  node-detectors-v21; shared-worker coverage brief, approved 2026-10-26,
+  calls 1 to 6). Each visit registers its browser context with the shared
+  browser's one shared-worker attacher, which holds the visit's shared
+  workers at their main script while the fingerprint observer is installed,
+  so a shared worker's canvas and WebGL calls now publish as the visit's
+  evidence, its unmasked WebGL vendor and renderer reads included,
+  credited to the page when its script is of the main document's origin and
+  that document was current at its creation, and read unscoped otherwise.
+  Through @9 every shared worker was an unread realm: the visit carried the
+  Web Workers line, a fingerprinting capture loss and a partial detector. A
+  shared worker the attacher reached late, or one the attacher could not
+  serve (a start or a registration that failed), is still an unread realm.
+  A shared worker the attacher never reached that ended within 10 ms of its
+  creation, by the attacher's own receive times, has its own line, "The
+  page started 1 shared worker that ended within 10 ms, before the
+  fingerprint observer could reach it, so whether it ran any code is not
+  known." (with a count of 2 or more, "The page started <n> shared workers
+  that ended within 10 ms, before the fingerprint observer could reach them,
+  so whether they ran any code is not known."), and its own r2 capture-loss
+  detail, `fingerprint-shared-worker-ended`, under the fingerprinting family
+  and apart from `fingerprint-observer`; it is not a budget. Readers still
+  treat the visit's fingerprinting evidence as incomplete for it (owner call
+  3b), so the line censors exactly what the Web Workers line censors, and
+  the r2 reader's note words it as the line does. Its bound, detail and
+  words live in one dependency-free module, lib/shared-worker-ended-at-once.ts,
+  which the scanner, the loss contract, the presentation, the censorship
+  notes, the comparison rules and the v1 store's sanitizer share. The
+  detector is partial on that loss alone, which detector-obligations-v3
+  admits (an alternative loss on the partial fingerprint row); v12 to v20
+  keep detector-obligations-v2. In a consent visit, a shared worker read at
+  the read just before the click no longer makes that boundary incomplete,
+  so the page's own fingerprint detections are placed by phase again; one
+  that ended at once makes it incomplete, with its loss at that read's
+  phase. GPC stays dedicated-only. Identity: the registry moves from
+  node-detectors-v20 (`30f7aa03...ae75a`) to node-detectors-v21
+  (`8e5f4258...a5f9`), and recomputing it with only the registry version, the
+  observer version and the obligation contract restored reproduces
+  `30f7aa03...ae75a`; detector-obligations-v2 (`502d1490...0f2b`) to v3
+  (`f023d19e...18b2`); the public string policy (public-string-policy-v4)
+  from `bc719d41...844e` to `3a2328d7...a1a1` through its pattern label,
+  scanner-warning-patterns-v9 to v10, alone, which admits the line's two
+  forms and nothing else. The Node and PageGraph normalizations move with
+  it, and `bc719d41...844e` joins SUPERSEDED_R2_NORMALIZATIONS for both, so,
+  as at node-detectors-v15, no report published before this epoch compares
+  over time with one after it, for any family. The two v25 producer rows
+  close to frozen literals that hash as they ran (`5c649d27...6ce4`, the
+  parent's live pair), the PageGraph canvas-evidence row closes the same way
+  (`5608cd93...3ae8`), and two v26 rows and a PageGraph row open; dumped as
+  canonical JSON at 83e21bbd and here, all 85 Node and 21 PageGraph rows of
+  the parent are byte for byte unchanged, ids and order included. Reports
+  already published keep their detector version. Tests: the scanner suite
+  runs each shared-worker case with the attacher on and off (a test-only
+  switch that leaves the scanner as it was through @9), reads a shared
+  worker's canvas and another's WebGL in two concurrent visits of one
+  browser, takes a shared worker that ends at once through the real r2
+  builder, the obligations, the evaluator and the store's sanitizer, in
+  observe and consent visits, and shows that with the attacher on and off
+  every evidence family but the shared worker's fingerprint evidence, every
+  other detector and loss, and the dedicated worker's counts are the same;
+  the v1 and r2 parity property models both reads of a shared worker that
+  ended at once; the validation matrix gains two real-Chromium cases (38).
 - The scanner can now hold a shared worker at its main script and install
   the fingerprint observer there (shared-worker coverage brief, approved
   2026-10-26, calls 1, 1b, 4 and 6). New in lib/shared-worker-attacher.ts:

@@ -142,6 +142,7 @@ import {
   FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING,
   FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING,
   FINGERPRINT_WORKER_REALM_CAPTURE_LOSS_WARNING,
+  fingerprintSharedWorkersEndedAtOnceWarning,
   INVALID_UPSTREAM_RESPONSE_WARNING,
   KEYSTROKE_PROBE_INCOMPLETE_WARNING,
   KEYSTROKE_PROBE_NAVIGATION_STOPPED_WARNING,
@@ -214,9 +215,12 @@ import {
   type WorkerRealmInstaller
 } from "./devtools-worker-channel";
 import { GpcWorkerRealmInstaller, type GpcWorkerVerificationDiagnostics } from "./gpc-worker-verification";
+import { SharedWorkerAttacher, type SharedWorkerVisitChannel } from "./shared-worker-attacher";
+import { FINGERPRINT_SHARED_WORKER_ENDED_DETAIL } from "./shared-worker-ended-at-once";
 import {
   FingerprintWorkerRealmInstaller,
   WORKER_REALM_READOUT_SETTLE_MS,
+  type SharedWorkerFingerprintInstallDiagnostics,
   type WorkerFingerprintInstallDiagnostics
 } from "./worker-fingerprint-realm";
 
@@ -300,11 +304,13 @@ export function fingerprintFrameCoverageStatus(
 }
 
 /**
- * Worker realms whose fingerprint evidence is incomplete: every dedicated
- * worker realm that ran page code and could not be read in full, and every
- * shared worker the page started (lib/worker-fingerprint-realm.ts decides
- * which is which). Frame coverage never counts them, so a worker-only loss
- * leaves the detector partial, never failed.
+ * Worker realms whose fingerprint evidence is incomplete: every dedicated or
+ * shared worker realm that ran page code and could not be read in full, a
+ * shared worker the attacher could not hold at its main script included
+ * (lib/worker-fingerprint-realm.ts decides which is which). Shared workers
+ * that ended at once are not among them; they are counted apart. Frame
+ * coverage never counts them, so a worker-only loss leaves the detector
+ * partial, never failed.
  */
 export function fingerprintWorkerRealmLoss(
   coverage: Pick<FingerprintObservationCollection, "attemptedWorkerRealms" | "readableWorkerRealms">
@@ -461,6 +467,14 @@ type SharedBrowserState = {
    * the next scan reserves a fresh port.
    */
   readonly devtoolsPort: number;
+  /**
+   * This browser's one shared-worker attacher (lib/shared-worker-attacher.ts),
+   * on its own thread with its own DevTools client: started by the first
+   * visit that needs it, shared by every visit on the browser, which each
+   * register their own context with it, and closed with the browser. A failed
+   * or lost one is dropped, and the next visit starts another.
+   */
+  sharedWorkerAttacher: Promise<SharedWorkerAttacher | null> | null;
   /** Visits holding this browser, from getSharedBrowser to the end of their own cleanup. */
   leases: number;
   /** Out of the cache because it could not open a context (retireSharedBrowser). */
@@ -598,6 +612,21 @@ export type ScanSiteOptions = {
    * Production never supplies this flag.
    */
   forceWorkerRealmChannelUnavailableForTests?: boolean;
+  /**
+   * Leave the visit unregistered with the browser's shared-worker attacher, in
+   * scanner integration tests, so its shared workers run untouched and are
+   * counted from the channel's discovery alone, as before
+   * fingerprint-observer@10: the switch the on and off comparisons use.
+   * Production never supplies this flag.
+   */
+  sharedWorkerAttacherDisabledForTests?: boolean;
+  /**
+   * Have the attacher release each of this visit's shared workers at once and
+   * set its breakpoint this long after, in scanner integration tests, so it
+   * loses the race to the worker's start on purpose. Production never supplies
+   * this value.
+   */
+  sharedWorkerAttachStepDelayMsForTests?: number;
   /** Exercise the fail-closed subject-validity path with an absent collector capability. */
   forceMissingPageSubjectCollectorForTests?: boolean;
   /**
@@ -618,6 +647,12 @@ export type EstablishedWorkerRealmChannelForTests = {
   gpcVerificationDiagnostics: (() => GpcWorkerVerificationDiagnostics) | null;
   /** The fingerprint observer's worker install counters, in every arm. */
   fingerprintInstallDiagnostics: () => WorkerFingerprintInstallDiagnostics;
+  /** The visit's registration with the browser's shared-worker attacher; null when there is none. */
+  sharedWorkerVisit: SharedWorkerVisitChannel | null;
+  /** The fingerprint observer's shared-worker install counters. */
+  sharedFingerprintInstallDiagnostics: () => SharedWorkerFingerprintInstallDiagnostics;
+  /** Each shared worker's last closed snapshot as the host holds it, for the operator's real-site check. */
+  sharedWorkerSnapshots: () => readonly { url: string; hold: string; lastClosed: string | null }[];
 };
 
 export type ScanEvidenceDiagnostics = {
@@ -1078,6 +1113,9 @@ async function scanSiteWithMeasurementOnLeasedBrowser(
   // Established after the measured page exists; declared here so the abort
   // handler and the final cleanup can both reach it.
   let workerRealmChannel: DedicatedWorkerAttachSession | null = null;
+  // The visit's registration with the browser's shared-worker attacher, made
+  // with the channel; unregistering it lets any shared worker still held run.
+  let sharedWorkerVisit: SharedWorkerVisitChannel | null = null;
   let context: BrowserContext | null = null;
   const scanProxy = await withSetupTimeoutDisposing(
     () =>
@@ -1095,8 +1133,10 @@ async function scanSiteWithMeasurementOnLeasedBrowser(
     // Abort handlers cannot await, but closing both resources immediately
     // rejects in-flight Playwright work and tears down pending proxy connects.
     // Closing the DevTools client detaches it, which resumes any worker still
-    // paused for its installers.
+    // paused for its installers; unregistering the visit has the attacher
+    // detach its shared workers, which does the same.
     workerRealmChannel?.close();
+    sharedWorkerVisit?.unregister();
     void context?.close().catch(() => undefined);
     void scanProxy.close().catch(() => undefined);
   };
@@ -1255,12 +1295,18 @@ async function scanSiteWithMeasurementOnLeasedBrowser(
     // (lib/gpc-worker-verification.ts); every arm then installs the
     // fingerprint observer, the documents' own function with the same site
     // key (lib/worker-fingerprint-realm.ts). The channel also watches the
-    // scan's browser context for shared workers. Best effort to ESTABLISH,
-    // never to account: when any step here fails the scan proceeds, the
-    // witness registered above turns every dedicated worker of this visit
-    // into an unread fingerprint realm, and in the GPC arm the construction
-    // counts and the same witness turn it into disclosed capture loss instead
-    // of a silently unverified realm. Only a shared worker goes unseen then.
+    // scan's browser context for shared workers, and the visit registers that
+    // context with the browser's shared-worker attacher, which holds each of
+    // its shared workers at its main script on a thread of its own while the
+    // same observer is installed (lib/shared-worker-attacher.ts; GPC never
+    // reaches a shared worker). Best effort to ESTABLISH, never to account:
+    // when any step here fails the scan proceeds, the witness registered
+    // above turns every dedicated worker of this visit into an unread
+    // fingerprint realm, and in the GPC arm the construction counts and the
+    // same witness turn it into disclosed capture loss instead of a silently
+    // unverified realm. Without the attacher each shared worker counts unread
+    // from the channel's discovery; without the channel a shared worker goes
+    // unseen.
     const gpcWorkerInstaller = gpcWorkerInjection ? new GpcWorkerRealmInstaller() : null;
     const fingerprintWorkerInstaller = new FingerprintWorkerRealmInstaller(fingerprintObserverSiteKey);
     const workerRealmInstallers: WorkerRealmInstaller[] = gpcWorkerInstaller
@@ -1268,20 +1314,32 @@ async function scanSiteWithMeasurementOnLeasedBrowser(
       : [fingerprintWorkerInstaller];
     try {
       // Disposing on a lost deadline race: an establish that materializes
-      // after the scan deadline must close its DevTools socket rather than
-      // leak it for the shared browser's lifetime.
+      // after the scan deadline must close its DevTools socket and end its
+      // shared-worker registration rather than leak them for the shared
+      // browser's lifetime.
       const establishedContext = context;
-      workerRealmChannel = await withSetupTimeoutDisposing(
+      const established = await withSetupTimeoutDisposing(
         async () => {
           if (options.forceWorkerRealmChannelUnavailableForTests) {
             throw new Error("The worker realm channel was made unavailable for this test.");
           }
-          return establishWorkerRealmChannel(establishedContext, page, workerRealmInstallers);
+          return establishWorkerRealmChannel(establishedContext, page, workerRealmInstallers, {
+            installer: fingerprintWorkerInstaller,
+            disabled: options.sharedWorkerAttacherDisabledForTests === true,
+            ...(options.sharedWorkerAttachStepDelayMsForTests !== undefined
+              ? { attachStepDelayMsForTests: options.sharedWorkerAttachStepDelayMsForTests }
+              : {})
+          });
         },
         started,
-        (session) => session.close(),
+        (lateEstablish) => {
+          lateEstablish.sharedVisit?.unregister();
+          lateEstablish.session.close();
+        },
         options.signal
       );
+      workerRealmChannel = established.session;
+      sharedWorkerVisit = established.sharedVisit;
       const channel = workerRealmChannel;
       const gpcVerificationDiagnostics = gpcWorkerInstaller
         ? () => gpcWorkerInstaller.verificationDiagnostics(channel.attachCounts())
@@ -1294,10 +1352,14 @@ async function scanSiteWithMeasurementOnLeasedBrowser(
         installers: workerRealmInstallers,
         witness: dedicatedWorkerWitness,
         gpcVerificationDiagnostics,
-        fingerprintInstallDiagnostics: () => fingerprintWorkerInstaller.installDiagnostics()
+        fingerprintInstallDiagnostics: () => fingerprintWorkerInstaller.installDiagnostics(),
+        sharedWorkerVisit,
+        sharedFingerprintInstallDiagnostics: () => fingerprintWorkerInstaller.sharedInstallDiagnostics(),
+        sharedWorkerSnapshots: () => fingerprintWorkerInstaller.sharedWorkerSnapshotsForTests()
       });
     } catch {
       workerRealmChannel = null;
+      sharedWorkerVisit = null;
     }
     // The worker realms' fingerprint evidence at one freeze, read at exactly
     // the two instants the page realm is read, the passive boundary and the
@@ -1411,6 +1473,10 @@ async function scanSiteWithMeasurementOnLeasedBrowser(
     // boundary's loss, so the v1 worker line must hear of them too, even when
     // every worker is read at the final read.
     let passiveFingerprintWorkerRealmLoss = 0;
+    // Shared workers that ended at once by the passive boundary, which r2
+    // records as that boundary's loss under their own detail; the v1 line
+    // takes the larger of this and the final read's count.
+    let passiveFingerprintSharedWorkersEndedAtOnce = 0;
     const passiveBoundary: PassiveBoundaryState = {
       cookies: false,
       storage: false,
@@ -2110,6 +2176,7 @@ async function scanSiteWithMeasurementOnLeasedBrowser(
       }
       if (passiveFingerprint.ok) {
         passiveFingerprintWorkerRealmLoss = fingerprintWorkerRealmLoss(passiveFingerprint.value);
+        passiveFingerprintSharedWorkersEndedAtOnce = passiveFingerprint.value.sharedWorkersEndedAtOnce;
       }
       // A passive read that withheld a summary (bounded listener attribution,
       // or an overflowed canvas or font-measurement bound) is not phase-pure
@@ -2117,22 +2184,36 @@ async function scanSiteWithMeasurementOnLeasedBrowser(
       // otherwise credit a pre-consent recorder or canvas probe to the consent
       // phase. It stays an incomplete boundary like an unreadable frame, and
       // so does a read with an unread worker realm, whose passive-phase work
-      // is unknown.
-      if (
+      // is unknown, or one beside shared workers that ended at once, whose
+      // passive-phase work is unknown too. Each records its own loss: the
+      // observer's for the realms it could not read, and the shared workers'
+      // under their own detail.
+      const passiveObserverComplete =
         passiveFingerprint.ok &&
         passiveFingerprintCoverage === "complete" &&
         passiveFingerprint.value.summaryWithheldFrames === 0 &&
-        passiveFingerprintWorkerRealmLoss === 0
-      ) {
+        passiveFingerprintWorkerRealmLoss === 0;
+      if (passiveObserverComplete && passiveFingerprintSharedWorkersEndedAtOnce === 0) {
         passiveBoundary.fingerprinting = true;
       } else {
-        measurementKernel.recordCaptureLoss({
-          family: "fingerprinting",
-          phaseId: passivePhaseId,
-          kind: passiveFingerprint.ok ? "dropped" : passiveFingerprint.kind,
-          count: passiveFingerprint.ok ? Math.max(1, fingerprintObserverLossRealms(passiveFingerprint.value)) : 1,
-          detail: "fingerprint-observer"
-        });
+        if (!passiveObserverComplete) {
+          measurementKernel.recordCaptureLoss({
+            family: "fingerprinting",
+            phaseId: passivePhaseId,
+            kind: passiveFingerprint.ok ? "dropped" : passiveFingerprint.kind,
+            count: passiveFingerprint.ok ? Math.max(1, fingerprintObserverLossRealms(passiveFingerprint.value)) : 1,
+            detail: "fingerprint-observer"
+          });
+        }
+        if (passiveFingerprintSharedWorkersEndedAtOnce > 0) {
+          measurementKernel.recordCaptureLoss({
+            family: "fingerprinting",
+            phaseId: passivePhaseId,
+            kind: "dropped",
+            count: passiveFingerprintSharedWorkersEndedAtOnce,
+            detail: FINGERPRINT_SHARED_WORKER_ENDED_DETAIL
+          });
+        }
       }
       if (MAX_SCAN_DURATION_MS - (Date.now() - started) >= CONSENT_CLICK_MIN_BUDGET_MS) {
         consentPhaseId = measurementKernel.beginPhase("consent-interaction");
@@ -2485,7 +2566,11 @@ async function scanSiteWithMeasurementOnLeasedBrowser(
           attemptedFrames: passiveBoundary.fingerprinting ? 1 : 0,
           readableFrames: passiveBoundary.fingerprinting ? 1 : 0,
           // passiveBoundary.fingerprinting is set only for a passive read that
-          // withheld no summary and left no worker realm unread.
+          // withheld no summary, left no worker realm unread and saw no
+          // shared worker end at once. A passive read that saw one has
+          // recorded its loss at its own phase, and its count reaches the v1
+          // line through passiveFingerprintSharedWorkersEndedAtOnce, so the
+          // stand-in counts none.
           listenerAttributionLostFrames: 0,
           canvasEvidenceBoundedFrames: 0,
           canvasFontEvidenceBoundedFrames: 0,
@@ -2510,6 +2595,10 @@ async function scanSiteWithMeasurementOnLeasedBrowser(
     // read, shared workers included. The readable ones' evidence publishes,
     // and the family is incomplete exactly as for a partially readable page.
     const fingerprintWorkerRealmsLost = fingerprintWorkerRealmLoss(fingerprintCollection) > 0;
+    // Shared workers the attacher never reached that ended at once by the
+    // final read (fingerprint-observer@10): none of the realms above, and
+    // still an incomplete family (owner call 3b).
+    const fingerprintSharedWorkersEndedAtOnce = fingerprintCollection.sharedWorkersEndedAtOnce;
     // v2 carries this as a `fingerprinting` capture loss in its quality facts.
     // v1 has no quality block, so without a warning a run whose observer never
     // executed looks exactly like a run that looked and found nothing, and the
@@ -2534,10 +2623,22 @@ async function scanSiteWithMeasurementOnLeasedBrowser(
     if (fingerprintWorkerRealmsLost || passiveFingerprintWorkerRealmLoss > 0) {
       warnings.add(FINGERPRINT_WORKER_REALM_CAPTURE_LOSS_WARNING);
     }
+    // Shared workers that ended at once have their own line, apart from the
+    // worker line, which would say more than is known of them. It also
+    // follows both reads, with the larger count: the set only grows from one
+    // read to the next, and the final read can be the passive one's stand-in.
+    const sharedWorkersEndedAtOnceForWarning = Math.max(
+      fingerprintSharedWorkersEndedAtOnce,
+      passiveFingerprintSharedWorkersEndedAtOnce
+    );
+    if (sharedWorkersEndedAtOnceForWarning > 0) {
+      warnings.add(fingerprintSharedWorkersEndedAtOnceWarning(sharedWorkersEndedAtOnceForWarning));
+    }
     const fingerprintCoverageIncomplete =
       fingerprintFrameCoverage === "partial" ||
       fingerprintSummaryWithheld ||
       fingerprintWorkerRealmsLost ||
+      fingerprintSharedWorkersEndedAtOnce > 0 ||
       (consentPhaseId !== null && !passiveBoundary.fingerprinting);
     const canAttributeConsentFingerprinting =
       subjectStateTrusted && (consentPhaseId === null || passiveBoundary.fingerprinting);
@@ -2596,6 +2697,18 @@ async function scanSiteWithMeasurementOnLeasedBrowser(
         kind: "dropped",
         count: Math.max(1, fingerprintObserverLossRealms(fingerprintCollection)),
         detail: "fingerprint-observer"
+      });
+    }
+    // Their own detail beside the observer's, never in its count: the
+    // fingerprinting family is incomplete for them, and a partial detector
+    // may rest on this loss alone (detector-obligations-v3).
+    if (subjectStateTrusted && fingerprintSharedWorkersEndedAtOnce > 0) {
+      measurementKernel.recordCaptureLoss({
+        family: "fingerprinting",
+        phaseId: stateSnapshotPhaseId,
+        kind: "dropped",
+        count: fingerprintSharedWorkersEndedAtOnce,
+        detail: FINGERPRINT_SHARED_WORKER_ENDED_DETAIL
       });
     }
     if (subjectStateTrusted) {
@@ -3723,8 +3836,10 @@ async function scanSiteWithMeasurementOnLeasedBrowser(
   } finally {
     options.signal?.removeEventListener("abort", closeOnAbort);
     // Detaching the DevTools client resumes any worker still paused for its
-    // installers, so no worker outlives the scan suspended.
+    // installers, and unregistering the visit has the attacher detach its
+    // shared workers, so no worker outlives the scan suspended.
     workerRealmChannel?.close();
+    sharedWorkerVisit?.unregister();
     const contextToClose = context;
     await runScannerCleanupWithinDeadline([
       ...(contextToClose
@@ -4319,7 +4434,13 @@ async function getSharedBrowser(): Promise<Browser> {
         chromiumSandbox: chromiumSandboxEnabled(),
         env: browserProcessEnvironment()
       });
-      sharedBrowserStates.set(browser, { devtoolsPort, leases: 0, retired: false, closing: false });
+      sharedBrowserStates.set(browser, {
+        devtoolsPort,
+        sharedWorkerAttacher: null,
+        leases: 0,
+        retired: false,
+        closing: false
+      });
       return browser;
     },
     {
@@ -4341,6 +4462,7 @@ async function getSharedBrowser(): Promise<Browser> {
           sharedBrowser = null;
           browserLaunchPromise = null;
         }
+        closeSharedWorkerAttacher(browser);
       });
       return browser;
     },
@@ -4389,6 +4511,7 @@ function retireSharedBrowser(browser: Browser): void {
 function closeRetiredSharedBrowserIfIdle(browser: Browser, state: SharedBrowserState): void {
   if (!state.retired || state.leases > 0 || state.closing) return;
   state.closing = true;
+  closeSharedWorkerAttacher(browser);
   // Detached, so no visit's response waits on it, and bounded, because
   // Playwright sends Browser.close with no deadline.
   void runScannerCleanupWithinDeadline([{ label: "retired Chromium close", run: () => browser.close() }]);
@@ -4405,12 +4528,24 @@ function closeRetiredSharedBrowserIfIdle(browser: Browser, state: SharedBrowserS
  * the caller proceeds without the channel, every witnessed dedicated worker
  * is then an unread fingerprint realm, and the GPC arm records it as full
  * worker-verification loss rather than failing the scan.
+ *
+ * With the channel up, the visit's context is registered with the browser's
+ * shared-worker attacher before the page navigates, so each shared worker of
+ * the visit is held at its main script from its creation and the fingerprint
+ * installer reads it (fingerprint-observer@10). That part is best effort
+ * too: without it, each shared worker counts unread from the channel's
+ * discovery, as every one did before.
  */
 async function establishWorkerRealmChannel(
   context: BrowserContext,
   page: Page,
-  installers: readonly WorkerRealmInstaller[]
-): Promise<DedicatedWorkerAttachSession> {
+  installers: readonly WorkerRealmInstaller[],
+  shared: {
+    installer: FingerprintWorkerRealmInstaller;
+    disabled: boolean;
+    attachStepDelayMsForTests?: number;
+  }
+): Promise<{ session: DedicatedWorkerAttachSession; sharedVisit: SharedWorkerVisitChannel | null }> {
   // The port of the browser this context belongs to, not of whichever browser
   // launched last: a visit finishing on a retired browser dials its own.
   const owner = context.browser();
@@ -4451,7 +4586,99 @@ async function establishWorkerRealmChannel(
     session.close();
     throw error;
   }
-  return session;
+  const sharedVisit =
+    shared.disabled || owner === null
+      ? null
+      : await registerSharedWorkerVisit(owner, devtoolsPort, {
+          browserContextId,
+          pageTargetId,
+          installer: shared.installer,
+          ...(shared.attachStepDelayMsForTests !== undefined
+            ? { attachStepDelayMsForTests: shared.attachStepDelayMsForTests }
+            : {})
+        });
+  return { session, sharedVisit };
+}
+
+/** A shared-worker attacher's start and a visit's registration with it each wait this long at most. */
+const SHARED_WORKER_ATTACHER_SETUP_TIMEOUT_MS = 3_000;
+
+/**
+ * Registers the visit's browser context with the browser's shared-worker
+ * attacher and has the fingerprint installer watch its shared workers. Null
+ * when no attacher could be started or the registration failed: the visit
+ * then counts each of its shared workers unread, from the channel's
+ * discovery alone.
+ */
+async function registerSharedWorkerVisit(
+  browser: Browser,
+  devtoolsPort: number,
+  visit: {
+    browserContextId: string;
+    pageTargetId: string;
+    installer: FingerprintWorkerRealmInstaller;
+    attachStepDelayMsForTests?: number;
+  }
+): Promise<SharedWorkerVisitChannel | null> {
+  const attacher = await sharedWorkerAttacherFor(browser, devtoolsPort);
+  if (attacher === null) return null;
+  try {
+    const registered = await attacher.register({
+      browserContextId: visit.browserContextId,
+      pageTargetId: visit.pageTargetId,
+      installCommands: visit.installer.sharedWorkerInstallCommands(),
+      ...(visit.attachStepDelayMsForTests !== undefined
+        ? { attachStepDelayMsForTests: visit.attachStepDelayMsForTests }
+        : {})
+    });
+    visit.installer.watchSharedWorkers(registered);
+    return registered;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * The browser's one shared-worker attacher, started by the first visit that
+ * asks. Concurrent visits share one start, since the pending start is stored
+ * before anything is awaited; a start that failed, or an attacher whose
+ * thread or connection was lost, is replaced by the next visit that asks.
+ */
+function sharedWorkerAttacherFor(browser: Browser, devtoolsPort: number): Promise<SharedWorkerAttacher | null> {
+  const state = sharedBrowserStates.get(browser);
+  if (!state || state.closing) return Promise.resolve(null);
+  const pending = state.sharedWorkerAttacher;
+  if (pending === null) return startSharedWorkerAttacher(state, devtoolsPort);
+  return pending.then((attacher) => {
+    if (attacher !== null && !attacher.isLost()) return attacher;
+    if (state.sharedWorkerAttacher === pending) state.sharedWorkerAttacher = null;
+    return state.closing ? null : startSharedWorkerAttacher(state, devtoolsPort);
+  });
+}
+
+function startSharedWorkerAttacher(state: SharedBrowserState, devtoolsPort: number): Promise<SharedWorkerAttacher | null> {
+  if (state.sharedWorkerAttacher !== null) {
+    return state.sharedWorkerAttacher.then((attacher) => (attacher !== null && !attacher.isLost() ? attacher : null));
+  }
+  const started = devtoolsBrowserWebSocketUrl(devtoolsPort)
+    .then((webSocketUrl) =>
+      SharedWorkerAttacher.open(webSocketUrl, {
+        readyTimeoutMs: SHARED_WORKER_ATTACHER_SETUP_TIMEOUT_MS,
+        registerTimeoutMs: SHARED_WORKER_ATTACHER_SETUP_TIMEOUT_MS
+      })
+    )
+    .catch(() => null);
+  state.sharedWorkerAttacher = started;
+  return started;
+}
+
+/** Stops a browser's shared-worker attacher, when it has one; idempotent. */
+function closeSharedWorkerAttacher(browser: Browser): void {
+  const state = sharedBrowserStates.get(browser);
+  const pending = state?.sharedWorkerAttacher ?? null;
+  if (!state || pending === null) return;
+  state.sharedWorkerAttacher = null;
+  void pending.then((attacher) => attacher?.close());
 }
 
 /** Reserve a free loopback TCP port by binding and immediately releasing it. */
@@ -4480,6 +4707,7 @@ export async function closeSharedBrowserForTests(): Promise<void> {
   sharedBrowser = null;
   browserLaunchPromise = null;
   if (browser) {
+    closeSharedWorkerAttacher(browser);
     await runScannerCleanupWithinDeadline([
       { label: "shared Chromium test cleanup", run: () => browser.close() }
     ]);

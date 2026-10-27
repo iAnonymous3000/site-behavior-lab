@@ -12,19 +12,26 @@ import { buildReportFacts, REPORT_CLAIM_REQUIREMENTS, type ReportClaimId } from 
 import {
   FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING,
   FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING,
-  FINGERPRINT_WORKER_REALM_CAPTURE_LOSS_WARNING
+  FINGERPRINT_WORKER_REALM_CAPTURE_LOSS_WARNING,
+  fingerprintSharedWorkersEndedAtOnceWarning
 } from "./scan-runtime";
+import { runCensorshipNotes } from "./scan-report-censorship";
 import { toPublicScanReportR2 } from "./scan-report-v2-r2-projection";
 import { buildRuntimeScanReportV2R2 } from "./scan-report-v2-runtime-builder";
 import { viewFromV1Report, viewFromV2 } from "./scan-report-views";
 import { closeSharedBrowserForTests, scanSiteWithMeasurement, type EstablishedWorkerRealmChannelForTests } from "./scanner";
+import { FINGERPRINT_SHARED_WORKER_ENDED_DETAIL, SHARED_WORKER_ENDED_AT_ONCE_WARNING_FRAGMENT } from "./shared-worker-ended-at-once";
 
 /**
  * Worker-realm fingerprinting through the real scanner pipeline (proxy,
  * routing, phases, both freezes) and real Chromium, on local pages. The
- * fixture pages do no fingerprinting of their own: everything a report shows
- * here was done inside a dedicated worker and read back over the worker realm
- * channel.
+ * fixture pages do no fingerprinting of their own unless a test says so:
+ * everything else a report shows here was done inside a dedicated or shared
+ * worker and read back over the worker realm channel, or, for a shared
+ * worker, over the browser's shared-worker attacher (fingerprint-observer@10).
+ * Tests of shared workers run each visit with the attacher on, the scanner's
+ * default, and off, through its test-only switch, which leaves the scanner as
+ * it was through @9.
  */
 
 const CANVAS_READ_SOURCE =
@@ -281,9 +288,22 @@ function fingerprintAccounting(visit: NodeScanMeasurementEnvelope) {
     heuristics: (result.fingerprintDetections ?? []).map((detection) => detection.heuristic).sort(),
     v1Benchmark: v1Claim.benchmarkAllowed,
     r2Benchmark: r2Claim.benchmarkAllowed,
-    r2WorkerLine: r2View.runs[0].warnings.includes(FINGERPRINT_WORKER_REALM_CAPTURE_LOSS_WARNING)
+    r2WorkerLine: r2View.runs[0].warnings.includes(FINGERPRINT_WORKER_REALM_CAPTURE_LOSS_WARNING),
+    // fingerprint-observer@10: shared workers that ended at once, on their
+    // own line and under their own detail.
+    sharedEndedLines: result.warnings.filter((warning) => warning.includes(SHARED_WORKER_ENDED_AT_ONCE_WARNING_FRAGMENT)),
+    sharedEndedLosses: measurement.measurement.qualityFacts.captureLoss
+      .filter((loss) => loss.detail === FINGERPRINT_SHARED_WORKER_ENDED_DETAIL)
+      .map((loss) => [loss.family, loss.phaseId, loss.kind, loss.count]),
+    r2Notes: runCensorshipNotes(r2View.runs[0]).join(" ")
   };
 }
+
+/** The scanner's default, and its test-only switch that leaves shared workers as they were through fingerprint-observer@9. */
+const ATTACHER_ARMS = [
+  { name: "on", sharedWorkerAttacherDisabledForTests: false },
+  { name: "off", sharedWorkerAttacherDisabledForTests: true }
+] as const;
 
 /**
  * Design test 6. Chromium does not stop a worker at `terminate()`: it lets
@@ -466,11 +486,15 @@ test("a worker that ends before it can vouch for its owner costs nothing when it
 
 /**
  * Design test 14, and the owner's rule that a page which ran code in a realm
- * the observer cannot see never reads clean. The shared worker fingerprints;
- * nothing of it is observed, and the channel's discovery turns it into one
- * unread realm on every channel a reader uses.
+ * the observer cannot see never reads clean, with the shared-worker attacher
+ * on and off. On (fingerprint-observer@10), the browser's attacher holds the
+ * shared worker at its main script, the observer is installed there, and the
+ * worker's canvas readback reads into the report as a dedicated worker's
+ * does, with no loss. Off, as through @9, nothing of it is observed, and the
+ * channel's discovery turns it into one unread realm on every channel a
+ * reader uses.
  */
-test("a page that starts a shared worker never reads clean: one unread realm on every channel", { timeout: 60_000 }, async (t) => {
+test("a page's shared worker is read into the report when the attacher holds it, and is one unread realm on every channel without it", { timeout: 90_000 }, async (t) => {
   withConsentVerification(t);
   const { port, done } = await startWorkerPage(t, {
     page: `<!doctype html><title>Shared worker</title><main><p>Ordinary public page.</p></main>
@@ -479,31 +503,329 @@ test("a page that starts a shared worker never reads clean: one unread realm on 
       "/shared.js": `${CANVAS_READ_SOURCE} fetch(self.location.origin + "/done/shared");`
     }
   });
-  let established: EstablishedWorkerRealmChannelForTests | null = null;
-  const accounting = fingerprintAccounting(
-    await scanSiteWithMeasurement(
-      { url: "http://www.shared-worker-page.com/", device: "desktop", gpcEnabled: false, consentMode: "observe" },
+  const visit = async (arm: (typeof ATTACHER_ARMS)[number]) => {
+    let established: EstablishedWorkerRealmChannelForTests | null = null;
+    const accounting = fingerprintAccounting(
+      await scanSiteWithMeasurement(
+        { url: "http://www.shared-worker-page.com/", device: "desktop", gpcEnabled: false, consentMode: "observe" },
+        {
+          ...scanOptions(port),
+          sharedWorkerAttacherDisabledForTests: arm.sharedWorkerAttacherDisabledForTests,
+          onWorkerRealmChannelEstablishedForTests: (channel) => {
+            established = channel;
+          }
+        }
+      )
+    );
+    assert.ok(established, arm.name);
+    return { accounting, channel: established as EstablishedWorkerRealmChannelForTests };
+  };
+
+  const on = await visit(ATTACHER_ARMS[0]);
+  assert.deepEqual(done, ["shared"], "the shared worker ran");
+  assert.equal(on.channel.session.discoveredSharedWorkerCount(), 1);
+  assert.notEqual(on.channel.sharedWorkerVisit, null, "the visit registered with the browser's attacher");
+  assert.deepEqual(on.channel.sharedFingerprintInstallDiagnostics(), {
+    installedWorkerCount: 1,
+    installFailedWorkerCount: 0,
+    lateWorkerCount: 0
+  });
+  assert.deepEqual(on.accounting.lines, { frame: false, listener: false, workerRealm: false });
+  assert.deepEqual([on.accounting.losses, on.accounting.sharedEndedLosses, on.accounting.sharedEndedLines], [[], [], []]);
+  assert.deepEqual(on.accounting.detector, { version: on.accounting.detector.version, status: "complete", phaseId: 0 });
+  assert.deepEqual(on.accounting.heuristics, ["openwpm-canvas-v1"], "the shared worker's canvas readback reaches the report");
+  assert.equal(on.accounting.r2WorkerLine, false);
+
+  const off = await visit(ATTACHER_ARMS[1]);
+  assert.deepEqual(done, ["shared", "shared"], "the shared worker ran again");
+  assert.equal(off.channel.session.discoveredSharedWorkerCount(), 1);
+  assert.equal(off.channel.sharedWorkerVisit, null, "with the attacher off the visit registers nothing");
+  assert.deepEqual(off.accounting.lines, { frame: false, listener: false, workerRealm: true });
+  assert.deepEqual(off.accounting.losses, [[0, "dropped", 1]]);
+  assert.deepEqual(off.accounting.sharedEndedLines, [], "a worker that ran is never one that ended at once");
+  assert.deepEqual(
+    off.accounting.detector,
+    { version: off.accounting.detector.version, status: "partial", reason: "scan-failed", phaseId: 0 }
+  );
+  assert.deepEqual(off.accounting.heuristics, [], "nothing inside a shared worker is observed");
+  assert.equal(off.accounting.v1Benchmark, false);
+  assert.equal(off.accounting.r2Benchmark, false);
+  assert.equal(off.accounting.r2WorkerLine, true);
+});
+
+/**
+ * Owner call 3, through the scanner, the real r2 builder and the store's v1
+ * sanitizer. The page starts a blob shared worker from a frame and removes
+ * the frame in the same task, so the browser ends the worker within a
+ * millisecond of creating it, before the attacher reaches it, as the real
+ * sites' never-ran workers end. Whether it ran is not known, so it is not an
+ * unread realm: the visit carries its own line and no worker line, r2 records
+ * the loss under its own detail and not the observer's, and the detector is
+ * partial on that loss alone, which detector-obligations-v3 admits (the r2
+ * build below throws for a report the evaluator refuses). Both wires still
+ * withhold the fingerprint benchmark (owner call 3b), and the r2 reader's note
+ * says what the line says. In a consent visit the worker ended before the
+ * read just before the click, so that read records the loss at its phase and
+ * the final read at its own, and the line is still one. With the attacher
+ * off, the same worker is one unread realm from the channel's discovery, as
+ * through @9.
+ */
+test("a shared worker that ends at once before the attacher reaches it has its own line and loss on every channel", { timeout: 120_000 }, async (t) => {
+  withConsentVerification(t);
+  const { port } = await startWorkerPage(t, {
+    page: `<!doctype html><title>Shared worker ended at once</title><main><p>Ordinary public page.</p></main>
+      <div id="onetrust-banner-sdk">
+        <button id="onetrust-accept-btn-handler" onclick="document.cookie = 'cmp-choice=granted; path=/';">Accept all</button>
+      </div>
+      <script>
+        const frame = document.createElement("iframe");
+        document.documentElement.appendChild(frame);
+        new frame.contentWindow.SharedWorker(URL.createObjectURL(new Blob(["onconnect = () => {};"], { type: "text/javascript" })), { name: "gone" });
+        frame.remove();
+      </script>`
+  });
+  const visit = async (arm: (typeof ATTACHER_ARMS)[number], consentMode: "observe" | "accept-all" = "observe") => {
+    let established: EstablishedWorkerRealmChannelForTests | null = null;
+    const envelope = await scanSiteWithMeasurement(
+      { url: "http://www.shared-ended.com/", device: "desktop", gpcEnabled: false, consentMode },
       {
         ...scanOptions(port),
+        sharedWorkerAttacherDisabledForTests: arm.sharedWorkerAttacherDisabledForTests,
         onWorkerRealmChannelEstablishedForTests: (channel) => {
           established = channel;
         }
       }
-    )
-  );
-  assert.deepEqual(done, ["shared"], "the shared worker ran");
-  assert.ok(established);
-  assert.equal((established as EstablishedWorkerRealmChannelForTests).session.discoveredSharedWorkerCount(), 1);
-  assert.deepEqual(accounting.lines, { frame: false, listener: false, workerRealm: true });
-  assert.deepEqual(accounting.losses, [[0, "dropped", 1]]);
+    );
+    assert.ok(established, arm.name);
+    return {
+      envelope,
+      accounting: fingerprintAccounting(envelope),
+      channel: established as EstablishedWorkerRealmChannelForTests,
+      stored: redactScanResultV1(envelope.result).report
+    };
+  };
+
+  const on = await visit(ATTACHER_ARMS[0]);
+  const workers = on.channel.sharedWorkerVisit?.workers() ?? [];
+  assert.equal(workers.length, 1, "the attacher saw the worker's target");
   assert.deepEqual(
-    accounting.detector,
-    { version: accounting.detector.version, status: "partial", reason: "scan-failed", phaseId: 0 }
+    [workers[0].hold, workers[0].endedUnreached],
+    ["pending", true],
+    "it was never paused, and no script of it was seen"
   );
-  assert.deepEqual(accounting.heuristics, [], "nothing inside a shared worker is observed");
-  assert.equal(accounting.v1Benchmark, false);
-  assert.equal(accounting.r2Benchmark, false);
-  assert.equal(accounting.r2WorkerLine, true);
+  const line = fingerprintSharedWorkersEndedAtOnceWarning(1);
+  assert.equal(
+    line,
+    "The page started 1 shared worker that ended within 10 ms, before the fingerprint observer could reach it, so whether it ran any code is not known."
+  );
+  assert.deepEqual(on.accounting.sharedEndedLines, [line], `lifetime ${workers[0].lifetimeMs} ms by the attacher's clock`);
+  assert.deepEqual(on.accounting.lines, { frame: false, listener: false, workerRealm: false });
+  assert.deepEqual(on.accounting.sharedEndedLosses, [["fingerprinting", 0, "dropped", 1]]);
+  assert.deepEqual(on.accounting.losses, [], "no realm ran unread");
+  assert.deepEqual(
+    on.accounting.detector,
+    { version: on.accounting.detector.version, status: "partial", reason: "scan-failed", phaseId: 0 }
+  );
+  assert.equal(on.accounting.v1Benchmark, false);
+  assert.equal(on.accounting.r2Benchmark, false);
+  assert.equal(on.accounting.r2WorkerLine, false);
+  assert.match(
+    on.accounting.r2Notes,
+    /the page started 1 shared worker that ended within 10 ms, before the fingerprint observer could reach it, so whether it ran any code is not known/
+  );
+  assert.doesNotMatch(on.accounting.r2Notes, /could not read one or more Web Workers/);
+  assert.ok(on.stored.warnings.includes(line), "the store's sanitizer admits the line");
+  assert.equal(on.stored.warnings.includes(FINGERPRINT_WORKER_REALM_CAPTURE_LOSS_WARNING), false);
+
+  const consent = await visit(ATTACHER_ARMS[0], "accept-all");
+  const consentPhase = consent.envelope.measurement?.measurement.phases.find((phase) => phase.kind === "consent-interaction");
+  assert.ok(consentPhase, "the consent phase must begin");
+  assert.deepEqual(consent.accounting.sharedEndedLines, [line], "one line for the one worker both reads count");
+  assert.deepEqual(consent.accounting.sharedEndedLosses, [
+    ["fingerprinting", 0, "dropped", 1],
+    ["fingerprinting", consentPhase.phaseId, "dropped", 1]
+  ]);
+  assert.deepEqual([consent.accounting.lines.workerRealm, consent.accounting.losses], [false, []]);
+  assert.deepEqual(
+    consent.accounting.detector,
+    { version: consent.accounting.detector.version, status: "partial", reason: "scan-failed", phaseId: consentPhase.phaseId }
+  );
+  assert.equal(consent.accounting.r2Benchmark, false);
+
+  const off = await visit(ATTACHER_ARMS[1]);
+  assert.deepEqual(off.accounting.sharedEndedLines, []);
+  assert.deepEqual(off.accounting.sharedEndedLosses, []);
+  assert.deepEqual(off.accounting.lines, { frame: false, listener: false, workerRealm: true });
+  assert.deepEqual(off.accounting.losses, [[0, "dropped", 1]], "without the attacher it is unread from discovery");
+  assert.equal(off.accounting.detector.status, "partial");
+});
+
+/**
+ * V4: the attacher changes the shared worker's fingerprint evidence and
+ * nothing else. One page sets a cookie and a storage key, loads a third-party
+ * image, reads a canvas in its frame, and starts a dedicated worker that reads
+ * a canvas and a shared worker that reads WebGL. With the attacher on and off,
+ * every other evidence family, every other detector, every loss outside the
+ * fingerprinting family and the dedicated worker's install and attach counts
+ * are the same, compared without the request ids and start times every two
+ * visits differ in. The fingerprint evidence differs by the shared worker's
+ * reads alone: the frame's and the dedicated worker's are in both.
+ */
+test("the shared-worker attacher changes the shared worker's fingerprint evidence and nothing else", { timeout: 120_000 }, async (t) => {
+  withConsentVerification(t);
+  const pageCanvas =
+    "const canvas = document.createElement('canvas'); canvas.width = 200; canvas.height = 60; " +
+    "canvas.getContext('2d').fillText('abcdefghijklmnopqrstuvwxyz0123', 2, 20); canvas.toDataURL();";
+  const { port } = await startWorkerPage(t, {
+    page: `<!doctype html><title>Every family</title><main><p>Ordinary public page.</p></main>
+      <img src="http://pixel.v4-third-party.net/p.gif" alt="">
+      <script>
+        document.cookie = "visit=1; path=/";
+        localStorage.setItem("seen", "1");
+        ${pageCanvas}
+        new Worker("/dedicated.js");
+        new SharedWorker("/shared.js").port.start();
+      </script>`,
+    scripts: { "/dedicated.js": CANVAS_READ_SOURCE, "/shared.js": WEBGL_READ_SOURCE }
+  });
+  const visit = async (arm: (typeof ATTACHER_ARMS)[number]) => {
+    let established: EstablishedWorkerRealmChannelForTests | null = null;
+    const envelope = await scanSiteWithMeasurement(
+      { url: "http://www.every-family.com/", device: "desktop", gpcEnabled: false, consentMode: "observe" },
+      {
+        ...scanOptions(port),
+        sharedWorkerAttacherDisabledForTests: arm.sharedWorkerAttacherDisabledForTests,
+        onWorkerRealmChannelEstablishedForTests: (channel) => {
+          established = channel;
+        }
+      }
+    );
+    assert.ok(established, arm.name);
+    const channel = established as EstablishedWorkerRealmChannelForTests;
+    const { result, measurement } = envelope;
+    assert.ok(measurement);
+    const sorted = <T>(values: readonly T[]) => values.map((value) => JSON.stringify(value)).sort();
+    const { fingerprintEvents, fingerprintDetections, requests, ...otherEvidence } = measurement.evidence;
+    const { fingerprintEvents: v1Events, fingerprintDetections: v1Detections, requests: v1Requests } = result;
+    return {
+      same: {
+        requests: sorted(requests.map(({ id: _id, startedAtMs: _startedAtMs, ...request }) => request)),
+        otherEvidence,
+        v1Requests: sorted(v1Requests.map(({ id: _id, startedAtMs: _startedAtMs, ...request }) => request)),
+        v1Cookies: result.cookies,
+        v1Storage: result.storage,
+        v1Domains: sorted(result.domains),
+        v1Other: [result.cnameCloaks, result.pixelEvents, result.privacyPolicy, result.consentInteraction],
+        otherLines: result.warnings.filter(
+          (warning) => warning !== FINGERPRINT_WORKER_REALM_CAPTURE_LOSS_WARNING
+        ),
+        otherLosses: measurement.measurement.qualityFacts.captureLoss.filter((loss) => loss.family !== "fingerprinting"),
+        otherDetectors: Object.entries(measurement.measurement.detectors).filter(([id]) => id !== "fingerprint-heuristics"),
+        phases: measurement.measurement.phases.map((phase) => phase.kind),
+        dedicated: {
+          install: channel.fingerprintInstallDiagnostics(),
+          attached: channel.session.attachCounts().attachedDedicatedWorkerCount,
+          nested: channel.session.attachCounts().attachedNestedDedicatedWorkerCount
+        }
+      },
+      fingerprint: {
+        events: sorted(fingerprintEvents),
+        detections: sorted(fingerprintDetections),
+        v1Events: sorted(v1Events),
+        v1Detections: sorted(v1Detections ?? [])
+      },
+      detector: measurement.measurement.detectors["fingerprint-heuristics"].status,
+      losses: measurement.measurement.qualityFacts.captureLoss
+        .filter((loss) => loss.family === "fingerprinting")
+        .map((loss) => [loss.detail, loss.count])
+    };
+  };
+
+  const on = await visit(ATTACHER_ARMS[0]);
+  const off = await visit(ATTACHER_ARMS[1]);
+  assert.deepEqual(on.same, off.same);
+  assert.deepEqual(on.same.dedicated, { install: { installedWorkerCount: 1, installFailedWorkerCount: 0 }, attached: 1, nested: 0 });
+  // v1 carries the cookie and the storage key with their names redacted; r2 names them.
+  assert.deepEqual([on.same.v1Cookies.length, on.same.v1Storage.length], [1, 1], "the cookie and storage families are populated");
+  assert.ok(on.same.otherEvidence.cookiesFinal.some((cookie) => cookie.name === "visit"));
+  assert.ok(on.same.otherEvidence.storageFinal.some((entry) => entry.key === "seen"));
+  assert.ok(
+    on.same.requests.some((request) => request.includes("pixel.v4-third-party.net")),
+    "the request family holds the third-party image"
+  );
+
+  // The fingerprint evidence: the frame's and the dedicated worker's in both,
+  // the shared worker's WebGL reads only with the attacher on.
+  const apis = (events: string[]) => events.map((event) => (JSON.parse(event) as { api: string }).api).sort();
+  assert.deepEqual(apis(off.fingerprint.v1Events), ["canvas.getImageData", "canvas.toDataURL"]);
+  assert.deepEqual(apis(on.fingerprint.v1Events), [
+    "canvas.getImageData",
+    "canvas.toDataURL",
+    "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+    "webgl.readPixels"
+  ]);
+  for (const kind of ["events", "detections", "v1Events", "v1Detections"] as const) {
+    for (const entry of off.fingerprint[kind]) assert.ok(on.fingerprint[kind].includes(entry), `${kind}: ${entry}`);
+  }
+  const heuristics = (detections: string[]) =>
+    detections.map((detection) => (JSON.parse(detection) as { heuristic: string }).heuristic).sort();
+  assert.deepEqual(heuristics(off.fingerprint.v1Detections), ["openwpm-canvas-v1"]);
+  assert.deepEqual(heuristics(on.fingerprint.v1Detections), ["openwpm-canvas-v1", "webgl-entropy-read-v1"]);
+  const webgl = on.fingerprint.v1Detections
+    .map((detection) => JSON.parse(detection) as { heuristic: string; evidence: { parameters?: string[] } })
+    .find((detection) => detection.heuristic === "webgl-entropy-read-v1");
+  assert.deepEqual(webgl?.evidence.parameters, ["webgl.getParameter.UNMASKED_RENDERER_WEBGL"]);
+  assert.deepEqual([on.detector, on.losses], ["complete", []]);
+  assert.deepEqual([off.detector, off.losses], ["partial", [["fingerprint-observer", 1]]]);
+});
+
+/**
+ * V6 through the scanner: two concurrent visits in the one shared browser,
+ * each with a shared worker of its own, one reading a canvas and one WebGL.
+ * Both register with the browser's one attacher, which hands each attach to
+ * the visit whose browser context it is, so each report reads its own worker
+ * and never the other's.
+ */
+test("two concurrent visits in one browser each read only their own shared worker", { timeout: 90_000 }, async (t) => {
+  withConsentVerification(t);
+  const { port } = await startWorkerPage(t, {
+    page: `<!doctype html><title>Concurrent shared workers</title><main><p>Ordinary public page.</p></main>
+      <script>new SharedWorker(location.hostname.startsWith("www.canvas") ? "/canvas-shared.js" : "/webgl-shared.js").port.start();</script>`,
+    scripts: { "/canvas-shared.js": CANVAS_READ_SOURCE, "/webgl-shared.js": WEBGL_READ_SOURCE }
+  });
+  const channels = new Map<string, EstablishedWorkerRealmChannelForTests>();
+  const visit = (host: string) =>
+    scanSiteWithMeasurement(
+      { url: `http://${host}/`, device: "desktop", gpcEnabled: false, consentMode: "observe" },
+      {
+        ...scanOptions(port),
+        onWorkerRealmChannelEstablishedForTests: (channel) => {
+          channels.set(host, channel);
+        }
+      }
+    );
+  const [canvasVisit, webglVisit] = await Promise.all([visit("www.canvas-concurrent.com"), visit("www.webgl-concurrent.com")]);
+  const read = (envelope: NodeScanMeasurementEnvelope) => ({
+    apis: envelope.result.fingerprintEvents.map((event) => event.api).sort(),
+    detector: envelope.measurement?.measurement.detectors["fingerprint-heuristics"].status,
+    losses: envelope.measurement?.measurement.qualityFacts.captureLoss.filter((loss) => loss.family === "fingerprinting")
+  });
+  assert.deepEqual(read(canvasVisit), { apis: ["canvas.getImageData"], detector: "complete", losses: [] });
+  assert.deepEqual(read(webglVisit), {
+    apis: ["webgl.getParameter.UNMASKED_RENDERER_WEBGL", "webgl.readPixels"],
+    detector: "complete",
+    losses: []
+  });
+  for (const host of ["www.canvas-concurrent.com", "www.webgl-concurrent.com"]) {
+    const channel = channels.get(host);
+    assert.ok(channel, host);
+    assert.equal(channel.sharedWorkerVisit?.workers().length, 1, `${host} was handed its own worker only`);
+    assert.deepEqual(channel.sharedFingerprintInstallDiagnostics(), {
+      installedWorkerCount: 1,
+      installFailedWorkerCount: 0,
+      lateWorkerCount: 0
+    });
+  }
 });
 
 /**
@@ -779,16 +1101,23 @@ test("a worker unread only at the passive boundary still carries the worker line
  * r2 places each fingerprint detection and call count before or after the
  * consent click by differencing the passive boundary's record against the
  * final one, so it does so only when the passive boundary read every realm.
- * A shared worker the page started by then is never read, so in a consent
- * visit it withholds every r2 fingerprint detection and call count of the
- * visit, the page's own included, while v1, which has no phases, keeps them.
- * The shared worker here does nothing at all. The same page reads its canvas
- * detection at the passive phase without the shared worker, keeps it with the
- * shared worker when no consent phase begins, and keeps it when the click
- * itself starts the shared worker, which then marks the evidence incomplete
- * at the final read only.
+ * The shared worker here does nothing at all.
+ *
+ * With the attacher on (fingerprint-observer@10), the passive boundary reads
+ * the shared worker like any realm, so the page's canvas detection is placed
+ * at the passive phase whether the shared worker starts before the click,
+ * from the click, or not at all, with no loss and the detector complete.
+ *
+ * With the attacher off, as through @9, a shared worker the page started by
+ * then is never read, so in a consent visit it withholds every r2 fingerprint
+ * detection and call count of the visit, the page's own included, while v1,
+ * which has no phases, keeps them. The same page reads its canvas detection
+ * at the passive phase without the shared worker, keeps it with the shared
+ * worker when no consent phase begins, and keeps it when the click itself
+ * starts the shared worker, which then marks the evidence incomplete at the
+ * final read only.
  */
-test("in a consent visit a shared worker started before the click withholds every r2 fingerprint detection, the page's own included", { timeout: 90_000 }, async (t) => {
+test("in a consent visit a shared worker started before the click is read when the attacher holds it, and without it withholds every r2 fingerprint detection, the page's own included", { timeout: 180_000 }, async (t) => {
   const pageCanvas =
     "const canvas = document.createElement('canvas'); canvas.width = 200; canvas.height = 60; " +
     "canvas.getContext('2d').fillText('abcdefghijklmnopqrstuvwxyz0123', 2, 20); canvas.toDataURL();";
@@ -803,10 +1132,10 @@ test("in a consent visit a shared worker started before the click withholds ever
       <script>${pageCanvas} if (location.hostname.startsWith("www.with-shared")) new SharedWorker("/idle-shared.js").port.start();</script>`,
     scripts: { "/idle-shared.js": "onconnect = () => {};" }
   });
-  const visit = async (host: string, consentMode: "accept-all" | "observe") => {
+  const visit = async (host: string, consentMode: "accept-all" | "observe", arm: (typeof ATTACHER_ARMS)[number]) => {
     const { result, measurement } = await scanSiteWithMeasurement(
       { url: `http://${host}/`, device: "desktop", gpcEnabled: false, consentMode },
-      scanOptions(port)
+      { ...scanOptions(port), sharedWorkerAttacherDisabledForTests: arm.sharedWorkerAttacherDisabledForTests }
     );
     assert.ok(measurement);
     return {
@@ -823,7 +1152,24 @@ test("in a consent visit a shared worker started before the click withholds ever
     };
   };
 
-  const consentWithShared = await visit("www.with-shared.com", "accept-all");
+  const [on, off] = ATTACHER_ARMS;
+  for (const host of ["www.with-shared.com", "www.click-shared.com", "www.without-shared.com"]) {
+    assert.deepEqual(
+      await visit(host, "accept-all", on),
+      {
+        v1: ["openwpm-canvas-v1"],
+        r2: [["openwpm-canvas-v1", 0]],
+        r2Events: 1,
+        passiveLoss: false,
+        laterLoss: false,
+        detector: "complete"
+      },
+      `${host}: with the attacher on, the shared worker is read at both boundaries and withholds nothing`
+    );
+  }
+  assert.deepEqual((await visit("www.with-shared-observe.com", "observe", on)).detector, "complete");
+
+  const consentWithShared = await visit("www.with-shared.com", "accept-all", off);
   assert.deepEqual(consentWithShared, {
     v1: ["openwpm-canvas-v1"],
     r2: [],
@@ -832,16 +1178,16 @@ test("in a consent visit a shared worker started before the click withholds ever
     laterLoss: true,
     detector: "partial"
   });
-  const startedByClick = await visit("www.click-shared.com", "accept-all");
+  const startedByClick = await visit("www.click-shared.com", "accept-all", off);
   assert.deepEqual(
     [startedByClick.r2, startedByClick.passiveLoss, startedByClick.laterLoss, startedByClick.detector],
     [[["openwpm-canvas-v1", 0]], false, true, "partial"],
     "a shared worker the click starts marks the final read incomplete and withholds nothing"
   );
-  const consentWithout = await visit("www.without-shared.com", "accept-all");
+  const consentWithout = await visit("www.without-shared.com", "accept-all", off);
   assert.deepEqual(consentWithout.r2, [["openwpm-canvas-v1", 0]]);
   assert.equal(consentWithout.passiveLoss, false);
-  const observeWithShared = await visit("www.with-shared-observe.com", "observe");
+  const observeWithShared = await visit("www.with-shared-observe.com", "observe", off);
   assert.deepEqual(observeWithShared.r2, [["openwpm-canvas-v1", 0]]);
   assert.equal(observeWithShared.detector, "partial");
 });
@@ -849,14 +1195,17 @@ test("in a consent visit a shared worker started before the click withholds ever
 /**
  * A consent click that leaves the recorded site leaves the state unread, and
  * the scan publishes the read taken just before the click in its place, on
- * both wires. Here that read is readable but incomplete: the shared worker the
- * page started makes it an incomplete boundary, while its one frame is read,
- * so the page's canvas readback publishes at the passive phase. Recorded
- * failed beside that evidence, the r2 evaluator refused the report (finding
- * R5), so the whole public scan failed. The same visit with a passive read
- * that could read no frame publishes nothing, and the detector stays failed.
+ * both wires. Here that read is readable but incomplete: with the shared-worker
+ * attacher off, the shared worker the page started is unread, which makes it
+ * an incomplete boundary, while its one frame is read, so the page's canvas
+ * readback publishes at the passive phase. Recorded failed beside that
+ * evidence, the r2 evaluator refused the report (finding R5), so the whole
+ * public scan failed. With the attacher on, the same read is complete and
+ * publishes the same, and the detector is still partial, since the state is
+ * lost. The same visit with a passive read that could read no frame
+ * publishes nothing, and the detector stays failed.
  */
-test("a consent click that leaves the site after a readable but incomplete passive read publishes a partial detector", { timeout: 90_000 }, async (t) => {
+test("a consent click that leaves the site after a readable but incomplete passive read publishes a partial detector", { timeout: 120_000 }, async (t) => {
   withConsentVerification(t);
   const pageCanvas =
     "const canvas = document.createElement('canvas'); canvas.width = 200; canvas.height = 60; " +
@@ -911,20 +1260,32 @@ test("a consent click that leaves the site after a readable but incomplete passi
     };
   };
 
-  const readable = await visit();
-  assert.equal(readable.left, true, "the click must leave the recorded site");
-  assert.equal(readable.passiveLoss, true, "the shared worker makes the passive read incomplete");
-  assert.deepEqual(readable.detector, {
-    version: DETECTOR_VERSIONS["fingerprint-heuristics"],
-    status: "partial",
-    reason: "load-failed",
-    phaseId: readable.consentPhaseId
-  });
-  assert.deepEqual(readable.events, [["canvas.toDataURL", 0]], "the passive read's evidence publishes at its phase");
-  assert.deepEqual(readable.detections, [["openwpm-canvas-v1", 0]]);
-  assert.deepEqual(readable.v1Events, ["canvas.toDataURL"], "v1 publishes the same passive record");
-  assert.deepEqual(readable.published, { status: "partial", events: 1, detections: 1 });
-  assert.deepEqual(readable.fingerprintClaims, [false, false], "both wires withhold the claim over the lost state");
+  for (const arm of ATTACHER_ARMS) {
+    const readable = await visit({ sharedWorkerAttacherDisabledForTests: arm.sharedWorkerAttacherDisabledForTests });
+    assert.equal(readable.left, true, "the click must leave the recorded site");
+    assert.equal(
+      readable.passiveLoss,
+      arm.sharedWorkerAttacherDisabledForTests,
+      arm.sharedWorkerAttacherDisabledForTests
+        ? "the unread shared worker makes the passive read incomplete"
+        : "the attacher reads the shared worker, so the passive read is complete"
+    );
+    assert.deepEqual(
+      readable.detector,
+      {
+        version: DETECTOR_VERSIONS["fingerprint-heuristics"],
+        status: "partial",
+        reason: "load-failed",
+        phaseId: readable.consentPhaseId
+      },
+      arm.name
+    );
+    assert.deepEqual(readable.events, [["canvas.toDataURL", 0]], "the passive read's evidence publishes at its phase");
+    assert.deepEqual(readable.detections, [["openwpm-canvas-v1", 0]]);
+    assert.deepEqual(readable.v1Events, ["canvas.toDataURL"], "v1 publishes the same passive record");
+    assert.deepEqual(readable.published, { status: "partial", events: 1, detections: 1 });
+    assert.deepEqual(readable.fingerprintClaims, [false, false], "both wires withhold the claim over the lost state");
+  }
 
   const rejected = { count: 0 };
   const unreadable = await visit({
@@ -940,4 +1301,60 @@ test("a consent click that leaves the site after a readable but incomplete passi
   });
   assert.deepEqual([unreadable.events, unreadable.detections, unreadable.v1Events], [[], [], []]);
   assert.deepEqual(unreadable.published, { status: "failed", events: 0, detections: 0 });
+});
+
+/**
+ * The line for shared workers that ended at once follows both reads, with
+ * the larger count. Here a shared worker ends at once before the read just
+ * before the click, and the click leaves the site, so the state is unread and
+ * the final read is the passive one's stand-in, which counts none: only the
+ * passive read's count can carry the line, and it must, since r2 records that
+ * read's loss under the line's own detail. The passive read's frame is read,
+ * so its canvas readback publishes at its phase and the detector is partial.
+ */
+test("a consent click that leaves the site after a shared worker ended at once keeps the line from the read before the click", { timeout: 90_000 }, async (t) => {
+  withConsentVerification(t);
+  const pageCanvas =
+    "const canvas = document.createElement('canvas'); canvas.width = 200; canvas.height = 60; " +
+    "canvas.getContext('2d').fillText('abcdefghijklmnopqrstuvwxyz0123', 2, 20); canvas.toDataURL();";
+  const { port } = await startWorkerPage(t, {
+    page: `<!doctype html><title>Ended at once, then left</title><main><p>Ordinary public page.</p></main>
+      <div id="onetrust-banner-sdk">
+        <button id="onetrust-accept-btn-handler" onclick="location.href = 'http://account.ended-left.com/';">Accept all</button>
+      </div>
+      <script>if (location.hostname.startsWith("www.")) {
+        ${pageCanvas}
+        const frame = document.createElement("iframe");
+        document.documentElement.appendChild(frame);
+        new frame.contentWindow.SharedWorker(URL.createObjectURL(new Blob(["onconnect = () => {};"], { type: "text/javascript" })), { name: "gone" });
+        frame.remove();
+      }</script>`
+  });
+  const envelope = await scanSiteWithMeasurement(
+    { url: "http://www.ended-left.com/", device: "desktop", gpcEnabled: false, consentMode: "accept-all" },
+    scanOptions(port)
+  );
+  const accounting = fingerprintAccounting(envelope);
+  const { result, measurement } = envelope;
+  assert.ok(measurement);
+  const consentPhase = measurement.measurement.phases.find((phase) => phase.kind === "consent-interaction");
+  assert.ok(consentPhase, "the consent phase must begin");
+  assert.equal(result.warnings.includes(CONSENT_INTERACTION_LEFT_SUBJECT_WARNING), true, "the click must leave the recorded site");
+  assert.deepEqual(accounting.sharedEndedLines, [fingerprintSharedWorkersEndedAtOnceWarning(1)]);
+  assert.deepEqual(accounting.sharedEndedLosses, [["fingerprinting", 0, "dropped", 1]], "the passive read's loss, at its phase");
+  assert.deepEqual(accounting.losses, [[consentPhase.phaseId, "dropped", 1]], "the lost state's own loss");
+  assert.deepEqual(accounting.lines.workerRealm, false);
+  assert.deepEqual(accounting.detector, {
+    version: DETECTOR_VERSIONS["fingerprint-heuristics"],
+    status: "partial",
+    reason: "load-failed",
+    phaseId: consentPhase.phaseId
+  });
+  assert.deepEqual(
+    measurement.evidence.fingerprintEvents.map((event) => [event.api, event.phaseId]),
+    [["canvas.toDataURL", 0]],
+    "the passive read's evidence publishes at its phase"
+  );
+  assert.equal(redactScanResultV1(result).report.warnings.includes(fingerprintSharedWorkersEndedAtOnceWarning(1)), true);
+  assert.deepEqual([accounting.v1Benchmark, accounting.r2Benchmark], [false, false]);
 });

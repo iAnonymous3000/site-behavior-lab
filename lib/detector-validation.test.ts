@@ -13,16 +13,17 @@ import {
 
 test("public detector validation manifest is complete and mechanically valid", () => {
   assert.deepEqual(validateDetectorValidationManifest(DETECTOR_VALIDATION_FIXTURES), []);
-  assert.equal(DETECTOR_VALIDATION_FIXTURES.length, 36);
+  assert.equal(DETECTOR_VALIDATION_FIXTURES.length, 38);
   assert.equal(detectorValidationRows().length, DETECTOR_IDS.length);
   const row = (detector: string) => detectorValidationRows().find((entry) => entry.detector === detector);
-  // fingerprint-heuristics carries three more positive cases: the two-vendor
+  // fingerprint-heuristics carries four more positive cases: the two-vendor
   // chain fixture proving multi-origin chains detect instead of censoring, the
-  // OffscreenCanvas readback fixture proving that surface is observed, and a
+  // OffscreenCanvas readback fixture proving that surface is observed, a
   // React-shaped commit traversal past 64 frames that reads as the frame's own
-  // registration and keeps a third-party recorder's finding.
+  // registration and keeps a third-party recorder's finding, and a shared
+  // worker held at its main script and read like a dedicated worker.
   assert.equal(detectorValidationRows().every((entry) => entry.positiveCases >= 1), true);
-  assert.equal(row("fingerprint-heuristics")?.positiveCases, 4);
+  assert.equal(row("fingerprint-heuristics")?.positiveCases, 5);
   // privacy-policy carries three more positive and five more negative cases:
   // a policy that renders its text after load is read in full, and a shell
   // read while its policy request is still open publishes nothing; a short
@@ -56,13 +57,14 @@ test("public detector validation manifest is complete and mechanically valid", (
       .every((entry) => entry.negativeCases === 1),
     true
   );
-  // fingerprint-heuristics carries three more adversarial cases: the
+  // fingerprint-heuristics carries four more adversarial cases: the
   // depth-bound coverage-loss fixture that pairs with the wrapper-delegation
   // fixture, a widget's headline layout overflowing the measured-string
-  // bound beside real canvas and audio fingerprinting, and two workers that
-  // end before they can vouch for their owner read.
+  // bound beside real canvas and audio fingerprinting, two workers that
+  // end before they can vouch for their owner read, and a shared worker that
+  // ends at once before the attacher can reach it.
   assert.equal(detectorValidationRows().every((entry) => entry.adversarialCases >= 1), true);
-  assert.equal(row("fingerprint-heuristics")?.adversarialCases, 4);
+  assert.equal(row("fingerprint-heuristics")?.adversarialCases, 5);
   assert.equal(
     detectorValidationRows()
       .filter((entry) => entry.detector !== "fingerprint-heuristics" && entry.detector !== "cname-uncloaking")
@@ -74,8 +76,9 @@ test("public detector validation manifest is complete and mechanically valid", (
   // a folded policy, a hub whose prose sits in closed panels) and the two cut
   // reads; one is the widget headline-layout case, one the React-shaped
   // commit traversal, one the workers that end before they can vouch, two
-  // the stopped and the refused typed value, and two the CNAME chains.
-  assert.equal(detectorValidationRows().reduce((sum, entry) => sum + entry.realChromiumCases, 0), 21);
+  // the shared workers (one held and read, one that ended at once), two the
+  // stopped and the refused typed value, and two the CNAME chains.
+  assert.equal(detectorValidationRows().reduce((sum, entry) => sum + entry.realChromiumCases, 0), 23);
 });
 
 test("every public validation case points to an exact source-controlled test", () => {
@@ -93,7 +96,7 @@ test("every public validation case points to an exact source-controlled test", (
 
 test("validation matrix digest covers the exact public fixture inventory", () => {
   assert.equal(detectorValidationMetadata.version, "detector-fixture-matrix-v1");
-  assert.equal(detectorValidationMetadata.registryVersion, "node-detectors-v20");
+  assert.equal(detectorValidationMetadata.registryVersion, "node-detectors-v21");
   assert.equal(
     createHash("sha256").update(JSON.stringify(DETECTOR_VALIDATION_FIXTURES)).digest("hex"),
     detectorValidationMetadata.digest

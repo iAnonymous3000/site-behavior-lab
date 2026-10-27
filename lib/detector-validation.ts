@@ -149,6 +149,25 @@ export const DETECTOR_VALIDATION_FIXTURES: readonly DetectorValidationFixture[] 
       "Two dedicated workers that end themselves while the owner read's frame tree is held, so neither can vouch for its document: the one that recorded nothing costs nothing, and the one that drew and read a canvas is one unread realm whose evidence is never credited."
   },
   {
+    detector: "fingerprint-heuristics",
+    kind: "positive",
+    environment: "real-chromium",
+    file: "lib/scanner-worker-fingerprint.test.ts",
+    testName:
+      "a page's shared worker is read into the report when the attacher holds it, and is one unread realm on every channel without it",
+    verifies:
+      "A shared worker the page starts is held at its main script by the browser's shared-worker attacher and read like a dedicated worker: its canvas readback publishes with no loss, and with the attacher off the same worker is one unread realm on every channel."
+  },
+  {
+    detector: "fingerprint-heuristics",
+    kind: "adversarial",
+    environment: "real-chromium",
+    file: "lib/scanner-worker-fingerprint.test.ts",
+    testName: "a shared worker that ends at once before the attacher reaches it has its own line and loss on every channel",
+    verifies:
+      "A shared worker the browser ends within a millisecond of creating it, before the attacher can reach it, is reported as one that ended at once, under its own line and capture-loss detail and never as a read or an unread realm, and both wires still withhold the fingerprint benchmark."
+  },
+  {
     detector: "keystroke-exfiltration",
     kind: "positive",
     environment: "unit",

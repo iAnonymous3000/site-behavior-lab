@@ -575,7 +575,7 @@ const PUBLIC_STRING_POLICY_INPUTS = Object.freeze({
   chromiumUserAgentPattern: CHROMIUM_USER_AGENT.source,
   fixedWarnings: [...FIXED_SCANNER_WARNINGS].sort(),
   warningLabels: [...COMPARISON_WARNING_LABELS].sort(),
-  dynamicWarningPatterns: "scanner-warning-patterns-v9",
+  dynamicWarningPatterns: "scanner-warning-patterns-v10",
   cmpSelectors: CONSENT_CMP_SELECTORS,
   consentShadowHosts: CONSENT_SHADOW_HOSTS,
   consentTextPatterns: Object.fromEntries(
@@ -1592,6 +1592,11 @@ function isScannerWarning(warning: string): boolean {
     return true;
   }
   if (/^Skipped PageGraph request [0-9]+ because its URL was not HTTP\(S\)\.$/.test(warning)) {
+    return true;
+  }
+  // fingerprint-observer@10 (scanner-warning-patterns-v10): shared workers
+  // the scanner never reached that ended at once, counted, singular for one.
+  if (/^The page started (?:1 shared worker that ended within 10 ms, before the fingerprint observer could reach it, so whether it ran any code is not known|(?:[2-9]|[1-9][0-9]{1,5}) shared workers that ended within 10 ms, before the fingerprint observer could reach them, so whether they ran any code is not known)\.$/.test(warning)) {
     return true;
   }
   // Both CNAME sentence generations are admitted: the grammatical singular

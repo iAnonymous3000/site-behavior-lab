@@ -58,7 +58,9 @@ import {
   runHitFingerprintCanvasFontEvidenceBounded,
   runHitFingerprintListenerAttributionLoss,
   runHitFingerprintObserverCaptureLoss,
+  runHitFingerprintSharedWorkersEndedAtOnce,
   runHitFingerprintWorkerRealmLoss,
+  fingerprintObserverLossLines,
   runHitKeystrokeProbeCaptureLoss,
   runHitKeystrokeProbeNavigationStopped,
   runHitKeystrokeProbeRequestsOmitted,
@@ -91,6 +93,7 @@ import {
   FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING,
   FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING,
   FINGERPRINT_WORKER_REALM_CAPTURE_LOSS_WARNING,
+  fingerprintSharedWorkersEndedAtOnceWarning,
   INVALID_UPSTREAM_RESPONSE_WARNING,
   KEYSTROKE_PROBE_INCOMPLETE_WARNING,
   KEYSTROKE_PROBE_NAVIGATION_STOPPED_WARNING,
@@ -104,6 +107,7 @@ import {
   STORAGE_SNAPSHOT_CAPTURE_LOSS_WARNING,
   UNSETTLED_ROUTED_REQUEST_WARNING
 } from "./scan-runtime";
+import type { CaptureLossEntry } from "./scan-report-v2";
 import type { ScanResult } from "./types";
 
 // ---------------------------------------------------------------------------
@@ -693,6 +697,126 @@ test("an r2 canvas evidence loss is named as that loss, and no other fingerprint
   assert.match(
     render([FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING, FINGERPRINT_CANVAS_EVIDENCE_BOUNDED_WARNING])[0],
     /the in-page fingerprint observer did not finish \(recorded loss count: 1\)$/
+  );
+});
+
+/**
+ * fingerprint-observer@10, owner calls 3 and 3b. The line for shared workers
+ * that ended at once is recognized by its own fragment and by no other line,
+ * censors exactly what every other fingerprint line censors, so no published
+ * comparison changes, and says only what it says: never "could not read".
+ */
+test("a v1 line for shared workers that ended at once censors fingerprinting exactly as the frame line, and its note says what it says", () => {
+  const endedAtOnce = fingerprintSharedWorkersEndedAtOnceWarning(2);
+  const lines = [
+    FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING,
+    FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING,
+    FINGERPRINT_WORKER_REALM_CAPTURE_LOSS_WARNING,
+    FINGERPRINT_CANVAS_EVIDENCE_BOUNDED_WARNING,
+    FINGERPRINT_CANVAS_FONT_EVIDENCE_BOUNDED_WARNING,
+    endedAtOnce
+  ];
+  const predicates = (warnings: string[]) => Object.values(fingerprintObserverLossLines({ warnings }));
+  lines.forEach((line, index) => {
+    assert.deepEqual(
+      predicates([line]),
+      lines.map((_other, otherIndex) => otherIndex === index),
+      line
+    );
+  });
+  assert.equal(runHitFingerprintSharedWorkersEndedAtOnce({ warnings: [fingerprintSharedWorkersEndedAtOnceWarning(1)] }), true);
+  for (const unrelated of [GPC_WORKER_CAPTURE_LOSS_WARNING, LISTENER_DETECTION_WITHHELD_WARNING]) {
+    assert.equal(runHitFingerprintSharedWorkersEndedAtOnce({ warnings: [unrelated] }), false, unrelated);
+  }
+
+  const outcome = (warnings: string[]) => {
+    const report = makeScanReportV1() as ScanResult;
+    report.summary.firstPartyDomain = "shared-fixture.net";
+    report.conditions.requestedUrl = "https://shared-fixture.net/";
+    report.conditions.finalUrl = "https://shared-fixture.net/";
+    report.summary.totalRequests = 12;
+    report.summary.thirdPartyRequests = 5;
+    report.summary.fingerprintEvents = 4;
+    report.fingerprintEvents = [{ api: "canvas.toDataURL", count: 4 }];
+    report.warnings = warnings;
+    const view = viewFromV1Report(report);
+    const run = view.runs[0];
+    const facts = buildReportFacts(view).display;
+    const corpus = createCorpusStatsAccumulator(new Date("2026-10-26T00:00:00.000Z"));
+    corpus.add(`20260709-${"c".repeat(32)}`, view);
+    return {
+      reasons: run.quality.reasons,
+      censored: ["requests", "cookies", "storage", "fingerprinting", "detector-output"].map((family) =>
+        familyCensoredOnRun(run, family as Parameters<typeof familyCensoredOnRun>[1])
+      ),
+      claims: {
+        fingerprint: facts.claims["fingerprint-apis"],
+        listeners: facts.claims["session-recording-input-monitoring"],
+        requests: facts.claims["third-party-services"]
+      },
+      cohorts: corpus.finish().cohorts,
+      notes: runCensorshipNotes(run).join(" ")
+    };
+  };
+  const frame = outcome([FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING]);
+  const ended = outcome([endedAtOnce]);
+  assert.deepEqual(ended.reasons, ["capture-loss:fingerprint-observer"]);
+  assert.deepEqual(ended.censored, frame.censored);
+  assert.deepEqual(ended.censored, [false, false, false, true, true]);
+  assert.deepEqual(ended.claims, frame.claims);
+  assert.deepEqual(ended.claims.fingerprint.blockers, ["family-censored"]);
+  assert.deepEqual(ended.cohorts, frame.cohorts);
+  assert.equal(ended.cohorts[0]?.metrics.fingerprintEvents, undefined);
+
+  // Lowest precedence: alone it names itself, and beside any realm line the
+  // realm's note stands.
+  const endedNote = /started one or more shared workers that ended within 10 ms, before the fingerprint observer could reach them/;
+  assert.match(ended.notes, endedNote);
+  assert.doesNotMatch(ended.notes, /could not read|attribute every event listener/);
+  const withWorker = outcome([FINGERPRINT_WORKER_REALM_CAPTURE_LOSS_WARNING, endedAtOnce]);
+  assert.match(withWorker.notes, /could not read one or more Web Workers the page started/);
+  assert.doesNotMatch(withWorker.notes, endedNote);
+});
+
+test("an r2 loss of shared workers that ended at once is its own detail and its own sentence beside the observer's", () => {
+  const render = (losses: CaptureLossEntry[], warnings: string[]) => {
+    const report = makePublicSingleReportV2R2();
+    report.run.warnings.push(...warnings);
+    report.run.qualityFacts.captureLoss = losses;
+    report.run.quality = evaluateQuality(report.run.qualityFacts, {
+      observedRequests: report.run.summary.counts.totalRequests
+    });
+    const view = viewFromV2(report, 2);
+    assert.equal(familyCensoredOnRun(view.runs[0], "fingerprinting"), true, "the family is censored for it (call 3b)");
+    return runCensorshipNotes(view.runs[0]).filter((note) => note.startsWith("fingerprinting evidence"));
+  };
+  const endedLoss = (count: number): CaptureLossEntry => ({
+    family: "fingerprinting",
+    phaseId: 0,
+    kind: "dropped",
+    count,
+    detail: "fingerprint-shared-worker-ended"
+  });
+  const alone = render([endedLoss(2)], [fingerprintSharedWorkersEndedAtOnceWarning(2)]);
+  assert.equal(alone.length, 1);
+  assert.match(
+    alone[0],
+    /the page started 2 shared workers that ended within 10 ms, before the fingerprint observer could reach them, so whether they ran any code is not known$/
+  );
+  assert.doesNotMatch(alone[0], /did not finish|could not read/);
+  const one = render([endedLoss(1)], [fingerprintSharedWorkersEndedAtOnceWarning(1)]);
+  assert.match(
+    one[0],
+    /the page started 1 shared worker that ended within 10 ms, before the fingerprint observer could reach it, so whether it ran any code is not known$/
+  );
+  // Beside the observer's own loss, each detail keeps its own sentence.
+  const beside = render(
+    [{ family: "fingerprinting", phaseId: 0, kind: "dropped", count: 1, detail: "fingerprint-observer" }, endedLoss(3)],
+    [FINGERPRINT_WORKER_REALM_CAPTURE_LOSS_WARNING, fingerprintSharedWorkersEndedAtOnceWarning(3)]
+  );
+  assert.match(
+    beside[0],
+    /could not read one or more Web Workers the page started \(recorded loss count: 1\); the page started 3 shared workers that ended within 10 ms/
   );
 });
 

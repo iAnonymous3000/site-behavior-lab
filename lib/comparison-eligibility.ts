@@ -6,6 +6,7 @@ import {
 import { CONSENT_INTERACTION_LEFT_SUBJECT_WARNING } from "./consent-subject-loss-warning";
 import { ACTIVE_PROBE_SUBJECT_WARNING, CONSENT_RELOAD_SUBJECT_WARNING } from "./active-probe-subject-warnings";
 import { legacyV1MethodologyIdentity } from "./legacy-methodology";
+import { SHARED_WORKER_ENDED_AT_ONCE_WARNING_FRAGMENT } from "./shared-worker-ended-at-once";
 import { displayHost, displayPublicUrl } from "./text-format";
 
 /**
@@ -619,10 +620,24 @@ export function runHitFingerprintCanvasFontEvidenceBounded(run: Pick<ScanResult,
 }
 
 /**
- * The fingerprint observer's five v1 loss lines, which all stand for the one
- * `fingerprint-observer` capture-loss detail. The detail cannot say which
- * state a run was in; only the lines can, so every reader that names the loss
- * chooses its wording from this one classification.
+ * Whether a legacy run started shared workers the scanner never reached that
+ * ended within 10 ms, before the fingerprint observer could reach them
+ * (fingerprint-observer@10). Whether they ran any code is not known, so
+ * readers censor the fingerprinting family for it exactly as for the lines
+ * above, through the same quality reason (owner call 3b), and no published
+ * comparison changes. r2 records it as its own capture-loss detail.
+ */
+export function runHitFingerprintSharedWorkersEndedAtOnce(run: Pick<ScanResult, "warnings">): boolean {
+  return run.warnings.some((warning) => warning.includes(SHARED_WORKER_ENDED_AT_ONCE_WARNING_FRAGMENT));
+}
+
+/**
+ * The fingerprint observer's six v1 loss lines. The first five stand for the
+ * one `fingerprint-observer` capture-loss detail, which cannot say which state
+ * a run was in; only the lines can, so every reader that names the loss
+ * chooses its wording from this one classification. The sixth, shared
+ * workers that ended at once, has its own r2 detail, and on v1 takes the same
+ * quality reason as the other five.
  */
 export function fingerprintObserverLossLines(run: Pick<ScanResult, "warnings">): {
   frame: boolean;
@@ -630,13 +645,15 @@ export function fingerprintObserverLossLines(run: Pick<ScanResult, "warnings">):
   workerRealm: boolean;
   canvasEvidence: boolean;
   canvasFontEvidence: boolean;
+  sharedWorkersEndedAtOnce: boolean;
 } {
   return {
     frame: runHitFingerprintObserverCaptureLoss(run),
     listener: runHitFingerprintListenerAttributionLoss(run),
     workerRealm: runHitFingerprintWorkerRealmLoss(run),
     canvasEvidence: runHitFingerprintCanvasEvidenceBounded(run),
-    canvasFontEvidence: runHitFingerprintCanvasFontEvidenceBounded(run)
+    canvasFontEvidence: runHitFingerprintCanvasFontEvidenceBounded(run),
+    sharedWorkersEndedAtOnce: runHitFingerprintSharedWorkersEndedAtOnce(run)
   };
 }
 

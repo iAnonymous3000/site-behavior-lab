@@ -97,6 +97,21 @@ export const SUPERSEDED_R2_NORMALIZATIONS: Readonly<
   Record<ObserverKind, readonly string[]>
 > = Object.freeze({
   "node-playwright": Object.freeze([
+    // Retired by the node-detectors-v21 detector epoch, which admits one
+    // dynamic scanner warning through a new isScannerWarning pattern
+    // (scanner-warning-patterns-v10): the v1 line fingerprint-observer@10
+    // writes for shared workers the scanner never reached that ended at once,
+    // "The page started 1 shared worker that ended within 10 ms, before the
+    // fingerprint observer could reach it, so whether it ran any code is not
+    // known." and its counted plural (fingerprintSharedWorkersEndedAtOnceWarning
+    // in lib/scan-runtime.ts). This pass replaced each with "[redacted
+    // warning]"; its producer emitted neither. Nothing an older pass admitted
+    // was removed: no fixed warning, table or other pattern moved, and the
+    // public-suffix engine is unchanged, so every published report stays a
+    // fixed point. A widening is not a policy revision, so
+    // PUBLIC_STRING_POLICY_VERSION stays public-string-policy-v4 and only its
+    // digest moves, through the hand-bumped pattern label alone.
+    "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:bc719d41df186ae38fdb34695df43780a816d32b41068a6107cd35035269844e+tldts@7.4.16+node-evidence-policy-v1+r2-http-status-compat-v1",
     // Retired by the node-detectors-v15 detector epoch, which admits two
     // exact fixed scanner warnings, the v1 lines for a frame that
     // fingerprint-observer@7 read but whose canvas or font-measurement
@@ -463,6 +478,11 @@ export const SUPERSEDED_R2_NORMALIZATIONS: Readonly<
     "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:6c78c05523e1f16c88264d0144af33587bd6dc11e04d337a6af2d58190639266+tldts@7.4.9+node-evidence-policy-v1+r2-http-status-compat-v1"
   ]),
   "pagegraph-import": Object.freeze([
+    // Retired by node-detectors-v21's widening (the line for shared workers
+    // that ended at once); see the node-playwright entry. A PageGraph import
+    // records no fingerprint events and never emits the line, but the
+    // public-string policy is shared by both observers.
+    "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:bc719d41df186ae38fdb34695df43780a816d32b41068a6107cd35035269844e+tldts@7.4.16+pagegraph-request-evidence-v1+r2-http-status-compat-v1",
     // Retired by node-detectors-v15's widening (the two canvas evidence
     // lines); see the node-playwright entry. A PageGraph import records no
     // fingerprint events and never emits either line, but the public-string

@@ -10,6 +10,9 @@ import {
   HISTORICAL_DETECTOR_OBLIGATION_REGISTRY,
   HISTORICAL_DETECTOR_OBLIGATION_TARGET_REGISTRY,
   HISTORICAL_SERVICE_ROLE_DETECTOR_OBLIGATION_TARGET_REGISTRY,
+  HISTORICAL_V2_DETECTOR_OBLIGATION_CONTRACT_VERSION,
+  HISTORICAL_V2_DETECTOR_OBLIGATION_REGISTRY,
+  HISTORICAL_V2_DETECTOR_OBLIGATION_REGISTRY_DIGEST,
   HISTORICAL_WRAPPED_VISIT_DETECTOR_OBLIGATION_TARGET_REGISTRY,
   detectorObligationContractVersion,
   detectorObligationViolations,
@@ -52,6 +55,11 @@ const NODE_V11_EPOCH = {
 const NODE_V12_EPOCH = {
   detectorRegistryVersion: "node-detectors-v12",
   detectorRegistryDigest: "30a670c81952b0bac4c9bf668867fbce6cb868e39b9ffd6a3970e3b605dcda88"
+} as const;
+// The last detector-obligations-v2 epoch, spelled out the same way.
+const NODE_V20_EPOCH = {
+  detectorRegistryVersion: "node-detectors-v20",
+  detectorRegistryDigest: "30f7aa038ba10a9a0d94404a59023d47e3e0eac6dd358d66300ce7158a9ae75a"
 } as const;
 
 test("the obligation contract keeps every accountability registry epoch active", () => {
@@ -127,6 +135,10 @@ test("the obligation contract keeps every accountability registry epoch active",
     {
       detectorRegistryVersion: "node-detectors-v20",
       detectorRegistryDigest: "30f7aa038ba10a9a0d94404a59023d47e3e0eac6dd358d66300ce7158a9ae75a"
+    },
+    {
+      detectorRegistryVersion: "node-detectors-v21",
+      detectorRegistryDigest: "8e5f425873260a8587984c38758831ed400128c9e3c89f4a0f144fdfd4b0a5f9"
     }
   ]);
   assert.equal(
@@ -141,11 +153,14 @@ test("the obligation contract keeps every accountability registry epoch active",
     DETECTOR_OBLIGATION_TARGET_REGISTRIES[2],
     HISTORICAL_WRAPPED_VISIT_DETECTOR_OBLIGATION_TARGET_REGISTRY
   );
-  assert.equal(DETECTOR_OBLIGATION_TARGET_REGISTRIES[17], DETECTOR_OBLIGATION_TARGET_REGISTRY);
+  assert.equal(DETECTOR_OBLIGATION_TARGET_REGISTRIES[18], DETECTOR_OBLIGATION_TARGET_REGISTRY);
   assert.equal(Object.isFrozen(DETECTOR_OBLIGATION_TARGET_REGISTRIES), true);
 });
 
-function onEpoch(run: ScanRunV2, epoch: typeof EPOCH | typeof NODE_V11_EPOCH | typeof NODE_V12_EPOCH): ScanRunV2 {
+function onEpoch(
+  run: ScanRunV2,
+  epoch: typeof EPOCH | typeof NODE_V11_EPOCH | typeof NODE_V12_EPOCH | typeof NODE_V20_EPOCH
+): ScanRunV2 {
   run.provenance.detectorRegistry = {
     version: epoch.detectorRegistryVersion,
     digest: epoch.detectorRegistryDigest
@@ -202,14 +217,17 @@ function cnameCapRun(loss?: Partial<CaptureLossEntry>): ScanRunV2 {
   return run;
 }
 
-// The active contract under the live epoch, and v1 under the last closed one.
+// The active contract under the live epoch, v2 under the last v2 epoch, and
+// v1 under the last closed v1 one.
 const CONTRACTS = [
-  { label: "active", epoch: EPOCH, version: "detector-obligations-v2", registry: DETECTOR_OBLIGATION_REGISTRY },
+  { label: "active", epoch: EPOCH, version: "detector-obligations-v3", registry: DETECTOR_OBLIGATION_REGISTRY },
+  { label: "node-detectors-v20", epoch: NODE_V20_EPOCH, version: "detector-obligations-v2", registry: HISTORICAL_V2_DETECTOR_OBLIGATION_REGISTRY },
   { label: "node-detectors-v11", epoch: NODE_V11_EPOCH, version: "detector-obligations-v1", registry: HISTORICAL_DETECTOR_OBLIGATION_REGISTRY }
 ] as const;
 
 test("the immutable obligation registry accepts every registered causal row", () => {
-  assert.equal(DETECTOR_OBLIGATION_CONTRACT_VERSION, "detector-obligations-v2");
+  assert.equal(DETECTOR_OBLIGATION_CONTRACT_VERSION, "detector-obligations-v3");
+  assert.equal(HISTORICAL_V2_DETECTOR_OBLIGATION_CONTRACT_VERSION, "detector-obligations-v2");
   assert.equal(HISTORICAL_DETECTOR_OBLIGATION_CONTRACT_VERSION, "detector-obligations-v1");
   for (const { label, epoch, version, registry } of CONTRACTS) {
     assert.equal(detectorObligationContractVersion(epoch), version, label);
@@ -293,22 +311,47 @@ test("each accountability epoch is held to the obligation contract its registry 
     version: HISTORICAL_DETECTOR_OBLIGATION_CONTRACT_VERSION,
     digest: "fb8bd07786fdb71c02ffdf1eca40a73b8974c691c6d4ef3c89230ad5314c22a3"
   });
+  // Every v2 epoch, node-detectors-v12 to v20, recorded 502d1490...0f2b, and
+  // the registry the reader holds them to still hashes to exactly that.
+  assert.equal(
+    HISTORICAL_V2_DETECTOR_OBLIGATION_REGISTRY_DIGEST,
+    "502d149030a4b771031a41ec71760e02d801a569ef0fe9725b01036351b10f2b"
+  );
   assert.equal(
     DETECTOR_OBLIGATION_REGISTRY_DIGEST,
-    "502d149030a4b771031a41ec71760e02d801a569ef0fe9725b01036351b10f2b"
+    "f023d19e5cce23873ecd61af6d5f957002db137c8d81883f11965ab1afa518b2"
   );
   // v2 is v1 with exactly one more row, in place: a CNAME lookup that failed
   // beside a found cloak, with the dropped lookups as its loss.
-  const added = DETECTOR_OBLIGATION_REGISTRY.filter((rule) => !HISTORICAL_DETECTOR_OBLIGATION_REGISTRY.includes(rule));
+  const added = HISTORICAL_V2_DETECTOR_OBLIGATION_REGISTRY.filter(
+    (rule) => !HISTORICAL_DETECTOR_OBLIGATION_REGISTRY.includes(rule)
+  );
   assert.deepEqual(added, [{
     detector: "cname-uncloaking",
     status: "partial",
     reason: "scan-failed",
     loss: { family: "detector-output", detail: "cname-lookups", kinds: ["dropped"], phaseRule: "detector-phase" }
   }]);
-  assert.equal(HISTORICAL_DETECTOR_OBLIGATION_REGISTRY.length, DETECTOR_OBLIGATION_REGISTRY.length - 1);
+  assert.equal(HISTORICAL_DETECTOR_OBLIGATION_REGISTRY.length, HISTORICAL_V2_DETECTOR_OBLIGATION_REGISTRY.length - 1);
+  // v3 is v2 with exactly one row widened, in place: the partial fingerprint
+  // detector's scan-failed row may rest on the loss of shared workers that
+  // ended at once instead of the observer's own.
+  assert.equal(DETECTOR_OBLIGATION_REGISTRY.length, HISTORICAL_V2_DETECTOR_OBLIGATION_REGISTRY.length);
+  const widened = DETECTOR_OBLIGATION_REGISTRY.flatMap((rule, index) =>
+    rule === HISTORICAL_V2_DETECTOR_OBLIGATION_REGISTRY[index] ? [] : [[HISTORICAL_V2_DETECTOR_OBLIGATION_REGISTRY[index], rule]]
+  );
+  assert.equal(widened.length, 1);
+  const [[before, after]] = widened;
+  assert.deepEqual({ ...after, alternativeLoss: undefined }, { ...before, alternativeLoss: undefined });
+  assert.deepEqual(after.alternativeLoss, {
+    family: "fingerprinting",
+    detail: "fingerprint-shared-worker-ended",
+    kinds: ["dropped"],
+    phaseRule: "fingerprint-coverage-phase"
+  });
+  assert.deepEqual([after.detector, after.status, after.reason], ["fingerprint-heuristics", "partial", "scan-failed"]);
   // Every closed epoch before node-detectors-v12 keeps v1; v12 through v20
-  // are held to v2.
+  // are held to v2, and v21 to v3.
   assert.deepEqual(
     DETECTOR_OBLIGATION_TARGET_REGISTRIES.map((epoch) => [epoch.detectorRegistryVersion, detectorObligationContractVersion(epoch)]),
     [
@@ -329,15 +372,71 @@ test("each accountability epoch is held to the obligation contract its registry 
       ["node-detectors-v17", "detector-obligations-v2"],
       ["node-detectors-v18", "detector-obligations-v2"],
       ["node-detectors-v19", "detector-obligations-v2"],
-      ["node-detectors-v20", "detector-obligations-v2"]
+      ["node-detectors-v20", "detector-obligations-v2"],
+      ["node-detectors-v21", "detector-obligations-v3"]
     ]
   );
   assert.equal(detectorObligationContractVersion(NODE_V12_EPOCH), "detector-obligations-v2");
+  assert.equal(detectorObligationContractVersion(NODE_V20_EPOCH), "detector-obligations-v2");
   // An epoch outside the target list has no contract to be held to.
   assert.throws(
     () => detectorObligationContractVersion({ detectorRegistryVersion: "node-detectors-v12", detectorRegistryDigest: "0".repeat(64) }),
     /is not a detector obligation target epoch/
   );
+});
+
+test("a partial fingerprint detector rests on the loss of shared workers that ended at once only from node-detectors-v21", () => {
+  const endedAtOnceOnly = (
+    epoch: typeof EPOCH | typeof NODE_V20_EPOCH,
+    loss: Partial<CaptureLossEntry> = {}
+  ): ScanRunV2 => {
+    const run = onEpoch(makeScanRunV2R2(), epoch);
+    run.detectors["fingerprint-heuristics"] = {
+      version: run.detectors["fingerprint-heuristics"].version,
+      status: "partial",
+      reason: "scan-failed",
+      phaseId: 0
+    };
+    run.qualityFacts.captureLoss.push({
+      family: loss.family ?? "fingerprinting",
+      phaseId: loss.phaseId === undefined ? 0 : loss.phaseId,
+      kind: loss.kind ?? "dropped",
+      count: loss.count ?? 2,
+      detail: loss.detail ?? "fingerprint-shared-worker-ended"
+    });
+    return run;
+  };
+  assert.deepEqual(detectorObligationViolations(endedAtOnceOnly(EPOCH), "v21", EPOCH), []);
+  // node-detectors-v20 never recorded the detail, so its reports may not
+  // rest a partial detector on it.
+  assert.match(
+    detectorObligationViolations(endedAtOnceOnly(NODE_V20_EPOCH), "v20", NODE_V20_EPOCH).join("\n"),
+    /fingerprint-heuristics lacks causal fingerprinting\/fingerprint-observer loss/
+  );
+  // The alternative is exact too: family, kind and phase.
+  for (const [label, loss] of [
+    ["wrong family", { family: "requests" }],
+    ["wrong kind", { kind: "cap" }],
+    ["wrong phase", { phaseId: null }],
+    ["another detail", { detail: "pixel-decode" }]
+  ] as const) {
+    assert.match(
+      detectorObligationViolations(endedAtOnceOnly(EPOCH, loss), "v21", EPOCH).join("\n"),
+      /fingerprint-heuristics lacks causal fingerprinting\/fingerprint-observer loss/,
+      label
+    );
+  }
+  // Only the scan-failed row is widened: a failed or load-failed detector
+  // still needs the observer's own loss.
+  for (const [status, reason] of [["partial", "load-failed"], ["failed", "load-failed"], ["failed", "engine-unavailable"]] as const) {
+    const run = endedAtOnceOnly(EPOCH);
+    run.detectors["fingerprint-heuristics"] = { ...run.detectors["fingerprint-heuristics"], status, reason };
+    assert.match(
+      detectorObligationViolations(run, "v21", EPOCH).join("\n"),
+      /fingerprint-heuristics lacks causal fingerprinting\/fingerprint-observer loss/,
+      `${status}/${reason}`
+    );
+  }
 });
 
 test("a failed CNAME lookup beside a found cloak is partial only from node-detectors-v12", () => {

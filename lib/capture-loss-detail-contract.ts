@@ -1,5 +1,6 @@
 import { PAGE_SUBJECT_CAPTURE_LOSS_DETAIL } from "./bot-wall-classifier";
 import type { CaptureLossEntry, EvidenceFamily } from "./scan-report-v2";
+import { FINGERPRINT_SHARED_WORKER_ENDED_DETAIL } from "./shared-worker-ended-at-once";
 import {
   R2_NAVIGATION_STATUS_UNREPRESENTABLE,
   R2_REQUEST_STATUS_UNREPRESENTABLE
@@ -42,6 +43,10 @@ export const CAPTURE_LOSS_DETAIL_CONTRACT = Object.freeze({
   // dedicated or shared worker realms. Only the run's warnings say which
   // kinds a count holds.
   "fingerprint-observer": { families: ["fingerprinting"], budget: true },
+  // Counts shared workers the scanner never reached that ended at once
+  // (fingerprint-observer@10), apart from the realms above: whether they ran
+  // any code is not known. Not a budget.
+  [FINGERPRINT_SHARED_WORKER_ENDED_DETAIL]: { families: ["fingerprinting"], budget: false },
   "keystroke-probe": { families: ["detector-output"], budget: true },
   "cname-lookups": { families: ["detector-output"], budget: true },
   "pixel-decode": { families: ["detector-output"], budget: true },

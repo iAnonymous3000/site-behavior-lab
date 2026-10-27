@@ -53,6 +53,7 @@ import {
   FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING,
   FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING,
   FINGERPRINT_WORKER_REALM_CAPTURE_LOSS_WARNING,
+  fingerprintSharedWorkersEndedAtOnceWarning,
   INVALID_UPSTREAM_RESPONSE_WARNING,
   KEYSTROKE_PROBE_INCOMPLETE_WARNING,
   KEYSTROKE_PROBE_NAVIGATION_STOPPED_WARNING,
@@ -68,6 +69,7 @@ import {
 } from "./scan-runtime";
 import { recordedDetails, stringConstants } from "./producer-loss-source";
 import { assertProperty, seededRandom, withoutOne, type SeededRandom } from "./seeded-property";
+import { FINGERPRINT_SHARED_WORKER_ENDED_DETAIL } from "./shared-worker-ended-at-once";
 import { findTrackerMatch } from "./tracker-catalog";
 import type {
   CnameCloak,
@@ -156,11 +158,19 @@ const FINGERPRINT_OUTCOMES = [
   "canvas",
   "canvas-font",
   "listener-and-canvas-font",
+  // fingerprint-observer@10: every realm read, but the page started a shared
+  // worker that the attacher never reached and that ended at once (its own
+  // line and its own detail), alone or beside an unread worker realm.
+  "shared-ended",
+  "worker-and-shared-ended",
   // Consent mode only: the passive read just before the click.
   "passive-worker",
   "passive-frame",
   "passive-listener",
   "passive-canvas-font",
+  // A shared worker ended at once before the passive read. The attacher's
+  // records only grow, so a final read that ran counts it too.
+  "passive-shared-ended",
   "passive-read-failed",
   "attribution-incomplete"
 ] as const;
@@ -319,6 +329,7 @@ const PASSIVE_BOUNDARY_FINGERPRINT = new Set<FingerprintOutcome>([
   "passive-frame",
   "passive-listener",
   "passive-canvas-font",
+  "passive-shared-ended",
   "passive-read-failed"
 ]);
 const PASSIVE_BOUNDARY_LOSSES = new Set<LossEvent>([
@@ -629,6 +640,11 @@ function scannerDraft(visit: Visit): Draft {
     ) {
       loss(draft, "fingerprinting", passive, "dropped", "fingerprint-observer");
       passiveFingerprintRead = false;
+    } else if (visit.fingerprint === "passive-shared-ended") {
+      // Every realm of the read was read: no observer loss, only the shared
+      // workers' own, and still an incomplete boundary.
+      loss(draft, "fingerprinting", passive, "dropped", FINGERPRINT_SHARED_WORKER_ENDED_DETAIL);
+      passiveFingerprintRead = false;
     }
   }
 
@@ -718,10 +734,21 @@ function scannerDraft(visit: Visit): Draft {
     visit.fingerprint === "listener" ||
     visit.fingerprint === "listener-and-worker" ||
     visit.fingerprint === "listener-and-canvas-font";
-  const finalWorker = visit.fingerprint === "worker" || visit.fingerprint === "frame-and-worker" || visit.fingerprint === "listener-and-worker";
+  const finalWorker =
+    visit.fingerprint === "worker" ||
+    visit.fingerprint === "frame-and-worker" ||
+    visit.fingerprint === "listener-and-worker" ||
+    visit.fingerprint === "worker-and-shared-ended";
   const finalCanvas = visit.fingerprint === "canvas";
   const finalCanvasFont = visit.fingerprint === "canvas-font" || visit.fingerprint === "listener-and-canvas-font";
   const finalSummaryWithheld = finalListener || finalCanvas || finalCanvasFont;
+  // The final read counts a shared worker that ended at once before the
+  // passive read too; with the state unread it is the passive stand-in,
+  // which counts none.
+  const finalSharedEnded =
+    visit.fingerprint === "shared-ended" ||
+    visit.fingerprint === "worker-and-shared-ended" ||
+    (state && visit.fingerprint === "passive-shared-ended");
   const frameCoverageComplete = state ? !finalFrame : passiveFingerprintRead;
   if (!frameCoverageComplete) line(draft, FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING);
   else if (state) {
@@ -730,10 +757,15 @@ function scannerDraft(visit: Visit): Draft {
     if (finalCanvasFont) line(draft, FINGERPRINT_CANVAS_FONT_EVIDENCE_BOUNDED_WARNING);
   }
   if ((state && finalWorker) || visit.fingerprint === "passive-worker") line(draft, FINGERPRINT_WORKER_REALM_CAPTURE_LOSS_WARNING);
+  // Its own line, by either read, with the larger count (one here).
+  if (finalSharedEnded || visit.fingerprint === "passive-shared-ended") {
+    line(draft, fingerprintSharedWorkersEndedAtOnceWarning(1));
+  }
   if (state) {
     if (visit.losses.includes("page-title-truncated")) loss(draft, "detector-output", snapshot, "truncated", "page-title");
     if (visit.fingerprint === "attribution-incomplete") loss(draft, "fingerprinting", snapshot, "dropped", "fingerprint-observer");
     if (finalFrame || finalSummaryWithheld || finalWorker) loss(draft, "fingerprinting", snapshot, "dropped", "fingerprint-observer");
+    if (finalSharedEnded) loss(draft, "fingerprinting", snapshot, "dropped", FINGERPRINT_SHARED_WORKER_ENDED_DETAIL);
     if (visit.losses.includes("final-storage-failed")) loss(draft, "storage", snapshot, "dropped", "storage-snapshot");
     else if (visit.losses.includes("final-storage-truncated")) loss(draft, "storage", snapshot, "truncated", "storage-snapshot");
     // Beside exactly that loss (finalStorageReadTruncated or a committed read that failed).
@@ -748,6 +780,7 @@ function scannerDraft(visit: Visit): Draft {
       finalFrame ||
       finalSummaryWithheld ||
       finalWorker ||
+      finalSharedEnded ||
       visit.fingerprint === "attribution-incomplete" ||
       (draft.consent !== null && !passiveFingerprintRead)
     ) {
@@ -1849,6 +1882,7 @@ test("with the state unread, a consent visit publishes its passive read on both 
       "passive-listener",
       "passive-canvas-font",
       "passive-worker",
+      "passive-shared-ended",
       "passive-read-failed"
     ] as const) {
       const visit = fixedVisit({
