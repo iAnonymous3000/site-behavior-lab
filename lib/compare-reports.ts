@@ -19,6 +19,7 @@ import type {
   StorageKeyChange,
   StorageRecord
 } from "./types";
+import { catalogEntitySummaries } from "./report-insights";
 import { SCAN_REPORT_SCHEMA_VERSION } from "./types";
 
 /**
@@ -222,16 +223,41 @@ export function createComparisonReport({
   };
 }
 
+/**
+ * The v1 wire's `diff`, as the producer writes it, redaction rebuilds it and
+ * the v1 reader recomputes it to reconcile a stored report. Its entity lists
+ * keep the domain-summary rule (see EntityListRule), so a v1 comparison
+ * stored under any earlier release still reconciles.
+ */
 export function compareScanResults(before: ScanResult, after: ScanResult): ComparisonDiff {
-  return compareRunFacts(runFactsFromScanResult(before), runFactsFromScanResult(after));
+  return compareRunFacts(runFactsFromScanResult(before), runFactsFromScanResult(after), "v1-wire");
 }
 
 /**
+ * Which rule a diff's "entities only in one visit" lists follow.
+ *
+ * "rows" is the run's exact catalog entities (catalogEntitySummaries): each
+ * request row's own match, and a domain summary only for an entity no row
+ * names, third party only, as the visit's own report reads them. It is what a
+ * reader is shown.
+ *
+ * "v1-wire" is the rule every stored v1 diff was written with: each domain
+ * summary's one retained match, counting every request on that host. A host
+ * can carry rows of two entities, or a match on one row of many: redaction's
+ * `{label}` generalization merges hosts with and without a match into one
+ * published host (the committed 20260727-3f4388ac baseline publishes one
+ * Google row among nine on `{label}.google.com`). So the two rules can differ
+ * on scanner-made reports, and the v1 reader reconciles the stored diff
+ * against this rule, never the other.
+ */
+export type EntityListRule = "rows" | "v1-wire";
+
+/**
  * The count and evidence surface the diff derives from. Structurally matched
- * by the view seam's `RunView`, so a consumer holding views computes the SAME
- * diff the producer wrote (one definition; parity by construction), and a v2
- * pair (which carries no v1-shaped diff) or a tampered upload gets identical
- * treatment.
+ * by the view seam's `RunView`, so a consumer holding views computes the diff
+ * the producer wrote from the same definition, and a v2 pair (which carries no
+ * v1-shaped diff) or a tampered upload gets identical treatment. Only the
+ * entity lists' rule is chosen by the caller (EntityListRule).
  */
 export type ComparisonRunFacts = {
   counts: {
@@ -279,7 +305,11 @@ function runFactsFromScanResult(result: ScanResult): ComparisonRunFacts {
   };
 }
 
-export function compareRunFacts(before: ComparisonRunFacts, after: ComparisonRunFacts): ComparisonDiff {
+export function compareRunFacts(
+  before: ComparisonRunFacts,
+  after: ComparisonRunFacts,
+  entityLists: EntityListRule
+): ComparisonDiff {
   const diff: ComparisonDiff = {
     totalRequests: delta(before.counts.totalRequests, after.counts.totalRequests),
     thirdPartyRequests: delta(before.counts.thirdPartyRequests, after.counts.thirdPartyRequests),
@@ -291,8 +321,8 @@ export function compareRunFacts(before: ComparisonRunFacts, after: ComparisonRun
     fingerprintEvents: delta(before.counts.fingerprintEvents, after.counts.fingerprintEvents),
     addedDomains: domainChanges(before.evidence.domains, after.evidence.domains),
     removedDomains: domainChanges(after.evidence.domains, before.evidence.domains),
-    addedEntities: entityChanges(before.evidence.domains, after.evidence.domains),
-    removedEntities: entityChanges(after.evidence.domains, before.evidence.domains),
+    addedEntities: entityChanges(before.evidence, after.evidence, entityLists),
+    removedEntities: entityChanges(after.evidence, before.evidence, entityLists),
     addedCookies: cookieChanges(before.evidence.cookies, after.evidence.cookies),
     removedCookies: cookieChanges(after.evidence.cookies, before.evidence.cookies),
     addedStorageKeys: storageKeyChanges(before.evidence.storage, after.evidence.storage),
@@ -346,12 +376,24 @@ function domainChanges(before: DomainSummary[], after: DomainSummary[]): DomainC
     .slice(0, MAX_DIFF_LIST);
 }
 
-function entityChanges(before: DomainSummary[], after: DomainSummary[]): EntityChange[] {
-  const beforeEntities = entityRequestMap(before);
-  return Array.from(entityRequestMap(after).entries())
-    .filter(([entity]) => !beforeEntities.has(entity))
-    .map(([entity, summary]) => ({
-      entity,
+/**
+ * Entities one visit names and the other does not, by the given rule. Under
+ * "v1-wire" a host's domain summary keeps only one of its rows' matches, so
+ * request order alone could move an entity between the lists while both
+ * visits' own reports named it; "rows" reads each request's own match.
+ */
+function entityChanges(
+  before: ComparisonRunFacts["evidence"],
+  after: ComparisonRunFacts["evidence"],
+  rule: EntityListRule
+): EntityChange[] {
+  const entitiesOf = (evidence: ComparisonRunFacts["evidence"]): Array<{ entity: string; requests: number; domains: number }> =>
+    rule === "rows" ? catalogEntitySummaries(evidence) : v1WireEntitySummaries(evidence.domains);
+  const beforeEntities = new Set(entitiesOf(before).map((summary) => summary.entity));
+  return entitiesOf(after)
+    .filter((summary) => !beforeEntities.has(summary.entity))
+    .map((summary) => ({
+      entity: summary.entity,
       requests: summary.requests,
       domains: summary.domains
     }))
@@ -449,17 +491,17 @@ function onlyIn<T>(values: T[], exclude: T[] | undefined): T[] {
   return values.filter((value) => !excluded.has(value));
 }
 
-function entityRequestMap(domains: DomainSummary[]): Map<string, { requests: number; domains: number }> {
-  const entities = new Map<string, { requests: number; domains: number }>();
+/** Each domain summary's one retained match, every request on its host counted: the "v1-wire" rule. */
+function v1WireEntitySummaries(domains: DomainSummary[]): Array<{ entity: string; requests: number; domains: number }> {
+  const entities = new Map<string, { entity: string; requests: number; domains: number }>();
   for (const domain of domains) {
     if (!domain.tracker) continue;
-    const entity = entities.get(domain.tracker.entity) ?? { requests: 0, domains: 0 };
+    const entity = entities.get(domain.tracker.entity) ?? { entity: domain.tracker.entity, requests: 0, domains: 0 };
     entity.requests += domain.requests;
     entity.domains += 1;
     entities.set(domain.tracker.entity, entity);
   }
-
-  return entities;
+  return [...entities.values()];
 }
 
 function provenanceChanges(before: NetworkRequestRecord[], after: NetworkRequestRecord[]): ProvenanceChange[] {

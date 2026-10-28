@@ -71,6 +71,70 @@ export function trackerEntitySummaries(result: Pick<ScanResult, "requests">): Tr
   return summarizeTrackerRequests(result.requests);
 }
 
+/**
+ * Every catalogued third-party entity a run names, with its exact counts: the
+ * request rows first, then any entity only a domain summary names. One
+ * definition, read by the report's identity facts and by the comparison
+ * diff's entity lists, so a comparison cannot call an entity present in one
+ * visit only while both visits' own reports name it.
+ */
+export function catalogEntitySummaries(evidence: {
+  requests: readonly NetworkRequestRecord[];
+  domains: readonly DomainSummary[];
+}): TrackerEntitySummary[] {
+  return mergeEntitySummaries(summarizeTrackerRequests(evidence.requests), domainTrackerEntitySummaries(evidence.domains));
+}
+
+/**
+ * Aggregate the catalog matches the DOMAIN summaries carry. Request rows
+ * stay the primary identity source (a shared host can carry several entities
+ * across its rows while its summary keeps one). Stored reports cannot
+ * diverge here: the reader's reconciliation rule requires domains to equal
+ * summarizeDomains(rows). But presentation code also renders locally
+ * constructed views that never passed the reader, and on those a party named
+ * only by a summary was still named; the identity union (and the consistency
+ * gate that reads it) must not lose the name.
+ */
+function domainTrackerEntitySummaries(domains: readonly DomainSummary[]): TrackerEntitySummary[] {
+  const byEntity = new Map<string, TrackerEntitySummary>();
+  for (const domain of domains) {
+    if (!domain.thirdParty || !domain.tracker) continue;
+    const current = byEntity.get(domain.tracker.entity) ?? {
+      entity: domain.tracker.entity,
+      requests: 0,
+      domains: 0,
+      categories: []
+    };
+    current.requests += domain.requests;
+    current.domains += 1;
+    if (!current.categories.includes(domain.tracker.category)) {
+      current.categories.push(domain.tracker.category);
+    }
+    byEntity.set(domain.tracker.entity, current);
+  }
+  return [...byEntity.values()];
+}
+
+/**
+ * Union row-derived and domain-derived entity summaries. Row-derived entries
+ * are exact and stay untouched: a shared host's summary count spans rows that
+ * belong to OTHER entities, so folding it into a row-present entity would
+ * misattribute those rows. Domain summaries only contribute entities the
+ * rows never named at all, where the summary is the only place the view
+ * recorded that party.
+ */
+function mergeEntitySummaries(
+  rowDerived: TrackerEntitySummary[],
+  domainDerived: TrackerEntitySummary[]
+): TrackerEntitySummary[] {
+  const rowNamed = new Set(rowDerived.map((entity) => entity.entity));
+  const additions = domainDerived.filter((candidate) => !rowNamed.has(candidate.entity));
+  if (additions.length === 0) return rowDerived;
+  return [...rowDerived, ...additions].sort(
+    (a, b) => b.requests - a.requests || a.entity.localeCompare(b.entity)
+  );
+}
+
 export type TrackerOwnershipBreakdown = {
   /**
    * Catalogued domains that a reviewed map places in the subject site's own

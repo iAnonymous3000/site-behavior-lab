@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { committedReportCreatedAt } from "./committed-report-created-at";
-import { createGpcComparisonReport } from "./compare-reports";
+import { compareScanResults, createGpcComparisonReport } from "./compare-reports";
+import { summarizeDomains } from "./domain-summaries";
 import { shieldsRunMeasurement } from "./report-insights";
 import { readStoredScanReport } from "./scan-report-reader";
 import {
@@ -42,6 +43,7 @@ import {
   requestEvidenceState,
   runHitRequestRecordingCap,
   runInCorpusDistributionPopulation,
+  comparisonDiffView,
   viewFromV1Report,
   viewFromV2
 } from "./scan-report-views";
@@ -1780,4 +1782,68 @@ test("an open-schema budget reason gets generic copy without leaking its token",
   assert.ok(notes.includes("the visit exhausted a producer-defined collection budget"));
   assert.equal(notes.some((note) => note.includes("future-producer-token")), false);
   assert.equal(notes.some((note) => note.includes("budget-exhausted:")), false);
+});
+
+/**
+ * Two rules for a comparison's "entities only in one visit" lists. The stored
+ * v1 diff keeps each domain summary's one retained match (the v1 reader
+ * recomputes it and refuses a diff that does not reconcile, so every stored
+ * v1 comparison must still read), while the panel shows each request's own
+ * match, as each visit's own report does.
+ */
+test("a v1 comparison's stored entity lists keep the summary rule and still read, while the panel reads each request's own match", () => {
+  const sentry = { domain: "sentry.io", entity: "Sentry", category: "error monitoring", confidence: "curated" as const };
+  const meta = { domain: "facebook.net", entity: "Meta", category: "social / advertising pixel", confidence: "curated" as const };
+  const run = (trackers: Array<typeof sentry | null>, scannedAt: string, gpc: boolean): ScanResult => {
+    const report = structuredClone(makeScanReportV1()) as ScanResult;
+    report.summary.firstPartyDomain = "news.example";
+    report.conditions.requestedUrl = "https://news.example/";
+    report.conditions.finalUrl = "https://news.example/";
+    report.conditions.scannedAt = scannedAt;
+    report.conditions.gpcEnabled = gpc;
+    report.requests = trackers.map((tracker, index) => ({
+      id: index + 1,
+      url: `https://shared.vendor.example/request-${index + 1}`,
+      domain: "shared.vendor.example",
+      method: "GET",
+      resourceType: "script",
+      status: 204,
+      thirdParty: true,
+      tracker,
+      startedAtMs: index + 1
+    }));
+    report.domains = summarizeDomains(report.requests);
+    report.summary.totalRequests = report.requests.length;
+    report.summary.thirdPartyRequests = report.requests.length;
+    report.summary.knownTrackerRequests = report.requests.filter((request) => request.tracker).length;
+    report.summary.thirdPartyDomains = 1;
+    return report;
+  };
+  const read = (pair: ReturnType<typeof createGpcComparisonReport>) => {
+    const stored = readStoredScanReport(pair);
+    assert.equal(stored.ok, true, stored.ok ? "" : JSON.stringify(stored));
+    return comparisonDiffView(viewFromV1Report(pair));
+  };
+
+  // Request order alone on a host with rows of two entities: the stored lists
+  // name each entity on one side, the panel names neither.
+  const reordered = createGpcComparisonReport(
+    run([sentry, meta], "2026-10-28T00:00:00.000Z", false),
+    run([meta, sentry], "2026-10-28T00:02:00.000Z", true)
+  );
+  assert.deepEqual(reordered.diff.addedEntities, [{ entity: "Meta", requests: 2, domains: 1 }]);
+  assert.deepEqual(reordered.diff.removedEntities, [{ entity: "Sentry", requests: 2, domains: 1 }]);
+  const reorderedView = read(reordered);
+  assert.deepEqual(reorderedView?.addedEntities, []);
+  assert.deepEqual(reorderedView?.removedEntities, []);
+
+  // One matched row among several on one published host, the shape redaction's
+  // {label} merge leaves: the stored list counts the host, the panel the row.
+  const merged = createGpcComparisonReport(
+    run([sentry, null, null, null], "2026-10-28T00:00:00.000Z", false),
+    run([null, null, null], "2026-10-28T00:02:00.000Z", true)
+  );
+  assert.deepEqual(merged.diff.removedEntities, [{ entity: "Sentry", requests: 4, domains: 1 }]);
+  assert.deepEqual(compareScanResults(merged.baseline, merged.variant).removedEntities, merged.diff.removedEntities);
+  assert.deepEqual(read(merged)?.removedEntities, [{ entity: "Sentry", requests: 1, domains: 1 }]);
 });

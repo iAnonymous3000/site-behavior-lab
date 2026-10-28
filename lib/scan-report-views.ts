@@ -1417,14 +1417,16 @@ export function comparisonArmViews(view: ReportView): { baseline: RunView; varia
 
 /**
  * The two-arm evidence diff, derived from the arms' run views through the SAME
- * builder the v1 producer used to write the wire's `diff` (parity by
- * construction), so v2 comparisons (whose wire diff is family-shaped, not
- * list-shaped) and tampered uploads render identically. Raw evidence, not a
- * claim: it always renders; `claims` gates wording only.
+ * builder the v1 producer used to write the wire's `diff`, so v2 comparisons
+ * (whose wire diff is family-shaped, not list-shaped) and tampered uploads
+ * render identically. Its entity lists read each request's own catalog match
+ * ("rows"), as each visit's own report does, not the domain-summary rule the
+ * stored v1 diff keeps for the reader's reconciliation (EntityListRule). Raw
+ * evidence, not a claim: it always renders; `claims` gates wording only.
  */
 export function comparisonDiffView(view: ReportView): ComparisonDiff | null {
   const arms = comparisonArmViews(view);
-  return arms ? compareRunFacts(arms.baseline, arms.variant) : null;
+  return arms ? compareRunFacts(arms.baseline, arms.variant, "rows") : null;
 }
 
 /**
