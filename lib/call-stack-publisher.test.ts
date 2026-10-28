@@ -169,6 +169,28 @@ test("one URL's requests take its observations in arrival order, and only counte
   assert.deepEqual([extra.withoutStack, extra.redirected], [1, 0]);
 });
 
+test("a URL with an unobserved request and only some counted joins no stack to the counted ones", () => {
+  // A worker's request (counted, answered) arrives before the page's own
+  // request to the same URL (not counted, failed); only the page's was
+  // observed. By position the worker's would take the page's stack.
+  const workerFirst = new StackTally();
+  joinObservations(workerFirst, 2, [{ group: "g" }], 0, (index) => index === 0);
+  assert.equal(workerFirst.groupCounts.size, 0);
+  assert.equal(workerFirst.unobserved, 1);
+  // Dropped observations count as observed for this rule.
+  const bounded = new StackTally();
+  joinObservations(bounded, 3, [{ group: "g" }], 1, (index) => index !== 1);
+  assert.deepEqual([bounded.groupCounts.size, bounded.notListed, bounded.unobserved], [0, 0, 2]);
+  // Every request counted: any pairing gives the same counts, so they stand.
+  const allCounted = new StackTally();
+  joinObservations(allCounted, 2, [{ group: "g" }], 0);
+  assert.deepEqual([allCounted.groupCounts.get("g"), allCounted.unobserved], [1, 1]);
+  // As many requests as observations: arrival order still pairs them.
+  const matched = new StackTally();
+  joinObservations(matched, 2, ["withoutStack", { group: "g" }], 0, (index) => index === 1);
+  assert.deepEqual([matched.withoutStack, matched.groupCounts.get("g"), matched.unobserved], [0, 1, 0]);
+});
+
 test("groups rank largest first, then by key, and a group that lost its stack throws", () => {
   const tally = new StackTally();
   const stacks = new Map<string, PublishedStack>([

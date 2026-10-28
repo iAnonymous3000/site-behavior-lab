@@ -270,6 +270,15 @@ export class StackTally {
  * observed. Only the requests `counted` names are broken down; the others
  * still take their observations, so a request the recorder does not count
  * never hands its stack to a later one.
+ *
+ * Arrival order pairs the two streams only while they hold the same
+ * requests. When the URL has more requests than the session observed, some
+ * came from where the page's session cannot see, a dedicated worker, and
+ * nothing says which: a worker's request can arrive first and take a page
+ * request's observation. If every request is broken down, that cannot change
+ * a count. If only some are, a counted request could take an uncounted one's
+ * stack, so none of the URL's counted requests takes any, and each is
+ * unobserved.
  */
 export function joinObservations(
   tally: StackTally,
@@ -280,6 +289,14 @@ export function joinObservations(
 ): void {
   const joined = Math.min(pageRequests, observations.length);
   const dropped = Math.min(pageRequests - joined, observationsDropped);
+  if (pageRequests > joined + dropped) {
+    let countedRequests = 0;
+    for (let index = 0; index < pageRequests; index += 1) if (counted(index)) countedRequests += 1;
+    if (countedRequests > 0 && countedRequests < pageRequests) {
+      tally.unobserved += countedRequests;
+      return;
+    }
+  }
   for (let index = 0; index < pageRequests; index += 1) {
     if (!counted(index)) continue;
     if (index < joined) tally.add(observations[index]);

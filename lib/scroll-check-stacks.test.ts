@@ -346,6 +346,30 @@ test("a request the check did not count still takes its observation, so it never
   });
 });
 
+test("a worker's request never takes the stack of the page's own request to the same URL", async () => {
+  const url = "http://pixel.charlie.com/event";
+  const evidence = await check({
+    scheduled: [
+      ...AT_LOAD,
+      // A dedicated worker's request: answered and counted, never observed.
+      { at: SCROLL_START + 1_000, page: url },
+      // The page's own request to the URL, observed with the loader's stack
+      // and not counted. By arrival order the worker's would take its stack.
+      ...both(SCROLL_START + 1_100, url, { frames: [LOADER], decision: "refused" })
+    ]
+  });
+  assert.deepEqual(entryFor(evidence, "pixel.charlie.com"), {
+    host: "pixel.charlie.com",
+    requests: 1,
+    groups: [],
+    redirected: 0,
+    withoutStack: 0,
+    withoutNamedScript: 0,
+    notListed: 0,
+    unobserved: 1
+  });
+});
+
 test("at most three call stacks are listed for a host, the most frequent first, and the counts stay full", async () => {
   const scripts = ["one", "two", "three", "four", "five"].map((name) => `http://static.${name}.org/s.js`);
   const scheduled: Scheduled[] = [...AT_LOAD];
