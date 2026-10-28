@@ -388,6 +388,13 @@ function RequestTable({
                 {type}
               </option>
             ))}
+            {/* The filter outlives a switch to the other visit of a
+                comparison, whose requests may have no row of the chosen type.
+                Without its own option the select would show "All types" over
+                a table that filters every row out. */}
+            {resourceFilter !== "all" && !resourceTypes.includes(resourceFilter) && (
+              <option value={resourceFilter}>{resourceFilter} (none here)</option>
+            )}
           </select>
         </label>
       </div>
