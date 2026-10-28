@@ -635,6 +635,48 @@ test("the queue expiry clock never rewrites terminal job statuses", async () => 
   assert.equal(getScanJobStatus(cancelled.jobId), null);
 });
 
+test("a terminal job leaves the process at its retention bound with no further job call", async (t) => {
+  // Every job call prunes; this checks the bound holds when none comes, as
+  // in a process serving only report traffic. No status read below: a read
+  // would prune by itself and hide a missing timer.
+  t.mock.timers.enable({ apis: ["Date", "setTimeout"], now: new Date("2026-10-28T12:00:00.000Z") });
+  const succeeded = enqueuePreparedScanJob(makePreparedScanRequest({ clientKey: "idle-success" }), {
+    scan: async (payload) => testMeasurementEnvelopeForResult(makeScanResult(payload)),
+    saveReport: async (report) => report
+  });
+  const failed = enqueuePreparedScanJob(makePreparedScanRequest({ clientKey: "idle-failure" }), {
+    scan: async () => {
+      throw new PublicScanError("The idle failure.", 400);
+    }
+  });
+  await Promise.all([waitForScanJobForTests(succeeded.jobId), waitForScanJobForTests(failed.jobId)]);
+  assert.equal(scanJobStateForTests().retainedJobs, 2);
+
+  t.mock.timers.tick(75 * 60 * 1_000);
+  assert.equal(scanJobStateForTests().retainedJobs, 2, "kept through the whole window");
+  t.mock.timers.tick(1);
+  assert.equal(scanJobStateForTests().retainedJobs, 0, "gone once the window ends");
+});
+
+test("a retention timer that fires while its job is still inside the window arms another", async (t) => {
+  // The timer runs on the monotonic clock and the prune reads the wall clock,
+  // so a wall clock stepped back can leave the job inside its window when the
+  // timer fires. Node's fake timers share one clock with Date, so the step is
+  // made here by moving the job's admission 10 minutes later instead.
+  t.mock.timers.enable({ apis: ["Date", "setTimeout"], now: new Date("2026-10-28T12:00:00.000Z") });
+  const finished = enqueuePreparedScanJob(makePreparedScanRequest({ clientKey: "idle-clock-step" }), {
+    scan: async () => {
+      throw new PublicScanError("The idle failure.", 400);
+    }
+  });
+  await waitForScanJobForTests(finished.jobId);
+  setScanJobCreatedAtForTests(finished.jobId, Date.now() + 10 * 60 * 1_000);
+  t.mock.timers.tick(75 * 60 * 1_000 + 1);
+  assert.equal(scanJobStateForTests().retainedJobs, 1, "inside its window when the first timer fired");
+  t.mock.timers.tick(10 * 60 * 1_000);
+  assert.equal(scanJobStateForTests().retainedJobs, 0, "the timer armed again and pruned at the window's end");
+});
+
 test("retention pressure never evicts accepted queued jobs", async () => {
   const instant: ScanRunner = async (payload) => testMeasurementEnvelopeForResult(makeScanResult(payload));
   const hang: ScanRunner = () => new Promise(() => {});

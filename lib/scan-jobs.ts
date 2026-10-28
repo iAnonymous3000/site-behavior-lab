@@ -225,6 +225,8 @@ export function isDurableScanJobPublicationReconciliationRequest(
 const jobs = new Map<string, InternalScanJobRecord>();
 const durableCancellationWatermarks = new Map<string, DurableCancellationWatermark>();
 const queuedJobIds: string[] = [];
+/** Pending retention prunes of terminal process-local records (scheduleRetentionPrune). */
+const retentionPruneTimers = new Set<ReturnType<typeof setTimeout>>();
 let activeJobWorkers = 0;
 let pendingDurableActivations = 0;
 
@@ -756,6 +758,7 @@ export function resetScanJobStateForTests(): void {
     }
   }
   jobs.clear();
+  clearRetentionPruneTimers();
   clearDurableCancellationWatermarks();
   queuedJobIds.splice(0, queuedJobIds.length);
   activeJobWorkers = 0;
@@ -1118,6 +1121,37 @@ function scheduleDurableLocalCleanup(record: InternalScanJobRecord): void {
   durable.cleanupTimer.unref?.();
 }
 
+/**
+ * Run the retention prune when a terminal process-local record's window ends,
+ * JOB_MAX_AGE_MS + JOB_EXPIRED_RETENTION_MS from its admission. Pruning also
+ * runs on every job call; without this timer a finished job would outlive
+ * its bound, report and screenshot included, whenever no further job call
+ * came. The timer only calls the prune, so the one rule there decides, and
+ * it holds the record's id, never the record, so a record pressure eviction
+ * drops is not kept alive until its timer fires. A timer runs on the
+ * monotonic clock and the prune reads the wall clock, so a timer that fires
+ * while the record is still inside its window (the wall clock stepped back,
+ * or a fire a millisecond early) arms another for what is left.
+ */
+function scheduleRetentionPrune(record: InternalScanJobRecord): void {
+  if (record.durable) return;
+  const id = record.id;
+  const delay = Math.max(record.createdAtMs + JOB_MAX_AGE_MS + JOB_EXPIRED_RETENTION_MS + 1 - Date.now(), 0);
+  const timer = setTimeout(() => {
+    retentionPruneTimers.delete(timer);
+    pruneScanJobs();
+    const survivor = jobs.get(id);
+    if (survivor && isTerminalStatus(survivor.status)) scheduleRetentionPrune(survivor);
+  }, delay);
+  timer.unref?.();
+  retentionPruneTimers.add(timer);
+}
+
+function clearRetentionPruneTimers(): void {
+  for (const timer of retentionPruneTimers) clearTimeout(timer);
+  retentionPruneTimers.clear();
+}
+
 function stopDurableLocalCleanup(record: InternalScanJobRecord): void {
   const durable = record.durable;
   if (!durable?.cleanupTimer) return;
@@ -1248,6 +1282,7 @@ function markSucceeded(record: InternalScanJobRecord, report: RuntimeScanReport)
   };
   record.releaseScrollCheck?.();
   scheduleDurableLocalCleanup(record);
+  scheduleRetentionPrune(record);
 }
 
 function markFailed(record: InternalScanJobRecord, error: string): void {
@@ -1259,6 +1294,7 @@ function markFailed(record: InternalScanJobRecord, error: string): void {
   record.updatedAt = now;
   record.releaseScrollCheck?.();
   scheduleDurableLocalCleanup(record);
+  scheduleRetentionPrune(record);
 }
 
 function markCancelled(record: InternalScanJobRecord): void {
@@ -1270,6 +1306,7 @@ function markCancelled(record: InternalScanJobRecord): void {
   record.updatedAt = now;
   record.releaseScrollCheck?.();
   scheduleDurableLocalCleanup(record);
+  scheduleRetentionPrune(record);
 }
 
 function markPublicationStarted(record: InternalScanJobRecord): void {
@@ -1300,6 +1337,7 @@ function markExpired(record: InternalScanJobRecord): void {
   record.finishedAt = now;
   record.updatedAt = now;
   record.releaseScrollCheck?.();
+  scheduleRetentionPrune(record);
 }
 
 function createProgress(phase: ScanJobProgress["phase"], prepared: PreparedScanRequest, completedRuns: number): ScanJobProgress {
