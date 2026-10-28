@@ -889,6 +889,22 @@ test("readout: a shared worker still held at the drain's bound is excluded", asy
   assert.equal(holdOf(realms.visit, "sw-1"), "held");
 });
 
+test("readout: a shared worker held at the freeze whose attacher's channel closes during the drain is unread, never excluded", async (t) => {
+  // The channel's loss settles the drain, so the hold makes no further move
+  // the readout can see: whether the hold the main thread last saw was still
+  // in place is not known, and the loss itself releases the worker.
+  const realms = await scriptedSharedReadout(t, heldWhileUnanswered);
+  commitMainDocument(realms.browser, "loader-1");
+  sharedAttach(realms.browser, "sw-1");
+  await until(() => realms.browser.commands("sw-1").length === 3);
+  mainScriptPause(realms.browser, "sw-1");
+  await until(() => holdOf(realms.visit, "sw-1") === "held");
+  const pending = realms.readout(1_000);
+  setTimeout(() => realms.visit.markLost(), 20);
+  assert.deepEqual(sharedTerms(await pending), { attached: 1, channelLostAlive: 1, unread: 1, readable: 0, unscoped: 0, endedAtOnce: 0 });
+  assert.equal(holdOf(realms.visit, "sw-1"), "held");
+});
+
 test("readout: a shared worker that ended at once is reported apart, and a lost attacher leaves its live workers unread", async (t) => {
   const realms = await scriptedSharedReadout(t);
   commitMainDocument(realms.browser, "loader-1");

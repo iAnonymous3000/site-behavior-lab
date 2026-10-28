@@ -139,6 +139,10 @@ test("the obligation contract keeps every accountability registry epoch active",
     {
       detectorRegistryVersion: "node-detectors-v21",
       detectorRegistryDigest: "8e5f425873260a8587984c38758831ed400128c9e3c89f4a0f144fdfd4b0a5f9"
+    },
+    {
+      detectorRegistryVersion: "node-detectors-v22",
+      detectorRegistryDigest: "e4367c5d88e33ccfa54b14e261c506202edecc05d74e38fa606a3a49364eff68"
     }
   ]);
   assert.equal(
@@ -153,7 +157,7 @@ test("the obligation contract keeps every accountability registry epoch active",
     DETECTOR_OBLIGATION_TARGET_REGISTRIES[2],
     HISTORICAL_WRAPPED_VISIT_DETECTOR_OBLIGATION_TARGET_REGISTRY
   );
-  assert.equal(DETECTOR_OBLIGATION_TARGET_REGISTRIES[18], DETECTOR_OBLIGATION_TARGET_REGISTRY);
+  assert.equal(DETECTOR_OBLIGATION_TARGET_REGISTRIES[19], DETECTOR_OBLIGATION_TARGET_REGISTRY);
   assert.equal(Object.isFrozen(DETECTOR_OBLIGATION_TARGET_REGISTRIES), true);
 });
 
@@ -373,7 +377,8 @@ test("each accountability epoch is held to the obligation contract its registry 
       ["node-detectors-v18", "detector-obligations-v2"],
       ["node-detectors-v19", "detector-obligations-v2"],
       ["node-detectors-v20", "detector-obligations-v2"],
-      ["node-detectors-v21", "detector-obligations-v3"]
+      ["node-detectors-v21", "detector-obligations-v3"],
+      ["node-detectors-v22", "detector-obligations-v3"]
     ]
   );
   assert.equal(detectorObligationContractVersion(NODE_V12_EPOCH), "detector-obligations-v2");

@@ -1917,7 +1917,7 @@ test("HTTP-200 robot pages and unavailable subject collectors fail quality and s
     assert.equal(result.consentInteraction, undefined, "the interstitial's decoy consent control must not be clicked");
     assert.equal(measurement.measurement.qualityFacts.botWallTitleMatched, true);
     assert.deepEqual(measurement.measurement.detectors["consent-banner"], {
-      version: "consent-control-and-state@3",
+      version: "consent-control-and-state@4",
       status: "skipped",
       reason: "load-failed"
     });
@@ -2040,7 +2040,7 @@ test("HTTP-200 robot pages and unavailable subject collectors fail quality and s
       true
     );
     assert.deepEqual(unavailable.measurement.measurement.detectors["consent-banner"], {
-      version: "consent-control-and-state@3",
+      version: "consent-control-and-state@4",
       status: "skipped",
       reason: "load-failed"
     });
@@ -2178,7 +2178,7 @@ test("the recorded HTTP status is the frozen subject's document after a script r
     assert.equal(blocked.result.warnings.includes(SUSPECTED_CHALLENGE_OR_SOFT_BLOCK_WARNING), false);
     assert.equal(blocked.result.consentInteraction, undefined);
     assert.deepEqual(blocked.measurement.measurement.detectors["consent-banner"], {
-      version: "consent-control-and-state@3",
+      version: "consent-control-and-state@4",
       status: "skipped",
       reason: "load-failed"
     });
@@ -3257,7 +3257,7 @@ test("scanSite marks fingerprint coverage partial when a poisoned main frame is 
       }
     );
     assert.deepEqual(staged!.measurement.detectors["fingerprint-heuristics"], {
-      version: "fingerprint-observer@10",
+      version: "fingerprint-observer@11",
       status: "partial",
       reason: "scan-failed",
       phaseId: 0
@@ -3353,7 +3353,7 @@ test("passive fingerprint loss remains causal when the consent snapshot is later
     assert.deepEqual(
       staged.measurement.detectors["fingerprint-heuristics"],
       {
-        version: "fingerprint-observer@10",
+        version: "fingerprint-observer@11",
         status: "partial",
         reason: "scan-failed",
         phaseId: consentPhase.phaseId
@@ -3568,7 +3568,7 @@ test("a saturated listener stack publishes the frame's canvas and WebGL evidence
     // the detector status, the capture-loss ledger, and the v1 warning. Every
     // frame was read, so the v1 line is the listener one, never the frame one.
     assert.deepEqual(staged.measurement.detectors["fingerprint-heuristics"], {
-      version: "fingerprint-observer@10",
+      version: "fingerprint-observer@11",
       status: "partial",
       reason: "scan-failed",
       phaseId: 0
@@ -3704,7 +3704,7 @@ test("a passive read with bounded listener attribution cannot credit a later rec
       "no fingerprint detection may be credited to the consent phase"
     );
     assert.deepEqual(staged.measurement.detectors["fingerprint-heuristics"], {
-      version: "fingerprint-observer@10",
+      version: "fingerprint-observer@11",
       status: "partial",
       reason: "scan-failed",
       phaseId: consentPhase.phaseId
@@ -4956,7 +4956,7 @@ test("observe-mode consent timeout anchors detector and loss to the passive phas
     );
     assert.ok(passivePhase);
     assert.deepEqual(staged.measurement.detectors["consent-banner"], {
-      version: "consent-control-and-state@3",
+      version: "consent-control-and-state@4",
       status: "skipped",
       reason: "budget-unavailable",
       phaseId: passivePhase.phaseId
@@ -5989,7 +5989,7 @@ test("a consent click cannot promote a sibling origin into evidence or active-in
       ["passive-load", "consent-interaction"]
     );
     assert.deepEqual(staged!.measurement.detectors["consent-banner"], {
-      version: "consent-control-and-state@3",
+      version: "consent-control-and-state@4",
       status: "partial",
       reason: "load-failed",
       phaseId: 1
@@ -6144,7 +6144,7 @@ test("a consent control that never responds is disclosed as a click, not an empt
     assert.doesNotMatch(consentWarnings[0], /no recognizable control was found/);
     assert.equal(v1ResultDisplayFacts(result).claims["consent-banner"].allowed, false);
     assert.deepEqual(staged!.measurement.detectors["consent-banner"], {
-      version: "consent-control-and-state@3",
+      version: "consent-control-and-state@4",
       status: "partial",
       reason: "scan-failed",
       phaseId: 1

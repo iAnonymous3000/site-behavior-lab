@@ -160,7 +160,12 @@ export type FingerprintObserverRealmArgs = {
  * Through @9 no shared worker was observed: each one the page started was an
  * unread realm whatever it did. @10 also reports a shared worker the scanner
  * never reached that ended within 10 ms of its creation apart from the realms
- * that ran unread, since whether it ran any code is not known.
+ * that ran unread, since whether it ran any code is not known. `@11`
+ * (node-detectors-v22) keeps this script and counts a shared worker the
+ * readout saw held, whose attacher channel then closed before the worker made
+ * another move, as unread. Through @10 it was excluded as having run nothing
+ * before the readout, although the hold it was last seen in may already have
+ * broken.
  *
  * `firstPartySiteKey` is the scanned site's registrable domain (computed with
  * the real public-suffix list in Node, e.g. "capitalone.com"), so the in-page

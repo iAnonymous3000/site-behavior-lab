@@ -821,12 +821,16 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
    * thread, so a "late" report behind "held" means the hold broke before the
    * install answered (resumed-while-held): its main script ran unobserved,
    * and it is unread. Released, died while held, or still held at the bound,
-   * it ran nothing before the freeze and is excluded, as it always was. This
-   * only ever turns an exclusion into an unread realm.
+   * it ran nothing before the freeze and is excluded, as it always was. Still
+   * held when the attacher's channel closed, it made no move the readout
+   * saw, so the hold the main thread last saw may already have broken: it
+   * is unread, as a worker the closed channel left running is at the
+   * freeze. This only ever turns an exclusion into an unread realm.
    */
   private resolveHeld(record: WorkerRealmRecord): Extract<FrozenRealm, { state: "unread" | "excluded" }> {
     const worker = record.worker as AttachedSharedWorker;
     if (worker.hold === "late") return { record, state: "unread", reason: "attachedLate" };
+    if (worker.hold === "held" && record.lostWithChannel) return { record, state: "unread", reason: "channelLostAlive" };
     return { record, state: "excluded", reason: "pausedAtReadout" };
   }
 

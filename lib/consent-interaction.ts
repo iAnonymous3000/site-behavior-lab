@@ -222,6 +222,7 @@ export function installConsentShadowRootCapture(args: ConsentShadowRootCaptureAr
   const nativeGetComputedStyle = globalThis.getComputedStyle;
   const nativeCssGetPropertyValue = CSSStyleDeclaration.prototype.getPropertyValue;
   const nativeElementsFromPoint = Document.prototype.elementsFromPoint;
+  const nativeShadowRootElementsFromPoint = ShadowRoot.prototype.elementsFromPoint;
   const NativePromise = Promise;
   const NativeMouseEvent = MouseEvent;
   const trustedScheduler = (globalThis as unknown as {
@@ -339,10 +340,18 @@ export function installConsentShadowRootCapture(args: ConsentShadowRootCaptureAr
 
       let actionable = true;
       let effectiveOpacity = 1;
+      // Each shadow root on the way up, innermost first, with its host.
       const composedHosts: Element[] = [];
+      const composedRoots: ShadowRoot[] = [];
       for (let current: Element | null = element; current; current = parentOf(current)) {
         const style = nativeReflectApply(nativeGetComputedStyle, trustedWindow, [current]) as CSSStyleDeclaration;
-        const visibility = cssValue(style, "visibility");
+        // visibility and pointer-events are inherited, and a descendant can
+        // set them back, so the control's own computed values already say
+        // whether it is visible and takes pointer input. An ancestor's own
+        // value says nothing about it. display, content-visibility, opacity,
+        // clipping and inert do apply to every descendant.
+        const ownStyle = current === element;
+        const visibility = ownStyle ? cssValue(style, "visibility") : "";
         const display = cssValue(style, "display");
         const contentVisibility = cssValue(style, "content-visibility");
         const opacity = nativeParseFloat(cssValue(style, "opacity") || "1");
@@ -373,7 +382,7 @@ export function installConsentShadowRootCapture(args: ConsentShadowRootCaptureAr
         if (
           nativeReflectApply(nativeHasAttribute, current, ["inert"]) as boolean ||
           normalizedAriaDisabled === "true" ||
-          cssValue(style, "pointer-events") === "none"
+          (ownStyle && cssValue(style, "pointer-events") === "none")
         ) actionable = false;
 
         if (current !== element) {
@@ -397,7 +406,10 @@ export function installConsentShadowRootCapture(args: ConsentShadowRootCaptureAr
         if (typeof nativeShadowRootHost === "function") {
           try {
             const host = nativeReflectApply(nativeShadowRootHost, root, []) as Element;
-            if (host && !containsElement(composedHosts, host)) composedHosts[composedHosts.length] = host;
+            if (host && !containsElement(composedHosts, host)) {
+              composedHosts[composedHosts.length] = host;
+              composedRoots[composedRoots.length] = root as ShadowRoot;
+            }
           } catch {
             // A document root has no ShadowRoot host.
           }
@@ -411,7 +423,11 @@ export function installConsentShadowRootCapture(args: ConsentShadowRootCaptureAr
 
       // Geometry and computed styles do not account for clip-path or complete
       // occlusion. Sample the surviving painted rectangle with the pristine DOM
-      // hit-test. A descendant or a retargeted shadow host both prove exposure.
+      // hit-test. Only the control or a descendant proves exposure. The
+      // document's hit-test retargets a hit inside a shadow tree to its host,
+      // and an overlay inside that tree retargets to the same host, so a host
+      // hit is followed into its shadow root, level by level, until it names
+      // the control, a descendant, or something else.
       const insetX = nativeMathMin(1, (right - left) / 4);
       const insetY = nativeMathMin(1, (bottom - top) / 4);
       const points = [
@@ -429,16 +445,19 @@ export function installConsentShadowRootCapture(args: ConsentShadowRootCaptureAr
         // Only the topmost painted hit proves that a user could reach this
         // control. Accepting the target anywhere deeper in the stack lets an
         // opaque overlay manufacture a visible/clickable consent signal.
-        const candidate = stack[0];
-        if (
-          candidate &&
-          (
-            candidate === element ||
-            (nativeReflectApply(nativeNodeContains, element, [candidate]) as boolean) ||
-            containsElement(composedHosts, candidate)
-          )
-        ) {
-          hit = true;
+        let candidate: Element | undefined = stack[0];
+        for (let level = 0; candidate && level <= composedRoots.length; level += 1) {
+          if (candidate === element || (nativeReflectApply(nativeNodeContains, element, [candidate]) as boolean)) {
+            hit = true;
+            break;
+          }
+          let hostIndex = -1;
+          for (let index = 0; index < composedHosts.length; index += 1) {
+            if (composedHosts[index] === candidate) hostIndex = index;
+          }
+          if (hostIndex < 0 || typeof nativeShadowRootElementsFromPoint !== "function") break;
+          const inner = nativeReflectApply(nativeShadowRootElementsFromPoint, composedRoots[hostIndex], [x, y]) as Element[];
+          candidate = inner[0];
         }
         if (hit) break;
       }

@@ -44,14 +44,14 @@ export {
   isDetectorReasonForStatus
 } from "./detector-status-contract";
 
-export const DETECTOR_REGISTRY_VERSION = "node-detectors-v21";
+export const DETECTOR_REGISTRY_VERSION = "node-detectors-v22";
 
 export const DETECTOR_VERSIONS: Readonly<Record<DetectorId, string>> = {
-  "fingerprint-heuristics": "fingerprint-observer@10",
+  "fingerprint-heuristics": "fingerprint-observer@11",
   "keystroke-exfiltration": "synthetic-sentinel@6",
   "cname-uncloaking": "dns-cname-chain@6",
   "pixel-events": "pixel-request-decoder@6",
-  "consent-banner": "consent-control-and-state@3",
+  "consent-banner": "consent-control-and-state@4",
   "privacy-policy": "policy-text-cross-check@13"
 };
 

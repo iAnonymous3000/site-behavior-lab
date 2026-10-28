@@ -590,9 +590,12 @@ test("the limitations and methodology pages say which shared workers the scanner
     "the limitations page must quote the line the scanner writes"
   );
   assert.match(limitations, new RegExp(`\\bended within ${SHARED_WORKER_ENDED_AT_ONCE_MS} ms of starting cannot be shown to have run any code or none\\b`));
-  // Which reports read none, and what stays unobserved.
+  // Which reports read none: those before fingerprint-observer@10, the first
+  // to read shared workers, whatever observer is current. And what stays
+  // unobserved.
   const observer = Number(/^fingerprint-observer@(\d+)$/.exec(DETECTOR_VERSIONS["fingerprint-heuristics"])?.[1]);
-  assert.match(limitations, new RegExp(`\`fingerprint-observer@${observer - 1}\` or earlier did not instrument shared workers at all`));
+  assert.ok(observer >= 10);
+  assert.match(limitations, /`fingerprint-observer@9` or earlier did not instrument shared workers at all/);
   assert.match(limitations, /\bChromium gives a shared worker no Worker constructor\b/);
   assert.match(limitations, /\bWorklets are not instrumented\b/);
   assert.doesNotMatch(limitations, /\bShared workers and worklets are not instrumented\b/);

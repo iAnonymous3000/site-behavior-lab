@@ -587,6 +587,81 @@ test("browser probes reject hidden and no-op decoys and continue to a genuine re
   }
 });
 
+test("browser probes read inherited visibility and pointer input as CSS does, and follow a hit into a shadow root", { timeout: 20_000 }, async () => {
+  const browser = await chromium.launch({ headless: true });
+  try {
+    const page = await newConsentPage(browser);
+    const probe = async (choice: "accept-all" | "reject-all" = "accept-all") => ({
+      visible: await page.evaluate(findVisibleConsentControl, consentVisibilityArgs(SHADOW_ROOT_CAPABILITY)),
+      outcome: await page.evaluate(findAndClickConsentControl, consentClickArgs(choice, SHADOW_ROOT_CAPABILITY)),
+      clicks: await page.evaluate(() => Reflect.get(window, "clicks") as number)
+    });
+    const banner = (bannerStyle: string, buttonStyle: string) => `<!doctype html><body>
+      <section id="banner" style="${bannerStyle}">
+        <button id="onetrust-accept-btn-handler" style="${buttonStyle}">Accept all</button>
+      </section>
+      <script>
+        clicks = 0;
+        document.querySelector("button").addEventListener("click", () => {
+          clicks += 1;
+          setTimeout(() => document.querySelector("#banner").remove(), 50);
+        });
+      </script>
+    </body>`;
+    const reached = { visible: true, outcome: { clicked: true, cmp: "OneTrust", selector: "#onetrust-accept-btn-handler" }, clicks: 1 };
+    const missed = { visible: false, outcome: { clicked: false, dispatched: 0 }, clicks: 0 };
+
+    // A control can be visible inside a hidden ancestor, and take pointer
+    // input inside one that takes none: a real click reaches both.
+    await page.setContent(banner("visibility: hidden", "visibility: visible"));
+    assert.deepEqual(await probe(), reached, "visibility set back on the control");
+    await page.setContent(banner("pointer-events: none", "pointer-events: auto"));
+    assert.deepEqual(await probe(), reached, "pointer input set back on the control");
+    // Inherited and not set back, they still hide or disable it.
+    await page.setContent(banner("visibility: hidden", ""));
+    assert.deepEqual(await probe(), missed, "visibility inherited from a hidden ancestor");
+    await page.setContent(banner("pointer-events: none", ""));
+    assert.deepEqual(await probe(), missed, "no pointer input inherited from an ancestor");
+
+    const shadowBanner = (covered: boolean, mode: "open" | "closed") => `<!doctype html><body>
+      <div id="usercentrics-root"></div>
+      <script>
+        // A block: setContent keeps the window, so a second top-level const
+        // would throw and leave no shadow root.
+        {
+        clicks = 0;
+        const root = document.querySelector("#usercentrics-root").attachShadow({ mode: "${mode}" });
+        root.innerHTML = '<div style="position: relative; width: 200px; height: 100px">'
+          + '<button data-testid="uc-accept-all-button" style="position: absolute; inset: 0"><span>Accept all</span></button>'
+          + ${covered ? `'<div style="position: absolute; inset: 0; background: white; z-index: 10">Loading</div>'` : "''"}
+          + '</div>';
+        const host = document.querySelector("#usercentrics-root");
+        root.querySelector("button").addEventListener("click", () => {
+          clicks += 1;
+          setTimeout(() => host.remove(), 50);
+        });
+        }
+      </script>
+    </body>`;
+    const shadowReached = { visible: true, outcome: { clicked: true, cmp: "Usercentrics", selector: "[data-testid='uc-accept-all-button']" }, clicks: 1 };
+    for (const mode of ["open", "closed"] as const) {
+      // An overlay inside the shadow root retargets, like the control, to the
+      // host: the host hit alone does not show the control is exposed.
+      await page.setContent(shadowBanner(true, mode));
+      assert.deepEqual(await probe(), missed, `an overlay in the ${mode} shadow root covers the control`);
+      await page.setContent(shadowBanner(false, mode));
+      const uncovered = await probe();
+      assert.deepEqual(
+        { ...uncovered, outcome: { ...uncovered.outcome, selector: undefined } },
+        { ...shadowReached, outcome: { ...shadowReached.outcome, selector: undefined } },
+        `an uncovered control in the ${mode} shadow root is reached`
+      );
+    }
+  } finally {
+    await browser.close();
+  }
+});
+
 test("generic context supports large first-layer banners and the dominant French accept label", { timeout: 20_000 }, async () => {
   const browser = await chromium.launch({ headless: true });
   try {
