@@ -124,6 +124,52 @@ test("separates sites, requires two reports, and skips invalid timestamps", () =
   assert.equal(deltas.get("a-new")?.thirdPartyRequests, 0);
 });
 
+test("visits tied at the newest instant, or just before it, get no since-last delta, on either key", () => {
+  // Ids that sort either way: the id tie-break must not pick "since".
+  const tied = [
+    entry({ id: "a", scannedAt: "2026-07-02T00:00:00.000Z", thirdPartyRequests: 10 }),
+    entry({ id: "b", scannedAt: "2026-07-02T00:00:00.000Z", thirdPartyRequests: 20 }),
+    entry({ id: "older", scannedAt: "2026-06-20T00:00:00.000Z", thirdPartyRequests: 5 })
+  ];
+  assert.equal(computeSinceLastScan(tied).size, 0);
+  assert.equal(
+    computeComparableSinceLastScan(tied.map((input) => ({ ...input, comparisonHistoryKey: "same" }))).size,
+    0
+  );
+
+  // The same instant written two ways is still one instant.
+  const sameInstant = computeSinceLastScan([
+    entry({ id: "z", scannedAt: "2026-07-02T00:00:00.000Z" }),
+    entry({ id: "y", scannedAt: "2026-07-02T00:00:00Z" })
+  ]);
+  assert.equal(sameInstant.size, 0);
+
+  // Newest alone, but two visits tied just before it: no one last visit.
+  const tiedPredecessors = (first: number, second: number) =>
+    computeSinceLastScan([
+      entry({ id: "a", scannedAt: "2026-07-03T00:00:00.000Z", thirdPartyRequests: 10 }),
+      entry({ id: "b", scannedAt: "2026-07-02T00:00:00.000Z", thirdPartyRequests: first }),
+      entry({ id: "c", scannedAt: "2026-07-02T00:00:00.000Z", thirdPartyRequests: second })
+    ]);
+  assert.equal(tiedPredecessors(20, 50).size, 0);
+  assert.equal(tiedPredecessors(50, 20).size, 0);
+  // A tie further back leaves the last visit unique.
+  const olderTie = computeSinceLastScan([
+    entry({ id: "a", scannedAt: "2026-07-03T00:00:00.000Z", thirdPartyRequests: 10 }),
+    entry({ id: "b", scannedAt: "2026-07-02T00:00:00.000Z", thirdPartyRequests: 20 }),
+    entry({ id: "c", scannedAt: "2026-07-01T00:00:00.000Z", thirdPartyRequests: 30 }),
+    entry({ id: "d", scannedAt: "2026-07-01T00:00:00.000Z", thirdPartyRequests: 40 })
+  ]);
+  assert.equal(olderTie.get("a")?.previousId, "b");
+
+  // A strictly earlier predecessor still pairs.
+  const ordered = computeSinceLastScan([
+    entry({ id: "a", scannedAt: "2026-07-02T00:00:00.001Z", thirdPartyRequests: 10 }),
+    entry({ id: "b", scannedAt: "2026-07-02T00:00:00.000Z", thirdPartyRequests: 20 })
+  ]);
+  assert.equal(ordered.get("a")?.thirdPartyRequests, -10);
+});
+
 test("formatDelta prints signed values and a plain no-change label", () => {
   assert.equal(formatDelta(12), "+12");
   assert.equal(formatDelta(-3), "-3");

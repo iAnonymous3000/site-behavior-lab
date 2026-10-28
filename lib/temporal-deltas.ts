@@ -175,7 +175,14 @@ function computeDeltas<
   for (const group of groups.values()) {
     if (group.length < 2) continue;
     group.sort((a, b) => Date.parse(b.scannedAt) - Date.parse(a.scannedAt) || a.id.localeCompare(b.id));
-    const [current, previous] = group;
+    const [current, previous, earlier] = group;
+    // Two newest visits at the same instant have no order, so neither is
+    // "since" the other, and two visits tied just before the newest leave no
+    // one last visit to compare it with. The id tie-break above only keeps
+    // the sort stable; it must not pick either, as orderTemporalPair refuses a
+    // tie too.
+    if (Date.parse(current.scannedAt) === Date.parse(previous.scannedAt)) continue;
+    if (earlier && Date.parse(previous.scannedAt) === Date.parse(earlier.scannedAt)) continue;
     deltas.set(current.id, {
       previousId: previous.id,
       previousScannedAt: previous.scannedAt,
