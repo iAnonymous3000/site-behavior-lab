@@ -2514,6 +2514,13 @@ test("real Chromium: a shared worker the page starts is read when the attacher h
  * cannot hold, since its first script to run is the import: it gets nothing
  * installed, is reported late and runs unwrapped, without a crash.
  *
+ * Every other hold races the automation layer's own release of the worker,
+ * so any of them can be lost: on CI runners several were, in four runs of
+ * 2026-10-28, where a laptop holds all six. A lost hold is late with a
+ * documented reason, nothing installed and unread, which is what the
+ * scanner then reports; the test holds that accounting for every worker,
+ * logs each hold, and still fails a run where no runnable shape was held.
+ *
  * Chromium 153 gives a shared worker no Worker constructor, natively: a
  * control browser with no DevTools client of the scanner's shows it too. If
  * a Chromium bump adds one, this fails, since a dedicated worker started
@@ -2547,41 +2554,82 @@ test("real Chromium: installing the observer at the main-script pause of shared 
   await harness.page.goto(`${origin}/`, { timeout: 10_000 });
   const runnable = ["blob", "http", "importscripts", "module", "moduleimport", "nestedtry"];
   await waitFor(() => done.length >= runnable.length && sharedWorkersOf(harness).length >= 7, 20_000);
-  await waitFor(() => harness.sharedVisit!.heldWorkerCount() === 0, 5_000);
+  // Every attached worker has concluded: released, late, or gone. A worker
+  // never held (one that ended before its hold could land) is in no install
+  // bucket, so waiting for no held worker alone could read the counts early.
+  const concluded = (worker: AttachedSharedWorker) => worker.hold === "released" || worker.hold === "late" || worker.detached;
+  await waitFor(() => sharedWorkersOf(harness).every(concluded), 5_000);
+  const workers = sharedWorkersOf(harness);
+  // Each worker's hold, on every run: the hold races the automation layer's
+  // own release of the worker, at a rate CI runners do not share with a
+  // laptop, so the log says which held and why any did not.
+  const holds = workers.map((worker) => ({
+    url: worker.url.startsWith("blob:") ? "blob:" : new URL(worker.url).pathname,
+    hold: worker.hold,
+    lateReason: worker.lateReason,
+    holdMs: worker.holdMs,
+    detached: worker.detached
+  }));
+  t.diagnostic(`shared worker holds: ${JSON.stringify(holds)}`);
 
   assert.equal(harness.crashed(), false, "installing the observer at a shared worker's pause crashed the renderer");
   assert.equal(await pageStillAnswers(harness.page), true, "the measured page must survive every paused install");
+  assert.equal(workers.every(concluded), true, `every attached shared worker concludes: ${JSON.stringify(holds)}`);
+  const released = workers.filter((worker) => worker.hold === "released");
+  const late = workers.filter((worker) => worker.hold === "late");
+  // The hold is a race the scanner can lose: a worker it loses is late, gets
+  // nothing installed and is unread, never read as observed. Each loss must
+  // carry a documented reason, the static-import module worker is always
+  // late, and at least one other shape must be held, so a run where every
+  // hold fails cannot pass.
   assert.deepEqual(
     harness.installer.sharedInstallDiagnostics(),
-    { installedWorkerCount: 6, installFailedWorkerCount: 0, lateWorkerCount: 1 },
-    "every shape but the module with a static import is installed at its main-script pause"
+    { installedWorkerCount: released.length, installFailedWorkerCount: 0, lateWorkerCount: late.length },
+    `every held shape is installed at its main-script pause: ${JSON.stringify(holds)}`
   );
+  const moduleImport = workers.find((worker) => worker.url.endsWith("/module-import.js"));
+  assert.equal(moduleImport?.hold, "late", "the module worker with a static import is late");
+  for (const worker of late) {
+    assert.ok(
+      worker.lateReason !== null &&
+        ["other-script", "other-pause", "ran-before-breakpoint", "running-at-attach", "resumed-while-held"].includes(worker.lateReason),
+      `${worker.url}: a late worker carries a documented reason, not ${worker.lateReason}`
+    );
+  }
+  assert.ok(
+    released.some((worker) => !worker.url.endsWith("/module-import.js") && !worker.url.endsWith("/close.js")),
+    `at least one runnable shape is held and installed: ${JSON.stringify(holds)}`
+  );
+  const nameOf = (worker: AttachedSharedWorker): string | null =>
+    worker.url.startsWith("blob:")
+      ? "blob"
+      : ({ "/classic.js": "http", "/module.js": "module", "/module-import.js": "moduleimport", "/imports.js": "importscripts", "/nested.js": "nestedtry" } as Record<string, string>)[new URL(worker.url).pathname] ?? null;
+  const releasedNames = new Set(released.map(nameOf).filter((name): name is string => name !== null));
   const byName = new Map(done.map((beacon) => [beacon.slice(0, beacon.indexOf("/")), beacon.slice(beacon.indexOf("/") + 1)]));
   assert.deepEqual([...byName.keys()].sort(), runnable, "every runnable shared worker must still run after its install");
   for (const name of runnable) {
-    assert.equal(
-      byName.get(name),
-      `${name === "moduleimport" ? "false" : "true"}/undefined`,
-      `${name}: the observer must precede the first statement of every worker held at its main script`
-    );
+    const [observed, nested] = (byName.get(name) ?? "").split("/");
+    assert.equal(nested, "undefined", `${name}: ran to its beacon`);
+    // Held and installed: the observer was in place before its first statement.
+    if (releasedNames.has(name)) assert.equal(observed, "true", `${name}: the observer must precede the first statement of a worker held at its main script`);
   }
-  const late = sharedWorkersOf(harness).filter((worker) => worker.hold === "late");
-  assert.deepEqual(late.map((worker) => [worker.url.endsWith("/module-import.js"), worker.lateReason]), [[true, "other-script"]]);
+  assert.equal(byName.get("moduleimport")?.split("/")[0], "false", "the module worker with a static import runs unwrapped");
   // V5: the debugger was off when each held worker was let run, and the
   // hold lasted only as long as the install.
-  for (const worker of sharedWorkersOf(harness).filter((candidate) => candidate.hold === "released")) {
+  for (const worker of released) {
     assert.equal(worker.debuggerOffAtRelease, true, `${worker.url}: the debugger must be off at the release`);
     assert.ok(worker.holdMs !== null && worker.holdMs < 1_000, `${worker.url}: held ${worker.holdMs} ms`);
   }
 
   const readout = await readWorkerRealms(harness, 1_000);
-  assert.equal(readout.diagnostics.sharedWorkers.attachedLate, 1, "the module worker with a static import is unread");
-  assert.equal(readout.diagnostics.sharedWorkers.readable, 6, JSON.stringify(readout.diagnostics.sharedWorkers));
+  assert.equal(readout.diagnostics.sharedWorkers.attachedLate, late.length, "every late worker is unread");
+  assert.equal(readout.diagnostics.sharedWorkers.readable, released.length, JSON.stringify(readout.diagnostics.sharedWorkers));
   const collection = await collectFingerprintObservationsWithCoverage([], readout);
+  const fingerprinting = ["blob", "http", "module", "importscripts"].filter((name) => releasedNames.has(name)).length;
   assert.equal(
-    collection.observations.events.find((event) => event.api === "webgl.getParameter.UNMASKED_RENDERER_WEBGL")?.count,
-    4,
-    "the blob, http, module and importing workers each read the unmasked renderer once"
+    collection.observations.events.find((event) => event.api === "webgl.getParameter.UNMASKED_RENDERER_WEBGL")?.count ?? 0,
+    fingerprinting,
+    "each held blob, http, module and importing worker reads the unmasked renderer once, and no late one is read"
   );
 
   // The control: a browser no scanner client attaches to, with the same
