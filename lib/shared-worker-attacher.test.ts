@@ -61,6 +61,18 @@ class ScriptedBrowser {
     this.deliverFrame?.(sessionId === undefined ? { method, params } : { method, params, sessionId });
   }
 
+  /** Answers, now, a command the script left unanswered ("never"), in order with the events around it. */
+  answer(frame: Frame, result: Record<string, unknown>): void {
+    this.deliverFrame?.({ id: frame.id, result });
+  }
+
+  /** The first command of a method sent on a session. */
+  frame(sessionId: string, method: string): Frame {
+    const found = this.sent.find((candidate) => candidate.sessionId === sessionId && candidate.method === method);
+    assert.ok(found, `no ${method} on ${sessionId}`);
+    return found;
+  }
+
   /** The methods sent on one session, in order; the browser-level ones when none is named. */
   commands(sessionId?: string): string[] {
     return this.sent.filter((frame) => frame.sessionId === sessionId).map((frame) => frame.method);
@@ -326,6 +338,122 @@ test("a first pause at another script is a late attach: nothing is installed and
   await new Promise((resolve) => setTimeout(resolve, 20));
   assert.equal(workerOf(visit, "sw-1").hold, "late");
   assert.equal(browser.commands("sw-1").includes("Runtime.evaluate"), false);
+});
+
+/**
+ * The broken hold, as traced in real Chromium (impl/hold-rate, 2026-10-27):
+ * paused at its main script, the worker is let run by a release that is not
+ * the thread's (Playwright's detach of the worker, or the thread's own
+ * release reaching a worker another client already started), runs its main
+ * script with no observer and stops at its `debugger;` statement, where the
+ * install finally evaluates and answers. Through fingerprint-observer@10's
+ * first build the thread reported that worker installed and released, and
+ * the readout read it complete on the install's empty snapshot. Now the
+ * resume while the install is unanswered makes it late: the debugger goes
+ * off at once, nothing reports it installed or released, and the readout
+ * counts it unread.
+ */
+test("a resume the thread did not send, before the install answers, breaks the hold: the worker is late, the debugger goes off at once, and nothing reports it installed or released", async (t) => {
+  const { browser, attacher } = await scriptedAttacher(t, (frame) =>
+    frame.method === "Runtime.evaluate" ? "never" : defaultAnswer(frame)
+  );
+  const installer = new FingerprintWorkerRealmInstaller("127.0.0.1");
+  const { visit, changes } = await registerVisit(attacher, installer);
+  sharedAttach(browser, "sw-1");
+  await until(() => browser.commands("sw-1").length === 3);
+  mainScriptPause(browser, "sw-1");
+  await until(() => browser.commands("sw-1").includes("Runtime.evaluate"));
+  browser.emit("Debugger.resumed", {}, "sw-1");
+  await until(() => holdOf(visit, "sw-1") === "late");
+  await until(() => browser.commands("sw-1").includes("Debugger.disable"));
+  assert.deepEqual(browser.commands("sw-1"), [
+    "Debugger.enable",
+    "Debugger.setInstrumentationBreakpoint",
+    "Runtime.runIfWaitingForDebugger",
+    "Runtime.addBinding",
+    "Runtime.evaluate",
+    "Debugger.removeBreakpoint",
+    "Debugger.disable"
+  ]);
+  assert.equal(workerOf(visit, "sw-1").lateReason, "resumed-while-held");
+  // The worker reaches its `debugger;` statement, where the install
+  // evaluates late: its first snapshot, then its answer.
+  browser.emit("Debugger.paused", { reason: "other", data: {}, callFrames: [] }, "sw-1");
+  firstSnapshot(installer, "sw-1", browser);
+  browser.answer(browser.frame("sw-1", "Runtime.evaluate"), { result: { type: "boolean", value: true } });
+  await new Promise((resolve) => setTimeout(resolve, 30));
+  assert.deepEqual(changes, ["sw-1:attached", "sw-1:held", "sw-1:late"]);
+  const worker = workerOf(visit, "sw-1");
+  assert.deepEqual([worker.hold, worker.holdMs, worker.debuggerOffAtRelease], ["late", null, null]);
+  assert.deepEqual(installer.sharedInstallDiagnostics(), { installedWorkerCount: 0, installFailedWorkerCount: 0, lateWorkerCount: 1 });
+  assert.equal(
+    browser.commands("sw-1").filter((method) => method === "Debugger.disable").length,
+    1,
+    "the debugger went off once, at the broken hold"
+  );
+});
+
+test("a pause at a statement while held breaks the hold even if the resume ahead of it was never seen", async (t) => {
+  const { browser, attacher } = await scriptedAttacher(t, (frame) =>
+    frame.method === "Runtime.evaluate" ? "never" : defaultAnswer(frame)
+  );
+  const installer = new FingerprintWorkerRealmInstaller("127.0.0.1");
+  const { visit, changes } = await registerVisit(attacher, installer);
+  sharedAttach(browser, "sw-1");
+  await until(() => browser.commands("sw-1").length === 3);
+  mainScriptPause(browser, "sw-1");
+  await until(() => browser.commands("sw-1").includes("Runtime.evaluate"));
+  browser.emit("Debugger.paused", { reason: "other", data: {}, callFrames: [] }, "sw-1");
+  await until(() => holdOf(visit, "sw-1") === "late");
+  await until(() => browser.commands("sw-1").includes("Debugger.disable"));
+  assert.equal(workerOf(visit, "sw-1").lateReason, "resumed-while-held");
+  assert.deepEqual(changes, ["sw-1:attached", "sw-1:held", "sw-1:late"]);
+});
+
+/**
+ * The other order: every install command answered while the worker was
+ * still paused, so the observer was in place, and the resume comes behind the
+ * answers on the worker's session. It is the hold's own end, and the worker is
+ * released and read.
+ */
+test("a resume behind the install's answers keeps the hold: the worker is released and its install counts", async (t) => {
+  let installer: FingerprintWorkerRealmInstaller | null = null;
+  const { browser, attacher } = await scriptedAttacher(t, (frame, scripted) => {
+    if (frame.method === "Runtime.evaluate" && installer) firstSnapshot(installer, frame.sessionId!, scripted);
+    if (frame.method === "Debugger.disable") return "never";
+    return defaultAnswer(frame);
+  });
+  installer = new FingerprintWorkerRealmInstaller("127.0.0.1");
+  const { visit, changes } = await registerVisit(attacher, installer);
+  sharedAttach(browser, "sw-1");
+  await until(() => browser.commands("sw-1").length === 3);
+  mainScriptPause(browser, "sw-1");
+  await until(() => browser.commands("sw-1").includes("Debugger.disable"));
+  browser.emit("Debugger.resumed", {}, "sw-1");
+  browser.answer(browser.frame("sw-1", "Debugger.disable"), {});
+  await until(() => holdOf(visit, "sw-1") === "released");
+  assert.deepEqual(changes, ["sw-1:attached", "sw-1:held", "sw-1:installed", "sw-1:released"]);
+  assert.equal(workerOf(visit, "sw-1").lateReason, null);
+  assert.deepEqual(installer.sharedInstallDiagnostics(), { installedWorkerCount: 1, installFailedWorkerCount: 0, lateWorkerCount: 0 });
+});
+
+/** Defense in depth on the main thread: once late, a worker is never presented as held, installed or released. */
+test("a late shared worker stays late whatever reports follow it", async (t) => {
+  const { browser, attacher } = await scriptedAttacher(t);
+  const installer = new FingerprintWorkerRealmInstaller("127.0.0.1");
+  const { visit, changes } = await registerVisit(attacher, installer);
+  sharedAttach(browser, "sw-1");
+  await until(() => browser.commands("sw-1").length === 3);
+  mainScriptPause(browser, "sw-1", `${ORIGIN}/imported-first.js`);
+  await until(() => holdOf(visit, "sw-1") === "late");
+  for (const type of ["held", "installed", "released", "late"]) {
+    visit.onThreadReport({ type, contextId: "context-a", sessionId: "sw-1", answers: [], holdMs: 1, debuggerOff: true, reason: "other-pause" });
+  }
+  await new Promise((resolve) => setTimeout(resolve, 20));
+  const worker = workerOf(visit, "sw-1");
+  assert.deepEqual([worker.hold, worker.lateReason, worker.holdMs], ["late", "other-script", null]);
+  assert.deepEqual(changes, ["sw-1:attached", "sw-1:late"]);
+  assert.deepEqual(installer.sharedInstallDiagnostics(), { installedWorkerCount: 0, installFailedWorkerCount: 0, lateWorkerCount: 1 });
 });
 
 /**
@@ -672,6 +800,93 @@ test("readout: a discovered shared worker the attacher reports during the drain 
     unscoped: 0,
     endedAtOnce: 0
   });
+});
+
+/**
+ * The main thread's view of a hold lags the attacher's thread: the thread may
+ * already have found a hold broken, its "late" report still in flight, or
+ * find it so moments later. A broken hold ran its main script unobserved, so a
+ * shared worker seen held is unsettled until its next move, bounded by the
+ * drain: late is unread; released, or still held at the bound, is excluded.
+ * Each case scripts the worker's install to stay unanswered, so its hold lasts
+ * until the case moves it.
+ */
+const heldWhileUnanswered = (frame: Frame): Answer => (frame.method === "Runtime.evaluate" ? "never" : defaultAnswer(frame));
+const UNREAD_LATE = { attached: 1, attachedLate: 1, unread: 1, readable: 0, unscoped: 0, endedAtOnce: 0 };
+const EXCLUDED_HELD = { attached: 1, pausedAtReadout: 1, unread: 0, readable: 0, unscoped: 0, endedAtOnce: 0 };
+
+test("readout: a shared worker held at the freeze whose hold then breaks during the drain is unread", async (t) => {
+  const realms = await scriptedSharedReadout(t, heldWhileUnanswered);
+  commitMainDocument(realms.browser, "loader-1");
+  sharedAttach(realms.browser, "sw-1");
+  await until(() => realms.browser.commands("sw-1").length === 3);
+  mainScriptPause(realms.browser, "sw-1");
+  await until(() => holdOf(realms.visit, "sw-1") === "held");
+  const pending = realms.readout(1_000);
+  setTimeout(() => realms.browser.emit("Debugger.resumed", {}, "sw-1"), 20);
+  const readout = await pending;
+  assert.deepEqual(sharedTerms(readout), UNREAD_LATE);
+  assert.equal(workerOf(realms.visit, "sw-1").lateReason, "resumed-while-held");
+});
+
+test("readout: a shared worker reaching at the freeze that is held and then breaks its hold during the drain is unread", async (t) => {
+  const realms = await scriptedSharedReadout(t, heldWhileUnanswered);
+  commitMainDocument(realms.browser, "loader-1");
+  sharedAttach(realms.browser, "sw-1");
+  await until(() => realms.browser.commands("sw-1").length === 3);
+  const pending = realms.readout(1_000);
+  setTimeout(() => mainScriptPause(realms.browser, "sw-1"), 20);
+  setTimeout(() => realms.browser.emit("Debugger.resumed", {}, "sw-1"), 60);
+  assert.deepEqual(sharedTerms(await pending), UNREAD_LATE);
+});
+
+test("readout: a shared worker attached during the drain that is held and then breaks its hold is unread", async (t) => {
+  const realms = await scriptedSharedReadout(t, heldWhileUnanswered);
+  commitMainDocument(realms.browser, "loader-1");
+  // sw-0, reaching at the freeze, keeps the drain open until it moves (late,
+  // at 40 ms); by then sw-1, attached during the drain, is held, so the drain
+  // waits for its next move too.
+  sharedAttach(realms.browser, "sw-0");
+  await until(() => realms.browser.commands("sw-0").length === 3);
+  const pending = realms.readout(1_000);
+  setTimeout(() => sharedAttach(realms.browser, "sw-1"), 10);
+  setTimeout(() => mainScriptPause(realms.browser, "sw-1"), 20);
+  setTimeout(() => mainScriptPause(realms.browser, "sw-0", `${ORIGIN}/other.js`), 40);
+  setTimeout(() => realms.browser.emit("Debugger.resumed", {}, "sw-1"), 80);
+  assert.deepEqual(sharedTerms(await pending), { attached: 2, attachedLate: 2, unread: 2, readable: 0, unscoped: 0, endedAtOnce: 0 });
+  assert.deepEqual(
+    [workerOf(realms.visit, "sw-0").lateReason, workerOf(realms.visit, "sw-1").lateReason],
+    ["other-script", "resumed-while-held"]
+  );
+});
+
+test("readout: a shared worker held at the freeze and released during the drain is excluded, as it ran nothing before the freeze", async (t) => {
+  const realms = await scriptedSharedReadout(t, heldWhileUnanswered);
+  commitMainDocument(realms.browser, "loader-1");
+  sharedAttach(realms.browser, "sw-1");
+  await until(() => realms.browser.commands("sw-1").length === 3);
+  mainScriptPause(realms.browser, "sw-1");
+  await until(() => holdOf(realms.visit, "sw-1") === "held");
+  const pending = realms.readout(1_000);
+  setTimeout(
+    () => realms.browser.answer(realms.browser.frame("sw-1", "Runtime.evaluate"), { result: { type: "boolean", value: true } }),
+    20
+  );
+  assert.deepEqual(sharedTerms(await pending), EXCLUDED_HELD);
+  assert.equal(workerOf(realms.visit, "sw-1").hold, "released");
+});
+
+test("readout: a shared worker still held at the drain's bound is excluded", async (t) => {
+  const realms = await scriptedSharedReadout(t, heldWhileUnanswered);
+  commitMainDocument(realms.browser, "loader-1");
+  sharedAttach(realms.browser, "sw-1");
+  await until(() => realms.browser.commands("sw-1").length === 3);
+  mainScriptPause(realms.browser, "sw-1");
+  await until(() => holdOf(realms.visit, "sw-1") === "held");
+  const started = Date.now();
+  assert.deepEqual(sharedTerms(await realms.readout(80)), EXCLUDED_HELD);
+  assert.ok(Date.now() - started >= 70, "the drain waited for the hold's next move until its bound");
+  assert.equal(holdOf(realms.visit, "sw-1"), "held");
 });
 
 test("readout: a shared worker that ended at once is reported apart, and a lost attacher leaves its live workers unread", async (t) => {

@@ -42,6 +42,20 @@ import { SHARED_WORKER_ENDED_AT_ONCE_MS } from "./shared-worker-ended-at-once";
  * with static imports is always this case: its first script to run is a
  * dependency, never its main script.
  *
+ * A BROKEN HOLD. Any client's release of a worker, `Runtime.runIfWaitingForDebugger`
+ * or a waiting session's detach, also ends a pause the worker is in,
+ * instrumentation pauses included. Playwright's detach can therefore reach a
+ * worker the thread has just paused at its main script, and the worker then
+ * runs that script with no observer: in 7 to 10% of loads of a trivial page
+ * with an idle main loop, 2.5% of concurrent loaded ones and none of 200
+ * single loaded ones (impl/hold-rate, 2026-10-28). A resume of a held worker,
+ * or a pause at one of its statements, before every install command answered
+ * is that case: the thread turns the debugger off at once and reports the
+ * worker late, never installed or released, so the readout counts it unread.
+ * Until the thread's `Debugger.disable` lands, a few milliseconds, the
+ * worker's code runs with the debugger on, so a `debugger;` statement there
+ * can pause it that long. A resume behind the answers is the hold's own end.
+ *
  * SCOPE. The browser-level auto-attach reaches every shared worker of the
  * browser, a concurrent scan's included. Each visit registers its browser
  * context; a shared worker of a context no visit registered is detached in
@@ -101,10 +115,26 @@ export type SharedWorkerCreationDocument = Readonly<{
  * - `pending`: attached, breakpoint set or on its way, no pause yet;
  * - `held`: paused at its main script, the installer's commands running;
  * - `late`: its first pause was another script's, or it was seen running
- *   before any pause, or it was running when it attached;
+ *   before any pause, or it was running when it attached, or its hold at its
+ *   main script ended before the install answered;
  * - `released`: held at its main script, then let run with the debugger off.
  */
 export type SharedWorkerHold = "pending" | "held" | "late" | "released";
+
+/**
+ * Why a shared worker was late. `resumed-while-held`: paused at its main
+ * script, it was let run before the installer's commands answered, so its
+ * main script ran with no observer. Any client's release quits a pause the
+ * worker is in, instrumentation pauses included: Playwright's detach of the
+ * worker, or this thread's own release when it reaches a worker another
+ * client already let start.
+ */
+export type SharedWorkerLateReason =
+  | "other-script"
+  | "other-pause"
+  | "ran-before-breakpoint"
+  | "running-at-attach"
+  | "resumed-while-held";
 
 /** One shared worker of the visit's context, as the attacher reported it. */
 export type AttachedSharedWorker = AttachedWorker & {
@@ -113,7 +143,7 @@ export type AttachedSharedWorker = AttachedWorker & {
   readonly url: string;
   readonly hold: SharedWorkerHold;
   /** Why it was late; null when it was not. */
-  readonly lateReason: "other-script" | "other-pause" | "ran-before-breakpoint" | "running-at-attach" | null;
+  readonly lateReason: SharedWorkerLateReason | null;
   /** The thread's receive time of its attach, in the thread's own clock. */
   readonly attachedAt: number;
   /** Its lifetime by the thread's receive times of its attach and detach; null while attached. */
@@ -164,6 +194,7 @@ export function sharedWorkerAttacherThread(port: AttacherThreadPort, data: Attac
     contextId: string;
     commands: { method: string; params: Answer }[];
     attachStepDelayMs: number;
+    holdDelayMs: number;
     pageSessionId: string | null;
     mainDocument: MainDocument | null;
     sessions: Set<string>;
@@ -181,6 +212,8 @@ export function sharedWorkerAttacherThread(port: AttacherThreadPort, data: Attac
     mainParsedBeforeBreakpoint: boolean;
     probeSent: boolean;
     watchdog: ReturnType<typeof setTimeout> | null;
+    /** Every install command answered (or the watchdog let it run): from here a resume is the thread's own. */
+    installConcluded: boolean;
   };
 
   const clock = () => performance.now();
@@ -285,6 +318,25 @@ export function sharedWorkerAttacherThread(port: AttacherThreadPort, data: Attac
     );
   };
 
+  // A hold the worker left before the install answered. Any client's release
+  // quits a pause the worker is in, instrumentation pauses included:
+  // Playwright's detach of the worker, or this thread's own release when it
+  // reaches a worker another client already let start. The worker then ran
+  // its main script with no observer, and the install evaluates only at its
+  // next pause or task, so it was reached late: nothing is reported installed
+  // or released, and the debugger goes off at once, so no later script or
+  // `debugger;` statement of the worker can pause it. A resume after the last
+  // answer comes behind it on the worker's session, with the observer already
+  // in place, and is the thread's own release.
+  const breakHold = (worker: HeldWorker): void => {
+    if (worker.hold !== "held" || worker.installConcluded) return;
+    worker.hold = "late";
+    if (worker.watchdog !== null) clearTimeout(worker.watchdog);
+    worker.watchdog = null;
+    post({ type: "late", contextId: worker.contextId, sessionId: worker.sessionId, reason: "resumed-while-held" });
+    void turnDebuggerOff(worker);
+  };
+
   const holdAtMainScript = (worker: HeldWorker, pausedAt: number): void => {
     worker.hold = "held";
     post({ type: "held", contextId: worker.contextId, sessionId: worker.sessionId });
@@ -292,8 +344,10 @@ export function sharedWorkerAttacherThread(port: AttacherThreadPort, data: Attac
     const commands = visit ? visit.commands : [];
     let concluded = false;
     const conclude = (answers: Answer[] | null, watchdog: boolean): void => {
-      if (concluded) return;
+      // A broken hold (breakHold) already ended this worker's install.
+      if (concluded || worker.hold !== "held") return;
       concluded = true;
+      worker.installConcluded = true;
       if (worker.watchdog !== null) clearTimeout(worker.watchdog);
       worker.watchdog = null;
       // Reported while the worker is still paused: the debugger goes off,
@@ -311,14 +365,21 @@ export function sharedWorkerAttacherThread(port: AttacherThreadPort, data: Attac
       });
     };
     worker.watchdog = setTimeout(() => conclude(null, true), data.holdTimeoutMs);
-    void Promise.all(
-      commands.map((command) =>
-        send(command.method, command.params, worker.sessionId).then(
-          (value) => ({ status: "fulfilled", value }) as Answer,
-          (error: unknown) => ({ status: "rejected", reason: errorText(error) }) as Answer
+    const install = (): void => {
+      // Tests only: a broken hold can come before the install is sent.
+      if (worker.hold !== "held") return;
+      void Promise.all(
+        commands.map((command) =>
+          send(command.method, command.params, worker.sessionId).then(
+            (value) => ({ status: "fulfilled", value }) as Answer,
+            (error: unknown) => ({ status: "rejected", reason: errorText(error) }) as Answer
+          )
         )
-      )
-    ).then((answers) => conclude(answers, false));
+      ).then((answers) => conclude(answers, false));
+    };
+    const holdDelayMs = visit ? visit.holdDelayMs : 0;
+    if (holdDelayMs > 0) setTimeout(install, holdDelayMs);
+    else install();
   };
 
   const onAttached = (params: Answer, receivedAt: number): void => {
@@ -345,7 +406,8 @@ export function sharedWorkerAttacherThread(port: AttacherThreadPort, data: Attac
       breakpointAcknowledged: false,
       mainParsedBeforeBreakpoint: false,
       probeSent: false,
-      watchdog: null
+      watchdog: null,
+      installConcluded: false
     };
     workers.set(sessionId, worker);
     visit.sessions.add(sessionId);
@@ -454,7 +516,21 @@ export function sharedWorkerAttacherThread(port: AttacherThreadPort, data: Attac
       }
       return;
     }
+    if (method === "Debugger.resumed") {
+      // While held, only another client's release resumes the worker before
+      // the install answers (breakHold).
+      breakHold(worker);
+      return;
+    }
     if (method === "Debugger.paused") {
+      // A pause other than an instrumentation one while held means the
+      // worker left its main-script pause and ran into a statement, as a
+      // `debugger;` statement stops it: its hold was broken, even if its
+      // resume was never seen.
+      if (worker.hold === "held" && params.reason !== "instrumentation") {
+        breakHold(worker);
+        return;
+      }
       // Only the first pause decides. A pause after a late classification is
       // resumed by the debugger going off.
       if (worker.hold !== "pending") return;
@@ -535,6 +611,7 @@ export function sharedWorkerAttacherThread(port: AttacherThreadPort, data: Attac
         contextId,
         commands: Array.isArray(message.commands) ? (message.commands as { method: string; params: Answer }[]) : [],
         attachStepDelayMs: typeof message.attachStepDelayMs === "number" ? message.attachStepDelayMs : 0,
+        holdDelayMs: typeof message.holdDelayMs === "number" ? message.holdDelayMs : 0,
         pageSessionId: null,
         mainDocument: null,
         sessions: new Set()
@@ -709,6 +786,8 @@ export type SharedWorkerRegistration = {
   installCommands: readonly SharedWorkerInstallCommand[];
   /** Tests only: release at once and set the breakpoint this long after, losing the race on purpose. */
   attachStepDelayMsForTests?: number;
+  /** Tests only: wait this long in each main-script pause before sending the install, so another client's release can land in it. */
+  holdDelayMsForTests?: number;
 };
 
 /**
@@ -813,7 +892,8 @@ export class SharedWorkerAttacher {
       contextId,
       pageTargetId: registration.pageTargetId,
       commands: registration.installCommands.map((command) => ({ method: command.method, params: command.params })),
-      attachStepDelayMs: registration.attachStepDelayMsForTests ?? 0
+      attachStepDelayMs: registration.attachStepDelayMsForTests ?? 0,
+      holdDelayMs: registration.holdDelayMsForTests ?? 0
     });
     try {
       visit.setDocumentsWatched(await registered);
@@ -1064,6 +1144,11 @@ export class SharedWorkerVisitChannel {
     }
     const worker = this.workersBySession.get(sessionId);
     if (!worker) return;
+    // Late is terminal: nothing after it may present the worker as held,
+    // installed or released, whatever order reports arrive in.
+    if (worker.hold === "late" && (message.type === "held" || message.type === "installed" || message.type === "released")) {
+      return;
+    }
     switch (message.type) {
       case "held":
         worker.hold = "held";
@@ -1075,13 +1160,15 @@ export class SharedWorkerVisitChannel {
         return;
       }
       case "late":
+        if (worker.hold === "late") return;
         worker.hold = "late";
         worker.released = true;
         worker.lateReason =
           message.reason === "other-script" ||
           message.reason === "other-pause" ||
           message.reason === "ran-before-breakpoint" ||
-          message.reason === "running-at-attach"
+          message.reason === "running-at-attach" ||
+          message.reason === "resumed-while-held"
             ? message.reason
             : "other-pause";
         this.announce(worker, "late", null);

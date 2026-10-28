@@ -326,7 +326,14 @@ type FrozenRealm =
   | { record: WorkerRealmRecord; state: "waiting"; slot: FreezeSlot }
   | { record: WorkerRealmRecord; state: "ended-at-once" }
   /** A shared worker attached and not yet paused at the freeze: its state is its first move after it. */
-  | { record: WorkerRealmRecord; state: "reaching" };
+  | { record: WorkerRealmRecord; state: "reaching" }
+  /**
+   * A shared worker the main thread sees held at its main script. That view
+   * lags the attacher's thread, which may already have found the hold broken,
+   * or may find it so moments later, so it is unsettled until the worker's
+   * next move (released, late or detached): see resolveHeld.
+   */
+  | { record: WorkerRealmRecord; state: "held" };
 
 /**
  * The fingerprint observer's installer on the worker realm channel, in every
@@ -515,7 +522,13 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
    *    report each shared worker the channel's discovery saw, and for each
    *    shared worker attached but not yet paused at the freeze to make its
    *    first move: a pause at its main script means it ran nothing before
-   *    the freeze, anything else that it may have.
+   *    the freeze, anything else that it may have. A shared worker the main
+   *    thread sees held at its main script, at the freeze, after reaching, or
+   *    attached during the drain, waits for its next move too: the attacher's
+   *    thread may already have found that hold broken, its "late" report
+   *    still in flight, and a broken hold ran its main script unobserved, so
+   *    it is unread. Released, died while held, or still held at the bound,
+   *    it ran nothing before the freeze and is excluded.
    * 3. Every dedicated worker, attached or gone, is checked against the frame
    *    trees read at the freeze first: one whose document was not current
    *    then is excluded whatever state its stream was left in, and one whose
@@ -632,7 +645,8 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
         if (realm.reason !== "unreached") diagnostics[realm.reason] += 1;
         continue;
       }
-      if (realm.state === "ended-at-once" || realm.state === "reaching") continue;
+      // Shared-worker states only; a dedicated realm never takes them.
+      if (realm.state === "ended-at-once" || realm.state === "reaching" || realm.state === "held") continue;
       const snapshot = realm.state === "closed" ? realm.snapshot : realm.slot.snapshot;
       if (snapshot === null) {
         // No whole state for the freeze when the drain ended: open at its
@@ -680,7 +694,9 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
       const worker = realm.record.worker as AttachedSharedWorker;
       reportedTargets.add(worker.targetId);
       shared.attached += 1;
-      const resolved = realm.state === "reaching" ? this.resolveReaching(realm.record) : realm;
+      const reached = realm.state === "reaching" ? this.resolveReaching(realm.record) : realm;
+      // A hold settles by the worker's next move by the end of the drain.
+      const resolved = reached.state === "held" ? this.resolveHeld(reached.record) : reached;
       if (resolved.state === "excluded") {
         shared[resolved.reason] += 1;
         continue;
@@ -763,7 +779,8 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
     const worker = record.worker as AttachedSharedWorker;
     if (record.lostWithChannel) return { record, state: "unread", reason: "channelLostAlive" };
     if (worker.detachedWhilePaused) return { record, state: "excluded", reason: "diedPaused" };
-    if (worker.hold === "held") return { record, state: "excluded", reason: "pausedAtReadout" };
+    // Held as far as the main thread knows: its next move decides (resolveHeld).
+    if (worker.hold === "held") return { record, state: "held" };
     if (worker.hold === "late") return { record, state: "unread", reason: "attachedLate" };
     if (worker.hold === "pending") {
       if (worker.detached) {
@@ -785,8 +802,10 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
   private resolveReaching(record: WorkerRealmRecord): FrozenRealm {
     const worker = record.worker as AttachedSharedWorker;
     if (record.lostWithChannel) return { record, state: "unread", reason: "channelLostAlive" };
-    // Paused at its main script after the freeze: it ran nothing before it.
-    if (worker.hold === "held" || worker.hold === "released") return { record, state: "excluded", reason: "pausedAtReadout" };
+    // Paused at its main script after the freeze: it ran nothing before it,
+    // unless that hold broke, which only its next move shows (resolveHeld).
+    if (worker.hold === "held") return { record, state: "held" };
+    if (worker.hold === "released") return { record, state: "excluded", reason: "pausedAtReadout" };
     if (worker.hold === "late") return { record, state: "unread", reason: "attachedLate" };
     if (worker.detached) {
       return sharedWorkerEndedAtOnce(worker)
@@ -794,6 +813,27 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
         : { record, state: "unread", reason: "unreached" };
     }
     return { record, state: "reaching" };
+  }
+
+  /**
+   * A shared worker seen held at its main script, by its next move by the end
+   * of the drain. The main thread's view of a hold lags the attacher's
+   * thread, so a "late" report behind "held" means the hold broke before the
+   * install answered (resumed-while-held): its main script ran unobserved,
+   * and it is unread. Released, died while held, or still held at the bound,
+   * it ran nothing before the freeze and is excluded, as it always was. This
+   * only ever turns an exclusion into an unread realm.
+   */
+  private resolveHeld(record: WorkerRealmRecord): Extract<FrozenRealm, { state: "unread" | "excluded" }> {
+    const worker = record.worker as AttachedSharedWorker;
+    if (worker.hold === "late") return { record, state: "unread", reason: "attachedLate" };
+    return { record, state: "excluded", reason: "pausedAtReadout" };
+  }
+
+  /** Whether a held shared worker has made its next move: released, late or detached. */
+  private heldSettled(record: WorkerRealmRecord): boolean {
+    const worker = record.worker as AttachedSharedWorker;
+    return worker.hold !== "held" || worker.detached;
   }
 
   /** An installed worker's state at the freeze, from its stream; the same for both kinds. */
@@ -856,15 +896,27 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
       if (session.attachCounts().attachedDedicatedWorkerCount < observedDedicated) return false;
       return frozen.every(realmSettled);
     };
+    const frozenShared = new Set(sharedFrozen.map((realm) => realm.record));
+    const sharedRealmSettled = (realm: FrozenRealm): boolean => {
+      if (realm.state === "held") return this.heldSettled(realm.record);
+      if (realm.state !== "reaching") return realmSettled(realm);
+      // Its first move, and then, if that was a hold, the next one.
+      const reached = this.resolveReaching(realm.record);
+      if (reached.state === "reaching") return false;
+      return reached.state !== "held" || this.heldSettled(realm.record);
+    };
     const sharedDrained = (): boolean => {
       const visit = this.sharedVisit;
       if (visit === null || visit.isChannelLost()) return true;
       const reported = new Set<string>();
       for (const record of this.sharedRecords.values()) reported.add((record.worker as AttachedSharedWorker).targetId);
       for (const targetId of session?.discoveredSharedWorkerTargets() ?? []) if (!reported.has(targetId)) return false;
-      return sharedFrozen.every((realm) =>
-        realm.state === "reaching" ? this.resolveReaching(realm.record).state !== "reaching" : realmSettled(realm)
-      );
+      // A worker attached during the drain and held now makes its next move
+      // too, before it is classified.
+      for (const record of this.sharedRecords.values()) {
+        if (!frozenShared.has(record) && !this.heldSettled(record)) return false;
+      }
+      return sharedFrozen.every(sharedRealmSettled);
     };
     const drained = () => dedicatedDrained() && sharedDrained();
     if (drained()) return;

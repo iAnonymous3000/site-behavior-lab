@@ -1232,6 +1232,8 @@ type SharedWorkerHarnessOptions = {
   attacher?: SharedWorkerAttacher;
   /** Tests only: lose the attacher's race on purpose. */
   attachStepDelayMs?: number;
+  /** Tests only: wait in each main-script pause before the install, so another client's release can land in it. */
+  holdDelayMs?: number;
 };
 
 /**
@@ -1245,7 +1247,13 @@ type SharedWorkerHarnessOptions = {
  */
 async function openPausedWorkerHarness(
   t: TestContext,
-  options: { before?: WorkerRealmInstaller; launchArgs?: string[]; sharedWorkers?: boolean; attachStepDelayMs?: number } = {}
+  options: {
+    before?: WorkerRealmInstaller;
+    launchArgs?: string[];
+    sharedWorkers?: boolean;
+    attachStepDelayMs?: number;
+    holdDelayMs?: number;
+  } = {}
 ): Promise<PausedWorkerHarness> {
   const devtoolsPort = await reserveLoopbackPort();
   const browser = await chromium.launch({
@@ -1257,7 +1265,8 @@ async function openPausedWorkerHarness(
   return openVisitHarness(t, browser, devtoolsPort, {
     before: options.before,
     ...(attacher ? { attacher } : {}),
-    ...(options.attachStepDelayMs !== undefined ? { attachStepDelayMs: options.attachStepDelayMs } : {})
+    ...(options.attachStepDelayMs !== undefined ? { attachStepDelayMs: options.attachStepDelayMs } : {}),
+    ...(options.holdDelayMs !== undefined ? { holdDelayMs: options.holdDelayMs } : {})
   });
 }
 
@@ -1311,7 +1320,8 @@ async function openVisitHarness(
       browserContextId: info.targetInfo.browserContextId,
       pageTargetId: info.targetInfo.targetId,
       installCommands: installer.sharedWorkerInstallCommands(),
-      ...(options.attachStepDelayMs !== undefined ? { attachStepDelayMsForTests: options.attachStepDelayMs } : {})
+      ...(options.attachStepDelayMs !== undefined ? { attachStepDelayMsForTests: options.attachStepDelayMs } : {}),
+      ...(options.holdDelayMs !== undefined ? { holdDelayMsForTests: options.holdDelayMs } : {})
     });
     installer.watchSharedWorkers(sharedVisit);
     const registered = sharedVisit;
@@ -2607,6 +2617,69 @@ test("real Chromium: a shared worker the attacher reaches only after it started 
   const [worker] = sharedWorkersOf(harness);
   assert.equal(worker.hold, "late");
   assert.equal(worker.lateReason, "ran-before-breakpoint");
+  assert.deepEqual(harness.installer.sharedInstallDiagnostics(), {
+    installedWorkerCount: 0,
+    installFailedWorkerCount: 0,
+    lateWorkerCount: 1
+  });
+  const readout = await readWorkerRealms(harness, 500);
+  assert.deepEqual(readoutTerms(readout), {
+    snapshots: [],
+    unread: 1,
+    terms: { "shared.discovered": 1, "shared.attached": 1, "shared.attachedLate": 1 }
+  });
+});
+
+/**
+ * The broken hold, made certain. The attacher holds the shared worker at its
+ * main script and, on purpose, waits there before sending the install; a
+ * second DevTools client attached to the same worker sends it a release
+ * (Runtime.runIfWaitingForDebugger) inside that wait, as Playwright's detach
+ * of the worker, or the attacher's own release reaching a worker another
+ * client already started, does by chance (impl/hold-rate, 2026-10-27: 3 to 9
+ * of 60 unloaded loads, each reported installed until this was fixed). The
+ * release ends the pause: the worker runs its main script, which
+ * fingerprints, with no observer. It is late, the install is never sent, and
+ * the readout counts it unread and credits none of its calls.
+ */
+test("real Chromium: a shared worker another client lets run while it is held is late, never installed, and unread", { timeout: 60_000 }, async (t) => {
+  const { origin, done } = await startWorkerFixture(t, {
+    page: `<!doctype html><title>broken hold</title><script>
+      new SharedWorker("/shared.js", { name: "broken" }).port.start();
+    </script>`,
+    scripts: { "/shared.js": `${SHARED_FINGERPRINT_SOURCE} ${SHARED_BEACON_SOURCE} onconnect = () => {};` }
+  });
+  const harness = await openPausedWorkerHarness(t, { sharedWorkers: true, holdDelayMs: 500 });
+  const other = await openDevtoolsBrowserChannel(await devtoolsBrowserWebSocketUrl(harness.devtoolsPort));
+  t.after(() => other.close());
+  const releases: string[] = [];
+  other.onEvent((event) => {
+    if (event.method !== "Target.attachedToTarget") return;
+    const params = event.params as { sessionId?: unknown; targetInfo?: { type?: unknown } };
+    if (params.targetInfo?.type !== "shared_worker" || typeof params.sessionId !== "string") return;
+    const sessionId = params.sessionId;
+    // Inside the attacher's wait in the worker's main-script pause.
+    setTimeout(() => {
+      other.send("Runtime.runIfWaitingForDebugger", {}, sessionId).then(
+        () => releases.push(sessionId),
+        () => undefined
+      );
+    }, 200);
+  });
+  await other.send("Target.setAutoAttach", {
+    autoAttach: true,
+    waitForDebuggerOnStart: false,
+    flatten: true,
+    filter: [{ type: "shared_worker", exclude: false }, { exclude: true }]
+  });
+  await harness.page.goto(`${origin}/`, { timeout: 10_000 });
+  await waitFor(() => done.length >= 1 && sharedWorkersOf(harness).some((worker) => worker.hold === "late"), 10_000);
+  assert.equal(releases.length, 1, "the other client's release was sent");
+  assert.deepEqual(done, ["broken/false/undefined"], "the main script ran with no observer");
+  const [worker] = sharedWorkersOf(harness);
+  assert.deepEqual([worker.hold, worker.lateReason, worker.holdMs], ["late", "resumed-while-held", null]);
+  // Past the attacher's wait: the install it would have sent never goes out.
+  await new Promise((resolve) => setTimeout(resolve, 600));
   assert.deepEqual(harness.installer.sharedInstallDiagnostics(), {
     installedWorkerCount: 0,
     installFailedWorkerCount: 0,

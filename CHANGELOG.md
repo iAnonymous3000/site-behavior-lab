@@ -9,6 +9,42 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- A shared worker whose hold at its main script ended before the
+  fingerprint observer was installed is an unread realm, not a read one
+  (fingerprint-observer@10; the defect never shipped). Any DevTools client's
+  release of a worker, `Runtime.runIfWaitingForDebugger` or a waiting
+  session's detach, ends a pause the worker is in, instrumentation pauses
+  included, and Playwright's browser session detaches every shared worker as
+  it attaches. When that detach reached a worker the attacher had just
+  paused, the worker ran its main script with no observer, the install
+  evaluated only at its next pause or task, and the attacher reported it
+  installed and released, so the readout read the realm complete on the
+  install's empty snapshot. In local loads of a page whose shared worker reads
+  the unmasked WebGL renderer and a canvas, that happened in 3 to 9 of 50 to
+  60 unloaded loads and 2 or 3 of 200 concurrent ones, each with a hold of 37
+  to 118 ms against a median of 5 to 9. The attacher's thread now treats a
+  resume of a held worker, or a pause at one of its statements, before every
+  install command answered as a broken hold: the worker is late
+  (`resumed-while-held`), the debugger is sent off at once, and nothing
+  reports it installed or released; the main thread never presents a late
+  worker as held, installed or released. A resume behind the answers is the
+  hold's own end. In two runs of 120 unloaded loads, each of the 24 broken
+  holds came 0.4 to 1.8 ms after the pause, with the attacher's own release
+  already answered before it, so the release was Playwright's; in the second
+  run the debugger stayed on for 2.5 to 5.3 ms after the resume. The readout
+  no longer settles on that lagging view either: a shared worker the main
+  thread sees held, at the freeze, after reaching, or attached during the
+  drain, waits for its next move within the drain's bound, since the thread
+  may already have broken the hold with its "late" report still in flight.
+  Late reads unread; released, died while held, or still held at the bound is
+  excluded as before, so the change only ever turns an exclusion into an
+  unread realm. With the fix, every held worker of 200 loaded, 200 concurrent
+  and 120 unloaded loads had its calls read (200, 195 and 112 held), and every
+  broken hold read unread; in the production base image (linux/arm64), 199 of
+  200 loaded single and 199 of 200 concurrent loads held in each of two
+  passes, and 117 then 120 of 120 unloaded, every miss `resumed-while-held`
+  and unread. A real-Chromium case makes the break certain: a second DevTools
+  client releases the worker inside a test-only wait in the hold.
 - The scanner reads a page's shared workers (fingerprint-observer@10,
   node-detectors-v21; shared-worker coverage brief, approved 2026-10-26,
   calls 1 to 6). Each visit registers its browser context with the shared
