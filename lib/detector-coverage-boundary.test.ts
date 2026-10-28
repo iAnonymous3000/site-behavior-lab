@@ -24,6 +24,8 @@ import { RequestInitiatorIndex } from "./request-initiator";
 import { MAX_INSPECTION_GROUP_HOSTS } from "./connection-inspection-evidence";
 import { MAX_SCROLL_CHECK_SCREENS } from "./scroll-check-evidence";
 import { ANALYTICS_FORMATS } from "./analytics-event-vocabulary";
+import { SHARED_WORKER_ENDED_AT_ONCE_MS } from "./shared-worker-ended-at-once";
+import { fingerprintSharedWorkersEndedAtOnceWarning } from "./scan-runtime";
 
 const root = process.cwd();
 
@@ -488,6 +490,155 @@ test("the cross-realm canvas entry tells a reader which reports observed Offscre
   assert.match(entry.explanation, /\bonly through drawImage\b/);
   assert.match(entry.explanation, /any other route[^.]*is not traced, for either kind of canvas/);
   assert.match(entry.explanation, /still pending when the visit's evidence is collected/);
+});
+
+/**
+ * fingerprint-observer@10 reads shared workers, but not every one. The
+ * cross-realm entry must say which it reads, that one reached late (a worker
+ * that started before the hold could land, a module worker with a static
+ * import) is still unread, that one which ended at once is named apart, and
+ * which reports read none. Each is a claim about code, so each is pinned to
+ * the code that makes it true: the observer version the entry names, the
+ * bound the scanner uses, the thread's late classes and the readout's rule
+ * that a late shared worker is unread, never excluded or credited.
+ */
+test("the cross-realm canvas entry says which shared workers the scanner reads, which stay unread and which ended at once", () => {
+  const entry = COVERAGE_BOUNDARY_ENTRIES.find((candidate) => candidate.id === "cross-realm-canvas");
+  assert.ok(entry, "the cross-realm canvas boundary entry must exist");
+  const currentObserver = Number(/^fingerprint-observer@(\d+)$/.exec(DETECTOR_VERSIONS["fingerprint-heuristics"])?.[1]);
+  assert.ok(currentObserver >= 10);
+
+  const held = /\bFrom fingerprint-observer@(\d+) the scanner observes the same work inside each shared worker\b[^.]*\./.exec(
+    entry.explanation
+  );
+  assert.ok(held, "the entry must say from which observer version shared workers are read");
+  assert.equal(Number(held[1]), 10);
+  assert.match(held[0], /\bholds the shared worker at its main script, before its first statement\b/);
+  assert.match(
+    held[0],
+    /\bcredits it only when it started under the main document still current at the read and its script is of that document's origin\b/
+  );
+  assert.ok(COVERAGE_BOUNDARY_SOURCES.includes("lib/shared-worker-attacher.ts"), "the module that holds them is a boundary source");
+
+  const late = /\bA shared worker the scanner reached only after the worker began to run\b[^.]*\./.exec(entry.explanation)?.[0];
+  assert.ok(late, "the entry must say that a shared worker reached late is unread");
+  assert.match(late, /\bstarted before the hold could land\b/);
+  assert.match(late, /\bone another DevTools client let run while the scanner held it\b/);
+  assert.match(late, /\bmodule shared worker with a static import\b/);
+  assert.match(late, /\bis never read, and marks the visit's fingerprinting evidence incomplete rather than clean\b/);
+  const attacher = readFileSync(path.join(root, "lib", "shared-worker-attacher.ts"), "utf8");
+  // The late classes the sentence names, the broken hold among them: a
+  // resume of a held worker before its install answered.
+  for (const reason of ["ran-before-breakpoint", "other-script", "running-at-attach", "resumed-while-held"]) {
+    assert.ok(attacher.includes(`"${reason}"`), `the thread no longer classifies ${reason} as late`);
+  }
+  assert.match(
+    attacher,
+    /if \(method === "Debugger\.resumed"\) \{[^}]*breakHold\(worker\);/,
+    "the thread must treat a resume of a held worker as a broken hold"
+  );
+  const realm = readFileSync(path.join(root, "lib", "worker-fingerprint-realm.ts"), "utf8");
+  assert.match(
+    realm,
+    /if \(worker\.hold === "late"\) return \{ record, state: "unread", reason: "attachedLate" \};/,
+    "the readout must count a shared worker reached late as unread"
+  );
+
+  const ended = /\bSo does a shared worker the scanner never reached that ended within (\d+) ms of starting\b[^.]*\./.exec(
+    entry.explanation
+  );
+  assert.ok(ended, "the entry must say that a shared worker which ended at once still marks the evidence incomplete");
+  assert.equal(Number(ended[1]), SHARED_WORKER_ENDED_AT_ONCE_MS, "the entry must name the scanner's own bound");
+  assert.match(ended[0], /\bnames in a sentence of its own, since whether it ran any code is not known\b/);
+
+  const before = /\bA report whose fingerprint detector is fingerprint-observer@(\d+) or earlier observed nothing inside a shared worker\b[^.]*\./.exec(
+    entry.explanation
+  );
+  assert.ok(before, "the entry must say which reports read no shared worker");
+  assert.equal(Number(before[1]), Number(held[1]) - 1);
+  assert.match(entry.explanation, /\bWorklets are not instrumented\b/);
+  assert.doesNotMatch(entry.explanation, /\bShared workers and worklets are not instrumented\b/);
+});
+
+/**
+ * The same claims where readers meet them outside the catalog: the
+ * limitations page, which every fresh result and every saved, shared or
+ * exported report links to, and the methodology page. Both said, through
+ * fingerprint-observer@9, that shared-worker code goes unobserved; the
+ * traffic lines stay, since a shared worker's own requests are still not
+ * recorded. Each claim is pinned to the code that makes it true.
+ */
+test("the limitations and methodology pages say which shared workers the scanner reads, in the scanner's own words", () => {
+  const limitations = readFileSync(path.join(root, "docs", "limitations.md"), "utf8").replace(/\s+/g, " ");
+  const methodology = readFileSync(path.join(root, "app", "methodology", "page.tsx"), "utf8")
+    .replace(/&apos;/g, "'")
+    .replace(/\s+/g, " ");
+
+  // Read, held at the main script, credited by the ownership rule.
+  assert.match(limitations, /\bCanvas, font and WebGL use inside each shared worker the page starts is recorded by the same observer too\b/);
+  assert.match(limitations, /\bholds each shared worker at its main script, before its first statement, while the observer is installed\b/);
+  assert.match(
+    limitations,
+    /\bcredited to the page only when it started under the main document that is still the current one when the evidence is read, and its script is of that document's origin\b/
+  );
+  // Unread when reached late or let run while held, the broken hold included.
+  assert.match(limitations, /\bone that started before the hold could land, or one the automation layer's own DevTools session let run while the attacher held it\b/);
+  assert.match(limitations, /\bA module shared worker with a static import is always reached that late\b/);
+  // The ended-at-once line, word for word, at the scanner's bound.
+  assert.ok(
+    limitations.includes(`("${fingerprintSharedWorkersEndedAtOnceWarning(1)}")`),
+    "the limitations page must quote the line the scanner writes"
+  );
+  assert.match(limitations, new RegExp(`\\bended within ${SHARED_WORKER_ENDED_AT_ONCE_MS} ms of starting cannot be shown to have run any code or none\\b`));
+  // Which reports read none, and what stays unobserved.
+  const observer = Number(/^fingerprint-observer@(\d+)$/.exec(DETECTOR_VERSIONS["fingerprint-heuristics"])?.[1]);
+  assert.match(limitations, new RegExp(`\`fingerprint-observer@${observer - 1}\` or earlier did not instrument shared workers at all`));
+  assert.match(limitations, /\bChromium gives a shared worker no Worker constructor\b/);
+  assert.match(limitations, /\bWorklets are not instrumented\b/);
+  assert.doesNotMatch(limitations, /\bShared workers and worklets are not instrumented\b/);
+  assert.doesNotMatch(limitations, /\bSharedWorker and WebSocket coverage is absent\b/);
+  assert.match(limitations, /\bSharedWorker traffic and WebSocket activity are not recorded\b/);
+  // The hold's own cost, in every arm, and GPC kept out of it.
+  assert.match(limitations, /\bno arm installs the signal into a shared worker\b/);
+  assert.match(limitations, /\blets a worker it held that way run with the debugger off\b/);
+  // The debugger window: every late shared worker but one already running
+  // when reached runs with the debugger on until the disable lands. A held
+  // worker whose install never answered is let run by that disable, so it
+  // is not among them.
+  const which = /\bThree kinds of shared worker run with the debugger on for a few milliseconds, until the attacher's `Debugger\.disable` reaches them: one whose first pause was at another script or was not the breakpoint's, one whose main script ran before the breakpoint took effect, and one the automation layer's own DevTools session let run while the attacher held it\./.test(
+    limitations
+  );
+  assert.ok(which, "the limitations page must name every late shared worker that has the debugger on, and for how long");
+  const debuggerWindow = /\bA `debugger;` statement such a worker reaches in that window pauses it until then\b/.test(limitations);
+  assert.ok(debuggerWindow, "the limitations page must say a debugger statement in that window pauses the worker");
+  assert.match(limitations, /\bA shared worker already running when the attacher reached it is sent nothing, the debugger included\./);
+
+  assert.match(methodology, /\balso holds each shared worker the page starts at its main script\b/);
+  assert.match(methodology, /\bno visit installs the signal in a shared worker\b/);
+  assert.match(methodology, /\bor let run by another DevTools client, such as the automation layer's own, while it was held, is never read\b/);
+  assert.match(
+    methodology,
+    /\bunless it was already running when reached, it also runs with the debugger on for a few milliseconds, until the attacher turns it off\b/
+  );
+  // The traffic sentence stays true: a shared worker's own requests are not recorded.
+  assert.match(methodology, /\ba SharedWorker's own traffic beyond the script that starts it is not recorded\b/);
+
+  // And the code. Each late class the pages name sends the debugger off
+  // (markLate's `debuggerOn`, and the broken hold's own disable), so it was
+  // on until then; the one sent nothing is the worker running at attach.
+  const attacher = readFileSync(path.join(root, "lib", "shared-worker-attacher.ts"), "utf8");
+  assert.match(attacher, /markLate\(worker, "ran-before-breakpoint", true\)/);
+  assert.match(attacher, /markLate\(worker, params\.reason === "instrumentation" \? "other-script" : "other-pause", true\)/);
+  assert.match(attacher, /markLate\(worker, "running-at-attach", false\)/);
+  assert.match(
+    attacher,
+    /const breakHold = \(worker: HeldWorker\): void => \{[^}]*reason: "resumed-while-held" \}\);\s*void turnDebuggerOff\(worker\);/,
+    "a broken hold sends the debugger off"
+  );
+  assert.equal((attacher.match(/markLate\(worker, /g) ?? []).length, 3, "every late classification is one the pages account for");
+  // The GPC installer names dedicated workers as its only kind.
+  const gpc = readFileSync(path.join(root, "lib", "gpc-worker-verification.ts"), "utf8");
+  assert.match(gpc, /workerKinds[^;\n]*\["dedicated"\]/);
 });
 
 /**

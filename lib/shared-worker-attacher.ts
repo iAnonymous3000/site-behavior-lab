@@ -33,14 +33,20 @@ import { SHARED_WORKER_ENDED_AT_ONCE_MS } from "./shared-worker-ended-at-once";
  * itself, from the installer's commands, which the visit hands it when it
  * registers. The main thread only reads what the thread reports.
  *
- * A LOST RACE. A worker whose first pause is at another script, or that is
- * seen to have parsed its main script with the breakpoint already set and no
- * pause before a later answer on its session, was reached late: its code ran
- * before the observer could precede it. The thread then turns the debugger
- * off at once, installs nothing, and reports it late, so the readout counts
- * it unread, as it counts a dedicated worker attached late. A module worker
- * with static imports is always this case: its first script to run is a
- * dependency, never its main script.
+ * A LOST RACE. A worker whose first pause is at another script, or not the
+ * breakpoint's, or that is seen to have parsed its main script with the
+ * breakpoint already set and no pause before a later answer on its session,
+ * was reached late: its code ran before the observer could precede it. The
+ * thread then sends the debugger off at once (markLate's `debuggerOn`),
+ * installs nothing, and reports it late, so the readout counts it unread, as
+ * it counts a dedicated worker attached late. The debugger is not off at
+ * once, though: the disable lands a few milliseconds later, and until then
+ * the worker's code runs with the debugger on, so a `debugger;` statement
+ * there pauses it until it lands (about 1.7 ms, once, in impl/hold-rate).
+ * Only a worker already running when it attached never has
+ * the debugger on, since nothing is sent to it. A module worker with static
+ * imports is always a lost race: its first script to run is a dependency,
+ * never its main script.
  *
  * A BROKEN HOLD. Any client's release of a worker, `Runtime.runIfWaitingForDebugger`
  * or a waiting session's detach, also ends a pause the worker is in,

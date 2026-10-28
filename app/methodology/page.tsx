@@ -147,7 +147,14 @@ export default function MethodologyPage() {
           every such construction is disclosed. A visit without the signal attaches the same session, pauses its
           dedicated workers the same way and installs the same fingerprint observer in them, but not the signal, so
           for attested workers a GPC comparison differs between its two visits in the signal alone; an unattested
-          worker is the remaining one-visit asymmetry, and it is disclosed rather than silently passed.
+          worker is the remaining one-visit asymmetry, and it is disclosed rather than silently passed. Every
+          visit, with the signal or without, also holds each shared worker the page starts at its main script,
+          through one attacher per browser with a DevTools connection of its own, and installs the same
+          fingerprint observer there before the worker&apos;s first statement; no visit installs the signal in a
+          shared worker. A shared worker reached only after it began to run, or let run by another DevTools
+          client, such as the automation layer&apos;s own, while it was held, is never read, and the visit says its
+          fingerprint evidence is incomplete; unless it was already running when reached, it also runs with the
+          debugger on for a few milliseconds, until the attacher turns it off.
         </p>
       </section>
 

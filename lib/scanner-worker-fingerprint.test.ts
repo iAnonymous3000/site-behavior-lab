@@ -15,7 +15,7 @@ import {
   FINGERPRINT_WORKER_REALM_CAPTURE_LOSS_WARNING,
   fingerprintSharedWorkersEndedAtOnceWarning
 } from "./scan-runtime";
-import { runCensorshipNotes } from "./scan-report-censorship";
+import { runCensorshipNotes, runQualitySummary } from "./scan-report-censorship";
 import { toPublicScanReportR2 } from "./scan-report-v2-r2-projection";
 import { buildRuntimeScanReportV2R2 } from "./scan-report-v2-runtime-builder";
 import { viewFromV1Report, viewFromV2 } from "./scan-report-views";
@@ -295,7 +295,11 @@ function fingerprintAccounting(visit: NodeScanMeasurementEnvelope) {
     sharedEndedLosses: measurement.measurement.qualityFacts.captureLoss
       .filter((loss) => loss.detail === FINGERPRINT_SHARED_WORKER_ENDED_DETAIL)
       .map((loss) => [loss.family, loss.phaseId, loss.kind, loss.count]),
-    r2Notes: runCensorshipNotes(r2View.runs[0]).join(" ")
+    r2Notes: runCensorshipNotes(r2View.runs[0]).join(" "),
+    // What the report page and its print view show of the run: the public r2
+    // report's own lines and its run-quality line.
+    r2Warnings: r2View.runs[0].warnings,
+    r2Quality: runQualitySummary(r2View.runs[0])
   };
 }
 
@@ -636,6 +640,21 @@ test("a shared worker that ends at once before the attacher reaches it has its o
   assert.doesNotMatch(on.accounting.r2Notes, /could not read one or more Web Workers/);
   assert.ok(on.stored.warnings.includes(line), "the store's sanitizer admits the line");
   assert.equal(on.stored.warnings.includes(FINGERPRINT_WORKER_REALM_CAPTURE_LOSS_WARNING), false);
+  // Both contexts say it: the fresh result (the scanner's own v1 result, and
+  // the public r2 report the result page reads) and the saved, shared or
+  // exported report (the store's sanitized v1 report), in the line the
+  // report shows and in the run-quality line its page and print view show.
+  assert.ok(on.accounting.r2Warnings.includes(line), "the public r2 report carries the line");
+  assert.match(
+    on.accounting.r2Quality,
+    /^cut short: [^]*the page started 1 shared worker that ended within 10 ms, before the fingerprint observer could reach it, so whether it ran any code is not known/
+  );
+  for (const report of [on.envelope.result, on.stored]) {
+    assert.match(
+      runQualitySummary(viewFromV1Report(report).runs[0]),
+      /^cut short: the page started one or more shared workers that ended within 10 ms, before the fingerprint observer could reach them, so the fingerprinting evidence is incomplete/
+    );
+  }
 
   const consent = await visit(ATTACHER_ARMS[0], "accept-all");
   const consentPhase = consent.envelope.measurement?.measurement.phases.find((phase) => phase.kind === "consent-interaction");

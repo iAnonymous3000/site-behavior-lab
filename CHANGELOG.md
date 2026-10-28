@@ -9,6 +9,42 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- The disclosures say what fingerprint-observer@10 does with shared workers
+  (owner call 6). docs/limitations.md, the methodology page and the coverage
+  boundary's cross-realm entry, which said through @9 that shared-worker code
+  goes unobserved, now say that the scanner holds each shared worker at its
+  main script and reads its canvas, font and WebGL use with the page's own
+  observer, credited by the ownership rule; that a shared worker reached
+  late, one started before the hold could land, one the automation layer's
+  own DevTools session let run while it was held, or a module shared worker
+  with a static import, is never read and marks the evidence incomplete;
+  that one which ended within 10 ms of starting has its own sentence, quoted
+  word for word; that Chromium gives a shared worker no Worker constructor;
+  that worklets are still not instrumented; and which reports read no shared
+  worker (`fingerprint-observer@9` or earlier). The limitations page also
+  gives the hold's cost in every arm (a median of 6 to 11 ms before a held
+  shared worker's first statement in local measurements, at most 51 ms with
+  the attacher alone under load and 11 ms in 40 whole scans), says no arm
+  installs the GPC signal into a shared worker, and words the counts caveat
+  as traffic: "SharedWorker traffic and WebSocket activity are not recorded
+  beyond the disclosed boundaries". It also gives the debugger window as wide
+  as it is: a worker held at its main script is let run with the debugger
+  off, and every late shared worker but one already running when reached (its first pause at another script or not the breakpoint's, its
+  main script run before the breakpoint took effect, or its hold broken by
+  the automation layer's release) runs with the debugger on for a few
+  milliseconds, until the attacher's `Debugger.disable` lands, so a
+  `debugger;` statement in that window pauses it until then (about 1.7 ms,
+  once, in local runs). The methodology page says so in a clause, and the
+  attacher's docblock no longer says the debugger goes off at once for a lost
+  race. The README and docs/capabilities.md make no claim about shared-worker
+  code, and their traffic lines stay true, so they are unchanged; the GPC
+  disclosure is unchanged. Two boundary tests pin each claim to the code that
+  makes it true (the observer version, the bound, the late reasons the thread
+  classifies, the readout's unread rule, markLate's `debuggerOn` for every
+  late class and the broken hold's own disable, the GPC installer's one worker
+  kind), and a scanner test holds the ended-at-once line and its quality line
+  to both contexts: the fresh result's v1 and public r2 reports, and the
+  store's sanitized report that saved, shared and exported reports read.
 - A shared worker whose hold at its main script ended before the
   fingerprint observer was installed is an unread realm, not a read one
   (fingerprint-observer@10; the defect never shipped). Any DevTools client's

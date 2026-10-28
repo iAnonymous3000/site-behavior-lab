@@ -776,6 +776,10 @@ test("a v1 line for shared workers that ended at once censors fingerprinting exa
   const withWorker = outcome([FINGERPRINT_WORKER_REALM_CAPTURE_LOSS_WARNING, endedAtOnce]);
   assert.match(withWorker.notes, /could not read one or more Web Workers the page started/);
   assert.doesNotMatch(withWorker.notes, endedNote);
+  // Beside the frame line, the widest loss, the frame's note stands too.
+  const withFrame = outcome([FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING, endedAtOnce]);
+  assert.match(withFrame.notes, /the in-page fingerprint observer could not read every frame, so the fingerprinting evidence is incomplete/);
+  assert.doesNotMatch(withFrame.notes, endedNote);
 });
 
 test("an r2 loss of shared workers that ended at once is its own detail and its own sentence beside the observer's", () => {
