@@ -9,6 +9,51 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- The consent probe reads a control as CSS does (consent-control-and-state@4,
+  node-detectors-v22). A control set back to `visibility: visible` inside a
+  hidden ancestor, or to `pointer-events: auto` inside one that takes no
+  pointer input, is visible and clickable, as a real click finds it; through
+  @3 either ancestor value hid or disabled it. And a hit on a shadow root's
+  host is followed into that root, level by level, until it names the
+  control: an overlay inside the root retargets to the same host, so through
+  @3 a covered control in a known CMP's shadow root read as visible and was
+  clicked. Filed by the external review of 2026-10-28 (items 3 and 4).
+- A shared worker the fingerprint readout saw held, whose attacher channel
+  then closed before the worker made another move, is an unread realm and
+  leaves the fingerprinting evidence incomplete (fingerprint-observer@11,
+  node-detectors-v22). Through @10 it was excluded as having run nothing,
+  although the hold last seen may already have broken, while the same loss
+  before the readout counted it unread. Item 5 of that review.
+- node-detectors-v22 moves the fingerprint observer and the consent probe
+  with the registry (`8e5f4258...a5f9` to `e4367c5d...ff68`). The two v26
+  producer rows close to frozen literals that hash as they ran, every other
+  Node and PageGraph row is unchanged, and two v27 rows open; the
+  obligations, public strings, normalization and methodology do not move. A
+  temporal comparison across the epoch refuses detector findings and consent
+  verification.
+- The scroll check no longer names a page request's script host for a
+  dedicated worker's request to the same URL. When a URL has more requests
+  than the page's DevTools session observed and only some are counted, none
+  of its counted requests takes a call stack, and each counts as not
+  observed. Inspect's output is unchanged. Item 2.
+- The comparison panel's "entities only with" lists read each request's own
+  catalog match, as each visit's own report does, so request order on a host
+  with two entities no longer moves an entity between the lists, and a host
+  redaction merged (one Google row among nine on `{label}.google.com`) no
+  longer counts its unmatched requests for the entity. The stored v1 diff
+  keeps the domain-summary rule the v1 reader reconciles it with, so every
+  stored v1 comparison still reads. Item 6.
+- The request log keeps an applied resource-type filter visible after
+  switching to a comparison visit with no request of that type: the select
+  shows "ping (none here)" over the empty table instead of "All types". Item 7.
+- A finished in-process scan job leaves memory when its 75-minute window
+  from admission ends, with or without another job call; before, only a job
+  call pruned it. Item 8.
+- Two history visits recorded at the same instant get no since-last delta,
+  nor does a newest visit with two visits tied just before it; the direction,
+  or the visit compared with, had come from which report id sorts first. No
+  committed report is tied. Item 9.
+
 - The disclosures say what fingerprint-observer@10 does with shared workers
   (owner call 6). docs/limitations.md, the methodology page and the coverage
   boundary's cross-realm entry, which said through @9 that shared-worker code
