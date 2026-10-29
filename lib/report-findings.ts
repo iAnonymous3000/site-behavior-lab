@@ -818,8 +818,8 @@ export function buildFindings(
       icon: "keyboard",
       level: hashed ? "loud" : "warn",
       title: hashed
-        ? `A hashed form of synthetic input reached ${recipientCount} before submission`
-        : `Synthetic form input reached ${recipientCount} before submission`,
+        ? `A hashed form of synthetic input appeared in requests to ${recipientCount} before submission`
+        : `Synthetic form input appeared in requests to ${recipientCount} before submission`,
       lead: hashed
         ? `When the scanner typed a unique test value into ${fields}, a one-way hash of that value appeared in requests to ${recipientCount} without the form being submitted.${namedRecipientsAndEncodings}`
         : `When the scanner typed a unique test value into ${fields}, that value appeared in requests to ${recipientCount} without the form being submitted.${namedRecipientsAndEncodings}`,

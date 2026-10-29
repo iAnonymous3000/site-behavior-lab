@@ -9,6 +9,12 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- The synthetic-input card's title says the test value appeared in requests
+  to its recipients, as its lead already did, instead of that it "reached"
+  them. A request the scanner's own guard refused still names its recipient
+  (the page sent the value), so "reached" claimed a receipt the evidence does
+  not show. Filed by the external review of 2026-10-28 (item 1); the
+  measured evidence and the report's other wording are unchanged.
 - The consent probe reads a control as CSS does (consent-control-and-state@4,
   node-detectors-v22). A control set back to `visibility: visible` inside a
   hidden ancestor, or to `pointer-events: auto` inside one that takes no

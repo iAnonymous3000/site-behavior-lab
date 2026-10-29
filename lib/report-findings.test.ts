@@ -2435,7 +2435,7 @@ test("confirmed keystroke exfiltration surfaces a loud finding and drives the bo
   const card = byId(findings, "keystroke-exfiltration");
   assert.equal(card.level, "loud");
   assert.equal(card.icon, "keyboard");
-  assert.match(card.title, /hashed form of synthetic input reached 1 cross-site domain before submission/);
+  assert.match(card.title, /hashed form of synthetic input appeared in requests to 1 cross-site domain before submission/);
   assert.match(card.lead, /collect\.example/);
   assert.match(card.detail, /does not establish whether transmission happened during typing, blur, or unload/);
   assert.doesNotMatch(card.detail, /known identity/);
@@ -2449,19 +2449,19 @@ test("keystroke leak severity escalates on one-way hashing, not reversible encod
   const plain = makeResult({ fingerprintDetections: [makeKeystrokeDetection(["plain"])] });
   const plainCard = byId(buildFindings(viewFromV1Report(plain), null), "keystroke-exfiltration");
   assert.equal(plainCard.level, "warn");
-  assert.match(plainCard.title, /Synthetic form input reached/);
+  assert.match(plainCard.title, /Synthetic form input appeared in requests to/);
 
   // Reversible base64/hex is common in legitimate APIs, so it stays "warn", not an alarm.
   const reversible = makeResult({ fingerprintDetections: [makeKeystrokeDetection(["base64"])] });
   const reversibleCard = byId(buildFindings(viewFromV1Report(reversible), null), "keystroke-exfiltration");
   assert.equal(reversibleCard.level, "warn");
-  assert.match(reversibleCard.title, /Synthetic form input reached/);
+  assert.match(reversibleCard.title, /Synthetic form input appeared in requests to/);
 
   // A one-way hash cannot drive a type-ahead, so it reads as deliberate capture → "loud".
   const hashed = makeResult({ fingerprintDetections: [makeKeystrokeDetection(["sha256"])] });
   const hashedCard = byId(buildFindings(viewFromV1Report(hashed), null), "keystroke-exfiltration");
   assert.equal(hashedCard.level, "loud");
-  assert.match(hashedCard.title, /hashed form of synthetic input reached/);
+  assert.match(hashedCard.title, /hashed form of synthetic input appeared in requests to/);
 });
 
 test("surfaces CNAME-cloaked trackers as their own finding, and omits it when there are none", () => {
