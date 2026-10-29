@@ -129,9 +129,13 @@ COPY --from=build /app/next.config.mjs ./next.config.mjs
 # unchanged. The container package ledger keys packages by upstream version, so
 # a revision-only upgrade leaves it as it is. Drop the pin when a base digest
 # ships 3.0.13-0ubuntu3.16 or later.
+# Likewise CVE-2026-111497 (HIGH, an out-of-bounds write in the Brotli
+# decoder): the base ships libbrotli1 1.1.0-2build2, fixed in the Ubuntu
+# revision 1.1.0-2ubuntu0.1. Drop that pin when a base digest ships it.
 RUN apt-get update \
   && apt-get install -y --no-install-recommends --only-upgrade \
     libssl3t64=3.0.13-0ubuntu3.16 openssl=3.0.13-0ubuntu3.16 \
+    libbrotli1=1.1.0-2ubuntu0.1 \
   && apt-get purge -y gstreamer1.0-plugins-bad libgstreamer-plugins-bad1.0-0 \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* \
