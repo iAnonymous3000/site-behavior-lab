@@ -116,9 +116,13 @@ adopted, with the custody machinery REUSED rather than restated:
   BEFORE sealing through the existing
   `sealCalibrationLabelSourceEnvelope` with the existing 9-field identity;
   CLI `npm run calibration:v4-seal-label-batch`.
-- **Authenticated fetching/reveal**: fetching reuses the
-  generation-agnostic `fetchAuthenticatedCalibrationLabelCommitments`
-  unchanged; `revealAuthenticatedV4LabelBatches` composes the custody rules
+- **Authenticated fetching/reveal**: fetching reuses
+  `fetchAuthenticatedCalibrationLabelCommitments`, which takes the producer
+  workflow it accepts as an explicit `expectedWorkflowPath` that defaults to
+  v3. The pilot's `npm run calibration:v4-fetch-commitments` passes the
+  pilot workflow, `.github/workflows/calibration-v4-pilot-commitment.yml`, so
+  a v3 record cannot pass as a pilot record or the reverse;
+  `revealAuthenticatedV4LabelBatches` composes the custody rules
   EXTRACTED from the v3 assembly (roster custody record, commitment-set
   arity/chronology/uniqueness, revealed-set-equals-roster, per-entry
   envelope open) and then validates each plaintext as a v4 batch. The v3

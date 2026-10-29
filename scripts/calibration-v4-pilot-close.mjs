@@ -10,10 +10,12 @@
  *
  * WHAT THIS STEP DOES AND DOES NOT ESTABLISH. It reads record files from a
  * directory the operator supplies, so it cannot know that GitHub really ran
- * the workflow a record describes: that is the authenticated fetcher's job
- * (fetchAuthenticatedCalibrationLabelCommitments over the GitHub Actions
- * API), and the fields this artifact carries under "authenticated" are only
- * as good as the step that produced those files.
+ * the workflow a record describes: that is the authenticated fetch's job
+ * (calibration-v4-fetch-commitments.mjs, which runs
+ * fetchAuthenticatedCalibrationLabelCommitments over the GitHub Actions API
+ * and writes the directory this step reads), and the fields this artifact
+ * carries under "authenticated" are only as good as the step that produced
+ * those files.
  *
  * What it CAN check from the bytes, it now checks, because this is the
  * irreversible step: the same set custody the reveal later runs (2..10

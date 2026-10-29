@@ -79,12 +79,15 @@ frame matches the approved artifact's protocol digest and pins.
 
 ## 0. What each participant needs
 
-**Reviewers: a git clone and Node, nothing else.** The frame producer, the
-reference instrument, the reviewer-batch producer, and the seal CLI all run
-from a bare checkout with no `npm ci` and no `dist/`, because every gate on
-that path is a committed-bytes check. If one of them ever fails with "build
-dist/schema", that is a defect in the tool, not a step a reviewer is
-missing.
+**Reviewers label and seal with a git clone and Node, nothing else.** The
+frame producer, the reference instrument, the reviewer-batch producer, and
+the seal CLI all run from a bare checkout with no `npm ci` and no `dist/`,
+because every gate on that path is a committed-bytes check. If one of them
+ever fails with "build dist/schema", that is a defect in the tool, not a step
+a reviewer is missing. Committing the sealed envelope needs one more thing:
+write access to this repository, to push one branch and dispatch one
+workflow, from `gh` or the repository's Actions tab. The workflow does its
+own install on GitHub.
 
 **The operator, for steps 5 and 6, works from a development checkout**
 (`npm ci && npm run build:schema`): the close and the reveal recompute the
@@ -282,55 +285,89 @@ labelers' batches (everything they see is sealed). Worksheets, HARs, and
 decisions files stay PRIVATE reviewer evidence until reveal; only sealed
 envelopes travel.
 
-> **STOP. Sealing is as far as this ceremony currently runs.** Do not
-> dispatch reviewers past this point, and do not promise them a commitment
-> step: the hosted `Calibration Label Commitment` workflow cannot mint a
-> commitment for a prevalence pilot, so steps 5 through 8 below have no
-> inputs and are NOT executable as written. Verified by execution against
-> the committed code:
->
-> - `.github/workflows/calibration-label-batch.yml` runs
->   `npm run calibration:preflight -- --dispatch` and then
->   `scripts/calibration-label-batch-build.mjs --candidate-root <carrier>`.
->   Both call `validateCalibrationCandidateFiles`, which opens
->   `calibration/<studyId>/preregistration.json` and `frame.json`: the v3
->   candidate shape. A pilot carrier has neither by construction (it carries
->   the pilot set, the provenance, and the sealing public key), and the v4
->   frame is `frame-tasks.json` plus `tasks/`. Running it today refuses with
->   `ENOENT ... preregistration.json`.
-> - Landing v3 artifacts at the carrier to satisfy it does not work either:
->   `assertCalibrationCandidateCanSatisfyRatePolicy` imposes a structural
->   floor of 200 planned cases, and this pilot is 100 by design.
-> - Preflight additionally requires a verified measurement-candidate
->   binding, which a prevalence pilot has no acquisition to produce.
-> - Step 5's "fetch through the authenticated fetcher" names a library
->   function (`fetchAuthenticatedCalibrationLabelCommitments`) whose only
->   command wrapper is the v3 one, `calibration:assemble`
->   (scripts/calibration-study-assemble.mjs), which builds it the v3 candidate
->   object a pilot cannot produce; the roster builder that also calls it,
->   scripts/calibration-label-roster-build.mjs, has no npm script at all. No command writes the `<fetched-records-dir>` that
->   steps 5 and 6 both consume, and that record file's schema is published
->   nowhere.
->
-> What the pilot needs before reviewers are dispatched is an authenticated
-> commitment path for a v4 frame: a hosted workflow that binds the reviewer's
-> own GitHub identity to their sealed envelope against `frame-tasks.json`
-> rather than a v3 candidate, plus a command that writes the fetched records
-> in the shape `calibration:v4-pilot-close` reads. Until that exists, a
-> reviewer who follows step 4 can seal an envelope that no one can close,
-> reveal, or score.
+### Commit the sealed envelope (each reviewer, on GitHub)
 
-## 5. Close (operator, after all three commitments exist) - BLOCKED
+A sealed envelope on a reviewer's machine is not evidence yet. Each reviewer
+turns theirs into one authenticated commitment by dispatching the hosted
+`Calibration v4 Pilot Commitment` workflow
+(.github/workflows/calibration-v4-pilot-commitment.yml) themselves, signed in
+as the login they sealed under. The workflow reads the frame, its tasks,
+`pilot-carrier.txt`, the sealing public key, and the approval from main as it
+stands at dispatch, never from the reviewer's commit. The reviewer's commit
+supplies only the sealed envelope, which the producer reads as the Git blob at
+that commit and path and never opens. It refuses a dispatch made on someone
+else's behalf, a dispatcher who is not the envelope's reviewer, a role the
+envelope does not carry, a carrier record that disagrees with the committed
+frame, a task byte that drifted, and a study that is not a prevalence pilot.
 
-The steps below are written against the intended ceremony and are kept so the
-gap above is legible, but they cannot run until the commitment path exists.
-Nothing in steps 5 to 8 has ever been executed against a real reviewer
-commitment.
+Commit `sealed-envelope.json` alone on a branch cut from F and push it to this
+repository. The workflow resolves `source_ref` inside its own clone of this
+repository, so a commit that exists only in a fork cannot be found.
+Dispatching needs write access to the repository, and so does the push. Then
+dispatch from main:
 
-Fetch the three commitment records through the authenticated fetcher
-(`fetchAuthenticatedCalibrationLabelCommitments` over the GitHub API,
-which verifies run, actor, artifact, and archive bytes), write one record
-file per commitment into a directory, then:
+```bash
+git switch -c pilot-envelope-<their-github-login>
+git add sealed-envelope.json
+git commit -m "Seal one pilot label batch"
+git push origin HEAD
+gh workflow run calibration-v4-pilot-commitment.yml --ref main \
+  -f role=labeler \
+  -f study_id=cname-uncloaking-2026-10-prevalence-pilot \
+  -f source_ref="$(git rev-parse HEAD)" \
+  -f source_path=sealed-envelope.json
+```
+
+The tiebreaker dispatches with `-f role=tiebreaker`. When the run succeeds, its
+summary prints five values: role, run id, run attempt, artifact id, and
+artifact digest. Send those five to the operator; they are the reviewer's
+coordinates. If the run is re-run, report its latest attempt: the fetch reads
+the run as GitHub reports it at fetch time, so an earlier attempt's coordinates
+are refused. The artifact holds ciphertext and authenticated run metadata
+only.
+
+## 5. Close (operator, after all three commitments exist)
+
+Nothing in steps 5 to 8 has yet run against a real reviewer commitment, and
+the commitment workflow has never run on GitHub. The ceremony test
+(scripts/calibration-v4-pilot-ceremony.test.mjs) runs every command from
+sealing to sizing, through a stubbed GitHub API.
+
+Collect the reviewers' coordinates into one file: a JSON array with one object
+per reviewer, holding exactly these five fields, the ids and the attempt as
+JSON integers and the digest as 64 lowercase hex characters:
+
+```text
+[
+  { "role": "labeler", "runId": <run id>, "runAttempt": <run attempt>,
+    "artifactId": <artifact id>, "archiveSha256": "<artifact digest>" },
+  ...
+]
+```
+
+Then fetch the records, signed in to `gh` with read access to this
+repository's Actions:
+
+```bash
+git fetch origin
+npm run calibration:v4-fetch-commitments -- \
+  --study-dir calibration/cname-uncloaking-2026-10-prevalence-pilot \
+  --coordinates coordinates.json \
+  --out-dir <fetched-records-dir>
+```
+
+The fetch re-reads each run and its artifact through the GitHub API and
+downloads the archive. It refuses a run that is not one successful,
+non-delegated dispatch of the pilot workflow from main; an artifact whose
+name, id, digest, or owning run disagrees with the coordinates; a producer
+commit older than F or absent from `origin/main`; an F that is not on
+`origin/main`; a record bound to another carrier or sealing key; a repeated
+run, artifact, or digest; and two commitments from one actor. It writes one
+record per reviewer into `--out-dir`, which must not exist yet. Write the
+coordinates file once and keep it: the order of its entries names the record
+files, and the record files' order is what the close freezes.
+
+Then close:
 
 ```bash
 npm run calibration:v4-pilot-close -- \
@@ -351,12 +388,11 @@ inside its own sealed envelope, all without the private key.
 **Record filenames are load-bearing.** Records are read in lexicographic
 filename order and that becomes the authorized order, so renaming a file
 after the close changes the frozen set and the reveal reports it as a
-substituted record. Name them once, before the close, and do not touch them
-afterwards.
+substituted record. The fetch names them; do not rename them.
 
 What the close CANNOT establish is that GitHub really ran the workflow a
-record describes: only the authenticated fetcher can, which is part of the
-commitment path this pilot does not yet have.
+record describes. The fetch established that when it wrote the directory, so
+close only from a directory `calibration:v4-fetch-commitments` wrote.
 Commit the authorization via PR; the repository commit is the anchor the
 reveal trusts. After it merges, labeling is closed: later commitments
 self-defeat against the authorized set.

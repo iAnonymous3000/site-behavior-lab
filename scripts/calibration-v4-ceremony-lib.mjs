@@ -8,13 +8,15 @@
  *
  * Custody is REUSED, never restated: sealing goes through
  * sealCalibrationLabelSourceEnvelope, fetching through
- * fetchAuthenticatedCalibrationLabelCommitments (already
- * generation-agnostic), and the reveal composes the same extracted custody
- * helpers the v3 assembly runs (roster record, commitment-set
- * arity/chronology/uniqueness, roster-set equality, per-entry envelope
- * open). The v3 SEMANTIC checks are deliberately absent by design: no
- * byte-identical evidence rule and no frozen `${detector}-presence` fact , 
- * each reviewer's evidence is their own, and uncertainty is representable.
+ * fetchAuthenticatedCalibrationLabelCommitments (told which producer
+ * workflow to accept: calibration-v4-fetch-commitments.mjs passes the
+ * pilot's, and v3 callers keep the default), and the reveal composes the
+ * same extracted custody helpers the v3 assembly runs (roster record,
+ * commitment-set arity/chronology/uniqueness, roster-set equality,
+ * per-entry envelope open). The v3 SEMANTIC checks are deliberately absent
+ * by design: no byte-identical evidence rule and no frozen
+ * `${detector}-presence` fact , each reviewer's evidence is their own, and
+ * uncertainty is representable.
  *
  * Pilot-runbook notes recorded at review time: GCM is unpadded, so a sealed
  * tri-state batch's ciphertext length would leak its label distribution;
