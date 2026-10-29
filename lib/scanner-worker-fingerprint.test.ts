@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { createServer, type Server } from "node:http";
 import { connect } from "node:net";
-import { test } from "node:test";
+import { test, type TestContext } from "node:test";
 import type { Page } from "playwright";
 import { CONSENT_INTERACTION_LEFT_SUBJECT_WARNING } from "./consent-subject-loss-warning";
 import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "./gpc-injection";
@@ -20,6 +20,7 @@ import { toPublicScanReportR2 } from "./scan-report-v2-r2-projection";
 import { buildRuntimeScanReportV2R2 } from "./scan-report-v2-runtime-builder";
 import { viewFromV1Report, viewFromV2 } from "./scan-report-views";
 import { closeSharedBrowserForTests, scanSiteWithMeasurement, type EstablishedWorkerRealmChannelForTests } from "./scanner";
+import type { SharedWorkerLateReason } from "./shared-worker-attacher";
 import { FINGERPRINT_SHARED_WORKER_ENDED_DETAIL, SHARED_WORKER_ENDED_AT_ONCE_WARNING_FRAGMENT } from "./shared-worker-ended-at-once";
 
 /**
@@ -310,6 +311,55 @@ const ATTACHER_ARMS = [
 ] as const;
 
 /**
+ * The attacher's hold at a shared worker's main script races the automation
+ * layer's own release of the worker. On a laptop it is almost never lost; on
+ * CI runners it is lost often enough to fail a test that needs a held worker
+ * (2026-10-28: a different such test failed in each of several runs, of
+ * 766554f4 and its successors). A test of what a held shared worker yields
+ * therefore tries its attacher-on visit up to SHARED_HOLD_TRIES times. A try
+ * in which the attacher lost a worker must report it honestly: late with a
+ * documented reason, and the fingerprinting evidence incomplete (`lost`
+ * asserts the test's own form of that). Only a try with every shared worker
+ * held is held to the test's own assertions, and a test whose every try lost
+ * a hold fails, so the hold must still work.
+ */
+const SHARED_HOLD_TRIES = 4;
+
+/** Every reason the attacher can give for a late worker; a new reason must be added here. */
+const DOCUMENTED_LATE_REASONS: Readonly<Record<SharedWorkerLateReason, true>> = {
+  "other-script": true,
+  "other-pause": true,
+  "ran-before-breakpoint": true,
+  "running-at-attach": true,
+  "resumed-while-held": true
+};
+
+function documentedLateReason(reason: SharedWorkerLateReason | null): boolean {
+  return reason !== null && DOCUMENTED_LATE_REASONS[reason] === true;
+}
+
+async function untilSharedWorkersHeld<T>(
+  t: TestContext,
+  visit: () => Promise<T>,
+  channelsOf: (value: T) => readonly EstablishedWorkerRealmChannelForTests[],
+  lost: (value: T) => void
+): Promise<T> {
+  for (let tryNumber = 1; tryNumber <= SHARED_HOLD_TRIES; tryNumber += 1) {
+    const value = await visit();
+    const late = channelsOf(value).flatMap((channel) =>
+      (channel.sharedWorkerVisit?.workers() ?? []).filter((worker) => worker.hold === "late")
+    );
+    if (late.length === 0) return value;
+    for (const worker of late) {
+      assert.ok(documentedLateReason(worker.lateReason), `${worker.url}: late for ${worker.lateReason}`);
+    }
+    lost(value);
+    t.diagnostic(`the attacher lost ${late.length} shared worker hold(s) on try ${tryNumber}`);
+  }
+  assert.fail(`the attacher lost a shared worker's hold on every one of ${SHARED_HOLD_TRIES} tries`);
+}
+
+/**
  * Design test 6. Chromium does not stop a worker at `terminate()`: it lets
  * the running task go on for about two seconds, then ends it, and the task's
  * closed snapshot is still delivered as it ends (measured on this shell: the
@@ -498,7 +548,7 @@ test("a worker that ends before it can vouch for its owner costs nothing when it
  * channel's discovery turns it into one unread realm on every channel a
  * reader uses.
  */
-test("a page's shared worker is read into the report when the attacher holds it, and is one unread realm on every channel without it", { timeout: 90_000 }, async (t) => {
+test("a page's shared worker is read into the report when the attacher holds it, and is one unread realm on every channel without it", { timeout: 150_000 }, async (t) => {
   withConsentVerification(t);
   const { port, done } = await startWorkerPage(t, {
     page: `<!doctype html><title>Shared worker</title><main><p>Ordinary public page.</p></main>
@@ -525,7 +575,18 @@ test("a page's shared worker is read into the report when the attacher holds it,
     return { accounting, channel: established as EstablishedWorkerRealmChannelForTests };
   };
 
-  const on = await visit(ATTACHER_ARMS[0]);
+  const on = await untilSharedWorkersHeld(
+    t,
+    () => {
+      done.length = 0;
+      return visit(ATTACHER_ARMS[0]);
+    },
+    (value) => [value.channel],
+    (value) => {
+      assert.deepEqual(value.accounting.lines, { frame: false, listener: false, workerRealm: true }, "a lost hold is one unread realm");
+      assert.equal(value.accounting.detector.status, "partial");
+    }
+  );
   assert.deepEqual(done, ["shared"], "the shared worker ran");
   assert.equal(on.channel.session.discoveredSharedWorkerCount(), 1);
   assert.notEqual(on.channel.sharedWorkerVisit, null, "the visit registered with the browser's attacher");
@@ -540,8 +601,9 @@ test("a page's shared worker is read into the report when the attacher holds it,
   assert.deepEqual(on.accounting.heuristics, ["openwpm-canvas-v1"], "the shared worker's canvas readback reaches the report");
   assert.equal(on.accounting.r2WorkerLine, false);
 
+  done.length = 0;
   const off = await visit(ATTACHER_ARMS[1]);
-  assert.deepEqual(done, ["shared", "shared"], "the shared worker ran again");
+  assert.deepEqual(done, ["shared"], "the shared worker ran again");
   assert.equal(off.channel.session.discoveredSharedWorkerCount(), 1);
   assert.equal(off.channel.sharedWorkerVisit, null, "with the attacher off the visit registers nothing");
   assert.deepEqual(off.accounting.lines, { frame: false, listener: false, workerRealm: true });
@@ -690,7 +752,7 @@ test("a shared worker that ends at once before the attacher reaches it has its o
  * visits differ in. The fingerprint evidence differs by the shared worker's
  * reads alone: the frame's and the dedicated worker's are in both.
  */
-test("the shared-worker attacher changes the shared worker's fingerprint evidence and nothing else", { timeout: 120_000 }, async (t) => {
+test("the shared-worker attacher changes the shared worker's fingerprint evidence and nothing else", { timeout: 180_000 }, async (t) => {
   withConsentVerification(t);
   const pageCanvas =
     "const canvas = document.createElement('canvas'); canvas.width = 200; canvas.height = 60; " +
@@ -756,11 +818,17 @@ test("the shared-worker attacher changes the shared worker's fingerprint evidenc
       detector: measurement.measurement.detectors["fingerprint-heuristics"].status,
       losses: measurement.measurement.qualityFacts.captureLoss
         .filter((loss) => loss.family === "fingerprinting")
-        .map((loss) => [loss.detail, loss.count])
+        .map((loss) => [loss.detail, loss.count]),
+      channel
     };
   };
 
-  const on = await visit(ATTACHER_ARMS[0]);
+  const on = await untilSharedWorkersHeld(
+    t,
+    () => visit(ATTACHER_ARMS[0]),
+    (value) => [value.channel],
+    (value) => assert.deepEqual([value.detector, value.losses], ["partial", [["fingerprint-observer", 1]]], "a lost hold is one unread realm")
+  );
   const off = await visit(ATTACHER_ARMS[1]);
   assert.deepEqual(on.same, off.same);
   assert.deepEqual(on.same.dedicated, { install: { installedWorkerCount: 1, installFailedWorkerCount: 0 }, attached: 1, nested: 0 });
@@ -805,14 +873,14 @@ test("the shared-worker attacher changes the shared worker's fingerprint evidenc
  * the visit whose browser context it is, so each report reads its own worker
  * and never the other's.
  */
-test("two concurrent visits in one browser each read only their own shared worker", { timeout: 90_000 }, async (t) => {
+test("two concurrent visits in one browser each read only their own shared worker", { timeout: 150_000 }, async (t) => {
   withConsentVerification(t);
   const { port } = await startWorkerPage(t, {
     page: `<!doctype html><title>Concurrent shared workers</title><main><p>Ordinary public page.</p></main>
       <script>new SharedWorker(location.hostname.startsWith("www.canvas") ? "/canvas-shared.js" : "/webgl-shared.js").port.start();</script>`,
     scripts: { "/canvas-shared.js": CANVAS_READ_SOURCE, "/webgl-shared.js": WEBGL_READ_SOURCE }
   });
-  const channels = new Map<string, EstablishedWorkerRealmChannelForTests>();
+  let channels = new Map<string, EstablishedWorkerRealmChannelForTests>();
   const visit = (host: string) =>
     scanSiteWithMeasurement(
       { url: `http://${host}/`, device: "desktop", gpcEnabled: false, consentMode: "observe" },
@@ -823,12 +891,28 @@ test("two concurrent visits in one browser each read only their own shared worke
         }
       }
     );
-  const [canvasVisit, webglVisit] = await Promise.all([visit("www.canvas-concurrent.com"), visit("www.webgl-concurrent.com")]);
   const read = (envelope: NodeScanMeasurementEnvelope) => ({
     apis: envelope.result.fingerprintEvents.map((event) => event.api).sort(),
     detector: envelope.measurement?.measurement.detectors["fingerprint-heuristics"].status,
     losses: envelope.measurement?.measurement.qualityFacts.captureLoss.filter((loss) => loss.family === "fingerprinting")
   });
+  const hosts = ["www.canvas-concurrent.com", "www.webgl-concurrent.com"] as const;
+  const [canvasVisit, webglVisit] = await untilSharedWorkersHeld(
+    t,
+    () => {
+      channels = new Map();
+      return Promise.all(hosts.map((host) => visit(host)));
+    },
+    () => hosts.map((host) => channels.get(host)).filter((channel) => channel !== undefined),
+    (envelopes) => {
+      // Each visit whose worker the attacher lost reads its own unread realm.
+      hosts.forEach((host, index) => {
+        if ((channels.get(host)?.sharedWorkerVisit?.workers() ?? []).some((worker) => worker.hold === "late")) {
+          assert.equal(read(envelopes[index]).detector, "partial", `${host}: a lost hold leaves the evidence incomplete`);
+        }
+      });
+    }
+  );
   assert.deepEqual(read(canvasVisit), { apis: ["canvas.getImageData"], detector: "complete", losses: [] });
   assert.deepEqual(read(webglVisit), {
     apis: ["webgl.getParameter.UNMASKED_RENDERER_WEBGL", "webgl.readPixels"],
@@ -1136,7 +1220,7 @@ test("a worker unread only at the passive boundary still carries the worker line
  * starts the shared worker, which then marks the evidence incomplete at the
  * final read only.
  */
-test("in a consent visit a shared worker started before the click is read when the attacher holds it, and without it withholds every r2 fingerprint detection, the page's own included", { timeout: 180_000 }, async (t) => {
+test("in a consent visit a shared worker started before the click is read when the attacher holds it, and without it withholds every r2 fingerprint detection, the page's own included", { timeout: 300_000 }, async (t) => {
   const pageCanvas =
     "const canvas = document.createElement('canvas'); canvas.width = 200; canvas.height = 60; " +
     "canvas.getContext('2d').fillText('abcdefghijklmnopqrstuvwxyz0123', 2, 20); canvas.toDataURL();";
@@ -1151,10 +1235,18 @@ test("in a consent visit a shared worker started before the click is read when t
       <script>${pageCanvas} if (location.hostname.startsWith("www.with-shared")) new SharedWorker("/idle-shared.js").port.start();</script>`,
     scripts: { "/idle-shared.js": "onconnect = () => {};" }
   });
+  let lastChannel: EstablishedWorkerRealmChannelForTests | null = null;
   const visit = async (host: string, consentMode: "accept-all" | "observe", arm: (typeof ATTACHER_ARMS)[number]) => {
+    lastChannel = null;
     const { result, measurement } = await scanSiteWithMeasurement(
       { url: `http://${host}/`, device: "desktop", gpcEnabled: false, consentMode },
-      { ...scanOptions(port), sharedWorkerAttacherDisabledForTests: arm.sharedWorkerAttacherDisabledForTests }
+      {
+        ...scanOptions(port),
+        sharedWorkerAttacherDisabledForTests: arm.sharedWorkerAttacherDisabledForTests,
+        onWorkerRealmChannelEstablishedForTests: (channel) => {
+          lastChannel = channel;
+        }
+      }
     );
     assert.ok(measurement);
     return {
@@ -1172,9 +1264,16 @@ test("in a consent visit a shared worker started before the click is read when t
   };
 
   const [on, off] = ATTACHER_ARMS;
+  const heldVisit = (host: string, consentMode: "accept-all" | "observe") =>
+    untilSharedWorkersHeld(
+      t,
+      () => visit(host, consentMode, on),
+      () => (lastChannel ? [lastChannel] : []),
+      (value) => assert.equal(value.detector, "partial", `${host}: a lost hold leaves the evidence incomplete`)
+    );
   for (const host of ["www.with-shared.com", "www.click-shared.com", "www.without-shared.com"]) {
     assert.deepEqual(
-      await visit(host, "accept-all", on),
+      await heldVisit(host, "accept-all"),
       {
         v1: ["openwpm-canvas-v1"],
         r2: [["openwpm-canvas-v1", 0]],
@@ -1186,7 +1285,7 @@ test("in a consent visit a shared worker started before the click is read when t
       `${host}: with the attacher on, the shared worker is read at both boundaries and withholds nothing`
     );
   }
-  assert.deepEqual((await visit("www.with-shared-observe.com", "observe", on)).detector, "complete");
+  assert.deepEqual((await heldVisit("www.with-shared-observe.com", "observe")).detector, "complete");
 
   const consentWithShared = await visit("www.with-shared.com", "accept-all", off);
   assert.deepEqual(consentWithShared, {
@@ -1224,7 +1323,7 @@ test("in a consent visit a shared worker started before the click is read when t
  * lost. The same visit with a passive read that could read no frame
  * publishes nothing, and the detector stays failed.
  */
-test("a consent click that leaves the site after a readable but incomplete passive read publishes a partial detector", { timeout: 120_000 }, async (t) => {
+test("a consent click that leaves the site after a readable but incomplete passive read publishes a partial detector", { timeout: 180_000 }, async (t) => {
   withConsentVerification(t);
   const pageCanvas =
     "const canvas = document.createElement('canvas'); canvas.width = 200; canvas.height = 60; " +
@@ -1280,7 +1379,21 @@ test("a consent click that leaves the site after a readable but incomplete passi
   };
 
   for (const arm of ATTACHER_ARMS) {
-    const readable = await visit({ sharedWorkerAttacherDisabledForTests: arm.sharedWorkerAttacherDisabledForTests });
+    let channel: EstablishedWorkerRealmChannelForTests | null = null;
+    const readable = await untilSharedWorkersHeld(
+      t,
+      () => {
+        channel = null;
+        return visit({
+          sharedWorkerAttacherDisabledForTests: arm.sharedWorkerAttacherDisabledForTests,
+          onWorkerRealmChannelEstablishedForTests: (established) => {
+            channel = established;
+          }
+        });
+      },
+      () => (channel ? [channel] : []),
+      (value) => assert.equal(value.passiveLoss, true, "a lost hold leaves the passive read incomplete")
+    );
     assert.equal(readable.left, true, "the click must leave the recorded site");
     assert.equal(
       readable.passiveLoss,
