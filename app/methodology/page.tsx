@@ -126,6 +126,9 @@ export default function MethodologyPage() {
           starts it is not recorded, and no WebSocket activity is recorded at all, neither the connection nor its
           messages. Storage keys are read from the top frame
           only, and trackers that load only after interaction or consent are not seen by a passive visit.
+          Fingerprinting evidence ends with the visit&apos;s last read, taken once the page goes quiet (or a short
+          wait runs out) and the visit&apos;s bounded interactions have run, often within seconds of loading;
+          fingerprinting that a page starts after that read is not in its report.
         </p>
         <p>
           A visit that requests Global Privacy Control runs every worker the site asks for, whatever its script
