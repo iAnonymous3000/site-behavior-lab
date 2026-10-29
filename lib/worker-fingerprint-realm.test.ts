@@ -2441,16 +2441,18 @@ function sharedWorkersOf(harness: PausedWorkerHarness): readonly AttachedSharedW
 }
 
 /**
- * The attacher's hold at a shared worker's main script races the automation
- * layer's own release of the worker. On a laptop it is almost never lost; on
- * CI runners it is lost often enough to fail a test that needs a held worker
- * (2026-10-28: four such tests failed across runs of 766554f4 and its
- * successors, a different one each time). A test of what a held worker
- * yields therefore tries its visit up to SHARED_HOLD_TRIES times. A try whose
- * worker was not held must show the honest outcome, a late worker with a
- * documented reason, which the readout counts unread; only a try whose
- * workers were all held is held to the test's own assertions. A test whose
- * every try lost a hold fails, so the hold must still work.
+ * The attacher races the automation layer for each shared worker: its hold
+ * at the main script races the layer's own release of the worker, and a
+ * worker that ends at once can end before the attacher sees its target. On a
+ * laptop the attacher almost never loses; on CI runners it loses often
+ * enough to fail a test that needs it to win (2026-10-28: several such tests
+ * failed across runs of 766554f4 and its successors, a different one each
+ * time). Such a test therefore tries its visit up to SHARED_HOLD_TRIES
+ * times. A try the attacher lost must show the honest outcome (a late
+ * worker with a documented reason, or no ended-at-once report, and the
+ * readout counting the worker unread), and only a try it won is held to the
+ * test's own assertions. A test whose every try was lost fails, so the
+ * attacher must still win.
  */
 const SHARED_HOLD_TRIES = 4;
 
@@ -2467,12 +2469,12 @@ function documentedLateReason(reason: SharedWorkerLateReason | null): boolean {
   return reason !== null && DOCUMENTED_LATE_REASONS[reason] === true;
 }
 
-async function untilSharedWorkersHeld(t: TestContext, attempt: (tryNumber: number) => Promise<boolean>): Promise<void> {
+async function untilSharedWorkerRaceWon(t: TestContext, attempt: (tryNumber: number) => Promise<boolean>): Promise<void> {
   for (let tryNumber = 1; tryNumber <= SHARED_HOLD_TRIES; tryNumber += 1) {
     if (await attempt(tryNumber)) return;
-    t.diagnostic(`the attacher lost a shared worker's hold on try ${tryNumber}`);
+    t.diagnostic(`the attacher lost its race with a shared worker on try ${tryNumber}`);
   }
-  assert.fail(`the attacher lost a shared worker's hold on every one of ${SHARED_HOLD_TRIES} tries`);
+  assert.fail(`the attacher lost its race with a shared worker on every one of ${SHARED_HOLD_TRIES} tries`);
 }
 
 /**
@@ -2530,7 +2532,7 @@ test("real Chromium: a shared worker the page starts is read when the attacher h
     return { harness, readout };
   };
 
-  await untilSharedWorkersHeld(t, async () => {
+  await untilSharedWorkerRaceWon(t, async () => {
     const { harness, readout } = await visit(true);
     assert.equal(sharedWorkersOf(harness).length, 1, "the visit hears only its own context's worker");
     if (!sharedWorkersHeld(harness, sharedWorkersOf(harness))) {
@@ -2765,7 +2767,7 @@ test("real Chromium: a shared worker another client lets run while it is held is
   // The scenario needs the hold to land before the other client breaks it;
   // a try where the attacher never held the worker is late for another
   // documented reason and proves nothing here, so it is tried again.
-  await untilSharedWorkersHeld(t, async () => {
+  await untilSharedWorkerRaceWon(t, async () => {
     done.length = 0;
     const harness = await openPausedWorkerHarness(t, { sharedWorkers: true, holdDelayMs: 500 });
     const other = await openDevtoolsBrowserChannel(await devtoolsBrowserWebSocketUrl(harness.devtoolsPort));
@@ -2834,7 +2836,7 @@ test("real Chromium: two concurrent visits each hold and read only their own sha
     </script>`,
     scripts: { "/shared.js": `${SHARED_FINGERPRINT_SOURCE} ${SHARED_BEACON_SOURCE}` }
   });
-  await untilSharedWorkersHeld(t, async () => {
+  await untilSharedWorkerRaceWon(t, async () => {
     done.length = 0;
     const devtoolsPort = await reserveLoopbackPort();
     const browser = await chromium.launch({ headless: true, args: [`--remote-debugging-port=${devtoolsPort}`] });
@@ -2915,7 +2917,7 @@ test("real Chromium: a shared worker is credited only to the main document curre
 
   // The ownership rule applies to workers that were held and read; a lost
   // hold is unread before ownership is asked.
-  await untilSharedWorkersHeld(t, async () => {
+  await untilSharedWorkerRaceWon(t, async () => {
     frameServer.done.length = 0;
     const framed = await openPausedWorkerHarness(t, { sharedWorkers: true });
     await framed.page.goto(`${origin}/?frame`, { timeout: 10_000 });
@@ -2943,7 +2945,7 @@ test("real Chromium: a shared worker is credited only to the main document curre
     return true;
   });
 
-  await untilSharedWorkersHeld(t, async () => {
+  await untilSharedWorkerRaceWon(t, async () => {
     done.length = 0;
     navigated = false;
     const replaced = await openPausedWorkerHarness(t, { sharedWorkers: true });
@@ -2992,22 +2994,37 @@ test("real Chromium: a shared worker the attacher never reached that ends at onc
       frame.remove();
     </script>`);
   });
-  const harness = await openPausedWorkerHarness(t, { sharedWorkers: true });
-  await harness.page.goto(`http://127.0.0.1:${port}/`, { timeout: 10_000 });
-  await waitFor(() => sharedWorkersOf(harness).length >= 1 && sharedWorkersOf(harness).every((worker) => worker.detached), 10_000);
-  const [worker] = sharedWorkersOf(harness);
-  assert.ok(worker, "the worker's target was created");
-  assert.equal(worker.hold, "pending", "it was never paused");
-  assert.equal(worker.endedUnreached, true, "no script of it was seen");
-  assert.ok(worker.lifetimeMs !== null);
-  const readout = await readWorkerRealms(harness, 500);
-  const endedAtOnce = worker.lifetimeMs <= SHARED_WORKER_ENDED_AT_ONCE_MS;
-  assert.deepEqual(
-    [readout.sharedWorkersEndedAtOnce, readout.unreadRealms, readout.readableSnapshots.length],
-    endedAtOnce ? [1, 0, 0] : [0, 1, 0],
-    `lifetime ${worker.lifetimeMs} ms`
-  );
-  assert.ok(endedAtOnce, `the worker lived ${worker.lifetimeMs} ms by the attacher's clock`);
+  // The worker lives under a millisecond, so on a busy runner the attacher
+  // can miss its target altogether, or see it live past the bound. A try
+  // that did not see it end at once must not report it so, and must count a
+  // shared worker any part of the visit saw as unread.
+  await untilSharedWorkerRaceWon(t, async () => {
+    const harness = await openPausedWorkerHarness(t, { sharedWorkers: true });
+    await harness.page.goto(`http://127.0.0.1:${port}/`, { timeout: 10_000 });
+    await waitFor(() => sharedWorkersOf(harness).length >= 1 && sharedWorkersOf(harness).every((worker) => worker.detached), 5_000);
+    const [worker] = sharedWorkersOf(harness);
+    const readout = await readWorkerRealms(harness, 500);
+    const seenEndedAtOnce =
+      worker !== undefined &&
+      worker.detached &&
+      worker.lifetimeMs !== null &&
+      worker.lifetimeMs <= SHARED_WORKER_ENDED_AT_ONCE_MS;
+    if (!seenEndedAtOnce) {
+      assert.equal(readout.sharedWorkersEndedAtOnce, 0, "a worker not seen to end at once is never reported so");
+      const seen = sharedWorkersOf(harness).length + readout.diagnostics.sharedWorkers.discovered;
+      assert.equal(readout.unreadRealms > 0, seen > 0, `seen ${seen} time(s): ${JSON.stringify(readout.diagnostics.sharedWorkers)}`);
+      await harness.browser.close();
+      return false;
+    }
+    assert.equal(worker.hold, "pending", "it was never paused");
+    assert.equal(worker.endedUnreached, true, "no script of it was seen");
+    assert.deepEqual(
+      [readout.sharedWorkersEndedAtOnce, readout.unreadRealms, readout.readableSnapshots.length],
+      [1, 0, 0],
+      `lifetime ${worker.lifetimeMs} ms`
+    );
+    return true;
+  });
 });
 
 /**

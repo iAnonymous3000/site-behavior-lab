@@ -20,7 +20,7 @@ import { toPublicScanReportR2 } from "./scan-report-v2-r2-projection";
 import { buildRuntimeScanReportV2R2 } from "./scan-report-v2-runtime-builder";
 import { viewFromV1Report, viewFromV2 } from "./scan-report-views";
 import { closeSharedBrowserForTests, scanSiteWithMeasurement, type EstablishedWorkerRealmChannelForTests } from "./scanner";
-import type { SharedWorkerLateReason } from "./shared-worker-attacher";
+import { SHARED_WORKER_ENDED_AT_ONCE_MS, type SharedWorkerLateReason } from "./shared-worker-attacher";
 import { FINGERPRINT_SHARED_WORKER_ENDED_DETAIL, SHARED_WORKER_ENDED_AT_ONCE_WARNING_FRAGMENT } from "./shared-worker-ended-at-once";
 
 /**
@@ -311,17 +311,17 @@ const ATTACHER_ARMS = [
 ] as const;
 
 /**
- * The attacher's hold at a shared worker's main script races the automation
- * layer's own release of the worker. On a laptop it is almost never lost; on
- * CI runners it is lost often enough to fail a test that needs a held worker
- * (2026-10-28: a different such test failed in each of several runs, of
- * 766554f4 and its successors). A test of what a held shared worker yields
- * therefore tries its attacher-on visit up to SHARED_HOLD_TRIES times. A try
- * in which the attacher lost a worker must report it honestly: late with a
- * documented reason, and the fingerprinting evidence incomplete (`lost`
- * asserts the test's own form of that). Only a try with every shared worker
- * held is held to the test's own assertions, and a test whose every try lost
- * a hold fails, so the hold must still work.
+ * The scanner races the automation layer for each shared worker: the
+ * attacher's hold at the main script races the layer's own release of the
+ * worker, and a worker that ends at once can end before the attacher, or
+ * with it off the channel's discovery, sees its target. On a laptop the
+ * scanner almost never loses; on CI runners it loses often enough to fail a
+ * test that needs it to win (2026-10-28: a different such test failed in
+ * each of several runs, of 766554f4 and its successors). Such a test
+ * therefore tries its visit up to SHARED_HOLD_TRIES times. A try the scanner
+ * lost must report the worker honestly (`lost` asserts the test's own form
+ * of that), only a try it won is held to the test's own assertions, and a
+ * test whose every try was lost fails, so the scanner must still win.
  */
 const SHARED_HOLD_TRIES = 4;
 
@@ -338,25 +338,68 @@ function documentedLateReason(reason: SharedWorkerLateReason | null): boolean {
   return reason !== null && DOCUMENTED_LATE_REASONS[reason] === true;
 }
 
-async function untilSharedWorkersHeld<T>(
+async function untilSharedWorkerRaceWon<T>(
+  t: TestContext,
+  visit: () => Promise<T>,
+  won: (value: T) => boolean,
+  lost: (value: T) => void
+): Promise<T> {
+  for (let tryNumber = 1; tryNumber <= SHARED_HOLD_TRIES; tryNumber += 1) {
+    const value = await visit();
+    if (won(value)) return value;
+    lost(value);
+    t.diagnostic(`the scanner lost its race with a shared worker on try ${tryNumber}`);
+  }
+  assert.fail(`the scanner lost its race with a shared worker on every one of ${SHARED_HOLD_TRIES} tries`);
+}
+
+/** The hold's race: won when no shared worker of the visit was late, each late one with a documented reason. */
+function untilSharedWorkersHeld<T>(
   t: TestContext,
   visit: () => Promise<T>,
   channelsOf: (value: T) => readonly EstablishedWorkerRealmChannelForTests[],
   lost: (value: T) => void
 ): Promise<T> {
-  for (let tryNumber = 1; tryNumber <= SHARED_HOLD_TRIES; tryNumber += 1) {
-    const value = await visit();
-    const late = channelsOf(value).flatMap((channel) =>
-      (channel.sharedWorkerVisit?.workers() ?? []).filter((worker) => worker.hold === "late")
-    );
-    if (late.length === 0) return value;
-    for (const worker of late) {
-      assert.ok(documentedLateReason(worker.lateReason), `${worker.url}: late for ${worker.lateReason}`);
-    }
-    lost(value);
-    t.diagnostic(`the attacher lost ${late.length} shared worker hold(s) on try ${tryNumber}`);
-  }
-  assert.fail(`the attacher lost a shared worker's hold on every one of ${SHARED_HOLD_TRIES} tries`);
+  return untilSharedWorkerRaceWon(
+    t,
+    visit,
+    (value) => {
+      const late = channelsOf(value).flatMap((channel) =>
+        (channel.sharedWorkerVisit?.workers() ?? []).filter((worker) => worker.hold === "late")
+      );
+      for (const worker of late) {
+        assert.ok(documentedLateReason(worker.lateReason), `${worker.url}: late for ${worker.lateReason}`);
+      }
+      return late.length === 0;
+    },
+    lost
+  );
+}
+
+/**
+ * The race of a shared worker that ends at once: won when the attacher saw
+ * its one worker end, never reached, within the bound. A try it lost must
+ * not report a worker ended at once, and must count a shared worker any part
+ * of the visit saw as an unread realm.
+ */
+function sawSharedWorkerEndAtOnce(channel: EstablishedWorkerRealmChannelForTests | null): boolean {
+  const workers = channel?.sharedWorkerVisit?.workers() ?? [];
+  return (
+    workers.length === 1 &&
+    workers[0].hold === "pending" &&
+    workers[0].endedUnreached &&
+    workers[0].lifetimeMs !== null &&
+    workers[0].lifetimeMs <= SHARED_WORKER_ENDED_AT_ONCE_MS
+  );
+}
+
+function assertMissedEndAtOnceHonestly(
+  channel: EstablishedWorkerRealmChannelForTests | null,
+  accounting: ReturnType<typeof fingerprintAccounting>
+): void {
+  assert.deepEqual(accounting.sharedEndedLines, [], "a worker not seen to end at once is never reported so");
+  const seen = (channel?.sharedWorkerVisit?.workers().length ?? 0) + (channel?.session.discoveredSharedWorkerCount() ?? 0);
+  assert.equal(accounting.lines.workerRealm, seen > 0, `a shared worker the visit saw ${seen} time(s) is unread when it did not end at once`);
 }
 
 /**
@@ -636,7 +679,7 @@ test("a page's shared worker is read into the report when the attacher holds it,
  * off, the same worker is one unread realm from the channel's discovery, as
  * through @9.
  */
-test("a shared worker that ends at once before the attacher reaches it has its own line and loss on every channel", { timeout: 120_000 }, async (t) => {
+test("a shared worker that ends at once before the attacher reaches it has its own line and loss on every channel", { timeout: 240_000 }, async (t) => {
   withConsentVerification(t);
   const { port } = await startWorkerPage(t, {
     page: `<!doctype html><title>Shared worker ended at once</title><main><p>Ordinary public page.</p></main>
@@ -671,7 +714,14 @@ test("a shared worker that ends at once before the attacher reaches it has its o
     };
   };
 
-  const on = await visit(ATTACHER_ARMS[0]);
+  const endedAtOnceVisit = (consentMode: "observe" | "accept-all") =>
+    untilSharedWorkerRaceWon(
+      t,
+      () => visit(ATTACHER_ARMS[0], consentMode),
+      (value) => sawSharedWorkerEndAtOnce(value.channel),
+      (value) => assertMissedEndAtOnceHonestly(value.channel, value.accounting)
+    );
+  const on = await endedAtOnceVisit("observe");
   const workers = on.channel.sharedWorkerVisit?.workers() ?? [];
   assert.equal(workers.length, 1, "the attacher saw the worker's target");
   assert.deepEqual(
@@ -718,7 +768,7 @@ test("a shared worker that ends at once before the attacher reaches it has its o
     );
   }
 
-  const consent = await visit(ATTACHER_ARMS[0], "accept-all");
+  const consent = await endedAtOnceVisit("accept-all");
   const consentPhase = consent.envelope.measurement?.measurement.phases.find((phase) => phase.kind === "consent-interaction");
   assert.ok(consentPhase, "the consent phase must begin");
   assert.deepEqual(consent.accounting.sharedEndedLines, [line], "one line for the one worker both reads count");
@@ -733,7 +783,14 @@ test("a shared worker that ends at once before the attacher reaches it has its o
   );
   assert.equal(consent.accounting.r2Benchmark, false);
 
-  const off = await visit(ATTACHER_ARMS[1]);
+  // With the attacher off only the channel's discovery can see the worker,
+  // and it can miss one that ends this fast: such a try records nothing.
+  const off = await untilSharedWorkerRaceWon(
+    t,
+    () => visit(ATTACHER_ARMS[1]),
+    (value) => value.channel.session.discoveredSharedWorkerCount() === 1,
+    (value) => assertMissedEndAtOnceHonestly(value.channel, value.accounting)
+  );
   assert.deepEqual(off.accounting.sharedEndedLines, []);
   assert.deepEqual(off.accounting.sharedEndedLosses, []);
   assert.deepEqual(off.accounting.lines, { frame: false, listener: false, workerRealm: true });
@@ -1444,7 +1501,7 @@ test("a consent click that leaves the site after a readable but incomplete passi
  * read's loss under the line's own detail. The passive read's frame is read,
  * so its canvas readback publishes at its phase and the detector is partial.
  */
-test("a consent click that leaves the site after a shared worker ended at once keeps the line from the read before the click", { timeout: 90_000 }, async (t) => {
+test("a consent click that leaves the site after a shared worker ended at once keeps the line from the read before the click", { timeout: 180_000 }, async (t) => {
   withConsentVerification(t);
   const pageCanvas =
     "const canvas = document.createElement('canvas'); canvas.width = 200; canvas.height = 60; " +
@@ -1462,9 +1519,23 @@ test("a consent click that leaves the site after a shared worker ended at once k
         frame.remove();
       }</script>`
   });
-  const envelope = await scanSiteWithMeasurement(
-    { url: "http://www.ended-left.com/", device: "desktop", gpcEnabled: false, consentMode: "accept-all" },
-    scanOptions(port)
+  let channel: EstablishedWorkerRealmChannelForTests | null = null;
+  const envelope = await untilSharedWorkerRaceWon(
+    t,
+    () => {
+      channel = null;
+      return scanSiteWithMeasurement(
+        { url: "http://www.ended-left.com/", device: "desktop", gpcEnabled: false, consentMode: "accept-all" },
+        {
+          ...scanOptions(port),
+          onWorkerRealmChannelEstablishedForTests: (established) => {
+            channel = established;
+          }
+        }
+      );
+    },
+    () => sawSharedWorkerEndAtOnce(channel),
+    (value) => assertMissedEndAtOnceHonestly(channel, fingerprintAccounting(value))
   );
   const accounting = fingerprintAccounting(envelope);
   const { result, measurement } = envelope;
