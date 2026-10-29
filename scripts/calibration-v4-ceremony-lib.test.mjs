@@ -11,8 +11,15 @@ import {
   calibrationLabelPublicKeyIdentity,
   openCalibrationLabelSourceEnvelope
 } from "./calibration-label-source-envelope-lib.mjs";
-import { describeAuthenticatedCalibrationCommitments } from "./calibration-label-sources-lib.mjs";
-import { canonicalPrettyJson, sha256Hex } from "./calibration-study-lib.mjs";
+import {
+  describeAuthenticatedCalibrationCommitments,
+  validateCalibrationLabelCommitmentGithubMetadata
+} from "./calibration-label-sources-lib.mjs";
+import {
+  CALIBRATION_V4_PILOT_LABEL_WORKFLOW_PATH,
+  canonicalPrettyJson,
+  sha256Hex
+} from "./calibration-study-lib.mjs";
 import {
   V4_REFERENCE_TASK_KIND,
   buildV4FrameTasksArtifact,
@@ -2573,4 +2580,182 @@ test("the v4 commitment producer mints an authenticated record, by EXECUTION, an
   );
   assert.notEqual(refused.status, 0);
   assert.match(refused.stderr, /not approved by a named human/);
+});
+
+// The hosted producer's hardening lives in YAML that no other test reads, and
+// its artifact name restates a template the shared validator derives on its
+// own. Both are checked against the workflow file itself, so a drift in either
+// fails here instead of at the first real dispatch. There is no YAML parser in
+// the tree, so each step is read by indentation and every check looks only at
+// the step that owns the line.
+function workflowSteps(workflow) {
+  const lines = workflow.split("\n");
+  const start = lines.findIndex((line) => line === "    steps:");
+  assert.ok(start >= 0, "the workflow has one steps list");
+  const steps = [];
+  for (const line of lines.slice(start + 1)) {
+    if (line.startsWith("      - ")) steps.push([line]);
+    else if (line.trim() === "" || line.startsWith("        ") || line.trimStart().startsWith("#")) steps.at(-1)?.push(line);
+    else break;
+  }
+  return steps.map((stepLines) => {
+    const field = (key) => {
+      const at = stepLines.findIndex((line) => line.replace(/^ {6}- /, "        ").startsWith(`        ${key}:`));
+      if (at < 0) return undefined;
+      const inline = stepLines[at].slice(stepLines[at].indexOf(`${key}:`) + key.length + 1).trim();
+      if (inline !== "|") return inline;
+      const body = [];
+      for (const line of stepLines.slice(at + 1)) {
+        if (line.trim() !== "" && !line.startsWith("          ")) break;
+        body.push(line);
+      }
+      return body.join("\n");
+    };
+    const block = (key) => {
+      const at = stepLines.findIndex((line) => line === `        ${key}:`);
+      const entries = new Map();
+      if (at < 0) return entries;
+      for (const line of stepLines.slice(at + 1)) {
+        const match = /^ {10}([A-Za-z0-9_-]+): (.*)$/.exec(line);
+        if (!match) break;
+        entries.set(match[1], match[2]);
+      }
+      return entries;
+    };
+    return { name: field("name"), uses: field("uses"), run: field("run"), if: field("if"), with: block("with"), env: block("env") };
+  });
+}
+
+function topLevelKeys(workflow, key) {
+  const lines = workflow.split("\n");
+  const start = lines.indexOf(`${key}:`);
+  assert.ok(start >= 0, `the workflow has a top-level ${key}`);
+  const keys = [];
+  for (const line of lines.slice(start + 1)) {
+    if (line.trim() !== "" && !line.startsWith(" ")) break;
+    const match = /^ {2}(\S.*)$/.exec(line);
+    if (match) keys.push(match[1]);
+  }
+  return keys;
+}
+
+test("the v4 pilot commitment workflow keeps v3's hardening and names the artifact the fetch derives", () => {
+  const repoRoot = path.join(moduleDir, "..");
+  const workflow = readFileSync(path.join(repoRoot, ...CALIBRATION_V4_PILOT_LABEL_WORKFLOW_PATH.split("/")), "utf8");
+  const steps = workflowSteps(workflow);
+  const stepNamed = (name) => {
+    const found = steps.filter((step) => step.name === name);
+    assert.equal(found.length, 1, `exactly one step is named ${name}`);
+    return found[0];
+  };
+
+  // Dispatch only, read-only, no secret and no environment to reach.
+  assert.deepEqual(topLevelKeys(workflow, "on"), ["workflow_dispatch:"]);
+  assert.deepEqual(topLevelKeys(workflow, "permissions"), ["contents: read", "attestations: read"]);
+  assert.doesNotMatch(workflow, /^ +permissions:/m, "no job widens the workflow's permissions");
+  assert.doesNotMatch(workflow, /:\s*write\b/);
+  assert.doesNotMatch(workflow, /secrets\./);
+  assert.doesNotMatch(workflow, /^\s*environment:/m);
+  assert.match(workflow, /^ {4}runs-on: ubuntu-24\.04$/m);
+
+  // The trusted tree is the dispatched commit, checked out with no credentials.
+  const checkouts = steps.filter((step) => step.uses?.startsWith("actions/checkout@"));
+  assert.equal(checkouts.length, 1);
+  assert.equal(checkouts[0].with.get("ref"), "${{ github.sha }}");
+  assert.equal(checkouts[0].with.get("persist-credentials"), "false");
+
+  // Every free string reaches a shell through env, never by interpolation.
+  const runBodies = steps.filter((step) => step.run !== undefined);
+  assert.ok(runBodies.length >= 6, "the step reader found the workflow's run steps");
+  for (const step of runBodies) {
+    assert.doesNotMatch(step.run, /\$\{\{/, `${step.name} interpolates an expression into its shell`);
+  }
+
+  // The closed identity check runs before anything installs or reads the
+  // reviewer's commit, and refuses a delegated dispatch and a non-pilot study.
+  const identity = stepNamed("Verify closed dispatch identity");
+  for (const line of [
+    '[[ "$CALIBRATION_STUDY_ID" =~ ^[a-z0-9][a-z0-9._-]{0,99}$ ]]',
+    '[[ "$CALIBRATION_STUDY_ID" == *-prevalence-pilot ]]',
+    '[[ "$SOURCE_REF" =~ ^[0-9a-f]{40}$ ]]',
+    '[[ "$SOURCE_PATH" != *..* ]]',
+    'test "$ROLE" = "labeler" || test "$ROLE" = "tiebreaker"',
+    'test "$GITHUB_ACTOR" = "$GITHUB_TRIGGERING_ACTOR"'
+  ]) {
+    assert.ok(identity.run.split("\n").some((bodyLine) => bodyLine.trim() === line), `the identity check runs ${line}`);
+  }
+  const install = stepNamed("Install trusted verifier dependencies");
+  assert.equal(install.run, "npm ci --ignore-scripts");
+  const materialize = stepNamed("Materialize the reviewer's sealed source as data only");
+  const produce = stepNamed("Validate and wrap the ciphertext commitment");
+  assert.ok(steps.indexOf(identity) < steps.indexOf(install));
+  assert.ok(steps.indexOf(install) < steps.indexOf(materialize));
+  assert.ok(steps.indexOf(materialize) < steps.indexOf(produce));
+  assert.match(produce.run, /CALIBRATION_SOURCE_COMMIT="\$SOURCE_REF" node scripts\/calibration-v4-pilot-commitment-build\.mjs /);
+  assert.ok(existsSync(path.join(repoRoot, "scripts", "calibration-v4-pilot-commitment-build.mjs")));
+  assert.match(produce.run, /--output-dir "\$RUNNER_TEMP\/calibration-v4-pilot-commitment"$/m);
+  const cleanup = stepNamed("Remove the data-only worktree");
+  assert.equal(cleanup.if, "always()");
+
+  // The one upload carries the producer's record, under the name the shared
+  // validator derives from the reviewer's coordinates. Substituting concrete
+  // values into the workflow's own template and authenticating the result
+  // binds the two without restating either.
+  const uploads = steps.filter((step) => step.uses?.startsWith("actions/upload-artifact@"));
+  assert.equal(uploads.length, 1);
+  assert.equal(uploads[0].with.get("path"), "${{ runner.temp }}/calibration-v4-pilot-commitment/commitment.json");
+  assert.equal(uploads[0].with.get("if-no-files-found"), "error");
+  const template = uploads[0].with.get("name");
+  const expression = /\$\{\{ ([a-z_.]+) \}\}/g;
+  assert.deepEqual(
+    [...template.matchAll(expression)].map((match) => match[1]).sort(),
+    ["github.run_attempt", "github.run_id", "inputs.role", "inputs.study_id"]
+  );
+  const studyId = `${STUDY}-prevalence-pilot`;
+  const headSha = "c".repeat(40);
+  for (const role of ["labeler", "tiebreaker"]) {
+    const coordinate = { role, runId: 4242, runAttempt: 2, artifactId: 77, archiveSha256: "1".repeat(64) };
+    const values = {
+      "inputs.role": role,
+      "inputs.study_id": studyId,
+      "github.run_id": String(coordinate.runId),
+      "github.run_attempt": String(coordinate.runAttempt)
+    };
+    const uploadedName = template.replace(expression, (_, name) => values[name]);
+    const authenticated = validateCalibrationLabelCommitmentGithubMetadata({
+      studyId,
+      coordinate,
+      expectedWorkflowPath: CALIBRATION_V4_PILOT_LABEL_WORKFLOW_PATH,
+      run: {
+        id: coordinate.runId,
+        run_attempt: coordinate.runAttempt,
+        event: "workflow_dispatch",
+        path: CALIBRATION_V4_PILOT_LABEL_WORKFLOW_PATH,
+        head_branch: "main",
+        head_sha: headSha,
+        conclusion: "success",
+        run_started_at: "2026-10-29T10:00:00Z",
+        updated_at: "2026-10-29T10:05:00Z",
+        actor: { login: "alice" },
+        triggering_actor: { login: "alice" },
+        repository: { full_name: "iAnonymous3000/site-behavior-lab" }
+      },
+      artifacts: {
+        total_count: 1,
+        artifacts: [
+          {
+            id: coordinate.artifactId,
+            name: uploadedName,
+            expired: false,
+            size_in_bytes: 1_024,
+            digest: `sha256:${coordinate.archiveSha256}`,
+            created_at: "2026-10-29T10:04:00Z",
+            expires_at: "2027-01-27T10:04:00Z",
+            workflow_run: { id: coordinate.runId, head_sha: headSha }
+          }
+        ]
+      }
+    });
+    assert.equal(authenticated.artifactName, uploadedName);
+  }
 });
