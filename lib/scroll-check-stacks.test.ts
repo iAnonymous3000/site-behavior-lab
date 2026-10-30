@@ -370,6 +370,52 @@ test("a worker's request never takes the stack of the page's own request to the 
   });
 });
 
+test("a URL observed more often than the window requested it takes no stack, unless every observation adds the same", async () => {
+  const url = "http://pixel.delta.net/hit";
+  const evidence = await check({
+    scheduled: [
+      ...AT_LOAD,
+      ...both(NAV + 300, TAG, { type: "Script", frames: [LOADER] }),
+      // Observed in the lead, just before the window opens, with a stack of
+      // its own, and no page request for it inside the window. By position
+      // the window's one request would take this stack.
+      { at: SCROLL_START - 300, cdp: sent(url, { frames: [TAG] }) },
+      ...both(SCROLL_START + 1_000, url, { frames: [LOADER] })
+    ]
+  });
+  assert.deepEqual(entryFor(evidence, "pixel.delta.net"), {
+    host: "pixel.delta.net",
+    requests: 1,
+    groups: [],
+    redirected: 0,
+    withoutStack: 0,
+    withoutNamedScript: 0,
+    notListed: 0,
+    unobserved: 1
+  });
+
+  // The same extra observation with the same stack: any pairing adds the
+  // same group, so the request keeps it.
+  const same = "http://pixel.echo.net/hit";
+  const unchanged = await check({
+    scheduled: [
+      ...AT_LOAD,
+      { at: SCROLL_START - 300, cdp: sent(same, { frames: [LOADER] }) },
+      ...both(SCROLL_START + 1_000, same, { frames: [LOADER] })
+    ]
+  });
+  assert.deepEqual(entryFor(unchanged, "pixel.echo.net"), {
+    host: "pixel.echo.net",
+    requests: 1,
+    groups: [{ count: 1, hosts: ["cdn.alpha.net"] }],
+    redirected: 0,
+    withoutStack: 0,
+    withoutNamedScript: 0,
+    notListed: 0,
+    unobserved: 0
+  });
+});
+
 test("at most three call stacks are listed for a host, the most frequent first, and the counts stay full", async () => {
   const scripts = ["one", "two", "three", "four", "five"].map((name) => `http://static.${name}.org/s.js`);
   const scheduled: Scheduled[] = [...AT_LOAD];

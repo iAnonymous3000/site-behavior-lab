@@ -9,6 +9,12 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- A check after scrolling no longer hands one request another request's
+  call stack when a URL was observed more often than its scroll window
+  requested it (it keeps observations until it builds its evidence, so a
+  later request to the URL can be observed too); unless every such
+  observation adds the same stack, its requests are shown with none.
+  Inspect's stacks are unchanged.
 - The Shields copy says the list-blocking numbers come from Site Behavior
   Lab's list-based simulation, which can differ from Brave Standard on a
   page's requests to its own site. The simulation applies every list to every

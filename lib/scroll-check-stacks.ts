@@ -56,6 +56,13 @@ export type ScrollCheckStackRequest = { url: string; counted: boolean };
 /** A host the scroll window lists, and every request its raw hosts made in that window, in arrival order. */
 export type ScrollCheckListedRequests = { host: string; requests: ScrollCheckStackRequest[] };
 
+/** Whether every observation would add the same thing to a tally, so their pairing with requests cannot matter. */
+function sameCategory(observations: readonly StackObservationCategory[]): boolean {
+  const key = (category: StackObservationCategory): string => (typeof category === "string" ? category : `group:${category.group}`);
+  const first = key(observations[0]);
+  return observations.every((category) => key(category) === first);
+}
+
 /** The check publishes hosts only, so its groups are keyed by them alone. */
 function hostsKey(stack: PublishedStack): string {
   return JSON.stringify(stack.hosts);
@@ -154,8 +161,20 @@ export class ScrollCheckStackRecorder {
     }
     const tally = new StackTally();
     for (const [key, counted] of byUrl) {
+      const observations = this.kept.get(key) ?? [];
+      // Observations are kept until the evidence is built, and the session
+      // also sees requests the page never reports, so a URL can be observed
+      // more often than the window requested it: a later request to it, whose
+      // page event came after the window, is observed too. Which observation
+      // is whose is then unknown, and pairing by position could hand a
+      // request another request's stack. Unless every observation would add
+      // the same thing, none of its counted requests takes a stack.
+      if (observations.length > counted.length && !sameCategory(observations)) {
+        tally.unobserved += counted.filter(Boolean).length;
+        continue;
+      }
       const dropped = this.droppedUntracked ? counted.length : (this.dropped.get(key) ?? 0);
-      joinObservations(tally, counted.length, this.kept.get(key) ?? [], dropped, (index) => counted[index]);
+      joinObservations(tally, counted.length, observations, dropped, (index) => counted[index]);
     }
     const ranked = tally.rankedGroups(this.stacks);
     let notListed = tally.notListed;
