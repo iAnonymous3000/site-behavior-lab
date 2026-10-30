@@ -741,6 +741,7 @@ test("readout: a shared worker attached but not yet paused at the freeze is excl
   commitMainDocument(held.browser, "loader-1");
   sharedAttach(held.browser, "sw-1");
   await until(() => held.browser.commands("sw-1").length === 3);
+  await until(() => holdOf(held.visit, "sw-1") === "pending");
   const pending = held.readout(1_000);
   setTimeout(() => mainScriptPause(held.browser, "sw-1"), 20);
   assert.deepEqual(sharedTerms(await pending), { attached: 1, pausedAtReadout: 1, unread: 0, readable: 0, unscoped: 0, endedAtOnce: 0 });
@@ -748,6 +749,7 @@ test("readout: a shared worker attached but not yet paused at the freeze is excl
   const late = await scriptedSharedReadout(t);
   sharedAttach(late.browser, "sw-1");
   await until(() => late.browser.commands("sw-1").length === 3);
+  await until(() => holdOf(late.visit, "sw-1") === "pending");
   const lateReadout = late.readout(1_000);
   setTimeout(() => mainScriptPause(late.browser, "sw-1", `${ORIGIN}/other.js`), 20);
   assert.deepEqual(sharedTerms(await lateReadout), { attached: 1, attachedLate: 1, unread: 1, readable: 0, unscoped: 0, endedAtOnce: 0 });
@@ -755,6 +757,7 @@ test("readout: a shared worker attached but not yet paused at the freeze is excl
   const silent = await scriptedSharedReadout(t);
   sharedAttach(silent.browser, "sw-1");
   await until(() => silent.browser.commands("sw-1").length === 3);
+  await until(() => holdOf(silent.visit, "sw-1") === "pending");
   assert.deepEqual(sharedTerms(await silent.readout(50)), { attached: 1, unreached: 1, unread: 1, readable: 0, unscoped: 0, endedAtOnce: 0 });
 });
 
@@ -834,6 +837,7 @@ test("readout: a shared worker reaching at the freeze that is held and then brea
   commitMainDocument(realms.browser, "loader-1");
   sharedAttach(realms.browser, "sw-1");
   await until(() => realms.browser.commands("sw-1").length === 3);
+  await until(() => holdOf(realms.visit, "sw-1") === "pending");
   const pending = realms.readout(1_000);
   setTimeout(() => mainScriptPause(realms.browser, "sw-1"), 20);
   setTimeout(() => realms.browser.emit("Debugger.resumed", {}, "sw-1"), 60);
@@ -848,6 +852,10 @@ test("readout: a shared worker attached during the drain that is held and then b
   // waits for its next move too.
   sharedAttach(realms.browser, "sw-0");
   await until(() => realms.browser.commands("sw-0").length === 3);
+  // The thread's commands reach the scripted browser before its report of
+  // the attach reaches the main thread: under load the readout could start
+  // with no worker to wait for. The freeze needs the main thread to know it.
+  await until(() => holdOf(realms.visit, "sw-0") === "pending");
   const pending = realms.readout(1_000);
   setTimeout(() => sharedAttach(realms.browser, "sw-1"), 10);
   setTimeout(() => mainScriptPause(realms.browser, "sw-1"), 20);
