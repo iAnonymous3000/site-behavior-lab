@@ -291,6 +291,8 @@ export const NOT_DEVELOPMENT_VISIT_RECORDS = Object.freeze({
   "research/repeatability/PREREGISTRATION.md": "prose; its frame is urls.json, which is read",
   "research/repeatability/RESULT.md": "prose over results.json, which is read",
   "research/repeatability-2/": "preregistration only; its sites file was never committed or collected",
+  "research/shields-first-party-2026-10/PREREGISTRATION.md":
+    "prose, not collected; every roster site is the subject of committed reports, which are read",
   "calibration/cname-uncloaking-*": "this study's own frame artifacts: reading them would make a rebuild exclude its own pilot",
   "calibration/pixel-events-pilot-2026-07-28/REPORT.md": "prose over frame.json, which is read",
   "calibration/pixel-events-pilot-2026-07-28/analysis.json": "rates; no site",
