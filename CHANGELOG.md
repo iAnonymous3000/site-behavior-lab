@@ -9,6 +9,23 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- The consent probe counts a hit on light-DOM content slotted into a control
+  as a hit on the control (consent-control-and-state@5, node-detectors-v23).
+  The hit test names the slotted label itself, which is neither the
+  control's descendant nor a shadow host, so through @4 such a control read
+  as not visible and was never clicked, while a real click on its label
+  reaches it. The slots are read from the control's side, so closed roots
+  count too.
+- The fingerprint observer no longer drops a shared worker that went away
+  while held (fingerprint-observer@12, node-detectors-v23). One that went
+  away before the observer's install answered is unread, so the evidence
+  reads as incomplete: the automation layer's release can let a held worker
+  run, and that resume can be reported after the worker is gone or not at
+  all. One that went away after the install answered is read from what the
+  observer recorded. Through @11 both were excluded as having run nothing,
+  and the second one's evidence was dropped. Older reports keep their
+  identity; a comparison across the epoch refuses detector findings and
+  consent verification.
 - A check after scrolling no longer hands one request another request's
   call stack when a URL was observed more often than its scroll window
   requested it (it keeps observations until it builds its evidence, so a

@@ -197,6 +197,9 @@ export function installConsentShadowRootCapture(args: ConsentShadowRootCaptureAr
   const nativeRegExpTest = RegExp.prototype.test;
   const nativeRegExpExec = RegExp.prototype.exec;
   const opacityFilterPattern = /opacity\(\s*([0-9]*\.?[0-9]+)\s*(%)?\s*\)/ig;
+  // Bounds on the slots read inside one control and on what they render.
+  const MAX_CONTROL_SLOTS = 16;
+  const MAX_SLOTTED_ELEMENTS = 64;
   const whitespacePattern = /\s+/g;
   const trailingPunctuationPattern = /[.!→»>]+$/;
   const nativeStringReplace = String.prototype.replace;
@@ -223,6 +226,7 @@ export function installConsentShadowRootCapture(args: ConsentShadowRootCaptureAr
   const nativeCssGetPropertyValue = CSSStyleDeclaration.prototype.getPropertyValue;
   const nativeElementsFromPoint = Document.prototype.elementsFromPoint;
   const nativeShadowRootElementsFromPoint = ShadowRoot.prototype.elementsFromPoint;
+  const nativeAssignedElements = HTMLSlotElement.prototype.assignedElements;
   const NativePromise = Promise;
   const NativeMouseEvent = MouseEvent;
   const trustedScheduler = (globalThis as unknown as {
@@ -427,7 +431,45 @@ export function installConsentShadowRootCapture(args: ConsentShadowRootCaptureAr
       // document's hit-test retargets a hit inside a shadow tree to its host,
       // and an overlay inside that tree retargets to the same host, so a host
       // hit is followed into its shadow root, level by level, until it names
-      // the control, a descendant, or something else.
+      // the control, a descendant, or something else. Light-DOM content
+      // slotted into the control renders inside it, but the hit test names
+      // that content, which is neither the control's descendant nor a host,
+      // so what the control's own slots render (flattened) proves exposure
+      // too. The slots are read from the control's side, so a closed root's
+      // slotted content counts as an open one's does.
+      const slotted: Element[] = [];
+      if (typeof nativeAssignedElements === "function") {
+        let slots: Element[] = [];
+        try {
+          const list = nativeReflectApply(nativeElementQuerySelectorAll, element, ["slot"]) as NodeListOf<Element>;
+          const length = typeof nativeNodeListLength === "function" ? nativeReflectApply(nativeNodeListLength, list, []) as number : 0;
+          for (let index = 0; index < nativeMathMin(length, MAX_CONTROL_SLOTS); index += 1) {
+            const slot = nativeReflectApply(nativeNodeListItem, list, [index]) as Element | null;
+            if (slot) slots[slots.length] = slot;
+          }
+        } catch {
+          slots = [];
+        }
+        for (let slotIndex = 0; slotIndex < slots.length && slotted.length < MAX_SLOTTED_ELEMENTS; slotIndex += 1) {
+          try {
+            const assigned = nativeReflectApply(nativeAssignedElements, slots[slotIndex], [{ flatten: true }]) as Element[];
+            for (let index = 0; index < assigned.length && slotted.length < MAX_SLOTTED_ELEMENTS; index += 1) {
+              slotted[slotted.length] = assigned[index];
+            }
+          } catch {
+            // One slot that cannot be read adds nothing.
+          }
+        }
+      }
+      const rendersInControl = (candidate: Element): boolean => {
+        if (candidate === element || (nativeReflectApply(nativeNodeContains, element, [candidate]) as boolean)) return true;
+        for (let index = 0; index < slotted.length; index += 1) {
+          if (slotted[index] === candidate || (nativeReflectApply(nativeNodeContains, slotted[index], [candidate]) as boolean)) {
+            return true;
+          }
+        }
+        return false;
+      };
       const insetX = nativeMathMin(1, (right - left) / 4);
       const insetY = nativeMathMin(1, (bottom - top) / 4);
       const points = [
@@ -447,7 +489,7 @@ export function installConsentShadowRootCapture(args: ConsentShadowRootCaptureAr
         // opaque overlay manufacture a visible/clickable consent signal.
         let candidate: Element | undefined = stack[0];
         for (let level = 0; candidate && level <= composedRoots.length; level += 1) {
-          if (candidate === element || (nativeReflectApply(nativeNodeContains, element, [candidate]) as boolean)) {
+          if (rendersInControl(candidate)) {
             hit = true;
             break;
           }

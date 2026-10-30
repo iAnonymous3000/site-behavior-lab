@@ -165,7 +165,13 @@ export type FingerprintObserverRealmArgs = {
  * readout saw held, whose attacher channel then closed before the worker made
  * another move, as unread. Through @10 it was excluded as having run nothing
  * before the readout, although the hold it was last seen in may already have
- * broken.
+ * broken. `@12` (node-detectors-v23) keeps this script. A shared worker gone
+ * while held at its main script with its install unanswered is unread: a hold
+ * another client broke resumes it, and that resume can be overtaken by the
+ * detach, so whether it ran is not known. Through @11 it was excluded as
+ * having run nothing. One gone after its install answered, before the
+ * release's answer, is read from its stream; through @11 it was excluded and
+ * its evidence dropped.
  *
  * `firstPartySiteKey` is the scanned site's registrable domain (computed with
  * the real public-suffix list in Node, e.g. "capitalone.com"), so the in-page

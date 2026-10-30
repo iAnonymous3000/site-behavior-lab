@@ -905,6 +905,52 @@ test("readout: a shared worker held at the freeze whose attacher's channel close
   assert.equal(holdOf(realms.visit, "sw-1"), "held");
 });
 
+test("readout: a shared worker gone held with its install unanswered is unread, before the freeze or during the drain", async (t) => {
+  // A hold another client broke resumes the worker, and that resume can be
+  // overtaken by the detach: gone while the main thread still saw it held,
+  // it may have run, so it is never excluded as having run nothing.
+  const DIED_HELD = { attached: 1, diedHeld: 1, unread: 1, readable: 0, unscoped: 0, endedAtOnce: 0 };
+  const before = await scriptedSharedReadout(t, heldWhileUnanswered);
+  commitMainDocument(before.browser, "loader-1");
+  sharedAttach(before.browser, "sw-1");
+  await until(() => before.browser.commands("sw-1").length === 3);
+  mainScriptPause(before.browser, "sw-1");
+  await until(() => holdOf(before.visit, "sw-1") === "held");
+  before.browser.emit("Target.detachedFromTarget", { sessionId: "sw-1" });
+  await until(() => workerOf(before.visit, "sw-1").detached);
+  assert.equal(workerOf(before.visit, "sw-1").detachedWhilePaused, true);
+  assert.deepEqual(sharedTerms(await before.readout(20)), DIED_HELD);
+
+  const during = await scriptedSharedReadout(t, heldWhileUnanswered);
+  commitMainDocument(during.browser, "loader-1");
+  sharedAttach(during.browser, "sw-2");
+  await until(() => during.browser.commands("sw-2").length === 3);
+  mainScriptPause(during.browser, "sw-2");
+  await until(() => holdOf(during.visit, "sw-2") === "held");
+  const pending = during.readout(1_000);
+  setTimeout(() => during.browser.emit("Target.detachedFromTarget", { sessionId: "sw-2" }), 20);
+  assert.deepEqual(sharedTerms(await pending), DIED_HELD);
+});
+
+test("readout: a shared worker gone after its install answered, before the release's answer, is read from its stream", async (t) => {
+  // The observer was installed while the worker was held, ahead of any
+  // statement, and its first snapshot is in hand: the evidence is whole
+  // whether or not the debugger's turning off let the worker run.
+  const realms = await scriptedSharedReadout(t, (frame) => (frame.method === "Debugger.disable" ? "never" : defaultAnswer(frame)));
+  const installer = realms.installer;
+  commitMainDocument(realms.browser, "loader-1");
+  sharedAttach(realms.browser, "sw-1");
+  await until(() => realms.browser.commands("sw-1").length === 3);
+  mainScriptPause(realms.browser, "sw-1");
+  await until(() => realms.browser.commands("sw-1").includes("Debugger.disable"));
+  await until(() => installer.sharedInstallDiagnostics().installedWorkerCount === 1);
+  realms.browser.emit("Target.detachedFromTarget", { sessionId: "sw-1" });
+  await until(() => workerOf(realms.visit, "sw-1").detached);
+  const worker = workerOf(realms.visit, "sw-1");
+  assert.deepEqual([worker.detachedWhilePaused, worker.hold, worker.released], [false, "released", true]);
+  assert.deepEqual(sharedTerms(await realms.readout(20)), { attached: 1, readable: 1, unread: 0, unscoped: 0, endedAtOnce: 0 });
+});
+
 test("readout: a shared worker that ended at once is reported apart, and a lost attacher leaves its live workers unread", async (t) => {
   const realms = await scriptedSharedReadout(t);
   commitMainDocument(realms.browser, "loader-1");

@@ -662,6 +662,54 @@ test("browser probes read inherited visibility and pointer input as CSS does, an
   }
 });
 
+test("browser probes reach a control whose label is light-DOM content slotted into it", { timeout: 20_000 }, async () => {
+  const browser = await chromium.launch({ headless: true });
+  try {
+    const page = await newConsentPage(browser);
+    const probe = async () => ({
+      visible: await page.evaluate(findVisibleConsentControl, consentVisibilityArgs(SHADOW_ROOT_CAPABILITY)),
+      outcome: await page.evaluate(findAndClickConsentControl, consentClickArgs("accept-all", SHADOW_ROOT_CAPABILITY)),
+      clicks: await page.evaluate(() => Reflect.get(window, "clicks") as number)
+    });
+    // The label fills the button, so every point the probe samples hits the
+    // slotted span: an element of the host's light DOM, which is neither the
+    // button's descendant nor a shadow host.
+    const slottedBanner = (covered: boolean, mode: "open" | "closed") => `<!doctype html><body>
+      <div id="usercentrics-root"><span slot="accept" style="display: block; width: 200px; height: 100px">Accept all</span></div>
+      <script>
+        {
+        clicks = 0;
+        const host = document.querySelector("#usercentrics-root");
+        const root = host.attachShadow({ mode: "${mode}" });
+        root.innerHTML = '<div style="position: relative; width: 200px; height: 100px">'
+          + '<button data-testid="uc-accept-all-button" style="position: absolute; inset: 0; padding: 0; border: 0"><slot name="accept"></slot></button>'
+          + ${covered ? `'<div style="position: absolute; inset: 0; background: white; z-index: 10">Loading</div>'` : "''"}
+          + '</div>';
+        root.querySelector("button").addEventListener("click", () => {
+          clicks += 1;
+          setTimeout(() => host.remove(), 50);
+        });
+        }
+      </script>
+    </body>`;
+    const missed = { visible: false, outcome: { clicked: false, dispatched: 0 }, clicks: 0 };
+    for (const mode of ["open", "closed"] as const) {
+      await page.setContent(slottedBanner(false, mode));
+      const reached = await probe();
+      assert.deepEqual(
+        { ...reached, outcome: { ...reached.outcome, selector: undefined } },
+        { visible: true, outcome: { clicked: true, cmp: "Usercentrics", selector: undefined }, clicks: 1 },
+        `a slotted label in the ${mode} shadow root shows the control`
+      );
+      // Covered inside the root, the slotted label is not what the hit names.
+      await page.setContent(slottedBanner(true, mode));
+      assert.deepEqual(await probe(), missed, `an overlay in the ${mode} shadow root covers the slotted label`);
+    }
+  } finally {
+    await browser.close();
+  }
+});
+
 test("generic context supports large first-layer banners and the dominant French accept label", { timeout: 20_000 }, async () => {
   const browser = await chromium.launch({ headless: true });
   try {

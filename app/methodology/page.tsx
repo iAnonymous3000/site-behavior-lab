@@ -157,7 +157,8 @@ export default function MethodologyPage() {
           shared worker. A shared worker reached only after it began to run, or let run by another DevTools
           client, such as the automation layer&apos;s own, while it was held, is never read, and the visit says its
           fingerprint evidence is incomplete; unless it was already running when reached, it also runs with the
-          debugger on for a few milliseconds, until the attacher turns it off.
+          debugger on for a few milliseconds, until the attacher turns it off. So is one that went away while
+          held, before the observer&apos;s install finished: another client may have let it run first.
         </p>
       </section>
 

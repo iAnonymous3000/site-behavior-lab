@@ -101,7 +101,12 @@ export type AttachedWorker = {
   readonly released: boolean;
   /** The browser detached the worker's target: the worker is gone. */
   readonly detached: boolean;
-  /** The detach arrived before this channel sent the resume: the worker died paused and ran nothing. */
+  /**
+   * A dedicated worker: the detach arrived before this channel sent the
+   * resume, so it died paused and ran nothing. A shared worker: it went away
+   * held at its main script with its install unanswered, so whether it ran is
+   * not known (lib/shared-worker-attacher.ts).
+   */
   readonly detachedWhilePaused: boolean;
 };
 

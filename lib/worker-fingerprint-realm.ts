@@ -190,8 +190,19 @@ export type SharedWorkerFingerprintReadoutDiagnostics = {
   attached: number;
   /** Excluded: held at its main script at the freeze, or first held after it. */
   pausedAtReadout: number;
-  /** Excluded: it went away while held at its main script. */
+  /**
+   * Excluded: it went away while held at its main script. Never from
+   * fingerprint-observer@12, which reads such a worker unread (`diedHeld`),
+   * or as a released one once its install answered.
+   */
   diedPaused: number;
+  /**
+   * Unread: it went away held at its main script with its install
+   * unanswered. A hold another client broke resumes it, and that resume can
+   * be overtaken by the detach or never arrive, so whether it ran is not
+   * known.
+   */
+  diedHeld: number;
   /** Read and credited to the visit's main document. */
   readable: number;
   /** Read in full but not credited: its snapshot is in `unscopedSnapshots`. */
@@ -320,7 +331,7 @@ type FrozenRealm =
   | {
       record: WorkerRealmRecord;
       state: "unread";
-      reason: "installFailed" | "attachedLate" | "streamBroken" | "channelLostAlive" | "unreached";
+      reason: "installFailed" | "attachedLate" | "streamBroken" | "channelLostAlive" | "unreached" | "diedHeld";
     }
   | { record: WorkerRealmRecord; state: "closed"; snapshot: string }
   | { record: WorkerRealmRecord; state: "waiting"; slot: FreezeSlot }
@@ -591,6 +602,7 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
       attached: 0,
       pausedAtReadout: 0,
       diedPaused: 0,
+      diedHeld: 0,
       readable: 0,
       ownerUnscoped: 0,
       installFailed: 0,
@@ -642,7 +654,8 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
         continue;
       }
       if (realm.state === "unread") {
-        if (realm.reason !== "unreached") diagnostics[realm.reason] += 1;
+        // Shared-worker reasons only; a dedicated realm never takes them.
+        if (realm.reason !== "unreached" && realm.reason !== "diedHeld") diagnostics[realm.reason] += 1;
         continue;
       }
       // Shared-worker states only; a dedicated realm never takes them.
@@ -750,6 +763,7 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
         shared.cutOff +
         shared.streamBroken +
         shared.channelLostAlive +
+        shared.diedHeld +
         shared.unattached,
       sharedWorkersEndedAtOnce: shared.endedAtOnce,
       diagnostics
@@ -778,7 +792,10 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
   private freezeShared(record: WorkerRealmRecord, options: { attachedAfterFreeze?: boolean } = {}): FrozenRealm {
     const worker = record.worker as AttachedSharedWorker;
     if (record.lostWithChannel) return { record, state: "unread", reason: "channelLostAlive" };
-    if (worker.detachedWhilePaused) return { record, state: "excluded", reason: "diedPaused" };
+    // Gone held with its install unanswered: a broken hold's resume can be
+    // overtaken by the detach, so it may have run (diedHeld). Through @11 it
+    // was excluded as having run nothing.
+    if (worker.detachedWhilePaused) return { record, state: "unread", reason: "diedHeld" };
     // Held as far as the main thread knows: its next move decides (resolveHeld).
     if (worker.hold === "held") return { record, state: "held" };
     if (worker.hold === "late") return { record, state: "unread", reason: "attachedLate" };
@@ -820,17 +837,20 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
    * of the drain. The main thread's view of a hold lags the attacher's
    * thread, so a "late" report behind "held" means the hold broke before the
    * install answered (resumed-while-held): its main script ran unobserved,
-   * and it is unread. Released, died while held, or still held at the bound,
-   * it ran nothing before the freeze and is excluded, as it always was. Still
-   * held when the attacher's channel closed, it made no move the readout
-   * saw, so the hold the main thread last saw may already have broken: it
-   * is unread, as a worker the closed channel left running is at the
-   * freeze. This only ever turns an exclusion into an unread realm.
+   * and it is unread. Released, or still held at the bound, it ran nothing
+   * before the freeze and is excluded, as it always was. Still held when the
+   * attacher's channel closed, it made no move the readout saw, so the hold
+   * the main thread last saw may already have broken: it is unread, as a
+   * worker the closed channel left running is at the freeze. Gone held with
+   * its install unanswered, it is unread for the same reason (diedHeld,
+   * fingerprint-observer@12): a broken hold's resume can be overtaken by the
+   * detach. This only ever turns an exclusion into an unread realm.
    */
   private resolveHeld(record: WorkerRealmRecord): Extract<FrozenRealm, { state: "unread" | "excluded" }> {
     const worker = record.worker as AttachedSharedWorker;
     if (worker.hold === "late") return { record, state: "unread", reason: "attachedLate" };
     if (worker.hold === "held" && record.lostWithChannel) return { record, state: "unread", reason: "channelLostAlive" };
+    if (worker.detachedWhilePaused) return { record, state: "unread", reason: "diedHeld" };
     return { record, state: "excluded", reason: "pausedAtReadout" };
   }
 

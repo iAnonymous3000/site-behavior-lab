@@ -482,7 +482,12 @@ export function sharedWorkerAttacherThread(port: AttacherThreadPort, data: Attac
       contextId: worker.contextId,
       sessionId,
       lifetimeMs: receivedAt - worker.attachedAt,
-      diedWhileHeld: worker.hold === "held",
+      // Held with its install unanswered, whether it ran is not known: a hold
+      // another client broke resumes it, and that resume can be overtaken by
+      // the detach or never arrive. Held with its install answered, the
+      // observer was in place before any statement it ran.
+      diedWhileHeld: worker.hold === "held" && !worker.installConcluded,
+      diedAfterInstall: worker.hold === "held" && worker.installConcluded,
       endedUnreached: worker.hold === "pending" && worker.scripts.size === 0
     });
   };
@@ -1189,6 +1194,14 @@ export class SharedWorkerVisitChannel {
       case "detached":
         worker.detached = true;
         worker.detachedWhilePaused = message.diedWhileHeld === true;
+        if (message.diedAfterInstall === true && worker.hold === "held") {
+          // Its install answered while it was held, and the debugger was on
+          // its way off: the observer preceded any statement it ran, so it is
+          // read as a released worker is, whether or not the release's
+          // answer would have come.
+          worker.hold = "released";
+          worker.released = true;
+        }
         worker.lifetimeMs = typeof message.lifetimeMs === "number" ? message.lifetimeMs : null;
         worker.endedUnreached = message.endedUnreached === true;
         this.announce(worker, "detached", null);
