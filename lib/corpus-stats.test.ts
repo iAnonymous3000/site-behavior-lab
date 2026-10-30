@@ -29,9 +29,14 @@ const METRIC_CONTRACT_IDENTITY = {
 } as const;
 
 function canonicalCohort(
-  cohort: Omit<CorpusStatsCohort, "id" | "metricContractVersion" | "metricContractDigest">
+  cohort: Omit<
+    CorpusStatsCohort,
+    "id" | "metricContractVersion" | "metricContractDigest" | "detectorRegistryVersion" | "detectorRegistryDigest"
+  > &
+    Partial<Pick<CorpusStatsCohort, "detectorRegistryVersion" | "detectorRegistryDigest">>
 ): CorpusStatsCohort {
-  const current = { ...cohort, ...METRIC_CONTRACT_IDENTITY };
+  // The key leaves the registry to the methodology unless a fixture names it.
+  const current = { detectorRegistryVersion: null, detectorRegistryDigest: null, ...cohort, ...METRIC_CONTRACT_IDENTITY };
   return { id: corpusCohortIdForIdentity(current), ...current };
 }
 

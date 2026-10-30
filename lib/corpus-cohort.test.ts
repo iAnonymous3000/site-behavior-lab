@@ -1,8 +1,12 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  COHORT_FIELDS_OUTSIDE_THE_VETO,
   CURRENT_MEASUREMENT_LINE_METHODOLOGY,
+  corpusCohortIdForIdentity,
   corpusCohortIdentityForView,
+  DETECTOR_REGISTRIES_NAMED_BY_METHODOLOGY,
+  SUBSTITUTABLE_COHORT_FIELDS,
   corpusCohortDifferences,
   corpusCohortLabel,
   corpusCohortSummaryLabel,
@@ -13,6 +17,12 @@ import {
   type CorpusCohortIdentity
 } from "./corpus-cohort";
 import { NODE_SCANNER_METHODOLOGY_VERSION } from "./legacy-methodology";
+import { DETECTOR_REGISTRY_VERSION } from "./measurement-kernel";
+import {
+  NODE_R2_PRODUCER_TUPLES,
+  NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION,
+  PAGEGRAPH_R2_PRODUCER_TUPLES
+} from "./scan-report-v2-r2-producer-contract";
 import { canonicalJson } from "./canonical-json";
 import {
   METRIC_CONTRACT_DIGEST,
@@ -43,7 +53,9 @@ function identity(overrides: Partial<CorpusCohortIdentity> & { id: string }): Co
     serviceRoleTaxonomyVersion: SERVICE_ROLE_TAXONOMY_VERSION,
     serviceRoleTaxonomyDigest: SERVICE_ROLE_TAXONOMY_DIGEST,
     metricContractVersion: METRIC_CONTRACT_VERSION,
-    metricContractDigest: METRIC_CONTRACT_DIGEST
+    metricContractDigest: METRIC_CONTRACT_DIGEST,
+    detectorRegistryVersion: null,
+    detectorRegistryDigest: null
   };
   return { ...base, ...overrides };
 }
@@ -164,6 +176,14 @@ test("every component of a cohort id is distinguishable in its label", () => {
   for (const variant of variants) {
     assert.notEqual(corpusCohortLabel(variant), corpusCohortLabel(base), JSON.stringify(variant));
   }
+  // The detector registry, which only an r2 cohort names: two epochs, and
+  // one epoch's two digests, never read alike.
+  const r2 = { schemaVersion: 2 as const, schemaRevision: 2 as const };
+  const v22 = identity({ id: "r", ...r2, detectorRegistryVersion: "node-detectors-v22", detectorRegistryDigest: "e".repeat(64) });
+  const v23 = identity({ id: "s", ...r2, detectorRegistryVersion: "node-detectors-v23", detectorRegistryDigest: "e".repeat(64) });
+  const redigested = identity({ id: "t", ...r2, detectorRegistryVersion: "node-detectors-v22", detectorRegistryDigest: "f".repeat(64) });
+  assert.notEqual(corpusCohortSummaryLabel(v22), corpusCohortSummaryLabel(v23));
+  assert.notEqual(corpusCohortLabel(v22), corpusCohortLabel(redigested));
 });
 
 test("a cohort split is attributed to the components that actually differ", () => {
@@ -192,6 +212,13 @@ test("a cohort split is attributed to the components that actually differ", () =
       "different ServiceRole taxonomies",
       "different metric contracts"
     ]
+  );
+  assert.deepEqual(
+    corpusCohortDifferences([
+      identity({ id: "base", detectorRegistryVersion: "node-detectors-v22", detectorRegistryDigest: "e".repeat(64) }),
+      identity({ id: "x", detectorRegistryVersion: "node-detectors-v23", detectorRegistryDigest: "f".repeat(64) })
+    ]),
+    ["different detector registries"]
   );
   assert.deepEqual(corpusCohortDifferences([identity({ id: "base" }), identity({ id: "base" })]), []);
 });
@@ -300,7 +327,8 @@ test("a broader cohort with a different catalog or read-time formula identity ca
     { serviceRoleTaxonomyVersion: "service-role-taxonomy-v2" },
     { serviceRoleTaxonomyDigest: "c".repeat(64) },
     { metricContractVersion: "metric-contract-v2" },
-    { metricContractDigest: "d".repeat(64) }
+    { metricContractDigest: "d".repeat(64) },
+    { detectorRegistryVersion: "node-detectors-v23", detectorRegistryDigest: "e".repeat(64) }
   ];
 
   for (const change of identityChanges) {
@@ -607,4 +635,68 @@ test("the composition veto crosses the requested-GPC condition on purpose", () =
     sites: [...population.slice(0, 35), ...sitesNamed(24, "swapped")]
   };
   assert.equal(selectPrimaryCorpusCohort([broadOn, narrowOffNewer], MIN)?.identity.id, broadOn.identity.id);
+});
+
+test("the composition veto compares every key component except the three it names as left out", () => {
+  // One list, held to the whole identity: a new key component either joins
+  // the veto or is named as left out, never silently skipped by it.
+  const { id: _id, ...components } = identity({ id: "x" });
+  const covered = [...SUBSTITUTABLE_COHORT_FIELDS, ...COHORT_FIELDS_OUTSIDE_THE_VETO];
+  assert.equal(new Set(covered).size, covered.length);
+  assert.deepEqual([...covered].sort(), Object.keys(components).sort());
+});
+
+test("no methodology carries two of the registries the cohort key leaves to it, and the live one is always named", () => {
+  const registriesByMethodology = new Map<string, Set<string>>();
+  for (const tuple of [...NODE_R2_PRODUCER_TUPLES, ...PAGEGRAPH_R2_PRODUCER_TUPLES]) {
+    const registries = registriesByMethodology.get(tuple.methodologyVersion) ?? new Set<string>();
+    registries.add(tuple.detectorRegistry.version);
+    registriesByMethodology.set(tuple.methodologyVersion, registries);
+  }
+  for (const [methodology, registries] of registriesByMethodology) {
+    const leftToMethodology = [...registries].filter((version) => DETECTOR_REGISTRIES_NAMED_BY_METHODOLOGY.includes(version));
+    assert.ok(leftToMethodology.length <= 1, `${methodology}: ${leftToMethodology.join(", ")}`);
+  }
+  const known = new Set([...registriesByMethodology.values()].flatMap((registries) => [...registries]));
+  for (const version of DETECTOR_REGISTRIES_NAMED_BY_METHODOLOGY) assert.ok(known.has(version), version);
+  assert.equal(DETECTOR_REGISTRIES_NAMED_BY_METHODOLOGY.includes(DETECTOR_REGISTRY_VERSION), false);
+  // The pool the key exists to prevent: the live methodology spans epochs.
+  assert.ok((registriesByMethodology.get(NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION)?.size ?? 0) > 1);
+});
+
+test("one methodology across detector epochs is two cohorts, and a registry its methodology names leaves the id as it was", () => {
+  const report = makePublicSingleReportV2R2();
+  const live = corpusCohortIdentityForView(viewFromV2(report, 2));
+  const recorded = report.run.provenance.detectorRegistry;
+  assert.deepEqual([live.detectorRegistryVersion, live.detectorRegistryDigest], [recorded.version, recorded.digest]);
+  assert.ok(live.id.endsWith(`:detectors-${recorded.version}-${recorded.digest}`), live.id);
+
+  const atEpoch = (version: string, digest: string) => {
+    const copy = structuredClone(report);
+    copy.run.provenance.detectorRegistry = { version, digest };
+    return corpusCohortIdentityForView(viewFromV2(copy, 2));
+  };
+  const earlier = atEpoch("node-detectors-v22", "e4367c5d88e33ccfa54b14e261c506202edecc05d74e38fa606a3a49364eff68");
+  assert.notEqual(earlier.id, live.id);
+  assert.equal(earlier.methodologyVersion, live.methodologyVersion);
+
+  // A registry the methodology names: no registry in the identity, and the
+  // id the key gave before the registry joined it.
+  const named = atEpoch("node-detectors-v4", "100de917".padEnd(64, "0"));
+  assert.deepEqual([named.detectorRegistryVersion, named.detectorRegistryDigest], [null, null]);
+  assert.equal(named.id, live.id.slice(0, live.id.indexOf(":detectors-")));
+
+  // v1 records none.
+  const v1 = corpusCohortIdentityForView(viewFromV1Report(makeScanReportV1()));
+  assert.deepEqual([v1.detectorRegistryVersion, v1.detectorRegistryDigest], [null, null]);
+  assert.equal(v1.id.includes(":detectors-"), false);
+
+  // The encoding refuses a registry its schema or methodology cannot carry.
+  const { id: _liveId, ...components } = live;
+  assert.throws(() => corpusCohortIdForIdentity({ ...components, detectorRegistryDigest: null }));
+  assert.throws(() => corpusCohortIdForIdentity({ ...components, detectorRegistryVersion: "node-detectors-v4" }));
+  const { id: _v1Id, ...v1Components } = v1;
+  assert.throws(() =>
+    corpusCohortIdForIdentity({ ...v1Components, detectorRegistryVersion: recorded.version, detectorRegistryDigest: recorded.digest })
+  );
 });

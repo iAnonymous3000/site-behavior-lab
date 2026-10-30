@@ -30,5 +30,8 @@ export function corpusCohortDifferences(cohorts: readonly CorpusCohortIdentity[]
   if (distinct((cohort) => `${cohort.metricContractVersion}:${cohort.metricContractDigest}`)) {
     differences.push("different metric contracts");
   }
+  if (distinct((cohort) => `${cohort.detectorRegistryVersion}:${cohort.detectorRegistryDigest}`)) {
+    differences.push("different detector registries");
+  }
   return differences;
 }

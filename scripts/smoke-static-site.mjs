@@ -98,7 +98,9 @@ const corpusJsonCohortIdentityFields = [
   "serviceRoleTaxonomyVersion",
   "serviceRoleTaxonomyDigest",
   "metricContractVersion",
-  "metricContractDigest"
+  "metricContractDigest",
+  "detectorRegistryVersion",
+  "detectorRegistryDigest"
 ];
 const corpusCsvDecisionColumns = [
   "consent_choice_state",
@@ -142,6 +144,8 @@ const corpusCsvMetricContractColumns = [
 // metric-contract block, so every column above keeps its position.
 const corpusCsvCompletenessColumns = ["cookie_evidence_complete"];
 const corpusCsvCorrectionColumns = ["correction_event", "correction_state", "correction_summary", "correction_url"];
+// The cohort key's detector registry appends after the correction block.
+const corpusCsvDetectorRegistryColumns = ["detector_registry_version", "detector_registry_digest"];
 const recordedConsentChoiceStates = ["verified", "contradicted", "weak-signal", "unavailable", "failed"];
 
 function pass(message) {
@@ -593,14 +597,15 @@ async function main() {
       ...corpusCsvProvenanceColumns,
       ...corpusCsvMetricContractColumns,
       ...corpusCsvCompletenessColumns,
-      ...corpusCsvCorrectionColumns
+      ...corpusCsvCorrectionColumns,
+      ...corpusCsvDetectorRegistryColumns
     ];
     if (
       legacyTailIndex < 0 ||
       corpusCsvHeader.slice(legacyTailIndex + 1).join(",") !== expectedAppendedTail.join(",")
     ) {
       fail(
-        "researcher CSV export did not append the complete decision, provenance/cohort, metric-contract, completeness, and correction tail after the legacy contract"
+        "researcher CSV export did not append the complete decision, provenance/cohort, metric-contract, completeness, correction and detector-registry tail after the legacy contract"
       );
     }
     const corrections = JSON.parse(await readFile(path.join(outDir, "corrections.json"), "utf8"));

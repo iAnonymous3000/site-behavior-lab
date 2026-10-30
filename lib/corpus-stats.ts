@@ -15,6 +15,7 @@
 import { canonicalJson } from "./canonical-json";
 import {
   corpusCohortIdForIdentity,
+  DETECTOR_REGISTRIES_NAMED_BY_METHODOLOGY,
   type CorpusCohortIdentity
 } from "./corpus-cohort";
 import { isRecord } from "./guards";
@@ -63,10 +64,12 @@ export type CorpusStatsCohort = CorpusCohortIdentity & {
 
 export type LegacyCorpusStatsCohort = Omit<
   CorpusStatsCohort,
-  "metricContractVersion" | "metricContractDigest" | "metrics"
+  "metricContractVersion" | "metricContractDigest" | "detectorRegistryVersion" | "detectorRegistryDigest" | "metrics"
 > & {
   metricContractVersion?: never;
   metricContractDigest?: never;
+  detectorRegistryVersion?: never;
+  detectorRegistryDigest?: never;
   metrics: Partial<Record<LegacyCorpusMetricKey, MetricDistribution>>;
 };
 
@@ -193,7 +196,9 @@ const LEGACY_V3_CORPUS_COHORT_KEYS = [
 const CURRENT_CORPUS_COHORT_KEYS = [
   ...LEGACY_V3_CORPUS_COHORT_KEYS,
   "metricContractVersion",
-  "metricContractDigest"
+  "metricContractDigest",
+  "detectorRegistryVersion",
+  "detectorRegistryDigest"
 ] as const;
 
 const METRIC_DISTRIBUTION_KEYS = [
@@ -489,6 +494,22 @@ function isCorpusStatsCohort(
         value.metricContractDigest !== METRIC_CONTRACT_DIGEST)) ||
     (version === "legacy-v3" &&
       (value.metricContractVersion !== undefined || value.metricContractDigest !== undefined)) ||
+    // Required on a current cohort, null or not: an artifact written before
+    // the detector registry joined the key may pool one methodology's
+    // detector epochs, and reading it as if it could not would republish
+    // that pool. Null exactly where the key leaves the registry to the
+    // methodology (always on v1).
+    (version === "current" &&
+      !(
+        (value.detectorRegistryVersion === null && value.detectorRegistryDigest === null) ||
+        (value.schemaVersion === 2 &&
+          typeof value.detectorRegistryVersion === "string" &&
+          value.detectorRegistryVersion.trim().length > 0 &&
+          !DETECTOR_REGISTRIES_NAMED_BY_METHODOLOGY.includes(value.detectorRegistryVersion) &&
+          isSha256(value.detectorRegistryDigest))
+      )) ||
+    (version === "legacy-v3" &&
+      (value.detectorRegistryVersion !== undefined || value.detectorRegistryDigest !== undefined)) ||
     // Also required: primary selection ranks on recency, so an artifact that
     // cannot date its own cohorts cannot justify the cohort it named.
     !(value.latestRunAt === null || isCanonicalIsoTimestamp(value.latestRunAt)) ||

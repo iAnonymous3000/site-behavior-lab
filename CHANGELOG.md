@@ -9,6 +9,15 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- Corpus cohorts are keyed on the detector registry too, so a refresh can
+  no longer pool one methodology's detector epochs: thirteen registries
+  (node-detectors-v11 to v23) share the current methodology. The key leaves
+  the registry to the methodology only for node-detectors-v2 to v4 and the
+  one PageGraph registry, none of which ever shared a methodology with
+  another, so every committed cohort keeps its id and every published
+  number is unchanged. The corpus artifact and export carry the registry
+  (null where the key leaves it out), and the corpus refresh stays paused
+  until the next one is reviewed under this key.
 - The consent probe counts a hit on light-DOM content slotted into a control
   as a hit on the control (consent-control-and-state@5, node-detectors-v23).
   The hit test names the slotted label itself, which is neither the

@@ -74,6 +74,9 @@ export type CorpusExportRow = {
   /** Exact request-metric formula contract applied to this row. */
   metricContractVersion: string;
   metricContractDigest: string;
+  /** The cohort key's detector registry: null where the key leaves it to the methodology (lib/corpus-cohort.ts). */
+  detectorRegistryVersion: string | null;
+  detectorRegistryDigest: string | null;
   browserName: string | null;
   browserVersion: string | null;
   egressLabel: string;
@@ -223,6 +226,8 @@ export function buildCorpusExportRows(entries: DirectoryEntry[], origin: string)
     serviceRoleTaxonomyDigest: entry.corpusCohort.serviceRoleTaxonomyDigest,
     metricContractVersion: entry.corpusCohort.metricContractVersion,
     metricContractDigest: entry.corpusCohort.metricContractDigest,
+    detectorRegistryVersion: entry.corpusCohort.detectorRegistryVersion,
+    detectorRegistryDigest: entry.corpusCohort.detectorRegistryDigest,
     browserName: entry.browserName,
     browserVersion: entry.browserVersion,
     egressLabel: entry.egressLabel,
@@ -355,6 +360,8 @@ export type CorpusExportCohort = {
   serviceRoleTaxonomyDigest: string;
   metricContractVersion: string;
   metricContractDigest: string;
+  detectorRegistryVersion: string | null;
+  detectorRegistryDigest: string | null;
   denominator: number;
   includedRows: number;
   excludedRows: number;
@@ -456,6 +463,8 @@ export function summarizeExportCohorts(rows: CorpusExportRow[]): CorpusExportCoh
       serviceRoleTaxonomyDigest: row.serviceRoleTaxonomyDigest,
       metricContractVersion: row.metricContractVersion,
       metricContractDigest: row.metricContractDigest,
+      detectorRegistryVersion: row.detectorRegistryVersion,
+      detectorRegistryDigest: row.detectorRegistryDigest,
       denominator: row.corpusCohortDenominator,
       includedRows: 0,
       excludedRows: 0
@@ -531,7 +540,10 @@ const CSV_HEADER = [
   "delta_catalogued_service_requests",
   "delta_tracking_service_requests",
   "cookie_evidence_complete",
-  "correction_event", "correction_state", "correction_summary", "correction_url"
+  "correction_event", "correction_state", "correction_summary", "correction_url",
+  // Appended, as every column after the legacy contract is: the cohort key's
+  // detector registry, empty where the key leaves it to the methodology.
+  "detector_registry_version", "detector_registry_digest"
 ] as const;
 
 export function corpusExportToCsv(rows: CorpusExportRow[]): string {
@@ -596,7 +608,8 @@ export function corpusExportToCsv(rows: CorpusExportRow[]): string {
     row.deltaCataloguedServiceRequests ?? "",
     row.deltaTrackingServiceRequests ?? "",
     row.cookieEvidenceComplete ? "true" : "false",
-    row.correctionEvent ?? "", row.correctionState ?? "", row.correctionSummary ?? "", row.correctionUrl ?? ""
+    row.correctionEvent ?? "", row.correctionState ?? "", row.correctionSummary ?? "", row.correctionUrl ?? "",
+    row.detectorRegistryVersion ?? "", row.detectorRegistryDigest ?? ""
   ]);
   return [CSV_HEADER, ...lines].map((line) => line.map(csvCell).join(",")).join("\r\n").concat("\r\n");
 }

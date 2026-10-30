@@ -15,8 +15,10 @@ import { sha256Hex } from "./sha256";
  * Public, auditable identity for one statistical measurement cohort.
  *
  * Schema revision, methodology, tracker-catalog identity, the read-time
- * ServiceRole taxonomy, and the metric formula contract are deliberately part
- * of the key. Producer identity is included when it was recorded because
+ * ServiceRole taxonomy, the metric formula contract, and the detector registry
+ * are deliberately part of the key. The registry joined it on 2026-10-29:
+ * thirteen detector epochs share the current methodology, so without it a
+ * refresh would pool reports whose detectors measured different things. Producer identity is included when it was recorded because
  * PageGraph imports and browser observations do not measure the same evidence
  * surface. Build, browser patch, acquisition route, and egress remain row-level
  * provenance: splitting on each of those would turn every deployment into an
@@ -64,9 +66,36 @@ export type CorpusCohortIdentity = {
   metricContractVersion: string;
   /** SHA-256 identity of the exact request-metric formula contract. */
   metricContractDigest: string;
+  /**
+   * The detector registry the cohort's reports ran, or null where the key
+   * leaves it to the methodology: v1 recorded none, and a registry in
+   * DETECTOR_REGISTRIES_NAMED_BY_METHODOLOGY is the only one its methodology
+   * ever carried.
+   */
+  detectorRegistryVersion: string | null;
+  /** SHA-256 identity of that registry, null exactly when its version is. */
+  detectorRegistryDigest: string | null;
 };
 
 export type CorpusCohortIdentityComponents = Omit<CorpusCohortIdentity, "id">;
+
+/**
+ * Detector registries the cohort key leaves to the methodology. Through
+ * node-detectors-v4 a registry never shared its methodology with another, so
+ * the methodology named it, and the one PageGraph registry is the only one
+ * its methodology carries: every cohort keyed before the registry joined the
+ * key keeps its id. node-detectors-v5 shared v4's methodology, and from
+ * node-detectors-v11 on thirteen registries share one, so a later registry
+ * is always named: one methodology across detector epochs is two cohorts,
+ * never a pool. A test holds this list to the producer contract: no
+ * methodology carries two of these registries.
+ */
+export const DETECTOR_REGISTRIES_NAMED_BY_METHODOLOGY: readonly string[] = Object.freeze([
+  "node-detectors-v2",
+  "node-detectors-v3",
+  "node-detectors-v4",
+  "pagegraph-import-detectors@1"
+]);
 
 /**
  * Canonical public encoding of the typed cohort identity.
@@ -82,6 +111,13 @@ export function corpusCohortIdForIdentity(cohort: CorpusCohortIdentityComponents
   ) {
     throw new Error("Corpus cohort schema generation and revision are inconsistent.");
   }
+  if (
+    (cohort.detectorRegistryVersion === null) !== (cohort.detectorRegistryDigest === null) ||
+    (cohort.detectorRegistryVersion !== null &&
+      (cohort.schemaVersion === 1 || DETECTOR_REGISTRIES_NAMED_BY_METHODOLOGY.includes(cohort.detectorRegistryVersion)))
+  ) {
+    throw new Error("Corpus cohort detector registry is inconsistent with its schema or methodology.");
+  }
   const schema =
     cohort.schemaVersion === 1 ? "v1" : `v2-r${cohort.schemaRevision}`;
   const producer = cohort.producer ?? "producer-unrecorded";
@@ -94,7 +130,10 @@ export function corpusCohortIdForIdentity(cohort: CorpusCohortIdentityComponents
     `:gpc-${cohort.gpc ? "on" : "off"}` +
     `:catalog-${cohort.trackerCatalogOrigin}-${cohort.trackerCatalogDigest}` +
     `:roles-${roleTaxonomy}` +
-    `:metrics-${metricContract}`
+    `:metrics-${metricContract}` +
+    (cohort.detectorRegistryVersion === null
+      ? ""
+      : `:detectors-${encodeURIComponent(cohort.detectorRegistryVersion)}-${cohort.detectorRegistryDigest}`)
   );
 }
 
@@ -344,6 +383,36 @@ function missingShare<Identity extends CorpusCohortIdentity>(
   return missing / baselineSites.length;
 }
 
+/**
+ * The identity fields two cohorts must share to be substitutable descriptions
+ * of the corpus, so that one may veto the other. Every component of the key
+ * is here except three: the requested GPC condition (on purpose, see
+ * corpusCohortLabel's note), and the schema revision and methodology origin,
+ * which the schema generation and methodology already fix. A test holds this
+ * list and those three to the whole identity, so a new key component joins
+ * the veto or is named as left out.
+ */
+export const SUBSTITUTABLE_COHORT_FIELDS = Object.freeze([
+  "methodologyVersion",
+  "producer",
+  "schemaVersion",
+  "trackerCatalogDigest",
+  "trackerCatalogOrigin",
+  "serviceRoleTaxonomyVersion",
+  "serviceRoleTaxonomyDigest",
+  "metricContractVersion",
+  "metricContractDigest",
+  "detectorRegistryVersion",
+  "detectorRegistryDigest"
+] as const satisfies readonly (keyof CorpusCohortIdentityComponents)[]);
+
+/** The key components the veto leaves out, each for the reason SUBSTITUTABLE_COHORT_FIELDS gives. */
+export const COHORT_FIELDS_OUTSIDE_THE_VETO = Object.freeze([
+  "gpc",
+  "schemaRevision",
+  "methodologyOrigin"
+] as const satisfies readonly (keyof CorpusCohortIdentityComponents)[]);
+
 function dropsAComparableCohortsSites<Identity extends CorpusCohortIdentity>(
   candidate: CorpusCohortCandidate<Identity>,
   pool: readonly CorpusCohortCandidate<Identity>[]
@@ -356,17 +425,7 @@ function dropsAComparableCohortsSites<Identity extends CorpusCohortIdentity>(
     // of the corpus. A different methodology or producer is a different
     // question, and a legacy cohort keyed on an unrecorded methodology can
     // never receive another scan, so neither may veto this one.
-    if (
-      other.identity.methodologyVersion !== candidate.identity.methodologyVersion ||
-      other.identity.producer !== candidate.identity.producer ||
-      other.identity.schemaVersion !== candidate.identity.schemaVersion ||
-      other.identity.trackerCatalogDigest !== candidate.identity.trackerCatalogDigest ||
-      other.identity.trackerCatalogOrigin !== candidate.identity.trackerCatalogOrigin ||
-      other.identity.serviceRoleTaxonomyVersion !== candidate.identity.serviceRoleTaxonomyVersion ||
-      other.identity.serviceRoleTaxonomyDigest !== candidate.identity.serviceRoleTaxonomyDigest ||
-      other.identity.metricContractVersion !== candidate.identity.metricContractVersion ||
-      other.identity.metricContractDigest !== candidate.identity.metricContractDigest
-    ) {
+    if (SUBSTITUTABLE_COHORT_FIELDS.some((field) => other.identity[field] !== candidate.identity[field])) {
       return false;
     }
     // Asymmetric on purpose: only a BROADER comparable cohort blocks. Blocking
@@ -382,7 +441,8 @@ function dropsAComparableCohortsSites<Identity extends CorpusCohortIdentity>(
  * Reader-facing name for a cohort, covering every component of its id.
  *
  * COHORT IDENTITY keys on schema, methodology, catalog, ServiceRole taxonomy,
- * metric contract, producer, AND the requested GPC condition, so naming a
+ * metric contract, producer, detector registry (where the methodology does not
+ * already name it), AND the requested GPC condition, so naming a
  * cohort by its methodology alone can print byte-identical labels for two
  * cohorts the aggregation gate holds apart: after the gpc-off refresh, two
  * categories differing only in the requested signal both read "measured under
@@ -413,7 +473,10 @@ export function corpusCohortSummaryLabel(cohort: CorpusCohortIdentity): string {
     cohort.schemaVersion === 1 ? "schema v1" : `schema v2 revision ${cohort.schemaRevision ?? "unrecorded"}`;
   const producer = cohort.producer ?? "producer unrecorded";
   const gpc = cohort.gpc ? "GPC requested" : "GPC not requested";
-  return `${cohort.methodologyVersion}, ${schema}, ${producer}, ${gpc}`;
+  // Named only where the key names it, so two cohorts the key holds apart
+  // never read alike.
+  const detectors = cohort.detectorRegistryVersion === null ? "" : `, detector registry ${cohort.detectorRegistryVersion}`;
+  return `${cohort.methodologyVersion}, ${schema}, ${producer}, ${gpc}${detectors}`;
 }
 
 export function corpusCohortLabel(cohort: CorpusCohortIdentity): string {
@@ -427,7 +490,9 @@ export function corpusCohortLabel(cohort: CorpusCohortIdentity): string {
     `metric contract ${cohort.metricContractVersion} digest ${cohort.metricContractDigest}`;
   // Derived, not restated: the readable half has exactly one definition, so changing a
   // word there cannot leave the full label saying something different.
-  return `${corpusCohortSummaryLabel(cohort)}, ${catalog}, ${serviceRoles}, ${metricContract}`;
+  const detectors =
+    cohort.detectorRegistryDigest === null ? "" : `, detector registry digest ${cohort.detectorRegistryDigest}`;
+  return `${corpusCohortSummaryLabel(cohort)}, ${catalog}, ${serviceRoles}, ${metricContract}${detectors}`;
 }
 
 // Lives in its own module so the homepage can import it without this module's
@@ -443,6 +508,11 @@ export function corpusCohortIdentityForView(view: ReportView): CorpusCohortIdent
   const schemaRevision = view.revision;
   const gpc = run.conditions.gpcEnabled;
   const trackerCatalog = trackerCatalogIdentityForView(view, run);
+  const registry = run.provenance?.detectorRegistry ?? null;
+  const namedRegistry =
+    view.origin === "v2" && registry !== null && !DETECTOR_REGISTRIES_NAMED_BY_METHODOLOGY.includes(registry.version)
+      ? registry
+      : null;
   const components: CorpusCohortIdentityComponents = {
     schemaVersion,
     schemaRevision,
@@ -455,7 +525,9 @@ export function corpusCohortIdentityForView(view: ReportView): CorpusCohortIdent
     serviceRoleTaxonomyVersion: SERVICE_ROLE_TAXONOMY_VERSION,
     serviceRoleTaxonomyDigest: SERVICE_ROLE_TAXONOMY_DIGEST,
     metricContractVersion: METRIC_CONTRACT_VERSION,
-    metricContractDigest: METRIC_CONTRACT_DIGEST
+    metricContractDigest: METRIC_CONTRACT_DIGEST,
+    detectorRegistryVersion: namedRegistry?.version ?? null,
+    detectorRegistryDigest: namedRegistry?.digest ?? null
   };
   return { id: corpusCohortIdForIdentity(components), ...components };
 }

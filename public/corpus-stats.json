@@ -22,6 +22,8 @@
       "serviceRoleTaxonomyDigest": "dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67",
       "metricContractVersion": "metric-contract-v1",
       "metricContractDigest": "19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680",
+      "detectorRegistryVersion": null,
+      "detectorRegistryDigest": null,
       "sampleSize": 7,
       "latestRunAt": "2026-07-06T09:35:22.638Z",
       "metrics": {
@@ -95,6 +97,8 @@
       "serviceRoleTaxonomyDigest": "dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67",
       "metricContractVersion": "metric-contract-v1",
       "metricContractDigest": "19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680",
+      "detectorRegistryVersion": null,
+      "detectorRegistryDigest": null,
       "sampleSize": 56,
       "latestRunAt": "2026-07-27T10:27:51.512Z",
       "metrics": {
@@ -168,6 +172,8 @@
       "serviceRoleTaxonomyDigest": "dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67",
       "metricContractVersion": "metric-contract-v1",
       "metricContractDigest": "19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680",
+      "detectorRegistryVersion": null,
+      "detectorRegistryDigest": null,
       "sampleSize": 63,
       "latestRunAt": "2026-07-25T18:22:07.705Z",
       "metrics": {
@@ -241,6 +247,8 @@
       "serviceRoleTaxonomyDigest": "dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67",
       "metricContractVersion": "metric-contract-v1",
       "metricContractDigest": "19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680",
+      "detectorRegistryVersion": null,
+      "detectorRegistryDigest": null,
       "sampleSize": 30,
       "latestRunAt": "2026-08-03T11:05:35.312Z",
       "metrics": {
@@ -314,6 +322,8 @@
       "serviceRoleTaxonomyDigest": "dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67",
       "metricContractVersion": "metric-contract-v1",
       "metricContractDigest": "19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680",
+      "detectorRegistryVersion": null,
+      "detectorRegistryDigest": null,
       "sampleSize": 1,
       "latestRunAt": "2026-07-30T07:31:01.830Z",
       "metrics": {
@@ -387,6 +397,8 @@
       "serviceRoleTaxonomyDigest": "dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67",
       "metricContractVersion": "metric-contract-v1",
       "metricContractDigest": "19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680",
+      "detectorRegistryVersion": null,
+      "detectorRegistryDigest": null,
       "sampleSize": 91,
       "latestRunAt": "2026-08-24T08:21:14.593Z",
       "metrics": {
@@ -460,6 +472,8 @@
       "serviceRoleTaxonomyDigest": "dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67",
       "metricContractVersion": "metric-contract-v1",
       "metricContractDigest": "19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680",
+      "detectorRegistryVersion": null,
+      "detectorRegistryDigest": null,
       "sampleSize": 81,
       "latestRunAt": "2026-09-07T05:23:50.432Z",
       "metrics": {
@@ -533,6 +547,8 @@
       "serviceRoleTaxonomyDigest": "dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67",
       "metricContractVersion": "metric-contract-v1",
       "metricContractDigest": "19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680",
+      "detectorRegistryVersion": null,
+      "detectorRegistryDigest": null,
       "sampleSize": 90,
       "latestRunAt": "2026-10-19T14:56:32.539Z",
       "metrics": {
@@ -606,6 +622,8 @@
       "serviceRoleTaxonomyDigest": "dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67",
       "metricContractVersion": "metric-contract-v1",
       "metricContractDigest": "19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680",
+      "detectorRegistryVersion": null,
+      "detectorRegistryDigest": null,
       "sampleSize": 1,
       "latestRunAt": "2026-07-14T03:18:40.331Z",
       "metrics": {
@@ -679,6 +697,8 @@
       "serviceRoleTaxonomyDigest": "dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67",
       "metricContractVersion": "metric-contract-v1",
       "metricContractDigest": "19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680",
+      "detectorRegistryVersion": null,
+      "detectorRegistryDigest": null,
       "sampleSize": 1,
       "latestRunAt": "2026-07-14T03:24:56.423Z",
       "metrics": {
@@ -752,6 +772,8 @@
       "serviceRoleTaxonomyDigest": "dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67",
       "metricContractVersion": "metric-contract-v1",
       "metricContractDigest": "19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680",
+      "detectorRegistryVersion": null,
+      "detectorRegistryDigest": null,
       "sampleSize": 54,
       "latestRunAt": "2026-08-14T19:21:34.691Z",
       "metrics": {

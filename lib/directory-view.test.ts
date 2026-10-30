@@ -21,7 +21,9 @@ const SERVICE_ROLE_IDENTITY = {
   serviceRoleTaxonomyVersion: SERVICE_ROLE_TAXONOMY_VERSION,
   serviceRoleTaxonomyDigest: SERVICE_ROLE_TAXONOMY_DIGEST,
   metricContractVersion: METRIC_CONTRACT_VERSION,
-  metricContractDigest: METRIC_CONTRACT_DIGEST
+  metricContractDigest: METRIC_CONTRACT_DIGEST,
+  detectorRegistryVersion: null,
+  detectorRegistryDigest: null
 } as const;
 
 function entry(id: string, overrides: Partial<DirectoryEntry> = {}): DirectoryEntry {

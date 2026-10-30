@@ -288,7 +288,9 @@ export default function MethodologyPage() {
         <p>
           Findings like &quot;at or above the 90th-percentile mark for third-party domains&quot; use one exact
           measurement cohort: report schema and revision, methodology, tracker catalog, read-time ServiceRole
-          taxonomy, metric contract, producer, and requested-GPC condition must all match. Each cohort keeps one newest
+          taxonomy, metric contract, producer, requested-GPC condition and, on v2 reports, the detector registry
+          must all match (the registry is left to the methodology only for the earliest registries, none of which
+          ever shared one). Each cohort keeps one newest
           eligible passive lead run per distinct site. Failed or no-response loads, request-incomplete runs,
           accept/reject consent arms, and reserved domains are excluded from statistical measurement; v1 and v2 runs
           can contribute only inside their own exact cohorts. The v4 artifact separately publishes all

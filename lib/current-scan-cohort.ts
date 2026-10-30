@@ -11,6 +11,7 @@ import {
   selectCorpusStatsCohort,
   type CorpusStats
 } from "./corpus-stats";
+import { DETECTOR_REGISTRY_DIGEST, DETECTOR_REGISTRY_VERSION } from "./measurement-kernel";
 import { METRIC_CONTRACT_DIGEST, METRIC_CONTRACT_VERSION } from "./metric-contract";
 import { NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION } from "./scan-report-v2-r2-producer-contract";
 import { SCAN_REPORT_V2_SCHEMA_REVISION_2 } from "./scan-report-v2-r2";
@@ -56,7 +57,10 @@ export function currentScanCohortComponents(gpc: boolean): CorpusCohortIdentityC
     serviceRoleTaxonomyVersion: SERVICE_ROLE_TAXONOMY_VERSION,
     serviceRoleTaxonomyDigest: SERVICE_ROLE_TAXONOMY_DIGEST,
     metricContractVersion: METRIC_CONTRACT_VERSION,
-    metricContractDigest: METRIC_CONTRACT_DIGEST
+    metricContractDigest: METRIC_CONTRACT_DIGEST,
+    // The live registry is never one the methodology names, so the key names it.
+    detectorRegistryVersion: DETECTOR_REGISTRY_VERSION,
+    detectorRegistryDigest: DETECTOR_REGISTRY_DIGEST
   };
 }
 
