@@ -2273,8 +2273,8 @@ export function buildFindings(
             : `${blockedPhrase} matched the default filter lists of Brave Shields, the ad and tracker blocker built into the Brave browser, while loading normally.`
           : shieldsAbsence.lead,
       detail: simulated
-        ? "Measured with Brave's own ad-block engine and default filter lists actively blocking (network requests only, so no cosmetic or CNAME-based blocking). Blocked requests are not in this run's totals, and requests a blocked script would have made never started."
-        : "Computed with Brave's own ad-block engine and default filter lists in classification mode: matched requests were not blocked by the scanner and remain in this report's observed request counts. Matching shows what Shields would target on this visit's traffic. An actual Shields visit blocks these and also prevents their follow-on requests, so this number is neither a measured block count nor the total effect.",
+        ? "Measured with Brave's own ad-block engine and default filter lists actively blocking (network requests only, so no cosmetic or CNAME-based blocking). Blocked requests are not in this run's totals, and requests a blocked script would have made never started. This is Site Behavior Lab's list-based simulation. It applies every list to the site's own requests too, which Brave's default Standard setting mostly exempts, so results can differ."
+        : "Computed with Brave's own ad-block engine and default filter lists in classification mode: matched requests were not blocked by the scanner and remain in this report's observed request counts. This is Site Behavior Lab's list-based simulation, which applies every list to the site's own requests too. Brave's default Standard setting skips most of these lists for such requests, so its results can differ. Blocking can also prevent follow-on requests, so this number is neither a measured block count nor what a Brave visit would block.",
       // The catalog count is run-wide: it is a separate labeling layer, not a
       // proven subset of the Shields-matched requests, so the sentence must
       // not chain the two sets together.

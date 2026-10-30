@@ -24,7 +24,7 @@ const ENTRIES: GlossaryEntry[] = [
     id: "brave-shields",
     term: "Brave Shields",
     definition:
-      "The ad and tracker blocker built into the Brave browser. Reports run every observed request through Brave's own open-source ad-block engine (adblock-rust) with Brave's default filter lists. Only network requests are matched: cosmetic filtering, which hides page elements, is not simulated."
+      "The ad and tracker blocker built into the Brave browser. Reports run every observed request through Brave's own open-source ad-block engine (adblock-rust) with Brave's default filter lists. Only network requests are matched: cosmetic filtering, which hides page elements, is not simulated. This is Site Behavior Lab's list-based simulation: it applies every list to a page's requests to its own site too, which Brave's default Standard setting mostly exempts, so results can differ."
   },
   {
     id: "brave-would-block",

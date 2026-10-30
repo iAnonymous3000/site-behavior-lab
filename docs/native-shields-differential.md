@@ -6,6 +6,10 @@ Site Behavior Lab's public Shields comparison is a controlled Playwright
 Chromium intervention using the vendored `adblock-rust` engine and a pinned
 snapshot of Brave's default filter lists. Its counts describe that simulation.
 They do not establish actual Brave behavior or a lower bound on its blocking.
+One difference is known: the simulation applies every list to a page's
+requests to its own site, while Brave's default Standard setting skips most of
+these lists for such requests (see "The Brave Shields block simulation" in
+[limitations.md](limitations.md)), so the two can differ there.
 This differential runner can supply independent diagnostic observations, but
 its existence does not establish representative accuracy.
 

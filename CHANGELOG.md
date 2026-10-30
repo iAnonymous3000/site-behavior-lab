@@ -9,6 +9,16 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- The Shields copy says the list-blocking numbers come from Site Behavior
+  Lab's list-based simulation, which can differ from Brave Standard on a
+  page's requests to its own site. The simulation applies every list to every
+  request; Brave's default Standard setting skips most of these lists for
+  such requests (brave-core `c664e847`, confirmed natively on one site). The
+  classification card no longer says "An actual Shields visit blocks these".
+  The report details, methodology page, glossary, scan-mode hint and
+  limitations change; no stored report, count or identity does. The
+  limitations page also names the iOS-only default list the snapshot
+  carries, which desktop Brave never loads.
 - The synthetic-input card's title says the test value appeared in requests
   to its recipients, as its lead already did, instead of that it "reached"
   them. A request the scanner's own guard refused still names its recipient

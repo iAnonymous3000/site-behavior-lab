@@ -2016,7 +2016,12 @@ test("adds a Shields-block card only when ad-block is active", () => {
   assert.doesNotMatch(blocked.title, /would block/);
   assert.doesNotMatch(blocked.detail, /requests LOADED/);
   assert.match(blocked.detail, /were not blocked by the scanner/);
-  assert.match(blocked.detail, /neither a measured block count nor the total effect/);
+  assert.match(blocked.detail, /neither a measured block count nor what a Brave visit would block/);
+  // The simulation is the lab's, and it differs from Brave Standard on the
+  // site's own requests: the copy must not present it as Brave's behavior.
+  assert.match(blocked.detail, /Site Behavior Lab's list-based simulation/);
+  assert.match(blocked.detail, /Brave's default Standard setting skips most of these lists for such requests/);
+  assert.doesNotMatch(blocked.detail, /An actual Shields visit blocks these/);
 
   const simulated: ScanResult = {
     ...withAdblock,
@@ -2024,6 +2029,8 @@ test("adds a Shields-block card only when ad-block is active", () => {
   };
   const simulatedCard = byId(buildFindings(viewFromV1Report(simulated), null), "shields-blocked");
   assert.match(simulatedCard.title, /Brave's blocking engine stopped 12 requests in this visit/);
+  assert.match(simulatedCard.detail, /This is Site Behavior Lab's list-based simulation\./);
+  assert.match(simulatedCard.detail, /which Brave's default Standard setting mostly exempts, so results can differ/);
 });
 
 test("a Shields comparison keeps the fingerprinting card alongside session-recording (no silent cap)", () => {

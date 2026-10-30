@@ -41,6 +41,7 @@ test("every comparison mode defines its jargon in the tooltip and hint", () => {
   assert.match(RUN_MODE_TITLES.shields, /simulation, not a live Brave-browser visit/);
   assert.match(RUN_MODE_TITLES.gpc, /Global Privacy Control/);
   assert.match(runModeHint("shields"), /simulation of Brave Shields inside this scanner's browser/);
+  assert.match(runModeHint("shields"), /applies the lists to the site's own requests, which Brave's default setting mostly exempts/);
   assert.match(runModeHint("shields"), /one pair of visits/);
   assert.match(runModeHint("shields"), /does not treat that difference as a causal blocking rate/);
   assert.match(runModeHint("gpc"), /Global Privacy Control \(GPC\)/);

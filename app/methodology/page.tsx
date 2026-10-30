@@ -230,8 +230,10 @@ export default function MethodologyPage() {
         <p>
           Blocking evidence uses Brave&apos;s own ad-block engine (the open-source adblock-rust crate compiled to
           WebAssembly) with the default-enabled Brave Shields filter lists, vendored as a pinned snapshot. Matching
-          requests are aborted in this scanner&apos;s browser: a simulation of Brave&apos;s default list blocking,
-          not a live Brave-browser visit. Each request is matched with its actual HTTP method against the document
+          requests are aborted in this scanner&apos;s browser: Site Behavior Lab&apos;s list-based simulation of
+          Brave&apos;s list blocking, not a live Brave-browser visit. It applies every list to every request,
+          including a page&apos;s requests to its own site. Brave&apos;s default Standard setting skips most of these
+          lists for those requests, so the simulation can differ from Brave Standard there. Each request is matched with its actual HTTP method against the document
           that initiated it, network rules only (no cosmetic rules). Blocked counts describe this engine and list
           snapshot in the scanner; they do not establish actual Brave behavior or a lower bound on its blocking.
           The report separately states
