@@ -35,6 +35,24 @@ export function inspectionGroupSentence(group: Pick<ConnectionInspectionGroup, "
 }
 
 /**
+ * The evidence's groups as a reader can tell them apart. The evidence keys a
+ * group by its hosts and its named scripts and a line shows the hosts alone,
+ * so stacks that differ only in their scripts' published addresses would read
+ * as one line printed twice. They read as one line with their counts added,
+ * the lines largest first, a tie in the evidence's order.
+ */
+function groupsAsShown(groups: readonly ConnectionInspectionGroup[]): Pick<ConnectionInspectionGroup, "count" | "hosts">[] {
+  const shown = new Map<string, Pick<ConnectionInspectionGroup, "count" | "hosts">>();
+  for (const group of groups) {
+    const chain = hostChain(group.hosts);
+    const seen = shown.get(chain);
+    if (seen) seen.count += group.count;
+    else shown.set(chain, { count: group.count, hosts: group.hosts });
+  }
+  return [...shown.values()].sort((a, b) => b.count - a.count);
+}
+
+/**
  * Requests Chromium sent with no call stack. REPLACES the approved draft,
  * "`<n>` requests were started by the page itself, not by a script, so they
  * have no call stack.", pending the owner's review at the push: Chromium 153
@@ -115,7 +133,7 @@ export function inspectionPanelCopy(evidence: ConnectionInspectionEvidence): Ins
       separation: INSPECTION_SEPARATION
     };
   }
-  const lines = evidence.groups.map(inspectionGroupSentence);
+  const lines = groupsAsShown(evidence.groups).map(inspectionGroupSentence);
   if (evidence.redirected > 0) lines.push(inspectionRedirectedSentence(evidence.redirected));
   if (evidence.withoutStack > 0) lines.push(inspectionWithoutStackSentence(evidence.withoutStack));
   if (evidence.withoutNamedScript > 0) lines.push(inspectionWithoutNamedScriptSentence(evidence.withoutNamedScript));

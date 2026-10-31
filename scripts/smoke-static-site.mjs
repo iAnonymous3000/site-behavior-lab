@@ -2837,9 +2837,11 @@ async function assertInspectionOnlyOnFreshResults(browser, baseUrl, manifest) {
     // the top of its own result.
     const groups = [
       { count: 2, hosts: ["static.example.org", "cdn.example.net"], namedScripts: ["https://static.example.org/{seg}", "https://cdn.example.net/{seg}"] },
-      { count: 1, hosts: ["cdn.example.net"], namedScripts: ["https://cdn.example.net/{seg}"] }
+      { count: 1, hosts: ["cdn.example.net"], namedScripts: ["https://cdn.example.net/{seg}"] },
+      // Another script on the same host: the evidence's own group, the reader's same line.
+      { count: 1, hosts: ["cdn.example.net"], namedScripts: ["https://cdn.example.net/{seg}/{seg}"] }
     ];
-    answers.push(single({ inspection: { address, matched: 5, groups, redirected: 0, withoutStack: 1, withoutNamedScript: 0, notListed: 0, unobserved: 1 } }));
+    answers.push(single({ inspection: { address, matched: 6, groups, redirected: 0, withoutStack: 1, withoutNamedScript: 0, notListed: 0, unobserved: 1 } }));
     await pressAndAwaitResult(page);
     const panel = page.locator(".connection-inspection");
     if ((await panel.count()) !== 1) fail("the inspection's result shows no inspection panel");
@@ -2851,7 +2853,7 @@ async function assertInspectionOnlyOnFreshResults(browser, baseUrl, manifest) {
     const lines = await panel.locator(".connection-inspection-lines li").allTextContents();
     const expectedLines = [
       "2 requests. Scripts on the call stack, innermost first: static.example.org then cdn.example.net.",
-      "1 request. Scripts on the call stack, innermost first: cdn.example.net.",
+      "2 requests. Scripts on the call stack, innermost first: cdn.example.net.",
       "1 request came with no call stack, so no script is named; the browser gives none for requests the page's HTML starts, nor for images a script creates."
     ];
     if (JSON.stringify(lines) !== JSON.stringify(expectedLines)) fail(`the inspection lists ${JSON.stringify(lines)}`);

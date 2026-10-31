@@ -13,7 +13,7 @@ import {
   inspectionWithoutNamedScriptSentence,
   inspectionWithoutStackSentence
 } from "./connection-inspection-copy";
-import type { ConnectionInspectionEvidence } from "./connection-inspection-evidence";
+import { isConnectionInspectionEvidence, type ConnectionInspectionEvidence } from "./connection-inspection-evidence";
 import { shownConnectionInspection } from "./connection-inspection-result";
 import type { LoadedReport } from "./scan-report-view";
 
@@ -75,6 +75,71 @@ test("the result panel says what the approved copy and the rulings say, in order
     copy.separation,
     "This new visit is a different observation from the report you came from, so it can neither confirm nor refute that report's row."
   );
+});
+
+test("stacks a reader could not tell apart read as one line, with their counts added and the lines largest first", () => {
+  // Two scripts on one host, at different depths, publish as two addresses, so
+  // the real recorder keeps them as two groups that show the same hosts.
+  const tag = "https://static.example.org/tag.js";
+  const shallow = "https://cdn.example.net/loader.js";
+  const deep = "https://cdn.example.net/v2/loader.js";
+  const recorder = new ConnectionInspectionRecorder(ADDRESS);
+  const request = (url: string, type: string, frames: string[] | null) => {
+    recorder.observe({
+      request: { url },
+      type,
+      initiator: frames ? { type: "script", stack: { callFrames: frames.map((frame) => ({ url: frame })) } } : { type: "parser" }
+    });
+    recorder.notePageRequest(url);
+  };
+  for (const script of [tag, shallow, deep]) request(script, "Script", null);
+  for (const [frame, requests] of [[tag, 3], [shallow, 2], [deep, 2]] as const) {
+    for (let index = 0; index < requests; index += 1) request(`${PIXEL}?${frame}-${index}`, "Fetch", [frame]);
+  }
+  const evidence = recorder.evidence();
+  assert.ok(evidence);
+  assert.equal(isConnectionInspectionEvidence(evidence), true);
+  const before = structuredClone(evidence);
+
+  // Added, 2 + 2 overtakes the 3 that the evidence lists first.
+  assert.deepEqual(inspectionPanelCopy(evidence).lines, [
+    "4 requests. Scripts on the call stack, innermost first: cdn.example.net.",
+    "3 requests. Scripts on the call stack, innermost first: static.example.org."
+  ]);
+  // Only the reading changes: the evidence keeps its three groups.
+  assert.deepEqual(evidence, before);
+  assert.deepEqual(evidence.groups.map((group) => [group.count, group.hosts, group.namedScripts.length]), [
+    [3, ["static.example.org"], 1],
+    [2, ["cdn.example.net"], 1],
+    [2, ["cdn.example.net"], 1]
+  ]);
+});
+
+test("only the very same hosts in the very same order read as one line, and a tie keeps the evidence's order", () => {
+  const group = (count: number, hosts: string[], namedScripts: string[] = []) => ({ count, hosts, namedScripts });
+  const evidence: ConnectionInspectionEvidence = {
+    address: ADDRESS,
+    matched: 7,
+    groups: [
+      group(2, ["b.example.net", "a.example.net"]),
+      group(2, ["a.example.net", "b.example.net"]),
+      group(1, ["a.example.net"], ["https://a.example.net/{seg}"]),
+      group(1, ["a.example.net"], ["https://a.example.net/{seg}/{seg}"]),
+      group(1, ["{label}.example.net"])
+    ],
+    redirected: 0,
+    withoutStack: 0,
+    withoutNamedScript: 0,
+    notListed: 0,
+    unobserved: 0
+  };
+  assert.equal(isConnectionInspectionEvidence(evidence), true);
+  assert.deepEqual(inspectionPanelCopy(evidence).lines, [
+    "2 requests. Scripts on the call stack, innermost first: b.example.net then a.example.net.",
+    "2 requests. Scripts on the call stack, innermost first: a.example.net then b.example.net.",
+    "2 requests. Scripts on the call stack, innermost first: a.example.net.",
+    "1 request. Scripts on the call stack, innermost first: *.example.net."
+  ]);
 });
 
 test("a visit that made no request to the address says so, and nothing else about stacks", () => {
