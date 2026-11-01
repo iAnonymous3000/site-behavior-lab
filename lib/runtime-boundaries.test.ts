@@ -3,6 +3,7 @@ import { builtinModules } from "node:module";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { test } from "node:test";
+import ts from "typescript";
 
 type RuntimeBoundary = {
   name: string;
@@ -11,7 +12,7 @@ type RuntimeBoundary = {
   blockedPackages: ReadonlySet<string>;
 };
 
-const SOURCE_EXTENSIONS = [".ts", ".tsx", ".mjs", ".js"] as const;
+const SOURCE_EXTENSIONS = [".ts", ".tsx", ".mjs", ".js", ".jsx"] as const;
 const PROJECT_ROOT = process.cwd();
 
 const NODE_ONLY_MODULES = new Set([
@@ -64,6 +65,36 @@ test("browser client imports stay out of Node and server modules", async () => {
   });
 });
 
+test("the walk sees every runtime edge and no type-only one", () => {
+  const source = `
+    import "./bare";
+    import named from "./named";
+    import { a, type B } from "./mixed";
+    import type { C } from "./type-only";
+    import type D from "./type-only-default";
+    export type E = C;
+    export { f } from "./re-exported";
+    export * from "./star";
+    export type { G } from "./type-only-export";
+    export const later = 1;
+    import h = require("./import-equals");
+    const i = await import("./dynamic");
+    const j = require("./required");
+    const k = \`import "./inside-a-template";\`;
+    // import "./inside-a-comment";
+  `;
+  assert.deepEqual(runtimeImportsOf("fixture.ts", source).sort(), [
+    "./bare",
+    "./dynamic",
+    "./import-equals",
+    "./mixed",
+    "./named",
+    "./re-exported",
+    "./required",
+    "./star"
+  ]);
+});
+
 async function assertBoundary(boundary: RuntimeBoundary): Promise<void> {
   const violations: string[] = [];
 
@@ -111,22 +142,35 @@ async function collectRuntimeImportGraph(entrypoint: string): Promise<Set<string
 
 async function readRuntimeImports(projectRelativePath: string): Promise<string[]> {
   const source = await readFile(path.join(PROJECT_ROOT, projectRelativePath), "utf8");
+  return runtimeImportsOf(projectRelativePath, source);
+}
+
+/**
+ * Read from the parsed file, not by pattern: a pattern for `import ... from` ran
+ * past a bare `import "x";` into the next statement and lost the edge, and read an
+ * `export type` as type-only through to a later re-export.
+ */
+function runtimeImportsOf(fileName: string, source: string): string[] {
   const imports: string[] = [];
-
-  for (const match of source.matchAll(/^\s*import\s+(type\s+)?(?:[\s\S]*?\s+from\s+)?["']([^"']+)["'];?/gm)) {
-    if (!match[1]) imports.push(match[2]);
-  }
-
-  for (const match of source.matchAll(/^\s*export\s+(type\s+)?(?:[\s\S]*?\s+from\s+)["']([^"']+)["'];?/gm)) {
-    if (!match[1]) imports.push(match[2]);
-  }
-
-  // Code-split browser features are still runtime edges. The previous static
-  // import-only walk silently skipped the PageGraph upload chunk.
-  for (const match of source.matchAll(/\bimport\(\s*["']([^"']+)["']\s*\)/g)) {
-    imports.push(match[1]);
-  }
-
+  const visit = (node: ts.Node): void => {
+    if (ts.isImportDeclaration(node)) {
+      if (!node.importClause?.isTypeOnly && ts.isStringLiteralLike(node.moduleSpecifier)) imports.push(node.moduleSpecifier.text);
+    } else if (ts.isExportDeclaration(node)) {
+      if (!node.isTypeOnly && node.moduleSpecifier && ts.isStringLiteralLike(node.moduleSpecifier)) imports.push(node.moduleSpecifier.text);
+    } else if (ts.isImportEqualsDeclaration(node)) {
+      if (!node.isTypeOnly && ts.isExternalModuleReference(node.moduleReference) && ts.isStringLiteralLike(node.moduleReference.expression)) {
+        imports.push(node.moduleReference.expression.text);
+      }
+    } else if (ts.isCallExpression(node)) {
+      // Code-split browser features are still runtime edges. The first import-only
+      // walk silently skipped the PageGraph upload chunk.
+      const [specifier] = node.arguments;
+      const loads = node.expression.kind === ts.SyntaxKind.ImportKeyword || (ts.isIdentifier(node.expression) && node.expression.text === "require");
+      if (loads && specifier && ts.isStringLiteralLike(specifier)) imports.push(specifier.text);
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(ts.createSourceFile(fileName, source, ts.ScriptTarget.Latest));
   return imports;
 }
 
@@ -149,9 +193,8 @@ async function resolveProjectPath(projectPath: string): Promise<string | null> {
     return normalized;
   }
 
-  for (const sourceExtension of SOURCE_EXTENSIONS) {
+  for (const candidate of SOURCE_EXTENSIONS.flatMap((sourceExtension) => [`${normalized}${sourceExtension}`, `${normalized}/index${sourceExtension}`])) {
     try {
-      const candidate = `${normalized}${sourceExtension}`;
       await readFile(path.join(PROJECT_ROOT, candidate), "utf8");
       return candidate;
     } catch {
