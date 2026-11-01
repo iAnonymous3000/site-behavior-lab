@@ -23,6 +23,9 @@ public API or a 1.0 release.
   Worker that verifies a Cloudflare Access token on every request and denies
   everything else. Nothing deploys it and it has no hostname, and no public
   report, export or scanner artifact includes its code.
+- The private workspace now validates its configuration, pins the owner's subject
+  and email, answers on one hostname, and holds a tamper-evident case log, tested
+  with real process kills. Nothing is deployed, and public behavior is unchanged.
 
 ### Fixed
 

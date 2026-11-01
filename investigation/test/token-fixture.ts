@@ -2,7 +2,10 @@ import type { AccessPolicy, KeySetFetch } from "../core/access-token";
 
 export const ISSUER = "https://sbl-test.cloudflareaccess.com";
 export const AUDIENCE = "a".repeat(64);
+/** Distinct by default, as two Access applications would be. The tests name the one-application shape on purpose. */
+export const HEALTH_AUDIENCE = "d".repeat(64);
 export const OWNER = "7335d417-61da-459d-899c-0a01c76a2f94";
+export const OWNER_EMAIL = "owner@example.org";
 export const HEALTH_CLIENT = "healthcheck.access";
 export const NOW_MS = Date.UTC(2026, 10, 1, 12);
 export const NOW_SECONDS = NOW_MS / 1000;
@@ -11,7 +14,9 @@ export const POLICY: AccessPolicy = Object.freeze({
   issuer: ISSUER,
   audience: AUDIENCE,
   ownerSubject: OWNER,
-  healthClientId: HEALTH_CLIENT
+  ownerEmail: OWNER_EMAIL,
+  healthClientId: HEALTH_CLIENT,
+  healthAudience: HEALTH_AUDIENCE
 });
 
 const RSA = { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" } as const;
@@ -37,7 +42,7 @@ export function base64url(bytes: Uint8Array | string): string {
 export function ownerClaims(overrides: Record<string, unknown> = {}): Record<string, unknown> {
   return {
     aud: [AUDIENCE],
-    email: "owner@example.org",
+    email: OWNER_EMAIL,
     exp: NOW_SECONDS + 3600,
     iat: NOW_SECONDS - 60,
     nbf: NOW_SECONDS - 60,
@@ -52,7 +57,7 @@ export function ownerClaims(overrides: Record<string, unknown> = {}): Record<str
 
 export function serviceClaims(overrides: Record<string, unknown> = {}): Record<string, unknown> {
   return {
-    aud: [AUDIENCE],
+    aud: [HEALTH_AUDIENCE],
     common_name: HEALTH_CLIENT,
     exp: NOW_SECONDS + 3600,
     iat: NOW_SECONDS - 60,
@@ -70,6 +75,14 @@ export async function signToken(
 ): Promise<string> {
   const header = base64url(JSON.stringify({ alg: "RS256", kid: key.id, typ: "JWT", ...headerOverrides }));
   const payload = base64url(JSON.stringify(claims));
+  const signature = await crypto.subtle.sign(RSA.name, key.privateKey, new TextEncoder().encode(`${header}.${payload}`));
+  return `${header}.${payload}.${base64url(new Uint8Array(signature))}`;
+}
+
+/** A token over payload bytes exactly as given, for what JSON.stringify could not write. */
+export async function signPayloadBytes(key: SigningKey, payloadBytes: Uint8Array): Promise<string> {
+  const header = base64url(JSON.stringify({ alg: "RS256", kid: key.id, typ: "JWT" }));
+  const payload = base64url(payloadBytes);
   const signature = await crypto.subtle.sign(RSA.name, key.privateKey, new TextEncoder().encode(`${header}.${payload}`));
   return `${header}.${payload}.${base64url(new Uint8Array(signature))}`;
 }

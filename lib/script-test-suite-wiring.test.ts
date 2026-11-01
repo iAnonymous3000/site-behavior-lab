@@ -132,13 +132,17 @@ test("every lib test directory runs in an npm script that test:unit reaches", ()
 /**
  * The investigation workspace's suites compile under their own config and run in
  * their own stage, so nothing else would notice one going missing. `node --test`
- * exits 0 on a glob that matches nothing and 1 on a named file that is missing, so
- * the stage names each compiled suite: a compile that emitted nothing fails there.
+ * exits 0 on a glob that matches nothing, and on a named file that is missing unless
+ * every named file is, so the stage names each compiled suite and runs them through
+ * scripts/investigation-test-stage.mjs, whose lane fails on a suite that left no
+ * summary. scripts/unit-test-lanes.test.mjs shows that with one suite deleted.
  */
 test("the investigation suites run in a stage test:unit reaches, which names every one", () => {
   const stage = packageJson.scripts["test:investigation"];
   assert.ok(commandsReachableFromTestUnit().includes(stage), "test:unit must run test:investigation");
   assert.ok(stage.includes("tsc -p tsconfig.investigation-test.json"), "the stage must compile before it runs");
+  assert.ok(stage.includes("&& node scripts/investigation-test-stage.mjs .investigation-test-dist/"), "the suites must run through the lane that notices a missing one");
+  assert.doesNotMatch(stage, /node --test/, "node --test alone passes a run with a named suite missing");
 
   const compiled = JSON.parse(readFileSync(path.join(root, "tsconfig.investigation-test.json"), "utf8")) as {
     compilerOptions: { outDir: string };

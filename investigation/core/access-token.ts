@@ -9,6 +9,11 @@
 // Pure, with no Node builtin and no dependency, so it runs in a Worker and in
 // the unit suite alike. The clock and the fetch are passed in.
 //
+// A stated limit: `sub` is documented as unique per email per account, so nothing in
+// a token tells this module which login method produced it. Two methods for one email
+// look the same here. Restricting the identity provider is a setting in Access, and
+// nothing here checks it.
+//
 // https://developers.cloudflare.com/cloudflare-one/access-controls/applications/http-apps/authorization-cookie/validating-json/
 
 export const ACCESS_TOKEN_HEADER = "cf-access-jwt-assertion";
@@ -35,16 +40,30 @@ const KEY_SET_FETCH_BOUND_MS = 5_000;
 /** Allows for a Worker's clock behind the one that minted the token. Expiry gets no such allowance. */
 const ISSUED_AT_SKEW_SECONDS = 10;
 
+/**
+ * The one service token admitted, to the health route only, and the audience it must
+ * carry, or neither. Half of this cannot be configured. Access gives each application
+ * its own AUD, so a policy scoped to the health path means a second application with
+ * its own audience. In a one-application setup the two audiences are simply equal.
+ */
+type HealthAccess = Readonly<{ healthClientId: string; healthAudience: string }> | Readonly<{ healthClientId: null; healthAudience: null }>;
+
 export type AccessPolicy = Readonly<{
   /** The team domain, exactly as the token's `iss` carries it. */
   issuer: string;
-  /** The Access application's AUD tag. */
+  /** The AUD tag of the Access application the owner signs in to. */
   audience: string;
   /** The owner's `sub`, unique to an email per account. It changes if they are removed and re-added. */
   ownerSubject: string;
-  /** The one service token admitted, to the health route only, or null for none. */
-  healthClientId: string | null;
-}>;
+  /**
+   * The owner's email, exactly as the token's `email` carries it. Both this and the
+   * subject must match. Compared exactly, so an identity provider that changes the
+   * spelling locks the owner out until configuration changes, and never admits a
+   * near match.
+   */
+  ownerEmail: string;
+}> &
+  HealthAccess;
 
 export type VerifiedIdentity =
   | Readonly<{ kind: "owner"; issuer: string; subject: string; email: string; issuedAt: number; expiresAt: number }>
@@ -63,7 +82,8 @@ export type AccessRefusal =
   | "malformed-claims"
   | "expired"
   | "not-yet-valid"
-  | "not-the-owner"
+  | "not-the-owner-subject"
+  | "not-the-owner-email"
   | "unrecognized-service-token";
 
 export type AccessDecision = Readonly<{ ok: true; identity: VerifiedIdentity }> | Readonly<{ ok: false; refusal: AccessRefusal }>;
@@ -73,23 +93,52 @@ export type KeySetFetch = (url: string, init: RequestInit) => Promise<Response>;
 const TEAM_ISSUER = /^https:\/\/[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.cloudflareaccess\.com$/;
 const AUD_TAG = /^[0-9a-f]{64}$/;
 const SAFE_IDENTIFIER = /^[\x21-\x7e]{1,256}$/;
+/** One address with one `@`, in printable ASCII with no space. What the provider vouches for is up to it. */
+const OWNER_EMAIL = /^[\x21-\x3f\x41-\x7e]{1,64}@[a-zA-Z0-9](?:[a-zA-Z0-9.-]{0,189}[a-zA-Z0-9])?$/;
 
 /** A policy only from complete, well-formed configuration, so a missing value can never admit anyone. */
 export function accessPolicyFrom(values: {
   issuer?: unknown;
   audience?: unknown;
   ownerSubject?: unknown;
+  ownerEmail?: unknown;
   healthClientId?: unknown;
+  healthAudience?: unknown;
 }): AccessPolicy | null {
-  const { issuer, audience, ownerSubject, healthClientId } = values;
+  const { issuer, audience, ownerSubject, ownerEmail, healthClientId, healthAudience } = values;
   if (typeof issuer !== "string" || !TEAM_ISSUER.test(issuer)) return null;
   if (typeof audience !== "string" || !AUD_TAG.test(audience)) return null;
   if (typeof ownerSubject !== "string" || !SAFE_IDENTIFIER.test(ownerSubject)) return null;
-  if (healthClientId === undefined || healthClientId === "") {
-    return Object.freeze({ issuer, audience, ownerSubject, healthClientId: null });
+  if (typeof ownerEmail !== "string" || !OWNER_EMAIL.test(ownerEmail)) return null;
+  const noClientId = healthClientId === undefined || healthClientId === "";
+  const noHealthAudience = healthAudience === undefined || healthAudience === "";
+  if (noClientId && noHealthAudience) {
+    return Object.freeze({ issuer, audience, ownerSubject, ownerEmail, healthClientId: null, healthAudience: null });
   }
+  // Past here both are required, so a half-configured health path gives no policy at all.
   if (typeof healthClientId !== "string" || !SAFE_IDENTIFIER.test(healthClientId)) return null;
-  return Object.freeze({ issuer, audience, ownerSubject, healthClientId });
+  if (typeof healthAudience !== "string" || !AUD_TAG.test(healthAudience)) return null;
+  return Object.freeze({ issuer, audience, ownerSubject, ownerEmail, healthClientId, healthAudience });
+}
+
+/**
+ * Identities this module verified. A VerifiedIdentity is a plain object that any
+ * code could spell, so holding the type says nothing: this set is how actor
+ * derivation tells a verification's result from a look-alike. Nothing is added to
+ * it but the two results in decideClaims below, and nothing about an object's
+ * shape puts it here, so a copy or a parsed one is not in it.
+ */
+const verifiedIdentities = new WeakSet<VerifiedIdentity>();
+
+/** Whether this exact object came out of verifyAccessToken in this isolate. */
+export function isVerifiedIdentity(identity: VerifiedIdentity): boolean {
+  return verifiedIdentities.has(identity);
+}
+
+function admit(identity: VerifiedIdentity): AccessDecision {
+  const frozen = Object.freeze(identity);
+  verifiedIdentities.add(frozen);
+  return { ok: true, identity: frozen };
 }
 
 function base64urlBytes(value: string): Uint8Array<ArrayBuffer> | null {
@@ -116,8 +165,9 @@ function jsonObject(bytes: Uint8Array): Record<string, unknown> | null {
   }
 }
 
+/** A token time is a count of seconds since the epoch. Access mints whole ones, and an entry holds them as they are, which -0 has no form for. */
 function isNumericDate(value: unknown): value is number {
-  return typeof value === "number" && Number.isFinite(value);
+  return typeof value === "number" && Number.isSafeInteger(value) && value >= 0 && !Object.is(value, -0);
 }
 
 type KeyLookup = CryptoKey | "unknown-key" | "keys-unavailable";
@@ -302,33 +352,33 @@ export async function verifyAccessToken(
 
 function decideClaims(payload: Record<string, unknown>, policy: AccessPolicy, nowSeconds: number): AccessDecision {
   if (payload.iss !== policy.issuer) return refuse("wrong-issuer");
-  const audiences = Array.isArray(payload.aud) ? (payload.aud as unknown[]) : [payload.aud];
-  if (!audiences.includes(policy.audience)) return refuse("wrong-audience");
-  if (payload.type !== "app") return refuse("wrong-token-type");
 
   const { exp, iat, nbf, sub, email, common_name: commonName } = payload;
+  if (typeof sub !== "string") return refuse("malformed-claims");
+  // A token's kind comes first, because it decides whose audience the token must carry.
+  const isServiceToken = sub === "";
+  const requiredAudience = isServiceToken ? policy.healthAudience : policy.audience;
+  if (requiredAudience === null) return refuse("unrecognized-service-token");
+  const audiences = Array.isArray(payload.aud) ? (payload.aud as unknown[]) : [payload.aud];
+  if (!audiences.includes(requiredAudience)) return refuse("wrong-audience");
+  if (payload.type !== "app") return refuse("wrong-token-type");
+
   if (!isNumericDate(exp) || !isNumericDate(iat)) return refuse("malformed-claims");
   if (nbf !== undefined && !isNumericDate(nbf)) return refuse("malformed-claims");
   if (nowSeconds >= exp) return refuse("expired");
   if (iat > nowSeconds + ISSUED_AT_SKEW_SECONDS) return refuse("not-yet-valid");
   if (nbf !== undefined && nbf > nowSeconds + ISSUED_AT_SKEW_SECONDS) return refuse("not-yet-valid");
 
-  if (typeof sub !== "string") return refuse("malformed-claims");
-  if (sub === "") {
+  if (isServiceToken) {
     // A service token carries an empty sub and names itself by client id.
     if (typeof commonName !== "string" || commonName === "") return refuse("malformed-claims");
     if (commonName !== policy.healthClientId) return refuse("unrecognized-service-token");
-    return {
-      ok: true,
-      identity: Object.freeze({ kind: "health-service", issuer: policy.issuer, clientId: commonName, issuedAt: iat, expiresAt: exp })
-    };
+    return admit({ kind: "health-service", issuer: policy.issuer, clientId: commonName, issuedAt: iat, expiresAt: exp });
   }
   // A token claiming to be both a person and a service token is neither.
   if (commonName !== undefined && commonName !== "") return refuse("malformed-claims");
-  if (sub !== policy.ownerSubject) return refuse("not-the-owner");
+  if (sub !== policy.ownerSubject) return refuse("not-the-owner-subject");
   if (typeof email !== "string" || email === "") return refuse("malformed-claims");
-  return {
-    ok: true,
-    identity: Object.freeze({ kind: "owner", issuer: policy.issuer, subject: sub, email, issuedAt: iat, expiresAt: exp })
-  };
+  if (email !== policy.ownerEmail) return refuse("not-the-owner-email");
+  return admit({ kind: "owner", issuer: policy.issuer, subject: sub, email, issuedAt: iat, expiresAt: exp });
 }

@@ -30,7 +30,8 @@ const NODE_ONLY_MODULES = new Set([
   "lib/scan-result-v2-r2-builder.ts",
   "lib/scanner.ts",
   "lib/static-report-files.ts",
-  "lib/url-safety.ts"
+  "lib/url-safety.ts",
+  "investigation/local/fs-log-store.ts"
 ]);
 
 const BROWSER_CLIENT_BLOCKED_PACKAGES = new Set(["@cloudflare/playwright", "next/server", "playwright"]);
@@ -45,7 +46,9 @@ test("Cloudflare Worker imports stay out of Node-only modules", async () => {
       "cloudflare/container-worker.ts",
       "cloudflare/r2-remediation-worker.ts",
       "cloudflare/r2-delete-canary-worker.ts",
-      WORKSPACE_ENTRYPOINT
+      WORKSPACE_ENTRYPOINT,
+      // No route reaches the case log yet, and it is written to run in this Worker.
+      "investigation/core/case-log.ts"
     ],
     blockedLocalModules: NODE_ONLY_MODULES,
     blockedPackages: WORKER_BLOCKED_PACKAGES

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
-import { spawnSync } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { mkdtemp, mkdir, readFile, rm, symlink, writeFile } from "node:fs/promises";
-import { closeSync, openSync, readdirSync, readFileSync } from "node:fs";
+import { closeSync, existsSync, openSync, readdirSync, readFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
@@ -12,6 +12,7 @@ import fileSummaries, {
   TEST_BOUND_FLAGS,
   TEST_TIMEOUT_MS,
   blocksStdoutIn,
+  filesWithoutRealTests,
   filesWithoutSummary,
   parseLaneArguments,
   partitionCompiledTests,
@@ -234,7 +235,7 @@ test("the lane reporter records each file's summary and never the run's cumulati
   }
   const lines = [];
   for await (const line of fileSummaries(events())) lines.push(line);
-  assert.deepEqual(lines, [`${JSON.stringify("/repo/.unit-test-dist/lib/a.test.js")}\n`]);
+  assert.deepEqual(lines, [`${JSON.stringify({ file: "/repo/.unit-test-dist/lib/a.test.js", counts: {} })}\n`]);
 });
 
 test("a file counts as finished only through its own summary, under any spelling of its path", async (t) => {
@@ -248,7 +249,7 @@ test("a file counts as finished only through its own summary, under any spelling
   // a's process names itself through a symlink to the lane's directory; b's
   // summary never arrived.
   const log = path.join(dir, "summaries");
-  await writeFile(log, `${JSON.stringify(path.join(dir, "link", files[0]))}\n`);
+  await writeFile(log, `${JSON.stringify({ file: path.join(dir, "link", files[0]) })}\n`);
   assert.deepEqual(filesWithoutSummary(files, log, real), [files[1]]);
   assert.deepEqual(filesWithoutSummary(files, path.join(dir, "never-written"), real), files);
 });
@@ -510,4 +511,167 @@ test("the lanes fail when the parallel phase rewrites dist/, even if every test 
   assert.notEqual(status, 0, output);
   assert.match(output, /changed dist\/ while other tests could read it: dist\/schema/);
   assert.ok(!finished.includes("s1") && !finished.includes("s2"), "no serial test may start after a dist/ rewrite");
+});
+
+// The investigation workspace's stage names its suites one by one, and node --test
+// passes such a run with a named file missing as long as another exists.
+const REAL_TEST = `require("node:test")("real", () => {});\n`;
+const EMPTY_DESCRIBE = `require("node:test").describe("nothing inside", () => {});\n`;
+const ONLY_SKIPPED = `require("node:test")("skipped", { skip: true }, () => {});\n`;
+const ONLY_TODO = `require("node:test")("todo", { todo: true }, () => {});\n`;
+const NO_TESTS_AT_ALL = `// Compiled from a file with nothing left in it.\n`;
+
+async function runInvestigationStage(t, { deleted = [], cut = [], fail = [], leave = ["one", "two", "three"], bodies = {} } = {}) {
+  const dir = await mkdtemp(path.join(os.tmpdir(), "investigation-stage-"));
+  t.after(() => rm(dir, { recursive: true, force: true }));
+  const compiled = path.join(".investigation-test-dist", "investigation", "test");
+  await mkdir(path.join(dir, compiled), { recursive: true });
+  const files = leave.map((name) => path.join(compiled, `${name}.test.js`));
+  for (const name of leave) {
+    if (deleted.includes(name)) continue;
+    await writeFile(
+      path.join(dir, compiled, `${name}.test.js`),
+      bodies[name] ??
+      `const test = require("node:test");\n` +
+        `test(${JSON.stringify(name)}, () => {\n` +
+        `  if (${JSON.stringify(fail)}.includes(${JSON.stringify(name)})) throw new Error("deliberate failure");\n` +
+        `  const bound = process.execArgv.filter((arg) => /^--test-(?:timeout|force-exit)/.test(arg));\n` +
+        `  console.log("bound " + JSON.stringify(bound));\n` +
+        `});\n` +
+        `if (${JSON.stringify(cut)}.includes(${JSON.stringify(name)})) test(${JSON.stringify(`${name} after the cut`)}, () => process.exit(0));\n`
+    );
+  }
+  const result = spawnSync(process.execPath, [path.join(root, "scripts", "investigation-test-stage.mjs"), ...files], {
+    cwd: dir,
+    encoding: "utf8",
+    timeout: FIXTURE_TIMEOUT_MS,
+    env: Object.fromEntries(Object.entries(process.env).filter(([name]) => name !== "NODE_TEST_CONTEXT"))
+  });
+  const output = `${result.stdout}${result.stderr}`;
+  assert.equal(result.error, undefined, `the stage did not finish within ${FIXTURE_TIMEOUT_MS} ms:\n${output}`);
+  assert.equal(result.signal, null, `the stage was killed by ${result.signal}:\n${output}`);
+  return { status: result.status, output };
+}
+
+test("the investigation stage passes when every named suite reports, under the lanes' bounds", async (t) => {
+  const { status, output } = await runInvestigationStage(t);
+  assert.equal(status, 0, output);
+  const plain = output.replace(/\x1b\[[0-9;]*m/g, "");
+  for (const name of ["one", "two", "three"]) assert.match(plain, new RegExp(`^✔ ${name} \\(`, "m"), name);
+  assert.match(plain, /Investigation lane \(3 files\) passed/);
+  assert.match(plain, new RegExp(TEST_BOUND_FLAGS.map((flag) => flag.replace(/[-=]/g, "\\$&")).join('","')), "the suites ran without the lanes' bounds");
+});
+
+test("the investigation stage fails when one named suite is missing, though node --test exits 0", async (t) => {
+  // What this guards against: a compile that stopped emitting one suite, or a tsconfig exclude.
+  const { status, output } = await runInvestigationStage(t, { deleted: ["two"] });
+  assert.notEqual(status, 0, output);
+  assert.match(output, /Investigation lane \(3 files\) exited 0 but did not pass/);
+  assert.match(output, /One of its files ended without the summary .*two\.test\.js/);
+});
+
+test("the investigation stage fails when a suite's results stop short, though its process exits 0", async (t) => {
+  const { status, output } = await runInvestigationStage(t, { cut: ["two"] });
+  assert.notEqual(status, 0, output);
+  assert.match(output, /One of its files ended without the summary .*two\.test\.js/);
+});
+
+test("the investigation stage fails when a test fails", async (t) => {
+  const { status, output } = await runInvestigationStage(t, { fail: ["three"] });
+  assert.notEqual(status, 0, output);
+  assert.match(output, /Investigation lane \(3 files\) failed with exit code 1/);
+});
+
+test("the investigation stage refuses to run with no suites named, rather than discover every test", async (t) => {
+  const { status, output } = await runInvestigationStage(t, { leave: [] });
+  assert.notEqual(status, 0, output);
+  assert.match(output, /Usage: investigation-test-stage\.mjs/);
+});
+
+for (const [name, body] of [
+  ["an empty describe", EMPTY_DESCRIBE],
+  ["only a skipped test", ONLY_SKIPPED],
+  ["only a todo test", ONLY_TODO],
+  ["a real test beside a skipped one", `${REAL_TEST}${ONLY_SKIPPED}`],
+  ["a real test beside a todo one", `${REAL_TEST}${ONLY_TODO}`]
+]) {
+  test(`the investigation stage fails a suite holding ${name}, though node --test exits 0`, async (t) => {
+    const { status, output } = await runInvestigationStage(t, { bodies: { two: body } });
+    assert.notEqual(status, 0, output);
+    assert.match(output, /Investigation lane \(3 files\) exited 0 but did not pass/);
+    assert.match(output, /These ran no real test, or skipped or left one todo, which this lane does not allow: .*two\.test\.js\./);
+  });
+}
+
+test("the investigation stage fails a suite with no test in it at all, since it leaves no summary", async (t) => {
+  const { status, output } = await runInvestigationStage(t, { bodies: { two: NO_TESTS_AT_ALL } });
+  assert.notEqual(status, 0, output);
+  assert.match(output, /One of its files ended without the summary .*two\.test\.js/);
+});
+
+test("the stage's rule on real tests reads each file's counts", async (t) => {
+  const dir = await mkdtemp(path.join(os.tmpdir(), "unit-test-lanes-real-"));
+  t.after(() => rm(dir, { recursive: true, force: true }));
+  const log = path.join(dir, "summaries");
+  const counts = (over) => ({ tests: 1, passed: 1, failed: 0, cancelled: 0, skipped: 0, todo: 0, suites: 0, topLevel: 1, ...over });
+  const summaries = [
+    ["real", counts({})],
+    ["failing", counts({ passed: 0, failed: 1 })],
+    ["empty", counts({ tests: 0, passed: 0 })],
+    ["skip", counts({ passed: 0, skipped: 1 })],
+    ["todo", counts({ passed: 0, todo: 1 })],
+    ["mixed", counts({ tests: 2, skipped: 1 })]
+  ];
+  await writeFile(log, summaries.map(([name, count]) => `${JSON.stringify({ file: path.join(dir, `${name}.test.js`), counts: count })}\n`).join(""));
+  const files = [...summaries.map(([name]) => `${name}.test.js`), "absent.test.js"];
+  // A failing file has already failed its lane, and one with no summary is named by filesWithoutSummary.
+  assert.deepEqual(filesWithoutRealTests(files, log, dir), ["empty.test.js", "skip.test.js", "todo.test.js", "mixed.test.js"]);
+});
+
+test("a signal to the investigation stage reaches node --test, and the stage exits by it", async (t) => {
+  const dir = await mkdtemp(path.join(os.tmpdir(), "investigation-stage-signal-"));
+  t.after(() => rm(dir, { recursive: true, force: true }));
+  const pids = path.join(dir, "pids");
+  const compiled = path.join(".investigation-test-dist", "investigation", "test");
+  await mkdir(path.join(dir, compiled), { recursive: true });
+  await writeFile(
+    path.join(dir, compiled, "hang.test.js"),
+    `const { writeFileSync } = require("node:fs");\n` +
+      `require("node:test")("hangs", async () => {\n` +
+      `  writeFileSync(${JSON.stringify(pids)}, JSON.stringify({ runner: process.ppid, file: process.pid }));\n` +
+      `  await new Promise(() => {});\n` +
+      `});\n`
+  );
+  const stage = spawn(process.execPath, [path.join(root, "scripts", "investigation-test-stage.mjs"), path.join(compiled, "hang.test.js")], {
+    cwd: dir,
+    stdio: "ignore",
+    env: Object.fromEntries(Object.entries(process.env).filter(([name]) => name !== "NODE_TEST_CONTEXT"))
+  });
+  const alive = (pid) => {
+    try {
+      process.kill(pid, 0);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+  const until = async (condition, what) => {
+    const deadline = Date.now() + FIXTURE_TIMEOUT_MS;
+    while (!condition()) {
+      assert.ok(Date.now() < deadline, what);
+      await new Promise((resolve) => setTimeout(resolve, 25));
+    }
+  };
+  const exited = new Promise((resolve) => stage.on("close", (code, signal) => resolve({ code, signal })));
+  let started = { runner: 0, file: 0 };
+  t.after(() => {
+    stage.kill("SIGKILL");
+    for (const pid of [started.runner, started.file]) if (pid !== 0 && alive(pid)) process.kill(pid, "SIGKILL");
+  });
+  await until(() => existsSync(pids) && readFileSync(pids, "utf8").length > 0, "the suite never started");
+  started = JSON.parse(readFileSync(pids, "utf8"));
+  assert.ok(alive(started.runner));
+  stage.kill("SIGTERM");
+  assert.deepEqual(await exited, { code: 143, signal: null });
+  await until(() => !alive(started.runner), "node --test outlived the stage");
 });

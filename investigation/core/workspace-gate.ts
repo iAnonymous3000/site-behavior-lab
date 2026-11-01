@@ -6,22 +6,10 @@
 // argument and a request with its identity headers gone, so no route can read
 // who is asking from anything a client sent.
 
-import {
-  ACCESS_TOKEN_HEADER,
-  accessPolicyFrom,
-  verifyAccessToken,
-  type AccessKeySet,
-  type AccessPolicy,
-  type VerifiedIdentity
-} from "./access-token";
+import { ACCESS_TOKEN_HEADER, verifyAccessToken, type AccessKeySet, type VerifiedIdentity } from "./access-token";
+import { workspaceConfigFrom, type WorkspaceEnv } from "./workspace-config";
 
-export type WorkspaceEnv = {
-  INVESTIGATION_ACCESS_ISSUER?: string;
-  INVESTIGATION_ACCESS_AUDIENCE?: string;
-  INVESTIGATION_OWNER_SUBJECT?: string;
-  INVESTIGATION_HEALTH_CLIENT_ID?: string;
-  SITE_BEHAVIOR_LAB_BUILD_COMMIT?: string;
-};
+export type { WorkspaceEnv } from "./workspace-config";
 
 export type WorkspaceRoutes = (request: Request, identity: VerifiedIdentity) => Response | Promise<Response>;
 
@@ -34,7 +22,10 @@ export type WorkspaceRuntime = {
 
 const HEALTH_PATH = "/health";
 const FULL_COMMIT = /^[0-9a-f]{40}$/;
-/** What a route may read of a request's headers. Everything else, identity included, stops here. */
+/**
+ * What a route may read of a request's headers. Everything else, identity included,
+ * stops here. A later state-changing route will need origin and sec-fetch-site added.
+ */
 const FORWARDED_HEADERS = ["accept", "accept-language", "content-length", "content-type", "if-none-match"] as const;
 
 function jsonResponse(status: number, body: unknown, headers: Record<string, string> = {}): Response {
@@ -51,18 +42,9 @@ function jsonResponse(status: number, body: unknown, headers: Record<string, str
   });
 }
 
-/** A refused token learns nothing of why, not even that it was genuine. Only an outage answers differently. */
-function refusalResponse(status: number): Response {
+/** A refused request learns nothing of why, not even that its token was genuine. Only an outage answers differently. */
+function refusalResponse(status: 401 | 503): Response {
   return jsonResponse(status, { error: status === 503 ? "unavailable" : "access-refused" });
-}
-
-function policyFromEnv(env: WorkspaceEnv): AccessPolicy | null {
-  return accessPolicyFrom({
-    issuer: env.INVESTIGATION_ACCESS_ISSUER,
-    audience: env.INVESTIGATION_ACCESS_AUDIENCE,
-    ownerSubject: env.INVESTIGATION_OWNER_SUBJECT,
-    healthClientId: env.INVESTIGATION_HEALTH_CLIENT_ID
-  });
 }
 
 /** Built from parts, not copied, so nothing the platform attached to the request comes along either. */
@@ -73,7 +55,9 @@ function withoutInboundIdentity(request: Request): Request {
     if (value !== null) headers.set(name, value);
   }
   const init: RequestInit & { duplex?: "half" } = { method: request.method, headers, redirect: "manual" };
-  if (request.body !== null) {
+  // GET and HEAD have no body to pass on. A client can still declare one, and workerd
+  // then hands over a stream that its own Request constructor refuses for these methods.
+  if (request.method !== "GET" && request.method !== "HEAD" && request.body !== null) {
     init.body = request.body;
     init.duplex = "half";
   }
@@ -95,19 +79,26 @@ function denyAllRoutes(env: WorkspaceEnv): WorkspaceRoutes {
 }
 
 export async function handleWorkspaceRequest(request: Request, env: WorkspaceEnv, runtime: WorkspaceRuntime): Promise<Response> {
-  const policy = policyFromEnv(env);
-  if (policy === null) return refusalResponse(503);
+  const config = workspaceConfigFrom(env);
+  if (config === null) return refusalResponse(503);
+
+  // A workers.dev, preview or other alias stays refused even if the platform's
+  // configuration drifts, and so does anything not over https. Checked first, so such a
+  // request fetches no key and answers exactly as one with no token does, whatever it carries.
+  const { protocol, host } = new URL(request.url);
+  if (protocol !== "https:" || host !== config.hostname) return refusalResponse(401);
 
   const decision = await verifyAccessToken(
     request.headers.get(ACCESS_TOKEN_HEADER),
-    policy,
-    runtime.keySetFor(policy.issuer),
+    config.policy,
+    runtime.keySetFor(config.policy.issuer),
     runtime.now
   );
   if (!decision.ok) return refusalResponse(decision.refusal === "keys-unavailable" ? 503 : 401);
 
   // A service token proves only that the deployment answers: health, and nothing else.
-  if (decision.identity.kind === "health-service" && !isHealthRead(request)) return refusalResponse(403);
+  // Anywhere else it answers as a forged token does, so a refusal cannot tell them apart.
+  if (decision.identity.kind === "health-service" && !isHealthRead(request)) return refusalResponse(401);
 
   return (runtime.routes ?? denyAllRoutes(env))(withoutInboundIdentity(request), decision.identity);
 }

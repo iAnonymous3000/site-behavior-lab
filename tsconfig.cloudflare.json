@@ -6,6 +6,7 @@
   },
   "include": [
     "cloudflare/**/*.ts",
+    "investigation/core/**/*.ts",
     "lib/compare-reports.ts",
     "lib/domain-utils.ts",
     "lib/durable-restart-control-auth.ts",

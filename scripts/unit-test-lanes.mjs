@@ -115,22 +115,35 @@ export default async function* fileSummaries(source) {
   for await (const event of source) {
     // The run's cumulative summary names no file and vouches for none.
     if (event.type === "test:summary" && typeof event.data.file === "string") {
-      yield `${JSON.stringify(event.data.file)}\n`;
+      yield `${JSON.stringify({ file: event.data.file, counts: event.data.counts })}\n`;
     }
   }
+}
+
+function readSummaries(summaryLog) {
+  return (existsSync(summaryLog) ? readFileSync(summaryLog, "utf8") : "")
+    .split("\n")
+    .filter(Boolean)
+    .map((line) => JSON.parse(line));
 }
 
 // A file's process names itself by the absolute path it was started with, so
 // both sides are compared with symlinks resolved (macOS's temporary directory
 // is one). A summary log that was never written leaves every file unfinished.
 export function filesWithoutSummary(files, summaryLog, root = process.cwd()) {
-  const summarized = new Set(
-    (existsSync(summaryLog) ? readFileSync(summaryLog, "utf8") : "")
-      .split("\n")
-      .filter(Boolean)
-      .map((line) => canonicalPath(JSON.parse(line)))
-  );
+  const summarized = new Set(readSummaries(summaryLog).map(({ file }) => canonicalPath(file)));
   return files.filter((file) => !summarized.has(canonicalPath(path.resolve(root, file))));
+}
+
+// A file can exit 0 and deliver its summary having tested nothing: an empty describe,
+// or only skipped or todo tests. A lane that asks for it fails on those too, and on any
+// skip or todo at all, since either one says a test here is not running.
+export function filesWithoutRealTests(files, summaryLog, root = process.cwd()) {
+  const counts = new Map(readSummaries(summaryLog).map((summary) => [canonicalPath(summary.file), summary.counts]));
+  return files.filter((file) => {
+    const count = counts.get(canonicalPath(path.resolve(root, file)));
+    return count !== undefined && (count.passed + count.failed === 0 || count.skipped + count.todo > 0);
+  });
 }
 
 function canonicalPath(file) {
@@ -275,8 +288,8 @@ const scratch = new Set();
 
 // With no file arguments node --test would discover and run every test file
 // under the working directory, so an empty lane is skipped instead.
-async function runLane(files, concurrency) {
-  if (files.length === 0) return { ok: true, skipped: true, seconds: 0, output: Buffer.alloc(0), unfinished: [] };
+export async function runLane(files, concurrency, { requireRealTests = false } = {}) {
+  if (files.length === 0) return { ok: true, skipped: true, seconds: 0, output: Buffer.alloc(0), unfinished: [], unreal: [] };
   const dir = mkdtempSync(path.join(os.tmpdir(), "unit-test-lane-"));
   scratch.add(dir);
   try {
@@ -284,7 +297,8 @@ async function runLane(files, concurrency) {
     const result = await run(process.execPath, laneArguments(files, concurrency, summaryLog));
     // A lane that never started has already failed and wrote no summaries.
     const unfinished = result.error ? [] : filesWithoutSummary(files, summaryLog);
-    return { ...result, ok: result.ok && unfinished.length === 0, unfinished };
+    const unreal = requireRealTests && !result.error ? filesWithoutRealTests(files, summaryLog) : [];
+    return { ...result, ok: result.ok && unfinished.length === 0 && unreal.length === 0, unfinished, unreal };
   } finally {
     rmSync(dir, { recursive: true, force: true });
     scratch.delete(dir);
@@ -311,7 +325,7 @@ function run(command, args, { capture = false } = {}) {
   });
 }
 
-function describe(label, result) {
+export function describeLane(label, result) {
   if (result.skipped) return `${label} skipped: no files`;
   const status = result.error
     ? `could not start (${result.error.message})`
@@ -322,7 +336,10 @@ function describe(label, result) {
         : result.ok
           ? "passed"
           : "exited 0 but did not pass";
-  const line = `${label} ${status} after ${result.seconds.toFixed(1)} s`;
+  const unreal = result.unreal ?? [];
+  const line =
+    `${label} ${status} after ${result.seconds.toFixed(1)} s` +
+    (unreal.length === 0 ? "" : `\nThese ran no real test, or skipped or left one todo, which this lane does not allow: ${unreal.join(", ")}.`);
   const unfinished = result.unfinished ?? [];
   if (unfinished.length === 0) return line;
   const one = unfinished.length === 1;
@@ -337,10 +354,8 @@ function describe(label, result) {
   );
 }
 
-async function main() {
-  const { alongsideScript, files } = parseLaneArguments(process.argv.slice(2));
-  const { parallel, serial } = partitionCompiledTests(files, readSerialLane());
-
+// A signal to this process reaches what it started, and leaves no scratch directory.
+export function stopLanesOnSignal() {
   for (const signal of ["SIGINT", "SIGTERM"]) {
     process.on(signal, () => {
       for (const child of live) child.kill(signal);
@@ -348,6 +363,13 @@ async function main() {
       process.exit(signal === "SIGINT" ? 130 : 143);
     });
   }
+}
+
+async function main() {
+  const { alongsideScript, files } = parseLaneArguments(process.argv.slice(2));
+  const { parallel, serial } = partitionCompiledTests(files, readSerialLane());
+
+  stopLanesOnSignal();
 
   const alongsideLabel = `npm run ${alongsideScript}`;
   console.log(
@@ -363,8 +385,8 @@ async function main() {
   process.stdout.write(alongsideResult.output);
   console.log(`----- end of \`${alongsideLabel}\` -----\n`);
   const phaseOne = [
-    describe(`Parallel lib lane (${parallel.length} files)`, parallelResult),
-    describe(`\`${alongsideLabel}\``, alongsideResult)
+    describeLane(`Parallel lib lane (${parallel.length} files)`, parallelResult),
+    describeLane(`\`${alongsideLabel}\``, alongsideResult)
   ];
   console.log(phaseOne.join("\n"));
   const before = new Set(distBefore);
@@ -384,7 +406,7 @@ async function main() {
   }
 
   const serialResult = await runLane(serial, 1);
-  console.log(describe(`Serial lib lane (${serial.length} files)`, serialResult));
+  console.log(describeLane(`Serial lib lane (${serial.length} files)`, serialResult));
   return serialResult.ok ? 0 : 1;
 }
 

@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
+import { request } from "node:http";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -11,9 +12,11 @@ import {
   AUDIENCE,
   base64url,
   generateSigningKey,
+  HEALTH_AUDIENCE,
   HEALTH_CLIENT,
   ISSUER,
   OWNER,
+  OWNER_EMAIL,
   ownerClaims,
   serviceClaims,
   signToken,
@@ -33,7 +36,10 @@ const BINDINGS = {
   INVESTIGATION_ACCESS_ISSUER: ISSUER,
   INVESTIGATION_ACCESS_AUDIENCE: AUDIENCE,
   INVESTIGATION_OWNER_SUBJECT: OWNER,
+  INVESTIGATION_OWNER_EMAIL: OWNER_EMAIL,
   INVESTIGATION_HEALTH_CLIENT_ID: HEALTH_CLIENT,
+  INVESTIGATION_HEALTH_ACCESS_AUDIENCE: HEALTH_AUDIENCE,
+  INVESTIGATION_WORKSPACE_HOSTNAME: "workspace.invalid",
   SITE_BEHAVIOR_LAB_BUILD_COMMIT: COMMIT
 };
 
@@ -56,6 +62,20 @@ function bundleWorker(outputDirectory: string): string {
   return path.join(outputDirectory, "investigation-worker.js");
 }
 
+/** One request on its own connection, as a client that owes the fetch API nothing would send it. */
+function onTheWire(url: URL, method: string, headers: Record<string, string>, body?: string): Promise<{ status: number; body: string }> {
+  return new Promise((resolve, reject) => {
+    const sent = request({ host: url.hostname, port: url.port, path: "/health", method, headers, agent: false }, (response) => {
+      const chunks: Buffer[] = [];
+      response.on("data", (chunk: Buffer) => chunks.push(chunk));
+      response.on("end", () => resolve({ status: response.statusCode as number, body: Buffer.concat(chunks).toString("utf8") }));
+    });
+    sent.on("error", reject);
+    if (body !== undefined) sent.write(body);
+    sent.end();
+  });
+}
+
 function certsBody(key: SigningKey): string {
   return JSON.stringify({ keys: [{ ...key.publicJwk, kid: key.id, alg: "RS256", use: "sig" }] });
 }
@@ -68,6 +88,7 @@ test(
     let miniflare: Miniflare | undefined;
     let outage: Miniflare | undefined;
     let unconfigured: Miniflare | undefined;
+    let declared: Miniflare | undefined;
     try {
       const [signing, foreign] = await Promise.all([generateSigningKey("key-1"), generateSigningKey("key-1")]);
       const scriptPath = bundleWorker(directory);
@@ -104,13 +125,21 @@ test(
       assert.equal(noRoute.status, 404);
       await noRoute.text();
 
+      const alias = await get("https://site-behavior-lab-investigation.example.workers.dev/health", owner);
+      assert.equal(alias.status, 401);
+      assert.deepEqual(await alias.json(), { error: "access-refused" });
+
       const service = await signToken(signing, serviceClaims(liveTimes()));
       const serviceHealth = await get(`${workspace}/health`, service);
       assert.equal(serviceHealth.status, 200);
       await serviceHealth.text();
       const serviceElsewhere = await get(`${workspace}/cases`, service);
-      assert.equal(serviceElsewhere.status, 403);
-      await serviceElsewhere.text();
+      assert.equal(serviceElsewhere.status, 401);
+      assert.deepEqual(await serviceElsewhere.json(), { error: "access-refused" });
+
+      const plainHttp = await get("http://workspace.invalid/health", owner);
+      assert.equal(plainHttp.status, 401);
+      assert.deepEqual(await plainHttp.json(), { error: "access-refused" });
 
       const [header, payload] = owner.split(".");
       const hmac = await crypto.subtle.importKey(
@@ -128,8 +157,11 @@ test(
         ["signed by another key", await signToken(foreign, ownerClaims(liveTimes())), 401],
         ["a payload changed after signing", `${header}.${base64url(JSON.stringify(ownerClaims({ ...liveTimes(), email: "x@example.org" })))}.${owner.split(".")[2]}`, 401],
         ["another application's audience", await signToken(signing, ownerClaims({ ...liveTimes(), aud: ["b".repeat(64)] })), 401],
+        ["a service token bearing the owner's audience", await signToken(signing, serviceClaims({ ...liveTimes(), aud: [AUDIENCE] })), 401],
+        ["an owner token bearing the health audience", await signToken(signing, ownerClaims({ ...liveTimes(), aud: [HEALTH_AUDIENCE] })), 401],
         ["expired", await signToken(signing, ownerClaims({ ...liveTimes(), exp: 1 })), 401],
         ["another person", await signToken(signing, ownerClaims({ ...liveTimes(), sub: "someone-else" })), 401],
+        ["the owner's subject with another email", await signToken(signing, ownerClaims({ ...liveTimes(), email: "someone-else@example.org" })), 401],
         ["a signature of the wrong length", `${header}.${payload}.AAAA`, 401],
         ["alg none", `${base64url(JSON.stringify({ alg: "none", kid: signing.id }))}.${payload}.c2ln`, 401],
         ["HMAC over the public key", confused, 401]
@@ -148,6 +180,35 @@ test(
       assert.equal(unavailable.status, 503);
       assert.deepEqual(await unavailable.json(), { error: "unavailable" });
 
+      // Only a client on the wire can send this. A fetch API refuses a GET with a body, and
+      // workerd's Request then refused to rebuild what workerd itself handed the Worker.
+      declared = new Miniflare({
+        ...shared,
+        bindings: BINDINGS,
+        upstream: workspace,
+        outboundService: () => new MiniflareResponse(certsBody(signing), { headers: { "content-type": "application/json" } })
+      });
+      const socket = await declared.ready;
+      for (const token of [owner, service]) {
+        for (const [method, wants] of [["GET", 200], ["HEAD", 200]] as const) {
+          for (const [what, headers, body] of [
+            ["nothing declared", {}, undefined],
+            ["an empty declared body", { "content-length": "0" }, undefined],
+            ["a declared body", { "content-length": "4" }, "body"],
+            ["a chunked body", { "transfer-encoding": "chunked" }, "body"]
+          ] as const) {
+            const answer = await onTheWire(socket, method, { "cf-access-jwt-assertion": token, ...headers }, body);
+            assert.equal(answer.status, wants, `${method} with ${what}`);
+            if (method === "GET") assert.deepEqual(JSON.parse(answer.body), { status: "deny-all", commit: COMMIT }, `${method} with ${what}`);
+          }
+        }
+      }
+      // A method that may have a body keeps it: it reaches the route, which has no use for it.
+      for (const method of ["POST", "PUT", "PATCH", "DELETE", "OPTIONS"]) {
+        const answer = await onTheWire(socket, method, { "cf-access-jwt-assertion": owner, "content-length": "4" }, "body");
+        assert.equal(answer.status, 405, method);
+      }
+
       const fetchedWhileUnconfigured: string[] = [];
       unconfigured = new Miniflare({
         ...shared,
@@ -161,7 +222,7 @@ test(
       await notConfigured.text();
       assert.deepEqual(fetchedWhileUnconfigured, []);
     } finally {
-      await Promise.all([miniflare?.dispose(), outage?.dispose(), unconfigured?.dispose()]);
+      await Promise.all([miniflare?.dispose(), outage?.dispose(), unconfigured?.dispose(), declared?.dispose()]);
       await rm(directory, { recursive: true, force: true });
     }
   }
