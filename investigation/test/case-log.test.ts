@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { before, test } from "node:test";
+import { runInNewContext } from "node:vm";
 import { assertCaughtBy, holds, loadVariant, type SourceEdit } from "../../lib/finite-check";
 import { runnerActorFrom, type Actor, type OwnerActor } from "../core/actor";
 import * as productionLog from "../core/case-log";
@@ -838,17 +839,19 @@ test("a store that finds no object at an address is believed, and reads as a cha
 // A store is not trusted with what it returned, or with the bound it was given.
 
 /** A store that keeps hold of what it hands back, and overwrites it once a reader has gone on to await something else. */
-function changingAfterReturn(inner: MemoryStores, rewrite: (text: string) => string, turns: number): LogStores {
+function changingAfterReturn(inner: MemoryStores, rewrite: (text: string) => string, turns: number, present: (bytes: Uint8Array<ArrayBuffer>) => Uint8Array<ArrayBuffer> = (bytes) => bytes): LogStores {
   const wrap = (objects: MemoryStores["entries"]): LogStores["entries"] => ({
     createOnly: (address, bytes) => objects.createOnly(address, bytes),
     read: async (address, maxBytes) => {
       const bytes = await objects.read(address, maxBytes);
       if (bytes instanceof Uint8Array) {
+        const handed = present(bytes);
         const changed = encode(rewrite(decode(bytes)));
         void (async () => {
           for (let turn = 0; turn < turns; turn += 1) await null;
-          if (changed.length === bytes.length) bytes.set(changed);
+          if (changed.length === bytes.length) handed.set(changed);
         })();
+        return handed;
       }
       return bytes;
     }
@@ -895,7 +898,108 @@ test("what is hashed and what is read are one copy, taken once, so a store's lat
 
 test("using the store's own buffer is caught", async () => {
   await assertCaughtBy("no copy", "what opens is what was hashed, whatever the store does to its own buffer", () =>
-    checkLiveBuffers(logVariant({ find: 'return answer.length > maxBytes ? "too-large" : new Uint8Array(answer);', replace: 'return answer.length > maxBytes ? "too-large" : answer;' }))
+    checkLiveBuffers(logVariant({ find: "const own = new Uint8Array(answer).slice();", replace: "const own = answer;" }))
+  );
+});
+
+/** Each kind of answer a store could hand back in place of a plain Uint8Array of this realm. */
+class LyingLength extends Uint8Array {
+  override get length(): number {
+    return 1;
+  }
+}
+const ANSWER_FORMS: ReadonlyArray<readonly [string, (bytes: Uint8Array<ArrayBuffer>) => Uint8Array<ArrayBuffer>]> = [
+  [
+    "a view from another realm",
+    (bytes) => {
+      const foreign = runInNewContext("new Uint8Array(size)", { size: bytes.length }) as Uint8Array<ArrayBuffer>;
+      foreign.set(bytes);
+      return foreign;
+    }
+  ],
+  ["a subclass that lies about its length", (bytes) => LyingLength.from(bytes)],
+  [
+    "a proxy that lies about its length",
+    (bytes) =>
+      new Proxy(bytes, {
+        get(target, key) {
+          if (key === "length") return 1;
+          const value: unknown = Reflect.get(target, key, target);
+          return typeof value === "function" ? (value as (...args: unknown[]) => unknown).bind(target) : value;
+        }
+      })
+  ],
+  ["a bare ArrayBuffer", (bytes) => bytes.slice().buffer as unknown as Uint8Array<ArrayBuffer>]
+];
+
+/** A store handing back any answer in the given form, and ignoring the bound it is given. */
+const answeringAs = (inner: MemoryStores, present: (bytes: Uint8Array<ArrayBuffer>) => Uint8Array<ArrayBuffer>): LogStores => {
+  const wrap = (objects: MemoryStores["entries"]): LogStores["entries"] => ({
+    createOnly: (address, bytes) => objects.createOnly(address, bytes),
+    read: async (address) => {
+      const bytes = objects.objects.get(address);
+      return bytes === undefined ? null : present(bytes as Uint8Array<ArrayBuffer>);
+    }
+  });
+  return { entries: wrap(inner.entries), evidence: wrap(inner.evidence), head: inner.head };
+};
+
+const checkAnswerForms = async (module: LogModule) => {
+  for (const [form, present] of ANSWER_FORMS) {
+    const plain = memoryStores();
+    await module.createLog(plain);
+    await mustAppend(plain, runner, "first", NOW_MS, [], module);
+    const named = (await module.putEvidence(plain, encode("some evidence")) as { digest: string }).digest;
+    await mustAppend(plain, runner, "second", NOW_MS + 1, [named], module);
+    const opened = await module.openLog(answeringAs(plain, present), CASE_A);
+    holds("a good log opens through every kind of answer", opened.ok && opened.log.entries.length === 2, () => ({ form, opened }));
+
+    const bigEntry = memoryStores();
+    await module.createLog(bigEntry);
+    await headAtCrafted(bigEntry, handEntryText({ ...CRAFTED_BASE, eventsText: `[{"data":{"pad":"${"x".repeat(300 * 1024)}"},"type":"crafted"}]`, prev: GENESIS, seq: 1 }));
+    const refused = await module.openLog(answeringAs(bigEntry, present), CASE_A);
+    holds("an oversize entry is refused through every kind of answer", !refused.ok && refused.refusal === "entry-too-large", () => ({ form, refused }));
+
+    const bigEvidence = memoryStores();
+    await module.createLog(bigEvidence);
+    const over = new Uint8Array(EVIDENCE_LIMIT + 1);
+    const overDigest = sha256OfBytes(over);
+    bigEvidence.evidence.objects.set(overDigest, over);
+    await headAtCrafted(bigEvidence, handEntryText({ ...CRAFTED_BASE, evidence: [overDigest], prev: GENESIS, seq: 1 }));
+    const refusedEvidence = await module.openLog(answeringAs(bigEvidence, present), CASE_A);
+    holds("oversize evidence is refused through every kind of answer", !refusedEvidence.ok && refusedEvidence.refusal === "evidence-too-large", () => ({ form, refusedEvidence }));
+  }
+  // Changed by the store after it answered, in a realm where instanceof would not see it.
+  const [, foreign] = ANSWER_FORMS[0];
+  for (const turns of [0, 1, 2, 3, 5, 8, 13, 50, 200, 2000]) {
+    const inner = memoryStores();
+    await module.createLog(inner);
+    const first = await mustAppend(inner, runner, "true-first", NOW_MS, [], module);
+    await mustAppend(inner, runner, "true-next", NOW_MS + 1, [], module);
+    const opened = await module.openLog(changingAfterReturn(inner, (text) => text.replace("true-next", "fake-next"), turns, foreign), CASE_A);
+    if (opened.ok) {
+      const events = opened.log.entries.map(({ entry }) => entry.events[0].type);
+      holds("what opens is what was hashed, through another realm's view", JSON.stringify(events) === '["true-first","true-next"]', () => ({ turns, events }));
+    }
+    const never = sha256OfText("a head this chain never held");
+    const verdict = await module.verifyAgainstSavedHead(changingAfterReturn(inner, (text) => text.replace(first, never), turns, foreign), CASE_A, never);
+    holds("a saved head the chain never held is refused, through another realm's view", !verdict.ok, () => ({ turns, verdict }));
+  }
+};
+
+test("whatever kind of answer a store hands back, the core works from its own plain copy and its own measure", async () => {
+  await checkAnswerForms(productionLog);
+});
+
+test("trusting instanceof for a store's answer is caught", async () => {
+  await assertCaughtBy("instanceof", "an oversize entry is refused through every kind of answer", () =>
+    checkAnswerForms(logVariant({ find: 'if (answer === null || typeof answer === "string")', replace: "if (!(answer instanceof Uint8Array))" }))
+  );
+});
+
+test("working from a store's answer as it came is caught", async () => {
+  await assertCaughtBy("no copy", "a good log opens through every kind of answer", () =>
+    checkAnswerForms(logVariant({ find: "const own = new Uint8Array(answer).slice();", replace: "const own = answer;" }))
   );
 });
 
@@ -934,7 +1038,7 @@ test("the core holds a store to the bound, whichever store it is", async () => {
 
 test("trusting the store with the bound is caught", async () => {
   await assertCaughtBy("no length check", "an entry past the bound is refused, whichever store handed it over", () =>
-    checkBoundsHeld(logVariant({ find: 'return answer.length > maxBytes ? "too-large" : new Uint8Array(answer);', replace: "return new Uint8Array(answer);" }))
+    checkBoundsHeld(logVariant({ find: 'return own.length > maxBytes ? "too-large" : own;', replace: "return own;" }))
   );
 });
 

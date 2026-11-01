@@ -230,12 +230,16 @@ test("the partition keeps glob order, refuses stale or foreign entries, and neve
 test("the lane reporter records each file's summary and never the run's cumulative one", async () => {
   async function* events() {
     yield { type: "test:pass", data: { name: "a test", nesting: 0, file: "/repo/.unit-test-dist/lib/a.test.js" } };
+    // A skipped test is in the counts already, and a skipped suite in none of them.
+    yield { type: "test:pass", data: { name: "skipped test", skip: true, details: { type: "test" }, file: "/repo/.unit-test-dist/lib/a.test.js" } };
+    yield { type: "test:pass", data: { name: "skipped suite", skip: true, details: { type: "suite" }, file: "/repo/.unit-test-dist/lib/a.test.js" } };
+    yield { type: "test:pass", data: { name: "elsewhere", skip: true, details: { type: "suite" }, file: "/repo/.unit-test-dist/lib/b.test.js" } };
     yield { type: "test:summary", data: { file: "/repo/.unit-test-dist/lib/a.test.js", success: true, counts: {} } };
     yield { type: "test:summary", data: { file: undefined, success: true, counts: {} } };
   }
   const lines = [];
   for await (const line of fileSummaries(events())) lines.push(line);
-  assert.deepEqual(lines, [`${JSON.stringify({ file: "/repo/.unit-test-dist/lib/a.test.js", counts: {} })}\n`]);
+  assert.deepEqual(lines, [`${JSON.stringify({ file: "/repo/.unit-test-dist/lib/a.test.js", counts: {}, skippedSuites: 1 })}\n`]);
 });
 
 test("a file counts as finished only through its own summary, under any spelling of its path", async (t) => {
@@ -593,7 +597,8 @@ for (const [name, body] of [
   ["only a skipped test", ONLY_SKIPPED],
   ["only a todo test", ONLY_TODO],
   ["a real test beside a skipped one", `${REAL_TEST}${ONLY_SKIPPED}`],
-  ["a real test beside a todo one", `${REAL_TEST}${ONLY_TODO}`]
+  ["a real test beside a todo one", `${REAL_TEST}${ONLY_TODO}`],
+  ["a real test beside a skipped describe", `${REAL_TEST}require("node:test").describe.skip("skipped suite", () => {});\n`]
 ]) {
   test(`the investigation stage fails a suite holding ${name}, though node --test exits 0`, async (t) => {
     const { status, output } = await runInvestigationStage(t, { bodies: { two: body } });

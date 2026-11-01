@@ -248,8 +248,11 @@ type ChainWalk = Readonly<{ ok: true; log: OpenLog }> | Refused<OpenRefusal>;
  */
 async function readOwn(store: ObjectStore, address: string, maxBytes: number): Promise<Uint8Array<ArrayBuffer> | UnreadableObject | null> {
   const answer = await store.read(address, maxBytes);
-  if (!(answer instanceof Uint8Array)) return answer;
-  return answer.length > maxBytes ? "too-large" : new Uint8Array(answer);
+  if (answer === null || typeof answer === "string") return answer;
+  // A plain copy, whatever came back: a view from another realm is no instance of this
+  // one's Uint8Array, and a subclass or a proxy can answer any length it likes.
+  const own = new Uint8Array(answer).slice();
+  return own.length > maxBytes ? "too-large" : own;
 }
 
 /** Back from the head to genesis. Every object is hashed against its address before anything in it is read. */

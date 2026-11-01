@@ -216,8 +216,9 @@ export function fsLogStores(root: string, ops: FsOps = nodeFs): LogStores {
 export function prepareFsLogDirectory(root: string, ops: FsOps = nodeFs): void {
   const resolved = path.resolve(root);
   const folders = FOLDERS.map((name) => path.join(resolved, name));
-  for (const folder of folders) ops.mkdirSync(folder, { recursive: true, mode: PRIVATE_MODE });
+  // Before anything is made, so a link at the root leaves its target's contents alone.
   refuseUnsafeFolders(ops, resolved);
+  for (const folder of folders) ops.mkdirSync(folder, { recursive: true, mode: PRIVATE_MODE });
   for (const folder of folders) syncDirectory(ops, folder);
   syncDirectory(ops, resolved);
   syncDirectory(ops, path.dirname(resolved));

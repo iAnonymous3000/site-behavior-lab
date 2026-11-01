@@ -112,10 +112,16 @@ export function laneReporterFlags(summaryLog) {
 }
 
 export default async function* fileSummaries(source) {
+  // A skipped describe runs nothing and is in none of a summary's counts.
+  const skippedSuites = new Map();
   for await (const event of source) {
+    const file = event.data?.file;
+    if (event.type === "test:pass" && event.data.skip !== undefined && event.data.details?.type === "suite" && typeof file === "string") {
+      skippedSuites.set(file, (skippedSuites.get(file) ?? 0) + 1);
+    }
     // The run's cumulative summary names no file and vouches for none.
-    if (event.type === "test:summary" && typeof event.data.file === "string") {
-      yield `${JSON.stringify({ file: event.data.file, counts: event.data.counts })}\n`;
+    if (event.type === "test:summary" && typeof file === "string") {
+      yield `${JSON.stringify({ file, counts: event.data.counts, skippedSuites: skippedSuites.get(file) ?? 0 })}\n`;
     }
   }
 }
@@ -139,10 +145,12 @@ export function filesWithoutSummary(files, summaryLog, root = process.cwd()) {
 // or only skipped or todo tests. A lane that asks for it fails on those too, and on any
 // skip or todo at all, since either one says a test here is not running.
 export function filesWithoutRealTests(files, summaryLog, root = process.cwd()) {
-  const counts = new Map(readSummaries(summaryLog).map((summary) => [canonicalPath(summary.file), summary.counts]));
+  const summaries = new Map(readSummaries(summaryLog).map((summary) => [canonicalPath(summary.file), summary]));
   return files.filter((file) => {
-    const count = counts.get(canonicalPath(path.resolve(root, file)));
-    return count !== undefined && (count.passed + count.failed === 0 || count.skipped + count.todo > 0);
+    const summary = summaries.get(canonicalPath(path.resolve(root, file)));
+    if (summary === undefined) return false;
+    const { counts: count, skippedSuites = 0 } = summary;
+    return count.passed + count.failed === 0 || count.skipped + count.todo + skippedSuites > 0;
   });
 }
 

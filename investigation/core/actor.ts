@@ -3,7 +3,7 @@
 // An actor is derived, never declared. The owner's comes from an identity that
 // verifyAccessToken produced in this isolate, and holds what that token verified. A
 // health-service identity cannot become an actor. No function here or in the log takes a
-// name, so nothing a person types can reach an entry's attribution.
+// name, so nothing a person types can reach an owner entry's attribution.
 //
 // The runner's actor holds an attempt id of a generated shape: 32 lowercase hex digits.
 // The shape refuses typed text, and that is all it does: the hex of a short name fits it.

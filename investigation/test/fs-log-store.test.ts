@@ -311,12 +311,18 @@ test("what is stored is private to this user", async () => {
     });
   };
   await check(productionStore);
-  await assertCaughtBy("the file mode", "an object is readable by this user alone", () =>
-    check(storeVariant({ find: 'ops.openSync(temp, "wx", 0o600)', replace: 'ops.openSync(temp, "wx", 0o644)' }))
-  );
-  await assertCaughtBy("the private mode", "a folder is open to this user alone", () =>
-    check(storeVariant({ find: "if (!stats.isDirectory() || (stats.mode & 0o077) !== 0) {", replace: "if (false) {" }, { find: "const PRIVATE_MODE = 0o700;", replace: "const PRIVATE_MODE = 0o755;" }))
-  );
+  // A stricter umask would hide a looser mode from either variant, so this holds the umask open.
+  const umask = process.umask(0o022);
+  try {
+    await assertCaughtBy("the file mode", "an object is readable by this user alone", () =>
+      check(storeVariant({ find: 'ops.openSync(temp, "wx", 0o600)', replace: 'ops.openSync(temp, "wx", 0o644)' }))
+    );
+    await assertCaughtBy("the private mode", "a folder is open to this user alone", () =>
+      check(storeVariant({ find: "if (!stats.isDirectory() || (stats.mode & 0o077) !== 0) {", replace: "if (false) {" }, { find: "const PRIVATE_MODE = 0o700;", replace: "const PRIVATE_MODE = 0o755;" }))
+    );
+  } finally {
+    process.umask(umask);
+  }
 });
 
 const refusedBy = (run: () => unknown): boolean => {
@@ -329,6 +335,9 @@ const refusedBy = (run: () => unknown): boolean => {
 };
 
 const checkOpenFolders = async (module: StoreModule) => {
+  await withDirectory("fresh", (base) => {
+    holds("a tree not made yet can be prepared", !refusedBy(() => module.prepareFsLogDirectory(path.join(base, "log"))), () => base);
+  });
   const refuses = (root: string): boolean => refusedBy(() => module.prepareFsLogDirectory(root));
   for (const folder of [".", "entries", "evidence", "head", "tmp"]) {
     for (const mode of [0o777, 0o770, 0o707, 0o710, 0o701, 0o740, 0o704]) {
@@ -364,6 +373,7 @@ const checkOpenFolders = async (module: StoreModule) => {
       symlinkSync(target, path.join(base, "link"));
       const root = path.join(base, spelling);
       holds("a link as the log's own folder is refused by prepare, however it is spelled", refusedBy(() => module.prepareFsLogDirectory(root)), () => spelling);
+      holds("a refused link has nothing made in its target", readdirSync(target).length === 0, () => ({ spelling, made: readdirSync(target) }));
       holds("a link as the log's own folder is refused on open, however it is spelled", refusedBy(() => module.fsLogStores(root)), () => spelling);
     });
   }
@@ -396,11 +406,11 @@ for (const [name, property, edit] of [
   ["the check of the log's own folder", "a folder already open to anyone else is refused, not used", { find: CHECKED_FOLDERS, replace: "for (const folder of FOLDERS.map((name) => node_path_1.default.join(root, name))) {" }],
   ["the check of the folders inside it", "a folder already open to anyone else is refused, not used", { find: CHECKED_FOLDERS, replace: "for (const folder of [root]) {" }],
   ["the check that it is a folder", "a link standing in for a folder is refused", { find: "!stats.isDirectory() || ", replace: "" }],
-  ["prepare's check", "a folder already open to anyone else is refused, not used", { find: "refuseUnsafeFolders(ops, resolved);\n    for (const folder of folders)", replace: "for (const folder of folders)" }],
+  ["prepare's check", "a folder already open to anyone else is refused, not used", { find: "alone.\n    refuseUnsafeFolders(ops, resolved);\n    for (const folder of folders)", replace: "alone.\n    for (const folder of folders)" }],
   ["open's check", "a tree that has since opened up is refused when its stores open", { find: "refuseUnsafeFolders(ops, resolved);\n    return {", replace: "return {" }],
   ["prepare's resolving", "a link as the log's own folder is refused by prepare, however it is spelled", { find: "const resolved = node_path_1.default.resolve(root);\n    const folders", replace: "const resolved = root;\n    const folders" }],
   ["open's resolving", "a link as the log's own folder is refused on open, however it is spelled", { find: "const resolved = node_path_1.default.resolve(root);\n    refuseUnsafeFolders", replace: "const resolved = root;\n    refuseUnsafeFolders" }],
-  ["reading a missing folder as a refusal", "a tree not made yet is nobody's, and opens to read as absent", { find: "if (isMissing(error))\n                continue;\n            throw error;", replace: "throw error;" }]
+  ["reading a missing folder as a refusal", "a tree not made yet can be prepared", { find: "if (isMissing(error))\n                continue;\n            throw error;", replace: "throw error;" }]
 ] as const) {
   test(`a variant with ${name} is caught`, async () => {
     await assertCaughtBy(name, property, () => checkOpenFolders(storeVariant(edit)));
@@ -842,5 +852,20 @@ test("a temp file left by a failed link does not stand in the way of the next wr
   await check(productionStore);
   await assertCaughtBy("a temp name that repeats", "each write takes a temp name of its own", () =>
     check(storeVariant({ find: "`${process.pid}-${crypto.randomUUID()}`", replace: "`${process.pid}`" }))
+  );
+});
+
+test("prepare's first check is what keeps a refused link's target empty", async () => {
+  const leavesTargetEmpty = async (module: StoreModule) => {
+    await withDirectory("first-check", (base) => {
+      const target = path.join(base, "target");
+      mkdirSync(target, { mode: 0o700 });
+      symlinkSync(target, path.join(base, "link"));
+      holds("a refused prepare makes nothing first", refusedBy(() => module.prepareFsLogDirectory(path.join(base, "link"))) && readdirSync(target).length === 0, () => readdirSync(target));
+    });
+  };
+  await leavesTargetEmpty(productionStore);
+  await assertCaughtBy("no first check", "a refused prepare makes nothing first", () =>
+    leavesTargetEmpty(storeVariant({ find: "// Before anything is made, so a link at the root leaves its target's contents alone.\n    refuseUnsafeFolders(ops, resolved);\n", replace: "" }))
   );
 });
