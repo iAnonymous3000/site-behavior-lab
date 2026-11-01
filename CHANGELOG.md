@@ -13,6 +13,11 @@ public API or a 1.0 release.
   (`lib/fv-*.test.ts`). Each holds for all inputs in a stated domain at its
   commit and names broken variants it must catch; none proves anything of
   other inputs or of what a browser does.
+- Finite checks of what one call stack publishes, the attribution refusal rule,
+  Inspect's stability under pairing, and which warning lines each loss predicate
+  reads. One case stays open and is pinned as it behaves: a worker's request in a
+  check's scroll window can take the call stack of a page request to the same URL
+  just after the window.
 - The start of a private, owner-only investigation workspace: a Cloudflare
   Worker that verifies a Cloudflare Access token on every request and denies
   everything else. Nothing deploys it and it has no hostname, and no public

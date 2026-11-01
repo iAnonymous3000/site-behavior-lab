@@ -370,6 +370,60 @@ test("a worker's request never takes the stack of the page's own request to the 
   });
 });
 
+/**
+ * Open (RA6), an owner call, pinned as what happens and not as what should. A request
+ * after the window is observed and not counted, so the counts come out equal, and a
+ * worker's request takes a stack it never had. A fix turns the first assertion into the
+ * second's `unobserved: 1`.
+ */
+test("open (RA6): a worker's request in the window takes the stack of a page request to the same URL after the window", async () => {
+  const url = "http://cdn.golf.net/beacon";
+  const workerRequest: Scheduled = { at: SCROLL_END - 100, page: url };
+  const afterTheWindow = await check({ scheduled: [...AT_LOAD, workerRequest, ...both(SCROLL_END + 50, url, { frames: [LOADER] })] });
+  assert.deepEqual(entryFor(afterTheWindow, "cdn.golf.net"), {
+    host: "cdn.golf.net",
+    requests: 1,
+    groups: [{ count: 1, hosts: ["cdn.alpha.net"] }],
+    redirected: 0,
+    withoutStack: 0,
+    withoutNamedScript: 0,
+    notListed: 0,
+    unobserved: 0
+  });
+  const workerAlone = await check({ scheduled: [...AT_LOAD, workerRequest] });
+  assert.deepEqual(entryFor(workerAlone, "cdn.golf.net"), {
+    host: "cdn.golf.net",
+    requests: 1,
+    groups: [],
+    redirected: 0,
+    withoutStack: 0,
+    withoutNamedScript: 0,
+    notListed: 0,
+    unobserved: 1
+  });
+});
+
+/**
+ * Open (RA6), the lead's mirror, pinned the same way. A request the page reported before
+ * the window means the host was already contacted, so it gets no entry. This needs an
+ * observation the page never reported, and whether Chromium sends one for a third party
+ * in the lead is not measured. A rule about observations after the window leaves it.
+ */
+test("open (RA6): a worker's request in the window takes the stack of an observation in the lead that the page never reported", async () => {
+  const url = "http://cdn.golf.net/beacon";
+  const evidence = await check({ scheduled: [...AT_LOAD, { at: SCROLL_START - 300, cdp: sent(url, { frames: [LOADER] }) }, { at: SCROLL_START + 1_000, page: url }] });
+  assert.deepEqual(entryFor(evidence, "cdn.golf.net"), {
+    host: "cdn.golf.net",
+    requests: 1,
+    groups: [{ count: 1, hosts: ["cdn.alpha.net"] }],
+    redirected: 0,
+    withoutStack: 0,
+    withoutNamedScript: 0,
+    notListed: 0,
+    unobserved: 0
+  });
+});
+
 test("a URL observed more often than the window requested it takes no stack, unless every observation adds the same", async () => {
   const url = "http://pixel.delta.net/hit";
   const evidence = await check({

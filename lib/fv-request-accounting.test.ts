@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { joinObservations, StackTally, type StackObservationCategory } from "./call-stack-publisher";
+import * as productionInspection from "./connection-inspection";
 import { assertCaughtBy, holds, loadVariant, type SourceEdit } from "./finite-check";
 
 /**
@@ -12,9 +13,9 @@ import { assertCaughtBy, holds, loadVariant, type SourceEdit } from "./finite-ch
  * mask. Within that bound the properties hold for all inputs at this commit. Beyond
  * it, this says nothing.
  *
- * This holds the join, not what its callers hand it. lib/scroll-check-stacks.ts
- * applies its own surplus rule before calling here, and whether a browser ever
- * produces a given input is a measurement: the trailing RA6 case stays open.
+ * This holds the join. RA7 below also holds what Inspect's recorder hands it, while
+ * lib/scroll-check-stacks.ts applies its own surplus rule before calling here. Whether a
+ * browser ever produces a given input is a measurement: the RA6 case stays open.
  */
 
 type Publisher = {
@@ -195,6 +196,136 @@ function checkTallyAccumulates(publisher: Publisher): number {
   return cases;
 }
 
+/**
+ * RA7: Inspect counts every request, so which observation pairs with which cannot move
+ * a count. With every request counted, the join's refusal never fires, and the tally is
+ * a function of the request and drop counts and the multiset of the observations it
+ * takes. Beyond the first min(requests, observations), arrival order does decide what
+ * is taken, so Inspect is stable under pairing, not under any reordering of a surplus.
+ *
+ * Over this domain the join's part follows from RA1 with every mask bit set, except for
+ * the default argument, which is the form Inspect calls. The recorder's part is below.
+ */
+function checkAllCountedPairing(publisher: Publisher): number {
+  let cases = 0;
+  const seen = new Map<string, string>();
+  for (let requests = 0; requests <= MAX_REQUESTS; requests += 1) {
+    for (let droppedObservations = 0; droppedObservations <= MAX_DROPPED; droppedObservations += 1) {
+      for (const observations of SEQUENCES) {
+        cases += 1;
+        const tally = new publisher.StackTally();
+        publisher.joinObservations(tally, requests, observations, droppedObservations);
+        const input = () => ({ requests, droppedObservations, observations });
+        const joined = Math.min(requests, observations.length);
+        const dropped = Math.min(requests - joined, droppedObservations);
+        holds("with-every-request-counted-nothing-is-refused", tally.unobserved === requests - joined - dropped, input);
+
+        const taken = observations.slice(0, joined).map((category) => (typeof category === "string" ? category : `group:${category.group}`)).sort();
+        const key = JSON.stringify([requests, droppedObservations, taken]);
+        const read = readTally(tally);
+        const earlier = seen.get(key);
+        if (earlier === undefined) seen.set(key, read);
+        else holds("with-every-request-counted-pairing-moves-no-count", earlier === read, input);
+      }
+    }
+  }
+  return cases;
+}
+
+type Inspection = typeof productionInspection;
+
+const INSPECTED_URL = "https://pixel.example.net/p.gif?via=stream";
+const INSPECTED_ADDRESS = "https://pixel.example.net/{seg}";
+const LOADER = "https://cdn.example.net/loader.js";
+const TAG = "https://static.example.org/tag.js";
+
+/** What one observation can be, as a recorder's real CDP payload. */
+const OBSERVATION_SHAPES: ReadonlyArray<readonly [string, (id: number) => Record<string, unknown>]> = [
+  ["redirect hop", (id) => ({ requestId: `R${id}`, request: { url: INSPECTED_URL }, type: "Fetch", redirectResponse: { status: 302 }, initiator: { type: "script" } })],
+  ["no stack", (id) => ({ requestId: `R${id}`, request: { url: INSPECTED_URL }, type: "Fetch", initiator: { type: "parser" } })],
+  ["no named script", (id) => ({ requestId: `R${id}`, request: { url: INSPECTED_URL }, type: "Fetch", initiator: { type: "script", stack: { callFrames: [{ url: "https://forged.example.com/named.js" }] } } })],
+  ["the loader", (id) => ({ requestId: `R${id}`, request: { url: INSPECTED_URL }, type: "Fetch", initiator: { type: "script", stack: { callFrames: [{ url: LOADER }] } } })],
+  ["the tag", (id) => ({ requestId: `R${id}`, request: { url: INSPECTED_URL }, type: "Fetch", initiator: { type: "script", stack: { callFrames: [{ url: TAG }] } } })]
+];
+
+function inspect(inspection: Inspection, requests: number, order: readonly number[]) {
+  const recorder = new inspection.ConnectionInspectionRecorder(INSPECTED_ADDRESS);
+  recorder.observe({ requestId: "L", request: { url: LOADER }, type: "Script", initiator: { type: "parser" } });
+  recorder.observe({ requestId: "T", request: { url: TAG }, type: "Script", initiator: { type: "parser" } });
+  for (let index = 0; index < requests; index += 1) recorder.notePageRequest(INSPECTED_URL);
+  order.forEach((shape, index) => recorder.observe(OBSERVATION_SHAPES[shape][1](index)));
+  return recorder.evidence();
+}
+
+function permutations<T>(values: readonly T[]): T[][] {
+  if (values.length <= 1) return [[...values]];
+  return values.flatMap((value, index) => permutations([...values.slice(0, index), ...values.slice(index + 1)]).map((rest) => [value, ...rest]));
+}
+
+/** What each shape adds to the evidence, spelled out here and not read from the recorder. */
+const SHAPE_ADDS = ["redirected", "withoutStack", "withoutNamedScript", "cdn.example.net", "static.example.org"] as const;
+
+/** What Inspect publishes: the first min(requests, observations) in arrival order, no refusal, the rest unobserved. */
+function expectedEvidence(requests: number, sequence: readonly number[]): string {
+  const taken = sequence.slice(0, requests).map((shape) => SHAPE_ADDS[shape]);
+  const count = (add: (typeof SHAPE_ADDS)[number]) => taken.filter((candidate) => candidate === add).length;
+  return JSON.stringify({
+    matched: requests,
+    redirected: count("redirected"),
+    withoutStack: count("withoutStack"),
+    withoutNamedScript: count("withoutNamedScript"),
+    notListed: 0,
+    unobserved: requests - taken.length,
+    groups: (["cdn.example.net", "static.example.org"] as const).flatMap((host) => (count(host) > 0 ? [[host, count(host)]] : []))
+  });
+}
+
+/** The same through the real recorder: up to 3 requests and up to 3 observations in all. */
+function checkInspectRecorder(inspection: Inspection): number {
+  let cases = 0;
+  const shapes = OBSERVATION_SHAPES.map((_, index) => index);
+  const sequences: number[][] = [[]];
+  let last: number[][] = [[]];
+  for (let length = 1; length <= 3; length += 1) {
+    last = last.flatMap((sequence) => shapes.map((shape) => [...sequence, shape]));
+    sequences.push(...last);
+  }
+  for (let requests = 0; requests <= 3; requests += 1) {
+    for (const sequence of sequences) {
+      const joined = Math.min(requests, sequence.length);
+      const tail = sequence.slice(joined);
+      const reference = JSON.stringify(inspect(inspection, requests, sequence));
+      for (const reordered of permutations(sequence.slice(0, joined))) {
+        cases += 1;
+        const evidence = inspect(inspection, requests, [...reordered, ...tail]);
+        const input = () => ({ requests, sequence, reordered, evidence });
+        holds("inspect-gives-evidence", evidence !== null, input);
+        const given = evidence as NonNullable<typeof evidence>;
+        const accounted =
+          given.groups.reduce((sum, group) => sum + group.count, 0) +
+          given.redirected +
+          given.withoutStack +
+          given.withoutNamedScript +
+          given.notListed +
+          given.unobserved;
+        holds("inspect-accounts-for-every-matched-request", given.matched === requests && accounted === requests, input);
+        const read = JSON.stringify({
+          matched: given.matched,
+          redirected: given.redirected,
+          withoutStack: given.withoutStack,
+          withoutNamedScript: given.withoutNamedScript,
+          notListed: given.notListed,
+          unobserved: given.unobserved,
+          groups: given.groups.map((group) => [group.hosts.join(), group.count]).sort()
+        });
+        holds("inspect-takes-the-first-observations", read === expectedEvidence(requests, sequence), input);
+        holds("inspect-evidence-ignores-pairing-order", JSON.stringify(evidence) === reference, input);
+      }
+    }
+  }
+  return cases;
+}
+
 const publisherPath = require.resolve("./call-stack-publisher");
 const variant = (...edits: SourceEdit[]) => loadVariant<Publisher>(publisherPath, edits);
 
@@ -262,5 +393,62 @@ for (const [name, property, edit] of [
 ] as const) {
   test(`RA1 and RA2 catch a variant: ${name}`, async () => {
     await assertCaughtBy(name, property, () => checkJoin(variant(edit)));
+  });
+}
+
+test("RA7: with every request counted, nothing is refused and pairing moves no count", () => {
+  assert.equal(checkAllCountedPairing({ joinObservations, StackTally }), 6 * 6 * SEQUENCES.length);
+});
+
+test("RA7: Inspect's real recorder takes the first observations, whichever pairs with which", () => {
+  // 4 request counts by 156 sequences, each with every order of what it takes.
+  assert.equal(checkInspectRecorder(productionInspection), 1_424);
+});
+
+for (const [name, property, edit] of [
+  [
+    "every request pairs with the first observation",
+    "with-every-request-counted-pairing-moves-no-count",
+    { find: "if (index < joined)\n            tally.add(observations[index]);", replace: "if (index < joined)\n            tally.add(observations[0]);" }
+  ],
+  [
+    "by default a join counts no request",
+    "with-every-request-counted-nothing-is-refused",
+    { find: "observationsDropped, counted = () => true) {", replace: "observationsDropped, counted = () => false) {" }
+  ],
+  [
+    "the refusal fires with every request counted",
+    "with-every-request-counted-nothing-is-refused",
+    { find: "if (countedRequests > 0 && countedRequests < pageRequests) {", replace: "if (countedRequests > 0) {" }
+  ]
+] as const) {
+  test(`RA7 catches a variant: ${name}`, async () => {
+    await assertCaughtBy(name, property, () => checkAllCountedPairing(variant(edit)));
+  });
+}
+
+const JOIN_CALL = "entry.observations, entry.observationsDropped);";
+const LEAVES_ONE_UNCOUNTED: SourceEdit = { find: JOIN_CALL, replace: "entry.observations, entry.observationsDropped, (index) => index !== 0);" };
+
+for (const [name, property, edits] of [
+  ["Inspect joins observations in reverse", "inspect-takes-the-first-observations", [{ find: JOIN_CALL, replace: "[...entry.observations].reverse(), entry.observationsDropped);" }]],
+  ["Inspect sorts observations before the join", "inspect-takes-the-first-observations", [{ find: JOIN_CALL, replace: "[...entry.observations].sort(), entry.observationsDropped);" }]],
+  ["Inspect holds no requested address, so it names nothing", "inspect-takes-the-first-observations", [{ find: "this.codeUrls.note(observed.key);", replace: "" }]],
+  [
+    "Inspect's groups follow arrival order and are not ranked",
+    "inspect-evidence-ignores-pairing-order",
+    [{ find: "tally.rankedGroups(this.stacks).map(", replace: "[...tally.groupCounts.entries()].map(([key, count]) => ({ count, stack: this.stacks.get(key) })).map(" }]
+  ],
+  ["Inspect leaves a request uncounted, and its own guard withholds the evidence", "inspect-gives-evidence", [LEAVES_ONE_UNCOUNTED]],
+  ["Inspect writes an address its own guard refuses", "inspect-gives-evidence", [{ find: "address: this.address,", replace: 'address: "not an address",' }]],
+  [
+    "Inspect leaves a request uncounted, with its guard gone",
+    "inspect-accounts-for-every-matched-request",
+    [LEAVES_ONE_UNCOUNTED, { find: "return (0, connection_inspection_evidence_1.isConnectionInspectionEvidence)(evidence) ? evidence : null;", replace: "return evidence;" }]
+  ]
+] as const) {
+  test(`RA7 catches a variant: ${name}`, async () => {
+    const broken = loadVariant<Inspection>(require.resolve("./connection-inspection"), edits);
+    await assertCaughtBy(name, property, () => checkInspectRecorder(broken));
   });
 }

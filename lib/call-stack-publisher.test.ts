@@ -207,6 +207,11 @@ test("groups rank largest first, then by key, and a group that lost its stack th
   assert.throws(() => tally.rankedGroups(stacks), /lost its published stack/);
 });
 
+/**
+ * Holds only where the check refuses nothing. It refuses a URL observed more often than
+ * requested with differing categories, and one counted in part under a shortfall, and
+ * Inspect, counting every request, has no need to. The next test pins the first.
+ */
 test("Inspect and the check publish the same stream as the same hosts and counts", () => {
   const tag = "https://static.example.org/tag.js";
   const loader = "https://cdn.example.net/loader.js";
@@ -260,6 +265,34 @@ test("Inspect and the check publish the same stream as the same hosts and counts
     assert.equal(checked[count], inspected[count], count);
   }
   assert.equal(checked.requests, inspected.matched);
+});
+
+test("Inspect and the check part when a URL is observed more often than it was requested, with differing categories", () => {
+  const loader = "https://cdn.example.net/loader.js";
+  const tag = "https://static.example.org/tag.js";
+  const pixel = "https://pixel.example.net/p.gif";
+  const stream = [
+    { requestId: "L", request: { url: loader }, type: "Script", initiator: { type: "parser" } },
+    { requestId: "T", request: { url: tag }, type: "Script", initiator: { type: "parser" } },
+    { requestId: "A", request: { url: pixel }, type: "Fetch", initiator: { type: "script", stack: frames(loader) } },
+    { requestId: "B", request: { url: pixel }, type: "Fetch", initiator: { type: "script", stack: frames(tag) } }
+  ];
+  const inspection = new ConnectionInspectionRecorder("https://pixel.example.net/{seg}");
+  const check = new ScrollCheckStackRecorder(SCROLL_CHECK_REQUEST_ALLOWANCE);
+  check.keep("www.example.com");
+  for (const payload of stream) {
+    inspection.observe(payload);
+    check.observe(payload);
+  }
+  inspection.notePageRequest(pixel);
+  // Inspect's one request takes the first observation.
+  const inspected = inspection.evidence();
+  assert.deepEqual(inspected?.groups.map((group) => [group.count, group.hosts]), [[1, ["cdn.example.net"]]]);
+  assert.equal(inspected?.unobserved, 0);
+  // The check cannot tell which observation was its request's, so it takes neither.
+  const [entry] = check.entries([{ host: "pixel.example.net", requests: [{ url: pixel, counted: true }] }]) ?? [];
+  assert.deepEqual(entry?.groups, []);
+  assert.equal(entry?.unobserved, 1);
 });
 
 test("Inspect keeps stacks that name the same hosts through different scripts apart, and the check, which names no script, merges them", () => {
