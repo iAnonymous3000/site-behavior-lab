@@ -2646,7 +2646,7 @@ function assertNodeProducerContract(run: ScanRunV2R2): void {
   assertNodePublicLimits(run, tuple.publicLimits);
 }
 
-function nodeTupleMatches(run: ScanRunV2R2, tuple: NodeR2ProducerTuple): boolean {
+export function nodeTupleMatches(run: ScanRunV2R2, tuple: NodeR2ProducerTuple): boolean {
   return (
     run.toolchain.normalizationVersion === tuple.normalizationVersion &&
     run.provenance.methodologyVersion === tuple.methodologyVersion &&
@@ -2775,7 +2775,7 @@ function assertPageGraphProducerContract(run: ScanRunV2R2): void {
   }
 }
 
-function pageGraphTupleMatches(run: ScanRunV2R2, tuple: PageGraphR2ProducerTuple): boolean {
+export function pageGraphTupleMatches(run: ScanRunV2R2, tuple: PageGraphR2ProducerTuple): boolean {
   return (
     run.toolchain.normalizationVersion === tuple.normalizationVersion &&
     pageGraphMethodologyMatches(run.provenance.methodologyVersion, tuple.methodologyVersion) &&

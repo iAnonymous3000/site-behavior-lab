@@ -7,6 +7,13 @@ public API or a 1.0 release.
 
 ## Unreleased
 
+### Added
+
+- Finite checks of producer identity, coverage loss and request accounting
+  (`lib/fv-*.test.ts`). Each holds for all inputs in a stated domain at its
+  commit and names broken variants it must catch; none proves anything of
+  other inputs or of what a browser does.
+
 ### Fixed
 
 - Corpus cohorts are keyed on the detector registry too, so a refresh can
