@@ -326,25 +326,80 @@ type WorkerRealmRecord = {
   readonly slots: Set<FreezeSlot>;
 };
 
-type FrozenRealm =
-  | { record: WorkerRealmRecord; state: "excluded"; reason: "pausedAtReadout" | "diedPaused" }
+/**
+ * What the readout's kernels read of a worker's record, and all they read. They
+ * are pure, so lib/fv-worker-readout.test.ts walks them over every state a record
+ * can hold, and the readout's own effects (a slot, a barrier) stay in the class.
+ */
+export type WorkerRealmView = Pick<
+  WorkerRealmRecord,
+  "worker" | "install" | "owner" | "lastWord" | "lastClosed" | "broken" | "lostWithChannel"
+>;
+
+/** Read from its stream at the freeze: at a closed snapshot, or at the slot the drain fills. */
+type FrozenStream<R> = { record: R; state: "closed"; snapshot: string } | { record: R; state: "waiting"; slot: FreezeSlot };
+
+/** A kernel's way of saying the worker's stream decides, which `freezeStream` reads. */
+type DecidedByStream<R> = { record: R; state: "stream" };
+
+type DedicatedExcludedOrUnread<R> =
+  | { record: R; state: "excluded"; reason: "pausedAtReadout" | "diedPaused" }
+  | { record: R; state: "unread"; reason: "installFailed" | "attachedLate" | "streamBroken" | "channelLostAlive" };
+
+/**
+ * A dedicated worker at the freeze. No shared worker's reason or state is here,
+ * so the dedicated partition has nothing to skip.
+ */
+export type DedicatedFrozenRealm<R = WorkerRealmRecord> = DedicatedExcludedOrUnread<R> | FrozenStream<R>;
+
+/** Its one exclusion is `pausedAtReadout`: from fingerprint-observer@12 nothing writes a shared `diedPaused`. */
+type SharedExcludedOrUnread<R> =
+  | { record: R; state: "excluded"; reason: "pausedAtReadout" }
   | {
-      record: WorkerRealmRecord;
+      record: R;
       state: "unread";
       reason: "installFailed" | "attachedLate" | "streamBroken" | "channelLostAlive" | "unreached" | "diedHeld";
-    }
-  | { record: WorkerRealmRecord; state: "closed"; snapshot: string }
-  | { record: WorkerRealmRecord; state: "waiting"; slot: FreezeSlot }
-  | { record: WorkerRealmRecord; state: "ended-at-once" }
+    };
+
+/** A shared worker at the freeze, short of its stream. */
+type SharedWithoutStream<R> =
+  | SharedExcludedOrUnread<R>
+  | { record: R; state: "ended-at-once" }
   /** A shared worker attached and not yet paused at the freeze: its state is its first move after it. */
-  | { record: WorkerRealmRecord; state: "reaching" }
+  | { record: R; state: "reaching" }
   /**
    * A shared worker the main thread sees held at its main script. That view
    * lags the attacher's thread, which may already have found the hold broken,
    * or may find it so moments later, so it is unsettled until the worker's
-   * next move (released, late or detached): see resolveHeld.
+   * next move (released, late or detached): see resolveHeldRealm.
    */
-  | { record: WorkerRealmRecord; state: "held" };
+  | { record: R; state: "held" };
+
+export type SharedFrozenRealm<R = WorkerRealmRecord> = SharedWithoutStream<R> | FrozenStream<R>;
+
+/** A shared worker once its hold has settled, as the readout counts it. */
+type SharedResolvedRealm<R = WorkerRealmRecord> = Exclude<SharedFrozenRealm<R>, { state: "held" }>;
+
+/** One worker's term in a readout, with the snapshot the term carries. */
+type LandedTerm<Empty, Carrying> = { term: Empty; snapshot: null } | { term: Carrying; snapshot: string };
+
+type DedicatedLandedTerm = LandedTerm<
+  "pausedAtReadout" | "diedPaused" | "ownerReplaced" | "installFailed" | "attachedLate" | "cutOff" | "streamBroken" | "channelLostAlive",
+  "readable" | "ownerUnknown"
+>;
+
+type SharedLandedTerm = LandedTerm<
+  | "pausedAtReadout"
+  | "diedHeld"
+  | "installFailed"
+  | "attachedLate"
+  | "unreached"
+  | "cutOff"
+  | "streamBroken"
+  | "channelLostAlive"
+  | "endedAtOnce",
+  "readable" | "ownerUnscoped"
+>;
 
 /**
  * The fingerprint observer's installer on the worker realm channel, in every
@@ -570,9 +625,9 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
     // Sent now, before anything is awaited: the page's documents at the
     // freeze. Its answer is awaited only after the drain.
     const documentsAtFreeze = currentDocuments(options.session);
-    const frozen: FrozenRealm[] = [];
+    const frozen: DedicatedFrozenRealm[] = [];
     for (const record of this.records.values()) frozen.push(this.freeze(record));
-    const sharedFrozen: FrozenRealm[] = [];
+    const sharedFrozen: SharedFrozenRealm[] = [];
     for (const record of this.sharedRecords.values()) sharedFrozen.push(this.freezeShared(record));
     const frozenShared = new Set(sharedFrozen.map((realm) => realm.record));
     // A dedicated worker this installer has neither installed nor heard
@@ -632,63 +687,13 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
       sharedWorkers: shared
     };
 
-    // Scope before state. A worker of a document the page did not show at the
-    // freeze ran no code of the page's documents then, so it is excluded,
-    // like a replaced frame, whatever its stream says: cut off by the
-    // navigation mid-task, broken, or never installed. Only a known owner
-    // shown replaced in frame trees that could be read excludes it; anything
-    // less leaves the worker to the term its state gives it.
-    const ownerOf = (record: WorkerRealmRecord): OwnerDocument | null =>
-      typeof record.owner === "object" ? record.owner : null;
-
     const readableSnapshots: string[] = [];
     const unscopedSnapshots: string[] = [];
     for (const realm of frozen) {
-      if (realm.state === "excluded") {
-        diagnostics[realm.reason] += 1;
-        continue;
-      }
-      const owner = ownerOf(realm.record);
-      if (owner !== null && loaders !== null && loaders.get(owner.frameId) !== owner.loaderId) {
-        diagnostics.ownerReplaced += 1;
-        continue;
-      }
-      if (realm.state === "unread") {
-        // Shared-worker reasons only; a dedicated realm never takes them.
-        if (realm.reason !== "unreached" && realm.reason !== "diedHeld") diagnostics[realm.reason] += 1;
-        continue;
-      }
-      // Shared-worker states only; a dedicated realm never takes them.
-      if (realm.state === "ended-at-once" || realm.state === "reaching" || realm.state === "held") continue;
-      const snapshot = realm.state === "closed" ? realm.snapshot : realm.slot.snapshot;
-      if (snapshot === null) {
-        // No whole state for the freeze when the drain ended: open at its
-        // freeze point and still open (terminated mid-task, or a task longer
-        // than the bound), or its barrier's answer never came (a delivery
-        // backlog longer than the bound), or its stream broke or its channel
-        // closed first.
-        if (realm.record.lostWithChannel) diagnostics.channelLostAlive += 1;
-        else if (realm.record.broken) diagnostics.streamBroken += 1;
-        else diagnostics.cutOff += 1;
-        continue;
-      }
-      // The realm's own null: its observer lost coverage (an overflowed
-      // bound or the emission cap), so it has nothing whole to give.
-      if (snapshot === "null") {
-        diagnostics.streamBroken += 1;
-        continue;
-      }
-      // A realm with its snapshot in hand still needs an owner shown current:
-      // one with no vouched owner, or with frames at the freeze that could not
-      // be read, cannot be shown current or replaced. It is never credited and
-      // never excluded silently: the collection reads its snapshot unscoped.
-      if (owner === null || loaders === null) {
-        diagnostics.ownerUnknown += 1;
-        unscopedSnapshots.push(snapshot);
-        continue;
-      }
-      diagnostics.readable += 1;
-      readableSnapshots.push(snapshot);
+      const landed = dedicatedLandedTerm(realm, loaders);
+      diagnostics[landed.term] += 1;
+      if (landed.term === "readable") readableSnapshots.push(landed.snapshot);
+      else if (landed.term === "ownerUnknown") unscopedSnapshots.push(landed.snapshot);
     }
 
     // Shared workers: state first, then the ownership rule. The attacher's
@@ -697,7 +702,7 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
     const discovered = options.session?.discoveredSharedWorkerTargets() ?? new Set<string>();
     shared.discovered = discovered.size;
     const reportedTargets = new Set<string>();
-    const sharedRealms: FrozenRealm[] = [...sharedFrozen];
+    const sharedRealms: SharedFrozenRealm[] = [...sharedFrozen];
     for (const record of this.sharedRecords.values()) {
       // Attached after the freeze: whatever it did came after the call,
       // unless it was not held at its main script.
@@ -707,43 +712,10 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
       const worker = realm.record.worker as AttachedSharedWorker;
       reportedTargets.add(worker.targetId);
       shared.attached += 1;
-      const reached = realm.state === "reaching" ? this.resolveReaching(realm.record) : realm;
-      // A hold settles by the worker's next move by the end of the drain.
-      const resolved = reached.state === "held" ? this.resolveHeld(reached.record) : reached;
-      if (resolved.state === "excluded") {
-        shared[resolved.reason] += 1;
-        continue;
-      }
-      if (resolved.state === "ended-at-once") {
-        shared.endedAtOnce += 1;
-        continue;
-      }
-      if (resolved.state === "unread") {
-        shared[resolved.reason] += 1;
-        continue;
-      }
-      if (resolved.state === "reaching") {
-        shared.unreached += 1;
-        continue;
-      }
-      const snapshot = resolved.state === "closed" ? resolved.snapshot : resolved.slot.snapshot;
-      if (snapshot === null) {
-        if (resolved.record.lostWithChannel) shared.channelLostAlive += 1;
-        else if (resolved.record.broken) shared.streamBroken += 1;
-        else shared.cutOff += 1;
-        continue;
-      }
-      if (snapshot === "null") {
-        shared.streamBroken += 1;
-        continue;
-      }
-      if (sharedWorkerCredited(worker, documents)) {
-        shared.readable += 1;
-        readableSnapshots.push(snapshot);
-      } else {
-        shared.ownerUnscoped += 1;
-        unscopedSnapshots.push(snapshot);
-      }
+      const landed = sharedLandedTerm(resolveSharedRealm(realm), documents);
+      shared[landed.term] += 1;
+      if (landed.term === "readable") readableSnapshots.push(landed.snapshot);
+      else if (landed.term === "ownerUnscoped") unscopedSnapshots.push(landed.snapshot);
     }
     for (const targetId of discovered) if (!reportedTargets.has(targetId)) shared.unattached += 1;
 
@@ -770,88 +742,14 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
     };
   }
 
-  private freeze(record: WorkerRealmRecord): FrozenRealm {
-    const worker = record.worker;
-    // A worker the closed channel left running cannot be read, held or not:
-    // Chromium resumed it when this client went away.
-    if (record.lostWithChannel) return { record, state: "unread", reason: "channelLostAlive" };
-    if (worker.detachedWhilePaused) return { record, state: "excluded", reason: "diedPaused" };
-    if (!worker.released) return { record, state: "excluded", reason: "pausedAtReadout" };
-    if (record.install === "attached-late") return { record, state: "unread", reason: "attachedLate" };
-    if (record.install !== "installed") return { record, state: "unread", reason: "installFailed" };
-    return this.freezeStream(record);
+  private freeze(record: WorkerRealmRecord): DedicatedFrozenRealm {
+    const frozen = freezeDedicatedRealm(record);
+    return frozen.state === "stream" ? this.freezeStream(record) : frozen;
   }
 
-  /**
-   * A shared worker at the freeze. It is held by its main-script pause, not
-   * from its start, so the state before that pause is not "paused": an
-   * attached worker with no pause yet is reaching, and its first move
-   * decides. One attached after the call was not yet paused at it, so only
-   * its hold at the main script can show it ran nothing then.
-   */
-  private freezeShared(record: WorkerRealmRecord, options: { attachedAfterFreeze?: boolean } = {}): FrozenRealm {
-    const worker = record.worker as AttachedSharedWorker;
-    if (record.lostWithChannel) return { record, state: "unread", reason: "channelLostAlive" };
-    // Gone held with its install unanswered: a broken hold's resume can be
-    // overtaken by the detach, so it may have run (diedHeld). Through @11 it
-    // was excluded as having run nothing.
-    if (worker.detachedWhilePaused) return { record, state: "unread", reason: "diedHeld" };
-    // Held as far as the main thread knows: its next move decides (resolveHeld).
-    if (worker.hold === "held") return { record, state: "held" };
-    if (worker.hold === "late") return { record, state: "unread", reason: "attachedLate" };
-    if (worker.hold === "pending") {
-      if (worker.detached) {
-        // Gone with no pause: it ended at once only when the attacher never
-        // saw it run and its life fits the bound.
-        return sharedWorkerEndedAtOnce(worker)
-          ? { record, state: "ended-at-once" }
-          : { record, state: "unread", reason: "unreached" };
-      }
-      return { record, state: "reaching" };
-    }
-    // Released after its hold at its main script.
-    if (options.attachedAfterFreeze) return { record, state: "excluded", reason: "pausedAtReadout" };
-    if (record.install !== "installed") return { record, state: "unread", reason: "installFailed" };
-    return this.freezeStream(record);
-  }
-
-  /** A shared worker reaching at the freeze, by its first move by the end of the drain. */
-  private resolveReaching(record: WorkerRealmRecord): FrozenRealm {
-    const worker = record.worker as AttachedSharedWorker;
-    if (record.lostWithChannel) return { record, state: "unread", reason: "channelLostAlive" };
-    // Paused at its main script after the freeze: it ran nothing before it,
-    // unless that hold broke, which only its next move shows (resolveHeld).
-    if (worker.hold === "held") return { record, state: "held" };
-    if (worker.hold === "released") return { record, state: "excluded", reason: "pausedAtReadout" };
-    if (worker.hold === "late") return { record, state: "unread", reason: "attachedLate" };
-    if (worker.detached) {
-      return sharedWorkerEndedAtOnce(worker)
-        ? { record, state: "ended-at-once" }
-        : { record, state: "unread", reason: "unreached" };
-    }
-    return { record, state: "reaching" };
-  }
-
-  /**
-   * A shared worker seen held at its main script, by its next move by the end
-   * of the drain. The main thread's view of a hold lags the attacher's
-   * thread, so a "late" report behind "held" means the hold broke before the
-   * install answered (resumed-while-held): its main script ran unobserved,
-   * and it is unread. Released, or still held at the bound, it ran nothing
-   * before the freeze and is excluded, as it always was. Still held when the
-   * attacher's channel closed, it made no move the readout saw, so the hold
-   * the main thread last saw may already have broken: it is unread, as a
-   * worker the closed channel left running is at the freeze. Gone held with
-   * its install unanswered, it is unread for the same reason (diedHeld,
-   * fingerprint-observer@12): a broken hold's resume can be overtaken by the
-   * detach. This only ever turns an exclusion into an unread realm.
-   */
-  private resolveHeld(record: WorkerRealmRecord): Extract<FrozenRealm, { state: "unread" | "excluded" }> {
-    const worker = record.worker as AttachedSharedWorker;
-    if (worker.hold === "late") return { record, state: "unread", reason: "attachedLate" };
-    if (worker.hold === "held" && record.lostWithChannel) return { record, state: "unread", reason: "channelLostAlive" };
-    if (worker.detachedWhilePaused) return { record, state: "unread", reason: "diedHeld" };
-    return { record, state: "excluded", reason: "pausedAtReadout" };
+  private freezeShared(record: WorkerRealmRecord, options: { attachedAfterFreeze?: boolean } = {}): SharedFrozenRealm {
+    const frozen = freezeSharedRealm(record, options);
+    return frozen.state === "stream" ? this.freezeStream(record) : frozen;
   }
 
   /** Whether a held shared worker has made its next move: released, late or detached. */
@@ -861,19 +759,17 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
   }
 
   /** An installed worker's state at the freeze, from its stream; the same for both kinds. */
-  private freezeStream(record: WorkerRealmRecord): FrozenRealm {
+  private freezeStream(record: WorkerRealmRecord): { record: WorkerRealmRecord; state: "unread"; reason: "streamBroken" } | FrozenStream<WorkerRealmRecord> {
     const worker = record.worker;
-    if (record.broken || record.lastWord === null) return { record, state: "unread", reason: "streamBroken" };
-    if (worker.detached) {
-      // Gone: it can emit nothing more. A task it left open still gets the
-      // drain's wait for that task's closed snapshot.
-      if (record.lastWord === "closed" && record.lastClosed !== null) {
-        return { record, state: "closed", snapshot: record.lastClosed };
-      }
+    const stream = streamAtFreeze(record);
+    if (stream.state === "gone-open") {
+      // A task it left open still gets the drain's wait for that task's closed
+      // snapshot.
       const slot: FreezeSlot = { barrier: "answered", freezeSeq: record.lastSeq, snapshot: null };
       record.slots.add(slot);
       return { record, state: "waiting", slot };
     }
+    if (stream.state !== "running") return stream;
     const slot: FreezeSlot = { barrier: "pending", freezeSeq: null, snapshot: null };
     record.slots.add(slot);
     const answer = () => this.answerBarrier(record, slot);
@@ -904,11 +800,11 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
   private async drain(
     session: DedicatedWorkerAttachSession | null,
     observedDedicated: number,
-    frozen: readonly FrozenRealm[],
-    sharedFrozen: readonly FrozenRealm[],
+    frozen: readonly DedicatedFrozenRealm[],
+    sharedFrozen: readonly SharedFrozenRealm[],
     settleMs: number
   ): Promise<void> {
-    const realmSettled = (realm: FrozenRealm): boolean =>
+    const realmSettled = (realm: DedicatedFrozenRealm | SharedFrozenRealm): boolean =>
       realm.state === "excluded" ||
       (realm.record.owner !== "reading" &&
         (realm.state !== "waiting" ||
@@ -921,11 +817,11 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
       return frozen.every(realmSettled);
     };
     const frozenShared = new Set(sharedFrozen.map((realm) => realm.record));
-    const sharedRealmSettled = (realm: FrozenRealm): boolean => {
+    const sharedRealmSettled = (realm: SharedFrozenRealm): boolean => {
       if (realm.state === "held") return this.heldSettled(realm.record);
       if (realm.state !== "reaching") return realmSettled(realm);
       // Its first move, and then, if that was a hold, the next one.
-      const reached = this.resolveReaching(realm.record);
+      const reached = resolveReachingRealm(realm.record);
       if (reached.state === "reaching") return false;
       return reached.state !== "held" || this.heldSettled(realm.record);
     };
@@ -1162,6 +1058,187 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
     else if (install === "failed") this.sharedInstallFailedWorkerCount += 1;
     else this.sharedLateWorkerCount += 1;
   }
+}
+
+/** A dedicated worker at the freeze, short of its stream. */
+export function freezeDedicatedRealm<R extends WorkerRealmView>(record: R): DedicatedExcludedOrUnread<R> | DecidedByStream<R> {
+  const worker = record.worker;
+  // A worker the closed channel left running cannot be read, held or not:
+  // Chromium resumed it when this client went away.
+  if (record.lostWithChannel) return { record, state: "unread", reason: "channelLostAlive" };
+  if (worker.detachedWhilePaused) return { record, state: "excluded", reason: "diedPaused" };
+  if (!worker.released) return { record, state: "excluded", reason: "pausedAtReadout" };
+  if (record.install === "attached-late") return { record, state: "unread", reason: "attachedLate" };
+  if (record.install !== "installed") return { record, state: "unread", reason: "installFailed" };
+  return { record, state: "stream" };
+}
+
+/**
+ * A shared worker at the freeze, short of its stream. It is held by its
+ * main-script pause, not from its start, so the state before that pause is not
+ * "paused": an attached worker with no pause yet is reaching, and its first
+ * move decides. One attached after the call was not yet paused at it, so only
+ * its hold at the main script can show it ran nothing then.
+ */
+export function freezeSharedRealm<R extends WorkerRealmView>(
+  record: R,
+  options: { attachedAfterFreeze?: boolean } = {}
+): SharedWithoutStream<R> | DecidedByStream<R> {
+  const worker = record.worker as AttachedSharedWorker;
+  if (record.lostWithChannel) return { record, state: "unread", reason: "channelLostAlive" };
+  // Gone held with its install unanswered: a broken hold's resume can be
+  // overtaken by the detach, so it may have run (diedHeld). Through @11 it
+  // was excluded as having run nothing.
+  if (worker.detachedWhilePaused) return { record, state: "unread", reason: "diedHeld" };
+  // Held as far as the main thread knows: its next move decides (resolveHeldRealm).
+  if (worker.hold === "held") return { record, state: "held" };
+  if (worker.hold === "late") return { record, state: "unread", reason: "attachedLate" };
+  if (worker.hold === "pending") {
+    if (worker.detached) {
+      // Gone with no pause: it ended at once only when the attacher never
+      // saw it run and its life fits the bound.
+      return sharedWorkerEndedAtOnce(worker)
+        ? { record, state: "ended-at-once" }
+        : { record, state: "unread", reason: "unreached" };
+    }
+    return { record, state: "reaching" };
+  }
+  // Released after its hold at its main script.
+  if (options.attachedAfterFreeze) return { record, state: "excluded", reason: "pausedAtReadout" };
+  if (record.install !== "installed") return { record, state: "unread", reason: "installFailed" };
+  return { record, state: "stream" };
+}
+
+/** A shared worker reaching at the freeze, by its first move by the end of the drain. */
+function resolveReachingRealm<R extends WorkerRealmView>(record: R): SharedWithoutStream<R> {
+  const worker = record.worker as AttachedSharedWorker;
+  if (record.lostWithChannel) return { record, state: "unread", reason: "channelLostAlive" };
+  // Paused at its main script after the freeze: it ran nothing before it,
+  // unless that hold broke, which only its next move shows (resolveHeldRealm).
+  if (worker.hold === "held") return { record, state: "held" };
+  if (worker.hold === "released") return { record, state: "excluded", reason: "pausedAtReadout" };
+  if (worker.hold === "late") return { record, state: "unread", reason: "attachedLate" };
+  if (worker.detached) {
+    return sharedWorkerEndedAtOnce(worker)
+      ? { record, state: "ended-at-once" }
+      : { record, state: "unread", reason: "unreached" };
+  }
+  return { record, state: "reaching" };
+}
+
+/**
+ * A shared worker seen held at its main script, by its next move by the end
+ * of the drain. The main thread's view of a hold lags the attacher's
+ * thread, so a "late" report behind "held" means the hold broke before the
+ * install answered (resumed-while-held): its main script ran unobserved,
+ * and it is unread. Released, or still held at the bound, it ran nothing
+ * before the freeze and is excluded, as it always was. Still held when the
+ * attacher's channel closed, it made no move the readout saw, so the hold
+ * the main thread last saw may already have broken: it is unread, as a
+ * worker the closed channel left running is at the freeze. Gone held with
+ * its install unanswered, it is unread for the same reason (diedHeld,
+ * fingerprint-observer@12): a broken hold's resume can be overtaken by the
+ * detach. This only ever turns an exclusion into an unread realm.
+ */
+function resolveHeldRealm<R extends WorkerRealmView>(record: R): SharedExcludedOrUnread<R> {
+  const worker = record.worker as AttachedSharedWorker;
+  if (worker.hold === "late") return { record, state: "unread", reason: "attachedLate" };
+  if (worker.hold === "held" && record.lostWithChannel) return { record, state: "unread", reason: "channelLostAlive" };
+  if (worker.detachedWhilePaused) return { record, state: "unread", reason: "diedHeld" };
+  return { record, state: "excluded", reason: "pausedAtReadout" };
+}
+
+/** A shared worker at the end of the drain: a first move, and then, if that was a hold, the next one. */
+export function resolveSharedRealm<R extends WorkerRealmView>(realm: SharedFrozenRealm<R>): SharedResolvedRealm<R> {
+  const reached = realm.state === "reaching" ? resolveReachingRealm(realm.record) : realm;
+  // A hold settles by the worker's next move by the end of the drain.
+  return reached.state === "held" ? resolveHeldRealm(reached.record) : reached;
+}
+
+/**
+ * An installed worker's state at the freeze, from its stream; the same for both
+ * kinds. Gone, it can emit nothing more, so a closed last word is its state and
+ * an open one waits for that task's closed snapshot. Running, its emissions may
+ * still be in flight, so its state waits for the readout's barrier. Those two
+ * waits are `freezeStream`'s to set up.
+ */
+export function streamAtFreeze<R extends WorkerRealmView>(
+  record: R
+):
+  | { record: R; state: "unread"; reason: "streamBroken" }
+  | { record: R; state: "closed"; snapshot: string }
+  | { record: R; state: "gone-open" }
+  | { record: R; state: "running" } {
+  if (record.broken || record.lastWord === null) return { record, state: "unread", reason: "streamBroken" };
+  if (!record.worker.detached) return { record, state: "running" };
+  if (record.lastWord === "closed" && record.lastClosed !== null) {
+    return { record, state: "closed", snapshot: record.lastClosed };
+  }
+  return { record, state: "gone-open" };
+}
+
+/**
+ * The term one dedicated worker lands in, by its state at the freeze and the
+ * frame trees read then.
+ *
+ * Scope before state. A worker of a document the page did not show at the
+ * freeze ran no code of the page's documents then, so it is excluded, like a
+ * replaced frame, whatever its stream says: cut off by the navigation
+ * mid-task, broken, or never installed. Only a known owner shown replaced in
+ * frame trees that could be read excludes it; anything less leaves the worker
+ * to the term its state gives it.
+ */
+export function dedicatedLandedTerm<R extends WorkerRealmView>(
+  realm: DedicatedFrozenRealm<R>,
+  loaders: ReadonlyMap<string, string> | null
+): DedicatedLandedTerm {
+  if (realm.state === "excluded") return { term: realm.reason, snapshot: null };
+  const owner = typeof realm.record.owner === "object" ? realm.record.owner : null;
+  if (owner !== null && loaders !== null && loaders.get(owner.frameId) !== owner.loaderId) {
+    return { term: "ownerReplaced", snapshot: null };
+  }
+  if (realm.state === "unread") return { term: realm.reason, snapshot: null };
+  const snapshot = realm.state === "closed" ? realm.snapshot : realm.slot.snapshot;
+  if (snapshot === null) {
+    // No whole state for the freeze when the drain ended: open at its
+    // freeze point and still open (terminated mid-task, or a task longer
+    // than the bound), or its barrier's answer never came (a delivery
+    // backlog longer than the bound), or its stream broke or its channel
+    // closed first.
+    if (realm.record.lostWithChannel) return { term: "channelLostAlive", snapshot: null };
+    return { term: realm.record.broken ? "streamBroken" : "cutOff", snapshot: null };
+  }
+  // The realm's own null: its observer lost coverage (an overflowed
+  // bound or the emission cap), so it has nothing whole to give.
+  if (snapshot === "null") return { term: "streamBroken", snapshot: null };
+  // A realm with its snapshot in hand still needs an owner shown current:
+  // one with no vouched owner, or with frames at the freeze that could not
+  // be read, cannot be shown current or replaced. It is never credited and
+  // never excluded silently: the collection reads its snapshot unscoped.
+  if (owner === null || loaders === null) return { term: "ownerUnknown", snapshot };
+  return { term: "readable", snapshot };
+}
+
+/**
+ * The term one shared worker lands in: state first, then the ownership rule. It
+ * is never excluded for its document.
+ */
+export function sharedLandedTerm<R extends WorkerRealmView>(
+  resolved: SharedResolvedRealm<R>,
+  documents: DocumentsAtFreeze | null
+): SharedLandedTerm {
+  if (resolved.state === "excluded" || resolved.state === "unread") return { term: resolved.reason, snapshot: null };
+  if (resolved.state === "ended-at-once") return { term: "endedAtOnce", snapshot: null };
+  if (resolved.state === "reaching") return { term: "unreached", snapshot: null };
+  const snapshot = resolved.state === "closed" ? resolved.snapshot : resolved.slot.snapshot;
+  if (snapshot === null) {
+    if (resolved.record.lostWithChannel) return { term: "channelLostAlive", snapshot: null };
+    return { term: resolved.record.broken ? "streamBroken" : "cutOff", snapshot: null };
+  }
+  if (snapshot === "null") return { term: "streamBroken", snapshot: null };
+  return sharedWorkerCredited(resolved.record.worker as AttachedSharedWorker, documents)
+    ? { term: "readable", snapshot }
+    : { term: "ownerUnscoped", snapshot };
 }
 
 /**

@@ -16,6 +16,9 @@ public API or a 1.0 release.
 - Finite checks of what one call stack publishes, the attribution refusal rule,
   Inspect's stability under pairing, and which warning lines each loss predicate
   reads.
+- The worker readout's classifier and term partition as pure kernels, held with the
+  scroll producer to finite checks. No report, count or identity moves, and six
+  findings stay pinned open for the owner.
 - The start of a private, owner-only investigation workspace: a Cloudflare
   Worker that verifies a Cloudflare Access token on every request and denies
   everything else. Nothing deploys it and it has no hostname, and no public
