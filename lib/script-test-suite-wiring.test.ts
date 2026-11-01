@@ -128,3 +128,34 @@ test("every lib test directory runs in an npm script that test:unit reaches", ()
   assert.equal(group.length, 1, "the shared-corpus group must run exactly once");
   assert.match(group[0], /node --test --test-isolation=none /, "the group only shares its corpus read in one process");
 });
+
+/**
+ * The investigation workspace's suites compile under their own config and run in
+ * their own stage, so nothing else would notice one going missing. `node --test`
+ * exits 0 on a glob that matches nothing and 1 on a named file that is missing, so
+ * the stage names each compiled suite: a compile that emitted nothing fails there.
+ */
+test("the investigation suites run in a stage test:unit reaches, which names every one", () => {
+  const stage = packageJson.scripts["test:investigation"];
+  assert.ok(commandsReachableFromTestUnit().includes(stage), "test:unit must run test:investigation");
+  assert.ok(stage.includes("tsc -p tsconfig.investigation-test.json"), "the stage must compile before it runs");
+
+  const compiled = JSON.parse(readFileSync(path.join(root, "tsconfig.investigation-test.json"), "utf8")) as {
+    compilerOptions: { outDir: string };
+    include: string[];
+  };
+  assert.equal(compiled.compilerOptions.outDir, ".investigation-test-dist");
+
+  const suites: string[] = [];
+  const walk = (relative: string) => {
+    for (const entry of readdirSync(path.join(root, relative), { withFileTypes: true })) {
+      if (entry.isDirectory()) walk(`${relative}/${entry.name}`);
+      else if (entry.name.endsWith(".test.ts")) suites.push(`${relative}/${entry.name}`);
+    }
+  };
+  walk("investigation");
+  assert.ok(suites.length > 0, "the investigation suites could not be located");
+  const named = [...stage.matchAll(/\.investigation-test-dist\/(\S+)\.test\.js/g)].map((match) => `${match[1]}.test.ts`);
+  assert.deepEqual(named.sort(), suites.sort(), "the stage must name every investigation suite, and only those");
+  assert.doesNotMatch(stage, /\*/, "a glob that matches nothing passes, so the stage names its files");
+});

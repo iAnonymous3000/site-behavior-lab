@@ -38,7 +38,8 @@ const skippedNames = new Set([
   "node_modules",
   "playwright-report",
   "test-results",
-  ".unit-test-dist"
+  ".unit-test-dist",
+  ".investigation-test-dist"
 ]);
 
 const serverOnlyAppDirs = [

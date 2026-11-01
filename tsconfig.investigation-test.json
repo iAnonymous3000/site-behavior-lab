@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "incremental": false,
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "noEmit": false,
+    "outDir": ".investigation-test-dist",
+    "rootDir": ".",
+    "types": ["node"]
+  },
+  "include": ["investigation/**/*.ts"],
+  "exclude": ["node_modules", ".next", ".investigation-test-dist"]
+}

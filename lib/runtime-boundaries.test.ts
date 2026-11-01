@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { builtinModules } from "node:module";
-import { readFile } from "node:fs/promises";
+import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import { test } from "node:test";
 import ts from "typescript";
@@ -35,6 +35,8 @@ const NODE_ONLY_MODULES = new Set([
 
 const BROWSER_CLIENT_BLOCKED_PACKAGES = new Set(["@cloudflare/playwright", "next/server", "playwright"]);
 const WORKER_BLOCKED_PACKAGES = new Set(["next/server", "playwright"]);
+const WORKSPACE_ENTRYPOINT = "cloudflare/investigation-worker.ts";
+const WORKSPACE_DIRECTORY = "investigation/";
 
 test("Cloudflare Worker imports stay out of Node-only modules", async () => {
   await assertBoundary({
@@ -42,7 +44,8 @@ test("Cloudflare Worker imports stay out of Node-only modules", async () => {
     entrypoints: [
       "cloudflare/container-worker.ts",
       "cloudflare/r2-remediation-worker.ts",
-      "cloudflare/r2-delete-canary-worker.ts"
+      "cloudflare/r2-delete-canary-worker.ts",
+      WORKSPACE_ENTRYPOINT
     ],
     blockedLocalModules: NODE_ONLY_MODULES,
     blockedPackages: WORKER_BLOCKED_PACKAGES
@@ -63,6 +66,84 @@ test("browser client imports stay out of Node and server modules", async () => {
     blockedLocalModules: NODE_ONLY_MODULES,
     blockedPackages: BROWSER_CLIENT_BLOCKED_PACKAGES
   });
+});
+
+/**
+ * The private investigation workspace is one deployment and the public scanner and
+ * site another. Everything that builds a public artifact starts from these: every
+ * file under app/ and, if they ever exist, pages/ and src/; every other Worker; and
+ * the files at the root Next reads on its own, such as a middleware or its config.
+ * Each graph below is the real import walk, so a public module that named the
+ * workspace would appear in it.
+ */
+async function publicEntrypoints(): Promise<string[]> {
+  const SOURCE = /\.(?:ts|tsx|mts|cts|mjs|cjs|js|jsx)$/;
+  const filesUnder = async (directory: string): Promise<string[]> => {
+    try {
+      const files = await readdir(path.join(PROJECT_ROOT, directory), { recursive: true });
+      return files.map((file) => `${directory}/${normalizeProjectPath(file)}`);
+    } catch {
+      return [];
+    }
+  };
+  const root = (await readdir(PROJECT_ROOT, { withFileTypes: true })).filter((entry) => entry.isFile()).map((entry) => entry.name);
+  const workers = await filesUnder("cloudflare");
+  return [
+    ...(await filesUnder("app")),
+    ...(await filesUnder("pages")),
+    ...(await filesUnder("src")),
+    ...workers.filter((file) => file !== WORKSPACE_ENTRYPOINT),
+    ...root
+  ].filter((file) => SOURCE.test(file) && !file.endsWith(".d.ts"));
+}
+
+test("no public entrypoint reaches the investigation workspace", async () => {
+  const entrypoints = await publicEntrypoints();
+  for (const expected of ["app/site-behavior-app.tsx", "cloudflare/container-worker.ts", "next.config.mjs"]) {
+    assert.ok(entrypoints.includes(expected), `${expected} could not be located`);
+  }
+  assert.ok(entrypoints.some((file) => file.startsWith("app/api/") && file.endsWith("/route.ts")), "the API routes could not be located");
+  assert.ok(!entrypoints.includes(WORKSPACE_ENTRYPOINT));
+  const reached = new Set<string>();
+  for (const entrypoint of entrypoints) await collectRuntimeImportGraph(entrypoint, reached);
+  const violations: string[] = [];
+  for (const modulePath of reached) {
+    if (modulePath.startsWith(WORKSPACE_DIRECTORY) || modulePath === WORKSPACE_ENTRYPOINT) violations.push(`reaches ${modulePath}`);
+    // A computed import the walk cannot follow, or a worker built from a URL, would
+    // ordinarily still spell the directory. Text split to dodge this is out of scope.
+    const source = await readFile(path.join(PROJECT_ROOT, modulePath), "utf8");
+    if (/(?:^|[^A-Za-z0-9_-])investigation\/|investigation-worker/m.test(source)) violations.push(`${modulePath} names the workspace`);
+  }
+  assert.deepEqual(violations, []);
+  assert.ok(reached.size > 300, `the public graph reached only ${reached.size} modules, so this walk did not run`);
+});
+
+test("no alias can name the workspace without spelling it", async () => {
+  // The walk resolves only relative paths and the one project alias, so another alias would be invisible to it.
+  const config = ts.parseConfigFileTextToJson("tsconfig.json", await readFile(path.join(PROJECT_ROOT, "tsconfig.json"), "utf8")).config as {
+    compilerOptions: { paths?: Record<string, string[]> };
+  };
+  assert.deepEqual(config.compilerOptions.paths, { "@/*": ["./*"] });
+  const manifest = JSON.parse(await readFile(path.join(PROJECT_ROOT, "package.json"), "utf8")) as { imports?: unknown };
+  assert.equal(manifest.imports, undefined);
+});
+
+test("the workspace entrypoint reaches its gate and verifier by plain imports, and stays inside its own code", async () => {
+  // The same walk, from the other side, so the test above is not looking for an edge
+  // of a shape it would never see. This shows the plain import form only: the other
+  // forms are held by the walk's own test below.
+  const graph = await collectRuntimeImportGraph(WORKSPACE_ENTRYPOINT);
+  assert.ok(graph.has("investigation/core/workspace-gate.ts"));
+  assert.ok(graph.has("investigation/core/access-token.ts"));
+  const outside = [...graph].filter((file) => file !== WORKSPACE_ENTRYPOINT && !file.startsWith(WORKSPACE_DIRECTORY));
+  assert.deepEqual(outside, [], "the workspace imports nothing of the public scanner's yet");
+});
+
+test("the workspace's production code imports no test code", async () => {
+  for (const file of await readdir(path.join(PROJECT_ROOT, "investigation/core"))) {
+    const imports = await readRuntimeImports(`investigation/core/${file}`);
+    assert.deepEqual(imports.filter((specifier) => specifier.includes("/test/") || specifier.includes("finite-check")), [], file);
+  }
 });
 
 test("the walk sees every runtime edge and no type-only one", () => {
@@ -120,8 +201,7 @@ async function assertBoundary(boundary: RuntimeBoundary): Promise<void> {
   assert.deepEqual(violations, [], `${boundary.name} runtime boundary violations`);
 }
 
-async function collectRuntimeImportGraph(entrypoint: string): Promise<Set<string>> {
-  const visited = new Set<string>();
+async function collectRuntimeImportGraph(entrypoint: string, visited = new Set<string>()): Promise<Set<string>> {
   const pending = [entrypoint];
 
   while (pending.length > 0) {

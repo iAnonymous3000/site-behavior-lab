@@ -1,0 +1,19 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  // The private investigation workspace's front Worker, deny-all for now.
+  //
+  // Nothing deploys this config, and it names no hostname, so a deployment would
+  // answer nowhere. Its aliases stay off because a workers.dev or preview address
+  // would answer outside the Cloudflare Access application meant to stand in front
+  // of it. It binds nothing of the public scanner's: no reports bucket, no scanner
+  // container. investigation/test/deployment-config.test.ts holds all of this.
+  "name": "site-behavior-lab-investigation",
+  "main": "cloudflare/investigation-worker.ts",
+  "compatibility_date": "2026-07-21",
+  "workers_dev": false,
+  "preview_urls": false,
+  // Off until reading a log is proven not to show a visited address.
+  "observability": {
+    "enabled": false
+  }
+}
