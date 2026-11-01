@@ -35,7 +35,14 @@ import { MAX_SCROLL_CHECK_STACK_GROUPS, type ScrollCheckHostStacks } from "./scr
  * the check ends, the requests the window recorded for each listed host are
  * joined per URL, in arrival order, to these observations; a request the
  * window did not count still takes its observation, so it never hands its
- * stack to a later one.
+ * stack to a later one. Every counted request to a URL the page reported again
+ * from the window's end on reads as unobserved, whatever its own observation
+ * said, so a URL polled across the window's end loses what it had.
+ *
+ * STILL OPEN (RA6), each pinned as it behaves in lib/scroll-check-stacks.test.ts:
+ * a worker's request can take the stack of an observation the page never
+ * reported, and of an observation of a later request whose page event has not
+ * arrived when the evidence is built.
  *
  * WHAT IT KEEPS, each bounded:
  * - the Script and Document addresses requested from the navigation's start
@@ -44,7 +51,8 @@ import { MAX_SCROLL_CHECK_STACK_GROUPS, type ScrollCheckHostStacks } from "./scr
  * - from just before the scroll window, each third-party observation's
  *   category, by the check's own third-party rule, up to the check's own
  *   request allowance. An observation the bound drops is counted for its
- *   URL, so its request is not listed rather than read as never observed.
+ *   URL, so its request is not listed rather than read as never observed,
+ *   unless the page reported that URL again after the window.
  */
 
 /** URLs whose dropped observations are counted one by one; past this, every unjoined request is not listed. */
@@ -55,6 +63,9 @@ export type ScrollCheckStackRequest = { url: string; counted: boolean };
 
 /** A host the scroll window lists, and every request its raw hosts made in that window, in arrival order. */
 export type ScrollCheckListedRequests = { host: string; requests: ScrollCheckStackRequest[] };
+
+/** What the check's own window hands the join: its listed hosts, and every address the page reported from the window's end on. */
+export type ScrollCheckStackJoin = { listed: ScrollCheckListedRequests[]; reportedAfterWindow: string[] };
 
 /** Whether every observation would add the same thing to a tally, so their pairing with requests cannot matter. */
 function sameCategory(observations: readonly StackObservationCategory[]): boolean {
@@ -139,17 +150,18 @@ export class ScrollCheckStackRecorder {
    * recording failed or never kept an observation, in which case the check
    * carries no stacks rather than wrong counts. It never throws.
    */
-  entries(listed: readonly ScrollCheckListedRequests[]): ScrollCheckHostStacks[] | null {
+  entries(join: ScrollCheckStackJoin): ScrollCheckHostStacks[] | null {
     this.freeze();
     if (this.broken || this.keepingFor === null) return null;
     try {
-      return listed.map((entry) => this.hostStacks(entry));
+      const reportedLater = new Set(join.reportedAfterWindow.map(heldUrlKey));
+      return join.listed.map((entry) => this.hostStacks(entry, reportedLater));
     } catch {
       return null;
     }
   }
 
-  private hostStacks(entry: ScrollCheckListedRequests): ScrollCheckHostStacks {
+  private hostStacks(entry: ScrollCheckListedRequests, reportedLater: ReadonlySet<string>): ScrollCheckHostStacks {
     // Per URL, in arrival order: every request the window recorded to this
     // host's raw hosts, counted or not.
     const byUrl = new Map<string, boolean[]>();
@@ -165,11 +177,16 @@ export class ScrollCheckStackRecorder {
       // Observations are kept until the evidence is built, and the session
       // also sees requests the page never reports, so a URL can be observed
       // more often than the window requested it: a later request to it, whose
-      // page event came after the window, is observed too. Which observation
+      // page event has not arrived, is observed too. Which observation
       // is whose is then unknown, and pairing by position could hand a
       // request another request's stack. Unless every observation would add
       // the same thing, none of its counted requests takes a stack.
-      if (observations.length > counted.length && !sameCategory(observations)) {
+      //
+      // A URL the page reported again after the window takes none either way.
+      // The later request's observation can be the only one, so the counts
+      // agree and it trivially adds the same, and a request the session never
+      // observed, such as a worker's, would take a stack it never had.
+      if (reportedLater.has(key) || (observations.length > counted.length && !sameCategory(observations))) {
         tally.unobserved += counted.filter(Boolean).length;
         continue;
       }

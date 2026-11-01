@@ -459,7 +459,7 @@ test("an address the page changes while the visit scrolls is reported, and only 
   assert.equal(still.evidence.addressChanged, false);
 });
 
-test("the recorder keeps nothing once frozen, and its listener is one stable function", () => {
+test("a request after the freeze reaches no list or count, and the recorder's listener is one stable function", () => {
   let now = 0;
   // Two hosts fill this recorder's bound exactly.
   const recorder = new ScrollCheckRecorder<FakeRequest>(

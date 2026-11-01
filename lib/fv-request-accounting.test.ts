@@ -3,6 +3,9 @@ import { test } from "node:test";
 import { joinObservations, StackTally, type StackObservationCategory } from "./call-stack-publisher";
 import * as productionInspection from "./connection-inspection";
 import { assertCaughtBy, holds, loadVariant, type SourceEdit } from "./finite-check";
+import { redactHostnameV2 } from "./redaction-v2";
+import { ScrollCheckRecorder } from "./scroll-check";
+import { ScrollCheckStackRecorder } from "./scroll-check-stacks";
 
 /**
  * RA1 and RA2, a bounded check of joinObservations and StackTally, the rule that
@@ -13,9 +16,9 @@ import { assertCaughtBy, holds, loadVariant, type SourceEdit } from "./finite-ch
  * mask. Within that bound the properties hold for all inputs at this commit. Beyond
  * it, this says nothing.
  *
- * This holds the join. RA7 below also holds what Inspect's recorder hands it, while
- * lib/scroll-check-stacks.ts applies its own surplus rule before calling here. Whether a
- * browser ever produces a given input is a measurement: the RA6 case stays open.
+ * This holds the join. RA7 below also holds what Inspect's recorder hands it, and RA6
+ * what the check's window and its stack recorder do around it. Whether a browser ever
+ * produces a given input is a measurement.
  */
 
 type Publisher = {
@@ -450,5 +453,357 @@ for (const [name, property, edits] of [
   test(`RA7 catches a variant: ${name}`, async () => {
     const broken = loadVariant<Inspection>(require.resolve("./connection-inspection"), edits);
     await assertCaughtBy(name, property, () => checkInspectRecorder(broken));
+  });
+}
+
+/**
+ * RA6: a request in the check's scroll window shows nothing it did not have because of
+ * what the page reported after the window, through the real ScrollCheckRecorder and
+ * ScrollCheckStackRecorder.
+ *
+ * Domain: one URL (short, past the held URL's length, or on a host that publishes as
+ * another name), with up to 2 requests in the window, at least one counted, each made by
+ * the page under one of two scripts or with no stack, or by a worker the session never
+ * observes. Then one report after the window from any of those or a redirect hop, a
+ * main-frame navigation or a refused request, or two from the worker or the two scripts,
+ * each in the window's last millisecond or after the freeze, to the URL, to the URL with a
+ * fragment, or to another URL on the host. An uncounted request here was sent and never
+ * answered. Neither bound is walked in this domain: what a bound costs is below and in
+ * lib/scroll-check-stacks.test.ts.
+ *
+ * Axioms: the session observes every request of the page and none of a worker, each
+ * observation arrives before the page's event in request order, and every report arrives
+ * before the evidence is built. The two open cases in lib/scroll-check-stacks.test.ts are
+ * where these fail: an observation the page never reported, and a report that comes after
+ * the evidence. Whether a browser holds to them is a measurement, and this says nothing
+ * about how often any of it happens on a real site.
+ */
+
+type CheckModules = { ScrollCheckRecorder: typeof ScrollCheckRecorder; ScrollCheckStackRecorder: typeof ScrollCheckStackRecorder };
+type FakeRequest = { url: string; redirected?: boolean; navigation?: boolean };
+type WindowSource = "worker" | "page-a" | "page-b" | "page-no-stack";
+type LaterSource = WindowSource | "page-hop" | "page-navigation" | "page-refused";
+type WindowRequest = { source: WindowSource; counted: boolean };
+type LaterReport = { source: LaterSource; when: "last-millisecond" | "after-freeze"; form: "same" | "fragment" | "other" };
+
+const WINDOW_SOURCES: readonly WindowSource[] = ["worker", "page-a", "page-b", "page-no-stack"];
+const LATER_SOURCES: readonly LaterSource[] = [...WINDOW_SOURCES, "page-hop", "page-navigation", "page-refused"];
+const TWO_REPORT_SOURCES: readonly LaterSource[] = ["worker", "page-a", "page-b"];
+const WINDOW_REQUESTS: readonly WindowRequest[] = WINDOW_SOURCES.flatMap((source) => [true, false].map((counted) => ({ source, counted })));
+const laterReportsFrom = (sources: readonly LaterSource[]): LaterReport[] =>
+  sources.flatMap((source) => (["last-millisecond", "after-freeze"] as const).flatMap((when) => (["same", "fragment", "other"] as const).map((form) => ({ source, when, form }))));
+const WINDOW_START = 10_000;
+const WINDOW_END = 13_000;
+const FIRST_PARTY = "www.example.com";
+const SCRIPT_A = { url: "http://cdn.alpha.net/a.js", host: "cdn.alpha.net" };
+const SCRIPT_B = { url: "http://static.bravo.org/b.js", host: "static.bravo.org" };
+const SHORT_URL = "http://cdn.golf.net/beacon";
+/** Its host publishes as another name, which a rule keyed on the listed host would miss. */
+const REDACTED_URL = "http://north.lima.net/a";
+const CHECKED_URLS = [SHORT_URL, `${SHORT_URL}?pad=${"x".repeat(2_100)}`, REDACTED_URL];
+
+function laterUrl(url: string, form: LaterReport["form"]): string {
+  if (form === "same") return url;
+  return form === "fragment" ? `${url}#later` : `http://${new URL(url).hostname}/other`;
+}
+
+function sessionSees(url: string, source: LaterSource): Record<string, unknown> | null {
+  if (source === "worker") return null;
+  const base = { requestId: `R${url.length}`, request: { url }, type: source === "page-navigation" ? "Document" : "Fetch" };
+  if (source === "page-no-stack") return { ...base, initiator: { type: "parser" } };
+  const initiator = { type: "script", stack: { callFrames: [{ url: source === "page-b" ? SCRIPT_B.url : SCRIPT_A.url }] } };
+  return { ...base, initiator, ...(source === "page-hop" ? { redirectResponse: { status: 302 } } : {}) };
+}
+
+function runRecorders(modules: CheckModules, url: string, inWindow: readonly WindowRequest[], later: readonly LaterReport[]) {
+  let now = WINDOW_START - 1_000;
+  const recorder = new modules.ScrollCheckRecorder<FakeRequest>(
+    { url: (request) => request.url, redirected: (request) => request.redirected === true, mainFrameNavigation: (request) => request.navigation === true },
+    () => now
+  );
+  const stacks = new modules.ScrollCheckStackRecorder(500);
+  for (const script of [SCRIPT_A, SCRIPT_B]) stacks.observe({ requestId: script.host, request: { url: script.url }, type: "Script", initiator: { type: "parser" } });
+  stacks.keep(FIRST_PARTY);
+  recorder.openWindow("scroll");
+  const report = (source: LaterSource, address: string): FakeRequest => {
+    const observation = sessionSees(address, source);
+    if (observation) stacks.observe(observation);
+    const request: FakeRequest = { url: address, redirected: source === "page-hop", navigation: source === "page-navigation" };
+    recorder.noteRequest(request);
+    if (source !== "page-hop") recorder.noteRouted(request, source === "page-refused" ? "refused" : "sent");
+    return request;
+  };
+  now = WINDOW_START;
+  for (const request of inWindow) {
+    now += 10;
+    const made = report(request.source, url);
+    if (request.counted) recorder.noteAnswered(made);
+  }
+  now = WINDOW_END;
+  for (const item of later) if (item.when === "last-millisecond") report(item.source, laterUrl(url, item.form));
+  recorder.freeze();
+  stacks.windowEnded();
+  for (const item of later) {
+    if (item.when !== "after-freeze") continue;
+    now += 10;
+    report(item.source, laterUrl(url, item.form));
+  }
+  const windows = recorder.windows({ firstPartyHostname: FIRST_PARTY, control: null, scroll: { start: WINDOW_START, end: WINDOW_END }, scrollRequests: true });
+  return { windows, entries: windows.scrollRequests ? stacks.entries(windows.scrollRequests) : null };
+}
+
+/** What the world's counted requests truly were. */
+function truth(inWindow: readonly WindowRequest[]) {
+  const counted = inWindow.filter((request) => request.counted);
+  const of = (source: WindowSource) => counted.filter((request) => request.source === source).length;
+  return { counted: counted.length, withoutStack: of("page-no-stack"), byHost: new Map([[SCRIPT_A.host, of("page-a")], [SCRIPT_B.host, of("page-b")]]) };
+}
+
+function windowWorlds(): WindowRequest[][] {
+  const one = WINDOW_REQUESTS.map((request) => [request]);
+  const two = WINDOW_REQUESTS.flatMap((first) => WINDOW_REQUESTS.map((second) => [first, second]));
+  return [...one, ...two].filter((requests) => requests.some((request) => request.counted));
+}
+
+function laterWorlds(): LaterReport[][] {
+  const two = laterReportsFrom(TWO_REPORT_SOURCES);
+  const pairs = two.flatMap((first) => two.map((second) => [first, second]));
+  // A report in the window's last millisecond cannot follow one after the freeze.
+  const possible = pairs.filter(([first, second]) => !(first.when === "after-freeze" && second.when === "last-millisecond"));
+  return [[], ...laterReportsFrom(LATER_SOURCES).map((report) => [report]), ...possible];
+}
+
+function checkLaterReports(modules: CheckModules): number {
+  let cases = 0;
+  const laters = laterWorlds();
+  for (const url of CHECKED_URLS) {
+    for (const inWindow of windowWorlds()) {
+      const alone = runRecorders(modules, url, inWindow, []);
+      const baseline = JSON.stringify(alone.windows.scroll);
+      const baselineEntries = JSON.stringify(alone.entries);
+      const real = truth(inWindow);
+      for (const later of laters) {
+        cases += 1;
+        const { windows, entries } = runRecorders(modules, url, inWindow, later);
+        const input = () => ({ url: url.slice(0, 60), inWindow, later, entries });
+        holds("ra6-a-report-after-the-window-changes-no-window", JSON.stringify(windows.scroll) === baseline && windows.reasons.size === 0, input);
+        const entry = entries?.[0];
+        holds("ra6-the-join-gives-the-host-its-entry", entry !== undefined && entries?.length === 1, input);
+        const given = entry as NonNullable<typeof entry>;
+        const named = given.groups.reduce((sum, group) => sum + group.count, 0);
+        const accounted = named + given.redirected + given.withoutStack + given.withoutNamedScript + given.notListed + given.unobserved;
+        holds("ra6-every-counted-request-is-accounted-for", given.requests === real.counted && accounted === real.counted, input);
+
+        // Against what each counted request truly was, not against any rule of the join.
+        holds(
+          "ra6-a-published-stack-belongs-to-a-counted-request",
+          given.groups.every((group) => group.count <= (real.byHost.get(group.hosts.join()) ?? 0)),
+          input
+        );
+        holds(
+          "ra6-a-published-reason-belongs-to-a-counted-request",
+          given.withoutStack <= real.withoutStack && given.redirected === 0 && given.withoutNamedScript === 0 && given.notListed === 0,
+          input
+        );
+
+        if (later.some((report) => report.form !== "other")) {
+          // This restates the rule, so it catches the code drifting from it, not a wrong rule.
+          holds("ra6-a-url-reported-after-the-window-takes-no-stack", named === 0 && given.unobserved === real.counted, input);
+          continue;
+        }
+        // A report to another URL leaves this one exactly as it was with no report at all.
+        holds("ra6-the-rule-costs-only-its-own-url", JSON.stringify(entries) === baselineEntries, input);
+        if (inWindow.every((request) => request.source !== "worker")) {
+          const exact = [...real.byHost].every(([host, count]) => (given.groups.find((group) => group.hosts.join() === host)?.count ?? 0) === count);
+          holds("ra6-with-no-worker-and-no-later-report-each-request-keeps-what-it-was", exact && given.withoutStack === real.withoutStack && given.unobserved === 0, input);
+        }
+      }
+    }
+  }
+  return cases;
+}
+
+/**
+ * The bounds and an unreadable address: a report the recorder lost costs the check its
+ * stacks, and only a lost one does. Reads what the join is handed, so that a report
+ * dropped on the way to it shows.
+ */
+function checkLostReports(modules: CheckModules): number {
+  let cases = 0;
+  for (let bound = 1; bound <= 3; bound += 1) {
+    for (const lastMillisecond of [0, 1, 3]) {
+      for (let distinct = 0; distinct <= 4; distinct += 1) {
+        for (const repeats of [1, 2]) {
+          for (const otherScheme of [0, 2]) {
+            for (const unreadable of ["no", "before-the-freeze", "after-the-freeze"] as const) {
+              cases += 1;
+              let now = WINDOW_START;
+              const facts = {
+                url: (request: FakeRequest) => {
+                  if (request.url === "unreadable") throw new Error("This address cannot be read.");
+                  return request.url;
+                },
+                redirected: () => false,
+                mainFrameNavigation: () => false
+              };
+              const recorder = new modules.ScrollCheckRecorder<FakeRequest>(facts, () => now, undefined, bound);
+              recorder.openWindow("scroll");
+              const made = { url: SHORT_URL };
+              recorder.noteRequest(made);
+              recorder.noteRouted(made, "sent");
+              recorder.noteAnswered(made);
+              if (unreadable === "before-the-freeze") recorder.noteRequest({ url: "unreadable" });
+              now = WINDOW_END;
+              const lastUrls = Array.from({ length: lastMillisecond }, (_, index) => `http://cdn.golf.net/m${index}`);
+              for (const url of lastUrls) recorder.noteRequest({ url });
+              recorder.freeze();
+              const laterUrls = Array.from({ length: distinct }, (_, index) => `http://cdn.golf.net/n${index}`);
+              for (const url of laterUrls) for (let repeat = 0; repeat < repeats; repeat += 1) recorder.noteRequest({ url });
+              for (let index = 0; index < otherScheme; index += 1) recorder.noteRequest({ url: `data:text/plain,${index}` });
+              if (unreadable === "after-the-freeze") recorder.noteRequest({ url: "unreadable" });
+              const windows = recorder.windows({ firstPartyHostname: FIRST_PARTY, control: null, scroll: { start: WINDOW_START, end: WINDOW_END }, scrollRequests: true });
+
+              const overTheWindowBound = 1 + lastMillisecond > bound;
+              const lost = overTheWindowBound || distinct > bound || unreadable !== "no";
+              const input = () => ({ bound, lastMillisecond, distinct, repeats, otherScheme, unreadable, join: windows.scrollRequests });
+              holds("ra6-a-lost-report-costs-the-check-its-stacks", lost === (windows.scrollRequests === undefined), input);
+              if (!lost) {
+                const heard = new Set(windows.scrollRequests?.reportedAfterWindow);
+                holds("ra6-the-join-hears-every-report", heard.size === lastMillisecond + distinct && [...lastUrls, ...laterUrls].every((url) => heard.has(url)), input);
+              }
+              // The window's own bound and its unreadable request have always said so. A report after the freeze says nothing.
+              const saysSo = overTheWindowBound || unreadable === "before-the-freeze";
+              holds("ra6-a-lost-report-costs-nothing-else", windows.reasons.has("host-bound") === saysSo && windows.reasons.size === (saysSo ? 1 : 0) && windows.scroll?.requests === 1, input);
+            }
+          }
+        }
+      }
+    }
+  }
+  return cases;
+}
+
+const PRODUCTION_CHECK: CheckModules = { ScrollCheckRecorder, ScrollCheckStackRecorder };
+
+function withStacksVariant(...edits: SourceEdit[]): CheckModules {
+  const stacks = loadVariant<Pick<CheckModules, "ScrollCheckStackRecorder">>(require.resolve("./scroll-check-stacks"), edits);
+  return { ScrollCheckRecorder, ScrollCheckStackRecorder: stacks.ScrollCheckStackRecorder };
+}
+
+function withRecorderVariant(...edits: SourceEdit[]): CheckModules {
+  const check = loadVariant<Pick<CheckModules, "ScrollCheckRecorder">>(require.resolve("./scroll-check"), edits);
+  return { ScrollCheckRecorder: check.ScrollCheckRecorder, ScrollCheckStackRecorder };
+}
+
+const THE_RULE = "reportedLater.has(key) || (observations.length > counted.length && !sameCategory(observations))";
+const THE_SURPLUS_RULE = "observations.length > counted.length && !sameCategory(observations)";
+const AT_THE_END = "(entry) => entry.at >= interval.end)";
+const AFTER_FREEZE_READ = "const url = this.facts.url(request);\n            if (requestHostname(url) === null || ";
+const GUARD = "if (this.reportedAfterFreeze.size >= this.maxWindowRequests)\n                this.reportLost = true;\n            else\n                this.reportedAfterFreeze.add(url);";
+
+test("RA6: a request in the window shows nothing it did not have, whatever the page reports after the window", () => {
+  assert.notEqual(redactHostnameV2(new URL(REDACTED_URL).hostname).value, new URL(REDACTED_URL).hostname, "this URL's host must publish as another name");
+  // 52 window worlds, by 286 later worlds (none, 42 single reports, 243 pairs), by 3 URLs.
+  assert.equal(windowWorlds().length, 52);
+  assert.equal(laterWorlds().length, 286);
+  assert.equal(checkLaterReports(PRODUCTION_CHECK), 52 * 286 * 3);
+});
+
+test("RA6: a report the recorder lost costs the check its stacks, and nothing else does", () => {
+  assert.equal(checkLostReports(PRODUCTION_CHECK), 3 * 3 * 5 * 2 * 2 * 3);
+});
+
+for (const [name, property, modules] of [
+  ["the join ignores later reports", "ra6-a-published-stack-belongs-to-a-counted-request", () => withStacksVariant({ find: THE_RULE, replace: THE_SURPLUS_RULE })],
+  [
+    "the rule takes the surplus rule's same-category exemption",
+    "ra6-a-published-stack-belongs-to-a-counted-request",
+    () => withStacksVariant({ find: THE_RULE, replace: "(reportedLater.has(key) || observations.length > counted.length) && observations.length > 0 && !sameCategory(observations)" })
+  ],
+  [
+    "a later report takes one observation off the end, and the rest pair by position",
+    "ra6-a-published-stack-belongs-to-a-counted-request",
+    () =>
+      withStacksVariant(
+        { find: THE_RULE, replace: THE_SURPLUS_RULE },
+        {
+          find: "joinObservations)(tally, counted.length, observations, dropped,",
+          replace: "joinObservations)(tally, counted.length, reportedLater.has(key) ? observations.slice(0, -1) : observations, dropped,"
+        }
+      )
+  ],
+  ["later reports are held by their raw address", "ra6-a-published-stack-belongs-to-a-counted-request", () => withStacksVariant({ find: "join.reportedAfterWindow.map(call_stack_publisher_1.heldUrlKey)", replace: "join.reportedAfterWindow" })],
+  [
+    "later reports are scoped to the listed host, which is the published name",
+    "ra6-a-published-stack-belongs-to-a-counted-request",
+    () =>
+      withStacksVariant({
+        find: "const reportedLater = new Set(join.reportedAfterWindow.map(call_stack_publisher_1.heldUrlKey));\n            return join.listed.map((entry) => this.hostStacks(entry, reportedLater));",
+        replace: "return join.listed.map((entry) => this.hostStacks(entry, new Set(join.reportedAfterWindow.filter((url) => (0, scroll_check_1.requestHostname)(url) === entry.host).map(call_stack_publisher_1.heldUrlKey))));"
+      })
+  ],
+  [
+    "the rule spares a URL whose observations name no script",
+    "ra6-a-published-reason-belongs-to-a-counted-request",
+    () => withStacksVariant({ find: THE_RULE, replace: `(reportedLater.has(key) && observations.some((category) => typeof category !== "string")) || (${THE_SURPLUS_RULE})` })
+  ],
+  ["the refusal counts every request instead of the counted ones", "ra6-every-counted-request-is-accounted-for", () => withStacksVariant({ find: "tally.unobserved += counted.filter(Boolean).length;", replace: "tally.unobserved += counted.length;" })],
+  ["a later report refuses the whole host", "ra6-the-rule-costs-only-its-own-url", () => withStacksVariant({ find: THE_RULE, replace: `reportedLater.size > 0 || (${THE_SURPLUS_RULE})` })],
+  [
+    "any later report refuses a URL with fewer observations than requests",
+    "ra6-the-rule-costs-only-its-own-url",
+    () => withStacksVariant({ find: THE_RULE, replace: `(reportedLater.size > 0 && observations.length < counted.length) || ${THE_RULE}` })
+  ],
+  ["a report after the freeze is forgotten", "ra6-a-published-stack-belongs-to-a-counted-request", () => withRecorderVariant({ find: "this.noteAfterFreeze(request);", replace: "" })],
+  [
+    "a main-frame navigation after the freeze is forgotten",
+    "ra6-a-published-stack-belongs-to-a-counted-request",
+    () => withRecorderVariant({ find: AFTER_FREEZE_READ, replace: `if (this.facts.mainFrameNavigation(request))\n                return;\n            ${AFTER_FREEZE_READ}` })
+  ],
+  [
+    "a redirect hop after the freeze is forgotten",
+    "ra6-a-published-reason-belongs-to-a-counted-request",
+    () => withRecorderVariant({ find: AFTER_FREEZE_READ, replace: `if (this.facts.redirected(request))\n                return;\n            ${AFTER_FREEZE_READ}` })
+  ],
+  ["a report in the window's last millisecond is forgotten", "ra6-a-published-stack-belongs-to-a-counted-request", () => withRecorderVariant({ find: AT_THE_END, replace: "() => false)" })],
+  ["a refused report in the window's last millisecond is forgotten", "ra6-a-published-stack-belongs-to-a-counted-request", () => withRecorderVariant({ find: AT_THE_END, replace: `(entry) => entry.at >= interval.end && this.decisions.get(entry.request) !== "refused")` })],
+  ["a redirect hop in the window's last millisecond is forgotten", "ra6-a-published-reason-belongs-to-a-counted-request", () => withRecorderVariant({ find: AT_THE_END, replace: "(entry) => entry.at >= interval.end && !entry.redirected)" })],
+  [
+    "a report after the freeze marks the window incomplete",
+    "ra6-a-report-after-the-window-changes-no-window",
+    () => withRecorderVariant({ find: AFTER_FREEZE_READ, replace: `this.boundReached = true;\n            ${AFTER_FREEZE_READ}` })
+  ]
+] as const) {
+  test(`RA6 catches a variant: ${name}`, async () => {
+    await assertCaughtBy(name, property, () => checkLaterReports(modules()));
+  });
+}
+
+for (const [name, property, modules] of [
+  ["a report past the freeze's bound is dropped in silence", "ra6-a-lost-report-costs-the-check-its-stacks", () => withRecorderVariant({ find: GUARD, replace: "this.reportedAfterFreeze.add(url);" })],
+  [
+    "a report past the window's bound is dropped in silence",
+    "ra6-a-lost-report-costs-the-check-its-stacks",
+    () => withRecorderVariant({ find: "this.reportLost = true;\n                    return;", replace: "return;" })
+  ],
+  [
+    "a report it cannot read before the freeze is dropped in silence",
+    "ra6-a-lost-report-costs-the-check-its-stacks",
+    () => withRecorderVariant({ find: "this.boundReached = true;\n                this.reportLost = true;\n            }", replace: "this.boundReached = true;\n            }" })
+  ],
+  [
+    "a report it cannot read after the freeze is dropped in silence",
+    "ra6-a-lost-report-costs-the-check-its-stacks",
+    () => withRecorderVariant({ find: "this.reportedAfterFreeze.add(url);\n        }\n        catch (_a) {\n            this.reportLost = true;\n        }", replace: "this.reportedAfterFreeze.add(url);\n        }\n        catch (_a) {\n        }" })
+  ],
+  ["a lost report still gives stacks", "ra6-a-lost-report-costs-the-check-its-stacks", () => withRecorderVariant({ find: "!this.reportLost", replace: "true" })],
+  ["the bound counts repeats of one address", "ra6-a-lost-report-costs-the-check-its-stacks", () => withRecorderVariant({ find: " || this.reportedAfterFreeze.has(url)", replace: "" })],
+  ["other schemes fill the bound", "ra6-a-lost-report-costs-the-check-its-stacks", () => withRecorderVariant({ find: "requestHostname(url) === null || ", replace: "" })],
+  ["the join hears only the first reports after the freeze", "ra6-the-join-hears-every-report", () => withRecorderVariant({ find: "...this.reportedAfterFreeze", replace: "...[...this.reportedAfterFreeze].slice(0, 2)" })],
+  ["the join hears no report in the window's last millisecond", "ra6-the-join-hears-every-report", () => withRecorderVariant({ find: AT_THE_END, replace: "() => false)" })],
+  ["a lost report marks the window incomplete", "ra6-a-lost-report-costs-nothing-else", () => withRecorderVariant({ find: "!this.reportLost", replace: '!(this.reportLost && reasons.add("host-bound"))' })]
+] as const) {
+  test(`RA6 catches a variant: ${name}`, async () => {
+    await assertCaughtBy(name, property, () => checkLostReports(modules()));
   });
 }

@@ -102,16 +102,24 @@ async function check(options: {
   allowance?: number;
   /** How far the routes' settle moves the clock, delivering what arrives meanwhile. */
   settleMs?: number;
+  maxWindowRequests?: number;
+  /** A request whose address cannot be read. */
+  unreadableUrl?: string;
 }) {
   let now = NAV + 5_000;
   const startedAt = now;
   const recorder = new ScrollCheckRecorder<FakeRequest>(
     {
-      url: (request) => request.url,
+      url: (request) => {
+        if (request.url === options.unreadableUrl) throw new Error("This address cannot be read.");
+        return request.url;
+      },
       redirected: (request) => request.redirected === true,
       mainFrameNavigation: (request) => request.navigation === true
     },
-    () => now
+    () => now,
+    undefined,
+    options.maxWindowRequests
   );
   const stacks = options.stacks === undefined ? new ScrollCheckStackRecorder(options.allowance ?? SCROLL_CHECK_REQUEST_ALLOWANCE) : options.stacks;
   const queue = [...options.scheduled].map((item, order) => ({ item, order })).sort((left, right) => left.item.at - right.item.at || left.order - right.order);
@@ -371,28 +379,64 @@ test("a worker's request never takes the stack of the page's own request to the 
 });
 
 /**
- * Open (RA6), an owner call, pinned as what happens and not as what should. A request
- * after the window is observed and not counted, so the counts come out equal, and a
- * worker's request takes a stack it never had. A fix turns the first assertion into the
- * second's `unobserved: 1`.
+ * A request after the window is observed and not counted, so the counts come out equal,
+ * and by position a worker's request would take a stack it never had. RA6's first case,
+ * reproduced in real Chromium with a slow request holding the settle open.
  */
-test("open (RA6): a worker's request in the window takes the stack of a page request to the same URL after the window", async () => {
+test("a worker's request in the window never takes the stack of a page request to the same URL after the window", async () => {
   const url = "http://cdn.golf.net/beacon";
   const workerRequest: Scheduled = { at: SCROLL_END - 100, page: url };
-  const afterTheWindow = await check({ scheduled: [...AT_LOAD, workerRequest, ...both(SCROLL_END + 50, url, { frames: [LOADER] })] });
-  assert.deepEqual(entryFor(afterTheWindow, "cdn.golf.net"), {
+  const unobserved = {
     host: "cdn.golf.net",
     requests: 1,
-    groups: [{ count: 1, hosts: ["cdn.alpha.net"] }],
+    groups: [],
     redirected: 0,
     withoutStack: 0,
     withoutNamedScript: 0,
     notListed: 0,
-    unobserved: 0
-  });
+    unobserved: 1
+  };
+  const afterTheWindow = await check({ scheduled: [...AT_LOAD, workerRequest, ...both(SCROLL_END + 50, url, { frames: [LOADER] })] });
+  assert.deepEqual(entryFor(afterTheWindow, "cdn.golf.net"), unobserved);
   const workerAlone = await check({ scheduled: [...AT_LOAD, workerRequest] });
-  assert.deepEqual(entryFor(workerAlone, "cdn.golf.net"), {
-    host: "cdn.golf.net",
+  assert.deepEqual(entryFor(workerAlone, "cdn.golf.net"), unobserved);
+  // In the window's last millisecond the page's event is recorded, and the window's own
+  // rule leaves it out, so it counts as after the window too.
+  const lastMillisecond = await check({
+    scheduled: [...AT_LOAD, workerRequest, { at: SCROLL_END - 1, cdp: sent(url, { frames: [LOADER] }) }, { at: SCROLL_END, page: url }]
+  });
+  assert.deepEqual(entryFor(lastMillisecond, "cdn.golf.net"), unobserved);
+});
+
+test("a later report matches its request's held URL, with a fragment and past the held URL's length", async () => {
+  const short = "http://cdn.golf.net/beacon";
+  const long = `${short}?pad=${"x".repeat(2_100)}`;
+  for (const [windowUrl, laterUrl] of [
+    [short, `${short}#later`],
+    [`${short}#window`, short],
+    [long, long],
+    [long, `${long}#later`]
+  ]) {
+    const evidence = await check({
+      scheduled: [...AT_LOAD, { at: SCROLL_END - 100, page: windowUrl }, ...both(SCROLL_END + 50, laterUrl, { frames: [LOADER] })]
+    });
+    const entry = entryFor(evidence, "cdn.golf.net");
+    assert.deepEqual([entry.requests, entry.groups, entry.unobserved], [1, [], 1], `${windowUrl.slice(0, 40)} then ${laterUrl.slice(0, 40)}`);
+  }
+});
+
+/**
+ * The rule's cost, pinned so that nothing lowers it by accident and nothing reads it as
+ * a measurement of the page. A URL requested in the window and again just after loses
+ * the stack it did have, since which observation is whose is not known.
+ */
+test("the rule's cost: a URL the page requests in the window and again after it takes no stack, even one it observed", async () => {
+  const url = "http://cdn.hotel.net/poll";
+  const evidence = await check({
+    scheduled: [...AT_LOAD, ...both(SCROLL_END - 100, url, { frames: [LOADER] }), ...both(SCROLL_END + 50, url, { frames: [LOADER] })]
+  });
+  assert.deepEqual(entryFor(evidence, "cdn.hotel.net"), {
+    host: "cdn.hotel.net",
     requests: 1,
     groups: [],
     redirected: 0,
@@ -403,15 +447,139 @@ test("open (RA6): a worker's request in the window takes the stack of a page req
   });
 });
 
+test("the rule goes by URL: a later request to another URL on the host costs nothing", async () => {
+  const evidence = await check({
+    scheduled: [
+      ...AT_LOAD,
+      ...both(SCROLL_END - 100, "http://cdn.hotel.net/one", { frames: [LOADER] }),
+      ...both(SCROLL_END - 90, "http://cdn.hotel.net/two", { frames: [LOADER] }),
+      ...both(SCROLL_END + 50, "http://cdn.hotel.net/two", { frames: [LOADER] }),
+      ...both(SCROLL_END + 60, "http://cdn.hotel.net/three", { frames: [LOADER] })
+    ]
+  });
+  assert.deepEqual(entryFor(evidence, "cdn.hotel.net"), {
+    host: "cdn.hotel.net",
+    requests: 2,
+    groups: [{ count: 1, hosts: ["cdn.alpha.net"] }],
+    redirected: 0,
+    withoutStack: 0,
+    withoutNamedScript: 0,
+    notListed: 0,
+    unobserved: 1
+  });
+});
+
+test("a report after the window changes the check's stacks and nothing else", async () => {
+  const later = [...both(SCROLL_END + 50, "http://cdn.juliet.net/borrowed", { frames: [LOADER] }), ...both(SCROLL_END + 60, "http://new.kilo.net/k", { frames: [LOADER] })];
+  const without = await check({ scheduled: richPage() });
+  const withLater = await check({ scheduled: [...richPage(), ...later] });
+  const juliet = (evidence: ScrollCheckEvidence) => entryFor(evidence, "cdn.juliet.net");
+  assert.deepEqual([juliet(without).groups.length, juliet(without).unobserved], [1, 0]);
+  assert.deepEqual([juliet(withLater).groups.length, juliet(withLater).unobserved], [0, 1]);
+  const others = (evidence: ScrollCheckEvidence) => stacksOf(evidence).filter((entry) => entry.host !== "cdn.juliet.net");
+  assert.deepEqual(others(withLater), others(without));
+  const windowOnly = (evidence: ScrollCheckEvidence) => ({ ...evidence, scroll: { ...evidence.scroll, stacks: null } });
+  assert.deepEqual(windowOnly(withLater), windowOnly(without));
+});
+
+test("a report after the window that could not be kept costs the check its stacks, and only them", async () => {
+  const windowRequest = both(SCROLL_END - 100, "http://cdn.hotel.net/one", { frames: [LOADER] });
+  const report = (at: number, url: string): Scheduled => ({ at, page: url });
+  const baseline = await check({ scheduled: [...AT_LOAD, ...windowRequest], maxWindowRequests: 1 });
+  assert.equal(stacksOf(baseline).length, 1);
+  const withoutStacks = (evidence: ScrollCheckEvidence) => ({ ...evidence, scroll: { ...evidence.scroll, stacks: undefined } });
+
+  // Reports at the bound: one distinct address, however often, fits.
+  const fits = await check({
+    scheduled: [...AT_LOAD, ...windowRequest, report(SCROLL_END + 50, "http://cdn.india.net/a"), report(SCROLL_END + 60, "http://cdn.india.net/a"), report(SCROLL_END + 70, "data:text/plain,not-a-request")],
+    maxWindowRequests: 1
+  });
+  assert.equal(stacksOf(fits).length, 1);
+
+  // Past it, an address the join does not know could be any window request's.
+  const overflow = await check({
+    scheduled: [...AT_LOAD, ...windowRequest, report(SCROLL_END + 50, "http://cdn.india.net/a"), report(SCROLL_END + 60, "http://cdn.india.net/b")],
+    maxWindowRequests: 1
+  });
+  assert.equal((overflow.scroll as ScrollCheckScrollWindow).stacks, undefined);
+  assert.deepEqual(withoutStacks(overflow), withoutStacks(baseline));
+
+  const unreadable = await check({
+    scheduled: [...AT_LOAD, ...windowRequest, report(SCROLL_END + 50, "http://cdn.india.net/unreadable")],
+    unreadableUrl: "http://cdn.india.net/unreadable"
+  });
+  assert.equal((unreadable.scroll as ScrollCheckScrollWindow).stacks, undefined);
+  assert.deepEqual(withoutStacks(unreadable), withoutStacks(baseline));
+});
+
+test("a page request the window's own bound dropped costs the check its stacks, since it could be any request's", async () => {
+  const url = "http://cdn.golf.net/beacon";
+  const workerRequest: Scheduled = { at: SCROLL_END - 100, page: url };
+  for (const dropped of [
+    // In the window's last millisecond, so after the window by its own rule.
+    [{ at: SCROLL_END - 1, cdp: sent(url, { frames: [LOADER] }) }, { at: SCROLL_END, page: url }],
+    // Inside the window.
+    both(SCROLL_END - 50, url, { frames: [LOADER] })
+  ] as Scheduled[][]) {
+    const evidence = await check({ scheduled: [...AT_LOAD, workerRequest, ...dropped], maxWindowRequests: 1 });
+    const scroll = evidence.scroll as ScrollCheckScrollWindow;
+    assert.equal(scroll.stacks, undefined, JSON.stringify(scroll.stacks));
+    // The lists stand, and the bound is said.
+    assert.deepEqual(evidence.incomplete, ["host-bound"]);
+    assert.deepEqual(scroll.hosts.flatMap((group) => group.hosts), ["cdn.golf.net"]);
+  }
+});
+
+test("a URL reported again after the window reads as unobserved, whatever its requests' own observations said", async () => {
+  const url = "http://cdn.hotel.net/poll";
+  const zero = { redirected: 0, withoutStack: 0, withoutNamedScript: 0, notListed: 0 };
+  const later = both(SCROLL_END + 50, url);
+  // It came with no call stack, and that is lost too.
+  const noStack = await check({ scheduled: [...AT_LOAD, ...both(SCROLL_END - 100, url), ...later] });
+  assert.deepEqual(entryFor(noStack, "cdn.hotel.net"), { host: "cdn.hotel.net", requests: 1, groups: [], ...zero, unobserved: 1 });
+  // A worker's request never reads as the later request's reason.
+  const worker = await check({ scheduled: [...AT_LOAD, { at: SCROLL_END - 100, page: url }, ...later] });
+  assert.deepEqual(entryFor(worker, "cdn.hotel.net"), { host: "cdn.hotel.net", requests: 1, groups: [], ...zero, unobserved: 1 });
+  // A bound dropped its observation, which would otherwise read as not listed.
+  const filler = both(SCROLL_START + 500, "http://cdn.filler.net/f", { frames: [LOADER] });
+  const request = both(SCROLL_START + 1_000, url, { frames: [LOADER] });
+  const alone = await check({ allowance: 1, scheduled: [...AT_LOAD, ...filler, ...request] });
+  assert.deepEqual(entryFor(alone, "cdn.hotel.net"), { host: "cdn.hotel.net", requests: 1, groups: [], ...zero, notListed: 1, unobserved: 0 });
+  const bounded = await check({ allowance: 1, scheduled: [...AT_LOAD, ...filler, ...request, ...later] });
+  assert.deepEqual(entryFor(bounded, "cdn.hotel.net"), { host: "cdn.hotel.net", requests: 1, groups: [], ...zero, unobserved: 1 });
+});
+
 /**
- * Open (RA6), the lead's mirror, pinned the same way. A request the page reported before
- * the window means the host was already contacted, so it gets no entry. This needs an
- * observation the page never reported, and whether Chromium sends one for a third party
- * in the lead is not measured. A rule about observations after the window leaves it.
+ * Open (RA6), pinned as what happens and not as what should. A request the page reported
+ * before the window means the host was already contacted, so it gets no entry. This
+ * needs an observation the page never reported, and whether Chromium sends one for a
+ * third party in the lead is not measured. The rule about reports after the window
+ * leaves it.
  */
 test("open (RA6): a worker's request in the window takes the stack of an observation in the lead that the page never reported", async () => {
   const url = "http://cdn.golf.net/beacon";
   const evidence = await check({ scheduled: [...AT_LOAD, { at: SCROLL_START - 300, cdp: sent(url, { frames: [LOADER] }) }, { at: SCROLL_START + 1_000, page: url }] });
+  assert.deepEqual(entryFor(evidence, "cdn.golf.net"), {
+    host: "cdn.golf.net",
+    requests: 1,
+    groups: [{ count: 1, hosts: ["cdn.alpha.net"] }],
+    redirected: 0,
+    withoutStack: 0,
+    withoutNamedScript: 0,
+    notListed: 0,
+    unobserved: 0
+  });
+});
+
+/**
+ * Open (RA6), pinned the same way. The session reported a later request and the page's
+ * event for it had not arrived when the evidence was built, so nothing says it is later.
+ */
+test("open (RA6): a worker's request in the window takes the stack of a later request whose page event comes after the evidence", async () => {
+  const url = "http://cdn.golf.net/beacon";
+  const evidence = await check({
+    scheduled: [...AT_LOAD, { at: SCROLL_END - 100, page: url }, { at: SCROLL_END + 50, cdp: sent(url, { frames: [LOADER] }) }, { at: SCROLL_END + 1_000, page: url }]
+  });
   assert.deepEqual(entryFor(evidence, "cdn.golf.net"), {
     host: "cdn.golf.net",
     requests: 1,

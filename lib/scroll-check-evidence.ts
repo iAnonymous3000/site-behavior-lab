@@ -206,7 +206,11 @@ export type ScrollCheckHostStacks = {
    * those past a bound of the check's recording.
    */
   notListed: number;
-  /** Requests the call-stack recording never observed, such as a dedicated worker's. */
+  /**
+   * Requests with no observation to take: those the call-stack recording never
+   * observed, such as a dedicated worker's, and those to a URL where which
+   * observation is whose is not known.
+   */
   unobserved: number;
 };
 

@@ -15,9 +15,7 @@ public API or a 1.0 release.
   other inputs or of what a browser does.
 - Finite checks of what one call stack publishes, the attribution refusal rule,
   Inspect's stability under pairing, and which warning lines each loss predicate
-  reads. One case stays open and is pinned as it behaves: a worker's request in a
-  check's scroll window can take the call stack of a page request to the same URL
-  just after the window.
+  reads.
 - The start of a private, owner-only investigation workspace: a Cloudflare
   Worker that verifies a Cloudflare Access token on every request and denies
   everything else. Nothing deploys it and it has no hostname, and no public
@@ -25,6 +23,13 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- A check after scrolling no longer gives a request a call stack when the page
+  requested the same URL again after the scroll window: a worker's request could
+  take the stack of the page's later one. Every counted request to such a URL now
+  reads as not observed, so a URL polled across the window's end loses what it had,
+  and a check that lost a page request to a bound carries no call stacks. Two cases
+  stay open and are pinned as they behave: an observation the page never reported,
+  and a later request whose page event comes after the evidence is built.
 - Corpus cohorts are keyed on the detector registry too, so a refresh can
   no longer pool one methodology's detector epochs: thirteen registries
   (node-detectors-v11 to v23) share the current methodology. The key leaves

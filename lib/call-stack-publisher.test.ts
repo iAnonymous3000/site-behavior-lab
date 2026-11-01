@@ -251,7 +251,7 @@ test("Inspect and the check publish the same stream as the same hosts and counts
   const inspected = inspection.evidence();
   assert.ok(inspected);
   const pixelRequests = stream.flatMap((step) => (step.page?.startsWith("https://pixel.") ? [{ url: step.page, counted: true }] : []));
-  const [checked] = check.entries([{ host: "pixel.example.net", requests: pixelRequests }]) ?? [];
+  const [checked] = check.entries({ listed: [{ host: "pixel.example.net", requests: pixelRequests }], reportedAfterWindow: [] }) ?? [];
   assert.ok(checked);
   // Inspect keys a group by its hosts and its scripts, the check by its hosts alone.
   const byHosts = new Map<string, number>();
@@ -290,7 +290,7 @@ test("Inspect and the check part when a URL is observed more often than it was r
   assert.deepEqual(inspected?.groups.map((group) => [group.count, group.hosts]), [[1, ["cdn.example.net"]]]);
   assert.equal(inspected?.unobserved, 0);
   // The check cannot tell which observation was its request's, so it takes neither.
-  const [entry] = check.entries([{ host: "pixel.example.net", requests: [{ url: pixel, counted: true }] }]) ?? [];
+  const [entry] = check.entries({ listed: [{ host: "pixel.example.net", requests: [{ url: pixel, counted: true }] }], reportedAfterWindow: [] }) ?? [];
   assert.deepEqual(entry?.groups, []);
   assert.equal(entry?.unobserved, 1);
 });
@@ -317,7 +317,7 @@ test("Inspect keeps stacks that name the same hosts through different scripts ap
   const groups = inspection.evidence()?.groups ?? [];
   assert.deepEqual(groups.map((group) => [group.count, group.hosts, group.namedScripts.length]), [[1, ["cdn.example.net"], 1], [1, ["cdn.example.net"], 1]]);
   assert.notDeepEqual(groups[0].namedScripts, groups[1].namedScripts);
-  const [entry] = check.entries([{ host: "pixel.example.net", requests: [pixel("a"), pixel("b")].map((url) => ({ url, counted: true })) }]) ?? [];
+  const [entry] = check.entries({ listed: [{ host: "pixel.example.net", requests: [pixel("a"), pixel("b")].map((url) => ({ url, counted: true })) }], reportedAfterWindow: [] }) ?? [];
   assert.deepEqual(entry?.groups, [{ count: 2, hosts: ["cdn.example.net"] }]);
 });
 

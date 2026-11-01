@@ -39,6 +39,10 @@ import { closeSharedBrowserForTests, scanSiteWithMeasurement, type ScanSiteOptio
  *   one whose sourceURL is the loader's (its fetch to cdn.juliet.net names A).
  * And in the window without input, a script's timer fetches from
  * api.kilo.net: listed there, given no stacks.
+ *
+ * A second page has a worker fetch from cdn.golf.net on scroll, and its loader
+ * fetch the same URL after the scroll window, while a slow answer holds the
+ * check's settle open so the later request lands.
  */
 
 const TEST_TIMING: ScrollCheckTiming = {
@@ -52,6 +56,9 @@ const TEST_TIMING: ScrollCheckTiming = {
 
 const SCREEN = 980;
 const CONTROL_FETCH_MS = TEST_TIMING.settleAfterNavigationMs + Math.floor(TEST_TIMING.controlWindowMs / 2);
+/** From the first scroll: well past the scroll window, and well before the slow answer ends the settle. */
+const LATER_FETCH_MS = TEST_TIMING.scrollWindowMs + 800;
+const SLOW_ANSWER_MS = LATER_FETCH_MS + 1_700;
 
 const PNG = Buffer.from(
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=",
@@ -78,7 +85,15 @@ const FILES: Record<string, Record<string, string>> = {
     setTimeout(eval('(function () { fetch("http://cdn.juliet.net/borrowed", { mode: "no-cors" }); })\\n//# sourceURL=http://cdn.alpha.net/loader.js'), 0);
   }, { once: true });
 </script>`,
-    "/stacks-worker.js": `onmessage = function () { fetch("http://cdn.golf.net/beacon", { mode: "no-cors" }); };`
+    "/stacks-worker.js": `onmessage = function () { fetch("http://cdn.golf.net/beacon", { mode: "no-cors" }); };`,
+    "/later": `<!doctype html><title>Later request fixture</title>
+<style>body { margin: 0 } section { height: ${SCREEN}px }</style>
+<script src="http://cdn.alpha.net/later-loader.js"></script>
+<section>One</section><section>Two</section><section>Three</section><section>Four</section><section>Five</section>
+<script>
+  var worker = new Worker("/stacks-worker.js");
+  addEventListener("scroll", function () { worker.postMessage("go"); }, { once: true });
+</script>`
   },
   "cdn.alpha.net": {
     "/loader.js":
@@ -92,6 +107,11 @@ const FILES: Record<string, Record<string, string>> = {
       ` fetch("http://api.echo.net/redirect", { mode: "no-cors" });` +
       ` fetch("http://north.lima.net/a", { mode: "no-cors" });` +
       ` new Image().src = "http://south.lima.net/b.png";` +
+      ` }, { once: true });`,
+    "/later-loader.js":
+      `addEventListener("scroll", function () {` +
+      ` fetch("http://slow.india.com/held", { mode: "no-cors" });` +
+      ` setTimeout(function () { fetch("http://cdn.golf.net/beacon", { mode: "no-cors" }); }, ${LATER_FETCH_MS});` +
       ` }, { once: true });`
   },
   "static.bravo.org": {
@@ -110,6 +130,13 @@ async function startFixture(): Promise<Fixture> {
     if (host === "api.echo.net" && url.pathname === "/redirect") {
       response.writeHead(302, { location: "http://cdn.foxtrot.net/landing", "access-control-allow-origin": "*" });
       response.end();
+      return;
+    }
+    if (host === "slow.india.com") {
+      setTimeout(() => {
+        response.writeHead(200, { "content-type": "image/png", "access-control-allow-origin": "*" });
+        response.end(PNG);
+      }, SLOW_ANSWER_MS);
       return;
     }
     const body = FILES[host]?.[url.pathname];
@@ -235,6 +262,31 @@ test("a check gives each host it first contacted while scrolling the call-stack 
     for (const forbidden of ["/{seg}", "loader.js", "tag.js", "collect", "forged", "named", "send", "onload", "http:"]) {
       assert.equal(serialized.includes(forbidden), false, `the stacks carry ${forbidden}`);
     }
+  } finally {
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => fixture.server.close(() => resolve()));
+  }
+});
+
+/**
+ * The session observes only the later request, so the counts come out equal and by
+ * position the worker's request would take its stack. What stops that is the scanner's
+ * own page listener reporting the later request after the check froze, which no test on
+ * a scripted page can hold.
+ */
+test("a worker's request in the scroll window never takes the stack of the page's request to the same URL after it", { timeout: 120_000 }, async () => {
+  const fixture = await startFixture();
+  try {
+    const envelope = await scanSiteWithMeasurement(
+      { url: "http://www.example.com/later", device: "desktop", gpcEnabled: false, consentMode: "observe" },
+      { ...visitOptions(fixture.port), scrollCheck: true }
+    );
+    const evidence = scrollCheckEvidence(envelope) as ScrollCheckEvidence | undefined;
+    assert.ok(evidence, "the check returned no evidence");
+    assert.equal(evidence.outcome, "reached-end", JSON.stringify(evidence));
+    assert.equal(fixture.hits.filter((hit) => hit === "cdn.golf.net/beacon").length, 2, `the worker's request and the later one: ${fixture.hits.join(", ")}`);
+    // One counted request, so the later one landed after the window.
+    assert.deepEqual(entry(evidence, "cdn.golf.net"), { host: "cdn.golf.net", requests: 1, groups: [], ...NONE, unobserved: 1 });
   } finally {
     await closeSharedBrowserForTests();
     await new Promise<void>((resolve) => fixture.server.close(() => resolve()));

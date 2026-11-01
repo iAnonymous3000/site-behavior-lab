@@ -19,7 +19,7 @@ import {
   type ScrollCheckWindow,
   type ScrollCheckWindowEvents
 } from "./scroll-check-evidence";
-import type { ScrollCheckListedRequests, ScrollCheckStackRecorder, ScrollCheckStackRequest } from "./scroll-check-stacks";
+import type { ScrollCheckStackJoin, ScrollCheckStackRecorder, ScrollCheckStackRequest } from "./scroll-check-stacks";
 
 /**
  * The server half of "Check after scrolling" (build brief approved
@@ -272,6 +272,10 @@ export class ScrollCheckRecorder<RequestT extends object> {
   private readonly entryAt = new WeakMap<RequestT, number>();
   /** While the settle waits: its windows, the sent requests in them with neither, and what to call once none is left. */
   private waiting: { intervals: ReadonlyArray<Interval>; requests: Set<RequestT>; settled: () => void } | null = null;
+  /** The addresses the page reported after the freeze. Only the call-stack join reads them. */
+  private readonly reportedAfterFreeze = new Set<string>();
+  /** A report this recorder could not keep, in a window or after the freeze, so that join cannot know every request. */
+  private reportLost = false;
   private window: WindowKind | null = null;
   private frozen = false;
   private boundReached = false;
@@ -285,7 +289,10 @@ export class ScrollCheckRecorder<RequestT extends object> {
 
   /** One request the page asked for (Playwright's page "request" event). */
   readonly noteRequest = (request: RequestT): void => {
-    if (this.frozen) return;
+    if (this.frozen) {
+      this.noteAfterFreeze(request);
+      return;
+    }
     try {
       const host = requestHostname(this.facts.url(request));
       if (host === null) return;
@@ -302,6 +309,7 @@ export class ScrollCheckRecorder<RequestT extends object> {
       if (this.window === null) return;
       if (this.entries.length >= this.maxWindowRequests) {
         this.boundReached = true;
+        this.reportLost = true;
         return;
       }
       const entry: WindowEntry<RequestT> = {
@@ -317,8 +325,26 @@ export class ScrollCheckRecorder<RequestT extends object> {
     } catch {
       // A request this recorder could not read is a request it lost.
       this.boundReached = true;
+      this.reportLost = true;
     }
   };
+
+  /**
+   * A request the page reported after the freeze. No window counts it, but the
+   * session can observe it, so a request in the window that the session never
+   * observed could take its stack: the call-stack join needs its address. It
+   * touches no list or count.
+   */
+  private noteAfterFreeze(request: RequestT): void {
+    try {
+      const url = this.facts.url(request);
+      if (requestHostname(url) === null || this.reportedAfterFreeze.has(url)) return;
+      if (this.reportedAfterFreeze.size >= this.maxWindowRequests) this.reportLost = true;
+      else this.reportedAfterFreeze.add(url);
+    } catch {
+      this.reportLost = true;
+    }
+  }
 
   /**
    * The page route's decision on one request, fed from the scanner's own
@@ -415,7 +441,10 @@ export class ScrollCheckRecorder<RequestT extends object> {
    * (lib/scroll-check-stacks.ts), each host the scroll window lists, in its
    * listed order, with every request its raw hosts made in that window, in
    * arrival order, and whether the window counted it: decided here, by this
-   * window's own rule and clock, and nowhere else. With a body reader in its
+   * window's own rule and clock, and nowhere else. It also hands that join
+   * every address the page reported from the window's end on, and is absent
+   * when the recorder lost a report, in a window or after the freeze, so the
+   * check carries no stacks rather than wrong ones. With a body reader in its
    * facts, also, for the analytics events (lib/scroll-check-events.ts), each
    * window's requests that count for them, in arrival order, by the same rule
    * and clock.
@@ -435,7 +464,7 @@ export class ScrollCheckRecorder<RequestT extends object> {
     control: ScrollCheckWindow | null;
     scroll: ScrollCheckScrollWindow | null;
     reasons: Set<ScrollCheckIncompleteReason>;
-    scrollRequests?: ScrollCheckListedRequests[];
+    scrollRequests?: ScrollCheckStackJoin;
     events?: ScrollCheckEventRequests;
     lists?: ScrollCheckWindowLists;
   } {
@@ -536,10 +565,17 @@ export class ScrollCheckRecorder<RequestT extends object> {
       const listed = listedHosts(firstContacted);
       // The join pairs requests per URL, and a URL names one raw host, whose
       // requests are listed in arrival order already.
-      const listedRequests = collect
-        ? listed.hosts
-            .flatMap((group) => group.hosts)
-            .map((host) => ({ host, requests: [...(rawHostsOf.get(host) ?? [])].flatMap((raw) => requestsOf.get(raw) ?? []) }))
+      const listedRequests: ScrollCheckStackJoin | null = collect
+        ? {
+            listed: listed.hosts
+              .flatMap((group) => group.hosts)
+              .map((host) => ({ host, requests: [...(rawHostsOf.get(host) ?? [])].flatMap((raw) => requestsOf.get(raw) ?? []) })),
+            // A request recorded in the window's last millisecond is not the window's either.
+            reportedAfterWindow: [
+              ...this.entries.filter((entry) => entry.at >= interval.end).map((entry) => facts.url(entry.request)),
+              ...this.reportedAfterFreeze
+            ]
+          }
         : null;
       // Each listed host's state is the strongest across the raw hosts it
       // stands for, by the same mapping the join uses.
@@ -562,7 +598,7 @@ export class ScrollCheckRecorder<RequestT extends object> {
       control: controlRun ? { ...controlRun.listed, requests: controlRun.requests, ...controlRun.noAnswer } : null,
       scroll: scroll ? { ...scroll.listed, requests: scroll.requests, knownHostRequests: scroll.knownHostRequests, ...scroll.noAnswer } : null,
       reasons,
-      ...(scroll?.listedRequests ? { scrollRequests: scroll.listedRequests } : {}),
+      ...(scroll?.listedRequests && !this.reportLost ? { scrollRequests: scroll.listedRequests } : {}),
       ...(facts.postData !== undefined
         ? { events: { control: controlRun ? controlRun.eventRequests : null, scroll: scroll ? scroll.eventRequests : null } }
         : {}),
@@ -902,15 +938,15 @@ function withListLabels(
 function withCallStacks(
   evidence: ScrollCheckEvidence,
   stacks: ScrollCheckStackRecorder | undefined,
-  listed: ScrollCheckListedRequests[] | undefined
+  join: ScrollCheckStackJoin | undefined
 ): ScrollCheckEvidence {
   if (stacks === undefined) return evidence;
   try {
-    if (evidence.scroll === null || listed === undefined) {
+    if (evidence.scroll === null || join === undefined) {
       stacks.freeze();
       return evidence;
     }
-    const entries = stacks.entries(listed);
+    const entries = stacks.entries(join);
     if (entries === null) return evidence;
     const carried: ScrollCheckEvidence = { ...evidence, scroll: { ...evidence.scroll, stacks: entries } };
     return isScrollCheckEvidence(carried) ? carried : evidence;
