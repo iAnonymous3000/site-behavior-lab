@@ -34,6 +34,11 @@ public API or a 1.0 release.
   a case store folded from its log, with M1's A2, A3, A4, A7, A9, A10 and A12
   passing on a synthetic case. No route or deployment, and public behavior is
   unchanged.
+- The private workspace now has an owner-only viewer: pages rendered whole in its
+  Worker that run no script, show stored text with every character that could
+  show as nothing marked, and write only claims, refusing writes and loads from
+  other origins. The production entry configures no case service, so its case
+  routes answer 503, and nothing is deployed.
 
 ### Fixed
 

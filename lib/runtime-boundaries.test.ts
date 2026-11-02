@@ -47,10 +47,17 @@ test("Cloudflare Worker imports stay out of Node-only modules", async () => {
       "cloudflare/r2-remediation-worker.ts",
       "cloudflare/r2-delete-canary-worker.ts",
       WORKSPACE_ENTRYPOINT,
-      // No route reaches these yet, and they are written to run in this Worker. The store
-      // reaches the log, the machine, the evidence model and the aggregates.
+      // Written to run in this Worker. The entry reaches the viewer, and through it the
+      // store, the log, the machine, the evidence model and the aggregates. Neither the case
+      // service, which the production entry does not configure, nor the summary tier is
+      // reached. Each is named, so none drops out if an import moves.
       "investigation/core/case-log.ts",
       "investigation/core/case-store.ts",
+      "investigation/core/case-service.ts",
+      "investigation/core/viewer-routes.ts",
+      "investigation/core/viewer-pages.ts",
+      "investigation/core/viewer-text.ts",
+      "investigation/core/workspace-response.ts",
       "investigation/core/summary-tier.ts"
     ],
     blockedLocalModules: NODE_ONLY_MODULES,
@@ -141,6 +148,7 @@ test("the workspace entrypoint reaches its gate and verifier by plain imports, a
   const graph = await collectRuntimeImportGraph(WORKSPACE_ENTRYPOINT);
   assert.ok(graph.has("investigation/core/workspace-gate.ts"));
   assert.ok(graph.has("investigation/core/access-token.ts"));
+  for (const viewer of ["viewer-routes.ts", "viewer-pages.ts", "viewer-text.ts", "workspace-response.ts"]) assert.ok(graph.has(`investigation/core/${viewer}`), viewer);
   const outside = [...graph].filter((file) => file !== WORKSPACE_ENTRYPOINT && !file.startsWith(WORKSPACE_DIRECTORY));
   assert.deepEqual(outside, [], "the workspace imports nothing of the public scanner's yet");
 });

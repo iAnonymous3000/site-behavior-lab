@@ -190,8 +190,8 @@ export function aggregate(rows: readonly AggregateRow[], measure: Measure): Aggr
   return { ok: true, groups };
 }
 
-/** The limits a row's reading carried. One read as unknown for its own state has that state as its limit. */
-function limitsOfReading(reading: RowReading): readonly string[] {
+/** The limits a row's reading carried. One read as unknown for its own state has that state as its limit. The viewer shows a reading's limits through this, so a page and a count agree. */
+export function limitsOfReading(reading: RowReading): readonly string[] {
   if ("limits" in reading) return reading.limits;
   return "reason" in reading ? [reading.reason] : [];
 }

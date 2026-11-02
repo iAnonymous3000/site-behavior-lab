@@ -9,6 +9,7 @@ import { aggregate, evidenceForAttempt } from "../core/aggregates";
 import * as canonicalJson from "../core/canonical-json";
 import * as caseEvents from "../core/case-events";
 import * as caseLog from "../core/case-log";
+import * as caseService from "../core/case-service";
 import { EVENT_TYPES } from "../core/case-events";
 import * as machine from "../core/case-machine";
 import { continuationOf, denominatorOf, retentionOf } from "../core/case-machine";
@@ -21,6 +22,10 @@ import * as purge from "../core/purge";
 import * as readings from "../core/readings";
 import * as summaryTier from "../core/summary-tier";
 import { projectAttemptSummary } from "../core/summary-tier";
+import * as viewerPages from "../core/viewer-pages";
+import * as viewerRoutes from "../core/viewer-routes";
+import * as viewerText from "../core/viewer-text";
+import * as workspaceResponse from "../core/workspace-response";
 import { actorsFor, ATTEMPT_IDS, CANARIES, CASE_SCRIPT, logEvent, RETRACT_ASSERTION_COMMAND, risingClock, runScript, SUPERSEDE_COMMAND, type ScriptCommand } from "./case-fixture";
 import { CASE_A, verifiedOwnerActor } from "./log-fixture";
 import { memoryStores, type MemoryStores } from "./memory-log-store";
@@ -41,17 +46,22 @@ const CORE = "investigation/core";
 const TEST = "investigation/test";
 
 const EXPORTS: Readonly<Record<string, readonly string[]>> = {
-  "aggregates.ts": ["SPLIT_KEYS", "aggregate", "aggregateRowsOf", "evidenceForAttempt"],
+  "aggregates.ts": ["SPLIT_KEYS", "aggregate", "aggregateRowsOf", "evidenceForAttempt", "limitsOfReading"],
   "canonical-json.ts": ["MAX_CANONICAL_DEPTH", "bytesEqual", "canonicalBytes", "hasExactly", "parseCanonical", "sha256Hex"],
-  "case-log.ts": ["GENESIS_HEAD", "MAX_ENTRY_BYTES", "MAX_EVIDENCE_BYTES", "MAX_HEAD_CHARS", "appendCommand", "checkFirstEntry", "createLog", "isCaseId", "isDigest", "openLog", "putEvidence", "verifyAgainstSavedHead"],
-  "case-events.ts": ["EVENT_TYPES", "configurationKey", "decodeEvent", "digestsNamed", "isConfigurationIdentity"],
+  "case-log.ts": ["GENESIS_HEAD", "MAX_ENTRY_BYTES", "MAX_EVIDENCE_BYTES", "MAX_HEAD_CHARS", "appendCommand", "checkFirstEntry", "createLog", "isCaseId", "isDigest", "openLog", "putEvidence", "readEvidence", "verifyAgainstSavedHead"],
+  "case-events.ts": ["EVENT_TYPES", "MAX_LIST_ITEMS", "MAX_SLUG_CHARS", "MAX_TEXT_CHARS", "configurationKey", "decodeEvent", "digestsNamed", "isConfigurationIdentity", "isSlug"],
+  "case-service.ts": ["CLAIM_EVENT_TYPES", "EVIDENCE_PAGE_BYTES", "caseServiceOver"],
   "case-machine.ts": ["MAX_CONFIGURATION_CHANGES", "MAX_CONTROL_MISSES", "MAX_START_RETRIES", "OUTCOMES", "SLOT_NAMES", "continuationOf", "denominatorOf", "isCleanupUnresolved", "isOutcome", "isRunningPhase", "isTerminal", "plannedState", "retentionOf", "step", "visitBasisOf"],
   "case-store.ts": ["aggregateRowsOfCase", "createCase", "mintedSlots", "openCase", "runCommand"],
   "evidence-model.ts": ["EMPTY_RECORD", "UNREAD_STATES", "addRow", "applyRecordEvent", "readRow", "sourceIdentityOf"],
   "ids.ts": ["mintAttemptId", "mintCaseId"],
   "purge.ts": ["purgeStep", "retentionTier"],
   "readings.ts": ["COMPLETENESS_LIMITS", "MAX_TIME_MS", "MAX_UNCERTAINTY_MS", "orderOf", "readExecutionJoin", "readObservation", "stackToScriptPosition"],
-  "summary-tier.ts": ["isAttemptSummary", "projectAttemptSummary"]
+  "summary-tier.ts": ["isAttemptSummary", "projectAttemptSummary"],
+  "viewer-pages.ts": ["ADAPTER_NOTE", "CANNOT_ANSWER", "aggregatesPage", "attemptPage", "casePage", "evidencePage", "evidenceRefusalPage", "factPage", "formRefusalPage", "methodPage", "notFoundPage", "readingMarkup", "refusalPage", "rowPage"],
+  "viewer-routes.ts": ["MAX_FORM_BYTES", "VIEWER_ROUTES", "viewerRoutes"],
+  "viewer-text.ts": ["AttributeValue", "MAX_INDENT", "Markup", "attribute", "escapeAttribute", "escapeText", "hiddenField", "html", "linkTo", "pathOf"],
+  "workspace-response.ts": ["BASE_POLICY", "VIEWER_STYLE", "VIEWER_STYLE_HASH", "htmlResponse", "jsonResponse", "refusalResponse", "responseHeaders"]
 };
 
 const MODULES: Readonly<Record<string, object>> = {
@@ -59,13 +69,18 @@ const MODULES: Readonly<Record<string, object>> = {
   "canonical-json.ts": canonicalJson,
   "case-log.ts": caseLog,
   "case-events.ts": caseEvents,
+  "case-service.ts": caseService,
   "case-machine.ts": machine,
   "case-store.ts": store,
   "evidence-model.ts": evidence,
   "ids.ts": ids,
   "purge.ts": purge,
   "readings.ts": readings,
-  "summary-tier.ts": summaryTier
+  "summary-tier.ts": summaryTier,
+  "viewer-pages.ts": viewerPages,
+  "viewer-routes.ts": viewerRoutes,
+  "viewer-text.ts": viewerText,
+  "workspace-response.ts": workspaceResponse
 };
 
 const PUBLISHING = /approv|publish|public|export|claim_?text|press|announce/i;
@@ -292,7 +307,10 @@ const REAL_HOST = /\b(?:[a-z0-9-]+\.)+(?:com|net|org|io|co|gov|edu|info|biz|dev|
 
 const W2_TESTS = ["aggregates.test.ts", "case-fixture.ts", "case-machine-walk.test.ts", "case-machine.test.ts", "case-store.test.ts", "case-surface.test.ts", "evidence-model.test.ts", "ids.test.ts", "purge.test.ts", "readings.test.ts", "summary-tier.test.ts", "w2-acceptance.test.ts"];
 
-const newFiles = (): readonly string[] => [...Object.keys(EXPORTS).map((file) => `${CORE}/${file}`), ...W2_TESTS.map((file) => `${TEST}/${file}`)];
+/** W3's, the viewer's, held to the same rules. */
+const W3_TESTS = ["case-service.test.ts", "memory-case-world.ts", "viewer-browser.test.ts", "viewer-fixture.ts", "viewer.test.ts", "workerd-bundle.ts", "workerd-viewer-entry.ts", "workspace-entry-workerd.test.ts"];
+
+const newFiles = (): readonly string[] => [...Object.keys(EXPORTS).map((file) => `${CORE}/${file}`), ...W2_TESTS.map((file) => `${TEST}/${file}`), ...W3_TESTS.map((file) => `${TEST}/${file}`)];
 
 type Read = (file: string) => string;
 const readProject: Read = (file) => readFileSync(path.join(ROOT, file), "utf8");
@@ -320,8 +338,8 @@ test("the new code and its fixture name no real site, by a list and by the shape
   }
 });
 
-test("the list of new test files is every test file this batch added beside the ones before it", () => {
+test("the lists of new test files are every test file W2 and W3 added beside the ones before them", () => {
   const earlier = ["access-token.test.ts", "actor.test.ts", "canonical-json.test.ts", "case-log-walk.test.ts", "case-log-workerd.test.ts", "case-log.test.ts", "deployment-config.test.ts", "fs-kill-child.ts", "fs-log-store-kill.test.ts", "fs-log-store.test.ts", "log-fixture.ts", "memory-log-store.ts", "token-fixture.ts", "workerd-case-log-entry.ts", "workspace-boundaries.test.ts", "workspace-config.test.ts", "workspace-gate.test.ts"];
   const present = readdirSync(path.join(ROOT, TEST)).filter((file) => file.endsWith(".ts")).sort();
-  assert.deepEqual(present, [...earlier, ...W2_TESTS].sort());
+  assert.deepEqual(present, [...earlier, ...W2_TESTS, ...W3_TESTS].sort());
 });

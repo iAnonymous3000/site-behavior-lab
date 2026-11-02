@@ -144,7 +144,8 @@ const DISALLOWED_HEADERS = {
   "cf-visitor": "visitor",
   forwarded: "for=203.0.113.1",
   host: "attacker.example",
-  origin: "https://attacker.example",
+  // The gate reads Origin, and it goes no further. This one is the workspace's own, so the write gets past.
+  origin: "https://workspace.example",
   referer: "https://attacker.example/",
   "remote-user": "someone-else",
   "true-client-ip": "203.0.113.1",
@@ -186,33 +187,48 @@ test("a route's request holds exactly the headers it may read, and is built to f
 });
 
 test("every response holds exactly the headers it should", async () => {
-  const check = async (module: GateModule) => {
-    for (const token of [ownerToken, null]) {
-      const response = await module.handleWorkspaceRequest(request("/health", token), ENV, runtime());
-      holds(
-        "a response's headers are the stated ones",
-        JSON.stringify([...response.headers.entries()].sort()) ===
-          JSON.stringify([
-            ["cache-control", "no-store"],
-            ["content-security-policy", "default-src 'none'; base-uri 'none'; frame-ancestors 'none'"],
-            ["content-type", "application/json; charset=utf-8"],
-            ["referrer-policy", "no-referrer"],
-            ["x-content-type-options", "nosniff"]
-          ]),
-        () => [...response.headers.entries()]
-      );
+  const stated = JSON.stringify([
+    ["cache-control", "no-store"],
+    ["content-security-policy", "default-src 'none'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'"],
+    ["content-type", "application/json; charset=utf-8"],
+    ["cross-origin-opener-policy", "same-origin"],
+    ["cross-origin-resource-policy", "same-origin"],
+    ["referrer-policy", "same-origin"],
+    ["x-content-type-options", "nosniff"]
+  ]);
+  const check = (responses: readonly Response[]) => {
+    for (const response of responses) {
+      holds("a response's headers are the stated ones", JSON.stringify([...response.headers.entries()].sort()) === stated, () => [...response.headers.entries()]);
     }
   };
-  await check(productionGate);
+  const fromGate = async (module: GateModule) => [
+    await module.handleWorkspaceRequest(request("/health", ownerToken), ENV, runtime()),
+    await module.handleWorkspaceRequest(request("/health", null), ENV, runtime()),
+    await module.handleWorkspaceRequest(request("/cases", ownerToken), ENV, runtime()),
+    await module.handleWorkspaceRequest(request("/cases", ownerToken, { method: "POST" }), ENV, runtime()),
+    await module.handleWorkspaceRequest(request("/cases", ownerToken, { headers: { "sec-fetch-site": "cross-site", "sec-fetch-mode": "no-cors" } }), ENV, runtime()),
+    await module.handleWorkspaceRequest(request("/health", ownerToken), { ...ENV, INVESTIGATION_WORKSPACE_HOSTNAME: undefined }, runtime())
+  ];
+  check(await fromGate(productionGate));
+  // Every response the gate makes is built by workspace-response.ts, so that builder is what most variants break.
+  const responsePath = require.resolve("../core/workspace-response");
   for (const [name, edit] of [
-    ["the referrer policy", { find: '"referrer-policy": "no-referrer",', replace: "" }],
-    ["base-uri", { find: "default-src 'none'; base-uri 'none'; frame-ancestors 'none'", replace: "default-src 'none'; frame-ancestors 'none'" }],
-    ["the content type", { find: '"content-type": "application/json; charset=utf-8",', replace: "" }],
+    ["the referrer policy", { find: '"referrer-policy": "same-origin",', replace: "" }],
+    ["base-uri", { find: "frame-ancestors 'none'; base-uri 'none'\";", replace: "frame-ancestors 'none'\";" }],
+    ["form-action", { find: "form-action 'self'; ", replace: "" }],
+    ["the content type", { find: '"content-type": kind === "html" ? "text/html; charset=utf-8" : "application/json; charset=utf-8",', replace: "" }],
     ["the cache rule", { find: '"cache-control": "no-store",', replace: "" }],
-    ["nosniff", { find: '"x-content-type-options": "nosniff"', replace: '"x-other": "nosniff"' }]
+    ["nosniff", { find: '"x-content-type-options": "nosniff"', replace: '"x-other": "nosniff"' }],
+    ["the opener policy", { find: '"cross-origin-opener-policy": "same-origin",', replace: "" }],
+    ["the resource policy", { find: '"cross-origin-resource-policy": "same-origin",', replace: "" }]
   ] as const) {
-    await assertCaughtBy(name, "a response's headers are the stated ones", () => check(gateVariant(edit)));
+    const variant = loadVariant<typeof import("../core/workspace-response")>(responsePath, [edit]);
+    await assertCaughtBy(name, "a response's headers are the stated ones", () => check([variant.jsonResponse(200, {}), variant.refusalResponse(401), variant.refusalResponse(403), variant.refusalResponse(503)]));
   }
+  // And the gate itself, building a refusal of its own rather than through the builder.
+  await assertCaughtBy("a refusal the gate builds itself", "a response's headers are the stated ones", async () =>
+    check(await fromGate(gateVariant({ find: "return (0, workspace_response_1.refusalResponse)(status);", replace: 'return new Response(JSON.stringify({ error: "access-refused" }), { status, headers: { "content-type": "application/json; charset=utf-8" } });' })))
+  );
 });
 
 test("the keys come from the configured team and no other", async () => {
@@ -281,13 +297,15 @@ test("a GET or HEAD that declares a body passes none on, and does not fail for i
   );
 });
 
-test("the owner has no route but health yet", async () => {
+test("with no route table, the gate answers health and nothing else", async () => {
   for (const path of ["/", "/cases", "/health/", "/health.json", "/HEALTH"]) {
     assert.equal((await handleWorkspaceRequest(request(path, ownerToken), ENV, runtime())).status, 404, path);
   }
-  const post = await handleWorkspaceRequest(request("/health", ownerToken, { method: "POST" }), ENV, runtime());
+  const post = await handleWorkspaceRequest(request("/health", ownerToken, { method: "POST", headers: { origin: "https://workspace.example" } }), ENV, runtime());
   assert.equal(post.status, 405);
   assert.equal(post.headers.get("allow"), "GET, HEAD");
+  // With no Origin, the gate refuses the write before any route sees it.
+  assert.equal((await handleWorkspaceRequest(request("/health", ownerToken, { method: "POST" }), ENV, runtime())).status, 403);
 });
 
 test("a service token reaches health and nothing else, whatever the method", async () => {
@@ -359,6 +377,7 @@ test("a route receives the verified identity and a request with no identity left
       method: "POST",
       body: "{}",
       headers: {
+        origin: "https://workspace.example",
         accept: "application/json",
         "content-type": "application/json",
         cookie: `CF_Authorization=${ownerToken}`,
@@ -379,6 +398,21 @@ test("a route receives the verified identity and a request with no identity left
   assert.deepEqual([...(seenHeaders as Headers).keys()].sort(), ["accept", "content-type"]);
   assert.equal(seenIdentity?.kind, "owner");
   assert.equal(seenIdentity?.kind === "owner" ? seenIdentity.email : null, OWNER_EMAIL);
+});
+
+test("a route receives the assertion the gate verified, as the string it verified", async () => {
+  const seen: string[] = [];
+  const routes: WorkspaceRoutes = (_request, _identity, assertion) => {
+    seen.push(assertion);
+    return new Response("reached");
+  };
+  await handleWorkspaceRequest(request("/cases", ownerToken), ENV, runtime(routes));
+  await handleWorkspaceRequest(request("/health", serviceToken), ENV, runtime(routes));
+  assert.deepEqual(seen, [ownerToken, serviceToken]);
+  // The forwarded request still holds no identity: the assertion is an argument, not a header.
+  let forwarded: Headers | undefined;
+  await handleWorkspaceRequest(request("/cases", ownerToken), ENV, runtime((request) => ((forwarded = request.headers), new Response("reached"))));
+  assert.equal(forwarded?.get(ACCESS_TOKEN_HEADER), null);
 });
 
 test("nothing the platform attached to a request reaches a route", async () => {
@@ -415,7 +449,7 @@ test("a route still receives the request's method, address and body", async () =
     body = await seen.text();
     return new Response("reached");
   };
-  await handleWorkspaceRequest(request("/cases?x=1", ownerToken, { method: "POST", body: "payload" }), ENV, runtime(routes));
+  await handleWorkspaceRequest(request("/cases?x=1", ownerToken, { method: "POST", body: "payload", headers: { origin: "https://workspace.example" } }), ENV, runtime(routes));
   assert.deepEqual([method, url, body], ["POST", "https://workspace.example/cases?x=1", "payload"]);
 });
 

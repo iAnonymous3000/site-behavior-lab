@@ -38,7 +38,7 @@
 
 import { isDerivedActor, type Actor } from "./actor";
 import { canonicalBytes, parseCanonical } from "./canonical-json";
-import { appendCommand, checkFirstEntry, createLog, GENESIS_HEAD, isCaseId, openLog, type AppendRefusal, type LogEntry, type LogEvent, type LogStores, type OpenRefusal } from "./case-log";
+import { appendCommand, checkFirstEntry, createLog, GENESIS_HEAD, isCaseId, openLog, type AppendRefusal, type EvidenceSeen, type LogEntry, type LogEvent, type LogStores, type OpenRefusal } from "./case-log";
 import { configurationKey, decodeEvent, digestsNamed, type CaseEvent, type ConfigurationIdentity, type PlannedSlots } from "./case-events";
 import { plannedState, SLOT_NAMES, step, visitBasisOf, type AttemptState, type MachineActor, type MachineEvent, type MachineRefusal, type MachineState, type SlotName } from "./case-machine";
 import { addRow, applyRecordEvent, EMPTY_RECORD, type EvidenceRecord, type RecordEvent, type RecordRefusal } from "./evidence-model";
@@ -234,9 +234,9 @@ function foldEntry(state: CaseState | null, entry: Pick<LogEntry, "actor" | "eve
   return applied.ok ? withKept(state, decoded.event, named, applied.state) : applied;
 }
 
-/** This case as its log holds it, every entry and evidence object checked by the log first. */
-export async function openCase(stores: LogStores, caseId: string): Promise<OpenCaseResult> {
-  const opened = await openLog(stores, caseId);
+/** This case as its log holds it, every entry and evidence object checked by the log first. `seen` is handed each object's bytes as the log checks them. */
+export async function openCase(stores: LogStores, caseId: string, seen: EvidenceSeen | null = null): Promise<OpenCaseResult> {
+  const opened = await openLog(stores, caseId, seen);
   if (!opened.ok) return opened;
   let state: CaseState | null = null;
   let seq = 0;

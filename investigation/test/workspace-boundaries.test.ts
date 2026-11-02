@@ -123,7 +123,7 @@ test("the walk from the entry really reaches the gate, its configuration and the
   }
 });
 
-test("every core module is walked, including the log and the case machine the entry does not reach yet", () => {
+test("every core module is walked, including the summary tier the entry does not reach", () => {
   const graph = graphOf(filesIn(CORE), readProject);
   for (const file of [
     "investigation/core/actor.ts",
@@ -137,17 +137,27 @@ test("every core module is walked, including the log and the case machine the en
     "investigation/core/ids.ts",
     "investigation/core/purge.ts",
     "investigation/core/readings.ts",
-    "investigation/core/summary-tier.ts"
+    "investigation/core/summary-tier.ts",
+    "investigation/core/case-service.ts",
+    "investigation/core/viewer-pages.ts",
+    "investigation/core/viewer-routes.ts",
+    "investigation/core/viewer-text.ts",
+    "investigation/core/workspace-response.ts"
   ]) {
     assert.ok(graph.has(file), file);
   }
 });
 
-test("the Worker's entry reaches none of the case code yet, since no route exists", () => {
+test("the Worker's entry reaches the viewer, and through it the case code it reads, and neither the service it has none of nor the summary tier", () => {
   const graph = graphOf([WORKSPACE_ENTRY], readProject);
-  for (const file of graph) {
-    assert.ok(!/case-|evidence-model|purge|readings|summary-tier|aggregates|ids\.ts$/.test(file), file);
+  for (const file of ["viewer-routes.ts", "viewer-pages.ts", "viewer-text.ts", "workspace-response.ts", "case-store.ts", "case-log.ts", "evidence-model.ts", "aggregates.ts", "readings.ts", "case-machine.ts"]) {
+    assert.ok(graph.has(`${CORE}/${file}`), file);
   }
+  // The production entry configures no service, and the viewer names the seam by its types alone.
+  assert.ok(!graph.has(`${CORE}/case-service.ts`));
+  // A summary keeps a range's count of 0 as the capture gave it, which is no reading, so the viewer never reads one.
+  assert.ok(!graph.has(`${CORE}/summary-tier.ts`));
+  for (const viewer of ["viewer-routes.ts", "viewer-pages.ts", "viewer-text.ts"]) assert.ok(!graphOf([`${CORE}/${viewer}`], readProject).has(`${CORE}/summary-tier.ts`), viewer);
 });
 
 test("the other way: the filesystem store reaches the core and Node, seen by the same reader", () => {
@@ -199,6 +209,18 @@ test("a property or key that shares a Node global's name is not a use of it", ()
 test("a type-only import is no runtime edge, so the store's types cannot pull it in", () => {
   assert.deepEqual(runtimeImports("x.ts", 'import type { A } from "../local/fs-log-store"; export type { B } from "../local/fs-log-store";'), []);
   assert.deepEqual(runtimeImports("x.ts", 'import { type A, b } from "./y"; export { c } from "./z";').sort(), ["./y", "./z"]);
+});
+
+test("the scanner image's runtime stage copies nothing of the workspace, the viewer included", () => {
+  const dockerfile = readProject("Dockerfile");
+  const stages = dockerfile.split(/^FROM /m);
+  const runner = stages[stages.length - 1];
+  assert.match(runner, /AS runner/);
+  const sources = [...runner.matchAll(/^COPY\s+(?:--from=\S+\s+)?(.+?)\s+\S+$/gm)].flatMap(([, list]) => list.split(/\s+/));
+  assert.ok(sources.length >= 5, "the runner stage's copies were read");
+  for (const source of sources) {
+    assert.doesNotMatch(source, /investigation|cloudflare|^\.$|^\/app\/?$/, source);
+  }
 });
 
 test("the public boundary test names the filesystem store as Node-only, and the store is where it says", () => {

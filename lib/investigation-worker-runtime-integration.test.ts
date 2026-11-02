@@ -56,8 +56,9 @@ function bundleWorker(outputDirectory: string): string {
   execFileSync(
     process.execPath,
     [path.join(ROOT, "node_modules", "wrangler", "bin", "wrangler.js"), "deploy", "--config", CONFIG_PATH, "--dry-run", "--outdir", outputDirectory],
-    // The test's own bound cannot fire while this blocks the event loop.
-    { cwd: ROOT, env: { ...process.env, CI: "1", WRANGLER_SEND_METRICS: "false" }, stdio: "pipe", timeout: 120_000 }
+    // The test's own bound cannot fire while this blocks the event loop. With its banner hidden,
+    // wrangler skips the update check that would otherwise ask the npm registry for its latest version.
+    { cwd: ROOT, env: { ...process.env, CI: "1", WRANGLER_SEND_METRICS: "false", WRANGLER_HIDE_BANNER: "true" }, stdio: "pipe", timeout: 120_000 }
   );
   return path.join(outputDirectory, "investigation-worker.js");
 }
@@ -203,10 +204,13 @@ test(
           }
         }
       }
-      // A method that may have a body keeps it: it reaches the route, which has no use for it.
+      // A method that may have a body keeps it: from the workspace's own origin it reaches the
+      // route, which has no use for it. With no Origin the gate refuses it before any route.
       for (const method of ["POST", "PUT", "PATCH", "DELETE", "OPTIONS"]) {
-        const answer = await onTheWire(socket, method, { "cf-access-jwt-assertion": owner, "content-length": "4" }, "body");
+        const answer = await onTheWire(socket, method, { "cf-access-jwt-assertion": owner, origin: workspace, "content-length": "4" }, "body");
         assert.equal(answer.status, 405, method);
+        const unsaid = await onTheWire(socket, method, { "cf-access-jwt-assertion": owner, "content-length": "4" }, "body");
+        assert.deepEqual([unsaid.status, JSON.parse(unsaid.body)], [403, { error: "origin-refused" }], `${method} with no Origin`);
       }
 
       const fetchedWhileUnconfigured: string[] = [];

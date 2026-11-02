@@ -415,7 +415,7 @@ test("an edit, a changed object and a removed object are found at every position
 for (const [name, property, edit] of [
   ["only the newest three entries hashed", "an edit is found at every position", { find: "if ((await (0, canonical_json_1.sha256Hex)(bytes)) !== cursor)", replace: "if (entries.length < 3 && (await (0, canonical_json_1.sha256Hex)(bytes)) !== cursor)" }],
   ["only the newest three entries' evidence read", "a changed object is found at every position", { find: "for (const { entry } of walk.log.entries) {", replace: "for (const { entry } of walk.log.entries.slice(-3)) {" }],
-  ["only an entry's first object read on open", "a changed object is found at every position", { find: "for (const digest of entry.evidence) {\n            const refusal", replace: "for (const digest of entry.evidence.slice(0, 1)) {\n            const refusal" }]
+  ["only an entry's first object read on open", "a changed object is found at every position", { find: "for (const digest of entry.evidence) {\n            const read", replace: "for (const digest of entry.evidence.slice(0, 1)) {\n            const read" }]
 ] as const) {
   test(`${name} is caught by the walk of every position`, async () => {
     await assertCaughtBy(name, property, () => checkEveryPosition(logVariant(edit)));
@@ -674,14 +674,14 @@ for (const [name, edit, attackName] of [
   ["the digest check on the newest entry", { find: 'if ((await (0, canonical_json_1.sha256Hex)(bytes)) !== cursor)\n            return refuse("entry-edited", cursor);', replace: "" }, "the newest entry's time moved in place, still well formed"],
   ["the digest check on all but the newest entry", { find: "if ((await (0, canonical_json_1.sha256Hex)(bytes)) !== cursor)", replace: "if (entries.length === 0 && (await (0, canonical_json_1.sha256Hex)(bytes)) !== cursor)" }, "the middle entry re-attributed in place, still well formed"],
   ["reading all but the newest entry's evidence", { find: "for (const { entry } of walk.log.entries) {", replace: "for (const { entry } of walk.log.entries.slice(-1)) {" }, "the first object of the older entry changed"],
-  ["reading only an entry's first object", { find: "for (const digest of entry.evidence) {\n            const refusal", replace: "for (const digest of entry.evidence.slice(0, 1)) {\n            const refusal" }, "the second object of the newest entry changed"],
-  ["reading only an entry's first object, for a removal", { find: "for (const digest of entry.evidence) {\n            const refusal", replace: "for (const digest of entry.evidence.slice(0, 1)) {\n            const refusal" }, "the second object of the older entry removed"],
+  ["reading only an entry's first object", { find: "for (const digest of entry.evidence) {\n            const read", replace: "for (const digest of entry.evidence.slice(0, 1)) {\n            const read" }, "the second object of the newest entry changed"],
+  ["reading only an entry's first object, for a removal", { find: "for (const digest of entry.evidence) {\n            const read", replace: "for (const digest of entry.evidence.slice(0, 1)) {\n            const read" }, "the second object of the older entry removed"],
   ["the digest pattern's case", { find: "const DIGEST = /^[0-9a-f]{64}$/;", replace: "const DIGEST = /^[0-9a-fA-F]{64}$/;" }, "a head in uppercase"],
   ["the digest pattern's length", { find: "const DIGEST = /^[0-9a-f]{64}$/;", replace: "const DIGEST = /^[0-9a-f]+$/;" }, "a torn head"],
   ["the rule that a removed evidence object is refused", { find: 'if (bytes === null)\n        return refuse("evidence-missing", digest);', replace: "if (bytes === null)\n        return null;" }, "the second object of the newest entry removed"],
   ["the evidence digest check", { find: 'if ((await (0, canonical_json_1.sha256Hex)(bytes)) !== digest)\n        return refuse("evidence-changed", digest);', replace: "" }, "the second object of the newest entry changed"],
   ["the evidence size bound on read", { find: 'if (bytes === "too-large")\n        return refuse("evidence-too-large", digest);', replace: "" }, "an evidence object past the size bound at its address"],
-  ["reading evidence on open at all", { find: "for (const digest of entry.evidence) {\n            const refusal = await checkEvidence(stores, digest);\n            if (refusal !== null)\n                return refusal;\n        }\n    }\n    return walk;", replace: "}\n    return walk;" }, "the second object of the newest entry changed"]
+  ["reading evidence on open at all", { find: "for (const digest of entry.evidence) {\n            const read = await readEvidence(stores, digest);\n            if (!read.ok)\n                return read;\n            if (seen !== null)\n                seen(digest, read.bytes);\n        }\n    }\n    return walk;", replace: "}\n    return walk;" }, "the second object of the newest entry changed"]
 ] as const) {
   test(`removing ${name} is caught by "${attackName}"`, async () => {
     const expected = ATTACKS.find((attack) => attack.name === attackName)?.refusal;
@@ -848,7 +848,8 @@ function changingAfterReturn(inner: MemoryStores, rewrite: (text: string) => str
         const changed = encode(rewrite(decode(bytes)));
         void (async () => {
           for (let turn = 0; turn < turns; turn += 1) await null;
-          if (changed.length === bytes.length) handed.set(changed);
+          // A bare buffer is written through a view of its own, as the store's own memory.
+          if (changed.length === bytes.length) (handed instanceof ArrayBuffer ? new Uint8Array(handed) : handed).set(changed);
         })();
         return handed;
       }
@@ -858,16 +859,19 @@ function changingAfterReturn(inner: MemoryStores, rewrite: (text: string) => str
   return { entries: wrap(inner.entries), evidence: wrap(inner.evidence), head: inner.head };
 }
 
+/** A store's own bare buffer, handed back as it is: the one answer a typed array built from it would only view. */
+const bareBuffer = (bytes: Uint8Array<ArrayBuffer>): Uint8Array<ArrayBuffer> => bytes.buffer as unknown as Uint8Array<ArrayBuffer>;
+
 const checkLiveBuffers = async (module: LogModule) => {
   // However long the store waits, the reader must see what it hashed. Zero to a few thousand turns spans every await in a read.
-  for (const turns of [0, 1, 2, 3, 5, 8, 13, 50, 200, 2000]) {
+  for (const [present, turns] of [undefined, bareBuffer].flatMap((form) => [0, 1, 2, 3, 5, 8, 13, 50, 200, 2000].map((count) => [form, count] as const))) {
     const inner = memoryStores();
     await module.createLog(inner);
     const first = await mustAppend(inner, runner, "true-first", NOW_MS, [], module);
     const second = await mustAppend(inner, runner, "true-next", NOW_MS + 1, [], module);
 
     // Rewrites the events to something else of the same length, after the digest has its copy.
-    const edited = changingAfterReturn(inner, (text) => text.replace("true-next", "fake-next"), turns);
+    const edited = changingAfterReturn(inner, (text) => text.replace("true-next", "fake-next"), turns, present);
     const opened = await module.openLog(edited, CASE_A);
     if (opened.ok) {
       const events = opened.log.entries.map(({ entry }) => entry.events[0].type);
@@ -876,7 +880,7 @@ const checkLiveBuffers = async (module: LogModule) => {
 
     // Repoints a chain at a head it never held, which a saved-head check would then accept.
     const never = sha256OfText("a head this chain never held");
-    const repointed = changingAfterReturn(inner, (text) => text.replace(first, never), turns);
+    const repointed = changingAfterReturn(inner, (text) => text.replace(first, never), turns, present);
     const verdict = await module.verifyAgainstSavedHead(repointed, CASE_A, never);
     holds("a saved head the chain never held is refused, whatever the store does to its own buffer", !verdict.ok, () => ({ turns, verdict, second }));
 
@@ -885,7 +889,7 @@ const checkLiveBuffers = async (module: LogModule) => {
     const named = (await module.putEvidence(withEvidence, encode("first evidence")) as { digest: string }).digest;
     await mustAppend(withEvidence, runner, "named", NOW_MS, [named], module);
     // Evidence is only ever hashed, so a change either came first and is refused, or came too late to matter.
-    const changedEvidence = changingAfterReturn(withEvidence, (text) => text.replace("first evidence", "fakes evidence"), turns);
+    const changedEvidence = changingAfterReturn(withEvidence, (text) => text.replace("first evidence", "fakes evidence"), turns, present);
     const evidenceOpened = await module.openLog(changedEvidence, CASE_A);
     holds("evidence is what was hashed, whatever the store does to its own buffer", evidenceOpened.ok || evidenceOpened.refusal === "evidence-changed", () => ({ turns, evidenceOpened }));
   }
@@ -897,7 +901,7 @@ test("what is hashed and what is read are one copy, taken once, so a store's lat
 
 test("using the store's own buffer is caught", async () => {
   await assertCaughtBy("no copy", "what opens is what was hashed, whatever the store does to its own buffer", () =>
-    checkLiveBuffers(logVariant({ find: "const own = new Uint8Array(answer).slice();", replace: "const own = answer;" }))
+    checkLiveBuffers(logVariant({ find: "const own = view.buffer === answer ? view.slice() : view;", replace: "const own = answer;" }))
   );
 });
 
@@ -968,20 +972,20 @@ const checkAnswerForms = async (module: LogModule) => {
     const refusedEvidence = await module.openLog(answeringAs(bigEvidence, present), CASE_A);
     holds("oversize evidence is refused through every kind of answer", !refusedEvidence.ok && refusedEvidence.refusal === "evidence-too-large", () => ({ form, refusedEvidence }));
   }
-  // Changed by the store after it answered, in a realm where instanceof would not see it.
+  // Changed by the store after it answered, in a realm where instanceof would not see it, and as a bare buffer of its own.
   const [, foreign] = ANSWER_FORMS[0];
-  for (const turns of [0, 1, 2, 3, 5, 8, 13, 50, 200, 2000]) {
+  for (const [present, turns] of [foreign, bareBuffer].flatMap((form) => [0, 1, 2, 3, 5, 8, 13, 50, 200, 2000].map((count) => [form, count] as const))) {
     const inner = memoryStores();
     await module.createLog(inner);
     const first = await mustAppend(inner, runner, "true-first", NOW_MS, [], module);
     await mustAppend(inner, runner, "true-next", NOW_MS + 1, [], module);
-    const opened = await module.openLog(changingAfterReturn(inner, (text) => text.replace("true-next", "fake-next"), turns, foreign), CASE_A);
+    const opened = await module.openLog(changingAfterReturn(inner, (text) => text.replace("true-next", "fake-next"), turns, present), CASE_A);
     if (opened.ok) {
       const events = opened.log.entries.map(({ entry }) => entry.events[0].type);
       holds("what opens is what was hashed, through another realm's view", JSON.stringify(events) === '["true-first","true-next"]', () => ({ turns, events }));
     }
     const never = sha256OfText("a head this chain never held");
-    const verdict = await module.verifyAgainstSavedHead(changingAfterReturn(inner, (text) => text.replace(first, never), turns, foreign), CASE_A, never);
+    const verdict = await module.verifyAgainstSavedHead(changingAfterReturn(inner, (text) => text.replace(first, never), turns, present), CASE_A, never);
     holds("a saved head the chain never held is refused, through another realm's view", !verdict.ok, () => ({ turns, verdict }));
   }
 };
@@ -998,7 +1002,7 @@ test("trusting instanceof for a store's answer is caught", async () => {
 
 test("working from a store's answer as it came is caught", async () => {
   await assertCaughtBy("no copy", "a good log opens through every kind of answer", () =>
-    checkAnswerForms(logVariant({ find: "const own = new Uint8Array(answer).slice();", replace: "const own = answer;" }))
+    checkAnswerForms(logVariant({ find: "const own = view.buffer === answer ? view.slice() : view;", replace: "const own = answer;" }))
   );
 });
 

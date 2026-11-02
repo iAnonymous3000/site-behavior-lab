@@ -246,8 +246,12 @@ async function readOwn(store: ObjectStore, address: string, maxBytes: number): P
   const answer = await store.read(address, maxBytes);
   if (answer === null || typeof answer === "string") return answer;
   // A plain copy, whatever came back: a view from another realm is no instance of this
-  // one's Uint8Array, and a subclass or a proxy can answer any length it likes.
-  const own = new Uint8Array(answer).slice();
+  // one's Uint8Array, and a subclass or a proxy can answer any length it likes. Built from a
+  // typed array of any realm, or from anything iterable, the constructor already copies, at the
+  // answer's true length. Only a bare buffer gives a view over the store's own memory, so that
+  // alone is copied again. So one copy is held beside the store's answer, not two.
+  const view = new Uint8Array(answer);
+  const own = view.buffer === (answer as unknown) ? view.slice() : view;
   return own.length > maxBytes ? "too-large" : own;
 }
 
@@ -281,14 +285,28 @@ async function walkChain(stores: LogStores, caseId: string): Promise<ChainWalk> 
   return { ok: true, log: { head, entries: entries.reverse() } };
 }
 
-/** Null when the object at this digest is there and holds these bytes, or the refusal an open would give. */
-async function checkEvidence(stores: LogStores, digest: string): Promise<Refused<OpenRefusal> | null> {
+export type EvidenceReadRefusal = "evidence-missing" | "evidence-changed" | "evidence-too-large";
+
+/**
+ * The bytes of one evidence object, hashed against its address, as opening checks them. What
+ * is hashed and what is handed back are one copy, taken once, so a store cannot answer the
+ * hash with one thing and the reader with another. Nothing can live at an address that is not
+ * a digest, so such an address reads as missing without the store being asked.
+ */
+export async function readEvidence(stores: LogStores, digest: string): Promise<Readonly<{ ok: true; bytes: Uint8Array<ArrayBuffer> }> | Refused<EvidenceReadRefusal>> {
+  if (!isDigest(digest)) return refuse("evidence-missing");
   const bytes = await readOwn(stores.evidence, digest, MAX_EVIDENCE_BYTES);
   if (bytes === null) return refuse("evidence-missing", digest);
   if (bytes === "too-large") return refuse("evidence-too-large", digest);
   if (bytes === "not-an-object") return refuse("evidence-changed", digest);
   if ((await sha256Hex(bytes)) !== digest) return refuse("evidence-changed", digest);
-  return null;
+  return { ok: true, bytes };
+}
+
+/** Null when the object at this digest is there and holds these bytes, or the refusal an open would give. */
+async function checkEvidence(stores: LogStores, digest: string): Promise<Refused<OpenRefusal> | null> {
+  const read = await readEvidence(stores, digest);
+  return read.ok ? null : read;
 }
 
 /** Start a log, once. Until this runs the head is absent, and an absent head never reads as an empty log. */
@@ -296,14 +314,18 @@ export async function createLog(stores: LogStores): Promise<Readonly<{ ok: true 
   return (await stores.head.compareAndSwap(null, GENESIS_HEAD)) ? { ok: true } : refuse("log-exists");
 }
 
+/** Handed each evidence object's own copy once its hash has matched, so a reader that needs one object's bytes reads and hashes it no second time. */
+export type EvidenceSeen = (digest: string, bytes: Uint8Array<ArrayBuffer>) => void;
+
 /** This case's whole log from its head, with every entry and evidence object checked, or the first thing wrong with it. */
-export async function openLog(stores: LogStores, caseId: string): Promise<OpenResult> {
+export async function openLog(stores: LogStores, caseId: string, seen: EvidenceSeen | null = null): Promise<OpenResult> {
   const walk = await walkChain(stores, caseId);
   if (!walk.ok) return walk;
   for (const { entry } of walk.log.entries) {
     for (const digest of entry.evidence) {
-      const refusal = await checkEvidence(stores, digest);
-      if (refusal !== null) return refusal;
+      const read = await readEvidence(stores, digest);
+      if (!read.ok) return read;
+      if (seen !== null) seen(digest, read.bytes);
     }
   }
   return walk;

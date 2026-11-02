@@ -18,13 +18,18 @@ import { SLOT_NAMES } from "./case-machine";
 import type { PurgeEvent } from "./purge";
 import type { Cite, EvidenceRow, InstrumentRecord, RecordEvent, ReportedRowState, RowObservation, RowWindow, UnknownInput } from "./evidence-model";
 
+/** The longest slug, in characters, as SLUG below spells it. investigation/test/viewer.test.ts holds the two together. */
+export const MAX_SLUG_CHARS = 64;
+/** The longest free text an owner may write in one field, in UTF-16 code units. */
+export const MAX_TEXT_CHARS = 4096;
+/** The most items a list in an event may hold. */
+export const MAX_LIST_ITEMS = 64;
+
 const SLUG = /^[a-z0-9][a-z0-9_-]{0,63}$/;
 const COMMIT = /^[0-9a-f]{40}$/;
 const IMAGE_DIGEST = /^sha256:[0-9a-f]{64}$/;
 const VERSION = /^[0-9]+(?:\.[0-9]+){0,3}$/;
 const INTEGRITY = /^sha(?:256|384|512)-[A-Za-z0-9+/]+={0,2}$/;
-const MAX_TEXT_CHARS = 4096;
-const MAX_LIST_ITEMS = 64;
 const ALL_ZERO_ID = "0".repeat(32);
 
 /**
@@ -90,7 +95,8 @@ function isPlain(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-function isSlug(value: unknown): value is string {
+/** The shape every id, instrument, limit and reason has in the log. A viewer path that names one is held to this, and only this. */
+export function isSlug(value: unknown): value is string {
   return typeof value === "string" && SLUG.test(value);
 }
 
