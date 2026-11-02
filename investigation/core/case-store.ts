@@ -223,8 +223,13 @@ function withKept(before: CaseState | null, event: CaseEvent, named: readonly st
   return { ok: true, state: { ...after, keptObjects: [...new Set([...after.keptObjects, ...named])] } };
 }
 
-/** One entry's effect, or why it has none that this code can explain. */
-function foldEntry(state: CaseState | null, entry: Pick<LogEntry, "actor" | "events" | "evidence" | "seq">): ApplyResult {
+/**
+ * One entry's effect, or why it has none that this code can explain. Exported only so that
+ * investigation/test/case-exploration.test.ts can walk the fold itself. It reads its arguments and
+ * writes nothing, so it is no way around runCommand: a command still takes only a case this isolate
+ * folded and registered, on the stores it came from.
+ */
+export function foldEntry(state: CaseState | null, entry: Pick<LogEntry, "actor" | "events" | "evidence" | "seq">): ApplyResult {
   if (entry.events.length !== 1) return refused("not-one-command");
   const decoded = decodeEvent(entry.events[0]);
   if (!decoded.ok) return refused(decoded.refusal, decoded.at);

@@ -52,7 +52,7 @@ const EXPORTS: Readonly<Record<string, readonly string[]>> = {
   "case-events.ts": ["EVENT_TYPES", "MAX_LIST_ITEMS", "MAX_SLUG_CHARS", "MAX_TEXT_CHARS", "configurationKey", "decodeEvent", "digestsNamed", "isConfigurationIdentity", "isSlug"],
   "case-service.ts": ["CLAIM_EVENT_TYPES", "EVIDENCE_PAGE_BYTES", "caseServiceOver"],
   "case-machine.ts": ["MAX_CONFIGURATION_CHANGES", "MAX_CONTROL_MISSES", "MAX_START_RETRIES", "OUTCOMES", "SLOT_NAMES", "continuationOf", "denominatorOf", "isCleanupUnresolved", "isOutcome", "isRunningPhase", "isTerminal", "plannedState", "retentionOf", "step", "visitBasisOf"],
-  "case-store.ts": ["aggregateRowsOfCase", "createCase", "mintedSlots", "openCase", "runCommand"],
+  "case-store.ts": ["aggregateRowsOfCase", "createCase", "foldEntry", "mintedSlots", "openCase", "runCommand"],
   "evidence-model.ts": ["EMPTY_RECORD", "UNREAD_STATES", "addRow", "applyRecordEvent", "readRow", "sourceIdentityOf"],
   "ids.ts": ["mintAttemptId", "mintCaseId"],
   "purge.ts": ["purgeStep", "retentionTier"],
@@ -310,7 +310,10 @@ const W2_TESTS = ["aggregates.test.ts", "case-fixture.ts", "case-machine-walk.te
 /** W3's, the viewer's, held to the same rules. */
 const W3_TESTS = ["case-service.test.ts", "memory-case-world.ts", "viewer-browser.test.ts", "viewer-fixture.ts", "viewer.test.ts", "workerd-bundle.ts", "workerd-viewer-entry.ts", "workspace-entry-workerd.test.ts"];
 
-const newFiles = (): readonly string[] => [...Object.keys(EXPORTS).map((file) => `${CORE}/${file}`), ...W2_TESTS.map((file) => `${TEST}/${file}`), ...W3_TESTS.map((file) => `${TEST}/${file}`)];
+/** Batch F5's exhaustive exploration, which runs in a stage of its own. */
+const F5_TESTS = ["case-exploration-plant-worker.ts", "case-exploration-walk.ts", "case-exploration-worker.ts", "case-exploration.test.ts"];
+
+const newFiles = (): readonly string[] => [...Object.keys(EXPORTS).map((file) => `${CORE}/${file}`), ...[...W2_TESTS, ...W3_TESTS, ...F5_TESTS].map((file) => `${TEST}/${file}`)];
 
 type Read = (file: string) => string;
 const readProject: Read = (file) => readFileSync(path.join(ROOT, file), "utf8");
@@ -338,8 +341,8 @@ test("the new code and its fixture name no real site, by a list and by the shape
   }
 });
 
-test("the lists of new test files are every test file W2 and W3 added beside the ones before them", () => {
+test("the lists of new test files are every test file W2, W3 and F5 added beside the ones before them", () => {
   const earlier = ["access-token.test.ts", "actor.test.ts", "canonical-json.test.ts", "case-log-walk.test.ts", "case-log-workerd.test.ts", "case-log.test.ts", "deployment-config.test.ts", "fs-kill-child.ts", "fs-log-store-kill.test.ts", "fs-log-store.test.ts", "log-fixture.ts", "memory-log-store.ts", "token-fixture.ts", "workerd-case-log-entry.ts", "workspace-boundaries.test.ts", "workspace-config.test.ts", "workspace-gate.test.ts"];
   const present = readdirSync(path.join(ROOT, TEST)).filter((file) => file.endsWith(".ts")).sort();
-  assert.deepEqual(present, [...earlier, ...W2_TESTS, ...W3_TESTS].sort());
+  assert.deepEqual(present, [...earlier, ...W2_TESTS, ...W3_TESTS, ...F5_TESTS].sort());
 });

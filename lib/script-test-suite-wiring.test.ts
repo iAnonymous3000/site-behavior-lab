@@ -136,13 +136,34 @@ test("every lib test directory runs in an npm script that test:unit reaches", ()
  * every named file is, so the stage names each compiled suite and runs them through
  * scripts/investigation-test-stage.mjs, whose lane fails on a suite that left no
  * summary. scripts/unit-test-lanes.test.mjs shows that with one suite deleted.
+ *
+ * The exhaustive exploration of the case machine and the fold is one suite with a stage of
+ * its own, test:investigation-exploration, chained after the investigation lane so that it
+ * runs alone: the lane runs three files at a time, and the walk holds about three million
+ * states. Between them the two stages name every suite, each once.
  */
-test("the investigation suites run in a stage test:unit reaches, which names every one", () => {
+const EXPLORATION_SUITE = "investigation/test/case-exploration.test.ts";
+
+test("the investigation suites run in two stages test:unit reaches, which between them name every one once", () => {
   const stage = packageJson.scripts["test:investigation"];
-  assert.ok(commandsReachableFromTestUnit().includes(stage), "test:unit must run test:investigation");
-  assert.ok(stage.includes("tsc -p tsconfig.investigation-test.json"), "the stage must compile before it runs");
-  assert.ok(stage.includes("&& node scripts/investigation-test-stage.mjs .investigation-test-dist/"), "the suites must run through the lane that notices a missing one");
-  assert.doesNotMatch(stage, /node --test/, "node --test alone passes a run with a named suite missing");
+  const exploration = packageJson.scripts["test:investigation-exploration"];
+  const reachable = commandsReachableFromTestUnit();
+  assert.ok(reachable.includes(stage), "test:unit must run test:investigation");
+  assert.ok(reachable.includes(exploration), "test:unit must run test:investigation-exploration");
+  const testUnit = packageJson.scripts["test:unit"];
+  assert.equal(testUnit.split("npm run test:investigation-exploration").length - 1, 1, "the exploration must run exactly once");
+  // Right after the lane, and chained by && on both sides, so nothing starts before it ends or beside it while it runs.
+  assert.ok(testUnit.includes("&& npm run test:investigation && npm run test:investigation-exploration && "), "the exploration runs right after the investigation lane, chained on both sides");
+  for (const command of [testUnit, exploration]) {
+    assert.doesNotMatch(command, /(?:^|[^&])&(?:[^&]|$)/, "nothing is sent to the background beside it");
+    assert.doesNotMatch(command, /;|\bwait\b|\|/, "no step is sequenced or piped around the && chain, which would hide an exit code");
+  }
+  for (const command of [stage, exploration]) {
+    assert.ok(command.includes("tsc -p tsconfig.investigation-test.json"), "each stage must compile before it runs, so it also runs alone");
+    assert.ok(command.includes("&& node scripts/investigation-test-stage.mjs .investigation-test-dist/"), "the suites must run through the lane that notices a missing one");
+    assert.doesNotMatch(command, /node --test/, "node --test alone passes a run with a named suite missing");
+    assert.doesNotMatch(command, /\*/, "a glob that matches nothing passes, so each stage names its files");
+  }
 
   const compiled = JSON.parse(readFileSync(path.join(root, "tsconfig.investigation-test.json"), "utf8")) as {
     compilerOptions: { outDir: string };
@@ -159,7 +180,7 @@ test("the investigation suites run in a stage test:unit reaches, which names eve
   };
   walk("investigation");
   assert.ok(suites.length > 0, "the investigation suites could not be located");
-  const named = [...stage.matchAll(/\.investigation-test-dist\/(\S+)\.test\.js/g)].map((match) => `${match[1]}.test.ts`);
-  assert.deepEqual(named.sort(), suites.sort(), "the stage must name every investigation suite, and only those");
-  assert.doesNotMatch(stage, /\*/, "a glob that matches nothing passes, so the stage names its files");
+  const named = (command: string) => [...command.matchAll(/\.investigation-test-dist\/(\S+)\.test\.js/g)].map((match) => `${match[1]}.test.ts`);
+  assert.deepEqual(named(exploration), [EXPLORATION_SUITE], "the exploration stage runs its one suite and nothing else");
+  assert.deepEqual([...named(stage), ...named(exploration)].sort(), suites.sort(), "the two stages must name every investigation suite, each once, and only those");
 });

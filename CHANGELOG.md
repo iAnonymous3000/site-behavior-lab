@@ -22,6 +22,10 @@ public API or a 1.0 release.
 - A bounded model of the shared-worker hold and readout, with an axiom table over
   A1 to A5 and conformance by trace through the attacher thread's program. Its
   findings stay pinned open for the owner, and no report or identity moves.
+- Every state the private workspace's case machine and its case store's fold
+  reach on bounded plans, walked whole and held to the plan's properties, with
+  each checking thread made to account for the states it checked. Tests in a
+  stage of their own, plus one export of the fold step; no rule moves.
 - The start of a private, owner-only investigation workspace: a Cloudflare
   Worker that verifies a Cloudflare Access token on every request and denies
   everything else. Nothing deploys it and it has no hostname, and no public
