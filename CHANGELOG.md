@@ -19,6 +19,9 @@ public API or a 1.0 release.
 - The worker readout's classifier and term partition as pure kernels, held with the
   scroll producer to finite checks. No report, count or identity moves, and six
   findings stay pinned open for the owner.
+- A bounded model of the shared-worker hold and readout, with an axiom table over
+  A1 to A5 and conformance by trace through the attacher thread's program. Its
+  findings stay pinned open for the owner, and no report or identity moves.
 - The start of a private, owner-only investigation workspace: a Cloudflare
   Worker that verifies a Cloudflare Access token on every request and denies
   everything else. Nothing deploys it and it has no hostname, and no public
