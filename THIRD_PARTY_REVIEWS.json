@@ -2342,10 +2342,10 @@
       "notes": null
     },
     {
-      "key": "cargo:adblock@0.13.3",
+      "key": "cargo:adblock@0.13.5",
       "ecosystem": "cargo",
       "name": "adblock",
-      "version": "0.13.3",
+      "version": "0.13.5",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": null,
@@ -2486,20 +2486,6 @@
       "ecosystem": "cargo",
       "name": "flatbuffers",
       "version": "25.12.19",
-      "runtime": true,
-      "status": "unreviewed",
-      "declaredLicense": null,
-      "determinedLicense": null,
-      "obligations": [],
-      "reviewer": null,
-      "reviewedAt": null,
-      "notes": null
-    },
-    {
-      "key": "cargo:form_urlencoded@1.2.2",
-      "ecosystem": "cargo",
-      "name": "form_urlencoded",
-      "version": "1.2.2",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": null,
@@ -2692,20 +2678,6 @@
       "notes": null
     },
     {
-      "key": "cargo:once_cell@1.21.4",
-      "ecosystem": "cargo",
-      "name": "once_cell",
-      "version": "1.21.4",
-      "runtime": true,
-      "status": "unreviewed",
-      "declaredLicense": null,
-      "determinedLicense": null,
-      "obligations": [],
-      "reviewer": null,
-      "reviewedAt": null,
-      "notes": null
-    },
-    {
       "key": "cargo:percent-encoding@2.3.2",
       "ecosystem": "cargo",
       "name": "percent-encoding",
@@ -2724,20 +2696,6 @@
       "ecosystem": "cargo",
       "name": "potential_utf",
       "version": "0.1.5",
-      "runtime": true,
-      "status": "unreviewed",
-      "declaredLicense": null,
-      "determinedLicense": null,
-      "obligations": [],
-      "reviewer": null,
-      "reviewedAt": null,
-      "notes": null
-    },
-    {
-      "key": "cargo:precomputed-hash@0.1.1",
-      "ecosystem": "cargo",
-      "name": "precomputed-hash",
-      "version": "0.1.1",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": null,
@@ -3098,20 +3056,6 @@
       "notes": null
     },
     {
-      "key": "cargo:url@2.5.8",
-      "ecosystem": "cargo",
-      "name": "url",
-      "version": "2.5.8",
-      "runtime": true,
-      "status": "unreviewed",
-      "declaredLicense": null,
-      "determinedLicense": null,
-      "obligations": [],
-      "reviewer": null,
-      "reviewedAt": null,
-      "notes": null
-    },
-    {
       "key": "cargo:utf8_iter@1.0.4",
       "ecosystem": "cargo",
       "name": "utf8_iter",
@@ -3126,10 +3070,10 @@
       "notes": null
     },
     {
-      "key": "cargo:wasm-bindgen@0.2.129",
+      "key": "cargo:wasm-bindgen@0.2.130",
       "ecosystem": "cargo",
       "name": "wasm-bindgen",
-      "version": "0.2.129",
+      "version": "0.2.130",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": null,
@@ -3140,10 +3084,10 @@
       "notes": null
     },
     {
-      "key": "cargo:wasm-bindgen-macro@0.2.129",
+      "key": "cargo:wasm-bindgen-macro@0.2.130",
       "ecosystem": "cargo",
       "name": "wasm-bindgen-macro",
-      "version": "0.2.129",
+      "version": "0.2.130",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": null,
@@ -3154,10 +3098,10 @@
       "notes": null
     },
     {
-      "key": "cargo:wasm-bindgen-macro-support@0.2.129",
+      "key": "cargo:wasm-bindgen-macro-support@0.2.130",
       "ecosystem": "cargo",
       "name": "wasm-bindgen-macro-support",
-      "version": "0.2.129",
+      "version": "0.2.130",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": null,
@@ -3168,10 +3112,10 @@
       "notes": null
     },
     {
-      "key": "cargo:wasm-bindgen-shared@0.2.129",
+      "key": "cargo:wasm-bindgen-shared@0.2.130",
       "ecosystem": "cargo",
       "name": "wasm-bindgen-shared",
-      "version": "0.2.129",
+      "version": "0.2.130",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": null,
