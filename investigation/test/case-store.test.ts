@@ -542,7 +542,8 @@ const skipping = (path: Path, refusal: string): SourceEdit => {
     case "fold":
       if (refusal === "evidence-after-manifest") return { find: 'if (state.machine.purge !== null)\n                return refused("evidence-after-manifest", "row");', replace: "" };
       if (refusal === "manifest-empty-after-a-visit") return { find: 'return event.paths.length === 0 && begun ? refused("manifest-empty-after-a-visit", "paths") : result;', replace: "return result;" };
-      if (refusal === "raw-object-cannot-be-kept") return { find: 'if (named.some((digest) => raw.has(digest)))\n            return refused("raw-object-cannot-be-kept", keptField(event));', replace: "" };
+      // Both lines that give it: a row's raw digest, and once a manifest exists, any listed path.
+      if (refusal === "raw-object-cannot-be-kept") return { find: 'if (named.some((digest) => raw.has(digest)))\n            return refused("raw-object-cannot-be-kept", keptField(event));\n        // Once a manifest exists, a listed path is raw whoever named it, so nothing starts keeping one.\n        const listed = (_a = before.machine.purge) !== null && _a !== void 0 ? _a : [];\n        if (named.some((digest) => listed.some(({ path }) => path === digest)))\n            return refused("raw-object-cannot-be-kept", keptField(event));', replace: "" };
       return { find: 'if (!isSameSet(event.paths, purgeSetOf(state)))\n                return refused("manifest-not-the-evidence", "paths");', replace: "" };
   }
 };
@@ -1015,7 +1016,7 @@ const BOTH_WAYS: readonly (readonly [string, readonly ScriptCommand[]])[] = [
 
 const RAW_STAYS = "a digest a row named as raw is never kept afterwards, so nothing takes it out of the purge set, and what was kept first stays kept";
 
-type RawCase = Readonly<{ name: string; refused: boolean; commands: readonly ScriptCommand[]; as: ScriptActor; event: LogEvent; at: string; purge: readonly string[]; wrong: readonly string[] }>;
+type RawCase = Readonly<{ name: string; expect: "taken" | readonly [string, string | null]; commands: readonly ScriptCommand[]; as: ScriptActor; event: LogEvent; purge: readonly string[]; wrong: readonly string[] }>;
 
 const rowsThenEnded = [...onExceptionRows, ...ended("B1"), clean("B1")];
 const FIXTURE = digestOfRaw("raw-fixture");
@@ -1023,44 +1024,63 @@ const FIXTURE = digestOfRaw("raw-fixture");
 const fixtureRow = [...FROZEN, excepted, start("B1"), began("B1"), X_ROW(FIXTURE, "row-fixture"), X_ROW(OBJECT_Y, "row-other"), ...ended("B1"), clean("B1")];
 /** A missed control under another identity, before any row. */
 const missedFirst = (configuration: unknown) => [...FROZEN, missed(configuration), excepted, start("B1"), began("B1"), X_ROW(OBJECT_Y, "row-other")];
+/** Bytes the control run uploaded and no row names, here two of the fixture's captures, as an identity's fixture and criterion. */
+const STASH = digestOfRaw("raw-b1-network");
+const STASH_TWO = digestOfRaw("raw-b3-coverage");
+const STASHED: ConfigurationIdentity = { ...IDENTITY_BIRCH, fixtureDigest: STASH, criterionDigest: STASH_TWO };
+const metUnder = (configuration: unknown) => ({ as: "control" as ScriptActor, event: logEvent("control-recorded", { configuration: configuration as never, result: "met" }) });
+const RAW = (at: string): readonly [string, string] => ["raw-object-cannot-be-kept", at];
 
 /**
- * Each way an event could start keeping X after a row named it, each way a control could, and each
- * way of naming again what the case kept first. The purge set is what a manifest must list after
- * that event, and a manifest of the wrong set is refused.
+ * Each way an event could start keeping X after a row named it, each way a control names an object,
+ * each refusal a patch hears ahead of the raw rule, and each way of naming again what the case
+ * kept first. The purge set is what a manifest must list after that event, and a manifest of the
+ * wrong set is refused.
  */
 const RAW_CASES: readonly RawCase[] = [
-  { name: "a patch, after a row", refused: true, commands: [...onExceptionRows, ...ended("B1")], as: "owner", event: reconstructing(OBJECT_X), at: "patchDigest", purge: [OBJECT_X, OBJECT_Y], wrong: [OBJECT_Y] },
-  { name: "a patch on a closed case, after a row", refused: true, commands: [...onExceptionRows, cancel], as: "owner", event: reconstructing(OBJECT_X), at: "patchDigest", purge: [OBJECT_X, OBJECT_Y], wrong: [OBJECT_Y] },
-  { name: "a change's fixture, after a row", refused: true, commands: rowsThenEnded, as: "owner", event: logEvent("configuration-changed", { configuration: BIRCH_X_FIXTURE as never }), at: "configuration", purge: [OBJECT_X, OBJECT_Y], wrong: [OBJECT_Y] },
-  { name: "a change's criterion, after a row", refused: true, commands: rowsThenEnded, as: "owner", event: logEvent("configuration-changed", { configuration: BIRCH_X_CRITERION as never }), at: "configuration", purge: [OBJECT_X, OBJECT_Y], wrong: [OBJECT_Y] },
-  // A control keeps nothing, so it is taken, and X stays raw.
-  { name: "a missed control's fixture, after a row", refused: false, commands: rowsThenEnded, as: "control", event: missed(BIRCH_X_FIXTURE).event, at: "", purge: [OBJECT_X, OBJECT_Y], wrong: [OBJECT_Y] },
-  { name: "a missed control's criterion, after a row", refused: false, commands: rowsThenEnded, as: "control", event: missed(BIRCH_X_CRITERION).event, at: "", purge: [OBJECT_X, OBJECT_Y], wrong: [OBJECT_Y] },
-  { name: "a missed control naming X as its fixture under another identity, then a row naming X", refused: false, commands: missedFirst(BIRCH_X_FIXTURE), as: "B1", event: X_ROW(OBJECT_X).event, at: "", purge: [OBJECT_X, OBJECT_Y], wrong: [OBJECT_Y] },
-  { name: "a missed control naming X as its criterion under another identity, then a row naming X", refused: false, commands: missedFirst(BIRCH_X_CRITERION), as: "B1", event: X_ROW(OBJECT_X).event, at: "", purge: [OBJECT_X, OBJECT_Y], wrong: [OBJECT_Y] },
+  { name: "a patch, after a row", expect: RAW("patchDigest"), commands: [...onExceptionRows, ...ended("B1")], as: "owner", event: reconstructing(OBJECT_X), purge: [OBJECT_X, OBJECT_Y], wrong: [OBJECT_Y] },
+  { name: "a patch on a closed case, after a row", expect: RAW("patchDigest"), commands: [...onExceptionRows, cancel], as: "owner", event: reconstructing(OBJECT_X), purge: [OBJECT_X, OBJECT_Y], wrong: [OBJECT_Y] },
+  { name: "a patch, after a late row named X", expect: RAW("patchDigest"), commands: [...FROZEN, excepted, start("B1"), began("B1"), X_ROW(OBJECT_Y, "row-other"), ...ended("B1"), X_ROW(OBJECT_X, "row-late")], as: "owner", event: reconstructing(OBJECT_X), purge: [OBJECT_X, OBJECT_Y], wrong: [OBJECT_Y] },
+  { name: "a change's fixture, after a row", expect: RAW("configuration"), commands: rowsThenEnded, as: "owner", event: logEvent("configuration-changed", { configuration: BIRCH_X_FIXTURE as never }), purge: [OBJECT_X, OBJECT_Y], wrong: [OBJECT_Y] },
+  { name: "a change's criterion, after a row", expect: RAW("configuration"), commands: rowsThenEnded, as: "owner", event: logEvent("configuration-changed", { configuration: BIRCH_X_CRITERION as never }), purge: [OBJECT_X, OBJECT_Y], wrong: [OBJECT_Y] },
+  // A patch refused for what it is hears that first, whatever it names.
+  { name: "a runner's patch, after a row", expect: ["owner-only", null], commands: rowsThenEnded, as: "B1", event: reconstructing(OBJECT_X), purge: [OBJECT_X, OBJECT_Y], wrong: [OBJECT_Y] },
+  { name: "a second patch, after a row", expect: ["source-already-reconstructed", null], commands: [...rowsThenEnded, owned("source-reconstructed", { appliesTo: ["B1"], baseCommit: "ca".repeat(20), patchDigest: digestOfRaw("raw-patch"), identity: "9a".repeat(32) })], as: "owner", event: reconstructing(OBJECT_X), purge: [OBJECT_X, OBJECT_Y], wrong: [OBJECT_Y] },
+  // A control keeps nothing, so it is taken, and what it names is listed unless the owner keeps it.
+  { name: "a missed control's fixture, after a row", expect: "taken", commands: rowsThenEnded, as: "control", event: missed(BIRCH_X_FIXTURE).event, purge: [OBJECT_X, OBJECT_Y], wrong: [OBJECT_Y] },
+  { name: "a missed control's criterion, after a row", expect: "taken", commands: rowsThenEnded, as: "control", event: missed(BIRCH_X_CRITERION).event, purge: [OBJECT_X, OBJECT_Y], wrong: [OBJECT_Y] },
+  { name: "a missed control naming a row's bytes and bytes of its own, after the row", expect: "taken", commands: rowsThenEnded, as: "control", event: missed({ ...BIRCH_X_FIXTURE, criterionDigest: STASH }).event, purge: [OBJECT_X, OBJECT_Y, STASH], wrong: [OBJECT_X, OBJECT_Y] },
+  { name: "a missed control naming X as its fixture under another identity, then a row naming X", expect: "taken", commands: missedFirst(BIRCH_X_FIXTURE), as: "B1", event: X_ROW(OBJECT_X).event, purge: [OBJECT_X, OBJECT_Y], wrong: [OBJECT_Y] },
+  { name: "a missed control naming X as its criterion under another identity, then a row naming X", expect: "taken", commands: missedFirst(BIRCH_X_CRITERION), as: "B1", event: X_ROW(OBJECT_X).event, purge: [OBJECT_X, OBJECT_Y], wrong: [OBJECT_Y] },
+  { name: "the control run naming bytes it uploaded in a missed control, with a visit", expect: "taken", commands: [...FROZEN, missed(STASHED), met(), start("B1"), began("B1")], as: "B1", event: X_ROW(OBJECT_Y, "row-other").event, purge: [OBJECT_Y, STASH, STASH_TWO], wrong: [OBJECT_Y] },
+  { name: "the control run naming bytes it uploaded in a missed control, with no visit, under an identity the owner never adopts", expect: "taken", commands: FROZEN, as: "control", event: missed(STASHED).event, purge: [STASH, STASH_TWO], wrong: [] },
+  { name: "a control reported met under another identity, before a row", expect: "taken", commands: FROZEN, as: "control", event: metUnder(BIRCH_X_FIXTURE).event, purge: [OBJECT_X], wrong: [] },
+  { name: "a control reported met under another identity, after a row", expect: "taken", commands: rowsThenEnded, as: "control", event: metUnder(BIRCH_X_FIXTURE).event, purge: [OBJECT_X, OBJECT_Y], wrong: [OBJECT_Y] },
+  { name: "a miss under the plan's identity, with no visit", expect: "taken", commands: FROZEN, as: "control", event: notMet().event, purge: [], wrong: [FIXTURE] },
+  // The owner may still keep what only a control named: the plan's one change adopting the identity a control missed under.
+  { name: "a control missing under an identity, then the owner changing to it", expect: "taken", commands: [...FROZEN, missed(STASHED)], as: "owner", event: logEvent("configuration-changed", { configuration: STASHED as never }), purge: [], wrong: [STASH, STASH_TWO] },
   // What the plan kept stays kept, whatever a control names.
-  { name: "a control under the configuration in force, then a row naming its fixture", refused: false, commands: [...FROZEN, met(), start("B1"), began("B1"), X_ROW(OBJECT_Y, "row-other")], as: "B1", event: X_ROW(FIXTURE, "row-fixture").event, at: "", purge: [OBJECT_Y], wrong: [FIXTURE, OBJECT_Y] },
-  { name: "a control for the identity the plan recorded, after a row named its fixture", refused: false, commands: fixtureRow, as: "control", event: met().event, at: "", purge: [OBJECT_Y], wrong: [FIXTURE, OBJECT_Y] },
-  { name: "a change that keeps the same fixture and criterion, after a row named the fixture", refused: false, commands: fixtureRow, as: "owner", event: logEvent("configuration-changed", { configuration: IDENTITY_BIRCH as never }), at: "", purge: [OBJECT_Y], wrong: [FIXTURE, OBJECT_Y] },
-  { name: "a patch of the kept fixture's bytes, after a row named them", refused: false, commands: fixtureRow, as: "owner", event: reconstructing(FIXTURE), at: "", purge: [OBJECT_Y], wrong: [FIXTURE, OBJECT_Y] }
+  { name: "a control under the configuration in force, then a row naming its fixture", expect: "taken", commands: [...FROZEN, met(), start("B1"), began("B1"), X_ROW(OBJECT_Y, "row-other")], as: "B1", event: X_ROW(FIXTURE, "row-fixture").event, purge: [OBJECT_Y], wrong: [FIXTURE, OBJECT_Y] },
+  { name: "a control for the identity the plan recorded, after a row named its fixture", expect: "taken", commands: fixtureRow, as: "control", event: met().event, purge: [OBJECT_Y], wrong: [FIXTURE, OBJECT_Y] },
+  { name: "a change that keeps the same fixture and criterion, after a row named the fixture", expect: "taken", commands: fixtureRow, as: "owner", event: logEvent("configuration-changed", { configuration: IDENTITY_BIRCH as never }), purge: [OBJECT_Y], wrong: [FIXTURE, OBJECT_Y] },
+  { name: "a patch of the kept fixture's bytes, after a row named them", expect: "taken", commands: fixtureRow, as: "owner", event: reconstructing(FIXTURE), purge: [OBJECT_Y], wrong: [FIXTURE, OBJECT_Y] }
 ];
 
 /**
- * A refused case answers with the new refusal, and an accepted one is taken. Either way the purge
- * set is then the one written, so the wrong manifest is refused and that one is taken. Each
- * kept-first way of being both is checked in full under KEPT, with the fixture run.
+ * Each case answers as written. Either way the purge set is then the one written, so the wrong
+ * manifest is refused and that one is taken. Each kept-first way of being both is checked in full
+ * under KEPT, with the fixture run.
  */
 const checkRawStaysRaw = async (module: StoreModule, owner: Actor, only?: string) => {
   const now = risingClock(startAt + 90_000);
   const notTheEvidence = JSON.stringify({ ok: false, refusal: "manifest-not-the-evidence", at: "paths" });
-  for (const { name, refused, commands, as, event, at, purge, wrong } of RAW_CASES.filter((entry) => only === undefined || entry.name === only)) {
+  for (const { name, expect, commands, as, event, purge, wrong } of RAW_CASES.filter((entry) => only === undefined || entry.name === only)) {
     const stores = memoryStores();
     const answerOn = (current: OpenCase, next: LogEvent, by: ScriptActor = "owner") => module.runCommand(stores, current, { actor: actorsFor(owner)(by), event: next, now });
     const current = await caseFor(module, stores, owner, commands);
     const answer = await answerOn(current, event, as);
-    holds(RAW_STAYS, refused ? JSON.stringify(answer) === JSON.stringify({ ok: false, refusal: "raw-object-cannot-be-kept", at }) : answer.ok, () => ({ name, answer }));
-    const after = refused || !answer.ok ? current : answer.case;
+    holds(RAW_STAYS, expect === "taken" ? answer.ok : JSON.stringify(answer) === JSON.stringify({ ok: false, refusal: expect[0], at: expect[1] }), () => ({ name, answer }));
+    const after = answer.ok ? answer.case : current;
     const closed = commands.includes(cancel) ? { ok: true as const, case: after } : await answerOn(after, cancel.event);
     holds(RAW_STAYS, closed.ok, () => ({ name, closed }));
     if (!closed.ok) continue;
@@ -1072,25 +1092,47 @@ const checkRawStaysRaw = async (module: StoreModule, owner: Actor, only?: string
 
 const byName = (...names: string[]) => (entry: RawCase) => names.includes(entry.name);
 const KEEP_LINE = "return { ok: true, state: Object.assign(Object.assign({}, after), { keptObjects: [...new Set([...after.keptObjects, ...named])] }) };";
+const CONTROL_LINE = 'if (event.type === "control-recorded")\n        return { ok: true, state: Object.assign(Object.assign({}, after), { controlObjects: [...new Set([...after.controlObjects, ...named])] }) };';
+const CONTROL_LISTED = "return new Set([...rowRawOf(state), ...state.controlObjects.filter((digest) => !state.keptObjects.includes(digest))]);";
+/** Each refusal a patch hears ahead of the raw rule. */
+const PATCH_ORDER = ["a runner's patch, after a row", "a second patch, after a row"];
+/** Where a control's objects decide the purge set: 3fef1027 left them off it. */
+const CONTROL_LISTS = ["a missed control naming a row's bytes and bytes of its own, after the row", "the control run naming bytes it uploaded in a missed control, with a visit", "the control run naming bytes it uploaded in a missed control, with no visit, under an identity the owner never adopts", "a control reported met under another identity, before a row"];
 
-test("a raw capture cannot be moved out of the purge by keeping it afterwards, by any route, a control keeps nothing, and kept-first stays allowed", async () => {
+test("a raw capture cannot be moved out of the purge by keeping it afterwards, by any route, what a control names is listed unless the owner keeps it, and kept-first stays allowed", async () => {
   const { owner } = await fresh();
   await checkRawStaysRaw(production, owner);
   const edited = (find: string, replace: string, only?: string) => () => checkRawStaysRaw(variant({ find, replace }), owner, only);
   const GUARD = 'if (named.some((digest) => raw.has(digest)))\n            return refused("raw-object-cannot-be-kept", keptField(event));';
-  const CONTROL = 'if (event.type === "control-recorded")\n        return { ok: true, state: after };';
   // The reversal's behavior, each owner's route on its own: it was accepted.
-  for (const { name } of RAW_CASES.filter(({ refused }) => refused)) await assertCaughtBy(`${name}, kept as the reversal left it`, RAW_STAYS, edited(GUARD, "", name));
-  // The behavior before this rule, each control case on its own: a control kept what it named, so one after a row was refused, and one before it kept X.
-  for (const { name } of RAW_CASES.filter(byName("a missed control's fixture, after a row", "a missed control's criterion, after a row", "a missed control naming X as its fixture under another identity, then a row naming X", "a missed control naming X as its criterion under another identity, then a row naming X"))) {
-    await assertCaughtBy(`${name}, with a control keeping what it names`, RAW_STAYS, edited(CONTROL, "", name));
+  for (const { name } of RAW_CASES.filter(({ expect }) => expect !== "taken" && expect[0] === "raw-object-cannot-be-kept")) await assertCaughtBy(`${name}, kept as the reversal left it`, RAW_STAYS, edited(GUARD, "", name));
+  // A late row's bytes are raw like a present row's.
+  await assertCaughtBy("a late row's bytes dropped from the raw set", RAW_STAYS, edited("const raw = rowRawOf(before);", 'const raw = new Set(before.record.rows.flatMap(({ digest, state }) => (digest === null || state === "late" || before.keptObjects.includes(digest) ? [] : [digest])));', "a patch, after a late row named X"));
+  await assertCaughtBy("only a present row's bytes held raw", RAW_STAYS, edited("const raw = rowRawOf(before);", 'const raw = new Set(before.record.rows.flatMap(({ digest, state }) => (digest === null || state !== "present" || before.keptObjects.includes(digest) ? [] : [digest])));', "a patch, after a late row named X"));
+  // The raw rule heard ahead of a patch's own refusals, each on its own.
+  for (const name of PATCH_ORDER) {
+    await assertCaughtBy(`${name}, with the raw rule heard ahead of the record`, RAW_STAYS, edited("    if (isRecordEvent(event)) {\n", '    if (event.type === "source-reconstructed" && rowRawOf(state).has(event.patchDigest))\n        return refused("raw-object-cannot-be-kept", "patchDigest");\n    if (isRecordEvent(event)) {\n', name));
   }
+  // 3fef1027's behavior, each case a control's objects decide on its own: they were left off the purge.
+  for (const name of CONTROL_LISTS) await assertCaughtBy(`${name}, with a control's objects off the purge as before`, RAW_STAYS, edited(CONTROL_LISTED, "return rowRawOf(state);", name));
+  // Before W2's control rule: a control kept what it named, so one after a row was refused, and one before it kept X.
+  for (const { name } of RAW_CASES.filter(byName("a missed control's fixture, after a row", "a missed control's criterion, after a row", "a missed control naming X as its fixture under another identity, then a row naming X", "a missed control naming X as its criterion under another identity, then a row naming X"))) {
+    await assertCaughtBy(`${name}, with a control keeping what it names`, RAW_STAYS, edited(CONTROL_LINE, "", name));
+  }
+  // A control reported met keeps nothing either.
+  for (const name of ["a control reported met under another identity, before a row", "a control reported met under another identity, after a row"]) {
+    await assertCaughtBy(`${name}, with a met control keeping as an owner's event would`, RAW_STAYS, edited('if (event.type === "control-recorded")\n        return { ok: true, state: Object.assign(', 'if (event.type === "control-recorded" && event.result !== "met")\n        return { ok: true, state: Object.assign(', name));
+  }
+  // What the owner keeps is never listed, a control's objects included.
+  await assertCaughtBy("a miss under the plan's identity, with a control's objects listed though kept", RAW_STAYS, edited(CONTROL_LISTED, "return new Set([...rowRawOf(state), ...state.controlObjects]);", "a miss under the plan's identity, with no visit"));
+  // The strict rule, where what only a control named counts as raw: the owner could not adopt the identity a control missed under.
+  await assertCaughtBy("a control missing under an identity, then the owner changing to it, with a control's objects counted raw", RAW_STAYS, edited("const raw = rowRawOf(before);", "const raw = purgeSetOf(before);", "a control missing under an identity, then the owner changing to it"));
   // The plan is what keeps a control's fixture under the configuration in force.
   await assertCaughtBy("a control under the configuration in force, with the plan keeping nothing", RAW_STAYS, edited(KEEP_LINE, `return { ok: true, state: event.type === "case-planned" ? after : Object.assign(Object.assign({}, after), { keptObjects: [...new Set([...after.keptObjects, ...named])] }) };`, "a control under the configuration in force, then a row naming its fixture"));
   // An over-strict rule, each allowed case on its own: it was refused.
-  await assertCaughtBy("a control for the plan's identity, refused when a row named what it names", RAW_STAYS, edited(CONTROL, 'if (event.type === "control-recorded" && before !== null && before.record.rows.some(({ digest }) => digest !== null && named.includes(digest)))\n        return refused("raw-object-cannot-be-kept", "configuration");\n    if (event.type === "control-recorded")\n        return { ok: true, state: after };', "a control for the identity the plan recorded, after a row named its fixture"));
+  await assertCaughtBy("a control for the plan's identity, refused when a row named what it names", RAW_STAYS, edited(CONTROL_LINE, 'if (event.type === "control-recorded" && before !== null && before.record.rows.some(({ digest }) => digest !== null && named.includes(digest)))\n        return refused("raw-object-cannot-be-kept", "configuration");\n    ' + CONTROL_LINE, "a control for the identity the plan recorded, after a row named its fixture"));
   for (const name of ["a change that keeps the same fixture and criterion, after a row named the fixture", "a patch of the kept fixture's bytes, after a row named them"]) {
-    await assertCaughtBy(`${name}, refused when anything a row names counts as raw`, RAW_STAYS, edited("const raw = purgeSetOf(before);", "const raw = new Set(before.record.rows.flatMap(({ digest }) => (digest === null ? [] : [digest])));", name));
+    await assertCaughtBy(`${name}, refused when anything a row names counts as raw`, RAW_STAYS, edited("const raw = rowRawOf(before);", "const raw = new Set(before.record.rows.flatMap(({ digest }) => (digest === null ? [] : [digest])));", name));
   }
   await assertCaughtBy("only a patch checked", RAW_STAYS, edited(GUARD, 'if (event.type === "source-reconstructed" && named.some((digest) => raw.has(digest)))\n            return refused("raw-object-cannot-be-kept", keptField(event));'));
   await assertCaughtBy("only the first object an event names checked", RAW_STAYS, edited("if (named.some((digest) => raw.has(digest)))", "if (named.slice(0, 1).some((digest) => raw.has(digest)))"));
@@ -1144,26 +1186,29 @@ const checkKept = async (module: StoreModule, owner: Actor) => {
   holds(KEPT, JSON.stringify(await answerOn(lateOwn, withLateOwn, manifest([OBJECT_Y]))) === notTheEvidence, () => "a late row's bytes left out");
   holds(KEPT, (await answerOn(lateOwn, withLateOwn, manifest([OBJECT_Y, OBJECT_Z]))).ok, () => "a late row's bytes listed");
 
-  // After a manifest, nothing can start keeping what it listed: a listed path is a raw digest, and a patch is the one event still able to name one there.
+  // After a manifest, nothing can start keeping what it listed: a listed path is raw, whoever named it, and a patch is the one event still able to name one there.
   const after = memoryStores();
-  const closedAfter = await caseFor(module, after, owner, [...onExceptionRows, X_ROW(OBJECT_Z, "row-third"), cancel]);
-  const listedAfter = await answerOn(after, closedAfter, manifest([OBJECT_X, OBJECT_Y, OBJECT_Z]));
+  const LISTED = [OBJECT_X, OBJECT_Y, OBJECT_Z, STASH, STASH_TWO];
+  const closedAfter = await caseFor(module, after, owner, [...FROZEN, missed(STASHED), excepted, start("B1"), began("B1"), ...bothRows, X_ROW(OBJECT_Z, "row-third"), cancel]);
+  const listedAfter = await answerOn(after, closedAfter, manifest(LISTED));
   holds(KEPT, listedAfter.ok, () => listedAfter);
   if (!listedAfter.ok) return;
-  for (const path of [OBJECT_X, OBJECT_Y, OBJECT_Z]) {
+  for (const path of LISTED) {
     const answer = await answerOn(after, listedAfter.case, reconstructing(path));
     holds(KEPT, JSON.stringify(answer) === JSON.stringify({ ok: false, refusal: "raw-object-cannot-be-kept", at: "patchDigest" }), () => ({ path, answer }));
   }
-  // Whatever a listing later found, a listed path stays raw: one found remaining, one found absent, and one not yet looked at.
+  // Whatever a listing later found, a listed path stays raw: found remaining, found absent, or not yet looked at, a row's or a control's.
   const marked = copyOfStores(after);
   const markedCase = await module.openCase(marked, CASE_A);
   holds(KEPT, markedCase.ok, () => markedCase);
   if (!markedCase.ok) return;
   const remains = await answerOn(marked, markedCase.case, logEvent("purge-path-remains", { path: OBJECT_X }));
-  const absent = remains.ok ? await answerOn(marked, remains.case, logEvent("purge-path-absent", { path: OBJECT_Y })) : remains;
-  holds(KEPT, absent.ok && JSON.stringify(absent.case.state?.machine.purge?.map(({ state }) => state)) === '["remains","absent","present"]', () => absent);
+  let absent = remains.ok ? await answerOn(marked, remains.case, logEvent("purge-path-absent", { path: OBJECT_Y })) : remains;
+  absent = absent.ok ? await answerOn(marked, absent.case, logEvent("purge-path-absent", { path: STASH })) : absent;
+  absent = absent.ok ? await answerOn(marked, absent.case, logEvent("purge-path-remains", { path: STASH_TWO })) : absent;
+  holds(KEPT, absent.ok && JSON.stringify(absent.case.state?.machine.purge?.map(({ state }) => state)) === '["remains","absent","present","absent","remains"]', () => absent);
   if (!absent.ok) return;
-  for (const path of [OBJECT_X, OBJECT_Y, OBJECT_Z]) {
+  for (const path of LISTED) {
     const answer = await answerOn(marked, absent.case, reconstructing(path));
     holds(KEPT, JSON.stringify(answer) === JSON.stringify({ ok: false, refusal: "raw-object-cannot-be-kept", at: "patchDigest" }), () => ({ path, marked: true, answer }));
   }
@@ -1199,10 +1244,10 @@ test("one object can be kept and then named as a row's bytes, and a manifest lea
   await assertCaughtBy("a manifest free to list what the case keeps", KEPT, edited("digest === null || keptObjects.includes(digest) ? [] : [digest]", "digest === null ? [] : [digest]"));
   await assertCaughtBy("a late row's bytes left out of the set", KEPT, edited("flatMap(({ digest }) => (digest === null || keptObjects.includes(digest)", 'flatMap(({ digest, state }) => (digest === null || state === "late" || keptObjects.includes(digest)'));
   await assertCaughtBy("a late row naming a kept object still listed", KEPT, edited("flatMap(({ digest }) => (digest === null || keptObjects.includes(digest)", 'flatMap(({ digest, state }) => (digest === null || (state !== "late" && keptObjects.includes(digest))'));
-  await assertCaughtBy("a patch free to name what a manifest listed", KEPT, edited('if (named.some((digest) => raw.has(digest)))\n            return refused("raw-object-cannot-be-kept", keptField(event));', ""));
-  await assertCaughtBy("only the first listed path looked at", KEPT, edited("const raw = purgeSetOf(before);", "const raw = new Set([...purgeSetOf(before)].slice(0, 1));"));
-  await assertCaughtBy("only a listed path still present held raw", KEPT, edited("const raw = purgeSetOf(before);", 'const raw = new Set([...purgeSetOf(before)].filter((digest) => before.machine.purge === null || before.machine.purge.some(({ path, state }) => path === digest && state === "present")));'));
-  await assertCaughtBy("a listed path found absent no longer held raw", KEPT, edited("const raw = purgeSetOf(before);", 'const raw = new Set([...purgeSetOf(before)].filter((digest) => before.machine.purge === null || before.machine.purge.some(({ path, state }) => path === digest && state !== "absent")));'));
+  await assertCaughtBy("a listed path a control alone named free to be kept by a patch, as 43554f61 left it", KEPT, edited('if (named.some((digest) => listed.some(({ path }) => path === digest)))\n            return refused("raw-object-cannot-be-kept", keptField(event));', ""));
+  await assertCaughtBy("only the first listed path looked at", KEPT, edited("const listed = (_a = before.machine.purge) !== null && _a !== void 0 ? _a : [];", "const listed = ((_a = before.machine.purge) !== null && _a !== void 0 ? _a : []).slice(0, 1);"));
+  await assertCaughtBy("only a listed path still present held raw", KEPT, edited("const listed = (_a = before.machine.purge) !== null && _a !== void 0 ? _a : [];", 'const listed = ((_a = before.machine.purge) !== null && _a !== void 0 ? _a : []).filter(({ state }) => state === "present");'));
+  await assertCaughtBy("a listed path found absent no longer held raw", KEPT, edited("const listed = (_a = before.machine.purge) !== null && _a !== void 0 ? _a : [];", 'const listed = ((_a = before.machine.purge) !== null && _a !== void 0 ? _a : []).filter(({ state }) => state !== "absent");'));
   await assertCaughtBy("the raw rule heard ahead of the machine's", KEPT, edited("return applied.ok ? withKept(state, decoded.event, named, applied.state) : applied;", "const early = withKept(state, decoded.event, named, applied.ok ? applied.state : state);\n    return !early.ok || applied.ok ? early : applied;"));
   await assertCaughtBy("no patch at all after a manifest", KEPT, edited("if (named.some((digest) => raw.has(digest)))", "if (before.machine.purge !== null || named.some((digest) => raw.has(digest)))"));
 });
@@ -1346,28 +1391,7 @@ test("open (blocks any purge route): a manifest covers what the log names, and b
   assert.ok((await runCommand(patchFirst, closedFirst.case, { actor: owner, event: logEvent("purge-manifest-recorded", { paths: [OBJECT_Y] }), now })).ok);
 });
 
-test("open (blocks any purge route): what a missed control names is bound by the log but neither kept nor raw, so the control run can store bytes no manifest lists, and the case opens only while they stay", async () => {
-  const { owner } = await fresh();
-  const stores = memoryStores();
-  // X is capture bytes, named by a control under another identity and by no row.
-  const closed = await caseFor(production, stores, owner, [...missedFirst(BIRCH_X_FIXTURE), cancel]);
-  assert.ok(!(closed.state as NonNullable<OpenCase["state"]>).keptObjects.includes(OBJECT_X));
-  const now = risingClock(startAt + 90_000);
-  assert.deepEqual(await runCommand(stores, closed, { actor: owner, event: logEvent("purge-manifest-recorded", { paths: [OBJECT_X, OBJECT_Y] }), now }), { ok: false, refusal: "manifest-not-the-evidence", at: "paths" });
-  const listed = await runCommand(stores, closed, { actor: owner, event: logEvent("purge-manifest-recorded", { paths: [OBJECT_Y] }), now });
-  assert.ok(listed.ok);
-  const gone = await runCommand(stores, listed.case, { actor: owner, event: logEvent("purge-path-absent", { path: OBJECT_Y }), now });
-  assert.ok(gone.ok);
-  // SUMMARY_ONLY, and X is still stored, named by the log, on no list.
-  assert.equal(retentionOf((gone.case.state as NonNullable<OpenCase["state"]>).machine), "SUMMARY_ONLY");
-  assert.ok(stores.evidence.objects.has(OBJECT_X));
-  // A route that deleted it would leave a case that does not open.
-  const copy = copyOfStores(stores);
-  copy.evidence.objects.delete(OBJECT_X);
-  assert.deepEqual(await openCase(copy, CASE_A), { ok: false, refusal: "evidence-missing", at: OBJECT_X });
-});
-
-test("open (blocks any purge route): a case whose only rows name kept objects, after a visit, can never record a manifest, for the same reason bytes uploaded ahead of a row block a purge route", async () => {
+test("open (blocks any purge route): a case whose purge set is empty after a visit, as when its only rows name kept objects, can never record a manifest, for the same reason bytes uploaded ahead of a row block a purge route", async () => {
   const { owner } = await fresh();
   const stores = memoryStores();
   // The row names the plan's fixture, which the case keeps, so the purge set is empty while an attempt began.

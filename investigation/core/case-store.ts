@@ -23,15 +23,18 @@
 // log, and a batch that rebuilds its stores per request reopens with them.
 //
 // What a case rests on and what a capture recorded can be the same bytes: a controlled fixture
-// run's capture is byte for byte its fixture. So a row may name any object, and the purge set
-// is the digests rows name minus the objects the case keeps. Only the owner's events keep: a frozen
-// plan, the fixture and criterion of the planned or a changed configuration, and a patch. A control
-// is the control run's, a runner, and keeps nothing: what it names is bound as stored objects, and
-// is neither kept nor raw. A manifest must equal that set, so it can never list what the case rests
-// on. A digest is kept or raw by the order it entered the case: an event that would start keeping a
-// digest a row already names as raw bytes is refused, unless the case keeps it already. So nothing
-// moves a raw digest out of the purge set, before a manifest or after, and an owner cannot adopt a
-// capture already in this case as a fixture by the same bytes.
+// run's capture is byte for byte its fixture. So a row may name any object. Only the owner's events
+// keep: a frozen plan, the fixture and criterion of the planned or a changed configuration, and a
+// patch. A control is the control run's, a runner, and keeps nothing. The purge set is the digests
+// rows name, and the digests a control names, minus what the owner keeps, so every object the log
+// names is either kept or listed. A manifest must equal that set, so it can never list what the case
+// rests on. A digest a row names is kept or raw by the order it entered the case: an event that
+// would start keeping one a row already names as raw bytes is refused, unless the case keeps it
+// already. Once a manifest exists, every path it lists is raw the same way, whoever named it. So
+// nothing moves a row's raw digest out of the purge set, before a manifest or after, nothing moves a
+// listed path, and an owner cannot adopt a capture already in this case as a fixture by the same
+// bytes. What only a control named the owner may still keep before a manifest, as when the plan's
+// one change adopts the identity a control missed under.
 
 import { isDerivedActor, type Actor } from "./actor";
 import { canonicalBytes, parseCanonical } from "./canonical-json";
@@ -49,6 +52,8 @@ export type CaseState = Readonly<{
   configurations: readonly ConfigurationIdentity[];
   /** Every object the case rests on: plans, fixtures, criteria, patches. A row may name one too, and a purge leaves it. */
   keptObjects: readonly string[];
+  /** Every object a control named, each once. A purge lists it unless the owner keeps it. */
+  controlObjects: readonly string[];
 }>;
 
 /** A case as a reader holds it. The state is null for a log that exists and holds no plan yet. */
@@ -91,9 +96,14 @@ function isFoldedCase(opened: OpenCase, stores: LogStores): boolean {
   return registered !== undefined && registered === stores;
 }
 
-/** The bytes this log's rows name, each once, less what the case keeps. What a purge can remove, and all it can. */
-function purgeSetOf({ record, keptObjects }: CaseState): ReadonlySet<string> {
+/** The bytes this log's rows name, each once, less what the case keeps. The raw bytes: no owner's event may start keeping one. */
+function rowRawOf({ record, keptObjects }: CaseState): ReadonlySet<string> {
   return new Set(record.rows.flatMap(({ digest }) => (digest === null || keptObjects.includes(digest) ? [] : [digest])));
+}
+
+/** The raw bytes, and what a control named, less what the case keeps. What a purge can remove, and all it can. */
+function purgeSetOf(state: CaseState): ReadonlySet<string> {
+  return new Set([...rowRawOf(state), ...state.controlObjects.filter((digest) => !state.keptObjects.includes(digest))]);
 }
 
 function isSameSet(paths: readonly string[], digests: ReadonlySet<string>): boolean {
@@ -132,7 +142,7 @@ function applyEvent(state: CaseState | null, event: CaseEvent, by: MachineActor,
     if (state !== null) return refused("already-planned");
     if (by.kind !== "owner") return refused("owner-only");
     const planned = plannedState({ slots: event.slots, controlRunId: event.controlRunId, configuration: configurationKey(event.configuration) });
-    return planned.ok ? { ok: true, state: { machine: planned.state, record: EMPTY_RECORD, configurations: [event.configuration], keptObjects: [] } } : refused(planned.refusal);
+    return planned.ok ? { ok: true, state: { machine: planned.state, record: EMPTY_RECORD, configurations: [event.configuration], keptObjects: [], controlObjects: [] } } : refused(planned.refusal);
   }
   if (state === null) return refused("not-planned");
 
@@ -194,17 +204,21 @@ function keptField(event: CaseEvent): string {
 
 /**
  * What this event's named objects add to what the case keeps. A row's are raw bytes, and keep
- * nothing. A control's keep nothing either, since only the owner's events keep. An event may not
- * start keeping a digest a row already names as raw, which is exactly a digest in the purge set.
- * The rules that refuse the event for what it is come first, as with a manifest.
+ * nothing. A control's keep nothing either, since only the owner's events keep, and a purge lists
+ * them unless the owner keeps them. An event may not start keeping a digest a row already names
+ * as raw, nor, once a manifest exists, a path it lists. The rules that refuse the event for what it
+ * is come first, as with a manifest.
  */
 function withKept(before: CaseState | null, event: CaseEvent, named: readonly string[], after: CaseState): ApplyResult {
   if (event.type === "evidence-recorded") return { ok: true, state: after };
-  // Only the owner's events keep. A control's objects are bound by the log, and neither kept nor raw.
-  if (event.type === "control-recorded") return { ok: true, state: after };
+  // Only the owner's events keep. A control's objects are listed by a purge unless the owner keeps them.
+  if (event.type === "control-recorded") return { ok: true, state: { ...after, controlObjects: [...new Set([...after.controlObjects, ...named])] } };
   if (before !== null) {
-    const raw = purgeSetOf(before);
+    const raw = rowRawOf(before);
     if (named.some((digest) => raw.has(digest))) return refused("raw-object-cannot-be-kept", keptField(event));
+    // Once a manifest exists, a listed path is raw whoever named it, so nothing starts keeping one.
+    const listed = before.machine.purge ?? [];
+    if (named.some((digest) => listed.some(({ path }) => path === digest))) return refused("raw-object-cannot-be-kept", keptField(event));
   }
   return { ok: true, state: { ...after, keptObjects: [...new Set([...after.keptObjects, ...named])] } };
 }

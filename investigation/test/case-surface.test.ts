@@ -129,7 +129,7 @@ test("no event type, no state key and no output field is about publishing", asyn
   assert.deepEqual(answer, { ok: false, refusal: "unknown-event-type", at: "type" });
 });
 
-const STATE_KEYS = 324;
+const STATE_KEYS = 325;
 
 const MARKER = "OWNER-WORDING-MARKER-2f6e";
 

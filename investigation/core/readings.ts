@@ -199,6 +199,14 @@ export function stackToScriptPosition(line: number, column: number, resourceStar
 
 type IdentityFinding = "same" | "repeated" | JoinReason;
 
+/**
+ * Whether an inventory entry puts its script at the range's place: URL and start known and equal,
+ * and the digest equal where the entry names one. Asked only where the range knows all three.
+ */
+function isPlacedAt(entry: ScriptIdentity, range: ScriptIdentity): boolean {
+  return entry.url === range.url && isSamePosition(entry.resourceStart, range.resourceStart) && (known(entry.digest) === null || entry.digest === range.digest);
+}
+
 /** Whether two accounts of a script say different things where both say anything, its id included. */
 function disagree(a: ScriptIdentity, b: ScriptIdentity): boolean {
   return differs(a.scriptId, b.scriptId) || differs(a.url, b.url) || differs(a.digest, b.digest) || (a.resourceStart !== null && b.resourceStart !== null && !isSamePosition(a.resourceStart, b.resourceStart));
@@ -212,11 +220,13 @@ function disagree(a: ScriptIdentity, b: ScriptIdentity): boolean {
  * Without an id on both sides the range must be a script this session saw: it names a URL, a
  * start and a digest, the call says nothing against them, and the inventory has an entry with all
  * three that disagrees with neither, a one-sided id included. An id on one side is still an id: the
- * inventory must hold it, in an entry that agrees with the range's place, or there is no join, as
- * with ids on both sides. A known id the inventory cannot confirm is no ground for a join on
- * position alone, so an entry without an id at the range's place does not stand in for it. A
- * range that is not one of those is
- * no candidate, and gets no join for that, however the call's URL repeats. Only then can a join be
+ * inventory must hold it, and an entry holding it must place it at the range, with URL and start
+ * known and equal, and the digest equal where the entry names one. An id it does not hold, or holds
+ * only where nothing places it, is not_in_inventory. One every entry for it puts elsewhere is
+ * script_identity_differs. A known id the inventory cannot place is no ground for a join on
+ * position alone, so neither an entry without an id at that place nor an entry naming nothing
+ * stands in for it. A range that is not one of those is no candidate, and gets no join for that,
+ * however the call's URL repeats. Only then can a join be
  * ambiguous: more than one entry at that URL fits what the call or the range knows, so either side
  * could be that other script, and an entry whose start or digest nobody knows could be the same
  * script, so it counts as fitting. If one entry fits and the call's own start or digest is missing,
@@ -243,7 +253,8 @@ function identityFinding(call: ScriptIdentity, range: ScriptIdentity, inventory:
   if (oneId !== null) {
     const byId = inventory.filter(({ scriptId }) => scriptId === oneId);
     if (byId.length === 0) return "not_in_inventory";
-    if (byId.every((entry) => disagree(entry, range))) return "script_identity_differs";
+    // An entry that places the id at the range agrees with it, so with none placed, either every entry puts it elsewhere or some says too little.
+    if (!byId.some((entry) => isPlacedAt(entry, range))) return byId.every((entry) => disagree(entry, range)) ? "script_identity_differs" : "not_in_inventory";
   }
   const sameUrl = inventory.filter((entry) => entry.url === url);
   const ofRange = sameUrl.filter((entry) => isSamePosition(entry.resourceStart, range.resourceStart) && entry.digest === range.digest);

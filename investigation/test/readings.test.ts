@@ -340,9 +340,21 @@ const FAULTS: readonly Fault[] = [
   ["the range has an id, the call none, and the inventory holds that id elsewhere beside an entry with no id at the range's place", ["script_identity_differs"], { ...CALL, script: NO_ID }, RANGE, { ...INVENTORY, scripts: [ELSEWHERE_ON_THE_URL, NO_ID] }],
   ["the call has an id and no digest, and the inventory's entry for it has another digest than the range", ["script_identity_differs"], { ...CALL, script: { ...SCRIPT, digest: null } }, { ...RANGE, script: NO_ID }, { ...INVENTORY, scripts: [{ ...SCRIPT, digest: "ef".repeat(32) }, NO_ID] }],
   ["the call has an id the inventory holds twice, once at the range's place and once elsewhere", "consistent", CALL, { ...RANGE, script: NO_ID }, { ...INVENTORY, scripts: [ELSEWHERE_ON_THE_URL, SCRIPT] }],
-  ["the range has an id the inventory holds with nothing else known, beside an entry with no id at its place", "consistent", { ...CALL, script: NO_ID }, RANGE, { ...INVENTORY, scripts: [{ scriptId: "script-17", url: null, resourceStart: null, digest: null }, NO_ID] }],
-  ["the call has an id the inventory holds with nothing else known, and the entry at the range's place has another id", ["script_identity_differs"], CALL, { ...RANGE, script: NO_ID }, { ...INVENTORY, scripts: [ID_17_ONLY, { ...SCRIPT, scriptId: "script-99" }] }],
-  ["the range has an id the inventory holds with nothing else known, and the entry at its place has another id", ["script_identity_differs"], { ...CALL, script: NO_ID }, RANGE, { ...INVENTORY, scripts: [ID_17_ONLY, { ...SCRIPT, scriptId: "script-99" }] }],
+  // An entry holding a one-sided id must place it at the range: URL and start known and equal, the digest equal where it names one.
+  ["the call has an id the inventory holds with nothing else known, beside an entry with no id at the range's place", ["not_in_inventory"], CALL, { ...RANGE, script: NO_ID }, { ...INVENTORY, scripts: [ID_17_ONLY, NO_ID] }],
+  ["the range has an id the inventory holds with nothing else known, beside an entry with no id at its place", ["not_in_inventory"], { ...CALL, script: NO_ID }, RANGE, { ...INVENTORY, scripts: [ID_17_ONLY, NO_ID] }],
+  ["the range has an id the inventory holds twice with nothing else known, beside an entry with no id at its place", ["not_in_inventory"], { ...CALL, script: NO_ID }, RANGE, { ...INVENTORY, scripts: [ID_17_ONLY, ID_17_ONLY, NO_ID] }],
+  ["the call has an id the inventory holds with its URL alone, beside an entry with no id at the range's place", ["not_in_inventory"], CALL, { ...RANGE, script: NO_ID }, { ...INVENTORY, scripts: [{ ...ID_17_ONLY, url: SCRIPT_URL }, NO_ID] }],
+  ["the call has an id the inventory holds at the range's start and digest with no URL, beside an entry with no id there", ["not_in_inventory"], CALL, { ...RANGE, script: NO_ID }, { ...INVENTORY, scripts: [{ ...SCRIPT, url: null }, NO_ID] }],
+  ["the call has an id the inventory holds once elsewhere and once with nothing known, beside an entry with no id at the range's place", ["not_in_inventory"], CALL, { ...RANGE, script: NO_ID }, { ...INVENTORY, scripts: [ELSEWHERE_ON_THE_URL, ID_17_ONLY, NO_ID] }],
+  ["the call has an id the inventory places at the range with another digest, beside an entry with no id there", ["script_identity_differs"], CALL, { ...RANGE, script: NO_ID }, { ...INVENTORY, scripts: [{ ...SCRIPT, digest: "e7".repeat(32) }, NO_ID] }],
+  ["the call has an id the inventory places at the range without a digest, and the entry there with the digest has another id", ["script_identity_differs"], CALL, { ...RANGE, script: NO_ID }, { ...INVENTORY, scripts: [{ ...SCRIPT, digest: null }, { ...SCRIPT, scriptId: "script-99" }] }],
+  ["the range has an id the inventory places at its place without a digest, and the entry there with the digest has another id", ["script_identity_differs"], { ...CALL, script: NO_ID }, RANGE, { ...INVENTORY, scripts: [{ ...SCRIPT, digest: null }, { ...SCRIPT, scriptId: "script-99" }] }],
+  // The reason a one-sided id's no join names, against the checks around it.
+  ["the call has an id the inventory holds only elsewhere on the URL", ["script_identity_differs"], CALL, { ...RANGE, script: NO_ID }, { ...INVENTORY, scripts: [ELSEWHERE_ON_THE_URL] }],
+  ["the call has an id the inventory does not hold, and the call and the range disagree on the digest", ["script_identity_differs"], { ...CALL, script: { ...SCRIPT, digest: "cd".repeat(32) } }, { ...RANGE, script: NO_ID }, { ...INVENTORY, scripts: [NO_ID] }],
+  ["the call has an id the inventory does not hold, and the range names no digest", ["no_script_identity"], CALL, { ...RANGE, script: { ...NO_ID, digest: null } }, { ...INVENTORY, scripts: [NO_ID] }],
+  ["the call has an id the inventory holds only on another URL, beside an entry with no id at the range's place", ["script_identity_differs"], CALL, { ...RANGE, script: NO_ID }, { ...INVENTORY, scripts: [{ ...SCRIPT, url: "https://orchard-lane.example/other.html", resourceStart: { line: 41, column: 12 }, digest: "ef".repeat(32) }, NO_ID] }],
   ["the call has an id the inventory does not hold, and an entry with no id at the range's place does not stand in", ["not_in_inventory"], CALL, { ...RANGE, script: NO_ID }, { ...INVENTORY, scripts: [NO_ID] }],
   ["neither has an id, and the entry at that place has one", "consistent", { ...CALL, script: NO_ID }, { ...RANGE, script: NO_ID }],
   ["an empty id on both sides is no id, and the rest of the identity stands in", "consistent", { ...CALL, script: { ...SCRIPT, scriptId: "" } }, { ...RANGE, script: { ...SCRIPT, scriptId: "" } }],
@@ -451,6 +463,20 @@ const FAULTS: readonly Fault[] = [
 
 const JOIN = "a join reads as the table of its conditions says";
 
+/** The one-sided id's block of identityFinding, as the compiled module spells it, so a variant can move it whole. */
+const ONE_SIDED_BLOCK = [
+  "    const oneId = callId !== null && callId !== void 0 ? callId : rangeId;",
+  "    if (oneId !== null) {",
+  "        const byId = inventory.filter(({ scriptId }) => scriptId === oneId);",
+  "        if (byId.length === 0)",
+  '            return "not_in_inventory";',
+  "        // An entry that places the id at the range agrees with it, so with none placed, either every entry puts it elsewhere or some says too little.",
+  "        if (!byId.some((entry) => isPlacedAt(entry, range)))",
+  '            return byId.every((entry) => disagree(entry, range)) ? "script_identity_differs" : "not_in_inventory";',
+  "    }",
+  ""
+].join("\n");
+
 const checkFaults = (module: ReadingsModule) => {
   for (const [name, expected, call, range, inventory] of FAULTS) {
     const reading = module.readExecutionJoin(call, range, inventory ?? INVENTORY);
@@ -459,7 +485,7 @@ const checkFaults = (module: ReadingsModule) => {
   }
 };
 
-const FAULT_COUNT = 147;
+const FAULT_COUNT = 157;
 
 test("each condition of a join, alone, gives no join with that reason, and the boundaries fall where stated", () => {
   checkFaults(production);
@@ -682,13 +708,23 @@ for (const [name, property, check, edits] of [
   ["a call's missing start not noticed", JOIN, checkFaults, [{ find: 'return call.resourceStart === null || known(call.digest) === null ? "no_script_identity" : "same";', replace: 'return known(call.digest) === null ? "no_script_identity" : "same";' }]],
   ["an entry fitting only the range not counted", JOIN, checkFaults, [{ find: "!disagree(entry, call) || !disagree(entry, range)", replace: "!disagree(entry, call)" }]],
   ["an entry fitting only the call not counted", JOIN, checkFaults, [{ find: "!disagree(entry, call) || !disagree(entry, range)", replace: "!disagree(entry, range)" }]],
-  ["a one-sided id's held entries not read", JOIN, checkFaults, [{ find: 'if (byId.every((entry) => disagree(entry, range)))\n            return "script_identity_differs";', replace: "" }]],
-  ["a one-sided id not read against the inventory at all, as before", JOIN, checkFaults, [{ find: 'if (byId.length === 0)\n            return "not_in_inventory";\n        if (byId.every((entry) => disagree(entry, range)))\n            return "script_identity_differs";', replace: "" }]],
   ["only the call's id read against the inventory", JOIN, checkFaults, [{ find: "const oneId = callId !== null && callId !== void 0 ? callId : rangeId;", replace: "const oneId = callId;" }]],
   ["only the range's id read against the inventory", JOIN, checkFaults, [{ find: "const oneId = callId !== null && callId !== void 0 ? callId : rangeId;", replace: "const oneId = rangeId;" }]],
   ["a one-sided id's entry read against the call instead of the range", JOIN, checkFaults, [{ find: "byId.every((entry) => disagree(entry, range))", replace: "byId.every((entry) => disagree(entry, call))" }]],
-  ["a one-sided id held twice needing both entries to agree", JOIN, checkFaults, [{ find: "byId.every((entry) => disagree(entry, range))", replace: "byId.some((entry) => disagree(entry, range))" }]],
-  ["a one-sided id the inventory does not hold let an entry with no id stand in", JOIN, checkFaults, [{ find: 'if (byId.length === 0)\n            return "not_in_inventory";\n        if (byId.every((entry) => disagree(entry, range)))', replace: "if (byId.length > 0 && byId.every((entry) => disagree(entry, range)))" }]],
+  ["a one-sided id's entries not placed, as before", JOIN, checkFaults, [{ find: 'if (!byId.some((entry) => isPlacedAt(entry, range)))\n            return byId.every((entry) => disagree(entry, range)) ? "script_identity_differs" : "not_in_inventory";', replace: 'if (byId.every((entry) => disagree(entry, range)))\n            return "script_identity_differs";' }]],
+  ["a one-sided id not read against the inventory at all", JOIN, checkFaults, [{ find: 'if (byId.length === 0)\n            return "not_in_inventory";\n        // An entry that places', replace: "// An entry that places" }, { find: 'if (!byId.some((entry) => isPlacedAt(entry, range)))\n            return byId.every((entry) => disagree(entry, range)) ? "script_identity_differs" : "not_in_inventory";', replace: "" }]],
+  ["a one-sided id the inventory does not hold let an entry with no id stand in", JOIN, checkFaults, [{ find: 'if (byId.length === 0)\n            return "not_in_inventory";\n        // An entry that places', replace: "// An entry that places" }, { find: "if (!byId.some((entry) => isPlacedAt(entry, range)))", replace: "if (byId.length > 0 && !byId.some((entry) => isPlacedAt(entry, range)))" }]],
+  ["unplaced entries read as differing when one does", JOIN, checkFaults, [{ find: "byId.every((entry) => disagree(entry, range))", replace: "byId.some((entry) => disagree(entry, range))" }]],
+  ["unplaced entries all read as differing", JOIN, checkFaults, [{ find: 'return byId.every((entry) => disagree(entry, range)) ? "script_identity_differs" : "not_in_inventory";', replace: 'return "script_identity_differs";' }]],
+  ["unplaced entries all read as not held", JOIN, checkFaults, [{ find: 'return byId.every((entry) => disagree(entry, range)) ? "script_identity_differs" : "not_in_inventory";', replace: 'return "not_in_inventory";' }]],
+  ["a placed entry's URL not read", JOIN, checkFaults, [{ find: "return entry.url === range.url && isSamePosition(", replace: "return isSamePosition(" }]],
+  ["a placed entry's start not read", JOIN, checkFaults, [{ find: "entry.url === range.url && isSamePosition(entry.resourceStart, range.resourceStart) && ", replace: "entry.url === range.url && " }]],
+  ["a placed entry's digest not read", JOIN, checkFaults, [{ find: "(known(entry.digest) === null || entry.digest === range.digest)", replace: "true" }]],
+  ["a placed entry's digest required", JOIN, checkFaults, [{ find: "(known(entry.digest) === null || entry.digest === range.digest)", replace: "entry.digest === range.digest" }]],
+  ["a one-sided id read once the range's place is found", JOIN, checkFaults, [{ find: ONE_SIDED_BLOCK, replace: "" }, { find: 'if (ofRange.length === 0)\n        return "not_in_inventory";\n', replace: 'if (ofRange.length === 0)\n        return "not_in_inventory";\n' + ONE_SIDED_BLOCK }]],
+  ["a one-sided id read ahead of the call and the range disagreeing", JOIN, checkFaults, [{ find: ONE_SIDED_BLOCK, replace: "" }, { find: 'if (disagree(call, range))\n        return "script_identity_differs";\n    // The range names', replace: ONE_SIDED_BLOCK + '    if (disagree(call, range))\n        return "script_identity_differs";\n    // The range names' }]],
+  ["a one-sided id read ahead of the range naming its identity", JOIN, checkFaults, [{ find: ONE_SIDED_BLOCK, replace: "" }, { find: "    if (known(range.url) === null || range.resourceStart === null || known(range.digest) === null)\n", replace: ONE_SIDED_BLOCK + "    if (known(range.url) === null || range.resourceStart === null || known(range.digest) === null)\n" }]],
+  ["a one-sided id's entries on another URL ignored", JOIN, checkFaults, [{ find: "const byId = inventory.filter(({ scriptId }) => scriptId === oneId);", replace: "const byId = inventory.filter((entry) => entry.scriptId === oneId && (entry.url === url || known(entry.url) === null));" }]],
   ["a place holding only another's id let through", JOIN, checkFaults, [{ find: 'if (ofRange.every((entry) => disagree(entry, call) || disagree(entry, range)))\n        return "script_identity_differs";', replace: "" }]],
   ["a place read against the call alone", JOIN, checkFaults, [{ find: "ofRange.every((entry) => disagree(entry, call) || disagree(entry, range))", replace: "ofRange.every((entry) => disagree(entry, call))" }]],
   ["a place read against the range alone", JOIN, checkFaults, [{ find: "ofRange.every((entry) => disagree(entry, call) || disagree(entry, range))", replace: "ofRange.every((entry) => disagree(entry, range))" }]],
