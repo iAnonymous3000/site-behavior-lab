@@ -123,10 +123,30 @@ test("the walk from the entry really reaches the gate, its configuration and the
   }
 });
 
-test("every core module is walked, including the log the entry does not reach yet", () => {
+test("every core module is walked, including the log and the case machine the entry does not reach yet", () => {
   const graph = graphOf(filesIn(CORE), readProject);
-  for (const file of ["investigation/core/actor.ts", "investigation/core/canonical-json.ts", "investigation/core/case-log.ts"]) {
+  for (const file of [
+    "investigation/core/actor.ts",
+    "investigation/core/aggregates.ts",
+    "investigation/core/canonical-json.ts",
+    "investigation/core/case-events.ts",
+    "investigation/core/case-log.ts",
+    "investigation/core/case-machine.ts",
+    "investigation/core/case-store.ts",
+    "investigation/core/evidence-model.ts",
+    "investigation/core/ids.ts",
+    "investigation/core/purge.ts",
+    "investigation/core/readings.ts",
+    "investigation/core/summary-tier.ts"
+  ]) {
     assert.ok(graph.has(file), file);
+  }
+});
+
+test("the Worker's entry reaches none of the case code yet, since no route exists", () => {
+  const graph = graphOf([WORKSPACE_ENTRY], readProject);
+  for (const file of graph) {
+    assert.ok(!/case-|evidence-model|purge|readings|summary-tier|aggregates|ids\.ts$/.test(file), file);
   }
 });
 
@@ -158,6 +178,11 @@ for (const [name, property, target, line] of [
   ["a Node builtin with no prefix", "the Worker's side names no Node builtin", "investigation/core/canonical-json.ts", 'import "fs";'],
   ["a package", "the Worker's side names no package", "investigation/core/case-log.ts", 'import "some-package";'],
   ["a Node global", "the Worker's side uses no Node global", "investigation/core/canonical-json.ts", 'const bytes = Buffer.from("x");'],
+  ["an import of the filesystem store from the store", "the Worker's side reaches neither the filesystem store nor test code", "investigation/core/case-store.ts", 'import { fsLogStores } from "../local/fs-log-store";'],
+  ["a Node builtin in the machine", "the Worker's side names no Node builtin", "investigation/core/case-machine.ts", 'import { createHash } from "node:crypto";'],
+  ["a Node global in the summary", "the Worker's side uses no Node global", "investigation/core/summary-tier.ts", 'const bytes = Buffer.from("x");'],
+  ["a public module in the readings", "the Worker's side stays inside the workspace's own code", "investigation/core/readings.ts", 'import "../../lib/finite-check";'],
+  ["a package in the evidence model", "the Worker's side names no package", "investigation/core/evidence-model.ts", 'import "some-package";'],
   ["the process global", "the Worker's side uses no Node global", "investigation/core/case-log.ts", "const pid = process.pid;"],
   ["a module outside the workspace", "the Worker's side stays inside the workspace's own code", "investigation/core/case-log.ts", 'import "../../lib/finite-check";']
 ] as const) {

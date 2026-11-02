@@ -26,6 +26,11 @@ public API or a 1.0 release.
 - The private workspace now validates its configuration, pins the owner's subject
   and email, answers on one hostname, and holds a tamper-evident case log, tested
   with real process kills. Nothing is deployed, and public behavior is unchanged.
+- The private workspace now has a case and attempt machine, an evidence model,
+  observation and join readings, keyed aggregates, an allow-list summary tier and
+  a case store folded from its log, with M1's A2, A3, A4, A7, A9, A10 and A12
+  passing on a synthetic case. No route or deployment, and public behavior is
+  unchanged.
 
 ### Fixed
 

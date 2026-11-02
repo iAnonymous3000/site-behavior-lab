@@ -335,3 +335,39 @@ test("the __proto__ key is data, and changes no prototype", () => {
   assert.equal(({} as Record<string, unknown>).polluted, undefined);
   assert.equal(new TextDecoder().decode(canonicalBytes(parsed) as Uint8Array), '{"__proto__":{"polluted":true}}');
 });
+
+const EXACT = "a record has exactly the keys named, no more and no fewer";
+
+const checkExactKeys = (module: CanonicalModule) => {
+  const table: readonly (readonly [Record<string, unknown>, readonly string[], boolean])[] = [
+    [{}, [], true],
+    [{ a: 1 }, ["a"], true],
+    [{ a: 1, b: 2 }, ["b", "a"], true],
+    // What joined strings let through: an empty key joins like no keys at all, and a key with a comma like two.
+    [{ "": 1 }, [], false],
+    [{ "a,b": 1 }, ["a", "b"], false],
+    [{ a: 1, "": 2 }, ["a"], false],
+    [{ a: 1, b: 2 }, ["a,b"], false],
+    // Too many, too few, and the right number of the wrong ones.
+    [{ a: 1, b: 2 }, ["a"], false],
+    [{ a: 1 }, ["a", "b"], false],
+    [{ a: 1, c: 2 }, ["a", "b"], false],
+    [{ c: 1 }, ["a"], false],
+    // A name every object answers to is not a key this one holds.
+    [{}, ["constructor"], false],
+    [{ toString: 1 }, [], false]
+  ];
+  for (const [record, keys, expected] of table) {
+    const answer = module.hasExactly(record, keys);
+    holds(EXACT, answer === expected, () => ({ record, keys, answer }));
+  }
+};
+
+test("the one exact-key check, on the forms joined strings let through", async () => {
+  checkExactKeys(productionCanonical);
+  const rule = "return own.length === keys.length && own.every((key) => keys.includes(key));";
+  await assertCaughtBy("the joined strings it replaced", EXACT, () => checkExactKeys(canonicalVariant({ find: rule, replace: "return own.sort().join() === [...keys].sort().join();" })));
+  await assertCaughtBy("no rule", EXACT, () => checkExactKeys(canonicalVariant({ find: rule, replace: "return true;" })));
+  await assertCaughtBy("no length check", EXACT, () => checkExactKeys(canonicalVariant({ find: rule, replace: "return own.every((key) => keys.includes(key));" })));
+  await assertCaughtBy("no membership check", EXACT, () => checkExactKeys(canonicalVariant({ find: rule, replace: "return own.length === keys.length;" })));
+});

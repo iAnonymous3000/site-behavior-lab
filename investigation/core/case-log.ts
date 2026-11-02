@@ -44,7 +44,7 @@
 // separately reviewed way in, and that choice should not be made by loosening this.
 
 import { isAttemptId, isDerivedActor, type Actor } from "./actor";
-import { bytesEqual, canonicalBytes, parseCanonical, sha256Hex, type CanonicalValue } from "./canonical-json";
+import { bytesEqual, canonicalBytes, hasExactly, parseCanonical, sha256Hex, type CanonicalValue } from "./canonical-json";
 
 /** Eight times the longest entry M1 wrote, 31 KB for an import. */
 export const MAX_ENTRY_BYTES = 256 * 1024;
@@ -176,10 +176,6 @@ function isPlainRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-function hasExactly(record: Record<string, unknown>, keys: readonly string[]): boolean {
-  return Object.keys(record).sort().join() === [...keys].sort().join();
-}
-
 /** Everything checked here came through parseCanonical, so a number is already a safe integer. */
 function isCount(value: unknown, least: number): value is number {
   return typeof value === "number" && value >= least;
@@ -285,6 +281,7 @@ async function walkChain(stores: LogStores, caseId: string): Promise<ChainWalk> 
   return { ok: true, log: { head, entries: entries.reverse() } };
 }
 
+/** Null when the object at this digest is there and holds these bytes, or the refusal an open would give. */
 async function checkEvidence(stores: LogStores, digest: string): Promise<Refused<OpenRefusal> | null> {
   const bytes = await readOwn(stores.evidence, digest, MAX_EVIDENCE_BYTES);
   if (bytes === null) return refuse("evidence-missing", digest);
@@ -336,6 +333,35 @@ async function createVerified(store: ObjectStore, digest: string, bytes: Uint8Ar
   return there instanceof Uint8Array && bytesEqual(there, bytes);
 }
 
+/** The bytes these fields would write, read as open will read them, or why they cannot be written anywhere. */
+function preparedEntry(fields: unknown): Readonly<{ ok: true; bytes: Uint8Array<ArrayBuffer>; entry: LogEntry }> | Refused<"malformed-command" | "entry-too-large" | "actor-expired"> {
+  const bytes = canonicalBytes(fields);
+  if (bytes === null) return refuse("malformed-command");
+  if (bytes.length > MAX_ENTRY_BYTES) return refuse("entry-too-large");
+  // The bytes about to be written, read as open will read them, so a command can
+  // never brick its log and nothing a caller holds can differ from what was checked.
+  const entry = parseCanonical(bytes);
+  if (!isLogEntry(entry)) return refuse("malformed-command");
+  if (isPastActorExpiry(entry)) return refuse("actor-expired");
+  return { ok: true, bytes, entry };
+}
+
+/**
+ * What appendCommand would refuse this command for as a new log's first entry, at a time the
+ * caller has already read, from an actor the caller has already checked is derived. Only what the
+ * stores answer when it writes is left out. It writes nothing, so a caller can hear no before
+ * there is a log to leave behind.
+ */
+export async function checkFirstEntry(stores: LogStores, { caseId, actor, events, evidence }: Pick<AppendCommand, "caseId" | "actor" | "events" | "evidence">, atMs: unknown): Promise<Refused<AppendRefusal> | null> {
+  const prepared = preparedEntry({ v: ENTRY_VERSION, case: caseId, seq: 1, prev: GENESIS_HEAD, atMs, actor, events, evidence });
+  if (!prepared.ok) return prepared;
+  for (const digest of prepared.entry.evidence) {
+    const refusal = await checkEvidence(stores, digest);
+    if (refusal !== null) return refusal;
+  }
+  return null;
+}
+
 /**
  * Commit one command, or refuse it having changed nothing a reader can see. An orphan
  * may be left behind, which no reader reaches. If this rejects because a store failed,
@@ -357,14 +383,9 @@ export async function appendCommand(stores: LogStores, command: AppendCommand): 
   const { head, entries } = walk.log;
   if (head !== expectedHead) return refuse("conflict");
 
-  const bytes = canonicalBytes({ v: ENTRY_VERSION, case: caseId, seq: entries.length + 1, prev: head, atMs: now(), actor, events, evidence });
-  if (bytes === null) return refuse("malformed-command");
-  if (bytes.length > MAX_ENTRY_BYTES) return refuse("entry-too-large");
-  // The bytes about to be written, read as open will read them, so a command can
-  // never brick its log and nothing a caller holds can differ from what was checked.
-  const entry = parseCanonical(bytes);
-  if (!isLogEntry(entry)) return refuse("malformed-command");
-  if (isPastActorExpiry(entry)) return refuse("actor-expired");
+  const prepared = preparedEntry({ v: ENTRY_VERSION, case: caseId, seq: entries.length + 1, prev: head, atMs: now(), actor, events, evidence });
+  if (!prepared.ok) return prepared;
+  const { bytes, entry } = prepared;
   if (entries.length > 0 && entry.atMs < entries[entries.length - 1].entry.atMs) return refuse("time-went-backward");
 
   for (const digest of entry.evidence) {

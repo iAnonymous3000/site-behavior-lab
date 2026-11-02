@@ -55,7 +55,33 @@ test("on real workerd the log gives the digests Node gives, and refuses what Nod
       clean: "opened",
       otherCase: "wrong-case",
       afterEdit: "entry-edited",
-      afterChange: "evidence-changed"
+      afterChange: "evidence-changed",
+      summary: {
+        ok: true,
+        summary: {
+          v: 1,
+          attemptId: ATTEMPT_ONE,
+          slot: "B1",
+          arm: "baseline",
+          phase: "usable",
+          scripts: [
+            { origin: "https://cdn.orchard-lane.example:8443", pathDigest: sha256OfText("/deep/path.js"), textDigest: sha256OfText("first();"), length: 8, ranges: [{ startOffset: 0, endOffset: 8, count: 1 }] },
+            { origin: null, pathDigest: sha256OfText("text/javascript,second()"), textDigest: sha256OfText("second();"), length: 9, ranges: [] },
+            { origin: null, pathDigest: null, textDigest: sha256OfText("third();"), length: 8, ranges: [] }
+          ],
+          requestCount: 2,
+          requestOrigins: [
+            { origin: "http://[::1]:8080", count: 1 },
+            { origin: "wss://stream.orchard-lane.example", count: 1 }
+          ],
+          storageKeyCount: 1,
+          consoleMessageCount: 0
+        }
+      },
+      machine: "aa".repeat(32),
+      mintedShape: true,
+      refusedByActor: "not-planned",
+      join: { reading: "position_consistent" }
     });
   } finally {
     await miniflare?.dispose();

@@ -47,8 +47,11 @@ test("Cloudflare Worker imports stay out of Node-only modules", async () => {
       "cloudflare/r2-remediation-worker.ts",
       "cloudflare/r2-delete-canary-worker.ts",
       WORKSPACE_ENTRYPOINT,
-      // No route reaches the case log yet, and it is written to run in this Worker.
-      "investigation/core/case-log.ts"
+      // No route reaches these yet, and they are written to run in this Worker. The store
+      // reaches the log, the machine, the evidence model and the aggregates.
+      "investigation/core/case-log.ts",
+      "investigation/core/case-store.ts",
+      "investigation/core/summary-tier.ts"
     ],
     blockedLocalModules: NODE_ONLY_MODULES,
     blockedPackages: WORKER_BLOCKED_PACKAGES

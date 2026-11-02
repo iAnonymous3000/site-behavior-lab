@@ -86,6 +86,15 @@ export function parseCanonical(bytes: Uint8Array): CanonicalValue | null {
   return again !== null && bytesEqual(again, bytes) ? (parsed as CanonicalValue) : null;
 }
 
+/**
+ * Whether a record holds exactly these keys: as many, and every one of them expected. Comparing
+ * joined strings is not this, since {"": x} joins like no keys at all and {"a,b": 1} like two.
+ */
+export function hasExactly(record: object, keys: readonly string[]): boolean {
+  const own = Object.keys(record);
+  return own.length === keys.length && own.every((key) => keys.includes(key));
+}
+
 export function bytesEqual(left: Uint8Array, right: Uint8Array): boolean {
   if (left.length !== right.length) return false;
   for (let index = 0; index < left.length; index += 1) {
