@@ -22,10 +22,11 @@ public API or a 1.0 release.
 - A bounded model of the shared-worker hold and readout, with an axiom table over
   A1 to A5 and conformance by trace through the attacher thread's program. Its
   findings stay pinned open for the owner, and no report or identity moves.
-- Every state the private workspace's case machine and its case store's fold
-  reach on bounded plans, walked whole and held to the plan's properties, with
-  each checking thread made to account for the states it checked. Tests in a
-  stage of their own, plus one export of the fold step; no rule moves.
+- Every state the private workspace's case machine reaches on five named plans,
+  and its case store's fold on three bounded instances, walked whole and held to
+  the plan's properties. Each thread that checks a range of states must answer it
+  as sent, with its count and a digest of those states. Tests in a stage of their
+  own, plus one export of the fold step; no rule moves.
 - The start of a private, owner-only investigation workspace: a Cloudflare
   Worker that verifies a Cloudflare Access token on every request and denies
   everything else. Nothing deploys it and it has no hostname, and no public
@@ -39,10 +40,12 @@ public API or a 1.0 release.
   passing on a synthetic case. No route or deployment, and public behavior is
   unchanged.
 - The private workspace now has an owner-only viewer: pages rendered whole in its
-  Worker that run no script, show stored text with every character that could
-  show as nothing marked, and write only claims, refusing writes and loads from
-  other origins. The production entry configures no case service, so its case
-  routes answer 503, and nothing is deployed.
+  Worker that run no script and write only claims, each write from the
+  workspace's own origin. Stored text shows control, format, private-use and
+  unassigned code points as tokens, and a space or tab as itself only alone
+  inside a line or in indentation of one kind up to 64. The production entry
+  configures no case service, so its case routes answer 503, and nothing is
+  deployed.
 
 ### Fixed
 
