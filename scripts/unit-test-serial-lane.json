@@ -47,6 +47,7 @@
   "lib/request-initiator-fixture.test.ts": "launches Chromium twice, the second time with --site-per-process, and waits on fixture visits under 10 s deadlines",
   "lib/run-featured-scans-plan.test.ts": "spawns the featured scan planner with a 25 ms delay setting",
   "lib/scan-api.test.ts": "runs under a 1000 ms test timeout",
+  "lib/scan-browser-hsts-preload.test.ts": "launches Chromium behind a local recording proxy",
   "lib/scan-client-orchestration.test.ts": "races millisecond response timeouts",
   "lib/scan-deadline-disposal.test.ts": "races millisecond timers against scan deadlines",
   "lib/scan-gate.test.ts": "asserts elapsed time under 1000 ms",

@@ -393,11 +393,17 @@ test("observe-mode consent probing ignores page-owned geometry navigation hooks"
  * "Privacy Policy" heading, so it passes for a policy; only the fetched text
  * names Google, whose pixel the homepage loads. Reading the shell published
  * "Google is not named in the privacy policy" over a policy that names it.
+ *
+ * `pixelHost` moves the pixel to another name. A test that counts the
+ * homepage's proxy transactions needs one outside Chromium's HSTS preload list:
+ * Google's is on it, and whether the scan browser upgrades it to https first
+ * depends on the browser's build age (docs/limitations.md).
  */
 async function scanClientRenderedPolicy(options: {
   site: string;
   noticeDelayMs: number;
   proxyTransactionLimitForTests?: number;
+  pixelHost?: string;
 }): Promise<{
   scanned: Awaited<ReturnType<typeof scanSiteWithMeasurement>>;
   policyRequests: number;
@@ -405,7 +411,8 @@ async function scanClientRenderedPolicy(options: {
   const filler = "Lamps, rugs and chairs for every room, delivered to your door. ".repeat(12);
   const nav = `<nav>${"Shop Lighting Rugs Chairs Help Contact Careers Press Accessibility Sitemap ".repeat(6)}</nav>`;
   const footer = `<footer>Example Lamps. <a href="/privacy-policy">Privacy Policy</a> Terms of use.</footer>`;
-  const pixel = `<img src="http://www.google-analytics.com/collect?v=1&t=pageview" width="1" height="1" alt="">`;
+  const pixelHost = options.pixelHost ?? "www.google-analytics.com";
+  const pixel = `<img src="http://${pixelHost}/collect?v=1&t=pageview" width="1" height="1" alt="">`;
   const shell =
     `<!doctype html><title>Privacy Policy | Example Lamps</title>${nav}<main><h1>Privacy Policy</h1>` +
     `<div id="notice"></div></main>${footer}` +
@@ -418,7 +425,7 @@ async function scanClientRenderedPolicy(options: {
   const upstream = createServer((request, response) => {
     const host = request.headers.host?.split(":")[0] ?? "";
     const path = new URL(request.url ?? "/", "http://fixture.test").pathname;
-    if (host === "www.google-analytics.com") {
+    if (host === pixelHost) {
       response.writeHead(204);
       response.end();
       return;
@@ -507,9 +514,10 @@ test("a policy still fetching its text when the settle wait ends is never read a
 });
 
 test("a policy visit after the scan's proxy transactions are spent is skipped as the scanner's budget", { timeout: 60_000 }, async () => {
-  // The homepage spends seven proxy transactions (the document, four images,
-  // and the pixel's request and its HSTS upgrade); a limit of three spends
-  // them before it finishes. The policy page opens through the same proxy,
+  // The homepage spends six proxy transactions (the document, four images and
+  // Google's pixel), or seven while the scan browser applies its HSTS preload
+  // list and upgrades the pixel first; a limit of three spends them before it
+  // finishes either way. The policy page opens through the same proxy,
   // so it could not load at all: before, that visit failed in milliseconds
   // and was published as a policy that failed to load.
   const { scanned, policyRequests } = await scanClientRenderedPolicy({
@@ -533,16 +541,19 @@ test("a policy visit after the scan's proxy transactions are spent is skipped as
 });
 
 test("a policy page whose own request the proxy refuses mid-visit is never read as the policy", { timeout: 60_000 }, async () => {
-  // The homepage spends seven proxy transactions: the document, four images,
-  // and the pixel's request and its HSTS upgrade. The policy document is the
-  // eighth, so a limit of eight admits the policy page and refuses only the
+  // The homepage spends six proxy transactions: the document, four images and
+  // a plain http pixel. The pixel is on an invented name outside Chromium's
+  // HSTS preload list, so its cost does not depend on the scan browser's build
+  // age. Google's pixel did: from 2026-10-17 to 2026-11-03 the browser upgraded
+  // it to https first, and the count was seven. The policy document is the
+  // seventh, so a limit of seven admits the policy page and refuses only the
   // request carrying its text: the up-front check passes and the refusal
-  // happens during the read. The shell's silence about Google must not be
-  // published as the policy's.
+  // happens during the read. The shell must not be published as the policy.
   const { scanned, policyRequests } = await scanClientRenderedPolicy({
     site: "mid-visit-budget.test",
     noticeDelayMs: 0,
-    proxyTransactionLimitForTests: 8
+    proxyTransactionLimitForTests: 7,
+    pixelHost: "collect.lamp-metrics.test"
   });
   const { result, measurement } = scanned;
   const policyPhase = measurement.measurement.phases.find((phase) => phase.kind === "policy-analysis");

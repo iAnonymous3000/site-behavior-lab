@@ -68,6 +68,16 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- The policy test that counts proxy transactions no longer depends on the scan
+  browser's build age. Chromium stops applying its built-in HSTS preload list 70
+  days after its build, and Playwright 1.63.0's Chromium passed that point on
+  2026-11-03, so the test's Google pixel stopped being upgraded to https and the
+  homepage cost one transaction less. That test's pixel is now on a name outside
+  the list. A new test records, through a local proxy, that the scan browser does
+  not apply the list, so a browser that applies it again fails by name.
+  [docs/limitations.md](docs/limitations.md) says what the lapse changes in a
+  report, and the 2026-09 toolchain record notes that its two builds also
+  differed in it. No scanner behavior, report or identity moves.
 - A check after scrolling no longer gives a request a call stack when the page
   requested the same URL again after the scroll window: a worker's request could
   take the stack of the page's later one. Every counted request to such a URL now
