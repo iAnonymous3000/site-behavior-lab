@@ -27,6 +27,16 @@ public API or a 1.0 release.
   the plan's properties. Each thread that checks a range of states must answer it
   as sent, with its count and a digest of those states. Tests in a stage of their
   own, plus one export of the fold step; no rule moves.
+- A public register of what each bounded check holds
+  (`docs/formal-verification.md`): each claim over a stated domain, bounds and
+  axioms, with its tests, the variants they must catch or why there are none,
+  and a commit whose tree holds its tests and whose first parent holds none of
+  them. Open findings are pinned as the code behaves and claim nothing. A unit
+  test, run in CI, checks the register's names and numbers against the suites
+  and git, and its words against a closed list, not its meaning; it is meant to
+  catch honest drift, not deliberate evasion. No release gate names the
+  register or its suites yet. The filter-list refresh job now checks out the
+  whole history, which that test reads.
 - The start of a private, owner-only investigation workspace: a Cloudflare
   Worker that verifies a Cloudflare Access token on every request and denies
   everything else. Nothing deploys it and it has no hostname, and no public
