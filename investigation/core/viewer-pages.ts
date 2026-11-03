@@ -17,8 +17,8 @@
 // Every link is to one of these pages, built from ids the log's decoder already held to a shape,
 // and nothing a capture held is ever a link, an image or anything else a browser would fetch.
 //
-// Every page states what the workspace cannot answer, and that limits specific to REA arrive
-// with the adapter batch.
+// Every page states what the workspace cannot answer, and what of the limitations REA states an
+// imported case keeps, which no page shows yet.
 
 import { aggregate, evidenceForAttempt, limitsOfReading, type AggregateGroup, type Measure } from "./aggregates";
 import { configurationKey } from "./case-events";
@@ -37,7 +37,7 @@ export const CANNOT_ANSWER: readonly string[] = [
   "Authorship, purpose, and whether a backend received anything."
 ];
 
-export const ADAPTER_NOTE = "Limits specific to REA arrive with the adapter batch (W4). None are shown here yet.";
+export const ADAPTER_NOTE = "The limitations REA states for each attempt's output the adapter batch (W4) reads are kept on an imported case, by identifier, on the instrument and on every row that output produced, and those of the control run's output on the case's control. No page shows an imported case yet.";
 
 /** What a page says above its content after a write: nothing was written, and why. */
 export type Notice = Readonly<{ kind: "conflict" }> | Readonly<{ kind: "refused"; refusal: string; at: string | null }>;

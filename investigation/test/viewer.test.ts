@@ -1210,13 +1210,13 @@ test("the attempt page says when a slot never started, and the exception line sa
   assert.equal(rowCells(fixture, "B2")[5], "exception");
 });
 
-test("ruling 8: the four cases the workspace cannot answer, and that REA limits arrive with W4, are what every page states", () => {
+test("ruling 8: the four cases the workspace cannot answer, and that no page shows the REA limits W4 keeps, are what every page states", () => {
   assert.equal(CANNOT_ANSWER.length, 4);
   assert.match(CANNOT_ANSWER[0], /child frames and in workers/);
   assert.match(CANNOT_ANSWER[1], /negative-column defect/);
   assert.match(CANNOT_ANSWER[2], /before arming.*signed in.*payloads/);
   assert.match(CANNOT_ANSWER[3], /Authorship, purpose, and whether a backend received anything/);
-  assert.match(ADAPTER_NOTE, /adapter batch \(W4\)/);
+  assert.match(ADAPTER_NOTE, /^The limitations REA states for each attempt's output the adapter batch \(W4\) reads are kept on an imported case, by identifier, on the instrument and on every row that output produced, and those of the control run's output on the case's control\. No page shows an imported case yet\./);
 });
 
 const TYPED = "a case that will not open gets a typed refusal page that shows nothing it held";

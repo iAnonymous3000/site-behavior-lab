@@ -56,6 +56,15 @@ public API or a 1.0 release.
   inside a line or in indentation of one kind up to 64. The production entry
   configures no case service, so its case routes answer 503, and nothing is
   deployed.
+- The private workspace can now import a recorded run as an imported case, a
+  record kind of its own with no plan or machine that is never pooled with a
+  planned case, through a versioned adapter that pins REA 6.5.0 and each file
+  shape it reads. The import reads the run and assesses it against a stated
+  question itself, refuses unless that assessment supports importing it, and
+  records the question's id and digests, the verdict and the run's digest on
+  the case. Raw bytes stay where the run left them, named by digest.
+  Import and correction run in memory: persistence and viewing are deferred, and
+  public behavior is unchanged.
 
 ### Fixed
 

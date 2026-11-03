@@ -142,7 +142,13 @@ test("every core module is walked, including the summary tier the entry does not
     "investigation/core/viewer-pages.ts",
     "investigation/core/viewer-routes.ts",
     "investigation/core/viewer-text.ts",
-    "investigation/core/workspace-response.ts"
+    "investigation/core/workspace-response.ts",
+    "investigation/core/imported-case.ts",
+    "investigation/core/imported-ids.ts",
+    "investigation/core/recorder-shapes.ts",
+    "investigation/core/capture-adapter.ts",
+    "investigation/core/trial-layout.ts",
+    "investigation/core/sufficiency.ts"
   ]) {
     assert.ok(graph.has(file), file);
   }
@@ -162,12 +168,20 @@ test("the Worker's entry reaches the viewer, and through it the case code it rea
 
 test("the other way: the filesystem store reaches the core and Node, seen by the same reader", () => {
   const entries = filesIn(LOCAL);
-  assert.deepEqual(entries, ["investigation/local/fs-log-store.ts"]);
-  const graph = graphOf(entries, readProject);
+  assert.deepEqual(entries.sort(), ["investigation/local/fs-log-store.ts", "investigation/local/recorded-folder.ts"]);
+  const graph = graphOf(["investigation/local/fs-log-store.ts"], readProject);
   assert.ok(graph.has("investigation/core/case-log.ts"), "the store reaches the core by a runtime import");
   const specifiers = runtimeImports(entries[0], readProject(entries[0]));
   assert.ok(specifiers.some(isNodeBuiltin), "the store's Node import is visible to the reader the Worker's side is held by");
   assert.ok(nodeGlobalsUsed(entries[0], readProject(entries[0])).includes("process"), "its Node global is visible too");
+  for (const file of graph) assert.ok(!file.startsWith(`${TEST}/`), file);
+});
+
+test("W4's reader of a recorded folder reaches the core's path rule and Node, and no test code", () => {
+  const reader = "investigation/local/recorded-folder.ts";
+  const graph = graphOf([reader], readProject);
+  assert.ok(graph.has("investigation/core/recorder-shapes.ts"), "the reader holds paths to the core's rule by a runtime import");
+  assert.ok(runtimeImports(reader, readProject(reader)).some(isNodeBuiltin), "its Node import is visible to the reader the Worker's side is held by");
   for (const file of graph) assert.ok(!file.startsWith(`${TEST}/`), file);
 });
 
@@ -194,7 +208,11 @@ for (const [name, property, target, line] of [
   ["a public module in the readings", "the Worker's side stays inside the workspace's own code", "investigation/core/readings.ts", 'import "../../lib/finite-check";'],
   ["a package in the evidence model", "the Worker's side names no package", "investigation/core/evidence-model.ts", 'import "some-package";'],
   ["the process global", "the Worker's side uses no Node global", "investigation/core/case-log.ts", "const pid = process.pid;"],
-  ["a module outside the workspace", "the Worker's side stays inside the workspace's own code", "investigation/core/case-log.ts", 'import "../../lib/finite-check";']
+  ["a module outside the workspace", "the Worker's side stays inside the workspace's own code", "investigation/core/case-log.ts", 'import "../../lib/finite-check";'],
+  ["a Node builtin in the adapter", "the Worker's side names no Node builtin", "investigation/core/capture-adapter.ts", 'import { readFileSync } from "node:fs";'],
+  ["the local reader from the trial layout", "the Worker's side reaches neither the filesystem store nor test code", "investigation/core/trial-layout.ts", 'import { readRecordedFiles } from "../local/recorded-folder";'],
+  ["a Node global in the imported case", "the Worker's side uses no Node global", "investigation/core/imported-case.ts", 'const bytes = Buffer.from("x");'],
+  ["a Node builtin in the recorder's shapes", "the Worker's side names no Node builtin", "investigation/core/recorder-shapes.ts", 'import { readFileSync } from "node:fs";']
 ] as const) {
   test(`${name} in the Worker's side is caught`, async () => {
     await assertCaughtBy(name, property, () => checkWorkerSide(planted(target, line)));
@@ -223,8 +241,22 @@ test("the scanner image's runtime stage copies nothing of the workspace, the vie
   }
 });
 
-test("the public boundary test names the filesystem store as Node-only, and the store is where it says", () => {
+test("the public boundary test walks each W4 core module as a Worker entrypoint, so a Node import in one fails it by name", () => {
   const source = readProject("lib/runtime-boundaries.test.ts");
-  assert.match(source, /"investigation\/local\/fs-log-store\.ts"/);
-  assert.ok(readProject("investigation/local/fs-log-store.ts").length > 0);
+  const worker = source.match(/name: "cloudflare-worker",\s*entrypoints: \[([^\]]*)\]/);
+  assert.ok(worker !== null, "the Worker boundary's entrypoints were read");
+  for (const file of ["imported-case.ts", "imported-ids.ts", "recorder-shapes.ts", "capture-adapter.ts", "trial-layout.ts", "sufficiency.ts"].map((name) => `investigation/core/${name}`)) {
+    assert.ok(worker[1].includes(JSON.stringify(file)), `${file} is a Worker entrypoint`);
+    assert.ok(readProject(file).length > 0, `${file} is where the list says`);
+  }
+});
+
+test("the public boundary test names the filesystem store and the recorded-folder reader as Node-only, and each is where it says", () => {
+  const source = readProject("lib/runtime-boundaries.test.ts");
+  const nodeOnly = source.match(/NODE_ONLY_MODULES = new Set\(\[([^\]]*)\]/);
+  assert.ok(nodeOnly !== null, "the Node-only list was read");
+  for (const file of ["investigation/local/fs-log-store.ts", "investigation/local/recorded-folder.ts"]) {
+    assert.ok(nodeOnly[1].includes(JSON.stringify(file)), `${file} is pinned as Node-only`);
+    assert.ok(readProject(file).length > 0, `${file} is where the pin says`);
+  }
 });

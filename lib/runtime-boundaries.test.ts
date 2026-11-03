@@ -31,7 +31,8 @@ const NODE_ONLY_MODULES = new Set([
   "lib/scanner.ts",
   "lib/static-report-files.ts",
   "lib/url-safety.ts",
-  "investigation/local/fs-log-store.ts"
+  "investigation/local/fs-log-store.ts",
+  "investigation/local/recorded-folder.ts"
 ]);
 
 const BROWSER_CLIENT_BLOCKED_PACKAGES = new Set(["@cloudflare/playwright", "next/server", "playwright"]);
@@ -58,7 +59,14 @@ test("Cloudflare Worker imports stay out of Node-only modules", async () => {
       "investigation/core/viewer-pages.ts",
       "investigation/core/viewer-text.ts",
       "investigation/core/workspace-response.ts",
-      "investigation/core/summary-tier.ts"
+      "investigation/core/summary-tier.ts",
+      // W4's imported case, its adapters, the recorder's shapes and the sufficiency assessment run here too, reached by nothing yet.
+      "investigation/core/imported-case.ts",
+      "investigation/core/imported-ids.ts",
+      "investigation/core/recorder-shapes.ts",
+      "investigation/core/capture-adapter.ts",
+      "investigation/core/trial-layout.ts",
+      "investigation/core/sufficiency.ts"
     ],
     blockedLocalModules: NODE_ONLY_MODULES,
     blockedPackages: WORKER_BLOCKED_PACKAGES

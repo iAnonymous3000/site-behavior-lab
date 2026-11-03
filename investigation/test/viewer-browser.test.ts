@@ -130,7 +130,7 @@ function lineSpan(element: Element, [from, to]: readonly [string, string]): { on
 async function holdsPageRules(page: Page, where: string): Promise<void> {
   const body = await textOf(page);
   for (const line of CANNOT_ANSWER) assert.ok(body.includes(line), `${where}: ${line}`);
-  assert.ok(body.includes("Limits specific to REA arrive with the adapter batch (W4)"), where);
+  assert.ok(body.includes("The limitations REA states for each attempt's output the adapter batch (W4) reads are kept on an imported case, by identifier, on the instrument and on every row that output produced, and those of the control run's output on the case's control. No page shows an imported case yet."), where);
   const counts = await page.evaluate(() => ({
     scripts: document.querySelectorAll("script").length,
     loads: document.querySelectorAll("img, iframe, frame, object, embed, video, audio, source, link, base, meta[http-equiv]").length,
