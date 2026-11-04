@@ -12,6 +12,21 @@ FROM mcr.microsoft.com/playwright:v1.63.0-noble@sha256:eff16c30e6f3f4af0a03fa4b7
 RUN test "$(node --version)" = "v24.20.0" \
   && test "$(npm --version)" = "11.19.0"
 
+# Production launches the headless shell in this base's own /ms-playwright:
+# the runner stage below is FROM playwright-base and copies only /app from the
+# build, so the deps stage's `npx playwright install chromium` never reaches
+# it (and keeps a revision folder the base already completed). That folder
+# must hold the build playwright-core's browsers.json names, the one CI and
+# local tests install, so this stage requires exactly one headless shell in
+# that revision's folder, at that exact Chrome for Testing version, before
+# either stage builds on it. A base rebuilt with a newer patch under the same
+# revision fails here. lib/toolchain-provenance.test.ts ties the revision and
+# version to browsers.json.
+RUN set -- /ms-playwright/chromium_headless_shell-1248/*/chrome-headless-shell \
+  && test "$#" -eq 1 \
+  && test -x "$1" \
+  && test "$("$1" --version)" = "Google Chrome for Testing 156.0.8078.4"
+
 # Dependencies depend on the lockfile and pinned base, not the source commit
 # or public build identity. Keep these layers reusable when either changes;
 # source checks and the application build below still receive the exact SHA.

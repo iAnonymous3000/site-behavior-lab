@@ -148,6 +148,34 @@ test("Playwright package, lockfile, installation, and container base use one exa
   assert.match(runnerStage, /! command -v npm && ! command -v npx && ! command -v yarn && ! command -v corepack/);
 });
 
+test("the container base's bundled scan browser is the one the installed playwright-core names", () => {
+  // Production launches the headless shell in the base image's own
+  // /ms-playwright: the runner stage is FROM playwright-base and copies only
+  // /app. A base rebuilt with a newer patch under the same revision would ship
+  // a browser CI never ran, so the base stage requires exactly one headless
+  // shell in the revision folder browsers.json names, at its exact version,
+  // and this ties both literals to browsers.json.
+  const browsers = (JSON.parse(source("node_modules/playwright-core/browsers.json")) as {
+    browsers: Array<{ name: string; revision: string; browserVersion?: string }>;
+  }).browsers;
+  const shell = browsers.find((browser) => browser.name === "chromium-headless-shell");
+  assert.ok(shell?.browserVersion, "playwright-core must name a chromium-headless-shell version");
+  const dockerfile = source("Dockerfile");
+  const baseStage = dockerfile.slice(0, dockerfile.indexOf("FROM playwright-base AS deps"));
+  const assertions = [...baseStage.matchAll(
+    /^RUN set -- \/ms-playwright\/chromium_headless_shell-(\d+)\/\*\/chrome-headless-shell \\\n {2}&& test "\$#" -eq 1 \\\n {2}&& test -x "\$1" \\\n {2}&& test "\$\("\$1" --version\)" = "Google Chrome for Testing (\d+\.\d+\.\d+\.\d+)"$/gm
+  )];
+  assert.equal(assertions.length, 1, "the Playwright base stage must require exactly one headless shell at its exact version, once");
+  assert.deepEqual(
+    { revision: assertions[0][1], version: assertions[0][2] },
+    { revision: shell.revision, version: shell.browserVersion }
+  );
+  assert.equal(dockerfile.split("/chrome-headless-shell").length - 1, 1, "only the base stage names the headless shell");
+  // The runner stage must not install or copy a browser of its own.
+  const runnerStage = dockerfile.slice(dockerfile.indexOf("FROM playwright-base AS runner"));
+  assert.doesNotMatch(runnerStage, /playwright install|ms-playwright|PLAYWRIGHT_BROWSERS_PATH/);
+});
+
 test("tldts manifest, lockfile, and installation use one exact version", () => {
   const manifest = JSON.parse(source("package.json")) as PackageManifest;
   const lock = JSON.parse(source("package-lock.json")) as PackageLock;
