@@ -2807,6 +2807,14 @@ as intended.
   the list applied and fails by name when the browser stops applying it,
   and [docs/limitations.md](docs/limitations.md) names the epoch, the
   estimated cutoff and both lapse windows.
+- The container base moves from `mcr.microsoft.com/playwright:v1.63.0-noble`
+  at index digest `eff16c30` to the 2026-10-23 build of `v1.64.1-noble` at
+  index digest `47b510dd`, whose Node 24.20.0 and npm 11.19.0 become Node
+  24.22.1 and npm 11.19.1 and whose bundled Chrome for Testing is
+  156.0.8078.4. The tag now resolves to a later rebuild (`2f05f8a7`, Node
+  26.13.0, Chrome for Testing 156.0.8078.80), which this epoch does not
+  adopt. The base stage now fails the image build unless the base's
+  headless shell is the Chrome for Testing build playwright-core names.
 
 ## [0.6.0] - 2026-09-06
 
