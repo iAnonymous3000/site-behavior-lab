@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { createServer, type IncomingMessage } from "node:http";
 import type { AddressInfo, Socket } from "node:net";
+import path from "node:path";
 import { test } from "node:test";
 import { chromium } from "playwright";
 import { chromiumSandboxEnabled } from "./chromium-sandbox";
@@ -18,13 +20,25 @@ import { browserProcessEnvironment, SCAN_CHROMIUM_LAUNCH_ARGS } from "./scanner"
  * to a preloaded name reaches the proxy as a plain GET; with it, Chromium
  * upgrades the request first and the proxy sees a CONNECT to port 443.
  *
- * This records a fact, not a chosen semantics (docs/limitations.md). Playwright
- * 1.63.0's Chromium 153.0.8010.12 passed its 70 days at 2026-11-03 20:20:53
- * UTC and stopped applying the list. A Chromium that applies it again fails
- * here by name, and the measurement semantics are decided before this
- * expectation moves.
+ * This records a fact. On 2026-11-03 the owner delegated the choice of
+ * semantics, and the recommendation taken was to keep the scan browser within
+ * its 70 days. Recorded 2026-11-03: Playwright 1.64.1's Chromium 156.0.8078.4
+ * applies the list. Its version tag was committed 2026-09-29 23:57:21 UTC, so
+ * its estimated cutoff is 2026-12-08 23:57 UTC, on the assumption that the
+ * build time IsBuildTimely() compares is the tag's commit time, an assumption
+ * one lapse has confirmed so far. That lapse: Playwright 1.63.0's Chromium
+ * 153.0.8010.12 (tag committed 2026-08-25 20:20:53 UTC) stopped applying the
+ * list on 2026-11-03 between two gate runs, a window that holds the predicted
+ * 20:20:53 UTC, and this test expected that until the 2026-11 toolchain epoch
+ * moved the browser. By the same rule, Playwright 1.62's Chromium
+ * 151.0.7922.34 stopped applying it at about 2026-09-23 03:34 UTC, about 21
+ * hours before the 2026-09 epoch's deployment replaced it. When the browser
+ * stops applying the list, this fails by name: under that choice the next
+ * toolchain epoch is due. scripts/chromium-hsts-preload-cutoff.mjs warns in
+ * CI three weeks before the estimated cutoff. The title names the Chromium the
+ * installed playwright-core bundles, read from its browsers.json.
  */
-const PRELOAD_APPLIED = false;
+const PRELOAD_APPLIED = true;
 
 /**
  * Two preloaded names: the policy tests' pixel host (the list carries
@@ -35,8 +49,24 @@ const PRELOAD_APPLIED = false;
 const PRELOADED_NAMES = ["www.google-analytics.com", "pixel.hsts-probe.dev"] as const;
 const PROBE_PAGE = "http://hsts-probe.test/";
 const pixelOf = (name: string): string => `http://${name}/collect?v=1`;
+const BUNDLED_CHROMIUM = (JSON.parse(
+  readFileSync(path.join(process.cwd(), "node_modules", "playwright-core", "browsers.json"), "utf8")
+) as { browsers: Array<{ name: string; browserVersion?: string }> }).browsers.find(
+  (browser) => browser.name === "chromium-headless-shell"
+)?.browserVersion ?? "unnamed";
 
-test("the scan browser does not apply Chromium's HSTS preload list (recorded 2026-11-03)", { timeout: 60_000 }, async (t) => {
+/** What the probe saw for one name, when it differs from PRELOAD_APPLIED. */
+function mismatch(version: string, name: string, plain: boolean, upgraded: boolean): string {
+  if (plain && upgraded) {
+    return `Chromium ${version} sent http://${name} both as a plain GET and through a CONNECT to port 443, so this probe cannot say whether the browser applies its HSTS preload list.`;
+  }
+  if (upgraded) {
+    return `Chromium ${version} applies its HSTS preload list to ${name}, which PRELOAD_APPLIED says it does not. Decide the measurement semantics before changing PRELOAD_APPLIED.`;
+  }
+  return `Chromium ${version} does not apply its HSTS preload list to ${name}: its build is likely more than 70 days old (scripts/chromium-hsts-preload-cutoff.mjs estimates each cutoff), so scans send http:// requests to preloaded names as http. Keeping the scan browser within its 70 days needs the next toolchain epoch; do not change PRELOAD_APPLIED to make this pass.`;
+}
+
+test(`the scan browser, Chromium ${BUNDLED_CHROMIUM}, applies its HSTS preload list (expectation recorded 2026-11-03)`, { timeout: 60_000 }, async (t) => {
   const seen: string[] = [];
   const proxy = createServer((request, response) => {
     seen.push(`${request.method} ${request.url}`);
@@ -83,9 +113,7 @@ test("the scan browser does not apply Chromium's HSTS preload list (recorded 202
     assert.deepEqual(
       { name, plain, upgraded },
       { name, plain: !PRELOAD_APPLIED, upgraded: PRELOAD_APPLIED },
-      upgraded
-        ? `Chromium ${browser.version()} now applies its HSTS preload list to ${name} (its build is under 70 days old), so scans record http:// requests to preloaded names differently. Decide the measurement semantics (docs/limitations.md) before changing PRELOAD_APPLIED.`
-        : `Chromium ${browser.version()} does not apply its HSTS preload list to ${name}.`
+      mismatch(browser.version(), name, plain, upgraded)
     );
   }
 });

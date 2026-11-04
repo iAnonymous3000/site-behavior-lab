@@ -180,7 +180,7 @@ Retained request counts can be a lower bound for the same instrumented visit whe
 
 ### The scan browser's HSTS preload list
 
-Whether the scan browser applies Chromium's built-in HSTS preload list depends on the age of its build: Chromium stops applying the list 70 days after the build. The scan browser applied it until 2026-11-03 20:20 UTC and has not since; in an earlier lapse it did not apply it from 2026-09-23 03:34 to 2026-09-24 00:44 UTC. Without the list, a page's `http://` request to a preloaded host is sent as http, so a report can show that request, and any redirect the site answers with, where a current Chrome would have sent https.
+Whether the scan browser applies Chromium's built-in HSTS preload list depends on the age of its build: Chromium stops applying the list 70 days after the build. Once the 2026-11 toolchain epoch (Playwright 1.64.1) is deployed, the scan browser is Chromium 156.0.8078.4, which applies the list until about 2026-12-08 23:57 UTC. Before that, it did not apply the list from about 2026-11-03 20:20 UTC until the epoch was deployed, and in an earlier lapse from about 2026-09-23 03:34 UTC until the next browser was deployed at 2026-09-24 00:44 UTC. Each approximate time is estimated from the browser's build date, taken as its version tag's commit time; one lapse has confirmed that so far. Without the list, a page's `http://` request to a preloaded host is sent as http, so a report can show that request, and any redirect the site answers with, where a current Chrome would have sent https.
 
 ### The two bounded interactions
 

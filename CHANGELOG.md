@@ -73,11 +73,13 @@ public API or a 1.0 release.
   days after its build, and Playwright 1.63.0's Chromium passed that point on
   2026-11-03, so the test's Google pixel stopped being upgraded to https and the
   homepage cost one transaction less. That test's pixel is now on a name outside
-  the list. A new test records, through a local proxy, that the scan browser does
-  not apply the list, so a browser that applies it again fails by name.
-  [docs/limitations.md](docs/limitations.md) says what the lapse changes in a
+  the list. A new test records, through a local proxy, whether the scan browser
+  applies the list. It first recorded the lapsed state; the 2026-11 toolchain
+  epoch flips its expectation to applied, so a browser that stops applying the
+  list fails by name. [docs/limitations.md](docs/limitations.md) says what the lapse changes in a
   report, and the 2026-09 toolchain record notes that its two builds also
-  differed in it. No scanner behavior, report or identity moves.
+  differed in it. That fix itself moved no scanner behavior, report or
+  identity.
 - A check after scrolling no longer gives a request a call stack when the page
   requested the same URL again after the scroll window: a worker's request could
   take the stack of the page's later one. Every counted request to such a URL now
@@ -2797,6 +2799,14 @@ as intended.
   committed table of those times (`scripts/chromium-build-times.json`); one
   lapse has confirmed that rule so far. A unit test fails when the installed
   Playwright bundles a Chromium the table does not hold, and checks no date.
+- Once this epoch is deployed, the scan browser applies Chromium's HSTS
+  preload list again: Chromium 156.0.8078.4 applies it until about
+  2026-12-08 23:57 UTC, estimated from its build date. Chromium
+  153.0.8010.12 stopped applying it on 2026-11-03, between two test runs, at
+  about 20:20 UTC by the same estimate. The environment test now expects
+  the list applied and fails by name when the browser stops applying it,
+  and [docs/limitations.md](docs/limitations.md) names the epoch, the
+  estimated cutoff and both lapse windows.
 
 ## [0.6.0] - 2026-09-06
 
