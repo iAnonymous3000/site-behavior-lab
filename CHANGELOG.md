@@ -2790,6 +2790,13 @@ as intended.
   sanitizer. The reviewed corpus line advances to the new methodology; the
   line it retires keeps its replayed handoff, so its committed cohorts take
   part only through it.
+- Main CI's Chromium smoke job now annotates, and never fails, when fewer
+  than 21 days remain before the bundled Chromium's estimated HSTS preload
+  cutoff (`scripts/chromium-hsts-preload-cutoff.mjs`). Each cutoff is
+  estimated as the Chromium version tag's commit time plus 70 days, from a
+  committed table of those times (`scripts/chromium-build-times.json`); one
+  lapse has confirmed that rule so far. A unit test fails when the installed
+  Playwright bundles a Chromium the table does not hold, and checks no date.
 
 ## [0.6.0] - 2026-09-06
 

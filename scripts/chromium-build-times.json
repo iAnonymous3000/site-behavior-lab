@@ -1,0 +1,30 @@
+{
+  "description": "Each Chromium build the scan browser has run or can run, with its version tag's commit in chromium/chromium. Chromium stops applying its built-in HSTS preload list 70 days after the build time IsBuildTimely() compares (net/http/transport_security_state.cc). That build time is taken to be the version tag's commit time, an assumption one lapse has confirmed so far (153.0.8010.12 on 2026-11-03). Each entry was read with gh api repos/chromium/chromium/git/ref/tags/<version> and then the commit it names (committer date). scripts/chromium-hsts-preload-cutoff.mjs estimates each cutoff from these; lib/chromium-build-times.test.ts requires an entry for the Chromium the installed playwright-core bundles.",
+  "builds": {
+    "149.0.7827.55": {
+      "tagCommit": "3188f8a607ae7e067593be8aab7f02d2451fec07",
+      "committedAt": "2026-05-28T23:26:02Z",
+      "bundledBy": "Playwright 1.61"
+    },
+    "151.0.7922.34": {
+      "tagCommit": "782af9cb30a53f54487e5d2e44738645a8ec457c",
+      "committedAt": "2026-07-15T03:34:29Z",
+      "bundledBy": "Playwright 1.62"
+    },
+    "153.0.8010.12": {
+      "tagCommit": "971a7443b0c9b0a9b2860529b33331b76077ec62",
+      "committedAt": "2026-08-25T20:20:53Z",
+      "bundledBy": "Playwright 1.63.0"
+    },
+    "156.0.8078.4": {
+      "tagCommit": "f842f52ef39fd97b449eb27cff414bf05a98ddce",
+      "committedAt": "2026-09-29T23:57:21Z",
+      "bundledBy": "Playwright 1.64.1"
+    },
+    "156.0.8078.80": {
+      "tagCommit": "fb096c0011f9d50f0a264a9376420cdea9c421e3",
+      "committedAt": "2026-10-28T20:42:08Z",
+      "bundledBy": "mcr.microsoft.com/playwright:v1.64.1-noble rebuilt 2026-11-01 (index sha256:2f05f8a734509a7b3f26a912639488ee08f58a7b292d14d62271bcff9038768f), which keeps revision 1248's folders"
+    }
+  }
+}
