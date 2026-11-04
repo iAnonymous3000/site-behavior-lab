@@ -87,7 +87,7 @@ public API or a 1.0 release.
   and a later request whose page event comes after the evidence is built.
 - Corpus cohorts are keyed on the detector registry too, so a refresh can
   no longer pool one methodology's detector epochs: thirteen registries
-  (node-detectors-v11 to v23) share the current methodology. The key leaves
+  (node-detectors-v11 to v23) share one methodology. The key leaves
   the registry to the methodology only for node-detectors-v2 to v4 and the
   one PageGraph registry, none of which ever shared a methodology with
   another, so every committed cohort keeps its id and every published
@@ -2751,6 +2751,45 @@ as intended.
   line, so the output the 2026-09 record quotes also reproduces verbatim
   only from a checkout that predates this change. The rule is in
   [docs/toolchain-epoch.md](docs/toolchain-epoch.md).
+
+### Toolchain epoch 2026-11
+
+- Toolchain epoch 2026-11 moves Playwright 1.63.0 to 1.64.1, the registry's
+  latest at the cut (published 2026-10-14), with its bundled Chromium
+  153.0.8010.12 to 156.0.8078.4, to keep the scan browser within the 70 days
+  in which Chromium applies its built-in HSTS preload list. adblock-rust
+  0.13.3, tldts 7.4.16, wasm-bindgen 0.2.129, the vendored WASM and the
+  October 19 Brave lists stay.
+- Recorded identities, old to new: the base Node methodology, which is also
+  the v1 methodology token and the corpus cohort key, moves only its
+  Playwright component:
+  `shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2`
+  to
+  `shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.64.1+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2`,
+  and the r2 methodology carries the same move under its unchanged suffix.
+  Every report also records the browser version (v1
+  `conditions.chromiumVersion`, r2 `conditions.browser.version`), which moves
+  from 153.0.8010.12 to 156.0.8078.4, and with it the condition, measurement
+  environment and execution fingerprints that hash it. `http://` references
+  to hosts on the HSTS preload list record differently too: once the epoch is
+  deployed the scan browser applies the list (until about 2026-12-08 23:57
+  UTC, estimated from its build date), where 153.0.8010.12 had stopped on
+  2026-11-03. On local fixtures that moved request rows and statuses; for a
+  reference that answers 200, the summary counts and the r2 redaction
+  counters; for an `http://` policy link that answers 200, the policy URL and
+  its warning; and for a typed `http://` address, the final URL, the subject
+  origin, the pairing keys, `totalRequests`, `domains[]`, and the policy URL
+  and its warning. No normalization (the 3a2328d7
+  policy digest under tldts 7.4.16), detector or registry
+  (node-detectors-v23), obligation, catalog, list identity or engine version
+  moves, and every existing producer row is byte for byte unchanged. Published
+  reports keep their recorded identities:
+  the two outgoing Node producer rows are closed to their exact literals,
+  and the outgoing methodology joins the reviewed historical list, so the
+  263 committed reports that carry it stay fixed points of the v1
+  sanitizer. The reviewed corpus line advances to the new methodology; the
+  line it retires keeps its replayed handoff, so its committed cohorts take
+  part only through it.
 
 ## [0.6.0] - 2026-09-06
 

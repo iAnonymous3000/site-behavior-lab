@@ -17,7 +17,7 @@ import { sha256Hex } from "./sha256";
  * Schema revision, methodology, tracker-catalog identity, the read-time
  * ServiceRole taxonomy, the metric formula contract, and the detector registry
  * are deliberately part of the key. The registry joined it on 2026-10-29:
- * thirteen detector epochs share the current methodology, so without it a
+ * thirteen detector epochs (node-detectors-v11 to v23) shared one methodology, so without it a
  * refresh would pool reports whose detectors measured different things. Producer identity is included when it was recorded because
  * PageGraph imports and browser observations do not measure the same evidence
  * surface. Build, browser patch, acquisition route, and egress remain row-level
@@ -84,8 +84,8 @@ export type CorpusCohortIdentityComponents = Omit<CorpusCohortIdentity, "id">;
  * node-detectors-v4 a registry never shared its methodology with another, so
  * the methodology named it, and the one PageGraph registry is the only one
  * its methodology carries: every cohort keyed before the registry joined the
- * key keeps its id. node-detectors-v5 shared v4's methodology, and from
- * node-detectors-v11 on thirteen registries share one, so a later registry
+ * key keeps its id. node-detectors-v5 shared v4's methodology, and
+ * node-detectors-v11 to v23, thirteen registries, shared one, so a later registry
  * is always named: one methodology across detector epochs is two cohorts,
  * never a pool. A test holds this list to the producer contract: no
  * methodology carries two of these registries.
@@ -220,7 +220,14 @@ export const REVIEWED_MEASUREMENT_LINES: readonly string[] = Object.freeze([
   // DevTools channel saw start (a run without the channel sees none),
   // carries a v1 line under which its fingerprint events are not counted. No
   // committed report is on the line it retires.
-  "shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2"
+  "shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2",
+  // The 2026-11 toolchain epoch: Playwright 1.64.1. Recorded 2026-11-03: its
+  // Chromium 156.0.8078.4 applies the HSTS preload list, which 153.0.8010.12
+  // had stopped applying that day, until an estimated 2026-12-08 23:57 UTC
+  // (the version tag's commit time plus 70 days). The line it retires holds
+  // 263 committed reports; their cohorts now take part only through that
+  // line's replayed handoff.
+  "shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.64.1+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2"
 ]);
 
 /** The current line: the newest entry of {@link REVIEWED_MEASUREMENT_LINES}. */

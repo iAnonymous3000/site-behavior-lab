@@ -290,28 +290,52 @@ test("a reviewed superseded methodology survives the toolchain move that retired
   report.conditions.scannerDisclosure = toolchainSuperseded;
   assert.equal(redactScanResultV1(report).report.conditions.scannerDisclosure, toolchainSuperseded);
 
-  // The line subject-validity-v4 retired kept the current Playwright and
-  // ad-block engine: only a methodology component moved. Production recorded
-  // it with no committed report to prove it.
+  // The lines subject-validity-v4 and fingerprint-surface-v2 retired kept the
+  // Playwright and ad-block engine of the line they handed to: only a
+  // methodology component moved. Production recorded them with no committed
+  // report to prove it. The 2026-11 toolchain epoch then moved Playwright past
+  // them, so each disclosure names its own Playwright 1.63.0, which the
+  // sanitizer reads from the reviewed literal.
   const subjectValidityMethodology =
     "shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v3+detector-coverage-v2";
   assert.notEqual(subjectValidityMethodology, NODE_SCANNER_METHODOLOGY_VERSION);
-  assert.equal(recordedPlaywrightVersion(subjectValidityMethodology), NODE_PLAYWRIGHT_VERSION);
-  const subjectValiditySuperseded = current.replace(NODE_SCANNER_METHODOLOGY_VERSION, subjectValidityMethodology);
+  assert.equal(recordedPlaywrightVersion(subjectValidityMethodology), "1.63.0");
+  const subjectValiditySuperseded = current
+    .replace(`Playwright ${NODE_PLAYWRIGHT_VERSION}`, "Playwright 1.63.0")
+    .replace(NODE_SCANNER_METHODOLOGY_VERSION, subjectValidityMethodology);
   assert.notEqual(subjectValiditySuperseded, current);
   report.conditions.scannerDisclosure = subjectValiditySuperseded;
   assert.equal(redactScanResultV1(report).report.conditions.scannerDisclosure, subjectValiditySuperseded);
 
   // The line fingerprint-surface-v2 retired appended a component instead of
-  // swapping one, so the outgoing base is a strict prefix of the current one.
-  // Production recorded it with no committed report to prove it.
+  // swapping one, so the outgoing base is a strict prefix of its successor,
+  // the base the 2026-11 toolchain epoch retired below.
+  const toolchain202611Methodology =
+    "shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2";
   const fingerprintSurfaceMethodology =
     "shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v4+detector-coverage-v2";
-  assert.equal(NODE_SCANNER_METHODOLOGY_VERSION.startsWith(`${fingerprintSurfaceMethodology}+`), true);
-  const fingerprintSurfaceSuperseded = current.replace(NODE_SCANNER_METHODOLOGY_VERSION, fingerprintSurfaceMethodology);
+  assert.equal(toolchain202611Methodology.startsWith(`${fingerprintSurfaceMethodology}+`), true);
+  const fingerprintSurfaceSuperseded = current
+    .replace(`Playwright ${NODE_PLAYWRIGHT_VERSION}`, "Playwright 1.63.0")
+    .replace(NODE_SCANNER_METHODOLOGY_VERSION, fingerprintSurfaceMethodology);
   assert.notEqual(fingerprintSurfaceSuperseded, current);
   report.conditions.scannerDisclosure = fingerprintSurfaceSuperseded;
   assert.equal(redactScanResultV1(report).report.conditions.scannerDisclosure, fingerprintSurfaceSuperseded);
+
+  // The line the 2026-11 toolchain epoch retired moved only its Playwright
+  // component; 263 committed reports carry it. Its disclosure names Playwright
+  // 1.63.0, and the same base beside the current Playwright is a disclosure no
+  // producer wrote, so it is refused.
+  assert.notEqual(toolchain202611Methodology, NODE_SCANNER_METHODOLOGY_VERSION);
+  assert.notEqual(NODE_PLAYWRIGHT_VERSION, "1.63.0");
+  const toolchain202611Superseded = current
+    .replace(`Playwright ${NODE_PLAYWRIGHT_VERSION}`, "Playwright 1.63.0")
+    .replace(NODE_SCANNER_METHODOLOGY_VERSION, toolchain202611Methodology);
+  assert.notEqual(toolchain202611Superseded, current);
+  report.conditions.scannerDisclosure = toolchain202611Superseded;
+  assert.equal(redactScanResultV1(report).report.conditions.scannerDisclosure, toolchain202611Superseded);
+  report.conditions.scannerDisclosure = current.replace(NODE_SCANNER_METHODOLOGY_VERSION, toolchain202611Methodology);
+  assert.match(redactScanResultV1(report).report.conditions.scannerDisclosure, /invalid and was removed/);
 
   // An unreviewed extended identity is still refused: the reviewed list is
   // exact, so a report cannot mint its own methodology tail and publish it.

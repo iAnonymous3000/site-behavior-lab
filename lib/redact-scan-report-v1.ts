@@ -943,8 +943,9 @@ function previousNodeScannerDisclosure(
  * older shapes whose methodology token ENDS at the Playwright version; a report
  * published under an extended identity was a fixed point only while that
  * identity was still current, so moving the Playwright pin would silently
- * replace 39 committed reports' disclosures with the invalid-metadata sentinel
- * and orphan them from managed reads. Exact literals, never a pattern, for the
+ * replace the disclosures of every committed report under such an identity
+ * (734 at the 2026-11 toolchain epoch, under four of the literals below) with
+ * the invalid-metadata sentinel and orphan them from managed reads. Exact literals, never a pattern, for the
  * same reason as HISTORICAL_TRACKER_CATALOGS: the disclosure is a published
  * string, and a pattern would let a report declare an arbitrary methodology
  * tail and have it survive verbatim.
@@ -953,17 +954,22 @@ function previousNodeScannerDisclosure(
  * outgoing identity here.
  */
 const HISTORICAL_NODE_SCANNER_METHODOLOGIES: readonly string[] = Object.freeze([
+  // Retired by the 2026-11 toolchain epoch (Playwright 1.64.1); 263 committed
+  // reports under public/reports and one test fixture carry it.
+  "shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2",
   // Retired by fingerprint-surface-v2 in the node-detectors-v11 measurement
   // epoch. No committed report carries it, but production has recorded it
   // since the node-detectors-v10 epoch deployed. It is a strict prefix of the
-  // current base, which the exact template comparison below keeps apart.
+  // base the 2026-11 toolchain epoch retired, above, which the exact template
+  // comparison below keeps apart.
   "shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v4+detector-coverage-v2",
   // Retired by subject-validity-v4 in the node-detectors-v10 measurement
   // epoch. No committed report carries it, but production has recorded it
   // since the 2026-09 toolchain epoch deployed.
   "shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v3+detector-coverage-v2",
   // Retired by the 2026-09 toolchain epoch (adblock-rust 0.13.3, Playwright
-  // 1.63.0); 95 committed reports carry it.
+  // 1.63.0); 95 committed reports carried it then, and 84 do at the 2026-11
+  // toolchain epoch.
   "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v3+detector-coverage-v2",
   "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v2+detector-coverage-v2",
   "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.0+subject-validity-v2+detector-coverage-v2"
