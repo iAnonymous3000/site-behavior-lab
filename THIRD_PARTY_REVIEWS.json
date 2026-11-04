@@ -1964,10 +1964,10 @@
       "notes": null
     },
     {
-      "key": "npm:playwright@1.63.0",
+      "key": "npm:playwright@1.64.1",
       "ecosystem": "npm",
       "name": "playwright",
-      "version": "1.63.0",
+      "version": "1.64.1",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "Apache-2.0",
@@ -1978,10 +1978,10 @@
       "notes": null
     },
     {
-      "key": "npm:playwright-core@1.63.0",
+      "key": "npm:playwright-core@1.64.1",
       "ecosystem": "npm",
       "name": "playwright-core",
-      "version": "1.63.0",
+      "version": "1.64.1",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "Apache-2.0",

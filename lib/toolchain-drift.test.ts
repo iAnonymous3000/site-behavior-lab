@@ -66,7 +66,11 @@ const reviewedSeccompDigests: Readonly<Record<string, string>> = {
   // v1.63.0 likewise: utils/docker/seccomp_profile.json at the v1.63.0 tag
   // (commit 1b025d7e20a026371cd5f98ba0cdce48892737c8) was fetched and is
   // byte-identical to the committed profile. Reviewed, not skipped.
-  "1.63.0": "cc3e61cabda6bbc1e53e54d27ba4d55a9d3be829b6dd1a596f4a7b31b1cc7849"
+  "1.63.0": "cc3e61cabda6bbc1e53e54d27ba4d55a9d3be829b6dd1a596f4a7b31b1cc7849",
+  // v1.64.1 likewise: utils/docker/seccomp_profile.json at the v1.64.1 tag
+  // (commit cfe490d941f992655948eee8fd4fd94e1c4234bf) was fetched and is
+  // byte-identical to the committed profile. Reviewed, not skipped.
+  "1.64.1": "cc3e61cabda6bbc1e53e54d27ba4d55a9d3be829b6dd1a596f4a7b31b1cc7849"
 };
 
 test("promotion CI pins the reviewed seccomp bytes to the exact Playwright version", () => {
