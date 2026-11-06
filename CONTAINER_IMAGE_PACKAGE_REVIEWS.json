@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "artifactKind": "site-behavior-container-image-package-review-ledger",
-  "inventoryPackageSetDigest": "09443a8c141cbc3ec4447edae1149be0256e0d87449b3cccdef40f4a897aa3fc",
+  "inventoryPackageSetDigest": "830642c80370c0ec35ebfa110e445046a4936420ec785d7821aaeecb636a850e",
   "notice": "Rows are synchronized from an exact smoke-tested container OS-package inventory. New or changed package evidence is unreviewed until a human records a substantive license determination and resolves every distribution obligation. Scanner output is evidence, not a legal conclusion.",
   "reviews": [
     {
@@ -27,8 +27,8 @@
       "notes": null
     },
     {
-      "key": "os:ubuntu:apt@2.8.3#amd64",
-      "inventoryEvidenceDigest": "672ff1cfb21f7f2b1807cd11b8a721a0629fdb83b53aa45edb6522673a8d59d6",
+      "key": "os:ubuntu:apt@2.8.4ubuntu0.1#amd64",
+      "inventoryEvidenceDigest": "3545f63daeaec703d9313280ee4cc880c35941d0da7618dd7050ed324dc08ad5",
       "status": "unreviewed",
       "determinedLicense": null,
       "licenseEvidenceRefs": [],
@@ -49,8 +49,8 @@
       "notes": null
     },
     {
-      "key": "os:ubuntu:base-files@13ubuntu10.4#amd64",
-      "inventoryEvidenceDigest": "aaba2a76b6308799b7cdbb74a160cc2c1ddae951387441f8a42c59baa6333bca",
+      "key": "os:ubuntu:base-files@13ubuntu10.5#amd64",
+      "inventoryEvidenceDigest": "d7c313daf2ef8b0caeed6734e8cec61c202058a9dcf88286e1ae51b2e3fb8e2c",
       "status": "unreviewed",
       "determinedLicense": null,
       "licenseEvidenceRefs": [],
@@ -93,8 +93,8 @@
       "notes": null
     },
     {
-      "key": "os:ubuntu:ca-certificates@20260601~24.04.1#all",
-      "inventoryEvidenceDigest": "60f21a877e59dae1935853ad5176279c70de1d1d89879b3f486fc36a7c6e3da2",
+      "key": "os:ubuntu:ca-certificates@20260816ubuntu0.24.04.1#all",
+      "inventoryEvidenceDigest": "a6ea19ad1865691701604b01926b901c19909637cc0bb594747f21d06f15b483",
       "status": "unreviewed",
       "determinedLicense": null,
       "licenseEvidenceRefs": [],
@@ -742,8 +742,8 @@
       "notes": null
     },
     {
-      "key": "os:ubuntu:libapt-pkg6.0t64@2.8.3#amd64",
-      "inventoryEvidenceDigest": "8fd62962853e3e29528bd831bbc42bae39bb716fb7473f941264f0bb0a94720a",
+      "key": "os:ubuntu:libapt-pkg6.0t64@2.8.4ubuntu0.1#amd64",
+      "inventoryEvidenceDigest": "c2ff87247253816722ed3979024e150ba2a88772805440b15ca304f39203ae2d",
       "status": "unreviewed",
       "determinedLicense": null,
       "licenseEvidenceRefs": [],
@@ -5164,8 +5164,8 @@
       "notes": null
     },
     {
-      "key": "os:ubuntu:nodejs@24.20.0#amd64",
-      "inventoryEvidenceDigest": "639c964f60e97188a178439b786704917431209197e84016a70d25fe6824aace",
+      "key": "os:ubuntu:nodejs@24.22.1#amd64",
+      "inventoryEvidenceDigest": "e24687bbb8dd3b251248b3f4b3bf7b046d5d0b112b5f6ebf848356226fd20628",
       "status": "unreviewed",
       "determinedLicense": null,
       "licenseEvidenceRefs": [],
@@ -5450,8 +5450,8 @@
       "notes": null
     },
     {
-      "key": "os:ubuntu:tzdata@2026c#all",
-      "inventoryEvidenceDigest": "fdd86236368bf455e35552a6262f1323aaa1bc43d8a08bce62e7667a8031ce02",
+      "key": "os:ubuntu:tzdata@2026e#all",
+      "inventoryEvidenceDigest": "7608971393b5c22bab22b763dc91a44bfc89100bc37ccf759ac0efe40384598f",
       "status": "unreviewed",
       "determinedLicense": null,
       "licenseEvidenceRefs": [],
@@ -5628,6 +5628,17 @@
     {
       "key": "os:ubuntu:zlib1g@1.3.dfsg#amd64",
       "inventoryEvidenceDigest": "69e26ba372f69807ae589da6441cd43fe4a2ddfc3bc0fff615340f776beedfba",
+      "status": "unreviewed",
+      "determinedLicense": null,
+      "licenseEvidenceRefs": [],
+      "obligations": [],
+      "reviewer": null,
+      "reviewedAt": null,
+      "notes": null
+    },
+    {
+      "key": "os:ubuntu:zstd@1.5.5+dfsg2#amd64",
+      "inventoryEvidenceDigest": "4a19e6c32a2e966e4b138411f626e9829e8e7eb6a85d6705ef6384ea8980a4d0",
       "status": "unreviewed",
       "determinedLicense": null,
       "licenseEvidenceRefs": [],
