@@ -2453,6 +2453,15 @@ function sharedWorkersOf(harness: PausedWorkerHarness): readonly AttachedSharedW
  * readout counting the worker unread), and only a try it won is held to the
  * test's own assertions. A test whose every try was lost fails, so the
  * attacher must still win.
+ *
+ * One exception, which a test takes only by asking for it: under
+ * translation (an amd64 image built on an arm64 Mac runs every process
+ * through Rosetta), a test that opts in and loses every try reports its
+ * coverage as not obtained, a skip with that reason, instead of failing.
+ * Each of its tries is still held to the accounting above, and wherever the
+ * translation signal does not read translated, natively included, it fails
+ * as every other test here does. 2026-11-04: in two emulated amd64 builds of
+ * the image, the ended-at-once test lost all four tries; natively it wins.
  */
 const SHARED_HOLD_TRIES = 4;
 
@@ -2469,13 +2478,164 @@ function documentedLateReason(reason: SharedWorkerLateReason | null): boolean {
   return reason !== null && DOCUMENTED_LATE_REASONS[reason] === true;
 }
 
-async function untilSharedWorkerRaceWon(t: TestContext, attempt: (tryNumber: number) => Promise<boolean>): Promise<void> {
+type TranslationSignal = { readonly translated: boolean; readonly reading: string };
+
+/**
+ * Whether this process runs translated by Rosetta rather than on the CPU it
+ * was built for, from positive evidence of translation only: a Linux x64
+ * process with Rosetta's runtime mapped into it (a file named rosetta in
+ * /proc/self/maps, /run/rosetta/rosetta under Docker Desktop) and the CPU
+ * Rosetta presents in /proc/cpuinfo (vendor_id VirtualApple). Being x64 is
+ * no such evidence, since a native amd64 runner is x64 too. Anything else,
+ * a file that cannot be read, or one of the two marks without the other,
+ * reads native, which holds a test that asks to its stricter rule. QEMU's
+ * user-mode translation is not recognized, and reads native.
+ */
+function translationSignalOf(facts: {
+  platform: string;
+  arch: string;
+  maps: string | null;
+  cpuinfo: string | null;
+}): TranslationSignal {
+  if (facts.platform !== "linux" || facts.arch !== "x64") {
+    return { translated: false, reading: `native: a ${facts.platform} ${facts.arch} process` };
+  }
+  const rosettaMapped =
+    facts.maps !== null &&
+    facts.maps.split("\n").some((line) => path.posix.basename(line.trim().split(/\s+/).slice(5).join(" ")) === "rosetta");
+  const vendor = facts.cpuinfo?.match(/^vendor_id\s*:\s*(.*)$/m)?.[1]?.trim() ?? null;
+  const translated = rosettaMapped && vendor === "VirtualApple";
+  return {
+    translated,
+    reading:
+      `${translated ? "translated" : "native"}: a linux x64 process, ` +
+      `${rosettaMapped ? "Rosetta mapped in" : "no Rosetta in"} /proc/self/maps, cpuinfo vendor ${vendor ?? "unread"}`
+  };
+}
+
+function translationSignal(): TranslationSignal {
+  const read = (file: string): string | null => {
+    try {
+      return readFileSync(file, "utf8");
+    } catch {
+      return null;
+    }
+  };
+  const linux = process.platform === "linux";
+  return translationSignalOf({
+    platform: process.platform,
+    arch: process.arch,
+    maps: linux ? read("/proc/self/maps") : null,
+    cpuinfo: linux ? read("/proc/cpuinfo") : null
+  });
+}
+
+type SharedRaceOptions = {
+  /** Under translation only, a run whose every try was lost is a skip that says coverage was not obtained. */
+  readonly coverageNotObtainedWhenTranslated?: true;
+  /** The signal's reader, translationSignal unless the helper's own test stands one in. */
+  readonly readTranslation?: () => TranslationSignal;
+};
+
+async function untilSharedWorkerRaceWon(
+  t: TestContext,
+  attempt: (tryNumber: number) => Promise<boolean>,
+  options: SharedRaceOptions = {}
+): Promise<void> {
+  const translation = options.coverageNotObtainedWhenTranslated ? (options.readTranslation ?? translationSignal)() : null;
+  if (translation) t.diagnostic(`translation signal: ${translation.reading}`);
   for (let tryNumber = 1; tryNumber <= SHARED_HOLD_TRIES; tryNumber += 1) {
-    if (await attempt(tryNumber)) return;
+    if (await attempt(tryNumber)) {
+      if (translation) t.diagnostic(`the attacher won its race with a shared worker on try ${tryNumber}`);
+      return;
+    }
     t.diagnostic(`the attacher lost its race with a shared worker on try ${tryNumber}`);
   }
-  assert.fail(`the attacher lost its race with a shared worker on every one of ${SHARED_HOLD_TRIES} tries`);
+  if (translation?.translated) {
+    t.skip(
+      `coverage not obtained: the attacher lost its race with a shared worker on every one of ${SHARED_HOLD_TRIES} tries, ` +
+        `under translation (${translation.reading})`
+    );
+    return;
+  }
+  assert.fail(
+    `the attacher lost its race with a shared worker on every one of ${SHARED_HOLD_TRIES} tries` +
+      (translation ? ` (translation signal: ${translation.reading})` : "")
+  );
 }
+
+test("the translation signal reads translated only on both marks of Rosetta in a Linux x64 process, and native otherwise", () => {
+  const rosettaMaps = [
+    "555555554000-555555556000 r--p 00000000 00:2a 1048601                    /usr/bin/node",
+    "7ffffe000000-7ffffe200000 r-xp 00000000 00:1d 7                          /run/rosetta/rosetta",
+    "7fffff000000-7fffff021000 rw-p 00000000 00:00 0                          [heap]"
+  ].join("\n");
+  const plainMaps = [
+    "555555554000-555555556000 r--p 00000000 00:2a 1048601                    /usr/bin/node",
+    "7fffff000000-7fffff021000 rw-p 00000000 00:00 0                          [heap]"
+  ].join("\n");
+  const nearMissMaps = `${plainMaps}\n7ffffe000000-7ffffe200000 r-xp 00000000 00:1d 9                          /opt/rosetta-tools/librosetta.so`;
+  const cpu = (vendor: string) => `processor\t: 0\nvendor_id\t: ${vendor}\ncpu family\t: 6\n`;
+  const armCpu = "processor\t: 0\nBogoMIPS\t: 48.00\nFeatures\t: fp asimd\nCPU implementer\t: 0x61\n";
+  const cases: ReadonlyArray<readonly [string, Parameters<typeof translationSignalOf>[0], boolean]> = [
+    ["Rosetta under Docker Desktop", { platform: "linux", arch: "x64", maps: rosettaMaps, cpuinfo: cpu("VirtualApple") }, true],
+    ["a native Intel runner", { platform: "linux", arch: "x64", maps: plainMaps, cpuinfo: cpu("GenuineIntel") }, false],
+    ["a native AMD runner", { platform: "linux", arch: "x64", maps: plainMaps, cpuinfo: cpu("AuthenticAMD") }, false],
+    ["Rosetta mapped, another CPU", { platform: "linux", arch: "x64", maps: rosettaMaps, cpuinfo: cpu("GenuineIntel") }, false],
+    ["Rosetta's CPU, nothing mapped", { platform: "linux", arch: "x64", maps: plainMaps, cpuinfo: cpu("VirtualApple") }, false],
+    ["a file whose path only contains rosetta", { platform: "linux", arch: "x64", maps: nearMissMaps, cpuinfo: cpu("VirtualApple") }, false],
+    ["maps unread", { platform: "linux", arch: "x64", maps: null, cpuinfo: cpu("VirtualApple") }, false],
+    ["cpuinfo unread", { platform: "linux", arch: "x64", maps: rosettaMaps, cpuinfo: null }, false],
+    ["an x64 process seeing an ARM CPU, as QEMU shows it", { platform: "linux", arch: "x64", maps: plainMaps, cpuinfo: armCpu }, false],
+    ["a native arm64 Linux process", { platform: "linux", arch: "arm64", maps: rosettaMaps, cpuinfo: cpu("VirtualApple") }, false],
+    ["macOS x64", { platform: "darwin", arch: "x64", maps: null, cpuinfo: null }, false],
+    ["macOS x64, whatever the files say", { platform: "darwin", arch: "x64", maps: rosettaMaps, cpuinfo: cpu("VirtualApple") }, false],
+    ["macOS arm64", { platform: "darwin", arch: "arm64", maps: null, cpuinfo: null }, false]
+  ];
+  for (const [name, facts, translated] of cases) {
+    const signal = translationSignalOf(facts);
+    assert.equal(signal.translated, translated, `${name}: ${signal.reading}`);
+    assert.equal(signal.reading.startsWith(translated ? "translated: " : "native: "), true, `${name}: ${signal.reading}`);
+  }
+});
+
+test("the race helper fails a run of lost tries unless the test asked and the signal reads translated, and every try keeps its assertions", async () => {
+  const translated: TranslationSignal = { translated: true, reading: "translated: a stand-in" };
+  const native: TranslationSignal = { translated: false, reading: "native: a stand-in" };
+  const run = async (results: ReadonlyArray<boolean | Error>, options: SharedRaceOptions) => {
+    const skips: string[] = [];
+    let tries = 0;
+    const context = { diagnostic: () => undefined, skip: (message: string) => skips.push(message) } as unknown as TestContext;
+    const outcome = await untilSharedWorkerRaceWon(
+      context,
+      async () => {
+        const result = results[tries++];
+        if (result instanceof Error) throw result;
+        return result;
+      },
+      options
+    ).then(
+      () => "returned",
+      (error: Error) => `threw: ${error.message}`
+    );
+    return [outcome, tries, skips.map((skip) => skip.slice(0, skip.indexOf(":")))];
+  };
+  const lost = Array.from({ length: SHARED_HOLD_TRIES }, () => false);
+  const failed = `threw: the attacher lost its race with a shared worker on every one of ${SHARED_HOLD_TRIES} tries`;
+  const asked = { coverageNotObtainedWhenTranslated: true } as const;
+
+  const unasked = await run(lost, { readTranslation: () => translated });
+  assert.deepEqual(unasked, [failed, SHARED_HOLD_TRIES, []], "a test that did not ask fails, translated or not");
+  const nativeRun = await run(lost, { ...asked, readTranslation: () => native });
+  assert.deepEqual([String(nativeRun[0]).startsWith(failed), nativeRun[1], nativeRun[2]], [true, SHARED_HOLD_TRIES, []], "natively the race must be won");
+  assert.deepEqual(await run(lost, { ...asked, readTranslation: () => translated }), ["returned", SHARED_HOLD_TRIES, ["coverage not obtained"]]);
+  assert.deepEqual(await run([false, true], { ...asked, readTranslation: () => translated }), ["returned", 2, []], "a won try ends the run");
+  assert.deepEqual(
+    await run([false, false, new Error("an accounting assertion")], { ...asked, readTranslation: () => translated }),
+    ["threw: an accounting assertion", 3, []],
+    "a lost try's accounting fails the test, under translation too"
+  );
+});
 
 /**
  * Whether the attacher held every one of these concluded shared workers.
@@ -2997,7 +3157,9 @@ test("real Chromium: a shared worker the attacher never reached that ends at onc
   // The worker lives under a millisecond, so on a busy runner the attacher
   // can miss its target altogether, or see it live past the bound. A try
   // that did not see it end at once must not report it so, and must count a
-  // shared worker any part of the visit saw as unread.
+  // shared worker any part of the visit saw as unread. Under translation,
+  // where two emulated image builds lost every try, a run of lost tries is
+  // coverage not obtained; natively it still fails.
   await untilSharedWorkerRaceWon(t, async () => {
     const harness = await openPausedWorkerHarness(t, { sharedWorkers: true });
     await harness.page.goto(`http://127.0.0.1:${port}/`, { timeout: 10_000 });
@@ -3013,6 +3175,11 @@ test("real Chromium: a shared worker the attacher never reached that ends at onc
       assert.equal(readout.sharedWorkersEndedAtOnce, 0, "a worker not seen to end at once is never reported so");
       const seen = sharedWorkersOf(harness).length + readout.diagnostics.sharedWorkers.discovered;
       assert.equal(readout.unreadRealms > 0, seen > 0, `seen ${seen} time(s): ${JSON.stringify(readout.diagnostics.sharedWorkers)}`);
+      t.diagnostic(
+        worker === undefined
+          ? `not seen to end at once: the attacher heard no shared worker, seen ${seen} time(s)`
+          : `not seen to end at once: lifetime ${worker.lifetimeMs} ms, detached ${worker.detached}, unread ${readout.unreadRealms}`
+      );
       await harness.browser.close();
       return false;
     }
@@ -3024,7 +3191,7 @@ test("real Chromium: a shared worker the attacher never reached that ends at onc
       `lifetime ${worker.lifetimeMs} ms`
     );
     return true;
-  });
+  }, { coverageNotObtainedWhenTranslated: true });
 });
 
 /**
