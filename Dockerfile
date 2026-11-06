@@ -137,20 +137,24 @@ COPY --from=build /app/next.config.mjs ./next.config.mjs
 # above still uses the base's npm; this stage must end with no package manager
 # at all, and container release evidence independently asserts that absence.
 #
-# The pinned base predates CVE-2026-84782 (HIGH, OpenSSL), so its libssl3t64
-# and openssl sit at 3.0.13-0ubuntu3.15 and the image scan refuses the build.
-# Upgrade exactly those two to the patched Ubuntu revision; neither Node nor
-# the bundled Chromium links the system libssl, so the scanner's TLS stacks are
-# unchanged. The container package ledger keys packages by upstream version, so
-# a revision-only upgrade leaves it as it is. Drop the pin when a base digest
-# ships 3.0.13-0ubuntu3.16 or later.
-# Likewise CVE-2026-111497 (HIGH, an out-of-bounds write in the Brotli
+# The image scan refuses a base package with a HIGH or CRITICAL advisory, so
+# this step upgrades exactly the packages one names to the patched Ubuntu
+# version. CVE-2026-111497 (HIGH, an out-of-bounds write in the Brotli
 # decoder): the base ships libbrotli1 1.1.0-2build2, fixed in the Ubuntu
-# revision 1.1.0-2ubuntu0.1. Drop that pin when a base digest ships it.
+# revision 1.1.0-2ubuntu0.1. CVE-2026-109518 (HIGH, remote code execution via
+# hard link reuse during package download retries): the base ships apt and
+# libapt-pkg6.0t64 2.8.3, fixed in 2.8.4ubuntu0.1. Neither upgrade installs or
+# removes a package. The container package ledger keys packages by upstream
+# version, so the Brotli revision leaves it as it is, but the apt fix changes
+# the version its apt and libapt-pkg6.0t64 rows key on, and they move with it.
+# Drop each pin when a base digest ships its fix. The base already ships
+# libssl3t64 and openssl 3.0.13-0ubuntu3.16, past CVE-2026-84782 (HIGH,
+# OpenSSL), so they are not pinned; the step after this one fails the build
+# if a base ever ships an older one.
 RUN apt-get update \
   && apt-get install -y --no-install-recommends --only-upgrade \
-    libssl3t64=3.0.13-0ubuntu3.16 openssl=3.0.13-0ubuntu3.16 \
     libbrotli1=1.1.0-2ubuntu0.1 \
+    apt=2.8.4ubuntu0.1 libapt-pkg6.0t64=2.8.4ubuntu0.1 \
   && apt-get purge -y gstreamer1.0-plugins-bad libgstreamer-plugins-bad1.0-0 \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* \
@@ -158,6 +162,30 @@ RUN apt-get update \
   && rm -f /usr/bin/npm /usr/bin/npx /usr/bin/corepack /usr/bin/yarn /usr/bin/yarnpkg \
     /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack /usr/local/bin/yarn /usr/local/bin/yarnpkg \
   && ! command -v npm && ! command -v npx && ! command -v yarn && ! command -v corepack
+
+# Fail the image build unless every package an advisory above names is
+# installed exactly once and at or past its fix: libssl3t64 and openssl, which
+# only this check holds, and each package the step above pins, in case a pin
+# is dropped. dpkg-query prints the status of each copy it knows, so the check
+# passes only for one copy whose status is installed: a missing package, one
+# left as configuration files or half installed, and a second architecture's
+# copy, whose version the read would join to the first one's, all stop the
+# chain. lib/toolchain-provenance.test.ts ties this list to the pins.
+RUN test "$(dpkg-query -W -f='${db:Status-Status}' libssl3t64)" = installed \
+  && v=$(dpkg-query -W -f='${Version}' libssl3t64) \
+  && dpkg --compare-versions "$v" ge 3.0.13-0ubuntu3.16 \
+  && test "$(dpkg-query -W -f='${db:Status-Status}' openssl)" = installed \
+  && v=$(dpkg-query -W -f='${Version}' openssl) \
+  && dpkg --compare-versions "$v" ge 3.0.13-0ubuntu3.16 \
+  && test "$(dpkg-query -W -f='${db:Status-Status}' libbrotli1)" = installed \
+  && v=$(dpkg-query -W -f='${Version}' libbrotli1) \
+  && dpkg --compare-versions "$v" ge 1.1.0-2ubuntu0.1 \
+  && test "$(dpkg-query -W -f='${db:Status-Status}' apt)" = installed \
+  && v=$(dpkg-query -W -f='${Version}' apt) \
+  && dpkg --compare-versions "$v" ge 2.8.4ubuntu0.1 \
+  && test "$(dpkg-query -W -f='${db:Status-Status}' libapt-pkg6.0t64)" = installed \
+  && v=$(dpkg-query -W -f='${Version}' libapt-pkg6.0t64) \
+  && dpkg --compare-versions "$v" ge 2.8.4ubuntu0.1
 
 # Scans open attacker-controlled pages, so the runtime must not be root. The
 # scanner also launches Chromium with an explicit environment allowlist, so its

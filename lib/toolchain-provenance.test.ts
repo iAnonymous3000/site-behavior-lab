@@ -148,6 +148,52 @@ test("Playwright package, lockfile, installation, and container base use one exa
   assert.match(runnerStage, /! command -v npm && ! command -v npx && ! command -v yarn && ! command -v corepack/);
 });
 
+test("the runner stage fails the build unless every advisory-named package is at or past its fix", () => {
+  // libssl3t64 and openssl are not pinned, because the pinned base already
+  // ships the CVE-2026-84782 fix, so only this assertion stops a later base
+  // from shipping an older OpenSSL. Every package the upgrade step pins must be
+  // asserted at its pinned version too, after that step and before USER, in
+  // one && chain that dash stops at the first failed check, read or
+  // comparison. Each package is first required to be installed exactly once,
+  // as one copy whose dpkg status is installed: a copy left as configuration
+  // files still has a version to read, and a second architecture's copy would
+  // join its version to the first one's, which can still compare as new enough.
+  const OPENSSL_FIX = "3.0.13-0ubuntu3.16";
+  const dockerfile = source("Dockerfile");
+  const runnerStage = dockerfile.slice(dockerfile.indexOf("FROM playwright-base AS runner"));
+  const upgrade =
+    /^RUN apt-get update \\\n {2}&& apt-get install -y --no-install-recommends --only-upgrade \\\n((?: {4}\S.* \\\n)+)/m.exec(
+      runnerStage
+    );
+  assert.ok(upgrade, "the runner stage must keep its exact-version upgrade step");
+  const pinned = new Map([...upgrade[1].matchAll(/([a-z0-9][a-z0-9.+-]*)=(\S+)/g)].map((pin) => [pin[1], pin[2]]));
+  assert.ok(pinned.size > 0, "the upgrade step must pin at least one package");
+
+  const start = runnerStage.search(/^RUN test "\$\(dpkg-query /m);
+  assert.ok(start >= 0, "the runner stage must keep its version assertion step");
+  assert.ok(start > upgrade.index, "the version assertion must follow the upgrade step");
+  assert.ok(start < runnerStage.indexOf("\nUSER pwuser\n"), "the version assertion must run as root, before USER");
+  const end = runnerStage.indexOf("\n\n", start);
+  const steps = runnerStage.slice(start + "RUN ".length, end).split(" \\\n  && ");
+  assert.equal(steps.length % 3, 0, "each package needs one single-copy check, one read and one comparison");
+  const asserted = new Map<string, string>();
+  for (let index = 0; index < steps.length; index += 3) {
+    const once = /^test "\$\(dpkg-query -W -f='\$\{db:Status-Status\}' ([a-z0-9][a-z0-9.+-]*)\)" = installed$/.exec(steps[index]);
+    const read = /^v=\$\(dpkg-query -W -f='\$\{Version\}' ([a-z0-9][a-z0-9.+-]*)\)$/.exec(steps[index + 1]);
+    const compare = /^dpkg --compare-versions "\$v" ge (\S+)$/.exec(steps[index + 2]);
+    assert.ok(once, `assertion step ${index} must require exactly one copy of a package, with status installed: ${steps[index]}`);
+    assert.ok(read, `assertion step ${index + 1} must read one package version into v: ${steps[index + 1]}`);
+    assert.ok(compare, `assertion step ${index + 2} must require ge a minimum: ${steps[index + 2]}`);
+    assert.equal(read[1], once[1], `the version read must name the package checked for one installed copy: ${steps[index + 1]}`);
+    assert.ok(!asserted.has(read[1]), `${read[1]} must be asserted once`);
+    asserted.set(read[1], compare[1]);
+  }
+  assert.deepEqual(
+    Object.fromEntries([...asserted].sort()),
+    Object.fromEntries([...pinned, ["libssl3t64", OPENSSL_FIX], ["openssl", OPENSSL_FIX]].sort())
+  );
+});
+
 test("the container base's bundled scan browser is the one the installed playwright-core names", () => {
   // Production launches the headless shell in the base image's own
   // /ms-playwright: the runner stage is FROM playwright-base and copies only
