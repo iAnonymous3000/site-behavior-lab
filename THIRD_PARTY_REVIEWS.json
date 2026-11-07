@@ -984,6 +984,20 @@
       "notes": null
     },
     {
+      "key": "npm:@isaacs/nonrecursive-glob-match@1.0.3",
+      "ecosystem": "npm",
+      "name": "@isaacs/nonrecursive-glob-match",
+      "version": "1.0.3",
+      "runtime": false,
+      "status": "unreviewed",
+      "declaredLicense": "BlueOak-1.0.0",
+      "determinedLicense": null,
+      "obligations": [],
+      "reviewer": null,
+      "reviewedAt": null,
+      "notes": null
+    },
+    {
       "key": "npm:@jridgewell/resolve-uri@3.1.2",
       "ecosystem": "npm",
       "name": "@jridgewell/resolve-uri",
@@ -1712,10 +1726,10 @@
       "notes": null
     },
     {
-      "key": "npm:glob@13.0.6",
+      "key": "npm:glob@14.0.3",
       "ecosystem": "npm",
       "name": "glob",
-      "version": "13.0.6",
+      "version": "14.0.3",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "BlueOak-1.0.0",
@@ -1768,10 +1782,10 @@
       "notes": null
     },
     {
-      "key": "npm:lru-cache@11.5.2",
+      "key": "npm:lru-cache@11.5.3",
       "ecosystem": "npm",
       "name": "lru-cache",
-      "version": "11.5.2",
+      "version": "11.5.3",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "BlueOak-1.0.0",
@@ -1824,10 +1838,10 @@
       "notes": null
     },
     {
-      "key": "npm:minimatch@10.2.5",
+      "key": "npm:minimatch@11.0.3",
       "ecosystem": "npm",
       "name": "minimatch",
-      "version": "10.2.5",
+      "version": "11.0.3",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "BlueOak-1.0.0",
@@ -1894,10 +1908,10 @@
       "notes": null
     },
     {
-      "key": "npm:path-scurry@2.0.2",
+      "key": "npm:path-scurry@3.0.0",
       "ecosystem": "npm",
       "name": "path-scurry",
-      "version": "2.0.2",
+      "version": "3.0.0",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "BlueOak-1.0.0",

@@ -7,7 +7,7 @@
   "inputs": {
     "packageLock": {
       "path": "package-lock.json",
-      "sha256": "4a33b95650a2f7bc3960bf0da06efe9f57e48763aa9b79c383439ffd18425245"
+      "sha256": "a12b37a7c9a83e92052e08ce970903493d729f5ba769b5ffc3f5f03c079ae4e3"
     },
     "cargoLock": {
       "path": "tools/adblock-wasm/Cargo.lock",
@@ -28,8 +28,8 @@
   },
   "summary": {
     "npm": {
-      "total": 167,
-      "declared": 167,
+      "total": 168,
+      "declared": 168,
       "unknown": 0
     },
     "cargo": {
@@ -891,6 +891,18 @@
       "optional": true
     },
     {
+      "name": "@isaacs/nonrecursive-glob-match",
+      "version": "1.0.3",
+      "lockPath": "node_modules/@isaacs/nonrecursive-glob-match",
+      "license": "BlueOak-1.0.0",
+      "licenseStatus": "declared-in-package-lock",
+      "licenseEvidence": "package-lock.json",
+      "resolved": "https://registry.npmjs.org/@isaacs/nonrecursive-glob-match/-/nonrecursive-glob-match-1.0.3.tgz",
+      "integrity": "sha512-SI7kyKHq4XXDRozw+r9GlRZkia1ZkFrpLW98r2IC2Bpr8YkFGE3fvjzmxCG0x78A++69HmDNrDvSMYBZmHGpKA==",
+      "developmentOnly": true,
+      "optional": false
+    },
+    {
       "name": "@jridgewell/resolve-uri",
       "version": "3.1.2",
       "lockPath": "node_modules/@jridgewell/resolve-uri",
@@ -1516,13 +1528,13 @@
     },
     {
       "name": "glob",
-      "version": "13.0.6",
+      "version": "14.0.3",
       "lockPath": "node_modules/glob",
       "license": "BlueOak-1.0.0",
       "licenseStatus": "declared-in-package-lock",
       "licenseEvidence": "package-lock.json",
-      "resolved": "https://registry.npmjs.org/glob/-/glob-13.0.6.tgz",
-      "integrity": "sha512-Wjlyrolmm8uDpm/ogGyXZXb1Z+Ca2B8NbJwqBVg0axK9GbBeoS7yGV6vjXnYdGm6X53iehEuxxbyiKp8QmN4Vw==",
+      "resolved": "https://registry.npmjs.org/glob/-/glob-14.0.3.tgz",
+      "integrity": "sha512-A1vjIwC3qpdCso45Iw127gnp7sPhqgY8lUQhDrArIs+GbmfaaVPFuoyy7WyLT9EPZCRZ7j7aLdwUhQmHWesEow==",
       "developmentOnly": true,
       "optional": false
     },
@@ -1564,13 +1576,13 @@
     },
     {
       "name": "lru-cache",
-      "version": "11.5.2",
+      "version": "11.5.3",
       "lockPath": "node_modules/lru-cache",
       "license": "BlueOak-1.0.0",
       "licenseStatus": "declared-in-package-lock",
       "licenseEvidence": "package-lock.json",
-      "resolved": "https://registry.npmjs.org/lru-cache/-/lru-cache-11.5.2.tgz",
-      "integrity": "sha512-4pfM1Ff0x50o0tQwb5ucw/RzNyD0/YJME6IVcStalZuMWxdt3sR3huStTtxz4PUmvZfRguvDejasvQ2kifR11g==",
+      "resolved": "https://registry.npmjs.org/lru-cache/-/lru-cache-11.5.3.tgz",
+      "integrity": "sha512-U4N8FgzmWxc8k1VH8Kr6lQg18U7Fjvby6wXHVRX/ZZ7IwWbRMgrRbP0Wrb5q5NVinryp4SQampHKdvtecItxUg==",
       "developmentOnly": true,
       "optional": false
     },
@@ -1612,13 +1624,13 @@
     },
     {
       "name": "minimatch",
-      "version": "10.2.5",
+      "version": "11.0.3",
       "lockPath": "node_modules/minimatch",
       "license": "BlueOak-1.0.0",
       "licenseStatus": "declared-in-package-lock",
       "licenseEvidence": "package-lock.json",
-      "resolved": "https://registry.npmjs.org/minimatch/-/minimatch-10.2.5.tgz",
-      "integrity": "sha512-MULkVLfKGYDFYejP07QOurDLLQpcjk7Fw+7jXS2R2czRQzR56yHRveU5NDJEOviH+hETZKSkIk5c+T23GjFUMg==",
+      "resolved": "https://registry.npmjs.org/minimatch/-/minimatch-11.0.3.tgz",
+      "integrity": "sha512-iny/40PEGkNJQ5/Pv6z3nm6FbRAby32GeZRjCUJk2WnNDbgPSTcdI+DDvLqsgBdD4cD5sMtMheqPPnehCCa8Nw==",
       "developmentOnly": true,
       "optional": false
     },
@@ -1672,13 +1684,13 @@
     },
     {
       "name": "path-scurry",
-      "version": "2.0.2",
+      "version": "3.0.0",
       "lockPath": "node_modules/path-scurry",
       "license": "BlueOak-1.0.0",
       "licenseStatus": "declared-in-package-lock",
       "licenseEvidence": "package-lock.json",
-      "resolved": "https://registry.npmjs.org/path-scurry/-/path-scurry-2.0.2.tgz",
-      "integrity": "sha512-3O/iVVsJAPsOnpwWIeD+d6z/7PmqApyQePUtCndjatj/9I5LylHvt5qluFaBT3I5h3r1ejfR056c+FCv+NnNXg==",
+      "resolved": "https://registry.npmjs.org/path-scurry/-/path-scurry-3.0.0.tgz",
+      "integrity": "sha512-1pTbQqH1wIwMi/eleQ5leFTTCkzFsPcgXNjwOA8YGGW/W4/kHT3dssE7Z6NH+zuqNLOzOB0uaD61yl7cAcVhgg==",
       "developmentOnly": true,
       "optional": false
     },
