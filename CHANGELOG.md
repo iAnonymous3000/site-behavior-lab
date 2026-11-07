@@ -68,6 +68,54 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- A policy PDF's parse kept its memory bound only while every memory reading
+  succeeded (`59402b6d`). The parse runs on a thread of its own, bounded by
+  an 8 s deadline (clamped to what remains of the scan), by V8's heap limit
+  on the thread, and by 256 MiB of the thread's heap and external memory,
+  which the scanner reads every 100 ms. A refused or unanswered reading
+  switched that poll off for the rest of the parse, and Node refuses a
+  reading taken before the thread has started, so a thread slower to start
+  than the first poll ran watched only by the deadline and V8's heap limit,
+  which does not cover decoded streams. The defect dates from the parse
+  thread itself (`bb6806a9`), so every build from
+  `policy-text-cross-check@5` until this fix carried it. A refused reading
+  now clears and the poll reads again; once the thread runs, five refused
+  readings end the parse as not read, and so does any reading left
+  unanswered for 20 polls (at least 2 s). Parses whose every reading is
+  answered within 20 polls end exactly as before. Outcomes move only one
+  way, from read to not read (privacy-policy failed, load-failed, with the
+  existing dropped policy-visit loss): a document past the memory bound that
+  the old code read to the end is now not read; one that ran to the deadline
+  now ends sooner, at the memory, stall or refusal bound; and a document
+  inside the bound whose thread stops answering readings while it still
+  parses is now not read where the old code read it. None of the parser
+  tests' policy fixtures (the small, 64-page and CID-keyed policies) changed
+  outcome under any condition forced in that commit's measurements; its
+  synthetic stress documents did. None of the committed corpus's 1,395
+  policy reads (in 711 of its 1,029 reports) has a URL whose path ends in
+  .pdf, but every committed report was scanned by 2026-10-19, before
+  `policy-text-cross-check@13` reached production on 2026-10-24, so the
+  corpus holds no @13 read, and no report outside it was checked. The
+  detector version stays `policy-text-cross-check@13` for this fix because
+  it is a resource bound: it restores the existing memory bound to parses
+  that lost it and ends a parse whose memory stops answering, both in the
+  existing not-read outcome, and adds no rule about what read text means
+  (@13 itself came from a library move, which
+  lib/policy-pdf-libraries.test.ts binds to the version; this fix moves no
+  library). Resource bounds have kept their versions before: the parse
+  thread and its bounds (`bb6806a9`) and the keystroke probe's bounded waits
+  (`daca85ce`) reached production under `node-detectors-v6`, and the proxy
+  DNS deadline (`acb70055`) under `node-detectors-v9`. Fixes that corrected
+  what a published result claimed moved the version instead, such as
+  `policy-text-cross-check@7` (`node-detectors-v9`, `8078dd73`) for a policy
+  summary built from the wrong page and `policy-text-cross-check@12`
+  (`node-detectors-v19`, `ac79ce96`) for reads cut short. The cost: r2
+  reports this changes are told apart from earlier ones by their build
+  commit, and v1 reports, which record none, only by the toolchain epoch's
+  methodology, with which this fix reaches production and which names the
+  Playwright move rather than this fix; and the 20-poll stall bound could in
+  principle end a legitimate parse whose thread answers no reading for 2 s
+  (the slowest answer observed was 303 ms).
 - The policy test that counts proxy transactions no longer depends on the scan
   browser's build age. Chromium stops applying its built-in HSTS preload list 70
   days after its build, and Playwright 1.63.0's Chromium passed that point on
@@ -2815,6 +2863,30 @@ as intended.
   26.13.0, Chrome for Testing 156.0.8078.80), which this epoch does not
   adopt. The base stage now fails the image build unless the base's
   headless shell is the Chrome for Testing build playwright-core names.
+- Security patches beside the epoch, as the 2026-10 epoch took them.
+  `10a17293`: the runner stage upgrades exactly apt and libapt-pkg6.0t64
+  from 2.8.3 to 2.8.4ubuntu0.1, past CVE-2026-109518 (HIGH, remote code
+  execution via hard link reuse during package download retries), which the
+  old and the new base both ship and which main CI's Trivy image scan
+  refuses; `b4423b6d` moves those two rows of the container package ledger,
+  which is keyed by upstream version. `10a17293` also drops the OpenSSL pin
+  `5d908f89` added, since the new base already ships libssl3t64 and openssl
+  3.0.13-0ubuntu3.16, the drop condition the 2026-10 entry named. The end of
+  that upgrade step now fails the image build unless libssl3t64, openssl,
+  libbrotli1, apt and libapt-pkg6.0t64 are each installed exactly once and
+  at or past their fixes (`f1047730` folded that check into the step, since
+  a step of its own added a second empty layer the container package
+  inventory refuses). libbrotli1 is among them because `93cb6f72` upgraded
+  it to 1.1.0-2ubuntu0.1, past CVE-2026-111497 (HIGH), on 2026-10-29 (UTC)
+  without an entry here. `1aaab4ab`: the schema generator's file matching
+  moves to glob 14.0.3 and minimatch 11.0.3 (from 13.0.6 and 10.2.5) through
+  two `package.json` overrides, past GHSA-3g3m-2fjr-6pw4 and
+  GHSA-g3hv-75wg-m249 (moderate, published 2026-10-30, after main's last
+  green run at 069e8487), which main CI's whole-lockfile `npm audit` at
+  `--audit-level=low` fails on. Both are development-only, reached through
+  ts-json-schema-generator 2.9.0, so the pruned runtime image contains
+  neither, and the generated schemas are byte for byte unchanged. No
+  measurement identity moves in any of these commits.
 
 ## [0.6.0] - 2026-09-06
 
