@@ -149,8 +149,22 @@ COPY --from=build /app/next.config.mjs ./next.config.mjs
 # the version its apt and libapt-pkg6.0t64 rows key on, and they move with it.
 # Drop each pin when a base digest ships its fix. The base already ships
 # libssl3t64 and openssl 3.0.13-0ubuntu3.16, past CVE-2026-84782 (HIGH,
-# OpenSSL), so they are not pinned; the step after this one fails the build
-# if a base ever ships an older one.
+# OpenSSL), so they are not pinned; the end of this step fails the build if a
+# base ever ships an older one.
+#
+# That check fails the image build unless every package an advisory above
+# names is installed exactly once and at or past its fix: libssl3t64 and
+# openssl, which only this check holds, and each package this step pins, in
+# case a pin is dropped. dpkg-query prints the status of each copy it knows,
+# so the check passes only for one copy whose status is installed: a missing
+# package, one left as configuration files or half installed, and a second
+# architecture's copy, whose version the read would join to the first one's,
+# all stop the chain. It ends this step rather than taking a step of its own:
+# a step that changes no file still adds a layer, the same empty one each
+# time, the base stage's browser check already adds one, and the container
+# package inventory refuses an image that lists one layer twice.
+# lib/toolchain-provenance.test.ts ties this list to the pins and keeps the
+# check in this step.
 RUN apt-get update \
   && apt-get install -y --no-install-recommends --only-upgrade \
     libbrotli1=1.1.0-2ubuntu0.1 \
@@ -161,17 +175,8 @@ RUN apt-get update \
   && rm -rf /usr/lib/node_modules /usr/local/lib/node_modules \
   && rm -f /usr/bin/npm /usr/bin/npx /usr/bin/corepack /usr/bin/yarn /usr/bin/yarnpkg \
     /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack /usr/local/bin/yarn /usr/local/bin/yarnpkg \
-  && ! command -v npm && ! command -v npx && ! command -v yarn && ! command -v corepack
-
-# Fail the image build unless every package an advisory above names is
-# installed exactly once and at or past its fix: libssl3t64 and openssl, which
-# only this check holds, and each package the step above pins, in case a pin
-# is dropped. dpkg-query prints the status of each copy it knows, so the check
-# passes only for one copy whose status is installed: a missing package, one
-# left as configuration files or half installed, and a second architecture's
-# copy, whose version the read would join to the first one's, all stop the
-# chain. lib/toolchain-provenance.test.ts ties this list to the pins.
-RUN test "$(dpkg-query -W -f='${db:Status-Status}' libssl3t64)" = installed \
+  && ! command -v npm && ! command -v npx && ! command -v yarn && ! command -v corepack \
+  && test "$(dpkg-query -W -f='${db:Status-Status}' libssl3t64)" = installed \
   && v=$(dpkg-query -W -f='${Version}' libssl3t64) \
   && dpkg --compare-versions "$v" ge 3.0.13-0ubuntu3.16 \
   && test "$(dpkg-query -W -f='${db:Status-Status}' openssl)" = installed \

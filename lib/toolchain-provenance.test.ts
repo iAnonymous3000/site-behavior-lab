@@ -158,6 +158,10 @@ test("the runner stage fails the build unless every advisory-named package is at
   // as one copy whose dpkg status is installed: a copy left as configuration
   // files still has a version to read, and a second architecture's copy would
   // join its version to the first one's, which can still compare as new enough.
+  // The chain ends the upgrade step and has no step of its own: a step that
+  // changes no file still adds a layer, the same empty one each time, the base
+  // stage's browser check already adds one, and the container package
+  // inventory refuses an image whose rootfs lists one layer twice.
   const OPENSSL_FIX = "3.0.13-0ubuntu3.16";
   const dockerfile = source("Dockerfile");
   const runnerStage = dockerfile.slice(dockerfile.indexOf("FROM playwright-base AS runner"));
@@ -169,12 +173,21 @@ test("the runner stage fails the build unless every advisory-named package is at
   const pinned = new Map([...upgrade[1].matchAll(/([a-z0-9][a-z0-9.+-]*)=(\S+)/g)].map((pin) => [pin[1], pin[2]]));
   assert.ok(pinned.size > 0, "the upgrade step must pin at least one package");
 
-  const start = runnerStage.search(/^RUN test "\$\(dpkg-query /m);
-  assert.ok(start >= 0, "the runner stage must keep its version assertion step");
-  assert.ok(start > upgrade.index, "the version assertion must follow the upgrade step");
-  assert.ok(start < runnerStage.indexOf("\nUSER pwuser\n"), "the version assertion must run as root, before USER");
-  const end = runnerStage.indexOf("\n\n", start);
-  const steps = runnerStage.slice(start + "RUN ".length, end).split(" \\\n  && ");
+  const upgradeEnd = runnerStage.indexOf("\n\n", upgrade.index);
+  assert.ok(upgradeEnd > upgrade.index, "the upgrade step must end at a blank line");
+  assert.ok(upgradeEnd < runnerStage.indexOf("\nUSER pwuser\n"), "the upgrade step and its version assertion must run as root, before USER");
+  const upgradeStep = runnerStage.slice(upgrade.index, upgradeEnd);
+  const start = upgradeStep.indexOf(' \\\n  && test "$(dpkg-query ');
+  assert.ok(start >= 0, "the upgrade step must end with the version assertion, not leave it to a step of its own");
+  assert.ok(start >= upgrade[0].length, "the version assertion must follow the upgrade");
+  const elsewhere = (runnerStage.slice(0, upgrade.index) + runnerStage.slice(upgradeEnd))
+    .split("\n")
+    .filter((line) => !line.startsWith("#"));
+  assert.ok(
+    !elsewhere.some((line) => line.includes("dpkg-query")),
+    "no other runner step may read dpkg, since a step that only checks adds a second empty layer"
+  );
+  const steps = upgradeStep.slice(start + " \\\n  && ".length).split(" \\\n  && ");
   assert.equal(steps.length % 3, 0, "each package needs one single-copy check, one read and one comparison");
   const asserted = new Map<string, string>();
   for (let index = 0; index < steps.length; index += 3) {
