@@ -18,8 +18,66 @@ export const MAX_POLICY_PDF_PAGES = 64;
  */
 export const MAX_POLICY_PDF_PARSE_MS = 8_000;
 export const MAX_POLICY_PDF_PARSE_MEMORY_MB = 256;
-const PARSE_MEMORY_POLL_MS = 100;
 const PDFJS_SPECIFIER = "pdfjs-dist/legacy/build/pdf.mjs";
+
+/**
+ * How the parse thread's memory is watched. Node answers a read with
+ * ERR_WORKER_NOT_RUNNING while the thread has no environment: before it runs,
+ * which the first polls can catch when the thread is slow to start, and while
+ * it stops. A refusal before the thread is online is expected and the next
+ * poll reads again. Once it is online, `refusedReads` refusals end the parse,
+ * and so does a read still unanswered after `stallPolls` polls. Either way the
+ * thread could no longer be measured, and the bounds are all-or-nothing, so
+ * the parse ends in the same null as every other bound instead of running on
+ * unwatched until the deadline.
+ *
+ * A read is an interrupt the thread answers between operators, mostly in
+ * under a millisecond. The slowest seen while legitimate policies parsed was
+ * 303 ms, in a cold first parse on a loaded host, and 25 ms under amd64
+ * emulation. Twenty polls, at least 2 s, leave six times that, and still end an
+ * unanswered read 6 s before the default deadline. A thread busy in a loop was
+ * refused none of about 480 reads in 3 s, so once it is online a refusal
+ * means it is stopping, and its exit ends the parse anyway; five tolerate a
+ * stray refusal and bound the unmeasured time to about half a second if
+ * refusals ever had another cause.
+ */
+export interface PolicyPdfMemoryMonitor {
+  readonly pollMs: number;
+  readonly stallPolls: number;
+  readonly refusedReads: number;
+}
+export const POLICY_PDF_MEMORY_MONITOR: PolicyPdfMemoryMonitor = Object.freeze({
+  pollMs: 100,
+  stallPolls: 20,
+  refusedReads: 5
+});
+
+/**
+ * Why a parse ended. Exactly one per parse: the first to happen.
+ * - `notStarted`: no thread ran; the input failed a declared bound first.
+ * - `answered`: the thread's own answer, its text or null when the document
+ *   holds none it can use (malformed, encrypted, past a page or text bound).
+ * - `memoryLimit`: a reading of the thread's memory was over the bound.
+ * - `memoryReadStalled`, `memoryReadsRefused`: the thread could not be read.
+ * - `deadline`, `workerError`, `workerExit`: as named.
+ */
+export type PolicyPdfParseEnd =
+  | "notStarted"
+  | "answered"
+  | "memoryLimit"
+  | "memoryReadStalled"
+  | "memoryReadsRefused"
+  | "deadline"
+  | "workerError"
+  | "workerExit";
+
+export interface PolicyPdfParse {
+  /** Exactly what extractPolicyTextFromPdf returns. */
+  readonly text: string | null;
+  readonly end: PolicyPdfParseEnd;
+  /** The last reading of the thread's V8 heap plus external memory, in bytes. */
+  readonly memoryBytes: number | null;
+}
 
 /**
  * The parse thread. Kept as source text rather than a file on disk: the
@@ -96,6 +154,19 @@ export async function extractPolicyTextFromPdf(
   maxTextChars: number,
   deadlineMs = MAX_POLICY_PDF_PARSE_MS
 ): Promise<string | null> {
+  return (await parsePolicyPdf(bytes, maxTextChars, deadlineMs)).text;
+}
+
+/**
+ * extractPolicyTextFromPdf, which the scanner calls, with the reason the parse
+ * ended. Only tests pass a monitor other than the default.
+ */
+export async function parsePolicyPdf(
+  bytes: Uint8Array,
+  maxTextChars: number,
+  deadlineMs = MAX_POLICY_PDF_PARSE_MS,
+  monitor: PolicyPdfMemoryMonitor = POLICY_PDF_MEMORY_MONITOR
+): Promise<PolicyPdfParse> {
   if (
     bytes.byteLength <= 0 ||
     bytes.byteLength > MAX_POLICY_PDF_BYTES ||
@@ -103,7 +174,7 @@ export async function extractPolicyTextFromPdf(
     deadlineMs <= 0 ||
     !hasPdfSignature(bytes)
   ) {
-    return null;
+    return { text: null, end: "notStarted", memoryBytes: null };
   }
 
   // workerData is structured-cloned, so the parse thread gets its own copy of
@@ -121,28 +192,46 @@ export async function extractPolicyTextFromPdf(
   let deadline: ReturnType<typeof setTimeout> | null = null;
   let memoryPoll: ReturnType<typeof setInterval> | null = null;
   try {
-    return await new Promise<string | null>((resolve) => {
-      deadline = setTimeout(() => resolve(null), deadlineMs);
+    return await new Promise<PolicyPdfParse>((resolve) => {
+      let memoryBytes: number | null = null;
+      const finish = (text: string | null, end: PolicyPdfParseEnd): void => resolve({ text, end, memoryBytes });
+      deadline = setTimeout(() => finish(null, "deadline"), deadlineMs);
       // Decoded streams are typed arrays, which the heap limit above does not
       // govern: a stream of no-op operators stays cheap on the heap while its
       // decode buffer doubles towards a gigabyte. Read the thread's memory from
       // here; the read is an interrupt the thread answers between operators,
-      // even while it is busy.
-      let readingMemory = false;
+      // even while it is busy. See POLICY_PDF_MEMORY_MONITOR for the reads it
+      // cannot answer.
+      let online = false;
+      worker.once("online", () => {
+        online = true;
+      });
+      let reading = false;
+      let pendingPolls = 0;
+      let refusedReads = 0;
       memoryPoll = setInterval(() => {
-        if (readingMemory) return;
-        readingMemory = true;
+        if (reading) {
+          pendingPolls += 1;
+          if (pendingPolls >= monitor.stallPolls) finish(null, "memoryReadStalled");
+          return;
+        }
+        reading = true;
+        pendingPolls = 0;
         worker.getHeapStatistics().then(
           (stats) => {
-            readingMemory = false;
-            if (stats.used_heap_size + stats.external_memory > memoryLimitBytes) resolve(null);
+            reading = false;
+            memoryBytes = stats.used_heap_size + stats.external_memory;
+            if (memoryBytes > memoryLimitBytes) finish(null, "memoryLimit");
           },
-          () => undefined
+          () => {
+            reading = false;
+            if (online && ++refusedReads >= monitor.refusedReads) finish(null, "memoryReadsRefused");
+          }
         );
-      }, PARSE_MEMORY_POLL_MS);
-      worker.on("message", (message: unknown) => resolve(policyTextFromParseMessage(message, maxTextChars)));
-      worker.on("error", () => resolve(null));
-      worker.on("exit", () => resolve(null));
+      }, monitor.pollMs);
+      worker.on("message", (message: unknown) => finish(policyTextFromParseMessage(message, maxTextChars), "answered"));
+      worker.on("error", () => finish(null, "workerError"));
+      worker.on("exit", () => finish(null, "workerExit"));
     });
   } finally {
     if (deadline) clearTimeout(deadline);
