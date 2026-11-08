@@ -848,7 +848,9 @@ export class MainSide {
     const shared = real.diagnostics.sharedWorkers as unknown as Record<string, number>;
     const reads = [...real.readableSnapshots, ...real.unscopedSnapshots];
     // The world's own facts, against the terms the real readout counted. With one worker its term is the one counted. With
-    // more, a term the model gave no worker stands for the worker the model gave another.
+    // more, a term the model gave no worker stands for the worker the model gave another. A worker the model lands nowhere
+    // keeps that term here, whatever the real readout counted: only the comparisons below read the counts for it, and
+    // they do not run once a required property is judged broken.
     for (const world of everyWorld) {
       const remaining = new Map([...WORKER_TERMS, "unattached"].map((term) => [term, shared[term]]));
       const remainingReads = [...reads];

@@ -102,7 +102,7 @@ test("every planned attempt is in the denominator, and only observed counts towa
   await assertCaughtBy("a count of the wrong subject", DENOMINATOR, () => checkDenominator(variant({ find: "(_a = ownValue(row.readings, measure.subject))", replace: '(_a = ownValue(row.readings, "subject-other"))' })));
 });
 
-const SPLIT = "a different release, commit, configuration, other held key or visit basis splits a group";
+const SPLIT = "a different release, commit, configuration, other held key (one named basis aside) or visit basis splits a group";
 
 const checkSplit = (module: Module) => {
   const rows: readonly AggregateRow[] = [
@@ -149,7 +149,9 @@ const checkSplit = (module: Module) => {
   holds(SPLIT, threeKinds.ok, () => threeKinds);
   const kindShape = (threeKinds as Extract<production.AggregateResult, { ok: true }>).groups.map(({ group, of, notStarted }) => [group.basis, of, notStarted]);
   holds(SPLIT, JSON.stringify(kindShape) === JSON.stringify([["exception", 1, 0], ["ordinary", 2, 1]]), () => kindShape);
-  // A key a measure happens to call basis cannot stand in for it, whether or not the rows agree on it.
+  // A key a measure happens to call basis cannot stand in for it: both rows here hold it as control,
+  // and the visit's label still splits them. Rows that differ on such a key are not built here; they
+  // pool, since the label is written over the key's own value in the group.
   const named: Measure = { ...MEASURE, keys: { ...KEYS, heldEqual: ["release", "commit", "configuration", "basis"] } };
   const samePretence = module.aggregate([rowFor("B1", "usable", "observed", { basis: "control" }), { ...rowFor("B2", "usable", "observed", { basis: "control" }), basis: "exception" }], named);
   holds(SPLIT, samePretence.ok && JSON.stringify(samePretence.groups.map(({ group, of }) => [group.basis, of])) === JSON.stringify([["exception", 1], ["ordinary", 1]]), () => samePretence);
@@ -160,7 +162,7 @@ const checkSplit = (module: Module) => {
   }
 };
 
-test("what is held equal splits, and what may vary does not", async () => {
+test("what is held equal splits, but for a held key named basis, and what may vary does not", async () => {
   checkSplit(production);
   await assertCaughtBy("nothing split", SPLIT, () => checkSplit(variant({ find: "const name = JSON.stringify(group);", replace: 'const name = "one";' })));
   await assertCaughtBy("split on an allowed key too", SPLIT, () => checkSplit(variant({ find: "...[...keys.heldEqual].sort().map((key) => [key, ownValue(row.keys, key)])", replace: "...[...declared].sort().map((key) => [key, ownValue(row.keys, key)])" })));

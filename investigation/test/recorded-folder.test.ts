@@ -12,7 +12,8 @@ import * as production from "../local/recorded-folder";
  * The local reader of a recorded folder: it opens exactly the paths it is given, refuses a link
  * anywhere on a path, a file swapped between its check and its open, a file with a second hard link
  * and any path that would leave the folder, never names a saved script by the path that mirrors its
- * URL, never follows a link while listing, and writes nothing.
+ * URL, follows no link the listing's check met as a link, and writes nothing. A folder swapped for a
+ * link after that check is listed through (the reader's header says so).
  */
 
 type Module = typeof production;

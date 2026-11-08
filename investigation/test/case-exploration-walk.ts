@@ -1272,7 +1272,9 @@ export function walkPurgeSlice(module: PurgeModule, only?: readonly string[]): R
 // ---------------------------------------------------------------------------------------------
 
 export const F = {
-  domain: "every fold state the walk reaches is held whole by its key",
+  // Every reached state is encoded, so the encoder's refusals hold on each; the round trip is held only on a
+  // state the walk adds (a new key, or a split), and a state merged into a key already added is not compared.
+  domain: "every fold state the walk reaches has a key, and each state it adds is held whole by its key",
   summary: "SUMMARY_ONLY implies every digest the log names is kept by the owner or listed and confirmed absent",
   apart: "nothing is both kept and listed",
   rawStays: "a digest a row names as raw never becomes kept",

@@ -3,10 +3,14 @@
 //
 // A measure is data, not a function per case. It names the subject it counts and declares
 // every key it pools over: held equal, allowed to vary with a reason, or unknown. A key on
-// a row that the measure does not declare is refused, so nothing is pooled over silently.
-// Release, commit and configuration must be held equal, so a change to any of them splits a
-// group. So does what a visit rested on, whatever a measure declares: an exception's visit
-// never pools with any other, so an exploratory visit never reads as a controlled one.
+// a row that the measure does not declare is refused, so no undeclared key is pooled over
+// silently. Release, commit and configuration must be held equal, so a change to any of them
+// splits a group, and so does a change to any other key held equal, but for one name: a key the
+// measure holds equal under the name basis is written over in the group by the visit's label, so
+// rows that differ on it pool, and nothing refuses or flags that. The one measure the workspace
+// builds, the viewer's, holds no key of that name. What a visit rested on splits, whatever a
+// measure declares: an exception's visit never pools with any other, so an exploratory visit
+// never reads as a controlled one.
 //
 // The denominator is every attempt in the group, whatever became of it. A slot that never
 // started and an attempt that failed stay counted, and read unknown, never as a 0. The
@@ -157,6 +161,7 @@ export function aggregate(rows: readonly AggregateRow[], measure: Measure): Aggr
   const buckets = new Map<string, { group: Readonly<Record<string, string | null>>; members: AggregateRow[] }>();
   for (const row of rows) {
     // The visit's basis last, so that a key a measure happens to call basis cannot stand in for it.
+    // That key's own value is then lost from the group, so rows that differ on it pool (the header says so).
     const label = row.basis === "exception" ? "exception" : "ordinary";
     const group = Object.fromEntries([...[...keys.heldEqual].sort().map((key) => [key, ownValue(row.keys, key) as string] as const), ["basis", label] as const]) as Record<string, string | null>;
     const name = JSON.stringify(group);

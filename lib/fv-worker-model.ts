@@ -24,7 +24,17 @@
 // defect. The @11 reference below has a second copy in that suite, and nothing binds the two.
 //
 // No time passes. A bound is an event that may fire anywhere, unless an assumption says
-// otherwise.
+// otherwise, but for one bound the model leaves out: a command's own timeout. When a held
+// worker ends, the model drops an install whose answer has not landed, so after the thread
+// hears that worker's detach while held, nothing here posts installed or released for it,
+// unless the install's answer was already queued, which only a detach that overtakes allows
+// (notA3 off). The real thread's install still settles after the detach, by the browser's
+// error or by that timeout, and it then posts installed, with rejected answers, and released,
+// with the debugger not turned off. Under notA3 the search never reaches that sequence, and
+// the replay, which replays the model's traces only, cannot see it. As the readout's kernels
+// stand no term moves on it, since they test a worker detached while paused ahead of its
+// hold. The readout's count of failed installs, which no report reads, counts such a worker
+// in the real code and never under notA3 here.
 
 /**
  * The switches, each of which only removes transitions. The first six are A1 to A5 of the

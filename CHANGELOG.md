@@ -24,7 +24,8 @@ public API or a 1.0 release.
   findings stay pinned open for the owner, and no report or identity moves.
 - Every state the private workspace's case machine reaches on five named plans,
   and its case store's fold on three bounded instances, walked whole and held to
-  the plan's properties. Each thread that checks a range of states must answer it
+  the plan's properties (the fold's properties are held on each state the walk
+  adds, as its key rebuilds it; see F5-F in docs/formal-verification.md). Each thread that checks a range of states must answer it
   as sent, with its count and a digest of those states. Tests in a stage of their
   own, plus one export of the fold step; no rule moves.
 - A public register of what each bounded check holds
@@ -42,8 +43,15 @@ public API or a 1.0 release.
   everything else. Nothing deploys it and it has no hostname, and no public
   report, export or scanner artifact includes its code.
 - The private workspace now validates its configuration, pins the owner's subject
-  and email, answers on one hostname, and holds a tamper-evident case log, tested
-  with real process kills. Nothing is deployed, and public behavior is unchanged.
+  and email, answers on one hostname, and holds a hash-chained case log whose
+  appends were tested with real process kills. Opening the log refuses an
+  entry or evidence object edited or removed under its head. It does not
+  detect anyone holding the account who rewrites the log and its head
+  together, moves the head back to an earlier entry or to an orphan one, or
+  copies another case's events into new entries. A head saved outside the
+  account would catch a log that no longer passes through it, but says nothing
+  of entries added after it, and nothing offers one yet. Nothing is deployed,
+  and public behavior is unchanged.
 - The private workspace now has a case and attempt machine, an evidence model,
   observation and join readings, keyed aggregates, an allow-list summary tier and
   a case store folded from its log, with M1's A2, A3, A4, A7, A9, A10 and A12
@@ -68,6 +76,16 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- Claim texts corrected after a review. The formal verification register
+  (`docs/formal-verification.md`), the bounded checks' docblocks and test
+  titles, the private workspace's comments, docs/limitations.md and this
+  file's entries for the case log and the policy PDF fix now state what each
+  check or bound holds and where it stops. Some test titles and property
+  strings say so too: the workspace's aggregates, import and gate tests, the
+  CI cutoff-warning guard, the register's completeness test, four pins of the
+  worker model, and the fold walk's F.domain property with the test named
+  after it. No scanner behavior, test logic, report or identity
+  changes.
 - A policy PDF's parse kept its memory bound only while every memory reading
   succeeded (`59402b6d`). The parse runs on a thread of its own, bounded by
   an 8 s deadline (clamped to what remains of the scan), by V8's heap limit
@@ -77,8 +95,9 @@ public API or a 1.0 release.
   reading taken before the thread has started, so a thread slower to start
   than the first poll ran watched only by the deadline and V8's heap limit,
   which does not cover decoded streams. The defect dates from the parse
-  thread itself (`bb6806a9`), so every build from
-  `policy-text-cross-check@5` until this fix carried it. A refused reading
+  thread itself (`bb6806a9`, still `policy-text-cross-check@5`), so every
+  build from it until this fix carried it. The earlier @5 builds parsed PDFs
+  on the scanner's own thread, with no memory bound at all. A refused reading
   now clears and the poll reads again; once the thread runs, five refused
   readings end the parse as not read, and so does any reading left
   unanswered for 20 polls (at least 2 s). Parses whose every reading is
@@ -91,11 +110,12 @@ public API or a 1.0 release.
   parses is now not read where the old code read it. None of the parser
   tests' policy fixtures (the small, 64-page and CID-keyed policies) changed
   outcome under any condition forced in that commit's measurements; its
-  synthetic stress documents did. None of the committed corpus's 1,395
-  policy reads (in 711 of its 1,029 reports) has a URL whose path ends in
-  .pdf, but every committed report was scanned by 2026-10-19, before
-  `policy-text-cross-check@13` reached production on 2026-10-24, so the
-  corpus holds no @13 read, and no report outside it was checked. The
+  synthetic stress documents did. The committed corpus cannot show which of
+  its 1,395 policy reads (in 711 of its 1,029 reports) were PDFs, because
+  publication replaces every path segment that is not a known route word,
+  file extension included, and drops the segments past the sixth. Every committed report was scanned by 2026-10-19,
+  before `policy-text-cross-check@13` reached production on 2026-10-24, so
+  the corpus holds no @13 read, and no report outside it was checked. The
   detector version stays `policy-text-cross-check@13` for this fix because
   it is a resource bound: it restores the existing memory bound to parses
   that lost it and ends a parse whose memory stops answering, both in the

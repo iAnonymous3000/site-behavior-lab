@@ -604,7 +604,9 @@ test("an import refuses every malformed input by its place, and never throws", a
   assert.deepEqual(await production.importCase(input({ seed: { ...seed, facts: [{ id: "fact-f", statement: "Rests on nothing.", evidence: ["E-A01-none"] }], interpretations: [] } })), { ok: false, refusal: "no-such-row", at: "facts[0].evidence" });
 });
 
-test("the import works on a clone made at entry: what the caller's objects do later reaches neither the assessment nor the case", async () => {
+test("the import works on a clone made at entry: a later edit of the caller's question reaches neither the assessment nor the case, and a value no clone can be made of is refused", async () => {
+  // Only the question is edited here, after the import has resolved. Bytes over a SharedArrayBuffer
+  // stay shared in the clone, so a write to them before the import reads them would reach it.
   const given = input();
   const question = JSON.parse(JSON.stringify(QUESTION)) as Question;
   const made = await production.importCase({ ...given, question });

@@ -29,16 +29,22 @@ import { gitFixtureEnv, initFixtureRepo, removeFixtureTree, runFixtureGit } from
  * and families, and its first parent holds none of them. From the suites to the register:
  * every suite file and module is named, every test-like call in a suite file is cited,
  * every open test is cited as an open finding and never as a claim, and a table-driven open
- * test's cases are exactly its table's names, one table to a row. Beside those, the wording
+ * test's cases are exactly its table's names, one table to a row, as far as the table reader
+ * reads them: it takes a name only from an object literal in the array literal the test loops
+ * over, written as a plain string literal, and leaves any other entry out with no refusal (the
+ * register's Limits name this). Beside those, the wording
  * rules: closed field and method lists, plain ASCII with no HTML, a list of refused words
  * and stems, quantifiers tied to a domain, and the release gate still only proposed. The CI
  * history rule is not restated here: lib/ci-performance-contract.test.ts owns it, and this
  * holds the register to citing that test by its title.
  *
  * Each refusal is one named property, raised through `holds`, and each has a planted
- * variant below that it catches first (`assertCaughtBy` returns on the first counterexample,
- * so "first" is what is checked). A planted edit to the register must land exactly once,
- * so an edit that drifts fails instead of passing.
+ * variant below, or a test on a git fixture, that it catches first (`assertCaughtBy` returns on
+ * the first counterexample, so "first" is what is checked). The test that holds every refusal to
+ * having one reads the variant tables, and for the fixture tests FIXTURE_PROPERTIES, a list
+ * written by hand: it does not read the fixture tests, so deleting one leaves it passing, and
+ * P.gitFailure, which no variant table plants, is caught by fixture tests alone. A planted edit
+ * to the register must land exactly once, so an edit that drifts fails instead of passing.
  *
  * Git. A row's Commit is a commit that holds its tests and whose first parent holds none of
  * them, never the commit that holds the register, so no row names itself. Git is read
@@ -1479,9 +1485,10 @@ test("a refused phrase joined by a hyphen is read as the phrase, not as its last
 // Real git, on fixture repositories: the paths no checkout here can show.
 // ---------------------------------------------------------------------------------------
 
+// Written by hand, not read off the fixture tests below: a fixture test deleted leaves this list, and the test after it, as they are.
 const FIXTURE_PROPERTIES: readonly string[] = [P.gitFailure, P.history, P.commitType, P.ancestor, P.object];
 
-test("every refusal has a planted variant of its own", () => {
+test("every refusal has a planted variant of its own, or is on the hand-written list of those the git fixture tests catch", () => {
   const plantedFor = new Set([...TEXT_VARIANTS.map(([, property]) => property), ...GIT_VARIANTS.map(([, property]) => property), ...FIXTURE_PROPERTIES]);
   for (const property of Object.values(P)) holds("every refusal is planted", plantedFor.has(property), () => ({ property }));
 });

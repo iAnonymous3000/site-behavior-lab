@@ -22,7 +22,10 @@
 // an attempt too, refused for that reason, never dropped, and any other file the survey wants that the
 // listing met as a link, or below a folder it met as a link, is stated incompatible for that reason,
 // never missing. A link at out itself hides every attempt folder, so the survey states the run refused
-// for that reason rather than a run of no attempts.
+// for that reason rather than a run of no attempts. All of this holds of links the listing met: a
+// folder swapped for a link while the local reader listed it is not met as a link (the reader's
+// header says why), so the survey can drop that attempt, or name files from behind the link as its
+// own.
 //
 // Pure: it takes the folder's listing and bytes already read. A refusal names a file and a field.
 

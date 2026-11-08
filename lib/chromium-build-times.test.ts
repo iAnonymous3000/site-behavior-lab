@@ -81,7 +81,7 @@ test("the Chromium the installed playwright-core bundles has a recorded build ti
   }
 });
 
-test("CI runs the cutoff warning in the Chromium smoke job on every push to main, after its install, under no condition", () => {
+test("CI runs the cutoff warning in the Chromium smoke job on every push to main, under no job condition and no plain if: key in its step before the first blank line after its run line, after a run: npm ci line when the job has one", () => {
   const ci = readFileSync(path.join(ROOT, ".github", "workflows", "ci.yml"), "utf8");
   // The workflow runs on every push to main: no path, tag or branch filter
   // beside the branch.
@@ -110,6 +110,14 @@ test("CI runs the cutoff warning in the Chromium smoke job on every push to main
     assert.ok(allowed.includes(key), `the smoke job's ${key}: is not on this test's list of job keys that cannot keep the job from running (${allowed.join(", ")}); review it before extending the list`);
   }
   assert.equal(new Set(jobKeys).size, jobKeys.length, `a repeated job key: ${jobKeys.join(", ")}`);
+  // The step checks are narrower than the job check. The order check finds the install by its
+  // exact line, so with npm ci written any other way it compares with -1 and passes whatever the
+  // order. The step check takes the text from the last "- name:" line before the run line and
+  // refuses only a plain if: key below that line, and continue-on-error, and only up to the first
+  // blank line after the run line, where the block ends. A plain if: after such a blank line, still
+  // in the same step, passes it. So do a quoted "if": and a spaced if :, and an if: written as
+  // the step's first key ("- if:"), which also moves the block's start to the step before. Each of
+  // those disables the step in CI while this test passes.
   const step = smoke.indexOf("        run: node scripts/chromium-hsts-preload-cutoff.mjs\n");
   assert.ok(step > smoke.indexOf("        run: npm ci\n"), "the warning must run after npm ci installs playwright-core");
   const block = smoke.slice(smoke.lastIndexOf("      - name:", step), smoke.indexOf("\n\n", step));

@@ -15,7 +15,10 @@ import { ATTEMPT_IDS, CONFIG_A, CONFIG_B, CONTROL_RUNNER, FOREIGN_RUNNER, OWNER,
  * The model RESTATES the machine's rules, in order, on purpose: it is a second writing of
  * the same table, so a change to either shows up as a disagreement, and what it establishes
  * is that the two writings agree on every (state, event) pair in the domain, down to which
- * refusal answers. It says nothing about whether the rules are the right ones. The
+ * refusal answers. One refusal is not written a second time: the model takes a purge manifest
+ * that repeats a path, which purgeStep refuses as manifest-malformed. The alphabet below never
+ * sends one, so the two agree on the domain, and a repeated path would part them;
+ * purge.test.ts holds that refusal. It says nothing about whether the rules are the right ones. The
  * properties further down are stated apart from both, over states and transitions.
  */
 
@@ -259,6 +262,7 @@ function modelStep(state: MachineState, event: MachineEvent): ModelAnswer {
       const next = cloned(state);
       if (event.type === "purge-manifest-recorded") {
         if (state.purge !== null) return refuse("manifest-already-recorded");
+        // purgeStep also refuses a repeated path, as manifest-malformed; this model does not, and the alphabet sends none.
         next.purge = event.paths.map((path) => ({ path, state: "present" }));
         return { state: next };
       }

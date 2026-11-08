@@ -27,7 +27,8 @@
 // the same claims and the same refusals, so the two cannot drift apart unseen.
 //
 // The import (importCase) takes the plan, a map of the run's bytes holding exactly the paths the
-// adapter asks for, the seed's claims and the structured question, works on a clone of them, and
+// adapter asks for, the seed's claims and the structured question, works on a clone of them (bytes
+// over a SharedArrayBuffer stay shared, as importCase says), and
 // itself reads the run, surveys that reading and assesses it, so a case exists only for a run the
 // import's own assessment supported, and records that assessment: the question by its id and
 // digests, the verdict, every finding and the run's digest. No run, survey or assessment a caller
@@ -572,8 +573,13 @@ async function questionDigests(question: unknown): Promise<Readonly<{ questionTe
  * a malformed input.
  *
  * Everything after the entry reads a clone, a copy made once, so no getter, proxy, detached buffer or
- * later edit of the caller's objects reaches the assessment or the case. The clone holds a second copy
- * of the bytes for as long as the import runs.
+ * later edit of the caller's plain objects and buffers reaches the assessment or the case. A
+ * SharedArrayBuffer is the exception: the clone shares it rather than copying it, and a file's bytes
+ * may be a view over one, so a write to that memory after the call, by the caller or by another
+ * thread, can change what the import reads, and with it the assessment and the case. Because the
+ * import digests a run's files before it parses them, such a write between the two can also leave
+ * the recorded digests naming bytes other than those the assessment parsed. The local reader hands over plain bytes. The clone holds a second copy of the plain
+ * bytes for as long as the import runs.
  */
 export async function importCase(input: ImportInput): Promise<ImportResult> {
   let given: unknown;

@@ -9,7 +9,9 @@ import { ISSUER, certsResponse, type SigningKey } from "./token-fixture";
  * compatibility date as the workspace's Worker, as `wrangler deploy --dry-run`, which writes a
  * bundle and deploys nothing. The Worker's one way out, the fetch of the Access team's keys, is
  * answered here, and any other address it asks for is refused and remembered, so a suite can
- * hold that nothing left the machine.
+ * hold that the Worker reached nothing else. Miniflare's own fetch of its request properties
+ * (cf.json), which it makes outside NODE_ENV=test when node_modules holds no copy under 30 days
+ * old, does not pass through here.
  */
 
 const ROOT = process.cwd();
@@ -21,7 +23,9 @@ export const COMPATIBILITY_DATE = (ts.parseConfigFileTextToJson(CONFIG_PATH, rea
 export function bundleForWorkerd(entry: string | null, outputDirectory: string, bundleName: string): string {
   const args = [path.join(ROOT, "node_modules", "wrangler", "bin", "wrangler.js"), "deploy", ...(entry === null ? [] : [entry]), "--config", CONFIG_PATH, "--dry-run", "--outdir", outputDirectory];
   // The test's own bound cannot fire while this blocks the event loop. With its banner hidden,
-  // wrangler skips the update check that would otherwise ask the npm registry for its latest version.
+  // wrangler skips the update check its banner runs. It still runs one when a configuration has
+  // unexpected fields or it prints a possible-bug error, and that check asks the npm registry only
+  // when its one-hour cache in the temp folder is stale.
   execFileSync(process.execPath, args, { cwd: ROOT, env: { ...process.env, CI: "1", WRANGLER_SEND_METRICS: "false", WRANGLER_HIDE_BANNER: "true" }, stdio: "pipe", timeout: 120_000 });
   return path.join(outputDirectory, bundleName);
 }

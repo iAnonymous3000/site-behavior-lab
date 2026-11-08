@@ -57,7 +57,7 @@ import * as productionRealm from "./worker-fingerprint-realm";
  *
  * THE CLAIM. For all event orders in each world's alphabet, under its bounds and under the
  * named axioms, at this commit, each property reads as the table says. No document may
- * shorten that. This does not show that Chromium behaves as A1 to A6 state, and it does not
+ * shorten that. This does not show that Chromium behaves as A1 to A5 state, and it does not
  * measure anything: those stay measured, the amd64 hold rate among them. It says nothing
  * about how often any trace below happens on a real page.
  *
@@ -67,7 +67,9 @@ import * as productionRealm from "./worker-fingerprint-realm";
  * being the same in states that differ only in what the mirror, the readout and the port hold, before
  * the drain ends, in the hold and stream worlds. The model's thread, mirror and drain restate
  * production, which is what the replay is for, and the world's own process is the one thing nothing
- * here checks against a browser.
+ * here checks against a browser. The replay holds the real code to the model's traces only, so what
+ * the model leaves out of the thread, such as a command's own timeout (its header says which
+ * sequence that hides), no replay here reaches.
  *
  * WHAT THE REPLAY DOES NOT SHOW. A term comes from the real kernels on both sides of the replay,
  * so a passing replay here is no evidence about classification: it compares production with
@@ -941,7 +943,7 @@ test("the dedicated world is where A4 acts: a worker held at its attach and excl
 });
 
 // ---------------------------------------------------------------------------------------
-// Beyond A1 to A6: what the table's empty rows would take. Neither switch is an axiom.
+// Beyond A1 to A5: what the table's empty rows would take. Neither switch is an axiom.
 // ---------------------------------------------------------------------------------------
 
 test("beyond the plan's axioms: C1, D1 and Z are not axioms, and each says only what it says", () => {
@@ -1362,8 +1364,15 @@ const without = (assumption: Assumption): Assumption[] => PLAN_ALL.filter((name)
 
 /**
  * Each row's need, shown of the real code: with every other axiom assumed, the model's first
- * trace to a break goes through the thread's program, the mirror and the readout, lands where the
- * model says, and is judged broken by the world's facts.
+ * trace to a break goes through the thread's program, the mirror and the readout to the end of the
+ * drain, and the term the real readout counted is judged broken by the world's facts. The judging
+ * comes before any landing is compared and stops at the break, so the landing is not compared here.
+ * For the no-term row the model's term is nowhere, which the judging keeps as the model gives it,
+ * so that row's test depends on none of the readout's term counts: among what it holds are the real
+ * mirror against the model (the installer's install counts included) and that the real drain had not
+ * ended at each label before the last, and that it ended.
+ * The main side's replays, which never require that row, and the no-term pins below, which require
+ * nothing, compare the landing on traces that land a worker nowhere.
  */
 const WITNESSES: readonly { world: SharedWorld; assumptions: readonly Assumption[]; property: Property }[] = [
   { world: HOLD_WORLD, assumptions: PLAN_ALL, property: "excluded-implies-no-page-code-before-the-freeze" },
@@ -1415,7 +1424,7 @@ for (const [form, cause, assumptions] of [
 //
 // Classification is per pin. An environment axiom means the real code does what the model says
 // and only something about the browser or the transport would rule the trace out: `rests` names
-// that thing, none of it is in A1 to A6 unless it says so, and each is its own measurement. How
+// that thing, none of it is in A1 to A5 unless it says so, and each is its own measurement. How
 // often a real page does any of this is not measured, on any host. Implementation means no
 // such thing exists: the rule is false of the trace under any latency, so measuring latency
 // cannot close it. A review reproduced the excluded forms on real Chromium with a local fixture:
@@ -1518,7 +1527,7 @@ const PINS: readonly Pin[] = [
     // Posted after the freeze, so A5's latency half has nothing to say.
     name: "held at the freeze and at the bound, with its late posted after the freeze, is excluded though it ran unobserved",
     kind: "environment axiom",
-    rests: "C1: from the socket to the port's far end, for what the browser emitted before the freeze, within the bound. Not in A1 to A6",
+    rests: "C1: from the socket to the port's far end, for what the browser emitted before the freeze, within the bound. Not in A1 to A5",
     closedBy: WITH_C1,
     assumptions: PLAN_ALL,
     labels: [...THE_THREAD_S_OWN_RELEASE_REACHES_A_PAUSE, ...MIRROR_SEES_HELD, "freeze||", "hears:0:resumed|0:late:resumed-while-held|0:off+remove", "settle-bound||#bound"],
@@ -1540,7 +1549,7 @@ const PINS: readonly Pin[] = [
     // No late is ever posted: a resume behind the thread's own conclusion is taken for the hold's end, and the install never answered.
     name: "held at the freeze, its hold's bound fires before the resume is heard, and it is excluded though it ran unobserved",
     kind: "environment axiom",
-    rests: "the thread hears a session's event within its hold bound. In this trace the resume is behind the pause that set the bound, so this needs a resume at least 3 s on the socket. Not in A1 to A6",
+    rests: "the thread hears a session's event within its hold bound. In this trace the resume is behind the pause that set the bound, so this needs a resume at least 3 s on the socket. Not in A1 to A5",
     assumptions: WITH_C1_D1,
     labels: [...THE_THREAD_S_OWN_RELEASE_REACHES_A_PAUSE, ...MIRROR_SEES_HELD, "freeze||", "hold-bound:0|0:installed:none|0:off+remove", "settle-bound||#bound"],
     term: "pausedAtReadout",
@@ -1550,7 +1559,7 @@ const PINS: readonly Pin[] = [
     // The resume goes down with the connection, and the report of that is posted after the freeze, so A5's latency half has nothing to say.
     name: "held at the freeze, the connection closes behind it with the resume on its socket, and it is excluded though it ran unobserved",
     kind: "environment axiom",
-    rests: "C1 read as one bound on the socket and the port together: the connection does not close on what the browser emitted before the freeze. Not in A1 to A6",
+    rests: "C1 read as one bound on the socket and the port together: the connection does not close on what the browser emitted before the freeze. Not in A1 to A5",
     closedBy: WITH_C1,
     assumptions: PLAN_ALL,
     labels: [...THE_THREAD_S_OWN_RELEASE_REACHES_A_PAUSE, ...MIRROR_SEES_HELD, "freeze||", "connection-closes|0:lost|", "settle-bound||#bound"],
@@ -1566,7 +1575,7 @@ const PINS: readonly Pin[] = [
     // model, but D1 speaks of the thread's posts, and in the review's flood runs the tree beat exactly those with nothing in no term.
     name: "a worker that ran, whose attach is on the port when the frame tree answers, lands in no term",
     kind: "environment axiom",
-    rests: "the page's connection delivers its discovery of the worker ahead of its answer to the frame tree, one order on one connection, never seen otherwise in a review's runs. Not in A1 to A6",
+    rests: "the page's connection delivers its discovery of the worker ahead of its answer to the frame tree, one order on one connection, never seen otherwise in a review's runs. Not in A1 to A5",
     closedBy: WITH_D1,
     assumptions: PLAN_ALL,
     labels: ["born:0:waiting||", "other-release:0||", "reaches-main:0:ran||", ATTACH, "freeze||#drain"],

@@ -24,7 +24,9 @@ function bundle(outputDirectory: string): string {
     process.execPath,
     [path.join(ROOT, "node_modules", "wrangler", "bin", "wrangler.js"), "deploy", ENTRY, "--config", CONFIG_PATH, "--dry-run", "--outdir", outputDirectory],
     // The test's own bound cannot fire while this blocks the event loop. With its banner hidden,
-    // wrangler skips the update check that would otherwise ask the npm registry for its latest version.
+    // wrangler skips the update check its banner runs. It still runs one when a configuration has
+    // unexpected fields or it prints a possible-bug error, and that check asks the npm registry only
+    // when its one-hour cache in the temp folder is stale.
     { cwd: ROOT, env: { ...process.env, CI: "1", WRANGLER_SEND_METRICS: "false", WRANGLER_HIDE_BANNER: "true" }, stdio: "pipe", timeout: 120_000 }
   );
   return path.join(outputDirectory, "workerd-case-log-entry.js");

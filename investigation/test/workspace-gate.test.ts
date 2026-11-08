@@ -415,8 +415,14 @@ test("a route receives the assertion the gate verified, as the string it verifie
   assert.equal(forwarded?.get(ACCESS_TOKEN_HEADER), null);
 });
 
-test("nothing the platform attached to a request reaches a route", async () => {
+test("a gate variant that copies request.cf to the route is caught; the production half runs on a clone, which carries no cf", async () => {
   // A Worker's request carries request.cf, which can hold client certificate details.
+  // What this holds and what it cannot: the production half hands the gate a clone, and Node's
+  // Request.clone does not copy the cf planted here, so that half passes for any gate that forwards
+  // cf only when one is present. Only the variant half, which is not cloned, puts a request with cf
+  // through a gate. In Node a request built from the request object with new init drops it too, so
+  // a gate rebuilt that way would pass here as well, and no workerd suite reads cf. Production builds
+  // the forwarded request from its URL, method, named headers and body, so no cf reaches a route today.
   const attached = request("/cases", ownerToken);
   Object.defineProperty(attached, "cf", { value: { tlsClientAuth: { certSubjectDN: "CN=someone-else" } } });
   const seen = async (module: GateModule) => {

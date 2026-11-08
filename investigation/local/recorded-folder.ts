@@ -27,8 +27,14 @@
 // script, a trial folder's place), and otherwise by its place in the list asked for (paths[3]). A
 // listing names a link or other entry below a folder of saved script files by its place in the same way.
 //
-// A listing walks the folder the same way: it descends into real directories only and names each
-// link it met without following it, so a caller can report each one. Nothing here writes, renames or
+// A listing checks each entry once, without following a link: it descends into an entry that check
+// saw as a real directory, and names each link it met without following it, so a caller can report
+// each one. Unlike a read it does not walk again or compare device and inode, so a directory swapped
+// for a link between its check and the listing of its entries, or the folder itself swapped after its
+// own check, is listed through: the link is named nowhere, and the entries behind it come back under
+// names inside the folder. A read of any of those names walks its path again, and is refused while
+// the link stays: as a link in its path, or as not a folder when the swapped one is the folder itself. The gap the read leaves, above, is still open: a swap and a
+// swap back timed around both of the read's walks reads from outside. Nothing here writes, renames or
 // deletes anything.
 
 import * as nodeFs from "node:fs";

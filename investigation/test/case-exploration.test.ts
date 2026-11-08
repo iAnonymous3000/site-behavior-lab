@@ -72,7 +72,8 @@ import { NOW_MS } from "./token-fixture";
  * stated guard holds) and M.effect (an accepted event leaves exactly the fields its rule names).
  * guardOf and effectOf cite each rule's source: the header of case-machine.ts, W2's commit 3fef1027,
  * a comment in case-machine.ts named by its line, or "code only" where no comment states it. case-machine-walk.test.ts restates the same
- * rules for four small plans and also their refusal reasons and order; these say nothing of either,
+ * rules for four small plans and also their refusal reasons and order, all but purgeStep's refusal of
+ * a manifest that repeats a path, which its alphabet never sends; these say nothing of either,
  * and run on the six-slot plan. purgeAnswer restates purgeStep the same way, as purge.test.ts's map
  * does. The other properties are stated apart from both restatements, so each can fail alone.
  *
@@ -140,6 +141,13 @@ import { NOW_MS } from "./token-fixture";
  *   instrument and source records as steps: those are probed for authority on every fold state's
  *   own record. The walk enters below runCommand's actor derivation and the log's object checks; a
  *   test below holds the pure entry equal to the store path on the whole synthetic case.
+ *   The fold walk holds F.domain's round trip on each state it adds (a new key, or a split), not on
+ *   an accepted edge whose state encodes to a key already added under the same shadow: that state is
+ *   merged into the key without being compared with what the key rebuilds, and is never expanded, and
+ *   every other fold property is held on what the key rebuilds. So a fold defect the key cannot hold
+ *   (a field outside a configuration's identity, say), shown only on an interleaving whose twin the walk
+ *   added first, passes every fold property and the pinned counts. The machine walk compares on every
+ *   accepted edge.
  *
  * Axioms assumed and not checked: alarms are delivered eventually; the store eventually accepts a
  * write. No claim is made of any wall-clock bound.
@@ -218,7 +226,7 @@ import { NOW_MS } from "./token-fixture";
  * | a supervisor's event is accepted from every non-terminal state | M | M | none | exhaustive | "the six-slot plan" | a case deadline that does not close; reconcile refused once the case is closed |
  * | purgeStep answers as the restated reducer does, accepting exactly when it does, with its refusal and its manifest | S | three paths | none | exhaustive over reachable states; a restatement | "the purge slice" | a path dropped when it reads absent; purging an open case; remaining refused straight from present; absent refused once a path reads remaining |
  * | SUMMARY_ONLY holds exactly when a manifest exists and every path on it reads absent | S | three paths | none | exhaustive | "the purge slice" | a remaining path read as purged |
- * | every fold state the walk reaches is held whole by its key | F | F | none | exhaustive over reachable states | the three "the fold, ..." walks | a configuration stored with a field no identity has |
+ * | every fold state the walk reaches has a key, and each state it adds is held whole by its key | F | F | none | exhaustive over the states the walk adds; a state merged into a key already added, under the same shadow, is not compared with what that key rebuilds (see Fold, F, above) | the three "the fold, ..." walks | a configuration stored with a field no identity has |
  * | SUMMARY_ONLY implies every digest the log names is kept by the owner or listed and confirmed absent | F | F | none | exhaustive | same | 3fef1027: a control keeping nothing while a manifest omits its digests |
  * | nothing is both kept and listed, by the shadow and by the case's own keptObjects | F | F | none | exhaustive | same | 3fef1027: a listed path a control alone named kept by a later patch; a row after the manifest keeping a listed digest; the owner's events keeping nothing, so a manifest lists what the owner kept (the shadow half alone) |
  * | a digest a row names as raw never becomes kept, by the shadow and by the case's own keptObjects | F | F | none | exhaustive | same | the raw rule gone; the raw rule gone, and nothing after the plan keeping anything; a row keeping its own digest, which stays raw to the owner (the keptObjects half alone) |
@@ -248,7 +256,8 @@ import { NOW_MS } from "./token-fixture";
  * termination on three of them. Its scenario walk is I1 to I3 with the same alphabet, so the I1 to I3
  * instance here walks the same 45,967 states, and both suites hold the denominator, one running
  * attempt, the arm, a terminal attempt staying and termination on them, and both restate the rules;
- * W2's model also restates the refusals. The six-slot plan and B1 to B3 share no state with W2's
+ * W2's model also restates the refusals, but for a manifest that repeats a path, which it takes and
+ * purgeStep refuses. The six-slot plan and B1 to B3 share no state with W2's
  * walks, only claims. purge.test.ts holds every manifest of up to three paths and a depth-7 walk; the
  * slice test here is the reachable fixpoint of the same reducer. No W2 test is removed.
  */
