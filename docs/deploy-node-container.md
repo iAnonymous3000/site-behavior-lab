@@ -44,12 +44,26 @@ zero open-internet abuse surface, and only then decide whether to open
 ## 1. Build and run the container
 
 ```bash
-docker build --build-arg SITE_BEHAVIOR_LAB_BUILD_COMMIT="$(git rev-parse HEAD)" -t site-behavior-lab .
+docker build \
+  --build-arg SITE_BEHAVIOR_LAB_BUILD_COMMIT="$(git rev-parse HEAD)" \
+  --build-arg NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL=https://scan.example.org \
+  --build-arg NEXT_PUBLIC_SITE_BEHAVIOR_LAB_LIBRARY_ORIGIN=https://scan.example.org \
+  --build-arg NEXT_PUBLIC_SITE_BEHAVIOR_LAB_TURNSTILE_SITE_KEY= \
+  -t site-behavior-lab .
 docker run --rm -p 3000:3000 \
   --env-file .env.production \
   -v site-behavior-lab-reports:/var/lib/site-behavior-lab/reports \
   site-behavior-lab
 ```
+
+The three `NEXT_PUBLIC_` arguments are baked into the client bundle and cannot
+be changed at run time. Without them the `Dockerfile` falls back to this
+project's own values: canonical URLs and social cards name
+`scan.sitebehavior.org`, `/status/` compares your build against
+`sitebehavior.org`, and the bundle carries this project's Turnstile site key.
+For B1 the library origin is the container's own origin; for B2 it is your
+Pages origin. Pass your own Turnstile site key instead of the empty one if you
+gate with Turnstile (step 3).
 
 Validate the container path end to end before exposing it:
 
@@ -67,13 +81,14 @@ Start from [.env.example](../.env.example). For a public-but-safe deployment:
 
 | Variable | Set to | Why |
 |---|---|---|
-| `SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN` | a strong secret **or** leave unset | Unset = open scanner; rely on edge Turnstile + WAF (step 3). Set = gated. |
+| `SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN` | a strong secret **or** leave unset | Unset = open scanner; rely on edge Turnstile + WAF (step 3). Set = gated. An open scanner also answers any web page in a browser that can reach it; see `SECURITY.md`. |
+| `SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS` | `1` only when the token is deliberately unset | Tells `/api/health` the open posture is intended. Without it an open scanner reports `degraded` forever. It opens or closes nothing in Node. |
 | `SITE_BEHAVIOR_LAB_REPORT_STORE_BACKEND` | `filesystem` or `r2` | `filesystem` needs a persistent volume (below). `r2` stores reports in Cloudflare R2 so share links survive **redeploys and host replacement**, the durable, multi-node-ready option. |
 | `SITE_BEHAVIOR_LAB_REPORT_STORE_DIR` | `/var/lib/site-behavior-lab/reports` | Filesystem backend only. Must be a **persistent volume** or shared reports vanish on restart. |
 | `SITE_BEHAVIOR_LAB_R2_*` | bucket, endpoint, key id, secret, prefix | Required when `REPORT_STORE_BACKEND=r2`. Use an R2 API token scoped to the bucket (Object Read & Write). See [.env.example](../.env.example). |
 | `SITE_BEHAVIOR_LAB_REPORT_STORE_OPERATION_TIMEOUT_MS` | `30000` | Whole publication/pruning deadline, including mutation-queue wait, listing, and bounded physical deletes. Values are capped at two minutes. |
 | `SITE_BEHAVIOR_LAB_SCANNER_EGRESS` | a reviewed public label, or the committed-r2 alias `controlled-self-hosted` | Shown in report methodology and JSON export. The alias emits the generic public label. Put the stable region in `SITE_BEHAVIOR_LAB_SCANNER_EGRESS_REGION`; other unreviewed labels are canonicalized and degrade health. |
-| `SITE_BEHAVIOR_LAB_TRUST_PROXY_HEADERS` | `1` | **Only** once Cloudflare fronts the origin and you block direct origin access (step 3). Without a trusted proxy this lets clients spoof their rate-limit identity. |
+| `SITE_BEHAVIOR_LAB_TRUST_PROXY_HEADERS` | `1` | **Only** once Cloudflare fronts the origin and you block direct origin access (step 3). The per-client limits then key on the rightmost `X-Forwarded-For` entry and ignore `X-Real-IP`; without a trusted proxy this lets clients spoof their rate-limit identity. Left unset, every caller shares one bucket (20 scan tokens a minute in total). |
 | `SITE_BEHAVIOR_LAB_ASYNC_SCANS` | `0` (or `1`) | `1` returns `202 + jobId` so long scans do not hold the HTTP connection. With durable jobs off, execution remains single-process/in-memory and is suitable for one node. |
 | `SITE_BEHAVIOR_LAB_DURABLE_JOBS` | `0` | Cloudflare Containers only. `1` makes the Durable Object the restart-safe queue authority. Its encrypted payload, execution state, and persistent drain schedule commit before `202`; work uses oldest-first fenced leases with at most two attempts. Requires async scans, R2/public-r2 readiness, every setting below, the live privacy disclosure, and the no-polling lease-expiry gate. The committed deployment config stays `0` until those checks pass. |
 | `SITE_BEHAVIOR_LAB_DURABLE_JOBS_KEY` | unset | **Worker-only secret:** canonical base64url encoding of exactly 32 random bytes for application AES-256-GCM encryption. Never expose it publicly or forward it into Node. Drain the 75-minute active-job window before rotating unless the deployed code explicitly supports both key versions. |
@@ -84,8 +99,10 @@ Start from [.env.example](../.env.example). For a public-but-safe deployment:
 | `SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES_PREVIOUS_KEY` | unset | Optional Worker-only previous watch key for rotation across the bounded 30-day TTL. New writes always use the current key. |
 | `SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES_ACCESS_TOKEN` | unset | Optional Cloudflare Worker-only staging/operator second factor. Leave it unset for public self-service creation; when configured it is checked before Durable Object/quota work, hides the public creation capability, and never reaches Node. |
 
-`/api/health` reports `degraded` until the token, store dir, and egress label are
-all set; drive it from your load balancer and alert on `degraded`. A requested
+`/api/health` reports `degraded` until the store dir and egress label are set
+and either the token is set or `SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS=1`
+declares the scanner open on purpose; drive it from your load balancer and
+alert on `degraded`. A requested
 durable-jobs mode is also unavailable unless encryption, private coordinator auth,
 R2/public-r2 persistence, and scheduled execution are all ready; do not treat a
 flag-on degraded response as permission to fall back to the in-memory queue.
@@ -103,8 +120,10 @@ Object watch scheduler. Only the edge may promote the effective state to `ready`
    the host firewall to Cloudflare's IP ranges. Do this **before** setting
    `SITE_BEHAVIOR_LAB_TRUST_PROXY_HEADERS=1`.
 3. Add **WAF rate-limiting rules** on `POST /api/scan`, this is the atomic abuse
-   control the topology decision relies on (it replaces the Worker's best-effort
-   KV counters). A GPC/Shields comparison is two visits, so budget accordingly.
+   control the topology decision relies on: the Node container's own limits are
+   in-memory counters per process, and only the Cloudflare Containers front
+   Worker has an atomic quota. A GPC/Shields comparison is two visits, so
+   budget accordingly.
 4. Optional: enable **Turnstile** at the edge (or keep the in-app token). For an
    open scanner, Turnstile is the human-verification wall that makes "open" safe
    to expose. Note Turnstile only gates the browser UI path; a programmatic
@@ -172,10 +191,15 @@ build SHA matches `HEAD`, because `deployment.json` is exact source provenance.
 ## 6. Verify
 
 ```bash
-npm run build && npm run start -- --port 3100
+NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL=https://scan.example.org npm run build
+PORT=3100 npm run start -- --port 3100
 BASE_URL=http://127.0.0.1:3100 npm run test:smoke
 # add SMOKE_SCAN_ACCESS_TOKEN=<token> if the access token is set
 ```
+
+The build refuses to guess the public origin, so it fails without
+`NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL`. `PORT` must match `--port`: the PDF
+renderer opens the server on the loopback port `PORT` names (3000 when unset).
 
 Then confirm against the live edge: `/api/health` is `ok`, a scan of a known
 tracker-heavy site returns Shields-blocked counts, and a request to a private
