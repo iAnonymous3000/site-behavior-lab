@@ -3,9 +3,15 @@ import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
+import {
+  createConsentComparisonReport,
+  createGpcComparisonReport,
+  createShieldsComparisonReport,
+  createTemporalComparisonReport
+} from "./compare-reports";
 import { readManagedReport } from "./managed-report-reader";
 import { buildProvenanceEntry } from "./redaction-provenance";
-import { redactScanReportV1 } from "./redact-scan-report-v1";
+import { publicStringPolicyInputs, redactScanReportV1 } from "./redact-scan-report-v1";
 import { REDACTION_VERSION } from "./redaction-v2";
 import { buildReportShare, buildStaticReportShare } from "./report-locator";
 import { readStoredScanReportById } from "./report-store";
@@ -17,6 +23,7 @@ import {
 import { currentR2NormalizationForObserver } from "./scan-report-v2-normalization";
 import { buildFingerprints } from "./scan-report-v2-fingerprints";
 import {
+  makeGpcInterventionReportV2R2,
   makePublicSingleReportV2R2,
   makeSupportingPairInterventionReportV2R2
 } from "./scan-report-v2-r2-fixtures";
@@ -30,7 +37,9 @@ import {
   makeScanReportV1
 } from "./scan-report-v2-fixtures";
 import { readStoredScanReport } from "./scan-report-reader";
+import { PUBLIC_SCANNER_EGRESS_LABELS } from "./scanner-egress";
 import { consentInteractionWarning } from "./consent-interaction";
+import type { ScanReport, ScanResult } from "./types";
 
 const REPORT_ID = "20260712-" + "a".repeat(32);
 const RETENTION = {
@@ -650,6 +659,140 @@ test("managed v1 reports retain historical bare consent labels without reopening
   }
 });
 
+
+function readWithOwnSidecar(report: unknown) {
+  const sidecar = buildProvenanceEntry({
+    reportId: REPORT_ID,
+    publicReport: report,
+    writtenAt: RETENTION.createdAt,
+    createdAt: RETENTION.createdAt,
+    expiresAt: RETENTION.expiresAt
+  });
+  return readManagedReport({
+    reportId: REPORT_ID,
+    reportContents: JSON.stringify(report),
+    sidecarContents: JSON.stringify(sidecar),
+    retention: RETENTION
+  });
+}
+
+test("a Node run's egress label is held to the scanner's public labels", () => {
+  const withLabel = (label: string) => {
+    const fixture = makePublicSingleReportV2R2();
+    fixture.run.privacy.redactionVersion = REDACTION_VERSION;
+    fixture.run.conditions.egress.label = label;
+    fixture.run.fingerprints = buildFingerprints(fixture.run);
+    return redactPublicScanReportV2R2(fixture);
+  };
+
+  // Every label the scanner can resolve an operator's setting to still reads.
+  for (const label of PUBLIC_SCANNER_EGRESS_LABELS) {
+    assert.equal(readWithOwnSidecar(withLabel(label)).ok, true, `public egress label ${label} must stay readable`);
+  }
+
+  // Any other text is a fixed point of the sanitizer, which copies the label,
+  // so only this list refuses it.
+  const planted = withLabel("scanner run for jane.doe@victim-mail.example");
+  assert.equal(
+    JSON.stringify(redactPublicScanReportV2R2(planted)),
+    JSON.stringify(planted),
+    "the planted label must survive the sanitizer for this test to mean anything"
+  );
+  assert.deepEqual(readWithOwnSidecar(planted), {
+    ok: false,
+    error: "invalid",
+    reason: "producer-vocabulary-mismatch"
+  });
+
+  // One arm of a pair is enough.
+  const pair = makeGpcInterventionReportV2R2();
+  for (const run of r2ReportRuns(pair)) run.privacy.redactionVersion = REDACTION_VERSION;
+  assert.equal(readWithOwnSidecar(redactPublicScanReportV2R2(pair)).ok, true);
+  pair.variant.conditions.egress.label = "variant arm from 203.0.113.7";
+  pair.variant.fingerprints = buildFingerprints(pair.variant);
+  assert.deepEqual(readWithOwnSidecar(redactPublicScanReportV2R2(pair)), {
+    ok: false,
+    error: "invalid",
+    reason: "producer-vocabulary-mismatch"
+  });
+});
+
+test("a v1 comparison's run names are held to the reviewed run labels", () => {
+  const arm = (
+    scannedAt: string,
+    consent?: { mode: "accept-all" | "reject-all"; clicked: boolean }
+  ): ScanResult => {
+    const report = redactScanReportV1(makeScanReportV1()).report;
+    if (report.reportType === "comparison") throw new Error("expected single report fixture");
+    report.conditions.scannedAt = scannedAt;
+    if (consent) {
+      const interaction = consent.clicked ? { ...consent, cmp: "OneTrust" } : consent;
+      report.conditions.consentMode = consent.mode;
+      report.consentInteraction = interaction;
+      report.warnings = [consentInteractionWarning(interaction)];
+    }
+    return report;
+  };
+  const first = "2026-07-09T10:00:00.000Z";
+  const second = "2026-07-09T10:01:00.000Z";
+
+  // Every comparison the producers write is redacted and read back, so a
+  // producer whose run names leave the reviewed labels fails here and not at
+  // a visitor's save.
+  const produced: ScanReport[] = [
+    createGpcComparisonReport(arm(first), arm(second), { executedFirst: "baseline" }),
+    createShieldsComparisonReport(arm(first), arm(second), { executedFirst: "variant" }),
+    createTemporalComparisonReport(arm(first), arm(second)),
+    ...[
+      [true, true],
+      [true, false],
+      [false, true],
+      [false, false]
+    ].map(([accepted, rejected]) =>
+      createConsentComparisonReport(
+        arm(first, { mode: "accept-all", clicked: accepted }),
+        arm(second, { mode: "reject-all", clicked: rejected }),
+        { executedFirst: "baseline" }
+      )
+    )
+  ];
+  const reviewed = new Set(publicStringPolicyInputs().warningLabels);
+  for (const comparison of produced) {
+    if (comparison.reportType !== "comparison" || comparison.runLabels === undefined) {
+      throw new Error("expected a comparison with run labels");
+    }
+    assert.equal(reviewed.has(comparison.runLabels.baseline), true, comparison.runLabels.baseline);
+    assert.equal(reviewed.has(comparison.runLabels.variant), true, comparison.runLabels.variant);
+    const read = readWithOwnSidecar(redactScanReportV1(comparison).report);
+    assert.equal(read.ok, true, `${comparison.title} must stay readable${read.ok ? "" : ` (${read.reason})`}`);
+  }
+
+  // A run name outside the labels is a fixed point of the sanitizer, which
+  // only bounds its length, so only this list refuses it.
+  for (const side of ["baseline", "variant"] as const) {
+    const planted = redactScanReportV1(produced[0]).report;
+    if (planted.reportType !== "comparison" || planted.runLabels === undefined) {
+      throw new Error("expected a comparison with run labels");
+    }
+    planted.runLabels[side] = "Visit ordered by jane.doe@victim-mail.example";
+    assert.equal(
+      JSON.stringify(redactScanReportV1(planted).report),
+      JSON.stringify(planted),
+      "the planted run name must survive the sanitizer for this test to mean anything"
+    );
+    assert.deepEqual(readWithOwnSidecar(planted), {
+      ok: false,
+      error: "invalid",
+      reason: "producer-vocabulary-mismatch"
+    });
+  }
+
+  // A v1 comparison from before run names existed carries none and still reads.
+  const unnamed = redactScanReportV1(produced[0]).report;
+  if (unnamed.reportType !== "comparison") throw new Error("expected a comparison");
+  delete unnamed.runLabels;
+  assert.equal(readWithOwnSidecar(unnamed).ok, true);
+});
 
 test("an unknown producer is diagnosed separately from unsafe report bytes", () => {
   const report = makePublicSingleReportV2R2();

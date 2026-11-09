@@ -1,6 +1,6 @@
 import { publicReportDigest } from "./canonical-json";
 import { isCanonicalTimestamp } from "./canonical-timestamp";
-import { redactScanReportV1 } from "./redact-scan-report-v1";
+import { publicStringPolicyInputs, redactScanReportV1 } from "./redact-scan-report-v1";
 import { REDACTION_VERSION } from "./redaction-v2";
 import {
   SERVER_STORED_PROVENANCE_SIDECAR_MAX_BYTES,
@@ -20,11 +20,15 @@ import {
 } from "./scan-report-reader";
 import {
   R2RedactionRemediationError,
+  r2ReportRuns,
   redactPublicScanReportV2R2,
   type R2RedactionRemediationFailure
 } from "./scan-report-v2-r2-remediation";
 import { R2ProducerContractError } from "./scan-report-v2-r2-producer-contract";
+import type { PublicScanReportV2R2 } from "./scan-report-v2-r2";
+import { PUBLIC_SCANNER_EGRESS_LABELS } from "./scanner-egress";
 import { parseStrictJson } from "./strict-json";
+import type { ScanReport } from "./types";
 
 export type ManagedReportReadFailureReason =
   | "invalid-report-json"
@@ -40,6 +44,7 @@ export type ManagedReportReadFailureReason =
   | "digest-mismatch"
   | "redaction-not-idempotent"
   | "producer-contract-mismatch"
+  | "producer-vocabulary-mismatch"
   | "share-id-mismatch"
   | "missing-retention-metadata"
   | "malformed-retention-metadata"
@@ -160,6 +165,9 @@ export function readManagedReport(input: {
   ) {
     return redactionFailure("digest-mismatch");
   }
+  if (reportRead.stored.schemaVersion === 1 && !hasReviewedRunLabels(reportRead.stored.report)) {
+    return failure("producer-vocabulary-mismatch");
+  }
 
   // Schema-r2 is mutable only at an explicit remediation boundary. A report
   // already declaring the current revision must itself be a fixed point of
@@ -181,6 +189,9 @@ export function readManagedReport(input: {
         return failure("producer-contract-mismatch");
       }
       return redactionFailure(error instanceof R2RedactionRemediationError ? error.reason : "exception");
+    }
+    if (!hasPublicEgressLabels(reportRead.stored.report)) {
+      return failure("producer-vocabulary-mismatch");
     }
   }
 
@@ -208,6 +219,35 @@ export function readManagedReport(input: {
     provenance: provenance.entry,
     retention: input.retention
   };
+}
+
+/*
+ * Producer-owned strings that both sanitizers copy as they are, because a
+ * producer writes them only from a closed list. A fixed point of the
+ * sanitizer therefore says nothing about them, and a planted bundle could
+ * publish any text there. Each is held to its closed list, read from the
+ * module that owns the list so the reader keeps no copy that could drift.
+ */
+
+// The names a v1 comparison gives its two runs: the sanitizer's reviewed run
+// labels, which it already requires of the run name that prefixes a warning.
+// Every name a comparison producer writes is among them.
+const REVIEWED_RUN_LABELS: ReadonlySet<string> = new Set(publicStringPolicyInputs().warningLabels);
+
+// The egress label of a Node run. The scanner resolves an operator's label to
+// this list before a visit (resolveScannerEgressLabel). A PageGraph import
+// carries a label its metadata declares, which is not from this list.
+const PUBLIC_EGRESS_LABELS: ReadonlySet<string> = new Set(PUBLIC_SCANNER_EGRESS_LABELS);
+
+function hasReviewedRunLabels(report: ScanReport): boolean {
+  if (report.reportType !== "comparison" || report.runLabels === undefined) return true;
+  return REVIEWED_RUN_LABELS.has(report.runLabels.baseline) && REVIEWED_RUN_LABELS.has(report.runLabels.variant);
+}
+
+function hasPublicEgressLabels(report: PublicScanReportV2R2): boolean {
+  return r2ReportRuns(report).every(
+    (run) => run.provenance.observer !== "node-playwright" || PUBLIC_EGRESS_LABELS.has(run.conditions.egress.label)
+  );
 }
 
 function embeddedRedactionVersions(stored: Extract<StoredScanReport, { schemaVersion: 2 }>): number[] {
