@@ -73,18 +73,19 @@ function isPublicIpv6(address: string): boolean {
   const mappedIpv4 = mappedIpv4FromIpv6(address);
   if (mappedIpv4) return isPublicIpv4(mappedIpv4);
 
-  if (address === "::" || address === "::1") return false;
-
   const [first, second, third] = leadingIpv6Words(address);
-  if (first === 0) return false;
-  if (first >= 0xfc00 && first <= 0xfdff) return false;
-  if (first >= 0xff00 && first <= 0xffff) return false;
-  // FE80::/10 is link-local and the adjacent deprecated FEC0::/10 block is
-  // site-local. Some private networks still route the latter, so treating it
-  // as public would reopen the scanner's internal-network boundary.
-  if (first >= 0xfe80 && first <= 0xfeff) return false;
-  if (first === 0x0100 && second === 0) return false;
-  if (first === 0x0064 && second === 0xff9b) return false;
+  // Public IPv6 is global unicast, 2000::/3, and nothing else: IANA assigns
+  // routable space from that block alone. Refusing by the first word covers
+  // the unspecified and loopback addresses, NAT64 (64:ff9b::/96 and
+  // 64:ff9b:1::/48), the discard prefix (100::/64), SRv6 SIDs (5f00::/16),
+  // unique local (fc00::/7), link-local (fe80::/10), the deprecated site-local
+  // block beside it (fec0::/10), which some private networks still route, and
+  // multicast (ff00::/8). It also covers the space the registry lists only as
+  // "Reserved by IETF", which a list of named exclusions cannot reach: overlay
+  // and mesh networks borrow it (0200::/7 for one), so a host can hold a route
+  // there, and treating it as public would reopen the internal-network
+  // boundary.
+  if (first < 0x2000 || first > 0x3fff) return false;
   // 2001::/23 is IANA's IETF Protocol Assignments block. Enumerating the few
   // non-reachable prefixes inside it left the rest treated as public, so
   // 2001:1::4, 2001:10::/28 (deprecated ORCHID), 2001:20::/28 (ORCHIDv2), and
@@ -105,10 +106,9 @@ function isPublicIpv6(address: string): boolean {
   // documentation prefix public.
   if (first === 0x2001 && second === 0x0db8) return false;
   if (first === 0x2002) return false;
-  // IANA marks both ranges non-globally-reachable. Keep these exact CIDR
-  // boundaries in sync with the IPv6 Special-Purpose Address Space registry.
+  // IANA marks this range non-globally-reachable. Keep its exact CIDR boundary
+  // in sync with the IPv6 Special-Purpose Address Space registry.
   if (first === 0x3fff && (second & 0xf000) === 0) return false; // 3fff::/20 documentation
-  if (first === 0x5f00) return false; // 5f00::/16 SRv6 SIDs
   return true;
 }
 

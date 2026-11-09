@@ -198,6 +198,43 @@ test("public scan proxy refuses local names and private literals before resolvin
   );
 });
 
+test("public scan proxy refuses IPv6 outside global unicast, as a literal and as a resolver answer", async (t) => {
+  // 2000::/3 is the only public IPv6. A literal or a resolved address in the
+  // space the registry reserves must stop at the guard on both proxy paths.
+  // The production dial is in place, so an admitted address shows up here as
+  // a dial rather than as a timeout on a route this machine lacks.
+  const dialed: string[] = [];
+  let answer = [{ address: "2606:4700:4700::1111", family: 6 }];
+  const proxy = await startPublicScanProxy({
+    resolveHost: async () => answer,
+    dialUpstreamForTests: (options) => {
+      dialed.push(String(options.host));
+      const socket = new net.Socket();
+      setImmediate(() => socket.destroy(new Error("no dial in this test")));
+      return socket;
+    }
+  });
+  t.after(() => proxy.close());
+
+  const literals = ["[1::1]", "[200::1]", "[4000::1]", "[8000::1]", "[e000::1]", "[fbff::1]", "[fe00::1]"];
+  for (const host of literals) {
+    await assert.rejects(() => proxyGet(proxy.server, `http://${host}/`), host);
+    const status = (await rawProxyConnect(proxy.server, `${host}:443`)).toString("latin1").split("\r\n")[0];
+    assert.equal(status, "HTTP/1.1 403 Forbidden", host);
+  }
+  const answers = ["200::1", "4000::1", "fbff::1"];
+  for (const [index, address] of answers.entries()) {
+    answer = [{ address, family: 6 }];
+    await assert.rejects(() => proxyGet(proxy.server, `http://reserved-answer-${index}.test/`), address);
+  }
+
+  assert.deepEqual(dialed, []);
+  assert.deepEqual(
+    proxy.blockedTargets.map((entry) => entry.reason),
+    Array.from({ length: literals.length * 2 + answers.length }, () => "non-public-address")
+  );
+});
+
 test("public scan proxy retries host resolution after a rejected pin", async (t) => {
   let resolveCalls = 0;
   const proxy = await startPublicScanProxy({

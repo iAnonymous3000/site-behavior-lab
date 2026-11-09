@@ -94,7 +94,12 @@ test("assertPublicHttpUrl blocks private and reserved IPv6 literals", async () =
     "http://[2001::1]/",
     "http://[2001:2::1]/",
     "http://[2001:db8::1]/",
-    "http://[2002::1]/"
+    "http://[2002::1]/",
+    // Outside global unicast (2000::/3): reserved space, never a public site.
+    "http://[1::1]/",
+    "http://[200::1]/",
+    "http://[4000::1]/",
+    "http://[fbff::1]/"
   ];
 
   await Promise.all(blocked.map((url) => assertLocalBlocked(url)));
