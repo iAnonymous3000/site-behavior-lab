@@ -284,13 +284,17 @@ public API or a 1.0 release.
   run's egress label and a v1 comparison's run names are held to their closed
   lists on read. A file a person opens still reads revision 1.
 - `verify:report` opens every anchor's proof and fails when one does not
-  commit to its head, says whether the report's log entry sits beneath an
-  anchored head or has no external witness yet, no longer calls the log
-  append-only, and exits 2 for "Consistent" (0 only for "Verified").
+  commit to its head, says whether the log names an anchor over the report's
+  entry (as the log's claim, with the command that checks it, never as a
+  witness) or names none yet, no longer calls the log append-only, and exits 2
+  for "Consistent" (0 only for "Verified", which never means an anchor was
+  checked).
 - CI runs both append-only history gates against the last promoted revision
   as well as the previous tip of main. The previous tip alone let a rewrite
   pushed in a failing run be compared with itself on the next push. The
   transparency-log gate refuses a non-empty log that is absent at its base.
+  A run whose commit is behind production is refused by name, because the
+  release gate accepts a green run of any commit reachable from production.
   Not yet run on GitHub.
 - With `SITE_BEHAVIOR_LAB_TRUST_PROXY_HEADERS=1` the Node scanner keys its
   limits on the rightmost `X-Forwarded-For` entry and ignores `X-Real-IP`,
