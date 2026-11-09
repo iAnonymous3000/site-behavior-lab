@@ -103,6 +103,27 @@ test("an IPv6 client is one rate-limit identity per /64", () => {
   assert.equal(keyFor("::ffff:203.0.113.20"), "203.0.113.20");
 });
 
+test("a proxy that records its peer's port still gives each client one rate-limit identity", () => {
+  process.env[TRUST_PROXY_ENV] = "1";
+  const keyFor = (peer: string) =>
+    clientKeyFromRequest(new Request("http://localhost/api/scan", { headers: { "x-forwarded-for": peer } }));
+
+  // The port is new on every connection. Kept in the key, each connection
+  // would be its own client with its own allowance.
+  for (let index = 0; index < REPORT_PDF_RATE_LIMIT_MAX; index += 1) {
+    assertReportPdfRateLimit(keyFor(`203.0.113.20:${40_000 + index}`), 1_000);
+  }
+  assert.throws(() => assertReportPdfRateLimit(keyFor("203.0.113.20:50000"), 1_000), isStatus(429));
+  assert.equal(keyFor("203.0.113.20:50000"), keyFor("203.0.113.20"));
+
+  // The bracketed IPv6 form keeps its /64 grouping.
+  for (let index = 0; index < REPORT_PDF_RATE_LIMIT_MAX; index += 1) {
+    assertReportPdfRateLimit(keyFor(`[2001:db8:aaaa:bbbb::${(index + 1).toString(16)}]:${40_000 + index}`), 1_000);
+  }
+  assert.throws(() => assertReportPdfRateLimit(keyFor("[2001:db8:aaaa:bbbb:9999::1]:443"), 1_000), isStatus(429));
+  assert.equal(keyFor("fe80::1%eth0"), keyFor("fe80::2"));
+});
+
 test("a client cannot choose its own rate-limit identity through X-Forwarded-For", () => {
   process.env[TRUST_PROXY_ENV] = "1";
 

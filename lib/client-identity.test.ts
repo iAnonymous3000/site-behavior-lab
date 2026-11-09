@@ -34,13 +34,50 @@ test("an IPv4 address is its own client, and its IPv6-mapped spelling is the sam
   assert.equal(clientIdentityForAddress("64:ff9b::203.0.113.7"), "64:ff9b:0:0::/64");
 });
 
+test("a peer written with a port, in brackets, or with a zone is the client the bare address names", () => {
+  // A proxy that records the connection writes "ip:port", and the port differs
+  // on every connection. Left in the key it is one bucket per connection, and
+  // the IPv6 forms are not grouped by /64 at all.
+  for (const port of ["1", "443", "51234", "65535"]) {
+    assert.equal(clientIdentityForAddress(`203.0.113.7:${port}`), "203.0.113.7", port);
+    assert.equal(clientIdentityForAddress(`[2001:db8:1:2::1]:${port}`), "2001:db8:1:2::/64", port);
+  }
+  assert.equal(clientIdentityForAddress("[2001:db8:1:2:9999::7]:443"), clientIdentityForAddress("2001:db8:1:2::1"));
+  assert.equal(clientIdentityForAddress("[::ffff:203.0.113.7]:8080"), "203.0.113.7");
+
+  // An interface zone names the link the address was seen on, not another client.
+  for (const zoned of ["fe80::1%eth0", "fe80::1%3", "fe80::1%25eth0", "[fe80::1%eth0]", "[fe80::1%eth0]:443"]) {
+    assert.equal(clientIdentityForAddress(zoned), "fe80:0:0:0::/64", zoned);
+  }
+  assert.equal(clientIdentityForAddress("2001:db8:1:2::1%eth0"), "2001:db8:1:2::/64");
+
+  // A bare IPv6 address has no port form: a trailing ":443" is its last group,
+  // and the /64 is the same either way.
+  assert.equal(clientIdentityForAddress("2001:db8:1:2::1:443"), "2001:db8:1:2::/64");
+});
+
 test("text that is not an address is never merged with other text", () => {
   for (const text of [
     "unknown",
     "not-an-ip",
-    "203.0.113.7:4711",
-    "[2001:db8::1]:443",
-    "2001:db8::1%eth0",
+    // A port, brackets or a zone around something that is not an address.
+    "203.0.113.7:65536",
+    "203.0.113.7:123456",
+    "203.0.113.7:",
+    "203.0.113.7:http",
+    "203.0.113.7:80:90",
+    "999.0.113.7:4711",
+    "203.0.113.7%eth0",
+    "[2001:db8::1]:65536",
+    "[2001:db8::1]:",
+    "[2001:db8::1]x",
+    "[2001:db8::1",
+    "2001:db8::1]",
+    "[203.0.113.7]:443",
+    "[not-an-address]:443",
+    "[[2001:db8::1]]:443",
+    "2001:db8::1%",
+    "%eth0",
     "1::2::3",
     "1:2:3:4:5:6:7",
     "1:2:3:4:5:6:7:8:9",
