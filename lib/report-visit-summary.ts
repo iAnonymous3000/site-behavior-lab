@@ -15,6 +15,7 @@ import {
 import { DEFAULT_SCANNER_EGRESS_LABEL, PUBLIC_SCANNER_EGRESS_LABELS } from "./scanner-egress";
 import type { ScrollCheckEntry } from "./scroll-check-entry";
 import { displayPublicUrl } from "./text-format";
+import { formatReportTimestamp } from "./visit-timestamp";
 
 /**
  * "What was checked" and "What this visit could not see": the two short lists
@@ -88,25 +89,9 @@ export function visitLimitText(limit: ReportVisitLimit): string {
   return `${limit.lead} ${limit.body.map((segment) => segment.text).join("")}`;
 }
 
-/**
- * The report's display timestamp in words, in UTC: "Oct 19, 2026, 3:02 PM UTC".
- * The receipt states each visit's start with the same formatter.
- */
-export function formatReportTimestamp(value: string | null): string {
-  if (!value) return "not recorded";
-  const date = new Date(value);
-  return Number.isNaN(date.getTime())
-    ? "not recorded"
-    : date.toLocaleString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-        hour: "numeric",
-        minute: "2-digit",
-        timeZone: "UTC",
-        timeZoneName: "short"
-      });
-}
+// The report's display timestamp. Defined in lib/visit-timestamp.ts, which a
+// client component can also import, and re-exported for the report pages.
+export { formatReportTimestamp };
 
 /**
  * Where a visit ran from, in reader words, for every label the public report
