@@ -249,9 +249,11 @@ docker build \
 
 These build arguments are baked into the client bundle: the exact commit the
 container reports in `/api/health`, the scanner's origin, and the origin of its
-static site. The container runs as a non-root user, launches Chromium with an
-explicit environment allow-list, and removes every package manager from the
-runtime image.
+static site. Leave the last two out and the image keeps this project's own
+origins, which the `Dockerfile` defaults them to. The container runs as a
+non-root user, launches Chromium with an explicit environment allow-list, and
+removes npm, npx, Corepack and Yarn from the runtime image. The system's apt
+and dpkg remain; they need root, which the container's user does not have.
 
 | Variable | Default | What it decides |
 |---|---|---|
