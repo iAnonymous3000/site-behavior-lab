@@ -262,13 +262,13 @@ and dpkg remain; they need root, which the container's user does not have.
 
 | Variable | Default | What it decides |
 |---|---|---|
-| `SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN` | unset | When set, `/api/scan` requires it as `Authorization: Bearer`, `x-site-behavior-lab-access-token`, or the legacy `x-sbl-scan-token`. Leave it unset only for trusted local use or a deliberately open deployment with other abuse controls. |
+| `SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN` | unset | When set, `/api/scan` requires it as `Authorization: Bearer`, `x-site-behavior-lab-access-token`, or the legacy `x-sbl-scan-token`. Leave it unset only for trusted local use or a deliberately open deployment with other abuse controls. Unset, with the default allowed origin below, any web page open in a browser that can reach the scanner can start scans from the scanner's address and read their results (see `SECURITY.md`). |
 | `SITE_BEHAVIOR_LAB_PUBLIC_R2_REPORTS` | unset | `1` returns and persists the public ScanReport v2/r2 format. It needs `SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION=1`, a full 40-character `SITE_BEHAVIOR_LAB_BUILD_COMMIT`, and a report store, and refuses scans rather than fall back to v1. Unset, the scanner emits v1. |
 | `SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION` | unset | `1` reads back the registered consent state after a banner click (TCF and OneTrust) and attempts one disclosed post-choice reload. Required by r2. |
 | `SITE_BEHAVIOR_LAB_REPORT_STORE_BACKEND` | `filesystem` | `filesystem` needs a persistent volume. `r2` needs `SITE_BEHAVIOR_LAB_R2_BUCKET`, `_ENDPOINT`, `_ACCESS_KEY_ID`, and `_SECRET_ACCESS_KEY`, and suits a public or multi-node deployment. |
 | `SITE_BEHAVIOR_LAB_REPORT_MAX_AGE_DAYS` / `_MAX_COUNT` | `7` / `500` | Retention for saved shares (see Retention). |
 | `SITE_BEHAVIOR_LAB_TRUST_PROXY_HEADERS` | unset | `1` only behind a proxy that appends the caller's address to `X-Forwarded-For` and blocks direct origin access. Rate limits then key on the rightmost `X-Forwarded-For` entry and ignore `X-Real-IP`. Unset, every caller shares one rate-limit bucket. |
-| `SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN` | `*` | CORS allow-list for the `/api` routes. |
+| `SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN` | `*` | CORS allow-list for the `/api` routes: `*` or one origin. Pinning it to your own UI origin stops other pages from reading results; it does not replace an access token. |
 | `SITE_BEHAVIOR_LAB_ASYNC_SCANS` | unset | `1` makes `/api/scan` answer `202` with a job to poll at `/api/scans/:id`; single process, in memory. |
 | `SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX` | unset | `1` enables Chromium's sandbox, as production does; needs unprivileged user namespaces on the host. |
 | `SITE_BEHAVIOR_LAB_SCANNER_EGRESS` / `_EGRESS_REGION` | `this scanner instance` / unset | The egress label and region recorded in reports. Declare a region only when it is true; without one, r2 comparison deltas are refused. |

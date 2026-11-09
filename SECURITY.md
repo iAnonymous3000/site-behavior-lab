@@ -66,6 +66,17 @@ as quickly as is practical for a volunteer-maintained project.
   its DNS-over-HTTPS preflight could not pin the browser's eventual connection,
   so it could not offer the connect-time IP pinning the container scanner does.
   The only supported scanner is the Node/Playwright container.
+- **A scanner with no token answers any web page.** With
+  `SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN` unset and
+  `SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN` at its default `*`, the scan API accepts
+  cross-origin browser requests from every origin. Any web page open in a
+  browser that can reach the scanner (the operator's own browser and a scanner
+  on `127.0.0.1` or an internal host, for example) can then start scans that
+  leave from the scanner's address and read their results. `npm run dev` with
+  no environment is in that state. Set an access token on any scanner a
+  browser you use can reach. Pinning `SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN` to
+  your own UI origin stops other pages from reading results; do not rely on
+  it alone to stop them from starting scans.
 
 ## Scope and acceptable use
 
