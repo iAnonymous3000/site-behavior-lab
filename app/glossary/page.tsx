@@ -72,7 +72,7 @@ const ENTRIES: GlossaryEntry[] = [
     id: "provenance",
     term: "Provenance",
     definition:
-      "The causal chain behind a request: which script started it, and which script injected that script. It answers why the page contacted a domain instead of only recording that it happened."
+      'What a report recorded about where a request came from. A live scan records only the initiator Chromium reported for a request, shown as "initiated by". That is attribution, not a causal chain. The named script may have been told what to fetch by another script, a script that wraps fetch is credited with the requests it relays, and many rows carry no attribution at all. Only a report imported from a Brave PageGraph capture also records which script started a request and which script injected that script.'
   },
   {
     id: "keystroke-capture",
