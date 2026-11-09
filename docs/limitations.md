@@ -1,12 +1,14 @@
 # Limitations and acceptable use in detail
 
 The long-form boundary statements, moved out of the README on 2026-09-02. The
-README carries the condensed version, so change both together. Only two
-passages here are checked against the code, both by
-`lib/readme-truth-contract.test.ts`: the methodology components listed under
-"The Brave Shields block simulation" and the transparency-log anchoring
-sentence. No other sentence in this file is test-pinned, so review the rest by
-hand when the code or the README changes.
+README carries the condensed version, so change both together. Only a few
+passages here are checked by a test. `lib/readme-truth-contract.test.ts`
+checks the methodology components listed under "The Brave Shields block
+simulation", the transparency-log anchoring sentence and the public-string
+policy name. `lib/detector-coverage-boundary.test.ts` checks the shared-worker
+sentences. `lib/operational-docs-contract.test.ts` checks the license counts
+under "Data Attribution". No other sentence in this file is test-pinned, so
+review the rest by hand when the code or the README changes.
 
 ## Acceptable Use
 
