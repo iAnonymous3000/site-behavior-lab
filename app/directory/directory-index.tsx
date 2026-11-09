@@ -78,7 +78,7 @@ export async function DirectoryIndex({ page }: { page: number }) {
               <Link className={styles.categoryCard} href={`${category.path}/`} key={category.id}>
                 <span className={styles.categoryTop}>
                   <strong>{category.label}</strong>
-                  <small>{category.sites.length} sites</small>
+                  <small>{category.sites.length} {category.sites.length === 1 ? "site" : "sites"}</small>
                 </span>
                 <span>
                   Separate medians across included sites: <b>{category.rollup.medianThirdParty.toLocaleString()}</b> third-party and{" "}

@@ -136,10 +136,57 @@ test("a single report states its setup, visits, interactions and outcome from wh
   assert.deepEqual(limitIds(summary), ["other-pages", "other-visitors", "after-interaction", "catalog"]);
 });
 
-test("the older typing disclosure reads the same, and a GPC visit says it sent the signal", () => {
+test("the older typing disclosure reads the same, and a configured GPC visit with no readback is not said to have sent the signal", () => {
+  // A v1 report records the configured flag and nothing read back from the
+  // wire, so "sent" would be a claim the record cannot support.
   const summary = summaryFor(publishedV1View(v1Result([OBSERVE_LIMITS, legacyTypingDisclosure(1)], { gpcEnabled: true })));
   assert.match(fact(summary, "Interactions"), /^Typed a made-up test value into 1 form field, never submitting the form\./);
-  assert.match(fact(summary, "Setup"), /It sent the Global Privacy Control \(GPC\) signal\.$/);
+  assert.match(
+    fact(summary, "Setup"),
+    /It was configured to send the Global Privacy Control \(GPC\) signal; this report records no readback of it\.$/
+  );
+  assert.doesNotMatch(fact(summary, "Setup"), /\bsent the Global Privacy Control/);
+});
+
+test("the GPC sentence follows the readback an r2 visit recorded, never the configured flag alone", () => {
+  type Gpc = NonNullable<NonNullable<ReportView["runs"][number]["verificationFacts"]>["gpc"]>;
+  const setupFor = (gpcEnabled: boolean, gpc: Gpc | null): string => {
+    const view = viewFromV2(makePublicSingleReportV2R2(), 2);
+    const run = view.runs[0];
+    run.conditions = { ...run.conditions, gpcEnabled };
+    run.verificationFacts = { gpc, shields: run.verificationFacts?.shields ?? null };
+    return fact(summaryFor(view), "Setup");
+  };
+  const signal = "the Global Privacy Control (GPC) signal";
+  const readback = { method: "gpc-header-readback@1", observedOn: "first-party-navigation", phaseId: 0 } as const;
+  const present: Gpc = { ...readback, header: "confirmed-present", jsSignal: "confirmed-true" };
+  const absent: Gpc = { ...readback, header: "confirmed-absent", jsSignal: "confirmed-absent" };
+  const unread: Gpc = { ...readback, header: "unobservable", jsSignal: "read-failed" };
+
+  assert.ok(setupFor(true, present).endsWith(`It sent ${signal}.`), "configured and read back on the wire");
+  assert.ok(
+    setupFor(true, absent).endsWith(`It was configured to send ${signal}, but a readback did not find it.`),
+    "configured, and the readback contradicts it"
+  );
+  assert.ok(
+    setupFor(true, unread).endsWith(`It was configured to send ${signal}, which a readback could not confirm.`),
+    "configured, and the readback settled nothing"
+  );
+  assert.ok(
+    setupFor(true, null).endsWith(`It was configured to send ${signal}; this report records no readback of it.`),
+    "configured, with no readback on record"
+  );
+  for (const gpc of [absent, unread, null]) {
+    assert.ok(setupFor(false, gpc).endsWith(`It did not send ${signal}.`), "only the scanner adds the signal");
+  }
+  assert.ok(
+    setupFor(false, present).endsWith(`It was not configured to send ${signal}, but a readback found it.`),
+    "unconfigured, and the readback found the signal anyway"
+  );
+  // No configured visit is worded as having sent the signal without a confirming readback.
+  for (const gpc of [absent, unread, null]) {
+    assert.doesNotMatch(setupFor(true, gpc), /\b(?:It|Both) sent the Global Privacy Control/);
+  }
 });
 
 test("a visit with no typing disclosure says no typing was recorded, never that the page had no form fields", () => {
@@ -193,7 +240,10 @@ test("a comparison names what differed and words setup and typing per visit wher
   assert.equal(summary.limitsTitle, "What these visits could not see");
   assert.equal(fact(summary, "Visits"), "Two visits configured to differ in Brave-list blocking: No blocking and Brave-list blocking.");
   assert.match(fact(summary, "Setup"), /^Both visits used headless Chromium in a desktop window of 1440 × 980/);
-  assert.match(fact(summary, "Setup"), /Both sent the Global Privacy Control \(GPC\) signal\.$/);
+  assert.match(
+    fact(summary, "Setup"),
+    /Both were configured to send the Global Privacy Control \(GPC\) signal; this report records no readback of it\.$/
+  );
   assert.equal(
     fact(summary, "Interactions"),
     "Typed a made-up test value into 2 form fields in the No blocking visit and 1 form field in the Brave-list blocking visit, never submitting the form. " +

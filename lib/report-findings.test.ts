@@ -566,6 +566,79 @@ test("flags Google Analytics remarketing only when the DoubleClick sync is prese
   assert.equal(byId(buildFindings(viewFromV1Report(otherDoubleclick), null), "ga-remarketing").level, "ok");
 });
 
+test("the major-platform absence title is scoped to the catalog, as its lead is", () => {
+  // instagram.com and fbcdn.net are Meta's, and the catalog carries neither:
+  // the card may only say no CATALOGUED platform domain was requested.
+  const result = makeResult({
+    domains: [
+      { ...makeTrackerDomain("www.instagram.com", 3, "x", "x"), tracker: null },
+      { ...makeTrackerDomain("static.xx.fbcdn.net", 2, "x", "x"), tracker: null }
+    ],
+    thirdPartyRequests: 5,
+    thirdPartyDomains: 2
+  });
+  const card = byId(buildFindings(viewFromV1Report(result), null), "named-platforms");
+  assert.equal(card.title, "No requests to catalogued major-platform domains were recorded");
+  assert.match(card.lead, /^No requests to catalogued /);
+});
+
+test("a Tag Manager request alone is never worded as Google Analytics being observed", () => {
+  // googletagmanager.com serves the loader. A saved report generalizes the
+  // path, so a container with no Analytics tag and the gtag.js library read
+  // the same; the card may name only what the row shows.
+  const tagManagerOnly = makeResult({
+    domains: [makeTrackerDomain("www.googletagmanager.com", 1, "Google", "analytics / tag management")],
+    thirdPartyRequests: 1,
+    thirdPartyDomains: 1
+  });
+  const loaderCard = byId(buildFindings(viewFromV1Report(tagManagerOnly), null), "ga-remarketing");
+  assert.equal(loaderCard.title, "Google Tag Manager loaded, no Analytics request recorded");
+  assert.equal(loaderCard.level, "ok");
+  for (const sentence of [loaderCard.title, loaderCard.lead, loaderCard.detail, loaderCard.evidence]) {
+    assert.doesNotMatch(sentence, /Analytics was observed|analytics collection was observed|Google Analytics host observed/i);
+  }
+  assert.match(loaderCard.evidence, /^googletagmanager\.com observed; no google-analytics\.com/);
+
+  // Each collection host still supports the Analytics sentence on its own.
+  for (const host of ["region1.google-analytics.com", "analytics.google.com"]) {
+    const collection = makeResult({
+      domains: [
+        makeTrackerDomain("www.googletagmanager.com", 1, "Google", "analytics / tag management"),
+        makeTrackerDomain(host, 2, "Google", "analytics")
+      ],
+      thirdPartyRequests: 3,
+      thirdPartyDomains: 2
+    });
+    assert.equal(
+      byId(buildFindings(viewFromV1Report(collection), null), "ga-remarketing").title,
+      "Google Analytics present, no remarketing signal",
+      host
+    );
+  }
+
+  // The remarketing marker keeps Blacklight's rule with the loader alone, and
+  // names the request it saw instead of crediting an unobserved Analytics host.
+  const loaderWithSync = makeResult({
+    domains: [
+      makeTrackerDomain("www.googletagmanager.com", 1, "Google", "analytics / tag management"),
+      makeTrackerDomain("stats.g.doubleclick.net", 1, "Google", "advertising")
+    ],
+    thirdPartyRequests: 2,
+    thirdPartyDomains: 2
+  });
+  const syncCard = byId(buildFindings(viewFromV1Report(loaderWithSync), null), "ga-remarketing");
+  assert.equal(syncCard.level, "warn");
+  assert.match(syncCard.lead, /^A request went to stats\.g\.doubleclick\.net/);
+  assert.match(syncCard.evidence, /^googletagmanager\.com plus a request to stats\.g\.doubleclick\.net/);
+
+  // With neither host the absence names every host it looked for.
+  const neither = makeResult({ domains: [], thirdPartyRequests: 0, thirdPartyDomains: 0 });
+  assert.equal(
+    byId(buildFindings(viewFromV1Report(neither), null), "ga-remarketing").evidence,
+    "No google-analytics.com, analytics.google.com or googletagmanager.com requests."
+  );
+});
+
 test("treats operational-only services as not tracking", () => {
   const result = makeResult({
     domains: [
@@ -2065,6 +2138,32 @@ test("a Shields comparison keeps the fingerprinting card alongside session-recor
   }
   assert.equal(ids[0], "bottom-line");
   assert.equal(ids[1], "shields-comparison");
+});
+
+test("the Shields card names no remaining difference when direct blocks exceed the reduction", () => {
+  // 30 to 23 third-party requests is a reduction of 7 with 24 direct blocks:
+  // "the remaining difference" would be negative. 69 committed reports have
+  // this shape.
+  const baseline = makeResult({
+    firstPartyDomain: "shop.example",
+    domains: [makeTrackerDomain("google-analytics.com", 8, "Google", "analytics")],
+    thirdPartyRequests: 30,
+    thirdPartyDomains: 12,
+    totalRequests: 60
+  });
+  const variant: ScanResult = {
+    ...makeResult({ firstPartyDomain: "shop.example", thirdPartyRequests: 23, thirdPartyDomains: 11, totalRequests: 50 })
+  };
+  variant.summary = { ...variant.summary, shieldsBlockedRequests: 24 };
+  variant.conditions = {
+    ...variant.conditions,
+    shieldsMode: "block-simulation",
+    adblock: { active: true, source: "brave-default", lists: 5, fetchedAt: new Date(0).toISOString() }
+  };
+  const card = byId(buildFindings(viewFromV1Report(shieldsPair(baseline, variant)), null), "shields-comparison");
+  assert.match(card.detail, /directly blocked 24 requests\./);
+  assert.doesNotMatch(card.detail, /the remaining difference/);
+  assert.match(card.detail, /can offset or outweigh what blocking removed/);
 });
 
 test("the Shields comparison card hedges the residual beyond the direct engine blocks", () => {
@@ -3808,6 +3907,46 @@ function consentPair(accept: ScanResult, reject: ScanResult) {
   reject.conditions = { ...reject.conditions, consentMode: "reject-all" as const };
   return createConsentComparisonReport(accept, reject);
 }
+
+test("an unranked board says why, and calls evidence failed or incomplete only when it is", () => {
+  const corpus = makeCorpus(60);
+  const complete = (thirdPartyCookies: number) =>
+    makeResult({
+      firstPartyDomain: "ranked.example",
+      domains: [makeTrackerDomain("ads.example", 5, "AdCo", "advertising")],
+      thirdPartyRequests: 5,
+      thirdPartyDomains: 1,
+      thirdPartyCookies
+    });
+  const FAILED = /This failed or incomplete evidence is not ranked against corpus percentiles/;
+
+  // A GPC pair of two complete visits, board focused on the non-lead visit.
+  const gpcView = viewFromV1Report(gpcPair(complete(5), complete(5)));
+  const otherVisit = byId(buildFindings(gpcView, corpus, buildReportFacts(gpcView), "variant"), "bottom-line");
+  assert.match(otherVisit.detail, /Corpus percentiles rank only this report's lead visit; these cards describe the other visit/);
+  assert.doesNotMatch(otherVisit.detail, FAILED);
+  // The lead visit of the same pair is ranked, and says so.
+  const leadVisit = byId(buildFindings(gpcView, corpus, buildReportFacts(gpcView), "baseline"), "bottom-line");
+  assert.match(leadVisit.detail, /severity ranks this visit against percentiles/);
+
+  // A complete single visit that clicked a consent control is outside the population.
+  const postChoice = complete(5);
+  postChoice.conditions = { ...postChoice.conditions, consentMode: "reject-all" };
+  const postChoiceBoard = byId(buildFindings(viewFromV1Report(postChoice), corpus), "bottom-line");
+  assert.match(postChoiceBoard.detail, /A visit that clicked a consent control is outside the population/);
+  assert.doesNotMatch(postChoiceBoard.detail, FAILED);
+
+  // A recording that hit the request cap is incomplete, and keeps that sentence.
+  const capped = makeResult({
+    firstPartyDomain: "ranked.example",
+    domains: [makeTrackerDomain("ads.example", 60, "AdCo", "advertising")],
+    totalRequests: 1000,
+    thirdPartyRequests: 60,
+    thirdPartyDomains: 1,
+    thirdPartyCookies: 5
+  });
+  assert.match(byId(buildFindings(viewFromV1Report(capped), corpus), "bottom-line").detail, FAILED);
+});
 
 test("an ineligible pair is a methodology note: prose reasons, and no bottom-line flip", () => {
   // The production gap this pins: a producer that recorded no egress region

@@ -385,7 +385,10 @@ test("a GPC comparison that pulled back keeps its number but never reassures ove
   assert.deepEqual(violations, []);
   assert.equal(headline.semantic.reassuring, false);
   assert.equal(headline.tone, "info");
-  assert.match(headline.headline, /Off-site requests to respectful\.example were 100% lower in the visit configured with a privacy signal\./);
+  assert.equal(
+    headline.headline,
+    "respectful.example made 100% fewer off-site requests in the visit configured with a privacy signal."
+  );
   assert.match(headline.subhead, /not proof the site honors or received the signal/);
   assert.match(headline.subhead, /The visit without the signal still made off-site requests/);
   assert.ok(headline.subhead.length <= 300, `subhead must fit the social card: ${headline.subhead.length}`);
@@ -419,11 +422,41 @@ test("a large GPC reduction over a still-loud pair is not reassuring", () => {
 
   const headline = buildReportHeadline(viewFromV1Report(gpcPair(baseline, variant)));
   // The measured reduction is still reported; only the reassurance is withheld.
-  assert.match(headline.headline, /were 75% lower in the visit configured with a privacy signal\./);
+  assert.match(headline.headline, /made 75% fewer off-site requests in the visit configured with a privacy signal\./);
   assert.equal(headline.tone, "info");
   assert.equal(headline.semantic.reassuring, false);
   assert.match(headline.subhead, /Both visits still recorded review-worthy activity of their own/);
   assertPairShareTextCarriesNoChips(headline);
+});
+
+test("a GPC reduction says \"Both visits\" only when each visit carries a review signal, and names the one that does", () => {
+  // "Both" was decided with some(): a pair whose GPC-on visit recorded
+  // nothing was told both visits recorded review-worthy activity, above a
+  // board whose bottom line for that visit said nothing ranked worth checking.
+  const loud = () =>
+    makeResult({
+      firstPartyDomain: "onesided.example",
+      domains: [makeTrackerDomain("ads.example", 400, "AdCo", "advertising")],
+      thirdPartyRequests: 400,
+      thirdPartyDomains: 40,
+      thirdPartyCookies: 30
+    });
+  const quiet = (thirdPartyRequests: number) =>
+    makeResult({
+      firstPartyDomain: "onesided.example",
+      domains: [],
+      thirdPartyRequests,
+      thirdPartyDomains: thirdPartyRequests === 0 ? 0 : 1
+    });
+
+  const baselineOnly = buildReportHeadline(viewFromV1Report(gpcPair(loud(), quiet(0))));
+  assert.match(baselineOnly.subhead, /Only the visit without the signal recorded review-worthy activity/);
+  assert.doesNotMatch(baselineOnly.subhead, /Both visits/);
+  assert.ok(baselineOnly.subhead.length <= 300, `subhead must fit the social card: ${baselineOnly.subhead.length}`);
+
+  const both = buildReportHeadline(viewFromV1Report(gpcPair(loud(), { ...loud(), summary: { ...loud().summary, thirdPartyRequests: 100 } })));
+  assert.match(both.subhead, /Both visits still recorded review-worthy activity of their own/);
+  assert.ok(both.subhead.length <= 300, `subhead must fit the social card: ${both.subhead.length}`);
 });
 
 test("the GPC alarm counts tracking companies from the GPC-on visit, not the baseline", () => {
@@ -527,6 +560,31 @@ function assertPairShareTextCarriesNoChips(headline: ReportHeadline): void {
   }
   assert.ok(headline.shareText.startsWith(`${headline.headline} ${headline.caveat}`));
 }
+
+test("a Shields headline names no remaining difference when direct blocks exceed the reduction", () => {
+  const baseline = makeResult({
+    firstPartyDomain: "heavy.example",
+    domains: [makeTrackerDomain("ads.example", 30, "AdCo", "advertising")],
+    totalRequests: 100,
+    thirdPartyRequests: 30
+  });
+  const variant = makeResult({
+    firstPartyDomain: "heavy.example",
+    domains: [makeTrackerDomain("ads.example", 23, "AdCo", "advertising")],
+    totalRequests: 90,
+    thirdPartyRequests: 23
+  });
+  variant.summary = { ...variant.summary, shieldsBlockedRequests: 24 };
+  variant.conditions = {
+    ...variant.conditions,
+    shieldsMode: "block-simulation",
+    adblock: { active: true, source: "brave-default", lists: 5, fetchedAt: new Date(0).toISOString() }
+  };
+  const headline = buildReportHeadline(viewFromV1Report(shieldsPair(baseline, variant)));
+  assert.match(headline.headline, /7 fewer third-party requests/);
+  assert.match(headline.subhead, /directly stopped 24 requests, more than the net difference/);
+  assert.doesNotMatch(headline.subhead, /the remaining difference/);
+});
 
 test("a Shields comparison names the direct engine blocks separately from the reduction", () => {
   const baseline = makeResult({

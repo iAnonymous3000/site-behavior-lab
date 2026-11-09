@@ -655,20 +655,35 @@ function buildUncorrectedReportHeadline(
       const pairFacts = reportFacts.arms
         ? [reportFacts.arms.baseline, reportFacts.arms.variant]
         : reportFacts.runs;
-      const pairCarriesReviewSignal = pairFacts.some(
-        (arm) =>
-          arm.strongestObservedSeverity === "warn" || arm.strongestObservedSeverity === "loud"
-      );
+      const carriesReviewSignal = (arm: RunFacts): boolean =>
+        arm.strongestObservedSeverity === "warn" || arm.strongestObservedSeverity === "loud";
+      // "Both" is a claim about each visit. With some() it was printed when
+      // only one visit carried a review signal, above a board whose bottom
+      // line for the other visit said nothing ranked worth checking. Name the
+      // visit when only one does; an absent arm (the every-run fallback) can
+      // only be worded as the pair.
+      const baselineSignal = reportFacts.arms ? carriesReviewSignal(reportFacts.arms.baseline) : null;
+      const variantSignal = reportFacts.arms ? carriesReviewSignal(reportFacts.arms.variant) : null;
+      const reviewSignalNote =
+        baselineSignal === null || variantSignal === null
+          ? pairFacts.some(carriesReviewSignal)
+            ? " At least one visit recorded review-worthy activity of its own; the cards below describe what remained."
+            : " The visit without the signal still made off-site requests; the cards below describe each visit."
+          : baselineSignal && variantSignal
+            ? " Both visits still recorded review-worthy activity of their own; the cards below describe what remained."
+            : baselineSignal
+              ? " Only the visit without the signal recorded review-worthy activity; the cards below describe each visit."
+              : variantSignal
+                ? " Only the visit with the signal recorded review-worthy activity; the cards below describe each visit."
+                : " The visit without the signal still made off-site requests; the cards below describe each visit.";
       // Pair-framed: the stat chips stay on the lead (baseline) run, so the
       // evidence switcher default stays there too (no focusArm).
       return finish(
         "info",
-        `Off-site requests to ${domain} were ${reductionPct}% lower in the visit configured with a privacy signal.`,
-        `In the visit configured with Global Privacy Control, off-site requests were ${reductionPct}% lower (${n(before)} → ${n(after)}). An observed difference for this pair of visits, not proof the site honors or received the signal.${
-          pairCarriesReviewSignal
-            ? " Both visits still recorded review-worthy activity of their own; the cards below describe what remained."
-            : " The visit without the signal still made off-site requests; the cards below describe each visit."
-        }`,
+        // "${domain} made", never "requests to ${domain}": the count is of
+        // requests the page made to other sites, not requests the site got.
+        `${domain} made ${reductionPct}% fewer off-site requests in the visit configured with a privacy signal.`,
+        `In the visit configured with Global Privacy Control, off-site requests were ${reductionPct}% lower (${n(before)} → ${n(after)}). An observed difference for this pair of visits, not proof the site honors or received the signal.${reviewSignalNote}`,
         undefined,
         undefined,
         { story: "comparison", runScope: "pair" }
@@ -687,9 +702,16 @@ function buildUncorrectedReportHeadline(
     // reduction usually exceeds the direct blocks. Say both, never blend them.
     const engineBlocks = shieldsRunMeasurement(arms.variant);
     if (removed > 0) {
+      // "The remaining difference" exists only while the reduction is at
+      // least the direct blocks. A visit can also record MORE direct blocks
+      // than its net reduction (a blocked request retried, or other requests
+      // appearing in the blocking visit); there the residual is negative and
+      // the sentence must say how, not point at a remainder that is not there.
       const engineNote =
         engineBlocks && engineBlocks.kind === "engine-blocked"
-          ? ` The blocker directly stopped ${plural(engineBlocks.count, "request")}; the remaining difference may include follow-on requests that never started once their sources were blocked, plus run-to-run variance.`
+          ? engineBlocks.count <= removed
+            ? ` The blocker directly stopped ${plural(engineBlocks.count, "request")}; the remaining difference may include follow-on requests that never started once their sources were blocked, plus run-to-run variance.`
+            : ` The blocker directly stopped ${plural(engineBlocks.count, "request")}, more than the net difference: a blocked request can be retried or replaced by another, and counts vary from run to run.`
           : "";
       const compactEngineNote =
         engineBlocks && engineBlocks.kind === "engine-blocked"

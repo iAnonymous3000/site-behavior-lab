@@ -747,11 +747,13 @@ function HomepageFeaturedGallery({ groups }: { groups: HomepageFeaturedGroup[] }
                   <span className="featured-card-stats">
                     <span className="featured-card-stat">
                       {!item.requestEvidenceComplete && "at least "}
-                      <b>{item.thirdPartyRequests.toLocaleString("en-US")}</b> third-party requests
+                      <b>{item.thirdPartyRequests.toLocaleString("en-US")}</b> third-party{" "}
+                      {item.thirdPartyRequests === 1 ? "request" : "requests"}
                     </span>
                     <span className="featured-card-stat">
                       {!item.requestEvidenceComplete && "at least "}
-                      <b>{item.trackerRequests.toLocaleString("en-US")}</b> third-party tracking-service requests
+                      <b>{item.trackerRequests.toLocaleString("en-US")}</b> third-party tracking-service{" "}
+                      {item.trackerRequests === 1 ? "request" : "requests"}
                     </span>
                   </span>
                 </a>

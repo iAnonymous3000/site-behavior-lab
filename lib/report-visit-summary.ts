@@ -3,6 +3,7 @@ import { CONSENT_RELOAD_DISCLOSURE } from "./consent-verification";
 import { findingCardDomId, type EvidenceArm } from "./report-evidence-navigation";
 import { consentVerificationSummary } from "./report-consent-copy";
 import type { ReportClaimId, ReportFacts, RunFacts } from "./report-facts";
+import { gpcRunMeasurement } from "./report-insights";
 import { runCensorshipNotes } from "./scan-report-censorship";
 import {
   displayRunView,
@@ -282,15 +283,50 @@ function egressSentencePhrase(run: RunView): string {
   }`;
 }
 
+const GPC_SIGNAL = "the Global Privacy Control (GPC) signal";
+
+/**
+ * What one visit's record supports about the GPC signal, as a predicate for
+ * "It ..." or "The X visit ...".
+ *
+ * "Sent" is a claim about the wire, and the configured flag is not the wire:
+ * only an r2 run carries the header and JavaScript readback, and a readback
+ * can fail or disagree. So a configured visit "sent" the signal only when its
+ * readback confirmed it. The unconfigured case needs no readback to say "did
+ * not send": this scanner is the only thing that adds the signal, so it is
+ * absent unless a readback found it anyway.
+ */
+type GpcSetupKind = "sent" | "not-sent" | "configured-no-readback" | "other";
+
+function gpcSetup(run: RunView): { kind: GpcSetupKind; predicate: string } {
+  const { configured, outcome } = gpcRunMeasurement(run);
+  if (!configured) {
+    return outcome === "contradicted"
+      ? { kind: "other", predicate: `was not configured to send ${GPC_SIGNAL}, but a readback found it` }
+      : { kind: "not-sent", predicate: `did not send ${GPC_SIGNAL}` };
+  }
+  switch (outcome) {
+    case "verified":
+      return { kind: "sent", predicate: `sent ${GPC_SIGNAL}` };
+    case "contradicted":
+      return { kind: "other", predicate: `was configured to send ${GPC_SIGNAL}, but a readback did not find it` };
+    case "unverified":
+      return { kind: "other", predicate: `was configured to send ${GPC_SIGNAL}, which a readback could not confirm` };
+    case "configured-only":
+      return {
+        kind: "configured-no-readback",
+        predicate: `was configured to send ${GPC_SIGNAL}; this report records no readback of it`
+      };
+  }
+}
+
 function setupText(view: ReportView, arms: readonly ArmRun[], comparison: boolean): string {
   if (!comparison) {
     const run = arms[0].run;
     return [
       `${capitalize(profilePhrase(run))}.`,
       `It ran ${egressSentencePhrase(run)}.`,
-      run.conditions.gpcEnabled
-        ? "It sent the Global Privacy Control (GPC) signal."
-        : "It did not send the Global Privacy Control (GPC) signal."
+      `It ${gpcSetup(run).predicate}.`
     ].join(" ");
   }
   const sentences: string[] = [];
@@ -308,17 +344,16 @@ function setupText(view: ReportView, arms: readonly ArmRun[], comparison: boolea
   );
   // GPC is what a GPC comparison varies; the Visits fact states it there.
   if (view.comparison?.axis !== "gpc") {
-    const sent = arms.map((arm) => arm.run.conditions.gpcEnabled);
+    const setups = arms.map((arm) => gpcSetup(arm.run));
+    const every = (kind: GpcSetupKind) => setups.every((setup) => setup.kind === kind);
     sentences.push(
-      sent.every(Boolean)
-        ? "Both sent the Global Privacy Control (GPC) signal."
-        : sent.every((value) => !value)
-          ? "Neither sent the Global Privacy Control (GPC) signal."
-          : arms
-              .map((arm) =>
-                `${capitalize(theVisit(arm))} ${arm.run.conditions.gpcEnabled ? "sent" : "did not send"} the Global Privacy Control (GPC) signal.`
-              )
-              .join(" ")
+      every("sent")
+        ? `Both sent ${GPC_SIGNAL}.`
+        : every("not-sent")
+          ? `Neither sent ${GPC_SIGNAL}.`
+          : every("configured-no-readback")
+            ? `Both were configured to send ${GPC_SIGNAL}; this report records no readback of it.`
+            : arms.map((arm, index) => `${capitalize(theVisit(arm))} ${setups[index].predicate}.`).join(" ")
     );
   }
   return sentences.join(" ");

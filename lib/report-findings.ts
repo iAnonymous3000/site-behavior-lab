@@ -57,6 +57,7 @@ import {
 import {
   comparisonArmViews,
   familyCensoredOnRun,
+  runHitRequestRecordingCap,
   requestEvidenceState,
   runInCorpusDistributionPopulation,
   unsupportedEvidenceFamilies,
@@ -321,7 +322,17 @@ function strongestLevel(levels: FindingLevel[]): FindingLevel {
 // Blacklight's "GA Remarketing Audiences" signal: Google Analytics present AND the
 // GA->DoubleClick sync host stats.g.doubleclick.net. Other *.g.doubleclick.net hosts
 // (pubads/securepubads = publisher ads, cm = cookie matching) are NOT GA remarketing.
-const GOOGLE_ANALYTICS_HOST = /(^|\.)(google-analytics\.com|googletagmanager\.com|analytics\.google\.com)$/;
+//
+// Two host sets, because they support different sentences. A request to an
+// Analytics collection host shows Analytics. A request to googletagmanager.com
+// shows only the loader: it serves Tag Manager containers and the gtag.js
+// library, and either can be configured with no Analytics tag at all. A saved
+// report generalizes the path, so the two cannot be told apart from the row.
+// The remarketing marker keeps Blacklight's wider rule (either host set plus
+// the sync host); only the "Analytics was observed" wording needs the
+// collection host.
+const GOOGLE_ANALYTICS_COLLECTION_HOST = /(^|\.)(google-analytics\.com|analytics\.google\.com)$/;
+const GOOGLE_TAG_MANAGER_HOST = /(^|\.)googletagmanager\.com$/;
 const DOUBLECLICK_REMARKETING_HOST = /(^|\.)stats\.g\.doubleclick\.net$/;
 
 /** Appended to any absence claim whose evidence family was censored. */
@@ -773,9 +784,14 @@ export function buildFindings(
   const provenanceHighlights = requestProvenanceHighlights(run.evidence.requests);
   const requestsWithProvenance = run.evidence.requests.filter((request) => request.provenance).length;
 
-  const googleAnalyticsPresent = run.evidence.domains.some((domain) => GOOGLE_ANALYTICS_HOST.test(domain.domain));
+  const googleAnalyticsPresent = run.evidence.domains.some((domain) =>
+    GOOGLE_ANALYTICS_COLLECTION_HOST.test(domain.domain)
+  );
+  const googleTagManagerOnly =
+    !googleAnalyticsPresent && run.evidence.domains.some((domain) => GOOGLE_TAG_MANAGER_HOST.test(domain.domain));
   const gaRemarketingOn =
-    googleAnalyticsPresent && run.evidence.domains.some((domain) => DOUBLECLICK_REMARKETING_HOST.test(domain.domain));
+    (googleAnalyticsPresent || googleTagManagerOnly) &&
+    run.evidence.domains.some((domain) => DOUBLECLICK_REMARKETING_HOST.test(domain.domain));
 
   // An ABSENCE claim over a censored evidence family cannot reassure: nothing
   // proves the absence held after collection stopped, so those cards hedge
@@ -1309,8 +1325,11 @@ export function buildFindings(
     )
   });
 
+  // The title carries the lead's scope word. Without "catalogued" it read as
+  // an absence of the platforms themselves, above request rows to hosts such
+  // as fbcdn.net, instagram.com or pinimg.com that the catalog does not carry.
   const platformsAbsence = absenceCopy(facts, "named-platforms", {
-    title: "No requests to major-platform domains were recorded",
+    title: "No requests to catalogued major-platform domains were recorded",
     lead: "No requests to catalogued Google, Meta, TikTok, X, Microsoft, LinkedIn, or Pinterest domains were observed in this visit.",
     retainedEvidenceLead:
       "No requests to catalogued Google, Meta, TikTok, X, Microsoft, LinkedIn, or Pinterest domains appear in the retained evidence."
@@ -1476,29 +1495,44 @@ export function buildFindings(
         retainedEvidenceLead:
           "Google Analytics was observed, but no DoubleClick remarketing sync appears in the retained evidence."
       })
-    : absenceCopy(facts, "ga-remarketing", {
-        title: "No Google Analytics observed",
-        lead: "This visit did not contact Google Analytics.",
-        retainedEvidenceLead: "No Google Analytics request appears in the retained evidence."
-      });
+    : googleTagManagerOnly
+      ? absenceCopy(facts, "ga-remarketing", {
+          title: "Google Tag Manager loaded, no Analytics request recorded",
+          lead: "This visit contacted Google Tag Manager, but recorded no request to a Google Analytics collection host and no DoubleClick remarketing sync.",
+          retainedEvidenceLead:
+            "The retained evidence shows Google Tag Manager, but no request to a Google Analytics collection host and no DoubleClick remarketing sync."
+        })
+      : absenceCopy(facts, "ga-remarketing", {
+          title: "No Google Analytics observed",
+          lead: "This visit did not contact Google Analytics.",
+          retainedEvidenceLead: "No Google Analytics request appears in the retained evidence."
+        });
   findings.push({
     id: "ga-remarketing",
     icon: "radar",
     level: gaRemarketingOn ? "warn" : requestsCensored ? "info" : "ok",
     title: gaRemarketingOn ? "Google Analytics remarketing signal detected" : gaAbsence.title,
     lead: gaRemarketingOn
-      ? "Google Analytics fired a sync to stats.g.doubleclick.net, the request Blacklight treats as the marker that advertising and remarketing features are on."
+      ? googleAnalyticsPresent
+        ? "Google Analytics fired a sync to stats.g.doubleclick.net, the request Blacklight treats as the marker that advertising and remarketing features are on."
+        : "A request went to stats.g.doubleclick.net, the Google Analytics sync Blacklight treats as the marker that advertising and remarketing features are on."
       : gaAbsence.lead,
     detail: gaRemarketingOn
       ? "This Analytics-to-DoubleClick request pattern is consistent with an advertising or remarketing integration. It does not prove that an audience was populated, a profile was matched, or what the request carried."
       : googleAnalyticsPresent
         ? `Standard analytics collection was observed, without the stats.g.doubleclick.net advertising sync.${requestsCensored ? CENSORED_ABSENCE_NOTE : ""}`
-        : `Neither Google Analytics nor its remarketing sync was observed in this visit.${requestsCensored ? CENSORED_ABSENCE_NOTE : ""}`,
+        : googleTagManagerOnly
+          ? `Tag Manager is a loader. It can fetch Google Analytics or other tags, or none; this report cannot tell which it fetched here.${requestsCensored ? CENSORED_ABSENCE_NOTE : ""}`
+          : `Neither Google Analytics nor its remarketing sync was observed in this visit.${requestsCensored ? CENSORED_ABSENCE_NOTE : ""}`,
     evidence: gaRemarketingOn
-      ? "Google Analytics host plus a request to stats.g.doubleclick.net (Blacklight's remarketing marker)."
+      ? googleAnalyticsPresent
+        ? "Google Analytics host plus a request to stats.g.doubleclick.net (Blacklight's remarketing marker)."
+        : "googletagmanager.com plus a request to stats.g.doubleclick.net (Blacklight's remarketing marker)."
       : googleAnalyticsPresent
         ? "Google Analytics host observed; no stats.g.doubleclick.net request."
-        : "No google-analytics.com or googletagmanager.com requests."
+        : googleTagManagerOnly
+          ? "googletagmanager.com observed; no google-analytics.com, analytics.google.com or stats.g.doubleclick.net request."
+          : "No google-analytics.com, analytics.google.com or googletagmanager.com requests."
     ,
     claim: findingClaim(facts, "ga-remarketing", gaRemarketingOn ? "presence" : "absence", gaAbsence.leadScope)
   });
@@ -1884,9 +1918,14 @@ export function buildFindings(
       // increased, or flat pair the residual sentence must explain how totals
       // can hold steady or rise despite direct blocks, not imply a reduction
       // that is not there.
+      // The same holds inside a reduction when the direct blocks EXCEED the
+      // third-party request reduction: there is no remaining difference to
+      // explain, and the offset sentence is the true one.
+      const thirdPartyReduction =
+        arms.baseline.counts.thirdPartyRequests - arms.variant.counts.thirdPartyRequests;
       const engineNote =
         engineBlocks && engineBlocks.kind === "engine-blocked"
-          ? direction === "decreased"
+          ? direction === "decreased" && engineBlocks.count <= thirdPartyReduction
             ? ` The blocking visit's engine directly blocked ${plural(engineBlocks.count, "request")}; the remaining difference may include follow-on requests that never started once their sources were blocked.`
             : ` The blocking visit's engine directly blocked ${plural(engineBlocks.count, "request")}. Ad rotation, experiments, or caching between the two visits can offset or outweigh what blocking removed, which is how totals can hold steady or rise despite direct blocks.`
           : "";
@@ -2367,6 +2406,22 @@ export function buildFindings(
     corpusIsUsable(corpus) && (domainsBenchmarkAllowed || cookiesBenchmarkAllowed)
       ? corpusBenchmarkScope(corpus)
       : null;
+  // Why this board carries no percentile, in the reader's terms. "Failed or
+  // incomplete evidence" is one of three reasons and was printed for all of
+  // them: a complete, loss-free visit read as failed whenever the board
+  // described a comparison's other visit or a visit that clicked a consent
+  // control, neither of which the corpus population holds.
+  const postChoiceVisit =
+    run.conditions.consentMode === "accept-all" || run.conditions.consentMode === "reject-all";
+  const unrankedReason = !boardDescribesDisplayRun
+    ? "Corpus percentiles rank only this report's lead visit; these cards describe the other visit, so severity uses fixed reference thresholds."
+    : postChoiceVisit &&
+        run.quality.outcome === "complete" &&
+        !familyCensoredOnRun(run, "requests") &&
+        !runHitRequestRecordingCap(run) &&
+        (facts.claims["third-party-services"].benchmarkAllowed || facts.claims["third-party-cookies"].benchmarkAllowed)
+      ? "A visit that clicked a consent control is outside the population the corpus percentiles describe, so severity uses fixed reference thresholds."
+      : "This failed or incomplete evidence is not ranked against corpus percentiles; positive signals remain visible as lower bounds.";
   const detectorQuiet =
     !censoredQuiet &&
     !unsupportedQuiet &&
@@ -2406,7 +2461,7 @@ export function buildFindings(
     detail: benchmarkScope !== null
       ? "The cards below translate the evidence into plain language. Where a measured distribution exists, severity ranks this visit against percentiles from this report's cohort, with each percentile card naming its metric-specific measured-site denominator; otherwise it uses fixed reference thresholds. That cohort is drawn from a curated set of popular, mostly commercial sites, not a random sample of the web. The request log, domain table, and methodology remain below for verification."
       : corpusIsUsable(corpus)
-        ? "The cards below translate the evidence into plain language. This failed or incomplete evidence is not ranked against corpus percentiles; positive signals remain visible as lower bounds. The request log, domain table, and methodology remain below for verification."
+        ? `The cards below translate the evidence into plain language. ${unrankedReason} The request log, domain table, and methodology remain below for verification.`
         : "The cards below translate the evidence into plain language; severity reflects fixed reference thresholds, not measured population percentiles. The request log, domain table, and methodology remain below for verification.",
     evidence: `${retainedCountPhrase(
       run.counts.totalRequests,
