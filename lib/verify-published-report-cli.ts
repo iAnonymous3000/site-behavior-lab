@@ -66,8 +66,10 @@ type PrivacyRemoval = {
 };
 
 /**
- * Where a logged entry sits relative to the log's anchors. An anchor names a
- * chain head, so it covers every entry up to that head and none after it.
+ * Where a logged entry sits relative to the anchor rows the log file holds.
+ * An anchor row names a chain head, so it covers every entry up to that head
+ * and none after it. This is what the file says, not a checked witness: see
+ * witnessLines.
  */
 type EntryWitness =
   | {
@@ -76,7 +78,7 @@ type EntryWitness =
       readonly anchorIndex: number;
       readonly entryCount: number;
       readonly head: string;
-      /** A structural reading of the stored proof, never a replay of it. */
+      /** Which attestation tag the stored proof's bytes hold. Never a replay of the proof. */
       readonly bitcoinAttested: boolean;
     }
   | {
@@ -250,6 +252,12 @@ async function privacyRemovalOf(reportId: string): Promise<PrivacyRemoval | null
  * entries were rewritten and whose anchor rows were then pointed at the new
  * heads, proofs untouched, recomputes cleanly. Such a row's proof still
  * commits to the head it was issued for, and opening it shows that.
+ *
+ * Opening a proof refuses that careless rewrite and nothing more. The head a
+ * proof commits to is 32 bytes inside it, and whoever rewrites the log can
+ * overwrite them, leaving the attestation tags as they were. Only replaying
+ * the proof against a calendar or Bitcoin tells the two apart, and this
+ * command does not do that, so no anchor it reads is a witness it checked.
  */
 async function transparencyChainCheck(reportId: string, wireDigest: string): Promise<ChainOutcome> {
   const label = "wire digest vs transparency log";
@@ -300,9 +308,9 @@ async function transparencyChainCheck(reportId: string, wireDigest: string): Pro
     };
   }
 
-  // Among the anchors whose head covers this entry, a Bitcoin-attested one is
-  // the stronger statement; within either kind the earliest head is the
-  // tightest bound on when the entry existed.
+  // Among the anchor rows whose head covers this entry, one whose proof holds
+  // a Bitcoin attestation tag makes the stronger claim; within either kind
+  // the earliest head would be the tightest bound on when the entry existed.
   const covering = log.anchors
     .map((anchor, index) => ({ anchor, index, attested: bitcoinAttested[index] }))
     .filter(({ anchor }) => anchor.entryCount > entry.sequence)
@@ -336,33 +344,38 @@ async function transparencyChainCheck(reportId: string, wireDigest: string): Pro
 }
 
 /**
- * Where the verified entry sits relative to the log's anchors, as reader copy.
+ * What the log's anchor rows say about the verified entry, as reader copy.
  *
- * An entry beneath an anchored head and one after the newest anchored head
- * both match the log, and only the first has a witness outside the log file.
- * A verdict that reads the same for both lets a log with its anchors removed
- * pass for an anchored one. The anchored wording is a structural reading: the
- * proof was opened to see what it commits to and which attestations it holds,
- * never replayed, so it names the command that does replay it.
+ * An entry beneath a named head and one after the newest named head both
+ * match the log, and only the first even claims a witness outside the log
+ * file. A verdict that reads the same for both lets a log with its anchors
+ * removed pass for one that has them.
+ *
+ * The anchored wording states a claim and never a witness. This command reads
+ * the stored proof's bytes: that it is shaped like a proof for the named head,
+ * and which attestation tag it holds. A rewritten log can carry proofs with
+ * the rewritten heads written into them, and they read exactly the same here.
+ * So every sentence says what the file holds, says that nothing checked it,
+ * and names the command that does.
  */
 function witnessLines(witness: EntryWitness): string {
   if (witness.kind === "unanchored") {
     return witness.newestAnchoredEntryCount === null
       ? `No external witness yet: this log holds no anchor, so nothing outside this log file\n` +
           `bounds when entry ${witness.sequence} was written.\n`
-      : `No external witness yet: entry ${witness.sequence} is after the newest anchored head ` +
+      : `No external witness yet: entry ${witness.sequence} is after the newest head an anchor in this log names ` +
           `(${witness.newestAnchoredEntryCount} entries),\n` +
           `so nothing outside this log file bounds when it was written.\n`;
   }
-  const state = witness.bitcoinAttested
-    ? "holds a Bitcoin attestation"
-    : "holds a calendar's pending promise and no Bitcoin attestation yet";
+  const shape = witness.bitcoinAttested
+    ? "with a Bitcoin attestation"
+    : "with a pending calendar promise and no Bitcoin attestation";
   const extract = `  jq -r '.anchors[${witness.anchorIndex}].proof' ${LOG_PATH} | base64 -d > head.ots\n`;
   return (
-    `External witness: entry ${witness.sequence} lies beneath the head at ${witness.entryCount} entries, ` +
-    `which anchors[${witness.anchorIndex}] names.\n` +
-    `Its stored OpenTimestamps proof commits to that head and ${state}.\n` +
-    `That is a structural reading: this command opened the proof and did not replay it. To check it:\n` +
+    `Anchor named, not checked: anchors[${witness.anchorIndex}] in this log names the head at ` +
+    `${witness.entryCount} entries, and entry ${witness.sequence} is beneath it.\n` +
+    `Its stored proof is shaped like an OpenTimestamps proof for that head ${shape}.\n` +
+    `Nothing here checked that proof, so it is the log's claim and not a witness. To check it:\n` +
     extract +
     (witness.bitcoinAttested ? "" : "  ots upgrade head.ots\n") +
     `  ots verify -d ${witness.head} head.ots\n`

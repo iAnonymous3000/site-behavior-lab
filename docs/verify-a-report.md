@@ -34,25 +34,29 @@ status:
 | `NOT VERIFIED` | 1 | A check failed. For example, the bytes differ from the index, the sidecar or the log, a present index does not list the id, the report is not readable as published, or the log cannot be used. A usage or read error also exits 1. |
 | `Consistent` | 2 | The bytes agree with their own sidecar and index, and there was no log entry to cross-check: the working directory has no log, or the log does not list this id. Provenance is not established. An altered report with a recomputed sidecar is consistent, so do not treat this status as a pass. |
 
-Under `Verified` the output also says where the report's entry sits relative
-to the log's anchors:
+Exit 0 never means an anchor was checked. Under `Verified` the output says
+what the log's anchor rows claim about the report's entry, and no more:
 
-- `External witness: entry N lies beneath the head at K entries, which
-  anchors[i] names.` An OpenTimestamps anchor covers the entry. The output
-  says whether that anchor's stored proof holds a Bitcoin attestation or only
-  a calendar's pending promise. This is a structural reading: the command
-  opens the proof to see which head it commits to and which attestations it
-  holds, and it does not replay the proof. It prints the `ots` commands that
-  do. A proof committed while pending stays pending in the file, because a
-  committed anchor is never rewritten; `ots upgrade` fetches the attestation.
-- `No external witness yet.` The entry is after the newest anchored head, or
-  the log holds no anchor. The log records the bytes, and nothing outside the
-  log file bounds when that entry was written.
+- `Anchor named, not checked: anchors[i] in this log names the head at K
+  entries, and entry N is beneath it.` The log holds an anchor row over the
+  entry. The output says what that row's stored proof is shaped like: an
+  OpenTimestamps proof for that head with a Bitcoin attestation, or with only
+  a calendar's pending promise. The command reads those bytes and does not
+  replay the proof against a calendar or Bitcoin, so this is the log's claim
+  and not a witness. Whoever rewrites a log can write the new heads into the
+  stored proofs as well, and they read the same here. The output prints the
+  `ots` commands that do check a proof. A proof committed while pending stays
+  pending in the file, because a committed anchor is never rewritten;
+  `ots upgrade` fetches the attestation.
+- `No external witness yet.` The entry is after the newest head an anchor
+  names, or the log holds no anchor. The log records the bytes, and nothing
+  outside the log file bounds when that entry was written.
 
 The command reads one log file. It does not prove that the file is this
 project's log, unaltered: that rests on where your clone came from, on Git
-history, and on replaying an anchor's proof. It refuses a log in which an
-anchor's proof does not commit to the head the anchor names.
+history, and on replaying an anchor's proof with `ots`. It refuses a log in
+which an anchor's proof does not commit to the head the anchor names, which
+catches a careless rewrite and not a careful one.
 
 Pass a full report URL instead of an id if that is what you have; only the id
 is taken from it. Add `--from <dir>` to verify local files, or `--origin <url>`

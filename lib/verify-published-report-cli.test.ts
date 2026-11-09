@@ -18,7 +18,7 @@ import { buildStaticReportShare } from "./report-locator";
 import { makeScanReportV1 } from "./scan-report-v2-fixtures";
 import { sha256Hex } from "./sha256";
 import { listStaticReportCandidateIds } from "./static-report-files";
-import { anchorFromCalendarTimestamp } from "./transparency-log-anchoring";
+import { OTS_HEADER_MAGIC, anchorFromCalendarTimestamp, inspectOtsProof } from "./transparency-log-anchoring";
 import type { ScanResult } from "./types";
 
 /**
@@ -388,7 +388,26 @@ function rewriteBundleConsistently(dir: string, id: string): void {
   writeFileSync(indexPath, JSON.stringify(index));
 }
 
-test("an entry beneath an anchored head names the anchor, says the proof was only opened, and exits zero", async () => {
+/**
+ * Output lines that state an external witness as a fact.
+ *
+ * This command opens a stored proof and never replays it, and a rewritten log
+ * can carry proofs rewritten to match, so nothing it prints may say an entry
+ * is witnessed, anchored or attested. A line may name a witness only to deny
+ * one, and may name an attestation or a calendar promise only as what a
+ * stored proof is shaped like. The boundary list's Sigstore line is about a
+ * different attestation and says the command does not cover it.
+ */
+function unqualifiedWitnessClaims(stdout: string): string[] {
+  return stdout.split("\n").filter(
+    (line) =>
+      (/witness/i.test(line) && !/not a witness|No external witness yet/.test(line)) ||
+      (/attestation|promise/i.test(line) && !/shaped like|Sigstore attestation/.test(line)) ||
+      /\b(?:anchored|attested|timestamped)\b/i.test(line)
+  );
+}
+
+test("an entry beneath a named head names the anchor row, says nothing checked its proof, and exits zero", async () => {
   const { dir, id } = await fixtureBundle();
   const log = logAround(ownEntry(dir, id), { before: 1, after: 1, anchors: [{ entryCount: 2, kind: "pending" }] });
   const clone = cloneWithLog(log);
@@ -396,9 +415,13 @@ test("an entry beneath an anchored head names the anchor, says the proof was onl
     const result = runCli([id, "--from", dir], clone);
     assert.equal(result.status, 0, result.stdout + result.stderr);
     assert.match(result.stdout, /Verified: these bytes are exactly what this project published/);
-    assert.match(result.stdout, /External witness: entry 1 lies beneath the head at 2 entries, which anchors\[0\] names\./);
-    assert.match(result.stdout, /holds a calendar's pending promise and no Bitcoin attestation yet/);
-    assert.match(result.stdout, /structural reading: this command opened the proof and did not replay it/);
+    assert.match(result.stdout, /Anchor named, not checked: anchors\[0\] in this log names the head at 2 entries, and entry 1 is beneath it\./);
+    assert.match(
+      result.stdout,
+      /Its stored proof is shaped like an OpenTimestamps proof for that head with a pending calendar promise and no Bitcoin attestation\./
+    );
+    assert.match(result.stdout, /Nothing here checked that proof, so it is the log's claim and not a witness\. To check it:/);
+    assert.deepEqual(unqualifiedWitnessClaims(result.stdout), []);
     assert.match(result.stdout, /jq -r '\.anchors\[0\]\.proof' public\/transparency-log\.json \| base64 -d > head\.ots/);
     assert.match(result.stdout, /ots upgrade head\.ots/);
     assert.match(result.stdout, new RegExp(`ots verify -d ${log.anchors[0].head} head\\.ots`));
@@ -416,7 +439,7 @@ test("an entry beneath an anchored head names the anchor, says the proof was onl
   }
 });
 
-test("a Bitcoin-attested anchor over the entry is reported ahead of a pending one", async () => {
+test("an anchor row whose proof holds a Bitcoin attestation tag is reported ahead of a pending one", async () => {
   const { dir, id } = await fixtureBundle();
   const log = logAround(ownEntry(dir, id), {
     before: 1,
@@ -430,8 +453,9 @@ test("a Bitcoin-attested anchor over the entry is reported ahead of a pending on
   try {
     const result = runCli([id, "--from", dir], clone);
     assert.equal(result.status, 0, result.stdout + result.stderr);
-    assert.match(result.stdout, /External witness: entry 1 lies beneath the head at 3 entries, which anchors\[1\] names\./);
-    assert.match(result.stdout, /commits to that head and holds a Bitcoin attestation\./);
+    assert.match(result.stdout, /Anchor named, not checked: anchors\[1\] in this log names the head at 3 entries, and entry 1 is beneath it\./);
+    assert.match(result.stdout, /Its stored proof is shaped like an OpenTimestamps proof for that head with a Bitcoin attestation\./);
+    assert.deepEqual(unqualifiedWitnessClaims(result.stdout), []);
     assert.match(result.stdout, new RegExp(`ots verify -d ${log.anchors[1].head} head\\.ots`));
     // There is nothing to upgrade once the attestation is in the stored proof.
     assert.doesNotMatch(result.stdout, /ots upgrade/);
@@ -441,7 +465,7 @@ test("a Bitcoin-attested anchor over the entry is reported ahead of a pending on
   }
 });
 
-test("an entry after the newest anchored head verifies and says it has no external witness", async () => {
+test("an entry after the newest head an anchor names verifies and says it has no external witness", async () => {
   const { dir, id } = await fixtureBundle();
   const log = logAround(ownEntry(dir, id), { before: 1, after: 1, anchors: [{ entryCount: 1, kind: "pending" }] });
   const clone = cloneWithLog(log);
@@ -449,9 +473,10 @@ test("an entry after the newest anchored head verifies and says it has no extern
     const result = runCli([id, "--from", dir], clone);
     assert.equal(result.status, 0, result.stdout + result.stderr);
     assert.match(result.stdout, /Verified: these bytes are exactly what this project published/);
-    assert.match(result.stdout, /No external witness yet: entry 1 is after the newest anchored head \(1 entries\),/);
+    assert.match(result.stdout, /No external witness yet: entry 1 is after the newest head an anchor in this log names \(1 entries\),/);
+    assert.deepEqual(unqualifiedWitnessClaims(result.stdout), []);
     assert.match(result.stdout, /nothing outside this log file bounds when it was written/);
-    assert.doesNotMatch(result.stdout, /External witness: entry/);
+    assert.doesNotMatch(result.stdout, /Anchor named/);
     assert.doesNotMatch(result.stdout, /ots verify/);
   } finally {
     rmSync(dir, { recursive: true, force: true });
@@ -459,10 +484,10 @@ test("an entry after the newest anchored head verifies and says it has no extern
   }
 });
 
-test("a rewritten log with its anchors removed cannot read like an anchored one", async () => {
+test("a rewritten log with its anchors removed cannot read like one that names an anchor", async () => {
   // Nothing in one log file can show that it was rewritten end to end. What
-  // the output can do is refuse to describe the result as witnessed: the
-  // genuine log places this entry beneath an anchor, the rewrite cannot.
+  // the output can do is say what the file holds: the genuine log names an
+  // anchor over this entry, the rewrite names none.
   const { dir, id } = await fixtureBundle();
   const shape = { before: 1, after: 1, anchors: [{ entryCount: 3, kind: "pending" as const }] };
   const genuine = cloneWithLog(logAround(ownEntry(dir, id), shape));
@@ -470,7 +495,7 @@ test("a rewritten log with its anchors removed cannot read like an anchored one"
   try {
     const honest = runCli([id, "--from", dir], genuine);
     assert.equal(honest.status, 0, honest.stdout + honest.stderr);
-    assert.match(honest.stdout, /External witness: entry 1 lies beneath the head at 3 entries/);
+    assert.match(honest.stdout, /Anchor named, not checked: anchors\[0\] in this log names the head at 3 entries/);
 
     rewriteBundleConsistently(dir, id);
     const stale = runCli([id, "--from", dir], genuine);
@@ -482,7 +507,8 @@ test("a rewritten log with its anchors removed cannot read like an anchored one"
     assert.doesNotMatch(result.stdout, /FAIL/);
     assert.match(result.stdout, /No external witness yet: this log holds no anchor,/);
     assert.match(result.stdout, /bounds when entry 1 was written/);
-    assert.doesNotMatch(result.stdout, /External witness: entry/);
+    assert.doesNotMatch(result.stdout, /Anchor named/);
+    assert.deepEqual(unqualifiedWitnessClaims(result.stdout), []);
     assert.doesNotMatch(result.stdout, /append-only/);
     assert.match(result.stdout, /that the transparency log in this working directory is this project's log, unaltered\./);
   } finally {
@@ -522,6 +548,55 @@ test("a rewritten log whose anchor rows were pointed at the new heads is refused
     // A log that cannot be used is not a log that lacks this id.
     assert.doesNotMatch(result.stdout, /contains this report id/);
     assert.match(result.stdout, /could not be used as a chain/);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+    if (forged) rmSync(forged, { recursive: true, force: true });
+  }
+});
+
+test("a rewritten log whose stored proofs were rewritten to match reads as an unchecked claim, never as a witness", async () => {
+  // The head a proof commits to is 32 bytes inside it. Whoever rewrites the
+  // report, the log and the anchor heads can overwrite those bytes too and
+  // leave the attestation tag as it was. The parser, the chain and the opened
+  // proof all accept the result, and the bytes do match the log in the working
+  // directory, so the verdict stays "Verified" with status 0. What the output
+  // may not do is call the entry witnessed: only replaying the proof against
+  // Bitcoin or a calendar can refuse this log, and this command does not.
+  const { dir, id } = await fixtureBundle();
+  const shape = { before: 1, after: 1, anchors: [{ entryCount: 3, kind: "bitcoin" as const }] };
+  const genuineLog = logAround(ownEntry(dir, id), shape);
+  let forged: string | null = null;
+  try {
+    rewriteBundleConsistently(dir, id);
+    const rechained = logAround(ownEntry(dir, id), { ...shape, anchors: [] });
+    const digestOffset = OTS_HEADER_MAGIC.length + 2;
+    const forgedLog = buildTransparencyLog(
+      rechained.entries,
+      genuineLog.anchors.map((anchor) => {
+        const head = rechained.entries[anchor.entryCount - 1].entryDigest;
+        const proof = Buffer.from(anchor.proof, "base64");
+        Buffer.from(head, "hex").copy(proof, digestOffset);
+        return { ...anchor, head, proof: proof.toString("base64") };
+      })
+    );
+    assert.notEqual(forgedLog.anchors[0].head, genuineLog.anchors[0].head);
+    assert.doesNotThrow(() => verifyTransparencyLogChain(parseTransparencyLog(JSON.parse(JSON.stringify(forgedLog)))));
+    assert.equal(
+      inspectOtsProof(Buffer.from(forgedLog.anchors[0].proof, "base64"), forgedLog.anchors[0].head).bitcoinAttestations,
+      1,
+      "the forged proof must pass the structural reading, or this test proves nothing"
+    );
+
+    forged = cloneWithLog(forgedLog);
+    const result = runCli([id, "--from", dir], forged);
+    assert.equal(result.status, 0, result.stdout + result.stderr);
+    assert.match(result.stdout, /Verified: these bytes are exactly what this project published/);
+    assert.deepEqual(unqualifiedWitnessClaims(result.stdout), []);
+    assert.match(result.stdout, /Anchor named, not checked: anchors\[0\] in this log names the head at 3 entries, and entry 1 is beneath it\./);
+    assert.match(result.stdout, /Its stored proof is shaped like an OpenTimestamps proof for that head with a Bitcoin attestation\./);
+    assert.match(result.stdout, /Nothing here checked that proof, so it is the log's claim and not a witness\. To check it:/);
+    assert.match(result.stdout, new RegExp(`ots verify -d ${forgedLog.anchors[0].head} head\\.ots`));
+    assert.match(result.stdout, /it does not replay an anchor's proof/);
   } finally {
     rmSync(dir, { recursive: true, force: true });
     if (forged) rmSync(forged, { recursive: true, force: true });
@@ -576,7 +651,7 @@ test("a cross-check that ran and failed is not followed by advice to find a log 
   }
 });
 
-test("against the committed log, the verdict states this entry's witness as the log's own anchors give it", async () => {
+test("against the committed log, the output states what the log's own anchor rows say of this entry", async () => {
   const { dir, id } = await fixtureBundle();
   try {
     const log = parseTransparencyLog(
@@ -589,12 +664,13 @@ test("against the committed log, the verdict states this entry's witness as the 
     const result = runCli([id, "--from", dir]);
     assert.equal(result.status, 0, result.stdout + result.stderr);
     if (beneath) {
-      assert.match(result.stdout, new RegExp(`External witness: entry ${entry.sequence} lies beneath the head at \\d+ entries`));
+      assert.match(result.stdout, new RegExp(`Anchor named, not checked: anchors\\[\\d+\\] in this log names the head at \\d+ entries, and entry ${entry.sequence} is beneath it`));
       assert.doesNotMatch(result.stdout, /No external witness/);
     } else {
       assert.match(result.stdout, new RegExp(`No external witness yet: (this log holds no anchor|entry ${entry.sequence} is after)`));
-      assert.doesNotMatch(result.stdout, /External witness: entry/);
+      assert.doesNotMatch(result.stdout, /Anchor named/);
     }
+    assert.deepEqual(unqualifiedWitnessClaims(result.stdout), []);
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
