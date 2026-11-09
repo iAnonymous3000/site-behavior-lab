@@ -347,7 +347,10 @@ invalid or non-public target, `401` for a missing token, `413` for an oversize
 body, `429` for the per-client limit, and `503` when the scanner is busy (or
 already running an after-scrolling check), a producer is misconfigured or
 cannot carry what was asked for, or public-host verification could not
-complete.
+complete. A visit that started and failed answers `422` when the address is
+a file to download, `502` when the page could not be loaded, `504` when it
+ran out of time, and `503` when the page's browser process crashed; none of
+these makes a report.
 `GET /api/reports/:id` returns the stored wire byte for byte, and
 `GET /api/reports/:id/pdf` renders it. `GET /api/health` reports readiness,
 the build commit, and the effective state of every producer flag.

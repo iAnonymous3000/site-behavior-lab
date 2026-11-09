@@ -186,6 +186,121 @@ public API or a 1.0 release.
   Playwright move rather than this fix; and the 20-poll stall bound could in
   principle end a legitimate parse whose thread answers no reading for 2 s
   (the slowest answer observed was 303 ms).
+- A visit whose page's renderer crashed now ends as a failed scan (HTTP 503,
+  no declared cause) instead of a report. The scanner had no crash listener:
+  after a crash each later read degraded on its own and nothing recorded a
+  requests or cookies loss, so the visit returned a result whose request and
+  cookie evidence read complete, and a pair with one crashed arm was published
+  as an effect of the compared condition. A visit that does not crash records
+  exactly what it did before, so no report and no identity moves.
+- A report carrying the scanner's own "Blocked a request that could not be
+  verified as public" line now reads its request evidence as incomplete, in
+  both report generations. The route guard removes a refused request's row and
+  no producer records a loss for it, so the log read complete under a line
+  naming a request the scanner had stopped (a green "No Google Analytics
+  observed" over a refused Analytics request), and a pair in which the resolver
+  failed on one visit published the missing requests as the condition's effect.
+  Counts are worded as floors, request-based absences are qualified, the visit
+  is not ranked or added to a distribution, and a pair refuses every delta that
+  reads the request log. 104 visits in 77 committed reports carry the line. No
+  saved report changes. The published statistics do: the primary cohort goes
+  from 90 to 85 sites, every cohort stays above 50, and the 90th-percentile
+  mark for third-party requests moves from 184 to 147, because three of the
+  five sites that leave are among the heaviest. 48 index headlines now say
+  "retained request log". Recording the loss in the scanner, or keeping the
+  row as the proxy does, changes what a scan records and waits for a detector
+  epoch.
+- A consent comparison whose phase tags place every tracker request of the
+  Reject-all visit in page load now says the services were contacted before
+  the scanner clicked, at info, and says what the report cannot show about
+  afterward. It read "contacted N ... in the visit that clicked Reject all" at
+  warn. An untagged row, a row in the consent phase, a v1 report or an
+  incomplete request log keeps the whole-visit wording.
+- Eight reader sentences that said more than the rows show: "Google Analytics
+  was observed" for a request to googletagmanager.com alone (130 committed
+  reports); a visit that "sent" the Global Privacy Control signal on the
+  configured flag alone (173); "No requests to major-platform domains were
+  recorded" without the lead's "catalogued"; a GPC pair's "Both visits still
+  recorded review-worthy activity" when one did; "Off-site requests to
+  <site>"; the Shields "remaining difference" when direct blocks exceeded the
+  reduction (69); "This failed or incomplete evidence" over a complete visit
+  that is merely outside the ranked population; and "1 third-party requests"
+  on the homepage cards.
+- The browser-signals table no longer names a host the report's own domain
+  table lists as first party as an outside listener origin, which happened
+  after a cross-site redirect. The cards already dropped such origins.
+- The third-party cookie card states a count from an incomplete cookie
+  snapshot as the snapshot's, not the visit's (30 committed reports).
+- A reviewed clarification now joins a headline's own qualification instead of
+  replacing it (484 committed reports).
+- Every percentile scope now says that visits with capped or incomplete
+  request evidence are left out of each mark and tend to be the heaviest
+  pages, so each mark sits lower than the cohort's true one, and
+  [docs/limitations.md](docs/limitations.md) works the figures. This states
+  the limit and does not remove it.
+- A visit with no recorded main-document status is no longer ranked against a
+  distribution the corpus builder leaves it out of. No committed report is
+  affected.
+- The scanner refuses every IPv6 destination outside global unicast
+  (2000::/3). A list of named exclusions treated the rest of the reserved
+  space as public and dialed it, including ranges overlay networks borrow. It
+  also reads no IPv4 octet with a leading zero as decimal, and the scan proxy
+  pins the address literal it verified, never the string it was handed, so
+  "8.8.8.8." cannot be resolved a second time unchecked.
+- The page waits for a synchronous scan's answer as long as the server may
+  take to give it (queue wait, one visit budget per visit, a check's own
+  phase, and a margin), from one module both sides read. It gave up after 10
+  seconds, which ended most scans in the documented default mode after the
+  visit had been charged.
+- An after-scrolling check that an asynchronous scanner ran as a job now shows
+  its result. The poller refused every completed check as not matching its
+  reserved report, because a check saves nothing and so has no share. A check
+  result that can no longer be shown after a reload says so.
+- A scanner that cannot be reached, and an answer with no readable reason, are
+  named in the page's own words with the HTTP status, instead of "Failed to
+  fetch" or "invalid JSON".
+- A result opened from a file says so at the top, and the result surface and
+  the comparison panel state when each visit started. Category pages call a
+  row an included visit, not the latest one, and a capped comparison list says
+  the rest can be worked out from the JSON instead of calling it
+  unrecoverable.
+- The managed read path refuses a schema v2 revision 1 report. No producer
+  writes one and a genuine one was already refused, so the branch only ever
+  served a planted report on its declared redaction version alone. A Node
+  run's egress label and a v1 comparison's run names are held to their closed
+  lists on read. A file a person opens still reads revision 1.
+- `verify:report` opens every anchor's proof and fails when one does not
+  commit to its head, says whether the report's log entry sits beneath an
+  anchored head or has no external witness yet, no longer calls the log
+  append-only, and exits 2 for "Consistent" (0 only for "Verified").
+- CI runs both append-only history gates against the last promoted revision
+  as well as the previous tip of main. The previous tip alone let a rewrite
+  pushed in a failing run be compared with itself on the next push. The
+  transparency-log gate refuses a non-empty log that is absent at its base.
+  Not yet run on GitHub.
+- With `SITE_BEHAVIOR_LAB_TRUST_PROXY_HEADERS=1` the Node scanner keys its
+  limits on the rightmost `X-Forwarded-For` entry and ignores `X-Real-IP`,
+  which a caller behind an appending proxy could set to choose a new identity
+  per request. Every rate limit and quota counts an IPv6 /64 as one client.
+- `/api/health` no longer reports scans as unavailable while a routine
+  retention backlog drains; it takes the rule publication uses and reports a
+  pending continuation in its own field.
+- The private durable-job preparation and activation routes refuse while the
+  durable flag is off.
+- Reader-facing statements corrected to match the code: the glossary's
+  provenance and catalog-match entries, the input test's and the Shields
+  match's scope, the privacy page's account of the rate limit's stored hash,
+  the scan form's visit order, the README's limits and configuration tables,
+  the runtime image's package managers, and the single-node runbook's
+  commands. [docs/limitations.md](docs/limitations.md) gains the subframe
+  limit of the listener findings, favicon requests the automation layer
+  aborts, the disabled HTTP cache, guard-refused requests, and a v1 report's
+  silence when the CNAME step had no time. SECURITY.md warns that a scanner
+  with no access token answers any web page its operator's browser visits.
+- Tests the suite lacked, each shown to fail with its guard removed: a pair
+  the claim policy refused never tells the consent story; the strict history
+  key changes with each fingerprint it is built from; an admitted scan runs
+  through the real front Worker.
 - The policy test that counts proxy transactions no longer depends on the scan
   browser's build age. Chromium stops applying its built-in HSTS preload list 70
   days after its build, and Playwright 1.63.0's Chromium passed that point on
