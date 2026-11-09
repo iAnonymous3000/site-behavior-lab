@@ -668,6 +668,9 @@ test("the renderer and the builder share one corpus-population rule", () => {
     assert.equal(runInCorpusDistributionPopulation(makeRunView({ consentMode })), false);
   }
   assert.equal(runInCorpusDistributionPopulation(makeRunView({ failed: true })), false);
+  // The builder's own status rule, now part of the shared one.
+  assert.equal(runInCorpusDistributionPopulation(makeRunView({ status: null })), false);
+  assert.equal(runInCorpusDistributionPopulation(makeRunView({ status: 403 })), false);
 
   // Inverse, so a predicate that always returned false could not pass.
   assert.equal(runInCorpusDistributionPopulation(makeRunView({})), true);
@@ -677,6 +680,7 @@ function makeRunView(options: {
   requestsCensored?: boolean;
   consentMode?: "observe" | "accept-all" | "reject-all";
   failed?: boolean;
+  status?: number | null;
 }): RunView {
   const view = {
     quality: {
@@ -689,6 +693,9 @@ function makeRunView(options: {
         }
       }
     },
+    // The population rule also asks for a recorded main-document status below
+    // 400, as the builder always has.
+    status: options.status === undefined ? 200 : options.status,
     conditions: { consentMode: options.consentMode ?? "observe" },
     warnings: []
   } as unknown as RunView;
