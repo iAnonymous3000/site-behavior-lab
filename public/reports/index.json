@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-09T20:27:22.547Z",
+  "generatedAt": "2026-11-09T21:36:35.826Z",
   "reports": [
     {
       "id": "20261019-b9a5364c3f20b1e288e81336b8d43176",
@@ -6057,7 +6057,7 @@
       "reportWireBytes": 180258,
       "reportWireSha256": "e16c28592bf5350f0059232b6970f788e308b5f53889c7c5af9103f8f3d0298f",
       "title": "Brave-list blocking off/on comparison",
-      "headline": "youtube.com contacted catalogued services on separate Google domains.",
+      "headline": "youtube.com's retained request log includes catalogued services on separate Google domains.",
       "tone": "info",
       "domain": "youtube.com",
       "requestedUrl": "https://www.youtube.com/",
@@ -17366,7 +17366,7 @@
       "reportWireBytes": 133551,
       "reportWireSha256": "99b677d56a6432685cdb8b84f7948f66cdff0363112cb061f6519173f28c7128",
       "title": "Brave-list blocking off/on comparison",
-      "headline": "youtube.com contacted catalogued services on separate Google domains.",
+      "headline": "youtube.com's retained request log includes catalogued services on separate Google domains.",
       "tone": "info",
       "domain": "youtube.com",
       "requestedUrl": "https://www.youtube.com/",
@@ -22299,7 +22299,7 @@
       "reportWireBytes": 137009,
       "reportWireSha256": "c862c25f5f4b9728a62d0e31a790e4f02d834e2789f26f0f2e53580db0fd32fe",
       "title": "Brave-list blocking off/on comparison",
-      "headline": "youtube.com contacted catalogued services on separate Google domains.",
+      "headline": "youtube.com's retained request log includes catalogued services on separate Google domains.",
       "tone": "info",
       "domain": "youtube.com",
       "requestedUrl": "https://www.youtube.com/",
@@ -26425,7 +26425,7 @@
       "reportWireBytes": 134465,
       "reportWireSha256": "12f794e45f67e7fab6fa344e2b64afd3fa59a903ce4efa258b4e340fe54773ba",
       "title": "Brave-list blocking off/on comparison",
-      "headline": "youtube.com contacted catalogued services on separate Google domains.",
+      "headline": "youtube.com's retained request log includes catalogued services on separate Google domains.",
       "tone": "info",
       "domain": "youtube.com",
       "requestedUrl": "https://www.youtube.com/",

@@ -1480,7 +1480,15 @@ export function buildFindings(
         pixelsWithMatching.length > 0
           ? "Recognized identifier fields held non-empty values. The scanner records their categories, never their values, so their contents, hashing, successful delivery, and eventual use are not verified. Event labels do not establish that the corresponding user action occurred."
           : pixelDetectorCensored
-            ? "Pixel decoding was incomplete for one or more request bodies, so whether other pixel requests carried advanced-matching identifier fields is unknown. Retained labels describe request contents, not verified user actions or successful delivery."
+            ? // Name the loss the claim actually carries. An incomplete request
+              // log (a cap, a refused request) is not a decoding failure, and
+              // was worded as one.
+              `${
+                facts.claims["pixel-events"].blockers.includes("detector-incomplete") ||
+                familyCensoredOnRun(run, "detector-output")
+                  ? "Pixel decoding was incomplete for one or more request bodies"
+                  : "The request evidence this check reads is incomplete"
+              }, so whether other pixel requests carried advanced-matching identifier fields is unknown. Retained labels describe request contents, not verified user actions or successful delivery.`
             : "No advanced-matching identifier fields are recorded in the decoded evidence. Unsupported payload formats and later interactions may carry other fields; older decoders did not record every decoding gap. Event labels do not establish user actions or successful delivery.",
       // One sentence per pixel, each opening with its product: in one list,
       // every platform's events and identifiers ran into a single sentence.
@@ -1984,14 +1992,14 @@ export function buildFindings(
       // increased, or flat pair the residual sentence must explain how totals
       // can hold steady or rise despite direct blocks, not imply a reduction
       // that is not there.
-      // The same holds inside a reduction when the direct blocks EXCEED the
-      // third-party request reduction: there is no remaining difference to
-      // explain, and the offset sentence is the true one.
+      // The same holds inside a reduction when the direct blocks reach or
+      // exceed the third-party request reduction: there is no remaining
+      // difference to explain, and the offset sentence is the true one.
       const thirdPartyReduction =
         arms.baseline.counts.thirdPartyRequests - arms.variant.counts.thirdPartyRequests;
       const engineNote =
         engineBlocks && engineBlocks.kind === "engine-blocked"
-          ? direction === "decreased" && engineBlocks.count <= thirdPartyReduction
+          ? direction === "decreased" && engineBlocks.count < thirdPartyReduction
             ? ` The blocking visit's engine directly blocked ${plural(engineBlocks.count, "request")}; the remaining difference may include follow-on requests that never started once their sources were blocked.`
             : ` The blocking visit's engine directly blocked ${plural(engineBlocks.count, "request")}. Ad rotation, experiments, or caching between the two visits can offset or outweigh what blocking removed, which is how totals can hold steady or rise despite direct blocks.`
           : "";

@@ -585,6 +585,16 @@ test("a Shields headline names no remaining difference when direct blocks exceed
   assert.match(headline.headline, /7 fewer third-party requests/);
   assert.match(headline.subhead, /directly stopped 24 requests, more than the net difference/);
   assert.doesNotMatch(headline.subhead, /the remaining difference/);
+  // The social card carries the same case, not the remainder wording.
+  assert.match(headline.compactSubhead ?? "", /directly stopped 24 requests, more than the net difference; counts also vary/);
+  assert.doesNotMatch(headline.compactSubhead ?? "", /may also include prevented follow-on requests/);
+
+  // Equal: the remainder is zero, so neither surface points at one.
+  variant.summary = { ...variant.summary, shieldsBlockedRequests: 7 };
+  const equal = buildReportHeadline(viewFromV1Report(shieldsPair(baseline, variant)));
+  assert.match(equal.subhead, /directly stopped 7 requests, as many as the net difference/);
+  assert.match(equal.compactSubhead ?? "", /directly stopped 7 requests, as many as the net difference/);
+  assert.doesNotMatch(`${equal.subhead} ${equal.compactSubhead}`, /remaining difference|may also include prevented/);
 });
 
 test("a Shields comparison names the direct engine blocks separately from the reduction", () => {
@@ -1172,6 +1182,26 @@ test("a reviewed clarification joins the headline's own qualification instead of
   // The card and share text still lead with the clarification.
   assert.match(withNotice.compactSubhead ?? "", /^A public clarification applies\./);
   assert.match(withNotice.shareText, /a public clarification applies/);
+});
+
+test("the same-organization headline words an incomplete request log as retained rows, like its siblings", () => {
+  // youtube.com contacting Google's own catalogued domains, with a request
+  // the scanner's guard refused: the headline stated its count flat above a
+  // board that said the request evidence was incomplete.
+  const result = makeResult({
+    firstPartyDomain: "youtube.com",
+    domains: [makeTrackerDomain("www.google-analytics.com", 3, "Google", "analytics")],
+    thirdPartyRequests: 3,
+    thirdPartyDomains: 1
+  });
+  const complete = buildReportHeadline(viewFromV1Report(result));
+  assert.equal(complete.headline, "youtube.com contacted catalogued services on separate Google domains.");
+  assert.match(complete.subhead, /^1 request destination crossed/);
+
+  result.warnings = ["Blocked a request that could not be verified as public: http://example.com/{seg}"];
+  const incomplete = buildReportHeadline(viewFromV1Report(result));
+  assert.equal(incomplete.headline, "youtube.com's retained request log includes catalogued services on separate Google domains.");
+  assert.match(incomplete.subhead, /^At least 1 request destination crossed/);
 });
 
 test("a denied pair never tells the consent story, even with both clicks verified", () => {

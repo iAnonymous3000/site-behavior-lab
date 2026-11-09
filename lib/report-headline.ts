@@ -747,16 +747,24 @@ function buildUncorrectedReportHeadline(
       // the sentence must say how, not point at a remainder that is not there.
       const engineNote =
         engineBlocks && engineBlocks.kind === "engine-blocked"
-          ? engineBlocks.count <= removed
+          ? engineBlocks.count < removed
             ? ` The blocker directly stopped ${plural(engineBlocks.count, "request")}; the remaining difference may include follow-on requests that never started once their sources were blocked, plus run-to-run variance.`
-            : ` The blocker directly stopped ${plural(engineBlocks.count, "request")}, more than the net difference: a blocked request can be retried or replaced by another, and counts vary from run to run.`
+            : ` The blocker directly stopped ${plural(engineBlocks.count, "request")}, ${
+                engineBlocks.count === removed ? "as many as" : "more than"
+              } the net difference: a blocked request can be retried or replaced by another, and counts vary from run to run.`
           : "";
+      // The social card's note follows the same three cases: a remainder
+      // exists only while the direct blocks are fewer than the reduction.
       const compactEngineNote =
         engineBlocks && engineBlocks.kind === "engine-blocked"
-          ? ` The engine directly stopped ${plural(
-              engineBlocks.count,
-              "request"
-            )}; the difference may also include prevented follow-on requests and run-to-run variance.`
+          ? engineBlocks.count < removed
+            ? ` The engine directly stopped ${plural(
+                engineBlocks.count,
+                "request"
+              )}; the difference may also include prevented follow-on requests and run-to-run variance.`
+            : ` The engine directly stopped ${plural(engineBlocks.count, "request")}, ${
+                engineBlocks.count === removed ? "as many as" : "more than"
+              } the net difference; counts also vary from run to run.`
           : " This is an observed difference between two visits and may include run-to-run variance.";
       const compactSubhead =
         `Brave-list block simulation in this scanner, not a live Brave-browser visit: ` +
@@ -867,10 +875,16 @@ function buildUncorrectedReportHeadline(
   }
 
   if (sameOrganizationTrackingEntities.length > 0) {
+    // The sibling branches above word an incomplete request log as retained
+    // rows; this one stated its count flat, over a board that said the
+    // request evidence was cut short.
+    const sameOrganization = ownership.sameOrganizationName ?? "same-organization";
     return finish(
       "info",
-      `${domain} contacted catalogued services on separate ${ownership.sameOrganizationName ?? "same-organization"} domains.`,
-      `${plural(
+      requestState === "censored"
+        ? `${domain}'s retained request log includes catalogued services on separate ${sameOrganization} domains.`
+        : `${domain} contacted catalogued services on separate ${sameOrganization} domains.`,
+      `${requestState === "censored" ? "At least " : ""}${plural(
         ownership.sameOrganizationDomainCount,
         "request destination"
       )} crossed a registrable-domain boundary, but the reviewed ownership map groups the destination with the site's own organization. This is not evidence of disclosure to an outside company, and the catalog label does not prove request purpose.${extraNote}`

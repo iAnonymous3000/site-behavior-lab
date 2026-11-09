@@ -4608,6 +4608,13 @@ test("an incomplete pixel-body read never publishes a no-identifier-fields claim
   assert.doesNotMatch(partial.detail, /No advanced-matching identifier fields are recorded/);
   assert.match(partial.detail, /Pixel decoding was incomplete/);
   assert.match(partial.detail, /advanced-matching identifier fields is unknown/);
+
+  // A request log that is incomplete for another reason is not a decoding
+  // failure, and the card must not call it one.
+  result.warnings = ["Blocked a request that could not be verified as public: http://example.com/{seg}"];
+  const refused = byId(buildFindings(viewFromV1Report(result), null), "pixel-events");
+  assert.doesNotMatch(refused.detail, /Pixel decoding was incomplete|No advanced-matching identifier fields are recorded/);
+  assert.match(refused.detail, /^The request evidence this check reads is incomplete, so whether other pixel requests/);
 });
 
 test("a warn-level Shields card raises the bottom line instead of being outranked by it", () => {
