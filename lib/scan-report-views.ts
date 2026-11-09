@@ -21,6 +21,7 @@ import {
   runConsentInteractionLeftSubject,
   runConsentReloadLeftSubject,
   runHitAuxiliaryPageRequestsBlocked,
+  runHitRouteGuardRequestsBlocked,
   runHitCnameCandidatesOmitted,
   runHitCnameLookupFailed,
   fingerprintObserverLossLines,
@@ -620,7 +621,12 @@ function runViewFromV2(run: ScanRunV2 | ScanRunV2R2, label: RunView["label"]): R
     quality: {
       origin: "recorded",
       outcome: run.quality.run.outcome,
-      reasons: [...run.quality.run.reasons],
+      // The one reason here the producer did not record: see
+      // ROUTE_GUARD_REQUESTS_BLOCKED_REASON.
+      reasons: [
+        ...run.quality.run.reasons,
+        ...(runHitRouteGuardRequestsBlocked(run) ? [ROUTE_GUARD_REQUESTS_BLOCKED_REASON] : [])
+      ],
       byFamily: Object.fromEntries(
         Object.entries(run.quality.byFamily).map(([family, entry]) => [
           family,
@@ -722,6 +728,16 @@ export const LEGACY_PAGE_LEFT_SUBJECT_BEFORE_STATE_REASON = "capture-loss:page-l
  * requests-family loss.
  */
 export const LEGACY_AUXILIARY_PAGE_REQUESTS_BLOCKED_REASON = "capture-loss:auxiliary-page-requests-blocked";
+/**
+ * The scanner's own route guard refused one or more requests (see
+ * runHitRouteGuardRequestsBlocked). A reader-derived reason in BOTH
+ * generations: no producer records a loss for a refused request, so an r2
+ * run's recorded quality reads complete beside the line. The reader adds this
+ * reason to the run's reasons and reads the request family as censored; the
+ * stored report is not changed, and a producer that records the loss itself
+ * makes this a no-op.
+ */
+export const ROUTE_GUARD_REQUESTS_BLOCKED_REASON = "capture-loss:route-guard-requests-blocked";
 
 /**
  * The legacy reason for a v1 end-of-visit storage read that failed or was cut
@@ -815,6 +831,9 @@ function runViewFromV1(result: ScanResult, label: RunView["label"], scannedAt: s
   // A window the page opened is blocked at the context route, whose every
   // request r2 records as a dropped requests-family loss.
   if (runHitAuxiliaryPageRequestsBlocked(result)) reasons.push(LEGACY_AUXILIARY_PAGE_REQUESTS_BLOCKED_REASON);
+  // A request the scanner's own guard refused never loaded and left the log
+  // with no recorded loss; the line is the only trace.
+  if (runHitRouteGuardRequestsBlocked(result)) reasons.push(ROUTE_GUARD_REQUESTS_BLOCKED_REASON);
   if (runHitProxyTrafficBudget(result)) reasons.push("budget-exhausted:proxy-traffic");
   // Not a budget: the instrument itself did not run. Scoped to the families it
   // actually covers rather than censoring the whole run. A read frame whose
@@ -1474,6 +1493,10 @@ export function runUnsupportedEvidenceNotes(run: RunView): string[] {
  * the absence held after collection stopped.
  */
 export function familyCensoredOnRun(run: RunView, family: string): boolean {
+  // Before the recorded per-family block: neither generation's producer
+  // records a loss for a request its own guard refused, so a recorded
+  // "complete" here does not cover it.
+  if (family === "requests" && run.quality.reasons.includes(ROUTE_GUARD_REQUESTS_BLOCKED_REASON)) return true;
   if (run.quality.byFamily) return run.quality.byFamily[family]?.outcome === "censored";
   // ANY exhausted v1 budget aborts the rest of the load, which also suppresses
   // the scripts that would have set cookies, written storage, fired pixels, or

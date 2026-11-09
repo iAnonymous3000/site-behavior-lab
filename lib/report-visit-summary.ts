@@ -625,6 +625,8 @@ function limits(
       body.push({ text: `${groupIndex > 0 ? " " : ""}${group.intro}` });
       if (group.every) {
         body.push({ text: "every check" });
+      } else if (group.except.length > 0) {
+        body.push({ text: `every check except ${group.except.join(" and ")}` });
       } else {
         group.checks.forEach((check, index) => {
           if (index > 0) body.push({ text: index === group.checks.length - 1 ? " and " : ", " });
@@ -635,6 +637,8 @@ function limits(
     });
     if (groups.some((group) => group.every && group.onBoard)) {
       body.push({ text: " Every card below states only what was retained." });
+    } else if (groups.some((group) => group.except.length > 0 && group.onBoard)) {
+      body.push({ text: " The cards for the incomplete checks state only what was retained." });
     } else if (groups.some((group) => group.checks.some((check) => check.cardId))) {
       body.push({ text: " Each linked card states what was retained." });
     }
@@ -643,11 +647,21 @@ function limits(
   return out;
 }
 
+/** At most this many unaffected checks are named as exceptions to "every check". */
+const MAX_NAMED_EXCEPTIONS = 2;
+
 type CutShortCheck = { claim: ReportClaimId; label: string; cardId: string | null };
 type CutShortGroup = {
   intro: string;
   /** Every claim was cut short, so the group names no single check. */
   every: boolean;
+  /**
+   * The one or two checks NOT cut short, when every other check was. A lost
+   * request log cuts nearly every check at once, and naming eleven of twelve
+   * ran the sentence past what a reader can hold; naming the exceptions says
+   * the same thing in a line. Empty when the group names its checks.
+   */
+  except: string[];
   /** The board describes a visit this group covers. */
   onBoard: boolean;
   checks: CutShortCheck[];
@@ -679,9 +693,14 @@ function cutShortGroups(
   const group = (intro: string, covered: readonly ArmRun[], claims: readonly ReportClaimId[]): CutShortGroup | null => {
     if (claims.length === 0) return null;
     const onBoard = boardRun !== undefined && covered.includes(boardRun);
+    const unaffected = allClaims.filter((claim) => !claims.includes(claim));
     return {
       intro,
       every: claims.length === allClaims.length,
+      except:
+        unaffected.length > 0 && unaffected.length <= MAX_NAMED_EXCEPTIONS && claims.length > MAX_NAMED_EXCEPTIONS
+          ? [...unaffected].sort((left, right) => position(left) - position(right)).map((claim) => VISIT_CHECK_LABELS[claim])
+          : [],
       onBoard,
       checks: [...claims]
         .sort((left, right) => position(left) - position(right))

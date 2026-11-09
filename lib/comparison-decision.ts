@@ -28,6 +28,7 @@
 import {
   comparisonEligibility,
   legacyComparisonSubjectsMatch,
+  runHitRouteGuardRequestsBlocked,
   temporalPairEligibility
 } from "./comparison-eligibility";
 import { legacyV1MethodologyIdentity } from "./legacy-methodology";
@@ -572,6 +573,28 @@ export function v2ComparisonDecision(
         ])
       ]
     };
+  }
+  // A third reader-side erratum, and not a historical one: no producer
+  // records a loss for a request its own route guard refused, so the recorded
+  // evaluation kept request-based families comparable beside a line saying
+  // the scanner stopped one of that visit's requests. A refusal on one visit
+  // and not the other (a resolver that failed once) is then published as the
+  // compared condition's effect. Every family that reads the request log is
+  // refused its delta; the wire is neither rewritten nor rejected.
+  const guardRefusedArms = (["baseline", "variant"] as const).filter((arm) =>
+    runHitRouteGuardRequestsBlocked(report[arm])
+  );
+  if (guardRefusedArms.length > 0) {
+    const guardRefusalReason = `The scanner's own network guard refused one or more requests in ${
+      guardRefusedArms.length === 2 ? "both visits" : `the ${comparabilityArmName(guardRefusedArms[0])}`
+    }. They were not sent and are not in the request log, so request counts there are floors, not comparable totals.`;
+    for (const family of Object.keys(families) as MetricFamily[]) {
+      if (!METRIC_EVIDENCE_SOURCES[family].includes("requests")) continue;
+      families[family] = {
+        mode: "raw-only",
+        reasons: [...new Set([...families[family].reasons, guardRefusalReason])]
+      };
+    }
   }
   const missingHistoricalConsentActivation =
     comparability.evaluatorVersion === "1" &&

@@ -304,6 +304,27 @@ test("a consent visit says it clicked only where a control was activated", () =>
   assert.doesNotMatch(perVisit, /Clicked "Reject all"/);
 });
 
+test("a visit that lost all but one or two checks names the exceptions instead of listing the rest", () => {
+  // A request the scanner's own guard refused cuts every check that reads the
+  // request log, and an unreadable frame cuts the fingerprinting ones. Naming
+  // each of the ten ran the sentence past what a reader can hold.
+  const guardRefusal = "Blocked a request that could not be verified as public: http://example.com/{seg}";
+  const summary = summaryFor(publishedV1View(v1Result([OBSERVE_LIMITS, guardRefusal, FINGERPRINT_FRAME_LOSS])));
+  const item = summary.limits.find((limit) => limit.id === "incomplete-checks");
+  assert.ok(item);
+  assert.equal(
+    visitLimitText(item),
+    "Checks with incomplete evidence. In this visit: every check except third-party cookies and storage. " +
+      "The cards for the incomplete checks state only what was retained."
+  );
+
+  // With more than two checks intact the incomplete ones are still named and linked.
+  const named = summaryFor(publishedV1View(v1Result([OBSERVE_LIMITS, guardRefusal])));
+  const namedText = visitLimitText(named.limits.find((limit) => limit.id === "incomplete-checks")!);
+  assert.match(namedText, /In this visit: third-party services, /);
+  assert.doesNotMatch(namedText, /every check/);
+});
+
 test("two visits that lost every check say so once", () => {
   // The scanner's own cap line (lib/scan-runtime.ts); a capped v1 visit
   // censors every evidence family.

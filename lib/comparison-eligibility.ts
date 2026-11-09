@@ -77,6 +77,19 @@ const KEYSTROKE_PROBE_REQUESTS_OMITTED_WARNING_FRAGMENT =
 const KEYSTROKE_PROBE_PAGE_LEFT_WARNING_FRAGMENT = "left the recorded site during the synthetic form-input probe";
 const PAGE_LEFT_SUBJECT_BEFORE_STATE_WARNING_FRAGMENT = "before the scanner finished reading its state";
 const AUXILIARY_PAGE_REQUESTS_BLOCKED_WARNING_FRAGMENT = "opened one or more new windows or tabs";
+/**
+ * The start of each line the scanner writes when its own route guard refuses
+ * one of the page's requests: the host could not be verified as public (a
+ * resolver failure or timeout, a private or non-default-port target, a URL
+ * over the recorded length), or more such requests than it lists. The custom
+ * label variants ("... as a public HTTP(S) URL") begin the same way. The
+ * non-HTTP(S) line is not here: a request with another scheme was never going
+ * to be a row of the HTTP request log.
+ */
+const ROUTE_GUARD_REQUESTS_BLOCKED_WARNING_PREFIXES = [
+  "Blocked a request that could not be verified as ",
+  "Blocked additional requests that could not be verified as public."
+] as const;
 const INVALID_UPSTREAM_RESPONSE_WARNING_FRAGMENT = "scan proxy rejected one or more invalid upstream responses";
 const UNSETTLED_ROUTED_REQUEST_WARNING_FRAGMENT =
   "still being handled, so this visit's request evidence is incomplete";
@@ -170,6 +183,9 @@ export function comparisonEligibility(report: ComparisonScanResult): ComparisonE
     }
     if (runHitAuxiliaryPageRequestsBlocked(run)) {
       reasons.push(`The "${label}" visit opened new windows or tabs whose requests were blocked, so its request evidence is incomplete.`);
+    }
+    if (runHitRouteGuardRequestsBlocked(run)) {
+      reasons.push(`The "${label}" visit had one or more requests refused by the scanner's own network guard, so its request evidence is incomplete.`);
     }
     // The dispatch can still read as a click (the control reacted before the
     // page navigated away), so this warning is the only v1 channel saying the
@@ -782,6 +798,23 @@ export function runHitAuxiliaryPageRequestsBlocked(run: Pick<ScanResult, "warnin
 }
 
 /**
+ * Whether the scanner's own route guard refused one or more of the page's
+ * requests in this run. A refused request is not sent and its row is removed,
+ * and neither generation's producer records a requests-family loss for it, so
+ * the line is the only trace: without this rule the request log read complete
+ * and "no request to X" was asserted under a line naming the request to X the
+ * scanner itself stopped. Nothing after the refused request (its response,
+ * whatever it would have loaded) happened either, so the family's counts are
+ * floors. Read from the warning in both generations, like the other
+ * request-family losses above.
+ */
+export function runHitRouteGuardRequestsBlocked(run: { warnings: readonly string[] }): boolean {
+  return run.warnings.some((warning) =>
+    ROUTE_GUARD_REQUESTS_BLOCKED_WARNING_PREFIXES.some((prefix) => warning.startsWith(prefix))
+  );
+}
+
+/**
  * Whether a legacy run's input probe was skipped or stopped because the page
  * was off the recorded site: the consent interaction or the post-consent
  * reload left it, or the page left before or during the probe. r2 records the
@@ -906,6 +939,7 @@ export function runRequestEvidenceCapped(run: ScanResult): boolean {
     runConsentInteractionLeftSubject(run) ||
     runPageLeftSubjectBeforeState(run) ||
     runHitAuxiliaryPageRequestsBlocked(run) ||
+    runHitRouteGuardRequestsBlocked(run) ||
     runHitProxyTrafficBudget(run) ||
     runHitUnsettledRoutedRequests(run)
   );

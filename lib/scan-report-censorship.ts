@@ -52,6 +52,11 @@ const QUALITY_REASON_NOTES: Record<string, string> = {
     "the page left the recorded site during the synthetic form-input probe, so the request and fingerprinting evidence is incomplete",
   "capture-loss:auxiliary-page-requests-blocked":
     "the page opened one or more new windows or tabs whose requests were blocked and left out of the request log, so the request evidence is incomplete",
+  // Both generations (ROUTE_GUARD_REQUESTS_BLOCKED_REASON): derived by the
+  // reader from the scanner's own "Blocked a request ..." line, since no
+  // producer records a loss for a request its guard refused.
+  "capture-loss:route-guard-requests-blocked":
+    "the scanner's own network guard refused one or more requests, which were never sent and have no row, so the request evidence is incomplete",
   "capture-loss:page-subject-validity":
     "the bounded page-content collector was unavailable or unreadable, so the scanner could not verify the rendered document",
   // v1 only (LEGACY_STORAGE_SNAPSHOT_REASON). r2 reports the same read as a

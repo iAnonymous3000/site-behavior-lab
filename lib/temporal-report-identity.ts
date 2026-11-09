@@ -2,7 +2,7 @@ import {
   legacyComparisonHistoryCohortFingerprint,
   legacyTemporalCohortFingerprint
 } from "./comparison-decision";
-import { runRequestEvidenceCapped } from "./comparison-eligibility";
+import { runHitRouteGuardRequestsBlocked, runRequestEvidenceCapped } from "./comparison-eligibility";
 import {
   METRIC_CONTRACT_DIGEST,
   METRIC_CONTRACT_VERSION
@@ -132,6 +132,9 @@ function r2TrackerHistoryEligible(run: ScanRunV2R2): boolean {
   if (run.quality.run.outcome !== "complete" || run.quality.byFamily.requests.outcome !== "complete") {
     return false;
   }
+  // The recorded block does not cover a request the scanner's own guard
+  // refused (see runHitRouteGuardRequestsBlocked): that log is incomplete too.
+  if (runHitRouteGuardRequestsBlocked(run)) return false;
   const requiredDimensions = [
     run.conditions.browser.name,
     run.conditions.browser.version,
