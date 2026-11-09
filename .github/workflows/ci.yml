@@ -265,10 +265,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # The baseline decides what "append-only" is measured against, so it must
-      # be a revision this repository already stood behind, never a relative
-      # ref. A HEAD^ fallback compared exactly one commit back, so a manual run
-      # could rewrite the whole ledger across two commits and still pass.
+      # The baselines decide what "append-only" is measured against, so each
+      # must be a revision this repository already stood behind, never a
+      # relative ref. A HEAD^ fallback compared exactly one commit back, so a
+      # manual run could rewrite the whole ledger across two commits and still
+      # pass. scripts/resolve-history-baselines.mjs holds the rule, so a test
+      # can run it against a real repository.
       - name: Resolve the trusted corrections baseline
         id: corrections_baseline
         env:
@@ -277,36 +279,19 @@ jobs:
           EVENT_NAME: ${{ github.event_name }}
         run: |
           set -euo pipefail
-          zero="0000000000000000000000000000000000000000"
-          case "$EVENT_NAME" in
-            pull_request) candidate="$PULL_REQUEST_BASE" ;;
-            push) candidate="$PUSH_BEFORE" ;;
-            *) candidate="" ;;
-          esac
-          # A first push to a new ref reports the all-zero SHA, and a manual
-          # dispatch reports nothing at all. Both fall back to the last state
-          # this repository actually promoted, which is the strongest baseline
-          # available without trusting the run's own history.
-          if [[ -z "$candidate" || "$candidate" == "$zero" ]]; then
+          # A pull request is measured against its base alone. Every other run
+          # is also measured against the last promoted state, so this fetch
+          # must succeed: a run that cannot read production fails here.
+          production=""
+          if [[ "$EVENT_NAME" != "pull_request" ]]; then
             git fetch --no-tags --quiet origin production
-            candidate="$(git rev-parse FETCH_HEAD)"
+            production="$(git rev-parse FETCH_HEAD)"
           fi
-          if [[ ! "$candidate" =~ ^[0-9a-f]{40}$ ]]; then
-            echo "::error title=Corrections baseline unresolved::Refusing to verify against a malformed baseline."
-            exit 1
-          fi
-          if ! git cat-file -e "${candidate}^{commit}" 2>/dev/null; then
-            echo "::error title=Corrections baseline unresolved::Baseline ${candidate} is not a commit in this checkout."
-            exit 1
-          fi
-          # An unrelated baseline would compare the ledger against history this
-          # revision never descended from, which proves nothing about appends.
-          if ! git merge-base --is-ancestor "$candidate" HEAD; then
-            echo "::error title=Corrections baseline unresolved::Baseline ${candidate} is not an ancestor of HEAD."
-            exit 1
-          fi
-          echo "baseline=${candidate}" >> "$GITHUB_OUTPUT"
-          echo "Corrections baseline ${candidate} resolved for ${EVENT_NAME}."
+          node scripts/resolve-history-baselines.mjs \
+            --event "$EVENT_NAME" \
+            --push-before "$PUSH_BEFORE" \
+            --pull-request-base "$PULL_REQUEST_BASE" \
+            --production "$production" >> "$GITHUB_OUTPUT"
 
       - name: Verify append-only corrections history
         run: npm run corrections:verify-history -- "${{ steps.corrections_baseline.outputs.baseline }}"
@@ -317,6 +302,21 @@ jobs:
       # baseline keeps one definition of "trusted ancestor" in this workflow.
       - name: Verify append-only publication transparency log
         run: npm run transparency:verify-history -- "${{ steps.corrections_baseline.outputs.baseline }}"
+
+      # The previous tip of main is not a state this repository stood behind
+      # when its own run failed the two gates above: main accepts that push,
+      # and the next push would compare the rewrite with itself and pass.
+      # Production only fast-forwards to a commit that passed every gate, so
+      # both gates run again against it. The condition names the event alone,
+      # so no resolved value can skip them, and the gate refuses an empty
+      # baseline. When the two baselines are one commit this repeats the above.
+      - name: Verify append-only corrections history against the last promoted state
+        if: ${{ github.event_name != 'pull_request' }}
+        run: npm run corrections:verify-history -- "${{ steps.corrections_baseline.outputs.production_baseline }}"
+
+      - name: Verify append-only publication transparency log against the last promoted state
+        if: ${{ github.event_name != 'pull_request' }}
+        run: npm run transparency:verify-history -- "${{ steps.corrections_baseline.outputs.production_baseline }}"
 
       # Append-only is not coverage. This re-derives every committed report's
       # wire digest and fails if a published report is missing from the chain,

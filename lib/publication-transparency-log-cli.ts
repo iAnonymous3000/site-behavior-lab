@@ -1,8 +1,8 @@
-import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { replaceUtf8FileAtomically } from "./exact-atomic-file";
+import { gitBlobIfPresent, gitObjectExists } from "./git-revision-blob";
 import {
   appendTransparencyLogEntries,
   assertTransparencyLogHistory,
@@ -30,7 +30,6 @@ import { sha256Hex } from "./sha256";
  */
 
 const LOG_PATH = "public/transparency-log.json";
-const MAX_GIT_BLOB_BYTES = 64 * 1024 * 1024;
 
 type Mode = { readonly kind: "write" } | { readonly kind: "check" } | { readonly kind: "history"; readonly base: string };
 
@@ -172,26 +171,35 @@ function verifyHistory(rootDir: string, base: string): void {
   if (currentWire === null) throw new Error(`${LOG_PATH} is missing; refusing to verify an absent log.`);
   const currentValue = parseJson(currentWire, LOG_PATH);
 
-  if (!gitObjectExists(`${base}^{commit}`)) {
+  if (!gitObjectExists(rootDir, `${base}^{commit}`)) {
     const current = parseTransparencyLog(currentValue);
-    if (current.entries.length > 0 || gitObjectExists("HEAD^{commit}")) {
+    if (current.entries.length > 0 || gitObjectExists(rootDir, "HEAD^{commit}")) {
       throw new Error(`Git base revision ${base} is unavailable; refusing to verify because repository or log history exists.`);
     }
     console.log(`Transparency log initialized empty; base revision ${base} is unavailable.`);
     return;
   }
 
-  const previousWire = gitBlobIfPresent(base, LOG_PATH);
+  const previousWire = gitBlobIfPresent(rootDir, base, LOG_PATH);
   if (previousWire === null) {
+    // A base without the log has no prefix to hold the current entries to.
+    // A non-empty log accepted there would let history be rewritten in two
+    // steps: delete the file in one revision, add a shorter or edited log in
+    // the next, and the second revision reads as the log's introduction. Only
+    // an empty log can begin at a base that never had one, which is what the
+    // corrections gate requires of its ledger too.
     const current = parseTransparencyLog(currentValue);
+    if (current.entries.length > 0) {
+      throw new Error(
+        `${LOG_PATH} is absent at Git base ${base}; refusing to verify a non-empty transparency log without its base.`
+      );
+    }
     verifyTransparencyLogChain(current);
-    console.log(
-      `Transparency log introduced at this revision with ${current.entryCount} entr${current.entryCount === 1 ? "y" : "ies"}; ${LOG_PATH} is absent at ${base}.`
-    );
+    console.log(`Transparency log initialized empty; ${LOG_PATH} is absent at ${base}.`);
     return;
   }
 
-  const previousValue = parseJson(previousWire, `${base}:${LOG_PATH}`);
+  const previousValue = parseJson(previousWire.toString("utf8"), `${base}:${LOG_PATH}`);
   assertTransparencyLogHistory(previousValue, currentValue);
   const previous = parseTransparencyLog(previousValue);
   const current = parseTransparencyLog(currentValue);
@@ -216,19 +224,6 @@ function parseJson(wire: string, label: string): unknown {
   } catch {
     throw new Error(`${label} is not valid JSON.`);
   }
-}
-
-function gitObjectExists(revision: string): boolean {
-  return git(["rev-parse", "--verify", "--quiet", revision]) !== null;
-}
-
-function gitBlobIfPresent(revision: string, filePath: string): string | null {
-  return git(["show", `${revision}:${filePath}`]);
-}
-
-function git(args: readonly string[]): string | null {
-  const result = spawnSync("git", [...args], { encoding: "utf8", maxBuffer: MAX_GIT_BLOB_BYTES });
-  return result.status === 0 ? result.stdout : null;
 }
 
 main().catch((error) => {

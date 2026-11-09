@@ -1,4 +1,3 @@
-import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import {
@@ -9,20 +8,20 @@ import {
   type CorrectionsPinnedBundles,
   type ParsedCorrectionsLedger
 } from "./corrections-ledger";
+import { gitBlobIfPresent, gitObjectExists } from "./git-revision-blob";
 import { planPrivacyReplacement } from "./privacy-replacement";
 import { readStoredScanReport } from "./scan-report-reader";
 
 const root = process.cwd();
 const ledgerPath = "public/corrections.json";
-const maxGitBlobBytes = 64 * 1024 * 1024;
 
 function main(): void {
   const base = baseRevision();
   const currentValue = parseJson(readFileSync(path.join(root, ledgerPath)), ledgerPath);
   const current = parseCorrectionsLedger(currentValue);
 
-  if (!gitObjectExists(`${base}^{commit}`)) {
-    if (current.entries.length > 0 || gitObjectExists("HEAD^{commit}")) {
+  if (!gitObjectExists(root, `${base}^{commit}`)) {
+    if (current.entries.length > 0 || gitObjectExists(root, "HEAD^{commit}")) {
       throw new Error(
         `Git base revision ${base} is unavailable; refusing to verify because repository or ledger history exists.`
       );
@@ -31,7 +30,7 @@ function main(): void {
     return;
   }
 
-  const previousWire = gitBlobIfPresent(base, ledgerPath);
+  const previousWire = gitBlobIfPresent(root, base, ledgerPath);
   if (previousWire === null) {
     if (current.entries.length > 0) {
       throw new Error(
@@ -71,8 +70,13 @@ function main(): void {
  * copy: the same creation clock, and exactly the bytes a privacy replacement
  * writes for the original at the base (lib/privacy-replacement.ts). Otherwise
  * a swapped pair, an unrelated report of the same day, or a copy that also
- * changed its findings would pass every other check. An event already in the
- * base was verified in the change that appended it.
+ * changed its findings would pass every other check.
+ *
+ * An event the base already carries is not checked here, so the base decides
+ * what a pass means. Against the last promoted revision, every event not yet
+ * promoted is checked on each run. Against the previous tip of main, an event
+ * that tip appended is taken on trust, even when that tip's own run failed
+ * this check. CI therefore runs this gate against both.
  */
 function assertPrivacyReplacementsAreRedactedCopies(
   base: string,
@@ -169,36 +173,9 @@ function workingTreeBundlePaths(reportId: string): { report: string; sidecar: st
 }
 
 function requiredGitBlob(base: string, repoPath: string): Uint8Array {
-  const value = gitBlobIfPresent(base, repoPath);
+  const value = gitBlobIfPresent(root, base, repoPath);
   if (value === null) throw new Error(`Correction-linked artifact ${base}:${repoPath} is unavailable.`);
   return value;
-}
-
-function gitBlobIfPresent(base: string, repoPath: string): Buffer | null {
-  if (!gitObjectExists(`${base}:${repoPath}`)) return null;
-  const result = runGit(["show", `${base}:${repoPath}`]);
-  if (result.status !== 0) {
-    throw new Error(`Cannot read ${base}:${repoPath}: ${gitError(result.stderr)}`);
-  }
-  return result.stdout;
-}
-
-function gitObjectExists(object: string): boolean {
-  return runGit(["cat-file", "-e", object]).status === 0;
-}
-
-function runGit(args: string[]) {
-  const result = spawnSync("git", args, {
-    cwd: root,
-    encoding: "buffer",
-    maxBuffer: maxGitBlobBytes
-  });
-  if (result.error) throw result.error;
-  return {
-    status: result.status,
-    stdout: result.stdout ?? Buffer.alloc(0),
-    stderr: result.stderr ?? Buffer.alloc(0)
-  };
 }
 
 function parseJson(wire: Uint8Array, label: string): unknown {
@@ -207,10 +184,6 @@ function parseJson(wire: Uint8Array, label: string): unknown {
   } catch {
     throw new Error(`${label} is not valid JSON.`);
   }
-}
-
-function gitError(stderr: Uint8Array): string {
-  return Buffer.from(stderr).toString("utf8").trim() || "unknown Git error";
 }
 
 try {

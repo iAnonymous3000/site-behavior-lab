@@ -136,13 +136,22 @@ test("the release gate binds the CI run to this repository's main branch", async
   assert.match(release, /Release receipt sha256:/);
 });
 
-test("the corrections baseline is an explicit trusted revision, never a relative fallback", async () => {
+test("the history baselines are explicit trusted revisions, and production is one of them outside a pull request", async () => {
   // The baseline decides what append-only is measured against. A `HEAD^`
   // fallback compared exactly one commit back, so a manual run could rewrite
-  // the ledger across two commits and still pass; a first push to a new ref
-  // reports the all-zero SHA, which is not a baseline either.
+  // the ledger across two commits and still pass. The previous tip of main
+  // has the same hole across two pushes: main accepts a push whose run then
+  // fails, and the next push would compare the rewrite with itself. So every
+  // run that is not a pull request also measures against production, which
+  // only fast-forwards to a commit that passed every gate.
+  //
+  // This test holds the wiring, which is text. What the wiring does is run,
+  // against a real repository, by lib/append-only-history-gates.test.ts.
   const ci = await source(".github/workflows/ci.yml");
-  const step = ci.slice(ci.indexOf("Resolve the trusted corrections baseline"));
+  const tests = ci.slice(ci.indexOf("\n  tests:\n"), ci.indexOf("\n  pages:\n"));
+  const stepStart = tests.indexOf("      - name: Resolve the trusted corrections baseline\n");
+  assert.notEqual(stepStart, -1, "the tests job must resolve the history baselines");
+  const step = tests.slice(stepStart, tests.indexOf("\n      - name: ", stepStart + 1));
 
   // Comments may name the old fallback to explain why it went; executable
   // lines may not reintroduce it.
@@ -150,29 +159,38 @@ test("the corrections baseline is an explicit trusted revision, never a relative
     .split("\n")
     .filter((line) => !/^\s*#/.test(line))
     .join("\n");
-  assert.doesNotMatch(executable, /HEAD\^/, "no relative fallback may decide the corrections baseline");
-  assert.match(step, /case "\$EVENT_NAME" in/);
-  assert.match(step, /pull_request\) candidate="\$PULL_REQUEST_BASE"/);
-  assert.match(step, /push\) candidate="\$PUSH_BEFORE"/);
-  // A dispatch carries neither, so it falls back to the last promoted state.
-  assert.match(step, /git fetch --no-tags --quiet origin production/);
-  assert.match(step, /zero="0{40}"/);
+  assert.doesNotMatch(executable, /HEAD\^/, "no relative fallback may decide a history baseline");
 
-  // Fail closed: malformed, absent, or unrelated baselines must all refuse.
-  assert.match(step, /\^\[0-9a-f\]\{40\}\$/);
-  assert.match(step, /git cat-file -e "\$\{candidate\}\^\{commit\}"/);
-  assert.match(step, /git merge-base --is-ancestor "\$candidate" HEAD/);
-  for (const refusal of [
-    /Refusing to verify against a malformed baseline/,
-    /is not a commit in this checkout/,
-    /is not an ancestor of HEAD/
-  ]) {
-    assert.match(step, refusal);
-  }
-
-  // The verifier must consume the resolved value, not re-derive its own.
+  // The rule lives in one script. The step hands it the event and every ref,
+  // and appends what it prints to the step's outputs.
+  assert.match(step, /\n {8}id: corrections_baseline\n/);
+  assert.match(step, /\n {10}set -euo pipefail\n/);
   assert.match(
-    ci,
-    /npm run corrections:verify-history -- "\$\{\{ steps\.corrections_baseline\.outputs\.baseline \}\}"/
+    step,
+    /node scripts\/resolve-history-baselines\.mjs \\\n\s+--event "\$EVENT_NAME" \\\n\s+--push-before "\$PUSH_BEFORE" \\\n\s+--pull-request-base "\$PULL_REQUEST_BASE" \\\n\s+--production "\$production" >> "\$GITHUB_OUTPUT"\n/
   );
+
+  // Production is read on every run that is not a pull request, with nothing
+  // to catch a failed read: a run that cannot name production stops here.
+  assert.match(
+    step,
+    /if \[\[ "\$EVENT_NAME" != "pull_request" \]\]; then\n\s+git fetch --no-tags --quiet origin production\n\s+production="\$\(git rev-parse FETCH_HEAD\)"\n\s+fi\n/
+  );
+  assert.doesNotMatch(step, /\|\||continue-on-error|\n {8}if:/, "nothing may let the baseline step pass without its baselines");
+
+  // Each gate consumes a resolved value, never one it derives itself, and both
+  // gates run against both baselines. The production pair may be skipped only
+  // by the event's own name, so no resolved value can leave it out.
+  const gates = [
+    ...tests.matchAll(
+      / {6}- name: [^\n]+\n(?: {8}if: ([^\n]+)\n)? {8}run: npm run (corrections|transparency):verify-history -- "\$\{\{ steps\.corrections_baseline\.outputs\.(\w+) \}\}"\n/g
+    )
+  ].map((match) => `${match[2]} against ${match[3]}, ${match[1] ?? "always"}`);
+  assert.deepEqual(gates, [
+    "corrections against baseline, always",
+    "transparency against baseline, always",
+    "corrections against production_baseline, ${{ github.event_name != 'pull_request' }}",
+    "transparency against production_baseline, ${{ github.event_name != 'pull_request' }}"
+  ]);
+  assert.equal(tests.split("verify-history").length - 1, gates.length, "every history gate in the tests job must be one of the four above");
 });
