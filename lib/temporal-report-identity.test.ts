@@ -72,6 +72,40 @@ test("strict temporal history also binds the read-time metric contract", () => {
   );
 });
 
+test("the strict history key changes with each fingerprint it is built from", () => {
+  // The strict key is the only guard in lib/temporal-deltas.ts between two
+  // reports of one site and a "changed since the last visit" sentence. With
+  // either fingerprint replaced by a constant, two reports made by different
+  // instruments, or one with GPC on and one off, shared a key and every
+  // suite still passed: only the prefix and the suffix were pinned.
+  const stored = storedR2(makePublicSingleReportV2R2());
+  const keyFor = (edit: (view: ReturnType<typeof toReportView>) => void = () => undefined) => {
+    const view = toReportView(stored);
+    edit(view);
+    return temporalCohortForStoredReport(stored, view);
+  };
+  const baseline = keyFor();
+  assert.ok(baseline, "the fixture must have a strict key or this guard proves nothing");
+  assert.equal(keyFor(), baseline, "the key is a function of the report alone");
+
+  const otherEnvironment = keyFor((view) => {
+    view.runs[0].fingerprints = { ...view.runs[0].fingerprints!, measurementEnvironment: "e".repeat(64) };
+  });
+  const otherCondition = keyFor((view) => {
+    view.runs[0].fingerprints = { ...view.runs[0].fingerprints!, condition: "c".repeat(64) };
+  });
+  assert.notEqual(otherEnvironment, baseline, "a different measurement environment is a different cohort");
+  assert.notEqual(otherCondition, baseline, "a different condition (GPC, blocking, consent mode) is a different cohort");
+  assert.notEqual(otherEnvironment, otherCondition);
+  assert.equal(
+    keyFor((view) => {
+      view.runs[0].fingerprints = null;
+    }),
+    null,
+    "a run with no recorded fingerprints has no strict key"
+  );
+});
+
 test("r2 history splits methodology and tracker-catalog cohorts", () => {
   const baseline = makePublicSingleReportV2R2();
   const baselineCohort = historyCohort(baseline);
