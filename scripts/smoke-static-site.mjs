@@ -2357,7 +2357,7 @@ async function assertModeLinkWaitsForHealth(browser, baseUrl, manifest) {
     if (!(await note.evaluate((element) => element.classList.contains("run-mode-unavailable")))) {
       fail("a mode the scanner lacks does not show the run control's unavailable note");
     }
-    await expectText(note, "Blocker comparison requires the Node scanner.");
+    await expectText(note, "Blocker comparison is not available from this scanner.");
     if ((await page.locator("#mode-link-share-line").count()) !== 0) fail("the share line counts two visits beside the Single fallback");
     if ((await submitState(page)).text !== "Scan") fail("the Single fallback does not offer the usual Scan");
     await nothingSent(page, lacking.sent, "a mode link the scanner cannot run");

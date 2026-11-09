@@ -222,7 +222,10 @@ test("public metric copy keeps request rows and distinct service entities separa
   assert.match(overview, /distinct catalogued service/);
   assert.match(requestTable, /label: "Catalog matches"/);
   assert.match(requestTable, /recorded host matched a reviewed service-catalog suffix/);
-  assert.match(requestTable, /Includes first-party and third-party matches/);
+  // The producer labels third-party rows only (lib/scan-runtime.ts), so the
+  // filter's own description may not promise first-party matches either.
+  assert.doesNotMatch(requestTable, /Includes first-party/);
+  assert.match(requestTable, /Only third-party rows are labeled/);
   assert.match(phaseTable, /<th scope="col">Catalog-matched requests<\/th>/);
   assert.match(comparison, /Catalog-matched request and entity deltas/);
   assert.match(staticGallery, /Most retained third-party request rows/);

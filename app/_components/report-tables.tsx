@@ -560,7 +560,7 @@ const REQUEST_SIGNAL_FILTERS: { value: RequestSignalFilter; label: string; title
     value: "known-service",
     label: "Catalog matches",
     title:
-      "Retained request rows whose recorded host matched a reviewed service-catalog suffix (either the full host or a parent-domain suffix). Includes first-party and third-party matches and does not imply a tracking-related role."
+      "Retained request rows to other sites whose recorded host matched a reviewed service-catalog suffix (either the full host or a parent-domain suffix). Only third-party rows are labeled, and a match does not imply a tracking-related role."
   },
   {
     value: "shields-blocked",
