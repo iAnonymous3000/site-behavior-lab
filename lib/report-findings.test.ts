@@ -694,7 +694,7 @@ test("uses measured percentile wording when the corpus is usable, fixed threshol
   assert.match(byId(withCorpus, "third-party-services").benchmark ?? "", /90th-percentile mark for .* across the 60 sites measured for this metric/);
   assert.match(byId(withCorpus, "bottom-line").detail, /each percentile card naming its metric-specific measured-site denominator/);
   assert.match(byId(withCorpus, "bottom-line").detail, /a curated set of popular, mostly commercial sites, not a random sample of the web/);
-  assert.equal(byId(withCorpus, "bottom-line").benchmarkScope, "Severity percentiles come from the legacy-v1 cohort.");
+  assert.equal(byId(withCorpus, "bottom-line").benchmarkScope, "Severity percentiles come from the legacy-v1 cohort." + PERCENTILE_INCOMPLETE_VISITS_NOTE);
 
   // A corpus that also records its coverage names both concepts without
   // mislabeling loaded coverage as every attempted scan. The cohort and its
@@ -704,7 +704,7 @@ test("uses measured percentile wording when the corpus is usable, fixed threshol
   const ranked = byId(withCoverage, "bottom-line");
   assert.equal(
     ranked.benchmarkScope,
-    "Severity percentiles come from the legacy-v1 cohort. Each percentile card's measured sites are among 62 sites with a successful load. Request-capped, post-choice consent, and v2 loads are included in that coverage but excluded from this legacy-v1 cohort, while failed or block-page attempts are outside it."
+    "Severity percentiles come from the legacy-v1 cohort. Each percentile card's measured sites are among 62 sites with a successful load. Request-capped, post-choice consent, and v2 loads are included in that coverage but excluded from this legacy-v1 cohort, while failed or block-page attempts are outside it." + PERCENTILE_INCOMPLETE_VISITS_NOTE
   );
   assert.doesNotMatch(ranked.detail, /legacy-v1|successful load|62/);
   assert.equal(ranked.detail, byId(withCorpus, "bottom-line").detail);
@@ -1939,7 +1939,7 @@ test("a version-2 corpus benchmarks only the report's exact methodology cohort",
   );
   assert.equal(
     byId(matched, "bottom-line").benchmarkScope,
-    "Severity percentiles come from this report's exact schema, methodology, tracker-catalog, ServiceRole-taxonomy, metric-contract, producer, and Global Privacy Control cohort."
+    "Severity percentiles come from this report's exact schema, methodology, tracker-catalog, ServiceRole-taxonomy, metric-contract, producer, and Global Privacy Control cohort." + PERCENTILE_INCOMPLETE_VISITS_NOTE
   );
   assert.doesNotMatch(byId(matched, "bottom-line").detail, /legacy-v1 distribution|ServiceRole-taxonomy/);
 
@@ -1947,7 +1947,7 @@ test("a version-2 corpus benchmarks only the report's exact methodology cohort",
   const covered = byId(buildFindings(view, { ...matching, coverageSiteCount: 99 }), "bottom-line");
   assert.equal(
     covered.benchmarkScope,
-    "Severity percentiles come from this report's exact schema, methodology, tracker-catalog, ServiceRole-taxonomy, metric-contract, producer, and Global Privacy Control cohort. Each percentile card's measured sites are among 99 sites with a successful load across all cohorts. Other methodologies, request-capped visits, and post-choice consent visits are excluded from each card's denominator, while failed or block-page attempts are outside that coverage."
+    "Severity percentiles come from this report's exact schema, methodology, tracker-catalog, ServiceRole-taxonomy, metric-contract, producer, and Global Privacy Control cohort. Each percentile card's measured sites are among 99 sites with a successful load across all cohorts. Other methodologies and post-choice consent visits are excluded from each card's denominator, while failed or block-page attempts are outside that coverage." + PERCENTILE_INCOMPLETE_VISITS_NOTE
   );
   assert.equal(covered.detail, byId(matched, "bottom-line").detail);
   assertSentencesAtMost(covered, MAX_CARD_SENTENCE_WORDS);
@@ -2739,6 +2739,10 @@ function makeKeystrokeDetection(encodings: string[]): FingerprintDetectionSummar
     evidence: { recipients: ["geocode.arcgis.com"], encodings, fieldsTyped: 2, fieldTypes: ["search"] }
   };
 }
+
+/** The note every percentile scope ends with (lib/report-findings.ts). */
+const PERCENTILE_INCOMPLETE_VISITS_NOTE =
+  " Visits with capped or incomplete request evidence are left out of each mark. They tend to be the heaviest pages, so each mark sits lower than the cohort's true mark.";
 
 function makeCorpus(sampleSize: number): CorpusStats {
   return {

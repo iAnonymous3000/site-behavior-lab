@@ -482,21 +482,32 @@ function withLookCloser(key: LookCloserKey | null): { lookCloser?: LookCloserKey
  * percentile card names its own denominator); this states the rest, in
  * sentences, wherever the report states its method.
  */
+/**
+ * Stated with every percentile, whatever else the scope says. A visit whose
+ * request log was capped or incomplete is left out of its cohort's
+ * distribution, and that happens most to the pages that do the most, so the
+ * marks are complete-case marks that sit below the cohort's true ones and "at
+ * or above the 90th-percentile mark" overstates rank. The card's own sentence
+ * is true of the sites it counts; this says which way the count leans.
+ */
+const PERCENTILE_INCOMPLETE_VISITS_NOTE =
+  " Visits with capped or incomplete request evidence are left out of each mark. They tend to be the heaviest pages, so each mark sits lower than the cohort's true mark.";
+
 function corpusBenchmarkScope(corpus: CorpusStats): string {
   const coverage = corpus.coverageSiteCount;
   const coverageStated = typeof coverage === "number" && coverage > corpus.sampleSize;
   if (corpus.cohorts && corpus.primaryCohortId) {
     return `Severity percentiles come from this report's exact schema, methodology, tracker-catalog, ServiceRole-taxonomy, metric-contract, producer, and Global Privacy Control cohort.${
       coverageStated
-        ? ` Each percentile card's measured sites are among ${coverage.toLocaleString("en-US")} sites with a successful load across all cohorts. Other methodologies, request-capped visits, and post-choice consent visits are excluded from each card's denominator, while failed or block-page attempts are outside that coverage.`
+        ? ` Each percentile card's measured sites are among ${coverage.toLocaleString("en-US")} sites with a successful load across all cohorts. Other methodologies and post-choice consent visits are excluded from each card's denominator, while failed or block-page attempts are outside that coverage.`
         : ""
-    }`;
+    }${PERCENTILE_INCOMPLETE_VISITS_NOTE}`;
   }
   return `Severity percentiles come from the legacy-v1 cohort.${
     coverageStated
       ? ` Each percentile card's measured sites are among ${coverage.toLocaleString("en-US")} sites with a successful load. Request-capped, post-choice consent, and v2 loads are included in that coverage but excluded from this legacy-v1 cohort, while failed or block-page attempts are outside it.`
       : ""
-  }`;
+  }${PERCENTILE_INCOMPLETE_VISITS_NOTE}`;
 }
 
 export function buildFindings(
