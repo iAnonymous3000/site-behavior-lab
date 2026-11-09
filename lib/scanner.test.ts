@@ -2569,7 +2569,8 @@ test("a page whose renderer crashes after it loaded makes no report", { timeout:
       (error: unknown) =>
         error instanceof PublicScanError &&
         error.message === PAGE_CRASHED_MESSAGE &&
-        error.status === 502 &&
+        // Not 502: every 502 from this scanner is a navigation failure.
+        error.status === 503 &&
         // The scanner cannot tell whose fault a dead renderer is.
         error.failureCause === undefined
     );

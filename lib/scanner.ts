@@ -1216,13 +1216,20 @@ async function scanSiteWithMeasurementOnLeasedBrowser(
     // an effect of the compared condition. No recorded vocabulary describes a
     // visit cut at an unknown instant, so a crashed visit makes no report. It
     // ends as a failed scan with no declared cause, because the scanner cannot
-    // tell whether the page or its own browser was at fault.
+    // tell whether the page or its own browser was at fault. The status is 503
+    // and never 502: every 502 this scanner answers is a navigation failure,
+    // which the reliability sweep's classifier relies on, and a crash after
+    // the page loaded is not one.
     let pageCrashed = false;
     page.on("crash", () => {
       pageCrashed = true;
     });
     const throwIfPageCrashed = (): void => {
-      if (pageCrashed) throw new PublicScanError(PAGE_CRASHED_MESSAGE, 502);
+      if (!pageCrashed) return;
+      // The redacted target only, as for a navigation failure: a raw URL
+      // (query string included) must never reach the logs.
+      console.error("Scan page crashed", { target: redactUrlV2(targetUrl.toString()).value });
+      throw new PublicScanError(PAGE_CRASHED_MESSAGE, 503);
     };
 
     // Request attribution: who asked for each request.
