@@ -1590,6 +1590,12 @@ export function familyCensoredOnRun(run: RunView, family: string): boolean {
 export function runInCorpusDistributionPopulation(run: RunView): boolean {
   return (
     run.quality.outcome === "complete" &&
+    // The builder has always required a recorded main-document status below
+    // 400 on its own (a null status is a load nothing proves happened); the
+    // board did not, so a visit with no recorded status was left out of the
+    // distribution and still ranked against it.
+    typeof run.status === "number" &&
+    run.status < 400 &&
     !familyCensoredOnRun(run, "requests") &&
     !runHitRequestRecordingCap(run) &&
     run.conditions.consentMode !== "accept-all" &&

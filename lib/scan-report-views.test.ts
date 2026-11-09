@@ -1847,3 +1847,16 @@ test("a v1 comparison's stored entity lists keep the summary rule and still read
   assert.deepEqual(compareScanResults(merged.baseline, merged.variant).removedEntities, merged.diff.removedEntities);
   assert.deepEqual(read(merged)?.removedEntities, [{ entity: "Sentry", requests: 1, domains: 1 }]);
 });
+
+test("a visit with no recorded main-document status, or an error status, is outside the ranked population", () => {
+  // The corpus builder leaves such a visit out of every distribution, so the
+  // board must not rank it against one: one population rule, read by both.
+  const population = (status: number | null) => {
+    const result = makeScanReportV1() as ScanResult;
+    result.summary = { ...result.summary, status };
+    return runInCorpusDistributionPopulation(viewFromV1Report(result).runs[0]);
+  };
+  assert.equal(population(200), true, "the fixture is otherwise in the population");
+  assert.equal(population(null), false);
+  assert.equal(population(403), false);
+});
