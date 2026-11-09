@@ -31,6 +31,10 @@ does not describe Wikipedia's current behavior.*
 
 **Version:** `0.6.0` is the current release, tagged
 [`v0.6.0`](https://github.com/iAnonymous3000/site-behavior-lab/tree/v0.6.0).
+This README describes `main`, which the public instance follows and which is
+ahead of that tag: the after-scrolling check, the connection inspection, and
+the measurement identity named below are on `main` and not in `v0.6.0`. For
+the tag, read the README at the tag.
 Product versions are independent of the report contracts: v1 is frozen, and
 v2/r1 and v2/r2 are byte-immutable. See the [changelog](CHANGELOG.md) and
 [release status](RELEASE.md#current-release-state).
@@ -354,8 +358,10 @@ the build commit, and the effective state of every producer flag.
 npm run verify:report -- <report-id>
 ```
 
-That replays the digest chain from the committed report to the transparency
-log; add `--from <dir>` to check bytes you saved yourself. Anchors cover a prefix of the log: entries published since the most recently anchored head
+That downloads the report, its provenance sidecar and the report index from
+sitebehavior.org and replays the digest chain from those bytes to the
+transparency log in your clone. Add `--from <dir>` to check bytes you saved yourself instead; with
+`--from` nothing is downloaded. Anchors cover a prefix of the log: entries published since the most recently anchored head
 carry no anchor in the published log until an anchor proposal for a later head
 is merged. Read `docs/verify-a-report.md` and `docs/evidence-custody.md` before
 relying on a report; a printed copy is a rendering whose footer carries the
