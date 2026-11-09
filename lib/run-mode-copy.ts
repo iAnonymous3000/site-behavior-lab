@@ -45,11 +45,16 @@ export function runModeAvailability(enabled: boolean, awaitingScannerHealth: boo
 /** Shown once, in place of any availability claim, while health is pending. */
 export const RUN_MODE_CHECKING_NOTE = "Checking which comparisons this scanner offers.";
 
-/** Why a comparison is off, once health has answered without it. */
+/**
+ * Why a comparison is off, once health has answered without it. Every note
+ * says only that this scanner does not offer the mode: there is one scanner,
+ * so a note that names another one to use sends the visitor nowhere.
+ */
+const unavailableNote = (name: string): string => `${name} comparison is not available from this scanner.`;
 export const RUN_MODE_UNAVAILABLE_NOTES: Readonly<Record<ComparisonRunMode, string>> = {
-  gpc: "GPC comparison is not available from this scanner.",
-  shields: "Blocker comparison requires the Node scanner.",
-  consent: "Consent comparison requires the Node scanner."
+  gpc: unavailableNote("GPC"),
+  shields: unavailableNote("Blocker"),
+  consent: unavailableNote("Consent")
 };
 
 /** A comparison button's description: what the mode does, or, once known, why it is off. */
@@ -69,12 +74,17 @@ export const RUN_MODE_TITLES: Record<RunMode, string> = {
   consent: 'Experimental. Two visits: one asked to click "Accept all" on the cookie banner, one "Reject all".'
 };
 
+/**
+ * The line under the Run control. A comparison's two visits run in an order
+ * drawn at random for each pair (lib/scan-api.ts), which the report names, so
+ * a hint never says which visit comes first.
+ */
 export function runModeHint(mode: RunMode): string {
   if (mode === "shields") {
-    return "Visits the page twice: once normally, then once with Brave's ad-block engine and Shields' default filter lists actively blocking, a simulation of Brave Shields inside this scanner's browser (not a live Brave visit). It also applies the lists to the site's own requests, which Brave's default setting mostly exempts. The report shows the difference between this one pair of visits; it does not treat that difference as a causal blocking rate.";
+    return "Visits the page twice, in a random order the report names: once normally and once with Brave's ad-block engine and Shields' default filter lists actively blocking, a simulation of Brave Shields inside this scanner's browser (not a live Brave visit). It also applies the lists to the site's own requests, which Brave's default setting mostly exempts. The report shows the difference between this one pair of visits; it does not treat that difference as a causal blocking rate.";
   }
   if (mode === "gpc") {
-    return 'Visits the page twice: once normally, then once sending Global Privacy Control (GPC), a legal "do not sell or share my data" signal. The report shows the difference between this one pair of visits; request counts cannot prove that the site received or honored the signal.';
+    return 'Visits the page twice, in a random order the report names: once normally and once sending Global Privacy Control (GPC), a legal "do not sell or share my data" signal. The report shows the difference between this one pair of visits; request counts cannot prove that the site received or honored the signal.';
   }
   if (mode === "consent") {
     return 'Experimental: coverage varies across consent banners. Visits the page twice, attempting "Accept all" and "Reject all". A comparison requires recorded choices and adequate measurement; if no banner control is found, that visit stays pre-consent. Results describe this pair of visits.';

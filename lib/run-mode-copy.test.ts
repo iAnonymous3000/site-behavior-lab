@@ -75,6 +75,32 @@ test("no comparison is claimed available or unavailable before the scanner's hea
   assert.match(RUN_MODE_CHECKING_NOTE, /^Checking /);
 });
 
+test("comparison hints never promise which visit runs first", () => {
+  // Each pair's first arm is drawn at random and the report names it. The
+  // hints said "once normally, then once ...", an order half of all pairs do
+  // not have. If the draw ever goes, this rule goes with it.
+  const scanApi = readFileSync(path.join(process.cwd(), "lib/scan-api.ts"), "utf8");
+  assert.equal(
+    scanApi.match(/const executedFirst = \(control\.drawComparisonFirstArm \?\? drawComparisonFirstArm\)\(\);/g)?.length,
+    3,
+    "every comparison mode draws its first arm; revisit the hints if one stops"
+  );
+  for (const mode of ["gpc", "shields", "consent"] as const) {
+    assert.doesNotMatch(runModeHint(mode), /\bthen\b/i, `the ${mode} hint states an order`);
+  }
+  assert.match(runModeHint("gpc"), /in a random order the report names/);
+  assert.match(runModeHint("shields"), /in a random order the report names/);
+});
+
+test("an unavailable comparison is never blamed on a scanner the visitor should use instead", () => {
+  // The Node scanner is the only scanner. "requires the Node scanner" was
+  // shown on that scanner whenever its health did not offer the mode.
+  for (const mode of ["gpc", "shields", "consent"] as const) {
+    assert.match(RUN_MODE_UNAVAILABLE_NOTES[mode], / comparison is not available from this scanner\.$/);
+    assert.doesNotMatch(RUN_MODE_UNAVAILABLE_NOTES[mode], /requires/);
+  }
+});
+
 test("the scan form shows the run modes as checking until health answers", () => {
   const source = (file: string) => readFileSync(path.join(process.cwd(), file), "utf8");
   const controls = source("app/_components/scan-controls.tsx");
