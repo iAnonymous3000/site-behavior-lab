@@ -24,7 +24,7 @@ const ENTRIES: GlossaryEntry[] = [
     id: "brave-shields",
     term: "Brave Shields",
     definition:
-      "The ad and tracker blocker built into the Brave browser. Reports run every observed request through Brave's own open-source ad-block engine (adblock-rust) with Brave's default filter lists. Only network requests are matched: cosmetic filtering, which hides page elements, is not simulated. This is Site Behavior Lab's list-based simulation: it applies every list to a page's requests to its own site too, which Brave's default Standard setting mostly exempts, so results can differ."
+      "The ad and tracker blocker built into the Brave browser. Reports run each request the scanner routes through Brave's own open-source ad-block engine (adblock-rust) with Brave's default filter lists. The page's own main-frame navigations are never blocked or counted as matches, and the later hops of a redirect are not compared. Only network requests are matched: cosmetic filtering, which hides page elements, is not simulated. This is Site Behavior Lab's list-based simulation: it applies every list to a page's requests to its own site too, which Brave's default Standard setting mostly exempts, so results can differ."
   },
   {
     id: "brave-would-block",
@@ -78,7 +78,7 @@ const ENTRIES: GlossaryEntry[] = [
     id: "keystroke-capture",
     term: "Keystroke capture test",
     definition:
-      "The scan types a synthetic sentinel value into the page's form fields (never submitting) and watches outgoing traffic for that value, including base64, hex, and hashed encodings. It covers fields on the loaded page, not flows behind logins or extra steps."
+      "The scan types a synthetic test value into up to eight supported form fields that are already in the viewport of the page's top document (never submitting). It then watches the HTTP requests it captured for that value reaching another site, in plain, base64, hex, MD5, SHA-1 or SHA-256 form. Fields that are offscreen, hidden, inside frames, of an unsupported type, or behind logins or extra steps are not tested, and a value sent only to the site itself is not reported."
   },
   {
     id: "advertising-pixels",
