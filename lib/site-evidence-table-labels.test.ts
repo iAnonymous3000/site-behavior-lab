@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { test } from "node:test";
+import { formatCount, plural } from "./text-format";
 
 /**
  * What the shared site table calls its visit column and its report link.
@@ -41,4 +42,17 @@ test("a category page names its rows as included visits, and the directory keeps
   // The directory renders the table through its controls and passes no labels.
   assert.doesNotMatch(source("app", "directory", "directory-controls.tsx"), /visitLabels/);
   assert.doesNotMatch(source("app", "directory", "directory-index.tsx"), /visitLabels/);
+});
+
+test("the table's count line is singular at one site", () => {
+  // The line is `plural(total, "site")`, alone or after "N of".
+  assert.equal(plural(1, "site"), "1 site");
+  assert.equal(plural(2, "site"), "2 sites");
+  assert.equal(`${formatCount(0)} of ${plural(1, "site")}`, "0 of 1 site");
+  assert.equal(`${formatCount(3)} of ${plural(1_250, "site")}`, "3 of 1,250 sites");
+  const table = source("app", "_components", "site-evidence-table.tsx");
+  const countLine = table.slice(table.indexOf("className={styles.tableCount}"), table.indexOf("</p>", table.indexOf("className={styles.tableCount}")));
+  assert.match(countLine, /\? plural\(rows\.length, "site"\)\s*: `\$\{formatCount\(visible\.length\)\} of \$\{plural\(rows\.length, "site"\)\}`/);
+  // No count is followed by a fixed plural noun.
+  assert.doesNotMatch(countLine, /\} sites`/);
 });

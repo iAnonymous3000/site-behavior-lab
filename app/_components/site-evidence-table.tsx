@@ -4,7 +4,7 @@ import { ArrowDown, ArrowUp, ChevronsUpDown } from "lucide-react";
 import { useMemo, useState } from "react";
 import type { SiteEvidenceRow } from "@/lib/site-evidence-row";
 import { sortSiteEvidenceRows, type SiteEvidenceSortKey } from "@/lib/site-evidence-sort";
-import { displayHost } from "@/lib/text-format";
+import { displayHost, formatCount, plural } from "@/lib/text-format";
 import styles from "./site-evidence-table.module.css";
 
 /**
@@ -123,9 +123,11 @@ export function SiteEvidenceTable({
           </label>
         )}
         <p className={styles.tableCount} role="status">
+          {/* The noun follows the total it counts: a category with one site
+              reads "1 site", never "1 sites". */}
           {visible.length === rows.length
-            ? `${rows.length.toLocaleString()} sites`
-            : `${visible.length.toLocaleString()} of ${rows.length.toLocaleString()} sites`}
+            ? plural(rows.length, "site")
+            : `${formatCount(visible.length)} of ${plural(rows.length, "site")}`}
         </p>
       </div>
 
