@@ -301,6 +301,24 @@ test("publicClientHash is stable per IP and varies across IPs", async () => {
   assert.match(a1, /^[a-f0-9]{64}$/);
 });
 
+test("publicClientHash names one client per IPv6 /64 and reads no caller header", async () => {
+  const hash = (headers: Record<string, string>) => publicClientHash(new Headers(headers));
+
+  // A subscriber's whole /64 is one quota bucket; the next /64 is another.
+  const subscriber = await hash({ "cf-connecting-ip": "2001:db8:aaaa:bbbb::1" });
+  assert.equal(await hash({ "cf-connecting-ip": "2001:db8:aaaa:bbbb:1234:5678:9abc:def0" }), subscriber);
+  assert.notEqual(await hash({ "cf-connecting-ip": "2001:db8:aaaa:bbbc::1" }), subscriber);
+  assert.equal(await hash({ "cf-connecting-ip": "::ffff:203.0.113.7" }), await hash({ "cf-connecting-ip": "203.0.113.7" }));
+
+  // Without Cloudflare's address a request cannot pick its bucket with a
+  // header it wrote itself: all such requests share one.
+  const unnamed = await hash({});
+  assert.equal(await hash({ "x-real-ip": "198.51.100.1" }), unnamed);
+  assert.equal(await hash({ "x-forwarded-for": "198.51.100.2, 198.51.100.3" }), unnamed);
+  assert.equal(await hash({ "x-real-ip": "198.51.100.4", "x-forwarded-for": "198.51.100.5" }), unnamed);
+  assert.notEqual(unnamed, await hash({ "cf-connecting-ip": "198.51.100.1" }));
+});
+
 test("publicScanGateStatus reflects the edge gate's admission rules", () => {
   // Open public scanner with Turnstile: the field the UI reads to show the widget.
   assert.deepEqual(

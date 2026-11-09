@@ -1,3 +1,4 @@
+import { edgeClientIdentity } from "./client-identity";
 import { scanCorsHeaders } from "./cors";
 import type { DurableScanJobStoreSql } from "./durable-scan-job-store";
 import { publicErrorBody } from "./public-errors";
@@ -69,9 +70,10 @@ export async function enforceAdmissionAttemptLimit(
 ): Promise<Response | null> {
   let decision: PublicScanRateLimitResult;
   try {
-    // Cloudflare supplies this header at the sole public ingress. Never use
-    // caller-controlled X-Forwarded-For/X-Real-IP as alternate quota identities.
-    const clientHash = await sha256Hex(request.headers.get("cf-connecting-ip")?.trim() || "unknown");
+    // The shared edge identity: Cloudflare's client address only, an IPv6
+    // client keyed on its /64, and never a caller-controlled
+    // X-Forwarded-For/X-Real-IP as an alternate quota identity.
+    const clientHash = await sha256Hex(edgeClientIdentity(request.headers));
     decision = await charge(clientHash);
   } catch {
     return refusal(request, allowedOrigin, 503, "Scan admission is temporarily unavailable.", 5);

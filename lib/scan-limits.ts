@@ -1,3 +1,4 @@
+import { clientIdentityForAddress } from "./client-identity";
 import { PublicScanError } from "./public-errors";
 import type { ScanFailureCause } from "./scan-failure-causes";
 import { AUTHENTICATED_SCAN_RATE_LIMIT_PER_MINUTE } from "./public-scan-rate-limit-store";
@@ -193,7 +194,10 @@ function clientKeyFromHeaders(headers: Pick<Headers, "get">): string {
   // With more than one trusted hop this identifies the inner proxy and
   // collapses clients into one bucket. That is over-restrictive, not a bypass,
   // and it is the correct direction to fail.
-  return forwardedFor?.[forwardedFor.length - 1] || "local";
+  const peer = forwardedFor?.[forwardedFor.length - 1];
+  // Keyed by the shared client-identity rule, so an IPv6 client is one client
+  // per /64 here exactly as it is at the edge.
+  return peer ? clientIdentityForAddress(peer) : "local";
 }
 
 export async function acquireScanSlot(queueTimeoutMs = QUEUE_TIMEOUT_MS, signal?: AbortSignal): Promise<() => void> {

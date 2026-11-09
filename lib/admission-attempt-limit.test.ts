@@ -12,6 +12,7 @@ import {
   isAdmissionAttempt
 } from "./admission-attempt-limit";
 import type { DurableScanJobStoreSql } from "./durable-scan-job-store";
+import { publicClientHash } from "./edge-scan-gate";
 
 function database() {
   const db = new DatabaseSync(":memory:");
@@ -135,6 +136,24 @@ test("only the provider client identity changes an attempt bucket", async () => 
   assert.ok(hashes.every((hash) => /^[0-9a-f]{64}$/.test(hash)));
 });
 
+test("every address of one IPv6 /64 spends the same attempt bucket", async () => {
+  const hashFor = async (address: string) => {
+    let seen = "";
+    await enforceAdmissionAttemptLimit(
+      new Request("https://scanner.invalid/api/scan", { method: "POST", headers: { "cf-connecting-ip": address } }),
+      undefined,
+      async (hash) => { seen = hash; return { allowed: true }; }
+    );
+    return seen;
+  };
+  const first = await hashFor("2001:db8:aaaa:bbbb::1");
+  assert.equal(await hashFor("2001:db8:aaaa:bbbb:ffff:ffff:ffff:ffff"), first);
+  assert.notEqual(await hashFor("2001:db8:aaaa:bbbc::1"), first);
+  assert.equal(await hashFor("::ffff:203.0.113.10"), await hashFor("203.0.113.10"));
+  // The attempt budget and the scan quota name one client the same way.
+  assert.equal(first, await publicClientHash(new Headers({ "cf-connecting-ip": "2001:db8:aaaa:bbbb::2" })));
+});
+
 test("both routes count, including query variants, but polling and preflight do not", () => {
   for (const url of ["https://s.invalid/api/scan", "https://s.invalid/api/scan?q=1"]) {
     assert.equal(isAdmissionAttempt("POST", new URL(url).pathname), true);
@@ -182,7 +201,7 @@ test("the production Worker refuses concurrent malformed requests before contain
   }
 });
 
-test("the production Worker charges and forwards an admitted scan once, naming the client by Cloudflare's address", { timeout: 60_000 }, async () => {
+test("the production Worker admits a scan once per client, and Cloudflare's address alone names the client", { timeout: 60_000 }, async () => {
   const dir = await mkdtemp(path.join(tmpdir(), "sbl-scan-admission-path-"));
   const siteverifyAddresses: Array<string | null> = [];
   let mf: Miniflare | undefined;
@@ -215,6 +234,10 @@ test("the production Worker charges and forwards an admitted scan once, naming t
         forwarded: Array<{ path: string; forwardedFor: string | null; realIp: string | null }>;
         clientMinuteCharges: number[];
       };
+    // The quota is a fixed minute window; start where every request below
+    // lands in one window.
+    const untilNextMinute = 60_000 - (Date.now() % 60_000);
+    if (untilNextMinute < 20_000) await new Promise((resolve) => setTimeout(resolve, untilNextMinute + 100));
 
     // A scan with no solved challenge is refused before Siteverify, the quota
     // and the container.
@@ -240,6 +263,40 @@ test("the production Worker charges and forwards an admitted scan once, naming t
       clientMinuteCharges: [1]
     });
     assert.deepEqual(siteverifyAddresses, [subscriber(1)]);
+
+    // Every address of that /64 is the same client: five more scans spend its
+    // six a minute, and a seventh from yet another of its addresses is refused.
+    for (let host = 2; host <= 6; host += 1) {
+      const next = await scan({ "cf-connecting-ip": subscriber(host) });
+      assert.equal(next.status, 202, `scan ${host} of the subscriber`);
+      await next.text();
+    }
+    const seventh = await scan({ "cf-connecting-ip": subscriber(7) });
+    assert.equal(seventh.status, 429);
+    assert.equal(((await seventh.json()) as { cause?: string }).cause, "request-limit");
+    // The neighbouring /64 is another client with its own allowance.
+    const neighbour = await scan({ "cf-connecting-ip": "2001:db8:aaaa:bbbc::1" });
+    assert.equal(neighbour.status, 202);
+    await neighbour.text();
+    assert.deepEqual((await state()).clientMinuteCharges, [1, 6]);
+
+    // A request that carries no Cloudflare address shares one bucket with every
+    // other such request: a caller header cannot choose a fresh one.
+    const unnamed: number[] = [];
+    for (let index = 0; index < 7; index += 1) {
+      const response = await scan({
+        "x-harness-no-client-address": "1",
+        "x-real-ip": `198.51.100.${index}`,
+        "x-forwarded-for": `203.0.113.${index}`
+      });
+      unnamed.push(response.status);
+      await response.text();
+    }
+    assert.deepEqual(unnamed, [202, 202, 202, 202, 202, 202, 429]);
+    const final = await state();
+    assert.deepEqual(final.clientMinuteCharges, [1, 6, 6]);
+    assert.equal(final.forwarded.length, 13);
+    assert.ok(final.forwarded.slice(7).every((entry) => entry.forwardedFor === null && entry.realIp === null));
   } finally {
     await mf?.dispose();
     await rm(dir, { recursive: true, force: true });

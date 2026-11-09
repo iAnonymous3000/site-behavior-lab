@@ -16,6 +16,7 @@
  * so it carries no Worker-only globals and runs in the Node unit-test runner.
  */
 
+import { edgeClientIdentity } from "./client-identity";
 import { PublicFacingError } from "./public-errors";
 import type { ScanFailureCause } from "./scan-failure-causes";
 import { SCROLL_CHECK_REQUEST_VALUE } from "./scroll-check-request";
@@ -375,14 +376,13 @@ export async function probeTurnstileConfiguration(options: {
   return "unavailable";
 }
 
-/** Stable per-client hash from the proxied client IP headers. */
+/**
+ * Stable per-client hash for the edge quota and read limiters. The identity is
+ * the shared rule in lib/client-identity.ts: Cloudflare's client address only,
+ * an IPv6 client keyed on its /64, and no caller-supplied header.
+ */
 export async function publicClientHash(headers: Headers): Promise<string> {
-  const key =
-    headers.get("cf-connecting-ip")?.trim() ||
-    headers.get("x-real-ip")?.trim() ||
-    headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-    "unknown";
-  return sha256Hex(key);
+  return sha256Hex(edgeClientIdentity(headers));
 }
 
 /** Parse a positive-integer env override, falling back when unset or invalid. */

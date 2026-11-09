@@ -53,13 +53,22 @@ export class ScanAdmissionPathHarness extends DurableObject {
   }
 }
 
+// Miniflare, like Cloudflare, always supplies cf-connecting-ip. A request
+// carrying this header reaches the Worker without one, which is the only way
+// to show what the Worker does when its edge named no client.
+const NO_CLIENT_ADDRESS_HEADER = "x-harness-no-client-address";
+
 export default {
-  async fetch(request: Request, env: Record<string, unknown>, ctx: ExecutionContext) {
+  async fetch(incoming: Request, env: Record<string, unknown>, ctx: ExecutionContext) {
     const scanner = env.SCANNER as DurableObjectNamespace<ScanAdmissionPathHarness>;
-    if (new URL(request.url).pathname === "/__harness/state") {
+    if (new URL(incoming.url).pathname === "/__harness/state") {
       // getContainer's default instance name.
       return Response.json(await scanner.get(scanner.idFromName("cf-singleton-container")).harnessState());
     }
+    const headers = new Headers(incoming.headers);
+    if (headers.has(NO_CLIENT_ADDRESS_HEADER)) headers.delete("cf-connecting-ip");
+    headers.delete(NO_CLIENT_ADDRESS_HEADER);
+    const request = new Request(incoming, { headers });
     return worker.fetch(request, {
       SCANNER: env.SCANNER,
       SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN: "https://sitebehavior.org",

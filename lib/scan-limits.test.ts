@@ -84,6 +84,25 @@ test("a client cannot choose its own rate-limit identity through X-Real-IP", () 
   assert.equal(clientKeyFromRequest(realIpOnly), "local");
 });
 
+test("an IPv6 client is one rate-limit identity per /64", () => {
+  process.env[TRUST_PROXY_ENV] = "1";
+  const keyFor = (peer: string) =>
+    clientKeyFromRequest(new Request("http://localhost/api/scan", { headers: { "x-forwarded-for": peer } }));
+
+  // One subscriber is routed a whole /64 and can send from any address in it,
+  // so a key on the full address is a fresh allowance per request.
+  for (let index = 0; index < REPORT_PDF_RATE_LIMIT_MAX; index += 1) {
+    assertReportPdfRateLimit(keyFor(`2001:db8:aaaa:bbbb::${(index + 1).toString(16)}`), 1_000);
+  }
+  assert.throws(() => assertReportPdfRateLimit(keyFor("2001:db8:aaaa:bbbb:9999::1"), 1_000), isStatus(429));
+
+  // The neighbouring /64 and an IPv4 client keep their own allowance, and an
+  // IPv4-mapped spelling is the IPv4 client it names.
+  assertReportPdfRateLimit(keyFor("2001:db8:aaaa:bbbc::1"), 1_000);
+  assertReportPdfRateLimit(keyFor("203.0.113.20"), 1_000);
+  assert.equal(keyFor("::ffff:203.0.113.20"), "203.0.113.20");
+});
+
 test("a client cannot choose its own rate-limit identity through X-Forwarded-For", () => {
   process.env[TRUST_PROXY_ENV] = "1";
 
