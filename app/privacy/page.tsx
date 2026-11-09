@@ -174,8 +174,12 @@ export default function PrivacyPage() {
         <h2>Rate limiting and abuse prevention</h2>
         <p>
           To keep the public scanner available, requests are rate-limited per client. Your IP address is used
-          transiently for that limit and for the Turnstile bot check. It is not attached to stored reports and
-          is not used to profile or track you across visits. The optional restart-safe job record does not copy or
+          for that limit and for the Turnstile bot check. For the limit, the scanner stores a SHA-256 hash derived
+          from the address in its rate-limit entries, which cover windows of ten seconds, one minute and one UTC
+          day, and removes each entry on a later request after its window has ended. That hash stands for the address and does not
+          make it anonymous. The scanner&apos;s container also holds the address in memory for its own one-minute
+          limits. Neither the address nor the hash is attached to stored reports or used to profile or track you
+          across visits. The optional restart-safe job record does not copy or
           link either the IP address or its rate-limit client hash; a replay is the same admitted job, so it does not
           repeat the Turnstile check or charge the scan quota again. Scheduled rescan execution uses a small global
           daily budget rather than a stored per-IP identity.
