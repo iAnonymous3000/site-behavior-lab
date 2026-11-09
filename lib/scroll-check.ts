@@ -1,6 +1,7 @@
 import { analyticsBeaconFormat, type AnalyticsBeaconBody } from "./analytics-events";
 import { isThirdParty, partyKey } from "./domain-utils";
 import { redactHostnameV2 } from "./redaction-v2";
+import { SCROLL_CHECK_PHASE_DEADLINE_MS } from "./scan-deadlines";
 import { scrollCheckWindowEvents, type ScrollCheckEventRequest } from "./scroll-check-events";
 import {
   isScrollCheckEvidence,
@@ -110,7 +111,7 @@ export const SCROLL_CHECK_TIMING: Readonly<ScrollCheckTiming> = Object.freeze({
   scrollWindowMs: 10_500,
   stepDwellMs: 1_000,
   deepestDwellMs: 2_000,
-  phaseDeadlineMs: 45_000
+  phaseDeadlineMs: SCROLL_CHECK_PHASE_DEADLINE_MS
 });
 
 /**

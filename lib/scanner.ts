@@ -191,6 +191,7 @@ import {
   type NodeScanMeasurement,
   type NodeScanMeasurementEnvelope
 } from "./node-scan-measurement";
+import { MAX_SCAN_DURATION_MS } from "./scan-deadlines";
 import { scannerEgressLabel, scannerEgressRegion } from "./scanner-egress";
 import {
   classifyPageSubject,
@@ -352,7 +353,6 @@ const SCAN_LOCALE = "en-US";
 const SCAN_COLOR_SCHEME = "light" as const;
 const NAVIGATION_TIMEOUT_MS = 30_000;
 const NETWORK_IDLE_TIMEOUT_MS = 8_000;
-const MAX_SCAN_DURATION_MS = 45_000;
 // Main-frame document responses kept for the subject's HTTP status. Only the
 // newest can describe the frozen subject, so the oldest is dropped past this.
 const MAX_PASSIVE_DOCUMENT_RESPONSES = 32;

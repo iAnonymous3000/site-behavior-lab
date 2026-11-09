@@ -1,6 +1,7 @@
 import { PublicScanError } from "./public-errors";
 import type { ScanFailureCause } from "./scan-failure-causes";
 import { AUTHENTICATED_SCAN_RATE_LIMIT_PER_MINUTE } from "./public-scan-rate-limit-store";
+import { QUEUE_TIMEOUT_MS } from "./scan-deadlines";
 import { scanAbortError } from "./scan-runtime";
 import { SCROLL_CHECK_BUSY_REFUSAL } from "./scroll-check-request";
 
@@ -30,7 +31,9 @@ export const MAX_CONCURRENT_REPORT_PDF_RENDERS = Math.min(1, MAX_CONCURRENT_SCAN
 // reader would ever get a PDF. Sized so a reader can retry a few times and
 // download several reports in a sitting, and no more.
 export const REPORT_PDF_RATE_LIMIT_MAX = 10;
-export const QUEUE_TIMEOUT_MS = 15_000;
+// Defined in lib/scan-deadlines.ts, which the browser also reads to size its
+// wait for a synchronous answer.
+export { QUEUE_TIMEOUT_MS };
 // The generic public sentence for a "scanner-busy" refusal, shared so that a
 // producer reusing it elsewhere cannot drift from the words this module sends.
 export const SCANNER_BUSY_MESSAGE = "Scanner is busy. Try again shortly.";
