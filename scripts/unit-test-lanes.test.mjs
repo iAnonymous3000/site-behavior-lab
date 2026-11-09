@@ -152,6 +152,7 @@ test("test:unit runs every compiled lib test exactly once, through the lanes, be
 test("every stage of test:unit that runs tests bounds each test at TEST_TIMEOUT_MS", () => {
   const launcher = readFileSync(path.join(root, "scripts", "run-schema-cli.mjs"), "utf8");
   let lanes = 0;
+  let guarded = 0;
   let nodeTest = 0;
   for (const step of testUnitSteps()) {
     const [command, ...args] = step.split(" ");
@@ -167,6 +168,9 @@ test("every stage of test:unit that runs tests bounds each test at TEST_TIMEOUT_
     } else if (script === "scripts/unit-test-lanes.mjs") {
       // The lanes add TEST_BOUND_FLAGS to both lanes; the fixtures below prove it.
       lanes += 1;
+    } else if (script === "scripts/guarded-test-stage.mjs" || script === "scripts/investigation-test-stage.mjs") {
+      // Both run their suites through runLane, which adds the same flags.
+      guarded += 1;
     } else {
       // The dist/schema launcher names the file it runs in its own table.
       const name = args[args.indexOf(script) + 1];
@@ -188,7 +192,74 @@ test("every stage of test:unit that runs tests bounds each test at TEST_TIMEOUT_
     }
   }
   assert.equal(lanes, 1, "test:unit must run the lib tests through the lanes exactly once");
+  assert.ok(guarded > 0, "no guarded stage was found in test:unit");
   assert.ok(nodeTest > 0, "no node --test stage was found in test:unit");
+});
+
+// node --test alone passes a run with a named file missing and a file whose
+// process exits 0 on whatever results reached it. Only two stages may still run
+// bare: the corpus-overview group, which is one process by design and names a
+// glob, and the stage holding this file, which starts lanes of its own.
+test("every suite a test:unit stage names runs through a lane, and every committed one exists", () => {
+  const bare = [];
+  for (const step of testUnitSteps()) {
+    const [command, ...args] = step.split(" ");
+    if (command !== "node") continue;
+    const script = args.find((arg) => !arg.startsWith("-"));
+    const named = args.filter((arg) => /\.test\.m?js$/.test(arg) && !arg.includes("*"));
+    for (const file of named) {
+      // A compiled suite (under a dot directory) exists only after its compile.
+      if (file.startsWith(".")) continue;
+      assert.ok(existsSync(path.join(root, file)), `${file} is named by "${step.slice(0, 60)}..." and does not exist`);
+    }
+    if (args.includes("--test") && named.length > 0) bare.push(named.join(" "));
+    if (script === "scripts/guarded-test-stage.mjs") {
+      assert.doesNotMatch(args[args.indexOf(script) + 1], /\.m?js$/, `${step}\nmust name its stage before its suites`);
+    }
+  }
+  assert.deepEqual(bare, ["scripts/pages-compiler-cache.test.mjs scripts/unit-test-lanes.test.mjs"]);
+});
+
+test("the guarded stage fails when one named suite is missing or stops early, though node --test exits 0", async (t) => {
+  const directory = await mkdtemp(path.join(os.tmpdir(), "guarded-stage-"));
+  t.after(() => rm(directory, { recursive: true, force: true }));
+  const passing = path.join(directory, "passing.test.mjs");
+  const early = path.join(directory, "early.test.mjs");
+  const missing = path.join(directory, "missing.test.mjs");
+  await writeFile(passing, 'import { test } from "node:test";\ntest("passes", () => {});\n');
+  await writeFile(
+    early,
+    'import { test } from "node:test";\ntest("first", () => { process.exit(0); });\ntest("never reported", () => {});\n'
+  );
+  // A child must not inherit this test's context, or node --test skips its files.
+  const env = Object.fromEntries(Object.entries(process.env).filter(([name]) => name !== "NODE_TEST_CONTEXT"));
+  const run = (args) => {
+    const result = spawnSync(process.execPath, args, { cwd: directory, encoding: "utf8", timeout: FIXTURE_TIMEOUT_MS, env });
+    const output = `${result.stdout}${result.stderr}`;
+    assert.equal(result.error, undefined, `the stage did not finish within ${FIXTURE_TIMEOUT_MS} ms:\n${output}`);
+    return { status: result.status, output };
+  };
+  const stage = (...files) => run([path.join(root, "scripts", "guarded-test-stage.mjs"), "fixture-stage", ...files]);
+  const bare = (...files) => run(["--test", ...TEST_BOUND_FLAGS, ...files]);
+
+  const complete = stage(passing);
+  assert.equal(complete.status, 0, complete.output);
+  assert.match(complete.output, /fixture-stage \(1 file\) passed/);
+
+  assert.equal(bare(passing, missing).status, 0, "node --test alone passes with a named suite missing");
+  const withMissing = stage(passing, missing);
+  assert.notEqual(withMissing.status, 0, withMissing.output);
+  assert.match(withMissing.output, /One of its files ended without the summary .*missing\.test\.mjs/);
+
+  assert.equal(bare(passing, early).status, 0, "node --test alone passes a suite that exited early");
+  const withEarly = stage(passing, early);
+  assert.notEqual(withEarly.status, 0, withEarly.output);
+  assert.match(withEarly.output, /One of its files ended without the summary .*early\.test\.mjs/);
+
+  // A forgotten label would hand the first suite's name to the stage as its label.
+  const unlabeled = run([path.join(root, "scripts", "guarded-test-stage.mjs"), passing]);
+  assert.notEqual(unlabeled.status, 0);
+  assert.match(unlabeled.output, /Usage: guarded-test-stage\.mjs/);
 });
 
 test("TEST_TIMEOUT_MS lets two stuck tests fail by name inside CI's budget for the tests job", () => {

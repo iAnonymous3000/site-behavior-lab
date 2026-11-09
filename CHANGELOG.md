@@ -355,6 +355,13 @@ public API or a 1.0 release.
   aborts, the disabled HTTP cache, guard-refused requests, and a v1 report's
   silence when the CNAME step had no time. SECURITY.md warns that a scanner
   with no access token answers any web page its operator's browser visits.
+- The producer suites under `scripts/` and `research/` run through the lanes'
+  own guard (`scripts/guarded-test-stage.mjs`). Bare `node --test` passes a
+  stage with a named suite missing, and passes a suite whose process exited 0
+  before delivering all its results, which dropped 45 results of a lib test on
+  2026-10-21; the lib lanes were guarded against both and these ten stages
+  were not. The corpus-overview group and the stage that tests the lanes
+  themselves still run bare, and a test names them as the only two.
 - Tests the suite lacked, each shown to fail with its guard removed: a pair
   the claim policy refused never tells the consent story; the strict history
   key changes with each fingerprint it is built from; an admitted scan runs
