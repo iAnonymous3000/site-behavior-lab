@@ -9,7 +9,7 @@ import { absoluteShareUrl, reportPdfHref, reportSharePath } from "./report-overv
 import type { RunFacts } from "@/lib/report-facts";
 import { safeNavigableHttpUrl } from "@/lib/report-url";
 import { displayHost, displayPublicUrl } from "@/lib/text-format";
-import { formatReportTimestamp } from "@/lib/visit-timestamp";
+import { readableVisitStart, unshownVisitStart } from "@/lib/visit-timestamp";
 import {
   reportFormatChip,
   type ReportView
@@ -161,7 +161,7 @@ export function ReportHeader({
           <>
             <br />
             <span className="report-url-label">Visit started</span>{" "}
-            <span className="report-url">{formatReportTimestamp(run.startedAt)}</span>
+            <span className="report-url">{readableVisitStart(run.startedAt) ?? unshownVisitStart(run.startedAt)}</span>
           </>
         )}
         {requestEvidenceExplanation && (

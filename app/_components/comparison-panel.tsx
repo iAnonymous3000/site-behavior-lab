@@ -21,7 +21,7 @@ import {
 } from "@/lib/report-evidence-navigation";
 import { MAX_DIFF_LIST } from "@/lib/compare-reports";
 import { comparisonDeltaHeading, displayHost, plural } from "@/lib/text-format";
-import { formatReportTimestamp } from "@/lib/visit-timestamp";
+import { readableVisitStart, unshownVisitStart } from "@/lib/visit-timestamp";
 import {
   isReviewedCookieName,
   isReviewedStorageKey,
@@ -341,7 +341,8 @@ function ComparisonPanel({ view, facts }: { view: ReportView; facts: ReportFacts
 }
 
 function visitStart(startedAt: string | null): string {
-  return startedAt ? `started ${formatReportTimestamp(startedAt)}` : "start time not recorded";
+  const at = readableVisitStart(startedAt);
+  return at ? `started ${at}` : `start time ${unshownVisitStart(startedAt)}`;
 }
 
 function comparisonEyebrow(view: ReportView): string {
