@@ -8,8 +8,10 @@ import { buildProvenanceEntry, committedSidecarFilename } from "./redaction-prov
 import { redactScanReportV1 } from "./redact-scan-report-v1";
 import { REDACTION_VERSION } from "./redaction-v2";
 import { scannerDisclosure } from "./scan-condition-disclosure";
-import { makePublicSingleReportV2, makeScanReportV1 } from "./scan-report-v2-fixtures";
-import type { PublicScanReportV2 } from "./scan-report-v2";
+import { makeScanReportV1 } from "./scan-report-v2-fixtures";
+import { makePublicSingleReportV2R2 } from "./scan-report-v2-r2-fixtures";
+import type { PublicScanReportV2R2 } from "./scan-report-v2-r2";
+import { r2ReportRuns, redactPublicScanReportV2R2 } from "./scan-report-v2-r2-remediation";
 import type { ScanReport, ScanResult } from "./types";
 
 const DAY_MS = 24 * 60 * 60 * 1_000;
@@ -73,19 +75,19 @@ function makeResult(domain: string, scannedAt: string): ScanResult {
   };
 }
 
-type TestReport = ScanReport | PublicScanReportV2;
+type TestReport = ScanReport | PublicScanReportV2R2;
 
 async function writeReport(id: string, report: TestReport): Promise<void> {
-  const publicReport = report.schemaVersion === 1 ? redactScanReportV1(report).report : structuredClone(report);
-  if (publicReport.schemaVersion === 2) {
-    if (publicReport.reportType === "comparison") {
-      publicReport.baseline.privacy.redactionVersion = REDACTION_VERSION;
-      publicReport.variant.privacy.redactionVersion = REDACTION_VERSION;
-    } else {
-      publicReport.run.privacy.redactionVersion = REDACTION_VERSION;
-    }
+  if (report.schemaVersion === 1) {
+    await writeManagedPublicReport(id, redactScanReportV1(report).report);
+    return;
   }
-  await writeManagedPublicReport(id, publicReport);
+  // A schema-r2 fixture declares its producer's redaction version and still
+  // carries a page title. The managed reader serves it only as a fixed point
+  // of the current sanitizer, so it is relabelled and redacted once.
+  const current = structuredClone(report);
+  for (const run of r2ReportRuns(current)) run.privacy.redactionVersion = REDACTION_VERSION;
+  await writeManagedPublicReport(id, redactPublicScanReportV2R2(current));
 }
 
 async function writeManagedPublicReport(id: string, publicReport: TestReport): Promise<void> {
@@ -239,7 +241,7 @@ test("schema mismatch cannot evict the only compatible predecessor", async () =>
   const oldestId = "20260101-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
   await writeReport(oldestId, makeResult("example.com", "2026-01-01T00:00:00.000Z"));
 
-  const v2 = makePublicSingleReportV2();
+  const v2 = makePublicSingleReportV2R2();
   v2.run.startedAt = "2026-03-01T00:00:00.000Z";
   v2.run.subject = {
     requested: { origin: "https://example.com", registrableDomain: "example.com", routeShape: "/" },
