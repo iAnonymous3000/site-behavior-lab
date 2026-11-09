@@ -30,6 +30,7 @@ export type ManagedReportReadFailureReason =
   | "invalid-report-json"
   | "report-resource-limit"
   | "invalid-report"
+  | "unmanaged-schema-revision"
   | "no-sidecar"
   | "invalid-sidecar-json"
   | "malformed-sidecar"
@@ -117,6 +118,20 @@ export function readManagedReport(input: {
       reason: "invalid-report",
       ...(reportRead.violations ? { violations: reportRead.violations } : {})
     };
+  }
+
+  // Schema v2 revision 1 has no managed form. The fixed-point checks below
+  // exist for frozen v1 and for schema-r2 only, so nothing here can show that
+  // an r1 report holds no string the current redaction removes: one that
+  // declares the current redaction version beside a sidecar of its own
+  // digest, which anyone able to write the store can compute, would be
+  // served on its word alone, raw URLs, page title and names included. No
+  // producer writes r1, and an r1 report as its producer wrote it declares
+  // an older redaction version that no current sidecar matches. The revision
+  // itself is refused, before a sidecar is read. A file a person opens is
+  // read by readStoredScanReport, which still accepts r1.
+  if (reportRead.stored.schemaVersion === 2 && reportRead.stored.schemaRevision === 1) {
+    return failure("unmanaged-schema-revision");
   }
 
   const share = reportRead.stored.report.share;

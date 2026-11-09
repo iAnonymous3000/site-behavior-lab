@@ -1,10 +1,15 @@
 import assert from "node:assert/strict";
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import path from "node:path";
 import { test } from "node:test";
 import { readManagedReport } from "./managed-report-reader";
 import { buildProvenanceEntry } from "./redaction-provenance";
 import { redactScanReportV1 } from "./redact-scan-report-v1";
 import { REDACTION_VERSION } from "./redaction-v2";
 import { buildReportShare, buildStaticReportShare } from "./report-locator";
+import { readStoredScanReportById } from "./report-store";
+import { resolveReportStoreBackend } from "./report-store-backend";
 import {
   REPORT_RESOURCE_LIMITS,
   hasSafeReportCollections
@@ -19,7 +24,12 @@ import {
   r2ReportRuns,
   redactPublicScanReportV2R2
 } from "./scan-report-v2-r2-remediation";
-import { makePublicSingleReportV2, makeScanReportV1 } from "./scan-report-v2-fixtures";
+import {
+  makeInterventionComparisonReportV2,
+  makePublicSingleReportV2,
+  makeScanReportV1
+} from "./scan-report-v2-fixtures";
+import { readStoredScanReport } from "./scan-report-reader";
 import { consentInteractionWarning } from "./consent-interaction";
 
 const REPORT_ID = "20260712-" + "a".repeat(32);
@@ -28,9 +38,47 @@ const RETENTION = {
   expiresAt: "2026-07-19T10:00:00.000Z"
 };
 
-function managedParts() {
+/**
+ * A schema-r2 single report the managed reader serves: the fixture declares
+ * the current redaction version and is redacted once, since the fixture
+ * itself still carries a page title the sanitizer withholds.
+ */
+function currentManagedReport() {
+  const fixture = makePublicSingleReportV2R2();
+  fixture.run.privacy.redactionVersion = REDACTION_VERSION;
+  const report = redactPublicScanReportV2R2(fixture);
+  if (report.reportType !== "single") throw new Error("expected single report fixture");
+  return report;
+}
+
+/**
+ * A schema v2 revision 1 report relabelled as currently redacted, holding
+ * strings the current redaction removes: a raw URL with a path token, a query
+ * value and a fragment, a page title, a cookie name, and a free-text warning.
+ */
+function relabelledRevision1ReportWithRawStrings() {
   const report = makePublicSingleReportV2();
   report.run.privacy.redactionVersion = REDACTION_VERSION;
+  report.run.evidence.requests[0].url =
+    "https://shop.example.com/reset/tok_PLANTED?email=jane.doe@victim-mail.example#frag";
+  report.run.summary.pageTitle = "Inbox (3) jane.doe@victim-mail.example";
+  report.run.evidence.cookiesFinal.push({
+    name: "sess_jane.doe",
+    domain: "shop.example.com",
+    path: "/u/8675309",
+    sameSite: "Lax",
+    secure: true,
+    httpOnly: true,
+    session: true,
+    thirdParty: false
+  });
+  report.run.summary.counts.cookies = 1;
+  report.run.warnings.push("Navigation failed for jane.doe@victim-mail.example");
+  return report;
+}
+
+function managedParts() {
+  const report = currentManagedReport();
   const reportContents = `${JSON.stringify(report, null, 2)}\n`;
   const sidecar = buildProvenanceEntry({
     reportId: REPORT_ID,
@@ -85,8 +133,7 @@ test("the managed reader rejects an active detector outcome with no causal loss"
 });
 
 test("the managed reader supports committed-report sidecars with no expiry", () => {
-  const report = makePublicSingleReportV2();
-  report.run.privacy.redactionVersion = REDACTION_VERSION;
+  const report = currentManagedReport();
   report.share = buildStaticReportShare(REPORT_ID);
   const clock = { createdAt: RETENTION.createdAt, expiresAt: null };
   const sidecar = buildProvenanceEntry({
@@ -108,7 +155,7 @@ test("the managed reader supports committed-report sidecars with no expiry", () 
 });
 
 test("a current sidecar cannot bless an older embedded v2 redaction revision", () => {
-  const report = makePublicSingleReportV2();
+  const report = makePublicSingleReportV2R2();
   assert.notEqual(report.run.privacy.redactionVersion, REDACTION_VERSION);
   const sidecar = buildProvenanceEntry({
     reportId: REPORT_ID,
@@ -126,6 +173,102 @@ test("a current sidecar cannot bless an older embedded v2 redaction revision", (
     }),
     { ok: false, error: "invalid", reason: "redaction-version-mismatch" }
   );
+});
+
+test("a schema v2 revision 1 report is never a managed report, whatever redaction version it declares", () => {
+  const read = (report: unknown) => {
+    const sidecar = buildProvenanceEntry({
+      reportId: REPORT_ID,
+      publicReport: report,
+      writtenAt: RETENTION.createdAt,
+      createdAt: RETENTION.createdAt,
+      expiresAt: RETENTION.expiresAt
+    });
+    return readManagedReport({
+      reportId: REPORT_ID,
+      reportContents: JSON.stringify(report),
+      sidecarContents: JSON.stringify(sidecar),
+      retention: RETENTION
+    });
+  };
+
+  // As its producer wrote it, with that producer's redaction version.
+  const asProduced = makePublicSingleReportV2();
+  assert.notEqual(asProduced.run.privacy.redactionVersion, REDACTION_VERSION);
+  // Relabelled as currently redacted and otherwise untouched.
+  const relabelled = makePublicSingleReportV2();
+  relabelled.run.privacy.redactionVersion = REDACTION_VERSION;
+  const relabelledPair = makeInterventionComparisonReportV2();
+  relabelledPair.baseline.privacy.redactionVersion = REDACTION_VERSION;
+  relabelledPair.variant.privacy.redactionVersion = REDACTION_VERSION;
+
+  for (const report of [relabelledRevision1ReportWithRawStrings(), relabelled, relabelledPair, asProduced]) {
+    // The report is a readable revision 1 report: the refusal is the managed
+    // reader's rule for the revision, not a malformed fixture. This is also
+    // the reader a file a person opens goes through, which keeps reading r1.
+    const unmanaged = readStoredScanReport(report);
+    assert.equal(unmanaged.ok && unmanaged.stored.schemaVersion === 2 && unmanaged.stored.schemaRevision === 1, true);
+    assert.deepEqual(read(report), { ok: false, error: "invalid", reason: "unmanaged-schema-revision" });
+  }
+
+  // No sidecar is consulted for a revision the reader does not manage.
+  assert.deepEqual(
+    readManagedReport({
+      reportId: REPORT_ID,
+      reportContents: JSON.stringify(relabelled),
+      sidecarContents: null,
+      retention: RETENTION
+    }),
+    { ok: false, error: "invalid", reason: "unmanaged-schema-revision" }
+  );
+});
+
+test("a planted schema v2 revision 1 bundle is not served from the share store", async () => {
+  // Three objects left in the store by someone who can write to it: a report,
+  // a sidecar holding that report's own digest, and its retention clock. The
+  // public permalink read (readStoredScanReportById) must not serve them.
+  const storeDir = await mkdtemp(path.join(tmpdir(), "sbl-managed-reader-store-"));
+  const previousDir = process.env.SITE_BEHAVIOR_LAB_REPORT_STORE_DIR;
+  const previousBackend = process.env.SITE_BEHAVIOR_LAB_REPORT_STORE_BACKEND;
+  process.env.SITE_BEHAVIOR_LAB_REPORT_STORE_DIR = storeDir;
+  delete process.env.SITE_BEHAVIOR_LAB_REPORT_STORE_BACKEND;
+  try {
+    // Inside every retention window whenever the test runs.
+    const now = Date.now();
+    const retention = {
+      createdAt: new Date(now - 60_000).toISOString(),
+      expiresAt: new Date(now + 6 * 24 * 60 * 60 * 1000).toISOString()
+    };
+    const plant = async (id: string, report: unknown) => {
+      const sidecar = buildProvenanceEntry({
+        reportId: id,
+        publicReport: report,
+        writtenAt: retention.createdAt,
+        createdAt: retention.createdAt,
+        expiresAt: retention.expiresAt
+      });
+      const backend = resolveReportStoreBackend();
+      await backend.write(id, `${JSON.stringify(report, null, 2)}\n`, retention);
+      await backend.writeSidecar(id, `${JSON.stringify(sidecar, null, 2)}\n`);
+    };
+
+    // The same three objects around a current report are served, so the
+    // refusal below is the revision's and not the planting's.
+    const currentId = "20260712-" + "c".repeat(32);
+    await plant(currentId, currentManagedReport());
+    assert.equal((await readStoredScanReportById(currentId)).outcome, "found");
+
+    const plantedId = "20260712-" + "d".repeat(32);
+    const planted = relabelledRevision1ReportWithRawStrings();
+    assert.equal(readStoredScanReport(planted).ok, true);
+    await plant(plantedId, planted);
+    assert.deepEqual(await readStoredScanReportById(plantedId), { outcome: "unreadable", error: "invalid" });
+  } finally {
+    if (previousDir === undefined) delete process.env.SITE_BEHAVIOR_LAB_REPORT_STORE_DIR;
+    else process.env.SITE_BEHAVIOR_LAB_REPORT_STORE_DIR = previousDir;
+    if (previousBackend !== undefined) process.env.SITE_BEHAVIOR_LAB_REPORT_STORE_BACKEND = previousBackend;
+    await rm(storeDir, { recursive: true, force: true });
+  }
 });
 
 test("a current sidecar cannot bless an older redaction revision in an r2 supporting-pair arm", () => {
@@ -460,7 +603,7 @@ test("a current sidecar cannot bless unredacted v1 bytes or a foreign embedded s
   );
 
   const foreignId = "20260712-" + "f".repeat(32);
-  const foreignShare = makePublicSingleReportV2();
+  const foreignShare = makePublicSingleReportV2R2();
   foreignShare.share = buildReportShare(foreignId);
   const foreignSidecar = buildProvenanceEntry({
     reportId: REPORT_ID,
