@@ -182,11 +182,13 @@ test("Look closer views are built on the server or in the renderer chunk, never 
   );
   holds(hook, /inspection: liveScan !== null && loaded === liveScan\.result \? liveScan\.inspection : null,/, "the inspection reaches the page only while its own result is shown");
   // A check's result shows only from that submit: nothing from it is saved,
-  // so a resumed, restored or recovered shell that carries one shows nothing.
+  // so a resumed, restored or recovered shell that carries one shows no
+  // result, and the page says that the check finished
+  // (unshownScrollCheckNotice, lib/scan-client-orchestration.ts).
   holds(
     hook,
-    /if \(checked === null && carriesScrollCheck\(next\)\) \{\s*setLoaded\(null\);\s*setLiveScan\(null\);\s*return;\s*\}\s*setLoaded\(next\);/,
-    "a check's result shell reaching any other path is dropped before it is shown"
+    /const unshownCheck = unshownScrollCheckNotice\(next, checked\);\s*if \(unshownCheck !== null\) \{\s*setLoaded\(null\);\s*setLiveScan\(null\);\s*setError\(unshownCheck\);\s*return;\s*\}\s*setLoaded\(next\);/,
+    "a check's result shell reaching any other path is dropped before it is shown, with a sentence in its place"
   );
   holds(hook, /scrollCheck: shownScrollCheck\(next, checked\)\s*\}\);/, "the check shown is the one the submit asked for");
   holds(hook, /scrollCheck: liveScan !== null && loaded === liveScan\.result \? liveScan\.scrollCheck : null,/, "the check reaches the page only while its own result is shown");

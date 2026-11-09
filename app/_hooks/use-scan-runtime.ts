@@ -15,7 +15,7 @@ import { INSPECTION_DURABLE_REFUSAL } from "@/lib/connection-inspection-address"
 import { shownConnectionInspection, type ShownConnectionInspection } from "@/lib/connection-inspection-result";
 import { connectedEarlierResult, connectedInspection, connectedScrollCheck } from "@/lib/known-site-evidence";
 import { SCROLL_CHECK_DURABLE_REFUSAL } from "@/lib/scroll-check-request";
-import { carriesScrollCheck, shownScrollCheck, type ShownScrollCheck } from "@/lib/scroll-check-result";
+import { shownScrollCheck, type ShownScrollCheck } from "@/lib/scroll-check-result";
 import type { ComparisonRunMode } from "@/lib/run-mode-copy";
 import { heldRunModeOutcome, normalizeScanUrl, resolveScanPrefillNavigation } from "@/lib/scan-prefill";
 import {
@@ -47,6 +47,7 @@ import {
   scannerStatusText,
   shouldReleaseAcceptedScanJob,
   submitRuntimeScan,
+  unshownScrollCheckNotice,
   type ActiveScanJob
 } from "@/lib/scan-client-orchestration";
 import type { ScanRuntimeHealth } from "@/lib/scan-runtime-health";
@@ -508,16 +509,19 @@ export function useScanRuntime({
    * over the inspection or the check it asked for, so a resumed or restored
    * result, whose status poll re-serves the same shell, shows no inspection
    * panel. A check visit's result shows only from that submit: nothing from
-   * it is saved, so a resumed, restored or recovered tab shows nothing.
+   * it is saved, so a resumed, restored or recovered tab shows no result and
+   * says that the check finished and has to be run again.
    */
   function showLiveScanResult(
     next: LoadedReport,
     inspected: { address: string; from: string | null } | null = null,
     checked: { from: string | null } | null = null
   ): void {
-    if (checked === null && carriesScrollCheck(next)) {
+    const unshownCheck = unshownScrollCheckNotice(next, checked);
+    if (unshownCheck !== null) {
       setLoaded(null);
       setLiveScan(null);
+      setError(unshownCheck);
       return;
     }
     setLoaded(next);

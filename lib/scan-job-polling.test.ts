@@ -11,9 +11,22 @@ import {
   ClientFetchTimeoutError,
   ClientResponseTooLargeError
 } from "./client-fetch-policy";
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import path from "node:path";
+import { CONSENT_VERIFICATION_ENV } from "./consent-verification";
+import { attachScrollCheckEvidence, createNodeScanMeasurementEnvelope, type NodeScanMeasurement } from "./node-scan-measurement";
 import { buildReportShare } from "./report-locator";
 import { BROWSER_PUBLIC_REPORT_JSON_MAX_BYTES } from "./report-resource-limits";
+import { BUILD_COMMIT_ENV, PUBLIC_R2_REPORTS_ENV } from "./runtime-scan-report";
+import type { ReportSaver, ScanRunner } from "./scan-api";
+import { unshownScrollCheckNotice } from "./scan-client-orchestration";
+import { enqueuePreparedScanJob, getScanJobStatus, resetScanJobStateForTests, waitForScanJobForTests } from "./scan-jobs";
+import { resetScanLimitStateForTests } from "./scan-limits";
 import { makeScanReportV1 } from "./scan-report-v2-fixtures";
+import { makePublicSingleReportV2R2 } from "./scan-report-v2-r2-fixtures";
+import { scanMeasurementEnvelopeWithR2Run } from "./scan-report-v2-runtime-fixtures";
+import type { ScrollCheckEvidence } from "./scroll-check-evidence";
 
 const JOB_ID = `20260718-${"a".repeat(32)}`;
 const REPORT_ID = `20260718-${"b".repeat(32)}`;
@@ -376,6 +389,67 @@ test("completed and recovered reports require the exact reserved report identity
   );
 });
 
+test("a finished after-scrolling check's job status is its result, though no report was saved under the reserved id", async () => {
+  const { submission, status, evidence } = await finishedScrollCheckJob();
+  // The status exactly as the scanner serves it: a check's report carries its evidence and no share.
+  assert.equal(status.status, "succeeded");
+  assert.equal(isPlainRecord(status.report) && "share" in status.report, false);
+  const serve = (body: unknown): ScanJobPollFetcher => async (url) =>
+    url === submission.statusPath
+      ? Response.json(body)
+      : Response.json({ ok: false, error: "Report not found." }, { status: 404 });
+
+  const loaded = await pollAcceptedScanJob({
+    statusPath: submission.statusPath,
+    reportId: submission.reportId,
+    fetcher: serve(status),
+    wait: async () => undefined
+  });
+  if (loaded.source !== "v2-r2-ephemeral" || loaded.wire.reportType !== "single") throw new Error("expected the check's own r2 shell");
+  assert.deepEqual(loaded.wire.ephemeral.scrollCheck, evidence);
+
+  // Having no share excuses only a check. The same shell without its check is
+  // an ordinary result that should have been saved under the reserved id.
+  const withoutCheck = structuredClone(status) as { report: { ephemeral: { scrollCheck?: unknown } } };
+  delete withoutCheck.report.ephemeral.scrollCheck;
+  await assert.rejects(
+    pollAcceptedScanJob({ statusPath: submission.statusPath, reportId: submission.reportId, fetcher: serve(withoutCheck), wait: async () => undefined }),
+    /did not match its reserved report identity/
+  );
+  // And a share that names another report is refused whatever the result carries.
+  const otherShare = structuredClone(status) as { report: { share?: unknown } };
+  otherShare.report.share = buildReportShare(OTHER_REPORT_ID);
+  await assert.rejects(
+    pollAcceptedScanJob({ statusPath: submission.statusPath, reportId: submission.reportId, fetcher: serve(otherShare), wait: async () => undefined }),
+    /did not match its reserved report identity/
+  );
+});
+
+test("a finished check that no submit is waiting for is named in a sentence, and every result the page shows is not", async () => {
+  const { submission, status } = await finishedScrollCheckJob();
+  const check = await pollAcceptedScanJob({
+    statusPath: submission.statusPath,
+    reportId: submission.reportId,
+    fetcher: async () => Response.json(status),
+    wait: async () => undefined
+  });
+  // A resumed or restored tab asked for nothing: it shows no result, so it has to say what happened.
+  const notice = unshownScrollCheckNotice(check, null);
+  assert.equal(
+    notice,
+    "The check after scrolling finished, but nothing from it is saved and its result can no longer be shown here, so run the check again to see it."
+  );
+  // The submit that asked for the check shows its result.
+  assert.equal(unshownScrollCheckNotice(check, { from: null }), null);
+  // An ordinary result is shown on every path.
+  const ordinary = await pollAcceptedScanJob({
+    statusPath: STATUS_PATH,
+    reportId: REPORT_ID,
+    fetcher: async () => jobResponse("succeeded", { report: savedReport() })
+  });
+  assert.equal(unshownScrollCheckNotice(ordinary, null), null);
+});
+
 test("poll and Retry-After delays are bounded and progressively backed off", () => {
   assert.equal(scanJobPollIntervalMs(0), 1_000);
   assert.equal(scanJobPollIntervalMs(3 * 60_000), 5_000);
@@ -385,6 +459,86 @@ test("poll and Retry-After delays are bounded and progressively backed off", () 
   assert.equal(retryAfterMs(new Date(60_000).toUTCString(), 0), 30_000);
   assert.equal(retryAfterMs("not a delay", 0), null);
 });
+
+function isPlainRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+/** A 1x1 PNG, so the status holds a screenshot the browser reader accepts, as a real visit's does. */
+const SCREENSHOT =
+  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=";
+
+/**
+ * The job status an async scanner serves for a finished after-scrolling
+ * check, produced by the scanner's own job queue and builder rather than
+ * written by hand: the poller has to accept what the server really sends.
+ * Returned after a JSON round trip, as the browser receives it.
+ */
+async function finishedScrollCheckJob() {
+  const evidence: ScrollCheckEvidence = {
+    outcome: "reached-end",
+    screens: 3,
+    control: { hosts: [{ site: "timer.org", hosts: ["pixel.timer.org"] }], hostCount: 1, siteCount: 1, requests: 2 },
+    scroll: {
+      hosts: [
+        { site: "lazy.net", hosts: ["cdn.lazy.net", "{label}.lazy.net"] },
+        { site: "beacon.org", hosts: ["beacon.org"] }
+      ],
+      hostCount: 3,
+      siteCount: 2,
+      requests: 8,
+      knownHostRequests: 5
+    },
+    incomplete: [],
+    addressChanged: false
+  };
+  const names = [PUBLIC_R2_REPORTS_ENV, BUILD_COMMIT_ENV, CONSENT_VERIFICATION_ENV, "SITE_BEHAVIOR_LAB_REPORT_STORE_DIR"];
+  const before = names.map((name) => process.env[name]);
+  const storeDir = await mkdtemp(path.join(tmpdir(), "sbl-poll-check-"));
+  process.env[PUBLIC_R2_REPORTS_ENV] = "1";
+  process.env[BUILD_COMMIT_ENV] = "a".repeat(40);
+  process.env[CONSENT_VERIFICATION_ENV] = "1";
+  process.env.SITE_BEHAVIOR_LAB_REPORT_STORE_DIR = storeDir;
+  try {
+    const scan: ScanRunner = async () => {
+      const base = scanMeasurementEnvelopeWithR2Run(makePublicSingleReportV2R2().run, SCREENSHOT);
+      const envelope = createNodeScanMeasurementEnvelope(base.result, structuredClone(base.measurement) as NodeScanMeasurement);
+      attachScrollCheckEvidence(envelope, evidence);
+      return envelope;
+    };
+    let saves = 0;
+    const saveReport: ReportSaver = async (report) => {
+      saves += 1;
+      return report;
+    };
+    const submission = enqueuePreparedScanJob(
+      {
+        clientKey: "poll-check",
+        url: "https://www.example.com/",
+        device: "desktop",
+        gpcEnabled: true,
+        compareGpc: false,
+        compareShields: false,
+        compareConsent: false,
+        rateLimitCost: 2,
+        check: "scroll"
+      },
+      { scan, saveReport }
+    );
+    await waitForScanJobForTests(submission.jobId);
+    const status = JSON.parse(JSON.stringify(getScanJobStatus(submission.jobId))) as { status: string; report: unknown };
+    assert.equal(saves, 0, "a check job saved its report");
+    return { submission, status, evidence };
+  } finally {
+    resetScanJobStateForTests();
+    resetScanLimitStateForTests();
+    names.forEach((name, index) => {
+      if (before[index] === undefined) delete process.env[name];
+      else process.env[name] = before[index];
+    });
+    await rm(storeDir, { recursive: true, force: true });
+  }
+}
 
 function jobResponse(
   status: "queued" | "running" | "succeeded" | "failed" | "expired" | "cancelled",

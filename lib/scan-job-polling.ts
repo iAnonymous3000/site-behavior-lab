@@ -10,6 +10,7 @@ import { recoverSavedReport } from "./saved-report-recovery";
 import { readScanJobProgress } from "./scan-job-progress";
 import type { LoadedReport } from "./scan-report-view";
 import type { RuntimeScanJobApiResponse } from "./runtime-scan-report";
+import { carriesScrollCheck } from "./scroll-check-result";
 import type { ScanJobProgress } from "./types";
 
 const TRANSIENT_HTTP_STATUSES = new Set([429, 502, 503]);
@@ -295,7 +296,16 @@ function readJobPayload(
   throw new Error(`The scan status could not be read (HTTP ${response.status}).`);
 }
 
+/**
+ * A completed result must be the report whose id was reserved at admission.
+ * The one result with no id to compare is an after-scrolling check's: nothing
+ * from that visit is saved, so the scanner gives it no share
+ * (lib/scan-api.ts), and refusing it for that would show every finished
+ * check as a mismatch on a scanner that runs scans as jobs. A share that
+ * names another report is refused whatever the result carries.
+ */
 function assertLoadedReportIdentity(report: LoadedReport, expectedReportId: string): void {
+  if (!report.wire.share && carriesScrollCheck(report)) return;
   if (report.wire.share?.id !== expectedReportId) {
     throw new Error("The completed scan report did not match its reserved report identity.");
   }

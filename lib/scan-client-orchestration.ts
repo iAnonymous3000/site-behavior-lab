@@ -22,6 +22,7 @@ import {
 import { scanFailureText, type ScanFailureNotice } from "./scan-failure-causes";
 import { INSPECTION_DURABLE_REFUSAL } from "./connection-inspection-address";
 import { SCROLL_CHECK_DURABLE_REFUSAL, SCROLL_CHECK_REQUEST_VALUE } from "./scroll-check-request";
+import { carriesScrollCheck } from "./scroll-check-result";
 import { isRecord } from "./guards";
 import { scanResponseDeadlineMs } from "./scan-deadlines";
 import { BROWSER_PUBLIC_REPORT_JSON_MAX_BYTES } from "./report-resource-limits";
@@ -548,6 +549,20 @@ export async function cancelRuntimeScan(options: {
     throw new Error("The scan could not be cancelled.");
   }
   return typeof payload.error === "string" && payload.error ? payload.error : "Scan cancelled.";
+}
+
+/**
+ * What the page says when a finished scan turns out to be an after-scrolling
+ * check that no submit is waiting for: a resumed status read, or a tab
+ * restored after a reload. A check's result shows only to the submit that
+ * asked for it and nothing from it is saved, so there is no result to show,
+ * and an empty page with no word would read as a scan that never ran. Null
+ * for every result the page does show.
+ */
+export function unshownScrollCheckNotice(result: LoadedReport, asked: object | null): string | null {
+  return asked === null && carriesScrollCheck(result)
+    ? "The check after scrolling finished, but nothing from it is saved and its result can no longer be shown here, so run the check again to see it."
+    : null;
 }
 
 /** Definitive failure endings invalidate recovery; readable success is cleared by the caller. */
