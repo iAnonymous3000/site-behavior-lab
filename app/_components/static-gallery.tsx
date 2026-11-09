@@ -5,7 +5,7 @@ import { useEffect, useMemo, useRef, useState, type Ref } from "react";
 import { clientReportRuntime, staticAssetPath } from "../client-runtime";
 import { useAnnouncedValue } from "../_hooks/use-announced-value";
 import { FileUploadButton } from "./file-upload-button";
-import { readLoadedReport } from "@/lib/client-report-reader";
+import { asLocalReport, readLoadedReport } from "@/lib/client-report-reader";
 import { comparableSubjectHosts } from "@/lib/comparison-eligibility";
 import {
   LatestClientOperation,
@@ -208,7 +208,11 @@ function StaticReportGallery({
     }
 
     setCompareError(null);
-    onCreateComparison(comparison.loaded);
+    // Built from two files the reader opened, so it is as unvouched for as
+    // either of them, and its result has to say so as an opened file's does.
+    // A comparison of two archive reports is built from digest-checked
+    // committed bytes and is not marked.
+    onCreateComparison(asLocalReport(comparison.loaded));
   }
 
   async function openCompareUpload(file: File | null, slot: "before" | "after") {

@@ -84,6 +84,12 @@ test("a report the reader opened from a file is marked, and its result says so b
   // is what withholds its share link and what the renderer reads below.
   assert.match(source("app/site-behavior-app.tsx"), /const read = await readLoadedReport\(payload, "This report JSON"\);[\s\S]*?return asLocalReport\(read\.loaded\);/);
   assert.match(source("lib/pagegraph-client-import.ts"), /return asLocalReport\(read\.loaded\);/);
+  // So is a before/after comparison built from two opened files. One built
+  // from two archive reports comes from digest-checked committed bytes and
+  // is handed over as it is.
+  const gallery = source("app/_components/static-gallery.tsx");
+  assert.match(gallery, /createLoadedTemporalComparison\(uploadBefore\.loaded, uploadAfter\.loaded\);[\s\S]*?onCreateComparison\(asLocalReport\(comparison\.loaded\)\);/);
+  assert.match(gallery, /if \(isCurrentComparisonIntent\(intentEpoch\)\) onCreateComparison\(comparison\);/);
 
   // The file's own text fills the title, the measurement limits and the
   // methodology card, drawn exactly as a published report's are. The one line
