@@ -41,6 +41,14 @@ credential does not reset the budget. Refusals return `429` and a remaining
 OPTIONS and job polling retain their existing treatment. This budget does not
 consume scan tokens or change the number of browser runs a scan costs.
 
+The global allowance is shared by every visitor, and it is charged before
+Siteverify, so filling it needs no solved challenge. Ten clients that each
+spend their ten attempts fill it, and until those attempts age out of the
+ten-second window every other visitor's scan submission and admission lookup
+is refused with `429`. Clients that keep sending can keep it full. The WAF
+ceiling recorded below is also counted per client address, at the same ten
+requests per ten seconds, so it does not bound how many clients can do this.
+
 Only Cloudflare's client-IP header selects an attempt identity, which is hashed
 before storage. At most 100 admitted-attempt rows remain; expired rows are
 removed on the next charge, and rejected identities create no rows. This adds
