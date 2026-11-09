@@ -336,6 +336,13 @@ function strongestLevel(levels: FindingLevel[]): FindingLevel {
 const GOOGLE_ANALYTICS_COLLECTION_HOST = /(^|\.)(google-analytics\.com|analytics\.google\.com)$/;
 const GOOGLE_TAG_MANAGER_HOST = /(^|\.)googletagmanager\.com$/;
 const DOUBLECLICK_REMARKETING_HOST = /(^|\.)stats\.g\.doubleclick\.net$/;
+// A published report does not hold that name. The public sanitizer writes
+// every <label>.g.doubleclick.net host, the sync host and the ad-serving hosts
+// alike (securepubads, googleads, cm), as "{label}.{label}.doubleclick.net".
+// So on a report that holds such a row the sync can be neither shown nor ruled
+// out, and "no remarketing sync" is not something the row supports. Without
+// such a row the sync is absent: it could only have appeared as one.
+const GENERALIZED_DOUBLECLICK_SUBHOST = /^\{label\}\.\{label\}\.doubleclick\.net$/;
 
 /** Appended to any absence claim whose evidence family was censored. */
 const CENSORED_ABSENCE_NOTE = " Evidence collection was cut short, so this covers only what was recorded before the cutoff.";
@@ -805,6 +812,17 @@ export function buildFindings(
   const gaRemarketingOn =
     (googleAnalyticsPresent || googleTagManagerOnly) &&
     run.evidence.domains.some((domain) => DOUBLECLICK_REMARKETING_HOST.test(domain.domain));
+  // Analytics or its loader is present and a DoubleClick host is recorded
+  // under a generalized name: the sync cannot be told from the row.
+  const gaSyncIndistinguishable =
+    !gaRemarketingOn &&
+    (googleAnalyticsPresent || googleTagManagerOnly) &&
+    run.evidence.domains.some((domain) => GENERALIZED_DOUBLECLICK_SUBHOST.test(domain.domain));
+  // With neither present the marker is not in question, but its absence still
+  // may not be asserted over such a row.
+  const doubleclickNamesGeneralized = run.evidence.domains.some((domain) =>
+    GENERALIZED_DOUBLECLICK_SUBHOST.test(domain.domain)
+  );
 
   // An ABSENCE claim over a censored evidence family cannot reassure: nothing
   // proves the absence held after collection stopped, so those cards hedge
@@ -1520,34 +1538,63 @@ export function buildFindings(
           lead: "This visit did not contact Google Analytics.",
           retainedEvidenceLead: "No Google Analytics request appears in the retained evidence."
         });
+  const GA_SYNC_UNTOLD_DETAIL =
+    "The sync goes to stats.g.doubleclick.net, and a published report writes that name the same way as DoubleClick's ad-serving hosts. This report neither shows nor rules out the sync.";
   findings.push({
     id: "ga-remarketing",
     icon: "radar",
-    level: gaRemarketingOn ? "warn" : requestsCensored ? "info" : "ok",
-    title: gaRemarketingOn ? "Google Analytics remarketing signal detected" : gaAbsence.title,
+    level: gaRemarketingOn ? "warn" : gaSyncIndistinguishable || requestsCensored ? "info" : "ok",
+    title: gaRemarketingOn
+      ? "Google Analytics remarketing signal detected"
+      : gaSyncIndistinguishable
+        ? googleAnalyticsPresent
+          ? "Google Analytics present; a remarketing sync cannot be told from this report"
+          : "Google Tag Manager loaded; a remarketing sync cannot be told from this report"
+        : gaAbsence.title,
     lead: gaRemarketingOn
       ? googleAnalyticsPresent
         ? "Google Analytics fired a sync to stats.g.doubleclick.net, the request Blacklight treats as the marker that advertising and remarketing features are on."
         : "A request went to stats.g.doubleclick.net, the Google Analytics sync Blacklight treats as the marker that advertising and remarketing features are on."
-      : gaAbsence.lead,
+      : gaSyncIndistinguishable
+        ? googleAnalyticsPresent
+          ? "Google Analytics was observed, with requests to DoubleClick hosts whose names this report generalizes. The remarketing sync host is one such name, so the sync cannot be told apart from them."
+          : "This visit contacted Google Tag Manager and recorded no request to a Google Analytics collection host. It also recorded DoubleClick hosts whose names this report generalizes, the remarketing sync host's among them."
+        : gaAbsence.lead,
     detail: gaRemarketingOn
       ? "This Analytics-to-DoubleClick request pattern is consistent with an advertising or remarketing integration. It does not prove that an audience was populated, a profile was matched, or what the request carried."
-      : googleAnalyticsPresent
-        ? `Standard analytics collection was observed, without the stats.g.doubleclick.net advertising sync.${requestsCensored ? CENSORED_ABSENCE_NOTE : ""}`
-        : googleTagManagerOnly
-          ? `Tag Manager is a loader. It can fetch Google Analytics or other tags, or none; this report cannot tell which it fetched here.${requestsCensored ? CENSORED_ABSENCE_NOTE : ""}`
-          : `Neither Google Analytics nor its remarketing sync was observed in this visit.${requestsCensored ? CENSORED_ABSENCE_NOTE : ""}`,
+      : gaSyncIndistinguishable
+        ? googleAnalyticsPresent
+          ? GA_SYNC_UNTOLD_DETAIL
+          : `Tag Manager is a loader. It can fetch Google Analytics or other tags, or none; this report cannot tell which it fetched here. ${GA_SYNC_UNTOLD_DETAIL}`
+        : googleAnalyticsPresent
+          ? `Standard analytics collection was observed, without the stats.g.doubleclick.net advertising sync.${requestsCensored ? CENSORED_ABSENCE_NOTE : ""}`
+          : googleTagManagerOnly
+            ? `Tag Manager is a loader. It can fetch Google Analytics or other tags, or none; this report cannot tell which it fetched here.${requestsCensored ? CENSORED_ABSENCE_NOTE : ""}`
+            : doubleclickNamesGeneralized
+              ? `Google Analytics was not observed in this visit.${requestsCensored ? CENSORED_ABSENCE_NOTE : ""}`
+              : `Neither Google Analytics nor its remarketing sync was observed in this visit.${requestsCensored ? CENSORED_ABSENCE_NOTE : ""}`,
     evidence: gaRemarketingOn
       ? googleAnalyticsPresent
         ? "Google Analytics host plus a request to stats.g.doubleclick.net (Blacklight's remarketing marker)."
         : "googletagmanager.com plus a request to stats.g.doubleclick.net (Blacklight's remarketing marker)."
-      : googleAnalyticsPresent
-        ? "Google Analytics host observed; no stats.g.doubleclick.net request."
-        : googleTagManagerOnly
-          ? "googletagmanager.com observed; no google-analytics.com, analytics.google.com or stats.g.doubleclick.net request."
-          : "No google-analytics.com, analytics.google.com or googletagmanager.com requests."
+      : gaSyncIndistinguishable
+        ? googleAnalyticsPresent
+          ? "Google Analytics host observed; DoubleClick hosts recorded under generalized names."
+          : "googletagmanager.com observed; no google-analytics.com or analytics.google.com request; DoubleClick hosts recorded under generalized names."
+        : googleAnalyticsPresent
+          ? "Google Analytics host observed; no stats.g.doubleclick.net request."
+          : googleTagManagerOnly
+            ? "googletagmanager.com observed; no google-analytics.com, analytics.google.com or stats.g.doubleclick.net request."
+            : "No google-analytics.com, analytics.google.com or googletagmanager.com requests."
     ,
-    claim: findingClaim(facts, "ga-remarketing", gaRemarketingOn ? "presence" : "absence", gaAbsence.leadScope)
+    // The untold case asserts what was present and leaves the sync open, so it
+    // is not an absence claim.
+    claim: findingClaim(
+      facts,
+      "ga-remarketing",
+      gaRemarketingOn || gaSyncIndistinguishable ? "presence" : "absence",
+      gaAbsence.leadScope
+    )
   });
 
   const cookiesAbsence = absenceCopy(facts, "third-party-cookies", {

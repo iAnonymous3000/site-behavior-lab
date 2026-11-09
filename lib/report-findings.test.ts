@@ -639,6 +639,51 @@ test("a Tag Manager request alone is never worded as Google Analytics being obse
   );
 });
 
+test("no sentence asserts the remarketing sync absent over a DoubleClick host the report generalized", () => {
+  // The public sanitizer writes stats.g.doubleclick.net and the ad-serving
+  // hosts beside it (securepubads, googleads, cm) all as
+  // "{label}.{label}.doubleclick.net". A published report with such a row can
+  // neither show the sync nor rule it out, so "no remarketing sync" over it
+  // is a claim the row does not support. 364 committed reports had one.
+  const generalized = makeTrackerDomain("{label}.{label}.doubleclick.net", 3, "Google", "advertising");
+  const cardFor = (domains: DomainSummary[]) =>
+    byId(
+      buildFindings(viewFromV1Report(makeResult({ domains, thirdPartyRequests: 5, thirdPartyDomains: domains.length })), null),
+      "ga-remarketing"
+    );
+  const NO_SYNC = /no (?:DoubleClick )?remarketing s(?:ync|ignal)|without the stats\.g\.doubleclick\.net|nor its remarketing sync|no stats\.g\.doubleclick\.net request/i;
+  const textOf = (card: { title: string; lead: string; detail: string; evidence: string }) =>
+    [card.title, card.lead, card.detail, card.evidence].join(" ");
+
+  const analytics = cardFor([makeTrackerDomain("www.google-analytics.com", 2, "Google", "analytics"), generalized]);
+  assert.equal(analytics.title, "Google Analytics present; a remarketing sync cannot be told from this report");
+  assert.equal(analytics.level, "info");
+  assert.equal(analytics.claim?.mode, "presence");
+  assert.doesNotMatch(textOf(analytics), NO_SYNC);
+
+  const loader = cardFor([makeTrackerDomain("www.googletagmanager.com", 1, "Google", "analytics / tag management"), generalized]);
+  assert.equal(loader.title, "Google Tag Manager loaded; a remarketing sync cannot be told from this report");
+  assert.equal(loader.level, "info");
+  assert.match(loader.lead, /recorded no request to a Google Analytics collection host/);
+  assert.doesNotMatch(textOf(loader), NO_SYNC);
+
+  // Neither Analytics nor its loader: the marker is not in question, and its absence is still not asserted.
+  const neither = cardFor([generalized]);
+  assert.equal(neither.title, "No Google Analytics observed");
+  assert.doesNotMatch(textOf(neither), NO_SYNC);
+
+  // With no such row the sync could only have appeared as one, so its absence stands.
+  const clean = cardFor([makeTrackerDomain("www.google-analytics.com", 2, "Google", "analytics")]);
+  assert.equal(clean.title, "Google Analytics present, no remarketing signal");
+  assert.equal(clean.level, "ok");
+  // A host the sanitizer leaves whole is not the sync host's shape.
+  const whole = cardFor([
+    makeTrackerDomain("www.google-analytics.com", 2, "Google", "analytics"),
+    makeTrackerDomain("ad.doubleclick.net", 1, "Google", "advertising")
+  ]);
+  assert.equal(whole.title, "Google Analytics present, no remarketing signal");
+});
+
 test("treats operational-only services as not tracking", () => {
   const result = makeResult({
     domains: [
