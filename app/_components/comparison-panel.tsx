@@ -432,10 +432,13 @@ function DiffList<T>({
               {expanded ? "Show fewer" : capped ? `Show the ${items.length} retained` : `Show all ${items.length}`}
             </button>
           )}
+          {/* The list is derived here, at read time, from both visits' rows
+              and cut at the cap, so nothing was lost: the rows it did not
+              reach are still in the report. */}
           {capped && (
             <p className="muted change-list-cap-note">
-              This list was capped at {MAX_DIFF_LIST.toLocaleString("en-US")} entries when the report was written. Any
-              further changes were not retained and are not recoverable from this report.
+              This list stops at the first {MAX_DIFF_LIST.toLocaleString("en-US")} changes. Further changes are not
+              listed here; they can be worked out from both visits&apos; rows in the report JSON.
             </p>
           )}
         </>
