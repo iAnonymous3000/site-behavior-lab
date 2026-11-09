@@ -1,5 +1,6 @@
 import { readLoadedReport } from "./client-report-reader";
 import {
+  CLIENT_FETCH_OPERATION_TIMEOUT_MS,
   ClientFetchTimeoutError,
   fetchJsonWithPolicy
 } from "./client-fetch-policy";
@@ -22,6 +23,7 @@ import { scanFailureText, type ScanFailureNotice } from "./scan-failure-causes";
 import { INSPECTION_DURABLE_REFUSAL } from "./connection-inspection-address";
 import { SCROLL_CHECK_DURABLE_REFUSAL, SCROLL_CHECK_REQUEST_VALUE } from "./scroll-check-request";
 import { isRecord } from "./guards";
+import { scanResponseDeadlineMs } from "./scan-deadlines";
 import { BROWSER_PUBLIC_REPORT_JSON_MAX_BYTES } from "./report-resource-limits";
 import {
   pollAcceptedScanJob,
@@ -205,7 +207,11 @@ export async function submitRuntimeScan(options: {
   resolveApiUrl: (path: string) => string;
   fetcher?: RuntimeScanFetcher;
   poller?: RuntimeScanPoller;
-  /** Test seams; production uses the shared finite defaults. */
+  /**
+   * Test seams. In production a durable admission uses the shared finite
+   * defaults, and any other scan waits as long as the server may take to
+   * answer it (lib/scan-deadlines.ts).
+   */
   responseConnectTimeoutMs?: number;
   responseOperationTimeoutMs?: number;
   /** Enable only when exact durable-admission replay is advertised by health. */
@@ -307,6 +313,18 @@ export async function submitRuntimeScan(options: {
     responseStatus = result.status;
     payload = result.payload;
   } else {
+    // A synchronous scanner sends nothing, headers included, until its visits
+    // are done, so the wait for headers is the server's own bound for this
+    // request, never the short one a status read gets: 10 seconds gives up on
+    // every slower scan after it has been charged, and the retry is charged
+    // again. An async scanner answers 202 at once and never comes near the
+    // bound. The body, a whole report, then gets the usual time to arrive.
+    const responseDeadlineMs =
+      options.responseConnectTimeoutMs ??
+      scanResponseDeadlineMs({
+        comparison: requestBody.compareGpc || requestBody.compareShields || requestBody.compareConsent,
+        scrollCheck: options.scrollCheck === true
+      });
     const result = await fetchRuntimeJsonWithPolicy(options.resolveApiUrl("/api/scan"), {
       fetcher,
       init: {
@@ -321,8 +339,8 @@ export async function submitRuntimeScan(options: {
       },
       label: "Scan response",
       maxBytes: BROWSER_PUBLIC_REPORT_JSON_MAX_BYTES,
-      connectTimeoutMs: options.responseConnectTimeoutMs,
-      operationTimeoutMs: options.responseOperationTimeoutMs
+      connectTimeoutMs: responseDeadlineMs,
+      operationTimeoutMs: options.responseOperationTimeoutMs ?? responseDeadlineMs + CLIENT_FETCH_OPERATION_TIMEOUT_MS
     });
     responseStatus = result.status;
     payload = result.payload;

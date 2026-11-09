@@ -31,6 +31,8 @@ import { INSPECTION_DURABLE_REFUSAL } from "./connection-inspection-address";
 import { SCROLL_CHECK_DURABLE_REFUSAL } from "./scroll-check-request";
 import { makeScanReportV1 } from "./scan-report-v2-fixtures";
 import { BROWSER_PUBLIC_REPORT_JSON_MAX_BYTES } from "./report-resource-limits";
+import { CLIENT_FETCH_CONNECT_TIMEOUT_MS } from "./client-fetch-policy";
+import { scanResponseDeadlineMs } from "./scan-deadlines";
 
 const JOB_ID = `20260719-${"a".repeat(32)}`;
 const REPORT_ID = `20260719-${"b".repeat(32)}`;
@@ -865,6 +867,59 @@ test("under durable admission a check is refused with its sentence before a cred
   assert.equal(dispatched, false);
   assert.equal(retained, false);
   assert.equal(friendlyScanError(new Error(SCROLL_CHECK_DURABLE_REFUSAL), false), SCROLL_CHECK_DURABLE_REFUSAL);
+});
+
+test("a scan's wait for its answer is the server's own bound for that request, not the short wait a status read gets", async (context) => {
+  context.mock.timers.enable({ apis: ["setTimeout"] });
+  const form = {
+    device: "desktop" as const,
+    gpcEnabled: true,
+    compareGpc: false,
+    compareShields: false,
+    compareConsent: false,
+    accessKey: ""
+  };
+  // A synchronous scanner: no headers until the visits are done, which here is never.
+  const submit = (overrides: { compareShields?: boolean; scrollCheck?: boolean }) => {
+    let signal: AbortSignal | undefined;
+    const outcome = submitRuntimeScan({
+      targetUrl: "https://example.com/",
+      form: { ...form, compareShields: overrides.compareShields === true },
+      gpcComparisonEnabled: true,
+      shieldsComparisonEnabled: true,
+      consentComparisonEnabled: true,
+      scannerRequiresAccessKey: false,
+      turnstileRequired: false,
+      turnstileToken: "",
+      resolveApiUrl: (path) => path,
+      onAccepted: () => undefined,
+      ...(overrides.scrollCheck ? { scrollCheck: true } : {}),
+      fetcher: (_url, init) => {
+        signal = init.signal ?? undefined;
+        return new Promise<Response>(() => undefined);
+      }
+    });
+    // The rejection is read below; a handler now keeps it from being reported as unhandled meanwhile.
+    outcome.catch(() => undefined);
+    return { outcome, aborted: () => signal?.aborted === true };
+  };
+
+  for (const [request, deadlineMs] of [
+    [{}, scanResponseDeadlineMs({ comparison: false, scrollCheck: false })],
+    [{ compareShields: true }, scanResponseDeadlineMs({ comparison: true, scrollCheck: false })],
+    [{ scrollCheck: true }, scanResponseDeadlineMs({ comparison: false, scrollCheck: true })]
+  ] as const) {
+    const scan = submit(request);
+    // The wait a status read gets, which a visit inside its own budget outlasts.
+    context.mock.timers.tick(CLIENT_FETCH_CONNECT_TIMEOUT_MS);
+    assert.equal(scan.aborted(), false, `a ${JSON.stringify(request)} scan was abandoned after ${CLIENT_FETCH_CONNECT_TIMEOUT_MS} ms`);
+    context.mock.timers.tick(deadlineMs - CLIENT_FETCH_CONNECT_TIMEOUT_MS - 1);
+    assert.equal(scan.aborted(), false, `a ${JSON.stringify(request)} scan was abandoned before its ${deadlineMs} ms bound`);
+    // And the wait is still finite: a scanner that never answers is given up on.
+    context.mock.timers.tick(1);
+    assert.equal(scan.aborted(), true);
+    await assert.rejects(scan.outcome, new RegExp(`did not respond within ${deadlineMs / 1_000} seconds`));
+  }
 });
 
 test("non-durable scan responses bound stalled headers, stalled bodies, and oversized reports", async () => {
