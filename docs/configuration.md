@@ -1,13 +1,40 @@
 # Configuration reference
 
-Every environment variable the scanner, the static build, and the Cloudflare
-front Worker read, with its default and what it decides. The README keeps only
-the handful a self-hoster must decide; this file is the complete list. Copy
-`.env.example` for a production-oriented starting point.
+Every `SITE_BEHAVIOR_LAB_*` and `NEXT_PUBLIC_SITE_BEHAVIOR_LAB_*` variable the
+application code names (everything under `lib/`, `app/` and `cloudflare/`, and
+`next.config.mjs`), with its default and what it decides, followed by the host
+variables that change the scanner's behavior. A test in
+`lib/operational-docs-contract.test.ts` fails when that code names one this
+file does not. The README keeps only the handful a self-hoster must decide.
+Variables read only by the scripts under `scripts/` and by workflows (deploy
+wrappers, smoke tests, and the corpus and release tooling) are documented with
+those tools and are not listed here. Copy `.env.example` for a
+production-oriented starting point.
 
 Variables prefixed `NEXT_PUBLIC_` are baked into the client bundle at build
 time, so on the container they are Docker build arguments, not runtime
 environment. Nothing under `NEXT_PUBLIC_` may hold a secret.
+
+## What the Dockerfile bakes in
+
+The `Dockerfile` gives three build arguments defaults that belong to this
+project's own deployment, because its hosted build passes no arguments:
+`NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL=https://scan.sitebehavior.org`,
+`NEXT_PUBLIC_SITE_BEHAVIOR_LAB_LIBRARY_ORIGIN=https://sitebehavior.org`, and
+`NEXT_PUBLIC_SITE_BEHAVIOR_LAB_TURNSTILE_SITE_KEY` set to this project's public
+site key. An image built without your own value for each names sitebehavior.org
+in its canonical URLs and social cards, compares its `/status/` page against
+that site, and carries a Turnstile site key that a Worker holding your own
+Turnstile secret will not accept. Pass all three with `--build-arg` (the site
+key may be empty if you do not use Turnstile; the site URL may not, because
+the production build refuses an empty one). `SITE_BEHAVIOR_LAB_BUILD_COMMIT` has
+no default and the build refuses anything but a full 40-character commit.
+
+The runtime image also sets `NODE_ENV=production`, `PORT=3000`,
+`SITE_BEHAVIOR_LAB_REPORT_STORE_DIR=/var/lib/site-behavior-lab/reports`,
+`SITE_BEHAVIOR_LAB_BUILD_COMMIT` (from the build argument),
+`NEXT_TELEMETRY_DISABLED=1` and `UV_THREADPOOL_SIZE=16`, and starts the server
+on port 3000.
 
 ## Variables
 
@@ -15,13 +42,13 @@ environment. Nothing under `NEXT_PUBLIC_` may hold a secret.
 |---|---|---|
 | `SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN` | unset | When set, `/api/scan` requires the token in `Authorization: Bearer ...`, `x-site-behavior-lab-access-token`, or the legacy `x-sbl-scan-token` header. Leave unset only for trusted local development or intentionally public deployments with external abuse controls. |
 | `SITE_BEHAVIOR_LAB_SYNTHETIC_MONITOR_TOKEN` | unset | Cloudflare Containers front Worker only. Distinct Worker-only credential for the scheduled production synthetic. It bypasses Turnstile only for the fixed desktop/GPC-on/observe single-scan contract against one of the ordered candidate targets in `lib/production-synthetic.ts` (currently iana.org, then w3.org), is stripped before forwarding to Node, and does not close or weaken the visitor Turnstile path. Configure the same value as the repository secret `PRODUCTION_SYNTHETIC_MONITOR_TOKEN`, then set `PRODUCTION_SYNTHETIC_MONITOR_REQUIRED=1` as a repository variable so later credential loss fails loudly. |
-| `SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS` | unset | Containers front Worker only. Set to `1` only for an intentionally open public scanner, with no scan token set. The front Worker still enforces Turnstile (when configured) and an atomic Durable Object quota, and the container pins DNS at connect time. See [docs/go-live-public-scanner.md](go-live-public-scanner.md). |
+| `SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS` | unset | Read by the Containers front Worker and by the Node scanner. On the front Worker, set to `1` only for an intentionally open public scanner, with no scan token set. The front Worker still enforces Turnstile (when configured) and an atomic Durable Object quota, and the container pins DNS at connect time. See [docs/go-live-public-scanner.md](go-live-public-scanner.md). The Node scanner reads it only for `/api/health`: with no scan token, health carries a warning and reports `degraded` unless this is `1`, so an intentionally open single-node scanner sets it too. In Node it opens or closes nothing: a Node scanner with no token accepts scans whatever this is. |
 | `SITE_BEHAVIOR_LAB_ACCEPT_NO_TURNSTILE_RISK` | unset | Containers front Worker only. Open public scans fail closed with `503` when no `TURNSTILE_SECRET_KEY` is configured. Set to `1` only to consciously waive human verification and run an open scanner on atomic rate limiting alone. See [docs/go-live-public-scanner.md](go-live-public-scanner.md). |
 | `TURNSTILE_SECRET_KEY` | unset | Cloudflare Worker secret used to verify scan-submission Turnstile tokens. The open Containers scanner fails closed without it unless `SITE_BEHAVIOR_LAB_ACCEPT_NO_TURNSTILE_RISK=1` explicitly waives that control. Pair it with the matching public site key below; never expose this secret to the browser or Node container. |
 | `SITE_BEHAVIOR_LAB_PUBLIC_SCAN_RATE_LIMIT_PER_MINUTE` | `6` | Cloudflare Workers only. Maximum public scan tokens per client per minute. GPC, Shields, and consent comparisons cost two tokens. The Containers front Worker accounts atomically in the scanner Durable Object's SQLite storage. |
 | `SITE_BEHAVIOR_LAB_PUBLIC_SCAN_RATE_LIMIT_PER_DAY` | `120` | Cloudflare Workers only. Maximum public scan tokens per client per day. GPC, Shields, and consent comparisons cost two tokens. |
-| `SITE_BEHAVIOR_LAB_TRUST_PROXY_HEADERS` | unset | Set to `1` only when traffic reaches the app through a trusted proxy that controls forwarding headers and blocks direct origin access. Rate limiting uses in-memory counters per Node process. |
-| `SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN` | `*` | Browser CORS allow-list for the `/api` routes (also honored by the Cloudflare Worker). Default `*` lets any site invoke the scanner from a browser, fine for a single-origin (B1) deployment or an intentionally open scanner. Set it to one origin (for example `https://sitebehavior.org`) to allow only that site's cross-origin browser requests; others are denied. The scan API uses no cookies, so `*` is safe by default. |
+| `SITE_BEHAVIOR_LAB_TRUST_PROXY_HEADERS` | unset | Node scanner only. Set to `1` only when traffic reaches the app through a trusted proxy that appends the caller's address to `X-Forwarded-For` and blocks direct origin access. The per-client limits then key on the rightmost `X-Forwarded-For` entry and ignore `X-Real-IP`. Unset, every caller shares one bucket. Rate limiting uses in-memory counters per Node process: 20 scan tokens, 120 report reads and 10 PDF renders per client per minute. |
+| `SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN` | `*` | Browser CORS allow-list for the `/api` routes (also honored by the Cloudflare Worker). Default `*` lets any site invoke the scanner from a browser, fine for a single-origin (B1) deployment or an intentionally open scanner. Set it to one origin (for example `https://sitebehavior.org`) to allow only that site's cross-origin browser requests; others are denied. The scan API uses no cookies, so `*` exposes no session. With no scan access token, though, `*` lets any web page open in a browser that can reach the scanner start scans and read their results; see `SECURITY.md`, and set a token on any scanner a browser you use can reach. |
 | `SITE_BEHAVIOR_LAB_SCANNER_EGRESS` | `this scanner instance` | Reviewed public egress label used in report disclosures and JSON exports: `this scanner instance`, `cloudflare-containers`, `cloudflare-browser-run`, `github-actions-ubuntu`, `docker-smoke`, or `test`. An unreviewed value is canonicalized to the generic label and degrades health instead of breaking r2 production. The committed-r2 workflow requires the private configuration alias `controlled-self-hosted`; reports still emit the generic label, with the stable location in `SITE_BEHAVIOR_LAB_SCANNER_EGRESS_REGION`. |
 | `SITE_BEHAVIOR_LAB_SCANNER_EGRESS_REGION` | unset | Node scanner only. Recorded egress region for ScanReport v2/r2 (`conditions.egress.region`). Unset, the scanner falls back only when Cloudflare Containers supplies the complete `CLOUDFLARE_REGION`/`CLOUDFLARE_LOCATION`/`CLOUDFLARE_COUNTRY_A2` placement tuple; a partial tuple is a health misconfiguration. With neither source the region stays unrecorded, and r2 comparison deltas are refused because an unrecorded condition never counts as matching across two visits. Declare it only when it truthfully names where scan traffic leaves from. |
 | `SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX` | unset | Set to `1` to launch scan Chromium with its sandbox enabled. Opt-in because the sandbox needs kernel features (unprivileged user namespaces or a setuid helper) that a container platform may not provide, and a failed launch breaks every scan; verify one deployed scan succeeds before leaving it on. The container process runs as a non-root user either way, and WebRTC egress is disabled at launch (`disable_non_proxied_udp`) so no scan traffic can bypass the connect-time public-address guard. |
@@ -54,10 +81,10 @@ environment. Nothing under `NEXT_PUBLIC_` may hold a secret.
 | `SITE_BEHAVIOR_LAB_R2_REQUEST_TIMEOUT_MS` | `10000` | R2 backend only. Per-attempt S3 request deadline, capped at two minutes. Retry policy remains bounded separately. |
 | `SITE_BEHAVIOR_LAB_PAGES_BASE_PATH` | inferred for GitHub Pages | Build-time base path for the static export. Set `/` for a root-domain deployment such as `sitebehavior.org`; otherwise the build can infer a GitHub project-page subpath from `GITHUB_REPOSITORY`. |
 | `NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SCAN_API_BASE` | unset | Optional public API base for static builds. When set for a static deployment (such as Cloudflare Pages), the static UI shows a live scan form and sends scans to this Cloudflare Worker/API origin. Do not put secrets in this value. |
-| `NEXT_PUBLIC_SITE_BEHAVIOR_LAB_TURNSTILE_SITE_KEY` | unset | Build-time public Turnstile site key for the static scan UI. Required when the target Cloudflare Worker is deployed with `TURNSTILE_SECRET_KEY`; the static UI renders the Turnstile widget and sends its token with each scan. Without it, a Turnstile-gated Worker leaves the scan button disabled with an explanation. This is a public site key, not a secret. |
+| `NEXT_PUBLIC_SITE_BEHAVIOR_LAB_TURNSTILE_SITE_KEY` | unset (the `Dockerfile` defaults it to this project's key) | Build-time public Turnstile site key for the static scan UI. Required when the target Cloudflare Worker is deployed with `TURNSTILE_SECRET_KEY`; the static UI renders the Turnstile widget and sends its token with each scan. Without it, a Turnstile-gated Worker leaves the scan button disabled with an explanation. This is a public site key, not a secret. |
 | `NEXT_PUBLIC_SITE_BEHAVIOR_LAB_OPEN_ACCESS` | unset | Build-time hint for static builds. Set to `1` only when the target scan API is an intentionally open public scanner, so the static UI hides the access-key field immediately instead of waiting on `/api/health`. The UI also infers open access from the live health response, so this only affects first paint. This is a public flag, not a secret. |
 | `NEXT_PUBLIC_SITE_BEHAVIOR_LAB_LIBRARY_ORIGIN` | `https://sitebehavior.org` | Build-time public HTTPS origin (scheme and host only) of the evidence library this deployment belongs to. The container's `/status/` page reads `<origin>/deployment.json` to compare the live site and scanner revisions, and report permalinks resolve there. A self-hosted container that leaves this at the default compares its own revision against sitebehavior.org and reports "degraded" for an unrelated project's deploy, so set it to your own Pages origin (or to your container origin when it serves the UI too). It is baked into the client bundle at build time, so it must be passed as a Docker build argument, not a runtime environment variable. Do not put secrets in this value. |
-| `NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL` | unset | Canonical public HTTPS origin (scheme and host only, for example `https://sitebehavior.org`) used for canonicals, report social cards, `robots.txt`, `sitemap.xml`, and JSON-LD URLs. Any GitHub Pages project-page subpath is applied automatically via the base path, so do not include it here. Production builds fail closed when this is missing, non-HTTPS, malformed, or contains a path; only development falls back to `http://localhost:3000`. Do not put secrets in this value. |
+| `NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL` | unset (the `Dockerfile` defaults it to `https://scan.sitebehavior.org`) | Canonical public HTTPS origin (scheme and host only, for example `https://sitebehavior.org`) used for canonicals, report social cards, `robots.txt`, `sitemap.xml`, and JSON-LD URLs. Any GitHub Pages project-page subpath is applied automatically via the base path, so do not include it here. Production builds fail closed when this is missing, non-HTTPS, malformed, or contains a path; only development falls back to `http://localhost:3000`. Do not put secrets in this value. |
 | `SITE_BEHAVIOR_LAB_REPORT_STORE_OPERATION_TIMEOUT_MS` | `30000` | Whole-operation deadline, in milliseconds, for one report-store save, prune, or publication pass, capped at `120000`. The committed production configuration sets `30000`. A deadline that fires after a write has already landed is reconciled from the stored bytes by both the in-process and the durable job savers before the job answers, so it never turns a published report into a failed job. |
 | `SITE_BEHAVIOR_LAB_VERIFIED_MEASUREMENT_CANDIDATE_PROOF` | empty | Docker build argument. Either empty or the bounded proof of the Sigstore-verified measurement candidate the container was built from; the deploy wrapper injects it and the Dockerfile validates its shape. Read by the detector-calibration source binding, never by the scan path. |
 | `SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE` | unset | Repository Actions variable, not a container setting. When set, the featured-corpus preflight refuses the v1 corpus lanes, and the calibration and A/A study workflows require it. See the measurement-freeze section of `RELEASE.md`. |
@@ -65,6 +92,43 @@ environment. Nothing under `NEXT_PUBLIC_` may hold a secret.
 | `SITE_BEHAVIOR_LAB_DEPLOYMENT_ENVIRONMENT`, `SITE_BEHAVIOR_LAB_DURABLE_REPLAY_FAULTS`, `SITE_BEHAVIOR_LAB_DURABLE_REPLAY_FAULT_TOKEN`, `SITE_BEHAVIOR_LAB_DURABLE_RESTART_TOKEN` | unset | Staging-only fault injection for the durable replay canaries. The front Worker honours the fault and restart headers only when the environment is exactly `staging`, the coordinator hostname is not the production scanner, the bucket is not the production bucket, durable jobs are enabled, and both tokens are at least 32 characters. The committed production configuration sets none of them, so the headers are inert there. |
 | `SITE_BEHAVIOR_LAB_R2_DELETE_CANARY_TOKEN` | unset | Dedicated R2 delete-canary Worker only (`wrangler.r2-delete-canary.jsonc`). Never a scanner or container secret; use a value distinct from every production and staging credential. |
 | `SITE_BEHAVIOR_LAB_R2_REMEDIATION_APPLY_TOKEN` | unset | Dedicated R2 remediation Worker only (`wrangler.r2-remediation.jsonc`). Required to apply a remediation plan to stored reports rather than preview it. |
+| `SITE_BEHAVIOR_LAB_REQUIRE_EGRESS_REGION` | unset | Node scanner only. `1` makes a recorded egress region a condition of public r2: with `SITE_BEHAVIOR_LAB_PUBLIC_R2_REPORTS=1`, a scanner that resolves no region from `SITE_BEHAVIOR_LAB_SCANNER_EGRESS_REGION` or the complete Cloudflare placement tuple is misconfigured and refuses scans. Unset, a missing region only leaves the region unrecorded. Set it only once the deployment's region is reliably present, because a missing one then stops every scan. |
+| `SITE_BEHAVIOR_LAB_REPORT_ACQUISITION` | unset | Node scanner only, for the controlled corpus-collection workflow. Unset, an r2 report records its acquisition as the public API. The only accepted value is `ci-workflow`, and only together with `CI=1`, r2 output, `RUNNER_ENVIRONMENT=self-hosted`, `FEATURED_R2_EGRESS_ATTESTED=1`, the Chromium sandbox, `SITE_BEHAVIOR_LAB_SCANNER_EGRESS=controlled-self-hosted` and a configured egress region. Any other value or combination fails every scan. See [docs/featured-corpus-r2-rollout.md](featured-corpus-r2-rollout.md); never set it on a public scanner. |
+| `NEXT_PUBLIC_SITE_BEHAVIOR_LAB_PDF_EXPORT_ENABLED` | unset | Build-time flag for static builds. `1`, together with an HTTPS `NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SCAN_API_BASE`, makes static report pages offer the PDF and document download from that scanner's renderer. Unset, a static site shows no PDF control. The container's own pages do not need it. See [docs/pdf-export.md](pdf-export.md). |
+| `NEXT_PUBLIC_SITE_BEHAVIOR_LAB_AGGREGATE_METRICS` | unset | Reserved name for the browser half of the aggregate product metrics above. No page reads it yet, so setting it changes nothing; it stays unwired until the review in `docs/privacy-safe-observability.md` is complete. |
+| `SITE_BEHAVIOR_LAB_STATIC_REPORT_MAX_AGE_DAYS`, `SITE_BEHAVIOR_LAB_STATIC_REPORT_MAX_COUNT`, `SITE_BEHAVIOR_LAB_STATIC_REPORT_KEEP_PER_SITE` | `7`, `1000`, `2` | Corpus tooling only (`npm run reports:prune`), never the scanner. Age and count retention for the committed reports under `public/reports/`, and how many of each site's newest compatible reports are exempt from age pruning. The first two fall back to `SITE_BEHAVIOR_LAB_REPORT_MAX_AGE_DAYS` and `SITE_BEHAVIOR_LAB_REPORT_MAX_COUNT` when unset. See [docs/operations.md](operations.md). |
+| `SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE_ARTIFACT_CONTEXT`, `SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE_ARTIFACT_CONTEXT_SHA256` | unset | Release tooling only (the measurement-candidate binding), never the scanner. An absolute directory of prefetched measurement-freeze artifacts and the SHA-256 that binds it; each requires the other. See the measurement-freeze section of `RELEASE.md`. |
+
+## Set by the build, not by you
+
+`npm run build:pages` sets `SITE_BEHAVIOR_LAB_STATIC_EXPORT=1` to make
+`next.config.mjs` produce the static export. `next.config.mjs` then computes
+four values and inlines them into the client bundle. They are outputs of the
+build, not settings: set the variables in the right-hand column instead.
+
+| Variable | Computed from |
+|---|---|
+| `NEXT_PUBLIC_SITE_BEHAVIOR_LAB_STATIC_EXPORT` | `1` for the static export, `0` otherwise. |
+| `NEXT_PUBLIC_SITE_BEHAVIOR_LAB_PAGES_BASE_PATH` | `SITE_BEHAVIOR_LAB_PAGES_BASE_PATH`, or the GitHub project path inferred from `GITHUB_REPOSITORY`, for the static export; empty otherwise. |
+| `NEXT_PUBLIC_SITE_BEHAVIOR_LAB_GITHUB_REPOSITORY` | `GITHUB_REPOSITORY`, or empty. |
+| `NEXT_PUBLIC_SITE_BEHAVIOR_LAB_BUILD_COMMIT` | The first of `SITE_BEHAVIOR_LAB_BUILD_COMMIT`, `CF_PAGES_COMMIT_SHA` and `GITHUB_SHA` that is set. Each one set must be a full 40-character commit and they must agree, or the build fails. Empty when none is set. |
+
+## Host variables the scanner reads
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `PORT` | `3000` | The port the PDF renderer opens on the loopback interface to render a report's printable page. It must equal the port the server listens on: a server started with `next start --port 3100` and no `PORT=3100` renders PDFs from port 3000. The `Dockerfile` pins both to 3000. |
+| `NODE_ENV` | set by Next | `production` makes a missing or invalid `NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL` fail the build, and makes `/api/health` warn when no build commit is recorded. |
+| `CLOUDFLARE_REGION`, `CLOUDFLARE_LOCATION`, `CLOUDFLARE_COUNTRY_A2` | injected by Cloudflare Containers | The placement tuple the egress region falls back to (see `SITE_BEHAVIOR_LAB_SCANNER_EGRESS_REGION`). |
+| `CI`, `RUNNER_ENVIRONMENT`, `FEATURED_R2_EGRESS_ATTESTED` | unset | Read only to accept `SITE_BEHAVIOR_LAB_REPORT_ACQUISITION=ci-workflow`. |
+
+The scan browser and the PDF renderer do not inherit the server's environment.
+Chromium is launched with an allow-list (`lib/browser-process-env.ts`):
+`CHROME_DEVEL_SANDBOX`, `FONTCONFIG_FILE`, `FONTCONFIG_PATH`,
+`FONTCONFIG_SYSROOT`, `HOME`, `LANG`, `LANGUAGE`, `LC_ALL`, `LC_CTYPE`,
+`LD_LIBRARY_PATH`, `PATH`, `PLAYWRIGHT_BROWSERS_PATH`, `TEMP`, `TMP`,
+`TMPDIR`, `TZ`, `XDG_CACHE_HOME`, `XDG_CONFIG_HOME`, `XDG_DATA_HOME` and
+`XDG_RUNTIME_DIR`. No scanner secret is among them.
 
 ## Validating downloaded shadow artifacts
 

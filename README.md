@@ -266,9 +266,10 @@ runtime image.
 | `SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX` | unset | `1` enables Chromium's sandbox, as production does; needs unprivileged user namespaces on the host. |
 | `SITE_BEHAVIOR_LAB_SCANNER_EGRESS` / `_EGRESS_REGION` | `this scanner instance` / unset | The egress label and region recorded in reports. Declare a region only when it is true; without one, r2 comparison deltas are refused. |
 
-The complete reference, including the Cloudflare-only quota, Turnstile,
-durable-job, sharding, and watch settings, is `docs/configuration.md`, with
-`.env.example` as a starting point. Runbooks:
+The reference for every variable the application code reads, including the
+Cloudflare-only quota, Turnstile, durable-job, sharding, and watch settings,
+is `docs/configuration.md`, with `.env.example` as a starting point. It does
+not list the variables only the scripts and workflows read. Runbooks:
 `docs/deploy-cloudflare-containers.md` (Cloudflare Containers),
 `docs/deploy-node-container.md` (a generic single node), and
 `docs/deployment-topology.md` (the topology decision).

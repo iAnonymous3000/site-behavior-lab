@@ -710,3 +710,36 @@ test("the supply-chain docs count the npm entries the lockfile leaves outside de
     `docs/supply-chain-assurance.md must say ${runtime} of the ${total} npm entries are not development-only`
   );
 });
+
+/**
+ * docs/configuration.md called itself the complete list while the code read
+ * variables it never named, one of which
+ * (SITE_BEHAVIOR_LAB_REQUIRE_EGRESS_REGION) stops every public r2 scan and was
+ * documented nowhere. The property is a set of names, so it is checked as
+ * one: every application variable the runtime trees name must appear in the
+ * reference. A new variable then fails here until an operator can find it.
+ */
+function applicationSourceFiles(directory: string): string[] {
+  return readdirSync(path.join(root, directory), { withFileTypes: true }).flatMap((entry) => {
+    const relative = `${directory}/${entry.name}`;
+    if (entry.isDirectory()) return applicationSourceFiles(relative);
+    return /\.(?:ts|tsx|mjs)$/.test(entry.name) && !/\.test\.(?:ts|tsx|mjs)$/.test(entry.name) ? [relative] : [];
+  });
+}
+
+test("docs/configuration.md names every application variable the code names", () => {
+  const variable = /\b(?:NEXT_PUBLIC_)?SITE_BEHAVIOR_LAB_[A-Z0-9]+(?:_[A-Z0-9]+)*\b/g;
+  const files = [...["lib", "app", "cloudflare"].flatMap(applicationSourceFiles), "next.config.mjs"];
+  const named = new Map<string, string>();
+  for (const file of files) {
+    for (const name of source(file).match(variable) ?? []) {
+      if (!named.has(name)) named.set(name, file);
+    }
+  }
+  assert.ok(named.size > 40, "the scan for variable names found too few to be reading the code");
+  assert.ok(named.has("SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN"), "the scan no longer finds a variable known to exist");
+
+  const documented = new Set(source("docs/configuration.md").match(variable) ?? []);
+  const missing = [...named].filter(([name]) => !documented.has(name)).map(([name, file]) => `${name} (${file})`);
+  assert.deepEqual(missing, [], "docs/configuration.md does not name a variable the application code names");
+});
