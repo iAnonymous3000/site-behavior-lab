@@ -77,6 +77,17 @@ const consentFailureLines = MODES.flatMap((mode) => CONSENT_FAILURES.map((failur
 
 const PROXY_BUDGET_LINE = "The scan stopped opening additional proxy requests after reaching its connection and target safety budget.";
 
+/**
+ * The lines the route guard writes for a request it refused as not verifiably
+ * public: both labelled forms, and the summary line past the example limit.
+ * The non-HTTP(S) line beside them stays unread (unmatchedDynamicLines).
+ */
+const routeGuardRefusalLines = [
+  "Blocked a request that could not be verified as public: https://example.com/",
+  "Blocked a request that could not be verified as a public HTTP(S) URL: https://example.com/",
+  "Blocked additional requests that could not be verified as public. Only the first 5 examples are shown."
+];
+
 /** The dynamic forms the patterns admit that no predicate should read. */
 const unmatchedDynamicLines = [
   ...[100, 404, 999].map((status) => `The page returned HTTP ${status}; this report reflects an error or block page, not a normal load.`),
@@ -92,8 +103,6 @@ const unmatchedDynamicLines = [
   ]),
   'The two visits ran in randomized order; the "GPC off" visit ran first.',
   "Blocked a non-HTTP(S) request: https://example.com/",
-  "Blocked a request that could not be verified as public: https://example.com/",
-  "Blocked a request that could not be verified as a public HTTP(S) URL: https://example.com/",
   "Read the site's privacy policy (https://example.com/) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
   ...MODES.flatMap((mode) => [
     consentInteractionWarning({ mode, clicked: false }),
@@ -133,6 +142,7 @@ const SINGLE_PREDICATE_LINES: Readonly<Record<string, readonly string[]>> = {
   runKeystrokeProbePageLeft: [KEYSTROKE_PROBE_PAGE_LEFT_WARNING],
   runPageLeftSubjectBeforeState: [PAGE_LEFT_SUBJECT_BEFORE_STATE_WARNING],
   runHitAuxiliaryPageRequestsBlocked: [AUXILIARY_PAGE_REQUESTS_BLOCKED_WARNING],
+  runHitRouteGuardRequestsBlocked: routeGuardRefusalLines,
   runKeystrokeProbeLeftSubject: [CONSENT_INTERACTION_LEFT_SUBJECT_WARNING, CONSENT_RELOAD_SUBJECT_WARNING, ACTIVE_PROBE_SUBJECT_WARNING],
   runConsentInteractionLeftSubject: [CONSENT_INTERACTION_LEFT_SUBJECT_WARNING],
   runHitStorageSnapshotCaptureLoss: [STORAGE_SNAPSHOT_CAPTURE_LOSS_WARNING],
@@ -157,6 +167,7 @@ const REQUEST_EVIDENCE_PREDICATES = [
   "runConsentInteractionLeftSubject",
   "runPageLeftSubjectBeforeState",
   "runHitAuxiliaryPageRequestsBlocked",
+  "runHitRouteGuardRequestsBlocked",
   "runHitProxyTrafficBudget",
   "runHitUnsettledRoutedRequests"
 ] as const;
@@ -296,22 +307,22 @@ test("every consent outcome and every catalogued banner is in the domain", () =>
 
 test("every predicate has a pinned row, and every row reads something", () => {
   assert.deepEqual(predicateNames(productionEligibility), Object.keys(EXPECTED_LINES).sort());
-  assert.equal(Object.keys(EXPECTED_LINES).length, 34);
+  assert.equal(Object.keys(EXPECTED_LINES).length, 35);
   for (const [predicate, lines] of Object.entries(EXPECTED_LINES)) assert.ok(lines.length > 0, `${predicate} reads nothing`);
 });
 
 test("CL6: every predicate reads exactly its pinned lines, over every admitted line", () => {
-  assert.equal(checkMatrix(productionEligibility, LINES), 34 * LINES.length);
+  assert.equal(checkMatrix(productionEligibility, LINES), 35 * LINES.length);
 });
 
 test("CL6: a predicate reads its line anywhere in a run, and nothing from the others", () => {
   const pinned = Object.values(EXPECTED_LINES).reduce((sum, lines) => sum + lines.length, 0);
-  assert.equal(checkMixedRuns(productionEligibility, LINES), 34 + 2 * pinned);
+  assert.equal(checkMixedRuns(productionEligibility, LINES), 35 + 2 * pinned);
 });
 
 test("CL6: a comparison's label keeps every substring reading and hides a whole line", () => {
   const labels = publicStringPolicyInputs().warningLabels.length;
-  assert.equal(checkLabelledLines(productionEligibility, LINES), 34 * LINES.length * labels);
+  assert.equal(checkLabelledLines(productionEligibility, LINES), 35 * LINES.length * labels);
 });
 
 for (const [name, property, find, replace] of [

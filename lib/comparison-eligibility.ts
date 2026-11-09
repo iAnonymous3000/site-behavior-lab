@@ -78,17 +78,20 @@ const KEYSTROKE_PROBE_PAGE_LEFT_WARNING_FRAGMENT = "left the recorded site durin
 const PAGE_LEFT_SUBJECT_BEFORE_STATE_WARNING_FRAGMENT = "before the scanner finished reading its state";
 const AUXILIARY_PAGE_REQUESTS_BLOCKED_WARNING_FRAGMENT = "opened one or more new windows or tabs";
 /**
- * The start of each line the scanner writes when its own route guard refuses
+ * A fragment of each line the scanner writes when its own route guard refuses
  * one of the page's requests: the host could not be verified as public (a
  * resolver failure or timeout, a private or non-default-port target, a URL
  * over the recorded length), or more such requests than it lists. The custom
- * label variants ("... as a public HTTP(S) URL") begin the same way. The
- * non-HTTP(S) line is not here: a request with another scheme was never going
- * to be a row of the HTTP request log.
+ * label variant ("... as a public HTTP(S) URL") holds the first fragment too.
+ * The non-HTTP(S) line holds neither: a request with another scheme was never
+ * going to be a row of the HTTP request log. Substrings, like the other
+ * request-family fragments here, so a line reads the same under a
+ * comparison's run label; neither can occur inside a published address,
+ * which holds no space.
  */
-const ROUTE_GUARD_REQUESTS_BLOCKED_WARNING_PREFIXES = [
+const ROUTE_GUARD_REQUESTS_BLOCKED_WARNING_FRAGMENTS = [
   "Blocked a request that could not be verified as ",
-  "Blocked additional requests that could not be verified as public."
+  "Blocked additional requests that could not be verified as public"
 ] as const;
 const INVALID_UPSTREAM_RESPONSE_WARNING_FRAGMENT = "scan proxy rejected one or more invalid upstream responses";
 const UNSETTLED_ROUTED_REQUEST_WARNING_FRAGMENT =
@@ -810,7 +813,7 @@ export function runHitAuxiliaryPageRequestsBlocked(run: Pick<ScanResult, "warnin
  */
 export function runHitRouteGuardRequestsBlocked(run: { warnings: readonly string[] }): boolean {
   return run.warnings.some((warning) =>
-    ROUTE_GUARD_REQUESTS_BLOCKED_WARNING_PREFIXES.some((prefix) => warning.startsWith(prefix))
+    ROUTE_GUARD_REQUESTS_BLOCKED_WARNING_FRAGMENTS.some((fragment) => warning.includes(fragment))
   );
 }
 
