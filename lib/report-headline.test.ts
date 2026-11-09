@@ -12,6 +12,7 @@ import { validateReportPresentation } from "./report-consistency";
 import { displayableScreenshot } from "./report-insights";
 import { buildFindings } from "./report-findings";
 import { buildReportHeadline, reportPageTitle, type ReportHeadline } from "./report-headline";
+import { publishedReportCorrections } from "./published-report-corrections";
 import { INVALID_UPSTREAM_RESPONSE_WARNING } from "./scan-runtime";
 import { evaluateQuality } from "./scan-report-v2-evaluators";
 import { R2_NAVIGATION_STATUS_UNREPRESENTABLE } from "./scan-report-v2-http-status";
@@ -1147,6 +1148,30 @@ test("tracker requests the report's own phase tags place before the click are wo
     (request) => ({ ...request, phaseId: passive.phaseId }) as NetworkRequestRecord
   );
   assert.doesNotMatch(buildReportHeadline(censored).headline, /before the scanner clicked/);
+});
+
+test("a reviewed clarification joins the headline's own qualification instead of replacing it", () => {
+  // SBL-CORR-2026-001 is a clarification (the report stays indexed), cited
+  // by the README's example report, which the ledger pins against pruning.
+  const clarified = "20260814-31e105d7971825fbd0f3fffa099188fe";
+  const context = publishedReportCorrections(clarified);
+  assert.ok(context.currentSubjectEvent && !context.suppressIndexing, "the fixture id must carry a clarification");
+  const notice = `${context.currentSubjectEvent.eventId}: ${context.currentSubjectEvent.summary}`;
+
+  const result = makeResult({
+    firstPartyDomain: "clarified.example",
+    domains: [makeTrackerDomain("ads.example", 5, "AdCo", "advertising")],
+    thirdPartyRequests: 5,
+    thirdPartyDomains: 1
+  });
+  const plain = buildReportHeadline(viewFromV1Report(result));
+  const withNotice = buildReportHeadline({ ...viewFromV1Report(result), reportId: clarified });
+  assert.ok(plain.subhead.length > 0);
+  assert.equal(withNotice.headline, plain.headline);
+  assert.equal(withNotice.subhead, `${plain.subhead} ${notice}`);
+  // The card and share text still lead with the clarification.
+  assert.match(withNotice.compactSubhead ?? "", /^A public clarification applies\./);
+  assert.match(withNotice.shareText, /a public clarification applies/);
 });
 
 test("a denied pair never tells the consent story, even with both clicks verified", () => {

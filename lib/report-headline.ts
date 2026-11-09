@@ -149,10 +149,19 @@ export function buildReportHeadline(
   const event = context.currentSubjectEvent;
   if (!event) return headline;
   const notice = `${event.eventId}: ${event.summary}`;
+  // A clarification joins the lead claim's own qualification, it does not
+  // replace it. Replaced, a headline such as "<site>'s observed Meta Pixel
+  // requests contained populated identifier fields" lost "the scanner records
+  // only that they were filled, never their values", the sentence that limits
+  // it, for a notice about a different measurement that the page already
+  // prints in full above the headline. A superseding correction below still
+  // replaces everything: there the claim itself is withdrawn.
   if (!context.suppressIndexing) return {
-    ...headline, subhead: notice, subheadPrimaryClaim: notice,
+    ...headline, subhead: `${headline.subhead} ${notice}`, subheadPrimaryClaim: notice,
     compactSubhead: `A public clarification applies. Open the report and read ${event.eventId} before using its findings.`,
-    compactSubheadSource: notice,
+    // The card takes the compact form only when it was written for exactly
+    // this subhead, so the source is the joined text, not the notice alone.
+    compactSubheadSource: `${headline.subhead} ${notice}`,
     caveat: headline.caveat,
     shareText: `${headline.domain}: a public clarification applies (${event.eventId}). Read the report and correction together.`
   };
