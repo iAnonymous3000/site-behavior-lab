@@ -658,9 +658,7 @@ export function useScanRuntime({
     } catch (recoveryError) {
       if (!operationOwnerRef.current.owns(operation) || isAbortError(recoveryError)) return;
       if (shouldReleaseAcceptedScanJob(recoveryError)) releaseActiveScanSession(operation);
-      const message = recoveryError instanceof Error
-        ? recoveryError.message
-        : "The retained scan admission could not be checked.";
+      const message = friendlyScanError(recoveryError, policy.openAccessScanner);
       setError(
         activeScanJobRef.current
           ? `${message} The accepted scan remains retained; resume its status checks or cancel it without resubmitting work.`

@@ -1,6 +1,7 @@
 import { readLoadedReport } from "./client-report-reader";
 import { isRecoverableScanJob } from "./active-scan-session";
 import {
+  ClientInvalidJsonError,
   fetchJsonResponseWithPolicy,
   type ClientJsonFetchResponse
 } from "./client-fetch-policy";
@@ -47,6 +48,37 @@ export class ScanJobEndedError extends Error {
     this.name = "ScanJobEndedError";
     this.status = status;
   }
+}
+
+/** The reader's words for a scanner that gave no HTTP answer at all. */
+export const SCANNER_UNREACHABLE = "The scanner could not be reached.";
+
+/**
+ * The reader's words for an answer whose status says the request failed and
+ * whose body holds no reason this client can read: an edge's error page, an
+ * empty body, or JSON that is not the scanner's own refusal. The status is
+ * the one fact such an answer carries, so the sentence keeps it.
+ */
+export function unreadableScannerAnswer(status: number): string {
+  return `The scanner answered HTTP ${status} without a readable reason.`;
+}
+
+/**
+ * fetch() rejects with a TypeError when it gets no HTTP answer: the network
+ * is down, the name does not resolve, or a cross-origin answer came back
+ * without CORS headers, as an edge's own error page does. The message is the
+ * browser's ("Failed to fetch", "Load failed") and tells a reader nothing, so
+ * the failure is named here, at the one call where a TypeError still means
+ * exactly that.
+ */
+export function reachScanner(fetcher: ScanJobPollFetcher, unreachable = SCANNER_UNREACHABLE): ScanJobPollFetcher {
+  return async (input, init) => {
+    try {
+      return await fetcher(input, init);
+    } catch (error) {
+      throw error instanceof TypeError ? new Error(unreachable) : error;
+    }
+  };
 }
 
 /**
@@ -203,6 +235,7 @@ async function fetchWithTransientRetry(url: string, context: RetryContext): Prom
   for (;;) {
     throwIfAborted(context.signal);
     let response: Response;
+    let status = 0;
     try {
       return await fetchJsonResponseWithPolicy(
         url,
@@ -214,8 +247,11 @@ async function fetchWithTransientRetry(url: string, context: RetryContext): Prom
         {
           label: context.label,
           maxBytes: BROWSER_PUBLIC_REPORT_JSON_MAX_BYTES,
-          fetchImpl: context.fetcher as typeof fetch,
-          acceptResponse: (candidate) => !TRANSIENT_HTTP_STATUSES.has(candidate.status),
+          fetchImpl: reachScanner(context.fetcher) as typeof fetch,
+          acceptResponse: (candidate) => {
+            status = candidate.status;
+            return !TRANSIENT_HTTP_STATUSES.has(status);
+          },
           httpError: (candidate) => new TransientScanJobResponseError(candidate),
           ...(context.attemptTimeoutMs === undefined
             ? {}
@@ -226,11 +262,13 @@ async function fetchWithTransientRetry(url: string, context: RetryContext): Prom
         }
       );
     } catch (error) {
+      if (error instanceof ClientInvalidJsonError && (status < 200 || status >= 300)) {
+        throw new Error(unreadableScannerAnswer(status));
+      }
       if (!(error instanceof TransientScanJobResponseError)) throw error;
       response = error.response;
     }
 
-    const status = response.status;
     try {
       const cancellation = response.body?.cancel();
       if (cancellation) void cancellation.catch(() => undefined);

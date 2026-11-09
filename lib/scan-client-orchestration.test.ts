@@ -31,7 +31,7 @@ import { INSPECTION_DURABLE_REFUSAL } from "./connection-inspection-address";
 import { SCROLL_CHECK_DURABLE_REFUSAL } from "./scroll-check-request";
 import { makeScanReportV1 } from "./scan-report-v2-fixtures";
 import { BROWSER_PUBLIC_REPORT_JSON_MAX_BYTES } from "./report-resource-limits";
-import { CLIENT_FETCH_CONNECT_TIMEOUT_MS } from "./client-fetch-policy";
+import { CLIENT_FETCH_CONNECT_TIMEOUT_MS, ClientFetchTimeoutError } from "./client-fetch-policy";
 import { scanResponseDeadlineMs } from "./scan-deadlines";
 
 const JOB_ID = `20260719-${"a".repeat(32)}`;
@@ -430,7 +430,15 @@ test("outcome-unknown durable failures retain admission while definitive 4xx rej
   });
   assert.equal(lost.retained, 1);
   assert.equal(lost.cleared, 0);
-  assert.match(String(lost.error), /response lost/);
+  // The reader gets the client's sentence, never the exception's own text.
+  assert.equal((lost.error as Error).message, "The scanner could not be reached. The request may already have been accepted.");
+
+  // A failed status with no refusal of the scanner's own says nothing about
+  // whether the request was admitted, so the capability stays retained.
+  const edgeBlock = await attempt(async () => new Response("<html>blocked</html>", { status: 403 }));
+  assert.equal(edgeBlock.retained, 1);
+  assert.equal(edgeBlock.cleared, 0);
+  assert.equal((edgeBlock.error as Error).message, "The scanner answered HTTP 403 without a readable reason.");
 
   const malformed = await attempt(async () =>
     new Response("not json", { status: 202, headers: { "content-type": "application/json" } })
@@ -1161,6 +1169,94 @@ test("a scanner quota refusal renders the declared cause with the server's wait"
   ]) {
     assert.equal(friendlyScanError(await submitWith(429, { ok: false, error }), false), error);
   }
+});
+
+test("a scan that gets no answer, or a failure with no readable reason, is named in the page's words with its status", async () => {
+  const submit = async (fetcher: () => Promise<Response>): Promise<string> => {
+    try {
+      await submitRuntimeScan({
+        targetUrl: "https://example.com/",
+        form: { device: "desktop", gpcEnabled: true, compareGpc: false, compareShields: false, compareConsent: false, accessKey: "" },
+        gpcComparisonEnabled: false,
+        shieldsComparisonEnabled: false,
+        consentComparisonEnabled: false,
+        scannerRequiresAccessKey: false,
+        turnstileRequired: false,
+        turnstileToken: "",
+        resolveApiUrl: (path) => path,
+        fetcher,
+        onAccepted: async () => assert.fail("a failure must not be accepted")
+      });
+    } catch (caught) {
+      return friendlyScanError(caught, true);
+    }
+    return assert.fail("a failure must reject");
+  };
+
+  // What fetch() throws for a dead network or an answer without CORS headers, in two browsers' words.
+  for (const browserText of ["Failed to fetch", "Load failed"]) {
+    assert.equal(
+      await submit(async () => {
+        throw new TypeError(browserText);
+      }),
+      "The scanner could not be reached. The request may already have been accepted."
+    );
+  }
+
+  // An edge's own answers: an error page, an empty body, and JSON that is not the scanner's refusal.
+  for (const [status, answer] of [
+    [403, () => new Response("<html>blocked</html>", { status: 403, headers: { "content-type": "text/html" } })],
+    [502, () => new Response("<html>bad gateway</html>", { status: 502 })],
+    [504, () => new Response("", { status: 504 })],
+    [429, () => Response.json({ success: false, errors: [{ code: 10429 }] }, { status: 429 })]
+  ] as const) {
+    assert.equal(await submit(async () => answer()), `The scanner answered HTTP ${status} without a readable reason.`);
+  }
+
+  // A 2xx that is not JSON, or not a report, is still described as what it is.
+  assert.match(await submit(async () => new Response("not json", { status: 200 })), /returned invalid JSON/);
+  assert.match(await submit(async () => Response.json({ hello: "world" })), /not a Site Behavior Lab report/);
+
+  // Cancelling an accepted scan words the same two failures.
+  const job: ActiveScanJob = { jobId: JOB_ID, reportId: REPORT_ID, statusPath: STATUS_PATH, accessKey: "" };
+  await assert.rejects(
+    cancelRuntimeScan({ job, resolveApiUrl: (path) => path, fetcher: async () => new Response("<html>bad gateway</html>", { status: 502 }) }),
+    (error: unknown) => friendlyScanError(error, true) === "The scan could not be cancelled (HTTP 502)."
+  );
+  await assert.rejects(
+    cancelRuntimeScan({
+      job,
+      resolveApiUrl: (path) => path,
+      fetcher: async () => {
+        throw new TypeError("Failed to fetch");
+      }
+    }),
+    (error: unknown) => friendlyScanError(error, true) === "The scanner could not be reached."
+  );
+});
+
+test("an exception the browser or the bundler worded never reaches the reader as it is", () => {
+  const pageFault = "This page hit an unexpected error while handling the scan.";
+  const chunk = new Error("Loading chunk 4821 failed. (error: https://example.org/_next/static/chunks/4821.js)");
+  chunk.name = "ChunkLoadError";
+  for (const exception of [
+    new TypeError("Cannot read properties of undefined (reading 'share')"),
+    new RangeError("Maximum call stack size exceeded"),
+    new DOMException("Failed to execute 'setItem' on 'Storage': Setting the value exceeded the quota.", "QuotaExceededError"),
+    chunk,
+    { message: "not an error at all" },
+    null
+  ]) {
+    assert.equal(friendlyScanError(exception, true), pageFault);
+  }
+  // Sentences this client or the scanner wrote still arrive whole.
+  assert.equal(friendlyScanError(new Error("The scan status could not be read (HTTP 200)."), true), "The scan status could not be read (HTTP 200).");
+  assert.equal(friendlyScanError("The scanner's own sentence.", true), "The scanner's own sentence.");
+  assert.equal(
+    friendlyScanError(new ClientFetchTimeoutError("connect", 10_000, "The scan status"), true),
+    "The scan status did not respond within 10 seconds."
+  );
+  assert.equal(friendlyScanError(new ScanJobEndedError("failed", "The page could not be loaded."), true), "The page could not be loaded.");
 });
 
 test("friendly scan errors explain a DECLARED cause and never infer one", () => {

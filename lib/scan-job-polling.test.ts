@@ -450,6 +450,29 @@ test("a finished check that no submit is waiting for is named in a sentence, and
   assert.equal(unshownScrollCheckNotice(ordinary, null), null);
 });
 
+test("a status read that gets no answer, or a failure with no readable reason, keeps the job and says which", async () => {
+  const poll = (fetcher: ScanJobPollFetcher) =>
+    pollAcceptedScanJob({ statusPath: STATUS_PATH, reportId: REPORT_ID, fetcher, wait: async () => undefined });
+
+  await assert.rejects(
+    poll(async () => {
+      throw new TypeError("Failed to fetch");
+    }),
+    (error: unknown) =>
+      error instanceof Error && !(error instanceof ScanJobEndedError) && error.message === "The scanner could not be reached."
+  );
+  // An edge's error page on a status the poller does not retry.
+  await assert.rejects(
+    poll(async () => new Response("<html>error</html>", { status: 500, headers: { "content-type": "text/html" } })),
+    (error: unknown) =>
+      error instanceof Error &&
+      !(error instanceof ScanJobEndedError) &&
+      error.message === "The scanner answered HTTP 500 without a readable reason."
+  );
+  // A 2xx that is not JSON is still called that.
+  await assert.rejects(poll(async () => new Response("not json", { status: 200 })), /returned invalid JSON/);
+});
+
 test("poll and Retry-After delays are bounded and progressively backed off", () => {
   assert.equal(scanJobPollIntervalMs(0), 1_000);
   assert.equal(scanJobPollIntervalMs(3 * 60_000), 5_000);

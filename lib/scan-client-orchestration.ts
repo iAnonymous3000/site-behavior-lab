@@ -2,7 +2,8 @@ import { readLoadedReport } from "./client-report-reader";
 import {
   CLIENT_FETCH_OPERATION_TIMEOUT_MS,
   ClientFetchTimeoutError,
-  fetchJsonWithPolicy
+  ClientInvalidJsonError,
+  fetchJsonResponseWithPolicy
 } from "./client-fetch-policy";
 import {
   isRecoverableScanJob,
@@ -28,7 +29,10 @@ import { scanResponseDeadlineMs } from "./scan-deadlines";
 import { BROWSER_PUBLIC_REPORT_JSON_MAX_BYTES } from "./report-resource-limits";
 import {
   pollAcceptedScanJob,
+  reachScanner,
+  SCANNER_UNREACHABLE,
   ScanJobEndedError,
+  unreadableScannerAnswer,
   type AcceptedScanJobPoll
 } from "./scan-job-polling";
 import { isScanRuntimeHealth, shareReportMaxAgeDays, type ScanRuntimeHealth } from "./scan-runtime-health";
@@ -307,6 +311,7 @@ export async function submitRuntimeScan(options: {
         referrerPolicy: "no-referrer"
       },
       label: "Scan admission",
+      unreachable: SCAN_POST_UNANSWERED,
       maxBytes: SCAN_ADMISSION_RESPONSE_MAX_BYTES,
       connectTimeoutMs: options.responseConnectTimeoutMs,
       operationTimeoutMs: options.responseOperationTimeoutMs
@@ -339,6 +344,7 @@ export async function submitRuntimeScan(options: {
         referrerPolicy: "no-referrer"
       },
       label: "Scan response",
+      unreachable: SCAN_POST_UNANSWERED,
       maxBytes: BROWSER_PUBLIC_REPORT_JSON_MAX_BYTES,
       connectTimeoutMs: responseDeadlineMs,
       operationTimeoutMs: options.responseOperationTimeoutMs ?? responseDeadlineMs + CLIENT_FETCH_OPERATION_TIMEOUT_MS
@@ -353,7 +359,12 @@ export async function submitRuntimeScan(options: {
     }
     throw scanRequestError(payload);
   }
-  if (responseStatus >= 200 && responseStatus < 300 && isScanJobSubmissionResponse(payload)) {
+  // A failed status with no refusal of the scanner's own in its body. Read as
+  // a scan result it would be called a damaged report, which it never was.
+  // Under durable admission the capability stays retained: nothing here says
+  // the request was refused before it was admitted.
+  if (responseStatus < 200 || responseStatus >= 300) throw new Error(unreadableScannerAnswer(responseStatus));
+  if (isScanJobSubmissionResponse(payload)) {
     // The status path is a recovery capability. Keep the admission access key
     // in memory for this page lifetime only; tab recovery persists identifiers
     // but deliberately omits this deployment-wide credential.
@@ -645,13 +656,42 @@ export function scanFailureNoticeFor(
   error: unknown,
   openAccessScanner: boolean
 ): ScanFailureNotice {
-  const message = error instanceof Error ? error.message : String(error ?? "");
+  // Only words this client or the scanner wrote reach the reader: a sentence
+  // handed in as text, a plain Error, a scanner refusal, a job's ending, or a
+  // fetch policy refusal (which carries a code). Anything else is the
+  // browser's or the bundler's own exception, a chunk that failed to load or
+  // a storage refusal, worded for a console.
+  const message =
+    typeof error === "string"
+      ? error
+      : error instanceof Error &&
+          (error.name === "Error" ||
+            error instanceof ScanRequestError ||
+            error instanceof ScanJobEndedError ||
+            typeof (error as { code?: unknown }).code === "string")
+        ? error.message
+        : "This page hit an unexpected error while handling the scan.";
   const cause = error instanceof ScanRequestError ? error.failureCause : undefined;
   // Passed through unchecked: scanFailureText validates the wait itself.
   const retryAfterSeconds = error instanceof ScanRequestError ? error.retryAfterSeconds : undefined;
   return scanFailureText(cause, message, { openAccessScanner, retryAfterSeconds });
 }
 
+/**
+ * What the scan's own POST says when it gets no answer. The request may have
+ * reached the scanner all the same, and outside durable admission nothing
+ * can ask it, so the reader is told before scanning again.
+ */
+const SCAN_POST_UNANSWERED = `${SCANNER_UNREACHABLE} The request may already have been accepted.`;
+
+/**
+ * One bounded JSON read that keeps the HTTP status beside the body. A refusal
+ * carries its declared reason on a 4xx or 5xx body, so every status is read.
+ * When the status says the request failed and the body is not JSON at all
+ * (an edge's error page, an empty 504), the payload is null and the caller
+ * words the failure from the status; "returned invalid JSON" would drop the
+ * one fact such an answer has.
+ */
 async function fetchRuntimeJsonWithPolicy(
   input: string,
   options: {
@@ -661,37 +701,27 @@ async function fetchRuntimeJsonWithPolicy(
     maxBytes: number;
     connectTimeoutMs?: number;
     operationTimeoutMs?: number;
+    unreachable?: string;
   }
 ): Promise<{ status: number; payload: unknown }> {
-  let status: number | null = null;
-  const fetchImpl = (async (requestInput: RequestInfo | URL, init?: RequestInit) => {
-    const url =
-      typeof requestInput === "string"
-        ? requestInput
-        : requestInput instanceof URL
-          ? requestInput.href
-          : requestInput.url;
-    const response = await options.fetcher(url, init ?? {});
-    status = response.status;
-    if (response.ok) return response;
-    // fetchJsonWithPolicy deliberately rejects HTTP errors before reading the
-    // body. Admission needs the bounded JSON body to distinguish a definitive
-    // public rejection from an outcome-unknown 5xx, so preserve the original
-    // status out of band while the shared policy owns streaming and parsing.
-    return new Response(response.body, {
-      status: 200,
-      headers: response.headers
+  let status = 0;
+  try {
+    const { payload } = await fetchJsonResponseWithPolicy(input, options.init, {
+      label: options.label,
+      maxBytes: options.maxBytes,
+      connectTimeoutMs: options.connectTimeoutMs,
+      operationTimeoutMs: options.operationTimeoutMs,
+      fetchImpl: reachScanner(options.fetcher, options.unreachable) as typeof fetch,
+      acceptResponse: (response) => {
+        status = response.status;
+        return true;
+      }
     });
-  }) as typeof fetch;
-  const payload = await fetchJsonWithPolicy(input, options.init, {
-    label: options.label,
-    maxBytes: options.maxBytes,
-    connectTimeoutMs: options.connectTimeoutMs,
-    operationTimeoutMs: options.operationTimeoutMs,
-    fetchImpl
-  });
-  if (status === null) throw new Error(`${options.label} returned no HTTP status.`);
-  return { status, payload };
+    return { status, payload };
+  } catch (error) {
+    if (error instanceof ClientInvalidJsonError && (status < 200 || status >= 300)) return { status, payload: null };
+    throw error;
+  }
 }
 
 function isRuntimeScanError(
