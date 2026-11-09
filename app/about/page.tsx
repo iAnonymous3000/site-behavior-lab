@@ -155,8 +155,8 @@ export default function AboutPage() {
           <li>
           <strong>Bounded evidence is recorded.</strong> The scanner retains captured HTTP requests, cookies,
           top-frame storage keys and selected browser-feature calls within published limits. Reports disclose
-          caps, unsupported surfaces and collection failures, so their counts are lower bounds rather than
-          complete transcripts.
+          caps, unsupported surfaces and collection failures, so their request counts are lower bounds rather than
+          complete transcripts, and a cookie or storage snapshot that was cut short can differ in either direction.
           </li>
           <li>
           <strong>Requests are matched against public catalogs.</strong> That turns a raw domain name into

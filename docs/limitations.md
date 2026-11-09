@@ -94,14 +94,14 @@ Three practical consequences when interpreting a report:
   back to fixed thresholds, and `public/corpus-stats.json` shows each cohort's
   real size.
 
-If you self-host for serious use, read the Docker build-arg note below (the
-image bakes in public URLs at build time), and treat durable jobs and an
-independent egress backstop as prerequisites rather than options: both are off
-in the committed production configuration. Durable jobs are tracked as a
-release gate. Release 1.0 does not verify an independent egress backstop and
-does not re-verify log retention: both release gates are deferred to 1.1.0, so
-the application's own egress guard and the configured log-retention window are
-what exist.
+If you self-host for serious use, read the Docker build-argument note in the
+README's Self-host section (the image bakes in public URLs at build time), and
+treat durable jobs and an independent egress backstop as prerequisites rather
+than options: both are off in the committed production configuration. Durable
+jobs are tracked as a release gate. Release 1.0 does not verify an independent
+egress backstop and does not re-verify log retention: both release gates are
+deferred to 1.1.0, so the application's own egress guard and the configured
+log-retention window are what exist.
 
 ## Data Attribution
 

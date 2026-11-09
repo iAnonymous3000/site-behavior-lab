@@ -124,8 +124,9 @@ proposal that a maintainer merges.
 - **Attribution is not causation.** The script-to-request map records the
   initiator Chromium reported, which may itself have been told what to fetch,
   may be a fetch or XHR wrapper credited with another script's request, and
-  may be a name the script gave itself. Requests made by dedicated workers are
-  not observed, so a URL a worker requests carries no attribution on any row.
+  may be a name the script gave itself. A request made by a dedicated worker is
+  recorded, but its initiator is not observed, so a URL a worker requests
+  carries no attribution on any row.
   A fresh result's request log can open an on-demand inspection visit, which
   shows the call-stack hosts of its own requests to one address in its
   immediate result only, never in a report; a request it shows with no stack

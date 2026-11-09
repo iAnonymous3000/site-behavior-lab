@@ -79,8 +79,8 @@ export default function CatalogPage() {
       <section className={styles.section} aria-labelledby="validation-heading">
         <h2 id="validation-heading">Detector validation fixture coverage</h2>
         <p className={styles.sectionIntro}>
-          The matrix below is generated from exact, source-controlled cases in the repository test suite: one positive,
-          one negative, and one adversarial or failure-boundary case for every detector. {realChromiumCases} selected
+          The matrix below is generated from exact, source-controlled cases in the repository test suite: at least one
+          positive, one negative, and one adversarial or failure-boundary case for every detector. {realChromiumCases} selected
           cases run in real Chromium; the others test deterministic detector logic.
         </p>
         <p className={styles.note}>
