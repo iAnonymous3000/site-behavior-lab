@@ -2966,7 +2966,10 @@ async function assertInspectionOnlyOnFreshResults(browser, baseUrl, manifest) {
  * result its answer carries (an r2 single built from a committed
  * comparison's baseline visit, with no share, as a check's is) shows the
  * check at its top and one sentence before the report, with no share, no
- * export, no new visit and nothing on paper; a reload shows none.
+ * export, no new visit and nothing on paper; a reload shows none. On the
+ * desktop the scanner answers the check as the reference deployment does,
+ * with a job whose status then carries the result; the phone gets a
+ * synchronous scanner's answer, the report itself.
  */
 async function assertScrollCheckOnlyFromItsLink(browser, baseUrl, manifest) {
   const { report, wire, page: target } = await findInspectionCandidate(manifest);
@@ -3029,6 +3032,11 @@ async function assertScrollCheckOnlyFromItsLink(browser, baseUrl, manifest) {
   const answers = [];
   const sent = [];
   const scanBodies = [];
+  // An answer of the form { accepted: report } is given as an async scanner
+  // gives it: 202 with a job, whose status read then returns the report. A
+  // check's report has no share, so the job's reserved report id names
+  // nothing the result carries, and the page has to show it all the same.
+  const job = { jobId: `20260101-${"a".repeat(32)}`, reportId: `20260101-${"b".repeat(32)}`, report: null };
   const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
   await context.route(`${liveScanApiBase}/**`, async (route) => {
     const request = route.request();
@@ -3047,7 +3055,16 @@ async function assertScrollCheckOnlyFromItsLink(browser, baseUrl, manifest) {
       scanBodies.push(request.postData() ?? "");
       const answer = answers.shift();
       if (!answer) return route.abort();
+      if (typeof answer !== "string") {
+        job.report = answer.accepted;
+        return route.fulfill({ status: 202, contentType: "application/json", headers: cors,
+          body: JSON.stringify({ ok: true, jobId: job.jobId, status: "queued", statusPath: `/api/scans/${job.jobId}`, reportId: job.reportId }) });
+      }
       return route.fulfill({ status: 200, contentType: "application/json", headers: cors, body: answer });
+    }
+    if (request.method() === "GET" && pathname === `/api/scans/${job.jobId}` && job.report) {
+      return route.fulfill({ status: 200, contentType: "application/json", headers: cors,
+        body: JSON.stringify({ ok: true, jobId: job.jobId, status: "succeeded", report: JSON.parse(job.report) }) });
     }
     return route.abort();
   });
@@ -3140,7 +3157,7 @@ async function assertScrollCheckOnlyFromItsLink(browser, baseUrl, manifest) {
     pass("following a check link fills the form with Single, Check, the check line and its disclosure on screen, sends nothing, and ends on an edit or a comparison");
 
     // Pressing Check sends the check; its result shows the check at its top.
-    answers.push(single({ scrollCheck: evidence }, null));
+    answers.push({ accepted: single({ scrollCheck: evidence }, null) });
     await pressAndAwaitResult(page);
     const checked = JSON.parse(scanBodies[1] ?? "{}");
     if (checked.check !== "scroll" || checked.url !== target || checked.compareGpc || checked.compareShields || checked.compareConsent || "inspect" in checked) {
@@ -3218,7 +3235,8 @@ async function assertScrollCheckOnlyFromItsLink(browser, baseUrl, manifest) {
       fail("an unusable check link filled the form");
     }
     await scrubbed.close();
-    if (sent.length !== 2) fail(`the check's checks sent ${sent.join(", ")}`);
+    // The typed scan, the check, and the one status read that returned the check's result.
+    if (sent.join(", ") !== `POST /api/scan, POST /api/scan, GET /api/scans/${job.jobId}`) fail(`the check's checks sent ${sent.join(", ")}`);
     pass("a reload shows no check, and a check link the form cannot use is scrubbed with its address");
   } finally {
     await context.close();
