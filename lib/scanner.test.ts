@@ -78,6 +78,7 @@ import {
   navigationTimeoutError,
   navigationGuardRefusal,
   PAGE_IS_DOWNLOAD_MESSAGE,
+  PAGE_CRASHED_MESSAGE,
   PAGE_LOAD_FAILED_MESSAGE,
   UNATTRIBUTED_NAVIGATION_FAILURE_MESSAGE,
   ScanWarningCollector,
@@ -2490,6 +2491,89 @@ test("a request recorded before the Shields boundary but classified after it is 
     assert.equal(result.summary.shieldsBlockedRequests, 2);
   } finally {
     releaseLate();
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+});
+
+test("a page whose renderer crashes after it loaded makes no report", { timeout: 60_000 }, async () => {
+  // The page loads, is classified a normal document, and would go on to
+  // contact a third party on a timer. Its renderer then dies. Every later
+  // page-bound read degrades on its own and nothing records a requests or
+  // cookies loss, so without the crash listener this visit returned an
+  // ordinary result: one request, no third party, request and cookie evidence
+  // complete, and every absence claim allowed. The control proves the fixture
+  // really does contact the third party when the renderer lives.
+  const upstream = createServer((request, response) => {
+    const host = request.headers.host?.split(":")[0];
+    if (host === "later-tracker.test") {
+      response.writeHead(200, { "content-type": "image/gif" });
+      response.end();
+      return;
+    }
+    response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+    response.end(
+      `<!doctype html><html><head><title>Shop home</title></head><body><h1>Shop</h1><p>${"Ordinary page text. ".repeat(20)}</p>` +
+        '<script>let n = 0; setInterval(() => { new Image().src = "http://later-tracker.test/beat.gif?n=" + (n++); }, 400);</script>' +
+        "</body></html>"
+    );
+  });
+  await new Promise<void>((resolve, reject) => {
+    upstream.once("error", reject);
+    upstream.listen(0, "127.0.0.1", resolve);
+  });
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+  const visit = (crash: boolean) =>
+    scanSiteWithMeasurement(
+      { url: "http://crash-subject.test/", device: "desktop", gpcEnabled: false, consentMode: "observe" },
+      {
+        publicUrlAlreadyVerified: true,
+        verifyPublicUrl: async () => undefined,
+        resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+        connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"),
+        resolveCnameChain: async () => [],
+        ...(crash
+          ? {
+              beforePassiveShieldsBoundaryForTests: async (page: Page) => {
+                const crashed = new Promise<void>((resolve) => page.once("crash", () => resolve()));
+                const session = await page.context().newCDPSession(page);
+                // Page.crash never answers: the renderer is gone before it can.
+                void session.send("Page.crash").catch(() => undefined);
+                let crashTimer: NodeJS.Timeout | undefined;
+                try {
+                  await Promise.race([
+                    crashed,
+                    new Promise<never>((_, reject) => {
+                      crashTimer = setTimeout(() => reject(new Error("the renderer never reported its crash")), 10_000);
+                    })
+                  ]);
+                } finally {
+                  clearTimeout(crashTimer);
+                }
+              }
+            }
+          : {})
+      }
+    );
+
+  try {
+    const control = await visit(false);
+    assert.ok(
+      control.result.summary.thirdPartyRequests > 0,
+      "control: the page contacts its third party while the renderer lives"
+    );
+
+    await assert.rejects(
+      visit(true),
+      (error: unknown) =>
+        error instanceof PublicScanError &&
+        error.message === PAGE_CRASHED_MESSAGE &&
+        error.status === 502 &&
+        // The scanner cannot tell whose fault a dead renderer is.
+        error.failureCause === undefined
+    );
+  } finally {
     await closeSharedBrowserForTests();
     await new Promise<void>((resolve) => upstream.close(() => resolve()));
   }

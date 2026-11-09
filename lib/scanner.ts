@@ -1207,6 +1207,24 @@ async function scanSiteWithMeasurementOnLeasedBrowser(
 
     const page = await withSetupTimeout(context.newPage(), started);
 
+    // A renderer that dies mid-visit (out of memory, a Chromium fault, or any
+    // frame's crash, since the scan browser has no site isolation) stops the
+    // page making requests and setting cookies. Each later page-bound read
+    // then degrades on its own, and nothing recorded a requests or cookies
+    // loss: the visit returned an ordinary report whose request and cookie
+    // evidence read complete, and a pair with one crashed arm was published as
+    // an effect of the compared condition. No recorded vocabulary describes a
+    // visit cut at an unknown instant, so a crashed visit makes no report. It
+    // ends as a failed scan with no declared cause, because the scanner cannot
+    // tell whether the page or its own browser was at fault.
+    let pageCrashed = false;
+    page.on("crash", () => {
+      pageCrashed = true;
+    });
+    const throwIfPageCrashed = (): void => {
+      if (pageCrashed) throw new PublicScanError(PAGE_CRASHED_MESSAGE, 502);
+    };
+
     // Request attribution: who asked for each request.
     //
     // Playwright's request events say WHAT was requested and never WHY. Chromium
@@ -3766,6 +3784,11 @@ async function scanSiteWithMeasurementOnLeasedBrowser(
       }
     };
 
+    // The last moment before evidence becomes a result. A crash any time
+    // before this point reaches it; one after it can touch only the
+    // after-scrolling check, which accounts for its own cut-short visit.
+    throwIfPageCrashed();
+
     const v1Result = buildScanResult({
       pageTitle,
       status: responseStatus,
@@ -5859,6 +5882,9 @@ export const PAGE_LOAD_FAILED_MESSAGE =
 
 export const UNATTRIBUTED_NAVIGATION_FAILURE_MESSAGE =
   "The page could not be loaded, and the scanner could not tell whether the site or its own network path failed. Try again shortly.";
+
+export const PAGE_CRASHED_MESSAGE =
+  "The page's browser process stopped during the visit, so no report was made from its incomplete evidence. The scanner cannot tell whether the page or its own browser caused it. Try again shortly.";
 
 export const PAGE_IS_DOWNLOAD_MESSAGE =
   "The site answered this address with a file to download, such as a PDF, instead of a web page, so there was no page to scan. Scan the web page that links to the file instead.";
