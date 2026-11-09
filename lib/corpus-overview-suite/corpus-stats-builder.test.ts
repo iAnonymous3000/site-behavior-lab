@@ -517,7 +517,7 @@ test("comparison coverage and cap totals consider a successful variant when the 
   const comparison = createComparisonReport({
     comparisonType: "custom",
     title: "Two-arm coverage fixture",
-    runLabels: { baseline: "Failed lead", variant: "Loaded capped variant" },
+    runLabels: { baseline: "Baseline", variant: "Variant" },
     baseline,
     variant,
     warningPrefix: "Sequential fixture."

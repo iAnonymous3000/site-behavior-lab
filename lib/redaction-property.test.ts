@@ -875,7 +875,7 @@ test("a built r2 report is a fixed point of the managed sanitizer over generated
         locale: "en-US",
         language: "en-US",
         timezone: "UTC",
-        egress: { label: "redaction-property" },
+        egress: { label: "test" },
         browser: { name: "chromium", version: "136.0.0.0" },
         headless: true,
         automation: "playwright-chromium"

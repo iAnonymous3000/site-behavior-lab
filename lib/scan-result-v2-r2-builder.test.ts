@@ -79,7 +79,7 @@ function baseInput(): NodeScanReportV2R2Input {
       locale: "en-US",
       language: "en-US",
       timezone: "UTC",
-      egress: { label: "production-scanner", region: "us-west" },
+      egress: { label: "cloudflare-containers", region: "us-west" },
       browser: { name: "chromium", version: "136.0.0.0" },
       headless: true,
       automation: "playwright-chromium"
