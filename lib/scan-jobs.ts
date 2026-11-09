@@ -248,6 +248,21 @@ export function durableScanJobsEnabled(env: NodeJS.ProcessEnv = process.env): bo
 }
 
 /**
+ * The private preparation and activation entry points do work only while the
+ * durable flag is on. The internal token must not be enough on its own: a
+ * container can hold the token while the flag is 0, and a caller with it could
+ * then mint job capabilities, or start an uncharged scan that first posts to a
+ * coordinator origin named in the caller's own request body. Cancellation and
+ * reconciliation are not gated, so a job admitted before a flag rollback still
+ * settles.
+ */
+function requireDurableScanJobsEnabled(): void {
+  if (!durableScanJobsEnabled()) {
+    throw new PublicScanError("Durable scan jobs are not enabled on this scanner.", 503, "feature-unavailable");
+  }
+}
+
+/**
  * Run the ordinary authenticated/DNS-safe prepare gate, then freeze only the
  * privacy-minimized payload that the edge may encrypt. Preparation deliberately
  * does not charge: the edge passes an ephemeral client hash to the Durable
@@ -257,6 +272,8 @@ export async function prepareDurableScanJobRequest(
   request: Request,
   dependencies: DurableScanJobAdmissionDependencies = {}
 ): Promise<DurableScanJobPreparation> {
+  // Before the body is read or the target resolved.
+  requireDurableScanJobsEnabled();
   const prepared = await (dependencies.prepare ?? prepareScanRequest)(request);
   return prepareDurableScanJob(prepared, dependencies);
 }
@@ -461,6 +478,8 @@ export async function activateDurableScanJob(
   activation: DurableScanJobActivation,
   dependencies: DurableScanJobActivationDependencies = {}
 ): Promise<DurableScanJobActivationResponse> {
+  // Before any coordinator request leaves this process.
+  requireDurableScanJobsEnabled();
   assertDurableActivation(activation);
   pruneScanJobs();
 

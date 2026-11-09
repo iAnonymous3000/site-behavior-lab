@@ -6,6 +6,7 @@ import { PublicScanError } from "./public-errors";
 import { SCROLL_CHECK_DURABLE_REFUSAL } from "./scroll-check-request";
 import {
   DURABLE_SCAN_JOB_INTERNAL_HEADER,
+  DURABLE_SCAN_JOBS_ENV,
   DurableScanJobCoordinatorError,
   assertDurableScanJobInternalRequest,
   createDurableScanJobCoordinatorClient,
@@ -59,6 +60,8 @@ const R2_ENV = {
 } as const;
 
 beforeEach(() => {
+  // Preparation and activation refuse unless the flag itself is on.
+  process.env[DURABLE_SCAN_JOBS_ENV] = "1";
   process.env[PUBLIC_R2_REPORTS_ENV] = "1";
   process.env[BUILD_COMMIT_ENV] = "a".repeat(40);
   process.env[CONSENT_VERIFICATION_ENV] = "1";
@@ -67,6 +70,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  delete process.env[DURABLE_SCAN_JOBS_ENV];
   delete process.env[PUBLIC_R2_REPORTS_ENV];
   delete process.env[BUILD_COMMIT_ENV];
   delete process.env[CONSENT_VERIFICATION_ENV];
@@ -202,6 +206,71 @@ test("durable preparation refuses an after-scrolling check with its own sentence
   assert.equal(scanLimitStateForTests().trackedClients, 0);
   assert.equal(scrollCheckReservedForTests(), false);
   assert.deepEqual(scanJobStateForTests(), { queuedJobs: 0, activeJobWorkers: 0, retainedJobs: 0 });
+});
+
+test("with the durable flag off the internal token starts no preparation and no activation", async () => {
+  // The reference Worker hands the container its internal token whenever the
+  // secret exists. Every other prerequisite is ready here, as it is on the
+  // reference container, so only the flag stands between a token holder and
+  // minted capabilities or an uncharged scan.
+  const preparation = await durablePreparation();
+  const isFlagRefusal = (error: unknown) =>
+    error instanceof PublicScanError && error.status === 503 && error.failureCause === "feature-unavailable";
+
+  for (const flag of [undefined, "", "0"]) {
+    if (flag === undefined) delete process.env[DURABLE_SCAN_JOBS_ENV];
+    else process.env[DURABLE_SCAN_JOBS_ENV] = flag;
+
+    let gateRan = false;
+    let mintedCapabilities = 0;
+    await assert.rejects(
+      () =>
+        prepareDurableScanJobRequest(new Request("https://scanner.invalid/api/scan"), {
+          prepare: async () => {
+            gateRan = true;
+            return preparedRequest();
+          },
+          createId: () => {
+            mintedCapabilities += 1;
+            return mintedCapabilities === 1 ? JOB_ID : REPORT_ID;
+          }
+        }),
+      isFlagRefusal,
+      `prepare with flag ${String(flag)}`
+    );
+    assert.equal(gateRan, false, "a disabled preparation must not read the body or resolve the target");
+    assert.equal(mintedCapabilities, 0);
+
+    const events: string[] = [];
+    let visits = 0;
+    await assert.rejects(
+      () =>
+        activateDurableScanJob(activation(preparation, 1, LEASE_ONE), {
+          coordinator: recordingCoordinator(events),
+          scan: async () => {
+            visits += 1;
+            return r2ScanResult();
+          }
+        }),
+      isFlagRefusal,
+      `activate with flag ${String(flag)}`
+    );
+    assert.deepEqual(events, [], "a disabled activation must not call the coordinator named in its body");
+    assert.equal(visits, 0);
+    assert.deepEqual(scanJobStateForTests(), { queuedJobs: 0, activeJobWorkers: 0, retainedJobs: 0 });
+
+    // A job admitted before a rollback still settles: abort delivery and
+    // content-free reconciliation do not depend on the flag.
+    assert.equal(cancelDurableScanJobGeneration({ jobId: JOB_ID, generation: 1 }), null);
+    const manifest = prepareScanReportBundle(r2ScanResult().result, { shareId: REPORT_ID }).manifest;
+    assert.deepEqual(
+      await reconcileDurableScanJobPublication(
+        { jobId: JOB_ID, reportId: REPORT_ID, generation: 1, manifest },
+        async () => ({ outcome: "missing" })
+      ),
+      { jobId: JOB_ID, reportId: REPORT_ID, generation: 1, ok: true, outcome: "missing" }
+    );
+  }
 });
 
 test("an invalid durable mode flag fails closed instead of falling back to local execution", () => {
