@@ -108,6 +108,8 @@ export function featuredTransientRetryLimit(raw, fallback = 1, maximum = 2) {
  * to try again shortly, so the retry agrees with the advice. The failure the
  * scanner attributes to the site ("down, unreachable, or blocking automated
  * visits") and a page answered with a file to download are never retried.
+ * A page whose renderer crashed is retried once on the same footing as the
+ * unattributed navigation failure.
  */
 export function featuredScanRetryReason(diagnostic) {
   if (typeof diagnostic !== "string") return null;
@@ -137,6 +139,11 @@ export function featuredScanRetryReason(diagnostic) {
   }
   if (/could not tell whether the site or its own network path failed/i.test(message)) {
     return "unattributed navigation failure";
+  }
+  // A renderer that died mid-visit gets the same advice from the scanner
+  // ("Try again shortly"), for the same reason: it cannot say whose fault.
+  if (/page's browser process stopped during the visit/i.test(message)) {
+    return "page crash";
   }
   if (/\bfetch failed\b|\bECONN(?:RESET|REFUSED|ABORTED)\b|\bEAI_AGAIN\b|\bUND_ERR_[A-Z_]+\b|\b(?:net::)?ERR_HTTP2_PROTOCOL_ERROR\b|socket hang up/i.test(message)) {
     return "transport failure";

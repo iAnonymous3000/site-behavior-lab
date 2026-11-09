@@ -165,6 +165,13 @@ test("featured transient retries stay bounded and classify only explicit transie
     ),
     "unattributed navigation failure"
   );
+  // A crashed page carries the same advice and is retried on the same footing.
+  assert.equal(
+    featuredScanRetryReason(
+      "The page's browser process stopped during the visit, so no report was made from its incomplete evidence. The scanner cannot tell whether the page or its own browser caused it. Try again shortly."
+    ),
+    "page crash"
+  );
   assert.equal(
     featuredScanRetryReason(
       "The site answered this address with a file to download, such as a PDF, instead of a web page, so there was no page to scan. Scan the web page that links to the file instead."

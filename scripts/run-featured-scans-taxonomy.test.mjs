@@ -144,6 +144,13 @@ const PRE_REPORT_OUTCOMES = [
     "lib/scanner.ts"
   ],
   ["The page could not be loaded because it resolved to a local or private network address.", "unclassified", "lib/scanner.ts"],
+  // A renderer that died mid-visit: the scanner cannot tell whether the page
+  // or its own browser was at fault, so it is not the site declining.
+  [
+    "The page's browser process stopped during the visit, so no report was made from its incomplete evidence. The scanner cannot tell whether the page or its own browser caused it. Try again shortly.",
+    "unclassified",
+    "lib/scanner.ts"
+  ],
   ["The page did not load before the scan timeout.", "scanner-timeout", "lib/scanner.ts"],
   ["The scan exceeded the maximum scan duration.", "scanner-timeout", "lib/scanner.ts"],
   [
