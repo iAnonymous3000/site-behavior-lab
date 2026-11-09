@@ -306,6 +306,7 @@ export const NOT_DEVELOPMENT_VISIT_RECORDS = Object.freeze({
   "test-fixtures/admission-attempt-runtime.test.ts": "runtime test; synthetic hosts",
   "test-fixtures/durable-scan-job-runtime.test.ts": "runtime test; synthetic hosts",
   "test-fixtures/encrypted-watch-flag-runtime.test.ts": "runtime test; synthetic hosts",
+  "test-fixtures/scan-admission-path-runtime.test.ts": "runtime test; synthetic hosts",
   "scripts/fixtures/smoke-single-report.json": "synthetic report of the reserved example.com",
   "scripts/fixtures/smoke-single-report-rescan.json": "synthetic report of the reserved example.com",
   "lib/__fixtures__/pagegraph/real-wikipedia-2026-07-19.graphml": "graph of the capture whose meta.json is read",
