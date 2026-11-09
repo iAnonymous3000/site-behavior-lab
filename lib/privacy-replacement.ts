@@ -19,9 +19,13 @@ export type PlannedPrivacyReplacement = {
  * `reports:remediate -- --privacy-replace` writes these bytes, and the
  * corrections history gate re-derives them from the original at its Git base,
  * so the two cannot disagree about what a redacted copy is. The gate reads the
- * sanitizer of the tree it runs in, so it checks a replacement in the change
- * that removes its original, as CI does, not against an older base after the
- * sanitizer has moved.
+ * sanitizer of the tree it runs in. CI runs it against the previous tip of main
+ * and against the last promoted revision, and the second run re-derives every
+ * privacy replacement production does not hold yet. So a replacement is correct
+ * for the sanitizer of the change that removes its original, and that sanitizer
+ * must not move, nor the original be newer than production, until the
+ * replacement is promoted: either makes the promoted comparison fail for a
+ * correct replacement, and with promotion paused it stays failed.
  */
 export function planPrivacyReplacement(original: ScanReport, replacementReportId: string): PlannedPrivacyReplacement {
   const redacted = redactScanReportV1(original).report;
