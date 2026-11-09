@@ -3,9 +3,33 @@ import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import test from "node:test";
 import { COVERAGE_BOUNDARY_ENTRIES, coverageBoundaryMetadata } from "./detector-coverage-boundary";
+import {
+  DEFAULT_PUBLIC_SCAN_RATE_LIMIT_PER_DAY,
+  DEFAULT_PUBLIC_SCAN_RATE_LIMIT_PER_MINUTE
+} from "./edge-scan-gate";
 import { NODE_SCANNER_METHODOLOGY_VERSION } from "./legacy-methodology";
+import { MAX_POLICY_PDF_BYTES, MAX_POLICY_PDF_PAGES } from "./policy-pdf";
+import {
+  DEFAULT_PUBLIC_SCAN_PROXY_RESPONSE_BYTE_LIMIT,
+  DEFAULT_PUBLIC_SCAN_PROXY_TRANSACTION_LIMIT,
+  DEFAULT_PUBLIC_SCAN_PROXY_UNIQUE_TARGET_LIMIT,
+  DEFAULT_PUBLIC_SCAN_PROXY_UPLOAD_BYTE_LIMIT
+} from "./public-scan-proxy";
 import { PUBLIC_STRING_POLICY_VERSION } from "./redact-scan-report-v1";
+import {
+  MAX_BODY_BYTES,
+  MAX_CONCURRENT_SCANS,
+  MAX_QUEUED_JOBS,
+  MAX_QUEUED_SCANS,
+  QUEUE_TIMEOUT_MS,
+  RATE_LIMIT_MAX,
+  REPORT_PDF_RATE_LIMIT_MAX,
+  REPORT_READ_RATE_LIMIT_MAX,
+  clientKeyFromRequest
+} from "./scan-limits";
 import { NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION } from "./scan-report-v2-r2-producer-contract";
+import { MAX_RECORDED_REQUESTS } from "./scan-runtime";
+import { SCROLL_CHECK_REQUEST_ALLOWANCE, SCROLL_CHECK_TIMING } from "./scroll-check";
 
 const root = process.cwd();
 const readme = readFileSync(path.join(root, "README.md"), "utf8");
@@ -316,6 +340,113 @@ test("every repository path and npm script the README names exists", () => {
     .map((m) => m[1]);
   const missing = [...new Set(paths)].filter((relative) => !existsSync(path.join(root, relative)));
   assert.deepEqual(missing, [], `the README names paths that do not exist: ${missing.join(", ")}`);
+});
+
+/**
+ * The limits table restates the scanner's constants, and nothing held it to
+ * them. It listed no scan limit for the Node scanner at all, bounded a visit
+ * at numbers an after-scrolling check exceeds, and called limits "per client"
+ * that every caller shares until the proxy setting is on. Each row is found by
+ * its label and must carry the value the code enforces, so a constant that
+ * moves fails here instead of leaving a self-hoster sizing against a stale
+ * number.
+ */
+function readmeLimitsSection(): string {
+  const from = readme.indexOf("## Limits you should know before depending on it");
+  const to = readme.indexOf("**Off in the reference deployment.**", from);
+  assert.ok(from >= 0 && to > from, "the README no longer has its limits section");
+  return readme.slice(from, to);
+}
+
+function readmeLimitsTable(): Map<string, string> {
+  const rows = new Map<string, string>();
+  for (const line of readmeLimitsSection().split("\n")) {
+    const cells = /^\|([^|]+)\|([^|]+)\|$/.exec(line.trim());
+    if (!cells || /^-+$/.test(cells[1].trim()) || cells[1].trim() === "Bound") continue;
+    rows.set(cells[1].trim(), cells[2].trim());
+  }
+  return rows;
+}
+
+test("the README limits table carries the bounds the Node scanner enforces", () => {
+  const rows = readmeLimitsTable();
+  const value = (label: RegExp): string => {
+    const found = [...rows].filter(([bound]) => label.test(bound));
+    assert.equal(found.length, 1, `the README limits table must have exactly one row matching ${label}`);
+    return found[0][1];
+  };
+  const count = (n: number) => n.toLocaleString("en-US");
+  const mebibytes = (bytes: number) => `${bytes / (1024 * 1024)} MiB`;
+  const seconds = (ms: number) => `${ms / 1_000} s`;
+
+  assert.ok(value(/^Recorded requests, per visit$/).startsWith(count(MAX_RECORDED_REQUESTS)));
+  assert.equal(
+    value(/^Proxy transactions \/ unique targets, per visit$/),
+    `${count(DEFAULT_PUBLIC_SCAN_PROXY_TRANSACTION_LIMIT)} / ${count(DEFAULT_PUBLIC_SCAN_PROXY_UNIQUE_TARGET_LIMIT)}`
+  );
+  assert.equal(
+    value(/^Response bytes \/ upload bytes through the proxy, per visit$/),
+    `${mebibytes(DEFAULT_PUBLIC_SCAN_PROXY_RESPONSE_BYTE_LIMIT)} / ${mebibytes(DEFAULT_PUBLIC_SCAN_PROXY_UPLOAD_BYTE_LIMIT)}`
+  );
+  assert.equal(
+    value(/^Concurrent scans per Node process, queued waiters, queue wait$/),
+    `${MAX_CONCURRENT_SCANS}, ${MAX_QUEUED_SCANS}, ${seconds(QUEUE_TIMEOUT_MS)}`
+  );
+  assert.equal(value(/^Async job queue/), String(MAX_QUEUED_JOBS));
+  assert.equal(value(/^Scan request body$/), `${MAX_BODY_BYTES / 1024} KiB`);
+  assert.ok(
+    value(/^Report JSON reads, PDF renders, per client per minute$/).startsWith(
+      `${REPORT_READ_RATE_LIMIT_MAX}, ${REPORT_PDF_RATE_LIMIT_MAX} `
+    )
+  );
+  assert.equal(
+    value(/^Privacy-policy PDF$/),
+    `${mebibytes(MAX_POLICY_PDF_BYTES)}, ${MAX_POLICY_PDF_PAGES} pages`
+  );
+  assert.match(
+    value(/^Public instance, per client/),
+    new RegExp(
+      `^${DEFAULT_PUBLIC_SCAN_RATE_LIMIT_PER_MINUTE} scan(?: token)?s per minute, ${DEFAULT_PUBLIC_SCAN_RATE_LIMIT_PER_DAY} per day;`
+    )
+  );
+
+  // The Node scanner's own scan limit was the one bound with no row.
+  assert.ok(
+    value(/^Scan tokens, per client per minute$/).startsWith(`${RATE_LIMIT_MAX};`),
+    `the Node scanner admits ${RATE_LIMIT_MAX} scan tokens per client per minute, and the table must say so`
+  );
+
+  // An after-scrolling check runs a second phase on the same visit, with its
+  // own deadline and its own request allowance.
+  assert.ok(
+    value(/^Scan duration, per visit$/).includes(`${seconds(SCROLL_CHECK_TIMING.phaseDeadlineMs)} more`),
+    "the duration row must state the after-scrolling check's extra phase"
+  );
+  assert.ok(
+    value(/^Recorded requests, per visit$/).includes(`${count(SCROLL_CHECK_REQUEST_ALLOWANCE)} more`),
+    "the request row must state the after-scrolling check's extra allowance"
+  );
+});
+
+test("the README says the Node scanner's per-client limits are shared until proxy trust is on", () => {
+  const variable = "SITE_BEHAVIOR_LAB_TRUST_PROXY_HEADERS";
+  const saved = process.env[variable];
+  delete process.env[variable];
+  try {
+    const caller = (address: string) =>
+      clientKeyFromRequest(
+        new Request("http://127.0.0.1/api/scan", { method: "POST", headers: { "x-forwarded-for": address } })
+      );
+    // Re-derive the behavior: two different callers are one rate-limit client.
+    assert.equal(caller("203.0.113.9"), caller("198.51.100.7"));
+  } finally {
+    if (saved === undefined) delete process.env[variable];
+    else process.env[variable] = saved;
+  }
+  assert.ok(
+    readmeLimitsSection().includes(variable),
+    "every caller shares one bucket by default, so the limits section must name the setting that separates them"
+  );
 });
 
 /**

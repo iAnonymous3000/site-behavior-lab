@@ -150,16 +150,22 @@ Hard bounds in the Node scanner (`lib/scanner.ts`, `lib/scan-runtime.ts`,
 
 | Bound | Value |
 |---|---|
-| Scan duration, per visit | 45 s (navigation 30 s) |
-| Recorded requests, per visit | 1,000 |
+| Scan duration, per visit | 45 s (navigation 30 s); an after-scrolling check then runs for up to about 45 s more |
+| Recorded requests, per visit | 1,000; an after-scrolling check may send up to 500 more, none of them saved |
 | Proxy transactions / unique targets, per visit | 2,000 / 256 |
 | Response bytes / upload bytes through the proxy, per visit | 64 MiB / 16 MiB |
 | Concurrent scans per Node process, queued waiters, queue wait | 2, 8, 15 s |
 | Async job queue (when enabled), all clients | 32 |
 | Scan request body | 4 KiB |
+| Scan tokens, per client per minute | 20; a comparison or an after-scrolling check costs two |
 | Report JSON reads, PDF renders, per client per minute | 120, 10 (one render slot) |
 | Privacy-policy PDF | 8 MiB, 64 pages |
-| Public instance, per client (edge quota) | 6 scans per minute, 120 per day; a comparison costs two |
+| Public instance, per client (edge quota) | 6 scan tokens per minute, 120 per day; a comparison or an after-scrolling check costs two |
+
+"Per client" in the Node scanner means one bucket shared by every caller
+unless `SITE_BEHAVIOR_LAB_TRUST_PROXY_HEADERS=1`: without that setting the
+20 scan tokens, 120 reads, and 10 renders a minute are totals for all callers
+together.
 
 **Off in the reference deployment.** Durable (restart-safe) jobs, container
 sharding, and encrypted scheduled rescans are implemented behind flags
@@ -254,7 +260,7 @@ runtime image.
 | `SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION` | unset | `1` reads back the registered consent state after a banner click (TCF and OneTrust) and attempts one disclosed post-choice reload. Required by r2. |
 | `SITE_BEHAVIOR_LAB_REPORT_STORE_BACKEND` | `filesystem` | `filesystem` needs a persistent volume. `r2` needs `SITE_BEHAVIOR_LAB_R2_BUCKET`, `_ENDPOINT`, `_ACCESS_KEY_ID`, and `_SECRET_ACCESS_KEY`, and suits a public or multi-node deployment. |
 | `SITE_BEHAVIOR_LAB_REPORT_MAX_AGE_DAYS` / `_MAX_COUNT` | `7` / `500` | Retention for saved shares (see Retention). |
-| `SITE_BEHAVIOR_LAB_TRUST_PROXY_HEADERS` | unset | `1` only behind a proxy that controls forwarding headers and blocks direct origin access; rate limits then key on the rightmost `X-Forwarded-For` entry. |
+| `SITE_BEHAVIOR_LAB_TRUST_PROXY_HEADERS` | unset | `1` only behind a proxy that appends the caller's address to `X-Forwarded-For` and blocks direct origin access. Rate limits then key on the rightmost `X-Forwarded-For` entry and ignore `X-Real-IP`. Unset, every caller shares one rate-limit bucket. |
 | `SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN` | `*` | CORS allow-list for the `/api` routes. |
 | `SITE_BEHAVIOR_LAB_ASYNC_SCANS` | unset | `1` makes `/api/scan` answer `202` with a job to poll at `/api/scans/:id`; single process, in memory. |
 | `SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX` | unset | `1` enables Chromium's sandbox, as production does; needs unprivileged user namespaces on the host. |
