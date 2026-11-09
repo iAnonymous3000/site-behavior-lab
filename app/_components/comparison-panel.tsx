@@ -19,7 +19,7 @@ import {
   type DomainRequestDelta,
   type EvidenceArm
 } from "@/lib/report-evidence-navigation";
-import { MAX_DIFF_LIST } from "@/lib/compare-reports";
+import { comparisonListsCut, MAX_DIFF_LIST } from "@/lib/compare-reports";
 import { comparisonDeltaHeading, displayHost, plural } from "@/lib/text-format";
 import { readableVisitStart, unshownVisitStart } from "@/lib/visit-timestamp";
 import {
@@ -28,6 +28,7 @@ import {
   omitUnreviewedNames
 } from "@/lib/public-name-policy";
 import type {
+  ComparisonDiff,
   ComparisonMetricDelta,
   CookieChange,
   DomainChange,
@@ -44,6 +45,15 @@ function ComparisonPanel({ view, facts }: { view: ReportView; facts: ReportFacts
   // producer used to write the wire's diff block, so a v2 pair or a tampered
   // upload renders identically to a freshly produced comparison.
   const diff = useMemo(() => comparisonDiffView(view), [view]);
+  // Which of those lists were cut at the cap. A list's length cannot say: one
+  // that holds exactly the cap is whole, and telling its reader that further
+  // changes exist would send them looking for rows that are not there. The
+  // builder counts one entry past the cap and names the lists that have one.
+  const cutLists = useMemo(() => {
+    const pair = comparisonArmViews(view);
+    return pair ? comparisonListsCut(pair.baseline, pair.variant, "rows") : null;
+  }, [view]);
+  const cut = (list: keyof ComparisonDiff) => cutLists?.has(list) === true;
   const perDomainDeltas = useMemo(
     () => (arms ? domainRequestDeltas(arms.baseline.evidence.domains, arms.variant.evidence.domains) : []),
     [arms]
@@ -267,12 +277,14 @@ function ComparisonPanel({ view, facts }: { view: ReportView; facts: ReportFacts
                 <ChangeList
                   title={`Domains only with ${labels.variant}`}
                   changes={diff.addedDomains}
+                  cut={cut("addedDomains")}
                   arm="variant"
                   armLabel={labels.variant}
                 />
                 <ChangeList
                   title={`Domains only with ${labels.baseline}`}
                   changes={diff.removedDomains}
+                  cut={cut("removedDomains")}
                   arm="baseline"
                   armLabel={labels.baseline}
                 />
@@ -280,13 +292,13 @@ function ComparisonPanel({ view, facts }: { view: ReportView; facts: ReportFacts
                   title={`${cookieNamesPrivacyFiltered ? "Visible cookie names" : "Cookies"} only with ${labels.variant}`}
                   changes={addedCookies}
                   privacyFiltered={cookieNamesPrivacyFiltered}
-                  producerCapped={(diff.addedCookies ?? []).length >= MAX_DIFF_LIST}
+                  producerCapped={cut("addedCookies")}
                 />
                 <CookieChangeList
                   title={`${cookieNamesPrivacyFiltered ? "Visible cookie names" : "Cookies"} only with ${labels.baseline}`}
                   changes={removedCookies}
                   privacyFiltered={cookieNamesPrivacyFiltered}
-                  producerCapped={(diff.removedCookies ?? []).length >= MAX_DIFF_LIST}
+                  producerCapped={cut("removedCookies")}
                 />
               </>
             )}
@@ -296,32 +308,32 @@ function ComparisonPanel({ view, facts }: { view: ReportView; facts: ReportFacts
                   title={`${storageNamesPrivacyFiltered ? "Visible storage keys" : "Storage keys"} only with ${labels.variant}`}
                   changes={addedStorageKeys}
                   privacyFiltered={storageNamesPrivacyFiltered}
-                  producerCapped={(diff.addedStorageKeys ?? []).length >= MAX_DIFF_LIST}
+                  producerCapped={cut("addedStorageKeys")}
                 />
                 <StorageChangeList
                   title={`${storageNamesPrivacyFiltered ? "Visible storage keys" : "Storage keys"} only with ${labels.baseline}`}
                   changes={removedStorageKeys}
                   privacyFiltered={storageNamesPrivacyFiltered}
-                  producerCapped={(diff.removedStorageKeys ?? []).length >= MAX_DIFF_LIST}
+                  producerCapped={cut("removedStorageKeys")}
                 />
               </>
             )}
             {classificationAllowed && (
               <>
-                <EntityChangeList title={`Entities only with ${labels.variant}`} changes={diff.addedEntities} />
-                <EntityChangeList title={`Entities only with ${labels.baseline}`} changes={diff.removedEntities} />
+                <EntityChangeList title={`Entities only with ${labels.variant}`} changes={diff.addedEntities} cut={cut("addedEntities")} />
+                <EntityChangeList title={`Entities only with ${labels.baseline}`} changes={diff.removedEntities} cut={cut("removedEntities")} />
               </>
             )}
             {fingerprintDeltaAllowed && (addedFingerprinting.length > 0 || removedFingerprinting.length > 0) && (
               <>
-                <FingerprintingChangeList title={`Fingerprinting only with ${labels.variant}`} changes={addedFingerprinting} />
-                <FingerprintingChangeList title={`Fingerprinting only with ${labels.baseline}`} changes={removedFingerprinting} />
+                <FingerprintingChangeList title={`Fingerprinting only with ${labels.variant}`} changes={addedFingerprinting} cut={cut("addedFingerprinting")} />
+                <FingerprintingChangeList title={`Fingerprinting only with ${labels.baseline}`} changes={removedFingerprinting} cut={cut("removedFingerprinting")} />
               </>
             )}
             {pixelDeltaAllowed && (addedPixelEvents.length > 0 || removedPixelEvents.length > 0) && (
               <>
-                <PixelEventChangeList title={`Ad pixels only with ${labels.variant}`} changes={addedPixelEvents} />
-                <PixelEventChangeList title={`Ad pixels only with ${labels.baseline}`} changes={removedPixelEvents} />
+                <PixelEventChangeList title={`Ad pixels only with ${labels.variant}`} changes={addedPixelEvents} cut={cut("addedPixelEvents")} />
+                <PixelEventChangeList title={`Ad pixels only with ${labels.baseline}`} changes={removedPixelEvents} cut={cut("removedPixelEvents")} />
               </>
             )}
             {/* Provenance is instrumentation-derived (PageGraph initiator
@@ -329,8 +341,8 @@ function ComparisonPanel({ view, facts }: { view: ReportView; facts: ReportFacts
                 detector-findings gate as fingerprinting and pixels. */}
             {detectorAllowed && (addedProvenance.length > 0 || removedProvenance.length > 0) && (
               <>
-                <ProvenanceChangeList title={`Causal paths only with ${labels.variant}`} changes={addedProvenance} />
-                <ProvenanceChangeList title={`Causal paths only with ${labels.baseline}`} changes={removedProvenance} />
+                <ProvenanceChangeList title={`Causal paths only with ${labels.variant}`} changes={addedProvenance} cut={cut("addedProvenance")} />
+                <ProvenanceChangeList title={`Causal paths only with ${labels.baseline}`} changes={removedProvenance} cut={cut("removedProvenance")} />
               </>
             )}
           </div>
@@ -397,12 +409,10 @@ function DiffList<T>({
   renderItem: (item: T, index: number) => ReactNode;
   className?: string;
   /**
-   * Whether the PRODUCER truncated this list at its hard cap, judged from the
-   * wire array rather than from what is rendered. Inferring it from
-   * `items.length` was wrong in both directions: a locally derived list that is
-   * never sliced claimed a truncation that did not happen, and a wire list that
-   * was clipped and then privacy-filtered below the cap lost the disclosure
-   * when it was real.
+   * Whether the diff builder cut this list at its cap, as the builder itself
+   * reports it (comparisonListsCut). Never inferred from a length: a list that
+   * holds exactly the cap was not cut, a locally derived list is never cut at
+   * all, and a list cut and then privacy-filtered below the cap still was.
    */
   producerCapped: boolean;
 }) {
@@ -497,11 +507,13 @@ function DomainRequestDeltaList({
 function ChangeList({
   title,
   changes,
+  cut,
   arm,
   armLabel
 }: {
   title: string;
   changes: DomainChange[];
+  cut: boolean;
   arm: EvidenceArm;
   armLabel: string;
 }) {
@@ -510,7 +522,7 @@ function ChangeList({
       title={title}
       emptyText="No domain changes observed."
       items={changes}
-      producerCapped={changes.length >= MAX_DIFF_LIST}
+      producerCapped={cut}
       renderItem={(change) => (
         <div className="change-row" key={change.domain}>
           <span>
@@ -537,13 +549,13 @@ function EvidenceLink({ domain, arm, armLabel }: { domain: string; arm: Evidence
   );
 }
 
-function EntityChangeList({ title, changes }: { title: string; changes: EntityChange[] }) {
+function EntityChangeList({ title, changes, cut }: { title: string; changes: EntityChange[]; cut: boolean }) {
   return (
     <DiffList
       title={title}
       emptyText="No entity changes observed."
       items={changes}
-      producerCapped={changes.length >= MAX_DIFF_LIST}
+      producerCapped={cut}
       renderItem={(change) => (
         <div className="change-row" key={change.entity}>
           <span>
@@ -624,13 +636,13 @@ function StorageChangeList({
   );
 }
 
-function FingerprintingChangeList({ title, changes }: { title: string; changes: FingerprintingChange[] }) {
+function FingerprintingChangeList({ title, changes, cut }: { title: string; changes: FingerprintingChange[]; cut: boolean }) {
   return (
     <DiffList
       title={title}
       emptyText="No fingerprinting changes observed."
       items={changes}
-      producerCapped={changes.length >= MAX_DIFF_LIST}
+      producerCapped={cut}
       renderItem={(change) => (
         <div className="change-row" key={change.kind}>
           <span>
@@ -667,13 +679,13 @@ function fingerprintingKindLabel(kind: FingerprintingChange["kind"]): string {
   }
 }
 
-function PixelEventChangeList({ title, changes }: { title: string; changes: PixelEventChange[] }) {
+function PixelEventChangeList({ title, changes, cut }: { title: string; changes: PixelEventChange[]; cut: boolean }) {
   return (
     <DiffList
       title={title}
       emptyText="No advertising-pixel changes observed."
       items={changes}
-      producerCapped={changes.length >= MAX_DIFF_LIST}
+      producerCapped={cut}
       renderItem={(change) => {
         const events = change.events.length > 0 ? change.events.join(", ") : "no named event";
         const identifiers =
@@ -694,14 +706,14 @@ function PixelEventChangeList({ title, changes }: { title: string; changes: Pixe
   );
 }
 
-function ProvenanceChangeList({ title, changes }: { title: string; changes: ProvenanceChange[] }) {
+function ProvenanceChangeList({ title, changes, cut }: { title: string; changes: ProvenanceChange[]; cut: boolean }) {
   return (
     <DiffList
       title={title}
       emptyText="No causal path changes observed."
       className="provenance-change-list"
       items={changes}
-      producerCapped={changes.length >= MAX_DIFF_LIST}
+      producerCapped={cut}
       renderItem={(change, index) => (
         <div
           className="change-row"

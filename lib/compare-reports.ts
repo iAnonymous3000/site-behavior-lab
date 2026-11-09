@@ -31,7 +31,8 @@ import { SCAN_REPORT_SCHEMA_VERSION } from "./types";
  * clipped list is indistinguishable from a complete one, so any reader that
  * would otherwise present a capped list as the whole set has to say it is
  * capped. Compare `bounded-page-collector`, which can carry `omittedCount`
- * because it is not a frozen wire shape.
+ * because it is not a frozen wire shape. A list's length reaching the cap
+ * does not show that it was cut; `comparisonListsCut` says which lists were.
  */
 export const MAX_DIFF_LIST = 100;
 
@@ -310,6 +311,35 @@ export function compareRunFacts(
   after: ComparisonRunFacts,
   entityLists: EntityListRule
 ): ComparisonDiff {
+  return buildComparisonDiff(before, after, entityLists, MAX_DIFF_LIST);
+}
+
+/**
+ * The lists of a comparison's diff that hold more changes than MAX_DIFF_LIST,
+ * by name, so a reader is told a list was cut only when it was. The list
+ * alone cannot say: one cut at the cap and one that ends exactly there are
+ * the same length. Each list is built here one entry past the cap, by the
+ * rules the diff itself uses, and only its length is read. The diff a report
+ * writes and a panel shows is `compareRunFacts`, with the cap unchanged.
+ */
+export function comparisonListsCut(
+  before: ComparisonRunFacts,
+  after: ComparisonRunFacts,
+  entityLists: EntityListRule
+): ReadonlySet<keyof ComparisonDiff> {
+  const cut = new Set<keyof ComparisonDiff>();
+  for (const [name, value] of Object.entries(buildComparisonDiff(before, after, entityLists, MAX_DIFF_LIST + 1))) {
+    if (Array.isArray(value) && value.length > MAX_DIFF_LIST) cut.add(name as keyof ComparisonDiff);
+  }
+  return cut;
+}
+
+function buildComparisonDiff(
+  before: ComparisonRunFacts,
+  after: ComparisonRunFacts,
+  entityLists: EntityListRule,
+  listLimit: number
+): ComparisonDiff {
   const diff: ComparisonDiff = {
     totalRequests: delta(before.counts.totalRequests, after.counts.totalRequests),
     thirdPartyRequests: delta(before.counts.thirdPartyRequests, after.counts.thirdPartyRequests),
@@ -319,18 +349,18 @@ export function compareRunFacts(
     thirdPartyCookies: delta(before.counts.thirdPartyCookies, after.counts.thirdPartyCookies),
     storageEntries: delta(before.counts.storageEntries, after.counts.storageEntries),
     fingerprintEvents: delta(before.counts.fingerprintEvents, after.counts.fingerprintEvents),
-    addedDomains: domainChanges(before.evidence.domains, after.evidence.domains),
-    removedDomains: domainChanges(after.evidence.domains, before.evidence.domains),
-    addedEntities: entityChanges(before.evidence, after.evidence, entityLists),
-    removedEntities: entityChanges(after.evidence, before.evidence, entityLists),
-    addedCookies: cookieChanges(before.evidence.cookies, after.evidence.cookies),
-    removedCookies: cookieChanges(after.evidence.cookies, before.evidence.cookies),
-    addedStorageKeys: storageKeyChanges(before.evidence.storage, after.evidence.storage),
-    removedStorageKeys: storageKeyChanges(after.evidence.storage, before.evidence.storage),
-    addedFingerprinting: fingerprintingChanges(before.evidence.fingerprintDetections, after.evidence.fingerprintDetections),
-    removedFingerprinting: fingerprintingChanges(after.evidence.fingerprintDetections, before.evidence.fingerprintDetections),
-    addedProvenance: provenanceChanges(before.evidence.requests, after.evidence.requests),
-    removedProvenance: provenanceChanges(after.evidence.requests, before.evidence.requests)
+    addedDomains: domainChanges(before.evidence.domains, after.evidence.domains, listLimit),
+    removedDomains: domainChanges(after.evidence.domains, before.evidence.domains, listLimit),
+    addedEntities: entityChanges(before.evidence, after.evidence, entityLists, listLimit),
+    removedEntities: entityChanges(after.evidence, before.evidence, entityLists, listLimit),
+    addedCookies: cookieChanges(before.evidence.cookies, after.evidence.cookies, listLimit),
+    removedCookies: cookieChanges(after.evidence.cookies, before.evidence.cookies, listLimit),
+    addedStorageKeys: storageKeyChanges(before.evidence.storage, after.evidence.storage, listLimit),
+    removedStorageKeys: storageKeyChanges(after.evidence.storage, before.evidence.storage, listLimit),
+    addedFingerprinting: fingerprintingChanges(before.evidence.fingerprintDetections, after.evidence.fingerprintDetections, listLimit),
+    removedFingerprinting: fingerprintingChanges(after.evidence.fingerprintDetections, before.evidence.fingerprintDetections, listLimit),
+    addedProvenance: provenanceChanges(before.evidence.requests, after.evidence.requests, listLimit),
+    removedProvenance: provenanceChanges(after.evidence.requests, before.evidence.requests, listLimit)
   };
 
   const shieldsBlockedRequests = optionalDelta(
@@ -342,8 +372,8 @@ export function compareRunFacts(
   // Pixel-level detail behind the entity diff: when Shields blocks facebook.com,
   // "Meta" already drops out of removedEntities, but this also names the pixel
   // and the events that stopped firing (e.g. Meta Pixel: PageView, Purchase).
-  const addedPixelEvents = pixelEventChanges(before.evidence.pixelEvents, after.evidence.pixelEvents);
-  const removedPixelEvents = pixelEventChanges(after.evidence.pixelEvents, before.evidence.pixelEvents);
+  const addedPixelEvents = pixelEventChanges(before.evidence.pixelEvents, after.evidence.pixelEvents, listLimit);
+  const removedPixelEvents = pixelEventChanges(after.evidence.pixelEvents, before.evidence.pixelEvents, listLimit);
   if (addedPixelEvents.length > 0) diff.addedPixelEvents = addedPixelEvents;
   if (removedPixelEvents.length > 0) diff.removedPixelEvents = removedPixelEvents;
 
@@ -363,7 +393,7 @@ function optionalDelta(before: number | undefined, after: number | undefined): C
   return delta(before, after);
 }
 
-function domainChanges(before: DomainSummary[], after: DomainSummary[]): DomainChange[] {
+function domainChanges(before: DomainSummary[], after: DomainSummary[], limit: number): DomainChange[] {
   const beforeDomains = new Set(before.map((domain) => domain.domain));
   return after
     .filter((domain) => !beforeDomains.has(domain.domain))
@@ -373,7 +403,7 @@ function domainChanges(before: DomainSummary[], after: DomainSummary[]): DomainC
       tracker: domain.tracker
     }))
     .sort((a, b) => b.requests - a.requests || a.domain.localeCompare(b.domain))
-    .slice(0, MAX_DIFF_LIST);
+    .slice(0, limit);
 }
 
 /**
@@ -385,7 +415,8 @@ function domainChanges(before: DomainSummary[], after: DomainSummary[]): DomainC
 function entityChanges(
   before: ComparisonRunFacts["evidence"],
   after: ComparisonRunFacts["evidence"],
-  rule: EntityListRule
+  rule: EntityListRule,
+  limit: number
 ): EntityChange[] {
   const entitiesOf = (evidence: ComparisonRunFacts["evidence"]): Array<{ entity: string; requests: number; domains: number }> =>
     rule === "rows" ? catalogEntitySummaries(evidence) : v1WireEntitySummaries(evidence.domains);
@@ -398,10 +429,10 @@ function entityChanges(
       domains: summary.domains
     }))
     .sort((a, b) => b.requests - a.requests || a.entity.localeCompare(b.entity))
-    .slice(0, MAX_DIFF_LIST);
+    .slice(0, limit);
 }
 
-function cookieChanges(before: CookieRecord[], after: CookieRecord[]): CookieChange[] {
+function cookieChanges(before: CookieRecord[], after: CookieRecord[], limit: number): CookieChange[] {
   const beforeKeys = new Set(before.map(cookieKey));
   const seen = new Set<string>();
   const changes: CookieChange[] = [];
@@ -418,14 +449,14 @@ function cookieChanges(before: CookieRecord[], after: CookieRecord[]): CookieCha
       (a, b) =>
         Number(b.thirdParty) - Number(a.thirdParty) || a.domain.localeCompare(b.domain) || a.name.localeCompare(b.name)
     )
-    .slice(0, MAX_DIFF_LIST);
+    .slice(0, limit);
 }
 
 function cookieKey(cookie: CookieRecord): string {
   return `${cookie.name}\u001f${cookie.domain}\u001f${cookie.path}`;
 }
 
-function storageKeyChanges(before: StorageRecord[], after: StorageRecord[]): StorageKeyChange[] {
+function storageKeyChanges(before: StorageRecord[], after: StorageRecord[], limit: number): StorageKeyChange[] {
   const beforeKeys = new Set(before.map(storageKey));
   const seen = new Set<string>();
   const changes: StorageKeyChange[] = [];
@@ -439,7 +470,7 @@ function storageKeyChanges(before: StorageRecord[], after: StorageRecord[]): Sto
 
   return changes
     .sort((a, b) => a.area.localeCompare(b.area) || a.key.localeCompare(b.key))
-    .slice(0, MAX_DIFF_LIST);
+    .slice(0, limit);
 }
 
 function storageKey(record: StorageRecord): string {
@@ -448,7 +479,8 @@ function storageKey(record: StorageRecord): string {
 
 function fingerprintingChanges(
   before: FingerprintDetectionSummary[] | undefined,
-  after: FingerprintDetectionSummary[] | undefined
+  after: FingerprintDetectionSummary[] | undefined,
+  limit: number
 ): FingerprintingChange[] {
   const beforeKinds = new Set((before ?? []).map((detection) => detection.kind));
 
@@ -456,7 +488,7 @@ function fingerprintingChanges(
     .filter((detection) => !beforeKinds.has(detection.kind))
     .map((detection) => ({ kind: detection.kind, heuristic: detection.heuristic, count: detection.count }))
     .sort((a, b) => b.count - a.count || a.kind.localeCompare(b.kind))
-    .slice(0, MAX_DIFF_LIST);
+    .slice(0, limit);
 }
 
 /**
@@ -468,7 +500,8 @@ function fingerprintingChanges(
  */
 function pixelEventChanges(
   baseline: PixelEventSummary[] | undefined,
-  candidate: PixelEventSummary[] | undefined
+  candidate: PixelEventSummary[] | undefined,
+  limit: number
 ): PixelEventChange[] {
   const baselineByPlatform = new Map((baseline ?? []).map((pixel) => [pixel.platform, pixel]));
 
@@ -482,7 +515,7 @@ function pixelEventChanges(
     }
   }
 
-  return changes.sort((a, b) => a.platform.localeCompare(b.platform)).slice(0, MAX_DIFF_LIST);
+  return changes.sort((a, b) => a.platform.localeCompare(b.platform)).slice(0, limit);
 }
 
 function onlyIn<T>(values: T[], exclude: T[] | undefined): T[] {
@@ -504,13 +537,13 @@ function v1WireEntitySummaries(domains: DomainSummary[]): Array<{ entity: string
   return [...entities.values()];
 }
 
-function provenanceChanges(before: NetworkRequestRecord[], after: NetworkRequestRecord[]): ProvenanceChange[] {
+function provenanceChanges(before: NetworkRequestRecord[], after: NetworkRequestRecord[], limit: number): ProvenanceChange[] {
   const beforeKeys = new Set(provenanceRequestMap(before).keys());
   return Array.from(provenanceRequestMap(after).entries())
     .filter(([key]) => !beforeKeys.has(key))
     .map(([, change]) => change)
     .sort((a, b) => b.requests - a.requests || a.domain.localeCompare(b.domain))
-    .slice(0, MAX_DIFF_LIST);
+    .slice(0, limit);
 }
 
 function provenanceRequestMap(requests: NetworkRequestRecord[]): Map<string, ProvenanceChange> {

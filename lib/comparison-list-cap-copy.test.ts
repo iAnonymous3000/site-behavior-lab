@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { test } from "node:test";
-import { MAX_DIFF_LIST, createTemporalComparisonReport } from "./compare-reports";
+import { MAX_DIFF_LIST, comparisonListsCut, createTemporalComparisonReport } from "./compare-reports";
 import { makeScanReportV1 } from "./scan-report-v2-fixtures";
 import { comparisonArmViews, comparisonDiffView, viewFromV1Report } from "./scan-report-views";
 import type { ScanResult } from "./types";
@@ -34,20 +34,59 @@ function visit(scannedAt: string, domains: number): ScanResult {
   };
 }
 
-test("a comparison list that reaches its cap was cut at read time, and the rows it cut are still in the report", () => {
-  const extra = MAX_DIFF_LIST + 30;
+/** A before/after pair whose second visit has `added` domains the first does not. */
+function pairWithNewDomains(added: number) {
   const view = viewFromV1Report(
-    createTemporalComparisonReport(visit("2026-07-09T10:00:00.000Z", 0), visit("2026-07-16T10:00:00.000Z", extra))
+    createTemporalComparisonReport(visit("2026-07-09T10:00:00.000Z", 0), visit("2026-07-16T10:00:00.000Z", added))
   );
   const diff = comparisonDiffView(view);
   const arms = comparisonArmViews(view);
   if (!diff || !arms) throw new Error("expected a two-visit view");
-  // The list stops at the cap...
-  assert.equal(diff.addedDomains.length, MAX_DIFF_LIST);
-  // ...and every domain past it is still a row of the visit that recorded it.
-  assert.equal(arms.variant.evidence.domains.length, extra);
-  const listed = new Set(diff.addedDomains.map((change) => change.domain));
-  assert.equal(arms.variant.evidence.domains.filter((domain) => !listed.has(domain.domain)).length, 30);
+  return { diff, arms, cut: comparisonListsCut(arms.baseline, arms.variant, "rows") };
+}
+
+test("a comparison list is called cut only when it holds more changes than it shows: not at 99, not at exactly 100, at 101", () => {
+  assert.equal(MAX_DIFF_LIST, 100);
+  for (const [added, listed, wasCut] of [
+    [99, 99, false],
+    // The case a length check gets wrong: the list is as long as the cap and every change is in it.
+    [100, 100, false],
+    [101, 100, true],
+    [130, 100, true]
+  ] as const) {
+    const { diff, arms, cut } = pairWithNewDomains(added);
+    assert.equal(diff.addedDomains.length, listed, `${added} new domains`);
+    assert.equal(cut.has("addedDomains"), wasCut, `${added} new domains`);
+    // What the sentence sends a reader to: every new domain is still a row of
+    // the visit that recorded it, the ones past the cap included.
+    assert.equal(arms.variant.evidence.domains.length, added);
+    const shown = new Set(diff.addedDomains.map((change) => change.domain));
+    assert.equal(arms.variant.evidence.domains.filter((domain) => !shown.has(domain.domain)).length, added - listed);
+    // Nothing else changed between the two visits, so no other list is cut.
+    assert.deepEqual([...cut], wasCut ? ["addedDomains"] : []);
+  }
+  // In the other direction the same domains are the removed list's.
+  const view = viewFromV1Report(
+    createTemporalComparisonReport(visit("2026-07-09T10:00:00.000Z", 101), visit("2026-07-16T10:00:00.000Z", 0))
+  );
+  const arms = comparisonArmViews(view);
+  if (!arms) throw new Error("expected a two-visit view");
+  assert.deepEqual([...comparisonListsCut(arms.baseline, arms.variant, "rows")], ["removedDomains"]);
+});
+
+test("the panel takes each list's cut from the builder and never from a list's length", () => {
+  const panel = readFileSync(path.join(process.cwd(), "app", "_components", "comparison-panel.tsx"), "utf8");
+  assert.match(panel, /comparisonListsCut\(pair\.baseline, pair\.variant, "rows"\)/);
+  // No list decides it is cut by comparing its own length with the cap.
+  assert.doesNotMatch(panel, /length\s*>=?\s*MAX_DIFF_LIST/);
+  // Every list the builder can cut is asked about by its own name.
+  for (const list of [
+    "addedDomains", "removedDomains", "addedCookies", "removedCookies", "addedStorageKeys", "removedStorageKeys",
+    "addedEntities", "removedEntities", "addedFingerprinting", "removedFingerprinting",
+    "addedPixelEvents", "removedPixelEvents", "addedProvenance", "removedProvenance"
+  ]) {
+    assert.match(panel, new RegExp(`=\\{cut\\("${list}"\\)\\}`), list);
+  }
 });
 
 test("the panel's sentence under a capped list says where the rest is, and claims no loss", () => {
