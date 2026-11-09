@@ -55,3 +55,14 @@ test("the result surface prints a visit's start only when the file holds one ins
   assert.equal(unshownVisitStart("1"), "not recorded in a readable form");
   assert.equal(unshownVisitStart("12/25/2026"), "not recorded in a readable form");
 });
+
+test("the Duration tile on the same surface prints a time of day only for an instant too", () => {
+  // It reads the string the header reads. Unchecked, a file holding "1" got
+  // a time of day here beside a header saying none was readable, and a file
+  // holding plain text got "Invalid Date".
+  const overview = readFileSync(path.join(process.cwd(), "app/_components/report-overview.tsx"), "utf8");
+  const tile = overview.slice(overview.indexOf('label: "Duration"'), overview.indexOf("icon: Clock"));
+  assert.match(tile, /detail: isCanonicalTimestamp\(run\.startedAt\)\s*\? new Date\(run\.startedAt\)\.toLocaleTimeString\(/);
+  assert.match(tile, /: `start time \$\{unshownVisitStart\(run\.startedAt\)\}`/);
+  assert.equal(tile.match(/new Date\(/g)?.length, 1, "the tile formats its time once, behind the check");
+});

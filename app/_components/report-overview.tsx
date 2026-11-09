@@ -53,6 +53,8 @@ import { buildRequestComposition } from "@/lib/request-composition";
 import { buildRequestTimelineModel } from "@/lib/request-timeline";
 import type { ReportView } from "@/lib/scan-report-views";
 import { plural } from "@/lib/text-format";
+import { isCanonicalTimestamp } from "@/lib/canonical-timestamp";
+import { unshownVisitStart } from "@/lib/visit-timestamp";
 import { isReviewedStorageKey } from "@/lib/public-name-policy";
 import type { NetworkRequestRecord, ReportShare } from "@/lib/types";
 
@@ -512,15 +514,17 @@ export function MetricGrid({ facts }: { facts: RunFacts }) {
     {
       label: "Duration",
       value: `${Math.round(run.durationMs / 100) / 10}s`,
-      // On the homepage scan flow this is the only clock time on the whole report, and
-      // ReportPageContext (which labels its own timestamps) renders on the permalink
-      // only. Without the zone marker a reader in Pacific reads a UTC time as local.
-      detail: run.startedAt
+      // The time of day the visit started, in UTC with its zone marker: without
+      // the marker a reader in Pacific reads a UTC time as local. Printed by the
+      // header's rule for "Visit started" (lib/visit-timestamp.ts), since this
+      // tile sits on the same surface and reads the same string: a file may
+      // hold anything there, and only a canonical instant is a time.
+      detail: isCanonicalTimestamp(run.startedAt)
         ? new Date(run.startedAt).toLocaleTimeString("en-US", {
             timeZone: "UTC",
             timeZoneName: "short"
           })
-        : "start time not recorded",
+        : `start time ${unshownVisitStart(run.startedAt)}`,
       icon: Clock
     }
   ];
