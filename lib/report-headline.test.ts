@@ -1082,6 +1082,91 @@ function verifiedConsentView(options: {
   return view;
 }
 
+test("tracker requests the report's own phase tags place before the click are worded as before it, never as contact after Reject all", () => {
+  // khanacademy.org's r2 pair (20260714-ad6a59f3): the Reject-all visit's one
+  // catalogued tracker row is tagged passive-load and 149 of its 150 requests
+  // precede the click, yet the headline read "contacted 1 ... in the visit
+  // that clicked Reject all" at warn.
+  const tagged = (kind: "passive-load" | "consent-interaction" | null) => {
+    const view = verifiedConsentView({ acceptTrackers: true, rejectTrackers: true, classification: false });
+    const variant = view.runs.find((run) => run.label === "variant");
+    if (!variant?.phases) throw new Error("fixture invariant");
+    const phase = variant.phases.find((entry) => entry.kind === kind);
+    if (kind !== null && !phase) throw new Error(`fixture has no ${kind} phase`);
+    variant.evidence.requests = variant.evidence.requests.map((request, index) =>
+      // One row in the other phase is enough to withdraw "every".
+      phase && (kind === "passive-load" || index === 0)
+        ? ({ ...request, phaseId: phase.phaseId } as NetworkRequestRecord)
+        : kind === "consent-interaction"
+          ? ({ ...request, phaseId: variant.phases!.find((entry) => entry.kind === "passive-load")!.phaseId } as NetworkRequestRecord)
+          : request
+    );
+    return view;
+  };
+  const cardOf = (view: ReturnType<typeof tagged>) =>
+    buildFindings(view, null, undefined, "variant").find((finding) => finding.id === "consent-comparison")!;
+
+  const before = tagged("passive-load");
+  const headline = buildReportHeadline(before);
+  assert.equal(headline.tone, "info");
+  assert.equal(
+    headline.headline,
+    "example.com contacted 1 distinct catalogued tracking-related service before the scanner clicked Reject all."
+  );
+  assert.match(headline.subhead, /every recorded request to Google came during page load, before the click\./);
+  assert.match(headline.subhead, /No such request was recorded in the later phases this report keeps\./);
+  assert.doesNotMatch(headline.subhead, /span before and after the click/);
+  assert.equal(headline.focusArm, "variant");
+  assert.ok(headline.compactSubhead && headline.compactSubhead.length <= 300, String(headline.compactSubhead));
+  const beforeCard = cardOf(before);
+  assert.equal(beforeCard.level, "info");
+  assert.equal(
+    beforeCard.title,
+    "1 distinct catalogued tracking-related service was contacted before the click in the visit that clicked Reject all"
+  );
+
+  // One request in the phase where the scanner clicked: "before" is no longer shown, and the whole-visit wording stands.
+  for (const view of [tagged("consent-interaction"), tagged(null)]) {
+    const whole = buildReportHeadline(view);
+    assert.equal(whole.tone, "warn");
+    assert.match(whole.headline, /in the visit that clicked Reject all\.$/);
+    assert.match(whole.subhead, /span before and after the click/);
+    assert.equal(cardOf(view).level, "warn");
+  }
+
+  // A request log that did not finish cannot show that every request came first.
+  const censored = verifiedConsentView({
+    acceptTrackers: true,
+    rejectTrackers: true,
+    classification: false,
+    rejectRequestsCensored: true
+  });
+  const censoredVariant = censored.runs.find((run) => run.label === "variant")!;
+  const passive = censoredVariant.phases!.find((entry) => entry.kind === "passive-load")!;
+  censoredVariant.evidence.requests = censoredVariant.evidence.requests.map(
+    (request) => ({ ...request, phaseId: passive.phaseId }) as NetworkRequestRecord
+  );
+  assert.doesNotMatch(buildReportHeadline(censored).headline, /before the scanner clicked/);
+});
+
+test("a denied pair never tells the consent story, even with both clicks verified", () => {
+  // The pair gate is the only thing between a pair the claim policy refused
+  // (a request cap, proxy exhaustion, a mismatched environment) and "recorded
+  // no requests to catalogued trackers in the visit that clicked Reject all".
+  // Forcing the gate open passed every other test in the suite.
+  for (const rejectTrackers of [false, true]) {
+    const view = verifiedConsentView({ acceptTrackers: true, rejectTrackers, classification: true });
+    if (!view.claims.pairComparison) throw new Error("fixture invariant");
+    view.claims.pairComparison = {
+      allowed: false,
+      reasons: ["The \"Reject all\" visit hit the 1,000-request recording cap, so its counts are truncated."]
+    };
+    const headline = buildReportHeadline(view);
+    assert.notEqual(headline.semantic.story, "consent", headline.headline);
+    assert.doesNotMatch(`${headline.headline} ${headline.subhead}`, /clicked Reject all/);
+  }
+});
+
 test("a verified consent pair leads with the Reject-all visit when only the classification family is denied", () => {
   // The board's Reject-all card needs only the pair gate; the headline also
   // required the classification family, so on khanacademy.org's r2 pair

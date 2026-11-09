@@ -1,4 +1,5 @@
-import type { ReportView, RunConsentView } from "./scan-report-views";
+import { isReviewedSameOrganizationDomain } from "./reviewed-ownership";
+import type { ReportView, RunConsentView, RunView } from "./scan-report-views";
 
 /**
  * Whether presentation may treat a visit as a verified consent choice.
@@ -66,3 +67,55 @@ export function consentRegistrationSentence(
 /** Verification does not retroactively make a whole-visit request log post-choice. */
 export const CONSENT_WHOLE_VISIT_CAVEAT =
   "The recorded requests span before and after the click, so some can be pre-choice traffic, from vendors the site treats as strictly necessary, or processing claimed under legitimate interest.";
+
+/**
+ * Whether the report's own phase tags place every request this visit made to
+ * the given outside tracking services in the page-load phase, before the
+ * phase in which the scanner searched for and clicked a consent control.
+ *
+ * Only an r2 visit can answer: it tags each request row with its phase. The
+ * answer is true only when the visit recorded a consent-interaction phase,
+ * at least one such request exists, and EVERY one carries a tag naming a
+ * passive-load phase. An untagged row, a row in any later phase, or a visit
+ * with no consent phase leaves it false, and the whole-visit wording stands.
+ * A row tagged with the consent phase itself may precede the click inside
+ * that phase, which the report cannot tell, so it is never counted as
+ * before.
+ */
+export function trackerRequestsAllPrecedeConsentPhase(run: RunView, trackerEntities: readonly string[]): boolean {
+  if (!run.phases || !run.phases.some((phase) => phase.kind === "consent-interaction")) return false;
+  const passivePhaseIds = new Set(
+    run.phases.filter((phase) => phase.kind === "passive-load").map((phase) => phase.phaseId)
+  );
+  const names = new Set(trackerEntities);
+  const rows = run.evidence.requests.filter(
+    (request) =>
+      request.thirdParty &&
+      request.tracker !== null &&
+      names.has(request.tracker.entity) &&
+      !isReviewedSameOrganizationDomain(run.domain, request.domain)
+  );
+  return (
+    rows.length > 0 &&
+    rows.every((request) => {
+      const phaseId = (request as { phaseId?: unknown }).phaseId;
+      return typeof phaseId === "number" && passivePhaseIds.has(phaseId);
+    })
+  );
+}
+
+/**
+ * What a visit whose tracker requests all precede the consent phase can say
+ * about afterward. The first sentence is true by construction of the check
+ * above. The second is added only when the visit recorded a post-choice
+ * reload, whose requests the request log leaves out by design
+ * (CONSENT_RELOAD_DISCLOSURE): there the report is silent, not clean.
+ */
+export function consentPreClickOnlyNote(run: RunView): string {
+  const reloaded = run.phases?.some((phase) => phase.kind === "post-choice-reload") === true;
+  return `No such request was recorded in the later phases this report keeps.${
+    reloaded
+      ? " Requests during the reload after the click are not recorded, so this shows nothing about that interval."
+      : ""
+  }`;
+}

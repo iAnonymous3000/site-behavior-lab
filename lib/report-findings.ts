@@ -76,6 +76,8 @@ import { displayHost, displayPublicUrl, humanList, plural } from "./text-format"
 import type { NetworkRequestRecord, PrivacyPolicyClaimKind, ProvenanceChange } from "./types";
 import {
   CONSENT_WHOLE_VISIT_CAVEAT,
+  consentPreClickOnlyNote,
+  trackerRequestsAllPrecedeConsentPhase,
   consentChoiceVerified,
   consentRegistrationSentence,
   consentVerificationSummary
@@ -2644,6 +2646,38 @@ function buildConsentComparisonFinding(
           ? "Several situations produce this record, and the report cannot tell them apart. The banner may offer no first-layer reject control and put refusal behind a settings layer this scanner does not navigate. The control may instead have been present in a form this scanner's catalog does not match. Or a click may have been dispatched on a candidate that showed no observable reaction within the scanner's confirmation window. Treat the asymmetry as a prompt to check the banner yourself, not as a finding about how the banner is built."
           : "The accept visit recorded no control activation, so the accept side of this diff cannot be shown to reflect that choice. Treat the comparison as incomplete rather than as evidence about the site's consent behavior.",
       evidence
+    };
+  }
+
+  // The headline's rule, for the same reason: requests the report's own phase
+  // tags place wholly in page load are stated as before the click, at info.
+  if (
+    rejectTracking.length > 0 &&
+    !familyCensoredOnRun(variant, "requests") &&
+    trackerRequestsAllPrecedeConsentPhase(variant, rejectTracking.map((entity) => entity.entity))
+  ) {
+    return {
+      id: "consent-comparison",
+      icon: "cookie",
+      level: "info",
+      title: `${plural(rejectTracking.length, "distinct catalogued tracking-related service")} ${
+        rejectTracking.length === 1 ? "was" : "were"
+      } contacted before the click in the visit that clicked Reject all`,
+      lead: `In the visit that clicked Reject all, every recorded request to ${humanList(
+        rejectTracking.map((entity) => entity.entity)
+      )} came during page load, before the click.${
+        classificationAllowed
+          ? ` In the request log for the visit that clicked Accept all, ${plural(acceptTracking.length, "distinct catalogued tracking-related service")} appeared.`
+          : ""
+      }`,
+      detail: `${registration} ${consentPreClickOnlyNote(variant)} It is a documented observation to review against the banner's promises, not a violation ruling.`,
+      evidence,
+      arm: "variant",
+      ...withLookCloser(
+        lookCloserKeepsRows(variant.evidence.requests, { signal: "known-service" })
+          ? { variant: "reject-all-visit-matches" }
+          : null
+      )
     };
   }
 

@@ -19,6 +19,8 @@ import { publishedReportCorrections } from "./published-report-corrections";
 import { displayHost, plural } from "./text-format";
 import {
   CONSENT_WHOLE_VISIT_CAVEAT,
+  consentPreClickOnlyNote,
+  trackerRequestsAllPrecedeConsentPhase,
   consentChoiceVerified,
   consentRegistrationSentence
 } from "./report-consent-copy";
@@ -514,6 +516,33 @@ function buildUncorrectedReportHeadline(
       // request log that did not finish still reaches here: its rows are a
       // floor, stated as retained like the per-run censored branches.
       const rejectRequestsCensored = reportFacts.arms?.variant.evidence.requests.state === "censored";
+      // When the report's own phase tags put every one of these requests in
+      // page load, "contacted ... in the visit that clicked Reject all" is
+      // true and reads as contact despite the refusal, at warn, for traffic no
+      // click could have prevented. Say when it happened instead. A complete
+      // request log only: a censored one cannot show every row.
+      if (
+        !rejectRequestsCensored &&
+        trackerRequestsAllPrecedeConsentPhase(arms.variant, rejectTracking.map((entity) => entity.entity))
+      ) {
+        const preClickLead = `In the visit where the scanner clicked Reject all, every recorded request to ${joinNames(
+          rejectTracking.map((entity) => entity.entity)
+        )} came during page load, before the click.`;
+        const preClickNote = consentPreClickOnlyNote(arms.variant);
+        return finish(
+          "info",
+          `${domain} contacted ${plural(rejectTracking.length, "distinct catalogued tracking-related service")} before the scanner clicked Reject all.`,
+          `${preClickLead} ${registration} ${preClickNote}`,
+          buildStats(reportFacts.arms?.variant ?? facts, rejectTracking.length),
+          "variant",
+          {
+            story: "consent",
+            runScope: "variant",
+            assertedClaims: ["third-party-services"]
+          },
+          `${preClickLead} ${preClickNote}`
+        );
+      }
       const rejectLead = rejectRequestsCensored
         ? `In the visit where the scanner clicked Reject all, the retained request rows include ${joinNames(
             rejectTracking.map((entity) => entity.entity)
