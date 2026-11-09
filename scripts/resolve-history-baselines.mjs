@@ -18,6 +18,16 @@
 //    rewrite with itself. A run that cannot name the production commit fails
 //    here instead of leaving that comparison out.
 //
+// 3. A run whose commit is behind production fails here too. That is a run
+//    of an older commit started again after a later one was promoted. It
+//    cannot be measured against production, which is its descendant, and it
+//    is not given the previous tip in production's place: the release
+//    workflow tags any commit reachable from production that has a successful
+//    CI run, so a pass against the previous tip alone would let a commit that
+//    sat between a rewrite and its repair earn that run after the repair was
+//    promoted. A HEAD that neither holds production nor is held by it means
+//    main and production have diverged, and fails as well.
+//
 // A pull request keeps its one base, the commit it would merge into.
 //
 // Usage:
@@ -59,7 +69,7 @@ export function resolveHistoryBaselines(input, root = process.cwd()) {
     };
   }
 
-  const production = trustedBaseline(input.production, "production branch", root);
+  const production = productionBaseline(input.production, root);
   // A first push to a new ref reports the all-zero SHA, and a dispatch reports
   // nothing at all. Neither is a baseline, so the last promoted state stands
   // in for the first comparison too.
@@ -70,6 +80,36 @@ export function resolveHistoryBaselines(input, root = process.cwd()) {
 }
 
 function trustedBaseline(candidate, what, root) {
+  const value = commitInCheckout(candidate, what, root);
+  // An unrelated baseline would compare against history this revision never
+  // descended from, which proves nothing about appends.
+  if (!isAncestor(root, value, "HEAD")) throw new Error(`Baseline ${value} (the ${what}) is not an ancestor of HEAD.`);
+  return value;
+}
+
+/**
+ * The production commit as a baseline, which it is only for a run at or
+ * after it. Rule 3 above says why the two other positions fail and are not
+ * given another base.
+ */
+function productionBaseline(candidate, root) {
+  const value = commitInCheckout(candidate, "production branch", root);
+  if (isAncestor(root, value, "HEAD")) return value;
+  if (isAncestor(root, "HEAD", value)) {
+    throw new Error(
+      `HEAD is behind production ${value}, so this run is of a commit older than the last promoted state. ` +
+        "It cannot be measured against production, and a pass against the previous tip alone is refused: " +
+        "the release gate takes a successful run of any commit reachable from production. " +
+        "Run CI on a commit at or after production."
+    );
+  }
+  throw new Error(
+    `Baseline ${value} (the production branch) is not an ancestor of HEAD, and HEAD is not an ancestor of it: ` +
+      "main and production have diverged."
+  );
+}
+
+function commitInCheckout(candidate, what, root) {
   const value = candidate ?? "";
   if (!/^[0-9a-f]{40}$/.test(value)) {
     throw new Error(`Refusing to verify against a malformed baseline: the ${what} is ${value === "" ? "not set" : `"${value}"`}.`);
@@ -77,12 +117,14 @@ function trustedBaseline(candidate, what, root) {
   if (git(root, ["cat-file", "-e", `${value}^{commit}`]) !== 0) {
     throw new Error(`Baseline ${value} (the ${what}) is not a commit in this checkout.`);
   }
-  // An unrelated baseline would compare against history this revision never
-  // descended from, which proves nothing about appends.
-  const ancestry = git(root, ["merge-base", "--is-ancestor", value, "HEAD"]);
-  if (ancestry === 1) throw new Error(`Baseline ${value} (the ${what}) is not an ancestor of HEAD.`);
-  if (ancestry !== 0) throw new Error(`Baseline ${value} (the ${what}) could not be compared with HEAD.`);
   return value;
+}
+
+/** Whether `ancestor` is `descendant` or one of its ancestors. Any answer but yes or no is an error. */
+function isAncestor(root, ancestor, descendant) {
+  const status = git(root, ["merge-base", "--is-ancestor", ancestor, descendant]);
+  if (status !== 0 && status !== 1) throw new Error(`${ancestor} could not be compared with ${descendant}.`);
+  return status === 0;
 }
 
 /** The exit status of one git command. A git that did not exit on its own is an error, never a status. */

@@ -156,6 +156,29 @@ function fixture(options: { production: boolean } = { production: true }): {
   };
 }
 
+/**
+ * The same clone, with production two pushes past the commit the clone began
+ * at: `promoted`, then `earlier`, then `newest`, where production points. The
+ * clone holds all three, so a test can stand its HEAD at any of them the way
+ * a run of that commit would.
+ */
+function fixtureWithLaterPromotions() {
+  const base = fixture({ production: false });
+  const remote = path.join(base.parent, "remote");
+  const push = (message: string, entries: number) => {
+    writeFileSync(path.join(remote, LOG_PATH), logWire(additions(entries)));
+    runFixtureGit(remote, ["add", "public"]);
+    runFixtureGit(remote, ["commit", "-qm", message]);
+    return runFixtureGit(remote, ["rev-parse", "HEAD"]).trim();
+  };
+  const earlier = push("a later push", 4);
+  const newest = push("the newest promoted push", 5);
+  runFixtureGit(remote, ["branch", "production"]);
+  runFixtureGit(base.work, ["fetch", "-q", "origin", "main"]);
+  const standAt = (commit: string) => runFixtureGit(base.work, ["checkout", "-q", "--detach", commit]);
+  return { ...base, earlier, newest, standAt };
+}
+
 type Event = { name: string; pushBefore?: string; pullRequestBase?: string };
 
 /** Run ci.yml's own baseline step in `work`, and return what it wrote to $GITHUB_OUTPUT. */
@@ -317,6 +340,115 @@ test("a run that is not a pull request fails when production cannot be read", ()
   }
 });
 
+test("a run of a commit behind production is refused, and is not measured against the previous tip alone", () => {
+  // A run of an older commit, started again after a later one was promoted.
+  // Production is its descendant, so there is nothing to measure it against.
+  // The previous tip may not stand in: the release workflow tags any commit
+  // reachable from production that has a successful CI run, so that pass would
+  // hand a commit that sat between a rewrite and its repair a run to release.
+  const { parent, work, promoted, earlier, newest, standAt } = fixtureWithLaterPromotions();
+  try {
+    standAt(earlier);
+    for (const event of [{ name: "push", pushBefore: promoted }, { name: "workflow_dispatch" }]) {
+      const resolved = resolveBaselines(work, event);
+      assert.notEqual(resolved.status, 0, `${event.name}: a run behind production must not resolve a baseline`);
+      assert.match(resolved.stderr, new RegExp(`HEAD is behind production ${newest}`), event.name);
+      assert.match(resolved.stderr, /a pass against the previous tip alone is refused/);
+      assert.match(resolved.stderr, /release gate takes a successful run of any commit reachable from production/);
+      assert.equal(resolved.outputs.size, 0, "a refused run must write no baseline");
+    }
+    // A pull request never reads production, wherever its head sits.
+    const pullRequest = resolveBaselines(work, { name: "pull_request", pullRequestBase: promoted });
+    assert.deepEqual([...pullRequest.outputs], [["baseline", promoted], ["production_baseline", ""]]);
+  } finally {
+    removeFixtureTree(parent);
+  }
+});
+
+test("a commit between a rewrite and its repair cannot earn a successful run once the repair is promoted", () => {
+  // The case the refusal above exists for. A rewrite lands and fails. A later
+  // push compares clean against that tip and fails only against production.
+  // The files are then restored and a push after that is promoted. Run again
+  // now, the commit in between is behind production, and its previous tip is
+  // the one base that would pass it.
+  const { parent, work, promoted } = fixture({ production: false });
+  const remote = path.join(parent, "remote");
+  const push = (message: string) => {
+    runFixtureGit(remote, ["add", "public"]);
+    runFixtureGit(remote, ["commit", "-qm", message]);
+    return runFixtureGit(remote, ["rev-parse", "HEAD"]).trim();
+  };
+  const gates = (base: string) =>
+    [[LEDGER_CLI, base], [LOG_CLI, "--verify-history", base]].map(
+      (args) => spawnSyncBounded(process.execPath, args, { cwd: work, encoding: "utf8", env: gitFixtureEnv() }).status
+    );
+  try {
+    rewritePublishedHistory(remote);
+    const rewrite = push("rewrite the log and an earlier ledger event");
+    writeFileSync(path.join(remote, "public", "notes.txt"), "unrelated\n");
+    const between = push("an unrelated change on top of the rewrite");
+    writeFileSync(path.join(remote, LOG_PATH), logWire(additions(3)));
+    writeFileSync(path.join(remote, LEDGER_PATH), ledgerWire(["The reviewed evidence remains active."]));
+    const repair = push("restore the published log and ledger");
+    writeFileSync(path.join(remote, "public", "notes.txt"), "unrelated, again\n");
+    const afterRepair = push("the push that is promoted");
+    runFixtureGit(remote, ["branch", "production"]);
+    runFixtureGit(work, ["fetch", "-q", "origin", "main"]);
+
+    // The promoted push is sound against both of its bases.
+    runFixtureGit(work, ["checkout", "-q", "--detach", afterRepair]);
+    assert.deepEqual([gates(repair), gates(promoted)], [[0, 0], [0, 0]]);
+
+    runFixtureGit(work, ["checkout", "-q", "--detach", between]);
+    assert.deepEqual(gates(rewrite), [0, 0], "against its previous tip the rewrite is compared with itself");
+    assert.deepEqual(gates(promoted), [1, 1], "against the state promoted before it, both gates refuse it");
+    const resolved = resolveBaselines(work, { name: "push", pushBefore: rewrite });
+    assert.notEqual(resolved.status, 0, "the previous tip must not stand in for production");
+    assert.match(resolved.stderr, new RegExp(`HEAD is behind production ${afterRepair}`));
+    assert.equal(resolved.outputs.size, 0);
+  } finally {
+    removeFixtureTree(parent);
+  }
+});
+
+test("a run of the promoted commit itself is measured against production and passes", () => {
+  const { parent, work, earlier, newest, standAt } = fixtureWithLaterPromotions();
+  try {
+    standAt(newest);
+    const push = { name: "push", pushBefore: earlier };
+    assert.deepEqual([...resolveBaselines(work, push).outputs], [["baseline", earlier], ["production_baseline", newest]]);
+    const runs = runHistoryGates(work, push);
+    assert.equal(runs.length, 4);
+    for (const run of runs) assert.equal(run.status, 0, `${run.step.name}: ${run.output}`);
+
+    const dispatch = resolveBaselines(work, { name: "workflow_dispatch" });
+    assert.deepEqual([...dispatch.outputs], [["baseline", newest], ["production_baseline", newest]]);
+  } finally {
+    removeFixtureTree(parent);
+  }
+});
+
+test("a run of a commit that has diverged from production is refused", () => {
+  // Neither holds the other: production moved to commits this history never
+  // had. That is not an old run and not a new push, and nothing is a base.
+  const { parent, work, promoted, newest, standAt, commit } = fixtureWithLaterPromotions();
+  try {
+    standAt(promoted);
+    writeFileSync(path.join(work, "public", "notes.txt"), "a push production never saw\n");
+    commit("a push on a history production left");
+    for (const event of [{ name: "push", pushBefore: promoted }, { name: "workflow_dispatch" }]) {
+      const resolved = resolveBaselines(work, event);
+      assert.notEqual(resolved.status, 0, event.name);
+      assert.match(resolved.stderr, new RegExp(`Baseline ${newest} \\(the production branch\\) is not an ancestor of HEAD, and HEAD is not an ancestor of it`));
+      assert.match(resolved.stderr, /main and production have diverged/);
+      assert.doesNotMatch(resolved.stderr, /HEAD is behind production/);
+      assert.equal(resolved.outputs.size, 0, "a refused run must write no baseline");
+    }
+  } finally {
+    removeFixtureTree(parent);
+  }
+});
+
 test("the baseline script refuses a base that is malformed, unknown, or not an ancestor, and writes nothing", () => {
   const { parent, work, promoted, commit } = fixture();
   try {
@@ -336,7 +468,7 @@ test("the baseline script refuses a base that is malformed, unknown, or not an a
       ["no production on a dispatch", ["--event", "workflow_dispatch"], /malformed baseline: the production branch is not set/],
       ["a commit this checkout does not hold", ["--event", "push", "--push-before", "1".repeat(40), "--production", promoted], /is not a commit in this checkout/],
       ["a push base HEAD does not descend from", ["--event", "push", "--push-before", unrelated, "--production", promoted], /is not an ancestor of HEAD/],
-      ["a production commit HEAD does not descend from", ["--event", "push", "--push-before", tip, "--production", unrelated], /is not an ancestor of HEAD/],
+      ["a production commit with no history in common", ["--event", "push", "--push-before", tip, "--production", unrelated], /main and production have diverged/],
       ["a pull request with no base", ["--event", "pull_request", "--production", promoted], /malformed baseline: the pull request base is not set/],
       ["no event", ["--production", promoted], /The event name is required/],
       ["an unknown flag", ["--event", "push", "--baseline", promoted], /Usage: resolve-history-baselines\.mjs/],
