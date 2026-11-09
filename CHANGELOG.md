@@ -270,14 +270,24 @@ public API or a 1.0 release.
   its result. The poller refused every completed check as not matching its
   reserved report, because a check saves nothing and so has no share. A check
   result that can no longer be shown after a reload says so.
-- A scanner that cannot be reached, and an answer with no readable reason, are
-  named in the page's own words with the HTTP status, instead of "Failed to
-  fetch" or "invalid JSON".
+- A request that gets no usable answer says so in the page's own words, and
+  an answer with no readable reason is named with its HTTP status, instead of
+  "Failed to fetch" or "invalid JSON". The page offers an unreachable scanner
+  as one possible cause and does not state it, because a refused redirect and
+  a lost answer look the same to it; a scan request or a cancellation adds
+  that it may or may not have been received. An access key holding a
+  character a request header cannot carry (a pasted zero-width space) is
+  refused before anything is sent, with a sentence that names the key.
 - A result opened from a file says so at the top, and the result surface and
-  the comparison panel state when each visit started. Category pages call a
-  row an included visit, not the latest one, and a capped comparison list says
-  the rest can be worked out from the JSON instead of calling it
-  unrecoverable.
+  the comparison panel state when each visit started. They print a start only
+  when the file holds one canonical instant, the form the scanner writes;
+  anything else reads "not recorded in a readable form", so an opened file
+  holding "1" or a bare date no longer prints a time that depends on the
+  reader's time zone. Category pages call a row an included visit, not the
+  latest one, and count one site as "1 site". A comparison list says it was
+  cut only when it holds more changes than it shows (a list of exactly 100 was
+  called cut), and says the rest can be worked out from the JSON instead of
+  calling it unrecoverable.
 - The managed read path refuses a schema v2 revision 1 report. No producer
   writes one and a genuine one was already refused, so the branch only ever
   served a planted report on its declared redaction version alone. A Node
@@ -302,10 +312,23 @@ public API or a 1.0 release.
   per request. Upgrade note: a proxy that sets only `X-Real-IP` and passes the
   caller's own `X-Forwarded-For` through was safe under the old rule and is
   not under this one; it must now write or append `X-Forwarded-For` itself.
-  Every rate limit and quota counts an IPv6 /64 as one client.
+  Every rate limit and quota counts an IPv6 /64 as one client, and a peer
+  written with a port, in brackets or with an interface zone is keyed as its
+  bare address (a proxy that records the peer's port gave one client a new
+  allowance on every connection).
 - `/api/health` no longer reports scans as unavailable while a routine
   retention backlog drains; it takes the rule publication uses and reports a
   pending continuation in its own field.
+- `/api/health` reports scans as unavailable while the report store is full.
+  It said available while every finished scan's publication was refused,
+  because its pass asked the capacity question with nothing incoming. The
+  pass now answers for one publication made after it, in a new field,
+  `checks.reportStore.capacityExhausted`, apart from `retentionHealthy`
+  (a full store has lost nothing). `scansAvailable` and
+  `capabilities.savedReports` are false while it is true. Operator note: the
+  production-health monitor requires `scansAvailable`, so a full production
+  store now fails that monitor instead of passing it. The verdict can lag the
+  commit path by one cached probe (30 seconds).
 - The private durable-job preparation and activation routes refuse while the
   durable flag is off.
 - Reader-facing statements corrected to match the code: the glossary's
