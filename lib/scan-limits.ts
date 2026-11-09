@@ -165,9 +165,10 @@ function clientKeyFromHeaders(headers: Pick<Headers, "get">): string {
     return "local";
   }
 
-  const realIp = headers.get("x-real-ip")?.trim();
-  if (realIp) return realIp;
-
+  // One header only. X-Real-IP is never read: a proxy that appends to
+  // X-Forwarded-For passes a client's own X-Real-IP through untouched (the
+  // nginx and Caddy defaults), so a second trusted header is a second, wholly
+  // client-chosen identity that outranks or bypasses the one below.
   const forwardedFor = headers
     .get("x-forwarded-for")
     ?.split(",")

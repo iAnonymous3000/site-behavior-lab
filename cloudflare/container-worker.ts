@@ -602,7 +602,7 @@ export class ScannerContainer extends Container<Env> {
     SITE_BEHAVIOR_LAB_R2_BUCKET: requireContainerR2Bucket(this.env.SITE_BEHAVIOR_LAB_R2_BUCKET),
     SITE_BEHAVIOR_LAB_R2_PREFIX: this.env.SITE_BEHAVIOR_LAB_R2_PREFIX ?? "reports/",
     SITE_BEHAVIOR_LAB_SCANNER_EGRESS: "cloudflare-containers",
-    // This Worker is the only ingress and rewrites x-real-ip from the trusted
+    // This Worker is the only ingress and rewrites X-Forwarded-For from the trusted
     // cf-connecting-ip on every forward (see forwardToContainer), so the container
     // can key its per-client rate limits on the real caller instead of collapsing
     // every reader into one shared "local" bucket.
@@ -4659,11 +4659,12 @@ async function forwardToContainer(
   env: Env,
   trustedInternalToken?: string
 ): Promise<Response> {
-  // The container trusts x-real-ip for per-client rate limiting
-  // (SITE_BEHAVIOR_LAB_TRUST_PROXY_HEADERS=1). This Worker is the only ingress, so
-  // strip any client-supplied forwarding headers (anti-spoof) and set x-real-ip
-  // from Cloudflare's cf-connecting-ip. Without this, report/status reads and the
-  // container's own scan limiter collapse to one shared bucket for all clients.
+  // The container keys its per-client rate limits on the rightmost
+  // X-Forwarded-For entry (SITE_BEHAVIOR_LAB_TRUST_PROXY_HEADERS=1). This Worker
+  // is the only ingress, so strip any client-supplied forwarding headers
+  // (anti-spoof) and send Cloudflare's cf-connecting-ip as the single entry.
+  // Without this, report/status reads and the container's own scan limiter
+  // collapse to one shared bucket for all clients.
   const headers = stripDurableScanJobInternalHeaders(request.headers);
   // Staging fault controls are edge-only credentials. Strip them centrally on
   // every route so they can never reach Node health, report, asset, or fallback
@@ -4690,7 +4691,12 @@ async function forwardToContainer(
   headers.delete("x-real-ip");
   headers.delete("x-forwarded-for");
   const clientIp = request.headers.get("cf-connecting-ip")?.trim();
-  if (clientIp) headers.set("x-real-ip", clientIp);
+  if (clientIp) {
+    headers.set("x-forwarded-for", clientIp);
+    // Node does not read x-real-ip. It is sent only for a container one
+    // release older, which keys on it, while a rollout replaces that container.
+    headers.set("x-real-ip", clientIp);
+  }
   if (trustedInternalToken) headers.set(DURABLE_SCAN_JOB_INTERNAL_HEADER, trustedInternalToken);
 
   // One warm singleton instance keeps the scanner's in-memory async job queue

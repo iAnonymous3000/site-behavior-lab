@@ -39,14 +39,6 @@ test("clientKeyFromRequest ignores forwarded headers unless proxy trust is enabl
 test("clientKeyFromRequest can trust proxy-provided client headers explicitly", () => {
   process.env[TRUST_PROXY_ENV] = "1";
 
-  const realIpRequest = new Request("http://localhost/api/scan", {
-    headers: {
-      "x-forwarded-for": "198.51.100.10, 203.0.113.20",
-      "x-real-ip": "192.0.2.30"
-    }
-  });
-  assert.equal(clientKeyFromRequest(realIpRequest), "192.0.2.30");
-
   // RIGHTMOST. Each proxy appends the address of the peer it received from, so
   // only the last entry was written by the nearest trusted hop. This assertion
   // read "198.51.100.10" (the leftmost) and so pinned the bug below.
@@ -56,6 +48,40 @@ test("clientKeyFromRequest can trust proxy-provided client headers explicitly", 
     }
   });
   assert.equal(clientKeyFromRequest(forwardedRequest), "203.0.113.20");
+});
+
+test("a client cannot choose its own rate-limit identity through X-Real-IP", () => {
+  process.env[TRUST_PROXY_ENV] = "1";
+
+  // An appending proxy writes the peer it saw into X-Forwarded-For and passes
+  // the client's other headers through, X-Real-IP included (the nginx and
+  // Caddy defaults). A second trusted header would be an identity the client
+  // writes itself, so only the proxy's own entry may key the limiters.
+  const peer = "203.0.113.20";
+  const keys = new Set<string>();
+  for (let index = 0; index < 5; index += 1) {
+    const request = new Request("http://localhost/api/scan", {
+      headers: { "x-forwarded-for": peer, "x-real-ip": `192.0.2.${index}` }
+    });
+    keys.add(clientKeyFromRequest(request));
+  }
+  assert.deepEqual([...keys], [peer], "a rotating X-Real-IP must not move the quota identity");
+
+  // The limiters therefore hold for that peer whatever X-Real-IP it sends.
+  for (let index = 0; index < RATE_LIMIT_MAX; index += 1) {
+    const request = new Request("http://localhost/api/scan", {
+      headers: { "x-forwarded-for": peer, "x-real-ip": `192.0.2.${index}` }
+    });
+    assertRateLimit(clientKeyFromRequest(request), 1_000);
+  }
+  const overLimit = new Request("http://localhost/api/scan", {
+    headers: { "x-forwarded-for": peer, "x-real-ip": "192.0.2.250" }
+  });
+  assert.throws(() => assertRateLimit(clientKeyFromRequest(overLimit), 1_000), isStatus(429));
+
+  // X-Real-IP alone names nobody: with no proxy entry the request is "local".
+  const realIpOnly = new Request("http://localhost/api/scan", { headers: { "x-real-ip": "192.0.2.30" } });
+  assert.equal(clientKeyFromRequest(realIpOnly), "local");
 });
 
 test("a client cannot choose its own rate-limit identity through X-Forwarded-For", () => {

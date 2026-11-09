@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { test } from "node:test";
-import { Log, LogLevel, Miniflare } from "miniflare";
+import { Log, LogLevel, Miniflare, Response as MiniflareResponse, type Request as MiniflareRequest } from "miniflare";
 import {
   chargeAdmissionAttempt,
   enforceAdmissionAttemptLimit,
@@ -176,6 +176,70 @@ test("the production Worker refuses concurrent malformed requests before contain
     }
     const workerSource = await readFile("cloudflare/container-worker.ts", "utf8");
     assert.match(workerSource, /chargeAdmissionAttempt\(input: \{ clientHash: string \}\)[\s\S]*?transactionSync\(\(\) =>\s*chargeAdmissionAttemptInStore/);
+  } finally {
+    await mf?.dispose();
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test("the production Worker charges and forwards an admitted scan once, naming the client by Cloudflare's address", { timeout: 60_000 }, async () => {
+  const dir = await mkdtemp(path.join(tmpdir(), "sbl-scan-admission-path-"));
+  const siteverifyAddresses: Array<string | null> = [];
+  let mf: Miniflare | undefined;
+  try {
+    execFileSync(process.execPath, [
+      "node_modules/wrangler/bin/wrangler.js", "deploy", "test-fixtures/scan-admission-path-runtime.test.ts",
+      "--dry-run", "--outdir", dir, "--name", "scan-admission-path", "--compatibility-date", "2026-06-19",
+      "--compatibility-flags", "nodejs_compat"
+    ], { cwd: process.cwd(), env: { ...process.env, CI: "1", WRANGLER_SEND_METRICS: "false" }, stdio: "pipe" });
+    mf = new Miniflare({
+      modules: true, scriptPath: path.join(dir, "scan-admission-path-runtime.test.js"), modulesRoot: dir,
+      compatibilityDate: "2026-06-19", compatibilityFlags: ["nodejs_compat"],
+      durableObjects: { SCANNER: { className: "ScanAdmissionPathHarness", useSQLite: true } },
+      durableObjectsPersist: false, log: new Log(LogLevel.ERROR),
+      // Siteverify lands here, never on the network, and accepts every token.
+      outboundService: async (request: MiniflareRequest) => {
+        siteverifyAddresses.push(new URLSearchParams(await request.text()).get("remoteip"));
+        return new MiniflareResponse(JSON.stringify({ success: true }), { headers: { "content-type": "application/json" } });
+      }
+    });
+    let token = 0;
+    const scan = (headers: Record<string, string>, solved = true) =>
+      mf!.dispatchFetch("https://scanner.invalid/api/scan", {
+        method: "POST",
+        headers: { "content-type": "application/json", ...headers },
+        body: JSON.stringify({ url: "https://example.org/", ...(solved ? { turnstileToken: `token-${(token += 1)}` } : {}) })
+      });
+    const state = async () =>
+      (await (await mf!.dispatchFetch("https://scanner.invalid/__harness/state")).json()) as {
+        forwarded: Array<{ path: string; forwardedFor: string | null; realIp: string | null }>;
+        clientMinuteCharges: number[];
+      };
+
+    // A scan with no solved challenge is refused before Siteverify, the quota
+    // and the container.
+    const subscriber = (host: number) => `2001:db8:aaaa:bbbb::${host.toString(16)}`;
+    const unsolved = await scan({ "cf-connecting-ip": subscriber(1) }, false);
+    assert.equal(unsolved.status, 400);
+    assert.equal(((await unsolved.json()) as { error: string }).error, "Turnstile verification is required.");
+    assert.deepEqual(await state(), { forwarded: [], clientMinuteCharges: [] });
+    assert.deepEqual(siteverifyAddresses, []);
+
+    // One admitted scan is charged once and forwarded once. The container is
+    // handed Cloudflare's address as the only X-Forwarded-For entry, whatever
+    // forwarding headers the caller sent, and Siteverify the full address.
+    const admitted = await scan({
+      "cf-connecting-ip": subscriber(1),
+      "x-forwarded-for": "198.51.100.1, 198.51.100.2",
+      "x-real-ip": "198.51.100.3"
+    });
+    assert.equal(admitted.status, 202);
+    await admitted.text();
+    assert.deepEqual(await state(), {
+      forwarded: [{ path: "/api/scan", forwardedFor: subscriber(1), realIp: subscriber(1) }],
+      clientMinuteCharges: [1]
+    });
+    assert.deepEqual(siteverifyAddresses, [subscriber(1)]);
   } finally {
     await mf?.dispose();
     await rm(dir, { recursive: true, force: true });
