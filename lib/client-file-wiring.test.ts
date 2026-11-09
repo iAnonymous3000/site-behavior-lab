@@ -78,3 +78,22 @@ test("picker failures cancel stale report work and remain exposed through alert 
   assert.match(recovery, /role=\{failed \? "alert" : "status"\}/);
   assert.match(recovery, /failed \? "error-banner" : "error-banner error-banner-progress"/);
 });
+
+test("a report the reader opened from a file is marked, and its result says so before anything else", () => {
+  // Both ways a file becomes a result mark it as local (asLocalReport), which
+  // is what withholds its share link and what the renderer reads below.
+  assert.match(source("app/site-behavior-app.tsx"), /const read = await readLoadedReport\(payload, "This report JSON"\);[\s\S]*?return asLocalReport\(read\.loaded\);/);
+  assert.match(source("lib/pagegraph-client-import.ts"), /return asLocalReport\(read\.loaded\);/);
+
+  // The file's own text fills the title, the measurement limits and the
+  // methodology card, drawn exactly as a published report's are. The one line
+  // that says the page did not vouch for it comes first in the result, ahead
+  // of the header, and is not kept off paper.
+  const renderer = source("app/_components/report-renderer.tsx");
+  const overview = renderer.slice(renderer.indexOf("const overview = ("), renderer.indexOf("<ReportHeader"));
+  assert.match(
+    overview,
+    /^const overview = \(<>\s*\{\/\*[\s\S]*?\*\/\}\s*\{loaded\.localOnly && \(\s*<p className="report-incomplete-notice" role="note">\s*This report was opened from a file on this device\. It was not checked against the published corpus, and\s+text in it may not be the scanner&apos;s\.\s*<\/p>\s*\)\}/
+  );
+  assert.doesNotMatch(overview.slice(0, overview.indexOf("An inspection visit")), /printComplete/);
+});

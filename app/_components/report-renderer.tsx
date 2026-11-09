@@ -274,6 +274,19 @@ export function ReportRenderer({
   ];
 
   const overview = (<>
+          {/* A file the reader opened is drawn by the same components as a
+              published report, on the same site, and its own text fills the
+              title, the measurement limits and the methodology card. Nothing
+              else on the result says the page did not vouch for it, so this
+              line does, first and for as long as the result is shown. The
+              incomplete-visit notice's frame is reused: it is the one notice
+              style this chunk already carries, and it prints. */}
+          {loaded.localOnly && (
+            <p className="report-incomplete-notice" role="note">
+              This report was opened from a file on this device. It was not checked against the published corpus, and
+              text in it may not be the scanner&apos;s.
+            </p>
+          )}
           {/* An inspection visit's own observation, ahead of the ordinary
               result that follows below it as for any single scan. */}
           {inspection && !printComplete && (
