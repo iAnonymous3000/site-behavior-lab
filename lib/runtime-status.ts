@@ -55,6 +55,12 @@ type PublicReportStoreStatus = {
   minSurvivalMs: number;
   retentionDebtCount: number | null;
   retentionMaintenanceRequired: boolean;
+  /**
+   * Another bounded retention pass is owed and nothing failed. Reported on its
+   * own because it never makes scans or saved reports unavailable.
+   */
+  retentionContinuationPending: boolean;
+  /** False exactly when the store would refuse a publication for retention state. */
   retentionHealthy: boolean;
   retentionCheckedAt: string | null;
   retentionCheckMaxAgeMs: number;
@@ -164,6 +170,12 @@ export async function runtimeStatus(
         : store.public.retentionDebtCount > 0
           ? `Physical report retention requires maintenance (${store.public.retentionDebtCount} durable deletion debt marker(s)).`
           : "Physical report retention could not be confirmed; the maintenance pass did not complete."
+    );
+  } else if (store.public.retentionContinuationPending) {
+    // The store publishes in this state (retentionRefusesPublication), so it
+    // is a warning only: scansAvailable and savedReports below stay true.
+    warnings.push(
+      "Report retention reached its per-pass limit and continues on the next pass; scans and saved reports are unaffected."
     );
   }
   if (!adblock.active) {
@@ -435,6 +447,7 @@ async function safeReportStoreStatus(): Promise<SafeReportStoreStatus> {
         minSurvivalMs: 0,
         retentionDebtCount: null,
         retentionMaintenanceRequired: true,
+        retentionContinuationPending: false,
         retentionHealthy: false,
         retentionCheckedAt: null,
         retentionCheckMaxAgeMs: 0
@@ -456,6 +469,7 @@ async function safeReportStoreStatus(): Promise<SafeReportStoreStatus> {
         minSurvivalMs: status.minSurvivalMs,
         retentionDebtCount: probe.stateObserved ? retention.debtCount : null,
         retentionMaintenanceRequired: retention.maintenanceRequired,
+        retentionContinuationPending: retention.continuationPending,
         retentionHealthy: retention.healthy,
         retentionCheckedAt: probe.checkedAt,
         retentionCheckMaxAgeMs: probe.maxAgeMs
@@ -474,6 +488,7 @@ async function safeReportStoreStatus(): Promise<SafeReportStoreStatus> {
         minSurvivalMs: status.minSurvivalMs,
         retentionDebtCount: null,
         retentionMaintenanceRequired: true,
+        retentionContinuationPending: false,
         retentionHealthy: false,
         retentionCheckedAt: null,
         retentionCheckMaxAgeMs: 0

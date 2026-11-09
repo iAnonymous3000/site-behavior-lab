@@ -60,15 +60,18 @@ export function createReportStoreRetentionHealthProbe(
         cached = { key: cacheKey, result, expiresAt: checkedAtMs + successTtlMs };
         return result;
       } catch (error) {
+        // A pass that rejected is the publication rule's refusal, never a
+        // continuation: a delete failed, or the store could not be read.
         let retention: ReportStoreRetentionStatus = {
           debtCount: 0,
           maintenanceRequired: true,
+          continuationPending: false,
           healthy: false
         };
         let stateObserved = false;
         try {
           const observed = await readState();
-          retention = { ...observed, healthy: false };
+          retention = { ...observed, continuationPending: false, healthy: false };
           stateObserved = true;
         } catch {
           // An unreadable debt ledger is fail-closed and intentionally does not

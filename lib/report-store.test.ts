@@ -985,6 +985,7 @@ test("a crash between the two filesystem writes leaves no report without its clo
   assert.deepEqual(await reportStoreRetentionStatus(), {
     debtCount: 0,
     maintenanceRequired: false,
+    continuationPending: false,
     healthy: true
   });
 });
@@ -1063,6 +1064,7 @@ test("delete-only failure leaves durable retention debt, refuses publication, an
   assert.deepEqual(await reportStoreRetentionStatus(), {
     debtCount: 1,
     maintenanceRequired: true,
+    continuationPending: false,
     healthy: false
   });
   await assert.rejects(
@@ -1075,6 +1077,7 @@ test("delete-only failure leaves durable retention debt, refuses publication, an
   assert.deepEqual(await reportStoreRetentionStatus(), {
     debtCount: 0,
     maintenanceRequired: false,
+    continuationPending: false,
     healthy: true
   });
   const recovered = await saveScanReport(makeScanResult());
@@ -1158,15 +1161,23 @@ test("one prune pass bounds delete work and leaves a durable maintenance continu
 
   await pruneStoredReports(Date.parse("2026-07-01T00:00:00.000Z"));
   assert.equal((await readdir(reportDir)).filter(isReportFile).length, 8);
+  // Every attempted delete succeeded, so nothing here refuses a publication:
+  // the durable signal is the continuation, not an unknown physical state.
   assert.deepEqual(await reportStoreRetentionStatus(), {
     debtCount: 0,
     maintenanceRequired: true,
-    healthy: false
+    continuationPending: true,
+    healthy: true
   });
 
   await pruneStoredReports(Date.parse("2026-07-01T00:00:00.000Z"));
   assert.equal((await readdir(reportDir)).filter(isReportFile).length, 0);
-  assert.equal((await reportStoreRetentionStatus()).healthy, true);
+  assert.deepEqual(await reportStoreRetentionStatus(), {
+    debtCount: 0,
+    maintenanceRequired: false,
+    continuationPending: false,
+    healthy: true
+  });
 });
 
 test("saveScanReport reports the configured report store directory in its status", async () => {
@@ -1484,12 +1495,62 @@ test("a bounded delete backlog keeps publishing while retention still reports ma
     "the pass still deleted its bounded share of the backlog"
   );
 
-  // The operator-visible signal is unchanged: retention stays unhealthy and
-  // keeps draining on later passes.
+  // The operator-visible signal is the continuation: maintenance stays
+  // required and keeps draining on later passes, and the status agrees with
+  // the publication above that nothing refuses.
   const status = await reportStoreRetentionStatus();
   assert.equal(status.maintenanceRequired, true);
-  assert.equal(status.healthy, false);
+  assert.equal(status.continuationPending, true);
+  assert.equal(status.healthy, true);
   assert.equal(status.debtCount, 0, "nothing actually failed to delete");
+});
+
+test("health's maintenance pass and the commit path refuse on the same retention state", async () => {
+  // Health once took its verdict from the durable maintenance flag while the
+  // commit path took its own from the pass, so health called scans
+  // unavailable for a backlog in which every finished scan was published.
+  await mkdir(reportDir, { recursive: true });
+  const retention = {
+    createdAt: "2026-06-01T00:00:00.000Z",
+    expiresAt: "2026-06-08T00:00:00.000Z"
+  };
+  const expired = REPORT_PRUNE_MAX_DELETES_PER_PASS * 2 + 8;
+  for (let index = 0; index < expired; index += 1) {
+    const id = `20260601-${index.toString(16).padStart(32, "0")}`;
+    await writeFile(path.join(reportDir, `${id}.json`), "{}\n");
+    await writeFile(path.join(reportDir, `${id}.retention.json`), `${JSON.stringify(retention)}\n`);
+  }
+
+  // More expired shares than one pass deletes: a continuation, and a scan
+  // that finishes now is published.
+  assert.deepEqual(await maintainReportStoreRetention(), {
+    debtCount: 0,
+    maintenanceRequired: true,
+    continuationPending: true,
+    healthy: true
+  });
+  const published = await saveScanReport(makeScanResult());
+  assert.equal((await readStoredScanReportById(published.share!.id)).outcome, "found");
+  assert.equal((await maintainReportStoreRetention()).healthy, true);
+
+  // More failed deletes on the ledger than one pass retries: physical state
+  // is unknown, health says so, and the same state refuses a publication.
+  const debtDir = path.join(reportDir, ".retention-debt");
+  const leaveUnretriedDebt = async () => {
+    await mkdir(debtDir, { recursive: true });
+    for (let index = 0; index <= REPORT_PRUNE_MAX_DELETES_PER_PASS; index += 1) {
+      await writeFile(path.join(debtDir, `20260602-${index.toString(16).padStart(32, "0")}.bundle`), "1\n");
+    }
+  };
+  await leaveUnretriedDebt();
+  assert.deepEqual(await maintainReportStoreRetention(), {
+    debtCount: 1,
+    maintenanceRequired: true,
+    continuationPending: false,
+    healthy: false
+  });
+  await leaveUnretriedDebt();
+  await assert.rejects(() => saveScanReport(makeScanResult()), /Report publication refused/);
 });
 
 test("another container's delete in flight never refuses a publication this pass could complete", async () => {
@@ -1555,6 +1616,7 @@ test("another container's delete in flight never refuses a publication this pass
   assert.deepEqual(await reportStoreRetentionStatus(), {
     debtCount: 2,
     maintenanceRequired: true,
+    continuationPending: false,
     healthy: false
   });
 });
@@ -1573,6 +1635,7 @@ test("a debt outstanding before the pass that it could not retry still refuses p
   assert.deepEqual(await reportStoreRetentionStatus(), {
     debtCount: 1,
     maintenanceRequired: true,
+    continuationPending: false,
     healthy: false
   });
 });
@@ -1735,7 +1798,12 @@ test("a burst of young shares at the listing ceiling is refused before writing a
   // The refusing pass still did its retention work: it retried the debt and
   // settled the maintenance signal.
   assert.equal(r2.objects.has(priorDebtKey), false, "the refusing pass retried the outstanding debt");
-  assert.deepEqual(await reportStoreRetentionStatus(), { debtCount: 0, maintenanceRequired: false, healthy: true });
+  assert.deepEqual(await reportStoreRetentionStatus(), {
+    debtCount: 0,
+    maintenanceRequired: false,
+    continuationPending: false,
+    healthy: true
+  });
 
   const later = now + DURABLE_SCAN_JOB_REPORT_MIN_SURVIVAL_MS + 1;
   await pruneStoredReports(later);
@@ -1829,7 +1897,15 @@ test("a store already past the listing ceiling is pruned back under it once surv
   const probe = createReportStoreRetentionHealthProbe(maintainReportStoreRetention, reportStoreRetentionStatus);
   const health = await probe();
   assert.equal(health.error, null);
-  assert.deepEqual(health.retention, { debtCount: 0, maintenanceRequired: true, healthy: false });
+  // Nothing failed, so this is a continuation. The refusal asserted below is
+  // the capacity one, which is the scanner-busy refusal and not a retention
+  // verdict health reports.
+  assert.deepEqual(health.retention, {
+    debtCount: 0,
+    maintenanceRequired: true,
+    continuationPending: true,
+    healthy: true
+  });
   assert.equal(r2.requests.filter((request) => request.startsWith("HEAD ")).length, R2_LIST_MAX_HEAD_CANDIDATES);
   assert.equal(storedReportCount(r2), stored, "an unread clock never reads as a missing one");
   await assertRefusedBeforeWriting(r2);
@@ -1838,7 +1914,12 @@ test("a store already past the listing ceiling is pruned back under it once surv
   await pruneStoredReports(later);
   assert.equal(storedReportCount(r2), stored - REPORT_PRUNE_MAX_DELETES_PER_PASS);
   await drainToMaxCount(r2, later);
-  assert.deepEqual(await maintainReportStoreRetention(), { debtCount: 0, maintenanceRequired: false, healthy: true });
+  assert.deepEqual(await maintainReportStoreRetention(), {
+    debtCount: 0,
+    maintenanceRequired: false,
+    continuationPending: false,
+    healthy: true
+  });
   const saved = await saveScanReport(makeScanResult());
   assert.ok(saved.share?.id, "publication resumes once the store is back under its ceilings");
 });

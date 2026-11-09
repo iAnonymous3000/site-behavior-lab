@@ -236,6 +236,7 @@ test("runtimeStatus reports ok status when production controls are configured", 
     minSurvivalMs: 60_000,
     retentionDebtCount: 0,
     retentionMaintenanceRequired: false,
+    retentionContinuationPending: false,
     retentionHealthy: true,
     retentionCheckedAt: status.checks.reportStore.retentionCheckedAt,
     retentionCheckMaxAgeMs: 30_000
@@ -287,6 +288,7 @@ test("runtimeStatus fails health and publication capabilities closed on durable 
       minSurvivalMs: 60_000,
       retentionDebtCount: 1,
       retentionMaintenanceRequired: true,
+      retentionContinuationPending: false,
       retentionHealthy: false,
       retentionCheckedAt: status.checks.reportStore.retentionCheckedAt,
       retentionCheckMaxAgeMs: 5_000
@@ -296,6 +298,49 @@ test("runtimeStatus fails health and publication capabilities closed on durable 
       status.warnings.some((warning) => warning.includes("Physical report retention")),
       true
     );
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test("runtimeStatus keeps scans available while a routine expiry backlog drains", async () => {
+  // More shares expired together than one retention pass deletes, as happens a
+  // week after a busy hour. The store publishes in that state, so health must
+  // not tell the scan page the scanner is offline.
+  const dir = await mkdtemp(path.join(tmpdir(), "sbl-runtime-retention-backlog-"));
+  try {
+    process.env[SCAN_ACCESS_TOKEN_ENV] = "secret-key";
+    process.env[REPORT_STORE_DIR_ENV] = dir;
+    process.env[SCANNER_EGRESS_ENV] = "github-actions-ubuntu";
+    process.env[CHROMIUM_SANDBOX_ENV] = "1";
+    const retention = { createdAt: "2026-06-01T00:00:00.000Z", expiresAt: "2026-06-08T00:00:00.000Z" };
+    for (let index = 0; index < 40; index += 1) {
+      const id = `20260601-${index.toString(16).padStart(32, "0")}`;
+      await writeFile(path.join(dir, `${id}.json`), "{}\n");
+      await writeFile(path.join(dir, `${id}.retention.json`), `${JSON.stringify(retention)}\n`);
+    }
+
+    const status = await runtimeStatus(loadedAdblock);
+    assert.equal(status.scansAvailable, true);
+    assert.equal(status.capabilities.savedReports, true);
+    assert.deepEqual(status.checks.reportStore, {
+      kind: "filesystem",
+      configuredPath: true,
+      maxAgeDays: 7,
+      maxCount: 500,
+      minSurvivalMs: 60_000,
+      retentionDebtCount: 0,
+      retentionMaintenanceRequired: true,
+      retentionContinuationPending: true,
+      retentionHealthy: true,
+      retentionCheckedAt: status.checks.reportStore.retentionCheckedAt,
+      retentionCheckMaxAgeMs: 30_000
+    });
+    // Still a warning, and one that says what happened.
+    assert.equal(status.status, "degraded");
+    assert.deepEqual(status.warnings, [
+      "Report retention reached its per-pass limit and continues on the next pass; scans and saved reports are unaffected."
+    ]);
   } finally {
     await rm(dir, { recursive: true, force: true });
   }

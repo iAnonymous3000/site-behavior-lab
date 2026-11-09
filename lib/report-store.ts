@@ -88,8 +88,31 @@ export type ReportStoreStatus = ReportStoreBackendStatus & {
 export type ReportStoreRetentionStatus = {
   debtCount: number;
   maintenanceRequired: boolean;
+  /**
+   * Another bounded pass is owed and nothing is known to have failed: the last
+   * pass reached its per-pass limit. Ordinary after a burst of reports expires
+   * together, and never a reason to refuse a publication.
+   */
+  continuationPending: boolean;
+  /** False exactly when retentionRefusesPublication holds. */
   healthy: boolean;
 };
+
+/**
+ * The one rule for when physical retention state refuses a publication: a
+ * delete failed and has not been retried, so an object may outlive what
+ * retention reports. (A pass in which a delete fails, or which cannot list the
+ * store or read its ledger, rejects, and its caller refuses by that
+ * rejection.) A pass that only reached its per-pass limit deleted everything
+ * it attempted and owes a continuation, never a refusal.
+ *
+ * The commit path and the health endpoint both decide here. Stated twice, the
+ * two drift, and health calls scans unavailable during a routine expiry
+ * backlog in which every finished scan is still published.
+ */
+export function retentionRefusesPublication(retention: { physicalStateUnknown: boolean }): boolean {
+  return retention.physicalStateUnknown;
+}
 
 /**
  * Content-free durable publication receipt. It contains only exact byte
@@ -287,9 +310,9 @@ export async function commitPreparedScanReportBundle<T extends RuntimeScanReport
       // to do, which is the normal shape of a burst of reports expiring on the
       // same day. Refusing that too rejected the next scan after Chromium had
       // already run and the caller's rate-limit token was spent. Retention still
-      // reports unhealthy and keeps draining on later passes either way.
+      // reports the continuation and keeps draining on later passes either way.
       const pruning = await pruneStoredReportsUnlocked(backend, Date.now(), boundedOptions, 1);
-      if (pruning.physicalStateUnknown) {
+      if (retentionRefusesPublication(pruning)) {
         throw new Error(
           "Report publication refused while physical retention maintenance is pending."
         );
@@ -488,33 +511,56 @@ export async function readStoredScanReportById(
 }
 
 export function pruneStoredReports(now = Date.now()): Promise<void> {
+  return runRetentionPass(now).then(() => undefined);
+}
+
+function runRetentionPass(now: number): ReturnType<typeof pruneStoredReportsUnlocked> {
   return withReportStoreOperationDeadline({}, (options) =>
-    withReportStoreMutationLock(async () => {
-      await pruneStoredReportsUnlocked(resolveReportStoreBackend(), now, options);
-    }, options.signal)
+    withReportStoreMutationLock(
+      () => pruneStoredReportsUnlocked(resolveReportStoreBackend(), now, options),
+      options.signal
+    )
   );
 }
 
+/**
+ * The durable ledger alone, with no pass run. A debt marker read here is a
+ * delete that was marked, never cleared, and that nothing has retried: the
+ * unknown physical state the publication rule refuses on.
+ */
 export async function reportStoreRetentionStatus(): Promise<ReportStoreRetentionStatus> {
   return withReportStoreOperationDeadline({}, async (options) => {
     const state = await resolveReportStoreBackend().retentionState(options);
-    return {
-      debtCount: state.debts.length,
-      maintenanceRequired: state.maintenanceRequired,
-      healthy: state.debts.length === 0 && !state.maintenanceRequired
-    };
+    return retentionStatus(state, state.debts.length > 0);
   });
 }
 
 /**
  * Bounded autonomous retention maintenance used by health/startup probes. It
- * advances at most one fixed delete batch, then reports the durable remainder.
+ * advances at most one fixed delete batch, then reports the durable remainder
+ * and whether a publication would be refused, decided from this pass by the
+ * same rule the commit path applies to its own.
  * This also actively proves marker creation and deletion permissions instead
  * of treating an empty readable ledger as sufficient evidence.
  */
 export async function maintainReportStoreRetention(): Promise<ReportStoreRetentionStatus> {
-  await pruneStoredReports();
-  return reportStoreRetentionStatus();
+  const pass = await runRetentionPass(Date.now());
+  return withReportStoreOperationDeadline({}, async (options) =>
+    retentionStatus(await resolveReportStoreBackend().retentionState(options), pass.physicalStateUnknown)
+  );
+}
+
+function retentionStatus(
+  state: { debts: readonly ReportRetentionDebtEntry[]; maintenanceRequired: boolean },
+  physicalStateUnknown: boolean
+): ReportStoreRetentionStatus {
+  const refused = retentionRefusesPublication({ physicalStateUnknown });
+  return {
+    debtCount: state.debts.length,
+    maintenanceRequired: state.maintenanceRequired,
+    continuationPending: state.maintenanceRequired && !refused,
+    healthy: !refused
+  };
 }
 
 async function pruneStoredReportsUnlocked(

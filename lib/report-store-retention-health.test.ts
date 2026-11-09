@@ -9,6 +9,7 @@ import type { ReportStoreRetentionStatus } from "./report-store";
 const HEALTHY: ReportStoreRetentionStatus = {
   debtCount: 0,
   maintenanceRequired: false,
+  continuationPending: false,
   healthy: true
 };
 
@@ -63,6 +64,7 @@ test("failed maintenance is short-cached only as unhealthy and retries after fai
   const debt: ReportStoreRetentionStatus = {
     debtCount: 2,
     maintenanceRequired: true,
+    continuationPending: false,
     healthy: false
   };
   const probe = createReportStoreRetentionHealthProbe(
@@ -88,4 +90,33 @@ test("failed maintenance is short-cached only as unhealthy and retries after fai
   assert.equal(calls, 2);
   assert.equal(recovered.error, null);
   assert.equal(recovered.retention.healthy, true);
+});
+
+test("a maintenance pass that rejected is never reported as a continuation", async () => {
+  // After a pass rejects, the ledger can read back with the maintenance flag
+  // set and no debt, which on its own is the continuation state. The rejection
+  // is what the publication rule refuses on, so the probe must not let that
+  // reading through as healthy.
+  const ledgerAfterFailure: ReportStoreRetentionStatus = {
+    debtCount: 0,
+    maintenanceRequired: true,
+    continuationPending: true,
+    healthy: true
+  };
+  const probe = createReportStoreRetentionHealthProbe(
+    async () => {
+      throw new Error("list denied");
+    },
+    async () => ledgerAfterFailure,
+    { now: () => 1_000 }
+  );
+
+  const failed = await probe();
+  assert.equal(failed.error, "list denied");
+  assert.deepEqual(failed.retention, {
+    debtCount: 0,
+    maintenanceRequired: true,
+    continuationPending: false,
+    healthy: false
+  });
 });
