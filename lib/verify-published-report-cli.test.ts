@@ -4,12 +4,21 @@ import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSy
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
-import { appendTransparencyLogEntries, buildTransparencyLog } from "./publication-transparency-log";
+import { publicReportDigest } from "./canonical-json";
+import {
+  appendTransparencyLogEntries,
+  buildTransparencyLog,
+  parseTransparencyLog,
+  verifyTransparencyLogChain,
+  type ParsedTransparencyLog,
+  type TransparencyLogAddition
+} from "./publication-transparency-log";
 import { buildProvenanceEntry } from "./redaction-provenance";
 import { buildStaticReportShare } from "./report-locator";
 import { makeScanReportV1 } from "./scan-report-v2-fixtures";
 import { sha256Hex } from "./sha256";
 import { listStaticReportCandidateIds } from "./static-report-files";
+import { anchorFromCalendarTimestamp } from "./transparency-log-anchoring";
 import type { ScanResult } from "./types";
 
 /**
@@ -284,5 +293,309 @@ test("a report later removed for privacy verifies against the log and says it wa
   } finally {
     rmSync(clone, { recursive: true, force: true });
     rmSync(evidence, { recursive: true, force: true });
+  }
+});
+
+// The witness of an entry, and the exit status of each verdict.
+//
+// These build their own log beside a committed bundle instead of reading the
+// committed log's anchors. Whether a committed report sits beneath an anchor
+// changes every time an anchor proposal merges, and "after the newest anchored
+// head" is an empty set the day one does.
+
+const PENDING_ATTESTATION_TAG = [0x83, 0xdf, 0xe3, 0x0d, 0x2e, 0xf9, 0x0c, 0x8e];
+const BITCOIN_ATTESTATION_TAG = [0x05, 0x88, 0x96, 0x0d, 0x73, 0xd7, 0x19, 0x01];
+
+/** Bytes shaped like a calendar reply: an append op, then one attestation tag and a URI. */
+function calendarReply(kind: "pending" | "bitcoin"): Uint8Array {
+  const uri = new TextEncoder().encode("https://calendar.example");
+  return Uint8Array.from([
+    0xf0,
+    0x10,
+    ...(kind === "pending" ? PENDING_ATTESTATION_TAG : BITCOIN_ATTESTATION_TAG),
+    uri.length,
+    ...uri
+  ]);
+}
+
+function filler(index: number): TransparencyLogAddition {
+  return {
+    reportId: `20260101-${String(index).padStart(32, "0")}`,
+    reportWireSha256: "a".repeat(64),
+    publicDigest: "b".repeat(64)
+  };
+}
+
+/** A log with `before` unrelated entries, then the bundle's own entry, then `after` more. */
+function logAround(
+  own: TransparencyLogAddition,
+  shape: { before: number; after: number; anchors: readonly { entryCount: number; kind: "pending" | "bitcoin" }[] }
+): ParsedTransparencyLog {
+  const entries = appendTransparencyLogEntries([], [
+    ...Array.from({ length: shape.before }, (_, index) => filler(index)),
+    own,
+    ...Array.from({ length: shape.after }, (_, index) => filler(shape.before + index))
+  ]);
+  return buildTransparencyLog(
+    entries,
+    shape.anchors.map((anchor) =>
+      anchorFromCalendarTimestamp(anchor.entryCount, entries[anchor.entryCount - 1].entryDigest, calendarReply(anchor.kind))
+    )
+  );
+}
+
+/** The log entry the bundle in `dir` earns as it stands on disk. */
+function ownEntry(dir: string, id: string): TransparencyLogAddition {
+  const sidecar = JSON.parse(readFileSync(path.join(dir, `${id}.provenance.json`), "utf8")) as { publicDigest: string };
+  return {
+    reportId: id,
+    reportWireSha256: sha256Hex(readFileSync(path.join(dir, `${id}.json`), "utf8")),
+    publicDigest: sidecar.publicDigest
+  };
+}
+
+/** A working directory holding only `public/transparency-log.json`, as a clone would. */
+function cloneWithLog(log: ParsedTransparencyLog | null): string {
+  const clone = mkdtempSync(path.join(tmpdir(), "verify-report-clone-"));
+  mkdirSync(path.join(clone, "public"), { recursive: true });
+  if (log) writeFileSync(path.join(clone, "public", "transparency-log.json"), `${JSON.stringify(log, null, 2)}\n`);
+  return clone;
+}
+
+/**
+ * Rewrite a published report the way an operator who controls every file
+ * could: change a recorded value, then recompute the sidecar digest and the
+ * index row so the bundle agrees with itself again.
+ */
+function rewriteBundleConsistently(dir: string, id: string): void {
+  const reportPath = path.join(dir, `${id}.json`);
+  const report = JSON.parse(readFileSync(reportPath, "utf8")) as Record<string, unknown>;
+  tamperRecordedValue(report);
+  const wire = `${JSON.stringify(report, null, 2)}\n`;
+  writeFileSync(reportPath, wire);
+
+  const sidecarPath = path.join(dir, `${id}.provenance.json`);
+  const sidecar = JSON.parse(readFileSync(sidecarPath, "utf8")) as Record<string, unknown>;
+  sidecar.publicDigest = publicReportDigest(report);
+  writeFileSync(sidecarPath, `${JSON.stringify(sidecar, null, 2)}\n`);
+
+  const indexPath = path.join(dir, "index.json");
+  const index = JSON.parse(readFileSync(indexPath, "utf8")) as { reports: Record<string, unknown>[] };
+  const row = index.reports.find((candidate) => candidate.id === id);
+  assert.ok(row, "the fixture index must list the fixture report");
+  row.reportWireSha256 = sha256Hex(wire);
+  row.reportWireBytes = Buffer.byteLength(wire);
+  writeFileSync(indexPath, JSON.stringify(index));
+}
+
+test("an entry beneath an anchored head names the anchor, says the proof was only opened, and exits zero", async () => {
+  const { dir, id } = await fixtureBundle();
+  const log = logAround(ownEntry(dir, id), { before: 1, after: 1, anchors: [{ entryCount: 2, kind: "pending" }] });
+  const clone = cloneWithLog(log);
+  try {
+    const result = runCli([id, "--from", dir], clone);
+    assert.equal(result.status, 0, result.stdout + result.stderr);
+    assert.match(result.stdout, /Verified: these bytes are exactly what this project published/);
+    assert.match(result.stdout, /External witness: entry 1 lies beneath the head at 2 entries, which anchors\[0\] names\./);
+    assert.match(result.stdout, /holds a calendar's pending promise and no Bitcoin attestation yet/);
+    assert.match(result.stdout, /structural reading: this command opened the proof and did not replay it/);
+    assert.match(result.stdout, /jq -r '\.anchors\[0\]\.proof' public\/transparency-log\.json \| base64 -d > head\.ots/);
+    assert.match(result.stdout, /ots upgrade head\.ots/);
+    assert.match(result.stdout, new RegExp(`ots verify -d ${log.anchors[0].head} head\\.ots`));
+    assert.doesNotMatch(result.stdout, /No external witness/);
+    // Whether the log was only ever appended to is a property of two
+    // revisions of it. This command reads one and must not vouch for it.
+    assert.doesNotMatch(result.stdout, /append-only/);
+    assert.match(
+      result.stdout,
+      /This command does not prove:[\s\S]*that the transparency log in this working directory is this project's log, unaltered\./
+    );
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+    rmSync(clone, { recursive: true, force: true });
+  }
+});
+
+test("a Bitcoin-attested anchor over the entry is reported ahead of a pending one", async () => {
+  const { dir, id } = await fixtureBundle();
+  const log = logAround(ownEntry(dir, id), {
+    before: 1,
+    after: 1,
+    anchors: [
+      { entryCount: 2, kind: "pending" },
+      { entryCount: 3, kind: "bitcoin" }
+    ]
+  });
+  const clone = cloneWithLog(log);
+  try {
+    const result = runCli([id, "--from", dir], clone);
+    assert.equal(result.status, 0, result.stdout + result.stderr);
+    assert.match(result.stdout, /External witness: entry 1 lies beneath the head at 3 entries, which anchors\[1\] names\./);
+    assert.match(result.stdout, /commits to that head and holds a Bitcoin attestation\./);
+    assert.match(result.stdout, new RegExp(`ots verify -d ${log.anchors[1].head} head\\.ots`));
+    // There is nothing to upgrade once the attestation is in the stored proof.
+    assert.doesNotMatch(result.stdout, /ots upgrade/);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+    rmSync(clone, { recursive: true, force: true });
+  }
+});
+
+test("an entry after the newest anchored head verifies and says it has no external witness", async () => {
+  const { dir, id } = await fixtureBundle();
+  const log = logAround(ownEntry(dir, id), { before: 1, after: 1, anchors: [{ entryCount: 1, kind: "pending" }] });
+  const clone = cloneWithLog(log);
+  try {
+    const result = runCli([id, "--from", dir], clone);
+    assert.equal(result.status, 0, result.stdout + result.stderr);
+    assert.match(result.stdout, /Verified: these bytes are exactly what this project published/);
+    assert.match(result.stdout, /No external witness yet: entry 1 is after the newest anchored head \(1 entries\),/);
+    assert.match(result.stdout, /nothing outside this log file bounds when it was written/);
+    assert.doesNotMatch(result.stdout, /External witness: entry/);
+    assert.doesNotMatch(result.stdout, /ots verify/);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+    rmSync(clone, { recursive: true, force: true });
+  }
+});
+
+test("a rewritten log with its anchors removed cannot read like an anchored one", async () => {
+  // Nothing in one log file can show that it was rewritten end to end. What
+  // the output can do is refuse to describe the result as witnessed: the
+  // genuine log places this entry beneath an anchor, the rewrite cannot.
+  const { dir, id } = await fixtureBundle();
+  const shape = { before: 1, after: 1, anchors: [{ entryCount: 3, kind: "pending" as const }] };
+  const genuine = cloneWithLog(logAround(ownEntry(dir, id), shape));
+  let forged: string | null = null;
+  try {
+    const honest = runCli([id, "--from", dir], genuine);
+    assert.equal(honest.status, 0, honest.stdout + honest.stderr);
+    assert.match(honest.stdout, /External witness: entry 1 lies beneath the head at 3 entries/);
+
+    rewriteBundleConsistently(dir, id);
+    const stale = runCli([id, "--from", dir], genuine);
+    assert.equal(stale.status, 1, "the genuine log must refuse the rewritten bytes");
+
+    forged = cloneWithLog(logAround(ownEntry(dir, id), { ...shape, anchors: [] }));
+    const result = runCli([id, "--from", dir], forged);
+    assert.equal(result.status, 0, result.stdout + result.stderr);
+    assert.doesNotMatch(result.stdout, /FAIL/);
+    assert.match(result.stdout, /No external witness yet: this log holds no anchor,/);
+    assert.match(result.stdout, /bounds when entry 1 was written/);
+    assert.doesNotMatch(result.stdout, /External witness: entry/);
+    assert.doesNotMatch(result.stdout, /append-only/);
+    assert.match(result.stdout, /that the transparency log in this working directory is this project's log, unaltered\./);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+    rmSync(genuine, { recursive: true, force: true });
+    if (forged) rmSync(forged, { recursive: true, force: true });
+  }
+});
+
+test("a rewritten log whose anchor rows were pointed at the new heads is refused", async () => {
+  const { dir, id } = await fixtureBundle();
+  const shape = { before: 1, after: 1, anchors: [{ entryCount: 3, kind: "pending" as const }] };
+  const genuineLog = logAround(ownEntry(dir, id), shape);
+  let forged: string | null = null;
+  try {
+    rewriteBundleConsistently(dir, id);
+    const rechained = logAround(ownEntry(dir, id), { ...shape, anchors: [] });
+    // Keep every anchor row and its proof bytes; only repoint `head`.
+    const forgedLog = buildTransparencyLog(
+      rechained.entries,
+      genuineLog.anchors.map((anchor) => ({ ...anchor, head: rechained.entries[anchor.entryCount - 1].entryDigest }))
+    );
+    assert.notEqual(forgedLog.anchors[0].head, genuineLog.anchors[0].head);
+    // The parser and the chain accept this log: an anchor row is only held to
+    // name a head the chain reached. Opening the proof is the one check left.
+    assert.doesNotThrow(() => verifyTransparencyLogChain(parseTransparencyLog(JSON.parse(JSON.stringify(forgedLog)))));
+
+    forged = cloneWithLog(forgedLog);
+    const result = runCli([id, "--from", dir], forged);
+    assert.equal(result.status, 1, result.stdout + result.stderr);
+    assert.match(result.stdout, /NOT VERIFIED/);
+    assert.match(
+      result.stdout,
+      /FAIL {2}wire digest vs transparency log\s+the committed log is unusable: anchors\[0\] does not hold a proof for the head it names/
+    );
+    assert.doesNotMatch(result.stdout, /Verified: these bytes/);
+    // A log that cannot be used is not a log that lacks this id.
+    assert.doesNotMatch(result.stdout, /contains this report id/);
+    assert.match(result.stdout, /could not be used as a chain/);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+    if (forged) rmSync(forged, { recursive: true, force: true });
+  }
+});
+
+test("a consistent bundle that nothing vouched for exits 2, apart from verified and from failed", async () => {
+  // A script reads the status. An altered report with a recomputed sidecar is
+  // consistent with itself, so "Consistent" may not share a status with
+  // "Verified".
+  const { dir, id } = await fixtureBundle();
+  const noLog = cloneWithLog(null);
+  const otherLog = cloneWithLog(buildTransparencyLog(appendTransparencyLogEntries([], [filler(0), filler(1)])));
+  try {
+    rewriteBundleConsistently(dir, id);
+
+    const withoutLog = runCli([id, "--from", dir], noLog);
+    assert.equal(withoutLog.status, 2, withoutLog.stdout + withoutLog.stderr);
+    assert.doesNotMatch(withoutLog.stdout, /FAIL/);
+    assert.match(withoutLog.stdout, /Consistent: these bytes agree with the provenance sidecar and manifest/);
+    assert.match(withoutLog.stdout, /Provenance is NOT established/);
+    assert.doesNotMatch(withoutLog.stdout, /Verified: these bytes/);
+    assert.match(withoutLog.stdout, /Nothing above cross-checked an independent record/);
+
+    const notListed = runCli([id, "--from", dir], otherLog);
+    assert.equal(notListed.status, 2, notListed.stdout + notListed.stderr);
+    assert.match(notListed.stdout, /not checked: this id is not in the committed chain/);
+    assert.match(notListed.stdout, /Consistent: these bytes agree/);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+    rmSync(noLog, { recursive: true, force: true });
+    rmSync(otherLog, { recursive: true, force: true });
+  }
+});
+
+test("a cross-check that ran and failed is not followed by advice to find a log that lists the id", async () => {
+  const { dir, id } = await fixtureBundle();
+  const clone = cloneWithLog(logAround(ownEntry(dir, id), { before: 0, after: 0, anchors: [] }));
+  try {
+    const reportPath = path.join(dir, `${id}.json`);
+    writeFileSync(reportPath, `${readFileSync(reportPath, "utf8")}\n`);
+
+    const result = runCli([id, "--from", dir], clone);
+    assert.equal(result.status, 1);
+    assert.match(result.stdout, /FAIL {2}wire digest vs transparency log\s+the chain recorded [0-9a-f]{64}, these bytes are [0-9a-f]{64}/);
+    assert.doesNotMatch(result.stdout, /Nothing above cross-checked an independent record/);
+    assert.doesNotMatch(result.stdout, /contains this report id/);
+    assert.match(result.stdout, /that the transparency log in this working directory is this project's log, unaltered\./);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+    rmSync(clone, { recursive: true, force: true });
+  }
+});
+
+test("against the committed log, the verdict states this entry's witness as the log's own anchors give it", async () => {
+  const { dir, id } = await fixtureBundle();
+  try {
+    const log = parseTransparencyLog(
+      JSON.parse(readFileSync(path.join(root, "public", "transparency-log.json"), "utf8")) as unknown
+    );
+    const entry = log.entries.find((candidate) => candidate.reportId === id);
+    assert.ok(entry, "the committed log must record the fixture report");
+    const beneath = log.anchors.some((anchor) => anchor.entryCount > entry.sequence);
+
+    const result = runCli([id, "--from", dir]);
+    assert.equal(result.status, 0, result.stdout + result.stderr);
+    if (beneath) {
+      assert.match(result.stdout, new RegExp(`External witness: entry ${entry.sequence} lies beneath the head at \\d+ entries`));
+      assert.doesNotMatch(result.stdout, /No external witness/);
+    } else {
+      assert.match(result.stdout, new RegExp(`No external witness yet: (this log holds no anchor|entry ${entry.sequence} is after)`));
+      assert.doesNotMatch(result.stdout, /External witness: entry/);
+    }
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
   }
 });

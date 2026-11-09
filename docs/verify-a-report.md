@@ -16,20 +16,48 @@ npm run verify:report -- 20260803-8850a5695425835ae562ece2431a2de6
 It fetches the report and its provenance sidecar from the live site, checks the
 bytes against the digest published in `reports/index.json`, recomputes the
 canonical digest and compares it with the sidecar, and runs the same managed
-reader the site itself uses. It exits non-zero if any check fails, and prints
-what it did not prove.
+reader the site itself uses. It prints what it did not prove.
 
 Those checks all read from one origin, so on their own they prove consistency
 rather than provenance. The command therefore adds one check that does not:
-it cross-checks the report's wire digest against the append-only transparency
-log committed in your clone, recomputing that chain from the log file alone.
-When the chain cannot vouch for an id, the verdict downgrades from `Verified`
-to `Consistent` and says provenance is not established, rather than passing
-quietly.
+it cross-checks the report's wire digest against the transparency log
+committed in your clone (`public/transparency-log.json` in the working
+directory), recomputing that chain from the log file alone and opening every
+anchor's proof to confirm it commits to the head the anchor names.
 
-Pass a full report URL instead of an id if that is what you have. Add
-`--from <dir>` to verify local files, or `--origin <url>` to verify another
-deployment.
+The verdict and the exit status say how far that got. A script must read the
+status:
+
+| Verdict | Exit status | Meaning |
+| --- | --- | --- |
+| `Verified` | 0 | Every check passed, and the log in your clone records these exact bytes for this id. |
+| `NOT VERIFIED` | 1 | A check failed. For example, the bytes differ from the index, the sidecar or the log, a present index does not list the id, the report is not readable as published, or the log cannot be used. A usage or read error also exits 1. |
+| `Consistent` | 2 | The bytes agree with their own sidecar and index, and there was no log entry to cross-check: the working directory has no log, or the log does not list this id. Provenance is not established. An altered report with a recomputed sidecar is consistent, so do not treat this status as a pass. |
+
+Under `Verified` the output also says where the report's entry sits relative
+to the log's anchors:
+
+- `External witness: entry N lies beneath the head at K entries, which
+  anchors[i] names.` An OpenTimestamps anchor covers the entry. The output
+  says whether that anchor's stored proof holds a Bitcoin attestation or only
+  a calendar's pending promise. This is a structural reading: the command
+  opens the proof to see which head it commits to and which attestations it
+  holds, and it does not replay the proof. It prints the `ots` commands that
+  do. A proof committed while pending stays pending in the file, because a
+  committed anchor is never rewritten; `ots upgrade` fetches the attestation.
+- `No external witness yet.` The entry is after the newest anchored head, or
+  the log holds no anchor. The log records the bytes, and nothing outside the
+  log file bounds when that entry was written.
+
+The command reads one log file. It does not prove that the file is this
+project's log, unaltered: that rests on where your clone came from, on Git
+history, and on replaying an anchor's proof. It refuses a log in which an
+anchor's proof does not commit to the head the anchor names.
+
+Pass a full report URL instead of an id if that is what you have; only the id
+is taken from it. Add `--from <dir>` to verify local files, or `--origin <url>`
+to verify another deployment. The first line of the output names the place the
+bytes were read from.
 
 That command covers step 1 below, plus the transparency-log cross-check, and
 adds the schema and redaction checks. It does **not** cover steps 2 to 4: it
@@ -44,7 +72,8 @@ Committed corpus reports: every `<id>.json` and `<id>.provenance.json` under
 [`public/reports/`](../public/reports). These are the reports the gallery,
 directory, and corpus statistics are built from. Each is copied byte-identically
 into the static export, and the `Record exact-SHA static build evidence` step
-(inside the required `Typecheck, Unit Tests, Build` CI job)
+(inside the `Build and Static Export` CI job; the `Typecheck, Unit Tests,
+Build` check is a join that fails unless that job succeeds)
 hashes every file of that export into a single evidence manifest
 (`site-behavior-lab-static-release-evidence.json`). A separate CI job
 (`Attest exact-SHA evidence manifests`) that never checks out or executes

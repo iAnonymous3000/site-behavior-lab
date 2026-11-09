@@ -5,6 +5,7 @@ import { readManagedReport } from "./managed-report-reader";
 import { parseTransparencyLog, verifyTransparencyLogChain } from "./publication-transparency-log";
 import { REPORT_ID_PATTERN } from "./report-validation";
 import { sha256Hex } from "./sha256";
+import { inspectOtsProof } from "./transparency-log-anchoring";
 import { readVerifyArtifactTextWithinLimit } from "./verify-published-report-fetch";
 
 /**
@@ -29,12 +30,22 @@ import { readVerifyArtifactTextWithinLimit } from "./verify-published-report-fet
  * methodology question, nor does it cover the Sigstore attestation over CI
  * evidence, which needs the gh CLI and stays a separate documented step.
  *
+ * The exit status carries the verdict, because a script reads the status and
+ * not the prose: 0 only for "Verified", 1 for "NOT VERIFIED" and for a usage
+ * or read error, 2 for "Consistent". A consistent bundle is one nothing
+ * outside it vouched for, and an altered report with a recomputed sidecar is
+ * consistent, so that verdict must not share a status with a verified one.
+ *
  * Node-only CLI: never imported by app, worker, or browser code.
  */
 
 const DEFAULT_ORIGIN = "https://sitebehavior.org";
 const FETCH_TIMEOUT_MS = 30_000;
 const MAX_FETCH_BYTES = 32 * 1024 * 1024;
+const LOG_PATH = "public/transparency-log.json";
+const EXIT_VERIFIED = 0;
+const EXIT_NOT_VERIFIED = 1;
+const EXIT_CONSISTENT = 2;
 
 type Source =
   | { readonly kind: "origin"; readonly origin: string }
@@ -53,6 +64,35 @@ type PrivacyRemoval = {
   readonly replacementReportId: string;
   readonly detailsUrl: string;
 };
+
+/**
+ * Where a logged entry sits relative to the log's anchors. An anchor names a
+ * chain head, so it covers every entry up to that head and none after it.
+ */
+type EntryWitness =
+  | {
+      readonly kind: "anchored";
+      readonly sequence: number;
+      readonly anchorIndex: number;
+      readonly entryCount: number;
+      readonly head: string;
+      /** A structural reading of the stored proof, never a replay of it. */
+      readonly bitcoinAttested: boolean;
+    }
+  | {
+      readonly kind: "unanchored";
+      readonly sequence: number;
+      /** Entries under the newest anchored head, or null when the log has no anchor. */
+      readonly newestAnchoredEntryCount: number | null;
+    };
+
+/**
+ * What the cross-check against the transparency log found. `matched` is the
+ * only state in which something other than the bundle vouched for the bytes.
+ */
+type ChainOutcome =
+  | { readonly state: "no-log" | "no-entry" | "unusable" | "mismatched"; readonly check: Check }
+  | { readonly state: "matched"; readonly check: Check; readonly witness: EntryWitness };
 
 async function main(): Promise<void> {
   const options = parseArgs(process.argv.slice(2));
@@ -159,14 +199,18 @@ async function main(): Promise<void> {
   // the manifest's reportWireSha256 are both derived from whatever bytes that
   // origin chose to serve, so they are trivially made mutually consistent.
   //
-  // The append-only transparency log committed in this clone is the independent
+  // The transparency log committed in this clone is the independent
   // statement. It is a plain local file read: no network, and the reader is
   // already running this from a checkout of the repository.
   const chained = await transparencyChainCheck(options.reportId, wireDigest);
   checks.push(chained.check);
 
-  report(options, checks, chained.independent, privacyRemoval);
-  if (checks.some((check) => !check.ok)) process.exitCode = 1;
+  report(options, checks, chained, privacyRemoval);
+  process.exitCode = checks.some((check) => !check.ok)
+    ? EXIT_NOT_VERIFIED
+    : chained.state === "matched"
+      ? EXIT_VERIFIED
+      : EXIT_CONSISTENT;
 }
 
 /**
@@ -197,64 +241,138 @@ async function privacyRemovalOf(reportId: string): Promise<PrivacyRemoval | null
 /**
  * Cross-check the computed wire digest against the committed transparency log.
  *
- * Three outcomes, and the middle one matters most: an id the chain never
- * recorded is NOT a failure (a share-store report or one newer than this
- * clone), but it does mean provenance is unproven, so the verdict must stop
- * claiming it.
+ * An id the chain never recorded is NOT a failure (a share-store report or
+ * one newer than this clone), but it does mean provenance is unproven, so the
+ * verdict must stop claiming it.
+ *
+ * Every anchor's proof is opened before the log is used. Chain verification
+ * only checks that an anchor names a head the chain reached, so a log whose
+ * entries were rewritten and whose anchor rows were then pointed at the new
+ * heads, proofs untouched, recomputes cleanly. Such a row's proof still
+ * commits to the head it was issued for, and opening it shows that.
  */
-async function transparencyChainCheck(
-  reportId: string,
-  wireDigest: string
-): Promise<{ check: Check; independent: boolean }> {
+async function transparencyChainCheck(reportId: string, wireDigest: string): Promise<ChainOutcome> {
   const label = "wire digest vs transparency log";
   let raw: string;
   try {
-    raw = await readFile(path.join(process.cwd(), "public", "transparency-log.json"), "utf8");
+    raw = await readFile(path.join(process.cwd(), LOG_PATH), "utf8");
   } catch {
     return {
-      check: { ok: true, label, detail: "not checked: no public/transparency-log.json in this working directory" },
-      independent: false
+      state: "no-log",
+      check: { ok: true, label, detail: `not checked: no ${LOG_PATH} in this working directory` }
     };
   }
 
   let log: ReturnType<typeof parseTransparencyLog>;
+  let bitcoinAttested: boolean[];
   try {
     log = parseTransparencyLog(JSON.parse(raw));
     verifyTransparencyLogChain(log);
+    bitcoinAttested = log.anchors.map((anchor, index) => {
+      try {
+        return inspectOtsProof(Buffer.from(anchor.proof, "base64"), anchor.head).bitcoinAttestations > 0;
+      } catch (error) {
+        throw new Error(`anchors[${index}] does not hold a proof for the head it names: ${(error as Error).message}`);
+      }
+    });
   } catch (error) {
     return {
-      check: { ok: false, label, detail: `the committed log is unusable: ${(error as Error).message}` },
-      independent: false
+      state: "unusable",
+      check: { ok: false, label, detail: `the committed log is unusable: ${(error as Error).message}` }
     };
   }
 
   const entry = log.entries.find((candidate) => candidate.reportId === reportId);
   if (!entry) {
     return {
-      check: { ok: true, label, detail: "not checked: this id is not in the committed chain" },
-      independent: false
+      state: "no-entry",
+      check: { ok: true, label, detail: "not checked: this id is not in the committed chain" }
     };
   }
   if (entry.reportWireSha256 !== wireDigest) {
     return {
+      state: "mismatched",
       check: {
         ok: false,
         label,
         detail: `the chain recorded ${entry.reportWireSha256}, these bytes are ${wireDigest}`
-      },
-      independent: false
+      }
     };
   }
+
+  // Among the anchors whose head covers this entry, a Bitcoin-attested one is
+  // the stronger statement; within either kind the earliest head is the
+  // tightest bound on when the entry existed.
+  const covering = log.anchors
+    .map((anchor, index) => ({ anchor, index, attested: bitcoinAttested[index] }))
+    .filter(({ anchor }) => anchor.entryCount > entry.sequence)
+    .sort(
+      (left, right) =>
+        Number(right.attested) - Number(left.attested) ||
+        left.anchor.entryCount - right.anchor.entryCount ||
+        left.index - right.index
+    );
+  const chosen = covering[0];
+  const witness: EntryWitness = chosen
+    ? {
+        kind: "anchored",
+        sequence: entry.sequence,
+        anchorIndex: chosen.index,
+        entryCount: chosen.anchor.entryCount,
+        head: chosen.anchor.head,
+        bitcoinAttested: chosen.attested
+      }
+    : {
+        kind: "unanchored",
+        sequence: entry.sequence,
+        newestAnchoredEntryCount:
+          log.anchors.length === 0 ? null : Math.max(...log.anchors.map((anchor) => anchor.entryCount))
+      };
   return {
+    state: "matched",
     check: { ok: true, label, detail: `entry ${entry.sequence} of ${log.entries.length}` },
-    independent: true
+    witness
   };
+}
+
+/**
+ * Where the verified entry sits relative to the log's anchors, as reader copy.
+ *
+ * An entry beneath an anchored head and one after the newest anchored head
+ * both match the log, and only the first has a witness outside the log file.
+ * A verdict that reads the same for both lets a log with its anchors removed
+ * pass for an anchored one. The anchored wording is a structural reading: the
+ * proof was opened to see what it commits to and which attestations it holds,
+ * never replayed, so it names the command that does replay it.
+ */
+function witnessLines(witness: EntryWitness): string {
+  if (witness.kind === "unanchored") {
+    return witness.newestAnchoredEntryCount === null
+      ? `No external witness yet: this log holds no anchor, so nothing outside this log file\n` +
+          `bounds when entry ${witness.sequence} was written.\n`
+      : `No external witness yet: entry ${witness.sequence} is after the newest anchored head ` +
+          `(${witness.newestAnchoredEntryCount} entries),\n` +
+          `so nothing outside this log file bounds when it was written.\n`;
+  }
+  const state = witness.bitcoinAttested
+    ? "holds a Bitcoin attestation"
+    : "holds a calendar's pending promise and no Bitcoin attestation yet";
+  const extract = `  jq -r '.anchors[${witness.anchorIndex}].proof' ${LOG_PATH} | base64 -d > head.ots\n`;
+  return (
+    `External witness: entry ${witness.sequence} lies beneath the head at ${witness.entryCount} entries, ` +
+    `which anchors[${witness.anchorIndex}] names.\n` +
+    `Its stored OpenTimestamps proof commits to that head and ${state}.\n` +
+    `That is a structural reading: this command opened the proof and did not replay it. To check it:\n` +
+    extract +
+    (witness.bitcoinAttested ? "" : "  ots upgrade head.ots\n") +
+    `  ots verify -d ${witness.head} head.ots\n`
+  );
 }
 
 function report(
   options: Options,
   checks: readonly Check[],
-  independent: boolean,
+  chained: ChainOutcome,
   privacyRemoval: PrivacyRemoval | null
 ): void {
   const where = options.source.kind === "origin" ? options.source.origin : options.source.dir;
@@ -270,12 +388,16 @@ function report(
   }
 
   const failed = checks.filter((check) => !check.ok);
-  if (failed.length === 0 && independent) {
+  if (failed.length === 0 && chained.state === "matched") {
+    // The verdict names the file it leaned on and claims nothing about that
+    // file's history. Whether the log was only ever appended to is a property
+    // of two revisions of it, and this command reads one.
     console.log(
       "\nVerified: these bytes are exactly what this project published for this report,\n" +
-        "they are internally consistent with their own provenance sidecar, and the\n" +
-        "append-only transparency log in this clone records the same digest.\n"
+        `as the transparency log in this working directory (${LOG_PATH}) records it,\n` +
+        "and they are internally consistent with their own provenance sidecar.\n"
     );
+    console.log(witnessLines(chained.witness));
   } else if (failed.length === 0) {
     // Every check passed, but all of them read from the same origin. Saying
     // "exactly what this project published" here would assert provenance from
@@ -305,10 +427,25 @@ function report(
   console.log("  - the sidecar's own timestamps (createdAt, writtenAt).");
   console.log("    The transparency log covers the report bytes and the canonical digest only;");
   console.log("    the sidecar bytes are bound only by the CI evidence manifest (steps 2 to 4 of that doc).");
-  if (!independent) {
+  if (chained.state === "matched" || chained.state === "mismatched") {
+    // The cross-check is only as good as the one file it read. A log rewritten
+    // end to end recomputes cleanly, and an entry after the newest anchor has
+    // nothing outside the file to contradict a rewrite.
+    console.log("  - that the transparency log in this working directory is this project's log, unaltered.");
+    console.log("    This command reads that one file and recomputes its chain. It does not compare the");
+    console.log("    file with Git history or any other copy, and it does not replay an anchor's proof.");
+  } else {
+    // Advice to find a clone that lists the id is wrong under a cross-check
+    // that ran and failed, and under a log that could not be read as a chain:
+    // each has its own FAIL line above, and neither is a missing id.
     console.log("  - that the origin serving these bytes is the one that published them.");
-    console.log("    Nothing above cross-checked an independent record; run this from a");
-    console.log("    clone whose public/transparency-log.json contains this report id.");
+    if (chained.state === "unusable") {
+      console.log(`    The ${LOG_PATH} in this working directory could not be used as a chain,`);
+      console.log("    so nothing above was cross-checked against it.");
+    } else {
+      console.log("    Nothing above cross-checked an independent record; run this from a");
+      console.log(`    clone whose ${LOG_PATH} contains this report id.`);
+    }
   }
   console.log("  - anything about behavior this scanner does not measure.");
   console.log("    The published boundary: https://sitebehavior.org/catalog/#coverage-boundary\n");
