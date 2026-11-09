@@ -150,6 +150,9 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
           caption={`Every ${category.label.toLowerCase()} site in this cohort, sortable by request, tracking-service and cookie counts, and by the date of its included visit.`}
           filterable={false}
           rows={category.sites.map((site) => siteEvidenceRow(pagesBasePath, site))}
+          // Each row is the site's newest eligible visit in this page's
+          // cohort, which is not always the site's newest report.
+          visitLabels={{ column: "Included visit", link: "Open this evidence" }}
         />
       </section>
 

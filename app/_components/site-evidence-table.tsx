@@ -41,6 +41,8 @@ const COLUMNS: { key: SortKey; label: string; numeric: boolean }[] = [
   { key: "scannedAt", label: "Latest visit", numeric: false }
 ];
 
+const LATEST_VISIT_LABELS = { column: "Latest visit", link: "Open latest evidence" };
+
 export function SiteEvidenceTable({
   rows,
   caption,
@@ -52,7 +54,8 @@ export function SiteEvidenceTable({
    * costs more attention than it saves.
    */
   filterable = true,
-  externalQuery
+  externalQuery,
+  visitLabels = LATEST_VISIT_LABELS
 }: {
   rows: SiteEvidenceRow[];
   /** What this table is, for readers who reach it by its accessible name. */
@@ -65,6 +68,15 @@ export function SiteEvidenceTable({
    * table rendering a second box that filtered the same rows.
    */
   externalQuery?: string;
+  /**
+   * What the visit column and the row's report link are called. On the
+   * directory each row is the site's newest retained report, so the default
+   * says "Latest". A category page's rows are each site's newest eligible
+   * visit inside that page's one cohort, which for many sites is an older
+   * report than its newest, and "Latest visit" over those rows states
+   * something the row does not hold. That page names what the row is.
+   */
+  visitLabels?: { column: string; link: string };
 }) {
   const [sort, setSort] = useState<{ key: SortKey; descending: boolean }>({
     key: "domain",
@@ -72,6 +84,7 @@ export function SiteEvidenceTable({
   });
   const [ownQuery, setQuery] = useState("");
   const query = externalQuery ?? ownQuery;
+  const columns = COLUMNS.map((column) => (column.key === "scannedAt" ? { ...column, label: visitLabels.column } : column));
 
   const visible = useMemo(() => {
     const needle = filterable ? query.trim().toLowerCase() : "";
@@ -133,7 +146,7 @@ export function SiteEvidenceTable({
             value={sort.key}
             onChange={(event) => toggle(event.target.value as SortKey)}
           >
-            {COLUMNS.map((column) => (
+            {columns.map((column) => (
               <option key={column.key} value={column.key}>
                 {column.label}
               </option>
@@ -161,7 +174,7 @@ export function SiteEvidenceTable({
           <caption className="visually-hidden">{caption}</caption>
           <thead>
             <tr>
-              {COLUMNS.map((column) => {
+              {columns.map((column) => {
                 const active = sort.key === column.key;
                 return (
                   <th
@@ -204,7 +217,7 @@ export function SiteEvidenceTable({
                         per row. */}
                     {filterable && `${row.categoryLabel} · `}
                     {row.reportCount} {row.reportCount === 1 ? "report" : "reports"} ·{" "}
-                    <a href={row.reportHref}>Open latest evidence</a>
+                    <a href={row.reportHref}>{visitLabels.link}</a>
                   </span>
                 </th>
                 <td className={styles.numericColumn} data-label="Third-party requests">
@@ -222,7 +235,7 @@ export function SiteEvidenceTable({
                     <span className={styles.notMeasured}>Not measured</span>
                   )}
                 </td>
-                <td data-label="Latest visit">
+                <td data-label={visitLabels.column}>
                   {row.scannedLabel}
                   <span className={styles.siteMeta}>
                     {row.kindLabel} · {row.device}
