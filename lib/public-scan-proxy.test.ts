@@ -101,6 +101,124 @@ test("the production dial receives the verified address, never the hostname, on 
   assert.deepEqual(proxy.blockedTargets, []);
 });
 
+test("the pin is the address literal the guard read, never the string it was handed", async (t) => {
+  // net.connect resolves any host that is not an address literal, and that
+  // second answer is checked by nobody. The guard reads an address through a
+  // trailing dot, brackets and letter case, so the string it was handed can
+  // pass the public check and still not be a literal: "8.8.8.8." is one.
+  // What reaches the dial must be the literal itself, with its own family.
+  const upstream = responseServer(() => "pinned");
+  await listen(upstream);
+  const port = portOf(upstream);
+  const dialed: net.TcpNetConnectOpts[] = [];
+  let resolveCalls = 0;
+  let answer = [{ address: "93.184.216.34", family: 4 }];
+  const proxy = await startPublicScanProxy({
+    allowNonStandardPortsForTests: true,
+    resolveHost: async () => {
+      resolveCalls += 1;
+      return answer;
+    },
+    dialUpstreamForTests: (options) => {
+      dialed.push({ ...options });
+      return net.connect({ host: "127.0.0.1", port: options.port });
+    }
+  });
+  t.after(async () => {
+    await proxy.close();
+    await closeServer(upstream);
+  });
+
+  // A public literal spelled with two trailing dots stays a name through the
+  // URL parser, and the guard strips one dot and reads the rest as 8.8.8.8.
+  assert.equal(new URL("http://8.8.8.8../").hostname, "8.8.8.8..");
+  assert.equal(await proxyGet(proxy.server, `http://8.8.8.8..:${port}/literal`), "pinned");
+  const tunnel = await openTunnel(proxy.server, `8.8.8.8..:${port}`);
+  tunnel.destroy();
+  assert.deepEqual(dialed, [
+    { host: "8.8.8.8", port, family: 4 },
+    { host: "8.8.8.8", port, family: 4 }
+  ]);
+  assert.equal(resolveCalls, 0, "a literal is never resolved");
+
+  // A resolver answer the guard reads as public is pinned as its literal
+  // too, and the family is the literal's, whatever the resolver said.
+  const spellings: Array<[{ address: string; family: number }, { host: string; family: number }]> = [
+    [{ address: "93.184.216.34.", family: 4 }, { host: "93.184.216.34", family: 4 }],
+    [{ address: "[2606:4700:4700::1111]", family: 6 }, { host: "2606:4700:4700::1111", family: 6 }],
+    [{ address: "2606:4700:4700::AAAA.", family: 4 }, { host: "2606:4700:4700::aaaa", family: 6 }]
+  ];
+  for (const [index, [resolved, expected]] of spellings.entries()) {
+    answer = [resolved];
+    dialed.length = 0;
+    assert.equal(await proxyGet(proxy.server, `http://answer-${index}.test:${port}/resolved`), "pinned");
+    assert.deepEqual(dialed, [{ host: expected.host, port, family: expected.family }], resolved.address);
+    assert.notEqual(net.isIP(String(dialed[0].host)), 0, `${resolved.address} is dialed as a literal`);
+  }
+  assert.deepEqual(proxy.blockedTargets, []);
+});
+
+test("an address the guard accepts but Node does not read as a literal is refused, not dialed by name", async (t) => {
+  // The backstop under the pin: if the guard's reading of an address and
+  // Node's ever disagree, the string would reach net.connect as a host name.
+  // "2606:4700:1.2.3.4::" is such a string today (a dotted quad followed by a
+  // compression). It must end as a refusal that names the resolver, since a
+  // resolver handed it over, and nothing may be dialed.
+  const dialed: string[] = [];
+  const proxy = await startPublicScanProxy({
+    resolveHost: async () => [{ address: "2606:4700:1.2.3.4::", family: 6 }],
+    dialUpstreamForTests: (options) => {
+      dialed.push(String(options.host));
+      const socket = new net.Socket();
+      setImmediate(() => socket.destroy(new Error("no dial in this test")));
+      return socket;
+    }
+  });
+  t.after(() => proxy.close());
+
+  assert.equal(net.isIP("2606:4700:1.2.3.4::"), 0);
+  await assert.rejects(() => proxyGet(proxy.server, "http://odd-answer.test/"));
+  const status = (await rawProxyConnect(proxy.server, "odd-answer.test:443")).toString("latin1").split("\r\n")[0];
+  assert.equal(status, "HTTP/1.1 403 Forbidden");
+  assert.deepEqual(dialed, []);
+  assert.deepEqual(proxy.blockedTargets, [
+    { target: "http://odd-answer.test/", reason: "resolution-failed" },
+    { target: "https://odd-answer.test/", reason: "resolution-failed" }
+  ]);
+});
+
+test("a numeric host with a leading zero is never a literal: loopback is refused, and the rest is resolved and verified", async (t) => {
+  // 0177.0.0.1 is loopback to every octal reader and 177.0.0.1 to a decimal
+  // one; 0010.0.0.1 is 8.0.0.1 and 10.0.0.1. Two trailing dots carry either
+  // past the URL parser as a name. Neither reading is trusted: the shape
+  // check refuses what a URL parser reads as loopback, and anything else is
+  // pinned from the resolver's verified answer, never from the host string.
+  const dialed: string[] = [];
+  const asked: string[] = [];
+  const proxy = await startPublicScanProxy({
+    resolveHost: async (hostname) => {
+      asked.push(hostname);
+      return [{ address: "93.184.216.34", family: 4 }];
+    },
+    dialUpstreamForTests: (options) => {
+      dialed.push(String(options.host));
+      const socket = new net.Socket();
+      setImmediate(() => socket.destroy(new Error("no dial in this test")));
+      return socket;
+    }
+  });
+  t.after(() => proxy.close());
+
+  await assert.rejects(() => proxyGet(proxy.server, "http://0177.0.0.1../"));
+  assert.deepEqual(asked, []);
+  assert.deepEqual(dialed, []);
+  assert.deepEqual(proxy.blockedTargets, [{ target: "http://0177.0.0.1../", reason: "non-public-address" }]);
+
+  await assert.rejects(() => proxyGet(proxy.server, "http://0010.0.0.1../"));
+  assert.deepEqual(asked, ["0010.0.0.1."], "the host is resolved as the name it is");
+  assert.deepEqual(dialed, ["93.184.216.34"], "and only the verified answer is dialed");
+});
+
 test("public scan proxy refuses a mixed resolver answer whichever position the private address holds", async (t) => {
   // The pin admits a hostname only when EVERY resolved address is public. A
   // check that admitted the answer on ANY public address would pin whichever

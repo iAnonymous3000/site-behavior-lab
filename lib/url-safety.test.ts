@@ -269,6 +269,31 @@ test("a hostname is admitted only when every resolved address is public", async 
   );
 });
 
+test("a numeric host a URL parser left as a name is verified by its resolved answer, never read as decimal", async () => {
+  // Two trailing dots keep the URL parser from rewriting 0177.0.0.1 to
+  // 127.0.0.1, so the host arrives as written. The system resolver may read
+  // it as octal loopback. Reading it here as the public literal 177.0.0.1
+  // would admit it with no lookup at all.
+  for (const host of ["0177.0.0.1..", "0177.0.0.01..", "00177.0.0.1.."]) {
+    const url = new URL(`http://${host}/`);
+    assert.equal(url.hostname, host, "the URL parser keeps the spelling");
+    const asked: string[] = [];
+    await assert.rejects(
+      () =>
+        assertPublicHttpUrl(url, {
+          lookup: async (hostname) => {
+            asked.push(hostname);
+            return [{ address: "127.0.0.1", family: 4 }];
+          },
+          timeoutMs: 1_000
+        }),
+      /Local and private network targets are blocked/,
+      host
+    );
+    assert.equal(asked.length, 1, `${host} reaches the resolver`);
+  }
+});
+
 test("an unresolvable host still fails closed rather than reaching the network", async () => {
   // Every branch above refuses. The 503 changes the status and the sentence,
   // never the outcome, so a resolver outage can never admit an unverified host.

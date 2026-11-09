@@ -229,3 +229,34 @@ test("isPublicIpAddress still admits ordinary public addresses in both families"
     assert.equal(isPublicIpAddress(address), true, address);
   }
 });
+
+test("a dotted quad with a leading zero in an octet is not an IPv4 address", () => {
+  // inet_aton reads a leading zero as octal, and getaddrinfo and URL parsers
+  // follow it: 0177.0.0.1 is loopback to them. Reading it as decimal
+  // 177.0.0.1 calls a loopback spelling public and skips the resolver, so
+  // the form is not an address here and its resolved answer is checked.
+  for (const value of [
+    "0177.0.0.1",
+    "0177.0.0.01",
+    "010.0.0.1",
+    "8.8.8.08",
+    "127.000.000.001",
+    "00.0.0.0",
+    "0177.0.0.1.",
+    "::ffff:0177.0.0.1",
+    "2606:4700::0177.0.0.1"
+  ]) {
+    assert.equal(isIpAddress(value), false, value);
+    assert.equal(isPublicIpAddress(value), false, value);
+  }
+
+  // A lone zero octet is not a leading zero.
+  for (const value of ["8.8.8.8", "1.0.0.1", "100.200.0.255", "::ffff:8.8.0.8"]) {
+    assert.equal(isIpAddress(value), true, value);
+    assert.equal(isPublicIpAddress(value), true, value);
+  }
+  assert.equal(isIpAddress("0.0.0.0"), true);
+  assert.equal(isIpAddress("255.255.255.255"), true);
+  assert.equal(isIpAddress("256.1.1.1"), false);
+  assert.equal(isIpAddress("1.1.1.1000"), false);
+});

@@ -18,6 +18,11 @@ function isIpv4Address(address: string): boolean {
   if (!/^\d+\.\d+\.\d+\.\d+$/.test(address)) return false;
   return address.split(".").every((part) => {
     if (part.length === 0) return false;
+    // A leading zero means octal to inet_aton, and so to getaddrinfo and to
+    // URL parsers: 0177.0.0.1 is loopback there. Reading the octet as decimal
+    // would call that spelling 177.0.0.1 and public. It is not an address
+    // here, so its caller resolves it and checks the answer instead.
+    if (part.length > 1 && part.startsWith("0")) return false;
     const value = Number(part);
     return Number.isInteger(value) && value >= 0 && value <= 255;
   });

@@ -701,13 +701,22 @@ async function resolvePinnedTarget(
     throw new ProxyTargetBlockedError("non-public-address");
   }
 
-  const selected = addresses[0];
+  // Pin the literal the public check read, never the string it was handed.
+  // That check reads an address through a trailing dot, brackets and letter
+  // case, and net.connect resolves any host that is not an address literal:
+  // "8.8.8.8." passes the check and would then be looked up a second time,
+  // with nobody checking that answer. A string Node does not read as an
+  // address at all is refused for the same reason, as a resolver failure,
+  // which claims nothing about the target.
+  const literal = normalizeHostname(addresses[0].address);
+  const family = net.isIP(literal);
+  if (family === 0) throw new ProxyTargetBlockedError("resolution-failed");
   return {
     protocol: targetUrl.protocol as "http:" | "https:",
     hostname,
     port,
-    address: selected.address,
-    family: selected.family
+    address: literal,
+    family
   };
 }
 
