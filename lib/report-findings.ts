@@ -1575,7 +1575,11 @@ export function buildFindings(
       cookiesUnsupported
         ? "This request-only PageGraph import does not capture cookie evidence."
         : run.counts.thirdPartyCookies > 0
-        ? `${plural(run.counts.thirdPartyCookies, "third-party cookie")} showed up during the visit.`
+        ? cookiesCensored
+          ? // A cookie snapshot is a point-in-time read, not a running count, so
+            // an incomplete one is not a floor either: say what it holds.
+            `The retained cookie snapshot holds ${plural(run.counts.thirdPartyCookies, "third-party cookie")}. That snapshot is incomplete, so the visit's count can differ.`
+          : `${plural(run.counts.thirdPartyCookies, "third-party cookie")} showed up during the visit.`
         : cookiesAbsence.lead,
     detail:
       cookiesUnsupported
@@ -1585,7 +1589,9 @@ export function buildFindings(
         : `This does not prove the site never uses cookies; it means this visit did not observe third-party cookies.${cookiesCensored ? CENSORED_ABSENCE_NOTE : ""}`,
     evidence: cookiesUnsupported
       ? "Unsupported by the request-only PageGraph r2 producer."
-      : `${plural(run.counts.cookies, "cookie")} total in this report.`,
+      : cookiesCensored
+        ? `${plural(run.counts.cookies, "cookie")} total in this report's incomplete snapshot.`
+        : `${plural(run.counts.cookies, "cookie")} total in this report.`,
     benchmark: !cookiesBenchmarkAllowed
       ? undefined
       : cookiesBenchmark

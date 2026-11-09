@@ -3912,6 +3912,37 @@ function consentPair(accept: ScanResult, reject: ScanResult) {
   return createConsentComparisonReport(accept, reject);
 }
 
+test("a third-party cookie count from an incomplete snapshot is stated as the snapshot's, not the visit's", () => {
+  // A capped v1 visit censors every family. Its cookie card said "244
+  // third-party cookies showed up during the visit." under a chip reading
+  // "Snapshot incomplete" on 30 committed reports.
+  const capped = makeResult({
+    firstPartyDomain: "cookies.example",
+    domains: [makeTrackerDomain("ads.example", 60, "AdCo", "advertising")],
+    totalRequests: 1000,
+    thirdPartyRequests: 60,
+    thirdPartyDomains: 1,
+    thirdPartyCookies: 7
+  });
+  const card = byId(buildFindings(viewFromV1Report(capped), null), "third-party-cookies");
+  assert.equal(
+    card.lead,
+    "The retained cookie snapshot holds 7 third-party cookies. That snapshot is incomplete, so the visit's count can differ."
+  );
+  assert.match(card.evidence, /total in this report's incomplete snapshot\.$/);
+
+  const complete = makeResult({
+    firstPartyDomain: "cookies.example",
+    domains: [makeTrackerDomain("ads.example", 6, "AdCo", "advertising")],
+    thirdPartyRequests: 6,
+    thirdPartyDomains: 1,
+    thirdPartyCookies: 7
+  });
+  const completeCard = byId(buildFindings(viewFromV1Report(complete), null), "third-party-cookies");
+  assert.equal(completeCard.lead, "7 third-party cookies showed up during the visit.");
+  assert.match(completeCard.evidence, /total in this report\.$/);
+});
+
 test("an unranked board says why, and calls evidence failed or incomplete only when it is", () => {
   const corpus = makeCorpus(60);
   const complete = (thirdPartyCookies: number) =>
