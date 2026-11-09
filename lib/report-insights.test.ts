@@ -5,6 +5,7 @@ import { test } from "node:test";
 import {
 
   detectionEvidence,
+  detectionEvidenceForRun,
   detectionLabel,
   gpcRunMeasurement,
   isOperationalEntity,
@@ -489,6 +490,54 @@ test("listener-coverage evidence states chain presence, never that the third par
   // Never the accusative registrant claim, in either of its shapes.
   assert.doesNotMatch(rendered, /third-party addEventListener call/);
   assert.doesNotMatch(rendered, /calls? from /);
+});
+
+test("the evidence table never names a host the report lists as the site's own as an outside listener origin", () => {
+  // After a redirect from start-site.com to www.final-site.org the in-page
+  // probe still judges "third party" from the address the scan was asked
+  // for, so the landing site's sibling host is recorded among
+  // thirdPartyOrigins. The report's own domain table says it is first party.
+  const detection: InputMonitoringDetectionSummary = {
+    kind: "input-monitoring",
+    heuristic: "input-listener-coverage-v1",
+    count: 1,
+    evidence: {
+      eventTypes: ["input", "keydown"],
+      listenerTargets: ["input"],
+      thirdPartyOrigins: ["https://recorder.example.net", "https://static.final-site.org"],
+      totalListenerCalls: 6
+    }
+  };
+  const domain = (name: string, thirdParty: boolean) => ({
+    domain: name,
+    requests: 1,
+    thirdParty,
+    tracker: null,
+    statuses: [200],
+    resourceTypes: ["script"]
+  });
+  const table = [domain("www.final-site.org", false), domain("static.final-site.org", false), domain("recorder.example.net", true)];
+
+  // One origin is the site's own: it is not named, and the total is not bound to the origin that remains.
+  const narrowed = detectionEvidenceForRun({ domains: table }, detection);
+  assert.match(narrowed, /^6 addEventListener calls attributed across .*recorder\.example\.net.* and same-site origins the probe could not separate, across /);
+  assert.doesNotMatch(narrowed, /static\.final-site\.org/);
+
+  // Every origin is the site's own: no outside origin is named at all.
+  const sameSite = detectionEvidenceForRun(
+    { domains: table },
+    { ...detection, evidence: { ...detection.evidence, thirdPartyOrigins: ["https://static.final-site.org"] } }
+  );
+  assert.match(sameSite, /^6 addEventListener calls with only hosts this report's domain table lists as the site's own in the registration call chain, across /);
+  assert.doesNotMatch(sameSite, /static\.final-site\.org|recorder/);
+
+  // Nothing to narrow: the line is the ordinary one, as is every other detection kind's.
+  assert.equal(
+    detectionEvidenceForRun({ domains: [domain("recorder.example.net", true)] }, detection),
+    detectionEvidence(detection)
+  );
+  // An origin the request log never saw is kept: the report holds no evidence either way.
+  assert.equal(detectionEvidenceForRun({ domains: [] }, detection), detectionEvidence(detection));
 });
 
 test("keystroke evidence prints a hidden recipient label as * the way the findings card does", () => {

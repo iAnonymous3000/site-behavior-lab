@@ -672,6 +672,40 @@ export function detectionEvidence(detection: FingerprintDetectionSummary): strin
 }
 
 /**
+ * The evidence line the browser-signals table prints for one detection of a
+ * run, with listener origins checked against that run's own domain table.
+ *
+ * The in-page probe decides "third party" from the address the scan was asked
+ * for. After a cross-site redirect that is the wrong site, so the landing
+ * site's own sibling host (static.example.org on www.example.org) is recorded
+ * among `thirdPartyOrigins`. The cards already drop such origins
+ * (crossSiteListenerDetection); the table printed the raw list, naming the
+ * site's own host as an outside origin in the registration call chain. The
+ * call total is one number across every origin the probe attributed, so it is
+ * never bound to the narrowed names alone.
+ */
+export function detectionEvidenceForRun(
+  result: Pick<ScanResult, "domains">,
+  detection: FingerprintDetectionSummary
+): string {
+  if (detection.kind !== "session-recording" && detection.kind !== "input-monitoring") {
+    return detectionEvidence(detection);
+  }
+  const recorded = detection.evidence.thirdPartyOrigins;
+  const crossSite = crossSiteListenerOrigins(result, recorded);
+  if (crossSite.length === recorded.length) return detectionEvidence(detection);
+  const calls = plural(detection.evidence.totalListenerCalls, "addEventListener call");
+  const scope = `across ${humanList(detection.evidence.eventTypes)} on ${humanList(
+    detection.evidence.listenerTargets
+  )}; repeat registrations of the same handler count separately and removals are not observed`;
+  return crossSite.length === 0
+    ? `${calls} with only hosts this report's domain table lists as the site's own in the registration call chain, ${scope}`
+    : `${calls} attributed across ${humanList(
+        crossSite.map(displayPublicUrl)
+      )} and same-site origins the probe could not separate, ${scope}`;
+}
+
+/**
  * The only screenshot format the scanner produces (and the only one the UI may
  * render): an inline base64 image data URI. An UPLOADED report could carry an
  * arbitrary URL in this field, and rendering it would make every viewer's

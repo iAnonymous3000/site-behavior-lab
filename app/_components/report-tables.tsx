@@ -7,7 +7,7 @@ import { requestMatchesQuery, requestMatchesSignalFilter, requestProvenanceSumma
 import { requestInspectionLink, type RequestInspectionContext } from "@/lib/request-inspection-link";
 import { visitPhaseLabel } from "@/lib/report-phase-evidence";
 import { displayHost, displayPublicUrl, hostMatchesQuery, plural } from "@/lib/text-format";
-import { detectionEvidence, detectionLabel, isSingleSignalWebglDetection, pixelFieldLabel } from "@/lib/report-insights";
+import { detectionEvidenceForRun, detectionLabel, isSingleSignalWebglDetection, pixelFieldLabel } from "@/lib/report-insights";
 import { isReviewedCookieName, isReviewedStorageKey } from "@/lib/public-name-policy";
 import { PRINT_ROW_CAPS } from "@/lib/print-row-caps";
 import { usePrintComplete } from "./print-mode";
@@ -910,7 +910,7 @@ function FingerprintList({
           />
           <span>
             {detectionLabel(detection)}
-            <small>{detectionEvidence(detection)}</small>
+            <small>{detectionEvidenceForRun(facts.run.evidence, detection)}</small>
           </span>
         </div>
       ))}
