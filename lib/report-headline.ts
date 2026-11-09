@@ -699,7 +699,10 @@ function buildUncorrectedReportHeadline(
       // only one visit carried a review signal, above a board whose bottom
       // line for the other visit said nothing ranked worth checking. Name the
       // visit when only one does; an absent arm (the every-run fallback) can
-      // only be worded as the pair.
+      // only be worded as the pair. Never "only that visit": this reads the
+      // run's strongest observed severity, and the board under the other
+      // visit also weighs cards this does not (the consent banner), so it
+      // can still call that visit worth checking.
       const baselineSignal = reportFacts.arms ? carriesReviewSignal(reportFacts.arms.baseline) : null;
       const variantSignal = reportFacts.arms ? carriesReviewSignal(reportFacts.arms.variant) : null;
       const reviewSignalNote =
@@ -710,9 +713,9 @@ function buildUncorrectedReportHeadline(
           : baselineSignal && variantSignal
             ? " Both visits still recorded review-worthy activity of their own; the cards below describe what remained."
             : baselineSignal
-              ? " Only the visit without the signal recorded review-worthy activity; the cards below describe each visit."
+              ? " The visit without the signal recorded review-worthy activity; the cards below describe each visit."
               : variantSignal
-                ? " Only the visit with the signal recorded review-worthy activity; the cards below describe each visit."
+                ? " The visit with the signal recorded review-worthy activity; the cards below describe each visit."
                 : " The visit without the signal still made off-site requests; the cards below describe each visit.";
       // Pair-framed: the stat chips stay on the lead (baseline) run, so the
       // evidence switcher default stays there too (no focusArm).

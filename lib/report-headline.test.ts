@@ -451,8 +451,9 @@ test("a GPC reduction says \"Both visits\" only when each visit carries a review
     });
 
   const baselineOnly = buildReportHeadline(viewFromV1Report(gpcPair(loud(), quiet(0))));
-  assert.match(baselineOnly.subhead, /Only the visit without the signal recorded review-worthy activity/);
-  assert.doesNotMatch(baselineOnly.subhead, /Both visits/);
+  assert.match(baselineOnly.subhead, /The visit without the signal recorded review-worthy activity;/);
+  // No claim about the other visit either way: its board weighs cards this sentence does not read.
+  assert.doesNotMatch(baselineOnly.subhead, /Both visits|Only the visit/);
   assert.ok(baselineOnly.subhead.length <= 300, `subhead must fit the social card: ${baselineOnly.subhead.length}`);
 
   const both = buildReportHeadline(viewFromV1Report(gpcPair(loud(), { ...loud(), summary: { ...loud().summary, thirdPartyRequests: 100 } })));

@@ -702,12 +702,19 @@ function cutShortGroups(
     return single ? [single] : [];
   }
   const lost = arms.map(lostIn);
-  if (lost.every((claims) => claims.length === allClaims.length)) {
-    return [group("In both visits: ", arms, allClaims)].filter((entry): entry is CutShortGroup => entry !== null);
+  // Two visits that lost exactly the same checks are one sentence, whatever
+  // its form.
+  if (lost.every((claims) => claims.length === lost[0].length && claims.every((claim) => lost[0].includes(claim)))) {
+    return [group("In both visits: ", arms, lost[0])].filter((entry): entry is CutShortGroup => entry !== null);
   }
-  // A visit that lost every check is stated whole, beside whatever the other
-  // visit lost, rather than split across a shared and an "only" group.
-  if (lost.some((claims) => claims.length === allClaims.length)) {
+  // A visit that lost every check, or all but one or two, is stated whole,
+  // beside whatever the other visit lost, rather than split across a shared
+  // and an "only" group. Split, its "only" group would either list nearly
+  // every check or name as an exception a check the shared group had just
+  // called incomplete in both visits.
+  const lostNearlyAll = (claims: readonly ReportClaimId[]): boolean =>
+    claims.length > MAX_NAMED_EXCEPTIONS && claims.length >= allClaims.length - MAX_NAMED_EXCEPTIONS;
+  if (lost.some(lostNearlyAll)) {
     return arms
       .map((arm, index) => group(`In ${theVisit(arm)}: `, [arm], lost[index]))
       .filter((entry): entry is CutShortGroup => entry !== null);

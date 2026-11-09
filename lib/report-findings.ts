@@ -493,12 +493,15 @@ function withLookCloser(key: LookCloserKey | null): { lookCloser?: LookCloserKey
  * Stated with every percentile, whatever else the scope says. A visit whose
  * request log was capped or incomplete is left out of its cohort's
  * distribution, and that happens most to the pages that do the most, so the
- * marks are complete-case marks that sit below the cohort's true ones and "at
- * or above the 90th-percentile mark" overstates rank. The card's own sentence
- * is true of the sites it counts; this says which way the count leans.
+ * marks are complete-case marks that can sit below the cohort's true ones and
+ * "at or above the 90th-percentile mark" can overstate rank. "Can", because
+ * not every mark moves: the left-out visits' cookie counts are exact, and
+ * counting them leaves the primary cohort's lower cookie marks where they
+ * are. The card's own sentence is true of the sites it counts; this says
+ * which way the count leans.
  */
 const PERCENTILE_INCOMPLETE_VISITS_NOTE =
-  " Visits with capped or incomplete request evidence are left out of each mark. They tend to be the heaviest pages, so each mark sits lower than the cohort's true mark.";
+  " Visits with capped or incomplete request evidence are left out of each mark. They tend to be the heaviest pages, so a mark can sit lower than the cohort's true mark.";
 
 function corpusBenchmarkScope(corpus: CorpusStats): string {
   const coverage = corpus.coverageSiteCount;
@@ -2485,17 +2488,23 @@ export function buildFindings(
   // them: a complete, loss-free visit read as failed whenever the board
   // described a comparison's other visit or a visit that clicked a consent
   // control, neither of which the corpus population holds.
-  const postChoiceVisit =
+  // A consent-mode visit is outside the population whether or not its click
+  // was recorded as activated, so the sentence says what the visit was asked
+  // to do, not that it clicked. It is checked first: in a consent pair both
+  // visits are outside the population, and the two boards of one report must
+  // not give different reasons.
+  const consentModeVisit =
     run.conditions.consentMode === "accept-all" || run.conditions.consentMode === "reject-all";
-  const unrankedReason = !boardDescribesDisplayRun
-    ? "Corpus percentiles rank only this report's lead visit; these cards describe the other visit, so severity uses fixed reference thresholds."
-    : postChoiceVisit &&
-        run.quality.outcome === "complete" &&
-        !familyCensoredOnRun(run, "requests") &&
-        !runHitRequestRecordingCap(run) &&
-        (facts.claims["third-party-services"].benchmarkAllowed || facts.claims["third-party-cookies"].benchmarkAllowed)
-      ? "A visit that clicked a consent control is outside the population the corpus percentiles describe, so severity uses fixed reference thresholds."
-      : "This failed or incomplete evidence is not ranked against corpus percentiles; positive signals remain visible as lower bounds.";
+  const unrankedReason =
+    consentModeVisit &&
+    run.quality.outcome === "complete" &&
+    !familyCensoredOnRun(run, "requests") &&
+    !runHitRequestRecordingCap(run) &&
+    (facts.claims["third-party-services"].benchmarkAllowed || facts.claims["third-party-cookies"].benchmarkAllowed)
+      ? "A visit asked to make a consent choice is outside the population the corpus percentiles describe, so severity uses fixed reference thresholds."
+      : !boardDescribesDisplayRun
+        ? "Corpus percentiles rank only this report's lead visit; these cards describe the other visit, so severity uses fixed reference thresholds."
+        : "This failed or incomplete evidence is not ranked against corpus percentiles; positive signals remain visible as lower bounds.";
   const detectorQuiet =
     !censoredQuiet &&
     !unsupportedQuiet &&

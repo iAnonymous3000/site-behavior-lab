@@ -325,6 +325,37 @@ test("a visit that lost all but one or two checks names the exceptions instead o
   assert.doesNotMatch(namedText, /every check/);
 });
 
+test("a visit that lost all but one or two checks is stated whole, never split against the other visit", () => {
+  // Both visits lost the fingerprinting checks; one also lost every check
+  // that reads the request log. Split into "both" and "only" groups, the
+  // second either listed nearly every check or named as intact a check the
+  // first had just called incomplete in both visits.
+  const guardRefusal = "Blocked a request that could not be verified as public: http://example.com/{seg}";
+  const summary = summaryFor(
+    publishedV1View(
+      shieldsPair(v1Result([OBSERVE_LIMITS, FINGERPRINT_FRAME_LOSS]), v1Result([OBSERVE_LIMITS, FINGERPRINT_FRAME_LOSS, guardRefusal]))
+    )
+  );
+  const text = visitLimitText(summary.limits.find((limit) => limit.id === "incomplete-checks")!);
+  assert.doesNotMatch(text, /In both visits|only:/, text);
+  assert.match(text, /In the Brave-list blocking visit: every check except third-party cookies and storage\./, text);
+  assert.match(text, /In the No blocking visit: /, text);
+
+  // Two visits that lost the same nearly-all set say so once.
+  const same = summaryFor(
+    publishedV1View(
+      shieldsPair(
+        v1Result([OBSERVE_LIMITS, FINGERPRINT_FRAME_LOSS, guardRefusal]),
+        v1Result([OBSERVE_LIMITS, FINGERPRINT_FRAME_LOSS, guardRefusal])
+      )
+    )
+  );
+  assert.match(
+    visitLimitText(same.limits.find((limit) => limit.id === "incomplete-checks")!),
+    /In both visits: every check except third-party cookies and storage\./
+  );
+});
+
 test("two visits that lost every check say so once", () => {
   // The scanner's own cap line (lib/scan-runtime.ts); a capped v1 visit
   // censors every evidence family.

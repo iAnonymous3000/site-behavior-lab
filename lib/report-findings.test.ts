@@ -2787,7 +2787,7 @@ function makeKeystrokeDetection(encodings: string[]): FingerprintDetectionSummar
 
 /** The note every percentile scope ends with (lib/report-findings.ts). */
 const PERCENTILE_INCOMPLETE_VISITS_NOTE =
-  " Visits with capped or incomplete request evidence are left out of each mark. They tend to be the heaviest pages, so each mark sits lower than the cohort's true mark.";
+  " Visits with capped or incomplete request evidence are left out of each mark. They tend to be the heaviest pages, so a mark can sit lower than the cohort's true mark.";
 
 function makeCorpus(sampleSize: number): CorpusStats {
   return {
@@ -4013,8 +4013,19 @@ test("an unranked board says why, and calls evidence failed or incomplete only w
   const postChoice = complete(5);
   postChoice.conditions = { ...postChoice.conditions, consentMode: "reject-all" };
   const postChoiceBoard = byId(buildFindings(viewFromV1Report(postChoice), corpus), "bottom-line");
-  assert.match(postChoiceBoard.detail, /A visit that clicked a consent control is outside the population/);
+  assert.match(postChoiceBoard.detail, /A visit asked to make a consent choice is outside the population/);
+  // The fixture recorded no click at all: the sentence must not say it clicked.
+  assert.doesNotMatch(postChoiceBoard.detail, /clicked/);
   assert.doesNotMatch(postChoiceBoard.detail, FAILED);
+
+  // Both boards of a consent pair give the same reason: each visit is outside
+  // the population, and "the other visit" would be only half of it.
+  const consentView = viewFromV1Report(consentPair(complete(5), complete(5)));
+  const consentBoards = (["baseline", "variant"] as const).map(
+    (arm) => byId(buildFindings(consentView, corpus, buildReportFacts(consentView), arm), "bottom-line").detail
+  );
+  assert.equal(consentBoards[0], consentBoards[1]);
+  assert.match(consentBoards[0], /A visit asked to make a consent choice is outside the population/);
 
   // A recording that hit the request cap is incomplete, and keeps that sentence.
   const capped = makeResult({

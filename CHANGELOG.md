@@ -191,8 +191,11 @@ public API or a 1.0 release.
   after a crash each later read degraded on its own and nothing recorded a
   requests or cookies loss, so the visit returned a result whose request and
   cookie evidence read complete, and a pair with one crashed arm was published
-  as an effect of the compared condition. A visit that does not crash records
-  exactly what it did before, so no report and no identity moves.
+  as an effect of the compared condition. A crash inside an after-scrolling
+  check cuts the check short, where its final wait would have reported a
+  window with no new host. The featured-scan runner retries a crashed page
+  once. A visit that does not crash records exactly what it did before, so no
+  report and no identity moves.
 - A report carrying the scanner's own "Blocked a request that could not be
   verified as public" line now reads its request evidence as incomplete, in
   both report generations. The route guard removes a refused request's row and
@@ -216,6 +219,14 @@ public API or a 1.0 release.
   afterward. It read "contacted N ... in the visit that clicked Reject all" at
   warn. An untagged row, a row in the consent phase, a v1 report or an
   incomplete request log keeps the whole-visit wording.
+- The Google Analytics card no longer asserts "no DoubleClick remarketing
+  sync" over a report that cannot tell. The public sanitizer writes the sync
+  host, stats.g.doubleclick.net, the same way as DoubleClick's ad-serving
+  hosts, so the card's marker can never match a published report (none of the
+  1,029 committed reports shows the detected card) and its absence was
+  unsupported wherever such a row exists. On those reports (364 committed) the
+  card now says the sync cannot be told, at info. Keeping the sync host's name
+  through the sanitizer would be a change to the public string policy.
 - Eight reader sentences that said more than the rows show: "Google Analytics
   was observed" for a request to googletagmanager.com alone (130 committed
   reports); a visit that "sent" the Global Privacy Control signal on the
@@ -223,9 +234,12 @@ public API or a 1.0 release.
   recorded" without the lead's "catalogued"; a GPC pair's "Both visits still
   recorded review-worthy activity" when one did; "Off-site requests to
   <site>"; the Shields "remaining difference" when direct blocks exceeded the
-  reduction (69); "This failed or incomplete evidence" over a complete visit
-  that is merely outside the ranked population; and "1 third-party requests"
-  on the homepage cards.
+  reduction (69, and now equally on the social card); "This failed or
+  incomplete evidence" over a complete visit that is merely outside the ranked
+  population; and "1 third-party requests" on the homepage cards. Also: the
+  pixel card called any incomplete evidence a pixel decoding failure (24
+  committed reports where the loss was in the request log), and the
+  same-organization headline had no wording for an incomplete request log.
 - The browser-signals table no longer names a host the report's own domain
   table lists as first party as an outside listener origin, which happened
   after a cross-site redirect. The cards already dropped such origins.
@@ -235,7 +249,7 @@ public API or a 1.0 release.
   replacing it (484 committed reports).
 - Every percentile scope now says that visits with capped or incomplete
   request evidence are left out of each mark and tend to be the heaviest
-  pages, so each mark sits lower than the cohort's true one, and
+  pages, so a mark can sit lower than the cohort's true one, and
   [docs/limitations.md](docs/limitations.md) works the figures. This states
   the limit and does not remove it.
 - A visit with no recorded main-document status is no longer ranked against a
@@ -281,7 +295,10 @@ public API or a 1.0 release.
 - With `SITE_BEHAVIOR_LAB_TRUST_PROXY_HEADERS=1` the Node scanner keys its
   limits on the rightmost `X-Forwarded-For` entry and ignores `X-Real-IP`,
   which a caller behind an appending proxy could set to choose a new identity
-  per request. Every rate limit and quota counts an IPv6 /64 as one client.
+  per request. Upgrade note: a proxy that sets only `X-Real-IP` and passes the
+  caller's own `X-Forwarded-For` through was safe under the old rule and is
+  not under this one; it must now write or append `X-Forwarded-For` itself.
+  Every rate limit and quota counts an IPv6 /64 as one client.
 - `/api/health` no longer reports scans as unavailable while a routine
   retention backlog drains; it takes the rule publication uses and reports a
   pending continuation in its own field.
