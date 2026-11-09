@@ -3793,7 +3793,8 @@ async function scanSiteWithMeasurementOnLeasedBrowser(
 
     // The last moment before evidence becomes a result. A crash any time
     // before this point reaches it; one after it can touch only the
-    // after-scrolling check, which accounts for its own cut-short visit.
+    // after-scrolling check, which is handed the same flag and ends cut
+    // short on it.
     throwIfPageCrashed();
 
     const v1Result = buildScanResult({
@@ -3859,6 +3860,7 @@ async function scanSiteWithMeasurementOnLeasedBrowser(
         },
         proxyLossCount: () => proxyCaptureLossCount(scanProxy.getDiagnostics()),
         settleRoutes: (maxMs) => settleRoutesWithin(inFlightRouteHandlers, maxMs),
+        pageCrashed: () => pageCrashed,
         options
       });
     }
@@ -3902,6 +3904,7 @@ async function runScrollCheckPhase(input: {
   switchRouteBudget: () => void;
   proxyLossCount: () => number;
   settleRoutes: (maxMs: number) => Promise<void>;
+  pageCrashed: () => boolean;
   options: ScanSiteOptions;
 }): Promise<void> {
   const startedAt = Date.now();
@@ -3947,6 +3950,7 @@ async function runScrollCheckPhase(input: {
       firstPartyHostname: input.firstPartyHostname,
       sameSubject: (url) => sameScanSubjectUrl(url, input.trustedSubjectUrl),
       leftSiteAt: () => leftSiteAt,
+      pageCrashed: input.pageCrashed,
       visitBudgetUsedUp: input.visitBudgetUsedUp,
       proxyLossCount: input.proxyLossCount,
       settleRoutes: input.settleRoutes,

@@ -549,3 +549,101 @@ test("one check at the production timing", { timeout: 150_000 }, async () => {
     await new Promise<void>((resolve) => fixture.server.close(() => resolve()));
   }
 });
+
+test("a renderer crash inside the check's last wait cuts the check short, never a window with nothing new", { timeout: 180_000 }, async () => {
+  // After its last page call the check only waits for its window to end. A
+  // renderer that dies in that wait makes no further request, so the window
+  // read as complete with no new host: "the page contacted no third-party
+  // host it had not already contacted", over a page that would have contacted
+  // one four seconds after its first scroll. The control shows that it does.
+  const timing: ScrollCheckTiming = {
+    ...SCROLL_CHECK_TIMING,
+    settleAfterNavigationMs: 6_000,
+    controlWindowMs: 2_000,
+    scrollWindowMs: 9_000,
+    stepDwellMs: 250,
+    deepestDwellMs: 500,
+    phaseDeadlineMs: 40_000
+  };
+  const png = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=", "base64");
+  // Two screens tall, so one step reaches the end. The first scroll tells a
+  // first-party beacon, which is this test's signal that scrolling began.
+  const html = `<!doctype html><title>Shop home</title><style>body{margin:0}section{height:980px}</style>
+<section><h1>Shop</h1><p>${"Ordinary page text. ".repeat(30)}</p></section><section>Two</section>
+<script>
+addEventListener("scroll", function () {
+  new Image().src = "/scroll-started.png";
+  setTimeout(function () { new Image().src = "http://after-scroll-tracker.net/late.png"; }, 4000);
+}, { once: true });
+</script>`;
+  let onScrollStarted: () => void = () => undefined;
+  const upstream = createServer((request, response) => {
+    const host = (request.headers.host ?? "").split(":")[0];
+    if (request.url === "/scroll-started.png") onScrollStarted();
+    if (host === "crash-check-subject.com" && request.url === "/") {
+      response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+      response.end(html);
+      return;
+    }
+    response.writeHead(200, { "content-type": "image/png" });
+    response.end(png);
+  });
+  await new Promise<void>((resolve, reject) => {
+    upstream.once("error", reject);
+    upstream.listen(0, "127.0.0.1", resolve);
+  });
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+  const visit = async (crash: boolean) => {
+    let crashed = false;
+    const envelope = await scanSiteWithMeasurement(
+      { url: "http://crash-check-subject.com/", device: "desktop", gpcEnabled: false, consentMode: "observe" },
+      {
+        publicUrlAlreadyVerified: true,
+        verifyPublicUrl: async () => undefined,
+        resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+        connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"),
+        resolveCnameChain: async () => [],
+        scrollCheck: true,
+        scrollCheckTimingForTests: timing,
+        ...(crash
+          ? {
+              beforePassiveShieldsBoundaryForTests: async (page: Page) => {
+                page.once("crash", () => {
+                  crashed = true;
+                });
+                const session = await page.context().newCDPSession(page);
+                // Two seconds after the first scroll: past the check's last
+                // page call (the step at 250 ms, the return to the top at
+                // 750 ms) and inside its wait for the window's end at 9 s.
+                onScrollStarted = () => {
+                  onScrollStarted = () => undefined;
+                  setTimeout(() => void session.send("Page.crash").catch(() => undefined), 2_000);
+                };
+              }
+            }
+          : {})
+      } satisfies ScanSiteOptions
+    );
+    const evidence = scrollCheckEvidence(envelope) as ScrollCheckEvidence | undefined;
+    assert.ok(evidence && isScrollCheckEvidence(evidence));
+    return { evidence, crashed: () => crashed };
+  };
+
+  try {
+    const control = await visit(false);
+    assert.equal(control.evidence.outcome, "reached-end");
+    assert.ok(
+      (control.evidence.scroll?.hosts ?? []).some((group) => group.hosts.includes("after-scroll-tracker.net")),
+      `control: the page contacts its late third party while scrolling: ${JSON.stringify(control.evidence.scroll)}`
+    );
+
+    const crashedVisit = await visit(true);
+    assert.equal(crashedVisit.crashed(), true, "the renderer crashed during the check");
+    assert.equal(crashedVisit.evidence.outcome, "cut-short");
+    assert.equal(crashedVisit.evidence.scroll, null, "a window a dead page sat through is not a window");
+  } finally {
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+});

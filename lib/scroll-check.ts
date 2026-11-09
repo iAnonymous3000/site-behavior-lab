@@ -715,6 +715,15 @@ export type ScrollCheckRun<RequestT extends object> = {
   sameSubject(url: string): boolean;
   /** When the main frame first left the site during the check, if it did. */
   leftSiteAt(): number | null;
+  /**
+   * Whether the page's renderer has crashed. A dead page makes no requests,
+   * so a window that ran over one would read as a page that contacted
+   * nothing new. The check asks wherever it asks whether the page left its
+   * site, the end of each window included, and a crash cuts it short. The
+   * scanner always supplies it; a run built without a browser page has no
+   * renderer to lose.
+   */
+  pageCrashed?(): boolean;
   /** The visit's own request budget had refused requests before the check began. */
   visitBudgetUsedUp: boolean;
   /** Requests the scan proxy's per-visit budgets have refused or cut so far. */
@@ -1014,6 +1023,7 @@ async function sequence<RequestT extends object>(
   };
   const onSite = (): void => {
     if (leftSite(run)) throw new ScrollCheckStop("left-site");
+    if (run.pageCrashed?.() === true) throw new ScrollCheckStop("cut-short");
   };
   const readState = async (): Promise<ScrollState> => {
     const state = await withinDeadline(page.scrollState());
