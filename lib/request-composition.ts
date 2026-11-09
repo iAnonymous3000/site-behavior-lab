@@ -9,11 +9,14 @@ export type RequestComposition = {
 /**
  * Partition the run's retained request rows for the report visualization.
  *
- * `knownTrackerRequests` is not a third-party count: it includes every direct
- * catalog match, including a first-party match when the scanned site itself is
- * in the catalog. Derive the overlapping third-party/catalog segment from the
- * request rows themselves so an unrelated third-party row can never inherit a
- * first-party catalog label.
+ * `knownTrackerRequests` counts the rows that carry a catalog match, and the
+ * metric contract does not restrict it to third-party rows. No producer in
+ * this repository labels a first-party row: the scanner and the PageGraph
+ * adapter match third-party rows only, and the r2 builder refuses one. The v1
+ * reader accepts a first-party label all the same, so a report from another
+ * producer can hold one. Derive the overlapping third-party/catalog segment
+ * from the request rows themselves so an unrelated third-party row can never
+ * inherit a first-party catalog label.
  */
 export function buildRequestComposition(input: {
   totalRequests: number;

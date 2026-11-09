@@ -48,7 +48,7 @@ const ENTRIES: GlossaryEntry[] = [
     id: "known-service",
     term: "Catalog-matched request",
     definition:
-      "One retained direct request row whose recorded host matched a reviewed service-catalog suffix (either the full host or a parent-domain suffix). This count includes first-party and third-party matches and every catalog role, including operational services; it is a request-row count, not a count of distinct services or a claim that every match was tracking-related."
+      "One retained direct request row to another site whose recorded host matched a reviewed service-catalog suffix (either the full host or a parent-domain suffix). Only third-party rows are labeled, so a request to the scanned site itself is never counted, even when that site is in the catalog. The count covers every catalog role, including operational services; it is a request-row count, not a count of distinct services or a claim that every match was tracking-related."
   },
   {
     id: "tracking-service-request",

@@ -32,6 +32,12 @@ export function canonicalMetricContractContents(): string {
     version: METRIC_CONTRACT_VERSION,
     metrics: [
       {
+        // `thirdPartyRequired: false` says only that the definition does not
+        // restrict the count to third-party rows. It is not a statement that
+        // first-party rows are matched: every producer in this repository
+        // labels third-party rows only, so on their reports this count holds
+        // no request to the scanned site itself, and reader copy must not say
+        // it includes first-party matches.
         id: "knownTrackerRequests",
         status: "frozen-report-wire",
         unit: "retained-request-row",

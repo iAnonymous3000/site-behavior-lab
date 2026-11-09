@@ -209,7 +209,11 @@ test("public metric copy keeps request rows and distinct service entities separa
 
   assert.match(glossary, /term: "Catalog-matched request"/);
   assert.match(glossary, /recorded host matched a reviewed service-catalog suffix/);
-  assert.match(glossary, /includes first-party and third-party matches/);
+  // No producer labels a first-party row with a catalog match, so the entry
+  // must say the count holds third-party rows only and never that it includes
+  // requests to the scanned site.
+  assert.doesNotMatch(glossary, /includes first-party/i);
+  assert.match(glossary, /Only third-party rows are labeled/);
   assert.match(glossary, /term: "Third-party tracking-service request"/);
   assert.match(glossary, /term: "Tracking-service entity"/);
 
