@@ -21,6 +21,7 @@ import {
 } from "@/lib/report-evidence-navigation";
 import { MAX_DIFF_LIST } from "@/lib/compare-reports";
 import { comparisonDeltaHeading, displayHost, plural } from "@/lib/text-format";
+import { formatReportTimestamp } from "@/lib/visit-timestamp";
 import {
   isReviewedCookieName,
   isReviewedStorageKey,
@@ -186,11 +187,14 @@ function ComparisonPanel({ view, facts }: { view: ReportView; facts: ReportFacts
           <h2>{comparisonDeltaHeading(labels, pairAllowed && hasComparableDelta)}</h2>
         </div>
         <div className="comparison-runs">
+          {/* When each visit started, beside how long it took. "Before" and
+              "After" name an order and no dates, and a pair built from the
+              archive or from two files can be weeks apart. */}
           <span>
-            {labels.baseline}: {arms.baseline.durationMs.toLocaleString("en-US")}ms
+            {labels.baseline}: {visitStart(arms.baseline.startedAt)} · {arms.baseline.durationMs.toLocaleString("en-US")}ms
           </span>
           <span>
-            {labels.variant}: {arms.variant.durationMs.toLocaleString("en-US")}ms
+            {labels.variant}: {visitStart(arms.variant.startedAt)} · {arms.variant.durationMs.toLocaleString("en-US")}ms
           </span>
           {visitOrder && (
             <span>
@@ -334,6 +338,10 @@ function ComparisonPanel({ view, facts }: { view: ReportView; facts: ReportFacts
       )}
     </section>
   );
+}
+
+function visitStart(startedAt: string | null): string {
+  return startedAt ? `started ${formatReportTimestamp(startedAt)}` : "start time not recorded";
 }
 
 function comparisonEyebrow(view: ReportView): string {

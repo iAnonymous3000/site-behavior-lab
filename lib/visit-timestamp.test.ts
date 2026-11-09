@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { clientImportTrails } from "./client-import-graph";
 import { formatReportTimestamp as fromVisitSummary } from "./report-visit-summary";
 import { formatReportTimestamp } from "./visit-timestamp";
 
@@ -14,4 +15,15 @@ test("a visit's time is stated in UTC with its zone, and an absent or unreadable
 
 test("the report pages read the same formatter through the visit summary", () => {
   assert.equal(fromVisitSummary, formatReportTimestamp);
+});
+
+test("the result surface states a visit's start with the report pages' formatter, not one of its own", () => {
+  // The header of an opened file, a live result or an archive comparison, and
+  // the comparison panel's two visits, are client components. Each reaches
+  // the shared module directly; the visit summary stays server only
+  // (lib/report-visit-summary.test.ts holds that side).
+  const trails = clientImportTrails("lib/visit-timestamp.ts");
+  for (const component of ["app/_components/report-header.tsx", "app/_components/comparison-panel.tsx"]) {
+    assert.ok(trails.includes(`${component} -> lib/visit-timestamp.ts`), `${component} does not import the shared formatter`);
+  }
 });

@@ -9,6 +9,7 @@ import { absoluteShareUrl, reportPdfHref, reportSharePath } from "./report-overv
 import type { RunFacts } from "@/lib/report-facts";
 import { safeNavigableHttpUrl } from "@/lib/report-url";
 import { displayHost, displayPublicUrl } from "@/lib/text-format";
+import { formatReportTimestamp } from "@/lib/visit-timestamp";
 import {
   reportFormatChip,
   type ReportView
@@ -25,7 +26,8 @@ export function ReportHeader({
   onDownloadCsv,
   liveApiServesReportPages,
   pdfExportQuery,
-  exportsOffered = true
+  exportsOffered = true,
+  visitStartShown = false
 }: {
   /** The wire report's share pointer, needed only to resolve the permalink. */
   share: ReportShare | null;
@@ -50,6 +52,14 @@ export function ReportHeader({
    * PDF control renders. It has no share either.
    */
   exportsOffered?: boolean;
+  /**
+   * True where no report page surrounds this header: an opened file, a live
+   * result, an archive comparison. A report page states when the visit ran in
+   * its identity block and its visit summary; here the header is the only
+   * place left to say it, and without the date an old file reads as what the
+   * site does today.
+   */
+  visitStartShown?: boolean;
 }) {
   const run = runFacts.run;
   const formatChip = reportFormatChip(view);
@@ -144,6 +154,15 @@ export function ReportHeader({
           </a>
         ) : (
           <span className="report-url">{displayPublicUrl(run.conditions.finalUrl)}</span>
+        )}
+        {/* The start of the visit whose evidence is shown, so on a comparison
+            it follows the evidence switcher as the address above does. */}
+        {visitStartShown && (
+          <>
+            <br />
+            <span className="report-url-label">Visit started</span>{" "}
+            <span className="report-url">{formatReportTimestamp(run.startedAt)}</span>
+          </>
         )}
         {requestEvidenceExplanation && (
           <p className="request-evidence-explanation" id="request-evidence-explanation">

@@ -298,6 +298,10 @@ export function ReportRenderer({
             liveApiServesReportPages={liveApiServesReportPages}
             pdfExportQuery={pdfExportQuery}
             exportsOffered={scrollCheck === null}
+            // The report pages build a visit summary, and state the time
+            // there and in their identity block. A result with none has no
+            // other place that says when its visit ran.
+            visitStartShown={visitSummary === undefined}
           />
           {exportError && <p role="alert" className="export-error">{exportError}</p>}
           {/* Where this comparison came from, beside the report's identity and
