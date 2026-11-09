@@ -50,8 +50,29 @@ export class ScanJobEndedError extends Error {
   }
 }
 
-/** The reader's words for a scanner that gave no HTTP answer at all. */
-export const SCANNER_UNREACHABLE = "The scanner could not be reached.";
+/**
+ * The reader's words when fetch() rejects with a TypeError, held to what is
+ * true of every such rejection (reachScanner lists them): no answer this page
+ * can use came back. That the scanner could not be reached is one cause among
+ * several, so it is offered as a possibility and never stated.
+ */
+export const NO_USABLE_SCANNER_ANSWER =
+  "No usable answer came back from the scanner, which may mean it could not be reached.";
+
+/**
+ * The Authorization header for a gated scanner, or a refusal before anything
+ * is sent. fetch() will not send a header value that holds a NUL, a line
+ * break or any character above U+00FF; it rejects with the same TypeError a
+ * dead network gives. A pasted key can carry such a character unseen (a
+ * zero-width space), so the key is checked here, where the true sentence can
+ * still be given: the key is the problem, and no request left the page.
+ */
+export function bearerAuthorization(accessKey: string): string {
+  if (/[^\x01-\x09\x0b\x0c\x0e-\xff]/.test(accessKey)) {
+    throw new Error("The access key holds a character a request cannot carry, so nothing was sent. Enter the key again.");
+  }
+  return `Bearer ${accessKey}`;
+}
 
 /**
  * The reader's words for an answer whose status says the request failed and
@@ -64,19 +85,21 @@ export function unreadableScannerAnswer(status: number): string {
 }
 
 /**
- * fetch() rejects with a TypeError when it gets no HTTP answer: the network
- * is down, the name does not resolve, or a cross-origin answer came back
- * without CORS headers, as an edge's own error page does. The message is the
- * browser's ("Failed to fetch", "Load failed") and tells a reader nothing, so
- * the failure is named here, at the one call where a TypeError still means
- * exactly that.
+ * fetch() rejects with one TypeError for causes this page cannot tell apart:
+ * the network is down, the name does not resolve, a cross-origin answer came
+ * back without CORS headers (as an edge's own error page does), the scanner
+ * answered with a redirect while redirects are refused, or the request was
+ * never sent at all. In some of these the scanner received the request and in
+ * some nothing left the page. The message is the browser's ("Failed to
+ * fetch", "Load failed") and tells a reader nothing, so the failure is worded
+ * here, and only as far as all of those causes allow.
  */
-export function reachScanner(fetcher: ScanJobPollFetcher, unreachable = SCANNER_UNREACHABLE): ScanJobPollFetcher {
+export function reachScanner(fetcher: ScanJobPollFetcher, noAnswer = NO_USABLE_SCANNER_ANSWER): ScanJobPollFetcher {
   return async (input, init) => {
     try {
       return await fetcher(input, init);
     } catch (error) {
-      throw error instanceof TypeError ? new Error(unreachable) : error;
+      throw error instanceof TypeError ? new Error(noAnswer) : error;
     }
   };
 }
@@ -94,7 +117,7 @@ export async function pollAcceptedScanJob(options: AcceptedScanJobPoll): Promise
   const now = options.now ?? Date.now;
   const resolveApiUrl = options.resolveApiUrl ?? ((path: string) => path);
   const headers: Record<string, string> = {};
-  if (options.accessKey) headers.Authorization = `Bearer ${options.accessKey}`;
+  if (options.accessKey) headers.Authorization = bearerAuthorization(options.accessKey);
 
   const expectedJobId = scanJobIdFromStatusPath(options.statusPath);
   if (

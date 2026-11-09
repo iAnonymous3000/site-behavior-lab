@@ -28,9 +28,10 @@ import { isRecord } from "./guards";
 import { scanResponseDeadlineMs } from "./scan-deadlines";
 import { BROWSER_PUBLIC_REPORT_JSON_MAX_BYTES } from "./report-resource-limits";
 import {
+  bearerAuthorization,
+  NO_USABLE_SCANNER_ANSWER,
   pollAcceptedScanJob,
   reachScanner,
-  SCANNER_UNREACHABLE,
   ScanJobEndedError,
   unreadableScannerAnswer,
   type AcceptedScanJobPoll
@@ -259,7 +260,7 @@ export async function submitRuntimeScan(options: {
   const accessKey = options.form.accessKey.trim();
   const headers: Record<string, string> = { "Content-Type": "application/json" };
   if (options.scannerRequiresAccessKey && accessKey) {
-    headers.Authorization = `Bearer ${accessKey}`;
+    headers.Authorization = bearerAuthorization(accessKey);
   }
 
   const requestBody = {
@@ -311,7 +312,7 @@ export async function submitRuntimeScan(options: {
         referrerPolicy: "no-referrer"
       },
       label: "Scan admission",
-      unreachable: SCAN_POST_UNANSWERED,
+      noAnswer: REQUEST_MAY_HAVE_ARRIVED,
       maxBytes: SCAN_ADMISSION_RESPONSE_MAX_BYTES,
       connectTimeoutMs: options.responseConnectTimeoutMs,
       operationTimeoutMs: options.responseOperationTimeoutMs
@@ -344,7 +345,7 @@ export async function submitRuntimeScan(options: {
         referrerPolicy: "no-referrer"
       },
       label: "Scan response",
-      unreachable: SCAN_POST_UNANSWERED,
+      noAnswer: REQUEST_MAY_HAVE_ARRIVED,
       maxBytes: BROWSER_PUBLIC_REPORT_JSON_MAX_BYTES,
       connectTimeoutMs: responseDeadlineMs,
       operationTimeoutMs: options.responseOperationTimeoutMs ?? responseDeadlineMs + CLIENT_FETCH_OPERATION_TIMEOUT_MS
@@ -410,7 +411,7 @@ export async function recoverRuntimeScanAdmission(options: {
     [SCAN_ADMISSION_CAPABILITY_HEADER]: options.credential.capabilityToken,
     [SCAN_ADMISSION_COMMITMENT_HEADER]: options.credential.requestCommitment
   };
-  if (accessKey) headers.Authorization = `Bearer ${accessKey}`;
+  if (accessKey) headers.Authorization = bearerAuthorization(accessKey);
   const result = await fetchRuntimeJsonWithPolicy(
     options.resolveApiUrl(SCAN_ADMISSION_RECOVERY_PATH),
     {
@@ -514,7 +515,7 @@ export async function cancelRuntimeScan(options: {
   }
   const fetcher = options.fetcher ?? ((input, init) => fetch(input, init));
   const headers: Record<string, string> = {};
-  if (options.job.accessKey) headers.Authorization = `Bearer ${options.job.accessKey}`;
+  if (options.job.accessKey) headers.Authorization = bearerAuthorization(options.job.accessKey);
 
   let payload: unknown;
   let responseStatus: number;
@@ -533,6 +534,7 @@ export async function cancelRuntimeScan(options: {
           referrerPolicy: "no-referrer"
         },
         label: "Scan cancellation",
+        noAnswer: REQUEST_MAY_HAVE_ARRIVED,
         maxBytes: SCAN_CANCELLATION_RESPONSE_MAX_BYTES,
         connectTimeoutMs: options.timeoutMs ?? 10_000,
         operationTimeoutMs: options.timeoutMs ?? 10_000
@@ -678,11 +680,13 @@ export function scanFailureNoticeFor(
 }
 
 /**
- * What the scan's own POST says when it gets no answer. The request may have
- * reached the scanner all the same, and outside durable admission nothing
- * can ask it, so the reader is told before scanning again.
+ * What a request that changes something says when fetch() rejects: the scan's
+ * own POST, and a cancellation. Whether the scanner received it is the one
+ * thing the reader needs before trying again, and the page does not know: a
+ * lost answer and a refused redirect both follow a request that arrived, a
+ * dead network follows one that did not. So it says exactly that.
  */
-const SCAN_POST_UNANSWERED = `${SCANNER_UNREACHABLE} The request may already have been accepted.`;
+const REQUEST_MAY_HAVE_ARRIVED = `${NO_USABLE_SCANNER_ANSWER} The request may or may not have been received.`;
 
 /**
  * One bounded JSON read that keeps the HTTP status beside the body. A refusal
@@ -701,7 +705,7 @@ async function fetchRuntimeJsonWithPolicy(
     maxBytes: number;
     connectTimeoutMs?: number;
     operationTimeoutMs?: number;
-    unreachable?: string;
+    noAnswer?: string;
   }
 ): Promise<{ status: number; payload: unknown }> {
   let status = 0;
@@ -711,7 +715,7 @@ async function fetchRuntimeJsonWithPolicy(
       maxBytes: options.maxBytes,
       connectTimeoutMs: options.connectTimeoutMs,
       operationTimeoutMs: options.operationTimeoutMs,
-      fetchImpl: reachScanner(options.fetcher, options.unreachable) as typeof fetch,
+      fetchImpl: reachScanner(options.fetcher, options.noAnswer) as typeof fetch,
       acceptResponse: (response) => {
         status = response.status;
         return true;

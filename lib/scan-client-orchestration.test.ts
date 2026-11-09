@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { createServer } from "node:http";
+import type { AddressInfo } from "node:net";
 import { test } from "node:test";
 import {
   cancelRuntimeScan,
@@ -26,7 +28,7 @@ import {
   scanAdmissionCredentialFromHeaders,
   scanAdmissionSemanticsFromBody
 } from "./scan-admission-capability";
-import { ScanJobEndedError } from "./scan-job-polling";
+import { pollAcceptedScanJob, ScanJobEndedError } from "./scan-job-polling";
 import { INSPECTION_DURABLE_REFUSAL } from "./connection-inspection-address";
 import { SCROLL_CHECK_DURABLE_REFUSAL } from "./scroll-check-request";
 import { makeScanReportV1 } from "./scan-report-v2-fixtures";
@@ -38,6 +40,9 @@ const JOB_ID = `20260719-${"a".repeat(32)}`;
 const REPORT_ID = `20260719-${"b".repeat(32)}`;
 const STATUS_PATH = `/api/scans/${JOB_ID}`;
 const ADMISSION_BYTES = Uint8Array.from({ length: 32 }, (_value, index) => index);
+const NO_ANSWER_REQUEST_UNKNOWN =
+  "No usable answer came back from the scanner, which may mean it could not be reached. The request may or may not have been received.";
+const UNSENDABLE_KEY = "The access key holds a character a request cannot carry, so nothing was sent. Enter the key again.";
 
 test("scanner health is validated and every unresolved or failed posture stays fail closed", async () => {
   const invalid = await fetchRuntimeScannerHealth({
@@ -431,7 +436,7 @@ test("outcome-unknown durable failures retain admission while definitive 4xx rej
   assert.equal(lost.retained, 1);
   assert.equal(lost.cleared, 0);
   // The reader gets the client's sentence, never the exception's own text.
-  assert.equal((lost.error as Error).message, "The scanner could not be reached. The request may already have been accepted.");
+  assert.equal((lost.error as Error).message, NO_ANSWER_REQUEST_UNKNOWN);
 
   // A failed status with no refusal of the scanner's own says nothing about
   // whether the request was admitted, so the capability stays retained.
@@ -1199,7 +1204,7 @@ test("a scan that gets no answer, or a failure with no readable reason, is named
       await submit(async () => {
         throw new TypeError(browserText);
       }),
-      "The scanner could not be reached. The request may already have been accepted."
+      NO_ANSWER_REQUEST_UNKNOWN
     );
   }
 
@@ -1231,8 +1236,93 @@ test("a scan that gets no answer, or a failure with no readable reason, is named
         throw new TypeError("Failed to fetch");
       }
     }),
-    (error: unknown) => friendlyScanError(error, true) === "The scanner could not be reached."
+    (error: unknown) => friendlyScanError(error, true) === NO_ANSWER_REQUEST_UNKNOWN
   );
+});
+
+test("a rejected fetch claims no more than is known: a refused redirect was answered, and an unsendable key sent nothing", async () => {
+  // A real scanner stand-in on the loopback and the real fetch, because both
+  // cases are fetch's own behavior: it rejects with a TypeError for a redirect
+  // under `redirect: "error"`, and for a header value it will not send.
+  let requests = 0;
+  const server = createServer((_request, response) => {
+    requests += 1;
+    response.writeHead(307, { location: "/elsewhere" });
+    response.end();
+  });
+  await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
+  const origin = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
+  const submit = async (accessKey: string): Promise<string> => {
+    try {
+      await submitRuntimeScan({
+        targetUrl: "https://example.com/",
+        form: { device: "desktop", gpcEnabled: true, compareGpc: false, compareShields: false, compareConsent: false, accessKey },
+        gpcComparisonEnabled: false,
+        shieldsComparisonEnabled: false,
+        consentComparisonEnabled: false,
+        scannerRequiresAccessKey: true,
+        turnstileRequired: false,
+        turnstileToken: "",
+        resolveApiUrl: (path) => `${origin}${path}`,
+        onAccepted: async () => assert.fail("neither case is an accepted scan")
+      });
+    } catch (caught) {
+      return friendlyScanError(caught, false);
+    }
+    return assert.fail("neither case resolves");
+  };
+  try {
+    // The scanner answered, with a redirect the client refuses to follow. It
+    // was reached and it did receive the request, so the sentence may say
+    // neither that it could not be reached nor that the request was accepted.
+    assert.equal(await submit("a-plain-key"), NO_ANSWER_REQUEST_UNKNOWN);
+    assert.equal(requests, 1, "the stand-in received the one request");
+
+    // A zero-width space pasted with the key. fetch would refuse to send the
+    // header, so the key is refused first, by name, and no request leaves.
+    assert.equal(await submit("a-plain-key\u200b"), UNSENDABLE_KEY);
+    assert.equal(requests, 1, "a request was sent with a key no header can carry");
+  } finally {
+    await new Promise<void>((resolve) => server.close(() => resolve()));
+  }
+
+  // The same key is refused before any request on the other three paths that send it.
+  const job: ActiveScanJob = { jobId: JOB_ID, reportId: REPORT_ID, statusPath: STATUS_PATH, accessKey: "key\u200b" };
+  const never = async () => assert.fail("a request was sent with a key no header can carry");
+  await assert.rejects(cancelRuntimeScan({ job, resolveApiUrl: (path) => path, fetcher: never }), { message: UNSENDABLE_KEY });
+  await assert.rejects(resumeRuntimeScan({ job, resolveApiUrl: (path) => path, poller: (options) => pollAcceptedScanJob({ ...options, fetcher: never }) }), {
+    message: UNSENDABLE_KEY
+  });
+  const credential = await mintScanAdmissionCredential(
+    scanAdmissionSemanticsFromBody({
+      url: "https://example.com/",
+      device: "desktop",
+      gpcEnabled: true,
+      compareGpc: false,
+      compareShields: false,
+      compareConsent: false,
+      consentMode: "observe"
+    })!,
+    () => ADMISSION_BYTES
+  );
+  await assert.rejects(
+    recoverRuntimeScanAdmission({ credential, accessKey: "key\u200b", resolveApiUrl: (path) => path, fetcher: never }),
+    { message: UNSENDABLE_KEY }
+  );
+  // A key a header can carry is sent as it is, Latin-1 included.
+  let sentAuthorization: unknown;
+  await assert.rejects(
+    cancelRuntimeScan({
+      job: { ...job, accessKey: "caf\u00e9" },
+      resolveApiUrl: (path) => path,
+      fetcher: async (_url, init) => {
+        sentAuthorization = (init.headers as Record<string, string>).Authorization;
+        return Response.json({ ok: false, error: "Unauthorized." }, { status: 401 });
+      }
+    }),
+    /Unauthorized/
+  );
+  assert.equal(sentAuthorization, "Bearer caf\u00e9");
 });
 
 test("an exception the browser or the bundler worded never reaches the reader as it is", () => {

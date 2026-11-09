@@ -459,7 +459,9 @@ test("a status read that gets no answer, or a failure with no readable reason, k
       throw new TypeError("Failed to fetch");
     }),
     (error: unknown) =>
-      error instanceof Error && !(error instanceof ScanJobEndedError) && error.message === "The scanner could not be reached."
+      error instanceof Error &&
+      !(error instanceof ScanJobEndedError) &&
+      error.message === "No usable answer came back from the scanner, which may mean it could not be reached."
   );
   // An edge's error page on a status the poller does not retry.
   await assert.rejects(
