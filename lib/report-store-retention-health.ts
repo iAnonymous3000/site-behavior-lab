@@ -1,10 +1,10 @@
-import type { ReportStoreRetentionStatus } from "./report-store";
+import type { ReportStoreMaintenanceStatus, ReportStoreRetentionStatus } from "./report-store";
 
 export const REPORT_RETENTION_HEALTH_SUCCESS_TTL_MS = 30_000;
 export const REPORT_RETENTION_HEALTH_FAILURE_TTL_MS = 5_000;
 
 export type ReportStoreRetentionHealthProbeResult = {
-  retention: ReportStoreRetentionStatus;
+  retention: ReportStoreMaintenanceStatus;
   checkedAt: string;
   maxAgeMs: number;
   /** Operator-facing text. Log-only: it can name paths, buckets, and upstream bodies. */
@@ -26,7 +26,7 @@ type RetentionHealthProbeOptions = {
  * still performs an uncached fail-closed prune/debt preflight.
  */
 export function createReportStoreRetentionHealthProbe(
-  maintain: () => Promise<ReportStoreRetentionStatus>,
+  maintain: () => Promise<ReportStoreMaintenanceStatus>,
   readState: () => Promise<ReportStoreRetentionStatus>,
   options: RetentionHealthProbeOptions = {}
 ): (cacheKey?: string) => Promise<ReportStoreRetentionHealthProbeResult> {
@@ -61,17 +61,20 @@ export function createReportStoreRetentionHealthProbe(
         return result;
       } catch (error) {
         // A pass that rejected is the publication rule's refusal, never a
-        // continuation: a delete failed, or the store could not be read.
-        let retention: ReportStoreRetentionStatus = {
+        // continuation: a delete failed, or the store could not be read. It
+        // also read no capacity, and none is claimed: the refusal above
+        // already makes scans unavailable.
+        let retention: ReportStoreMaintenanceStatus = {
           debtCount: 0,
           maintenanceRequired: true,
           continuationPending: false,
-          healthy: false
+          healthy: false,
+          capacityExhausted: false
         };
         let stateObserved = false;
         try {
           const observed = await readState();
-          retention = { ...observed, continuationPending: false, healthy: false };
+          retention = { ...observed, continuationPending: false, healthy: false, capacityExhausted: false };
           stateObserved = true;
         } catch {
           // An unreadable debt ledger is fail-closed and intentionally does not

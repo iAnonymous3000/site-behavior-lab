@@ -99,6 +99,17 @@ export type ReportStoreRetentionStatus = {
 };
 
 /**
+ * What one maintenance pass established, for health. `capacityExhausted` is
+ * the commit path's capacity refusal asked ahead of time: true exactly when
+ * the publication a scan finishing now would make would end in
+ * ReportStoreCapacityExhaustedError. It is not part of `healthy`, which stays
+ * the retention verdict; a full store has lost nothing and deleted correctly.
+ */
+export type ReportStoreMaintenanceStatus = ReportStoreRetentionStatus & {
+  capacityExhausted: boolean;
+};
+
+/**
  * The one rule for when physical retention state refuses a publication: a
  * delete failed and has not been retried, so an object may outlive what
  * retention reports. (A pass in which a delete fails, or which cannot list the
@@ -539,15 +550,17 @@ export async function reportStoreRetentionStatus(): Promise<ReportStoreRetention
  * Bounded autonomous retention maintenance used by health/startup probes. It
  * advances at most one fixed delete batch, then reports the durable remainder
  * and whether a publication would be refused, decided from this pass by the
- * same rule the commit path applies to its own.
+ * same rules the commit path applies to its own: the retention rule, and the
+ * capacity check for one publication made after this pass.
  * This also actively proves marker creation and deletion permissions instead
  * of treating an empty readable ledger as sufficient evidence.
  */
-export async function maintainReportStoreRetention(): Promise<ReportStoreRetentionStatus> {
+export async function maintainReportStoreRetention(): Promise<ReportStoreMaintenanceStatus> {
   const pass = await runRetentionPass(Date.now());
-  return withReportStoreOperationDeadline({}, async (options) =>
-    retentionStatus(await resolveReportStoreBackend().retentionState(options), pass.physicalStateUnknown)
-  );
+  return withReportStoreOperationDeadline({}, async (options) => ({
+    ...retentionStatus(await resolveReportStoreBackend().retentionState(options), pass.physicalStateUnknown),
+    capacityExhausted: pass.laterPublicationCapacityExhausted
+  }));
 }
 
 function retentionStatus(
@@ -576,6 +589,11 @@ async function pruneStoredReportsUnlocked(
   physicalStateUnknown: boolean;
   /** Writing `incomingCount` more bundles would overfill the store this pass leaves behind. */
   capacityExhausted: boolean;
+  /**
+   * The same decision for one publication made after this pass: whether its
+   * own pass, run on the store this one leaves, would find the store full.
+   */
+  laterPublicationCapacityExhausted: boolean;
 }> {
   const priorState = await backend.retentionState(options);
   const priorDebtKeys = new Set(priorState.debts.map(retentionDebtKey));
@@ -658,9 +676,15 @@ async function pruneStoredReportsUnlocked(
       b.id.localeCompare(a.id)
   );
   const minimumSurvivalMs = reportMinimumSurvivalMs();
-  const removable = ordered
-    .slice(Math.max(0, maxCount - incomingCount))
-    .filter((entry) => now - Date.parse(entry.retention!.createdAt) >= minimumSurvivalMs);
+  // What count pruning may remove while `reserved` count slots are held for
+  // bundles about to be written.
+  const removableWith = (reserved: number): StoredReportEntry[] =>
+    ordered
+      .slice(Math.max(0, maxCount - reserved))
+      .filter((entry) => now - Date.parse(entry.retention!.createdAt) >= minimumSurvivalMs);
+  // Deletes owed whatever is incoming: retried debts and expired objects.
+  const owedDeletions = [...deletions];
+  const removable = removableWith(incomingCount);
   for (const entry of removable) scheduleDeletion({ id: entry.id, scope: "bundle" });
 
   // Publication capacity, read from this same listing as two quantities.
@@ -672,10 +696,36 @@ async function pruneStoredReportsUnlocked(
   // orphan. The listing ceiling counts every report object still present once
   // this pass's deletes land, orphans included, because each one is a
   // retention candidate a later listing must read.
-  const standingCommittedCount = kept.length - removable.length + unreadCommittedCount;
-  const capacityExhaustedAfter = (deletedReportCount: number): boolean =>
-    standingCommittedCount + incomingCount > REPORT_PUBLICATION_CAPACITY ||
-    reportIds.size - deletedReportCount + incomingCount > R2_LIST_MAX_HEAD_CANDIDATES;
+  const deletesListedReport = (debt: ReportRetentionDebtEntry): boolean =>
+    debt.scope === "bundle" && reportIds.has(debt.id);
+  const capacityExhaustedWith = (reserved: number, deletedReportCount: number): boolean =>
+    kept.length - removableWith(reserved).length + unreadCommittedCount + reserved > REPORT_PUBLICATION_CAPACITY ||
+    reportIds.size - deletedReportCount + reserved > R2_LIST_MAX_HEAD_CANDIDATES;
+  // The same decision for one publication made after this pass, which is what
+  // health reports. That publication's own pass holds one more count slot than
+  // this one and performs its own bounded batch of the deletes this pass left,
+  // so both are counted as it would count them. Asking with this pass's own
+  // slot count instead answers for a store that is exactly full with "not
+  // full", and health then calls scans available while each one is refused.
+  const laterPublicationCapacityExhausted = (selected: readonly ReportRetentionDebtEntry[]): boolean => {
+    const reserved = incomingCount + 1;
+    const settled = new Set(selected.map(retentionDebtKey));
+    const left: ReportRetentionDebtEntry[] = [];
+    for (const debt of [
+      ...owedDeletions,
+      ...removableWith(reserved).map((entry): ReportRetentionDebtEntry => ({ id: entry.id, scope: "bundle" }))
+    ]) {
+      const key = retentionDebtKey(debt);
+      if (settled.has(key)) continue;
+      settled.add(key);
+      left.push(debt);
+    }
+    return capacityExhaustedWith(
+      reserved,
+      selected.filter(deletesListedReport).length +
+        left.slice(0, REPORT_PRUNE_MAX_DELETES_PER_PASS).filter(deletesListedReport).length
+    );
+  };
 
   if (deletions.length === 0) {
     // A partial listing left retention clocks unread, so another pass is owed
@@ -687,7 +737,8 @@ async function pruneStoredReportsUnlocked(
       maintenanceRequired: listingPartial,
       continuationPending: false,
       physicalStateUnknown: false,
-      capacityExhausted: capacityExhaustedAfter(0)
+      capacityExhausted: capacityExhaustedWith(incomingCount, 0),
+      laterPublicationCapacityExhausted: laterPublicationCapacityExhausted([])
     };
   }
 
@@ -737,14 +788,13 @@ async function pruneStoredReportsUnlocked(
   await backend.setRetentionMaintenanceRequired(maintenanceRequired, options);
   // Every selected delete succeeded or the pass would have thrown, so the
   // report objects it removed are exactly its bundle deletes of listed ones.
-  const deletedReportCount = selected.filter(
-    (debt) => debt.scope === "bundle" && reportIds.has(debt.id)
-  ).length;
+  const deletedReportCount = selected.filter(deletesListedReport).length;
   return {
     maintenanceRequired,
     continuationPending,
     physicalStateUnknown,
-    capacityExhausted: capacityExhaustedAfter(deletedReportCount)
+    capacityExhausted: capacityExhaustedWith(incomingCount, deletedReportCount),
+    laterPublicationCapacityExhausted: laterPublicationCapacityExhausted(selected)
   };
 }
 

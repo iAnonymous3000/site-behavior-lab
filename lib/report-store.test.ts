@@ -1527,7 +1527,8 @@ test("health's maintenance pass and the commit path refuse on the same retention
     debtCount: 0,
     maintenanceRequired: true,
     continuationPending: true,
-    healthy: true
+    healthy: true,
+    capacityExhausted: false
   });
   const published = await saveScanReport(makeScanResult());
   assert.equal((await readStoredScanReportById(published.share!.id)).outcome, "found");
@@ -1547,7 +1548,8 @@ test("health's maintenance pass and the commit path refuse on the same retention
     debtCount: 1,
     maintenanceRequired: true,
     continuationPending: false,
-    healthy: false
+    healthy: false,
+    capacityExhausted: false
   });
   await leaveUnretriedDebt();
   await assert.rejects(() => saveScanReport(makeScanResult()), /Report publication refused/);
@@ -1897,14 +1899,15 @@ test("a store already past the listing ceiling is pruned back under it once surv
   const probe = createReportStoreRetentionHealthProbe(maintainReportStoreRetention, reportStoreRetentionStatus);
   const health = await probe();
   assert.equal(health.error, null);
-  // Nothing failed, so this is a continuation. The refusal asserted below is
-  // the capacity one, which is the scanner-busy refusal and not a retention
-  // verdict health reports.
+  // Nothing failed, so retention is healthy and owes a continuation. The
+  // store is also full, which health reports on its own, in agreement with
+  // the commit path's refusal asserted below.
   assert.deepEqual(health.retention, {
     debtCount: 0,
     maintenanceRequired: true,
     continuationPending: true,
-    healthy: true
+    healthy: true,
+    capacityExhausted: true
   });
   assert.equal(r2.requests.filter((request) => request.startsWith("HEAD ")).length, R2_LIST_MAX_HEAD_CANDIDATES);
   assert.equal(storedReportCount(r2), stored, "an unread clock never reads as a missing one");
@@ -1918,10 +1921,121 @@ test("a store already past the listing ceiling is pruned back under it once surv
     debtCount: 0,
     maintenanceRequired: false,
     continuationPending: false,
-    healthy: true
+    healthy: true,
+    capacityExhausted: false
   });
   const saved = await saveScanReport(makeScanResult());
   assert.ok(saved.share?.id, "publication resumes once the store is back under its ceilings");
+});
+
+test("health's capacity verdict and the commit path agree at every capacity boundary", async () => {
+  // Health asks the commit path's capacity question ahead of time, for the one
+  // publication a finished scan would make. An answer computed for a pass with
+  // nothing incoming says "not full" of a store that is exactly full, and
+  // health then calls scans available while each one is refused.
+  process.env[REPORT_MIN_SURVIVAL_MS_ENV] = String(DURABLE_SCAN_JOB_REPORT_MIN_SURVIVAL_MS);
+  const now = Date.now();
+  const orphans = 100;
+  const expiredOrphans = (r2: InMemoryR2, group: string, count: number) => {
+    for (let index = 0; index < count; index += 1) {
+      seedReportOnly(r2, seededBundleId(group, index), now - SEEDED_MAX_AGE_MS - 60 * MINUTE_MS - index * 1_000);
+    }
+  };
+  const cases: Array<{ name: string; full: boolean; maxCount?: number; seed: (r2: InMemoryR2) => void }> = [
+    {
+      name: "one committed slot left",
+      full: false,
+      seed: (r2) => seedYoungBurst(r2, "a", REPORT_PUBLICATION_CAPACITY - 1, now)
+    },
+    {
+      name: "the committed capacity exactly",
+      full: true,
+      seed: (r2) => seedYoungBurst(r2, "a", REPORT_PUBLICATION_CAPACITY, now)
+    },
+    {
+      name: "one listing slot left",
+      full: false,
+      seed: (r2) => {
+        seedYoungBurst(r2, "a", R2_LIST_MAX_HEAD_CANDIDATES - orphans - 1, now);
+        seedAgedOrphans(r2, "b", orphans, now);
+      }
+    },
+    {
+      name: "the listing ceiling exactly",
+      full: true,
+      seed: (r2) => {
+        seedYoungBurst(r2, "a", R2_LIST_MAX_HEAD_CANDIDATES - orphans, now);
+        seedAgedOrphans(r2, "b", orphans, now);
+      }
+    },
+    {
+      name: "past the listing ceiling",
+      full: true,
+      seed: (r2) => seedYoungBurst(r2, "a", R2_LIST_MAX_HEAD_CANDIDATES + 1, now)
+    },
+    {
+      // Count pruning frees the publication's slot from the oldest share, which
+      // only a pass that holds that slot does.
+      name: "the clamped maximum of shares past their survival window",
+      full: false,
+      maxCount: REPORT_PUBLICATION_CAPACITY,
+      seed: (r2) => {
+        for (let index = 0; index < REPORT_PUBLICATION_CAPACITY; index += 1) {
+          seedCommittedBundle(r2, seededBundleId("a", index), now - 2 * 60 * MINUTE_MS - index * 1_000);
+        }
+      }
+    },
+    {
+      // Over the ceiling, but the expired objects go in the health pass's
+      // bounded batch and then the publication's own.
+      name: "over the ceiling with enough expired objects for two delete batches",
+      full: false,
+      seed: (r2) => {
+        seedAgedOrphans(r2, "a", R2_LIST_MAX_HEAD_CANDIDATES - 10, now);
+        expiredOrphans(r2, "b", REPORT_PRUNE_MAX_DELETES_PER_PASS + 18);
+      }
+    },
+    {
+      name: "over the ceiling with more expired objects than two delete batches",
+      full: true,
+      seed: (r2) => {
+        seedAgedOrphans(r2, "a", R2_LIST_MAX_HEAD_CANDIDATES - 10, now);
+        expiredOrphans(r2, "b", REPORT_PRUNE_MAX_DELETES_PER_PASS * 2 + 12);
+      }
+    },
+    {
+      // The health pass's own deletes must not be counted again for the
+      // publication's pass: 18 expired objects are left for it, not 32.
+      name: "over the ceiling where the publication's pass has too few expired objects left",
+      full: true,
+      seed: (r2) => {
+        seedAgedOrphans(r2, "a", R2_LIST_MAX_HEAD_CANDIDATES + 5, now);
+        expiredOrphans(r2, "b", REPORT_PRUNE_MAX_DELETES_PER_PASS + 18);
+      }
+    }
+  ];
+
+  for (const { name, full, maxCount, seed } of cases) {
+    if (maxCount === undefined) delete process.env[REPORT_MAX_COUNT_ENV];
+    else process.env[REPORT_MAX_COUNT_ENV] = String(maxCount);
+    const r2 = configureInMemoryR2();
+    seed(r2);
+
+    const health = await maintainReportStoreRetention();
+    // A full store has failed at nothing: capacity is not the retention verdict.
+    assert.equal(health.healthy, true, name);
+    assert.equal(health.capacityExhausted, full, `health: ${name}`);
+
+    const prepared = prepareScanReportBundle(makeScanResult());
+    const committed = await commitPreparedScanReportBundle(prepared).then(
+      () => true,
+      (error: unknown) => {
+        assert.ok(error instanceof ReportStoreCapacityExhaustedError, `${name}: ${String(error)}`);
+        return false;
+      }
+    );
+    assert.equal(committed, !full, `commit path: ${name}`);
+  }
 });
 
 test("a partial listing counts the committed shares it could not read as standing", async () => {

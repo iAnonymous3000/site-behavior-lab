@@ -4,6 +4,7 @@ import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, test } from "node:test";
+import { R2_LIST_MAX_HEAD_CANDIDATES } from "./report-store-r2";
 import { runtimeStatus } from "./runtime-status";
 import { isScanRuntimeHealth, shareReportMaxAgeDays, type ScanRuntimeHealth } from "./scan-runtime-health";
 
@@ -238,6 +239,7 @@ test("runtimeStatus reports ok status when production controls are configured", 
     retentionMaintenanceRequired: false,
     retentionContinuationPending: false,
     retentionHealthy: true,
+    capacityExhausted: false,
     retentionCheckedAt: status.checks.reportStore.retentionCheckedAt,
     retentionCheckMaxAgeMs: 30_000
   });
@@ -290,6 +292,7 @@ test("runtimeStatus fails health and publication capabilities closed on durable 
       retentionMaintenanceRequired: true,
       retentionContinuationPending: false,
       retentionHealthy: false,
+      capacityExhausted: false,
       retentionCheckedAt: status.checks.reportStore.retentionCheckedAt,
       retentionCheckMaxAgeMs: 5_000
     });
@@ -333,6 +336,7 @@ test("runtimeStatus keeps scans available while a routine expiry backlog drains"
       retentionMaintenanceRequired: true,
       retentionContinuationPending: true,
       retentionHealthy: true,
+      capacityExhausted: false,
       retentionCheckedAt: status.checks.reportStore.retentionCheckedAt,
       retentionCheckMaxAgeMs: 30_000
     });
@@ -344,6 +348,77 @@ test("runtimeStatus keeps scans available while a routine expiry backlog drains"
   } finally {
     await rm(dir, { recursive: true, force: true });
   }
+});
+
+test("runtimeStatus says scans are unavailable exactly while the report store is full", async () => {
+  // At its object ceiling the store refuses a finished scan's publication
+  // before the first write. Nothing about retention has failed there, so the
+  // retention verdict stays healthy and capacity is reported on its own; the
+  // scan page must still not be told that scans are available.
+  const FULL_WARNING =
+    "The report store is full, so a finished scan would not be published; space frees as stored reports pass their minimum keep time or expire.";
+  const statusFor = async (standing: number, expired = 0) => {
+    const dir = await mkdtemp(path.join(tmpdir(), "sbl-runtime-store-capacity-"));
+    try {
+      process.env[SCAN_ACCESS_TOKEN_ENV] = "secret-key";
+      process.env[REPORT_STORE_DIR_ENV] = dir;
+      process.env[SCANNER_EGRESS_ENV] = "github-actions-ubuntu";
+      process.env[CHROMIUM_SANDBOX_ENV] = "1";
+      const now = Date.now();
+      // Report objects with no commit marker: each holds a listing slot until
+      // its own expiry and none can be count-pruned.
+      const write = async (group: string, index: number, createdAt: number, expiresAt: number) => {
+        const id = `20260601-${group}${index.toString(16).padStart(31, "0")}`;
+        await writeFile(path.join(dir, `${id}.json`), "{}\n");
+        await writeFile(
+          path.join(dir, `${id}.retention.json`),
+          `${JSON.stringify({ createdAt: new Date(createdAt).toISOString(), expiresAt: new Date(expiresAt).toISOString() })}\n`
+        );
+      };
+      for (let index = 0; index < standing; index += 1) await write("a", index, now - 3_600_000, now + 86_400_000);
+      for (let index = 0; index < expired; index += 1) await write("b", index, now - 8 * 86_400_000, now - 86_400_000);
+      return await runtimeStatus(loadedAdblock);
+    } finally {
+      await rm(dir, { recursive: true, force: true });
+    }
+  };
+
+  const oneSlotLeft = await statusFor(R2_LIST_MAX_HEAD_CANDIDATES - 1);
+  assert.equal(oneSlotLeft.checks.reportStore.capacityExhausted, false);
+  assert.equal(oneSlotLeft.scansAvailable, true);
+  assert.equal(oneSlotLeft.capabilities.savedReports, true);
+  assert.deepEqual(oneSlotLeft.warnings, []);
+
+  const full = await statusFor(R2_LIST_MAX_HEAD_CANDIDATES);
+  assert.equal(full.scansAvailable, false);
+  // The reports it holds are still served, but a scan run now ends in none.
+  assert.equal(full.capabilities.savedReports, false);
+  assert.deepEqual(full.checks.reportStore, {
+    kind: "filesystem",
+    configuredPath: true,
+    maxAgeDays: 7,
+    maxCount: 500,
+    minSurvivalMs: 60_000,
+    retentionDebtCount: 0,
+    retentionMaintenanceRequired: false,
+    retentionContinuationPending: false,
+    retentionHealthy: true,
+    capacityExhausted: true,
+    retentionCheckedAt: full.checks.reportStore.retentionCheckedAt,
+    retentionCheckMaxAgeMs: 30_000
+  });
+  assert.equal(full.status, "degraded");
+  assert.deepEqual(full.warnings, [FULL_WARNING]);
+
+  // Full while an expiry backlog drains: the continuation's own sentence says
+  // scans are unaffected, which is false of a full store, so only the capacity
+  // sentence may be sent.
+  const fullAndDraining = await statusFor(R2_LIST_MAX_HEAD_CANDIDATES, 40);
+  assert.equal(fullAndDraining.checks.reportStore.retentionContinuationPending, true);
+  assert.equal(fullAndDraining.checks.reportStore.retentionHealthy, true);
+  assert.equal(fullAndDraining.checks.reportStore.capacityExhausted, true);
+  assert.equal(fullAndDraining.scansAvailable, false);
+  assert.deepEqual(fullAndDraining.warnings, [FULL_WARNING]);
 });
 
 test("runtimeStatus exposes only a full validated build revision", async () => {

@@ -4,22 +4,23 @@ import {
   createReportStoreRetentionHealthProbe,
   type ReportStoreRetentionHealthProbeResult
 } from "./report-store-retention-health";
-import type { ReportStoreRetentionStatus } from "./report-store";
+import type { ReportStoreMaintenanceStatus, ReportStoreRetentionStatus } from "./report-store";
 
-const HEALTHY: ReportStoreRetentionStatus = {
+const HEALTHY: ReportStoreMaintenanceStatus = {
   debtCount: 0,
   maintenanceRequired: false,
   continuationPending: false,
-  healthy: true
+  healthy: true,
+  capacityExhausted: false
 };
 
 test("concurrent health calls share one retention maintenance pass", async () => {
   let calls = 0;
-  let release: ((value: ReportStoreRetentionStatus) => void) | undefined;
+  let release: ((value: ReportStoreMaintenanceStatus) => void) | undefined;
   const probe = createReportStoreRetentionHealthProbe(
     () => {
       calls += 1;
-      return new Promise<ReportStoreRetentionStatus>((resolve) => {
+      return new Promise<ReportStoreMaintenanceStatus>((resolve) => {
         release = resolve;
       });
     },
@@ -79,7 +80,8 @@ test("failed maintenance is short-cached only as unhealthy and retries after fai
 
   const failed: ReportStoreRetentionHealthProbeResult = await probe();
   assert.equal(failed.error, "delete denied");
-  assert.deepEqual(failed.retention, debt);
+  // The ledger read carries no capacity, and a pass that rejected read none.
+  assert.deepEqual(failed.retention, { ...debt, capacityExhausted: false });
   assert.equal(failed.stateObserved, true);
   assert.equal(failed.retention.healthy, false);
   now += 4_999;
@@ -117,6 +119,22 @@ test("a maintenance pass that rejected is never reported as a continuation", asy
     debtCount: 0,
     maintenanceRequired: true,
     continuationPending: false,
-    healthy: false
+    healthy: false,
+    capacityExhausted: false
   });
+});
+
+test("the pass's capacity verdict reaches health beside a healthy retention verdict", async () => {
+  // A full store has failed at nothing, so its retention is healthy. Health
+  // must still learn that a publication would be refused.
+  const full: ReportStoreMaintenanceStatus = { ...HEALTHY, capacityExhausted: true };
+  const probe = createReportStoreRetentionHealthProbe(
+    async () => full,
+    async () => HEALTHY,
+    { now: () => 1_000 }
+  );
+
+  const result = await probe();
+  assert.equal(result.error, null);
+  assert.deepEqual(result.retention, full);
 });

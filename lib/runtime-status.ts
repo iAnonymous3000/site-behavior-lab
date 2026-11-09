@@ -62,6 +62,12 @@ type PublicReportStoreStatus = {
   retentionContinuationPending: boolean;
   /** False exactly when the store would refuse a publication for retention state. */
   retentionHealthy: boolean;
+  /**
+   * The store is full: the publication a scan finishing now would make is
+   * refused before its first write. Apart from retentionHealthy, because
+   * nothing about retention failed.
+   */
+  capacityExhausted: boolean;
   retentionCheckedAt: string | null;
   retentionCheckMaxAgeMs: number;
 };
@@ -171,11 +177,16 @@ export async function runtimeStatus(
           ? `Physical report retention requires maintenance (${store.public.retentionDebtCount} durable deletion debt marker(s)).`
           : "Physical report retention could not be confirmed; the maintenance pass did not complete."
     );
-  } else if (store.public.retentionContinuationPending) {
+  } else if (store.public.retentionContinuationPending && !store.public.capacityExhausted) {
     // The store publishes in this state (retentionRefusesPublication), so it
     // is a warning only: scansAvailable and savedReports below stay true.
     warnings.push(
       "Report retention reached its per-pass limit and continues on the next pass; scans and saved reports are unaffected."
+    );
+  }
+  if (store.public.capacityExhausted) {
+    warnings.push(
+      "The report store is full, so a finished scan would not be published; space frees as stored reports pass their minimum keep time or expire."
     );
   }
   if (!adblock.active) {
@@ -194,10 +205,15 @@ export async function runtimeStatus(
     authenticated,
     openAccess: !authenticated,
     turnstile: false,
+    // False whenever the commit path would refuse a finished scan's
+    // publication for a reason this check can see: unknown retention state,
+    // or a full store. Both verdicts come from the store's own pass, by the
+    // rules the commit path applies.
     scansAvailable:
       publicR2Status !== "misconfigured" &&
       durableJobs.check.readiness !== "misconfigured" &&
-      store.public.retentionHealthy,
+      store.public.retentionHealthy &&
+      !store.public.capacityExhausted,
     // Top-level `storage` is the shared-contract field the client status text
     // reads; the Browser Run worker already emits it, and without it here the
     // Node scanner's status line never says where reports live.
@@ -225,8 +241,10 @@ export async function runtimeStatus(
       shieldsComparison: capability.shieldsComparison && adblock.active,
       consentComparison: capability.consentComparison,
       // A broken store backend cannot save or serve reports; the UI must not
-      // offer share links it cannot honor.
-      savedReports: store.reason === null && store.public.retentionHealthy,
+      // offer share links it cannot honor. A full store still serves the
+      // reports it holds but saves no new one, and this capability is read as
+      // "a scan run now ends in a saved report".
+      savedReports: store.reason === null && store.public.retentionHealthy && !store.public.capacityExhausted,
       // The Node runtime can prove the private preparation boundary only. The
       // edge must verify its isolated Worker-only key and DO scheduler before
       // promoting this capability.
@@ -449,6 +467,7 @@ async function safeReportStoreStatus(): Promise<SafeReportStoreStatus> {
         retentionMaintenanceRequired: true,
         retentionContinuationPending: false,
         retentionHealthy: false,
+        capacityExhausted: false,
         retentionCheckedAt: null,
         retentionCheckMaxAgeMs: 0
       },
@@ -471,6 +490,7 @@ async function safeReportStoreStatus(): Promise<SafeReportStoreStatus> {
         retentionMaintenanceRequired: retention.maintenanceRequired,
         retentionContinuationPending: retention.continuationPending,
         retentionHealthy: retention.healthy,
+        capacityExhausted: retention.capacityExhausted,
         retentionCheckedAt: probe.checkedAt,
         retentionCheckMaxAgeMs: probe.maxAgeMs
       },
@@ -490,6 +510,7 @@ async function safeReportStoreStatus(): Promise<SafeReportStoreStatus> {
         retentionMaintenanceRequired: true,
         retentionContinuationPending: false,
         retentionHealthy: false,
+        capacityExhausted: false,
         retentionCheckedAt: null,
         retentionCheckMaxAgeMs: 0
       },
