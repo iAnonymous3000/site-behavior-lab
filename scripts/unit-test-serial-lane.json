@@ -30,6 +30,7 @@
   "lib/github-cli-verifier.test.ts": "asserts a 1 s settle watchdog",
   "lib/gpc-worker-verification.test.ts": "launches Chromium on a reserved then released port under 10 s timeouts",
   "lib/hosted-evidence-provenance.test.ts": "asserts a 1 s settle watchdog",
+  "lib/investigation-seam.test.ts": "waits out a 1000 ms hook timeout and cancels hooks on 20 ms timers",
   "lib/investigation-worker-runtime-integration.test.ts": "boots a wrangler bundle in Miniflare under a 180 s test timeout",
   "lib/keystroke-probe-browser.test.ts": "launches Chromium and serializes functions into the page",
   "lib/measurement-freeze-artifact.test.ts": "asserts a 250 ms settle watchdog",

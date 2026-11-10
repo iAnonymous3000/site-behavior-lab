@@ -18,6 +18,7 @@ const PROJECT_ROOT = process.cwd();
 const NODE_ONLY_MODULES = new Set([
   "lib/access-control.ts",
   "lib/adblock-engine.ts",
+  "lib/investigation-seam.ts",
   "lib/keystroke-exfiltration.ts",
   "lib/node-scan-measurement.ts",
   "lib/public-scan-proxy.ts",
