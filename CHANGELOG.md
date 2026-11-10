@@ -3461,6 +3461,100 @@ as intended.
   of 24 on each. The two further rules were measured natively only. Not
   measured: native linux/amd64, which the hosted checks run on.
 
+### Toolchain epoch 2026-12
+
+- Toolchain epoch 2026-12 moves three inputs in one reviewed step.
+  Playwright moves from 1.64.1 to 1.65.0, the registry's latest at the cut
+  (published 2026-11-05), with its bundled Chromium 156.0.8078.4 to
+  158.0.8127.18, to keep the scan browser within the 70 days in which
+  Chromium applies its built-in HSTS preload list. adblock-rust moves from
+  0.13.3 to 0.13.5 (published 2026-10-28; 0.13.4, published the same day,
+  passed over). wasm-bindgen moves from 0.2.129 to 0.2.130, with the vendored
+  adblock WASM rebuilt from the locked Cargo graph (`sbl_adblock_wasm_bg.wasm`
+  `7dda4b30` to `e24f4484`, the linked walrus 0.27.2 to 0.27.3; the graph
+  drops url, form_urlencoded, precomputed-hash and once_cell, 70 packages to
+  66). tldts 7.4.16 and the October 19 Brave lists stay. This entry covers the
+  pins, the rebuilt WASM, the recorded identities and the HSTS expectations.
+  The epoch is not staged or deployed, and its staging A/B has not run.
+- Recorded identities, old to new: the base Node methodology, which is also
+  the v1 methodology token and the corpus cohort key, moves its ad-block
+  engine and Playwright components:
+  `shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.64.1+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2`
+  to
+  `shields-request-context-v2-adblock-rust-0.13.5-request-method-v1-playwright-1.65.0+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2`,
+  and the r2 methodology carries the same move under its unchanged suffix. A
+  report measured with the lists also records the engine in its ad-block
+  identity, which moves from `adblock-rust-0.13.3` to `adblock-rust-0.13.5`
+  under the unchanged October 19 list manifest. Every report also records the
+  browser version (v1 `conditions.chromiumVersion`, r2
+  `conditions.browser.version`), which moves from 156.0.8078.4 to
+  158.0.8127.18, and with it the condition, measurement environment and
+  execution fingerprints that hash it. No normalization (the 3a2328d7 policy
+  digest under tldts 7.4.16), detector or registry (node-detectors-v24, the
+  epoch above, which this one sits on), obligation, catalog or list snapshot
+  moves, no identity names wasm-bindgen or the WASM bytes, and every existing
+  producer row is byte for byte unchanged. The two outgoing Node producer
+  rows (`node-v30-detectors-v24-active-lists-2026-10-19` and
+  `node-v30-detectors-v24-active-no-adblock`) are closed to their exact
+  literals, and `node-v31-toolchain-2026-12-active-lists-2026-10-19` and
+  `node-v31-toolchain-2026-12-active-no-adblock` are declared. The outgoing
+  methodology joins the v1 sanitizer's reviewed historical list, so a report
+  recorded under it stays a fixed point of the sanitizer. The reviewed corpus
+  line advances to the new methodology. No committed report carried the
+  outgoing methodology when this was recorded, on 2026-11-10, so the line it
+  retires held no cohort then.
+- The new engine blocks requests the outgoing one let pass, in two shapes.
+  adblock-rust 0.13.5 no longer treats `%` as part of a token, so a filter
+  whose pattern starts with a percent escape is now tried on a URL that holds
+  the escape after a letter or inside an escaped URL in a query; and a
+  hostname anchor found inside a longer request hostname now checks the
+  label boundary after the match at the right offset, so a rule with no
+  closing separator also matches a hostname that holds its host between two
+  label boundaries. The outgoing and the rebuilt WASM were loaded side by
+  side with the committed October 19 list snapshot and asked 2,867,386
+  questions. None of 1,868,064 changed for the 116,754 rule hosts as the
+  document root (two sources, four request types, GET and POST). None of the
+  10,750 distinct tuples from the requests the 1029 committed reports record
+  changed either, but that replay cannot reach the percent-escape shape: the
+  recorded URLs are redaction templates (path segments generalized to
+  `{seg}`, query names and values redacted), so it exercises host-level
+  matching only. 102 of 521,556 tuples synthesized from the rule patterns
+  changed,
+  over 99 URLs that each hold a percent escape (the snapshot's rules for
+  mail-open pixels behind an image proxy), and 57 of 467,016 tuples that
+  place a rule host inside a longer hostname, over 15 hosts. Every one is
+  blocked by the new engine only, and 16 synthetic controls did not move.
+  That is an old-versus-new differential, not a replay of recorded
+  decisions. The methodology names the engine, so reports of the two engines
+  fall in different corpus cohorts, and an r2 comparison across the move is
+  ineligible in every family.
+- The vendored WASM was built with rustc 1.96.1, wasm-pack 0.14.0, the
+  wasm-bindgen CLI 0.2.130 and the cached wasm-opt 117. Two clean builds
+  agreed before anything was copied, and a third, from a clean target after
+  the commit, compared equal to all four committed files. The integrity
+  contract binds the new Cargo lock and outputs; its blockers and its
+  blocked status are unchanged. It now also declares the walrus the binary
+  records in its producers section, which the unlocked install of the CLI
+  resolves on the day, and verification refuses a binary that records
+  another.
+- The scan browser's HSTS preload list. Chromium 158.0.8127.18's version tag
+  was committed on 2026-11-04 at 01:08:26 UTC, so by the estimate the
+  2026-11 epoch introduced (the tag's commit time plus 70 days, which one
+  lapse has confirmed so far) it applies the list until about 2027-01-13
+  01:08 UTC, where 156.0.8078.4 applies it until about 2026-12-08 23:57 UTC.
+  The committed table of build times holds the new build. The environment
+  test, which expects the list applied, passed on Chromium 158.0.8127.18 on
+  2026-11-10, on macOS and not yet in a Linux image, and records the new
+  estimate. [docs/limitations.md](docs/limitations.md) names this epoch and
+  its estimated cutoff, and says that the scan browser does not apply the
+  list from about 2026-12-08 23:57 UTC until this epoch is deployed, if it
+  is deployed after that time. If it replaces the 2026-11 epoch's browser
+  before then, the preload state does not change with this move.
+- The container base has not moved yet. The Dockerfile still names
+  `mcr.microsoft.com/playwright:v1.64.1-noble` and requires Chrome for
+  Testing 156.0.8078.4 in the base, so the two provenance tests that tie the
+  base to the installed Playwright fail on this source until it does.
+
 ## [0.6.0] - 2026-09-06
 
 Declared on 2026-09-06 (the date above) and tagged `v0.6.0` on 2026-09-24 at
