@@ -273,7 +273,7 @@ const WITH_Z: readonly Assumption[] = [...WITH_C1_D1, "Z"];
  * moved rightly. The tests after them say what a world has in it.
  */
 const STATE_COUNTS: Record<string, { everything: [number, number]; plan: [number, number]; planAndC1: [number, number]; planC1AndD1: [number, number]; andZ: [number, number] }> = {
-  hold: { everything: [370_936, 1_952_372], plan: [35_628, 131_087], planAndC1: [30_568, 108_286], planC1AndD1: [30_553, 95_312], andZ: [10_377, 39_474] },
+  hold: { everything: [477_971, 2_710_558], plan: [40_991, 153_769], planAndC1: [34_747, 125_234], planC1AndD1: [34_732, 110_272], andZ: [11_580, 44_852] },
   stream: { everything: [6_865, 29_196], plan: [2_333, 8_065], planAndC1: [1_590, 5_412], planC1AndD1: [1_590, 5_404], andZ: [1_590, 5_404] },
   two: { everything: [200_736, 650_933], plan: [146_172, 428_226], planAndC1: [133_156, 331_019], planC1AndD1: [133_156, 331_019], andZ: [44_413, 123_339] },
   small: { everything: [2_301, 6_697], plan: [1_686, 4_226], planAndC1: [1_630, 3_677], planC1AndD1: [1_630, 3_677], andZ: [978, 2_297] }
@@ -323,6 +323,7 @@ const EVERY_HOLD_STEP = [
   "evaluates-late:ok",
   "freeze",
   "hears:ack",
+  "hears:ack-listed",
   "hears:attach:running",
   "hears:attach:waiting",
   "hears:detach:long",
@@ -339,6 +340,8 @@ const EVERY_HOLD_STEP = [
   "hears:resumed",
   "hold-bound",
   "lands:arm",
+  "lands:arm:parse-behind",
+  "lands:arm:parse-held",
   "lands:install",
   "lands:install:bad",
   "lands:install:ok",
@@ -489,7 +492,7 @@ const PAST_THE_DRAIN_IN_THE_HOLD_WORLD = [
   "barrier-round-trip",
   "discovered",
   "documents-answered",
-  ...["ack", "attach:running", "attach:waiting", "detach:long", "detach:quick", "first", "install-bad", "install-ok", "off-answer", "parsed", "pause-main", "pause-script", "pause-statement", "probe-answer", "resumed"].map((word) => `hears:${word}`),
+  ...["ack", "ack-listed", "attach:running", "attach:waiting", "detach:long", "detach:quick", "first", "install-bad", "install-ok", "off-answer", "parsed", "pause-main", "pause-script", "pause-statement", "probe-answer", "resumed"].map((word) => `hears:${word}`),
   ...THE_MIRROR_HEARS.map((report) => `mirror-hears:${report}`)
 ];
 /** In the stream world, the same, and the barrier the readout sent at the call: its way to the worker and its landing there. */
@@ -511,9 +514,43 @@ const PAST_THE_DRAIN_IN_THE_STREAM_WORLD = [
 
 test("each narrowing a kind of step could hide is a transition: an install evaluated at a statement's pause, a quick life after the breakpoint's answer, a dependency's pause with no other client", () => {
   const known = built(HOLD_WORLD);
-  walk(known, PLAN_ALL, ["born:0:waiting||", ATTACH, "lands:0:arm||", "other-release:0||", "reaches-main:0:paused||", "lands:0:run||", "hears:0:ack||", "hears:0:parsed||", "hears:0:pause-main|0:held|0:install", "lands:0:install||", "stops-at-statement:0||", "evaluates-late:0:ok||"]);
-  walk(known, PLAN_ALL, ["born:0:waiting||", ATTACH, "lands:0:arm||", "ends:0||", "hears:0:ack||", "hears:0:detach:quick|0:detached:unreached-quick|"]);
+  walk(known, PLAN_ALL, ["born:0:waiting||", ATTACH, "lands:0:arm||", "other-release:0||", "reaches-main:0:paused||", "lands:0:run||", "hears:0:ack||0:unask", "hears:0:parsed||", "hears:0:pause-main|0:held|0:install", "lands:0:install||", "stops-at-statement:0||", "evaluates-late:0:ok||"]);
+  walk(known, PLAN_ALL, ["born:0:waiting||", ATTACH, "lands:0:arm||", "ends:0||", "hears:0:ack||0:unask", "hears:0:detach:quick|0:detached:unreached-quick|"]);
   walk(known, PLAN_ALL, ["born:0:waiting||", ATTACH, "lands:0:arm||", "lands:0:run||", "reaches-dependency:0||"]);
+});
+
+/**
+ * The question behind the breakpoint, in the world. A worker another client let run before the arming
+ * landed has a script from before the breakpoint, and the arming's answer says so in each order a browser
+ * gives its parse: ahead of the answer (Chromium 156), behind it, or never (Chromium 158 holds a parse back
+ * until the worker next returns to its message loop or pauses, and a worker can end first). None of the
+ * three needs an axiom's leave, so each is walked under the whole plan.
+ */
+const RAN_BEFORE_THE_ARMING = ["born:0:waiting||", "other-release:0||", "reaches-main:0:ran||", "hears:0:attach:waiting|0:attached:waiting|0:arm,0:run"];
+const LATE_BY_THE_PROBE = ["lands:0:probe||", "hears:0:probe-answer|0:late:ran-before-breakpoint|0:off+remove"];
+
+test("the arming's answer lists a script from before the breakpoint whichever way its parse comes, ahead of the answer, behind it or never, and with no pause ahead of the probe's answer the worker is late", () => {
+  const known = built(HOLD_WORLD);
+  walk(known, PLAN_ALL, [...RAN_BEFORE_THE_ARMING, "lands:0:arm||", "lands:0:run||", "hears:0:parsed||", "hears:0:ack-listed||0:probe,0:unask", ...LATE_BY_THE_PROBE]);
+  walk(known, PLAN_ALL, [...RAN_BEFORE_THE_ARMING, "lands:0:arm:parse-behind||", "lands:0:run||", "hears:0:ack-listed||0:unask,0:probe", "hears:0:parsed||", ...LATE_BY_THE_PROBE]);
+  walk(known, PLAN_ALL, [...RAN_BEFORE_THE_ARMING, "lands:0:arm:parse-held||", "lands:0:run||", "hears:0:ack-listed||0:unask,0:probe", ...LATE_BY_THE_PROBE]);
+  // A worker that had compiled nothing is listed nothing, and its parse behind the answer sends no probe.
+  walk(known, PLAN_ALL, ["born:0:waiting||", "hears:0:attach:waiting|0:attached:waiting|0:arm,0:run", "lands:0:arm||", "lands:0:run||", "hears:0:ack||0:unask", "hears:0:parsed||", "reaches-main:0:paused||", "hears:0:pause-main|0:held|0:install"]);
+});
+
+test("a script listed and a main-script pause ahead of the probe's answer is a hold, and the probe's answer then posts nothing", () => {
+  const known = built(HOLD_WORLD);
+  for (const arm of ["lands:0:arm||", "lands:0:arm:parse-behind||", "lands:0:arm:parse-held||"]) {
+    const heardFirst = arm === "lands:0:arm||" ? ["hears:0:parsed||", "hears:0:ack-listed||0:probe,0:unask"] : arm === "lands:0:arm:parse-behind||" ? ["hears:0:ack-listed||0:unask,0:probe", "hears:0:parsed||"] : ["hears:0:ack-listed||0:unask,0:probe"];
+    walk(known, PLAN_ALL, ["born:0:waiting||", "other-release:0||", "hears:0:attach:waiting|0:attached:waiting|0:arm,0:run", arm, "lands:0:run||", "reaches-main:0:paused||", ...heardFirst, "hears:0:pause-main|0:held|0:install", "lands:0:probe||", "hears:0:probe-answer||"]);
+  }
+});
+
+test("a worker gone with a script listed and no parse heard is not one that ended unreached", () => {
+  const known = built(HOLD_WORLD);
+  walk(known, PLAN_ALL, [...RAN_BEFORE_THE_ARMING, "lands:0:arm:parse-held||", "ends:0||", "hears:0:ack-listed||0:unask,0:probe", "hears:0:detach:long|0:detached:other|"]);
+  // With nothing listed and nothing parsed, the same end is the worker never reached.
+  walk(known, PLAN_ALL, ["born:0:waiting||", "hears:0:attach:waiting|0:attached:waiting|0:arm,0:run", "lands:0:arm||", "ends:0||", "hears:0:ack||0:unask", "hears:0:detach:long|0:detached:unreached-long|"]);
 });
 
 test("at most four reports wait on the port in the two-worker world, and four do", () => {
@@ -1284,16 +1321,16 @@ async function replayDedicated(realm: Modules["realm"], model: DedicatedWorkerMo
   return replayed;
 }
 
-const THREAD_SEQUENCES: Record<string, number> = { hold: 10_671, stream: 223 };
+const THREAD_SEQUENCES: Record<string, number> = { hold: 25_923, stream: 223 };
 const MAIN_SEQUENCES: Record<string, number> = { hold: 3_611, stream: 353 };
 const MAIN_COVER: Record<string, [number, number]> = { hold: [1_289_494, 14_755], stream: [737, 433] };
-const WHOLE_COVER: Record<string, number> = { hold: 10_514, stream: 955 };
+const WHOLE_COVER: Record<string, number> = { hold: 10_598, stream: 955 };
 const TWO_WORKER_COVERS: [number, number] = [3_830, 4_142];
 const TWO_WORKER_LANDINGS = 834;
 const DEDICATED_SEQUENCES = 61;
 const DEDICATED_COUNT: [number, number] = [161, 359];
 const DEDICATED_COUNT_UNDER_A4: [number, number] = [124, 245];
-const EVERY_DROPPED_WORD = ["ack", "closed", "first", "install-bad", "install-ok", "off-answer", "open", "parsed", "pause-main", "pause-script", "pause-statement", "probe-answer", "resumed"];
+const EVERY_DROPPED_WORD = ["ack", "ack-listed", "closed", "first", "install-bad", "install-ok", "off-answer", "open", "parsed", "pause-main", "pause-script", "pause-statement", "probe-answer", "resumed"];
 const HOLD_OVERTAKING = { hears: 5, lands: 3, "mirror-hears": 6 };
 const STREAM_OVERTAKING = { hears: 2, lands: 0, "mirror-hears": 4 };
 
@@ -1450,8 +1487,8 @@ for (const [form, cause, assumptions] of [
 // ---------------------------------------------------------------------------------------
 
 const ATTACH = "hears:0:attach:waiting|0:attached:waiting|0:arm,0:run";
-const QUIET_START = ["born:0:waiting||", ATTACH, "lands:0:arm||", "lands:0:run||", "reaches-main:0:paused||", "hears:0:ack||", "hears:0:parsed||", "hears:0:pause-main|0:held|0:install"];
-const THE_THREAD_S_OWN_RELEASE_REACHES_A_PAUSE = ["born:0:waiting||", "other-release:0||", ATTACH, "lands:0:arm||", "reaches-main:0:paused||", "lands:0:run||", "hears:0:parsed||", "hears:0:ack||0:probe", "hears:0:pause-main|0:held|0:install"];
+const QUIET_START = ["born:0:waiting||", ATTACH, "lands:0:arm||", "lands:0:run||", "reaches-main:0:paused||", "hears:0:ack||0:unask", "hears:0:parsed||", "hears:0:pause-main|0:held|0:install"];
+const THE_THREAD_S_OWN_RELEASE_REACHES_A_PAUSE = ["born:0:waiting||", "other-release:0||", ATTACH, "lands:0:arm||", "reaches-main:0:paused||", "lands:0:run||", "hears:0:parsed||", "hears:0:ack-listed||0:probe,0:unask", "hears:0:pause-main|0:held|0:install"];
 const MIRROR_SEES_HELD = ["mirror-hears:0:attached||", "mirror-hears:0:held||"];
 const INSTALLED_AND_OFF = ["lands:0:install:ok||", "hears:0:first|0:event:first|", "hears:0:install-ok|0:installed:ok|0:off+remove", "lands:0:off||"];
 const REPORTS_OF_AN_ORDINARY_HOLD = ["mirror-hears:0:event-first||", "mirror-hears:0:installed-ok||"];
@@ -1804,7 +1841,12 @@ const THREAD_VARIANTS: readonly { name: string; property: string; edits: readonl
   { name: "@11's thread: every detach while held is died held", property: "replay-the-thread-posts-what-the-model-says", edits: [{ find: 'diedWhileHeld: worker.hold === "held" && !worker.installConcluded,', replace: 'diedWhileHeld: worker.hold === "held",' }, { find: 'diedAfterInstall: worker.hold === "held" && worker.installConcluded,', replace: "diedAfterInstall: false," }] },
   { name: "a script seen does not stop a worker reading as never reached", property: "replay-the-thread-posts-what-the-model-says", edits: [{ find: 'endedUnreached: worker.hold === "pending" && worker.scripts.size === 0', replace: 'endedUnreached: worker.hold === "pending"' }] },
   { name: "the release goes out before the breakpoint", property: "replay-the-thread-sends-what-the-model-says", edits: [{ find: 'setBreakpoint();\n        send("Runtime.runIfWaitingForDebugger", {}, sessionId).catch(() => undefined);', replace: 'send("Runtime.runIfWaitingForDebugger", {}, sessionId).catch(() => undefined);\n        setBreakpoint();' }] },
-  { name: "a parse ahead of the breakpoint's answer sends no probe", property: "replay-the-thread-sends-what-the-model-says", edits: [{ find: 'send("Runtime.getIsolateId", {}, worker.sessionId).then(() => markLate(worker, "ran-before-breakpoint", true), () => undefined);', replace: "" }] }
+  { name: "a parse ahead of the breakpoint's answer sends no probe", property: "replay-the-thread-sends-what-the-model-says", edits: [{ find: 'send("Runtime.getIsolateId", {}, worker.sessionId).then(() => markLate(worker, "ran-before-breakpoint", true), () => undefined);', replace: "" }] },
+  { name: "a script the question lists sends no probe", property: "replay-the-thread-sends-what-the-model-says", edits: [{ find: "worker.scriptBeforeBreakpoint = true;\n                probeIfParsed(worker);\n            };", replace: "};" }] },
+  { name: "the question is never taken away", property: "replay-the-thread-sends-what-the-model-says", edits: [{ find: 'send("Debugger.removeBreakpoint", { breakpointId: answer.breakpointId }, sessionId).catch(() => undefined);', replace: "" }] },
+  { name: "the question goes out ahead of the breakpoint", property: "replay-the-thread-sends-what-the-model-says", edits: [{ find: 'send("Debugger.enable", {}, sessionId).catch(() => undefined);', replace: 'send("Debugger.enable", {}, sessionId).catch(() => undefined);\n            send("Debugger.setBreakpointByUrl", { urlRegex: ".*", lineNumber: 0, condition: "false" }, sessionId).catch(() => undefined);' }] },
+  { name: "a worker gone with a script listed and no parse heard reads as never reached", property: "replay-the-thread-posts-what-the-model-says", edits: [{ find: "worker.scripts.size === 0 && !worker.scriptListed", replace: "worker.scripts.size === 0" }] },
+  { name: "the question's answer is taken for a worker that has gone", property: "replay-the-thread-sends-what-the-model-says", edits: [{ find: 'if (workers.get(sessionId) !== worker || worker.hold !== "pending")', replace: 'if (worker.hold !== "pending")' }] }
 ];
 
 for (const { name, property, edits } of THREAD_VARIANTS) {
@@ -1815,6 +1857,14 @@ for (const { name, property, edits } of THREAD_VARIANTS) {
     await assertCaughtBy(name, property, () => replayThread(variant, HOLD_WORLD, inputSequences(automaton)));
   });
 }
+
+test("the replay catches a thread that still takes the question away from a worker with its first pause, once a session's words are out of order", async () => {
+  // In order, the arming's answer is heard ahead of every pause, so only a pause that overtakes it shows this: no axiom is assumed.
+  const known = built(HOLD_WORLD);
+  const automaton = heardBy(known, 0, "thread");
+  const variant = attacherVariant([{ find: 'if (workers.get(sessionId) !== worker || worker.hold !== "pending")', replace: "if (workers.get(sessionId) !== worker)" }]);
+  await assertCaughtBy("the question is taken away from a held or late worker", "replay-the-thread-sends-what-the-model-says", () => replayThread(variant, HOLD_WORLD, inputSequences(automaton)));
+});
 
 /** A run of edges heard by the real thread alone: a barrier's round trip by the worker its step names, and every other step by its word. */
 async function threadHearsEdges(thread: ThreadSide, edges: readonly InputEdge[], input: () => unknown): Promise<void> {
@@ -1969,7 +2019,7 @@ const HAND_STATED: readonly { name: string; property: string; run: (thread: Thre
     run: async (thread, input) => {
       await thread.hear(ATTACHED, input);
       await thread.hear(heard("parsed-another-script"), input);
-      await thread.hear(heard("ack"), input);
+      await thread.hear(heard("ack", [], ["0:unask"]), input);
     },
     edits: [{ find: 'if (url === worker.url && worker.hold === "pending" && !worker.breakpointAcknowledged) {', replace: 'if (worker.hold === "pending" && !worker.breakpointAcknowledged) {' }]
   },
@@ -1978,7 +2028,7 @@ const HAND_STATED: readonly { name: string; property: string; run: (thread: Thre
     property: "replay-the-thread-posts-what-the-model-says",
     run: async (thread, input) => {
       await thread.hear(ATTACHED, input);
-      await thread.hear(heard("ack"), input);
+      await thread.hear(heard("ack", [], ["0:unask"]), input);
       await thread.hear(heard("parsed"), input);
       await thread.hear(heard("pause-main-naming-only-its-script", ["0:held"], ["0:install"]), input);
     },
@@ -1989,7 +2039,7 @@ const HAND_STATED: readonly { name: string; property: string; run: (thread: Thre
     property: "replay-the-thread-posts-what-the-model-says",
     run: async (thread, input) => {
       await thread.hear(ATTACHED, input);
-      await thread.hear(heard("ack"), input);
+      await thread.hear(heard("ack", [], ["0:unask"]), input);
       await thread.hear(heard("parsed"), input);
       await thread.hear(heard("pause-main", ["0:held"], ["0:install"]), input);
       await thread.hear(heard("detach:long", ["0:detached:held"]), input);
@@ -2003,7 +2053,7 @@ const HAND_STATED: readonly { name: string; property: string; run: (thread: Thre
     property: "replay-the-thread-posts-what-the-model-says",
     run: async (thread, input) => {
       await thread.hear(ATTACHED, input);
-      await thread.hear(heard("ack"), input);
+      await thread.hear(heard("ack", [], ["0:unask"]), input);
       await thread.hear(heard("parsed"), input);
       await thread.hear(heard("pause-main", ["0:held"], ["0:install"]), input);
       await thread.hear(heard("resumed", ["0:late:resumed-while-held"], ["0:off+remove"]), input);
@@ -2034,7 +2084,7 @@ test("by hand, through the real thread: a hold's bound is 3 seconds when nothing
     productionAttacher,
     async (thread, input) => {
       await thread.hear(ATTACHED, input);
-      await thread.hear(heard("ack"), input);
+      await thread.hear(heard("ack", [], ["0:unask"]), input);
       await thread.hear(heard("parsed"), input);
       await thread.hear(heard("pause-main", ["0:held"], ["0:install"]), input);
       // In seconds: the claim is its order, and nothing here reads a millisecond of it.

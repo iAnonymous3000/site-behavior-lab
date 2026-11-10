@@ -193,6 +193,9 @@ function portNameOf(post: string): string {
   return `${w}:${kind}`;
 }
 
+/** The id the scripted browser gives the question's own breakpoint. */
+const questionIdOf = (sessionId: string | undefined): string => `ask-${String(sessionId)}`;
+
 /** Commands in the words a label uses. One word stands for what the thread sends in one breath, and only for all of it. */
 function sendsOf(frames: readonly Frame[], barriers: ReadonlySet<number>): string[] {
   const words: string[] = [];
@@ -203,9 +206,10 @@ function sendsOf(frames: readonly Frame[], barriers: ReadonlySet<number>): strin
     const next = frames[index + 1]?.method;
     switch (frame.method) {
       case "Debugger.enable":
-        if (next === "Debugger.setInstrumentationBreakpoint") {
+        // The arming is three sends in one breath: the enable, the breakpoint, and the question behind it.
+        if (next === "Debugger.setInstrumentationBreakpoint" && frames[index + 2]?.method === "Debugger.setBreakpointByUrl" && frames[index + 2]?.sessionId === frame.sessionId) {
           words.push(`${w}:arm`);
-          index += 1;
+          index += 2;
         } else words.push(`${w}:enable-alone`);
         break;
       case "Runtime.runIfWaitingForDebugger":
@@ -218,7 +222,9 @@ function sendsOf(frames: readonly Frame[], barriers: ReadonlySet<number>): strin
         } else words.push(`${w}:binding-alone`);
         break;
       case "Debugger.removeBreakpoint":
-        if (next === "Debugger.disable") {
+        // The question's own removal is a word of its own, by the id the question was given.
+        if ((frame.params as { breakpointId?: unknown }).breakpointId === questionIdOf(frame.sessionId)) words.push(`${w}:unask`);
+        else if (next === "Debugger.disable") {
           words.push(`${w}:off+remove`);
           index += 1;
         } else words.push(`${w}:remove-alone`);
@@ -242,8 +248,10 @@ function paramsAreRight(frame: Frame, binding: { sinkName: string }): boolean {
   switch (frame.method) {
     case "Debugger.setInstrumentationBreakpoint":
       return asked === JSON.stringify({ instrumentation: "beforeScriptExecution" });
+    case "Debugger.setBreakpointByUrl":
+      return asked === JSON.stringify({ urlRegex: ".*", lineNumber: 0, condition: "false" });
     case "Debugger.removeBreakpoint":
-      return asked === JSON.stringify({ breakpointId: `bp-${String(frame.sessionId)}` });
+      return asked === JSON.stringify({ breakpointId: `bp-${String(frame.sessionId)}` }) || asked === JSON.stringify({ breakpointId: questionIdOf(frame.sessionId) });
     case "Runtime.addBinding":
       return asked === JSON.stringify({ name: binding.sinkName });
     case "Runtime.evaluate":
@@ -470,7 +478,13 @@ export class ThreadSide {
         event("Debugger.scriptParsed", { scriptId: "3", url: MODEL_WORKER_URL });
         return;
       case "ack":
+      case "ack-listed":
+        // The breakpoint's answer, and behind it the question's: with no script for a worker that had compiled none, with one for a worker that had.
         this.answer(this.lastFrame(sessionId, "Debugger.setInstrumentationBreakpoint"), { breakpointId: `bp-${sessionId}` });
+        this.answer(this.lastFrame(sessionId, "Debugger.setBreakpointByUrl"), {
+          breakpointId: questionIdOf(sessionId),
+          locations: what === "ack-listed" ? [{ scriptId: "3", lineNumber: 0, columnNumber: 0 }] : []
+        });
         return;
       case "pause-main":
         this.clock.mark();

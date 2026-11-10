@@ -52,6 +52,12 @@
  * It says nothing about a browser. It is here so the search can show the property has no other
  * way to fail.
  *
+ * A1, a session's words in order, is not assumed of a script's parse. Chromium 158 holds a parse back
+ * until the worker next returns to its message loop or pauses, and sends answers at once, so the parse of
+ * a script compiled before the arming may be heard behind the arming's answer, or never, where Chromium
+ * 156 sent it ahead. The world gives all three orders with no switch's leave (the arming's landing, below),
+ * and the thread decides nothing by that order: the arming's answer itself says whether a script was there.
+ *
  * Discovery on the page's own connection is a free step here: it may come at any point, or not
  * before the readout ends. Production reads it after the frame tree, and counts a worker it found
  * with no report as `unattached`, which is unread, so the order of those two on that one connection
@@ -491,9 +497,12 @@ const BARRIER_SENT = 2;
 const BARRIER_REPLIED = 3;
 
 // A session's commands. Each is one step for the browser, and stands for what the thread
-// sends in one breath: arming is the debugger's enable and the breakpoint, the install is
-// the binding and the evaluation, and turning the debugger off is the breakpoint's removal,
-// once its id is known, and the disable.
+// sends in one breath: arming is the debugger's enable, the breakpoint and the question
+// behind it (which scripts exist), the install is the binding and the evaluation, and
+// turning the debugger off is the breakpoint's removal, once its id is known, and the
+// disable. The question's own removal, which the thread sends on the arming's answer while
+// the worker still waits for its first pause, is a word the thread sends ("unask") and the
+// world makes nothing of: the question's breakpoint can pause nothing.
 const C_ARM = 1;
 const C_RUN = 2;
 const C_INSTALL = 3;
@@ -517,7 +526,10 @@ const E_PROBE = 11;
 const E_BARRIER = 12;
 const E_OPEN = 13;
 const E_CLOSED = 14;
-const EVENT_NAME = ["", "parsed", "ack", "pause-main", "pause-script", "pause-statement", "resumed", "first", "install-ok", "install-bad", "off-answer", "probe-answer", "barrier-answer", "open", "closed"];
+// The arming's answer when the question behind the breakpoint listed a script: one existed before the breakpoint went in.
+const E_ACK_LISTED = 15;
+const E_LAST = E_ACK_LISTED;
+const EVENT_NAME = ["", "parsed", "ack", "pause-main", "pause-script", "pause-statement", "resumed", "first", "install-ok", "install-bad", "off-answer", "probe-answer", "barrier-answer", "open", "closed", "ack-listed"];
 const EMITTED_BEFORE_FREEZE = 64;
 
 // What the port carries to the main thread.
@@ -618,7 +630,7 @@ export const SMALL_WORLD: SharedWorld = { name: "small", workers: 1, collapseSes
 /** How the real code reaches where STREAM_WORLD starts. */
 export const STREAM_WORLD_PREFIX: readonly string[] = [
   "hears:0:attach:waiting|0:attached:waiting|0:arm,0:run",
-  "hears:0:ack||",
+  "hears:0:ack||0:unask",
   "hears:0:parsed||",
   "hears:0:pause-main|0:held|0:install",
   "hears:0:first|0:event:first|",
@@ -723,6 +735,12 @@ export class SharedWorkerModel {
     this.pushTo(state, b + COMMANDS, COMMAND_CAPACITY, command);
   }
 
+  /** A word the thread sends that the world makes nothing of. */
+  private sendOnly(state: number[], w: number, word: string, context: Context): void {
+    if (state[G_ENDED] === 1) return;
+    context.sends.push(`${w}:${word}`);
+  }
+
   private emit(state: number[], w: number, event: number): void {
     const b = this.base(w);
     this.pushTo(state, b + EVENTS, EVENT_CAPACITY, event);
@@ -805,8 +823,19 @@ export class SharedWorkerModel {
         }
         return;
       case E_ACK:
+      case E_ACK_LISTED:
+        // The breakpoint's answer, and behind it the question's. The first is heard by the promise that asked, whatever
+        // became of the worker. The second matters only to a worker still waiting for its first pause: the question is
+        // taken away, and a script it listed is what an early parse is, a script from before the breakpoint.
         state[b + ACK] = 1;
         this.probeIfParsed(state, w, context);
+        if (inMap && state[b + HOLD] === PENDING) {
+          this.sendOnly(state, w, "unask", context);
+          if (event === E_ACK_LISTED) {
+            state[b + EARLY] = 1;
+            this.probeIfParsed(state, w, context);
+          }
+        }
         return;
       case E_PAUSE_MAIN:
         if (!inMap || state[b + HOLD] !== PENDING) return;
@@ -877,7 +906,7 @@ export class SharedWorkerModel {
     const hold = state[b + HOLD];
     if (hold === HELD && state[b + CONC] === 0) this.post(state, w, P_GONE_HELD, "detached:held", carried, context);
     else if (hold === HELD) this.post(state, w, P_GONE_AFTER_INSTALL, "detached:after-install", carried, context);
-    else if (hold === PENDING && state[b + SCRIPTS] === 0) this.post(state, w, lifetime === "quick" ? P_GONE_UNREACHED_QUICK : P_GONE_UNREACHED_LONG, `detached:unreached-${lifetime}`, carried, context);
+    else if (hold === PENDING && state[b + SCRIPTS] === 0 && state[b + EARLY] === 0) this.post(state, w, lifetime === "quick" ? P_GONE_UNREACHED_QUICK : P_GONE_UNREACHED_LONG, `detached:unreached-${lifetime}`, carried, context);
     else this.post(state, w, P_GONE_OTHER, "detached:other", carried, context);
   }
 
@@ -1330,9 +1359,11 @@ export class SharedWorkerModel {
     const late = state[b + HOLD] === LATE;
     const concluded = state[b + CONC] === 1;
     const gone = state[b + GONE] === 1;
-    const aSessionsOwnWord = event === E_PARSED || event === E_ACK || event === E_PAUSE_MAIN || event === E_PAUSE_SCRIPT || event === E_PAUSE_STATEMENT || event === E_RESUMED;
+    const anAck = event === E_ACK || event === E_ACK_LISTED;
+    const aSessionsOwnWord = event === E_PARSED || anAck || event === E_PAUSE_MAIN || event === E_PAUSE_SCRIPT || event === E_PAUSE_STATEMENT || event === E_RESUMED;
     // Answers are heard by the promise that asked, whatever became of the worker: a breakpoint's answer behind an early parse still sends its probe.
-    if (gone && event === E_ACK && state[b + HOLD] === PENDING && state[b + EARLY] === 1 && state[b + PROBE] === 0) return false;
+    // The question's answer behind it is nothing to a worker that has gone, so a script it lists then sends none.
+    if (gone && anAck && state[b + HOLD] === PENDING && state[b + EARLY] === 1 && state[b + PROBE] === 0) return false;
     return (
       (late && event !== E_BARRIER) ||
       (concluded && (aSessionsOwnWord || event === E_INSTALL_OK || event === E_INSTALL_BAD || event === E_PROBE)) ||
@@ -1346,7 +1377,7 @@ export class SharedWorkerModel {
     const state = decode(key);
     const b = this.base(w);
     const words: { word: string; forwarded: boolean }[] = [];
-    for (let event = E_PARSED; event <= E_CLOSED; event += 1) {
+    for (let event = E_PARSED; event <= E_LAST; event += 1) {
       if (state[G_PHASE] === DONE || !this.ignored(state, b, event)) continue;
       words.push({ word: EVENT_NAME[event], forwarded: state[G_ENDED] === 0 && state[b + HOLD] === LATE && state[b + GONE] === 0 && (event === E_FIRST || event === E_OPEN || event === E_CLOSED) });
     }
@@ -1455,7 +1486,7 @@ export class SharedWorkerModel {
       const plain = w === 1;
       if (pastTheDrain) {
         const event = state[b + EVENTS] & ~EMITTED_BEFORE_FREEZE;
-        if (state[b + ATTACH] === NONE_IN_FLIGHT && (event === E_PARSED || event === E_ACK || event === E_FIRST || event === E_PROBE)) return this.eventHeard(state, w, 0);
+        if (state[b + ATTACH] === NONE_IN_FLIGHT && (event === E_PARSED || event === E_ACK || event === E_ACK_LISTED || event === E_FIRST || event === E_PROBE)) return this.eventHeard(state, w, 0);
         continue;
       }
       if (plain && phase === COMPILED && state[b + BP] === 1) {
@@ -1472,7 +1503,7 @@ export class SharedWorkerModel {
         if (command !== C_OFF && !(command === C_INSTALL && paused)) return this.commandLands(state, w, 0, "");
       }
       const event = state[b + EVENTS] & ~EMITTED_BEFORE_FREEZE;
-      if (state[b + ATTACH] === NONE_IN_FLIGHT && (event === E_PARSED || event === E_ACK || event === E_FIRST || event === E_PROBE)) return this.eventHeard(state, w, 0);
+      if (state[b + ATTACH] === NONE_IN_FLIGHT && (event === E_PARSED || event === E_ACK || event === E_ACK_LISTED || event === E_FIRST || event === E_PROBE)) return this.eventHeard(state, w, 0);
     }
     return null;
   }
@@ -1486,13 +1517,19 @@ export class SharedWorkerModel {
     const phase = next[b + PHASE];
     let blockedBy = index > 0 ? A1 : 0;
     switch (command) {
-      case C_ARM:
+      case C_ARM: {
         next[b + DBG] = 1;
         next[b + BP] = 1;
-        // A script already compiled is replayed when the debugger comes on, ahead of the breakpoint's answer.
-        if (phase === COMPILED || phase === RUNNING || phase === PAUSED_ELSEWHERE) this.emit(next, w, E_PARSED);
-        this.emit(next, w, E_ACK);
+        // A script already compiled is listed by the question behind the breakpoint, whatever becomes of its parse.
+        // Chromium 156 replays that parse when the debugger comes on, ahead of the arming's answer. Chromium 158
+        // holds it back until the worker next returns to its message loop or pauses, so it comes behind the answer
+        // (parse-behind), or never, when the worker ends first or never returns (parse-held). No axiom chooses.
+        const listed = phase === COMPILED || phase === RUNNING || phase === PAUSED_ELSEWHERE;
+        if (listed && variant === "") this.emit(next, w, E_PARSED);
+        this.emit(next, w, listed ? E_ACK_LISTED : E_ACK);
+        if (listed && variant === "parse-behind") this.emit(next, w, E_PARSED);
         break;
+      }
       case C_RUN:
         if (variant === "unheard") blockedBy |= A2;
         this.release(next, w, variant !== "unheard");
@@ -1703,7 +1740,19 @@ export class SharedWorkerModel {
             const paused = phase === AT_MAIN || phase === PAUSED_ELSEWHERE;
             if (pastTheDrain && command !== C_BARRIER) continue;
             if (collapseSessions && command !== C_OFF && !(command === C_INSTALL && paused)) continue;
-            const variants = command === C_INSTALL && paused ? (reduced ? ["ok"] : ["ok", "bad"]) : command === C_RUN && paused ? (reduced ? [""] : ["", "unheard"]) : [""];
+            const compiled = phase === COMPILED || phase === RUNNING || phase === PAUSED_ELSEWHERE;
+            const variants =
+              command === C_INSTALL && paused
+                ? reduced
+                  ? ["ok"]
+                  : ["ok", "bad"]
+                : command === C_RUN && paused
+                  ? reduced
+                    ? [""]
+                    : ["", "unheard"]
+                  : command === C_ARM && compiled && !reduced
+                    ? ["", "parse-behind", "parse-held"]
+                    : [""];
             for (const variant of variants) {
               const move = this.commandLands(state, w, index, variant);
               moves.push(this.moved(move));
@@ -1719,13 +1768,13 @@ export class SharedWorkerModel {
         } else {
           for (let index = 0; index < (reduced || pastTheDrain ? 1 : EVENT_CAPACITY) && state[b + EVENTS + index] !== 0; index += 1) {
             const event = state[b + EVENTS + index] & ~EMITTED_BEFORE_FREEZE;
-            if (collapseSessions && (event === E_PARSED || event === E_ACK || event === E_FIRST || event === E_PROBE)) continue;
+            if (collapseSessions && (event === E_PARSED || event === E_ACK || event === E_ACK_LISTED || event === E_FIRST || event === E_PROBE)) continue;
             moves.push(this.moved(this.eventHeard(state, w, index)));
           }
           if (state[b + DETACH] !== NONE_IN_FLIGHT) {
             const blockedBy = state[b + EVENTS] !== 0 ? NOT_A3 : 0;
             const carried = state[b + DETACH] === IN_FLIGHT_AT_FREEZE ? POSTED_FOR_EARLIER_NEWS : 0;
-            const unreached = state[b + HOLD] === PENDING && state[b + SCRIPTS] === 0;
+            const unreached = state[b + HOLD] === PENDING && state[b + SCRIPTS] === 0 && state[b + EARLY] === 0;
             for (const lifetime of unreached && !reduced ? (["quick", "long"] as const) : (["long"] as const)) {
               const next = state.slice();
               const context = newContext();
