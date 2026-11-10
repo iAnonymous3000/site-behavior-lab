@@ -85,7 +85,9 @@ async function compare(flags) {
   // has no RULE line. A refusal above judged no median and prints none.
   console.log(`RULE ${result.rule}`);
   for (const row of result.results) {
-    if (row.outcome === "fail") console.error(`FAIL ${row.caseId}.${row.metric}: median ${row.baseline} -> ${row.candidate}; delta ${row.delta} > ${row.allowed}`);
+    // A failure on separated ranges says what was seen, because it can stand
+    // beside spreads that would otherwise make the metric inconclusive.
+    if (row.outcome === "fail") console.error(`FAIL ${row.caseId}.${row.metric}: median ${row.baseline} -> ${row.candidate}; delta ${row.delta} > ${row.allowed}${row.separated ? `; every run of one build differs from every run of the other by more than the tolerance (the nearest two by ${row.separation}): baseline runs ${row.baselineValues.join(", ")}, candidate runs ${row.candidateValues.join(", ")}` : ""}`);
   }
   const inconclusive = result.results.filter((row) => row.outcome === "inconclusive");
   for (const row of inconclusive) {

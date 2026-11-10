@@ -364,6 +364,13 @@ function spread(values) {
   return Math.max(...values) - Math.min(...values);
 }
 
+// The gap between the two arms' ranges: the smallest difference between a run
+// of one build and a run of the other when the ranges do not meet, and zero or
+// less when they touch or overlap.
+function separation(left, right) {
+  return Math.max(Math.min(...left) - Math.max(...right), Math.min(...right) - Math.max(...left));
+}
+
 export function compareReceipts(baselineInput, candidateInput, expectedPanel, panelDigest) {
   const baseline = assertReceipt(
     baselineInput,
@@ -453,18 +460,31 @@ export function compareReceipts(baselineInput, candidateInput, expectedPanel, pa
       const delta = Math.abs(right - left);
       const baselineSpread = spread(baselineValues);
       const candidateSpread = spread(candidateValues);
-      // A difference of medians is evidence about the build only when it is
-      // larger than what one build shows against itself. When the repetitions
-      // of a single build differ by more than the tolerance, the page varied
-      // on its own by more than the comparison allows, so neither a difference
-      // nor an agreement of the two medians can be attributed to the build.
-      // Such a metric is inconclusive, ahead of both pass and fail: a pass
-      // under that much spread is luck in the same way a fail is. Without
-      // this, a page that loads in one of two states of its own fails two
-      // identical builds whenever their medians land in different states, and
-      // can pass two builds that differ whenever they land in the same one.
-      const outcome = baselineSpread > allowed || candidateSpread > allowed ? "inconclusive" : delta <= allowed ? "pass" : "fail";
-      results.push({ caseId: panelCase.id, metric, baseline: left, candidate: right, delta, allowed, pass: outcome === "pass", outcome, baselineValues, candidateValues, baselineSpread, candidateSpread });
+      const rangeGap = separation(baselineValues, candidateValues);
+      // The rule, in order.
+      //
+      // First, when every run of one build differs from every run of the other
+      // by more than the tolerance, the metric fails whatever the spreads. No
+      // pairing of runs closes that gap, so what one build shows against
+      // itself cannot explain it. Without this, a regression that also makes
+      // a count unsteady would be reported as no evidence about the build.
+      //
+      // Otherwise a difference of medians is evidence about the build only
+      // when it is larger than what one build shows against itself. When the
+      // repetitions of a single build differ by more than the tolerance, the
+      // page varied on its own by more than the comparison allows, so neither
+      // a difference nor an agreement of the two medians can be attributed to
+      // the build. Such a metric is inconclusive, ahead of both the median
+      // pass and the median fail: a pass under that much spread is luck in the
+      // same way a fail is. Without this, a page that loads in one of two
+      // states of its own fails two identical builds whenever their medians
+      // land in different states, and can pass two builds that differ whenever
+      // they land in the same one.
+      //
+      // Otherwise the two medians decide, within the tolerance or beyond it.
+      const separated = rangeGap > allowed;
+      const outcome = separated ? "fail" : baselineSpread > allowed || candidateSpread > allowed ? "inconclusive" : delta <= allowed ? "pass" : "fail";
+      results.push({ caseId: panelCase.id, metric, baseline: left, candidate: right, delta, allowed, pass: outcome === "pass", outcome, baselineValues, candidateValues, baselineSpread, candidateSpread, separation: rangeGap, separated });
     }
   }
   // One failed metric fails the comparison whatever else is inconclusive. An

@@ -40,6 +40,8 @@ type Row = {
   candidateValues: number[];
   baselineSpread: number;
   candidateSpread: number;
+  separation: number;
+  separated: boolean;
 };
 type Comparison = {
   pass: boolean;
@@ -702,6 +704,8 @@ test("the committed 2026-09 receipts compare with the medians their record state
   assert.deepEqual(notPassed(h, result), [
     ["guardian", "knownTrackerRequests", "inconclusive", [27, 30, 30], [17, 27, 27], 3, 10, 9]
   ]);
+  // The two builds' runs overlap on every metric, so none fails on separation.
+  assert.equal(result.results.some((row) => row.separated), false);
   assert.deepEqual(result.excluded, GUARDIAN_FINGERPRINT_LEFT_OUT);
   assert.deepEqual(result.noted, [GITHUB_KEYSTROKE_NOTED]);
   assert.deepEqual(movedMedians(result), [
@@ -760,6 +764,7 @@ test("the committed 2026-10 receipts compare with github's every-run loss and th
     assert.equal(result.candidateBuild, "34d6847b54d804c449bed160a53129ca2e1f16ef", round);
     assert.equal(result.results.length, 44, round);
     assert.deepEqual(notPassed(h, result), unresolved, round);
+    assert.equal(result.results.some((row) => row.separated), false, round);
     assert.deepEqual(result.excluded, GUARDIAN_FINGERPRINT_LEFT_OUT, round);
     assert.deepEqual(result.noted, noted, round);
     assert.deepEqual(movedMedians(result), moved, round);
@@ -825,9 +830,57 @@ test("a metric whose repetitions within one build differ by more than the tolera
       context
     );
     assert.equal(row.outcome, outcome, context);
+    assert.equal(row.separated, false, context);
     assert.equal(result.outcome, outcome, context);
     // Nothing else in the panel moved, so this one metric decides the result.
     assert.deepEqual(notPassed(h, result).map((entry) => entry.slice(0, 3)), outcome === "pass" ? [] : [[site, "totalRequests", outcome]], context);
+  }
+});
+
+test("a metric fails, whatever the spreads, when every run of one build differs from every run of the other by more than the tolerance, and a gap equal to the tolerance is not that case", async () => {
+  const h = await helpers;
+  const digest = committedPanelDigest(h);
+  const site = panel.cases[0].id;
+  // totalRequests allows max(10, 0.2 x baseline median). Each row is [baseline
+  // repetitions, candidate repetitions, allowed, the gap between the two
+  // builds' ranges, outcome, whether it failed on that gap].
+  const cases: Array<[number[], number[], number, number, Outcome, boolean]> = [
+    // A doubled count whose runs are also unsteady is a failure, not "no
+    // evidence": the candidate's spread of 21 is over the tolerance of 20.
+    [[100, 100, 100], [200, 200, 221], 20, 100, "fail", true],
+    // A gap exactly on the tolerance is not separated, so the spread decides;
+    // one count more is, with the candidate above the baseline and below it,
+    // and with the spread in either build.
+    [[100, 100, 100], [120, 120, 141], 20, 20, "inconclusive", false],
+    [[100, 100, 100], [121, 121, 142], 20, 21, "fail", true],
+    [[100, 100, 100], [80, 59, 80], 20, 20, "inconclusive", false],
+    [[100, 100, 100], [79, 58, 79], 20, 21, "fail", true],
+    [[100, 100, 121], [141, 141, 141], 20, 20, "inconclusive", false],
+    [[100, 100, 121], [142, 142, 142], 20, 21, "fail", true],
+    [[100, 121, 100], [80, 80, 80], 20, 20, "inconclusive", false],
+    [[100, 121, 100], [79, 79, 79], 20, 21, "fail", true],
+    [[100, 100, 130], [160, 160, 190], 20, 30, "fail", true],
+    // Ranges that touch or overlap have no gap, however far the medians are.
+    [[100, 100, 100], [100, 100, 121], 20, 0, "inconclusive", false],
+    [[100, 100, 150], [100, 150, 150], 20, -50, "inconclusive", false],
+    // Steady builds that are separated fail on the gap and on their medians
+    // alike. Steady builds a tolerance apart fail on their medians alone.
+    [[10, 10, 10], [30, 30, 30], 10, 20, "fail", true],
+    [[10, 10, 20], [30, 30, 40], 10, 10, "fail", false]
+  ];
+  for (const [baselineValues, candidateValues, allowed, separation, outcome, separated] of cases) {
+    const context = `${JSON.stringify(baselineValues)} vs ${JSON.stringify(candidateValues)}`;
+    const { baseline, candidate } = await freshPair();
+    setCounts(baseline, site, "totalRequests", baselineValues);
+    setCounts(candidate, site, "totalRequests", candidateValues);
+    const result = h.compareReceipts(baseline, candidate, panel, digest);
+    const row = rowFor(result, site, "totalRequests");
+    assert.equal(row.allowed, allowed, context);
+    assert.equal(row.separation, separation, context);
+    assert.equal(row.separated, separated, context);
+    assert.equal(row.outcome, outcome, context);
+    assert.equal(result.outcome, outcome, context);
+    assert.deepEqual(notPassed(h, result).map((entry) => entry.slice(0, 3)), [[site, "totalRequests", outcome]], context);
   }
 });
 
@@ -908,6 +961,9 @@ test("each 2026-11 guardian round is inconclusive on the metrics the median-only
       round
     );
     assert.deepEqual(notPassed(h, result), unresolved, round);
+    // Low and high runs sit in both builds, so their ranges overlap and no
+    // metric fails on separation.
+    assert.equal(result.results.some((row) => row.separated), false, round);
     // The request total spreads too, but inside its wider tolerance, so it is
     // still compared and still passes.
     const totalRequests = rowFor(result, "guardian", "totalRequests");
@@ -1032,16 +1088,32 @@ test("the compare CLI exits 2, not 0 and not 1, when nothing fails and a metric 
   }
 });
 
-test("the compare CLI exits 1 on a failed median, with its FAIL lines unchanged, whether or not another metric is inconclusive", async () => {
-  const failLine = "FAIL wikipedia.cookies: median 10 -> 20; delta 10 > 4";
+test("the compare CLI exits 1 on a failed metric: the median FAIL line is unchanged, a failure on separated ranges adds both builds' runs, and neither yields to an inconclusive metric", async () => {
   const failResult = "FAIL Toolchain canary metric tolerances failed.";
-  {
-    const { baseline, candidate } = await freshPair();
-    setCounts(candidate, "wikipedia", "cookies", [20, 20, 20]);
-    const result = compareConstructed(baseline, candidate);
-    assert.equal(result.status, 1, result.stderr);
-    assert.deepEqual(printed(result.stdout), [RULE_LINE]);
-    assert.deepEqual(printed(result.stderr), [failLine, failResult]);
+  const separatedClause = (gap: number, runs: string) => `; every run of one build differs from every run of the other by more than the tolerance (the nearest two by ${gap}): ${runs}`;
+  const steadyFail = `FAIL wikipedia.cookies: median 10 -> 20; delta 10 > 4${separatedClause(10, "baseline runs 10, 10, 10, candidate runs 20, 20, 20")}`;
+  const cases: Array<[string, (pair: { baseline: Receipt; candidate: Receipt }) => void, string[]]> = [
+    // Steady builds whose ranges are a tolerance apart, no more: the medians
+    // alone fail it, on the line the command has always printed.
+    ["medians alone", ({ baseline, candidate }) => {
+      setCounts(baseline, "wikipedia", "totalRequests", [10, 10, 20]);
+      setCounts(candidate, "wikipedia", "totalRequests", [30, 30, 40]);
+    }, ["FAIL wikipedia.totalRequests: median 10 -> 30; delta 20 > 10", failResult]],
+    ["steady and separated", ({ candidate }) => { setCounts(candidate, "wikipedia", "cookies", [20, 20, 20]); }, [steadyFail, failResult]],
+    // The candidate's own runs spread by 21 against a tolerance of 20, and
+    // every one of them is 100 or more above every baseline run.
+    ["unsteady and separated", ({ baseline, candidate }) => {
+      setCounts(baseline, "wikipedia", "totalRequests", [100, 100, 100]);
+      setCounts(candidate, "wikipedia", "totalRequests", [200, 200, 221]);
+    }, [`FAIL wikipedia.totalRequests: median 100 -> 200; delta 100 > 20${separatedClause(100, "baseline runs 100, 100, 100, candidate runs 200, 200, 221")}`, failResult]]
+  ];
+  for (const [label, edit, stderr] of cases) {
+    const pair = await freshPair();
+    edit(pair);
+    const result = compareConstructed(pair.baseline, pair.candidate);
+    assert.equal(result.status, 1, `${label}: ${result.stderr}`);
+    assert.deepEqual(printed(result.stdout), [RULE_LINE], label);
+    assert.deepEqual(printed(result.stderr), stderr, label);
   }
   {
     const { baseline, candidate } = await round2026_11("run-2");
@@ -1050,7 +1122,7 @@ test("the compare CLI exits 1 on a failed median, with its FAIL lines unchanged,
     assert.equal(result.status, 1, result.stderr);
     assert.deepEqual(printed(result.stdout), [RULE_LINE]);
     assert.deepEqual(printed(result.stderr), [
-      failLine,
+      steadyFail,
       inconclusiveLine("guardian.knownTrackerRequests", "baseline runs 16, 17, 16 (spread 1), candidate runs 16, 29, 26 (spread 13), tolerance 4.8", "16 -> 26"),
       inconclusiveLine("guardian.shieldsBlockedRequests", "baseline runs 48, 49, 48 (spread 1), candidate runs 48, 68, 71 (spread 23), tolerance 14.399999999999999", "48 -> 68"),
       failResult
