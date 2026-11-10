@@ -13,12 +13,19 @@ Keep the weekly Brave-list refresh separate. It has its own provenance and valid
 
 Before changing pins, record the baseline commit and the exact old/new versions and digests for every item above. Build the candidate as a local commit in a clean checkout. Do not push it yet: pushing `main` starts CI and, if every gate passes, may fast-forward the exact tested commit to the deploy-only `production` branch. `main` is the release-candidate branch; `production` is the deployment boundary.
 
+Keep the logs, snapshots and receipts of an epoch in one directory that survives a restart and is outside every checkout, and name it once in the operator shell. The commands below write there. Do not use `/tmp`: it is emptied at restart, and the receipts are part of the epoch record.
+
+```sh
+export EPOCH_EVIDENCE="$HOME/toolchain-epoch-evidence"
+mkdir -p "$EPOCH_EVIDENCE"
+```
+
 Every Node report must carry the exact Playwright pin in its methodology provenance. The provenance guard ties that recorded constant to `package.json`, `package-lock.json`, the installed package, and the digest-pinned container base. The report UI renders Playwright separately from Chromium because a Playwright patch may intentionally keep the same browser build.
 
 The gate has two distinct checks:
 
 1. The committed corpus must expose exactly the same canonical comparison decisions. This is a zero-flip policy.
-2. Two exact staging builds must scan the committed five-site panel, in opposite order, with three repetitions. Local receipts compare per-site medians against the committed tolerances, and a metric is inconclusive when the repetitions of one build differ among themselves by more than its tolerance and the runs of the two builds are not further apart than that. A case whose own runs spread beyond the tolerance in most comparisons gives the panel no evidence for the metrics that spread; the remedies are more repetitions, a statistic that tolerates a page with two modes, or a stable case, and each is a change to the panel (for the statistic, to the comparison rule) that is made before a capture, never after.
+2. Two exact staging builds must scan the committed five-site panel, in opposite order, with three repetitions. Local receipts compare per-site medians against the committed tolerances, and a metric is inconclusive when the repetitions of one build differ among themselves by more than its tolerance and the runs of the two builds are not further apart than that. A case whose own runs spread beyond the tolerance in most comparisons gives the panel no evidence for the metrics that spread; the remedies are a stable case or a statistic that tolerates a page with two modes, and each is a change to the panel (for the statistic, to the comparison rule) that is made before a capture, never after. More repetitions are not a remedy under this rule: [Changing the panel](#changing-the-panel) says why, and how a case is replaced.
 
 The staging canary is deliberately not a public comparison report. `reports:verify-v2-shadow` is not suitable for this job: its comparisons are same-build intervention checks, while the normal v2 comparability rules correctly reject mixed browser/toolchain builds. Never weaken those rules or synthesize a cross-build public report for an epoch.
 
@@ -49,12 +56,12 @@ WASM_PACK_CACHE_DIR="${WASM_PACK_CACHE:-$HOME/Library/Caches/.wasm-pack}"
 WASM_BINDGEN_LOCKED="$(awk '/^name = "wasm-bindgen"$/{getline; gsub(/"/,"",$3); print $3}' tools/adblock-wasm/Cargo.lock)"
 test ! -e "$WASM_PACK_CACHE_DIR/wasm-bindgen-cargo-install-$WASM_BINDGEN_LOCKED"
 rm -rf tools/adblock-wasm/pkg tools/adblock-wasm/target
-wasm-pack build tools/adblock-wasm --target nodejs --release -- --locked 2> /private/tmp/toolchain-wasm-install.log
-grep -F 'Installing wasm-bindgen...' /private/tmp/toolchain-wasm-install.log
-grep -F "Installing wasm-bindgen-cli v$WASM_BINDGEN_LOCKED" /private/tmp/toolchain-wasm-install.log
-grep -F 'Locking ' /private/tmp/toolchain-wasm-install.log
-grep -F 'Optimizing wasm binaries with `wasm-opt`' /private/tmp/toolchain-wasm-install.log
-! grep -F 'found wasm-opt at' /private/tmp/toolchain-wasm-install.log
+wasm-pack build tools/adblock-wasm --target nodejs --release -- --locked 2> "$EPOCH_EVIDENCE/toolchain-wasm-install.log"
+grep -F 'Installing wasm-bindgen...' "$EPOCH_EVIDENCE/toolchain-wasm-install.log"
+grep -F "Installing wasm-bindgen-cli v$WASM_BINDGEN_LOCKED" "$EPOCH_EVIDENCE/toolchain-wasm-install.log"
+grep -F 'Locking ' "$EPOCH_EVIDENCE/toolchain-wasm-install.log"
+grep -F 'Optimizing wasm binaries with `wasm-opt`' "$EPOCH_EVIDENCE/toolchain-wasm-install.log"
+! grep -F 'found wasm-opt at' "$EPOCH_EVIDENCE/toolchain-wasm-install.log"
 shasum -a 256 "$WASM_PACK_CACHE_DIR/wasm-bindgen-cargo-install-$WASM_BINDGEN_LOCKED/wasm-bindgen"
 node -e 'import("./scripts/verify-wasm-reproducibility.mjs").then((m) => console.log(m.producersProcessedBy(require("node:fs").readFileSync("tools/adblock-wasm/pkg/sbl_adblock_wasm_bg.wasm"))))'
 rm -rf tools/adblock-wasm/pkg tools/adblock-wasm/target
@@ -73,11 +80,11 @@ shasum -a 256 "$WASM_OPT" "$(dirname "$WASM_OPT")/../lib/libbinaryen.dylib"
 WASM_BINDGEN_LOCKED="$(awk '/^name = "wasm-bindgen"$/{getline; gsub(/"/,"",$3); print $3}' tools/adblock-wasm/Cargo.lock)"
 "$WASM_PACK_CACHE_DIR/wasm-bindgen-cargo-install-$WASM_BINDGEN_LOCKED/wasm-bindgen" --version
 rm -rf tools/adblock-wasm/pkg tools/adblock-wasm/target
-wasm-pack build tools/adblock-wasm --mode no-install --target nodejs --release -- --locked 2> /private/tmp/toolchain-wasm-build.log
-grep -F 'Compiling sbl-adblock-wasm' /private/tmp/toolchain-wasm-build.log
-grep -F 'Installing wasm-bindgen...' /private/tmp/toolchain-wasm-build.log
-grep -F 'Optimizing wasm binaries with `wasm-opt`' /private/tmp/toolchain-wasm-build.log
-! grep -F 'found wasm-opt at' /private/tmp/toolchain-wasm-build.log
+wasm-pack build tools/adblock-wasm --mode no-install --target nodejs --release -- --locked 2> "$EPOCH_EVIDENCE/toolchain-wasm-build.log"
+grep -F 'Compiling sbl-adblock-wasm' "$EPOCH_EVIDENCE/toolchain-wasm-build.log"
+grep -F 'Installing wasm-bindgen...' "$EPOCH_EVIDENCE/toolchain-wasm-build.log"
+grep -F 'Optimizing wasm binaries with `wasm-opt`' "$EPOCH_EVIDENCE/toolchain-wasm-build.log"
+! grep -F 'found wasm-opt at' "$EPOCH_EVIDENCE/toolchain-wasm-build.log"
 cp tools/adblock-wasm/pkg/sbl_adblock_wasm* lib/adblock-wasm/
 node scripts/verify-wasm-reproducibility.mjs --print > tools/adblock-wasm/reproducibility-contract.json
 npm run lists:verify
@@ -89,11 +96,11 @@ Review the contract diff and commit the vendored set and the contract together. 
 test -z "$(command -v wasm-opt)"
 test -z "$(command -v wasm-bindgen)"
 rm -rf tools/adblock-wasm/pkg tools/adblock-wasm/target
-wasm-pack build tools/adblock-wasm --mode no-install --target nodejs --release -- --locked 2> /private/tmp/toolchain-wasm-rebuild.log
-grep -F 'Compiling sbl-adblock-wasm' /private/tmp/toolchain-wasm-rebuild.log
-grep -F 'Installing wasm-bindgen...' /private/tmp/toolchain-wasm-rebuild.log
-grep -F 'Optimizing wasm binaries with `wasm-opt`' /private/tmp/toolchain-wasm-rebuild.log
-! grep -F 'found wasm-opt at' /private/tmp/toolchain-wasm-rebuild.log
+wasm-pack build tools/adblock-wasm --mode no-install --target nodejs --release -- --locked 2> "$EPOCH_EVIDENCE/toolchain-wasm-rebuild.log"
+grep -F 'Compiling sbl-adblock-wasm' "$EPOCH_EVIDENCE/toolchain-wasm-rebuild.log"
+grep -F 'Installing wasm-bindgen...' "$EPOCH_EVIDENCE/toolchain-wasm-rebuild.log"
+grep -F 'Optimizing wasm binaries with `wasm-opt`' "$EPOCH_EVIDENCE/toolchain-wasm-rebuild.log"
+! grep -F 'found wasm-opt at' "$EPOCH_EVIDENCE/toolchain-wasm-rebuild.log"
 cmp tools/adblock-wasm/pkg/sbl_adblock_wasm.js lib/adblock-wasm/sbl_adblock_wasm.js
 cmp tools/adblock-wasm/pkg/sbl_adblock_wasm.d.ts lib/adblock-wasm/sbl_adblock_wasm.d.ts
 cmp tools/adblock-wasm/pkg/sbl_adblock_wasm_bg.wasm lib/adblock-wasm/sbl_adblock_wasm_bg.wasm
@@ -118,14 +125,14 @@ measurements, and timestamps. Output creation is exclusive, so choose new paths.
 ```sh
 cd /path/to/baseline
 npm ci
-npm run corpus:audit-neutrality -- snapshot --out /private/tmp/toolchain-baseline-neutrality.json
+npm run corpus:audit-neutrality -- snapshot --out "$EPOCH_EVIDENCE/toolchain-baseline-neutrality.json"
 
 cd /path/to/candidate
 npm ci
-npm run corpus:audit-neutrality -- snapshot --out /private/tmp/toolchain-candidate-neutrality.json
+npm run corpus:audit-neutrality -- snapshot --out "$EPOCH_EVIDENCE/toolchain-candidate-neutrality.json"
 npm run corpus:audit-neutrality -- compare \
-  --baseline /private/tmp/toolchain-baseline-neutrality.json \
-  --candidate /private/tmp/toolchain-candidate-neutrality.json
+  --baseline "$EPOCH_EVIDENCE/toolchain-baseline-neutrality.json" \
+  --candidate "$EPOCH_EVIDENCE/toolchain-candidate-neutrality.json"
 ```
 
 Proceed only when the report sets are identical and there are zero overall-mode, family-mode, and family-reason changes. A corpus change and a toolchain change must not share this gate; split them into separate reviews.
@@ -152,7 +159,7 @@ From the candidate checkout, capture the baseline in forward order. Replace the 
 npm run toolchain:canary -- capture \
   --expected-build <baseline-40-character-sha> \
   --order forward \
-  --out /private/tmp/toolchain-baseline-receipt.json \
+  --out "$EPOCH_EVIDENCE/toolchain-baseline-receipt.json" \
   --confirm I_ACKNOWLEDGE_THIS_SUBMITS_LIVE_STAGING_SCANS
 ```
 
@@ -163,7 +170,7 @@ npm run cf:container:staging:deploy
 npm run toolchain:canary -- capture \
   --expected-build <candidate-40-character-sha> \
   --order reverse \
-  --out /private/tmp/toolchain-candidate-receipt.json \
+  --out "$EPOCH_EVIDENCE/toolchain-candidate-receipt.json" \
   --confirm I_ACKNOWLEDGE_THIS_SUBMITS_LIVE_STAGING_SCANS
 ```
 
@@ -171,11 +178,13 @@ Compare the two local, create-only receipts:
 
 ```sh
 npm run toolchain:canary -- compare \
-  --baseline /private/tmp/toolchain-baseline-receipt.json \
-  --candidate /private/tmp/toolchain-candidate-receipt.json
+  --baseline "$EPOCH_EVIDENCE/toolchain-baseline-receipt.json" \
+  --candidate "$EPOCH_EVIDENCE/toolchain-candidate-receipt.json"
 ```
 
-The command fails closed on degraded or stale health, missing sandbox/R2/durable staging attestations, a failed, bot-walled, unsettled, budget-exhausted or not run-level complete scan, an evidence family censored by anything other than its own recorded capture loss, a capture-loss difference between the builds under the rule below, subject or egress drift, mixed provenance inside a capture, incomplete panel coverage, or a metric that fails the comparison rule below: runs of the two builds that are separated by more than the committed absolute/relative tolerance, or a median outside that tolerance on a metric whose repetitions stay within it in each build. It submits ordinary token-gated single scans only; it never sends the staging fault-injection headers. Receipts are mode `0600`, stay outside `public/`, contain no access token, and record the exact staging report IDs for audit and teardown.
+The compare command is the release comparison, and it runs on the current panel (`scripts/fixtures/toolchain-canary-panel.json`) only. It refuses a receipt that was captured on an earlier panel and names the replay command, which reads such receipts and is never a release comparison. See [Changing the panel](#changing-the-panel).
+
+The command fails closed on degraded or stale health, missing sandbox/R2/durable staging attestations, a failed, bot-walled, unsettled, budget-exhausted or not run-level complete scan, an evidence family censored by anything other than its own recorded capture loss, a capture-loss difference between the builds under the rule below, subject or egress drift, mixed provenance inside a capture, incomplete panel coverage, or a metric that fails the comparison rule below: runs of the two builds that are separated by more than the committed absolute/relative tolerance, or a median outside that tolerance on a metric whose repetitions stay within it in each build. It submits ordinary token-gated single scans only; it never sends the staging fault-injection headers. A health read that fails as a read (the request, the HTTP status or the JSON) is tried up to 3 times, 1 second and then 2 seconds apart. The health gate is not tried again: it is applied once, to the first health that was read, and a health that reports a warning or another build fails the capture, whatever a later read would say. A status poll or a read of the saved report that fails is read again at the next poll, 2 seconds later, inside a window of 180 reads, and ends the scan only when that window ends. A submission is never sent twice. A capture opens its receipt file before its first request, create-only, so a directory that does not exist or a file that is already there is refused before a scan is spent. The file is empty until the one write at the end. A capture that fails removes it. A capture that is stopped from outside (the process is killed, the machine stops) cannot, and leaves the empty file: it is not a receipt, `compare` refuses it and `capture` refuses to write over it, so remove it before the next capture. Receipts are mode `0600`, contain no access token, and record the exact staging report IDs for audit and teardown. The capture refuses a receipt path under `public/`, with links resolved.
 
 Capture loss is judged per site by its signature: family, kind and detail (a loss recorded without a detail is identified by family and kind alone; counts are not compared). The rule depends on whether the signature's evidence family feeds a canary metric:
 
@@ -206,7 +215,7 @@ When the compare command exits 2:
 
 1. Record each inconclusive metric by name in the epoch record and in the release decision, with the repetitions, spreads, tolerance and medians that the command printed.
 2. Do not record the A/B as passed, and do not record a toolchain regression for that metric. The comparison shows neither.
-3. To get evidence for that metric, use one of the remedies in the description of the panel above: more repetitions, a statistic that tolerates a page with two modes, or a stable case. Make the change before a capture, never after.
+3. To get evidence for that metric, use one of the remedies in the description of the panel above: a stable case, or a statistic that tolerates a page with two modes. Make the change before a capture, never after. More repetitions do not give that evidence (see [Changing the panel](#changing-the-panel)).
 
 This rule was added on 2026-11-10. Results recorded before it were judged by the earlier rule, which compared the two medians alone and printed no `RULE` line. Those results stand as recorded, and this playbook does not judge them again. Where the paragraph on the 2026-10-02 refinement above, or the 2026-10-02 addendum in the 2026-10 record, says what the compare command prints for the committed 2026-09 and 2026-10 receipts, it describes the gate from that refinement until this rule: that output reproduces from a checkout in that range, such as `f662f462`. Each dated record carries a 2026-11-10 addendum that says what the command does from this rule on and names the checkout that reproduces the record. This rule did not change how capture loss is judged.
 
@@ -226,3 +235,101 @@ After pushing the candidate:
 - retain the version matrix, corpus snapshots, canary receipts, teardown receipt, and CI/deployment links as the epoch record.
 
 Do not call an epoch complete from green source tests alone. Completion requires exact-artifact provenance, zero corpus-decision flips, a passing staging A/B, isolated-staging teardown, and exact-SHA production readback. A passing staging A/B is a compare command that exits 0. Exit 1 is a failed A/B, and the epoch is not complete. Exit 2 is neither a pass nor a failure, and it does not complete the epoch: the epoch record names each inconclusive metric with the runs of both builds and says that the comparison gave no evidence about the toolchain for that metric, and the release then needs the owner's recorded decision. Never write up an exit 2 as a pass.
+
+## Changing the panel
+
+The current panel is `scripts/fixtures/toolchain-canary-panel.json`. Every panel a receipt may carry is also committed in `scripts/fixtures/toolchain-canary-panels/`, one file per panel, named for its `panelId`: the current panel, byte for byte, and each panel before it. A receipt embeds its panel and the digest of that panel, and no canary command runs while the current panel is missing from that directory, so a receipt can be read against the panel it was captured with for as long as that panel's file is committed there. The tests pin the bytes of panel version 1 and replay the ten committed receipts on it, so that file cannot change or go without a test failing.
+
+The directory holds panel files and nothing else. A file in it that is not a panel (a `.DS_Store`, for instance) stops every canary command with a message that names the file: remove the file.
+
+### Release comparison and replay
+
+Two commands read a pair of receipts, and one cannot stand in for the other.
+
+- `compare` is the release comparison. It runs on the current panel only. A passing staging A/B is this command exiting 0.
+- `replay` reads two receipts on the committed panel that both carry, whichever panel that is. Every line it prints starts with `REPLAY`, a refusal included, of its options as of its receipts. Its first line gives the id, version, digest and file of that panel and says whether that panel is the current one. Its per-metric lines are the lines `compare` prints, with that mark. Its result line (`REPLAY PASS`, `REPLAY INCONCLUSIVE` or `REPLAY FAIL`) ends by saying that it is not a release comparison. Its exit statuses (0, 2 and 1) mean what they mean for `compare`, about the replayed pair and under the rule in force when it runs. A replay never completes an epoch and changes nothing a dated record states.
+
+`compare` refuses a receipt that names another committed panel, with exit 1. Its message says that a release needs a fresh capture of both builds on the current panel, and names `replay` for reading the old receipts. Both commands refuse a receipt whose panel is no committed panel, and both refuse a qualification receipt. The dated records quote `compare` commands for their own receipts. Those commands were written while panel version 1 was current: from the commit that changes the current panel, they print that refusal, and `replay` on the same two files reads the receipts.
+
+### Why a case is replaced and not repeated
+
+More repetitions do not make an inconclusive metric conclusive under `median-with-within-arm-spread-v2`. The spread of a build is the range of its repetitions, and a range does not shrink when runs are added. A page that loads in one of two states more than a tolerance apart is conclusive only when every run of a build lands in one state, and that is less likely with every added run. In the committed receipts the Guardian case shows a low state (19 known-tracker requests or fewer, where every other run has 26 or more) in 3 of the 18 runs of 2026-09 and 2026-10 and in 7 of the 12 runs of 2026-11. At one low visit in six, every run of both builds lands in one state in about 33% of comparisons at three repetitions, 16% at five and 8% at seven. The remedy for such a case is another case, or a statistic that tolerates two modes, which is a change of the comparison rule.
+
+### The rule
+
+A panel changes through one qualifying capture, judged by a rule that is committed before the capture runs. The rule for the change from panel version 1 is `QUALIFICATION_RULE` in `scripts/toolchain-canary-lib.mjs`, with the id `panel-qualification-2026-11-10`. It was fixed on 2026-11-10, before any qualifying capture. Its candidates are the qualification panel, `scripts/fixtures/toolchain-canary-qualification-panel.json`: bumble.com, ssa.gov and who.int at five repetitions, under the conditions and the tolerances of the current panel. A qualification panel may submit at most 15 scans (cases times repetitions), the size of one comparison capture.
+
+The rule judges each case alone:
+
+- A case qualifies when every run completed with a 2xx document, no run records capture loss in a family a canary metric is counted from (requests, cookies, storage, fingerprinting), every run ended on the candidate's own site, all runs landed on one subject and were captured under one set of conditions and toolchain provenance, and for every metric the spread of the runs is at most the tolerance at their median. A run ended on the candidate's own site when its report records both of these for the page the visit ended on: a registrable domain that is the candidate's catalog domain, and an origin whose host is that domain or ends in a dot and that domain. So a subdomain of the candidate is its site, and a redirect to another site is not. Without this condition a candidate that redirects to another site on every run would qualify under the candidate's name. The comparison would refuse runs of one case on two subjects, or runs of one build under two sets of conditions.
+- A qualifying case is a signal case when its medians of `knownTrackerRequests` and `shieldsBlockedRequests` are each at least 8. At 8 a halved count moves the median by more than the tolerance. At 7 it can round to a move inside the tolerance.
+- The Guardian's slot goes to bumble.com and to no other case, and only if bumble.com qualifies, is a signal case, and has a median above the tolerance on each of the five metrics that only the Guardian carries in panel version 1 (`knownTrackerRequests`, `thirdPartyDomains`, `thirdPartyCookies`, `storageEntries`, `shieldsBlockedRequests`), so that a zeroed count would still fail. If not, the Guardian stays.
+- The gov.uk slot goes to the first of ssa.gov, then who.int, that qualifies and is a signal case. If neither does, gov.uk stays, and the tracker and Shields signal of the panel rests on one site.
+- A case is judged only when every one of its runs is recorded. A case whose capture ended first is not judged, which the slots treat as not qualified: it takes no slot.
+- The next panel keeps the repetitions, conditions and tolerances of the panel it changes. Each new case takes the place of the case it replaces.
+
+The loss condition is stricter than the comparison, which leaves a metric out when every run of both builds shares a loss. The comparison refuses outright when the loss signatures of a site differ between any two of its runs, and one capture cannot show that a loss will be on every later run.
+
+One capture cannot prove that a page has a single state. A page that shows a second state in one visit of three still shows only one of the two in about 14% of five-run captures. A page that shows it in one visit of six, the Guardian's rate in its 2026-09 and 2026-10 receipts, does so in about 40%. So the five runs are not the protection against such a page. The closed candidate list is: it holds the candidates whose committed history was accepted when the rule was fixed, and a case that is not on it cannot take a slot, whatever one capture shows.
+
+### The qualifying capture
+
+The `qualify` command runs the capture. Before its first scan it keeps the gates of a comparison capture: the confirmation string, the staging origin and its token, and authenticated health against the expected build. It holds every saved report to the committed report schema.
+
+There is one capture for one qualification panel. The command holds one worktree to that, and no more: it takes no path for its receipt, and while the receipt exists in the worktree it refuses to run, whatever the file holds. It cannot see another clone, and a clone that does not have the receipt can run the capture again. That is why the receipt is committed and pushed before anything else (step 4).
+
+The receipt goes to `docs/<qualificationPanelId>/qualification-receipt.json` in the worktree, which for the committed qualification panel is `docs/toolchain-canary-qualification-2026-11/qualification-receipt.json`. The command creates that file, empty, before its first request, create-only and readable by its owner alone. It refuses a path that a link leads out of that place, before it makes anything beyond the link. Each write after that replaces the receipt whole: the text goes to `qualification-receipt.json.partial` beside it, is flushed, and is renamed over it, so the receipt is never half written.
+
+A health read that fails as a read (the request, the HTTP status or the JSON) is tried up to 3 times, 1 second and then 2 seconds apart. The health gate is applied once, to the first health that was read, and is never a reason to read again. A status poll that cannot be read counts as one poll of the window of 180 polls, 2 seconds apart, and the status is read again at the next. The saved report is read with the same patience: up to 180 reads, 2 seconds apart. A scan is recorded with an unreadable status or an unreadable report only when its window ends. A submission is never sent twice.
+
+From the first scan on, nothing the capture has seen is discarded. The receipt is written to disk before each scan, and again as soon as the last scan ends and before the health read that follows it, marked not finished each time. It is written once more when it is finished. A scan that leaves no report (its job failed, expired, was cancelled or did not end within the polling window, or its status or its saved report could not be read by the end of its window) is recorded against its case, and so is a saved report whose visit was blocked, failed, did not settle or ran out of budget. The capture goes on after either.
+
+The capture ends in one of four ways:
+
+- Finished. Every scan was attempted and recorded. The health read after the last scan is recorded in the receipt, pass or fail: a failure there does not void the runs, which each record their build. The command exits 0.
+- Ended by a scan. A saved report from another build, toolchain or condition vector, a report the schema refuses, or a submission that the server does not answer with a job ends the capture. The receipt holds the runs so far and the reason, and is not finished. The command exits 1. This includes a first submission that got no answer, or an answer that is neither a job nor one of the refusals below: the server may have accepted that scan, so the receipt is kept with no scan recorded.
+- Stopped from outside (the process is killed, the machine stops). The command cannot say what it left, so read the receipt file. If it is a JSON document, it is not finished and holds every scan that had been written: each scan is written as soon as it ends, before the next request, so a stop can lose only the scan in progress, or one that ended in that instant. If it is an empty file (0 bytes), no scan was submitted: the first write of the receipt comes before the first submission, so an empty receipt can mean nothing else. An empty receipt is the only receipt the operator may remove. A file `qualification-receipt.json.partial` beside the receipt is a write that the stop cut off. It is not a receipt: remove it and do not commit it.
+- Not started. A gate fails before the first scan (a wrong flag, a place for the receipt that cannot be written, a health read that fails three times, or a health that the gate refuses), or the server refuses the first submission (status 400, 401, 403, 413, 422 or 429) before it has accepted any scan. No scan was accepted and no receipt file is left, so the capture has not been used. The capture is used from the first job the server acknowledges: a refusal after that keeps the receipt.
+
+The receipt records the id and the digest of the rule, the digest of the qualification panel, and the version and digest of the panel it would change. `verdict` refuses a receipt that was recorded under another rule. It reads the committed panel that the receipt names, not the current panel, so it gives the same verdict after panel version 2 is current. It reads a receipt that is not finished: it judges each case whose runs are all recorded and reports every other case as not judged. The qualification receipt is a kind of its own: `compare` and `replay` refuse it, and `verdict` refuses a capture receipt.
+
+A panel past version 1 is committed only as the bytes `verdict` gives for the committed qualification receipt. The tests hold the repository to that, so a panel made by hand, with a tolerance loosened or a case exchanged, fails them.
+
+### Procedure
+
+1. Commit the rule and the qualification panel before the capture. Do not change either after a qualification receipt exists. A changed rule is a new rule: give it a new id, a new qualification panel id and its own capture.
+2. Deploy the current build to the isolated staging origin and export the token, as in section 3.
+3. Run the qualifying capture once:
+
+   ```sh
+   npm run toolchain:canary -- qualify \
+     --expected-build <deployed-40-character-sha> \
+     --confirm I_ACKNOWLEDGE_THIS_SUBMITS_LIVE_STAGING_SCANS
+   ```
+
+4. Commit and push `docs/toolchain-canary-qualification-2026-11/qualification-receipt.json` immediately, whatever it holds, before anything else. The command refuses a second capture only in a worktree that has the receipt, and another clone does not have it until it is pushed. If the command ended without a finished receipt, stop and ask the owner. Do not run the command again, and do not remove or edit the receipt. There are two exceptions. In both no scan was accepted, the capture has not been used, and there is nothing to commit: correct the cause and do step 3 again.
+   - The command printed a message that ends `no receipt is kept: the qualifying capture has not been used.` It gives that message when health did not pass before the first scan, or when the server refused the first submission. It has removed the file.
+   - The receipt is an empty file (0 bytes). The command leaves one when it is stopped from outside, or cannot write the receipt, before its first submission. Remove the empty file. Remove a receipt in no other case.
+5. Read the verdict. It reads the committed receipt. For each case it prints the runs, median, spread and tolerance of each metric and each reason against the case. Then it prints each slot, the cases that carry the Guardian's five metrics in the resulting panel, and the next panel or the statement that the panel does not change. It exits 0 for either verdict and 1 when it refuses the receipt.
+
+   ```sh
+   npm run toolchain:canary -- verdict \
+     --panel-out scripts/fixtures/toolchain-canary-panels/monthly-toolchain-canary-v2.json
+   ```
+
+6. If the verdict changes the panel, commit the next panel before any comparison capture. Make the current panel file a copy of the file the verdict wrote, and do not edit either:
+
+   ```sh
+   cp scripts/fixtures/toolchain-canary-panels/monthly-toolchain-canary-v2.json \
+     scripts/fixtures/toolchain-canary-panel.json
+   ```
+
+   In the same commit:
+   - Add the new file to `DEVELOPMENT_EXCLUSION_SURFACES` in `scripts/calibration-development-exclusions-lib.mjs`, and add its probe to the test beside that file. That test names the new file until this is done.
+   - Add a dated addendum to each dated epoch record that quotes a `compare` command for its own receipts (`docs/toolchain-epoch-2026-09.md`, `docs/toolchain-epoch-2026-10.md` and `docs/toolchain-epoch-2026-11.md`). The addendum says that from this commit the command needs `replay` in place of `compare`.
+   - Do not edit or remove an earlier panel file.
+7. If the verdict does not change the panel, commit no panel. The inconclusive metrics stay recorded as inconclusive.
+8. Complete the staging teardown.
+9. Capture the baseline and the candidate of the next epoch from a checkout that holds the new panel, and compare them with `compare`, as in section 3.
+
+Once panel version 2 is current, `qualify` refuses to run: the rule of 2026-11-10 changes panel version 1 only. A later change needs its own rule, fixed before its capture.

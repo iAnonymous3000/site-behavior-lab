@@ -1682,6 +1682,102 @@ test("the qualify CLI keeps the gates of a capture ahead of any request, takes n
   }
 });
 
+test("the playbook states the panel change as the code holds it: the rule, the one receipt and its place, the retries, the commands, and no remedy the rule does not give", async () => {
+  const h = await helpers;
+  const rule = h.QUALIFICATION_RULE;
+  const playbook = readFileSync(path.join(root, "docs", "toolchain-epoch.md"), "utf8");
+  const command = readFileSync(path.join(root, "scripts", "toolchain-canary.mjs"), "utf8");
+  const [guardianSlot, govSlot] = rule.slots;
+  const place = h.qualificationReceiptPath(qualificationPanel);
+  const stated = [
+    "`QUALIFICATION_RULE` in `scripts/toolchain-canary-lib.mjs`",
+    `with the id \`${rule.id}\``,
+    `fixed on ${rule.fixedOn}, before any qualifying capture`,
+    `\`${QUALIFICATION_PANEL_FILE.split(path.sep).join("/")}\`: ${qualificationPanel.cases.slice(0, -1).map((entry) => entry.domain).join(", ")} and ${qualificationPanel.cases.at(-1)?.domain} at five repetitions`,
+    `at most ${h.QUALIFICATION_MAX_SCANS} scans`,
+    `its medians of ${rule.signalMetrics.map((metric) => `\`${metric}\``).join(" and ")} are each at least ${rule.signalMedianFloor}`,
+    `The Guardian's slot goes to ${guardianSlot.candidates.join(", ")} and to no other case`,
+    `(${guardianSlot.mustCarry.map((metric) => `\`${metric}\``).join(", ")})`,
+    `The ${govSlot.outgoing} slot goes to the first of ${govSlot.candidates.join(", then ")}, that qualifies and is a signal case`,
+    `changes panel version ${rule.fromPanelVersion} only`,
+    "(requests, cookies, storage, fingerprinting)",
+    "every run ended on the candidate's own site, all runs landed on one subject and were captured under one set of conditions and toolchain provenance",
+    "a registrable domain that is the candidate's catalog domain, and an origin whose host is that domain or ends in a dot and that domain. So a subdomain of the candidate is its site, and a redirect to another site is not.",
+    "A case is judged only when every one of its runs is recorded.",
+    "`scripts/fixtures/toolchain-canary-panels/`",
+    // The one receipt, its place, and what to do with it.
+    "`docs/<qualificationPanelId>/qualification-receipt.json`",
+    `is \`${place}\``,
+    `Commit and push \`${place}\` immediately, whatever it holds, before anything else.`,
+    "It cannot see another clone, and a clone that does not have the receipt can run the capture again.",
+    "If the command ended without a finished receipt, stop and ask the owner. Do not run the command again",
+    "while the receipt exists in the worktree it refuses to run, whatever the file holds",
+    // What a stop from outside leaves, and the one receipt that may be removed.
+    "so a stop can lose only the scan in progress, or one that ended in that instant",
+    "the first write of the receipt comes before the first submission, so an empty receipt can mean nothing else",
+    "An empty receipt is the only receipt the operator may remove.",
+    "The receipt is an empty file (0 bytes). The command leaves one when it is stopped from outside, or cannot write the receipt, before its first submission. Remove the empty file. Remove a receipt in no other case.",
+    "A file `qualification-receipt.json.partial` beside the receipt is a write that the stop cut off. It is not a receipt: remove it and do not commit it.",
+    "and leaves the empty file: it is not a receipt, `compare` refuses it and `capture` refuses to write over it, so remove it before the next capture",
+    // The health gate is applied once, in both captures.
+    "The health gate is not tried again: it is applied once, to the first health that was read",
+    "The health gate is applied once, to the first health that was read, and is never a reason to read again.",
+    // The last scan is written before the health read that follows it.
+    "and again as soon as the last scan ends and before the health read that follows it",
+    // The one capture is used from the first job the server acknowledges.
+    "or the server refuses the first submission (status 400, 401, 403, 413, 422 or 429) before it has accepted any scan",
+    "This includes a first submission that got no answer, or an answer that is neither a job nor one of the refusals below: the server may have accepted that scan, so the receipt is kept with no scan recorded.",
+    "The command printed a message that ends `no receipt is kept: the qualifying capture has not been used.`",
+    // The commands as they are run.
+    "npm run toolchain:canary -- qualify \\\n     --expected-build <deployed-40-character-sha> \\\n     --confirm I_ACKNOWLEDGE_THIS_SUBMITS_LIVE_STAGING_SCANS\n",
+    "npm run toolchain:canary -- verdict \\\n     --panel-out scripts/fixtures/toolchain-canary-panels/monthly-toolchain-canary-v2.json\n",
+    "`replay` reads two receipts on the committed panel that both carry",
+    "Every line it prints starts with `REPLAY`, a refusal included, of its options as of its receipts.",
+    "`compare` is the release comparison. It runs on the current panel only.",
+    "a release needs a fresh capture of both builds on the current panel",
+    // What one capture cannot show, at both rates.
+    "in about 14% of five-run captures",
+    "does so in about 40%",
+    "So the five runs are not the protection against such a page. The closed candidate list is",
+    // The dated records at the commit that changes the panel.
+    "Add a dated addendum to each dated epoch record that quotes a `compare` command for its own receipts (`docs/toolchain-epoch-2026-09.md`, `docs/toolchain-epoch-2026-10.md` and `docs/toolchain-epoch-2026-11.md`)"
+  ];
+  for (const sentence of stated) assert.ok(playbook.includes(sentence), `docs/toolchain-epoch.md must state: ${sentence}`);
+  assert.equal(guardianSlot.outgoing, "theguardian.com");
+  assert.equal(qualificationPanel.repetitions, 5);
+  assert.equal(place, "docs/toolchain-canary-qualification-2026-11/qualification-receipt.json");
+  assert.deepEqual([...h.METRIC_FEEDING_FAMILIES].sort(), ["cookies", "fingerprinting", "requests", "storage"]);
+  // The refusals and the message of an unused capture, as the command holds them and as the playbook states them.
+  assert.match(command, /^const SUBMISSION_REFUSAL_STATUSES = new Set\(\[400, 401, 403, 413, 422, 429\]\);$/m);
+  assert.equal(command.split("no receipt is kept: the qualifying capture has not been used.`").length - 1, 2);
+  // The further reads, as the command holds them and as the playbook states them, for both captures.
+  assert.match(command, /^const GET_TRIES = 3;$/m);
+  assert.match(command, /^const GET_BACKOFF_MS = Object\.freeze\(\[1_000, 2_000\]\);$/m);
+  assert.match(command, /^const POLL_INTERVAL_MS = 2_000;$/m);
+  assert.match(command, /^const MAX_POLLS = 180;$/m);
+  assert.equal(playbook.split("A health read that fails as a read (the request, the HTTP status or the JSON) is tried up to 3 times, 1 second and then 2 seconds apart.").length - 1, 2);
+  for (const sentence of [
+    "is read again at the next poll, 2 seconds later, inside a window of 180 reads, and ends the scan only when that window ends",
+    "A status poll that cannot be read counts as one poll of the window of 180 polls, 2 seconds apart, and the status is read again at the next.",
+    "The saved report is read with the same patience: up to 180 reads, 2 seconds apart.",
+    "A scan is recorded with an unreadable status or an unreadable report only when its window ends."
+  ]) assert.ok(playbook.includes(sentence), `docs/toolchain-epoch.md must state: ${sentence}`);
+  // The file a cut-off write leaves, as the command names it.
+  assert.ok(command.includes("function partialOf(file) { return `${file}.partial`; }"));
+  assert.equal(playbook.split("A submission is never sent twice.").length + playbook.split("a submission is never sent twice.").length - 2, 2);
+  // Every dated record the addendum step names quotes such a command.
+  for (const record of ["docs/toolchain-epoch-2026-09.md", "docs/toolchain-epoch-2026-10.md", "docs/toolchain-epoch-2026-11.md"]) {
+    assert.match(readFileSync(path.join(root, ...record.split("/")), "utf8"), /npm run toolchain:canary -- compare/, record);
+  }
+  // More repetitions are named only to say that they are no remedy: every sentence that names them denies it.
+  const naming = playbook.match(/[^.\n]*\bmore repetitions\b[^.\n]*/gi) ?? [];
+  assert.equal(naming.length, 3);
+  for (const sentence of naming) assert.match(sentence, /\b(?:not|never)\b/i, sentence);
+  // No example path is one a restart empties.
+  assert.doesNotMatch(playbook, /\/tmp\/[A-Za-z]/);
+  assert.ok(playbook.includes('export EPOCH_EVIDENCE="$HOME/toolchain-epoch-evidence"'));
+});
+
 // ---------------------------------------------------------------------------
 // The capturing commands end to end, against a stand-in for staging. The
 // stand-in replaces fetch inside the spawned command and answers the four
