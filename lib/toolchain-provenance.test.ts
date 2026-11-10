@@ -277,17 +277,77 @@ test("the base's vulnerable apt downloads with its retries off and from HTTPS so
   }
 
   // HTTPS: the rewrite, then the refusal of any http source, then apt.
-  const rewrite = "sed -i 's|^URIs: http://|URIs: https://|' /etc/apt/sources.list.d/ubuntu.sources";
+  // The https origin is Ubuntu's snapshot service (the test after this one holds its one time).
+  const rewrite = /^sed -i 's\|\^URIs: \.\*\|URIs: https:\/\/snapshot\.ubuntu\.com\/ubuntu\/\d{8}T\d{6}Z\/\|' \/etc\/apt\/sources\.list\.d\/ubuntu\.sources$/;
   const noPlainHttp = "! grep -rqsE '^[^#]*http://' /etc/apt/sources.list /etc/apt/sources.list.d";
   for (const instruction of apt) {
     const where = instruction.slice(0, 60);
     const parts = instruction.replace(/^RUN /, "").split(" \\\n  && ");
-    assert.equal(parts[0], rewrite, `a step that runs apt must first move the Ubuntu sources to HTTPS: ${where}`);
+    assert.match(parts[0], rewrite, `a step that runs apt must first move the Ubuntu sources to HTTPS: ${where}`);
     assert.equal(parts[1], noPlainHttp, `then fail if any apt source still names http://: ${where}`);
     assert.match(parts[2], /^apt-get /, `and only then run apt: ${where}`);
     const rest = parts.slice(2).join("\n");
     assert.doesNotMatch(rest, /http:\/\/|sources\.list|\bsed\b|\btee\b|>/, `nothing after the check may name or write an apt source: ${where}`);
   }
+});
+
+test("every step that runs apt-get update reads Ubuntu's archive at one fixed past snapshot time", () => {
+  // A pocket of Ubuntu's live archive lists only the newest version of each
+  // package. An exact pin against it holds until a newer version is published
+  // and then fails every build, a rebuild of a released tag among them. So
+  // each step that runs apt-get update first rewrites the base's Ubuntu
+  // sources to Ubuntu's snapshot service at one time, and fails the build
+  // unless the indexes apt then fetched came from there. apt's own
+  // --snapshot option is refused: in this base it leaves the live mirrors'
+  // indexes in place on linux/amd64 and is silently ignored on linux/arm64
+  // (measured 2026-11-10; the Dockerfile's comment has the detail).
+  const commands = source("Dockerfile")
+    .split("\n")
+    .filter((line) => !line.startsWith("#"))
+    .join("\n");
+
+  // One time, in the service's form, wherever the Dockerfile names the service.
+  const named = [...commands.matchAll(/snapshot\.ubuntu\.com\/([^\s|'"]*)/g)].map((match) => match[1]);
+  assert.ok(named.length > 0, "the Dockerfile must name Ubuntu's snapshot service");
+  const times = new Set(named);
+  assert.equal(times.size, 1, `the Dockerfile must name exactly one snapshot time, not ${[...times].join(" and ")}`);
+  const [archive] = [...times];
+  const form = /^ubuntu\/((\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z)\/$/.exec(archive);
+  assert.ok(form, `the snapshot must be named as ubuntu/YYYYMMDDTHHMMSSZ/, not ${archive}`);
+  const [, time, year, month, day, hour, minute, second] = form;
+  const at = Date.UTC(Number(year), Number(month) - 1, Number(day), Number(hour), Number(minute), Number(second));
+  // A real moment: a month 13 or a day 31 that rolls over does not read back.
+  assert.equal(new Date(at).toISOString().replace(/[-:]|\.000/g, ""), time, "the snapshot time must be a real UTC time");
+  // Fixed and past: the service has nothing for a time that has not come, and
+  // a time taken from the clock at build time would name no fixed archive.
+  assert.ok(at < Date.now(), "the snapshot time must be in the past");
+  assert.ok(at >= Date.UTC(2023, 2, 1), "Ubuntu's snapshot service starts on 2023-03-01");
+  assert.doesNotMatch(commands, /--snapshot|APT::Snapshot|\$\(date|`date/, "the time is a literal in the sources' URL, never apt's snapshot option or the build's clock");
+
+  const rewrite = `sed -i 's|^URIs: .*|URIs: https://snapshot.ubuntu.com/ubuntu/${time}/|' /etc/apt/sources.list.d/ubuntu.sources`;
+  const fromSnapshot = "ls /var/lib/apt/lists | grep -q '^snapshot\\.ubuntu\\.com_ubuntu_[0-9TZ]*_dists_noble-security_InRelease$'";
+  const fromNowhereElse = "! ls /var/lib/apt/lists | grep -v '^snapshot\\.ubuntu\\.com_' | grep -q 'ubuntu\\.com'";
+  // One instruction per element: a line that ends in a backslash continues.
+  const instructions = commands.replace(/\\\n/g, "\u0000").split("\n").map((instruction) => instruction.replaceAll("\u0000", "\\\n"));
+  const apt = instructions.filter((instruction) => /\bapt(?:-get|-cache|itude)?\b/.test(instruction));
+  assert.equal(apt.length, 2, "apt runs in the deps stage's step and the runner stage's upgrade step, and nowhere else");
+  for (const instruction of apt) {
+    const where = instruction.slice(0, 60);
+    assert.ok(instruction.startsWith(`RUN ${rewrite} \\\n  && ! grep -rqsE '^[^#]*http://' /etc/apt/sources.list /etc/apt/sources.list.d \\\n  && apt-get -o Acquire::Retries=0 -o APT::Update::Error-Mode=any update \\\n`), `a step that runs apt must first rewrite the Ubuntu sources to the snapshot, then refuse plain http, then update: ${where}`);
+    assert.equal((instruction.match(/\bapt-get [^\n&|;]*\bupdate\b/g) ?? []).length, 1, `one apt-get update per step: ${where}`);
+    assert.equal(instruction.split("/etc/apt/sources.list.d/ubuntu.sources").length - 1, 1, `nothing may touch the sources after the rewrite: ${where}`);
+    const parts = instruction.split(" \\\n  && ");
+    const installs = parts.map((part) => /\bapt-get (?:-o \S+ )*(?:update|install)\b/.test(part)).lastIndexOf(true);
+    const first = parts.indexOf(fromSnapshot);
+    const second = parts.indexOf(fromNowhereElse);
+    const cleared = parts.findIndex((part) => part.includes("rm -rf /var/lib/apt/lists"));
+    assert.ok(first > installs, `the build must fail unless the security pocket's index came from the snapshot: ${where}`);
+    assert.equal(second, first + 1, `and unless no index came from another ubuntu.com host: ${where}`);
+    assert.ok(cleared > second, `both checks must read the indexes before the step removes them: ${where}`);
+  }
+  // Nothing else in the image build may reach for a package source.
+  const others = instructions.filter((instruction) => !apt.includes(instruction)).join("\n");
+  assert.doesNotMatch(others, /sources\.list|ubuntu\.com|dpkg -i|\.deb\b/);
 });
 
 test("the runner stage's package step comes before anything of a commit", () => {

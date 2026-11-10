@@ -3586,6 +3586,32 @@ as intended.
   does. The packages the image ships do not change: a runner stage built
   natively for linux/arm64 lists the same 509 packages at the same versions
   as before.
+- The image's two package steps read Ubuntu's archive at one fixed time. The
+  deps stage's `unzip` install and the runner stage's upgrade step take
+  Ubuntu's packages from Ubuntu's snapshot service, as the archive stood at
+  2026-11-10 00:00:00 UTC (`snapshot.ubuntu.com/ubuntu/20261110T000000Z/`),
+  the security pocket included, and no longer from the live mirrors. A pocket
+  of the live archive lists only the newest version of each package, so the
+  upgrade step's exact pins fail every build from the day a newer version is
+  published, a rebuild of a released tag among them. The pins and the step's
+  version check stay, as a check on what the snapshot holds, and each step
+  fails the build unless the security pocket's index came from the snapshot
+  service and no index came from another ubuntu.com host. What the image
+  ships does not change, and no scan report records anything this touches. A
+  runner stage built natively for linux/arm64 with the snapshot lists the
+  same 509 packages at the same versions as the image built from the live
+  mirrors thirteen hours after the snapshot's time, and one built for
+  linux/amd64 under emulation gives the package set the ledger already holds
+  (513 packages, `cde067a5`). The runtime image's Ubuntu sources file now
+  names the snapshot. Not covered: the NodeSource index, which `apt-get update`
+  still fetches live although nothing is installed from it. Not verified: a
+  full image build with these steps, and how long Ubuntu keeps a snapshot.
+  On its first use this snapshot time answered a share of requests with 500,
+  502, 503 or not at all for about six minutes, and answered every request
+  made after that, at speeds that differed twentyfold (the same 36 MB of
+  indexes in 7 s and in 145 s on one day). With apt's retries off, one bad
+  answer fails a build, and hosted CI runs the runner stage's step in every
+  image build.
 - One test failed where the image was built under emulation, and
   node-detectors-v24 has since changed the rule it tested. Both image builds
   were made locally on 2026-11-10, from this epoch as it stood before
