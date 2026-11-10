@@ -41,6 +41,7 @@ import type {
   ScanRequestPayload
 } from "./types";
 import { assertInspectionRunnable, assertScrollCheckRunnable, prepareScanRequest, type PreparedScanRequest } from "./scan-gate";
+import { refuseSeamOption, refuseSeamVisit } from "./investigation-seam";
 import { scanAbortError } from "./scan-runtime";
 
 export { prepareScanRequest, ScanGate, scanRateLimitCost, type PreparedScanRequest } from "./scan-gate";
@@ -126,12 +127,19 @@ export async function executePreparedScan(
     let completedRuns = 0;
     const totalRuns = prepared.compareGpc || prepared.compareShields || prepared.compareConsent ? 2 : 1;
     const scanWithProgress: ScanRunner = async (payload, options) => {
-      const result = await scan(payload, {
+      const visitOptions: ScanSiteOptions = {
         ...options,
         onProgress: (phase) => {
           control.onProgress?.({ phase, completedRuns, totalRuns });
         }
-      });
+      };
+      // Every public visit starts here and returns here. None may carry the
+      // scanner's private capture option, and none may hand back a visit that
+      // used it, whatever runner was injected: such a visit is never built
+      // into a report, saved or emitted (lib/investigation-seam.ts).
+      refuseSeamOption(visitOptions);
+      const result = await scan(payload, visitOptions);
+      refuseSeamVisit(result, "the scan API");
       completedRuns += 1;
       control.onProgress?.({ phase: "collecting", completedRuns, totalRuns });
       return result;

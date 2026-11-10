@@ -19,6 +19,7 @@ import type { ConnectionInspectionEvidence } from "./connection-inspection-evide
 import type { ScrollCheckEvidence } from "./scroll-check-evidence";
 import { isEphemeralScanReportR2 } from "./scan-report-v2-r2-validation";
 import type { ScanResult } from "./types";
+import { refuseSeamVisit } from "./investigation-seam";
 
 export type RuntimeR2BuildFailureCode =
   | "measurement-envelope-missing"
@@ -67,6 +68,8 @@ export function buildRuntimeScanReportV2R2(
   acquisition: AcquisitionKind,
   env: NodeJS.ProcessEnv = process.env
 ): EphemeralSingleReportR2 {
+  // No report is built from a visit a private capture was connected to.
+  refuseSeamVisit(envelope, "the runtime report builder");
   const measurement = requireMeasurementEnvelope(envelope);
   assertMeasurementEnvelopeConsistent(envelope.result, measurement);
   assertBuildProvenance(env);
@@ -104,6 +107,9 @@ export function buildRuntimeComparisonScanReportV2R2(
   acquisition: AcquisitionKind,
   env: NodeJS.ProcessEnv = process.env
 ): EphemeralComparisonReportR2 {
+  // Neither arm may be a visit a private capture was connected to.
+  refuseSeamVisit(baselineEnvelope, "the runtime comparison builder");
+  refuseSeamVisit(variantEnvelope, "the runtime comparison builder");
   const baseline = requireMeasurementEnvelope(baselineEnvelope);
   const variant = requireMeasurementEnvelope(variantEnvelope);
   assertMeasurementEnvelopeConsistent(baselineEnvelope.result, baseline);

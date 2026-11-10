@@ -5,6 +5,7 @@ import { createR2ReportStoreBackend, r2ReportStoreConfigFromEnv, type R2ReportSt
 import { readStoredScanReport } from "./scan-report-reader";
 import { toPublicScanReportR2 } from "./scan-report-v2-r2-projection";
 import type { EphemeralComparisonReportR2, EphemeralSingleReportR2, ScanRunV2R2 } from "./scan-report-v2-r2";
+import { refuseSeamVisit } from "./investigation-seam";
 
 export const V2_SHADOW_BACKEND_ENV = "SITE_BEHAVIOR_LAB_V2_SHADOW_BACKEND";
 export const V2_SHADOW_DIR_ENV = "SITE_BEHAVIOR_LAB_V2_SHADOW_DIR";
@@ -40,6 +41,9 @@ export async function writeV2ShadowArtifact(
   env: NodeJS.ProcessEnv = process.env,
   deps: V2ShadowStoreDeps = {}
 ): Promise<V2ShadowWriteReceipt> {
+  // The shadow store is a saver too: nothing of a visit a private capture
+  // was connected to is written here.
+  refuseSeamVisit(report, "the shadow store");
   const buildCommit = env[BUILD_COMMIT_ENV]?.trim().toLowerCase() ?? "";
   const publicReport = toPublicScanReportR2(report);
   const read = readStoredScanReport(publicReport);

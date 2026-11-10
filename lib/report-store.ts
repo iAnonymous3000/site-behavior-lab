@@ -31,6 +31,7 @@ import { REPORT_ID_PATTERN } from "./report-validation";
 import type { ReadStoredScanReportError, StoredScanReport } from "./scan-report-reader";
 import { sha256Hex } from "./sha256";
 import type { ReportShare, ScanReport } from "./types";
+import { refuseSeamVisit } from "./investigation-seam";
 
 /**
  * The R2 bucket's own `reports-retention-backstop-8d` lifecycle rule, in days.
@@ -222,6 +223,9 @@ export function prepareScanReportBundle<T extends RuntimeScanReport>(
   report: T,
   options: { shareId?: string; now?: Date | number } = {}
 ): PreparedScanReportBundle<T> {
+  // Before a share is minted or a byte is prepared: a visit a private capture
+  // was connected to is never saved, alone or as an arm of a comparison.
+  refuseSeamVisit(report, "the report store");
   const share = createReportShare(options.shareId);
   const runtimeReport: RuntimeScanReport = report;
   let saved: RuntimeScanReport;
