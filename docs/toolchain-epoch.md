@@ -18,7 +18,7 @@ Every Node report must carry the exact Playwright pin in its methodology provena
 The gate has two distinct checks:
 
 1. The committed corpus must expose exactly the same canonical comparison decisions. This is a zero-flip policy.
-2. Two exact staging builds must scan the committed five-site panel, in opposite order, with three repetitions. Local receipts compare per-site medians against the committed tolerances, and a metric is inconclusive when the repetitions of one build differ among themselves by more than its tolerance and the runs of the two builds are not further apart than that.
+2. Two exact staging builds must scan the committed five-site panel, in opposite order, with three repetitions. Local receipts compare per-site medians against the committed tolerances, and a metric is inconclusive when the repetitions of one build differ among themselves by more than its tolerance and the runs of the two builds are not further apart than that. A case whose own runs spread beyond the tolerance in most comparisons gives the panel no evidence for the metrics that spread; the remedies are more repetitions, a statistic that tolerates a page with two modes, or a stable case, and each is a change to the panel (for the statistic, to the comparison rule) that is made before a capture, never after.
 
 The staging canary is deliberately not a public comparison report. `reports:verify-v2-shadow` is not suitable for this job: its comparisons are same-build intervention checks, while the normal v2 comparability rules correctly reject mixed browser/toolchain builds. Never weaken those rules or synthesize a cross-build public report for an epoch.
 
@@ -206,9 +206,9 @@ When the compare command exits 2:
 
 1. Record each inconclusive metric by name in the epoch record and in the release decision, with the repetitions, spreads, tolerance and medians that the command printed.
 2. Do not record the A/B as passed, and do not record a toolchain regression for that metric. The comparison shows neither.
-3. To get evidence for that metric, capture more repetitions or use a panel case that is stable. The repetition count and the cases are fields of the committed panel, so the rule below on editing the panel applies to both changes.
+3. To get evidence for that metric, use one of the remedies in the description of the panel above: more repetitions, a statistic that tolerates a page with two modes, or a stable case. Make the change before a capture, never after.
 
-This rule was added in 2026-11. Results recorded before it were judged by the earlier rule, which compared the two medians alone and printed no `RULE` line. Those results stand as recorded, and this playbook does not judge them again. Where the paragraph on the 2026-10-02 refinement above, or an addendum in a dated record, says what the compare command prints for the committed 2026-09 and 2026-10 receipts, it describes the gate from that refinement until this rule: that output reproduces from a checkout in that range, such as `f662f462`. This rule did not change how capture loss is judged.
+This rule was added on 2026-11-10. Results recorded before it were judged by the earlier rule, which compared the two medians alone and printed no `RULE` line. Those results stand as recorded, and this playbook does not judge them again. Where the paragraph on the 2026-10-02 refinement above, or an addendum in a dated record, says what the compare command prints for the committed 2026-09 and 2026-10 receipts, it describes the gate from that refinement until this rule: that output reproduces from a checkout in that range, such as `f662f462`. This rule did not change how capture loss is judged.
 
 An external site can change during the run. A tolerance failure therefore means stop and investigate, not automatically "toolchain regression." Re-run the complete matched panel only after confirming the same staging region and stable subjects. If it fails again, bisect the batched upgrades. Do not relax a tolerance, edit the panel or change the capture-loss rule to make the current epoch pass; review such changes before a future baseline capture.
 
@@ -225,4 +225,4 @@ After pushing the candidate:
 - read authenticated/live health and require the exact deployment marker with no warnings;
 - retain the version matrix, corpus snapshots, canary receipts, teardown receipt, and CI/deployment links as the epoch record.
 
-Do not call an epoch complete from green source tests alone. Completion requires exact-artifact provenance, zero corpus-decision flips, a passing staging A/B, isolated-staging teardown, and exact-SHA production readback.
+Do not call an epoch complete from green source tests alone. Completion requires exact-artifact provenance, zero corpus-decision flips, a passing staging A/B, isolated-staging teardown, and exact-SHA production readback. A passing staging A/B is a compare command that exits 0. Exit 1 is a failed A/B, and the epoch is not complete. Exit 2 is neither a pass nor a failure, and it does not complete the epoch: the epoch record names each inconclusive metric with the runs of both builds and says that the comparison gave no evidence about the toolchain for that metric, and the release then needs the owner's recorded decision. Never write up an exit 2 as a pass.
