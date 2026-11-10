@@ -1151,21 +1151,23 @@ export function redactTrackerMatch(
   };
 }
 
+// Each curated match in its published form, keyed by its canonical JSON, with
+// the published domain it carries. The catalog is a constant, so this is built
+// once; a tracker equal to an entry carries that entry's domain, so one lookup
+// answers what a comparison against every entry answered.
+const PUBLIC_CURATED_TRACKER_DOMAINS: ReadonlyMap<string, string> = new Map(CURATED_TRACKER_MATCHES.map((candidate) => {
+  const domain = CURATED_PUBLIC_SUFFIXES.has(candidate.domain)
+    ? candidate.domain
+    : redactHostnameV2(candidate.domain).value;
+  const publicCandidate: TrackerMatch = { ...candidate, domain };
+  return [canonicalJson(publicCandidate), domain];
+}));
+
 function markerAwareCuratedTrackerMatch(observedHost: string, tracker: TrackerMatch): TrackerMatch | null {
   const publicObserved = redactHostnameV2(observedHost).value;
-  for (const candidate of CURATED_TRACKER_MATCHES) {
-    const publicCandidate: TrackerMatch = {
-      ...candidate,
-      domain: CURATED_PUBLIC_SUFFIXES.has(candidate.domain)
-        ? candidate.domain
-        : redactHostnameV2(candidate.domain).value
-    };
-    if (canonicalJson(publicCandidate) !== canonicalJson(tracker)) continue;
-    if (publicObserved === publicCandidate.domain || publicObserved.endsWith(`.${publicCandidate.domain}`)) {
-      return tracker;
-    }
-  }
-  return null;
+  const domain = PUBLIC_CURATED_TRACKER_DOMAINS.get(canonicalJson(tracker));
+  if (domain === undefined) return null;
+  return publicObserved === domain || publicObserved.endsWith(`.${domain}`) ? tracker : null;
 }
 
 /** Page script can choose a custom Fetch method token; public wire is closed. */

@@ -304,45 +304,61 @@ export function inputCover(automaton: InputAutomaton, start = 0): InputEdge[][] 
   const reached = new Uint8Array(size);
   reached[start] = 1;
   const toVisit = [start];
+  const from: number[][] = Array.from({ length: size }, () => []);
   let left = 0;
   while (toVisit.length > 0) {
-    for (const edge of automaton.edges[toVisit.pop() as number]) {
+    const at = toVisit.pop() as number;
+    for (const edge of automaton.edges[at]) {
       left += 1;
+      from[edge.to].push(at);
       if (reached[edge.to] === 0) {
         reached[edge.to] = 1;
         toVisit.push(edge.to);
       }
     }
   }
+  // Distance to the nearest untaken transition, over the automaton, which is a DAG. No
+  // transition is taken yet, so it is 0 wherever there is one to take. Taking one can only
+  // lengthen the distance of the state it leaves and of the states that lead there, and a walk
+  // never returns to those, so bringing them up to date as each is taken reads the same as
+  // working every distance out again before each walk.
+  const NONE = 1 << 29;
+  const distance = new Int32Array(size);
+  for (let at = 0; at < size; at += 1) if (automaton.edges[at].length === 0) distance[at] = NONE;
+  const nearest = (at: number): number => {
+    let best = NONE;
+    automaton.edges[at].forEach((edge, index) => {
+      best = Math.min(best, taken[at][index] === 0 ? 0 : distance[edge.to] + 1);
+    });
+    return best;
+  };
+  const take = (at: number, index: number): void => {
+    taken[at][index] = 1;
+    left -= 1;
+    const stale = [at];
+    while (stale.length > 0) {
+      const state = stale.pop() as number;
+      const now = nearest(state);
+      if (now === distance[state]) continue;
+      distance[state] = now;
+      for (const before of from[state]) stale.push(before);
+    }
+  };
   const sequences: InputEdge[][] = [];
   while (left > 0) {
-    // Distance to the nearest untaken transition, over the automaton, which is a DAG.
-    const distance = new Int32Array(size).fill(-1);
-    const nearest = (at: number): number => {
-      if (distance[at] !== -1) return distance[at];
-      let best = 1 << 29;
-      automaton.edges[at].forEach((edge, index) => {
-        best = Math.min(best, taken[at][index] === 0 ? 0 : nearest(edge.to) + 1);
-      });
-      distance[at] = best;
-      return best;
-    };
     const path: InputEdge[] = [];
     let at = start;
     while (automaton.edges[at].length > 0) {
       let choice = -1;
       let score = 1 << 30;
       automaton.edges[at].forEach((edge, index) => {
-        const here = taken[at][index] === 0 ? 0 : nearest(edge.to) + 1;
+        const here = taken[at][index] === 0 ? 0 : distance[edge.to] + 1;
         if (here < score) {
           score = here;
           choice = index;
         }
       });
-      if (taken[at][choice] === 0) {
-        taken[at][choice] = 1;
-        left -= 1;
-      }
+      if (taken[at][choice] === 0) take(at, choice);
       path.push(automaton.edges[at][choice]);
       at = automaton.edges[at][choice].to;
     }
