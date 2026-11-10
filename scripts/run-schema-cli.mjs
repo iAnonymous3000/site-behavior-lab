@@ -116,16 +116,30 @@ function runOrExit(args) {
   }
 }
 
+// A failed prerequisite compile is this launcher's failure, never a status of
+// the target. tsc exits 2 when it reports diagnostics and still writes its
+// output, and a target may give 2 a meaning of its own: the toolchain canary's
+// compare exits 2 for an inconclusive comparison, which is neither a pass nor
+// a failure. Every compile failure exits 1, so a status other than 0 or 1 can
+// only have come from the target.
+function compileOrExit(args) {
+  try {
+    execFileSync(process.execPath, args, { cwd: rootDir, stdio: "inherit" });
+  } catch {
+    process.exit(1);
+  }
+}
+
 // An orchestrator that already built dist/schema for the whole run sets the
 // env flag so repeated invocations skip the recompile.
 if (process.env.SITE_BEHAVIOR_LAB_SCHEMA_DIST_READY !== "1") {
-  runOrExit([path.join(rootDir, "node_modules", "typescript", "bin", "tsc"), "-p", "tsconfig.schema.json"]);
+  compileOrExit([path.join(rootDir, "node_modules", "typescript", "bin", "tsc"), "-p", "tsconfig.schema.json"]);
 }
 if (
   target === "calibration-acquire" &&
   process.env.SITE_BEHAVIOR_LAB_CALIBRATION_DIST_READY !== "1"
 ) {
-  runOrExit([
+  compileOrExit([
     path.join(rootDir, "node_modules", "typescript", "bin", "tsc"),
     "-p",
     "tsconfig.calibration.json"

@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 
@@ -99,4 +100,72 @@ test("the release governance selection check reaches its verifier through the sc
   );
   assert.equal(refused.status, 1);
   assert.match(refused.stderr, /Usage: node scripts\/verify-release-governance-selection\.mjs/);
+});
+
+test("the schema launcher surfaces a target's own exit status, and exits 1 for a failed compile whatever status tsc gave", () => {
+  // The toolchain canary's compare exits 2 for an inconclusive comparison,
+  // which is neither a pass nor a failure, and an operator reads that status
+  // through this launcher. tsc exits 2 as well, when it reports diagnostics
+  // and still writes its output, so a launcher that surfaced the compile's
+  // status would let a type error read as an inconclusive canary. The launcher
+  // is run from a copy beside a stand-in compiler and a stand-in target, so
+  // each status is the one the stand-in was told to give.
+  const directory = mkdtempSync(path.join(tmpdir(), "sbl-schema-launcher-"));
+  try {
+    mkdirSync(path.join(directory, "scripts"));
+    mkdirSync(path.join(directory, "node_modules", "typescript", "bin"), { recursive: true });
+    for (const file of ["run-schema-cli.mjs", "measurement-freeze-retention-lib.mjs"]) {
+      copyFileSync(path.join(root, "scripts", file), path.join(directory, "scripts", file));
+    }
+    writeFileSync(
+      path.join(directory, "node_modules", "typescript", "bin", "tsc"),
+      "console.log(`compiled: ${process.argv.slice(2).join(\" \")}`);\nprocess.exit(Number(process.env.STAND_IN_TSC_STATUS));\n"
+    );
+    writeFileSync(
+      path.join(directory, "scripts", "toolchain-canary.mjs"),
+      "console.log(`target ran: ${process.argv.slice(2).join(\" \")}`);\nprocess.exitCode = Number(process.env.STAND_IN_TARGET_STATUS);\n"
+    );
+    const launch = (distReady: string, tscStatus: number, targetStatus: number) =>
+      spawnSync(process.execPath, [path.join(directory, "scripts", "run-schema-cli.mjs"), "toolchain-canary", "compare"], {
+        cwd: directory,
+        encoding: "utf8",
+        env: { ...process.env, [SCHEMA_DIST_READY]: distReady, STAND_IN_TSC_STATUS: String(tscStatus), STAND_IN_TARGET_STATUS: String(targetStatus) }
+      });
+
+    for (const tscStatus of [1, 2]) {
+      const failedCompile = launch("", tscStatus, 0);
+      assert.equal(failedCompile.status, 1, `tsc exit ${tscStatus}`);
+      assert.equal(failedCompile.stdout, "compiled: -p tsconfig.schema.json\n", `tsc exit ${tscStatus}`);
+    }
+    for (const targetStatus of [0, 1, 2]) {
+      const compiled = launch("", 0, targetStatus);
+      assert.equal(compiled.status, targetStatus, `target exit ${targetStatus}`);
+      assert.equal(compiled.stdout, "compiled: -p tsconfig.schema.json\ntarget ran: compare\n", `target exit ${targetStatus}`);
+      // With the artifact already built the compile is skipped, so its status
+      // cannot reach the caller at all.
+      const skipped = launch("1", 2, targetStatus);
+      assert.equal(skipped.status, targetStatus, `target exit ${targetStatus}, compile skipped`);
+      assert.equal(skipped.stdout, "target ran: compare\n", `target exit ${targetStatus}, compile skipped`);
+    }
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+
+  // The real launcher and the real compare, on committed receipts whose
+  // guardian repetitions spread beyond the tolerance within one build.
+  const inconclusive = spawnSync(
+    process.execPath,
+    [
+      path.join(root, "scripts", "run-schema-cli.mjs"),
+      "toolchain-canary",
+      "compare",
+      "--baseline",
+      path.join("docs", "toolchain-epoch-2026-10", "round-1-baseline-receipt.json"),
+      "--candidate",
+      path.join("docs", "toolchain-epoch-2026-10", "round-1-candidate-receipt.json")
+    ],
+    { cwd: root, encoding: "utf8", env: { ...process.env, [SCHEMA_DIST_READY]: "1" } }
+  );
+  assert.equal(inconclusive.status, 2, inconclusive.stderr);
+  assert.match(inconclusive.stderr, /^INCONCLUSIVE f9d6c46e744c60a3485eba3951f0b168b9170941 -> 34d6847b54d804c449bed160a53129ca2e1f16ef: not a pass\./m);
 });

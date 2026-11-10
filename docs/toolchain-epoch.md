@@ -200,7 +200,7 @@ The exit status of the compare command follows from the outcomes:
 - 1: one or more metrics fail, or the command refuses the comparison for one of the other reasons above (a refusal judges no median and prints no `RULE` line). The last line is `FAIL`. One failed metric gives exit 1 whatever else is inconclusive.
 - 2: no metric fails and one or more are inconclusive. The last line is `INCONCLUSIVE` and names each such metric.
 
-Exit 2 is not a pass and not a failure. For the metrics it names, the comparison is no evidence for the toolchain and no evidence against it. `npm run toolchain:canary` passes the status of the command to the shell unchanged.
+Exit 2 is not a pass and not a failure. For the metrics it names, the comparison is no evidence for the toolchain and no evidence against it. `npm run toolchain:canary` passes the status of the command to the shell unchanged. A compile failure ahead of the command exits 1, never 2.
 
 When the compare command exits 2:
 
