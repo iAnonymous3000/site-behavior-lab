@@ -290,6 +290,29 @@ test("the base's vulnerable apt downloads with its retries off and from HTTPS so
   }
 });
 
+test("the runner stage's package step comes before anything of a commit", () => {
+  // The step removes and upgrades what the base ships and reads nothing the
+  // build produced. While it followed the build commit's ARG and ENV and the
+  // files copied from the build, its layer was rebuilt, and its packages
+  // downloaded again, for every commit. As the stage's first step its layer
+  // depends on the base and on its own text alone, so a builder that keeps
+  // its layers reuses it. An ARG in scope or an ENV set before it would put a
+  // commit's value into its environment and end that. Hosted CI caches the
+  // deps stage's layers only, so every image build there still runs the step.
+  const dockerfile = source("Dockerfile");
+  const runnerStage = dockerfile.slice(dockerfile.indexOf("FROM playwright-base AS runner"));
+  const instructions = runnerStage.split("\n").filter((line) => /^[A-Z]+ /.test(line));
+  assert.deepEqual(
+    instructions.slice(0, 3).map((line) => line.split(" ")[0]),
+    ["FROM", "RUN", "ARG"],
+    "the runner stage must run its package step first, before the build commit's ARG"
+  );
+  const firstStep = runnerStage.slice(runnerStage.indexOf("\nRUN ") + 1, runnerStage.indexOf("\nARG "));
+  assert.match(firstStep, /apt-get [^\n]*install -y --no-install-recommends --only-upgrade \\\n/, "the stage's first step must be the package step");
+  assert.match(firstStep, /\n {2}&& dpkg --compare-versions "\$v" ge \S+\n$/, "and it must end with the version assertion");
+  assert.doesNotMatch(firstStep, /SITE_BEHAVIOR_LAB|\/app\b/, "the package step must read nothing of the build");
+});
+
 test("the container base's bundled scan browser is the one the installed playwright-core names", () => {
   // Production launches the headless shell in the base image's own
   // /ms-playwright: the runner stage is FROM playwright-base and copies only

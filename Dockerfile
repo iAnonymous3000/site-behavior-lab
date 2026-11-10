@@ -115,39 +115,6 @@ RUN npm run check && rm -rf .next/cache && npm prune --omit=dev
 
 FROM playwright-base AS runner
 
-ARG SITE_BEHAVIOR_LAB_BUILD_COMMIT
-
-# Standard OCI labels make the locally tested image independently inspectable.
-# The release-evidence gate requires this revision to match clean Git HEAD and
-# the runtime health identity; labels never substitute for live deployment
-# readback or proof of the separately configured Cloudflare deployment path.
-LABEL org.opencontainers.image.title="Site Behavior Lab" \
-  org.opencontainers.image.source="https://github.com/iAnonymous3000/site-behavior-lab" \
-  org.opencontainers.image.revision="${SITE_BEHAVIOR_LAB_BUILD_COMMIT}" \
-  org.opencontainers.image.licenses="AGPL-3.0-or-later"
-
-WORKDIR /app
-ENV NODE_ENV=production
-ENV NEXT_TELEMETRY_DISABLED=1
-ENV PORT=3000
-ENV SITE_BEHAVIOR_LAB_REPORT_STORE_DIR=/var/lib/site-behavior-lab/reports
-ENV SITE_BEHAVIOR_LAB_BUILD_COMMIT=${SITE_BEHAVIOR_LAB_BUILD_COMMIT}
-# dns.lookup is getaddrinfo on libuv's threadpool, four threads by default and
-# shared by the whole Next process. The scan proxy resolves every host a page
-# reaches on it, and so does the scanned URL's preflight under its 5 s bound,
-# which counts time spent queued. Two concurrent scans could pin all four
-# threads on slow third-party hosts and queue the other scan's preflight past
-# that bound into a refused scan.
-ENV UV_THREADPOOL_SIZE=16
-
-COPY --from=build /app/package.json /app/package-lock.json ./
-COPY --from=build /app/node_modules ./node_modules
-COPY --from=build /app/.next ./.next
-COPY --from=build /app/lib/adblock-wasm ./lib/adblock-wasm
-COPY --from=build /app/public ./public
-COPY --from=build /app/scripts/public-build-commit.mjs ./scripts/public-build-commit.mjs
-COPY --from=build /app/next.config.mjs ./next.config.mjs
-
 # The runtime serves the already-built app with node alone. Remove the base
 # image's global package managers (their bundled tar, undici, and sigstore
 # copies are exactly the kind of fixed-upstream vulnerable code this image
@@ -183,6 +150,16 @@ COPY --from=build /app/next.config.mjs ./next.config.mjs
 # container package inventory refuses an image that lists one layer twice.
 # lib/toolchain-provenance.test.ts ties this list to the pins and to those
 # three packages, and keeps the check in this step.
+#
+# It is the stage's first step, ahead of the build commit's ARG and ENV and of
+# the files copied from the build, and it reads nothing of them: it removes
+# and upgrades what the base ships. With nothing of a commit in scope, its
+# layer depends on the base and on this step's own text alone, so a builder
+# that keeps its layers reuses it from one commit to the next, where after
+# the copies it was rebuilt, and its packages downloaded again, for every
+# commit. Hosted CI is not such a builder: its build cache holds the deps
+# stage's layers only (.github/workflows/ci.yml), so every image build there
+# still runs this step.
 #
 # The apt that downloads in this step, and in the deps stage's step, is the
 # base's 2.8.3: the fixed apt is in place only once this step's install has
@@ -237,6 +214,39 @@ RUN sed -i 's|^URIs: http://|URIs: https://|' /etc/apt/sources.list.d/ubuntu.sou
   && test "$(dpkg-query -W -f='${db:Status-Status}' libapt-pkg6.0t64)" = installed \
   && v=$(dpkg-query -W -f='${Version}' libapt-pkg6.0t64) \
   && dpkg --compare-versions "$v" ge 2.8.4ubuntu0.1
+
+ARG SITE_BEHAVIOR_LAB_BUILD_COMMIT
+
+# Standard OCI labels make the locally tested image independently inspectable.
+# The release-evidence gate requires this revision to match clean Git HEAD and
+# the runtime health identity; labels never substitute for live deployment
+# readback or proof of the separately configured Cloudflare deployment path.
+LABEL org.opencontainers.image.title="Site Behavior Lab" \
+  org.opencontainers.image.source="https://github.com/iAnonymous3000/site-behavior-lab" \
+  org.opencontainers.image.revision="${SITE_BEHAVIOR_LAB_BUILD_COMMIT}" \
+  org.opencontainers.image.licenses="AGPL-3.0-or-later"
+
+WORKDIR /app
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=3000
+ENV SITE_BEHAVIOR_LAB_REPORT_STORE_DIR=/var/lib/site-behavior-lab/reports
+ENV SITE_BEHAVIOR_LAB_BUILD_COMMIT=${SITE_BEHAVIOR_LAB_BUILD_COMMIT}
+# dns.lookup is getaddrinfo on libuv's threadpool, four threads by default and
+# shared by the whole Next process. The scan proxy resolves every host a page
+# reaches on it, and so does the scanned URL's preflight under its 5 s bound,
+# which counts time spent queued. Two concurrent scans could pin all four
+# threads on slow third-party hosts and queue the other scan's preflight past
+# that bound into a refused scan.
+ENV UV_THREADPOOL_SIZE=16
+
+COPY --from=build /app/package.json /app/package-lock.json ./
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/.next ./.next
+COPY --from=build /app/lib/adblock-wasm ./lib/adblock-wasm
+COPY --from=build /app/public ./public
+COPY --from=build /app/scripts/public-build-commit.mjs ./scripts/public-build-commit.mjs
+COPY --from=build /app/next.config.mjs ./next.config.mjs
 
 # Scans open attacker-controlled pages, so the runtime must not be root. The
 # scanner also launches Chromium with an explicit environment allowlist, so its

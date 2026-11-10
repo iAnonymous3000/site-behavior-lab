@@ -3597,6 +3597,21 @@ as intended.
   one. The container package ledger moves two rows with the base: nodejs
   24.22.1 to 26.13.0 and ca-certificates 20260816ubuntu0.24.04.1 to
   20260816ubuntu0.24.04.2.
+- The runner stage's package step now runs first in its stage. The step
+  removes and upgrades what the base ships and reads nothing the build
+  produced, yet it followed the build commit's `ARG` and `ENV` and the
+  copied application files, so its layer was rebuilt, and its packages
+  downloaded again, for every commit. As the stage's first step its layer
+  depends on the base and on its own text alone: with a local builder, two
+  builds that differ only in the build commit reuse it, where each rebuilt it
+  before. Hosted CI does not reuse it, because its build cache holds the deps
+  stage's layers only, so every image build there still runs the step. The
+  step's own lines do not change, and it keeps the download protections the
+  entry under Fixed describes: apt's retries off, https sources with a check
+  that none is plain http, and an index update that fails when an index
+  does. The packages the image ships do not change: a runner stage built
+  natively for linux/arm64 lists the same 509 packages at the same versions
+  as before.
 - One test failed where the image was built under emulation, and
   node-detectors-v24 has since changed the rule it tested. Both image builds
   were made locally on 2026-11-10, from this epoch as it stood before
