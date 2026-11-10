@@ -115,7 +115,8 @@ import {
 
 import {
   V1_PROFILE, V1_BINDING_PATH, V1_QUALIFICATION_PATH, v1ProfileProblems,
-  verifyV1ReleaseBinding, v1QualificationProblems, publishedCorpusProblems
+  verifyV1ReleaseBinding, v1QualificationProblems, publishedCorpusProblems,
+  v1OperatorEvidencePaths
 } from "./v1-release-contract.mjs";
 
 const requireFromHere = createRequire(import.meta.url);
@@ -226,6 +227,16 @@ function sha256OfBytes(bytes) {
 
 function gateResult(id, gate, status, reasons = []) {
   return { id, title: gate.title ?? id, kind: gate.kind, status, reasons };
+}
+
+/**
+ * Deferral moves a gate's definition into deferredGates; it never deletes it.
+ * Evidence for a deferred gate is therefore prepared and judged by the same
+ * contract the live gate had. A live gate always wins over a stale record.
+ */
+function retainedGateDefinition(manifest, id) {
+  const live = manifest?.gates?.[id];
+  return isRecord(live) ? live : manifest?.deferredGates?.[id];
 }
 
 function canonicalInstantMillis(value) {
@@ -5285,7 +5296,7 @@ export function buildReleaseAttestationScaffold(
       `Unsupported attestation gate ${gateId}; expected one of ${ATTESTATION_SCAFFOLD_GATES.join(", ")}`
     );
   }
-  const gate = manifest?.gates?.[gateId];
+  const gate = retainedGateDefinition(manifest, gateId);
   if (
     !isRecord(gate) ||
     !isNonEmptyStringArray(gate.requiredBindings) ||
@@ -5592,7 +5603,7 @@ export function releaseAttestationScaffold(
   now = Date.now()
 ) {
   const manifest = readJson(path.join(rootDir, READINESS_MANIFEST));
-  const gate = manifest?.gates?.[gateId];
+  const gate = retainedGateDefinition(manifest, gateId);
   if (!ATTESTATION_SCAFFOLD_GATES.includes(gateId) || !isRecord(gate)) {
     throw new Error(
       `--gate must name one of ${ATTESTATION_SCAFFOLD_GATES.join(", ")}`
@@ -5711,6 +5722,78 @@ export function releaseAttestationScaffold(
       ]
     }
   );
+}
+
+/**
+ * Conclude an evaluation: add what each deferral record means to the live
+ * gates' verdicts.
+ *
+ * Deferral removes a requirement; it never removes verification. A deferred
+ * operator gate whose evidence or attestation the verified binding enumerates
+ * is evaluated in full against its retained definition and counts toward
+ * readiness like a live gate, so a carrier cannot present such evidence
+ * unexamined. Every other deferred gate is reported by name and contributes no
+ * verdict. A gate that is live is evaluated as live and is never also reported
+ * as deferred. A record without a target release is not a deferral (the same
+ * rule as measurementGateKindRequired), so it is not reported as one.
+ */
+export function concludeReleaseReadiness(
+  liveGates,
+  manifest,
+  rootDir,
+  now,
+  measurementContext,
+  runnerContext,
+  options = {}
+) {
+  const boundPaths = new Set(
+    (Array.isArray(measurementContext?.binding?.evidence)
+      ? measurementContext.binding.evidence
+      : []
+    ).map((entry) => entry?.path)
+  );
+  const gates = [...liveGates];
+  const deferredGates = [];
+  for (const [id, gate] of Object.entries(manifest.deferredGates ?? {})) {
+    if (!isRecord(gate) || Object.hasOwn(manifest.gates ?? {}, id)) continue;
+    if (
+      gate.kind === "operator-attestation" &&
+      v1OperatorEvidencePaths(id).some((relative) => boundPaths.has(relative))
+    ) {
+      let result;
+      try {
+        result = evaluateAttestation(
+          id,
+          gate,
+          manifest,
+          rootDir,
+          now,
+          measurementContext,
+          runnerContext,
+          options
+        );
+      } catch (error) {
+        result = gateResult(id, gate, "fail", [`gate evaluation threw: ${String(error).slice(0, 200)}`]);
+      }
+      gates.push(result);
+      continue;
+    }
+    if (typeof gate.deferredTo !== "string" || gate.deferredTo.length === 0) {
+      continue;
+    }
+    deferredGates.push({
+      id,
+      title: gate.title ?? id,
+      kind: gate.kind,
+      deferredTo: gate.deferredTo
+    });
+  }
+  return {
+    ready: gates.length > 0 && gates.every((gate) => gate.status === "pass"),
+    manifestProblems: [],
+    gates,
+    deferredGates
+  };
 }
 
 /** Evaluate the committed manifest against the repository's current evidence. */
@@ -5950,9 +6033,13 @@ export function evaluateReleaseReadiness(
     }
     gates.push(result);
   }
-  return {
-    ready: gates.length > 0 && gates.every((gate) => gate.status === "pass"),
-    manifestProblems: [],
-    gates
-  };
+  return concludeReleaseReadiness(
+    gates,
+    manifest,
+    rootDir,
+    now,
+    measurementContext,
+    runnerContext,
+    options
+  );
 }

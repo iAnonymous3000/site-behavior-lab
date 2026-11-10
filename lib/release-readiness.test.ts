@@ -211,9 +211,7 @@ const EXPECTED_GATES: Record<string, string> = {
   "r2-lifecycle": "lifecycle-receipt",
   "release-receipt-archive": "receipt-archive",
   "durable-soak": "durable-soak",
-  "egress-backstop": "operator-attestation",
   "waf-ceilings": "operator-attestation",
-  "log-retention": "operator-attestation",
   "container-image-licensing": "operator-attestation",
   "container-package-review": "container-package-review"
 };
@@ -230,9 +228,16 @@ const EXPECTED_DECISIONS = [
 // The lean 1.0 fork: these evidence programs gate the 1.1 calibrated-claims
 // release. Restoring either to EXPECTED_GATES and manifest.gates is the
 // reviewed enforcement edit that reverses the fork.
-const DEFERRED_GATES: Record<string, string> = {
-  "aa-repeatability": "aa-study",
-  "detector-calibration": "calibration"
+//
+// The two operator gates were deferred later and for a different reason: each
+// accepts only a hosted provider capture that does not exist, so neither could
+// pass as written. 1.0 therefore verifies no independent egress boundary and
+// no re-captured log retention. Restoring either takes the same reviewed edit.
+const DEFERRED_GATES: Record<string, { kind: string; deferredAt: string }> = {
+  "aa-repeatability": { kind: "aa-study", deferredAt: "2026-08-02T22:10:00.000Z" },
+  "detector-calibration": { kind: "calibration", deferredAt: "2026-08-02T22:10:00.000Z" },
+  "egress-backstop": { kind: "operator-attestation", deferredAt: "2026-11-10T02:57:25.390Z" },
+  "log-retention": { kind: "operator-attestation", deferredAt: "2026-11-10T02:57:25.390Z" }
 };
 
 test("the committed manifest preserves its gate contract without requiring evidence to remain absent", async () => {
@@ -256,6 +261,27 @@ test("the committed manifest preserves its gate contract without requiring evide
   const manifest = JSON.parse(
     readFileSync(path.join(process.cwd(), "RELEASE_READINESS.json"), "utf8")
   );
+  // Fourteen gates carry a verdict. Every deferred gate is reported by name
+  // with its target release and carries none, so a deferred gate can neither
+  // count as satisfied nor keep the release unsatisfied.
+  assert.equal(result.gates.length, 14);
+  assert.deepEqual(
+    result.deferredGates,
+    Object.entries(manifest.deferredGates).map(([id, gate]) => ({
+      id,
+      title: (gate as { title: string }).title,
+      kind: (gate as { kind: string }).kind,
+      deferredTo: "1.1.0"
+    }))
+  );
+  assert.deepEqual(
+    result.deferredGates.map((gate: { id: string }) => gate.id).sort(),
+    Object.keys(DEFERRED_GATES).sort()
+  );
+  for (const gate of result.deferredGates) {
+    assert.equal(Object.hasOwn(gate, "status"), false, `${gate.id} must carry no verdict`);
+    assert.equal(gates.has(gate.id), false, `${gate.id} must not also be evaluated`);
+  }
   // Pin the governed decision set: deleting a decision must stay visible.
   assert.equal(
     manifest.gates["release-tag-governance"].maxAgeDays,
@@ -278,13 +304,13 @@ test("the committed manifest preserves its gate contract without requiring evide
     Object.keys(manifest.deferredGates).sort(),
     Object.keys(DEFERRED_GATES).sort()
   );
-  for (const [id, kind] of Object.entries(DEFERRED_GATES)) {
+  for (const [id, { kind, deferredAt }] of Object.entries(DEFERRED_GATES)) {
     assert.equal(manifest.deferredGates[id].kind, kind, `${id} deferred kind`);
     assert.equal(manifest.deferredGates[id].deferredTo, "1.1.0", `${id} deferredTo`);
     assert.equal(manifest.deferredGates[id].deferredBy, "iAnonymous3000", `${id} deferredBy`);
     assert.equal(
       manifest.deferredGates[id].deferredAt,
-      "2026-08-02T22:10:00.000Z",
+      deferredAt,
       `${id} deferredAt`
     );
     assert.equal(
@@ -321,7 +347,10 @@ test("the committed manifest preserves its gate contract without requiring evide
         "waf-ceilings",
         "log-retention",
         "container-image-licensing"
-      ].map((id) => [id, manifest.gates[id].evidence])
+      ].map((id) => [
+        id,
+        (manifest.gates[id] ?? manifest.deferredGates[id]).evidence
+      ])
     ),
     {
       "egress-backstop": "research/ops-evidence/egress-backstop.json",
@@ -331,6 +360,73 @@ test("the committed manifest preserves its gate contract without requiring evide
         "research/ops-evidence/container-image-licensing.json"
     }
   );
+  // A deferred operator gate keeps its whole definition, so evidence a
+  // carrier binds for it is still judged by the exact contract the live gate
+  // had, and restoring the gate is a pin move, not a reconstruction.
+  assert.deepEqual(
+    Object.fromEntries(
+      ["egress-backstop", "log-retention"].map((id) => {
+        const gate = manifest.deferredGates[id];
+        return [
+          id,
+          {
+            title: gate.title,
+            attestation: gate.attestation,
+            maxAgeDays: gate.maxAgeDays,
+            requiredBindings: gate.requiredBindings,
+            requiredClaims: gate.requiredClaims.map(
+              (claim: { id: string }) => claim.id
+            )
+          }
+        ];
+      })
+    ),
+    {
+      "egress-backstop": {
+        title:
+          "Independent production egress boundary proven against application-guard failure",
+        attestation: "research/ops-receipts/egress-backstop-attestation.json",
+        maxAgeDays: 90,
+        requiredBindings: [
+          "candidateCommit",
+          "deploymentCommit",
+          "networkPolicyDigest",
+          "networkPolicyExportDigest",
+          "failureProbeTranscriptDigest",
+          "effectiveSourceObservedAt"
+        ],
+        requiredClaims: [
+          "independent-boundary-enforced",
+          "failed-app-guard-tested"
+        ]
+      },
+      "log-retention": {
+        title:
+          "Bounded, redacted log-retention query re-captured for this candidate",
+        attestation: "research/ops-receipts/log-retention-attestation.json",
+        maxAgeDays: 30,
+        requiredBindings: [
+          "candidateCommit",
+          "deploymentCommit",
+          "logPolicyDigest",
+          "providerExportDigest",
+          "providerQueryRef",
+          "retentionReadbackDigest",
+          "sourceTool",
+          "effectiveSourceObservedAt"
+        ],
+        requiredClaims: ["bounded-redacted-query", "retention-window-verified"]
+      }
+    }
+  );
+  for (const id of ["egress-backstop", "log-retention"]) {
+    // The record states what 1.0 does not claim, in the reader's words.
+    assert.match(manifest.deferredGates[id].reason, /^This gate cannot pass as written\. /, id);
+    assert.match(manifest.deferredGates[id].reason, /the release binding does not require this gate's evidence for 1\.0; evidence that is bound anyway is still fully verified/, id);
+    assert.doesNotMatch(manifest.deferredGates[id].reason, /[\u2013\u2014]/, id);
+  }
+  assert.match(manifest.deferredGates["egress-backstop"].reason, /1\.0 claims no independent egress boundary: the application's own egress guard is the only one/);
+  assert.match(manifest.deferredGates["log-retention"].reason, /1\.0 does not claim a re-verified log-retention window or a re-captured redacted log query/);
   assert.equal(
     Object.hasOwn(
       manifest.decisions.calibrationCensoringPolicy,
@@ -367,6 +463,91 @@ test("release readiness CLI requires the trusted freeze context and digest toget
     });
     assert.equal(result.status, 1);
     assert.match(result.stderr, /Usage:/);
+  }
+});
+
+test("the readiness report names every deferred gate and counts none of them", () => {
+  // The printed report is what an operator and the release workflow read. A
+  // deferred gate must appear in it by name as deferred: left out, the shorter
+  // list would read as fourteen verified protections with nothing missing;
+  // counted, it would either block 1.0 or pass as verified.
+  const cli = path.join(process.cwd(), "scripts", "release-readiness.mjs");
+  const root = mkdtempSync(path.join(tmpdir(), "sbl-readiness-report-"));
+  try {
+    // The committed manifest over an empty tree: every gate has a verdict
+    // without any real evidence being read.
+    const manifest = JSON.parse(
+      readFileSync(path.join(process.cwd(), "RELEASE_READINESS.json"), "utf8")
+    );
+    writeFileSync(
+      path.join(root, "RELEASE_READINESS.json"),
+      `${JSON.stringify(manifest, null, 2)}\n`
+    );
+    const report = (mode: string) =>
+      spawnSync(process.execPath, [cli, mode], {
+        cwd: root,
+        encoding: "utf8",
+        stdio: ["ignore", "pipe", "pipe"]
+      });
+    const result = report("--report");
+    assert.equal(result.status, 0, result.stderr);
+    const lines = result.stdout.split("\n");
+    const verdicts = lines.filter((line) => /^(?:PASS|FAIL) /.test(line));
+    assert.deepEqual(
+      verdicts.map((line) => line.split(" ")[1].replace(/:$/, "")),
+      Object.keys(EXPECTED_GATES)
+    );
+    assert.equal(verdicts.length, 14);
+    const deferred = lines.filter((line) => line.startsWith("DEFERRED "));
+    assert.deepEqual(deferred, [
+      "DEFERRED detector-calibration: Every claim-bearing detector has an eligible study at the current identity",
+      "DEFERRED aa-repeatability: A preregistered A/A study passes its declared thresholds",
+      "DEFERRED egress-backstop: Independent production egress boundary proven against application-guard failure",
+      "DEFERRED log-retention: Bounded, redacted log-retention query re-captured for this candidate"
+    ]);
+    for (const line of deferred) {
+      assert.equal(
+        lines[lines.indexOf(line) + 1],
+        "  - deferred to 1.1.0; this release does not require it and this check did not verify it"
+      );
+    }
+    // Neither deferred operator gate contributes an unsatisfied gate, and no
+    // other gate's reasons mention their evidence.
+    assert.match(
+      result.stdout,
+      /^Release 1\.0 readiness: NOT READY \(\d+ of 14 gates unsatisfied; these may share missing prerequisites\)\.$/m
+    );
+    assert.match(
+      result.stdout,
+      /^4 deferred gate\(s\) are not counted above and establish nothing for this release: detector-calibration, aa-repeatability, egress-backstop, log-retention\.$/m
+    );
+    assert.doesNotMatch(result.stdout, /^(?:PASS|FAIL) (?:egress-backstop|log-retention)\b/m);
+    assert.doesNotMatch(result.stdout, /(?:egress-backstop|log-retention)(?:\.json|-attestation)/);
+    // The gating mode prints the same report and still refuses.
+    const check = report("--check");
+    assert.equal(check.status, 1);
+    assert.equal(check.stdout, result.stdout);
+
+    // A live gate wins over a stale record: it is evaluated, never listed.
+    manifest.gates["egress-backstop"] = { ...manifest.deferredGates["egress-backstop"] };
+    delete manifest.releaseProfile;
+    writeFileSync(path.join(root, "RELEASE_READINESS.json"), JSON.stringify(manifest));
+    const live = report("--report").stdout;
+    assert.match(live, /^FAIL egress-backstop: /m);
+    assert.doesNotMatch(live, /^DEFERRED egress-backstop/m);
+    assert.match(live, /^3 deferred gate\(s\) are not counted above and establish nothing for this release: detector-calibration, aa-repeatability, log-retention\.$/m);
+
+    // A record without a target release is not a deferral, so the report
+    // does not present it as one.
+    for (const deferredTo of [undefined, "", 1.1]) {
+      manifest.deferredGates["log-retention"].deferredTo = deferredTo;
+      writeFileSync(path.join(root, "RELEASE_READINESS.json"), JSON.stringify(manifest));
+      const hollow = report("--report").stdout;
+      assert.doesNotMatch(hollow, /log-retention/, String(deferredTo));
+      assert.match(hollow, /^2 deferred gate\(s\) are not counted above and establish nothing for this release: detector-calibration, aa-repeatability\.$/m);
+    }
+  } finally {
+    rmSync(root, { recursive: true, force: true });
   }
 });
 
@@ -2227,7 +2408,8 @@ test("the attestation scaffold covers every release attestation without inventin
     "container-image-licensing"
   ];
   for (const gateId of gateIds) {
-    const gate = manifest.gates[gateId];
+    // A deferred gate keeps its definition, and the scaffold reads it there.
+    const gate = manifest.gates[gateId] ?? manifest.deferredGates[gateId];
     const scaffold = buildReleaseAttestationScaffold(
       manifest,
       gateId,
@@ -2321,7 +2503,7 @@ test("the attestation scaffold covers every release attestation without inventin
     "log-retention",
     "container-image-licensing"
   ]) {
-    const gate = manifest.gates[gateId];
+    const gate = manifest.gates[gateId] ?? manifest.deferredGates[gateId];
     const expectedBindings = Object.fromEntries(
       gate.requiredBindings.map((name: string) => [
         name,
