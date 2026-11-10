@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { readFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { test } from "node:test";
@@ -22,13 +23,31 @@ type Helpers = {
   METRICS: readonly string[];
   METRIC_EVIDENCE_FAMILIES: Readonly<Record<string, string>>;
   METRIC_FEEDING_FAMILIES: readonly string[];
+  COMPARISON_RULE: string;
 };
 type Noted = { caseId: string; signature: string; baselineRuns: number; baselineTotal: number; candidateRuns: number; candidateTotal: number };
+type Outcome = "pass" | "fail" | "inconclusive";
+type Row = {
+  pass: boolean;
+  outcome: Outcome;
+  caseId: string;
+  metric: string;
+  baseline: number;
+  candidate: number;
+  delta: number;
+  allowed: number;
+  baselineValues: number[];
+  candidateValues: number[];
+  baselineSpread: number;
+  candidateSpread: number;
+};
 type Comparison = {
   pass: boolean;
+  outcome: Outcome;
+  rule: string;
   baselineBuild: string;
   candidateBuild: string;
-  results: Array<{ pass: boolean; caseId: string; metric: string; baseline: number; candidate: number; delta: number; allowed: number }>;
+  results: Row[];
   excluded: Array<{ caseId: string; metric: string; family: string }>;
   noted: Noted[];
 };
@@ -643,12 +662,29 @@ function movedMedians(result: Comparison) {
     .map((row) => [row.caseId, row.metric, row.baseline, row.candidate, row.delta, Number(row.allowed.toFixed(2))]);
 }
 
+// The compared metrics that did not pass, as [site, metric, outcome, baseline
+// repetitions, candidate repetitions, baseline spread, candidate spread,
+// allowed]. It also holds every result to the one vocabulary: a row passes
+// exactly when its outcome is pass, and so does the comparison.
+function notPassed(h: Helpers, result: Comparison) {
+  assert.equal(result.rule, h.COMPARISON_RULE);
+  assert.equal(result.pass, result.outcome === "pass");
+  for (const row of result.results) assert.equal(row.pass, row.outcome === "pass", `${row.caseId}.${row.metric}`);
+  return result.results
+    .filter((row) => row.outcome !== "pass")
+    .map((row) => [row.caseId, row.metric, row.outcome, row.baselineValues, row.candidateValues, row.baselineSpread, row.candidateSpread, Number(row.allowed.toFixed(2))]);
+}
+
 const GUARDIAN_FINGERPRINT_LEFT_OUT = [{ caseId: "guardian", metric: "fingerprintEvents", family: "fingerprinting" }];
 // github's keystroke-probe truncation is on every run of both builds in the
 // 2026-09 pair and in both 2026-10 rounds; it is noted, not compared.
 const GITHUB_KEYSTROKE_NOTED: Noted = { caseId: "github", signature: "detector-output/truncated/keystroke-probe-capture", baselineRuns: 3, baselineTotal: 3, candidateRuns: 3, candidateTotal: 3 };
 
-test("the committed 2026-09 receipts pass the refined gate with the medians their record states", async () => {
+// The committed receipts are real inputs to the two tests below. What the
+// comparison rule computes from them is a property of the rule. It is not a
+// judgement of the epochs they record, which stand as recorded under the rule
+// that ran.
+test("the committed 2026-09 receipts compare with the medians their record states, and the within-arm spread rule leaves guardian's known-tracker count inconclusive", async () => {
   const h = await helpers;
   const result = h.compareReceipts(
     committedReceipt("toolchain-epoch-2026-09/baseline-receipt.json"),
@@ -656,11 +692,16 @@ test("the committed 2026-09 receipts pass the refined gate with the medians thei
     panel,
     committedPanelDigest(h)
   );
-  assert.equal(result.pass, true);
+  assert.equal(result.outcome, "inconclusive");
+  assert.equal(result.pass, false);
   assert.equal(result.baselineBuild, "cd43c7bce9a980037a74f7ee2a05b722c2638b17");
   assert.equal(result.candidateBuild, "c8b189ac59f50121e6f1777dabe12ba4854f6090");
   assert.equal(result.results.length, 44);
-  assert.equal(result.results.every((row) => row.pass), true);
+  // One candidate repetition drew the page's low state: its three runs differ
+  // by 10 against a tolerance of 9. No compared median is beyond its tolerance.
+  assert.deepEqual(notPassed(h, result), [
+    ["guardian", "knownTrackerRequests", "inconclusive", [27, 30, 30], [17, 27, 27], 3, 10, 9]
+  ]);
   assert.deepEqual(result.excluded, GUARDIAN_FINGERPRINT_LEFT_OUT);
   assert.deepEqual(result.noted, [GITHUB_KEYSTROKE_NOTED]);
   assert.deepEqual(movedMedians(result), [
@@ -675,15 +716,21 @@ test("the committed 2026-09 receipts pass the refined gate with the medians thei
   ]);
 });
 
-test("the committed 2026-10 receipts pass the refined gate with github's every-run loss and the sporadic losses their record describes noted", async () => {
+test("the committed 2026-10 receipts compare with github's every-run loss and the sporadic losses their record describes noted, and the within-arm spread rule leaves guardian's bimodal counts inconclusive", async () => {
   const h = await helpers;
   const digest = committedPanelDigest(h);
   const consentBanner = { caseId: "guardian", signature: "detector-output/dropped/consent-banner", baselineRuns: 1, baselineTotal: 3, candidateRuns: 0, candidateTotal: 3 };
-  const rounds: Array<[string, Noted[], Array<Array<string | number>>]> = [
+  const rounds: Array<[string, Noted[], Array<Array<string | number>>, Array<Array<string | number | number[]>>]> = [
     ["round-1", [GITHUB_KEYSTROKE_NOTED, consentBanner], [
       ["guardian", "totalRequests", 188, 184, 4, 37.6],
       ["guardian", "thirdPartyRequests", 158, 154, 4, 39.5],
       ["guardian", "shieldsBlockedRequests", 70, 71, 1, 21]
+    ], [
+      // Two of these medians are identical across the builds: an agreement
+      // under that much spread is not a pass either.
+      ["guardian", "knownTrackerRequests", "inconclusive", [27, 17, 30], [27, 28, 27], 13, 1, 8.1],
+      ["guardian", "thirdPartyDomains", "inconclusive", [29, 25, 33], [29, 29, 29], 8, 0, 7.25],
+      ["guardian", "shieldsBlockedRequests", "inconclusive", [70, 47, 77], [71, 71, 72], 30, 1, 21]
     ]],
     ["round-2", [
       GITHUB_KEYSTROKE_NOTED,
@@ -695,52 +742,353 @@ test("the committed 2026-10 receipts pass the refined gate with github's every-r
       ["guardian", "knownTrackerRequests", 27, 29, 2, 8.1],
       ["guardian", "thirdPartyDomains", 29, 30, 1, 7.25],
       ["guardian", "shieldsBlockedRequests", 71, 76, 5, 21.3]
+    ], [
+      ["guardian", "knownTrackerRequests", "inconclusive", [27, 27, 17], [34, 29, 27], 10, 7, 8.1],
+      ["guardian", "shieldsBlockedRequests", "inconclusive", [72, 71, 47], [88, 76, 72], 25, 16, 21.3]
     ]]
   ];
-  for (const [round, noted, moved] of rounds) {
+  for (const [round, noted, moved, unresolved] of rounds) {
     const result = h.compareReceipts(
       committedReceipt(`toolchain-epoch-2026-10/${round}-baseline-receipt.json`),
       committedReceipt(`toolchain-epoch-2026-10/${round}-candidate-receipt.json`),
       panel,
       digest
     );
-    assert.equal(result.pass, true, round);
+    assert.equal(result.outcome, "inconclusive", round);
+    assert.equal(result.pass, false, round);
     assert.equal(result.baselineBuild, "f9d6c46e744c60a3485eba3951f0b168b9170941", round);
     assert.equal(result.candidateBuild, "34d6847b54d804c449bed160a53129ca2e1f16ef", round);
     assert.equal(result.results.length, 44, round);
-    assert.equal(result.results.every((row) => row.pass), true, round);
+    assert.deepEqual(notPassed(h, result), unresolved, round);
     assert.deepEqual(result.excluded, GUARDIAN_FINGERPRINT_LEFT_OUT, round);
     assert.deepEqual(result.noted, noted, round);
     assert.deepEqual(movedMedians(result), moved, round);
   }
 });
 
-test("the compare CLI prints each noted loss as recorded and not compared, before its PASS line", () => {
-  const compare = (baselineFile: string, candidateFile: string) =>
-    spawnSync(process.execPath, ["--no-warnings", path.join("scripts", "toolchain-canary.mjs"), "compare", "--baseline", path.join("docs", baselineFile), "--candidate", path.join("docs", candidateFile)], {
-      cwd: process.cwd(),
-      encoding: "utf8"
-    });
-  const leftOut = "LEFT OUT guardian.fingerprintEvents: every run of both builds records fingerprinting capture loss";
-  const githubNoted = "NOTED github: detector-output/truncated/keystroke-probe-capture capture loss on 3 of 3 baseline and 3 of 3 candidate runs; recorded, not compared: its family feeds no canary metric";
-  const cases: Array<[string, string, string[]]> = [
-    ["toolchain-epoch-2026-10/round-2-baseline-receipt.json", "toolchain-epoch-2026-10/round-2-candidate-receipt.json", [
-      leftOut,
-      githubNoted,
+function setCounts(target: Receipt, caseId: string, metric: string, values: number[]) {
+  assert.equal(values.length, panel.repetitions);
+  for (const entry of target.runs) if (entry.caseId === caseId) entry.counts[metric] = values[entry.repetition - 1];
+  return target;
+}
+
+function rowFor(result: Comparison, caseId: string, metric: string): Row {
+  const row = result.results.find((entry) => entry.caseId === caseId && entry.metric === metric);
+  assert.ok(row, `${caseId}.${metric} was not compared`);
+  return row;
+}
+
+test("a metric whose repetitions within one build differ by more than the tolerance is inconclusive, and a spread equal to the tolerance is not", async () => {
+  const h = await helpers;
+  const digest = committedPanelDigest(h);
+  const site = panel.cases[0].id;
+  // totalRequests allows max(10, 0.2 x baseline median). Each row is [baseline
+  // repetitions, candidate repetitions, allowed, outcome], in pairs that sit
+  // exactly on the tolerance and one count above it, for each arm and for the
+  // absolute and the relative term.
+  const cases: Array<[number[], number[], number, Outcome]> = [
+    [[10, 10, 20], [11, 11, 11], 10, "pass"],
+    [[10, 10, 21], [11, 11, 11], 10, "inconclusive"],
+    [[10, 10, 10], [11, 21, 11], 10, "pass"],
+    [[10, 10, 10], [11, 22, 11], 10, "inconclusive"],
+    [[100, 120, 100], [100, 100, 100], 20, "pass"],
+    [[100, 121, 100], [100, 100, 100], 20, "inconclusive"],
+    [[100, 100, 100], [120, 100, 100], 20, "pass"],
+    [[100, 100, 100], [121, 100, 100], 20, "inconclusive"],
+    // Both builds are held to the one tolerance the medians are compared by,
+    // taken from the baseline median: the candidate's own median would allow
+    // 22 here.
+    [[100, 100, 100], [110, 110, 130], 20, "pass"],
+    [[100, 100, 100], [110, 110, 131], 20, "inconclusive"],
+    // Medians that agree exactly are no pass under that much spread.
+    [[10, 10, 40], [10, 10, 10], 10, "inconclusive"],
+    [[10, 10, 10], [10, 40, 10], 10, "inconclusive"],
+    // A spread on the tolerance in both arms leaves the median difference to
+    // decide, as before; one count more in either arm is inconclusive, ahead
+    // of the failure.
+    [[10, 10, 20], [30, 30, 40], 10, "fail"],
+    [[10, 10, 21], [30, 30, 40], 10, "inconclusive"],
+    [[10, 10, 20], [30, 30, 41], 10, "inconclusive"]
+  ];
+  for (const [baselineValues, candidateValues, allowed, outcome] of cases) {
+    const context = `${JSON.stringify(baselineValues)} vs ${JSON.stringify(candidateValues)}`;
+    const { baseline, candidate } = await freshPair();
+    setCounts(baseline, site, "totalRequests", baselineValues);
+    setCounts(candidate, site, "totalRequests", candidateValues);
+    const result = h.compareReceipts(baseline, candidate, panel, digest);
+    const row = rowFor(result, site, "totalRequests");
+    assert.equal(row.allowed, allowed, context);
+    assert.deepEqual([row.baselineValues, row.candidateValues], [baselineValues, candidateValues], context);
+    assert.deepEqual(
+      [row.baselineSpread, row.candidateSpread],
+      [Math.max(...baselineValues) - Math.min(...baselineValues), Math.max(...candidateValues) - Math.min(...candidateValues)],
+      context
+    );
+    assert.equal(row.outcome, outcome, context);
+    assert.equal(result.outcome, outcome, context);
+    // Nothing else in the panel moved, so this one metric decides the result.
+    assert.deepEqual(notPassed(h, result).map((entry) => entry.slice(0, 3)), outcome === "pass" ? [] : [[site, "totalRequests", outcome]], context);
+  }
+});
+
+// The guardian page's knownTrackerRequests, shieldsBlockedRequests and
+// totalRequests per repetition in the two 2026-11 rounds, whose receipts are
+// not committed. The median-only rule failed both rounds, in opposite
+// directions, because the two arms drew different numbers of the page's low
+// state (about 16 to 19, 47 to 50, 160 to 166).
+const GUARDIAN_2026_11_METRICS = ["knownTrackerRequests", "shieldsBlockedRequests", "totalRequests"];
+const GUARDIAN_2026_11: Record<string, { baseline: number[][]; candidate: number[][] }> = {
+  "run-2": { baseline: [[16, 48, 161], [17, 49, 166], [16, 48, 165]], candidate: [[16, 48, 161], [29, 68, 182], [26, 71, 186]] },
+  "run-4": { baseline: [[27, 76, 196], [16, 48, 165], [28, 79, 200]], candidate: [[16, 48, 161], [19, 50, 164], [26, 71, 186]] }
+};
+
+// A constructed pair in which every other count is stable and within
+// tolerance, so the guardian values above decide the result.
+async function round2026_11(round: string) {
+  const { baseline, candidate } = await freshPair();
+  GUARDIAN_2026_11_METRICS.forEach((metric, index) => {
+    setCounts(baseline, "guardian", metric, GUARDIAN_2026_11[round].baseline.map((repetition) => repetition[index]));
+    setCounts(candidate, "guardian", metric, GUARDIAN_2026_11[round].candidate.map((repetition) => repetition[index]));
+  });
+  return { baseline, candidate };
+}
+
+test("a stable metric whose medians differ by more than the tolerance still fails, and one failure fails the comparison beside an inconclusive metric", async () => {
+  const h = await helpers;
+  const digest = committedPanelDigest(h);
+  const stable = panel.cases[0].id;
+  {
+    const { baseline, candidate } = await freshPair();
+    setCounts(candidate, stable, "cookies", [20, 20, 20]);
+    const result = h.compareReceipts(baseline, candidate, panel, digest);
+    assert.equal(result.outcome, "fail");
+    assert.equal(result.pass, false);
+    assert.deepEqual(notPassed(h, result), [[stable, "cookies", "fail", [10, 10, 10], [20, 20, 20], 0, 0, 4]]);
+  }
+  {
+    const { baseline, candidate } = await round2026_11("run-2");
+    setCounts(candidate, stable, "cookies", [20, 20, 20]);
+    const result = h.compareReceipts(baseline, candidate, panel, digest);
+    assert.equal(result.outcome, "fail");
+    assert.equal(result.pass, false);
+    assert.deepEqual(notPassed(h, result).map((entry) => entry.slice(0, 3)), [
+      [stable, "cookies", "fail"],
+      ["guardian", "knownTrackerRequests", "inconclusive"],
+      ["guardian", "shieldsBlockedRequests", "inconclusive"]
+    ]);
+  }
+});
+
+test("each 2026-11 guardian round is inconclusive on the metrics the median-only rule failed, whichever arm drew more low runs", async () => {
+  const h = await helpers;
+  const digest = committedPanelDigest(h);
+  // [round, the medians beyond tolerance with the candidate's direction, the
+  // metrics that did not pass, totalRequests spreads and allowed]
+  const rounds: Array<[string, string[], Array<Array<string | number | number[]>>, number[]]> = [
+    ["run-2", ["guardian.knownTrackerRequests higher", "guardian.shieldsBlockedRequests higher"], [
+      ["guardian", "knownTrackerRequests", "inconclusive", [16, 17, 16], [16, 29, 26], 1, 13, 4.8],
+      ["guardian", "shieldsBlockedRequests", "inconclusive", [48, 49, 48], [48, 68, 71], 1, 23, 14.4]
+    ], [5, 25, 33]],
+    // The known-tracker medians (27 against 19) sit inside the tolerance of
+    // 8.1 by a tenth of a count, which the median-only rule passed.
+    ["run-4", ["guardian.shieldsBlockedRequests lower"], [
+      ["guardian", "knownTrackerRequests", "inconclusive", [27, 16, 28], [16, 19, 26], 12, 10, 8.1],
+      ["guardian", "shieldsBlockedRequests", "inconclusive", [76, 48, 79], [48, 50, 71], 31, 23, 22.8]
+    ], [35, 25, 39.2]]
+  ];
+  for (const [round, beyondTolerance, unresolved, total] of rounds) {
+    const { baseline, candidate } = await round2026_11(round);
+    const result = h.compareReceipts(baseline, candidate, panel, digest);
+    assert.equal(result.outcome, "inconclusive", round);
+    assert.equal(result.pass, false, round);
+    assert.equal(result.results.length, panel.cases.length * h.METRICS.length, round);
+    assert.deepEqual(
+      result.results.filter((row) => row.delta > row.allowed).map((row) => `${row.caseId}.${row.metric} ${row.candidate > row.baseline ? "higher" : "lower"}`),
+      beyondTolerance,
+      round
+    );
+    assert.deepEqual(notPassed(h, result), unresolved, round);
+    // The request total spreads too, but inside its wider tolerance, so it is
+    // still compared and still passes.
+    const totalRequests = rowFor(result, "guardian", "totalRequests");
+    assert.deepEqual([totalRequests.baselineSpread, totalRequests.candidateSpread, Number(totalRequests.allowed.toFixed(2)), totalRequests.outcome], [...total, "pass"], round);
+  }
+});
+
+function compareFiles(baselineFile: string, candidateFile: string) {
+  return spawnSync(process.execPath, ["--no-warnings", path.join("scripts", "toolchain-canary.mjs"), "compare", "--baseline", baselineFile, "--candidate", candidateFile], {
+    cwd: process.cwd(),
+    encoding: "utf8"
+  });
+}
+
+function compareConstructed(baseline: Receipt, candidate: Receipt) {
+  const directory = mkdtempSync(path.join(tmpdir(), "sbl-toolchain-canary-"));
+  try {
+    const baselineFile = path.join(directory, "baseline-receipt.json");
+    const candidateFile = path.join(directory, "candidate-receipt.json");
+    writeFileSync(baselineFile, JSON.stringify(baseline));
+    writeFileSync(candidateFile, JSON.stringify(candidate));
+    return compareFiles(baselineFile, candidateFile);
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+}
+
+const printed = (text: string) => (text === "" ? [] : text.trimEnd().split("\n"));
+
+const RULE_LINE = "RULE median-with-within-arm-spread-v2";
+const LEFT_OUT_LINE = "LEFT OUT guardian.fingerprintEvents: every run of both builds records fingerprinting capture loss";
+const GITHUB_NOTED_LINE = "NOTED github: detector-output/truncated/keystroke-probe-capture capture loss on 3 of 3 baseline and 3 of 3 candidate runs; recorded, not compared: its family feeds no canary metric";
+const VARIED = "the page varied within one build by more than the tolerance";
+const inconclusiveLine = (metric: string, values: string, medians: string) =>
+  `INCONCLUSIVE ${metric}: ${values}; ${VARIED}, so medians ${medians} say nothing about the toolchain for this metric`;
+const inconclusiveResult = (builds: string, share: string, metrics: string) =>
+  `INCONCLUSIVE ${builds}: not a pass. No compared fixed-panel median failed, but for ${share} ${VARIED}, so the comparison says nothing about the toolchain for ${metrics}. The release decision has to record each inconclusive metric by name with its values above.`;
+const CONSTRUCTED_BUILDS = `${"a".repeat(40)} -> ${"b".repeat(40)}`;
+
+test("the compare CLI names its rule, then prints each left-out metric and noted loss before its PASS line, and exits 0", async () => {
+  const keystrokeLoss: Loss = { family: "detector-output", kind: "truncated", detail: "keystroke-probe-capture", count: 1, phaseId: 1 };
+  {
+    const { baseline, candidate } = await freshPair();
+    for (const target of [baseline, candidate]) {
+      withLoss(target, "guardian", METRIC_LOSSES[3]);
+      withLoss(target, "github", keystrokeLoss);
+    }
+    const result = compareConstructed(baseline, candidate);
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(result.stderr, "");
+    assert.deepEqual(printed(result.stdout), [
+      RULE_LINE,
+      LEFT_OUT_LINE,
+      GITHUB_NOTED_LINE,
+      `PASS ${CONSTRUCTED_BUILDS}: all 44 compared fixed-panel medians are within tolerance; 1 left out for shared capture loss; 1 capture-loss signature noted and not compared.`
+    ]);
+  }
+  {
+    const { baseline, candidate } = await freshPair();
+    onRepetitions(candidate, "python", { family: "detector-output", kind: "truncated", detail: "policy-link-candidates", count: 1, phaseId: 2 }, [1]);
+    onRepetitions(baseline, "guardian", NON_METRIC_LOSSES[0], [2]);
+    const result = compareConstructed(baseline, candidate);
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(result.stderr, "");
+    assert.deepEqual(printed(result.stdout), [
+      RULE_LINE,
       "NOTED python: detector-output/truncated/policy-link-candidates capture loss on 0 of 3 baseline and 1 of 3 candidate runs; recorded, not compared: its family feeds no canary metric",
       "NOTED guardian: detector-output/dropped/consent-banner capture loss on 1 of 3 baseline and 0 of 3 candidate runs; recorded, not compared: its family feeds no canary metric",
-      "PASS f9d6c46e744c60a3485eba3951f0b168b9170941 -> 34d6847b54d804c449bed160a53129ca2e1f16ef: all 44 compared fixed-panel medians are within tolerance; 1 left out for shared capture loss; 3 capture-loss signatures noted and not compared."
+      `PASS ${CONSTRUCTED_BUILDS}: all 45 compared fixed-panel medians are within tolerance; 2 capture-loss signatures noted and not compared.`
+    ]);
+  }
+});
+
+test("the compare CLI exits 2, not 0 and not 1, when nothing fails and a metric is inconclusive, and names each one with both builds' repetitions, spreads and tolerance", async () => {
+  const constructed: Array<[string, string[]]> = [
+    ["run-2", [
+      inconclusiveLine("guardian.knownTrackerRequests", "baseline runs 16, 17, 16 (spread 1), candidate runs 16, 29, 26 (spread 13), tolerance 4.8", "16 -> 26"),
+      inconclusiveLine("guardian.shieldsBlockedRequests", "baseline runs 48, 49, 48 (spread 1), candidate runs 48, 68, 71 (spread 23), tolerance 14.399999999999999", "48 -> 68"),
+      inconclusiveResult(CONSTRUCTED_BUILDS, "2 of 45", "guardian.knownTrackerRequests, guardian.shieldsBlockedRequests")
     ]],
-    ["toolchain-epoch-2026-09/baseline-receipt.json", "toolchain-epoch-2026-09/candidate-receipt.json", [
-      leftOut,
-      githubNoted,
-      "PASS cd43c7bce9a980037a74f7ee2a05b722c2638b17 -> c8b189ac59f50121e6f1777dabe12ba4854f6090: all 44 compared fixed-panel medians are within tolerance; 1 left out for shared capture loss; 1 capture-loss signature noted and not compared."
+    ["run-4", [
+      inconclusiveLine("guardian.knownTrackerRequests", "baseline runs 27, 16, 28 (spread 12), candidate runs 16, 19, 26 (spread 10), tolerance 8.1", "27 -> 19"),
+      inconclusiveLine("guardian.shieldsBlockedRequests", "baseline runs 76, 48, 79 (spread 31), candidate runs 48, 50, 71 (spread 23), tolerance 22.8", "76 -> 50"),
+      inconclusiveResult(CONSTRUCTED_BUILDS, "2 of 45", "guardian.knownTrackerRequests, guardian.shieldsBlockedRequests")
     ]]
   ];
-  for (const [baselineFile, candidateFile, expected] of cases) {
-    const result = compare(baselineFile, candidateFile);
-    assert.equal(result.status, 0, result.stderr);
-    assert.equal(result.stderr, "", baselineFile);
-    assert.deepEqual(result.stdout.trimEnd().split("\n"), expected, baselineFile);
+  for (const [round, expected] of constructed) {
+    const { baseline, candidate } = await round2026_11(round);
+    const result = compareConstructed(baseline, candidate);
+    assert.equal(result.status, 2, `${round}: ${result.stderr}`);
+    assert.deepEqual(printed(result.stdout), [RULE_LINE], round);
+    assert.deepEqual(printed(result.stderr), expected, round);
   }
+  // The committed receipts as real inputs: the left-out metric and the noted
+  // losses still print, on stdout, ahead of the result line.
+  const committed: Array<[string, string, string[], string[]]> = [
+    ["toolchain-epoch-2026-09/baseline-receipt.json", "toolchain-epoch-2026-09/candidate-receipt.json", [
+      RULE_LINE,
+      LEFT_OUT_LINE,
+      GITHUB_NOTED_LINE
+    ], [
+      inconclusiveLine("guardian.knownTrackerRequests", "baseline runs 27, 30, 30 (spread 3), candidate runs 17, 27, 27 (spread 10), tolerance 9", "30 -> 27"),
+      inconclusiveResult("cd43c7bce9a980037a74f7ee2a05b722c2638b17 -> c8b189ac59f50121e6f1777dabe12ba4854f6090", "1 of 44", "guardian.knownTrackerRequests")
+    ]],
+    ["toolchain-epoch-2026-10/round-2-baseline-receipt.json", "toolchain-epoch-2026-10/round-2-candidate-receipt.json", [
+      RULE_LINE,
+      LEFT_OUT_LINE,
+      GITHUB_NOTED_LINE,
+      "NOTED python: detector-output/truncated/policy-link-candidates capture loss on 0 of 3 baseline and 1 of 3 candidate runs; recorded, not compared: its family feeds no canary metric",
+      "NOTED guardian: detector-output/dropped/consent-banner capture loss on 1 of 3 baseline and 0 of 3 candidate runs; recorded, not compared: its family feeds no canary metric"
+    ], [
+      inconclusiveLine("guardian.knownTrackerRequests", "baseline runs 27, 27, 17 (spread 10), candidate runs 34, 29, 27 (spread 7), tolerance 8.1", "27 -> 29"),
+      inconclusiveLine("guardian.shieldsBlockedRequests", "baseline runs 72, 71, 47 (spread 25), candidate runs 88, 76, 72 (spread 16), tolerance 21.3", "71 -> 76"),
+      inconclusiveResult("f9d6c46e744c60a3485eba3951f0b168b9170941 -> 34d6847b54d804c449bed160a53129ca2e1f16ef", "2 of 44", "guardian.knownTrackerRequests, guardian.shieldsBlockedRequests")
+    ]]
+  ];
+  for (const [baselineFile, candidateFile, stdout, stderr] of committed) {
+    const result = compareFiles(path.join("docs", baselineFile), path.join("docs", candidateFile));
+    assert.equal(result.status, 2, `${baselineFile}: ${result.stderr}`);
+    assert.deepEqual(printed(result.stdout), stdout, baselineFile);
+    assert.deepEqual(printed(result.stderr), stderr, baselineFile);
+  }
+});
+
+test("the compare CLI exits 1 on a failed median, with its FAIL lines unchanged, whether or not another metric is inconclusive", async () => {
+  const failLine = "FAIL wikipedia.cookies: median 10 -> 20; delta 10 > 4";
+  const failResult = "FAIL Toolchain canary metric tolerances failed.";
+  {
+    const { baseline, candidate } = await freshPair();
+    setCounts(candidate, "wikipedia", "cookies", [20, 20, 20]);
+    const result = compareConstructed(baseline, candidate);
+    assert.equal(result.status, 1, result.stderr);
+    assert.deepEqual(printed(result.stdout), [RULE_LINE]);
+    assert.deepEqual(printed(result.stderr), [failLine, failResult]);
+  }
+  {
+    const { baseline, candidate } = await round2026_11("run-2");
+    setCounts(candidate, "wikipedia", "cookies", [20, 20, 20]);
+    const result = compareConstructed(baseline, candidate);
+    assert.equal(result.status, 1, result.stderr);
+    assert.deepEqual(printed(result.stdout), [RULE_LINE]);
+    assert.deepEqual(printed(result.stderr), [
+      failLine,
+      inconclusiveLine("guardian.knownTrackerRequests", "baseline runs 16, 17, 16 (spread 1), candidate runs 16, 29, 26 (spread 13), tolerance 4.8", "16 -> 26"),
+      inconclusiveLine("guardian.shieldsBlockedRequests", "baseline runs 48, 49, 48 (spread 1), candidate runs 48, 68, 71 (spread 23), tolerance 14.399999999999999", "48 -> 68"),
+      failResult
+    ]);
+  }
+});
+
+test("a capture-loss or identity failure still refuses the comparison with its own message and exit 1, where a metric would otherwise be inconclusive", async () => {
+  const h = await helpers;
+  const digest = committedPanelDigest(h);
+  const refusals: Array<[string, (pair: { baseline: Receipt; candidate: Receipt }) => void, string]> = [
+    ["metric-feeding capture loss in one build", ({ candidate }) => { withLoss(candidate, "guardian", METRIC_LOSSES[3]); },
+      'Capture loss differs between runs of guardian: [] vs ["fingerprinting/dropped/fingerprint-observer"].'],
+    ["systematic capture loss that feeds no metric", ({ candidate }) => { onRepetitions(candidate, "guardian", NON_METRIC_LOSSES[1], [1, 2]); },
+      "Capture loss consent-verification/dropped/consent-verification differs systematically between the builds on guardian: 0 of 3 baseline runs vs 2 of 3 candidate runs."],
+    ["one build in both receipts", ({ baseline, candidate }) => {
+      candidate.expectedBuild = baseline.expectedBuild;
+      for (const entry of candidate.runs) entry.provenance.buildCommit = baseline.expectedBuild;
+    }, "Canary receipts must identify distinct exact builds."],
+    ["a receipt for another panel", ({ candidate }) => { candidate.panelDigest = "0".repeat(64); }, "Receipt does not use the committed fixed panel."],
+    ["an observed subject that moved", ({ candidate }) => {
+      for (const entry of candidate.runs) if (entry.caseId === "guardian") entry.subject.observed.routeShape = "/redirected";
+    }, "Observed subject mismatch for guardian:1."]
+  ];
+  for (const [label, edit, message] of refusals) {
+    const pair = await round2026_11("run-2");
+    edit(pair);
+    assert.throws(() => h.compareReceipts(pair.baseline, pair.candidate, panel, digest), { message }, label);
+    const result = compareConstructed(pair.baseline, pair.candidate);
+    assert.equal(result.status, 1, label);
+    assert.equal(result.stdout, "", label);
+    assert.deepEqual(printed(result.stderr), [`FAIL ${message}`], label);
+  }
+});
+
+test("the playbook names the comparison rule the compare command prints", async () => {
+  const h = await helpers;
+  const playbook = readFileSync(path.join(process.cwd(), "docs", "toolchain-epoch.md"), "utf8");
+  assert.equal(RULE_LINE, `RULE ${h.COMPARISON_RULE}`);
+  assert.ok(playbook.includes(`\`${h.COMPARISON_RULE}\``), "docs/toolchain-epoch.md must name the rule its results are judged by");
 });

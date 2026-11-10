@@ -80,8 +80,16 @@ async function compare(flags) {
   const baseline = await readLocalJson(required(flags, "baseline"));
   const candidate = await readLocalJson(required(flags, "candidate"));
   const result = compareReceipts(baseline, candidate, panel, panelDigest);
+  // A comparison that reaches the medians names its rule first, so a verdict
+  // on a median cannot be read as a result of the earlier rule, whose output
+  // has no RULE line. A refusal above judged no median and prints none.
+  console.log(`RULE ${result.rule}`);
   for (const row of result.results) {
-    if (!row.pass) console.error(`FAIL ${row.caseId}.${row.metric}: median ${row.baseline} -> ${row.candidate}; delta ${row.delta} > ${row.allowed}`);
+    if (row.outcome === "fail") console.error(`FAIL ${row.caseId}.${row.metric}: median ${row.baseline} -> ${row.candidate}; delta ${row.delta} > ${row.allowed}`);
+  }
+  const inconclusive = result.results.filter((row) => row.outcome === "inconclusive");
+  for (const row of inconclusive) {
+    console.error(`INCONCLUSIVE ${row.caseId}.${row.metric}: baseline runs ${row.baselineValues.join(", ")} (spread ${row.baselineSpread}), candidate runs ${row.candidateValues.join(", ")} (spread ${row.candidateSpread}), tolerance ${row.allowed}; the page varied within one build by more than the tolerance, so medians ${row.baseline} -> ${row.candidate} say nothing about the toolchain for this metric`);
   }
   for (const row of result.excluded) {
     console.log(`LEFT OUT ${row.caseId}.${row.metric}: every run of both builds records ${row.family} capture loss`);
@@ -89,7 +97,16 @@ async function compare(flags) {
   for (const row of result.noted) {
     console.log(`NOTED ${row.caseId}: ${row.signature} capture loss on ${row.baselineRuns} of ${row.baselineTotal} baseline and ${row.candidateRuns} of ${row.candidateTotal} candidate runs; recorded, not compared: its family feeds no canary metric`);
   }
-  if (!result.pass) throw new Error("Toolchain canary metric tolerances failed.");
+  if (result.outcome === "fail") throw new Error("Toolchain canary metric tolerances failed.");
+  if (result.outcome === "inconclusive") {
+    // Exit 2 keeps this apart from a pass (0) and from a failure (1): nothing
+    // failed, and the named metrics are no evidence for the toolchain or
+    // against it, so a caller that reads only the status cannot take it for
+    // either.
+    console.error(`INCONCLUSIVE ${result.baselineBuild} -> ${result.candidateBuild}: not a pass. No compared fixed-panel median failed, but for ${inconclusive.length} of ${result.results.length} the page varied within one build by more than the tolerance, so the comparison says nothing about the toolchain for ${inconclusive.map((row) => `${row.caseId}.${row.metric}`).join(", ")}. The release decision has to record each inconclusive metric by name with its values above.`);
+    process.exitCode = 2;
+    return;
+  }
   console.log(`PASS ${result.baselineBuild} -> ${result.candidateBuild}: all ${result.results.length} compared fixed-panel medians are within tolerance${result.excluded.length ? `; ${result.excluded.length} left out for shared capture loss` : ""}${result.noted.length ? `; ${result.noted.length} capture-loss signature${result.noted.length === 1 ? "" : "s"} noted and not compared` : ""}.`);
 }
 

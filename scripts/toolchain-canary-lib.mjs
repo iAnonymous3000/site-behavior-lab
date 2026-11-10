@@ -45,6 +45,18 @@ export const METRIC_EVIDENCE_FAMILIES = Object.freeze({
  */
 export const METRIC_FEEDING_FAMILIES = Object.freeze([...new Set(Object.values(METRIC_EVIDENCE_FAMILIES))].sort());
 
+/**
+ * The identity of the rule compareReceipts judges a compared median by. Every
+ * result carries it and the compare command prints it ahead of any verdict on
+ * a median, so a result recorded under one rule cannot be read as a result of
+ * another. The rule before this one compared the two medians alone and had no
+ * identifier: a PASS line, or a FAIL line for a metric, with no RULE line
+ * ahead of it was judged by that rule. Change this identifier whenever the
+ * rule that turns two sets of repetitions into pass, fail or inconclusive
+ * changes.
+ */
+export const COMPARISON_RULE = "median-with-within-arm-spread-v2";
+
 const SHA40 = /^[0-9a-f]{40}$/;
 const SHA256 = /^[0-9a-f]{64}$/;
 const REPORT_ID = /^[0-9]{8}-[0-9a-f]{32}$/;
@@ -348,6 +360,10 @@ function median(values) {
   return sorted[Math.floor(sorted.length / 2)];
 }
 
+function spread(values) {
+  return Math.max(...values) - Math.min(...values);
+}
+
 export function compareReceipts(baselineInput, candidateInput, expectedPanel, panelDigest) {
   const baseline = assertReceipt(
     baselineInput,
@@ -427,13 +443,32 @@ export function compareReceipts(baselineInput, candidateInput, expectedPanel, pa
         excluded.push({ caseId: panelCase.id, metric, family });
         continue;
       }
-      const left = median(baseline.runs.filter((run) => run.caseId === panelCase.id).map((run) => run.counts[metric]));
-      const right = median(candidate.runs.filter((run) => run.caseId === panelCase.id).map((run) => run.counts[metric]));
+      // Each arm's counts in repetition order, which assertReceipt has checked.
+      const baselineValues = baseline.runs.filter((run) => run.caseId === panelCase.id).map((run) => run.counts[metric]);
+      const candidateValues = candidate.runs.filter((run) => run.caseId === panelCase.id).map((run) => run.counts[metric]);
+      const left = median(baselineValues);
+      const right = median(candidateValues);
       const tolerance = expectedPanel.metricTolerances[metric];
       const allowed = Math.max(tolerance.absolute, Math.abs(left) * tolerance.relative);
       const delta = Math.abs(right - left);
-      results.push({ caseId: panelCase.id, metric, baseline: left, candidate: right, delta, allowed, pass: delta <= allowed });
+      const baselineSpread = spread(baselineValues);
+      const candidateSpread = spread(candidateValues);
+      // A difference of medians is evidence about the build only when it is
+      // larger than what one build shows against itself. When the repetitions
+      // of a single build differ by more than the tolerance, the page varied
+      // on its own by more than the comparison allows, so neither a difference
+      // nor an agreement of the two medians can be attributed to the build.
+      // Such a metric is inconclusive, ahead of both pass and fail: a pass
+      // under that much spread is luck in the same way a fail is. Without
+      // this, a page that loads in one of two states of its own fails two
+      // identical builds whenever their medians land in different states, and
+      // can pass two builds that differ whenever they land in the same one.
+      const outcome = baselineSpread > allowed || candidateSpread > allowed ? "inconclusive" : delta <= allowed ? "pass" : "fail";
+      results.push({ caseId: panelCase.id, metric, baseline: left, candidate: right, delta, allowed, pass: outcome === "pass", outcome, baselineValues, candidateValues, baselineSpread, candidateSpread });
     }
   }
-  return { pass: results.every((result) => result.pass), baselineBuild: baseline.expectedBuild, candidateBuild: candidate.expectedBuild, results, excluded, noted };
+  // One failed metric fails the comparison whatever else is inconclusive. An
+  // inconclusive metric with no failure is its own result and never a pass.
+  const outcome = results.some((result) => result.outcome === "fail") ? "fail" : results.some((result) => result.outcome === "inconclusive") ? "inconclusive" : "pass";
+  return { pass: outcome === "pass", outcome, rule: COMPARISON_RULE, baselineBuild: baseline.expectedBuild, candidateBuild: candidate.expectedBuild, results, excluded, noted };
 }
