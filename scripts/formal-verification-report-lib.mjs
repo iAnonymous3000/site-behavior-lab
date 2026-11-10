@@ -18,12 +18,12 @@
 // (24.14.1) its exit status leaves them out too, so each would let a run that
 // did not hold stand as one that did. A describe block that fails as a block
 // (a hook of its own throws) is listed under failing tests while node counts
-// no failure; the pinned Node then exits 0, and 24.22.1 exits 1. A test
-// marked expectFailure whose body throws arrives as a pass and is counted as
-// one. A describe block left todo with no test in it changes no count. The
-// reporter below reads all three from the events, the report counts them
-// beside node's counts, and the rule refuses each, whatever node's exit
-// status was.
+// no failure; the pinned Node then exits 0, and 24.22.1 and 26.13.0 exit 1.
+// A test marked expectFailure whose body throws arrives as a pass and is
+// counted as one. A describe block left todo with no test in it changes no
+// count. The reporter below reads all three from the events, the report
+// counts them beside node's counts, and the rule refuses each, whatever
+// node's exit status was.
 //
 // What it does not hold. A count a suite pins inside a test (states,
 // transitions, cases) never leaves that test, so it is not here: a test that
@@ -340,8 +340,8 @@ export function formalVerificationReportTotals(report) {
 // and node does not promise their shape. It was derived by running fixtures
 // on Node 24.14.1, the version package.json pins and the one CI's tests job
 // writes the report on, and run again on 24.22.1, the version in the
-// container image. Both agree on every event read here but for two things,
-// and the reading holds on both:
+// container image until its v1.65.0-noble base. Both agree on every event
+// read here but for two things, and the reading holds on both:
 //
 // - A describe block that fails as a block. Both versions send the same
 //   failing event of type "suite" and count no failure. 24.14.1 then exits 0
@@ -350,6 +350,13 @@ export function formalVerificationReportTotals(report) {
 //   24.22.1 passes the mark down to them, so a test inside that passes
 //   arrives as a failure and one that throws arrives as an excused pass, and
 //   after such a failure node adds an event for the file itself.
+//
+// The v1.65.0-noble base moves the container image to Node 26.13.0. There
+// scripts/formal-verification-report.test.mjs passes whole (52 tests, on
+// linux/arm64 and on linux/amd64, 2026-11-10), and the two fixtures above
+// give the exit status, the counts and the failing lines 24.22.1 gives. So
+// the reading holds on all three versions for every fixture that file has.
+// The events were not compared field by field beyond what its tests read.
 //
 // A later Node may differ again. When the pinned version moves, run
 // scripts/formal-verification-report.test.mjs on it before trusting a

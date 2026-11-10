@@ -575,10 +575,15 @@ test("a passing run is written whole for the exact commit: node's counts, each t
 //
 // - A describe block that fails as a block. 24.14.1 (pinned) counts no failure and exits 0,
 //   so the lane passes and the block's own event is all that refuses the run. 24.22.1 (the
-//   image's) counts no failure either and exits 1, so the lane's verdict joins the reasons.
+//   image's until its v1.65.0-noble base) counts no failure either and exits 1, so the lane's
+//   verdict joins the reasons.
 // - A describe block marked expectFailure. 24.14.1 leaves the test inside it alone. 24.22.1
 //   passes the mark down, so the test inside, which passes, arrives as a failure, node exits
 //   1, and node adds a failure for the file itself.
+//
+// 26.13.0, the image's Node from the v1.65.0-noble base, does in both what 24.22.1 does (the
+// same exit status, counts and failing lines for these two fixtures, 2026-11-10), and this file
+// passes whole on it.
 //
 // On every Node the run is refused and no report is written. On the pinned Node the reasons
 // are these exactly. On any other, each row says what must still hold of them: for the first,

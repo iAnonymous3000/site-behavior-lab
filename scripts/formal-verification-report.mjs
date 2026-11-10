@@ -22,10 +22,10 @@
 //
 // The lane's verdict is not enough by itself. On the Node this repository
 // pins (24.14.1), node exits 0, and the lane passes, on a describe block that
-// fails as a block; a later Node (24.22.1) exits 1 on one. Both exit 0 on a
-// test marked expectFailure whose body throws and on a todo block with no
-// test in it. The events show all three, and a run with any of them is
-// refused here by name, whatever the lane said.
+// fails as a block; later ones (24.22.1 and 26.13.0) exit 1 on one. All exit
+// 0 on a test marked expectFailure whose body throws and on a todo block
+// with no test in it. The events show all three, and a run with any of them
+// is refused here by name, whatever the lane said.
 //
 // Why a run of its own, and not a stage of test:unit. These suites already run
 // in test:unit, which is what gates a change. Running them a second time there

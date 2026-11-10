@@ -109,8 +109,9 @@ those suites ran at the candidate.
   (24.14.1) it also exits cleanly on one. It counts a test that failed as
   expected as passed. Both are therefore read from its events. That reading
   was derived on the pinned Node, and its tests also pass on the container
-  image's Node (24.22.1), which differs in two of the cases; it must be
-  derived again when the pin moves. `--dry-run` judges the same run on a
+  image's Node: 24.22.1 until the image's v1.65.0-noble base, and 26.13.0
+  from it. Both differ from the pinned Node in two of the cases, and in the
+  same way. The reading must be derived again when the pin moves. `--dry-run` judges the same run on a
   working tree and writes nothing.
 - **The binding.** The carrier commits the report and its Sigstore bundle at
   `research/measurement-candidate/site-behavior-lab-formal-verification-report.json`

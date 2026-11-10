@@ -58,8 +58,9 @@ public API or a 1.0 release.
   that the exit status of the pinned Node (24.14.1) leaves out too: a
   describe block that fails as a block, a test marked as expected to fail,
   and an empty block left todo. That reading was derived on the pinned Node
-  and checked on the image's (24.22.1), and must be derived again when the
-  pin moves. It fails today, because no
+  and checked on the image's (24.22.1, and 26.13.0 from the image's
+  v1.65.0-noble base), and must be derived again when the pin moves. It
+  fails today, because no
   carrier exists: with this gate the readiness check evaluated 15 gates, 9
   of them unsatisfied (nine gates and 3 since the removals below). A pass shows that these files ran and passed at the
   candidate. It adds nothing to what each test claims over its own domain, a
@@ -3570,16 +3571,64 @@ as intended.
   01:08 UTC, where 156.0.8078.4 applies it until about 2026-12-08 23:57 UTC.
   The committed table of build times holds the new build. The environment
   test, which expects the list applied, passed on Chromium 158.0.8127.18 on
-  2026-11-10, on macOS and not yet in a Linux image, and records the new
-  estimate. [docs/limitations.md](docs/limitations.md) names this epoch and
-  its estimated cutoff, and says that the scan browser does not apply the
+  2026-11-10 on macOS, in a native linux/arm64 build of the image, whose own
+  check runs it, and in an emulated linux/amd64 build of the image before
+  that build failed on another test (the last entry of this section). It
+  records the new estimate.
+  [docs/limitations.md](docs/limitations.md) names this epoch and its
+  estimated cutoff, and says that the scan browser does not apply the
   list from about 2026-12-08 23:57 UTC until this epoch is deployed, if it
   is deployed after that time. If it replaces the 2026-11 epoch's browser
   before then, the preload state does not change with this move.
-- The container base has not moved yet. The Dockerfile still names
-  `mcr.microsoft.com/playwright:v1.64.1-noble` and requires Chrome for
-  Testing 156.0.8078.4 in the base, so the two provenance tests that tie the
-  base to the installed Playwright fail on this source until it does.
+- The container base moves from the 2026-10-23 build of
+  `mcr.microsoft.com/playwright:v1.64.1-noble` at index digest `47b510dd`
+  to `v1.65.0-noble` at index digest `6e3fb709`, built on 2026-11-05, whose
+  bundled Chrome for Testing is 158.0.8127.18, the build playwright-core
+  1.65.0 names. Its Node is 26.13.0 with npm 11.20.0, where the outgoing base
+  ran Node 24.22.1 with npm 11.19.1: a new Node major for the container.
+  Playwright's own Dockerfile at the v1.65.0 tag names Node 26. The host and
+  Actions toolchain stays Node 24.14.1 with npm 11.11.0, so the scanner in
+  the image runs two majors ahead of the runtime the main test jobs use, and
+  the image's own check is what runs the suite on it. No scan report records
+  the Node version. The runner stage still upgrades apt and libapt-pkg6.0t64
+  to 2.8.4ubuntu0.1, past CVE-2026-109518, which this base ships unfixed. It
+  no longer pins libbrotli1, because the base ships 1.1.0-2ubuntu0.1, past
+  CVE-2026-111497, and the end of the step still fails the build on an older
+  one. The container package ledger moves two rows with the base: nodejs
+  24.22.1 to 26.13.0 and ca-certificates 20260816ubuntu0.24.04.1 to
+  20260816ubuntu0.24.04.2.
+- One test failed where the image was built under emulation, and
+  node-detectors-v24 has since changed the rule it tested. Both image builds
+  were made locally on 2026-11-10, from this epoch as it stood before
+  node-detectors-v24, with `fingerprint-observer@12`. Natively for
+  linux/arm64 the image passed its own check (7090 tests, none failed). Built
+  for linux/amd64 under emulation, the check failed on one test and no image
+  was produced: in `lib/worker-fingerprint-realm.test.ts`, "real Chromium: a
+  shared worker the attacher reaches only after it started is late, gets
+  nothing installed and is unread". The failure followed the browser, not
+  Node: alone under the same emulation the test then failed 6 of 8 runs on
+  Node 26.13.0 and 6 of 8 on Node 24.22.1 with Chrome for Testing
+  158.0.8127.18, and passed 8 of 8 with the outgoing 156.0.8078.4. Three
+  hours later it passed 8 of 8 with 158 too. A trace of the shared-worker
+  attacher's steps under the same emulation (the test's visit, 20 times at
+  each of four attacher delays, on both browsers) showed the difference. When
+  the attacher turns the debugger on while a worker's main script is still
+  running, 156 reports that script's parse before it answers
+  `Debugger.enable`, and 158 reports it after its answers to
+  `Debugger.enable` and the breakpoint. @12 read a parse ahead of the
+  breakpoint's answer as its sign that the worker started unobserved, so on
+  158 it left such a worker unclassified: 20 of 20 visits at the one delay
+  that fell inside the script's run, where on 156 it classified 20 of 20
+  late. At the delays before and after the script's run the two browsers
+  agreed. The test's 300 ms delay falls after the script on a quiet machine
+  and inside it on a slow or loaded one. node-detectors-v24 (the section
+  above) answers that finding: `fingerprint-observer@13` asks the worker
+  which scripts it has compiled and does not read that order, and that
+  section gives what was measured of it on both browsers. This epoch sits on
+  it. The image has not been built again since, for either architecture, so
+  no image's check has run the new rule on Chromium 158. With Chromium 158
+  the test has not been run on native linux/amd64, which is CI's and
+  production's architecture, so this entry does not say what happens there.
 
 ## [0.6.0] - 2026-09-06
 

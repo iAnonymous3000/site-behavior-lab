@@ -25,8 +25,8 @@ const ROOT = process.cwd();
 const EXACT_VERSION = /^\d+\.\d+\.\d+$/;
 const REQUIRED_NODE = "24.14.1";
 const REQUIRED_NPM = "11.11.0";
-const REQUIRED_CONTAINER_NODE = "24.22.1";
-const REQUIRED_CONTAINER_NPM = "11.19.1";
+const REQUIRED_CONTAINER_NODE = "26.13.0";
+const REQUIRED_CONTAINER_NPM = "11.20.0";
 
 function source(relativePath: string): string {
   return readFileSync(path.join(ROOT, relativePath), "utf8");
@@ -151,9 +151,11 @@ test("Playwright package, lockfile, installation, and container base use one exa
 test("the runner stage fails the build unless every advisory-named package is at or past its fix", () => {
   // libssl3t64 and openssl are not pinned, because the pinned base already
   // ships the CVE-2026-84782 fix, so only this assertion stops a later base
-  // from shipping an older OpenSSL. Every package the upgrade step pins must be
-  // asserted at its pinned version too, after that step and before USER, in
-  // one && chain that dash stops at the first failed check, read or
+  // from shipping an older OpenSSL. libbrotli1 is the same since the
+  // v1.65.0-noble base, which ships the CVE-2026-111497 fix: its pin is
+  // dropped and its assertion stays. Every package the upgrade step pins must
+  // be asserted at its pinned version too, after that step and before USER,
+  // in one && chain that dash stops at the first failed check, read or
   // comparison. Each package is first required to be installed exactly once,
   // as one copy whose dpkg status is installed: a copy left as configuration
   // files still has a version to read, and a second architecture's copy would
@@ -163,6 +165,15 @@ test("the runner stage fails the build unless every advisory-named package is at
   // stage's browser check already adds one, and the container package
   // inventory refuses an image whose rootfs lists one layer twice.
   const OPENSSL_FIX = "3.0.13-0ubuntu3.16";
+  const BROTLI_FIX = "1.1.0-2ubuntu0.1";
+  // A package the base already ships fixed is held by its minimum alone. If
+  // one is pinned again, its entry here goes, so the pin's version is the one
+  // asserted and the two cannot disagree.
+  const fixedInBase = new Map([
+    ["libssl3t64", OPENSSL_FIX],
+    ["openssl", OPENSSL_FIX],
+    ["libbrotli1", BROTLI_FIX]
+  ]);
   const dockerfile = source("Dockerfile");
   const runnerStage = dockerfile.slice(dockerfile.indexOf("FROM playwright-base AS runner"));
   // The step first moves the base's Ubuntu sources to HTTPS and refuses a
@@ -175,6 +186,9 @@ test("the runner stage fails the build unless every advisory-named package is at
   assert.ok(upgrade, "the runner stage must keep its exact-version upgrade step");
   const pinned = new Map([...upgrade[1].matchAll(/([a-z0-9][a-z0-9.+-]*)=(\S+)/g)].map((pin) => [pin[1], pin[2]]));
   assert.ok(pinned.size > 0, "the upgrade step must pin at least one package");
+  for (const name of fixedInBase.keys()) {
+    assert.ok(!pinned.has(name), `${name} is pinned and also listed as fixed in the base`);
+  }
 
   const upgradeEnd = runnerStage.indexOf("\n\n", upgrade.index);
   assert.ok(upgradeEnd > upgrade.index, "the upgrade step must end at a blank line");
@@ -206,7 +220,7 @@ test("the runner stage fails the build unless every advisory-named package is at
   }
   assert.deepEqual(
     Object.fromEntries([...asserted].sort()),
-    Object.fromEntries([...pinned, ["libssl3t64", OPENSSL_FIX], ["openssl", OPENSSL_FIX]].sort())
+    Object.fromEntries([...pinned, ...fixedInBase].sort())
   );
 });
 

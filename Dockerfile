@@ -4,11 +4,13 @@ ARG SITE_BEHAVIOR_LAB_VERIFIED_MEASUREMENT_CANDIDATE_PROOF=""
 # Keep one literal, immutable external base so Docker Dependabot can update it.
 # lib/toolchain-provenance.test.ts ties this tag to package.json and requires
 # the digest, preventing the runtime image from drifting behind the scanner.
-FROM mcr.microsoft.com/playwright:v1.64.1-noble@sha256:47b510dd9230bf0b9bfc9b20102241e577ea7a99334ab4c3ca19f19770e9b8ea AS playwright-base
+FROM mcr.microsoft.com/playwright:v1.65.0-noble@sha256:6e3fb709361521eb27161606e6da6d2674e5e89fa16516cb37d6fdd91372273d AS playwright-base
 
 # The digest-pinned Playwright base intentionally carries a newer runtime than
-# the host/Actions authoring toolchain. Fail the image build if that immutable
-# base ever resolves to different Node or npm bytes without a reviewed epoch.
+# the host/Actions authoring toolchain, and from the v1.65.0-noble base a
+# newer major: Node 26 here, Node 24 there. Fail the image build if that
+# immutable base ever resolves to different Node or npm bytes without a
+# reviewed epoch.
 #
 # Production launches the headless shell in this base's own /ms-playwright:
 # the runner stage below is FROM playwright-base and copies only /app from the
@@ -28,12 +30,12 @@ FROM mcr.microsoft.com/playwright:v1.64.1-noble@sha256:47b510dd9230bf0b9bfc9b201
 # are two copies of that layer in the runtime image. An emulated build does
 # not show it: there these commands leave Node's compile cache in /tmp, so the
 # layer is not empty, while a native build leaves nothing.
-RUN test "$(node --version)" = "v24.22.1" \
-  && test "$(npm --version)" = "11.19.1" \
-  && set -- /ms-playwright/chromium_headless_shell-1248/*/chrome-headless-shell \
+RUN test "$(node --version)" = "v26.13.0" \
+  && test "$(npm --version)" = "11.20.0" \
+  && set -- /ms-playwright/chromium_headless_shell-1254/*/chrome-headless-shell \
   && test "$#" -eq 1 \
   && test -x "$1" \
-  && test "$("$1" --version)" = "Google Chrome for Testing 156.0.8078.4"
+  && test "$("$1" --version)" = "Google Chrome for Testing 158.0.8127.18"
 
 # Dependencies depend on the lockfile and pinned base, not the source commit
 # or public build identity. Keep these layers reusable when either changes;
@@ -156,32 +158,31 @@ COPY --from=build /app/next.config.mjs ./next.config.mjs
 #
 # The image scan refuses a base package with a HIGH or CRITICAL advisory, so
 # this step upgrades exactly the packages one names to the patched Ubuntu
-# version. CVE-2026-111497 (HIGH, an out-of-bounds write in the Brotli
-# decoder): the base ships libbrotli1 1.1.0-2build2, fixed in the Ubuntu
-# revision 1.1.0-2ubuntu0.1. CVE-2026-109518 (HIGH, remote code execution via
-# hard link reuse during package download retries): the base ships apt and
-# libapt-pkg6.0t64 2.8.3, fixed in 2.8.4ubuntu0.1. Neither upgrade installs or
-# removes a package. The container package ledger keys packages by upstream
-# version, so the Brotli revision leaves it as it is, but the apt fix changes
-# the version its apt and libapt-pkg6.0t64 rows key on, and they move with it.
-# Drop each pin when a base digest ships its fix. The base already ships
-# libssl3t64 and openssl 3.0.13-0ubuntu3.16, past CVE-2026-84782 (HIGH,
-# OpenSSL), so they are not pinned; the end of this step fails the build if a
-# base ever ships an older one.
+# version. CVE-2026-109518 (HIGH, remote code execution via hard link reuse
+# during package download retries): the base ships apt and libapt-pkg6.0t64
+# 2.8.3, fixed in 2.8.4ubuntu0.1. The upgrade installs no package and removes
+# none. The container package ledger keys packages by upstream version, and
+# the apt fix changes the version its apt and libapt-pkg6.0t64 rows key on,
+# so they move with it. Drop each pin when a base digest ships its fix.
+# The base already ships libssl3t64 and openssl 3.0.13-0ubuntu3.16, past
+# CVE-2026-84782 (HIGH, OpenSSL), and libbrotli1 1.1.0-2ubuntu0.1, past
+# CVE-2026-111497 (HIGH, an out-of-bounds write in the Brotli decoder), so
+# they are not pinned; the end of this step fails the build if a base ever
+# ships an older one.
 #
 # That check fails the image build unless every package an advisory above
-# names is installed exactly once and at or past its fix: libssl3t64 and
-# openssl, which only this check holds, and each package this step pins, in
-# case a pin is dropped. dpkg-query prints the status of each copy it knows,
-# so the check passes only for one copy whose status is installed: a missing
-# package, one left as configuration files or half installed, and a second
-# architecture's copy, whose version the read would join to the first one's,
-# all stop the chain. It ends this step rather than taking a step of its own:
-# a step that changes no file still adds a layer, the same empty one each
-# time, the base stage's browser check already adds one, and the container
-# package inventory refuses an image that lists one layer twice.
-# lib/toolchain-provenance.test.ts ties this list to the pins and keeps the
-# check in this step.
+# names is installed exactly once and at or past its fix: libssl3t64, openssl
+# and libbrotli1, which only this check holds, and each package this step
+# pins, in case a pin is dropped. dpkg-query prints the status of each copy
+# it knows, so the check passes only for one copy whose status is installed:
+# a missing package, one left as configuration files or half installed, and a
+# second architecture's copy, whose version the read would join to the first
+# one's, all stop the chain. It ends this step rather than taking a step of
+# its own: a step that changes no file still adds a layer, the same empty one
+# each time, the base stage's browser check already adds one, and the
+# container package inventory refuses an image that lists one layer twice.
+# lib/toolchain-provenance.test.ts ties this list to the pins and to those
+# three packages, and keeps the check in this step.
 #
 # The apt that downloads in this step, and in the deps stage's step, is the
 # base's 2.8.3: the fixed apt is in place only once this step's install has
@@ -213,7 +214,6 @@ RUN sed -i 's|^URIs: http://|URIs: https://|' /etc/apt/sources.list.d/ubuntu.sou
   && ! grep -rqsE '^[^#]*http://' /etc/apt/sources.list /etc/apt/sources.list.d \
   && apt-get -o Acquire::Retries=0 -o APT::Update::Error-Mode=any update \
   && apt-get -o Acquire::Retries=0 install -y --no-install-recommends --only-upgrade \
-    libbrotli1=1.1.0-2ubuntu0.1 \
     apt=2.8.4ubuntu0.1 libapt-pkg6.0t64=2.8.4ubuntu0.1 \
   && apt-get purge -y gstreamer1.0-plugins-bad libgstreamer-plugins-bad1.0-0 \
   && apt-get clean \
