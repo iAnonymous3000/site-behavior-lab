@@ -166,8 +166,11 @@ const SEAM_HELPER_USERS: Readonly<Record<string, readonly string[]>> = {
   "lib/redact-scan-report-v1.ts": ["refuseSeamVisit"],
   "lib/report-store.ts": ["refuseSeamVisit"],
   "lib/scan-api.ts": ["refuseSeamOption", "refuseSeamVisit"],
+  "lib/scan-report-reader.ts": ["isSeamVisit"],
+  "lib/scan-report-v1-projection.ts": ["refuseSeamVisit"],
   "lib/scan-report-v2-runtime-builder.ts": ["refuseSeamVisit"],
-  "lib/scan-report-v2-shadow-store.ts": ["refuseSeamVisit"]
+  "lib/scan-report-v2-shadow-store.ts": ["refuseSeamVisit"],
+  "lib/scan-report-view.ts": ["isSeamVisit"]
 };
 
 /** Every name a module exports, read from its parse. */

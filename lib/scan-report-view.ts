@@ -34,6 +34,7 @@ import {
   type StoredScanReport
 } from "./scan-report-reader";
 import { toReportView, viewFromV2, type ReportView } from "./scan-report-views";
+import { isSeamVisit } from "./seam-visit-mark";
 
 export * from "./scan-report-views";
 
@@ -137,6 +138,13 @@ export type ScanTransportResult =
 
 export function readScanTransportPayload(payload: unknown): ScanTransportResult {
   if (!isRecord(payload)) return { kind: "unreadable", error: "invalid" };
+  // A payload that carries the mark of a visit a private capture was
+  // connected to is not something to open, export or publish. It is
+  // unreadable, like any payload that is not a report, and this never throws.
+  // A report inside a job envelope is read by the call below on the unwrapped
+  // report, so one marked more deeply than the envelope shows is declined
+  // there.
+  if (isSeamVisit(payload)) return { kind: "unreadable", error: "invalid" };
 
   if (payload.ok === false) {
     return { kind: "api-error", message: typeof payload.error === "string" ? payload.error : "Scan failed." };

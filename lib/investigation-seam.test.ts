@@ -1,8 +1,14 @@
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { getEventListeners } from "node:events";
+import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
 import { afterEach, test } from "node:test";
 import type { Page } from "playwright";
+import { readLoadedReport } from "./client-report-reader";
+import { committedReportCreatedAt } from "./committed-report-created-at";
 import { createGpcComparisonReport } from "./compare-reports";
 import { CONSENT_VERIFICATION_ENV } from "./consent-verification";
 import type { FingerprintObservationCollection } from "./fingerprint-observer";
@@ -25,19 +31,27 @@ import {
   type NodeScanMeasurement,
   type NodeScanMeasurementEnvelope
 } from "./node-scan-measurement";
+import { readManagedReport } from "./managed-report-reader";
+import { planR2ReportRemediation } from "./r2-report-remediation";
 import { redactScanReportV1, redactScanResultV1 } from "./redact-scan-report-v1";
-import { prepareScanReportBundle } from "./report-store";
+import { buildProvenanceEntry, committedSidecarFilename } from "./redaction-provenance";
+import { remediateReports } from "./remediate-reports-cli";
+import { buildStaticReportShare } from "./report-locator";
+import { prepareScanReportBundle, readStoredScanReportById, saveScanReport } from "./report-store";
 import { BUILD_COMMIT_ENV, PUBLIC_R2_REPORTS_ENV } from "./runtime-scan-report";
 import { executePreparedScan, type PreparedScanRequest, type ScanRunner } from "./scan-api";
 import { resetScanLimitStateForTests } from "./scan-limits";
+import { readStoredScanReport } from "./scan-report-reader";
+import { toPublicScanReportV1 } from "./scan-report-v1-projection";
 import { makeScanRunV2R2 } from "./scan-report-v2-r2-fixtures";
 import { buildRuntimeComparisonScanReportV2R2, buildRuntimeScanReportV2R2 } from "./scan-report-v2-runtime-builder";
 import { scanMeasurementEnvelopeWithR2Run } from "./scan-report-v2-runtime-fixtures";
 import { writeV2ShadowArtifact } from "./scan-report-v2-shadow-store";
+import { publicWireForExportOrPersistence, readScanTransportPayload, type LoadedReport } from "./scan-report-view";
 import { isSeamVisit, refuseSeamOption, refuseSeamVisit, SEAM_VISIT_MARKER, SeamVisitRefusal } from "./seam-visit-mark";
 import type { ScanSiteOptions } from "./scanner";
 import { SCROLL_CHECK_DEADLINE_MARGIN_MS } from "./scroll-check";
-import type { ScanResult } from "./types";
+import type { ScanReport, ScanResult } from "./types";
 
 /**
  * The investigation seam without a browser: its description, what it
@@ -64,10 +78,13 @@ const COLLECTION: FingerprintObservationCollection = {
   sharedWorkersEndedAtOnce: 0
 };
 
+const REPORT_STORE_DIR_ENV = "SITE_BEHAVIOR_LAB_REPORT_STORE_DIR";
+
 afterEach(() => {
   delete process.env[PUBLIC_R2_REPORTS_ENV];
   delete process.env[BUILD_COMMIT_ENV];
   delete process.env[CONSENT_VERIFICATION_ENV];
+  delete process.env[REPORT_STORE_DIR_ENV];
   resetScanLimitStateForTests();
 });
 
@@ -685,4 +702,184 @@ test("the shadow store refuses a seam visit's result and every copy of one befor
     writeV2ShadowArtifact(cleanEnvelope().result as unknown as Shadowed, BUILD_ENV),
     (error) => !(error instanceof SeamVisitRefusal)
   );
+});
+
+// A JSON copy of a seam visit's result, as a private runner would write one
+// beside its capture, and a stored report that carries the key. Each reader
+// declines it with its declared outcome, and none throws.
+
+const REPORT_ID = `20261110-${"a".repeat(32)}`;
+const WRITTEN_AT = "2026-11-10T12:00:00.000Z";
+
+test("the v1 public projector refuses a seam visit's result and every copy of one, so the export boundary does too", () => {
+  const { envelope } = seamEnvelope();
+  const clean = cleanEnvelope().result;
+  const marked: [string, ScanResult][] = [["the visit's own result", envelope.result], ...COPIES.map(([what, copy]): [string, ScanResult] => [what, copy(envelope.result)])];
+  for (const [what, result] of marked) {
+    assert.throws(() => toPublicScanReportV1(result), isRefusal, what);
+    assert.throws(() => toPublicScanReportV1(createGpcComparisonReport(result, clean)), isRefusal, `${what}, as the baseline`);
+    assert.throws(() => toPublicScanReportV1(createGpcComparisonReport(clean, result)), isRefusal, `${what}, as the variant`);
+    // The boundary every download, the publish CLI and both acquirers
+    // serialize through, handed a loaded v1 report that is one.
+    const loaded = { source: "v1", wire: result, view: {} } as unknown as LoadedReport;
+    assert.throws(() => publicWireForExportOrPersistence(loaded), isRefusal, `${what}, at the export boundary`);
+  }
+  // A result no seam touched is projected as before, and the store takes it.
+  const projected = toPublicScanReportV1(clean);
+  assert.equal(isSeamVisit(projected), false);
+  assert.doesNotThrow(() => prepareScanReportBundle(projected));
+  assert.deepEqual(publicWireForExportOrPersistence({ source: "v1", wire: clean, view: {} } as unknown as LoadedReport), projected);
+});
+
+test("both readers decline a payload that carries the mark, also inside a job envelope and on an arm, and neither throws", async () => {
+  const { envelope } = seamEnvelope();
+  const clean = cleanEnvelope().result;
+  const copy = JSON.parse(JSON.stringify(envelope.result)) as ScanResult;
+  // A mark on one member of one arm: not on the comparison, not on the arm.
+  const armMember = createGpcComparisonReport(clean, clean) as unknown as { baseline: { summary: Record<string, unknown> } };
+  armMember.baseline = { ...armMember.baseline, summary: { ...armMember.baseline.summary, [SEAM_VISIT_MARKER]: 1 } };
+  const payloads: [string, unknown][] = [
+    ["the visit's own result", envelope.result],
+    ...COPIES.map(([what, make]): [string, unknown] => [what, make(envelope.result)]),
+    ["a comparison that holds a copy", createGpcComparisonReport(copy, clean)],
+    ["a comparison with the key on one member of one arm", armMember],
+    ["a result with the key on one member", { ...clean, summary: { ...clean.summary, [SEAM_VISIT_MARKER]: null } }]
+  ];
+  for (const [what, payload] of payloads) {
+    assert.deepEqual(readStoredScanReport(payload), { ok: false, error: "invalid" }, what);
+    assert.deepEqual(readScanTransportPayload(payload), { kind: "unreadable", error: "invalid" }, what);
+    // The job envelope a finished scan is polled in, around the same payload.
+    assert.deepEqual(readScanTransportPayload({ status: "succeeded", jobId: "job", report: payload }), { kind: "unreadable", error: "invalid" }, `${what}, in a job envelope`);
+  }
+  // The reader the viewer opens a file with gives a declared answer, in
+  // words. Its own preflight turns away an inline screenshot first, which a
+  // result as a runner would write it has, so the same file is also opened
+  // without one: what is declined then is the key.
+  const NOT_A_REPORT = { ok: false, message: "This file is not a Site Behavior Lab report (or its data is damaged)." };
+  const bare = (result: ScanResult): ScanResult => ({ ...result, screenshot: null });
+  assert.equal((await readLoadedReport(copy)).ok, false);
+  assert.deepEqual(await readLoadedReport(bare(copy)), NOT_A_REPORT);
+  assert.deepEqual(await readLoadedReport({ status: "succeeded", jobId: "job", report: bare(copy) }), NOT_A_REPORT);
+  assert.deepEqual(await readLoadedReport(createGpcComparisonReport(bare(copy), bare(clean))), NOT_A_REPORT);
+  assert.equal((await readLoadedReport(bare(clean))).ok, true);
+  assert.equal((await readLoadedReport(createGpcComparisonReport(bare(clean), bare(clean)))).ok, true);
+  // An envelope that carries the key itself is declined before its report is read.
+  assert.deepEqual(readScanTransportPayload({ status: "succeeded", report: clean, [SEAM_VISIT_MARKER]: "x" }), { kind: "unreadable", error: "invalid" });
+  // The same payloads without the key are read as before.
+  const ordinary = readScanTransportPayload(JSON.parse(JSON.stringify(clean)));
+  assert.equal(ordinary.kind, "report");
+  assert.equal(readScanTransportPayload({ status: "succeeded", jobId: "job", report: clean }).kind, "report");
+  assert.equal(readStoredScanReport(createGpcComparisonReport(clean, clean)).ok, true);
+});
+
+/** A stored v1 report and its sidecar, valid but for what `tamper` adds. */
+function storedPair(tamper: (report: Record<string, unknown>) => void): { wire: string; sidecar: string; createdAt: string } {
+  const good = { ...toPublicScanReportV1(cleanEnvelope().result), share: buildStaticReportShare(REPORT_ID) } as ScanReport;
+  const read = readStoredScanReport(good);
+  assert.equal(read.ok, true);
+  if (!read.ok) throw new Error("the fixture is not a report");
+  const createdAt = committedReportCreatedAt(read.stored);
+  const tampered = JSON.parse(JSON.stringify(good)) as Record<string, unknown>;
+  tamper(tampered);
+  const wire = `${JSON.stringify(tampered, null, 2)}\n`;
+  const sidecar = `${JSON.stringify(buildProvenanceEntry({ reportId: REPORT_ID, publicReport: tampered, writtenAt: WRITTEN_AT, createdAt, expiresAt: null }), null, 2)}\n`;
+  return { wire, sidecar, createdAt };
+}
+
+const STORED_WITH_KEY: readonly (readonly [string, (report: Record<string, unknown>) => void])[] = [
+  ["the key on the report", (report) => void (report[SEAM_VISIT_MARKER] = "investigation-seam@1")],
+  ["the key on its summary", (report) => void ((report.summary as Record<string, unknown>)[SEAM_VISIT_MARKER] = 1)],
+  ["the key on its conditions", (report) => void ((report.conditions as Record<string, unknown>)[SEAM_VISIT_MARKER] = null)]
+];
+
+test("a stored report that carries the key is a declared failure that names the report, in the managed reader and in remediation", async () => {
+  for (const [what, tamper] of STORED_WITH_KEY) {
+    const { wire, sidecar, createdAt } = storedPair(tamper);
+    assert.deepEqual(
+      readManagedReport({ reportId: REPORT_ID, reportContents: wire, sidecarContents: sidecar, retention: { createdAt, expiresAt: null } }),
+      { ok: false, error: "invalid", reason: "invalid-report" },
+      what
+    );
+    assert.deepEqual(
+      planR2ReportRemediation({
+        reportId: REPORT_ID,
+        reportContents: wire,
+        sidecarContents: sidecar,
+        retentionSource: { kind: "metadata", retention: { createdAt, expiresAt: new Date(Date.parse(createdAt) + 7 * 86_400_000).toISOString() } },
+        writtenAt: new Date(Date.parse(createdAt) + 3_600_000).toISOString(),
+        now: new Date(Date.parse(createdAt) + 3_600_000).toISOString()
+      }),
+      { ok: false, reportId: REPORT_ID, issue: "invalid-report", detail: "invalid" },
+      what
+    );
+    // The committed corpus's own remediation names the file it stops at.
+    const reportsDir = mkdtempSync(path.join(tmpdir(), "sbl-seam-remediate-"));
+    try {
+      writeFileSync(path.join(reportsDir, `${REPORT_ID}.json`), wire);
+      writeFileSync(path.join(reportsDir, committedSidecarFilename(REPORT_ID)), sidecar);
+      await assert.rejects(
+        remediateReports({ reportsDir, writtenAt: WRITTEN_AT }),
+        (error) => error instanceof Error && !(error instanceof SeamVisitRefusal) && error.message === `Cannot remediate ${REPORT_ID}.json: unreadable report (invalid).`,
+        what
+      );
+    } finally {
+      rmSync(reportsDir, { recursive: true, force: true });
+    }
+  }
+  // What the fixture is without the key, and with a key of another name: the
+  // answers these readers gave before, so the decline is the key's alone.
+  const good = storedPair(() => undefined);
+  assert.equal(readManagedReport({ reportId: REPORT_ID, reportContents: good.wire, sidecarContents: good.sidecar, retention: { createdAt: good.createdAt, expiresAt: null } }).ok, true);
+  const other = storedPair((report) => void (report.somethingElse = "x"));
+  const otherRead = readManagedReport({ reportId: REPORT_ID, reportContents: other.wire, sidecarContents: other.sidecar, retention: { createdAt: other.createdAt, expiresAt: null } });
+  assert.deepEqual([otherRead.ok, otherRead.ok ? null : otherRead.reason], [false, "redaction-not-idempotent"]);
+});
+
+test("the report store answers unreadable for a stored report that gained the key, and does not throw", async () => {
+  const storeDir = mkdtempSync(path.join(tmpdir(), "sbl-seam-store-"));
+  process.env[REPORT_STORE_DIR_ENV] = storeDir;
+  try {
+    const saved = await saveScanReport(cleanEnvelope().result);
+    const id = saved.share?.id;
+    assert.ok(id);
+    assert.equal((await readStoredScanReportById(id)).outcome, "found");
+    const file = readdirSync(storeDir, { recursive: true }).map(String).find((name) => name.endsWith(`${id}.json`));
+    assert.ok(file, `the stored report was not found under ${storeDir}`);
+    const stored = JSON.parse(readFileSync(path.join(storeDir, file), "utf8")) as Record<string, unknown>;
+    stored[SEAM_VISIT_MARKER] = "investigation-seam@1";
+    writeFileSync(path.join(storeDir, file), `${JSON.stringify(stored, null, 2)}\n`);
+    assert.deepEqual(await readStoredScanReportById(id), { outcome: "unreadable", error: "invalid" });
+  } finally {
+    rmSync(storeDir, { recursive: true, force: true });
+  }
+});
+
+test("the publish CLI refuses a JSON copy of a seam visit's result, exits non-zero and writes nothing", () => {
+  const { envelope } = seamEnvelope();
+  const cli = path.join(__dirname, "publish-scan-report-cli.js");
+  const publish = (input: unknown): { status: number | null; stderr: string; written: string[] } => {
+    const dir = mkdtempSync(path.join(tmpdir(), "sbl-seam-publish-"));
+    try {
+      const inputPath = path.join(dir, "input.json");
+      const outDir = path.join(dir, "out");
+      writeFileSync(inputPath, JSON.stringify(input, null, 2));
+      const run = spawnSync(process.execPath, [cli, inputPath, path.join(outDir, `${REPORT_ID}.json`), REPORT_ID], { encoding: "utf8" });
+      return { status: run.status, stderr: run.stderr, written: existsSync(outDir) ? readdirSync(outDir) : [] };
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  };
+  for (const [what, input] of [
+    ["a JSON copy of the result", envelope.result],
+    ["the copy in a finished job's envelope", { status: "succeeded", jobId: "job", report: envelope.result }]
+  ] as const) {
+    const refused = publish(input);
+    assert.equal(refused.status, 1, `${what}: ${refused.stderr}`);
+    assert.equal(refused.stderr.trim(), "Refusing to publish: the scan result is not a readable report (invalid).", what);
+    assert.deepEqual(refused.written, [], what);
+  }
+  // The same CLI publishes the same result when no seam marked it.
+  const published = publish(cleanEnvelope().result);
+  assert.equal(published.status, 0, published.stderr);
+  assert.deepEqual(published.written.sort(), [committedSidecarFilename(REPORT_ID), `${REPORT_ID}.json`].sort());
 });

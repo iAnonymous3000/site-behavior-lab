@@ -29,6 +29,7 @@ import type {
   CnameCloak
 } from "./types";
 import { redactScanReportV1 } from "./redact-scan-report-v1";
+import { refuseSeamVisit } from "./seam-visit-mark";
 
 function copyTracker(tracker: TrackerMatch | null): TrackerMatch | null {
   if (tracker === null) return null;
@@ -459,6 +460,10 @@ function copyComparison(report: ComparisonScanResult): ComparisonScanResult {
  * are dropped by construction and screenshots never survive.
  */
 export function toPublicScanReportV1(report: ScanReport): ScanReport {
+  // Before the copy below, which keeps named fields only and so would drop
+  // the mark of a visit a private capture was connected to: the sanitizer
+  // after it, and every later refusal, would then see an ordinary report.
+  refuseSeamVisit(report, "the v1 public projection");
   // Projection and minimization are deliberately separate defenses: first
   // copy only frozen-v1 fields (so tolerant imports cannot smuggle unknown
   // properties), then apply the same idempotent public sanitizer used by

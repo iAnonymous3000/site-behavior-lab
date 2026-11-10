@@ -3,10 +3,12 @@
  * the scanner's investigation seam (lib/investigation-seam.ts), and the one
  * check every step that could publish such a visit makes first.
  *
- * This file imports nothing and uses nothing of Node, because one of those
- * steps is the v1 redactor, which also runs in the browser and in a Worker.
- * It builds its output field by field, so it must refuse a marked input
- * before it reads it: its output would not carry the mark. Every module that
+ * This file imports nothing and uses nothing of Node, because some of those
+ * steps also run in the browser and in a Worker: the v1 redactor, the v1
+ * public projector and the two readers. The redactor and the projector build
+ * their output field by field, so each must refuse a marked input before it
+ * reads it: its output would not carry the mark. The readers decline one as
+ * they decline any payload that is not a report. Every module that
  * refuses imports its helper from here and nothing from the seam's own
  * module, which would bring the scanner's runtime with it.
  *
@@ -39,17 +41,30 @@ function carriesSeamMark(value: unknown): boolean {
   return seamVisitObjects.has(value) || SEAM_VISIT_MARKER in value;
 }
 
+function holdsSeamMark(value: unknown): boolean {
+  return typeof value === "object" && value !== null && Object.values(value).some((member) => carriesSeamMark(member));
+}
+
 /**
- * Whether a value is a seam visit's, or holds one: the value itself or any
- * top-level member is marked, by identity or in band. One level is what the
- * publishable shapes need: an envelope holds its result and measurement, and
- * a v1 comparison holds its two results. A marked value is recognized before
- * any of its members is read.
+ * Whether a value is a seam visit's, or holds one. Marked, by identity or in
+ * band, is any of: the value itself; one of its top-level members; and, for
+ * a value with a `baseline` or a `variant` (a v1 comparison), one of that
+ * member's own members. That is every place a result's mark can sit in the
+ * shapes a report is handed over in: a result, an envelope around a result
+ * and a measurement, and a comparison of two results. A value marked itself
+ * is recognized before any of its members is read.
+ *
+ * Not covered: a mark deeper than that (on one request record, say), a
+ * marked result inside any other wrapper (an array of results, an object two
+ * levels up), and whatever was rebuilt from a result's fields by hand. The
+ * transport reader unwraps a job envelope and applies this to what it holds.
  */
 export function isSeamVisit(value: unknown): boolean {
   if (carriesSeamMark(value)) return true;
   if (typeof value !== "object" || value === null) return false;
-  return Object.values(value).some((member) => carriesSeamMark(member));
+  if (holdsSeamMark(value)) return true;
+  const { baseline, variant } = value as { baseline?: unknown; variant?: unknown };
+  return holdsSeamMark(baseline) || holdsSeamMark(variant);
 }
 
 /** Refuse a value that is a seam visit's or holds one. Every publication step calls this first. */

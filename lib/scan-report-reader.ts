@@ -24,6 +24,7 @@ import { scanReportV2SemanticViolations } from "./scan-report-v2-evaluators";
 import { SCAN_REPORT_V2_SCHEMA_REVISION_2, type PublicScanReportV2R2 } from "./scan-report-v2-r2";
 import { isPublicScanReportV2R2 } from "./scan-report-v2-r2-validation";
 import { scanReportV2R2SemanticViolations } from "./scan-report-v2-r2-evaluators";
+import { isSeamVisit } from "./seam-visit-mark";
 
 export type StoredScanReport =
   | { schemaVersion: 1; report: ScanReport }
@@ -48,6 +49,12 @@ export function readStoredScanReport(value: unknown): ReadStoredScanReportResult
   if (!isRecord(value) || !Number.isInteger(value.schemaVersion)) {
     return { ok: false, error: "invalid" };
   }
+  // The result of a visit a private capture was connected to carries a key
+  // no report may carry (lib/seam-visit-mark.ts). The frozen v1 validator
+  // tolerates unknown properties, so it is declined here by name, as invalid:
+  // a stored or opened file that carries it is not a report, and every
+  // reader of one answers so instead of meeting the sanitizer's refusal.
+  if (isSeamVisit(value)) return { ok: false, error: "invalid" };
 
   if (value.schemaVersion === V1_SCHEMA_VERSION) {
     // The frozen validator plus the deep security backport: malformed uploads
