@@ -109,7 +109,7 @@ function run(
     caseId, repetition, sequence,
     reportId: `20260719-${sequence.toString(16).padStart(32, "0")}`,
     reportJsonPath: `/api/reports/20260719-${sequence.toString(16).padStart(32, "0")}`,
-    reportWireSha256: "d".repeat(64), runId: `${caseId}-${repetition}`, startedAt: "2026-07-19T00:00:00.000Z",
+    reportWireSha256: createHash("sha256").update(`the wire of scan ${sequence}`).digest("hex"), runId: `${caseId}-${repetition}`, startedAt: "2026-07-19T00:00:00.000Z",
     subject: { requested: { origin: `https://${caseId}.example`, registrableDomain: `${caseId}.example`, routeShape: "/" }, observed: { origin: `https://${caseId}.example`, registrableDomain: `${caseId}.example`, routeShape: "/" } },
     conditions: { gpc: true, shields: "classification", consent: "observe", device: { kind: "desktop", viewport: { width: 1440, height: 980, isMobile: false } }, probes: { keystroke: true, policyVisit: true }, locale: "en-US", language: "en-US", timezone: "UTC", egress: { label: "cloudflare-containers", region: "us-west" }, browser: { name: "chromium", version: browser }, headless: true, automation: "playwright-chromium" },
     provenance: {
@@ -698,6 +698,52 @@ test("a capture loss that feeds no metric, recorded on every run of both builds,
     );
     assert.deepEqual(result.excluded, [], loss.family);
     assert.equal(result.results.length, panel.cases.length * h.METRICS.length, loss.family);
+  }
+});
+
+test("a receipt holds each scan once: a repeated run id or wire digest, a repetition that is not a number and a missing creation time are refused", async () => {
+  const h = await helpers;
+  const digest = committedPanelDigest(h);
+  const repeated = { message: "Receipt repeats a run id or a report wire digest: each run of a receipt is a scan of its own." };
+  const coverage = { message: "Receipt run order or coverage is invalid." };
+  const noTime = { message: "Receipt has no creation time." };
+  // [what was done to one receipt, the refusal]
+  const edits: Array<[string, (receipt: Receipt) => void, { message: string }]> = [
+    ["two runs with one run id", (receipt) => { receipt.runs[1].runId = receipt.runs[0].runId; }, repeated],
+    ["two runs with one wire digest", (receipt) => { receipt.runs[4].reportWireSha256 = receipt.runs[0].reportWireSha256; }, repeated],
+    // One visit pasted over the next one, under that run's own report id and
+    // place: the counts of one scan would stand for two.
+    ["one run pasted over another under the other's report id", (receipt) => {
+      const [first, second] = receipt.runs;
+      receipt.runs[1] = { ...structuredClone(first), repetition: second.repetition, sequence: second.sequence, reportId: second.reportId, reportJsonPath: second.reportJsonPath };
+    }, repeated],
+    ["a run with no run id", (receipt) => { delete receipt.runs[2].runId; }, repeated],
+    ["a run with an empty run id", (receipt) => { receipt.runs[2].runId = ""; }, repeated],
+    ["a repetition given as a string", (receipt) => { receipt.runs[0].repetition = "1"; }, coverage],
+    ["a repetition given as a list", (receipt) => { receipt.runs[0].repetition = [1]; }, coverage],
+    ["no creation time", (receipt) => { delete receipt.createdAt; }, noTime],
+    ["a creation time that is not a string", (receipt) => { receipt.createdAt = 1784419200000; }, noTime],
+    ["a creation time that is no timestamp", (receipt) => { receipt.createdAt = "yesterday"; }, noTime]
+  ];
+  for (const [label, edit, refusal] of edits) {
+    for (const side of ["baseline", "candidate"] as const) {
+      const pair = await freshPair();
+      edit(pair[side]);
+      assert.throws(() => h.compareReceipts(pair.baseline, pair.candidate, panel, digest), refusal, `${label} in the ${side}`);
+    }
+  }
+  // Untouched, the pair compares.
+  const pair = await freshPair();
+  assert.equal(h.compareReceipts(pair.baseline, pair.candidate, panel, digest).outcome, "pass");
+  // The ten committed receipts hold fifteen scans of their own each. Their
+  // replay, tested below, runs them through the same check.
+  for (const file of COMMITTED_PAIRS.flatMap(([baselineFile, candidateFile]) => [baselineFile, candidateFile])) {
+    const receipt = committedReceipt(file);
+    assert.equal(receipt.runs.length, 15, file);
+    assert.equal(new Set(receipt.runs.map((entry: Receipt) => entry.runId)).size, 15, file);
+    assert.equal(new Set(receipt.runs.map((entry: Receipt) => entry.reportWireSha256)).size, 15, file);
+    assert.equal(receipt.runs.every((entry: Receipt) => Number.isSafeInteger(entry.repetition)), true, file);
+    assert.match(receipt.createdAt, /^20[0-9]{2}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]{3}Z$/, file);
   }
 });
 

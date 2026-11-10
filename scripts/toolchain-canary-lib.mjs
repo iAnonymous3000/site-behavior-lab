@@ -78,6 +78,8 @@ const SLUG = /^[a-z0-9-]+$/;
 const SHA40 = /^[0-9a-f]{40}$/;
 const SHA256 = /^[0-9a-f]{64}$/;
 const REPORT_ID = /^[0-9]{8}-[0-9a-f]{32}$/;
+// The form the capture writes its creation time in (Date.prototype.toISOString).
+const TIMESTAMP = /^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]{3}Z$/;
 const ADBLOCK_ENGINE_VERSION = /^adblock-rust-[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?$/;
 const PLAYWRIGHT_VERSION_COMPONENT = /-playwright-[0-9]+\.[0-9]+\.[0-9]+(?=\+|$)/g;
 const TLDTS_VERSION_COMPONENT = /tldts@[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?/g;
@@ -395,8 +397,24 @@ export function buildReceipt({ createdAt, expectedBuild, order, panel, panelDige
   };
 }
 
+// One scan gives one saved report, one run id and one wire digest. A receipt
+// that repeats any of the three holds one visit twice, whatever report id the
+// copy is filed under, and its medians and spreads would count that visit as
+// two.
+function assertOwnScan(run, seen) {
+  requireValue(REPORT_ID.test(run.reportId) && !seen.reportIds.has(run.reportId) && run.reportJsonPath === `/api/reports/${run.reportId}` && SHA256.test(run.reportWireSha256), "Receipt report identity is invalid.");
+  requireValue(
+    typeof run.runId === "string" && run.runId.length > 0 && !seen.runIds.has(run.runId) && !seen.wireDigests.has(run.reportWireSha256),
+    "Receipt repeats a run id or a report wire digest: each run of a receipt is a scan of its own."
+  );
+  seen.reportIds.add(run.reportId);
+  seen.runIds.add(run.runId);
+  seen.wireDigests.add(run.reportWireSha256);
+}
+
 function assertReceipt(receipt, expectedPanel, panelDigest, { allowUnrecordedPlaywright = false } = {}) {
   requireValue(record(receipt) && receipt.receiptVersion === RECEIPT_VERSION && receipt.kind === "site-behavior-toolchain-canary-capture", "Invalid canary receipt.");
+  requireValue(typeof receipt.createdAt === "string" && TIMESTAMP.test(receipt.createdAt), "Receipt has no creation time.");
   requireValue(receipt.origin === CANARY_ORIGIN && SHA40.test(receipt.expectedBuild) && SHA256.test(receipt.panelDigest), "Receipt origin/build/panel identity is invalid.");
   requireValue(receipt.panelDigest === panelDigest && same(receipt.panel, expectedPanel), "Receipt does not use the committed fixed panel.");
   requireValue(receipt.order === "forward" || receipt.order === "reverse", "Receipt order is invalid.");
@@ -404,11 +422,12 @@ function assertReceipt(receipt, expectedPanel, panelDigest, { allowUnrecordedPla
   const expectedCoverage = [];
   for (const panelCase of expectedCases) for (let repetition = 1; repetition <= expectedPanel.repetitions; repetition += 1) expectedCoverage.push(`${panelCase.id}:${repetition}`);
   requireValue(Array.isArray(receipt.runs) && receipt.runs.length === expectedCoverage.length, "Receipt has incomplete panel coverage.");
-  const reportIds = new Set();
+  const seen = { reportIds: new Set(), runIds: new Set(), wireDigests: new Set() };
   for (const [index, run] of receipt.runs.entries()) {
-    requireValue(record(run) && `${run.caseId}:${run.repetition}` === expectedCoverage[index] && run.sequence === index + 1, "Receipt run order or coverage is invalid.");
-    requireValue(REPORT_ID.test(run.reportId) && !reportIds.has(run.reportId) && run.reportJsonPath === `/api/reports/${run.reportId}` && SHA256.test(run.reportWireSha256), "Receipt report identity is invalid.");
-    reportIds.add(run.reportId);
+    // The repetition is a number: a string or a list that prints as one would
+    // pass the comparison of keys below.
+    requireValue(record(run) && Number.isSafeInteger(run.repetition) && `${run.caseId}:${run.repetition}` === expectedCoverage[index] && run.sequence === index + 1, "Receipt run order or coverage is invalid.");
+    assertOwnScan(run, seen);
     assertCompleteRun(
       { ...run, summary: { counts: run.counts } },
       receipt.expectedBuild,
