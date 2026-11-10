@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "artifactKind": "site-behavior-container-image-package-review-ledger",
-  "inventoryPackageSetDigest": "830642c80370c0ec35ebfa110e445046a4936420ec785d7821aaeecb636a850e",
+  "inventoryPackageSetDigest": "cde067a50250f238572fcc922f50aacc2bcd46b7d29be99649daa319909dc673",
   "notice": "Rows are synchronized from an exact smoke-tested container OS-package inventory. New or changed package evidence is unreviewed until a human records a substantive license determination and resolves every distribution obligation. Scanner output is evidence, not a legal conclusion.",
   "reviews": [
     {
@@ -93,8 +93,8 @@
       "notes": null
     },
     {
-      "key": "os:ubuntu:ca-certificates@20260816ubuntu0.24.04.1#all",
-      "inventoryEvidenceDigest": "a6ea19ad1865691701604b01926b901c19909637cc0bb594747f21d06f15b483",
+      "key": "os:ubuntu:ca-certificates@20260816ubuntu0.24.04.2#all",
+      "inventoryEvidenceDigest": "314b7a4e3f137d5508cc3eecf93e27fa89ed2ecd7a1cb92f6018acacbd602b38",
       "status": "unreviewed",
       "determinedLicense": null,
       "licenseEvidenceRefs": [],
@@ -5164,8 +5164,8 @@
       "notes": null
     },
     {
-      "key": "os:ubuntu:nodejs@24.22.1#amd64",
-      "inventoryEvidenceDigest": "e24687bbb8dd3b251248b3f4b3bf7b046d5d0b112b5f6ebf848356226fd20628",
+      "key": "os:ubuntu:nodejs@26.13.0#amd64",
+      "inventoryEvidenceDigest": "d74840e016507677fdb67ad2c6a2173afc203bb0ff5344295351023db4cc64fe",
       "status": "unreviewed",
       "determinedLicense": null,
       "licenseEvidenceRefs": [],
