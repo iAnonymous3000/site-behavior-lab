@@ -11,7 +11,7 @@
     },
     "cargoLock": {
       "path": "tools/adblock-wasm/Cargo.lock",
-      "sha256": "106c97247df0f699510239c5db330d513d09832a9206eaecf54ef54bc5beff35"
+      "sha256": "e05232c649d85e60f69ebc8a791b7611101fc5adf267132da671a7f300efe94a"
     },
     "cargoManifest": {
       "path": "tools/adblock-wasm/Cargo.toml",
@@ -33,9 +33,9 @@
       "unknown": 0
     },
     "cargo": {
-      "total": 69,
+      "total": 65,
       "declared": 0,
-      "unknown": 69,
+      "unknown": 65,
       "workspacePackages": 1
     },
     "filterLists": {
@@ -2070,10 +2070,10 @@
   "cargo": [
     {
       "name": "adblock",
-      "version": "0.13.3",
+      "version": "0.13.5",
       "kind": "third-party",
       "source": "registry+https://github.com/rust-lang/crates.io-index",
-      "checksum": "f44b96a666a23c12acad7c688bfe8638a7094e7eabe765b09a6864ab991c676d",
+      "checksum": "7a4c8558f27608dec74695c866f9a8ef897ec7a77cb826f8a5baf0b8ba461d2a",
       "license": "UNKNOWN",
       "licenseStatus": "unknown-not-recorded-in-cargo-lock",
       "licenseEvidence": null
@@ -2174,16 +2174,6 @@
       "kind": "third-party",
       "source": "registry+https://github.com/rust-lang/crates.io-index",
       "checksum": "35f6839d7b3b98adde531effaf34f0c2badc6f4735d26fe74709d8e513a96ef3",
-      "license": "UNKNOWN",
-      "licenseStatus": "unknown-not-recorded-in-cargo-lock",
-      "licenseEvidence": null
-    },
-    {
-      "name": "form_urlencoded",
-      "version": "1.2.2",
-      "kind": "third-party",
-      "source": "registry+https://github.com/rust-lang/crates.io-index",
-      "checksum": "cb4cb245038516f5f85277875cdaa4f7d2c9a0fa0468de06ed190163b1581fcf",
       "license": "UNKNOWN",
       "licenseStatus": "unknown-not-recorded-in-cargo-lock",
       "licenseEvidence": null
@@ -2319,16 +2309,6 @@
       "licenseEvidence": null
     },
     {
-      "name": "once_cell",
-      "version": "1.21.4",
-      "kind": "third-party",
-      "source": "registry+https://github.com/rust-lang/crates.io-index",
-      "checksum": "9f7c3e4beb33f85d45ae3e3a1792185706c8e16d043238c593331cc7cd313b50",
-      "license": "UNKNOWN",
-      "licenseStatus": "unknown-not-recorded-in-cargo-lock",
-      "licenseEvidence": null
-    },
-    {
       "name": "percent-encoding",
       "version": "2.3.2",
       "kind": "third-party",
@@ -2344,16 +2324,6 @@
       "kind": "third-party",
       "source": "registry+https://github.com/rust-lang/crates.io-index",
       "checksum": "0103b1cef7ec0cf76490e969665504990193874ea05c85ff9bab8b911d0a0564",
-      "license": "UNKNOWN",
-      "licenseStatus": "unknown-not-recorded-in-cargo-lock",
-      "licenseEvidence": null
-    },
-    {
-      "name": "precomputed-hash",
-      "version": "0.1.1",
-      "kind": "third-party",
-      "source": "registry+https://github.com/rust-lang/crates.io-index",
-      "checksum": "925383efa346730478fb4838dbe9137d2a47675ad789c546d150a6e1dd4ab31c",
       "license": "UNKNOWN",
       "licenseStatus": "unknown-not-recorded-in-cargo-lock",
       "licenseEvidence": null
@@ -2619,16 +2589,6 @@
       "licenseEvidence": null
     },
     {
-      "name": "url",
-      "version": "2.5.8",
-      "kind": "third-party",
-      "source": "registry+https://github.com/rust-lang/crates.io-index",
-      "checksum": "ff67a8a4397373c3ef660812acab3268222035010ab8680ec4215f38ba3d0eed",
-      "license": "UNKNOWN",
-      "licenseStatus": "unknown-not-recorded-in-cargo-lock",
-      "licenseEvidence": null
-    },
-    {
       "name": "utf8_iter",
       "version": "1.0.4",
       "kind": "third-party",
@@ -2640,40 +2600,40 @@
     },
     {
       "name": "wasm-bindgen",
-      "version": "0.2.129",
+      "version": "0.2.130",
       "kind": "third-party",
       "source": "registry+https://github.com/rust-lang/crates.io-index",
-      "checksum": "9bb54f33acc68fd454578d9820b0bde1a1a3d17aa17bb7b6595806d02886d409",
+      "checksum": "a0181c14ddd6c7b8b0b0132a5f1ea2f32be0d893cd3ea97b6e3b28886b8a3d1c",
       "license": "UNKNOWN",
       "licenseStatus": "unknown-not-recorded-in-cargo-lock",
       "licenseEvidence": null
     },
     {
       "name": "wasm-bindgen-macro",
-      "version": "0.2.129",
+      "version": "0.2.130",
       "kind": "third-party",
       "source": "registry+https://github.com/rust-lang/crates.io-index",
-      "checksum": "2e29d0c35b16e224a7eeb5cd2d25e3e1968fbd65604117b44d3b789d00ee8535",
+      "checksum": "6e931a02a39abdbf66966fc35902b5ed58344750a70885bed4ebb3d8eaf28ed9",
       "license": "UNKNOWN",
       "licenseStatus": "unknown-not-recorded-in-cargo-lock",
       "licenseEvidence": null
     },
     {
       "name": "wasm-bindgen-macro-support",
-      "version": "0.2.129",
+      "version": "0.2.130",
       "kind": "third-party",
       "source": "registry+https://github.com/rust-lang/crates.io-index",
-      "checksum": "6f501a8bc3719dba86ef8ae4728879c08001bea749eb1333ac5b91e040e2a6b7",
+      "checksum": "2ca4b54280e455bd831e33a6b8e734baf432fe63fbc35c42ac14ce67a043a53a",
       "license": "UNKNOWN",
       "licenseStatus": "unknown-not-recorded-in-cargo-lock",
       "licenseEvidence": null
     },
     {
       "name": "wasm-bindgen-shared",
-      "version": "0.2.129",
+      "version": "0.2.130",
       "kind": "third-party",
       "source": "registry+https://github.com/rust-lang/crates.io-index",
-      "checksum": "23f0c9c52aa7cd7d77769a4cfe2a9adb1b331f489a41d912ce14513d5ab995c6",
+      "checksum": "3b1f9c3798725016c6ee5f2f57869ec0831e8bbc0ab0310a86e787e97f41389e",
       "license": "UNKNOWN",
       "licenseStatus": "unknown-not-recorded-in-cargo-lock",
       "licenseEvidence": null

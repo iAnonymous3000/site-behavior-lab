@@ -83,7 +83,7 @@ hard link. An existing file, symlink, directory, or racing destination is
 refused rather than replaced.
 
 The inventory is deliberately not named a notices file. Cargo.lock proves no
-licenses for its 69 third-party packages, and the filter metadata proves no
+licenses for its 65 third-party packages, and the filter metadata proves no
 licenses for its 31 sources; those entries remain `UNKNOWN`.
 
 No human license review has been performed. The third-party items are
@@ -214,15 +214,17 @@ file or any blocker policy changes without a reviewed contract update.
 That check is an integrity contract, not a reproducible-build receipt. The
 current binary identifies rustc 1.96.1 commit
 `31fca3adb283cc9dfd56b49cdee9a96eb9c96ffd` and, in its `producers` section,
-the wasm-bindgen 0.2.129 CLI that processed it (0.2.129 stopped embedding the
-wasm-bindgen crate's own source path, which the 0.2.126 binary carried), but
-it also embeds the building host's Cargo registry paths. The wasm-bindgen
-0.2.129 rebuild of adblock-rust 0.13.3 recorded its wasm-pack command and
-generator versions in the commit that vendored it, and clean rebuilds with
-that command on that host produced the vendored bytes. wasm-pack installs that
-CLI with an unlocked `cargo install`, so the walrus it links (0.27.2 in the
-current binary's `producers` section) is pinned by nothing checked in. Those
-bytes also depend on wasm-opt. wasm-pack 0.14.0
+the wasm-bindgen 0.2.130 CLI that processed it (since 0.2.129 the binary no
+longer embeds the wasm-bindgen crate's own source path, which the 0.2.126
+binary carried), but it also embeds the building host's Cargo registry paths.
+The wasm-bindgen 0.2.130 rebuild of adblock-rust 0.13.5 recorded its wasm-pack
+command and generator versions in the commit that vendored it, and clean
+rebuilds with that command on that host produced the vendored bytes. wasm-pack
+installs that CLI with an unlocked `cargo install`, so the walrus it links
+is resolved on the day of the install and pinned by nothing checked in. The
+contract declares the walrus the current binary records in its `producers`
+section (0.27.3), and verification fails for a binary that records another.
+Those bytes also depend on wasm-opt. wasm-pack 0.14.0
 downloads binaryen `version_117` from the upstream GitHub release into its
 local tool cache and verifies no checksum; with no cached copy and
 `--mode no-install` it skips wasm-opt and writes different bytes. The cached
@@ -242,7 +244,7 @@ alone.
 Do not call this artifact reproducible until one reviewed change does all of
 the following:
 
-1. Pins rustc 1.96.1, Cargo 1.96.1, wasm-pack 0.14.0, wasm-bindgen CLI 0.2.129,
+1. Pins rustc 1.96.1, Cargo 1.96.1, wasm-pack 0.14.0, wasm-bindgen CLI 0.2.130,
    wasm-opt (binaryen `version_117`), and the `wasm32-unknown-unknown` target
    from independently reviewed sources.
 2. Builds with `Cargo.lock`, a fixed source-date policy, and fixed path-prefix

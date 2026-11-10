@@ -20,7 +20,16 @@ const OUTPUT_PATHS = [
   "lib/adblock-wasm/sbl_adblock_wasm_bg.wasm.d.ts"
 ];
 const RUSTC_COMMIT = "31fca3adb283cc9dfd56b49cdee9a96eb9c96ffd";
-const WASM_BINDGEN_VERSION = "0.2.129";
+const WASM_BINDGEN_VERSION = "0.2.130";
+// wasm-pack installs the wasm-bindgen CLI with an unlocked `cargo install`,
+// so the walrus that CLI links is resolved on the day of the install and
+// pinned by nothing checked in. The CLI writes the walrus it used into the
+// binary's `producers` section beside its own name, so the version the
+// vendored binary records is declared here and checked like the CLI's. A
+// rebuild that linked another walrus then fails verification until this
+// constant is reviewed and moved, where a regenerated contract alone would
+// have bound the new bytes without a word.
+const WALRUS_VERSION = "0.27.3";
 // wasm-pack 0.14.0 downloads binaryen version_117 into its tool cache when no
 // wasm-opt is on PATH. The WASM records no marker for it, so this entry is
 // declarative: it binds the documented toolchain, not observed bytes.
@@ -91,6 +100,7 @@ export function producersProcessedBy(wasm) {
 export function buildObservedWasmContract(root = ROOT) {
   const wasm = readFileSync(path.join(root, "lib/adblock-wasm/sbl_adblock_wasm_bg.wasm"));
   const wasmText = wasm.toString("latin1");
+  const processedBy = producersProcessedBy(wasm);
   return {
     schemaVersion: 1,
     status: "blocked",
@@ -105,6 +115,7 @@ export function buildObservedWasmContract(root = ROOT) {
       cargo: "1.96.1",
       wasmPack: "0.14.0",
       wasmBindgenCli: WASM_BINDGEN_VERSION,
+      walrus: WALRUS_VERSION,
       wasmOpt: WASM_OPT_VERSION,
       pathRemapping: "required-before-activation"
     },
@@ -121,7 +132,8 @@ export function buildObservedWasmContract(root = ROOT) {
     ],
     observedBinaryMarkers: {
       rustcCommit: wasm.includes(Buffer.from(`/rustc/${RUSTC_COMMIT}/`, "utf8")),
-      wasmBindgenProducerVersion: producersProcessedBy(wasm).get("wasm-bindgen") === WASM_BINDGEN_VERSION,
+      wasmBindgenProducerVersion: processedBy.get("wasm-bindgen") === WASM_BINDGEN_VERSION,
+      walrusProducerVersion: processedBy.get("walrus") === WALRUS_VERSION,
       hostCargoRegistryPath: /\/(?:Users|home)\/[^/\0]+\/\.cargo\/registry\//.test(wasmText)
     },
     inputs: INPUT_PATHS.map((entry) => fileRecord(root, entry)),
@@ -156,6 +168,11 @@ export function verifyWasmContract(root = ROOT) {
     observed.observedBinaryMarkers.wasmBindgenProducerVersion,
     true,
     "vendored WASM's producers section does not name the locked wasm-bindgen"
+  );
+  assert.equal(
+    observed.observedBinaryMarkers.walrusProducerVersion,
+    true,
+    "vendored WASM's producers section does not name the declared walrus"
   );
   assert.equal(
     observed.observedBinaryMarkers.hostCargoRegistryPath,
