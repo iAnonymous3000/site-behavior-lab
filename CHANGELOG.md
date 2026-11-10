@@ -35,9 +35,41 @@ public API or a 1.0 release.
   them. Open findings are pinned as the code behaves and claim nothing. A unit
   test, run in CI, checks the register's names and numbers against the suites
   and git, and its words against a closed list, not its meaning; it is meant to
-  catch honest drift, not deliberate evasion. No release gate names the
-  register or its suites yet. The filter-list refresh job now checks out the
-  whole history, which that test reads.
+  catch honest drift, not deliberate evasion. The `formal-verification`
+  release gate (next entry) names the test files its rows cite. The
+  filter-list refresh job now checks out the whole history, which that test
+  reads.
+- A `formal-verification` release gate for 1.0. `RELEASE_READINESS.json`
+  names the 16 test files the register's rows cite, each with the least its
+  run must show (tests passed, catches recorded), and the release contract
+  pins the same list, so a manifest that drops the gate, changes its kind,
+  drops a file or asks one for less is refused.
+  `npm run release:formal-verification-report` runs those files again, each
+  alone, and writes a canonical execution report for the exact clean commit
+  it ran at: the test runner's counts, each test by name with its outcome,
+  and each catch the harness recorded, with the property the suite named and
+  the property the counterexample carried. CI's tests job writes that report
+  for every commit it tests, and its attest job signs it on main as a fifth
+  subject. The gate passes only when a release candidate's evidence carrier
+  binds a signed report for the candidate commit, and the report shows every
+  listed file ran with no test or describe block skipped, left todo or
+  failed, no test that failed as expected, and each minimum met. The report
+  reads from the test runner's events three things its counts leave out, and
+  that the exit status of the pinned Node (24.14.1) leaves out too: a
+  describe block that fails as a block, a test marked as expected to fail,
+  and an empty block left todo. That reading was derived on the pinned Node
+  and checked on the image's (24.22.1), and must be derived again when the
+  pin moves. It fails today, because no
+  carrier exists: the readiness check now evaluates 15 gates, 9 of them
+  unsatisfied. A pass shows that these files ran and passed at the
+  candidate. It adds nothing to what each test claims over its own domain, a
+  count a suite pins inside a test stays inside that test, and the minimums
+  are change detectors, not evidence. The catches are lines the suite's own
+  process appended to a log, so they are not independent of the suite, and
+  the gate holds their number and that none names two properties, not that
+  variant names are distinct. The harness records a catch only where
+  `SITE_BEHAVIOR_LAB_FV_CATCH_LOG` names a log, as that command does. No
+  scan, report or identity changes.
 - The start of a private, owner-only investigation workspace: a Cloudflare
   Worker that verifies a Cloudflare Access token on every request and denies
   everything else. Nothing deploys it and it has no hostname, and no public
@@ -90,6 +122,10 @@ public API or a 1.0 release.
 
 ### Changed
 
+- CI's tests job and Docker job have 60 minutes each, up from 45. The image
+  build repeats the whole check, and on 2026-11-10 the Docker job took 39 to
+  44 minutes, up from 26 to 32 in late October, so a slow runner could have
+  failed a sound commit by timeout. The pages and smoke jobs keep 45.
 - Five routine dependencies move to their latest releases: Wrangler 4.151.1
   to 4.159.0 (with workerd 1.20261109.1 and miniflare 5.20261109.0-beta),
   `@cloudflare/workers-types` 5.20261018.1 to 5.20261110.1, Next.js 16.4.2
@@ -111,10 +147,11 @@ public API or a 1.0 release.
   either. Release 1.0 therefore claims neither protection: it verifies no
   egress boundary independent of the application's own guard, and it does
   not re-verify log retention. docs/v1-release-qualification.md says so, as
-  do the README, RELEASE.md and the operations documents. The readiness check
-  now evaluates 14 gates and lists the four deferred ones as deferred, with
-  no verdict. The verdict and reasons of each remaining gate are unchanged
-  (8 unsatisfied). The contract refuses a manifest that drops either deferral
+  do the README, RELEASE.md and the operations documents. With this change
+  the readiness check evaluated 14 gates (15 since the `formal-verification`
+  gate above) and lists the four deferred ones as deferred, with no verdict.
+  The verdict and reasons of each remaining gate were unchanged (8
+  unsatisfied then). The contract refuses a manifest that drops either deferral
   record or lists either gate beside its record. The 1.0 binding no longer
   requires the two gates' evidence, and evidence that is bound for a deferred
   gate is still evaluated in full and counts against readiness.
