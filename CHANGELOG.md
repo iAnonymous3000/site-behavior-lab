@@ -70,6 +70,21 @@ public API or a 1.0 release.
   variant names are distinct. The harness records a catch only where
   `SITE_BEHAVIOR_LAB_FV_CATCH_LOG` names a log, as that command does. No
   scan, report or identity changes.
+- A fixture test of what a page's script can see of the fingerprint
+  observer, and three paragraphs in docs/limitations.md written from what
+  it measured on Chromium 156: a page's scripts can find and call the
+  observer's function and see that wrapped methods are not native, and
+  looking is not recorded; a script that detects the observer can behave
+  differently, and a report cannot show that it did; canvas work that a page
+  splits between two frames is counted as calls and is not flagged by the
+  canvas heuristic. A call made through a newly created frame in the same
+  task was counted. Not tested: real sites, other evidence families, popups
+  and other-origin frames, other browser builds.
+- README.md and RELEASE.md say that a tagged release builds from source for
+  the life of its browser: the image build runs the check that the bundled
+  Chromium still applies its HSTS preload list, which Chromium stops doing 70
+  days after its build, and there is no switch to skip it. After that, build
+  the current release.
 - The start of a private, owner-only investigation workspace: a Cloudflare
   Worker that verifies a Cloudflare Access token on every request and denies
   everything else. Nothing deploys it and it has no hostname, and no public
@@ -122,6 +137,43 @@ public API or a 1.0 release.
 
 ### Changed
 
+- The edge now meters the report JSON and the PDF. `GET` and `HEAD` on
+  `/api/reports/:id` and `/api/reports/:id/pdf` used to reach the container
+  with no edge check: Node metered them per client, and nothing bounded what
+  the world could make the container read. The front Worker now charges each
+  in the scanner's Durable Object before forwarding: the JSON at 120 a minute
+  per client, the PDF at 10 a minute per client, and both against one world
+  budget of 1,200 a minute, separate from the report pages' own. A refusal is
+  a 429 with `retry-after`, and a failure to charge fails closed with a 503.
+  Other methods on those paths are answered at the edge. The Worker's own
+  reads of a saved report and the PDF renderer's loopback read are not
+  charged. The trade, stated in docs/go-live-public-scanner.md and
+  docs/limitations.md: a world budget is shared, so about ten addresses at
+  their own caps can use it up and other readers then get 429 on the
+  evidence JSON and the PDF until the minute turns, as has been true of the
+  report pages since their cap was added.
+- The toolchain canary can change its panel. Every panel is a committed file
+  under `scripts/fixtures/toolchain-canary-panels/`; `compare` runs on the
+  current panel only, and a new `replay` command reads two receipts on the
+  committed panel both carry, marking every line it prints as a replay that
+  is not a release comparison. A `qualify` command captures a committed
+  qualification panel once on one build (three candidate sites, five runs
+  each, 15 scans), writing its receipt before every scan to one fixed,
+  create-only path under `docs/`, so a second capture is refused, and
+  recording a blocked or failed case without discarding the others. A
+  `verdict` command applies a rule fixed in code before any capture
+  (`panel-qualification-2026-11-10`: every run complete, on the candidate's
+  own site, with no loss in a family a canary metric reads and each metric's
+  spread within tolerance) and prints the next panel or says the panel does
+  not change; a test requires any committed panel past version 1 to equal
+  that verdict on the committed receipt. No capture has been made and the
+  current panel is unchanged. Both receipt kinds now require one scan per
+  run. Shared with `capture`: a health read is retried only when the read
+  itself fails, and its gate is applied once, to the first health read; a
+  status or saved-report read that fails counts as one poll of the existing
+  window and no longer ends the capture by itself. The playbook
+  (docs/toolchain-epoch.md) describes the procedure and says that more
+  repetitions do not help a page that has two states.
 - CI's tests job and Docker job have 60 minutes each, up from 45. The image
   build repeats the whole check, and on 2026-11-10 the Docker job took 39 to
   44 minutes, up from 26 to 32 in late October, so a slow runner could have
@@ -139,6 +191,11 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- A cross-origin reader of the scan API can now read `Retry-After`. The CORS
+  headers exposed no response header, so the static site's reader of a fresh
+  report could not see how long a refusal would last, fell back to a few
+  seconds of its own backoff and gave up while a one-minute window still
+  stood. Every scan API answer now exposes that header.
 - Two release gates that could not pass as written no longer block 1.0.
   `egress-backstop` and `log-retention` are deferred to 1.1.0 by name, with
   their definitions, evidence producers and tests kept. Each accepted only a
