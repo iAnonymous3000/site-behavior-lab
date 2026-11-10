@@ -4818,8 +4818,9 @@ function evaluateContainerPackageReview(
  * binds an execution report that CI signed at the candidate commit, and that
  * report shows every required suite ran there: none absent, no test skipped,
  * left todo, failed, cancelled or failed as expected, no describe block
- * skipped, left todo or failed as a block, each pinned minimum met, and every
- * variant caught by the property its suite names.
+ * skipped, left todo or failed as a block, each pinned minimum of tests
+ * passed and of catches recorded met, and no catch recorded for a property
+ * other than the one its suite named.
  *
  * Three things are checked, each from its own source. The binding has already
  * authenticated the report's bytes against its Sigstore bundle, with signer
@@ -4915,8 +4916,8 @@ export function evaluateFormalVerification(id, gate, rootDir, measurementContext
     reasons.length === 0 ? "pass" : "fail",
     reasons.length === 0
       ? [
-          `${totals.suites} required suite files ran at the candidate: ${totals.tests} tests passed, none skipped, and ${totals.variants} variants were caught, each by the property its suite names.`,
-          "This shows the suites ran and passed at the candidate. It adds nothing to what each test claims over its own domain."
+          `${totals.suites} required suite files ran at the candidate: ${totals.tests} tests passed, none skipped, and ${totals.variants} catches were recorded, each for the property its suite named.`,
+          "This shows the suites ran and passed at the candidate. The catches are a count the suites' own runs recorded. It adds nothing to what each test claims over its own domain."
         ]
       : [...new Set(reasons)]
   );

@@ -229,7 +229,7 @@ that job. Its permissions are exactly `contents: read`, `id-token: write`,
 not receive OIDC or attestation authority.
 
 The job uses `actions/download-artifact` v8.0.2 at commit
-`9000827ccba6bdab643e8b6fd33ac0654aef8333` and `actions/attest` v4.2.1 at
+`9000827ccba6bdab643e8b6fd33ac0654aef8333` and `actions/attest` v4.2.2 at
 reviewed commit `1e69f48acb82d1966a394da916b4c1698aa569d6`. It downloads the artifact
 names for the current `github.sha`, parses both receipts plus the normalized
 package inventory, and rejects any source mismatch. It independently
@@ -245,26 +245,29 @@ The resulting Sigstore bundles, attestation IDs, and GitHub URLs are preserved
 for 90 days as `exact-sha-provenance-attestations-<sha>`. Promotion depends on
 this job.
 
-The same job signs one more subject and keeps it apart from those three:
-`site-behavior-lab-formal-verification-report.json`, the execution report the
-`tests` job writes with `npm run release:formal-verification-report` and
-preserves as `exact-sha-formal-verification-report-<sha>` (see
-[docs/v1-release-qualification.md](v1-release-qualification.md)). The job
-checks the report's kind, that it names the current `github.sha`, and that its
-bytes are canonical, then attests it and preserves the bundle for 90 days as
-`exact-sha-formal-verification-attestation-<sha>`. It does not run the suites
-again or judge the report's content: the producer writes a report only after
-its own run met the release gate's rule, and the gate judges the content again
-when a carrier binds it. This attestation shows that CI's `tests` job produced
-those bytes for that commit. It does not show that a claim of the bounded
-suites holds outside its stated domain.
-
-This boundary is deliberate. The attested subjects are three JSON evidence
+This boundary is deliberate. Those three attested subjects are JSON evidence
 artifacts, not the static output directory, the smoke-tested OCI image, a
 registry image, the raw Trivy reports, or either Cloudflare deployment. The
 subjects bind and describe those tested bytes, but attesting a manifest does
 not transitively turn each referenced artifact into an attestation subject and
 does not prove that Cloudflare deployed it.
+
+The same job signs one more subject and keeps it apart from those three:
+`site-behavior-lab-formal-verification-report.json`, the execution report the
+`tests` job writes with `npm run release:formal-verification-report` and
+preserves as `exact-sha-formal-verification-report-<sha>` (see
+[docs/v1-release-qualification.md](v1-release-qualification.md)). The job
+checks the report's kind and version, that it names the current `github.sha`,
+and that its bytes are canonical, then attests it and preserves the bundle for
+90 days as `exact-sha-formal-verification-attestation-<sha>`. It does not run
+the suites again or judge the report's content: the producer writes a report
+only after its own run met the release gate's rule, and the gate judges the
+content again when a carrier binds it. The signature shows that the `attest`
+job of a `main` CI run at that commit signed those exact bytes. That they are
+the bytes the `tests` job wrote follows from the workflow, in which the job
+downloads the artifact that run uploaded, and is not something the signature
+shows. Neither shows that a claim of the bounded suites holds outside its
+stated domain.
 
 The workflow contract is statically tested, but no local run can prove that
 GitHub accepted, stored, and can independently return these attestations for

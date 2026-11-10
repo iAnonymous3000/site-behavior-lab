@@ -178,14 +178,14 @@ for (const [name, change, expected] of [
   [
     "a variant that was not caught, so the suite caught fewer than its pin",
     (input) => { input.suites[0].variants.pop(); },
-    ["lib/fv-alpha.test.ts: 1 variant caught for its reason, below its pinned minimum of 2"]
+    ["lib/fv-alpha.test.ts: 1 catch recorded for the property its suite named, below its pinned minimum of 2"]
   ],
   [
     "a variant caught without its reason",
     (input) => { input.suites[0].variants[1] = caught("a second variant", "the property", "another property"); },
     [
-      'lib/fv-alpha.test.ts: variant "a second variant" was caught by "another property", not by its reason "the property"',
-      "lib/fv-alpha.test.ts: 1 variant caught for its reason, below its pinned minimum of 2"
+      'lib/fv-alpha.test.ts: variant "a second variant" is recorded as caught by "another property", not by the property its suite named, "the property"',
+      "lib/fv-alpha.test.ts: 1 catch recorded for the property its suite named, below its pinned minimum of 2"
     ]
   ]
 ]) {
@@ -198,7 +198,7 @@ test("a variant caught without its reason is refused even above the suite's mini
   const reasons = problemsOf((input) => {
     input.suites[0].variants.push(caught("a third variant"), caught("a fourth variant", "p", "q"));
   });
-  assert.deepEqual(reasons, ['lib/fv-alpha.test.ts: variant "a fourth variant" was caught by "q", not by its reason "p"']);
+  assert.deepEqual(reasons, ['lib/fv-alpha.test.ts: variant "a fourth variant" is recorded as caught by "q", not by the property its suite named, "p"']);
 });
 
 test("the rule judges nothing by a list that is not a list of required suites", () => {
@@ -622,7 +622,7 @@ for (const [name, id, minimums, reasons] of [
     [
       "lib/fv-fails.test.ts: its run did not pass",
       'lib/fv-fails.test.ts: 1 test failed or cancelled, the first by name "the check catches a variant: it does not"',
-      "lib/fv-fails.test.ts: 0 variants caught for its reason, below its pinned minimum of 1"
+      "lib/fv-fails.test.ts: 0 catches recorded for the property its suite named, below its pinned minimum of 1"
     ]
   ],
   [
@@ -633,11 +633,11 @@ for (const [name, id, minimums, reasons] of [
       "lib/fv-wrong-reason.test.ts: its run did not pass",
       'lib/fv-wrong-reason.test.ts: 1 test failed or cancelled, the first by name "the check catches a variant: for another reason"',
       "lib/fv-wrong-reason.test.ts: 0 tests passed, below its pinned minimum of 1",
-      "lib/fv-wrong-reason.test.ts: 0 variants caught for its reason, below its pinned minimum of 1"
+      "lib/fv-wrong-reason.test.ts: 0 catches recorded for the property its suite named, below its pinned minimum of 1"
     ]
   ],
   ["fewer tests than its minimum", "lib/fv-plain.test.ts", [2, 0], ["lib/fv-plain.test.ts: 1 test passed, below its pinned minimum of 2"]],
-  ["fewer variants than its minimum", "lib/fv-whole.test.ts", [4, 3], ["lib/fv-whole.test.ts: 2 variants caught for its reason, below its pinned minimum of 3"]],
+  ["fewer variants than its minimum", "lib/fv-whole.test.ts", [4, 3], ["lib/fv-whole.test.ts: 2 catches recorded for the property its suite named, below its pinned minimum of 3"]],
   [
     "a suite that ends its process before its tests finish",
     "lib/fv-stops-early.test.ts",

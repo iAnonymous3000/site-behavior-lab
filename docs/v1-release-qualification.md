@@ -23,7 +23,7 @@ verifiers and historical reports, schemas, receipts and approvals remain intact.
 | Reopen and share the same meaning | Review display, comparison, persistence and export against retained evidence; compatibility and corrections gates | Reconstruction of observations never recorded |
 | Use a safely operated service | Authenticated admission-ceiling, report-lifecycle and exact-image distribution evidence | Reliability of disabled durable jobs; an egress boundary independent of the application guard; a re-verified log-retention window |
 | Identify the shipped instrument | Source-bound CI evidence, an evidence-only carrier, external binding approval, promotion and live verification | Correctness merely because a build passed |
-| Know the bounded checks ran on the shipped source | A signed execution report for the candidate: every required suite file ran, no test was skipped, each pinned minimum was met and every variant was caught for its reason | That a claim holds outside its stated domain, or that a restated rule is the right rule |
+| Know the bounded checks ran on the shipped source | A signed execution report for the candidate: every required suite file ran, no test or describe block was skipped, left todo or failed, and each file met its pinned minimums of tests passed and catches recorded | That a claim holds outside its stated domain, or that a restated rule is the right rule |
 
 ## Operational protections 1.0 does not verify
 
@@ -61,7 +61,8 @@ those suites ran at the candidate.
 
 - **The required suites.** The gate's `requiredSuites` in
   `RELEASE_READINESS.json` names every test file the register cites, each with
-  a pinned minimum of tests that passed and of variants caught.
+  a pinned minimum of tests that passed and of catches recorded
+  (`minimumVariants` counts catches, not distinct variants).
   `scripts/v1-release-contract.mjs` pins the same list. Removing the gate,
   changing its kind, dropping an entry or lowering a minimum is a refusal. The
   minimums are change detectors: one refuses a suite that lost tests and says
@@ -70,7 +71,8 @@ those suites ran at the candidate.
   runs each required file alone at a clean commit and writes one canonical
   execution report: for each file, the test runner's counts, its own counts
   of what those leave out, every test by name with its outcome, and every
-  variant the harness caught with the property that caught it. It writes
+  catch the harness recorded, with the variant's name, the property the suite
+  named and the property that caught it. It writes
   nothing if a test was skipped, left todo, failed, cancelled or failed as
   expected, if a describe block was skipped, left todo or failed as a block,
   or if a minimum was not met. The test runner exits cleanly on a describe
@@ -97,7 +99,13 @@ it as failing today.
 
 What a pass does not establish. The report shows that the cited tests ran and
 passed at the candidate. It holds no count a suite pins inside a test and no
-method. The gate does not compare the report's test names with the register's
+method. Its catches are lines the harness appended to a log during the run:
+the suite's own process writes that log, so the catches are not independent of
+the suite, the gate holds only their number and that none names another
+property, and a variant caught for two properties counts twice. The report's
+counts, outcomes and catches are the producer's signed statement of one run;
+the gate re-derives its verdict from them and does not run the suites again.
+The gate does not compare the report's test names with the register's
 citations; the register's own guard test holds those in the unit suite. A pass
 adds nothing to what a row of the register claims, and a row claims nothing
 outside its stated domain, bounds and axioms.

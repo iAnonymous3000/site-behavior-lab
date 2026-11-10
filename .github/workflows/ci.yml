@@ -269,8 +269,8 @@ jobs:
       # stage stopped naming and a skipped test both leave it green. The
       # suites the formal-verification release gate requires therefore run
       # once more here, each alone, and what they did is written down for this
-      # exact commit: every test by name, and every variant caught with the
-      # property that caught it. The attest job signs that file. The producer
+      # exact commit: every test by name, and every catch the harness recorded
+      # with the property named. The attest job signs that file. The producer
       # refuses a dirty tree before and after its run and writes nothing
       # unless the run meets the gate's rule, so this step comes first, on the
       # tree npm ci left. It needs no browser. It does not replace the same

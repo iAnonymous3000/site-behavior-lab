@@ -7,6 +7,13 @@
 // name with its outcome, and every catch lib/finite-check.ts accepted, with
 // the property the suite named and the property the counterexample carried.
 //
+// A catch is a line the harness appended to a log while the suite ran. The
+// list under "variants" is that log: one entry to a catch, so a variant caught
+// for two properties is there twice, and a variant whose test never reached
+// the harness is not there at all. The suite's own process writes the log, so
+// the list is not independent of the suite it describes. What the rule holds
+// of it is a count, and that no entry names two different properties.
+//
 // node's counts and its exit status leave three things out, and each would
 // let a run that did not hold stand as one that did. A describe block that
 // fails as a block (a hook of its own throws) is listed under failing tests
@@ -78,8 +85,9 @@ export function compiledSuitePath(id) {
 /**
  * Every way a gate's requiredSuites is not a list this module can judge by.
  * Each entry names one suite file and the least it must show: tests that
- * passed, and variants caught. A minimum is a change detector, never evidence:
- * it refuses a suite that lost tests, and says nothing of the tests it keeps.
+ * passed, and catches the harness recorded. minimumVariants counts catches,
+ * not distinct variants. A minimum is a change detector, never evidence: it
+ * refuses a suite that lost tests, and says nothing of the tests it keeps.
  */
 export function formalVerificationRequiredSuitesProblems(requiredSuites) {
   if (!Array.isArray(requiredSuites) || requiredSuites.length === 0) {
@@ -230,7 +238,7 @@ export function parseFormalVerificationReport(bytes) {
   return { report: value, problems: [] };
 }
 
-const plural = (count, noun) => `${count} ${noun}${count === 1 ? "" : "s"}`;
+const plural = (count, noun, many = `${noun}s`) => `${count} ${count === 1 ? noun : many}`;
 const bounded = (problems) =>
   problems.length <= MAX_REASONS ? problems : [...problems.slice(0, MAX_REASONS), `and ${problems.length - MAX_REASONS} more`];
 
@@ -238,17 +246,21 @@ const bounded = (problems) =>
  * Every way a report fails the closure rule for these required suites: each
  * one present and no other, no test skipped, left todo, failed, cancelled or
  * failed as expected, no describe block skipped, left todo or failed as a
- * block, each minimum met, and every variant caught by the property its suite
- * named. With `source`, the report must also name that commit and tree.
+ * block, each minimum met, and no catch recorded for a property other than
+ * the one its suite named. With `source`, the report must also name that
+ * commit and tree.
  *
  * A test that failed as expected is no pass: its body threw. It is refused by
  * name and left out of the tests counted toward a minimum.
  *
- * A variant that is not caught, or is caught for another property, makes
- * assertCaughtBy throw, so in a real run it is a failed test and the suite's
- * variant count falls. Both are refused here by name. A caught variant whose
- * two properties differ can only come from a changed harness, and is refused
- * as well.
+ * What is held of the catches is their number and their two properties, and
+ * nothing more. A variant that is not caught, or is caught for another
+ * property, makes assertCaughtBy throw, so in a real run it is a failed test
+ * and one catch fewer, and both are refused here. A recorded catch whose two
+ * properties differ can only come from a changed harness, and is refused as
+ * well. The rule does not ask that variant names be distinct, and it cannot
+ * tell a catch the harness recorded from a line the suite's process wrote to
+ * the same log in the harness's form.
  */
 export function formalVerificationReportProblems(report, requiredSuites, source = {}) {
   const configuration = formalVerificationRequiredSuitesProblems(requiredSuites);
@@ -293,18 +305,22 @@ export function formalVerificationReportProblems(report, requiredSuites, source 
     }
     for (const caught of suite.variants) {
       if (caught.caughtBy !== caught.property) {
-        problems.push(`${id}: variant ${JSON.stringify(caught.variant)} was caught by ${JSON.stringify(caught.caughtBy)}, not by its reason ${JSON.stringify(caught.property)}`);
+        problems.push(`${id}: variant ${JSON.stringify(caught.variant)} is recorded as caught by ${JSON.stringify(caught.caughtBy)}, not by the property its suite named, ${JSON.stringify(caught.property)}`);
       }
     }
-    const caughtForItsReason = suite.variants.filter((caught) => caught.caughtBy === caught.property).length;
-    if (caughtForItsReason < minimumVariants) {
-      problems.push(`${id}: ${plural(caughtForItsReason, "variant")} caught for its reason, below its pinned minimum of ${minimumVariants}`);
+    const forTheNamedProperty = suite.variants.filter((caught) => caught.caughtBy === caught.property).length;
+    if (forTheNamedProperty < minimumVariants) {
+      problems.push(`${id}: ${plural(forTheNamedProperty, "catch", "catches")} recorded for the property its suite named, below its pinned minimum of ${minimumVariants}`);
     }
   }
   return bounded(problems);
 }
 
-/** The totals a passing report states, for the line a gate or a producer prints. */
+/**
+ * The totals a passing report states, for the line a gate or a producer
+ * prints. "variants" is the number of catches recorded, as the report's own
+ * field is named.
+ */
 export function formalVerificationReportTotals(report) {
   return {
     suites: report.suites.length,

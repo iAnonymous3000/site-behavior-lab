@@ -983,8 +983,7 @@ authoritative gate list):
   commits the approval.
 - **Derived gates.** Corpus denominators, the third-party review ledger,
   runner destruction receipts, controlled publication archives, the lifecycle
-  readback receipt, the formal verification execution report, and the
-  release-receipt archive are all
+  readback receipt, and the release-receipt archive are all
   re-derived from committed evidence on every run; no artifact's
   self-declared verdict is trusted (lifecycle rules are re-validated from the
   recorded rule bytes; runner cycles are counted as distinct Actions runs;
@@ -995,11 +994,15 @@ authoritative gate list):
   full Git checkout with tags (`fetch-depth: 0`): it resolves the historical
   source commit/tree and input bytes, recomputes the receipt's internal static
   manifest, and requires the annotated release tag to target that commit and
-  embed the archived receipt's sha256. The formal-verification gate reads the
-  execution report CI signed at the candidate, which the carrier binds with
-  its bundle: every required suite file must have run there with no test
-  skipped, each pinned minimum met and every variant caught for its reason
-  (see [`docs/v1-release-qualification.md`](docs/v1-release-qualification.md)).
+  embed the archived receipt's sha256. The formal-verification gate differs
+  in one respect: it does not run the suites again. It re-derives its verdict
+  on every run from the execution report CI signed at the candidate, which
+  the carrier binds with its bundle, and the report's counts, outcomes and
+  catches are the producer's signed statement of one run, which this check
+  does not recompute. The verdict needs every required suite file to have
+  run there with no test or describe block skipped, left todo or failed, and
+  with its pinned minimums of tests passed and catches recorded met (see
+  [`docs/v1-release-qualification.md`](docs/v1-release-qualification.md)).
   It is red until a carrier binds such a report.
 - **Operator attestations.** Host truths code cannot see (the pre-candidate
   durable soak, WAF ceilings, and container image licensing) require a JSON

@@ -291,7 +291,7 @@ async function main(argv) {
     return 1;
   }
   const { suites, tests, variants } = result.totals;
-  const ran = `${suites} suite files ran: ${tests} tests passed, none skipped, and ${variants} variants were caught, each by the property its suite names`;
+  const ran = `${suites} suite files ran: ${tests} tests passed, none skipped, and ${variants} catches were recorded, each for the property its suite named`;
   console.log(
     dryRun
       ? `Dry run, nothing written. ${ran}.`

@@ -282,7 +282,7 @@
     },
     "formal-verification": {
       "kind": "formal-verification",
-      "title": "Every required formal verification suite ran at the candidate, with no test skipped and every variant caught for its reason",
+      "title": "Every required formal verification suite file ran at the candidate with no test or describe block skipped, left todo or failed, and met its pinned minimums of tests passed and catches recorded",
       "report": "research/measurement-candidate/site-behavior-lab-formal-verification-report.json",
       "bundle": "research/measurement-candidate/formal-verification-report.bundle.json",
       "requiredSuites": [

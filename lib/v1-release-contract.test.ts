@@ -469,8 +469,8 @@ test("the formal-verification gate passes on a carrier that binds a report CI si
   assert.deepEqual(result, {
     id: "formal-verification", title: fvGate().title, kind: "formal-verification", status: "pass",
     reasons: [
-      `${suites.length} required suite files ran at the candidate: ${tests} tests passed, none skipped, and ${variants} variants were caught, each by the property its suite names.`,
-      "This shows the suites ran and passed at the candidate. It adds nothing to what each test claims over its own domain."
+      `${suites.length} required suite files ran at the candidate: ${tests} tests passed, none skipped, and ${variants} catches were recorded, each for the property its suite named.`,
+      "This shows the suites ran and passed at the candidate. The catches are a count the suites' own runs recorded. It adds nothing to what each test claims over its own domain."
     ]
   });
   // Bound like any other evidence, it leaves the other gates of the carrier as they were.
@@ -509,10 +509,10 @@ const REFUSED_REPORTS = [
   ["a cardinality below its pin", (r: Any) => { r.suites[0].tests.pop(); r.suites[0].counts.tests -= 1; r.suites[0].counts.passed -= 1; },
     (_f: Any, suite: Any) => [`${FIRST}: ${suite.minimumTests - 1} tests passed, below its pinned minimum of ${suite.minimumTests}`]],
   ["a variant that was not caught", (r: Any) => { r.suites[0].variants.pop(); },
-    (_f: Any, suite: Any) => [`${FIRST}: ${suite.minimumVariants - 1} variants caught for its reason, below its pinned minimum of ${suite.minimumVariants}`]],
+    (_f: Any, suite: Any) => [`${FIRST}: ${suite.minimumVariants - 1} catches recorded for the property its suite named, below its pinned minimum of ${suite.minimumVariants}`]],
   ["a variant caught without its reason", (r: Any) => { r.suites[0].variants[0].caughtBy = "another property"; },
-    (_f: Any, suite: Any) => [`${FIRST}: variant "variant 0000" was caught by "another property", not by its reason "the property"`,
-      `${FIRST}: ${suite.minimumVariants - 1} variants caught for its reason, below its pinned minimum of ${suite.minimumVariants}`]],
+    (_f: Any, suite: Any) => [`${FIRST}: variant "variant 0000" is recorded as caught by "another property", not by the property its suite named, "the property"`,
+      `${FIRST}: ${suite.minimumVariants - 1} catches recorded for the property its suite named, below its pinned minimum of ${suite.minimumVariants}`]],
   ["an unknown field in the report", (r: Any) => { r.reviewedBy = "someone"; },
     () => [`${FV_REPORT}: malformed report: the report must hold exactly schemaVersion, artifactKind, source and suites, in that order`]],
   ["an unknown field in a suite", (r: Any) => { r.suites[0].method = "exhaustive"; },

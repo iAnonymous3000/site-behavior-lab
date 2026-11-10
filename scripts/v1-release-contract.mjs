@@ -31,13 +31,14 @@ export const V1_GATES = Object.freeze({
 export const V1_FORMAL_VERIFICATION_REPORT_PATH = "research/measurement-candidate/site-behavior-lab-formal-verification-report.json";
 export const V1_FORMAL_VERIFICATION_BUNDLE_PATH = "research/measurement-candidate/formal-verification-report.bundle.json";
 // Every test file a row of docs/formal-verification.md cites, with the least
-// its run must show: tests that passed, and variants caught. The manifest's
-// requiredSuites must equal this list (see v1ProfileProblems), and
-// lib/formal-verification-register.test.ts holds both to the files the
-// register cites. The numbers are each file's counts on the day the gate
-// landed. They are change detectors, never evidence: one refuses a suite that
-// lost tests and says nothing of the tests it keeps. A suite may grow without
-// an edit here.
+// its run must show: tests that passed, and catches the harness recorded.
+// minimumVariants counts catches, and a variant caught for two properties is
+// two of them. The manifest's requiredSuites must equal this list (see
+// v1ProfileProblems), and lib/formal-verification-register.test.ts holds both
+// to the files the register cites. The numbers are each file's counts on the
+// day the gate landed. They are change detectors, never evidence: one refuses
+// a suite that lost tests and says nothing of the tests it keeps. A suite may
+// grow without an edit here.
 export const V1_REQUIRED_SUITES = Object.freeze([
   { id: "investigation/test/case-exploration.test.ts", minimumTests: 130, minimumVariants: 122 },
   { id: "investigation/test/evidence-model.test.ts", minimumTests: 24, minimumVariants: 148 },

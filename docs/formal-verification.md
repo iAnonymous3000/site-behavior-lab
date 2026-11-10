@@ -191,16 +191,18 @@ alone, and writes an execution report for the commit it ran at. For each file
 the report holds the test runner's counts (tests, passed, failed, cancelled,
 skipped, todo), the command's own counts of what those leave out (tests that
 failed as expected, and describe blocks skipped, left todo or failed as a
-block), each test by name with its outcome, and each variant `assertCaughtBy`
-accepted, with the property its suite named and the property that caught it.
-`lib/finite-check.ts` records a catch only where a run names a log for it, as
-that command does, and `lib/finite-check-catch-log.test.ts` holds that
-recorder. The command writes no report unless the checkout is a clean commit
-and the run meets each entry: no test skipped, left todo, failed, cancelled or
-failed as expected, no describe block skipped, left todo or failed as a block,
-and the tests that passed and the variants caught for their reason at or above
-the entry's minimums. A test that failed as expected is one marked so whose
-body threw: the test runner reports it as a pass, and here it is none.
+block), each test by name with its outcome, and each catch `assertCaughtBy`
+accepted, with the variant's name, the property its suite named and the
+property the counterexample carried. `lib/finite-check.ts` records a catch
+only where a run names a log for it, as that command does, and
+`lib/finite-check-catch-log.test.ts` holds that recorder. The command writes
+no report unless the checkout is a clean commit and the run meets each entry:
+no test skipped, left todo, failed, cancelled or failed as expected, no
+describe block skipped, left todo or failed as a block, the tests that passed
+and the catches recorded for the property the suite named at or above the
+entry's minimums, and no catch recorded for another property. A test that
+failed as expected is one marked so whose body threw: the test runner reports
+it as a pass, and here it is none.
 
 The gate passes only when a release candidate's evidence carrier binds such a
 report for the candidate commit, with a signature bundle made by CI at that
@@ -210,13 +212,20 @@ it on the main branch. Until a carrier binds a signed report for a candidate,
 the gate fails, and it fails today: no carrier exists.
 
 What the report does not hold. A count a suite pins inside a test (states,
-transitions, cases) stays inside that test: the report counts tests and caught
-variants, and an entry's minimums are change detectors, never evidence. It
-names no method, which is a statement of a row and nothing a run can observe.
-The gate does not compare the report's test names with the tests the rows
-cite: the guard holds those at each commit, and the guard is not among the
-files the report runs. A report shows that the cited files ran and passed at a
-commit. It adds nothing to what a row claims.
+transitions, cases) stays inside that test: the report counts tests and
+recorded catches, and an entry's minimums are change detectors, never
+evidence. A catch is a line the harness appended to a log while the suite ran.
+The suite's own process writes that log, so the list of catches is not
+independent of the suite it describes, and nothing here can tell a line the
+harness wrote from a line of the same form written by other code in that
+process. The gate holds the number of catches and that none names another
+property. It does not hold that variant names are distinct, and a variant
+caught for more than one property is counted once for each. The report names
+no method, which is a statement of a row and nothing a run can observe. The
+gate does not compare the report's test names with the tests the rows cite:
+the guard holds those at each commit, and the guard is not among the files the
+report runs. A report shows that the cited files ran and passed at a commit.
+It adds nothing to what a row claims.
 
 ## What this register does not claim
 
