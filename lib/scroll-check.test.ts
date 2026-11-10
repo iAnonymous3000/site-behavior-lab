@@ -9,6 +9,7 @@ import {
   SCROLL_CHECK_TIMING,
   scrollCheckDeadline,
   ScrollCheckRecorder,
+  type ScrollCheckBoundary,
   type ScrollCheckRouteDecision,
   type ScrollCheckRun,
   type ScrollCheckTiming,
@@ -510,5 +511,133 @@ test("the collector's scroll state is read strictly", () => {
     "x".repeat(600)
   ]) {
     assert.equal(parseScrollState(wire), null, String(wire));
+  }
+});
+
+/**
+ * The two things only the scanner's investigation seam hands a check: a
+ * callback at its four boundaries, and a deadline margin of its own. A run
+ * with neither is every run above.
+ */
+test("a run that names a deadline margin gets it, and one that names none keeps the constant", async () => {
+  assert.equal(SCROLL_CHECK_DEADLINE_MARGIN_MS, 2_000);
+  // Naming the constant is naming nothing.
+  for (const startedAt of [NAV + 500, NAV + 5_000, NAV + 45_000]) {
+    assert.equal(
+      scrollCheckDeadline(SCROLL_CHECK_TIMING, NAV, startedAt, SCROLL_CHECK_DEADLINE_MARGIN_MS),
+      scrollCheckDeadline(SCROLL_CHECK_TIMING, NAV, startedAt)
+    );
+  }
+  assert.equal(scrollCheckDeadline(SCROLL_CHECK_TIMING, NAV, NAV + 500, 60_000), SCROLL_END + 60_000);
+  // A check that began late: its sequence ends 21 s after it began, and the
+  // margin is counted from there.
+  assert.equal(scrollCheckDeadline(SCROLL_CHECK_TIMING, NAV, NAV + 45_000, 60_000), NAV + 45_000 + 21_000 + 60_000);
+
+  // The run's own field is what reaches the deadline: a page call that never
+  // answers ends at the constant's margin without it, and at its own with it.
+  const constant = await check({ startsAfterNavigationMs: 500, faultForTests: "hang" });
+  assert.equal(constant.now(), SCROLL_END + SCROLL_CHECK_DEADLINE_MARGIN_MS);
+  const named = fakeCheck({ startsAfterNavigationMs: 500, faultForTests: "hang" });
+  named.run.deadlineMarginMs = 60_000;
+  assert.equal((await runScrollCheck(named.run)).outcome, "cut-short");
+  assert.equal(named.now(), SCROLL_END + 60_000);
+});
+
+test("a boundary callback is called at each of the four boundaries, and its time falls where the check says", async () => {
+  // Three requests, each made while one callback runs.
+  const scheduled = [
+    // While control-start's callback runs: after the settle, before the window opens.
+    { at: NAV + 26_000, url: "https://pixel.alpha.org/p" },
+    // While control-end's callback runs: no input has happened yet.
+    { at: NAV + 38_000, url: "https://pixel.beta.org/p" },
+    // While scroll-end's callback runs: both windows have closed.
+    { at: NAV + 51_200, url: "https://pixel.gamma.org/p" }
+  ];
+  const took: Record<ScrollCheckBoundary, number> = { "check-start": 1_000, "control-start": 2_000, "control-end": 3_000, "scroll-end": 500 };
+  const withCallbacks = (marginMs?: number) => {
+    const fake = fakeCheck({ scheduled: scheduled.map((request) => ({ ...request })) });
+    const calls: [ScrollCheckBoundary, number][] = [];
+    fake.run.boundary = async (name) => {
+      calls.push([name, fake.now() - NAV]);
+      await fake.run.sleep(took[name]);
+    };
+    if (marginMs !== undefined) fake.run.deadlineMarginMs = marginMs;
+    return { fake, calls };
+  };
+
+  const { fake, calls } = withCallbacks(60_000);
+  const evidence = await runScrollCheck(fake.run);
+  assert.equal(isScrollCheckEvidence(evidence), true, JSON.stringify(evidence));
+  assert.equal(evidence.outcome, "reached-end");
+  assert.deepEqual(calls, [
+    // The moment the check began.
+    ["check-start", 5_000],
+    // The settle's end: the first callback's second fell inside the settle.
+    ["control-start", 25_000],
+    // The window opened once its callback had run, and ran its full length.
+    ["control-end", 27_000 + 10_500],
+    // The scroll window began where the control window ended, callback included.
+    ["scroll-end", 27_000 + 10_500 + 3_000 + 10_500]
+  ]);
+  // Before the window opened: new in neither window, as any host first
+  // contacted between the visit's result and the window is.
+  assert.equal(JSON.stringify(evidence).includes("alpha"), false);
+  // In the control window's tail, not in the scroll window.
+  assert.deepEqual(hostsOf(evidence.control), ["pixel.beta.org"]);
+  assert.deepEqual(hostsOf(evidence.scroll), []);
+  // After the scroll window closed: in no window.
+  assert.equal(JSON.stringify(evidence).includes("gamma"), false);
+
+  // The same callbacks under the scanner's own margin: they outrun the
+  // check's deadline, which is why a run that carries them names its own.
+  const short = withCallbacks();
+  const cut = await runScrollCheck(short.fake.run);
+  assert.equal(cut.outcome, "cut-short");
+  assert.deepEqual(short.calls.map(([name]) => name), ["check-start", "control-start", "control-end"]);
+
+  // A page with nothing to scroll has no scroll window, so no scroll-end.
+  const flat = fakeCheck({ script: { height: 900 } });
+  const flatCalls: ScrollCheckBoundary[] = [];
+  flat.run.boundary = async (name) => void flatCalls.push(name);
+  assert.equal((await runScrollCheck(flat.run)).outcome, "nothing-to-scroll");
+  assert.deepEqual(flatCalls, ["check-start", "control-start", "control-end"]);
+  // A check that does not run calls nothing.
+  const notRun = fakeCheck({ subjectAvailable: false });
+  notRun.run.boundary = async () => assert.fail("a check that did not run reached a boundary");
+  assert.equal((await runScrollCheck(notRun.run)).outcome, "not-run");
+});
+
+test("a boundary callback that never settles is ended by the check's deadline, and one that throws ends the check", async () => {
+  const never = (): Promise<void> => new Promise<void>(() => undefined);
+  const hangAt = async (boundary: ScrollCheckBoundary) => {
+    const fake = fakeCheck({});
+    fake.run.boundary = (name) => (name === boundary ? never() : Promise.resolve());
+    const evidence = await runScrollCheck(fake.run);
+    assert.equal(isScrollCheckEvidence(evidence), true, JSON.stringify(evidence));
+    // The wait ran to the check's own deadline and no further.
+    assert.equal(fake.now(), fake.startedAt + SCROLL_CHECK_TIMING.phaseDeadlineMs, boundary);
+    return evidence;
+  };
+  for (const boundary of ["check-start", "control-start", "control-end"] as const) {
+    const evidence = await hangAt(boundary);
+    assert.equal(evidence.outcome, "cut-short", boundary);
+    assert.equal(evidence.control, null, boundary);
+    assert.equal(evidence.scroll, null, boundary);
+  }
+  // At scroll-end both windows have closed: the check keeps what it earned.
+  const afterWindows = await hangAt("scroll-end");
+  assert.equal(afterWindows.outcome, "reached-end");
+  assert.ok(afterWindows.control && afterWindows.scroll);
+
+  // A callback's own error ends the check where it is; the scanner then
+  // fails the visit with that error rather than report a check cut short.
+  for (const boundary of ["check-start", "control-end", "scroll-end"] as const) {
+    const fake = fakeCheck({});
+    fake.run.boundary = async (name) => {
+      if (name === boundary) throw new Error("the callback threw");
+    };
+    const evidence = await runScrollCheck(fake.run);
+    assert.equal(isScrollCheckEvidence(evidence), true);
+    assert.equal(evidence.outcome, "cut-short", boundary);
   }
 });
