@@ -211,14 +211,20 @@ if (blocksStdoutIn({ env: process.env, argv: process.argv, execArgv: process.exe
   }
 }
 
-// Everything a lane hands node --test, its files last.
-export function laneArguments(files, concurrency, summaryLog) {
+// Everything a lane hands node --test, its files last. A caller that needs
+// more of a run than its summaries names further reporters, each with its
+// destination: scripts/formal-verification-report.mjs collects every test's
+// name and outcome that way. They are added after the lane's own, so the
+// bounds, the blocking stdout and the summary guard are the same for every
+// caller.
+export function laneArguments(files, concurrency, summaryLog, reporterFlags = []) {
   return [
     BLOCKING_STDOUT_PRELOAD,
     "--test",
     `--test-concurrency=${concurrency}`,
     ...TEST_BOUND_FLAGS,
     ...laneReporterFlags(summaryLog),
+    ...reporterFlags,
     ...files
   ];
 }
@@ -296,13 +302,13 @@ const scratch = new Set();
 
 // With no file arguments node --test would discover and run every test file
 // under the working directory, so an empty lane is skipped instead.
-export async function runLane(files, concurrency, { requireRealTests = false } = {}) {
+export async function runLane(files, concurrency, { requireRealTests = false, reporterFlags = [] } = {}) {
   if (files.length === 0) return { ok: true, skipped: true, seconds: 0, output: Buffer.alloc(0), unfinished: [], unreal: [] };
   const dir = mkdtempSync(path.join(os.tmpdir(), "unit-test-lane-"));
   scratch.add(dir);
   try {
     const summaryLog = path.join(dir, "summaries");
-    const result = await run(process.execPath, laneArguments(files, concurrency, summaryLog));
+    const result = await run(process.execPath, laneArguments(files, concurrency, summaryLog, reporterFlags));
     // A lane that never started has already failed and wrote no summaries.
     const unfinished = result.error ? [] : filesWithoutSummary(files, summaryLog);
     const unreal = requireRealTests && !result.error ? filesWithoutRealTests(files, summaryLog) : [];

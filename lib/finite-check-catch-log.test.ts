@@ -3,6 +3,7 @@ import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
+import { pathToFileURL } from "node:url";
 import { assertCaughtBy, CATCH_LOG_ENV, holds, loadVariant } from "./finite-check";
 
 /**
@@ -100,4 +101,12 @@ test("a log that cannot be written fails the catch, so a run asked for a record 
     if (before === undefined) delete process.env[CATCH_LOG_ENV];
     else process.env[CATCH_LOG_ENV] = before;
   }
+});
+
+test("the report's producer names the log by the variable the harness reads", async () => {
+  // One name spelled in two files: the harness reads it and the producer sets it. A drift
+  // would leave every run of the report with no catch in it.
+  const nativeImport = new Function("specifier", "return import(specifier)") as (specifier: string) => Promise<{ FORMAL_VERIFICATION_CATCH_LOG_ENV: string }>;
+  const lib = await nativeImport(pathToFileURL(path.join(process.cwd(), "scripts/formal-verification-report-lib.mjs")).href);
+  assert.equal(lib.FORMAL_VERIFICATION_CATCH_LOG_ENV, CATCH_LOG_ENV);
 });
