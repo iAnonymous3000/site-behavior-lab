@@ -662,7 +662,7 @@ under its stated bound); a smaller world, `SMALL_WORLD`, carries some of the
 variants, and a dedicated world holds one worker on the main thread's channel.
 Its axioms are switches, each of which only removes transitions:
 
-- A1: a session's commands and a worker's own words on it arrive in order.
+- A1: a session's commands and a worker's own words on it arrive in order, except a script's parse, which may arrive behind later answers or not at all.
 - A2: another client's release of a held worker is heard by the attacher's session.
 - A3, used as its negation: a detach never overtakes a session's events still on their way.
 - A4: a worker the debugger holds at its start runs nothing until it is released; the plan states it of a dedicated worker.
@@ -844,6 +844,23 @@ Its axioms are switches, each of which only removes transitions:
   - `lib/fv-worker-model.test.ts`: "by hand, through the real thread: a hold's bound is 3 seconds when nothing else is asked"
 - **Variants:** none: each templated case catches its own variant of the thread inside the test, and the hold's default bound is read directly.
 - **Commit:** 5aea6d6120edcb929a3576b502cd2f5a638115d3
+
+### F4-ARM. The arming's answer, not a parse's place, says a script came first
+
+- **Property:** In the hold world, a worker whose arming's answer lists a script and whose probe is answered with no pause ahead of it is posted late, whether that script's parse is heard ahead of the answer, behind it or never; with the main-script pause ahead of the probe's answer it is held, and the probe's answer then posts nothing; a worker listed nothing, whose parse is heard behind the answer, is sent no probe and is held at its pause; and a worker gone with a script listed and no parse heard is not posted as ended unreached.
+- **Code:** the world and the thread of `lib/fv-worker-model.ts`.
+- **Domain:** The traces of the hold world the tests write out by hand, walked under the plan's axioms.
+- **Bounds:** none beyond those traces.
+- **Axioms:** A1 as stated above, which leaves a script's parse out: the tests walk the parse ahead of the arming's answer, behind it and absent.
+- **Method:** sampled
+- **Not claimed:** That a browser lists a script it compiled before the breakpoint: what Chromium answers the question is measured, not checked here. A question that cannot say (refused, unanswered at its bound, or answered with no list) lies outside the model's alphabet, and `lib/shared-worker-attacher.test.ts` writes those cases out against the real thread.
+- **Tests:**
+  - `lib/fv-worker-model.test.ts`: "the arming's answer lists a script from before the breakpoint whichever way its parse comes, ahead of the answer, behind it or never, and with no pause ahead of the probe's answer the worker is late"
+  - `lib/fv-worker-model.test.ts`: "a script listed and a main-script pause ahead of the probe's answer is a hold, and the probe's answer then posts nothing"
+  - `lib/fv-worker-model.test.ts`: "a worker gone with a script listed and no parse heard is not one that ended unreached"
+- **Variants:**
+  - `lib/fv-worker-model.test.ts`: "the replay catches a thread that still takes the question away from a worker with its first pause, once a session's words are out of order"
+- **Commit:** abd47988fe67e95144e012c4ebc2d33d8ee7adaa
 
 ## Claims from F5: the case machine, its purge slice and the fold
 
