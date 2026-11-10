@@ -58,6 +58,8 @@ PASS cd43c7bce9a980037a74f7ee2a05b722c2638b17 -> c8b189ac59f50121e6f1777dabe12ba
 
 > Addendum, 2026-11-03: the two builds also differed in whether Chromium applied its built-in HSTS preload list, which was not known when this A/B ran. Chromium stops applying the list 70 days after its build. The baseline's Chromium 151.0.7922.34 passed that point at about 2026-09-23 03:34 UTC, before its capture began at 21:53 UTC, so it did not apply the list; the candidate's Chromium 153.0.8010.12 applied it until about 2026-11-03 20:20 UTC. Both times are estimated from each browser's build date, taken as its version tag's commit time; one lapse has confirmed that so far. This comparison therefore measured the browser change and that difference together. See [the limitations](./limitations.md#the-scan-browsers-hsts-preload-list).
 
+> Addendum, 2026-11-10: from the comparison rule `median-with-within-arm-spread-v2` (2026-11-10) the compare command above exits 2 for these receipts, because one build's own guardian runs spread beyond the tolerance. The result recorded here was judged by the earlier rule and reproduces from a checkout before that rule: `eecb7335` prints the output quoted above.
+
 36 of the 44 compared medians are identical across the two builds. The 8 that moved are all on theguardian.com, the one ad-heavy live page, and each is inside its committed tolerance:
 
 | Metric | Baseline | Candidate | Delta | Allowed |

@@ -110,6 +110,8 @@ From a checkout that contains this record (the canary code and the panel are unc
 
 > Addendum, 2026-10-02: from the canary gate refinement on (section 3 of [the playbook](./toolchain-epoch.md)), these commands print PASS with `NOTED` lines for these receipts, in both rounds. The FAIL output quoted below reproduces from a checkout that has this record and predates the refinement, such as `eecb7335`.
 
+> Addendum, 2026-11-10: from the comparison rule `median-with-within-arm-spread-v2` (2026-11-10) these compare commands exit 2 for these receipts, in both rounds, because one build's own guardian runs spread beyond the tolerance. The results recorded here were judged by the gate that ran then and reproduce from a checkout before that rule: `eecb7335` prints the FAIL output quoted below.
+
 ```sh
 npm run toolchain:canary -- compare \
   --baseline docs/toolchain-epoch-2026-10/round-1-baseline-receipt.json \
