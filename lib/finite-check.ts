@@ -12,7 +12,13 @@
 // own emitted bytes with one exact edit, leaving production untouched, and refuses
 // an edit that no longer lands. A check is held to the property it should report,
 // so a variant caught for the wrong reason fails too.
-import { readFileSync } from "node:fs";
+//
+// A passing run leaves no trace of which variants it caught, so a reader of a
+// green log cannot tell a variant that was caught from one that never ran. When
+// the environment names a catch log, each catch assertCaughtBy accepts is
+// appended to it, so a run that needs that record can name a log and read it
+// back. Nothing is written otherwise.
+import { appendFileSync, readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import path from "node:path";
 import { compileFunction } from "node:vm";
@@ -33,10 +39,29 @@ export function holds(property: string, condition: boolean, input: () => unknown
   if (!condition) throw new Counterexample(property, input());
 }
 
+/** The environment variable that names the catch log, a file of JSON lines. */
+export const CATCH_LOG_ENV = "SITE_BEHAVIOR_LAB_FV_CATCH_LOG";
+
+/**
+ * One accepted catch, appended whole in a single write so that lines from
+ * worker threads do not interleave. `property` is what the suite named and
+ * `caughtBy` is what the counterexample carried. They are written from those
+ * two sources, never one copied to the other, so a harness changed to accept
+ * the wrong property would show in the log. A log that cannot be written
+ * throws, which fails the test: a run asked for a record must not pass
+ * without it.
+ */
+function recordCatch(variant: string, property: string, caughtBy: string): void {
+  const log = process.env[CATCH_LOG_ENV];
+  if (log === undefined || log === "") return;
+  appendFileSync(log, `${JSON.stringify({ variant, property, caughtBy })}\n`);
+}
+
 /**
  * The check must refuse this variant, and for this reason. Anything else fails:
  * a check that passes it, one that reports another property, or a variant that
- * throws something other than a counterexample.
+ * throws something other than a counterexample. Only a catch that is accepted
+ * is recorded: a refusal throws, and its test says so.
  */
 export async function assertCaughtBy(
   variant: string,
@@ -52,6 +77,7 @@ export async function assertCaughtBy(
     if (error.property !== property) {
       throw new Error(`Variant "${variant}" was caught by "${error.property}", not "${property}": ${error.message}`);
     }
+    recordCatch(variant, property, error.property);
     return error;
   }
   throw new Error(`Variant "${variant}" passed the check, so the check cannot detect it.`);
