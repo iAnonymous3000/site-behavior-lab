@@ -7,7 +7,7 @@
  * remains legacy-derived and self-reported.
  */
 
-export const NODE_ADBLOCK_ENGINE_VERSION = "adblock-rust-0.13.3";
+export const NODE_ADBLOCK_ENGINE_VERSION = "adblock-rust-0.13.5";
 export const NODE_PLAYWRIGHT_VERSION = "1.65.0";
 export const NODE_SHIELDS_REQUEST_CONTEXT_VERSION = `shields-request-context-v2-${NODE_ADBLOCK_ENGINE_VERSION}-request-method-v1`;
 // fingerprint-surface-v2 (node-detectors-v11) names the surface the
