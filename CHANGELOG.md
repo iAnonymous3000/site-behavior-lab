@@ -76,6 +76,41 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- Two release gates that could not pass as written no longer block 1.0.
+  `egress-backstop` and `log-retention` are deferred to 1.1.0 by name, with
+  their definitions, evidence producers and tests kept. Each accepted only a
+  GitHub-hosted provider capture, which the readiness check reports as
+  unavailable, and refused a hand attestation, so no evidence could satisfy
+  either. Release 1.0 therefore claims neither protection: it verifies no
+  egress boundary independent of the application's own guard, and it does
+  not re-verify log retention. docs/v1-release-qualification.md says so, as
+  do the README, RELEASE.md and the operations documents. The readiness check
+  now evaluates 14 gates and lists the four deferred ones as deferred, with
+  no verdict. The verdict and reasons of each remaining gate are unchanged
+  (8 unsatisfied). The contract refuses a manifest that drops either deferral
+  record or lists either gate beside its record. The 1.0 binding no longer
+  requires the two gates' evidence, and evidence that is bound for a deferred
+  gate is still evaluated in full and counts against readiness.
+- The toolchain comparison no longer reports a page's own variation as a
+  toolchain failure, or as a pass. `toolchain:canary compare` judged each
+  metric by the medians of three repetitions alone. In the committed 2026-09
+  and 2026-10 receipts the guardian case's runs fall in two groups inside a
+  single build, so two builds could fail or pass on how many of their runs
+  drew each group. A metric now has three outcomes, decided in this order. It
+  fails when every run of one build differs from every run of the other by
+  more than the tolerance. It is inconclusive when either build's own runs
+  spread by more than the tolerance. Otherwise the medians decide, as before.
+  The command prints the rule, `median-with-within-arm-spread-v2`, and exits
+  0 for a pass, 1 for a failure and 2 for an inconclusive result, which is
+  never a pass. docs/toolchain-epoch.md says an epoch completes on exit 0,
+  and that on exit 2 the record names each inconclusive metric and the
+  release needs the owner's recorded decision. With the present panel at
+  three repetitions most comparisons will be inconclusive on that case; the
+  remedy is a panel change made before a capture. Results recorded earlier
+  were judged by the earlier rule and are not judged again: the 2026-09 and
+  2026-10 records each carry a dated line saying what their command prints
+  from this rule on. The schema launcher now exits 1 for a failed compile,
+  which had exited 2.
 - The runtime image no longer lists one layer twice on a native build. That
   failed the container package inventory, and with it the Docker job of the
   first hosted run of the 2026-11 epoch (`6b2360cc`): nothing was published,
