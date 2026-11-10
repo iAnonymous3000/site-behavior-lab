@@ -545,7 +545,9 @@ test("a report that cannot be read as one fails the formal-verification gate and
     ["[]\n", `${FV_REPORT}: malformed report: the report must hold exactly schemaVersion, artifactKind, source and suites, in that order`],
     // Valid JSON of a good report, in another serialization.
     [JSON.stringify(f.report), `${FV_REPORT}: the report is not in its canonical serialization`],
-    [`${serialize(f.report)}\n`, `${FV_REPORT}: the report is not in its canonical serialization`]
+    [`${serialize(f.report)}\n`, `${FV_REPORT}: the report is not in its canonical serialization`],
+    // The canonical text behind a byte order mark, which a decoder drops: other bytes, so another file.
+    [Buffer.concat([Buffer.from([0xef, 0xbb, 0xbf]), Buffer.from(serialize(f.report))]), `${FV_REPORT}: the report is not in its canonical serialization`]
   ] as const) {
     writeFileSync(path.join(f.root, FV_REPORT), bytes);
     const bound = structuredClone(binding);

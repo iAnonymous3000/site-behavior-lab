@@ -233,6 +233,8 @@ test("the attest job's check of the formal verification report accepts the produ
   refused(good, new RegExp(`Formal verification report identifies ${commit}, expected ${"c".repeat(40)}`), "c".repeat(40));
   refused(JSON.stringify(report), /Formal verification report is not canonical JSON/);
   refused(`${good}\n`, /Formal verification report is not canonical JSON/);
+  // A byte order mark before the canonical text is other bytes, and no report.
+  refused(`\uFEFF${good}`, /SyntaxError|Formal verification report is not canonical JSON/);
   refused(lib.serializeFormalVerificationReport({ ...report, artifactKind: "exact-source-and-tested-artifact-manifest" }), /not the expected artifact kind and version/);
   // The version before, whose shape could list a test that failed as expected as passed.
   refused(lib.serializeFormalVerificationReport({ ...report, schemaVersion: 1 }), /not the expected artifact kind and version/);

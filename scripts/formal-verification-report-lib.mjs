@@ -204,6 +204,10 @@ function shapeProblems(report) {
  * Read a report from its bytes. Returns the report, or the reasons the bytes
  * are not one: not UTF-8, not JSON, not the canonical serialization, or not
  * the shape above. An unknown field is a refusal, never ignored.
+ *
+ * The last comparison is of bytes, not of text. The decoder drops a leading
+ * byte order mark, so the text of a file that begins with one equals the text
+ * of the file without it, and two different files would read as one report.
  */
 export function parseFormalVerificationReport(bytes) {
   let text;
@@ -220,7 +224,7 @@ export function parseFormalVerificationReport(bytes) {
   }
   const problems = shapeProblems(value);
   if (problems.length > 0) return { report: null, problems: bounded(problems.map((problem) => `malformed report: ${problem}`)) };
-  if (serializeFormalVerificationReport(value) !== text) {
+  if (!Buffer.from(serializeFormalVerificationReport(value), "utf8").equals(bytes)) {
     return { report: null, problems: ["the report is not in its canonical serialization"] };
   }
   return { report: value, problems: [] };

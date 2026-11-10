@@ -270,6 +270,12 @@ test("a report is read back from its canonical bytes and from nothing else", () 
   refused("{", "the report is not JSON");
   refused(JSON.stringify(report), "the report is not in its canonical serialization");
   refused(`${bytes}\n`, "the report is not in its canonical serialization");
+  // A byte order mark before the canonical text: a decoder drops it, so the text is the same and the bytes are not.
+  const marked = Buffer.concat([Buffer.from([0xef, 0xbb, 0xbf]), Buffer.from(bytes)]);
+  assert.equal(new TextDecoder("utf-8", { fatal: true }).decode(marked), bytes, "the mark must be one a decoder drops, or this case shows nothing");
+  refused(marked, "the report is not in its canonical serialization");
+  // The same bytes held as a plain byte array, not a Buffer, are read as the same report.
+  assert.deepEqual(parseFormalVerificationReport(new Uint8Array(Buffer.from(bytes))), { report, problems: [] });
 
   const edited = (change) => {
     const copy = JSON.parse(bytes);
