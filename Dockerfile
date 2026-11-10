@@ -51,11 +51,15 @@ FROM playwright-base AS deps
 # names (remote code execution via hard link reuse during package download
 # retries, fixed in 2.8.4ubuntu0.1). So it downloads with its retries off and
 # from HTTPS sources only, and a failed download fails the step. The runner
-# stage's upgrade step, which does the same, says why at length.
-RUN sed -i 's|^URIs: http://|URIs: https://|' /etc/apt/sources.list.d/ubuntu.sources \
+# stage's upgrade step, which does the same, says why at length. The https
+# source both read is Ubuntu's snapshot of its archive at one fixed time,
+# which also makes the unzip this stage installs the same in every build.
+RUN sed -i 's|^URIs: .*|URIs: https://snapshot.ubuntu.com/ubuntu/20261110T000000Z/|' /etc/apt/sources.list.d/ubuntu.sources \
   && ! grep -rqsE '^[^#]*http://' /etc/apt/sources.list /etc/apt/sources.list.d \
   && apt-get -o Acquire::Retries=0 -o APT::Update::Error-Mode=any update \
   && apt-get -o Acquire::Retries=0 install -y --no-install-recommends unzip \
+  && ls /var/lib/apt/lists | grep -q '^snapshot\.ubuntu\.com_ubuntu_[0-9TZ]*_dists_noble-security_InRelease$' \
+  && ! ls /var/lib/apt/lists | grep -v '^snapshot\.ubuntu\.com_' | grep -q 'ubuntu\.com' \
   && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -187,11 +191,42 @@ FROM playwright-base AS runner
 # Drop the option with the apt pin, when a base ships the fixed apt:
 # lib/toolchain-provenance.test.ts requires it while the pin stands, and at
 # any time refuses a retry count above 0 and a plain http apt source.
-RUN sed -i 's|^URIs: http://|URIs: https://|' /etc/apt/sources.list.d/ubuntu.sources \
+#
+# The https source the two steps read is Ubuntu's snapshot service: the
+# archive as it stood at one fixed time, not the live mirrors. A pocket of
+# the live archive lists only the newest version of each package, so an
+# exact pin there holds only until a newer version is published: from that
+# day every build fails with "Version not found", a rebuild of a released
+# tag among them, until the pin is edited. The snapshot keeps what the
+# archive listed at that time, so a superseded version stays installable,
+# and a tag stays buildable until its browser's HSTS cutoff, provided the
+# snapshot service still serves that time. The pins and the version check
+# stay. They are now a check on what the snapshot holds, and no longer the
+# only thing holding the versions.
+#
+# The first command therefore rewrites every URIs line of the base's Ubuntu
+# sources to the snapshot, the security pocket's among them. After the
+# install, two commands fail the build unless the security pocket's index
+# came from the snapshot service and no index came from any other
+# ubuntu.com host, so a base whose sources the rewrite misses cannot fall
+# back to a live mirror unseen. apt's own --snapshot option is not used.
+# Measured in this base on 2026-11-10: given to apt-get update on
+# linux/amd64 it fetches the live mirrors' indexes beside the snapshot's,
+# and the install then resolves against the live ones; on linux/arm64,
+# whose mirror host apt does not know, it is ignored without a word. The
+# NodeSource index is still fetched live, and nothing is installed from it.
+# Hosted CI runs this step in every image build, and with retries off one
+# bad answer from the snapshot service fails that build.
+# docs/toolchain-epoch.md says how to choose the time, and
+# lib/toolchain-provenance.test.ts holds every step that runs apt-get
+# update to the one time, fixed and past.
+RUN sed -i 's|^URIs: .*|URIs: https://snapshot.ubuntu.com/ubuntu/20261110T000000Z/|' /etc/apt/sources.list.d/ubuntu.sources \
   && ! grep -rqsE '^[^#]*http://' /etc/apt/sources.list /etc/apt/sources.list.d \
   && apt-get -o Acquire::Retries=0 -o APT::Update::Error-Mode=any update \
   && apt-get -o Acquire::Retries=0 install -y --no-install-recommends --only-upgrade \
     apt=2.8.4ubuntu0.1 libapt-pkg6.0t64=2.8.4ubuntu0.1 \
+  && ls /var/lib/apt/lists | grep -q '^snapshot\.ubuntu\.com_ubuntu_[0-9TZ]*_dists_noble-security_InRelease$' \
+  && ! ls /var/lib/apt/lists | grep -v '^snapshot\.ubuntu\.com_' | grep -q 'ubuntu\.com' \
   && apt-get purge -y gstreamer1.0-plugins-bad libgstreamer-plugins-bad1.0-0 \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* \
