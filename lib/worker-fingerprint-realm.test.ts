@@ -2906,6 +2906,142 @@ test("real Chromium: a shared worker the attacher reaches only after it started 
 });
 
 /**
+ * The twin of the test above, with its window pinned. That test's worker runs
+ * for a few milliseconds, so its 300 ms delay lands after the script on a
+ * quiet machine and inside it on a slow one. This worker spins on the wall
+ * clock for RUNNING_SCRIPT_SPIN_MS, so the breakpoint lands while its main
+ * script is still running wherever its start took less than the delay.
+ *
+ * It is the order a browser's event timing decides. Chromium 156 sends the
+ * running script's parse ahead of the breakpoint's answer. Chromium 158 holds
+ * that parse back until the script's task ends, so an attacher that read the
+ * order of the two left this worker pending, with the debugger on, for as
+ * long as its script ran. The attacher asks instead: the question behind the
+ * breakpoint lists the script, and the probe finds no pause.
+ *
+ * THE DEBUGGER'S TIME ON. docs/limitations.md and the methodology page say a
+ * worker reached late runs with the debugger on "for a few milliseconds". The
+ * test holds that to a measurement: from the main thread's hearing of the
+ * attach, plus the attacher's delay, to the answer of a barrier sent when the
+ * main thread hears "late". The thread sends the debugger off in the step
+ * that posts "late", and a worker answers its session's commands in order,
+ * so the barrier's answer is behind the disable. The figure is long by the
+ * delay timer's lateness and the barrier's own round trip, and can be short
+ * by the port's latency for one message.
+ *
+ * DEBUGGER_ON_BOUND_MS is 250. Measured on one machine under load (macOS
+ * arm64, Chromium 156 and 158, 400 visits, design note of 2026-11-10), the
+ * debugger was on 1.6 to 9.9 ms in all but one visit, and 140.7 ms in one
+ * that a host stall held. The bound is above that one and an eighth of the
+ * script's spin, so it tells a debugger turned off in the script from one
+ * left on until the script ends. Under translation every answer takes tens
+ * of milliseconds (45 to 404 ms in two emulated linux/amd64 runs), so there
+ * the test holds only that the debugger went off before the script ended,
+ * and says what it measured.
+ */
+const RUNNING_SCRIPT_SPIN_MS = 2_000;
+const RUNNING_SCRIPT_ATTACH_DELAY_MS = 300;
+const DEBUGGER_ON_BOUND_MS = 250;
+
+function spinningSharedScript(sourceUrlComment = ""): string {
+  return (
+    `const spinUntil = Date.now() + ${RUNNING_SCRIPT_SPIN_MS}; while (Date.now() < spinUntil) {} ` +
+    `${SHARED_BEACON_SOURCE} onconnect = () => {};${sourceUrlComment}`
+  );
+}
+
+/** A visit whose shared worker is reached RUNNING_SCRIPT_ATTACH_DELAY_MS after its release, and when the main thread heard what. */
+async function reachWhileItsScriptRuns(t: TestContext, name: string, script: string) {
+  const { origin, done } = await startWorkerFixture(t, {
+    page: `<!doctype html><title>shared worker reached while it runs</title><script>
+      new SharedWorker("/shared.js", { name: ${JSON.stringify(name)} }).port.start();
+    </script>`,
+    scripts: { "/shared.js": script }
+  });
+  const harness = await openPausedWorkerHarness(t, { sharedWorkers: true, attachStepDelayMs: RUNNING_SCRIPT_ATTACH_DELAY_MS });
+  const visit = harness.sharedVisit;
+  assert.ok(visit, "the harness registered no shared-worker visit");
+  const heard: { attachedAt: number | null; lateAt: number | null; debuggerOffBy: number | null; beaconsAtDebuggerOff: number | null } = {
+    attachedAt: null,
+    lateAt: null,
+    debuggerOffBy: null,
+    beaconsAtDebuggerOff: null
+  };
+  visit.onWorkerChange((worker, change) => {
+    if (change === "attached" && heard.attachedAt === null) heard.attachedAt = performance.now();
+    if (change !== "late" || heard.lateAt !== null) return;
+    heard.lateAt = performance.now();
+    // Behind the thread's disable on the worker's own session.
+    void visit.channel.send("Runtime.getIsolateId", {}, worker.sessionId).then(
+      () => {
+        heard.debuggerOffBy = performance.now();
+        heard.beaconsAtDebuggerOff = done.length;
+      },
+      () => undefined
+    );
+  });
+  await harness.page.goto(`${origin}/`, { timeout: 10_000 });
+  return { harness, done, heard };
+}
+
+test("real Chromium: a shared worker the attacher reaches while its main script still runs is late before that script ends, has the debugger off within the bound the pages claim, and is unread", { timeout: 60_000 }, async (t) => {
+  const { harness, done, heard } = await reachWhileItsScriptRuns(t, "running", spinningSharedScript());
+  await waitFor(() => heard.debuggerOffBy !== null, 10_000);
+  const [worker] = sharedWorkersOf(harness);
+  assert.equal(worker?.hold, "late", "late while its script still ran, and not left waiting for a pause");
+  assert.equal(worker.lateReason, "ran-before-breakpoint");
+  assert.ok(heard.attachedAt !== null && heard.debuggerOffBy !== null, "the barrier behind the disable was answered");
+  assert.equal(heard.beaconsAtDebuggerOff, 0, "the debugger went off while the main script still ran");
+  const debuggerOnMs = heard.debuggerOffBy - heard.attachedAt - RUNNING_SCRIPT_ATTACH_DELAY_MS;
+  const translation = translationSignal();
+  t.diagnostic(`debugger on for at most ${debuggerOnMs.toFixed(1)} ms after the breakpoint step (${translation.reading})`);
+  if (!translation.translated) {
+    assert.ok(debuggerOnMs <= DEBUGGER_ON_BOUND_MS, `the debugger was on ${debuggerOnMs.toFixed(1)} ms, over the ${DEBUGGER_ON_BOUND_MS} ms bound`);
+  }
+  await waitFor(() => done.length >= 1, 10_000);
+  assert.deepEqual(done, ["running/false/undefined"], "the worker ran with no observer");
+  assert.deepEqual(harness.installer.sharedInstallDiagnostics(), {
+    installedWorkerCount: 0,
+    installFailedWorkerCount: 0,
+    lateWorkerCount: 1
+  });
+  const readout = await readWorkerRealms(harness, 500);
+  assert.deepEqual(readoutTerms(readout), {
+    snapshots: [],
+    unread: 1,
+    terms: { "shared.discovered": 1, "shared.attached": 1, "shared.attachedLate": 1 }
+  });
+});
+
+/**
+ * A main script that names itself. With a `sourceURL` comment a script is
+ * parsed, and pauses, under the name it gave itself, never under the
+ * worker's own address, so its parse is not the main script's to the
+ * attacher. Reached while it ran, such a worker gave the parse-order rule
+ * nothing on either browser and stayed pending for the visit with the
+ * debugger on. The question lists a script whatever its name. (In the
+ * production order such a worker is still never held: its first pause reads
+ * as another script's. That half is a coverage question of its own, in
+ * docs/limitations.md.)
+ */
+test("real Chromium: a shared worker whose main script names itself, reached while it runs, is late before the script ends and is unread", { timeout: 60_000 }, async (t) => {
+  const { harness, done, heard } = await reachWhileItsScriptRuns(t, "self-named", spinningSharedScript("\n//# sourceURL=named-by-the-page.js"));
+  await waitFor(() => heard.debuggerOffBy !== null, 10_000);
+  const [worker] = sharedWorkersOf(harness);
+  assert.equal(worker?.hold, "late", "late while its script still ran, and not left waiting for a pause");
+  assert.equal(worker.lateReason, "ran-before-breakpoint");
+  assert.equal(heard.beaconsAtDebuggerOff, 0, "the debugger went off while the main script still ran");
+  await waitFor(() => done.length >= 1, 10_000);
+  assert.deepEqual(done, ["self-named/false/undefined"], "the worker ran with no observer");
+  const readout = await readWorkerRealms(harness, 500);
+  assert.deepEqual(readoutTerms(readout), {
+    snapshots: [],
+    unread: 1,
+    terms: { "shared.discovered": 1, "shared.attached": 1, "shared.attachedLate": 1 }
+  });
+});
+
+/**
  * The broken hold, made certain. The attacher holds the shared worker at its
  * main script and, on purpose, waits there before sending the install; a
  * second DevTools client attached to the same worker sends it a release
