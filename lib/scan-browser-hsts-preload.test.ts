@@ -22,21 +22,26 @@ import { browserProcessEnvironment, SCAN_CHROMIUM_LAUNCH_ARGS } from "./scanner"
  *
  * This records a fact. On 2026-11-03 the owner delegated the choice of
  * semantics, and the recommendation taken was to keep the scan browser within
- * its 70 days. Recorded 2026-11-03: Playwright 1.64.1's Chromium 156.0.8078.4
- * applies the list. Its version tag was committed 2026-09-29 23:57:21 UTC, so
- * its estimated cutoff is 2026-12-08 23:57 UTC, on the assumption that the
+ * its 70 days. Recorded 2026-11-10: Playwright 1.65.0's Chromium 158.0.8127.18
+ * applies the list. Its version tag was committed 2026-11-04 01:08:26 UTC, so
+ * its estimated cutoff is 2027-01-13 01:08 UTC, on the assumption that the
  * build time IsBuildTimely() compares is the tag's commit time, an assumption
  * one lapse has confirmed so far. That lapse: Playwright 1.63.0's Chromium
  * 153.0.8010.12 (tag committed 2026-08-25 20:20:53 UTC) stopped applying the
  * list on 2026-11-03 between two gate runs, a window that holds the predicted
  * 20:20:53 UTC, and this test expected that until the 2026-11 toolchain epoch
- * moved the browser. By the same rule, Playwright 1.62's Chromium
- * 151.0.7922.34 stopped applying it at about 2026-09-23 03:34 UTC, about 21
- * hours before the 2026-09 epoch's deployment replaced it. When the browser
- * stops applying the list, this fails by name: under that choice the next
- * toolchain epoch is due. scripts/chromium-hsts-preload-cutoff.mjs warns in
- * CI three weeks before the estimated cutoff. The title names the Chromium the
- * installed playwright-core bundles, read from its browsers.json.
+ * moved the browser. That epoch's Chromium 156.0.8078.4 (Playwright 1.64.1,
+ * tag committed 2026-09-29 23:57:21 UTC) applied the list when it was
+ * recorded on 2026-11-03; its estimated cutoff is 2026-12-08 23:57 UTC, and
+ * the 2026-12 toolchain epoch moved the browser here before that time, so
+ * this test has not seen that build lapse. By the same rule, Playwright
+ * 1.62's Chromium 151.0.7922.34 stopped applying it at about 2026-09-23
+ * 03:34 UTC, about 21 hours before the 2026-09 epoch's deployment replaced
+ * it. When the browser stops applying the list, this fails by name: under
+ * that choice the next toolchain epoch is due.
+ * scripts/chromium-hsts-preload-cutoff.mjs warns in CI three weeks before the
+ * estimated cutoff. The title names the Chromium the installed playwright-core
+ * bundles, read from its browsers.json.
  */
 const PRELOAD_APPLIED = true;
 
@@ -66,7 +71,7 @@ function mismatch(version: string, name: string, plain: boolean, upgraded: boole
   return `Chromium ${version} does not apply its HSTS preload list to ${name}: its build is likely more than 70 days old (scripts/chromium-hsts-preload-cutoff.mjs estimates each cutoff), so scans send http:// requests to preloaded names as http. Keeping the scan browser within its 70 days needs the next toolchain epoch; do not change PRELOAD_APPLIED to make this pass.`;
 }
 
-test(`the scan browser, Chromium ${BUNDLED_CHROMIUM}, applies its HSTS preload list (expectation recorded 2026-11-03)`, { timeout: 60_000 }, async (t) => {
+test(`the scan browser, Chromium ${BUNDLED_CHROMIUM}, applies its HSTS preload list (expectation recorded 2026-11-10)`, { timeout: 60_000 }, async (t) => {
   const seen: string[] = [];
   const proxy = createServer((request, response) => {
     seen.push(`${request.method} ${request.url}`);
