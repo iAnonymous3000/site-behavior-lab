@@ -60,6 +60,12 @@ export function scanCorsHeaders(
     "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
     "Access-Control-Allow-Headers": CORS_ALLOWED_REQUEST_HEADERS.join(", "),
     "Access-Control-Max-Age": "86400",
+    // A browser shows a cross-origin reader only the response headers the
+    // server exposes. A refusal's Retry-After says how long a quota window
+    // still has to run. Unexposed, the static site's reader could not see it,
+    // fell back to a few seconds of its own backoff, and gave up while a
+    // fixed-minute refusal still stood.
+    "Access-Control-Expose-Headers": "Retry-After",
     Vary: "Origin"
   };
   // Omit Access-Control-Allow-Origin on a denial so opaque (`Origin: null`)

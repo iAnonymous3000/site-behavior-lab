@@ -309,6 +309,55 @@ test("saved-report recovery retries transient faults and honors HTTP-date Retry-
   assert.deepEqual(waits, [5_000]);
 });
 
+test("a saved-report read refused for a minute waits thirty seconds at a time, and three times at most", async () => {
+  // The edge's fixed-minute quotas refuse with a Retry-After of up to 60
+  // seconds, which a cross-origin reader can read because the scan API's CORS
+  // headers expose it. Each wait is capped at 30 seconds and a cycle retries
+  // three times, so the reader waits through the whole window and no longer,
+  // and a refusal that outlasts that ends as an ordinary error the interface
+  // can offer to resume. It never waits without a bound.
+  const read = async (refusals: number) => {
+    const waits: number[] = [];
+    let reportReads = 0;
+    const fetcher: ScanJobPollFetcher = async (url) => {
+      if (url === STATUS_PATH) {
+        return Response.json({ ok: false, error: "Scan job not found." }, { status: 404 });
+      }
+      reportReads += 1;
+      if (reportReads <= refusals) {
+        return Response.json(
+          { ok: false, error: "Too many report requests. Try again shortly." },
+          { status: 429, headers: { "Retry-After": "60" } }
+        );
+      }
+      return Response.json(savedReport());
+    };
+    const outcome = await pollAcceptedScanJob({
+      statusPath: STATUS_PATH,
+      reportId: REPORT_ID,
+      fetcher,
+      now: () => 0,
+      wait: async (ms) => {
+        waits.push(ms);
+      }
+    }).then(
+      (loaded) => loaded.source as string,
+      (error: unknown) => (error as Error).message
+    );
+    return { outcome, waits, reportReads };
+  };
+
+  // Refused twice: two 30-second waits cover the minute, and the third read
+  // returns the report.
+  assert.deepEqual(await read(2), { outcome: "v1", waits: [30_000, 30_000], reportReads: 3 });
+  // Refused throughout: three waits, a fourth read, then the resumable error.
+  assert.deepEqual(await read(10), {
+    outcome: "The scan service remained temporarily unavailable (HTTP 429).",
+    waits: [30_000, 30_000, 30_000],
+    reportReads: 4
+  });
+});
+
 test("non-transient polling faults remain resumable errors, while real job endings are classified", async () => {
   await assert.rejects(
     pollAcceptedScanJob({
@@ -480,6 +529,9 @@ test("poll and Retry-After delays are bounded and progressively backed off", () 
   assert.equal(scanJobPollIntervalMs(3 * 60_000), 5_000);
   assert.equal(scanJobPollIntervalMs(10 * 60_000), 10_000);
   assert.equal(retryAfterMs("2", 0), 2_000);
+  // A fixed-minute quota's refusal can say up to 60 seconds. One wait is
+  // capped at half that, so the retry budget below spans the whole window.
+  assert.equal(retryAfterMs("60", 0), 30_000);
   assert.equal(retryAfterMs("999999999999999999999", 0), 30_000);
   assert.equal(retryAfterMs(new Date(60_000).toUTCString(), 0), 30_000);
   assert.equal(retryAfterMs("not a delay", 0), null);

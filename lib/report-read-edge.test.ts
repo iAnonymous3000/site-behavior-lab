@@ -672,11 +672,15 @@ test("refusals on the report API can be read across origins; page refusals are u
       for (const [name, value] of Object.entries(scanCorsHeaders("https://site.example", undefined))) {
         assert.equal(refused?.headers.get(name), value, `${read.name} refusal ${name}`);
       }
+      // The wait is on the refusal and a cross-origin reader may read it.
+      assert.equal(refused?.headers.get("retry-after"), "60");
+      assert.equal(refused?.headers.get("access-control-expose-headers"), "Retry-After");
     }
     const page = await exhaust(`/reports/${REPORT_ID}`, REPORT_READ_RATE_LIMIT_PER_MINUTE);
     assert.equal(page?.status, 429);
     assert.equal(page?.headers.get("retry-after"), "60");
     assert.equal(page?.headers.get("access-control-allow-origin"), null);
+    assert.equal(page?.headers.get("access-control-expose-headers"), null);
     assert.deepEqual(await page!.json(), { ok: false, error: "Too many report requests. Try again shortly." });
   });
 

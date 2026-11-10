@@ -1065,7 +1065,8 @@ make the container read. The bound is the trade that was chosen.
 A refusal by the global bucket says "Too many report requests", on either API
 route, because reads of the other route may have spent it; the PDF's own
 sentence is kept for the PDF's per-client cap. Refusals on the two API routes
-carry the scan API's CORS headers, so the static site reads a 429 as a 429.
+carry the scan API's CORS headers, so the static site reads a 429 as a 429,
+and those headers expose `Retry-After`, so it can read how long to wait.
 `OPTIONS` on those routes is answered at the edge with the same preflight Node
 gives, and any other method is answered 405 there. The Worker's own reads of a
 saved report (job status recovery) and the PDF renderer's loopback read of the

@@ -124,6 +124,7 @@ test(
         assert.equal(refused.headers.get("retry-after"), "60");
         assert.equal(refused.headers.get("cache-control"), "no-store");
         assert.equal(refused.headers.get("access-control-allow-origin"), "https://sitebehavior.org");
+        assert.equal(refused.headers.get("access-control-expose-headers"), "Retry-After");
         if (method === "GET") {
           assert.deepEqual(JSON.parse(refused.text), { ok: false, error: "Too many report requests. Try again shortly." });
         }
