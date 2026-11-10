@@ -244,7 +244,9 @@ test("Node producer rows are complete, immutable, and individually replayable", 
       "node-v28-detectors-v23-active-lists-2026-10-19",
       "node-v28-detectors-v23-active-no-adblock",
       "node-v29-toolchain-2026-11-active-lists-2026-10-19",
-      "node-v29-toolchain-2026-11-active-no-adblock"
+      "node-v29-toolchain-2026-11-active-no-adblock",
+      "node-v30-detectors-v24-active-lists-2026-10-19",
+      "node-v30-detectors-v24-active-no-adblock"
   ];
   assert.deepEqual(NODE_R2_PRODUCER_TUPLES.map((tuple) => tuple.id), expectedTupleIds);
   assert.equal(Object.isFrozen(NODE_R2_PRODUCER_TUPLES), true);
@@ -403,7 +405,7 @@ test("the detector-v6 identity preserves the v4 resource-budget rows and the clo
     (tuple) => tuple.id === "node-v6-6c78-tldts7410-lists-2026-08-15"
   );
   const active = NODE_R2_PRODUCER_TUPLES.find(
-    (tuple) => tuple.id === "node-v29-toolchain-2026-11-active-lists-2026-10-19"
+    (tuple) => tuple.id === "node-v30-detectors-v24-active-lists-2026-10-19"
   );
   assert.equal(historical?.methodologyVersion, HISTORICAL_RESOURCE_BUDGET_V1_NODE_R2_METHODOLOGY_VERSION);
   assert.equal(
@@ -1122,7 +1124,7 @@ test("closed v11 reports keep their exact toolchain identity when v12 moves Play
   const closedBare = NODE_R2_PRODUCER_TUPLES.find((tuple) => tuple.id === "node-v11-detectors-v9-active-no-adblock");
   const currentLists = NODE_R2_PRODUCER_TUPLES.find((tuple) => tuple.id === "node-v12-toolchain-2026-09-active-lists-2026-09-21");
   const currentBare = NODE_R2_PRODUCER_TUPLES.find((tuple) => tuple.id === "node-v12-toolchain-2026-09-active-no-adblock");
-  const live = NODE_R2_PRODUCER_TUPLES.find((tuple) => tuple.id === "node-v29-toolchain-2026-11-active-lists-2026-10-19");
+  const live = NODE_R2_PRODUCER_TUPLES.find((tuple) => tuple.id === "node-v30-detectors-v24-active-lists-2026-10-19");
   assert.ok(closedLists && closedBare && currentLists && currentBare && live);
   // No detector moved: every detector field is equal. The v12 rows were
   // closed by node-detectors-v10 onto the same frozen node-detectors-v9
@@ -1217,7 +1219,7 @@ test("closed v12 reports keep their exact identity when v13 moves the methodolog
   const closedBare = NODE_R2_PRODUCER_TUPLES.find((tuple) => tuple.id === "node-v12-toolchain-2026-09-active-no-adblock");
   const currentLists = NODE_R2_PRODUCER_TUPLES.find((tuple) => tuple.id === "node-v13-detectors-v10-active-lists-2026-09-21");
   const currentBare = NODE_R2_PRODUCER_TUPLES.find((tuple) => tuple.id === "node-v13-detectors-v10-active-no-adblock");
-  const live = NODE_R2_PRODUCER_TUPLES.find((tuple) => tuple.id === "node-v29-toolchain-2026-11-active-lists-2026-10-19");
+  const live = NODE_R2_PRODUCER_TUPLES.find((tuple) => tuple.id === "node-v30-detectors-v24-active-lists-2026-10-19");
   assert.ok(closedLists && closedBare && currentLists && currentBare && live);
   // Detectors: only the keystroke detector and the registry moved.
   assert.deepEqual(closedLists.detectorRegistry, {
@@ -1324,7 +1326,7 @@ test("closed v13 reports keep their exact identity when v14 moves only the publi
   const closedBare = NODE_R2_PRODUCER_TUPLES.find((tuple) => tuple.id === "node-v13-detectors-v10-active-no-adblock");
   const currentLists = NODE_R2_PRODUCER_TUPLES.find((tuple) => tuple.id === "node-v14-public-string-policy-v4-active-lists-2026-09-21");
   const currentBare = NODE_R2_PRODUCER_TUPLES.find((tuple) => tuple.id === "node-v14-public-string-policy-v4-active-no-adblock");
-  const live = NODE_R2_PRODUCER_TUPLES.find((tuple) => tuple.id === "node-v29-toolchain-2026-11-active-lists-2026-10-19");
+  const live = NODE_R2_PRODUCER_TUPLES.find((tuple) => tuple.id === "node-v30-detectors-v24-active-lists-2026-10-19");
   assert.ok(closedLists && closedBare && currentLists && currentBare && live);
   // Nothing but the normalization moved: every other field is equal...
   for (const field of ["methodologyVersion", "detectorRegistry", "detectorVersions", "detectorStatusContractVersion",
@@ -1470,7 +1472,7 @@ test("closed v14 reports keep their exact identity when v15 moves the methodolog
   // no-list row.
   const currentLists = NODE_R2_PRODUCER_TUPLES.find((tuple) => tuple.id === "node-v15-detectors-v11-active-lists-2026-09-21");
   const currentBare = NODE_R2_PRODUCER_TUPLES.find((tuple) => tuple.id === "node-v15-detectors-v11-active-no-adblock");
-  const live = NODE_R2_PRODUCER_TUPLES.find((tuple) => tuple.id === "node-v29-toolchain-2026-11-active-lists-2026-10-19");
+  const live = NODE_R2_PRODUCER_TUPLES.find((tuple) => tuple.id === "node-v30-detectors-v24-active-lists-2026-10-19");
   assert.ok(closedLists && closedBare && currentLists && currentBare && live);
   assert.equal(live.methodologyVersion, NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION);
   assert.equal(live.normalizationVersion, NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION);
@@ -1662,7 +1664,7 @@ test("closed v15 reports keep their September 21 lists when the September 28 lis
   // node-detectors-v12 has since closed both.
   const adopted = NODE_R2_PRODUCER_TUPLES.find((tuple) => tuple.id === "node-v15-detectors-v11-active-lists-2026-09-28");
   const bare = NODE_R2_PRODUCER_TUPLES.find((tuple) => tuple.id === "node-v15-detectors-v11-active-no-adblock");
-  const live = NODE_R2_PRODUCER_TUPLES.find((tuple) => tuple.id === "node-v29-toolchain-2026-11-active-lists-2026-10-19");
+  const live = NODE_R2_PRODUCER_TUPLES.find((tuple) => tuple.id === "node-v30-detectors-v24-active-lists-2026-10-19");
   assert.ok(closed && adopted && bare && live);
   // Only the list snapshot moved. The closed row equals the adopted list row
   // in every other field, and the no-list row is that same producer, not
@@ -1731,7 +1733,7 @@ test("closed v15 reports keep their exact identity when v16 moves four detectors
   // epoch has since closed both, so each names its literals.
   const currentLists = NODE_R2_PRODUCER_TUPLES.find((tuple) => tuple.id === "node-v16-detectors-v12-active-lists-2026-09-28");
   const currentBare = NODE_R2_PRODUCER_TUPLES.find((tuple) => tuple.id === "node-v16-detectors-v12-active-no-adblock");
-  const live = NODE_R2_PRODUCER_TUPLES.find((tuple) => tuple.id === "node-v29-toolchain-2026-11-active-lists-2026-10-19");
+  const live = NODE_R2_PRODUCER_TUPLES.find((tuple) => tuple.id === "node-v30-detectors-v24-active-lists-2026-10-19");
   assert.ok(closedLists && closedBare && currentLists && currentBare && live);
   // node-detectors-v12 kept the methodology, which the live constant still
   // names, and ran the 344fdfdf normalization under tldts@7.4.13, which the
@@ -1921,7 +1923,7 @@ test("closed v16 reports keep their exact identity when v17 moves only the publi
   // now v19.
   const currentLists = NODE_R2_PRODUCER_TUPLES.find((tuple) => tuple.id === "node-v17-toolchain-2026-10-active-lists-2026-09-28");
   const currentBare = NODE_R2_PRODUCER_TUPLES.find((tuple) => tuple.id === "node-v17-toolchain-2026-10-active-no-adblock");
-  const live = NODE_R2_PRODUCER_TUPLES.find((tuple) => tuple.id === "node-v29-toolchain-2026-11-active-lists-2026-10-19");
+  const live = NODE_R2_PRODUCER_TUPLES.find((tuple) => tuple.id === "node-v30-detectors-v24-active-lists-2026-10-19");
   assert.ok(closedLists && closedBare && currentLists && currentBare && live);
   // The epoch moves tldts 7.4.13 to 7.4.16 and nothing else a report records.
   // The methodology keeps its adblock-rust 0.13.3 and Playwright 1.63.0
@@ -2576,7 +2578,7 @@ test("closed v22 list reports keep their September 28 lists when the October 18 
   assert.notEqual(adopted.adblockIdentity?.manifestDigest, closed.adblockIdentity?.manifestDigest);
   assert.equal(adopted.adblockIdentity?.engineVersion, closed.adblockIdentity?.engineVersion);
   // The three rows hold frozen copies, never the live objects.
-  const live = NODE_R2_PRODUCER_TUPLES.find((tuple) => tuple.id === "node-v29-toolchain-2026-11-active-lists-2026-10-19");
+  const live = NODE_R2_PRODUCER_TUPLES.find((tuple) => tuple.id === "node-v30-detectors-v24-active-lists-2026-10-19");
   assert.ok(live);
   for (const tuple of [closed, adopted, bare]) {
     for (const field of ["detectorRegistry", "detectorVersions", "detectorObligations", "serviceRoleTaxonomy",
@@ -2726,7 +2728,7 @@ test("closed v23 list reports keep their October 18 lists when the October 19 li
   assert.notEqual(adopted.adblockIdentity?.manifestDigest, closed.adblockIdentity?.manifestDigest);
   assert.equal(adopted.adblockIdentity?.engineVersion, closed.adblockIdentity?.engineVersion);
   // The three rows hold frozen copies, never the live objects.
-  const live = NODE_R2_PRODUCER_TUPLES.find((tuple) => tuple.id === "node-v29-toolchain-2026-11-active-lists-2026-10-19");
+  const live = NODE_R2_PRODUCER_TUPLES.find((tuple) => tuple.id === "node-v30-detectors-v24-active-lists-2026-10-19");
   assert.ok(live);
   for (const tuple of [closed, adopted, bare]) {
     for (const field of ["detectorRegistry", "detectorVersions", "detectorObligations", "serviceRoleTaxonomy",
@@ -3332,7 +3334,8 @@ test("closed v28 reports keep their exact identity when v29 moves only the Playw
   const closedBare = NODE_R2_PRODUCER_TUPLES.find((tuple) => tuple.id === "node-v28-detectors-v23-active-no-adblock");
   const liveLists = NODE_R2_PRODUCER_TUPLES.find((tuple) => tuple.id === "node-v29-toolchain-2026-11-active-lists-2026-10-19");
   const liveBare = NODE_R2_PRODUCER_TUPLES.find((tuple) => tuple.id === "node-v29-toolchain-2026-11-active-no-adblock");
-  assert.ok(closedLists && closedBare && liveLists && liveBare);
+  const nowLive = NODE_R2_PRODUCER_TUPLES.find((tuple) => tuple.id === "node-v30-detectors-v24-active-lists-2026-10-19");
+  assert.ok(closedLists && closedBare && liveLists && liveBare && nowLive);
   assert.equal(
     sha256Hex(canonicalJson([closedLists, closedBare])),
     "3a8f2f302c4c1c009dc86c8b32d93b5f42235763e5f11a53b0b2bf385c26dc36"
@@ -3360,16 +3363,20 @@ test("closed v28 reports keep their exact identity when v29 moves only the Playw
     });
     assert.equal(live.normalizationVersion, NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION);
     // The closed rows hold their own frozen copies, never the live objects.
+    // node-detectors-v24 has since closed the v29 rows to the frozen fields
+    // the v28 rows name, so both are held apart from today's live row.
     for (const field of ["detectorRegistry", "detectorVersions", "detectorObligations", "serviceRoleTaxonomy",
       "trackerCatalog", "publicLimits"] as const) {
-      assert.notEqual(closed[field], live[field], `${closed.id} ${field} aliases the live object`);
+      assert.notEqual(closed[field], nowLive[field], `${closed.id} ${field} aliases the live object`);
+      assert.notEqual(live[field], nowLive[field], `${live.id} ${field} aliases the live object`);
     }
     assert.doesNotThrow(() => assertR2ProducerContract(runForTuple(closed)), closed.id);
     assert.doesNotThrow(() => assertR2ProducerContract(runForTuple(live)), live.id);
   }
   // The normalization did not move, so it is not superseded and needs no
-  // methodology pairing: the v26 to v29 rows all name it, the v28 and earlier
-  // ones under the retired methodology and the v29 ones under the live one.
+  // methodology pairing: the v26 to v30 rows all name it, the v28 and earlier
+  // ones under the retired methodology and the v29 and v30 ones under the
+  // live one.
   const normalization = closedLists.normalizationVersion;
   assert.equal(SUPERSEDED_R2_NORMALIZATIONS["node-playwright"].includes(normalization), false);
   assert.equal(Object.hasOwn(HISTORICAL_NODE_R2_V4_METHODOLOGIES_BY_NORMALIZATION, normalization), false);
@@ -3383,15 +3390,18 @@ test("closed v28 reports keep their exact identity when v29 moves only the Playw
       "node-v28-detectors-v23-active-lists-2026-10-19",
       "node-v28-detectors-v23-active-no-adblock",
       "node-v29-toolchain-2026-11-active-lists-2026-10-19",
-      "node-v29-toolchain-2026-11-active-no-adblock"
+      "node-v29-toolchain-2026-11-active-no-adblock",
+      "node-v30-detectors-v24-active-lists-2026-10-19",
+      "node-v30-detectors-v24-active-no-adblock"
     ]
   );
   // Both list rows run the October 19 lists under adblock-rust 0.13.3: the
-  // closed row names the frozen copy and the live row follows the live
-  // constant.
+  // closed row names the frozen copy. node-detectors-v24 has since closed the
+  // v29 list row to the same frozen copy; the live constant still holds the
+  // same lists.
   assert.equal(closedLists.adblockIdentity, HISTORICAL_R2_LISTS_2026_10_19_ADBLOCK_0_13_3_IDENTITY);
-  assert.equal(liveLists.adblockIdentity, NODE_R2_CURRENT_ADBLOCK_IDENTITY);
-  assert.deepEqual({ ...closedLists.adblockIdentity }, { ...NODE_R2_CURRENT_ADBLOCK_IDENTITY });
+  assert.equal(liveLists.adblockIdentity, HISTORICAL_R2_LISTS_2026_10_19_ADBLOCK_0_13_3_IDENTITY);
+  assert.deepEqual({ ...liveLists.adblockIdentity }, { ...NODE_R2_CURRENT_ADBLOCK_IDENTITY });
   assert.equal(closedBare.adblockIdentity, null);
   assert.equal(liveBare.adblockIdentity, null);
   // The methodology is the only component that moved: each v28 row equals its
@@ -3433,4 +3443,109 @@ test("closed v28 reports keep their exact identity when v29 moves only the Playw
     assert.equal(verdict.eligible, false, family);
     assert.equal(verdict.reasons.includes("dependency-version-mismatch:environment"), true, family);
   }
+});
+
+// The two rows of the 2026-11 toolchain epoch as the commit before this epoch
+// ran them, the October 19 list row and the no-list row, before
+// node-detectors-v24 closed them: the canonical pair hashes the same there,
+// where they followed the live constants, and here, where they name frozen
+// literals. Every other Node and PageGraph row is byte for byte unchanged and
+// only the two v30 rows are new.
+test("closed v29 reports keep their exact identity when v30 moves the fingerprint observer", () => {
+  const closedLists = NODE_R2_PRODUCER_TUPLES.find((tuple) => tuple.id === "node-v29-toolchain-2026-11-active-lists-2026-10-19");
+  const closedBare = NODE_R2_PRODUCER_TUPLES.find((tuple) => tuple.id === "node-v29-toolchain-2026-11-active-no-adblock");
+  const liveLists = NODE_R2_PRODUCER_TUPLES.find((tuple) => tuple.id === "node-v30-detectors-v24-active-lists-2026-10-19");
+  const liveBare = NODE_R2_PRODUCER_TUPLES.find((tuple) => tuple.id === "node-v30-detectors-v24-active-no-adblock");
+  assert.ok(closedLists && closedBare && liveLists && liveBare);
+  assert.equal(
+    sha256Hex(canonicalJson([closedLists, closedBare])),
+    "65d237ac899689dd3ae3ec9c75ca85bf762d136941225c956ea8c403aa43dfaa"
+  );
+  // The epoch moves the fingerprint observer with the registry, and nothing
+  // else a report records.
+  const moved = {
+    "fingerprint-heuristics": ["fingerprint-observer@12", "fingerprint-observer@13"]
+  } as const;
+  for (const [closed, live] of [[closedLists, liveLists], [closedBare, liveBare]] as const) {
+    for (const field of ["methodologyVersion", "normalizationVersion", "detectorStatusContractVersion", "detectorObligations",
+      "serviceRoleTaxonomy", "trackerCatalog", "adblockIdentity", "publicLimits", "phaseOmissionContractVersion",
+      "runtimeIdentity"] as const) {
+      assert.deepEqual(closed[field], live[field], `${closed.id} ${field}`);
+    }
+    assert.deepEqual(closed.detectorRegistry, {
+      version: "node-detectors-v23", digest: "643765c7f4cc7d017f023161d671d886b521e9ed5ad37c9fc761fd33882b093d"
+    });
+    assert.deepEqual(live.detectorRegistry, {
+      version: "node-detectors-v24", digest: "24ac48817c142a88a9498c1de5b6104381c888c5d3a2b78f369672a03fe9ef1c"
+    });
+    assert.deepEqual(
+      Object.keys(live.detectorVersions).filter(
+        (id) => live.detectorVersions[id as keyof typeof live.detectorVersions] !==
+          closed.detectorVersions[id as keyof typeof closed.detectorVersions]
+      ),
+      Object.keys(moved)
+    );
+    for (const [id, [before, after]] of Object.entries(moved)) {
+      assert.equal(closed.detectorVersions[id as keyof typeof moved], before, `${closed.id} ${id}`);
+      assert.equal(live.detectorVersions[id as keyof typeof moved], after, `${live.id} ${id}`);
+    }
+    assert.equal(live.normalizationVersion, NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION);
+    assert.equal(live.methodologyVersion, NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION);
+    // The closed rows hold their own frozen copies, never the live objects.
+    for (const field of ["detectorRegistry", "detectorVersions", "detectorObligations", "serviceRoleTaxonomy",
+      "trackerCatalog", "publicLimits"] as const) {
+      assert.notEqual(closed[field], live[field], `${closed.id} ${field} aliases the live object`);
+    }
+    assert.doesNotThrow(() => assertR2ProducerContract(runForTuple(closed)), closed.id);
+    assert.doesNotThrow(() => assertR2ProducerContract(runForTuple(live)), live.id);
+  }
+  // Both list rows run the October 19 lists: the closed row names the frozen
+  // copy and the live row follows the live constant.
+  assert.equal(closedLists.adblockIdentity, HISTORICAL_R2_LISTS_2026_10_19_ADBLOCK_0_13_3_IDENTITY);
+  assert.equal(liveLists.adblockIdentity, NODE_R2_CURRENT_ADBLOCK_IDENTITY);
+  assert.deepEqual({ ...closedLists.adblockIdentity }, { ...NODE_R2_CURRENT_ADBLOCK_IDENTITY });
+  assert.equal(closedBare.adblockIdentity, null);
+  assert.equal(liveBare.adblockIdentity, null);
+  // A report mixing the moved registry or a moved detector across the two
+  // identities, in either direction, matches no row.
+  const hybrids: Array<[string, (run: ScanRunV2R2, from: NodeR2ProducerTuple) => void]> = [
+    ["registry", (run, from) => { run.provenance.detectorRegistry = { ...from.detectorRegistry }; }],
+    ...Object.keys(moved).map((id): [string, (run: ScanRunV2R2, from: NodeR2ProducerTuple) => void] => [
+      id,
+      (run, from) => {
+        run.detectors[id as keyof typeof moved].version = from.detectorVersions[id as keyof typeof moved];
+      }
+    ])
+  ];
+  for (const [label, mutate] of hybrids) {
+    for (const [closed, live] of [[closedLists, liveLists], [closedBare, liveBare]] as const) {
+      const forward = runForTuple(closed);
+      mutate(forward, live);
+      assert.throws(() => assertR2ProducerContract(forward), R2ProducerContractError, `v30 ${label} on the ${closed.id} identity`);
+      const backdated = runForTuple(live);
+      mutate(backdated, closed);
+      assert.throws(() => assertR2ProducerContract(backdated), R2ProducerContractError, `v29 ${label} on the ${live.id} identity`);
+    }
+  }
+  // The normalization and methodology did not move, so a comparison across
+  // the epoch keeps every family's environment. Detector findings, which name
+  // each detector's version, cannot pair a v29 report with a v30 one. The
+  // consent probe did not move, so consent verification is not refused for it.
+  const earlier = runForTuple(closedLists);
+  earlier.runId = "detectors-v23";
+  earlier.startedAt = "2026-11-09T06:00:00.000Z";
+  const later = runForTuple(liveLists);
+  later.runId = "detectors-v24";
+  const mixed = evaluateComparabilityR2({ kind: "temporal", pairId: "detectors-v24" }, earlier, later);
+  const dependents: Record<keyof typeof moved, readonly string[]> = {
+    "fingerprint-heuristics": ["detector-findings"]
+  };
+  for (const [family, verdict] of Object.entries(mixed.perMetric)) {
+    assert.equal(verdict.reasons.includes("dependency-version-mismatch:environment"), false, family);
+    for (const id of Object.keys(moved) as Array<keyof typeof moved>) {
+      assert.equal(verdict.reasons.includes(`dependency-version-mismatch:${id}`), dependents[id].includes(family), `${family} ${id}`);
+    }
+  }
+  assert.equal(mixed.perMetric["detector-findings"].eligible, false);
+  assert.equal(mixed.perMetric["consent-verification"].reasons.some((reason) => reason.startsWith("dependency-version-mismatch:")), false);
 });

@@ -209,6 +209,29 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- A shared worker the scanner reached only after one of its scripts began to
+  run is counted late whichever way the browser reports that script
+  (fingerprint-observer@13, node-detectors-v24). The shared-worker attacher
+  read the order of two messages: the main script's parse ahead of its
+  breakpoint's answer meant the script may have run first, and a parse
+  behind the answer meant the worker would pause. Chromium 158, the next
+  toolchain epoch's browser, holds a script's parse back until the worker
+  next returns to its message loop or pauses, and sends answers at once. A
+  worker reached while its main script ran was then left waiting for a pause
+  that could not come: the debugger stayed on, the readout counted the
+  worker unread only after waiting 500 ms at each read, and a worker that
+  went away within 10 ms was reported as one that ended before the observer
+  could reach it. On Chromium 156 the same happened to a worker whose main
+  script names itself with a `sourceURL` comment. The attacher now asks:
+  behind its breakpoint, in the same step, it sets a
+  breakpoint on the first line of every script with a condition that is
+  never true, removes it when it answers, and reads from the answer which
+  scripts the worker had compiled. A worker with any is late unless it
+  pauses at its main script first, and a question the worker does not answer
+  counts as a script that may have been there. The two published sentences
+  about the debugger's time on ("for a few milliseconds") are unchanged, and
+  a real-browser test now holds a worker reached mid-script to 250 ms. The
+  measurement epoch below says what moves.
 - The image build no longer lets a vulnerable apt retry or fetch over plain
   HTTP. The apt that downloads during the build is the base's 2.8.3, the one
   CVE-2026-109518 names (remote code execution via hard link reuse during
@@ -3293,6 +3316,72 @@ as intended.
   advanced by main CI at 10:21 UTC, and the record's Publication section
   holds the CI run, the deploys, the live readback and the Production
   Health runs.
+
+### Measurement epoch node-detectors-v24
+
+- The node-detectors-v24 measurement epoch moves the fingerprint observer to
+  `fingerprint-observer@13` for the shared-worker fix above, so no report
+  presents the new rule under the old identity. It moves no toolchain input:
+  Playwright 1.64.1 with its Chromium 156.0.8078.4, adblock-rust 0.13.3,
+  tldts 7.4.16 and the October 19 Brave lists stay.
+- Recorded identities, old to new: the detector registry `node-detectors-v23`
+  (`643765c7f4cc7d017f023161d671d886b521e9ed5ad37c9fc761fd33882b093d`) to
+  `node-detectors-v24`
+  (`24ac48817c142a88a9498c1de5b6104381c888c5d3a2b78f369672a03fe9ef1c`),
+  recomputed from the kernel, and in it `fingerprint-heuristics` from
+  `fingerprint-observer@12` to `fingerprint-observer@13`. An r2 report's
+  execution and measurement-environment fingerprints hash both, so they move
+  with them. No other detector moves, and no methodology, normalization
+  (public-string-policy-v4 `3a2328d7...a1a1` under tldts 7.4.16), obligation
+  (`detector-obligations-v3`), public string, catalog, list identity or
+  engine version. The two live Node producer rows,
+  `node-v29-toolchain-2026-11-active-lists-2026-10-19` and
+  `node-v29-toolchain-2026-11-active-no-adblock`, close to frozen literals
+  that hash as they ran. Dumped as canonical JSON before and after, all 93
+  Node and 22 PageGraph rows of the commit before are byte for byte
+  unchanged, ids and order included, and two v30 rows open. A temporal
+  comparison across the epoch refuses detector findings.
+- What can differ on the production browser, Chromium 156. A shared worker
+  whose main script names itself with a `sourceURL` comment, reached only
+  after it began to run: its parse comes under the name it gave itself, so
+  @12 did not take it for the main script's, left the worker waiting for a
+  pause with the debugger on, and counted it unread only after the readout
+  had waited 500 ms (40 of 40 visits). @13 counts it late at once (40 of 40
+  visits, the readout answering in 0 to 113 ms). Its realm is unread either
+  way and the report counts it the same, so no published count moves
+  there. One that also went away within 10 ms could
+  read under @12 as a worker that ended before the observer could reach it
+  (1 of 20 visits reached 2 ms late) and did not under @13 (0 of 20). Every
+  shared worker also receives one more debugger command, and its removal,
+  ahead of its release.
+- What does not differ there. With the scanner's own attacher and readout,
+  over 24 cells of 20 visits (five kinds of worker and a self-named one, in
+  the production order and with the breakpoint 1, 2, 4, 30 and 250 ms behind
+  the release), @12 and @13 gave the same tally in 19 cells. The others are
+  the two self-named cells above and three cells of a worker that lives
+  3 ms, where the outcome is a race the worker's end can win and the tallies
+  vary from run to run under either rule. In the production order both held
+  every worker that can be held in the table's 80 visits each. Over 550 more
+  visits each of one kind of worker, the hold was lost in 1 under @12 and in
+  3 under @13, a difference this sample cannot tell from chance (two-sided
+  Fisher exact p = 0.62); it could have shown a rise to about 2 in 100.
+- Chromium 158, the next toolchain epoch's browser, is why the rule moved.
+  Measured the same way, with the breakpoint 30 ms behind the release, @12
+  left every kind of worker waiting, unread only after 500 ms (100 of 100
+  visits), and @13 counted each late at once (100 of 100). A worker that
+  lives 3 ms, reached 2 or 4 ms late, was reported by @12 as one that ended
+  before the observer could reach it in 21 of 40 visits and by @13 in none.
+  In the production order both held every worker that can be held in the
+  table's 80 visits each, and over 550 more visits each both lost the hold
+  in 2.
+- Measured natively on one machine (macOS arm64) on loopback fixtures, and
+  in one emulated linux/amd64 run per browser and rule, which is not native.
+  Emulated, both rules held all 24 production-order visits on each browser.
+  With the breakpoint 200 ms behind the release, a worker was unread only
+  after 500 ms under @12 in 8 of 24 visits on Chromium 156 (the self-named
+  one) and in 24 of 24 on Chromium 158, and was late at once under @13 in 24
+  of 24 on each. Not measured: native linux/amd64, which the hosted checks
+  run on.
 
 ## [0.6.0] - 2026-09-06
 

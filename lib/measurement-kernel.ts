@@ -44,10 +44,10 @@ export {
   isDetectorReasonForStatus
 } from "./detector-status-contract";
 
-export const DETECTOR_REGISTRY_VERSION = "node-detectors-v23";
+export const DETECTOR_REGISTRY_VERSION = "node-detectors-v24";
 
 export const DETECTOR_VERSIONS: Readonly<Record<DetectorId, string>> = {
-  "fingerprint-heuristics": "fingerprint-observer@12",
+  "fingerprint-heuristics": "fingerprint-observer@13",
   "keystroke-exfiltration": "synthetic-sentinel@6",
   "cname-uncloaking": "dns-cname-chain@6",
   "pixel-events": "pixel-request-decoder@6",

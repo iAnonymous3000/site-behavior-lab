@@ -171,7 +171,16 @@ export type FingerprintObserverRealmArgs = {
  * detach, so whether it ran is not known. Through @11 it was excluded as
  * having run nothing. One gone after its install answered, before the
  * release's answer, is read from its stream; through @11 it was excluded and
- * its evidence dropped.
+ * its evidence dropped. `@13` (node-detectors-v24) keeps this script. The
+ * shared-worker attacher asks a worker, behind its breakpoint, which scripts
+ * it has compiled, where through @12 it read the order of the main script's
+ * parse and the breakpoint's answer. A worker reached after one of its
+ * scripts began to run is unread as one reached late, whichever way the
+ * browser reports that script's parse and whatever name the script gave
+ * itself. Through @12 one whose parse was not heard ahead of the answer as
+ * the main script's waited for a pause that could not come, with the debugger
+ * on: it was unread only at the readout's bound, and one that went away
+ * within 10 ms read as ended at once.
  *
  * `firstPartySiteKey` is the scanned site's registrable domain (computed with
  * the real public-suffix list in Node, e.g. "capitalone.com"), so the in-page
