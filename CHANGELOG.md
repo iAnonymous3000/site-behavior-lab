@@ -3165,6 +3165,10 @@ as intended.
   does not establish: the commit released is later than the staged
   candidate, neither it nor its image was staged, and one later commit
   outside the epoch changes how 47 saved comparisons are read.
+  The epoch was released on 2026-11-10 at `265329b9`: production was
+  advanced by main CI at 10:21 UTC, and the record's Publication section
+  holds the CI run, the deploys, the live readback and the Production
+  Health runs.
 
 ## [0.6.0] - 2026-09-06
 
