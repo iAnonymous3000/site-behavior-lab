@@ -34,9 +34,21 @@ import { SHARED_WORKER_ENDED_AT_ONCE_MS } from "./shared-worker-ended-at-once";
  * registers. The main thread only reads what the thread reports.
  *
  * A LOST RACE. A worker whose first pause is at another script, or not the
- * breakpoint's, or that is seen to have parsed its main script with the
- * breakpoint already set and no pause before a later answer on its session,
- * was reached late: its code ran before the observer could precede it. The
+ * breakpoint's, or that had a script before the breakpoint was surely set and
+ * no pause before a later answer on its session, was reached late: its code
+ * ran before the observer could precede it. The thread learns of such a
+ * script in two ways. It hears the main script's parse before the
+ * breakpoint's answer. Or the browser says so itself: behind the breakpoint,
+ * in the same step, the thread asks which scripts exist
+ * (`Debugger.setBreakpointByUrl` on every script's first line, with a
+ * condition that is never true, removed as soon as it answers), and the
+ * answer lists them. A question that cannot say (refused, unanswered at the
+ * command's bound, or answered with no list) counts as a script that may
+ * have been there. The order of a parse and an answer alone decides
+ * nothing: Chromium 158 holds a script's parse back until the worker next
+ * returns to its message loop or pauses, and sends answers at once, so a
+ * parse heard behind the breakpoint's answer may be of a script compiled
+ * long before it (156 sent it ahead of the answer). The
  * thread then sends the debugger off at once (markLate's `debuggerOn`),
  * installs nothing, and reports it late, so the readout counts it unread, as
  * it counts a dedicated worker attached late. The debugger is not off at
@@ -78,7 +90,8 @@ import { SHARED_WORKER_ENDED_AT_ONCE_MS } from "./shared-worker-ended-at-once";
  * worker's script origin is its origin (lib/worker-fingerprint-realm.ts).
  *
  * WORKERS THAT END AT ONCE. A shared worker the thread never reached (no
- * pause, and no script of it seen parsed) that ended within
+ * pause, no script of it seen parsed, and none listed by the question) that
+ * ended within
  * SHARED_WORKER_ENDED_AT_ONCE_MS of its attach, by the thread's own receive
  * times, is reported apart from realms that ran unread: whether it ran any
  * code is not known.
@@ -154,7 +167,7 @@ export type AttachedSharedWorker = AttachedWorker & {
   readonly attachedAt: number;
   /** Its lifetime by the thread's receive times of its attach and detach; null while attached. */
   readonly lifetimeMs: number | null;
-  /** It ended, by the thread's receive times, before the thread saw a pause or a parsed script of it. */
+  /** It ended, by the thread's receive times, before the thread saw a pause or a parsed script of it, or was told of a script of it. */
   readonly endedUnreached: boolean;
   readonly creationDocument: SharedWorkerCreationDocument | null;
   /** From its main-script pause to the answer of the command that turned the debugger off; null if never held. */
@@ -214,8 +227,15 @@ export function sharedWorkerAttacherThread(port: AttacherThreadPort, data: Attac
     scripts: Map<string, string>;
     breakpointId: string | null;
     breakpointAcknowledged: boolean;
-    /** Its main script was seen parsed before the breakpoint's answer: compiled before the breakpoint was surely set. */
-    mainParsedBeforeBreakpoint: boolean;
+    /**
+     * A script of it existed before the breakpoint was surely set, or may
+     * have: its main script was heard parsed before the breakpoint's answer,
+     * or the question behind the breakpoint listed a script, or the question
+     * could not say (refused, unanswered at its bound, or with no list).
+     */
+    scriptBeforeBreakpoint: boolean;
+    /** The question listed a script: the thread was told of one, whether or not its parse was ever heard. */
+    scriptListed: boolean;
     probeSent: boolean;
     watchdog: ReturnType<typeof setTimeout> | null;
     /** Every install command answered (or the watchdog let it run): from here a resume is the thread's own. */
@@ -305,16 +325,24 @@ export function sharedWorkerAttacherThread(port: AttacherThreadPort, data: Attac
     if (debuggerOn) void turnDebuggerOff(worker);
   };
 
-  // The worker emits the breakpoint's answer and its main script's parse on
-  // its own session, in the order they happened. A parse after the answer
-  // means the breakpoint was set before the script compiled, so its pause is
-  // certain. A parse before it (a replay of a script already compiled when
-  // the debugger came on, or one compiled while the breakpoint was on its
-  // way) may have run unpaused: an answer on the worker's own session, sent
-  // once both are in, arrives behind any pause the worker emitted before it,
-  // and no pause by then means the main script ran.
+  // A script that existed before the breakpoint was set runs unpaused. The
+  // thread knows of one when it hears the main script's parse before the
+  // breakpoint's answer (a parse is never heard ahead of an answer the
+  // worker gave before it), or when the question behind the breakpoint lists
+  // a script. A parse heard after the answer says nothing by itself: the
+  // worker may have held it back (Chromium 158), so only the question tells a
+  // script compiled before the breakpoint from one compiled after it. With
+  // nothing listed, nothing was compiled when the breakpoint went in, and the
+  // main script pauses if it runs. A question that could not say (refused,
+  // unanswered at the command's bound, or answered with no list) shows
+  // nothing of the kind, so the worker is taken as one that may have had a
+  // script. With a script known or possible, one answer on the worker's own
+  // session, sent once the breakpoint's answer is in, decides: it arrives
+  // behind any pause the worker emitted before it, so no pause by then means
+  // the script ran or may have, and a pause at the main script ahead of it
+  // is a hold (the script compiled between the breakpoint and the question).
   const probeIfParsed = (worker: HeldWorker): void => {
-    if (worker.hold !== "pending" || !worker.mainParsedBeforeBreakpoint || !worker.breakpointAcknowledged || worker.probeSent) {
+    if (worker.hold !== "pending" || !worker.scriptBeforeBreakpoint || !worker.breakpointAcknowledged || worker.probeSent) {
       return;
     }
     worker.probeSent = true;
@@ -410,7 +438,8 @@ export function sharedWorkerAttacherThread(port: AttacherThreadPort, data: Attac
       scripts: new Map(),
       breakpointId: null,
       breakpointAcknowledged: false,
-      mainParsedBeforeBreakpoint: false,
+      scriptBeforeBreakpoint: false,
+      scriptListed: false,
       probeSent: false,
       watchdog: null,
       installConcluded: false
@@ -444,6 +473,33 @@ export function sharedWorkerAttacherThread(port: AttacherThreadPort, data: Attac
           probeIfParsed(worker);
         },
         () => undefined
+      );
+      // The question, behind the breakpoint: which scripts exist. It is a
+      // breakpoint on the first line of every script whose condition is never
+      // true, so it pauses nothing, and its answer lists where it resolved,
+      // one location per script the worker had compiled. It is taken away as
+      // soon as it answers.
+      const asked = (answer: Answer | null): void => {
+        // The answer matters only to a worker still waiting for its first
+        // pause. One that has gone is sent nothing more, and what the thread
+        // said of it at its detach stands. One already held or late has its
+        // first pause, and the debugger going off, which ends a hold and
+        // follows a late classification, clears every breakpoint.
+        if (workers.get(sessionId) !== worker || worker.hold !== "pending") return;
+        if (answer !== null && typeof answer.breakpointId === "string") {
+          send("Debugger.removeBreakpoint", { breakpointId: answer.breakpointId }, sessionId).catch(() => undefined);
+        }
+        const listed = answer !== null && Array.isArray(answer.locations) ? answer.locations.length : null;
+        // An empty list is the one answer that shows nothing was compiled.
+        if (listed === 0) return;
+        if (listed !== null) worker.scriptListed = true;
+        worker.scriptBeforeBreakpoint = true;
+        probeIfParsed(worker);
+      };
+      send("Debugger.setBreakpointByUrl", { urlRegex: ".*", lineNumber: 0, condition: "false" }, sessionId).then(
+        (answer) => asked(answer),
+        // Refused, or unanswered at the command's bound.
+        () => asked(null)
       );
     };
     if (visit.attachStepDelayMs > 0) {
@@ -488,7 +544,9 @@ export function sharedWorkerAttacherThread(port: AttacherThreadPort, data: Attac
       // observer was in place before any statement it ran.
       diedWhileHeld: worker.hold === "held" && !worker.installConcluded,
       diedAfterInstall: worker.hold === "held" && worker.installConcluded,
-      endedUnreached: worker.hold === "pending" && worker.scripts.size === 0
+      // A worker the question found a script in was reached: it is never
+      // "no script of it seen", whether or not its parse was ever delivered.
+      endedUnreached: worker.hold === "pending" && worker.scripts.size === 0 && !worker.scriptListed
     });
   };
 
@@ -522,7 +580,7 @@ export function sharedWorkerAttacherThread(port: AttacherThreadPort, data: Attac
       const url = typeof params.url === "string" ? params.url : "";
       if (typeof scriptId === "string") worker.scripts.set(scriptId, url);
       if (url === worker.url && worker.hold === "pending" && !worker.breakpointAcknowledged) {
-        worker.mainParsedBeforeBreakpoint = true;
+        worker.scriptBeforeBreakpoint = true;
         probeIfParsed(worker);
       }
       return;

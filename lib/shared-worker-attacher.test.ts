@@ -79,9 +79,21 @@ class ScriptedBrowser {
   }
 }
 
+/**
+ * What the thread has sent on a worker's session once its attach step is
+ * over and the question has answered: the debugger's enable, the breakpoint,
+ * the question, the release, and the question's removal.
+ */
+const ATTACH_STEP = 5;
+
+/** The question's own breakpoint, by the id the scripted browser gives it. */
+const questionId = (sessionId: string | undefined): string => `ask-${sessionId}`;
+
 function defaultAnswer(frame: Frame): Answer {
   if (frame.method === "Target.attachToTarget") return { sessionId: "page-session" };
   if (frame.method === "Debugger.setInstrumentationBreakpoint") return { breakpointId: `bp-${frame.sessionId}` };
+  // A worker that has compiled nothing: the question resolves nowhere.
+  if (frame.method === "Debugger.setBreakpointByUrl") return { breakpointId: questionId(frame.sessionId), locations: [] };
   if (frame.method === "Runtime.evaluate") return { result: { type: "boolean", value: true } };
   if (frame.method === "Runtime.getIsolateId") return { id: `isolate-${frame.sessionId}` };
   return {};
@@ -91,7 +103,7 @@ function defaultAnswer(frame: Frame): Answer {
 async function scriptedAttacher(
   t: TestContext,
   respond: (frame: Frame, browser: ScriptedBrowser) => Answer = defaultAnswer,
-  options: { holdTimeoutMs?: number } = {}
+  options: { holdTimeoutMs?: number; commandTimeoutMs?: number } = {}
 ): Promise<{ browser: ScriptedBrowser; attacher: SharedWorkerAttacher }> {
   const browser = new ScriptedBrowser(respond);
   class ScriptedSocket {
@@ -129,7 +141,8 @@ async function scriptedAttacher(
   try {
     transport = inProcessAttacherTransportForTests({
       webSocketUrl: "ws://127.0.0.1:9/devtools/browser/scripted",
-      ...(options.holdTimeoutMs !== undefined ? { holdTimeoutMs: options.holdTimeoutMs } : {})
+      ...(options.holdTimeoutMs !== undefined ? { holdTimeoutMs: options.holdTimeoutMs } : {}),
+      ...(options.commandTimeoutMs !== undefined ? { commandTimeoutMs: options.commandTimeoutMs } : {})
     });
   } finally {
     globals.WebSocket = original;
@@ -220,21 +233,30 @@ function firstSnapshot(installer: FingerprintWorkerRealmInstaller, sessionId: st
   );
 }
 
-test("the attach step sets the breakpoint, then releases the start-up hold, on the worker's own session, and sends nothing else before a pause", async (t) => {
+test("the attach step sets the breakpoint, asks which scripts exist, then releases the start-up hold, on the worker's own session, takes the question away when it answers, and sends nothing else before a pause", async (t) => {
   const { browser, attacher } = await scriptedAttacher(t);
   const installer = new FingerprintWorkerRealmInstaller("127.0.0.1");
   const { visit } = await registerVisit(attacher, installer);
   sharedAttach(browser, "sw-1");
-  await until(() => visit.workers().length === 1 && browser.commands("sw-1").length === 3);
+  await until(() => visit.workers().length === 1 && browser.commands("sw-1").length === ATTACH_STEP);
+  // Four commands in the attach event's own step, in this order: the
+  // question behind the breakpoint, the release behind both. The fifth
+  // follows the question's answer.
   assert.deepEqual(browser.commands("sw-1"), [
     "Debugger.enable",
     "Debugger.setInstrumentationBreakpoint",
-    "Runtime.runIfWaitingForDebugger"
+    "Debugger.setBreakpointByUrl",
+    "Runtime.runIfWaitingForDebugger",
+    "Debugger.removeBreakpoint"
   ]);
   assert.deepEqual(
     browser.sent.find((frame) => frame.method === "Debugger.setInstrumentationBreakpoint")?.params,
     { instrumentation: "beforeScriptExecution" }
   );
+  // Every script's first line, and a condition that is never true: the
+  // question lists where it resolved and can pause nothing.
+  assert.deepEqual(browser.frame("sw-1", "Debugger.setBreakpointByUrl").params, { urlRegex: ".*", lineNumber: 0, condition: "false" });
+  assert.deepEqual(browser.frame("sw-1", "Debugger.removeBreakpoint").params, { breakpointId: questionId("sw-1") });
   assert.deepEqual(browser.commands(undefined).slice(0, 1), ["Target.setAutoAttach"]);
   assert.deepEqual(browser.sent[0].params, {
     autoAttach: true,
@@ -243,7 +265,7 @@ test("the attach step sets the breakpoint, then releases the start-up hold, on t
     filter: [{ type: "shared_worker", exclude: false }, { exclude: true }]
   });
   await new Promise((resolve) => setTimeout(resolve, 30));
-  assert.equal(browser.commands("sw-1").length, 3, "no binding and no install before the main-script pause");
+  assert.equal(browser.commands("sw-1").length, ATTACH_STEP, "no binding, no install and no probe before the main-script pause");
   assert.equal(workerOf(visit, "sw-1").hold, "pending");
 });
 
@@ -275,25 +297,27 @@ test("a pause at the main script runs the installer's commands while held, then 
   installer = new FingerprintWorkerRealmInstaller("127.0.0.1");
   const { visit, changes } = await registerVisit(attacher, installer);
   sharedAttach(browser, "sw-1");
-  await until(() => browser.commands("sw-1").length === 3);
+  await until(() => browser.commands("sw-1").length === ATTACH_STEP);
   mainScriptPause(browser, "sw-1");
   await until(() => workerOf(visit, "sw-1").hold === "released");
   assert.deepEqual(browser.commands("sw-1"), [
     "Debugger.enable",
     "Debugger.setInstrumentationBreakpoint",
+    "Debugger.setBreakpointByUrl",
     "Runtime.runIfWaitingForDebugger",
+    "Debugger.removeBreakpoint",
     "Runtime.addBinding",
     "Runtime.evaluate",
     "Debugger.removeBreakpoint",
     "Debugger.disable"
   ]);
   const onSession = browser.sent.filter((frame) => frame.sessionId === "sw-1");
-  assert.deepEqual(onSession[3].params, { name: installer.sinkName });
-  assert.deepEqual(onSession[4].params, {
+  assert.deepEqual(onSession[ATTACH_STEP].params, { name: installer.sinkName });
+  assert.deepEqual(onSession[ATTACH_STEP + 1].params, {
     expression: fingerprintObserverWorkerInstallExpression("127.0.0.1", installer, "shared-worker"),
     returnByValue: true
   });
-  assert.deepEqual(onSession[5].params, { breakpointId: "bp-sw-1" });
+  assert.deepEqual(onSession[ATTACH_STEP + 2].params, { breakpointId: "bp-sw-1" });
   assert.deepEqual(changes, ["sw-1:attached", "sw-1:held", "sw-1:installed", "sw-1:released"]);
   assert.deepEqual(installer.sharedInstallDiagnostics(), { installedWorkerCount: 1, installFailedWorkerCount: 0, lateWorkerCount: 0 });
   const worker = workerOf(visit, "sw-1");
@@ -315,7 +339,7 @@ test("an install answer without its first snapshot already forwarded leaves the 
   installer = new FingerprintWorkerRealmInstaller("127.0.0.1");
   const { visit } = await registerVisit(attacher, installer);
   sharedAttach(browser, "sw-1");
-  await until(() => browser.commands("sw-1").length === 3);
+  await until(() => browser.commands("sw-1").length === ATTACH_STEP);
   mainScriptPause(browser, "sw-1");
   await until(() => workerOf(visit, "sw-1").hold === "released");
   assert.deepEqual(installer.sharedInstallDiagnostics(), { installedWorkerCount: 0, installFailedWorkerCount: 1, lateWorkerCount: 0 });
@@ -326,11 +350,11 @@ test("a first pause at another script is a late attach: nothing is installed and
   const installer = new FingerprintWorkerRealmInstaller("127.0.0.1");
   const { visit } = await registerVisit(attacher, installer);
   sharedAttach(browser, "sw-1");
-  await until(() => browser.commands("sw-1").length === 3);
+  await until(() => browser.commands("sw-1").length === ATTACH_STEP);
   mainScriptPause(browser, "sw-1", `${ORIGIN}/imported-first.js`);
   await until(() => workerOf(visit, "sw-1").hold === "late");
-  await until(() => browser.commands("sw-1").length === 5);
-  assert.deepEqual(browser.commands("sw-1").slice(3), ["Debugger.removeBreakpoint", "Debugger.disable"]);
+  await until(() => browser.commands("sw-1").length === ATTACH_STEP + 2);
+  assert.deepEqual(browser.commands("sw-1").slice(ATTACH_STEP), ["Debugger.removeBreakpoint", "Debugger.disable"]);
   assert.equal(workerOf(visit, "sw-1").lateReason, "other-script");
   assert.deepEqual(installer.sharedInstallDiagnostics(), { installedWorkerCount: 0, installFailedWorkerCount: 0, lateWorkerCount: 1 });
   // A later pause, before the debugger is off, changes nothing.
@@ -360,7 +384,7 @@ test("a resume the thread did not send, before the install answers, breaks the h
   const installer = new FingerprintWorkerRealmInstaller("127.0.0.1");
   const { visit, changes } = await registerVisit(attacher, installer);
   sharedAttach(browser, "sw-1");
-  await until(() => browser.commands("sw-1").length === 3);
+  await until(() => browser.commands("sw-1").length === ATTACH_STEP);
   mainScriptPause(browser, "sw-1");
   await until(() => browser.commands("sw-1").includes("Runtime.evaluate"));
   browser.emit("Debugger.resumed", {}, "sw-1");
@@ -369,7 +393,9 @@ test("a resume the thread did not send, before the install answers, breaks the h
   assert.deepEqual(browser.commands("sw-1"), [
     "Debugger.enable",
     "Debugger.setInstrumentationBreakpoint",
+    "Debugger.setBreakpointByUrl",
     "Runtime.runIfWaitingForDebugger",
+    "Debugger.removeBreakpoint",
     "Runtime.addBinding",
     "Runtime.evaluate",
     "Debugger.removeBreakpoint",
@@ -400,7 +426,7 @@ test("a pause at a statement while held breaks the hold even if the resume ahead
   const installer = new FingerprintWorkerRealmInstaller("127.0.0.1");
   const { visit, changes } = await registerVisit(attacher, installer);
   sharedAttach(browser, "sw-1");
-  await until(() => browser.commands("sw-1").length === 3);
+  await until(() => browser.commands("sw-1").length === ATTACH_STEP);
   mainScriptPause(browser, "sw-1");
   await until(() => browser.commands("sw-1").includes("Runtime.evaluate"));
   browser.emit("Debugger.paused", { reason: "other", data: {}, callFrames: [] }, "sw-1");
@@ -426,7 +452,7 @@ test("a resume behind the install's answers keeps the hold: the worker is releas
   installer = new FingerprintWorkerRealmInstaller("127.0.0.1");
   const { visit, changes } = await registerVisit(attacher, installer);
   sharedAttach(browser, "sw-1");
-  await until(() => browser.commands("sw-1").length === 3);
+  await until(() => browser.commands("sw-1").length === ATTACH_STEP);
   mainScriptPause(browser, "sw-1");
   await until(() => browser.commands("sw-1").includes("Debugger.disable"));
   browser.emit("Debugger.resumed", {}, "sw-1");
@@ -443,7 +469,7 @@ test("a late shared worker stays late whatever reports follow it", async (t) => 
   const installer = new FingerprintWorkerRealmInstaller("127.0.0.1");
   const { visit, changes } = await registerVisit(attacher, installer);
   sharedAttach(browser, "sw-1");
-  await until(() => browser.commands("sw-1").length === 3);
+  await until(() => browser.commands("sw-1").length === ATTACH_STEP);
   mainScriptPause(browser, "sw-1", `${ORIGIN}/imported-first.js`);
   await until(() => holdOf(visit, "sw-1") === "late");
   for (const type of ["held", "installed", "released", "late"]) {
@@ -457,14 +483,15 @@ test("a late shared worker stays late whatever reports follow it", async (t) => 
 });
 
 /**
- * The worker emits the breakpoint's answer and its main script's parse in the
- * order they happened. A parse ahead of the answer (a script compiled before
- * the breakpoint was surely set) gets one probe on the worker's session: no
- * pause ahead of the probe's answer means the script ran, and a pause ahead
- * of it is a hold. A parse behind the answer needs no probe: the breakpoint
- * was set before the script compiled, so its pause is certain.
+ * A parse heard ahead of the breakpoint's answer (a script compiled before the
+ * breakpoint was surely set) gets one probe on the worker's session: no pause
+ * ahead of the probe's answer means the script ran, and a pause ahead of it
+ * is a hold. A parse heard behind the answer sends no probe: by itself it
+ * says nothing, since a browser may hold a parse back (Chromium 158), and
+ * here the question listed no script, so the breakpoint was set before this
+ * one compiled and its pause follows.
  */
-test("a main script parsed before the breakpoint's answer with no pause ahead of the probe's answer was reached late; a pause ahead of it, or a parse behind the answer, is a hold", async (t) => {
+test("a main script parsed before the breakpoint's answer with no pause ahead of the probe's answer was reached late; a pause ahead of it, or a parse behind the answer with no script listed, is a hold", async (t) => {
   const { browser, attacher } = await scriptedAttacher(t, (frame, scripted) => {
     if (frame.method === "Debugger.setInstrumentationBreakpoint" && frame.sessionId !== "parsed-after") {
       // Compiled before the breakpoint's answer: a replay, or a race.
@@ -482,19 +509,293 @@ test("a main script parsed before the breakpoint's answer with no pause ahead of
   sharedAttach(browser, "ran");
   await until(() => holdOf(visit, "ran") === "late");
   assert.equal(workerOf(visit, "ran").lateReason, "ran-before-breakpoint");
-  await until(() => browser.commands("ran").length === 6);
-  assert.deepEqual(browser.commands("ran").slice(3), ["Runtime.getIsolateId", "Debugger.removeBreakpoint", "Debugger.disable"]);
+  // The probe goes out on the breakpoint's answer, ahead of the question's
+  // answer and so of the question's removal; then the breakpoint's removal
+  // and the debugger off.
+  await until(() => browser.commands("ran").length === ATTACH_STEP + 3);
+  assert.deepEqual(browser.commands("ran").slice(4), [
+    "Runtime.getIsolateId",
+    "Debugger.removeBreakpoint",
+    "Debugger.removeBreakpoint",
+    "Debugger.disable"
+  ]);
+  assert.deepEqual(
+    browser.sent.filter((frame) => frame.sessionId === "ran" && frame.method === "Debugger.removeBreakpoint").map((frame) => frame.params.breakpointId),
+    [questionId("ran"), "bp-ran"]
+  );
 
   sharedAttach(browser, "paused-ahead");
   await until(() => holdOf(visit, "paused-ahead") === "released");
   assert.equal(workerOf(visit, "paused-ahead").lateReason, null);
 
   sharedAttach(browser, "parsed-after");
-  await until(() => browser.commands("parsed-after").length === 3);
+  await until(() => browser.commands("parsed-after").length === ATTACH_STEP);
   await new Promise((resolve) => setTimeout(resolve, 10));
   mainScriptPause(browser, "parsed-after");
   await until(() => workerOf(visit, "parsed-after").hold === "released");
-  assert.equal(browser.commands("parsed-after").includes("Runtime.getIsolateId"), false, "no probe after a parse behind the answer");
+  assert.equal(browser.commands("parsed-after").includes("Runtime.getIsolateId"), false, "no probe after a parse behind the answer when no script was listed");
+});
+
+/**
+ * The question behind the breakpoint. Its answer lists every script the
+ * worker had compiled by then, whatever the browser did with those scripts'
+ * parse reports: Chromium 158 holds a parse back until the worker next
+ * returns to its message loop or pauses, so a script that was already
+ * running when the breakpoint went in is heard parsed behind the
+ * breakpoint's answer, or never. A script listed sets what an early parse
+ * sets, and the same probe decides.
+ */
+function questionLists(count: number, sessions: readonly string[]): (frame: Frame, browser: ScriptedBrowser) => Answer {
+  return (frame) =>
+    frame.method === "Debugger.setBreakpointByUrl" && sessions.includes(frame.sessionId ?? "")
+      ? {
+          breakpointId: questionId(frame.sessionId),
+          locations: Array.from({ length: count }, (_, at) => ({ scriptId: String(3 + at), lineNumber: 0, columnNumber: 0 }))
+        }
+      : defaultAnswer(frame);
+}
+
+test("a script the question lists, and a probe answered with no pause ahead of it, is a worker reached late, whether its parse is heard behind the answers or never", async (t) => {
+  const { browser, attacher } = await scriptedAttacher(t, questionLists(1, ["parse-behind", "parse-never"]));
+  const installer = new FingerprintWorkerRealmInstaller("127.0.0.1");
+  const { visit, changes } = await registerVisit(attacher, installer);
+
+  // Chromium 158's order for a worker reached while its script runs: both
+  // answers, and the parse when the script's task ends.
+  sharedAttach(browser, "parse-behind");
+  await until(() => holdOf(visit, "parse-behind") === "late");
+  browser.emit("Debugger.scriptParsed", { scriptId: "3", url: MAIN_URL }, "parse-behind");
+  assert.equal(workerOf(visit, "parse-behind").lateReason, "ran-before-breakpoint");
+  await until(() => browser.commands("parse-behind").includes("Debugger.disable"));
+  assert.deepEqual(browser.commands("parse-behind"), [
+    "Debugger.enable",
+    "Debugger.setInstrumentationBreakpoint",
+    "Debugger.setBreakpointByUrl",
+    "Runtime.runIfWaitingForDebugger",
+    "Debugger.removeBreakpoint",
+    "Runtime.getIsolateId",
+    "Debugger.removeBreakpoint",
+    "Debugger.disable"
+  ]);
+  // A pause after it changes nothing, and nothing is installed.
+  mainScriptPause(browser, "parse-behind");
+  await new Promise((resolve) => setTimeout(resolve, 20));
+  assert.equal(workerOf(visit, "parse-behind").hold, "late");
+
+  // The worker that ends in the task that held its parse: no parse at all.
+  sharedAttach(browser, "parse-never");
+  await until(() => holdOf(visit, "parse-never") === "late");
+  assert.equal(workerOf(visit, "parse-never").lateReason, "ran-before-breakpoint");
+  assert.deepEqual(changes, ["parse-behind:attached", "parse-behind:late", "parse-never:attached", "parse-never:late"]);
+  assert.equal(browser.commands("parse-behind").includes("Runtime.evaluate"), false);
+  assert.deepEqual(installer.sharedInstallDiagnostics(), { installedWorkerCount: 0, installFailedWorkerCount: 0, lateWorkerCount: 2 });
+});
+
+test("a script the question lists and a main-script pause ahead of the probe's answer is a hold: the script compiled between the breakpoint and the question", async (t) => {
+  let installer: FingerprintWorkerRealmInstaller | null = null;
+  const listed = questionLists(1, ["between"]);
+  const { browser, attacher } = await scriptedAttacher(t, (frame, scripted) => {
+    if (frame.method === "Runtime.getIsolateId" && frame.sessionId === "between") {
+      // The worker paused at its main script before the probe reached it.
+      mainScriptPause(scripted, "between");
+    }
+    if (frame.method === "Runtime.evaluate" && installer) firstSnapshot(installer, frame.sessionId!, scripted);
+    return listed(frame, scripted);
+  });
+  installer = new FingerprintWorkerRealmInstaller("127.0.0.1");
+  const { visit, changes } = await registerVisit(attacher, installer);
+  sharedAttach(browser, "between");
+  await until(() => holdOf(visit, "between") === "released");
+  assert.equal(browser.commands("between").includes("Runtime.getIsolateId"), true, "the listed script sent the probe");
+  assert.equal(workerOf(visit, "between").lateReason, null);
+  assert.deepEqual(changes, ["between:attached", "between:held", "between:installed", "between:released"]);
+  assert.deepEqual(installer.sharedInstallDiagnostics(), { installedWorkerCount: 1, installFailedWorkerCount: 0, lateWorkerCount: 0 });
+});
+
+test("a worker gone with a script listed and its probe unanswered is not one that ended unreached, though no parse of it was heard", async (t) => {
+  const listed = questionLists(1, ["listed-gone"]);
+  const { browser, attacher } = await scriptedAttacher(t, (frame, scripted) =>
+    frame.method === "Runtime.getIsolateId" ? "never" : listed(frame, scripted)
+  );
+  const installer = new FingerprintWorkerRealmInstaller("127.0.0.1");
+  const { visit } = await registerVisit(attacher, installer);
+  sharedAttach(browser, "listed-gone");
+  await until(() => browser.commands("listed-gone").includes("Runtime.getIsolateId"));
+  browser.emit("Target.detachedFromTarget", { sessionId: "listed-gone" });
+  await until(() => workerOf(visit, "listed-gone").detached);
+  const gone = workerOf(visit, "listed-gone");
+  assert.equal(gone.hold, "pending");
+  assert.equal(gone.endedUnreached, false, "the question found a script: it was reached, and it may have run");
+  assert.equal(sharedWorkerEndedAtOnce(gone), false);
+
+  // The same life with nothing listed is the worker never reached.
+  sharedAttach(browser, "nothing-listed");
+  await until(() => browser.commands("nothing-listed").length === ATTACH_STEP);
+  browser.emit("Target.detachedFromTarget", { sessionId: "nothing-listed" });
+  await until(() => workerOf(visit, "nothing-listed").detached);
+  assert.equal(workerOf(visit, "nothing-listed").endedUnreached, true);
+});
+
+/**
+ * A question that cannot say. Only an empty list shows that nothing was
+ * compiled when the breakpoint went in. Refused, or answered with no list,
+ * the question shows nothing of the kind, so the worker is taken as one that
+ * may have had a script and the probe decides, as it does for a script
+ * listed: late with no pause ahead of the probe's answer, a hold with the
+ * main-script pause ahead of it. No worker is left waiting with the debugger
+ * on for a pause that cannot come. What it was not told, the thread does not
+ * say: such a worker gone before its probe answers is still one never
+ * reached, since no script of it was seen or listed.
+ */
+const QUESTION_CANNOT_SAY: readonly { name: string; answer: (frame: Frame) => Answer; removal: boolean }[] = [
+  { name: "refused", answer: () => new Error("Debugger agent is not enabled"), removal: false },
+  { name: "answered with no list", answer: (frame) => ({ breakpointId: questionId(frame.sessionId) }), removal: true },
+  { name: "answered with a list that is not an array", answer: (frame) => ({ breakpointId: questionId(frame.sessionId), locations: { length: 0 } }), removal: true },
+  { name: "answered with nothing", answer: () => ({}), removal: false }
+];
+
+for (const failure of QUESTION_CANNOT_SAY) {
+  test(`the question ${failure.name} cannot show that nothing was compiled, so the probe decides: late with no pause ahead of its answer, a hold with the main-script pause ahead of it`, async (t) => {
+    let installer: FingerprintWorkerRealmInstaller | null = null;
+    const { browser, attacher } = await scriptedAttacher(t, (frame, scripted) => {
+      if (frame.method === "Debugger.setBreakpointByUrl") return failure.answer(frame);
+      if (frame.method === "Runtime.getIsolateId" && frame.sessionId === "paused-ahead") mainScriptPause(scripted, "paused-ahead");
+      if (frame.method === "Runtime.getIsolateId" && frame.sessionId === "gone") return "never";
+      if (frame.method === "Runtime.evaluate" && installer) firstSnapshot(installer, frame.sessionId!, scripted);
+      return defaultAnswer(frame);
+    });
+    installer = new FingerprintWorkerRealmInstaller("127.0.0.1");
+    const { visit } = await registerVisit(attacher, installer);
+
+    sharedAttach(browser, "silent");
+    await until(() => holdOf(visit, "silent") === "late");
+    assert.equal(workerOf(visit, "silent").lateReason, "ran-before-breakpoint");
+    await until(() => browser.commands("silent").includes("Debugger.disable"));
+    assert.deepEqual(browser.commands("silent"), [
+      "Debugger.enable",
+      "Debugger.setInstrumentationBreakpoint",
+      "Debugger.setBreakpointByUrl",
+      "Runtime.runIfWaitingForDebugger",
+      ...(failure.removal ? ["Debugger.removeBreakpoint"] : []),
+      "Runtime.getIsolateId",
+      "Debugger.removeBreakpoint",
+      "Debugger.disable"
+    ]);
+
+    sharedAttach(browser, "paused-ahead");
+    await until(() => holdOf(visit, "paused-ahead") === "released");
+    assert.equal(workerOf(visit, "paused-ahead").lateReason, null);
+    assert.equal(workerOf(visit, "paused-ahead").debuggerOffAtRelease, true);
+
+    sharedAttach(browser, "gone");
+    await until(() => browser.commands("gone").includes("Runtime.getIsolateId"));
+    browser.emit("Target.detachedFromTarget", { sessionId: "gone" });
+    await until(() => workerOf(visit, "gone").detached);
+    assert.equal(workerOf(visit, "gone").endedUnreached, true, "no script of it was seen or listed");
+    assert.deepEqual(installer.sharedInstallDiagnostics(), { installedWorkerCount: 1, installFailedWorkerCount: 0, lateWorkerCount: 1 });
+  });
+}
+
+test("the question unanswered at the command's bound is a question that cannot say: a worker paused at its main script before the bound is held, and one still waiting at it is late by the probe", async (t) => {
+  let installer: FingerprintWorkerRealmInstaller | null = null;
+  const { browser, attacher } = await scriptedAttacher(
+    t,
+    (frame, scripted) => {
+      if (frame.method === "Debugger.setBreakpointByUrl") return "never";
+      if (frame.method === "Runtime.evaluate" && installer) firstSnapshot(installer, frame.sessionId!, scripted);
+      return defaultAnswer(frame);
+    },
+    { commandTimeoutMs: 250 }
+  );
+  installer = new FingerprintWorkerRealmInstaller("127.0.0.1");
+  const { visit } = await registerVisit(attacher, installer);
+
+  sharedAttach(browser, "in-time");
+  await until(() => browser.commands("in-time").length === ATTACH_STEP - 1);
+  mainScriptPause(browser, "in-time");
+  await until(() => workerOf(visit, "in-time").hold === "released");
+  assert.equal(browser.commands("in-time").includes("Runtime.getIsolateId"), false, "held before the question's bound: no probe");
+
+  sharedAttach(browser, "waiting");
+  await until(() => browser.commands("waiting").length === ATTACH_STEP - 1);
+  assert.equal(workerOf(visit, "waiting").hold, "pending", "nothing is decided before the question's bound");
+  await until(() => holdOf(visit, "waiting") === "late", 3_000);
+  assert.equal(workerOf(visit, "waiting").lateReason, "ran-before-breakpoint");
+  await until(() => browser.commands("waiting").includes("Debugger.disable"));
+  assert.deepEqual(browser.commands("waiting").slice(ATTACH_STEP - 1), ["Runtime.getIsolateId", "Debugger.removeBreakpoint", "Debugger.disable"]);
+  // The held worker's own question times out too, and changes nothing for it.
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  assert.equal(workerOf(visit, "in-time").hold, "released");
+  assert.equal(browser.commands("in-time").includes("Runtime.getIsolateId"), false);
+});
+
+test("an empty list is the answer that shows nothing was compiled, with or without an id: no probe, and the main-script pause holds", async (t) => {
+  let installer: FingerprintWorkerRealmInstaller | null = null;
+  const { browser, attacher } = await scriptedAttacher(t, (frame, scripted) => {
+    if (frame.method === "Debugger.setBreakpointByUrl" && frame.sessionId === "no-id") return { locations: [] };
+    if (frame.method === "Runtime.evaluate" && installer) firstSnapshot(installer, frame.sessionId!, scripted);
+    return defaultAnswer(frame);
+  });
+  installer = new FingerprintWorkerRealmInstaller("127.0.0.1");
+  const { visit } = await registerVisit(attacher, installer);
+  for (const [sessionId, attachStep] of [["no-id", ATTACH_STEP - 1], ["with-id", ATTACH_STEP]] as const) {
+    sharedAttach(browser, sessionId);
+    await until(() => browser.commands(sessionId).length === attachStep);
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    assert.equal(browser.commands(sessionId).length, attachStep, "nothing more is sent: no probe, and no removal without an id");
+    assert.equal(workerOf(visit, sessionId).hold, "pending");
+    mainScriptPause(browser, sessionId);
+    await until(() => workerOf(visit, sessionId).hold === "released");
+    assert.equal(browser.commands(sessionId).includes("Runtime.getIsolateId"), false);
+  }
+});
+
+test("the question's removal refused or never answered changes nothing: the hold ends with the debugger off, which clears every breakpoint", async (t) => {
+  let installer: FingerprintWorkerRealmInstaller | null = null;
+  const { browser, attacher } = await scriptedAttacher(t, (frame, scripted) => {
+    if (frame.method === "Debugger.removeBreakpoint" && frame.params.breakpointId === questionId(frame.sessionId)) {
+      return frame.sessionId === "refused" ? new Error("Breakpoint not found") : "never";
+    }
+    if (frame.method === "Runtime.evaluate" && installer) firstSnapshot(installer, frame.sessionId!, scripted);
+    return defaultAnswer(frame);
+  });
+  installer = new FingerprintWorkerRealmInstaller("127.0.0.1");
+  const { visit } = await registerVisit(attacher, installer);
+  for (const sessionId of ["refused", "unanswered"]) {
+    sharedAttach(browser, sessionId);
+    await until(() => browser.commands(sessionId).length === ATTACH_STEP);
+    mainScriptPause(browser, sessionId);
+    await until(() => workerOf(visit, sessionId).hold === "released");
+    // The last command on the session is the debugger off, behind the
+    // breakpoint's own removal: nothing waited on the question's.
+    assert.deepEqual(browser.commands(sessionId).slice(-2), ["Debugger.removeBreakpoint", "Debugger.disable"]);
+    assert.equal(workerOf(visit, sessionId).debuggerOffAtRelease, true);
+  }
+  assert.deepEqual(installer.sharedInstallDiagnostics(), { installedWorkerCount: 2, installFailedWorkerCount: 0, lateWorkerCount: 0 });
+});
+
+test("a worker that detaches between the question and its answer is the worker never reached, and nothing is sent to it after", async (t) => {
+  const { browser, attacher } = await scriptedAttacher(t, (frame) =>
+    frame.method === "Debugger.setBreakpointByUrl" || frame.method === "Debugger.setInstrumentationBreakpoint" ? "never" : defaultAnswer(frame)
+  );
+  const installer = new FingerprintWorkerRealmInstaller("127.0.0.1");
+  const { visit } = await registerVisit(attacher, installer);
+  sharedAttach(browser, "gone-first");
+  await until(() => browser.commands("gone-first").length === ATTACH_STEP - 1);
+  browser.emit("Target.detachedFromTarget", { sessionId: "gone-first" });
+  await until(() => workerOf(visit, "gone-first").detached);
+  assert.equal(workerOf(visit, "gone-first").endedUnreached, true);
+  // The question's answer arrives for a worker that has gone: with a script
+  // listed, even. No removal and no probe follow it.
+  browser.answer(browser.frame("gone-first", "Debugger.setInstrumentationBreakpoint"), { breakpointId: "bp-gone-first" });
+  browser.answer(browser.frame("gone-first", "Debugger.setBreakpointByUrl"), {
+    breakpointId: questionId("gone-first"),
+    locations: [{ scriptId: "3", lineNumber: 0, columnNumber: 0 }]
+  });
+  await new Promise((resolve) => setTimeout(resolve, 30));
+  assert.equal(browser.commands("gone-first").length, ATTACH_STEP - 1, "nothing is sent to a worker that has gone");
+  const gone = workerOf(visit, "gone-first");
+  assert.deepEqual([gone.hold, gone.endedUnreached], ["pending", true], "what the thread posted at the detach stands");
 });
 
 test("a worker already running when it attached is late, and nothing is sent to it", async (t) => {
@@ -517,7 +818,7 @@ test("the hold's watchdog lets a worker run when its install never answers, and 
   const installer = new FingerprintWorkerRealmInstaller("127.0.0.1");
   const { visit, changes } = await registerVisit(attacher, installer);
   sharedAttach(browser, "sw-1");
-  await until(() => browser.commands("sw-1").length === 3);
+  await until(() => browser.commands("sw-1").length === ATTACH_STEP);
   mainScriptPause(browser, "sw-1");
   await until(() => workerOf(visit, "sw-1").hold === "released");
   assert.deepEqual(browser.commands("sw-1").slice(-2), ["Debugger.removeBreakpoint", "Debugger.disable"]);
@@ -533,7 +834,7 @@ test("a worker gone while held died paused; one gone before any pause or script 
   const { visit } = await registerVisit(attacher, installer);
 
   sharedAttach(browser, "dies-held");
-  await until(() => browser.commands("dies-held").length === 3);
+  await until(() => browser.commands("dies-held").length === ATTACH_STEP);
   mainScriptPause(browser, "dies-held");
   await until(() => workerOf(visit, "dies-held").hold === "held");
   browser.emit("Target.detachedFromTarget", { sessionId: "dies-held" });
@@ -723,7 +1024,7 @@ test("readout: a shared worker held at its main script at the freeze ran nothing
   const realms = await scriptedSharedReadout(t, (frame) => (frame.method === "Runtime.evaluate" ? "never" : defaultAnswer(frame)));
   commitMainDocument(realms.browser, "loader-1");
   sharedAttach(realms.browser, "sw-1");
-  await until(() => realms.browser.commands("sw-1").length === 3);
+  await until(() => realms.browser.commands("sw-1").length === ATTACH_STEP);
   mainScriptPause(realms.browser, "sw-1");
   await until(() => workerOf(realms.visit, "sw-1").hold === "held");
   assert.deepEqual(sharedTerms(await realms.readout(20)), {
@@ -740,7 +1041,7 @@ test("readout: a shared worker attached but not yet paused at the freeze is excl
   const held = await scriptedSharedReadout(t);
   commitMainDocument(held.browser, "loader-1");
   sharedAttach(held.browser, "sw-1");
-  await until(() => held.browser.commands("sw-1").length === 3);
+  await until(() => held.browser.commands("sw-1").length === ATTACH_STEP);
   await until(() => holdOf(held.visit, "sw-1") === "pending");
   const pending = held.readout(1_000);
   setTimeout(() => mainScriptPause(held.browser, "sw-1"), 20);
@@ -748,7 +1049,7 @@ test("readout: a shared worker attached but not yet paused at the freeze is excl
 
   const late = await scriptedSharedReadout(t);
   sharedAttach(late.browser, "sw-1");
-  await until(() => late.browser.commands("sw-1").length === 3);
+  await until(() => late.browser.commands("sw-1").length === ATTACH_STEP);
   await until(() => holdOf(late.visit, "sw-1") === "pending");
   const lateReadout = late.readout(1_000);
   setTimeout(() => mainScriptPause(late.browser, "sw-1", `${ORIGIN}/other.js`), 20);
@@ -756,7 +1057,7 @@ test("readout: a shared worker attached but not yet paused at the freeze is excl
 
   const silent = await scriptedSharedReadout(t);
   sharedAttach(silent.browser, "sw-1");
-  await until(() => silent.browser.commands("sw-1").length === 3);
+  await until(() => silent.browser.commands("sw-1").length === ATTACH_STEP);
   await until(() => holdOf(silent.visit, "sw-1") === "pending");
   assert.deepEqual(sharedTerms(await silent.readout(50)), { attached: 1, unreached: 1, unread: 1, readable: 0, unscoped: 0, endedAtOnce: 0 });
 });
@@ -771,7 +1072,7 @@ test("readout: a shared worker read in full is credited only when its creation d
     const realms = await scriptedSharedReadout(t);
     commitMainDocument(realms.browser, "loader-1");
     sharedAttach(realms.browser, "sw-1", { url });
-    await until(() => realms.browser.commands("sw-1").length === 3);
+    await until(() => realms.browser.commands("sw-1").length === ATTACH_STEP);
     mainScriptPause(realms.browser, "sw-1", url);
     await until(() => workerOf(realms.visit, "sw-1").hold === "released");
     realms.setMainDocument({ ...freezeDocument });
@@ -822,7 +1123,7 @@ test("readout: a shared worker held at the freeze whose hold then breaks during 
   const realms = await scriptedSharedReadout(t, heldWhileUnanswered);
   commitMainDocument(realms.browser, "loader-1");
   sharedAttach(realms.browser, "sw-1");
-  await until(() => realms.browser.commands("sw-1").length === 3);
+  await until(() => realms.browser.commands("sw-1").length === ATTACH_STEP);
   mainScriptPause(realms.browser, "sw-1");
   await until(() => holdOf(realms.visit, "sw-1") === "held");
   const pending = realms.readout(1_000);
@@ -836,7 +1137,7 @@ test("readout: a shared worker reaching at the freeze that is held and then brea
   const realms = await scriptedSharedReadout(t, heldWhileUnanswered);
   commitMainDocument(realms.browser, "loader-1");
   sharedAttach(realms.browser, "sw-1");
-  await until(() => realms.browser.commands("sw-1").length === 3);
+  await until(() => realms.browser.commands("sw-1").length === ATTACH_STEP);
   await until(() => holdOf(realms.visit, "sw-1") === "pending");
   const pending = realms.readout(1_000);
   setTimeout(() => mainScriptPause(realms.browser, "sw-1"), 20);
@@ -851,7 +1152,7 @@ test("readout: a shared worker attached during the drain that is held and then b
   // at 40 ms); by then sw-1, attached during the drain, is held, so the drain
   // waits for its next move too.
   sharedAttach(realms.browser, "sw-0");
-  await until(() => realms.browser.commands("sw-0").length === 3);
+  await until(() => realms.browser.commands("sw-0").length === ATTACH_STEP);
   // The thread's commands reach the scripted browser before its report of
   // the attach reaches the main thread: under load the readout could start
   // with no worker to wait for. The freeze needs the main thread to know it.
@@ -872,7 +1173,7 @@ test("readout: a shared worker held at the freeze and released during the drain 
   const realms = await scriptedSharedReadout(t, heldWhileUnanswered);
   commitMainDocument(realms.browser, "loader-1");
   sharedAttach(realms.browser, "sw-1");
-  await until(() => realms.browser.commands("sw-1").length === 3);
+  await until(() => realms.browser.commands("sw-1").length === ATTACH_STEP);
   mainScriptPause(realms.browser, "sw-1");
   await until(() => holdOf(realms.visit, "sw-1") === "held");
   const pending = realms.readout(1_000);
@@ -888,7 +1189,7 @@ test("readout: a shared worker still held at the drain's bound is excluded", asy
   const realms = await scriptedSharedReadout(t, heldWhileUnanswered);
   commitMainDocument(realms.browser, "loader-1");
   sharedAttach(realms.browser, "sw-1");
-  await until(() => realms.browser.commands("sw-1").length === 3);
+  await until(() => realms.browser.commands("sw-1").length === ATTACH_STEP);
   mainScriptPause(realms.browser, "sw-1");
   await until(() => holdOf(realms.visit, "sw-1") === "held");
   const started = Date.now();
@@ -904,7 +1205,7 @@ test("readout: a shared worker held at the freeze whose attacher's channel close
   const realms = await scriptedSharedReadout(t, heldWhileUnanswered);
   commitMainDocument(realms.browser, "loader-1");
   sharedAttach(realms.browser, "sw-1");
-  await until(() => realms.browser.commands("sw-1").length === 3);
+  await until(() => realms.browser.commands("sw-1").length === ATTACH_STEP);
   mainScriptPause(realms.browser, "sw-1");
   await until(() => holdOf(realms.visit, "sw-1") === "held");
   const pending = realms.readout(1_000);
@@ -921,7 +1222,7 @@ test("readout: a shared worker gone held with its install unanswered is unread, 
   const before = await scriptedSharedReadout(t, heldWhileUnanswered);
   commitMainDocument(before.browser, "loader-1");
   sharedAttach(before.browser, "sw-1");
-  await until(() => before.browser.commands("sw-1").length === 3);
+  await until(() => before.browser.commands("sw-1").length === ATTACH_STEP);
   mainScriptPause(before.browser, "sw-1");
   await until(() => holdOf(before.visit, "sw-1") === "held");
   before.browser.emit("Target.detachedFromTarget", { sessionId: "sw-1" });
@@ -932,7 +1233,7 @@ test("readout: a shared worker gone held with its install unanswered is unread, 
   const during = await scriptedSharedReadout(t, heldWhileUnanswered);
   commitMainDocument(during.browser, "loader-1");
   sharedAttach(during.browser, "sw-2");
-  await until(() => during.browser.commands("sw-2").length === 3);
+  await until(() => during.browser.commands("sw-2").length === ATTACH_STEP);
   mainScriptPause(during.browser, "sw-2");
   await until(() => holdOf(during.visit, "sw-2") === "held");
   const pending = during.readout(1_000);
@@ -948,7 +1249,7 @@ test("readout: a shared worker gone after its install answered, before the relea
   const installer = realms.installer;
   commitMainDocument(realms.browser, "loader-1");
   sharedAttach(realms.browser, "sw-1");
-  await until(() => realms.browser.commands("sw-1").length === 3);
+  await until(() => realms.browser.commands("sw-1").length === ATTACH_STEP);
   mainScriptPause(realms.browser, "sw-1");
   await until(() => realms.browser.commands("sw-1").includes("Debugger.disable"));
   await until(() => installer.sharedInstallDiagnostics().installedWorkerCount === 1);
@@ -965,7 +1266,7 @@ test("readout: a shared worker that ended at once is reported apart, and a lost 
   sharedAttach(realms.browser, "gone");
   realms.browser.emit("Target.detachedFromTarget", { sessionId: "gone" });
   sharedAttach(realms.browser, "live");
-  await until(() => realms.browser.commands("live").length === 3);
+  await until(() => realms.browser.commands("live").length === ATTACH_STEP);
   mainScriptPause(realms.browser, "live");
   await until(() => workerOf(realms.visit, "live").hold === "released" && workerOf(realms.visit, "gone").detached);
   assert.deepEqual(sharedTerms(await realms.readout()), {
