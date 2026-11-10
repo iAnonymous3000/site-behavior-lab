@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
+import { getEventListeners } from "node:events";
 import { afterEach, test } from "node:test";
 import type { Page } from "playwright";
 import { createGpcComparisonReport } from "./compare-reports";
@@ -29,7 +30,7 @@ import {
   type NodeScanMeasurement,
   type NodeScanMeasurementEnvelope
 } from "./node-scan-measurement";
-import { redactScanReportV1 } from "./redact-scan-report-v1";
+import { redactScanReportV1, redactScanResultV1 } from "./redact-scan-report-v1";
 import { prepareScanReportBundle } from "./report-store";
 import { BUILD_COMMIT_ENV, PUBLIC_R2_REPORTS_ENV } from "./runtime-scan-report";
 import { executePreparedScan, type PreparedScanRequest, type ScanRunner } from "./scan-api";
@@ -45,7 +46,8 @@ import type { ScanResult } from "./types";
 /**
  * The investigation seam without a browser: its description, what it
  * refuses, how its hooks are bounded and timed, the mark, and every place a
- * marked visit is refused. The visits with a real page are in
+ * marked visit is refused, the v1 redactor among them. The visits with a
+ * real page are in
  * lib/investigation-seam-fixture.test.ts.
  */
 
@@ -416,17 +418,109 @@ test("a visit that used no seam has no mark, and neither do the values the refus
   assert.equal(JSON.stringify(clean.measurement).toLowerCase().includes("seam"), false);
 });
 
-test("what the mark does not survive: a key deleted from a copy on purpose, and an object rebuilt from named fields", () => {
+test("what the mark does not survive: a caller who removes it on purpose, by deleting the key from a copy or by rebuilding the result by hand", () => {
   // Nothing claims otherwise (docs/runtime-boundaries.md). These pin the two
   // limits, so a change to either is seen.
   const { envelope } = seamEnvelope();
-  const stripped = { ...envelope.result } as unknown as Record<string, unknown>;
+  const marked = envelope.result;
+  const stripped = { ...marked } as unknown as Record<string, unknown>;
   delete stripped[INVESTIGATION_SEAM_MARKER];
   assert.equal(isSeamVisit(stripped), false);
-  // The v1 sanitizer builds its output field by field, so the key is not in it.
-  const sanitized = redactScanReportV1(envelope.result).report;
-  assert.equal(INVESTIGATION_SEAM_MARKER in sanitized, false);
-  assert.equal(isSeamVisit(sanitized), false);
+  assert.doesNotThrow(() => redactScanReportV1(stripped as unknown as ScanResult));
+  // Rebuilt by hand, one named field at a time, before any refusal sees it:
+  // a new object with no key, which nothing remembered. The redactor takes
+  // it, as it takes any result. Handing the marked result to the redactor
+  // itself no longer does this: the test below holds that it refuses.
+  const rebuilt: ScanResult = {
+    ok: marked.ok,
+    schemaVersion: marked.schemaVersion,
+    reportType: marked.reportType,
+    summary: marked.summary,
+    conditions: marked.conditions,
+    requests: marked.requests,
+    domains: marked.domains,
+    cookies: marked.cookies,
+    storage: marked.storage,
+    fingerprintEvents: marked.fingerprintEvents,
+    screenshot: marked.screenshot,
+    warnings: marked.warnings
+  };
+  assert.equal(isSeamVisit(rebuilt), false);
+  assert.equal(isSeamVisit(redactScanReportV1(rebuilt).report), false);
+});
+
+test("the v1 redactor refuses a seam visit's result and every copy of one before it reads anything of it", () => {
+  const { envelope } = seamEnvelope();
+  const clean = cleanEnvelope().result;
+  const marked: [string, ScanResult][] = [["the visit's own result", envelope.result], ...COPIES.map(([what, copy]): [string, ScanResult] => [what, copy(envelope.result)])];
+  for (const [what, result] of marked) {
+    assert.throws(() => redactScanReportV1(result), isRefusal, what);
+    assert.throws(() => redactScanResultV1(result), isRefusal, `${what}, handed over as one result`);
+    assert.throws(() => redactScanReportV1(createGpcComparisonReport(result, clean)), isRefusal, `${what}, as the baseline`);
+    assert.throws(() => redactScanReportV1(createGpcComparisonReport(clean, result)), isRefusal, `${what}, as the variant`);
+  }
+  // A report that carries the key itself, around two results that do not:
+  // only the check at the report's own entry can refuse it.
+  const aroundClean = { ...createGpcComparisonReport(clean, clean), [INVESTIGATION_SEAM_MARKER]: INVESTIGATION_SEAM_VERSION };
+  assert.throws(() => redactScanReportV1(aroundClean), isRefusal);
+
+  // Refused before anything is read: every field of this report records a
+  // read, and none is recorded, whether it is marked in band or by identity.
+  const reads: string[] = [];
+  const recording = (): ScanResult => {
+    const report = {} as Record<string, unknown>;
+    for (const field of ["reportType", "requests", "cookies", "conditions", "warnings"]) {
+      Object.defineProperty(report, field, {
+        enumerable: false,
+        get: () => {
+          reads.push(field);
+          return undefined;
+        }
+      });
+    }
+    return report as unknown as ScanResult;
+  };
+  const inBand = recording();
+  Object.defineProperty(inBand, INVESTIGATION_SEAM_MARKER, { value: INVESTIGATION_SEAM_VERSION, enumerable: true });
+  const byIdentity = recording();
+  openInvestigationSeam({}).markVisit({ result: byIdentity, measurement: {} });
+  for (const report of [inBand, byIdentity]) {
+    assert.throws(() => redactScanReportV1(report), isRefusal);
+    assert.throws(() => redactScanResultV1(report), isRefusal);
+  }
+  assert.deepEqual(reads, []);
+
+  // A result no seam touched is sanitized as before, and names no seam.
+  const sanitized = redactScanReportV1(clean);
+  assert.deepEqual(sanitized, redactScanResultV1(clean));
+  assert.equal(isSeamVisit(sanitized.report), false);
+  assert.equal(JSON.stringify(sanitized).toLowerCase().includes("seam"), false);
+  assert.equal(redactScanReportV1(createGpcComparisonReport(clean, clean)).report.reportType, "comparison");
+});
+
+test("a wait the visit abandons leaves nothing on the caller's signal once the visit releases its seam", async () => {
+  const cancel = new AbortController();
+  const open = openInvestigationSeam({ pageReady: NEVER, afterEnvelope: NEVER, afterEnvelopeTimeoutMs: MIN_AFTER_ENVELOPE_TIMEOUT_MS });
+  // Two waits the visit stops waiting for, as when the scan deadline ends it.
+  let settled = 0;
+  for (const wait of [open.pageReady(PAGE, cancel.signal), open.afterEnvelope(READINGS, cancel.signal)]) {
+    wait.then(
+      () => (settled += 1),
+      () => (settled += 1)
+    );
+  }
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.equal(getEventListeners(cancel.signal, "abort").length, 2);
+  open.release();
+  assert.equal(getEventListeners(cancel.signal, "abort").length, 0);
+  // The timer went with the listener: the bound does not fire afterwards.
+  await new Promise((resolve) => setTimeout(resolve, MIN_AFTER_ENVELOPE_TIMEOUT_MS + 300));
+  assert.equal(settled, 0);
+  // A wait that ended on its own has already taken its listener off.
+  const done = openInvestigationSeam({ pageReady: () => undefined });
+  await done.pageReady(PAGE, cancel.signal);
+  assert.equal(getEventListeners(cancel.signal, "abort").length, 0);
+  done.release();
 });
 
 test("options that carry the seam's field are refused, whether the key is their own or inherited, whatever its value", () => {

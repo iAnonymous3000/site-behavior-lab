@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { getEventListeners } from "node:events";
 import { createServer, type Server } from "node:http";
 import { connect } from "node:net";
 import { after, before, test } from "node:test";
@@ -361,9 +362,15 @@ test("every wait on a hook has a bound: the scan deadline, the hook's own timeou
 
   // pageReady, by the visit's own scan deadline: a visit with 4 s of its
   // budget left ends as any visit whose setup ran out of time does.
-  const setup = await elapsed(visit({ investigationSeam: { pageReady: NEVER }, scanBudgetSpentMsForTests: MAX_SCAN_DURATION_MS - 4_000 }));
+  const never = new AbortController();
+  const setup = await elapsed(
+    visit({ investigationSeam: { pageReady: NEVER }, scanBudgetSpentMsForTests: MAX_SCAN_DURATION_MS - 4_000, signal: never.signal })
+  );
   assert.equal((errorOf(setup.outcome) as Error | undefined)?.message, SCAN_SETUP_TIMEOUT_MESSAGE);
   assert.ok(setup.ms >= 2_000 && setup.ms < 20_000, `the scan deadline ended pageReady after ${setup.ms} ms`);
+  // The hook is still pending, and the visit is over: nothing of it is left
+  // listening on the caller's signal.
+  assert.equal(getEventListeners(never.signal, "abort").length, 0);
 
   // afterEnvelope, by its own timeout.
   const late = await elapsed(visit({ investigationSeam: { afterEnvelope: NEVER, afterEnvelopeTimeoutMs: 1_000 } }));

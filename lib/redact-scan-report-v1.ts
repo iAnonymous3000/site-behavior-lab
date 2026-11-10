@@ -76,6 +76,7 @@ import {
   recordedPlaywrightVersion
 } from "./legacy-methodology";
 import { canonicalJson } from "./scan-report-v2-fingerprints";
+import { refuseSeamVisit } from "./seam-visit-mark";
 import { sha256Hex } from "./sha256";
 import { canonicalTrackerCatalogContents, findTrackerMatch, trackerCatalogMetadata } from "./tracker-catalog";
 import type {
@@ -625,6 +626,10 @@ export function publicStringPolicyInputs(): typeof PUBLIC_STRING_POLICY_INPUTS {
 }
 
 export function redactScanReportV1<T extends ScanReport>(report: T): RedactedV1<T> {
+  // Before anything of the report is read. This function builds its output
+  // field by field, so a visit a private capture was connected to would
+  // leave here without its mark and pass every later refusal.
+  refuseSeamVisit(report, "the v1 redactor");
   if (report.reportType !== "comparison") {
     return redactScanResultV1(report) as RedactedV1<T>;
   }
@@ -666,6 +671,8 @@ export function redactScanReportV1<T extends ScanReport>(report: T): RedactedV1<
 }
 
 export function redactScanResultV1(result: ScanResult): RedactedV1<ScanResult> {
+  // The same refusal as above, for a caller that hands over one result.
+  refuseSeamVisit(result, "the v1 redactor");
   const pass = new RedactionPass();
   const requests = result.requests.map((request) => redactRequest(request, pass));
   const domains = summarizeDomains(requests);

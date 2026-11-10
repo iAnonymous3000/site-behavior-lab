@@ -40,7 +40,7 @@ In the order a visit reaches them:
 
 `afterEnvelope` receives three readings: the page's fingerprint observations by source (each frame in turn, then the worker realms together), the visit's request budget and its proxy's budgets as they stand, and the value of one expression evaluated in every frame. A boundary callback receives one: the page's fingerprint observations at that moment.
 
-Every wait also ends as soon as the caller's `signal` is aborted. A hook that throws fails the visit with its own error, after the visit's ordinary cleanup. A boundary callback that the check's deadline ends leaves the check cut short at that boundary. The exception is `scroll-end`: both windows have closed by then, so the check keeps its outcome.
+Every wait also ends as soon as the caller's `signal` is aborted. A wait that the scan deadline or a timeout ends leaves no listener on that signal: the visit takes its seam's listeners off on every way out. A hook that throws fails the visit with its own error, after the visit's ordinary cleanup. A boundary callback that the check's deadline ends leaves the check cut short at that boundary. The exception is `scroll-end`: both windows have closed by then, so the check keeps its outcome.
 
 A boundary callback's time falls in a fixed place. For `check-start` it falls in the settle. For `control-start` it falls before the window with no input opens, in no window. For `control-end` it falls at the end of that window, which is longer by it. For `scroll-end` it falls after the scroll window has closed.
 
@@ -52,7 +52,7 @@ Playwright does not document the order in which init scripts run. `lib/investiga
 
 ### Nothing public can reach it
 
-- `lib/runtime-boundaries.test.ts` fails if any source file under `app/`, `cloudflare/`, `lib/` or `scripts/`, or at the root, names the seam. The two exceptions are `lib/investigation-seam.ts` and `lib/scanner.ts`. Test files are not swept.
+- `lib/runtime-boundaries.test.ts` fails if any source file under `app/`, `cloudflare/`, `lib/` or `scripts/`, or at the root, names the seam. The three exceptions are `lib/investigation-seam.ts`, `lib/scanner.ts` and `lib/seam-visit-mark.ts`, which holds the mark and its check. Test files are not swept.
 - The scan API refuses options that carry the field, before the visit starts.
 - A visit that sets no seam runs the statements it always ran. Every use of the seam in the scanner and in the check sits behind a condition on its presence, which `lib/investigation-seam-guard.test.ts` holds. `lib/visit-setup-calls.test.ts` holds the list of what such a visit registers on its context and page.
 
@@ -60,9 +60,11 @@ Playwright does not document the order in which init scripts run. `lib/investiga
 
 The scanner marks a seam visit in two ways. By identity: it remembers the envelope the visit returns, its result and its measurement. In band: the result and the measurement each carry the key `investigationSeamVisit`, which a structured clone, a JSON copy and an object spread all keep. A visit that sets no seam has neither mark: no key and no value.
 
-The scan API, both runtime report builders, the report store and the shadow store refuse a value that carries either mark, on itself or on a top-level member. One level is what the publishable shapes need: an envelope holds its result and measurement, and a v1 comparison holds its two results.
+The scan API, both runtime report builders, the report store, the shadow store and the v1 redactor refuse a value that carries either mark, on itself or on a top-level member. One level is what the publishable shapes need: an envelope holds its result and measurement, and a v1 comparison holds its two results.
 
-The mark does not survive two things. One is a caller who deletes the key from a copy on purpose. The other is code that builds a new object from named fields, as the v1 sanitizer does: its output does not carry the key. Neither is stopped, and nothing here claims otherwise.
+The v1 redactor builds its output field by field, so its output could not carry the mark. It therefore refuses a marked input before it reads anything from it: to sanitize a seam visit's result and then save it fails at the first step. The mark and its check live in `lib/seam-visit-mark.ts`, which imports nothing, because the redactor also runs in the browser and in a Worker.
+
+The mark does not survive a caller who removes it on purpose. There are two ways to do that: to delete the key from a copy, and to build a new object by hand from a marked result's fields, without the key, before any of the refusals above has seen the result. Neither is stopped, and nothing here claims otherwise.
 
 ### What a runner records
 

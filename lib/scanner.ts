@@ -3934,6 +3934,9 @@ async function scanSiteWithMeasurementOnLeasedBrowser(
     return envelope;
   } finally {
     options.signal?.removeEventListener("abort", closeOnAbort);
+    // A hook the scan deadline ended still waits on the caller's signal;
+    // the seam takes that listener off on every way out of the visit.
+    if (seam !== null) seam.release();
     // Detaching the DevTools client resumes any worker still paused for its
     // installers, and unregistering the visit has the attacher detach its
     // shared workers, so no worker outlives the scan suspended.

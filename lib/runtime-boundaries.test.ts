@@ -145,7 +145,8 @@ test("no public entrypoint reaches the investigation workspace", async () => {
  * which only a private capture sets (lib/investigation-seam.ts). Nothing that
  * builds or runs the public scanner may set it, and the simplest thing that
  * holds that is that nothing else names it: not the option, not its type, not
- * the key a marked visit carries. Two files define it. Every other source
+ * the key a marked visit carries. Two files define it, and a third holds the
+ * mark and its check (lib/seam-visit-mark.ts). Every other source
  * file under app/, cloudflare/, lib/ and scripts/, and at the root, is swept,
  * tests aside: that is every module the public entry points reach (held
  * below), and with them the scan API and its jobs, the calibration runtime,
@@ -158,7 +159,7 @@ test("no public entrypoint reaches the investigation workspace", async () => {
  * refused wherever a report is built or saved (lib/investigation-seam.test.ts).
  */
 const SEAM_NAME = /investigationSeam/i;
-const SEAM_DEFINERS: ReadonlySet<string> = new Set(["lib/investigation-seam.ts", "lib/scanner.ts"]);
+const SEAM_DEFINERS: ReadonlySet<string> = new Set(["lib/investigation-seam.ts", "lib/scanner.ts", "lib/seam-visit-mark.ts"]);
 
 test("no public module names the investigation seam", async () => {
   const SOURCE = /\.(?:ts|tsx|mts|cts|mjs|cjs|js|jsx)$/;
@@ -177,7 +178,7 @@ test("no public module names the investigation seam", async () => {
   for (const file of sources) {
     if (SEAM_NAME.test(await readFile(path.join(PROJECT_ROOT, file), "utf8"))) named.push(file);
   }
-  assert.deepEqual(named.sort(), [...SEAM_DEFINERS].sort(), "only the seam's own module and the scanner may name the investigation seam");
+  assert.deepEqual(named.sort(), [...SEAM_DEFINERS].sort(), "only the seam's own module, its mark and the scanner may name the investigation seam");
 
   // The sweep covers the public scanner: every module a public entry point
   // reaches, and each caller of the scanner by name.
@@ -190,6 +191,7 @@ test("no public module names the investigation seam", async () => {
     "lib/scan-api.ts",
     "lib/scan-jobs.ts",
     "lib/calibration-scan-runtime.ts",
+    "lib/redact-scan-report-v1.ts",
     "lib/report-store.ts",
     "lib/scan-report-v2-runtime-builder.ts",
     "lib/scan-report-v2-shadow-store.ts",
@@ -202,13 +204,26 @@ test("no public module names the investigation seam", async () => {
   }
   assert.ok(reached.has("lib/scan-api.ts") && reached.has("lib/scanner.ts") && reached.has("lib/investigation-seam.ts"));
 
+  // Of the three, only the mark's module ships beyond Node: the v1 redactor
+  // imports it, and the redactor runs in the browser and in a Worker. So it
+  // imports nothing at all, and is not on the Node-only list.
+  assert.doesNotMatch(await readFile(path.join(PROJECT_ROOT, "lib/seam-visit-mark.ts"), "utf8"), /^\s*(?:import|export)\b[^;]*\bfrom\b|\brequire\(|\bimport\(/m);
+  assert.deepEqual(await readRuntimeImports("lib/seam-visit-mark.ts"), []);
+  assert.equal(NODE_ONLY_MODULES.has("lib/seam-visit-mark.ts"), false);
+  assert.ok((await readRuntimeImports("lib/redact-scan-report-v1.ts")).includes("./seam-visit-mark"));
+
   // The pattern finds each way to name it: the option, its type, the key a
   // marked visit carries, and the functions only the scanner calls.
   for (const spelling of ["{ investigationSeam: seam }", "type InvestigationSeam", '"investigationSeamVisit"', "openInvestigationSeam(", "INVESTIGATIONSEAM"]) {
     assert.equal(SEAM_NAME.test(spelling), true, spelling);
   }
   // And passes what a refusing module needs: the helpers and the module's path.
-  for (const allowed of ['import { refuseSeamOption, refuseSeamVisit } from "./investigation-seam";', "isSeamVisit(value)", "SeamVisitRefusal"]) {
+  for (const allowed of [
+    'import { refuseSeamOption, refuseSeamVisit } from "./investigation-seam";',
+    'import { refuseSeamVisit } from "./seam-visit-mark";',
+    "isSeamVisit(value)",
+    "SeamVisitRefusal"
+  ]) {
     assert.equal(SEAM_NAME.test(allowed), false, allowed);
   }
 });

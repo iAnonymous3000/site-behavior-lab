@@ -7,7 +7,10 @@ import {
 import type { PublicScanProxyDiagnostics } from "./public-scan-proxy";
 import { scanAbortError, type ScanRequestBudgetDiagnostics } from "./scan-runtime";
 import { SCROLL_CHECK_DEADLINE_MARGIN_MS, type ScrollCheckBoundary } from "./scroll-check";
+import { rememberSeamVisit, SEAM_VISIT_MARKER, SeamVisitRefusal } from "./seam-visit-mark";
 import { sha256Hex } from "./sha256";
+
+export { isSeamVisit, refuseSeamVisit, SeamVisitRefusal } from "./seam-visit-mark";
 
 /**
  * The scanner's investigation seam: an optional connection a private capture
@@ -24,16 +27,18 @@ import { sha256Hex } from "./sha256";
  * live page, so nothing here can say what a seam visit measured compared with
  * an ordinary one, and its result must never stand beside a public report.
  * The mark is carried two ways. By identity: the envelope the visit returns,
- * its result and its measurement are remembered here. In band: the result
- * and the measurement each carry one key, INVESTIGATION_SEAM_MARKER, which a
- * structured clone, a JSON copy and an object spread all keep. The report
- * saver, the shadow store, both runtime report builders and the scan API
- * refuse a value that carries either, on itself or on a top-level member
- * (refuseSeamVisit).
+ * its result and its measurement are remembered. In band: the result and the
+ * measurement each carry one key, INVESTIGATION_SEAM_MARKER, which a
+ * structured clone, a JSON copy and an object spread all keep. The scan API,
+ * both runtime report builders, the report saver, the shadow store and the
+ * v1 redactor refuse a value that carries either, on itself or on a
+ * top-level member (refuseSeamVisit). The mark and that check live in
+ * lib/seam-visit-mark.ts, which the redactor can import wherever it runs.
  *
- * What the mark does not survive: a caller who deletes the key from a copy,
- * and any code that builds a new object from named fields, as the v1
- * sanitizer does. Neither is stopped here, and nothing claims otherwise.
+ * What the mark does not survive is a caller who removes it on purpose: one
+ * who deletes the key from a copy, or one who builds a new object by hand
+ * from a marked result's fields and leaves the key out. Neither is stopped
+ * here, and nothing claims otherwise.
  */
 
 /** What an afterEnvelope hook can read, while the page is still open. */
@@ -125,7 +130,7 @@ export const INVESTIGATION_SEAM_VERSION = "investigation-seam@1";
  * The in-band mark: the one key a seam visit's result and measurement carry,
  * with the seam's version as its value. No other visit has it.
  */
-export const INVESTIGATION_SEAM_MARKER = "investigationSeamVisit";
+export const INVESTIGATION_SEAM_MARKER = SEAM_VISIT_MARKER;
 export const DEFAULT_AFTER_ENVELOPE_TIMEOUT_MS = 30_000;
 export const MIN_AFTER_ENVELOPE_TIMEOUT_MS = 1_000;
 export const MAX_AFTER_ENVELOPE_TIMEOUT_MS = 600_000;
@@ -163,14 +168,6 @@ export type InvestigationSeamUse = Readonly<{
     scrollCheckBoundary: readonly Readonly<{ boundary: ScrollCheckBoundary; ms: number | null }>[];
   }>;
 }>;
-
-/** A visit that used the seam was offered for publication, or a public visit was asked to carry it. */
-export class SeamVisitRefusal extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = "SeamVisitRefusal";
-  }
-}
 
 /** An afterEnvelope hook did not settle within its bound. */
 export class InvestigationSeamHookTimeoutError extends Error {
@@ -274,8 +271,6 @@ export function describeInvestigationSeam(seam: InvestigationSeam): Investigatio
   return describe(readSeam(seam));
 }
 
-/** The identity mark: every envelope, result and measurement of a seam visit. */
-const seamVisitObjects = new WeakSet<object>();
 /** The seam each marked envelope's visit ran with. */
 const seamByEnvelope = new WeakMap<object, OpenInvestigationSeam>();
 
@@ -284,8 +279,18 @@ const seamByEnvelope = new WeakMap<object, OpenInvestigationSeam>();
  * bound passes. The listener and the timer are gone once any of the three
  * happens. `work` is not stopped: a hook that never settles stays pending,
  * and what it holds is released when the visit closes its page.
+ *
+ * A wait can also be abandoned: the scan deadline ends a visit that is still
+ * waiting on pageReady, and nothing above would then take this wait's
+ * listener off the caller's signal. Each wait therefore leaves its cleanup in
+ * `pending` until it ends, for the visit to run on its way out.
  */
-function settleWithin(work: Promise<void>, signal: AbortSignal | undefined, bound?: { ms: number; expired: () => Error }): Promise<void> {
+function settleWithin(
+  work: Promise<void>,
+  signal: AbortSignal | undefined,
+  pending: Set<() => void>,
+  bound?: { ms: number; expired: () => Error }
+): Promise<void> {
   return new Promise<void>((resolve, reject) => {
     if (signal?.aborted) {
       work.catch(() => undefined);
@@ -296,7 +301,9 @@ function settleWithin(work: Promise<void>, signal: AbortSignal | undefined, boun
     const finish = (): void => {
       if (timer !== null) clearTimeout(timer);
       signal?.removeEventListener("abort", onAbort);
+      pending.delete(finish);
     };
+    pending.add(finish);
     const onAbort = (): void => {
       finish();
       reject(scanAbortError(signal as AbortSignal));
@@ -341,6 +348,8 @@ export class OpenInvestigationSeam {
   private afterEnvelopeMs: number | null = null;
   private readonly boundaryCalls: { boundary: ScrollCheckBoundary; ms: number | null }[] = [];
   private boundaryFailure: { error: unknown } | null = null;
+  /** The cleanup of each wait on a hook that has not ended yet. */
+  private readonly pendingWaits = new Set<() => void>();
 
   constructor(seam: InvestigationSeam) {
     this.hooks = readSeam(seam);
@@ -355,7 +364,7 @@ export class OpenInvestigationSeam {
     const hook = this.hooks.pageReady;
     if (!hook) return;
     const started = Date.now();
-    await settleWithin((async () => hook(page))(), signal);
+    await settleWithin((async () => hook(page))(), signal, this.pendingWaits);
     this.pageReadyMs = Date.now() - started;
   }
 
@@ -386,7 +395,7 @@ export class OpenInvestigationSeam {
     if (!hook) return;
     const timeoutMs = this.description.afterEnvelopeTimeoutMs;
     const started = Date.now();
-    await settleWithin((async () => hook(read))(), signal, {
+    await settleWithin((async () => hook(read))(), signal, this.pendingWaits, {
       ms: timeoutMs,
       expired: () => new InvestigationSeamHookTimeoutError(timeoutMs)
     });
@@ -420,6 +429,14 @@ export class OpenInvestigationSeam {
   }
 
   /**
+   * Take what a wait the visit abandoned still holds: its listener on the
+   * caller's signal and its timer. The visit calls this on every way out.
+   */
+  release(): void {
+    for (const finish of [...this.pendingWaits]) finish();
+  }
+
+  /**
    * Put the in-band mark on a visit's result and measurement, before the
    * envelope is built from them. An enumerable own key, so a structured
    * clone, a JSON copy and a spread keep it; fixed, so it cannot be taken off
@@ -427,7 +444,7 @@ export class OpenInvestigationSeam {
    */
   markParts(result: object, measurement: object): void {
     for (const part of [result, measurement]) {
-      Object.defineProperty(part, INVESTIGATION_SEAM_MARKER, {
+      Object.defineProperty(part, SEAM_VISIT_MARKER, {
         value: INVESTIGATION_SEAM_VERSION,
         enumerable: true,
         writable: false,
@@ -438,9 +455,7 @@ export class OpenInvestigationSeam {
 
   /** Remember the envelope the visit built, with its result and measurement, as a seam visit's. */
   markVisit(envelope: { result: object; measurement: object }): void {
-    seamVisitObjects.add(envelope);
-    seamVisitObjects.add(envelope.result);
-    seamVisitObjects.add(envelope.measurement);
+    rememberSeamVisit(envelope, envelope.result, envelope.measurement);
     seamByEnvelope.set(envelope, this);
   }
 
@@ -471,29 +486,6 @@ export function openInvestigationSeam(seam: InvestigationSeam): OpenInvestigatio
  */
 export function investigationSeamUse(envelope: object): InvestigationSeamUse | undefined {
   return seamByEnvelope.get(envelope)?.use();
-}
-
-function carriesSeamMark(value: unknown): boolean {
-  if (typeof value !== "object" || value === null) return false;
-  return seamVisitObjects.has(value) || INVESTIGATION_SEAM_MARKER in value;
-}
-
-/**
- * Whether a value is a seam visit's, or holds one: the value itself or any
- * top-level member is marked, by identity or in band. One level is what the
- * publishable shapes need: an envelope holds its result and measurement, and
- * a v1 comparison holds its two results.
- */
-export function isSeamVisit(value: unknown): boolean {
-  if (carriesSeamMark(value)) return true;
-  if (typeof value !== "object" || value === null) return false;
-  return Object.values(value).some((member) => carriesSeamMark(member));
-}
-
-/** Refuse a value that is a seam visit's or holds one. Every publication step calls this first. */
-export function refuseSeamVisit(value: unknown, step: string): void {
-  if (!isSeamVisit(value)) return;
-  throw new SeamVisitRefusal(`Refusing a visit made with the investigation seam at ${step}: it is never published.`);
 }
 
 /** Refuse visit options that carry the seam's field, own or inherited, whatever its value. */
