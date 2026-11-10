@@ -76,6 +76,7 @@
   "lib/url-safety.test.ts": "asserts elapsed time under 1000 ms",
   "lib/v1-release-contract.test.ts": "commits in fixture repos without disabling Git auto maintenance, which can race the fixture teardown",
   "lib/verify-published-report-fetch.test.ts": "asserts a 1 s settle watchdog",
+  "lib/visit-setup-calls.test.ts": "launches Chromium through the scanner's shared browser and runs one check on its test timing under a 180 s timeout",
   "lib/waf-hosted-capture.test.ts": "asserts a 1 s settle watchdog",
   "lib/worker-fingerprint-realm.test.ts": "launches Chromium and holds paused workers under install and readback watchdogs"
 }
