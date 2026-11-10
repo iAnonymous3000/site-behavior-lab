@@ -76,6 +76,21 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- The runtime image no longer lists one layer twice on a native build. That
+  failed the container package inventory, and with it the Docker job of the
+  first hosted run of the 2026-11 epoch (`6b2360cc`): nothing was published,
+  attested or promoted from that run. The Playwright base stage held two
+  steps that only check (`70d948a9` added the browser check beside the Node
+  and npm version check). A step that changes no file adds the same empty
+  layer each time, and every image built from that stage inherits both. The
+  emulated linux/amd64 builds that qualified the epoch did not show it: there
+  the step's commands leave Node's compile cache in /tmp, so one of the two
+  layers is not empty. `f1047730` had fixed the same defect in the runner
+  stage, and its test took the base stage to add one such layer. The two
+  checks are now one step, and lib/toolchain-provenance.test.ts holds the
+  base stage to that single step. Built natively for linux/arm64, the base
+  stage went from 10 layers with the empty one twice to 9 distinct layers. No
+  scanner behavior, report or identity changes.
 - Claim texts corrected after a review. The formal verification register
   (`docs/formal-verification.md`), the bounded checks' docblocks and test
   titles, the private workspace's comments, docs/limitations.md and this

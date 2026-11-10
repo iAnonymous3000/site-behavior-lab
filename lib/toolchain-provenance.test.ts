@@ -222,7 +222,7 @@ test("the container base's bundled scan browser is the one the installed playwri
   const dockerfile = source("Dockerfile");
   const baseStage = dockerfile.slice(0, dockerfile.indexOf("FROM playwright-base AS deps"));
   const assertions = [...baseStage.matchAll(
-    /^RUN set -- \/ms-playwright\/chromium_headless_shell-(\d+)\/\*\/chrome-headless-shell \\\n {2}&& test "\$#" -eq 1 \\\n {2}&& test -x "\$1" \\\n {2}&& test "\$\("\$1" --version\)" = "Google Chrome for Testing (\d+\.\d+\.\d+\.\d+)"$/gm
+    /^ {2}&& set -- \/ms-playwright\/chromium_headless_shell-(\d+)\/\*\/chrome-headless-shell \\\n {2}&& test "\$#" -eq 1 \\\n {2}&& test -x "\$1" \\\n {2}&& test "\$\("\$1" --version\)" = "Google Chrome for Testing (\d+\.\d+\.\d+\.\d+)"$/gm
   )];
   assert.equal(assertions.length, 1, "the Playwright base stage must require exactly one headless shell at its exact version, once");
   assert.deepEqual(
@@ -230,6 +230,23 @@ test("the container base's bundled scan browser is the one the installed playwri
     { revision: shell.revision, version: shell.browserVersion }
   );
   assert.equal(dockerfile.split("/chrome-headless-shell").length - 1, 1, "only the base stage names the headless shell");
+  // The base stage is one step, and the browser check is part of it. A step
+  // that changes no file adds the same empty layer each time, every image
+  // built FROM this stage inherits it, and the container package inventory
+  // refuses an image whose rootfs lists one layer twice. Two checking steps
+  // here passed every emulated build, where they leave Node's compile cache in
+  // /tmp and so one layer is not empty, and failed the first native one.
+  const baseSteps = baseStage.split("\n").filter((line) => /^(RUN|COPY|ADD|WORKDIR)\b/.test(line));
+  assert.deepEqual(
+    baseSteps.map((line) => line.split(" ")[0]),
+    ["RUN"],
+    "the Playwright base stage must hold exactly one layer-adding step, its single checking RUN"
+  );
+  assert.match(
+    baseStage,
+    /^RUN test "\$\(node --version\)" = "v\d+\.\d+\.\d+" \\\n {2}&& test "\$\(npm --version\)" = "\d+\.\d+\.\d+" \\\n {2}&& set -- \/ms-playwright\//m,
+    "the runtime version check and the browser check must be the same step"
+  );
   // The runner stage must not install or copy a browser of its own.
   const runnerStage = dockerfile.slice(dockerfile.indexOf("FROM playwright-base AS runner"));
   assert.doesNotMatch(runnerStage, /playwright install|ms-playwright|PLAYWRIGHT_BROWSERS_PATH/);

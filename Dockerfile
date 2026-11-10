@@ -9,9 +9,7 @@ FROM mcr.microsoft.com/playwright:v1.64.1-noble@sha256:47b510dd9230bf0b9bfc9b201
 # The digest-pinned Playwright base intentionally carries a newer runtime than
 # the host/Actions authoring toolchain. Fail the image build if that immutable
 # base ever resolves to different Node or npm bytes without a reviewed epoch.
-RUN test "$(node --version)" = "v24.22.1" \
-  && test "$(npm --version)" = "11.19.1"
-
+#
 # Production launches the headless shell in this base's own /ms-playwright:
 # the runner stage below is FROM playwright-base and copies only /app from the
 # build, so the deps stage's `npx playwright install chromium` never reaches
@@ -22,7 +20,17 @@ RUN test "$(node --version)" = "v24.22.1" \
 # either stage builds on it. A base rebuilt with a newer patch under the same
 # revision fails here. lib/toolchain-provenance.test.ts ties the revision and
 # version to browsers.json.
-RUN set -- /ms-playwright/chromium_headless_shell-1248/*/chrome-headless-shell \
+#
+# Both checks are one step, and this stage has no other. A step that changes
+# no file still adds a layer, the same empty one each time, and the container
+# package inventory refuses an image whose rootfs lists one layer twice. Every
+# image built FROM this stage inherits its layers, so two checking steps here
+# are two copies of that layer in the runtime image. An emulated build does
+# not show it: there these commands leave Node's compile cache in /tmp, so the
+# layer is not empty, while a native build leaves nothing.
+RUN test "$(node --version)" = "v24.22.1" \
+  && test "$(npm --version)" = "11.19.1" \
+  && set -- /ms-playwright/chromium_headless_shell-1248/*/chrome-headless-shell \
   && test "$#" -eq 1 \
   && test -x "$1" \
   && test "$("$1" --version)" = "Google Chrome for Testing 156.0.8078.4"
