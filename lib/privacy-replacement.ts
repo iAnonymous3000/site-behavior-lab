@@ -1,5 +1,6 @@
 import { redactScanReportV1 } from "./redact-scan-report-v1";
 import { buildStaticReportShare } from "./report-locator";
+import { SeamVisitRefusal } from "./seam-visit-mark";
 import type { ScanReport } from "./types";
 
 export type PlannedPrivacyReplacement = {
@@ -10,6 +11,18 @@ export type PlannedPrivacyReplacement = {
   /** The exact committed bytes of the replacement report. */
   wire: string;
 };
+
+/**
+ * The plan, or the one declared reason there is none: the sanitizer refused
+ * the original as the result of a visit a private capture was connected to
+ * (lib/seam-visit-mark.ts). A reader declines such a report first wherever
+ * its own check looks; the sanitizer makes that check again on each arm of a
+ * comparison, so it can refuse one a reader passed. The answer is the
+ * readers': not a report. The caller holds the report's ID and names it.
+ */
+export type PrivacyReplacementPlan =
+  | ({ ok: true } & PlannedPrivacyReplacement)
+  | { ok: false; issue: "invalid-report"; detail: "invalid" };
 
 /**
  * What a privacy replacement (docs/corrections-ledger.md) publishes for one
@@ -27,8 +40,14 @@ export type PlannedPrivacyReplacement = {
  * replacement is promoted: either makes the promoted comparison fail for a
  * correct replacement, and with promotion paused it stays failed.
  */
-export function planPrivacyReplacement(original: ScanReport, replacementReportId: string): PlannedPrivacyReplacement {
-  const redacted = redactScanReportV1(original).report;
+export function planPrivacyReplacement(original: ScanReport, replacementReportId: string): PrivacyReplacementPlan {
+  let redacted: ScanReport;
+  try {
+    redacted = redactScanReportV1(original).report;
+  } catch (error) {
+    if (error instanceof SeamVisitRefusal) return { ok: false, issue: "invalid-report", detail: "invalid" };
+    throw error;
+  }
   const replacement: ScanReport = { ...redacted, share: buildStaticReportShare(replacementReportId) };
-  return { redacted, replacement, wire: `${JSON.stringify(replacement, null, 2)}\n` };
+  return { ok: true, redacted, replacement, wire: `${JSON.stringify(replacement, null, 2)}\n` };
 }

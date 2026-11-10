@@ -156,7 +156,9 @@ test("no public entrypoint reaches the investigation workspace", async () => {
  * A module that must refuse a seam visit calls a helper of the mark's module.
  * Each such module is listed below with the helpers it may name, and may name
  * nothing else of the seam: not the key, and not the function that marks. A
- * name split across strings to dodge this is out of scope, as it is above.
+ * module that hands the sanitizer a stored report may name the refusal's
+ * class, to turn a refusal into its own declared failure, and nothing else.
+ * A name split across strings to dodge this is out of scope, as it is above.
  */
 const SEAM_NAME = /investigationSeam/i;
 const SEAM_MODULES = ["lib/investigation-seam.ts", "lib/seam-visit-mark.ts"] as const;
@@ -172,6 +174,19 @@ const SEAM_HELPER_USERS: Readonly<Record<string, readonly string[]>> = {
   "lib/scan-report-v2-shadow-store.ts": ["refuseSeamVisit"],
   "lib/scan-report-view.ts": ["isSeamVisit"]
 };
+/**
+ * The modules that hand the sanitizer a stored report a reader has passed.
+ * The sanitizer makes the readers' check again on each arm of a comparison,
+ * so it can refuse a shape they passed; each of these catches that refusal
+ * by its class and answers with its own declared failure.
+ */
+const SEAM_REFUSAL_CATCHERS: Readonly<Record<string, readonly string[]>> = {
+  "lib/managed-report-reader.ts": ["SeamVisitRefusal"],
+  "lib/privacy-replacement.ts": ["SeamVisitRefusal"],
+  "lib/r2-report-remediation.ts": ["SeamVisitRefusal"],
+  "lib/remediate-reports-cli.ts": ["SeamVisitRefusal"]
+};
+const SEAM_NAME_USERS: Readonly<Record<string, readonly string[]>> = { ...SEAM_HELPER_USERS, ...SEAM_REFUSAL_CATCHERS };
 
 /** Every name a module exports, read from its parse. */
 function exportedNames(fileName: string, source: string): string[] {
@@ -206,7 +221,7 @@ const asWord = (name: string): RegExp => new RegExp(`(?<![A-Za-z0-9_$])${name.re
 /** What a file names of the seam that it may not: the seam by any spelling, or an export of either seam module. */
 function seamNamesIn(file: string, source: string, exports: readonly string[]): string[] {
   if (SEAM_DEFINERS.has(file)) return [];
-  const allowed = SEAM_HELPER_USERS[file] ?? [];
+  const allowed = SEAM_NAME_USERS[file] ?? [];
   const named = exports.filter((name) => !allowed.includes(name) && asWord(name).test(source));
   if (SEAM_NAME.test(source)) named.push("the seam itself");
   return named.map((name) => `${file} names ${name}`);
@@ -249,6 +264,13 @@ test("no public module names the investigation seam, its mark or anything its mo
   for (const [file, helpers] of Object.entries(SEAM_HELPER_USERS)) {
     const source = await readFile(path.join(PROJECT_ROOT, file), "utf8");
     for (const helper of helpers) assert.ok(new RegExp(`\\b${helper}\\(`).test(source), `${file} no longer calls ${helper}`);
+  }
+  // A catching module tests for the refusal and never makes one of its own.
+  assert.equal(Object.keys(SEAM_NAME_USERS).length, Object.keys(SEAM_HELPER_USERS).length + Object.keys(SEAM_REFUSAL_CATCHERS).length, "one module is on both lists");
+  for (const file of Object.keys(SEAM_REFUSAL_CATCHERS)) {
+    const source = await readFile(path.join(PROJECT_ROOT, file), "utf8");
+    assert.match(source, /\binstanceof SeamVisitRefusal\b/, `${file} no longer catches the refusal`);
+    assert.doesNotMatch(source, /\bnew SeamVisitRefusal\b|\bextends SeamVisitRefusal\b/, `${file} makes a refusal of its own`);
   }
 
   // The sweep covers the public scanner: every module a public entry point
@@ -299,6 +321,13 @@ test("no public module names the investigation seam, its mark or anything its mo
   for (const spelling of ["delete report[SEAM_VISIT_MARKER];", "rememberSeamVisit(report);", "if (isSeamVisit(report)) return;", "refuseSeamOption(options);"]) {
     assert.notDeepEqual(seamNamesIn(refuser, spelling, exports), [], `${spelling} in a module listed for another helper`);
   }
+  // A catching module may name the refusal's class, and no helper.
+  const catcher = "lib/managed-report-reader.ts";
+  assert.deepEqual(seamNamesIn(catcher, 'import { SeamVisitRefusal } from "./seam-visit-mark";\nif (error instanceof SeamVisitRefusal) return;', exports), []);
+  for (const spelling of ["refuseSeamVisit(report, 'here');", "if (isSeamVisit(report)) return;", "delete report[SEAM_VISIT_MARKER];"]) {
+    assert.notDeepEqual(seamNamesIn(catcher, spelling, exports), [], `${spelling} in a module listed only to catch`);
+  }
+  assert.notDeepEqual(seamNamesIn(refuser, "if (error instanceof SeamVisitRefusal) return;", exports), [], "the class named in a module listed only to refuse");
   // A longer name that only contains a helper's is not that helper.
   assert.deepEqual(seamNamesIn(outside, "const refuseSeamVisitors = 1; const myisSeamVisit = 2;", exports), []);
 });
@@ -322,7 +351,7 @@ test("each module that refuses a seam visit imports its helper from the module t
     }
     return names.sort();
   };
-  for (const [file, helpers] of Object.entries(SEAM_HELPER_USERS)) {
+  for (const [file, helpers] of Object.entries(SEAM_NAME_USERS)) {
     const source = await readFile(path.join(PROJECT_ROOT, file), "utf8");
     assert.deepEqual(namedImports(file, source, "./seam-visit-mark"), [...helpers].sort(), `${file} must import exactly its helpers from ./seam-visit-mark`);
   }
@@ -351,7 +380,9 @@ test("each module that refuses a seam visit imports its helper from the module t
  * docs/runtime-boundaries.md states the set of refusing steps as a table: the
  * functions that refuse, and the test that holds each. A list kept in a
  * document goes stale without a failure, so this reads it against the code,
- * both ways.
+ * both ways. What it holds is that list against the functions that call a
+ * helper. It cannot hold that the list is complete as a list of publication
+ * paths: a new exporter that calls no helper is in neither.
  */
 function refusingSteps(docs: string): { functions: string[]; tests: string[] }[] {
   const lines = docs.split("\n");
@@ -368,13 +399,33 @@ function refusingSteps(docs: string): { functions: string[]; tests: string[] }[]
   return steps;
 }
 
-/** Each top-level function of a file that calls one of the seam's helpers, anywhere inside it. */
+/**
+ * The functions the docs list as catching the sanitizer's refusal: the first
+ * name of each item of the list that follows the lead-in.
+ */
+function documentedCatchers(docs: string): string[] {
+  const lines = docs.split("\n");
+  const head = lines.findIndex((line) => line.endsWith("catches the refusal and gives its own declared failure:"));
+  if (head === -1) return [];
+  const names: string[] = [];
+  for (let index = head + 2; index < lines.length && lines[index].startsWith("- "); index += 1) {
+    names.push(/^- `([A-Za-z0-9_$]+)`/.exec(lines[index])?.[1] ?? `an item with no function (${lines[index].slice(0, 40)})`);
+  }
+  return names;
+}
+
+/**
+ * Each top-level function of a file that uses one of the names it is listed
+ * with, anywhere inside it: a helper it calls, or the refusal's class in an
+ * `instanceof`.
+ */
 function functionsCallingSeamHelpers(fileName: string, source: string, helpers: readonly string[]): string[] {
   const calling: string[] = [];
   for (const statement of ts.createSourceFile(fileName, source, ts.ScriptTarget.Latest, true).statements) {
     let calls = false;
     const visit = (node: ts.Node): void => {
       if (ts.isCallExpression(node) && ts.isIdentifier(node.expression) && helpers.includes(node.expression.text)) calls = true;
+      if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.InstanceOfKeyword && ts.isIdentifier(node.right) && helpers.includes(node.right.text)) calls = true;
       ts.forEachChild(node, visit);
     };
     visit(statement);
@@ -384,9 +435,10 @@ function functionsCallingSeamHelpers(fileName: string, source: string, helpers: 
   return calling.sort();
 }
 
-test("the documented set of refusing steps is the set of functions that call the seam's helpers, and names tests that exist", async () => {
+test("the documented refusing steps and catching functions are the functions that use the seam's helpers, and the tests named exist", async () => {
   const docsFile = "docs/runtime-boundaries.md";
-  const steps = refusingSteps(await readFile(path.join(PROJECT_ROOT, docsFile), "utf8"));
+  const docs = await readFile(path.join(PROJECT_ROOT, docsFile), "utf8");
+  const steps = refusingSteps(docs);
   assert.ok(steps.length >= 8, `${docsFile} lists ${steps.length} refusing steps, so its table was not read`);
   const documented = steps.flatMap((step) => step.functions).sort();
   assert.equal(new Set(documented).size, documented.length, "one function is listed as two steps");
@@ -407,6 +459,19 @@ test("the documented set of refusing steps is the set of functions that call the
       assert.equal(testNames.filter((name) => name.startsWith(named)).length, 1, `${docsFile} names a test that lib/investigation-seam.test.ts does not have exactly once: ${named}`);
     }
   }
+
+  // The same for the functions that catch the sanitizer's refusal of a stored
+  // report: the docs list them, and the list is the functions that test for
+  // the refusal's class.
+  const catching: string[] = [];
+  for (const [file, names] of Object.entries(SEAM_REFUSAL_CATCHERS)) {
+    const found = functionsCallingSeamHelpers(file, await readFile(path.join(PROJECT_ROOT, file), "utf8"), names);
+    assert.notDeepEqual(found, [], `${file} is listed as catching the refusal and no function of it tests for it`);
+    catching.push(...found);
+  }
+  assert.deepEqual(documentedCatchers(docs).sort(), catching.sort(), `${docsFile} must list exactly the functions that catch the refusal`);
+  assert.deepEqual(documentedCatchers("each catches the refusal and gives its own declared failure:\n\n- `one` answers.\n- `two`, the step.\n\nprose `three`"), ["one", "two"]);
+  assert.deepEqual(functionsCallingSeamHelpers("x.ts", "function reads() { try { go(); } catch (error) { if (error instanceof SeamVisitRefusal) return; throw error; } }\nfunction other() { return new Error(); }", ["SeamVisitRefusal"]), ["reads"]);
 
   // The reading finds what it must: a helper call inside a closure counts for
   // the function around it, one outside any named function is reported, and a

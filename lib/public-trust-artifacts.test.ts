@@ -6,9 +6,12 @@ import path from "node:path";
 import { test } from "node:test";
 import { initFixtureRepo, runFixtureGit } from "./git-fixture";
 import Ajv2020 from "ajv/dist/2020";
+import { createGpcComparisonReport } from "./compare-reports";
 import { planPrivacyReplacement } from "./privacy-replacement";
 import { buildStaticReportShare } from "./report-locator";
+import { readStoredScanReport } from "./scan-report-reader";
 import { makeScanReportV1 } from "./scan-report-v2-fixtures";
+import { SEAM_VISIT_MARKER } from "./seam-visit-mark";
 import {
   assertCorrectionsLedgerHistory,
   CORRECTIONS_FUTURE_TOLERANCE_MS,
@@ -661,7 +664,9 @@ test("the Git history gate accepts a privacy replacement's removal and still cat
   const originalWire = `${JSON.stringify(original, null, 2)}\n`;
   const sidecarWire = (reportId: string, createdAt: string) => `${JSON.stringify({ reportId, createdAt }, null, 2)}\n`;
   const createdAt = "2025-01-01T09:00:00.000Z";
-  const replacementWire = planPrivacyReplacement(original, PRIVACY_REPLACEMENT_ID).wire;
+  const replacementPlan = planPrivacyReplacement(original, PRIVACY_REPLACEMENT_ID);
+  if (!replacementPlan.ok) throw new Error("the fixture original has no privacy replacement");
+  const replacementWire = replacementPlan.wire;
   const writeReplacement = (report: string, sidecar: string) => {
     writeFileSync(bundlePath(PRIVACY_REPLACEMENT_ID, ".json"), report);
     writeFileSync(bundlePath(PRIVACY_REPLACEMENT_ID, ".provenance.json"), sidecar);
@@ -728,6 +733,56 @@ test("the Git history gate accepts a privacy replacement's removal and still cat
     const unexplained = runHistoryCli(cliPath, repo, "HEAD");
     assert.equal(unexplained.status, 1);
     assert.match(unexplained.stderr, new RegExp(`ENOENT.*${PRIVACY_ORIGINAL_ID}\\.json`));
+  } finally {
+    rmSync(repo, { recursive: true, force: true });
+  }
+});
+
+test("the Git history gate names an original the sanitizer refuses, and derives no replacement from it", () => {
+  const repo = mkdtempSync(path.join(tmpdir(), "sbl-corrections-refused-"));
+  const { clarification, privacy, envelope } = privacyLedgerFixture();
+  const reportsDir = path.join(repo, "public", "reports");
+  const ledgerPath = path.join(repo, "public", "corrections.json");
+  const cliPath = path.join(root, ".unit-test-dist", "lib", "corrections-ledger-history-cli.js");
+  const bundlePath = (reportId: string, suffix: string) => path.join(reportsDir, `${reportId}${suffix}`);
+  const writeLedger = (entries: readonly object[]) =>
+    writeFileSync(ledgerPath, `${JSON.stringify({ ...envelope, entries }, null, 2)}\n`);
+  const sidecarWire = (reportId: string) => `${JSON.stringify({ reportId, createdAt: "2025-01-01T09:00:00.000Z" }, null, 2)}\n`;
+
+  // A stored v1 comparison whose arm has its own member named `baseline`,
+  // holding an object that carries the key of a visit a private capture was
+  // connected to (lib/seam-visit-mark.ts). No producer writes this. The
+  // stored reader passes it, and the sanitizer refuses it, so no plan can be
+  // derived: the gate must say which report, not stop on the refusal.
+  const arm = makeScanReportV1();
+  if (arm.reportType === "comparison") throw new Error("the fixture is not a single visit");
+  const comparison = { ...createGpcComparisonReport(arm, arm), share: buildStaticReportShare(PRIVACY_ORIGINAL_ID) };
+  const tampered = JSON.parse(JSON.stringify(comparison)) as { baseline: Record<string, unknown> };
+  tampered.baseline.baseline = { x: { [SEAM_VISIT_MARKER]: 1 } };
+  assert.equal(readStoredScanReport(JSON.parse(JSON.stringify(tampered))).ok, true, "the stored reader no longer passes this shape, so this test holds nothing");
+  const refused = planPrivacyReplacement(tampered as unknown as Parameters<typeof planPrivacyReplacement>[0], PRIVACY_REPLACEMENT_ID);
+  assert.deepEqual(refused, { ok: false, issue: "invalid-report", detail: "invalid" });
+
+  try {
+    mkdirSync(reportsDir, { recursive: true });
+    writeLedger([clarification]);
+    writeFileSync(bundlePath(PRIVACY_ORIGINAL_ID, ".json"), `${JSON.stringify(tampered, null, 2)}\n`);
+    writeFileSync(bundlePath(PRIVACY_ORIGINAL_ID, ".provenance.json"), sidecarWire(PRIVACY_ORIGINAL_ID));
+    writeFileSync(bundlePath(PRIVACY_SIBLING_ID, ".json"), `${PRIVACY_SIBLING_ID}-report\n`);
+    writeFileSync(bundlePath(PRIVACY_SIBLING_ID, ".provenance.json"), `${PRIVACY_SIBLING_ID}-sidecar\n`);
+    initFixtureRepo(repo, { name: "Site Behavior Lab", email: "ci@sitebehavior.org" });
+    runFixtureGit(repo, ["add", "public"]);
+    runFixtureGit(repo, ["commit", "-qm", "base"]);
+
+    writeLedger([clarification, privacy]);
+    rmSync(bundlePath(PRIVACY_ORIGINAL_ID, ".json"));
+    rmSync(bundlePath(PRIVACY_ORIGINAL_ID, ".provenance.json"));
+    writeFileSync(bundlePath(PRIVACY_REPLACEMENT_ID, ".json"), `${JSON.stringify(comparison, null, 2)}\n`);
+    writeFileSync(bundlePath(PRIVACY_REPLACEMENT_ID, ".provenance.json"), sidecarWire(PRIVACY_REPLACEMENT_ID));
+    const gate = runHistoryCli(cliPath, repo, "HEAD");
+    assert.equal(gate.status, 1, gate.stdout);
+    assert.match(gate.stderr, new RegExp(`${PRIVACY_ORIGINAL_ID} at HEAD is not a frozen v1 report`));
+    assert.doesNotMatch(gate.stderr, /SeamVisitRefusal|Refusing a visit/);
   } finally {
     rmSync(repo, { recursive: true, force: true });
   }

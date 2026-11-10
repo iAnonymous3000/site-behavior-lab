@@ -32,10 +32,11 @@ import {
   type NodeScanMeasurementEnvelope
 } from "./node-scan-measurement";
 import { readManagedReport } from "./managed-report-reader";
+import { planPrivacyReplacement } from "./privacy-replacement";
 import { planR2ReportRemediation } from "./r2-report-remediation";
 import { redactScanReportV1, redactScanResultV1 } from "./redact-scan-report-v1";
 import { buildProvenanceEntry, committedSidecarFilename } from "./redaction-provenance";
-import { remediateReports } from "./remediate-reports-cli";
+import { privacyReplaceReport, remediateReports } from "./remediate-reports-cli";
 import { buildStaticReportShare } from "./report-locator";
 import { prepareScanReportBundle, readStoredScanReportById, saveScanReport } from "./report-store";
 import { BUILD_COMMIT_ENV, PUBLIC_R2_REPORTS_ENV } from "./runtime-scan-report";
@@ -738,6 +739,7 @@ test("the shadow store refuses a seam visit's result and every copy of one befor
 
 const REPORT_ID = `20261110-${"a".repeat(32)}`;
 const WRITTEN_AT = "2026-11-10T12:00:00.000Z";
+const OTHER_REPORT_ID = `20261110-${"c".repeat(32)}`;
 
 test("the v1 public projector refuses a seam visit's result and every copy of one, so the export boundary does too", () => {
   const { envelope } = seamEnvelope();
@@ -861,6 +863,154 @@ test("a stored report that carries the key is a declared failure that names the 
   const other = storedPair((report) => void (report.somethingElse = "x"));
   const otherRead = readManagedReport({ reportId: REPORT_ID, reportContents: other.wire, sidecarContents: other.sidecar, retention: { createdAt: other.createdAt, expiresAt: null } });
   assert.deepEqual([otherRead.ok, otherRead.ok ? null : otherRead.reason], [false, "redaction-not-idempotent"]);
+});
+
+/**
+ * Where the key was put in a stored v1 report, and what each function that
+ * reads a stored report must answer. `declined` is where the readers' check
+ * looks. `refused` is the three shapes the readers pass and the sanitizer
+ * still refuses, because it makes the same check again on each arm of a
+ * comparison. `kept` is deeper than either looks: an unknown member, which
+ * the sanitizer drops, so the stored bytes are no fixed point.
+ */
+const KEY_POSITIONS: readonly (readonly ["single" | "comparison", readonly string[], "declined" | "refused" | "kept" | "none"])[] = [
+  ["single", [SEAM_VISIT_MARKER], "declined"],
+  ["single", ["summary", SEAM_VISIT_MARKER], "declined"],
+  ["single", ["conditions", "device", SEAM_VISIT_MARKER], "kept"],
+  ["single", ["baseline", "x", SEAM_VISIT_MARKER], "declined"],
+  ["single", ["extra", "x", SEAM_VISIT_MARKER], "kept"],
+  ["comparison", [SEAM_VISIT_MARKER], "declined"],
+  ["comparison", ["baseline", SEAM_VISIT_MARKER], "declined"],
+  ["comparison", ["variant", "summary", SEAM_VISIT_MARKER], "declined"],
+  ["comparison", ["diff", SEAM_VISIT_MARKER], "declined"],
+  ["comparison", ["baseline", "conditions", "device", SEAM_VISIT_MARKER], "kept"],
+  ["comparison", ["baseline", "baseline", "x", SEAM_VISIT_MARKER], "refused"],
+  ["comparison", ["variant", "variant", "x", SEAM_VISIT_MARKER], "refused"],
+  ["comparison", ["baseline", "variant", "x", SEAM_VISIT_MARKER], "refused"],
+  ["comparison", ["baseline", "extra", SEAM_VISIT_MARKER], "declined"],
+  ["single", [], "none"],
+  ["comparison", [], "none"]
+];
+
+/** A stored v1 report of one kind with the key set at a path (members made on the way), and its sidecar. */
+function storedWithKeyAt(kind: "single" | "comparison", keyPath: readonly string[]): { wire: string; sidecar: string; createdAt: string; parsed: () => unknown } {
+  const clean = cleanEnvelope().result;
+  const good = { ...toPublicScanReportV1(kind === "single" ? clean : createGpcComparisonReport(clean, clean)), share: buildStaticReportShare(REPORT_ID) };
+  const read = readStoredScanReport(good);
+  if (!read.ok) throw new Error("the fixture is not a report");
+  const createdAt = committedReportCreatedAt(read.stored);
+  const tampered = JSON.parse(JSON.stringify(good)) as Record<string, unknown>;
+  let at = tampered;
+  for (const [index, key] of keyPath.entries()) {
+    if (index === keyPath.length - 1) at[key] = 1;
+    else at = (at[key] ??= {}) as Record<string, unknown>;
+  }
+  const wire = `${JSON.stringify(tampered, null, 2)}\n`;
+  const sidecar = `${JSON.stringify(buildProvenanceEntry({ reportId: REPORT_ID, publicReport: tampered, writtenAt: WRITTEN_AT, createdAt, expiresAt: null }), null, 2)}\n`;
+  return { wire, sidecar, createdAt, parsed: () => JSON.parse(wire) as unknown };
+}
+
+test("wherever the key sits in a stored report, no function that reads one throws, and each gives its declared answer for that report", async () => {
+  assert.equal(KEY_POSITIONS.length, 16);
+  const seen = { declined: 0, refused: 0, kept: 0, none: 0 };
+  for (const [kind, keyPath, expected] of KEY_POSITIONS) {
+    const what = `${kind}: ${keyPath.join(".") || "no key"}`;
+    seen[expected] += 1;
+    const { wire, sidecar, createdAt, parsed } = storedWithKeyAt(kind, keyPath);
+    const answer = <T>(step: string, run: () => T): T => {
+      try {
+        return run();
+      } catch (error) {
+        throw new assert.AssertionError({ message: `${step} threw for ${what}: ${error instanceof Error ? `${error.name}: ${error.message}` : String(error)}` });
+      }
+    };
+
+    // The two readers decline where their check looks, and pass the rest.
+    const stored = answer("the stored reader", () => readStoredScanReport(parsed()));
+    const transport = answer("the transport reader", () => readScanTransportPayload(parsed()));
+    const inJob = answer("the transport reader, in a job envelope", () => readScanTransportPayload({ status: "succeeded", jobId: "job", report: parsed() }));
+    if (expected === "declined") {
+      assert.deepEqual(stored, { ok: false, error: "invalid" }, what);
+      assert.deepEqual(transport, { kind: "unreadable", error: "invalid" }, what);
+      assert.deepEqual(inJob, { kind: "unreadable", error: "invalid" }, what);
+    } else {
+      assert.equal(stored.ok, true, what);
+      assert.equal(transport.kind, "report", what);
+      assert.equal(inJob.kind, "report", what);
+    }
+
+    // The managed reader: not a report where a reader declines or the
+    // sanitizer refuses; no fixed point where the key is only dropped.
+    const managed = answer("the managed reader", () =>
+      readManagedReport({ reportId: REPORT_ID, reportContents: wire, sidecarContents: sidecar, retention: { createdAt, expiresAt: null } })
+    );
+    if (expected === "none") assert.equal(managed.ok, true, what);
+    else if (expected === "kept") assert.deepEqual([managed.ok, managed.ok ? null : managed.reason], [false, "redaction-not-idempotent"], what);
+    else assert.deepEqual(managed, { ok: false, error: "invalid", reason: "invalid-report" }, what);
+
+    // The remediation plan names the report it stops at.
+    const plan = answer("the remediation plan", () =>
+      planR2ReportRemediation({
+        reportId: REPORT_ID,
+        reportContents: wire,
+        sidecarContents: sidecar,
+        retentionSource: { kind: "metadata", retention: { createdAt, expiresAt: new Date(Date.parse(createdAt) + 7 * 86_400_000).toISOString() } },
+        writtenAt: new Date(Date.parse(createdAt) + 3_600_000).toISOString(),
+        now: new Date(Date.parse(createdAt) + 3_600_000).toISOString()
+      })
+    );
+    if (expected === "declined" || expected === "refused") assert.deepEqual(plan, { ok: false, reportId: REPORT_ID, issue: "invalid-report", detail: "invalid" }, what);
+    else assert.deepEqual([plan.ok, plan.reportId], [true, REPORT_ID], what);
+
+    // The privacy-replacement plan is made from what the stored reader
+    // returned, so it is reached only for a report that reader passed.
+    if (stored.ok && stored.stored.schemaVersion === 1) {
+      const original = stored.stored.report;
+      const replacement = answer("the privacy-replacement plan", () => planPrivacyReplacement(original, OTHER_REPORT_ID));
+      if (expected === "refused") assert.deepEqual(replacement, { ok: false, issue: "invalid-report", detail: "invalid" }, what);
+      else assert.deepEqual([replacement.ok, replacement.ok ? replacement.replacement.share?.id : null], [true, OTHER_REPORT_ID], what);
+    }
+
+    // The committed corpus's own remediation run stops at the file, by name,
+    // for a shape the sanitizer refuses as for one a reader declines.
+    if (expected === "declined" || expected === "refused") {
+      const reportsDir = mkdtempSync(path.join(tmpdir(), "sbl-seam-positions-"));
+      try {
+        writeFileSync(path.join(reportsDir, `${REPORT_ID}.json`), wire);
+        writeFileSync(path.join(reportsDir, committedSidecarFilename(REPORT_ID)), sidecar);
+        await assert.rejects(
+          remediateReports({ reportsDir, writtenAt: WRITTEN_AT }),
+          (error) => error instanceof Error && !(error instanceof SeamVisitRefusal) && error.message === `Cannot remediate ${REPORT_ID}.json: unreadable report (invalid).`,
+          what
+        );
+        // The privacy replacement run names the report too. It reads through
+        // the stored reader and then the managed reader, so it stops at
+        // whichever declines first and never reaches its plan.
+        const stopsAt = expected === "declined" ? "unreadable report (invalid)" : "its committed bundle is not an attested current pair (invalid-report)";
+        await assert.rejects(
+          privacyReplaceReport({ reportsDir, reportId: REPORT_ID, writtenAt: WRITTEN_AT, _testReplacementReportId: OTHER_REPORT_ID }),
+          (error) => error instanceof Error && !(error instanceof SeamVisitRefusal) && error.message === `Cannot replace ${REPORT_ID} for privacy: ${stopsAt}.`,
+          what
+        );
+        assert.deepEqual(readdirSync(reportsDir).sort(), [committedSidecarFilename(REPORT_ID), `${REPORT_ID}.json`].sort(), `${what}: a run that stopped left something behind`);
+      } finally {
+        rmSync(reportsDir, { recursive: true, force: true });
+      }
+    }
+  }
+  assert.deepEqual(seen, { declined: 8, refused: 3, kept: 3, none: 2 });
+
+  // The three shapes are what this test is for: the sanitizer does refuse
+  // each, so the answers above came from the callers, not from a sanitizer
+  // that let them through.
+  for (const [kind, keyPath, expected] of KEY_POSITIONS) {
+    if (expected !== "refused") continue;
+    assert.throws(() => redactScanReportV1(storedWithKeyAt(kind, keyPath).parsed() as ScanReport), isRefusal, keyPath.join("."));
+  }
+  // Anything else the sanitizer throws is still thrown: the callers turn the
+  // seam's refusal into their declared failure, and nothing more.
+  const broken = { get conditions(): never { throw new RangeError("not the seam's refusal"); } } as unknown as ScanReport;
+  assert.throws(() => planPrivacyReplacement(broken, OTHER_REPORT_ID), RangeError);
 });
 
 test("the report store answers unreadable for a stored report that gained the key, and does not throw", async () => {

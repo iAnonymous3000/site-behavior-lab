@@ -21,6 +21,7 @@ import {
 import { REPORT_ID_PATTERN } from "./report-validation";
 import { readStaticReportBundle, removeStaticReportBundleUnderLock } from "./static-report-files";
 import { readStoredScanReport } from "./scan-report-reader";
+import { SeamVisitRefusal } from "./seam-visit-mark";
 import type { PublicScanReportV2R2 } from "./scan-report-v2-r2";
 import {
   MIGRATABLE_REDACTION_VERSION,
@@ -408,7 +409,9 @@ async function privacyReplaceReportUnlocked(
     throw refuse("its sidecar does not carry the committed retention clock");
   }
 
-  const { redacted, replacement, wire: replacementWire } = planPrivacyReplacement(read.stored.report, replacementReportId);
+  const plan = planPrivacyReplacement(read.stored.report, replacementReportId);
+  if (!plan.ok) throw refuse(`unreadable report (${plan.detail})`);
+  const { redacted, replacement, wire: replacementWire } = plan;
   assertPreservedIdentity(reportId, read.stored.report, redacted);
   const replacementSidecarWire = `${JSON.stringify(
     buildProvenanceEntry({
@@ -521,7 +524,16 @@ async function planReport(
   let reportChanged = false;
   if (read.stored.schemaVersion === 1) {
     const original = read.stored.report;
-    const redacted = redactScanReportV1(original).report;
+    let redacted: ScanReport;
+    try {
+      redacted = redactScanReportV1(original).report;
+    } catch (error) {
+      // The sanitizer refused a stored shape the reader above passed (it
+      // makes the reader's check again on each arm of a comparison). The
+      // run stops as it does when the reader declines, and names the file.
+      if (error instanceof SeamVisitRefusal) throw new Error(`Cannot remediate ${file}: unreadable report (invalid).`);
+      throw error;
+    }
     assertPreservedIdentity(reportId, original, redacted);
     reportChanged = publicReportDigest(original) !== publicReportDigest(redacted);
     publicReport = redacted;

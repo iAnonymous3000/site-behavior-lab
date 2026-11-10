@@ -27,6 +27,7 @@ import {
 import { R2ProducerContractError } from "./scan-report-v2-r2-producer-contract";
 import type { PublicScanReportV2R2 } from "./scan-report-v2-r2";
 import { PUBLIC_SCANNER_EGRESS_LABELS } from "./scanner-egress";
+import { SeamVisitRefusal } from "./seam-visit-mark";
 import { parseStrictJson } from "./strict-json";
 import type { ScanReport } from "./types";
 
@@ -159,11 +160,21 @@ export function readManagedReport(input: {
   // object twice. A matching sidecar never permits skipping the sanitizer. Frozen
   // v1 must already be a fixed point of the current public transform or a
   // forged/current-version sidecar could bless raw legacy bytes.
-  if (
-    reportRead.stored.schemaVersion === 1 &&
-    publicReportDigest(redactScanReportV1(reportRead.stored.report).report) !== provenance.entry.publicDigest
-  ) {
-    return redactionFailure("digest-mismatch");
+  if (reportRead.stored.schemaVersion === 1) {
+    let redactedDigest: string;
+    try {
+      redactedDigest = publicReportDigest(redactScanReportV1(reportRead.stored.report).report);
+    } catch (error) {
+      // The reader above declines a report that carries the mark of a visit
+      // a private capture was connected to, in the places its check looks.
+      // The sanitizer makes the same check again on each arm of a comparison,
+      // so it can still refuse a stored shape the reader passed. That is the
+      // same answer about the report, so it is given the same way: not a
+      // report. Anything else the sanitizer throws is thrown on, as before.
+      if (error instanceof SeamVisitRefusal) return { ok: false, error: "invalid", reason: "invalid-report" };
+      throw error;
+    }
+    if (redactedDigest !== provenance.entry.publicDigest) return redactionFailure("digest-mismatch");
   }
   if (reportRead.stored.schemaVersion === 1 && !hasReviewedRunLabels(reportRead.stored.report)) {
     return failure("producer-vocabulary-mismatch");

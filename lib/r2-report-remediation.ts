@@ -12,6 +12,7 @@ import {
 } from "./redaction-provenance";
 import { REPORT_ID_PATTERN } from "./report-validation";
 import { readStoredScanReport } from "./scan-report-reader";
+import { SeamVisitRefusal } from "./seam-visit-mark";
 import {
   MIGRATABLE_REDACTION_VERSION,
   R2RedactionRemediationError,
@@ -194,7 +195,18 @@ export function planR2ReportRemediation(input: R2ReportRemediationInput): R2Repo
   let reportWire: string;
   let reportChanged = false;
   if (read.stored.schemaVersion === 1) {
-    const redacted = redactScanReportV1(read.stored.report).report;
+    let redacted: ScanReport;
+    try {
+      redacted = redactScanReportV1(read.stored.report).report;
+    } catch (error) {
+      // The sanitizer can still refuse, as a private capture's visit, a
+      // stored shape the reader above passed: it makes the reader's check
+      // again on each arm of a comparison. The plan then answers as it does
+      // when the reader declines, with the report's ID, so one such object
+      // cannot stop a run over the store without being named.
+      if (error instanceof SeamVisitRefusal) return issue(input.reportId, "invalid-report", "invalid");
+      throw error;
+    }
     if (!preservesIdentity(input.reportId, read.stored.report, redacted)) {
       return issue(input.reportId, "report-identity-changed");
     }

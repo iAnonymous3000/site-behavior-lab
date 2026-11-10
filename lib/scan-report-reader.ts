@@ -51,9 +51,12 @@ export function readStoredScanReport(value: unknown): ReadStoredScanReportResult
   }
   // The result of a visit a private capture was connected to carries a key
   // no report may carry (lib/seam-visit-mark.ts). The frozen v1 validator
-  // tolerates unknown properties, so it is declined here by name, as invalid:
-  // a stored or opened file that carries it is not a report, and every
-  // reader of one answers so instead of meeting the sanitizer's refusal.
+  // tolerates unknown properties, so a value that carries the key where this
+  // check looks is declined here by name, as invalid: it is not a report.
+  // The check is made once, on the value. The sanitizer makes it again on
+  // each arm of a comparison, so it can still refuse a stored shape this
+  // passed. The callers that hand the sanitizer a stored report turn that
+  // refusal into their own declared failure (docs/runtime-boundaries.md).
   if (isSeamVisit(value)) return { ok: false, error: "invalid" };
 
   if (value.schemaVersion === V1_SCHEMA_VERSION) {

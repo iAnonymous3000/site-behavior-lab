@@ -20,10 +20,24 @@ import ts from "typescript";
  *
  * By count. A name-based check cannot see a value copied out of a condition
  * and awaited later, or a helper whose body is guarded and whose call is
- * not. So the number of awaits, of listener registrations and of page
- * scripts that lie OUTSIDE the seam's conditions is pinned for each function
- * held. One more of any of them, for every visit, changes a number here
- * under that function's name, whatever it is called.
+ * not. So three things are counted where they are written OUTSIDE the seam's
+ * conditions in the text of each of the four functions held, and each number
+ * is pinned under that function's name:
+ *
+ * - await expressions, and `for await` loops;
+ * - direct calls of a listener method: on, once, addListener,
+ *   prependListener, addEventListener;
+ * - direct calls of a page-script method: addInitScript, exposeBinding,
+ *   exposeFunction.
+ *
+ * That is all the count is. It is not a count of what a visit does. It does
+ * not see a turn added to an existing await's operand (a `.then` on it), a
+ * call of any other method (a route, say), or a registration made by a
+ * helper that is declared outside the four functions. What a visit does
+ * register on its context, its page and its DevTools session, through any
+ * helper, is observed in a real browser by lib/visit-setup-calls.test.ts.
+ * Neither test observes a listener put on another object, such as the
+ * caller's signal, through a helper outside the four functions.
  *
  * By list. The awaits a seam visit adds are listed as source text.
  *
@@ -32,12 +46,13 @@ import ts from "typescript";
  * conditions themselves: one property read and a handful of comparisons.
  *
  * The counts are a change detector for these four functions. A deliberate
- * change to one of them that adds or removes an await, a listener or a page
- * script for every visit updates its number in the same commit.
+ * change to one of them that adds or removes one of the counted things for
+ * every visit updates its number in the same commit. The failure says which
+ * function and which number, and what to do.
  *
  * The checker is run against planted variants below. Each moves one use of
- * the seam out from behind its condition, or adds one thing to every visit
- * in a way the names alone would not show.
+ * the seam out from behind its condition, or adds one counted thing to
+ * every visit in a way the names alone would not show.
  */
 
 const root = process.cwd();
@@ -86,6 +101,12 @@ const CHECK_RULES: GuardRules = {
 
 const LISTENER_METHODS: ReadonlySet<string> = new Set(["on", "once", "addListener", "prependListener", "addEventListener"]);
 const PAGE_SCRIPT_METHODS: ReadonlySet<string> = new Set(["addInitScript", "exposeBinding", "exposeFunction"]);
+/** What each count is a count of, for the failure message. */
+const COUNTED: Readonly<Record<keyof Counts, string>> = {
+  awaits: "await expressions and for await loops",
+  listeners: `direct calls of ${[...LISTENER_METHODS].join(", ")}`,
+  pageScripts: `direct calls of ${[...PAGE_SCRIPT_METHODS].join(", ")}`
+};
 
 const text = (node: ts.Node, source: ts.SourceFile): string => node.getText(source).replace(/\s+/g, " ");
 
@@ -145,8 +166,9 @@ function owningFunction(node: ts.Node): string | null {
  * Everything in `file` that a visit without a seam could reach and should
  * not: a use of the seam outside the held functions, or inside them with no
  * enclosing condition on whose seam side it sits; and, for each held
- * function, a count of awaits, listeners or page scripts outside the seam's
- * conditions that is not the pinned one.
+ * function, a count of the await expressions or of the direct calls of the
+ * listed methods written outside the seam's conditions that is not the
+ * pinned one.
  */
 function seamProblems(fileName: string, sourceText: string, rules: GuardRules): string[] {
   const source = ts.createSourceFile(fileName, sourceText, ts.ScriptTarget.Latest, true);
@@ -186,7 +208,7 @@ function seamProblems(fileName: string, sourceText: string, rules: GuardRules): 
     }
     const held = owner === null ? undefined : counts.get(owner);
     if (held && !onSeamSide(node, source, rules)) {
-      if (ts.isAwaitExpression(node)) held.awaits += 1;
+      if (ts.isAwaitExpression(node) || (ts.isForOfStatement(node) && node.awaitModifier !== undefined)) held.awaits += 1;
       if (ts.isCallExpression(node) && ts.isPropertyAccessExpression(node.expression)) {
         if (LISTENER_METHODS.has(node.expression.name.text)) held.listeners += 1;
         if (PAGE_SCRIPT_METHODS.has(node.expression.name.text)) held.pageScripts += 1;
@@ -200,7 +222,10 @@ function seamProblems(fileName: string, sourceText: string, rules: GuardRules): 
     const found = counts.get(name) as Counts;
     for (const kind of ["awaits", "listeners", "pageScripts"] as const) {
       if (found[kind] !== pinned[kind]) {
-        problems.push(`${fileName} ${name}: ${found[kind]} ${kind} outside the seam's conditions, where ${pinned[kind]} are pinned`);
+        problems.push(
+          `${fileName} ${name}: ${found[kind]} ${kind} outside the seam's conditions, where ${pinned[kind]} are pinned (${COUNTED[kind]}, as written in ${name}). ` +
+            "If this statement is meant for every visit, update the pinned count; if it belongs to the seam, put it behind the seam's condition."
+        );
       }
     }
   }
@@ -224,7 +249,7 @@ function replaceOnce(source: string, from: string, to: string): string {
   return source.replace(from, to);
 }
 
-test("every use of the seam in the scanner and in the check sits behind the seam's presence, and nothing is added outside it", () => {
+test("every use of the seam in the scanner and in the check sits behind the seam's presence, and the awaits and listed calls written outside it in the four held functions are the pinned number", () => {
   const scanner = read("lib/scanner.ts");
   const check = read("lib/scroll-check.ts");
   assert.deepEqual(seamProblems("lib/scanner.ts", scanner, SCANNER_RULES), []);
@@ -265,7 +290,7 @@ test("every use of the seam in the scanner and in the check sits behind the seam
   );
 });
 
-test("the checker refuses each way a use of the seam could leave its condition, by name or by count", () => {
+test("the checker refuses each planted way a use of the seam leaves its condition, or an await or a listed call is added for every visit, and says what to do", () => {
   const scanner = read("lib/scanner.ts");
   const check = read("lib/scroll-check.ts");
   const RELEASE = "    if (seam !== null) seam.release();";
@@ -340,6 +365,18 @@ test("the checker refuses each way a use of the seam could leave its condition, 
       INIT,
       `${INIT}\n    await page.addInitScript(seam !== null ? seam.description.version : "0;");`,
       /lib\/scanner\.ts scanSiteWithMeasurementOnLeasedBrowser: \d+ pageScripts outside the seam's conditions, where \d+ are pinned/
+    ],
+    [
+      "an init script added for every visit and not awaited",
+      INIT,
+      `${INIT}\n    void page.addInitScript("0;");`,
+      /lib\/scanner\.ts scanSiteWithMeasurementOnLeasedBrowser: 5 pageScripts outside the seam's conditions, where 4 are pinned/
+    ],
+    [
+      "a listener added for every visit and its registration discarded",
+      MARK,
+      `${MARK}\n    void page.once("close", () => undefined);`,
+      /lib\/scanner\.ts scanSiteWithMeasurementOnLeasedBrowser: 11 listeners outside the seam's conditions, where 10 are pinned/
     ]
   ];
   for (const [what, from, to, problem] of scannerVariants) {
@@ -384,12 +421,25 @@ test("the checker refuses each way a use of the seam could leave its condition, 
       CHECK_START,
       `${CHECK_START}\n  await awaitBoundary(async () => undefined, "check-start", withinDeadline);`,
       /not behind the seam's presence: lib\/scroll-check\.ts:\d+ awaitBoundary\(/
+    ],
+    [
+      "a turn for every run through a for await loop, fed from behind the condition",
+      CHECK_START,
+      `${CHECK_START}\n  let boundaryDone: Promise<void> | null = null;\n  if (run.boundary) boundaryDone = Promise.resolve();\n  for await (const _ of [boundaryDone]) void _;`,
+      /lib\/scroll-check\.ts sequence: 15 awaits outside the seam's conditions, where 14 are pinned/
     ]
   ];
   for (const [what, from, to, problem] of checkVariants) {
     const problems = seamProblems("lib/scroll-check.ts", replaceOnce(check, from, to), CHECK_RULES);
     assert.ok(problems.some((line) => problem.test(line)), `${what} was not refused: ${JSON.stringify(problems)}`);
   }
+  // A count that moved says which function, both numbers, what is counted
+  // and what a maintainer does about it.
+  const moved = seamProblems("lib/scroll-check.ts", replaceOnce(check, CHECK_START, `${CHECK_START}\n  await Promise.resolve();`), CHECK_RULES);
+  assert.deepEqual(moved, [
+    "lib/scroll-check.ts sequence: 15 awaits outside the seam's conditions, where 14 are pinned (await expressions and for await loops, as written in sequence). " +
+      "If this statement is meant for every visit, update the pinned count; if it belongs to the seam, put it behind the seam's condition."
+  ]);
   // A file with the seam's code gone is refused too, not passed for want of anything to find.
   const empty = seamProblems("empty.ts", "export const nothing = 1;\n", SCANNER_RULES);
   assert.equal(empty[0], "empty.ts: only 0 uses of the seam were found, so the walk did not see the code it holds");

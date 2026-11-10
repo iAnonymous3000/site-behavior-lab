@@ -101,10 +101,13 @@ function assertPrivacyReplacementsAreRedactedCopies(
         );
       }
       const read = readStoredScanReport(parseJson(originalWire, `${base}:${originalId}.json`));
-      if (!read.ok || read.stored.schemaVersion !== 1) {
+      // A report the reader declines and one the sanitizer refuses get the
+      // same answer, by name: no plan can be derived from either.
+      const plan = read.ok && read.stored.schemaVersion === 1 ? planPrivacyReplacement(read.stored.report, replacementId) : null;
+      if (plan === null || !plan.ok) {
         throw new Error(`${originalId} at ${base} is not a frozen v1 report, which is the only kind with a reviewed privacy replacement`);
       }
-      if (Buffer.from(replacement.report).toString("utf8") !== planPrivacyReplacement(read.stored.report, replacementId).wire) {
+      if (Buffer.from(replacement.report).toString("utf8") !== plan.wire) {
         throw new Error(
           `Privacy replacement ${replacementId} is not the current redaction of ${originalId} with its share moved`
         );
