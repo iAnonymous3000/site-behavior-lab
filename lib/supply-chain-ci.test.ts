@@ -38,10 +38,13 @@ test("every unit-suite and smoke job pins a budget below the 6-hour default", ()
   // runs the suite or a live app must pin its own ceiling, like
   // update-brave-lists.yml does for its unit-test step.
   assert.notEqual(smokeStart, -1);
-  assert.match(testsJob, /\n {4}timeout-minutes: 45\n/);
+  // The two jobs that run the whole unit suite have 60 minutes. The suite
+  // took about 28 on a hosted runner on 2026-11-10, and the image build that
+  // repeats it took up to 44, so 45 no longer left room for a slow runner.
+  assert.match(testsJob, /\n {4}timeout-minutes: 60\n/);
   assert.match(pagesJob, /\n {4}timeout-minutes: 45\n/);
   assert.match(smokeJob, /\n {4}timeout-minutes: 45\n/);
-  assert.match(dockerJob, /\n {4}timeout-minutes: 45\n/);
+  assert.match(dockerJob, /\n {4}timeout-minutes: 60\n/);
 });
 
 test("provenance attestation is isolated, immutable, and limited to exact evidence subjects", () => {

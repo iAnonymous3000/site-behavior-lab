@@ -68,7 +68,7 @@ export const PARALLEL_FILES = 3;
 // 135 to 183 s on CI runners and 72 to 94 s on a busy Mac in October 2026,
 // growing with the corpus. A timeout there means the corpus outgrew this
 // bound, not a deadlock. Ten minutes still lets two stuck tests in a row fail
-// by name inside the 45 minutes CI gives the whole tests job.
+// by name inside the 60 minutes CI gives the whole tests job.
 export const TEST_TIMEOUT_MS = 600_000;
 // --test-timeout alone fails a stuck test on time, but a server, socket or
 // child process that test left open keeps its file's process alive, and node

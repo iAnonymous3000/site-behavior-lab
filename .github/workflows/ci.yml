@@ -243,7 +243,7 @@ jobs:
     name: Typecheck and Unit Tests
     runs-on: ubuntu-24.04
     # A deadlocked unit test must fail this job fast, never consume the 6-hour default budget.
-    timeout-minutes: 45
+    timeout-minutes: 60
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -516,7 +516,11 @@ jobs:
   docker:
     name: Docker Runtime and Public R2 Smoke
     runs-on: ubuntu-24.04
-    timeout-minutes: 45
+    # The image build runs the whole check, so this job is the longest. It
+    # took 39 to 44 minutes on 2026-11-10, which left a slow runner nothing
+    # under the 45 it had then. The ceiling is still far below the 6-hour
+    # default a hung build would otherwise consume.
+    timeout-minutes: 60
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

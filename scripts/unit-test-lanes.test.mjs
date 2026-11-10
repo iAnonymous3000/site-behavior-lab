@@ -269,12 +269,15 @@ test("TEST_TIMEOUT_MS lets two stuck tests fail by name inside CI's budget for t
   const budget = Number(/\n {4}timeout-minutes: (\d+)\n/.exec(testsJob)?.[1]) * 60_000;
   assert.ok(budget > 0, "the tests job pins no timeout-minutes");
   assert.ok(Number.isInteger(TEST_TIMEOUT_MS) && TEST_TIMEOUT_MS > 0);
-  // The suite itself needs about 14 of the job's minutes on a CI runner. With
-  // each stuck test given at most a third of the budget, two of them in a row
-  // still print node's "test timed out" before Actions cancels the job.
+  // Two stuck tests in a row must still print node's "test timed out" before
+  // Actions cancels the job, and the job's other work is not free. On
+  // 2026-11-10 that work took about 30 minutes on a CI runner, and the formal
+  // verification report step adds about 5. The figure is measured, not
+  // derived, so this bound is only as current as the figure.
+  const otherWorkMs = 35 * 60_000;
   assert.ok(
-    3 * TEST_TIMEOUT_MS <= budget,
-    `TEST_TIMEOUT_MS (${TEST_TIMEOUT_MS} ms) must stay within a third of the tests job's ${budget} ms`
+    otherWorkMs + 2 * TEST_TIMEOUT_MS <= budget,
+    `two stuck tests (${2 * TEST_TIMEOUT_MS} ms) and the job's other work (${otherWorkMs} ms) must fit the tests job's ${budget} ms`
   );
 });
 
