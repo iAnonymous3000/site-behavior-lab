@@ -433,6 +433,14 @@ test("the current-line literal equals what new reports will record, so an epoch 
     id: "fingerprint-surface-v2",
     methodologyVersion: "shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2"
   })), false);
+  // The line the 2026-12 toolchain epoch (adblock-rust 0.13.5, Playwright
+  // 1.65.0) retired, which moved the ad-block engine and the Playwright
+  // component. No committed report was on it when that epoch recorded its
+  // line.
+  assert.equal(isOnCurrentMeasurementLine(identity({
+    id: "toolchain-2026-11",
+    methodologyVersion: "shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.64.1+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2"
+  })), false);
   // The line lives inside the v1 benchmark generation only.
   assert.equal(
     isOnCurrentMeasurementLine(identity({ id: "x", schemaVersion: 2, methodologyVersion: CURRENT_MEASUREMENT_LINE_METHODOLOGY })),
@@ -449,7 +457,8 @@ test("the reviewed line history is append-only and ends at the current line", ()
     "shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v3+detector-coverage-v2",
     "shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v4+detector-coverage-v2",
     "shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2",
-    "shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.64.1+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2"
+    "shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.64.1+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2",
+    "shields-request-context-v2-adblock-rust-0.13.5-request-method-v1-playwright-1.65.0+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2"
   ]);
   assert.equal(Object.isFrozen(REVIEWED_MEASUREMENT_LINES), true);
   assert.equal(new Set(REVIEWED_MEASUREMENT_LINES).size, REVIEWED_MEASUREMENT_LINES.length);
@@ -669,14 +678,19 @@ test("no methodology carries two of the registries the cohort key leaves to it, 
   assert.equal(DETECTOR_REGISTRIES_NAMED_BY_METHODOLOGY.includes(DETECTOR_REGISTRY_VERSION), false);
   // The pool the key exists to prevent: one methodology across detector
   // epochs. The r2 methodology the 2026-11 toolchain epoch retired (Playwright
-  // 1.63.0) ran thirteen registries, node-detectors-v11 to v23; the live one
-  // (Playwright 1.64.1) has run two, node-detectors-v23 and v24.
+  // 1.63.0) ran thirteen registries, node-detectors-v11 to v23; the one the
+  // 2026-12 toolchain epoch retired (Playwright 1.64.1) ran two,
+  // node-detectors-v23 and v24, and the live one names node-detectors-v24
+  // alone until the next detector epoch.
   const retired = [...registriesByMethodology].filter(([methodology]) => methodology.includes("-playwright-1.63.0+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2+"));
   assert.equal(retired.length, 1);
   assert.deepEqual(
     [...retired[0][1]].sort((a, b) => Number(a.slice("node-detectors-v".length)) - Number(b.slice("node-detectors-v".length))),
     Array.from({ length: 13 }, (_, index) => `node-detectors-v${index + 11}`)
   );
+  const retiredToolchain202611 = [...registriesByMethodology].filter(([methodology]) => methodology.includes("-playwright-1.64.1+"));
+  assert.equal(retiredToolchain202611.length, 1);
+  assert.deepEqual([...retiredToolchain202611[0][1]], ["node-detectors-v23", "node-detectors-v24"]);
 });
 
 test("one methodology across detector epochs is two cohorts, and a registry its methodology names leaves the id as it was", () => {

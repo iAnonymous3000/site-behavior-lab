@@ -227,7 +227,13 @@ export const REVIEWED_MEASUREMENT_LINES: readonly string[] = Object.freeze([
   // (the version tag's commit time plus 70 days). The line it retires holds
   // 263 committed reports; their cohorts now take part only through that
   // line's replayed handoff.
-  "shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.64.1+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2"
+  "shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.64.1+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2",
+  // The 2026-12 toolchain epoch: adblock-rust 0.13.5 and Playwright 1.65.0.
+  // Recorded 2026-11-10: its Chromium 158.0.8127.18 applies the HSTS preload
+  // list until an estimated 2027-01-13 01:08 UTC (the version tag's commit
+  // time plus 70 days). No committed report was on the line it retires when
+  // this was recorded.
+  "shields-request-context-v2-adblock-rust-0.13.5-request-method-v1-playwright-1.65.0+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2"
 ]);
 
 /** The current line: the newest entry of {@link REVIEWED_MEASUREMENT_LINES}. */
