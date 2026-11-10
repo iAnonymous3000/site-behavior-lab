@@ -3141,6 +3141,17 @@ as intended.
   ts-json-schema-generator 2.9.0, so the pruned runtime image contains
   neither, and the generated schemas are byte for byte unchanged. No
   measurement identity moves in any of these commits.
+- The epoch's record is
+  [docs/toolchain-epoch-2026-11.md](docs/toolchain-epoch-2026-11.md), with
+  the four staging receipts beside it. Both matched staging rounds of
+  2026-11-08 are recorded FAIL on medians of the guardian case, in opposite
+  directions. The comparison rule added on 2026-11-10 prints inconclusive
+  for both, which is not a pass and does not judge them again. On
+  2026-11-10 the owner decided to release the epoch to production under a
+  recorded exception to the A/B gate. The record says what that exception
+  does not establish: the commit released is later than the staged
+  candidate, neither it nor its image was staged, and one later commit
+  outside the epoch changes how 47 saved comparisons are read.
 
 ## [0.6.0] - 2026-09-06
 
