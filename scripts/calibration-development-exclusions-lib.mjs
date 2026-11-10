@@ -225,6 +225,8 @@ export const DEVELOPMENT_EXCLUSION_SURFACES = Object.freeze([
   // Every committed canary panel, one exact path per panel: a case that left
   // the current panel was still scanned on staging in the epochs before.
   jsonEntries("scripts/fixtures/toolchain-canary-panels/monthly-toolchain-canary-v1.json", "cases", ["domain", "url"]),
+  // The candidates a qualifying capture scans on staging before a panel change.
+  jsonEntries("scripts/fixtures/toolchain-canary-qualification-panel.json", "cases", ["domain", "url"]),
   // The real PageGraph capture kept as a parser fixture.
   {
     path: "lib/__fixtures__/pagegraph/real-wikipedia-2026-07-19.meta.json",

@@ -1,0 +1,26 @@
+{
+  "qualificationPanelVersion": 1,
+  "qualificationPanelId": "toolchain-canary-qualification-2026-11",
+  "repetitions": 5,
+  "conditions": {
+    "device": "desktop",
+    "gpcEnabled": true,
+    "consentMode": "observe"
+  },
+  "metricTolerances": {
+    "totalRequests": { "absolute": 10, "relative": 0.2 },
+    "thirdPartyRequests": { "absolute": 8, "relative": 0.25 },
+    "knownTrackerRequests": { "absolute": 3, "relative": 0.3 },
+    "thirdPartyDomains": { "absolute": 3, "relative": 0.25 },
+    "cookies": { "absolute": 4, "relative": 0.3 },
+    "thirdPartyCookies": { "absolute": 3, "relative": 0.3 },
+    "storageEntries": { "absolute": 4, "relative": 0.3 },
+    "fingerprintEvents": { "absolute": 3, "relative": 0.3 },
+    "shieldsBlockedRequests": { "absolute": 3, "relative": 0.3 }
+  },
+  "cases": [
+    { "id": "bumble", "catalog": "public/featured-sites.json", "domain": "bumble.com", "url": "https://bumble.com/" },
+    { "id": "ssa-gov", "catalog": "public/featured-sites.json", "domain": "ssa.gov", "url": "https://www.ssa.gov/" },
+    { "id": "who-int", "catalog": "public/corpus-seed-sites.json", "domain": "who.int", "url": "https://www.who.int/" }
+  ]
+}
