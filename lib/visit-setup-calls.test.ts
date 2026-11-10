@@ -304,3 +304,53 @@ test("an ordinary visit and a check visit register exactly the listed calls, in 
     await new Promise<void>((resolve) => fixture.server.close(() => resolve()));
   }
 });
+
+test("a visit with a seam registers what an ordinary one does, plus its one init script, before the observer's", { timeout: 180_000 }, async () => {
+  const fixture = await startFixture();
+  const recorder = recordScannerChromium();
+  try {
+    // A seam with nothing set marks its visit and registers nothing.
+    recorder.calls.length = 0;
+    await scanSiteWithMeasurement(PAYLOAD, visitOptions(fixture.port, { investigationSeam: {} }));
+    assert.deepEqual(recorder.calls, ORDINARY_VISIT_CALLS);
+
+    // Its init script is the one call a seam adds, right before the
+    // scanner's own observer script, which is what keeps the observer the
+    // outermost wrapper in each document.
+    const initScript = "window.__setupFixtureSeam = true;";
+    const added = `page.addInitScript content:${createHash("sha256").update(initScript).digest("hex").slice(0, 12)}`;
+    recorder.calls.length = 0;
+    await scanSiteWithMeasurement(PAYLOAD, visitOptions(fixture.port, { investigationSeam: { initScript } }));
+    const at = recorder.calls.indexOf(added);
+    assert.ok(at > 0, `the seam's init script was not recorded: ${recorder.calls.join(", ")}`);
+    assert.equal(recorder.calls[at + 1], "page.addInitScript fingerprintObserverInitScript");
+    assert.equal(recorder.calls[at - 1], "session.send Target.getTargetInfo");
+    assert.deepEqual([...recorder.calls.slice(0, at), ...recorder.calls.slice(at + 1)], ORDINARY_VISIT_CALLS);
+
+    // Every hook set, on a check visit: the hooks are the caller's own code,
+    // and the scanner registers nothing more for them.
+    const called: string[] = [];
+    recorder.calls.length = 0;
+    const checked = await scanSiteWithMeasurement(
+      PAYLOAD,
+      visitOptions(fixture.port, {
+        scrollCheck: true,
+        scrollCheckTimingForTests: CHECK_TIMING,
+        investigationSeam: {
+          pageReady: () => void called.push("pageReady"),
+          finalFingerprintRead: () => void called.push("finalFingerprintRead"),
+          afterEnvelope: () => void called.push("afterEnvelope"),
+          scrollCheckBoundary: (boundary) => void called.push(boundary),
+          scrollCheckDeadlineMarginMs: 10_000
+        }
+      })
+    );
+    assert.equal(scrollCheckEvidence(checked)?.outcome, "reached-end");
+    assert.deepEqual(called, ["pageReady", "finalFingerprintRead", "afterEnvelope", "check-start", "control-start", "control-end", "scroll-end"]);
+    assert.deepEqual(recorder.calls, CHECK_VISIT_CALLS);
+  } finally {
+    recorder.restore();
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => fixture.server.close(() => resolve()));
+  }
+});

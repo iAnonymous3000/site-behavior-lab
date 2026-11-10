@@ -25,6 +25,7 @@ import {
   SCROLL_CHECK_REQUEST_ALLOWANCE,
   SCROLL_CHECK_TIMING,
   ScrollCheckRecorder,
+  type ScrollCheckBoundary,
   type ScrollCheckTiming
 } from "./scroll-check";
 import { ScrollCheckStackRecorder } from "./scroll-check-stacks";
@@ -184,6 +185,12 @@ import type {
   BannerTransitionR2,
   GpcVerificationFactsR2
 } from "./scan-report-v2-r2";
+import {
+  investigationSeamReadings,
+  openInvestigationSeam,
+  type InvestigationSeam,
+  type OpenInvestigationSeam
+} from "./investigation-seam";
 import {
   attachScrollCheckEvidence,
   createNodeScanMeasurementEnvelope,
@@ -546,6 +553,16 @@ export type ScanSiteOptions = {
    * returns. Production never supplies this hook.
    */
   onEnvelopeBuiltForTests?: (envelope: NodeScanMeasurementEnvelope) => void;
+  /**
+   * A private capture's connection into this visit: hooks the scanner calls
+   * at fixed points, an init script, and two bounds of its own
+   * (lib/investigation-seam.ts). Nothing public sets it: the scan API refuses
+   * options that carry it, and a test refuses any other module that names it.
+   * A visit that sets it is marked and is never published. Without it, the
+   * visit runs the statements it always ran: every use below sits inside a
+   * condition on its presence.
+   */
+  investigationSeam?: InvestigationSeam;
   /** Cooperatively stops the browser visit and closes its isolated context. */
   signal?: AbortSignal;
   /** Coarse, observed browser lifecycle stages; never a percentage or ETA. */
@@ -1044,6 +1061,10 @@ async function scanSiteWithMeasurementOnLeasedBrowser(
   browserLease: SharedBrowserLease
 ): Promise<NodeScanMeasurementEnvelope> {
   throwIfScanAborted(options.signal);
+  // The visit's investigation seam, or null on every visit that sets none.
+  // Read once, here: everything the seam does later is behind this one value,
+  // and a seam this cannot read fails before any browser work.
+  const seam = options.investigationSeam === undefined ? null : openInvestigationSeam(options.investigationSeam);
   const started = Date.now() - (options.scanBudgetSpentMsForTests ?? 0);
   const measurementKernel = new MeasurementKernel<Request>(started);
   let keystrokeActivePhase: number | null = null;
@@ -1404,6 +1425,18 @@ async function scanSiteWithMeasurementOnLeasedBrowser(
     // target script can shadow Navigator getters. The configured locale is
     // producer-owned and must never be replaced with page testimony.
     const configuredUserAgent = await withSetupTimeout(page.evaluate(() => navigator.userAgent), started);
+    if (seam !== null) {
+      // The page is still about:blank and the scanner's own DevTools clients
+      // are attached; its observer, routes and recorders are not yet set up.
+      // The seam's init script is added here, before the observer's, so the
+      // observer stays the outermost wrapper in each document and what it
+      // records of a caller gains no frame. Both steps run inside the scan
+      // deadline: the time a hook takes is the visit's own.
+      await withSetupTimeout(seam.pageReady(page, options.signal), started);
+      if (seam.initScript !== null) {
+        await withSetupTimeout(page.addInitScript({ content: seam.initScript }), started);
+      }
+    }
     await withSetupTimeout(installFingerprintObserver(page, fingerprintObserverSiteKey), started);
 
     const requestsBlockedByShields = new WeakSet<Request>();
@@ -2533,6 +2566,9 @@ async function scanSiteWithMeasurementOnLeasedBrowser(
         collectFingerprintObservationsWithCoverage(page.frames(), readWorkerRealmsAtFreeze()),
         started
       );
+      // The seam observes the read the scanner just made: a copy, handed
+      // over synchronously, so a hook can neither alter nor delay it.
+      if (seam !== null) seam.finalFingerprintRead(tentativeFingerprintCollection);
       tentativeScreenshot = await withScanTimeout(
         page
           .screenshot({ type: "jpeg", quality: 62, fullPage: false })
@@ -3820,13 +3856,40 @@ async function scanSiteWithMeasurementOnLeasedBrowser(
           : publicRequests.filter((item) => item.blockedByShields).length
         : undefined
     });
+    // A seam visit is marked before anything can hold its result: in band on
+    // the two parts the envelope is built from, then by identity on the
+    // envelope itself. No other visit gets either.
+    if (seam !== null) seam.markParts(v1Result, measurement);
     const envelope = createNodeScanMeasurementEnvelope(
       v1Result,
       measurement,
       consentBannerObserveCalibration,
       connectionInspection?.evidence() ?? undefined
     );
+    if (seam !== null) seam.markVisit(envelope);
     options.onEnvelopeBuiltForTests?.(envelope);
+    // What a seam's hooks read once the result is built: the page's
+    // fingerprint observations, with the worker realms read as the scanner
+    // reads them, and the visit's budgets. Built for a seam visit only.
+    const seamReads =
+      seam !== null
+        ? investigationSeamReadings({
+            page,
+            workerRealms: () =>
+              fingerprintWorkerInstaller.readout({
+                session: workerRealmChannel,
+                witness: dedicatedWorkerWitness,
+                settleMs: WORKER_REALM_READOUT_SETTLE_MS
+              }),
+            budgets: () => ({ request: networkRecorder.requestBudget.getDiagnostics(), proxy: scanProxy.getDiagnostics() }),
+            runInFrame: (frame, expression) => frame.evaluate(expression)
+          })
+        : null;
+    if (seam !== null && seamReads !== null) {
+      // The result above is built and frozen, so nothing a hook does from
+      // here can reach it. The page, its routes and the proxy are still up.
+      await seam.afterEnvelope(seamReads.readings, options.signal);
+    }
     if (scrollCheck) {
       // THE INVARIANT: the ordinary result is complete and frozen above, so
       // from here the check can only fill its own evidence, which travels
@@ -3861,8 +3924,12 @@ async function scanSiteWithMeasurementOnLeasedBrowser(
         proxyLossCount: () => proxyCaptureLossCount(scanProxy.getDiagnostics()),
         settleRoutes: (maxMs) => settleRoutesWithin(inFlightRouteHandlers, maxMs),
         pageCrashed: () => pageCrashed,
-        options
+        options,
+        ...(seam !== null && seamReads !== null ? { seam, seamFingerprintRead: seamReads.readFingerprint } : {})
       });
+      // The check never throws, so a boundary callback's own error would
+      // read as a check cut short. It fails the visit here instead.
+      if (seam !== null) seam.rethrowBoundaryFailure();
     }
     return envelope;
   } finally {
@@ -3906,6 +3973,9 @@ async function runScrollCheckPhase(input: {
   settleRoutes: (maxMs: number) => Promise<void>;
   pageCrashed: () => boolean;
   options: ScanSiteOptions;
+  /** The visit's investigation seam and its fingerprint read; both absent on every visit that sets none. */
+  seam?: OpenInvestigationSeam;
+  seamFingerprintRead?: () => Promise<FingerprintObservationCollection>;
 }): Promise<void> {
   const startedAt = Date.now();
   input.switchRouteBudget();
@@ -3956,7 +4026,10 @@ async function runScrollCheckPhase(input: {
       settleRoutes: input.settleRoutes,
       now: Date.now,
       sleep: abortableSleep(input.options.signal, (signal) => scanAbortError(signal)),
-      ...(input.options.scrollCheckFaultForTests ? { faultForTests: input.options.scrollCheckFaultForTests } : {})
+      ...(input.options.scrollCheckFaultForTests ? { faultForTests: input.options.scrollCheckFaultForTests } : {}),
+      ...(input.seam !== undefined && input.seamFingerprintRead !== undefined
+        ? seamScrollCheckRun(input.seam, input.seamFingerprintRead)
+        : {})
     });
     attachScrollCheckEvidence(input.envelope, evidence);
   } catch {
@@ -3969,6 +4042,23 @@ async function runScrollCheckPhase(input: {
     page.off("requestfailed", input.recorder.noteFailed);
     page.off("framenavigated", noteMainFrameNavigation);
   }
+}
+
+/**
+ * What a seam adds to its visit's check: the boundary callback and the
+ * deadline margin, each only when the seam sets it. Called for a seam visit
+ * only, so every other check's run has the keys it always had.
+ */
+function seamScrollCheckRun(
+  seam: OpenInvestigationSeam,
+  readFingerprint: () => Promise<FingerprintObservationCollection>
+): { boundary?: (name: ScrollCheckBoundary) => Promise<void>; deadlineMarginMs?: number } {
+  return {
+    ...(seam.hasScrollCheckBoundary
+      ? { boundary: (name: ScrollCheckBoundary) => seam.scrollCheckBoundary(name, readFingerprint) }
+      : {}),
+    ...(seam.scrollCheckDeadlineMarginMs !== null ? { deadlineMarginMs: seam.scrollCheckDeadlineMarginMs } : {})
+  };
 }
 
 /** Requests the scan proxy's per-visit traffic and byte budgets have refused or cut, so far. */

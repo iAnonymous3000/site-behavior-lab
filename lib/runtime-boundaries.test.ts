@@ -140,6 +140,79 @@ test("no public entrypoint reaches the investigation workspace", async () => {
   assert.ok(reached.size > 300, `the public graph reached only ${reached.size} modules, so this walk did not run`);
 });
 
+/**
+ * The scanner's investigation seam is one optional field of a visit's options,
+ * which only a private capture sets (lib/investigation-seam.ts). Nothing that
+ * builds or runs the public scanner may set it, and the simplest thing that
+ * holds that is that nothing else names it: not the option, not its type, not
+ * the key a marked visit carries. Two files define it. Every other source
+ * file under app/, cloudflare/, lib/ and scripts/, and at the root, is swept,
+ * tests aside: that is every module the public entry points reach (held
+ * below), and with them the scan API and its jobs, the calibration runtime,
+ * the qualification acquirer and the repeatability script.
+ *
+ * A module that must refuse a seam visit does it through helpers whose names
+ * do not spell the seam, so the sweep needs no exception for them. A name
+ * split across strings to dodge this is out of scope, as it is above. The
+ * scan API also refuses the option at run time, and a visit that used it is
+ * refused wherever a report is built or saved (lib/investigation-seam.test.ts).
+ */
+const SEAM_NAME = /investigationSeam/i;
+const SEAM_DEFINERS: ReadonlySet<string> = new Set(["lib/investigation-seam.ts", "lib/scanner.ts"]);
+
+test("no public module names the investigation seam", async () => {
+  const SOURCE = /\.(?:ts|tsx|mts|cts|mjs|cjs|js|jsx)$/;
+  const TEST = /\.test\.(?:ts|tsx|mts|cts|mjs|cjs|js|jsx)$/;
+  const swept: string[] = [];
+  for (const directory of ["app", "cloudflare", "lib", "scripts"]) {
+    for (const file of await readdir(path.join(PROJECT_ROOT, directory), { recursive: true })) {
+      swept.push(`${directory}/${normalizeProjectPath(file)}`);
+    }
+  }
+  for (const entry of await readdir(PROJECT_ROOT, { withFileTypes: true })) if (entry.isFile()) swept.push(entry.name);
+  const sources = swept.filter((file) => SOURCE.test(file) && !TEST.test(file) && !file.endsWith(".d.ts"));
+  assert.ok(sources.length > 500, `the sweep read only ${sources.length} files, so it did not run`);
+
+  const named: string[] = [];
+  for (const file of sources) {
+    if (SEAM_NAME.test(await readFile(path.join(PROJECT_ROOT, file), "utf8"))) named.push(file);
+  }
+  assert.deepEqual(named.sort(), [...SEAM_DEFINERS].sort(), "only the seam's own module and the scanner may name the investigation seam");
+
+  // The sweep covers the public scanner: every module a public entry point
+  // reaches, and each caller of the scanner by name.
+  const reached = new Set<string>();
+  for (const entrypoint of await publicEntrypoints()) await collectRuntimeImportGraph(entrypoint, reached);
+  const unswept = [...reached].filter((file) => !sources.includes(file));
+  assert.deepEqual(unswept, [], "a public entry point reaches a module the sweep does not read");
+  for (const caller of [
+    "app/api/scan/route.ts",
+    "lib/scan-api.ts",
+    "lib/scan-jobs.ts",
+    "lib/calibration-scan-runtime.ts",
+    "lib/report-store.ts",
+    "lib/scan-report-v2-runtime-builder.ts",
+    "lib/scan-report-v2-shadow-store.ts",
+    "scripts/v1-qualification-acquire.mjs",
+    "scripts/repeatability-run.mjs",
+    "scripts/calibration-study-acquire.mjs",
+    "scripts/aa-study-acquire.mjs"
+  ]) {
+    assert.ok(sources.includes(caller), `${caller} could not be located`);
+  }
+  assert.ok(reached.has("lib/scan-api.ts") && reached.has("lib/scanner.ts") && reached.has("lib/investigation-seam.ts"));
+
+  // The pattern finds each way to name it: the option, its type, the key a
+  // marked visit carries, and the functions only the scanner calls.
+  for (const spelling of ["{ investigationSeam: seam }", "type InvestigationSeam", '"investigationSeamVisit"', "openInvestigationSeam(", "INVESTIGATIONSEAM"]) {
+    assert.equal(SEAM_NAME.test(spelling), true, spelling);
+  }
+  // And passes what a refusing module needs: the helpers and the module's path.
+  for (const allowed of ['import { refuseSeamOption, refuseSeamVisit } from "./investigation-seam";', "isSeamVisit(value)", "SeamVisitRefusal"]) {
+    assert.equal(SEAM_NAME.test(allowed), false, allowed);
+  }
+});
+
 test("no alias can name the workspace without spelling it", async () => {
   // The walk resolves only relative paths and the one project alias, so another alias would be invisible to it.
   const config = ts.parseConfigFileTextToJson("tsconfig.json", await readFile(path.join(PROJECT_ROOT, "tsconfig.json"), "utf8")).config as {
