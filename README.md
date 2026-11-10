@@ -106,8 +106,9 @@ proposal that a maintainer merges.
 - **Counts describe the instrumented visit.** Request counts can be lower
   bounds when capture is incomplete; cookie and storage snapshots can change
   either way. None estimates an ordinary browser visit. Service Workers are blocked by design, a SharedWorker's traffic
-  beyond its entry script and all WebSocket traffic go unrecorded, storage is
-  read from the top frame only, the input probe does not scroll to offscreen
+  beyond its entry script and all WebSocket traffic go unrecorded, storage keys
+  are read from local and session storage in the top frame only (IndexedDB and
+  Cache Storage are not read), the input probe does not scroll to offscreen
   fields, and the service catalog is a curated, US-biased list, not an
   inventory. A report's visit never scrolls; an on-demand check after
   scrolling, opened from a fresh result, is a separate visit that shows the

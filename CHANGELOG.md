@@ -362,6 +362,10 @@ public API or a 1.0 release.
   2026-10-21; the lib lanes were guarded against both and these ten stages
   were not. The corpus-overview group and the stage that tests the lanes
   themselves still run bare, and a test names them as the only two.
+- The methodology page, the README and [docs/limitations.md](docs/limitations.md)
+  now say which storage a visit reads: local and session storage keys in the
+  top frame. IndexedDB and Cache Storage are not read, and no public page said
+  so; the three places said only "storage". Nothing a scan records changes.
 - Tests the suite lacked, each shown to fail with its guard removed: a pair
   the claim policy refused never tells the consent story; the strict history
   key changes with each fingerprint it is built from; an admitted scan runs
