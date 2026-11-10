@@ -1,7 +1,10 @@
 import type { DurableScanJobStoreSql } from "./durable-scan-job-store";
 import {
-  REPORT_READ_GLOBAL_RATE_LIMIT_PER_MINUTE,
-  REPORT_READ_RATE_LIMIT_PER_MINUTE
+  PUBLIC_REPORT_READ_QUOTAS,
+  PUBLIC_REPORT_WORLD_LIMITS,
+  type PublicReportReadDecision,
+  type PublicReportReadQuota,
+  type PublicReportWorldBucket
 } from "./report-read-edge";
 
 // Token-gated durable scans preserve the Node admission budget while moving
@@ -151,7 +154,7 @@ export function chargeDurableScanJobReadRateLimit(
     perClient: DURABLE_SCAN_JOB_READ_RATE_LIMIT_PER_MINUTE,
     global: DURABLE_SCAN_JOB_READ_GLOBAL_RATE_LIMIT_PER_MINUTE,
     now
-  });
+  }).result;
 }
 
 export function chargeEncryptedWatchReadRateLimit(
@@ -165,27 +168,49 @@ export function chargeEncryptedWatchReadRateLimit(
     perClient: ENCRYPTED_WATCH_READ_RATE_LIMIT_PER_MINUTE,
     global: ENCRYPTED_WATCH_READ_GLOBAL_RATE_LIMIT_PER_MINUTE,
     now
-  });
+  }).result;
 }
 
 /**
- * Charge every server-rendered report representation against one combined
- * namespace. A client cannot multiply its allowance across HTML, RSC,
+ * Charge one report read in the quota its path names (the matcher in
+ * lib/report-read-edge.ts chooses it).
+ *
+ * "report-read" is every server-rendered report representation in one
+ * combined namespace. A client cannot multiply its allowance across HTML, RSC,
  * printable, Open Graph, and Twitter-card paths, while the global bucket
- * bounds rotating-IP cache-miss and render amplification.
+ * bounds rotating-IP cache-miss and render amplification. The report JSON and
+ * the PDF each have a per-client namespace of their own, so a client's read
+ * of one kind never spends its allowance for another. The two share one world
+ * bucket, "report-api-read", apart from the pages' world bucket.
+ *
+ * The quota defaults to the page's because a Worker one release older, still
+ * running while a deployment replaces it, sends none and only ever charged
+ * page reads. A name that is not a quota is refused, never charged against an
+ * invented bucket with no limit.
+ *
+ * A refusal says which bucket refused, so that the edge can tell a reader
+ * something true: a world bucket two routes share can be spent by reads of
+ * the other route.
  */
 export function chargeReportReadRateLimit(
   sql: DurableScanJobStoreSql,
   clientHash: string,
-  now: number
-): PublicScanRateLimitResult {
-  return chargeBoundedReadRateLimit(sql, {
-    namespace: "report-read",
+  now: number,
+  quota: PublicReportReadQuota = "report-read"
+): PublicReportReadDecision {
+  if (!Object.hasOwn(PUBLIC_REPORT_READ_QUOTAS, quota)) {
+    throw new Error("Invalid report-read quota.");
+  }
+  const limits = PUBLIC_REPORT_READ_QUOTAS[quota];
+  const { result, worldSpent } = chargeBoundedReadRateLimit(sql, {
+    namespace: quota,
+    globalNamespace: limits.world,
     clientHash,
-    perClient: REPORT_READ_RATE_LIMIT_PER_MINUTE,
-    global: REPORT_READ_GLOBAL_RATE_LIMIT_PER_MINUTE,
+    perClient: limits.perClient,
+    global: PUBLIC_REPORT_WORLD_LIMITS[limits.world],
     now
   });
+  return result.allowed ? result : { ...result, refusedBy: worldSpent ? "world" : "client" };
 }
 
 /**
@@ -368,13 +393,15 @@ function evaluateRollingEventWindow(
 function chargeBoundedReadRateLimit(
   sql: DurableScanJobStoreSql,
   input: Readonly<{
-    namespace: "durable-status" | "encrypted-watch-read" | "report-read";
+    namespace: "durable-status" | "encrypted-watch-read" | PublicReportReadQuota;
+    /** The world bucket's namespace when it is not the per-client one: two report quotas share theirs. */
+    globalNamespace?: PublicReportWorldBucket;
     clientHash: string;
     perClient: number;
     global: number;
     now: number;
   }>
-): PublicScanRateLimitResult {
+): { result: PublicScanRateLimitResult; worldSpent: boolean } {
   if (!/^[a-f0-9]{64}$/.test(input.clientHash)) {
     throw new Error("Invalid public read-rate-limit client hash.");
   }
@@ -387,25 +414,25 @@ function chargeBoundedReadRateLimit(
   const windowId = Math.floor(input.now / durationMs);
   const expiresAt = (windowId + 1) * durationMs;
   const retryAfterSeconds = Math.max(1, Math.ceil((expiresAt - input.now) / 1_000));
-  return evaluateFixedWindows(
-    sql,
-    [
-      {
-        bucket: `${input.namespace}-global/${windowId}`,
-        limit: input.global,
-        expiresAt,
-        retryAfterSeconds
-      },
-      {
-        bucket: `${input.namespace}/${windowId}/${input.clientHash}`,
-        limit: input.perClient,
-        expiresAt,
-        retryAfterSeconds
-      }
-    ],
-    input.now,
-    true
-  );
+  const world: FixedWindow = {
+    bucket: `${input.globalNamespace ?? input.namespace}-global/${windowId}`,
+    limit: input.global,
+    expiresAt,
+    retryAfterSeconds
+  };
+  const client: FixedWindow = {
+    bucket: `${input.namespace}/${windowId}/${input.clientHash}`,
+    limit: input.perClient,
+    expiresAt,
+    retryAfterSeconds
+  };
+  // Whether the world window is among those that refused. A caller that
+  // tells its reader why needs it; the others drop it.
+  let worldSpent = false;
+  const result = evaluateFixedWindows(sql, [world, client], input.now, true, 1, (window) => {
+    if (window === world) worldSpent = true;
+  });
+  return { result, worldSpent };
 }
 
 function ensurePublicScanRateLimitStore(sql: DurableScanJobStoreSql): void {
@@ -434,7 +461,8 @@ function evaluateFixedWindows(
   windows: readonly FixedWindow[],
   now: number,
   consume: boolean,
-  cost = 1
+  cost = 1,
+  onExceeded?: (window: FixedWindow) => void
 ): PublicScanRateLimitResult {
   if (!Number.isSafeInteger(cost) || cost <= 0) throw new Error("Invalid fixed-window rate-limit cost.");
   const charges: Array<{ window: FixedWindow; used: number }> = [];
@@ -449,8 +477,10 @@ function evaluateFixedWindows(
         )
         .toArray()[0]?.used ?? 0;
     if (!Number.isSafeInteger(used) || used < 0) throw new Error("Invalid fixed-window rate-limit state.");
-    if (used + cost > window.limit) exceeded.push(window.retryAfterSeconds);
-    else charges.push({ window, used: used + cost });
+    if (used + cost > window.limit) {
+      exceeded.push(window.retryAfterSeconds);
+      onExceeded?.(window);
+    } else charges.push({ window, used: used + cost });
   }
   if (exceeded.length > 0) {
     return { allowed: false, retryAfterSeconds: Math.max(...exceeded) };

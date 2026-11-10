@@ -453,7 +453,7 @@ test("Worker wiring preserves Phase 1 while closing durable private boundaries",
     "the read budget must be charged before the lookup"
   );
   assert.match(polledJob, /if \(!charge\.allowed\) return \{ charge, snapshot: null \}/);
-  const jobRouting = sliceBetween(source, "if (scanJobId)", "const reportRead = parsePublicReportReadPath(", "source");
+  const jobRouting = sliceBetween(source, "if (scanJobId)", "const reportRouteAnswer = await enforcePublicReportRouteEdge(", "source");
   assert.match(jobRouting, /handleDurableScanJobRequest\(request, env, scanJobId\)/);
   assert.doesNotMatch(jobRouting, /if \(durableScanJobsEnabled\(env\)\)/);
   assert.match(source, /before\?\.state === "queued" && before\.leaseGeneration > 0/);

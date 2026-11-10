@@ -43,6 +43,7 @@
   "lib/redact-scan-report-v1.test.ts": "asserts a ReDoS input completes in under 1000 ms",
   "lib/release-tag-governance-receipt.test.ts": "commits in fixture repos through plain git, whose auto maintenance can race the fixture teardown",
   "lib/report-pdf.test.ts": "asserts elapsed time under 5000 ms",
+  "lib/report-read-edge-runtime.test.ts": "boots a wrangler bundle in Miniflare under a 90 s test timeout",
   "lib/report-store-r2.test.ts": "races millisecond deadlines",
   "lib/report-store.test.ts": "asserts elapsed time under 1000 ms twice",
   "lib/request-initiator-fixture.test.ts": "launches Chromium twice, the second time with --site-per-process, and waits on fixture visits under 10 s deadlines",

@@ -458,3 +458,50 @@ test("a page that will not close still condemns the browser", async () => {
   assert.equal(memoizedRenderBrowserForTests(), null, "and the memo must be evicted with it");
   seedRenderBrowserForTests(null);
 });
+
+test("the render reads the print page over loopback, so the edge's report quotas are never in its path", async () => {
+  // The front Worker charges a public read of /reports/<id>/print against the
+  // page quota and a PDF request against the PDF quota. The render's own read
+  // of the print page must meet neither: charged, one PDF would cost a page
+  // read as well, and refused, a reader's PDF would fail on a limit they never
+  // reached. It meets neither because it never leaves the container: the
+  // target is this process's own port on 127.0.0.1, whatever public origin the
+  // deployment is configured with.
+  const id = `20260101-${"e".repeat(32)}`;
+  const digest = "f".repeat(64);
+  const visited: string[] = [];
+  const browser = {
+    async newPage() {
+      return {
+        setDefaultTimeout() {},
+        async evaluate() { return undefined as never; },
+        async goto(url: string) {
+          visited.push(url);
+          // The print page answering 404 ends the render before any PDF is
+          // written and leaves the stub browser alone.
+          return { ok: () => false, status: () => 404 };
+        },
+        pdf: async () => new Uint8Array(),
+        close: async () => undefined
+      };
+    },
+    close: async () => undefined,
+    on() {}
+  };
+
+  const saved = { port: process.env.PORT, site: process.env.NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL };
+  process.env.PORT = "3999";
+  process.env.NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL = "https://scan.example.test";
+  try {
+    await assert.rejects(
+      () => renderReportPdf(id, { browserForTests: browser, expectedWireSha256: digest }),
+      (error: unknown) => error instanceof ReportPdfUnavailableError && error.status === 404
+    );
+  } finally {
+    for (const [name, value] of [["PORT", saved.port], ["NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL", saved.site]] as const) {
+      if (value === undefined) delete process.env[name];
+      else process.env[name] = value;
+    }
+  }
+  assert.deepEqual(visited, [`http://127.0.0.1:3999/reports/${id}/print?sha256=${digest}`]);
+});

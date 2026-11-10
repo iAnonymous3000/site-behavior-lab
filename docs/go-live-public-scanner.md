@@ -1030,10 +1030,50 @@ globally per fixed minute. Both a per-client and a global refusal leave every
 counter unchanged, and 429 or fail-closed 503 responses are `no-store`. Any
 method other than `GET`/`HEAD` on `/reports/*` is answered 405 at the edge and
 never forwarded: Next renders a page for a `POST` too, so a forwarded one would
-have bought the full read and render with the quota never consulted. The JSON
-endpoint retains its separate Node per-client limiter. The static Pages export
-is intentionally different: it pre-renders only committed corpus reports, which
-have repository-controlled retention and no runtime-store expiry.
+have bought the full read and render with the quota never consulted.
+
+The report JSON (`/api/reports/:id`) and the PDF export
+(`/api/reports/:id/pdf`) are charged the same way. Each has a per-client
+bucket of its own, so a client's read of one kind never spends its allowance
+for another, and the two share one global bucket, apart from the pages':
+
+| Route | Per client, per fixed minute | Globally, per fixed minute |
+|---|---|---|
+| Report pages, printable rendering, social cards | 120 | 1,200 |
+| Report JSON | 120 | 1,200, shared with the PDF export |
+| PDF export | 10 | none of its own: each request spends one of that 1,200 |
+
+The PDF's per-client figure counts requests, not renders: Node charges its own
+10-a-minute render limit only when a render is about to start, and the edge
+cannot know that, so a PDF request that ends in 404, 409 or 422 still spends
+an edge token. For the same reason the PDF has no global figure sized to the
+renderer. Requests that never render would spend it, and a few addresses could
+use it up and deny the PDF to everyone. The container's one render slot bounds
+renders: a request that finds it taken is answered at once, after a report
+lookup, which is about what a JSON read costs, so the global bucket for JSON
+reads bounds those requests too.
+
+A global bucket is one allowance for everyone, and that has a cost. About ten
+addresses at their own caps (an IPv6 /64 counts as one address), or a hundred
+at twelve requests a minute each, can use up the API routes' global bucket.
+Every other reader then gets 429 on the evidence JSON and the PDF until the
+minute turns. The page routes have had the same property since their global
+cap was added. Before the JSON had an edge quota, no number of addresses could
+do that to it, and the price was that nothing bounded what the world could
+make the container read. The bound is the trade that was chosen.
+
+A refusal by the global bucket says "Too many report requests", on either API
+route, because reads of the other route may have spent it; the PDF's own
+sentence is kept for the PDF's per-client cap. Refusals on the two API routes
+carry the scan API's CORS headers, so the static site reads a 429 as a 429.
+`OPTIONS` on those routes is answered at the edge with the same preflight Node
+gives, and any other method is answered 405 there. The Worker's own reads of a
+saved report (job status recovery) and the PDF renderer's loopback read of the
+printable page do not pass through these quotas. Node keeps its separate
+per-client limiters for the JSON and the PDF behind the edge. The static Pages
+export is intentionally different: it pre-renders only committed corpus
+reports, which have repository-controlled retention and no runtime-store
+expiry.
 
 For the link to **unfurl with its Open Graph / X card** (headline + key counts),
 the scanner image must be built with the public origin baked in, because

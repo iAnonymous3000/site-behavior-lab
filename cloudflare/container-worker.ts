@@ -12,8 +12,9 @@
 //
 // This Worker is the edge enforcement point: before a scan reaches the container's
 // real Chromium it applies access-token and Turnstile gating plus an atomic
-// SQLite quota in the scanner Durable Object. Everything else (health, report
-// reads, CORS preflight) forwards straight through.
+// SQLite quota in the scanner Durable Object. Report reads are charged a read
+// quota in the same Durable Object before they are forwarded. Everything else
+// (health, CORS preflight outside the report API) forwards straight through.
 //
 // Deployed from wrangler.container.jsonc. This is now the only scanner worker:
 // the Browser Run worker it once sat beside was deleted on 2026-07-24.
@@ -61,9 +62,9 @@ import { requireContainerR2Bucket } from "../lib/container-r2-bucket";
 import { assertDurableAdmittedAtWithinSkew, DurableAdmittedAtSkewError } from "../lib/durable-admission-clock";
 import { publicErrorBody, toPublicError } from "../lib/public-errors";
 import {
-  PUBLIC_REPORT_READ_ALLOW_HEADER,
-  parsePublicReportReadPath,
-  refusePublicReportRouteMethod
+  enforcePublicReportRouteEdge,
+  type PublicReportReadDecision,
+  type PublicReportReadQuota
 } from "../lib/report-read-edge";
 import {
   isProductionSyntheticMonitorToken,
@@ -730,10 +731,13 @@ export class ScannerContainer extends Container<Env> {
     );
   }
 
-  chargeReportReadRateLimit(input: { clientHash: string }): PublicScanRateLimitResult {
+  // The quota is optional only for a Worker one release older, which sends
+  // none while a deployment replaces it; the store then charges a page read,
+  // the one kind that Worker knew.
+  chargeReportReadRateLimit(input: { clientHash: string; quota?: PublicReportReadQuota }): PublicReportReadDecision {
     const now = Date.now();
     return this.ctx.storage.transactionSync(() =>
-      chargeReportReadRateLimitInStore(this.ctx.storage.sql, input.clientHash, now)
+      chargeReportReadRateLimitInStore(this.ctx.storage.sql, input.clientHash, now, input.quota)
     );
   }
 
@@ -2985,17 +2989,19 @@ export default {
       return recoverRegisteredScanJob(request, env, scanJobId, response);
     }
 
-    // Next renders a page for every method, so a POST to a report route would
-    // reach the container as a full report read and render that the quota
-    // below never sees. Nothing writes to /reports/*; answer here.
-    if (refusePublicReportRouteMethod(request.method, url.pathname)) {
-      return reportRouteMethodNotAllowedResponse();
-    }
-    const reportRead = parsePublicReportReadPath(request.method, url.pathname);
-    if (reportRead) {
-      const refusal = await enforcePublicReportReadRateLimit(request, env);
-      if (refusal) return refusal;
-    }
+    // Every public report route settles here before it can reach the
+    // container: the pages under /reports/:id, the report JSON and the PDF.
+    // A method that is not a read is answered at the edge (Next renders a page
+    // for a POST too, so a forwarded one would buy a full read and render the
+    // quota never sees), and a read is charged in its own per-client and world
+    // quota. This is the public path only. The Worker's own reads of a saved
+    // report call forwardToContainer directly and are not charged.
+    const reportRouteAnswer = await enforcePublicReportRouteEdge(
+      request,
+      env.SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN,
+      (charge) => getContainer(env.SCANNER).chargeReportReadRateLimit(charge)
+    );
+    if (reportRouteAnswer) return reportRouteAnswer;
 
     // Non-scan routes forward only after any route-specific edge controls.
     if (!isScan) {
@@ -5432,56 +5438,6 @@ function parseScanGatePayload(body: string): ScanGatePayload {
     // as a minimum-cost request with no Turnstile token for gating purposes.
     return {};
   }
-}
-
-async function enforcePublicReportReadRateLimit(request: Request, env: Env): Promise<Response | null> {
-  let decision: PublicScanRateLimitResult;
-  try {
-    const clientHash = await publicClientHash(request.headers);
-    decision = await getContainer(env.SCANNER).chargeReportReadRateLimit({ clientHash });
-  } catch (error) {
-    console.error("Could not charge the public report-read quota.", error);
-    return reportReadGateResponse(
-      503,
-      "Report reads are temporarily unavailable.",
-      5
-    );
-  }
-  if (decision.allowed) return null;
-  return reportReadGateResponse(
-    429,
-    "Too many report requests. Try again shortly.",
-    decision.retryAfterSeconds
-  );
-}
-
-function reportReadGateResponse(status: 429 | 503, message: string, retryAfterSeconds: number): Response {
-  return new Response(JSON.stringify({ ok: false, error: message }), {
-    status,
-    headers: {
-      "cache-control": "no-store",
-      "content-type": "application/json; charset=utf-8",
-      "retry-after": String(Math.max(1, Math.ceil(retryAfterSeconds))),
-      "x-content-type-options": "nosniff",
-      "x-robots-tag": "noindex, noarchive"
-    }
-  });
-}
-
-function reportRouteMethodNotAllowedResponse(): Response {
-  // The message and the Allow header name the same list, from the one place
-  // that defines it.
-  const error = `Reports are read-only. Allowed methods: ${PUBLIC_REPORT_READ_ALLOW_HEADER}.`;
-  return new Response(JSON.stringify({ ok: false, error }), {
-    status: 405,
-    headers: {
-      allow: PUBLIC_REPORT_READ_ALLOW_HEADER,
-      "cache-control": "no-store",
-      "content-type": "application/json; charset=utf-8",
-      "x-content-type-options": "nosniff",
-      "x-robots-tag": "noindex, noarchive"
-    }
-  });
 }
 
 function gateErrorResponse(error: unknown, request: Request, env: Env): Response {

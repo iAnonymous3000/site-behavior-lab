@@ -307,7 +307,8 @@ test("report reads atomically enforce the combined per-client ceiling without a 
     }
     assert.deepEqual(chargeReportReadRateLimit(sql, CLIENT_HASH, now), {
       allowed: false,
-      retryAfterSeconds: 60
+      retryAfterSeconds: 60,
+      refusedBy: "client"
     });
     assert.equal(
       database.prepare("SELECT used FROM public_scan_rate_limits WHERE bucket = ?").get("report-read-global/1")?.used,
@@ -332,7 +333,8 @@ test("report reads cap rotating identities globally without creating refused cli
     const refusedHash = clientHashFor(REPORT_READ_GLOBAL_RATE_LIMIT_PER_MINUTE);
     assert.deepEqual(chargeReportReadRateLimit(sql, refusedHash, now), {
       allowed: false,
-      retryAfterSeconds: 60
+      retryAfterSeconds: 60,
+      refusedBy: "world"
     });
     assert.equal(
       database.prepare("SELECT used FROM public_scan_rate_limits WHERE bucket = ?").get("report-read-global/1")?.used,
