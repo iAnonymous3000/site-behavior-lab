@@ -9,7 +9,7 @@
 
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
@@ -426,6 +426,11 @@ test("never reported", () => {});
 import { writeFileSync } from "node:fs";
 test("leaves a file behind", () => { writeFileSync("left-behind.txt", "x"); });
 `,
+  // The tree stays clean, and the commit under it is no longer the one the run began at.
+  "lib/fv-moves-head.test.ts": `${FIXTURE_HEAD}
+import { execFileSync } from "node:child_process";
+test("commits while it runs", () => { execFileSync("git", ["commit", "--quiet", "--allow-empty", "-m", "Moved while the suites ran"], { stdio: "ignore" }); });
+`,
   "lib/fv-empty.test.ts": `${FIXTURE_HEAD}
 `,
   // Something other than the harness writes to the catch log.
@@ -476,7 +481,7 @@ function fixture(t) {
   writeFileSync(
     path.join(root, "driver.mjs"),
     `import { produceFormalVerificationReport } from ${JSON.stringify(PRODUCER)};
-const result = await produceFormalVerificationReport({ ...JSON.parse(process.argv[2]), compile: false });
+const result = await produceFormalVerificationReport({ compile: false, ...JSON.parse(process.argv[2]) });
 process.stdout.write("\\nRESULT " + JSON.stringify({ ok: result.ok, problems: result.problems, totals: result.totals }) + "\\n");
 `
   );
@@ -487,8 +492,8 @@ process.stdout.write("\\nRESULT " + JSON.stringify({ ok: result.ok, problems: re
   git("commit", "--quiet", "-m", "Fixture suites");
   const suite = (id, minimumTests = 1, minimumVariants = 0) => ({ id, minimumTests, minimumVariants });
   /** Run the producer in its own process: a child of this test would otherwise inherit its test context. */
-  const produce = (requiredSuites, { output, env = {} } = {}) => {
-    const result = spawnSync(process.execPath, ["driver.mjs", JSON.stringify({ requiredSuites, output, compiledFiles: compiled })], {
+  const produce = (requiredSuites, { output, env = {}, compile = false } = {}) => {
+    const result = spawnSync(process.execPath, ["driver.mjs", JSON.stringify({ requiredSuites, output, compile, compiledFiles: compiled })], {
       cwd: root,
       encoding: "utf8",
       env: { ...gitEnv, ...env },
@@ -709,10 +714,86 @@ test("the checkout must be clean and exact, before the run and after it", (t) =>
   assert.equal(existsSync(output), false);
 
   rmSync(path.join(f.root, "left-behind.txt"));
+
+  // A run that moves the checkout to another commit leaves the tree clean. The report
+  // would name the commit the run began at, which is no longer what is checked out.
+  const began = f.head();
+  const moved = f.produce([f.suite("lib/fv-moves-head.test.ts")], { output });
+  assert.notEqual(f.head(), began, "the fixture must have moved the checkout");
+  assert.equal(f.git("status", "--porcelain", "--untracked-files=all"), "", "and left it clean");
+  assert.equal(moved.ok, false, moved.log);
+  assert.deepEqual(moved.problems, ["the checked-out commit changed while the suites ran"]);
+  assert.equal(existsSync(output), false);
+
   assert.equal(f.produce(required, { output, env: { GITHUB_SHA: f.head() } }).ok, true);
   // A report is never overwritten.
   const second = f.produce(required, { output });
   assert.deepEqual(second.problems, ["--output must not already exist"]);
+});
+
+test("each tree a required suite is in is compiled from nothing before it runs, and no other", (t) => {
+  // Every other test here runs suites already "compiled". This one compiles: two small
+  // TypeScript projects under the names the command line compiles, with the repository's
+  // own compiler, each a fraction of a second.
+  const f = fixture(t);
+  const project = (outDir, include) => JSON.stringify({ compilerOptions: { target: "ES2022", module: "CommonJS", outDir, rootDir: ".", types: [], strict: true }, include: [include] });
+  const source = (name) => `declare const require: (id: string) => { test: (name: string, body: () => void) => void };
+const { test } = require("node:test");
+test(${JSON.stringify(name)}, () => {});
+`;
+  mkdirSync(path.join(f.root, "lib"));
+  mkdirSync(path.join(f.root, "investigation", "test"), { recursive: true });
+  mkdirSync(path.join(f.root, "node_modules"));
+  writeFileSync(path.join(f.root, ".gitignore"), "node_modules/\n.unit-test-dist/\n.investigation-test-dist/\n");
+  writeFileSync(path.join(f.root, "tsconfig.test.json"), project(".unit-test-dist", "lib/**/*.ts"));
+  writeFileSync(path.join(f.root, "tsconfig.investigation-test.json"), project(".investigation-test-dist", "investigation/**/*.ts"));
+  writeFileSync(path.join(f.root, "lib", "fv-tiny.test.ts"), source("compiled from the lib source today"));
+  writeFileSync(path.join(f.root, "investigation", "test", "tiny-walk.test.ts"), source("compiled from the investigation source today"));
+  symlinkSync(path.join(repository, "node_modules", "typescript"), path.join(f.root, "node_modules", "typescript"), "dir");
+  f.git("add", ".");
+  f.git("commit", "--quiet", "-m", "Two small projects");
+  assert.equal(f.git("status", "--porcelain", "--untracked-files=all"), "");
+
+  // What an earlier compile left behind: a suite that says something else, and a file the source no longer has.
+  const stale = (tree, file, name) => {
+    mkdirSync(path.dirname(path.join(f.root, tree, file)), { recursive: true });
+    writeFileSync(path.join(f.root, tree, file), `require("node:test").test(${JSON.stringify(name)}, () => {});\n`);
+  };
+  const plant = () => {
+    stale(".unit-test-dist", "lib/fv-tiny.test.js", "left by an earlier compile of lib");
+    stale(".unit-test-dist", "lib/removed-since.test.js", "a suite the source no longer has");
+    stale(".investigation-test-dist", "investigation/test/tiny-walk.test.js", "left by an earlier compile of investigation");
+    stale(".investigation-test-dist", "investigation/test/removed-since.test.js", "a suite the source no longer has");
+  };
+  const lib = f.suite("lib/fv-tiny.test.ts");
+  const walk = f.suite("investigation/test/tiny-walk.test.ts");
+  const testsOf = (file) => parseFormalVerificationReport(readFileSync(file)).report.suites.map((suite) => [suite.id, suite.tests.map((entry) => entry.name)]);
+
+  // Without a compile the stale suites are what runs, which is what this test must be able to tell.
+  plant();
+  const uncompiled = path.join(f.outside, "uncompiled.json");
+  assert.equal(f.produce([walk, lib], { output: uncompiled }).ok, true);
+  assert.deepEqual(testsOf(uncompiled), [[walk.id, ["left by an earlier compile of investigation"]], [lib.id, ["left by an earlier compile of lib"]]]);
+
+  // Compiled: both trees are emptied and built from the source.
+  const compiled = path.join(f.outside, "compiled.json");
+  const both = f.produce([walk, lib], { output: compiled, compile: true });
+  assert.equal(both.ok, true, both.log);
+  assert.deepEqual(testsOf(compiled), [[walk.id, ["compiled from the investigation source today"]], [lib.id, ["compiled from the lib source today"]]]);
+  assert.equal(existsSync(path.join(f.root, ".unit-test-dist", "lib", "removed-since.test.js")), false, "the lib tree must be emptied before its compile");
+  assert.equal(existsSync(path.join(f.root, ".investigation-test-dist", "investigation", "test", "removed-since.test.js")), false, "the investigation tree must be emptied before its compile");
+
+  // Only the tree a required suite is in: with lib alone, the investigation tree is left as it was.
+  plant();
+  const one = path.join(f.outside, "lib-only.json");
+  assert.equal(f.produce([lib], { output: one, compile: true }).ok, true);
+  assert.deepEqual(testsOf(one), [[lib.id, ["compiled from the lib source today"]]]);
+  assert.equal(existsSync(path.join(f.root, ".unit-test-dist", "lib", "removed-since.test.js")), false);
+  assert.equal(existsSync(path.join(f.root, ".investigation-test-dist", "investigation", "test", "removed-since.test.js")), true);
+  // The command line always compiles: it passes no option that could turn the compile off.
+  const producer = readFileSync(PRODUCER, "utf8");
+  assert.match(producer, /export async function produceFormalVerificationReport\(\{ requiredSuites, output, env = process\.env, compile = true, compiledFiles = null \}\)/);
+  assert.match(producer, /await produceFormalVerificationReport\(\{ requiredSuites: requiredSuitesOfManifest\(process\.cwd\(\)\), output \}\)/);
 });
 
 test("a dry run judges the same suites on a dirty tree, writes nothing, and names no commit", (t) => {

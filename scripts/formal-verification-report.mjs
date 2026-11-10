@@ -254,7 +254,9 @@ export async function produceFormalVerificationReport({ requiredSuites, output, 
     } catch (error) {
       return { ok: false, problems: [`the checkout changed while the suites ran: ${String(error instanceof Error ? error.message : error)}`], totals: null, report: null };
     }
-    if (after.commit !== source.commit || after.tree !== source.tree) {
+    // A clean checkout at the same commit has the same tree, so the commit is
+    // all there is to compare.
+    if (after.commit !== source.commit) {
       return { ok: false, problems: ["the checked-out commit changed while the suites ran"], totals: null, report: null };
     }
     writeExclusive(path.resolve(root, output), serializeFormalVerificationReport(report));
