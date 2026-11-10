@@ -20,6 +20,7 @@ type Helpers = {
   buildReceipt(input: Record<string, unknown>): Receipt;
   extractCapturedRun(report: unknown, input: Record<string, unknown>): Record<string, unknown>;
   compareReceipts(baseline: Receipt, candidate: Receipt, panel: Panel, digest: string): Comparison;
+  PANEL_VERSIONS: readonly number[];
   METRICS: readonly string[];
   METRIC_EVIDENCE_FAMILIES: Readonly<Record<string, string>>;
   METRIC_FEEDING_FAMILIES: readonly string[];
@@ -191,6 +192,34 @@ test("fixed five-site panel is pinned to the existing catalogs", async () => {
   const changed = structuredClone(panel);
   changed.cases[0].url = "https://not-in-catalog.example/";
   assert.throws(() => h.assertPanelCatalogMembership(changed, catalogs), /not pinned exactly/);
+});
+
+test("the panel check accepts versions 1 and 2 and no other, and holds version 2 to every other rule", async () => {
+  const h = await helpers;
+  assert.deepEqual([...h.PANEL_VERSIONS], [1, 2]);
+  const next = { ...structuredClone(panel), panelVersion: 2, panelId: "monthly-toolchain-canary-v2" };
+  assert.equal(h.assertPanel(next), next);
+  for (const panelVersion of [0, 3, "2", null, undefined]) {
+    assert.throws(() => h.assertPanel({ ...structuredClone(panel), panelVersion }), { message: "Invalid toolchain canary panel." }, String(panelVersion));
+  }
+  // Version 2 answers to the checks version 1 answers to.
+  const refusals: Array<[string, (value: any) => void, RegExp]> = [
+    ["four cases", (value) => { value.cases.pop(); }, /exactly five sites/],
+    ["six cases", (value) => { value.cases.push({ ...value.cases[0], id: "sixth" }); }, /exactly five sites/],
+    ["a repeated case id", (value) => { value.cases[1].id = value.cases[0].id; }, /unique slugs/],
+    ["a case outside the two catalogs", (value) => { value.cases[0].catalog = "public/other-sites.json"; }, /unapproved catalog/],
+    ["a case URL with a query", (value) => { value.cases[0].url = "https://www.wikipedia.org/?x=1"; }, /without private components/],
+    ["even repetitions", (value) => { value.repetitions = 4; }, /odd integer from 3 through 9/],
+    ["eleven repetitions", (value) => { value.repetitions = 11; }, /odd integer from 3 through 9/],
+    ["another condition vector", (value) => { value.conditions.gpcEnabled = false; }, /ordinary desktop single-scan profile/],
+    ["a missing tolerance", (value) => { delete value.metricTolerances.cookies; }, /exactly the canary metric tolerances/],
+    ["a relative tolerance over 1", (value) => { value.metricTolerances.cookies.relative = 1.5; }, /Invalid tolerance for cookies/]
+  ];
+  for (const [label, edit, message] of refusals) {
+    const value = structuredClone(next);
+    edit(value);
+    assert.throws(() => h.assertPanel(value), message, label);
+  }
 });
 
 test("forward baseline capture accepts pre-provenance reports while reverse candidate capture refuses them", async () => {

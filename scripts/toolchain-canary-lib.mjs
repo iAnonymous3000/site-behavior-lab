@@ -1,6 +1,13 @@
 export const CANARY_ORIGIN = "https://scan-staging.sitebehavior.org";
 export const CANARY_CONFIRMATION = "I_ACKNOWLEDGE_THIS_SUBMITS_LIVE_STAGING_SCANS";
 export const RECEIPT_VERSION = 2;
+/**
+ * The comparison panel versions assertPanel accepts. Version 1 is the panel
+ * every receipt committed through 2026-11 carries. Version 2 is the next
+ * panel. Its cases are decided by one qualifying capture, under a rule that
+ * is fixed before that capture runs.
+ */
+export const PANEL_VERSIONS = Object.freeze([1, 2]);
 export const METRICS = Object.freeze([
   "totalRequests",
   "thirdPartyRequests",
@@ -138,7 +145,7 @@ export function assertHealthGate(value, expectedBuild) {
 }
 
 export function assertPanel(value) {
-  requireValue(record(value) && value.panelVersion === 1 && typeof value.panelId === "string", "Invalid toolchain canary panel.");
+  requireValue(record(value) && PANEL_VERSIONS.includes(value.panelVersion) && typeof value.panelId === "string", "Invalid toolchain canary panel.");
   requireValue(Number.isSafeInteger(value.repetitions) && value.repetitions >= 3 && value.repetitions <= 9 && value.repetitions % 2 === 1, "Panel repetitions must be an odd integer from 3 through 9.");
   requireValue(same(value.conditions, { device: "desktop", gpcEnabled: true, consentMode: "observe" }), "Panel conditions must pin the ordinary desktop single-scan profile.");
   requireValue(record(value.metricTolerances) && same(Object.keys(value.metricTolerances).sort(), [...METRICS].sort()), "Panel must define exactly the canary metric tolerances.");
