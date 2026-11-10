@@ -477,3 +477,77 @@ test("the README guards reject the sentences that were wrong", () => {
     "the shipped limitations enumeration omitted auxiliary-context-block"
   );
 });
+
+/**
+ * The README and RELEASE.md say that a tagged release builds from source only
+ * for the life of its browser, that the current release is built after that,
+ * and that nothing skips the check. Each part is a fact about another file.
+ * They are held here, so the two paragraphs fail together with those facts
+ * instead of going quietly false.
+ */
+test("the README and RELEASE.md say a tagged release builds from source for the life of its browser, and the build has no switch for it", () => {
+  const paragraph = (file: string, from: string, to: string): string => {
+    const text = readFileSync(path.join(root, file), "utf8").replace(/\s+/g, " ");
+    const start = text.indexOf(from);
+    const end = text.indexOf(to, start);
+    assert.ok(start >= 0 && end > start, `${file} no longer carries its paragraph on building a tagged release`);
+    return text.slice(start, end + to.length);
+  };
+  const inReadme = paragraph("README.md", "Build a tagged release from source only during the life of its browser.", "states the rule.");
+  const inRelease = paragraph(
+    "RELEASE.md",
+    "A tag does not claim that its revision can be built from source for ever.",
+    "do not carry the check."
+  );
+  for (const [file, text] of [["README.md", inReadme], ["RELEASE.md", inRelease]] as const) {
+    assert.ok(text.includes("`lib/scan-browser-hsts-preload.test.ts`"), `${file} must name the test that fails`);
+    assert.match(text, /70 days after/, `${file} must give the browser's 70 days`);
+    assert.match(text, /build the current release/, `${file} must say what to build afterwards`);
+    assert.ok(text.includes("no build argument or setting skips the check"), `${file} must say there is no override`);
+    assert.ok(
+      text.includes("`node scripts/chromium-hsts-preload-cutoff.mjs`"),
+      `${file} must point at the command that prints the estimate`
+    );
+  }
+  // The cutoff is pointed at, never written: it moves with every toolchain
+  // epoch. The two dates allowed are history: the day the test file arrived,
+  // then expecting the list not applied, and the day its expectation became
+  // the one that fails an old browser.
+  const dates = (text: string) => text.match(/\b20\d\d-\d\d-\d\d\b/g) ?? [];
+  assert.deepEqual(dates(inReadme), []);
+  assert.deepEqual(dates(inRelease), ["2026-11-03", "2026-11-04"]);
+  // The build-times file holds tag commit times, and RELEASE.md must not call
+  // them more than that.
+  assert.match(inRelease, /records the commit time of each browser's version tag, which is taken as its build time on an assumption/);
+
+  // The image build runs the whole unit suite, with no condition on it and no
+  // build argument that names it.
+  const dockerfile = readFileSync(path.join(root, "Dockerfile"), "utf8");
+  assert.match(dockerfile, /^RUN npm run check && /m);
+  // A build argument is suspect when one whole word of its NAME, split on
+  // underscores, is one of these. Matching the letters anywhere on the line
+  // would fail an innocent argument such as an ATTESTATION digest or a value
+  // of "latest".
+  const checkSwitch = /^ARG\s+(?:[A-Z0-9]+_)*(?:SKIP|HSTS|CHECKS?|TESTS?)(?:_[A-Z0-9]+)*\s*(?:=|$)/im;
+  for (const innocent of ['ARG ATTESTATION_BUNDLE=""', "ARG BASE_IMAGE=node:latest", 'ARG CHECKSUM=""', "ARG CONTEST=1"]) {
+    assert.doesNotMatch(innocent, checkSwitch, innocent);
+  }
+  for (const suspect of ['ARG SKIP_CHECK=""', "ARG RUN_TESTS=0", "ARG HSTS_PROBE=off", "arg skip_unit_test", "ARG TEST"]) {
+    assert.match(suspect, checkSwitch, suspect);
+  }
+  assert.doesNotMatch(dockerfile, checkSwitch);
+  const scripts = (JSON.parse(readFileSync(path.join(root, "package.json"), "utf8")) as { scripts: Record<string, string> })
+    .scripts;
+  assert.match(scripts.check, /(?:^| )npm run test:unit(?: |$)/);
+  assert.ok(scripts["test:unit"].includes(".unit-test-dist/lib/*.test.js"), "the unit suite runs every lib test");
+
+  // The test is one of them, expects the list applied, and reads nothing that
+  // could turn it off.
+  const probe = readFileSync(path.join(root, "lib", "scan-browser-hsts-preload.test.ts"), "utf8");
+  assert.match(probe, /^const PRELOAD_APPLIED = true;$/m);
+  assert.doesNotMatch(probe, /process\.env|\bskip\b|\btodo\b/);
+  // The two files the paragraphs point at for the estimate.
+  for (const file of ["scripts/chromium-hsts-preload-cutoff.mjs", "scripts/chromium-build-times.json", "docs/toolchain-epoch.md"]) {
+    assert.ok(existsSync(path.join(root, file)), `${file} is named by the paragraphs and must exist`);
+  }
+});

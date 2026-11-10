@@ -261,6 +261,15 @@ non-root user, launches Chromium with an explicit environment allow-list, and
 removes npm, npx, Corepack and Yarn from the runtime image. The system's apt
 and dpkg remain; they need root, which the container's user does not have.
 
+Build a tagged release from source only during the life of its browser. The
+image build runs the unit suite, and one test in it
+(`lib/scan-browser-hsts-preload.test.ts`) fails once the pinned Chromium stops
+applying its HSTS preload list, 70 days after that Chromium was built. After
+that, build the current release; no build argument or setting skips the
+check. To see the estimated date for your checkout, run `npm ci` and then
+`node scripts/chromium-hsts-preload-cutoff.mjs`. `RELEASE.md` ("What a release
+tag claims") states the rule.
+
 | Variable | Default | What it decides |
 |---|---|---|
 | `SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN` | unset | When set, `/api/scan` requires it as `Authorization: Bearer`, `x-site-behavior-lab-access-token`, or the legacy `x-sbl-scan-token`. Leave it unset only for trusted local use or a deliberately open deployment with other abuse controls. Unset, with the default allowed origin below, any web page open in a browser that can reach the scanner can start scans from the scanner's address and read their results (see `SECURITY.md`). |

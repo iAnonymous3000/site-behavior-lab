@@ -77,6 +77,23 @@ It does not claim API stability, support commitments, or that any externally
 operated control was activated. The ScanReport schema contracts (v1 frozen,
 v2/r1, v2/r2) version independently of this line; a release never moves them.
 
+A tag does not claim that its revision can be built from source for ever. The
+image build runs the unit suite (`npm run check` in the `Dockerfile`), and
+`lib/scan-browser-hsts-preload.test.ts` in that suite fails once the Chromium
+the revision pins stops applying its built-in HSTS preload list, which
+Chromium does 70 days after its own build. So a tagged release builds from
+source for the life of its browser; after that, build the current release.
+There is no override, by the owner's decision: no build argument or setting
+skips the check. The estimated cutoff is not written here, because it moves
+with every toolchain epoch (`docs/toolchain-epoch.md`).
+`scripts/chromium-build-times.json` records the commit time of each browser's
+version tag, which is taken as its build time on an assumption one lapse has
+confirmed so far, and `node scripts/chromium-hsts-preload-cutoff.mjs`, run in
+a checkout after `npm ci`, prints the estimate for the browser that checkout
+pins. The test file arrived on 2026-11-03 expecting the list not applied, and
+has expected it applied, which is what fails an old browser, since
+2026-11-04. So `v0.6.0` and the earlier tags do not carry the check.
+
 ## Cutting a release
 
 Releases are curated, not automatic. The order matters, because the tag is
