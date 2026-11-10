@@ -42,7 +42,7 @@ before(async () => {
 function requiredSuiteRecords(): Any[] {
   return manifest().gates["formal-verification"].requiredSuites.map((suite: Any) => ({
     id: suite.id,
-    counts: { tests: suite.minimumTests, passed: suite.minimumTests, failed: 0, cancelled: 0, skipped: 0, todo: 0, skippedSuites: 0 },
+    counts: { tests: suite.minimumTests, passed: suite.minimumTests, failed: 0, cancelled: 0, skipped: 0, todo: 0, expectedFailures: 0, skippedSuites: 0, todoSuites: 0, failedSuites: 0 },
     tests: Array.from({ length: suite.minimumTests }, (_, index) => ({ name: `test ${String(index).padStart(4, "0")}`, outcome: "passed" })),
     variants: Array.from({ length: suite.minimumVariants }, (_, index) => ({ variant: `variant ${String(index).padStart(4, "0")}`, property: "the property", caughtBy: "the property" }))
   }));
@@ -478,6 +478,15 @@ const REFUSED_REPORTS = [
     () => [`${FIRST}: 1 test skipped, the first by name "zz left out"`]],
   ["a suite with a skipped describe block", (r: Any) => { r.suites[0].counts.skippedSuites = 2; },
     () => [`${FIRST}: 2 describe blocks skipped`]],
+  ["a suite with a describe block left todo", (r: Any) => { r.suites[0].counts.todoSuites = 1; },
+    () => [`${FIRST}: 1 describe block left todo`]],
+  // node counts no failure for a block that fails as a block, and exits 0: this count is what holds it.
+  ["a suite with a describe block that failed as a block", (r: Any) => { r.suites[0].counts.failedSuites = 1; },
+    () => [`${FIRST}: 1 describe block failed as a block`]],
+  // node counts a test that failed as expected among its passes: it is no pass, and counts toward no minimum.
+  ["a suite with a test that failed as expected", (r: Any) => { r.suites[0].tests.at(-1).outcome = "expected-failure"; r.suites[0].counts.expectedFailures = 1; },
+    (_f: Any, suite: Any) => [`${FIRST}: 1 test failed as expected, which is no pass, the first by name "test ${String(suite.minimumTests - 1).padStart(4, "0")}"`,
+      `${FIRST}: ${suite.minimumTests - 1} tests passed, below its pinned minimum of ${suite.minimumTests}`]],
   ["a suite with a test left todo", (r: Any) => { r.suites[0].tests.push({ name: "zz to be written", outcome: "todo" }); r.suites[0].counts.tests += 1; r.suites[0].counts.todo = 1; },
     () => [`${FIRST}: 1 test left todo, the first by name "zz to be written"`]],
   ["a suite with a failed test", (r: Any) => { r.suites[0].tests.at(-1).outcome = "failed"; r.suites[0].counts.passed -= 1; r.suites[0].counts.failed = 1; },

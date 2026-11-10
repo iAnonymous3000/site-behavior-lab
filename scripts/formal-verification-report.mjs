@@ -20,6 +20,12 @@
 // scripts/formal-verification-report-lib.mjs, and the catch log that
 // lib/finite-check.ts appends to when asked.
 //
+// The lane's verdict is not enough by itself. node exits 0, and the lane
+// passes, on a describe block that fails as a block, on a test marked
+// expectFailure whose body throws, and on a todo block with no test in it.
+// The events show all three, and a run with any of them is refused here by
+// name, whatever the lane said.
+//
 // Why a run of its own, and not a stage of test:unit. These suites already run
 // in test:unit, which is what gates a change. Running them a second time there
 // would also run them a second time inside the container image build, whose
@@ -52,6 +58,7 @@ const REPORTER = pathToFileURL(fileURLToPath(new URL("./formal-verification-repo
 const USAGE = "Usage: node scripts/formal-verification-report.mjs --output <file outside the worktree> | --dry-run";
 // A dry run has no commit to name. Its report is judged and never written.
 const NO_SOURCE = "0".repeat(40);
+const BLOCK_REFUSAL = { skipped: "was skipped", todo: "is left todo", failed: "failed as a block" };
 
 const isRecord = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
 
@@ -140,12 +147,27 @@ async function runSuite(root, id, compiled) {
       return { record: null, failures };
     }
     const { counts } = summaries[0];
+    const tests = lines.filter((line) => line.kind === "test").map(({ name, outcome }) => ({ name, outcome }));
+    // A describe block that was skipped, left todo or failed as a block is in
+    // none of node's counts, and a failed one does not move node's exit
+    // status either. Each is named here, and counted in the report.
+    const blocks = lines.filter((line) => line.kind === "block");
+    for (const { name, outcome } of blocks) {
+      failures.push(`${id}: describe block ${JSON.stringify(name)} ${BLOCK_REFUSAL[outcome] ?? "did not pass"}`);
+    }
+    const of = (list, outcome) => list.filter((entry) => entry.outcome === outcome).length;
     return {
       failures,
       record: {
         id,
-        counts: { ...counts, skippedSuites: lines.filter((line) => line.kind === "skipped-suite").length },
-        tests: lines.filter((line) => line.kind === "test").map(({ name, outcome }) => ({ name, outcome })),
+        counts: {
+          ...counts,
+          expectedFailures: of(tests, "expected-failure"),
+          skippedSuites: of(blocks, "skipped"),
+          todoSuites: of(blocks, "todo"),
+          failedSuites: blocks.length - of(blocks, "skipped") - of(blocks, "todo")
+        },
+        tests,
         variants: caught
       }
     };

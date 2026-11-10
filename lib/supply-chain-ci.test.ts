@@ -204,7 +204,7 @@ test("the attest job's check of the formal verification report accepts the produ
     suites: [
       {
         id: "lib/fv-alpha.test.ts",
-        counts: { tests: 1, passed: 1, failed: 0, cancelled: 0, skipped: 0, todo: 0, skippedSuites: 0 },
+        counts: { tests: 1, passed: 1, failed: 0, cancelled: 0, skipped: 0, todo: 0, expectedFailures: 0, skippedSuites: 0, todoSuites: 0, failedSuites: 0 },
         tests: [{ name: "a property holds", outcome: "passed" }],
         variants: [{ variant: "one", property: "p", caughtBy: "p" }]
       }
@@ -234,7 +234,9 @@ test("the attest job's check of the formal verification report accepts the produ
   refused(JSON.stringify(report), /Formal verification report is not canonical JSON/);
   refused(`${good}\n`, /Formal verification report is not canonical JSON/);
   refused(lib.serializeFormalVerificationReport({ ...report, artifactKind: "exact-source-and-tested-artifact-manifest" }), /not the expected artifact kind and version/);
-  refused(lib.serializeFormalVerificationReport({ ...report, schemaVersion: 2 }), /not the expected artifact kind and version/);
+  // The version before, whose shape could list a test that failed as expected as passed.
+  refused(lib.serializeFormalVerificationReport({ ...report, schemaVersion: 1 }), /not the expected artifact kind and version/);
+  refused(lib.serializeFormalVerificationReport({ ...report, schemaVersion: 3 }), /not the expected artifact kind and version/);
   refused(lib.serializeFormalVerificationReport({ ...report, suites: [] }), /Formal verification report names no suite/);
   refused(lib.serializeFormalVerificationReport({ ...report, source: {} }), /Formal verification report identifies no commit, expected /);
   refused("not json\n", /SyntaxError/);

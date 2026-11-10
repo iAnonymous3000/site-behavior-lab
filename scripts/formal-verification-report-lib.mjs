@@ -7,6 +7,15 @@
 // name with its outcome, and every catch lib/finite-check.ts accepted, with
 // the property the suite named and the property the counterexample carried.
 //
+// node's counts and its exit status leave three things out, and each would
+// let a run that did not hold stand as one that did. A describe block that
+// fails as a block (a hook of its own throws) is listed under failing tests
+// while node counts no failure and exits 0. A test marked expectFailure whose
+// body throws arrives as a pass and is counted as one. A describe block left
+// todo with no test in it changes no count. The reporter below reads all three
+// from the events, the report counts them beside node's counts, and the rule
+// refuses each.
+//
 // What it does not hold. A count a suite pins inside a test (states,
 // transitions, cases) never leaves that test, so it is not here: a test that
 // passed is the only evidence that its pinned count held. A method (exhaustive,
@@ -24,15 +33,20 @@
 // run's events, as scripts/unit-test-lanes.mjs does for its summaries.
 
 export const FORMAL_VERIFICATION_REPORT_KIND = "site-behavior-formal-verification-execution-report";
-export const FORMAL_VERIFICATION_REPORT_VERSION = 1;
+// Version 2 lists a test that failed as expected under an outcome of its own
+// and counts it, and counts describe blocks left todo and failed as a block.
+// No report of version 1 was ever signed or published, and none is read here.
+export const FORMAL_VERIFICATION_REPORT_VERSION = 2;
 // lib/finite-check.ts reads this name. lib/finite-check-catch-log.test.ts
 // holds the two spellings equal.
 export const FORMAL_VERIFICATION_CATCH_LOG_ENV = "SITE_BEHAVIOR_LAB_FV_CATCH_LOG";
 
 const FULL_SHA = /^[0-9a-f]{40}$/;
 const SUITE_ID = /^(?:lib|investigation\/test)\/[A-Za-z0-9._-]+\.test\.ts$/;
-const OUTCOMES = ["passed", "failed", "skipped", "todo"];
-const COUNT_FIELDS = ["tests", "passed", "failed", "cancelled", "skipped", "todo", "skippedSuites"];
+const OUTCOMES = ["passed", "failed", "skipped", "todo", "expected-failure"];
+// node's own six, as its summary gives them, then four the reporter counts
+// from the events. "Suites" here is node's word for describe blocks.
+const COUNT_FIELDS = ["tests", "passed", "failed", "cancelled", "skipped", "todo", "expectedFailures", "skippedSuites", "todoSuites", "failedSuites"];
 // Test titles and variant names are the suites' own words. The bound keeps a
 // report readable and refuses a runaway string, nothing more.
 const MAX_NAME = 4096;
@@ -166,11 +180,14 @@ function shapeProblems(report) {
     // node's summary and the listed tests are two readings of one run. Where
     // they disagree, part of the run did not reach the report. Each outcome is
     // held to its own count, which also holds the list's length to the total.
+    // node counts a test that failed as expected among its passes, so the two
+    // outcomes are read together against that count.
     const { counts } = suite;
     const listed = (outcome) => suite.tests.filter((test) => test.outcome === outcome).length;
     if (
       counts.tests !== counts.passed + counts.failed + counts.cancelled + counts.skipped + counts.todo ||
-      listed("passed") !== counts.passed ||
+      listed("passed") + listed("expected-failure") !== counts.passed ||
+      listed("expected-failure") !== counts.expectedFailures ||
       listed("skipped") !== counts.skipped ||
       listed("todo") !== counts.todo ||
       listed("failed") !== counts.failed + counts.cancelled
@@ -215,9 +232,13 @@ const bounded = (problems) =>
 
 /**
  * Every way a report fails the closure rule for these required suites: each
- * one present and no other, no test skipped, left todo, failed or cancelled,
- * each minimum met, and every variant caught by the property its suite named.
- * With `source`, the report must also name that commit and tree.
+ * one present and no other, no test skipped, left todo, failed, cancelled or
+ * failed as expected, no describe block skipped, left todo or failed as a
+ * block, each minimum met, and every variant caught by the property its suite
+ * named. With `source`, the report must also name that commit and tree.
+ *
+ * A test that failed as expected is no pass: its body threw. It is refused by
+ * name and left out of the tests counted toward a minimum.
  *
  * A variant that is not caught, or is caught for another property, makes
  * assertCaughtBy throw, so in a real run it is a failed test and the suite's
@@ -254,11 +275,17 @@ export function formalVerificationReportProblems(report, requiredSuites, source 
     if (counts.skipped > 0) problems.push(`${id}: ${plural(counts.skipped, "test")} skipped, the first by name ${first("skipped")}`);
     if (counts.skippedSuites > 0) problems.push(`${id}: ${plural(counts.skippedSuites, "describe block")} skipped`);
     if (counts.todo > 0) problems.push(`${id}: ${plural(counts.todo, "test")} left todo, the first by name ${first("todo")}`);
+    if (counts.todoSuites > 0) problems.push(`${id}: ${plural(counts.todoSuites, "describe block")} left todo`);
     if (counts.failed + counts.cancelled > 0) {
       problems.push(`${id}: ${plural(counts.failed + counts.cancelled, "test")} failed or cancelled, the first by name ${first("failed")}`);
     }
-    if (counts.passed < minimumTests) {
-      problems.push(`${id}: ${plural(counts.passed, "test")} passed, below its pinned minimum of ${minimumTests}`);
+    if (counts.failedSuites > 0) problems.push(`${id}: ${plural(counts.failedSuites, "describe block")} failed as a block`);
+    if (counts.expectedFailures > 0) {
+      problems.push(`${id}: ${plural(counts.expectedFailures, "test")} failed as expected, which is no pass, the first by name ${first("expected-failure")}`);
+    }
+    const passed = counts.passed - counts.expectedFailures;
+    if (passed < minimumTests) {
+      problems.push(`${id}: ${plural(passed, "test")} passed, below its pinned minimum of ${minimumTests}`);
     }
     for (const caught of suite.variants) {
       if (caught.caughtBy !== caught.property) {
@@ -277,27 +304,46 @@ export function formalVerificationReportProblems(report, requiredSuites, source 
 export function formalVerificationReportTotals(report) {
   return {
     suites: report.suites.length,
-    tests: report.suites.reduce((sum, suite) => sum + suite.counts.passed, 0),
+    tests: report.suites.reduce((sum, suite) => sum + suite.counts.passed - suite.counts.expectedFailures, 0),
     variants: report.suites.reduce((sum, suite) => sum + suite.variants.length, 0)
   };
 }
 
+/** Marked as expected to fail, in a way node then honored. */
+const expectedToFail = (event) => event.data.expectFailure !== undefined && event.data.expectFailure !== false;
+
 /**
- * One test's outcome as node counts it: skip first, then todo, then failure.
- * node counts a cancelled test apart from a failed one. An event does not say
- * which it was, so both read "failed" here and the counts keep node's split.
+ * One test's outcome: skip first, then todo, as node counts them, then
+ * failure. node counts a cancelled test apart from a failed one. An event does
+ * not say which it was, so both read "failed" here and the counts keep node's
+ * split. A test marked as expected to fail whose body threw arrives as a pass,
+ * and node counts it as one. It did not pass, so it gets an outcome of its
+ * own.
  */
-function outcomeOf(event) {
+function testOutcome(event) {
   if (event.data.skip !== undefined) return "skipped";
   if (event.data.todo !== undefined) return "todo";
-  return event.type === "test:fail" ? "failed" : "passed";
+  if (event.type === "test:fail") return "failed";
+  return expectedToFail(event) ? "expected-failure" : "passed";
+}
+
+/**
+ * One describe block's outcome. node reports a block that failed as a block
+ * (a hook of its own threw, or its body did) as a failing event of type
+ * "suite", and neither counts it nor lets it move the exit status. A block
+ * marked as expected to fail that did fail arrives as a pass: it failed.
+ */
+function blockOutcome(event) {
+  if (event.data.skip !== undefined) return "skipped";
+  if (event.data.todo !== undefined) return "todo";
+  return event.type === "test:fail" || expectedToFail(event) ? "failed" : "passed";
 }
 
 /**
  * The reporter. One JSON line for each test a file ran, one for each describe
- * block it skipped, and one for the summary the file's process writes last.
- * The summary's arrival means everything before it arrived, which is what
- * scripts/unit-test-lanes.mjs rests on too.
+ * block that did not simply pass, by name, and one for the summary the file's
+ * process writes last. The summary's arrival means everything before it
+ * arrived, which is what scripts/unit-test-lanes.mjs rests on too.
  */
 export default async function* formalVerificationEvents(source) {
   for await (const event of source) {
@@ -305,10 +351,11 @@ export default async function* formalVerificationEvents(source) {
     if (typeof file !== "string") continue;
     if (event.type === "test:pass" || event.type === "test:fail") {
       if (event.data.details?.type === "suite") {
-        if (event.data.skip !== undefined) yield `${JSON.stringify({ kind: "skipped-suite", file })}\n`;
+        const outcome = blockOutcome(event);
+        if (outcome !== "passed") yield `${JSON.stringify({ kind: "block", file, name: event.data.name, outcome })}\n`;
         continue;
       }
-      yield `${JSON.stringify({ kind: "test", file, name: event.data.name, outcome: outcomeOf(event) })}\n`;
+      yield `${JSON.stringify({ kind: "test", file, name: event.data.name, outcome: testOutcome(event) })}\n`;
     } else if (event.type === "test:summary") {
       yield `${JSON.stringify({ kind: "summary", file, counts: event.data.counts })}\n`;
     }

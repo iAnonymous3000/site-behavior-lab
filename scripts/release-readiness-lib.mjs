@@ -4817,8 +4817,9 @@ function evaluateContainerPackageReview(
  * The formal-verification gate. It passes only when the candidate's carrier
  * binds an execution report that CI signed at the candidate commit, and that
  * report shows every required suite ran there: none absent, no test skipped,
- * left todo, failed or cancelled, each pinned minimum met, and every variant
- * caught by the property its suite names.
+ * left todo, failed, cancelled or failed as expected, no describe block
+ * skipped, left todo or failed as a block, each pinned minimum met, and every
+ * variant caught by the property its suite names.
  *
  * Three things are checked, each from its own source. The binding has already
  * authenticated the report's bytes against its Sigstore bundle, with signer

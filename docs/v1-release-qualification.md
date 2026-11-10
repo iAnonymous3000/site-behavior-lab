@@ -68,11 +68,15 @@ those suites ran at the candidate.
   nothing of the tests it keeps.
 - **The report.** `npm run release:formal-verification-report -- --output <file>`
   runs each required file alone at a clean commit and writes one canonical
-  execution report: for each file, the test runner's counts, every test by
-  name with its outcome, and every variant the harness caught with the
-  property that caught it. It writes nothing if a test was skipped, left todo,
-  failed or cancelled, or if a minimum was not met. `--dry-run` judges the
-  same run on a working tree and writes nothing.
+  execution report: for each file, the test runner's counts, its own counts
+  of what those leave out, every test by name with its outcome, and every
+  variant the harness caught with the property that caught it. It writes
+  nothing if a test was skipped, left todo, failed, cancelled or failed as
+  expected, if a describe block was skipped, left todo or failed as a block,
+  or if a minimum was not met. The test runner exits cleanly on a describe
+  block that fails as a block and counts a test that failed as expected as
+  passed, so both are read from its events. `--dry-run` judges the same run
+  on a working tree and writes nothing.
 - **The binding.** The carrier commits the report and its Sigstore bundle at
   `research/measurement-candidate/site-behavior-lab-formal-verification-report.json`
   and `research/measurement-candidate/formal-verification-report.bundle.json`.

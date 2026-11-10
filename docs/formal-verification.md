@@ -189,14 +189,18 @@ cite, both ways.
 `npm run release:formal-verification-report` runs each of those files again,
 alone, and writes an execution report for the commit it ran at. For each file
 the report holds the test runner's counts (tests, passed, failed, cancelled,
-skipped, todo), each test by name with its outcome, and each variant
-`assertCaughtBy` accepted, with the property its suite named and the property
-that caught it. `lib/finite-check.ts` records a catch only where a run names
-a log for it, as that command does, and `lib/finite-check-catch-log.test.ts`
-holds that recorder. The command writes no report unless the checkout is a
-clean commit and the run meets each entry: no test skipped, left todo, failed
-or cancelled, and the tests that passed and the variants caught for their
-reason at or above the entry's minimums.
+skipped, todo), the command's own counts of what those leave out (tests that
+failed as expected, and describe blocks skipped, left todo or failed as a
+block), each test by name with its outcome, and each variant `assertCaughtBy`
+accepted, with the property its suite named and the property that caught it.
+`lib/finite-check.ts` records a catch only where a run names a log for it, as
+that command does, and `lib/finite-check-catch-log.test.ts` holds that
+recorder. The command writes no report unless the checkout is a clean commit
+and the run meets each entry: no test skipped, left todo, failed, cancelled or
+failed as expected, no describe block skipped, left todo or failed as a block,
+and the tests that passed and the variants caught for their reason at or above
+the entry's minimums. A test that failed as expected is one marked so whose
+body threw: the test runner reports it as a pass, and here it is none.
 
 The gate passes only when a release candidate's evidence carrier binds such a
 report for the candidate commit, with a signature bundle made by CI at that

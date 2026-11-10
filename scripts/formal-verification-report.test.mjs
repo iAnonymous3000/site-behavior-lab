@@ -43,7 +43,7 @@ const REQUIRED = [
 ];
 
 const passing = (count) => Array.from({ length: count }, (_, index) => ({ name: `test ${index + 1}`, outcome: "passed" }));
-const counts = (over = {}) => ({ tests: 0, passed: 0, failed: 0, cancelled: 0, skipped: 0, todo: 0, skippedSuites: 0, ...over });
+const counts = (over = {}) => ({ tests: 0, passed: 0, failed: 0, cancelled: 0, skipped: 0, todo: 0, expectedFailures: 0, skippedSuites: 0, todoSuites: 0, failedSuites: 0, ...over });
 const caught = (variant, property = "the property", caughtBy = property) => ({ variant, property, caughtBy });
 
 /** A report that meets REQUIRED, as plain records a test may then break. */
@@ -70,6 +70,11 @@ test("a report that meets every required suite has no problem, and says what it 
   assert.deepEqual(formalVerificationReportProblems(report, REQUIRED), [], "with no source to hold it to, the content alone is judged");
   assert.deepEqual(formalVerificationReportTotals(report), { suites: 2, tests: 4, variants: 2 });
   assert.equal(report.artifactKind, FORMAL_VERIFICATION_REPORT_KIND);
+  // A test that failed as expected is among node's passes and is no pass in the totals.
+  const excused = records();
+  excused.suites[0].tests[0].outcome = "expected-failure";
+  excused.suites[0].counts.expectedFailures = 1;
+  assert.deepEqual(formalVerificationReportTotals(buildFormalVerificationReport(excused)), { suites: 2, tests: 3, variants: 2 });
 });
 
 // Each refusal the release gate must make, with the reason it gives.
@@ -106,6 +111,37 @@ for (const [name, change, expected] of [
     "a suite with a skipped describe block",
     (input) => { input.suites[0].counts.skippedSuites = 1; },
     ["lib/fv-alpha.test.ts: 1 describe block skipped"]
+  ],
+  [
+    "a suite with a describe block left todo",
+    (input) => { input.suites[1].counts.todoSuites = 2; },
+    ["lib/fv-beta.test.ts: 2 describe blocks left todo"]
+  ],
+  [
+    // node counts no failure for it and exits 0: only this count holds it.
+    "a suite with a describe block that failed as a block",
+    (input) => { input.suites[0].counts.failedSuites = 1; },
+    ["lib/fv-alpha.test.ts: 1 describe block failed as a block"]
+  ],
+  [
+    // node counts it among its passes. One more test passed, so the minimum is still met.
+    "a suite with a test that failed as expected",
+    (input) => {
+      input.suites[0].tests.push({ name: "a property marked as expected to fail", outcome: "expected-failure" });
+      input.suites[0].counts = counts({ tests: 4, passed: 4, expectedFailures: 1 });
+    },
+    ['lib/fv-alpha.test.ts: 1 test failed as expected, which is no pass, the first by name "a property marked as expected to fail"']
+  ],
+  [
+    "a test that failed as expected counted toward a minimum",
+    (input) => {
+      input.suites[0].tests[2] = { name: "test 3", outcome: "expected-failure" };
+      input.suites[0].counts = counts({ tests: 3, passed: 3, expectedFailures: 1 });
+    },
+    [
+      'lib/fv-alpha.test.ts: 1 test failed as expected, which is no pass, the first by name "test 3"',
+      "lib/fv-alpha.test.ts: 2 tests passed, below its pinned minimum of 3"
+    ]
   ],
   [
     "a suite with a test left todo",
@@ -242,17 +278,20 @@ test("a report is read back from its canonical bytes and from nothing else", () 
   };
   for (const [change, reason] of [
     [(copy) => { copy.note = "x"; }, "malformed report: the report must hold exactly schemaVersion, artifactKind, source and suites, in that order"],
-    [(copy) => { copy.schemaVersion = 2; }, "malformed report: schemaVersion must be 1"],
+    [(copy) => { copy.schemaVersion = 3; }, "malformed report: schemaVersion must be 2"],
+    // The earlier shape, which listed a test that failed as expected as passed, is not read.
+    [(copy) => { copy.schemaVersion = 1; }, "malformed report: schemaVersion must be 2"],
     [(copy) => { copy.artifactKind = "exact-source-and-tested-artifact-manifest"; }, `malformed report: artifactKind must be ${FORMAL_VERIFICATION_REPORT_KIND}`],
     [(copy) => { copy.source.commit = "abc"; }, "malformed report: source must hold exactly a full commit id and a full tree id"],
     [(copy) => { copy.source.branch = "main"; }, "malformed report: source must hold exactly a full commit id and a full tree id"],
     [(copy) => { copy.suites = {}; }, "malformed report: suites must be a list"],
     [(copy) => { copy.suites[0].method = "exhaustive"; }, "malformed report: lib/fv-alpha.test.ts must hold exactly id, counts, tests and variants, in that order"],
     [(copy) => { copy.suites[0].id = "lib/elsewhere/x.test.ts"; }, "malformed report: lib/elsewhere/x.test.ts does not name a suite file under lib or investigation/test"],
-    [(copy) => { copy.suites[0].counts.durationMs = 3; }, "malformed report: lib/fv-alpha.test.ts: counts must hold exactly tests, passed, failed, cancelled, skipped, todo, skippedSuites, each a whole number"],
-    [(copy) => { copy.suites[0].counts.passed = -1; }, "malformed report: lib/fv-alpha.test.ts: counts must hold exactly tests, passed, failed, cancelled, skipped, todo, skippedSuites, each a whole number"],
-    [(copy) => { copy.suites[0].tests[0].outcome = "flaky"; }, "malformed report: lib/fv-alpha.test.ts: each test must hold exactly a name and an outcome of passed, failed, skipped, todo"],
-    [(copy) => { copy.suites[0].tests[0].name = ""; }, "malformed report: lib/fv-alpha.test.ts: each test must hold exactly a name and an outcome of passed, failed, skipped, todo"],
+    [(copy) => { copy.suites[0].counts.durationMs = 3; }, "malformed report: lib/fv-alpha.test.ts: counts must hold exactly tests, passed, failed, cancelled, skipped, todo, expectedFailures, skippedSuites, todoSuites, failedSuites, each a whole number"],
+    [(copy) => { delete copy.suites[0].counts.failedSuites; }, "malformed report: lib/fv-alpha.test.ts: counts must hold exactly tests, passed, failed, cancelled, skipped, todo, expectedFailures, skippedSuites, todoSuites, failedSuites, each a whole number"],
+    [(copy) => { copy.suites[0].counts.passed = -1; }, "malformed report: lib/fv-alpha.test.ts: counts must hold exactly tests, passed, failed, cancelled, skipped, todo, expectedFailures, skippedSuites, todoSuites, failedSuites, each a whole number"],
+    [(copy) => { copy.suites[0].tests[0].outcome = "flaky"; }, "malformed report: lib/fv-alpha.test.ts: each test must hold exactly a name and an outcome of passed, failed, skipped, todo, expected-failure"],
+    [(copy) => { copy.suites[0].tests[0].name = ""; }, "malformed report: lib/fv-alpha.test.ts: each test must hold exactly a name and an outcome of passed, failed, skipped, todo, expected-failure"],
     [(copy) => { delete copy.suites[0].variants[0].caughtBy; }, "malformed report: lib/fv-alpha.test.ts: each variant must hold exactly variant, property and caughtBy"],
     [(copy) => { copy.suites[0].variants[0].property = 7; }, "malformed report: lib/fv-alpha.test.ts: each variant must hold exactly variant, property and caughtBy"],
     [(copy) => { copy.suites[0].tests.reverse(); }, "malformed report: lib/fv-alpha.test.ts: tests and variants must be in canonical order"],
@@ -266,10 +305,13 @@ test("a report is read back from its canonical bytes and from nothing else", () 
     [(copy) => { copy.suites[0].tests[0].outcome = "skipped"; }, "malformed report: lib/fv-alpha.test.ts: the listed tests do not add up to its counts"],
     // One listed test more than the counts hold, of each outcome in turn: each
     // outcome is held to its own count, so none can hide a test the summary lacks.
-    ...["passed", "failed", "skipped", "todo"].map((outcome) => [
+    ...["passed", "failed", "skipped", "todo", "expected-failure"].map((outcome) => [
       (copy) => { copy.suites[0].tests.push({ name: "zz one more than the counts hold", outcome }); },
       "malformed report: lib/fv-alpha.test.ts: the listed tests do not add up to its counts"
     ]),
+    // A test listed as failed as expected that the counts do not hold, and one the counts hold that is listed as passed.
+    [(copy) => { copy.suites[0].tests[0].outcome = "expected-failure"; }, "malformed report: lib/fv-alpha.test.ts: the listed tests do not add up to its counts"],
+    [(copy) => { copy.suites[0].counts.expectedFailures = 1; }, "malformed report: lib/fv-alpha.test.ts: the listed tests do not add up to its counts"],
     // A cancelled test is listed as failed, so the two counts are read together.
     [(copy) => { copy.suites[0].counts.tests = 4; copy.suites[0].counts.cancelled = 1; }, "malformed report: lib/fv-alpha.test.ts: the listed tests do not add up to its counts"]
   ]) {
@@ -330,6 +372,38 @@ test("to be written", { todo: true }, () => {});
   "lib/fv-skipped-block.test.ts": `${FIXTURE_HEAD}
 test("runs", () => {});
 describe.skip("a block left out", () => { test("never runs", () => {}); });
+`,
+  // node lists this block under failing tests, counts no failure and exits 0.
+  "lib/fv-block-after-hook.test.ts": `${FIXTURE_HEAD}
+import { after } from "node:test";
+describe("a block whose after hook throws", () => { after(() => { throw new Error("after hook broke"); }); test("inside, passes", () => {}); });
+test("runs", () => {});
+`,
+  "lib/fv-block-before-hook.test.ts": `${FIXTURE_HEAD}
+import { before } from "node:test";
+describe("a block whose before hook throws", () => { before(() => { throw new Error("before hook broke"); }); test("inside, never runs", () => {}); });
+test("runs", () => {});
+`,
+  // The same, excused: a block marked as expected to fail whose hook throws arrives as a pass.
+  "lib/fv-block-expected-failure.test.ts": `${FIXTURE_HEAD}
+import { after } from "node:test";
+describe("a block excused for failing", { expectFailure: true }, () => { after(() => { throw new Error("after hook broke"); }); test("inside, passes", () => {}); });
+test("runs", () => {});
+`,
+  // node reports this test as a pass and counts it as one, and exits 0.
+  "lib/fv-expected-failure.test.ts": `${FIXTURE_HEAD}
+test("runs", () => {});
+test("a property that is violated, marked as expected to fail", { expectFailure: true }, () => { holds("p", false, () => 1); });
+test("outer", async (t) => { await t.test("a subtest that is violated, marked the same", { expectFailure: true }, () => { throw new Error("violated"); }); });
+`,
+  "lib/fv-todo-block.test.ts": `${FIXTURE_HEAD}
+test("runs", () => {});
+describe.todo("a block to be written", () => { test("inside a todo block", () => {}); });
+`,
+  // With no test inside, a todo block changes none of node's counts, and node exits 0.
+  "lib/fv-todo-empty-block.test.ts": `${FIXTURE_HEAD}
+test("runs", () => {});
+describe.todo("a block with nothing in it yet");
 `,
   "lib/fv-fails.test.ts": `${FIXTURE_HEAD}
 test("runs", () => {});
@@ -433,7 +507,7 @@ test("a passing run is written whole for the exact commit: node's counts, each t
   const { report, problems } = parseFormalVerificationReport(bytes);
   assert.deepEqual(problems, []);
   assert.deepEqual(report, {
-    schemaVersion: 1,
+    schemaVersion: 2,
     artifactKind: FORMAL_VERIFICATION_REPORT_KIND,
     source: { commit: f.head(), tree: f.tree() },
     suites: [
@@ -467,7 +541,69 @@ test("a passing run is written whole for the exact commit: node's counts, each t
 for (const [name, id, minimums, reasons] of [
   ["a skipped test", "lib/fv-skips.test.ts", [1, 0], ["lib/fv-skips.test.ts: its run did not pass", 'lib/fv-skips.test.ts: 1 test skipped, the first by name "left out"']],
   ["a test left todo", "lib/fv-todo.test.ts", [1, 0], ["lib/fv-todo.test.ts: its run did not pass", 'lib/fv-todo.test.ts: 1 test left todo, the first by name "to be written"']],
-  ["a skipped describe block", "lib/fv-skipped-block.test.ts", [1, 0], ["lib/fv-skipped-block.test.ts: its run did not pass", "lib/fv-skipped-block.test.ts: 1 describe block skipped"]],
+  [
+    "a skipped describe block",
+    "lib/fv-skipped-block.test.ts",
+    [1, 0],
+    ["lib/fv-skipped-block.test.ts: its run did not pass", 'lib/fv-skipped-block.test.ts: describe block "a block left out" was skipped', "lib/fv-skipped-block.test.ts: 1 describe block skipped"]
+  ],
+  [
+    // node exits 0 here, so the lane passes: the block's own event is all that refuses it.
+    "a describe block whose after hook throws, which node exits 0 on",
+    "lib/fv-block-after-hook.test.ts",
+    [2, 0],
+    ['lib/fv-block-after-hook.test.ts: describe block "a block whose after hook throws" failed as a block', "lib/fv-block-after-hook.test.ts: 1 describe block failed as a block"]
+  ],
+  [
+    "a describe block whose before hook throws",
+    "lib/fv-block-before-hook.test.ts",
+    [1, 0],
+    [
+      "lib/fv-block-before-hook.test.ts: its run did not pass",
+      'lib/fv-block-before-hook.test.ts: describe block "a block whose before hook throws" failed as a block',
+      'lib/fv-block-before-hook.test.ts: 1 test failed or cancelled, the first by name "inside, never runs"',
+      "lib/fv-block-before-hook.test.ts: 1 describe block failed as a block"
+    ]
+  ],
+  [
+    "a describe block excused for failing, which node exits 0 on",
+    "lib/fv-block-expected-failure.test.ts",
+    [2, 0],
+    ['lib/fv-block-expected-failure.test.ts: describe block "a block excused for failing" failed as a block', "lib/fv-block-expected-failure.test.ts: 1 describe block failed as a block"]
+  ],
+  [
+    // Four tests "pass" by node's count. Two of them threw.
+    "a test and a subtest that failed as expected, which node exits 0 on and counts as passed",
+    "lib/fv-expected-failure.test.ts",
+    [2, 0],
+    ['lib/fv-expected-failure.test.ts: 2 tests failed as expected, which is no pass, the first by name "a property that is violated, marked as expected to fail"']
+  ],
+  [
+    "a test that failed as expected counted toward its minimum",
+    "lib/fv-expected-failure.test.ts",
+    [3, 0],
+    [
+      'lib/fv-expected-failure.test.ts: 2 tests failed as expected, which is no pass, the first by name "a property that is violated, marked as expected to fail"',
+      "lib/fv-expected-failure.test.ts: 2 tests passed, below its pinned minimum of 3"
+    ]
+  ],
+  [
+    "a todo describe block",
+    "lib/fv-todo-block.test.ts",
+    [1, 0],
+    [
+      "lib/fv-todo-block.test.ts: its run did not pass",
+      'lib/fv-todo-block.test.ts: describe block "a block to be written" is left todo',
+      'lib/fv-todo-block.test.ts: 1 test left todo, the first by name "inside a todo block"',
+      "lib/fv-todo-block.test.ts: 1 describe block left todo"
+    ]
+  ],
+  [
+    "a todo describe block with no test in it, which node exits 0 on",
+    "lib/fv-todo-empty-block.test.ts",
+    [1, 0],
+    ['lib/fv-todo-empty-block.test.ts: describe block "a block with nothing in it yet" is left todo', "lib/fv-todo-empty-block.test.ts: 1 describe block left todo"]
+  ],
   [
     "a variant its check does not catch",
     "lib/fv-fails.test.ts",

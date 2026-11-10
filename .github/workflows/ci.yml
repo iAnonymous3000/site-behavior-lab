@@ -1004,7 +1004,7 @@ jobs:
             const bytes = readFileSync(process.env.FORMAL_VERIFICATION_REPORT_PATH);
             const report = JSON.parse(bytes.toString("utf8"));
             if (
-              report?.schemaVersion !== 1 ||
+              report?.schemaVersion !== 2 ||
               report?.artifactKind !== "site-behavior-formal-verification-execution-report"
             ) {
               throw new Error("Formal verification report is not the expected artifact kind and version");
