@@ -4852,8 +4852,9 @@ export function evaluateFormalVerification(id, gate, rootDir, measurementContext
     if (gate[field] !== expected) reasons.push(`gate config: ${field} must be ${expected}`);
   }
   // Compared as written, order included, which is how the profile check and
-  // the report's own rule read the list.
-  if (JSON.stringify(gate.requiredSuites) !== JSON.stringify(V1_REQUIRED_SUITES)) {
+  // the report's own rule read the list, and by value as well, since the
+  // written form hides what it cannot spell: -0 is written as 0.
+  if (JSON.stringify(gate.requiredSuites) !== JSON.stringify(V1_REQUIRED_SUITES) || !isDeepStrictEqual(gate.requiredSuites, V1_REQUIRED_SUITES)) {
     reasons.push("gate config: requiredSuites must be exactly the release contract's list");
   }
 

@@ -218,8 +218,13 @@ function shapeProblems(report) {
  * The last comparison is of bytes, not of text. The decoder drops a leading
  * byte order mark, so the text of a file that begins with one equals the text
  * of the file without it, and two different files would read as one report.
+ *
+ * Bytes are a Buffer or another Uint8Array, as a file read gives them. Anything
+ * else is refused with a reason: the decoder would take an ArrayBuffer and the
+ * byte comparison would then throw on it.
  */
 export function parseFormalVerificationReport(bytes) {
+  if (!(bytes instanceof Uint8Array)) return { report: null, problems: ["the report was not given as bytes"] };
   let text;
   try {
     text = new TextDecoder("utf-8", { fatal: true }).decode(bytes);

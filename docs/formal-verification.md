@@ -222,12 +222,14 @@ independent of the suite it describes, and nothing here can tell a line the
 harness wrote from a line of the same form written by other code in that
 process. The gate holds the number of catches and that none names another
 property. It does not hold that variant names are distinct, and a variant
-caught for more than one property is counted once for each. The report names
-no method, which is a statement of a row and nothing a run can observe. The
-gate does not compare the report's test names with the tests the rows cite:
-the guard holds those at each commit, and the guard is not among the files the
-report runs. A report shows that the cited files ran and passed at a commit.
-It adds nothing to what a row claims.
+caught for more than one property is counted once for each. The counts and
+the outcomes are likewise the producer's own statement of its run: the
+signature attributes that statement to a CI run at the commit, and checks
+nothing else of it. The report names no method, which is a statement of a row
+and nothing a run can observe. The gate does not compare the report's test
+names with the tests the rows cite: the guard holds those at each commit, and
+the guard is not among the files the report runs. A report shows that the
+cited files ran and passed at a commit. It adds nothing to what a row claims.
 
 ## What this register does not claim
 

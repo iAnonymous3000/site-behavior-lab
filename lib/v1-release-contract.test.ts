@@ -427,6 +427,11 @@ test("the profile holds the formal-verification gate, its kind, its paths and ev
       assert.deepEqual(reordered, [`formal-verification must write the entry for ${suite.id} with its fields in the order id, minimumTests, minimumVariants`], order.join(", "));
     }
   }
+  // A minimum of zero written as minus zero reads the same once written out, and is another value: refused here by value.
+  const zero = suites.find((suite) => suite.minimumVariants === 0);
+  assert.ok(zero, "the contract no longer pins a minimum of zero, so this case shows nothing");
+  assert.deepEqual(refusal((m) => { m.gates["formal-verification"].requiredSuites.find((suite: Any) => suite.id === zero.id).minimumVariants = -0; }),
+    [`formal-verification must keep the pinned minimums of ${zero.id}`]);
   // What the profile accepts is, as written, the list the gate and the report's rule accept.
   assert.equal(JSON.stringify(suites), JSON.stringify(c.V1_REQUIRED_SUITES));
   assert.deepEqual(fv.formalVerificationRequiredSuitesProblems(suites), []);
@@ -720,7 +725,9 @@ test("the gate's own configuration is held, and a report source that cannot be r
     ["a suite dropped", (gate: Any) => { gate.requiredSuites.pop(); }],
     ["a suite added", (gate: Any) => { gate.requiredSuites.push({ id: "lib/zz-more.test.ts", minimumTests: 1, minimumVariants: 0 }); }],
     ["another order", (gate: Any) => { gate.requiredSuites.reverse(); }],
-    ["an entry's fields in another order", (gate: Any) => { const { id, minimumTests, minimumVariants } = gate.requiredSuites[0]; gate.requiredSuites[0] = { id, minimumVariants, minimumTests }; }]
+    ["an entry's fields in another order", (gate: Any) => { const { id, minimumTests, minimumVariants } = gate.requiredSuites[0]; gate.requiredSuites[0] = { id, minimumVariants, minimumTests }; }],
+    // Written out, -0 is 0, so the list reads the same as the contract's. The profile check refuses it by value, and so does this.
+    ["a minimum of zero written as minus zero", (gate: Any) => { const entry = gate.requiredSuites.find((suite: Any) => suite.minimumVariants === 0); assert.ok(entry); entry.minimumVariants = -0; assert.equal(JSON.stringify(gate.requiredSuites), JSON.stringify(c.V1_REQUIRED_SUITES)); }]
   ] as const) {
     assert.deepEqual(withGate(change as (gate: Any) => void), [NOT_THE_CONTRACT], name);
   }

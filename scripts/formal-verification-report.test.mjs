@@ -281,6 +281,11 @@ test("a report is read back from its canonical bytes and from nothing else", () 
   refused(marked, "the report is not in its canonical serialization");
   // The same bytes held as a plain byte array, not a Buffer, are read as the same report.
   assert.deepEqual(parseFormalVerificationReport(new Uint8Array(Buffer.from(bytes))), { report, problems: [] });
+  // Anything that is not bytes is refused with a reason, and nothing is thrown.
+  const exact = new Uint8Array(Buffer.from(bytes));
+  for (const notBytes of [exact.buffer, new DataView(exact.buffer), bytes, report, null, undefined]) {
+    assert.deepEqual(parseFormalVerificationReport(notBytes), { report: null, problems: ["the report was not given as bytes"] });
+  }
 
   const edited = (change) => {
     const copy = JSON.parse(bytes);
