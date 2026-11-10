@@ -21,8 +21,9 @@ The original release evidence and package inventory remain unchanged. A second
 receipt uses the existing release-evidence schema and adds the registry digest;
 the isolated attestation job refuses any other difference from the tested
 receipt. Source, source tree, image ID, filesystem layers, runtime, and the
-production configuration remain bound. All four subjects are attested only
-after the existing required CI jobs succeed.
+production configuration remain bound. All four subjects, and the formal
+verification execution report beside them, are attested only after the
+existing required CI jobs succeed.
 
 After promotion, `Deploy Tested Container` resolves a gated main-CI run for the
 exact `production` SHA, verifies the published receipt's attestation using the

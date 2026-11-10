@@ -265,6 +265,29 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # A green unit run does not show that a bounded suite ran: a suite a
+      # stage stopped naming and a skipped test both leave it green. The
+      # suites the formal-verification release gate requires therefore run
+      # once more here, each alone, and what they did is written down for this
+      # exact commit: every test by name, and every variant caught with the
+      # property that caught it. The attest job signs that file. The producer
+      # refuses a dirty tree before and after its run and writes nothing
+      # unless the run meets the gate's rule, so this step comes first, on the
+      # tree npm ci left. It needs no browser. It does not replace the same
+      # suites in the unit tests below, which are what gate a change.
+      - name: Record exact-SHA formal verification execution report
+        run: >-
+          npm run release:formal-verification-report --
+          --output "$RUNNER_TEMP/site-behavior-lab-formal-verification-report.json"
+
+      - name: Preserve exact-SHA formal verification execution report
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: exact-sha-formal-verification-report-${{ github.sha }}
+          path: ${{ runner.temp }}/site-behavior-lab-formal-verification-report.json
+          if-no-files-found: error
+          retention-days: 90
+
       # The baselines decide what "append-only" is measured against, so each
       # must be a revision this repository already stood behind, never a
       # relative ref. A HEAD^ fallback compared exactly one commit back, so a
@@ -767,9 +790,10 @@ jobs:
           retention-days: 90
 
   # This job never checks out or executes candidate code. OIDC and attestation
-  # writes are isolated here and are unavailable to pull-request code. The four
-  # subjects include the original manifests and package inventory, plus the
-  # same container receipt after registry publication. The published receipt
+  # writes are isolated here and are unavailable to pull-request code. The five
+  # subjects include the original manifests and package inventory, the same
+  # container receipt after registry publication, and the formal verification
+  # execution report the tests job wrote. The published receipt
   # binds the tested local image to its immutable registry reference; a live
   # deployment still requires independent provider and runtime readback.
   attest:
@@ -807,6 +831,12 @@ jobs:
         with:
           name: exact-sha-published-container-evidence-${{ github.sha }}
           path: ${{ runner.temp }}/site-behavior-lab-attestation-subjects/published
+
+      - name: Download exact-SHA formal verification execution report
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: exact-sha-formal-verification-report-${{ github.sha }}
+          path: ${{ runner.temp }}/site-behavior-lab-attestation-subjects/formal-verification
 
       - name: Validate exact-SHA evidence subjects
         env:
@@ -958,6 +988,38 @@ jobs:
             }
           '
 
+      # The tests job wrote this report only after its own run met the
+      # formal-verification gate's rule at this commit. Candidate code is not
+      # run here, so that rule is not run again: this step holds the subject
+      # to its kind, to this exact commit and to its canonical bytes, and the
+      # release gate judges its content when a carrier binds it.
+      - name: Validate formal verification execution report subject
+        env:
+          FORMAL_VERIFICATION_REPORT_PATH: ${{ runner.temp }}/site-behavior-lab-attestation-subjects/formal-verification/site-behavior-lab-formal-verification-report.json
+        run: |
+          set -euo pipefail
+          test -s "$FORMAL_VERIFICATION_REPORT_PATH"
+          node -e '
+            const { readFileSync } = require("node:fs");
+            const bytes = readFileSync(process.env.FORMAL_VERIFICATION_REPORT_PATH);
+            const report = JSON.parse(bytes.toString("utf8"));
+            if (
+              report?.schemaVersion !== 1 ||
+              report?.artifactKind !== "site-behavior-formal-verification-execution-report"
+            ) {
+              throw new Error("Formal verification report is not the expected artifact kind and version");
+            }
+            if (report?.source?.commit !== process.env.GITHUB_SHA) {
+              throw new Error(`Formal verification report identifies ${report?.source?.commit ?? "no commit"}, expected ${process.env.GITHUB_SHA}`);
+            }
+            if (!Array.isArray(report.suites) || report.suites.length === 0) {
+              throw new Error("Formal verification report names no suite");
+            }
+            if (!bytes.equals(Buffer.from(`${JSON.stringify(report, null, 2)}\n`, "utf8"))) {
+              throw new Error("Formal verification report is not canonical JSON");
+            }
+          '
+
       - name: Attest static evidence manifest
         id: attest_static
         uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
@@ -1079,6 +1141,38 @@ jobs:
         with:
           name: exact-sha-provenance-attestations-${{ github.sha }}
           path: ${{ runner.temp }}/site-behavior-lab-attestations/
+          if-no-files-found: error
+          retention-days: 90
+
+      # Signed last, and kept as an artifact of its own. The bundle artifact
+      # above has an exact member list that hosted-evidence verification reads,
+      # so this subject is not added to it.
+      - name: Attest formal verification execution report
+        id: attest_formal_verification
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
+        with:
+          subject-path: ${{ runner.temp }}/site-behavior-lab-attestation-subjects/formal-verification/site-behavior-lab-formal-verification-report.json
+
+      - name: Collect formal verification report attestation bundle
+        env:
+          FORMAL_VERIFICATION_BUNDLE: ${{ steps.attest_formal_verification.outputs.bundle-path }}
+          FORMAL_VERIFICATION_ATTESTATION_ID: ${{ steps.attest_formal_verification.outputs.attestation-id }}
+          FORMAL_VERIFICATION_ATTESTATION_URL: ${{ steps.attest_formal_verification.outputs.attestation-url }}
+        run: |
+          set -euo pipefail
+          test -s "$FORMAL_VERIFICATION_BUNDLE"
+          test -n "$FORMAL_VERIFICATION_ATTESTATION_ID"
+          test -n "$FORMAL_VERIFICATION_ATTESTATION_URL"
+          bundle_dir="$RUNNER_TEMP/site-behavior-lab-formal-verification-attestation"
+          install -d -m 700 "$bundle_dir"
+          install -m 600 "$FORMAL_VERIFICATION_BUNDLE" "$bundle_dir/formal-verification-report.bundle.json"
+          echo "Formal verification report attestation: $FORMAL_VERIFICATION_ATTESTATION_URL"
+
+      - name: Preserve formal verification report attestation bundle
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: exact-sha-formal-verification-attestation-${{ github.sha }}
+          path: ${{ runner.temp }}/site-behavior-lab-formal-verification-attestation/
           if-no-files-found: error
           retention-days: 90
 

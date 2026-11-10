@@ -537,6 +537,12 @@ live `main` CI attestation receipt and independent readback of all three
 subjects remain an external proof gate; a static workflow test cannot satisfy
 that requirement.
 
+The `tests` job also records `exact-sha-formal-verification-report-<sha>`, the
+execution report of the suite files the `formal-verification` gate requires.
+The attestation job signs it as a subject of its own and preserves its bundle
+as `exact-sha-formal-verification-attestation-<sha>`. Its first live signing
+and readback are likewise outstanding.
+
 ## Candidate gate
 
 A release candidate is eligible for external rollout only when all of the
@@ -977,7 +983,8 @@ authoritative gate list):
   commits the approval.
 - **Derived gates.** Corpus denominators, the third-party review ledger,
   runner destruction receipts, controlled publication archives, the lifecycle
-  readback receipt, and the release-receipt archive are all
+  readback receipt, the formal verification execution report, and the
+  release-receipt archive are all
   re-derived from committed evidence on every run; no artifact's
   self-declared verdict is trusted (lifecycle rules are re-validated from the
   recorded rule bytes; runner cycles are counted as distinct Actions runs;
@@ -988,7 +995,12 @@ authoritative gate list):
   full Git checkout with tags (`fetch-depth: 0`): it resolves the historical
   source commit/tree and input bytes, recomputes the receipt's internal static
   manifest, and requires the annotated release tag to target that commit and
-  embed the archived receipt's sha256.
+  embed the archived receipt's sha256. The formal-verification gate reads the
+  execution report CI signed at the candidate, which the carrier binds with
+  its bundle: every required suite file must have run there with no test
+  skipped, each pinned minimum met and every variant caught for its reason
+  (see [`docs/v1-release-qualification.md`](docs/v1-release-qualification.md)).
+  It is red until a carrier binds such a report.
 - **Operator attestations.** Host truths code cannot see (the pre-candidate
   durable soak, WAF ceilings, and container image licensing) require a JSON
   attestation under `research/ops-receipts/`. The egress backstop and log

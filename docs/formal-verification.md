@@ -191,25 +191,26 @@ alone, and writes an execution report for the commit it ran at. For each file
 the report holds the test runner's counts (tests, passed, failed, cancelled,
 skipped, todo), each test by name with its outcome, and each variant
 `assertCaughtBy` accepted, with the property its suite named and the property
-that caught it. `lib/finite-check.ts` records those catches only for such a
-run, and `lib/finite-check-catch-log.test.ts` holds that recorder. The command
-writes no report unless the checkout is a clean commit and the run meets each
-entry: no test skipped, left todo, failed or cancelled, and the tests that
-passed and the variants caught for their reason at or above the entry's
-minimums.
+that caught it. `lib/finite-check.ts` records a catch only where a run names
+a log for it, as that command does, and `lib/finite-check-catch-log.test.ts`
+holds that recorder. The command writes no report unless the checkout is a
+clean commit and the run meets each entry: no test skipped, left todo, failed
+or cancelled, and the tests that passed and the variants caught for their
+reason at or above the entry's minimums.
 
 The gate passes only when a release candidate's evidence carrier binds such a
 report for the candidate commit, with a signature bundle made by CI at that
-commit, and the gate then reads the report against the same entries. No CI job
-writes or signs the report yet, so no candidate can meet the gate today, and
-it fails.
+commit, and the gate then reads the report against the same entries. CI's
+tests job writes the report for each commit it tests, and its attest job signs
+it on the main branch. Until a carrier binds a signed report for a candidate,
+the gate fails, and it fails today: no carrier exists.
 
 What the report does not hold. A count a suite pins inside a test (states,
 transitions, cases) stays inside that test: the report counts tests and caught
 variants, and an entry's minimums are change detectors, never evidence. It
 names no method, which is a statement of a row and nothing a run can observe.
 The gate does not compare the report's test names with the tests the rows
-cite: this guard holds those at each commit, and the guard is not among the
+cite: the guard holds those at each commit, and the guard is not among the
 files the report runs. A report shows that the cited files ran and passed at a
 commit. It adds nothing to what a row claims.
 

@@ -245,6 +245,20 @@ The resulting Sigstore bundles, attestation IDs, and GitHub URLs are preserved
 for 90 days as `exact-sha-provenance-attestations-<sha>`. Promotion depends on
 this job.
 
+The same job signs one more subject and keeps it apart from those three:
+`site-behavior-lab-formal-verification-report.json`, the execution report the
+`tests` job writes with `npm run release:formal-verification-report` and
+preserves as `exact-sha-formal-verification-report-<sha>` (see
+[docs/v1-release-qualification.md](v1-release-qualification.md)). The job
+checks the report's kind, that it names the current `github.sha`, and that its
+bytes are canonical, then attests it and preserves the bundle for 90 days as
+`exact-sha-formal-verification-attestation-<sha>`. It does not run the suites
+again or judge the report's content: the producer writes a report only after
+its own run met the release gate's rule, and the gate judges the content again
+when a carrier binds it. This attestation shows that CI's `tests` job produced
+those bytes for that commit. It does not show that a claim of the bounded
+suites holds outside its stated domain.
+
 This boundary is deliberate. The attested subjects are three JSON evidence
 artifacts, not the static output directory, the smoke-tested OCI image, a
 registry image, the raw Trivy reports, or either Cloudflare deployment. The
@@ -258,4 +272,7 @@ this repository. Before treating the gate as operational release evidence,
 the first successful live `main` CI run must preserve all three bundles and an
 operator must independently read back and verify all three evidence subjects
 against `iAnonymous3000/site-behavior-lab`. That live receipt/readback remains
-an external release gate until it actually succeeds.
+an external release gate until it actually succeeds. The same holds for the
+formal verification report: until a live `main` run has signed one and an
+operator has read its bundle back, that subject's workflow contract is tested
+statically only.

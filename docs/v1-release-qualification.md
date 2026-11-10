@@ -81,8 +81,15 @@ those suites ran at the candidate.
   requires the report to name the candidate's commit and tree and to meet
   every entry.
 
-No CI job writes or signs that report yet, so no candidate can meet this gate
-today, and `npm run release:readiness` shows it as failing.
+CI's `tests` job writes the report for every commit it tests and keeps it for
+90 days as `exact-sha-formal-verification-report-<sha>`. On `main`, the
+`attest` job checks that the report names that commit and is in its canonical
+bytes, signs it, and keeps the bundle as
+`exact-sha-formal-verification-attestation-<sha>`. The producer and the gate
+judge a report with one function against one list, so the report of a green
+`main` commit meets the gate's content rule. Until a carrier binds a signed
+report for a candidate, the gate fails, and `npm run release:readiness` shows
+it as failing today.
 
 What a pass does not establish. The report shows that the cited tests ran and
 passed at the candidate. It holds no count a suite pins inside a test and no
@@ -134,7 +141,9 @@ their own. The externally pinned whole-binding review remains mandatory.
    enabling a disabled feature.
 2. Collect qualification and authentic operator evidence on C or an evidence-only
    descendant. Retain the existing CI container evidence, package inventory and
-   their Sigstore bundles. Complete the exact-image package review. Provider
+   their Sigstore bundles, and the formal verification execution report with
+   its bundle, all from the `main` CI run at C. Complete the exact-image
+   package review. Provider
    evidence still needs its existing authenticated capture, freshness and
    failure-probe checks. A hand-written statement cannot replace those proofs.
    `npm run release:attestation-scaffold -- --gate <gate-id>` can prepare
@@ -183,7 +192,9 @@ dependency and exact-image license reviews. Those are concrete operational
 evidence gaps to close before v1, not reasons to restart the research calendar.
 The egress and log-retention gates are not among them. They refuse
 caller-supplied provider evidence, no trusted hosted capture exists for either,
-and both are deferred to 1.1.0 as described above.
+and both are deferred to 1.1.0 as described above. The formal verification
+report is not a manual gap either: CI writes and signs one for each `main`
+commit, and it reaches its gate when the carrier binds the candidate's.
 
 ## Collect controlled reference cases
 

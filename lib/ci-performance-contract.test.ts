@@ -314,8 +314,8 @@ for (const [name, workflows, problems] of [
   ["CI's tests checkout filtered with a space before the colon", () => editedInJob("ci.yml", "tests", "          fetch-depth: 0\n", "          fetch-depth: 0\n          filter : blob:none\n"), ["ci.yml tests: checkout step 1 filters objects"]],
   ["the refresh job's checkout made sparse", () => refreshDepth("fetch-depth: 0\n          sparse-checkout: lib"), ["update-brave-lists.yml refresh-lists: checks out sparsely"]],
   ["the refresh job's checkout replaced by another action", () => editedInJob("update-brave-lists.yml", "refresh-lists", "        uses: actions/checkout@", "        uses: actions/not-checkout@"), ["update-brave-lists.yml refresh-lists: has no checkout"]],
-  ["CI's unit test step made conditional", () => editedWorkflows("ci.yml", CI_UNIT_STEP, "      - name: Unit tests\n        if: false\n        run: npm run test:unit\n"), ["ci.yml tests: step 16 runs the unit suite under a condition"]],
-  ["CI's unit test step under an expression", () => editedWorkflows("ci.yml", CI_UNIT_STEP, "      - name: Unit tests\n        if: github.event_name == 'push'\n        run: npm run test:unit\n"), ["ci.yml tests: step 16 runs the unit suite under a condition"]],
+  ["CI's unit test step made conditional", () => editedWorkflows("ci.yml", CI_UNIT_STEP, "      - name: Unit tests\n        if: false\n        run: npm run test:unit\n"), ["ci.yml tests: step 18 runs the unit suite under a condition"]],
+  ["CI's unit test step under an expression", () => editedWorkflows("ci.yml", CI_UNIT_STEP, "      - name: Unit tests\n        if: github.event_name == 'push'\n        run: npm run test:unit\n"), ["ci.yml tests: step 18 runs the unit suite under a condition"]],
   ["CI's tests job runs the typecheck in place of the unit suite", () => editedWorkflows("ci.yml", CI_UNIT_STEP, "      - name: Unit tests\n        run: npm run typecheck\n"), ["ci.yml tests: no longer runs the unit suite"]],
   ["the refresh job's suite run through run-script, with a shallow checkout", () => refreshSuiteRun("npm run-script test:unit"), ["update-brave-lists.yml refresh-lists: checkout step 1 is not fetch-depth: 0"]],
   ["the refresh job running check, quoted, with a shallow checkout", () => refreshSuiteRun('npm run "check"'), ["update-brave-lists.yml refresh-lists: checkout step 1 is not fetch-depth: 0"]],
@@ -362,5 +362,5 @@ for (const [name, workflows, problems] of [
 test("the pages job checks out the whole history, unfiltered, through the same parser", () => {
   assert.deepEqual(pagesProblems(WORKFLOWS), []);
   assert.deepEqual(pagesProblems(editedInJob("ci.yml", "pages", "          fetch-depth: 0\n", "          # fetch-depth: 0\n")), ["ci.yml pages: checkout step 1 is not fetch-depth: 0"]);
-  assert.deepEqual(pagesProblems(editedInJob("ci.yml", "pages", "          fetch-depth: 0\n", "          fetch-depth: 0\n         stray: x\n")), ["ci.yml pages: line 385 is not read"]);
+  assert.deepEqual(pagesProblems(editedInJob("ci.yml", "pages", "          fetch-depth: 0\n", "          fetch-depth: 0\n         stray: x\n")), ["ci.yml pages: line 408 is not read"]);
 });
