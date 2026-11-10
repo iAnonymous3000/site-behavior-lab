@@ -656,6 +656,25 @@ test("the formal-verification gate trusts no verdict but a verified one for this
     assert.equal(result.status, "fail", name);
     assert.deepEqual(result.reasons, [FV_UNVERIFIED], name);
   }
+  // A binding that does not name a full commit and a full tree: the report would be held to
+  // nothing on that side, so there is no pass, whatever the report says of itself.
+  const NO_CANDIDATE = "the binding does not name a full candidate commit and tree, so no report can be held to them";
+  assert.deepEqual(evaluate((b) => { delete b.candidateTree; }).reasons, [NO_CANDIDATE]);
+  assert.deepEqual(evaluate((b) => { b.candidateTree = null; }).reasons, [NO_CANDIDATE, `the report is for tree ${f.candidateTree}, not null`]);
+  assert.deepEqual(evaluate((b) => { b.candidateTree = f.candidateTree.slice(0, 12); }).reasons,
+    [NO_CANDIDATE, `the report is for tree ${f.candidateTree}, not ${f.candidateTree.slice(0, 12)}`]);
+  assert.deepEqual(evaluate((b) => { delete b.candidateCommit; }).reasons,
+    ["no verified measurement candidate is available", NO_CANDIDATE, FV_UNVERIFIED]);
+  // With no tree to hold it to, a report for another tree would otherwise stand.
+  const elsewhere = structuredClone(f.report);
+  elsewhere.source.tree = "d".repeat(40);
+  f.write(FV_REPORT, elsewhere);
+  const treeless = evaluate((b) => { delete b.candidateTree; b.evidence.find((e: Any) => e.path === FV_REPORT).sha256 = hash(readFileSync(path.join(f.root, FV_REPORT))); });
+  assert.equal(treeless.status, "fail");
+  assert.deepEqual(treeless.reasons, [NO_CANDIDATE]);
+  f.write(FV_REPORT, f.report);
+  assert.equal(evaluate(() => {}).status, "pass");
+
   // The report on disk is no longer the bytes the binding holds.
   const later = structuredClone(f.report);
   later.suites[0].variants.push({ variant: "zz added later", property: "the property", caughtBy: "the property" });
@@ -675,11 +694,40 @@ test("the gate's own configuration is held, and a report source that cannot be r
   const withGate = (change: (gate: Any) => void) => { const gate = fvGate(); change(gate); return release.evaluateFormalVerification("formal-verification", gate, f.root, verifiedContext(binding)).reasons; };
   assert.deepEqual(withGate((gate) => { gate.report = "research/elsewhere.json"; }), [`gate config: report must be ${FV_REPORT}`]);
   assert.deepEqual(withGate((gate) => { gate.bundle = "research/elsewhere.bundle.json"; }), [`gate config: bundle must be ${FV_BUNDLE}`]);
-  assert.deepEqual(withGate((gate) => { delete gate.requiredSuites; }), ["gate config: requiredSuites must name every required suite"]);
-  assert.deepEqual(withGate((gate) => { gate.requiredSuites[0].minimumTests = 0; }), [`gate config: ${FIRST}: minimumTests must be a whole number of at least 1`]);
-  // A gate that asks for more than the report shows is not satisfied by it.
-  assert.deepEqual(withGate((gate) => { gate.requiredSuites[0].minimumTests += 1; }),
-    [`${FIRST}: ${fvGate().requiredSuites[0].minimumTests} tests passed, below its pinned minimum of ${fvGate().requiredSuites[0].minimumTests + 1}`]);
+  // The list is the contract's or the gate is refused: this function can be handed any gate,
+  // and a manifest of another profile reaches it with no profile check before it. Each list
+  // below is judged against a report that meets the contract's own list.
+  const NOT_THE_CONTRACT = "gate config: requiredSuites must be exactly the release contract's list";
+  for (const [name, change] of [
+    ["no list", (gate: Any) => { delete gate.requiredSuites; }],
+    ["an empty list", (gate: Any) => { gate.requiredSuites = []; }],
+    ["a minimum lowered", (gate: Any) => { gate.requiredSuites[0].minimumTests -= 1; }],
+    ["a minimum raised", (gate: Any) => { gate.requiredSuites[0].minimumVariants += 1; }],
+    ["a suite dropped", (gate: Any) => { gate.requiredSuites.pop(); }],
+    ["a suite added", (gate: Any) => { gate.requiredSuites.push({ id: "lib/zz-more.test.ts", minimumTests: 1, minimumVariants: 0 }); }],
+    ["another order", (gate: Any) => { gate.requiredSuites.reverse(); }],
+    ["an entry's fields in another order", (gate: Any) => { const { id, minimumTests, minimumVariants } = gate.requiredSuites[0]; gate.requiredSuites[0] = { id, minimumVariants, minimumTests }; }]
+  ] as const) {
+    assert.deepEqual(withGate(change as (gate: Any) => void), [NOT_THE_CONTRACT], name);
+  }
+  assert.deepEqual(fvGate().requiredSuites, c.V1_REQUIRED_SUITES);
+  assert.deepEqual(withGate(() => {}), release.evaluateFormalVerification("formal-verification", fvGate(), f.root, verifiedContext(binding)).reasons);
+
+  // A short list of the gate's own, with a signed and bound report that meets that list
+  // exactly: the report is judged by the contract's list, so every other suite is absent.
+  const [first, second] = c.V1_REQUIRED_SUITES;
+  const short = fv.buildFormalVerificationReport({ commit: f.candidate, tree: f.candidateTree, suites: requiredSuiteRecords().slice(0, 1) });
+  f.write(FV_REPORT, short);
+  const bound = structuredClone(binding);
+  bound.evidence.find((e: Any) => e.path === FV_REPORT).sha256 = hash(readFileSync(path.join(f.root, FV_REPORT)));
+  assert.deepEqual(fv.formalVerificationReportProblems(short, [first], { commit: f.candidate, tree: f.candidateTree }), [], "the report does meet the short list");
+  const weak = release.evaluateFormalVerification("formal-verification", { ...fvGate(), requiredSuites: [first] }, f.root, verifiedContext(bound));
+  assert.equal(weak.status, "fail");
+  assert.deepEqual(weak.reasons.slice(0, 2), [NOT_THE_CONTRACT, `required suite ${second.id} is absent from the report`]);
+  assert.equal(weak.reasons.length, c.V1_REQUIRED_SUITES.length);
+  // The same report under the contract's own list fails on the absent suites alone.
+  assert.deepEqual(release.evaluateFormalVerification("formal-verification", fvGate(), f.root, verifiedContext(bound)).reasons, weak.reasons.slice(1));
+  f.write(FV_REPORT, f.report);
 
   // Through the whole evaluator, on a manifest of two gates: a directory where
   // the report should be cannot be read, and only this gate says so.

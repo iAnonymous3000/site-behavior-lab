@@ -117,12 +117,12 @@ import {
   V1_PROFILE, V1_BINDING_PATH, V1_QUALIFICATION_PATH, v1ProfileProblems,
   verifyV1ReleaseBinding, v1QualificationProblems, publishedCorpusProblems,
   v1OperatorEvidencePaths,
-  V1_FORMAL_VERIFICATION_REPORT_PATH, V1_FORMAL_VERIFICATION_BUNDLE_PATH
+  V1_FORMAL_VERIFICATION_REPORT_PATH, V1_FORMAL_VERIFICATION_BUNDLE_PATH,
+  V1_REQUIRED_SUITES
 } from "./v1-release-contract.mjs";
 import {
   formalVerificationReportProblems,
   formalVerificationReportTotals,
-  formalVerificationRequiredSuitesProblems,
   parseFormalVerificationReport
 } from "./formal-verification-report-lib.mjs";
 
@@ -4834,6 +4834,13 @@ function evaluateContainerPackageReview(
  *
  * A report that cannot be read or parsed is a reason of this gate, and of no
  * other. Exported so its tests can hand it a verified binding.
+ *
+ * Being exported, it can be handed any gate and any binding, and a manifest of
+ * another profile reaches it with no profile check before it. So it trusts
+ * neither. The report is judged by the contract's own list, and a gate whose
+ * list is anything else is refused, whatever its report shows. A binding that
+ * does not name a full commit and a full tree is refused too: without one of
+ * them the report would be held to nothing on that side.
  */
 export function evaluateFormalVerification(id, gate, rootDir, measurementContext) {
   const reasons = [...measurementCandidateProblems(measurementContext)];
@@ -4843,11 +4850,17 @@ export function evaluateFormalVerification(id, gate, rootDir, measurementContext
   ]) {
     if (gate[field] !== expected) reasons.push(`gate config: ${field} must be ${expected}`);
   }
-  const configuration = formalVerificationRequiredSuitesProblems(gate.requiredSuites);
-  reasons.push(...configuration.map((problem) => `gate config: ${problem}`));
+  // Compared as written, order included, which is how the profile check and
+  // the report's own rule read the list.
+  if (JSON.stringify(gate.requiredSuites) !== JSON.stringify(V1_REQUIRED_SUITES)) {
+    reasons.push("gate config: requiredSuites must be exactly the release contract's list");
+  }
 
   const binding = measurementContext.binding;
   const candidate = binding?.candidateCommit;
+  if (binding && (!FULL_GIT_SHA.test(candidate ?? "") || !FULL_GIT_SHA.test(binding.candidateTree ?? ""))) {
+    reasons.push("the binding does not name a full candidate commit and tree, so no report can be held to them");
+  }
   const verified = binding?.attestationVerifications?.formalVerificationReport;
   if (
     verified?.status !== "verified-by-gh-attestation" ||
@@ -4884,10 +4897,10 @@ export function evaluateFormalVerification(id, gate, rootDir, measurementContext
       const parsed = parseFormalVerificationReport(bytes);
       if (parsed.report === null) {
         reasons.push(...parsed.problems.map((problem) => `${V1_FORMAL_VERIFICATION_REPORT_PATH}: ${problem}`));
-      } else if (configuration.length === 0) {
+      } else {
         const problems = formalVerificationReportProblems(
           parsed.report,
-          gate.requiredSuites,
+          V1_REQUIRED_SUITES,
           binding ? { commit: binding.candidateCommit, tree: binding.candidateTree } : {}
         );
         reasons.push(...problems);
