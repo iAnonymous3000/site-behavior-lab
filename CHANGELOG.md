@@ -120,6 +120,24 @@ public API or a 1.0 release.
   the case. Raw bytes stay where the run left them, named by digest.
   Import and correction run in memory: persistence and viewing are deferred, and
   public behavior is unchanged.
+- An investigation seam in the scanner, for the private workspace's capture,
+  off unless a visit sets it. One optional visit option (`investigationSeam`,
+  `lib/investigation-seam.ts`) carries five hooks (the page before the visit
+  starts, an init script, readings once the result is built, the scroll
+  check's four boundaries, and a copy of the scanner's own final fingerprint
+  read) and two bounds of its own, in place of the patch the first
+  investigation applied to a copy of the scanner. With the option absent a
+  visit runs the statements it always ran: every use sits behind one value, a
+  test pins what a visit registers on its context, page and session, and no
+  report byte, producer row, identity entry or version string moves. Nothing
+  public can set it: the scan API refuses options that carry it, and a test
+  refuses any other module that names it. A visit that used it is marked, by
+  identity and by one key, and refused wherever a report is built, sanitized,
+  read, saved or emitted (docs/runtime-boundaries.md lists each step and its
+  test). The mark does not survive a caller who removes it on purpose. Each
+  visit can read back which hooks were set, its bounds, the init script's
+  digest and how long each hook took. Nothing uses the seam yet: the runner
+  that would is not built.
 
 ### Removed
 
@@ -191,6 +209,18 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- The image build no longer lets a vulnerable apt retry or fetch over plain
+  HTTP. The apt that downloads during the build is the base's 2.8.3, the one
+  CVE-2026-109518 names (remote code execution via hard link reuse during
+  package download retries). The runtime image has been upgraded past it
+  since 2026-11-06, but the two build steps that download ran that apt with
+  its built-in default of three retries, from the base's plain http sources.
+  Both steps now move the Ubuntu sources to https and fail if any source
+  still names http, pass `Acquire::Retries=0` to every download, and pass
+  `APT::Update::Error-Mode=any` to every index update, which otherwise exits
+  0 when an index fails to download. A failed download now fails the build,
+  and nothing retries it in place. The installed packages are unchanged.
+  Nothing shows that a build was attacked.
 - A cross-origin reader of the scan API can now read `Retry-After`. The CORS
   headers exposed no response header, so the static site's reader of a fresh
   report could not see how long a refusal would last, fell back to a few
