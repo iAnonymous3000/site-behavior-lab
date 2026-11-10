@@ -480,9 +480,16 @@ test("release operators get a fail-closed scaffold for every attestation gate", 
     packageJson.scripts?.["release:attestation-scaffold"],
     "node scripts/run-schema-cli.mjs release-attestation-scaffold"
   );
+  // The example names a gate 1.0 still requires. The egress-backstop gate it
+  // used to name is deferred to 1.1.0, and an operator following the runbook
+  // must not be sent to prepare an attestation the release does not need.
   assert.match(
     release,
-    /npm run release:attestation-scaffold -- --gate egress-backstop/
+    /npm run release:attestation-scaffold -- --gate waf-ceilings/
+  );
+  assert.doesNotMatch(
+    release,
+    /release:attestation-scaffold -- --gate (?:egress-backstop|log-retention)/
   );
   assert.match(release, /collectionEnvironmentDigest/);
   assert.match(release, /collectionProducerCommitsDigest/);
@@ -497,6 +504,68 @@ test("release operators get a fail-closed scaffold for every attestation gate", 
     release,
     /"candidateCommit": "<full-40-character-sha>"[\s\S]{0,100}"networkPolicyDigest"/
   );
+});
+
+test("release documents say what each deferred operator gate leaves unverified", () => {
+  // Each deferral reason in the manifest says the release documents state the
+  // limit. Without this check a deferred gate could drop out of the readiness
+  // list while a runbook still read as if 1.0 verified that protection, or as
+  // if the gate were merely open. The gates are derived from the manifest and
+  // the set is pinned, so restoring a gate fails here until the documents and
+  // this check are revisited together, and an empty set cannot pass silently.
+  const manifest = JSON.parse(source("RELEASE_READINESS.json")) as {
+    gates: Record<string, unknown>;
+    deferredGates: Record<string, { kind: string; deferredTo: string }>;
+  };
+  const deferred = Object.entries(manifest.deferredGates).filter(
+    ([id, gate]) => gate.kind === "operator-attestation" && !Object.hasOwn(manifest.gates, id)
+  );
+  assert.deepEqual(deferred.map(([id]) => id), ["egress-backstop", "log-retention"]);
+  const flat = (file: string) => source(file).replace(/\s+/g, " ");
+
+  // The evidence-boundary document names each gate and states the limit.
+  const qualification = flat("docs/v1-release-qualification.md");
+  for (const [id, gate] of deferred) {
+    assert.equal(gate.deferredTo, "1.1.0", id);
+    assert.match(
+      qualification,
+      new RegExp(`\\(\`${id}\`\\)\\.\\*\\* Release 1\\.0 does not (?:re-)?verify `),
+      `docs/v1-release-qualification.md must say what 1.0 does not verify for ${id}`
+    );
+  }
+  assert.match(qualification, /Two operator gates are deferred to 1\.1\.0/);
+  assert.match(qualification, /application's own egress guard is the only boundary that exists/);
+  assert.match(qualification, /configured retention and the redaction tests are what exist/);
+  assert.doesNotMatch(qualification, /production egress, admission, retention/);
+
+  // Every document that describes these two controls says the same thing.
+  for (const file of [
+    "README.md",
+    "RELEASE.md",
+    "docs/limitations.md",
+    "docs/operations.md",
+    "docs/deploy-cloudflare-containers.md",
+    "docs/go-live-public-scanner.md",
+    "docs/operator-evidence-capture.md"
+  ]) {
+    const document = flat(file);
+    assert.match(document, /deferred to 1\.1\.0/, `${file} must say the gates are deferred to 1.1.0`);
+    assert.match(
+      document,
+      /does not re-verify log retention/i,
+      `${file} must say 1.0 does not re-verify log retention`
+    );
+    assert.match(
+      document,
+      /(?:does not verify an (?:independent egress backstop|egress boundary independent of the application guard)|verifies no egress boundary independent of the application guard)/i,
+      `${file} must say 1.0 verifies no independent egress boundary`
+    );
+    assert.doesNotMatch(
+      document,
+      /`log-retention` release gates both still report open/,
+      `${file} still describes the deferred log-retention gate as an open 1.0 gate`
+    );
+  }
 });
 
 test("the README names the methodology version the scanner actually records", () => {

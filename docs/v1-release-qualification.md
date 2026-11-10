@@ -6,7 +6,10 @@ evidence. This approval changes the requirements; it does not approve a release
 or certify evidence that has not been collected.
 
 `RELEASE_READINESS.json` selects `investigative-v1`. Its complete gate set is
-enforced: deleting a gate or changing its kind is a refusal. The previous
+enforced: deleting a gate or changing its kind is a refusal. Four gates are
+deferred to 1.1.0 and held by name in `deferredGates`: removing a deferral
+record, or restoring one of those gates without the reviewed edit to
+`scripts/v1-release-contract.mjs`, is also a refusal. The previous
 research contract is preserved verbatim in
 `docs/release-gate-history/research-program-2026-09-05.json`. Existing research
 verifiers and historical reports, schemas, receipts and approvals remain intact.
@@ -18,8 +21,34 @@ verifiers and historical reports, schemas, receipts and approvals remain intact.
 | Inspect a truthful observation | Current deep readers and consistency checks; bounded independent mode review | Population accuracy or detector error rates |
 | Understand uncertainty and interventions | Review unknowns, scanner effects and interpretation, including an incomplete visit | That a covered negative is universal absence, or an intervention proves compliance |
 | Reopen and share the same meaning | Review display, comparison, persistence and export against retained evidence; compatibility and corrections gates | Reconstruction of observations never recorded |
-| Use a safely operated service | Authenticated production egress, admission, retention, lifecycle and exact-image distribution evidence | Reliability of disabled durable jobs |
+| Use a safely operated service | Authenticated admission-ceiling, report-lifecycle and exact-image distribution evidence | Reliability of disabled durable jobs; an egress boundary independent of the application guard; a re-verified log-retention window |
 | Identify the shipped instrument | Source-bound CI evidence, an evidence-only carrier, external binding approval, promotion and live verification | Correctness merely because a build passed |
+
+## Operational protections 1.0 does not verify
+
+Two operator gates are deferred to 1.1.0. `RELEASE_READINESS.json` records each
+in `deferredGates` with its reason. Neither could pass as written: each accepts
+only a GitHub-hosted provider capture, no such capture lane exists for either,
+and a hand attestation is refused.
+
+- **Independent egress boundary (`egress-backstop`).** Release 1.0 does not
+  verify an egress boundary that is independent of application code. The
+  application's own egress guard is the only boundary that exists. On
+  2026-11-01 no documented configuration of the hosting platform offered an
+  independent one. If the application guard fails, nothing that 1.0 verifies
+  stops a scan from reaching a private, link-local or metadata address.
+- **Log retention (`log-retention`).** Release 1.0 does not re-verify the
+  log-retention window and does not re-capture a redacted log query for the
+  candidate. The configured retention and the redaction tests are what exist.
+  The dated operator receipts in the runbooks are not release evidence.
+
+Both gates keep their definitions, evidence producers and verifiers. The
+release binding does not require their evidence for 1.0. Evidence for either
+gate that a carrier binds anyway is evaluated in full and counts toward
+readiness, so it still fails until a trusted capture lane exists.
+`npm run release:readiness` lists both gates as `DEFERRED`, with no verdict.
+Meeting `egress-backstop` needs a capture lane and a platform boundary first.
+Meeting `log-retention` needs a capture lane first.
 
 ## Bounded qualification
 
@@ -109,10 +138,11 @@ introduced here.
 
 The contract does not supply the missing mode review, source binding, external
 governance selection, current lifecycle/provider evidence, or completed
-dependency and exact-image license reviews. In particular, the existing egress
-and log-retention gates still refuse caller-supplied provider evidence where a
-trusted hosted capture is unavailable. Those are concrete operational evidence
-gaps to close before v1, not reasons to restart the research calendar.
+dependency and exact-image license reviews. Those are concrete operational
+evidence gaps to close before v1, not reasons to restart the research calendar.
+The egress and log-retention gates are not among them. They refuse
+caller-supplied provider evidence, no trusted hosted capture exists for either,
+and both are deferred to 1.1.0 as described above.
 
 ## Collect controlled reference cases
 

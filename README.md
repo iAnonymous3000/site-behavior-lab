@@ -286,9 +286,13 @@ Pages automatic preview deployments are disabled, and existing preview deploymen
 
 Production health checks are scheduled four times an hour. The hourly production synthetic is active (a neutral scan, a public r2 result, a persisted
 read-back, and a rendered report page), and the separate authenticated R2 delete canary is also active and required.
-The WAF ceiling, log-retention, and independent egress backstop controls rest
-on point-in-time operator receipts recorded in the runbook, not committed
-evidence, so their release gates stay open until they are re-captured.
+The WAF ceiling rests on a point-in-time operator receipt recorded in the
+runbook, not committed evidence, so its release gate stays open until it is
+re-captured. Release 1.0 does not verify an independent egress backstop and
+does not re-verify log retention: the application's own egress guard and the
+configured log-retention window are what exist, and both release gates are
+deferred to 1.1.0 (see
+[`docs/v1-release-qualification.md`](docs/v1-release-qualification.md)).
 
 No scheduled workflow pushes to `main`. Featured-site rescans run weekly in two
 legs (the gallery and the de-bias seed catalogs), each opening a pull request a

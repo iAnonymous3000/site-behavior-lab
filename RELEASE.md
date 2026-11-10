@@ -990,10 +990,16 @@ authoritative gate list):
   manifest, and requires the annotated release tag to target that commit and
   embed the archived receipt's sha256.
 - **Operator attestations.** Host truths code cannot see (the pre-candidate
-  durable soak, egress backstop, WAF ceilings, log retention, and container
-  image licensing) require a JSON attestation under
-  `research/ops-receipts/`. For the four post-candidate gates, first use the
-  fixed producer in
+  durable soak, WAF ceilings, and container image licensing) require a JSON
+  attestation under `research/ops-receipts/`. The egress backstop and log
+  retention attestations are not required for 1.0. Both gates are deferred to
+  1.1.0 because neither can pass as written, so 1.0 verifies no egress
+  boundary independent of the application guard and does not re-verify log
+  retention (see
+  [`docs/v1-release-qualification.md`](docs/v1-release-qualification.md)).
+  Their definitions, producers and scaffolds remain, and evidence that a
+  carrier binds for either gate is still evaluated in full. For the four
+  post-candidate gates, required or deferred, first use the fixed producer in
   [`docs/operator-evidence-capture.md`](docs/operator-evidence-capture.md) to
   create the canonical receipt under `research/ops-evidence/`. Readiness
   re-parses that exact canonical file, re-runs its semantic verifier, and
@@ -1003,7 +1009,7 @@ authoritative gate list):
   five gates with:
 
   ```bash
-  npm run release:attestation-scaffold -- --gate egress-backstop
+  npm run release:attestation-scaffold -- --gate waf-ceilings
   ```
 
   For the pre-candidate durable soak, the command directly verifies the two
@@ -1125,7 +1131,11 @@ durable-operations, and legal gates all pass, `1.0.0` and its release
 candidates remain mechanically unpublishable. The detector-calibration and
 A/A-repeatability evidence programs are recorded in the manifest's
 `deferredGates` as gating the 1.1 calibrated-claims release; restoring them to
-the 1.0 set is a reviewed enforcement edit.
+the 1.0 set is a reviewed enforcement edit. The `egress-backstop` and
+`log-retention` operator gates are recorded there too, deferred to 1.1.0
+because neither can pass as written. Release 1.0 therefore does not verify an
+egress boundary independent of the application guard and does not re-verify
+log retention; the readiness report lists every deferred gate by name.
 
 Never infer a tag, stable API, or general-availability claim from the `0.x`
 package version or from the existence of a public production deployment.
