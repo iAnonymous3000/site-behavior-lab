@@ -494,7 +494,7 @@ const REFUSED_REPORTS = [
     () => [`${FIRST}: 2 describe blocks skipped`]],
   ["a suite with a describe block left todo", (r: Any) => { r.suites[0].counts.todoSuites = 1; },
     () => [`${FIRST}: 1 describe block left todo`]],
-  // node counts no failure for a block that fails as a block, and exits 0: this count is what holds it.
+  // node counts no failure for a block that fails as a block, and the pinned Node (24.14.1) exits 0 on one: this count is what holds it.
   ["a suite with a describe block that failed as a block", (r: Any) => { r.suites[0].counts.failedSuites = 1; },
     () => [`${FIRST}: 1 describe block failed as a block`]],
   // node counts a test that failed as expected among its passes: it is no pass, and counts toward no minimum.

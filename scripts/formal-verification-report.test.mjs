@@ -32,6 +32,11 @@ const HARNESS = path.join(repository, ".unit-test-dist", "lib", "finite-check.js
 const PRODUCER = path.join(repository, "scripts", "formal-verification-report.mjs");
 const COMMIT = "1".repeat(40);
 const TREE = "2".repeat(40);
+// The Node package.json pins is the one CI's tests job writes the report on,
+// and the one the reporter's reading of node's events was derived on. This
+// file also runs inside the container image build, on the image's own Node.
+const PINNED_NODE = JSON.parse(readFileSync(path.join(repository, "package.json"), "utf8")).engines.node;
+const ON_PINNED_NODE = process.versions.node === PINNED_NODE;
 
 // ---------------------------------------------------------------------------
 // The rule, on written-out reports.
@@ -118,7 +123,7 @@ for (const [name, change, expected] of [
     ["lib/fv-beta.test.ts: 2 describe blocks left todo"]
   ],
   [
-    // node counts no failure for it and exits 0: only this count holds it.
+    // node counts no failure for it, and the pinned Node exits 0 on it: there, only this count holds it.
     "a suite with a describe block that failed as a block",
     (input) => { input.suites[0].counts.failedSuites = 1; },
     ["lib/fv-alpha.test.ts: 1 describe block failed as a block"]
@@ -379,7 +384,7 @@ test("to be written", { todo: true }, () => {});
 test("runs", () => {});
 describe.skip("a block left out", () => { test("never runs", () => {}); });
 `,
-  // node lists this block under failing tests, counts no failure and exits 0.
+  // node lists this block under failing tests and counts no failure. The pinned Node then exits 0.
   "lib/fv-block-after-hook.test.ts": `${FIXTURE_HEAD}
 import { after } from "node:test";
 describe("a block whose after hook throws", () => { after(() => { throw new Error("after hook broke"); }); test("inside, passes", () => {}); });
@@ -391,12 +396,13 @@ describe("a block whose before hook throws", () => { before(() => { throw new Er
 test("runs", () => {});
 `,
   // The same, excused: a block marked as expected to fail whose hook throws arrives as a pass.
+  // The pinned Node leaves the test inside alone and exits 0.
   "lib/fv-block-expected-failure.test.ts": `${FIXTURE_HEAD}
 import { after } from "node:test";
 describe("a block excused for failing", { expectFailure: true }, () => { after(() => { throw new Error("after hook broke"); }); test("inside, passes", () => {}); });
 test("runs", () => {});
 `,
-  // node reports this test as a pass and counts it as one, and exits 0.
+  // node reports this test as a pass and counts it as one.
   "lib/fv-expected-failure.test.ts": `${FIXTURE_HEAD}
 test("runs", () => {});
 test("a property that is violated, marked as expected to fail", { expectFailure: true }, () => { holds("p", false, () => 1); });
@@ -406,10 +412,20 @@ test("outer", async (t) => { await t.test("a subtest that is violated, marked th
 test("runs", () => {});
 describe.todo("a block to be written", () => { test("inside a todo block", () => {}); });
 `,
-  // With no test inside, a todo block changes none of node's counts, and node exits 0.
+  // With no test inside, a todo block changes none of node's counts.
   "lib/fv-todo-empty-block.test.ts": `${FIXTURE_HEAD}
 test("runs", () => {});
 describe.todo("a block with nothing in it yet");
+`,
+  // node's verdict on the file itself, in its two forms: a hook at the file's top level that
+  // throws, and a process that ends with a failing status after its tests passed.
+  "lib/fv-file-hook.test.ts": `${FIXTURE_HEAD}
+import { after } from "node:test";
+after(() => { throw new Error("a hook at the top level broke"); });
+test("runs", () => {});
+`,
+  "lib/fv-exit-status.test.ts": `${FIXTURE_HEAD}
+test("passes, and leaves a failing exit status behind", () => { process.exitCode = 3; });
 `,
   "lib/fv-fails.test.ts": `${FIXTURE_HEAD}
 test("runs", () => {});
@@ -549,7 +565,27 @@ test("a passing run is written whole for the exact commit: node's counts, each t
   assert.ok(readFileSync(again).equals(bytes));
 });
 
-for (const [name, id, minimums, reasons] of [
+// Two rows below are held exactly on the pinned Node only, because what node does with their
+// fixtures differs by version, in two ways this file has run on both sides of:
+//
+// - A describe block that fails as a block. 24.14.1 (pinned) counts no failure and exits 0,
+//   so the lane passes and the block's own event is all that refuses the run. 24.22.1 (the
+//   image's) counts no failure either and exits 1, so the lane's verdict joins the reasons.
+// - A describe block marked expectFailure. 24.14.1 leaves the test inside it alone. 24.22.1
+//   passes the mark down, so the test inside, which passes, arrives as a failure, node exits
+//   1, and node adds a failure for the file itself.
+//
+// On every Node the run is refused and no report is written. On the pinned Node the reasons
+// are these exactly. On any other, each row says what must still hold of them: for the first,
+// the same reasons once the lane's verdict is set aside; for the second, the block named and
+// the rule's own count of it, among whatever else that Node adds.
+const exactButForTheLane = (problems, reasons, id) => assert.deepEqual(problems.filter((line) => line !== `${id}: its run did not pass`), reasons);
+const eachAmongThem = (problems, reasons, id) => {
+  for (const reason of reasons) assert.ok(problems.includes(reason), `${reason}\nis not among:\n${problems.join("\n")}`);
+  for (const line of problems) assert.ok(line.startsWith(`${id}: `), `a reason that is not this suite's: ${line}`);
+};
+
+for (const [name, id, minimums, reasons, onAnotherNode] of [
   ["a skipped test", "lib/fv-skips.test.ts", [1, 0], ["lib/fv-skips.test.ts: its run did not pass", 'lib/fv-skips.test.ts: 1 test skipped, the first by name "left out"']],
   ["a test left todo", "lib/fv-todo.test.ts", [1, 0], ["lib/fv-todo.test.ts: its run did not pass", 'lib/fv-todo.test.ts: 1 test left todo, the first by name "to be written"']],
   [
@@ -559,11 +595,11 @@ for (const [name, id, minimums, reasons] of [
     ["lib/fv-skipped-block.test.ts: its run did not pass", 'lib/fv-skipped-block.test.ts: describe block "a block left out" was skipped', "lib/fv-skipped-block.test.ts: 1 describe block skipped"]
   ],
   [
-    // node exits 0 here, so the lane passes: the block's own event is all that refuses it.
-    "a describe block whose after hook throws, which node exits 0 on",
+    "a describe block whose after hook throws",
     "lib/fv-block-after-hook.test.ts",
     [2, 0],
-    ['lib/fv-block-after-hook.test.ts: describe block "a block whose after hook throws" failed as a block', "lib/fv-block-after-hook.test.ts: 1 describe block failed as a block"]
+    ['lib/fv-block-after-hook.test.ts: describe block "a block whose after hook throws" failed as a block', "lib/fv-block-after-hook.test.ts: 1 describe block failed as a block"],
+    exactButForTheLane
   ],
   [
     "a describe block whose before hook throws",
@@ -577,14 +613,15 @@ for (const [name, id, minimums, reasons] of [
     ]
   ],
   [
-    "a describe block excused for failing, which node exits 0 on",
+    "a describe block excused for failing",
     "lib/fv-block-expected-failure.test.ts",
     [2, 0],
-    ['lib/fv-block-expected-failure.test.ts: describe block "a block excused for failing" failed as a block', "lib/fv-block-expected-failure.test.ts: 1 describe block failed as a block"]
+    ['lib/fv-block-expected-failure.test.ts: describe block "a block excused for failing" failed as a block', "lib/fv-block-expected-failure.test.ts: 1 describe block failed as a block"],
+    eachAmongThem
   ],
   [
     // Four tests "pass" by node's count. Two of them threw.
-    "a test and a subtest that failed as expected, which node exits 0 on and counts as passed",
+    "a test and a subtest that failed as expected, which node counts as passed",
     "lib/fv-expected-failure.test.ts",
     [2, 0],
     ['lib/fv-expected-failure.test.ts: 2 tests failed as expected, which is no pass, the first by name "a property that is violated, marked as expected to fail"']
@@ -610,10 +647,24 @@ for (const [name, id, minimums, reasons] of [
     ]
   ],
   [
-    "a todo describe block with no test in it, which node exits 0 on",
+    "a todo describe block with no test in it, which moves none of node's counts",
     "lib/fv-todo-empty-block.test.ts",
     [1, 0],
     ['lib/fv-todo-empty-block.test.ts: describe block "a block with nothing in it yet" is left todo', "lib/fv-todo-empty-block.test.ts: 1 describe block left todo"]
+  ],
+  [
+    // Not a test of the file, and in none of the file's counts: listed as one, it would
+    // make the list disagree with the counts and hide every other reason.
+    "a hook at the top level of the file that throws",
+    "lib/fv-file-hook.test.ts",
+    [1, 0],
+    ["lib/fv-file-hook.test.ts: its run did not pass", "lib/fv-file-hook.test.ts: node reported its file as failed, apart from its tests"]
+  ],
+  [
+    "a process that ends with a failing status after its tests passed",
+    "lib/fv-exit-status.test.ts",
+    [1, 0],
+    ["lib/fv-exit-status.test.ts: its run did not pass", "lib/fv-exit-status.test.ts: node reported its file as failed, apart from its tests"]
   ],
   [
     "a variant its check does not catch",
@@ -677,10 +728,21 @@ for (const [name, id, minimums, reasons] of [
     const beside = id === "lib/fv-plain.test.ts" ? f.suite("lib/fv-whole.test.ts", 4, 2) : f.suite("lib/fv-plain.test.ts");
     const result = f.produce([beside, f.suite(id, ...minimums)], { output });
     assert.equal(result.ok, false, result.log);
-    assert.deepEqual(result.problems, reasons);
+    if (onAnotherNode === undefined || ON_PINNED_NODE) assert.deepEqual(result.problems, reasons);
+    else onAnotherNode(result.problems, reasons, id);
     assert.equal(existsSync(output), false, "a refused run must leave no report");
   });
 }
+
+test("the rows held exactly on the pinned Node alone are the two this file names", () => {
+  // Such a row says less on every other Node, so there must be no more of them than the two
+  // whose fixtures node is known to treat differently by version.
+  const source = readFileSync(fileURLToPath(import.meta.url), "utf8");
+  assert.equal(source.split("    exactButForTheLane\n").length - 1, 1);
+  assert.equal(source.split("    eachAmongThem\n").length - 1, 1);
+  assert.equal(source.split("onAnotherNode(").length - 1, 2, "one call, and this line");
+  assert.match(PINNED_NODE, /^\d+\.\d+\.\d+$/);
+});
 
 test("the checkout must be clean and exact, before the run and after it", (t) => {
   const f = fixture(t);

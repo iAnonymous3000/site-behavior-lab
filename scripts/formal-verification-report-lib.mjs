@@ -14,14 +14,16 @@
 // the list is not independent of the suite it describes. What the rule holds
 // of it is a count, and that no entry names two different properties.
 //
-// node's counts and its exit status leave three things out, and each would
-// let a run that did not hold stand as one that did. A describe block that
-// fails as a block (a hook of its own throws) is listed under failing tests
-// while node counts no failure and exits 0. A test marked expectFailure whose
-// body throws arrives as a pass and is counted as one. A describe block left
-// todo with no test in it changes no count. The reporter below reads all three
-// from the events, the report counts them beside node's counts, and the rule
-// refuses each.
+// node's counts leave three things out, and on the Node this repository pins
+// (24.14.1) its exit status leaves them out too, so each would let a run that
+// did not hold stand as one that did. A describe block that fails as a block
+// (a hook of its own throws) is listed under failing tests while node counts
+// no failure; the pinned Node then exits 0, and 24.22.1 exits 1. A test
+// marked expectFailure whose body throws arrives as a pass and is counted as
+// one. A describe block left todo with no test in it changes no count. The
+// reporter below reads all three from the events, the report counts them
+// beside node's counts, and the rule refuses each, whatever node's exit
+// status was.
 //
 // What it does not hold. A count a suite pins inside a test (states,
 // transitions, cases) never leaves that test, so it is not here: a test that
@@ -329,6 +331,26 @@ export function formalVerificationReportTotals(report) {
   };
 }
 
+// The three functions below are this module's reading of node's test events,
+// and node does not promise their shape. It was derived by running fixtures
+// on Node 24.14.1, the version package.json pins and the one CI's tests job
+// writes the report on, and run again on 24.22.1, the version in the
+// container image. Both agree on every event read here but for two things,
+// and the reading holds on both:
+//
+// - A describe block that fails as a block. Both versions send the same
+//   failing event of type "suite" and count no failure. 24.14.1 then exits 0
+//   and 24.22.1 exits 1.
+// - A describe block marked expectFailure. 24.14.1 leaves its tests alone.
+//   24.22.1 passes the mark down to them, so a test inside that passes
+//   arrives as a failure and one that throws arrives as an excused pass, and
+//   after such a failure node adds an event for the file itself.
+//
+// A later Node may differ again. When the pinned version moves, run
+// scripts/formal-verification-report.test.mjs on it before trusting a
+// report: its fixtures hold each of these readings, and the ones this note
+// names are held exactly on the pinned version.
+
 /** Marked as expected to fail, in a way node then honored. */
 const expectedToFail = (event) => event.data.expectFailure !== undefined && event.data.expectFailure !== false;
 
@@ -350,8 +372,9 @@ function testOutcome(event) {
 /**
  * One describe block's outcome. node reports a block that failed as a block
  * (a hook of its own threw, or its body did) as a failing event of type
- * "suite", and neither counts it nor lets it move the exit status. A block
- * marked as expected to fail that did fail arrives as a pass: it failed.
+ * "suite" and counts no failure for it. Whether it moves the exit status
+ * depends on the version, as the note above says. A block marked as expected
+ * to fail that did fail arrives as a pass: it failed.
  */
 function blockOutcome(event) {
   if (event.data.skip !== undefined) return "skipped";
@@ -361,22 +384,39 @@ function blockOutcome(event) {
 
 /**
  * The reporter. One JSON line for each test a file ran, one for each describe
- * block that did not simply pass, by name, and one for the summary the file's
- * process writes last. The summary's arrival means everything before it
- * arrived, which is what scripts/unit-test-lanes.mjs rests on too.
+ * block that did not simply pass, by name, one for the summary the file's
+ * process writes last, and one for each failure node reports of the file
+ * itself. The summary's arrival means everything before it arrived, which is
+ * what scripts/unit-test-lanes.mjs rests on too.
+ *
+ * A failure of the file itself is no test of the file, and node's counts for
+ * the file do not hold it. node sends one in two forms: before the summary,
+ * as an event that is neither a test nor a block (a hook at the top level of
+ * the file threw), and after the summary, as an event of type "test" named
+ * for the file (its process exited with a failing status). Listed as a test,
+ * either would make the list disagree with the counts and hide every other
+ * reason behind that one.
  */
 export default async function* formalVerificationEvents(source) {
+  // The files whose own process has written its last word.
+  const summarized = new Set();
   for await (const event of source) {
     const file = event.data?.file;
     if (typeof file !== "string") continue;
     if (event.type === "test:pass" || event.type === "test:fail") {
-      if (event.data.details?.type === "suite") {
+      const type = event.data.details?.type;
+      if (summarized.has(file) || (type !== "test" && type !== "suite")) {
+        if (event.type === "test:fail") yield `${JSON.stringify({ kind: "file", file, outcome: "failed" })}\n`;
+        continue;
+      }
+      if (type === "suite") {
         const outcome = blockOutcome(event);
         if (outcome !== "passed") yield `${JSON.stringify({ kind: "block", file, name: event.data.name, outcome })}\n`;
         continue;
       }
       yield `${JSON.stringify({ kind: "test", file, name: event.data.name, outcome: testOutcome(event) })}\n`;
     } else if (event.type === "test:summary") {
+      summarized.add(file);
       yield `${JSON.stringify({ kind: "summary", file, counts: event.data.counts })}\n`;
     }
   }

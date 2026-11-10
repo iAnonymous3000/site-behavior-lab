@@ -202,7 +202,9 @@ describe block skipped, left todo or failed as a block, the tests that passed
 and the catches recorded for the property the suite named at or above the
 entry's minimums, and no catch recorded for another property. A test that
 failed as expected is one marked so whose body threw: the test runner reports
-it as a pass, and here it is none.
+it as a pass, and here it is none. The command's reading of the test runner's
+events was derived on the Node this repository pins, and must be derived again
+when that pin moves.
 
 The gate passes only when a release candidate's evidence carrier binds such a
 report for the candidate commit, with a signature bundle made by CI at that

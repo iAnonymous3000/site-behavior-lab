@@ -20,11 +20,12 @@
 // scripts/formal-verification-report-lib.mjs, and the catch log that
 // lib/finite-check.ts appends to when asked.
 //
-// The lane's verdict is not enough by itself. node exits 0, and the lane
-// passes, on a describe block that fails as a block, on a test marked
-// expectFailure whose body throws, and on a todo block with no test in it.
-// The events show all three, and a run with any of them is refused here by
-// name, whatever the lane said.
+// The lane's verdict is not enough by itself. On the Node this repository
+// pins (24.14.1), node exits 0, and the lane passes, on a describe block that
+// fails as a block; a later Node (24.22.1) exits 1 on one. Both exit 0 on a
+// test marked expectFailure whose body throws and on a todo block with no
+// test in it. The events show all three, and a run with any of them is
+// refused here by name, whatever the lane said.
 //
 // Why a run of its own, and not a stage of test:unit. These suites already run
 // in test:unit, which is what gates a change. Running them a second time there
@@ -148,6 +149,10 @@ async function runSuite(root, id, compiled) {
     }
     const { counts } = summaries[0];
     const tests = lines.filter((line) => line.kind === "test").map(({ name, outcome }) => ({ name, outcome }));
+    // node's own verdict on the file, apart from its tests: a hook at its top
+    // level threw, or its process exited with a failing status. node exits
+    // with a failing status too, so the lane has already failed. This says why.
+    if (lines.some((line) => line.kind === "file")) failures.push(`${id}: node reported its file as failed, apart from its tests`);
     // A describe block that was skipped, left todo or failed as a block is in
     // none of node's counts, and a failed one does not move node's exit
     // status either. Each is named here, and counted in the report.

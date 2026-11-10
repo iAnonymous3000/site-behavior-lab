@@ -75,10 +75,14 @@ those suites ran at the candidate.
   named and the property that caught it. It writes
   nothing if a test was skipped, left todo, failed, cancelled or failed as
   expected, if a describe block was skipped, left todo or failed as a block,
-  or if a minimum was not met. The test runner exits cleanly on a describe
-  block that fails as a block and counts a test that failed as expected as
-  passed, so both are read from its events. `--dry-run` judges the same run
-  on a working tree and writes nothing.
+  or if a minimum was not met. The test runner counts no failure for a
+  describe block that fails as a block, and on the Node this repository pins
+  (24.14.1) it also exits cleanly on one. It counts a test that failed as
+  expected as passed. Both are therefore read from its events. That reading
+  was derived on the pinned Node, and its tests also pass on the container
+  image's Node (24.22.1), which differs in two of the cases; it must be
+  derived again when the pin moves. `--dry-run` judges the same run on a
+  working tree and writes nothing.
 - **The binding.** The carrier commits the report and its Sigstore bundle at
   `research/measurement-candidate/site-behavior-lab-formal-verification-report.json`
   and `research/measurement-candidate/formal-verification-report.bundle.json`.
