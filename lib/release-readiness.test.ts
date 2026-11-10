@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import {
+  existsSync,
   mkdtempSync,
   mkdirSync,
   readFileSync,
@@ -213,7 +214,8 @@ const EXPECTED_GATES: Record<string, string> = {
   "durable-soak": "durable-soak",
   "waf-ceilings": "operator-attestation",
   "container-image-licensing": "operator-attestation",
-  "container-package-review": "container-package-review"
+  "container-package-review": "container-package-review",
+  "formal-verification": "formal-verification"
 };
 const EXPECTED_DECISIONS = [
   "v1EvidenceScope",
@@ -261,10 +263,23 @@ test("the committed manifest preserves its gate contract without requiring evide
   const manifest = JSON.parse(
     readFileSync(path.join(process.cwd(), "RELEASE_READINESS.json"), "utf8")
   );
-  // Fourteen gates carry a verdict. Every deferred gate is reported by name
+  // Fifteen gates carry a verdict. Every deferred gate is reported by name
   // with its target release and carries none, so a deferred gate can neither
   // count as satisfied nor keep the release unsatisfied.
-  assert.equal(result.gates.length, 14);
+  assert.equal(result.gates.length, 15);
+  // The formal-verification gate is live, and red until a release candidate's
+  // carrier binds a signed execution report: each reason below is one such a
+  // carrier removes. Evidence can arrive without rewriting this test, so the
+  // reasons are held only while no binding exists.
+  const formalVerification = gates.get("formal-verification") as unknown as { status: string; reasons: string[] };
+  if (!existsSync(path.join(process.cwd(), "research/v1-release-binding.json"))) {
+    assert.equal(formalVerification.status, "fail");
+    assert.deepEqual(formalVerification.reasons, [
+      "research/v1-release-binding.json does not exist",
+      "the formal verification report's Sigstore bundle was not verified for this subject at the candidate commit",
+      "research/measurement-candidate/site-behavior-lab-formal-verification-report.json does not exist"
+    ]);
+  }
   assert.deepEqual(
     result.deferredGates,
     Object.entries(manifest.deferredGates).map(([id, gate]) => ({
@@ -469,7 +484,7 @@ test("release readiness CLI requires the trusted freeze context and digest toget
 test("the readiness report names every deferred gate and counts none of them", () => {
   // The printed report is what an operator and the release workflow read. A
   // deferred gate must appear in it by name as deferred: left out, the shorter
-  // list would read as fourteen verified protections with nothing missing;
+  // list would read as fifteen verified protections with nothing missing;
   // counted, it would either block 1.0 or pass as verified.
   const cli = path.join(process.cwd(), "scripts", "release-readiness.mjs");
   const root = mkdtempSync(path.join(tmpdir(), "sbl-readiness-report-"));
@@ -497,7 +512,7 @@ test("the readiness report names every deferred gate and counts none of them", (
       verdicts.map((line) => line.split(" ")[1].replace(/:$/, "")),
       Object.keys(EXPECTED_GATES)
     );
-    assert.equal(verdicts.length, 14);
+    assert.equal(verdicts.length, 15);
     const deferred = lines.filter((line) => line.startsWith("DEFERRED "));
     assert.deepEqual(deferred, [
       "DEFERRED detector-calibration: Every claim-bearing detector has an eligible study at the current identity",
@@ -515,7 +530,7 @@ test("the readiness report names every deferred gate and counts none of them", (
     // other gate's reasons mention their evidence.
     assert.match(
       result.stdout,
-      /^Release 1\.0 readiness: NOT READY \(\d+ of 14 gates unsatisfied; these may share missing prerequisites\)\.$/m
+      /^Release 1\.0 readiness: NOT READY \(\d+ of 15 gates unsatisfied; these may share missing prerequisites\)\.$/m
     );
     assert.match(
       result.stdout,

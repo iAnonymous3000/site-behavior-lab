@@ -23,6 +23,7 @@ verifiers and historical reports, schemas, receipts and approvals remain intact.
 | Reopen and share the same meaning | Review display, comparison, persistence and export against retained evidence; compatibility and corrections gates | Reconstruction of observations never recorded |
 | Use a safely operated service | Authenticated admission-ceiling, report-lifecycle and exact-image distribution evidence | Reliability of disabled durable jobs; an egress boundary independent of the application guard; a re-verified log-retention window |
 | Identify the shipped instrument | Source-bound CI evidence, an evidence-only carrier, external binding approval, promotion and live verification | Correctness merely because a build passed |
+| Know the bounded checks ran on the shipped source | A signed execution report for the candidate: every required suite file ran, no test was skipped, each pinned minimum was met and every variant was caught for its reason | That a claim holds outside its stated domain, or that a restated rule is the right rule |
 
 ## Operational protections 1.0 does not verify
 
@@ -50,6 +51,45 @@ readiness, so it still fails until a trusted capture lane exists.
 `npm run release:readiness` lists both gates as `DEFERRED`, with no verdict.
 Meeting `egress-backstop` needs a capture lane and a platform boundary first.
 Meeting `log-retention` needs a capture lane first.
+
+## Formal verification suites
+
+Release 1.0 requires the `formal-verification` gate.
+[`docs/formal-verification.md`](formal-verification.md) lists what the bounded
+suites hold, each claim over a stated domain. The gate requires evidence that
+those suites ran at the candidate.
+
+- **The required suites.** The gate's `requiredSuites` in
+  `RELEASE_READINESS.json` names every test file the register cites, each with
+  a pinned minimum of tests that passed and of variants caught.
+  `scripts/v1-release-contract.mjs` pins the same list. Removing the gate,
+  changing its kind, dropping an entry or lowering a minimum is a refusal. The
+  minimums are change detectors: one refuses a suite that lost tests and says
+  nothing of the tests it keeps.
+- **The report.** `npm run release:formal-verification-report -- --output <file>`
+  runs each required file alone at a clean commit and writes one canonical
+  execution report: for each file, the test runner's counts, every test by
+  name with its outcome, and every variant the harness caught with the
+  property that caught it. It writes nothing if a test was skipped, left todo,
+  failed or cancelled, or if a minimum was not met. `--dry-run` judges the
+  same run on a working tree and writes nothing.
+- **The binding.** The carrier commits the report and its Sigstore bundle at
+  `research/measurement-candidate/site-behavior-lab-formal-verification-report.json`
+  and `research/measurement-candidate/formal-verification-report.bundle.json`.
+  The binding requires both and authenticates the bundle against the report's
+  exact bytes, signed by CI on `main` at the candidate commit. The gate then
+  requires the report to name the candidate's commit and tree and to meet
+  every entry.
+
+No CI job writes or signs that report yet, so no candidate can meet this gate
+today, and `npm run release:readiness` shows it as failing.
+
+What a pass does not establish. The report shows that the cited tests ran and
+passed at the candidate. It holds no count a suite pins inside a test and no
+method. The gate does not compare the report's test names with the register's
+citations; the register's own guard test holds those in the unit suite. A pass
+adds nothing to what a row of the register claims, and a row claims nothing
+outside its stated domain, bounds and axioms.
 
 ## Bounded qualification
 

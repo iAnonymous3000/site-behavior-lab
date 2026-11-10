@@ -591,3 +591,38 @@ test("the command line takes one mode and no list of suites", () => {
     assert.match(result.stderr, /^Usage: node scripts\/formal-verification-report\.mjs --output <file outside the worktree> \| --dry-run\n$/);
   }
 });
+
+test("the command line's suites are the manifest's gate's, and only while the manifest holds its release profile", async (t) => {
+  const { requiredSuitesOfManifest } = await import("./formal-verification-report.mjs");
+  const { V1_REQUIRED_SUITES } = await import("./v1-release-contract.mjs");
+  assert.deepEqual(requiredSuitesOfManifest(repository), V1_REQUIRED_SUITES);
+  assert.deepEqual(formalVerificationRequiredSuitesProblems(V1_REQUIRED_SUITES), []);
+  // Each required suite is a file in this checkout, in a tree the producer compiles.
+  for (const { id } of V1_REQUIRED_SUITES) {
+    assert.ok(existsSync(path.join(repository, id)), `${id} does not exist`);
+    assert.match(compiledSuitePath(id), /^\.(?:unit|investigation)-test-dist\//);
+  }
+
+  const root = mkdtempSync(path.join(os.tmpdir(), "fv-report-manifest-"));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const committed = JSON.parse(readFileSync(path.join(repository, "RELEASE_READINESS.json"), "utf8"));
+  const write = (manifest) => writeFileSync(path.join(root, "RELEASE_READINESS.json"), JSON.stringify(manifest));
+
+  // A manifest edited to ask a suite for less is not the reviewed list, so nothing runs by it.
+  const lowered = structuredClone(committed);
+  lowered.gates["formal-verification"].requiredSuites[0].minimumTests = 1;
+  write(lowered);
+  assert.throws(() => requiredSuitesOfManifest(root), /does not hold its release profile.*formal-verification must keep the pinned minimums of /);
+  const dropped = structuredClone(committed);
+  dropped.gates["formal-verification"].requiredSuites.pop();
+  write(dropped);
+  assert.throws(() => requiredSuitesOfManifest(root), /does not hold its release profile.*formal-verification must retain required suite /);
+  // A manifest of another profile has no such gate.
+  const historical = structuredClone(committed);
+  delete historical.releaseProfile;
+  delete historical.gates["formal-verification"];
+  write(historical);
+  assert.throws(() => requiredSuitesOfManifest(root), /names no formal-verification gate, so no suite is required/);
+  write(committed);
+  assert.deepEqual(requiredSuitesOfManifest(root), V1_REQUIRED_SUITES);
+});

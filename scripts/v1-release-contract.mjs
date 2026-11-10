@@ -25,8 +25,37 @@ export const V1_GATES = Object.freeze({
   "durable-soak": "durable-soak",
   "waf-ceilings": "operator-attestation",
   "container-image-licensing": "operator-attestation",
-  "container-package-review": "container-package-review"
+  "container-package-review": "container-package-review",
+  "formal-verification": "formal-verification"
 });
+export const V1_FORMAL_VERIFICATION_REPORT_PATH = "research/measurement-candidate/site-behavior-lab-formal-verification-report.json";
+export const V1_FORMAL_VERIFICATION_BUNDLE_PATH = "research/measurement-candidate/formal-verification-report.bundle.json";
+// Every test file a row of docs/formal-verification.md cites, with the least
+// its run must show: tests that passed, and variants caught. The manifest's
+// requiredSuites must equal this list (see v1ProfileProblems), and
+// lib/formal-verification-register.test.ts holds both to the files the
+// register cites. The numbers are each file's counts on the day the gate
+// landed. They are change detectors, never evidence: one refuses a suite that
+// lost tests and says nothing of the tests it keeps. A suite may grow without
+// an edit here.
+export const V1_REQUIRED_SUITES = Object.freeze([
+  { id: "investigation/test/case-exploration.test.ts", minimumTests: 130, minimumVariants: 122 },
+  { id: "investigation/test/evidence-model.test.ts", minimumTests: 24, minimumVariants: 148 },
+  { id: "investigation/test/purge.test.ts", minimumTests: 14, minimumVariants: 21 },
+  { id: "investigation/test/readings.test.ts", minimumTests: 134, minimumVariants: 129 },
+  { id: "lib/call-stack-publisher.test.ts", minimumTests: 14, minimumVariants: 0 },
+  { id: "lib/finite-check.test.ts", minimumTests: 9, minimumVariants: 1 },
+  { id: "lib/fv-coverage-loss.test.ts", minimumTests: 26, minimumVariants: 19 },
+  { id: "lib/fv-initiator-claims.test.ts", minimumTests: 27, minimumVariants: 25 },
+  { id: "lib/fv-producer-identity.test.ts", minimumTests: 38, minimumVariants: 29 },
+  { id: "lib/fv-published-stacks.test.ts", minimumTests: 31, minimumVariants: 22 },
+  { id: "lib/fv-request-accounting.test.ts", minimumTests: 50, minimumVariants: 44 },
+  { id: "lib/fv-scroll-producer.test.ts", minimumTests: 85, minimumVariants: 74 },
+  { id: "lib/fv-warning-fragments.test.ts", minimumTests: 22, minimumVariants: 15 },
+  { id: "lib/fv-worker-model.test.ts", minimumTests: 116, minimumVariants: 96 },
+  { id: "lib/fv-worker-readout.test.ts", minimumTests: 122, minimumVariants: 108 },
+  { id: "lib/scroll-check-stacks.test.ts", minimumTests: 26, minimumVariants: 0 }
+].map((entry) => Object.freeze(entry)));
 const SHA = /^[0-9a-f]{40}$/;
 const DIGEST = /^[0-9a-f]{64}$/;
 const REPOSITORY = "iAnonymous3000/site-behavior-lab";
@@ -37,7 +66,9 @@ const FIXED_EVIDENCE = Object.freeze({
   "research/measurement-candidate/container-package-inventory.bundle.json": "container-package-attestation",
   "CONTAINER_IMAGE_PACKAGE_REVIEWS.json": "container-package-review",
   "research/ops-receipts/v1-r2-lifecycle-readback.json": "lifecycle-receipt",
-  [V1_QUALIFICATION_PATH]: "mode-qualification"
+  [V1_QUALIFICATION_PATH]: "mode-qualification",
+  [V1_FORMAL_VERIFICATION_REPORT_PATH]: "formal-verification-report",
+  [V1_FORMAL_VERIFICATION_BUNDLE_PATH]: "formal-verification-attestation"
 });
 // Every operator gate whose evidence pair a carrier may bind. Two of the four
 // are deferred to 1.1 (see v1ProfileProblems): the binding does not require
@@ -110,10 +141,35 @@ export function v1ProfileProblems(manifest) {
     if (deferred?.kind !== kind || deferred.deferredTo !== "1.1.0" || !text(deferred.reason)) problems.push(`${id} must retain its explicit 1.1 deferral`);
     if (Object.hasOwn(manifest.gates ?? {}, id)) problems.push(`${id} is deferred to 1.1 and must not also be a live gate`);
   }
+  // The formal-verification gate's list is held entry by entry, as each
+  // deferral is by id. A manifest edit alone can neither drop a required suite
+  // nor lower what one must show: each is a refusal that names the suite, and
+  // so is a suite this contract does not pin. Adding a suite or moving a
+  // minimum takes the reviewed edit to V1_REQUIRED_SUITES.
+  const suites = manifest.gates?.["formal-verification"]?.requiredSuites;
+  const listed = new Map((Array.isArray(suites) ? suites : []).filter(record).map((entry) => [entry.id, entry]));
+  let suiteProblems = 0;
+  for (const required of V1_REQUIRED_SUITES) {
+    const entry = listed.get(required.id);
+    if (entry === undefined) problems.push(`formal-verification must retain required suite ${required.id}`);
+    else if (!isDeepStrictEqual(entry, required)) problems.push(`formal-verification must keep the pinned minimums of ${required.id}`);
+    else continue;
+    suiteProblems += 1;
+  }
+  for (const id of listed.keys()) {
+    if (V1_REQUIRED_SUITES.some((required) => required.id === id)) continue;
+    problems.push(`formal-verification names a suite this contract does not pin: ${String(id)}`);
+    suiteProblems += 1;
+  }
+  // What is left once every entry is in order: a repeated entry, an entry
+  // that is no record, or another order.
+  if (suiteProblems === 0 && !isDeepStrictEqual(suites, V1_REQUIRED_SUITES)) problems.push("formal-verification must list its required suites exactly as this contract does");
   if (manifest.gates?.["release-candidate-binding"]?.artifact !== V1_BINDING_PATH ||
       manifest.gates?.["mode-qualification"]?.artifact !== V1_QUALIFICATION_PATH ||
       manifest.gates?.["r2-lifecycle"]?.receipt !== "research/ops-receipts/v1-r2-lifecycle-readback.json" ||
-      manifest.gates?.["published-corpus-consistency"]?.artifact !== "public/corpus-stats.json") problems.push("v1 evidence paths must remain fixed");
+      manifest.gates?.["published-corpus-consistency"]?.artifact !== "public/corpus-stats.json" ||
+      manifest.gates?.["formal-verification"]?.report !== V1_FORMAL_VERIFICATION_REPORT_PATH ||
+      manifest.gates?.["formal-verification"]?.bundle !== V1_FORMAL_VERIFICATION_BUNDLE_PATH) problems.push("v1 evidence paths must remain fixed");
   return problems;
 }
 
@@ -197,15 +253,26 @@ export function verifyV1ReleaseBinding(rootDir, canonical, { attestationVerifier
   canonical.verifyContainerPackageInventory(json(rootDir, inventoryPath), binding.candidateCommit, container);
   const signerWorkflow = `${REPOSITORY}/.github/workflows/ci.yml`;
   const attestations = {};
+  // The formal verification report is authenticated here like the container
+  // evidence: its bundle must verify for its exact bytes, signed by CI on main
+  // at the candidate commit. Only its bytes are read here. Its content is the
+  // formal-verification gate's to judge, so a report that cannot be parsed
+  // fails that gate and not this binding.
   for (const [name, subject, artifactPath, bundlePath] of [
     ["containerEvidence", "container-evidence", sourcePath, canonical.MEASUREMENT_CANDIDATE_ATTESTATION_BUNDLE_PATH],
-    ["containerPackageInventory", "container-package-inventory", inventoryPath, canonical.MEASUREMENT_CANDIDATE_PACKAGE_ATTESTATION_BUNDLE_PATH]
+    ["containerPackageInventory", "container-package-inventory", inventoryPath, canonical.MEASUREMENT_CANDIDATE_PACKAGE_ATTESTATION_BUNDLE_PATH],
+    ["formalVerificationReport", "formal-verification-report", V1_FORMAL_VERIFICATION_REPORT_PATH, V1_FORMAL_VERIFICATION_BUNDLE_PATH]
   ]) {
     const request = { subject, artifactPath: path.join(rootDir, artifactPath), bundlePath: path.join(rootDir, bundlePath),
       repository: REPOSITORY, signerWorkflow, certIdentity: `https://github.com/${signerWorkflow}@refs/heads/main`,
       signerDigest: binding.candidateCommit, sourceDigest: binding.candidateCommit, sourceRef: "refs/heads/main",
       denySelfHostedRunners: true, predicateType: "https://slsa.dev/provenance/v1", oidcIssuer: "https://token.actions.githubusercontent.com" };
-    (attestationVerifier ?? ((r) => canonical.verifyAttestationWithGh(r, rootDir)))(request);
+    try {
+      (attestationVerifier ?? ((r) => canonical.verifyAttestationWithGh(r, rootDir)))(request);
+    } catch (error) {
+      // Three subjects share one verifier, and its own message names none.
+      throw new Error(`${subject} attestation did not verify: ${String(error?.message ?? error)}`);
+    }
     attestations[name] = { ...request, status: "verified-by-gh-attestation" };
   }
   return { ...binding, carrierCommit, acceptedProducerCommits: [binding.candidateCommit, ...commits],

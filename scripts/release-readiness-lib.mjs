@@ -116,8 +116,15 @@ import {
 import {
   V1_PROFILE, V1_BINDING_PATH, V1_QUALIFICATION_PATH, v1ProfileProblems,
   verifyV1ReleaseBinding, v1QualificationProblems, publishedCorpusProblems,
-  v1OperatorEvidencePaths
+  v1OperatorEvidencePaths,
+  V1_FORMAL_VERIFICATION_REPORT_PATH, V1_FORMAL_VERIFICATION_BUNDLE_PATH
 } from "./v1-release-contract.mjs";
+import {
+  formalVerificationReportProblems,
+  formalVerificationReportTotals,
+  formalVerificationRequiredSuitesProblems,
+  parseFormalVerificationReport
+} from "./formal-verification-report-lib.mjs";
 
 const requireFromHere = createRequire(import.meta.url);
 const SHA256 = /^[0-9a-f]{64}$/;
@@ -4806,6 +4813,101 @@ function evaluateContainerPackageReview(
   );
 }
 
+/**
+ * The formal-verification gate. It passes only when the candidate's carrier
+ * binds an execution report that CI signed at the candidate commit, and that
+ * report shows every required suite ran there: none absent, no test skipped,
+ * left todo, failed or cancelled, each pinned minimum met, and every variant
+ * caught by the property its suite names.
+ *
+ * Three things are checked, each from its own source. The binding has already
+ * authenticated the report's bytes against its Sigstore bundle, with signer
+ * and source digest equal to the candidate, and this reads that verdict. The
+ * report's bytes are read again here and must be the digest the binding
+ * holds. Their content is then judged by formalVerificationReportProblems,
+ * the function the report's producer applied before it wrote them, against
+ * the candidate's commit and tree.
+ *
+ * What a pass says: these suite files ran at the candidate and their tests
+ * passed. It says nothing beyond what each test claims over its own domain.
+ *
+ * A report that cannot be read or parsed is a reason of this gate, and of no
+ * other. Exported so its tests can hand it a verified binding.
+ */
+export function evaluateFormalVerification(id, gate, rootDir, measurementContext) {
+  const reasons = [...measurementCandidateProblems(measurementContext)];
+  for (const [field, expected] of [
+    ["report", V1_FORMAL_VERIFICATION_REPORT_PATH],
+    ["bundle", V1_FORMAL_VERIFICATION_BUNDLE_PATH]
+  ]) {
+    if (gate[field] !== expected) reasons.push(`gate config: ${field} must be ${expected}`);
+  }
+  const configuration = formalVerificationRequiredSuitesProblems(gate.requiredSuites);
+  reasons.push(...configuration.map((problem) => `gate config: ${problem}`));
+
+  const binding = measurementContext.binding;
+  const candidate = binding?.candidateCommit;
+  const verified = binding?.attestationVerifications?.formalVerificationReport;
+  if (
+    verified?.status !== "verified-by-gh-attestation" ||
+    verified.subject !== "formal-verification-report" ||
+    verified.artifactPath !== path.join(rootDir, V1_FORMAL_VERIFICATION_REPORT_PATH) ||
+    verified.bundlePath !== path.join(rootDir, V1_FORMAL_VERIFICATION_BUNDLE_PATH) ||
+    !FULL_GIT_SHA.test(candidate ?? "") ||
+    verified.signerDigest !== candidate ||
+    verified.sourceDigest !== candidate
+  ) {
+    reasons.push("the formal verification report's Sigstore bundle was not verified for this subject at the candidate commit");
+  }
+
+  let totals = null;
+  const absolute = path.join(rootDir, ...V1_FORMAL_VERIFICATION_REPORT_PATH.split("/"));
+  if (!existsSync(absolute)) {
+    reasons.push(`${V1_FORMAL_VERIFICATION_REPORT_PATH} does not exist`);
+  } else {
+    let bytes = null;
+    try {
+      bytes = readFileSync(absolute);
+    } catch (error) {
+      reasons.push(`${V1_FORMAL_VERIFICATION_REPORT_PATH} could not be read: ${String(error?.code ?? error).slice(0, 100)}`);
+    }
+    if (bytes !== null) {
+      if (binding) {
+        const bound = (Array.isArray(binding.evidence) ? binding.evidence : []).find(
+          (entry) => entry?.path === V1_FORMAL_VERIFICATION_REPORT_PATH
+        );
+        if (bound?.category !== "formal-verification-report" || bound.sha256 !== sha256OfBytes(bytes)) {
+          reasons.push(`${V1_FORMAL_VERIFICATION_REPORT_PATH} is not the report the binding holds by digest`);
+        }
+      }
+      const parsed = parseFormalVerificationReport(bytes);
+      if (parsed.report === null) {
+        reasons.push(...parsed.problems.map((problem) => `${V1_FORMAL_VERIFICATION_REPORT_PATH}: ${problem}`));
+      } else if (configuration.length === 0) {
+        const problems = formalVerificationReportProblems(
+          parsed.report,
+          gate.requiredSuites,
+          binding ? { commit: binding.candidateCommit, tree: binding.candidateTree } : {}
+        );
+        reasons.push(...problems);
+        if (problems.length === 0) totals = formalVerificationReportTotals(parsed.report);
+      }
+    }
+  }
+
+  return gateResult(
+    id,
+    gate,
+    reasons.length === 0 ? "pass" : "fail",
+    reasons.length === 0
+      ? [
+          `${totals.suites} required suite files ran at the candidate: ${totals.tests} tests passed, none skipped, and ${totals.variants} variants were caught, each by the property its suite names.`,
+          "This shows the suites ran and passed at the candidate. It adds nothing to what each test claims over its own domain."
+        ]
+      : [...new Set(reasons)]
+  );
+}
+
 const OPERATOR_EVIDENCE_CONTRACTS = Object.freeze({
   "egress-backstop": Object.freeze({
     path: EGRESS_BACKSTOP_EVIDENCE_PATH,
@@ -6024,6 +6126,9 @@ export function evaluateReleaseReadiness(
             now,
             measurementContext
           );
+          break;
+        case "formal-verification":
+          result = evaluateFormalVerification(id, gate, rootDir, measurementContext);
           break;
         default:
           result = gateResult(id, gate, "fail", [`unknown gate kind ${JSON.stringify(gate.kind)}`]);

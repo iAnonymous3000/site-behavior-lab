@@ -90,7 +90,7 @@ and emphasis and link marks are read through:
 - `proof`, `proofs`, `prove`, `proves`, `proved`, `proven`, `proving`, `provable`, `provably`: a finite check holds a property over its domain at a commit. These words claim an argument for inputs beyond the domain, which no check here walks.
 - `theorem`, `theorems`: these name a statement settled by such an argument, which no row is.
 - `guarant*`, `bulletproof`: these words promise behavior on whatever input arrives, and a row speaks only of its domain, bounds and axioms.
-- `formally verif*`: this names a machine-checked argument against a specification, which these suites do not make. "Formal verification" names the program and its proposed gate, and stays allowed.
+- `formally verif*`: this names a machine-checked argument against a specification, which these suites do not make. "Formal verification" names the program and its release gate, and stays allowed.
 - `verified`, `verifies`, `certified`, `certifies`: these give the code a verdict against a standard, where a row says only that its tests held over their domain.
 - `sound*`: these speak of a method beyond the domain it was run on, and a row speaks of one domain.
 - `correct`, `correctly`, `correctness`, `incorrect`, `incorrectly`: as a verdict this says the code is right or wrong. A restated oracle catches drift from a rule and never a wrong rule, and a check against a hand-written table holds only that table.
@@ -145,8 +145,8 @@ the lib suites in its unit lanes, the workspace suites in
 `npm run test:investigation-exploration`, wherever it runs; the guard reads
 that wiring from `package.json`. A row states what its tests hold at the commit
 that holds this file, and a test may have held less, or held a different rule,
-at its Commit. Binding a claim to a release candidate is the job of an attested
-execution report, which a later batch adds.
+at its Commit. What binds a run of the cited tests to a release candidate is
+the signed execution report the Release status section describes.
 
 A shallow or partial clone, a clone with grafts, a commit that is not found,
 or a git that fails, fails the guard, with a message that says so; replacement
@@ -179,10 +179,39 @@ against a suite or register rewritten to evade it. It does not follow these:
 
 ## Release status
 
-The release gate `formal-verification` is proposed and not yet in code. No
-release gate names these suites: `formal-verification` has no `requiredSuites`
-entry and no attested execution report, and no release record binds a row to a
-candidate.
+The release gate `formal-verification` is in code. `RELEASE_READINESS.json`
+names it, with a `requiredSuites` entry for each test file a row of this
+register cites, and `scripts/v1-release-contract.mjs` pins the same entries, so
+a manifest that drops the gate, changes its kind, drops an entry or asks an
+entry for less is refused. The guard holds that list to the files the rows
+cite, both ways.
+
+`npm run release:formal-verification-report` runs each of those files again,
+alone, and writes an execution report for the commit it ran at. For each file
+the report holds the test runner's counts (tests, passed, failed, cancelled,
+skipped, todo), each test by name with its outcome, and each variant
+`assertCaughtBy` accepted, with the property its suite named and the property
+that caught it. `lib/finite-check.ts` records those catches only for such a
+run, and `lib/finite-check-catch-log.test.ts` holds that recorder. The command
+writes no report unless the checkout is a clean commit and the run meets each
+entry: no test skipped, left todo, failed or cancelled, and the tests that
+passed and the variants caught for their reason at or above the entry's
+minimums.
+
+The gate passes only when a release candidate's evidence carrier binds such a
+report for the candidate commit, with a signature bundle made by CI at that
+commit, and the gate then reads the report against the same entries. No CI job
+writes or signs the report yet, so no candidate can meet the gate today, and
+it fails.
+
+What the report does not hold. A count a suite pins inside a test (states,
+transitions, cases) stays inside that test: the report counts tests and caught
+variants, and an entry's minimums are change detectors, never evidence. It
+names no method, which is a statement of a row and nothing a run can observe.
+The gate does not compare the report's test names with the tests the rows
+cite: this guard holds those at each commit, and the guard is not among the
+files the report runs. A report shows that the cited files ran and passed at a
+commit. It adds nothing to what a row claims.
 
 ## What this register does not claim
 
@@ -194,7 +223,9 @@ candidate.
 ## Files
 
 The finite-check harness is `lib/finite-check.ts`, with its own test
-`lib/finite-check.test.ts`. The suites are `lib/fv-producer-identity.test.ts`,
+`lib/finite-check.test.ts`. Its catch log, which the Release status section
+describes, has a test of its own outside this register's rows,
+`lib/finite-check-catch-log.test.ts`. The suites are `lib/fv-producer-identity.test.ts`,
 `lib/fv-coverage-loss.test.ts`, `lib/fv-request-accounting.test.ts`,
 `lib/fv-published-stacks.test.ts`, `lib/fv-initiator-claims.test.ts`,
 `lib/fv-warning-fragments.test.ts`, `lib/fv-worker-readout.test.ts`,

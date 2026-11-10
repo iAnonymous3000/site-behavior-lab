@@ -34,7 +34,12 @@ import { gitFixtureEnv, initFixtureRepo, removeFixtureTree, runFixtureGit } from
  * over, written as a plain string literal, and leaves any other entry out with no refusal (the
  * register's Limits name this). Beside those, the wording
  * rules: closed field and method lists, plain ASCII with no HTML, a list of refused words
- * and stems, quantifiers tied to a domain, and the release gate still only proposed. The CI
+ * and stems, and quantifiers tied to a domain. And the release gate: the register says it is
+ * in code and requires each test file a row cites, so the gate's list in
+ * RELEASE_READINESS.json is held equal to those files, both ways, and
+ * scripts/v1-release-contract.mjs to naming the gate and pinning each of them. That the
+ * manifest's list equals the contract's, minimums included, is the profile check's to hold,
+ * in lib/v1-release-contract.test.ts. The CI
  * history rule is not restated here: lib/ci-performance-contract.test.ts owns it, and this
  * holds the register to citing that test by its title.
  *
@@ -109,7 +114,7 @@ const P = {
   wiring: "every cited file runs in a stage of test:unit the register names",
   ciRule: "the register cites the contract test that owns the CI history rule, by its exact title",
   commands: "every npm command the register publishes is a package script",
-  release: "the release gate is still only proposed, as the register says",
+  release: "the release gate is in code and requires exactly the test files the rows cite, as the register says",
   commitShape: "every Commit is a full lowercase commit id",
   gitFailure: "git answers as git does: a failing, silent or broken git cannot show where a test landed",
   history: "the checkout has the whole history: a shallow or partial clone, or grafts, cannot show where a test landed",
@@ -299,7 +304,8 @@ const KNOWN_MODULES = [
 /** The one owner of the CI history rule, which the register cites. */
 const CI_HISTORY_TEST = { file: "lib/ci-performance-contract.test.ts", title: "every job that runs the unit suite checks out the whole history, unfiltered" } as const;
 
-const RELEASE_SENTENCE = "The release gate `formal-verification` is proposed and not yet in code.";
+const RELEASE_GATE = "formal-verification";
+const RELEASE_SENTENCE = "The release gate `formal-verification` is in code.";
 
 const CLAIM_FIELDS = ["Property", "Code", "Domain", "Bounds", "Axioms", "Method", "Not claimed", "Tests", "Variants", "Members", "Commit"] as const;
 const OPTIONAL_CLAIM_FIELDS = new Set(["Not claimed", "Members"]);
@@ -1015,10 +1021,21 @@ function checkText(inputs: Inputs): Register {
 
   for (const [, script] of inputs.doc.matchAll(/`npm run ([^`\s]+)`/g)) holds(P.commands, Object.hasOwn(scripts, script), () => ({ script }));
 
+  // The release gate, as the Release status section says: in code, and requiring each file a row cites and no other.
   holds(P.release, flat(inputs.doc).includes(RELEASE_SENTENCE), () => ({ missing: RELEASE_SENTENCE }));
-  holds(P.release, !inputs.readiness.includes('"requiredSuites"'), () => ({ file: "RELEASE_READINESS.json", names: "requiredSuites" }));
-  holds(P.release, !inputs.readiness.includes("formal-verification"), () => ({ file: "RELEASE_READINESS.json", names: "formal-verification" }));
-  holds(P.release, !inputs.releaseContract.includes("formal-verification"), () => ({ file: "scripts/v1-release-contract.mjs", names: "formal-verification" }));
+  const citedFiles = [...new Set([...rows.flatMap((row) => [...row.tests, ...row.families].map((where) => where.file)), ...inputs.suiteFiles])].sort();
+  let releaseGate: { kind?: unknown; requiredSuites?: unknown } | undefined;
+  try {
+    releaseGate = (JSON.parse(inputs.readiness) as { gates?: Record<string, { kind?: unknown; requiredSuites?: unknown }> }).gates?.[RELEASE_GATE];
+  } catch {
+    releaseGate = undefined;
+  }
+  holds(P.release, releaseGate?.kind === RELEASE_GATE, () => ({ file: "RELEASE_READINESS.json", gate: RELEASE_GATE, kind: releaseGate?.kind ?? null }));
+  const requiredFiles: unknown[] = (Array.isArray(releaseGate?.requiredSuites) ? (releaseGate.requiredSuites as unknown[]) : []).map((entry) => (entry as { id?: unknown } | null)?.id);
+  for (const file of citedFiles) holds(P.release, requiredFiles.includes(file), () => ({ file, citedAndNotRequiredIn: "RELEASE_READINESS.json" }));
+  for (const id of requiredFiles) holds(P.release, typeof id === "string" && citedFiles.includes(id), () => ({ id, requiredAndCitedByNoRow: true }));
+  holds(P.release, inputs.releaseContract.includes(`"${RELEASE_GATE}": "${RELEASE_GATE}"`), () => ({ file: "scripts/v1-release-contract.mjs", gateSet: `lacks ${RELEASE_GATE}` }));
+  for (const file of citedFiles) holds(P.release, inputs.releaseContract.includes(`{ id: "${file}", minimumTests: `), () => ({ file, citedAndNotPinnedIn: "scripts/v1-release-contract.mjs" }));
 
   for (const row of rows) holds(P.commitShape, /^[0-9a-f]{40}$/.test(row.commit), () => ({ row: row.id, commit: row.commit }));
   return register;
@@ -1169,6 +1186,20 @@ const citedPlant = (code: string, cited = "RA8: a planted property"): Partial<In
 });
 const PINS_LOOP = "for (const { name, kind, rests, closedBy, assumptions, labels, term, broken } of PINS) {";
 const F43_ENVIRONMENT = '  - `lib/fv-worker-model.test.ts`: "open (F4, environment axiom): with the page\'s channel lost at the freeze, a worker that ran, with its attach on the port, lands in no term"\n';
+
+type ReleaseGate = { kind: string; requiredSuites: { id: string }[] };
+/** The manifest with its release gate changed. */
+const withReleaseGate = (change: (gate: ReleaseGate) => void): Partial<Inputs> => {
+  const manifest = JSON.parse(REAL.readiness) as { gates: Record<string, ReleaseGate> };
+  change(manifest.gates[RELEASE_GATE]);
+  return { readiness: JSON.stringify(manifest) };
+};
+/** The release contract with one exact edit, which must land exactly once. */
+const editedContract = (find: string, replace: string): string => {
+  const occurrences = REAL.releaseContract.split(find).length - 1;
+  if (occurrences !== 1) throw new Error(`A planted edit must land exactly once in scripts/v1-release-contract.mjs, but "${find}" occurs ${occurrences} times.`);
+  return REAL.releaseContract.replace(find, () => replace);
+};
 
 const TEXT_VARIANTS: ReadonlyArray<readonly [string, string, () => Partial<Inputs>]> = [
   ["a row missing its Bounds", P.shape, () => ({ doc: planted(EB2_BOUNDS, "") })],
@@ -1398,10 +1429,15 @@ const TEXT_VARIANTS: ReadonlyArray<readonly [string, string, () => Partial<Input
   ["the contract test renamed", P.ciRule, () => ({ read: editedRead(CI_HISTORY_TEST.file, `test("${CI_HISTORY_TEST.title}"`, 'test("every job that runs the unit suite checks out enough history"') })],
   ["the register no longer citing the contract test", P.ciRule, () => ({ doc: planted(`\`${CI_HISTORY_TEST.file}\`, "${CI_HISTORY_TEST.title}"`, `\`${CI_HISTORY_TEST.file}\``) })],
   ["a published command that is no package script", P.commands, () => ({ doc: planted("## Release status\n", "## Release status\n\nRun `npm run test:formal-register` alone.\n") })],
-  ["a release gate that landed while the register says proposed", P.release, () => ({ readiness: REAL.readiness.replace("{", '{\n  "requiredSuites": [],') })],
-  ["the readiness manifest naming the gate", P.release, () => ({ readiness: REAL.readiness.replace("{", '{\n  "gate": "formal-verification",') })],
-  ["the release contract naming the gate", P.release, () => ({ releaseContract: `${REAL.releaseContract}\n// formal-verification\n` })],
-  ["the register no longer saying the gate is proposed", P.release, () => ({ doc: planted("is proposed and not yet in code.", "is in code.") })],
+  ["a cited file the release gate no longer requires", P.release, () => withReleaseGate((gate) => { gate.requiredSuites = gate.requiredSuites.filter((suite) => suite.id !== "lib/call-stack-publisher.test.ts"); })],
+  ["a file the release gate requires that no row cites", P.release, () => withReleaseGate((gate) => { gate.requiredSuites.push({ id: "lib/formal-verification-register.test.ts" }); })],
+  ["the release gate with no list of suites", P.release, () => withReleaseGate((gate) => { delete (gate as { requiredSuites?: unknown }).requiredSuites; })],
+  ["the release gate under another kind", P.release, () => withReleaseGate((gate) => { gate.kind = "review-ledger"; })],
+  ["the release gate gone from the manifest", P.release, () => ({ readiness: REAL.readiness.replace(`"${RELEASE_GATE}": {`, '"formal-verification-later": {') })],
+  ["a manifest that cannot be read", P.release, () => ({ readiness: REAL.readiness.slice(0, -3) })],
+  ["the release contract no longer naming the gate", P.release, () => ({ releaseContract: editedContract(`"${RELEASE_GATE}": "${RELEASE_GATE}"`, `"${RELEASE_GATE}": "review-ledger"`) })],
+  ["a cited file the release contract no longer pins", P.release, () => ({ releaseContract: editedContract('{ id: "lib/scroll-check-stacks.test.ts", minimumTests: ', '{ id: "lib/scroll-check.test.ts", minimumTests: ') })],
+  ["the register saying the gate is still only proposed", P.release, () => ({ doc: planted("is in code.", "is proposed and not yet in code.") })],
   ["a short commit", P.commitShape, () => ({ doc: planted(EB3_FAMILY, EB3_FAMILY.replace(F1, "af6c9568")) })]
 ];
 

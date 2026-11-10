@@ -279,6 +279,94 @@
       "inventory": "research/measurement-candidate/site-behavior-lab-container-package-inventory.json",
       "bundle": "research/measurement-candidate/container-package-inventory.bundle.json",
       "ledger": "CONTAINER_IMAGE_PACKAGE_REVIEWS.json"
+    },
+    "formal-verification": {
+      "kind": "formal-verification",
+      "title": "Every required formal verification suite ran at the candidate, with no test skipped and every variant caught for its reason",
+      "report": "research/measurement-candidate/site-behavior-lab-formal-verification-report.json",
+      "bundle": "research/measurement-candidate/formal-verification-report.bundle.json",
+      "requiredSuites": [
+        {
+          "id": "investigation/test/case-exploration.test.ts",
+          "minimumTests": 130,
+          "minimumVariants": 122
+        },
+        {
+          "id": "investigation/test/evidence-model.test.ts",
+          "minimumTests": 24,
+          "minimumVariants": 148
+        },
+        {
+          "id": "investigation/test/purge.test.ts",
+          "minimumTests": 14,
+          "minimumVariants": 21
+        },
+        {
+          "id": "investigation/test/readings.test.ts",
+          "minimumTests": 134,
+          "minimumVariants": 129
+        },
+        {
+          "id": "lib/call-stack-publisher.test.ts",
+          "minimumTests": 14,
+          "minimumVariants": 0
+        },
+        {
+          "id": "lib/finite-check.test.ts",
+          "minimumTests": 9,
+          "minimumVariants": 1
+        },
+        {
+          "id": "lib/fv-coverage-loss.test.ts",
+          "minimumTests": 26,
+          "minimumVariants": 19
+        },
+        {
+          "id": "lib/fv-initiator-claims.test.ts",
+          "minimumTests": 27,
+          "minimumVariants": 25
+        },
+        {
+          "id": "lib/fv-producer-identity.test.ts",
+          "minimumTests": 38,
+          "minimumVariants": 29
+        },
+        {
+          "id": "lib/fv-published-stacks.test.ts",
+          "minimumTests": 31,
+          "minimumVariants": 22
+        },
+        {
+          "id": "lib/fv-request-accounting.test.ts",
+          "minimumTests": 50,
+          "minimumVariants": 44
+        },
+        {
+          "id": "lib/fv-scroll-producer.test.ts",
+          "minimumTests": 85,
+          "minimumVariants": 74
+        },
+        {
+          "id": "lib/fv-warning-fragments.test.ts",
+          "minimumTests": 22,
+          "minimumVariants": 15
+        },
+        {
+          "id": "lib/fv-worker-model.test.ts",
+          "minimumTests": 116,
+          "minimumVariants": 96
+        },
+        {
+          "id": "lib/fv-worker-readout.test.ts",
+          "minimumTests": 122,
+          "minimumVariants": 108
+        },
+        {
+          "id": "lib/scroll-check-stacks.test.ts",
+          "minimumTests": 26,
+          "minimumVariants": 0
+        }
+      ]
     }
   },
   "deferredGates": {
