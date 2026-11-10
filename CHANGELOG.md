@@ -88,6 +88,19 @@ public API or a 1.0 release.
   the next production deploy drops the binding and the variable from the
   Worker, and leaves the dataset, if one exists, in the account.
 
+### Changed
+
+- Five routine dependencies move to their latest releases: Wrangler 4.151.1
+  to 4.159.0 (with workerd 1.20261109.1 and miniflare 5.20261109.0-beta),
+  `@cloudflare/workers-types` 5.20261018.1 to 5.20261110.1, Next.js 16.4.2
+  to 16.4.6, lucide-react 1.59.0 to 1.71.0 and `@types/node` 26.6.5 to
+  26.6.6. The Wrangler update waited until the 2026-11 toolchain epoch was
+  released, so every staging deploy of that epoch and its release ran on
+  4.151.1. The go-live runbook names the new version, and the container list
+  command's paging options read the same under it. The packages a report's
+  identity names (Playwright, tldts, pdfjs-dist, undici) do not move, and
+  nothing a scan records changes.
+
 ### Fixed
 
 - Two release gates that could not pass as written no longer block 1.0.
