@@ -44,7 +44,16 @@ FROM playwright-base AS deps
 
 # Independent ZIP interoperability checks use the system reader. Install it
 # only in the build stages; the scanner runtime does not need archive tools.
-RUN apt-get update && apt-get install -y --no-install-recommends unzip \
+#
+# The apt that downloads here is the base's 2.8.3, the one CVE-2026-109518
+# names (remote code execution via hard link reuse during package download
+# retries, fixed in 2.8.4ubuntu0.1). So it downloads with its retries off and
+# from HTTPS sources only, and a failed download fails the step. The runner
+# stage's upgrade step, which does the same, says why at length.
+RUN sed -i 's|^URIs: http://|URIs: https://|' /etc/apt/sources.list.d/ubuntu.sources \
+  && ! grep -rqsE '^[^#]*http://' /etc/apt/sources.list /etc/apt/sources.list.d \
+  && apt-get -o Acquire::Retries=0 -o APT::Update::Error-Mode=any update \
+  && apt-get -o Acquire::Retries=0 install -y --no-install-recommends unzip \
   && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -173,8 +182,37 @@ COPY --from=build /app/next.config.mjs ./next.config.mjs
 # package inventory refuses an image that lists one layer twice.
 # lib/toolchain-provenance.test.ts ties this list to the pins and keeps the
 # check in this step.
-RUN apt-get update \
-  && apt-get install -y --no-install-recommends --only-upgrade \
+#
+# The apt that downloads in this step, and in the deps stage's step, is the
+# base's 2.8.3: the fixed apt is in place only once this step's install has
+# ended. CVE-2026-109518 is in that apt's download retries, so every apt-get
+# that downloads in the two steps carries -o Acquire::Retries=0, and the
+# retry path stays off until the fixed apt is the one downloading. apt's
+# built-in default is 3 retries and no file in the base sets another, so
+# until this was added the build let the vulnerable apt retry. With retries
+# off, a download that fails fails the step. That is the intended trade:
+# build again. apt-get update would not keep it by itself: it exits 0 when
+# an index fails to download, and the install after it then reads whatever
+# indexes did arrive. So each apt-get update also carries
+# -o APT::Update::Error-Mode=any, and one failed index fails the command:
+# with retries off, a failed index must fail the step, not thin the package
+# lists silently. The step is not retried from the shell either: a second
+# attempt in the same layer would meet whatever files the first left behind,
+# and reuse of what an earlier attempt left is what the advisory names.
+#
+# The base's Ubuntu sources are plain http. Each of the two steps first
+# moves them to https, then fails if any apt source still names http://, so
+# the vulnerable apt fetches only from hosts whose certificate it checked
+# and a base whose sources the rewrite misses cannot leave it on plain http
+# unseen. The base ships ca-certificates; without it the fetch fails, and
+# nothing falls back to http. The runtime image keeps the https sources.
+# Drop the option with the apt pin, when a base ships the fixed apt:
+# lib/toolchain-provenance.test.ts requires it while the pin stands, and at
+# any time refuses a retry count above 0 and a plain http apt source.
+RUN sed -i 's|^URIs: http://|URIs: https://|' /etc/apt/sources.list.d/ubuntu.sources \
+  && ! grep -rqsE '^[^#]*http://' /etc/apt/sources.list /etc/apt/sources.list.d \
+  && apt-get -o Acquire::Retries=0 -o APT::Update::Error-Mode=any update \
+  && apt-get -o Acquire::Retries=0 install -y --no-install-recommends --only-upgrade \
     libbrotli1=1.1.0-2ubuntu0.1 \
     apt=2.8.4ubuntu0.1 libapt-pkg6.0t64=2.8.4ubuntu0.1 \
   && apt-get purge -y gstreamer1.0-plugins-bad libgstreamer-plugins-bad1.0-0 \

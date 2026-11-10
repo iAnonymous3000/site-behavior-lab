@@ -165,8 +165,11 @@ test("the runner stage fails the build unless every advisory-named package is at
   const OPENSSL_FIX = "3.0.13-0ubuntu3.16";
   const dockerfile = source("Dockerfile");
   const runnerStage = dockerfile.slice(dockerfile.indexOf("FROM playwright-base AS runner"));
+  // The step first moves the base's Ubuntu sources to HTTPS and refuses a
+  // plain http one, and its apt-get commands turn retries off (the test
+  // after this one holds those lines).
   const upgrade =
-    /^RUN apt-get update \\\n {2}&& apt-get install -y --no-install-recommends --only-upgrade \\\n((?: {4}\S.* \\\n)+)/m.exec(
+    /^RUN sed -i '[^'\n]+' \/etc\/apt\/sources\.list\.d\/ubuntu\.sources \\\n {2}&& ! grep -rqsE '[^'\n]+' \/etc\/apt\/sources\.list \/etc\/apt\/sources\.list\.d \\\n {2}&& apt-get -o Acquire::Retries=0 -o APT::Update::Error-Mode=any update \\\n {2}&& apt-get -o Acquire::Retries=0 install -y --no-install-recommends --only-upgrade \\\n((?: {4}\S.* \\\n)+)/m.exec(
       runnerStage
     );
   assert.ok(upgrade, "the runner stage must keep its exact-version upgrade step");
@@ -205,6 +208,72 @@ test("the runner stage fails the build unless every advisory-named package is at
     Object.fromEntries([...asserted].sort()),
     Object.fromEntries([...pinned, ["libssl3t64", OPENSSL_FIX], ["openssl", OPENSSL_FIX]].sort())
   );
+});
+
+test("the base's vulnerable apt downloads with its retries off and from HTTPS sources only", () => {
+  // CVE-2026-109518 is remote code execution via hard link reuse during
+  // package download retries, in the apt the base ships and fixed in the
+  // version the upgrade step pins. The fixed apt arrives only when that
+  // step's install ends, so every download of the image build, the deps
+  // stage's and the upgrade step's own, is made by the vulnerable one. apt
+  // retries a failed download three times unless told otherwise, and the
+  // base's sources are plain http. So while the pin stands, each apt-get that
+  // downloads must turn retries off, and at any time no step may raise them.
+  // Each step that runs apt must also move the base's Ubuntu sources to HTTPS
+  // before its first apt command and fail if any apt source still names
+  // http://, so a base whose sources the rewrite misses cannot leave the
+  // vulnerable apt on plain http unseen. And apt-get update exits 0 when an
+  // index fails to download, so each one must be told to fail on any failed
+  // index: with retries off that is one failed request, and the install
+  // after it would otherwise read whatever indexes did arrive.
+  const dockerfile = source("Dockerfile");
+  const commands = dockerfile
+    .split("\n")
+    .filter((line) => !line.startsWith("#"))
+    .join("\n");
+  // One instruction per element: a line that ends in a backslash continues.
+  const instructions = commands.replace(/\\\n/g, "\u0000").split("\n").map((instruction) => instruction.replaceAll("\u0000", "\\\n"));
+  const apt = instructions.filter((instruction) => /\bapt(?:-get|-cache|itude)?\b/.test(instruction));
+  assert.equal(apt.length, 2, "apt runs in the deps stage's step and the runner stage's upgrade step, and nowhere else");
+  const pinsApt = apt.some((instruction) => /\sapt=\S+/.test(instruction));
+
+  // Retries: never above 0, set by nothing but the option on a command.
+  for (const setting of commands.matchAll(/Acquire::Retries\S*/g)) {
+    assert.equal(setting[0], "Acquire::Retries=0", "no step may give apt a retry count other than 0");
+  }
+  assert.doesNotMatch(commands, /apt\.conf|APT_CONFIG/, "no step may configure apt except by an option on its command");
+  const downloads = [...commands.matchAll(/apt-get\b[^\n&|;]*?\b(update|install|upgrade|dist-upgrade|full-upgrade|download|source|build-dep)\b/g)].map((match) => match[0]);
+  assert.deepEqual(
+    downloads.map((download) => download.split(" ").at(-1)),
+    ["update", "install", "update", "install"],
+    "the deps stage's step and the upgrade step each update and install once"
+  );
+  for (const update of downloads.filter((download) => download.endsWith(" update"))) {
+    assert.match(update, / -o APT::Update::Error-Mode=any update$/, `${update} must fail when any index fails to download`);
+    assert.equal(update.split("Error-Mode").length - 1, 1, `${update} must name one error mode`);
+  }
+  if (pinsApt) {
+    for (const download of downloads) {
+      assert.match(
+        download,
+        /^apt-get -o Acquire::Retries=0 (?:-o APT::Update::Error-Mode=any update|install)$/,
+        `while the base's apt is older than its fix, ${download} must run with retries off`
+      );
+    }
+  }
+
+  // HTTPS: the rewrite, then the refusal of any http source, then apt.
+  const rewrite = "sed -i 's|^URIs: http://|URIs: https://|' /etc/apt/sources.list.d/ubuntu.sources";
+  const noPlainHttp = "! grep -rqsE '^[^#]*http://' /etc/apt/sources.list /etc/apt/sources.list.d";
+  for (const instruction of apt) {
+    const where = instruction.slice(0, 60);
+    const parts = instruction.replace(/^RUN /, "").split(" \\\n  && ");
+    assert.equal(parts[0], rewrite, `a step that runs apt must first move the Ubuntu sources to HTTPS: ${where}`);
+    assert.equal(parts[1], noPlainHttp, `then fail if any apt source still names http://: ${where}`);
+    assert.match(parts[2], /^apt-get /, `and only then run apt: ${where}`);
+    const rest = parts.slice(2).join("\n");
+    assert.doesNotMatch(rest, /http:\/\/|sources\.list|\bsed\b|\btee\b|>/, `nothing after the check may name or write an apt source: ${where}`);
+  }
 });
 
 test("the container base's bundled scan browser is the one the installed playwright-core names", () => {
