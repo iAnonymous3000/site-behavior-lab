@@ -151,14 +151,16 @@ test("the schema launcher surfaces a target's own exit status, and exits 1 for a
     rmSync(directory, { recursive: true, force: true });
   }
 
-  // The real launcher and the real compare, on committed receipts whose
-  // guardian repetitions spread beyond the tolerance within one build.
+  // The real launcher and the real command, on committed receipts whose
+  // guardian repetitions spread beyond the tolerance within one build. They
+  // are read with the replay command, on the committed panel they carry, so
+  // this holds whichever panel is current.
   const inconclusive = spawnSync(
     process.execPath,
     [
       path.join(root, "scripts", "run-schema-cli.mjs"),
       "toolchain-canary",
-      "compare",
+      "replay",
       "--baseline",
       path.join("docs", "toolchain-epoch-2026-10", "round-1-baseline-receipt.json"),
       "--candidate",
@@ -167,5 +169,5 @@ test("the schema launcher surfaces a target's own exit status, and exits 1 for a
     { cwd: root, encoding: "utf8", env: { ...process.env, [SCHEMA_DIST_READY]: "1" } }
   );
   assert.equal(inconclusive.status, 2, inconclusive.stderr);
-  assert.match(inconclusive.stderr, /^INCONCLUSIVE f9d6c46e744c60a3485eba3951f0b168b9170941 -> 34d6847b54d804c449bed160a53129ca2e1f16ef: not a pass\./m);
+  assert.match(inconclusive.stderr, /^REPLAY INCONCLUSIVE f9d6c46e744c60a3485eba3951f0b168b9170941 -> 34d6847b54d804c449bed160a53129ca2e1f16ef: not a pass\./m);
 });

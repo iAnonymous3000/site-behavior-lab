@@ -1,0 +1,28 @@
+{
+  "panelVersion": 1,
+  "panelId": "monthly-toolchain-canary-v1",
+  "repetitions": 3,
+  "conditions": {
+    "device": "desktop",
+    "gpcEnabled": true,
+    "consentMode": "observe"
+  },
+  "metricTolerances": {
+    "totalRequests": { "absolute": 10, "relative": 0.2 },
+    "thirdPartyRequests": { "absolute": 8, "relative": 0.25 },
+    "knownTrackerRequests": { "absolute": 3, "relative": 0.3 },
+    "thirdPartyDomains": { "absolute": 3, "relative": 0.25 },
+    "cookies": { "absolute": 4, "relative": 0.3 },
+    "thirdPartyCookies": { "absolute": 3, "relative": 0.3 },
+    "storageEntries": { "absolute": 4, "relative": 0.3 },
+    "fingerprintEvents": { "absolute": 3, "relative": 0.3 },
+    "shieldsBlockedRequests": { "absolute": 3, "relative": 0.3 }
+  },
+  "cases": [
+    { "id": "wikipedia", "catalog": "public/featured-sites.json", "domain": "wikipedia.org", "url": "https://www.wikipedia.org/" },
+    { "id": "github", "catalog": "public/corpus-seed-sites.json", "domain": "github.com", "url": "https://github.com/" },
+    { "id": "python", "catalog": "public/corpus-seed-sites.json", "domain": "python.org", "url": "https://www.python.org/" },
+    { "id": "gov-uk", "catalog": "public/corpus-seed-sites.json", "domain": "gov.uk", "url": "https://www.gov.uk/" },
+    { "id": "guardian", "catalog": "public/featured-sites.json", "domain": "theguardian.com", "url": "https://www.theguardian.com/" }
+  ]
+}

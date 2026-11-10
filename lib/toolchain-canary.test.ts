@@ -1,11 +1,11 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import { test } from "node:test";
+import { after, test } from "node:test";
 import { REPORT_CLAIM_REQUIREMENTS } from "./report-facts";
 
 type Helpers = {
@@ -20,7 +20,13 @@ type Helpers = {
   buildReceipt(input: Record<string, unknown>): Receipt;
   extractCapturedRun(report: unknown, input: Record<string, unknown>): Record<string, unknown>;
   compareReceipts(baseline: Receipt, candidate: Receipt, panel: Panel, digest: string): Comparison;
+  panelDigest(panel: Panel): string;
+  readCommittedPanels(files: unknown): readonly CommittedPanel[];
+  assertCurrentPanelCommitted(current: { panel: Panel; digest: string }, committed: readonly CommittedPanel[]): void;
+  selectComparisonPanel(input: { replay: boolean; baseline: unknown; candidate: unknown; current: { panel: Panel; digest: string }; committed: readonly CommittedPanel[] }): Selection;
+  replayNotice(selection: Selection, current: { panel: Panel; digest: string }): string;
   PANEL_VERSIONS: readonly number[];
+  COMMITTED_PANEL_DIRECTORY: string;
   METRICS: readonly string[];
   METRIC_EVIDENCE_FAMILIES: Readonly<Record<string, string>>;
   METRIC_FEEDING_FAMILIES: readonly string[];
@@ -57,11 +63,24 @@ type Comparison = {
 type Loss = { family: string; kind: string; detail?: string; count: number; phaseId: number };
 type Panel = { panelVersion: number; panelId: string; repetitions: number; conditions: object; metricTolerances: Record<string, { absolute: number; relative: number }>; cases: Array<{ id: string; catalog: string; domain: string; url: string }> };
 type Receipt = Record<string, any>;
+type CommittedPanel = { panel: Panel; digest: string; file: string };
+type Selection = { replay: boolean; panel: Panel; digest: string; file?: string; current?: boolean };
 type Versions = { playwright: string | null; adblock: string; tldts: string };
 
 const nativeImport = new Function("specifier", "return import(specifier)") as (specifier: string) => Promise<Helpers>;
 const helpers = nativeImport(pathToFileURL(path.join(process.cwd(), "scripts", "toolchain-canary-lib.mjs")).href);
-const panel = JSON.parse(readFileSync(path.join(process.cwd(), "scripts", "fixtures", "toolchain-canary-panel.json"), "utf8")) as Panel;
+const CURRENT_PANEL_FILE = path.join("scripts", "fixtures", "toolchain-canary-panel.json");
+const COMMITTED_PANELS = path.join("scripts", "fixtures", "toolchain-canary-panels");
+const PANEL_V1_FILE = path.join(COMMITTED_PANELS, "monthly-toolchain-canary-v1.json");
+const currentPanel = JSON.parse(readFileSync(path.join(process.cwd(), CURRENT_PANEL_FILE), "utf8")) as Panel;
+// The receipts constructed below, and the committed ones, are on panel
+// version 1, read from its committed copy, so the rule tests keep their case
+// names when the current panel file changes.
+const panel = JSON.parse(readFileSync(path.join(process.cwd(), PANEL_V1_FILE), "utf8")) as Panel;
+
+function committedPanelFiles() {
+  return readdirSync(path.join(process.cwd(), COMMITTED_PANELS)).map((name) => ({ name, text: readFileSync(path.join(process.cwd(), COMMITTED_PANELS, name), "utf8") }));
+}
 
 function health(sha: string) {
   return {
@@ -122,19 +141,20 @@ async function receipt(
   build: string,
   browser: string,
   count = 10,
-  versions: Versions = { playwright: "1.61.0", adblock: "0.13.0", tldts: "7.4.3" }
+  versions: Versions = { playwright: "1.61.0", adblock: "0.13.0", tldts: "7.4.3" },
+  onPanel: Panel = panel
 ) {
   const h = await helpers;
-  const ordered = order === "forward" ? panel.cases : [...panel.cases].reverse();
+  const ordered = order === "forward" ? onPanel.cases : [...onPanel.cases].reverse();
   const runs = [];
   let sequence = 0;
   for (const entry of ordered) {
-    for (let repetition = 1; repetition <= panel.repetitions; repetition += 1) {
+    for (let repetition = 1; repetition <= onPanel.repetitions; repetition += 1) {
       runs.push(run(entry.id, repetition, ++sequence, build, browser, count, versions));
     }
   }
-  const digest = createHash("sha256").update(h.stableCompareJson(panel)).digest("hex");
-  return h.buildReceipt({ createdAt: "2026-07-19T00:00:00.000Z", expectedBuild: build, order, panel, panelDigest: digest, runs });
+  const digest = createHash("sha256").update(h.stableCompareJson(onPanel)).digest("hex");
+  return h.buildReceipt({ createdAt: "2026-07-19T00:00:00.000Z", expectedBuild: build, order, panel: onPanel, panelDigest: digest, runs });
 }
 
 function capturedReport(build: string, versions: Versions) {
@@ -183,13 +203,13 @@ test("staging origin, token, SHA, and whole-origin health gates fail closed", as
 
 test("fixed five-site panel is pinned to the existing catalogs", async () => {
   const h = await helpers;
-  h.assertPanel(panel);
+  h.assertPanel(currentPanel);
   const catalogs = {
     "public/featured-sites.json": JSON.parse(readFileSync(path.join(process.cwd(), "public", "featured-sites.json"), "utf8")),
     "public/corpus-seed-sites.json": JSON.parse(readFileSync(path.join(process.cwd(), "public", "corpus-seed-sites.json"), "utf8"))
   };
-  h.assertPanelCatalogMembership(panel, catalogs);
-  const changed = structuredClone(panel);
+  h.assertPanelCatalogMembership(currentPanel, catalogs);
+  const changed = structuredClone(currentPanel);
   changed.cases[0].url = "https://not-in-catalog.example/";
   assert.throws(() => h.assertPanelCatalogMembership(changed, catalogs), /not pinned exactly/);
 });
@@ -685,6 +705,25 @@ function committedReceipt(file: string): Receipt {
   return JSON.parse(readFileSync(path.join(process.cwd(), "docs", file), "utf8")) as Receipt;
 }
 
+async function panelsOnDisk() {
+  const h = await helpers;
+  return { current: { panel: currentPanel, digest: h.panelDigest(currentPanel) }, committed: h.readCommittedPanels(committedPanelFiles()) };
+}
+
+// A committed pair, read the way the replay command reads it: on the
+// committed panel both receipts carry, found by their own digest, whatever
+// the current panel is.
+async function replayCommitted(baselineFile: string, candidateFile: string) {
+  const h = await helpers;
+  const baseline = committedReceipt(baselineFile);
+  const candidate = committedReceipt(candidateFile);
+  const selection = h.selectComparisonPanel({ replay: true, baseline, candidate, ...(await panelsOnDisk()) });
+  assert.equal(selection.replay, true);
+  assert.equal(selection.file, "scripts/fixtures/toolchain-canary-panels/monthly-toolchain-canary-v1.json");
+  assert.equal(selection.digest, "86fe39f8e4e75e9a2925c1849006909968b67bc507d2aec6cb688ce9cc22be29");
+  return h.compareReceipts(baseline, candidate, selection.panel, selection.digest);
+}
+
 // The medians that moved between the builds, as [site, metric, baseline,
 // candidate, delta, allowed]; every other compared median is identical.
 function movedMedians(result: Comparison) {
@@ -711,18 +750,13 @@ const GUARDIAN_FINGERPRINT_LEFT_OUT = [{ caseId: "guardian", metric: "fingerprin
 // 2026-09 pair and in both 2026-10 rounds; it is noted, not compared.
 const GITHUB_KEYSTROKE_NOTED: Noted = { caseId: "github", signature: "detector-output/truncated/keystroke-probe-capture", baselineRuns: 3, baselineTotal: 3, candidateRuns: 3, candidateTotal: 3 };
 
-// The committed receipts are real inputs to the two tests below. What the
-// comparison rule computes from them is a property of the rule. It is not a
-// judgement of the epochs they record, which stand as recorded under the rule
-// that ran.
+// The committed receipts are real inputs to the three tests below, replayed
+// on the committed panel they carry. What the comparison rule computes from
+// them is a property of the rule. It is not a judgement of the epochs they
+// record, which stand as recorded under the rule that ran.
 test("the committed 2026-09 receipts compare with the medians their record states, and the within-arm spread rule leaves guardian's known-tracker count inconclusive", async () => {
   const h = await helpers;
-  const result = h.compareReceipts(
-    committedReceipt("toolchain-epoch-2026-09/baseline-receipt.json"),
-    committedReceipt("toolchain-epoch-2026-09/candidate-receipt.json"),
-    panel,
-    committedPanelDigest(h)
-  );
+  const result = await replayCommitted("toolchain-epoch-2026-09/baseline-receipt.json", "toolchain-epoch-2026-09/candidate-receipt.json");
   assert.equal(result.outcome, "inconclusive");
   assert.equal(result.pass, false);
   assert.equal(result.baselineBuild, "cd43c7bce9a980037a74f7ee2a05b722c2638b17");
@@ -751,7 +785,6 @@ test("the committed 2026-09 receipts compare with the medians their record state
 
 test("the committed 2026-10 receipts compare with github's every-run loss and the sporadic losses their record describes noted, and the within-arm spread rule leaves guardian's bimodal counts inconclusive", async () => {
   const h = await helpers;
-  const digest = committedPanelDigest(h);
   const consentBanner = { caseId: "guardian", signature: "detector-output/dropped/consent-banner", baselineRuns: 1, baselineTotal: 3, candidateRuns: 0, candidateTotal: 3 };
   const rounds: Array<[string, Noted[], Array<Array<string | number>>, Array<Array<string | number | number[]>>]> = [
     ["round-1", [GITHUB_KEYSTROKE_NOTED, consentBanner], [
@@ -781,12 +814,7 @@ test("the committed 2026-10 receipts compare with github's every-run loss and th
     ]]
   ];
   for (const [round, noted, moved, unresolved] of rounds) {
-    const result = h.compareReceipts(
-      committedReceipt(`toolchain-epoch-2026-10/${round}-baseline-receipt.json`),
-      committedReceipt(`toolchain-epoch-2026-10/${round}-candidate-receipt.json`),
-      panel,
-      digest
-    );
+    const result = await replayCommitted(`toolchain-epoch-2026-10/${round}-baseline-receipt.json`, `toolchain-epoch-2026-10/${round}-candidate-receipt.json`);
     assert.equal(result.outcome, "inconclusive", round);
     assert.equal(result.pass, false, round);
     assert.equal(result.baselineBuild, "f9d6c46e744c60a3485eba3951f0b168b9170941", round);
@@ -797,6 +825,37 @@ test("the committed 2026-10 receipts compare with github's every-run loss and th
     assert.deepEqual(result.excluded, GUARDIAN_FINGERPRINT_LEFT_OUT, round);
     assert.deepEqual(result.noted, noted, round);
     assert.deepEqual(movedMedians(result), moved, round);
+  }
+});
+
+test("the committed 2026-11 receipts replay as inconclusive on guardian's known-tracker and Shields-blocked counts in both rounds, with nothing left out", async () => {
+  const h = await helpers;
+  const policyVisit: Noted = { caseId: "guardian", signature: "detector-output/dropped/policy-visit", baselineRuns: 3, baselineTotal: 3, candidateRuns: 3, candidateTotal: 3 };
+  const rounds: Array<[string, Noted[], Array<Array<string | number | number[]>>]> = [
+    ["round-1", [
+      GITHUB_KEYSTROKE_NOTED,
+      { caseId: "python", signature: "detector-output/truncated/policy-link-candidates", baselineRuns: 3, baselineTotal: 3, candidateRuns: 3, candidateTotal: 3 },
+      policyVisit
+    ], [
+      ["guardian", "knownTrackerRequests", "inconclusive", [16, 17, 16], [16, 29, 26], 1, 13, 4.8],
+      ["guardian", "shieldsBlockedRequests", "inconclusive", [48, 49, 48], [48, 68, 71], 1, 23, 14.4]
+    ]],
+    ["round-2", [GITHUB_KEYSTROKE_NOTED, policyVisit], [
+      ["guardian", "knownTrackerRequests", "inconclusive", [27, 16, 28], [16, 19, 26], 12, 10, 8.1],
+      ["guardian", "shieldsBlockedRequests", "inconclusive", [76, 48, 79], [48, 50, 71], 31, 23, 22.8]
+    ]]
+  ];
+  for (const [round, noted, unresolved] of rounds) {
+    const result = await replayCommitted(`toolchain-epoch-2026-11/${round}-baseline-receipt.json`, `toolchain-epoch-2026-11/${round}-candidate-receipt.json`);
+    assert.equal(result.outcome, "inconclusive", round);
+    assert.equal(result.pass, false, round);
+    assert.equal(result.baselineBuild, "59402b6d47c05b767a81eb38ab6c30b0d88c696a", round);
+    assert.equal(result.candidateBuild, "8c6a8fc5fdb056d84a2693fb38e08689cfbc179d", round);
+    assert.equal(result.results.length, 45, round);
+    assert.deepEqual(notPassed(h, result), unresolved, round);
+    assert.equal(result.results.some((row) => row.separated), false, round);
+    assert.deepEqual(result.excluded, [], round);
+    assert.deepEqual(result.noted, noted, round);
   }
 });
 
@@ -914,10 +973,12 @@ test("a metric fails, whatever the spreads, when every run of one build differs 
 });
 
 // The guardian page's knownTrackerRequests, shieldsBlockedRequests and
-// totalRequests per repetition in the two 2026-11 rounds, whose receipts are
-// not committed. The median-only rule failed both rounds, in opposite
-// directions, because the two arms drew different numbers of the page's low
-// state (about 16 to 19, 47 to 50, 160 to 166).
+// totalRequests per repetition in the two 2026-11 rounds: run-2 is the
+// committed round 1 and run-4 the committed round 2, whose receipts were
+// committed after these tests were written and are replayed above. The
+// median-only rule failed both rounds, in opposite directions, because the
+// two arms drew different numbers of the page's low state (about 16 to 19,
+// 47 to 50, 160 to 166).
 const GUARDIAN_2026_11_METRICS = ["knownTrackerRequests", "shieldsBlockedRequests", "totalRequests"];
 const GUARDIAN_2026_11: Record<string, { baseline: number[][]; candidate: number[][] }> = {
   "run-2": { baseline: [[16, 48, 161], [17, 49, 166], [16, 48, 165]], candidate: [[16, 48, 161], [29, 68, 182], [26, 71, 186]] },
@@ -1000,21 +1061,39 @@ test("each 2026-11 guardian round is inconclusive on the metrics the median-only
   }
 });
 
-function compareFiles(baselineFile: string, candidateFile: string) {
-  return spawnSync(process.execPath, ["--no-warnings", path.join("scripts", "toolchain-canary.mjs"), "compare", "--baseline", baselineFile, "--candidate", candidateFile], {
+type Verb = "compare" | "replay";
+
+// The canary command on two receipt files, from the repository by default or
+// from another tree that holds a copy of the command.
+function compareFiles(baselineFile: string, candidateFile: string, verb: Verb = "compare", tree = process.cwd()) {
+  return spawnSync(process.execPath, ["--no-warnings", path.join(tree, "scripts", "toolchain-canary.mjs"), verb, "--baseline", baselineFile, "--candidate", candidateFile], {
     cwd: process.cwd(),
     encoding: "utf8"
   });
 }
 
-function compareConstructed(baseline: Receipt, candidate: Receipt) {
+// The receipts constructed in this file are on panel version 1. The compare
+// command reads them in a tree whose current panel is version 1, so the
+// tests of what it prints keep their case names when the repository's own
+// current panel changes.
+let treeOnPanelV1: string | undefined;
+after(() => {
+  if (treeOnPanelV1) rmSync(treeOnPanelV1, { recursive: true, force: true });
+});
+function panelV1Tree() {
+  const text = readFileSync(path.join(process.cwd(), PANEL_V1_FILE), "utf8");
+  treeOnPanelV1 ??= canaryTree(text, [{ name: "monthly-toolchain-canary-v1.json", text }]);
+  return treeOnPanelV1;
+}
+
+function compareConstructed(baseline: Receipt, candidate: Receipt, verb: Verb = "compare", tree = panelV1Tree()) {
   const directory = mkdtempSync(path.join(tmpdir(), "sbl-toolchain-canary-"));
   try {
     const baselineFile = path.join(directory, "baseline-receipt.json");
     const candidateFile = path.join(directory, "candidate-receipt.json");
     writeFileSync(baselineFile, JSON.stringify(baseline));
     writeFileSync(candidateFile, JSON.stringify(candidate));
-    return compareFiles(baselineFile, candidateFile);
+    return compareFiles(baselineFile, candidateFile, verb, tree);
   } finally {
     rmSync(directory, { recursive: true, force: true });
   }
@@ -1086,18 +1165,56 @@ test("the compare CLI exits 2, not 0 and not 1, when nothing fails and a metric 
     assert.deepEqual(printed(result.stdout), [RULE_LINE], round);
     assert.deepEqual(printed(result.stderr), expected, round);
   }
-  // The committed receipts as real inputs: the left-out metric and the noted
-  // losses still print, on stdout, ahead of the result line.
-  const committed: Array<[string, string, string[], string[]]> = [
-    ["toolchain-epoch-2026-09/baseline-receipt.json", "toolchain-epoch-2026-09/candidate-receipt.json", [
-      RULE_LINE,
-      LEFT_OUT_LINE,
-      GITHUB_NOTED_LINE
-    ], [
-      inconclusiveLine("guardian.knownTrackerRequests", "baseline runs 27, 30, 30 (spread 3), candidate runs 17, 27, 27 (spread 10), tolerance 9", "30 -> 27"),
-      inconclusiveResult("cd43c7bce9a980037a74f7ee2a05b722c2638b17 -> c8b189ac59f50121e6f1777dabe12ba4854f6090", "1 of 44", "guardian.knownTrackerRequests")
+});
+
+const REPLAY_TAIL = "This is a replay on the panel named in the REPLAY line, not a release comparison.";
+// A line as the replay command prints it: the compare command's line, marked.
+const replayed = (line: string) => `REPLAY ${line}`;
+const OTHER_PANEL_REFUSAL = (which: string) =>
+  `The ${which} receipt names committed panel monthly-toolchain-canary-v1 (version 1), which is not the current panel monthly-toolchain-canary-v2 (version 2). The compare command judges a release on the current panel only, and a release needs a fresh capture of both builds on that panel. To read these receipts against the panel they were captured with, run the replay command on the same two files: a replay is not a release comparison.`;
+const PANEL_V1_NAMED = "REPLAY on committed panel monthly-toolchain-canary-v1 (version 1, sha256 86fe39f8e4e75e9a2925c1849006909968b67bc507d2aec6cb688ce9cc22be29, scripts/fixtures/toolchain-canary-panels/monthly-toolchain-canary-v1.json), the panel both receipts carry.";
+const replayInconclusiveResult = (builds: string, share: string, metrics: string) =>
+  `REPLAY INCONCLUSIVE ${builds}: not a pass. No compared fixed-panel median failed, but for ${share} ${VARIED}, so the comparison says nothing about the toolchain for ${metrics}. ${REPLAY_TAIL}`;
+const BUILDS_2026_09 = "cd43c7bce9a980037a74f7ee2a05b722c2638b17 -> c8b189ac59f50121e6f1777dabe12ba4854f6090";
+const BUILDS_2026_10 = "f9d6c46e744c60a3485eba3951f0b168b9170941 -> 34d6847b54d804c449bed160a53129ca2e1f16ef";
+const BUILDS_2026_11 = "59402b6d47c05b767a81eb38ab6c30b0d88c696a -> 8c6a8fc5fdb056d84a2693fb38e08689cfbc179d";
+const GUARDIAN_PAIR = "guardian.knownTrackerRequests, guardian.shieldsBlockedRequests";
+// The five committed pairs with the result line each replays to.
+const COMMITTED_PAIRS: Array<[string, string, string]> = [
+  ["toolchain-epoch-2026-09/baseline-receipt.json", "toolchain-epoch-2026-09/candidate-receipt.json", replayInconclusiveResult(BUILDS_2026_09, "1 of 44", "guardian.knownTrackerRequests")],
+  ["toolchain-epoch-2026-10/round-1-baseline-receipt.json", "toolchain-epoch-2026-10/round-1-candidate-receipt.json", replayInconclusiveResult(BUILDS_2026_10, "3 of 44", "guardian.knownTrackerRequests, guardian.thirdPartyDomains, guardian.shieldsBlockedRequests")],
+  ["toolchain-epoch-2026-10/round-2-baseline-receipt.json", "toolchain-epoch-2026-10/round-2-candidate-receipt.json", replayInconclusiveResult(BUILDS_2026_10, "2 of 44", GUARDIAN_PAIR)],
+  ["toolchain-epoch-2026-11/round-1-baseline-receipt.json", "toolchain-epoch-2026-11/round-1-candidate-receipt.json", replayInconclusiveResult(BUILDS_2026_11, "2 of 45", GUARDIAN_PAIR)],
+  ["toolchain-epoch-2026-11/round-2-baseline-receipt.json", "toolchain-epoch-2026-11/round-2-candidate-receipt.json", replayInconclusiveResult(BUILDS_2026_11, "2 of 45", GUARDIAN_PAIR)]
+];
+
+test("the replay CLI reads each committed pair on the committed panel it carries, names that panel on its first line, marks its result line as a replay, and exits 2", async () => {
+  const h = await helpers;
+  const disk = await panelsOnDisk();
+  for (const [baselineFile, candidateFile, resultLine] of COMMITTED_PAIRS) {
+    const result = compareFiles(path.join("docs", baselineFile), path.join("docs", candidateFile), "replay");
+    assert.equal(result.status, 2, `${baselineFile}: ${result.stderr}`);
+    const stdout = printed(result.stdout);
+    // The first line is the one the library builds for the panel on disk, and
+    // whatever the current panel is it names panel version 1 and its file.
+    const selection = h.selectComparisonPanel({ replay: true, baseline: committedReceipt(baselineFile), candidate: committedReceipt(candidateFile), ...disk });
+    assert.equal(stdout[0], h.replayNotice(selection, disk.current), baselineFile);
+    assert.ok(stdout[0].startsWith(`${PANEL_V1_NAMED} `), baselineFile);
+    assert.equal(stdout[1], replayed(RULE_LINE), baselineFile);
+    assert.equal(printed(result.stderr).at(-1), resultLine, baselineFile);
+    // Every line a replay prints is marked, so none can be quoted as a line
+    // of a release comparison: the per-metric lines too, which are otherwise
+    // the lines the compare command prints.
+    assert.ok(stdout.length >= 2 && printed(result.stderr).length >= 2, baselineFile);
+    for (const line of [...stdout, ...printed(result.stderr)]) assert.match(line, /^REPLAY /, `${baselineFile}: ${line}`);
+  }
+  // Two pairs in full: the left-out metric and the noted losses still print,
+  // on stdout, between the rule and the result line.
+  const full: Array<[number, string[], string[]]> = [
+    [0, [RULE_LINE, LEFT_OUT_LINE, GITHUB_NOTED_LINE], [
+      inconclusiveLine("guardian.knownTrackerRequests", "baseline runs 27, 30, 30 (spread 3), candidate runs 17, 27, 27 (spread 10), tolerance 9", "30 -> 27")
     ]],
-    ["toolchain-epoch-2026-10/round-2-baseline-receipt.json", "toolchain-epoch-2026-10/round-2-candidate-receipt.json", [
+    [2, [
       RULE_LINE,
       LEFT_OUT_LINE,
       GITHUB_NOTED_LINE,
@@ -1105,15 +1222,14 @@ test("the compare CLI exits 2, not 0 and not 1, when nothing fails and a metric 
       "NOTED guardian: detector-output/dropped/consent-banner capture loss on 1 of 3 baseline and 0 of 3 candidate runs; recorded, not compared: its family feeds no canary metric"
     ], [
       inconclusiveLine("guardian.knownTrackerRequests", "baseline runs 27, 27, 17 (spread 10), candidate runs 34, 29, 27 (spread 7), tolerance 8.1", "27 -> 29"),
-      inconclusiveLine("guardian.shieldsBlockedRequests", "baseline runs 72, 71, 47 (spread 25), candidate runs 88, 76, 72 (spread 16), tolerance 21.3", "71 -> 76"),
-      inconclusiveResult("f9d6c46e744c60a3485eba3951f0b168b9170941 -> 34d6847b54d804c449bed160a53129ca2e1f16ef", "2 of 44", "guardian.knownTrackerRequests, guardian.shieldsBlockedRequests")
+      inconclusiveLine("guardian.shieldsBlockedRequests", "baseline runs 72, 71, 47 (spread 25), candidate runs 88, 76, 72 (spread 16), tolerance 21.3", "71 -> 76")
     ]]
   ];
-  for (const [baselineFile, candidateFile, stdout, stderr] of committed) {
-    const result = compareFiles(path.join("docs", baselineFile), path.join("docs", candidateFile));
-    assert.equal(result.status, 2, `${baselineFile}: ${result.stderr}`);
-    assert.deepEqual(printed(result.stdout), stdout, baselineFile);
-    assert.deepEqual(printed(result.stderr), stderr, baselineFile);
+  for (const [index, stdout, stderr] of full) {
+    const [baselineFile, candidateFile, resultLine] = COMMITTED_PAIRS[index];
+    const result = compareFiles(path.join("docs", baselineFile), path.join("docs", candidateFile), "replay");
+    assert.deepEqual(printed(result.stdout).slice(1), stdout.map(replayed), baselineFile);
+    assert.deepEqual(printed(result.stderr), [...stderr.map(replayed), resultLine], baselineFile);
   }
 });
 
@@ -1192,4 +1308,333 @@ test("the playbook names the comparison rule the compare command prints", async 
   const playbook = readFileSync(path.join(process.cwd(), "docs", "toolchain-epoch.md"), "utf8");
   assert.equal(RULE_LINE, `RULE ${h.COMPARISON_RULE}`);
   assert.ok(playbook.includes(`\`${h.COMPARISON_RULE}\``), "docs/toolchain-epoch.md must name the rule its results are judged by");
+});
+
+// ---------------------------------------------------------------------------
+// Committed panels and the replay path: a receipt is read against the panel
+// it was captured with, and a release comparison only on the current panel.
+// ---------------------------------------------------------------------------
+
+const PANEL_V1_DIGEST = "86fe39f8e4e75e9a2925c1849006909968b67bc507d2aec6cb688ce9cc22be29";
+const PANEL_V1_FILE_SHA256 = "01e2e919e379b86e3ae3773c74575cc795fd13f35583ae397f4c4d03fdf1f915";
+const COMMITTED_RECEIPTS = COMMITTED_PAIRS.flatMap(([baselineFile, candidateFile]) => [baselineFile, candidateFile]);
+
+// A panel that could follow version 1: bumble.com in the Guardian's place.
+// It stands in for the next panel in these tests and is committed nowhere.
+function panelAfterV1(): Panel {
+  const next = structuredClone(panel);
+  next.panelVersion = 2;
+  next.panelId = "monthly-toolchain-canary-v2";
+  next.cases[4] = { id: "bumble", catalog: "public/featured-sites.json", domain: "bumble.com", url: "https://bumble.com/" };
+  return next;
+}
+
+// The committed panels and the current panel as they are once that panel is
+// current: version 1 kept in the committed directory beside it.
+async function panelsAfterChange() {
+  const h = await helpers;
+  const next = panelAfterV1();
+  const committed = h.readCommittedPanels([
+    { name: "monthly-toolchain-canary-v1.json", text: readFileSync(path.join(process.cwd(), PANEL_V1_FILE), "utf8") },
+    { name: "monthly-toolchain-canary-v2.json", text: JSON.stringify(next) }
+  ]);
+  return { next, current: { panel: next, digest: h.panelDigest(next) }, committed };
+}
+
+test("panel version 1 is kept byte for byte in the committed directory, every committed receipt carries it, and the current panel is a committed panel", async () => {
+  const h = await helpers;
+  const { current, committed } = await panelsOnDisk();
+  assert.equal(h.COMMITTED_PANEL_DIRECTORY, COMMITTED_PANELS.split(path.sep).join("/"));
+  assert.equal(createHash("sha256").update(readFileSync(path.join(process.cwd(), PANEL_V1_FILE))).digest("hex"), PANEL_V1_FILE_SHA256);
+  const v1 = committed.find((entry) => entry.panel.panelVersion === 1);
+  assert.ok(v1);
+  assert.equal(v1.digest, PANEL_V1_DIGEST);
+  assert.equal(v1.digest, committedPanelDigest(h));
+  assert.equal(v1.file, "scripts/fixtures/toolchain-canary-panels/monthly-toolchain-canary-v1.json");
+  assert.equal(COMMITTED_RECEIPTS.length, 10);
+  for (const file of COMMITTED_RECEIPTS) {
+    const receipt = committedReceipt(file);
+    assert.equal(receipt.panelDigest, PANEL_V1_DIGEST, file);
+    assert.deepEqual(receipt.panel, v1.panel, file);
+  }
+  // The current panel file is the same bytes as its committed copy, so a
+  // receipt captured today stays readable when the current file changes.
+  h.assertCurrentPanelCommitted(current, committed);
+  assert.deepEqual(
+    readFileSync(path.join(process.cwd(), CURRENT_PANEL_FILE)),
+    readFileSync(path.join(process.cwd(), COMMITTED_PANELS, `${currentPanel.panelId}.json`))
+  );
+  const uncommitted = panelAfterV1();
+  assert.throws(
+    () => h.assertCurrentPanelCommitted({ panel: uncommitted, digest: h.panelDigest(uncommitted) }, committed.filter((entry) => entry.panel.panelVersion === 1)),
+    { message: "The current panel monthly-toolchain-canary-v2 is not committed under scripts/fixtures/toolchain-canary-panels. Commit it there as monthly-toolchain-canary-v2.json, so receipts captured on it stay readable after the panel changes." }
+  );
+});
+
+test("the committed panel directory refuses an empty set, a file that is no panel, a misnamed file and a repeated version", async () => {
+  const h = await helpers;
+  const v1 = { name: "monthly-toolchain-canary-v1.json", text: JSON.stringify(panel) };
+  const next = panelAfterV1();
+  const v2 = { name: "monthly-toolchain-canary-v2.json", text: JSON.stringify(next) };
+  const read = h.readCommittedPanels([v2, v1]);
+  assert.deepEqual(read.map((entry) => [entry.panel.panelId, entry.digest, entry.file]), [
+    ["monthly-toolchain-canary-v1", PANEL_V1_DIGEST, "scripts/fixtures/toolchain-canary-panels/monthly-toolchain-canary-v1.json"],
+    ["monthly-toolchain-canary-v2", h.panelDigest(next), "scripts/fixtures/toolchain-canary-panels/monthly-toolchain-canary-v2.json"]
+  ]);
+  const refusals: Array<[string, unknown, RegExp]> = [
+    ["no file", [], /holds no committed panel/],
+    ["not a list", undefined, /holds no committed panel/],
+    ["not JSON", [v1, { name: "monthly-toolchain-canary-v2.json", text: "{" }], /monthly-toolchain-canary-v2\.json is not JSON/],
+    ["not a panel", [v1, { name: "monthly-toolchain-canary-v2.json", text: "{}" }], /monthly-toolchain-canary-v2\.json is not a committed panel: Invalid toolchain canary panel\. /],
+    ["four cases", [{ name: v1.name, text: JSON.stringify({ ...panel, cases: panel.cases.slice(0, 4) }) }], /monthly-toolchain-canary-v1\.json is not a committed panel: The toolchain canary panel must contain exactly five sites\. /],
+    ["named for another panel", [{ name: "panel.json", text: v1.text }], /panel\.json must be named for its panelId/],
+    ["a version twice", [v1, { name: "monthly-toolchain-canary-v1b.json", text: JSON.stringify({ ...next, panelVersion: 1, panelId: "monthly-toolchain-canary-v1b" }) }], /repeats the version of another committed panel/],
+    ["the same file twice", [v1, { name: "monthly-toolchain-canary-v1.json", text: v1.text }], /repeats the version of another committed panel/],
+    ["an entry with no text", [{ name: v1.name }], /has an unreadable entry/]
+  ];
+  for (const [label, files, message] of refusals) assert.throws(() => h.readCommittedPanels(files), message, label);
+});
+
+test("a release comparison runs on the current panel only: it refuses a receipt of another committed panel and names the replay command", async () => {
+  const h = await helpers;
+  const { next, current, committed } = await panelsAfterChange();
+  const oldBaseline = committedReceipt("toolchain-epoch-2026-10/round-1-baseline-receipt.json");
+  const oldCandidate = committedReceipt("toolchain-epoch-2026-10/round-1-candidate-receipt.json");
+  const refusal = OTHER_PANEL_REFUSAL;
+  assert.throws(() => h.selectComparisonPanel({ replay: false, baseline: oldBaseline, candidate: oldCandidate, current, committed }), { message: refusal("baseline") });
+  // One old receipt beside one on the current panel is refused as well.
+  const newBaseline = await receipt("forward", "a".repeat(40), "149.0", 10, BASELINE_VERSIONS, next);
+  const newCandidate = await receipt("reverse", "b".repeat(40), "150.0", 11, CANDIDATE_VERSIONS, next);
+  assert.throws(() => h.selectComparisonPanel({ replay: false, baseline: newBaseline, candidate: oldCandidate, current, committed }), { message: refusal("candidate") });
+  assert.throws(() => h.selectComparisonPanel({ replay: false, baseline: oldBaseline, candidate: newCandidate, current, committed }), { message: refusal("baseline") });
+  // Two receipts on the current panel are compared on it.
+  const release = h.selectComparisonPanel({ replay: false, baseline: newBaseline, candidate: newCandidate, current, committed });
+  assert.deepEqual(release, { replay: false, panel: next, digest: current.digest });
+  assert.equal(h.compareReceipts(newBaseline, newCandidate, release.panel, release.digest).outcome, "pass");
+  // A receipt whose panel is no committed panel gets the current panel and
+  // the refusal the comparison has always given.
+  const strayCandidate = structuredClone(newCandidate);
+  strayCandidate.panelDigest = "0".repeat(64);
+  const stray = h.selectComparisonPanel({ replay: false, baseline: newBaseline, candidate: strayCandidate, current, committed });
+  assert.equal(stray.digest, current.digest);
+  assert.throws(() => h.compareReceipts(newBaseline, strayCandidate, stray.panel, stray.digest), { message: "Receipt does not use the committed fixed panel." });
+  // While version 1 is the current panel, its receipts are a release comparison.
+  const today = { panel, digest: PANEL_V1_DIGEST };
+  assert.deepEqual(h.selectComparisonPanel({ replay: false, baseline: oldBaseline, candidate: oldCandidate, current: today, committed }), { replay: false, panel, digest: PANEL_V1_DIGEST });
+});
+
+test("a replay runs on the committed panel both receipts carry, says whether that is the current panel, and refuses receipts of any other panel", async () => {
+  const h = await helpers;
+  const { next, current, committed } = await panelsAfterChange();
+  const oldBaseline = committedReceipt("toolchain-epoch-2026-10/round-1-baseline-receipt.json");
+  const oldCandidate = committedReceipt("toolchain-epoch-2026-10/round-1-candidate-receipt.json");
+  const selection = h.selectComparisonPanel({ replay: true, baseline: oldBaseline, candidate: oldCandidate, current, committed });
+  assert.deepEqual(selection, { replay: true, panel, digest: PANEL_V1_DIGEST, file: "scripts/fixtures/toolchain-canary-panels/monthly-toolchain-canary-v1.json", current: false });
+  assert.equal(h.compareReceipts(oldBaseline, oldCandidate, selection.panel, selection.digest).outcome, "inconclusive");
+  assert.equal(
+    h.replayNotice(selection, current),
+    `${PANEL_V1_NAMED} It is not the current panel, which is monthly-toolchain-canary-v2 (version 2). A replay is not a release comparison: that is the compare command, on the current panel.`
+  );
+  // While version 1 is still the current panel the replay says that instead.
+  const today = { panel, digest: PANEL_V1_DIGEST };
+  const sameAsCurrent = h.selectComparisonPanel({ replay: true, baseline: oldBaseline, candidate: oldCandidate, current: today, committed });
+  assert.equal(sameAsCurrent.current, true);
+  assert.equal(h.replayNotice(sameAsCurrent, today), `${PANEL_V1_NAMED} It is also the current panel. A replay is not a release comparison: that is the compare command.`);
+  assert.throws(() => h.replayNotice(h.selectComparisonPanel({ replay: false, baseline: oldBaseline, candidate: oldCandidate, current: today, committed }), today), /Only a replay prints a replay notice/);
+
+  const refused = { message: "The replay command reads two receipts that both carry the same committed panel from scripts/fixtures/toolchain-canary-panels. One of these carries another panel, or the two carry different ones." };
+  const newCandidate = await receipt("reverse", "b".repeat(40), "150.0", 11, CANDIDATE_VERSIONS, next);
+  const edits: Array<[string, (pair: { baseline: Receipt; candidate: Receipt }) => void]> = [
+    ["a baseline digest that names no committed panel", ({ baseline }) => { baseline.panelDigest = "0".repeat(64); }],
+    ["a candidate digest that names no committed panel", ({ candidate }) => { candidate.panelDigest = "0".repeat(64); }],
+    ["two different committed panels", (pair) => { pair.candidate = newCandidate; }],
+    ["a committed digest over another baseline panel", ({ baseline }) => { baseline.panel.repetitions = 5; }],
+    ["a committed digest over another candidate panel", ({ candidate }) => { candidate.panel.cases[0].url = "https://example.org/"; }],
+    ["a baseline with no panel", ({ baseline }) => { delete baseline.panel; }],
+    ["no candidate", (pair) => { pair.candidate = null as unknown as Receipt; }],
+    ["no baseline", (pair) => { pair.baseline = undefined as unknown as Receipt; }]
+  ];
+  for (const [label, edit] of edits) {
+    const pair = { baseline: structuredClone(oldBaseline), candidate: structuredClone(oldCandidate) };
+    edit(pair);
+    assert.throws(() => h.selectComparisonPanel({ replay: true, ...pair, current, committed }), refused, label);
+  }
+});
+
+// A copy of the canary command in a tree of its own. The command finds its
+// panels beside itself, so the tree decides which panel is current.
+function canaryTree(currentText: string, committedFiles: Array<{ name: string; text: string }>) {
+  // The command resolves its own location through any symbolic link, so the
+  // tree is named by its real path.
+  const tree = realpathSync(mkdtempSync(path.join(tmpdir(), "sbl-toolchain-canary-tree-")));
+  const place = (relative: string, text: string) => {
+    mkdirSync(path.dirname(path.join(tree, relative)), { recursive: true });
+    writeFileSync(path.join(tree, relative), text);
+  };
+  for (const relative of [
+    "scripts/toolchain-canary.mjs",
+    "scripts/toolchain-canary-lib.mjs",
+    "scripts/scan-admission.mjs",
+    "scripts/http-response.mjs",
+    "lib/strict-json.ts",
+    "public/featured-sites.json",
+    "public/corpus-seed-sites.json"
+  ]) {
+    mkdirSync(path.dirname(path.join(tree, relative)), { recursive: true });
+    copyFileSync(path.join(process.cwd(), relative), path.join(tree, relative));
+  }
+  symlinkSync(path.join(process.cwd(), "node_modules"), path.join(tree, "node_modules"), "dir");
+  place(CURRENT_PANEL_FILE, currentText);
+  for (const file of committedFiles) place(path.join(COMMITTED_PANELS, file.name), file.text);
+  return tree;
+}
+
+test("once the current panel has moved on, the compare CLI refuses the committed receipts with exit 1 and the replay CLI still reads them, on a panel it says is not the current one", async () => {
+  const h = await helpers;
+  const next = panelAfterV1();
+  const v1Text = readFileSync(path.join(process.cwd(), PANEL_V1_FILE), "utf8");
+  const tree = canaryTree(JSON.stringify(next), [
+    { name: "monthly-toolchain-canary-v1.json", text: v1Text },
+    { name: "monthly-toolchain-canary-v2.json", text: JSON.stringify(next) }
+  ]);
+  try {
+    for (const [baselineFile, candidateFile, resultLine] of COMMITTED_PAIRS) {
+      const files: [string, string] = [path.join("docs", baselineFile), path.join("docs", candidateFile)];
+      const release = compareFiles(...files, "compare", tree);
+      assert.equal(release.status, 1, baselineFile);
+      assert.equal(release.stdout, "", baselineFile);
+      assert.deepEqual(printed(release.stderr), [`FAIL ${OTHER_PANEL_REFUSAL("baseline")}`], baselineFile);
+      const again = compareFiles(...files, "replay", tree);
+      assert.equal(again.status, 2, `${baselineFile}: ${again.stderr}`);
+      assert.equal(
+        printed(again.stdout)[0],
+        `${PANEL_V1_NAMED} It is not the current panel, which is monthly-toolchain-canary-v2 (version 2). A replay is not a release comparison: that is the compare command, on the current panel.`,
+        baselineFile
+      );
+      assert.equal(printed(again.stdout)[1], replayed(RULE_LINE), baselineFile);
+      assert.equal(printed(again.stderr).at(-1), resultLine, baselineFile);
+    }
+    // The release comparison on the new panel is the compare command, and its
+    // result line carries no replay mark.
+    const baseline = await receipt("forward", "a".repeat(40), "149.0", 10, BASELINE_VERSIONS, next);
+    const candidate = await receipt("reverse", "b".repeat(40), "150.0", 11, CANDIDATE_VERSIONS, next);
+    const release = compareConstructed(baseline, candidate, "compare", tree);
+    assert.equal(release.status, 0, release.stderr);
+    assert.deepEqual(printed(release.stdout), [RULE_LINE, `PASS ${CONSTRUCTED_BUILDS}: all 45 compared fixed-panel medians are within tolerance.`]);
+    // A replay of the same pair says it is one, on every result it can give.
+    const passed = compareConstructed(baseline, candidate, "replay", tree);
+    assert.equal(passed.status, 0, passed.stderr);
+    assert.deepEqual(printed(passed.stdout), [
+      `REPLAY on committed panel monthly-toolchain-canary-v2 (version 2, sha256 ${h.panelDigest(next)}, scripts/fixtures/toolchain-canary-panels/monthly-toolchain-canary-v2.json), the panel both receipts carry. It is also the current panel. A replay is not a release comparison: that is the compare command.`,
+      replayed(RULE_LINE),
+      `REPLAY PASS ${CONSTRUCTED_BUILDS}: all 45 compared fixed-panel medians are within tolerance. ${REPLAY_TAIL}`
+    ]);
+    const failing = structuredClone(candidate);
+    for (const entry of failing.runs) if (entry.caseId === "bumble") entry.counts.cookies = 40;
+    const failed = compareConstructed(baseline, failing, "replay", tree);
+    assert.equal(failed.status, 1, failed.stderr);
+    assert.deepEqual(printed(failed.stderr), [
+      "REPLAY FAIL bumble.cookies: median 10 -> 40; delta 30 > 4; every run of one build differs from every run of the other by more than the tolerance (the nearest two by 30): baseline runs 10, 10, 10, candidate runs 40, 40, 40",
+      `REPLAY FAIL ${CONSTRUCTED_BUILDS}: 1 of 45 compared fixed-panel medians failed. ${REPLAY_TAIL}`
+    ]);
+    // The same pair under compare fails with the lines a release reads, unmarked.
+    const releaseFailed = compareConstructed(baseline, failing, "compare", tree);
+    assert.equal(releaseFailed.status, 1, releaseFailed.stderr);
+    assert.deepEqual(printed(releaseFailed.stderr), [
+      "FAIL bumble.cookies: median 10 -> 40; delta 30 > 4; every run of one build differs from every run of the other by more than the tolerance (the nearest two by 30): baseline runs 10, 10, 10, candidate runs 40, 40, 40",
+      "FAIL Toolchain canary metric tolerances failed."
+    ]);
+    // A replay that is inconclusive, with a loss left out and a loss noted, marks those lines too.
+    const unsteady = structuredClone(candidate);
+    for (const entry of unsteady.runs) if (entry.caseId === "bumble") entry.counts.cookies = [11, 11, 30][entry.repetition - 1];
+    for (const target of [baseline, unsteady]) {
+      withLoss(target, "bumble", METRIC_LOSSES[3]);
+      withLoss(target, "github", { family: "detector-output", kind: "truncated", detail: "keystroke-probe-capture", count: 1, phaseId: 1 });
+    }
+    const inconclusive = compareConstructed(baseline, unsteady, "replay", tree);
+    assert.equal(inconclusive.status, 2, inconclusive.stderr);
+    assert.deepEqual(printed(inconclusive.stdout).slice(1), [
+      replayed(RULE_LINE),
+      "REPLAY LEFT OUT bumble.fingerprintEvents: every run of both builds records fingerprinting capture loss",
+      replayed(GITHUB_NOTED_LINE)
+    ]);
+    assert.deepEqual(printed(inconclusive.stderr), [
+      "REPLAY INCONCLUSIVE bumble.cookies: baseline runs 10, 10, 10 (spread 0), candidate runs 11, 11, 30 (spread 19), tolerance 4; the page varied within one build by more than the tolerance, so medians 10 -> 11 say nothing about the toolchain for this metric",
+      `REPLAY INCONCLUSIVE ${CONSTRUCTED_BUILDS}: not a pass. No compared fixed-panel median failed, but for 1 of 44 ${VARIED}, so the comparison says nothing about the toolchain for bumble.cookies. ${REPLAY_TAIL}`
+    ]);
+    // A pair on no committed panel is refused by the replay as well.
+    const stray = structuredClone(candidate);
+    stray.panelDigest = "0".repeat(64);
+    const refused = compareConstructed(baseline, stray, "replay", tree);
+    assert.equal(refused.status, 1);
+    assert.equal(refused.stdout, "");
+    assert.deepEqual(printed(refused.stderr), ["REPLAY FAIL The replay command reads two receipts that both carry the same committed panel from scripts/fixtures/toolchain-canary-panels. One of these carries another panel, or the two carry different ones."]);
+  } finally {
+    rmSync(tree, { recursive: true, force: true });
+  }
+});
+
+test("no canary command runs on a current panel that is not also a committed panel", async () => {
+  const next = panelAfterV1();
+  const tree = canaryTree(JSON.stringify(next), [{ name: "monthly-toolchain-canary-v1.json", text: readFileSync(path.join(process.cwd(), PANEL_V1_FILE), "utf8") }]);
+  try {
+    const message = "FAIL The current panel monthly-toolchain-canary-v2 is not committed under scripts/fixtures/toolchain-canary-panels. Commit it there as monthly-toolchain-canary-v2.json, so receipts captured on it stay readable after the panel changes.";
+    const [baselineFile, candidateFile] = COMMITTED_PAIRS[0];
+    for (const verb of ["compare", "replay"] as const) {
+      const result = compareFiles(path.join("docs", baselineFile), path.join("docs", candidateFile), verb, tree);
+      assert.equal(result.status, 1, verb);
+      assert.equal(result.stdout, "", verb);
+      assert.deepEqual(printed(result.stderr), [verb === "replay" ? replayed(message) : message], verb);
+    }
+  } finally {
+    rmSync(tree, { recursive: true, force: true });
+  }
+});
+
+test("a file in the committed panel directory that is not a panel stops every command, by name and with what to do", async () => {
+  const h = await helpers;
+  const v1Text = readFileSync(path.join(process.cwd(), PANEL_V1_FILE), "utf8");
+  const directory = "scripts/fixtures/toolchain-canary-panels";
+  const nothingElse = `${directory} holds committed panel files and nothing else, and no canary command runs while it holds anything it cannot read.`;
+  // [the stray file, the refusal]: a file that is not JSON, and one that is JSON and no panel.
+  const strays: Array<[{ name: string; text: string }, string]> = [
+    [{ name: ".DS_Store", text: "\u0000\u0000\u0000\u0001Bud1" }, `${directory}/.DS_Store is not JSON. Remove it: ${nothingElse}`],
+    [{ name: "notes.json", text: "{}" }, `${directory}/notes.json is not a committed panel: Invalid toolchain canary panel. ${nothingElse} Remove the file if it was never a committed panel, and restore it from git if it was.`]
+  ];
+  for (const [stray, message] of strays) {
+    assert.throws(() => h.readCommittedPanels([{ name: "monthly-toolchain-canary-v1.json", text: v1Text }, stray]), { message });
+    const tree = canaryTree(v1Text, [{ name: "monthly-toolchain-canary-v1.json", text: v1Text }, stray]);
+    try {
+      const [baselineFile, candidateFile] = COMMITTED_PAIRS[0];
+      for (const verb of ["compare", "replay"] as const) {
+        const result = compareFiles(path.join("docs", baselineFile), path.join("docs", candidateFile), verb, tree);
+        assert.equal(result.status, 1, verb);
+        assert.equal(result.stdout, "", verb);
+        assert.deepEqual(printed(result.stderr), [verb === "replay" ? `REPLAY FAIL ${message}` : `FAIL ${message}`], verb);
+      }
+    } finally {
+      rmSync(tree, { recursive: true, force: true });
+    }
+  }
+});
+
+test("a replay that is refused for its options says so on a marked line, and a release comparison on an unmarked one", () => {
+  const [baselineFile] = COMMITTED_PAIRS[0];
+  const baseline = path.join("docs", baselineFile);
+  // [what is wrong, the options, the refusal]
+  const refusals: Array<[string, string[], string]> = [
+    ["an option the command does not take", ["--bogus", "x"], "Invalid or duplicate option --bogus."],
+    ["an option given twice", ["--baseline", baseline, "--baseline", baseline], "Invalid or duplicate option --baseline."],
+    ["an option with no value", ["--baseline"], "Invalid or duplicate option --baseline."],
+    ["no candidate", ["--baseline", baseline], "Missing --candidate."],
+    ["no option at all", [], "Missing --baseline."]
+  ];
+  for (const [label, options, message] of refusals) {
+    for (const verb of ["compare", "replay"] as const) {
+      const result = spawnSync(process.execPath, ["--no-warnings", path.join(process.cwd(), "scripts", "toolchain-canary.mjs"), verb, ...options], { cwd: process.cwd(), encoding: "utf8" });
+      assert.equal(result.status, 1, `${verb}: ${label}`);
+      assert.equal(result.stdout, "", `${verb}: ${label}`);
+      assert.deepEqual(printed(result.stderr), [verb === "replay" ? `REPLAY FAIL ${message}` : `FAIL ${message}`], `${verb}: ${label}`);
+    }
+  }
 });

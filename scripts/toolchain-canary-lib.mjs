@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+
 export const CANARY_ORIGIN = "https://scan-staging.sitebehavior.org";
 export const CANARY_CONFIRMATION = "I_ACKNOWLEDGE_THIS_SUBMITS_LIVE_STAGING_SCANS";
 export const RECEIPT_VERSION = 2;
@@ -8,6 +10,14 @@ export const RECEIPT_VERSION = 2;
  * is fixed before that capture runs.
  */
 export const PANEL_VERSIONS = Object.freeze([1, 2]);
+/**
+ * Every comparison panel a receipt may carry is committed here, one file per
+ * panel, named for its panelId: the current panel and each panel before it.
+ * The replay command reads a receipt against the panel it was captured with
+ * from this directory, so a receipt stays readable after the current panel
+ * (scripts/fixtures/toolchain-canary-panel.json) moves on.
+ */
+export const COMMITTED_PANEL_DIRECTORY = "scripts/fixtures/toolchain-canary-panels";
 export const METRICS = Object.freeze([
   "totalRequests",
   "thirdPartyRequests",
@@ -64,6 +74,7 @@ export const METRIC_FEEDING_FAMILIES = Object.freeze([...new Set(Object.values(M
  */
 export const COMPARISON_RULE = "median-with-within-arm-spread-v2";
 
+const SLUG = /^[a-z0-9-]+$/;
 const SHA40 = /^[0-9a-f]{40}$/;
 const SHA256 = /^[0-9a-f]{64}$/;
 const REPORT_ID = /^[0-9]{8}-[0-9a-f]{32}$/;
@@ -79,9 +90,10 @@ const requireValue = (condition, message) => {
 };
 
 /**
- * Key-sorted JSON for COMPARING two in-memory canary panels. Deliberately not
- * the published canonicalizer in lib/canonical-json.ts: nothing here is
- * digested or stored, so it carries no NFC or non-finite rules. It is named
+ * Key-sorted JSON for COMPARING two in-memory canary values and, through
+ * panelDigest, for naming a panel inside a canary receipt. Deliberately not
+ * the published canonicalizer in lib/canonical-json.ts: no published report
+ * is digested with it, so it carries no NFC or non-finite rules. It is named
  * apart so the two can never be mistaken for one contract.
  */
 export function stableCompareJson(value) {
@@ -173,6 +185,108 @@ export function assertPanelCatalogMembership(panel, catalogs) {
     requireValue(record(catalog) && Array.isArray(catalog.sites), `Could not read ${entry.catalog}.`);
     requireValue(catalog.sites.some((site) => site?.domain === entry.domain && site?.url === entry.url), `Panel case ${entry.id} is not pinned exactly in ${entry.catalog}.`);
   }
+}
+
+/**
+ * The digest a receipt names its panel by: SHA-256 over the key-sorted JSON
+ * of the panel, so the layout of a panel file does not move it.
+ */
+export function panelDigest(panel) {
+  return createHash("sha256").update(stableCompareJson(panel)).digest("hex");
+}
+
+/**
+ * The committed panels, from the entries of COMMITTED_PANEL_DIRECTORY as
+ * { name, text } pairs. Each file must hold one valid comparison panel and be
+ * named for its panelId, and no two may share a version. The digest covers
+ * the version, so a receipt's panel digest names at most one of them. Any
+ * other entry, a stray system file included, is refused by name: a directory
+ * that is read whole must hold nothing that was not put there on purpose.
+ */
+export function readCommittedPanels(files) {
+  requireValue(Array.isArray(files) && files.length > 0, `${COMMITTED_PANEL_DIRECTORY} holds no committed panel.`);
+  const panels = [];
+  for (const file of [...files].sort((left, right) => (left?.name < right?.name ? -1 : left?.name > right?.name ? 1 : 0))) {
+    requireValue(record(file) && typeof file.name === "string" && typeof file.text === "string", `${COMMITTED_PANEL_DIRECTORY} has an unreadable entry.`);
+    const where = `${COMMITTED_PANEL_DIRECTORY}/${file.name}`;
+    let parsed;
+    try {
+      parsed = JSON.parse(file.text);
+    } catch {
+      throw new Error(`${where} is not JSON. Remove it: ${COMMITTED_PANEL_DIRECTORY} holds committed panel files and nothing else, and no canary command runs while it holds anything it cannot read.`);
+    }
+    let panel;
+    try {
+      panel = assertPanel(parsed);
+    } catch (error) {
+      throw new Error(`${where} is not a committed panel: ${error instanceof Error ? error.message : "It could not be read."} ${COMMITTED_PANEL_DIRECTORY} holds committed panel files and nothing else, and no canary command runs while it holds anything it cannot read. Remove the file if it was never a committed panel, and restore it from git if it was.`);
+    }
+    requireValue(SLUG.test(panel.panelId) && file.name === `${panel.panelId}.json`, `${where} must be named for its panelId.`);
+    requireValue(!panels.some((entry) => entry.panel.panelVersion === panel.panelVersion), `${where} repeats the version of another committed panel.`);
+    panels.push(Object.freeze({ panel, digest: panelDigest(panel), file: where }));
+  }
+  return Object.freeze(panels);
+}
+
+/**
+ * The current panel must be one of the committed panels. A receipt captured
+ * on a panel that is kept nowhere else could not be replayed once the current
+ * panel file changes, so no command runs on such a panel.
+ */
+export function assertCurrentPanelCommitted(current, committed) {
+  requireValue(
+    committed.some((entry) => entry.digest === current.digest),
+    `The current panel ${current.panel.panelId} is not committed under ${COMMITTED_PANEL_DIRECTORY}. Commit it there as ${current.panel.panelId}.json, so receipts captured on it stay readable after the panel changes.`
+  );
+}
+
+/**
+ * The panel a comparison of two receipts runs on.
+ *
+ * A release comparison (replay false) runs on the current panel and nothing
+ * else. A receipt that names another committed panel is refused here with the
+ * command that does read it, so a comparison on a retired panel cannot come
+ * out of the command a release decision reads. A receipt whose panel is no
+ * committed panel at all gets the current panel back, and compareReceipts
+ * then refuses it as it always has.
+ *
+ * A replay (replay true) runs on the committed panel both receipts carry,
+ * whichever that is, and refuses receipts that carry none or that carry two
+ * different ones. `current` in the result says whether that panel is also
+ * the current one, which it is until the current panel file changes.
+ */
+export function selectComparisonPanel({ replay, baseline, candidate, current, committed }) {
+  const receipts = [["baseline", baseline], ["candidate", candidate]];
+  const named = (receipt) => committed.find((entry) => record(receipt) && entry.digest === receipt.panelDigest);
+  if (!replay) {
+    for (const [label, receipt] of receipts) {
+      const entry = named(receipt);
+      requireValue(
+        !entry || entry.digest === current.digest,
+        `The ${label} receipt names committed panel ${entry?.panel.panelId} (version ${entry?.panel.panelVersion}), which is not the current panel ${current.panel.panelId} (version ${current.panel.panelVersion}). The compare command judges a release on the current panel only, and a release needs a fresh capture of both builds on that panel. To read these receipts against the panel they were captured with, run the replay command on the same two files: a replay is not a release comparison.`
+      );
+    }
+    return { replay: false, panel: current.panel, digest: current.digest };
+  }
+  const entry = named(baseline);
+  requireValue(
+    entry && record(candidate) && candidate.panelDigest === entry.digest && record(baseline.panel) && record(candidate.panel) && same(baseline.panel, entry.panel) && same(candidate.panel, entry.panel),
+    `The replay command reads two receipts that both carry the same committed panel from ${COMMITTED_PANEL_DIRECTORY}. One of these carries another panel, or the two carry different ones.`
+  );
+  return { replay: true, panel: entry.panel, digest: entry.digest, file: entry.file, current: entry.digest === current.digest };
+}
+
+/**
+ * The first line a replay prints. It names the panel the replay ran on and
+ * says whether that is the current panel, so its result cannot be read as a
+ * release comparison, which only the compare command produces.
+ */
+export function replayNotice(selection, current) {
+  requireValue(selection?.replay === true, "Only a replay prints a replay notice.");
+  const used = `${selection.panel.panelId} (version ${selection.panel.panelVersion}, sha256 ${selection.digest}, ${selection.file})`;
+  return selection.current
+    ? `REPLAY on committed panel ${used}, the panel both receipts carry. It is also the current panel. A replay is not a release comparison: that is the compare command.`
+    : `REPLAY on committed panel ${used}, the panel both receipts carry. It is not the current panel, which is ${current.panel.panelId} (version ${current.panel.panelVersion}). A replay is not a release comparison: that is the compare command, on the current panel.`;
 }
 
 function assertCompleteRun(run, expectedBuild, { allowUnrecordedPlaywright = false } = {}) {
