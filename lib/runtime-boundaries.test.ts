@@ -347,6 +347,80 @@ test("each module that refuses a seam visit imports its helper from the module t
   }
 });
 
+/**
+ * docs/runtime-boundaries.md states the set of refusing steps as a table: the
+ * functions that refuse, and the test that holds each. A list kept in a
+ * document goes stale without a failure, so this reads it against the code,
+ * both ways.
+ */
+function refusingSteps(docs: string): { functions: string[]; tests: string[] }[] {
+  const lines = docs.split("\n");
+  const head = lines.findIndex((line) => line.startsWith("| Step | Answer for a marked input |"));
+  if (head === -1) return [];
+  const steps: { functions: string[]; tests: string[] }[] = [];
+  for (let index = head + 2; index < lines.length && lines[index].startsWith("|"); index += 1) {
+    const cells = lines[index].split("|").slice(1, -1);
+    steps.push({
+      functions: [...(cells[0] ?? "").matchAll(/`([A-Za-z0-9_$]+)`/g)].map((match) => match[1]),
+      tests: [...(cells[cells.length - 1] ?? "").matchAll(/"([^"]+)"/g)].map((match) => match[1])
+    });
+  }
+  return steps;
+}
+
+/** Each top-level function of a file that calls one of the seam's helpers, anywhere inside it. */
+function functionsCallingSeamHelpers(fileName: string, source: string, helpers: readonly string[]): string[] {
+  const calling: string[] = [];
+  for (const statement of ts.createSourceFile(fileName, source, ts.ScriptTarget.Latest, true).statements) {
+    let calls = false;
+    const visit = (node: ts.Node): void => {
+      if (ts.isCallExpression(node) && ts.isIdentifier(node.expression) && helpers.includes(node.expression.text)) calls = true;
+      ts.forEachChild(node, visit);
+    };
+    visit(statement);
+    if (!calls) continue;
+    calling.push(ts.isFunctionDeclaration(statement) && statement.name ? statement.name.text : `a statement that is no named function (${statement.getText().slice(0, 40)})`);
+  }
+  return calling.sort();
+}
+
+test("the documented set of refusing steps is the set of functions that call the seam's helpers, and names tests that exist", async () => {
+  const docsFile = "docs/runtime-boundaries.md";
+  const steps = refusingSteps(await readFile(path.join(PROJECT_ROOT, docsFile), "utf8"));
+  assert.ok(steps.length >= 8, `${docsFile} lists ${steps.length} refusing steps, so its table was not read`);
+  const documented = steps.flatMap((step) => step.functions).sort();
+  assert.equal(new Set(documented).size, documented.length, "one function is listed as two steps");
+
+  const calling: string[] = [];
+  for (const [file, helpers] of Object.entries(SEAM_HELPER_USERS)) {
+    const found = functionsCallingSeamHelpers(file, await readFile(path.join(PROJECT_ROOT, file), "utf8"), helpers);
+    assert.notDeepEqual(found, [], `${file} is listed as refusing and no function of it calls a helper`);
+    calling.push(...found);
+  }
+  assert.deepEqual(documented, calling.sort(), `${docsFile} must list exactly the functions that call a helper of lib/seam-visit-mark.ts`);
+
+  const testNames = [...(await readFile(path.join(PROJECT_ROOT, "lib/investigation-seam.test.ts"), "utf8")).matchAll(/^test\("((?:[^"\\]|\\.)*)"/gm)].map((match) => match[1]);
+  assert.ok(testNames.length > 20, "the seam's test names were not read");
+  for (const step of steps) {
+    assert.notDeepEqual(step.tests, [], `${step.functions.join(", ")} is listed with no test`);
+    for (const named of step.tests) {
+      assert.equal(testNames.filter((name) => name.startsWith(named)).length, 1, `${docsFile} names a test that lib/investigation-seam.test.ts does not have exactly once: ${named}`);
+    }
+  }
+
+  // The reading finds what it must: a helper call inside a closure counts for
+  // the function around it, one outside any named function is reported, and a
+  // row's functions and tests are read from its first and last cells.
+  assert.deepEqual(
+    functionsCallingSeamHelpers("x.ts", "export async function outer() { const inner = async () => { refuseSeamVisit(1, 'x'); }; }\nfunction quiet() { other(); }", ["refuseSeamVisit"]),
+    ["outer"]
+  );
+  assert.match(functionsCallingSeamHelpers("x.ts", "export const read = (value: unknown) => isSeamVisit(value);", ["isSeamVisit"])[0], /no named function/);
+  assert.deepEqual(refusingSteps("| Step | Answer for a marked input | What | Test |\n|---|---|---|---|\n| `one`, `two` | Throws. | `notAStep` | \"a test\", \"another\" |\n\nprose"), [
+    { functions: ["one", "two"], tests: ["a test", "another"] }
+  ]);
+});
+
 test("no client file statically imports its way to the mark's module", async () => {
   // The redactor that calls the mark's check reaches the browser only in
   // chunks loaded on demand. A static import of it from a client file would

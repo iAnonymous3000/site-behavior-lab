@@ -28,10 +28,14 @@ import { sha256Hex } from "./sha256";
  * its result and its measurement are remembered. In band: the result and the
  * measurement each carry one key, SEAM_VISIT_MARKER, which a
  * structured clone, a JSON copy and an object spread all keep. The scan API,
- * both runtime report builders, the report saver, the shadow store and the
- * v1 redactor refuse a value that carries either, on itself or on a
- * top-level member (refuseSeamVisit). The mark and that check live in
- * lib/seam-visit-mark.ts, which the redactor can import wherever it runs.
+ * both runtime report builders, the report saver, the shadow store, the v1
+ * redactor and the v1 public projector refuse a value that carries either
+ * (refuseSeamVisit); the transport reader and the stored-report reader
+ * decline one as they decline anything that is not a report. Where on a
+ * value the check looks, and where it does not, is stated at isSeamVisit in
+ * lib/seam-visit-mark.ts, which those modules can import wherever they run.
+ * The list of refusing steps, with what goes through each, is in
+ * docs/runtime-boundaries.md.
  *
  * What the mark does not survive is a caller who removes it on purpose: one
  * who deletes the key from a copy, or one who builds a new object by hand
@@ -66,10 +70,16 @@ export type InvestigationSeamFrameValue = { url: string; isMain: boolean; value:
 export type InvestigationSeam = {
   /**
    * Receive the visit's page while it is still about:blank, before the
-   * scanner installs its fingerprint observer, its routes and its recorders,
-   * and before it navigates. Awaited inside the visit's own scan deadline, so
-   * the time it takes comes out of the time the visit has to load its page.
-   * The page is the visit's own: nothing limits what the hook does with it.
+   * scanner installs its fingerprint observer, its routes, its request and
+   * response recorders and its popup closer, and before it navigates.
+   * Already installed then: the bounded page collector, the crash listener,
+   * the attribution session with its handler for Network.requestWillBeSent,
+   * the request listener that feeds the initiator index, the worker witness
+   * and the worker realm channel. So a request a hook causes here is in no
+   * request log and passes no page route, and is still counted by the
+   * initiator index. Awaited inside the visit's own scan deadline, so the
+   * time it takes comes out of the time the visit has to load its page. The
+   * page is the visit's own: nothing limits what the hook does with it.
    */
   pageReady?: (page: Page) => void | Promise<void>;
   /**
@@ -89,7 +99,7 @@ export type InvestigationSeam = {
    */
   finalFingerprintRead?: (collection: FingerprintObservationCollection) => void;
   /**
-   * Called once the visit's result is built and frozen, before a check after
+   * Called once the visit's result and envelope are built, before a check after
    * scrolling begins and before the visit closes its page. Awaited, for at
    * most afterEnvelopeTimeoutMs.
    */

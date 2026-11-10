@@ -1426,8 +1426,13 @@ async function scanSiteWithMeasurementOnLeasedBrowser(
     // producer-owned and must never be replaced with page testimony.
     const configuredUserAgent = await withSetupTimeout(page.evaluate(() => navigator.userAgent), started);
     if (seam !== null) {
-      // The page is still about:blank and the scanner's own DevTools clients
-      // are attached; its observer, routes and recorders are not yet set up.
+      // The page is still about:blank. Set up above: the bounded collector,
+      // the crash listener, the attribution session and the request listener
+      // that feeds its index, the worker witness and the worker realm
+      // channel. Not yet set up: the fingerprint observer in documents, the
+      // routes, the request and response recorders and the popup closer. So a
+      // request a hook causes here is in no request log and passes no route,
+      // and the initiator index still counts it.
       // The seam's init script is added here, before the observer's, so the
       // observer stays the outermost wrapper in each document and what it
       // records of a caller gains no frame. Both steps run inside the scan
@@ -3886,8 +3891,10 @@ async function scanSiteWithMeasurementOnLeasedBrowser(
           })
         : null;
     if (seam !== null && seamReads !== null) {
-      // The result above is built and frozen, so nothing a hook does from
-      // here can reach it. The page, its routes and the proxy are still up.
+      // The result and its envelope are built above. The hook is handed
+      // readings and holds no reference to either, which is why nothing it
+      // does from here can reach them; the result object is not frozen. The
+      // page, its routes and the proxy are still up.
       await seam.afterEnvelope(seamReads.readings, options.signal);
     }
     if (scrollCheck) {
