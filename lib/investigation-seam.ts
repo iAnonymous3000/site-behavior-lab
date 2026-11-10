@@ -7,10 +7,8 @@ import {
 import type { PublicScanProxyDiagnostics } from "./public-scan-proxy";
 import { scanAbortError, type ScanRequestBudgetDiagnostics } from "./scan-runtime";
 import { SCROLL_CHECK_DEADLINE_MARGIN_MS, type ScrollCheckBoundary } from "./scroll-check";
-import { rememberSeamVisit, SEAM_VISIT_MARKER, SeamVisitRefusal } from "./seam-visit-mark";
+import { rememberSeamVisit, SEAM_VISIT_MARKER } from "./seam-visit-mark";
 import { sha256Hex } from "./sha256";
-
-export { isSeamVisit, refuseSeamVisit, SeamVisitRefusal } from "./seam-visit-mark";
 
 /**
  * The scanner's investigation seam: an optional connection a private capture
@@ -28,7 +26,7 @@ export { isSeamVisit, refuseSeamVisit, SeamVisitRefusal } from "./seam-visit-mar
  * an ordinary one, and its result must never stand beside a public report.
  * The mark is carried two ways. By identity: the envelope the visit returns,
  * its result and its measurement are remembered. In band: the result and the
- * measurement each carry one key, INVESTIGATION_SEAM_MARKER, which a
+ * measurement each carry one key, SEAM_VISIT_MARKER, which a
  * structured clone, a JSON copy and an object spread all keep. The scan API,
  * both runtime report builders, the report saver, the shadow store and the
  * v1 redactor refuse a value that carries either, on itself or on a
@@ -126,11 +124,6 @@ export type InvestigationSeam = {
 };
 
 export const INVESTIGATION_SEAM_VERSION = "investigation-seam@1";
-/**
- * The in-band mark: the one key a seam visit's result and measurement carry,
- * with the seam's version as its value. No other visit has it.
- */
-export const INVESTIGATION_SEAM_MARKER = SEAM_VISIT_MARKER;
 export const DEFAULT_AFTER_ENVELOPE_TIMEOUT_MS = 30_000;
 export const MIN_AFTER_ENVELOPE_TIMEOUT_MS = 1_000;
 export const MAX_AFTER_ENVELOPE_TIMEOUT_MS = 600_000;
@@ -486,12 +479,6 @@ export function openInvestigationSeam(seam: InvestigationSeam): OpenInvestigatio
  */
 export function investigationSeamUse(envelope: object): InvestigationSeamUse | undefined {
   return seamByEnvelope.get(envelope)?.use();
-}
-
-/** Refuse visit options that carry the seam's field, own or inherited, whatever its value. */
-export function refuseSeamOption(options: object): void {
-  if (!("investigationSeam" in options)) return;
-  throw new SeamVisitRefusal("Refusing to start a public visit whose options carry the investigation seam.");
 }
 
 /**

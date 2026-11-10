@@ -6,7 +6,9 @@
  * This file imports nothing and uses nothing of Node, because one of those
  * steps is the v1 redactor, which also runs in the browser and in a Worker.
  * It builds its output field by field, so it must refuse a marked input
- * before it reads it: its output would not carry the mark.
+ * before it reads it: its output would not carry the mark. Every module that
+ * refuses imports its helper from here and nothing from the seam's own
+ * module, which would bring the scanner's runtime with it.
  *
  * The mark is carried two ways. By identity: the objects the scanner
  * remembered here. In band: one key, SEAM_VISIT_MARKER, on the visit's result
@@ -54,4 +56,10 @@ export function isSeamVisit(value: unknown): boolean {
 export function refuseSeamVisit(value: unknown, step: string): void {
   if (!isSeamVisit(value)) return;
   throw new SeamVisitRefusal(`Refusing a visit made with the investigation seam at ${step}: it is never published.`);
+}
+
+/** Refuse visit options that carry the seam's field, own or inherited, whatever its value. */
+export function refuseSeamOption(options: object): void {
+  if (!("investigationSeam" in options)) return;
+  throw new SeamVisitRefusal("Refusing to start a public visit whose options carry the investigation seam.");
 }

@@ -9,18 +9,13 @@ import type { FingerprintObservationCollection } from "./fingerprint-observer";
 import {
   DEFAULT_AFTER_ENVELOPE_TIMEOUT_MS,
   describeInvestigationSeam,
-  INVESTIGATION_SEAM_MARKER,
   INVESTIGATION_SEAM_VERSION,
   InvestigationSeamHookTimeoutError,
   investigationSeamUse,
-  isSeamVisit,
   MAX_AFTER_ENVELOPE_TIMEOUT_MS,
   MAX_SEAM_SCROLL_CHECK_DEADLINE_MARGIN_MS,
   MIN_AFTER_ENVELOPE_TIMEOUT_MS,
   openInvestigationSeam,
-  refuseSeamOption,
-  refuseSeamVisit,
-  SeamVisitRefusal,
   type InvestigationSeam,
   type InvestigationSeamReadings,
   type OpenInvestigationSeam
@@ -39,6 +34,7 @@ import { makeScanRunV2R2 } from "./scan-report-v2-r2-fixtures";
 import { buildRuntimeComparisonScanReportV2R2, buildRuntimeScanReportV2R2 } from "./scan-report-v2-runtime-builder";
 import { scanMeasurementEnvelopeWithR2Run } from "./scan-report-v2-runtime-fixtures";
 import { writeV2ShadowArtifact } from "./scan-report-v2-shadow-store";
+import { isSeamVisit, refuseSeamOption, refuseSeamVisit, SEAM_VISIT_MARKER, SeamVisitRefusal } from "./seam-visit-mark";
 import type { ScanSiteOptions } from "./scanner";
 import { SCROLL_CHECK_DEADLINE_MARGIN_MS } from "./scroll-check";
 import type { ScanResult } from "./types";
@@ -378,21 +374,21 @@ test("a seam visit is marked by identity and in band, and its use can be read ba
   // taken off the visit's own objects.
   const result = envelope.result as unknown as Record<string, unknown>;
   const measurement = envelope.measurement as unknown as Record<string, unknown>;
-  assert.equal(result[INVESTIGATION_SEAM_MARKER], INVESTIGATION_SEAM_VERSION);
-  assert.equal(measurement[INVESTIGATION_SEAM_MARKER], INVESTIGATION_SEAM_VERSION);
-  assert.equal(Object.keys(result).includes(INVESTIGATION_SEAM_MARKER), true);
+  assert.equal(result[SEAM_VISIT_MARKER], INVESTIGATION_SEAM_VERSION);
+  assert.equal(measurement[SEAM_VISIT_MARKER], INVESTIGATION_SEAM_VERSION);
+  assert.equal(Object.keys(result).includes(SEAM_VISIT_MARKER), true);
   assert.throws(() => {
     "use strict";
-    delete result[INVESTIGATION_SEAM_MARKER];
+    delete result[SEAM_VISIT_MARKER];
   }, TypeError);
-  assert.equal(INVESTIGATION_SEAM_MARKER in result, true);
+  assert.equal(SEAM_VISIT_MARKER in result, true);
 
   for (const marked of [envelope, envelope.result, envelope.measurement]) assert.equal(isSeamVisit(marked), true);
   // Identity alone is a mark: an envelope remembered as a seam visit's is
   // one, and so are its parts, with no key on any of them.
   const remembered = cleanEnvelope();
   openInvestigationSeam({}).markVisit(remembered);
-  assert.equal(INVESTIGATION_SEAM_MARKER in remembered.result, false);
+  assert.equal(SEAM_VISIT_MARKER in remembered.result, false);
   for (const marked of [remembered, remembered.result, remembered.measurement]) assert.equal(isSeamVisit(marked), true);
   assert.throws(() => refuseSeamVisit(remembered.result, "a test"), /Refusing a visit made with the investigation seam at a test: it is never published\./);
   // Every ordinary copy of the result and of the measurement is still one.
@@ -424,7 +420,7 @@ test("what the mark does not survive: a caller who removes it on purpose, by del
   const { envelope } = seamEnvelope();
   const marked = envelope.result;
   const stripped = { ...marked } as unknown as Record<string, unknown>;
-  delete stripped[INVESTIGATION_SEAM_MARKER];
+  delete stripped[SEAM_VISIT_MARKER];
   assert.equal(isSeamVisit(stripped), false);
   assert.doesNotThrow(() => redactScanReportV1(stripped as unknown as ScanResult));
   // Rebuilt by hand, one named field at a time, before any refusal sees it:
@@ -461,7 +457,7 @@ test("the v1 redactor refuses a seam visit's result and every copy of one before
   }
   // A report that carries the key itself, around two results that do not:
   // only the check at the report's own entry can refuse it.
-  const aroundClean = { ...createGpcComparisonReport(clean, clean), [INVESTIGATION_SEAM_MARKER]: INVESTIGATION_SEAM_VERSION };
+  const aroundClean = { ...createGpcComparisonReport(clean, clean), [SEAM_VISIT_MARKER]: INVESTIGATION_SEAM_VERSION };
   assert.throws(() => redactScanReportV1(aroundClean), isRefusal);
 
   // Refused before anything is read: every field of this report records a
@@ -481,7 +477,7 @@ test("the v1 redactor refuses a seam visit's result and every copy of one before
     return report as unknown as ScanResult;
   };
   const inBand = recording();
-  Object.defineProperty(inBand, INVESTIGATION_SEAM_MARKER, { value: INVESTIGATION_SEAM_VERSION, enumerable: true });
+  Object.defineProperty(inBand, SEAM_VISIT_MARKER, { value: INVESTIGATION_SEAM_VERSION, enumerable: true });
   const byIdentity = recording();
   openInvestigationSeam({}).markVisit({ result: byIdentity, measurement: {} });
   for (const report of [inBand, byIdentity]) {

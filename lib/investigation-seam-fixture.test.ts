@@ -8,12 +8,9 @@ import { CONSENT_VERIFICATION_ENV } from "./consent-verification";
 import type { FingerprintObservationCollection } from "./fingerprint-observer";
 import {
   describeInvestigationSeam,
-  INVESTIGATION_SEAM_MARKER,
   INVESTIGATION_SEAM_VERSION,
   InvestigationSeamHookTimeoutError,
   investigationSeamUse,
-  isSeamVisit,
-  SeamVisitRefusal,
   type InvestigationSeam,
   type InvestigationSeamFingerprintSource,
   type InvestigationSeamFrameValue
@@ -24,6 +21,7 @@ import { BUILD_COMMIT_ENV } from "./runtime-scan-report";
 import { MAX_SCAN_DURATION_MS } from "./scan-deadlines";
 import { buildRuntimeScanReportV2R2 } from "./scan-report-v2-runtime-builder";
 import { closeSharedBrowserForTests, SCAN_SETUP_TIMEOUT_MESSAGE, scanSiteWithMeasurement, type ScanSiteOptions } from "./scanner";
+import { isSeamVisit, SEAM_VISIT_MARKER, SeamVisitRefusal } from "./seam-visit-mark";
 import type { ScrollCheckBoundary, ScrollCheckTiming } from "./scroll-check";
 
 /**
@@ -300,8 +298,8 @@ test("a seam visit calls each hook at its point, hands it what it promises, and 
   // The mark, on the real visit's own objects, and every refusal it meets.
   const result = envelope.result as unknown as Record<string, unknown>;
   const measurement = envelope.measurement as unknown as Record<string, unknown>;
-  assert.equal(result[INVESTIGATION_SEAM_MARKER], INVESTIGATION_SEAM_VERSION);
-  assert.equal(measurement[INVESTIGATION_SEAM_MARKER], INVESTIGATION_SEAM_VERSION);
+  assert.equal(result[SEAM_VISIT_MARKER], INVESTIGATION_SEAM_VERSION);
+  assert.equal(measurement[SEAM_VISIT_MARKER], INVESTIGATION_SEAM_VERSION);
   assert.equal(isSeamVisit(envelope), true);
   const env = { ...process.env, [BUILD_COMMIT_ENV]: "c".repeat(40) };
   assert.throws(() => buildRuntimeScanReportV2R2(envelope, "operator-cli", env), SeamVisitRefusal);
@@ -340,7 +338,7 @@ test("a visit that sets no seam carries no key and no value of one, and its page
     }
     // The walk finds a mark when there is one: the same check on a seam visit.
     const marked = await visit({ investigationSeam: {} });
-    assert.deepEqual(keysAndStrings(marked.result).keys.filter((key) => names.test(key)), [INVESTIGATION_SEAM_MARKER]);
+    assert.deepEqual(keysAndStrings(marked.result).keys.filter((key) => names.test(key)), [SEAM_VISIT_MARKER]);
     assert.deepEqual(keysAndStrings(marked.measurement).strings.filter((text) => names.test(text)), [INVESTIGATION_SEAM_VERSION]);
     // An empty seam marks its visit and does nothing else to the page.
     assert.deepEqual(investigationSeamUse(marked)?.hookDurationsMs, { pageReady: null, finalFingerprintRead: null, afterEnvelope: null, scrollCheckBoundary: [] });

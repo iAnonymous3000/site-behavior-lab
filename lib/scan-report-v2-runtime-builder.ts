@@ -19,7 +19,7 @@ import type { ConnectionInspectionEvidence } from "./connection-inspection-evide
 import type { ScrollCheckEvidence } from "./scroll-check-evidence";
 import { isEphemeralScanReportR2 } from "./scan-report-v2-r2-validation";
 import type { ScanResult } from "./types";
-import { refuseSeamVisit } from "./investigation-seam";
+import { refuseSeamVisit } from "./seam-visit-mark";
 
 export type RuntimeR2BuildFailureCode =
   | "measurement-envelope-missing"

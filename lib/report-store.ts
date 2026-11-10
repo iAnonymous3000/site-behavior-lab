@@ -31,7 +31,7 @@ import { REPORT_ID_PATTERN } from "./report-validation";
 import type { ReadStoredScanReportError, StoredScanReport } from "./scan-report-reader";
 import { sha256Hex } from "./sha256";
 import type { ReportShare, ScanReport } from "./types";
-import { refuseSeamVisit } from "./investigation-seam";
+import { refuseSeamVisit } from "./seam-visit-mark";
 
 /**
  * The R2 bucket's own `reports-retention-backstop-8d` lifecycle rule, in days.
