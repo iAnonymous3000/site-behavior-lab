@@ -24,6 +24,7 @@
   "lib/edge-scan-gate.test.ts": "asserts elapsed time under 1000 ms",
   "lib/encrypted-watch-client.test.ts": "races 10 ms and 100 ms fetch timeouts",
   "lib/encrypted-watch-worker-wiring.test.ts": "boots a wrangler bundle in Miniflare under a 45 s test timeout",
+  "lib/fingerprint-observer-visibility-fixture.test.ts": "launches Chromium through the scanner's shared browser under 60 and 120 s timeouts",
   "lib/fingerprint-observer.test.ts": "launches Chromium and serializes functions into the page",
   "lib/git-fixture.test.ts": "commits without disabling Git auto maintenance on purpose, whose detached child can race the teardown",
   "lib/github-cli-verifier.test.ts": "asserts a 1 s settle watchdog",
