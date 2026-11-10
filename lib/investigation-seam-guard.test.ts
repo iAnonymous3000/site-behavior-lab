@@ -49,8 +49,8 @@ const SCANNER_RULES: GuardRules = {
 
 const CHECK_RULES: GuardRules = {
   functions: ["runScrollCheck", "sequence"],
-  seamOnlyFunctions: [],
-  names: new Set(["boundary", "deadlineMarginMs"]),
+  seamOnlyFunctions: ["awaitBoundary"],
+  names: new Set(["boundary", "deadlineMarginMs", "awaitBoundary"]),
   whenTrue: new Set(["run.boundary"]),
   whenFalse: new Set(["run.deadlineMarginMs === undefined"])
 };
@@ -162,10 +162,10 @@ test("every use of the seam in the scanner and in the check sits behind the seam
     "await seam.afterEnvelope(seamReads.readings, options.signal)"
   ]);
   assert.deepEqual(seamAwaits("lib/scroll-check.ts", check, CHECK_RULES), [
-    'await withinDeadline(run.boundary("check-start"))',
-    'await withinDeadline(run.boundary("control-start"))',
-    'await withinDeadline(run.boundary("control-end"))',
-    'await withinDeadline(run.boundary("scroll-end"))'
+    'await awaitBoundary(run.boundary, "check-start", withinDeadline)',
+    'await awaitBoundary(run.boundary, "control-start", withinDeadline)',
+    'await awaitBoundary(run.boundary, "control-end", withinDeadline)',
+    'await awaitBoundary(run.boundary, "scroll-end", withinDeadline)'
   ]);
   assert.equal(/\bseam\?\./.test(scanner), false, "the scanner reads its seam through an optional chain");
   assert.equal(/run\.boundary\?\./.test(check), false, "the check calls its boundary through an optional chain");
@@ -236,8 +236,8 @@ test("the checker refuses each way a use of the seam could leave its condition",
   const checkVariants: [string, string, string, RegExp][] = [
     [
       "a boundary awaited through an optional call",
-      'if (run.boundary) await withinDeadline(run.boundary("check-start"));',
-      'await run.boundary?.("check-start");',
+      'if (run.boundary) await awaitBoundary(run.boundary, "check-start", withinDeadline);',
+      'await run.boundary?.("check-start", new AbortController().signal);',
       /not behind the seam's presence: lib\/scroll-check\.ts:\d+ run\.boundary/
     ],
     [

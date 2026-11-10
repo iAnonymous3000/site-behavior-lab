@@ -4055,10 +4055,10 @@ async function runScrollCheckPhase(input: {
 function seamScrollCheckRun(
   seam: OpenInvestigationSeam,
   readFingerprint: () => Promise<FingerprintObservationCollection>
-): { boundary?: (name: ScrollCheckBoundary) => Promise<void>; deadlineMarginMs?: number } {
+): { boundary?: (name: ScrollCheckBoundary, waiting: AbortSignal) => Promise<void>; deadlineMarginMs?: number } {
   return {
     ...(seam.hasScrollCheckBoundary
-      ? { boundary: (name: ScrollCheckBoundary) => seam.scrollCheckBoundary(name, readFingerprint) }
+      ? { boundary: (name: ScrollCheckBoundary, waiting: AbortSignal) => seam.scrollCheckBoundary(name, readFingerprint, waiting) }
       : {}),
     ...(seam.scrollCheckDeadlineMarginMs !== null ? { deadlineMarginMs: seam.scrollCheckDeadlineMarginMs } : {})
   };

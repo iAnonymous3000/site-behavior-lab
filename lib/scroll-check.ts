@@ -764,8 +764,10 @@ export type ScrollCheckRun<RequestT extends object> = {
    * falls: for check-start, in the settle; for control-start, before the
    * window with no input opens; for control-end, at the end of that window,
    * which is longer by it; for scroll-end, after the scroll window closed.
+   * `waiting` aborts once the check has stopped waiting for that call,
+   * whether it answered, the deadline passed or the visit was cancelled.
    */
-  boundary?: (name: ScrollCheckBoundary) => Promise<void>;
+  boundary?: (name: ScrollCheckBoundary, waiting: AbortSignal) => Promise<void>;
   /**
    * The deadline's margin for this run, in place of
    * SCROLL_CHECK_DEADLINE_MARGIN_MS, so a boundary callback has time to run.
@@ -773,6 +775,26 @@ export type ScrollCheckRun<RequestT extends object> = {
    */
   deadlineMarginMs?: number;
 };
+
+/**
+ * One boundary callback, awaited inside the check's deadline as a page call
+ * is. The signal it is handed aborts once the check has stopped waiting for
+ * it, so the callback's owner can tell a callback the check gave up on from
+ * one it was still awaiting when it settled. Called only for a run that
+ * carries a callback.
+ */
+async function awaitBoundary(
+  boundary: (name: ScrollCheckBoundary, waiting: AbortSignal) => Promise<void>,
+  name: ScrollCheckBoundary,
+  withinDeadline: (operation: Promise<void>) => Promise<void>
+): Promise<void> {
+  const waiting = new AbortController();
+  try {
+    await withinDeadline(boundary(name, waiting.signal));
+  } finally {
+    waiting.abort();
+  }
+}
 
 class ScrollCheckStop extends Error {
   constructor(readonly outcome: "left-site" | "cut-short") {
@@ -1066,12 +1088,12 @@ async function sequence<RequestT extends object>(
 
   // Each boundary call below sits behind the callback's presence, so a run
   // without one awaits exactly what it always did.
-  if (run.boundary) await withinDeadline(run.boundary("check-start"));
+  if (run.boundary) await awaitBoundary(run.boundary, "check-start", withinDeadline);
   // Settle: the visit's own time counts toward it.
   await waitUntil(run.navigationStartedAt + timing.settleAfterNavigationMs);
   onSite();
 
-  if (run.boundary) await withinDeadline(run.boundary("control-start"));
+  if (run.boundary) await awaitBoundary(run.boundary, "control-start", withinDeadline);
   // The window with no input.
   const controlStart = run.now();
   run.recorder.openWindow("control");
@@ -1087,7 +1109,7 @@ async function sequence<RequestT extends object>(
   // Before the window's end is read: no input happened while the callback
   // ran, so its time belongs to this window, and the scroll window still
   // starts where this one ends.
-  if (run.boundary) await withinDeadline(run.boundary("control-end"));
+  if (run.boundary) await awaitBoundary(run.boundary, "control-end", withinDeadline);
   const controlEnd = run.now();
   progress.control = { start: controlStart, end: controlEnd };
   if (run.faultForTests === "throw") throw new Error("The check was made to throw for this test.");
@@ -1139,7 +1161,7 @@ async function sequence<RequestT extends object>(
     // Both windows have closed, so a callback the deadline ends here leaves
     // the check's outcome as it stands. Its own error still ends the check.
     try {
-      await withinDeadline(run.boundary("scroll-end"));
+      await awaitBoundary(run.boundary, "scroll-end", withinDeadline);
     } catch (error) {
       if (!(error instanceof ScrollCheckStop)) throw error;
     }

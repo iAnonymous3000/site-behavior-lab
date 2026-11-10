@@ -16,6 +16,7 @@ import {
   type ScrollState
 } from "./scroll-check";
 import { isScrollCheckEvidence, type ScrollCheckEvidence } from "./scroll-check-evidence";
+import { openInvestigationSeam } from "./investigation-seam";
 import { redactHostnameV2 } from "./redaction-v2";
 
 /**
@@ -640,4 +641,59 @@ test("a boundary callback that never settles is ended by the check's deadline, a
     assert.equal(isScrollCheckEvidence(evidence), true);
     assert.equal(evidence.outcome, "cut-short", boundary);
   }
+});
+
+test("the check tells a callback's owner when it has stopped waiting, so one it gave up on can neither change the record nor fail the visit", async () => {
+  // The signal: not aborted while the check waits, aborted once it has
+  // stopped, for a callback that answered and for one the deadline ended.
+  const seen: [ScrollCheckBoundary, boolean, AbortSignal][] = [];
+  const hung = fakeCheck({});
+  hung.run.boundary = (name, waiting) => {
+    seen.push([name, waiting.aborted, waiting]);
+    return name === "control-start" ? new Promise<void>(() => undefined) : Promise.resolve();
+  };
+  assert.equal((await runScrollCheck(hung.run)).outcome, "cut-short");
+  assert.deepEqual(seen.map(([name, abortedAtCall]) => [name, abortedAtCall]), [
+    ["check-start", false],
+    ["control-start", false]
+  ]);
+  assert.deepEqual(seen.map(([, , waiting]) => waiting.aborted), [true, true]);
+
+  // Through the seam's own record. The scroll-end callback outlives the
+  // deadline, and then rejects while the check is still settling, before the
+  // scanner asks whether a callback failed.
+  const read = async () => ({}) as never;
+  let rejectAbandoned = (_error: Error): void => undefined;
+  const seam = openInvestigationSeam({
+    scrollCheckBoundary: (boundary) =>
+      boundary === "scroll-end" ? new Promise<void>((_resolve, reject) => (rejectAbandoned = reject)) : undefined
+  });
+  const fake = fakeCheck({});
+  fake.run.boundary = (name, waiting) => seam.scrollCheckBoundary(name, read, waiting);
+  let rejectedDuringSettle = false;
+  fake.run.settleRoutes = async () => {
+    rejectAbandoned(new Error("the abandoned callback rejected late"));
+    rejectedDuringSettle = true;
+    await new Promise<void>((resolve) => setImmediate(resolve));
+  };
+  const evidence = await runScrollCheck(fake.run);
+  assert.equal(rejectedDuringSettle, true);
+  // Both windows had closed: the check keeps its outcome, as documented.
+  assert.equal(evidence.outcome, "reached-end");
+  assert.doesNotThrow(() => seam.rethrowBoundaryFailure());
+  const calls = seam.use().hookDurationsMs.scrollCheckBoundary;
+  assert.deepEqual(calls.map((call) => call.boundary), ["check-start", "control-start", "control-end", "scroll-end"]);
+  assert.deepEqual(calls.map((call) => call.ms === null), [false, false, false, true]);
+
+  // A callback the check is still awaiting when it rejects does fail the visit.
+  const thrown = new Error("the awaited callback threw");
+  const failing = openInvestigationSeam({
+    scrollCheckBoundary: (boundary) => {
+      if (boundary === "control-end") throw thrown;
+    }
+  });
+  const awaited = fakeCheck({});
+  awaited.run.boundary = (name, waiting) => failing.scrollCheckBoundary(name, read, waiting);
+  assert.equal((await runScrollCheck(awaited.run)).outcome, "cut-short");
+  assert.throws(() => failing.rethrowBoundaryFailure(), (error) => error === thrown);
 });

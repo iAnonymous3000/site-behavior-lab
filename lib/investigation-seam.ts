@@ -149,8 +149,9 @@ export type InvestigationSeamDescription = Readonly<{
 /**
  * What a seam did on one visit: its description, and how long each hook call
  * took by the scanner's own clock, in milliseconds. A hook that is not set
- * reads null. A boundary callback the check's deadline or a cancellation
- * ended before it settled reads null for its time.
+ * reads null. A boundary callback the check stopped waiting for, at its
+ * deadline or on a cancellation, reads null for its time and keeps it,
+ * whatever the callback does afterwards.
  */
 export type InvestigationSeamUse = Readonly<{
   description: InvestigationSeamDescription;
@@ -397,11 +398,18 @@ export class OpenInvestigationSeam {
 
   /**
    * Call the boundary callback. The check bounds the returned promise by its
-   * own deadline, so a callback that never settles leaves its time unknown.
-   * A callback that throws is remembered: the check, which never throws,
-   * would otherwise end as one cut short (rethrowBoundaryFailure).
+   * own deadline and aborts `waiting` once it has stopped waiting for it.
+   * Only a callback the check was still awaiting counts: its time is
+   * recorded, and its error is remembered, because the check, which never
+   * throws, would otherwise end as one cut short (rethrowBoundaryFailure).
+   * A callback the check gave up on keeps a time of null and cannot fail the
+   * visit, whatever it does later.
    */
-  async scrollCheckBoundary(boundary: ScrollCheckBoundary, readFingerprint: () => Promise<FingerprintObservationCollection>): Promise<void> {
+  async scrollCheckBoundary(
+    boundary: ScrollCheckBoundary,
+    readFingerprint: () => Promise<FingerprintObservationCollection>,
+    waiting: AbortSignal
+  ): Promise<void> {
     const hook = this.hooks.scrollCheckBoundary;
     if (!hook) return;
     const call: { boundary: ScrollCheckBoundary; ms: number | null } = { boundary, ms: null };
@@ -410,10 +418,10 @@ export class OpenInvestigationSeam {
     try {
       await hook(boundary, readFingerprint);
     } catch (error) {
-      this.boundaryFailure ??= { error };
+      if (!waiting.aborted) this.boundaryFailure ??= { error };
       throw error;
     }
-    call.ms = Date.now() - started;
+    if (!waiting.aborted) call.ms = Date.now() - started;
   }
 
   /** Fail the visit with the first error a boundary callback threw, if one did. */

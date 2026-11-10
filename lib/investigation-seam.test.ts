@@ -333,37 +333,65 @@ test("finalFingerprintRead gets a copy at once, and a hook that returns a promis
   assert.equal(none.use().hookDurationsMs.finalFingerprintRead, null);
 });
 
-test("each boundary call is timed by name, one that never settles has no time, and one that throws is kept for the visit", async () => {
+test("a boundary call the check awaited is timed and its error kept; one the check gave up on is neither, whatever it does later", async () => {
   const read = async (): Promise<FingerprintObservationCollection> => structuredClone(COLLECTION);
+  const waiting = (): AbortController => new AbortController();
   const reads: FingerprintObservationCollection[] = [];
+  // control-end is the callback the check gives up on: the test settles it later.
+  let settleAbandoned = (): void => undefined;
   const open = openInvestigationSeam({
     scrollCheckBoundary: async (boundary, readFingerprint) => {
-      if (boundary === "control-end") return NEVER();
+      if (boundary === "control-end") return new Promise<void>((resolve) => (settleAbandoned = resolve));
       if (boundary === "control-start") reads.push(await readFingerprint());
     }
   });
   assert.equal(open.hasScrollCheckBoundary, true);
-  await open.scrollCheckBoundary("check-start", read);
-  await open.scrollCheckBoundary("control-start", read);
-  // The check bounds this one by its own deadline: here nothing waits for it.
-  void open.scrollCheckBoundary("control-end", read);
-  await open.scrollCheckBoundary("scroll-end", read);
+  await open.scrollCheckBoundary("check-start", read, waiting().signal);
+  await open.scrollCheckBoundary("control-start", read, waiting().signal);
+  const gaveUp = waiting();
+  const abandoned = open.scrollCheckBoundary("control-end", read, gaveUp.signal);
+  // The check's deadline passes: it stops waiting, as its signal says.
+  gaveUp.abort();
+  await open.scrollCheckBoundary("scroll-end", read, waiting().signal);
   assert.deepEqual(reads, [COLLECTION]);
-  const calls = open.use().hookDurationsMs.scrollCheckBoundary;
-  assert.deepEqual(calls.map((call) => call.boundary), ["check-start", "control-start", "control-end", "scroll-end"]);
-  assert.deepEqual(calls.map((call) => typeof call.ms), ["number", "number", "object", "number"]);
-  assert.equal(calls[2].ms, null);
+  const record = (): (readonly [string, string])[] => open.use().hookDurationsMs.scrollCheckBoundary.map((call) => [call.boundary, typeof call.ms] as const);
+  const whenTheCheckReturned = [
+    ["check-start", "number"],
+    ["control-start", "number"],
+    ["control-end", "object"],
+    ["scroll-end", "number"]
+  ];
+  assert.deepEqual(record(), whenTheCheckReturned);
+  assert.equal(open.use().hookDurationsMs.scrollCheckBoundary[2].ms, null);
+  // The abandoned callback settles after all: the visit's record does not move.
+  settleAbandoned();
+  await abandoned;
+  assert.deepEqual(record(), whenTheCheckReturned);
+  assert.equal(open.use().hookDurationsMs.scrollCheckBoundary[2].ms, null);
   assert.doesNotThrow(() => open.rethrowBoundaryFailure());
 
+  // A callback the check was still awaiting when it threw fails the visit.
   const thrown = new Error("the boundary hook threw");
   const failing = openInvestigationSeam({
     scrollCheckBoundary: (boundary) => {
       if (boundary === "control-start") throw thrown;
     }
   });
-  await failing.scrollCheckBoundary("check-start", read);
-  await assert.rejects(failing.scrollCheckBoundary("control-start", read), (error) => error === thrown);
+  await failing.scrollCheckBoundary("check-start", read, waiting().signal);
+  await assert.rejects(failing.scrollCheckBoundary("control-start", read, waiting().signal), (error) => error === thrown);
   assert.throws(() => failing.rethrowBoundaryFailure(), (error) => error === thrown);
+
+  // One the check had given up on does not, though it rejects before the
+  // visit asks: a check that kept its outcome keeps it.
+  let rejectAbandoned = (_error: Error): void => undefined;
+  const late = openInvestigationSeam({ scrollCheckBoundary: () => new Promise<void>((_resolve, reject) => (rejectAbandoned = reject)) });
+  const lateWaiting = waiting();
+  const lateCall = late.scrollCheckBoundary("scroll-end", read, lateWaiting.signal);
+  lateWaiting.abort();
+  rejectAbandoned(new Error("late"));
+  await assert.rejects(lateCall, /late/);
+  assert.doesNotThrow(() => late.rethrowBoundaryFailure());
+  assert.deepEqual(late.use().hookDurationsMs.scrollCheckBoundary, [{ boundary: "scroll-end", ms: null }]);
 
   // No callback and no margin: a check is handed neither.
   const none = openInvestigationSeam({});
