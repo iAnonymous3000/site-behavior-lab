@@ -237,6 +237,7 @@ cited files ran and passed at a commit. It adds nothing to what a row claims.
 - How often an input in a domain, or an open finding, occurs in a browser.
 - Anything about an input outside a row's domain or past its bounds.
 - That a restated oracle states the right rule.
+- Anything about a visit made with the scanner's investigation seam set. No suite sets the seam, or hands a check the boundary callback or the deadline margin that only the seam supplies.
 
 ## Files
 

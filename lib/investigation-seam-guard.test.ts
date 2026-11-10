@@ -256,3 +256,23 @@ test("the checker refuses each way a use of the seam could leave its condition",
     "empty.ts: only 0 uses of the seam were found, so the walk did not see the code it holds"
   ]);
 });
+
+test("no formal-verification suite sets the seam, so each of the register's rows holds for a visit without it", () => {
+  const manifest = JSON.parse(read("RELEASE_READINESS.json")) as {
+    gates: { "formal-verification": { requiredSuites: { id: string }[] } };
+  };
+  const suites = manifest.gates["formal-verification"].requiredSuites.map((suite) => suite.id);
+  assert.equal(suites.length, 16);
+  assert.ok(suites.includes("lib/fv-scroll-producer.test.ts") && suites.includes("lib/fv-worker-readout.test.ts"));
+  // The option by any of its names, and the two fields only a seam hands a check.
+  const seamNames = /investigationSeam|deadlineMarginMs|\bboundary\s*[:=(]|\.boundary\b/i;
+  for (const suite of suites) {
+    const lines = read(suite).split("\n").filter((line) => seamNames.test(line));
+    assert.deepEqual(lines, [], `${suite} names the seam, so docs/formal-verification.md can no longer say its rows hold without it`);
+  }
+  // The pattern finds what it is for.
+  for (const line of ['run.boundary = async () => undefined;', "{ boundary: (name) => hook(name) }", "deadlineMarginMs: 60_000", "investigationSeam: {}", "type InvestigationSeam"]) {
+    assert.equal(seamNames.test(line), true, line);
+  }
+  assert.match(read("docs/formal-verification.md"), /^- Anything about a visit made with the scanner's investigation seam set\./m);
+});
