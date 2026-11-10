@@ -33,9 +33,10 @@ and a hand attestation is refused.
 
 - **Independent egress boundary (`egress-backstop`).** Release 1.0 does not
   verify an egress boundary that is independent of application code. The
-  application's own egress guard is the only boundary that exists. On
-  2026-11-01 no documented configuration of the hosting platform offered an
-  independent one. If the application guard fails, nothing that 1.0 verifies
+  application's own egress guard is the only boundary that exists. A review
+  on 2026-11-01 found no documented configuration of the hosting platform, on
+  the current plan, that offers an independent one. If the application guard
+  fails, nothing that 1.0 verifies
   stops a scan from reaching a private, link-local or metadata address.
 - **Log retention (`log-retention`).** Release 1.0 does not re-verify the
   log-retention window and does not re-capture a redacted log query for the
