@@ -174,8 +174,8 @@ together.
 
 **Off in the reference deployment.** Durable (restart-safe) jobs, container
 sharding, and encrypted scheduled rescans are implemented behind flags
-committed at `0`, and aggregate product metrics are off. A scan interrupted by
-a container restart is lost and must be re-run.
+committed at `0`. A scan interrupted by a container restart is lost and must
+be re-run.
 
 **Road to 1.0.** The [investigative-v1 qualification contract](docs/v1-release-qualification.md)
 requires independently checked scan outcomes bound to the release candidate,

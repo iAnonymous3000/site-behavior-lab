@@ -55,11 +55,6 @@ import {
   recordDurablePreparationRefusal as recordDurablePreparationRefusalInStore,
   type DurablePreparationRefused
 } from "../lib/durable-preparation-refusal";
-import {
-  handleAggregateMetricsRequest,
-  type AggregateMetricsDataset
-} from "../lib/privacy-safe-observability-edge";
-import { PRIVACY_SAFE_OBSERVABILITY_PATH } from "../lib/privacy-safe-observability";
 import { scansAvailableAfterEdgeOverlay } from "../lib/container-health-overlay";
 import { forwardContainerResponseWithinDeadline } from "../lib/container-forward-response";
 import { requireContainerR2Bucket } from "../lib/container-r2-bucket";
@@ -281,10 +276,6 @@ import {
 
 type Env = {
   SCANNER: DurableObjectNamespace<ScannerContainer>;
-  // Optional, aggregate-only product metrics sink. The endpoint remains a hard
-  // 404 unless the explicit flag is "1" and fails closed if this is absent.
-  AGGREGATE_METRICS?: AggregateMetricsDataset;
-  SITE_BEHAVIOR_LAB_AGGREGATE_METRICS?: string;
   // Non-secret browser CORS allow-list, set via `vars` in wrangler.container.jsonc.
   SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN?: string;
   // "1" opens the scanner to unauthenticated public scans (Turnstile + rate limit
@@ -2847,11 +2838,15 @@ export default {
       }
     }
 
-    if (url.pathname === PRIVACY_SAFE_OBSERVABILITY_PATH) {
-      return handleAggregateMetricsRequest(request, {
-        enabledFlag: env.SITE_BEHAVIOR_LAB_AGGREGATE_METRICS,
-        allowedOrigin: env.SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN,
-        dataset: env.AGGREGATE_METRICS
+    // Nothing is served at /api/metrics, and it is answered here rather than
+    // in the container: a bare 404 with no body, which is what this path has
+    // always returned. Any other unserved path is forwarded and comes back as
+    // the container's not-found page; a request for this one never reaches
+    // or wakes the container.
+    if (url.pathname === "/api/metrics") {
+      return new Response(null, {
+        status: 404,
+        headers: { "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" }
       });
     }
 
