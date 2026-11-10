@@ -74,6 +74,20 @@ public API or a 1.0 release.
   Import and correction run in memory: persistence and viewing are deferred, and
   public behavior is unchanged.
 
+### Removed
+
+- The aggregate-metrics pipeline. It was added on 2026-07-21 as an edge route
+  that would count a fixed set of product events into an Analytics Engine
+  dataset, and it stayed disabled: the flag was "0" in every committed
+  configuration, and no page ever imported the browser module that would
+  have sent an event, so nothing could send to the route. The three modules,
+  their tests, the `SITE_BEHAVIOR_LAB_AGGREGATE_METRICS` variable, the
+  `AGGREGATE_METRICS` binding and docs/privacy-safe-observability.md are
+  gone. The front Worker still answers `/api/metrics` itself with the bare
+  404 it gave while the flag was off, so no response changes. Operator note:
+  the next production deploy drops the binding and the variable from the
+  Worker, and leaves the dataset, if one exists, in the account.
+
 ### Fixed
 
 - Two release gates that could not pass as written no longer block 1.0.
