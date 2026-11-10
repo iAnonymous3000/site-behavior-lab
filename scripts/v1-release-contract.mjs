@@ -146,6 +146,11 @@ export function v1ProfileProblems(manifest) {
   // nor lower what one must show: each is a refusal that names the suite, and
   // so is a suite this contract does not pin. Adding a suite or moving a
   // minimum takes the reviewed edit to V1_REQUIRED_SUITES.
+  //
+  // An entry's fields are held to their order too. The report's rule and the
+  // gate read the list as written, so an entry with the same values in
+  // another order would pass here and be refused there as a broken gate
+  // configuration, which says nothing of what to fix.
   const suites = manifest.gates?.["formal-verification"]?.requiredSuites;
   const listed = new Map((Array.isArray(suites) ? suites : []).filter(record).map((entry) => [entry.id, entry]));
   let suiteProblems = 0;
@@ -153,7 +158,9 @@ export function v1ProfileProblems(manifest) {
     const entry = listed.get(required.id);
     if (entry === undefined) problems.push(`formal-verification must retain required suite ${required.id}`);
     else if (!isDeepStrictEqual(entry, required)) problems.push(`formal-verification must keep the pinned minimums of ${required.id}`);
-    else continue;
+    else if (!isDeepStrictEqual(Object.keys(entry), Object.keys(required))) {
+      problems.push(`formal-verification must write the entry for ${required.id} with its fields in the order ${Object.keys(required).join(", ")}`);
+    } else continue;
     suiteProblems += 1;
   }
   for (const id of listed.keys()) {
@@ -162,8 +169,9 @@ export function v1ProfileProblems(manifest) {
     suiteProblems += 1;
   }
   // What is left once every entry is in order: a repeated entry, an entry
-  // that is no record, or another order.
-  if (suiteProblems === 0 && !isDeepStrictEqual(suites, V1_REQUIRED_SUITES)) problems.push("formal-verification must list its required suites exactly as this contract does");
+  // that is no record, or another order. Compared as written, which is how
+  // the gate compares the list, so the two accept the same manifests.
+  if (suiteProblems === 0 && JSON.stringify(suites) !== JSON.stringify(V1_REQUIRED_SUITES)) problems.push("formal-verification must list its required suites exactly as this contract does");
   if (manifest.gates?.["release-candidate-binding"]?.artifact !== V1_BINDING_PATH ||
       manifest.gates?.["mode-qualification"]?.artifact !== V1_QUALIFICATION_PATH ||
       manifest.gates?.["r2-lifecycle"]?.receipt !== "research/ops-receipts/v1-r2-lifecycle-readback.json" ||

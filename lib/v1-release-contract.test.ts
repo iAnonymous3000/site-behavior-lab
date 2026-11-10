@@ -420,7 +420,21 @@ test("the profile holds the formal-verification gate, its kind, its paths and ev
       [`formal-verification must keep the pinned minimums of ${suite.id}`]);
     assert.deepEqual(refusal((m) => { m.gates["formal-verification"].requiredSuites[index].note = "reviewed"; }),
       [`formal-verification must keep the pinned minimums of ${suite.id}`]);
+    // The same values with the fields in another order. The report's rule and the gate read
+    // the list as written, so the profile must refuse what they would, and say what to fix.
+    for (const order of [["minimumTests", "id", "minimumVariants"], ["id", "minimumVariants", "minimumTests"], ["minimumVariants", "minimumTests", "id"]]) {
+      const reordered = refusal((m) => { m.gates["formal-verification"].requiredSuites[index] = Object.fromEntries(order.map((field) => [field, suite[field]])); });
+      assert.deepEqual(reordered, [`formal-verification must write the entry for ${suite.id} with its fields in the order id, minimumTests, minimumVariants`], order.join(", "));
+    }
   }
+  // What the profile accepts is, as written, the list the gate and the report's rule accept.
+  assert.equal(JSON.stringify(suites), JSON.stringify(c.V1_REQUIRED_SUITES));
+  assert.deepEqual(fv.formalVerificationRequiredSuitesProblems(suites), []);
+  const swapped = manifest();
+  swapped.gates["formal-verification"].requiredSuites[0] = { id: suites[0].id, minimumVariants: suites[0].minimumVariants, minimumTests: suites[0].minimumTests };
+  assert.deepEqual(swapped.gates["formal-verification"].requiredSuites, c.V1_REQUIRED_SUITES, "equal field by field, which is all a deep comparison sees");
+  assert.notDeepEqual(fv.formalVerificationRequiredSuitesProblems(swapped.gates["formal-verification"].requiredSuites), [], "and refused by the report's rule");
+  assert.equal(c.v1ProfileProblems(swapped).length, 1);
   // The whole list gone, emptied, or no list at all.
   for (const value of [undefined, [], null, "all", {}]) {
     assert.deepEqual(refusal((m) => { m.gates["formal-verification"].requiredSuites = value; }),
