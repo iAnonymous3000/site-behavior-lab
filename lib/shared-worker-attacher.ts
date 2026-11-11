@@ -51,7 +51,9 @@ import { SHARED_WORKER_ENDED_AT_ONCE_MS } from "./shared-worker-ended-at-once";
  * constructor) is only ever run by a script that has one, which is listed
  * (measured on Chromium 156 and 158, 2026-11-10: an empty script lists
  * nothing and runs nothing, and eval's code is parsed with no URL and not
- * listed while the script that called it is). A question that cannot say
+ * listed while the script that called it is; whether a script that ran and
+ * was then collected is still listed is not established). A question that
+ * cannot say
  * (refused, unanswered at the command's bound, or answered with no list)
  * counts as a script that may have been there. The order of a parse and an
  * answer alone decides

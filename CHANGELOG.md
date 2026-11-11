@@ -243,9 +243,12 @@ public API or a 1.0 release.
   or leaves unanswered for the command's bound of 5 seconds, makes the
   worker late with the debugger off, where it was left waiting with the
   debugger on. The two published sentences about the debugger's time on
-  ("for a few milliseconds") are unchanged, and a real-browser test holds a
-  worker reached mid-script to 250 ms. The measurement epoch below says what
-  moves.
+  ("for a few milliseconds") are unchanged. A real-browser test reaches a
+  worker mid-script and holds it to this: marked late, and its next command
+  answered, within 250 ms, and not stopped by a `debugger;` statement at its
+  script's end, which a debugger left on would stop it at for good. That the
+  debugger goes off in the step that marks it late is held by the scripted
+  tests of the same thread. The measurement epoch below says what moves.
 - The image build no longer lets a vulnerable apt retry or fetch over plain
   HTTP. The apt that downloads during the build is the base's 2.8.3, the one
   CVE-2026-109518 names (remote code execution via hard link reuse during
@@ -3406,8 +3409,9 @@ as intended.
   have shown a rise to about 1 in 100. An answer and an event behind it in
   one read were not seen to cost a worker its term in ordinary runs (0 of
   180 in an independent review); the rule is held by scripted reads. A
-  refused or unanswered breakpoint was not seen with either browser, and is
-  scripted too.
+  refused or unanswered breakpoint was not seen with either browser for a
+  worker that stayed (a worker that ends refuses whatever was still on its
+  way), and is scripted too.
 - Measured natively on one machine (macOS arm64) on loopback fixtures, and
   in one emulated linux/amd64 run per browser and rule, which is not native.
   Emulated, both rules held all 24 production-order visits on each browser.

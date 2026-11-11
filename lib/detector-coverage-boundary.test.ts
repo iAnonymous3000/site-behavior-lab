@@ -648,7 +648,7 @@ test("the limitations and methodology pages say which shared workers the scanner
   assert.ok(commandBoundMs > 0, "the attacher's bound on a command must be readable");
   assert.match(
     limitations,
-    new RegExp(`\\bOne whose breakpoint the browser refuses, or leaves unanswered for the bound on a command, ${commandBoundMs / 1000} seconds, cannot be held\\b`)
+    new RegExp(`\\bOne whose breakpoint the browser refuses, or leaves unanswered for the bound on a command, ${commandBoundMs / 1000} seconds, with no pause by then, is not held\\b`)
   );
   assert.match(limitations, /\bOne that answers its breakpoint and not the question behind it waits with the debugger on up to the same bound\b/);
   assert.equal((attacher.match(/markLate\(worker, /g) ?? []).length, 4, "every late classification is one the pages account for");

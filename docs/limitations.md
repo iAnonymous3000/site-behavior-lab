@@ -192,19 +192,21 @@ of 40 visits on Chromium 156 and 40 of 40 on Chromium 158, reached 30 ms and
 
 The few milliseconds named above are a worker that answers the attacher. One
 whose breakpoint the browser refuses, or leaves unanswered for the bound on a
-command, 5 seconds, cannot be held: it is counted as a worker the observer
-could not read, and the debugger goes off at that moment. One that answers
-its breakpoint and not the question behind it waits with the debugger on up
-to the same bound, and is then counted the same way. No worker that stayed
-was seen in either state with Chromium 156 or 158 in the measurements here;
-both are written out against a scripted browser. The 6 to 11 ms a held
-worker waits are small scripts, and the wait grows with the script: in one
-run on one machine (Chromium 156, 20 visits each), a worker script of 3.4 MB
-waited a median of 236 ms before its first statement with the attacher on
-and 66 ms with none, where a one-line script waited 12.6 ms and 4.1 ms. An
-earlier run on the same machine gave 125 ms and 35 ms for the large script,
-and runs under heavy load 258 and 371 ms against 69 and 105 ms: about three
-and a half times the wait with no attacher each time.
+command, 5 seconds, with no pause by then, is not held: it is counted as a
+worker the observer could not read, and the debugger goes off at that moment.
+One that answers its breakpoint and not the question behind it waits with the
+debugger on up to the same bound. One more command then decides: a worker
+that answers it with no pause first is counted the same way, and one that
+answers nothing more stays as it is, with the debugger on, and is counted
+unread when the visit's results are read. No worker that stayed was seen in
+either state with Chromium 156 or 158 in the measurements here; both are
+written out against a scripted browser. The 6 to 11 ms a held worker waits
+are small scripts, and the wait grows with the script: in one run on one
+machine (Chromium 156, 20 visits each), a worker script of 3.2 MB waited a
+median of 236 ms before its first statement with the attacher on and 66 ms
+with none, where a one-line script waited 12.6 ms and 4.1 ms. An earlier run
+on the same machine gave 125 ms and 35 ms for the large script: about three
+and a half times the wait with no attacher both times.
 
 ### What one report covers
 

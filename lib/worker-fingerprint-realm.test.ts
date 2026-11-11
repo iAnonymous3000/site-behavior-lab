@@ -2927,13 +2927,20 @@ test("real Chromium: a shared worker the attacher reaches only after it started 
  *
  * THE DEBUGGER'S TIME ON. docs/limitations.md and the methodology page say a
  * worker reached late runs with the debugger on "for a few milliseconds". The
- * test holds that to a measurement: from the main thread's hearing of the
- * attach, plus the attacher's delay, to the answer of a barrier sent when the
- * main thread hears "late". The thread sends the debugger off in the step
- * that posts "late", and a worker answers its session's commands in order,
- * so the barrier's answer is behind the disable. The figure is long by the
- * delay timer's lateness and the barrier's own round trip, and can be short
- * by the port's latency for one message.
+ * test times it: from the main thread's hearing of the attach, plus the
+ * attacher's delay, to the answer of a barrier sent when the main thread
+ * hears "late". The thread sends the debugger off in the step that posts
+ * "late", and a worker answers its session's commands in order, so the
+ * barrier's answer is behind the disable. The figure is long by the delay
+ * timer's lateness and the barrier's own round trip, and can be short by the
+ * port's latency for one message. The barrier is not a debugger command (a
+ * visit may send a shared worker only the one it sends), so its answer does
+ * not show by itself that a disable went ahead of it: the scripted tests of
+ * the thread hold that the disable is sent in the step that posts "late"
+ * (lib/shared-worker-attacher.test.ts), and here the script ends its spin on
+ * a `debugger;` statement. With the debugger off the statement does nothing.
+ * With a debugger left on it stops the worker for good, the script's beacon
+ * never comes, and the try fails on that, not as a lost one.
  *
  * DEBUGGER_ON_BOUND_MS is 250. Measured on one machine under load (macOS
  * arm64, Chromium 156 and 158, 400 visits, design note of 2026-11-10), the
@@ -2963,6 +2970,8 @@ const DEBUGGER_ON_BOUND_MS = 250;
 function spinningSharedScript(sourceUrlComment = ""): string {
   return (
     `const spinUntil = Date.now() + ${RUNNING_SCRIPT_SPIN_MS}; while (Date.now() < spinUntil) {} ` +
+    // A debugger still on stops the worker here for good, and the beacon behind it never comes.
+    `debugger; ` +
     `${SHARED_BEACON_SOURCE} onconnect = () => {};${sourceUrlComment}`
   );
 }
