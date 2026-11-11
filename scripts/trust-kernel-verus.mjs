@@ -9,8 +9,9 @@
 // `verify` does three things, because a green verifier run alone can mean
 // that nothing was asked:
 //   1. reads src/encode.rs and refuses the words that would let a claim
-//      through unchecked (assume, admit, an external or trusted marker), and
-//      requires the two theorems and the checked entry point by name;
+//      through unchecked (assume, admit, axiom, an external or trusted
+//      marker), and requires the two theorems and the checked entry point
+//      by name;
 //   2. runs `cargo verus verify` and requires every result line to report
 //      zero errors, with at least one verified item for the kernel itself;
 //   3. breaks the specification in a temporary copy (a quote written with no
@@ -38,6 +39,7 @@ const FORBIDDEN = [
   /\bassume\s*\(/,
   /\badmit\s*\(/,
   /\bassume_specification\b/,
+  /\baxiom\b/,
   /external_body/,
   /verifier::external/,
   /verifier::trusted/,

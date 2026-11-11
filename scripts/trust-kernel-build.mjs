@@ -100,13 +100,13 @@ function cleanBuild(workspace, targetDirectory) {
   const cargoHomeGiven = process.env.CARGO_HOME ?? path.join(os.homedir(), ".cargo");
   mkdirSync(cargoHomeGiven, { recursive: true });
   const cargoHome = realpathSync(cargoHomeGiven);
-  // Longest paths first is not needed: rustc applies the last matching
-  // remap, and these three never nest in a way that changes the answer.
+  // rustc applies the last remap that matches, so the longest path goes
+  // last: if one of these ever sat inside another, the inner one would win.
   const remaps = [
     [realpathSync(workspace), "/sbl/trust-kernel"],
     [cargoHome, "/sbl/cargo-home"],
     [realpathSync(tools.sysroot), "/sbl/rust-sysroot"]
-  ];
+  ].sort((a, b) => a[0].length - b[0].length);
   // CARGO_ENCODED_RUSTFLAGS takes the flags as they are, separated by 0x1f,
   // so a path with a space is still one flag, and it outranks every other
   // source of flags, so an ambient RUSTFLAGS cannot reach this build.
