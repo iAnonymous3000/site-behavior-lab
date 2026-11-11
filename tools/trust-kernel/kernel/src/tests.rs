@@ -1,6 +1,7 @@
 //! A few fixed cases, so `cargo test` says something without Node. The
 //! reference comparison is scripts/trust-kernel-differential.mjs.
 
+use crate::encode::{encode_admitted, Value};
 use crate::{canonicalize, Refusal};
 
 fn canon(text: &str) -> Result<String, Refusal> {
@@ -99,4 +100,70 @@ fn normalization_tables_are_in_order_and_in_range() {
         .iter()
         .all(|&(a, b, c)| scalar(a) && scalar(b) && scalar(c)));
     assert_eq!(crate::UNICODE_VERSION, "17.0");
+}
+
+fn units(text: &str) -> Vec<u16> {
+    text.encode_utf16().collect()
+}
+
+fn number(text: &str) -> Value {
+    Value::Number(text.as_bytes().to_vec())
+}
+
+#[test]
+fn the_encoder_returns_bytes_exactly_for_admitted_trees() {
+    let object = |keys: &[&str]| Value::Object(keys.iter().map(|key| (units(key), Value::Null)).collect());
+    // Keys must strictly increase by UTF-16 code unit.
+    assert_eq!(
+        encode_admitted(&object(&["a", "b"])).as_deref(),
+        Some(&b"{\"a\":null,\"b\":null}"[..])
+    );
+    assert_eq!(encode_admitted(&object(&["b", "a"])), None);
+    assert_eq!(encode_admitted(&object(&["a", "a"])), None);
+    assert_eq!(encode_admitted(&object(&["a", "b", "a"])), None);
+    assert_eq!(encode_admitted(&object(&["\u{e000}", "\u{1f600}"])), None);
+    assert!(encode_admitted(&object(&["", "a", "aa", "b"])).is_some());
+    // A number's text must be a non-empty run of number bytes, at any depth.
+    assert_eq!(encode_admitted(&number("")), None);
+    assert_eq!(encode_admitted(&number("1,2")), None);
+    assert_eq!(encode_admitted(&number("1 ")), None);
+    assert_eq!(encode_admitted(&number("E")), None);
+    assert_eq!(
+        encode_admitted(&Value::Array(vec![Value::Null, Value::Array(vec![number("x")])])),
+        None
+    );
+    assert_eq!(
+        encode_admitted(&Value::Object(vec![(
+            units("a"),
+            Value::Object(vec![(units("b"), number("]"))])
+        )])),
+        None
+    );
+    assert_eq!(
+        encode_admitted(&Value::Array(vec![
+            number("-1.5e+300"),
+            Value::Bool(true),
+            Value::Bool(false)
+        ]))
+        .as_deref(),
+        Some(&b"[-1.5e+300,true,false]"[..])
+    );
+}
+
+#[test]
+fn an_admitted_tree_need_not_be_canonical() {
+    // The encoder's domain is wider than canonical JSON. These trees are
+    // admitted, and `canonicalize` never builds them.
+    assert_eq!(encode_admitted(&number("1.0")).as_deref(), Some(&b"1.0"[..]));
+    assert_eq!(encode_admitted(&number("+e.")).as_deref(), Some(&b"+e."[..]));
+    assert_eq!(
+        encode_admitted(&Value::String(units("e\u{301}"))).as_deref(),
+        Some("\"e\u{301}\"".as_bytes())
+    );
+    assert_eq!(canonicalize(b"1.0", None).as_deref(), Ok(&b"1"[..]));
+    assert_eq!(canonicalize(b"+e.", None), Err(Refusal::InvalidJson));
+    assert_eq!(
+        canonicalize("\"e\u{301}\"".as_bytes(), None).as_deref(),
+        Ok("\"\u{e9}\"".as_bytes())
+    );
 }

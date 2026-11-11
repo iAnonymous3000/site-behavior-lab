@@ -1,30 +1,48 @@
-//! The encoder: a canonical value tree to its bytes, with a machine-checked
-//! argument (Verus) that two different admitted trees never share bytes.
+//! The encoder: a value tree to its bytes, with a machine-checked argument
+//! (Verus) that two different admitted trees never share bytes.
 //!
 //! Everything in this file is inside `verus!`. An ordinary `cargo build`
 //! erases the specifications and the lemmas and compiles the executable
 //! functions as they stand, so the functions Verus checks are the functions
 //! that ship. What Verus checks here, for every input and with no bound:
 //!
-//! - `encode_admitted` returns bytes only for a tree `admitted` accepts, and
-//!   those bytes are exactly `encode` of that tree;
-//! - `theorem_encoding_is_injective`: two admitted trees with equal `encode`
-//!   bytes are the same tree;
+//! - `encode_admitted` returns bytes exactly when `admitted` accepts the
+//!   value's tree, and those bytes are exactly `encode` of that tree;
+//! - `theorem_encoding_is_injective`: two trees whose number texts are number
+//!   tokens, with equal `encode` bytes, are the same tree. Every admitted
+//!   tree is such a tree (`theorem_admitted_numbers_are_tokens`), so two
+//!   admitted trees never share bytes
+//!   (`theorem_admitted_trees_never_share_bytes`);
+//! - `theorem_admitted_object_has_no_key_twice`: in an admitted object each
+//!   key is less than every later key, so the keys of every object the
+//!   encoder writes strictly increase and none is there twice;
 //! - the executable functions index nothing out of range and overflow no
 //!   integer.
 //!
-//! What it does not check: that `encode` is JSON, or that it is what
+//! Injectivity does not depend on the key order. The argument reads an object
+//! as an ordered list of members; it holds for keys in any order, repeated
+//! keys included. The key order is a separate statement, the third above.
+//!
+//! "Admitted" is the domain of these statements and it is wider than
+//! "canonical". An admitted tree may hold a string that is not normalized
+//! and a number text that is not the shortest one, or not a number at all
+//! (`1.0`, `01`, `+e.`). `encode` is a written specification, trusted as the
+//! meaning of "the bytes of a tree".
+//!
+//! What Verus does not check: that `encode` is JSON, or that it is what
 //! `lib/canonical-json.ts` writes (the differential test holds that); how a
 //! tree is built from input bytes (parsing, number text, normalization, all
-//! in the other modules); memory exhaustion; stack depth.
+//! in the other modules), and so that the trees `canonicalize` builds are
+//! always admitted; memory exhaustion; stack depth.
 
 use vstd::prelude::*;
 
 verus! {
 
-/// A canonical value. A number is carried as its finished text, and a string
-/// as UTF-16 code units, lone surrogates included, because that is what a
-/// JavaScript string is and the reference orders keys by those units.
+/// A value tree as the encoder takes it. A number is carried as its finished
+/// text, and a string as UTF-16 code units, lone surrogates included, because
+/// that is what a JavaScript string is and the reference orders keys by
+/// those units. Nothing in the type makes a value canonical, or admitted.
 pub enum Value {
     Null,
     Bool(bool),
@@ -269,7 +287,9 @@ pub open spec fn key_less(a: Seq<u16>, b: Seq<u16>) -> bool {
 }
 
 /// The trees the encoder accepts: every number's text is a non-empty run of
-/// number bytes, and every object's keys strictly increase.
+/// number bytes, and every object's keys strictly increase. The first clause
+/// is what injectivity uses (`numbers_are_tokens`); the second is what
+/// `theorem_admitted_object_has_no_key_twice` uses.
 pub open spec fn admitted(t: Tree) -> bool
     decreases t,
 {
@@ -281,6 +301,23 @@ pub open spec fn admitted(t: Tree) -> bool
         Tree::Array(a) => forall|i: int| 0 <= i < a.len() ==> admitted(#[trigger] a[i]),
         Tree::Object(m) => (forall|i: int| 0 <= i < m.len() ==> admitted((#[trigger] m[i]).1)) && (
         forall|i: int| 0 < i < m.len() ==> key_less(m[i - 1].0, (#[trigger] m[i]).0)),
+    }
+}
+
+/// The part of `admitted` that injectivity rests on: every number's text,
+/// at every depth, is a non-empty run of number bytes. Nothing is asked of
+/// strings or of keys.
+pub open spec fn numbers_are_tokens(t: Tree) -> bool
+    decreases t,
+{
+    match t {
+        Tree::Null => true,
+        Tree::Bool(_) => true,
+        Tree::Number(n) => number_token(n),
+        Tree::String(_) => true,
+        Tree::Array(a) => forall|i: int| 0 <= i < a.len() ==> numbers_are_tokens(#[trigger] a[i]),
+        Tree::Object(m) => forall|i: int|
+            0 <= i < m.len() ==> numbers_are_tokens((#[trigger] m[i]).1),
     }
 }
 
@@ -580,47 +617,57 @@ proof fn lemma_head_injective(s1: Seq<u16>, x1: Seq<u8>, s2: Seq<u16>, x2: Seq<u
     assert(s1.subrange(0, head_len(s1)) =~= s2.subrange(0, head_len(s2)));
 }
 
-/// A string's bytes, closed by its quote, decide the string.
-proof fn lemma_string_injective(s1: Seq<u16>, r1: Seq<u8>, s2: Seq<u16>, r2: Seq<u8>)
+/// The first token of a non-empty string split off from the rest.
+proof fn lemma_string_step(s: Seq<u16>, x: Seq<u8>)
     requires
-        string_bytes(s1) + seq![0x22u8] + r1 == string_bytes(s2) + seq![0x22u8] + r2,
+        s.len() > 0,
+    ensures
+        string_bytes(s) + x == head_bytes(s) + (string_bytes(
+            s.subrange(head_len(s), s.len() as int),
+        ) + x),
+        (string_bytes(s) + x)[0] != 0x22,
+{
+    lemma_head_shape(s);
+    assert(string_bytes(s) + x =~= head_bytes(s) + (string_bytes(
+        s.subrange(head_len(s), s.len() as int),
+    ) + x));
+}
+
+/// A string's bytes, followed by text that starts with a quote, decide the
+/// string and that text.
+proof fn lemma_string_injective(s1: Seq<u16>, x1: Seq<u8>, s2: Seq<u16>, x2: Seq<u8>)
+    requires
+        x1.len() > 0,
+        x1[0] == 0x22,
+        x2.len() > 0,
+        x2[0] == 0x22,
+        string_bytes(s1) + x1 == string_bytes(s2) + x2,
     ensures
         s1 == s2,
-        r1 == r2,
+        x1 == x2,
     decreases s1.len(),
 {
-    let q = seq![0x22u8];
-    let w = string_bytes(s1) + q + r1;
     if s1.len() == 0 {
-        assert(w[0] == 0x22);
+        assert(string_bytes(s1) + x1 =~= x1);
         if s2.len() > 0 {
-            lemma_head_shape(s2);
-            assert((string_bytes(s2) + q + r2)[0] == head_bytes(s2)[0]);
+            lemma_string_step(s2, x2);
             assert(false);
         }
+        assert(string_bytes(s2) + x2 =~= x2);
         assert(s1 =~= s2);
-        assert(string_bytes(s1) =~= Seq::<u8>::empty());
-        assert(string_bytes(s2) =~= Seq::<u8>::empty());
-        assert(q + r1 =~= w);
-        assert(q + r2 =~= string_bytes(s2) + q + r2);
-        lemma_cancel_prefix(q, r1, r2);
     } else {
+        lemma_string_step(s1, x1);
         if s2.len() == 0 {
-            lemma_head_shape(s1);
-            assert(w[0] == head_bytes(s1)[0]);
-            assert((string_bytes(s2) + q + r2)[0] == 0x22);
+            assert(string_bytes(s2) + x2 =~= x2);
             assert(false);
         }
+        lemma_string_step(s2, x2);
         let n1 = head_len(s1);
         let n2 = head_len(s2);
         let rest1 = s1.subrange(n1, s1.len() as int);
         let rest2 = s2.subrange(n2, s2.len() as int);
-        let x1 = string_bytes(rest1) + q + r1;
-        let x2 = string_bytes(rest2) + q + r2;
-        assert(head_bytes(s1) + x1 =~= w);
-        assert(head_bytes(s2) + x2 =~= string_bytes(s2) + q + r2);
-        lemma_head_injective(s1, x1, s2, x2);
-        lemma_string_injective(rest1, r1, rest2, r2);
+        lemma_head_injective(s1, string_bytes(rest1) + x1, s2, string_bytes(rest2) + x2);
+        lemma_string_injective(rest1, x1, rest2, x2);
         assert(s1 =~= s1.subrange(0, n1) + rest1);
         assert(s2 =~= s2.subrange(0, n2) + rest2);
     }
@@ -653,14 +700,15 @@ proof fn lemma_number_injective(n1: Seq<u8>, r1: Seq<u8>, n2: Seq<u8>, r2: Seq<u
     lemma_same_front(n1, r1, n2, r2);
 }
 
-/// The first byte of an admitted tree's encoding names its kind.
+/// The first byte of a tree's encoding names its kind.
 proof fn lemma_first_byte(t: Tree)
     requires
-        admitted(t),
+        numbers_are_tokens(t),
     ensures
         encode(t).len() >= 1,
         t is Null ==> encode(t)[0] == 0x6e,
         t is Bool ==> encode(t)[0] == 0x74 || encode(t)[0] == 0x66,
+        t is Bool ==> (encode(t)[0] == 0x74) == t->Bool_0,
         t is Number ==> is_number_byte(encode(t)[0]),
         t is String ==> encode(t)[0] == 0x22,
         t is Array ==> encode(t)[0] == 0x5b,
@@ -674,12 +722,154 @@ proof fn lemma_first_byte(t: Tree)
     }
 }
 
-/// The main lemma. An admitted tree's bytes, followed by nothing or by a
-/// delimiter, decide the tree and where it ends.
+// Each lemma from here to the main one does one small step on sequences, so
+// that no single query to the solver carries the whole argument. The runner
+// (scripts/trust-kernel-verus.mjs) checks the file under a resource limit
+// well below the checker's default and fails when a step outgrows it.
+
+proof fn lemma_first_of_concat(p: Seq<u8>, x: Seq<u8>)
+    requires
+        p.len() > 0,
+    ensures
+        (p + x).len() > 0,
+        (p + x)[0] == p[0],
+{
+}
+
+proof fn lemma_subrange_head<A>(s: Seq<A>, i: int)
+    requires
+        0 <= i < s.len(),
+    ensures
+        s.subrange(i, s.len() as int) == seq![s[i]] + s.subrange(i + 1, s.len() as int),
+{
+    assert(s.subrange(i, s.len() as int) =~= seq![s[i]] + s.subrange(i + 1, s.len() as int));
+}
+
+proof fn lemma_string_frame(s: Seq<u16>, r: Seq<u8>)
+    ensures
+        encode(Tree::String(s)) + r == seq![0x22u8] + (string_bytes(s) + (seq![0x22u8] + r)),
+{
+    assert(encode(Tree::String(s)) + r =~= seq![0x22u8] + (string_bytes(s) + (seq![0x22u8] + r)));
+}
+
+proof fn lemma_array_frame(a: Seq<Tree>, r: Seq<u8>)
+    ensures
+        encode(Tree::Array(a)) + r == seq![0x5bu8] + (items_from(a, 0) + (seq![0x5du8] + r)),
+{
+    assert(encode(Tree::Array(a)) + r =~= seq![0x5bu8] + (items_from(a, 0) + (seq![0x5du8] + r)));
+}
+
+proof fn lemma_object_frame(m: Seq<(Seq<u16>, Tree)>, r: Seq<u8>)
+    ensures
+        encode(Tree::Object(m)) + r == seq![0x7bu8] + (members_from(m, 0) + (seq![0x7du8] + r)),
+{
+    assert(encode(Tree::Object(m)) + r =~= seq![0x7bu8] + (members_from(m, 0) + (seq![0x7du8] + r)));
+}
+
+proof fn lemma_member_frame(key: Seq<u16>, value: Tree, x: Seq<u8>)
+    ensures
+        member_bytes(key, value) + x == seq![0x22u8] + (string_bytes(key) + (seq![0x22u8] + (seq![
+            0x3au8,
+        ] + (encode(value) + x)))),
+{
+    assert(member_bytes(key, value) + x =~= seq![0x22u8] + (string_bytes(key) + (seq![0x22u8] + (
+    seq![0x3au8] + (encode(value) + x)))));
+}
+
+/// The items from index i on, followed by text that starts with the closing
+/// bracket: one item split off, and what follows it starts with a comma or
+/// with that bracket.
+proof fn lemma_items_step(a: Seq<Tree>, i: int, x: Seq<u8>)
+    requires
+        0 <= i < a.len(),
+        x.len() > 0,
+        x[0] == 0x5d,
+    ensures
+        items_from(a, i) + x == separator(i) + (encode(a[i]) + (items_from(a, i + 1) + x)),
+        delimited(items_from(a, i + 1) + x),
+{
+    let y = items_from(a, i + 1) + x;
+    assert(items_from(a, i) + x =~= separator(i) + (encode(a[i]) + y));
+    if i + 1 < a.len() {
+        assert(y[0] == separator(i + 1)[0]);
+    } else {
+        assert(y =~= x);
+    }
+}
+
+/// Whether the items from index i on are at their end is read from the
+/// first byte.
+proof fn lemma_items_head(a: Seq<Tree>, i: int, x: Seq<u8>)
+    requires
+        0 <= i <= a.len(),
+        x.len() > 0,
+        x[0] == 0x5d,
+        forall|k: int| 0 <= k < a.len() ==> numbers_are_tokens(#[trigger] a[k]),
+    ensures
+        (items_from(a, i) + x).len() > 0,
+        ((items_from(a, i) + x)[0] == 0x5d) == (i == a.len()),
+        i == a.len() ==> items_from(a, i) + x == x,
+{
+    let w = items_from(a, i) + x;
+    if i == a.len() {
+        assert(w =~= x);
+    } else if i > 0 {
+        assert(w[0] == separator(i)[0]);
+    } else {
+        lemma_first_byte(a[i]);
+        assert(w[0] == encode(a[i])[0]);
+    }
+}
+
+proof fn lemma_members_step(m: Seq<(Seq<u16>, Tree)>, i: int, x: Seq<u8>)
+    requires
+        0 <= i < m.len(),
+        x.len() > 0,
+        x[0] == 0x7d,
+    ensures
+        members_from(m, i) + x == separator(i) + (member_bytes(m[i].0, m[i].1) + (members_from(
+            m,
+            i + 1,
+        ) + x)),
+        delimited(members_from(m, i + 1) + x),
+{
+    let y = members_from(m, i + 1) + x;
+    assert(members_from(m, i) + x =~= separator(i) + (member_bytes(m[i].0, m[i].1) + y));
+    if i + 1 < m.len() {
+        assert(y[0] == separator(i + 1)[0]);
+    } else {
+        assert(y =~= x);
+    }
+}
+
+proof fn lemma_members_head(m: Seq<(Seq<u16>, Tree)>, i: int, x: Seq<u8>)
+    requires
+        0 <= i <= m.len(),
+        x.len() > 0,
+        x[0] == 0x7d,
+    ensures
+        (members_from(m, i) + x).len() > 0,
+        ((members_from(m, i) + x)[0] == 0x7d) == (i == m.len()),
+        i == m.len() ==> members_from(m, i) + x == x,
+{
+    let w = members_from(m, i) + x;
+    if i == m.len() {
+        assert(w =~= x);
+    } else if i > 0 {
+        assert(w[0] == separator(i)[0]);
+    } else {
+        assert(w[0] == member_bytes(m[i].0, m[i].1)[0]);
+    }
+}
+
+/// The main lemma. The bytes of a tree whose number texts are number tokens,
+/// followed by nothing or by a delimiter, decide the tree and where it ends.
+/// The order of an object's keys is not among the hypotheses: the argument
+/// reads an object as a list of members and never uses how the keys compare.
 proof fn lemma_encode_injective(t1: Tree, r1: Seq<u8>, t2: Tree, r2: Seq<u8>)
     requires
-        admitted(t1),
-        admitted(t2),
+        numbers_are_tokens(t1),
+        numbers_are_tokens(t2),
         delimited(r1),
         delimited(r2),
         encode(t1) + r1 == encode(t2) + r2,
@@ -688,11 +878,10 @@ proof fn lemma_encode_injective(t1: Tree, r1: Seq<u8>, t2: Tree, r2: Seq<u8>)
         r1 == r2,
     decreases t1, 0nat,
 {
-    let w = encode(t1) + r1;
     lemma_first_byte(t1);
     lemma_first_byte(t2);
-    assert(w[0] == encode(t1)[0]);
-    assert((encode(t2) + r2)[0] == encode(t2)[0]);
+    lemma_first_of_concat(encode(t1), r1);
+    lemma_first_of_concat(encode(t2), r2);
     match t1 {
         Tree::Null => {
             assert(t2 is Null);
@@ -711,24 +900,26 @@ proof fn lemma_encode_injective(t1: Tree, r1: Seq<u8>, t2: Tree, r2: Seq<u8>)
             assert(t2 is String);
             let s2 = t2->String_0;
             let q = seq![0x22u8];
-            assert(q + (string_bytes(s1) + q + r1) =~= w);
-            assert(q + (string_bytes(s2) + q + r2) =~= encode(t2) + r2);
-            lemma_cancel_prefix(q, string_bytes(s1) + q + r1, string_bytes(s2) + q + r2);
-            lemma_string_injective(s1, r1, s2, r2);
+            lemma_string_frame(s1, r1);
+            lemma_string_frame(s2, r2);
+            lemma_cancel_prefix(q, string_bytes(s1) + (q + r1), string_bytes(s2) + (q + r2));
+            lemma_string_injective(s1, q + r1, s2, q + r2);
+            lemma_cancel_prefix(q, r1, r2);
         },
         Tree::Array(a1) => {
             assert(t2 is Array);
             let a2 = t2->Array_0;
             let open = seq![0x5bu8];
             let close = seq![0x5du8];
-            assert(open + (items_from(a1, 0) + close + r1) =~= w);
-            assert(open + (items_from(a2, 0) + close + r2) =~= encode(t2) + r2);
+            lemma_array_frame(a1, r1);
+            lemma_array_frame(a2, r2);
             lemma_cancel_prefix(
                 open,
-                items_from(a1, 0) + close + r1,
-                items_from(a2, 0) + close + r2,
+                items_from(a1, 0) + (close + r1),
+                items_from(a2, 0) + (close + r2),
             );
-            lemma_items_injective(a1, 0, r1, a2, 0, r2);
+            lemma_items_injective(a1, 0, close + r1, a2, 0, close + r2);
+            lemma_cancel_prefix(close, r1, r2);
             assert(a1 =~= a1.subrange(0, a1.len() as int));
             assert(a2 =~= a2.subrange(0, a2.len() as int));
         },
@@ -737,14 +928,15 @@ proof fn lemma_encode_injective(t1: Tree, r1: Seq<u8>, t2: Tree, r2: Seq<u8>)
             let m2 = t2->Object_0;
             let open = seq![0x7bu8];
             let close = seq![0x7du8];
-            assert(open + (members_from(m1, 0) + close + r1) =~= w);
-            assert(open + (members_from(m2, 0) + close + r2) =~= encode(t2) + r2);
+            lemma_object_frame(m1, r1);
+            lemma_object_frame(m2, r2);
             lemma_cancel_prefix(
                 open,
-                members_from(m1, 0) + close + r1,
-                members_from(m2, 0) + close + r2,
+                members_from(m1, 0) + (close + r1),
+                members_from(m2, 0) + (close + r2),
             );
-            lemma_members_injective(m1, 0, r1, m2, 0, r2);
+            lemma_members_injective(m1, 0, close + r1, m2, 0, close + r2);
+            lemma_cancel_prefix(close, r1, r2);
             assert(m1 =~= m1.subrange(0, m1.len() as int));
             assert(m2 =~= m2.subrange(0, m2.len() as int));
         },
@@ -754,74 +946,41 @@ proof fn lemma_encode_injective(t1: Tree, r1: Seq<u8>, t2: Tree, r2: Seq<u8>)
 proof fn lemma_items_injective(
     a1: Seq<Tree>,
     i1: int,
-    r1: Seq<u8>,
+    x1: Seq<u8>,
     a2: Seq<Tree>,
     i2: int,
-    r2: Seq<u8>,
+    x2: Seq<u8>,
 )
     requires
         0 <= i1 <= a1.len(),
         0 <= i2 <= a2.len(),
         (i1 == 0) == (i2 == 0),
-        forall|k: int| 0 <= k < a1.len() ==> admitted(#[trigger] a1[k]),
-        forall|k: int| 0 <= k < a2.len() ==> admitted(#[trigger] a2[k]),
-        items_from(a1, i1) + seq![0x5du8] + r1 == items_from(a2, i2) + seq![0x5du8] + r2,
+        forall|k: int| 0 <= k < a1.len() ==> numbers_are_tokens(#[trigger] a1[k]),
+        forall|k: int| 0 <= k < a2.len() ==> numbers_are_tokens(#[trigger] a2[k]),
+        x1.len() > 0,
+        x1[0] == 0x5d,
+        x2.len() > 0,
+        x2[0] == 0x5d,
+        items_from(a1, i1) + x1 == items_from(a2, i2) + x2,
     ensures
         a1.subrange(i1, a1.len() as int) == a2.subrange(i2, a2.len() as int),
-        r1 == r2,
+        x1 == x2,
     decreases a1, a1.len() - i1,
 {
-    let close = seq![0x5du8];
-    let w1 = items_from(a1, i1) + close + r1;
-    let w2 = items_from(a2, i2) + close + r2;
+    lemma_items_head(a1, i1, x1);
+    lemma_items_head(a2, i2, x2);
     if i1 == a1.len() {
-        assert(w1[0] == 0x5d);
-        if i2 < a2.len() {
-            lemma_first_byte(a2[i2]);
-            assert(w2[0] == (separator(i2) + encode(a2[i2]))[0]);
-            assert(false);
-        }
-        assert(close + r1 =~= w1);
-        assert(close + r2 =~= w2);
-        lemma_cancel_prefix(close, r1, r2);
         assert(a1.subrange(i1, a1.len() as int) =~= a2.subrange(i2, a2.len() as int));
     } else {
-        if i2 == a2.len() {
-            lemma_first_byte(a1[i1]);
-            assert(w1[0] == (separator(i1) + encode(a1[i1]))[0]);
-            assert(w2[0] == 0x5d);
-            assert(false);
-        }
-        let rest1 = items_from(a1, i1 + 1) + close + r1;
-        let rest2 = items_from(a2, i2 + 1) + close + r2;
-        assert(separator(i1) + (encode(a1[i1]) + rest1) =~= w1);
-        assert(separator(i2) + (encode(a2[i2]) + rest2) =~= w2);
-        assert(separator(i1) == separator(i2));
-        lemma_cancel_prefix(separator(i1), encode(a1[i1]) + rest1, encode(a2[i2]) + rest2);
-        assert(rest1[0] == 0x2c || rest1[0] == 0x5d) by {
-            if i1 + 1 < a1.len() {
-                assert(rest1[0] == separator(i1 + 1)[0]);
-            } else {
-                assert(rest1[0] == close[0]);
-            }
-        }
-        assert(rest2[0] == 0x2c || rest2[0] == 0x5d) by {
-            if i2 + 1 < a2.len() {
-                assert(rest2[0] == separator(i2 + 1)[0]);
-            } else {
-                assert(rest2[0] == close[0]);
-            }
-        }
-        lemma_encode_injective(a1[i1], rest1, a2[i2], rest2);
-        lemma_items_injective(a1, i1 + 1, r1, a2, i2 + 1, r2);
-        assert(a1.subrange(i1, a1.len() as int) =~= seq![a1[i1]] + a1.subrange(
-            i1 + 1,
-            a1.len() as int,
-        ));
-        assert(a2.subrange(i2, a2.len() as int) =~= seq![a2[i2]] + a2.subrange(
-            i2 + 1,
-            a2.len() as int,
-        ));
+        let y1 = items_from(a1, i1 + 1) + x1;
+        let y2 = items_from(a2, i2 + 1) + x2;
+        lemma_items_step(a1, i1, x1);
+        lemma_items_step(a2, i2, x2);
+        lemma_cancel_prefix(separator(i1), encode(a1[i1]) + y1, encode(a2[i2]) + y2);
+        lemma_encode_injective(a1[i1], y1, a2[i2], y2);
+        lemma_items_injective(a1, i1 + 1, x1, a2, i2 + 1, x2);
+        lemma_subrange_head(a1, i1);
+        lemma_subrange_head(a2, i2);
     }
 }
 
@@ -835,8 +994,8 @@ proof fn lemma_member_injective(
     x2: Seq<u8>,
 )
     requires
-        admitted(v1),
-        admitted(v2),
+        numbers_are_tokens(v1),
+        numbers_are_tokens(v2),
         delimited(x1),
         delimited(x2),
         member_bytes(k1, v1) + x1 == member_bytes(k2, v2) + x2,
@@ -850,15 +1009,15 @@ proof fn lemma_member_injective(
     let colon = seq![0x3au8];
     let after1 = colon + (encode(v1) + x1);
     let after2 = colon + (encode(v2) + x2);
-    assert(seq![0x22u8, 0x3au8] =~= quote + colon);
-    assert(quote + (string_bytes(k1) + quote + after1) =~= member_bytes(k1, v1) + x1);
-    assert(quote + (string_bytes(k2) + quote + after2) =~= member_bytes(k2, v2) + x2);
+    lemma_member_frame(k1, v1, x1);
+    lemma_member_frame(k2, v2, x2);
     lemma_cancel_prefix(
         quote,
-        string_bytes(k1) + quote + after1,
-        string_bytes(k2) + quote + after2,
+        string_bytes(k1) + (quote + after1),
+        string_bytes(k2) + (quote + after2),
     );
-    lemma_string_injective(k1, after1, k2, after2);
+    lemma_string_injective(k1, quote + after1, k2, quote + after2);
+    lemma_cancel_prefix(quote, after1, after2);
     lemma_cancel_prefix(colon, encode(v1) + x1, encode(v2) + x2);
     lemma_encode_injective(v1, x1, v2, x2);
 }
@@ -866,85 +1025,57 @@ proof fn lemma_member_injective(
 proof fn lemma_members_injective(
     m1: Seq<(Seq<u16>, Tree)>,
     i1: int,
-    r1: Seq<u8>,
+    x1: Seq<u8>,
     m2: Seq<(Seq<u16>, Tree)>,
     i2: int,
-    r2: Seq<u8>,
+    x2: Seq<u8>,
 )
     requires
         0 <= i1 <= m1.len(),
         0 <= i2 <= m2.len(),
         (i1 == 0) == (i2 == 0),
-        forall|k: int| 0 <= k < m1.len() ==> admitted((#[trigger] m1[k]).1),
-        forall|k: int| 0 <= k < m2.len() ==> admitted((#[trigger] m2[k]).1),
-        members_from(m1, i1) + seq![0x7du8] + r1 == members_from(m2, i2) + seq![0x7du8] + r2,
+        forall|k: int| 0 <= k < m1.len() ==> numbers_are_tokens((#[trigger] m1[k]).1),
+        forall|k: int| 0 <= k < m2.len() ==> numbers_are_tokens((#[trigger] m2[k]).1),
+        x1.len() > 0,
+        x1[0] == 0x7d,
+        x2.len() > 0,
+        x2[0] == 0x7d,
+        members_from(m1, i1) + x1 == members_from(m2, i2) + x2,
     ensures
         m1.subrange(i1, m1.len() as int) == m2.subrange(i2, m2.len() as int),
-        r1 == r2,
+        x1 == x2,
     decreases m1, m1.len() - i1,
 {
-    let close = seq![0x7du8];
-    let w1 = members_from(m1, i1) + close + r1;
-    let w2 = members_from(m2, i2) + close + r2;
+    lemma_members_head(m1, i1, x1);
+    lemma_members_head(m2, i2, x2);
     if i1 == m1.len() {
-        assert(w1[0] == 0x7d);
-        if i2 < m2.len() {
-            assert(member_bytes(m2[i2].0, m2[i2].1)[0] == 0x22);
-            assert(w2[0] == (separator(i2) + member_bytes(m2[i2].0, m2[i2].1))[0]);
-            assert(false);
-        }
-        assert(close + r1 =~= w1);
-        assert(close + r2 =~= w2);
-        lemma_cancel_prefix(close, r1, r2);
         assert(m1.subrange(i1, m1.len() as int) =~= m2.subrange(i2, m2.len() as int));
     } else {
-        if i2 == m2.len() {
-            assert(member_bytes(m1[i1].0, m1[i1].1)[0] == 0x22);
-            assert(w1[0] == (separator(i1) + member_bytes(m1[i1].0, m1[i1].1))[0]);
-            assert(w2[0] == 0x7d);
-            assert(false);
-        }
-        let b1 = member_bytes(m1[i1].0, m1[i1].1);
-        let b2 = member_bytes(m2[i2].0, m2[i2].1);
-        let rest1 = members_from(m1, i1 + 1) + close + r1;
-        let rest2 = members_from(m2, i2 + 1) + close + r2;
-        assert(separator(i1) + (b1 + rest1) =~= w1);
-        assert(separator(i2) + (b2 + rest2) =~= w2);
-        assert(separator(i1) == separator(i2));
-        lemma_cancel_prefix(separator(i1), b1 + rest1, b2 + rest2);
-        assert(rest1[0] == 0x2c || rest1[0] == 0x7d) by {
-            if i1 + 1 < m1.len() {
-                assert(rest1[0] == separator(i1 + 1)[0]);
-            } else {
-                assert(rest1[0] == close[0]);
-            }
-        }
-        assert(rest2[0] == 0x2c || rest2[0] == 0x7d) by {
-            if i2 + 1 < m2.len() {
-                assert(rest2[0] == separator(i2 + 1)[0]);
-            } else {
-                assert(rest2[0] == close[0]);
-            }
-        }
-        lemma_member_injective(m1[i1].0, m1[i1].1, rest1, m2[i2].0, m2[i2].1, rest2);
-        lemma_members_injective(m1, i1 + 1, r1, m2, i2 + 1, r2);
+        let y1 = members_from(m1, i1 + 1) + x1;
+        let y2 = members_from(m2, i2 + 1) + x2;
+        lemma_members_step(m1, i1, x1);
+        lemma_members_step(m2, i2, x2);
+        lemma_cancel_prefix(
+            separator(i1),
+            member_bytes(m1[i1].0, m1[i1].1) + y1,
+            member_bytes(m2[i2].0, m2[i2].1) + y2,
+        );
+        lemma_member_injective(m1[i1].0, m1[i1].1, y1, m2[i2].0, m2[i2].1, y2);
+        lemma_members_injective(m1, i1 + 1, x1, m2, i2 + 1, x2);
         assert(m1[i1] == m2[i2]);
-        assert(m1.subrange(i1, m1.len() as int) =~= seq![m1[i1]] + m1.subrange(
-            i1 + 1,
-            m1.len() as int,
-        ));
-        assert(m2.subrange(i2, m2.len() as int) =~= seq![m2[i2]] + m2.subrange(
-            i2 + 1,
-            m2.len() as int,
-        ));
+        lemma_subrange_head(m1, i1);
+        lemma_subrange_head(m2, i2);
     }
 }
 
-/// Two admitted trees with the same bytes are the same tree.
+/// Two trees whose number texts are number tokens, with the same bytes, are
+/// the same tree. This is the whole of what injectivity needs: it holds for
+/// an object whose keys are in any order, repeated keys included, because an
+/// object here is a list of members.
 pub proof fn theorem_encoding_is_injective(t1: Tree, t2: Tree)
     requires
-        admitted(t1),
-        admitted(t2),
+        numbers_are_tokens(t1),
+        numbers_are_tokens(t2),
         encode(t1) == encode(t2),
     ensures
         t1 == t2,
@@ -954,8 +1085,51 @@ pub proof fn theorem_encoding_is_injective(t1: Tree, t2: Tree)
     lemma_encode_injective(t1, none, t2, none);
 }
 
-/// An object whose keys strictly increase has no key at two places next to
-/// each other, because no key is less than itself.
+/// Every admitted tree is in the domain of the theorem above.
+pub proof fn theorem_admitted_numbers_are_tokens(t: Tree)
+    requires
+        admitted(t),
+    ensures
+        numbers_are_tokens(t),
+    decreases t,
+{
+    match t {
+        Tree::Array(a) => {
+            assert forall|i: int| 0 <= i < a.len() implies numbers_are_tokens(#[trigger] a[i]) by {
+                theorem_admitted_numbers_are_tokens(a[i]);
+            }
+        },
+        Tree::Object(m) => {
+            assert forall|i: int| 0 <= i < m.len() implies numbers_are_tokens(
+                (#[trigger] m[i]).1,
+            ) by {
+                theorem_admitted_numbers_are_tokens(m[i].1);
+            }
+        },
+        _ => {},
+    }
+}
+
+/// Two admitted trees with the same bytes are the same tree.
+pub proof fn theorem_admitted_trees_never_share_bytes(t1: Tree, t2: Tree)
+    requires
+        admitted(t1),
+        admitted(t2),
+        encode(t1) == encode(t2),
+    ensures
+        t1 == t2,
+{
+    theorem_admitted_numbers_are_tokens(t1);
+    theorem_admitted_numbers_are_tokens(t2);
+    theorem_encoding_is_injective(t1, t2);
+}
+
+// ---------------------------------------------------------------------------
+// What the key order gives. Injectivity above does not depend on it; these
+// three statements are where the key order clause of `admitted` is used.
+// ---------------------------------------------------------------------------
+
+/// No key is less than itself.
 pub proof fn theorem_key_order_is_strict(a: Seq<u16>)
     ensures
         !key_less(a, a),
@@ -966,6 +1140,51 @@ pub proof fn theorem_key_order_is_strict(a: Seq<u16>)
                 && #[trigger] parts_at(a, a, k);
         assert(false);
     }
+}
+
+pub proof fn theorem_key_order_is_transitive(a: Seq<u16>, b: Seq<u16>, c: Seq<u16>)
+    requires
+        key_less(a, b),
+        key_less(b, c),
+    ensures
+        key_less(a, c),
+{
+    let k1 = choose|k: int|
+        0 <= k && k <= a.len() && k <= b.len() && (forall|j: int| 0 <= j < k ==> a[j] == b[j])
+            && #[trigger] parts_at(a, b, k);
+    let k2 = choose|k: int|
+        0 <= k && k <= b.len() && k <= c.len() && (forall|j: int| 0 <= j < k ==> b[j] == c[j])
+            && #[trigger] parts_at(b, c, k);
+    let k = if k1 <= k2 {
+        k1
+    } else {
+        k2
+    };
+    assert(forall|j: int| 0 <= j < k ==> a[j] == c[j]);
+    assert(parts_at(a, c, k));
+}
+
+/// In an admitted object every key is less than every key after it, so no
+/// key is there twice. With the postcondition of `encode_admitted`, the keys
+/// of every object the encoder writes strictly increase.
+pub proof fn theorem_admitted_object_has_no_key_twice(m: Seq<(Seq<u16>, Tree)>, i: int, j: int)
+    requires
+        admitted(Tree::Object(m)),
+        0 <= i < j < m.len(),
+    ensures
+        key_less(m[i].0, m[j].0),
+        m[i].0 != m[j].0,
+    decreases j - i,
+{
+    let object = Tree::Object(m);
+    assert(object->Object_0 == m);
+    assert(forall|x: int| 0 < x < m.len() ==> key_less(m[x - 1].0, (#[trigger] m[x]).0));
+    assert(key_less(m[j - 1].0, m[j].0));
+    if i + 1 < j {
+        theorem_admitted_object_has_no_key_twice(m, i, j - 1);
+        theorem_key_order_is_transitive(m[i].0, m[j - 1].0, m[j].0);
+    }
+    theorem_key_order_is_strict(m[i].0);
 }
 
 // ---------------------------------------------------------------------------
@@ -1120,6 +1339,58 @@ fn push_bytes(out: &mut Vec<u8>, bytes: &Vec<u8>)
     assert(bytes@.subrange(0, n as int) =~= bytes@);
 }
 
+/// One more item written: what is left to write is one item shorter.
+proof fn lemma_item_pushed(before: Seq<u8>, a: Seq<Tree>, i: int, now: Seq<u8>)
+    requires
+        0 <= i < a.len(),
+        now == before + separator(i) + encode(a[i]),
+    ensures
+        now + items_from(a, i + 1) == before + items_from(a, i),
+{
+    assert(now + items_from(a, i + 1) =~= before + items_from(a, i));
+}
+
+proof fn lemma_member_pushed(before: Seq<u8>, m: Seq<(Seq<u16>, Tree)>, i: int, now: Seq<u8>)
+    requires
+        0 <= i < m.len(),
+        now == before + separator(i) + seq![0x22u8] + string_bytes(m[i].0) + seq![0x22u8] + seq![
+            0x3au8,
+        ] + encode(m[i].1),
+    ensures
+        now + members_from(m, i + 1) == before + members_from(m, i),
+{
+    assert(seq![0x22u8, 0x3au8] =~= seq![0x22u8] + seq![0x3au8]);
+    assert(now =~= before + separator(i) + member_bytes(m[i].0, m[i].1));
+    assert(now + members_from(m, i + 1) =~= before + members_from(m, i));
+}
+
+proof fn lemma_string_pushed(base: Seq<u8>, s: Seq<u16>, now: Seq<u8>)
+    requires
+        now == (base.push(0x22u8) + string_bytes(s)).push(0x22u8),
+    ensures
+        now == base + encode(Tree::String(s)),
+{
+    assert(now =~= base + encode(Tree::String(s)));
+}
+
+proof fn lemma_array_pushed(base: Seq<u8>, a: Seq<Tree>, now: Seq<u8>)
+    requires
+        now == (base.push(0x5bu8) + items_from(a, 0)).push(0x5du8),
+    ensures
+        now == base + encode(Tree::Array(a)),
+{
+    assert(now =~= base + encode(Tree::Array(a)));
+}
+
+proof fn lemma_object_pushed(base: Seq<u8>, m: Seq<(Seq<u16>, Tree)>, now: Seq<u8>)
+    requires
+        now == (base.push(0x7bu8) + members_from(m, 0)).push(0x7du8),
+    ensures
+        now == base + encode(Tree::Object(m)),
+{
+    assert(now =~= base + encode(Tree::Object(m)));
+}
+
 fn push_value(out: &mut Vec<u8>, v: &Value)
     ensures
         final(out)@ == old(out)@ + encode(tree_of(*v)),
@@ -1156,93 +1427,108 @@ fn push_value(out: &mut Vec<u8>, v: &Value)
             out.push(0x22);
             push_string(out, s);
             out.push(0x22);
-            assert(out@ =~= base + encode(tree_of(*v)));
+            proof {
+                lemma_string_pushed(base, s@, out@);
+            }
         },
         Value::Array(a) => {
-            let ghost items = tree_of(*v)->Array_0;
             out.push(0x5b);
-            let n = a.len();
-            let mut i: usize = 0;
-            while i < n
-                invariant
-                    n == a@.len(),
-                    i <= n,
-                    *v == Value::Array(*a),
-                    items == tree_of(*v)->Array_0,
-                    items.len() == n,
-                    out@ + items_from(items, i as int) == base + seq![0x5bu8] + items_from(
-                        items,
-                        0,
-                    ),
-                decreases n - i,
-            {
-                let ghost before = out@;
-                if i > 0 {
-                    out.push(0x2c);
-                }
-                assert(out@ =~= before + separator(i as int));
-                proof {
-                    assert(v->Array_0 == *a);
-                    vstd::std_specs::vec::axiom_vec_index_decreases(*a, i as int);
-                    assert(items[i as int] == tree_of(a@[i as int]));
-                }
-                push_value(out, &a[i]);
-                assert(before + (separator(i as int) + encode(items[i as int]) + items_from(
-                    items,
-                    i + 1,
-                )) =~= out@ + items_from(items, i + 1));
-                i += 1;
-            }
+            push_items(out, a);
             out.push(0x5d);
-            assert(items_from(items, n as int) =~= Seq::<u8>::empty());
-            assert(out@ =~= base + encode(tree_of(*v)));
+            proof {
+                lemma_array_pushed(base, tree_of(*v)->Array_0, out@);
+            }
         },
         Value::Object(m) => {
-            let ghost members = tree_of(*v)->Object_0;
             out.push(0x7b);
-            let n = m.len();
-            let mut i: usize = 0;
-            while i < n
-                invariant
-                    n == m@.len(),
-                    i <= n,
-                    *v == Value::Object(*m),
-                    members == tree_of(*v)->Object_0,
-                    members.len() == n,
-                    out@ + members_from(members, i as int) == base + seq![0x7bu8] + members_from(
-                        members,
-                        0,
-                    ),
-                decreases n - i,
-            {
-                let ghost before = out@;
-                if i > 0 {
-                    out.push(0x2c);
-                }
-                out.push(0x22);
-                push_string(out, &m[i].0);
-                out.push(0x22);
-                out.push(0x3a);
-                proof {
-                    assert(v->Object_0 == *m);
-                    vstd::std_specs::vec::axiom_vec_index_decreases(*m, i as int);
-                    assert(members[i as int] == (m@[i as int].0@, tree_of(m@[i as int].1)));
-                    assert(out@ =~= before + (separator(i as int) + seq![0x22u8] + string_bytes(
-                        members[i as int].0,
-                    ) + seq![0x22u8, 0x3au8]));
-                }
-                push_value(out, &m[i].1);
-                assert(before + (separator(i as int) + member_bytes(
-                    members[i as int].0,
-                    members[i as int].1,
-                ) + members_from(members, i + 1)) =~= out@ + members_from(members, i + 1));
-                i += 1;
-            }
+            push_members(out, m);
             out.push(0x7d);
-            assert(members_from(members, n as int) =~= Seq::<u8>::empty());
-            assert(out@ =~= base + encode(tree_of(*v)));
+            proof {
+                lemma_object_pushed(base, tree_of(*v)->Object_0, out@);
+            }
         },
     }
+}
+
+/// The items of an array, commas included, without the brackets.
+fn push_items(out: &mut Vec<u8>, a: &Vec<Value>)
+    ensures
+        final(out)@ == old(out)@ + items_from(tree_of(Value::Array(*a))->Array_0, 0),
+    decreases a,
+{
+    let ghost items = tree_of(Value::Array(*a))->Array_0;
+    let ghost target = out@ + items_from(items, 0);
+    let n = a.len();
+    let mut i: usize = 0;
+    while i < n
+        invariant
+            n == a@.len(),
+            i <= n,
+            items == tree_of(Value::Array(*a))->Array_0,
+            items.len() == n,
+            out@ + items_from(items, i as int) == target,
+        decreases n - i,
+    {
+        let ghost before = out@;
+        if i > 0 {
+            out.push(0x2c);
+        }
+        assert(out@ =~= before + separator(i as int));
+        proof {
+            vstd::std_specs::vec::axiom_vec_index_decreases(*a, i as int);
+            assert(items[i as int] == tree_of(a@[i as int]));
+        }
+        push_value(out, &a[i]);
+        proof {
+            lemma_item_pushed(before, items, i as int, out@);
+        }
+        i += 1;
+    }
+    assert(out@ =~= out@ + items_from(items, n as int));
+}
+
+/// The members of an object, commas included, without the braces.
+fn push_members(out: &mut Vec<u8>, m: &Vec<(Vec<u16>, Value)>)
+    ensures
+        final(out)@ == old(out)@ + members_from(tree_of(Value::Object(*m))->Object_0, 0),
+    decreases m,
+{
+    let ghost members = tree_of(Value::Object(*m))->Object_0;
+    let ghost target = out@ + members_from(members, 0);
+    let n = m.len();
+    let mut i: usize = 0;
+    while i < n
+        invariant
+            n == m@.len(),
+            i <= n,
+            members == tree_of(Value::Object(*m))->Object_0,
+            members.len() == n,
+            out@ + members_from(members, i as int) == target,
+        decreases n - i,
+    {
+        let ghost before = out@;
+        if i > 0 {
+            out.push(0x2c);
+        }
+        assert(out@ =~= before + separator(i as int));
+        out.push(0x22);
+        push_string(out, &m[i].0);
+        out.push(0x22);
+        out.push(0x3a);
+        proof {
+            vstd::std_specs::vec::axiom_vec_index_decreases(*m, i as int);
+            assert(members[i as int] == (m@[i as int].0@, tree_of(m@[i as int].1)));
+            assert(out@ =~= before + separator(i as int) + seq![0x22u8] + string_bytes(
+                members[i as int].0,
+            ) + seq![0x22u8] + seq![0x3au8]);
+        }
+        push_value(out, &m[i].1);
+        proof {
+            lemma_member_pushed(before, members, i as int, out@);
+        }
+        i += 1;
+    }
+    assert(out@ =~= out@ + members_from(members, n as int));
 }
 
 // ---------------------------------------------------------------------------
@@ -1258,7 +1544,7 @@ fn is_number_byte_exec(b: u8) -> (r: bool)
 
 fn number_token_exec(t: &Vec<u8>) -> (r: bool)
     ensures
-        r ==> number_token(t@),
+        r == number_token(t@),
 {
     let n = t.len();
     if n == 0 {
@@ -1273,6 +1559,7 @@ fn number_token_exec(t: &Vec<u8>) -> (r: bool)
         decreases n - i,
     {
         if !is_number_byte_exec(t[i]) {
+            assert(!is_number_byte(t@[i as int]));
             return false;
         }
         i += 1;
@@ -1282,7 +1569,7 @@ fn number_token_exec(t: &Vec<u8>) -> (r: bool)
 
 fn key_less_exec(a: &Vec<u16>, b: &Vec<u16>) -> (r: bool)
     ensures
-        r ==> key_less(a@, b@),
+        r == key_less(a@, b@),
 {
     let n = a.len();
     let m = b.len();
@@ -1301,6 +1588,15 @@ fn key_less_exec(a: &Vec<u16>, b: &Vec<u16>) -> (r: bool)
                 assert(parts_at(a@, b@, i as int));
                 return true;
             }
+            // The keys first differ here and this one is the greater, so
+            // no place parts them the other way.
+            assert forall|k: int|
+                0 <= k && k <= a@.len() && k <= b@.len() && (forall|j: int|
+                    0 <= j < k ==> a@[j] == b@[j]) implies !#[trigger] parts_at(a@, b@, k) by {
+                if k > i {
+                    assert(a@[i as int] == b@[i as int]);
+                }
+            }
             return false;
         }
         i += 1;
@@ -1309,12 +1605,16 @@ fn key_less_exec(a: &Vec<u16>, b: &Vec<u16>) -> (r: bool)
         assert(parts_at(a@, b@, i as int));
         return true;
     }
+    // The second key is the first one or a prefix of it.
+    assert forall|k: int|
+        0 <= k && k <= a@.len() && k <= b@.len() && (forall|j: int|
+            0 <= j < k ==> a@[j] == b@[j]) implies !#[trigger] parts_at(a@, b@, k) by {}
     false
 }
 
 fn admitted_exec(v: &Value) -> (ok: bool)
     ensures
-        ok ==> admitted(tree_of(*v)),
+        ok == admitted(tree_of(*v)),
     decreases v,
 {
     match v {
@@ -1342,6 +1642,7 @@ fn admitted_exec(v: &Value) -> (ok: bool)
                     assert(items[i as int] == tree_of(a@[i as int]));
                 }
                 if !admitted_exec(&a[i]) {
+                    assert(!admitted(items[i as int]));
                     return false;
                 }
                 i += 1;
@@ -1372,9 +1673,11 @@ fn admitted_exec(v: &Value) -> (ok: bool)
                     }
                 }
                 if i > 0 && !key_less_exec(&m[i - 1].0, &m[i].0) {
+                    assert(!key_less(members[i - 1].0, members[i as int].0));
                     return false;
                 }
                 if !admitted_exec(&m[i].1) {
+                    assert(!admitted(members[i as int].1));
                     return false;
                 }
                 i += 1;
@@ -1384,14 +1687,21 @@ fn admitted_exec(v: &Value) -> (ok: bool)
     }
 }
 
-/// The bytes of a canonical value, or nothing when the value is outside the
-/// admitted domain. With `theorem_encoding_is_injective`: whenever this
-/// returns the same bytes for two values, the two values are the same tree.
+/// The bytes of a value whose tree is admitted, and nothing for any other
+/// value: it returns bytes exactly when the tree is admitted. With
+/// `theorem_admitted_trees_never_share_bytes`: whenever this returns the
+/// same bytes for two values, the two values are the same tree.
+///
+/// "Admitted" is not "canonical". A caller inside this crate can build a
+/// value whose strings are not normalized or whose number texts are not the
+/// shortest (`1.0`), or are no number at all (`+e.`), and get bytes for it.
+/// Only `canonicalize` in lib.rs builds the values this is called with, and
+/// that those are canonical is tested, not checked here.
 pub fn encode_admitted(v: &Value) -> (r: Option<Vec<u8>>)
     ensures
         match r {
             Some(bytes) => admitted(tree_of(*v)) && bytes@ == encode(tree_of(*v)),
-            None => true,
+            None => !admitted(tree_of(*v)),
         },
 {
     if !admitted_exec(v) {
