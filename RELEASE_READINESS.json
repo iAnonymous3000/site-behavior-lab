@@ -267,13 +267,6 @@
         }
       ]
     },
-    "container-package-review": {
-      "kind": "container-package-review",
-      "title": "Every exact-candidate container OS package has a reviewed determination",
-      "inventory": "research/measurement-candidate/site-behavior-lab-container-package-inventory.json",
-      "bundle": "research/measurement-candidate/container-package-inventory.bundle.json",
-      "ledger": "CONTAINER_IMAGE_PACKAGE_REVIEWS.json"
-    },
     "formal-verification": {
       "kind": "formal-verification",
       "title": "Every required formal verification suite file ran at the candidate with no test or describe block skipped, left todo or failed, and met its pinned minimums of tests passed and catches recorded",

@@ -1387,8 +1387,6 @@ function acquireMeasurementCandidate(manifest, rootDir, options = {}) {
     // Reuse only the producer-membership helper. Path/timestamp checks below
     // retain their Git-based causal verification for this evidence carrier.
     const module = canonical ? {
-      MEASUREMENT_CANDIDATE_PACKAGE_INVENTORY_PATH: canonical.MEASUREMENT_CANDIDATE_PACKAGE_INVENTORY_PATH,
-      MEASUREMENT_CANDIDATE_PACKAGE_ATTESTATION_BUNDLE_PATH: canonical.MEASUREMENT_CANDIDATE_PACKAGE_ATTESTATION_BUNDLE_PATH,
       measurementCandidateAcceptsProducerCommit: canonical.measurementCandidateAcceptsProducerCommit
     } : null;
     try {

@@ -114,19 +114,34 @@ name/version/architecture/source-package/license facts, a SHA-256 evidence
 digest per row, and a SHA-256 digest over the exact package array. Timestamp,
 tag, target, and scanner-report IDs are deliberately omitted.
 
-`CONTAINER_IMAGE_PACKAGE_REVIEWS.json` is the separate human ledger for those
-rows. `npm run supply-chain:container-reviews:sync -- --inventory <path>` adds
+No human license review of these packages has been performed. The inventory
+records the licenses Trivy detected for each package, and that scanner output
+is evidence, not a legal conclusion. The inventory itself is checked by
+machine: its producer refuses a report that does not match the image, CI signs
+its exact bytes, and a 1.0 evidence carrier must bind it with that signature.
+
+`CONTAINER_IMAGE_PACKAGE_REVIEWS.json` is the separate ledger that was meant
+to hold a human determination for each of those rows. As of 2026-11-11 every
+row is `unreviewed`. `npm run supply-chain:container-reviews:sync -- --inventory <path>` adds
 new facts as `unreviewed`, drops absent rows, and resets a determination when
 its package evidence digest changes. It never invents a license conclusion.
 `npm run supply-chain:container-reviews:check -- --inventory <path>` fails CI
 on a missing, orphaned, duplicate, malformed, or stale row. Tracked
-`unreviewed` rows remain mergeable and are reported as incomplete; legal
-review completeness remains a release gate rather than making every ordinary
-pull request depend on a later human review. The checker accepts only the
-canonical ledger, row, and obligation fields, refuses future review dates, and
-exports a readiness validator that returns the exact candidate commit,
-container image digest, canonical inventory digest, and package-set digest
-only alongside the completeness verdict.
+`unreviewed` rows remain mergeable and are reported as incomplete. The checker
+accepts only the canonical ledger, row, and obligation fields, refuses future
+review dates, and exports a readiness validator that returns the exact
+candidate commit, container image digest, canonical inventory digest, and
+package-set digest only alongside the completeness verdict.
+
+Release 1.0 no longer reads this ledger row by row. The
+`container-package-review` gate, which required every row to be reviewed, was
+removed on 2026-11-11, and a 1.0 evidence carrier no longer binds the ledger.
+The `container-image-licensing` gate still asks an operator to attest a
+completed review. The ledger and its CI check remain because two other things
+depend on them. The check is the only step that fails CI when the final
+image's OS package set differs from the committed rows. And the research
+programme's measurement-candidate binding digest-binds the ledger, as
+described below.
 
 The initial 512 unreviewed rows were mechanically seeded from a
 checksum-verified Trivy v0.70.0 scan of the digest-pinned Playwright base, with

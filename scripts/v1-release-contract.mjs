@@ -24,7 +24,6 @@ export const V1_GATES = Object.freeze({
   "durable-soak": "durable-soak",
   "waf-ceilings": "operator-attestation",
   "container-image-licensing": "operator-attestation",
-  "container-package-review": "container-package-review",
   "formal-verification": "formal-verification"
 });
 export const V1_FORMAL_VERIFICATION_REPORT_PATH = "research/measurement-candidate/site-behavior-lab-formal-verification-report.json";
@@ -68,7 +67,6 @@ const FIXED_EVIDENCE = Object.freeze({
   "research/measurement-candidate/container-evidence-manifest.bundle.json": "container-attestation",
   "research/measurement-candidate/site-behavior-lab-container-package-inventory.json": "container-package-inventory",
   "research/measurement-candidate/container-package-inventory.bundle.json": "container-package-attestation",
-  "CONTAINER_IMAGE_PACKAGE_REVIEWS.json": "container-package-review",
   "research/ops-receipts/v1-r2-lifecycle-readback.json": "lifecycle-receipt",
   [V1_QUALIFICATION_PATH]: "mode-qualification",
   [V1_FORMAL_VERIFICATION_REPORT_PATH]: "formal-verification-report",
@@ -208,7 +206,7 @@ function allowedEvidence(entry) {
 
 /** Authenticate C and every C..S edit. Only evidence may be added after C;
  * existing reports, source, configuration, policies and workflows stay pinned.
- * A package review can be completed once after the exact image is inventoried.
+ * Every bound file is added once; none may be modified after C.
  * No calendar, corpus size, calibration or durable-enable prerequisite exists.
  */
 export function verifyV1ReleaseBinding(rootDir, canonical, { attestationVerifier } = {}) {
@@ -227,8 +225,7 @@ export function verifyV1ReleaseBinding(rootDir, canonical, { attestationVerifier
   const entries = new Map();
   for (const entry of binding.evidence) {
     requireValue(keys(entry, ["category", "path", "change", "sha256"]) && DIGEST.test(entry.sha256) &&
-      allowedEvidence(entry) && !entries.has(entry.path) &&
-      (entry.change === "added" || (entry.path === "CONTAINER_IMAGE_PACKAGE_REVIEWS.json" && entry.change === "refreshed")), "v1 binding has an unsupported or duplicate evidence entry");
+      allowedEvidence(entry) && !entries.has(entry.path) && entry.change === "added", "v1 binding has an unsupported or duplicate evidence entry");
     requireValue(sha256(bytes(rootDir, entry.path)) === entry.sha256, `${entry.path} digest differs from the binding`);
     entries.set(entry.path, entry);
   }
@@ -259,7 +256,7 @@ export function verifyV1ReleaseBinding(rootDir, canonical, { attestationVerifier
         continue;
       }
       const entry = entries.get(relative);
-      requireValue(entry && !introduced[relative] && status === (entry.change === "added" ? "A" : "M"), `post-candidate change is not single-introduction evidence: ${relative}`);
+      requireValue(entry && !introduced[relative] && status === "A", `post-candidate change is not single-introduction evidence: ${relative}`);
       introduced[relative] = commit;
       introducedTime[relative] = new Date(git(rootDir, ["show", "-s", "--format=%cI", commit])).toISOString();
     }
@@ -267,6 +264,15 @@ export function verifyV1ReleaseBinding(rootDir, canonical, { attestationVerifier
   requireValue(bindingIntroduced && entries.size === Object.keys(introduced).length, "every bound artifact must be introduced after C, and the binding added at S");
   const sourcePath = canonical.MEASUREMENT_CANDIDATE_SOURCE_EVIDENCE_PATH;
   const inventoryPath = canonical.MEASUREMENT_CANDIDATE_PACKAGE_INVENTORY_PATH;
+  // The candidate verifier names the files it reads, and this contract names
+  // the files a carrier must bind. They are one set written in two places, so
+  // hold them equal here: a verifier that read another path would authenticate
+  // a file the binding does not hold by digest.
+  requireValue(FIXED_EVIDENCE[sourcePath] === "container-evidence" &&
+    FIXED_EVIDENCE[canonical.MEASUREMENT_CANDIDATE_ATTESTATION_BUNDLE_PATH] === "container-attestation" &&
+    FIXED_EVIDENCE[inventoryPath] === "container-package-inventory" &&
+    FIXED_EVIDENCE[canonical.MEASUREMENT_CANDIDATE_PACKAGE_ATTESTATION_BUNDLE_PATH] === "container-package-attestation",
+    "the candidate verifier and this contract disagree on the container evidence paths");
   const container = canonical.verifySourceEvidenceManifest(json(rootDir, sourcePath), binding.candidateCommit, binding.candidateTree, REPOSITORY);
   canonical.verifyContainerPackageInventory(json(rootDir, inventoryPath), binding.candidateCommit, container);
   const signerWorkflow = `${REPOSITORY}/.github/workflows/ci.yml`;

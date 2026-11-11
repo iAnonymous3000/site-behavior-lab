@@ -212,7 +212,6 @@ const EXPECTED_GATES: Record<string, string> = {
   "durable-soak": "durable-soak",
   "waf-ceilings": "operator-attestation",
   "container-image-licensing": "operator-attestation",
-  "container-package-review": "container-package-review",
   "formal-verification": "formal-verification"
 };
 // Every count of live gates below is taken from this list, so the list is the

@@ -75,7 +75,6 @@ function fixture(t: { after: (callback: () => void) => void }) {
   add(canonical.MEASUREMENT_CANDIDATE_ATTESTATION_BUNDLE_PATH, "container-attestation", { fixture: "bundle" });
   add(canonical.MEASUREMENT_CANDIDATE_PACKAGE_INVENTORY_PATH, "container-package-inventory", { fixture: "inventory" });
   add(canonical.MEASUREMENT_CANDIDATE_PACKAGE_ATTESTATION_BUNDLE_PATH, "container-package-attestation", { fixture: "bundle" });
-  add("CONTAINER_IMAGE_PACKAGE_REVIEWS.json", "container-package-review", { fixture: "review" });
   add("research/ops-receipts/v1-r2-lifecycle-readback.json", "lifecycle-receipt", { fixture: "lifecycle" });
   // Only the live operator gates. The two deferred to 1.1 are bound by the
   // tests that exercise a carrier presenting their evidence anyway.
@@ -191,7 +190,11 @@ test("each operator deferral is held by name: a dropped, retargeted, hollow or d
 const REMOVED_GATES: [string, string, [string, string][]][] = [
   // A ledger of human license determinations for the third-party inventory.
   // No row of it was ever reviewed. The inventory and its own check remain.
-  ["legal-review", "review-ledger", [["THIRD_PARTY_REVIEWS.json", "review-ledger"]]]
+  ["legal-review", "review-ledger", [["THIRD_PARTY_REVIEWS.json", "review-ledger"]]],
+  // A ledger of human license determinations for the container image's OS
+  // packages. No row of it was ever reviewed. The signed package inventory
+  // and its attestation remain bound.
+  ["container-package-review", "container-package-review", [["CONTAINER_IMAGE_PACKAGE_REVIEWS.json", "container-package-review"]]]
 ];
 
 test("a removed gate cannot return by a manifest edit, live or deferred, and the binding admits none of its evidence", async (t) => {
@@ -220,6 +223,40 @@ test("a removed gate cannot return by a manifest edit, live or deferred, and the
       assert.throws(() => c.verifyV1ReleaseBinding(f.root, f.instruments, f.options), (error: Error) => error.message === UNSUPPORTED, `${relative} as ${category}`);
       assert.equal(f.calls.length, 0, "nothing is sent for authentication from a carrier that binds it");
     }
+  }
+});
+
+test("a carrier may only add evidence, and the candidate verifier must read the files the binding holds", async (t) => {
+  const c = await contract();
+  const UNSUPPORTED = "v1 binding has an unsupported or duplicate evidence entry";
+  // The container review ledger was the one file a carrier could modify after
+  // C. With it gone, no entry is anything but added, whatever its path.
+  for (const relative of [FV_REPORT, canonical.MEASUREMENT_CANDIDATE_PACKAGE_INVENTORY_PATH]) {
+    for (const change of ["refreshed", "modified", "release-finalization", ""]) {
+      const f = fixture(t);
+      f.evidence.find((e: Any) => e.path === relative).change = change; f.bind();
+      assert.throws(() => c.verifyV1ReleaseBinding(f.root, f.instruments, f.options), (error: Error) => error.message === UNSUPPORTED, `${relative} as ${JSON.stringify(change)}`);
+      assert.equal(f.calls.length, 0);
+    }
+  }
+  const ledger = fixture(t);
+  ledger.add("CONTAINER_IMAGE_PACKAGE_REVIEWS.json", "container-package-review", { fixture: "review" });
+  ledger.evidence.at(-1).change = "refreshed"; ledger.bind();
+  assert.throws(() => c.verifyV1ReleaseBinding(ledger.root, ledger.instruments, ledger.options), (error: Error) => error.message === UNSUPPORTED);
+
+  // The verifier's four container paths are the contract's. The removed
+  // container-package-review gate was what compared them, so the binding does.
+  const DISAGREE = "the candidate verifier and this contract disagree on the container evidence paths";
+  for (const name of ["MEASUREMENT_CANDIDATE_SOURCE_EVIDENCE_PATH", "MEASUREMENT_CANDIDATE_ATTESTATION_BUNDLE_PATH",
+    "MEASUREMENT_CANDIDATE_PACKAGE_INVENTORY_PATH", "MEASUREMENT_CANDIDATE_PACKAGE_ATTESTATION_BUNDLE_PATH"] as const) {
+    const f = fixture(t); f.bind();
+    assert.equal(typeof canonical[name], "string", name);
+    // Another verifier build that reads a file the carrier also holds: here, the report.
+    for (const elsewhere of [FV_REPORT, "research/measurement-candidate/elsewhere.json"]) {
+      assert.throws(() => c.verifyV1ReleaseBinding(f.root, { ...f.instruments, [name]: elsewhere }, f.options), (error: Error) => error.message === DISAGREE, `${name} -> ${elsewhere}`);
+    }
+    assert.equal(f.calls.length, 0, "nothing is authenticated once the paths disagree");
+    assert.equal(c.verifyV1ReleaseBinding(f.root, f.instruments, f.options).candidateCommit, f.candidate);
   }
 });
 

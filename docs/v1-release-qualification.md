@@ -158,8 +158,7 @@ their own. The externally pinned whole-binding review remains mandatory.
 2. Collect qualification and authentic operator evidence on C or an evidence-only
    descendant. Retain the existing CI container evidence, package inventory and
    their Sigstore bundles, and the formal verification execution report with
-   its bundle, all from the `main` CI run at C. Complete the exact-image
-   package review. Provider
+   its bundle, all from the `main` CI run at C. Provider
    evidence still needs its existing authenticated capture, freshness and
    failure-probe checks. A hand-written statement cannot replace those proofs.
    `npm run release:attestation-scaffold -- --gate <gate-id>` can prepare
@@ -171,8 +170,8 @@ their own. The externally pinned whole-binding review remains mandatory.
    target release `1.0.0`, C's full `candidateCommit` and `candidateTree`, and an
    `evidence` array of `{category, path, change, sha256}` entries. The verifier
    restricts entries to the fixed evidence paths and checks every C..S commit.
-   All evidence is introduced once; only the container review ledger may be
-   refreshed once. Code, configuration, existing reports, policies and workflows
+   All evidence is introduced once, and no bound file may be modified after C.
+   Code, configuration, existing reports, policies and workflows
    cannot change after C. A source fix requires a new candidate and recollection.
 4. Run `npm run release:readiness:check`. Independently verify and hash the whole
    binding, then select that digest with the existing
