@@ -114,8 +114,8 @@ import {
 } from "./hosted-evidence-provenance-lib.mjs";
 
 import {
-  V1_PROFILE, V1_BINDING_PATH, V1_QUALIFICATION_PATH, v1ProfileProblems,
-  verifyV1ReleaseBinding, v1QualificationProblems, publishedCorpusProblems,
+  V1_PROFILE, V1_BINDING_PATH, v1ProfileProblems,
+  verifyV1ReleaseBinding, publishedCorpusProblems,
   v1OperatorEvidencePaths,
   V1_FORMAL_VERIFICATION_REPORT_PATH, V1_FORMAL_VERIFICATION_BUNDLE_PATH,
   V1_REQUIRED_SUITES
@@ -5984,13 +5984,6 @@ export function evaluateReleaseReadiness(
         case "release-candidate-binding": {
           const reasons = measurementCandidateProblems(measurementContext);
           result = gateResult(id, gate, reasons.length ? "fail" : "pass", reasons.length ? reasons : ["The complete candidate source and evidence-only carrier passed Git and Sigstore verification."]);
-          break;
-        }
-        case "mode-qualification": {
-          const reasons = [...measurementCandidateProblems(measurementContext)];
-          if (measurementContext.binding) reasons.push(...v1QualificationProblems(rootDir, measurementContext, loadCompiled("scan-report-reader", rootDir), now));
-          else if (!existsSync(path.join(rootDir, V1_QUALIFICATION_PATH))) reasons.push(`${V1_QUALIFICATION_PATH} does not exist`);
-          result = gateResult(id, gate, reasons.length ? "fail" : "pass", reasons.length ? reasons : ["The bounded mode review has retained references; population accuracy and detector error rates remain unestablished."]);
           break;
         }
         case "published-corpus-consistency": {

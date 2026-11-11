@@ -18,9 +18,9 @@ verifiers and historical reports, schemas, receipts and approvals remain intact.
 
 | User promise | Release requirement | What it does not establish |
 | --- | --- | --- |
-| Inspect a truthful observation | Current deep readers and consistency checks; bounded independent mode review | Population accuracy or detector error rates |
-| Understand uncertainty and interventions | Review unknowns, scanner effects and interpretation, including an incomplete visit | That a covered negative is universal absence, or an intervention proves compliance |
-| Reopen and share the same meaning | Review display, comparison, persistence and export against retained evidence; compatibility and corrections gates | Reconstruction of observations never recorded |
+| Inspect a truthful observation | Current deep readers and consistency checks | Population accuracy or detector error rates; that a person compared any report with an independent reference |
+| Understand uncertainty and interventions | No gate of its own. The scanner's tests run in CI on the candidate, and the signed formal verification report covers the suites it lists | That a covered negative is universal absence, or an intervention proves compliance; that a person reviewed how any report presents unknowns, scanner effects or an incomplete visit |
+| Reopen and share the same meaning | Compatibility and corrections gates | Reconstruction of observations never recorded; a human review of display, comparison, persistence or export |
 | Use a safely operated service | Authenticated admission-ceiling and report-lifecycle evidence | Reliability of disabled durable jobs; an egress boundary independent of the application guard; a re-verified log-retention window |
 | Identify the shipped instrument | Source-bound CI evidence, an evidence-only carrier, external binding approval, promotion and live verification | Correctness merely because a build passed |
 | Know the bounded checks ran on the shipped source | A signed execution report for the candidate: every required suite file ran, no test or describe block was skipped, left todo or failed, and each file met its pinned minimums of tests passed and catches recorded | That a claim holds outside its stated domain, or that a restated rule is the right rule |
@@ -114,39 +114,26 @@ citations; the register's own guard test holds those in the unit suite. A pass
 adds nothing to what a row of the register claims, and a row claims nothing
 outside its stated domain, bounds and axioms.
 
-## Bounded qualification
+## No mode review
 
-Retain one case for each obligation: `single-observation`, `gpc-intervention`,
-`blocker-intervention`, `consent-intervention`, and `incomplete-coverage`.
-These are coverage obligations, not a statistically representative sample.
-The comparison cases require an actually verified pair on the correct axis.
-The incomplete case requires recorded loss or failed document coverage.
-Consent remains experimental even when this bounded review passes.
+Release 1.0 has no mode review. The `mode-qualification` gate was removed on
+2026-11-11. It asked a named person to review five reports (one visit, the
+GPC, blocker and consent comparisons, and an incomplete visit) against
+references that the same person had collected. A machine could check that the
+reports parsed, that their producer was the candidate and that every cited
+byte was bound. It could not check that a reference was independent or true,
+and in a project with one maintainer the review was that maintainer's own
+sign-off.
 
-For each case, retain the current v2/r2 report, an independently captured
-reference, and a concrete expectation. A reference can include a controlled
-server's request log, a separately recorded browser trace, or a manual inspection
-record. A copy of the report's own conclusions is not independent evidence.
-Retain failures and contradictions encountered during qualification; resolve a
-contradiction by fixing the candidate and recollecting, not by marking it passed.
-The review is limited to these cases and explicitly describes remaining gaps.
+So a 1.0 release does not establish that any person compared a report with an
+independent reference, for any mode. Consent comparison remains experimental.
+A 1.0 evidence carrier may not bind anything under `research/v1-qualification/`:
+the binding refuses those paths.
 
-The named review at `research/v1-qualification/review.json` has schema version 1,
-artifact kind `site-behavior-v1-mode-qualification`, `candidateCommit`,
-`reviewedBy`, `reviewedAt`, `cases`, and `limitations`. Each case contains `id`,
-`mode`, `report`, `reference`, `expectation`, and `checks`. Checks cover
-`observations`, `unknowns`, `scanner-effects`, `interpretation`, `display`,
-`comparison`, `persistence`, and `export`. Each records `status`, a bound
-`evidence` path, and an `explanation`. Shipped behavior must be `supported`;
-only comparison on a single visit can be `explicitly-unavailable`.
-
-Reports live at `research/v1-qualification/<case>/report.json`; references and
-inspection records use `reference` or `review-evidence` with `.json`, `.txt`, or
-`.png` extensions. The verifier deep-reads every report, checks intervention
-identity and acquisition chronology, and requires all referenced bytes in the
-binding. Human review still has to establish independence and correctness of
-the references. These checks cannot authenticate a person's observations on
-their own. The externally pinned whole-binding review remains mandatory.
+What remains is machine-checked and is not release evidence. CI runs the unit
+and browser suites on every commit. The controlled reference capture described
+under "Collect controlled reference cases" below is a tool a maintainer can
+run by hand; CI does not run it.
 
 ## Source and evidence sequence
 
@@ -155,7 +142,7 @@ their own. The externally pinned whole-binding review remains mandatory.
    sharding and watches still disabled. Run the existing main CI and production
    verification. Selection does not require a Monday, a scheduled collection or
    enabling a disabled feature.
-2. Collect qualification and authentic operator evidence on C or an evidence-only
+2. Collect authentic operator evidence on C or an evidence-only
    descendant. Retain the existing CI container evidence, package inventory and
    their Sigstore bundles, and the formal verification execution report with
    its bundle, all from the `main` CI run at C. Provider
@@ -201,7 +188,7 @@ introduced here.
 
 ## Remaining blockers
 
-The contract does not supply the missing mode review, source binding, external
+The contract does not supply the missing source binding, external
 governance selection, or current lifecycle/provider evidence. Those are concrete operational
 evidence gaps to close before v1, not reasons to restart the research calendar.
 The egress and log-retention gates are not among them. They refuse
@@ -211,6 +198,12 @@ report is not a manual gap either: CI writes and signs one for each `main`
 commit, and it reaches its gate when the carrier binds the candidate's.
 
 ## Collect controlled reference cases
+
+This capture is a tool, not release evidence. No gate reads its output, and a
+1.0 evidence carrier cannot bind it. It checks the scanner against a server
+whose request log is recorded independently of the scanner. The unit suite
+tests its reference checks on synthetic reports (`scripts/v1-qualification.test.mjs`)
+and does not run the capture itself.
 
 Run `npm run release:qualification:capture -- --output /private/tmp/v1-capture-<unique-name>`
 from committed, clean source. The parent directory must exist; the output must
@@ -238,8 +231,8 @@ meanings separately.
 Each case retains `report.json` when construction succeeds, `reference.json`,
 and `review-evidence.json` when the consumer checks complete. `capture.json`
 records every attempted case, contradiction and artifact digest. A failed case
-causes a nonzero exit, but its available evidence remains. The capture does not
-create a completed `review.json` or approve any reference. Public DNS, TLS,
+causes a nonzero exit, but its available evidence remains. The capture
+approves no reference. Public DNS, TLS,
 Cloudflare ingress, R2 and actual browser rendering remain separate validation
 obligations. These examples do not establish population accuracy or error rates.
 

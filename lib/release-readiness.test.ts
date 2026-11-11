@@ -203,7 +203,6 @@ const EXPECTED_GATES: Record<string, string> = {
   "decisions-approved": "decisions",
   "release-tag-governance": "release-tag-governance",
   "release-candidate-binding": "release-candidate-binding",
-  "mode-qualification": "mode-qualification",
   "compatibility-surface-pinned": "document-digest",
   "errata-resolution": "errata",
   "published-corpus-consistency": "published-corpus-consistency",

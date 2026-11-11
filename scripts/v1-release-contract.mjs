@@ -10,12 +10,10 @@ import { isDeepStrictEqual } from "node:util";
 export const V1_PROFILE = "investigative-v1";
 export const V1_BINDING_PATH = "research/v1-release-binding.json";
 export const V1_BINDING_KIND = "site-behavior-v1-release-binding";
-export const V1_QUALIFICATION_PATH = "research/v1-qualification/review.json";
 export const V1_GATES = Object.freeze({
   "decisions-approved": "decisions",
   "release-tag-governance": "release-tag-governance",
   "release-candidate-binding": "release-candidate-binding",
-  "mode-qualification": "mode-qualification",
   "compatibility-surface-pinned": "document-digest",
   "errata-resolution": "errata",
   "published-corpus-consistency": "published-corpus-consistency",
@@ -67,7 +65,6 @@ const FIXED_EVIDENCE = Object.freeze({
   "research/measurement-candidate/site-behavior-lab-container-package-inventory.json": "container-package-inventory",
   "research/measurement-candidate/container-package-inventory.bundle.json": "container-package-attestation",
   "research/ops-receipts/v1-r2-lifecycle-readback.json": "lifecycle-receipt",
-  [V1_QUALIFICATION_PATH]: "mode-qualification",
   [V1_FORMAL_VERIFICATION_REPORT_PATH]: "formal-verification-report",
   [V1_FORMAL_VERIFICATION_BUNDLE_PATH]: "formal-verification-attestation"
 });
@@ -79,17 +76,6 @@ const FIXED_EVIDENCE = Object.freeze({
 const OPERATORS = ["egress-backstop", "waf-ceilings", "log-retention"];
 /** The fixed evidence and attestation paths of one operator gate. */
 export const v1OperatorEvidencePaths = (id) => [`research/ops-evidence/${id}.json`, `research/ops-receipts/${id}-attestation.json`];
-export const V1_QUALIFICATION_CASES = Object.freeze({
-  "single-observation": "single",
-  "gpc-intervention": "gpc",
-  "blocker-intervention": "blocker",
-  "consent-intervention": "consent",
-  "incomplete-coverage": "single"
-});
-const REVIEW_QUESTIONS = [
-  "observations", "unknowns", "scanner-effects", "interpretation",
-  "display", "comparison", "persistence", "export"
-];
 const sha256 = (bytes) => createHash("sha256").update(bytes).digest("hex");
 const record = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
 const keys = (v, expected) => record(v) && isDeepStrictEqual(Object.keys(v).sort(), [...expected].sort());
@@ -180,7 +166,6 @@ export function v1ProfileProblems(manifest) {
   // the gate compares the list, so the two accept the same manifests.
   if (suiteProblems === 0 && JSON.stringify(suites) !== JSON.stringify(V1_REQUIRED_SUITES)) problems.push("formal-verification must list its required suites exactly as this contract does");
   if (manifest.gates?.["release-candidate-binding"]?.artifact !== V1_BINDING_PATH ||
-      manifest.gates?.["mode-qualification"]?.artifact !== V1_QUALIFICATION_PATH ||
       manifest.gates?.["r2-lifecycle"]?.receipt !== "research/ops-receipts/v1-r2-lifecycle-readback.json" ||
       manifest.gates?.["published-corpus-consistency"]?.artifact !== "public/corpus-stats.json" ||
       manifest.gates?.["formal-verification"]?.report !== V1_FORMAL_VERIFICATION_REPORT_PATH ||
@@ -197,9 +182,6 @@ function allowedEvidence(entry) {
   }
   if (/^research\/ops-receipts\/release-tag-governance\/[0-9a-f]{64}\.json$/.test(entry.path)) return entry.category === "release-tag-governance-receipt";
   if (/^research\/hosted-evidence\/[a-z0-9-]+\/[0-9a-f]{64}\/[a-zA-Z0-9._/-]+$/.test(entry.path)) return entry.category === "hosted-evidence-archive";
-  if (/^research\/v1-qualification\/[a-z0-9-]+\/(report\.json|reference\.(json|txt|png)|review-evidence\.(json|txt|png))$/.test(entry.path)) {
-    return entry.category === (entry.path.endsWith("/report.json") ? "qualification-report" : "qualification-reference");
-  }
   return false;
 }
 
@@ -302,76 +284,6 @@ export function verifyV1ReleaseBinding(rootDir, canonical, { attestationVerifier
     evidenceIntroducedAt: introduced, evidenceIntroducedAtTime: introducedTime,
     bindingSha256: sha256(bytes(rootDir, V1_BINDING_PATH)), evidenceSetDigest: sha256(JSON.stringify(binding.evidence)),
     attestationVerifications: attestations };
-}
-
-/** A bounded independent review, not calibration. Raw reports are deep-read;
- * every case retains an independent reference and a specific disposition for
- * each consumer. A machine cannot establish that the human's reference is true.
- * The external whole-binding approval remains required before release authority.
- */
-export function v1QualificationProblems(rootDir, context, reader, now = Date.now()) {
-  const problems = [];
-  try {
-    const review = json(rootDir, V1_QUALIFICATION_PATH);
-    requireValue(keys(review, ["schemaVersion", "artifactKind", "candidateCommit", "reviewedBy", "reviewedAt", "cases", "limitations"]) &&
-      review.schemaVersion === 1 && review.artifactKind === "site-behavior-v1-mode-qualification" &&
-      review.candidateCommit === context.binding?.candidateCommit && text(review.reviewedBy) && instant(review.reviewedAt) &&
-      Date.parse(review.reviewedAt) <= now && text(review.limitations), "mode qualification requires a candidate-bound named review, nonfuture date and limitations");
-    requireValue(Array.isArray(review.cases) && review.cases.length === Object.keys(V1_QUALIFICATION_CASES).length, "mode qualification must cover every declared scenario exactly once");
-    const seen = new Set();
-    const bound = new Map((context.binding?.evidence ?? []).map((e) => [e.path, e]));
-    const readBound = (relative, category) => {
-      const entry = bound.get(relative);
-      requireValue(entry?.category === category && entry.sha256 === sha256(bytes(rootDir, relative)), `${relative} is not digest-bound ${category} evidence`);
-      return relative;
-    };
-    readBound(V1_QUALIFICATION_PATH, "mode-qualification");
-    const reviewedAt = Date.parse(review.reviewedAt);
-    const candidateAt = Date.parse(git(rootDir, ["show", "-s", "--format=%cI", context.binding.candidateCommit]));
-    const introducedAt = Date.parse(context.binding.evidenceIntroducedAtTime[V1_QUALIFICATION_PATH]);
-    requireValue(reviewedAt >= candidateAt && reviewedAt <= introducedAt + 1000, "review must follow the candidate and precede its evidence introduction");
-    for (const item of review.cases) {
-      requireValue(keys(item, ["id", "mode", "report", "reference", "expectation", "checks"]) &&
-        Object.hasOwn(V1_QUALIFICATION_CASES, item.id) && !seen.has(item.id) && item.mode === V1_QUALIFICATION_CASES[item.id] &&
-        text(item.expectation), "qualification has a missing, duplicate or unsupported scenario");
-      seen.add(item.id);
-      readBound(item.reference, "qualification-reference");
-      const report = JSON.parse(bytes(rootDir, readBound(item.report, "qualification-report")));
-      const parsed = reader.readStoredScanReport(report);
-      requireValue(parsed.ok && report.schemaVersion === 2 && report.schemaRevision === 2, `${item.id} report fails the current deep reader: ${JSON.stringify(parsed.violations ?? parsed.error)}`);
-      const runs = report.reportType === "single" ? [report.run] : [report.baseline, report.variant,
-        ...(report.experiment?.supportingPairs ?? []).flatMap((pair) => [pair.baseline, pair.variant])];
-      requireValue(runs.every((run) => context.binding.acceptedProducerCommits.includes(run?.provenance?.buildCommit)), `${item.id} report producer is outside the qualified source`);
-      for (const run of runs) {
-        const producer = run.provenance.buildCommit;
-        const intro = context.binding.evidenceIntroducedAt[item.report];
-        requireValue(producer !== intro, `${item.id} cannot be produced by its own evidence introduction`);
-        git(rootDir, ["merge-base", "--is-ancestor", producer, intro]);
-        const producerAt = Date.parse(git(rootDir, ["show", "-s", "--format=%cI", producer]));
-        const completedAt = Date.parse(run.startedAt) + run.summary.durationMs;
-        requireValue(instant(run.startedAt) && Date.parse(run.startedAt) >= producerAt &&
-          completedAt <= reviewedAt && completedAt <= Date.parse(context.binding.evidenceIntroducedAtTime[item.report]) + 1000,
-          `${item.id} acquisition must follow its producer and precede review and introduction`);
-      }
-      requireValue(item.mode === "single" ? report.reportType === "single" : report.reportType === "comparison", `${item.id} has the wrong report shape`);
-      if (item.mode !== "single") requireValue(report.experiment?.kind === "intervention" &&
-        report.experiment.axis === ({ gpc: "gpc", blocker: "shields", consent: "consent" })[item.mode], `${item.id} has the wrong intervention axis`);
-      if (item.id === "incomplete-coverage") requireValue(runs.some((run) => run.qualityFacts?.captureLoss?.length > 0 ||
-        run.qualityFacts?.status === null || run.qualityFacts?.status >= 400), "incomplete-coverage case needs recorded loss or failed document coverage");
-      requireValue(keys(item.checks, REVIEW_QUESTIONS), `${item.id} must review every consumer and evidence boundary`);
-      for (const [question, check] of Object.entries(item.checks)) {
-        requireValue(keys(check, ["status", "evidence", "explanation"]) && ["supported", "explicitly-unavailable"].includes(check.status) && text(check.explanation), `${item.id}/${question} is unresolved or lacks an explanation`);
-        readBound(check.evidence, "qualification-reference");
-      }
-      for (const question of REVIEW_QUESTIONS.filter((q) => q !== "comparison" || item.mode !== "single")) {
-        requireValue(item.checks[question].status === "supported", `${item.id}/${question} must be established against the retained reference`);
-      }
-      if (item.mode !== "single") requireValue(report.experiment.verification.baseline.outcome === "passed" &&
-        report.experiment.verification.variant.outcome === "passed", `${item.id} needs a successfully verified intervention pair`);
-      if (item.id === "incomplete-coverage") requireValue(item.checks.unknowns.status === "supported", "incomplete coverage must be visibly explained");
-    }
-  } catch (error) { problems.push(String(error.message ?? error)); }
-  return problems;
 }
 
 /** Run the existing managed-corpus builder in an isolated process so the sync

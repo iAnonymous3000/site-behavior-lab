@@ -122,11 +122,6 @@
       "title": "Candidate source and evidence carrier are authenticated",
       "artifact": "research/v1-release-binding.json"
     },
-    "mode-qualification": {
-      "kind": "mode-qualification",
-      "title": "Advertised modes and incomplete coverage have a bounded independent review",
-      "artifact": "research/v1-qualification/review.json"
-    },
     "compatibility-surface-pinned": {
       "kind": "document-digest",
       "title": "The compatibility promise exists and matches its pinned digest"

@@ -89,21 +89,23 @@ Keep the following mode decisions independent:
 | Blocker comparison | Use the pinned engine/list identity, record evaluated and actually blocked requests, and retain the one-pair descriptive limit. |
 | Consent comparison | Record attempted controls and registered choices across representative consent systems. Missing or unverified choices cannot become an accept/reject comparison. Keep the mode experimental. |
 
-Use the bounded cases and independent references specified in
-[v1 release qualification](v1-release-qualification.md). Scanner-fidelity
+This plan first called for a bounded review of these modes against independent
+references. That review was removed from the release contract on 2026-11-11
+(see [v1 release qualification](v1-release-qualification.md)), so 1.0 does not
+establish that a person compared any report with a reference. Scanner-fidelity
 invariants, fixture passes and healthy scans remain useful engineering evidence;
 none independently qualifies real-world accuracy.
 
 Run `npm run release:readiness` for the current evidence state. Select a tested
-candidate, collect the bounded mode review and authentic operational evidence,
+candidate, collect the authentic operational evidence the contract names,
 then finalize the evidence-only carrier. The executable `investigative-v1`
 contract no longer requires a scheduled freeze, two controlled publication
 cycles, a universal 50-site corpus floor, or enabling durable jobs.
 
 The existing benchmark floor still controls availability. Every published
 cohort must match the managed observations. The research programme and its
-historical records remain separate and unchanged. Missing qualification,
-provider proofs, distribution reviews or release provenance still block v1.
+historical records remain separate and unchanged. Missing
+provider proofs or release provenance still block v1.
 
 ## Scope
 

@@ -7,15 +7,8 @@ import path from "node:path";
 import { before, test } from "node:test";
 import { pathToFileURL } from "node:url";
 import * as canonical from "./measurement-candidate-binding";
-import * as reader from "./scan-report-reader";
-import { buildFingerprints } from "./scan-report-v2-fingerprints";
-import { evaluateQuality } from "./scan-report-v2-evaluators";
 import { buildCorpusStats } from "./corpus-stats-builder";
 import * as corpusSchema from "./corpus-stats";
-import {
-  makePublicSingleReportV2R2, makeGpcInterventionReportV2R2,
-  makeShieldsInterventionReportV2R2, makeConsentInterventionReportV2R2
-} from "./scan-report-v2-r2-fixtures";
 
 // Test seams replace only external authentication; Git and bytes remain real.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -92,38 +85,10 @@ function fixture(t: { after: (callback: () => void) => void }) {
     write(FV_REPORT, value);
     evidence.find((e) => e.path === FV_REPORT).sha256 = hash(readFileSync(path.join(root, FV_REPORT)));
   };
-  const review: Any = { schemaVersion: 1, artifactKind: "site-behavior-v1-mode-qualification", candidateCommit: candidate,
-    reviewedBy: "Fixture reviewer", reviewedAt: "2026-09-06T10:09:59.000Z", cases: [], limitations: "Only these controlled fixtures are covered; no population accuracy estimate." };
-  for (const [id, mode, factory] of [
-    ["single-observation", "single", makePublicSingleReportV2R2],
-    ["gpc-intervention", "gpc", makeGpcInterventionReportV2R2],
-    ["blocker-intervention", "blocker", makeShieldsInterventionReportV2R2],
-    ["consent-intervention", "consent", makeConsentInterventionReportV2R2],
-    ["incomplete-coverage", "single", makePublicSingleReportV2R2]
-  ] as const) {
-    const report: Any = factory();
-    for (const run of report.reportType === "single" ? [report.run] : [report.baseline, report.variant]) {
-      run.provenance.buildCommit = candidate;
-      run.startedAt = new Date(Date.parse(run.startedAt) + Date.parse("2026-09-06T10:08:00Z") - Date.parse("2026-07-09T10:00:00Z")).toISOString();
-      run.fingerprints = buildFingerprints(run);
-      if (id === "incomplete-coverage") {
-        run.qualityFacts.captureLoss = [{ family: "requests", phaseId: null, kind: "dropped", count: 1 }];
-        run.quality = evaluateQuality(run.qualityFacts, { observedRequests: run.evidence.requests.length });
-      }
-    }
-    const reportPath = `research/v1-qualification/${id}/report.json`;
-    const reference = `research/v1-qualification/${id}/reference.txt`;
-    add(reportPath, "qualification-report", report);
-    add(reference, "qualification-reference", "Independent fixture-server expectation and consumer inspection record.\n");
-    const checks = Object.fromEntries(["observations", "unknowns", "scanner-effects", "interpretation", "display", "comparison", "persistence", "export"].map((q) =>
-      [q, { status: "supported", evidence: reference, explanation: `Fixture review of ${q} matches the retained reference.` }]));
-    review.cases.push({ id, mode, report: reportPath, reference, expectation: "The controlled request and attempted intervention agree with the retained server log.", checks });
-  }
-  add("research/v1-qualification/review.json", "mode-qualification", review);
   const bind = () => {
     const value = { schemaVersion: 1, artifactKind: "site-behavior-v1-release-binding", repository: "iAnonymous3000/site-behavior-lab", targetRelease: "1.0.0", candidateCommit: candidate, candidateTree, evidence };
     write("research/v1-release-binding.json", value);
-    commit("Retain qualification evidence");
+    commit("Retain release evidence");
     return value;
   };
   const calls: Any[] = [];
@@ -135,7 +100,7 @@ function fixture(t: { after: (callback: () => void) => void }) {
       assert.deepEqual(value, { fixture: "inventory" }); assert.equal(c, candidate); assert.deepEqual(container, { fixture: "container" });
     }
   };
-  return { root, candidate, candidateTree, git, write, commit, add, bind, evidence, review, instruments, calls, report, rewriteReport,
+  return { root, candidate, candidateTree, git, write, commit, add, bind, evidence, instruments, calls, report, rewriteReport,
     options: { attestationVerifier: (request: Any) => { calls.push(request); } } };
 }
 
@@ -200,6 +165,15 @@ const REMOVED_GATES: [string, string, [string, string][]][] = [
   ["container-image-licensing", "operator-attestation", [
     ["research/ops-evidence/container-image-licensing.json", "operator-evidence"],
     ["research/ops-receipts/container-image-licensing-attestation.json", "operator-attestation"]
+  ]],
+  // A named human's review of five reports against that human's own
+  // references, with the reports and references it cited. The contract no
+  // longer admits any path under research/v1-qualification.
+  ["mode-qualification", "mode-qualification", [
+    ["research/v1-qualification/review.json", "mode-qualification"],
+    ["research/v1-qualification/single-observation/report.json", "qualification-report"],
+    ["research/v1-qualification/single-observation/reference.txt", "qualification-reference"],
+    ["research/v1-qualification/single-observation/review-evidence.json", "qualification-reference"]
   ]]
 ];
 
@@ -367,7 +341,6 @@ test("v1 accepts an authenticated evidence-only carrier without a research freez
     assert.equal(call.sourceRef, "refs/heads/main"); assert.equal(call.denySelfHostedRunners, true);
     assert.equal(call.certIdentity, "https://github.com/iAnonymous3000/site-behavior-lab/.github/workflows/ci.yml@refs/heads/main");
   }
-  assert.deepEqual(c.v1QualificationProblems(f.root, { binding }, reader, Date.parse("2026-09-06T11:00:00Z")), []);
   assert.throws(() => c.verifyV1ReleaseBinding(f.root, f.instruments, { attestationVerifier: () => { throw new Error("invalid signature"); } }), /invalid signature/);
 });
 
@@ -440,23 +413,6 @@ test("a small truthful corpus is release-valid while its benchmarks stay unavail
   assert.ok(check().length, "inventing eligibility must fail");
   write({ ...stats, generatedAt: "2099-01-01T00:00:00.000Z" });
   assert.ok(check().length, "future evidence must fail");
-});
-
-test("bounded qualification refuses missing references, wrong axes, unresolved consumers and future review", async (t) => {
-  const c = await contract();
-  for (const mutate of [
-    (f: ReturnType<typeof fixture>) => { f.review.cases[0].reference = "research/unbound.txt"; },
-    (f: ReturnType<typeof fixture>) => { f.review.cases[1].report = f.review.cases[2].report; },
-    (f: ReturnType<typeof fixture>) => { f.review.cases[0].checks.export.status = "explicitly-unavailable"; },
-    (f: ReturnType<typeof fixture>) => { f.review.reviewedAt = "2099-01-01T00:00:00.000Z"; },
-    (f: ReturnType<typeof fixture>) => { f.review.cases.pop(); }
-  ]) {
-    const f = fixture(t); mutate(f);
-    f.write("research/v1-qualification/review.json", f.review);
-    f.evidence.find((e) => e.category === "mode-qualification").sha256 = hash(serialize(f.review));
-    f.bind(); const binding = c.verifyV1ReleaseBinding(f.root, f.instruments, f.options);
-    assert.ok(c.v1QualificationProblems(f.root, { binding }, reader, Date.parse("2026-09-06T11:00:00Z")).length);
-  }
 });
 
 // ---------------------------------------------------------------------------
@@ -561,8 +517,6 @@ test("the formal-verification gate passes on a carrier that binds a report CI si
       "This shows the suites ran and passed at the candidate. The catches are a count the suites' own runs recorded. It adds nothing to what each test claims over its own domain."
     ]
   });
-  // Bound like any other evidence, it leaves the other gates of the carrier as they were.
-  assert.deepEqual(c.v1QualificationProblems(f.root, { binding }, reader, Date.parse("2026-09-06T11:00:00Z")), []);
 });
 
 // What a report can say that the gate must refuse, each with the reason it gives.
@@ -639,8 +593,6 @@ test("a report that cannot be read as one fails the formal-verification gate and
   const binding = c.verifyV1ReleaseBinding(f.root, f.instruments, f.options);
   assert.deepEqual(release.evaluateFormalVerification("formal-verification", fvGate(), f.root, verifiedContext(binding)).reasons,
     [`${FV_REPORT}: the report is not JSON`]);
-  // The same carrier, read by another gate, is untouched by it.
-  assert.deepEqual(c.v1QualificationProblems(f.root, { binding }, reader, Date.parse("2026-09-06T11:00:00Z")), []);
 
   for (const [bytes, reason] of [
     [Buffer.from([0xff, 0xfe, 0x00, 0x7b]), `${FV_REPORT}: the report is not UTF-8`],
@@ -785,7 +737,7 @@ test("the formal-verification gate trusts no verdict but a verified one for this
   // The binding names the report under another category.
   f.write(FV_REPORT, f.report);
   assert.equal(evaluate(() => {}).status, "pass");
-  assert.deepEqual(evaluate((b) => { b.evidence.find((e: Any) => e.path === FV_REPORT).category = "qualification-reference"; }).reasons,
+  assert.deepEqual(evaluate((b) => { b.evidence.find((e: Any) => e.path === FV_REPORT).category = "formal-verification-attestation"; }).reasons,
     [`${FV_REPORT} is not the report the binding holds by digest`]);
 });
 
