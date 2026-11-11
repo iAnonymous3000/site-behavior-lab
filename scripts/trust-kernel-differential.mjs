@@ -366,8 +366,8 @@ function fuzzEveryCodePoint(reference, kernel) {
   const contexts = [
     (ch) => ch,
     (ch) => `a${ch}`,
-    (ch) => `${ch}́`,
-    (ch) => `̣${ch}̈̄`
+    (ch) => `${ch}\u0301`,
+    (ch) => `\u0323${ch}\u0308\u0304`
   ];
   for (let start = 0; start <= 0x10ffff; start += BATCH) {
     const values = [];
@@ -385,7 +385,7 @@ function fuzzEveryCodePoint(reference, kernel) {
       for (let cp = start; cp < start + BATCH && cp <= 0x10ffff; cp += 1) {
         const ch = cp >= 0xd800 && cp <= 0xdfff ? `\\u${cp.toString(16)}` : String.fromCodePoint(cp);
         const literal = cp < 0x20 || cp === 0x22 || cp === 0x5c ? `\\u${cp.toString(16).padStart(4, "0")}` : ch;
-        const asKey = Buffer.from(`{"${literal}":0,"x${literal}́":1}`, "utf8");
+        const asKey = Buffer.from(`{"${literal}":0,"x${literal}\u0301":1}`, "utf8");
         tally.record(`code point U+${cp.toString(16)} as a key`, asKey, reference(asKey), kernel(asKey));
       }
     }
@@ -402,8 +402,8 @@ function activeCodePoints() {
     const ch = String.fromCodePoint(cp);
     if (
       ch.normalize("NFD") !== ch ||
-      `ͅ${ch}`.normalize("NFD") !== `ͅ${ch}` ||
-      `${ch}̴`.normalize("NFD") !== `${ch}̴`
+      `\u0345${ch}`.normalize("NFD") !== `\u0345${ch}` ||
+      `${ch}\u0334`.normalize("NFD") !== `${ch}\u0334`
     ) {
       active.push(cp);
     }
@@ -456,16 +456,16 @@ function fuzzNormalization(reference, kernel, rng, cases) {
 const WHITESPACE = ["", "", "", " ", "\n", "\t", "\r", "  ", " \n\t"];
 const KEY_POOL = [
   "a", "b", "c", "id", "url", "schemaVersion", "reportType", "", "1", "2", "10", "01", "__proto__", "constructor",
-  "toString", "length", "café", "café", "é", "é", "", "😀", "￿", "\u007f",
-  "A", "Z", "a b", "a\\\"b", "a\\\\b", "a\\/b", "\\u0061", "\\u0000", "\\ud800", "\\udc00", "\\ud83d\\ude00", " ",
-  "가", "가", "Å", "Å", "ḳ̇", "ḳ̇"
+  "toString", "length", "caf\u00e9", "cafe\u0301", "\u00e9", "e\u0301", "\ue000", "\ud83d\ude00", "\uffff", "\u007f",
+  "A", "Z", "a b", "a\\\"b", "a\\\\b", "a\\/b", "\\u0061", "\\u0000", "\\ud800", "\\udc00", "\\ud83d\\ude00", "\u2028",
+  "\u1100\u1161", "\uac00", "\u212b", "\u00c5", "k\u0323\u0307", "k\u0307\u0323"
 ];
 const STRING_PIECES = [
   "", "a", "https://example.test/path?q=1", "\\n", "\\t", "\\r", "\\b", "\\f", "\\\"", "\\\\", "\\/", "\\u0000", "\\u001f",
-  "\\u007f", "\\u00e9", "\\u0301", "é", "é", "\\ud800", "\\udfff", "\\ud83d\\ude00", "\\ud83d", "\\ude00\\ud83d",
-  "😀", " ", " ", "\u007f", "\u0080", "߿", "ࠀ", "￿", "﻿", "각",
-  "각", "̈́", "ཱི", "क़", "K", "יִ", "ẛ̣", "à֮̀̕b",
-  " ", " ", "\\u0022", "\\u005c", "\\u005C", "\\uD83D\\uDE00", "\\u00E9"
+  "\\u007f", "\\u00e9", "\\u0301", "e\u0301", "\u00e9", "\\ud800", "\\udfff", "\\ud83d\\ude00", "\\ud83d", "\\ude00\\ud83d",
+  "\ud83d\ude00", "\u2028", "\u2029", "\u007f", "\u0080", "\u07ff", "\u0800", "\uffff", "\ufeff", "\u1100\u1161\u11a8",
+  "\uac00\u11a8", "\u0344", "\u0f73", "\u0958", "\u212a", "\ufb1d", "\u1e9b\u0323", "a\u0315\u0300\u05ae\u0300b",
+  " ", "\u00a0", "\\u0022", "\\u005c", "\\u005C", "\\uD83D\\uDE00", "\\u00E9"
 ];
 
 function documentText(rng, depth, budget) {
@@ -519,7 +519,7 @@ function fuzzDocuments(reference, kernel, rng, cases) {
 
 const SPLICES = [
   "\"", "\\", "{", "}", "[", "]", ",", ":", "\\u", "\\ud800", "\\x", "e", "E", "-", "+", ".", "0", "00", "1e", "null",
-  "tru", "nul", "\u0000", "\u001f", "́", "﻿", " ", "\n", " ", "\u000b", "//", "'", "NaN", "Infinity", "undefined"
+  "tru", "nul", "\u0000", "\u001f", "\u0301", "\ufeff", " ", "\n", "\u00a0", "\u000b", "//", "'", "NaN", "Infinity", "undefined"
 ].map((text) => Buffer.from(text, "utf8"));
 const RAW_BYTES = [0x00, 0x1f, 0x22, 0x5c, 0x7f, 0x80, 0xbf, 0xc0, 0xc2, 0xe0, 0xed, 0xa0, 0xf0, 0xf4, 0xf5, 0xff];
 
