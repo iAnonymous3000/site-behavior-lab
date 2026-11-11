@@ -190,6 +190,15 @@ debugger which scripts it has compiled and does not go by a script's name (40
 of 40 visits on Chromium 156 and 40 of 40 on Chromium 158, reached 30 ms and
 250 ms after the worker was let run).
 
+The few milliseconds named above are a worker that answers the attacher. One
+whose breakpoint the browser refuses, or leaves unanswered for the bound on a
+command, 5 seconds, cannot be held: it is counted as a worker the observer
+could not read, and the debugger goes off at that moment. One that answers
+its breakpoint and not the question behind it waits with the debugger on up
+to the same bound, and is then counted the same way. No worker that stayed
+was seen in either state with Chromium 156 or 158 in the measurements here;
+both are written out against a scripted browser.
+
 ### What one report covers
 
 Site Behavior Lab reports what happened during automated Chromium visits from the configured scanner instance: one completed visit for a single report, or one completed visit per condition for a comparison. Optional durable execution may abandon an attempt whose execution, publication, or status coordination was lost and retry it once, so the target can see an extra visit that was partial or that completed before its result was lost; report evidence is never merged across attempts.

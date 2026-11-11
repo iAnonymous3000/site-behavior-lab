@@ -66,6 +66,11 @@ class ScriptedBrowser {
     this.deliverFrame?.({ id: frame.id, result });
   }
 
+  /** Refuses, now, a command the script left unanswered. */
+  refuse(frame: Frame, message: string): void {
+    this.deliverFrame?.({ id: frame.id, error: { message } });
+  }
+
   /** The first command of a method sent on a session. */
   frame(sessionId: string, method: string): Frame {
     const found = this.sent.find((candidate) => candidate.sessionId === sessionId && candidate.method === method);
@@ -642,10 +647,13 @@ test("a worker gone with a script listed and its probe unanswered is not one tha
  * the question shows nothing of the kind, so the worker is taken as one that
  * may have had a script and the probe decides, as it does for a script
  * listed: late with no pause ahead of the probe's answer, a hold with the
- * main-script pause ahead of it. No worker is left waiting with the debugger
- * on for a pause that cannot come. What it was not told, the thread does not
- * say: such a worker gone before its probe answers is still one never
- * reached, since no script of it was seen or listed.
+ * main-script pause ahead of it. Once its probe answers, such a worker is not
+ * left waiting with the debugger on for a pause that cannot come. Two cases
+ * wait longer and have tests of their own: a question never answered keeps
+ * the worker waiting up to the command's bound, and a probe never answered
+ * leaves it waiting as long as the worker says nothing. What it was not told,
+ * the thread does not say: such a worker gone before its probe answers is
+ * still one never reached, since no script of it was seen or listed.
  */
 const QUESTION_CANNOT_SAY: readonly { name: string; answer: (frame: Frame) => Answer; removal: boolean }[] = [
   { name: "refused", answer: () => new Error("Debugger agent is not enabled"), removal: false },
@@ -796,6 +804,102 @@ test("a worker that detaches between the question and its answer is the worker n
   assert.equal(browser.commands("gone-first").length, ATTACH_STEP - 1, "nothing is sent to a worker that has gone");
   const gone = workerOf(visit, "gone-first");
   assert.deepEqual([gone.hold, gone.endedUnreached], ["pending", true], "what the thread posted at the detach stands");
+});
+
+/** The arming's four commands, each left unanswered by the script and answered by hand, so the order is the test's own. */
+const UNANSWERED_ARMING = (frame: Frame): Answer =>
+  ["Debugger.enable", "Debugger.setInstrumentationBreakpoint", "Debugger.setBreakpointByUrl", "Runtime.runIfWaitingForDebugger"].includes(frame.method)
+    ? "never"
+    : defaultAnswer(frame);
+
+const ONE_SCRIPT_LISTED = (sessionId: string) => ({ breakpointId: questionId(sessionId), locations: [{ scriptId: "3", lineNumber: 0, columnNumber: 0 }] });
+const ARMING = ["Debugger.enable", "Debugger.setInstrumentationBreakpoint", "Debugger.setBreakpointByUrl", "Runtime.runIfWaitingForDebugger"];
+
+/**
+ * A breakpoint that is not in force. The same step that asked for it
+ * released the worker, so with the breakpoint refused, or unanswered at the
+ * command's bound, nothing can stop the worker at its main script: it ran, or
+ * may have, before any breakpoint took effect. It is late with that reason,
+ * the debugger goes off at once, and what the question says changes nothing.
+ */
+test("a refused breakpoint: the worker is late at once, with the debugger off, whatever the question says and with no probe", async (t) => {
+  const { browser, attacher } = await scriptedAttacher(t, (frame) => {
+    if (frame.method === "Debugger.setInstrumentationBreakpoint") return new Error("Debugger agent is not enabled");
+    if (frame.method === "Debugger.setBreakpointByUrl") {
+      if (frame.sessionId === "listed") return ONE_SCRIPT_LISTED("listed");
+      if (frame.sessionId === "silent") return "never";
+    }
+    return defaultAnswer(frame);
+  });
+  const installer = new FingerprintWorkerRealmInstaller("127.0.0.1");
+  const { visit } = await registerVisit(attacher, installer);
+  for (const sessionId of ["listed", "nothing-listed", "silent"]) {
+    sharedAttach(browser, sessionId);
+    await until(() => holdOf(visit, sessionId) === "late");
+    assert.equal(workerOf(visit, sessionId).lateReason, "ran-before-breakpoint");
+    await until(() => browser.commands(sessionId).includes("Debugger.disable"));
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    // No breakpoint to remove, no probe, and the question is not taken away by name: the debugger going off clears it.
+    assert.deepEqual(browser.commands(sessionId), [...ARMING, "Debugger.disable"]);
+  }
+  assert.deepEqual(installer.sharedInstallDiagnostics(), { installedWorkerCount: 0, installFailedWorkerCount: 0, lateWorkerCount: 3 });
+});
+
+test("a breakpoint unanswered at the command's bound: the worker is late then, with the debugger off; one paused at its main script before the bound is held; one gone before it with a script listed did not end unreached", async (t) => {
+  let installer: FingerprintWorkerRealmInstaller | null = null;
+  const { browser, attacher } = await scriptedAttacher(
+    t,
+    (frame, scripted) => {
+      if (frame.method === "Debugger.setInstrumentationBreakpoint") return "never";
+      if (frame.method === "Debugger.setBreakpointByUrl" && frame.sessionId === "listed-gone") return ONE_SCRIPT_LISTED("listed-gone");
+      if (frame.method === "Runtime.evaluate" && installer) firstSnapshot(installer, frame.sessionId!, scripted);
+      return defaultAnswer(frame);
+    },
+    { commandTimeoutMs: 250 }
+  );
+  installer = new FingerprintWorkerRealmInstaller("127.0.0.1");
+  const { visit } = await registerVisit(attacher, installer);
+
+  // The breakpoint took effect though its answer never came: the pause is the proof, and the hold is an ordinary one.
+  sharedAttach(browser, "in-time");
+  await until(() => browser.commands("in-time").length === ATTACH_STEP);
+  mainScriptPause(browser, "in-time");
+  await until(() => workerOf(visit, "in-time").hold === "released");
+
+  // Told of a script, and gone before the breakpoint's bound: reached, whatever the breakpoint's answer would have said.
+  sharedAttach(browser, "listed-gone");
+  await until(() => browser.commands("listed-gone").includes("Debugger.removeBreakpoint"));
+  assert.equal(browser.commands("listed-gone").includes("Runtime.getIsolateId"), false, "no probe before the breakpoint's answer");
+  browser.emit("Target.detachedFromTarget", { sessionId: "listed-gone" });
+  await until(() => workerOf(visit, "listed-gone").detached);
+  assert.equal(workerOf(visit, "listed-gone").endedUnreached, false);
+
+  sharedAttach(browser, "waiting");
+  await until(() => browser.commands("waiting").length === ATTACH_STEP);
+  assert.equal(workerOf(visit, "waiting").hold, "pending", "nothing is decided before the breakpoint's bound");
+  await until(() => holdOf(visit, "waiting") === "late", 3_000);
+  assert.equal(workerOf(visit, "waiting").lateReason, "ran-before-breakpoint");
+  await until(() => browser.commands("waiting").includes("Debugger.disable"));
+  assert.deepEqual(browser.commands("waiting").slice(ATTACH_STEP), ["Debugger.disable"]);
+  // The held worker's own breakpoint times out too, and changes nothing for it.
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  assert.equal(workerOf(visit, "in-time").hold, "released");
+  assert.equal(workerOf(visit, "in-time").lateReason, null);
+});
+
+test("a worker gone before its breakpoint is refused is sent nothing more, and what the thread said at its detach stands", async (t) => {
+  const { browser, attacher } = await scriptedAttacher(t, UNANSWERED_ARMING);
+  const installer = new FingerprintWorkerRealmInstaller("127.0.0.1");
+  const { visit, changes } = await registerVisit(attacher, installer);
+  sharedAttach(browser, "gone-first");
+  await until(() => browser.commands("gone-first").length === ARMING.length);
+  browser.emit("Target.detachedFromTarget", { sessionId: "gone-first" });
+  await until(() => workerOf(visit, "gone-first").detached);
+  browser.refuse(browser.frame("gone-first", "Debugger.setInstrumentationBreakpoint"), "No session with given id");
+  await new Promise((resolve) => setTimeout(resolve, 30));
+  assert.deepEqual(browser.commands("gone-first"), ARMING, "nothing is sent to a worker that has gone");
+  assert.deepEqual(changes, ["gone-first:attached", "gone-first:detached"]);
+  assert.equal(workerOf(visit, "gone-first").hold, "pending");
 });
 
 test("a worker already running when it attached is late, and nothing is sent to it", async (t) => {

@@ -638,7 +638,20 @@ test("the limitations and methodology pages say which shared workers the scanner
     /const breakHold = \(worker: HeldWorker\): void => \{[^}]*reason: "resumed-while-held" \}\);\s*void turnDebuggerOff\(worker\);/,
     "a broken hold sends the debugger off"
   );
-  assert.equal((attacher.match(/markLate\(worker, /g) ?? []).length, 3, "every late classification is one the pages account for");
+  // A breakpoint not in force is late for the reason the pages give a script
+  // that ran before the breakpoint took effect. Refused, its debugger goes
+  // off within the same few milliseconds. Unanswered, only at the bound on a
+  // command, which the limitations page states, with the wait of a question
+  // unanswered behind an answered breakpoint.
+  assert.match(attacher, /if \(workers\.get\(sessionId\) === worker\) markLate\(worker, "ran-before-breakpoint", true\);/);
+  const commandBoundMs = Number(/const DEFAULT_COMMAND_TIMEOUT_MS = ([\d_]+);/.exec(attacher)?.[1]?.replace(/_/g, ""));
+  assert.ok(commandBoundMs > 0, "the attacher's bound on a command must be readable");
+  assert.match(
+    limitations,
+    new RegExp(`\\bOne whose breakpoint the browser refuses, or leaves unanswered for the bound on a command, ${commandBoundMs / 1000} seconds, cannot be held\\b`)
+  );
+  assert.match(limitations, /\bOne that answers its breakpoint and not the question behind it waits with the debugger on up to the same bound\b/);
+  assert.equal((attacher.match(/markLate\(worker, /g) ?? []).length, 4, "every late classification is one the pages account for");
   // The GPC installer names dedicated workers as its only kind.
   const gpc = readFileSync(path.join(root, "lib", "gpc-worker-verification.ts"), "utf8");
   assert.match(gpc, /workerKinds[^;\n]*\["dedicated"\]/);

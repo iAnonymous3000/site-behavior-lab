@@ -60,6 +60,14 @@ import { SHARED_WORKER_ENDED_AT_ONCE_MS } from "./shared-worker-ended-at-once";
  * imports is always a lost race: its first script to run is a dependency,
  * never its main script.
  *
+ * A BREAKPOINT NOT IN FORCE. The step that asks for the breakpoint also
+ * releases the worker. If the breakpoint is refused, or unanswered at the
+ * command's bound, nothing can stop the worker at its main script, so it is
+ * late as one that ran before the breakpoint took effect, and the debugger
+ * goes off then. A question unanswered while the breakpoint answered leaves
+ * the worker waiting, with the debugger on, up to the command's bound; then
+ * the probe decides.
+ *
  * A BROKEN HOLD. Any client's release of a worker, `Runtime.runIfWaitingForDebugger`
  * or a waiting session's detach, also ends a pause the worker is in,
  * instrumentation pauses included. Playwright's detach can therefore reach a
@@ -472,7 +480,14 @@ export function sharedWorkerAttacherThread(port: AttacherThreadPort, data: Attac
           worker.breakpointAcknowledged = true;
           probeIfParsed(worker);
         },
-        () => undefined
+        // Refused, or unanswered at the command's bound: no breakpoint is in
+        // force, and this same step released the worker, so nothing can stop
+        // it at its main script. It ran, or may have, before any breakpoint
+        // took effect: late, and the debugger goes off at once. A worker that
+        // has had its first pause, or has gone, is left as it is.
+        () => {
+          if (workers.get(sessionId) === worker) markLate(worker, "ran-before-breakpoint", true);
+        }
       );
       // The question, behind the breakpoint: which scripts exist. It is a
       // breakpoint on the first line of every script whose condition is never
