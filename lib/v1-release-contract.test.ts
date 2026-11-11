@@ -223,6 +223,31 @@ test("a removed gate cannot return by a manifest edit, live or deferred, and the
   }
 });
 
+test("the binding admits no hosted evidence archive, because no gate of this contract reads one", async (t) => {
+  const c = await contract();
+  const UNSUPPORTED = "v1 binding has an unsupported or duplicate evidence entry";
+  // The archives authenticated the lifecycle receipt and the WAF capture, and
+  // the soak of a durable activation that this profile keeps off. An admitted
+  // archive would be post-candidate bytes that nothing examines.
+  for (const profile of ["lifecycle", "waf-ceilings", "durable-soak", "staging-teardown"]) {
+    for (const file of ["context.json", "attestation.bundle.json", "artifacts/receipt.json"]) {
+      const relative = `research/hosted-evidence/${profile}/${"c".repeat(64)}/${file}`;
+      const f = fixture(t);
+      f.add(relative, "hosted-evidence-archive", { fixture: profile }); f.bind();
+      assert.throws(() => c.verifyV1ReleaseBinding(f.root, f.instruments, f.options), (error: Error) => error.message === UNSUPPORTED, relative);
+      assert.equal(f.calls.length, 0);
+    }
+  }
+  // What a carrier does bind is each fixed file and a governance receipt, and
+  // every one of them is required or read by a gate that remains.
+  const control = fixture(t); control.bind();
+  const binding = c.verifyV1ReleaseBinding(control.root, control.instruments, control.options);
+  assert.deepEqual(binding.evidence.map((e: Any) => e.category).sort(), [
+    "container-attestation", "container-evidence", "container-package-attestation", "container-package-inventory",
+    "formal-verification-attestation", "formal-verification-report", "release-tag-governance-receipt"
+  ]);
+});
+
 test("a carrier may only add evidence, and the candidate verifier must read the files the binding holds", async (t) => {
   const c = await contract();
   const UNSUPPORTED = "v1 binding has an unsupported or duplicate evidence entry";

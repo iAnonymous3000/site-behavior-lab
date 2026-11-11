@@ -160,10 +160,15 @@ export function v1ProfileProblems(manifest) {
   return problems;
 }
 
+// Everything a carrier may bind: the fixed files below and one or more
+// release governance receipts. Each is read by a gate of this contract. A
+// hosted evidence archive is not admitted: the gates that authenticated one
+// (the lifecycle receipt and the WAF ceilings) are gone, and the durable-soak
+// gate reads none under the recovery scope this profile requires, so an
+// admitted archive would be bytes that no gate examines.
 function allowedEvidence(entry) {
   if (FIXED_EVIDENCE[entry.path]) return entry.category === FIXED_EVIDENCE[entry.path];
   if (/^research\/ops-receipts\/release-tag-governance\/[0-9a-f]{64}\.json$/.test(entry.path)) return entry.category === "release-tag-governance-receipt";
-  if (/^research\/hosted-evidence\/[a-z0-9-]+\/[0-9a-f]{64}\/[a-zA-Z0-9._/-]+$/.test(entry.path)) return entry.category === "hosted-evidence-archive";
   return false;
 }
 
