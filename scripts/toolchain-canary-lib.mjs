@@ -12,9 +12,9 @@ export const CAPTURE_RECEIPT_KIND = "site-behavior-toolchain-canary-capture";
 export const QUALIFICATION_RECEIPT_KIND = "site-behavior-toolchain-canary-qualification";
 /**
  * The comparison panel versions assertPanel accepts. Version 1 is the panel
- * every receipt committed through 2026-11 carries. Version 2 is the next
- * panel. Its cases are decided by one qualifying capture, under a rule that
- * is fixed before that capture runs.
+ * every receipt committed through 2026-11 carries. Version 2 is the current
+ * panel since 2026-11-11. Its cases were decided by one qualifying capture,
+ * under a rule that was fixed before that capture ran.
  */
 export const PANEL_VERSIONS = Object.freeze([1, 2]);
 /**

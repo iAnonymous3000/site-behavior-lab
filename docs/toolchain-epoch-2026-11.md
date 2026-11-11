@@ -123,6 +123,8 @@ The four receipts are committed byte for byte beside this record in [`toolchain-
 
 ### Round 1: FAIL
 
+> Addendum, 2026-11-11: from the commit that makes panel version 2 (`monthly-toolchain-canary-v2`) the current panel, the compare commands of round 1 and round 2 need `replay` in place of `compare`. These receipts were captured on panel version 1, and `compare` runs on the current panel only: for them it now judges no median, prints a message that begins `FAIL The baseline receipt names committed panel monthly-toolchain-canary-v1 (version 1), which is not the current panel monthly-toolchain-canary-v2 (version 2).` and names the replay command, and exits 1. Run from that commit on the same two files, `replay` reads each round on panel version 1 (`scripts/fixtures/toolchain-canary-panels/monthly-toolchain-canary-v1.json`, which its first line names) and exits 2 in both rounds. After that first line it prints, for each round, the lines this record quotes below for the rule `median-with-within-arm-spread-v2`, each with `REPLAY` before it, and its result line ends `This is a replay on the panel named in the REPLAY line, not a release comparison.` where the quoted one ends `The release decision has to record each inconclusive metric by name with its values above.` Where this record says below that the same command exits 2 from a checkout that has that rule, that holds from the rule up to that commit, as for the checkout this record was committed on. A replay is not a release comparison and changes nothing recorded here: the FAIL of each round stands as recorded and reproduces from a tree of `8c6a8fc5`, as stated below.
+
 ```sh
 npm run toolchain:canary -- compare \
   --baseline docs/toolchain-epoch-2026-11/round-1-baseline-receipt.json \

@@ -258,6 +258,7 @@ const SURFACE_PROBES = {
   "calibration/pixel-events-pilot-2026-07-28/scan-results.json": "pilot-row.example",
   "scripts/fixtures/toolchain-canary-panel.json": "canary.example",
   "scripts/fixtures/toolchain-canary-panels/monthly-toolchain-canary-v1.json": "canary-retired.example",
+  "scripts/fixtures/toolchain-canary-panels/monthly-toolchain-canary-v2.json": "canary-committed.example",
   "scripts/fixtures/toolchain-canary-qualification-panel.json": "canary-candidate.example",
   "lib/__fixtures__/pagegraph/real-wikipedia-2026-07-19.meta.json": "pagegraph-capture.example",
   "lib/production-synthetic.ts": "synthetic-target.example"
@@ -345,7 +346,11 @@ function syntheticTree() {
   w("calibration/pixel-events-pilot-2026-07-28/frame.json", { sites: [{ caseId: "pos-01", url: `https://www.${p["calibration/pixel-events-pilot-2026-07-28/frame.json"]}/` }] });
   w("calibration/pixel-events-pilot-2026-07-28/scan-results.json", { results: [{ caseId: "pos-01", url: `https://${p["calibration/pixel-events-pilot-2026-07-28/scan-results.json"]}/` }] });
   w("scripts/fixtures/toolchain-canary-panel.json", { cases: [{ id: "c", domain: p["scripts/fixtures/toolchain-canary-panel.json"], url: `https://www.${p["scripts/fixtures/toolchain-canary-panel.json"]}/` }] });
-  for (const key of ["scripts/fixtures/toolchain-canary-panels/monthly-toolchain-canary-v1.json", "scripts/fixtures/toolchain-canary-qualification-panel.json"]) {
+  for (const key of [
+    "scripts/fixtures/toolchain-canary-panels/monthly-toolchain-canary-v1.json",
+    "scripts/fixtures/toolchain-canary-panels/monthly-toolchain-canary-v2.json",
+    "scripts/fixtures/toolchain-canary-qualification-panel.json"
+  ]) {
     w(key, { cases: [{ id: "c", domain: p[key], url: `https://www.${p[key]}/` }] });
   }
   w("lib/__fixtures__/pagegraph/real-wikipedia-2026-07-19.meta.json", { capture: { requestedUrl: `https://www.${p["lib/__fixtures__/pagegraph/real-wikipedia-2026-07-19.meta.json"]}/`, finalUrl: `https://www.${p["lib/__fixtures__/pagegraph/real-wikipedia-2026-07-19.meta.json"]}/` } });
