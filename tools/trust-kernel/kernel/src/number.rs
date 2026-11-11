@@ -10,7 +10,7 @@
 //! as Burger and Dybvig state it), and the tie is decided as the standard
 //! says.
 //!
-//! The differential test holds this module to V8.
+//! Nothing here is checked by Verus. The differential test holds it to V8.
 
 use core::cmp::Ordering;
 

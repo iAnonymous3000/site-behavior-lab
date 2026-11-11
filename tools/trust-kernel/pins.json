@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "rust": {
+    "channel": "1.99.1",
+    "rustcCommit": "58cf8f9c35b355199727627d07ae34a4e2846d67",
+    "target": "wasm32-unknown-unknown"
+  },
+  "verus": {
+    "version": "0.2026.11.02.8bf68ee",
+    "commit": "8bf68ee741df833ea5d0fe6a2255126fdea87e47",
+    "requiresRust": "1.99.1",
+    "z3": "4.16.0",
+    "vstdCrate": "0.0.0-2026-11-01-0251",
+    "vstdCrateCommit": "9efe4d942e3518e91feb40d2ae292849039bfa59",
+    "assets": {
+      "linux-x64": {
+        "url": "https://github.com/verus-lang/verus/releases/download/release/0.2026.11.02.8bf68ee/verus-0.2026.11.02.8bf68ee-x86-linux.zip",
+        "bytes": 36022359,
+        "sha256": "f3a0119292df8855e4435da8130bee1873b0e6a60c306accf81a08ea687bba3c",
+        "directory": "verus-x86-linux"
+      },
+      "darwin-arm64": {
+        "url": "https://github.com/verus-lang/verus/releases/download/release/0.2026.11.02.8bf68ee/verus-0.2026.11.02.8bf68ee-arm64-macos.zip",
+        "bytes": 29643625,
+        "sha256": "3086974d1afebf8b9f6fee2939b626486a12248c0dab528b9262ea652b863326",
+        "directory": "verus-arm64-macos"
+      }
+    }
+  }
+}

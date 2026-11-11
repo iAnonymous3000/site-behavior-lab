@@ -9,8 +9,10 @@
 //! Phase 0 of the language plan: nothing in the scanner, the Worker or the
 //! site calls this crate.
 //!
-//! Every module is ordinary Rust, held to the reference by the differential
-//! test (scripts/trust-kernel-differential.mjs) and by nothing stronger.
+//! Only `encode.rs` is checked by Verus: see its head for what that covers.
+//! The parser, the number text and the normalization are ordinary Rust, held
+//! to the reference by the differential test
+//! (scripts/trust-kernel-differential.mjs) and by nothing stronger.
 
 #![forbid(unsafe_code)]
 
@@ -48,7 +50,7 @@ pub enum Refusal {
     /// The bytes are not UTF-8. The reference never sees such input: a
     /// strict decoder in front of it refuses first.
     InvalidUtf8,
-    /// The encoder refused the tree the other modules built. That
+    /// The checked encoder refused the tree the other modules built. That
     /// would be a defect in this crate, never a property of the input.
     NotAdmitted,
 }
