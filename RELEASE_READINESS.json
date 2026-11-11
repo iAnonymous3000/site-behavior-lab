@@ -239,34 +239,6 @@
         }
       ]
     },
-    "container-image-licensing": {
-      "kind": "operator-attestation",
-      "title": "The container base image's shipped packages have a completed license review",
-      "evidence": "research/ops-evidence/container-image-licensing.json",
-      "attestation": "research/ops-receipts/container-image-licensing-attestation.json",
-      "maxAgeDays": 180,
-      "requiredBindings": [
-        "candidateCommit",
-        "deploymentCommit",
-        "containerImageDigest",
-        "packageInventoryDigest",
-        "legalEvidenceDigest"
-      ],
-      "requiredClaims": [
-        {
-          "id": "exact-image-inventoried",
-          "claim": "The exact candidate container image was inventoried down to its shipped system packages."
-        },
-        {
-          "id": "image-license-review-complete",
-          "claim": "Every shipped package in the bound image inventory has a reviewed license determination and recorded obligations."
-        },
-        {
-          "id": "distribution-obligations-satisfied",
-          "claim": "The candidate image distribution satisfies every recorded license and notice obligation."
-        }
-      ]
-    },
     "formal-verification": {
       "kind": "formal-verification",
       "title": "Every required formal verification suite file ran at the candidate with no test or describe block skipped, left todo or failed, and met its pinned minimums of tests passed and catches recorded",

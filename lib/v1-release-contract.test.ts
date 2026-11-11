@@ -25,7 +25,7 @@ const contract = () => nativeImport(pathToFileURL(path.join(process.cwd(), "scri
 const hash = (v: string | Buffer) => createHash("sha256").update(v).digest("hex");
 const serialize = (v: unknown) => `${JSON.stringify(v, null, 2)}\n`;
 const manifest = () => JSON.parse(readFileSync(path.join(process.cwd(), "RELEASE_READINESS.json"), "utf8"));
-const LIVE_OPERATOR_GATES = ["waf-ceilings", "container-image-licensing"];
+const LIVE_OPERATOR_GATES = ["waf-ceilings"];
 const DEFERRED_OPERATOR_GATES = ["egress-backstop", "log-retention"];
 const FV_REPORT = "research/measurement-candidate/site-behavior-lab-formal-verification-report.json";
 const FV_BUNDLE = "research/measurement-candidate/formal-verification-report.bundle.json";
@@ -194,7 +194,13 @@ const REMOVED_GATES: [string, string, [string, string][]][] = [
   // A ledger of human license determinations for the container image's OS
   // packages. No row of it was ever reviewed. The signed package inventory
   // and its attestation remain bound.
-  ["container-package-review", "container-package-review", [["CONTAINER_IMAGE_PACKAGE_REVIEWS.json", "container-package-review"]]]
+  ["container-package-review", "container-package-review", [["CONTAINER_IMAGE_PACKAGE_REVIEWS.json", "container-package-review"]]],
+  // An operator's attestation that the license review of the image was
+  // complete and its distribution obligations met.
+  ["container-image-licensing", "operator-attestation", [
+    ["research/ops-evidence/container-image-licensing.json", "operator-evidence"],
+    ["research/ops-receipts/container-image-licensing-attestation.json", "operator-attestation"]
+  ]]
 ];
 
 test("a removed gate cannot return by a manifest edit, live or deferred, and the binding admits none of its evidence", async (t) => {

@@ -496,7 +496,7 @@ test("release operators get a fail-closed scaffold for every attestation gate", 
   assert.match(release, /docs\/operator-evidence-capture\.md/);
   assert.match(
     release,
-    /derives the attestation's candidate, deployment, policy, image, and inventory\s+bindings/
+    /derives the attestation's candidate, deployment, and policy\s+bindings/
   );
   assert.match(release, /"true": false/);
   assert.match(scaffold, /releaseAttestationScaffold/);

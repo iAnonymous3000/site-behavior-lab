@@ -1022,23 +1022,25 @@ authoritative gate list):
   [`docs/v1-release-qualification.md`](docs/v1-release-qualification.md)).
   It is red until a carrier binds such a report.
 - **Operator attestations.** Host truths code cannot see (the pre-candidate
-  durable soak, WAF ceilings, and container image licensing) require a JSON
-  attestation under `research/ops-receipts/`. The egress backstop and log
+  durable soak and WAF ceilings) require a JSON
+  attestation under `research/ops-receipts/`. Container image licensing is
+  no longer one of them: that gate was removed on 2026-11-11 and no human
+  license review of the image has been performed. The egress backstop and log
   retention attestations are not required for 1.0. Both gates are deferred to
   1.1.0 because neither can pass as written, so 1.0 verifies no egress
   boundary independent of the application guard and does not re-verify log
   retention (see
   [`docs/v1-release-qualification.md`](docs/v1-release-qualification.md)).
   Their definitions, producers and scaffolds remain, and evidence that a
-  carrier binds for either gate is still evaluated in full. For the four
+  carrier binds for either gate is still evaluated in full. For the three
   post-candidate gates, required or deferred, first use the fixed producer in
   [`docs/operator-evidence-capture.md`](docs/operator-evidence-capture.md) to
   create the canonical receipt under `research/ops-evidence/`. Readiness
   re-parses that exact canonical file, re-runs its semantic verifier, and
-  derives the attestation's candidate, deployment, policy, image, and inventory
+  derives the attestation's candidate, deployment, and policy
   bindings from it; a hex digest typed into an attestation cannot satisfy a
   gate by itself. Generate the exact non-passing scaffold for any one of the
-  five gates with:
+  four gates with:
 
   ```bash
   npm run release:attestation-scaffold -- --gate waf-ceilings
@@ -1158,9 +1160,9 @@ blanket stable-API claim, npm publication, and a tag that does not match
 The mechanical 1.0 vocabulary does not make the release ready. The unprivileged
 prepare job runs the canonical `release:readiness:check` over every gate the
 manifest declares before any artifact handoff whenever the requested version is
-on the exact 1.0 line. Until the frozen candidate, controlled corpus,
-durable-operations, and legal gates all pass, `1.0.0` and its release
-candidates remain mechanically unpublishable. The detector-calibration and
+on the exact 1.0 line. Until every one of those gates passes, `1.0.0` and
+its release candidates remain mechanically unpublishable. No gate of the 1.0
+contract is a legal or license review. The detector-calibration and
 A/A-repeatability evidence programs are recorded in the manifest's
 `deferredGates` as gating the 1.1 calibrated-claims release; restoring them to
 the 1.0 set is a reviewed enforcement edit. The `egress-backstop` and

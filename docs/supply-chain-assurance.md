@@ -136,9 +136,11 @@ package-set digest only alongside the completeness verdict.
 Release 1.0 no longer reads this ledger row by row. The
 `container-package-review` gate, which required every row to be reviewed, was
 removed on 2026-11-11, and a 1.0 evidence carrier no longer binds the ledger.
-The `container-image-licensing` gate still asks an operator to attest a
-completed review. The ledger and its CI check remain because two other things
-depend on them. The check is the only step that fails CI when the final
+The `container-image-licensing` gate, which asked an operator to attest that
+the review was complete and every distribution obligation met, was removed
+the same day. Release 1.0 therefore requires no license review of the image,
+by row or by attestation, and none has been performed. The ledger and its CI
+check remain because two other things depend on them. The check is the only step that fails CI when the final
 image's OS package set differs from the committed rows. And the research
 programme's measurement-candidate binding digest-binds the ledger, as
 described below.
@@ -155,15 +157,19 @@ inventory for npm/Cargo/filter inputs, or by itself prove that distribution
 obligations are satisfied. A reviewed row must record a substantive
 determination with at least one authoritative license-evidence reference,
 including when no distribution obligations apply. Any obligations use
-separate structured dispositions and evidence references; the release-level
-legal attestation remains separate.
+separate structured dispositions and evidence references. No release reads
+those rows today: the ledger is a record of the image's package set, not a
+release requirement.
 
 Every legal evidence reference is content-addressed. The only accepted forms
 are `repo:<normalized-relative-path>#sha256=<64-lowercase-hex>` and a canonical,
 credential-free, query-free
 `https://<dns-name>/<path>#sha256=<64-lowercase-hex>` URL. A label such as
 `x`, a dashboard pointer, a moving URL, or a bare filesystem path is rejected.
-The exact-image licensing producer reopens every `repo:` target beneath the
+The exact-image licensing producer
+(`npm run ops:evidence:container-licensing`) serves the research programme's
+contract only. Release 1.0 has no gate that reads its receipt, and a 1.0
+evidence carrier that binds the receipt is refused. It reopens every `repo:` target beneath the
 real repository root, refuses symlinks and non-files, bounds its size, and
 checks its exact bytes against the reference digest. It also requires the same
 path and digest to exist as a Git blob at the exact reviewed candidate commit;

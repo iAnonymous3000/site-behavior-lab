@@ -525,7 +525,7 @@ active scan/write/read/render synthetic can attest them:
 
 Use the create-only canonical producers in
 [`operator-evidence-capture.md`](operator-evidence-capture.md) for the WAF,
-log-retention, egress, staging-teardown, and exact-image licensing evidence.
+log-retention, egress, and staging-teardown evidence.
 The later human release attestations bind their digests; they do not replace
 the underlying receipts.
 

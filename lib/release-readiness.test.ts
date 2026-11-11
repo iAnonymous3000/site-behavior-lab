@@ -211,7 +211,6 @@ const EXPECTED_GATES: Record<string, string> = {
   "release-receipt-archive": "receipt-archive",
   "durable-soak": "durable-soak",
   "waf-ceilings": "operator-attestation",
-  "container-image-licensing": "operator-attestation",
   "formal-verification": "formal-verification"
 };
 // Every count of live gates below is taken from this list, so the list is the
@@ -360,8 +359,7 @@ test("the committed manifest preserves its gate contract without requiring evide
       [
         "egress-backstop",
         "waf-ceilings",
-        "log-retention",
-        "container-image-licensing"
+        "log-retention"
       ].map((id) => [
         id,
         (manifest.gates[id] ?? manifest.deferredGates[id]).evidence
@@ -370,9 +368,7 @@ test("the committed manifest preserves its gate contract without requiring evide
     {
       "egress-backstop": "research/ops-evidence/egress-backstop.json",
       "waf-ceilings": "research/ops-evidence/waf-ceilings.json",
-      "log-retention": "research/ops-evidence/log-retention.json",
-      "container-image-licensing":
-        "research/ops-evidence/container-image-licensing.json"
+      "log-retention": "research/ops-evidence/log-retention.json"
     }
   );
   // A deferred operator gate keeps its whole definition, so evidence a
@@ -2412,9 +2408,25 @@ test("the attestation scaffold covers every release attestation without inventin
     buildReleaseAttestationScaffold,
     operatorAttestationIssues
   } = await script("release-readiness-lib.mjs");
-  const manifest = JSON.parse(
+  const committed = JSON.parse(
     readFileSync(path.join(process.cwd(), "RELEASE_READINESS.json"), "utf8")
   );
+  const research = JSON.parse(
+    readFileSync(path.join(process.cwd(), "docs/release-gate-history/research-program-2026-09-05.json"), "utf8")
+  );
+  // The scaffold reads a gate's definition from the manifest it is handed. The
+  // 1.0 manifest defines the gates it has, live or deferred. An operator gate
+  // that 1.0 removed is defined only by the earlier research manifest, whose
+  // attestations this builder still prepares.
+  const manifestFor = (gateId: string) =>
+    committed.gates[gateId] ?? committed.deferredGates?.[gateId] ? committed : research;
+  const definition = (gateId: string) => {
+    const source = manifestFor(gateId);
+    return source.gates[gateId] ?? source.deferredGates[gateId];
+  };
+  assert.equal(manifestFor("durable-soak"), committed);
+  assert.equal(manifestFor("container-image-licensing"), research, "1.0 has no container licensing gate");
+  assert.equal(research.targetRelease, committed.targetRelease);
   const gateIds = [
     "durable-soak",
     "egress-backstop",
@@ -2424,7 +2436,8 @@ test("the attestation scaffold covers every release attestation without inventin
   ];
   for (const gateId of gateIds) {
     // A deferred gate keeps its definition, and the scaffold reads it there.
-    const gate = manifest.gates[gateId] ?? manifest.deferredGates[gateId];
+    const manifest = manifestFor(gateId);
+    const gate = definition(gateId);
     const scaffold = buildReleaseAttestationScaffold(
       manifest,
       gateId,
@@ -2472,7 +2485,7 @@ test("the attestation scaffold covers every release attestation without inventin
   }
 
   const egress = buildReleaseAttestationScaffold(
-    manifest,
+    manifestFor("egress-backstop"),
     "egress-backstop",
     {
       candidateCommit: "a".repeat(40),
@@ -2518,7 +2531,8 @@ test("the attestation scaffold covers every release attestation without inventin
     "log-retention",
     "container-image-licensing"
   ]) {
-    const gate = manifest.gates[gateId] ?? manifest.deferredGates[gateId];
+    const manifest = manifestFor(gateId);
+    const gate = definition(gateId);
     const expectedBindings = Object.fromEntries(
       gate.requiredBindings.map((name: string) => [
         name,

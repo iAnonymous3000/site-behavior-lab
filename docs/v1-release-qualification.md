@@ -21,7 +21,7 @@ verifiers and historical reports, schemas, receipts and approvals remain intact.
 | Inspect a truthful observation | Current deep readers and consistency checks; bounded independent mode review | Population accuracy or detector error rates |
 | Understand uncertainty and interventions | Review unknowns, scanner effects and interpretation, including an incomplete visit | That a covered negative is universal absence, or an intervention proves compliance |
 | Reopen and share the same meaning | Review display, comparison, persistence and export against retained evidence; compatibility and corrections gates | Reconstruction of observations never recorded |
-| Use a safely operated service | Authenticated admission-ceiling, report-lifecycle and exact-image distribution evidence | Reliability of disabled durable jobs; an egress boundary independent of the application guard; a re-verified log-retention window |
+| Use a safely operated service | Authenticated admission-ceiling and report-lifecycle evidence | Reliability of disabled durable jobs; an egress boundary independent of the application guard; a re-verified log-retention window |
 | Identify the shipped instrument | Source-bound CI evidence, an evidence-only carrier, external binding approval, promotion and live verification | Correctness merely because a build passed |
 | Know the bounded checks ran on the shipped source | A signed execution report for the candidate: every required suite file ran, no test or describe block was skipped, left todo or failed, and each file met its pinned minimums of tests passed and catches recorded | That a claim holds outside its stated domain, or that a restated rule is the right rule |
 
@@ -202,8 +202,7 @@ introduced here.
 ## Remaining blockers
 
 The contract does not supply the missing mode review, source binding, external
-governance selection, current lifecycle/provider evidence, or the completed
-exact-image license review. Those are concrete operational
+governance selection, or current lifecycle/provider evidence. Those are concrete operational
 evidence gaps to close before v1, not reasons to restart the research calendar.
 The egress and log-retention gates are not among them. They refuse
 caller-supplied provider evidence, no trusted hosted capture exists for either,

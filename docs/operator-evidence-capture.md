@@ -59,7 +59,9 @@ repository-local, exact-candidate package inventory and review-ledger bytes.
 The candidate verifier re-opens those bytes, re-runs the semantic license
 checks, and verifies the inventory's candidate-bound Sigstore attestation.
 There is no private provider response to acquire, so an additional hosted
-provider-capture job would add no independent source of truth.
+provider-capture job would add no independent source of truth. Release 1.0
+has no container licensing gate. It was removed on 2026-11-11, and the receipt
+is evidence for the research programme's contract only.
 
 ## WAF GET and POST ceilings
 
@@ -1126,9 +1128,13 @@ review; use a new GET-only capture whenever the provider state is representable.
 
 ## Exact-image licensing
 
-This gate is intentionally impossible while any exact-image package review is
-unreviewed. After the canonical candidate inventory and every legal-review row
-pass their own checks:
+Release 1.0 does not ask for this receipt. Its `container-image-licensing`
+gate was removed on 2026-11-11, no human license review of the image has been
+performed, and a 1.0 evidence carrier that binds this receipt or an
+attestation of it is refused. The producer remains for the research
+programme's contract. It refuses while any exact-image package review is
+unreviewed, and as of 2026-11-11 every row is. After the canonical candidate
+inventory and every legal-review row pass their own checks:
 
 ```bash
 npm run ops:evidence:container-licensing -- \
@@ -1146,7 +1152,7 @@ Legal evidence references must be exact content-addressed `repo:` or canonical
 HTTPS references. Repository references are reopened without symlinks, their
 local bytes must match the declared SHA-256, and the same path must be a Git
 blob with that digest at the exact candidate commit. An untracked, post-candidate,
-or missing working-tree file cannot satisfy the gate. The receipt enumerates
+or missing working-tree file is refused. The receipt enumerates
 the complete canonical legal-evidence set, including every candidate-resident
 repository path, and exposes the set digest as a scalar validator binding.
 `repositoryRoot` is

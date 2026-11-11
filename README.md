@@ -180,7 +180,7 @@ be re-run.
 
 **Road to 1.0.** The [investigative-v1 qualification contract](docs/v1-release-qualification.md)
 requires independently checked scan outcomes bound to the release candidate,
-plus provider, licensing, source, and release-authority evidence.
+plus provider, source, and release-authority evidence.
 `npm run release:readiness` evaluates it; a green build or healthy deployment
 is not qualification. There is no stable public API and no npm package.
 
