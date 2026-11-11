@@ -53,7 +53,7 @@ export const V1_REQUIRED_SUITES = Object.freeze([
   { id: "lib/fv-request-accounting.test.ts", minimumTests: 50, minimumVariants: 44 },
   { id: "lib/fv-scroll-producer.test.ts", minimumTests: 85, minimumVariants: 74 },
   { id: "lib/fv-warning-fragments.test.ts", minimumTests: 22, minimumVariants: 15 },
-  { id: "lib/fv-worker-model.test.ts", minimumTests: 116, minimumVariants: 96 },
+  { id: "lib/fv-worker-model.test.ts", minimumTests: 130, minimumVariants: 106 },
   { id: "lib/fv-worker-readout.test.ts", minimumTests: 122, minimumVariants: 108 },
   { id: "lib/scroll-check-stacks.test.ts", minimumTests: 26, minimumVariants: 0 }
 ].map((entry) => Object.freeze(entry)));

@@ -353,8 +353,8 @@
         },
         {
           "id": "lib/fv-worker-model.test.ts",
-          "minimumTests": 116,
-          "minimumVariants": 96
+          "minimumTests": 130,
+          "minimumVariants": 106
         },
         {
           "id": "lib/fv-worker-readout.test.ts",
