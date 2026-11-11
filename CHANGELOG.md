@@ -191,6 +191,21 @@ public API or a 1.0 release.
 
 ### Changed
 
+- The toolchain canary panel is version 2 (`monthly-toolchain-canary-v2`).
+  One qualifying capture ran on isolated staging on 2026-11-11, on build
+  b554198e with Chromium 156, under rule `panel-qualification-2026-11-10`,
+  which was committed before the capture: bumble.com, ssa.gov and who.int
+  at five repetitions, 15 scans, all recorded. Its receipt is
+  docs/toolchain-canary-qualification-2026-11/qualification-receipt.json.
+  The verdict the rule gives: ssa.gov takes gov.uk's place, and the
+  Guardian stays. bumble.com was stable but is not a signal case (median
+  known tracker requests 5 and Shields-blocked requests 7, where the rule
+  asks for 8), so it does not replace the Guardian. The tracker and
+  Shields signal of the panel now rests on theguardian.com and ssa.gov.
+  Repetitions, conditions and tolerances are those of version 1. Receipts
+  captured on version 1 are read with `replay`, never `compare`; each
+  dated epoch record carries an addendum that says so. No scan, report
+  byte or identity changes.
 - The edge now meters the report JSON and the PDF. `GET` and `HEAD` on
   `/api/reports/:id` and `/api/reports/:id/pdf` used to reach the container
   with no edge check: Node metered them per client, and nothing bounded what
