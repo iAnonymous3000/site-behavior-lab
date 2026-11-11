@@ -2919,6 +2919,12 @@ test("real Chromium: a shared worker the attacher reaches only after it started 
  * long as its script ran. The attacher asks instead: the question behind the
  * breakpoint lists the script, and the probe finds no pause.
  *
+ * WHAT IT PINS, ON WHICH BROWSER. On Chromium 156 this test passes without
+ * the question too, since the parse arrives ahead of the answer and the older
+ * rule read it: there it pins the window and the debugger's time on. On
+ * Chromium 158 it fails without the question, with the worker left pending.
+ * The self-named twin below fails without the question on both.
+ *
  * THE DEBUGGER'S TIME ON. docs/limitations.md and the methodology page say a
  * worker reached late runs with the debugger on "for a few milliseconds". The
  * test holds that to a measurement: from the main thread's hearing of the
@@ -2938,6 +2944,17 @@ test("real Chromium: a shared worker the attacher reaches only after it started 
  * of milliseconds (45 to 404 ms in two emulated linux/amd64 runs), so there
  * the test holds only that the debugger went off before the script ended,
  * and says what it measured.
+ *
+ * A RACE, REPEATED. Two things can keep a visit from the case and are no
+ * defect: the worker's script had not started when the breakpoint went in
+ * (it is then held, or, self-named, late at a first pause that reads as
+ * another script's; 2 of 96 emulated visits at a 200 ms delay), and a stall
+ * of the host that carries the debugger's time on past the bound or past the
+ * script's end. Such a visit is a lost try, as in untilSharedWorkerRaceWon:
+ * it must still show the honest outcome, and the visit is tried again, up to
+ * SHARED_HOLD_TRIES times. A worker left pending is the defect itself and
+ * fails at once, with no other try. Every try lost fails wherever the
+ * translation signal does not read translated, and says what each measured.
  */
 const RUNNING_SCRIPT_SPIN_MS = 2_000;
 const RUNNING_SCRIPT_ATTACH_DELAY_MS = 300;
@@ -2984,22 +3001,95 @@ async function reachWhileItsScriptRuns(t: TestContext, name: string, script: str
   return { harness, done, heard };
 }
 
-test("real Chromium: a shared worker the attacher reaches while its main script still runs is late before that script ends, has the debugger off within the bound the pages claim, and is unread", { timeout: 60_000 }, async (t) => {
-  const { harness, done, heard } = await reachWhileItsScriptRuns(t, "running", spinningSharedScript());
-  await waitFor(() => heard.debuggerOffBy !== null, 10_000);
-  const [worker] = sharedWorkersOf(harness);
-  assert.equal(worker?.hold, "late", "late while its script still ran, and not left waiting for a pause");
-  assert.equal(worker.lateReason, "ran-before-breakpoint");
-  assert.ok(heard.attachedAt !== null && heard.debuggerOffBy !== null, "the barrier behind the disable was answered");
-  assert.equal(heard.beaconsAtDebuggerOff, 0, "the debugger went off while the main script still ran");
-  const debuggerOnMs = heard.debuggerOffBy - heard.attachedAt - RUNNING_SCRIPT_ATTACH_DELAY_MS;
-  const translation = translationSignal();
-  t.diagnostic(`debugger on for at most ${debuggerOnMs.toFixed(1)} ms after the breakpoint step (${translation.reading})`);
-  if (!translation.translated) {
-    assert.ok(debuggerOnMs <= DEBUGGER_ON_BOUND_MS, `the debugger was on ${debuggerOnMs.toFixed(1)} ms, over the ${DEBUGGER_ON_BOUND_MS} ms bound`);
-  }
+type MidScriptFacts = {
+  readonly hold: AttachedSharedWorker["hold"];
+  readonly lateReason: SharedWorkerLateReason | null;
+  /** From the breakpoint step to the answer of the barrier behind the disable; null if that barrier was never answered. */
+  readonly debuggerOnMs: number | null;
+  readonly beaconsAtDebuggerOff: number | null;
+  readonly holdsTheBound: boolean;
+  readonly translated: boolean;
+};
+
+/**
+ * What one try showed. `reached`: late as a worker that ran before the
+ * breakpoint, with the debugger off before its script ended and, where the
+ * bound is held and the process is not translated, within
+ * DEBUGGER_ON_BOUND_MS. `not-reached`: its script had not started when the
+ * breakpoint went in, so it was held, or late at its first pause. `stalled`:
+ * reached, but the debugger's time on passed the bound or the script's end,
+ * or the barrier was never answered. A worker left pending is none of these:
+ * it is the defect, and throws.
+ */
+function midScriptTry(facts: MidScriptFacts): "reached" | "not-reached" | "stalled" {
+  assert.notEqual(facts.hold, "pending", "left waiting for a pause that cannot come, with the debugger on, while its script ran");
+  if (facts.hold !== "late" || facts.lateReason !== "ran-before-breakpoint") return "not-reached";
+  if (facts.debuggerOnMs === null || facts.beaconsAtDebuggerOff !== 0) return "stalled";
+  if (facts.holdsTheBound && !facts.translated && facts.debuggerOnMs > DEBUGGER_ON_BOUND_MS) return "stalled";
+  return "reached";
+}
+
+test("a try at reaching a worker mid-script is reached, not reached or stalled, and a worker left pending is never a lost try", () => {
+  const reached: MidScriptFacts = { hold: "late", lateReason: "ran-before-breakpoint", debuggerOnMs: 9.9, beaconsAtDebuggerOff: 0, holdsTheBound: true, translated: false };
+  assert.equal(midScriptTry(reached), "reached");
+  assert.equal(midScriptTry({ ...reached, debuggerOnMs: DEBUGGER_ON_BOUND_MS }), "reached", "the bound itself is within it");
+  // Its script had not started: held and released, or late at a first pause, or a hold another client broke.
+  assert.equal(midScriptTry({ ...reached, hold: "released", lateReason: null }), "not-reached");
+  assert.equal(midScriptTry({ ...reached, lateReason: "other-script" }), "not-reached");
+  assert.equal(midScriptTry({ ...reached, lateReason: "resumed-while-held" }), "not-reached");
+  // A stall: past the bound where it is held natively, past the script's end, or a barrier never answered.
+  assert.equal(midScriptTry({ ...reached, debuggerOnMs: DEBUGGER_ON_BOUND_MS + 0.1 }), "stalled");
+  assert.equal(midScriptTry({ ...reached, debuggerOnMs: DEBUGGER_ON_BOUND_MS + 0.1, translated: true }), "reached", "under translation the bound is not held");
+  assert.equal(midScriptTry({ ...reached, debuggerOnMs: DEBUGGER_ON_BOUND_MS + 0.1, holdsTheBound: false }), "reached", "a test that does not hold the bound");
+  assert.equal(midScriptTry({ ...reached, beaconsAtDebuggerOff: 1 }), "stalled");
+  assert.equal(midScriptTry({ ...reached, beaconsAtDebuggerOff: 1, translated: true }), "stalled", "translated or not, the debugger must be off before the script ends");
+  assert.equal(midScriptTry({ ...reached, debuggerOnMs: null, beaconsAtDebuggerOff: null }), "stalled");
+  // The defect itself, whatever else the try showed.
+  assert.throws(() => midScriptTry({ ...reached, hold: "pending", lateReason: null, debuggerOnMs: null, beaconsAtDebuggerOff: null }), /left waiting for a pause/);
+  assert.throws(() => midScriptTry({ ...reached, hold: "pending", lateReason: null, translated: true }), /left waiting for a pause/);
+});
+
+/**
+ * One try at reaching a shared worker while its main script runs. Whatever
+ * the try shows is held to the honest outcome: a worker left pending fails
+ * here, a held one must have had its observer first, and a late one must be
+ * late for a documented reason, run unobserved and be counted unread. Only a
+ * try midScriptTry calls reached is won.
+ */
+async function reachedMidScript(
+  t: TestContext,
+  name: string,
+  script: string,
+  options: { holdsTheBound: boolean; translation: TranslationSignal }
+): Promise<{ won: boolean; measured: string }> {
+  const { harness, done, heard } = await reachWhileItsScriptRuns(t, name, script);
+  const workerNow = (): AttachedSharedWorker | undefined => sharedWorkersOf(harness)[0];
+  // Its fate: late, with the barrier behind the disable answered; or held, its script not yet started; or its script over.
+  await waitFor(() => heard.debuggerOffBy !== null || workerNow()?.hold === "held" || workerNow()?.hold === "released" || done.length >= 1, 15_000);
+  // A hold ends released, or late if another client broke it.
+  if (workerNow()?.hold === "held") await waitFor(() => workerNow()?.hold !== "held", 10_000);
+  const worker = workerNow();
+  assert.ok(worker, "the visit heard of its shared worker");
+  const debuggerOnMs = heard.attachedAt !== null && heard.debuggerOffBy !== null ? heard.debuggerOffBy - heard.attachedAt - RUNNING_SCRIPT_ATTACH_DELAY_MS : null;
+  // A worker left pending throws here: the defect is never a lost try.
+  const verdict = midScriptTry({
+    hold: worker.hold,
+    lateReason: worker.lateReason,
+    debuggerOnMs,
+    beaconsAtDebuggerOff: heard.beaconsAtDebuggerOff,
+    holdsTheBound: options.holdsTheBound,
+    translated: options.translation.translated
+  });
   await waitFor(() => done.length >= 1, 10_000);
-  assert.deepEqual(done, ["running/false/undefined"], "the worker ran with no observer");
+  if (worker.hold === "released") {
+    // The race was not reached: the script had not started when the breakpoint went in, and the observer preceded it.
+    assert.deepEqual(done, [`${name}/true/undefined`], "a worker held at its main script ran with its observer in place");
+    await harness.browser.close();
+    return { won: false, measured: `the worker had not started ${RUNNING_SCRIPT_ATTACH_DELAY_MS} ms after its release, and was held and read` };
+  }
+  assert.equal(worker.hold, "late");
+  assert.ok(documentedLateReason(worker.lateReason), `an undocumented late reason: ${String(worker.lateReason)}`);
+  assert.deepEqual(done, [`${name}/false/undefined`], "the worker ran with no observer");
   assert.deepEqual(harness.installer.sharedInstallDiagnostics(), {
     installedWorkerCount: 0,
     installFailedWorkerCount: 0,
@@ -3011,6 +3101,39 @@ test("real Chromium: a shared worker the attacher reaches while its main script 
     unread: 1,
     terms: { "shared.discovered": 1, "shared.attached": 1, "shared.attachedLate": 1 }
   });
+  const measured =
+    `${verdict}: late as ${String(worker.lateReason)}; ` +
+    (debuggerOnMs === null ? "the barrier behind the disable was not answered" : `debugger on for at most ${debuggerOnMs.toFixed(1)} ms after the breakpoint step`) +
+    `; ${String(heard.beaconsAtDebuggerOff)} of its script's beacons in by then (${options.translation.reading})`;
+  if (verdict === "reached") return { won: true, measured };
+  await harness.browser.close();
+  return { won: false, measured };
+}
+
+/** The tries, as untilSharedWorkerRaceWon makes them, with what each measured said if every one is lost. */
+async function untilReachedMidScript(t: TestContext, name: string, script: string, holdsTheBound: boolean): Promise<void> {
+  const translation = translationSignal();
+  const measured: string[] = [];
+  try {
+    await untilSharedWorkerRaceWon(
+      t,
+      async (tryNumber) => {
+        const result = await reachedMidScript(t, name, script, { holdsTheBound, translation });
+        measured.push(`try ${tryNumber}: ${result.measured}`);
+        t.diagnostic(`try ${tryNumber}: ${result.measured}`);
+        return result.won;
+      },
+      { coverageNotObtainedWhenTranslated: true }
+    );
+  } catch (error) {
+    // Every try lost: say what each measured. Any other failure is a try's own assertion, and stands as it is.
+    if (measured.length === SHARED_HOLD_TRIES && error instanceof Error) throw new assert.AssertionError({ message: `${error.message}. ${measured.join(". ")}` });
+    throw error;
+  }
+}
+
+test("real Chromium: a shared worker the attacher reaches while its main script still runs is late before that script ends, has the debugger off within the bound the pages claim, and is unread", { timeout: 120_000 }, async (t) => {
+  await untilReachedMidScript(t, "running", spinningSharedScript(), true);
 });
 
 /**
@@ -3024,21 +3147,8 @@ test("real Chromium: a shared worker the attacher reaches while its main script 
  * as another script's. That half is a coverage question of its own, in
  * docs/limitations.md.)
  */
-test("real Chromium: a shared worker whose main script names itself, reached while it runs, is late before the script ends and is unread", { timeout: 60_000 }, async (t) => {
-  const { harness, done, heard } = await reachWhileItsScriptRuns(t, "self-named", spinningSharedScript("\n//# sourceURL=named-by-the-page.js"));
-  await waitFor(() => heard.debuggerOffBy !== null, 10_000);
-  const [worker] = sharedWorkersOf(harness);
-  assert.equal(worker?.hold, "late", "late while its script still ran, and not left waiting for a pause");
-  assert.equal(worker.lateReason, "ran-before-breakpoint");
-  assert.equal(heard.beaconsAtDebuggerOff, 0, "the debugger went off while the main script still ran");
-  await waitFor(() => done.length >= 1, 10_000);
-  assert.deepEqual(done, ["self-named/false/undefined"], "the worker ran with no observer");
-  const readout = await readWorkerRealms(harness, 500);
-  assert.deepEqual(readoutTerms(readout), {
-    snapshots: [],
-    unread: 1,
-    terms: { "shared.discovered": 1, "shared.attached": 1, "shared.attachedLate": 1 }
-  });
+test("real Chromium: a shared worker whose main script names itself, reached while it runs, is late before the script ends and is unread", { timeout: 120_000 }, async (t) => {
+  await untilReachedMidScript(t, "self-named", spinningSharedScript("\n//# sourceURL=named-by-the-page.js"), false);
 });
 
 /**
