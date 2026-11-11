@@ -1,0 +1,95 @@
+{
+  "schemaVersion": 1,
+  "status": "rebuild-and-compare",
+  "claim": "two-clean-builds-of-these-inputs-give-these-bytes",
+  "build": {
+    "cargoLocked": true,
+    "target": "wasm32-unknown-unknown",
+    "profile": "release",
+    "rustc": "1.99.1",
+    "rustcCommit": "58cf8f9c35b355199727627d07ae34a4e2846d67",
+    "pathRemapping": [
+      "workspace",
+      "cargo home",
+      "rust sysroot"
+    ],
+    "toolsAfterTheCompiler": []
+  },
+  "inputs": [
+    {
+      "path": "tools/trust-kernel/Cargo.toml",
+      "bytes": 412,
+      "sha256": "6b87c71393c3de195cc676cb527157d9a5633af3ac1d217eaad246af6dcfd7b1"
+    },
+    {
+      "path": "tools/trust-kernel/Cargo.lock",
+      "bytes": 3967,
+      "sha256": "bf46e45e797c6bdd2484454f4857eeb7fdb0fcc3b482b7bde99fcbacc1acf548"
+    },
+    {
+      "path": "tools/trust-kernel/rust-toolchain.toml",
+      "bytes": 330,
+      "sha256": "5359df8c095bb8e3a5eac527183678a43b029ea86b89a79eec1b1a1d7a84618d"
+    },
+    {
+      "path": "tools/trust-kernel/pins.json",
+      "bytes": 1325,
+      "sha256": "70c03c0eddfd58eb8fe1e292ebb6cea7ed465fcd7212ce320d7b7780325713c6"
+    },
+    {
+      "path": "tools/trust-kernel/kernel/Cargo.toml",
+      "bytes": 871,
+      "sha256": "1018bddd293d758b191542d38b92d10a6df7ac1a2a697f711a5b218cea91708f"
+    },
+    {
+      "path": "tools/trust-kernel/kernel/src/lib.rs",
+      "bytes": 4192,
+      "sha256": "2f6dfb5d3f80bb4a047022670684f7e3b4ff07c01bc07c2efb5d6786fb2e2506"
+    },
+    {
+      "path": "tools/trust-kernel/kernel/src/encode.rs",
+      "bytes": 45948,
+      "sha256": "0cc96d4f187b0491922929d9c0d98d7722904adba1bb4ddbadb73934e79cd285"
+    },
+    {
+      "path": "tools/trust-kernel/kernel/src/parse.rs",
+      "bytes": 8587,
+      "sha256": "f3326a71f28ef8f37838223defc604cc28d5e9b130b4aa55a35d177b0ff088e5"
+    },
+    {
+      "path": "tools/trust-kernel/kernel/src/number.rs",
+      "bytes": 8767,
+      "sha256": "f7dc663cac01bc72fd275912bda5a1f3792aa56e33d80af9fb2f8a37e3a17f5d"
+    },
+    {
+      "path": "tools/trust-kernel/kernel/src/nfc.rs",
+      "bytes": 5689,
+      "sha256": "1a1a05306281f71e83fab42072482434d64ffa24778c1756217201c891c93c45"
+    },
+    {
+      "path": "tools/trust-kernel/kernel/src/nfc_tables.rs",
+      "bytes": 107455,
+      "sha256": "898a58fa80e7035fbc58e59086369aec35f31ce5b78f6ce12d018abe243936a2"
+    },
+    {
+      "path": "tools/trust-kernel/kernel/src/tests.rs",
+      "bytes": 4348,
+      "sha256": "9f1346f47530f4b2d6c78514580a897612d1d3664c8685ee2fd475cecb36a7c7"
+    },
+    {
+      "path": "tools/trust-kernel/wasm/Cargo.toml",
+      "bytes": 334,
+      "sha256": "4846ea4d62221647e8a858477310c40a85f50473feb4cdcf25907d3d41491ad3"
+    },
+    {
+      "path": "tools/trust-kernel/wasm/src/lib.rs",
+      "bytes": 2360,
+      "sha256": "a5aabc2b4bdddb1ed40f4a33f7d01456efedd70f59ee28408e46696fd025dc36"
+    }
+  ],
+  "output": {
+    "artifact": "sbl_trust_kernel_wasm.wasm",
+    "bytes": 107719,
+    "sha256": "c3173a328154b7ae4d61d86e2f66152894a163b468b271ea4ddf4432fbd3558c"
+  }
+}

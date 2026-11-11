@@ -23,4 +23,4 @@ vstd = "=0.0.0-2026-11-01-0251"
 verify = true
 
 [lints.rust]
-unexpected_cfgs = { level = "allow", check-cfg = ['cfg(verus_keep_ghost)', 'cfg(kani)'] }
+unexpected_cfgs = { level = "allow", check-cfg = ['cfg(verus_keep_ghost)'] }

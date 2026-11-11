@@ -75,3 +75,28 @@ fn refuses_what_the_reference_parser_refuses() {
     assert_eq!(canonicalize("\"\u{e9}\"".as_bytes(), Some(3)), Err(Refusal::TooLarge));
     assert!(canonicalize("\"\u{e9}\"".as_bytes(), Some(4)).is_ok());
 }
+
+#[test]
+fn normalization_tables_are_in_order_and_in_range() {
+    use crate::nfc_tables::{CLASS_RANK_RANGES, COMPOSITIONS, DECOMPOSITION_INDEX, DECOMPOSITION_POOL};
+    // The lookups are binary searches and slices: they are right only if
+    // every table is strictly sorted and every offset stays in its pool.
+    assert!(DECOMPOSITION_INDEX.windows(2).all(|pair| pair[0].0 < pair[1].0));
+    assert!(DECOMPOSITION_INDEX.iter().all(
+        |&(_, offset, length)| length > 0 && usize::from(offset) + usize::from(length) <= DECOMPOSITION_POOL.len()
+    ));
+    assert!(CLASS_RANK_RANGES
+        .iter()
+        .all(|&(first, last, rank)| first <= last && rank > 0));
+    assert!(CLASS_RANK_RANGES.windows(2).all(|pair| pair[0].1 < pair[1].0));
+    assert!(COMPOSITIONS
+        .windows(2)
+        .all(|pair| (pair[0].0, pair[0].1) < (pair[1].0, pair[1].1)));
+    // No table entry is a surrogate or past the last code point.
+    let scalar = |point: u32| point <= 0x10FFFF && !(0xD800..=0xDFFF).contains(&point);
+    assert!(DECOMPOSITION_POOL.iter().all(|&point| scalar(point)));
+    assert!(COMPOSITIONS
+        .iter()
+        .all(|&(a, b, c)| scalar(a) && scalar(b) && scalar(c)));
+    assert_eq!(crate::UNICODE_VERSION, "17.0");
+}
