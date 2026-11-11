@@ -197,7 +197,14 @@ could not read, and the debugger goes off at that moment. One that answers
 its breakpoint and not the question behind it waits with the debugger on up
 to the same bound, and is then counted the same way. No worker that stayed
 was seen in either state with Chromium 156 or 158 in the measurements here;
-both are written out against a scripted browser.
+both are written out against a scripted browser. The 6 to 11 ms a held
+worker waits are small scripts, and the wait grows with the script: in one
+run on one machine (Chromium 156, 20 visits each), a worker script of 3.4 MB
+waited a median of 236 ms before its first statement with the attacher on
+and 66 ms with none, where a one-line script waited 12.6 ms and 4.1 ms. An
+earlier run on the same machine gave 125 ms and 35 ms for the large script,
+and runs under heavy load 258 and 371 ms against 69 and 105 ms: about three
+and a half times the wait with no attacher each time.
 
 ### What one report covers
 

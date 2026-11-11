@@ -4,8 +4,9 @@
  * report them, in one dependency-free module, so the producer, the reader and
  * the client bundles take every word from one place.
  *
- * A shared worker the scanner's attacher never reached (no pause, and no
- * script of it seen parsed) that ended within the bound of its creation, by
+ * A shared worker the scanner's attacher never reached (no pause, no script
+ * of it seen parsed, and none listed when the attacher asked which scripts
+ * it had) that ended within the bound of its creation, by
  * the attacher's own receive times, is reported apart from the worker realms
  * that ran unread: whether it ran any code is not known. Readers still treat
  * the visit's fingerprinting evidence as incomplete for it (owner call 3b).

@@ -41,10 +41,20 @@ import { SHARED_WORKER_ENDED_AT_ONCE_MS } from "./shared-worker-ended-at-once";
  * breakpoint's answer. Or the browser says so itself: behind the breakpoint,
  * in the same step, the thread asks which scripts exist
  * (`Debugger.setBreakpointByUrl` on every script's first line, with a
- * condition that is never true, removed as soon as it answers), and the
- * answer lists them. A question that cannot say (refused, unanswered at the
- * command's bound, or answered with no list) counts as a script that may
- * have been there. The order of a parse and an answer alone decides
+ * condition that is never true), and the answer lists them: one place for
+ * each script that has a URL and a place to stop. The question is taken
+ * away when it answers, if the worker is still waiting for its first pause;
+ * for a worker already at that pause, or gone, nothing more is sent, and the
+ * debugger going off clears it. What the answer does not list has run no
+ * statement the thread should have known of: a script with no place to stop
+ * has no statement, and code with no URL of its own (eval, the Function
+ * constructor) is only ever run by a script that has one, which is listed
+ * (measured on Chromium 156 and 158, 2026-11-10: an empty script lists
+ * nothing and runs nothing, and eval's code is parsed with no URL and not
+ * listed while the script that called it is). A question that cannot say
+ * (refused, unanswered at the command's bound, or answered with no list)
+ * counts as a script that may have been there. The order of a parse and an
+ * answer alone decides
  * nothing: Chromium 158 holds a script's parse back until the worker next
  * returns to its message loop or pauses, and sends answers at once, so a
  * parse heard behind the breakpoint's answer may be of a script compiled
@@ -503,9 +513,12 @@ export function sharedWorkerAttacherThread(port: AttacherThreadPort, data: Attac
       );
       // The question, behind the breakpoint: which scripts exist. It is a
       // breakpoint on the first line of every script whose condition is never
-      // true, so it pauses nothing, and its answer lists where it resolved,
-      // one location per script the worker had compiled. It is taken away as
-      // soon as it answers.
+      // true, so it pauses nothing, and its answer lists where it resolved:
+      // one place for each script that has a URL and a place to stop at or
+      // after its first line. A script with nothing to stop at has no
+      // statement, and code with no URL (eval, the Function constructor) is
+      // run only by a script that is listed. It is taken away when it
+      // answers, if the worker is still waiting for its first pause.
       const asked = (answer: Answer | null): void => {
         // The answer matters only to a worker still waiting for its first
         // pause. One that has gone is sent nothing more, and what the thread

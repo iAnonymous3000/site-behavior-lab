@@ -179,8 +179,15 @@ export type FingerprintObserverRealmArgs = {
  * browser reports that script's parse and whatever name the script gave
  * itself. Through @12 one whose parse was not heard ahead of the answer as
  * the main script's waited for a pause that could not come, with the debugger
- * on: it was unread only at the readout's bound, and one that went away
- * within 10 ms read as ended at once.
+ * on, and was unread only at the readout's bound. On a browser that holds a
+ * running script's parse back (Chromium 158), one that went away within
+ * 10 ms had no parse heard at all and read as ended at once; under @13 it is
+ * late if it answers the question before it goes, and still reads as ended
+ * at once if it goes first. On Chromium 156 a parse is heard under whatever
+ * name its script has, so such a worker did not read as ended at once under
+ * @12 either. @13 also acts on what the attacher's connection brings in the
+ * order it arrived, and counts a worker whose breakpoint was refused, or
+ * left unanswered for the command's bound, as reached late.
  *
  * `firstPartySiteKey` is the scanned site's registrable domain (computed with
  * the real public-suffix list in Node, e.g. "capitalone.com"), so the in-page

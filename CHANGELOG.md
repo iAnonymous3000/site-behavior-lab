@@ -219,19 +219,33 @@ public API or a 1.0 release.
   next returns to its message loop or pauses, and sends answers at once. A
   worker reached while its main script ran was then left waiting for a pause
   that could not come: the debugger stayed on, the readout counted the
-  worker unread only after waiting 500 ms at each read, and a worker that
-  went away within 10 ms was reported as one that ended before the observer
-  could reach it. On Chromium 156 the same happened to a worker whose main
-  script names itself with a `sourceURL` comment. The attacher now asks:
-  behind its breakpoint, in the same step, it sets a
-  breakpoint on the first line of every script with a condition that is
-  never true, removes it when it answers, and reads from the answer which
-  scripts the worker had compiled. A worker with any is late unless it
-  pauses at its main script first, and a question the worker does not answer
-  counts as a script that may have been there. The two published sentences
-  about the debugger's time on ("for a few milliseconds") are unchanged, and
-  a real-browser test now holds a worker reached mid-script to 250 ms. The
-  measurement epoch below says what moves.
+  worker unread only after waiting 500 ms at each read, and one that went
+  away within 10 ms, with no parse of it ever heard, was reported as one
+  that ended before the observer could reach it. On Chromium 156 a worker
+  whose main script names itself with a `sourceURL` comment was left waiting
+  the same way, but was not reported as ended at once, since its parse is
+  heard under the name it gave itself. The attacher now asks: behind its
+  breakpoint, in the same step, it sets a breakpoint on the first line of
+  every script with a condition that is never true, and reads from the
+  answer which scripts the worker had compiled. A worker with any is late
+  unless it pauses at its main script first, and a question refused, or left
+  unanswered by a worker that is still there, counts as a script that may
+  have been there. This helps a worker that answers. One that ends before it
+  answers is still reported as one that ended before the observer could
+  reach it: on Chromium 158, a worker that lives 3 ms and is reached 2 or
+  4 ms late read so in 25 of 400 visits, against 191 of 400 before, in one
+  run, and the share moves with the machine's timing. Two more rules come
+  with it. The attacher acts on what its connection brings in the order it
+  arrived. A socket can hand over an answer and an event behind it in one
+  task, and the event was acted on first, so a worker that listed a script
+  and then went away, both in one read, could still be reported as ended
+  before the observer could reach it. And a breakpoint the browser refuses,
+  or leaves unanswered for the command's bound of 5 seconds, makes the
+  worker late with the debugger off, where it was left waiting with the
+  debugger on. The two published sentences about the debugger's time on
+  ("for a few milliseconds") are unchanged, and a real-browser test holds a
+  worker reached mid-script to 250 ms. The measurement epoch below says what
+  moves.
 - The image build no longer lets a vulnerable apt retry or fetch over plain
   HTTP. The apt that downloads during the build is the base's 2.8.3, the one
   CVE-2026-109518 names (remote code execution via hard link reuse during
@@ -3349,11 +3363,14 @@ as intended.
   had waited 500 ms (40 of 40 visits). @13 counts it late at once (40 of 40
   visits, the readout answering in 0 to 113 ms). Its realm is unread either
   way and the report counts it the same, so no published count moves
-  there. One that also went away within 10 ms could
-  read under @12 as a worker that ended before the observer could reach it
-  (1 of 20 visits reached 2 ms late) and did not under @13 (0 of 20). Every
-  shared worker also receives one more debugger command, and its removal,
-  ahead of its release.
+  there. One that also goes away within 10 ms is not reported as ended at
+  once under either rule, since a parse is heard under whatever name the
+  script has: 1 of 240 visits under @12 and 0 of 240 under @13 read so, the
+  one a worker gone before anything of it was heard. Every shared worker
+  that waits at its start also receives one more debugger command ahead of
+  its release, and that command's removal behind the release, once it
+  answers, if the worker is still waiting for its first pause. A worker
+  already running when it attaches is sent nothing, as before.
 - What does not differ there. With the scanner's own attacher and readout,
   over 24 cells of 20 visits (five kinds of worker and a self-named one, in
   the production order and with the breakpoint 1, 2, 4, 30 and 250 ms behind
@@ -3369,19 +3386,36 @@ as intended.
   Measured the same way, with the breakpoint 30 ms behind the release, @12
   left every kind of worker waiting, unread only after 500 ms (100 of 100
   visits), and @13 counted each late at once (100 of 100). A worker that
-  lives 3 ms, reached 2 or 4 ms late, was reported by @12 as one that ended
-  before the observer could reach it in 21 of 40 visits and by @13 in none.
-  In the production order both held every worker that can be held in the
-  table's 80 visits each, and over 550 more visits each both lost the hold
-  in 2.
+  lives 3 ms, reached 2 or 4 ms late, was reported as one that ended before
+  the observer could reach it in 191 of 400 visits by @12 and in 25 of 400
+  by @13 (alternating blocks: 30 and 8 of 200 at 2 ms, 161 and 17 of 200 at
+  4 ms). @13 helps a worker that answers the question, not one that ends
+  first, and how many end first moves with the machine: at 4 ms, other
+  runs under @13 on the same machine gave 0 of 20, 14 of 40, 19 of 60 and 26
+  of 60. In the production order both held every worker that can be held in
+  the table's 80 visits each, and over 550 more visits each both lost the
+  hold in 2.
+- What the two further rules cost and change. Acting in arrival order was
+  measured against the same thread without it, on both browsers, in the
+  production order, 550 visits each in alternating blocks. A held worker's
+  wait before its first statement had a median of 11.6 ms without it and
+  11.5 ms with it on Chromium 156, and 11.4 and 11.5 ms on Chromium 158; the
+  interval on each difference lies within 0.1 ms either way, the clock's own
+  step. With the first measurement's fixture the hold was lost in 0 and 0 of
+  550 visits on Chromium 156 and in 2 and 0 on Chromium 158, which could
+  have shown a rise to about 1 in 100. An answer and an event behind it in
+  one read were not seen to cost a worker its term in ordinary runs (0 of
+  180 in an independent review); the rule is held by scripted reads. A
+  refused or unanswered breakpoint was not seen with either browser, and is
+  scripted too.
 - Measured natively on one machine (macOS arm64) on loopback fixtures, and
   in one emulated linux/amd64 run per browser and rule, which is not native.
   Emulated, both rules held all 24 production-order visits on each browser.
   With the breakpoint 200 ms behind the release, a worker was unread only
   after 500 ms under @12 in 8 of 24 visits on Chromium 156 (the self-named
   one) and in 24 of 24 on Chromium 158, and was late at once under @13 in 24
-  of 24 on each. Not measured: native linux/amd64, which the hosted checks
-  run on.
+  of 24 on each. The two further rules were measured natively only. Not
+  measured: native linux/amd64, which the hosted checks run on.
 
 ## [0.6.0] - 2026-09-06
 

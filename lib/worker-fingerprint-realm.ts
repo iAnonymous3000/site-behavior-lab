@@ -213,7 +213,8 @@ export type SharedWorkerFingerprintReadoutDiagnostics = {
   attachedLate: number;
   /**
    * Unread: never paused by the end of the drain, or gone without a pause
-   * after a script of it was seen parsed or after living past the bound.
+   * after a script of it was seen parsed or listed, or after living past the
+   * bound.
    */
   unreached: number;
   /** Unread, as for a dedicated worker. */
