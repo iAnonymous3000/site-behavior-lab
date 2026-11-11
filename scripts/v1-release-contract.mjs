@@ -17,7 +17,6 @@ export const V1_GATES = Object.freeze({
   "compatibility-surface-pinned": "document-digest",
   "errata-resolution": "errata",
   "published-corpus-consistency": "published-corpus-consistency",
-  "r2-lifecycle": "lifecycle-receipt",
   "release-receipt-archive": "receipt-archive",
   "durable-soak": "durable-soak",
   "waf-ceilings": "operator-attestation",
@@ -64,7 +63,6 @@ const FIXED_EVIDENCE = Object.freeze({
   "research/measurement-candidate/container-evidence-manifest.bundle.json": "container-attestation",
   "research/measurement-candidate/site-behavior-lab-container-package-inventory.json": "container-package-inventory",
   "research/measurement-candidate/container-package-inventory.bundle.json": "container-package-attestation",
-  "research/ops-receipts/v1-r2-lifecycle-readback.json": "lifecycle-receipt",
   [V1_FORMAL_VERIFICATION_REPORT_PATH]: "formal-verification-report",
   [V1_FORMAL_VERIFICATION_BUNDLE_PATH]: "formal-verification-attestation"
 });
@@ -166,7 +164,6 @@ export function v1ProfileProblems(manifest) {
   // the gate compares the list, so the two accept the same manifests.
   if (suiteProblems === 0 && JSON.stringify(suites) !== JSON.stringify(V1_REQUIRED_SUITES)) problems.push("formal-verification must list its required suites exactly as this contract does");
   if (manifest.gates?.["release-candidate-binding"]?.artifact !== V1_BINDING_PATH ||
-      manifest.gates?.["r2-lifecycle"]?.receipt !== "research/ops-receipts/v1-r2-lifecycle-readback.json" ||
       manifest.gates?.["published-corpus-consistency"]?.artifact !== "public/corpus-stats.json" ||
       manifest.gates?.["formal-verification"]?.report !== V1_FORMAL_VERIFICATION_REPORT_PATH ||
       manifest.gates?.["formal-verification"]?.bundle !== V1_FORMAL_VERIFICATION_BUNDLE_PATH) problems.push("v1 evidence paths must remain fixed");

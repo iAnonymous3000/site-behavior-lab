@@ -206,7 +206,6 @@ const EXPECTED_GATES: Record<string, string> = {
   "compatibility-surface-pinned": "document-digest",
   "errata-resolution": "errata",
   "published-corpus-consistency": "published-corpus-consistency",
-  "r2-lifecycle": "lifecycle-receipt",
   "release-receipt-archive": "receipt-archive",
   "durable-soak": "durable-soak",
   "waf-ceilings": "operator-attestation",

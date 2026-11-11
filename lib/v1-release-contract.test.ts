@@ -68,7 +68,6 @@ function fixture(t: { after: (callback: () => void) => void }) {
   add(canonical.MEASUREMENT_CANDIDATE_ATTESTATION_BUNDLE_PATH, "container-attestation", { fixture: "bundle" });
   add(canonical.MEASUREMENT_CANDIDATE_PACKAGE_INVENTORY_PATH, "container-package-inventory", { fixture: "inventory" });
   add(canonical.MEASUREMENT_CANDIDATE_PACKAGE_ATTESTATION_BUNDLE_PATH, "container-package-attestation", { fixture: "bundle" });
-  add("research/ops-receipts/v1-r2-lifecycle-readback.json", "lifecycle-receipt", { fixture: "lifecycle" });
   // Only the live operator gates. The two deferred to 1.1 are bound by the
   // tests that exercise a carrier presenting their evidence anyway.
   for (const id of LIVE_OPERATOR_GATES) {
@@ -174,7 +173,10 @@ const REMOVED_GATES: [string, string, [string, string][]][] = [
     ["research/v1-qualification/single-observation/report.json", "qualification-report"],
     ["research/v1-qualification/single-observation/reference.txt", "qualification-reference"],
     ["research/v1-qualification/single-observation/review-evidence.json", "qualification-reference"]
-  ]]
+  ]],
+  // A receipt of the storage provider's lifecycle rules, read back before the
+  // release. The application's own retention is held by its own tests.
+  ["r2-lifecycle", "lifecycle-receipt", [["research/ops-receipts/v1-r2-lifecycle-readback.json", "lifecycle-receipt"]]]
 ];
 
 test("a removed gate cannot return by a manifest edit, live or deferred, and the binding admits none of its evidence", async (t) => {

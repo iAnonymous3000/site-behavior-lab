@@ -1001,7 +1001,9 @@ authoritative gate list):
 - **Derived gates.** Corpus denominators,
   runner destruction receipts, controlled publication archives, the lifecycle
   readback receipt, and the release-receipt archive are all
-  re-derived from committed evidence on every run; no artifact's
+  re-derived from committed evidence on every run (release 1.0 has only the
+  last of these as a gate; the others belong to the research programme's
+  contract); no artifact's
   self-declared verdict is trusted (lifecycle rules are re-validated from the
   recorded rule bytes; runner cycles are counted as distinct Actions runs;
   and each controlled publication manifest/receipt pair is matched to its

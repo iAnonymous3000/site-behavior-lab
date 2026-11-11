@@ -21,7 +21,7 @@ verifiers and historical reports, schemas, receipts and approvals remain intact.
 | Inspect a truthful observation | Current deep readers and consistency checks | Population accuracy or detector error rates; that a person compared any report with an independent reference |
 | Understand uncertainty and interventions | No gate of its own. The scanner's tests run in CI on the candidate, and the signed formal verification report covers the suites it lists | That a covered negative is universal absence, or an intervention proves compliance; that a person reviewed how any report presents unknowns, scanner effects or an incomplete visit |
 | Reopen and share the same meaning | Compatibility and corrections gates | Reconstruction of observations never recorded; a human review of display, comparison, persistence or export |
-| Use a safely operated service | Authenticated admission-ceiling and report-lifecycle evidence | Reliability of disabled durable jobs; an egress boundary independent of the application guard; a re-verified log-retention window |
+| Use a safely operated service | Authenticated admission-ceiling evidence | Reliability of disabled durable jobs; an egress boundary independent of the application guard; a re-verified log-retention window; that the storage bucket's lifecycle rule is still in place |
 | Identify the shipped instrument | Source-bound CI evidence, an evidence-only carrier, external binding approval, promotion and live verification | Correctness merely because a build passed |
 | Know the bounded checks ran on the shipped source | A signed execution report for the candidate: every required suite file ran, no test or describe block was skipped, left todo or failed, and each file met its pinned minimums of tests passed and catches recorded | That a claim holds outside its stated domain, or that a restated rule is the right rule |
 
@@ -51,6 +51,22 @@ readiness, so it still fails until a trusted capture lane exists.
 `npm run release:readiness` lists both gates as `DEFERRED`, with no verdict.
 Meeting `egress-backstop` needs a capture lane and a platform boundary first.
 Meeting `log-retention` needs a capture lane first.
+
+## Provider settings 1.0 does not read back
+
+- **Report storage lifecycle (`r2-lifecycle`, removed 2026-11-11).** Release
+  1.0 reads no lifecycle receipt, and a 1.0 evidence carrier that binds one is
+  refused. The application enforces report retention itself: it stops serving
+  a saved report at its expiry and prunes by age and count, and
+  `lib/report-store.test.ts` holds that. The bucket's own eight-day deletion
+  rule is a provider setting that can change the day after a release, so a
+  readback at release time said nothing about the days that follow. A 1.0
+  release therefore does not establish that the rule is in place.
+  `.github/workflows/r2-lifecycle-evidence.yml` remains as an operations
+  check, dispatched by hand. The dated receipt at
+  `research/ops-receipts/r2-lifecycle-readback.json` remains as a record, and
+  `lib/report-store.test.ts` holds the application's retention ceiling below
+  the rule that receipt recorded.
 
 ## Formal verification suites
 
@@ -189,7 +205,7 @@ introduced here.
 ## Remaining blockers
 
 The contract does not supply the missing source binding, external
-governance selection, or current lifecycle/provider evidence. Those are concrete operational
+governance selection, or current provider evidence. Those are concrete operational
 evidence gaps to close before v1, not reasons to restart the research calendar.
 The egress and log-retention gates are not among them. They refuse
 caller-supplied provider evidence, no trusted hosted capture exists for either,
@@ -236,8 +252,3 @@ approves no reference. Public DNS, TLS,
 Cloudflare ingress, R2 and actual browser rendering remain separate validation
 obligations. These examples do not establish population accuracy or error rates.
 
-The v1 lifecycle receipt uses
-`research/ops-receipts/v1-r2-lifecycle-readback.json`. The older receipt at
-`research/ops-receipts/r2-lifecycle-readback.json` remains intact. A distinct path
-lets a fresh receipt be introduced after C without rewriting historical evidence
-or relaxing the evidence-only carrier rule.

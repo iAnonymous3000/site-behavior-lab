@@ -680,18 +680,20 @@ bounded exact provider response bytes and re-derives the rules, verdict, and
 receipt digest from those bytes. The observed 7-day/8-day conflict is exactly
 what it detects. Production health only sees the app-level TTL through
 `/api/health`, so run the readback and keep its receipt whenever lifecycle
-rules are touched and as part of the release evidence.
+rules are touched. This is an operations check. Release 1.0 has no lifecycle
+gate and reads no lifecycle receipt (removed 2026-11-11).
 
-For release provenance, do not run the local command and then submit its hash
+For a hosted readback, do not run the local command and then submit its hash
 to Actions. Create the protected `release-evidence` environment, configure its
 `CLOUDFLARE_ACCOUNT_ID` variable and scoped read-only
 `CLOUDFLARE_R2_LIFECYCLE_READ_TOKEN` secret, then dispatch
 `.github/workflows/r2-lifecycle-evidence.yml` from `main`. Its fixed
 GitHub-hosted job calls the API producer directly and uploads exactly
 `receipt.json` as
-`site-behavior-r2-lifecycle-evidence-<run-id>-<run-attempt>`. The hosted
+`site-behavior-r2-lifecycle-evidence-<run-id>-<run-attempt>`. The research
+programme's contract still has a lifecycle gate: there, the hosted
 provenance archive must authenticate that exact run, job, artifact digest, and
-receipt before the lifecycle gate can pass.
+receipt before the gate can pass.
 
 For rollback or teardown, disable the required contract before removing either
 half of its configuration, then remove the GitHub URL/token and delete only the

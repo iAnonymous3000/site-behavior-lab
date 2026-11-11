@@ -144,12 +144,6 @@
       "title": "Published distributions agree with every managed observation cohort",
       "artifact": "public/corpus-stats.json"
     },
-    "r2-lifecycle": {
-      "kind": "lifecycle-receipt",
-      "title": "A fresh lifecycle readback receipt shows one healthy reports/ backstop",
-      "receipt": "research/ops-receipts/v1-r2-lifecycle-readback.json",
-      "maxAgeDays": 30
-    },
     "release-receipt-archive": {
       "kind": "receipt-archive",
       "title": "The durable release-receipt archive lane is proven with at least one archived receipt",
