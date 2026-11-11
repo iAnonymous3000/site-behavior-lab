@@ -181,10 +181,10 @@ be re-run.
 **Road to 1.0.** The [investigative-v1 qualification contract](docs/v1-release-qualification.md)
 requires a release candidate bound to its source, with signed build and
 formal verification evidence, plus release-authority evidence.
-No person has reviewed scan outcomes against independent references, and 1.0
-does not require it.
 `npm run release:readiness` evaluates it; a green build or healthy deployment
-is not qualification. There is no stable public API and no npm package.
+is not qualification. No person has reviewed scan outcomes against
+independent references, and 1.0 does not require it. There is no stable
+public API and no npm package.
 
 **Retention.** The public instance keeps saved reports for seven days or 500
 reports, whichever prunes first; operators may allow up to 936 reports, never

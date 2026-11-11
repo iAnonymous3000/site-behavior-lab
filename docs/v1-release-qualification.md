@@ -160,7 +160,8 @@ A 1.0 evidence carrier may not bind anything under `research/v1-qualification/`:
 the binding refuses those paths.
 
 What remains is machine-checked and is not release evidence. CI runs the unit
-and browser suites on every commit. The controlled reference capture described
+suite and its Chromium, static export and container smoke tests on every
+commit it tests. The controlled reference capture described
 under "Collect controlled reference cases" below is a tool a maintainer can
 run by hand; CI does not run it.
 

@@ -8,7 +8,7 @@ name: Update Brave Shields Lists
 #      failures are tracked in a separate canonical issue and remain job-red.
 #      Rules moving upstream is NOT one of those failures: it is the ordinary
 #      weekly outcome, and the run hands the maintainer a proposal carrying the
-#      new bytes, the synced review ledger, and the measurement identity they
+#      new bytes, the regenerated inventory, and the measurement identity they
 #      must declare. Only broken machinery is red.
 #   2. A measurement-toolchain drift check against crates.io, npm, and Chrome's
 #      consumer stable channel. Actionable drift is tracked in one canonical issue;
