@@ -120,3 +120,36 @@ jobs:
           path: ${{ runner.temp }}/trust-kernel-differential.json
           if-no-files-found: warn
           retention-days: 30
+
+  # The kernel's lock file against the RustSec advisory database, with the
+  # same tool, version and flags as the audit of tools/adblock-wasm/Cargo.lock
+  # in ci.yml. It stands here and not in that required job for the reason
+  # this whole file exists: an advisory against a build-time macro crate of
+  # code nothing ships must not stop a promotion or a release.
+  trust-kernel-audit:
+    name: Trust Kernel Dependency Audit
+    runs-on: ubuntu-24.04
+    # Most of the time is compiling cargo-audit.
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # A unique database path forces cargo-audit to fetch RustSec during
+      # this run. Omitting --no-fetch and --stale makes an unavailable or
+      # stale advisory database a failure, not a cache-only success.
+      - name: Audit the kernel's Rust dependencies against a fresh RustSec database
+        env:
+          RUSTSEC_DB: ${{ runner.temp }}/rustsec-advisory-db-${{ github.run_id }}-${{ github.run_attempt }}
+        run: |
+          set -euo pipefail
+          test ! -e "$RUSTSEC_DB"
+          cargo install cargo-audit --locked --version 0.22.1 --force
+          test "$(cargo audit --version)" = "cargo-audit-audit 0.22.1"
+          cargo audit \
+            --db "$RUSTSEC_DB" \
+            --url https://github.com/RustSec/advisory-db.git \
+            --file tools/trust-kernel/Cargo.lock \
+            --deny warnings

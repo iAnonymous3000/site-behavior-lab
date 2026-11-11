@@ -46,6 +46,28 @@ updates:
         patterns: ["*"]
         update-types: ["patch"]
 
+  # The trust kernel's lock file (phase 0; nothing shipped is built from it).
+  # vstd and the verus_* crates are one pin with the Verus release named in
+  # tools/trust-kernel/pins.json and move only with it, so their version
+  # updates are ignored. Any other update rewrites Cargo.lock, which
+  # tools/trust-kernel/reproducibility-contract.json binds by digest: such a
+  # pull request arrives with the Trust Kernel workflow red until the
+  # contract is recorded again on purpose.
+  - package-ecosystem: "cargo"
+    directory: "/tools/trust-kernel"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "08:00"
+      timezone: "America/Los_Angeles"
+    groups:
+      trust-kernel-patches:
+        patterns: ["*"]
+        update-types: ["patch"]
+    ignore:
+      - dependency-name: "vstd"
+      - dependency-name: "verus_*"
+
   - package-ecosystem: "docker"
     directory: "/"
     schedule:

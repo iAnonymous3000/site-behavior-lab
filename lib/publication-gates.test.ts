@@ -158,6 +158,7 @@ test("Dependabot covers every tracked dependency ecosystem at its manifest path"
   assert.deepEqual(configuredPaths, [
     ["npm", "/"],
     ["cargo", "/tools/adblock-wasm"],
+    ["cargo", "/tools/trust-kernel"],
     ["docker", "/"],
     ["github-actions", "/"]
   ]);
