@@ -8,7 +8,7 @@
 //!
 //! One call at a time: the module keeps one input and one output buffer.
 
-use sbl_trust_kernel::{canonicalize, Refusal};
+use sbl_trust_kernel::{canonicalize_with_number_budget, Refusal};
 use std::sync::Mutex;
 
 static INPUT: Mutex<Vec<u8>> = Mutex::new(Vec::new());
@@ -23,19 +23,21 @@ pub extern "C" fn sbl_input(length: usize) -> *mut u8 {
     input.as_mut_ptr()
 }
 
-/// Canonicalizes the input buffer. A negative `max_utf8_bytes` means no
-/// budget. Returns 0 and fills the output buffer, or a refusal code and
-/// leaves the output empty.
+/// Canonicalizes the input buffer. Returns 0 and fills the output buffer, or
+/// a refusal code and leaves the output empty.
+///
+/// `has_budget` is 0 when the caller gives no byte budget, which is the
+/// reference called with one argument; `max_utf8_bytes` is then not read.
+/// With any other `has_budget`, `max_utf8_bytes` is the reference's second
+/// argument as a number, and a number the reference cannot use as a budget
+/// (a fraction, NaN, an infinity, a negative, past 2^53 - 1) refuses the
+/// input as too large, as the reference does. No number means "no budget".
 #[no_mangle]
-pub extern "C" fn sbl_canonicalize(max_utf8_bytes: f64) -> u32 {
+pub extern "C" fn sbl_canonicalize(has_budget: u32, max_utf8_bytes: f64) -> u32 {
     let input = INPUT.lock().unwrap_or_else(|poisoned| poisoned.into_inner());
     let mut output = OUTPUT.lock().unwrap_or_else(|poisoned| poisoned.into_inner());
-    let budget = if max_utf8_bytes >= 0.0 {
-        Some(max_utf8_bytes as u64)
-    } else {
-        None
-    };
-    match canonicalize(&input, budget) {
+    let budget = if has_budget == 0 { None } else { Some(max_utf8_bytes) };
+    match canonicalize_with_number_budget(&input, budget) {
         Ok(bytes) => {
             *output = bytes;
             0

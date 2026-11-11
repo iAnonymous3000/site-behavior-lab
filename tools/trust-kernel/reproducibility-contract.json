@@ -43,8 +43,8 @@
     },
     {
       "path": "tools/trust-kernel/kernel/src/lib.rs",
-      "bytes": 5150,
-      "sha256": "432af5be58c06881db68ef574276ec1c43be727d8cf7de853cb75de1547855f9"
+      "bytes": 6906,
+      "sha256": "fb55439c6d1b6bf48620bb06ff34d364fea7abb7934a4130e05114c1819e3e77"
     },
     {
       "path": "tools/trust-kernel/kernel/src/encode.rs",
@@ -73,8 +73,8 @@
     },
     {
       "path": "tools/trust-kernel/kernel/src/tests.rs",
-      "bytes": 6826,
-      "sha256": "2fa8ef11cc527993202c57179e99541b55c9bbcfd9d3fe217ef5a9bf90984267"
+      "bytes": 8361,
+      "sha256": "6e7ebeff7be177e8386bd7d677b9a0fcb5fa64310eba2769084e7e4304f92083"
     },
     {
       "path": "tools/trust-kernel/wasm/Cargo.toml",
@@ -83,13 +83,13 @@
     },
     {
       "path": "tools/trust-kernel/wasm/src/lib.rs",
-      "bytes": 2360,
-      "sha256": "a5aabc2b4bdddb1ed40f4a33f7d01456efedd70f59ee28408e46696fd025dc36"
+      "bytes": 2783,
+      "sha256": "68b40977291824aa679f51c7fed26f7af61a91b02686dc3b111fc8ffec0d3c1d"
     }
   ],
   "output": {
     "artifact": "sbl_trust_kernel_wasm.wasm",
-    "bytes": 107653,
-    "sha256": "355d261618f546337aefc4d679a446d445528b74c6a1fed5111be9618fef6b11"
+    "bytes": 107717,
+    "sha256": "dfec8e5dba5c81ce47c2c2d836afba3d609fa98f413363fbdefa35f1f2d1e6b5"
   }
 }

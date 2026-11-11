@@ -2,7 +2,7 @@
 //! reference comparison is scripts/trust-kernel-differential.mjs.
 
 use crate::encode::{encode_admitted, Value};
-use crate::{canonicalize, Refusal};
+use crate::{canonicalize, canonicalize_with_number_budget, Refusal};
 
 fn canon(text: &str) -> Result<String, Refusal> {
     canonicalize(text.as_bytes(), None).map(|bytes| String::from_utf8(bytes).expect("utf-8"))
@@ -166,4 +166,48 @@ fn an_admitted_tree_need_not_be_canonical() {
         canonicalize("\"e\u{301}\"".as_bytes(), None).as_deref(),
         Ok("\"\u{e9}\"".as_bytes())
     );
+}
+
+#[test]
+fn a_budget_the_reference_cannot_use_refuses_every_text() {
+    // "\u{e9}" in quotes is four bytes of UTF-8.
+    let text = "\"\u{e9}\"".as_bytes();
+    let with = |budget: f64| canonicalize_with_number_budget(text, Some(budget));
+    for unusable in [
+        4.5,
+        4.000000000000001,
+        f64::NAN,
+        -0.5,
+        -1.0,
+        f64::NEG_INFINITY,
+        f64::INFINITY,
+        9007199254740992.0,
+        18446744073709551616.0,
+        1e300,
+        5e-324,
+    ] {
+        assert_eq!(with(unusable), Err(Refusal::TooLarge), "budget {unusable}");
+    }
+    for too_small in [0.0, -0.0, 3.0] {
+        assert_eq!(with(too_small), Err(Refusal::TooLarge), "budget {too_small}");
+    }
+    for enough in [4.0, 5.0, 9007199254740991.0] {
+        assert!(with(enough).is_ok(), "budget {enough}");
+    }
+    assert!(canonicalize_with_number_budget(text, None).is_ok());
+    // Bytes that are not UTF-8 are refused as that, before any budget.
+    assert_eq!(
+        canonicalize_with_number_budget(b"\"\xff\"", Some(f64::NAN)),
+        Err(Refusal::InvalidUtf8)
+    );
+    assert_eq!(
+        canonicalize_with_number_budget(b"\"\xff\"", Some(0.0)),
+        Err(Refusal::InvalidUtf8)
+    );
+    // The empty text under a budget of zero is not too large; it is not JSON.
+    assert_eq!(
+        canonicalize_with_number_budget(b"", Some(-0.0)),
+        Err(Refusal::InvalidJson)
+    );
+    assert_eq!(canonicalize_with_number_budget(b"", Some(-1.0)), Err(Refusal::TooLarge));
 }

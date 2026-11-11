@@ -12,6 +12,7 @@
 // Two bodies of input:
 //   corpus  every tracked *.json file in the repository, as its bytes, and
 //           every entry of the transparency log on its own;
+//   budgets the reference parser's byte budget, as every kind of number;
 //   fuzz    generated from a fixed seed, so a run can be repeated exactly:
 //           numbers, normalization, whole documents, and damaged documents.
 //
@@ -106,7 +107,11 @@ async function loadKernel(wasmPath) {
   const kernel = function kernel(bytes, maxUtf8Bytes) {
     const at = sbl_input(bytes.length);
     new Uint8Array(memory.buffer, at, bytes.length).set(bytes);
-    const code = sbl_canonicalize(maxUtf8Bytes === undefined ? -1 : maxUtf8Bytes);
+    // The byte budget crosses as a flag and a number, so that every number
+    // the reference can be handed reaches the kernel as that number. The
+    // reference's second argument is only ever a number or absent here.
+    if (maxUtf8Bytes !== undefined && typeof maxUtf8Bytes !== "number") throw new Error("a byte budget is a number or absent");
+    const code = maxUtf8Bytes === undefined ? sbl_canonicalize(0, 0) : sbl_canonicalize(1, maxUtf8Bytes);
     if (code !== 0) {
       const refusal = KERNEL_REFUSALS[code];
       if (!refusal) throw new Error(`the kernel returned an unknown code ${code}`);
@@ -547,14 +552,61 @@ function fuzzDamaged(reference, kernel, rng, cases) {
   return tally;
 }
 
+/**
+ * The byte budget, over every kind of number the reference can be handed.
+ * The reference refuses a text as too large unless the budget is a safe
+ * integer and not negative, so a fraction, a NaN, an infinity, a negative
+ * number and a number past 2^53 - 1 each refuse every text. Not random: the
+ * same texts against the same budgets on every run.
+ */
+function budgetCases() {
+  const texts = [
+    "", " ", "0", "null", '"\u00e9"', '"\u00e9" ', "[1,2,3]", '{"a":1,"b":[true,null]}', '{"a":1,"a":2}', "[1,]", "1e999",
+    '{"e\u0301":1}', "[".repeat(129) + "]".repeat(129), '"' + "x".repeat(300) + '"'
+  ].map((text) => Buffer.from(text, "utf8"));
+  // Bytes that are not UTF-8: the strict decoder refuses them before the
+  // reference sees a budget at all.
+  texts.push(Buffer.from([0x22, 0xff, 0x22]), Buffer.from([0xc0, 0xaf]));
+  const fixed = [
+    undefined, 0, -0, 1, 2, 3, 4, 5, 0.5, 3.5, 3.999, 4.5, 4.000000000000001, 3.9999999999999996, 1e-7, 5e-324, -5e-324,
+    -0.5, -1, -4, -1e300, Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY, 2 ** 31, 2 ** 32, 2 ** 32 + 0.5,
+    2 ** 53 - 1, 2 ** 53, 2 ** 53 + 2, 2 ** 63, 2 ** 64, 1e21, 1e300, Number.MAX_VALUE, Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER
+  ];
+  const cases = [];
+  for (const bytes of texts) {
+    const around = [];
+    for (const delta of [-2, -1.5, -1, -0.5, -1e-9, 0, 1e-9, 0.5, 1, 1.5, 2]) around.push(bytes.length + delta, -(bytes.length + delta));
+    for (const budget of [...fixed, ...around]) cases.push([bytes, budget]);
+  }
+  return cases;
+}
+
+function runBudgets(reference, kernel) {
+  const tally = new Tally("byte budgets: every kind of number");
+  for (const [bytes, budget] of budgetCases()) {
+    tally.record(`budget ${Object.is(budget, -0) ? "-0" : String(budget)}`, bytes, reference(bytes, budget), kernel(bytes, budget));
+  }
+  return tally;
+}
+
 // ---------------------------------------------------------------------------
 
 /**
  * A comparison that cannot fail proves nothing. Before any real case, hold
  * the comparison itself to five broken kernels and one honest one, on fixed
  * inputs, and stop unless it counts exactly the broken ones as different.
+ * Then hold the byte budget cases to a sixth: a kernel that reads the budget
+ * as the first WebAssembly entry point did (a fraction cut to a whole
+ * number, a NaN or a negative taken as no budget), which the comparison
+ * could not see while it sent whole numbers only.
  */
 function checkTheComparison(reference, kernel) {
+  const laxBudget = (bytes, budget) =>
+    kernel(bytes, budget === undefined || !(budget >= 0) ? undefined : Math.min(Math.trunc(budget), Number.MAX_SAFE_INTEGER));
+  const lax = new Tally("comparison check: a budget read loosely");
+  for (const [bytes, budget] of budgetCases()) lax.record("lax", bytes, reference(bytes, budget), laxBudget(bytes, budget));
+  if (lax.summary().differences === 0) throw new Error("the budget cases did not notice a kernel that reads the budget loosely");
+
   const inputs = ['{"b":1,"a":[1.5,"e\u0301"]}', "[1e999]", '{"a":1,"a":2}', "[1,]", "957340073933683.25"].map((text) =>
     Buffer.from(text, "utf8")
   );
@@ -590,7 +642,7 @@ function checkTheComparison(reference, kernel) {
       throw new Error(`the comparison did not notice a kernel with ${name}`);
     }
   }
-  return broken.length;
+  return { brokenKernelsCaught: broken.length + 1, looseBudgetDifferences: lax.summary().differences, budgetCases: lax.cases };
 }
 
 async function main() {
@@ -601,7 +653,7 @@ async function main() {
   const seconds = () => Number(process.hrtime.bigint() - started) / 1e9;
   const wanted = (name) => options.only === null || options.only === name;
   const count = (base) => Math.max(1, Math.round(base * options.scale));
-  const brokenKernelsCaught = checkTheComparison(reference, kernel);
+  const { brokenKernelsCaught, looseBudgetDifferences, budgetCases: budgetCaseCount } = checkTheComparison(reference, kernel);
   canonicalizeAgain = kernel;
 
   const report = {
@@ -611,6 +663,7 @@ async function main() {
     fuzzSeed: FUZZ_SEED,
     scale: options.scale,
     brokenKernelsCaught,
+    looseBudgetKernel: { cases: budgetCaseCount, differencesCounted: looseBudgetDifferences },
     sections: [],
     timings: {}
   };
@@ -621,6 +674,11 @@ async function main() {
     report.corpus = { trackedJsonFiles: corpus.files, publishedDigests: corpus.digests };
     for (const tally of corpus.tallies) report.sections.push(tally);
     report.timings.corpus = seconds() - before;
+  }
+  if (wanted("budgets")) {
+    const before = seconds();
+    report.sections.push(runBudgets(reference, kernel));
+    report.timings.budgets = seconds() - before;
   }
   const fuzz = [
     ["numbers", (rng) => fuzzNumbers(reference, kernel, rng, count(400_000))],

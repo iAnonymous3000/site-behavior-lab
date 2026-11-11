@@ -72,15 +72,56 @@ pub enum Refusal {
     NotAdmitted,
 }
 
+/// The reference parser's byte budget, as this crate reads it.
+enum Budget {
+    /// No budget was given.
+    None,
+    /// At most this many bytes of input.
+    AtMost(u64),
+    /// A budget was given and the reference cannot use it. It then refuses
+    /// every text as too large, whatever its size.
+    Unusable,
+}
+
 /// The canonical bytes of one JSON text.
 ///
 /// `max_utf8_bytes` is the reference parser's optional byte budget.
 pub fn canonicalize(input: &[u8], max_utf8_bytes: Option<u64>) -> Result<Vec<u8>, Refusal> {
-    let text = core::str::from_utf8(input).map_err(|_| Refusal::InvalidUtf8)?;
-    if let Some(max) = max_utf8_bytes {
-        if input.len() as u64 > max {
-            return Err(Refusal::TooLarge);
+    canonicalize_within(input, max_utf8_bytes.map_or(Budget::None, Budget::AtMost))
+}
+
+/// As `canonicalize`, with the byte budget as the reference takes it: any
+/// JavaScript number. `parseStrictJson` refuses a text as too large unless
+/// the budget is a safe integer and not negative
+/// (`!Number.isSafeInteger(maxUtf8Bytes) || maxUtf8Bytes < 0`), so a
+/// fraction, a NaN, an infinity, a negative number and a number past
+/// 2^53 - 1 each refuse every text. Negative zero is zero.
+pub fn canonicalize_with_number_budget(input: &[u8], max_utf8_bytes: Option<f64>) -> Result<Vec<u8>, Refusal> {
+    // The largest safe integer, 2^53 - 1. Every comparison with a NaN is
+    // false, and the fraction of an infinity is a NaN.
+    const MAX_SAFE_INTEGER: f64 = 9_007_199_254_740_991.0;
+    let budget = match max_utf8_bytes {
+        None => Budget::None,
+        Some(number) if number >= 0.0 && number <= MAX_SAFE_INTEGER && number.fract() == 0.0 => {
+            Budget::AtMost(number as u64)
         }
+        Some(_) => Budget::Unusable,
+    };
+    canonicalize_within(input, budget)
+}
+
+fn canonicalize_within(input: &[u8], budget: Budget) -> Result<Vec<u8>, Refusal> {
+    // A strict decoder stands in front of the reference, so bytes that are
+    // not UTF-8 are refused before the budget is looked at.
+    let text = core::str::from_utf8(input).map_err(|_| Refusal::InvalidUtf8)?;
+    match budget {
+        Budget::None => {}
+        Budget::AtMost(max) => {
+            if input.len() as u64 > max {
+                return Err(Refusal::TooLarge);
+            }
+        }
+        Budget::Unusable => return Err(Refusal::TooLarge),
     }
     let parsed = parse::parse(text)?;
     let value = to_canonical(parsed)?;
