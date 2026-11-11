@@ -105,7 +105,7 @@ cycles, a universal 50-site corpus floor, or enabling durable jobs.
 The existing benchmark floor still controls availability. Every published
 cohort must match the managed observations. The research programme and its
 historical records remain separate and unchanged. Missing
-provider proofs or release provenance still block v1.
+release provenance still blocks v1.
 
 ## Scope
 

@@ -988,9 +988,10 @@ watch), then remove it. See [encrypted-watches.md](encrypted-watches.md).
   `2026-07-29 11:25`; a separate `/reports/` query returned eight visible
   matches spanning `2026-07-22 13:04` through `2026-07-29 11:42`, all with
   report identifiers redacted, including `/reports/REDACTED`. These
-  point-in-time receipts are not committed as canonical evidence, so the
-  `waf-ceilings` release gate still reports open; re-capture them for any
-  release that needs that gate closed. The `log-retention` gate is deferred to
+  point-in-time receipts are not committed as canonical evidence;
+  re-capture them before relying on them. Release 1.0 does not read the WAF
+  ceiling back: the `waf-ceilings` release gate was removed on 2026-11-11,
+  and the hosted WAF capture remains as an operations check. The `log-retention` gate is deferred to
   1.1.0: release 1.0 does not re-verify log retention, and the configured
   retention window is what exists. The observed
   WAF behavior closes only the prerequisite for durable public admissions; the

@@ -21,7 +21,7 @@ verifiers and historical reports, schemas, receipts and approvals remain intact.
 | Inspect a truthful observation | Current deep readers and consistency checks | Population accuracy or detector error rates; that a person compared any report with an independent reference |
 | Understand uncertainty and interventions | No gate of its own. The scanner's tests run in CI on the candidate, and the signed formal verification report covers the suites it lists | That a covered negative is universal absence, or an intervention proves compliance; that a person reviewed how any report presents unknowns, scanner effects or an incomplete visit |
 | Reopen and share the same meaning | Compatibility and corrections gates | Reconstruction of observations never recorded; a human review of display, comparison, persistence or export |
-| Use a safely operated service | Authenticated admission-ceiling evidence | Reliability of disabled durable jobs; an egress boundary independent of the application guard; a re-verified log-retention window; that the storage bucket's lifecycle rule is still in place |
+| Use a safely operated service | The approved recovery scope, with durable jobs, sharding and watches committed off. No provider evidence | Reliability of disabled durable jobs; an egress boundary independent of the application guard; a re-verified log-retention window; that the storage bucket's lifecycle rule or the provider's rate rules are in place |
 | Identify the shipped instrument | Source-bound CI evidence, an evidence-only carrier, external binding approval, promotion and live verification | Correctness merely because a build passed |
 | Know the bounded checks ran on the shipped source | A signed execution report for the candidate: every required suite file ran, no test or describe block was skipped, left todo or failed, and each file met its pinned minimums of tests passed and catches recorded | That a claim holds outside its stated domain, or that a restated rule is the right rule |
 
@@ -67,6 +67,15 @@ Meeting `log-retention` needs a capture lane first.
   `research/ops-receipts/r2-lifecycle-readback.json` remains as a record, and
   `lib/report-store.test.ts` holds the application's retention ceiling below
   the rule that receipt recorded.
+- **Provider rate rules (`waf-ceilings`, removed 2026-11-11).** Release 1.0
+  reads no WAF receipt and no operator attestation of one, and a 1.0 evidence
+  carrier that binds either is refused. The scanner's own admission limits
+  are in code and held by its tests. The provider's rate rule on the two
+  admission routes is the outer abuse filter, and it too is a setting that
+  can change the day after a release. A 1.0 release therefore does not
+  establish that the rule is in place.
+  `.github/workflows/waf-ceiling-evidence.yml` remains as an operations
+  check, dispatched by hand.
 
 ## Formal verification suites
 
@@ -158,16 +167,12 @@ run by hand; CI does not run it.
    sharding and watches still disabled. Run the existing main CI and production
    verification. Selection does not require a Monday, a scheduled collection or
    enabling a disabled feature.
-2. Collect authentic operator evidence on C or an evidence-only
+2. Collect the evidence on C or an evidence-only
    descendant. Retain the existing CI container evidence, package inventory and
    their Sigstore bundles, and the formal verification execution report with
-   its bundle, all from the `main` CI run at C. Provider
-   evidence still needs its existing authenticated capture, freshness and
-   failure-probe checks. A hand-written statement cannot replace those proofs.
-   `npm run release:attestation-scaffold -- --gate <gate-id>` can prepare
-   the operator review from canonical evidence before the binding exists. Its
-   statements remain false and its approval fields empty; it grants no release
-   authority and cannot pass readiness.
+   its bundle, all from the `main` CI run at C, and the release governance
+   receipt. Release 1.0 requires no provider evidence and no operator
+   attestation.
 3. Add `research/v1-release-binding.json` in the final evidence carrier **S**.
    It has schema version 1, kind `site-behavior-v1-release-binding`, repository,
    target release `1.0.0`, C's full `candidateCommit` and `candidateTree`, and an
@@ -204,9 +209,9 @@ introduced here.
 
 ## Remaining blockers
 
-The contract does not supply the missing source binding, external
-governance selection, or current provider evidence. Those are concrete operational
-evidence gaps to close before v1, not reasons to restart the research calendar.
+The contract does not supply the missing source binding or external
+governance selection. Those are concrete steps of the release ceremony
+to take before v1, not reasons to restart the research calendar.
 The egress and log-retention gates are not among them. They refuse
 caller-supplied provider evidence, no trusted hosted capture exists for either,
 and both are deferred to 1.1.0 as described above. The formal verification

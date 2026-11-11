@@ -480,17 +480,19 @@ test("release operators get a fail-closed scaffold for every attestation gate", 
     packageJson.scripts?.["release:attestation-scaffold"],
     "node scripts/run-schema-cli.mjs release-attestation-scaffold"
   );
-  // The example names a gate 1.0 still requires. The egress-backstop gate it
-  // used to name is deferred to 1.1.0, and an operator following the runbook
-  // must not be sent to prepare an attestation the release does not need.
+  // The example names a gate the committed manifest still defines. The
+  // operator gates it used to name are deferred or removed, and an operator
+  // following the runbook must not be sent to prepare an attestation the
+  // release does not need or the command refuses.
   assert.match(
     release,
-    /npm run release:attestation-scaffold -- --gate waf-ceilings/
+    /npm run release:attestation-scaffold -- --gate durable-soak/
   );
   assert.doesNotMatch(
     release,
-    /release:attestation-scaffold -- --gate (?:egress-backstop|log-retention)/
+    /release:attestation-scaffold -- --gate (?:egress-backstop|log-retention|waf-ceilings|container-image-licensing)/
   );
+  assert.match(release, /\*\*Operator attestations\.\*\* Release 1\.0 requires none\./);
   assert.match(release, /collectionEnvironmentDigest/);
   assert.match(release, /collectionProducerCommitsDigest/);
   assert.match(release, /docs\/operator-evidence-capture\.md/);

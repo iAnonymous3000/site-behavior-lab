@@ -18,7 +18,6 @@ const contract = () => nativeImport(pathToFileURL(path.join(process.cwd(), "scri
 const hash = (v: string | Buffer) => createHash("sha256").update(v).digest("hex");
 const serialize = (v: unknown) => `${JSON.stringify(v, null, 2)}\n`;
 const manifest = () => JSON.parse(readFileSync(path.join(process.cwd(), "RELEASE_READINESS.json"), "utf8"));
-const LIVE_OPERATOR_GATES = ["waf-ceilings"];
 const DEFERRED_OPERATOR_GATES = ["egress-backstop", "log-retention"];
 const FV_REPORT = "research/measurement-candidate/site-behavior-lab-formal-verification-report.json";
 const FV_BUNDLE = "research/measurement-candidate/formal-verification-report.bundle.json";
@@ -68,12 +67,8 @@ function fixture(t: { after: (callback: () => void) => void }) {
   add(canonical.MEASUREMENT_CANDIDATE_ATTESTATION_BUNDLE_PATH, "container-attestation", { fixture: "bundle" });
   add(canonical.MEASUREMENT_CANDIDATE_PACKAGE_INVENTORY_PATH, "container-package-inventory", { fixture: "inventory" });
   add(canonical.MEASUREMENT_CANDIDATE_PACKAGE_ATTESTATION_BUNDLE_PATH, "container-package-attestation", { fixture: "bundle" });
-  // Only the live operator gates. The two deferred to 1.1 are bound by the
-  // tests that exercise a carrier presenting their evidence anyway.
-  for (const id of LIVE_OPERATOR_GATES) {
-    add(`research/ops-evidence/${id}.json`, "operator-evidence", { fixture: id });
-    add(`research/ops-receipts/${id}-attestation.json`, "operator-attestation", { fixture: id });
-  }
+  // No operator gate is live. The two deferred to 1.1 are bound by the tests
+  // that exercise a carrier presenting their evidence anyway.
   add(`research/ops-receipts/release-tag-governance/${"a".repeat(64)}.json`, "release-tag-governance-receipt", { fixture: "governance" });
   // The execution report CI would have signed at the candidate, and its bundle.
   const report: Any = fv.buildFormalVerificationReport({ commit: candidate, tree: candidateTree, suites: requiredSuiteRecords() });
@@ -176,7 +171,14 @@ const REMOVED_GATES: [string, string, [string, string][]][] = [
   ]],
   // A receipt of the storage provider's lifecycle rules, read back before the
   // release. The application's own retention is held by its own tests.
-  ["r2-lifecycle", "lifecycle-receipt", [["research/ops-receipts/v1-r2-lifecycle-readback.json", "lifecycle-receipt"]]]
+  ["r2-lifecycle", "lifecycle-receipt", [["research/ops-receipts/v1-r2-lifecycle-readback.json", "lifecycle-receipt"]]],
+  // An operator's attestation of the provider's rate rules on the two
+  // admission routes, over a captured receipt. The scanner's own admission
+  // limits are in code and held by their own tests.
+  ["waf-ceilings", "operator-attestation", [
+    ["research/ops-evidence/waf-ceilings.json", "operator-evidence"],
+    ["research/ops-receipts/waf-ceilings-attestation.json", "operator-attestation"]
+  ]]
 ];
 
 test("a removed gate cannot return by a manifest edit, live or deferred, and the binding admits none of its evidence", async (t) => {
@@ -268,16 +270,6 @@ test("a deferred operator gate's evidence is not required, and is admitted and e
   assert.deepEqual(leanResult.deferredGates.map((g: Any) => [g.id, g.deferredTo]), [
     ["detector-calibration", "1.1.0"], ["aa-repeatability", "1.1.0"], ["egress-backstop", "1.1.0"], ["log-retention", "1.1.0"]
   ]);
-
-  // The relaxation is for deferred gates only: a live operator gate's pair
-  // stays required, file by file.
-  for (const id of LIVE_OPERATOR_GATES) for (const relative of pair(id)) {
-    const f = fixture(t);
-    f.evidence.splice(f.evidence.findIndex((e: Any) => e.path === relative), 1);
-    unlinkSync(path.join(f.root, relative)); f.bind();
-    assert.throws(() => c.verifyV1ReleaseBinding(f.root, f.instruments, f.options),
-      new RegExp(`v1 binding omits required evidence ${relative.replaceAll(".", "\\.")}$`));
-  }
 
   // Bound anyway, whole pair or half: the binding admits the bytes under its
   // digest and single-introduction rules, and the gate is then evaluated in
@@ -380,14 +372,16 @@ test("preparation does not require its own final binding and archives use the re
   const f = fixture(t);
   // A draft must reach canonical-evidence validation before a binding exists.
   // Deliberately invalid provider bytes still cannot generate an attestation.
-  assert.throws(() => release.releaseAttestationScaffold("waf-ceilings", f.root), /canonical operator evidence is required/);
   // A deferred gate keeps its definition, so its attestation can still be
-  // prepared. It reaches the same evidence check instead of being refused as
-  // an unknown gate, which would cut the route back to a live gate.
+  // prepared. It reaches the evidence check instead of being refused as an
+  // unknown gate, which would cut the route back to a live gate.
   for (const id of DEFERRED_OPERATOR_GATES) {
     assert.throws(() => release.releaseAttestationScaffold(id, f.root),
       new RegExp(`canonical operator evidence is required: research/ops-evidence/${id}\\.json does not exist`));
   }
+  // A removed operator gate has no definition in this manifest, so there is
+  // nothing to prepare an attestation of.
+  assert.throws(() => release.releaseAttestationScaffold("waf-ceilings", f.root), /^Error: --gate must name one of /);
   f.bind(); const released = f.git("rev-parse", "HEAD");
   const historicalProfile = manifest(); delete historicalProfile.releaseProfile;
   f.write("RELEASE_READINESS.json", historicalProfile); f.commit("Later profile");

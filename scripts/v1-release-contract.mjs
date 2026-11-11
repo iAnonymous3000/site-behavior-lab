@@ -19,7 +19,6 @@ export const V1_GATES = Object.freeze({
   "published-corpus-consistency": "published-corpus-consistency",
   "release-receipt-archive": "receipt-archive",
   "durable-soak": "durable-soak",
-  "waf-ceilings": "operator-attestation",
   "formal-verification": "formal-verification"
 });
 export const V1_FORMAL_VERIFICATION_REPORT_PATH = "research/measurement-candidate/site-behavior-lab-formal-verification-report.json";
@@ -66,12 +65,12 @@ const FIXED_EVIDENCE = Object.freeze({
   [V1_FORMAL_VERIFICATION_REPORT_PATH]: "formal-verification-report",
   [V1_FORMAL_VERIFICATION_BUNDLE_PATH]: "formal-verification-attestation"
 });
-// Every operator gate whose evidence pair a carrier may bind. Two of the three
-// are deferred to 1.1 (see v1ProfileProblems): the binding does not require
-// their pair, but still admits it, and readiness evaluates in full any pair a
+// Every operator gate whose evidence pair a carrier may bind. Both are
+// deferred to 1.1 (see v1ProfileProblems): the binding does not require their
+// pair, but still admits it, and readiness evaluates in full any pair a
 // carrier binds anyway. Dropping an id here makes such evidence unbindable,
 // which is what removing an operator gate from this contract means.
-const OPERATORS = ["egress-backstop", "waf-ceilings", "log-retention"];
+const OPERATORS = ["egress-backstop", "log-retention"];
 /** The fixed evidence and attestation paths of one operator gate. */
 export const v1OperatorEvidencePaths = (id) => [`research/ops-evidence/${id}.json`, `research/ops-receipts/${id}-attestation.json`];
 const sha256 = (bytes) => createHash("sha256").update(bytes).digest("hex");

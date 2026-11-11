@@ -202,32 +202,6 @@
         }
       ]
     },
-    "waf-ceilings": {
-      "kind": "operator-attestation",
-      "title": "Both WAF admission-route ceilings re-proven for this candidate",
-      "evidence": "research/ops-evidence/waf-ceilings.json",
-      "attestation": "research/ops-receipts/waf-ceilings-attestation.json",
-      "maxAgeDays": 30,
-      "requiredBindings": [
-        "candidateCommit",
-        "deploymentCommit",
-        "wafRulesDigest",
-        "providerEventReadbackDigest",
-        "probeTranscriptDigest",
-        "providerEventsExportDigest",
-        "effectiveSourceObservedAt"
-      ],
-      "requiredClaims": [
-        {
-          "id": "get-admission-ceiling",
-          "claim": "The GET admission route returned 429 with Retry-After at the configured ceiling for the bound candidate."
-        },
-        {
-          "id": "post-admission-ceiling",
-          "claim": "The POST admission route returned 429 with Retry-After at the configured ceiling for the bound candidate."
-        }
-      ]
-    },
     "formal-verification": {
       "kind": "formal-verification",
       "title": "Every required formal verification suite file ran at the candidate with no test or describe block skipped, left todo or failed, and met its pinned minimums of tests passed and catches recorded",

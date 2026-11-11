@@ -36,7 +36,7 @@ candidate inventory and review ledger and re-runs their semantic validators.
 
 For WAF, log-retention, egress, and staging teardown, these local producers
 establish deterministic receipt semantics but are not, by themselves, trusted
-release provenance. Each v1 gate must also verify a dedicated GitHub-hosted
+release provenance. A gate that reads one must also verify a dedicated GitHub-hosted
 capture job that obtained the private provider bytes through scoped secrets,
 ran the canonical sanitizer and producer, attested a privacy-safe manifest
 plus receipt, and destroyed the raw response. A `workflow_dispatch` input
@@ -44,6 +44,9 @@ containing a caller-supplied digest is not evidence, and private provider
 exports must never be copied into a public PR archive. Until the
 provider-specific hosted capture exists for one of those evidence classes,
 that release gate remains red even when a locally generated receipt validates.
+Release 1.0 has no such gate left for WAF: its `waf-ceilings` gate was removed
+on 2026-11-11, and the hosted WAF capture below remains as an operations
+check and for the research programme's contract.
 
 No hosted capture exists for log retention or for the egress backstop, so
 neither gate can pass as written. `RELEASE_READINESS.json` defers both to
@@ -65,7 +68,8 @@ is evidence for the research programme's contract only.
 
 ## WAF GET and POST ceilings
 
-The release gate permits evidence no older than 30 days, but that is a hard
+Release 1.0 does not require this capture. Where a contract has a WAF gate
+(the research programme's does), the gate permits evidence no older than 30 days, but that is a hard
 freshness ceiling, not the operating schedule. Capture the WAF probe inside
 the final two-week release-ceremony window so review, environment approval,
 and tag publication do not consume the safety margin. If the candidate or

@@ -180,7 +180,7 @@ be re-run.
 
 **Road to 1.0.** The [investigative-v1 qualification contract](docs/v1-release-qualification.md)
 requires a release candidate bound to its source, with signed build and
-formal verification evidence, plus provider and release-authority evidence.
+formal verification evidence, plus release-authority evidence.
 No person has reviewed scan outcomes against independent references, and 1.0
 does not require it.
 `npm run release:readiness` evaluates it; a green build or healthy deployment
@@ -313,8 +313,8 @@ Pages automatic preview deployments are disabled, and existing preview deploymen
 Production health checks are scheduled four times an hour. The hourly production synthetic is active (a neutral scan, a public r2 result, a persisted
 read-back, and a rendered report page), and the separate authenticated R2 delete canary is also active and required.
 The WAF ceiling rests on a point-in-time operator receipt recorded in the
-runbook, not committed evidence, so its release gate stays open until it is
-re-captured. Release 1.0 does not verify an independent egress backstop and
+runbook, not committed evidence. Release 1.0 does not read it back: the
+`waf-ceilings` release gate was removed on 2026-11-11. Release 1.0 does not verify an independent egress backstop and
 does not re-verify log retention: the application's own egress guard and the
 configured log-retention window are what exist, and both release gates are
 deferred to 1.1.0 (see

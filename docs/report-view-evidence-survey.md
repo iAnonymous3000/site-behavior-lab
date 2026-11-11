@@ -731,8 +731,9 @@ bounded seven-day Workers Observability dashboard query returned 80 visible
 `2026-07-29 11:25`; a separate `/reports/` query returned eight visible matches
 spanning `2026-07-22 13:04` through `2026-07-29 11:42`, all with report
 identifiers redacted. These point-in-time receipts are not committed as
-canonical evidence, so the `waf-ceilings` release gate still reports open;
-re-capture them for any release that needs that gate closed. Since 2026-11-10
+canonical evidence; re-capture them before relying on them. The
+`waf-ceilings` release gate, which then reported open, was removed on
+2026-11-11. Since 2026-11-10
 the `log-retention` and `egress-backstop` release gates are deferred to 1.1.0:
 release 1.0 does not re-verify log retention and does not verify an egress
 boundary independent of the application guard. The independently

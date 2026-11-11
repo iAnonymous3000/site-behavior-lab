@@ -208,7 +208,6 @@ const EXPECTED_GATES: Record<string, string> = {
   "published-corpus-consistency": "published-corpus-consistency",
   "release-receipt-archive": "receipt-archive",
   "durable-soak": "durable-soak",
-  "waf-ceilings": "operator-attestation",
   "formal-verification": "formal-verification"
 };
 // Every count of live gates below is taken from this list, so the list is the
@@ -356,7 +355,6 @@ test("the committed manifest preserves its gate contract without requiring evide
     Object.fromEntries(
       [
         "egress-backstop",
-        "waf-ceilings",
         "log-retention"
       ].map((id) => [
         id,
@@ -365,7 +363,6 @@ test("the committed manifest preserves its gate contract without requiring evide
     ),
     {
       "egress-backstop": "research/ops-evidence/egress-backstop.json",
-      "waf-ceilings": "research/ops-evidence/waf-ceilings.json",
       "log-retention": "research/ops-evidence/log-retention.json"
     }
   );

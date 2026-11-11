@@ -1023,29 +1023,34 @@ authoritative gate list):
   with its pinned minimums of tests passed and catches recorded met (see
   [`docs/v1-release-qualification.md`](docs/v1-release-qualification.md)).
   It is red until a carrier binds such a report.
-- **Operator attestations.** Host truths code cannot see (the pre-candidate
-  durable soak and WAF ceilings) require a JSON
-  attestation under `research/ops-receipts/`. Container image licensing is
-  no longer one of them: that gate was removed on 2026-11-11 and no human
-  license review of the image has been performed. The egress backstop and log
-  retention attestations are not required for 1.0. Both gates are deferred to
-  1.1.0 because neither can pass as written, so 1.0 verifies no egress
-  boundary independent of the application guard and does not re-verify log
-  retention (see
+- **Operator attestations.** Release 1.0 requires none. Its `durable-soak`
+  gate is a scope check while durable jobs stay committed off, and the WAF
+  ceilings and container image licensing gates were removed on 2026-11-11:
+  1.0 reads no provider receipt for the rate rules, and no human license
+  review of the image has been performed. The egress backstop and log
+  retention attestations are not required for 1.0 either. Both gates are
+  deferred to 1.1.0 because neither can pass as written, so 1.0 verifies no
+  egress boundary independent of the application guard and does not re-verify
+  log retention (see
   [`docs/v1-release-qualification.md`](docs/v1-release-qualification.md)).
   Their definitions, producers and scaffolds remain, and evidence that a
-  carrier binds for either gate is still evaluated in full. For the three
-  post-candidate gates, required or deferred, first use the fixed producer in
+  carrier binds for either gate is still evaluated in full.
+
+  What follows describes the attestation machinery that remains, for durable
+  activation, for the two deferred gates and for the research programme's
+  contract. Host truths code cannot see require a JSON attestation under
+  `research/ops-receipts/`. For a post-candidate operator gate, first use the
+  fixed producer in
   [`docs/operator-evidence-capture.md`](docs/operator-evidence-capture.md) to
   create the canonical receipt under `research/ops-evidence/`. Readiness
   re-parses that exact canonical file, re-runs its semantic verifier, and
   derives the attestation's candidate, deployment, and policy
   bindings from it; a hex digest typed into an attestation cannot satisfy a
-  gate by itself. Generate the exact non-passing scaffold for any one of the
-  four gates with:
+  gate by itself. Generate the exact non-passing scaffold for a gate the
+  committed manifest defines with:
 
   ```bash
-  npm run release:attestation-scaffold -- --gate waf-ceilings
+  npm run release:attestation-scaffold -- --gate durable-soak
   ```
 
   For the pre-candidate durable soak, the command directly verifies the two
