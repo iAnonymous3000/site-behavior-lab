@@ -520,7 +520,7 @@ test("exact-image OS licenses are normalized, review-bound, preserved, and indep
 
 test("every CI Node job verifies the exact reviewed Node and npm runtime", () => {
   const setupCount = (workflow.match(/uses: actions\/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1/g) ?? []).length;
-  assert.equal(setupCount, 7);
+  assert.equal(setupCount, 6);
   assert.equal((workflow.match(/node-version: 24\.14\.1/g) ?? []).length, setupCount);
   assert.equal((workflow.match(/test "\$\(node --version\)" = "v24\.14\.1"/g) ?? []).length, setupCount);
   assert.equal((workflow.match(/test "\$\(npm --version\)" = "11\.11\.0"/g) ?? []).length, setupCount);

@@ -1,0 +1,111 @@
+name: Trust Kernel
+
+# Phase 0 of the language plan: the Rust trust kernel in tools/trust-kernel,
+# which nothing in the scanner, the Worker or the site calls.
+#
+# This is a workflow of its own, not a job of CI, on purpose. The release
+# workflow, the hosted evidence archive and the durable transition receipt
+# read the conclusion of the CI RUN and refuse a failed one, so a job in
+# ci.yml that fails for a reason of its own (an unreachable release asset, a
+# solver limit) would stop a release of code it does not touch. Nothing reads
+# this workflow's conclusion: it is not in .github/required-ci-jobs.json, no
+# other workflow is triggered by it, and it promotes and publishes nothing.
+# A failure here says something about the kernel only.
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Superseded pull-request revisions need no further feedback.
+concurrency:
+  group: trust-kernel-${{ github.event_name }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  CI: "1"
+
+jobs:
+  trust-kernel:
+    name: Trust Kernel Checks
+    runs-on: ubuntu-24.04
+    # A hosted runner has not run these steps yet. The steps after npm ci
+    # take about three and a half minutes on a developer machine.
+    # A step that hangs must fail this job, not hold the run.
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24.14.1
+          cache: npm
+
+      - name: Verify exact Node and npm runtime
+        run: |
+          set -euo pipefail
+          test "$(node --version)" = "v24.14.1"
+          test "$(npm --version)" = "11.11.0"
+
+      - name: Install dependencies
+        run: npm ci
+
+      # The compiler is pinned in tools/trust-kernel/pins.json, and the build
+      # scripts refuse a compiler whose commit is not the pinned one.
+      - name: Install the pinned Rust toolchain
+        run: node scripts/trust-kernel-build.mjs toolchain
+
+      # canon-v1 normalizes strings with the JavaScript runtime, so the
+      # kernel's tables have to be the ones this exact Node gives.
+      - name: Hold the normalization tables to this Node
+        run: node scripts/trust-kernel-nfc-tables.mjs --check
+
+      - name: Kernel unit tests
+        working-directory: tools/trust-kernel
+        run: cargo test --locked -p sbl-trust-kernel
+
+      # Two clean builds at two paths must give the same bytes, and those
+      # bytes must be the ones reproducibility-contract.json records.
+      - name: Rebuild the WebAssembly module twice and compare
+        run: >-
+          node scripts/trust-kernel-build.mjs verify
+          --out "$RUNNER_TEMP/sbl_trust_kernel_wasm.wasm"
+
+      - name: Compile the TypeScript reference
+        run: npx tsc -p tsconfig.test.json
+
+      # The module built above against lib/canonical-json.ts: every tracked
+      # JSON file, every transparency log entry, and the seeded fuzz corpus.
+      - name: Compare the kernel with the TypeScript reference
+        run: >-
+          node scripts/trust-kernel-differential.mjs
+          --wasm "$RUNNER_TEMP/sbl_trust_kernel_wasm.wasm"
+          --report "$RUNNER_TEMP/trust-kernel-differential.json"
+
+      # One zip from the Verus release page, refused unless its size and
+      # sha256 are the pinned ones. It carries its own Z3.
+      - name: Install the pinned Verus release
+        run: node scripts/trust-kernel-verus.mjs install --into "$RUNNER_TEMP/verus"
+
+      # Checks kernel/src/encode.rs, and requires Verus to refuse a copy
+      # whose specification is broken.
+      - name: Check the encoder with Verus
+        run: node scripts/trust-kernel-verus.mjs verify --verus "$RUNNER_TEMP/verus/verus-x86-linux"
+
+      - name: Preserve the comparison report
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: trust-kernel-differential-${{ github.sha }}
+          path: ${{ runner.temp }}/trust-kernel-differential.json
+          if-no-files-found: warn
+          retention-days: 30
