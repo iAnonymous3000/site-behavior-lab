@@ -29,22 +29,65 @@ import { FingerprintWorkerRealmInstaller, fingerprintObserverWorkerInstallExpres
 type Frame = { id: number; method: string; params: Record<string, unknown>; sessionId?: string };
 type Answer = Record<string, unknown> | Error | "never";
 
+/** What one read brings: frames, and the connection's end or failure when it comes behind them. */
+type ReadItem = Record<string, unknown> | "closed" | "failed";
+
 class ScriptedBrowser {
   readonly sent: Frame[] = [];
-  private deliverFrame: ((frame: Record<string, unknown>) => void) | null = null;
+  private deliverRead: ((read: readonly ReadItem[]) => void) | null = null;
   private closeSocket: (() => void) | null = null;
+  private read: ReadItem[] | null = null;
 
   constructor(private readonly respond: (frame: Frame, browser: ScriptedBrowser) => Answer) {}
 
   /** @internal The fake socket's side. */
-  connect(deliver: (frame: Record<string, unknown>) => void, close: () => void): void {
-    this.deliverFrame = deliver;
+  connect(deliverRead: (read: readonly ReadItem[]) => void, close: () => void): void {
+    this.deliverRead = deliverRead;
     this.closeSocket = close;
   }
 
-  /** The browser goes away under the attacher: its connection closes from the browser's end. */
+  /** A frame in a task of its own, unless a read is being written, which it then joins. */
+  private deliverFrame(frame: Record<string, unknown>): void {
+    if (this.read !== null) this.read.push(frame);
+    else this.deliverRead?.([frame]);
+  }
+
+  /**
+   * One read: every frame the callback answers or emits reaches the socket
+   * in ONE task, back to back and in that order, as a socket hands over the
+   * frames one read brought. No promise reaction runs between them. Outside
+   * a read, each frame has a task of its own.
+   */
+  inOneRead(write: () => void): void {
+    assert.equal(this.read, null, "a read is already being written");
+    const read: ReadItem[] = [];
+    this.read = read;
+    try {
+      write();
+    } finally {
+      this.read = null;
+    }
+    this.deliverRead?.(read);
+  }
+
+  /** @internal */
+  refusesSends: (() => void) | null = null;
+
+  /** The connection is closing: from here every command is refused where it is sent, and the close itself has yet to be heard. */
+  closing(): void {
+    this.refusesSends?.();
+  }
+
+  /** The browser goes away under the attacher: its connection closes from the browser's end. In a read, behind the read's frames. */
   disconnect(): void {
-    this.closeSocket?.();
+    if (this.read !== null) this.read.push("closed");
+    else this.closeSocket?.();
+  }
+
+  /** The connection fails: the socket reports an error. In a read, behind the read's frames. */
+  fail(): void {
+    if (this.read !== null) this.read.push("failed");
+    else this.deliverRead?.(["failed"]);
   }
 
   /** @internal */
@@ -52,23 +95,23 @@ class ScriptedBrowser {
     this.sent.push(frame);
     const answer = this.respond(frame, this);
     if (answer === "never") return;
-    this.deliverFrame?.(
+    this.deliverFrame(
       answer instanceof Error ? { id: frame.id, error: { message: answer.message } } : { id: frame.id, result: answer }
     );
   }
 
   emit(method: string, params: Record<string, unknown>, sessionId?: string): void {
-    this.deliverFrame?.(sessionId === undefined ? { method, params } : { method, params, sessionId });
+    this.deliverFrame(sessionId === undefined ? { method, params } : { method, params, sessionId });
   }
 
   /** Answers, now, a command the script left unanswered ("never"), in order with the events around it. */
   answer(frame: Frame, result: Record<string, unknown>): void {
-    this.deliverFrame?.({ id: frame.id, result });
+    this.deliverFrame({ id: frame.id, result });
   }
 
   /** Refuses, now, a command the script left unanswered. */
   refuse(frame: Frame, message: string): void {
-    this.deliverFrame?.({ id: frame.id, error: { message } });
+    this.deliverFrame({ id: frame.id, error: { message } });
   }
 
   /** The first command of a method sent on a session. */
@@ -118,14 +161,27 @@ async function scriptedAttacher(
     onclose: (() => void) | null = null;
     onerror: (() => void) | null = null;
     constructor() {
-      // One task per frame, in order, as a socket delivers them.
+      // One task per read, in order: a frame alone, or the frames of one
+      // read back to back, as a socket delivers them.
       browser.connect(
-        (frame) => {
-          const data = JSON.stringify(frame);
-          setImmediate(() => this.onmessage?.({ data }));
+        (read) => {
+          const items = read.map((item) => (typeof item === "string" ? item : { data: JSON.stringify(item) }));
+          setImmediate(() => {
+            for (const item of items) {
+              if (typeof item !== "string") this.onmessage?.(item);
+              else {
+                this.readyState = 3;
+                if (item === "closed") this.onclose?.();
+                else this.onerror?.();
+              }
+            }
+          });
         },
         () => this.close()
       );
+      browser.refusesSends = () => {
+        this.readyState = 2;
+      };
       setImmediate(() => {
         this.readyState = 1;
         this.onopen?.();
@@ -806,14 +862,210 @@ test("a worker that detaches between the question and its answer is the worker n
   assert.deepEqual([gone.hold, gone.endedUnreached], ["pending", true], "what the thread posted at the detach stands");
 });
 
-/** The arming's four commands, each left unanswered by the script and answered by hand, so the order is the test's own. */
+/**
+ * ONE READ. A socket hands over every frame one read brought in one task,
+ * and no promise reaction runs between them. An answer only settles a
+ * promise, so a thread that acts on each frame where it arrives acts on an
+ * event ahead of an answer that arrived before it. The thread acts on frames
+ * in the order they arrived: once it has acted on an answer, what arrived
+ * behind it waits for the next task, when every reaction of that answer has
+ * run. The cases below write the read out. Each command is left unanswered
+ * by the script and answered by hand, so the order is the test's own.
+ */
 const UNANSWERED_ARMING = (frame: Frame): Answer =>
   ["Debugger.enable", "Debugger.setInstrumentationBreakpoint", "Debugger.setBreakpointByUrl", "Runtime.runIfWaitingForDebugger"].includes(frame.method)
     ? "never"
     : defaultAnswer(frame);
 
+/** The same, and a probe that is never answered: a worker that has gone answers nothing. */
+const UNANSWERED_ARMING_AND_PROBE = (frame: Frame): Answer => (frame.method === "Runtime.getIsolateId" ? "never" : UNANSWERED_ARMING(frame));
+
 const ONE_SCRIPT_LISTED = (sessionId: string) => ({ breakpointId: questionId(sessionId), locations: [{ scriptId: "3", lineNumber: 0, columnNumber: 0 }] });
+const NOTHING_LISTED = (sessionId: string) => ({ breakpointId: questionId(sessionId), locations: [] });
 const ARMING = ["Debugger.enable", "Debugger.setInstrumentationBreakpoint", "Debugger.setBreakpointByUrl", "Runtime.runIfWaitingForDebugger"];
+
+test("one read: the question's answer listing a script, then the worker's detach. The answer is acted on first, so the worker is not one that ended unreached", async (t) => {
+  const { browser, attacher } = await scriptedAttacher(t, UNANSWERED_ARMING_AND_PROBE);
+  const installer = new FingerprintWorkerRealmInstaller("127.0.0.1");
+  const { visit } = await registerVisit(attacher, installer);
+  sharedAttach(browser, "listed");
+  await until(() => browser.commands("listed").length === ARMING.length);
+  browser.answer(browser.frame("listed", "Debugger.enable"), {});
+  browser.answer(browser.frame("listed", "Debugger.setInstrumentationBreakpoint"), { breakpointId: "bp-listed" });
+  browser.inOneRead(() => {
+    browser.answer(browser.frame("listed", "Debugger.setBreakpointByUrl"), ONE_SCRIPT_LISTED("listed"));
+    browser.emit("Target.detachedFromTarget", { sessionId: "listed" });
+  });
+  await until(() => workerOf(visit, "listed").detached);
+  const gone = workerOf(visit, "listed");
+  assert.equal(gone.endedUnreached, false, "the question listed a script before the worker went: it was reached, and it may have run");
+  assert.equal(sharedWorkerEndedAtOnce(gone), false);
+  // The answer was acted on while the worker was still there: its removal and the probe went out.
+  assert.deepEqual(browser.commands("listed"), [...ARMING, "Debugger.removeBreakpoint", "Runtime.getIsolateId"]);
+});
+
+test("one read: the whole arming's answers with a script listed, then the detach, as from a worker reached mid-script that then ends. It is not one that ended unreached", async (t) => {
+  const { browser, attacher } = await scriptedAttacher(t, UNANSWERED_ARMING_AND_PROBE);
+  const installer = new FingerprintWorkerRealmInstaller("127.0.0.1");
+  const { visit } = await registerVisit(attacher, installer);
+  sharedAttach(browser, "mid-script");
+  await until(() => browser.commands("mid-script").length === ARMING.length);
+  browser.inOneRead(() => {
+    browser.answer(browser.frame("mid-script", "Debugger.enable"), {});
+    browser.answer(browser.frame("mid-script", "Debugger.setInstrumentationBreakpoint"), { breakpointId: "bp-mid-script" });
+    browser.answer(browser.frame("mid-script", "Debugger.setBreakpointByUrl"), ONE_SCRIPT_LISTED("mid-script"));
+    browser.emit("Target.detachedFromTarget", { sessionId: "mid-script" });
+  });
+  await until(() => workerOf(visit, "mid-script").detached);
+  const gone = workerOf(visit, "mid-script");
+  assert.equal(gone.endedUnreached, false);
+  assert.equal(sharedWorkerEndedAtOnce(gone), false);
+  assert.deepEqual(browser.commands("mid-script"), [...ARMING, "Debugger.removeBreakpoint", "Runtime.getIsolateId"]);
+});
+
+test("one read: an ordinary hold's answers with nothing listed, then its main script's parse. The parse is heard behind the breakpoint's answer, so no probe goes out, and the pause in the next read holds", async (t) => {
+  let installer: FingerprintWorkerRealmInstaller | null = null;
+  const { browser, attacher } = await scriptedAttacher(t, (frame, scripted) => {
+    if (frame.method === "Runtime.evaluate" && installer) firstSnapshot(installer, frame.sessionId!, scripted);
+    return UNANSWERED_ARMING(frame);
+  });
+  installer = new FingerprintWorkerRealmInstaller("127.0.0.1");
+  const { visit, changes } = await registerVisit(attacher, installer);
+  sharedAttach(browser, "ordinary");
+  await until(() => browser.commands("ordinary").length === ARMING.length);
+  browser.inOneRead(() => {
+    browser.answer(browser.frame("ordinary", "Debugger.enable"), {});
+    browser.answer(browser.frame("ordinary", "Debugger.setInstrumentationBreakpoint"), { breakpointId: "bp-ordinary" });
+    browser.answer(browser.frame("ordinary", "Debugger.setBreakpointByUrl"), NOTHING_LISTED("ordinary"));
+    browser.answer(browser.frame("ordinary", "Runtime.runIfWaitingForDebugger"), {});
+    browser.emit("Debugger.scriptParsed", { scriptId: "3", url: MAIN_URL }, "ordinary");
+  });
+  // The question's removal is the last thing the read has the thread send.
+  await until(() => browser.commands("ordinary").includes("Debugger.removeBreakpoint"));
+  await new Promise((resolve) => setTimeout(resolve, 20));
+  assert.deepEqual(browser.commands("ordinary"), [...ARMING, "Debugger.removeBreakpoint"], "a parse behind the breakpoint's answer, with nothing listed, sends no probe");
+  assert.equal(workerOf(visit, "ordinary").hold, "pending");
+  browser.emit("Debugger.paused", { reason: "instrumentation", data: { scriptId: "3", url: MAIN_URL }, callFrames: [] }, "ordinary");
+  await until(() => holdOf(visit, "ordinary") === "released");
+  assert.deepEqual(changes, ["ordinary:attached", "ordinary:held", "ordinary:installed", "ordinary:released"]);
+  assert.equal(browser.commands("ordinary").includes("Runtime.getIsolateId"), false);
+});
+
+/**
+ * An answer whose handling is more than one reaction deep: the install's
+ * last answer concludes the hold only through the answers' own reactions and
+ * the one that gathers them. A resume in the same read, behind that answer,
+ * came with the observer already in place: it is the hold's own end, as it
+ * is when it has a read of its own.
+ */
+test("one read: the install's last answer, then a resume. The install is concluded first, so the resume is the hold's own end and the worker is released and read", async (t) => {
+  let installer: FingerprintWorkerRealmInstaller | null = null;
+  const { browser, attacher } = await scriptedAttacher(t, (frame, scripted) => {
+    if (frame.method === "Runtime.evaluate" && installer) {
+      firstSnapshot(installer, frame.sessionId!, scripted);
+      return "never";
+    }
+    return defaultAnswer(frame);
+  });
+  installer = new FingerprintWorkerRealmInstaller("127.0.0.1");
+  const { visit, changes } = await registerVisit(attacher, installer);
+  sharedAttach(browser, "sw-1");
+  await until(() => browser.commands("sw-1").length === ATTACH_STEP);
+  mainScriptPause(browser, "sw-1");
+  await until(() => browser.commands("sw-1").includes("Runtime.evaluate"));
+  // The binding's answer has a task of its own, ahead of the read.
+  await until(() => holdOf(visit, "sw-1") === "held");
+  await new Promise((resolve) => setTimeout(resolve, 10));
+  browser.inOneRead(() => {
+    browser.answer(browser.frame("sw-1", "Runtime.evaluate"), { result: { type: "boolean", value: true } });
+    browser.emit("Debugger.resumed", {}, "sw-1");
+  });
+  await until(() => holdOf(visit, "sw-1") === "released");
+  assert.deepEqual(changes, ["sw-1:attached", "sw-1:held", "sw-1:installed", "sw-1:released"]);
+  assert.equal(workerOf(visit, "sw-1").lateReason, null);
+  assert.deepEqual(installer.sharedInstallDiagnostics(), { installedWorkerCount: 1, installFailedWorkerCount: 0, lateWorkerCount: 0 });
+});
+
+test("one read: a frame that waits its turn keeps the time it arrived with, so a worker's life is its arrivals' and not the wait's", async (t) => {
+  const { browser, attacher } = await scriptedAttacher(t, UNANSWERED_ARMING);
+  const installer = new FingerprintWorkerRealmInstaller("127.0.0.1");
+  const { visit } = await registerVisit(attacher, installer);
+  // The thread reads the one clock every realm has. A minute is added to it
+  // after the read's frames have arrived and before the waiting one is acted on.
+  const clock = performance as unknown as { now?: () => number };
+  const real = performance.now.bind(performance);
+  let added = 0;
+  clock.now = () => real() + added;
+  t.after(() => {
+    delete clock.now;
+  });
+  sharedAttach(browser, "waits");
+  await until(() => browser.commands("waits").length === ARMING.length);
+  browser.inOneRead(() => {
+    browser.answer(browser.frame("waits", "Debugger.setInstrumentationBreakpoint"), { breakpointId: "bp-waits" });
+    browser.emit("Target.detachedFromTarget", { sessionId: "waits" });
+  });
+  // A task of its own, behind the read's and ahead of the one the waiting detach is acted on in.
+  setImmediate(() => {
+    added = 60_000;
+  });
+  await until(() => workerOf(visit, "waits").detached);
+  const life = workerOf(visit, "waits").lifetimeMs;
+  assert.ok(life !== null && life < 60_000, `its life was read when the detach was acted on, not when it arrived: ${life} ms`);
+});
+
+for (const [how, end] of [["end", (browser: ScriptedBrowser) => browser.disconnect()], ["failure", (browser: ScriptedBrowser) => browser.fail()]] as const) {
+  test(`one read: frames, then the connection's ${how}. The frames are acted on first, and then the attacher is lost`, async (t) => {
+    const { browser, attacher } = await scriptedAttacher(t, UNANSWERED_ARMING);
+    const installer = new FingerprintWorkerRealmInstaller("127.0.0.1");
+    const { visit } = await registerVisit(attacher, installer);
+    sharedAttach(browser, "last-words");
+    await until(() => browser.commands("last-words").length === ARMING.length);
+    browser.inOneRead(() => {
+      browser.answer(browser.frame("last-words", "Debugger.setInstrumentationBreakpoint"), { breakpointId: "bp-last-words" });
+      browser.emit("Target.detachedFromTarget", { sessionId: "last-words" });
+      end(browser);
+    });
+    await until(() => attacher.isLost());
+    assert.equal(workerOf(visit, "last-words").detached, true, `the detach that arrived ahead of the connection's ${how} was acted on`);
+  });
+}
+
+/**
+ * Handling an event settles no promise, with two exceptions, and each says so
+ * itself, so that what arrived behind the event still waits for the
+ * reactions: a command refused where it is sent (the connection is closing),
+ * and an install with no command, which is over as it begins.
+ */
+test("one read on a closing connection: an attach whose commands are refused where they are sent, then the detach. The refusals are acted on first: the worker is late, not one that ended unreached", async (t) => {
+  const { browser, attacher } = await scriptedAttacher(t);
+  const installer = new FingerprintWorkerRealmInstaller("127.0.0.1");
+  const { visit, changes } = await registerVisit(attacher, installer);
+  browser.closing();
+  browser.inOneRead(() => {
+    sharedAttach(browser, "refused-at-once");
+    browser.emit("Target.detachedFromTarget", { sessionId: "refused-at-once" });
+  });
+  await until(() => workerOf(visit, "refused-at-once").detached);
+  assert.deepEqual(changes, ["refused-at-once:attached", "refused-at-once:late", "refused-at-once:detached"]);
+  assert.equal(workerOf(visit, "refused-at-once").endedUnreached, false);
+  assert.deepEqual(browser.commands("refused-at-once"), [], "nothing reached the browser");
+});
+
+test("one read: a main-script pause of a visit that installs nothing, then a resume. The install is over as it begins, so the resume is the hold's own end", async (t) => {
+  const { browser, attacher } = await scriptedAttacher(t);
+  const visit = await attacher.register({ browserContextId: "context-a", pageTargetId: "page-of-context-a", installCommands: [] });
+  const changes: string[] = [];
+  visit.onWorkerChange((worker, change: SharedWorkerChange) => changes.push(`${worker.sessionId}:${change}`));
+  sharedAttach(browser, "bare");
+  await until(() => browser.commands("bare").length === ATTACH_STEP);
+  browser.inOneRead(() => {
+    mainScriptPause(browser, "bare");
+    browser.emit("Debugger.resumed", {}, "bare");
+  });
+  await until(() => holdOf(visit, "bare") === "released");
+  assert.deepEqual(changes, ["bare:attached", "bare:held", "bare:installed", "bare:released"]);
+});
 
 /**
  * A breakpoint that is not in force. The same step that asked for it

@@ -68,6 +68,14 @@ import { SHARED_WORKER_ENDED_AT_ONCE_MS } from "./shared-worker-ended-at-once";
  * the worker waiting, with the debugger on, up to the command's bound; then
  * the probe decides.
  *
+ * ARRIVAL ORDER. The thread acts on what its socket brings in the order it
+ * arrived, answers and events alike. A socket can hand over several frames
+ * in one task, and an answer is acted on in its promise's reactions, which
+ * run after that task. So a frame that arrives behind an answer in the same
+ * task waits for the next one, by which time every reaction of the answer
+ * has run. The browser's order on a session is therefore the order the
+ * rules above see.
+ *
  * A BROKEN HOLD. Any client's release of a worker, `Runtime.runIfWaitingForDebugger`
  * or a waiting session's detach, also ends a pause the worker is in,
  * instrumentation pauses included. Playwright's detach can therefore reach a
@@ -278,6 +286,7 @@ export function sharedWorkerAttacherThread(port: AttacherThreadPort, data: Attac
     new Promise<Answer>((resolve, reject) => {
       if (ended || socket.readyState !== 1) {
         reject(new Error("The attacher's DevTools connection is closed."));
+        settled();
         return;
       }
       const id = nextCommandId;
@@ -335,13 +344,13 @@ export function sharedWorkerAttacherThread(port: AttacherThreadPort, data: Attac
 
   // A script that existed before the breakpoint was set runs unpaused. The
   // thread knows of one when it hears the main script's parse before the
-  // breakpoint's answer (a parse is never heard ahead of an answer the
-  // worker gave before it), or when the question behind the breakpoint lists
-  // a script. A parse heard after the answer says nothing by itself: the
-  // worker may have held it back (Chromium 158), so only the question tells a
-  // script compiled before the breakpoint from one compiled after it. With
-  // nothing listed, nothing was compiled when the breakpoint went in, and the
-  // main script pauses if it runs. A question that could not say (refused,
+  // breakpoint's answer (frames are acted on in the order they arrived, so a
+  // parse acted on ahead of the answer arrived ahead of it), or when the
+  // question behind the breakpoint lists a script. A parse heard after the
+  // answer says nothing by itself: the worker may have held it back (Chromium
+  // 158), so only the question tells a script compiled before the breakpoint
+  // from one compiled after it. With nothing listed, nothing was compiled
+  // when the breakpoint went in, and the main script pauses if it runs. A question that could not say (refused,
   // unanswered at the command's bound, or answered with no list) shows
   // nothing of the kind, so the worker is taken as one that may have had a
   // script. With a script known or possible, one answer on the worker's own
@@ -418,6 +427,9 @@ export function sharedWorkerAttacherThread(port: AttacherThreadPort, data: Attac
           )
         )
       ).then((answers) => conclude(answers, false));
+      // With no command to wait for, the install is over as it begins: that
+      // too is a promise settled in this task.
+      if (commands.length === 0) settled();
     };
     const holdDelayMs = visit ? visit.holdDelayMs : 0;
     if (holdDelayMs > 0) setTimeout(install, holdDelayMs);
@@ -645,11 +657,32 @@ export function sharedWorkerAttacherThread(port: AttacherThreadPort, data: Attac
       () => end("The browser refused the shared-worker auto-attach.")
     );
   };
-  socket.onmessage = (message: MessageEvent) => {
-    const receivedAt = clock();
+  // ARRIVAL ORDER. The socket can hand over several frames in one task, every
+  // frame of one read, and an answer only settles a promise: what the thread
+  // does with it runs in that promise's reactions, which come after the
+  // task's other frames. Acted on where it arrives, an event would then be
+  // acted on ahead of an answer that arrived before it. So once a promise has
+  // been settled in a task, every later arrival waits in the inbox for the
+  // next task, and by then every reaction the settling set off, however long
+  // its chain, has run. Handling an event settles no promise, save in two
+  // cases, and each of those says so itself through `settled`. So events
+  // alone are acted on where they arrive, as they always were, and a frame
+  // that arrives alone waits for nothing. An arrival keeps the receive time
+  // it came with, and the connection's end or failure takes its turn behind
+  // the frames that came before it.
+  type Arrival = { data: string; receivedAt: number } | { closed: string };
+  const inbox: Arrival[] = [];
+  let reactionsOwed = false;
+
+  const act = (arrival: Arrival): void => {
+    if ("closed" in arrival) {
+      end(arrival.closed);
+      return;
+    }
+    const receivedAt = arrival.receivedAt;
     let parsed: Answer;
     try {
-      parsed = JSON.parse(String(message.data)) as Answer;
+      parsed = JSON.parse(arrival.data) as Answer;
     } catch {
       return;
     }
@@ -664,6 +697,7 @@ export function sharedWorkerAttacherThread(port: AttacherThreadPort, data: Attac
       } else {
         command.resolve((parsed.result as Answer | undefined) ?? {});
       }
+      settled();
       return;
     }
     if (typeof parsed.method !== "string") return;
@@ -678,8 +712,29 @@ export function sharedWorkerAttacherThread(port: AttacherThreadPort, data: Attac
       // One event's failure is its own; the stream keeps being read.
     }
   };
-  socket.onclose = () => end("The attacher's DevTools connection closed.");
-  socket.onerror = () => end("The attacher's DevTools connection failed.");
+
+  // The next task: the reactions owed have run, and what waited is acted on in
+  // the order it came, up to the next answer.
+  const drain = (): void => {
+    reactionsOwed = false;
+    while (inbox.length > 0 && !reactionsOwed) act(inbox.shift() as Arrival);
+  };
+
+  /** A promise was settled in this task: its reactions are owed, and nothing more is acted on before they run. */
+  const settled = (): void => {
+    if (reactionsOwed) return;
+    reactionsOwed = true;
+    setImmediate(drain);
+  };
+
+  const arrived = (arrival: Arrival): void => {
+    if (reactionsOwed) inbox.push(arrival);
+    else act(arrival);
+  };
+
+  socket.onmessage = (message: MessageEvent) => arrived({ data: String(message.data), receivedAt: clock() });
+  socket.onclose = () => arrived({ closed: "The attacher's DevTools connection closed." });
+  socket.onerror = () => arrived({ closed: "The attacher's DevTools connection failed." });
 
   port.on("message", (raw: unknown) => {
     const message = raw as Answer;
