@@ -585,6 +585,29 @@ test("release documents say what the two removed operator gates leave unverified
   }
 });
 
+test("the supply-chain document says plainly that no license review exists and that the ledger is a record", () => {
+  // Three release gates once promised a human license review that was never
+  // performed. They are gone, and this document is where a reader learns
+  // what exists instead. Each sentence is held, and so is the fact it states:
+  // the container ledger must still have no reviewed row, or the sentence
+  // that calls every row unreviewed has become false.
+  const assurance = source("docs/supply-chain-assurance.md").replace(/\s+/g, " ");
+  assert.match(assurance, /inventoried with their declared licenses, and the inventories are checked by machine/);
+  assert.match(assurance, /No human license review has been performed, of the third-party items or of the container packages\./);
+  assert.match(assurance, /What a package's metadata or a scanner says about a license is evidence, not a legal conclusion\./);
+  assert.match(assurance, /No release gate asks for a license review, and release 1\.0 does not claim one\./);
+  assert.match(assurance, /`CONTAINER_IMAGE_PACKAGE_REVIEWS\.json`, which is a record of the image's package set with every row `unreviewed`, not a release requirement\./);
+  assert.doesNotMatch(assurance, /license review (?:is|was|has been) (?:complete|completed)\b/i);
+  const ledger = JSON.parse(source("CONTAINER_IMAGE_PACKAGE_REVIEWS.json")) as { reviews: { status: string }[] };
+  const rows = ledger.reviews;
+  assert.ok(Array.isArray(rows) && rows.length > 0, "the container ledger has no rows this test can read");
+  assert.deepEqual([...new Set(rows.map((row) => row.status))], ["unreviewed"]);
+  const manifest = JSON.parse(source("RELEASE_READINESS.json")) as { gates: Record<string, { kind: string; title?: string }>; deferredGates: Record<string, { kind: string; title?: string }> };
+  for (const [id, gate] of [...Object.entries(manifest.gates), ...Object.entries(manifest.deferredGates)]) {
+    assert.doesNotMatch(`${id} ${gate.kind} ${gate.title ?? ""}`, /licens|legal|review-ledger|package-review/i, `${id} reads as a license review gate`);
+  }
+});
+
 test("the README names the methodology version the scanner actually records", () => {
   // The README quoted a methodology string that drifted twice over: it still
   // said playwright-1.61.1 against a 1.62.0 runtime, and predated the

@@ -3,6 +3,19 @@
 This document separates checks the repository can enforce automatically from
 release claims that still require an externally verified build or service.
 
+## Licenses: what is recorded and what is not
+
+Third-party items and the container image's OS packages are inventoried with
+their declared licenses, and the inventories are checked by machine. No human
+license review has been performed, of the third-party items or of the
+container packages. What a package's metadata or a scanner says about a
+license is evidence, not a legal conclusion. No release gate asks for a
+license review, and release 1.0 does not claim one. The sections below give
+the detail: `THIRD_PARTY_INVENTORY.json` for source dependencies, the signed
+container package inventory for the image, and
+`CONTAINER_IMAGE_PACKAGE_REVIEWS.json`, which is a record of the image's
+package set with every row `unreviewed`, not a release requirement.
+
 ## Enforced CI checks
 
 The `Supply-chain Security` CI job is a required production-promotion
@@ -239,7 +252,7 @@ the following:
 4. Makes CI perform the clean rebuild and byte comparison before the static
    integrity contract can change from `blocked`.
 
-Legal review is separate: byte reproducibility does not establish that the
+Legal review is separate, and none has been performed: byte reproducibility does not establish that the
 bundled engine or filter-list corpus satisfies every notice or redistribution
 obligation.
 
