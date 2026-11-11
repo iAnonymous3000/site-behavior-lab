@@ -69,10 +69,6 @@ jobs:
       - name: Hold the normalization tables to this Node
         run: node scripts/trust-kernel-nfc-tables.mjs --check
 
-      - name: Kernel unit tests
-        working-directory: tools/trust-kernel
-        run: cargo test --locked -p sbl-trust-kernel
-
       # Two clean builds at two paths must give the same bytes, and those
       # bytes must be the ones reproducibility-contract.json records.
       - name: Rebuild the WebAssembly module twice and compare
@@ -96,8 +92,11 @@ jobs:
       - name: Install the pinned Verus release
         run: node scripts/trust-kernel-verus.mjs install --into "$RUNNER_TEMP/verus"
 
-      # Checks kernel/src/encode.rs, and requires Verus to refuse a copy
-      # whose specification is broken.
+      # In one run: the source guards and pins with the mutations that test
+      # them, the kernel's unit tests as an ordinary build of the same
+      # source, Verus on that source under a fifth of its default resource
+      # limit, and the broken copies Verus must refuse. See the head of the
+      # script.
       - name: Check the encoder with Verus
         run: node scripts/trust-kernel-verus.mjs verify --verus "$RUNNER_TEMP/verus/verus-x86-linux"
 
