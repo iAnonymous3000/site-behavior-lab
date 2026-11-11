@@ -1294,8 +1294,9 @@ jobs:
   trust-kernel:
     name: Trust Kernel Checks
     runs-on: ubuntu-24.04
-    # The steps after npm ci took 2 min 43 s on a developer machine. A hosted
-    # runner has not run them yet and is expected to take about ten minutes.
+    # The steps after npm ci take about three and a half minutes on a
+    # developer machine. A hosted runner has not run them yet and is expected
+    # to take about twelve minutes.
     # A step that hangs must fail this job, not hold the run.
     timeout-minutes: 25
     steps:

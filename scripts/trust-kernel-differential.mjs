@@ -16,7 +16,8 @@
 //           numbers, normalization, whole documents, and damaged documents.
 //
 // Any difference is a failure, and so is a reference error this file has no
-// word for. Nothing is skipped and nothing is retried.
+// word for. Each accepted output is also fed back to the kernel, which must
+// return it unchanged. Nothing is skipped and nothing is retried.
 
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
@@ -123,6 +124,10 @@ function sameBytes(left, right) {
   return left.length === right.length && Buffer.compare(left, right) === 0;
 }
 
+// Set in main to the kernel. Canonical bytes are themselves JSON, so the
+// kernel given its own output must return it unchanged; `record` asks.
+let canonicalizeAgain = null;
+
 class Tally {
   constructor(name) {
     this.name = name;
@@ -132,14 +137,23 @@ class Tally {
     this.differences = [];
     this.inputBytes = 0;
     this.numbersPrinted = 0;
+    this.fixedPoints = 0;
   }
 
   record(label, bytes, expected, actual) {
     this.cases += 1;
     this.inputBytes += bytes.length;
-    const same = expected.refusal !== undefined
+    let same = expected.refusal !== undefined
       ? expected.refusal === actual.refusal
       : actual.bytes !== undefined && sameBytes(expected.bytes, actual.bytes);
+    if (same && actual.bytes !== undefined && canonicalizeAgain !== null) {
+      const again = canonicalizeAgain(actual.bytes);
+      this.fixedPoints += 1;
+      if (again.bytes === undefined || !sameBytes(again.bytes, actual.bytes)) {
+        same = false;
+        actual = { refusal: "its-own-output-does-not-come-back-unchanged" };
+      }
+    }
     if (expected.refusal !== undefined) this.refused[expected.refusal] = (this.refused[expected.refusal] ?? 0) + 1;
     else this.accepted += 1;
     if (!same && this.differences.length < 20) {
@@ -588,6 +602,7 @@ async function main() {
   const wanted = (name) => options.only === null || options.only === name;
   const count = (base) => Math.max(1, Math.round(base * options.scale));
   const brokenKernelsCaught = checkTheComparison(reference, kernel);
+  canonicalizeAgain = kernel;
 
   const report = {
     reference: "lib/canonical-json.ts canonicalJson after lib/strict-json.ts parseStrictJson",
@@ -623,10 +638,12 @@ async function main() {
   });
 
   const differences = report.sections.flatMap((tally) => tally.differences);
+  const fixedPoints = report.sections.reduce((sum, tally) => sum + tally.fixedPoints, 0);
   report.sections = report.sections.map((tally) => tally.summary());
   report.totals = {
     cases: report.sections.reduce((sum, section) => sum + section.cases, 0),
     accepted: report.sections.reduce((sum, section) => sum + section.accepted, 0),
+    outputsFedBackUnchanged: fixedPoints,
     differences: report.sections.reduce((sum, section) => sum + section.differences, 0),
     seconds: Number(seconds().toFixed(1))
   };
