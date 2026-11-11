@@ -628,11 +628,11 @@ test("one-field Node substitutions cannot synthesize an unreviewed producer", ()
     // cannot pass carries no signal: a real breakage and an ordinary week were
     // indistinguishable.
     //
-    // The review this protects is already digest-scoped -- THIRD_PARTY_REVIEWS
-    // keys filter lists by `url@sha256` -- so a refetch of identical bytes
-    // inherits it exactly. `fetchedAt` stays on the wire as provenance, and the
-    // two guards below still reject a moved manifest or engine, which is what
-    // makes a genuine rule change a new identity.
+    // The record this protects is already digest-scoped: THIRD_PARTY_INVENTORY
+    // lists each filter source by its url and sha256, so a refetch of identical
+    // bytes leaves it exactly as it was. `fetchedAt` stays on the wire as
+    // provenance, and the two guards below still reject a moved manifest or
+    // engine, which is what makes a genuine rule change a new identity.
     ["adblock digest", (run) => { if (run.toolchain.adblock) run.toolchain.adblock.manifestDigest = "0".repeat(64); }],
     ["adblock engine", (run) => { if (run.toolchain.adblock) run.toolchain.adblock.engineVersion += "-mixed"; }],
     ["source artifact", (run) => { run.provenance.sourceArtifactDigest = "0".repeat(64); }],

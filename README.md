@@ -411,8 +411,8 @@ routine edit.
 - `docs/research-evidence-model.md`, `docs/calibration-study-operations.md`,
   `docs/calibration-findings.md`: the evidence model and the calibration
   program that gates published detector accuracy.
-- `docs/supply-chain-assurance.md`, `THIRD_PARTY_INVENTORY.json`,
-  `THIRD_PARTY_REVIEWS.json`: dependency and filter-list provenance.
+- `docs/supply-chain-assurance.md`, `THIRD_PARTY_INVENTORY.json`: dependency
+  and filter-list provenance.
 - `RELEASE.md`, `release-policy.json`, `RELEASE_READINESS.json`,
   `CHANGELOG.md`: what a tag claims and what still blocks 1.0.
 - `docs/pagegraph-adapter.md`, `docs/native-shields-differential.md`:

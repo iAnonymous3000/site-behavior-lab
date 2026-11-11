@@ -24,8 +24,8 @@ const GIT_COMMIT_PATTERN = /^[a-f0-9]{40}$/;
 const LEGAL_NOTICE =
   "This generated file is an evidence inventory, not legal advice or a complete set of license texts. " +
   "Declared license identifiers are copied from the checked local inputs and have not been legally " +
-  "verified. UNKNOWN means those inputs do not prove a license. Legal review and any required notice " +
-  "or source-offer work remain external release gates.";
+  "verified. UNKNOWN means those inputs do not prove a license. No human legal review of these items " +
+  "has been performed, and this file does not show that any notice or source-offer obligation has been met.";
 
 function parseJson(source, inputPath) {
   try {

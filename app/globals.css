@@ -70,11 +70,11 @@
    * granularity existed only in the source, where it made two elements that
    * look identical appear deliberately different.
    *
-   * No webfont is vendored here on purpose. This repository gates every
-   * third-party artifact through THIRD_PARTY_INVENTORY.json and a review file,
-   * and a font binary is exactly such an artifact; adding one without that
-   * review would put an unreviewed dependency into a project whose entire claim
-   * is that its inputs are inspectable. */
+   * No webfont is vendored here on purpose. This repository records its
+   * third-party artifacts in THIRD_PARTY_INVENTORY.json, and a font binary is
+   * exactly such an artifact; adding one outside that record would put an
+   * uninventoried dependency into a project whose entire claim is that its
+   * inputs are inspectable. */
   --weight-medium: 600;
   --weight-bold: 700;
 

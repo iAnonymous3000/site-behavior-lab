@@ -183,6 +183,46 @@ test("each operator deferral is held by name: a dropped, retargeted, hollow or d
   }
 });
 
+// The gates this contract no longer has. Each row is a gate's id, its kind, and
+// the evidence a carrier bound for it, as [path, category]. None is a 1.0 gate
+// now and none is deferred: the row is here so that putting one back takes the
+// reviewed edit to scripts/v1-release-contract.mjs, never a manifest edit or a
+// carrier that binds its old evidence.
+const REMOVED_GATES: [string, string, [string, string][]][] = [
+  // A ledger of human license determinations for the third-party inventory.
+  // No row of it was ever reviewed. The inventory and its own check remain.
+  ["legal-review", "review-ledger", [["THIRD_PARTY_REVIEWS.json", "review-ledger"]]]
+];
+
+test("a removed gate cannot return by a manifest edit, live or deferred, and the binding admits none of its evidence", async (t) => {
+  const c = await contract();
+  const refusal = (mutate: (m: Any) => void): string[] => { const m = manifest(); mutate(m); return c.v1ProfileProblems(m); };
+  const GATE_SET = "investigative-v1 must retain its complete gate set and kinds";
+  const UNSUPPORTED = "v1 binding has an unsupported or duplicate evidence entry";
+  // The fixture's own carrier verifies, so each refusal below is the added entry's.
+  const control = fixture(t); control.bind();
+  assert.equal(c.verifyV1ReleaseBinding(control.root, control.instruments, control.options).candidateCommit, control.candidate);
+  assert.ok(REMOVED_GATES.length > 0);
+  for (const [id, kind, evidence] of REMOVED_GATES) {
+    const notDeferred = `${id} is not a gate this contract defers`;
+    assert.equal(Object.hasOwn(c.V1_GATES, id), false, `${id} is pinned by the contract`);
+    assert.equal(Object.hasOwn(manifest().gates, id), false, `${id} is a live gate of the committed manifest`);
+    assert.equal(Object.hasOwn(manifest().deferredGates ?? {}, id), false, `${id} is deferred by the committed manifest`);
+    const gate = { kind, title: "Put back by a manifest edit" };
+    const record = { ...gate, deferredTo: "1.1.0", deferredBy: "Fixture Maintainer", deferredAt: "2026-09-06T10:00:00.000Z", reason: "Put back as a deferral." };
+    assert.deepEqual(refusal((m) => { m.gates[id] = gate; }), [GATE_SET], `${id} live`);
+    assert.deepEqual(refusal((m) => { m.deferredGates = { ...m.deferredGates, [id]: record }; }), [notDeferred], `${id} deferred`);
+    assert.deepEqual(refusal((m) => { m.gates[id] = gate; m.deferredGates = { ...m.deferredGates, [id]: record }; }), [GATE_SET, notDeferred], `${id} live and deferred`);
+    assert.ok(evidence.length > 0, `${id} names no evidence, so its binding refusal shows nothing`);
+    for (const [relative, category] of evidence) {
+      const f = fixture(t);
+      f.add(relative, category, { fixture: id }); f.bind();
+      assert.throws(() => c.verifyV1ReleaseBinding(f.root, f.instruments, f.options), (error: Error) => error.message === UNSUPPORTED, `${relative} as ${category}`);
+      assert.equal(f.calls.length, 0, "nothing is sent for authentication from a carrier that binds it");
+    }
+  }
+});
+
 test("a deferred operator gate's evidence is not required, and is admitted and evaluated in full when a carrier binds it", async (t) => {
   const c = await contract();
   const release = await nativeImport(pathToFileURL(path.join(process.cwd(), "scripts/release-readiness-lib.mjs")).href);

@@ -56,9 +56,8 @@ bootstrap and generated inventory both parse that same strict canonical
 manifest; neither carries an independent copy of the trust pins. The entry
 explicitly records `usage: "build-only"`, `runtime: false`, and
 `redistributed: false`: the downloaded verifier is not part of either shipped
-runtime. Its separate `downloaded-tool` review row is created as `unreviewed`,
-like every other new inventory item; the declared MIT identifier is upstream
-evidence, not a substituted human legal determination.
+runtime. The declared MIT identifier is upstream evidence, like every other
+declared license in the inventory, not a human legal determination.
 
 Bootstrap reads the response stream under a 64 MiB ceiling before accepting
 the archive digest, then extracts only the expected `bin/gh` bytes with the
@@ -72,27 +71,31 @@ refused rather than replaced.
 
 The inventory is deliberately not named a notices file. Cargo.lock proves no
 licenses for its 69 third-party packages, and the filter metadata proves no
-licenses for its 31 sources; those entries remain `UNKNOWN`. A legal review
-must locate authoritative terms, decide redistribution/notice/source-offer
-obligations, and add any required license texts before a critical release.
+licenses for its 31 sources; those entries remain `UNKNOWN`.
 
-That review now has a place to land: `THIRD_PARTY_REVIEWS.json` keeps one row
-per inventory item (ecosystem, name, exact version; a bump is a new row that
-re-enters review). `npm run supply-chain:reviews:sync` creates missing rows as
-`unreviewed` and never touches reviewed rows; a human review fills reviewer,
-review date, the determined license, and the obligations list, and flips the
-row to `reviewed`. CI runs `npm run supply-chain:reviews:check`, which fails
-when the ledger drifts from the inventory or a reviewed row is incomplete, so
-a new dependency cannot merge without at least an explicit unreviewed row.
-Review COMPLETENESS is reported per ecosystem but gated only at release
-readiness, not per commit. Note the runtime/development split the ledger
-carries from the inventory: 77 of the 168 npm entries are not marked
+No human license review has been performed. The third-party items are
+inventoried with the licenses their own metadata declares, and CI checks the
+committed inventory by machine against the files it is generated from, so a
+new or bumped dependency cannot merge without its inventory row. A declared
+license is evidence of what a package says about itself. It is not a legal
+conclusion. Nobody has located authoritative terms for the `UNKNOWN` entries,
+decided redistribution, notice or source-offer obligations, or collected
+license texts. Release 1.0 does not require that review and does not claim
+it.
+
+Until 2026-11-11 the repository carried `THIRD_PARTY_REVIEWS.json`, a ledger
+with one row per inventory item for a human determination, and a 1.0 release
+gate that required every runtime row to be reviewed. No row was ever
+reviewed. The gate and the ledger were removed together, because a gate whose
+only evidence is one maintainer's sign-off adds no independent assurance.
+The inventory records the runtime and development split:
+77 of the 168 npm entries are not marked
 development-only in `package-lock.json`.
 
 ## Exact container OS-package inventory
 
-Container system packages stay outside `THIRD_PARTY_INVENTORY.json` and
-`THIRD_PARTY_REVIEWS.json`. Those files are deterministic source inventories;
+Container system packages stay outside `THIRD_PARTY_INVENTORY.json`. That
+file is a deterministic source inventory;
 an OS package set is instead a property of one platform-specific final image,
 its immutable base, and every runtime-stage filesystem change.
 

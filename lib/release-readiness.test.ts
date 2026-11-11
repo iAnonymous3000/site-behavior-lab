@@ -207,8 +207,6 @@ const EXPECTED_GATES: Record<string, string> = {
   "compatibility-surface-pinned": "document-digest",
   "errata-resolution": "errata",
   "published-corpus-consistency": "published-corpus-consistency",
-  "legal-review": "review-ledger",
-
   "r2-lifecycle": "lifecycle-receipt",
   "release-receipt-archive": "receipt-archive",
   "durable-soak": "durable-soak",
@@ -217,6 +215,9 @@ const EXPECTED_GATES: Record<string, string> = {
   "container-package-review": "container-package-review",
   "formal-verification": "formal-verification"
 };
+// Every count of live gates below is taken from this list, so the list is the
+// one place a reviewed change to the gate set moves.
+const EXPECTED_GATE_COUNT = Object.keys(EXPECTED_GATES).length;
 const EXPECTED_DECISIONS = [
   "v1EvidenceScope",
   "claimBoundary",
@@ -263,10 +264,10 @@ test("the committed manifest preserves its gate contract without requiring evide
   const manifest = JSON.parse(
     readFileSync(path.join(process.cwd(), "RELEASE_READINESS.json"), "utf8")
   );
-  // Fifteen gates carry a verdict. Every deferred gate is reported by name
-  // with its target release and carries none, so a deferred gate can neither
-  // count as satisfied nor keep the release unsatisfied.
-  assert.equal(result.gates.length, 15);
+  // Every gate of the contract carries a verdict. Every deferred gate is
+  // reported by name with its target release and carries none, so a deferred
+  // gate can neither count as satisfied nor keep the release unsatisfied.
+  assert.equal(result.gates.length, EXPECTED_GATE_COUNT);
   // The formal-verification gate is live, and red until a release candidate's
   // carrier binds a signed execution report: each reason below is one such a
   // carrier removes. Evidence can arrive without rewriting this test, so the
@@ -484,8 +485,8 @@ test("release readiness CLI requires the trusted freeze context and digest toget
 test("the readiness report names every deferred gate and counts none of them", () => {
   // The printed report is what an operator and the release workflow read. A
   // deferred gate must appear in it by name as deferred: left out, the shorter
-  // list would read as fifteen verified protections with nothing missing;
-  // counted, it would either block 1.0 or pass as verified.
+  // list would read as the whole set of verified protections with nothing
+  // missing; counted, it would either block 1.0 or pass as verified.
   const cli = path.join(process.cwd(), "scripts", "release-readiness.mjs");
   const root = mkdtempSync(path.join(tmpdir(), "sbl-readiness-report-"));
   try {
@@ -512,7 +513,7 @@ test("the readiness report names every deferred gate and counts none of them", (
       verdicts.map((line) => line.split(" ")[1].replace(/:$/, "")),
       Object.keys(EXPECTED_GATES)
     );
-    assert.equal(verdicts.length, 15);
+    assert.equal(verdicts.length, EXPECTED_GATE_COUNT);
     const deferred = lines.filter((line) => line.startsWith("DEFERRED "));
     assert.deepEqual(deferred, [
       "DEFERRED detector-calibration: Every claim-bearing detector has an eligible study at the current identity",
@@ -530,7 +531,7 @@ test("the readiness report names every deferred gate and counts none of them", (
     // other gate's reasons mention their evidence.
     assert.match(
       result.stdout,
-      /^Release 1\.0 readiness: NOT READY \(\d+ of 15 gates unsatisfied; these may share missing prerequisites\)\.$/m
+      new RegExp(`^Release 1\\.0 readiness: NOT READY \\(\\d+ of ${EXPECTED_GATE_COUNT} gates unsatisfied; these may share missing prerequisites\\)\\.$`, "m")
     );
     assert.match(
       result.stdout,

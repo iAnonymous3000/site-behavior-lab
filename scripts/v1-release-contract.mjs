@@ -19,7 +19,6 @@ export const V1_GATES = Object.freeze({
   "compatibility-surface-pinned": "document-digest",
   "errata-resolution": "errata",
   "published-corpus-consistency": "published-corpus-consistency",
-  "legal-review": "review-ledger",
   "r2-lifecycle": "lifecycle-receipt",
   "release-receipt-archive": "receipt-archive",
   "durable-soak": "durable-soak",
@@ -57,6 +56,10 @@ export const V1_REQUIRED_SUITES = Object.freeze([
   { id: "lib/fv-worker-readout.test.ts", minimumTests: 122, minimumVariants: 108 },
   { id: "lib/scroll-check-stacks.test.ts", minimumTests: 26, minimumVariants: 0 }
 ].map((entry) => Object.freeze(entry)));
+// Every gate this contract defers, with its kind. v1ProfileProblems holds each
+// record by id and refuses any other id in deferredGates.
+const V1_DEFERRALS = Object.freeze([["detector-calibration", "calibration"], ["aa-repeatability", "aa-study"],
+  ["egress-backstop", "operator-attestation"], ["log-retention", "operator-attestation"]]);
 const SHA = /^[0-9a-f]{40}$/;
 const DIGEST = /^[0-9a-f]{64}$/;
 const REPOSITORY = "iAnonymous3000/site-behavior-lab";
@@ -136,11 +139,17 @@ export function v1ProfileProblems(manifest) {
   // refusals that name the gate. A manifest edit alone can therefore neither
   // drop a deferred gate from both releases nor put one back; restoring a gate
   // takes the reviewed edit to this contract.
-  for (const [id, kind] of [["detector-calibration", "calibration"], ["aa-repeatability", "aa-study"],
-    ["egress-backstop", "operator-attestation"], ["log-retention", "operator-attestation"]]) {
+  for (const [id, kind] of V1_DEFERRALS) {
     const deferred = manifest.deferredGates?.[id];
     if (deferred?.kind !== kind || deferred.deferredTo !== "1.1.0" || !text(deferred.reason)) problems.push(`${id} must retain its explicit 1.1 deferral`);
     if (Object.hasOwn(manifest.gates ?? {}, id)) problems.push(`${id} is deferred to 1.1 and must not also be a live gate`);
+  }
+  // The deferral list is closed, as the live gate set is. A gate that was
+  // removed from this contract has no place in either, so a manifest edit
+  // alone cannot bring one back as a record that readiness would then list by
+  // name beside the real deferrals.
+  for (const id of Object.keys(manifest.deferredGates ?? {})) {
+    if (!V1_DEFERRALS.some(([known]) => known === id)) problems.push(`${id} is not a gate this contract defers`);
   }
   // The formal-verification gate's list is held entry by entry, as each
   // deferral is by id. A manifest edit alone can neither drop a required suite

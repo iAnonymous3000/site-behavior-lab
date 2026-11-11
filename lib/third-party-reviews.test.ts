@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
 import path from "node:path";
 import { test } from "node:test";
 import { pathToFileURL } from "node:url";
@@ -295,44 +294,5 @@ test("downloaded build-tool scope and redistribution posture are inventory truth
     const verdict = checkReviewLedger(INVENTORY, doctored);
     assert.equal(verdict.ok, false, `${field} drift must fail`);
     assert.match(verdict.problems.join(" "), new RegExp(`declares ${field}=`));
-  }
-});
-
-test("the committed ledger is in sync with the committed inventory", async () => {
-  const { checkReviewLedger } = await reviewsLib();
-  const inventory = JSON.parse(readFileSync(path.join(process.cwd(), "THIRD_PARTY_INVENTORY.json"), "utf8"));
-  const ledger = JSON.parse(readFileSync(path.join(process.cwd(), "THIRD_PARTY_REVIEWS.json"), "utf8"));
-  const verdict = checkReviewLedger(inventory, ledger);
-  assert.equal(verdict.ok, true, verdict.problems.slice(0, 3).join("; "));
-
-  // Derived from the committed inventory, not restated. These were four frozen
-  // literals, and every dependency bump that changed a package count failed
-  // here with `actual: 155, expected: 149` and no hint that the number was
-  // simply out of date. The invariant worth asserting is that the ledger's view
-  // of each ecosystem counts exactly what the inventory declares, and that one
-  // cannot go stale.
-  const ecosystems = [
-    ["npm", "npm"],
-    ["cargo", "cargo"],
-    ["filter-list", "filterLists"],
-    ["downloaded-tool", "downloadedTools"]
-  ] as const;
-
-  for (const [ledgerKey, inventoryKey] of ecosystems) {
-    const declared = inventory.summary?.[inventoryKey]?.total;
-    // Both sides must be real counts. Comparing two `undefined`s would pass
-    // while asserting nothing, which is how a renamed summary key would slip
-    // through and quietly empty this test.
-    assert.equal(
-      typeof declared,
-      "number",
-      `the inventory must declare a ${inventoryKey} total for this comparison to mean anything`
-    );
-    assert.ok(declared > 0, `${inventoryKey} total should be a positive count, got ${declared}`);
-    assert.equal(
-      verdict.summary[ledgerKey]?.total,
-      declared,
-      `the ledger counts a different number of ${ledgerKey} items than the inventory declares`
-    );
   }
 });

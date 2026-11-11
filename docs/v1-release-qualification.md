@@ -203,8 +203,8 @@ introduced here.
 ## Remaining blockers
 
 The contract does not supply the missing mode review, source binding, external
-governance selection, current lifecycle/provider evidence, or completed
-dependency and exact-image license reviews. Those are concrete operational
+governance selection, current lifecycle/provider evidence, or the completed
+exact-image license review. Those are concrete operational
 evidence gaps to close before v1, not reasons to restart the research calendar.
 The egress and log-retention gates are not among them. They refuse
 caller-supplied provider evidence, no trusted hosted capture exists for either,

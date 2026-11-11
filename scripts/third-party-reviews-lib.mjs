@@ -1,19 +1,23 @@
-// Human review ledger over THIRD_PARTY_INVENTORY.json.
+// The rules of a human review ledger over a third-party inventory.
 //
-// The inventory is deliberately evidence-only: versions, digests, and declared
-// license strings, with no place to record that a human determined a license,
-// an obligation, or a notice requirement. The legal review therefore had no
-// structure to land in, and CI could only verify inventory freshness, not
-// review coverage. This ledger adds exactly that missing structure:
+// No ledger is committed and nothing in CI or in the 1.0 release contract
+// reads one. The repository kept THIRD_PARTY_REVIEWS.json until 2026-11-11,
+// with every row unreviewed, to feed a 1.0 gate that asked for a completed
+// human license review. That gate and the file were removed together. This
+// module stays for one caller: release readiness still judges a gate of kind
+// review-ledger when a manifest of the earlier research profile declares
+// one, and it does that with checkReviewLedger.
+//
+// What the rules are:
 //
 // - one row per inventory item, keyed by ecosystem + name + version (a bump
 //   is a NEW row, so every version change re-enters review);
-// - rows are created as "unreviewed" by --sync and promoted to "reviewed" by
-//   a human adding reviewer, date, license determination, and obligations;
-// - --check fails when the ledger and inventory drift (a new dependency
-//   cannot merge without at least an explicit unreviewed row), while REVIEW
-//   completeness is reported, not gated: it becomes a release-readiness
-//   assertion, not a per-commit one.
+// - syncReviewLedger creates rows as "unreviewed", and a human promotes one
+//   to "reviewed" by adding reviewer, date, license determination, and
+//   obligations;
+// - checkReviewLedger fails when the ledger and inventory drift, and reports
+//   review completeness without judging it. The readiness gate adds the bar
+//   of zero unreviewed runtime items.
 export const REVIEWS_ARTIFACT_KIND = "site-behavior-third-party-review-ledger";
 export const REVIEWS_SCHEMA_VERSION = 1;
 export const INVENTORY_ARTIFACT_KIND = "deterministic-third-party-inventory-and-notice-evidence";
@@ -219,7 +223,7 @@ export function syncReviewLedger(inventory, ledger) {
       schemaVersion: REVIEWS_SCHEMA_VERSION,
       artifactKind: REVIEWS_ARTIFACT_KIND,
       notice:
-        "Rows are created unreviewed by scripts/third-party-reviews.mjs --sync. A human review fills reviewer, reviewedAt, determinedLicense, and obligations, and sets status to reviewed. A version bump is a new row and re-enters review.",
+        "Rows are created unreviewed by syncReviewLedger. A human review fills reviewer, reviewedAt, determinedLicense, and obligations, and sets status to reviewed. A version bump is a new row and re-enters review.",
       reviews
     },
     added,

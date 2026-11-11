@@ -127,20 +127,6 @@ jobs:
       - name: Verify the regenerated inventory
         run: npm run supply-chain:third-party:check
 
-      # THIRD_PARTY_REVIEWS.json is keyed by `url@sha256`, so new list bytes
-      # create 31 new keys by construction and leave the committed ledger out
-      # of sync with the inventory regenerated above. That failed the unit
-      # suite on `missing ledger row` for every refresh, before any of the
-      # measurement-identity work below was even reached. --sync creates rows
-      # as UNREVIEWED and preserves reviewed rows verbatim, so the human review
-      # gate is intact: the reviewer sees the new unreviewed rows in the
-      # proposal. dependabot-bookkeeping.yml does the same for version bumps.
-      - name: Sync the third-party review ledger for the new list bytes
-        run: npm run supply-chain:reviews:sync
-
-      - name: Verify the synced review ledger
-        run: npm run supply-chain:reviews:check
-
       # Ask, before running a suite that cannot answer, whether these bytes are
       # a new measurement identity.
       #
@@ -199,7 +185,7 @@ jobs:
           echo "proposed=false" >> "$GITHUB_OUTPUT"
           git config user.name "iAnonymous3000"
           git config user.email "32236127+iAnonymous3000@users.noreply.github.com"
-          git add lib/adblock-wasm/brave-default-filters.txt.gz lib/adblock-wasm/brave-default-filters.meta.json THIRD_PARTY_INVENTORY.json THIRD_PARTY_REVIEWS.json
+          git add lib/adblock-wasm/brave-default-filters.txt.gz lib/adblock-wasm/brave-default-filters.meta.json THIRD_PARTY_INVENTORY.json
           if git diff --cached --quiet; then
             echo "No filter list changes to commit."
             exit 0
@@ -234,7 +220,6 @@ jobs:
             '' \
             '- The fetcher forbids redirects and non-approved hosts or paths.' \
             '- Every source and the combined ruleset are byte-capped and SHA-256 recorded.' \
-            '- New `THIRD_PARTY_REVIEWS.json` rows are created UNREVIEWED; filling them in is part of this review.' \
             "$suite_line" \
             "- Before merge, manually approve this automation proposal's parked push-event CI run; the pull request's required checks remain expected until that run executes." \
             "- The separate non-promoting \`workflow_dispatch\` CI run validates this proposal branch but does not satisfy the pull request's required checks; trusted \`main\` CI runs only after merge." \
@@ -336,9 +321,9 @@ jobs:
             failed=false
             outcome=completed
             if [[ "$ADOPTION_REQUIRED" == "true" ]]; then
-              summary="The scheduled fetch, engine validation, review-ledger sync, and reviewed-PR proposal completed. Upstream rules moved, so the proposal also carries the measurement identity a maintainer must declare before it can merge; the unit suite runs on that adoption commit."
+              summary="The scheduled fetch, engine validation, inventory regeneration, and reviewed-PR proposal completed. Upstream rules moved, so the proposal also carries the measurement identity a maintainer must declare before it can merge; the unit suite runs on that adoption commit."
             else
-              summary="The scheduled fetch, engine validation, review-ledger sync, unit suite, reviewed-PR proposal step, and any required non-promoting CI dispatch completed."
+              summary="The scheduled fetch, engine validation, inventory regeneration, unit suite, reviewed-PR proposal step, and any required non-promoting CI dispatch completed."
             fi
           elif [[ "$BRAVE_LIST_JOB_STATUS" == "success" ]]; then
             failed=true

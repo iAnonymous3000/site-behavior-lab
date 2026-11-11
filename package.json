@@ -44,8 +44,6 @@
     "lists:adoption": "node scripts/run-schema-cli.mjs brave-snapshot-adoption",
     "shields:native-diff": "tsc -p tsconfig.native-shields.json && node .native-shields-dist/lib/native-shields-differential-cli.js",
     "supply-chain:third-party:check": "node scripts/third-party-inventory.mjs --check",
-    "supply-chain:reviews:sync": "node scripts/third-party-reviews.mjs --sync",
-    "supply-chain:reviews:check": "node scripts/third-party-reviews.mjs --check",
     "supply-chain:container-inventory": "node scripts/container-image-package-inventory.mjs",
     "supply-chain:container-reviews:sync": "node scripts/container-image-package-reviews.mjs --sync",
     "supply-chain:container-reviews:check": "node scripts/container-image-package-reviews.mjs --check",

@@ -3,7 +3,7 @@
   "artifactKind": "deterministic-third-party-inventory-and-notice-evidence",
   "generatedBy": "scripts/third-party-inventory.mjs",
   "legalReviewRequired": true,
-  "notice": "This generated file is an evidence inventory, not legal advice or a complete set of license texts. Declared license identifiers are copied from the checked local inputs and have not been legally verified. UNKNOWN means those inputs do not prove a license. Legal review and any required notice or source-offer work remain external release gates.",
+  "notice": "This generated file is an evidence inventory, not legal advice or a complete set of license texts. Declared license identifiers are copied from the checked local inputs and have not been legally verified. UNKNOWN means those inputs do not prove a license. No human legal review of these items has been performed, and this file does not show that any notice or source-offer obligation has been met.",
   "inputs": {
     "packageLock": {
       "path": "package-lock.json",

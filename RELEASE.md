@@ -998,7 +998,7 @@ authoritative gate list):
   A generic "settled" approval, a different path, or an unbound digest stays
   red, and the decision reads honestly as pending until the named human
   commits the approval.
-- **Derived gates.** Corpus denominators, the third-party review ledger,
+- **Derived gates.** Corpus denominators,
   runner destruction receipts, controlled publication archives, the lifecycle
   readback receipt, and the release-receipt archive are all
   re-derived from committed evidence on every run; no artifact's
