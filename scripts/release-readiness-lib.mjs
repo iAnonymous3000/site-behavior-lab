@@ -116,7 +116,6 @@ import {
 import {
   V1_PROFILE, V1_BINDING_PATH, v1ProfileProblems,
   verifyV1ReleaseBinding, publishedCorpusProblems,
-  v1OperatorEvidencePaths,
   V1_FORMAL_VERIFICATION_REPORT_PATH, V1_FORMAL_VERIFICATION_BUNDLE_PATH,
   V1_REQUIRED_SUITES
 } from "./v1-release-contract.mjs";
@@ -5840,6 +5839,9 @@ export function releaseAttestationScaffold(
   );
 }
 
+/** The fixed evidence and attestation paths of one operator gate. */
+const operatorEvidencePaths = (id) => [`research/ops-evidence/${id}.json`, `research/ops-receipts/${id}-attestation.json`];
+
 /**
  * Conclude an evaluation: add what each deferral record means to the live
  * gates' verdicts.
@@ -5848,7 +5850,9 @@ export function releaseAttestationScaffold(
  * operator gate whose evidence or attestation the verified binding enumerates
  * is evaluated in full against its retained definition and counts toward
  * readiness like a live gate, so a carrier cannot present such evidence
- * unexamined. Every other deferred gate is reported by name and contributes no
+ * unexamined. The investigative-v1 contract defers no operator gate and its
+ * binding admits no operator evidence, so this applies only to a manifest of
+ * another profile that carries such a record. Every other deferred gate is reported by name and contributes no
  * verdict. A gate that is live is evaluated as live and is never also reported
  * as deferred. A record without a target release is not a deferral (the same
  * rule as measurementGateKindRequired), so it is not reported as one.
@@ -5874,7 +5878,7 @@ export function concludeReleaseReadiness(
     if (!isRecord(gate) || Object.hasOwn(manifest.gates ?? {}, id)) continue;
     if (
       gate.kind === "operator-attestation" &&
-      v1OperatorEvidencePaths(id).some((relative) => boundPaths.has(relative))
+      operatorEvidencePaths(id).some((relative) => boundPaths.has(relative))
     ) {
       let result;
       try {

@@ -562,10 +562,10 @@ committed as canonical evidence; re-capture them before relying on them.
 Release 1.0 does not read the WAF ceiling back: the `waf-ceilings` release
 gate was removed on 2026-11-11, and the hosted WAF capture remains as an
 operations check. The
-`log-retention` gate is deferred to 1.1.0: release 1.0 does not re-verify log
+`log-retention` release gate was removed the same day: release 1.0 does not re-verify log
 retention, and the configured retention window is what exists. The independent
-egress backstop remains operator work, and its `egress-backstop` gate is
-deferred to 1.1.0 as well: release 1.0 verifies no egress boundary independent
+egress backstop remains operator work, and its `egress-backstop` release gate was
+removed as well: release 1.0 verifies no egress boundary independent
 of the application guard. See
 [`v1-release-qualification.md`](v1-release-qualification.md).
 

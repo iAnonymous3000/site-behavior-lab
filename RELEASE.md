@@ -1028,17 +1028,16 @@ authoritative gate list):
   ceilings and container image licensing gates were removed on 2026-11-11:
   1.0 reads no provider receipt for the rate rules, and no human license
   review of the image has been performed. The egress backstop and log
-  retention attestations are not required for 1.0 either. Both gates are
-  deferred to 1.1.0 because neither can pass as written, so 1.0 verifies no
+  retention gates were removed the same day, with their deferral records:
+  neither can pass as written, so 1.0 verifies no
   egress boundary independent of the application guard and does not re-verify
   log retention (see
   [`docs/v1-release-qualification.md`](docs/v1-release-qualification.md)).
-  Their definitions, producers and scaffolds remain, and evidence that a
-  carrier binds for either gate is still evaluated in full.
+  Their producers remain as operations and research tooling. A 1.0 evidence
+  carrier that binds an operator receipt or attestation is refused.
 
   What follows describes the attestation machinery that remains, for durable
-  activation, for the two deferred gates and for the research programme's
-  contract. Host truths code cannot see require a JSON attestation under
+  activation and for the research programme's contract. Host truths code cannot see require a JSON attestation under
   `research/ops-receipts/`. For a post-candidate operator gate, first use the
   fixed producer in
   [`docs/operator-evidence-capture.md`](docs/operator-evidence-capture.md) to
@@ -1172,11 +1171,13 @@ its release candidates remain mechanically unpublishable. No gate of the 1.0
 contract is a legal or license review. The detector-calibration and
 A/A-repeatability evidence programs are recorded in the manifest's
 `deferredGates` as gating the 1.1 calibrated-claims release; restoring them to
-the 1.0 set is a reviewed enforcement edit. The `egress-backstop` and
-`log-retention` operator gates are recorded there too, deferred to 1.1.0
-because neither can pass as written. Release 1.0 therefore does not verify an
+the 1.0 set is a reviewed enforcement edit. Nothing else is deferred. The
+`egress-backstop` and `log-retention` operator gates were removed on
+2026-11-11, with their deferral records, because neither can pass as written.
+Release 1.0 therefore does not verify an
 egress boundary independent of the application guard and does not re-verify
-log retention; the readiness report lists every deferred gate by name.
+log retention; the readiness report lists the two deferred research gates by
+name and does not mention the removed ones.
 
 Never infer a tag, stable API, or general-availability claim from the `0.x`
 package version or from the existence of a public production deployment.

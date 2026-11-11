@@ -991,16 +991,17 @@ watch), then remove it. See [encrypted-watches.md](encrypted-watches.md).
   point-in-time receipts are not committed as canonical evidence;
   re-capture them before relying on them. Release 1.0 does not read the WAF
   ceiling back: the `waf-ceilings` release gate was removed on 2026-11-11,
-  and the hosted WAF capture remains as an operations check. The `log-retention` gate is deferred to
-  1.1.0: release 1.0 does not re-verify log retention, and the configured
-  retention window is what exists. The observed
+  and the hosted WAF capture remains as an operations check. The
+  `log-retention` release gate was removed the same day: release 1.0 does not
+  re-verify log retention, and the configured retention window is what
+  exists. The observed
   WAF behavior closes only the prerequisite for durable public admissions; the
   separate durable-execution rollout gates above still apply. The independently authenticated
   fixed-prefix R2 delete canary is now active and required: its direct smoke and
   Production Health run 30483261603 both passed the write/read/delete/absence
   contract. A platform-compatible independent egress backstop remains an
-  external operational follow-up, and its `egress-backstop` release gate is
-  deferred to 1.1.0: release 1.0 verifies no egress boundary independent of
+  external operational follow-up, and its `egress-backstop` release gate was
+  removed on 2026-11-11: release 1.0 verifies no egress boundary independent of
   the application guard (see
   [`v1-release-qualification.md`](v1-release-qualification.md)). `/api/health`
   proves R2 configuration, not these separately exercised controls.

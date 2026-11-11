@@ -49,13 +49,13 @@ on 2026-11-11, and the hosted WAF capture below remains as an operations
 check and for the research programme's contract.
 
 No hosted capture exists for log retention or for the egress backstop, so
-neither gate can pass as written. `RELEASE_READINESS.json` defers both to
-1.1.0. Release 1.0 does not require either receipt, does not verify an egress
+neither gate can pass as written. Both were removed from the 1.0 contract on
+2026-11-11, with their deferral records. Release 1.0 does not require either receipt, does not verify an egress
 boundary independent of the application guard, and does not re-verify log
-retention. Their producers below remain, so the route back is intact. A
-receipt or attestation that an evidence carrier binds for a deferred gate is
-still evaluated in full, and it still fails until a trusted hosted capture
-exists.
+retention. Their producers below remain as operations and research tooling. A
+1.0 evidence carrier that binds a receipt or attestation for either is
+refused. Under the research programme's contract each gate still fails until
+a trusted hosted capture exists.
 
 Container licensing is the deliberate exception: its complete inputs are
 repository-local, exact-candidate package inventory and review-ledger bytes.
@@ -75,7 +75,7 @@ the final two-week release-ceremony window so review, environment approval,
 and tag publication do not consume the safety margin. If the candidate or
 effective deployment changes, recapture even when the earlier receipt is still
 under 30 days old. The same schedule applies to the log-retention readback
-when its gate, deferred to 1.1.0, is restored.
+under a contract that has that gate.
 
 For release evidence, use the dedicated `WAF Ceiling Evidence` workflow on the
 exact protected-main candidate that `/api/health` reports as deployed. Configure

@@ -316,66 +316,6 @@
       "deferredBy": "iAnonymous3000",
       "deferredAt": "2026-08-02T22:10:00.000Z",
       "reason": "Lean 1.0 scope: 1.0 publishes no detector error rates, and the approved claimBoundary decision classifies every report as investigative evidence requiring independent corroboration. This evidence program gates the 1.1 calibrated-claims release instead of 1.0. While this record stands, the measurement-candidate binding does not require this program's evidence for 1.0; evidence that is bound anyway is still fully verified, and the requirement reverts to full if this record is removed without restoring the gate. Restoring this gate to the 1.0 set is the reviewed enforcement edit that reverses the lean fork."
-    },
-    "egress-backstop": {
-      "kind": "operator-attestation",
-      "title": "Independent production egress boundary proven against application-guard failure",
-      "evidence": "research/ops-evidence/egress-backstop.json",
-      "attestation": "research/ops-receipts/egress-backstop-attestation.json",
-      "maxAgeDays": 90,
-      "requiredBindings": [
-        "candidateCommit",
-        "deploymentCommit",
-        "networkPolicyDigest",
-        "networkPolicyExportDigest",
-        "failureProbeTranscriptDigest",
-        "effectiveSourceObservedAt"
-      ],
-      "requiredClaims": [
-        {
-          "id": "independent-boundary-enforced",
-          "claim": "An enforcement boundary independent of application code blocks private, link-local, and cloud-metadata destinations."
-        },
-        {
-          "id": "failed-app-guard-tested",
-          "claim": "The independent boundary was tested while the application egress guard was deliberately treated as failed."
-        }
-      ],
-      "deferredTo": "1.1.0",
-      "deferredBy": "iAnonymous3000",
-      "deferredAt": "2026-11-10T02:57:25.390Z",
-      "reason": "This gate cannot pass as written. It accepts only a GitHub-hosted provider capture, which the readiness check reports as unavailable, and it refuses a hand attestation. A review on 2026-11-01 found no documented configuration of the hosting platform, on the current plan, that offers an enforcement boundary independent of application code. So 1.0 claims no independent egress boundary: the application's own egress guard is the only one, and the release documents say so. Meeting this gate needs a capture lane and a platform boundary first. While this record stands, the release binding does not require this gate's evidence for 1.0; evidence that is bound anyway is still fully verified. Deferred in the project task on 2026-11-10: the owner asked that gates which cannot be met as written stop blocking 1.0 and left the selection to the maintainer session."
-    },
-    "log-retention": {
-      "kind": "operator-attestation",
-      "title": "Bounded, redacted log-retention query re-captured for this candidate",
-      "evidence": "research/ops-evidence/log-retention.json",
-      "attestation": "research/ops-receipts/log-retention-attestation.json",
-      "maxAgeDays": 30,
-      "requiredBindings": [
-        "candidateCommit",
-        "deploymentCommit",
-        "logPolicyDigest",
-        "providerExportDigest",
-        "providerQueryRef",
-        "retentionReadbackDigest",
-        "sourceTool",
-        "effectiveSourceObservedAt"
-      ],
-      "requiredClaims": [
-        {
-          "id": "bounded-redacted-query",
-          "claim": "The retained-log query was bounded and its committed evidence contains no target URL, query value, raw credential, or personal-data payload."
-        },
-        {
-          "id": "retention-window-verified",
-          "claim": "The configured log-retention window was verified against the bound production candidate."
-        }
-      ],
-      "deferredTo": "1.1.0",
-      "deferredBy": "iAnonymous3000",
-      "deferredAt": "2026-11-10T02:57:25.390Z",
-      "reason": "This gate cannot pass as written. It accepts only a GitHub-hosted provider capture of the log query, which the readiness check reports as unavailable, and it refuses a hand attestation. So 1.0 does not claim a re-verified log-retention window or a re-captured redacted log query: the configured retention and the redaction tests are the only evidence, and the release documents say so. Meeting this gate needs a capture lane first. While this record stands, the release binding does not require this gate's evidence for 1.0; evidence that is bound anyway is still fully verified. Deferred in the project task on 2026-11-10: the owner asked that gates which cannot be met as written stop blocking 1.0 and left the selection to the maintainer session."
     }
   },
   "releaseProfile": "investigative-v1"

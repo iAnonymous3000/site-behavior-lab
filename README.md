@@ -316,8 +316,9 @@ The WAF ceiling rests on a point-in-time operator receipt recorded in the
 runbook, not committed evidence. Release 1.0 does not read it back: the
 `waf-ceilings` release gate was removed on 2026-11-11. Release 1.0 does not verify an independent egress backstop and
 does not re-verify log retention: the application's own egress guard and the
-configured log-retention window are what exist, and both release gates are
-deferred to 1.1.0 (see
+configured log-retention window are what exist. Neither is a 1.0 release
+gate: both gates were removed on 2026-11-11 because neither could pass as
+written (see
 [`docs/v1-release-qualification.md`](docs/v1-release-qualification.md)).
 
 No scheduled workflow pushes to `main`. Featured-site rescans run weekly in two

@@ -6,10 +6,13 @@ evidence. This approval changes the requirements; it does not approve a release
 or certify evidence that has not been collected.
 
 `RELEASE_READINESS.json` selects `investigative-v1`. Its complete gate set is
-enforced: deleting a gate or changing its kind is a refusal. Four gates are
+enforced: deleting a gate or changing its kind is a refusal. It has nine
+gates. Two research gates (`detector-calibration` and `aa-repeatability`) are
 deferred to 1.1.0 and held by name in `deferredGates`: removing a deferral
 record, or restoring one of those gates without the reviewed edit to
-`scripts/v1-release-contract.mjs`, is also a refusal. The previous
+`scripts/v1-release-contract.mjs`, is also a refusal. So is a manifest that
+names any other gate, live or deferred, including each gate removed on
+2026-11-11. The previous
 research contract is preserved verbatim in
 `docs/release-gate-history/research-program-2026-09-05.json`. Existing research
 verifiers and historical reports, schemas, receipts and approvals remain intact.
@@ -27,30 +30,31 @@ verifiers and historical reports, schemas, receipts and approvals remain intact.
 
 ## Operational protections 1.0 does not verify
 
-Two operator gates are deferred to 1.1.0. `RELEASE_READINESS.json` records each
-in `deferredGates` with its reason. Neither could pass as written: each accepts
+Two operator gates were removed from the 1.0 contract on 2026-11-11. They had
+been deferred to 1.1.0 the day before. Neither could pass as written: each accepts
 only a GitHub-hosted provider capture, no such capture lane exists for either,
-and a hand attestation is refused.
+and a hand attestation is refused. A gate that cannot pass is not a condition
+on a release, so 1.0 states the limit here instead of carrying a record.
 
-- **Independent egress boundary (`egress-backstop`).** Release 1.0 does not
+- **Independent egress boundary (`egress-backstop`, removed 2026-11-11).** Release 1.0 does not
   verify an egress boundary that is independent of application code. The
   application's own egress guard is the only boundary that exists. A review
   on 2026-11-01 found no documented configuration of the hosting platform, on
   the current plan, that offers an independent one. If the application guard
   fails, nothing that 1.0 verifies
   stops a scan from reaching a private, link-local or metadata address.
-- **Log retention (`log-retention`).** Release 1.0 does not re-verify the
+- **Log retention (`log-retention`, removed 2026-11-11).** Release 1.0 does not re-verify the
   log-retention window and does not re-capture a redacted log query for the
   candidate. The configured retention and the redaction tests are what exist.
   The dated operator receipts in the runbooks are not release evidence.
 
-Both gates keep their definitions, evidence producers and verifiers. The
-release binding does not require their evidence for 1.0. Evidence for either
-gate that a carrier binds anyway is evaluated in full and counts toward
-readiness, so it still fails until a trusted capture lane exists.
-`npm run release:readiness` lists both gates as `DEFERRED`, with no verdict.
-Meeting `egress-backstop` needs a capture lane and a platform boundary first.
-Meeting `log-retention` needs a capture lane first.
+Their evidence producers and verifiers remain as operations and research
+tooling, and the research contract preserved in
+`docs/release-gate-history/research-program-2026-09-05.json` still defines
+both gates. A 1.0 evidence carrier that binds a receipt or attestation for
+either is refused, and `npm run release:readiness` does not mention them.
+Meeting either would need a capture lane first, and `egress-backstop` a
+platform boundary as well.
 
 ## Provider settings 1.0 does not read back
 
@@ -212,9 +216,8 @@ introduced here.
 The contract does not supply the missing source binding or external
 governance selection. Those are concrete steps of the release ceremony
 to take before v1, not reasons to restart the research calendar.
-The egress and log-retention gates are not among them. They refuse
-caller-supplied provider evidence, no trusted hosted capture exists for either,
-and both are deferred to 1.1.0 as described above. The formal verification
+The egress and log-retention gates are not among them: both were removed, as
+described above. The formal verification
 report is not a manual gap either: CI writes and signs one for each `main`
 commit, and it reaches its gate when the carrier binds the candidate's.
 

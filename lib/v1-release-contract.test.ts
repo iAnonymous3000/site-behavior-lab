@@ -18,7 +18,11 @@ const contract = () => nativeImport(pathToFileURL(path.join(process.cwd(), "scri
 const hash = (v: string | Buffer) => createHash("sha256").update(v).digest("hex");
 const serialize = (v: unknown) => `${JSON.stringify(v, null, 2)}\n`;
 const manifest = () => JSON.parse(readFileSync(path.join(process.cwd(), "RELEASE_READINESS.json"), "utf8"));
-const DEFERRED_OPERATOR_GATES = ["egress-backstop", "log-retention"];
+// The two gates this contract defers: the research programmes. The research
+// programme's own binding reads these records, so they stay exactly as they are.
+const DEFERRALS: [string, string][] = [["detector-calibration", "calibration"], ["aa-repeatability", "aa-study"]];
+// The two operator gates 1.0 deferred until 2026-11-11 and then removed.
+const REMOVED_OPERATOR_DEFERRALS = ["egress-backstop", "log-retention"];
 const FV_REPORT = "research/measurement-candidate/site-behavior-lab-formal-verification-report.json";
 const FV_BUNDLE = "research/measurement-candidate/formal-verification-report.bundle.json";
 const FV_UNVERIFIED = "the formal verification report's Sigstore bundle was not verified for this subject at the candidate commit";
@@ -113,16 +117,17 @@ test("v1 scope cannot silently lose gates or claim the deferred capability", asy
   assert.ok(c.v1ProfileProblems(future).length);
 });
 
-test("each operator deferral is held by name: a dropped, retargeted, hollow or doubled record is refused", async () => {
+test("each deferral is held by name: a dropped, retargeted, hollow or doubled record is refused", async () => {
   const c = await contract();
   const refusal = (mutate: (m: Any) => void): string[] => { const m = manifest(); mutate(m); return c.v1ProfileProblems(m); };
   const GATE_SET = "investigative-v1 must retain its complete gate set and kinds";
   assert.deepEqual(c.v1ProfileProblems(manifest()), [], "the committed manifest with both deferrals is the accepted contract");
-  assert.deepEqual(Object.keys(manifest().gates).filter((id) => DEFERRED_OPERATOR_GATES.includes(id)), []);
-  for (const id of DEFERRED_OPERATOR_GATES) {
+  assert.deepEqual(Object.keys(manifest().deferredGates), DEFERRALS.map(([id]) => id), "the two research programmes are deferred, and nothing else");
+  for (const [id, kind] of DEFERRALS) {
+    assert.equal(Object.hasOwn(manifest().gates, id), false, id);
     const retain = `${id} must retain its explicit 1.1 deferral`;
     const doubled = `${id} is deferred to 1.1 and must not also be a live gate`;
-    assert.equal(manifest().deferredGates[id].kind, "operator-attestation");
+    assert.equal(manifest().deferredGates[id].kind, kind);
     // Absent from both places: the gate would simply vanish from 1.0 and 1.1.
     assert.deepEqual(refusal((m) => { delete m.deferredGates[id]; }), [retain]);
     assert.deepEqual(refusal((m) => { delete m.deferredGates; }).filter((p) => p.startsWith(`${id} `)), [retain]);
@@ -178,7 +183,15 @@ const REMOVED_GATES: [string, string, [string, string][]][] = [
   ["waf-ceilings", "operator-attestation", [
     ["research/ops-evidence/waf-ceilings.json", "operator-evidence"],
     ["research/ops-receipts/waf-ceilings-attestation.json", "operator-attestation"]
-  ]]
+  ]],
+  // The two operator gates that were deferred to 1.1 because neither could
+  // pass as written on this platform. Their records are gone too: 1.0 neither
+  // requires nor defers them, and says what it does not verify in its
+  // documents instead.
+  ...REMOVED_OPERATOR_DEFERRALS.map((id): [string, string, [string, string][]] => [id, "operator-attestation", [
+    [`research/ops-evidence/${id}.json`, "operator-evidence"],
+    [`research/ops-receipts/${id}-attestation.json`, "operator-attestation"]
+  ]])
 ];
 
 test("a removed gate cannot return by a manifest edit, live or deferred, and the binding admits none of its evidence", async (t) => {
@@ -244,7 +257,7 @@ test("a carrier may only add evidence, and the candidate verifier must read the 
   }
 });
 
-test("a deferred operator gate's evidence is not required, and is admitted and evaluated in full when a carrier binds it", async (t) => {
+test("readiness lists the two research deferrals with no verdict, and still judges in full an operator deferral that a manifest of another contract carries", async (t) => {
   const c = await contract();
   const release = await nativeImport(pathToFileURL(path.join(process.cwd(), "scripts/release-readiness-lib.mjs")).href);
   const now = Date.parse("2026-09-06T11:00:00Z");
@@ -255,49 +268,54 @@ test("a deferred operator gate's evidence is not required, and is admitted and e
   // Stands for the live gates, all satisfied, so only a deferred gate can
   // decide the verdict below.
   const live = [{ id: "live-gate", title: "live", kind: "decisions", status: "pass", reasons: [] }];
-  const conclude = (root: string, binding: Any) => release.concludeReleaseReadiness(live, manifest(), root, now, context(binding), null);
 
-  // Not required: a carrier that binds neither deferred pair still verifies,
-  // and neither deferred gate contributes a verdict.
+  // The committed contract: both research deferrals are listed by name and
+  // neither contributes a verdict.
   const lean = fixture(t); lean.bind();
   const leanBinding = c.verifyV1ReleaseBinding(lean.root, lean.instruments, lean.options);
-  const boundPaths = leanBinding.evidence.map((e: Any) => e.path);
-  for (const id of DEFERRED_OPERATOR_GATES) for (const relative of pair(id)) assert.equal(boundPaths.includes(relative), false, relative);
-  const leanResult = conclude(lean.root, leanBinding);
+  const leanResult = release.concludeReleaseReadiness(live, manifest(), lean.root, now, context(leanBinding), null);
   assert.deepEqual(leanResult.gates, live);
   assert.equal(leanResult.ready, true);
   assert.deepEqual(leanResult.manifestProblems, []);
-  assert.deepEqual(leanResult.deferredGates.map((g: Any) => [g.id, g.deferredTo]), [
-    ["detector-calibration", "1.1.0"], ["aa-repeatability", "1.1.0"], ["egress-backstop", "1.1.0"], ["log-retention", "1.1.0"]
-  ]);
+  assert.deepEqual(leanResult.deferredGates.map((g: Any) => [g.id, g.deferredTo]), [["detector-calibration", "1.1.0"], ["aa-repeatability", "1.1.0"]]);
 
-  // Bound anyway, whole pair or half: the binding admits the bytes under its
-  // digest and single-introduction rules, and the gate is then evaluated in
-  // full against its retained definition instead of being reported as
-  // deferred. Its failure makes the release not ready although every live
-  // gate passed. The evidence bytes are not canonical evidence, and the
-  // operator left the first required claim unaffirmed, so the evaluation must
-  // fail on each of those, not merely on the gate's standing refusal.
-  for (const id of DEFERRED_OPERATOR_GATES) {
+  // The library rule that remains for a manifest of another contract: an
+  // operator gate's deferral record whose evidence a binding enumerates is
+  // evaluated in full against its retained definition, never reported as
+  // deferred. The records are the research contract's own definitions of the
+  // two gates, with a deferral added. The v1 binding admits none of these
+  // paths (see the removed-gate test), so the entries are added to an already
+  // verified binding by hand: what is under test is the evaluation, not the
+  // admission. The evidence bytes are not canonical evidence, and the operator
+  // left the first required claim unaffirmed, so the evaluation must fail on
+  // each of those, not merely on the gate's standing refusal.
+  const research = JSON.parse(readFileSync(path.join(process.cwd(), "docs/release-gate-history/research-program-2026-09-05.json"), "utf8"));
+  for (const id of REMOVED_OPERATOR_DEFERRALS) {
     const [evidencePath, attestationPath] = pair(id);
-    const claims: { id: string }[] = manifest().deferredGates[id].requiredClaims;
-    const attestation = release.buildReleaseAttestationScaffold(manifest(), id, {});
+    const record = { ...research.gates[id], deferredTo: "1.1.0", deferredBy: "Fixture Maintainer", deferredAt: "2026-09-06T10:00:00.000Z", reason: "Deferred by a manifest of another contract." };
+    assert.equal(record.kind, "operator-attestation", id);
+    const other = { ...manifest(), deferredGates: { ...manifest().deferredGates, [id]: record } };
+    delete other.releaseProfile;
+    const claims: { id: string }[] = record.requiredClaims;
+    const attestation = release.buildReleaseAttestationScaffold(other, id, {});
     attestation.attestedBy = "Fixture operator";
     attestation.attestedAt = "2026-09-06T10:09:30.000Z";
     attestation.evidenceCapturedAt = "2026-09-06T10:09:00.000Z";
     for (const statement of attestation.statements) statement.true = statement.claimId !== claims[0].id;
     for (const bound of [[evidencePath, attestationPath], [evidencePath], [attestationPath]]) {
-      const f = fixture(t);
-      if (bound.includes(evidencePath)) f.add(evidencePath, "operator-evidence", { fixture: id });
-      if (bound.includes(attestationPath)) f.add(attestationPath, "operator-attestation", attestation);
-      f.bind();
+      const f = fixture(t); f.bind();
       const binding = c.verifyV1ReleaseBinding(f.root, f.instruments, f.options);
-      const result = conclude(f.root, binding);
+      const present = (relative: string, category: string, value: unknown) => {
+        f.write(relative, value);
+        binding.evidence.push({ category, path: relative, change: "added", sha256: hash(readFileSync(path.join(f.root, relative))) });
+      };
+      if (bound.includes(evidencePath)) present(evidencePath, "operator-evidence", { fixture: id });
+      if (bound.includes(attestationPath)) present(attestationPath, "operator-attestation", attestation);
+      const result = release.concludeReleaseReadiness(live, other, f.root, now, context(binding), null);
       assert.equal(result.ready, false, bound.join(" + "));
       assert.deepEqual(result.gates.map((g: Any) => [g.id, g.kind, g.status]),
         [["live-gate", "decisions", "pass"], [id, "operator-attestation", "fail"]], bound.join(" + "));
-      assert.deepEqual(result.deferredGates.map((g: Any) => g.id),
-        ["detector-calibration", "aa-repeatability", ...DEFERRED_OPERATOR_GATES.filter((other) => other !== id)],
+      assert.deepEqual(result.deferredGates.map((g: Any) => g.id), ["detector-calibration", "aa-repeatability"],
         "an evaluated gate is not also reported as deferred");
       const reasons: string[] = result.gates[1].reasons;
       // The gate's own refusal still stands: no hand attestation can pass it.
@@ -309,14 +327,12 @@ test("a deferred operator gate's evidence is not required, and is admitted and e
       assert.equal(reasons.includes(`required claim ${claims[0].id} is missing`), bound.includes(attestationPath), reasons.join("\n"));
       assert.equal(reasons.includes(`required claim ${claims[1].id} is missing`), false, reasons.join("\n"));
     }
+    // Unbound, the same record is only listed.
+    const f = fixture(t); f.bind();
+    const unbound = release.concludeReleaseReadiness(live, other, f.root, now, context(c.verifyV1ReleaseBinding(f.root, f.instruments, f.options)), null);
+    assert.equal(unbound.ready, true);
+    assert.deepEqual(unbound.deferredGates.map((g: Any) => g.id), ["detector-calibration", "aa-repeatability", id]);
   }
-
-  // A bound byte that differs from its digest is refused by the binding
-  // itself, deferred gate or not.
-  const tampered = fixture(t);
-  tampered.add(pair("log-retention")[1], "operator-attestation", { fixture: "log-retention" });
-  tampered.evidence.at(-1).sha256 = "f".repeat(64); tampered.bind();
-  assert.throws(() => c.verifyV1ReleaseBinding(tampered.root, tampered.instruments, tampered.options), /log-retention-attestation\.json digest differs from the binding/);
 });
 
 test("v1 accepts an authenticated evidence-only carrier without a research freeze, cycles, or durable enablement", async (t) => {
@@ -372,16 +388,11 @@ test("preparation does not require its own final binding and archives use the re
   const f = fixture(t);
   // A draft must reach canonical-evidence validation before a binding exists.
   // Deliberately invalid provider bytes still cannot generate an attestation.
-  // A deferred gate keeps its definition, so its attestation can still be
-  // prepared. It reaches the evidence check instead of being refused as an
-  // unknown gate, which would cut the route back to a live gate.
-  for (const id of DEFERRED_OPERATOR_GATES) {
-    assert.throws(() => release.releaseAttestationScaffold(id, f.root),
-      new RegExp(`canonical operator evidence is required: research/ops-evidence/${id}\\.json does not exist`));
+  // A removed operator gate has no definition in this manifest, live or
+  // deferred, so there is nothing to prepare an attestation of.
+  for (const id of ["waf-ceilings", "container-image-licensing", ...REMOVED_OPERATOR_DEFERRALS]) {
+    assert.throws(() => release.releaseAttestationScaffold(id, f.root), /^Error: --gate must name one of /, id);
   }
-  // A removed operator gate has no definition in this manifest, so there is
-  // nothing to prepare an attestation of.
-  assert.throws(() => release.releaseAttestationScaffold("waf-ceilings", f.root), /^Error: --gate must name one of /);
   f.bind(); const released = f.git("rev-parse", "HEAD");
   const historicalProfile = manifest(); delete historicalProfile.releaseProfile;
   f.write("RELEASE_READINESS.json", historicalProfile); f.commit("Later profile");

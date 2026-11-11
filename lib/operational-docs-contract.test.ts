@@ -508,34 +508,41 @@ test("release operators get a fail-closed scaffold for every attestation gate", 
   );
 });
 
-test("release documents say what each deferred operator gate leaves unverified", () => {
-  // Each deferral reason in the manifest says the release documents state the
-  // limit. Without this check a deferred gate could drop out of the readiness
-  // list while a runbook still read as if 1.0 verified that protection, or as
-  // if the gate were merely open. The gates are derived from the manifest and
-  // the set is pinned, so restoring a gate fails here until the documents and
-  // this check are revisited together, and an empty set cannot pass silently.
+test("release documents say what the two removed operator gates leave unverified", () => {
+  // The egress-backstop and log-retention gates could not pass as written.
+  // They were deferred on 2026-11-10 and removed, records and all, on
+  // 2026-11-11. With no record left, the documents are the only place a
+  // reader learns that 1.0 verifies neither protection. Without this check a
+  // runbook could read as if 1.0 verified one, or as if a gate were still
+  // deferred or open. The set is pinned against the manifest, so putting an
+  // operator gate back fails here until the documents and this check are
+  // revisited together.
+  const REMOVED = ["egress-backstop", "log-retention"];
   const manifest = JSON.parse(source("RELEASE_READINESS.json")) as {
-    gates: Record<string, unknown>;
+    gates: Record<string, { kind: string }>;
     deferredGates: Record<string, { kind: string; deferredTo: string }>;
   };
-  const deferred = Object.entries(manifest.deferredGates).filter(
-    ([id, gate]) => gate.kind === "operator-attestation" && !Object.hasOwn(manifest.gates, id)
+  for (const id of REMOVED) {
+    assert.equal(Object.hasOwn(manifest.gates, id), false, `${id} is a live gate again`);
+    assert.equal(Object.hasOwn(manifest.deferredGates, id), false, `${id} is deferred again`);
+  }
+  assert.deepEqual(
+    [...Object.values(manifest.gates), ...Object.values(manifest.deferredGates)].filter((gate) => gate.kind === "operator-attestation"),
+    [],
+    "the 1.0 manifest has an operator gate again"
   );
-  assert.deepEqual(deferred.map(([id]) => id), ["egress-backstop", "log-retention"]);
   const flat = (file: string) => source(file).replace(/\s+/g, " ");
 
   // The evidence-boundary document names each gate and states the limit.
   const qualification = flat("docs/v1-release-qualification.md");
-  for (const [id, gate] of deferred) {
-    assert.equal(gate.deferredTo, "1.1.0", id);
+  for (const id of REMOVED) {
     assert.match(
       qualification,
-      new RegExp(`\\(\`${id}\`\\)\\.\\*\\* Release 1\\.0 does not (?:re-)?verify `),
+      new RegExp(`\\(\`${id}\`, removed 2026-11-11\\)\\.\\*\\* Release 1\\.0 does not (?:re-)?verify `),
       `docs/v1-release-qualification.md must say what 1.0 does not verify for ${id}`
     );
   }
-  assert.match(qualification, /Two operator gates are deferred to 1\.1\.0/);
+  assert.match(qualification, /Two operator gates were removed from the 1\.0 contract on 2026-11-11/);
   assert.match(qualification, /application's own egress guard is the only boundary that exists/);
   assert.match(qualification, /configured retention and the redaction tests are what exist/);
   assert.doesNotMatch(qualification, /production egress, admission, retention/);
@@ -548,24 +555,32 @@ test("release documents say what each deferred operator gate leaves unverified",
     "docs/operations.md",
     "docs/deploy-cloudflare-containers.md",
     "docs/go-live-public-scanner.md",
-    "docs/operator-evidence-capture.md"
+    "docs/operator-evidence-capture.md",
+    "docs/v1-release-qualification.md"
   ]) {
     const document = flat(file);
-    assert.match(document, /deferred to 1\.1\.0/, `${file} must say the gates are deferred to 1.1.0`);
     assert.match(
       document,
-      /does not re-verify log retention/i,
+      /does not re-verify (?:log retention|the log-retention window)/i,
       `${file} must say 1.0 does not re-verify log retention`
     );
     assert.match(
       document,
-      /(?:does not verify an (?:independent egress backstop|egress boundary independent of the application guard)|verifies no egress boundary independent of the application guard)/i,
+      /(?:does not verify an (?:independent egress backstop|egress boundary (?:that is )?independent of (?:the application guard|application code))|verifies no egress boundary independent of the application guard)/i,
       `${file} must say 1.0 verifies no independent egress boundary`
     );
+    assert.match(document, /removed (?:from the 1\.0 contract )?on 2026-11-11|removed the same day/, `${file} must say the gates were removed`);
+    // No document may still present either gate as deferred or open.
+    assert.doesNotMatch(
+      document,
+      /(?:egress[- ]backstop|log[- ]retention)[^.]{0,120}(?:is|are|both) deferred to 1\.1\.0/i,
+      `${file} still describes a removed operator gate as deferred`
+    );
+    assert.doesNotMatch(document, /defers both to 1\.1\.0/, file);
     assert.doesNotMatch(
       document,
       /`log-retention` release gates both still report open/,
-      `${file} still describes the deferred log-retention gate as an open 1.0 gate`
+      `${file} still describes the removed log-retention gate as an open 1.0 gate`
     );
   }
 });

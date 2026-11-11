@@ -50,10 +50,10 @@ export const V1_REQUIRED_SUITES = Object.freeze([
   { id: "lib/fv-worker-readout.test.ts", minimumTests: 122, minimumVariants: 108 },
   { id: "lib/scroll-check-stacks.test.ts", minimumTests: 26, minimumVariants: 0 }
 ].map((entry) => Object.freeze(entry)));
-// Every gate this contract defers, with its kind. v1ProfileProblems holds each
-// record by id and refuses any other id in deferredGates.
-const V1_DEFERRALS = Object.freeze([["detector-calibration", "calibration"], ["aa-repeatability", "aa-study"],
-  ["egress-backstop", "operator-attestation"], ["log-retention", "operator-attestation"]]);
+// Every gate this contract defers, with its kind: the two research
+// programmes, and nothing else. v1ProfileProblems holds each record by id and
+// refuses any other id in deferredGates.
+const V1_DEFERRALS = Object.freeze([["detector-calibration", "calibration"], ["aa-repeatability", "aa-study"]]);
 const SHA = /^[0-9a-f]{40}$/;
 const DIGEST = /^[0-9a-f]{64}$/;
 const REPOSITORY = "iAnonymous3000/site-behavior-lab";
@@ -65,14 +65,6 @@ const FIXED_EVIDENCE = Object.freeze({
   [V1_FORMAL_VERIFICATION_REPORT_PATH]: "formal-verification-report",
   [V1_FORMAL_VERIFICATION_BUNDLE_PATH]: "formal-verification-attestation"
 });
-// Every operator gate whose evidence pair a carrier may bind. Both are
-// deferred to 1.1 (see v1ProfileProblems): the binding does not require their
-// pair, but still admits it, and readiness evaluates in full any pair a
-// carrier binds anyway. Dropping an id here makes such evidence unbindable,
-// which is what removing an operator gate from this contract means.
-const OPERATORS = ["egress-backstop", "log-retention"];
-/** The fixed evidence and attestation paths of one operator gate. */
-export const v1OperatorEvidencePaths = (id) => [`research/ops-evidence/${id}.json`, `research/ops-receipts/${id}-attestation.json`];
 const sha256 = (bytes) => createHash("sha256").update(bytes).digest("hex");
 const record = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
 const keys = (v, expected) => record(v) && isDeepStrictEqual(Object.keys(v).sort(), [...expected].sort());
@@ -112,13 +104,12 @@ export function v1ProfileProblems(manifest) {
   }
   if (manifest.decisions?.jobRecovery?.selected !== "explicit-failure-safe-retry" ||
       manifest.decisions?.stableApiClaim?.recommended !== false) problems.push("investigative-v1 must preserve its lean recovery and API scope");
-  // The two operator gates accept only a hosted provider capture that does not
-  // exist, so they cannot pass as written and are deferred beside the research
-  // programmes. Every deferral is held by id: a removed, retargeted or
-  // reasonless record, and a gate that is live while its record stands, are
-  // refusals that name the gate. A manifest edit alone can therefore neither
-  // drop a deferred gate from both releases nor put one back; restoring a gate
-  // takes the reviewed edit to this contract.
+  // The two research programmes are deferred to 1.1, and the research
+  // programme's own binding reads their records. Every deferral is held by
+  // id: a removed, retargeted or reasonless record, and a gate that is live
+  // while its record stands, are refusals that name the gate. A manifest edit
+  // alone can therefore neither drop a deferred gate from both releases nor
+  // put one back; restoring a gate takes the reviewed edit to this contract.
   for (const [id, kind] of V1_DEFERRALS) {
     const deferred = manifest.deferredGates?.[id];
     if (deferred?.kind !== kind || deferred.deferredTo !== "1.1.0" || !text(deferred.reason)) problems.push(`${id} must retain its explicit 1.1 deferral`);
@@ -171,11 +162,6 @@ export function v1ProfileProblems(manifest) {
 
 function allowedEvidence(entry) {
   if (FIXED_EVIDENCE[entry.path]) return entry.category === FIXED_EVIDENCE[entry.path];
-  for (const id of OPERATORS) {
-    const [evidence, attestation] = v1OperatorEvidencePaths(id);
-    if (entry.path === evidence) return entry.category === "operator-evidence";
-    if (entry.path === attestation) return entry.category === "operator-attestation";
-  }
   if (/^research\/ops-receipts\/release-tag-governance\/[0-9a-f]{64}\.json$/.test(entry.path)) return entry.category === "release-tag-governance-receipt";
   if (/^research\/hosted-evidence\/[a-z0-9-]+\/[0-9a-f]{64}\/[a-zA-Z0-9._/-]+$/.test(entry.path)) return entry.category === "hosted-evidence-archive";
   return false;
@@ -206,15 +192,9 @@ export function verifyV1ReleaseBinding(rootDir, canonical, { attestationVerifier
     requireValue(sha256(bytes(rootDir, entry.path)) === entry.sha256, `${entry.path} digest differs from the binding`);
     entries.set(entry.path, entry);
   }
-  // Only a live operator gate requires its evidence pair. The profile check
-  // above already fixed which operator gates are live and which carry a 1.1
-  // deferral record, so a deferred gate's pair is optional here, never
-  // forbidden: when a carrier binds it, the digest and single-introduction
-  // rules apply to it as to any entry and readiness evaluates that gate in
-  // full.
-  for (const relative of [...Object.keys(FIXED_EVIDENCE), ...OPERATORS
-    .filter((id) => Object.hasOwn(manifest.gates, id)).flatMap(v1OperatorEvidencePaths)
-  ]) requireValue(entries.has(relative), `v1 binding omits required evidence ${relative}`);
+  // This contract has no operator gate, live or deferred, so a carrier binds
+  // no operator evidence or attestation: allowedEvidence admits neither.
+  for (const relative of Object.keys(FIXED_EVIDENCE)) requireValue(entries.has(relative), `v1 binding omits required evidence ${relative}`);
   requireValue(binding.evidence.some((e) => e.category === "release-tag-governance-receipt"), "v1 binding omits release governance evidence");
   const range = `${binding.candidateCommit}..${carrierCommit}`;
   requireValue(git(rootDir, ["rev-list", "--merges", range]) === "", "v1 evidence carrier history must be linear");
