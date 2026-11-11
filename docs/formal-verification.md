@@ -662,7 +662,7 @@ under its stated bound); a smaller world, `SMALL_WORLD`, carries some of the
 variants, and a dedicated world holds one worker on the main thread's channel.
 Its axioms are switches, each of which only removes transitions:
 
-- A1: a session's commands and a worker's own words on it arrive in order, except a script's parse, which may arrive behind later answers or not at all.
+- A1: a session's commands and a worker's own words on it arrive in order, except a script's parse, which may arrive behind later answers or not at all. A1 is an order of arrival at the attacher's socket. That the thread acts on what arrived in that order, within one read too, is no axiom: row F4-ARRIVAL checks it.
 - A2: another client's release of a held worker is heard by the attacher's session.
 - A3, used as its negation: a detach never overtakes a session's events still on their way.
 - A4: a worker the debugger holds at its start runs nothing until it is released; the plan states it of a dedicated worker.
@@ -861,6 +861,21 @@ Its axioms are switches, each of which only removes transitions:
 - **Variants:**
   - `lib/fv-worker-model.test.ts`: "the replay catches a thread that still takes the question away from a worker with its first pause, once a session's words are out of order"
 - **Commit:** abd47988fe67e95144e012c4ebc2d33d8ee7adaa
+
+### F4-ARRIVAL. The thread acts on a read's words in the order they arrived
+
+- **Property:** The real attacher thread hears the sequences of the hold and stream worlds, and a set of traces that takes every transition of what it hears in the world of `TWO_WORKER_WORLD`, with as many words to a read as could have arrived together, each read delivered back to back in the same task with no promise reaction between its words, and posts and sends what the model says of the same words heard each in a task of its own, in the same order; a word that waits its turn in a read keeps the receive time it arrived with, the replay's clock having moved on before the word is acted on.
+- **Code:** `sharedWorkerAttacherThread` in `lib/shared-worker-attacher.ts`, and `hearInOneRead` and `couldArriveInARead` in `lib/fv-worker-model-replay.ts`.
+- **Domain:** The sequences the thread can hear in the hold and stream worlds with no axiom assumed, and the set for the world of `TWO_WORKER_WORLD`, each cut into reads by this rule: a read is extended while the next word is such that the browser could have sent it before the thread acted on the read's first word, and holds no second pause at the main script.
+- **Bounds:** the cut that rule gives, and no other; a step that is no word on a session has a task of its own.
+- **Axioms:** none: A1 is an order of arrival, and this row is about what the thread does with the order it is given.
+- **Method:** trace conformance
+- **Not claimed:** That a socket hands over a read's frames in the same task with no reaction between them: that is measured of Node's WebSocket and checked nowhere here. Cuts between the cut replayed and a task to each word. The thread's handling of an event settles no promise except where the thread marks it itself; those cases, a breakpoint refused or unanswered, and the connection's end behind a read's frames lie outside the model's alphabet, and `lib/shared-worker-attacher.test.ts` writes them out against the real thread. A command's own bound is no frame and is acted on when it fires, so an answer waiting its turn at that instant is not heard.
+- **Tests:**
+  - `lib/fv-worker-model.test.ts`: "replay, in reads: the real thread hears every sequence of the hold and stream worlds, and a set that takes every transition of the two-worker world, with as many words to a read as could arrive together, and posts and sends what the model says of them one at a time"
+- **Variants:**
+  - `lib/fv-worker-model.test.ts`: names beginning "the replay in reads catches a variant of the thread"
+- **Commit:** 2912f66aab21a93138b51efb750f9f7924fb112b
 
 ## Claims from F5: the case machine, its purge slice and the fold
 
