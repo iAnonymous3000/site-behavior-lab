@@ -60,8 +60,8 @@ public API or a 1.0 release.
   and an empty block left todo. That reading was derived on the pinned Node
   and checked on the image's (24.22.1), and must be derived again when the
   pin moves. It fails today, because no
-  carrier exists: the readiness check now evaluates 15 gates, 9 of them
-  unsatisfied. A pass shows that these files ran and passed at the
+  carrier exists: with this gate the readiness check evaluated 15 gates, 9
+  of them unsatisfied (nine gates and 3 since the removals below). A pass shows that these files ran and passed at the
   candidate. It adds nothing to what each test claims over its own domain, a
   count a suite pins inside a test stays inside that test, and the minimums
   are change detectors, not evidence. The catches are lines the suite's own
@@ -152,6 +152,42 @@ public API or a 1.0 release.
   404 it gave while the flag was off, so no response changes. Operator note:
   the next production deploy drops the binding and the variable from the
   Worker, and leaves the dataset, if one exists, in the account.
+- Six release gates and two deferral records, on the owner's instruction of
+  2026-11-11 to keep only the gates the release needs. A 1.0 gate now stays
+  only if it protects a user or a public claim, a machine can check it at
+  every release, and nothing else already enforces it. Removed:
+  `legal-review` and `container-package-review` (two ledgers of 269 and 513
+  rows, every row unreviewed, each waiting for a human license
+  determination), `container-image-licensing` (an operator's attestation of
+  a legal review), `mode-qualification` (a named human's review of five
+  reports against that human's own references), `r2-lifecycle` and
+  `waf-ceilings` (readbacks of provider settings, which can change the day
+  after a release), and the deferral records of `egress-backstop` and
+  `log-retention`. Nine gates remain: `decisions-approved`,
+  `release-tag-governance`, `release-candidate-binding`,
+  `compatibility-surface-pinned`, `errata-resolution`,
+  `published-corpus-consistency`, `release-receipt-archive`, `durable-soak`
+  and `formal-verification`. None of the nine asks for less than it did;
+  the binding gate's set of admitted evidence shrank with the removals. The
+  contract refuses a manifest that puts a removed gate back, live or
+  deferred, and the 1.0
+  binding refuses evidence of a removed category, operator evidence, and
+  hosted evidence archives, which no remaining gate reads.
+  `THIRD_PARTY_REVIEWS.json`, its tool, its CI step and its two npm scripts
+  are gone. What this means for a reader: no human license review of the
+  third-party items or of the container's packages has been performed, and
+  no release check now looks at a report by hand, at the bucket lifecycle
+  rule or at the provider's rate rule. docs/supply-chain-assurance.md and
+  docs/v1-release-qualification.md say so. What stays:
+  `THIRD_PARTY_INVENTORY.json` and its check; the signed container package
+  inventory and its attestation, still bound by the release;
+  `CONTAINER_IMAGE_PACKAGE_REVIEWS.json` and its CI check, now a record of
+  the image's package set and not a release requirement; the two provider
+  capture workflows, as operations checks run by hand; every evidence
+  producer and research evaluator. The `detector-calibration` and
+  `aa-repeatability` deferral records stay as they were, because the
+  research binding reads them; they establish nothing for 1.0 and block
+  nothing. No scan, report byte or identity changes.
 
 ### Changed
 
@@ -267,8 +303,11 @@ public API or a 1.0 release.
   seconds of its own backoff and gave up while a one-minute window still
   stood. Every scan API answer now exposes that header.
 - Two release gates that could not pass as written no longer block 1.0.
-  `egress-backstop` and `log-retention` are deferred to 1.1.0 by name, with
-  their definitions, evidence producers and tests kept. Each accepted only a
+  `egress-backstop` and `log-retention` were first deferred to 1.1.0 by
+  name, with their definitions, evidence producers and tests kept, and
+  their deferral records were then removed with six gates (see Removed
+  above). The rest of this entry describes the deferral as it first
+  landed. Each accepted only a
   GitHub-hosted provider capture, which the readiness check reports as
   unavailable, and refused a hand attestation, so no evidence could satisfy
   either. Release 1.0 therefore claims neither protection: it verifies no
@@ -276,12 +315,13 @@ public API or a 1.0 release.
   not re-verify log retention. docs/v1-release-qualification.md says so, as
   do the README, RELEASE.md and the operations documents. With this change
   the readiness check evaluated 14 gates (15 since the `formal-verification`
-  gate above) and lists the four deferred ones as deferred, with no verdict.
+  gate above) and listed the four deferred ones as deferred, with no verdict.
   The verdict and reasons of each remaining gate were unchanged (8
-  unsatisfied then). The contract refuses a manifest that drops either deferral
-  record or lists either gate beside its record. The 1.0 binding no longer
-  requires the two gates' evidence, and evidence that is bound for a deferred
-  gate is still evaluated in full and counts against readiness.
+  unsatisfied then). The contract refused a manifest that dropped either
+  deferral record or listed either gate beside its record. The 1.0 binding
+  stopped requiring the two gates' evidence, and evidence bound for a
+  deferred gate was still evaluated in full and counted against readiness.
+  The readiness check now evaluates nine gates and lists two deferred.
 - The toolchain comparison no longer reports a page's own variation as a
   toolchain failure, or as a pass. `toolchain:canary compare` judged each
   metric by the medians of three repetitions alone. In the committed 2026-09
