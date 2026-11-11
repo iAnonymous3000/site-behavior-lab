@@ -1,0 +1,15 @@
+[workspace]
+resolver = "2"
+members = ["kernel", "wasm"]
+
+# One profile for every artifact, set here because cargo reads profiles from
+# the workspace root only. A single codegen unit and fat LTO take the build
+# order out of the output, and abort-on-panic keeps the unwinder out of it.
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
+debug = false
+incremental = false

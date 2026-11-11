@@ -1,0 +1,8 @@
+# The compiler for this workspace only. It is the toolchain the pinned Verus
+# release is built against, so the compiler that checks the encoder and the
+# compiler that builds it are one. Nothing outside tools/trust-kernel reads
+# this file.
+[toolchain]
+channel = "1.99.1"
+profile = "minimal"
+targets = ["wasm32-unknown-unknown"]
