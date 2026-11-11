@@ -34,8 +34,11 @@ jobs:
   trust-kernel:
     name: Trust Kernel Checks
     runs-on: ubuntu-24.04
-    # A hosted runner has not run these steps yet. The steps after npm ci
-    # take about three and a half minutes on a developer machine.
+    # A hosted runner has not run these steps yet. In a linux/amd64
+    # container emulated on an arm64 machine the steps after npm ci and the
+    # TypeScript compile took about seven and a half minutes: the two builds
+    # under one minute, the comparison with the reference four and a half,
+    # the Verus step two.
     # A step that hangs must fail this job, not hold the run.
     timeout-minutes: 30
     permissions:
@@ -59,8 +62,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # The compiler is pinned in tools/trust-kernel/pins.json, and the build
-      # scripts refuse a compiler whose commit is not the pinned one.
+      # rustup, the one in the runner image, installs the compiler named in
+      # tools/trust-kernel/pins.json. What ties the result to the pin is
+      # checked after the install and again before every build: rustc
+      # reports the pinned commit, and rustup's record of the install lists
+      # the pinned archive hashes for rustc, cargo and both standard
+      # libraries. The step also requires the release's channel manifest to
+      # have the pinned sha256 and to list those hashes. rustup itself is
+      # not pinned.
       - name: Install the pinned Rust toolchain
         run: node scripts/trust-kernel-build.mjs toolchain
 
@@ -70,7 +79,10 @@ jobs:
         run: node scripts/trust-kernel-nfc-tables.mjs --check
 
       # Two clean builds at two paths must give the same bytes, and those
-      # bytes must be the ones reproducibility-contract.json records.
+      # bytes must be the ones reproducibility-contract.json records for
+      # x86_64-unknown-linux-gnu. That value was observed in a linux/amd64
+      # container, not on a hosted runner; the first run here is the first
+      # observation on one.
       - name: Rebuild the WebAssembly module twice and compare
         run: >-
           node scripts/trust-kernel-build.mjs verify

@@ -1,7 +1,7 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "status": "rebuild-and-compare",
-  "claim": "two-clean-builds-of-these-inputs-give-these-bytes",
+  "claim": "on-each-host-listed-two-clean-builds-of-these-inputs-gave-these-bytes",
   "build": {
     "cargoLocked": true,
     "target": "wasm32-unknown-unknown",
@@ -13,6 +13,7 @@
       "cargo home",
       "rust sysroot"
     ],
+    "targetCrateMetadata": "sbl-trust-kernel",
     "toolsAfterTheCompiler": []
   },
   "inputs": [
@@ -33,8 +34,8 @@
     },
     {
       "path": "tools/trust-kernel/pins.json",
-      "bytes": 1325,
-      "sha256": "70c03c0eddfd58eb8fe1e292ebb6cea7ed465fcd7212ce320d7b7780325713c6"
+      "bytes": 2202,
+      "sha256": "cfc2f654fe114991abfcbb8fd135d3ddda5c6554c3d9f8f92e1b17a39b1315fb"
     },
     {
       "path": "tools/trust-kernel/kernel/Cargo.toml",
@@ -87,9 +88,18 @@
       "sha256": "68b40977291824aa679f51c7fed26f7af61a91b02686dc3b111fc8ffec0d3c1d"
     }
   ],
-  "output": {
-    "artifact": "sbl_trust_kernel_wasm.wasm",
-    "bytes": 107717,
-    "sha256": "dfec8e5dba5c81ce47c2c2d836afba3d609fa98f413363fbdefa35f1f2d1e6b5"
-  }
+  "artifact": "sbl_trust_kernel_wasm.wasm",
+  "observed": {
+    "aarch64-apple-darwin": {
+      "bytes": 107717,
+      "sha256": "cf2f89affb265bf27d076abb8c8a9128a68daadacdb33f9eee04a56c39a3991b",
+      "environment": "macOS 27.2 (Darwin 27.2.0) on Apple silicon, native; rustup 1.29.3"
+    },
+    "x86_64-unknown-linux-gnu": {
+      "bytes": 107717,
+      "sha256": "cf2f89affb265bf27d076abb8c8a9128a68daadacdb33f9eee04a56c39a3991b",
+      "environment": "Ubuntu 24.04.5 container (docker.io/library/ubuntu@sha256:fe81560990fae86dc4743202b2cb4d3df98d0bcf949173cecef15ce1127ef852, linux/amd64) run by Docker Desktop on an arm64 Mac, so emulated; rustup 1.29.3; not a GitHub-hosted runner"
+    }
+  },
+  "notObserved": "Any host platform that is not a key of `observed`. A GitHub-hosted runner has not built this."
 }

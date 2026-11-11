@@ -8,6 +8,22 @@
       "url": "https://static.rust-lang.org/dist/channel-rust-1.99.1.toml",
       "bytes": 943486,
       "sha256": "fb152be80975c194aa5fc684b2aec3a6e14e2b855efe2faa4e5f8ae6e590f463"
+    },
+    "components": {
+      "note": "sha256 of the .tar.xz archive of each component the build uses, as the pinned channel manifest lists it",
+      "x86_64-unknown-linux-gnu": {
+        "rustc": "2ff05ff9c08a90861e7f6e4065b40a8b87463b4576186fd613871c3e37f2091f",
+        "cargo": "53f3521949404d595efb06a55c12c5658d4ed1c75566f33d3d514eaebe70bd8a",
+        "rust-std": "109b074225bf5b9ea3820890876bfdf4ed161adbfaf94b2b4b5984c85ee5d958"
+      },
+      "aarch64-apple-darwin": {
+        "rustc": "23948a0a9c162fd2952defb3fb0462c44e8fcfd1a4ab8a274a1e1bdb2cf810a3",
+        "cargo": "685e563d94db1f003ffa5f5831439eec02569b9950b69867953c8213269c1eaf",
+        "rust-std": "fe79d6ab5a0321de26463999d8c112b8ad3eafbcbcf822d66a2300b45dde1031"
+      },
+      "wasm32-unknown-unknown": {
+        "rust-std": "5f628f857dd00a8aa3fcac2e275665d2782066a5795274ed124c5b560f46423c"
+      }
     }
   },
   "verus": {
