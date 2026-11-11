@@ -222,6 +222,7 @@ jobs:
     needs:
       - tests
       - pages
+      - formal-verification
     # Keep the existing required check as a fail-closed join. A skipped
     # dependency must fail this check, not become an implicitly passing skip.
     if: ${{ always() }}
@@ -232,10 +233,11 @@ jobs:
         env:
           TEST_RESULT: ${{ needs.tests.result }}
           BUILD_RESULT: ${{ needs.pages.result }}
+          FORMAL_VERIFICATION_RESULT: ${{ needs.formal-verification.result }}
         run: |
           set -euo pipefail
-          if [[ "$TEST_RESULT" != "success" || "$BUILD_RESULT" != "success" ]]; then
-            echo "::error::Tests: $TEST_RESULT; builds and static smoke: $BUILD_RESULT"
+          if [[ "$TEST_RESULT" != "success" || "$BUILD_RESULT" != "success" || "$FORMAL_VERIFICATION_RESULT" != "success" ]]; then
+            echo "::error::Tests: $TEST_RESULT; builds and static smoke: $BUILD_RESULT; formal verification report: $FORMAL_VERIFICATION_RESULT"
             exit 1
           fi
 
@@ -264,29 +266,6 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
-
-      # A green unit run does not show that a bounded suite ran: a suite a
-      # stage stopped naming and a skipped test both leave it green. The
-      # suites the formal-verification release gate requires therefore run
-      # once more here, each alone, and what they did is written down for this
-      # exact commit: every test by name, and every catch the harness recorded
-      # with the property named. The attest job signs that file. The producer
-      # refuses a dirty tree before and after its run and writes nothing
-      # unless the run meets the gate's rule, so this step comes first, on the
-      # tree npm ci left. It needs no browser. It does not replace the same
-      # suites in the unit tests below, which are what gate a change.
-      - name: Record exact-SHA formal verification execution report
-        run: >-
-          npm run release:formal-verification-report --
-          --output "$RUNNER_TEMP/site-behavior-lab-formal-verification-report.json"
-
-      - name: Preserve exact-SHA formal verification execution report
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: exact-sha-formal-verification-report-${{ github.sha }}
-          path: ${{ runner.temp }}/site-behavior-lab-formal-verification-report.json
-          if-no-files-found: error
-          retention-days: 90
 
       # The baselines decide what "append-only" is measured against, so each
       # must be a revision this repository already stood behind, never a
@@ -386,6 +365,57 @@ jobs:
 
       - name: Unit tests
         run: npm run test:unit
+
+  formal-verification:
+    name: Formal Verification Execution Report
+    runs-on: ubuntu-24.04
+    # The report's suites take about nine minutes; one that hangs must fail this job, not hold the run.
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24.14.1
+          cache: npm
+
+      - name: Verify exact Node and npm runtime
+        run: |
+          set -euo pipefail
+          test "$(node --version)" = "v24.14.1"
+          test "$(npm --version)" = "11.11.0"
+
+      - name: Install dependencies
+        run: npm ci
+
+      # A green unit run does not show that a bounded suite ran: a suite a
+      # stage stopped naming and a skipped test both leave it green. The
+      # suites the formal-verification release gate requires therefore run
+      # once more here, each alone, and what they did is written down for this
+      # exact commit: every test by name, and every catch the harness recorded
+      # with the property named. The attest job signs that file. The producer
+      # refuses a dirty tree before and after its run and writes nothing
+      # unless the run meets the gate's rule, so this step comes first, on the
+      # tree npm ci left. It needs no browser. It does not replace the same
+      # suites in the unit tests, which are what gate a change. It runs in a
+      # job of its own, beside the tests job, and the required check
+      # "Typecheck, Unit Tests, Build" fails unless this job succeeds.
+      - name: Record exact-SHA formal verification execution report
+        run: >-
+          npm run release:formal-verification-report --
+          --output "$RUNNER_TEMP/site-behavior-lab-formal-verification-report.json"
+
+      - name: Preserve exact-SHA formal verification execution report
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: exact-sha-formal-verification-report-${{ github.sha }}
+          path: ${{ runner.temp }}/site-behavior-lab-formal-verification-report.json
+          if-no-files-found: error
+          retention-days: 90
 
   pages:
     name: Build and Static Export

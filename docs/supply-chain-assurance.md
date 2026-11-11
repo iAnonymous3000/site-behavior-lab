@@ -254,7 +254,7 @@ does not prove that Cloudflare deployed it.
 
 The same job signs one more subject and keeps it apart from those three:
 `site-behavior-lab-formal-verification-report.json`, the execution report the
-`tests` job writes with `npm run release:formal-verification-report` and
+`formal-verification` job writes with `npm run release:formal-verification-report` and
 preserves as `exact-sha-formal-verification-report-<sha>` (see
 [docs/v1-release-qualification.md](v1-release-qualification.md)). The job
 checks the report's kind and version, that it names the current `github.sha`,
@@ -264,7 +264,7 @@ the suites again or judge the report's content: the producer writes a report
 only after its own run met the release gate's rule, and the gate judges the
 content again when a carrier binds it. The signature shows that the `attest`
 job of a `main` CI run at that commit signed those exact bytes. That they are
-the bytes the `tests` job wrote follows from the workflow, in which the job
+the bytes the `formal-verification` job wrote follows from the workflow, in which the job
 downloads the artifact that run uploaded, and is not something the signature
 shows. Neither shows that a claim of the bounded suites holds outside its
 stated domain.

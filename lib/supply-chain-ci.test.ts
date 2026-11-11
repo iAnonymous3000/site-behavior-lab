@@ -14,7 +14,9 @@ const attestStart = workflow.indexOf("\n  attest:");
 const supplyChainJob = workflow.slice(supplyChainStart, appStart);
 const smokeStart = workflow.indexOf("\n  smoke:");
 const dockerStart = workflow.indexOf("\n  docker:");
-const testsJob = workflow.slice(workflow.indexOf("\n  tests:"), workflow.indexOf("\n  pages:"));
+const formalVerificationStart = workflow.indexOf("\n  formal-verification:");
+const testsJob = workflow.slice(workflow.indexOf("\n  tests:"), formalVerificationStart);
+const formalVerificationJob = workflow.slice(formalVerificationStart, workflow.indexOf("\n  pages:"));
 const pagesJob = workflow.slice(workflow.indexOf("\n  pages:"), smokeStart);
 const smokeJob = workflow.slice(smokeStart, dockerStart);
 const dockerJob = workflow.slice(dockerStart, attestStart);
@@ -42,6 +44,7 @@ test("every unit-suite and smoke job pins a budget below the 6-hour default", ()
   // took about 28 on a hosted runner on 2026-11-10, and the image build that
   // repeats it took up to 44, so 45 no longer left room for a slow runner.
   assert.match(testsJob, /\n {4}timeout-minutes: 60\n/);
+  assert.match(formalVerificationJob, /\n {4}timeout-minutes: 30\n/);
   assert.match(pagesJob, /\n {4}timeout-minutes: 45\n/);
   assert.match(smokeJob, /\n {4}timeout-minutes: 45\n/);
   assert.match(dockerJob, /\n {4}timeout-minutes: 60\n/);
@@ -123,17 +126,29 @@ function stepOf(job: string, name: string): string {
   return next === -1 ? job.slice(start) : job.slice(start, next + 1);
 }
 
-test("the tests job writes the formal verification report for its exact commit, first and unconditionally, and preserves it", () => {
-  const record = stepOf(testsJob, "Record exact-SHA formal verification execution report");
-  const preserve = stepOf(testsJob, "Preserve exact-SHA formal verification execution report");
+test("a job of its own writes the formal verification report for its exact commit, first and unconditionally, preserves it, and the required check waits on it", () => {
+  const job = formalVerificationJob;
+  assert.ok(formalVerificationStart > 0 && job.length > 0, "no formal-verification job between tests and pages");
+  const record = stepOf(job, "Record exact-SHA formal verification execution report");
+  const preserve = stepOf(job, "Preserve exact-SHA formal verification execution report");
   // The producer refuses a dirty tree, so it runs on the tree npm ci left:
-  // after the install, and before the typecheck and the unit suite.
-  const order = ["Install dependencies", "Record exact-SHA formal verification execution report", "Preserve exact-SHA formal verification execution report", "Typecheck", "Unit tests"].map((name) =>
-    testsJob.indexOf(`      - name: ${name}\n`)
-  );
-  assert.ok(order.every((at) => at >= 0), "a step this order rests on is gone");
-  assert.deepEqual([...order].sort((a, b) => a - b), order);
-  assert.equal(testsJob.slice(order[0], order[1]).split("      - name: ").length - 1, 1, "nothing may run between the install and the report");
+  // straight after the install, and the job does nothing after keeping the file.
+  const names = [...job.matchAll(/\n      - name: ([^\n]+)\n/g)].map((match) => match[1]);
+  assert.deepEqual(names, ["Checkout", "Set up Node", "Verify exact Node and npm runtime", "Install dependencies", "Record exact-SHA formal verification execution report", "Preserve exact-SHA formal verification execution report"]);
+  assert.match(stepOf(job, "Install dependencies"), /\n        run: npm ci\n/);
+  // The suites read the repository's history, as the unit suite does.
+  assert.match(stepOf(job, "Checkout"), /\n        with:\n          fetch-depth: 0\n/);
+  // The job runs on every event the workflow runs on, never under a condition or after another job.
+  assert.doesNotMatch(job, /\n {4}(?:needs|if):|continue-on-error/);
+  // One writer: the tests job no longer writes or keeps a report of its own.
+  assert.doesNotMatch(testsJob, /formal-verification-report|formal verification/i);
+  assert.equal(workflow.split("npm run release:formal-verification-report").length - 1, 1, "the report is written in one place");
+  assert.equal(workflow.split("\n          name: exact-sha-formal-verification-report-${{ github.sha }}\n").length - 1, 2, "one upload and one download name the report");
+  // The required check is the join; it names this job and fails unless it succeeded.
+  const join = workflow.slice(appStart, workflow.indexOf("\n  tests:"));
+  assert.match(join, /\n    needs:\n      - tests\n      - pages\n      - formal-verification\n/);
+  assert.match(join, /FORMAL_VERIFICATION_RESULT: \$\{\{ needs\.formal-verification\.result \}\}\n/);
+  assert.match(join, /"\$FORMAL_VERIFICATION_RESULT" != "success"/);
   assert.match(
     record,
     /\n        run: >-\n          npm run release:formal-verification-report --\n          --output "\$RUNNER_TEMP\/site-behavior-lab-formal-verification-report\.json"\n/
@@ -510,7 +525,7 @@ test("exact-image OS licenses are normalized, review-bound, preserved, and indep
 
 test("every CI Node job verifies the exact reviewed Node and npm runtime", () => {
   const setupCount = (workflow.match(/uses: actions\/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1/g) ?? []).length;
-  assert.equal(setupCount, 5);
+  assert.equal(setupCount, 6);
   assert.equal((workflow.match(/node-version: 24\.14\.1/g) ?? []).length, setupCount);
   assert.equal((workflow.match(/test "\$\(node --version\)" = "v24\.14\.1"/g) ?? []).length, setupCount);
   assert.equal((workflow.match(/test "\$\(npm --version\)" = "11\.11\.0"/g) ?? []).length, setupCount);

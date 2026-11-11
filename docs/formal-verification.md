@@ -209,7 +209,7 @@ when that pin moves.
 The gate passes only when a release candidate's evidence carrier binds such a
 report for the candidate commit, with a signature bundle made by CI at that
 commit, and the gate then reads the report against the same entries. CI's
-tests job writes the report for each commit it tests, and its attest job signs
+formal-verification job writes the report for each commit CI tests, and its attest job signs
 it on the main branch. Until a carrier binds a signed report for a candidate,
 the gate fails, and it fails today: no carrier exists.
 

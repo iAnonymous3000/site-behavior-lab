@@ -48,8 +48,8 @@ public API or a 1.0 release.
   alone, and writes a canonical execution report for the exact clean commit
   it ran at: the test runner's counts, each test by name with its outcome,
   and each catch the harness recorded, with the property the suite named and
-  the property the counterexample carried. CI's tests job writes that report
-  for every commit it tests, and its attest job signs it on main as a fifth
+  the property the counterexample carried. A CI job of its own writes that
+  report for every commit CI tests, and the attest job signs it on main as a fifth
   subject. The gate passes only when a release candidate's evidence carrier
   binds a signed report for the candidate commit, and the report shows every
   listed file ran with no test or describe block skipped, left todo or

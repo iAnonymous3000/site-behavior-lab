@@ -16,19 +16,22 @@ function job(name: string): string {
 test("the existing required check fails for every unsuccessful parallel dependency", () => {
   const gate = job("app");
   assert.match(gate, /name: Typecheck, Unit Tests, Build\n/);
-  assert.match(gate, /needs:\n\s+- tests\n\s+- pages\n/);
+  assert.match(gate, /needs:\n\s+- tests\n\s+- pages\n\s+- formal-verification\n/);
   assert.match(gate, /if: \$\{\{ always\(\) \}\}/);
   assert.match(gate, /TEST_RESULT: \$\{\{ needs\.tests\.result \}\}/);
   assert.match(gate, /BUILD_RESULT: \$\{\{ needs\.pages\.result \}\}/);
+  assert.match(gate, /FORMAL_VERIFICATION_RESULT: \$\{\{ needs\.formal-verification\.result \}\}/);
   assert.doesNotMatch(gate, /continue-on-error/);
   const script = gate.split("        run: |\n")[1]?.replace(/^ {10}/gm, "").trim();
   assert.ok(script);
   for (const tests of ["success", "failure", "cancelled", "skipped", ""]) {
     for (const builds of ["success", "failure", "cancelled", "skipped", ""]) {
-      const result = spawnSyncBounded("bash", ["-c", script], {
-        env: { ...process.env, TEST_RESULT: tests, BUILD_RESULT: builds }, encoding: "utf8"
-      });
-      assert.equal(result.status === 0, tests === "success" && builds === "success", `${tests}/${builds}: ${result.stderr}`);
+      for (const report of ["success", "failure", "cancelled", "skipped", ""]) {
+        const result = spawnSyncBounded("bash", ["-c", script], {
+          env: { ...process.env, TEST_RESULT: tests, BUILD_RESULT: builds, FORMAL_VERIFICATION_RESULT: report }, encoding: "utf8"
+        });
+        assert.equal(result.status === 0, tests === "success" && builds === "success" && report === "success", `${tests}/${builds}/${report}: ${result.stderr}`);
+      }
     }
   }
 });
@@ -314,8 +317,8 @@ for (const [name, workflows, problems] of [
   ["CI's tests checkout filtered with a space before the colon", () => editedInJob("ci.yml", "tests", "          fetch-depth: 0\n", "          fetch-depth: 0\n          filter : blob:none\n"), ["ci.yml tests: checkout step 1 filters objects"]],
   ["the refresh job's checkout made sparse", () => refreshDepth("fetch-depth: 0\n          sparse-checkout: lib"), ["update-brave-lists.yml refresh-lists: checks out sparsely"]],
   ["the refresh job's checkout replaced by another action", () => editedInJob("update-brave-lists.yml", "refresh-lists", "        uses: actions/checkout@", "        uses: actions/not-checkout@"), ["update-brave-lists.yml refresh-lists: has no checkout"]],
-  ["CI's unit test step made conditional", () => editedWorkflows("ci.yml", CI_UNIT_STEP, "      - name: Unit tests\n        if: false\n        run: npm run test:unit\n"), ["ci.yml tests: step 18 runs the unit suite under a condition"]],
-  ["CI's unit test step under an expression", () => editedWorkflows("ci.yml", CI_UNIT_STEP, "      - name: Unit tests\n        if: github.event_name == 'push'\n        run: npm run test:unit\n"), ["ci.yml tests: step 18 runs the unit suite under a condition"]],
+  ["CI's unit test step made conditional", () => editedWorkflows("ci.yml", CI_UNIT_STEP, "      - name: Unit tests\n        if: false\n        run: npm run test:unit\n"), ["ci.yml tests: step 16 runs the unit suite under a condition"]],
+  ["CI's unit test step under an expression", () => editedWorkflows("ci.yml", CI_UNIT_STEP, "      - name: Unit tests\n        if: github.event_name == 'push'\n        run: npm run test:unit\n"), ["ci.yml tests: step 16 runs the unit suite under a condition"]],
   ["CI's tests job runs the typecheck in place of the unit suite", () => editedWorkflows("ci.yml", CI_UNIT_STEP, "      - name: Unit tests\n        run: npm run typecheck\n"), ["ci.yml tests: no longer runs the unit suite"]],
   ["the refresh job's suite run through run-script, with a shallow checkout", () => refreshSuiteRun("npm run-script test:unit"), ["update-brave-lists.yml refresh-lists: checkout step 1 is not fetch-depth: 0"]],
   ["the refresh job running check, quoted, with a shallow checkout", () => refreshSuiteRun('npm run "check"'), ["update-brave-lists.yml refresh-lists: checkout step 1 is not fetch-depth: 0"]],
@@ -335,7 +338,7 @@ for (const [name, workflows, problems] of [
   ["a top-level key after the jobs, naming the suite", () => withWorkflow("after.yml", "on: push\njobs:\n  lint:\n    runs-on: ubuntu-24.04\n    steps:\n      - run: echo lint\nenv:\n  SUITE: test:unit\n"), []],
   ["a step list indented four spaces", () => editedInJob("update-brave-lists.yml", "refresh-lists", "      - name: Set up Node\n", "    - name: Set up Node\n"), ["update-brave-lists.yml refresh-lists: line 82 is not read"]],
   ["the refresh job's depth indented nine spaces", () => editedWorkflows("update-brave-lists.yml", REFRESH_CHECKOUT_DEPTH, REFRESH_CHECKOUT_DEPTH.replace("          fetch-depth: 0", "         fetch-depth: 0")), ["update-brave-lists.yml refresh-lists: line 80 is not read", "update-brave-lists.yml refresh-lists: checkout step 1 is not fetch-depth: 0"]],
-  ["a with block holding a line that is no key", () => editedInJob("ci.yml", "tests", "          fetch-depth: 0\n", "          fetch-depth: 0\n          - beside\n"), ["ci.yml tests: line 252 is not read"]],
+  ["a with block holding a line that is no key", () => editedInJob("ci.yml", "tests", "          fetch-depth: 0\n", "          fetch-depth: 0\n          - beside\n"), ["ci.yml tests: line 254 is not read"]],
   ["a line led by a tab inside a job", () => editedWorkflows("update-brave-lists.yml", "\n  refresh-lists:\n", "\n  refresh-lists:\n\tname: stray\n"), ["update-brave-lists.yml refresh-lists: line 59 is not read"]],
   ["a stray line at a job header's indentation, before its steps", () => editedWorkflows("update-brave-lists.yml", "\n  refresh-lists:\n", "\n  refresh-lists:\n  - stray\n"), ["update-brave-lists.yml refresh-lists: line 59 is not read"]],
   [
@@ -362,5 +365,5 @@ for (const [name, workflows, problems] of [
 test("the pages job checks out the whole history, unfiltered, through the same parser", () => {
   assert.deepEqual(pagesProblems(WORKFLOWS), []);
   assert.deepEqual(pagesProblems(editedInJob("ci.yml", "pages", "          fetch-depth: 0\n", "          # fetch-depth: 0\n")), ["ci.yml pages: checkout step 1 is not fetch-depth: 0"]);
-  assert.deepEqual(pagesProblems(editedInJob("ci.yml", "pages", "          fetch-depth: 0\n", "          fetch-depth: 0\n         stray: x\n")), ["ci.yml pages: line 408 is not read"]);
+  assert.deepEqual(pagesProblems(editedInJob("ci.yml", "pages", "          fetch-depth: 0\n", "          fetch-depth: 0\n         stray: x\n")), ["ci.yml pages: line 438 is not read"]);
 });

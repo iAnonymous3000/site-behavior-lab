@@ -91,7 +91,7 @@ those suites ran at the candidate.
   requires the report to name the candidate's commit and tree and to meet
   every entry.
 
-CI's `tests` job writes the report for every commit it tests and keeps it for
+CI's `formal-verification` job writes the report for every commit CI tests and keeps it for
 90 days as `exact-sha-formal-verification-report-<sha>`. On `main`, the
 `attest` job checks that the report names that commit and is in its canonical
 bytes, signs it, and keeps the bundle as
