@@ -1046,7 +1046,10 @@ authoritative gate list):
   derives the attestation's candidate, deployment, and policy
   bindings from it; a hex digest typed into an attestation cannot satisfy a
   gate by itself. Generate the exact non-passing scaffold for a gate the
-  committed manifest defines with:
+  committed manifest defines with the command below. It serves durable
+  activation, not release 1.0, whose durable-soak gate is a scope check and
+  needs no attestation, and it refuses until the transition receipt named
+  below exists:
 
   ```bash
   npm run release:attestation-scaffold -- --gate durable-soak

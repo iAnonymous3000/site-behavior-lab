@@ -10,9 +10,12 @@ The staging teardown command consumes only an already-sanitized same-session
 provider transcript; it is a data-only receipt builder and never performs the
 teardown itself.
 Local validation does not authenticate who captured a private WAF, log,
-egress, or staging provider source. Those release gates therefore stay red
-until a dedicated trusted hosted capture attests the privacy-safe manifest and
-receipt after observing the exact provider bytes. Caller-supplied hashes are
-never accepted as a substitute. Container licensing instead follows the
+egress, or staging provider source. A gate that reads such a receipt
+therefore stays red until a dedicated trusted hosted capture attests the
+privacy-safe manifest and receipt after observing the exact provider bytes.
+Caller-supplied hashes are never accepted as a substitute. Release 1.0 has no
+such gate: its WAF, log retention, egress and container licensing gates were
+removed on 2026-11-11, and these producers remain as operations and research
+tooling. Container licensing instead follows the
 candidate-resident inventory/Sigstore chain documented in the runbook.
-An absent receipt means the corresponding release gate remains open.
+An absent receipt means a gate that reads it remains open.

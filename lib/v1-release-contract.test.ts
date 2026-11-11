@@ -44,7 +44,7 @@ function requiredSuiteRecords(): Any[] {
   }));
 }
 
-function fixture(t: { after: (callback: () => void) => void }) {
+function fixture(t: { after: (callback: () => void) => void }, atCandidate: Record<string, unknown> = {}) {
   const root = mkdtempSync(path.join(tmpdir(), "sbl-v1-contract-"));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   let gitMoment = "2026-09-06T10:07:00Z";
@@ -59,6 +59,8 @@ function fixture(t: { after: (callback: () => void) => void }) {
   write("RELEASE_READINESS.json", manifest());
   write("app.js", "source version one\n");
   write("research/ops-receipts/r2-lifecycle-readback.json", { historical: true });
+  // A test may place a file in the candidate itself, to bind it later.
+  for (const [relative, value] of Object.entries(atCandidate)) write(relative, value);
   const candidate = commit("Candidate");
   const candidateTree = git("rev-parse", "HEAD^{tree}");
   gitMoment = "2026-09-06T10:10:00Z";
@@ -265,6 +267,18 @@ test("a carrier may only add evidence, and the candidate verifier must read the 
   ledger.add("CONTAINER_IMAGE_PACKAGE_REVIEWS.json", "container-package-review", { fixture: "review" });
   ledger.evidence.at(-1).change = "refreshed"; ledger.bind();
   assert.throws(() => c.verifyV1ReleaseBinding(ledger.root, ledger.instruments, ledger.options), (error: Error) => error.message === UNSUPPORTED);
+
+  // A file the candidate already holds cannot be bound: the carrier's commit
+  // would modify it, and every bound file must be added after C. The entry
+  // itself is well formed (an admitted path, "added", the right digest), so
+  // only the commit's own status refuses it.
+  for (const relative of [FV_BUNDLE, canonical.MEASUREMENT_CANDIDATE_PACKAGE_INVENTORY_PATH]) {
+    const f = fixture(t, { [relative]: { fixture: "held by the candidate" } }); f.bind();
+    assert.equal(f.git("diff", "--name-status", `${f.candidate}..HEAD`, "--", relative), `M\t${relative}`);
+    assert.throws(() => c.verifyV1ReleaseBinding(f.root, f.instruments, f.options),
+      (error: Error) => error.message === `post-candidate change is not single-introduction evidence: ${relative}`, relative);
+    assert.equal(f.calls.length, 0);
+  }
 
   // The verifier's four container paths are the contract's. The removed
   // container-package-review gate was what compared them, so the binding does.

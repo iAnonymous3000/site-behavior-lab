@@ -197,8 +197,9 @@ replacement publishes a redacted copy under a new report ID.
 **Network boundary.** The scanner refuses loopback, private, link-local,
 carrier-grade NAT, multicast, and reserved addresses in both IP families,
 allows standard ports only, and re-checks every address at connect time. On
-the reference deployment that proxy is the only egress control; a
-platform-level backstop is an open release gate (see `SECURITY.md`).
+the reference deployment that proxy is the only egress control. No
+platform-level backstop exists and no release gate asks for one (see
+`SECURITY.md`).
 
 **Published data.** Cookie and storage values, credentials, URL fragments,
 query values, and screenshots never enter a saved report. Query keys outside a

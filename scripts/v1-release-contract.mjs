@@ -161,7 +161,9 @@ export function v1ProfileProblems(manifest) {
 }
 
 // Everything a carrier may bind: the fixed files below and one or more
-// release governance receipts. Each is read by a gate of this contract. A
+// release governance receipts. A gate of this contract reads each fixed file
+// and the one governance receipt the operator selects; a second receipt is
+// admitted and held by digest, and nothing reads it. A
 // hosted evidence archive is not admitted: the gates that authenticated one
 // (the lifecycle receipt and the WAF ceilings) are gone, and the durable-soak
 // gate reads none under the recovery scope this profile requires, so an
