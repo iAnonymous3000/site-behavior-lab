@@ -1126,6 +1126,69 @@ async function replayThread(attacher: AttacherModule, world: SharedWorld, sequen
   return replayed;
 }
 
+const isAMainScriptPause = (name: string): boolean => /^hears:\d+:pause-main/.test(name);
+
+/**
+ * The same sequence with as many words to a read as could have arrived together: a read is extended while the next step is a word on a session that the
+ * browser could have sent before the thread acted on the read's first word, and holds at most one pause at the main script. Every other step, and a
+ * word that could not share the read, begins anew. Returns how many reads held more than one word.
+ */
+async function threadHearsSequenceInReads(clock: ReplayClock, attacher: AttacherModule, world: SharedWorld, sequence: readonly InputEdge[], input: () => unknown, taken: Set<InputEdge>): Promise<number> {
+  const thread = new ThreadSide(clock, attacher, { sinkName: "sink", capability: "capability" });
+  let shared = 0;
+  try {
+    await thread.open();
+    await thread.registerAlone();
+    thread.holdPort();
+    for (const step of prefixSteps(world, threadHearsStep)) await thread.hear(step, input);
+    let read: Step[] = [];
+    let sentBeforeTheRead = 0;
+    const deliver = async (): Promise<void> => {
+      if (read.length === 1) await thread.hear(read[0], input);
+      else if (read.length > 1) {
+        await thread.hearInOneRead(read, input);
+        shared += 1;
+      }
+      read = [];
+    };
+    for (const edge of sequence) {
+      for (const step of edge.steps) {
+        if (step.name.startsWith("barrier-round-trip")) {
+          await deliver();
+          await thread.barrierRoundTrip(Number(step.name.split(":")[1]), input);
+          continue;
+        }
+        const joins = read.length > 0 && thread.couldArriveInARead(step.name, sentBeforeTheRead) && !(isAMainScriptPause(step.name) && read.some((earlier) => isAMainScriptPause(earlier.name)));
+        if (!joins) await deliver();
+        if (read.length === 0) sentBeforeTheRead = thread.sentSoFar();
+        read.push(step);
+        // A step that is no word on a session has a task of its own.
+        if (!step.name.startsWith("hears:")) await deliver();
+      }
+      taken.add(edge);
+    }
+    await deliver();
+    const expected = prefixSteps(world, threadHearsStep).length + stepsIn(sequence, (step) => (step.name.startsWith("barrier-round-trip") ? 2 : 1));
+    assertComparedEveryStep(thread.compared, expected, input);
+  } finally {
+    thread.close();
+  }
+  return shared;
+}
+
+/** Every sequence or a cover, each through the real thread alone with its words in reads. Returns how many it replayed and how many reads held more than one word. */
+async function replayThreadInReads(attacher: AttacherModule, world: SharedWorld, sequences: Iterable<readonly InputEdge[]>, taken: Set<InputEdge> = new Set()): Promise<{ replayed: number; shared: number }> {
+  let replayed = 0;
+  let shared = 0;
+  await underReplayClock(async (clock) => {
+    for (const sequence of sequences) {
+      replayed += 1;
+      shared += await threadHearsSequenceInReads(clock, attacher, world, sequence, () => ({ world: world.name, inReads: true, sequence: sequence.map((edge) => edge.input) }), taken);
+    }
+  });
+  return { replayed, shared };
+}
+
 const finishedLandings = (known: Built, members: Int32Array) => {
   const landings = new Map<string, ReturnType<SharedWorkerModel["termsOf"]>>();
   for (const member of members) {
@@ -1219,6 +1282,35 @@ test("replay: the real thread hears every sequence it can hear from a worker's r
   assert.equal(countInputSequences(automaton), THREAD_SEQUENCES.stream);
   assertRanAllItWasHanded(await replayThread(productionAttacher, STREAM_WORLD, inputSequences(automaton), taken), countInputSequences(automaton), "the thread, stream");
   assertTookEveryTransition(automaton, taken);
+});
+
+/**
+ * One read. The replays above give each word a task of its own. A socket does not: it hands over every frame one read brought in one task, with no promise
+ * reaction between them. Here each sequence is heard again with as many words to a read as could have arrived together, and the thread must post and send
+ * what the model says of the same words heard one at a time. The model has no read of its own to walk: a read is its words in the order they arrived.
+ */
+test("replay, in reads: the real thread hears every sequence of the hold and stream worlds, and a set that takes every transition of the two-worker world, with as many words to a read as could arrive together, and posts and sends what the model says of them one at a time", async () => {
+  const worlds = [
+    { world: HOLD_WORLD, sequences: (automaton: InputAutomaton) => ({ all: inputSequences(automaton), count: countInputSequences(automaton) }) },
+    { world: STREAM_WORLD, sequences: (automaton: InputAutomaton) => ({ all: inputSequences(automaton), count: countInputSequences(automaton) }) },
+    { world: TWO_WORKER_WORLD, sequences: (automaton: InputAutomaton) => {
+      const cover = inputCover(automaton);
+      return { all: cover, count: cover.length };
+    } }
+  ] as const;
+  const sharedReads: Record<string, number> = {};
+  for (const { world, sequences } of worlds) {
+    const known = built(world);
+    const automaton = inputAutomaton(known.graph, 0, threadHearsStep, threadOutput);
+    const taken = new Set<InputEdge>();
+    const { all, count } = sequences(automaton);
+    const { replayed, shared } = await replayThreadInReads(productionAttacher, world, all, taken);
+    assertRanAllItWasHanded(replayed, count, `the thread in reads, ${world.name}`);
+    assertTookEveryTransition(automaton, taken);
+    sharedReads[world.name] = shared;
+  }
+  // A change detector, and the check that words did share reads.
+  assert.deepEqual(sharedReads, READS_OF_SEVERAL_WORDS);
 });
 
 test("replay: the real mirror and readout hear every sequence they can hear with the port in order, and land where the model says", async () => {
@@ -1322,6 +1414,8 @@ async function replayDedicated(realm: Modules["realm"], model: DedicatedWorkerMo
 }
 
 const THREAD_SEQUENCES: Record<string, number> = { hold: 25_923, stream: 223 };
+/** How many reads of more than one word the replay in reads delivered, by world. */
+const READS_OF_SEVERAL_WORDS: Record<string, number> = { hold: 47_920, stream: 184, two: 15_092 };
 const MAIN_SEQUENCES: Record<string, number> = { hold: 3_611, stream: 353 };
 const MAIN_COVER: Record<string, [number, number]> = { hold: [1_289_494, 14_755], stream: [737, 433] };
 const WHOLE_COVER: Record<string, number> = { hold: 10_598, stream: 955 };
@@ -1865,6 +1959,27 @@ test("the replay catches a thread that still takes the question away from a work
   const variant = attacherVariant([{ find: 'if (workers.get(sessionId) !== worker || worker.hold !== "pending")', replace: "if (workers.get(sessionId) !== worker)" }]);
   await assertCaughtBy("the question is taken away from a held or late worker", "replay-the-thread-sends-what-the-model-says", () => replayThread(variant, HOLD_WORLD, inputSequences(automaton)));
 });
+
+/**
+ * The thread's order within one read. Each variant acts on a read's frames in another order, or reads a waiting frame's time late, and none of them shows
+ * while every word has a task of its own: the replay in reads is what catches them.
+ */
+const ACTED_ON_WHERE_IT_ARRIVES: SourceEdit = { find: "if (reactionsOwed)\n            inbox.push(arrival);\n        else\n            act(arrival);", replace: "act(arrival);" };
+const READ_VARIANTS: readonly { name: string; property: string; edits: readonly SourceEdit[] }[] = [
+  { name: "a frame is acted on where it arrives, ahead of the reactions of an answer that arrived before it", property: "replay-the-thread-sends-what-the-model-says", edits: [ACTED_ON_WHERE_IT_ARRIVES] },
+  { name: "an answer owes no reactions, so what arrived behind it is acted on at once", property: "replay-the-thread-sends-what-the-model-says", edits: [{ find: "            settled();\n            return;\n        }\n        if (typeof parsed.method", replace: "            return;\n        }\n        if (typeof parsed.method" }] },
+  { name: "everything that waited is acted on in one task", property: "replay-the-thread-sends-what-the-model-says", edits: [{ find: "while (inbox.length > 0 && !reactionsOwed)", replace: "while (inbox.length > 0)" }] },
+  { name: "a waiting frame's time is read when it is acted on", property: "replay-the-thread-posts-what-the-model-says", edits: [{ find: "const receivedAt = arrival.receivedAt;", replace: "const receivedAt = clock();" }] }
+];
+
+for (const { name, property, edits } of READ_VARIANTS) {
+  test(`the replay in reads catches a variant of the thread: ${name}`, async () => {
+    const known = built(HOLD_WORLD);
+    const automaton = heardBy(known, 0, "thread");
+    const variant = attacherVariant(edits);
+    await assertCaughtBy(name, property, () => replayThreadInReads(variant, HOLD_WORLD, inputSequences(automaton)));
+  });
+}
 
 /** A run of edges heard by the real thread alone: a barrier's round trip by the worker its step names, and every other step by its word. */
 async function threadHearsEdges(thread: ThreadSide, edges: readonly InputEdge[], input: () => unknown): Promise<void> {

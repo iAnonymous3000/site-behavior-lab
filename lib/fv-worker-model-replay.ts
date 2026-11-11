@@ -41,6 +41,9 @@ const A_BOUND_MS = 7_000;
 const QUICK_LIFE_MS = 1;
 const LONG_LIFE_MS = 1_000;
 
+/** How far the thread's clock moves between a read's arrival and the task its waiting frames are acted on in. */
+const A_READS_WAIT_MS = 60_000;
+
 const realSetImmediate = setImmediate;
 const turn = () => new Promise<void>((resolve) => realSetImmediate(resolve));
 /** Saved before any replay patches it, for the one self-test that sets a real timer on purpose. */
@@ -560,6 +563,68 @@ export class ThreadSide {
     holds("replay-the-thread-sends-what-the-model-says", wrong === undefined, () => ({ at: name, method: wrong?.method, params: wrong?.params, trace: input() }));
     holds("replay-the-thread-posts-what-the-model-says", posts.join() === wantPosts.join(), () => ({ at: name, real: posts, model: wantPosts, trace: input() }));
     holds("replay-the-thread-sends-what-the-model-says", sends.join() === wantSends.join(), () => ({ at: name, real: sends, model: wantSends, trace: input() }));
+  }
+
+  /** How many commands the thread has sent so far: what a read that begins now can answer or rest on. */
+  sentSoFar(): number {
+    return this.frames.length;
+  }
+
+  /**
+   * Whether a word could have reached the socket in a read that began when the thread had sent only `sentBeforeTheRead` commands. A read holds what the
+   * browser sent before the thread acted on any of it. So an answer belongs to it only if its command had gone out before the read began, and so does a
+   * word only a command could have caused: a parse, a pause or a resume needs the debugger on, and the stream needs the install.
+   */
+  couldArriveInARead(stepName: string, sentBeforeTheRead: number): boolean {
+    const [kind, whichWorker, what] = stepName.replace(/:@\d+$/, "").split(":");
+    if (kind !== "hears") return false;
+    const sessionId = sessionOf(Number(whichWorker));
+    const wentOut = (method: string, which: (frame: Frame) => boolean = () => true): boolean => {
+      const frame = this.lastFrame(sessionId, method, which);
+      return frame !== undefined && this.frames.indexOf(frame) < sentBeforeTheRead;
+    };
+    switch (what) {
+      case "attach":
+      case "detach":
+        return true;
+      case "ack":
+      case "ack-listed":
+        return wentOut("Debugger.setInstrumentationBreakpoint") && wentOut("Debugger.setBreakpointByUrl");
+      case "install-ok":
+      case "install-bad":
+        return wentOut("Runtime.addBinding") && wentOut("Runtime.evaluate");
+      case "first":
+      case "open":
+      case "closed":
+        return wentOut("Runtime.evaluate");
+      case "off-answer":
+        return wentOut("Debugger.disable");
+      case "probe-answer":
+        return wentOut("Runtime.getIsolateId", (frame) => !this.barriers.has(frame.id));
+      case "barrier-answer":
+        return wentOut("Runtime.getIsolateId");
+      default:
+        return wentOut("Debugger.enable");
+    }
+  }
+
+  /**
+   * Several words in ONE read: each is delivered as `hear` delivers it, but back to back in one task, with no promise reaction between them, as a socket
+   * hands over the frames one read brought. Once the thread is quiet, what it posted and sent must be what the model says of the same words heard one at a
+   * time, in the same order. The thread's clock moves on between the read's arrival and the tasks its waiting frames are acted on in, so a receive time
+   * must be the one the frame arrived with. At most one of the words may be a pause at the main script: its hold's bound is read once the thread is quiet.
+   */
+  async hearInOneRead(steps: readonly Step[], input: () => unknown): Promise<void> {
+    const names = steps.map((step) => step.name.replace(/:@\d+$/, ""));
+    for (const name of names) this.act(name);
+    this.clock.now += A_READS_WAIT_MS;
+    await this.clock.quiet();
+    for (const name of names) {
+      const [, whichWorker, what] = name.split(":");
+      if ((what === "pause-main" || what === "pause-main-naming-only-its-script") && !this.holdBounds.get(Number(whichWorker))) this.holdBounds.set(Number(whichWorker), this.clock.boundSinceMark());
+    }
+    this.checkOutput(names.join(" + "), steps.flatMap((step) => step.posts), steps.flatMap((step) => step.sends), input);
+    this.compared += steps.length - 1;
   }
 
   /** A word the model drops, delivered and compared: nothing may come out but a late worker's own stream. */
