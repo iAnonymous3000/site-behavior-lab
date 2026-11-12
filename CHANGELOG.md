@@ -150,6 +150,20 @@ public API or a 1.0 release.
   are not listed there, and the age row is listed only there. The register
   (`docs/formal-verification.md`) is unchanged, its wording rule stands, and
   no report, count or identity moves.
+- A trust kernel crate (`tools/trust-kernel`): canonical JSON in Rust, built
+  to a WebAssembly module that nothing in the scanner, the Worker or the site
+  calls. For its encoder, the Verus checker accepts that it returns bytes
+  exactly for the admitted value trees, that those bytes are what a written
+  specification gives, and that two different admitted trees never share
+  bytes. That covers the encoder only and trusts Verus, Z3, the vstd library,
+  the compiler and the specification. Parsing, number text, Unicode
+  normalization and agreement with `lib/canonical-json.ts` are tested, not
+  checked that way. Two clean builds gave the same module on macOS arm64 and
+  in a Linux x86-64 container. The checks run in a workflow of their own
+  (`trust-kernel.yml`) whose conclusion no release or promotion reads, and no
+  hosted runner had run it when this entry was written. The third-party
+  inventory does not cover the crate's lock file. No report, count or
+  identity moves.
 
 ### Removed
 
