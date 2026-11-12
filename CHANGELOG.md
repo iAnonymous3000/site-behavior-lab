@@ -138,6 +138,17 @@ public API or a 1.0 release.
   visit can read back which hooks were set, its bounds, the init script's
   digest and how long each hook took. Nothing uses the seam yet: the runner
   that would is not built.
+- Two designs stated in TLA+ and model-checked with TLC (`specs/`): the
+  private workspace's case machine and the shared-worker hold. TLC's checking
+  is exhaustive over each configuration's bounds and says nothing outside
+  them. CI has no Java: it reads a committed export of what TLC computed and
+  fails when a specification, a configuration or an export script has changed
+  since. The real case machine's whole reachable relation is compared with
+  the specification's on five plans; the real hold code is replayed only on
+  kept traces. In the stream world four hold rows have nothing to judge and
+  are not listed there, and the age row is listed only there. The register
+  (`docs/formal-verification.md`) is unchanged, its wording rule stands, and
+  no report, count or identity moves.
 
 ### Removed
 
