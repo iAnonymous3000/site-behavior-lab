@@ -122,7 +122,7 @@
     "test:investigation-exploration": "rm -rf .investigation-test-dist && tsc -p tsconfig.investigation-test.json && node scripts/investigation-test-stage.mjs .investigation-test-dist/investigation/test/case-exploration.test.js",
     "test:formal-verification-report": "node scripts/guarded-test-stage.mjs formal-verification-report scripts/formal-verification-report.test.mjs",
     "test:tla-case-machine": "rm -rf .investigation-test-dist && tsc -p tsconfig.investigation-test.json && node scripts/guarded-test-stage.mjs tla-case-machine scripts/tla-case-machine-conformance.test.mjs",
-    "test:tla-worker-hold": "tsc -p tsconfig.test.json && node scripts/guarded-test-stage.mjs tla-worker-hold scripts/tla-worker-hold-conformance.test.mjs",
+    "test:tla-worker-hold": "rm -rf .unit-test-dist && tsc -p tsconfig.test.json && node scripts/guarded-test-stage.mjs tla-worker-hold scripts/tla-worker-hold-conformance.test.mjs",
     "test:smoke": "node scripts/smoke-test.mjs",
     "typecheck": "next typegen && tsc --noEmit",
     "reports:remediation-inventory": "node scripts/remediation-inventory.mjs",
