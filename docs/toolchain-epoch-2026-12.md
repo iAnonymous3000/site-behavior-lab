@@ -237,7 +237,9 @@ Read back after it:
 - The staging bucket is still present, by design: it holds what the captures wrote until its 1-day expiry rule empties it (its analytics count read 150 objects before and after the teardown, a count that the 2026-11 record found to lag the listing in both directions). It has no lock rule.
 - One readback failed. An HTTPS request to the staging hostname answered 530 (error 1016) while both of the zone's name servers gave no record for it.
 
-> To be added by the integrator: the later readback of the staging hostname, the emptying and deletion of the staging bucket, and the revocation of the staging R2 API token.
+A second, read-only inventory at 07:59 UTC read every item absent that the teardown removes: the Worker and its secrets absent with code 10007, no staging container application and one production application in the list, no staging image tag, no A, AAAA or CNAME answer for the staging hostname, and no HTTPS answer from it (the name no longer resolved on the operator's machine). The 530 answers eighteen minutes earlier are read as an address that machine still held, since neither name server gave a record at either time; that is a reading, not a measurement. The production bucket and the production application read present throughout.
+
+Not done when this record was committed: the staging bucket is not empty and not deleted, and the staging R2 API token is not revoked. Both are the owner's steps or wait on the owner's readback, and this record does not claim them.
 
 One more thing ran on the staging bucket, after round 2's comparison and before the teardown, with object commands only and no scan: a trial of an R2 bucket lock rule, from 03:55 to 03:56 UTC. With a lock rule on the `reports/` prefix (1 day), an overwrite of an existing object was refused (HTTP 409, code 10069) and the object kept its first version; a delete of it exited 0 and the object still read as before; and a new object under the locked prefix was accepted. The rule was then removed, the bucket lists no lock rule, and both trial objects read absent. The trial is no part of the A/B and changed nothing the captures read.
 
