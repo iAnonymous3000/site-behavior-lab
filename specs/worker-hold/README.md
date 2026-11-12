@@ -134,6 +134,39 @@ switches. It does not show that a fault would be caught: the seeded faults
 (`scripts/tla-worker-hold-mutations.mjs`) are the evidence for that, and they
 cover the sets named there.
 
+## What each invariant asserts, and of what kind
+
+The classes are those of `../case-machine/README.md`. **Behavioural**: a fault
+of the protocol violates it. The protocol is the thread, the mirror, the drain
+and the readout's classification; the switches are assumptions, and a fault
+that weakens a switch is not a fault of the protocol. **Definitional**: it
+restates a definition of the specification, and is held for the record.
+
+| Invariant | What it asserts | Class | Seeded faults |
+|---|---|---|---|
+| `TypeOK` | The readout's phase is one of four named phases, two flags are booleans, and each session's two queues and the port stay within stated lengths. It does not type the worker record. | behavioural, and weak. No register row rests on it. | One, in the specification's world and not in the thread or the mirror: a command that reaches the worker stays on its session, and the session's words pile up past the bound. No fault of the thread or the mirror is seeded for it. |
+| `ExcludedRanNothing` | A worker that lands in an excluded term ran no page code before the freeze. | behavioural, in the hold, two-worker and small worlds. It fails under the plan's axioms, and holds with Z (with A5's order half as well in the hold and two-worker worlds). | One in the protocol: a worker the mirror calls late at the freeze is excluded as held. The second exclusion row catches the same fault, and each catches it without the other. |
+| `ExcludedRanNothingUnobserved` | A worker that lands in an excluded term ran no page code with no observer in before the freeze. | behavioural, in the same worlds. | The same fault. No seeded fault separates this row from the first. |
+| `ReadHadItsObserver` | A worker that lands in a read term never ran with no observer in. | behavioural, in the hold, two-worker and small worlds. | One in the protocol: the thread makes nothing of a resume while it holds a worker. |
+| `ReadNoOlderThanTheFreeze` | A worker that lands in a read term is read at a snapshot no older than the realm's at the freeze, and at the close of a task that was open then. | behavioural, in the stream world only. | Three in the protocol. |
+| `HeardLandsInOneTerm` | A worker the mirror heard of lands in one of the named terms, and a worker it never heard of lands as unattached or nowhere. | definitional. `Landing` returns one of a fixed set of strings and "heard" is the mirror's own flag, so it fails only if `Landing` is given a term name that is in no set. The register says the same of the hand-written model. | One, of that kind: a term renamed in `Landing`. |
+| `RanLandsInATerm` | No worker lands nowhere having run before the freeze with the attacher alive. | behavioural, in the hold world under D1, and in the hold and two-worker worlds under Z. | Two. One weakens what D1 forbids, which is an assumption and not the protocol. One is in the protocol: the mirror makes nothing of a worker's attach. |
+
+The reachability companions (`NoWorkerExcluded` and the others) are not in this
+table. They are not claims: each must be violated, and says so where it is
+defined.
+
+`scripts/tla-worker-hold-mutations.mjs` seeds these ten faults, each run with
+only the row named for it, under a set of switches where the committed
+specification keeps the row. A caught fault shows that the row can fail there.
+No committed artifact records the result, and no CI stage runs the script: it
+needs TLC.
+
+Two terms are named in the term sets and never produced: `diedPaused` and
+`ownerUnscoped`. No operator of the specification returns either, so no
+exclusion row is ever judged on the first and no read row on the second.
+`WorkerHold.tla` says so where the sets are defined.
+
 ## Files
 
 | File | What it is |

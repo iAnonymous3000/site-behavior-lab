@@ -9,6 +9,16 @@
 // it violated. A fault TLC passes, an edit that no longer lands, or a specification that no
 // longer parses fails this script.
 //
+// What a caught fault shows is that the invariant can fail. It does not show that the invariant
+// is needed: for thirteen of the thirty invariants of CaseMachine.tla every fault here is also
+// caught by some other invariant (specs/case-machine/README.md names them).
+//
+// Most faults edit the machine: a guard of Accepts, a field of After, the purge reducer. Three
+// edit a view an invariant reads and not the machine (the last three before the purge slice's),
+// because those invariants restate the view in whole or in part; README.md classes each
+// invariant. Where such an invariant has a conjunct a machine fault can break, a machine fault is
+// listed for it as well. The plan "purge-slice" runs PurgeSlice.tla from its two first states.
+//
 // Usage: node scripts/tla-case-machine-mutations.mjs --jar <tla2tools.jar> [--java <java>]
 
 import { spawnSync } from "node:child_process";
@@ -63,7 +73,14 @@ export const MUTATIONS = [
   ["a wrong value: a start rewrites the arm", "ArmStep", "one-each", "!.att[e.slot].cleanup = \"pending\", !.att[e.slot].ranUnder = S.config,", "!.att[e.slot].cleanup = \"pending\", !.att[e.slot].ranUnder = S.config, !.att[e.slot].arm = \"baseline\","],
   ["a wrong value: a blocked continuation reads only pending cleanup", "ContinuationReads", "one-each", "  ELSE IF Unresolved(S) # {} THEN [kind |-> \"blocked\", slots |-> Unresolved(S)]", "  ELSE IF PendingCleanup(S) # {} THEN [kind |-> \"blocked\", slots |-> PendingCleanup(S)]"],
   ["a wrong value: the denominator drops not_started", "DenominatorAdds", "one-each", "notStarted |-> CountIn(S, {\"planned\", \"not_started\"})", "notStarted |-> CountIn(S, {\"planned\"})"],
-  ["a wrong value: terminal reads only the closure", "TerminalIsQuiet", "one-each", "Terminal(S) == Closed(S) /\\ PendingCleanup(S) = {}", "Terminal(S) == Closed(S)"]
+  ["a wrong value: terminal reads only the closure", "TerminalIsQuiet", "one-each", "Terminal(S) == Closed(S) /\\ PendingCleanup(S) = {}", "Terminal(S) == Closed(S)"],
+  // The same two invariants against a fault of the machine and not of the view each reads.
+  ["a guard dropped: a control is taken on a closed case", "TerminalIsQuiet", "one-each", "         /\\ ~Closed(S) /\\ S.frozen /\\ Running(S) = {}\n         /\\ ~S.met /\\ S.misses < MaxControlMisses", "         /\\ S.frozen /\\ Running(S) = {}\n         /\\ ~S.met /\\ S.misses < MaxControlMisses"],
+  ["a guard dropped: a visit starts past unresolved cleanup", "ContinuationReads", "one-each", "         /\\ Unresolved(S) = {}\n         /\\ (ArmOf(e.slot)", "         /\\ (ArmOf(e.slot)"],
+  // The purge slice's own invariants (PurgeSlice.tla), each against a fault of the reducer.
+  ["a wrong value: a purge is taken on an open case", "SliceDomain", "purge-slice", "  IF ~closed THEN [ok |-> FALSE, refusal |-> \"case-open\"]", "  IF FALSE THEN [ok |-> FALSE, refusal |-> \"case-open\"]"],
+  ["a guard dropped: a path is moved to the status it already holds", "SliceAnswers", "purge-slice", "       IN IF m.entries[k].status = status THEN [ok |-> FALSE, refusal |-> \"path-status-unchanged\"]", "       IN IF FALSE THEN [ok |-> FALSE, refusal |-> \"path-status-unchanged\"]"],
+  ["a wrong value: a path read absent is recorded under a status no rule names", "SummaryOnlyExactly", "purge-slice", "StatusNamed(type) == IF type = \"purge-path-absent\" THEN \"absent\" ELSE \"remains\"", "StatusNamed(type) == IF type = \"purge-path-absent\" THEN \"gone\" ELSE \"remains\""]
 ];
 
 function option(name) {
@@ -82,10 +99,14 @@ function main() {
   let failed = 0;
   try {
     copyFileSync(join(SPEC_DIR, "CaseMachineMC.tla"), join(scratch, "CaseMachineMC.tla"));
+    copyFileSync(join(SPEC_DIR, "PurgeSlice.tla"), join(scratch, "PurgeSlice.tla"));
     const run = (text, invariant, plan, label) => {
       writeFileSync(join(scratch, "CaseMachine.tla"), text);
-      writeFileSync(join(scratch, "one.cfg"), ["CONSTANTS", `  Plan <- ${PLAN_OPERATORS[plan]}`, ...Object.entries(CAPS).map(([name, value]) => `  ${name} = ${value}`), '  HeldManifests = "two"', "INIT Init", "NEXT Next", "INVARIANTS", `  ${invariant}`, ""].join("\n"));
-      const result = spawnSync(java, ["-XX:+UseParallelGC", "-Xmx1g", "-cp", jar, "tlc2.TLC", "-workers", "1", "-deadlock", "-metadir", join(scratch, `states-${label}`), "-config", "one.cfg", "CaseMachineMC"], { cwd: scratch, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
+      // The purge slice is its own module, from its own first states, with every manifest, as purge-slice.cfg has it.
+      const slice = plan === "purge-slice";
+      const constants = ["CONSTANTS", `  Plan <- ${PLAN_OPERATORS[slice ? "one-each" : plan]}`, ...Object.entries(CAPS).map(([name, value]) => `  ${name} = ${value}`), `  HeldManifests = "${slice ? "all" : "two"}"`];
+      writeFileSync(join(scratch, "one.cfg"), [...constants, slice ? "INIT SliceInit" : "INIT Init", slice ? "NEXT SliceNext" : "NEXT Next", "INVARIANTS", `  ${invariant}`, ""].join("\n"));
+      const result = spawnSync(java, ["-XX:+UseParallelGC", "-Xmx1g", "-cp", jar, "tlc2.TLC", "-workers", "1", "-deadlock", "-metadir", join(scratch, `states-${label}`), "-config", "one.cfg", slice ? "PurgeSlice" : "CaseMachineMC"], { cwd: scratch, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
       return `${result.stdout}\n${result.stderr}`;
     };
     // The specification as committed passes each invariant alone, so a violation below is the fault's.

@@ -5,6 +5,12 @@
 // that row. It needs Java and the pinned jar, so it is not a CI stage: it is the evidence that
 // the rows can fail under the sets the register says they hold under.
 //
+// What a caught fault shows is that the row can fail there. It does not show that the row is
+// needed: the two exclusion rows share one fault, and each catches it without the other, so no
+// fault here separates "ran" from "ran unobserved". The fault for HeardLandsInOneTerm renames a
+// term, which is the only kind of fault that row can catch (specs/worker-hold/README.md classes
+// each invariant).
+//
 // Each fault is one edit of specs/worker-hold/WorkerHold.tla, in a scratch copy, that must land
 // exactly once. A fault TLC passes, an edit that no longer lands, a specification that no longer
 // parses, or a committed specification that does not keep the row there, fails this script.
@@ -88,6 +94,26 @@ export const MUTATIONS = [
     ["D1"],
     "NewsFromBeforeTheFreeze(S) == \\E w \\in W : InFlightAtFreeze(S.wk[w]) \\/ SomeBefore(S.wk[w])",
     "NewsFromBeforeTheFreeze(S) == \\E w \\in W : SomeBefore(S.wk[w])"
+  ],
+  // The fault above weakens what D1 forbids, which is an assumption and not the protocol. This one is in the protocol:
+  // the mirror never learns of the worker, so one that ran before the freeze lands nowhere unless discovery found it.
+  [
+    "the mirror makes nothing of a worker's attach",
+    "RanLandsInATerm",
+    "hold",
+    ["D1"],
+    '     ELSE IF item = "attached" THEN (IF k.known THEN S ELSE [S EXCEPT !.wk[w].known = TRUE, !.wk[w].mhold = "pending"])',
+    '     ELSE IF item = "attached" THEN S'
+  ],
+  // The type invariant's bounds on the queues: a session whose commands are never taken off it answers the same
+  // command again and again, and its words to the thread pile up past the bound.
+  [
+    "a command that reaches the worker stays on its session",
+    "TypeOK",
+    "hold",
+    ["A1", "A2", "notA3", "A4", "A5fifo", "A5bound"],
+    "      S0 == [S EXCEPT !.wk[w].commands = Remove(@, index)]",
+    "      S0 == S"
   ]
 ];
 

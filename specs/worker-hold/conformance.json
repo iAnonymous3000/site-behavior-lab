@@ -2,7 +2,7 @@
   "format": 1,
   "about": "Exported by scripts/tla-worker-hold-export.mjs from specs/worker-hold with TLC. Do not edit by hand.",
   "specification": {
-    "WorkerHold.tla": "f27f19effdf1de9da12aa761e714a9943b498add02976f20cc1db89719d6963f",
+    "WorkerHold.tla": "ab8fd4b8db4c72485fff1d83682ec8e8d08ea994e29bf16dc775fd980f653d2e",
     "WorkerHoldExport.tla": "6e4d6822cc503ad0829702586fb262b09215b17984d368a9ff6593e6ed17c571",
     "WorkerHoldTable.tla": "aae1e53f474bc31a058bfb02fc201449c4aea28948010b7f286e830a30f79ade"
   },

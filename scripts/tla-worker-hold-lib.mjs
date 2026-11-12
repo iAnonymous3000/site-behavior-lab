@@ -33,6 +33,8 @@ export const ROWS = {
   "a-worker-that-ran-before-the-freeze-lands-in-a-term": "RanLandsInATerm"
 };
 
+// As WorkerHold.tla and the hand-written model name them. Nothing in the specification produces "diedPaused" or
+// "ownerUnscoped": they are in the sets and no worker ever lands in either.
 const EXCLUDED_TERMS = ["pausedAtReadout", "diedPaused"];
 const READ_TERMS = ["readable", "ownerUnscoped"];
 const UNREAD_TERMS = ["installFailed", "attachedLate", "unreached", "cutOff", "streamBroken", "channelLostAlive", "diedHeld"];

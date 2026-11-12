@@ -320,6 +320,13 @@ Resolved(k, form) ==
   LET reached == IF form.st = "reaching" THEN ReachingBy(k) ELSE form
   IN IF reached.st = "held" THEN HeldBy(k) ELSE reached
 
+(* Two of the terms below are in these sets and nothing in this module     *)
+(* produces them: "diedPaused" and "ownerUnscoped". No operator returns    *)
+(* either, so no worker here ever lands in one and no row is ever judged   *)
+(* on one. They are named because the hand-written model's sets name them. *)
+(* In the real readout the first is written for a dedicated worker only,   *)
+(* and the second for a shared worker that no document of the visit is     *)
+(* credited with, which this module does not state.                        *)
 ExcludedTerms == {"pausedAtReadout", "diedPaused"}
 ReadTerms == {"readable", "ownerUnscoped"}
 UnreadTerms == {"installFailed", "attachedLate", "unreached", "cutOff", "streamBroken", "channelLostAlive", "diedHeld"}
@@ -752,6 +759,9 @@ NoWorkerRanWithTheAttacherAlive == \A l \in Landed : ~(l.ranAtFreeze /\ l.attach
 \* and can fail only where some worker lands nowhere.
 NoWorkerNowhere == \A l \in Landed : l.term # "nowhere"
 
+(* A weak type invariant: the readout's phase is a named one, two flags are *)
+(* booleans, and the queues stay within stated lengths. It does not type   *)
+(* the worker record, and no register row rests on it.                     *)
 TypeOK ==
   /\ st.gphase \in {"before", "draining", "waiting-trees", "done"}
   /\ st.ended \in BOOLEAN /\ st.glost \in BOOLEAN
