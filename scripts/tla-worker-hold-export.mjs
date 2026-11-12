@@ -11,6 +11,10 @@
 //   row's verdict under every set of switches from one search, and the forms of the named trace.
 // - WorkerHold, once for each set of switches the register names: TLC's own verdict on each row
 //   as an invariant, which must agree with the table.
+// - WorkerHold again, once for each reachability companion of each row listed as holding, in the
+//   same world under the same switches: TLC must report the companion VIOLATED, which shows the
+//   row had something to judge there. A row whose companion holds is refused: it would pass
+//   whatever the protocol did. The committed configurations get the same runs.
 // From the first run's graph it also keeps traces for the suite to replay through the real
 // thread, mirror and readout: one for every label the world takes under the plan's axioms with
 // C1 and D1, one that breaks each row the register says fails, and one for each form of the
@@ -29,20 +33,12 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { parseTlaValue } from "./tla-case-machine-lib.mjs";
 import { layout, option, pinArtifact, pinnedTools, ROOT, runTlc, sha256Of, tupleLine } from "./tla-tools-lib.mjs";
-import { digests, firstDifference, landedLabel, modelGraph, newGraph, PLAN_AXIOMS, specLabel, summary, SWITCHES, WORLDS } from "./tla-worker-hold-lib.mjs";
+import { COMPANION_REACHED_BY, companionsOf, digests, firstDifference, landedLabel, modelGraph, newGraph, PLAN_AXIOMS, ROWS, specLabel, summary, SWITCHES, WORLDS } from "./tla-worker-hold-lib.mjs";
 
 const SPEC_DIR = join(ROOT, "specs", "worker-hold");
 const SPEC_FILES = ["WorkerHold.tla", "WorkerHoldExport.tla", "WorkerHoldTable.tla"];
 const OUTPUT = join(SPEC_DIR, "conformance.json");
 
-export const ROWS = {
-  "excluded-implies-no-page-code-before-the-freeze": "ExcludedRanNothing",
-  "excluded-implies-no-unobserved-page-code-before-the-freeze": "ExcludedRanNothingUnobserved",
-  "read-implies-the-observer-preceded-every-statement": "ReadHadItsObserver",
-  "a-read-state-is-no-older-than-the-freeze": "ReadNoOlderThanTheFreeze",
-  "every-worker-the-readout-heard-of-lands-in-one-term": "HeardLandsInOneTerm",
-  "a-worker-that-ran-before-the-freeze-lands-in-a-term": "RanLandsInATerm"
-};
 const EXCLUDED_1 = "excluded-implies-no-page-code-before-the-freeze";
 const EXCLUDED_2 = "excluded-implies-no-unobserved-page-code-before-the-freeze";
 const READ = "read-implies-the-observer-preceded-every-statement";
@@ -56,8 +52,15 @@ const without = (name) => PLAN_AXIOMS.filter((axiom) => axiom !== name);
 
 /**
  * The sets of switches the register's rows name, by world, with the rows each says hold there and
- * the rows it says fail. TLC is run once on each with the rows that hold as invariants, and once
- * more for each row that fails, which it must report violated.
+ * the rows it says fail. TLC is run once on each with the rows that hold as invariants, once more
+ * for each row that fails, which it must report violated, and once for each companion of a row
+ * that holds, which it must report violated too.
+ *
+ * A row is listed as holding only where it has something to judge. In the stream world the one
+ * worker starts released, with its observer in and the mirror current: none is ever excluded, none
+ * lands nowhere and none runs unobserved, so the exclusion rows, the no-term row and F4-READ pass
+ * there whatever the protocol does, and are not listed. The register's table gives them "holds
+ * under no axiom" in that world, which is true and says nothing.
  */
 export const CELLS = {
   hold: [
@@ -72,7 +75,7 @@ export const CELLS = {
     { assumed: ["A5fifo", "Z"], holds: [EXCLUDED_1, EXCLUDED_2], fails: [] }
   ],
   stream: [
-    { assumed: [], holds: [EXCLUDED_1, EXCLUDED_2, READ, TERM, NO_TERM], fails: [AGE] },
+    { assumed: [], holds: [TERM], fails: [AGE] },
     { assumed: ["A1", "notA3", "A5fifo"], holds: [AGE], fails: [] },
     { assumed: without("A1"), holds: [], fails: [AGE] },
     { assumed: without("notA3"), holds: [], fails: [AGE] },
@@ -345,6 +348,23 @@ async function exportWorld(tools, world, fv, kernels) {
     if (JSON.stringify(byTlc) !== JSON.stringify(forms)) throw new Error(`Under ${key} TLC finds the named trace as ${JSON.stringify(byTlc)}, and this script's reading of the printed graph as ${JSON.stringify(forms)}`);
   }
 
+  // The companions of the rows listed as holding under a set of switches: TLC must report each one violated there, and
+  // this script's own reading of the printed graph must reach it too. One that holds means a row with nothing to judge.
+  const reached = async (name, assumed, rows, configurationFor) => {
+    const reach = under(assumed);
+    const names = companionsOf(rows);
+    for (const companion of names) {
+      const run = await runTlc({ ...tools, specDir: SPEC_DIR, module: "WorkerHold", name: `${name}-${companion}`, config: configurationFor(companion) });
+      const inGraph = reach.order.some((state) => landing[state] !== null && landing[state].some((landed) => COMPANION_REACHED_BY[companion](landedOf(landed))));
+      if ((run.violated === companion) !== inGraph) throw new Error(`TLC and this script's reading of the printed graph disagree on ${companion} in the ${world} world under ${assumed.join() || "nothing"}`);
+      if (run.violated !== companion) {
+        const vacuous = rows.filter((row) => companionsOf([row]).includes(companion)).map((row) => ROWS[row]);
+        throw new Error(`In the ${world} world under ${assumed.join() || "nothing"} TLC holds ${companion}, so ${vacuous.join(" and ")} has nothing to judge there and must not be listed as holding`);
+      }
+    }
+    return names;
+  };
+
   // TLC's own verdict on each row, as an invariant, under each set of switches the register names.
   const cells = [];
   for (const { assumed, holds, fails } of CELLS[world]) {
@@ -361,6 +381,7 @@ async function exportWorld(tools, world, fv, kernels) {
     for (const row of [...holds, ...fails]) {
       if (failsUnder(violations[row], assumed) !== fails.includes(row)) throw new Error(`The table and TLC's own run disagree on ${row} in the ${world} world under ${assumed.join()}`);
     }
+    cell.reached = await reached(`cell-${world}-${cells.length}`, assumed, holds, (name) => configuration(world, assumed, "Init", "Next", [name]));
     cells.push(cell);
   }
 
@@ -369,7 +390,13 @@ async function exportWorld(tools, world, fv, kernels) {
   const planText = readFileSync(join(SPEC_DIR, `${world}-plan.cfg`), "utf8");
   const planRun = await runTlc({ ...tools, specDir: SPEC_DIR, module: "WorkerHold", name: `plan-${world}`, config: planText });
   if (!planRun.clean) throw new Error(`TLC reports ${planRun.violated} violated under ${world}-plan.cfg`);
-  const underPlan = { configuration: `${world}-plan.cfg`, sha256: sha256Of(planText), invariants: planText.slice(planText.indexOf("\nINVARIANTS\n") + "\nINVARIANTS\n".length).trim().split(/\s+/), tlc: { distinct: planRun.distinct, generated: planRun.generated, depth: planRun.depth } };
+  const planInvariants = planText.slice(planText.indexOf("\nINVARIANTS\n") + "\nINVARIANTS\n".length).trim().split(/\s+/);
+  if (!planText.includes(`\n  Assumed = ${tlaSet(PLAN_AXIOMS)}\n`)) throw new Error(`${world}-plan.cfg does not assume the plan's axioms as this script reads them`);
+  // The same companions for the rows the committed configuration lists, under its own constants.
+  const planRows = EVERY_ROW.filter((row) => planInvariants.includes(ROWS[row]));
+  if (planRows.length !== planInvariants.filter((name) => name !== "TypeOK").length) throw new Error(`${world}-plan.cfg lists an invariant that is neither TypeOK nor a row`);
+  const planReached = await reached(`plan-${world}`, PLAN_AXIOMS, planRows, (name) => `${planText.slice(0, planText.indexOf("\nINVARIANTS\n"))}\nINVARIANTS\n  ${name}\n`);
+  const underPlan = { configuration: `${world}-plan.cfg`, sha256: sha256Of(planText), invariants: planInvariants, reached: planReached, tlc: { distinct: planRun.distinct, generated: planRun.generated, depth: planRun.depth } };
 
   console.error(`${world}: ${printedStates} states, ${printedMoves} moves, ${counted.classes} classes, ${cover.length + witnesses.length + named.length} traces as ${tree.length} nodes, table over ${table.distinct} pairs, ${Math.round((Date.now() - started) / 1000)}s`);
   return {

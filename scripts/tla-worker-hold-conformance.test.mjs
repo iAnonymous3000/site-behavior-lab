@@ -17,6 +17,13 @@
 // - The table. Each row's smallest sets of the plan's axioms, per world, as TLC found them, must
 //   be the ones the register states; and for every one of the 512 sets of switches, the rows the
 //   hand-written model's own verdicts break must be the rows TLC found broken.
+// - No row is listed where it has nothing to judge. A row of the form "a worker that lands so
+//   had this fact" passes wherever no worker lands so, and wherever no worker has the fact that
+//   would break it. Each row has reachability companions (WorkerHold.tla), and wherever a row is
+//   listed as holding (a cell of the export script's table, a committed configuration, a cell of
+//   the register's table below) every companion of it must be reached under the same switches:
+//   by TLC's own run, which the export records, and in the hand-written model's own graph, which
+//   this suite walks. The worlds and rows where that fails are named, and held to be exactly those.
 // - The real code follows TLC's traces. Each kept trace, a path of moves TLC printed, is replayed
 //   through the real thread, its in-process transport, the real mirror and the real readout by
 //   the suite's own harness (lib/fv-worker-model-replay.ts): at each step the thread must post
@@ -35,7 +42,8 @@ import { createRequire } from "node:module";
 import { dirname, join, resolve } from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
-import { digests, failsUnder, modelGraph, PLAN_AXIOMS, sha256Hex, smallestSets, summary, SWITCHES, WORLDS } from "./tla-worker-hold-lib.mjs";
+import { CELLS } from "./tla-worker-hold-export.mjs";
+import { COMPANION_REACHED_BY, COMPANIONS, companionsOf, digests, failsUnder, modelGraph, NOT_JUDGED, PLAN_AXIOMS, ROWS as INVARIANT_OF, sha256Hex, smallestSets, summary, SWITCHES, WORLDS } from "./tla-worker-hold-lib.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const SPEC_DIR = join(ROOT, "specs", "worker-hold");
@@ -64,6 +72,16 @@ const ROWS = [EXCLUDED_1, EXCLUDED_2, READ, AGE, TERM, NO_TERM];
 const WITH_C1 = [...PLAN_AXIOMS, "C1"];
 const WITH_C1_D1 = [...PLAN_AXIOMS, "C1", "D1"];
 
+// What each committed configuration lists: the type invariant, and the rows that hold under the plan's axioms in that
+// world and have something to judge there. The stream world lists no exclusion row, no no-term row and no F4-READ.
+const PLAN_INVARIANTS = {
+  hold: ["TypeOK", "ReadHadItsObserver", "ReadNoOlderThanTheFreeze", "HeardLandsInOneTerm"],
+  stream: ["TypeOK", "ReadNoOlderThanTheFreeze", "HeardLandsInOneTerm"],
+  two: ["TypeOK", "ReadHadItsObserver", "ReadNoOlderThanTheFreeze", "HeardLandsInOneTerm"],
+  small: ["TypeOK", "ReadHadItsObserver", "ReadNoOlderThanTheFreeze", "HeardLandsInOneTerm"]
+};
+const invariantsOf = (configuration) => configuration.slice(configuration.indexOf("\nINVARIANTS\n") + "\nINVARIANTS\n".length).trim().split(/\s+/);
+
 const models = new Map();
 /** A world's hand-written model over the real kernels, explored once. */
 function built(world) {
@@ -88,9 +106,9 @@ test("the committed export belongs to the committed specification and the pinned
     assert.equal(conformance.worlds[name].tlc.generated > conformance.worlds[name].tlc.distinct, true);
     // The configuration kept for runs by hand is the one the export ran, clean, with these rows as invariants.
     const committed = readFileSync(join(SPEC_DIR, `${name}-plan.cfg`), "utf8");
-    assert.deepEqual({ ...conformance.worlds[name].underPlan, tlc: null, invariants: null }, { configuration: `${name}-plan.cfg`, sha256: sha256Hex(committed), invariants: null, tlc: null });
-    for (const invariant of conformance.worlds[name].underPlan.invariants) assert.match(committed, new RegExp(`\\n  ${invariant}\\n`));
-    assert.ok(["ReadHadItsObserver", "ReadNoOlderThanTheFreeze", "HeardLandsInOneTerm"].every((row) => conformance.worlds[name].underPlan.invariants.includes(row)));
+    assert.deepEqual({ ...conformance.worlds[name].underPlan, tlc: null, invariants: null, reached: null }, { configuration: `${name}-plan.cfg`, sha256: sha256Hex(committed), invariants: null, reached: null, tlc: null });
+    assert.deepEqual(conformance.worlds[name].underPlan.invariants, invariantsOf(committed), `${name}-plan.cfg lists the invariants the export ran`);
+    assert.deepEqual(conformance.worlds[name].underPlan.invariants, PLAN_INVARIANTS[name]);
   }
   assert.deepEqual(SWITCHES, [...fv.ASSUMPTIONS], "the switches are the model's");
   assert.deepEqual(fv.namesOf(fv.PLAN_AXIOMS), PLAN_AXIOMS, "the plan's axioms are the model's");
@@ -106,17 +124,27 @@ for (const world of Object.keys(WORLDS)) {
   });
 }
 
-/** The smallest sets of switches that break each row on some path of the hand-written model: its own verdicts, read with the switches each path broke. */
-function modelViolations(world) {
+const tables = new Map();
+/**
+ * From one walk of the hand-written model over every pair of a state and the switches a path to it broke: the
+ * smallest sets of switches that break each row on some path (the model's own verdicts), and for each reachability
+ * companion the sets of switches broken on the paths that reach it (the landings are the model's own).
+ */
+function modelTable(world) {
+  if (tables.has(world)) return tables.get(world);
   const { model, explored } = built(world);
   const seen = explored.keys.map(() => new Set());
   const broken = Object.fromEntries(ROWS.map((row) => [row, new Set()]));
+  const reached = Object.fromEntries(Object.keys(COMPANION_REACHED_BY).map((name) => [name, new Set()]));
   const queue = [[0, 0]];
   seen[0].add(0);
   for (let at = 0; at < queue.length; at += 1) {
     const [state, used] = queue[at];
     if (model.isFinished(explored.keys[state])) {
-      for (const landed of model.termsOf(explored.keys[state])) for (const row of fv.judged(landed)) broken[row].add(used);
+      for (const landed of model.termsOf(explored.keys[state])) {
+        for (const row of fv.judged(landed)) broken[row].add(used);
+        for (const [name, reachedBy] of Object.entries(COMPANION_REACHED_BY)) if (reachedBy(landed)) reached[name].add(used);
+      }
       if ((model.verdictOf(explored.keys[state]) & fv.propertyMask(TERM)) !== 0) broken[TERM].add(used);
     }
     for (let edge = explored.firstEdge[state]; edge < explored.firstEdge[state + 1]; edge += 1) {
@@ -128,27 +156,37 @@ function modelViolations(world) {
     }
   }
   const smallest = (masks) => [...masks].filter((mask) => ![...masks].some((other) => other !== mask && (other & mask) === other)).map((mask) => fv.namesOf(mask).sort().join(","));
-  return Object.fromEntries(ROWS.map((row) => [row, smallest(broken[row]).sort()]));
+  const table = { violations: Object.fromEntries(ROWS.map((row) => [row, smallest(broken[row]).sort()])), reached: Object.fromEntries(Object.entries(reached).map(([name, masks]) => [name, [...masks].map((mask) => fv.namesOf(mask))])) };
+  tables.set(world, table);
+  return table;
 }
+
+/** Whether some worker of the hand-written model lands the way a companion says none does, on a path the assumed switches leave open. */
+const reachedUnder = (world, companion, assumed) => modelTable(world).reached[companion].some((used) => used.every((name) => !assumed.includes(name)));
 
 const asKeys = (sets) => sets.map((set) => [...set].sort().join(",")).sort();
 
 for (const world of Object.keys(WORLDS)) {
   test(`under each of the 512 sets of switches, the rows the model's own verdicts break are the rows TLC found broken, in the ${world} world`, () => {
-    const byModel = modelViolations(world);
+    const byModel = modelTable(world).violations;
     for (const row of ROWS) assert.deepEqual(asKeys(conformance.worlds[world].table.violations[row]), byModel[row], row);
   });
 }
 
 // The register's table, as rows F4-READ to F4-BEYOND state it and as lib/fv-worker-model.test.ts pins it: the smallest
 // sets of the plan's axioms each row holds under, by world. [] is no set, and [[]] is the empty set.
+//
+// A cell is here only where its row has something to judge. The register's table also gives [[]] ("holds under no
+// axiom") for both exclusion rows, the no-term row and F4-READ in the stream world. That is true of TLC's table too, and
+// it says nothing: no worker of that world is ever excluded, lands nowhere or runs unobserved, so those rows pass there
+// whatever the protocol does. Those four cells are held apart, below, as cells with nothing to judge.
 const REGISTER_TABLE = {
-  [EXCLUDED_1]: { hold: [], stream: [[]], two: [] },
-  [EXCLUDED_2]: { hold: [], stream: [[]], two: [] },
-  [READ]: { hold: [["A1", "A2"]], stream: [[]], two: [[]] },
+  [EXCLUDED_1]: { hold: [], two: [] },
+  [EXCLUDED_2]: { hold: [], two: [] },
+  [READ]: { hold: [["A1", "A2"]], two: [[]] },
   [AGE]: { hold: [[]], stream: [["A1", "notA3", "A5fifo"]], two: [[]] },
   [TERM]: { hold: [[]], stream: [[]], two: [[]] },
-  [NO_TERM]: { hold: [], stream: [[]], two: [] }
+  [NO_TERM]: { hold: [], two: [] }
 };
 
 const violationsOver = (worlds) => Object.fromEntries(ROWS.map((row) => [row, worlds.flatMap((world) => conformance.worlds[world].table.violations[row])]));
@@ -157,8 +195,56 @@ test("the axiom table TLC found is the register's: each row's smallest sets of t
   for (const [row, byWorld] of Object.entries(REGISTER_TABLE)) {
     for (const [world, expected] of Object.entries(byWorld)) {
       assert.deepEqual(asKeys(smallestSets(conformance.worlds[world].table.violations, row, PLAN_AXIOMS)), asKeys(expected), `${row} in the ${world} world`);
+      // A cell that says a row holds is compared only where the row has something to judge under that set.
+      for (const assumed of expected) {
+        for (const companion of COMPANIONS[row]) assert.equal(reachedUnder(world, companion, assumed), true, `${row} is listed as holding in the ${world} world under ${assumed.join() || "no axiom"}, where ${companion} is never reached: it has nothing to judge there`);
+      }
     }
   }
+});
+
+test("a row is listed as holding only where it has something to judge: each of its companions is reached there, by TLC's own run and in the hand-written model's graph", () => {
+  for (const world of Object.keys(WORLDS)) {
+    // The cells the export ran are the export script's table as it stands.
+    assert.deepEqual(
+      conformance.worlds[world].cells.map(({ assumed, holds, fails }) => ({ assumed, holds, fails })),
+      CELLS[world],
+      `${world}: the export script's table changed since TLC last ran it: run scripts/tla-worker-hold-export.mjs`
+    );
+    for (const { assumed, holds, reached } of conformance.worlds[world].cells) {
+      // What TLC reported violated for this cell: the export refuses to write a cell with a companion TLC holds.
+      assert.deepEqual(reached, companionsOf(holds), `${world} under ${assumed.join() || "nothing"}`);
+      for (const row of holds) {
+        for (const companion of COMPANIONS[row]) assert.equal(reachedUnder(world, companion, assumed), true, `${INVARIANT_OF[row]} is listed as holding in the ${world} world under ${assumed.join() || "nothing"}, where ${companion} is never reached: it has nothing to judge there`);
+      }
+    }
+    // The committed configuration, read as it stands: every row it lists, under the plan's axioms.
+    const listed = invariantsOf(readFileSync(join(SPEC_DIR, `${world}-plan.cfg`), "utf8"));
+    const rows = ROWS.filter((row) => listed.includes(INVARIANT_OF[row]));
+    assert.deepEqual(listed, ["TypeOK", ...rows.map((row) => INVARIANT_OF[row])], `${world}-plan.cfg lists the type invariant and rows`);
+    assert.deepEqual(conformance.worlds[world].underPlan.reached, companionsOf(rows), `${world}-plan.cfg`);
+    for (const row of rows) {
+      for (const companion of COMPANIONS[row]) assert.equal(reachedUnder(world, companion, PLAN_AXIOMS), true, `${world}-plan.cfg lists ${INVARIANT_OF[row]}, and under the plan's axioms ${companion} is never reached in that world: the row has nothing to judge there`);
+    }
+  }
+});
+
+test("where a row has nothing to judge: in the stream world no worker is excluded, lands nowhere or runs unobserved; every other row can be judged in every world", () => {
+  assert.deepEqual(Object.keys(NOT_JUDGED).sort(), Object.keys(WORLDS).sort());
+  for (const world of Object.keys(WORLDS)) {
+    for (const row of ROWS) {
+      // With nothing assumed every path is open, so a companion not reached here is reached under no set of switches.
+      const neverReached = COMPANIONS[row].filter((companion) => !reachedUnder(world, companion, []));
+      assert.equal(neverReached.length > 0, NOT_JUDGED[world].includes(row), `${row} in the ${world} world: ${neverReached.join() || "every companion is reached"}`);
+      if (neverReached.length === 0) continue;
+      // Such a row cannot fail there, which is all its "holds" says: TLC's table has no set of switches that breaks it,
+      // and no cell and no committed configuration lists it.
+      assert.deepEqual(conformance.worlds[world].table.violations[row], [], `${row} in the ${world} world`);
+      for (const { holds, fails } of CELLS[world]) assert.equal([...holds, ...fails].includes(row), false, `${row} is in a cell of the ${world} world`);
+      assert.equal(conformance.worlds[world].underPlan.invariants.includes(INVARIANT_OF[row]), false, `${world}-plan.cfg lists ${INVARIANT_OF[row]}`);
+    }
+  }
+  assert.deepEqual(NOT_JUDGED.stream, [EXCLUDED_1, EXCLUDED_2, READ, NO_TERM]);
 });
 
 test("F4-TABLE and F4-BEYOND, from TLC's table: A4 changes no verdict, the exclusion rows fail with C1 and D1 on top of every axiom, D1 closes the no-term row only where the tree is waited for, and only Z closes it everywhere", () => {

@@ -70,6 +70,58 @@ which nothing that classifies reads.
 | F4-TABLE | `WorkerHoldTable.tla` | Each row under every set of switches, from one search that carries the switches a path broke. That a larger set keeps what a smaller one kept is how the switches are built, not a check. |
 | F4-BEYOND | `NamedForm`, `NamedCause` in `WorkerHoldTable.tla` | The named trace: a worker that ran unobserved before the freeze, which the mirror does not yet call late, on the step that ends the readout and excludes it. |
 
+## Where a row can be judged, and where it cannot
+
+A row of the form "a worker that lands so had this fact" passes in a world
+where no worker lands so, and in a world where no worker has the fact that
+would break it. It passes there whatever the protocol does, so its passing is
+no evidence about the protocol.
+
+That is the case for four rows in the stream world. Its one worker starts
+released, with its observer in, having run, and known to the mirror. So in
+that world:
+
+- No worker is ever excluded. The two exclusion rows have no worker to judge.
+- No worker ever lands nowhere, because the mirror knows the worker from the
+  first state. The no-term row cannot fail.
+- No worker ever runs with no observer in. F4-READ cannot fail.
+
+These four rows are therefore not listed for the stream world: not in
+`stream-plan.cfg`, not in the export script's table of cells, and not in the
+suite's copy of the register's table. The register's table gives each of them
+"holds under no axiom" in the stream world. TLC's table agrees, and the
+sentence is true, but it carries no information. The rows that the stream
+world does judge are F4-AGE and the first half of F4-TERM. The four rows are
+judged in the hold, two-worker and small worlds.
+
+So that a row is not listed again where it has nothing to judge, each row has
+reachability companions in `WorkerHold.tla`. A companion says that something
+never happens, and TLC must report it violated:
+
+| Row | Its subject is reached when TLC violates | What would break it is reached when TLC violates |
+|---|---|---|
+| `ExcludedRanNothing` | `NoWorkerExcluded` | `NoWorkerRanBeforeTheFreeze` |
+| `ExcludedRanNothingUnobserved` | `NoWorkerExcluded` | `NoWorkerRanUnobservedBeforeTheFreeze` |
+| `ReadHadItsObserver` | `NoWorkerRead` | `NoWorkerRanUnobserved` |
+| `ReadNoOlderThanTheFreeze` | `NoWorkerRead` | |
+| `HeardLandsInOneTerm` | `NoWorkerInANamedTerm` | (the row is a definition, see the table of invariants) |
+| `RanLandsInATerm` | `NoWorkerRanWithTheAttacherAlive` | `NoWorkerNowhere` |
+
+Wherever a row is listed as holding, the export script runs TLC on each of
+its companions in the same world under the same switches, and refuses to
+write the export if TLC holds one. It records the companions TLC reported
+violated. The conformance suite, with no Java, walks the hand-written model's
+own graph and fails if a companion of a listed row is not reached there: for
+each cell of the export script's table, for each committed configuration, and
+for each cell of its copy of the register's table. It also holds that the four
+rows above in the stream world are the only rows with nothing to judge.
+
+What a violated companion shows is limited. It shows that the row's subject,
+and the fact that would break the row, each occur in that world under those
+switches. It does not show that a fault would be caught: the seeded faults
+(`scripts/tla-worker-hold-mutations.mjs`) are the evidence for that, and they
+cover the sets named there.
+
 ## Files
 
 | File | What it is |
@@ -77,7 +129,7 @@ which nothing that classifies reads.
 | `WorkerHold.tla` | The protocol, the classification and the rows. |
 | `WorkerHoldTable.tla` | The axiom table in one search, and the named trace. |
 | `WorkerHoldExport.tla` | Prints the whole graph of a world. Not a property. |
-| `hold-plan.cfg`, `stream-plan.cfg`, `two-plan.cfg`, `small-plan.cfg` | Each world under the plan's axioms, with the rows the register says hold there. The export script writes the other configurations it runs. |
+| `hold-plan.cfg`, `stream-plan.cfg`, `two-plan.cfg`, `small-plan.cfg` | Each world under the plan's axioms, with the rows that hold there and have something to judge there. The export script writes the other configurations it runs. |
 | `conformance.json` | What TLC exported. Written by `scripts/tla-worker-hold-export.mjs`. |
 
 ## What the conformance suite holds
@@ -94,6 +146,8 @@ which nothing that classifies reads.
 - The table TLC found is the register's, row by row and world by world, and
   under each of the 512 sets of switches the rows the model's own verdicts
   break are the rows TLC found broken.
+- No row is listed as holding where it has nothing to judge, as the section
+  above says.
 - TLC's traces replay through the real thread, its in-process transport, the
   real mirror and the real readout, by `lib/fv-worker-model-replay.ts`: every
   label each world takes under the plan's axioms with C1 and D1, a trace that

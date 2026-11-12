@@ -720,6 +720,34 @@ HeardLandsInOneTerm == \A l \in Landed : IF l.heard THEN l.term \in WorkerTerms 
 \* The no-term row: a worker that ran before the freeze, with the attacher alive, lands in a term.
 RanLandsInATerm == \A l \in Landed : ~(l.term = "nowhere" /\ l.ranAtFreeze /\ l.attacherLives)
 
+----------------------------------------------------------------------------
+(* Reachability companions. A row of the form "a worker that lands so had  *)
+(* this fact" holds of every state when no worker ever lands so, and when  *)
+(* no worker ever has the fact that would break it. Each companion below   *)
+(* says that one such thing never happens, so TLC must report it VIOLATED  *)
+(* wherever a row that needs it is listed as holding: the violation is the *)
+(* evidence that the row had something to judge there. A companion that    *)
+(* holds is a row with nothing to judge, and the row is not listed there.  *)
+(* scripts/tla-worker-hold-export.mjs names the companions of each row and *)
+(* runs them; README.md says where each row cannot be judged.              *)
+
+\* The exclusion rows judge only a worker the readout excludes.
+NoWorkerExcluded == \A l \in Landed : l.term \notin ExcludedTerms
+\* The first exclusion row can fail only where some worker ran before the freeze.
+NoWorkerRanBeforeTheFreeze == \A l \in Landed : ~l.ranAtFreeze
+\* The second, only where some worker ran with no observer in before the freeze.
+NoWorkerRanUnobservedBeforeTheFreeze == \A l \in Landed : ~l.ranUnobservedAtFreeze
+\* F4-READ and F4-AGE judge only a worker the readout reads.
+NoWorkerRead == \A l \in Landed : l.term \notin ReadTerms
+\* F4-READ can fail only where some worker ran with no observer in.
+NoWorkerRanUnobserved == \A l \in Landed : ~l.ranUnobserved
+\* F4-TERM, its first half, speaks of a worker that lands in a named term.
+NoWorkerInANamedTerm == \A l \in Landed : l.term \notin WorkerTerms
+\* The no-term row judges only a worker that ran before the freeze with the attacher alive,
+NoWorkerRanWithTheAttacherAlive == \A l \in Landed : ~(l.ranAtFreeze /\ l.attacherLives)
+\* and can fail only where some worker lands nowhere.
+NoWorkerNowhere == \A l \in Landed : l.term # "nowhere"
+
 TypeOK ==
   /\ st.gphase \in {"before", "draining", "waiting-trees", "done"}
   /\ st.ended \in BOOLEAN /\ st.glost \in BOOLEAN

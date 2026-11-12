@@ -23,6 +23,74 @@ export const WORLDS = {
 export const SWITCHES = ["A1", "A2", "notA3", "A4", "A5fifo", "A5bound", "C1", "D1", "Z"];
 export const PLAN_AXIOMS = ["A1", "A2", "notA3", "A4", "A5fifo", "A5bound"];
 
+/** The rows, by the name each has in lib/fv-worker-model.ts, with the invariant that states each in WorkerHold.tla. */
+export const ROWS = {
+  "excluded-implies-no-page-code-before-the-freeze": "ExcludedRanNothing",
+  "excluded-implies-no-unobserved-page-code-before-the-freeze": "ExcludedRanNothingUnobserved",
+  "read-implies-the-observer-preceded-every-statement": "ReadHadItsObserver",
+  "a-read-state-is-no-older-than-the-freeze": "ReadNoOlderThanTheFreeze",
+  "every-worker-the-readout-heard-of-lands-in-one-term": "HeardLandsInOneTerm",
+  "a-worker-that-ran-before-the-freeze-lands-in-a-term": "RanLandsInATerm"
+};
+
+const EXCLUDED_TERMS = ["pausedAtReadout", "diedPaused"];
+const READ_TERMS = ["readable", "ownerUnscoped"];
+const UNREAD_TERMS = ["installFailed", "attachedLate", "unreached", "cutOff", "streamBroken", "channelLostAlive", "diedHeld"];
+const WORKER_TERMS = [...EXCLUDED_TERMS, ...UNREAD_TERMS, ...READ_TERMS, "endedAtOnce"];
+
+/**
+ * The reachability companions of WorkerHold.tla, restated over one landed worker: each is true of
+ * a worker whose landing makes the companion of that name false. A companion says that something
+ * never happens, so it is reached, and TLC reports it violated, exactly where some worker lands
+ * so. The export script holds this restatement to TLC's own verdict on every cell it runs.
+ */
+export const COMPANION_REACHED_BY = {
+  NoWorkerExcluded: (landed) => EXCLUDED_TERMS.includes(landed.term),
+  NoWorkerRanBeforeTheFreeze: (landed) => landed.ranAtFreeze,
+  NoWorkerRanUnobservedBeforeTheFreeze: (landed) => landed.ranUnobservedAtFreeze,
+  NoWorkerRead: (landed) => READ_TERMS.includes(landed.term),
+  NoWorkerRanUnobserved: (landed) => landed.ranUnobserved,
+  NoWorkerInANamedTerm: (landed) => WORKER_TERMS.includes(landed.term),
+  NoWorkerRanWithTheAttacherAlive: (landed) => landed.ranAtFreeze && landed.attacherLives,
+  NoWorkerNowhere: (landed) => landed.term === "nowhere"
+};
+
+/**
+ * What each row needs before it has anything to judge: every companion listed for it must be
+ * reached, in the world and under the switches the row is listed as holding in. The first of a
+ * row's companions is the row's subject (a worker lands the way the row speaks of); the second,
+ * where there is one, is the fact that would break it. A row with a companion that is never
+ * reached holds whatever the protocol does, and is not listed there.
+ */
+export const COMPANIONS = {
+  "excluded-implies-no-page-code-before-the-freeze": ["NoWorkerExcluded", "NoWorkerRanBeforeTheFreeze"],
+  "excluded-implies-no-unobserved-page-code-before-the-freeze": ["NoWorkerExcluded", "NoWorkerRanUnobservedBeforeTheFreeze"],
+  "read-implies-the-observer-preceded-every-statement": ["NoWorkerRead", "NoWorkerRanUnobserved"],
+  "a-read-state-is-no-older-than-the-freeze": ["NoWorkerRead"],
+  "every-worker-the-readout-heard-of-lands-in-one-term": ["NoWorkerInANamedTerm"],
+  "a-worker-that-ran-before-the-freeze-lands-in-a-term": ["NoWorkerRanWithTheAttacherAlive", "NoWorkerNowhere"]
+};
+
+/** The companions a list of rows needs, each once, in the order the rows name them. */
+export const companionsOf = (rows) => [...new Set(rows.flatMap((row) => COMPANIONS[row]))];
+
+/**
+ * Where a row has nothing to judge, by world: some companion of it is reached under no set of
+ * switches there. The suite holds each entry to the hand-written model's own graph, and holds that
+ * no other row in any world is so. README.md says the same in sentences.
+ */
+export const NOT_JUDGED = {
+  hold: [],
+  stream: [
+    "excluded-implies-no-page-code-before-the-freeze",
+    "excluded-implies-no-unobserved-page-code-before-the-freeze",
+    "read-implies-the-observer-preceded-every-statement",
+    "a-worker-that-ran-before-the-freeze-lands-in-a-term"
+  ],
+  two: [],
+  small: []
+};
+
 const blockedText = (names) => [...names].sort().join(",");
 
 /** A label of the specification: its steps as TLC printed them, in the model's wording. */
