@@ -17,9 +17,10 @@
     "pathRemapping": "required-before-activation"
   },
   "blockers": [
-    "wasm-opt-came-from-an-unverified-wasm-pack-tool-cache-download",
-    "committed-wasm-embeds-host-cargo-registry-paths",
-    "clean-ci-rebuild-and-byte-compare-is-not-active"
+    "no-github-hosted-runner-has-rebuilt-and-compared-the-vendored-files",
+    "the-rebuild-workflow-is-not-a-required-check",
+    "the-vendored-wasm-names-the-cargo-home-of-the-host-that-built-it-first",
+    "the-approved-disclosure-in-release-readiness-is-integrity-only"
   ],
   "activationCriteria": [
     "pin-and-install-the-declared-rustc-wasm-pack-wasm-bindgen-cli-and-wasm-opt-versions-from-reviewed-sources",
@@ -48,6 +49,11 @@
       "path": "tools/adblock-wasm/src/lib.rs",
       "bytes": 1755,
       "sha256": "60e9af245c1dacdcf26796b305f92e507be598ee2fe4889f7dcac98ba5f0c9b7"
+    },
+    {
+      "path": "tools/adblock-wasm/build-pins.json",
+      "bytes": 5745,
+      "sha256": "61f171af91895360bc3e8ad39152a0c3aee75f5f24792e89f4d7a758b1334d70"
     }
   ],
   "outputs": [

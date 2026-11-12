@@ -67,11 +67,22 @@ test("vendored WASM source and output bytes stay bound to an explicitly blocked 
     "replace-this-blocked-contract-with-reviewed-build-provenance-and-enforce-the-rebuild-in-ci"
   ]);
   assert.deepEqual(contract.blockers, [
-    "wasm-opt-came-from-an-unverified-wasm-pack-tool-cache-download",
-    "committed-wasm-embeds-host-cargo-registry-paths",
-    "clean-ci-rebuild-and-byte-compare-is-not-active"
+    "no-github-hosted-runner-has-rebuilt-and-compared-the-vendored-files",
+    "the-rebuild-workflow-is-not-a-required-check",
+    "the-vendored-wasm-names-the-cargo-home-of-the-host-that-built-it-first",
+    "the-approved-disclosure-in-release-readiness-is-integrity-only"
   ]);
-  assert.equal(contract.inputs.length, 3);
+  // The last blocker names a recorded decision; it must be the one on file.
+  const readiness = JSON.parse(readFileSync(path.join(process.cwd(), "RELEASE_READINESS.json"), "utf8")) as {
+    decisions: { wasmReproducibility: { currentDisclosure: string; status: string } };
+  };
+  assert.equal(readiness.decisions.wasmReproducibility.currentDisclosure, contract.claim);
+  assert.equal(readiness.decisions.wasmReproducibility.status, "approved");
+  assert.deepEqual(
+    contract.inputs.map((entry) => entry.path),
+    ["tools/adblock-wasm/Cargo.toml", "tools/adblock-wasm/Cargo.lock", "tools/adblock-wasm/src/lib.rs", "tools/adblock-wasm/build-pins.json"]
+  );
+  assert.equal(contract.inputs.length, 4);
   assert.equal(contract.outputs.length, 4);
   assert.deepEqual(contract.observedBinaryMarkers, {
     rustcCommit: true,

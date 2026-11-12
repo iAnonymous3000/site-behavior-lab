@@ -207,8 +207,8 @@ evidence merely because the licensing producer could read it.
 ## Vendored adblock WASM
 
 `tools/adblock-wasm/reproducibility-contract.json` deterministically binds the
-three checked Rust inputs and all four runtime WASM/JavaScript outputs by byte
-count and SHA-256. `npm run wasm:verify-reproducibility` fails when any bound
+three checked Rust inputs, the pins of the rebuild described below, and all
+four runtime WASM/JavaScript outputs by byte count and SHA-256. `npm run wasm:verify-reproducibility` fails when any bound
 file or any blocker policy changes without a reviewed contract update.
 
 That check is an integrity contract, not a reproducible-build receipt. The
@@ -285,7 +285,7 @@ What was observed on 2026-11-12, and no more:
 | Host | Environment | Result |
 | --- | --- | --- |
 | `aarch64-apple-darwin` | macOS 27.2 on Apple silicon, native; rustup 1.29.3 | two clean builds equal the four vendored files |
-| `x86_64-unknown-linux-gnu` | Ubuntu 24.04.5 container, linux/amd64, run by Docker Desktop on an arm64 Mac, so emulated; gcc 13.2.0; rustup 1.29.3; not a GitHub-hosted runner | two clean builds equal the four vendored files |
+| `x86_64-unknown-linux-gnu` | Ubuntu 24.04.5 container, linux/amd64, run by Docker Desktop on an arm64 Mac, so emulated; gcc 13.3.0; rustup 1.29.3; not a GitHub-hosted runner | two clean builds equal the four vendored files |
 
 The four files are `sbl_adblock_wasm_bg.wasm`
 `e24f44849c65b429f63a88de371505d8a188fbc27230ace3b093caa0be3d3911`,
@@ -308,7 +308,10 @@ What the rebuild does not change:
 - The contract still reads `blocked` with the claim
   `integrity-only-not-reproducible-build`. That disclosure is an approved
   decision in `RELEASE_READINESS.json` (`wasmReproducibility`), and moving it
-  is the owner's decision, not a consequence of a build passing.
+  is the owner's decision, not a consequence of a build passing. Its
+  `blockers` now name what is still open: no hosted runner has run the
+  rebuild, the workflow is not a required check, the module names the first
+  build host's cargo home, and the approved disclosure is integrity-only.
 - The module still names the cargo home of the host that built it first, and
   now every rebuild writes that name on purpose. Removing it changes the
   vendored bytes, which is a toolchain epoch.

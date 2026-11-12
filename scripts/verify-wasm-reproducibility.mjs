@@ -8,10 +8,14 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 const ROOT = path.resolve(fileURLToPath(new URL("..", import.meta.url)));
 export const CONTRACT_PATH = "tools/adblock-wasm/reproducibility-contract.json";
 
+// build-pins.json is what scripts/adblock-wasm-build.mjs rebuilds the
+// outputs from: the tools, and the two values recorded from the first build
+// host. A change to it is a change to how the bound outputs are derived.
 const INPUT_PATHS = [
   "tools/adblock-wasm/Cargo.toml",
   "tools/adblock-wasm/Cargo.lock",
-  "tools/adblock-wasm/src/lib.rs"
+  "tools/adblock-wasm/src/lib.rs",
+  "tools/adblock-wasm/build-pins.json"
 ];
 const OUTPUT_PATHS = [
   "lib/adblock-wasm/sbl_adblock_wasm.js",
@@ -119,10 +123,16 @@ export function buildObservedWasmContract(root = ROOT) {
       wasmOpt: WASM_OPT_VERSION,
       pathRemapping: "required-before-activation"
     },
+    // What still stands between this contract and a claim that the outputs
+    // are rebuilt from the inputs, as of the pinned rebuild
+    // (scripts/adblock-wasm-build.mjs): two clean builds on macOS arm64 and
+    // in a linux/amd64 container gave the bound outputs, and the wasm-opt
+    // the outputs were first built with was checked against its release.
     blockers: [
-      "wasm-opt-came-from-an-unverified-wasm-pack-tool-cache-download",
-      "committed-wasm-embeds-host-cargo-registry-paths",
-      "clean-ci-rebuild-and-byte-compare-is-not-active"
+      "no-github-hosted-runner-has-rebuilt-and-compared-the-vendored-files",
+      "the-rebuild-workflow-is-not-a-required-check",
+      "the-vendored-wasm-names-the-cargo-home-of-the-host-that-built-it-first",
+      "the-approved-disclosure-in-release-readiness-is-integrity-only"
     ],
     activationCriteria: [
       "pin-and-install-the-declared-rustc-wasm-pack-wasm-bindgen-cli-and-wasm-opt-versions-from-reviewed-sources",

@@ -117,7 +117,7 @@ The pinned rebuild (`scripts/adblock-wasm-build.mjs`, described under "The pinne
 - `recordedForm.targetCrateMetadata`: `node scripts/adblock-wasm-build.mjs metadata` on the host that builds the vendored set prints the new table.
 - `recordedForm.cargoHome`: the vendored module names the cargo home of the host that built it, and the pins carry that name by length and SHA-256 only. An epoch that takes the vendored set from `node scripts/adblock-wasm-build.mjs build` instead of wasm-pack can write a `name` under `/sbl/` there, and the module then names no host at all. That changes how the vendored set is produced, so it is a decision for the epoch record, not a side effect.
 
-Then `node scripts/adblock-wasm-build.mjs tools --into <dir>` and `verify --tools <dir>` must pass on the build host before the epoch is proposed.
+The contract binds `build-pins.json` as an input, so regenerate the contract (`--print`, as above) after the pins move. Then `node scripts/adblock-wasm-build.mjs tools --into <dir>` and `verify --tools <dir>` must pass on the build host before the epoch is proposed.
 
 Treat any generated artifact, lockfile, disclosed version, Docker pin, or methodology guard that does not move together as a failed epoch.
 
