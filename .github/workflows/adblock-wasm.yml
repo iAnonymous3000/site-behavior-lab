@@ -1,0 +1,122 @@
+name: Ad-block Module Rebuild
+
+# Rebuilds the vendored ad-block WebAssembly module (lib/adblock-wasm) from
+# tools/adblock-wasm with pinned tools, twice, and compares the result with
+# the four vendored files byte for byte.
+#
+# This is a workflow of its own, not a job of CI, for the reason
+# trust-kernel.yml gives. The release workflow, the hosted evidence archive
+# and the durable transition receipt read the conclusion of the CI RUN and
+# refuse a failed one. This job downloads a compiler, a binaryen release and
+# a few hundred crates, so it can fail because a host that serves them cannot
+# be reached, and that must not stop a release of code the rebuild does not
+# touch. Nothing reads this workflow's conclusion: it is not in
+# .github/required-ci-jobs.json, no other workflow is triggered by it, and it
+# promotes and publishes nothing. So it shows whether the vendored files can
+# be rebuilt; it does not enforce it. The required check stays the static
+# contract in ci.yml (npm run wasm:verify-reproducibility), which binds the
+# same four files by sha256.
+#
+# It runs when something the build reads changes, and by hand. Nothing else
+# in the repository can change its result.
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - tools/adblock-wasm/**
+      - lib/adblock-wasm/sbl_adblock_wasm*
+      - scripts/adblock-wasm-build.mjs
+      - scripts/verify-wasm-reproducibility.mjs
+      - .github/workflows/adblock-wasm.yml
+  pull_request:
+    paths:
+      - tools/adblock-wasm/**
+      - lib/adblock-wasm/sbl_adblock_wasm*
+      - scripts/adblock-wasm-build.mjs
+      - scripts/verify-wasm-reproducibility.mjs
+      - .github/workflows/adblock-wasm.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Superseded pull-request revisions need no further feedback.
+concurrency:
+  group: adblock-wasm-${{ github.event_name }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  CI: "1"
+
+jobs:
+  adblock-wasm-rebuild:
+    name: Ad-block Module Rebuild and Compare
+    runs-on: ubuntu-24.04
+    # A hosted runner has not run these steps yet. In a linux/amd64
+    # container emulated on an arm64 machine the tools step took about four
+    # minutes (it compiles wasm-bindgen) and the two builds about four and a
+    # half.
+    # A step that hangs must fail this job, not hold the run.
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # The build script uses Node's own modules only, so nothing is
+      # installed from npm.
+      - name: Set up Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24.14.1
+
+      - name: Verify exact Node and npm runtime
+        run: |
+          set -euo pipefail
+          test "$(node --version)" = "v24.14.1"
+          test "$(npm --version)" = "11.11.0"
+
+      # The files this run rebuilds are the files the contract binds.
+      - name: Verify vendored WASM static integrity contract
+        run: node scripts/verify-wasm-reproducibility.mjs --verify
+
+      # rustup, the one in the runner image, installs the compiler named in
+      # tools/adblock-wasm/build-pins.json. What ties the result to the pin
+      # is checked after the install and again before every build: rustc
+      # reports the pinned commit, and rustup's record of the install lists
+      # the pinned archive hashes for rustc, cargo and both standard
+      # libraries. The step also requires the release's channel manifest to
+      # have the pinned sha256 and to list those hashes. rustup itself is
+      # not pinned.
+      - name: Install the pinned Rust toolchain
+        run: node scripts/adblock-wasm-build.mjs toolchain
+
+      # One archive from the binaryen release page and one crate archive
+      # from crates.io, each refused unless its size and sha256 are the
+      # pinned ones. wasm-bindgen is compiled from the crate with the lock
+      # file inside it.
+      - name: Install the pinned wasm-opt and wasm-bindgen
+        run: node scripts/adblock-wasm-build.mjs tools --into "$RUNNER_TEMP/adblock-wasm-tools"
+
+      # Two clean builds, the second at another path with an empty cargo
+      # home, must give the same bytes, and those bytes must be the four
+      # files in lib/adblock-wasm. That was observed on macOS arm64 and in a
+      # linux/amd64 container, not on a hosted runner; the first run here is
+      # the first observation on one.
+      - name: Rebuild the module twice and compare with the vendored files
+        run: >-
+          node scripts/adblock-wasm-build.mjs verify
+          --tools "$RUNNER_TEMP/adblock-wasm-tools"
+          --out "$RUNNER_TEMP/adblock-wasm-rebuilt"
+
+      - name: Preserve the rebuilt files
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: adblock-wasm-rebuilt-${{ github.sha }}
+          path: ${{ runner.temp }}/adblock-wasm-rebuilt
+          if-no-files-found: warn
+          retention-days: 30

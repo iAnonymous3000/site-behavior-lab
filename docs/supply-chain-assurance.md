@@ -232,27 +232,106 @@ copy on the host that built the vendored set (arm64-macos), with which a rebuild
 reproduces all four vendored files, has `bin/wasm-opt` SHA-256
 `e541f303219f9b6caa1661daea44510249da278736b7f2e320910051e7bbd4cd` and
 `lib/libbinaryen.dylib` SHA-256
-`9dc88d02f1aa84de40a8e8dbe5f3a023a8b5bcafaf1308ae20926ab425c533fb`; neither
-has been checked against the upstream release. The contract declares
-`wasmOpt` 117 and names that unverified download as a blocker, but the WASM
-records no wasm-opt marker, so that entry binds the documented toolchain, not
-observed bytes. The toolchain epoch playbook records the version and hashes
-and requires the build log to show wasm-opt ran. CI does not rebuild the
-binary, so the committed bytes cannot currently be derived from checked inputs
-alone.
+`9dc88d02f1aa84de40a8e8dbe5f3a023a8b5bcafaf1308ae20926ab425c533fb`. Both were
+checked against the upstream release on 2026-11-12: they are the files inside
+`binaryen-version_117-arm64-macos.tar.gz`, whose SHA-256
+`f2d962ff294b38ea3cfbbae8f6c728089d9375a57bac9a1880eb86779d6d3a84` is the one
+the release page publishes beside it. The contract declares `wasmOpt` 117,
+but the WASM records no wasm-opt marker, so that entry binds the documented
+toolchain, not observed bytes. The toolchain epoch playbook records the
+version and hashes and requires the build log to show wasm-opt ran.
 
-Do not call this artifact reproducible until one reviewed change does all of
-the following:
+### The pinned rebuild
 
-1. Pins rustc 1.96.1, Cargo 1.96.1, wasm-pack 0.14.0, wasm-bindgen CLI 0.2.130,
-   wasm-opt (binaryen `version_117`), and the `wasm32-unknown-unknown` target
-   from independently reviewed sources.
-2. Builds with `Cargo.lock`, a fixed source-date policy, and fixed path-prefix
-   remapping so host paths cannot enter the output.
-3. Produces identical bytes in two clean isolated builds, then replaces all
-   four vendored generated files together.
+`scripts/adblock-wasm-build.mjs` rebuilds the four vendored files from
+`tools/adblock-wasm` without wasm-pack, in the three steps wasm-pack ran
+(cargo, wasm-bindgen, then `wasm-opt -O` on the one module), and compares the
+result with the vendored files byte for byte. Its pins are in
+`tools/adblock-wasm/build-pins.json`:
+
+- rustc and Cargo 1.96.1, installed by rustup and held to the channel
+  manifest's archive hashes the way the trust kernel's build holds its
+  compiler. rustup itself is not pinned.
+- wasm-opt from the binaryen `version_117` release archive for the host,
+  by size and SHA-256 of the archive and SHA-256 of the files the build runs.
+- wasm-bindgen 0.2.130 compiled from the crate archive crates.io serves
+  (SHA-256 `c37f6904387d19a319525c74af274c73912f3871c35555aa49f3ea64ebb2fc7a`)
+  with `--locked`, so with the `Cargo.lock` inside that archive, which names
+  walrus 0.27.3. The prebuilt wasm-bindgen from the project's release page
+  is not used: it writes its git commit into the `producers` section, so its
+  output differs from the vendored module in that string.
+- Two values taken from the host that built the vendored module first (macOS
+  arm64), without which another host gives other bytes. The first is the
+  name of that host's cargo home, which the module carries in the source
+  paths of its crates: every build remaps its own cargo home to that name.
+  The pins give the name by length and SHA-256 only, and the script reads the
+  text from the vendored module. The second is the `-C metadata` value Cargo
+  gave each of the 49 crates compiled for the target: Cargo computes it from
+  the compiler's host platform among other things, and with Cargo's own
+  values the compiler output on Linux x86-64 differed from the one on macOS
+  arm64.
+
+  `node scripts/adblock-wasm-build.mjs metadata` prints the table for the
+  host it runs on; on macOS arm64 it prints the pinned one, and every build
+  there checks that again.
+
+`verify` makes two clean builds, the second from a copy of the crate at
+another path with another target directory and an empty cargo home, and
+requires both to equal each other and the vendored files, and neither to name
+a path of the building host.
+
+What was observed on 2026-11-12, and no more:
+
+| Host | Environment | Result |
+| --- | --- | --- |
+| `aarch64-apple-darwin` | macOS 27.2 on Apple silicon, native; rustup 1.29.3 | two clean builds equal the four vendored files |
+| `x86_64-unknown-linux-gnu` | Ubuntu 24.04.5 container, linux/amd64, run by Docker Desktop on an arm64 Mac, so emulated; gcc 13.2.0; rustup 1.29.3; not a GitHub-hosted runner | two clean builds equal the four vendored files |
+
+The four files are `sbl_adblock_wasm_bg.wasm`
+`e24f44849c65b429f63a88de371505d8a188fbc27230ace3b093caa0be3d3911`,
+`sbl_adblock_wasm.js`
+`99e31f976a0a70c68e050d6eda87648238bdb8e61ea14697a79a1d0e56acb6ed`,
+`sbl_adblock_wasm.d.ts`
+`919759b3a73fc490df296a07b1685273e5c2d298c315ab6996480007de246885` and
+`sbl_adblock_wasm_bg.wasm.d.ts`
+`23b08c5df2ecd378a3dae7890f31de2ae90e3db271c3e7653b280a3123bd26b1`, as the
+contract binds them. No other host platform has been tried.
+
+The `Ad-block Module Rebuild` workflow runs the same three commands on a
+GitHub-hosted runner when a file the build reads changes. No hosted runner
+had run it when this was written. Nothing reads that workflow's conclusion
+(it is not a required check, for the reason its file gives), so it shows
+whether the vendored files can be rebuilt and does not enforce it.
+
+What the rebuild does not change:
+
+- The contract still reads `blocked` with the claim
+  `integrity-only-not-reproducible-build`. That disclosure is an approved
+  decision in `RELEASE_READINESS.json` (`wasmReproducibility`), and moving it
+  is the owner's decision, not a consequence of a build passing.
+- The module still names the cargo home of the host that built it first, and
+  now every rebuild writes that name on purpose. Removing it changes the
+  vendored bytes, which is a toolchain epoch.
+- The wasm-bindgen program itself is not compared with anything; it differs
+  by host. Its source archive and lock file are pinned, and its output is
+  compared.
+
+Before the contract leaves `blocked`, the list this section has carried still
+applies. Where each item stands:
+
+1. Pins rustc 1.96.1, Cargo 1.96.1, wasm-bindgen CLI 0.2.130, wasm-opt
+   (binaryen `version_117`), and the `wasm32-unknown-unknown` target from
+   independently reviewed sources. The rebuild pins all of them. wasm-pack
+   0.14.0 is not pinned because the rebuild does not run it.
+2. Builds with `Cargo.lock` and fixed path-prefix remapping so host paths
+   cannot enter the output. The rebuild does, to the one recorded name. No
+   source-date policy was needed: builds on different days gave the same
+   bytes.
+3. Produces identical bytes in two clean isolated builds. Observed on the two
+   hosts above, and the bytes are the vendored ones, so nothing was replaced.
 4. Makes CI perform the clean rebuild and byte comparison before the static
-   integrity contract can change from `blocked`.
+   integrity contract can change from `blocked`. The workflow exists; a
+   hosted runner has not run it, and it is not a required check.
 
 Legal review is separate, and none has been performed: byte reproducibility does not establish that the
 bundled engine or filter-list corpus satisfies every notice or redistribution

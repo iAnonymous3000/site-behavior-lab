@@ -1,0 +1,133 @@
+{
+  "schemaVersion": 1,
+  "rust": {
+    "channel": "1.96.1",
+    "rustcCommit": "31fca3adb283cc9dfd56b49cdee9a96eb9c96ffd",
+    "target": "wasm32-unknown-unknown",
+    "manifest": {
+      "url": "https://static.rust-lang.org/dist/channel-rust-1.96.1.toml",
+      "bytes": 857570,
+      "sha256": "87eb76c53073e72b766083bed5530820694253b832a762d8385bda5759f03975"
+    },
+    "components": {
+      "note": "sha256 of the .tar.xz archive of each component the build uses, as the pinned channel manifest lists it",
+      "x86_64-unknown-linux-gnu": {
+        "rustc": "3545a0efad2355ecb0a3b9ac02efee96e27f1f9d24b7ce2fc3f279b2efb0d923",
+        "cargo": "ecc53a3c49fab5ab8c9301b3bbc8fb1dff9be6c65287add3f57a0fe8fddfea9e",
+        "rust-std": "1bf4fde5048cca33e6ea00c7471281ed96d792f6923141e3db45072743a1afae"
+      },
+      "aarch64-apple-darwin": {
+        "rustc": "9b548f0665f85f3c7fd45165611e3dea79f048c69d163be193986310d204fc2c",
+        "cargo": "2f43d75e9ad3febae5022c6f295cf93b74131cfdb1293a83e291f878ea9585a0",
+        "rust-std": "0d433a74c303febc915f8fa1091ef166445706461d0c96984ecb7303aa8208f5"
+      },
+      "wasm32-unknown-unknown": {
+        "rust-std": "0504b6fd6ec756ab5c32d35d8c9baf16138d9a7ed748c60db6c298c298c8bf01"
+      }
+    }
+  },
+  "wasmBindgenCli": {
+    "version": "0.2.130",
+    "walrus": "0.27.3",
+    "note": "The crate archive as crates.io serves it. Its own Cargo.lock, inside the archive, names every crate the tool is built from, walrus among them; cargo checks each against that lock.",
+    "crate": {
+      "url": "https://static.crates.io/crates/wasm-bindgen-cli/wasm-bindgen-cli-0.2.130.crate",
+      "bytes": 56655,
+      "sha256": "c37f6904387d19a319525c74af274c73912f3871c35555aa49f3ea64ebb2fc7a",
+      "directory": "wasm-bindgen-cli-0.2.130",
+      "lockSha256": "653f29ed961fa8ea7264a9e28bc096e4badf258e86d1764e35c1ddf3cdd63f8a"
+    },
+    "arguments": [
+      "--typescript",
+      "--target",
+      "nodejs"
+    ]
+  },
+  "binaryen": {
+    "version": "117",
+    "reports": "wasm-opt version 117 (version_117)",
+    "arguments": [
+      "-O"
+    ],
+    "assets": {
+      "x86_64-unknown-linux-gnu": {
+        "url": "https://github.com/WebAssembly/binaryen/releases/download/version_117/binaryen-version_117-x86_64-linux.tar.gz",
+        "bytes": 91090107,
+        "sha256": "3dc677006555b355ea2da5e82602065a161d5e83eaefd3f759afa00b96e83212",
+        "directory": "binaryen-version_117",
+        "files": {
+          "bin/wasm-opt": "621b5a984f16d0323ea7aa8b389ac9ccda0950ddee5de0e99292970129f571ed"
+        }
+      },
+      "aarch64-apple-darwin": {
+        "url": "https://github.com/WebAssembly/binaryen/releases/download/version_117/binaryen-version_117-arm64-macos.tar.gz",
+        "bytes": 6805073,
+        "sha256": "f2d962ff294b38ea3cfbbae8f6c728089d9375a57bac9a1880eb86779d6d3a84",
+        "directory": "binaryen-version_117",
+        "files": {
+          "bin/wasm-opt": "e541f303219f9b6caa1661daea44510249da278736b7f2e320910051e7bbd4cd",
+          "lib/libbinaryen.dylib": "9dc88d02f1aa84de40a8e8dbe5f3a023a8b5bcafaf1308ae20926ab425c533fb"
+        }
+      }
+    }
+  },
+  "recordedForm": {
+    "note": "What the vendored module carries from the host that built it first, held fixed so that another host gives the same bytes. cargoHome is the cargo home that module names, given here by length and sha256 only; the build reads the text from the module and maps its own cargo home to it. targetCrateMetadata is the -C metadata cargo 1.96.1 gave each crate of the target on recordingHost; the build gives every host those values.",
+    "recordingHost": "aarch64-apple-darwin",
+    "cargoHome": {
+      "bytes": 35,
+      "sha256": "a22fa15ae5503a40f7824a5c03758390e81aac1df8b177f8ce812403106147c8"
+    },
+    "targetCrateMetadata": {
+      "adblock": "99aa7cab789ced0f",
+      "addr": "851db2f5e1e4cf95",
+      "aho_corasick": "9bdea1b074d73448",
+      "arrayvec": "17b656379f55b755",
+      "base64": "a8afa8be1dab1a56",
+      "bitflags": "8087738f1287e363",
+      "cfg_if": "d71b5a62176909b1",
+      "either": "b922073a5fe82172",
+      "flatbuffers": "cf2c2c95e4c6c6e4",
+      "icu_collections": "4a4d6625315d92be",
+      "icu_locale_core": "00f12d78db86e00b",
+      "icu_normalizer": "3c779a7d975bb8cd",
+      "icu_normalizer_data": "bd06f08e98a45f62",
+      "icu_properties": "e5d66b8e82403415",
+      "icu_properties_data": "94ca9b68006bf0d3",
+      "icu_provider": "8fd534b08a554cbf",
+      "idna": "c0d8f51b30a4d4e5",
+      "idna_adapter": "ab505c7904416b91",
+      "itertools": "077f7f3bec369fcf",
+      "itoa": "4a49e4211cd6ea6e",
+      "litemap": "30bd6038dbc57c09",
+      "memchr": "43a633e074be11aa",
+      "percent_encoding": "b8d5eafa84065dcd",
+      "potential_utf": "8141fc821f7999e0",
+      "psl": "adc2ac8022063dce",
+      "psl_types": "ec4d32496f1326fb",
+      "regex": "7a8e65ff6dd56e14",
+      "regex_automata": "d88dd652f6e7ea57",
+      "regex_syntax": "1da8cab7cedc2f04",
+      "rustc_hash": "55078fa1547558ef",
+      "sbl_adblock_wasm": "532ca705f5f8fdd0",
+      "seahash": "d27a16c6580f7764",
+      "serde": "822d0ce06622b5bc",
+      "serde_core": "35e73b2fabfabf77",
+      "serde_json": "20fcd016ae49a7ee",
+      "smallvec": "5310be9be70679a6",
+      "stable_deref_trait": "2f1c9d3df3219f92",
+      "thiserror": "edf39aef8c8cb11a",
+      "tinystr": "c108099af1e3f522",
+      "unicode_ident": "0282b841ca7b6f8e",
+      "utf8_iter": "c31ea6584ff48c26",
+      "wasm_bindgen": "7d3c2e282173a288",
+      "wasm_bindgen_shared": "c6e727b6d54fe3dc",
+      "writeable": "1f26b0e18bb77974",
+      "yoke": "3e0776b0f1f3ba16",
+      "zerofrom": "73eff87781f1b18e",
+      "zerotrie": "823eb559b0be0cbf",
+      "zerovec": "c33cdec84fbe06e2",
+      "zmij": "9c67e14a7857d1f6"
+    }
+  }
+}
