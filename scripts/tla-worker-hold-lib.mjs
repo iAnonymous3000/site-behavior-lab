@@ -6,9 +6,11 @@
 // A label is a move's steps as the model words them, then the switches that forbid the move.
 // The end of a readout adds one edge for each worker, which says what it landed as and the
 // world's own facts about it. Two graphs with the same digest from their first states are
-// bisimilar over those labels: each takes exactly the label sequences the other takes, under
-// every set of switches, and lands every worker the same way. States are compared by what they
-// can do and never by how either side holds them, so the two need not agree on a state's fields.
+// bisimilar over those labels, unless two different digests collide: each takes exactly the
+// label sequences the other takes, under every set of switches, and lands every worker the same
+// way. A digest is SHA-256 cut to 128 bits, so the equality of two graphs is established by a
+// truncated digest and not edge by edge. States are compared by what they can do and never by
+// how either side holds them, so the two need not agree on a state's fields.
 
 import { createHash } from "node:crypto";
 

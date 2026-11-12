@@ -185,9 +185,13 @@ exclusion row is ever judged on the first and no read row on the second.
   world's whole graph, with nothing assumed, is folded into a digest over its
   labels (a move's steps with what the thread posted and sent, then the
   switches that forbid it) and over what each worker landed as. The model's
-  digest must be the one TLC's printed graph gave, so the two are bisimilar
-  over those labels: every trace of the model is a trace of the specification
-  and the other way, under every set of switches.
+  digest must be the one TLC's printed graph gave. A state's digest is SHA-256
+  over its moves and the digests of the states they lead to, cut to 128 bits.
+  Equal digests at the first states therefore show that the two graphs are
+  bisimilar over those labels (every trace of the model is a trace of the
+  specification and the other way, under every set of switches), unless two
+  different digests collide. The equality is established by that truncated
+  digest, and not by comparing the graphs edge by edge.
 - The table TLC found is the register's, row by row and world by world, and
   under each of the 512 sets of switches the rows the model's own verdicts
   break are the rows TLC found broken.
@@ -198,12 +202,31 @@ exclusion row is ever judged on the first and no read row on the second.
   label each world takes under the plan's axioms with C1 and D1, a trace that
   breaks each row the register says fails, and each form of the named trace.
 
-That replay is thin on purpose: one trace to a label, not every sequence. The
-suite pins two faults of the real thread that it cannot tell from the real one
-(one acts on a word the model drops, which is no step of any trace; one needs
-a session's words out of order at one point). The hand-written suite's own
-replay of the model catches both, and reaches this specification only through
-the comparison of graphs.
+### How far the real code is held
+
+The first two points above hold the hand-written model to the specification
+over each world's whole graph. The third is the only one that touches the real
+code, and it holds the real code to the specification on the kept traces and
+on nothing else. In the committed export those are:
+
+| World | Covering traces | Labels they take, of the labels the world has with nothing assumed | Traces that break a row | Traces to a form of the named trace |
+|---|---|---|---|---|
+| hold | 40 | 84 of 232 | 5 | 21 |
+| stream | 13 | 31 of 78 | 4 | 0 |
+| two | 23 | 57 of 59 | 5 | 0 |
+| small | 19 | 43 of 45 | 0 | 0 |
+
+The labels taken are all the labels a world has under the plan's axioms with
+C1 and D1, each taken once. A label the world has only with an axiom off is on
+no covering trace. That replay is thin on purpose: one trace to a label, not
+every sequence.
+
+Two seeded faults of the real thread are pinned in the suite as not detected
+by this replay: one acts on a word the model drops, which is no step of any
+trace; one needs a session's words out of order at one point. The suite fails
+if the kept traces start to tell either apart, so the limit stays on record.
+The hand-written suite's own replay of the model catches both, and reaches
+this specification only through the comparison of graphs.
 
 ## Not claimed
 

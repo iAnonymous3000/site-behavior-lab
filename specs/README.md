@@ -19,12 +19,31 @@ Nothing is said of an input, a plan, a world or a bound outside a
 configuration. It is not an argument for unbounded inputs, and no file here
 claims one.
 
-The specification is what TLC checks. The code is held to the specification by
-trace conformance: a suite replays what TLC computed through the real code and
-compares each step. That holds the code to the specification, and neither to a
-browser. The assumptions of `worker-hold/` (A1 to A5) are assumptions about
-Chromium. They are switches in the specification, and no run here measures
-them.
+The specification is what TLC checks. How far the code is held to the
+specification differs between the two, and each README says so in full.
+
+- `case-machine/`: on each of the five plans, the real machine's whole
+  reachable transition relation is compared with the specification's, by
+  counts and a digest of SHA-256 values. That is every reachable state of
+  those plans and every event of the alphabet, and nothing outside them.
+- `worker-hold/`: the hand-written model's whole graph is compared with the
+  specification's, in each of the four worlds, by a digest. The real code
+  (the attacher's thread, the mirror and the readout) is held to the
+  specification only on kept traces, which a suite replays through it. They
+  are 40, 13, 23 and 19 covering traces in the hold, stream, two-worker and
+  small worlds, 14 traces that each break a row, and 21 traces that each
+  reach a form of the named trace. The covering traces take each label a world has under the plan's
+  axioms with C1 and D1 once: 84, 31, 57 and 43 labels, where the worlds
+  have 232, 78, 59 and 45 with nothing assumed. Two seeded faults of the
+  real thread are pinned in the suite as not detected by that replay.
+
+Where two graphs are called bisimilar here, the equality was established by
+comparing digests cut to 128 bits, and not edge by edge. Equal digests show
+it unless two different digests collide.
+
+None of this holds the code or the specification to a browser. The
+assumptions of `worker-hold/` (A1 to A5) are assumptions about Chromium. They
+are switches in the specification, and no run here measures them.
 
 ## Tools
 

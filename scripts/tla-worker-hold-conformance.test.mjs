@@ -10,10 +10,12 @@
 //   whole graph, with nothing assumed, is folded into a digest over its labels (each move's steps
 //   with what the thread posted and sent, then the switches that forbid the move) and over what
 //   each worker landed as with the world's facts about it. That digest must be the one TLC's
-//   printed graph gave. Equal digests mean the two are bisimilar over those labels, so every
-//   trace of the model is a trace of the specification, and the other way, under every set of
-//   switches. It is a comparison by digest of SHA-256 values, not edge by edge; the export
-//   script walks to the first difference whenever the two part.
+//   printed graph gave. A state's digest is SHA-256 over its moves and the digests of the states
+//   they lead to, cut to 128 bits. Equal digests therefore show that the two are bisimilar over
+//   those labels (every trace of the model is a trace of the specification, and the other way,
+//   under every set of switches) unless two different digests collide. The equality is
+//   established by that truncated digest, not edge by edge; the export script walks to the first
+//   difference whenever the two part.
 // - The table. Each row's smallest sets of the plan's axioms, per world, as TLC found them, must
 //   be the ones the register states; and for every one of the 512 sets of switches, the rows the
 //   hand-written model's own verdicts break must be the rows TLC found broken.
@@ -24,7 +26,10 @@
 //   the register's table below) every companion of it must be reached under the same switches:
 //   by TLC's own run, which the export records, and in the hand-written model's own graph, which
 //   this suite walks. The worlds and rows where that fails are named, and held to be exactly those.
-// - The real code follows TLC's traces. Each kept trace, a path of moves TLC printed, is replayed
+// - The real code follows TLC's traces, and is held to the specification on those traces only:
+//   40, 13, 23 and 19 covering traces in the hold, stream, two-worker and small worlds, 14 that
+//   break a row and 21 that reach a form of the named trace. Two seeded faults of the real thread are pinned
+//   below as not detected by this replay. Each kept trace, a path of moves TLC printed, is replayed
 //   through the real thread, its in-process transport, the real mirror and the real readout by
 //   the suite's own harness (lib/fv-worker-model-replay.ts): at each step the thread must post
 //   and send what the label says, the port must carry it, and the mirror must hold what the
@@ -270,6 +275,8 @@ test("F4-TABLE and F4-BEYOND, from TLC's table: A4 changes no verdict, the exclu
     assert.equal(failsUnder(everywhere, row, WITH_C1_D1), true, row);
     assert.deepEqual(asKeys(smallestSets(everywhere, row, SWITCHES.filter((name) => name !== "A4"))), ["A5fifo,Z"], row);
   }
+  // The register words this over the hold and stream worlds. The stream world adds nothing to it: the no-term row
+  // cannot fail there under any set of switches, so what D1 closes is the hold world's.
   const waiting = violationsOver(["hold", "stream"]);
   assert.equal(failsUnder(waiting, NO_TERM, WITH_C1), true);
   assert.equal(failsUnder(waiting, NO_TERM, ["D1"]), false);
