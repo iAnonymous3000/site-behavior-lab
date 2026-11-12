@@ -50,6 +50,7 @@ export const COMPANION_REACHED_BY = {
   NoWorkerRanUnobservedBeforeTheFreeze: (landed) => landed.ranUnobservedAtFreeze,
   NoWorkerRead: (landed) => READ_TERMS.includes(landed.term),
   NoWorkerRanUnobserved: (landed) => landed.ranUnobserved,
+  NoReadPastTheFirstSnapshot: (landed) => READ_TERMS.includes(landed.term) && landed.realmAtFreeze > 1,
   NoWorkerInANamedTerm: (landed) => WORKER_TERMS.includes(landed.term),
   NoWorkerRanWithTheAttacherAlive: (landed) => landed.ranAtFreeze && landed.attacherLives,
   NoWorkerNowhere: (landed) => landed.term === "nowhere"
@@ -59,14 +60,16 @@ export const COMPANION_REACHED_BY = {
  * What each row needs before it has anything to judge: every companion listed for it must be
  * reached, in the world and under the switches the row is listed as holding in. The first of a
  * row's companions is the row's subject (a worker lands the way the row speaks of); the second,
- * where there is one, is the fact that would break it. A row with a companion that is never
- * reached holds whatever the protocol does, and is not listed there.
+ * where there is one, is the fact that would break it. For F4-AGE the second is a read of a realm
+ * that was past its first snapshot at the freeze: with one snapshot to read and no older one, the
+ * row cannot tell a right read from a wrong one. A row with a companion that is never reached
+ * holds whatever the protocol does, and is not listed there.
  */
 export const COMPANIONS = {
   "excluded-implies-no-page-code-before-the-freeze": ["NoWorkerExcluded", "NoWorkerRanBeforeTheFreeze"],
   "excluded-implies-no-unobserved-page-code-before-the-freeze": ["NoWorkerExcluded", "NoWorkerRanUnobservedBeforeTheFreeze"],
   "read-implies-the-observer-preceded-every-statement": ["NoWorkerRead", "NoWorkerRanUnobserved"],
-  "a-read-state-is-no-older-than-the-freeze": ["NoWorkerRead"],
+  "a-read-state-is-no-older-than-the-freeze": ["NoWorkerRead", "NoReadPastTheFirstSnapshot"],
   "every-worker-the-readout-heard-of-lands-in-one-term": ["NoWorkerInANamedTerm"],
   "a-worker-that-ran-before-the-freeze-lands-in-a-term": ["NoWorkerRanWithTheAttacherAlive", "NoWorkerNowhere"]
 };
@@ -80,15 +83,15 @@ export const companionsOf = (rows) => [...new Set(rows.flatMap((row) => COMPANIO
  * no other row in any world is so. README.md says the same in sentences.
  */
 export const NOT_JUDGED = {
-  hold: [],
+  hold: ["a-read-state-is-no-older-than-the-freeze"],
   stream: [
     "excluded-implies-no-page-code-before-the-freeze",
     "excluded-implies-no-unobserved-page-code-before-the-freeze",
     "read-implies-the-observer-preceded-every-statement",
     "a-worker-that-ran-before-the-freeze-lands-in-a-term"
   ],
-  two: [],
-  small: []
+  two: ["a-read-state-is-no-older-than-the-freeze"],
+  small: ["a-read-state-is-no-older-than-the-freeze"]
 };
 
 const blockedText = (names) => [...names].sort().join(",");

@@ -741,6 +741,10 @@ NoWorkerRanUnobservedBeforeTheFreeze == \A l \in Landed : ~l.ranUnobservedAtFree
 NoWorkerRead == \A l \in Landed : l.term \notin ReadTerms
 \* F4-READ can fail only where some worker ran with no observer in.
 NoWorkerRanUnobserved == \A l \in Landed : ~l.ranUnobserved
+\* F4-AGE can tell a read apart only where the realm was past its first snapshot at the freeze. Before that there
+\* is one snapshot to read and no older one, so every read is "no older than the freeze" whatever the readout does.
+\* The realm goes past its first snapshot only where Stream is TRUE.
+NoReadPastTheFirstSnapshot == \A l \in Landed : l.term \in ReadTerms => l.realmAtFreeze <= 1
 \* F4-TERM, its first half, speaks of a worker that lands in a named term.
 NoWorkerInANamedTerm == \A l \in Landed : l.term \notin WorkerTerms
 \* The no-term row judges only a worker that ran before the freeze with the attacher alive,

@@ -61,15 +61,20 @@ const without = (name) => PLAN_AXIOMS.filter((axiom) => axiom !== name);
  * lands nowhere and none runs unobserved, so the exclusion rows, the no-term row and F4-READ pass
  * there whatever the protocol does, and are not listed. The register's table gives them "holds
  * under no axiom" in that world, which is true and says nothing.
+ *
+ * F4-AGE is the other way round. Where Stream is FALSE (the hold, two-worker and small worlds) the
+ * realm never goes past its first snapshot, so a read is always of that one snapshot and the row
+ * cannot tell a right read from a wrong one. It is listed only in the stream world, which is the
+ * world the register says decides it.
  */
 export const CELLS = {
   hold: [
-    { assumed: [], holds: [AGE, TERM], fails: [] },
+    { assumed: [], holds: [TERM], fails: [] },
     { assumed: ["A1", "A2"], holds: [READ], fails: [] },
     { assumed: without("A1"), holds: [], fails: [READ] },
     { assumed: without("A2"), holds: [], fails: [READ] },
     { assumed: WITH_C1, holds: [], fails: [NO_TERM] },
-    { assumed: WITH_C1_D1, holds: [READ, AGE, TERM, NO_TERM], fails: [EXCLUDED_1, EXCLUDED_2] },
+    { assumed: WITH_C1_D1, holds: [READ, TERM, NO_TERM], fails: [EXCLUDED_1, EXCLUDED_2] },
     { assumed: ["D1"], holds: [NO_TERM], fails: [] },
     { assumed: ["Z"], holds: [NO_TERM], fails: [] },
     { assumed: ["A5fifo", "Z"], holds: [EXCLUDED_1, EXCLUDED_2], fails: [] }
@@ -82,10 +87,10 @@ export const CELLS = {
     { assumed: without("A5fifo"), holds: [], fails: [AGE] }
   ],
   two: [
-    { assumed: [], holds: [READ, AGE, TERM], fails: [] },
-    { assumed: PLAN_AXIOMS, holds: [READ, AGE, TERM], fails: [EXCLUDED_1, EXCLUDED_2, NO_TERM] },
+    { assumed: [], holds: [READ, TERM], fails: [] },
+    { assumed: PLAN_AXIOMS, holds: [READ, TERM], fails: [EXCLUDED_1, EXCLUDED_2, NO_TERM] },
     // The register does not state this one: with C1 on top, the second exclusion row holds in this world, and the first stays broken.
-    { assumed: WITH_C1_D1, holds: [EXCLUDED_2, READ, AGE, TERM], fails: [EXCLUDED_1, NO_TERM] },
+    { assumed: WITH_C1_D1, holds: [EXCLUDED_2, READ, TERM], fails: [EXCLUDED_1, NO_TERM] },
     { assumed: ["Z"], holds: [NO_TERM], fails: [] },
     { assumed: ["A5fifo", "Z"], holds: [EXCLUDED_1, EXCLUDED_2], fails: [] }
   ],

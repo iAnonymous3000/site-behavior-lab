@@ -62,7 +62,7 @@ which nothing that classifies reads.
 | Register row | In TLA+ | Sentence |
 |---|---|---|
 | F4-READ | `ReadHadItsObserver` | A shared worker the readout reads had its observer in before every statement of page code it ran. |
-| F4-AGE | `ReadNoOlderThanTheFreeze` | A shared worker the readout reads is read at a state no older than the freeze. |
+| F4-AGE | `ReadNoOlderThanTheFreeze` | A shared worker the readout reads is read at a state no older than the freeze. Judged in the stream world only. |
 | F4-TERM, first half | `HeardLandsInOneTerm` | Every shared worker the readout heard of lands in exactly one term. A landing is one term by construction; TLC holds that it is one of the named terms. |
 | F4-TERM, second half | not stated | Where @12 lands a worker apart from @11: the row rests on a restated old rule, and a third copy of it here would be bound to nothing. |
 | the exclusion rows | `ExcludedRanNothing`, `ExcludedRanNothingUnobserved` | A worker the readout excludes as held ran no page code (the second: none with no observer in) before the freeze. |
@@ -94,6 +94,17 @@ sentence is true, but it carries no information. The rows that the stream
 world does judge are F4-AGE and the first half of F4-TERM. The four rows are
 judged in the hold, two-worker and small worlds.
 
+F4-AGE is the other way round: it has force only in the stream world. In the
+hold, two-worker and small worlds `Stream` is `FALSE`, so the realm never goes
+past its first snapshot. A worker that is read there is always read at that
+one snapshot, and there is no older state it could have been read at. The row
+passes there whatever the readout does, so it is not listed in `hold-plan.cfg`,
+`two-plan.cfg` or `small-plan.cfg`, nor in a cell of those worlds. The
+register's table gives it "holds under no axiom" in the hold and two-worker
+worlds, and its row says that the stream world decides it. Only the stream
+world lists it, under the three axioms it needs there (A1, A3's negation and
+A5's order half).
+
 So that a row is not listed again where it has nothing to judge, each row has
 reachability companions in `WorkerHold.tla`. A companion says that something
 never happens, and TLC must report it violated:
@@ -103,7 +114,7 @@ never happens, and TLC must report it violated:
 | `ExcludedRanNothing` | `NoWorkerExcluded` | `NoWorkerRanBeforeTheFreeze` |
 | `ExcludedRanNothingUnobserved` | `NoWorkerExcluded` | `NoWorkerRanUnobservedBeforeTheFreeze` |
 | `ReadHadItsObserver` | `NoWorkerRead` | `NoWorkerRanUnobserved` |
-| `ReadNoOlderThanTheFreeze` | `NoWorkerRead` | |
+| `ReadNoOlderThanTheFreeze` | `NoWorkerRead` | `NoReadPastTheFirstSnapshot`: a read of a realm that was past its first snapshot at the freeze, which is where an older state exists to be read by mistake |
 | `HeardLandsInOneTerm` | `NoWorkerInANamedTerm` | (the row is a definition, see the table of invariants) |
 | `RanLandsInATerm` | `NoWorkerRanWithTheAttacherAlive` | `NoWorkerNowhere` |
 
@@ -114,7 +125,8 @@ violated. The conformance suite, with no Java, walks the hand-written model's
 own graph and fails if a companion of a listed row is not reached there: for
 each cell of the export script's table, for each committed configuration, and
 for each cell of its copy of the register's table. It also holds that the four
-rows above in the stream world are the only rows with nothing to judge.
+rows above in the stream world, and F4-AGE in the three worlds with no stream,
+are the only rows with nothing to judge.
 
 What a violated companion shows is limited. It shows that the row's subject,
 and the fact that would break the row, each occur in that world under those

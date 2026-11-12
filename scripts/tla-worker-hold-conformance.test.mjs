@@ -74,11 +74,12 @@ const WITH_C1_D1 = [...PLAN_AXIOMS, "C1", "D1"];
 
 // What each committed configuration lists: the type invariant, and the rows that hold under the plan's axioms in that
 // world and have something to judge there. The stream world lists no exclusion row, no no-term row and no F4-READ.
+// Only the stream world lists F4-AGE: where Stream is FALSE the realm never goes past its first snapshot.
 const PLAN_INVARIANTS = {
-  hold: ["TypeOK", "ReadHadItsObserver", "ReadNoOlderThanTheFreeze", "HeardLandsInOneTerm"],
+  hold: ["TypeOK", "ReadHadItsObserver", "HeardLandsInOneTerm"],
   stream: ["TypeOK", "ReadNoOlderThanTheFreeze", "HeardLandsInOneTerm"],
-  two: ["TypeOK", "ReadHadItsObserver", "ReadNoOlderThanTheFreeze", "HeardLandsInOneTerm"],
-  small: ["TypeOK", "ReadHadItsObserver", "ReadNoOlderThanTheFreeze", "HeardLandsInOneTerm"]
+  two: ["TypeOK", "ReadHadItsObserver", "HeardLandsInOneTerm"],
+  small: ["TypeOK", "ReadHadItsObserver", "HeardLandsInOneTerm"]
 };
 const invariantsOf = (configuration) => configuration.slice(configuration.indexOf("\nINVARIANTS\n") + "\nINVARIANTS\n".length).trim().split(/\s+/);
 
@@ -180,11 +181,15 @@ for (const world of Object.keys(WORLDS)) {
 // axiom") for both exclusion rows, the no-term row and F4-READ in the stream world. That is true of TLC's table too, and
 // it says nothing: no worker of that world is ever excluded, lands nowhere or runs unobserved, so those rows pass there
 // whatever the protocol does. Those four cells are held apart, below, as cells with nothing to judge.
+//
+// The register's table gives F4-AGE [[]] in the hold and two-worker worlds as well, and its row says "the stream world
+// decides it". Those two cells are also held apart: with no stream the realm has one snapshot at the freeze, every read
+// is of it, and the row cannot tell a right read from a wrong one.
 const REGISTER_TABLE = {
   [EXCLUDED_1]: { hold: [], two: [] },
   [EXCLUDED_2]: { hold: [], two: [] },
   [READ]: { hold: [["A1", "A2"]], two: [[]] },
-  [AGE]: { hold: [[]], stream: [["A1", "notA3", "A5fifo"]], two: [[]] },
+  [AGE]: { stream: [["A1", "notA3", "A5fifo"]] },
   [TERM]: { hold: [[]], stream: [[]], two: [[]] },
   [NO_TERM]: { hold: [], two: [] }
 };
@@ -229,7 +234,7 @@ test("a row is listed as holding only where it has something to judge: each of i
   }
 });
 
-test("where a row has nothing to judge: in the stream world no worker is excluded, lands nowhere or runs unobserved; every other row can be judged in every world", () => {
+test("where a row has nothing to judge: in the stream world no worker is excluded, lands nowhere or runs unobserved, and outside it no read is of a realm past its first snapshot; every other row can be judged in every world", () => {
   assert.deepEqual(Object.keys(NOT_JUDGED).sort(), Object.keys(WORLDS).sort());
   for (const world of Object.keys(WORLDS)) {
     for (const row of ROWS) {
@@ -244,7 +249,9 @@ test("where a row has nothing to judge: in the stream world no worker is exclude
       assert.equal(conformance.worlds[world].underPlan.invariants.includes(INVARIANT_OF[row]), false, `${world}-plan.cfg lists ${INVARIANT_OF[row]}`);
     }
   }
-  assert.deepEqual(NOT_JUDGED.stream, [EXCLUDED_1, EXCLUDED_2, READ, NO_TERM]);
+  assert.deepEqual(NOT_JUDGED, { hold: [AGE], stream: [EXCLUDED_1, EXCLUDED_2, READ, NO_TERM], two: [AGE], small: [AGE] });
+  // The world that judges F4-AGE is the one with a stream, and only that one.
+  for (const [world, { constants }] of Object.entries(WORLDS)) assert.equal(NOT_JUDGED[world].includes(AGE), !constants.Stream, world);
 });
 
 test("F4-TABLE and F4-BEYOND, from TLC's table: A4 changes no verdict, the exclusion rows fail with C1 and D1 on top of every axiom, D1 closes the no-term row only where the tree is waited for, and only Z closes it everywhere", () => {
