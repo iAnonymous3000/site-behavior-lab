@@ -264,6 +264,11 @@
           "minimumVariants": 22
         },
         {
+          "id": "lib/fv-report-consistency.test.ts",
+          "minimumTests": 18,
+          "minimumVariants": 9
+        },
+        {
           "id": "lib/fv-request-accounting.test.ts",
           "minimumTests": 50,
           "minimumVariants": 44

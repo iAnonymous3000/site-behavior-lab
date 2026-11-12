@@ -44,6 +44,7 @@ export const V1_REQUIRED_SUITES = Object.freeze([
   { id: "lib/fv-ipv4-classifier.test.ts", minimumTests: 125, minimumVariants: 113 },
   { id: "lib/fv-producer-identity.test.ts", minimumTests: 38, minimumVariants: 29 },
   { id: "lib/fv-published-stacks.test.ts", minimumTests: 31, minimumVariants: 22 },
+  { id: "lib/fv-report-consistency.test.ts", minimumTests: 18, minimumVariants: 9 },
   { id: "lib/fv-request-accounting.test.ts", minimumTests: 50, minimumVariants: 44 },
   { id: "lib/fv-scroll-producer.test.ts", minimumTests: 85, minimumVariants: 74 },
   { id: "lib/fv-warning-fragments.test.ts", minimumTests: 22, minimumVariants: 15 },

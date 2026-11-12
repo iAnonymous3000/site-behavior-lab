@@ -293,6 +293,7 @@ const KNOWN_SUITE_FILES = [
   "lib/fv-scroll-producer.test.ts",
   "lib/fv-worker-model.test.ts",
   "lib/fv-ipv4-classifier.test.ts",
+  "lib/fv-report-consistency.test.ts",
   "investigation/test/case-exploration.test.ts"
 ];
 const KNOWN_MODULES = [
