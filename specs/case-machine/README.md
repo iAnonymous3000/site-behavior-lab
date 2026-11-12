@@ -24,7 +24,7 @@ configuration change), and the purge slice over three paths.
 | `instrumented.cfg`, `baseline.cfg`, `one-each.cfg`, `two-each.cfg` | Row F5-S: the smaller plans, every property, with every manifest the slice reaches. |
 | `PurgeSlice.tla`, `purge-slice.cfg` | Row F5-P: the purge events alone, from no manifest, open and closed. |
 | `CaseMachineExport.tla` | Prints what the conformance suite compares the code with. Not a property. |
-| `conformance.json` | What TLC exported. Written by `scripts/tla-case-machine-export.mjs`. |
+| `conformance.json` | What TLC exported. Written by `scripts/tla-case-machine-export.mjs`, by hand: no CI job regenerates it. It records the SHA-256 of that script, of the modules it imports, of each `.tla` and `.cfg` file here and of the jar, and the suite fails when one of those files no longer matches. `../README.md` says how to regenerate and check it. |
 
 ## Where it differs from the TypeScript on purpose
 

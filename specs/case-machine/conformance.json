@@ -1,11 +1,24 @@
 {
-  "format": 1,
-  "about": "Exported by scripts/tla-case-machine-export.mjs from specs/case-machine with TLC. Do not edit by hand.",
+  "format": 2,
+  "about": "Exported by scripts/tla-case-machine-export.mjs from specs/case-machine with TLC. Do not edit by hand. producedBy, specification and configurations are the SHA-256 of each file this export was written by and from, and tla2tools is the jar's.",
+  "producedBy": {
+    "scripts/tla-case-machine-export.mjs": "ff2c8d525086a970c58fe4f7b89b3ed78e227cb93e3a0d044e41bf1470e9c89e",
+    "scripts/tla-case-machine-lib.mjs": "0a937051a6ac00dcb06fdb472e500588198edf6c5b171a0bb0ae78b61d012ce0",
+    "scripts/tla-tools-lib.mjs": "33637278a3b21d65a638e8c1f7e0c995b83cf559fe2161c60cdd306e5f3eeee5"
+  },
   "specification": {
     "CaseMachine.tla": "09b9bb3b7607ea763b459405c147fcb14b81a7e60ac546903fb4bd681eb1f51e",
     "CaseMachineMC.tla": "0610d535e053c32cf6037c3909b6d6510d77e795c4ed47310ea5ff0a5b2b3b3f",
     "CaseMachineExport.tla": "b3ea36fb375a96a54df651b94941708cdae4cfeb170c4c37025455c5fc08500f",
     "PurgeSlice.tla": "97da7fd8ccd2615acbd256542ddf45ddcb114d6146b65859c69ea55dafc1ab2b"
+  },
+  "configurations": {
+    "six-slots.cfg": "25a8e1a2302c6bd1cc23e0c0575700725a32217bda5a460c3ee1395b00949875",
+    "instrumented.cfg": "0b3ed18eab13640597e130d7694b53484f66297261383a44e98a1a24d4125fac",
+    "baseline.cfg": "11c9630c093a030feef426bf7a4c117677a6cf3b0f2f085b3c3e09be019a6961",
+    "one-each.cfg": "545fbd177be6f75bd9fa5f7100d2866960ab9f08286b09ff46ca211144733a25",
+    "two-each.cfg": "4370ef31e567c88fc50256dab2607227430322e406e0bc2532fc787594418374",
+    "purge-slice.cfg": "bf3e822b0985b9e371b58725ffb2c0a45e69cd67d95fdaadadf3f8194c14a8b6"
   },
   "tla2tools": "936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88",
   "caps": {

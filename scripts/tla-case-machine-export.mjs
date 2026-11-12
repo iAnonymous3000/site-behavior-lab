@@ -13,6 +13,11 @@
 // and the purge reducer's table. With --check it writes nothing and fails on any byte that
 // differs from the committed file.
 //
+// The file names what wrote it: the SHA-256 of this script and of the two modules it imports, of
+// each specification file, of each committed configuration and of the jar. The suite fails when
+// any of those files no longer has the digest the export records, so an edit here needs a new
+// export. No CI job runs this script: in CI, TLC's side is the committed file.
+//
 // While it has TLC's lines in hand it also holds the real machine to each of them, state
 // by state: the real step's answer to every event of the alphabet, and the real views, on
 // every state TLC reached. That comparison needs the compiled workspace:
@@ -27,10 +32,13 @@ import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { bindReal, CAPS, packCode, parseExportLine, PLAN_OPERATORS, PLANS, relationDigest, sha256Hex, stateLine, transitionClass } from "./tla-case-machine-lib.mjs";
-import { layout, pinArtifact, pinnedTools, option, ROOT, runTlc, tupleLine } from "./tla-tools-lib.mjs";
+import { layout, pinArtifact, pinnedTools, option, provenanceOf, ROOT, runTlc, tupleLine } from "./tla-tools-lib.mjs";
 
 const SPEC_DIR = join(ROOT, "specs", "case-machine");
 const SPEC_FILES = ["CaseMachine.tla", "CaseMachineMC.tla", "CaseMachineExport.tla", "PurgeSlice.tla"];
+/** This script and the modules it imports: the export records each one's SHA-256. */
+const SCRIPTS = ["scripts/tla-case-machine-export.mjs", "scripts/tla-case-machine-lib.mjs", "scripts/tla-tools-lib.mjs"];
+const CONFIGURATIONS = [...Object.keys(PLANS).map((name) => `${name}.cfg`), "purge-slice.cfg"];
 const OUTPUT = join(SPEC_DIR, "conformance.json");
 /** The plans whose traces are kept. The others are held by their digest alone. */
 const TRACE_PLANS = new Set(["six-slots", "two-each", "one-each"]);
@@ -254,7 +262,7 @@ async function exportPurge(tools) {
 }
 
 async function main() {
-  const { jar, java, pins } = pinnedTools();
+  const { jar, java, jarSha256 } = pinnedTools();
   const check = process.argv.includes("--check");
   const planNames = (option("--plans") ?? Object.keys(PLANS).join(",")).split(",");
 
@@ -269,8 +277,8 @@ async function main() {
     const tools = { java, jar, scratch, workers: Number(option("--workers") ?? "2"), heap: "3g" };
     // The files as they are before TLC reads them: a file edited while TLC runs would leave an export that names the
     // edited file and was made from the other.
-    const specification = () => Object.fromEntries(SPEC_FILES.map((file) => [file, sha256Hex(readFileSync(join(SPEC_DIR, file)))]));
-    const before = specification();
+    const provenance = () => provenanceOf({ scripts: SCRIPTS, specDir: SPEC_DIR, specification: SPEC_FILES, configurations: CONFIGURATIONS, jarSha256 });
+    const before = provenance();
     const previous = existsSync(OUTPUT) ? JSON.parse(readFileSync(OUTPUT, "utf8")) : { plans: {} };
     const plans = {};
     for (const planName of Object.keys(PLANS)) {
@@ -278,7 +286,7 @@ async function main() {
         // A plan not asked for keeps what the committed file holds, if that was exported from these same files; the
         // suite fails on a file with a plan missing.
         if (previous.plans[planName] !== undefined) {
-          if (JSON.stringify(previous.specification) !== JSON.stringify(before)) throw new Error(`${planName} was exported from another specification: export every plan`);
+          if (JSON.stringify({ producedBy: previous.producedBy, specification: previous.specification, configurations: previous.configurations, tla2tools: previous.tla2tools }) !== JSON.stringify(before)) throw new Error(`${planName} was exported by another script, or from another specification, configuration or jar: export every plan`);
           plans[planName] = previous.plans[planName];
         }
         continue;
@@ -289,16 +297,15 @@ async function main() {
     }
     const purged = await exportPurge(tools);
     const result = {
-      format: 1,
-      about: "Exported by scripts/tla-case-machine-export.mjs from specs/case-machine with TLC. Do not edit by hand.",
-      specification: before,
-      tla2tools: pins.tla2tools.sha256,
+      format: 2,
+      about: "Exported by scripts/tla-case-machine-export.mjs from specs/case-machine with TLC. Do not edit by hand. producedBy, specification and configurations are the SHA-256 of each file this export was written by and from, and tla2tools is the jar's.",
+      ...before,
       caps: CAPS,
       plans,
       purge: purged.rows,
       purgeSlice: purged.slice
     };
-    if (JSON.stringify(specification()) !== JSON.stringify(before)) throw new Error("A specification file changed while TLC was running: nothing was written");
+    if (JSON.stringify(provenance()) !== JSON.stringify(before)) throw new Error("A script, a specification file or a configuration changed while TLC was running: nothing was written");
     const text = `${layout(result)}\n`;
     if (check) {
       const committed = existsSync(OUTPUT) ? readFileSync(OUTPUT, "utf8") : "";

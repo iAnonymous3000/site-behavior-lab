@@ -36,6 +36,7 @@ import { dirname, join, resolve } from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { bindReal, CAPS, PLANS, sameEventSet, sha256Hex, transitionClass, walkReal } from "./tla-case-machine-lib.mjs";
+import { provenanceNow } from "./tla-tools-lib.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const SPEC_DIR = join(ROOT, "specs", "case-machine");
@@ -149,10 +150,17 @@ const purgeRows = conformance.purge.map((row) => {
   return { row, closed: closed === "1", manifestText: manifest, manifest: manifestOf(manifest), eventText: event, event: purgeEventOf(event), ok: answer.startsWith("="), left: answer.startsWith("=") ? manifestOf(answer.slice(1)) : null, refusal: answer.startsWith("!") ? answer.slice(1) : null, tier: tier === "S" ? "SUMMARY_ONLY" : "RAW_HELD" };
 });
 
-test("the committed export belongs to the committed specification and the pinned tools", () => {
-  assert.equal(conformance.format, 1);
-  for (const [file, digest] of Object.entries(conformance.specification)) assert.equal(sha256Hex(readFileSync(join(SPEC_DIR, file))), digest, `${file} changed since TLC last exported it: run scripts/tla-case-machine-export.mjs`);
+test("the committed export names the script that wrote it and the files it was written from, and each still has the digest it records", () => {
+  assert.equal(conformance.format, 2);
+  // What the export says it was produced by and from, against the files as they stand. A file edited since the export
+  // fails here: the export script and the modules it imports, a specification file, or a configuration.
+  const now = provenanceNow(conformance, SPEC_DIR);
+  for (const kind of ["producedBy", "specification", "configurations"]) {
+    for (const [file, digest] of Object.entries(conformance[kind])) assert.equal(now[kind][file], digest, `${file} changed since TLC last exported with it: run scripts/tla-case-machine-export.mjs`);
+  }
+  assert.deepEqual(Object.keys(conformance.producedBy).sort(), ["scripts/tla-case-machine-export.mjs", "scripts/tla-case-machine-lib.mjs", "scripts/tla-tools-lib.mjs"]);
   assert.deepEqual(Object.keys(conformance.specification).sort(), ["CaseMachine.tla", "CaseMachineExport.tla", "CaseMachineMC.tla", "PurgeSlice.tla"]);
+  assert.deepEqual(Object.keys(conformance.configurations).sort(), [...Object.keys(PLANS).map((name) => `${name}.cfg`), "purge-slice.cfg"].sort());
   assert.equal(conformance.tla2tools, pins.tla2tools.sha256, "the export was made with the pinned jar");
   assert.equal(sha256Hex(conformanceText), pins.artifacts["specs/case-machine/conformance.json"], "the export's digest is the pinned one");
   assert.deepEqual(Object.keys(conformance.plans).sort(), Object.keys(PLANS).sort(), "every plan is exported");

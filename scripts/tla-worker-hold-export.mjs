@@ -23,6 +23,12 @@
 // With --check it writes nothing and fails on any byte that differs from the committed file.
 // It needs the compiled library: npx tsc -p tsconfig.test.json
 //
+// The file names what wrote it: the SHA-256 of this script and of the three modules it imports,
+// of each specification file, of each committed configuration and of the jar. The suite fails
+// when any of those files no longer has the digest the export records, so an edit here (to the
+// table of cells, say) needs a new export. No CI job runs this script: in CI, TLC's side is the
+// committed file.
+//
 // Usage:
 //   node scripts/tla-worker-hold-export.mjs --jar <tla2tools.jar> [--java <java>] [--check] [--worlds a,b] [--workers n]
 
@@ -32,11 +38,14 @@ import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { parseTlaValue } from "./tla-case-machine-lib.mjs";
-import { layout, option, pinArtifact, pinnedTools, ROOT, runTlc, sha256Of, tupleLine } from "./tla-tools-lib.mjs";
+import { layout, option, pinArtifact, pinnedTools, provenanceOf, ROOT, runTlc, sha256Of, tupleLine } from "./tla-tools-lib.mjs";
 import { COMPANION_REACHED_BY, companionsOf, digests, firstDifference, landedLabel, modelGraph, newGraph, PLAN_AXIOMS, ROWS, specLabel, summary, SWITCHES, WORLDS } from "./tla-worker-hold-lib.mjs";
 
 const SPEC_DIR = join(ROOT, "specs", "worker-hold");
 const SPEC_FILES = ["WorkerHold.tla", "WorkerHoldExport.tla", "WorkerHoldTable.tla"];
+/** This script and the modules it imports: the export records each one's SHA-256. */
+const SCRIPTS = ["scripts/tla-worker-hold-export.mjs", "scripts/tla-worker-hold-lib.mjs", "scripts/tla-case-machine-lib.mjs", "scripts/tla-tools-lib.mjs"];
+const CONFIGURATIONS = Object.keys(WORLDS).map((world) => `${world}-plan.cfg`);
 const OUTPUT = join(SPEC_DIR, "conformance.json");
 
 const EXCLUDED_1 = "excluded-implies-no-page-code-before-the-freeze";
@@ -431,8 +440,8 @@ async function main() {
   const scratch = mkdtempSync(join(tmpdir(), "tla-worker-hold-"));
   // The files as they are before TLC reads them: a file edited while TLC runs would leave an export that names the
   // edited file and was made from the other.
-  const specification = () => Object.fromEntries(SPEC_FILES.map((file) => [file, sha256Of(readFileSync(join(SPEC_DIR, file)))]));
-  const before = specification();
+  const provenance = () => provenanceOf({ scripts: SCRIPTS, specDir: SPEC_DIR, specification: SPEC_FILES, configurations: CONFIGURATIONS, jarSha256: tools.jarSha256 });
+  const before = provenance();
   try {
     const previous = existsSync(OUTPUT) ? JSON.parse(readFileSync(OUTPUT, "utf8")) : { worlds: {} };
     const worlds = {};
@@ -441,7 +450,7 @@ async function main() {
       // fails on a file with a world missing.
       if (!worldNames.includes(world)) {
         if (previous.worlds[world] !== undefined) {
-          if (JSON.stringify(previous.specification) !== JSON.stringify(before)) throw new Error(`${world} was exported from another specification: export every world`);
+          if (JSON.stringify({ producedBy: previous.producedBy, specification: previous.specification, configurations: previous.configurations, tla2tools: previous.tla2tools }) !== JSON.stringify(before)) throw new Error(`${world} was exported by another script, or from another specification, configuration or jar: export every world`);
           worlds[world] = previous.worlds[world];
         }
         continue;
@@ -449,13 +458,12 @@ async function main() {
       worlds[world] = await exportWorld({ java: tools.java, jar: tools.jar, scratch, workers: Number(option("--workers") ?? "2") }, world, fv, kernels);
     }
     const result = {
-      format: 1,
-      about: "Exported by scripts/tla-worker-hold-export.mjs from specs/worker-hold with TLC. Do not edit by hand.",
-      specification: before,
-      tla2tools: tools.pins.tla2tools.sha256,
+      format: 2,
+      about: "Exported by scripts/tla-worker-hold-export.mjs from specs/worker-hold with TLC. Do not edit by hand. producedBy, specification and configurations are the SHA-256 of each file this export was written by and from, and tla2tools is the jar's.",
+      ...before,
       worlds
     };
-    if (JSON.stringify(specification()) !== JSON.stringify(before)) throw new Error("A specification file changed while TLC was running: nothing was written");
+    if (JSON.stringify(provenance()) !== JSON.stringify(before)) throw new Error("A script, a specification file or a configuration changed while TLC was running: nothing was written");
     const text = `${layout(result)}\n`;
     if (check) {
       const committed = existsSync(OUTPUT) ? readFileSync(OUTPUT, "utf8") : "";

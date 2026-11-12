@@ -56,19 +56,53 @@ CI has no Java. So each specification has two halves:
 - An export script runs TLC and writes `conformance.json` beside the
   specification: counts, digests, traces and tables. With `--check` it writes
   nothing and fails on any byte that differs from the committed file.
-- A conformance suite reads `conformance.json` and never starts Java. It fails
-  if a specification file changed since the export, by its SHA-256.
+- A conformance suite reads `conformance.json` and never starts Java.
+
+### In CI, TLC's side is a committed file
+
+No CI job runs TLC, and no CI job regenerates or checks `conformance.json`.
+In CI, TLC's side of every comparison is the committed export, and a person
+with Java and the jar regenerates it by hand. That TLC produced the file, and
+what it reports TLC held, is the file's own word. CI cannot see it.
+
+What CI can see is drift. Each export records the SHA-256 of what it was
+produced by and from:
+
+- `producedBy`: the export script, and each module it imports.
+- `specification`: each `.tla` file.
+- `configurations`: each committed `.cfg` file TLC ran.
+- `tla2tools`: the jar.
+
+The conformance suite computes the same digests from the files as they stand
+and fails if one differs, so an export script, a specification or a
+configuration that was edited after the export no longer passes with it. The
+suite has no jar, so it holds the jar's recorded digest to the pin in
+`tla-tools.json`. That pin and the digests of the two exports are stored
+beside the files they describe: they stop an accidental edit, and nothing
+more.
+
+The two mutation scripts are in the same position, and weaker: they need TLC,
+no CI stage runs them, and no committed file records their result.
+
+### Regenerating and checking locally
+
+Use the jar that `tla-tools.json` pins. Regenerate an export after any change
+to a file it records, and commit the export with that change. To check that a
+committed export is what TLC produces now, run the same command with
+`--check`: it writes nothing, and fails on any byte that differs.
 
 ```sh
 # The conformance suites, as CI runs them (no Java):
 npm run test:tla-case-machine
 npm run test:tla-worker-hold
 
-# Regenerate what TLC computes, or check it (Java and the pinned jar):
+# Regenerate what TLC computes, or check it (Java and the pinned jar).
+# The case machine takes about an hour, nearly all of it the six-slot plan;
+# the hold takes about ten minutes.
 npx tsc -p tsconfig.investigation-test.json
-node scripts/tla-case-machine-export.mjs --jar tla2tools.jar [--check]
+node scripts/tla-case-machine-export.mjs --jar tla2tools.jar [--java /path/to/java] [--workers 2] [--check]
 npx tsc -p tsconfig.test.json
-node scripts/tla-worker-hold-export.mjs --jar tla2tools.jar [--check]
+node scripts/tla-worker-hold-export.mjs --jar tla2tools.jar [--java /path/to/java] [--workers 2] [--check]
 
 # One TLC run by hand, on a configuration beside a specification:
 cd specs/case-machine

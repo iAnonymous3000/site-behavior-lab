@@ -175,7 +175,7 @@ exclusion row is ever judged on the first and no read row on the second.
 | `WorkerHoldTable.tla` | The axiom table in one search, and the named trace. |
 | `WorkerHoldExport.tla` | Prints the whole graph of a world. Not a property. |
 | `hold-plan.cfg`, `stream-plan.cfg`, `two-plan.cfg`, `small-plan.cfg` | Each world under the plan's axioms, with the rows that hold there and have something to judge there. The export script writes the other configurations it runs. |
-| `conformance.json` | What TLC exported. Written by `scripts/tla-worker-hold-export.mjs`. |
+| `conformance.json` | What TLC exported. Written by `scripts/tla-worker-hold-export.mjs`, by hand: no CI job regenerates it. It records the SHA-256 of that script, of the modules it imports, of each `.tla` and `.cfg` file here and of the jar, and the suite fails when one of those files no longer matches. `../README.md` says how to regenerate and check it. |
 
 ## What the conformance suite holds
 

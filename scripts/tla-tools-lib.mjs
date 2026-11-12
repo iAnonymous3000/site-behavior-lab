@@ -26,7 +26,26 @@ export function pinnedTools() {
   const pins = JSON.parse(readFileSync(PINS, "utf8"));
   const digest = sha256Of(readFileSync(jar));
   if (digest !== pins.tla2tools.sha256) throw new Error(`The jar's SHA-256 is ${digest}, and specs/tla-tools.json pins ${pins.tla2tools.sha256}`);
-  return { jar, java: option("--java") ?? "java", pins };
+  return { jar, java: option("--java") ?? "java", pins, jarSha256: digest };
+}
+
+/**
+ * What an export was produced by and from, as SHA-256 values an export writes into itself: the
+ * export script with every module of this directory it imports (`scripts`, paths from the
+ * repository's root), each specification file and each committed configuration TLC read
+ * (`specification` and `configurations`, names in `specDir`), and the jar. The conformance suites
+ * compute the same map from the files as they stand, the jar aside, and fail on any difference: an
+ * export then names the script that wrote it, and a script, a specification or a configuration
+ * edited since no longer matches the export beside it.
+ */
+export function provenanceOf({ scripts, specDir, specification, configurations, jarSha256 }) {
+  const digestsOf = (directory, names) => Object.fromEntries(names.map((name) => [name, sha256Of(readFileSync(join(directory, name)))]));
+  return { producedBy: digestsOf(ROOT, scripts), specification: digestsOf(specDir, specification), configurations: digestsOf(specDir, configurations), tla2tools: jarSha256 };
+}
+
+/** The same map from the files as they stand, for a suite that has no jar: the jar's digest is the export's own word, held to the pin. */
+export function provenanceNow(exported, specDir) {
+  return provenanceOf({ scripts: Object.keys(exported.producedBy ?? {}), specDir, specification: Object.keys(exported.specification ?? {}), configurations: Object.keys(exported.configurations ?? {}), jarSha256: exported.tla2tools });
 }
 
 /** Records an exported file's digest beside the jar's pin. */

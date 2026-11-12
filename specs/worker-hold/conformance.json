@@ -1,10 +1,22 @@
 {
-  "format": 1,
-  "about": "Exported by scripts/tla-worker-hold-export.mjs from specs/worker-hold with TLC. Do not edit by hand.",
+  "format": 2,
+  "about": "Exported by scripts/tla-worker-hold-export.mjs from specs/worker-hold with TLC. Do not edit by hand. producedBy, specification and configurations are the SHA-256 of each file this export was written by and from, and tla2tools is the jar's.",
+  "producedBy": {
+    "scripts/tla-worker-hold-export.mjs": "69d966d2ac78a22bb5d3f88cb9850a5cbc963e4bb7837f06bf91383517ae76e1",
+    "scripts/tla-worker-hold-lib.mjs": "8025bd4d6bb0addb14ca81c88a2e0b8ef725ca9d8c2ebc98d52bd73e1485e565",
+    "scripts/tla-case-machine-lib.mjs": "0a937051a6ac00dcb06fdb472e500588198edf6c5b171a0bb0ae78b61d012ce0",
+    "scripts/tla-tools-lib.mjs": "33637278a3b21d65a638e8c1f7e0c995b83cf559fe2161c60cdd306e5f3eeee5"
+  },
   "specification": {
     "WorkerHold.tla": "ab8fd4b8db4c72485fff1d83682ec8e8d08ea994e29bf16dc775fd980f653d2e",
     "WorkerHoldExport.tla": "6e4d6822cc503ad0829702586fb262b09215b17984d368a9ff6593e6ed17c571",
     "WorkerHoldTable.tla": "aae1e53f474bc31a058bfb02fc201449c4aea28948010b7f286e830a30f79ade"
+  },
+  "configurations": {
+    "hold-plan.cfg": "2232b8b9c5a9bc22e234dc1b893cd731e821239656343a1733bec4dd222f6fad",
+    "stream-plan.cfg": "8cdd2eefc57dc8a9f9d8dc3c4d1dad18d9347ef884f2761b053d2a1ad7df1e51",
+    "two-plan.cfg": "0577d7331196fd7950bc1ebaefb04172b711fd4de32a3fe79a3699e6526b4fff",
+    "small-plan.cfg": "0bd1e97040809d6564e6efedefff40bf2dba9745fd055401d8acb92eca6abf90"
   },
   "tla2tools": "936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88",
   "worlds": {

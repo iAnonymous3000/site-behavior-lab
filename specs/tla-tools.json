@@ -7,7 +7,7 @@
     "sha256": "936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88"
   },
   "artifacts": {
-    "specs/case-machine/conformance.json": "b6786a26c348cdc18e0db1ec784a31f80b9722894964793ec97b282f4db67108",
-    "specs/worker-hold/conformance.json": "eb013074deb5c68d510f9e519b373645395ace4c0ffef35df950acd2c7571881"
+    "specs/case-machine/conformance.json": "161e4d72a6009d6334b19aa09badd2bf72d58e7d99c3d943ac32f78f67260e5a",
+    "specs/worker-hold/conformance.json": "623919603b03b0523a834ae60b847597f0214883743a095c048d275760e90978"
   }
 }

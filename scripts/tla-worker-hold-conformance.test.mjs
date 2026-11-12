@@ -4,7 +4,10 @@
 //
 // It runs without Java: what TLC computed is in specs/worker-hold/conformance.json, which
 // scripts/tla-worker-hold-export.mjs regenerates with TLC and compares byte for byte with
-// --check. TLC model-checks the specification's rows over each world under the sets of switches
+// --check. No CI job regenerates it: in CI, TLC's side of every comparison here is that committed
+// file. The file records the SHA-256 of the script that wrote it, of each module that script
+// imports, of each specification file and each committed configuration, and of the jar, and the
+// first test fails when one of those files no longer has the digest recorded. TLC model-checks the specification's rows over each world under the sets of switches
 // that file names. This suite then holds three things:
 // - The model and the specification take the same steps. For each world the hand-written model's
 //   whole graph, with nothing assumed, is folded into a digest over its labels (each move's steps
@@ -47,6 +50,7 @@ import { createRequire } from "node:module";
 import { dirname, join, resolve } from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
+import { provenanceNow } from "./tla-tools-lib.mjs";
 import { CELLS } from "./tla-worker-hold-export.mjs";
 import { COMPANION_REACHED_BY, COMPANIONS, companionsOf, digests, failsUnder, modelGraph, NOT_JUDGED, PLAN_AXIOMS, ROWS as INVARIANT_OF, sha256Hex, smallestSets, summary, SWITCHES, WORLDS } from "./tla-worker-hold-lib.mjs";
 
@@ -98,10 +102,17 @@ function built(world) {
   return models.get(world);
 }
 
-test("the committed export belongs to the committed specification and the pinned tools, and its worlds are the hand-written model's", () => {
-  assert.equal(conformance.format, 1);
+test("the committed export names the script that wrote it and the files it was written from, each still has the digest it records, and its worlds are the hand-written model's", () => {
+  assert.equal(conformance.format, 2);
+  // What the export says it was produced by and from, against the files as they stand. A file edited since the export
+  // fails here: the export script and the modules it imports, a specification file, or a configuration.
+  const now = provenanceNow(conformance, SPEC_DIR);
+  for (const kind of ["producedBy", "specification", "configurations"]) {
+    for (const [file, digest] of Object.entries(conformance[kind])) assert.equal(now[kind][file], digest, `${file} changed since TLC last exported with it: run scripts/tla-worker-hold-export.mjs`);
+  }
+  assert.deepEqual(Object.keys(conformance.producedBy).sort(), ["scripts/tla-case-machine-lib.mjs", "scripts/tla-tools-lib.mjs", "scripts/tla-worker-hold-export.mjs", "scripts/tla-worker-hold-lib.mjs"]);
   assert.deepEqual(Object.keys(conformance.specification).sort(), ["WorkerHold.tla", "WorkerHoldExport.tla", "WorkerHoldTable.tla"]);
-  for (const [file, digest] of Object.entries(conformance.specification)) assert.equal(sha256Hex(readFileSync(join(SPEC_DIR, file))), digest, `${file} changed since TLC last exported it: run scripts/tla-worker-hold-export.mjs`);
+  assert.deepEqual(Object.keys(conformance.configurations).sort(), Object.keys(WORLDS).map((world) => `${world}-plan.cfg`).sort());
   assert.equal(conformance.tla2tools, pins.tla2tools.sha256, "the export was made with the pinned jar");
   assert.equal(sha256Hex(conformanceText), pins.artifacts["specs/worker-hold/conformance.json"], "the export's digest is the pinned one");
   assert.deepEqual(Object.keys(conformance.worlds).sort(), Object.keys(WORLDS).sort(), "every world is exported");
