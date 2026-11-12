@@ -1,0 +1,99 @@
+// What the TLA+ export scripts share: the pinned jar, one way of running TLC and reading what it
+// prints, and the layout of the files they write. Nothing here runs in CI: the conformance
+// suites read the files these scripts write and never start Java.
+
+import { spawn } from "node:child_process";
+import { createHash } from "node:crypto";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
+import { createInterface } from "node:readline";
+import { fileURLToPath } from "node:url";
+
+export const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+export const PINS = join(ROOT, "specs", "tla-tools.json");
+
+export const sha256Of = (bytes) => createHash("sha256").update(bytes).digest("hex");
+
+export function option(name) {
+  const at = process.argv.indexOf(name);
+  return at < 0 ? undefined : process.argv[at + 1];
+}
+
+/** The jar and the Java to run it with, from the command line, held to the SHA-256 specs/tla-tools.json pins. */
+export function pinnedTools() {
+  const jar = option("--jar");
+  if (jar === undefined || !existsSync(jar)) throw new Error("Give the pinned tla2tools.jar with --jar <path>");
+  const pins = JSON.parse(readFileSync(PINS, "utf8"));
+  const digest = sha256Of(readFileSync(jar));
+  if (digest !== pins.tla2tools.sha256) throw new Error(`The jar's SHA-256 is ${digest}, and specs/tla-tools.json pins ${pins.tla2tools.sha256}`);
+  return { jar, java: option("--java") ?? "java", pins };
+}
+
+/** Records an exported file's digest beside the jar's pin. */
+export function pinArtifact(path, text) {
+  const pins = JSON.parse(readFileSync(PINS, "utf8"));
+  pins.artifacts = { ...(pins.artifacts ?? {}), [path]: sha256Of(text) };
+  writeFileSync(PINS, `${JSON.stringify(pins, null, 2)}\n`);
+}
+
+/**
+ * Runs TLC on a module with a configuration written to the scratch directory, and hands each line
+ * TLC prints through PrintT(ToString(...)) to `onLine`. It returns TLC's own counts and whether it
+ * ended clean or on a violated invariant, which it names; anything else throws. Deadlock checking
+ * is off: every specification here ends in states with no successor on purpose.
+ */
+export async function runTlc({ java, jar, scratch, specDir, module, name, config, workers = 1, heap = "2g", onLine = () => undefined }) {
+  const configPath = join(scratch, `${name}.cfg`);
+  writeFileSync(configPath, config);
+  const child = spawn(java, ["-XX:+UseParallelGC", `-Xmx${heap}`, "-cp", jar, "tlc2.TLC", "-workers", String(workers), "-deadlock", "-metadir", join(scratch, `${name}-states`), "-config", configPath, module], { cwd: specDir, stdio: ["ignore", "pipe", "pipe"] });
+  const tail = [];
+  const summary = { generated: null, distinct: null, depth: null, clean: false, violated: null };
+  let failure = null;
+  const lines = createInterface({ input: child.stdout, crlfDelay: Infinity });
+  lines.on("line", (line) => {
+    if (failure !== null) return;
+    try {
+      if (line.startsWith('"<<')) {
+        onLine(line);
+        return;
+      }
+      tail.push(line);
+      if (tail.length > 40) tail.shift();
+      const counts = /^(\d+) states generated, (\d+) distinct states found, (\d+) states left on queue\.$/.exec(line);
+      if (counts !== null) Object.assign(summary, { generated: Number(counts[1]), distinct: Number(counts[2]) });
+      const depth = /^The depth of the complete state graph search is (\d+)\.$/.exec(line);
+      if (depth !== null) summary.depth = Number(depth[1]);
+      const violated = /^Error: Invariant (\S+) is violated/.exec(line);
+      if (violated !== null) summary.violated = violated[1];
+      if (line === "Model checking completed. No error has been found.") summary.clean = true;
+    } catch (error) {
+      failure = error;
+      child.kill();
+    }
+  });
+  let stderr = "";
+  child.stderr.on("data", (chunk) => {
+    stderr += chunk;
+  });
+  const code = await new Promise((done) => child.on("close", done));
+  if (failure !== null) throw failure;
+  if (!summary.clean && summary.violated === null) throw new Error(`TLC neither finished clean nor named a violated invariant on ${name} (exit ${String(code)}):\n${tail.join("\n")}\n${stderr}`);
+  return summary;
+}
+
+/** A printed line that holds only tuples, strings, numbers and booleans, read as JSON once its brackets are JSON's. */
+export function tupleLine(line) {
+  return JSON.parse(JSON.parse(line).replaceAll("<<", "[").replaceAll(">>", "]").replaceAll("{", "[").replaceAll("}", "]").replaceAll("TRUE", "true").replaceAll("FALSE", "false"));
+}
+
+/** JSON with one line for each entry of a list and each field of the first levels, so a change to one entry is one changed line. */
+export function layout(value, depth = 0) {
+  const pad = "  ".repeat(depth + 1);
+  if (Array.isArray(value) && value.length > 0) return `[\n${value.map((item) => pad + JSON.stringify(item)).join(",\n")}\n${"  ".repeat(depth)}]`;
+  if (value !== null && typeof value === "object" && !Array.isArray(value) && depth < 3 && Object.keys(value).length > 0) {
+    return `{\n${Object.entries(value)
+      .map(([key, inner]) => `${pad}${JSON.stringify(key)}: ${layout(inner, depth + 1)}`)
+      .join(",\n")}\n${"  ".repeat(depth)}}`;
+  }
+  return JSON.stringify(value);
+}
