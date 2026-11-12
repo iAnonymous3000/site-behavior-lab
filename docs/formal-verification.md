@@ -248,7 +248,8 @@ describes, has a test of its own outside this register's rows,
 `lib/fv-coverage-loss.test.ts`, `lib/fv-request-accounting.test.ts`,
 `lib/fv-published-stacks.test.ts`, `lib/fv-initiator-claims.test.ts`,
 `lib/fv-warning-fragments.test.ts`, `lib/fv-worker-readout.test.ts`,
-`lib/fv-scroll-producer.test.ts`, `lib/fv-worker-model.test.ts` and
+`lib/fv-scroll-producer.test.ts`, `lib/fv-worker-model.test.ts`,
+`lib/fv-ipv4-classifier.test.ts` and
 `investigation/test/case-exploration.test.ts`. The worker model is
 `lib/fv-worker-model.ts`, replayed through the real code by
 `lib/fv-worker-model-replay.ts`. The case exploration's walks and checks are
@@ -1073,6 +1074,98 @@ its table.
 - **Variants:** none: widening the signature fails the test.
 - **Commit:** 3fef1027f8024eddcee58d19abee7f248bf8d80c
 
+## Claims from the IPv4 address classifier
+
+`lib/ip-safety.ts` decides which addresses a scan may connect to. These rows
+hold its IPv4 rule to a table the suite writes out by hand, `NON_PUBLIC_BLOCKS`
+with `REACHABLE_EXCEPTIONS`, from the IANA registries and the RFC each line
+names. By the table an address is public exactly when it lies in no block, or
+lies in an exception. The classifier and the table differ on the exceptions,
+which are outside each row here and pinned open as OPEN-IP4.1.
+
+### IP4-T. An address reads as the table says
+
+- **Property:** An IPv4 address reads public exactly when the suite's table says it is public, and each such dotted quad is an address. The table is well formed: each line starts its own block, the limited broadcast address is the reserved block's last, each exception lies inside a block, no reachable line touches a block, and the table read by prefix agrees with the table read by address.
+- **Code:** `isPublicIpAddress` and `isIpAddress` in `lib/ip-safety.ts`.
+- **Domain:** IPv4 addresses written as a dotted quad of decimal octets. Exhaustive over each prefix that leaves out an address's last octet, at the lowest last octet, the highest, and the value `movingOctet` gives that prefix; and over each value of the last octet for each prefix in `EDGE_PREFIXES`, the prefixes that hold a table line's first or last address or the address just outside either end. Sampled for the last octet of a prefix outside `EDGE_PREFIXES`: the walk reads those values of it and no others, so this row does not walk the whole IPv4 space. The addresses of `REACHABLE_EXCEPTIONS` are left out.
+- **Bounds:** none beyond those enumerations.
+- **Axioms:** none
+- **Method:** exhaustive, sampled
+- **Not claimed:** That the table is the registries'. It was written by hand, no test holds it to a registry, and a block it lacks or misstates is not seen. Any address read at a last octet the walk does not take, away from the table's edges; IP4-F holds the classifier's text there and says what that leaves out. Any IPv6 address: `lib/ip-safety.test.ts` and `lib/serious-use-audit-fixes.test.ts` hold IPv6 by written-out cases, and no row here does. That a caller asks the classifier, or what a resolver answers.
+- **Tests:**
+  - `lib/fv-ipv4-classifier.test.ts`: "the table is well formed: each line starts its own block, one block lies inside another, each exception lies inside a block, and no reachable line touches a block"
+  - `lib/fv-ipv4-classifier.test.ts`: "IP4: every address of every prefix at an edge of a table line reads as the table says, over every fourth octet"
+  - `lib/fv-ipv4-classifier.test.ts`: "IP4: every prefix of three octets reads as the table says at the lowest fourth octet, the highest and one that moves with the prefix"
+- **Variants:**
+  - `lib/fv-ipv4-classifier.test.ts`: names beginning "IP4 catches a variant:"
+  - `lib/fv-ipv4-classifier.test.ts`: names beginning "IP4 catches a variant no edge prefix holds"
+  - `lib/fv-ipv4-classifier.test.ts`: "every block of the table has a variant that removes it"
+  - `lib/fv-ipv4-classifier.test.ts`: "every block of the table has a variant that moves each end that parts public from non-public"
+- **Commit:** 86e139ca6a01854841bedeb9622e72bff04878bd
+
+### IP4-F. The classifier's text names no last octet
+
+- **Property:** The classifier's emitted text names its octets where it makes them and where it takes those before the last, and names its argument where it splits it, and nowhere else.
+- **Code:** `isPublicIpv4` in `lib/ip-safety.ts`, as the unit suite compiles it.
+- **Domain:** The one emitted text of that function, read for the names `octets`, `address` and `arguments`.
+- **Bounds:** none beyond that text.
+- **Axioms:** none
+- **Method:** sampled
+- **Not claimed:** That the classifier's answer does not depend on the last octet. This is a check of text, a change detector for one shape: a read of the last octet by a spelling it does not look for, outside that function or through a helper, passes it, and a test below plants one such fault and shows that this check and the edge walk both pass it.
+- **Tests:**
+  - `lib/fv-ipv4-classifier.test.ts`: "IP4: the emitted classifier names its octets once to take the first three, and its argument once to split it"
+  - `lib/fv-ipv4-classifier.test.ts`: "the text check passes a fault it does not look for, which is what it leaves out"
+- **Variants:**
+  - `lib/fv-ipv4-classifier.test.ts`: names beginning "IP4 catches a variant of the emitted text"
+- **Commit:** 86e139ca6a01854841bedeb9622e72bff04878bd
+
+### IP4-S. Which spellings are an address
+
+- **Property:** Handed over directly, the dotted quad of decimal octets with no leading zero is an address, with or without a trailing dot, and reads as the table says. Each other spelling of that address the suite builds, and an octet past its range, is no address and never reads public. In brackets, or with a further character before or after it, a quad reads as the address it then names, or as none.
+- **Code:** `isPublicIpAddress`, `isIpAddress` and `normalizeHostname` in `lib/ip-safety.ts`.
+- **Domain:** Sampled over the addresses of `SAMPLE_ADDRESSES`: each table line's first and last address, the address outside each end, and the public addresses in `PUBLIC_SAMPLES`. Exhaustive, for each of those, over the spellings `spellingsOf` builds, which are each split into parts that inet_aton accepts with each part in each radix of `RADIXES`, with and without a trailing dot; over the bracketed forms the suite writes out; and over each character of `DECORATIONS` placed before the quad and after it. The octets past their range are those in `PAST_RANGE`.
+- **Bounds:** none beyond those enumerations; a decoration is a single character at either end.
+- **Axioms:** none
+- **Method:** exhaustive, sampled, restatement
+- **Not claimed:** The bracketed and decorated part restates `normalizeHostname` and the classifier's own comment on leading zeros, so it catches drift from them. A spelling outside these: a longer decoration, a character inside the quad, a radix spelled another way.
+- **Tests:**
+  - `lib/fv-ipv4-classifier.test.ts`: "IP4: only four decimal octets with no leading zero are an address, and every other spelling of the sample is none and never public"
+  - `lib/fv-ipv4-classifier.test.ts`: "IP4: a dotted quad in brackets, with a trailing dot or with one further character reads as the address it then names, or as none"
+- **Variants:**
+  - `lib/fv-ipv4-classifier.test.ts`: names beginning "IP4 catches a variant of the reader"
+  - `lib/fv-ipv4-classifier.test.ts`: names beginning "IP4 catches a variant of the wrapping"
+- **Commit:** 86e139ca6a01854841bedeb9622e72bff04878bd
+
+### IP4-U. A literal host of a URL is refused when the table says so
+
+- **Property:** As the host of an http or https URL, a spelling of an IPv4 address, or a compressed IPv4-mapped spelling of it, is refused as a private target exactly when the table says the address is not public; and the URL parser of the Node that runs the suite reads each spelling as its address.
+- **Code:** `assertPublicHttpUrlShape` in `lib/url-safety.ts`.
+- **Domain:** Sampled over the addresses of `SAMPLE_ADDRESSES`, less those of `REACHABLE_EXCEPTIONS`. Exhaustive, for each of those, over the spellings `spellingsOf` builds, with and without a trailing dot, and the bracketed mapped spellings the suite writes out, each under both schemes.
+- **Bounds:** none beyond those enumerations.
+- **Axioms:** A caller parses its URL with the parser of the Node that runs the suite. The test checks that parser's reading of each spelling, and no other parser's.
+- **Method:** exhaustive, sampled
+- **Not claimed:** A host that is no literal, which a caller resolves and then asks the classifier about; the proxy's own path to the classifier in `lib/public-scan-proxy.ts`; a redirect.
+- **Tests:**
+  - `lib/fv-ipv4-classifier.test.ts`: "IP4: through a URL, every spelling of the sample is refused exactly when the table says its address is not public"
+- **Variants:**
+  - `lib/fv-ipv4-classifier.test.ts`: names beginning "IP4 catches a variant of the URL entry"
+- **Commit:** 86e139ca6a01854841bedeb9622e72bff04878bd
+
+### IP4-M. An IPv6 literal that carries an IPv4 address
+
+- **Property:** A compressed IPv4-mapped spelling reads as the table says of the IPv4 address it carries; and each other embedding the suite writes out reads public for no address the table says is not public.
+- **Code:** `isPublicIpAddress` in `lib/ip-safety.ts`.
+- **Domain:** For the mapped spellings, dotted and in hexadecimal words: exhaustive over each address of each prefix in `EDGE_PREFIXES` and over each value of an address's upper half with each octet of its lower half at its lowest and its highest; and the further mapped spellings of `mappedSpellings` over `SAMPLE_ADDRESSES`. For the other embeddings: the spellings of `embeddedSpellings` over the addresses of `SAMPLE_ADDRESSES` the table says are not public. The addresses of `REACHABLE_EXCEPTIONS` are left out.
+- **Bounds:** none beyond those enumerations.
+- **Axioms:** none
+- **Method:** exhaustive, sampled
+- **Not claimed:** The IPv6 space. An embedding the suite does not write out. What an embedding of a public address reads: the row holds only that an embedding of a non-public address does not read public.
+- **Tests:**
+  - `lib/fv-ipv4-classifier.test.ts`: "IP4: an IPv4-mapped spelling reads as the address it carries, and no other embedding of a non-public address reads public"
+- **Variants:**
+  - `lib/fv-ipv4-classifier.test.ts`: names beginning "IP4 catches a variant of the IPv6 carriers"
+- **Commit:** 86e139ca6a01854841bedeb9622e72bff04878bd
+
 ## Open findings
 
 Each finding below is pinned by a test as the code behaves, not as it should.
@@ -1191,3 +1284,10 @@ which is the owner's call.
 - **Tests:**
   - `lib/fv-worker-model.test.ts`: "open (dedicated): a worker already running when it attached is excluded inside the arming's round trip"
 - **Commit:** 5aea6d6120edcb929a3576b502cd2f5a638115d3
+
+### OPEN-IP4.1. Anycast addresses the registry marks reachable read as not public
+
+- **Finding:** The IANA special-purpose registry marks 192.0.0.9, Port Control Protocol anycast, and 192.0.0.10, Traversal Using Relays around NAT anycast, as globally reachable. The classifier reads both as not public, directly and in the mapped spelling: it takes the octets before the last, so it cannot tell them from their neighbours in the protocol assignments block. Its IPv6 side admits the same services. A scan of either address is refused; nothing private is reached.
+- **Tests:**
+  - `lib/fv-ipv4-classifier.test.ts`: "open (IP4): the two anycast addresses the registry marks globally reachable read as not public"
+- **Commit:** 86e139ca6a01854841bedeb9622e72bff04878bd

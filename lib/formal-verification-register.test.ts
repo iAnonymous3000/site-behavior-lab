@@ -275,7 +275,9 @@ const ANCHORS: readonly Anchor[] = [
   { row: "F5-M", phrase: "caps of 2 control misses, 2 start retries and 1 configuration change", number: "1", file: "investigation/test/case-exploration-walk.ts", source: "configurationChanges: 1" },
   { row: "F5-M", phrase: "at twice its pinned state count", number: "twice", file: "investigation/test/case-exploration.test.ts", source: 'assert.equal(MACHINE_STATE_BOUND, 2 * SIX_SLOT.states, "twice the six-slot plan\'s pinned count");' },
   { row: "F5-U", phrase: "Positions in UTF-16 columns", number: "16", file: "investigation/test/case-exploration.test.ts", source: 'test("UTF-16 columns:' },
-  { row: "F5-U", phrase: "in UTF-16 code units", number: "16", file: "investigation/test/case-exploration.test.ts", source: 'test("UTF-16 columns:' }
+  { row: "F5-U", phrase: "in UTF-16 code units", number: "16", file: "investigation/test/case-exploration.test.ts", source: 'test("UTF-16 columns:' },
+  { row: "OPEN-IP4.1", phrase: "marks 192.0.0.9, Port Control Protocol anycast", number: "192.0.0.9", file: "lib/fv-ipv4-classifier.test.ts", source: '{ cidr: "192.0.0.9/32", name: "Port Control Protocol anycast"' },
+  { row: "OPEN-IP4.1", phrase: "and 192.0.0.10, Traversal Using Relays around NAT anycast", number: "192.0.0.10", file: "lib/fv-ipv4-classifier.test.ts", source: '{ cidr: "192.0.0.10/32", name: "Traversal Using Relays around NAT anycast"' }
 ];
 
 /** Suite files and modules that must exist, so a discovery that matched nothing fails. */
@@ -290,6 +292,7 @@ const KNOWN_SUITE_FILES = [
   "lib/fv-worker-readout.test.ts",
   "lib/fv-scroll-producer.test.ts",
   "lib/fv-worker-model.test.ts",
+  "lib/fv-ipv4-classifier.test.ts",
   "investigation/test/case-exploration.test.ts"
 ];
 const KNOWN_MODULES = [

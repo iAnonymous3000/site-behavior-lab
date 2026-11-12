@@ -249,6 +249,11 @@
           "minimumVariants": 25
         },
         {
+          "id": "lib/fv-ipv4-classifier.test.ts",
+          "minimumTests": 125,
+          "minimumVariants": 113
+        },
+        {
           "id": "lib/fv-producer-identity.test.ts",
           "minimumTests": 38,
           "minimumVariants": 29
