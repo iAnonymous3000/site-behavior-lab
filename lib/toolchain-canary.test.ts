@@ -735,9 +735,10 @@ test("a receipt holds each scan once: a repeated run id or wire digest, a repeti
   // Untouched, the pair compares.
   const pair = await freshPair();
   assert.equal(h.compareReceipts(pair.baseline, pair.candidate, panel, digest).outcome, "pass");
-  // The ten committed receipts hold fifteen scans of their own each. Their
-  // replay, tested below, runs them through the same check.
-  for (const file of COMMITTED_PAIRS.flatMap(([baselineFile, candidateFile]) => [baselineFile, candidateFile])) {
+  // The fourteen committed receipts hold fifteen scans of their own each.
+  // Their replay, tested below, runs them through the same check.
+  assert.equal(EVERY_COMMITTED_RECEIPT.length, 14);
+  for (const file of EVERY_COMMITTED_RECEIPT) {
     const receipt = committedReceipt(file);
     assert.equal(receipt.runs.length, 15, file);
     assert.equal(new Set(receipt.runs.map((entry: Receipt) => entry.runId)).size, 15, file);
@@ -1233,6 +1234,25 @@ const COMMITTED_PAIRS: Array<[string, string, string]> = [
   ["toolchain-epoch-2026-11/round-1-baseline-receipt.json", "toolchain-epoch-2026-11/round-1-candidate-receipt.json", replayInconclusiveResult(BUILDS_2026_11, "2 of 45", GUARDIAN_PAIR)],
   ["toolchain-epoch-2026-11/round-2-baseline-receipt.json", "toolchain-epoch-2026-11/round-2-candidate-receipt.json", replayInconclusiveResult(BUILDS_2026_11, "2 of 45", GUARDIAN_PAIR)]
 ];
+// The two rounds of the 2026-12 epoch, captured on panel version 2, with the
+// sentence each is refused with. Both are refused on capture loss before any
+// median is judged, so neither replays to a result line of the kind above.
+const BASELINE_2026_12 = "35b8f6a64395dfcaa0850cb5c201edb7ca0481d4";
+const CANDIDATE_2026_12 = "d84033671430f4acbc94f0cd4451b87e9c1d1215";
+const REFUSED_PAIRS_2026_12: Array<[string, string, string]> = [
+  ["toolchain-epoch-2026-12/round-1-baseline-receipt.json", "toolchain-epoch-2026-12/round-1-candidate-receipt.json",
+    "Capture loss detector-output/truncated/policy-link-candidates differs systematically between the builds on python: 3 of 3 baseline runs vs 0 of 3 candidate runs."],
+  ["toolchain-epoch-2026-12/round-2-baseline-receipt.json", "toolchain-epoch-2026-12/round-2-candidate-receipt.json",
+    'Capture loss differs between runs of guardian: ["fingerprinting/dropped/fingerprint-observer"] vs [].']
+];
+const RECEIPT_SHA256_2026_12: Record<string, string> = {
+  "toolchain-epoch-2026-12/round-1-baseline-receipt.json": "6597cf85b0d01773b27724ec36beb00f3ec54fcd3329fcb0ada6bc476e2a4de4",
+  "toolchain-epoch-2026-12/round-1-candidate-receipt.json": "34fc94af3ac711917c12884f97da06a6cea58eeb9365f68a6e5f1e9232db5ca7",
+  "toolchain-epoch-2026-12/round-2-baseline-receipt.json": "5eb4348e53e50e91dc84e270074c77ef002e84e4ab153acf1226cd989249e20d",
+  "toolchain-epoch-2026-12/round-2-candidate-receipt.json": "1112f1020687da49702eb6e3092e24e03c70cbf949ade85f8d17a56c87c557e5"
+};
+const RECEIPTS_2026_12 = REFUSED_PAIRS_2026_12.flatMap(([baselineFile, candidateFile]) => [baselineFile, candidateFile]);
+const EVERY_COMMITTED_RECEIPT = [...COMMITTED_PAIRS.flatMap(([baselineFile, candidateFile]) => [baselineFile, candidateFile]), ...RECEIPTS_2026_12];
 
 test("the replay CLI reads each committed pair on the committed panel it carries, names that panel on its first line, marks its result line as a replay, and exits 2", async () => {
   const h = await helpers;
@@ -1387,7 +1407,7 @@ async function panelsAfterChange() {
   return { next, current: { panel: next, digest: h.panelDigest(next) }, committed };
 }
 
-test("panel version 1 is kept byte for byte in the committed directory, every committed receipt carries it, and the current panel is a committed panel", async () => {
+test("panel version 1 is kept byte for byte in the committed directory, every committed receipt of 2026-09 to 2026-11 carries it, and the current panel is a committed panel", async () => {
   const h = await helpers;
   const { current, committed } = await panelsOnDisk();
   assert.equal(h.COMMITTED_PANEL_DIRECTORY, COMMITTED_PANELS.split(path.sep).join("/"));
@@ -1415,6 +1435,129 @@ test("panel version 1 is kept byte for byte in the committed directory, every co
     () => h.assertCurrentPanelCommitted({ panel: uncommitted, digest: h.panelDigest(uncommitted) }, committed.filter((entry) => entry.panel.panelVersion === 1)),
     { message: "The current panel monthly-toolchain-canary-v2 is not committed under scripts/fixtures/toolchain-canary-panels. Commit it there as monthly-toolchain-canary-v2.json, so receipts captured on it stay readable after the panel changes." }
   );
+});
+
+const PANEL_V2_FILE = path.join(COMMITTED_PANELS, "monthly-toolchain-canary-v2.json");
+const PANEL_V2_DIGEST = "51f0ebcb7997559738a8891256a10d25d5783730b1b6238f8d3ec478682df376";
+const PANEL_V2_NAMED = `REPLAY on committed panel monthly-toolchain-canary-v2 (version 2, sha256 ${PANEL_V2_DIGEST}, scripts/fixtures/toolchain-canary-panels/monthly-toolchain-canary-v2.json), the panel both receipts carry.`;
+
+test("the receipts committed under docs/toolchain-epoch-* are exactly the fourteen these tests read: ten on panel version 1 and four on panel version 2", async () => {
+  const docs = path.join(process.cwd(), "docs");
+  const onDisk = readdirSync(docs, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory() && entry.name.startsWith("toolchain-epoch-"))
+    .flatMap((entry) => readdirSync(path.join(docs, entry.name)).map((name) => `${entry.name}/${name}`))
+    .sort();
+  assert.deepEqual(onDisk, [...EVERY_COMMITTED_RECEIPT].sort());
+  assert.equal(COMMITTED_RECEIPTS.length, 10);
+  assert.equal(RECEIPTS_2026_12.length, 4);
+  const byPanel = (file: string) => committedReceipt(file).panel.panelId;
+  assert.deepEqual([...new Set(COMMITTED_RECEIPTS.map(byPanel))], ["monthly-toolchain-canary-v1"]);
+  assert.deepEqual([...new Set(RECEIPTS_2026_12.map(byPanel))], ["monthly-toolchain-canary-v2"]);
+});
+
+// The repetitions of one case that carry a capture-loss signature, as the
+// comparison names it: family, kind and detail.
+function repetitionsWithLoss(receipt: Receipt, caseId: string, signature: string): number[] {
+  return receipt.runs
+    .filter((entry: Receipt) => entry.caseId === caseId && entry.qualityFacts.captureLoss.some((loss: Loss) => `${loss.family}/${loss.kind}/${loss.detail}` === signature))
+    .map((entry: Receipt) => entry.repetition)
+    .sort();
+}
+
+test("the committed 2026-12 receipts are the bytes their record names, carry panel version 2, and record the two builds, browsers, engines and Playwright pins of that epoch", async () => {
+  const h = await helpers;
+  const { committed } = await panelsOnDisk();
+  const v2 = committed.find((entry) => entry.panel.panelVersion === 2);
+  assert.ok(v2);
+  assert.equal(v2.digest, PANEL_V2_DIGEST);
+  assert.equal(v2.file, "scripts/fixtures/toolchain-canary-panels/monthly-toolchain-canary-v2.json");
+  assert.deepEqual(v2.panel.cases.map((entry) => entry.id), ["wikipedia", "github", "python", "ssa-gov", "guardian"]);
+  assert.deepEqual(Object.keys(RECEIPT_SHA256_2026_12).sort(), [...RECEIPTS_2026_12].sort());
+  const arms: Array<[string, string, string, string, string]> = [
+    ["baseline", "forward", BASELINE_2026_12, "156.0.8078.4", "adblock-rust-0.13.3-request-method-v1-playwright-1.64.1+"],
+    ["candidate", "reverse", CANDIDATE_2026_12, "158.0.8127.18", "adblock-rust-0.13.5-request-method-v1-playwright-1.65.0+"]
+  ];
+  const sharedIdentity = new Set<string>();
+  for (const file of RECEIPTS_2026_12) {
+    assert.equal(createHash("sha256").update(readFileSync(path.join(process.cwd(), "docs", file))).digest("hex"), RECEIPT_SHA256_2026_12[file], file);
+    const receipt = committedReceipt(file);
+    const arm = arms.find(([name]) => file.includes(`-${name}-`));
+    assert.ok(arm, file);
+    const [, order, build, browser, methodology] = arm;
+    assert.equal(receipt.panelDigest, PANEL_V2_DIGEST, file);
+    assert.deepEqual(receipt.panel, v2.panel, file);
+    assert.equal(receipt.order, order, file);
+    assert.equal(receipt.expectedBuild, build, file);
+    assert.equal(receipt.runs.length, 15, file);
+    assert.match(receipt.createdAt, /^2026-11-12T0[03]:/, file);
+    for (const entry of receipt.runs as Receipt[]) {
+      const label = `${file} ${entry.caseId}:${entry.repetition}`;
+      assert.equal(entry.provenance.buildCommit, build, label);
+      assert.equal(entry.conditions.browser.version, browser, label);
+      assert.ok(entry.provenance.methodologyVersion.includes(methodology), label);
+      assert.equal(entry.toolchain.adblock.engineVersion, methodology.slice(0, "adblock-rust-0.13.3".length), label);
+      assert.equal(entry.conditions.egress.region, "WNAM/lax08/US", label);
+      assert.equal(entry.quality.run.outcome, "complete", label);
+      assert.equal(entry.qualityFacts.status, 200, label);
+      sharedIdentity.add(h.stableCompareJson([entry.provenance.detectorRegistry, entry.toolchain.normalizationVersion, entry.toolchain.trackerCatalog, entry.toolchain.adblock.manifestDigest]));
+    }
+  }
+  // What the epoch does not move is one value over all 60 runs: the detector
+  // registry, the normalization, the tracker catalog and the list manifest.
+  assert.equal(sharedIdentity.size, 1);
+  assert.match([...sharedIdentity][0], /"version":"node-detectors-v24"/);
+  assert.match([...sharedIdentity][0], /tldts@7\.4\.16/);
+});
+
+test("both rounds of the committed 2026-12 receipts are refused on capture loss before any median is judged: by the library, by a replay, and by a release comparison in a tree whose current panel is version 2", async () => {
+  const h = await helpers;
+  const disk = await panelsOnDisk();
+  const v2Text = readFileSync(path.join(process.cwd(), PANEL_V2_FILE), "utf8");
+  const tree = canaryTree(v2Text, [
+    { name: "monthly-toolchain-canary-v1.json", text: readFileSync(path.join(process.cwd(), PANEL_V1_FILE), "utf8") },
+    { name: "monthly-toolchain-canary-v2.json", text: v2Text }
+  ]);
+  try {
+    for (const [baselineFile, candidateFile, message] of REFUSED_PAIRS_2026_12) {
+      const baseline = committedReceipt(baselineFile);
+      const candidate = committedReceipt(candidateFile);
+      const selection = h.selectComparisonPanel({ replay: true, baseline, candidate, ...disk });
+      assert.equal(selection.file, "scripts/fixtures/toolchain-canary-panels/monthly-toolchain-canary-v2.json", baselineFile);
+      assert.equal(selection.digest, PANEL_V2_DIGEST, baselineFile);
+      assert.throws(() => h.compareReceipts(baseline, candidate, selection.panel, selection.digest), { message }, baselineFile);
+      const files: [string, string] = [path.join("docs", baselineFile), path.join("docs", candidateFile)];
+      // The release comparison: one FAIL line, no RULE line, exit 1.
+      const release = compareFiles(...files, "compare", tree);
+      assert.equal(release.status, 1, baselineFile);
+      assert.equal(release.stdout, "", baselineFile);
+      assert.deepEqual(printed(release.stderr), [`FAIL ${message}`], baselineFile);
+      // The replay, from the repository whatever its current panel is: the
+      // same refusal, marked, after the line that names panel version 2.
+      const again = compareFiles(...files, "replay");
+      assert.equal(again.status, 1, baselineFile);
+      const stdout = printed(again.stdout);
+      assert.equal(stdout.length, 1, baselineFile);
+      assert.ok(stdout[0].startsWith(`${PANEL_V2_NAMED} `), baselineFile);
+      assert.deepEqual(printed(again.stderr), [`REPLAY FAIL ${message}`], baselineFile);
+    }
+  } finally {
+    rmSync(tree, { recursive: true, force: true });
+  }
+  // The runs behind each sentence, and behind what the record says beside it.
+  const [round1Baseline, round1Candidate, round2Baseline, round2Candidate] = RECEIPTS_2026_12.map(committedReceipt);
+  const linkSearch = "detector-output/truncated/policy-link-candidates";
+  const observer = "fingerprinting/dropped/fingerprint-observer";
+  // Round 1: python's link search is truncated on every baseline run and on
+  // no candidate run. Round 2: on no python run of either build.
+  assert.deepEqual([round1Baseline, round1Candidate, round2Baseline, round2Candidate].map((receipt) => repetitionsWithLoss(receipt, "python", linkSearch)), [[1, 2, 3], [], [], []]);
+  // Round 2: the fingerprint observer is dropped on guardian's first
+  // repetition in each build and on no other run. Round 1 holds the same
+  // loss on one candidate run, which its comparison did not reach.
+  assert.deepEqual([round1Baseline, round1Candidate, round2Baseline, round2Candidate].map((receipt) => repetitionsWithLoss(receipt, "guardian", observer)), [[], [3], [1], [1]]);
+  for (const receipt of [round1Baseline, round1Candidate, round2Baseline, round2Candidate]) {
+    const elsewhere = (receipt.runs as Receipt[]).filter((entry) => entry.caseId !== "guardian" && entry.qualityFacts.captureLoss.some((loss: Loss) => h.METRIC_FEEDING_FAMILIES.includes(loss.family)));
+    assert.deepEqual(elsewhere, []);
+  }
 });
 
 test("the committed panel directory refuses an empty set, a file that is no panel, a misnamed file and a repeated version", async () => {
