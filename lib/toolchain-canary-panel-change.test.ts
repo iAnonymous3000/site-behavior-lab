@@ -1778,6 +1778,38 @@ test("the playbook states the panel change as the code holds it: the rule, the o
   assert.ok(playbook.includes('export EPOCH_EVIDENCE="$HOME/toolchain-epoch-evidence"'));
 });
 
+// The addendum step above names the records of the change to panel version
+// 2. This holds every dated record to the same rule whatever the current
+// panel is: a record whose receipts are on an earlier panel says so, and a
+// record whose receipts are on the current panel quotes commands that run as
+// written. The next panel change fails here until the 2026-12 record has its
+// addendum.
+test("a dated epoch record says its compare commands need replay exactly when its receipts are on a panel that is not the current one, and names every receipt committed beside it", () => {
+  const docs = path.join(root, "docs");
+  const records = readdirSync(docs).filter((name) => /^toolchain-epoch-20[0-9]{2}-[0-9]{2}\.md$/.test(name)).sort();
+  const currentPanelId = readJson<Panel>(CURRENT_PANEL_FILE).panelId;
+  const seen: string[] = [];
+  for (const name of records) {
+    const text = readFileSync(path.join(docs, name), "utf8");
+    const directory = name.slice(0, -".md".length);
+    const receipts = readdirSync(path.join(docs, directory)).sort();
+    assert.ok(receipts.length >= 2, name);
+    assert.match(text, /npm run toolchain:canary -- compare/, name);
+    for (const file of receipts) assert.ok(text.includes(`docs/${directory}/${file}`), `${name} must name docs/${directory}/${file}`);
+    const panels = [...new Set(receipts.map((file) => committedReceipt(`${directory}/${file}`).panel.panelId as string))];
+    assert.equal(panels.length, 1, name);
+    const saysReplay = /needs? `replay` in place of `compare`/.test(text);
+    assert.equal(saysReplay, panels[0] !== currentPanelId, `${name}: its receipts are on ${panels[0]} and the current panel is ${currentPanelId}`);
+    seen.push(`${name} ${receipts.length} ${panels[0]}`);
+  }
+  assert.deepEqual(seen, [
+    "toolchain-epoch-2026-09.md 2 monthly-toolchain-canary-v1",
+    "toolchain-epoch-2026-10.md 4 monthly-toolchain-canary-v1",
+    "toolchain-epoch-2026-11.md 4 monthly-toolchain-canary-v1",
+    "toolchain-epoch-2026-12.md 4 monthly-toolchain-canary-v2"
+  ]);
+});
+
 // ---------------------------------------------------------------------------
 // The capturing commands end to end, against a stand-in for staging. The
 // stand-in replaces fetch inside the spawned command and answers the four

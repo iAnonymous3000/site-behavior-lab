@@ -3502,7 +3502,9 @@ as intended.
   drops url, form_urlencoded, precomputed-hash and once_cell, 70 packages to
   66). tldts 7.4.16 and the October 19 Brave lists stay. This entry covers the
   pins, the rebuilt WASM, the recorded identities and the HSTS expectations.
-  The epoch is not staged or deployed, and its staging A/B has not run.
+  When this entry was written, on 2026-11-10, the epoch had not been staged
+  and its staging A/B had not run; the last entry of this section says what
+  the A/B then recorded.
 - Recorded identities, old to new: the base Node methodology, which is also
   the v1 methodology token and the corpus cohort key, moves its ad-block
   engine and Playwright components:
@@ -3670,6 +3672,23 @@ as intended.
   no image's check has run the new rule on Chromium 158. With Chromium 158
   the test has not been run on native linux/amd64, which is CI's and
   production's architecture, so this entry does not say what happens there.
+- The epoch's record is
+  [docs/toolchain-epoch-2026-12.md](docs/toolchain-epoch-2026-12.md), with
+  the four staging receipts beside it. Both matched staging rounds of
+  2026-11-12, the first comparison on panel version 2, are recorded FAIL on
+  capture loss, each on a different site and signature: round 1 on a truncated
+  privacy-policy link search that all three baseline runs of python.org
+  carry and no candidate run does, round 2 on a dropped fingerprint observer
+  that one guardian run of each build carries. Each comparison was refused
+  before any median was judged, so the A/B compared no median. On 2026-11-12
+  the owner decided to release the epoch under a recorded exception, as in
+  2026-11. The record says what that exception does not establish: that the
+  two browsers measure alike, anything about a commit after the staged
+  candidate, and anything about the image main CI builds. It also states
+  the deviations of the staging session (a stale application list accepted
+  by an override in round 1, whose two captures are three hours apart, no
+  bisect, a manual teardown) and what was built and run after the entries
+  above were written.
 
 ## [0.6.0] - 2026-09-06
 

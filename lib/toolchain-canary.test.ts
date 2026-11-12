@@ -1560,6 +1560,41 @@ test("both rounds of the committed 2026-12 receipts are refused on capture loss 
   }
 });
 
+test("the 2026-12 record quotes each round's command and the one FAIL line it prints, names both builds and each receipt's sha256, records both rounds as FAIL under the owner's exception, and quotes no other result line", () => {
+  const record = readFileSync(path.join(process.cwd(), "docs", "toolchain-epoch-2026-12.md"), "utf8");
+  for (const [index, [baselineFile, candidateFile, message]] of REFUSED_PAIRS_2026_12.entries()) {
+    const round = `round ${index + 1}`;
+    assert.ok(record.includes(`### Round ${index + 1}: FAIL\n`), round);
+    // The command as a reader runs it, and the line it prints.
+    assert.ok(record.includes(`npm run toolchain:canary -- compare \\\n  --baseline docs/${baselineFile} \\\n  --candidate docs/${candidateFile}\n`), round);
+    assert.ok(record.includes(`\`\`\`text\nFAIL ${message}\n\`\`\`\n`), round);
+    for (const file of [baselineFile, candidateFile]) {
+      assert.ok(record.includes(`\`${path.basename(file)}\``), file);
+      assert.ok(record.includes(`\`${RECEIPT_SHA256_2026_12[file]}\``), file);
+    }
+  }
+  assert.ok(record.includes(`\`${BASELINE_2026_12}\``));
+  assert.ok(record.includes(`\`${CANDIDATE_2026_12}\``));
+  assert.ok(record.includes(PANEL_V2_DIGEST));
+  // The only lines of a comparison the record quotes are the two refusals:
+  // no RULE line, because no median was judged, and no result of any other
+  // kind, from a comparison or from a replay.
+  const quoted = record.split("\n").filter((line) => /^(?:REPLAY )?(?:PASS|FAIL|INCONCLUSIVE|RULE|NOTED|LEFT OUT)\b/.test(line));
+  assert.deepEqual(quoted, REFUSED_PAIRS_2026_12.map(([, , message]) => `FAIL ${message}`));
+  assert.doesNotMatch(record, /\bPASS\b/);
+  // The decision in the owner's words, and what it does not establish.
+  for (const sentence of [
+    "Both rounds stay FAIL.",
+    '"Release the browser update under a recorded exception, as in November?"',
+    '"yes to both, go with your recommendations"',
+    "The A/B did not pass.",
+    "By the playbook the epoch is not complete.",
+    "It is not established that the two browsers measure alike.",
+    "The exception says nothing about any commit after the staged candidate.",
+    "The exception says nothing about the image main CI builds."
+  ]) assert.ok(record.includes(sentence), `docs/toolchain-epoch-2026-12.md must state: ${sentence}`);
+});
+
 test("the committed panel directory refuses an empty set, a file that is no panel, a misnamed file and a repeated version", async () => {
   const h = await helpers;
   const v1 = { name: "monthly-toolchain-canary-v1.json", text: JSON.stringify(panel) };
