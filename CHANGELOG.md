@@ -164,6 +164,23 @@ public API or a 1.0 release.
   hosted runner had run it when this entry was written. The third-party
   inventory does not cover the crate's lock file. No report, count or
   identity moves.
+- Two more finite checks on the real TypeScript, with rows in
+  `docs/formal-verification.md`. The IPv4 side of the address classifier
+  (`lib/ip-safety.ts`) is held to a hand-written table of 16 non-public
+  blocks: every three-octet prefix at three fourth octets, every address of
+  the 59 prefixes at a block edge, and the textual forms a caller can hand
+  it. That is not all of IPv4, and the IPv6 space is not claimed. The table
+  was compared by hand with the IANA special-purpose registry as fetched on
+  2026-11-12; no test holds it to the registry. The report consistency rules
+  are held over 107,232 built views in four slices, which is a product of
+  written-out classes and not every report. Both suites join the suites the
+  `formal-verification` release gate requires (16 to 18).
+- Three findings from those checks, pinned open as the code behaves and not
+  fixed here: the classifier refuses 192.0.0.9 and 192.0.0.10, which the
+  registry marks globally reachable (a refused target, not an opening); a
+  calm headline can stand over a policy conflict when the only cookie is the
+  site's own; and a calm headline can stand over a consent platform served
+  from the site's own host.
 
 ### Removed
 
