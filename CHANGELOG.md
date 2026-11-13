@@ -384,6 +384,19 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- On the Cloudflare Containers topology, a `HEAD` of a scan job
+  (`/api/scans/:id`) is answered 405 at the edge with the allowed methods. It
+  was forwarded to the container past the job's access check, status quota
+  and job lookup, which the Worker applies to `GET` and `DELETE` only.
+- The Worker no longer forwards a client's `cf-container-target-port` header
+  to the container. The container library reads that header to choose the
+  port inside the container. Whether Cloudflare's edge removes it first is
+  not known, and production was not probed.
+- The repository metadata test reads the release version rule from the
+  release producer, and the 1.0 release binding is classified in the
+  development exclusion table as a file a tree may lack. Before, no 1.0
+  candidate and carrier pair could pass the unit suite. The release guide
+  names the 1.0 binding file in three ceremony steps.
 - The address classifier no longer reads a dotted quad before a closing `::`
   as an address (`2600:8.8.8.8::`, for one). It read the text as an address
   and judged the words before the quad alone, so it could call such a text
