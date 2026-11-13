@@ -1,6 +1,7 @@
 // What the TLA+ export scripts share: the pinned jar, one way of running TLC and reading what it
-// prints, and the layout of the files they write. Nothing here runs in CI: the conformance
-// suites read the files these scripts write and never start Java.
+// prints, and the layout of the files they write. Nothing here runs in the unit tests: the
+// conformance suites read the files these scripts write and never start Java. The workflow
+// tla-checks.yml runs the export and fault scripts on a hosted runner.
 
 import { spawn } from "node:child_process";
 import { createHash } from "node:crypto";

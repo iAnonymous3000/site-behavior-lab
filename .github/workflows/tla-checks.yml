@@ -1,0 +1,179 @@
+name: TLA Checks
+
+# TLC, the model checker of the two specifications under specs/, run on a
+# hosted runner. The unit tests have no Java: they read the exports TLC wrote
+# and hold the code to them. This workflow is the other half. It runs TLC
+# from the files of the commit and fails on any byte of a committed export
+# that TLC does not write again, and it runs the seeded faults of each
+# specification.
+#
+# The shared-worker hold is checked on every push to main. The case machine
+# takes hours on a hosted runner, so it is checked by schedule and by hand,
+# and is to be dispatched at each release candidate.
+#
+# This is a workflow of its own, not a job of CI, on purpose. It downloads a
+# jar and a Java runtime from two release pages, and a download that fails
+# must not stop a promotion or a release of code it does not touch. Nothing
+# reads this workflow's conclusion: it is not in
+# .github/required-ci-jobs.json, no other workflow is triggered by it, and it
+# promotes and publishes nothing. A run that fails says something about the
+# specifications, the exports or the downloads only.
+
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    # Mondays at 05:17 UTC. A scheduled run reads the default branch.
+    - cron: "17 5 * * 1"
+  workflow_dispatch:
+    inputs:
+      case_machine:
+        description: Also check the case machine (hours)
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tla-checks-${{ github.event_name }}-${{ github.sha }}
+  cancel-in-progress: false
+
+env:
+  CI: "1"
+
+jobs:
+  tla-checks:
+    name: TLC Export and Fault Checks
+    runs-on: ubuntu-24.04
+    # No hosted runner had run these steps when this was written. On an arm64
+    # laptop with two TLC workers the hold took about ten minutes and the
+    # case machine about ninety-five. A step that hangs must fail this job.
+    timeout-minutes: 350
+    permissions:
+      contents: read
+    env:
+      WITH_CASE_MACHINE: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.case_machine) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24.14.1
+          cache: npm
+
+      - name: Verify exact Node and npm runtime
+        run: |
+          set -euo pipefail
+          test "$(node --version)" = "v24.14.1"
+          test "$(npm --version)" = "11.11.0"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Name the receipt
+        run: echo "RECEIPT=$RUNNER_TEMP/site-behavior-lab-tla-checks-receipt.json" >> "$GITHUB_ENV"
+
+      # The jar by the size and SHA-256 in specs/tla-tools.json, and the Java
+      # runtime by those in specs/tla-ci-runtime.json. The runner image's own
+      # Java is not used: it moves with the image.
+      - name: Install the pinned jar and Java runtime
+        id: tools
+        run: |
+          set -euo pipefail
+          paths="$(node scripts/tla-checks.mjs tools --into "$RUNNER_TEMP/tla-tools")"
+          echo "jar=$(node -p 'JSON.parse(process.argv[1]).jar' "$paths")" >> "$GITHUB_OUTPUT"
+          echo "java=$(node -p 'JSON.parse(process.argv[1]).java' "$paths")" >> "$GITHUB_OUTPUT"
+
+      - name: Compile the hand-written model and the real hold code
+        run: npx tsc -p tsconfig.test.json
+
+      - name: Check the hold export against TLC
+        run: >-
+          node scripts/tla-checks.mjs run hold
+          --jar "${{ steps.tools.outputs.jar }}" --java "${{ steps.tools.outputs.java }}"
+          --receipt "$RECEIPT" --workers 4
+
+      - name: Run the hold specification's seeded faults
+        run: >-
+          node scripts/tla-checks.mjs run hold-faults
+          --jar "${{ steps.tools.outputs.jar }}" --java "${{ steps.tools.outputs.java }}"
+          --receipt "$RECEIPT"
+
+      - name: Compile the real case machine
+        if: env.WITH_CASE_MACHINE == 'true'
+        run: npx tsc -p tsconfig.investigation-test.json
+
+      - name: Check the case machine export against TLC
+        if: env.WITH_CASE_MACHINE == 'true'
+        run: >-
+          node scripts/tla-checks.mjs run case
+          --jar "${{ steps.tools.outputs.jar }}" --java "${{ steps.tools.outputs.java }}"
+          --receipt "$RECEIPT" --workers 4 --heap 8g
+
+      - name: Run the case machine specification's seeded faults
+        if: env.WITH_CASE_MACHINE == 'true'
+        run: >-
+          node scripts/tla-checks.mjs run case-faults
+          --jar "${{ steps.tools.outputs.jar }}" --java "${{ steps.tools.outputs.java }}"
+          --receipt "$RECEIPT"
+
+      - name: Hold the receipt to this commit and to the checks that ran
+        run: >-
+          node scripts/tla-checks.mjs verify --receipt "$RECEIPT" --commit "$GITHUB_SHA"
+          --require "${{ env.WITH_CASE_MACHINE == 'true' && 'hold,hold-faults,case,case-faults' || 'hold,hold-faults' }}"
+
+      - name: Preserve the receipt
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: tla-checks-receipt-${{ github.sha }}-${{ github.run_id }}
+          path: ${{ runner.temp }}/site-behavior-lab-tla-checks-receipt.json
+          if-no-files-found: warn
+          retention-days: 90
+
+  # This job never checks out or executes the commit's code. The signature
+  # shows that this workflow, at this commit, produced the receipt. It does
+  # not show TLC is right, and no release gate reads it.
+  attest:
+    name: Attest the TLA checks receipt
+    needs:
+      - tla-checks
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+      artifact-metadata: write
+    steps:
+      - name: Download the receipt
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: tla-checks-receipt-${{ github.sha }}-${{ github.run_id }}
+          path: ${{ runner.temp }}/tla-checks-receipt
+
+      - name: Hold the receipt to this commit
+        env:
+          RECEIPT: ${{ runner.temp }}/tla-checks-receipt/site-behavior-lab-tla-checks-receipt.json
+        run: |
+          set -euo pipefail
+          test -s "$RECEIPT"
+          node -e '
+            const receipt = JSON.parse(require("node:fs").readFileSync(process.env.RECEIPT, "utf8"));
+            if (receipt?.source?.commit !== process.env.GITHUB_SHA) {
+              throw new Error(`the receipt is of ${receipt?.source?.commit ?? "no commit"}, not ${process.env.GITHUB_SHA}`);
+            }
+            if (!Array.isArray(receipt.checks) || receipt.checks.length === 0 || receipt.checks.some((check) => check.exitStatus !== 0)) {
+              throw new Error("the receipt holds no check, or one that did not pass");
+            }
+          '
+
+      - name: Attest the receipt
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
+        with:
+          subject-path: ${{ runner.temp }}/tla-checks-receipt/site-behavior-lab-tla-checks-receipt.json

@@ -1,0 +1,13 @@
+{
+  "$comment": "The Java runtime the workflow tla-checks.yml runs TLC with, by the size and SHA-256 of the archive its release page publishes. scripts/tla-checks.mjs refuses any other bytes. The exports record the jar and not the runtime: a hosted check that passes shows this runtime gave the committed bytes, which were written on another one.",
+  "schemaVersion": 1,
+  "release": "jdk-21.0.9+10",
+  "archives": {
+    "linux-x64": {
+      "url": "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.9%2B10/OpenJDK21U-jre_x64_linux_hotspot_21.0.9_10.tar.gz",
+      "bytes": 51952734,
+      "sha256": "aeab55d064a1a27a3744b0880b9b414077b4ed2b1790817eea3df60aec946431",
+      "directory": "jdk-21.0.9+10-jre"
+    }
+  }
+}

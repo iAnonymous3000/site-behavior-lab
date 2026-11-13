@@ -159,8 +159,9 @@ defined.
 `scripts/tla-worker-hold-mutations.mjs` seeds these ten faults, each run with
 only the row named for it, under a set of switches where the committed
 specification keeps the row. A caught fault shows that the row can fail there.
-No committed artifact records the result, and no CI stage runs the script: it
-needs TLC.
+No committed artifact records the result. The unit tests do not run the
+script: it needs TLC. The workflow `tla-checks.yml` runs it on every push to
+`main`, and its receipt keeps the script's exit status and last line.
 
 Two terms are named in the term sets and never produced: `diedPaused` and
 `ownerUnscoped`. No operator of the specification returns either, so no
@@ -175,7 +176,7 @@ exclusion row is ever judged on the first and no read row on the second.
 | `WorkerHoldTable.tla` | The axiom table in one search, and the named trace. |
 | `WorkerHoldExport.tla` | Prints the whole graph of a world. Not a property. |
 | `hold-plan.cfg`, `stream-plan.cfg`, `two-plan.cfg`, `small-plan.cfg` | Each world under the plan's axioms, with the rows that hold there and have something to judge there. The export script writes the other configurations it runs. |
-| `conformance.json` | What TLC exported. Written by `scripts/tla-worker-hold-export.mjs`, by hand: no CI job regenerates it. It records the SHA-256 of that script, of the modules it imports, of each `.tla` and `.cfg` file here and of the jar, and the suite fails when one of those files no longer matches. `../README.md` says how to regenerate and check it. |
+| `conformance.json` | What TLC exported. Written by `scripts/tla-worker-hold-export.mjs`, by hand. The workflow `tla-checks.yml` checks it against TLC on every push to `main`. It records the SHA-256 of that script, of the modules it imports, of each `.tla` and `.cfg` file here and of the jar, and the suite fails when one of those files no longer matches. `../README.md` says how to regenerate and check it. |
 
 ## What the conformance suite holds
 

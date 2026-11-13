@@ -4,8 +4,8 @@
 //
 // It runs without Java: what TLC computed is in specs/worker-hold/conformance.json, which
 // scripts/tla-worker-hold-export.mjs regenerates with TLC and compares byte for byte with
-// --check. No CI job regenerates it: in CI, TLC's side of every comparison here is that committed
-// file. The file records the SHA-256 of the script that wrote it, of each module that script
+// --check. The unit tests never regenerate it: here TLC's side of every comparison is that committed
+// file. The workflow tla-checks.yml checks the file against TLC on every push to main. The file records the SHA-256 of the script that wrote it, of each module that script
 // imports, of each specification file and each committed configuration, and of the jar, and the
 // first test fails when one of those files no longer has the digest recorded. TLC model-checks the specification's rows over each world under the sets of switches
 // that file names. This suite then holds three things:

@@ -2,7 +2,7 @@
 
 // Regenerates specs/worker-hold/conformance.json from the TLA+ specification, with TLC.
 //
-// CI has no Java, so the conformance suite (scripts/tla-worker-hold-conformance.test.mjs) reads
+// The unit tests have no Java, so the conformance suite (scripts/tla-worker-hold-conformance.test.mjs) reads
 // that file and never runs TLC. For each world this script runs TLC three ways:
 // - WorkerHoldExport, with nothing assumed: every state and every move, folded into the digest
 //   the suite compares with the hand-written model's (lib/fv-worker-model.ts). The script makes
@@ -26,8 +26,8 @@
 // The file names what wrote it: the SHA-256 of this script and of the three modules it imports,
 // of each specification file, of each committed configuration and of the jar. The suite fails
 // when any of those files no longer has the digest the export records, so an edit here (to the
-// table of cells, say) needs a new export. No CI job runs this script: in CI, TLC's side is the
-// committed file.
+// table of cells, say) needs a new export. The workflow tla-checks.yml runs this script with --check on
+// every push to main; in the unit tests TLC's side is the committed file.
 //
 // Usage:
 //   node scripts/tla-worker-hold-export.mjs --jar <tla2tools.jar> [--java <java>] [--check] [--worlds a,b] [--workers n]

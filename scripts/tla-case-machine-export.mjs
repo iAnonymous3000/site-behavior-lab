@@ -2,7 +2,7 @@
 
 // Regenerates specs/case-machine/conformance.json from the TLA+ specification, with TLC.
 //
-// CI has no Java, so the conformance suite (scripts/tla-case-machine-conformance.test.mjs)
+// The unit tests have no Java, so the conformance suite (scripts/tla-case-machine-conformance.test.mjs)
 // reads that file and never runs TLC. This script is the other half: it runs TLC on
 // specs/case-machine/CaseMachineExport.tla for each plan, under that plan's committed
 // configuration, so the same run holds every invariant the configuration lists on every
@@ -16,7 +16,8 @@
 // The file names what wrote it: the SHA-256 of this script and of the two modules it imports, of
 // each specification file, of each committed configuration and of the jar. The suite fails when
 // any of those files no longer has the digest the export records, so an edit here needs a new
-// export. No CI job runs this script: in CI, TLC's side is the committed file.
+// export. The workflow tla-checks.yml runs this script with --check, by schedule and by hand and
+// not on every push; in the unit tests TLC's side is the committed file.
 //
 // While it has TLC's lines in hand it also holds the real machine to each of them, state
 // by state: the real step's answer to every event of the alphabet, and the real views, on
@@ -24,7 +25,7 @@
 //   npx tsc -p tsconfig.investigation-test.json
 //
 // Usage:
-//   node scripts/tla-case-machine-export.mjs --jar <tla2tools.jar> [--java <java>] [--check] [--plans a,b] [--workers n]
+//   node scripts/tla-case-machine-export.mjs --jar <tla2tools.jar> [--java <java>] [--check] [--plans a,b] [--workers n] [--heap 3g]
 // The jar must be the one specs/tla-tools.json pins, by its SHA-256.
 
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
@@ -274,7 +275,7 @@ async function main() {
 
   const scratch = mkdtempSync(join(tmpdir(), "tla-case-machine-"));
   try {
-    const tools = { java, jar, scratch, workers: Number(option("--workers") ?? "2"), heap: "3g" };
+    const tools = { java, jar, scratch, workers: Number(option("--workers") ?? "2"), heap: option("--heap") ?? "3g" };
     // The files as they are before TLC reads them: a file edited while TLC runs would leave an export that names the
     // edited file and was made from the other.
     const provenance = () => provenanceOf({ scripts: SCRIPTS, specDir: SPEC_DIR, specification: SPEC_FILES, configurations: CONFIGURATIONS, jarSha256 });

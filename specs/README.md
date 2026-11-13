@@ -49,24 +49,52 @@ are switches in the specification, and no run here measures them.
 
 `tla-tools.json` pins one release of the TLA+ tools by its URL and SHA-256,
 and the digest of each file TLC exported. The export scripts refuse any other
-jar. TLC needs Java 11 or later; nothing here installs it.
+jar. TLC needs Java 11 or later; nothing in the unit tests installs it.
 
-CI has no Java. So each specification has two halves:
+The unit tests have no Java. So each specification has two halves:
 
 - An export script runs TLC and writes `conformance.json` beside the
   specification: counts, digests, traces and tables. With `--check` it writes
   nothing and fails on any byte that differs from the committed file.
 - A conformance suite reads `conformance.json` and never starts Java.
 
-### In CI, TLC's side is a committed file
+### Where TLC runs
 
-No CI job runs TLC, and no CI job regenerates or checks `conformance.json`.
-In CI, TLC's side of every comparison is the committed export, and a person
-with Java and the jar regenerates it by hand. That TLC produced the file, and
-what it reports TLC held, is the file's own word. CI cannot see it.
+In the unit tests, and so in the required CI run, TLC's side of every
+comparison is the committed export. A workflow of its own,
+`.github/workflows/tla-checks.yml`, runs TLC on a hosted runner:
 
-What CI can see is drift. Each export records the SHA-256 of what it was
-produced by and from:
+- On every push to `main`: the hold export with `--check`, and the hold
+  specification's seeded faults.
+- By schedule (weekly) and by hand: the same, and the case machine export
+  with `--check` and its seeded faults. The case machine takes hours on a
+  hosted runner, which is why it is not run on every push. It is to be
+  dispatched at each release candidate.
+
+That workflow downloads the jar pinned in `tla-tools.json` and the Java
+runtime pinned in `tla-ci-runtime.json`, each refused unless its size and
+SHA-256 are the pinned ones. It writes a receipt (the commit, the tools, each
+check with its exit status and the digest of the export it compared), holds
+the receipt to the commit, and a second job, which runs none of the commit's
+code, signs it.
+
+What that does and does not give:
+
+- A check that passed shows that TLC, on that runner, from the files of that
+  commit, wrote the committed export byte for byte, or caught each seeded
+  fault. The exports were first written on another machine with another Java
+  runtime, so a pass also shows the two agree.
+- Nothing reads the workflow's conclusion. It is not a required check, no
+  release gate reads the receipt, and a commit can be promoted while its run
+  is red or still going. A push to `main` does not check the case machine at
+  all.
+- The signature shows which workflow run wrote the receipt. It does not show
+  that TLC is right.
+- The receipt records the fault runs only as a count in the script's last
+  line and an exit status.
+
+Between runs, what the unit tests can see is drift. Each export records the
+SHA-256 of what it was produced by and from:
 
 - `producedBy`: the export script, and each module it imports.
 - `specification`: each `.tla` file.
@@ -80,9 +108,6 @@ suite has no jar, so it holds the jar's recorded digest to the pin in
 `tla-tools.json`. That pin and the digests of the two exports are stored
 beside the files they describe: they stop an accidental edit, and nothing
 more.
-
-The two mutation scripts are in the same position, and weaker: they need TLC,
-no CI stage runs them, and no committed file records their result.
 
 ### Regenerating and checking locally
 

@@ -2,9 +2,9 @@
   "format": 2,
   "about": "Exported by scripts/tla-case-machine-export.mjs from specs/case-machine with TLC. Do not edit by hand. producedBy, specification and configurations are the SHA-256 of each file this export was written by and from, and tla2tools is the jar's.",
   "producedBy": {
-    "scripts/tla-case-machine-export.mjs": "ff2c8d525086a970c58fe4f7b89b3ed78e227cb93e3a0d044e41bf1470e9c89e",
+    "scripts/tla-case-machine-export.mjs": "a526cfef034a9fbc0cee9fe6ba82f8ddd132fc48131d5253601cfb5da8e7e4cf",
     "scripts/tla-case-machine-lib.mjs": "0a937051a6ac00dcb06fdb472e500588198edf6c5b171a0bb0ae78b61d012ce0",
-    "scripts/tla-tools-lib.mjs": "33637278a3b21d65a638e8c1f7e0c995b83cf559fe2161c60cdd306e5f3eeee5"
+    "scripts/tla-tools-lib.mjs": "648f486968500c126bf681ab8e78175ddf5045b35cf397962e26515cfb74e6a2"
   },
   "specification": {
     "CaseMachine.tla": "09b9bb3b7607ea763b459405c147fcb14b81a7e60ac546903fb4bd681eb1f51e",

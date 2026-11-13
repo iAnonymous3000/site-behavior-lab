@@ -192,6 +192,19 @@ public API or a 1.0 release.
   recorded decision has not changed, and the module still names the cargo
   home of the machine that built it, which a later toolchain epoch can
   remove.
+- TLC now runs on a hosted runner, in a workflow of its own
+  (`tla-checks.yml`). On every push to `main` it checks the hold export
+  byte for byte against what TLC writes from the commit's files and runs the
+  hold specification's seeded faults; weekly and by hand it does the same for
+  the case machine, which takes hours there. The jar and the Java runtime are
+  downloaded by pinned size and SHA-256. The run writes a receipt and a
+  second job, which runs none of the commit's code, signs it. Nothing reads
+  the workflow's conclusion: it is not a required check, no release gate
+  reads the receipt, and a push does not check the case machine. No hosted
+  runner had run it when this entry was written. Both exports were
+  regenerated because the scripts they record changed (comments, and a
+  `--heap` option); apart from those recorded digests every byte TLC computed
+  is the same.
 
 ### Removed
 

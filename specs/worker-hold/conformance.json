@@ -2,10 +2,10 @@
   "format": 2,
   "about": "Exported by scripts/tla-worker-hold-export.mjs from specs/worker-hold with TLC. Do not edit by hand. producedBy, specification and configurations are the SHA-256 of each file this export was written by and from, and tla2tools is the jar's.",
   "producedBy": {
-    "scripts/tla-worker-hold-export.mjs": "69d966d2ac78a22bb5d3f88cb9850a5cbc963e4bb7837f06bf91383517ae76e1",
+    "scripts/tla-worker-hold-export.mjs": "b23a27309081c8be036aaf45efb2972b2733d1feb57cbd701386eaff0126f8f5",
     "scripts/tla-worker-hold-lib.mjs": "8025bd4d6bb0addb14ca81c88a2e0b8ef725ca9d8c2ebc98d52bd73e1485e565",
     "scripts/tla-case-machine-lib.mjs": "0a937051a6ac00dcb06fdb472e500588198edf6c5b171a0bb0ae78b61d012ce0",
-    "scripts/tla-tools-lib.mjs": "33637278a3b21d65a638e8c1f7e0c995b83cf559fe2161c60cdd306e5f3eeee5"
+    "scripts/tla-tools-lib.mjs": "648f486968500c126bf681ab8e78175ddf5045b35cf397962e26515cfb74e6a2"
   },
   "specification": {
     "WorkerHold.tla": "ab8fd4b8db4c72485fff1d83682ec8e8d08ea994e29bf16dc775fd980f653d2e",

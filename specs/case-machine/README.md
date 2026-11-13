@@ -24,7 +24,7 @@ configuration change), and the purge slice over three paths.
 | `instrumented.cfg`, `baseline.cfg`, `one-each.cfg`, `two-each.cfg` | Row F5-S: the smaller plans, every property, with every manifest the slice reaches. |
 | `PurgeSlice.tla`, `purge-slice.cfg` | Row F5-P: the purge events alone, from no manifest, open and closed. |
 | `CaseMachineExport.tla` | Prints what the conformance suite compares the code with. Not a property. |
-| `conformance.json` | What TLC exported. Written by `scripts/tla-case-machine-export.mjs`, by hand: no CI job regenerates it. It records the SHA-256 of that script, of the modules it imports, of each `.tla` and `.cfg` file here and of the jar, and the suite fails when one of those files no longer matches. `../README.md` says how to regenerate and check it. |
+| `conformance.json` | What TLC exported. Written by `scripts/tla-case-machine-export.mjs`, by hand. The workflow `tla-checks.yml` checks it against TLC by schedule and by hand, not on every push. It records the SHA-256 of that script, of the modules it imports, of each `.tla` and `.cfg` file here and of the jar, and the suite fails when one of those files no longer matches. `../README.md` says how to regenerate and check it. |
 
 ## Where it differs from the TypeScript on purpose
 
@@ -169,7 +169,9 @@ other invariant when the named one is taken out: `Domain`, `CapsState`,
 a review run that is not a committed script: each of the first 35 faults was
 run again with its named invariant removed and the other 29 on, and 19 were
 still caught. No committed artifact records the result of the mutation
-script, and no CI stage runs it: it needs TLC.
+script. The unit tests do not run it: it needs TLC. The workflow
+`tla-checks.yml` runs it by schedule and by hand, and its receipt keeps the
+script's exit status and last line.
 
 ## What the conformance suite holds
 
