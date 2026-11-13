@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { consentChoiceVerified, consentVerificationSummary } from "./report-consent-copy";
+import { consentChoiceVerified, consentRegistrationSentence, consentVerificationSummary } from "./report-consent-copy";
 import type { RunConsentView } from "./scan-report-views";
 
 function consent(choiceState: RunConsentView["choiceState"], controlActivated = true): RunConsentView {
@@ -52,4 +52,18 @@ test("public consent outcomes require a verified registered choice, not dispatch
     ]
   };
   assert.equal(consentChoiceVerified(transitioned), false);
+});
+
+test("a contradicted state is set against a click only when the record holds an activation", () => {
+  const view = { origin: "v2", revision: 2 } as Parameters<typeof consentRegistrationSentence>[0];
+  assert.equal(
+    consentRegistrationSentence(view, consent("contradicted"), "Reject all"),
+    "The site's registered consent state contradicted the Reject all click."
+  );
+  const unactivated = consentRegistrationSentence(view, consent("contradicted", false), "Reject all");
+  assert.equal(
+    unactivated,
+    "The scanner read a registered state inconsistent with the requested Reject all choice, but it did not activate that control."
+  );
+  assert.doesNotMatch(unactivated, /contradicted the|\bclick\b/);
 });

@@ -2568,13 +2568,10 @@ function unconfirmedConsentInteractionFinding(view: ReportView, baseline: RunVie
         ? "A registered consent-state observation contradicted a requested choice"
         : "The registered consent state contradicted a dispatched choice"
       : `${unresolved.length === 1 ? "A consent choice was" : "Consent choices were"} attempted, but not verified`,
-    lead: unresolved
-      .map((entry) =>
-        entry.consent?.choiceState === "contradicted" && entry.consent.controlActivated !== true
-          ? `The scanner read a registered state inconsistent with the requested ${entry.label} choice, but it did not activate that control.`
-          : consentRegistrationSentence(view, entry.consent, entry.label)
-      )
-      .join(" "),
+    // The sentence itself tells a contradiction with an activated control
+    // from one without, so no caller can print the click wording for a visit
+    // whose record holds no activation.
+    lead: unresolved.map((entry) => consentRegistrationSentence(view, entry.consent, entry.label)).join(" "),
     detail:
       "The raw visits remain available as separate observations, but they do not support an accept-versus-reject outcome or a reassuring consent result unless both requested choices are verified as registered.",
     evidence: unresolved

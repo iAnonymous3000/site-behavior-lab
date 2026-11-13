@@ -47,7 +47,11 @@ export function consentRegistrationSentence(
         ? `The report verified that the site registered ${choiceLabel} after the click and again after one page reload.`
         : `The report verified that the site registered ${choiceLabel} after the click.`;
     case "contradicted":
-      return `The site's registered consent state contradicted the ${choiceLabel} click.`;
+      // The state is read whether or not a control was activated. Without an
+      // activation the record holds no click for the state to contradict.
+      return consent?.controlActivated === true
+        ? `The site's registered consent state contradicted the ${choiceLabel} click.`
+        : `The scanner read a registered state inconsistent with the requested ${choiceLabel} choice, but it did not activate that control.`;
     case "weak-signal":
       return `The banner disappeared after the ${choiceLabel} click, but no registered consent state was verified.`;
     case "failed":
