@@ -244,7 +244,19 @@ function buildUncorrectedReportHeadline(
   if (highEntropy.length > 0) {
     extras.push(`${plural(highEntropy.length, "browser-fingerprinting heuristic")} matched`);
   }
-  const extraNote = extras.length > 0 ? ` It also looks like ${joinNames(extras, 2)}.` : "";
+  // `extras` come from the lead run's facts alone. On a two-visit report the
+  // note names that visit by the label the report gives it, so a reader can
+  // tell which of the two visits the signal was recorded in.
+  const extrasVisitLabel =
+    arms && (run.label === "baseline" || run.label === "variant")
+      ? view.comparison?.runLabels[run.label] ?? null
+      : null;
+  const extraNote =
+    extras.length === 0
+      ? ""
+      : extrasVisitLabel
+        ? ` In the visit labeled ${extrasVisitLabel}, it also looks like ${joinNames(extras, 2)}.`
+        : ` It also looks like ${joinNames(extras, 2)}.`;
 
   const finish = (
     tone: HeadlineTone,

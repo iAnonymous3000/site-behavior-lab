@@ -13,6 +13,7 @@ import { displayableScreenshot } from "./report-insights";
 import { buildFindings } from "./report-findings";
 import { buildReportHeadline, reportPageTitle, type ReportHeadline } from "./report-headline";
 import { publishedReportCorrections } from "./published-report-corrections";
+import { ledgerPinnedReportView } from "./pinned-reports";
 import { INVALID_UPSTREAM_RESPONSE_WARNING } from "./scan-runtime";
 import { evaluateQuality } from "./scan-report-v2-evaluators";
 import { R2_NAVIGATION_STATUS_UNREPRESENTABLE } from "./scan-report-v2-http-status";
@@ -1956,4 +1957,19 @@ test("reportPageTitle prefixes the domain only when the headline does not alread
     reportPageTitle({ ...base, domain: "shop.example", headline: "This visit looked quiet." }),
     "shop.example: This visit looked quiet."
   );
+});
+
+test("a two-visit headline names the visit its secondary signals came from", () => {
+  // Committed npr.org consent pair (the ledger pins it): the pair supports no
+  // comparison, so the headline falls back to the lead visit's story, and the
+  // listener and fingerprint signals are that one visit's.
+  const pair = buildReportHeadline(ledgerPinnedReportView("20260702-74b79a8d1cc1bd9cffeefab7ea0890bc"));
+  assert.match(
+    pair.subhead,
+    / In the visit labeled Accept-all attempt, it also looks like keyboard-input listeners were registered through a call chain that included a cross-site script and 2 browser-fingerprinting heuristics matched\./
+  );
+  assert.doesNotMatch(pair.subhead, / It also looks like /);
+
+  // A single-visit report keeps the plain clause; the chain-wording test
+  // above pins its opening words.
 });

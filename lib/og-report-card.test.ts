@@ -173,7 +173,8 @@ test("an over-long subhead drops its secondary observation, never its qualificat
   const extrasHeadline = buildReportHeadline(extrasView);
   assert.notEqual(extrasHeadline.semantic.story, "listener-coverage");
   const secondary = extrasHeadline.subhead.slice(extrasHeadline.subheadPrimaryClaim.length);
-  assert.match(secondary, /^ It also looks like /);
+  // The fixture is a two-visit report, so the clause names its lead visit.
+  assert.match(secondary, /^ In the visit labeled No blocking, it also looks like /);
   assert.match(secondary, /call chain that included a cross-site script/);
   assert.doesNotMatch(secondary, /(cross-site|third-party) script registered/i);
   const headline = {
