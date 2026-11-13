@@ -1,7 +1,9 @@
 #!/usr/bin/env node
-// Holds the Rust trust kernel's canonical JSON to the TypeScript reference,
-// byte for byte, and refusal for refusal.
+// Holds the Rust trust kernel to the TypeScript references: its canonical
+// JSON byte for byte and refusal for refusal, and its address classifier
+// answer for answer.
 //
+// Canonical JSON.
 // The reference is lib/canonical-json.ts behind lib/strict-json.ts, read from
 // the compiled unit-test tree (npx tsc -p tsconfig.test.json). It is not
 // changed, wrapped or patched here; `reference` below only names the two
@@ -9,7 +11,7 @@
 // thrown errors a word. The kernel is the WebAssembly module itself, the
 // artifact a later phase would ship, not a native build of the same source.
 //
-// Two bodies of input:
+// Three bodies of input:
 //   corpus  every tracked *.json file in the repository, as its bytes, and
 //           every entry of the transparency log on its own;
 //   budgets the reference parser's byte budget, as every kind of number;
@@ -19,6 +21,11 @@
 // Any difference is a failure, and so is a reference error this file has no
 // word for. Each accepted output is also fed back to the kernel, which must
 // return it unchanged. Nothing is skipped and nothing is retried.
+//
+// Addresses. The reference is lib/ip-safety.ts. That comparison, its inputs
+// and what it does not show are in scripts/trust-kernel-address-differential.mjs;
+// this file runs it as the part named "addresses" and reports it beside the
+// rest. A difference there fails the run like any other.
 
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
@@ -26,6 +33,7 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { runAddressComparison } from "./trust-kernel-address-differential.mjs";
 
 const ROOT = path.resolve(fileURLToPath(new URL("..", import.meta.url)));
 const DEFAULT_WASM = "tools/trust-kernel/target/wasm32-unknown-unknown/release/sbl_trust_kernel_wasm.wasm";
@@ -120,6 +128,7 @@ async function loadKernel(wasmPath) {
     const length = sbl_output_length();
     return { bytes: new Uint8Array(memory.buffer, sbl_output(), length).slice() };
   };
+  kernel.exports = instance.exports;
   kernel.sha256 = createHash("sha256").update(wasmBytes).digest("hex");
   kernel.byteLength = wasmBytes.length;
   return kernel;
@@ -657,7 +666,7 @@ async function main() {
   canonicalizeAgain = kernel;
 
   const report = {
-    reference: "lib/canonical-json.ts canonicalJson after lib/strict-json.ts parseStrictJson",
+    reference: "lib/canonical-json.ts canonicalJson after lib/strict-json.ts parseStrictJson; for `addresses`, see that part",
     runtime: { node: process.versions.node, v8: process.versions.v8, unicode: process.versions.unicode },
     kernel: { wasm: options.wasm, sha256: kernel.sha256, bytes: kernel.byteLength },
     fuzzSeed: FUZZ_SEED,
@@ -695,14 +704,24 @@ async function main() {
     report.timings[name] = seconds() - before;
   });
 
-  const differences = report.sections.flatMap((tally) => tally.differences);
+  let addressDifferences = [];
+  if (wanted("addresses")) {
+    const before = seconds();
+    const addresses = runAddressComparison({ root: ROOT, exports: kernel.exports, scale: options.scale });
+    report.addresses = addresses.report;
+    addressDifferences = addresses.differences;
+    report.timings.addresses = seconds() - before;
+  }
+
+  const differences = [...report.sections.flatMap((tally) => tally.differences), ...addressDifferences];
   const fixedPoints = report.sections.reduce((sum, tally) => sum + tally.fixedPoints, 0);
   report.sections = report.sections.map((tally) => tally.summary());
   report.totals = {
     cases: report.sections.reduce((sum, section) => sum + section.cases, 0),
     accepted: report.sections.reduce((sum, section) => sum + section.accepted, 0),
     outputsFedBackUnchanged: fixedPoints,
-    differences: report.sections.reduce((sum, section) => sum + section.differences, 0),
+    addressCases: report.addresses?.totals.cases ?? 0,
+    differences: report.sections.reduce((sum, section) => sum + section.differences, 0) + (report.addresses?.totals.differences ?? 0),
     seconds: Number(seconds().toFixed(1))
   };
   for (const key of Object.keys(report.timings)) report.timings[key] = Number(report.timings[key].toFixed(1));
@@ -714,7 +733,7 @@ async function main() {
     console.error(JSON.stringify(differences, null, 2));
     process.exitCode = 1;
   } else {
-    console.log(`\nNo difference in ${report.totals.cases} cases (${report.totals.seconds} s).`);
+    console.log(`\nNo difference in ${report.totals.cases} canonical JSON cases and ${report.totals.addressCases} address cases (${report.totals.seconds} s).`);
   }
 }
 

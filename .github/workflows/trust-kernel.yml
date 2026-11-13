@@ -1,7 +1,8 @@
 name: Trust Kernel
 
-# Phase 0 of the language plan: the Rust trust kernel in tools/trust-kernel,
-# which nothing in the scanner, the Worker or the site calls.
+# The Rust trust kernel in tools/trust-kernel: canonical JSON (phase 0 of
+# the language plan) and the address classifier. Nothing in the scanner, the
+# Worker or the site calls it.
 #
 # This is a workflow of its own, not a job of CI, on purpose. The release
 # workflow, the hosted evidence archive and the durable transition receipt
@@ -36,9 +37,9 @@ jobs:
     runs-on: ubuntu-24.04
     # A hosted runner has not run these steps yet. In a linux/amd64
     # container emulated on an arm64 machine the steps after npm ci and the
-    # TypeScript compile took about seven and a half minutes: the two builds
-    # under one minute, the comparison with the reference four and a half,
-    # the Verus step two.
+    # TypeScript compile took about eleven minutes: the two builds under one
+    # minute, the comparison with the references seven and a half (the
+    # addresses three and a half of that), the Verus step two and a half.
     # A step that hangs must fail this job, not hold the run.
     timeout-minutes: 30
     permissions:
@@ -93,6 +94,8 @@ jobs:
 
       # The module built above against lib/canonical-json.ts: every tracked
       # JSON file, every transparency log entry, and the seeded fuzz corpus.
+      # Then against lib/ip-safety.ts: the address classifier's answer for
+      # every text of scripts/trust-kernel-address-differential.mjs.
       - name: Compare the kernel with the TypeScript reference
         run: >-
           node scripts/trust-kernel-differential.mjs
@@ -107,9 +110,10 @@ jobs:
       # In one run: the source guards and pins with the mutations that test
       # them, the kernel's unit tests as an ordinary build of the same
       # source, Verus on that source under a fifth of its default resource
-      # limit, and the broken copies Verus must refuse. See the head of the
+      # limit, and the broken copies Verus must refuse. The checked files
+      # are the encoder and the address classifier. See the head of the
       # script.
-      - name: Check the encoder with Verus
+      - name: Check the encoder and the address classifier with Verus
         run: node scripts/trust-kernel-verus.mjs verify --verus "$RUNNER_TEMP/verus/verus-x86-linux"
 
       - name: Preserve the comparison report
