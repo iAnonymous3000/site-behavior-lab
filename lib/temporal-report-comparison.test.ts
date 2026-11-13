@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { test } from "node:test";
 import { buildStaticReportShare } from "./report-locator";
 import { buildFingerprints } from "./scan-report-v2-fingerprints";
@@ -17,6 +19,7 @@ import { ledgerPinnedReportWire, storedReport } from "./pinned-reports";
 import ledger from "../public/corrections.json";
 import {
   createLoadedTemporalComparison,
+  temporalComparisonRefusesReport,
   temporalUploadSelectionError
 } from "./temporal-report-comparison";
 
@@ -185,4 +188,24 @@ test("uploaded comparisons remain refused while uploaded r2 singles are selectab
     view: viewFromV2(comparison, 2)
   };
   assert.match(temporalUploadSelectionError(loaded) ?? "", /single-scan/i);
+});
+
+test("the archive picker withholds exactly the reports Compare refuses for correction context", () => {
+  for (const event of ledger.entries) {
+    const published = event.state === "privacy-superseded" ? event.replacementReportIds?.[0] : event.reportIds[0];
+    assert.ok(published, `${event.eventId} names no published report`);
+    assert.equal(temporalComparisonRefusesReport(published), true, event.eventId);
+  }
+  assert.equal(temporalComparisonRefusesReport("20991231-00000000000000000000000000000000"), false);
+
+  const gallery = readFileSync(path.join(process.cwd(), "app", "_components", "static-gallery.tsx"), "utf8");
+  const groups = gallery.slice(gallery.indexOf("function buildHistoryGroups("));
+  // The check runs before a report joins a history, so the two-visit minimum
+  // counts only reports that can be compared.
+  assert.match(
+    groups,
+    /if \(!key\) continue;(?:\s*\/\/[^\n]*)*\s*if \(temporalComparisonRefusesReport\(report\.id\)\) continue;\s*const existing = groups\.get\(key\);/
+  );
+  assert.match(gallery, /\{correctedReportsWithheld && \(\s*<p className="static-compare-note">\{CORRECTED_REPORTS_WITHHELD_NOTE\}<\/p>\s*\)\}/);
+  assert.match(gallery, /Reports with a published correction or clarification are not offered here/);
 });

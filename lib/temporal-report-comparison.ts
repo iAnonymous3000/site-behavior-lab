@@ -106,9 +106,23 @@ export function createLoadedTemporalComparison(
   return createR2TemporalComparison(left, right);
 }
 
+/** The published correction events a temporal comparison refuses a report for. */
+function temporalCorrectionEvents(reportId: string | null | undefined) {
+  const context = publishedReportCorrections(reportId);
+  return [...context.subjectEvents, ...context.replacementEvents];
+}
+
+/**
+ * Whether a temporal comparison would refuse this report for its published
+ * correction context. The archive picker reads this, so it never offers a
+ * report as a Before or After choice that Compare would then refuse.
+ */
+export function temporalComparisonRefusesReport(reportId: string): boolean {
+  return temporalCorrectionEvents(reportId).length > 0;
+}
+
 function temporalCorrectionError(loaded: LoadedReport): string | null {
-  const context = publishedReportCorrections(loaded.view.reportId);
-  const events = [...context.subjectEvents, ...context.replacementEvents];
+  const events = temporalCorrectionEvents(loaded.view.reportId);
   if (events.length === 0) return null;
   const ids = events.map(event => event.eventId).join(", ");
   return `This report has published correction context (${ids}). A new temporal report cannot retain that context in the current format. Read the original reports and their notices separately.`;

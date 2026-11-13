@@ -26,6 +26,7 @@ import {
 import { displayHost, displayPublicUrl, plural } from "@/lib/text-format";
 import {
   createLoadedTemporalComparison,
+  temporalComparisonRefusesReport,
   temporalUploadSelectionError
 } from "@/lib/temporal-report-comparison";
 import type { ScanDevice, StaticReportManifestEntry } from "@/lib/types";
@@ -84,6 +85,10 @@ function StaticReportGallery({
   }, [afterUploadOperation, archiveComparisonOperation, beforeUploadOperation]);
 
   const historyGroups = useMemo(() => buildHistoryGroups(reports ?? []), [reports]);
+  const correctedReportsWithheld = useMemo(
+    () => (reports ?? []).some((report) => report.comparisonHistoryKey && temporalComparisonRefusesReport(report.id)),
+    [reports]
+  );
   const selectedHistoryGroup = historyGroups.find((group) => group.key === historyGroupKey) ?? historyGroups[0] ?? null;
 
   const filteredReports = useMemo(() => {
@@ -408,6 +413,9 @@ function StaticReportGallery({
               <p className="static-compare-note">
                 {historyGroupMethodNote(selectedHistoryGroup)}
               </p>
+              {correctedReportsWithheld && (
+                <p className="static-compare-note">{CORRECTED_REPORTS_WITHHELD_NOTE}</p>
+              )}
             </>
           ) : (
             <p className="static-compare-note">
@@ -628,11 +636,17 @@ function historyGroupMethodNote(group: HistoryGroup): string {
   return `${COMPARISON_HISTORY_IDENTITY_SENTENCES.v1} A changed list snapshot can support raw and catalogued-service differences, but never a Shields or detector delta.`;
 }
 
+const CORRECTED_REPORTS_WITHHELD_NOTE =
+  "Reports with a published correction or clarification are not offered here, because a new comparison cannot carry their notices. Read those reports and their notices separately.";
+
 function buildHistoryGroups(reports: StaticReportManifestEntry[]): HistoryGroup[] {
   const groups = new Map<string, StaticReportManifestEntry[]>();
   for (const report of reports) {
     const key = report.comparisonHistoryKey;
     if (!key) continue;
+    // Compare refuses a report with published correction context, so the
+    // picker does not offer one; a history left with one visit is not listed.
+    if (temporalComparisonRefusesReport(report.id)) continue;
     const existing = groups.get(key);
     if (existing) existing.push(report);
     else groups.set(key, [report]);
