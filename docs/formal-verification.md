@@ -1172,20 +1172,19 @@ A report's headline and its findings board are computed apart, and
 `lib/report-consistency.ts` holds rules between them and the facts. These rows
 hold those rules over a product of visits the suite builds. The product is not
 the set of reports a scan can make: it is the suite's own lists, crossed. The
-walk found visits on which a rule fires, which are outside each row here and
-pinned open as OPEN-RC.1 and OPEN-RC.2.
+walk first found classes of visit on which a rule fired. They were fixed in the
+report facts, and RC-A holds the activity slice with them in it.
 
 ### RC. No consistency rule fires over the product of visits
 
 - **Property:** On each view of the suite's product, the facts, the headline and the findings board built for the arm that headline focuses break no rule of `reportConsistencyViolations`: no fingerprint story without fingerprint activity, no cookie absence beside a recorded cookie of another site, no calm headline over a warn or loud card or an alert bottom line, no absent services card beside a named operator, no categorical absence under a closed fact gate, no unscoped absence lead under a closed fact gate, no error page's evidence put on the requested page, and no single-visit headline above a card for the other visit.
 - **Code:** `buildReportFacts` in `lib/report-facts.ts`, `buildReportHeadline` in `lib/report-headline.ts`, `buildFindings` in `lib/report-findings.ts` and `reportConsistencyViolations` in `lib/report-consistency.ts`.
-- **Domain:** Exhaustive over each slice's own product of the lists the suite writes out: `ACTIVITY` and `ACTIVITY_LEADS`, a visit on the v1 wire read by `viewFromV1Report`; `SUBJECT`, `LEGACY_GAPS`, `LEDGER` and `FAMILY_LOSS` crossed with `AVAILABILITY_VISITS`, where the r2 form is set on the view and made by no reader; `DESIGNS` crossed with `ARM` for each visit of a pair, joined by the comparison constructors of `lib/compare-reports.ts`; and `CONSENT` over the r2 consent fixture's pair. Sampled for the value that stands for each class, which the suite writes out; for each field no list names, which stays as the fixtures give it; and for pairings of classes across slices, which are not built. The visits `pinnedOpen` names are left out.
+- **Domain:** Exhaustive over each slice's own product of the lists the suite writes out: `ACTIVITY` and `ACTIVITY_LEADS`, a visit on the v1 wire read by `viewFromV1Report`; `SUBJECT`, `LEGACY_GAPS`, `LEDGER` and `FAMILY_LOSS` crossed with `AVAILABILITY_VISITS`, where the r2 form is set on the view and made by no reader; `DESIGNS` crossed with `ARM` for each visit of a pair, joined by the comparison constructors of `lib/compare-reports.ts`; and `CONSENT` over the r2 consent fixture's pair. Sampled for the value that stands for each class, which the suite writes out; for each field no list names, which stays as the fixtures give it; and for pairings of classes across slices, which are not built.
 - **Bounds:** none beyond those products.
 - **Axioms:** none
 - **Method:** exhaustive, sampled
 - **Not claimed:** A report outside the product. A board ranked against corpus percentiles: each board here is built with no corpus. A published correction, a PageGraph import's own card, storage counts and same-organization ownership, which no list varies. That the rules are the right rules, or that a headline and a board that break none of them agree in other ways. The classes were chosen from the comparisons the facts, the headline and the cards for a single visit make; the board's comparison cards were not read branch by branch. A seeded fault is walked by `walkForFaults`, which leaves the `ACTIVITY` product out, so what else a fault fires is stated over those slices and nothing wider.
 - **Tests:**
-  - `lib/fv-report-consistency.test.ts`: "RC: no rule fires on any visit of the activity slice, outside the two classes pinned open"
   - `lib/fv-report-consistency.test.ts`: "RC: no rule fires on any visit of the availability slice, whatever the page was and whatever the scan could not record"
   - `lib/fv-report-consistency.test.ts`: "RC: no rule fires on any pair the real comparison constructors join, over each design"
   - `lib/fv-report-consistency.test.ts`: "RC: no rule fires on the consent pair, over each choice state, gate and tracker"
@@ -1193,6 +1192,24 @@ pinned open as OPEN-RC.1 and OPEN-RC.2.
   - `lib/fv-report-consistency.test.ts`: names beginning "RC catches a variant"
   - `lib/fv-report-consistency.test.ts`: "every rule has a seeded fault"
 - **Commit:** bc1ff528b0e014a59e50b354ab3f6edc28b0fb8b
+
+### RC-A. The activity slice, with the classes the walk first found
+
+- **Property:** On each view of the activity slice no rule of `reportConsistencyViolations` fires, the classes included on which `quiet-copy-over-loud-finding` fired before this commit: a policy that says cookies are not used beside a cookie of the site's own, and a consent platform's host that is the site's own. On the policy class the facts rank the count conflict and the headline is not calm; on the consent class the board holds no consent card and the bottom line is calm.
+- **Code:** `policyFacts`, `signals.consentPlatform` and `observedSeverity` in `lib/report-facts.ts`, and the policy and consent cards of `buildFindings` in `lib/report-findings.ts`, which read those facts and make neither decision again.
+- **Domain:** Exhaustive over the product of `ACTIVITY` and `ACTIVITY_LEADS`, a visit on the v1 wire read by `viewFromV1Report`. Sampled as RC states: the value that stands for each class is written out, and no class is paired with the other slices.
+- **Bounds:** none beyond that product.
+- **Axioms:** none
+- **Method:** exhaustive, sampled
+- **Not claimed:** What RC does not claim. That no other card decides from its own reading of the evidence: the decisions moved into the facts are the ones this walk found. A policy statement other than the count comparisons of `policyFacts`. How often either class occurs: rendered before and after this commit, the headline and board of each committed report read the same.
+- **Tests:**
+  - `lib/fv-report-consistency.test.ts`: "RC: no rule fires on any visit of the activity slice"
+  - `lib/fv-report-consistency.test.ts`: "RC: a policy that says no cookies are used, beside a cookie of the site's own, is a conflict the facts rank, and the headline is not calm"
+  - `lib/fv-report-consistency.test.ts`: "RC: a consent platform's host that is the site's own is no consent card, and the calm headline sits over a calm bottom line"
+- **Variants:**
+  - `lib/fv-report-consistency.test.ts`: "RC catches the facts no longer ranking a policy's count conflict"
+  - `lib/fv-report-consistency.test.ts`: "RC catches the board looking for a consent platform among the site's own rows again"
+- **Commit:** d62eabb4fc87f0a437a11aa050bcd5275c71c51a
 
 ### RC-H. The walk is the production path, and reaches the stories it lists
 
@@ -1333,17 +1350,3 @@ which is the owner's call.
 - **Tests:**
   - `lib/fv-ipv4-classifier.test.ts`: "open (IP4): the two anycast addresses the registry marks globally reachable read as not public"
 - **Commit:** 86e139ca6a01854841bedeb9622e72bff04878bd
-
-### OPEN-RC.1. A calm headline over a policy conflict the facts do not rank
-
-- **Finding:** A visit whose privacy policy says cookies are not used, and which recorded a cookie and nothing the facts rank, gets the calm headline over a board that holds a warn card for the policy conflict and an alert bottom line. The rule `quiet-copy-over-loud-finding` fires. The facts' severity reads the cookies of other sites and no policy conflict, and the policy card reads each cookie. It can reach a saved report: the test builds it on the v1 wire with a first-party cookie.
-- **Tests:**
-  - `lib/fv-report-consistency.test.ts`: "open (RC): a calm headline over a policy that says no cookies are used, beside a cookie the visit recorded"
-- **Commit:** bc1ff528b0e014a59e50b354ab3f6edc28b0fb8b
-
-### OPEN-RC.2. A calm headline over a consent platform on the site's own host
-
-- **Finding:** A visit to a site whose own host is a consent platform's, with nothing the facts rank, gets the calm headline over a board that holds the consent tooling card and an alert bottom line. The rule `quiet-copy-over-loud-finding` fires. The board looks for a consent platform among the domain rows, the site's own included, and the facts count the hosts of other sites. How often a consent platform's own site is scanned is not measured.
-- **Tests:**
-  - `lib/fv-report-consistency.test.ts`: "open (RC): a calm headline over a consent platform on the site's own host"
-- **Commit:** bc1ff528b0e014a59e50b354ab3f6edc28b0fb8b

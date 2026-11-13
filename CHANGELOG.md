@@ -303,6 +303,18 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- A calm headline can no longer stand over a policy conflict or over a consent
+  card. A policy that says cookies are not used, beside a cookie of the site's
+  own, made the policy card warn while the headline stayed calm; a consent
+  platform matched on the site's own host put a consent card under a calm
+  headline. The policy card's count comparison and the choice of consent
+  platform now live in the report facts, which the headline's severity ranks
+  and the cards read, and a consent platform is read from the hosts of other
+  sites only. No public string changes and no recorded field is read
+  differently. Rendered before and after, the headline and board of each
+  committed report read the same. The register's two open findings on this
+  are closed as row RC-A (`docs/formal-verification.md`), and the suite's
+  pinned minimums rise to 20 tests and 11 caught variants.
 - A shared worker the scanner reached only after one of its scripts began to
   run is counted late whichever way the browser reports that script
   (fingerprint-observer@13, node-detectors-v24). The shared-worker attacher
