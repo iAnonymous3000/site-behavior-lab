@@ -494,7 +494,18 @@ test("the form wires the note, the one submit button and the arrival as the copy
     /setPrefilledUrl\(navigation\.targetUrl\);(?:\s*\/\/[^\n]*)*\s*setPrefilledMode\(navigation\.mode\);\s*setHeldMode\(navigation\.mode\);\s*setPrefilledInspect\(inspect\);\s*setPrefilledCheck\(check\);\s*setPrefilledFrom\(navigation\.from\);\s*\}/,
     "the hook keeps and holds the mode a prefill asked for, and keeps the inspection, the check and the earlier result it named, inside the accepted-target branch"
   );
-  assert.equal(hook.match(/setPrefilledCheck\(/g)?.length, 1, "expected only an accepted prefill to set the check");
+  // A submit that starts an ordinary scan ends the link's check and its
+  // inspection before the normalized address reaches the field: the address
+  // can equal the link's again, and the "not saved" line would then show
+  // beside a scan that is saved.
+  holds(
+    hook,
+    /if \(!scrollCheckArrival\) setPrefilledCheck\(false\);\s*if \(!inspectionArrival\) setPrefilledInspect\(null\);\s*setForm\(\(current\) => \(\{ \.\.\.current, url: normalized \}\)\);/,
+    "an ordinary submit to end the check and the inspection before the field is normalized"
+  );
+  assert.equal(hook.match(/url: normalized/g)?.length, 1, "expected one place where a submit normalizes the field");
+  assert.equal(hook.match(/setPrefilledCheck\(/g)?.length, 2, "expected only an accepted prefill to set the check and only an ordinary submit to end it");
+  assert.equal(hook.match(/setPrefilledInspect\(/g)?.length, 2, "expected only an accepted prefill to set the inspection and only an ordinary submit to end it");
   // The inspection holds through the tested rule, from the field and the
   // comparisons the request would ask for; the request names it only then,
   // and a durable admission refuses it before a claim spends the challenge.

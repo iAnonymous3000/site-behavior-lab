@@ -968,6 +968,12 @@ export function useScanRuntime({
       return;
     }
     setUrlError("");
+    // A scan that starts as an ordinary one stays one. Writing the normalized
+    // address into the field can match the link's address again, and a check
+    // or inspection arrival restored that way would say "not saved" beside a
+    // scan whose report is saved. The link's request ends with this submit.
+    if (!scrollCheckArrival) setPrefilledCheck(false);
+    if (!inspectionArrival) setPrefilledInspect(null);
     setForm((current) => ({ ...current, url: normalized }));
     setUrlNotice(
       /[?#]/.test(trimmed)
