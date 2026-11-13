@@ -20,7 +20,10 @@ const OCI_TITLE = "org.opencontainers.image.title";
 const OCI_LICENSES = "org.opencontainers.image.licenses";
 const RELEASE_POLICY_SCHEMA_VERSION = 2;
 const RELEASE_DATE_PATTERN = /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/;
-const RELEASE_VERSION_PATTERN =
+// Exported so lib/release-evidence.test.ts admits exactly the versions this
+// producer admits. The test held its own 0.x-only copy once, which refused
+// the 1.0.0 line this rule and the release workflow already accepted.
+export const RELEASE_VERSION_PATTERN =
   /^(?:0\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?|1\.0\.0(?:-rc\.[1-9]\d*)?)$/;
 const RELEASE_TAG_PATTERN =
   /^v(?:0\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?|1\.0\.0(?:-rc\.[1-9]\d*)?)$/;

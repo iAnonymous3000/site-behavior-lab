@@ -28,6 +28,7 @@ const staticDeploymentProvenance = (): Promise<StaticDeploymentProvenance> =>
   import(PROVENANCE_SCRIPT) as Promise<StaticDeploymentProvenance>;
 
 type ReleaseEvidenceModule = {
+  RELEASE_VERSION_PATTERN: RegExp;
   selectCitedReceiptedVersion(receiptedVersions: string[], policyVersion: string): string | null;
 };
 
@@ -126,7 +127,13 @@ test("repository metadata truthfully describes the governed 0.x and exact 1.0 li
   // claims, which both states keep disabled.
   assert.equal(policy.schemaVersion, 2);
   assert.equal(["development", "released"].includes(policy.status), true);
-  assert.match(policy.version, /^0\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/);
+  // The producer's own rule, not a copy of it. A copy here admitted only 0.x
+  // after the producer and the release workflow had admitted the exact 1.0.0
+  // line, so the candidate commit of a 1.0 release, which must already declare
+  // its version, could not pass this suite.
+  const { RELEASE_VERSION_PATTERN } = await releaseEvidenceModule();
+  assert.ok(RELEASE_VERSION_PATTERN instanceof RegExp, "the producer must export its version rule");
+  assert.match(policy.version, RELEASE_VERSION_PATTERN);
   assert.equal(policy.stablePublicApi, false);
   assert.equal(policy.npmPublication, "disabled");
   if (policy.status === "released") {
