@@ -33,7 +33,9 @@
 //!
 //! The reference is `lib/ip-safety.ts`, which is still the only boundary
 //! that decides where a scan may connect. `classify_address` answers as its
-//! `isIpAddress` and `isPublicIpAddress` do.
+//! `isIpAddress` and `isPublicIpAddress` do. The scanner asks the checked
+//! functions beside the reference and records where the two differ; the
+//! reference's answer is the one it acts on.
 //!
 //! `address.rs` is checked by Verus: for every 32-bit and every 128-bit
 //! address VALUE, the executable classifier returns what a written table and
@@ -43,8 +45,11 @@
 //! lists each place where the reference's verdict follows the spelling of an
 //! address and not its value.
 //!
-//! `classify_address` and `read_address` are the only ways in. The checked
-//! functions are not exported.
+//! There are two ways in. `classify_address` and `read_address` take a
+//! text, so what they return rests on the text reader. `is_public_ipv4` and
+//! `is_public_ipv6` are the checked functions themselves and take a value:
+//! a caller that has the value already asks them and no unchecked Rust of
+//! this crate stands between the question and the answer.
 
 #![forbid(unsafe_code)]
 
@@ -56,6 +61,7 @@ mod nfc_tables;
 mod number;
 mod parse;
 
+pub use address::{is_public_ipv4, is_public_ipv6};
 pub use address_text::{classify_address, read_address, AddressClass, AddressRead};
 use encode::{encode_admitted, Value};
 pub use nfc_tables::UNICODE_VERSION;

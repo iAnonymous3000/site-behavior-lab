@@ -3,7 +3,9 @@
 //! `sbl_canonicalize`, and reads the output back. The address classifier
 //! reads the same input buffer: `sbl_classify_address` answers with a number
 //! alone, and `sbl_read_address` also leaves the value it read in the output
-//! buffer.
+//! buffer. `sbl_is_public_ipv4_value` and `sbl_is_public_ipv6_value` read no
+//! buffer: they take an address as a value and hand it to the kernel's
+//! checked functions.
 //!
 //! This file has no `unsafe` block. It cannot carry `forbid(unsafe_code)`
 //! like the kernel does, because an exported symbol name is itself counted
@@ -12,7 +14,8 @@
 //! One call at a time: the module keeps one input and one output buffer.
 
 use sbl_trust_kernel::{
-    canonicalize_with_number_budget, classify_address, read_address, AddressClass, AddressRead, Refusal,
+    canonicalize_with_number_budget, classify_address, is_public_ipv4, is_public_ipv6, read_address, AddressClass,
+    AddressRead, Refusal,
 };
 use std::sync::Mutex;
 
@@ -109,4 +112,29 @@ pub extern "C" fn sbl_read_address() -> u32 {
             6
         }
     }
+}
+
+/// Whether the IPv4 address with this value is public: 1 when it is, 0 when
+/// it is not. The value is the four octets as one number, the first octet
+/// in the most significant byte.
+///
+/// The answer is the kernel's `is_public_ipv4`, which Verus checks against
+/// the written table for every 32-bit value. This function is not checked:
+/// it turns the answer into a number and does nothing else.
+#[no_mangle]
+pub extern "C" fn sbl_is_public_ipv4_value(value: u32) -> u32 {
+    u32::from(is_public_ipv4(value))
+}
+
+/// Whether the IPv6 address with this value is public: 1 when it is, 0 when
+/// it is not. `high` is the first eight bytes of the address and `low` the
+/// last eight, each with its first byte most significant.
+///
+/// The answer is the kernel's `is_public_ipv6`, which Verus checks against
+/// the written rule for every 128-bit value. Joining the two halves into
+/// that value is done here and is not checked; the host's test holds it to
+/// addresses whose answer depends on each half.
+#[no_mangle]
+pub extern "C" fn sbl_is_public_ipv6_value(high: u64, low: u64) -> u32 {
+    u32::from(is_public_ipv6((u128::from(high) << 64) | u128::from(low)))
 }

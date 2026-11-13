@@ -3,8 +3,9 @@
 //! functions return exactly what a written specification says.
 //!
 //! The reference is `lib/ip-safety.ts`. This file follows it and replaces
-//! nothing: nothing in the scanner, the Worker or the site calls this crate,
-//! and the live boundary is still `lib/ip-safety.ts`.
+//! nothing: the scanner asks `is_public_ipv4` and `is_public_ipv6` beside
+//! the reference and records a difference, and the answer it acts on is
+//! still the one `lib/ip-safety.ts` gives.
 //!
 //! Everything in this file is inside `verus!`. An ordinary `cargo build`
 //! erases the specifications and the lemmas and compiles the executable
