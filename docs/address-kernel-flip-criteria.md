@@ -80,6 +80,13 @@ unchanged since the counting began:
    spelling refusal beside the kernel's answer (both must say public), or
    accept that those spellings become public. The first changes no verdict.
 
+   Ruled 2026-11-13: keep the TypeScript spelling refusal beside the
+   kernel's answer. After a flip an address is public only when the checked
+   function says so and `lib/ip-safety.ts` does not refuse its spelling. The
+   builder recommended this and asked the owner whether to record it; the
+   owner's answer was "whatever you recommend". This settles criterion 7.
+   It changes no other criterion and performs no flip.
+
 A count is read from the container's log lines and from the counters the
 comparison module keeps. Both restart with the process, so the period's
 numbers are a sum over restarts and the report of a flip decision must say
