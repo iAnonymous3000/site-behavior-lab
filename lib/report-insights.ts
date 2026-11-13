@@ -747,6 +747,17 @@ export function pixelFieldLabel(field: PixelMatchField): string {
   return PIXEL_FIELD_LABELS[field] ?? field;
 }
 
+/**
+ * A decoded pixel event's name as a reader sees it. On a report with a
+ * published correction the X "Purchase" label is marked as withdrawn; every
+ * list that names pixel events reads this, so none can show the bare label.
+ */
+export function pixelEventLabel(platform: string, event: string, corrected: boolean): string {
+  return corrected && platform === "X" && event === "Purchase"
+    ? "Purchase (unsupported historical label; see correction)"
+    : event;
+}
+
 /** Pixel-level events observed (safe on legacy reports without the field). */
 export function pixelEventSummaries(result: Pick<ScanResult, "pixelEvents">): PixelEventSummary[] {
   return result.pixelEvents ?? [];

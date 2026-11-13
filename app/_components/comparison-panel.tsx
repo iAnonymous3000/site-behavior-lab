@@ -7,12 +7,13 @@ import { staticAssetPath } from "../client-runtime";
 import { comparisonVisitOrderLine } from "@/lib/comparison-visit-order";
 import { comparisonArmViews, comparisonDiffView, type ReportView } from "@/lib/scan-report-views";
 import {
-  comparisonSupportsExactClaimDelta,
+  comparisonExactClaimDeltaBlockers,
   comparisonSupportsStorageDelta,
   type ReportFacts
 } from "@/lib/report-facts";
 import { provenanceChangeText } from "@/lib/report-findings";
-import { pixelFieldLabel } from "@/lib/report-insights";
+import { pixelEventLabel, pixelFieldLabel } from "@/lib/report-insights";
+import { publishedReportCorrections } from "@/lib/published-report-corrections";
 import {
   buildEvidenceHash,
   domainRequestDeltas,
@@ -75,16 +76,15 @@ function ComparisonPanel({ view, facts }: { view: ReportView; facts: ReportFacts
   const storageDeltaAllowed = comparisonSupportsStorageDelta(view, facts);
   const classificationAllowed = pairAllowed && families?.["tracker-classification"]?.allowed === true;
   const detectorAllowed = pairAllowed && families?.["detector-findings"]?.allowed === true;
-  const fingerprintDeltaAllowed = comparisonSupportsExactClaimDelta(
-    view,
-    facts,
-    "fingerprint-apis"
-  );
-  const pixelDeltaAllowed = comparisonSupportsExactClaimDelta(
-    view,
-    facts,
-    "pixel-events"
-  );
+  // The reasons a delta is withheld and the gate that withholds it are one
+  // list, so the note below can only state the cause that closed the gate.
+  const fingerprintBlockers = comparisonExactClaimDeltaBlockers(view, facts, "fingerprint-apis", labels);
+  const pixelBlockers = comparisonExactClaimDeltaBlockers(view, facts, "pixel-events", labels);
+  const fingerprintDeltaAllowed = fingerprintBlockers.length === 0;
+  const pixelDeltaAllowed = pixelBlockers.length === 0;
+  // The single-visit pixel list marks a label a published correction withdrew;
+  // the change lists name the same events and must mark it too.
+  const corrected = publishedReportCorrections(view.reportId).suppressIndexing;
   const shieldsSimAllowed = pairAllowed && families?.["shields-simulation"]?.allowed === true;
   const shieldsMetricLabel = [arms.baseline, arms.variant].every(
     (arm) => arm.conditions.shieldsMode === "block-simulation"
@@ -167,14 +167,14 @@ function ComparisonPanel({ view, facts }: { view: ReportView; facts: ReportFacts
       familyNotes.push({
         label: "Fingerprinting deltas",
         mode: "raw-only",
-        reasons: ["At least one visit did not complete the fingerprint measurement, so no exact cross-visit delta is shown."]
+        reasons: fingerprintBlockers
       });
     }
     if (!pixelDeltaAllowed) {
       familyNotes.push({
         label: "Ad-pixel deltas",
         mode: "raw-only",
-        reasons: ["At least one visit did not complete the pixel measurement, so no exact cross-visit delta is shown."]
+        reasons: pixelBlockers
       });
     }
     // Only when raw-counts is open: otherwise its own note already names storage.
@@ -332,8 +332,8 @@ function ComparisonPanel({ view, facts }: { view: ReportView; facts: ReportFacts
             )}
             {pixelDeltaAllowed && (addedPixelEvents.length > 0 || removedPixelEvents.length > 0) && (
               <>
-                <PixelEventChangeList title={`Ad pixels only with ${labels.variant}`} changes={addedPixelEvents} cut={cut("addedPixelEvents")} />
-                <PixelEventChangeList title={`Ad pixels only with ${labels.baseline}`} changes={removedPixelEvents} cut={cut("removedPixelEvents")} />
+                <PixelEventChangeList title={`Ad pixels only with ${labels.variant}`} changes={addedPixelEvents} cut={cut("addedPixelEvents")} corrected={corrected} />
+                <PixelEventChangeList title={`Ad pixels only with ${labels.baseline}`} changes={removedPixelEvents} cut={cut("removedPixelEvents")} corrected={corrected} />
               </>
             )}
             {/* Provenance is instrumentation-derived (PageGraph initiator
@@ -679,7 +679,7 @@ function fingerprintingKindLabel(kind: FingerprintingChange["kind"]): string {
   }
 }
 
-function PixelEventChangeList({ title, changes, cut }: { title: string; changes: PixelEventChange[]; cut: boolean }) {
+function PixelEventChangeList({ title, changes, cut, corrected }: { title: string; changes: PixelEventChange[]; cut: boolean; corrected: boolean }) {
   return (
     <DiffList
       title={title}
@@ -687,7 +687,10 @@ function PixelEventChangeList({ title, changes, cut }: { title: string; changes:
       items={changes}
       producerCapped={cut}
       renderItem={(change) => {
-        const events = change.events.length > 0 ? change.events.join(", ") : "no named event";
+        const events =
+          change.events.length > 0
+            ? change.events.map((event) => pixelEventLabel(change.platform, event, corrected)).join(", ")
+            : "no named event";
         const identifiers =
           change.advancedMatching.length > 0 ? ` · identifiers: ${change.advancedMatching.map(pixelFieldLabel).join(", ")}` : "";
         return (

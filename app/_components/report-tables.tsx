@@ -7,7 +7,7 @@ import { requestMatchesQuery, requestMatchesSignalFilter, requestProvenanceSumma
 import { requestInspectionLink, type RequestInspectionContext } from "@/lib/request-inspection-link";
 import { visitPhaseLabel } from "@/lib/report-phase-evidence";
 import { displayHost, displayPublicUrl, hostMatchesQuery, plural } from "@/lib/text-format";
-import { detectionEvidenceForRun, detectionLabel, isSingleSignalWebglDetection, pixelFieldLabel } from "@/lib/report-insights";
+import { detectionEvidenceForRun, detectionLabel, isSingleSignalWebglDetection, pixelEventLabel, pixelFieldLabel } from "@/lib/report-insights";
 import { isReviewedCookieName, isReviewedStorageKey } from "@/lib/public-name-policy";
 import { PRINT_ROW_CAPS } from "@/lib/print-row-caps";
 import { usePrintComplete } from "./print-mode";
@@ -958,10 +958,9 @@ function PixelEventsList({ pixels, facts, corrected = false }: { pixels: PixelEv
   return (
     <div className="compact-list">
       {pixels.map((pixel) => {
-        const events = pixel.events.length > 0 ? pixel.events.map(event =>
-          corrected && pixel.platform === "X" && event === "Purchase"
-            ? "Purchase (unsupported historical label; see correction)" : event
-        ).join(", ") : "no named event retained";
+        const events = pixel.events.length > 0
+          ? pixel.events.map((event) => pixelEventLabel(pixel.platform, event, corrected)).join(", ")
+          : "no named event retained";
         const identifiers =
           pixel.advancedMatching.length > 0
             ? ` · identifiers: ${pixel.advancedMatching.map(pixelFieldLabel).join(", ")}`

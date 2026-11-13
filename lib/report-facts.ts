@@ -600,29 +600,66 @@ export function comparisonArmsHaveExactClaimMeasurements(
 }
 
 /**
- * A claim-specific detector delta is allowed only when its own two
- * measurements are exact and the pair has no blocker shared by every metric
- * family. Shared reasons are pair/environment constraints copied into every
- * family by the comparison evaluator; a detector-family-only reason can come
- * from an unrelated detector and must not flatten an exact sibling claim.
+ * Why a claim's exact cross-visit delta is withheld, as the sentences the
+ * comparison panel prints; empty when the delta is allowed. The gate below is
+ * this list being empty, so the stated reason and the decision cannot part.
+ *
+ * A delta needs both visits' own measurements exact, the same recorded
+ * detector version in both, and no blocker shared by every metric family.
+ * Shared reasons are pair/environment constraints copied into every family by
+ * the comparison evaluator; a detector-family-only reason can come from an
+ * unrelated detector and must not flatten an exact sibling claim. Each
+ * sentence names the cause the stored record gives: a visit whose format
+ * never recorded the measurement is not said to have left it unfinished.
  */
+export function comparisonExactClaimDeltaBlockers(
+  view: Pick<ReportView, "claims">,
+  facts: ReportFacts,
+  claim: ReportClaimId,
+  labels: { baseline: string; variant: string } = { baseline: "baseline", variant: "variant" }
+): string[] {
+  if (view.claims.pairComparison?.allowed !== true || !facts.arms) {
+    return ["These two visits do not support a side-by-side comparison."];
+  }
+  const reasons: string[] = [];
+  for (const arm of ["baseline", "variant"] as const) {
+    const eligibility = facts.arms[arm].claims[claim];
+    if (eligibility.exactCountAllowed) continue;
+    reasons.push(
+      eligibility.blockers.includes("evidence-unrecorded")
+        ? `The record of the ${labels[arm]} visit does not hold this measurement.`
+        : `The ${labels[arm]} visit did not complete this measurement, so it has no exact count.`
+    );
+  }
+  const gates = view.claims.familyDeltas;
+  const rulings = Object.values(gates ?? {});
+  if (rulings.length === 0) {
+    reasons.push("This pair carries no per-family comparison ruling.");
+  } else {
+    reasons.push(
+      ...rulings[0].reasons.filter((reason) => rulings.every((gate) => gate.reasons.includes(reason)))
+    );
+  }
+  if (!comparisonArmsHaveExactClaimMeasurements(facts, claim) && reasons.length === 0) {
+    // Both counts are exact, so what fails is the detector version: absent,
+    // unknown or different. A closed detector family already says which.
+    const family = gates?.["detector-findings"];
+    reasons.push(
+      ...(family && !family.allowed && family.reasons.length > 0
+        ? family.reasons
+        : ["The two visits do not record the same version of this measurement's detector."])
+    );
+  }
+  return reasons;
+}
+
+/** Whether a claim's exact cross-visit delta may be shown; see the blockers above. */
 export function comparisonSupportsExactClaimDelta(
   view: Pick<ReportView, "claims">,
   facts: ReportFacts,
   claim: ReportClaimId
 ): boolean {
-  if (
-    view.claims.pairComparison?.allowed !== true ||
-    !comparisonArmsHaveExactClaimMeasurements(facts, claim)
-  ) {
-    return false;
-  }
-  const gates = Object.values(view.claims.familyDeltas ?? {});
-  if (gates.length === 0) return false;
-  const globallySharedBlocker = gates[0].reasons.some((reason) =>
-    gates.every((gate) => gate.reasons.includes(reason))
-  );
-  return !globallySharedBlocker;
+  return comparisonExactClaimDeltaBlockers(view, facts, claim).length === 0;
 }
 
 /**

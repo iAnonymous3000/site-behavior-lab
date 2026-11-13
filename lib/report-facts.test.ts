@@ -6,6 +6,8 @@ import {
   buildRunFacts,
   claimCountValue,
   comparisonArmsHaveExactClaimMeasurements,
+  comparisonExactClaimDeltaBlockers,
+  comparisonSupportsExactClaimDelta,
   comparisonSupportsStorageDelta,
   retainedCountLabel,
   type RunFacts
@@ -23,6 +25,7 @@ import {
 } from "./scan-report-v2-r2-fixtures";
 import { makeScanReportV1 } from "./scan-report-v2-fixtures";
 import { viewFromV1Report, viewFromV2, type RunView } from "./scan-report-views";
+import { ledgerPinnedReportView } from "./pinned-reports";
 import { requestLogRecordingState } from "./csv-export";
 import { buildReportDataset } from "./report-jsonld";
 import type {
@@ -966,4 +969,65 @@ test("comparison exactness pins each claim's own detector version", () => {
     comparisonArmsHaveExactClaimMeasurements(facts, "third-party-services"),
     true
   );
+});
+
+// Every archive read here is a report the corrections ledger names, which
+// retention never prunes.
+function committedComparison(id: string) {
+  const view = ledgerPinnedReportView(id);
+  return { view, facts: buildReportFacts(view) };
+}
+
+const EGRESS_UNRECORDED =
+  "The pair did not record the network egress region for both visits, and an unrecorded condition never counts as matching.";
+const V1_NO_DETECTOR_VERSIONS =
+  "v1 never recorded detector versions, so fingerprinting and pixel deltas cannot be proven to come from matching instrumentation.";
+
+test("a withheld exact delta names the cause the committed record gives", () => {
+  // v1, both fingerprint counts exact: the blocker is the unrecorded detector
+  // version, and no visit is said to have left the measurement unfinished.
+  const v1 = committedComparison("20260625-e633e42c3ccc90348ea024fe00356d18");
+  assert.deepEqual(comparisonExactClaimDeltaBlockers(v1.view, v1.facts, "fingerprint-apis"), [
+    V1_NO_DETECTOR_VERSIONS
+  ]);
+  // Same report, pixels: only the variant visit's record lacks the field.
+  assert.deepEqual(
+    comparisonExactClaimDeltaBlockers(v1.view, v1.facts, "pixel-events", { baseline: "GPC off", variant: "GPC on" }),
+    ["The record of the GPC on visit does not hold this measurement."]
+  );
+  // r2, both detectors complete in both visits: the egress region alone.
+  const r2 = committedComparison("20260814-085fed17a545b3c47b51b0b24454f81a");
+  for (const claim of ["fingerprint-apis", "pixel-events"] as const) {
+    assert.deepEqual(comparisonExactClaimDeltaBlockers(r2.view, r2.facts, claim), [EGRESS_UNRECORDED]);
+  }
+  // r2 with a partial fingerprint detector in both visits: here, and only
+  // here, the unfinished measurement is the stated cause.
+  const partial = committedComparison("20260814-0d43cea9be32d1d52650401b4661cce3");
+  assert.deepEqual(comparisonExactClaimDeltaBlockers(partial.view, partial.facts, "fingerprint-apis"), [
+    "The baseline visit did not complete this measurement, so it has no exact count.",
+    "The variant visit did not complete this measurement, so it has no exact count.",
+    EGRESS_UNRECORDED
+  ]);
+});
+
+test("the exact-delta gate is its blocker list being empty", () => {
+  const open = makeGpcInterventionReportV2R2();
+  const openView = viewFromV2(open, 2);
+  const openFacts = buildReportFacts(openView);
+  assert.deepEqual(comparisonExactClaimDeltaBlockers(openView, openFacts, "fingerprint-apis"), []);
+  assert.equal(comparisonSupportsExactClaimDelta(openView, openFacts, "fingerprint-apis"), true);
+
+  // A different detector version with both counts exact and no closed family
+  // to quote: the version is the stated cause, never an unfinished visit.
+  const versioned = makeGpcInterventionReportV2R2();
+  versioned.variant.detectors["pixel-events"] = {
+    ...versioned.variant.detectors["pixel-events"],
+    version: `${versioned.variant.detectors["pixel-events"].version}-different`
+  };
+  const versionedView = viewFromV2(versioned, 2);
+  const versionedFacts = buildReportFacts(versionedView);
+  const blockers = comparisonExactClaimDeltaBlockers(versionedView, versionedFacts, "pixel-events");
+  assert.equal(blockers.length > 0, true);
+  assert.equal(blockers.some((reason) => /did not complete|does not hold/.test(reason)), false);
+  assert.equal(comparisonSupportsExactClaimDelta(versionedView, versionedFacts, "pixel-events"), false);
 });

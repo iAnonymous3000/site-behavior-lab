@@ -9,6 +9,7 @@ import {
   parseEvidenceHash,
   requestTimingSummary
 } from "./report-evidence-navigation";
+import { pixelEventLabel } from "./report-insights";
 import { requireIndex } from "./source-markers";
 import type { DomainSummary, NetworkRequestRecord, TrackerMatch } from "./types";
 
@@ -141,8 +142,26 @@ test("report components wire neutral comparisons, deep-link filters, and a non-d
   assert.doesNotMatch(comparison, /delta-\$\{direction\}/);
   assert.doesNotMatch(comparison, /change-\$\{tone\}/);
   assert.match(comparison, /<DomainRequestDeltaList changes=\{perDomainDeltas\} labels=\{labels\} \/>/);
-  assert.match(comparison, /comparisonSupportsExactClaimDelta\(\s*view,\s*facts,\s*"fingerprint-apis"\s*\)/);
-  assert.match(comparison, /comparisonSupportsExactClaimDelta\(\s*view,\s*facts,\s*"pixel-events"\s*\)/);
+  // Each exact-delta gate is its own blocker list, and the note prints that
+  // list: no fixed sentence can stand in for the cause that closed the gate.
+  assert.match(comparison, /const fingerprintBlockers = comparisonExactClaimDeltaBlockers\(view, facts, "fingerprint-apis", labels\)/);
+  assert.match(comparison, /const pixelBlockers = comparisonExactClaimDeltaBlockers\(view, facts, "pixel-events", labels\)/);
+  assert.match(comparison, /const fingerprintDeltaAllowed = fingerprintBlockers\.length === 0;/);
+  assert.match(comparison, /const pixelDeltaAllowed = pixelBlockers\.length === 0;/);
+  assert.match(comparison, /label: "Fingerprinting deltas",\s*mode: "raw-only",\s*reasons: fingerprintBlockers\b/);
+  assert.match(comparison, /label: "Ad-pixel deltas",\s*mode: "raw-only",\s*reasons: pixelBlockers\b/);
+  assert.doesNotMatch(comparison, /At least one visit did not complete the (fingerprint|pixel) measurement/);
+  // Both pixel lists name events through the one label that marks a
+  // withdrawn one, and the change lists are told whether a correction applies.
+  assert.equal(pixelEventLabel("X", "Purchase", true), "Purchase (unsupported historical label; see correction)");
+  assert.equal(pixelEventLabel("X", "Purchase", false), "Purchase");
+  assert.equal(pixelEventLabel("Meta", "Purchase", true), "Purchase");
+  assert.match(comparison, /const corrected = publishedReportCorrections\(view\.reportId\)\.suppressIndexing;/);
+  assert.equal(comparison.match(/<PixelEventChangeList\b[^>]*\bcorrected=\{corrected\} \/>/g)?.length, 2);
+  assert.equal(comparison.match(/<PixelEventChangeList\b/g)?.length, 2);
+  assert.match(comparison, /change\.events\.map\(\(event\) => pixelEventLabel\(change\.platform, event, corrected\)\)/);
+  assert.doesNotMatch(comparison, /change\.events\.join/);
+  assert.match(tables, /pixel\.events\.map\(\(event\) => pixelEventLabel\(pixel\.platform, event, corrected\)\)/);
   // Storage tiles and lists read their own gate, never raw-counts alone.
   assert.match(comparison, /const storageDeltaAllowed = comparisonSupportsStorageDelta\(view, facts\)/);
   assert.match(comparison, /storageDeltaAllowed \? \[\{ label: "Storage keys", metric: diff\.storageEntries \}\]/);
