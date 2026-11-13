@@ -10,8 +10,9 @@
 // with the events it accepts and the states they leave, and writes what the suite needs:
 // each plan's alphabet, its counts, an order-free digest of its whole transition relation,
 // one transition of every class on traces from the planned state, kept as a tree, the authority probes,
-// and the purge reducer's table. With --check it writes nothing and fails on any byte that
-// differs from the committed file.
+// and the purge reducer's table. With --check it writes nothing to the repository and fails on any
+// byte that differs from the committed file, naming the lines that differ; --candidate <file>
+// keeps what TLC exported there.
 //
 // The file names what wrote it: the SHA-256 of this script and of the two modules it imports, of
 // each specification file, of each committed configuration and of the jar. The suite fails when
@@ -25,7 +26,7 @@
 //   npx tsc -p tsconfig.investigation-test.json
 //
 // Usage:
-//   node scripts/tla-case-machine-export.mjs --jar <tla2tools.jar> [--java <java>] [--check] [--plans a,b] [--workers n] [--heap 3g]
+//   node scripts/tla-case-machine-export.mjs --jar <tla2tools.jar> [--java <java>] [--check [--candidate <file>]] [--plans a,b] [--workers n] [--heap 3g]
 // The jar must be the one specs/tla-tools.json pins, by its SHA-256.
 
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
@@ -33,7 +34,7 @@ import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { bindReal, CAPS, packCode, parseExportLine, PLAN_OPERATORS, PLANS, relationDigest, sha256Hex, stateLine, transitionClass } from "./tla-case-machine-lib.mjs";
-import { layout, pinArtifact, pinnedTools, option, provenanceOf, ROOT, runTlc, tupleLine } from "./tla-tools-lib.mjs";
+import { layout, pinArtifact, pinnedTools, option, provenanceOf, refuseDifferentExport, ROOT, runTlc, tupleLine } from "./tla-tools-lib.mjs";
 
 const SPEC_DIR = join(ROOT, "specs", "case-machine");
 const SPEC_FILES = ["CaseMachine.tla", "CaseMachineMC.tla", "CaseMachineExport.tla", "PurgeSlice.tla"];
@@ -294,7 +295,7 @@ async function main() {
       }
       const started = Date.now();
       plans[planName] = await exportPlan(tools, planName, { ...bindReal(fixture, machine, PLANS[planName]), machine });
-      console.error(`${planName}: ${plans[planName].states} states, ${plans[planName].edges} transitions, ${plans[planName].traces ?? 0} traces as ${plans[planName].tree?.length ?? 0} nodes, ${Math.round((Date.now() - started) / 1000)}s`);
+      console.error(`${planName}: ${plans[planName].states} states, ${plans[planName].edges} transitions, ${plans[planName].traces ?? 0} traces as ${plans[planName].tree?.length ?? 0} nodes, TLC's depth ${plans[planName].tlc.depth}, ${Math.round((Date.now() - started) / 1000)}s`);
     }
     const purged = await exportPurge(tools);
     const result = {
@@ -310,7 +311,7 @@ async function main() {
     const text = `${layout(result)}\n`;
     if (check) {
       const committed = existsSync(OUTPUT) ? readFileSync(OUTPUT, "utf8") : "";
-      if (committed !== text) throw new Error("specs/case-machine/conformance.json differs from what TLC exports now. Run this script without --check and review the difference.");
+      if (committed !== text) refuseDifferentExport("specs/case-machine/conformance.json", committed, text);
       console.error("specs/case-machine/conformance.json is what TLC exports now.");
     } else {
       writeFileSync(OUTPUT, text);

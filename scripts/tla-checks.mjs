@@ -150,6 +150,12 @@ function run(args) {
   const childArguments = [check.script, "--jar", jar, "--java", java, ...check.arguments];
   if (check.takesHeap && option(args, "--heap") !== undefined) childArguments.push("--heap", option(args, "--heap"));
   if (check.takesWorkers && option(args, "--workers") !== undefined) childArguments.push("--workers", option(args, "--workers"));
+  // An export check that fails keeps what TLC exported beside the receipt, so the difference can be read.
+  const candidate = check.export === null ? null : join(dirname(receiptPath), `tla-${id}-export-candidate.json`);
+  if (candidate !== null) {
+    mkdirSync(dirname(candidate), { recursive: true });
+    childArguments.push("--candidate", candidate);
+  }
   const treeCleanBefore = treeClean();
   const started = Date.now();
   const child = spawnSync(process.execPath, childArguments, { cwd: ROOT, encoding: "utf8", stdio: ["ignore", "pipe", "inherit"], maxBuffer: 256 * 1024 * 1024 });
@@ -159,8 +165,8 @@ function run(args) {
   receipt.checks.push({
     id,
     script: check.script,
-    // The paths of the jar and the runtime are the runner's own and say nothing of the commit.
-    arguments: childArguments.slice(1).filter((argument, at, all) => !["--jar", "--java"].includes(argument) && !["--jar", "--java"].includes(all[at - 1])),
+    // The paths of the jar, the runtime and the kept candidate are the runner's own and say nothing of the commit.
+    arguments: childArguments.slice(1).filter((argument, at, all) => !["--jar", "--java", "--candidate"].includes(argument) && !["--jar", "--java", "--candidate"].includes(all[at - 1])),
     exportSha256: check.export === null ? null : sha256Of(readFileSync(join(ROOT, check.export))),
     treeCleanBefore,
     treeCleanAfter: treeClean(),

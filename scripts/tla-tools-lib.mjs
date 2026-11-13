@@ -101,6 +101,28 @@ export async function runTlc({ java, jar, scratch, specDir, module, name, config
   return summary;
 }
 
+/**
+ * What --check does when TLC's export is not the committed one: write the export TLC made to the
+ * path --candidate names, if one was given, and throw an error that says where the two differ.
+ * The exports are laid out one entry to a line, so the differing lines name the entries.
+ */
+export function refuseDifferentExport(path, committed, text) {
+  const candidate = option("--candidate");
+  if (candidate !== undefined) writeFileSync(candidate, text);
+  const before = committed.split("\n");
+  const after = text.split("\n");
+  const differing = [];
+  for (let line = 0; line < Math.max(before.length, after.length); line += 1) {
+    if (before[line] !== after[line]) differing.push(line);
+  }
+  const shown = differing.slice(0, 12).map((line) => `  line ${line + 1}\n    committed: ${(before[line] ?? "(no line)").slice(0, 240)}\n    TLC now:   ${(after[line] ?? "(no line)").slice(0, 240)}`);
+  throw new Error(
+    `${path} differs from what TLC exports now: ${differing.length} of ${Math.max(before.length, after.length)} lines differ` +
+      `${differing.length > shown.length ? `, the first ${shown.length} shown` : ""}.\n${shown.join("\n")}\n` +
+      `${candidate === undefined ? "Give --candidate <file> to keep what TLC exported." : `What TLC exported is in ${candidate}.`} Run this script without --check to write it, and review the difference.`
+  );
+}
+
 /** A printed line that holds only tuples, strings, numbers and booleans, read as JSON once its brackets are JSON's. */
 export function tupleLine(line) {
   return JSON.parse(JSON.parse(line).replaceAll("<<", "[").replaceAll(">>", "]").replaceAll("{", "[").replaceAll("}", "]").replaceAll("TRUE", "true").replaceAll("FALSE", "false"));

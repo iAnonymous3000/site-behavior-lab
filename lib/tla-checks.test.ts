@@ -202,3 +202,20 @@ test("the workflow checks the hold on every push, the case machine by schedule a
   assert.match(checkJob, /--require "\$\{\{ env\.WITH_CASE_MACHINE == 'true' && 'hold,hold-faults,case,case-faults' \|\| 'hold,hold-faults' \}\}"/);
   assert.doesNotMatch(checkJob, /setup-java|JAVA_HOME/);
 });
+
+test("an export check that fails names the lines that differ", async () => {
+  const lib = (await (nativeImport as unknown as (specifier: string) => Promise<{ refuseDifferentExport(path: string, committed: string, text: string): never }>)(
+    pathToFileURL(path.join(root, "scripts", "tla-tools-lib.mjs")).href
+  ));
+  const committed = ["{", '  "a": 1,', '  "depth": 40,', '  "z": [1, 2]', "}", ""].join("\n");
+  assert.throws(
+    () => lib.refuseDifferentExport("specs/x/conformance.json", committed, committed.replace('"depth": 40', '"depth": 41')),
+    (error: Error) => {
+      assert.match(error.message, /^specs\/x\/conformance\.json differs from what TLC exports now: 1 of 6 lines differ\./);
+      assert.match(error.message, /line 3\n {4}committed: {3}"depth": 40,\n {4}TLC now: {5}"depth": 41,/);
+      assert.match(error.message, /Give --candidate <file> to keep what TLC exported\./);
+      return true;
+    }
+  );
+  assert.throws(() => lib.refuseDifferentExport("p", "a\nb\nc", "a\nb"), /1 of 3 lines differ[^]*committed: c\n {4}TLC now: {3}\(no line\)/);
+});

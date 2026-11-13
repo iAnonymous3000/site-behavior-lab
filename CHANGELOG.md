@@ -218,6 +218,16 @@ public API or a 1.0 release.
   the IPv6 rule with it as fetched on 2026-11-13; in each, every difference
   is a refusal of space the registry marks reachable. Writing the kernel's
   reader is what found the dotted quad defect fixed below.
+- The first hosted check of the case machine export failed: after 83 minutes
+  TLC on the runner wrote an export that differs from the committed one,
+  with every printed count equal. The cause is not known. Regenerating the
+  large plan here with four workers gives the committed bytes, and the four
+  small plans match under the pinned Java 21 on Linux. A failed export check
+  now names the lines that differ, its log prints the depth TLC reports for
+  each plan, and the workflow keeps what TLC wrote. Both exports were
+  regenerated because their scripts changed; only the recorded digests
+  differ. Until the difference is read, the case machine export is what TLC
+  writes on the maintainer's machine and is not confirmed on a hosted runner.
 
 ### Removed
 

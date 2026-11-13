@@ -135,6 +135,18 @@ jobs:
           if-no-files-found: warn
           retention-days: 90
 
+      # An export check that fails leaves what TLC wrote on this runner, and
+      # its log names the lines that differ. Kept so the difference can be
+      # read without another run of hours.
+      - name: Preserve an export TLC wrote differently
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: tla-checks-export-candidates-${{ github.sha }}-${{ github.run_id }}
+          path: ${{ runner.temp }}/tla-*-export-candidate.json
+          if-no-files-found: ignore
+          retention-days: 30
+
   # This job never checks out or executes the commit's code. The signature
   # shows that this workflow, at this commit, produced the receipt. It does
   # not show TLC is right, and no release gate reads it.

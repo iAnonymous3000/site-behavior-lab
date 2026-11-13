@@ -20,7 +20,8 @@
 // C1 and D1, one that breaks each row the register says fails, and one for each form of the
 // named trace. Each trace is a path of moves TLC printed, from the first state.
 //
-// With --check it writes nothing and fails on any byte that differs from the committed file.
+// With --check it writes nothing to the repository and fails on any byte that differs from the
+// committed file, naming the lines that differ; --candidate <file> keeps what TLC exported there.
 // It needs the compiled library: npx tsc -p tsconfig.test.json
 //
 // The file names what wrote it: the SHA-256 of this script and of the three modules it imports,
@@ -30,7 +31,7 @@
 // every push to main; in the unit tests TLC's side is the committed file.
 //
 // Usage:
-//   node scripts/tla-worker-hold-export.mjs --jar <tla2tools.jar> [--java <java>] [--check] [--worlds a,b] [--workers n]
+//   node scripts/tla-worker-hold-export.mjs --jar <tla2tools.jar> [--java <java>] [--check [--candidate <file>]] [--worlds a,b] [--workers n]
 
 import { createHash } from "node:crypto";
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
@@ -38,7 +39,7 @@ import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { parseTlaValue } from "./tla-case-machine-lib.mjs";
-import { layout, option, pinArtifact, pinnedTools, provenanceOf, ROOT, runTlc, sha256Of, tupleLine } from "./tla-tools-lib.mjs";
+import { layout, option, pinArtifact, pinnedTools, provenanceOf, refuseDifferentExport, ROOT, runTlc, sha256Of, tupleLine } from "./tla-tools-lib.mjs";
 import { COMPANION_REACHED_BY, companionsOf, digests, firstDifference, landedLabel, modelGraph, newGraph, PLAN_AXIOMS, ROWS, specLabel, summary, SWITCHES, WORLDS } from "./tla-worker-hold-lib.mjs";
 
 const SPEC_DIR = join(ROOT, "specs", "worker-hold");
@@ -467,7 +468,7 @@ async function main() {
     const text = `${layout(result)}\n`;
     if (check) {
       const committed = existsSync(OUTPUT) ? readFileSync(OUTPUT, "utf8") : "";
-      if (committed !== text) throw new Error("specs/worker-hold/conformance.json differs from what TLC exports now. Run this script without --check and review the difference.");
+      if (committed !== text) refuseDifferentExport("specs/worker-hold/conformance.json", committed, text);
       console.error("specs/worker-hold/conformance.json is what TLC exports now.");
     } else {
       writeFileSync(OUTPUT, text);
