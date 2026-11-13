@@ -5,9 +5,13 @@ import { test } from "node:test";
 import type { AddressKernel } from "./address-kernel";
 import {
   ADDRESS_COMPARISON_LOGGED_PER_KIND,
+  ADDRESS_COMPARISON_QUIET_MS,
+  ADDRESS_COMPARISON_RECORDS,
   ADDRESS_COMPARISON_SUMMARY_EVERY,
+  ADDRESS_DECISION_SITES,
   addressComparison,
-  createAddressComparison
+  createAddressComparison,
+  type AddressComparison
 } from "./address-kernel-comparison";
 import { isPublicIpAddress } from "./ip-safety";
 import { assertPublicHttpUrlShape } from "./url-safety";
@@ -25,9 +29,58 @@ const SAMPLE = [
 const LINE =
   /^Address kernel comparison: (decision-differs|reader-differs|kernel-unavailable) at (url-resolved-addresses|url-address-literal|proxy-connect-addresses) \((ipv4|ipv6|none); TypeScript says (not )?public(, the kernel says (not )?public)?\)\. TypeScript decided\.( Further records of this kind here are counted, not logged\.)?$/;
 
+const TOTALS =
+  /^Address kernel comparison totals: process ([0-9a-f]{16}), (\d+) comparisons: agreed (\d+) \(ipv4 (\d+), ipv6 (\d+), none (\d+)\), not-an-address (\d+) \(ipv4 (\d+), ipv6 (\d+), none (\d+)\), decision-differs (\d+) \(ipv4 (\d+), ipv6 (\d+), none (\d+)\), reader-differs (\d+) \(ipv4 (\d+), ipv6 (\d+), none (\d+)\), kernel-unavailable (\d+) \(ipv4 (\d+), ipv6 (\d+), none (\d+)\)\.$/;
+
 function collect() {
   const lines: string[] = [];
   return { lines, log: (line: string) => void lines.push(line) };
+}
+
+/** A timer the test fires by hand. Only the newest armed timer is live, as with the real one. */
+function handTimer() {
+  const state = { armed: 0, cancelled: 0, unrefs: 0, delays: [] as number[], live: undefined as (() => void) | undefined };
+  const setTimer = (callback: () => void, ms: number) => {
+    state.armed += 1;
+    state.delays.push(ms);
+    state.live = callback;
+    let unrefd = false;
+    return {
+      unref: () => {
+        if (!unrefd) state.unrefs += 1;
+        unrefd = true;
+      },
+      cancel: () => {
+        state.cancelled += 1;
+        if (state.live === callback) state.live = undefined;
+      }
+    };
+  };
+  const fire = (): boolean => {
+    const callback = state.live;
+    state.live = undefined;
+    callback?.();
+    return callback !== undefined;
+  };
+  return { state, setTimer, fire };
+}
+
+/** The totals a line states, checked against the comparison's own counts, kind by kind and family by family. */
+function assertTotalsLine(line: string, comparison: AddressComparison): void {
+  const match = TOTALS.exec(line);
+  assert.ok(match, line);
+  assert.equal(match[1], comparison.processId);
+  const counts = comparison.counts();
+  let total = 0;
+  ADDRESS_COMPARISON_RECORDS.forEach((record, index) => {
+    const of = (family: "ipv4" | "ipv6" | "none"): number =>
+      ADDRESS_DECISION_SITES.reduce((value, site) => value + counts[site][record][family], 0);
+    const [all, ipv4, ipv6, none] = match.slice(3 + index * 4, 7 + index * 4).map(Number);
+    assert.deepEqual([ipv4, ipv6, none], [of("ipv4"), of("ipv6"), of("none")], record);
+    assert.equal(all, ipv4 + ipv6 + none, record);
+    total += all;
+  });
+  assert.equal(Number(match[2]), total);
 }
 
 const opposite = (kernel: AddressKernel): AddressKernel => ({
@@ -146,15 +199,132 @@ test("a log that throws changes no decision", () => {
   assert.equal(comparison.isPublicIpAddressCompared("10.0.0.1", "url-address-literal"), false);
 });
 
-test("the totals are logged once for each thousand comparisons", () => {
+test("the totals are logged once for each thousand comparisons, with the process id", () => {
   const { lines, log } = collect();
-  const comparison = createAddressComparison({ log });
+  const comparison = createAddressComparison({ log, setTimer: handTimer().setTimer });
   for (let index = 0; index < ADDRESS_COMPARISON_SUMMARY_EVERY; index += 1) {
     comparison.isPublicIpAddressCompared(index % 4 === 0 ? "2606:4700::1" : "8.8.8.8", "proxy-connect-addresses");
   }
   assert.deepEqual(lines, [
-    "Address kernel comparison: 1000 comparisons in this process: agreed 1000 (ipv4 750, ipv6 250), not-an-address 0 (ipv4 0, ipv6 0), decision-differs 0 (ipv4 0, ipv6 0), reader-differs 0 (ipv4 0, ipv6 0), kernel-unavailable 0 (ipv4 0, ipv6 0)."
+    `Address kernel comparison totals: process ${comparison.processId}, 1000 comparisons: agreed 1000 (ipv4 750, ipv6 250, none 0), not-an-address 0 (ipv4 0, ipv6 0, none 0), decision-differs 0 (ipv4 0, ipv6 0, none 0), reader-differs 0 (ipv4 0, ipv6 0, none 0), kernel-unavailable 0 (ipv4 0, ipv6 0, none 0).`
   ]);
+  assertTotalsLine(lines[0], comparison);
+});
+
+test("when the comparisons go quiet the totals are logged once, and not again until there is a new comparison", () => {
+  const { lines, log } = collect();
+  const timer = handTimer();
+  const comparison = createAddressComparison({ log, setTimer: timer.setTimer });
+  for (const address of SAMPLE) comparison.isPublicIpAddressCompared(address, "proxy-connect-addresses");
+  comparison.isPublicIpAddressCompared("0:0:0:0:0:ffff:8.8.8.8", "url-address-literal");
+  const before = lines.length;
+
+  // One timer at a time: each comparison cancels the one before and arms
+  // another, for the named interval, and every one is told not to hold the
+  // process open.
+  assert.equal(timer.state.armed, SAMPLE.length + 1);
+  assert.equal(timer.state.cancelled, SAMPLE.length);
+  assert.equal(timer.state.unrefs, timer.state.armed);
+  assert.deepEqual([...new Set(timer.state.delays)], [ADDRESS_COMPARISON_QUIET_MS]);
+
+  assert.equal(timer.fire(), true);
+  assert.equal(lines.length, before + 1);
+  assertTotalsLine(lines[lines.length - 1], comparison);
+  assert.match(lines[lines.length - 1], / 16 comparisons: agreed 13 \(ipv4 6, ipv6 7, none 0\), not-an-address 2 \(ipv4 0, ipv6 0, none 2\), decision-differs 1 \(ipv4 0, ipv6 1, none 0\),/);
+  // No address in it: without the id and the counts the line has no digit
+  // beside the family names, and it holds no sampled text.
+  const bare = lines[lines.length - 1].replace(comparison.processId, "").replace(/ \d+(?=[ ,)])/g, "").replace(/ipv[46]/g, "");
+  assert.doesNotMatch(bare, /\d/);
+  for (const address of [...SAMPLE, "0:0:0:0:0:ffff:8.8.8.8"]) assert.equal(lines[lines.length - 1].includes(address), false);
+
+  // Nothing is armed after it fired, so nothing more is written.
+  assert.equal(timer.fire(), false);
+  assert.equal(lines.length, before + 1);
+
+  // A new comparison arms it again, and the next line is the newer totals.
+  comparison.isPublicIpAddressCompared("8.8.8.8", "url-resolved-addresses");
+  assert.equal(timer.fire(), true);
+  assert.equal(lines.length, before + 2);
+  assertTotalsLine(lines[lines.length - 1], comparison);
+  assert.match(lines[lines.length - 1], / 17 comparisons: agreed 14 /);
+});
+
+test("a quiet timer that fires with the totals already logged writes nothing", () => {
+  const { lines, log } = collect();
+  const timer = handTimer();
+  const comparison = createAddressComparison({ log, setTimer: timer.setTimer });
+  for (let index = 0; index < ADDRESS_COMPARISON_SUMMARY_EVERY; index += 1) {
+    comparison.isPublicIpAddressCompared("8.8.8.8", "proxy-connect-addresses");
+  }
+  assert.equal(lines.length, 1);
+  assert.equal(timer.fire(), true);
+  assert.equal(lines.length, 1);
+});
+
+test("each comparison has its own random id", () => {
+  const ids = new Set(Array.from({ length: 50 }, () => createAddressComparison({ setTimer: handTimer().setTimer }).processId));
+  assert.equal(ids.size, 50);
+  for (const id of ids) assert.match(id, /^[0-9a-f]{16}$/);
+});
+
+test("a log that throws inside the quiet timer, and a timer that cannot be armed, reach nobody", () => {
+  const timer = handTimer();
+  let logged = 0;
+  const comparison = createAddressComparison({
+    setTimer: timer.setTimer,
+    log: () => {
+      logged += 1;
+      throw new Error("log");
+    }
+  });
+  assert.equal(comparison.isPublicIpAddressCompared("8.8.8.8", "url-address-literal"), true);
+  assert.doesNotThrow(() => timer.fire());
+  assert.equal(logged, 1);
+  assert.equal(timer.fire(), false);
+
+  // A totals line whose log failed is not tried again for the same totals:
+  // the thousandth comparison fails to log, and the quiet timer after it
+  // has nothing new to say.
+  for (let index = 1; index < ADDRESS_COMPARISON_SUMMARY_EVERY; index += 1) {
+    comparison.isPublicIpAddressCompared("8.8.8.8", "url-address-literal");
+  }
+  assert.equal(logged, 2);
+  assert.doesNotThrow(() => timer.fire());
+  assert.equal(logged, 2);
+
+  for (const broken of [
+    () => {
+      throw new Error("no timers");
+    },
+    () => ({
+      unref: () => {
+        throw new Error("no unref");
+      },
+      cancel: () => {
+        throw new Error("no cancel");
+      }
+    })
+  ]) {
+    const { lines, log } = collect();
+    const unarmed = createAddressComparison({ setTimer: broken, log });
+    assert.equal(unarmed.isPublicIpAddressCompared("8.8.8.8", "url-address-literal"), true);
+    assert.equal(unarmed.isPublicIpAddressCompared("10.0.0.1", "url-address-literal"), false);
+    assert.equal(unarmed.counts()["url-address-literal"].agreed.ipv4, 2);
+    // The record line of a difference is still written: a timer that cannot
+    // be armed costs the quiet totals line and nothing else.
+    assert.equal(unarmed.isPublicIpAddressCompared("0:0:0:0:0:ffff:8.8.8.8", "url-address-literal"), false);
+    assert.equal(lines.length, 1);
+    assert.match(lines[0], LINE);
+  }
+});
+
+test("the real timer is unref'd: a process that only compared an address ends at once", async () => {
+  const { spawnSync } = await import("node:child_process");
+  const script = `const { isPublicIpAddressCompared } = require(${JSON.stringify(path.join(__dirname, "address-kernel-comparison.js"))}); const t = Date.now(); isPublicIpAddressCompared("8.8.8.8", "url-address-literal"); process.on("exit", () => console.log(Date.now() - t));`;
+  const child = spawnSync(process.execPath, ["-e", script], { encoding: "utf8", timeout: 30_000, killSignal: "SIGKILL" });
+  assert.equal(child.status, 0, child.stderr);
+  assert.equal(child.signal, null);
+  assert.ok(Number(child.stdout.trim()) < ADDRESS_COMPARISON_QUIET_MS / 2, child.stdout);
 });
 
 test("the three decisions go through the comparison, and the image carries the module", () => {
