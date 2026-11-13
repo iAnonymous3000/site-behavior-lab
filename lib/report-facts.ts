@@ -727,6 +727,35 @@ export function identifiedHostCatalogMatchLabel(
     : `${labels.join("; ")} (multiple exact matches; see request rows)`;
 }
 
+/**
+ * How much of a host's traffic its catalog label covers, for a comparison row
+ * that prints one label beside a whole request count. Null when the label
+ * covers every request of every visit given, or when no visit has a match.
+ *
+ * The counts come from the retained request rows, and the note says so: a
+ * visit whose rows were cut can hold fewer matching rows than matching
+ * requests. A visit with no retained row for the host keeps its summary's
+ * own match for all of its requests, as the host fact does.
+ */
+export function hostCatalogMatchScope(
+  sides: readonly { label: string; host: IdentifiedHostFact | undefined }[]
+): string | null {
+  const counted = sides.flatMap(({ label, host }) => {
+    if (!host || host.requests === 0) return [];
+    const matched =
+      host.catalogMatches.length > 0
+        ? host.catalogMatches.reduce((sum, match) => sum + match.requests, 0)
+        : host.tracker?.requests ?? 0;
+    return [{ label, matched, requests: host.requests }];
+  });
+  if (!counted.some((side) => side.matched > 0)) return null;
+  const partial = counted.filter((side) => side.matched < side.requests);
+  if (partial.length === 0) return null;
+  return `catalog match on ${partial
+    .map((side) => `${side.matched.toLocaleString("en-US")} of ${side.requests.toLocaleString("en-US")} ${side.label} requests`)
+    .join(" and ")} (by the retained request rows)`;
+}
+
 function evidenceFamilyFact(run: RunView, family: EvidenceFamily): EvidenceFamilyFact {
   const state: EvidenceState = familyUnsupportedOnRun(run, family)
     ? "unsupported"

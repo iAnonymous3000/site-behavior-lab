@@ -9,6 +9,8 @@ import { comparisonArmViews, comparisonDiffView, type ReportView } from "@/lib/s
 import {
   comparisonExactClaimDeltaBlockers,
   comparisonSupportsStorageDelta,
+  hostCatalogMatchScope,
+  type IdentifiedHostFact,
   type ReportFacts
 } from "@/lib/report-facts";
 import { provenanceChangeText } from "@/lib/report-findings";
@@ -55,7 +57,7 @@ function ComparisonPanel({ view, facts }: { view: ReportView; facts: ReportFacts
     return pair ? comparisonListsCut(pair.baseline, pair.variant, "rows") : null;
   }, [view]);
   const cut = (list: keyof ComparisonDiff) => cutLists?.has(list) === true;
-  const perDomainDeltas = useMemo(
+  const domainDeltas = useMemo(
     () => (arms ? domainRequestDeltas(arms.baseline.evidence.domains, arms.variant.evidence.domains) : []),
     [arms]
   );
@@ -67,6 +69,18 @@ function ComparisonPanel({ view, facts }: { view: ReportView; facts: ReportFacts
   // a claim, so it renders whether or not the pair supports any delta; a
   // temporal pair has no line, because Before and After already are the order.
   const visitOrder = view.comparison ? comparisonVisitOrderLine(view.comparison.visitOrder, labels) : null;
+  // A row prints one catalog label beside a host's whole request count. Where
+  // the label covers only part of those requests, the row says which part.
+  const hostsOf = (arm: EvidenceArm) => facts.arms?.[arm].identity.hosts ?? [];
+  const perDomainDeltas = domainDeltas.map((change) => ({
+    ...change,
+    matchScope: hostCatalogMatchScope(
+      (["baseline", "variant"] as const).map((arm) => ({
+        label: labels[arm],
+        host: hostsOf(arm).find((host) => host.host === change.domain)
+      }))
+    )
+  }));
   const pairGate = view.claims.pairComparison;
   const pairAllowed = pairGate?.allowed === true;
   const families = view.claims.familyDeltas;
@@ -280,6 +294,7 @@ function ComparisonPanel({ view, facts }: { view: ReportView; facts: ReportFacts
                   cut={cut("addedDomains")}
                   arm="variant"
                   armLabel={labels.variant}
+                  hosts={hostsOf("variant")}
                 />
                 <ChangeList
                   title={`Domains only with ${labels.baseline}`}
@@ -287,6 +302,7 @@ function ComparisonPanel({ view, facts }: { view: ReportView; facts: ReportFacts
                   cut={cut("removedDomains")}
                   arm="baseline"
                   armLabel={labels.baseline}
+                  hosts={hostsOf("baseline")}
                 />
                 <CookieChangeList
                   title={`${cookieNamesPrivacyFiltered ? "Visible cookie names" : "Cookies"} only with ${labels.variant}`}
@@ -462,7 +478,7 @@ function DomainRequestDeltaList({
   changes,
   labels
 }: {
-  changes: DomainRequestDelta[];
+  changes: (DomainRequestDelta & { matchScope: string | null })[];
   labels: { baseline: string; variant: string };
 }) {
   return (
@@ -482,7 +498,7 @@ function DomainRequestDeltaList({
               <strong>{displayHost(change.domain)}</strong>
               <small>
                 {change.tracker
-                  ? `${change.tracker.entity} · ${change.tracker.category}`
+                  ? `${change.tracker.entity} · ${change.tracker.category}${change.matchScope ? ` · ${change.matchScope}` : ""}`
                   : change.thirdParty
                     ? "unlabeled third party"
                     : "first party"}
@@ -509,13 +525,15 @@ function ChangeList({
   changes,
   cut,
   arm,
-  armLabel
+  armLabel,
+  hosts
 }: {
   title: string;
   changes: DomainChange[];
   cut: boolean;
   arm: EvidenceArm;
   armLabel: string;
+  hosts: readonly IdentifiedHostFact[];
 }) {
   return (
     <DiffList
@@ -523,12 +541,18 @@ function ChangeList({
       emptyText="No domain changes observed."
       items={changes}
       producerCapped={cut}
-      renderItem={(change) => (
+      renderItem={(change) => {
+        const matchScope = hostCatalogMatchScope([
+          { label: armLabel, host: hosts.find((host) => host.host === change.domain) }
+        ]);
+        return (
         <div className="change-row" key={change.domain}>
           <span>
             <strong>{displayHost(change.domain)}</strong>
             <small>
-              {change.tracker ? `${change.tracker.entity} · ${change.tracker.category}` : "unlabeled"} ·{" "}
+              {change.tracker
+                ? `${change.tracker.entity} · ${change.tracker.category}${matchScope ? ` · ${matchScope}` : ""}`
+                : "unlabeled"} ·{" "}
               <EvidenceLink domain={change.domain} arm={arm} armLabel={armLabel} />
             </small>
           </span>
@@ -536,7 +560,8 @@ function ChangeList({
             {change.requests.toLocaleString("en-US")}
           </b>
         </div>
-      )}
+        );
+      }}
     />
   );
 }

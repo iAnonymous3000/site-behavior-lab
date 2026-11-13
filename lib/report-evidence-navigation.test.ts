@@ -162,6 +162,11 @@ test("report components wire neutral comparisons, deep-link filters, and a non-d
   assert.match(comparison, /change\.events\.map\(\(event\) => pixelEventLabel\(change\.platform, event, corrected\)\)/);
   assert.doesNotMatch(comparison, /change\.events\.join/);
   assert.match(tables, /pixel\.events\.map\(\(event\) => pixelEventLabel\(pixel\.platform, event, corrected\)\)/);
+  // Both domain lists print the catalog label with its scope note, so a
+  // label that covers part of a host's requests is never shown bare.
+  assert.equal(comparison.match(/`\$\{change\.tracker\.entity\} · \$\{change\.tracker\.category\}\$\{(?:change\.)?matchScope \? ` · \$\{(?:change\.)?matchScope\}` : ""\}`/g)?.length, 2);
+  assert.equal(comparison.match(/\$\{change\.tracker\.entity\}/g)?.length, 2, "no domain list prints a bare catalog label");
+  assert.equal(comparison.match(/hostCatalogMatchScope\(/g)?.length, 2);
   // Storage tiles and lists read their own gate, never raw-counts alone.
   assert.match(comparison, /const storageDeltaAllowed = comparisonSupportsStorageDelta\(view, facts\)/);
   assert.match(comparison, /storageDeltaAllowed \? \[\{ label: "Storage keys", metric: diff\.storageEntries \}\]/);

@@ -8,6 +8,7 @@ import {
   comparisonArmsHaveExactClaimMeasurements,
   comparisonExactClaimDeltaBlockers,
   comparisonSupportsExactClaimDelta,
+  hostCatalogMatchScope,
   comparisonSupportsStorageDelta,
   retainedCountLabel,
   type RunFacts
@@ -1030,4 +1031,41 @@ test("the exact-delta gate is its blocker list being empty", () => {
   assert.equal(blockers.length > 0, true);
   assert.equal(blockers.some((reason) => /did not complete|does not hold/.test(reason)), false);
   assert.equal(comparisonSupportsExactClaimDelta(versionedView, versionedFacts, "pixel-events"), false);
+});
+
+test("a host's catalog label is scoped to the requests that carry it", () => {
+  // Committed NYTimes Shields pair: one of this host's nine baseline requests
+  // carries the Google match, and the blocking visit made none to it.
+  const { view, facts } = committedComparison("20260727-3f4388acdcec5a5a1883ad2909ebf88b");
+  const labels = view.comparison?.runLabels ?? { baseline: "", variant: "" };
+  const sides = (domain: string) =>
+    (["baseline", "variant"] as const).map((arm) => ({
+      label: labels[arm],
+      host: facts.arms?.[arm].identity.hosts.find((host) => host.host === domain)
+    }));
+  assert.equal(
+    hostCatalogMatchScope(sides("{label}.google.com")),
+    "catalog match on 1 of 9 No blocking requests (by the retained request rows)"
+  );
+  // Every request to this host carries its match in both visits: no note.
+  assert.equal(hostCatalogMatchScope(sides("{label}.{label}.doubleclick.net")), null);
+  // No match in either visit: the caller's own unlabeled wording stands.
+  assert.equal(hostCatalogMatchScope(sides("{label}.nyt.com")), null);
+  assert.equal(hostCatalogMatchScope([{ label: "Before", host: undefined }]), null);
+
+  const host = facts.arms?.baseline.identity.hosts.find((entry) => entry.host === "{label}.google.com");
+  assert.ok(host);
+  // A visit with requests and no match counts beside one that is fully matched.
+  assert.equal(
+    hostCatalogMatchScope([
+      { label: "Before", host: { ...host, requests: 1 } },
+      { label: "After", host: { ...host, requests: 3, catalogMatches: [], tracker: null } }
+    ]),
+    "catalog match on 0 of 3 After requests (by the retained request rows)"
+  );
+  // No retained row at all: the summary's own match covers the host.
+  assert.equal(
+    hostCatalogMatchScope([{ label: "Before", host: { ...host, catalogMatches: [], tracker: { ...host.catalogMatches[0], requests: 9 } } }]),
+    null
+  );
 });
