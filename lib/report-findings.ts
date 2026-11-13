@@ -20,7 +20,6 @@
  * drift.
  */
 
-import { detectConsentPlatform } from "./consent-banner";
 import { publishedReportCorrections } from "./published-report-corrections";
 import { corpusCohortIdentityForView } from "./corpus-cohort";
 import { corpusBenchmark, corpusIsUsable, selectCorpusStatsCohort, type CorpusStats } from "./corpus-stats";
@@ -48,12 +47,7 @@ import {
 import {
   reviewedOwnershipRelationship
 } from "./reviewed-ownership";
-import {
-  isCurrentlyCheckablePolicyClaim,
-  MAX_POLICY_TEXT_CHARS,
-  POLICY_SHELL_SUSPECT_MAX_CHARS,
-  policyUrlIsSiteRoot
-} from "./privacy-policy";
+import { MAX_POLICY_TEXT_CHARS } from "./privacy-policy";
 import {
   comparisonArmViews,
   familyCensoredOnRun,
@@ -85,6 +79,7 @@ import {
 import { R2_NAVIGATION_STATUS_UNREPRESENTABLE } from "./scan-report-v2-http-status";
 import {
   buildReportFacts,
+  policyCrossCheckOrdinal,
   comparisonSupportsExactClaimDelta,
   retainedCountPhrase,
   strongestReportSeverity,
@@ -367,14 +362,6 @@ const POLICY_ALIAS_RELIABLE_FROM: Readonly<Record<string, number>> = {
 };
 
 /**
- * The first cross-check that does not publish a page shell as the policy.
- * Earlier ones read the policy page a fixed second after it began loading, so
- * a read could be the shell before a client-rendered policy arrived, or after
- * the scan's own proxy budget had refused the page's requests.
- */
-const POLICY_READ_SETTLED_FROM = 9;
-
-/**
  * A stored policy read this long may have stopped at the scanner's text cap,
  * so a company named past that point was never seen. The wire records no
  * truncation flag. Reads before September 28, 2026 also counted script text
@@ -390,12 +377,6 @@ const POLICY_READ_CUT_SUSPECT_MIN_CHARS = Math.floor(MAX_POLICY_TEXT_CHARS * 0.9
  * v1 reports, which record no cross-check version.
  */
 const POLICY_READ_CUT_WITHHELD_FROM = 12;
-
-/** The recorded cross-check ordinal; v1 and non-Node producers count as oldest. */
-function policyCrossCheckOrdinal(version: string | undefined): number {
-  const match = /^policy-text-cross-check@([1-9][0-9]{0,3})$/.exec(version ?? "");
-  return match ? Number(match[1]) : 0;
-}
 
 /** The rule a single-signal WebGL detection satisfied (see isSingleSignalWebglDetection). */
 const SINGLE_SIGNAL_WEBGL_RULE =
@@ -923,7 +904,9 @@ export function buildFindings(
   // The pre-consent framing ("the scanner never clicks the banner") only holds
   // for observe-mode runs. Consent-comparison runs clicked a choice, and their
   // story is carried by the dedicated consent-comparison card below instead.
-  const consentPlatform = run.conditions.consentMode === "observe" ? detectConsentPlatform(run.evidence.domains) : null;
+  // The facts decide both that and which hosts are read, and rank what they
+  // name, so the headline is never calm over this card.
+  const consentPlatform = facts.signals.consentPlatform;
   if (consentPlatform) {
     const preConsentTrackers = trackingEntities.length;
     const consentPlatformAnswered =
@@ -995,16 +978,14 @@ export function buildFindings(
   }
 
   const policy = run.evidence.privacyPolicy;
-  // A short read from a cross-check that did not wait for the policy to load
-  // may be the page shell, whose silence about a company says nothing about
-  // the policy: a 612-character Khan Academy read published "Google is not
-  // named" over a 27,886-character policy that names it. It supports neither
-  // an omission nor a statement, so it takes the site-root card's shape.
-  const policyReadMayBeShell =
-    policy != null &&
-    policyCrossCheckOrdinal(run.detectors?.["privacy-policy"]?.version) < POLICY_READ_SETTLED_FROM &&
-    policy.policyTextLength < POLICY_SHELL_SUSPECT_MAX_CHARS;
-  if (policy && !policyUrlIsSiteRoot(policy.url) && policyReadMayBeShell) {
+  // The facts say whether the stored read supports a comparison, and hold the
+  // count conflicts the headline's severity ranks. A short read from a
+  // cross-check that did not wait for the policy to load may be the page
+  // shell, whose silence about a company says nothing about the policy. It
+  // supports neither an omission nor a statement, so it takes the site-root
+  // card's shape.
+  const policyFacts = facts.signals.policy;
+  if (policy && policyFacts.read === "shell-suspected") {
     findings.push({
       id: "privacy-policy",
       icon: "file-text",
@@ -1016,7 +997,7 @@ export function buildFindings(
       evidence: `Page recorded as the policy: ${displayPublicUrl(policy.url)} (${plural(policy.policyTextLength, "character")} of text); no policy text compared.`,
       claim: findingClaim(facts, "privacy-policy", "unavailable")
     });
-  } else if (policy && policyUrlIsSiteRoot(policy.url)) {
+  } else if (policy && policyFacts.read === "site-root") {
     // The document read as the policy was the site root: the homepage, not a
     // policy. Its text supports neither an omission nor a contradiction, so
     // the card takes the same shape as any other cross-check this scan could
@@ -1045,22 +1026,19 @@ export function buildFindings(
     // the sentence in context; this is a text match, never a legal reading.
     const conflicts: string[] = [];
     const quotes: string[] = [];
-    const checkablePolicyClaims = policy.claims.filter(isCurrentlyCheckablePolicyClaim);
+    const checkablePolicyClaims = policyFacts.checkableClaims;
     const policyClaim = (kind: PrivacyPolicyClaimKind) =>
       checkablePolicyClaims.find((claim) => claim.kind === kind);
 
-    const noThirdPartyCookies = policyClaim("no-third-party-cookies");
-    if (noThirdPartyCookies && run.counts.thirdPartyCookies > 0) {
+    // The count comparisons are the facts' own, never made again here: the
+    // card warns on a conflict the headline's severity has ranked.
+    for (const conflict of policyFacts.countConflicts) {
       conflicts.push(
-        `the policy says third-party cookies are not used, but ${plural(run.counts.thirdPartyCookies, "third-party cookie")} appeared in this visit`
+        conflict.claim === "no-third-party-cookies"
+          ? `the policy says third-party cookies are not used, but ${plural(conflict.cookies, "third-party cookie")} appeared in this visit`
+          : `the policy says cookies are not used, but ${plural(conflict.cookies, "cookie")} appeared in this visit`
       );
-      quotes.push(noThirdPartyCookies.quote);
-    }
-
-    const noCookies = policyClaim("no-cookies");
-    if (noCookies && run.counts.cookies > 0) {
-      conflicts.push(`the policy says cookies are not used, but ${plural(run.counts.cookies, "cookie")} appeared in this visit`);
-      quotes.push(noCookies.quote);
+      quotes.push(conflict.quote);
     }
 
     // Field POPULATION is what the scanner proves; the values are never

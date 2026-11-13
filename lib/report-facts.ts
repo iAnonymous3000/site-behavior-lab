@@ -1,4 +1,14 @@
-import { consentPlatformForDomain, consentPlatformKindForDomain } from "./consent-banner";
+import {
+  consentPlatformForDomain,
+  consentPlatformKindForDomain,
+  detectConsentPlatform,
+  type ConsentPlatform
+} from "./consent-banner";
+import {
+  isCurrentlyCheckablePolicyClaim,
+  POLICY_SHELL_SUSPECT_MAX_CHARS,
+  policyUrlIsSiteRoot
+} from "./privacy-policy";
 import { captureLossAffectsScope } from "./capture-loss-detail-contract";
 import {
   HEADLINE_PLATFORMS,
@@ -59,7 +69,7 @@ import {
   type EvidenceFamily
 } from "./scan-report-v2";
 import { R2_NAVIGATION_STATUS_UNREPRESENTABLE } from "./scan-report-v2-http-status";
-import type { FingerprintDetectionSummary, PixelEventSummary } from "./types";
+import type { FingerprintDetectionSummary, PixelEventSummary, PrivacyPolicyClaim } from "./types";
 
 /**
  * Structured report truth shared by every human-facing consumer.
@@ -200,6 +210,31 @@ export type RunIdentityFacts = {
   };
 };
 
+/** A policy statement about cookies, beside the recorded count that cuts against it. */
+export type PolicyCountConflict = {
+  claim: "no-third-party-cookies" | "no-cookies";
+  quote: string;
+  /** Third-party cookies for a third-party statement; every cookie for a blanket one. */
+  cookies: number;
+};
+
+export type RunPolicyFacts = {
+  /**
+   * Whether the stored policy read supports a comparison. "site-root" is a
+   * homepage recorded as the policy, and "shell-suspected" a read short
+   * enough to be the page before its policy loaded; neither is compared.
+   */
+  read: "none" | "site-root" | "shell-suspected" | "compared";
+  /** The stored statements this reader still compares; empty unless the read is compared. */
+  checkableClaims: PrivacyPolicyClaim[];
+  /**
+   * The count comparisons that cut against a statement, the third-party one
+   * first. The policy card warns on exactly these and the observed severity
+   * ranks exactly these, so a headline cannot be calm over that card.
+   */
+  countConflicts: PolicyCountConflict[];
+};
+
 export type RunSignalFacts = {
   pixels: {
     withEventLabels: PixelEventSummary[];
@@ -229,6 +264,17 @@ export type RunSignalFacts = {
     measurement: ShieldsRunMeasurement | null;
     severity: ReportSeverity;
   };
+  policy: RunPolicyFacts;
+  /**
+   * The consent platform the pre-choice consent card names, or null. It is
+   * read from the hosts of other sites only: on a consent vendor's own site
+   * every request to the site itself matches the vendor's signature, the
+   * page's own document first, and none of those shows consent tooling was
+   * fetched. Null too on a visit asked to make a consent choice, whose story
+   * the comparison card carries. The card renders exactly when this is set,
+   * and the observed severity ranks it, so a headline cannot be calm over it.
+   */
+  consentPlatform: ConsentPlatform | null;
 };
 
 export type RunFacts = {
@@ -476,7 +522,12 @@ export function buildRunFacts(run: RunView): RunFacts {
     },
     cookies: { total: run.counts.cookies, thirdParty: run.counts.thirdPartyCookies },
     storage: { entries: run.counts.storageEntries },
-    shields: { measurement: shieldsMeasurement, severity: shieldsSeverity }
+    shields: { measurement: shieldsMeasurement, severity: shieldsSeverity },
+    policy: policyFacts(run),
+    consentPlatform:
+      run.conditions.consentMode === "observe"
+        ? detectConsentPlatform(run.evidence.domains.filter((domain) => domain.thirdParty))
+        : null
   };
   const claims = Object.fromEntries(
     (Object.keys(REPORT_CLAIM_REQUIREMENTS) as ReportClaimId[]).map((claim) => [
@@ -981,9 +1032,62 @@ function observedSeverity(
         ? "info"
         : "ok",
     pixelIdentifiers ? "warn" : run.evidence.pixelEvents.length > 0 ? "info" : "ok",
+    // The two cards that read these facts take these levels at the least: a
+    // count conflict makes the policy card warn, and the consent card is
+    // never below info.
+    signals.policy.countConflicts.length > 0 ? "warn" : "ok",
+    signals.consentPlatform ? "info" : "ok",
     keystroke ? (keystrokeLeakHashed(keystroke.evidence.encodings) ? "loud" : "warn") : "ok"
   ];
   return strongestReportSeverity(levels);
+}
+
+/**
+ * The first cross-check that does not publish a page shell as the policy.
+ * Earlier ones read the policy page a fixed second after it began loading, so
+ * a read could be the shell before a client-rendered policy arrived, or after
+ * the scan's own proxy budget had refused the page's requests.
+ */
+const POLICY_READ_SETTLED_FROM = 9;
+
+/** The recorded cross-check ordinal; v1 and non-Node producers count as oldest. */
+export function policyCrossCheckOrdinal(version: string | undefined): number {
+  const match = /^policy-text-cross-check@([1-9][0-9]{0,3})$/.exec(version ?? "");
+  return match ? Number(match[1]) : 0;
+}
+
+function policyFacts(run: RunView): RunPolicyFacts {
+  const policy = run.evidence.privacyPolicy;
+  if (!policy) return { read: "none", checkableClaims: [], countConflicts: [] };
+  // A homepage recorded as the policy supports neither an omission nor a
+  // contradiction, and neither does a short read from a cross-check that did
+  // not wait for the policy to load: a 612-character Khan Academy read
+  // published "Google is not named" over a 27,886-character policy that names
+  // it.
+  if (policyUrlIsSiteRoot(policy.url)) return { read: "site-root", checkableClaims: [], countConflicts: [] };
+  if (
+    policyCrossCheckOrdinal(run.detectors?.["privacy-policy"]?.version) < POLICY_READ_SETTLED_FROM &&
+    policy.policyTextLength < POLICY_SHELL_SUSPECT_MAX_CHARS
+  ) {
+    return { read: "shell-suspected", checkableClaims: [], countConflicts: [] };
+  }
+  const checkableClaims = policy.claims.filter(isCurrentlyCheckablePolicyClaim);
+  const countConflicts: PolicyCountConflict[] = [];
+  const noThirdPartyCookies = checkableClaims.find((claim) => claim.kind === "no-third-party-cookies");
+  if (noThirdPartyCookies && run.counts.thirdPartyCookies > 0) {
+    countConflicts.push({
+      claim: "no-third-party-cookies",
+      quote: noThirdPartyCookies.quote,
+      cookies: run.counts.thirdPartyCookies
+    });
+  }
+  // A blanket statement that cookies are not used is cut against by a cookie
+  // of the site's own as much as by one of another site.
+  const noCookies = checkableClaims.find((claim) => claim.kind === "no-cookies");
+  if (noCookies && run.counts.cookies > 0) {
+    countConflicts.push({ claim: "no-cookies", quote: noCookies.quote, cookies: run.counts.cookies });
+  }
+  return { read: "compared", checkableClaims, countConflicts };
 }
 
 function metricSeverity(value: number, elevated: number, high: number): ReportSeverity {

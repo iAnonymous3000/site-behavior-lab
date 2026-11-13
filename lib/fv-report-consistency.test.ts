@@ -9,7 +9,7 @@ import {
 import { assertCaughtBy, holds, loadVariant, type SourceEdit } from "./finite-check";
 import { reportConsistencyViolations, validateReportPresentation, type ReportConsistencyRuleId } from "./report-consistency";
 import { renderedEvidenceArm } from "./report-evidence-navigation";
-import { buildReportFacts } from "./report-facts";
+import * as productionFacts from "./report-facts";
 import * as productionFindings from "./report-findings";
 import * as productionHeadline from "./report-headline";
 import { makeScanReportV1 } from "./scan-report-v2-fixtures";
@@ -24,7 +24,7 @@ import type { FingerprintDetectionSummary, ScanResult, TrackerMatch } from "./ty
  * Each visit is a view the suite builds, the facts come from the real buildReportFacts, the
  * headline from the real buildReportHeadline, the board from the real buildFindings on the
  * arm the headline focuses, and the rules are the real reportConsistencyViolations. No rule
- * may fire on any visit of the product, outside the two classes pinned open below.
+ * may fire on any visit of the product.
  *
  * The product is not every report. It is four slices, each the full product of the classes
  * its own lists write out, with every field outside those lists at the value the fixtures
@@ -55,12 +55,15 @@ import type { FingerprintDetectionSummary, ScanResult, TrackerMatch } from "./ty
  * correction, a PageGraph import's own card, storage counts, same-organization ownership,
  * and any pairing of classes across slices.
  *
- * Two real disagreements were found on the way and are pinned open, with the code left as it
- * is. In both, a calm headline sits over a board whose bottom line is an alert: a policy
- * that says no cookies are used beside a cookie the visit recorded, and a consent platform
- * on the site's own host. A visit in either class is held only to firing no other rule.
+ * Two real disagreements were found on the way, each a calm headline over a board whose
+ * bottom line was an alert: a policy that says no cookies are used beside a cookie the visit
+ * recorded, and a consent platform on the site's own host. Both are closed in
+ * lib/report-facts.ts: the policy card's count conflicts and the consent card's platform are
+ * facts there, which the observed severity ranks and the cards read. Visits of both classes
+ * are members of the activity slice like any other, and each has a test of its own below.
  */
 
+type FactsModule = typeof productionFacts;
 type HeadlineModule = typeof productionHeadline;
 type FindingsModule = typeof productionFindings;
 
@@ -232,40 +235,32 @@ function resultOf(visit: Visit): ScanResult {
   return result;
 }
 
-/** The two classes pinned open: a policy that says no cookies beside a recorded cookie, and a consent platform on the site's own host. */
-const pinnedOpen = (visit: Visit) => (visit.policy === "says-no-cookies" && visit.cookies !== "none") || visit.services === "consent-platform-own-host";
-
 // ---------------------------------------------------------------------------------------
 // The walk.
 // ---------------------------------------------------------------------------------------
 
 type Fired = Map<ReportConsistencyRuleId, unknown>;
-type Tally = { fired: Fired; views: number; open: number; openFired: number; calm: number; stories: Set<string> };
-const newTally = (): Tally => ({ fired: new Map(), views: 0, open: 0, openFired: 0, calm: 0, stories: new Set() });
+type Tally = { fired: Fired; views: number; calm: number; stories: Set<string> };
+const newTally = (): Tally => ({ fired: new Map(), views: 0, calm: 0, stories: new Set() });
 
-/** One view through the real facts, a headline module, a findings module on the arm that headline focuses, and the real rules. */
-function present(view: ReportView, headlines: HeadlineModule, boards: FindingsModule) {
-  const facts = buildReportFacts(view);
+/** The modules a walk runs: production's, or a variant of one beside production's others. */
+type Modules = Readonly<{ facts: FactsModule; headlines: HeadlineModule; boards: FindingsModule }>;
+const PRODUCTION: Modules = { facts: productionFacts, headlines: productionHeadline, boards: productionFindings };
+
+/** One view through a facts module, a headline module, a findings module on the arm that headline focuses, and the real rules. */
+function present(view: ReportView, { facts: factsModule, headlines, boards }: Modules) {
+  const facts = factsModule.buildReportFacts(view);
   const headline = headlines.buildReportHeadline(view, facts);
   const findings = boards.buildFindings(view, null, facts, renderedEvidenceArm(view, headline));
   return { facts, headline, findings, violations: reportConsistencyViolations(facts, headline, findings) };
 }
 
-function hold(tally: Tally, view: ReportView, open: boolean, input: () => unknown, headlines: HeadlineModule, boards: FindingsModule): void {
-  const { headline, violations } = present(view, headlines, boards);
+function hold(tally: Tally, view: ReportView, input: () => unknown, modules: Modules): void {
+  const { headline, violations } = present(view, modules);
   tally.views += 1;
   tally.stories.add(headline.semantic.story);
   if (headline.semantic.reassuring) tally.calm += 1;
-  if (open) {
-    tally.open += 1;
-    if (violations.length > 0) tally.openFired += 1;
-    // In a pinned class the one rule fires exactly when the headline is calm.
-    if (violations.some((violation) => violation.id === QUIET_OVER_LOUD) !== headline.semantic.reassuring && !tally.fired.has(QUIET_OVER_LOUD)) {
-      tally.fired.set(QUIET_OVER_LOUD, { ...(input() as object), pinnedOpen: true, reassuring: headline.semantic.reassuring });
-    }
-  }
   for (const violation of violations) {
-    if (open && violation.id === QUIET_OVER_LOUD) continue;
     if (!tally.fired.has(violation.id)) tally.fired.set(violation.id, { ...(input() as object), story: headline.semantic.story, message: violation.message });
   }
 }
@@ -301,17 +296,15 @@ const ACTIVITY_LEADS = {
   fingerprint: ["none", "heuristic"], listeners: ["none", "session-recording"], shields: ["unmeasured", "matched-10"], policy: POLICY
 } as const;
 
-function walkActivity(tally: Tally, headlines: HeadlineModule, boards: FindingsModule): void {
+function walkActivity(tally: Tally, modules: Modules): void {
   product(ACTIVITY, (choice) => {
-    const visit = { ...QUIET, ...choice };
-    hold(tally, viewFromV1Report(resultOf(visit)), pinnedOpen(visit), () => ({ slice: "ACTIVITY", ...choice }), headlines, boards);
+    hold(tally, viewFromV1Report(resultOf({ ...QUIET, ...choice })), () => ({ slice: "ACTIVITY", ...choice }), modules);
   });
 }
 
-function walkActivityLeads(tally: Tally, headlines: HeadlineModule, boards: FindingsModule): void {
+function walkActivityLeads(tally: Tally, modules: Modules): void {
   product(ACTIVITY_LEADS, (choice) => {
-    const visit = { ...QUIET, ...choice };
-    hold(tally, viewFromV1Report(resultOf(visit)), pinnedOpen(visit), () => ({ slice: "ACTIVITY_LEADS", ...choice }), headlines, boards);
+    hold(tally, viewFromV1Report(resultOf({ ...QUIET, ...choice })), () => ({ slice: "ACTIVITY_LEADS", ...choice }), modules);
   });
 }
 
@@ -362,7 +355,7 @@ function asRecorded(view: ReportView, ledger: string, loss: (typeof FAMILY_LOSS)
   };
 }
 
-function walkAvailability(tally: Tally, headlines: HeadlineModule, boards: FindingsModule): void {
+function walkAvailability(tally: Tally, modules: Modules): void {
   product({ subject: SUBJECT, ...AVAILABILITY_VISITS }, (choice) => {
     const visit: Visit = { ...QUIET, ...choice, status: choice.subject === "http-error" ? 403 : 200 };
     for (const gap of LEGACY_GAPS) {
@@ -377,14 +370,14 @@ function walkAvailability(tally: Tally, headlines: HeadlineModule, boards: Findi
       withSubject(view, choice.subject);
       if (gap === "budget-exhausted") view.runs[0].quality.reasons.push("budget-exhausted:requests");
       if (gap === "fingerprint-observer-lost") view.runs[0].quality.reasons.push("capture-loss:fingerprint-observer");
-      hold(tally, view, false, () => ({ slice: "AVAILABILITY", form: "v1", gap, ...choice }), headlines, boards);
+      hold(tally, view, () => ({ slice: "AVAILABILITY", form: "v1", gap, ...choice }), modules);
     }
     for (const ledger of LEDGER) {
       for (const loss of FAMILY_LOSS) {
         const view = viewFromV1Report(resultOf(visit));
         withSubject(view, choice.subject);
         asRecorded(view, ledger, loss);
-        hold(tally, view, false, () => ({ slice: "AVAILABILITY", form: "r2", ledger, loss, ...choice }), headlines, boards);
+        hold(tally, view, () => ({ slice: "AVAILABILITY", form: "r2", ledger, loss, ...choice }), modules);
       }
     }
   });
@@ -420,13 +413,13 @@ function pairOf(design: (typeof DESIGNS)[number], baseline: ScanResult, variant:
   return viewFromV1Report(createConsentComparisonReport(baseline, variant));
 }
 
-function walkPairs(tally: Tally, headlines: HeadlineModule, boards: FindingsModule): void {
+function walkPairs(tally: Tally, modules: Modules): void {
   for (const design of DESIGNS) {
     product(ARM, (baseline) => {
       const first = { ...baseline };
       product(ARM, (variant) => {
         const view = pairOf(design, resultOf({ ...QUIET, ...first }), resultOf({ ...QUIET, ...variant }));
-        hold(tally, view, false, () => ({ slice: "PAIRS", design, baseline: first, variant: { ...variant } }), headlines, boards);
+        hold(tally, view, () => ({ slice: "PAIRS", design, baseline: first, variant: { ...variant } }), modules);
       });
     });
   }
@@ -479,20 +472,20 @@ function consentPair(choice: { [K in keyof typeof CONSENT]: (typeof CONSENT)[K][
   return view;
 }
 
-function walkConsent(tally: Tally, headlines: HeadlineModule, boards: FindingsModule): void {
-  product(CONSENT, (choice) => hold(tally, consentPair(choice), false, () => ({ slice: "CONSENT", ...choice }), headlines, boards));
+function walkConsent(tally: Tally, modules: Modules): void {
+  product(CONSENT, (choice) => hold(tally, consentPair(choice), () => ({ slice: "CONSENT", ...choice }), modules));
 }
 
 /**
  * What a seeded fault is walked over: every slice but the larger activity product, which
  * production alone walks. Each fault names what fired over these and nothing wider.
  */
-function walkForFaults(headlines: HeadlineModule, boards: FindingsModule): Tally {
+function walkForFaults(modules: Modules): Tally {
   const tally = newTally();
-  walkActivityLeads(tally, headlines, boards);
-  walkAvailability(tally, headlines, boards);
-  walkPairs(tally, headlines, boards);
-  walkConsent(tally, headlines, boards);
+  walkActivityLeads(tally, modules);
+  walkAvailability(tally, modules);
+  walkPairs(tally, modules);
+  walkConsent(tally, modules);
   return tally;
 }
 
@@ -506,34 +499,33 @@ const seen = (tally: Tally): Tally => {
   return tally;
 };
 
-test("RC: no rule fires on any visit of the activity slice, outside the two classes pinned open", () => {
+test("RC: no rule fires on any visit of the activity slice", () => {
   const tally = newTally();
-  walkActivity(tally, productionHeadline, productionFindings);
-  walkActivityLeads(tally, productionHeadline, productionFindings);
+  walkActivity(tally, PRODUCTION);
+  walkActivityLeads(tally, PRODUCTION);
   holdRules(seen(tally));
   assert.equal(tally.views, sizeOf(ACTIVITY) + sizeOf(ACTIVITY_LEADS));
-  // The slice reaches the calm headline, and in the pinned classes the rule fires on exactly the calm ones.
-  assert.ok(tally.calm > 0 && tally.open > tally.openFired && tally.openFired > 0, JSON.stringify({ calm: tally.calm, open: tally.open, openFired: tally.openFired }));
+  // The slice reaches the calm headline, so the rule that reads it has visits to fire on.
+  assert.ok(tally.calm > 0);
 });
 
 test("RC: no rule fires on any visit of the availability slice, whatever the page was and whatever the scan could not record", () => {
   const tally = newTally();
-  walkAvailability(tally, productionHeadline, productionFindings);
+  walkAvailability(tally, PRODUCTION);
   holdRules(seen(tally));
   assert.equal(tally.views, AVAILABILITY_SIZE);
-  assert.equal(tally.open, 0);
 });
 
 test("RC: no rule fires on any pair the real comparison constructors join, over each design", () => {
   const tally = newTally();
-  walkPairs(tally, productionHeadline, productionFindings);
+  walkPairs(tally, PRODUCTION);
   holdRules(seen(tally));
   assert.equal(tally.views, PAIRS_SIZE);
 });
 
 test("RC: no rule fires on the consent pair, over each choice state, gate and tracker", () => {
   const tally = newTally();
-  walkConsent(tally, productionHeadline, productionFindings);
+  walkConsent(tally, PRODUCTION);
   holdRules(seen(tally));
   assert.equal(tally.views, sizeOf(CONSENT));
 });
@@ -553,43 +545,57 @@ test("the four slices above reached these headline stories, and no other", () =>
 test("the walk's own composition gives what validateReportPresentation gives, on the slices' corners", () => {
   for (const visit of [QUIET, { ...QUIET, services: "platform-3" as const, cookies: "third-party-12" as const }, { ...QUIET, status: 403 }, { ...QUIET, policy: "says-no-cookies" as const, cookies: "own-1" as const }]) {
     const view = viewFromV1Report(resultOf(visit));
-    const own = present(view, productionHeadline, productionFindings);
+    const own = present(view, PRODUCTION);
     const real = validateReportPresentation(view);
     assert.deepEqual(own.violations, real.violations);
     assert.deepEqual(own.headline, real.headline);
     assert.deepEqual(own.findings, real.findings);
   }
   for (const view of [pairOf("gpc", resultOf({ ...QUIET, services: "tracker-1", padding: 40 }), resultOf({ ...QUIET, services: "tracker-1" })), consentPair({ acceptTracker: true, rejectTracker: true, acceptChoice: "as-recorded", rejectChoice: "as-recorded", pair: "as-recorded", rawCounts: "as-recorded", classification: "as-recorded", rejectRequests: "complete" })]) {
-    assert.deepEqual(present(view, productionHeadline, productionFindings).violations, validateReportPresentation(view).violations);
+    assert.deepEqual(present(view, PRODUCTION).violations, validateReportPresentation(view).violations);
   }
 });
 
 // ---------------------------------------------------------------------------------------
-// The two classes pinned open.
+// The two classes the walk found, closed.
 // ---------------------------------------------------------------------------------------
 
-test("open (RC): a calm headline over a policy that says no cookies are used, beside a cookie the visit recorded", () => {
-  const { headline, findings, violations } = validateReportPresentation(viewFromV1Report(resultOf({ ...QUIET, policy: "says-no-cookies", cookies: "own-1" })));
-  assert.equal(headline.semantic.story, "quiet");
-  assert.equal(headline.semantic.reassuring, true);
-  assert.deepEqual(findings.filter((finding) => finding.level !== "ok").map((finding) => [finding.id, finding.level, finding.icon]), [["bottom-line", "warn", "alert"], ["privacy-policy", "warn", "file-text"]]);
-  assert.deepEqual(violations.map((violation) => violation.id), [QUIET_OVER_LOUD, QUIET_OVER_LOUD]);
+const nonOk = (findings: readonly productionFindings.Finding[]) => findings.filter((finding) => finding.level !== "ok").map((finding) => [finding.id, finding.level, finding.icon]);
+
+test("RC: a policy that says no cookies are used, beside a cookie of the site's own, is a conflict the facts rank, and the headline is not calm", () => {
+  const { facts, headline, findings, violations } = validateReportPresentation(viewFromV1Report(resultOf({ ...QUIET, policy: "says-no-cookies", cookies: "own-1" })));
+  assert.deepEqual(facts.display.signals.policy.countConflicts, [{ claim: "no-cookies", quote: "We do not use cookies.", cookies: 1 }]);
+  assert.equal(facts.display.strongestObservedSeverity, "warn");
+  assert.equal(headline.semantic.story, "observed-activity");
+  assert.equal(headline.semantic.reassuring, false);
+  assert.deepEqual(nonOk(findings), [["bottom-line", "warn", "alert"], ["privacy-policy", "warn", "file-text"]]);
+  assert.deepEqual(violations, []);
 });
 
-test("open (RC): a calm headline over a consent platform on the site's own host", () => {
-  const { headline, findings, violations } = validateReportPresentation(viewFromV1Report(resultOf({ ...QUIET, services: "consent-platform-own-host", policy: "no-checkable-statement" })));
+test("RC: a consent platform's host that is the site's own is no consent card, and the calm headline sits over a calm bottom line", () => {
+  const { facts, headline, findings, violations } = validateReportPresentation(viewFromV1Report(resultOf({ ...QUIET, services: "consent-platform-own-host", policy: "no-checkable-statement" })));
+  assert.equal(facts.display.signals.consentPlatform, null);
   assert.equal(headline.semantic.story, "quiet");
   assert.equal(headline.semantic.reassuring, true);
-  assert.deepEqual(findings.filter((finding) => finding.level !== "ok").map((finding) => [finding.id, finding.level, finding.icon]), [["bottom-line", "info", "alert"], ["consent-banner", "info", "cookie"], ["privacy-policy", "info", "file-text"]]);
-  assert.deepEqual(violations.map((violation) => violation.id), [QUIET_OVER_LOUD]);
+  assert.equal(findings.find((finding) => finding.id === "bottom-line")?.icon, "check");
+  assert.deepEqual(nonOk(findings), [["privacy-policy", "info", "file-text"]]);
+  assert.deepEqual(violations, []);
+  // The same platform on a host of another site keeps its card, under a headline that is not calm.
+  const other = validateReportPresentation(viewFromV1Report(resultOf({ ...QUIET, services: "consent-platform", policy: "no-checkable-statement" })));
+  assert.equal(other.facts.display.signals.consentPlatform?.domain, "consent.cookiebot.com");
+  assert.equal(other.headline.semantic.reassuring, false);
+  assert.deepEqual(nonOk(other.findings).filter(([id]) => id === "consent-banner"), [["consent-banner", "info", "cookie"]]);
+  assert.deepEqual(other.violations, []);
 });
 
 // ---------------------------------------------------------------------------------------
 // Seeded faults: each rule fires, and what else fires with it.
 // ---------------------------------------------------------------------------------------
 
+const factsPath = require.resolve("./report-facts");
 const headlinePath = require.resolve("./report-headline");
 const findingsPath = require.resolve("./report-findings");
+const factsVariant = (...edits: SourceEdit[]) => loadVariant<FactsModule>(factsPath, edits);
 const headlineVariant = (...edits: SourceEdit[]) => loadVariant<HeadlineModule>(headlinePath, edits);
 const findingsVariant = (...edits: SourceEdit[]) => loadVariant<FindingsModule>(findingsPath, edits);
 
@@ -651,9 +657,34 @@ test("every rule has a seeded fault", () => {
 for (const fault of FAULTS) {
   test(`RC catches a variant: ${fault.name}`, async () => {
     const edit = { find: fault.find, replace: fault.replace };
-    const tally = fault.in === "headline" ? walkForFaults(headlineVariant(edit), productionFindings) : walkForFaults(productionHeadline, findingsVariant(edit));
+    const tally = walkForFaults(fault.in === "headline" ? { ...PRODUCTION, headlines: headlineVariant(edit) } : { ...PRODUCTION, boards: findingsVariant(edit) });
     // What fires with it is written out beside each fault, so an overlap between rules is on record and a new one fails.
     assert.deepEqual([...tally.fired.keys()].sort(), [fault.rule, ...fault.alsoFires].sort());
     await assertCaughtBy(fault.name, fault.rule, () => holds(fault.rule, !tally.fired.has(fault.rule), () => tally.fired.get(fault.rule)));
   });
 }
+
+// The two closed classes, each put back by the fault that would reopen it. Both are members of
+// the slices walkForFaults walks, and each fault fires the one rule and no other.
+
+test("RC catches the facts no longer ranking a policy's count conflict", async () => {
+  const tally = walkForFaults({ ...PRODUCTION, facts: factsVariant({ find: 'signals.policy.countConflicts.length > 0 ? "warn" : "ok",', replace: '"ok",' }) });
+  assert.deepEqual([...tally.fired.keys()], [QUIET_OVER_LOUD]);
+  const fired = tally.fired.get(QUIET_OVER_LOUD) as { policy?: string; cookies?: string };
+  assert.deepEqual([fired.policy, fired.cookies], ["says-no-cookies", "own-1"]);
+  await assertCaughtBy("the facts do not rank a policy's count conflict", QUIET_OVER_LOUD, () => holds(QUIET_OVER_LOUD, !tally.fired.has(QUIET_OVER_LOUD), () => fired));
+});
+
+test("RC catches the board looking for a consent platform among the site's own rows again", async () => {
+  const tally = walkForFaults({
+    ...PRODUCTION,
+    boards: findingsVariant({
+      find: "const consentPlatform = facts.signals.consentPlatform;",
+      replace: 'const consentPlatform = run.conditions.consentMode === "observe" ? require("./consent-banner").detectConsentPlatform(run.evidence.domains) : null;'
+    })
+  });
+  assert.deepEqual([...tally.fired.keys()], [QUIET_OVER_LOUD]);
+  const fired = tally.fired.get(QUIET_OVER_LOUD) as { services?: string };
+  assert.equal(fired.services, "consent-platform-own-host");
+  await assertCaughtBy("the board reads the site's own rows for a consent platform", QUIET_OVER_LOUD, () => holds(QUIET_OVER_LOUD, !tally.fired.has(QUIET_OVER_LOUD), () => fired));
+});

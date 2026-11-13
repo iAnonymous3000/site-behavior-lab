@@ -528,6 +528,124 @@ test("calm eligibility is conservative, signal-aware, and scoped to calm claims"
   assert.equal(factsForV1(serverError).calmEligible, false);
 });
 
+/** A v1 visit that recorded every optional family and nothing else: the calm headline's visit. */
+function makeQuietV1Result(): ScanResult {
+  const result = makeV1Result();
+  result.fingerprintDetections = [];
+  result.pixelEvents = [];
+  result.cnameCloaks = [];
+  result.privacyPolicy = {
+    url: "https://example.com/privacy",
+    claims: [],
+    mentionedEntities: [],
+    unmentionedEntities: [],
+    policyTextLength: 5000
+  };
+  return result;
+}
+
+test("a policy's count conflict is one fact, which the severity ranks and the calm headline yields to", () => {
+  assert.equal(factsForV1(makeQuietV1Result()).calmEligible, true, "the base visit is calm");
+
+  const ownCookie = (result: ScanResult): ScanResult => {
+    result.cookies = [
+      { name: "session", domain: "example.com", path: "/", sameSite: "Lax", secure: true, httpOnly: true, session: true, thirdParty: false }
+    ];
+    result.summary.cookies = 1;
+    result.summary.thirdPartyCookies = 0;
+    return result;
+  };
+  const noCookies = { kind: "no-cookies" as const, quote: "We do not use cookies." };
+  const noThirdPartyCookies = { kind: "no-third-party-cookies" as const, quote: "We do not use third-party cookies." };
+  const withClaims = (...claims: NonNullable<ScanResult["privacyPolicy"]>["claims"]): ScanResult => {
+    const result = ownCookie(makeQuietV1Result());
+    result.privacyPolicy = { ...result.privacyPolicy!, claims };
+    return result;
+  };
+
+  // A blanket statement is cut against by a cookie of the site's own.
+  const conflict = factsForV1(withClaims(noCookies));
+  assert.deepEqual(conflict.signals.policy, {
+    read: "compared",
+    checkableClaims: [noCookies],
+    countConflicts: [{ claim: "no-cookies", quote: noCookies.quote, cookies: 1 }]
+  });
+  assert.equal(conflict.strongestObservedSeverity, "warn");
+  assert.equal(conflict.calmEligible, false);
+
+  // A statement about third-party cookies is not, and the visit stays calm.
+  const thirdPartyOnly = factsForV1(withClaims(noThirdPartyCookies));
+  assert.deepEqual(thirdPartyOnly.signals.policy.countConflicts, []);
+  assert.equal(thirdPartyOnly.calmEligible, true);
+
+  // Both statements beside a cookie of another site: the third-party conflict first.
+  const both = withClaims(noCookies, noThirdPartyCookies);
+  both.cookies = [...both.cookies, { ...both.cookies[0], name: "other", domain: "metrics.example.net", thirdParty: true }];
+  both.summary.cookies = 2;
+  both.summary.thirdPartyCookies = 1;
+  assert.deepEqual(factsForV1(both).signals.policy.countConflicts, [
+    { claim: "no-third-party-cookies", quote: noThirdPartyCookies.quote, cookies: 1 },
+    { claim: "no-cookies", quote: noCookies.quote, cookies: 2 }
+  ]);
+
+  // A read that supports no comparison holds no conflict, whatever it stored.
+  const siteRoot = withClaims(noCookies);
+  siteRoot.privacyPolicy = { ...siteRoot.privacyPolicy!, url: "https://example.com/" };
+  assert.deepEqual(factsForV1(siteRoot).signals.policy, { read: "site-root", checkableClaims: [], countConflicts: [] });
+  assert.equal(factsForV1(siteRoot).strongestObservedSeverity, "ok");
+  const shell = withClaims(noCookies);
+  shell.privacyPolicy = { ...shell.privacyPolicy!, policyTextLength: 612 };
+  assert.deepEqual(factsForV1(shell).signals.policy, { read: "shell-suspected", checkableClaims: [], countConflicts: [] });
+  assert.equal(factsForV1(shell).strongestObservedSeverity, "ok");
+
+  // A quote the current reader no longer takes as a blanket statement is not compared.
+  const capped = factsForV1(withClaims({ kind: "no-cookies", quote: "We do not use cookies..." }));
+  assert.deepEqual(capped.signals.policy, { read: "compared", checkableClaims: [], countConflicts: [] });
+
+  const unrecorded = makeQuietV1Result();
+  delete unrecorded.privacyPolicy;
+  assert.deepEqual(factsForV1(unrecorded).signals.policy, { read: "none", checkableClaims: [], countConflicts: [] });
+});
+
+test("the consent card's platform is read from the hosts of other sites, and the severity ranks it", () => {
+  const withHost = (site: string, thirdParty: boolean): ScanResult => {
+    const result = makeQuietV1Result();
+    result.summary.firstPartyDomain = site;
+    result.conditions.requestedUrl = `https://${site}/`;
+    result.conditions.finalUrl = `https://${site}/`;
+    result.domains = [
+      { domain: site, requests: 1, thirdParty: false, tracker: null, statuses: [200], resourceTypes: ["document"] },
+      { domain: "consent.cookiebot.com", requests: 1, thirdParty, tracker: null, statuses: [200], resourceTypes: ["script"] }
+    ];
+    result.requests = requestRowsForDomains(result.domains);
+    result.summary.totalRequests = 2;
+    result.summary.thirdPartyRequests = thirdParty ? 1 : 0;
+    result.summary.thirdPartyDomains = thirdParty ? 1 : 0;
+    result.summary.knownTrackerRequests = 0;
+    return result;
+  };
+
+  // On the vendor's own site the page's own document matches the vendor's signature; it is not consent tooling.
+  const ownSite = factsForV1(withHost("cookiebot.com", false));
+  assert.equal(ownSite.signals.consentPlatform, null);
+  assert.equal(ownSite.calmEligible, true);
+
+  const otherSite = factsForV1(withHost("example.com", true));
+  assert.deepEqual(otherSite.signals.consentPlatform, { name: "Cookiebot", domain: "consent.cookiebot.com", kind: "vendor" });
+  assert.equal(otherSite.calmEligible, false);
+
+  // The severity ranks the platform itself, not only the host count that most often comes with it.
+  const uncounted = withHost("example.com", true);
+  uncounted.summary.thirdPartyDomains = 0;
+  assert.equal(factsForV1(uncounted).strongestObservedSeverity, "info");
+  assert.equal(factsForV1(uncounted).calmEligible, false);
+
+  // A visit asked to make a choice has no pre-choice card, so no platform is named for one.
+  const clicked = withHost("example.com", true);
+  clicked.conditions.consentMode = "accept-all";
+  assert.equal(factsForV1(clicked).signals.consentPlatform, null);
+});
+
 function thirdPartyDomain(
   domain: string,
   tracker: DomainSummary["tracker"] = null
