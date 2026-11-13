@@ -284,3 +284,46 @@ test(
     }
   }
 );
+
+test(
+  "a HEAD of a scan job is answered at the edge and never reaches the container",
+  { timeout: 90_000 },
+  async () => {
+    const harness = await startHarnessWorker();
+    try {
+      const state = async () =>
+        (await (await harness.mf.dispatchFetch("https://scanner.invalid/__harness/state")).json()) as HarnessState;
+      const { jobs } = await state();
+      const unknownJobId = `20260101-${"f".repeat(32)}`;
+      for (const jobId of [jobs.durable.jobId, jobs.registered.jobId, unknownJobId]) {
+        const answer = await harness.mf.dispatchFetch(`https://scanner.invalid/api/scans/${jobId}`, {
+          method: "HEAD",
+          headers: { "cf-connecting-ip": READER, origin: "https://sitebehavior.org" }
+        });
+        assert.equal(answer.status, 405, `HEAD of job ${jobId}`);
+        assert.equal(answer.headers.get("allow"), "GET, DELETE, OPTIONS");
+        assert.equal(answer.headers.get("cache-control"), "no-store");
+        assert.equal(answer.headers.get("access-control-allow-origin"), "https://sitebehavior.org");
+        assert.equal(await answer.text(), "");
+      }
+      assert.deepEqual((await state()).forwarded, [], "a HEAD of a scan job must not reach the container");
+
+      // The poll itself is unchanged: a GET of the finished durable job is
+      // answered from the Durable Object and the saved report.
+      const poll = await harness.mf.dispatchFetch(`https://scanner.invalid/api/scans/${jobs.durable.jobId}`, {
+        headers: { "cf-connecting-ip": READER }
+      });
+      assert.notEqual(poll.status, 405);
+      await poll.text();
+      assert.deepEqual(
+        (await state()).forwarded.map((entry) => `${entry.method} ${entry.path}`),
+        [`GET /api/reports/${jobs.durable.reportId}`]
+      );
+    } catch (error) {
+      if (harness.runtimeOutput()) console.error(harness.runtimeOutput());
+      throw error;
+    } finally {
+      await harness.stop();
+    }
+  }
+);

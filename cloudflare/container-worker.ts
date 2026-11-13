@@ -2945,6 +2945,20 @@ export default {
     ) {
       return durableUnavailableResponse(request, env);
     }
+    // A job is polled with GET and cancelled with DELETE, and both settle
+    // below under the job's edge controls. A HEAD would be forwarded past
+    // them, and Next answers a HEAD by running the route's GET handler, so it
+    // is answered here instead.
+    if (request.method === "HEAD" && scanJobIdFromPath(url.pathname)) {
+      return new Response(null, {
+        status: 405,
+        headers: {
+          ...scanCorsHeaders(request.headers.get("origin"), env.SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN),
+          allow: "GET, DELETE, OPTIONS",
+          "cache-control": "no-store"
+        }
+      });
+    }
     const scanJobId =
       request.method === "GET" || request.method === "DELETE" ? scanJobIdFromPath(url.pathname) : null;
 
