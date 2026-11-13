@@ -698,6 +698,19 @@ const GUARD_MUTATIONS = [
     edits: [{ file: ADDRESS, append: "\npub fn is_public_anything(_v: u128) -> bool {\n    true\n}\n" }]
   },
   {
+    name: "address: the checked block closed and opened again around code Verus does not read",
+    rule: "statement",
+    edits: [
+      {
+        file: ADDRESS,
+        from: "/// Whether an IPv6 address is IPv4-mapped: its first 96 bits are eighty\n",
+        to:
+          "} // verus!\n\npub fn is_public_anything(_v: u128) -> bool {\n    true\n}\n\nverus! {\n\n" +
+          "/// Whether an IPv6 address is IPv4-mapped: its first 96 bits are eighty\n"
+      }
+    ]
+  },
+  {
     name: "address: the text layer's file gone, its functions moved to an unlisted one",
     rule: "file-set",
     edits: [{ file: "kernel/src/address_reader.rs", create: "pub fn nothing() {}\n" }]
