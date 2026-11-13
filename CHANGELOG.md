@@ -228,6 +228,18 @@ public API or a 1.0 release.
   regenerated because their scripts changed; only the recorded digests
   differ. Until the difference is read, the case machine export is what TLC
   writes on the maintainer's machine and is not confirmed on a hosted runner.
+- The difference is read. Of three hosted checks of the case machine export,
+  the second matched byte for byte and the third differed on 1 of 4,481
+  lines: the search depth TLC reports for the smallest plan, 16 in the
+  committed file and 17 on the runner, with every count, state and trace
+  equal. The first run kept no copy, so its difference stays unread. With
+  more than one worker the depth TLC reports depends on the order its
+  workers reach states in, so it is not a function of the specification.
+  Both exports no longer record it (the hold export held it too and could
+  have failed the same way); each log still prints it. The suites now fail
+  on an export that records anything beside TLC's two counts. Both exports
+  were regenerated; beside the recorded digests, only the depth entries are
+  gone.
 
 ### Removed
 

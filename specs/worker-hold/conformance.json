@@ -2,7 +2,7 @@
   "format": 2,
   "about": "Exported by scripts/tla-worker-hold-export.mjs from specs/worker-hold with TLC. Do not edit by hand. producedBy, specification and configurations are the SHA-256 of each file this export was written by and from, and tla2tools is the jar's.",
   "producedBy": {
-    "scripts/tla-worker-hold-export.mjs": "1353b86403f19f94f94b5b69c075bc1daa3a325dd295f813640a24d9b183428e",
+    "scripts/tla-worker-hold-export.mjs": "e86613c193870b7061561ad5608f91a4d7589a1e4325ea00560d80f1192594f1",
     "scripts/tla-worker-hold-lib.mjs": "8025bd4d6bb0addb14ca81c88a2e0b8ef725ca9d8c2ebc98d52bd73e1485e565",
     "scripts/tla-case-machine-lib.mjs": "0a937051a6ac00dcb06fdb472e500588198edf6c5b171a0bb0ae78b61d012ce0",
     "scripts/tla-tools-lib.mjs": "c858c384124d90cf73f71d9ab1bb114e77de75d3258a48faf309639b2f8d590d"
@@ -22,11 +22,11 @@
   "worlds": {
     "hold": {
       "constants": {"WorkerCount":1,"CollapseSessions":false,"Stream":false,"StartReleased":false,"Reduced":false},
-      "tlc": {"distinct":467455,"generated":2675909,"depth":25},
+      "tlc": {"distinct":467455,"generated":2675909},
       "digest": "1edcf9c23b85a77d76288001aad65a39",
       "classes": 166493,
       "model": {"states":477971,"moves":2710558},
-      "underPlan": {"configuration":"hold-plan.cfg","sha256":"2232b8b9c5a9bc22e234dc1b893cd731e821239656343a1733bec4dd222f6fad","invariants":["TypeOK","ReadHadItsObserver","HeardLandsInOneTerm"],"reached":["NoWorkerRead","NoWorkerRanUnobserved","NoWorkerInANamedTerm"],"tlc":{"distinct":40846,"generated":153583,"depth":26}},
+      "underPlan": {"configuration":"hold-plan.cfg","sha256":"2232b8b9c5a9bc22e234dc1b893cd731e821239656343a1733bec4dd222f6fad","invariants":["TypeOK","ReadHadItsObserver","HeardLandsInOneTerm"],"reached":["NoWorkerRead","NoWorkerRanUnobserved","NoWorkerInANamedTerm"],"tlc":{"distinct":40846,"generated":153583}},
       "table": {"pairs":2877858,"violations":{"excluded-implies-no-page-code-before-the-freeze":[["A5fifo"],["Z"]],"excluded-implies-no-unobserved-page-code-before-the-freeze":[["A5fifo"],["Z"]],"read-implies-the-observer-preceded-every-statement":[["A1"],["A2"]],"a-read-state-is-no-older-than-the-freeze":[],"every-worker-the-readout-heard-of-lands-in-one-term":[],"a-worker-that-ran-before-the-freeze-lands-in-a-term":[["D1","Z"]]},"named":{"held:connection-lost-on-the-port":[["Z"]],"held:late-posted-after-the-freeze":[["A1","Z"],["A2","Z"],["C1","D1","Z"]],"held:late-posted-before-the-freeze":[["A5bound","D1","Z"]],"held:no-word-on-its-way":[["A1","Z"],["A2","Z"],["notA3","Z"],["A5fifo","Z"]],"held:resume-still-on-the-socket":[["C1","D1","Z"]],"held:thread-concluded-first":[["Z"]],"reaching:connection-lost-on-the-port":[["Z"]],"reaching:late-posted-after-the-freeze":[["A1","Z"],["A2","Z"],["C1","D1","Z"]],"reaching:late-posted-before-the-freeze":[["A5bound","D1","Z"]],"reaching:no-word-on-its-way":[["A1","Z"],["A2","Z"],["notA3","Z"],["A5fifo","Z"]],"reaching:resume-still-on-the-socket":[["C1","D1","Z"]],"reaching:thread-concluded-first":[["Z"]],"second-pass:connection-lost-on-the-port":[["Z"]],"second-pass:late-posted-after-the-freeze":[["A1","Z"],["A2","Z"],["D1","Z"]],"second-pass:late-posted-before-the-freeze":[["D1","Z"]],"second-pass:no-word-on-its-way":[["A1","Z"],["A2","Z"],["notA3","Z"],["A5fifo","Z"]],"second-pass:resume-still-on-the-socket":[["D1","Z"]],"second-pass:thread-concluded-first":[["Z"]]}},
       "cells": [
         {"assumed":[],"holds":["every-worker-the-readout-heard-of-lands-in-one-term"],"fails":[],"distinct":467455,"reached":["NoWorkerInANamedTerm"]},
@@ -567,11 +567,11 @@
     },
     "stream": {
       "constants": {"WorkerCount":1,"CollapseSessions":false,"Stream":true,"StartReleased":true,"Reduced":false},
-      "tlc": {"distinct":6865,"generated":29197,"depth":16},
+      "tlc": {"distinct":6865,"generated":29197},
       "digest": "f9698c0d445f1a26f364d2d82f23f197",
       "classes": 3222,
       "model": {"states":6865,"moves":29196},
-      "underPlan": {"configuration":"stream-plan.cfg","sha256":"8cdd2eefc57dc8a9f9d8dc3c4d1dad18d9347ef884f2761b053d2a1ad7df1e51","invariants":["TypeOK","ReadNoOlderThanTheFreeze","HeardLandsInOneTerm"],"reached":["NoWorkerRead","NoReadPastTheFirstSnapshot","NoWorkerInANamedTerm"],"tlc":{"distinct":2333,"generated":8066,"depth":16}},
+      "underPlan": {"configuration":"stream-plan.cfg","sha256":"8cdd2eefc57dc8a9f9d8dc3c4d1dad18d9347ef884f2761b053d2a1ad7df1e51","invariants":["TypeOK","ReadNoOlderThanTheFreeze","HeardLandsInOneTerm"],"reached":["NoWorkerRead","NoReadPastTheFirstSnapshot","NoWorkerInANamedTerm"],"tlc":{"distinct":2333,"generated":8066}},
       "table": {"pairs":15433,"violations":{"excluded-implies-no-page-code-before-the-freeze":[],"excluded-implies-no-unobserved-page-code-before-the-freeze":[],"read-implies-the-observer-preceded-every-statement":[],"a-read-state-is-no-older-than-the-freeze":[["A1"],["notA3"],["A5fifo"]],"every-worker-the-readout-heard-of-lands-in-one-term":[],"a-worker-that-ran-before-the-freeze-lands-in-a-term":[]},"named":{}},
       "cells": [
         {"assumed":[],"holds":["every-worker-the-readout-heard-of-lands-in-one-term"],"fails":["a-read-state-is-no-older-than-the-freeze"],"distinct":6865,"reached":["NoWorkerInANamedTerm"]},
@@ -723,11 +723,11 @@
     },
     "two": {
       "constants": {"WorkerCount":2,"CollapseSessions":true,"Stream":false,"StartReleased":false,"Reduced":true},
-      "tlc": {"distinct":199967,"generated":649010,"depth":30},
+      "tlc": {"distinct":199967,"generated":649010},
       "digest": "8c3e8f1218b18846a8b8e8a5b5f0eb3a",
       "classes": 63276,
       "model": {"states":200736,"moves":650933},
-      "underPlan": {"configuration":"two-plan.cfg","sha256":"0577d7331196fd7950bc1ebaefb04172b711fd4de32a3fe79a3699e6526b4fff","invariants":["TypeOK","ReadHadItsObserver","HeardLandsInOneTerm"],"reached":["NoWorkerRead","NoWorkerRanUnobserved","NoWorkerInANamedTerm"],"tlc":{"distinct":146149,"generated":428227,"depth":30}},
+      "underPlan": {"configuration":"two-plan.cfg","sha256":"0577d7331196fd7950bc1ebaefb04172b711fd4de32a3fe79a3699e6526b4fff","invariants":["TypeOK","ReadHadItsObserver","HeardLandsInOneTerm"],"reached":["NoWorkerRead","NoWorkerRanUnobserved","NoWorkerInANamedTerm"],"tlc":{"distinct":146149,"generated":428227}},
       "table": {"pairs":231649,"violations":{"excluded-implies-no-page-code-before-the-freeze":[["Z"]],"excluded-implies-no-unobserved-page-code-before-the-freeze":[["notA3","Z"],["A5bound","Z"],["C1","Z"]],"read-implies-the-observer-preceded-every-statement":[],"a-read-state-is-no-older-than-the-freeze":[],"every-worker-the-readout-heard-of-lands-in-one-term":[],"a-worker-that-ran-before-the-freeze-lands-in-a-term":[["Z"]]},"named":{"held:connection-lost-on-the-port":[["notA3","Z"],["A5bound","Z"],["C1","D1","Z"]],"held:late-posted-after-the-freeze":[["C1","Z"]],"held:late-posted-before-the-freeze":[["A5bound","Z"]],"held:no-word-on-its-way":[["notA3","Z"]],"held:resume-still-on-the-socket":[["C1","Z"]],"held:thread-concluded-first":[["notA3","Z"]],"reaching:connection-lost-on-the-port":[["notA3","Z"],["A5bound","Z"],["C1","D1","Z"]],"reaching:late-posted-after-the-freeze":[["C1","Z"]],"reaching:late-posted-before-the-freeze":[["A5bound","Z"]],"reaching:no-word-on-its-way":[["notA3","Z"]],"reaching:resume-still-on-the-socket":[["C1","Z"]],"reaching:thread-concluded-first":[["notA3","Z"]],"second-pass:connection-lost-on-the-port":[["notA3","Z"],["A5bound","Z"],["C1","D1","Z"]],"second-pass:late-posted-after-the-freeze":[["C1","Z"]],"second-pass:late-posted-before-the-freeze":[["A5bound","Z"]],"second-pass:no-word-on-its-way":[["notA3","Z"]],"second-pass:resume-still-on-the-socket":[["C1","Z"]],"second-pass:thread-concluded-first":[["notA3","Z"]]}},
       "cells": [
         {"assumed":[],"holds":["read-implies-the-observer-preceded-every-statement","every-worker-the-readout-heard-of-lands-in-one-term"],"fails":[],"distinct":199967,"reached":["NoWorkerRead","NoWorkerRanUnobserved","NoWorkerInANamedTerm"]},
@@ -949,11 +949,11 @@
     },
     "small": {
       "constants": {"WorkerCount":1,"CollapseSessions":true,"Stream":false,"StartReleased":false,"Reduced":true},
-      "tlc": {"distinct":2296,"generated":6693,"depth":19},
+      "tlc": {"distinct":2296,"generated":6693},
       "digest": "1bcfab86f90b431e99cb80628b3ff1de",
       "classes": 1186,
       "model": {"states":2301,"moves":6697},
-      "underPlan": {"configuration":"small-plan.cfg","sha256":"0bd1e97040809d6564e6efedefff40bf2dba9745fd055401d8acb92eca6abf90","invariants":["TypeOK","ReadHadItsObserver","HeardLandsInOneTerm"],"reached":["NoWorkerRead","NoWorkerRanUnobserved","NoWorkerInANamedTerm"],"tlc":{"distinct":1684,"generated":4227,"depth":19}},
+      "underPlan": {"configuration":"small-plan.cfg","sha256":"0bd1e97040809d6564e6efedefff40bf2dba9745fd055401d8acb92eca6abf90","invariants":["TypeOK","ReadHadItsObserver","HeardLandsInOneTerm"],"reached":["NoWorkerRead","NoWorkerRanUnobserved","NoWorkerInANamedTerm"],"tlc":{"distinct":1684,"generated":4227}},
       "table": {"pairs":2682,"violations":{"excluded-implies-no-page-code-before-the-freeze":[["Z"]],"excluded-implies-no-unobserved-page-code-before-the-freeze":[["notA3","Z"],["A5bound","Z"],["C1","Z"]],"read-implies-the-observer-preceded-every-statement":[],"a-read-state-is-no-older-than-the-freeze":[],"every-worker-the-readout-heard-of-lands-in-one-term":[],"a-worker-that-ran-before-the-freeze-lands-in-a-term":[["Z"]]},"named":{"held:connection-lost-on-the-port":[["notA3","Z"],["A5bound","Z"],["C1","D1","Z"]],"held:late-posted-after-the-freeze":[["C1","Z"]],"held:late-posted-before-the-freeze":[["A5bound","Z"]],"held:no-word-on-its-way":[["notA3","Z"]],"held:resume-still-on-the-socket":[["C1","Z"]],"held:thread-concluded-first":[["notA3","Z"]],"reaching:connection-lost-on-the-port":[["notA3","Z"],["A5bound","Z"],["C1","D1","Z"]],"reaching:late-posted-after-the-freeze":[["C1","Z"]],"reaching:late-posted-before-the-freeze":[["A5bound","Z"]],"reaching:no-word-on-its-way":[["notA3","Z"]],"reaching:resume-still-on-the-socket":[["C1","Z"]],"reaching:thread-concluded-first":[["notA3","Z"]]}},
       "cells": [
         {"assumed":["Z"],"holds":["excluded-implies-no-page-code-before-the-freeze","excluded-implies-no-unobserved-page-code-before-the-freeze"],"fails":[],"distinct":1299,"reached":["NoWorkerExcluded","NoWorkerRanBeforeTheFreeze","NoWorkerRanUnobservedBeforeTheFreeze"]}

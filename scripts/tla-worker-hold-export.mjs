@@ -411,12 +411,14 @@ async function exportWorld(tools, world, fv, kernels) {
   const planRows = EVERY_ROW.filter((row) => planInvariants.includes(ROWS[row]));
   if (planRows.length !== planInvariants.filter((name) => name !== "TypeOK").length) throw new Error(`${world}-plan.cfg lists an invariant that is neither TypeOK nor a row`);
   const planReached = await reached(`plan-${world}`, PLAN_AXIOMS, planRows, (name) => `${planText.slice(0, planText.indexOf("\nINVARIANTS\n"))}\nINVARIANTS\n  ${name}\n`);
-  const underPlan = { configuration: `${world}-plan.cfg`, sha256: sha256Of(planText), invariants: planInvariants, reached: planReached, tlc: { distinct: planRun.distinct, generated: planRun.generated, depth: planRun.depth } };
+  // TLC's reported search depth is not recorded: with more than one worker it depends on the order the workers reach
+  // states in, so a file holding it is not a function of the specification.
+  const underPlan = { configuration: `${world}-plan.cfg`, sha256: sha256Of(planText), invariants: planInvariants, reached: planReached, tlc: { distinct: planRun.distinct, generated: planRun.generated } };
 
-  console.error(`${world}: ${printedStates} states, ${printedMoves} moves, ${counted.classes} classes, ${cover.length + witnesses.length + named.length} traces as ${tree.length} nodes, table over ${table.distinct} pairs, ${Math.round((Date.now() - started) / 1000)}s`);
+  console.error(`${world}: ${printedStates} states, ${printedMoves} moves, ${counted.classes} classes, ${cover.length + witnesses.length + named.length} traces as ${tree.length} nodes, table over ${table.distinct} pairs, TLC's depth ${exported.depth}, ${Math.round((Date.now() - started) / 1000)}s`);
   return {
     constants: WORLDS[world].constants,
-    tlc: { distinct: exported.distinct, generated: exported.generated, depth: exported.depth },
+    tlc: { distinct: exported.distinct, generated: exported.generated },
     digest: counted.digest,
     classes: counted.classes,
     model: { states: explored.keys.length, moves: explored.edgeTo.length },

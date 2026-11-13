@@ -162,7 +162,10 @@ async function exportPlan(tools, planName, real) {
     states: counted.states,
     edges: counted.edges,
     digest: counted.digest,
-    tlc: { generated: summary.generated, distinct: summary.distinct, depth: summary.depth },
+    // TLC's reported search depth is not recorded: with more than one worker it depends on the order the workers
+    // reach states in (16 and 17 were both reported for one plan), so a file holding it is not a function of the
+    // specification. It is printed in the log only.
+    tlc: { generated: summary.generated, distinct: summary.distinct },
     // The configuration this run was made under, and the invariants TLC held on every state in it.
     checked: { configuration: `${planName}.cfg`, sha256: checked.sha256, invariants: checked.invariants },
     comparedWithReal: compared,
@@ -224,7 +227,7 @@ async function exportPlan(tools, planName, real) {
     plan.traces = traces;
     plan.tree = tree;
   }
-  return plan;
+  return { plan, depth: summary.depth };
 }
 
 /**
@@ -259,7 +262,7 @@ async function exportPurge(tools) {
   if (!slice.clean) throw new Error(`TLC reported ${String(slice.violated)} violated on the purge slice`);
   return {
     rows: rows.sort(),
-    slice: { configuration: "purge-slice.cfg", sha256: sha256Hex(sliceText), invariants: sliceText.slice(sliceText.indexOf("\nINVARIANTS\n") + "\nINVARIANTS\n".length).trim().split(/\s+/), tlc: { generated: slice.generated, distinct: slice.distinct, depth: slice.depth } }
+    slice: { configuration: "purge-slice.cfg", sha256: sha256Hex(sliceText), invariants: sliceText.slice(sliceText.indexOf("\nINVARIANTS\n") + "\nINVARIANTS\n".length).trim().split(/\s+/), tlc: { generated: slice.generated, distinct: slice.distinct } }
   };
 }
 
@@ -294,8 +297,9 @@ async function main() {
         continue;
       }
       const started = Date.now();
-      plans[planName] = await exportPlan(tools, planName, { ...bindReal(fixture, machine, PLANS[planName]), machine });
-      console.error(`${planName}: ${plans[planName].states} states, ${plans[planName].edges} transitions, ${plans[planName].traces ?? 0} traces as ${plans[planName].tree?.length ?? 0} nodes, TLC's depth ${plans[planName].tlc.depth}, ${Math.round((Date.now() - started) / 1000)}s`);
+      const { plan, depth } = await exportPlan(tools, planName, { ...bindReal(fixture, machine, PLANS[planName]), machine });
+      plans[planName] = plan;
+      console.error(`${planName}: ${plans[planName].states} states, ${plans[planName].edges} transitions, ${plans[planName].traces ?? 0} traces as ${plans[planName].tree?.length ?? 0} nodes, TLC's depth ${depth}, ${Math.round((Date.now() - started) / 1000)}s`);
     }
     const purged = await exportPurge(tools);
     const result = {

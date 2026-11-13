@@ -121,6 +121,8 @@ test("the committed export names the script that wrote it and the files it was w
     assert.deepEqual(conformance.worlds[name].constants, constants);
     assert.deepEqual({ WorkerCount: world.workers, CollapseSessions: world.collapseSessions, Stream: world.stream, StartReleased: world.startReleased, Reduced: world.reduced }, constants, `${name}: the specification's constants are the model's world`);
     assert.equal(conformance.worlds[name].tlc.generated > conformance.worlds[name].tlc.distinct, true);
+    // No depth: TLC's reported depth varies from run to run with more than one worker, so the export does not hold it.
+    for (const counts of [conformance.worlds[name].tlc, conformance.worlds[name].underPlan.tlc]) assert.deepEqual(Object.keys(counts).sort(), ["distinct", "generated"], `${name}: TLC's two counts and nothing else are recorded`);
     // The configuration kept for runs by hand is the one the export ran, clean, with these rows as invariants.
     const committed = readFileSync(join(SPEC_DIR, `${name}-plan.cfg`), "utf8");
     assert.deepEqual({ ...conformance.worlds[name].underPlan, tlc: null, invariants: null, reached: null }, { configuration: `${name}-plan.cfg`, sha256: sha256Hex(committed), invariants: null, reached: null, tlc: null });

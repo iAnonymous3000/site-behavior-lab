@@ -167,7 +167,8 @@ test("the committed export names the script that wrote it and the files it was w
   for (const [name, plan] of Object.entries(conformance.plans)) {
     assert.deepEqual(plan.slots, PLANS[name]);
     assert.equal(plan.comparedWithReal, plan.states, `${name}: the export compared every state with the real machine`);
-    assert.deepEqual(plan.tlc, { generated: plan.edges + 1, distinct: plan.states, depth: plan.tlc.depth }, `${name}: TLC's own counts are the printed relation's`);
+    // No depth: TLC's reported depth varies from run to run with more than one worker, so the export does not hold it.
+    assert.deepEqual(plan.tlc, { generated: plan.edges + 1, distinct: plan.states }, `${name}: TLC's own counts are the printed relation's, and nothing else is recorded`);
   }
 });
 
@@ -187,6 +188,7 @@ test("the export was made under each plan's committed configuration, in a run wh
   assert.deepEqual({ ...conformance.purgeSlice, tlc: null }, { configuration: "purge-slice.cfg", sha256: sha256Hex(slice), invariants: ["SliceDomain", "SliceAnswers", "SummaryOnlyExactly"], tlc: null });
   // Open with no manifest, closed with none, and closed with each of the 64 the slice reaches; two first states.
   assert.deepEqual([conformance.purgeSlice.tlc.distinct, conformance.purgeSlice.tlc.generated - 2], [2 + walk.everyManifest().length, 200]);
+  assert.deepEqual(Object.keys(conformance.purgeSlice.tlc).sort(), ["distinct", "generated"], "the slice records TLC's two counts and no depth");
 });
 
 test("the caps the specification's configurations set are production's", () => {

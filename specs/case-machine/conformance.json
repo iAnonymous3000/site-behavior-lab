@@ -2,7 +2,7 @@
   "format": 2,
   "about": "Exported by scripts/tla-case-machine-export.mjs from specs/case-machine with TLC. Do not edit by hand. producedBy, specification and configurations are the SHA-256 of each file this export was written by and from, and tla2tools is the jar's.",
   "producedBy": {
-    "scripts/tla-case-machine-export.mjs": "25c7628bfd9729d53afdd5c1466141edac317f9e607a249c45233beddfb38eef",
+    "scripts/tla-case-machine-export.mjs": "80997fb344d31effc60438df19c438296cdc6fa9861117ca6cadd3ffd1203897",
     "scripts/tla-case-machine-lib.mjs": "0a937051a6ac00dcb06fdb472e500588198edf6c5b171a0bb0ae78b61d012ce0",
     "scripts/tla-tools-lib.mjs": "c858c384124d90cf73f71d9ab1bb114e77de75d3258a48faf309639b2f8d590d"
   },
@@ -134,7 +134,7 @@
       "states": 2985379,
       "edges": 11848870,
       "digest": "ffebe2296e96003a0a4e19b6679573348c8ea671d9108d1beba6d87585c95e34",
-      "tlc": {"generated":11848871,"distinct":2985379,"depth":40},
+      "tlc": {"generated":11848871,"distinct":2985379},
       "checked": {"configuration":"six-slots.cfg","sha256":"25a8e1a2302c6bd1cc23e0c0575700725a32217bda5a460c3ee1395b00949875","invariants":["Domain","CapsState","CapsStep","GateState","GateStep","ClosedExactly","ClosedStays","RuleFixed","CleanupState","CleanupStep","RanUnder","DenominatorAdds","TerminalIsQuiet","ContinuationReads","OneRuns","ArmState","ArmStep","Waits","TerminalStays","Blocks","Acquisition","PurgeSlice","Authority","Interchangeable","ControlGate","ExceptionFirst","Mark","Acyclic","Sinks","Supervisor"]},
       "comparedWithReal": 2985379,
       "probes": [
@@ -859,7 +859,7 @@
       "states": 45967,
       "edges": 182358,
       "digest": "ccbe1ab2041cd7dd1c89904dd657017a7686f83a04f6d6ed6bd3e4e7799eaf78",
-      "tlc": {"generated":182359,"distinct":45967,"depth":21},
+      "tlc": {"generated":182359,"distinct":45967},
       "checked": {"configuration":"instrumented.cfg","sha256":"0b3ed18eab13640597e130d7694b53484f66297261383a44e98a1a24d4125fac","invariants":["Domain","CapsState","CapsStep","GateState","GateStep","ClosedExactly","ClosedStays","RuleFixed","CleanupState","CleanupStep","RanUnder","DenominatorAdds","TerminalIsQuiet","ContinuationReads","OneRuns","ArmState","ArmStep","Waits","TerminalStays","Blocks","Acquisition","PurgeSlice","Authority","Interchangeable","ControlGate","ExceptionFirst","Mark","Acyclic","Sinks","Supervisor"]},
       "comparedWithReal": 45967,
       "probes": [
@@ -989,7 +989,7 @@
       "states": 45967,
       "edges": 182358,
       "digest": "89811807d16214c1a53183915e8f58949a5df20f56d36a7fe56956991206786e",
-      "tlc": {"generated":182359,"distinct":45967,"depth":21},
+      "tlc": {"generated":182359,"distinct":45967},
       "checked": {"configuration":"baseline.cfg","sha256":"11c9630c093a030feef426bf7a4c117677a6cf3b0f2f085b3c3e09be019a6961","invariants":["Domain","CapsState","CapsStep","GateState","GateStep","ClosedExactly","ClosedStays","RuleFixed","CleanupState","CleanupStep","RanUnder","DenominatorAdds","TerminalIsQuiet","ContinuationReads","OneRuns","ArmState","ArmStep","Waits","TerminalStays","Blocks","Acquisition","PurgeSlice","Authority","Interchangeable","ControlGate","ExceptionFirst","Mark","Acyclic","Sinks","Supervisor"]},
       "comparedWithReal": 45967,
       "probes": [
@@ -1105,7 +1105,7 @@
       "states": 1165,
       "edges": 5642,
       "digest": "06b6b36ba70b826f78dbbb2b8567c053bc84fc3e360ad4e195e02c3244c5dbf5",
-      "tlc": {"generated":5643,"distinct":1165,"depth":16},
+      "tlc": {"generated":5643,"distinct":1165},
       "checked": {"configuration":"one-each.cfg","sha256":"545fbd177be6f75bd9fa5f7100d2866960ab9f08286b09ff46ca211144733a25","invariants":["Domain","CapsState","CapsStep","GateState","GateStep","ClosedExactly","ClosedStays","RuleFixed","CleanupState","CleanupStep","RanUnder","DenominatorAdds","TerminalIsQuiet","ContinuationReads","OneRuns","ArmState","ArmStep","Waits","TerminalStays","Blocks","Acquisition","PurgeSlice","Authority","Interchangeable","ControlGate","ExceptionFirst","Mark","Acyclic","Sinks","Supervisor"]},
       "comparedWithReal": 1165,
       "probes": [
@@ -1644,7 +1644,7 @@
       "states": 16909,
       "edges": 77970,
       "digest": "9bcfc18d80fd17e6c7d54378bb47d24ad3323541cfe1824f7f34550de6a0e381",
-      "tlc": {"generated":77971,"distinct":16909,"depth":28},
+      "tlc": {"generated":77971,"distinct":16909},
       "checked": {"configuration":"two-each.cfg","sha256":"4370ef31e567c88fc50256dab2607227430322e406e0bc2532fc787594418374","invariants":["Domain","CapsState","CapsStep","GateState","GateStep","ClosedExactly","ClosedStays","RuleFixed","CleanupState","CleanupStep","RanUnder","DenominatorAdds","TerminalIsQuiet","ContinuationReads","OneRuns","ArmState","ArmStep","Waits","TerminalStays","Blocks","Acquisition","PurgeSlice","Authority","Interchangeable","ControlGate","ExceptionFirst","Mark","Acyclic","Sinks","Supervisor"]},
       "comparedWithReal": 16909,
       "probes": [
@@ -4473,8 +4473,7 @@
     ],
     "tlc": {
       "generated": 202,
-      "distinct": 66,
-      "depth": 5
+      "distinct": 66
     }
   }
 }
