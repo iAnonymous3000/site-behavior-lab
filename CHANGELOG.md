@@ -205,6 +205,19 @@ public API or a 1.0 release.
   regenerated because the scripts they record changed (comments, and a
   `--heap` option); apart from those recorded digests every byte TLC computed
   is the same.
+- An address classifier in the trust kernel (`tools/trust-kernel`), which
+  nothing in the scanner, the Worker or the site calls: the live boundary is
+  still `lib/ip-safety.ts`. For every 32-bit and every 128-bit value, the
+  Verus checker accepts that the classifier answers as a written
+  specification says: an IPv4 table of sixteen address ranges, and an IPv6
+  rule of prefixes. That is about values and trusts Verus, Z3, the vstd
+  library, the compiler and the specification. Reading a text into a value,
+  and agreement with the TypeScript classifier, are tested (64,826,675 texts
+  with no difference), not checked that way. The IPv4 table was compared by
+  hand with the IANA special-purpose registry as fetched on 2026-11-12 and
+  the IPv6 rule with it as fetched on 2026-11-13; in each, every difference
+  is a refusal of space the registry marks reachable. Writing the kernel's
+  reader is what found the dotted quad defect fixed below.
 
 ### Removed
 
