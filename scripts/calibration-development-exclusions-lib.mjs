@@ -51,6 +51,7 @@
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import { getDomain } from "tldts";
+import { V1_BINDING_PATH } from "./v1-release-contract.mjs";
 
 const HOST_GRAMMAR = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/;
 const REDACTION_PLACEHOLDER = /^\{[a-z-]+\}$/;
@@ -264,7 +265,8 @@ export const DEVELOPMENT_EXCLUSION_SURFACES = Object.freeze([
  * A key ending in "/" covers everything under that directory and a key
  * ending in "*" everything that starts with the rest. The scoped roots are
  * DEVELOPMENT_EXCLUSION_SCOPE; a test requires every entry there to be a
- * surface or listed here, and every key here to exist.
+ * surface or listed here, and every key here to exist, but for the files
+ * CLASSIFIED_WHEN_PRESENT names.
  */
 export const DEVELOPMENT_EXCLUSION_SCOPE = Object.freeze([
   "public",
@@ -295,6 +297,7 @@ export const NOT_DEVELOPMENT_VISIT_RECORDS = Object.freeze({
   "research/ops-receipts/release-tag-governance/": "release governance receipt; no site",
   "research/ops-receipts/waf-admission-probe-2026-07-31.txt": "probe of this project's own scan host only",
   "research/repeatability/PREREGISTRATION.md": "prose; its frame is urls.json, which is read",
+  [V1_BINDING_PATH]: "the 1.0 carrier's binding of a commit, a tree and evidence digests; no site",
   "research/repeatability/RESULT.md": "prose over results.json, which is read",
   "research/repeatability-2/": "preregistration only; its sites file was never committed or collected",
   "research/shields-first-party-2026-10/PREREGISTRATION.md":
@@ -322,6 +325,19 @@ export const NOT_DEVELOPMENT_VISIT_RECORDS = Object.freeze({
   "lib/__fixtures__/pagegraph/schema-provenance.graphml": "synthetic schema fixture",
   "lib/__fixtures__/pagegraph/schema-provenance.meta.json": "synthetic schema fixture"
 });
+
+/**
+ * Classified files that a tree may lack. Each is one exact file, never a
+ * directory or prefix key, and the test holds this list to the entries below.
+ *
+ * The 1.0 release binding exists only at the carrier commit. The release
+ * contract admits nothing but added evidence files after the candidate
+ * commit, so this table is the same at the candidate, where the file is
+ * absent, and at the carrier, where it is present. With the rule that every
+ * key must name something, no such pair could pass. Every other key must
+ * still name something in the tree.
+ */
+export const CLASSIFIED_WHEN_PRESENT = Object.freeze([V1_BINDING_PATH]);
 
 /**
  * Derive the exclusion set from the tree at rootDir. Returns the sorted

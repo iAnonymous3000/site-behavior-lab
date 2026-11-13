@@ -17,12 +17,14 @@ import { fileURLToPath } from "node:url";
 import { before, test } from "node:test";
 import { PRODUCTION_SYNTHETIC_TARGETS } from "../lib/production-synthetic.ts";
 import {
+  CLASSIFIED_WHEN_PRESENT,
   DEVELOPMENT_EXCLUSION_SCOPE,
   DEVELOPMENT_EXCLUSION_SURFACES,
   NOT_DEVELOPMENT_VISIT_RECORDS,
   deriveDevelopmentExclusions,
   developmentDomainsOf
 } from "./calibration-development-exclusions-lib.mjs";
+import { V1_BINDING_PATH } from "./v1-release-contract.mjs";
 
 const moduleDir = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(moduleDir, "..");
@@ -221,18 +223,59 @@ function coveredBy(file) {
   return null;
 }
 
-test("every entry under the scoped roots is read or classified, and no classification is stale", () => {
-  const files = DEVELOPMENT_EXCLUSION_SCOPE.flatMap((root) => walk(repoRoot, root));
-  assert.ok(files.length > 1000, "the scope walk found the corpus");
+/**
+ * The two refusals over one list of files: a file nothing covers, and a
+ * classification that covers no file. Only a key in CLASSIFIED_WHEN_PRESENT
+ * may cover nothing.
+ */
+function classificationProblems(files) {
   const unclassified = files.filter((file) => coveredBy(file) === null);
+  const used = new Set(files.map(coveredBy));
+  const stale = Object.keys(NOT_DEVELOPMENT_VISIT_RECORDS).filter(
+    (key) => !used.has(key) && !CLASSIFIED_WHEN_PRESENT.includes(key)
+  );
+  return { unclassified, stale };
+}
+
+const scopedFiles = () => DEVELOPMENT_EXCLUSION_SCOPE.flatMap((root) => walk(repoRoot, root));
+
+test("every entry under the scoped roots is read or classified, and no classification is stale", () => {
+  const files = scopedFiles();
+  assert.ok(files.length > 1000, "the scope walk found the corpus");
+  const { unclassified, stale } = classificationProblems(files);
   assert.deepEqual(
     unclassified,
     [],
     "a file under a scoped root is neither a declared surface nor classified: decide whether it records a development visit"
   );
-  const used = new Set(files.map(coveredBy));
-  const stale = Object.keys(NOT_DEVELOPMENT_VISIT_RECORDS).filter((key) => !used.has(key));
   assert.deepEqual(stale, [], "a classification names nothing in the tree");
+});
+
+test("only the release binding may be classified while absent, and every other classification still goes stale", () => {
+  // The list is the 1.0 binding alone. Another entry is a decision that a
+  // classification may name nothing, so it takes an edit here too.
+  assert.deepEqual([...CLASSIFIED_WHEN_PRESENT], [V1_BINDING_PATH]);
+  for (const key of CLASSIFIED_WHEN_PRESENT) {
+    assert.ok(Object.hasOwn(NOT_DEVELOPMENT_VISIT_RECORDS, key), `${key} may be absent but is not classified`);
+    assert.doesNotMatch(key, /[/*]$/, `${key} must be one exact file, not a directory or prefix key`);
+  }
+
+  // The candidate tree and the carrier tree, which differ here by that one
+  // file, both pass with the one table.
+  const without = scopedFiles().filter((file) => !CLASSIFIED_WHEN_PRESENT.includes(file));
+  assert.deepEqual(classificationProblems(without), { unclassified: [], stale: [] });
+  assert.deepEqual(classificationProblems([...without, V1_BINDING_PATH]), { unclassified: [], stale: [] });
+
+  // The stale rule is not vacuous: take away what any other key covers and
+  // that key, and no other, is reported.
+  const covering = new Map(without.map((file) => [file, coveredBy(file)]));
+  const others = Object.keys(NOT_DEVELOPMENT_VISIT_RECORDS).filter((key) => !CLASSIFIED_WHEN_PRESENT.includes(key));
+  assert.ok(others.length >= 40, "the table holds its ordinary classifications");
+  for (const key of others) {
+    const rest = without.filter((file) => covering.get(file) !== key);
+    assert.ok(rest.length < without.length, `${key} covers something in the tree`);
+    assert.deepEqual(classificationProblems(rest).stale, [key], `${key} with its files gone`);
+  }
 });
 
 // ---------------------------------------------------------------------------
