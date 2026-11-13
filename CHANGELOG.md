@@ -240,6 +240,28 @@ public API or a 1.0 release.
   on an export that records anything beside TLC's two counts. Both exports
   were regenerated; beside the recorded digests, only the depth entries are
   gone.
+- Comparison mode for the address decision. `lib/ip-safety.ts` still decides
+  whether an address is public, at all three places that ask. Beside each
+  decision the trust kernel's checked function now answers for the same
+  address, taken as a value, and the two answers are compared and counted.
+  Nothing the kernel says, and no failure of the kernel or of the comparison,
+  reaches a decision; no scan record and no report byte changes. The kernel
+  module is a second vendored WebAssembly file
+  (`lib/trust-kernel-wasm/sbl_trust_kernel_wasm.wasm`, 114,113 bytes),
+  refused before it is compiled unless its SHA-256 is the one the kernel's
+  reproducibility contract records. The contract's digest changed because
+  the module gained two entry points that take a value. What is proved is
+  unchanged and narrow: Verus accepts the two Rust functions against the
+  written table and rule for every value. Reading a text into a value
+  (Node's readers), the two entry points, the compiler that made the bytes
+  and the WebAssembly engine are tested or trusted, not proved. The
+  comparison writes log lines in the scan container only: the first 10
+  records of each kind other than agreement at each place, and a totals line
+  under a random process id when comparisons go quiet for 5 seconds and at
+  every thousandth. No line holds an address or a host. The counts are a
+  floor, since a process stopped inside those 5 seconds loses its last
+  comparisons. `docs/address-kernel-flip-criteria.md` says what must be seen
+  before the kernel's answer may decide; that change is not made here.
 
 ### Removed
 

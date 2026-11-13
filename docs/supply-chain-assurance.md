@@ -204,6 +204,25 @@ post-candidate evidence modification; the referenced legal files are frozen at
 the candidate. A local or untracked file therefore cannot become release
 evidence merely because the licensing producer could read it.
 
+## Vendored trust kernel WASM
+
+`lib/trust-kernel-wasm/sbl_trust_kernel_wasm.wasm` is first-party: it is
+built from `tools/trust-kernel` and imports nothing. It answers beside the
+address decision in comparison mode and decides nothing
+(`docs/address-kernel-flip-criteria.md`). Three things hold its bytes:
+
+- `lib/address-kernel.ts` refuses a file whose SHA-256 is not the pinned one
+  before compiling it.
+- `lib/address-kernel.test.ts` fails unless that pin is the digest
+  `tools/trust-kernel/reproducibility-contract.json` records for every host
+  it lists.
+- The Trust Kernel workflow rebuilds the module twice from clean on a hosted
+  runner and compares its build with the contract. It does not read the
+  vendored file itself; the two are tied through the test above.
+
+The digest binds the bytes to a build. It does not bind them to the Verus
+proof, which is about the Rust source: the compiler is trusted.
+
 ## Vendored adblock WASM
 
 `tools/adblock-wasm/reproducibility-contract.json` deterministically binds the
