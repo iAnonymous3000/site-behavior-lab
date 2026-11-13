@@ -710,10 +710,11 @@ for (const [name, property, find, replace] of [
   });
 }
 
+const SHAPE_CHECK = '(0, ip_safety_1.isIpAddress)(hostname) && !(0, address_kernel_comparison_1.isPublicIpAddressCompared)(hostname, "url-address-literal")';
 for (const [name, find, replace] of [
-  ["the shape check asks nothing of a literal", "(0, ip_safety_1.isIpAddress)(hostname) && !(0, ip_safety_1.isPublicIpAddress)(hostname)", "false"],
-  ["the shape check refuses every literal", "(0, ip_safety_1.isIpAddress)(hostname) && !(0, ip_safety_1.isPublicIpAddress)(hostname)", "(0, ip_safety_1.isIpAddress)(hostname)"],
-  ["the shape check reads the host before its brackets are off", "(0, ip_safety_1.isIpAddress)(hostname) && !(0, ip_safety_1.isPublicIpAddress)(hostname)", '!url.hostname.startsWith("[") && (0, ip_safety_1.isIpAddress)(hostname) && !(0, ip_safety_1.isPublicIpAddress)(hostname)']
+  ["the shape check asks nothing of a literal", SHAPE_CHECK, "false"],
+  ["the shape check refuses every literal", SHAPE_CHECK, "(0, ip_safety_1.isIpAddress)(hostname)"],
+  ["the shape check reads the host before its brackets are off", SHAPE_CHECK, `!url.hostname.startsWith("[") && ${SHAPE_CHECK}`]
 ] as const) {
   test(`IP4 catches a variant of the URL entry: ${name}`, async () => {
     await assertCaughtBy(name, P.url, () => checkUrlEntry(urlVariant({ find, replace })));
