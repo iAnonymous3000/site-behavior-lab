@@ -279,6 +279,7 @@ COPY --from=build /app/package.json /app/package-lock.json ./
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/.next ./.next
 COPY --from=build /app/lib/adblock-wasm ./lib/adblock-wasm
+COPY --from=build /app/lib/trust-kernel-wasm ./lib/trust-kernel-wasm
 COPY --from=build /app/public ./public
 COPY --from=build /app/scripts/public-build-commit.mjs ./scripts/public-build-commit.mjs
 COPY --from=build /app/next.config.mjs ./next.config.mjs

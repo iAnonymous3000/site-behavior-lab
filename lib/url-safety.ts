@@ -1,5 +1,6 @@
 import dns from "node:dns/promises";
-import { isIpAddress, isPublicIpAddress, normalizeHostname } from "./ip-safety";
+import { isPublicIpAddressCompared } from "./address-kernel-comparison";
+import { isIpAddress, normalizeHostname } from "./ip-safety";
 import { PublicScanError } from "./public-errors";
 import { normalizeHttpUrlInput } from "./url-normalization";
 
@@ -148,7 +149,7 @@ export async function assertPublicHttpUrl(
     );
   }
 
-  const publicOnly = addresses.every(({ address }) => isPublicIpAddress(address));
+  const publicOnly = addresses.every(({ address }) => isPublicIpAddressCompared(address, "url-resolved-addresses"));
 
   if (!publicOnly) {
     throw new PublicScanError("Local and private network targets are blocked.", 400, "private-target");
@@ -195,7 +196,7 @@ export function assertPublicHttpUrlShape(url: URL): void {
     throw new PublicScanError("Local and private network targets are blocked.", 400, "private-target");
   }
 
-  if (isIpAddress(hostname) && !isPublicIpAddress(hostname)) {
+  if (isIpAddress(hostname) && !isPublicIpAddressCompared(hostname, "url-address-literal")) {
     throw new PublicScanError("Local and private network targets are blocked.", 400, "private-target");
   }
 

@@ -2,8 +2,9 @@ import dns from "node:dns/promises";
 import http, { type IncomingMessage, type ServerResponse } from "node:http";
 import net from "node:net";
 import { type Duplex, type Readable, type Writable } from "node:stream";
+import { isPublicIpAddressCompared } from "./address-kernel-comparison";
 import { RESPONSE_BYTE_CAPTURE_LOSS_DETAIL } from "./capture-loss-detail-contract";
-import { isIpAddress, isPublicIpAddress, normalizeHostname } from "./ip-safety";
+import { isIpAddress, normalizeHostname } from "./ip-safety";
 import { assertPublicHttpUrlShape, isAuthoritativeDnsFailure } from "./url-safety";
 
 export type ResolvedHostAddress = {
@@ -697,7 +698,7 @@ async function resolvePinnedTarget(
     throw new ProxyTargetBlockedError("name-not-found");
   }
 
-  if (!addresses.every(({ address }) => isPublicIpAddress(address))) {
+  if (!addresses.every(({ address }) => isPublicIpAddressCompared(address, "proxy-connect-addresses"))) {
     throw new ProxyTargetBlockedError("non-public-address");
   }
 
