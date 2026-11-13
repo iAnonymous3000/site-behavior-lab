@@ -1,4 +1,5 @@
 {
+  "lib/address-kernel-comparison.test.ts": "asserts a child process ends in under half the 5 s quiet interval",
   "lib/admission-attempt-limit.test.ts": "boots a wrangler bundle in Miniflare under a 45 s test timeout",
   "lib/bounded-page-collector.test.ts": "launches Chromium and serializes functions into the page",
   "lib/bounded-spawn.test.ts": "gives a child process that waits on a ten-second timer a 250 ms spawn bound",
