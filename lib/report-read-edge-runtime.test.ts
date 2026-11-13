@@ -25,53 +25,72 @@ const PDF_PATH = `/api/reports/${REPORT_ID}/pdf`;
 const READER = "203.0.113.20";
 
 type HarnessState = {
-  forwarded: Array<{ method: string; path: string }>;
+  forwarded: Array<{ method: string; path: string; targetPort: string | null }>;
   limits: Array<{ bucket: string; used: number }>;
   jobs: Record<"durable" | "registered", { jobId: string; reportId: string }>;
 };
+
+/**
+ * Bundle the stand-in and start it in workerd. The Worker logs why it closed
+ * a route; that is held out of the test output for the caller to show only if
+ * its test fails.
+ */
+async function startHarnessWorker(): Promise<{ mf: Miniflare; runtimeOutput: () => string; stop: () => Promise<void> }> {
+  const dir = await mkdtemp(path.join(tmpdir(), "sbl-report-read-edge-"));
+  let runtimeOutput = "";
+  try {
+    execFileSync(process.execPath, [
+      "node_modules/wrangler/bin/wrangler.js", "deploy", "test-fixtures/report-read-edge-runtime.test.ts",
+      "--dry-run", "--outdir", dir, "--name", "report-read-edge", "--compatibility-date", "2026-06-19",
+      "--compatibility-flags", "nodejs_compat"
+    ], { cwd: process.cwd(), env: { ...process.env, CI: "1", WRANGLER_SEND_METRICS: "false" }, stdio: "pipe" });
+    const mf = new Miniflare({
+      modules: true, scriptPath: path.join(dir, "report-read-edge-runtime.test.js"), modulesRoot: dir,
+      compatibilityDate: "2026-06-19", compatibilityFlags: ["nodejs_compat"],
+      durableObjects: { SCANNER: { className: "ReportReadEdgeHarness", useSQLite: true } },
+      durableObjectsPersist: false, log: new Log(LogLevel.ERROR),
+      handleRuntimeStdio: (stdout: Readable, stderr: Readable) => {
+        for (const stream of [stdout, stderr]) {
+          stream.on("data", (chunk: unknown) => {
+            runtimeOutput += String(chunk);
+          });
+        }
+      }
+    });
+    return {
+      mf,
+      runtimeOutput: () => runtimeOutput,
+      stop: async () => {
+        await mf.dispose();
+        await rm(dir, { recursive: true, force: true });
+      }
+    };
+  } catch (error) {
+    await rm(dir, { recursive: true, force: true });
+    throw error;
+  }
+}
 
 test(
   "the production Worker meters the report JSON and the PDF on its public path, and never its own reads of a saved report",
   { timeout: 90_000 },
   async () => {
-    const dir = await mkdtemp(path.join(tmpdir(), "sbl-report-read-edge-"));
-    let mf: Miniflare | undefined;
-    // The Worker logs why it closed a route. Hold that out of the test output
-    // and show it only if the test fails.
-    let runtimeOutput = "";
+    const harness = await startHarnessWorker();
+    const mf = harness.mf;
     try {
-      execFileSync(process.execPath, [
-        "node_modules/wrangler/bin/wrangler.js", "deploy", "test-fixtures/report-read-edge-runtime.test.ts",
-        "--dry-run", "--outdir", dir, "--name", "report-read-edge", "--compatibility-date", "2026-06-19",
-        "--compatibility-flags", "nodejs_compat"
-      ], { cwd: process.cwd(), env: { ...process.env, CI: "1", WRANGLER_SEND_METRICS: "false" }, stdio: "pipe" });
-      mf = new Miniflare({
-        modules: true, scriptPath: path.join(dir, "report-read-edge-runtime.test.js"), modulesRoot: dir,
-        compatibilityDate: "2026-06-19", compatibilityFlags: ["nodejs_compat"],
-        durableObjects: { SCANNER: { className: "ReportReadEdgeHarness", useSQLite: true } },
-        durableObjectsPersist: false, log: new Log(LogLevel.ERROR),
-        handleRuntimeStdio: (stdout: Readable, stderr: Readable) => {
-          for (const stream of [stdout, stderr]) {
-            stream.on("data", (chunk: unknown) => {
-              runtimeOutput += String(chunk);
-            });
-          }
-        }
-      });
-
       const send = async (
         method: string,
         requestPath: string,
         headers: Record<string, string> = {}
       ): Promise<{ status: number; headers: Headers; text: string }> => {
-        const response = await mf!.dispatchFetch(`https://scanner.invalid${requestPath}`, {
+        const response = await mf.dispatchFetch(`https://scanner.invalid${requestPath}`, {
           method,
           headers: { "cf-connecting-ip": READER, ...headers }
         });
         return { status: response.status, headers: response.headers as unknown as Headers, text: await response.text() };
       };
       const state = async () =>
-        (await (await mf!.dispatchFetch("https://scanner.invalid/__harness/state")).json()) as HarnessState;
+        (await (await mf.dispatchFetch("https://scanner.invalid/__harness/state")).json()) as HarnessState;
       // The stand-in charges every read at one fixed instant, in minute window
       // 1, so the counts below do not depend on when or how fast this runs.
       // The window id is dropped from each bucket name for reading.
@@ -221,11 +240,47 @@ test(
       }
       assert.equal((await forwarded()).length, beforeOutage, "an uncharged read must not reach the container");
     } catch (error) {
-      if (runtimeOutput) console.error(runtimeOutput);
+      if (harness.runtimeOutput()) console.error(harness.runtimeOutput());
       throw error;
     } finally {
-      await mf?.dispose();
-      await rm(dir, { recursive: true, force: true });
+      await harness.stop();
+    }
+  }
+);
+
+test(
+  "the production Worker never forwards a client's container port header",
+  { timeout: 90_000 },
+  async () => {
+    // @cloudflare/containers reads cf-container-target-port in Container.fetch
+    // to choose the port inside the container. A client that could set it
+    // would turn any forwarded route into an error, or aim it at another
+    // listener. Whether Cloudflare's edge removes the header first is not
+    // known, so the Worker does not rely on it.
+    const harness = await startHarnessWorker();
+    try {
+      const paths = ["/api/health", `/reports/${REPORT_ID}`, JSON_PATH, "/api/reports/not-a-report", "/favicon.ico"];
+      for (const requestPath of paths) {
+        for (const value of ["65535", "nan"]) {
+          await harness.mf.dispatchFetch(`https://scanner.invalid${requestPath}`, {
+            headers: { "cf-connecting-ip": READER, "cf-container-target-port": value }
+          });
+        }
+      }
+      const { forwarded } = (await (await harness.mf.dispatchFetch("https://scanner.invalid/__harness/state")).json()) as HarnessState;
+      for (const requestPath of paths) {
+        assert.equal(
+          forwarded.filter((entry) => entry.path === requestPath).length,
+          2,
+          `${requestPath} was not forwarded twice; this test no longer exercises that route`
+        );
+      }
+      assert.deepEqual(forwarded.filter((entry) => entry.targetPort !== null), []);
+    } catch (error) {
+      if (harness.runtimeOutput()) console.error(harness.runtimeOutput());
+      throw error;
+    } finally {
+      await harness.stop();
     }
   }
 );

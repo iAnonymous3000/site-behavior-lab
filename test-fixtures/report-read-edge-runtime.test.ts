@@ -23,7 +23,7 @@ const HARNESS_REGISTERED_JOB_ID = `20260101-${"c".repeat(32)}`;
 const HARNESS_REGISTERED_JOB_REPORT_ID = `20260101-${"d".repeat(32)}`;
 
 export class ReportReadEdgeHarness extends DurableObject {
-  private forwarded: Array<{ method: string; path: string }> = [];
+  private forwarded: Array<{ method: string; path: string; targetPort: string | null }> = [];
   private limiterBroken = false;
 
   // The production class's method, run on this object. It needs nothing of a
@@ -79,7 +79,9 @@ export class ReportReadEdgeHarness extends DurableObject {
 
   override fetch(request: Request): Response {
     const path = new URL(request.url).pathname;
-    this.forwarded.push({ method: request.method, path });
+    // The header the container library's fetch reads to choose a port. This
+    // stand-in is no Container, so it only records what the Worker sent.
+    this.forwarded.push({ method: request.method, path, targetPort: request.headers.get("cf-container-target-port") });
     // The container holds no job and no report: a status poll falls through to
     // the registry, and a report read answers as Node does for a missing one.
     if (path.startsWith("/api/scans/") || path.startsWith("/api/reports/")) {

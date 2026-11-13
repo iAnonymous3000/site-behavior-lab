@@ -4655,6 +4655,10 @@ function scanForwardHeaders(input: Headers): Headers {
   return headers;
 }
 
+// The name @cloudflare/containers reads in Container.fetch and writes in
+// switchPort.
+const CONTAINER_TARGET_PORT_HEADER = "cf-container-target-port";
+
 async function forwardToContainer(
   request: Request,
   env: Env,
@@ -4689,6 +4693,10 @@ async function forwardToContainer(
   // or its semantic commitment.
   headers.delete(SCAN_ADMISSION_CAPABILITY_HEADER);
   headers.delete(SCAN_ADMISSION_COMMITMENT_HEADER);
+  // The container library's fetch reads this header to choose the port
+  // inside the container, in place of defaultPort. Only this Worker may make
+  // that choice, and it makes none, so a client's copy is never forwarded.
+  headers.delete(CONTAINER_TARGET_PORT_HEADER);
   headers.delete("x-real-ip");
   headers.delete("x-forwarded-for");
   const clientIp = request.headers.get("cf-connecting-ip")?.trim();
