@@ -283,8 +283,10 @@ created only after the revision it names is already promoted:
    measurement-candidate binding is explicitly not required. For exact `1.0.0`
    or `1.0.0-rc.N`, capture only after candidate `C` is selected, add the
    receipt as category `release-tag-governance-receipt` with change `added`
-   and the same path and digest in
-   `research/measurement-candidate-binding.json`, and commit both together.
+   and the same path and digest in the release binding, and commit both
+   together. The release binding is `research/v1-release-binding.json` under
+   the current `investigative-v1` profile, which refuses the other file, and
+   `research/measurement-candidate-binding.json` under the research contract.
    Let the resulting carrier commit pass every required CI job and reach both
    `main` and `production`. Configure the GitHub Actions `vars` selector
    `RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256` at repository or organization scope
@@ -398,17 +400,20 @@ created only after the revision it names is already promoted:
    Exact `1.0.0` and `1.0.0-rc.N` releases have one additional external trust
    root: repository- or organization-scoped Actions variable
    `RELEASE_MEASUREMENT_BINDING_SHA256`. An authorized maintainer may set or
-   rotate it **only after** independently verifying the complete raw
-   `research/measurement-candidate-binding.json` bytes offline from a clean,
-   full-history checkout with trusted controller tooling. That verification
-   must cover the binding's candidate/tree and carrier history, complete
-   evidence enumeration and byte digests, durable transition and soak
-   chronology, governance receipt row, and every required Sigstore bundle and
-   signer/source identity. A digest printed by candidate CI, a candidate build
+   rotate it **only after** independently verifying the complete raw bytes of
+   the release binding (`research/v1-release-binding.json` under the current
+   `investigative-v1` profile, `research/measurement-candidate-binding.json`
+   under the research contract) offline from a clean, full-history checkout
+   with trusted controller tooling. That verification must cover the
+   binding's candidate/tree and carrier history, complete evidence enumeration
+   and byte digests, governance receipt row, and every required Sigstore
+   bundle and signer/source identity. Under the research contract it must
+   also cover the durable transition and soak chronology, which the
+   `investigative-v1` binding does not hold. A digest printed by candidate CI, a candidate build
    proof, or candidate-owned verifier output is not sufficient authority to
    set the variable. After the independent verification succeeds, compute the
    pin over the exact raw canonical file bytes (for example,
-   `shasum -a 256 research/measurement-candidate-binding.json`) and retain the
+   `shasum -a 256 research/v1-release-binding.json`) and retain the
    reviewed verification record outside the candidate-controlled workflow.
 
    `prepare` reads that Actions variable exactly once in its first step, before
