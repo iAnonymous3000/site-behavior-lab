@@ -11,15 +11,17 @@
 //
 //   1. Source guards. Every file of the kernel crate is read. A word that
 //      lets a claim through unchecked is refused in all of them (see
-//      ESCAPES). Verus source is allowed in src/encode.rs only. No `cfg`
-//      may stand in that file, so no build can compile a function other
-//      than the one Verus read. The crate is exactly the files listed here,
-//      with no build script. The manifest must ask for verification.
-//   2. Pins. The seven checked statements must stand in src/encode.rs word
-//      for word, signature, `requires` and `ensures` (STATEMENTS), and the
-//      specification they speak about must have the pinned sha256
-//      (SPECIFICATION_SHA256). A change to either is a change to the claim
-//      and has to be made here too, on purpose.
+//      ESCAPES). Verus source is allowed in the checked files only
+//      (CHECKED_FILES: src/encode.rs and src/address.rs). No `cfg` may
+//      stand in any source file but the one line that names the unit
+//      tests, so no build can compile a function other than the one Verus
+//      read. The crate is exactly the files listed here, with no build
+//      script. The manifest must ask for verification.
+//   2. Pins. The checked statements of each checked file must stand in it
+//      word for word, signature, `requires` and `ensures` (STATEMENTS), and
+//      the specification they speak about must have the pinned sha256
+//      (SPECIFICATIONS). A change to either is a change to the claim and
+//      has to be made here too, on purpose.
 //   3. The guards' own test. Each entry of GUARD_MUTATIONS is a change that
 //      switches part of the proof off or swaps what is compiled. Each is
 //      made in a scratch copy, and the guards must refuse that copy for the
@@ -30,7 +32,7 @@
 //      itself and then the kernel, at the checker's default resource limit
 //      of 10. Then the kernel alone again under RLIMIT_FLOOR. Each result
 //      must be exactly VERIFIED_ITEMS items and no error, and must name
-//      each of the seven statements. A proof that only passes near the
+//      each of the pinned statements. A proof that only passes near the
 //      default limit fails here, before a solver or platform change can
 //      tip it. (vstd is not held to the floor: one of its own lemmas needs
 //      most of it.)
@@ -53,12 +55,20 @@ const ROOT = path.resolve(fileURLToPath(new URL("..", import.meta.url)));
 const WORKSPACE = path.join(ROOT, "tools/trust-kernel");
 const PINS = JSON.parse(readFileSync(path.join(WORKSPACE, "pins.json"), "utf8"));
 const ENCODER = "kernel/src/encode.rs";
+const ADDRESS = "kernel/src/address.rs";
+const ADDRESS_TEXT = "kernel/src/address_text.rs";
+// The files Verus reads. Each is one `verus!` block from its first item to
+// its last line. Every other file of the crate is ordinary Rust and may
+// hold no Verus source at all.
+const CHECKED_FILES = [ENCODER, ADDRESS];
 
 // The kernel crate and the WebAssembly crate are these files and no other.
 // A file that is not listed (a build script, a second module, a cargo
 // configuration) is refused, so nothing unread is compiled.
 const CRATE_FILES = [
   "kernel/Cargo.toml",
+  "kernel/src/address.rs",
+  "kernel/src/address_text.rs",
   "kernel/src/encode.rs",
   "kernel/src/lib.rs",
   "kernel/src/nfc.rs",
@@ -95,11 +105,12 @@ const ESCAPES = [
 ];
 // The one axiom the encoder calls, a library fact about the size of a
 // vector's element that the termination arguments use. Every other use of
-// the word is refused: `axiom fn` declares a statement with no argument.
+// the word is refused, in every file: `axiom fn` declares a statement with
+// no argument. The address classifier calls none.
 const ALLOWED_AXIOM = "vstd::std_specs::vec::axiom_vec_index_decreases(";
-// Verus source outside the encoder is refused: these mark it.
+// Verus source outside the checked files is refused: these mark it.
 const VERUS_MARKS = [/verus\s*!/, /\bvstd\b/, /\bproof\s+fn\b/, /\bspec\s+fn\b/, /\bensures\b/, /\brequires\b/];
-// The vstd the encoder was checked against, as Cargo.lock must name it: from
+// The vstd the checked files were checked against, as Cargo.lock must name it: from
 // the crates.io registry, with this checksum, which cargo holds the download
 // to. A path or a patched copy has no such entry.
 const VSTD_LOCK_ENTRY =
@@ -113,11 +124,20 @@ const TESTS_MODULE = "#[cfg(test)]\nmod tests;\n";
 // 1,467,553 of the solver's resource units, the same number on macOS arm64
 // and on Linux x86-64, where the default allows 30 million. The kernel must
 // pass at 2: a fifth of the default, and four times what was measured.
+// That function is the encoder's. The largest of the address classifier,
+// `is_public_ipv6`, uses 627,529 units on macOS arm64 and 590,526 on Linux
+// x86-64, and no function of its file ran out at 0.25; one did at 0.2
+// (macOS arm64). The powers of two in that file are unfolded a few steps
+// at a time and not by `compute`, because the checker's limit on how deep
+// `compute` may recurse shrinks with the resource limit: the computed form
+// passed at 2 and failed at 0.3 with an error that names no resource
+// limit.
 const RLIMIT_FLOOR = 2;
-const VERIFIED_ITEMS = 86;
+// 86 items of the encoder and 17 of the address classifier.
+const VERIFIED_ITEMS = 103;
 
 // The checked statements, word for word: signature, `requires`, `ensures`.
-const STATEMENTS = [
+const ENCODER_STATEMENTS = [
   `pub proof fn theorem_encoding_is_injective(t1: Tree, t2: Tree)
     requires
         numbers_are_tokens(t1),
@@ -162,13 +182,104 @@ const STATEMENTS = [
             None => !admitted(tree_of(*v)),
         },`
 ];
-// sha256 of src/encode.rs from `verus! {` up to the line that opens the
-// injectivity argument: the value types, `tree_of`, `encode` and the rest of
-// the encoding, `admitted`, `numbers_are_tokens`, `key_less`. This text is
-// what the statements above mean.
-const SPECIFICATION_FROM = "verus! {\n";
-const SPECIFICATION_TO = "// ---------------------------------------------------------------------------\n// Injectivity.\n";
-const SPECIFICATION_SHA256 = "ea3a9f91fc41edc174599cf85e7693d3280ab65522a3bd44368ac9390080e0c7";
+// The address classifier's. The first two are the theorems: each executable
+// classifier returns, for every value of its type, exactly what the
+// specification says. The third bounds what the text layer's two facts
+// about spelling can do. The rest are statements about the specification
+// itself.
+const ADDRESS_STATEMENTS = [
+  `pub fn is_public_ipv4(v: u32) -> (r: bool)
+    ensures
+        r == ipv4_public(v),`,
+  `pub fn is_public_ipv6(v: u128) -> (r: bool)
+    ensures
+        r == ipv6_public(v),`,
+  `pub fn is_public_ipv6_as_spelled(v: u128, spelled_as_mapped: bool, spelled_as_anycast: bool) -> (r: bool)
+    ensures
+        r == (ipv6_public(v) && (ipv4_mapped(v) ==> spelled_as_mapped) && (protocol_anycast(v) ==> spelled_as_anycast)),
+        r ==> ipv6_public(v),`,
+  `pub fn is_ipv4_mapped(v: u128) -> (r: bool)
+    ensures
+        r == ipv4_mapped(v),`,
+  `pub fn is_protocol_anycast(v: u128) -> (r: bool)
+    ensures
+        r == protocol_anycast(v),`,
+  `pub proof fn theorem_ipv4_table_lines_are_the_named_blocks()
+    ensures
+        is_ipv4_block(quad(0, 0, 0, 0), quad(0, 255, 255, 255), 8),
+        is_ipv4_block(quad(10, 0, 0, 0), quad(10, 255, 255, 255), 8),
+        is_ipv4_block(quad(100, 64, 0, 0), quad(100, 127, 255, 255), 10),
+        is_ipv4_block(quad(127, 0, 0, 0), quad(127, 255, 255, 255), 8),
+        is_ipv4_block(quad(169, 254, 0, 0), quad(169, 254, 255, 255), 16),
+        is_ipv4_block(quad(172, 16, 0, 0), quad(172, 31, 255, 255), 12),
+        is_ipv4_block(quad(192, 0, 0, 0), quad(192, 0, 0, 255), 24),
+        is_ipv4_block(quad(192, 0, 2, 0), quad(192, 0, 2, 255), 24),
+        is_ipv4_block(quad(192, 88, 99, 0), quad(192, 88, 99, 255), 24),
+        is_ipv4_block(quad(192, 168, 0, 0), quad(192, 168, 255, 255), 16),
+        is_ipv4_block(quad(198, 18, 0, 0), quad(198, 19, 255, 255), 15),
+        is_ipv4_block(quad(198, 51, 100, 0), quad(198, 51, 100, 255), 24),
+        is_ipv4_block(quad(203, 0, 113, 0), quad(203, 0, 113, 255), 24),
+        is_ipv4_block(quad(224, 0, 0, 0), quad(239, 255, 255, 255), 4),
+        is_ipv4_block(quad(240, 0, 0, 0), quad(255, 255, 255, 255), 4),
+        is_ipv4_block(quad(255, 255, 255, 255), quad(255, 255, 255, 255), 32),`,
+  `pub proof fn theorem_ipv6_prefixes_are_aligned()
+    ensures
+        is_ipv6_prefix(0x0000_0000_0000_0000_0000_ffff_0000_0000, 96),
+        is_ipv6_prefix(0x2000_0000_0000_0000_0000_0000_0000_0000, 3),
+        is_ipv6_prefix(0x2001_0000_0000_0000_0000_0000_0000_0000, 23),
+        is_ipv6_prefix(0x2001_0001_0000_0000_0000_0000_0000_0001, 128),
+        is_ipv6_prefix(0x2001_0001_0000_0000_0000_0000_0000_0002, 128),
+        is_ipv6_prefix(0x2001_0001_0000_0000_0000_0000_0000_0003, 128),
+        is_ipv6_prefix(0x2001_0003_0000_0000_0000_0000_0000_0000, 32),
+        is_ipv6_prefix(0x2001_0004_0112_0000_0000_0000_0000_0000, 48),
+        is_ipv6_prefix(0x2001_0db8_0000_0000_0000_0000_0000_0000, 32),
+        is_ipv6_prefix(0x2002_0000_0000_0000_0000_0000_0000_0000, 16),
+        is_ipv6_prefix(0x3fff_0000_0000_0000_0000_0000_0000_0000, 20),`,
+  `pub proof fn theorem_two_reachable_addresses_are_refused()
+    ensures
+        !ipv4_public(0xc000_0009),
+        !ipv4_public(0xc000_000a),
+        0xc000_0009 == quad(192, 0, 0, 9),
+        0xc000_000a == quad(192, 0, 0, 10),`,
+  `pub proof fn theorem_the_specification_parts_addresses()
+    ensures
+        // 8.8.8.8 and 223.255.255.255 are public; 10.0.0.1 and 127.0.0.1 are not.
+        ipv4_public(0x0808_0808),
+        ipv4_public(0xdfff_ffff),
+        !ipv4_public(0x0a00_0001),
+        !ipv4_public(0x7f00_0001),
+        // 2600::1 and ::ffff:8.8.8.8 are public; ::1 and ::ffff:127.0.0.1 are not.
+        ipv6_public(0x2600_0000_0000_0000_0000_0000_0000_0001),
+        ipv6_public(0x0000_0000_0000_0000_0000_ffff_0808_0808),
+        !ipv6_public(0x0000_0000_0000_0000_0000_0000_0000_0001),
+        !ipv6_public(0x0000_0000_0000_0000_0000_ffff_7f00_0001),`
+];
+const STATEMENTS = { [ENCODER]: ENCODER_STATEMENTS, [ADDRESS]: ADDRESS_STATEMENTS };
+/** The name Verus's report gives a function of a checked file. */
+const reportName = (file, statement) => `sbl_trust_kernel::${path.basename(file, ".rs")}::${/fn (\w+)\(/.exec(statement)[1]}`;
+// The specification of each checked file, by sha256 of its text between two
+// marks. This text is what the statements above mean.
+// - src/encode.rs from `verus! {` up to the line that opens the injectivity
+//   argument: the value types, `tree_of`, `encode` and the rest of the
+//   encoding, `admitted`, `numbers_are_tokens`, `key_less`.
+// - src/address.rs from `verus! {` up to the line that opens the statements
+//   about the specification: the IPv4 table with its sources
+//   (`ipv4_in_table`), `ipv4_public`, `block6`, the IPv6 rule
+//   (`ipv6_public` and the predicates it names), and what it means for a
+//   line to be a block. A changed range, a dropped line and a changed
+//   comment on a source all move it.
+const SPECIFICATIONS = {
+  [ENCODER]: {
+    from: "verus! {\n",
+    to: "// ---------------------------------------------------------------------------\n// Injectivity.\n",
+    sha256: "ea3a9f91fc41edc174599cf85e7693d3280ab65522a3bd44368ac9390080e0c7"
+  },
+  [ADDRESS]: {
+    from: "verus! {\n",
+    to: "// ---------------------------------------------------------------------------\n// Checked statements about the specification itself.\n",
+    sha256: "d1d165de41708c06a6f5236615a6fd24c0ea8c2a1f59a7e1fcbdf96010c60791"
+  }
+};
 
 const sha256 = (bytes) => createHash("sha256").update(bytes).digest("hex");
 
@@ -265,9 +376,9 @@ function checkWorkspace(workspace) {
     const axioms = source.split("axiom").length - 1;
     const allowed = file === ENCODER ? source.split(ALLOWED_AXIOM).length - 1 : 0;
     if (axioms !== allowed) throw new GuardRefusal("escape", `${file} names an axiom other than the one library fact the encoder may call`);
-    if (file !== ENCODER) {
+    if (!CHECKED_FILES.includes(file)) {
       for (const pattern of VERUS_MARKS) {
-        if (pattern.test(source)) throw new GuardRefusal("verus-outside-encoder", `${file} holds Verus source (${pattern}); only ${ENCODER} may`);
+        if (pattern.test(source)) throw new GuardRefusal("verus-outside-checked-files", `${file} holds Verus source (${pattern}); only ${CHECKED_FILES.join(" and ")} may`);
       }
     }
     const withoutTests = file === "kernel/src/lib.rs" ? source.replace(TESTS_MODULE, "") : source;
@@ -285,7 +396,7 @@ function checkWorkspace(workspace) {
   const shimCode = shim.split("\n").filter((line) => !line.trimStart().startsWith("//")).join("\n");
   if (/\bunsafe\b/.test(shimCode)) throw new GuardRefusal("unsafe", "wasm/src/lib.rs holds unsafe code");
   for (const pattern of VERUS_MARKS) {
-    if (pattern.test(shim)) throw new GuardRefusal("verus-outside-encoder", `wasm/src/lib.rs holds Verus source (${pattern})`);
+    if (pattern.test(shim)) throw new GuardRefusal("verus-outside-checked-files", `wasm/src/lib.rs holds Verus source (${pattern})`);
   }
   if (!read("kernel/src/lib.rs").includes("#![forbid(unsafe_code)]\n")) {
     throw new GuardRefusal("unsafe", "kernel/src/lib.rs no longer forbids unsafe code");
@@ -309,27 +420,30 @@ function checkWorkspace(workspace) {
     throw new GuardRefusal("manifest", "the workspace manifest must not patch or replace a crate");
   }
 
-  const encoder = read(ENCODER);
-  // One block, opened once and closed on the last line. A macro call opens
-  // with its name at the start of a line; the comments name it mid-line.
-  if ((encoder.match(/^\s*verus\s*!/gm) ?? []).length !== 1 || !encoder.includes("\nverus! {\n") || !encoder.trimEnd().endsWith("\n} // verus!")) {
-    throw new GuardRefusal("statement", `${ENCODER} must be one verus! block to its last line`);
-  }
-  for (const statement of STATEMENTS) {
-    const name = /fn (\w+)\(/.exec(statement)[1];
-    const found = statementAt(encoder, statement);
-    if (found !== statement) {
-      throw new GuardRefusal("statement", `${ENCODER} no longer states ${name} as pinned. Pinned:\n${statement}\nFound:\n${found ?? "(not there, or there twice)"}`);
+  for (const file of CHECKED_FILES) {
+    const source = read(file);
+    // One block, opened once and closed on the last line. A macro call opens
+    // with its name at the start of a line; the comments name it mid-line.
+    if ((source.match(/^\s*verus\s*!/gm) ?? []).length !== 1 || !source.includes("\nverus! {\n") || !source.trimEnd().endsWith("\n} // verus!")) {
+      throw new GuardRefusal("statement", `${file} must be one verus! block to its last line`);
     }
-  }
-  const from = encoder.indexOf(SPECIFICATION_FROM);
-  const to = encoder.indexOf(SPECIFICATION_TO);
-  if (from === -1 || to <= from || encoder.indexOf(SPECIFICATION_TO, to + 1) !== -1) {
-    throw new GuardRefusal("specification", `${ENCODER} no longer holds the specification between its two marks`);
-  }
-  const digest = sha256(Buffer.from(encoder.slice(from, to), "utf8"));
-  if (digest !== SPECIFICATION_SHA256) {
-    throw new GuardRefusal("specification", `the specification in ${ENCODER} has sha256 ${digest}; the pin is ${SPECIFICATION_SHA256}`);
+    for (const statement of STATEMENTS[file]) {
+      const name = /fn (\w+)\(/.exec(statement)[1];
+      const found = statementAt(source, statement);
+      if (found !== statement) {
+        throw new GuardRefusal("statement", `${file} no longer states ${name} as pinned. Pinned:\n${statement}\nFound:\n${found ?? "(not there, or there twice)"}`);
+      }
+    }
+    const pin = SPECIFICATIONS[file];
+    const from = source.indexOf(pin.from);
+    const to = source.indexOf(pin.to);
+    if (from === -1 || to <= from || source.indexOf(pin.to, to + 1) !== -1) {
+      throw new GuardRefusal("specification", `${file} no longer holds the specification between its two marks`);
+    }
+    const digest = sha256(Buffer.from(source.slice(from, to), "utf8"));
+    if (digest !== pin.sha256) {
+      throw new GuardRefusal("specification", `the specification in ${file} has sha256 ${digest}; the pin is ${pin.sha256}`);
+    }
   }
   for (const mutation of [...GUARD_MUTATIONS, ...VERUS_MUTATIONS]) {
     for (const edit of mutation.edits) {
@@ -353,12 +467,21 @@ const PUSH_TWO =
   "fn push_two(out: &mut Vec<u8>, a: u8, b: u8)\n    ensures\n        final(out)@ == old(out)@ + seq![a, b],\n{\n" +
   "    out.push(a);\n    out.push(b);\n    assert(out@ =~= old(out)@ + seq![a, b]);\n}\n";
 const THEOREM_REQUIRES = "        numbers_are_tokens(t2),\n        encode(t1) == encode(t2),\n    ensures\n        t1 == t2,\n{\n    let none = Seq::<u8>::empty();";
+// Places in src/address.rs that the self-tests change.
+const IPV4_OCTETS = "    let a = (v >> 24) as u8;\n    let b = (v >> 16) as u8;\n    let c = (v >> 8) as u8;\n";
+const IPV4_TABLE_LINE = "    // 192.88.99.0/24, deprecated 6to4 relay anycast. RFC 7526; registry.\n     || within(v, quad(192, 88, 99, 0), quad(192, 88, 99, 255))\n";
+const IPV4_CODE_LINE = "    if a == 192 && b == 88 && c == 99 {\n        return false;\n    }\n";
+const IPV6_RULE_LINE = "        // 2001:db8::/32, documentation. RFC 3849.\n         && !block6(v, 0x2001_0db8_0000_0000_0000_0000_0000_0000, 32)\n";
+const IPV6_CODE_LINE = "    if first == 0x2001 && second == 0x0db8 {\n        return false;\n    }\n";
+const IPV6_FIRST_WORD = "    let first = (v >> 112) as u16;\n";
 
 /**
  * Text changes the source guards must refuse, each with the rule that has
  * to fire. The first seven are the independent review's: M5, M6b, M9 and
  * M12 passed the first version of this script with a green result; M4, M8
  * and M2 were caught then (M2 only by accident, through the resource limit).
+ * The entries named "address:" make the same kinds of change to the second
+ * checked file and to its text layer, so each rule is shown to reach them.
  */
 const GUARD_MUTATIONS = [
   {
@@ -374,7 +497,7 @@ const GUARD_MUTATIONS = [
   },
   {
     name: "M5 without the attribute: Verus source in another file",
-    rule: "verus-outside-encoder",
+    rule: "verus-outside-checked-files",
     edits: [{ file: "kernel/src/number.rs", append: "\nuse vstd::prelude::*;\nverus! {\npub proof fn lemma_digits()\n{\n}\n}\n" }]
   },
   {
@@ -483,6 +606,101 @@ const GUARD_MUTATIONS = [
     name: "the kernel no longer forbids unsafe code",
     rule: "unsafe",
     edits: [{ file: "kernel/src/lib.rs", from: "#![forbid(unsafe_code)]\n", to: "" }]
+  },
+  // The same holes, tried on the second checked file and on the text layer
+  // beside it.
+  {
+    name: "address: assume(false) in the IPv4 classifier",
+    rule: "escape",
+    edits: [{ file: ADDRESS, from: IPV4_OCTETS, to: `${IPV4_OCTETS}    assume(false);\n` }]
+  },
+  {
+    name: "address: an unproved lemma in the text layer, called from the IPv6 classifier (M5)",
+    rule: "escape",
+    edits: [
+      { file: ADDRESS, from: IPV6_FIRST_WORD, to: `    proof {\n        crate::address_text::lemma_every_address();\n    }\n${IPV6_FIRST_WORD}` },
+      {
+        file: ADDRESS_TEXT,
+        append: "\nuse vstd::prelude::*;\nverus! {\n#[verifier::external_body]\npub proof fn lemma_every_address()\n    ensures false,\n{\n}\n}\n"
+      }
+    ]
+  },
+  {
+    name: "address: Verus source in the text layer, with no attribute",
+    rule: "verus-outside-checked-files",
+    edits: [{ file: ADDRESS_TEXT, append: "\nuse vstd::prelude::*;\nverus! {\npub proof fn lemma_every_address()\n{\n}\n}\n" }]
+  },
+  {
+    name: "address: the IPv4 theorem weakened to one direction (M6b)",
+    rule: "statement",
+    edits: [{ file: ADDRESS, from: `        r == ipv4_public(v),\n{\n${IPV4_OCTETS}`, to: `        r ==> ipv4_public(v),\n{\n${IPV4_OCTETS}` }]
+  },
+  {
+    name: "address: false among the hypotheses of the IPv6 theorem (M6b)",
+    rule: "statement",
+    edits: [{ file: ADDRESS, from: "pub fn is_public_ipv6(v: u128) -> (r: bool)\n    ensures\n", to: "pub fn is_public_ipv6(v: u128) -> (r: bool)\n    requires\n        false,\n    ensures\n" }]
+  },
+  {
+    name: "address: the limit on what the spelling facts can do, dropped",
+    rule: "statement",
+    edits: [{ file: ADDRESS, from: "        r ==> ipv6_public(v),\n", to: "" }]
+  },
+  {
+    name: "address: a cfg gives the ordinary build another IPv4 classifier than the checked one (M9)",
+    rule: "cfg",
+    edits: [
+      { file: ADDRESS, from: "pub fn is_public_ipv4(v: u32) -> (r: bool)\n", to: "#[cfg(verus_keep_ghost)]\npub fn is_public_ipv4(v: u32) -> (r: bool)\n" },
+      { file: ADDRESS, from: "\n} // verus!\n", to: "\n#[cfg(not(verus_keep_ghost))]\npub fn is_public_ipv4(_v: u32) -> bool {\n    true\n}\n\n} // verus!\n" }
+    ]
+  },
+  {
+    name: "address: the IPv6 classifier taken out of verification with the older attribute spelling (M12)",
+    rule: "escape",
+    edits: [
+      { file: ADDRESS, from: "pub fn is_public_ipv6(v: u128) -> (r: bool)\n", to: "#[verifier(external_body)]\npub fn is_public_ipv6(v: u128) -> (r: bool)\n" },
+      { file: ADDRESS, from: IPV6_CODE_LINE, to: "" }
+    ]
+  },
+  {
+    name: "address: a line dropped from the IPv4 table, in the specification and in the code",
+    rule: "specification",
+    edits: [
+      { file: ADDRESS, from: IPV4_TABLE_LINE, to: "" },
+      { file: ADDRESS, from: IPV4_CODE_LINE, to: "" }
+    ]
+  },
+  {
+    name: "address: the documentation prefix let through, in the IPv6 rule and in the code",
+    rule: "specification",
+    edits: [
+      { file: ADDRESS, from: IPV6_RULE_LINE, to: "" },
+      { file: ADDRESS, from: IPV6_CODE_LINE, to: "" }
+    ]
+  },
+  {
+    name: "address: the source named beside a table line changed",
+    rule: "specification",
+    edits: [{ file: ADDRESS, from: "RFC 7526; registry.", to: "RFC 7527; registry." }]
+  },
+  {
+    name: "address: a declared axiom",
+    rule: "escape",
+    edits: [{ file: ADDRESS, append: "\nverus! {\npub axiom fn every_address_is_public()\n    ensures false;\n}\n" }]
+  },
+  {
+    name: "address: the one library axiom the encoder may call, named in the address file",
+    rule: "escape",
+    edits: [{ file: ADDRESS, from: IPV6_FIRST_WORD, to: `    // ${ALLOWED_AXIOM}v)\n${IPV6_FIRST_WORD}` }]
+  },
+  {
+    name: "address: code after the checked block",
+    rule: "statement",
+    edits: [{ file: ADDRESS, append: "\npub fn is_public_anything(_v: u128) -> bool {\n    true\n}\n" }]
+  },
+  {
+    name: "address: the text layer's file gone, its functions moved to an unlisted one",
+    rule: "file-set",
+    edits: [{ file: "kernel/src/address_reader.rs", create: "pub fn nothing() {}\n" }]
   }
 ];
 
@@ -530,6 +748,32 @@ const VERUS_MUTATIONS = [
         to: "        assert(out@ =~= before + separator(i as int));\n        out.push(0x22);"
       }
     ]
+  },
+  // The address classifier. Each change makes the code and the specification
+  // disagree, or makes a statement about the specification false.
+  {
+    name: "address: the end of an IPv4 range moved in the code alone",
+    edits: [{ file: ADDRESS, from: "    if a == 100 && b >= 64 && b <= 127 {", to: "    if a == 100 && b >= 64 && b <= 126 {" }]
+  },
+  {
+    name: "address: a line dropped from the IPv4 table alone",
+    edits: [{ file: ADDRESS, from: IPV4_TABLE_LINE, to: "" }]
+  },
+  {
+    name: "address: the documentation prefix let through in the code alone",
+    edits: [{ file: ADDRESS, from: IPV6_CODE_LINE, to: "" }]
+  },
+  {
+    name: "address: every address of 2001:1::/32 let through, not the three anycast addresses",
+    edits: [{ file: ADDRESS, from: "            return is_protocol_anycast(v);", to: "            return true;" }]
+  },
+  {
+    name: "address: a spelling fact allowed to make a refused value public",
+    edits: [{ file: ADDRESS, from: "    is_public_ipv6(v)\n}\n", to: "    is_public_ipv6(v) || spelled_as_anycast\n}\n" }]
+  },
+  {
+    name: "address: a table line stated as another block than its range",
+    edits: [{ file: ADDRESS, from: "        is_ipv4_block(quad(198, 18, 0, 0), quad(198, 19, 255, 255), 15),", to: "        is_ipv4_block(quad(198, 18, 0, 0), quad(198, 19, 255, 255), 16)," }]
   }
 ];
 
@@ -601,7 +845,13 @@ function runTests(scratch) {
   });
   const output = `${result.stdout ?? ""}${result.stderr ?? ""}`;
   const summary = /^test result: ok\. (\d+) passed; 0 failed; 0 ignored; 0 measured; 0 filtered out/m.exec(output);
-  const named = ["tests::the_encoder_returns_bytes_exactly_for_admitted_trees ... ok", "tests::an_admitted_tree_need_not_be_canonical ... ok"];
+  const named = [
+    "tests::the_encoder_returns_bytes_exactly_for_admitted_trees ... ok",
+    "tests::an_admitted_tree_need_not_be_canonical ... ok",
+    "tests::an_address_reads_as_the_reference_reads_it ... ok",
+    "tests::a_verdict_follows_the_spelling_where_the_reference_makes_it ... ok",
+    "tests::a_text_is_read_as_the_value_it_names ... ok"
+  ];
   if (result.status !== 0 || !summary || Number(summary[1]) < 1 || !named.every((line) => output.includes(line))) {
     process.stderr.write(output);
     throw new Error(`cargo test of the kernel did not pass (exit ${result.status ?? result.signal})`);
@@ -668,9 +918,11 @@ function acceptedReport(run, how) {
   if (results.verified !== VERIFIED_ITEMS) {
     throw new Error(`Verus verified ${results.verified} items of the kernel; the pin is ${VERIFIED_ITEMS}. An item has left or joined the check: change the pin on purpose.`);
   }
-  for (const statement of STATEMENTS) {
-    const name = `sbl_trust_kernel::encode::${/fn (\w+)\(/.exec(statement)[1]}`;
-    if (!(name in report["func-details"])) throw new Error(`Verus's report does not name ${name}`);
+  for (const file of CHECKED_FILES) {
+    for (const statement of STATEMENTS[file]) {
+      const name = reportName(file, statement);
+      if (!(name in report["func-details"])) throw new Error(`Verus's report does not name ${name}`);
+    }
   }
   return report;
 }
@@ -707,9 +959,12 @@ function runVerus(workspace, verusDirectory, targetDirectory, rlimit) {
   };
 }
 
-function largestFunction(report) {
+/** The function that used most of the solver's resource units, of the whole report or of the functions whose name holds `within`. */
+function largestFunction(report, within = "") {
   const functions = (report["times-ms"]?.smt?.["smt-run-module-times"] ?? []).flatMap((module) => module["function-breakdown"] ?? []);
-  return functions.reduce((largest, entry) => (largest === null || entry.rlimit > largest.rlimit ? entry : largest), null);
+  return functions
+    .filter((entry) => String(entry.function).includes(within))
+    .reduce((largest, entry) => (largest === null || entry.rlimit > largest.rlimit ? entry : largest), null);
 }
 
 function verify(verusDirectory) {
@@ -741,6 +996,7 @@ function verify(verusDirectory) {
     const floorSeconds = ((Date.now() - restarted) / 1000).toFixed(1);
     const results = report["verification-results"];
     const largest = largestFunction(report);
+    const largestOfAddress = largestFunction(report, "::address::");
 
     // Each of these copies must be refused by Verus itself: a report for
     // the kernel with at least one error. The copies share the target, so
@@ -770,12 +1026,13 @@ function verify(verusDirectory) {
     console.log(
       `Source guards hold and refused all ${guardsFired} mutations made to test them. cargo test: ${tests} passed.\n` +
         `Verus ${version.version} on ${report.verus.platform?.os}/${report.verus.platform?.arch}: vstd ${atDefault.library[0].verified} items and ` +
-        `${results.verified} items of ${ENCODER} verified, 0 errors, at the default limit of 10, in ${defaultSeconds} s; ` +
+        `${results.verified} items of ${CHECKED_FILES.join(" and ")} verified, 0 errors, at the default limit of 10, in ${defaultSeconds} s; ` +
         `the kernel again under --rlimit ${RLIMIT_FLOOR}, in ${floorSeconds} s.\n` +
         `Largest function: ${largest?.function} used ${largest?.rlimit} resource units; ${RLIMIT_FLOOR * 3_000_000} are allowed at this limit and 30000000 at the default.\n` +
+        `Largest function of ${ADDRESS}: ${largestOfAddress?.function} used ${largestOfAddress?.rlimit}.\n` +
         `Verus refused all ${refused.length} broken copies:\n${refused.join("\n")}`
     );
-    return { verified: results.verified, seconds: Number(defaultSeconds) + Number(floorSeconds), largest, refused };
+    return { verified: results.verified, seconds: Number(defaultSeconds) + Number(floorSeconds), largest, largestOfAddress, refused };
   } finally {
     rmSync(scratch, { recursive: true, force: true });
   }

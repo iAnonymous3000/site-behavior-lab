@@ -1,4 +1,10 @@
-//! Canonical JSON for Site Behavior Lab, canon-v1, bytes in and bytes out.
+//! The trust kernel of Site Behavior Lab: canonical JSON (canon-v1), bytes
+//! in and bytes out, and the address classifier, bytes in and one of three
+//! answers out.
+//!
+//! Nothing in the scanner, the Worker or the site calls this crate.
+//!
+//! # Canonical JSON
 //!
 //! The reference is `lib/canonical-json.ts`, which takes a JavaScript value.
 //! This crate takes bytes, so it follows one path through the reference, the
@@ -13,9 +19,6 @@
 //! those: a caller that turned such a value into text first would lose the
 //! refusal.
 //!
-//! Phase 0 of the language plan: nothing in the scanner, the Worker or the
-//! site calls this crate.
-//!
 //! Only `encode.rs` is checked by Verus: see its head for what that covers.
 //! It covers the last step, from a value tree to bytes, for the trees that
 //! file calls admitted. The parser, the number text and the normalization
@@ -25,15 +28,35 @@
 //! `canonicalize` is the only way in. The encoder and its value type are not
 //! exported, because the encoder takes any admitted tree and an admitted
 //! tree need not be canonical.
+//!
+//! # The address classifier
+//!
+//! The reference is `lib/ip-safety.ts`, which is still the only boundary
+//! that decides where a scan may connect. `classify_address` answers as its
+//! `isIpAddress` and `isPublicIpAddress` do.
+//!
+//! `address.rs` is checked by Verus: for every 32-bit and every 128-bit
+//! address VALUE, the executable classifier returns what a written table and
+//! rule say. See its head for the statements and for what they trust.
+//! `address_text.rs` reads a text into a value and is ordinary Rust, held to
+//! the reference by the differential test and by nothing stronger. Its head
+//! lists each place where the reference's verdict follows the spelling of an
+//! address and not its value.
+//!
+//! `classify_address` and `read_address` are the only ways in. The checked
+//! functions are not exported.
 
 #![forbid(unsafe_code)]
 
+mod address;
+mod address_text;
 mod encode;
 mod nfc;
 mod nfc_tables;
 mod number;
 mod parse;
 
+pub use address_text::{classify_address, read_address, AddressClass, AddressRead};
 use encode::{encode_admitted, Value};
 pub use nfc_tables::UNICODE_VERSION;
 

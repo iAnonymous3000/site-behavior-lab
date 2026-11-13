@@ -1,6 +1,9 @@
 //! The WebAssembly entry points. No JavaScript glue is generated and no
 //! binding tool runs: the host writes the input into linear memory, calls
-//! `sbl_canonicalize`, and reads the output back.
+//! `sbl_canonicalize`, and reads the output back. The address classifier
+//! reads the same input buffer: `sbl_classify_address` answers with a number
+//! alone, and `sbl_read_address` also leaves the value it read in the output
+//! buffer.
 //!
 //! This file has no `unsafe` block. It cannot carry `forbid(unsafe_code)`
 //! like the kernel does, because an exported symbol name is itself counted
@@ -8,7 +11,9 @@
 //!
 //! One call at a time: the module keeps one input and one output buffer.
 
-use sbl_trust_kernel::{canonicalize_with_number_budget, Refusal};
+use sbl_trust_kernel::{
+    canonicalize_with_number_budget, classify_address, read_address, AddressClass, AddressRead, Refusal,
+};
 use std::sync::Mutex;
 
 static INPUT: Mutex<Vec<u8>> = Mutex::new(Vec::new());
@@ -66,4 +71,49 @@ pub extern "C" fn sbl_output() -> *const u8 {
 #[no_mangle]
 pub extern "C" fn sbl_output_length() -> usize {
     OUTPUT.lock().unwrap_or_else(|poisoned| poisoned.into_inner()).len()
+}
+
+/// Classifies the input buffer as an address: 0 when it is not an address
+/// (the reference's `isIpAddress` is false), 1 for an address that is not
+/// public, 2 for a public address (`isPublicIpAddress` is true). The output
+/// buffer is left as it was.
+#[no_mangle]
+pub extern "C" fn sbl_classify_address() -> u32 {
+    let input = INPUT.lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+    match classify_address(&input) {
+        AddressClass::NotAnAddress => 0,
+        AddressClass::NotPublic => 1,
+        AddressClass::Public => 2,
+    }
+}
+
+/// Reads the input buffer as an address and leaves the value in the output
+/// buffer, most significant byte first. Returns 0 and an empty output when
+/// the input is not an address; 4 with four bytes for an IPv4 address; 6
+/// with sixteen bytes for an IPv6 address; 7 with sixteen bytes for a text
+/// with a dotted quad before a closing `::`, which the reference accepts and
+/// no address parser reads (the bytes are then the value the reference
+/// judges, not an address a parser agreed on).
+#[no_mangle]
+pub extern "C" fn sbl_read_address() -> u32 {
+    let input = INPUT.lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+    let mut output = OUTPUT.lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+    match read_address(&input) {
+        None => {
+            *output = Vec::new();
+            0
+        }
+        Some(AddressRead::V4(value)) => {
+            *output = value.to_be_bytes().to_vec();
+            4
+        }
+        Some(AddressRead::V6(value)) => {
+            *output = value.to_be_bytes().to_vec();
+            6
+        }
+        Some(AddressRead::V6DottedBeforeCompression(value)) => {
+            *output = value.to_be_bytes().to_vec();
+            7
+        }
+    }
 }

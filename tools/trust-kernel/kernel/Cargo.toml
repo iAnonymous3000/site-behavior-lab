@@ -3,7 +3,7 @@ name = "sbl-trust-kernel"
 version = "0.0.0"
 edition = "2021"
 rust-version = "1.99.1"
-description = "Canonical JSON (canon-v1) for Site Behavior Lab, with a machine-checked encoder"
+description = "Canonical JSON (canon-v1) and the address classifier for Site Behavior Lab, each with a machine-checked core"
 license = "AGPL-3.0-or-later"
 publish = false
 
@@ -12,10 +12,11 @@ path = "src/lib.rs"
 
 # The only dependency. vstd is the Verus standard library: it supplies the
 # `verus!` macro that carries the specifications beside the code in
-# src/encode.rs and erases them in an ordinary build. The version is exact
-# because it is the one the encoder was checked against; pins.json names the
-# Verus release that checks it. It brings 14 more crates into Cargo.lock,
-# 13 of them macro machinery that runs at build time only.
+# src/encode.rs and src/address.rs and erases them in an ordinary build. The
+# version is exact because it is the one both files were checked against;
+# pins.json names the Verus release that checks them. It brings 14 more
+# crates into Cargo.lock, 13 of them macro machinery that runs at build time
+# only.
 [dependencies]
 vstd = "=0.0.0-2026-11-01-0251"
 

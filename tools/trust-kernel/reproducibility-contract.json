@@ -39,13 +39,23 @@
     },
     {
       "path": "tools/trust-kernel/kernel/Cargo.toml",
-      "bytes": 871,
-      "sha256": "1018bddd293d758b191542d38b92d10a6df7ac1a2a697f711a5b218cea91708f"
+      "bytes": 923,
+      "sha256": "3f5ef568265182c1eb17a6d57deb231f734dbf419f585048c9be1cb9aab582fe"
     },
     {
       "path": "tools/trust-kernel/kernel/src/lib.rs",
-      "bytes": 6906,
-      "sha256": "fb55439c6d1b6bf48620bb06ff34d364fea7abb7934a4130e05114c1819e3e77"
+      "bytes": 7940,
+      "sha256": "cfaa4e2c411cd8fec513d3ad5eb317dd46c3762a2b4c2f46d59c1a16fb179540"
+    },
+    {
+      "path": "tools/trust-kernel/kernel/src/address.rs",
+      "bytes": 23220,
+      "sha256": "2d403f704b3a44bef743db5c03f9b7e04044e28f38502779498c06e4c7f7386b"
+    },
+    {
+      "path": "tools/trust-kernel/kernel/src/address_text.rs",
+      "bytes": 11881,
+      "sha256": "8d3a5c1a99f3bc6ca3bcb324fe4542ede2779ea58d0530644be2e56bbac1e051"
     },
     {
       "path": "tools/trust-kernel/kernel/src/encode.rs",
@@ -74,8 +84,8 @@
     },
     {
       "path": "tools/trust-kernel/kernel/src/tests.rs",
-      "bytes": 8361,
-      "sha256": "6e7ebeff7be177e8386bd7d677b9a0fcb5fa64310eba2769084e7e4304f92083"
+      "bytes": 13664,
+      "sha256": "183e7443170189db17293fb5e4ee42030992af9905fb126e87c0b64c458d7d8d"
     },
     {
       "path": "tools/trust-kernel/wasm/Cargo.toml",
@@ -84,20 +94,20 @@
     },
     {
       "path": "tools/trust-kernel/wasm/src/lib.rs",
-      "bytes": 2783,
-      "sha256": "68b40977291824aa679f51c7fed26f7af61a91b02686dc3b111fc8ffec0d3c1d"
+      "bytes": 4817,
+      "sha256": "2345b0aaf37026501c5521fe763871cc10f5218f5a902e3c199fe2b574f6e434"
     }
   ],
   "artifact": "sbl_trust_kernel_wasm.wasm",
   "observed": {
     "aarch64-apple-darwin": {
-      "bytes": 107717,
-      "sha256": "cf2f89affb265bf27d076abb8c8a9128a68daadacdb33f9eee04a56c39a3991b",
-      "environment": "macOS 27.2 (Darwin 27.2.0) on Apple silicon, native; rustup 1.29.3"
+      "bytes": 113783,
+      "sha256": "79105980559925365f5ababe69aafdd40ee3e72d92d29b4780da5b46159ee200",
+      "environment": "macOS 27.2.1 (Darwin 27.2.0) on Apple silicon, native; rustup 1.29.3"
     },
     "x86_64-unknown-linux-gnu": {
-      "bytes": 107717,
-      "sha256": "cf2f89affb265bf27d076abb8c8a9128a68daadacdb33f9eee04a56c39a3991b",
+      "bytes": 113783,
+      "sha256": "79105980559925365f5ababe69aafdd40ee3e72d92d29b4780da5b46159ee200",
       "environment": "Ubuntu 24.04.5 container (docker.io/library/ubuntu@sha256:fe81560990fae86dc4743202b2cb4d3df98d0bcf949173cecef15ce1127ef852, linux/amd64) run by Docker Desktop on an arm64 Mac, so emulated; rustup 1.29.3; not a GitHub-hosted runner"
     }
   },
