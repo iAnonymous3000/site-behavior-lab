@@ -26,22 +26,19 @@
 //! 2. 2001:1::1, 2001:1::2 and 2001:1::3 are public only when spelled exactly
 //!    so. `2001:1:0:0:0:0:0:1` and `2001:0001::1` are the same address and
 //!    the reference refuses them.
-//! 3. A dotted quad as the last part on the left of a closing `::`, as in
-//!    `2600:8.8.8.8::`. No address parser reads such a text, and the
-//!    reference accepts it as an address. It then judges the hexadecimal
-//!    words before the quad as if zeros followed, so `2600:8.8.8.8::` reads
-//!    public. This file gives such a text the value the reference judges
-//!    (those words, then zeros) and reports the form apart
-//!    (`AddressRead::V6DottedBeforeCompression`), so that no caller takes it
-//!    for a value a parser agreed on.
-//! 4. `normalizeHostname` takes away one closing dot, then one opening `[`
+//! 3. `normalizeHostname` takes away one closing dot, then one opening `[`
 //!    and one closing `]`, each on its own: `8.8.8.8]` and `[8.8.8.8` read as
 //!    8.8.8.8, and `2600::1.` as 2600::1.
 //!
 //! In 1 and 2 the spelling can only turn a public value into a refusal;
 //! `is_public_ipv6_as_spelled` in `address.rs` is checked to allow nothing
-//! else. In 3 and 4 the reference calls a text an address that a stricter
-//! reader would not; the kernel repeats that and does not correct it.
+//! else. In 3 the reference calls a text an address that a stricter reader
+//! would not; the kernel repeats that and does not correct it.
+//!
+//! A dotted quad stands for the last 32 bits, so it is read only where it
+//! ends the text. A quad before a closing `::`, as in `2600:8.8.8.8::`, is no
+//! address here or in the reference, and the differential test drives that
+//! form and holds both sides to that answer.
 
 use crate::address::{is_public_ipv4, is_public_ipv6_as_spelled};
 
@@ -61,19 +58,15 @@ pub enum AddressClass {
 pub enum AddressRead {
     /// Four decimal octets.
     V4(u32),
-    /// An IPv6 text an address parser reads the same way.
+    /// Eight words of sixteen bits, the last two of them perhaps written as
+    /// a dotted quad.
     V6(u128),
-    /// The third form of this file's head: a dotted quad before a closing
-    /// `::`. The value is what the reference judges, the words before the
-    /// quad and then zeros. It is no address a parser would give.
-    V6DottedBeforeCompression(u128),
 }
 
 /// An IPv6 text as read: the value and the two facts about its spelling that
 /// the reference's verdict follows.
 struct Ipv6Text {
     value: u128,
-    dotted_before_compression: bool,
     spelled_as_mapped: bool,
     spelled_as_anycast: bool,
 }
@@ -219,18 +212,18 @@ fn read_ipv6(text: &[u8]) -> Option<Ipv6Text> {
     let mut left_words: Vec<u16> = Vec::new();
     let mut right_words: Vec<u16> = Vec::new();
     let mut word_count = 0;
-    let mut dotted_on_left = false;
     for (index, part) in left.iter().chain(right.iter()).enumerate() {
         let on_left = index < left.len();
         if part.is_empty() {
             return None;
         }
         if part.contains(&b'.') {
-            // A dotted quad counts as two words and has to be the last part
-            // of all. The reference counts the parts of both sides in one
-            // list, so the last part of the left side is the last of all
-            // when nothing follows the `::`.
-            if index != total - 1 {
+            // A dotted quad counts as two words and has to end the text.
+            // The parts of both sides are one list here, as in the
+            // reference, and with nothing after a `::` the last part of the
+            // list stands before it, so being last in the list is not
+            // enough: there is no `::`, or the quad is on its right.
+            if index != total - 1 || (compressed && on_left) {
                 return None;
             }
             let quad = read_ipv4(part)?;
@@ -238,7 +231,6 @@ fn read_ipv6(text: &[u8]) -> Option<Ipv6Text> {
             let words = if on_left { &mut left_words } else { &mut right_words };
             words.push((quad >> 16) as u16);
             words.push(quad as u16);
-            dotted_on_left = on_left;
             continue;
         }
         let word = read_word(part)?;
@@ -257,13 +249,6 @@ fn read_ipv6(text: &[u8]) -> Option<Ipv6Text> {
         return None;
     }
 
-    // The third form of this file's head. The reference's `leadingIpv6Words`
-    // drops a dotted part from the words it judges, so the quad is not part
-    // of the value it sees.
-    let dotted_before_compression = compressed && dotted_on_left;
-    if dotted_before_compression {
-        left_words.truncate(left_words.len() - 2);
-    }
     let mut words = [0u16; 8];
     words[..left_words.len()].copy_from_slice(&left_words);
     words[8 - right_words.len()..].copy_from_slice(&right_words);
@@ -273,7 +258,6 @@ fn read_ipv6(text: &[u8]) -> Option<Ipv6Text> {
     }
     Some(Ipv6Text {
         value,
-        dotted_before_compression,
         spelled_as_mapped: is_spelled_as_mapped(text),
         spelled_as_anycast: text == b"2001:1::1" || text == b"2001:1::2" || text == b"2001:1::3",
     })
@@ -288,12 +272,7 @@ pub fn read_address(input: &[u8]) -> Option<AddressRead> {
     if let Some(value) = read_ipv4(&text) {
         return Some(AddressRead::V4(value));
     }
-    let read = read_ipv6(&text)?;
-    Some(if read.dotted_before_compression {
-        AddressRead::V6DottedBeforeCompression(read.value)
-    } else {
-        AddressRead::V6(read.value)
-    })
+    read_ipv6(&text).map(|read| AddressRead::V6(read.value))
 }
 
 /// The classifier: one of three answers for any bytes.

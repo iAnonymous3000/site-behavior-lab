@@ -291,16 +291,25 @@ fn a_verdict_follows_the_spelling_where_the_reference_makes_it() {
         ("2001:0001::1", NotPublic),
         ("2001:1::01", NotPublic),
         ("2001:1:0::1", NotPublic),
-        // A dotted quad before a closing `::`: no parser reads it, and the
-        // reference judges the words before the quad.
-        ("2600:8.8.8.8::", Public),
-        ("2600:0:0:0:0:1.2.3.4::", Public),
+        // A dotted quad is read only where it ends the text. Before a
+        // closing `::` it is no address, with any words before it.
+        ("2600:8.8.8.8::", NotAnAddress),
+        ("2600:127.0.0.1::", NotAnAddress),
+        ("2600:0:0:0:0:1.2.3.4::", NotAnAddress),
         ("2600:0:0:0:0:0:1.2.3.4::", NotAnAddress),
-        ("2001:3:1.2.3.4::", Public),
-        ("2001:4:1.18.0.0::", NotPublic),
-        ("1.2.3.4::", NotPublic),
+        ("2001:3:1.2.3.4::", NotAnAddress),
+        ("2001:4:1.18.0.0::", NotAnAddress),
+        ("1.2.3.4::", NotAnAddress),
+        ("[2600:8.8.8.8::]", NotAnAddress),
         ("2600::1.2.3.4::", NotAnAddress),
         ("2600:1.2.3.4::5", NotAnAddress),
+        ("2600:1.2.3.4:5::", NotAnAddress),
+        // The same quad ending the text is read, after a `::` or with none.
+        ("2600::8.8.8.8", Public),
+        ("2600:0:0:0:0:0:1.2.3.4", Public),
+        ("::1.2.3.4", NotPublic),
+        ("64:ff9b::8.8.8.8", NotPublic),
+        ("2600:1:2:3:4:5:8.8.8.8", Public),
         // One closing dot, one opening bracket, one closing bracket.
         ("8.8.8.8.", Public),
         ("8.8.8.8..", NotAnAddress),
@@ -342,12 +351,10 @@ fn a_text_is_read_as_the_value_it_names() {
         Some(AddressRead::V6(0x0001_0002_0003_0004_0005_0006_0102_0304))
     );
     assert_eq!(read("[::ffff:8.8.8.8]"), Some(AddressRead::V6(0xffff_0808_0808)));
-    // The reference drops the quad of this form from the words it judges.
-    assert_eq!(
-        read("2600:5:8.8.8.8::"),
-        Some(AddressRead::V6DottedBeforeCompression(0x2600_0005 << 96))
-    );
-    assert_eq!(read("1.2.3.4::"), Some(AddressRead::V6DottedBeforeCompression(0)));
+    // A dotted quad before a closing `::` has no value.
+    assert_eq!(read("2600:5:8.8.8.8::"), None);
+    assert_eq!(read("1.2.3.4::"), None);
+    assert_eq!(read("2600:5::8.8.8.8"), Some(AddressRead::V6(0x2600_0005_0000_0000_0000_0000_0808_0808)));
     assert_eq!(read("1.2.3"), None);
     assert_eq!(read("2600::1::"), None);
 }

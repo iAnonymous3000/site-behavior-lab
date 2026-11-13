@@ -90,10 +90,7 @@ pub extern "C" fn sbl_classify_address() -> u32 {
 /// Reads the input buffer as an address and leaves the value in the output
 /// buffer, most significant byte first. Returns 0 and an empty output when
 /// the input is not an address; 4 with four bytes for an IPv4 address; 6
-/// with sixteen bytes for an IPv6 address; 7 with sixteen bytes for a text
-/// with a dotted quad before a closing `::`, which the reference accepts and
-/// no address parser reads (the bytes are then the value the reference
-/// judges, not an address a parser agreed on).
+/// with sixteen bytes for an IPv6 address.
 #[no_mangle]
 pub extern "C" fn sbl_read_address() -> u32 {
     let input = INPUT.lock().unwrap_or_else(|poisoned| poisoned.into_inner());
@@ -110,10 +107,6 @@ pub extern "C" fn sbl_read_address() -> u32 {
         Some(AddressRead::V6(value)) => {
             *output = value.to_be_bytes().to_vec();
             6
-        }
-        Some(AddressRead::V6DottedBeforeCompression(value)) => {
-            *output = value.to_be_bytes().to_vec();
-            7
         }
     }
 }

@@ -17,12 +17,16 @@
 //               so a wrong reading would make them be about another address.
 //               For four decimal octets the second reader is the text
 //               itself and Node's net.isIPv4. For an IPv6 text it is this
-//               Node's URL parser. One form the reference accepts has no
-//               second reader, because no parser reads it: a dotted quad
-//               before a closing `::`. The kernel has to mark that form, the
-//               URL parser has to refuse it, and its value is held to the
-//               reference's own reading (the words before the quad, then
-//               zeros), restated here.
+//               Node's URL parser. A reading the second reader refuses
+//               is a difference.
+//
+// One form is held to a fixed answer on top of the comparison: a part with a
+// dot in it before a closing `::`, as in `2600:8.8.8.8::`. The reference
+// once read that as an address and judged the words before the quad alone.
+// It is no address, so for every text of that form, in every section, the
+// reference and the kernel must each answer "not an address". Agreement on
+// any other answer is counted as a difference. One section is built on that
+// form, and the run stops if no text of the form was met.
 //
 // The texts: every family of spellings lib/fv-ipv4-classifier.test.ts walks,
 // both ends of every block either rule names and the address outside each
@@ -131,15 +135,17 @@ function expectedReading(reference, text, family) {
   // URL's brackets could end the host early and make the parser read less.
   if (!/^[0-9a-f:.]+$/.test(bare)) return { problem: "the text holds a character no IPv6 address has" };
   const parsed = urlParserReads(bare);
-  if (parsed !== null) return { family: 6, value: parsed };
-  // The URL parser refuses it. The one such form the reference accepts: a
-  // dotted quad as the last part before a closing `::`. The reference then
-  // judges the words before the quad as if zeros followed.
-  const form = /^((?:[0-9a-f]{1,4}:){0,5})\d+\.\d+\.\d+\.\d+::$/.exec(bare);
-  if (!form) return { problem: "the URL parser refuses the text, and it is not a dotted quad before a closing ::" };
-  const words = form[1].split(":").filter(Boolean).map((word) => word.padStart(4, "0"));
-  return { family: 7, value: [...words, ...Array(8 - words.length).fill("0000")].join("") };
+  if (parsed === null) return { problem: "the URL parser refuses the text" };
+  return { family: 6, value: parsed };
 }
+
+/**
+ * A part with a dot in it as the last part before a closing `::`, in a text
+ * as normalizeHostname leaves it. Wider than the texts the reference once
+ * accepted (any part with a dot, any parts before it), so the fixed answer
+ * below does not lean on either side's reading of the quad or the words.
+ */
+const DOTTED_BEFORE_CLOSING_COMPRESSION = /\.[^:]*::$/;
 
 // ---------------------------------------------------------------------------
 // Tally
@@ -151,7 +157,7 @@ class AddressTally {
     this.cases = 0;
     this.answers = { "not-an-address": 0, "not-public": 0, public: 0 };
     this.valuesCompared = 0;
-    this.dottedBeforeCompression = 0;
+    this.dottedBeforeClosingRefused = 0;
     this.differenceCount = 0;
     this.differences = [];
   }
@@ -170,6 +176,19 @@ class AddressTally {
     const expected = isPublic ? 2 : isAddress ? 1 : 0;
     this.answers[ANSWERS[expected]] += 1;
     const kernel = ask(text);
+    // The fixed answer for the one form, asked of each side on its own
+    // before the two are compared with each other.
+    if (DOTTED_BEFORE_CLOSING_COMPRESSION.test(reference.normalizeHostname(text))) {
+      if (expected !== 0 || kernel.answer !== 0 || kernel.family !== 0) {
+        this.differ(text, {
+          mustBe: "not an address on both sides: a dotted part before a closing ::",
+          reference: ANSWERS[expected],
+          kernel: `answers ${ANSWERS[kernel.answer] ?? `code ${kernel.answer}`} and reads family ${kernel.family}`
+        });
+        return;
+      }
+      this.dottedBeforeClosingRefused += 1;
+    }
     if (kernel.answer !== expected) {
       this.differ(text, { reference: ANSWERS[expected], kernel: ANSWERS[kernel.answer] ?? `code ${kernel.answer}` });
       return;
@@ -183,9 +202,7 @@ class AddressTally {
     const second = expectedReading(reference, text, kernel.family);
     if (second.problem !== undefined || second.family !== kernel.family || second.value !== kernel.value) {
       this.differ(text, { reference: ANSWERS[expected], kernelRead: { family: kernel.family, value: kernel.value }, secondReader: second });
-      return;
     }
-    if (kernel.family === 7) this.dottedBeforeCompression += 1;
   }
 
   summary() {
@@ -194,7 +211,7 @@ class AddressTally {
       cases: this.cases,
       answers: this.answers,
       valuesCompared: this.valuesCompared,
-      ...(this.dottedBeforeCompression > 0 ? { dottedBeforeClosingCompression: this.dottedBeforeCompression } : {}),
+      ...(this.dottedBeforeClosingRefused > 0 ? { dottedBeforeClosingCompressionRefused: this.dottedBeforeClosingRefused } : {}),
       differences: this.differenceCount
     };
   }
@@ -541,14 +558,22 @@ function ipv6WordWalks(compare, rng) {
   }
 }
 
-/** A dotted quad before a closing `::`, which the reference accepts, and the forms beside it, which it does not. */
+/**
+ * A dotted quad before a closing `::`, which is no address, under every
+ * choice of words before it that either rule tells apart, and the forms
+ * beside it. One of those is the same words and quad with the `::` between
+ * them, where the quad ends the text: that one is an address whenever the
+ * quad is one, so a reader that refused every dotted quad near a `::` would
+ * differ here. Two more put a further word after the quad, with no `::` and
+ * after one: a quad that does not end the text is no address either.
+ */
 function dottedBeforeCompression(compare) {
   const firsts = ["", "0", "1", "64", "1fff", "2000", "2001", "2002", "2600", "3ffe", "3fff", "4000", "fc00", "fe80", "ffff"];
   const seconds = ["", "0", "1", "3", "4", "1ff", "200", "db8", "fff", "1000"];
   const thirds = ["", "0", "112", "113"];
   const rests = [[], ["0"], ["0", "0"], ["ffff", "0"], ["0", "0", "0"], ["0", "0", "ffff"], ["0", "0", "0", "0"]];
   const quads = ["8.8.8.8", "127.0.0.1", "1.18.0.0", "0.0.0.0", "255.255.255.255", "10.0.0.1", "01.2.3.4", "256.1.1.1", "1.2.3", "1.2.3.4.5"];
-  const closings = ["::", "::1", ":", "", "::0", ":::", "::.", "::]"];
+  const closings = ["::", "::1", ":", "", "::0", ":::", "::.", "::]", ":0"];
   for (const first of firsts) {
     for (const second of seconds) {
       for (const third of thirds) {
@@ -560,6 +585,8 @@ function dottedBeforeCompression(compare) {
               compare(text);
               if (closing === "::") for (const wrapped of decorated(text).slice(1)) compare(wrapped);
             }
+            compare(`${words.join(":")}::${dottedQuad}`);
+            compare(`${words.join(":")}::${dottedQuad}:0`);
           }
         }
       }
@@ -665,7 +692,11 @@ function notUtf8(ask, rng, cases) {
  * to eight kernels that are wrong in ways the real one could be, on fixed
  * texts, and stop unless it counts each as different and the real one as the
  * same. The last three are wrong only in a place where the reference's
- * verdict follows the spelling, or only in the value.
+ * verdict follows the spelling, only in the one form with a fixed answer,
+ * or only in the value. After them come two checks of what the comparison
+ * of the two sides with each other cannot see: the fixed answer, held to a
+ * wrong reference, a wrong kernel and both wrong together, and the second
+ * reader, held to two sides that agree on a text no parser reads.
  */
 function checkTheAddressComparison(reference, ask) {
   const texts = [
@@ -687,7 +718,9 @@ function checkTheAddressComparison(reference, ask) {
     ["every text an address", (text) => ({ ...ask(text), answer: Math.max(ask(text).answer, 1) })],
     ["a leading zero read as decimal", (text) => ask(text.replace(/(^|\.)0+(\d)/g, "$1$2"))],
     ["the value judged, whatever the spelling", (text) => ({ ...ask(text), answer: ask(respelled(text)).answer })],
-    ["only what a parser reads is an address", (text) => (ask(text).family === 7 ? { answer: 0, family: 0, value: "" } : ask(text))],
+    // The reading the reference had before its correction: the words
+    // before the quad, then zeros.
+    ["a dotted quad before a closing :: dropped and the rest read", (text) => ask(text.replace(/:?\d+\.\d+\.\d+\.\d+::$/, "::"))],
     ["the last byte of the value wrong", (text) => {
       const read = ask(text);
       return read.family === 0 ? read : { ...read, value: `${read.value.slice(0, -1)}${read.value.endsWith("0") ? "1" : "0"}` };
@@ -695,7 +728,7 @@ function checkTheAddressComparison(reference, ask) {
   ];
   const honest = new AddressTally("comparison check: the kernel itself");
   for (const text of texts) honest.compare(reference, ask, text);
-  if (honest.differenceCount !== 0 || honest.answers.public < 3 || honest.answers["not-public"] < 3 || honest.answers["not-an-address"] < 2 || honest.dottedBeforeCompression !== 1) {
+  if (honest.differenceCount !== 0 || honest.answers.public < 3 || honest.answers["not-public"] < 3 || honest.answers["not-an-address"] < 2 || honest.dottedBeforeClosingRefused !== 1) {
     throw new Error(`the address comparison's fixed texts no longer behave as written: ${JSON.stringify(honest.summary())} ${JSON.stringify(honest.differences)}`);
   }
   for (const [name, wrong] of broken) {
@@ -703,10 +736,48 @@ function checkTheAddressComparison(reference, ask) {
     for (const text of texts) tally.compare(reference, wrong, text);
     if (tally.differenceCount === 0) throw new Error(`the address comparison did not notice a kernel with ${name}`);
   }
+  // The fixed answer, with a side wrong as both were before the correction:
+  // it reads the form as the words before the quad. With both sides wrong
+  // they agree on every text, so only the fixed answer can count it. With
+  // one side wrong the two differ anyway, and the difference still has to
+  // be the fixed answer's, or that half of it is not being asked.
+  const dropQuad = (text) => text.replace(/:?\d+\.\d+\.\d+\.\d+::$/, "::");
+  const oldReference = {
+    normalizeHostname: reference.normalizeHostname,
+    isIpAddress: (text) => reference.isIpAddress(dropQuad(text)),
+    isPublicIpAddress: (text) => reference.isPublicIpAddress(dropQuad(text))
+  };
+  const oldKernel = (text) => ask(dropQuad(text));
+  for (const [name, wrongReference, wrongKernel] of [
+    ["the reference alone reads", oldReference, ask],
+    ["the kernel alone reads", reference, oldKernel],
+    ["both sides read", oldReference, oldKernel]
+  ]) {
+    const tally = new AddressTally(`comparison check: ${name} a dotted quad before a closing ::`);
+    for (const text of texts) tally.compare(wrongReference, wrongKernel, text);
+    if (tally.differenceCount !== 1 || !tally.differences[0].mustBe) {
+      throw new Error(`where ${name} a dotted quad before a closing ::, the address comparison did not count it against the fixed answer: ${JSON.stringify(tally.differences)}`);
+    }
+  }
+  // Two sides that agree on a text no parser reads, outside that form: each
+  // drops one closing colon. Only the second reader can count it, and it has
+  // to be by refusing the text.
+  const dropColon = (text) => text.replace(/:$/, "");
+  const lax = new AddressTally("comparison check: both sides read past a closing colon");
+  lax.compare(
+    { normalizeHostname: reference.normalizeHostname, isIpAddress: (text) => reference.isIpAddress(dropColon(text)), isPublicIpAddress: (text) => reference.isPublicIpAddress(dropColon(text)) },
+    (text) => ask(dropColon(text)),
+    "2600::1:"
+  );
+  if (lax.differenceCount !== 1 || lax.differences[0].secondReader?.problem === undefined) {
+    throw new Error(`the address comparison let stand a reading the second reader refuses: ${JSON.stringify(lax.differences)}`);
+  }
   return broken.length;
 }
 
 // ---------------------------------------------------------------------------
+
+const DOTTED_SECTION = "IPv6: a dotted quad before a closing ::, which is no address, and the forms beside it";
 
 /**
  * Runs every section. `scale` multiplies the generated cases and thins the
@@ -736,7 +807,7 @@ export function runAddressComparison({ root, exports, scale }) {
   run("IPv4 carried in IPv6: mapped, compatible, translated, NAT64, 6to4, Teredo", (compare) => ipv4Carried(compare));
   run("IPv6: both ends of every line of the rule, every spelling and decoration", (compare) => ipv6EdgeSpellings(compare, edges));
   run("IPv6: walks over whole words", (compare) => ipv6WordWalks(compare, generator(ADDRESS_FUZZ_SEED)));
-  run("IPv6: a dotted quad before a closing ::, and the forms beside it", (compare) => dottedBeforeCompression(compare));
+  run(DOTTED_SECTION, (compare) => dottedBeforeCompression(compare));
   run("every code point beside an address", (compare) => everyCodePoint(compare));
   run("fuzz: valid addresses in generated spellings", (compare) => fuzzValid(compare, generator(ADDRESS_FUZZ_SEED + 1), edges, count(2_000_000)));
   run("fuzz: broken addresses", (compare) => fuzzBroken(compare, generator(ADDRESS_FUZZ_SEED + 2), edges, count(3_000_000)));
@@ -744,11 +815,14 @@ export function runAddressComparison({ root, exports, scale }) {
 
   const summaries = sections.map((tally) => tally.summary());
   const sum = (field) => summaries.reduce((total, section) => total + section[field], 0);
-  // A section that never met one of the three answers, or the whole run
-  // never meeting the odd form, would mean the texts stopped reaching the
-  // rule. Each generated family is made to meet all three.
-  const dotted = summaries.reduce((total, section) => total + (section.dottedBeforeClosingCompression ?? 0), 0);
-  if (dotted === 0) throw new Error("no text of the run was a dotted quad before a closing ::, so that form went uncompared");
+  // The section built on the one form with a fixed answer has to have met
+  // it, and has to have met addresses beside it: all refusals would be what
+  // a reader that refuses too much gives as well.
+  const dottedSection = summaries.find((section) => section.name === DOTTED_SECTION);
+  const dotted = summaries.reduce((total, section) => total + (section.dottedBeforeClosingCompressionRefused ?? 0), 0);
+  if (!((dottedSection.dottedBeforeClosingCompressionRefused ?? 0) >= 100_000) || dottedSection.answers.public === 0 || dottedSection.answers["not-public"] === 0) {
+    throw new Error(`the section on a dotted quad before a closing :: no longer reaches that form and the addresses beside it: ${JSON.stringify(dottedSection)}`);
+  }
   return {
     report: {
       reference: "lib/ip-safety.ts isIpAddress and isPublicIpAddress; values against this Node's URL parser and net.isIPv4",
@@ -760,7 +834,7 @@ export function runAddressComparison({ root, exports, scale }) {
         cases: sum("cases"),
         answers: Object.fromEntries(ANSWERS.map((answer) => [answer, summaries.reduce((total, section) => total + section.answers[answer], 0)])),
         valuesCompared: sum("valuesCompared"),
-        dottedBeforeClosingCompression: dotted,
+        dottedBeforeClosingCompressionRefused: dotted,
         differences: sum("differences") + outside.calledAnAddress
       },
       timings

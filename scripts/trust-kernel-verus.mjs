@@ -277,7 +277,7 @@ const SPECIFICATIONS = {
   [ADDRESS]: {
     from: "verus! {\n",
     to: "// ---------------------------------------------------------------------------\n// Checked statements about the specification itself.\n",
-    sha256: "d1d165de41708c06a6f5236615a6fd24c0ea8c2a1f59a7e1fcbdf96010c60791"
+    sha256: "888dbb8a6b1a79f02942f6131f633987aa87ef01bb0b9f6ec76863ab18026e1d"
   }
 };
 

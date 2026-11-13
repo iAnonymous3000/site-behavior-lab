@@ -49,13 +49,13 @@
     },
     {
       "path": "tools/trust-kernel/kernel/src/address.rs",
-      "bytes": 23220,
-      "sha256": "2d403f704b3a44bef743db5c03f9b7e04044e28f38502779498c06e4c7f7386b"
+      "bytes": 24205,
+      "sha256": "473a7833682d3e0a0536c7693d1edeb910fe46cc93319b8e3d1fd01e97f13fbd"
     },
     {
       "path": "tools/trust-kernel/kernel/src/address_text.rs",
-      "bytes": 11881,
-      "sha256": "8d3a5c1a99f3bc6ca3bcb324fe4542ede2779ea58d0530644be2e56bbac1e051"
+      "bytes": 10889,
+      "sha256": "773ba7a9a67d0c50a7feeb259a4de086ab608ef01cb60c3f0429d239b917b1b6"
     },
     {
       "path": "tools/trust-kernel/kernel/src/encode.rs",
@@ -84,8 +84,8 @@
     },
     {
       "path": "tools/trust-kernel/kernel/src/tests.rs",
-      "bytes": 13664,
-      "sha256": "183e7443170189db17293fb5e4ee42030992af9905fb126e87c0b64c458d7d8d"
+      "bytes": 14068,
+      "sha256": "336da1eb275230151d11044e97eb40ca1f3cc9e8ca116a5b97c14ef6aab95b77"
     },
     {
       "path": "tools/trust-kernel/wasm/Cargo.toml",
@@ -94,20 +94,20 @@
     },
     {
       "path": "tools/trust-kernel/wasm/src/lib.rs",
-      "bytes": 4817,
-      "sha256": "2345b0aaf37026501c5521fe763871cc10f5218f5a902e3c199fe2b574f6e434"
+      "bytes": 4446,
+      "sha256": "c41e92b9e322d9295e5a6538d16e7ef70a2cbf17da0e5cc305a20682ae5f4f0a"
     }
   ],
   "artifact": "sbl_trust_kernel_wasm.wasm",
   "observed": {
     "aarch64-apple-darwin": {
-      "bytes": 113783,
-      "sha256": "79105980559925365f5ababe69aafdd40ee3e72d92d29b4780da5b46159ee200",
+      "bytes": 113697,
+      "sha256": "a49b12f453e906b590cb959c704998d4e2811ea4df4fab12a91dcd5d62c6ab2f",
       "environment": "macOS 27.2.1 (Darwin 27.2.0) on Apple silicon, native; rustup 1.29.3"
     },
     "x86_64-unknown-linux-gnu": {
-      "bytes": 113783,
-      "sha256": "79105980559925365f5ababe69aafdd40ee3e72d92d29b4780da5b46159ee200",
+      "bytes": 113697,
+      "sha256": "a49b12f453e906b590cb959c704998d4e2811ea4df4fab12a91dcd5d62c6ab2f",
       "environment": "Ubuntu 24.04.5 container (docker.io/library/ubuntu@sha256:fe81560990fae86dc4743202b2cb4d3df98d0bcf949173cecef15ce1127ef852, linux/amd64) run by Docker Desktop on an arm64 Mac, so emulated; rustup 1.29.3; not a GitHub-hosted runner"
     }
   },

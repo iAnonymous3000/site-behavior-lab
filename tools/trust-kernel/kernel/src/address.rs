@@ -46,12 +46,16 @@
 //! `address_text.rs`, ordinary Rust, which Verus does not read: it is held to
 //! the reference by the differential test and by nothing stronger.
 //!
-//! One place where the table follows the reference and not the registry: the
-//! registry marks 192.0.0.9 and 192.0.0.10 as reachable from anywhere, and
-//! the reference refuses all of 192.0.0.0/24. The kernel has to agree with
-//! the reference, so the table has no exception for the two, and
-//! `theorem_two_reachable_addresses_are_refused` states it. That is the open
-//! finding OPEN-IP4.1 of `lib/fv-ipv4-classifier.test.ts`, left open here too.
+//! Where the specification follows the reference and not a registry. In
+//! IPv4, the registry marks 192.0.0.9 and 192.0.0.10 as reachable from
+//! anywhere, and the reference refuses all of 192.0.0.0/24. The kernel has
+//! to agree with the reference, so the table has no exception for the two,
+//! and `theorem_two_reachable_addresses_are_refused` states it. That is the
+//! open finding OPEN-IP4.1 of `lib/fv-ipv4-classifier.test.ts`, left open
+//! here too. In IPv6, the registry marks 64:ff9b::/96, 2001:20::/28 and
+//! 2001:30::/28 as reachable from anywhere, and the reference refuses the
+//! three; so does the rule (see `ipv6_public`). Every one of these is a
+//! refusal of reachable space.
 
 use vstd::prelude::*;
 
@@ -165,10 +169,11 @@ pub open spec fn protocol_anycast(v: u128) -> bool {
      || block6(v, 0x2001_0001_0000_0000_0000_0000_0000_0003, 128)
 }
 
-/// The assignments inside 2001::/23 that the reference allows: the only
-/// ones, by its comment, that the IANA IPv6 Special-Purpose Address Registry
-/// marks as reachable from anywhere. Reference:
-/// `isGloballyReachableProtocolAssignment`.
+/// The assignments inside 2001::/23 that the reference allows. Its comment
+/// calls them the only ones the IANA IPv6 Special-Purpose Address Registry
+/// marks as reachable from anywhere; the registry as read on 2026-11-13
+/// marks two more blocks there, which stay refused (see `ipv6_public`).
+/// Reference: `isGloballyReachableProtocolAssignment`.
 pub open spec fn reachable_protocol_assignment(v: u128) -> bool {
     protocol_anycast(v)
     // 2001:3::/32, Automatic Multicast Tunneling. RFC 7450.
@@ -179,10 +184,19 @@ pub open spec fn reachable_protocol_assignment(v: u128) -> bool {
 
 /// The rule for IPv6, as the reference's `isPublicIpv6` has it. The lines
 /// were taken from the reference's code and comments on 2026-11-12. The RFC
-/// beside a line is where its block is defined, as the author of this file
-/// knows it; the reference's comments name only RFC 9665. The IANA
-/// registries were not read again for this file, so no line here has been
-/// compared with them.
+/// beside a line is where its block is defined; for each block the registry
+/// lists, it is the RFC the registry names.
+///
+/// The maintainer compared this rule with the IANA IPv6 Special-Purpose
+/// Address Registry as fetched on 2026-11-13. That is a human reading with
+/// a date, and nothing here checks it. What it found: the rule refuses
+/// every block inside 2000::/3 that the registry does not mark as reachable
+/// from anywhere. The rule and the registry differ in three blocks, each
+/// marked reachable by the registry and refused by the reference and so by
+/// this rule: 64:ff9b::/96 (RFC 6052), which lies outside 2000::/3, and
+/// 2001:20::/28 (RFC 7343) and 2001:30::/28 (RFC 9374), which lie inside
+/// 2001::/23 and are not among its listed assignments. Each is a refusal
+/// of reachable space, as with 192.0.0.9 and 192.0.0.10 in the IPv4 table.
 pub open spec fn ipv6_public(v: u128) -> bool {
     if ipv4_mapped(v) {
         // An IPv4-mapped address takes the IPv4 rule of the address it
