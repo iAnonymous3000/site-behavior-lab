@@ -181,6 +181,17 @@ public API or a 1.0 release.
   calm headline can stand over a policy conflict when the only cookie is the
   site's own; and a calm headline can stand over a consent platform served
   from the site's own host.
+- A pinned rebuild of the vendored ad-block WebAssembly module
+  (`scripts/adblock-wasm-build.mjs`, pins in
+  `tools/adblock-wasm/build-pins.json`). Two clean builds from pinned tools
+  gave the four committed files byte for byte on macOS arm64 and in a Linux
+  x86-64 container; no committed byte changed. The rebuild runs in a workflow
+  of its own (`adblock-wasm.yml`) that no release or promotion reads, and no
+  hosted runner had run it when this entry was written. The reproducibility
+  contract still reads "blocked" and the disclosure stays integrity-only: the
+  recorded decision has not changed, and the module still names the cargo
+  home of the machine that built it, which a later toolchain epoch can
+  remove.
 
 ### Removed
 
