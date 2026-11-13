@@ -158,12 +158,14 @@ test("the pin is the address literal the guard read, never the string it was han
   assert.deepEqual(proxy.blockedTargets, []);
 });
 
-test("an address the guard accepts but Node does not read as a literal is refused, not dialed by name", async (t) => {
-  // The backstop under the pin: if the guard's reading of an address and
-  // Node's ever disagree, the string would reach net.connect as a host name.
-  // "2606:4700:1.2.3.4::" is such a string today (a dotted quad followed by a
-  // compression). It must end as a refusal that names the resolver, since a
-  // resolver handed it over, and nothing may be dialed.
+test("a resolver answer that is no address literal is refused by the guard, and nothing is dialed by name", async (t) => {
+  // "2606:4700:1.2.3.4::" (a dotted quad followed by a compression) is no
+  // address: Node does not read it as one. The guard once did, and the pin's
+  // backstop (a string Node does not read as a literal is refused as a
+  // resolver failure) was what kept it from net.connect as a host name. The
+  // guard now refuses it itself. No string is known today that the guard
+  // reads as a public address and Node does not read as a literal, so no test
+  // reaches the backstop; it stays in the code for the day one exists.
   const dialed: string[] = [];
   const proxy = await startPublicScanProxy({
     resolveHost: async () => [{ address: "2606:4700:1.2.3.4::", family: 6 }],
@@ -182,8 +184,8 @@ test("an address the guard accepts but Node does not read as a literal is refuse
   assert.equal(status, "HTTP/1.1 403 Forbidden");
   assert.deepEqual(dialed, []);
   assert.deepEqual(proxy.blockedTargets, [
-    { target: "http://odd-answer.test/", reason: "resolution-failed" },
-    { target: "https://odd-answer.test/", reason: "resolution-failed" }
+    { target: "http://odd-answer.test/", reason: "non-public-address" },
+    { target: "https://odd-answer.test/", reason: "non-public-address" }
   ]);
 });
 

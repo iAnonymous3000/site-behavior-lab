@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { isIP } from "node:net";
 import { test } from "node:test";
 import { isIpAddress, isPublicIpAddress, normalizeHostname } from "./ip-safety";
 
@@ -259,4 +260,45 @@ test("a dotted quad with a leading zero in an octet is not an IPv4 address", () 
   assert.equal(isIpAddress("255.255.255.255"), true);
   assert.equal(isIpAddress("256.1.1.1"), false);
   assert.equal(isIpAddress("1.1.1.1000"), false);
+});
+
+test("a dotted quad before a closing :: is no address, and a dotted quad that ends the text still is", () => {
+  for (const text of ["2600:8.8.8.8::", "2600:127.0.0.1::", "2600:0:0:0:0:1.2.3.4::", "2001:3:1.2.3.4::", "1.2.3.4::", "[2600:8.8.8.8::]"]) {
+    assert.equal(isIpAddress(text), false, text);
+    assert.equal(isPublicIpAddress(text), false, text);
+    assert.equal(isIP(normalizeHostname(text)), 0, `Node reads ${text} as an address`);
+  }
+  for (const text of ["::1.2.3.4", "::ffff:8.8.8.8", "64:ff9b::8.8.8.8", "2600::8.8.8.8", "0:0:0:0:0:ffff:8.8.8.8", "2600:1:2:3:4:5:8.8.8.8"]) {
+    assert.equal(isIpAddress(text), true, text);
+    assert.notEqual(isIP(text), 0, `Node does not read ${text} as an address`);
+  }
+});
+
+test("over generated texts of words, dotted quads and ::, every text read as an address is one Node reads as an address", () => {
+  // A seeded walk, not every text: parts drawn from a few words and quads,
+  // joined with ":" and at most two "::" in any place. It holds one
+  // direction only. This reader refuses spellings Node accepts (a zone id is
+  // not drawn here; a leading zero in an octet is), which is by design.
+  let seed = 0x5eed1234;
+  const next = (bound: number): number => {
+    seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
+    return Math.floor((seed / 0x100000000) * bound);
+  };
+  const words = ["0", "1", "2600", "2001", "ffff", "db8", "0000", "abcde", "g", ""];
+  const quads = ["1.2.3.4", "8.8.8.8", "127.0.0.1", "01.2.3.4", "1.2.3", "256.1.1.1"];
+  let readAsAddress = 0;
+  for (let round = 0; round < 300_000; round += 1) {
+    const count = 1 + next(9);
+    const parts: string[] = [];
+    for (let index = 0; index < count; index += 1) parts.push(next(6) === 0 ? quads[next(quads.length)] : words[next(words.length)]);
+    let text = parts.join(":");
+    for (let gaps = next(3); gaps > 0; gaps -= 1) {
+      const at = next(text.length + 1);
+      text = `${text.slice(0, at)}::${text.slice(at)}`;
+    }
+    if (!isIpAddress(text)) continue;
+    readAsAddress += 1;
+    assert.notEqual(isIP(text), 0, `read as an address, and Node refuses it: ${text}`);
+  }
+  assert.ok(readAsAddress > 1000, `only ${readAsAddress} generated texts were addresses`);
 });

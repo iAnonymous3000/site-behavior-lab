@@ -327,6 +327,13 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- The address classifier no longer reads a dotted quad before a closing `::`
+  as an address (`2600:8.8.8.8::`, for one). It read the text as an address
+  and judged the words before the quad alone, so it could call such a text
+  public. Node reads no such text as an address; hosts reach the classifier
+  from a parsed URL and addresses from a resolver, and the scan proxy already
+  refused, as a resolver failure, any string Node does not read as a literal.
+  The proxy's test for that case now sees the guard's own refusal.
 - A calm headline can no longer stand over a policy conflict or over a consent
   card. A policy that says cookies are not used, beside a cookie of the site's
   own, made the policy card warn while the headline stayed calm; a consent

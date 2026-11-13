@@ -62,7 +62,12 @@ function isIpv6Address(address: string): boolean {
     if (!part) return false;
 
     if (part.includes(".")) {
-      if (index !== parts.length - 1 || !isIpv4Address(part)) return false;
+      // A dotted quad is the last 32 bits, so it ends the text. The parts of
+      // both sides of "::" are one list here, and with nothing after the "::"
+      // the last of them stands before it: "2600:8.8.8.8::" is no address,
+      // and reading it as one judged the words before the quad alone.
+      const endsTheText = index === parts.length - 1 && (compressed.length === 1 || right.length > 0);
+      if (!endsTheText || !isIpv4Address(part)) return false;
       wordCount += 2;
       continue;
     }
