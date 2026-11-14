@@ -6,9 +6,12 @@ project did not write:
 - `case-machine/`: the investigation workspace's case and attempt machine.
 - `worker-hold/`: the shared-worker hold, from the browser to the readout.
 
-Each already has a hand-written exploration in TypeScript, and a row in
-`docs/formal-verification.md`. These specifications are a second statement of
-the same rules, in a language with published semantics.
+Each already has a hand-written exploration in TypeScript, with rows in
+`docs/formal-verification.md` (F4 for the hold, F5 for the case machine).
+These specifications are a second statement of the same rules, in a language
+with published semantics. They have rows of their own there: TLA-HOLD,
+TLA-HOLD-L, TLA-HOLD-N and TLA-HOLD-R for the hold, TLA-CASE for the case
+machine, and TLA-EXPORT for the committed exports.
 
 ## What this is, and what it is not
 
