@@ -213,8 +213,10 @@ test("the rule judges nothing by a list that is not a list of required suites", 
     [[], "requiredSuites must name every required suite"],
     [[{ id: "lib/fv-alpha.test.ts", minimumTests: 3 }], "requiredSuites entry 1 must hold exactly id, minimumTests and minimumVariants, in that order"],
     [[{ id: "lib/fv-alpha.test.ts", minimumTests: 3, minimumVariants: 2, note: "x" }], "requiredSuites entry 1 must hold exactly id, minimumTests and minimumVariants, in that order"],
-    [[{ id: "../outside.test.ts", minimumTests: 3, minimumVariants: 2 }], "requiredSuites entry 1 does not name a suite file under lib or investigation/test"],
-    [[{ id: "scripts/x.test.mjs", minimumTests: 3, minimumVariants: 2 }], "requiredSuites entry 1 does not name a suite file under lib or investigation/test"],
+    [[{ id: "../outside.test.ts", minimumTests: 3, minimumVariants: 2 }], "requiredSuites entry 1 does not name a suite file under lib, investigation/test or scripts"],
+    [[{ id: "scripts/x.test.ts", minimumTests: 3, minimumVariants: 2 }], "requiredSuites entry 1 does not name a suite file under lib, investigation/test or scripts"],
+    [[{ id: "scripts/nested/x.test.mjs", minimumTests: 3, minimumVariants: 2 }], "requiredSuites entry 1 does not name a suite file under lib, investigation/test or scripts"],
+    [[{ id: "tools/x.test.mjs", minimumTests: 3, minimumVariants: 2 }], "requiredSuites entry 1 does not name a suite file under lib, investigation/test or scripts"],
     [[REQUIRED[0], REQUIRED[0]], "requiredSuites names lib/fv-alpha.test.ts twice"],
     [[{ id: "lib/fv-alpha.test.ts", minimumTests: 0, minimumVariants: 0 }], "lib/fv-alpha.test.ts: minimumTests must be a whole number of at least 1"],
     [[{ id: "lib/fv-alpha.test.ts", minimumTests: 1.5, minimumVariants: 0 }], "lib/fv-alpha.test.ts: minimumTests must be a whole number of at least 1"],
@@ -230,7 +232,9 @@ test("the rule judges nothing by a list that is not a list of required suites", 
 test("a suite id maps to the compiled file its own stage of test:unit runs", () => {
   assert.equal(compiledSuitePath("lib/fv-alpha.test.ts"), ".unit-test-dist/lib/fv-alpha.test.js");
   assert.equal(compiledSuitePath("investigation/test/case-exploration.test.ts"), ".investigation-test-dist/investigation/test/case-exploration.test.js");
-  for (const id of ["lib/../fv.test.ts", "lib/nested/fv.test.ts", "scripts/x.test.mjs", "lib/fv.ts", "/lib/fv.test.ts", 7]) {
+  // A suite under scripts is no compile's output: it is run as written.
+  assert.equal(compiledSuitePath("scripts/x-conformance.test.mjs"), "scripts/x-conformance.test.mjs");
+  for (const id of ["lib/../fv.test.ts", "lib/nested/fv.test.ts", "scripts/x.test.ts", "scripts/nested/x.test.mjs", "scripts/x.mjs", "lib/x.test.mjs", "tools/x.test.mjs", "lib/fv.ts", "/lib/fv.test.ts", 7]) {
     assert.throws(() => compiledSuitePath(id), /not a suite id/);
   }
 });
@@ -302,7 +306,7 @@ test("a report is read back from its canonical bytes and from nothing else", () 
     [(copy) => { copy.source.branch = "main"; }, "malformed report: source must hold exactly a full commit id and a full tree id"],
     [(copy) => { copy.suites = {}; }, "malformed report: suites must be a list"],
     [(copy) => { copy.suites[0].method = "exhaustive"; }, "malformed report: lib/fv-alpha.test.ts must hold exactly id, counts, tests and variants, in that order"],
-    [(copy) => { copy.suites[0].id = "lib/elsewhere/x.test.ts"; }, "malformed report: lib/elsewhere/x.test.ts does not name a suite file under lib or investigation/test"],
+    [(copy) => { copy.suites[0].id = "lib/elsewhere/x.test.ts"; }, "malformed report: lib/elsewhere/x.test.ts does not name a suite file under lib, investigation/test or scripts"],
     [(copy) => { copy.suites[0].counts.durationMs = 3; }, "malformed report: lib/fv-alpha.test.ts: counts must hold exactly tests, passed, failed, cancelled, skipped, todo, expectedFailures, skippedSuites, todoSuites, failedSuites, each a whole number"],
     [(copy) => { delete copy.suites[0].counts.failedSuites; }, "malformed report: lib/fv-alpha.test.ts: counts must hold exactly tests, passed, failed, cancelled, skipped, todo, expectedFailures, skippedSuites, todoSuites, failedSuites, each a whole number"],
     [(copy) => { copy.suites[0].counts.passed = -1; }, "malformed report: lib/fv-alpha.test.ts: counts must hold exactly tests, passed, failed, cancelled, skipped, todo, expectedFailures, skippedSuites, todoSuites, failedSuites, each a whole number"],
@@ -816,6 +820,21 @@ test(${JSON.stringify(name)}, () => {});
   mkdirSync(path.join(f.root, "lib"));
   mkdirSync(path.join(f.root, "investigation", "test"), { recursive: true });
   mkdirSync(path.join(f.root, "node_modules"));
+  // A suite under scripts, run as written: its one test passes only when both trees hold today's compile and nothing older.
+  mkdirSync(path.join(f.root, "scripts"));
+  writeFileSync(
+    path.join(f.root, "scripts", "tiny-conformance.test.mjs"),
+    `import assert from "node:assert/strict";
+import { existsSync } from "node:fs";
+import test from "node:test";
+test("run as written, over both compiled trees", () => {
+  for (const [tree, file] of [[".unit-test-dist", "lib"], [".investigation-test-dist", "investigation/test"]]) {
+    assert.equal(existsSync(\`\${tree}/\${file}/removed-since.test.js\`), false, tree);
+  }
+  assert.equal(existsSync(".unit-test-dist/lib/fv-tiny.test.js") && existsSync(".investigation-test-dist/investigation/test/tiny-walk.test.js"), true);
+});
+`
+  );
   writeFileSync(path.join(f.root, ".gitignore"), "node_modules/\n.unit-test-dist/\n.investigation-test-dist/\n");
   writeFileSync(path.join(f.root, "tsconfig.test.json"), project(".unit-test-dist", "lib/**/*.ts"));
   writeFileSync(path.join(f.root, "tsconfig.investigation-test.json"), project(".investigation-test-dist", "investigation/**/*.ts"));
@@ -862,6 +881,13 @@ test(${JSON.stringify(name)}, () => {});
   assert.deepEqual(testsOf(one), [[lib.id, ["compiled from the lib source today"]]]);
   assert.equal(existsSync(path.join(f.root, ".unit-test-dist", "lib", "removed-since.test.js")), false);
   assert.equal(existsSync(path.join(f.root, ".investigation-test-dist", "investigation", "test", "removed-since.test.js")), true);
+  // A suite under scripts alone asks for both trees, and is itself what runs.
+  plant();
+  const written = f.suite("scripts/tiny-conformance.test.mjs");
+  const scripted = path.join(f.outside, "scripts-only.json");
+  const alone = f.produce([written], { output: scripted, compile: true });
+  assert.equal(alone.ok, true, alone.log);
+  assert.deepEqual(testsOf(scripted), [[written.id, ["run as written, over both compiled trees"]]]);
   // The command line always compiles: it passes no option that could turn the compile off.
   const producer = readFileSync(PRODUCER, "utf8");
   assert.match(producer, /export async function produceFormalVerificationReport\(\{ requiredSuites, output, env = process\.env, compile = true, compiledFiles = null \}\)/);
@@ -895,7 +921,7 @@ test("the command line's suites are the manifest's gate's, and only while the ma
   // Each required suite is a file in this checkout, in a tree the producer compiles.
   for (const { id } of V1_REQUIRED_SUITES) {
     assert.ok(existsSync(path.join(repository, id)), `${id} does not exist`);
-    assert.match(compiledSuitePath(id), /^\.(?:unit|investigation)-test-dist\//);
+    assert.match(compiledSuitePath(id), /^(?:\.(?:unit|investigation)-test-dist|scripts)\//);
   }
 
   const root = mkdtempSync(path.join(os.tmpdir(), "fv-report-manifest-"));

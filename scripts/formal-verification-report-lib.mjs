@@ -51,7 +51,10 @@ export const FORMAL_VERIFICATION_REPORT_VERSION = 2;
 export const FORMAL_VERIFICATION_CATCH_LOG_ENV = "SITE_BEHAVIOR_LAB_FV_CATCH_LOG";
 
 const FULL_SHA = /^[0-9a-f]{40}$/;
-const SUITE_ID = /^(?:lib|investigation\/test)\/[A-Za-z0-9._-]+\.test\.ts$/;
+// A suite under lib or investigation/test is TypeScript, run as its compile
+// leaves it. A suite under scripts is run as it is written, and reads the
+// compiled trees itself: the conformance suites the register cites are such.
+const SUITE_ID = /^(?:(?:lib|investigation\/test)\/[A-Za-z0-9._-]+\.test\.ts|scripts\/[A-Za-z0-9._-]+\.test\.mjs)$/;
 const OUTCOMES = ["passed", "failed", "skipped", "todo", "expected-failure"];
 // node's own six, as its summary gives them, then four the reporter counts
 // from the events. "Suites" here is node's word for describe blocks.
@@ -77,9 +80,10 @@ const byFields = (fields) => (left, right) => {
 };
 const sortedBy = (list, compare) => list.every((entry, index) => index === 0 || compare(list[index - 1], entry) <= 0);
 
-/** Where a suite's compiled file is, by the two compiles test:unit runs. */
+/** The file a suite's run is of: its compiled file, by the two compiles test:unit runs, or a suite under scripts itself. */
 export function compiledSuitePath(id) {
   if (typeof id !== "string" || !SUITE_ID.test(id)) throw new Error(`not a suite id: ${JSON.stringify(id)}`);
+  if (id.startsWith("scripts/")) return id;
   const compiled = `${id.slice(0, -".ts".length)}.js`;
   return id.startsWith("lib/") ? `.unit-test-dist/${compiled}` : `.investigation-test-dist/${compiled}`;
 }
@@ -103,7 +107,7 @@ export function formalVerificationRequiredSuitesProblems(requiredSuites) {
       continue;
     }
     if (typeof entry.id !== "string" || !SUITE_ID.test(entry.id)) {
-      problems.push(`requiredSuites entry ${index + 1} does not name a suite file under lib or investigation/test`);
+      problems.push(`requiredSuites entry ${index + 1} does not name a suite file under lib, investigation/test or scripts`);
       continue;
     }
     if (seen.has(entry.id)) problems.push(`requiredSuites names ${entry.id} twice`);
@@ -165,7 +169,7 @@ function shapeProblems(report) {
       continue;
     }
     if (typeof suite.id !== "string" || !SUITE_ID.test(suite.id)) {
-      problems.push(`${label} does not name a suite file under lib or investigation/test`);
+      problems.push(`${label} does not name a suite file under lib, investigation/test or scripts`);
       continue;
     }
     ids.push(suite.id);

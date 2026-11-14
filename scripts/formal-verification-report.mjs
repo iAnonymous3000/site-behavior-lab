@@ -12,7 +12,8 @@
 //                    Needs no Git, so it also runs where there is none.
 //
 // The report is made by running the suites, here, and by nothing else. Each
-// required suite file is compiled afresh and run alone through the unit lanes'
+// required suite file is compiled afresh (a suite under scripts is run as
+// written, after both compiles) and run alone through the unit lanes'
 // own lane (scripts/unit-test-lanes.mjs), so it gets the lanes' per-test
 // bound, their blocking stdout and their guard against a file whose results
 // stop short, and a skipped or todo test fails its run. Two things are read
@@ -88,14 +89,14 @@ function exactSource(root, env) {
   return { commit, tree };
 }
 
-/** Compile, from nothing, each tree a required suite is in. */
+/** Compile, from nothing, each tree a required suite is in. A suite under scripts reads compiled files of either tree, so it asks for both. */
 function compileSuites(root, requiredSuites) {
   const compiler = path.join(root, "node_modules", "typescript", "bin", "tsc");
   for (const [prefix, output, project] of [
     ["lib/", ".unit-test-dist", "tsconfig.test.json"],
     ["investigation/", ".investigation-test-dist", "tsconfig.investigation-test.json"]
   ]) {
-    if (!requiredSuites.some(({ id }) => id.startsWith(prefix))) continue;
+    if (!requiredSuites.some(({ id }) => id.startsWith(prefix) || id.startsWith("scripts/"))) continue;
     rmSync(path.join(root, output), { recursive: true, force: true });
     execFileSync(process.execPath, [compiler, "-p", project], { cwd: root, stdio: "inherit" });
   }
