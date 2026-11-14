@@ -5495,3 +5495,37 @@ test("both headline banners keep the headline's own tone", () => {
   assert.match(banner, /className=\{`headline-banner tone-\$\{headline\.tone\}`\}/);
   assert.match(banner, /<ToneIcon tone=\{headline\.tone\} \/>/);
 });
+
+test("a session-replay card with no listener detection describes only the vendor request", () => {
+  // Committed, ledger-pinned Shields pair: the visit holds a request to a
+  // catalogued session-replay vendor and no session-recording or
+  // input-monitoring detection. The card may not describe listener or
+  // call-chain evidence, or say the page was shown to be instrumented.
+  const vendorOnly = ledgerPinnedReportView("20260721-72ac377bd89ac9f16ce42c9e835e50a0");
+  const vendorRun = vendorOnly.runs.find((run) => run.label === "baseline");
+  assert.deepEqual(
+    (vendorRun?.evidence.fingerprintDetections ?? []).filter(
+      (detection) => detection.kind === "session-recording" || detection.kind === "input-monitoring"
+    ),
+    []
+  );
+  const vendorCard = byId(buildFindings(vendorOnly, null, undefined, "baseline"), "session-recording-input-monitoring");
+  assert.equal(vendorCard.title, "Session-replay vendor observed");
+  assert.equal(
+    vendorCard.detail,
+    "Catalog labels include session-replay or behavior-analytics services: Crazy Egg. The domain match alone does not prove that a recording occurred. Treat this card as a review prompt rather than proof."
+  );
+  // The same two sentences the third-party services card prints on this visit.
+  assert.ok(
+    byId(buildFindings(vendorOnly, null, undefined, "baseline"), "third-party-services").detail.includes(
+      vendorCard.detail.slice(0, vendorCard.detail.indexOf(" Treat this card"))
+    )
+  );
+
+  // A card with a listener detection keeps its text.
+  const listener = ledgerPinnedReportView("20260702-3f5a6e84e5855df1ffd486d5f2067bd4");
+  const listenerCard = byId(buildFindings(listener, null, undefined, "baseline"), "session-recording-input-monitoring");
+  assert.match(listenerCard.title, /^Input-monitoring signal involving /);
+  assert.match(listenerCard.detail, /^This is a behavioral instrumentation signal from listener registration, /);
+  assert.match(listenerCard.detail, / Treat this card as a review prompt rather than proof\.$/);
+});

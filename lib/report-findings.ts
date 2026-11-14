@@ -422,6 +422,9 @@ function sentenceSequence(items: readonly string[], limit: number, overflow: (co
   return [...shown, ...(remaining > 0 ? [overflow(remaining)] : [])].join(" ");
 }
 
+/** The closing sentence of every session-recording-input-monitoring card. */
+const LISTENER_CARD_REVIEW_PROMPT = "Treat this card as a review prompt rather than proof.";
+
 function capitalizeSentence(text: string): string {
   return text.charAt(0).toUpperCase() + text.slice(1);
 }
@@ -1753,10 +1756,16 @@ export function buildFindings(
                 )} listener coverage was registered during the visit. It was registered through call chains that included ${scriptPhrase}.${scriptOperatorNote}`
               : `Broad interaction listener coverage was registered during the visit through call chains that included ${scriptPhrase}.${scriptOperatorNote}`
             : `${humanList(sessionReplayNames)} appeared in the request log.`,
-      // Every clause here is a hedge an audit asked for; the sentences were
-      // split, never trimmed, when three of them ran 37 to 45 words.
+      // A card with no listener detection holds one fact, a request to a
+      // catalogued vendor. It may not describe listener or call-chain
+      // evidence, or say the page was shown to be instrumented, so it reuses
+      // the third-party services card's two sentences on that match.
       detail:
-        "This is a behavioral instrumentation signal from listener registration, stack-attributed script origins, and known-vendor requests: it shows the page was instrumented to observe interaction, not that anything was transmitted. Stack attribution records the script origins present in the bounded registration call chain. A cross-site origin in that chain does not by itself establish that the cross-site script registered the listener. That is because first-party code can register its own listeners through a helper served from elsewhere. A different registrable domain is also not by itself a different operator: sites commonly serve their own scripts from a separate asset domain. The card therefore says third party only when the catalog or reviewed ownership attributes an origin to another organization. On scanners that run the active keystroke-capture probe, actual transmission is tested separately (a synthetic value is typed, never real input, and no typed values are collected). Treat this card as a review prompt rather than proof.",
+        !sessionRecordingDetection && !inputMonitoringDetection
+          ? `${sessionReplayNote.trim()} ${LISTENER_CARD_REVIEW_PROMPT}`
+          : // Every clause here is a hedge an audit asked for; the sentences were
+            // split, never trimmed, when three of them ran 37 to 45 words.
+          `This is a behavioral instrumentation signal from listener registration, stack-attributed script origins, and known-vendor requests: it shows the page was instrumented to observe interaction, not that anything was transmitted. Stack attribution records the script origins present in the bounded registration call chain. A cross-site origin in that chain does not by itself establish that the cross-site script registered the listener. That is because first-party code can register its own listeners through a helper served from elsewhere. A different registrable domain is also not by itself a different operator: sites commonly serve their own scripts from a separate asset domain. The card therefore says third party only when the catalog or reviewed ownership attributes an origin to another organization. On scanners that run the active keystroke-capture probe, actual transmission is tested separately (a synthetic value is typed, never real input, and no typed values are collected). ${LISTENER_CARD_REVIEW_PROMPT}`,
       evidence: behaviorNotes.join(" "),
       claim: findingClaim(facts, "session-recording-input-monitoring", "presence"),
       ...withLookCloser(listenerView)
