@@ -503,6 +503,11 @@ const HISTORICAL_NODE_V15_METHODOLOGY = "shields-request-context-v2-adblock-rust
 // methodology: the v30 rows ran it too, and the 2026-12 toolchain epoch,
 // which moved it, closed them to it.
 const HISTORICAL_NODE_V29_METHODOLOGY = "shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.64.1+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2+phase-kernel-v2+boundary-state-v1+consent-r2-v5+resource-budget-v2+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1+service-role-taxonomy-v1+gpc-worker-application-v3+active-probe-v3+auxiliary-context-block-v1+worker-fingerprint-v1";
+// Exact methodology of the 2026-12 toolchain epoch (adblock-rust 0.13.5,
+// Playwright 1.65.0), spelled out so the two v31 rows stay put when a later
+// epoch moves it. The node-detectors-v25 detector epoch closed those rows and
+// kept this methodology: the v32 rows run it.
+const HISTORICAL_NODE_V31_METHODOLOGY = "shields-request-context-v2-adblock-rust-0.13.5-request-method-v1-playwright-1.65.0+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2+phase-kernel-v2+boundary-state-v1+consent-r2-v5+resource-budget-v2+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1+service-role-taxonomy-v1+gpc-worker-application-v3+active-probe-v3+auxiliary-context-block-v1+worker-fingerprint-v1";
 // Exact normalization of the node-detectors-v12 production producer (f9d6c46e,
 // the main and production tip when it closed), closed by the 2026-10 toolchain
 // epoch when the public-suffix engine moved from tldts@7.4.13 to tldts@7.4.16
@@ -525,10 +530,11 @@ const HISTORICAL_NODE_V17_NORMALIZATION = "redaction-v4+allowlists-v3:269f631f04
 const HISTORICAL_NODE_V20_NORMALIZATION = "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:bc719d41df186ae38fdb34695df43780a816d32b41068a6107cd35035269844e+tldts@7.4.16+node-evidence-policy-v1+r2-http-status-compat-v1";
 // Exact normalization of the node-detectors-v21 producer (the 3a2328d7 policy
 // digest under tldts 7.4.16), which node-detectors-v22 and v23 and the 2026-11
-// and 2026-12 toolchain epochs and node-detectors-v24 kept: the v26, v27 and
-// v28 rows ran it under the v15 methodology, the v29 and v30 rows name it
-// under the Playwright 1.64.1 methodology, and the v31 rows under the
-// adblock-rust 0.13.5 and Playwright 1.65.0 methodology. It is not superseded.
+// and 2026-12 toolchain epochs and node-detectors-v24 and v25 kept: the v26,
+// v27 and v28 rows ran it under the v15 methodology, the v29 and v30 rows
+// name it under the Playwright 1.64.1 methodology, and the v31 and v32 rows
+// under the adblock-rust 0.13.5 and Playwright 1.65.0 methodology. It is not
+// superseded.
 const HISTORICAL_NODE_V26_NORMALIZATION = "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:3a2328d7af1e870389650de03af6f4a0cc06561258ee8bd2b42ad6dba27ba1a1+tldts@7.4.16+node-evidence-policy-v1+r2-http-status-compat-v1";
 
 export const HISTORICAL_NODE_R2_V4_METHODOLOGIES_BY_NORMALIZATION: Readonly<
@@ -774,6 +780,20 @@ export const HISTORICAL_R2_LISTS_2026_10_19_ADBLOCK_0_13_3_IDENTITY = Object.fre
   fetchedAt: "2026-10-19T13:08:56.937Z",
   manifestDigest: "25bef053aac3c343e99c5ae44836c6ce0550669a75cd7568bc95fda8a3d6f624",
   engineVersion: "adblock-rust-0.13.3"
+} satisfies NonNullable<Toolchain["adblock"]>);
+
+/**
+ * Frozen copy of the October 19 list snapshot under adblock-rust 0.13.5, as
+ * the 2026-12 toolchain producer's list row, the v31 list row, published it
+ * until node-detectors-v25 closed it. The live constant follows each adoption
+ * and each engine move; this closed copy never does.
+ */
+export const HISTORICAL_R2_LISTS_2026_10_19_ADBLOCK_0_13_5_IDENTITY = Object.freeze({
+  source: "Brave default ad-block lists",
+  lists: 31,
+  fetchedAt: "2026-10-19T13:08:56.937Z",
+  manifestDigest: "25bef053aac3c343e99c5ae44836c6ce0550669a75cd7568bc95fda8a3d6f624",
+  engineVersion: "adblock-rust-0.13.5"
 } satisfies NonNullable<Toolchain["adblock"]>);
 
 export const PAGEGRAPH_R2_DETECTOR_VERSION = "pagegraph-import-unsupported@1" as const;
@@ -1903,9 +1923,8 @@ const HISTORICAL_NODE_V23_FIELDS: NodeTupleFields = Object.freeze({
 
 // Exact node-detectors-v24 producer fields, frozen when the 2026-12 toolchain
 // epoch closed the two v30 rows, the October 19 list row and the no-list row.
-// No detector moved in that epoch, so the active fields still equal these
-// today; the closed rows must not follow them when a later detector epoch
-// moves.
+// No detector moved in that epoch, so the two v31 rows ran these fields too,
+// and node-detectors-v25 closed them to the same literals.
 const HISTORICAL_NODE_V24_FIELDS: NodeTupleFields = Object.freeze({
   detectorRegistry: Object.freeze({
     "version": "node-detectors-v24",
@@ -1990,32 +2009,31 @@ function nodeTuple(
   });
 }
 
-// Closed rows retain their exact literals; the 2026-12 toolchain epoch
-// (adblock-rust 0.13.5, Playwright 1.65.0, bundled Chromium 158.0.8127.18)
-// defines v31. It moves the methodology's ad-block engine component, from
-// 0.13.3 to 0.13.5, and its Playwright component, from 1.64.1 to 1.65.0, and
-// with the engine the list row's ad-block identity; the normalization,
-// detectors (node-detectors-v24), obligations, list snapshot and every other
-// field are unchanged from v30, whose two live rows, the October 19 list row
-// and the no-list row, are closed below in NODE_R2_PRODUCER_TUPLES. The v30
-// rows ran the v29 methodology, so that is the one the live methodology must
-// differ from.
+// Closed rows retain their exact literals; the node-detectors-v25 detector
+// epoch defines v32. It moves the fingerprint observer
+// (fingerprint-observer@14, whose worker readout counts as unread a shared
+// worker it can no longer say ran nothing before the freeze and a dedicated
+// worker already running when it attached, where @13 excluded them or
+// counted them nowhere) with the registry; the methodology, normalization,
+// obligations, lists, toolchain and every other field are unchanged from
+// v31, whose two live rows, the October 19 list row and the no-list row, are
+// closed below in NODE_R2_PRODUCER_TUPLES.
 const ACTIVE_NODE_WIRE_IDENTITY_IS_DISTINCT =
-  String(NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION) !== HISTORICAL_NODE_V29_METHODOLOGY ||
+  String(NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION) !== HISTORICAL_NODE_V31_METHODOLOGY ||
   String(NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION) !== HISTORICAL_NODE_V26_NORMALIZATION ||
   canonicalJson(ACTIVE_NODE_FIELDS) !== canonicalJson(HISTORICAL_NODE_V24_FIELDS);
 
 const ACTIVE_NODE_TUPLES: readonly NodeR2ProducerTuple[] = ACTIVE_NODE_WIRE_IDENTITY_IS_DISTINCT
   ? Object.freeze([
       nodeTuple(
-        "node-v31-toolchain-2026-12-active-lists-2026-10-19",
+        "node-v32-detectors-v25-active-lists-2026-10-19",
         NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION,
         NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION,
         ACTIVE_NODE_FIELDS,
         NODE_R2_CURRENT_ADBLOCK_IDENTITY
       ),
       nodeTuple(
-        "node-v31-toolchain-2026-12-active-no-adblock",
+        "node-v32-detectors-v25-active-no-adblock",
         NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION,
         NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION,
         ACTIVE_NODE_FIELDS,
@@ -2626,6 +2644,19 @@ export const NODE_R2_PRODUCER_TUPLES: readonly NodeR2ProducerTuple[] = Object.fr
   ),
   nodeTuple("node-v30-detectors-v24-active-no-adblock",
     HISTORICAL_NODE_V26_NORMALIZATION, HISTORICAL_NODE_V29_METHODOLOGY,
+    HISTORICAL_NODE_V24_FIELDS, null
+  ),
+  // The 2026-12 toolchain producer, with the October 19 lists and without
+  // lists, closed to its exact source identity by node-detectors-v25: the v31
+  // methodology (adblock-rust 0.13.5, Playwright 1.65.0), the 3a2328d7 policy
+  // digest under tldts 7.4.16, node-detectors-v24 (fingerprint-observer@13)
+  // and, for the list row, adblock-rust 0.13.5.
+  nodeTuple("node-v31-toolchain-2026-12-active-lists-2026-10-19",
+    HISTORICAL_NODE_V26_NORMALIZATION, HISTORICAL_NODE_V31_METHODOLOGY,
+    HISTORICAL_NODE_V24_FIELDS, HISTORICAL_R2_LISTS_2026_10_19_ADBLOCK_0_13_5_IDENTITY
+  ),
+  nodeTuple("node-v31-toolchain-2026-12-active-no-adblock",
+    HISTORICAL_NODE_V26_NORMALIZATION, HISTORICAL_NODE_V31_METHODOLOGY,
     HISTORICAL_NODE_V24_FIELDS, null
   ),
   ...ACTIVE_NODE_TUPLES

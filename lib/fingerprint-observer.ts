@@ -187,7 +187,19 @@ export type FingerprintObserverRealmArgs = {
  * name its script has, so such a worker did not read as ended at once under
  * @12 either. @13 also acts on what the attacher's connection brings in the
  * order it arrived, and counts a worker whose breakpoint was refused, or
- * left unanswered for the command's bound, as reached late.
+ * left unanswered for the command's bound, as reached late. `@14`
+ * (node-detectors-v25) keeps this script. The readout no longer excludes a
+ * shared worker as having run nothing before the freeze: one the readout's
+ * view saw held at its main script, or first heard of after the freeze, and
+ * then released or still held when the drain ended, is unread, since its
+ * release may have been in flight at the freeze or its hold already broken.
+ * Through @13 it was excluded. A dedicated worker already running when it
+ * attached is unread wherever its attach fell: inside the round trip that
+ * arms the recursion, gone before the channel's resume, or in the drain.
+ * Through @13 the first was excluded as held, the second as died paused, and
+ * the third was counted nowhere. A dedicated worker held at an attach that
+ * arrives in the drain is excluded as paused at the readout, where through
+ * @13 it was counted nowhere.
  *
  * `firstPartySiteKey` is the scanned site's registrable domain (computed with
  * the real public-suffix list in Node, e.g. "capitalone.com"), so the in-page
