@@ -1,0 +1,127 @@
+import { AccessKeySet } from "../core/access-token";
+import { sha256Hex } from "../core/canonical-json";
+import { caseIndexObject, caseObject, hostedCasesFrom, type HostEnv, type HostObject } from "../core/case-host";
+import { bucketObjectStore, sqlHeadStore, type HostBucket, type HostStorage } from "../core/case-host-stores";
+import { viewerRoutes } from "../core/viewer-routes";
+import { handleWorkspaceRequest } from "../core/workspace-gate";
+
+/**
+ * The production entry's wiring, bundled by the case host's fault and cost suites, with three
+ * things the production entry has no way to do. Its case objects write through a bucket that
+ * fails an entry's write while the test's marker object exists, which is how a kill between the
+ * log's start and the plan is planted. A case object also takes two calls of the test's own:
+ * one that runs the stores through their contract inside the object and reports what each call
+ * answered, and one that sets a head, so a case built in Node can be measured as the host
+ * opens it. None of this is reachable from cloudflare/investigation-worker.ts.
+ */
+
+const FAULT_KEY = "test-fault/entry-put";
+
+type ObjectState = Readonly<{ id: Readonly<{ name?: string }>; storage: HostStorage }>;
+
+const keySets = new Map<string, AccessKeySet>();
+
+function keySetFor(issuer: string): AccessKeySet {
+  let keySet = keySets.get(issuer);
+  if (keySet === undefined) {
+    keySet = new AccessKeySet(issuer, (url, init) => fetch(url, init), Date.now);
+    keySets.set(issuer, keySet);
+  }
+  return keySet;
+}
+
+/** The bucket, counting its reads, and failing an entry's write while the marker is there. */
+function plantable(bucket: HostBucket, counts: { gets: number }): HostBucket {
+  return {
+    head: (key) => bucket.head(key),
+    get: (key, options) => {
+      counts.gets += 1;
+      return bucket.get(key, options);
+    },
+    put: async (key, value, options) => {
+      if (key.includes("/entries/") && (await bucket.head(FAULT_KEY)) !== null) throw new Error("The test's planted store failure");
+      return bucket.put(key, value, options);
+    }
+  };
+}
+
+const text = (value: string): Uint8Array<ArrayBuffer> => new Uint8Array(new TextEncoder().encode(value));
+
+/** Each store call the contract names, in order, with what it answered. */
+async function probeStores(storage: HostStorage, bucket: HostBucket): Promise<Record<string, unknown>> {
+  const [a, b, c, d] = ["a", "b", "c", "d"].map((letter) => letter.repeat(64));
+  const head = sqlHeadStore(storage);
+  const absent = await head.read(64);
+  const first = await head.compareAndSwap(null, a);
+  const second = await head.compareAndSwap(null, b);
+  const stale = await head.compareAndSwap(c, d);
+  const afterRefused = await head.read(64);
+  const swap = await head.compareAndSwap(a, b);
+  const swapAgain = await head.compareAndSwap(a, c);
+  const now = await head.read(64);
+  const bounded = await head.read(63);
+  storage.sql.exec("UPDATE log_head SET value = ?", "e".repeat(65)).toArray();
+  const long = await head.read(64);
+
+  const counts = { gets: 0 };
+  const objects = bucketObjectStore(plantable(bucket, counts), "probe/");
+  const digest = await sha256Hex(text("first"));
+  const created = await objects.createOnly(digest, text("first"));
+  const again = await objects.createOnly(digest, text("second"));
+  const held = await objects.read(digest, 100);
+  const exact = await objects.read(digest, 5);
+  const getsBefore = counts.gets;
+  const tooLarge = await objects.read(digest, 4);
+  const getsForTooLarge = counts.gets - getsBefore;
+  const missing = await objects.read(c, 10);
+  const notADigest = await objects.read("not-a-digest", 10);
+  const emptyDigest = await sha256Hex(new Uint8Array(0));
+  const emptyCreated = await objects.createOnly(emptyDigest, new Uint8Array(0));
+  const empty = await objects.read(emptyDigest, 0);
+  let offDigest = "stored";
+  try {
+    await objects.createOnly("not-a-digest", text("x"));
+  } catch {
+    offDigest = "refused";
+  }
+  const shown = (value: unknown): unknown => (value instanceof Uint8Array ? new TextDecoder().decode(value) : value);
+  return { absent, first, second, stale, afterRefused, swap, swapAgain, now, bounded, long, created, again, held: shown(held), exact: shown(exact), tooLarge, getsForTooLarge, missing, notADigest, emptyCreated, empty: shown(empty), offDigest };
+}
+
+export class InvestigationCase {
+  private readonly answer: HostObject;
+  private readonly storage: HostStorage;
+  private readonly bucket: HostBucket;
+
+  constructor(state: ObjectState, env: HostEnv) {
+    this.storage = state.storage;
+    this.bucket = env.INVESTIGATION_OBJECTS as HostBucket;
+    this.answer = caseObject({ name: state.id.name, storage: state.storage, env: { ...env, INVESTIGATION_OBJECTS: plantable(this.bucket, { gets: 0 }) }, keySetFor, now: Date.now });
+  }
+
+  async fetch(request: Request): Promise<Response> {
+    const call = (await request.clone().json()) as { call?: string; head?: string };
+    if (call.call === "test-probe-stores") return Response.json(await probeStores(this.storage, this.bucket));
+    if (call.call === "test-seed-head") return Response.json({ ok: await sqlHeadStore(this.storage).compareAndSwap(null, call.head as string) });
+    return this.answer(request);
+  }
+}
+
+export class InvestigationCaseIndex {
+  private readonly answer: HostObject;
+
+  constructor(state: ObjectState, env: HostEnv) {
+    this.answer = caseIndexObject({ name: state.id.name, storage: state.storage, env, keySetFor, now: Date.now });
+  }
+
+  fetch(request: Request): Promise<Response> {
+    return this.answer(request);
+  }
+}
+
+export default {
+  fetch(request: Request, env: HostEnv): Promise<Response> {
+    const hosted = hostedCasesFrom(env);
+    return handleWorkspaceRequest(request, env, { keySetFor, now: Date.now, routes: viewerRoutes({ env, service: hosted?.service ?? null, directory: hosted?.directory ?? null }) });
+  }
+};

@@ -10,6 +10,8 @@ import { aggregate, evidenceForAttempt } from "../core/aggregates";
 import * as canonicalJson from "../core/canonical-json";
 import * as caseEvents from "../core/case-events";
 import * as caseLog from "../core/case-log";
+import * as caseHost from "../core/case-host";
+import * as caseHostStores from "../core/case-host-stores";
 import * as caseService from "../core/case-service";
 import * as captureAdapter from "../core/capture-adapter";
 import { EVENT_TYPES } from "../core/case-events";
@@ -57,7 +59,9 @@ const EXPORTS: Readonly<Record<string, readonly string[]>> = {
   "canonical-json.ts": ["MAX_CANONICAL_DEPTH", "bytesEqual", "canonicalBytes", "hasExactly", "parseCanonical", "sha256Hex"],
   "case-log.ts": ["GENESIS_HEAD", "MAX_ENTRY_BYTES", "MAX_EVIDENCE_BYTES", "MAX_HEAD_CHARS", "appendCommand", "checkFirstEntry", "createLog", "isCaseId", "isDigest", "openLog", "putEvidence", "readEvidence", "verifyAgainstSavedHead"],
   "case-events.ts": ["EVENT_TYPES", "MAX_LIST_ITEMS", "MAX_SLUG_CHARS", "MAX_TEXT_CHARS", "configurationKey", "decodeEvent", "digestsNamed", "isConfigurationIdentity", "isSlug"],
-  "case-service.ts": ["CLAIM_EVENT_TYPES", "EVIDENCE_PAGE_BYTES", "caseServiceOver"],
+  "case-service.ts": ["CLAIM_EVENT_TYPES", "EVIDENCE_PAGE_BYTES", "caseServiceOver", "ownerFromAssertion"],
+  "case-host.ts": ["CASE_INDEX_NAME", "MAX_HOSTED_CASES", "caseIndexObject", "caseObject", "hostedCasesFrom", "isHostedCaseId"],
+  "case-host-stores.ts": ["bucketObjectStore", "casePrefix", "hostedStores", "isHostBucket", "isHostStorage", "sqlHeadStore"],
   "capture-adapter.ts": ["CAPTURE_ADAPTER", "LOGGER_APIS", "WALL_STATUSES", "adaptCaptureRun", "capturePathNames", "capturePathsNeeded", "originOfUrl", "readCaptureRun", "surveyCaptureRun"],
   "case-machine.ts": ["MAX_CONFIGURATION_CHANGES", "MAX_CONTROL_MISSES", "MAX_START_RETRIES", "OUTCOMES", "SLOT_NAMES", "continuationOf", "denominatorOf", "isCleanupUnresolved", "isOutcome", "isRunningPhase", "isTerminal", "plannedState", "retentionOf", "step", "visitBasisOf"],
   "case-store.ts": ["aggregateRowsOfCase", "createCase", "foldEntry", "mintedSlots", "openCase", "runCommand"],
@@ -71,7 +75,7 @@ const EXPORTS: Readonly<Record<string, readonly string[]>> = {
   "sufficiency.ts": ["EVIDENCE_KINDS", "KIND_MEANINGS", "assessSufficiency"],
   "summary-tier.ts": ["isAttemptSummary", "projectAttemptSummary"],
   "trial-layout.ts": ["TRIAL_LAYOUT", "surveyTrialRun", "trialPathNames", "trialPathsNeeded"],
-  "viewer-pages.ts": ["ADAPTER_NOTE", "CANNOT_ANSWER", "aggregatesPage", "attemptPage", "casePage", "evidencePage", "evidenceRefusalPage", "factPage", "formRefusalPage", "methodPage", "notFoundPage", "readingMarkup", "refusalPage", "rowPage"],
+  "viewer-pages.ts": ["ADAPTER_NOTE", "CANNOT_ANSWER", "aggregatesPage", "attemptPage", "casePage", "casesPage", "createRefusalPage", "evidencePage", "evidenceRefusalPage", "factPage", "formRefusalPage", "methodPage", "notFoundPage", "readingMarkup", "refusalPage", "rowPage"],
   "viewer-routes.ts": ["MAX_FORM_BYTES", "VIEWER_ROUTES", "viewerRoutes"],
   "viewer-text.ts": ["AttributeValue", "MAX_INDENT", "Markup", "attribute", "escapeAttribute", "escapeText", "hiddenField", "html", "linkTo", "pathOf"],
   "workspace-response.ts": ["BASE_POLICY", "VIEWER_STYLE", "VIEWER_STYLE_HASH", "htmlResponse", "jsonResponse", "refusalResponse", "responseHeaders"]
@@ -83,6 +87,8 @@ const MODULES: Readonly<Record<string, object>> = {
   "case-log.ts": caseLog,
   "case-events.ts": caseEvents,
   "case-service.ts": caseService,
+  "case-host.ts": caseHost,
+  "case-host-stores.ts": caseHostStores,
   "capture-adapter.ts": captureAdapter,
   "case-machine.ts": machine,
   "case-store.ts": store,
@@ -585,10 +591,13 @@ const F5_TESTS = ["case-exploration-plant-worker.ts", "case-exploration-walk.ts"
 /** W4's, the imported case, its adapters, the sufficiency assessment and the local reader, with a synthetic run on reserved names. */
 const W4_TESTS = ["capture-adapter.test.ts", "imported-case.test.ts", "recorded-fixture.ts", "recorded-folder.test.ts", "sufficiency.test.ts", "trial-layout.test.ts"];
 
-test("the lists of new test files are every test file W2, W3, F5 and W4 added beside the ones before them", () => {
+/** S1's, the case host on a Durable Object: its suites, their fixture, the test's own workerd entry and the tool that measures an open. */
+const S1_TESTS = ["case-directory.test.ts", "case-host-faults-workerd.test.ts", "case-host-fixture.ts", "case-host-open-cost.ts", "case-host-workerd.test.ts", "workerd-case-host-entry.ts"];
+
+test("the lists of new test files are every test file W2, W3, F5, W4 and S1 added beside the ones before them", () => {
   const earlier = ["access-token.test.ts", "actor.test.ts", "canonical-json.test.ts", "case-log-walk.test.ts", "case-log-workerd.test.ts", "case-log.test.ts", "deployment-config.test.ts", "fs-kill-child.ts", "fs-log-store-kill.test.ts", "fs-log-store.test.ts", "log-fixture.ts", "memory-log-store.ts", "token-fixture.ts", "workerd-case-log-entry.ts", "workspace-boundaries.test.ts", "workspace-config.test.ts", "workspace-gate.test.ts"];
   const present = readdirSync(path.join(ROOT, TEST)).filter((file) => file.endsWith(".ts")).sort();
-  assert.deepEqual(present, [...earlier, ...W2_TESTS, ...W3_TESTS, ...F5_TESTS, ...W4_TESTS].sort());
+  assert.deepEqual(present, [...earlier, ...W2_TESTS, ...W3_TESTS, ...F5_TESTS, ...W4_TESTS, ...S1_TESTS].sort());
   // And the local folder holds the log's store and W4's reader; the site-strings check reads both, and any file added beside them.
   assert.deepEqual(readdirSync(path.join(ROOT, "investigation/local")).filter((file) => file.endsWith(".ts")).sort(), ["fs-log-store.ts", "recorded-folder.ts"]);
 });

@@ -139,6 +139,8 @@ test("every core module is walked, including the summary tier the entry does not
     "investigation/core/readings.ts",
     "investigation/core/summary-tier.ts",
     "investigation/core/case-service.ts",
+    "investigation/core/case-host.ts",
+    "investigation/core/case-host-stores.ts",
     "investigation/core/viewer-pages.ts",
     "investigation/core/viewer-routes.ts",
     "investigation/core/viewer-text.ts",
@@ -154,13 +156,18 @@ test("every core module is walked, including the summary tier the entry does not
   }
 });
 
-test("the Worker's entry reaches the viewer, and through it the case code it reads, and neither the service it has none of nor the summary tier", () => {
+test("the Worker's entry reaches the viewer, the case host and through them the case code, and not the summary tier", () => {
   const graph = graphOf([WORKSPACE_ENTRY], readProject);
   for (const file of ["viewer-routes.ts", "viewer-pages.ts", "viewer-text.ts", "workspace-response.ts", "case-store.ts", "case-log.ts", "evidence-model.ts", "aggregates.ts", "readings.ts", "case-machine.ts"]) {
     assert.ok(graph.has(`${CORE}/${file}`), file);
   }
-  // The production entry configures no service, and the viewer names the seam by its types alone.
-  assert.ok(!graph.has(`${CORE}/case-service.ts`));
+  // The entry's two Durable Object classes run the case host, which answers the case service's calls inside an object.
+  for (const file of ["case-host.ts", "case-host-stores.ts", "case-service.ts", "ids.ts"]) assert.ok(graph.has(`${CORE}/${file}`), file);
+  // The viewer still names both seams by their types alone: only the host reaches the service at run time.
+  for (const viewer of ["viewer-routes.ts", "viewer-pages.ts"]) {
+    const reached = graphOf([`${CORE}/${viewer}`], readProject);
+    assert.ok(!reached.has(`${CORE}/case-service.ts`) && !reached.has(`${CORE}/case-host.ts`), viewer);
+  }
   // A summary keeps a range's count of 0 as the capture gave it, which is no reading, so the viewer never reads one.
   assert.ok(!graph.has(`${CORE}/summary-tier.ts`));
   for (const viewer of ["viewer-routes.ts", "viewer-pages.ts", "viewer-text.ts"]) assert.ok(!graphOf([`${CORE}/${viewer}`], readProject).has(`${CORE}/summary-tier.ts`), viewer);

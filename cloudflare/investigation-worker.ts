@@ -1,18 +1,25 @@
 /// <reference types="@cloudflare/workers-types" />
 
-// Front Worker of the private investigation workspace. It holds no binding and has
-// no route to it yet: wrangler.investigation.jsonc names no hostname, and nothing
-// deploys it. It shares nothing with the public scanner, and no public entrypoint
-// imports it (lib/runtime-boundaries.test.ts).
+// Front Worker of the private investigation workspace, and the two Durable Object classes
+// its cases live in. It has no route to it yet: wrangler.investigation.jsonc names no
+// hostname, and nothing deploys it. It shares nothing with the public scanner, and no public
+// entrypoint imports it (lib/runtime-boundaries.test.ts).
 //
-// The viewer's routes stand behind the gate, and no case service is configured here:
-// nothing holds a case yet, since the Durable Object, its storage and its alarms are a
-// later batch. So every case route answers 503, as a missing configuration does, and
-// only health answers otherwise. investigation/test/workspace-entry-workerd.test.ts runs
-// this entry's own bundle on workerd and holds that.
+// The viewer's routes stand behind the gate. They get a case service only when the
+// workspace's configuration and all three bindings are there: the case objects, the object
+// that lists them, and the private bucket. With any of them missing every case route answers
+// 503, as a missing configuration does, and only health answers otherwise.
+// investigation/test/workspace-entry-workerd.test.ts runs this entry's own bundle on workerd
+// with no binding and holds that, and investigation/test/case-host-workerd.test.ts runs it
+// with all three.
+//
+// Each class below only hands its storage, its name and its environment to
+// investigation/core/case-host.ts, which holds everything an object does. Every call an
+// object takes verifies the Access assertion again, inside the object.
 import { AccessKeySet } from "../investigation/core/access-token";
+import { caseIndexObject, caseObject, hostedCasesFrom, type HostEnv, type HostObject } from "../investigation/core/case-host";
 import { viewerRoutes } from "../investigation/core/viewer-routes";
-import { handleWorkspaceRequest, type WorkspaceEnv } from "../investigation/core/workspace-gate";
+import { handleWorkspaceRequest } from "../investigation/core/workspace-gate";
 
 const keySets = new Map<string, AccessKeySet>();
 
@@ -25,8 +32,35 @@ function keySetFor(issuer: string): AccessKeySet {
   return keySet;
 }
 
+/** One case, as its single writer. */
+export class InvestigationCase {
+  private readonly answer: HostObject;
+
+  constructor(state: DurableObjectState, env: HostEnv) {
+    this.answer = caseObject({ name: state.id.name, storage: state.storage, env, keySetFor, now: Date.now });
+  }
+
+  fetch(request: Request): Promise<Response> {
+    return this.answer(request);
+  }
+}
+
+/** The list of this namespace's cases. */
+export class InvestigationCaseIndex {
+  private readonly answer: HostObject;
+
+  constructor(state: DurableObjectState, env: HostEnv) {
+    this.answer = caseIndexObject({ name: state.id.name, storage: state.storage, env, keySetFor, now: Date.now });
+  }
+
+  fetch(request: Request): Promise<Response> {
+    return this.answer(request);
+  }
+}
+
 export default {
-  fetch(request: Request, env: WorkspaceEnv): Promise<Response> {
-    return handleWorkspaceRequest(request, env, { keySetFor, now: Date.now, routes: viewerRoutes({ env, service: null }) });
+  fetch(request: Request, env: HostEnv): Promise<Response> {
+    const hosted = hostedCasesFrom(env);
+    return handleWorkspaceRequest(request, env, { keySetFor, now: Date.now, routes: viewerRoutes({ env, service: hosted?.service ?? null, directory: hosted?.directory ?? null }) });
   }
 };

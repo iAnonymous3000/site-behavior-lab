@@ -2,23 +2,26 @@
 // matches only what it lists, and investigation/test/viewer.test.ts pins it, so a route cannot
 // be added without that test changing on purpose.
 //
-// Reads: a case, one attempt, one row inside its attempt, one fact, the counts across attempts,
-// and one page of an evidence object the case names. Writes: claims, and nothing else, each
-// through the case service, which takes only claim events. There is no route that starts,
-// deadlines, cancels, excepts, rules or plans anything, which belongs with the runner; none that
-// purges or lists a manifest, which W2's open items block; and none that approves, publishes,
-// exports or downloads anything. Revising or withdrawing an interpretation is not in W2's model,
+// Reads: the list of cases, a case, one attempt, one row inside its attempt, one fact, the counts
+// across attempts, and one page of an evidence object the case names. Writes: a new case, through
+// the directory, which mints its id, so no route takes an id for one; and claims, each through
+// the case service, which takes only claim events. There is no route that starts, deadlines,
+// cancels, excepts or rules anything, nor one that plans a case that exists, which belongs with
+// the runner; none that purges or lists a manifest, which W2's open items block; and none that
+// approves, publishes, exports or downloads anything. Revising or withdrawing an interpretation is not in W2's model,
 // so it is not here either.
 //
 // The gate has already verified the owner, refused a service token, and refused a write from any
-// origin but this one. With no case service configured, as in the production entry, every case
-// route answers 503, as a missing configuration does, and nothing else is reachable but health.
+// origin but this one. With no case service configured, every case route answers 503, as a missing
+// configuration does, and nothing else is reachable but health. The two routes of the list answer
+// 503 the same way with no directory.
 
 import { isSlug, MAX_LIST_ITEMS, MAX_SLUG_CHARS, MAX_TEXT_CHARS } from "./case-events";
+import type { CaseDirectory, NewCasePlan } from "./case-host";
 import { isCaseId, isDigest, type LogEvent } from "./case-log";
 import { SLOT_NAMES } from "./case-machine";
 import type { AccessAnswer, CaseRefusal, CaseService } from "./case-service";
-import { aggregatesPage, attemptPage, casePage, evidencePage, evidenceRefusalPage, factPage, formRefusalPage, methodPage, notFoundPage, refusalPage, rowPage } from "./viewer-pages";
+import { aggregatesPage, attemptPage, casePage, casesPage, createRefusalPage, evidencePage, evidenceRefusalPage, factPage, formRefusalPage, methodPage, notFoundPage, refusalPage, rowPage } from "./viewer-pages";
 import { pathOf } from "./viewer-text";
 import { HEALTH_PATH, healthResponse, type WorkspaceEnv, type WorkspaceRoutes } from "./workspace-gate";
 import { htmlResponse, refusalResponse } from "./workspace-response";
@@ -27,6 +30,8 @@ type Param = "case" | "slot" | "row" | "fact" | "assertion" | "interpretation" |
 
 /** Every route the viewer answers, beside health. Nothing else is matched. */
 export const VIEWER_ROUTES = [
+  { name: "cases", method: "GET", path: "/cases" },
+  { name: "create-case", method: "POST", path: "/cases" },
   { name: "case", method: "GET", path: "/cases/:case" },
   { name: "attempt", method: "GET", path: "/cases/:case/attempts/:slot" },
   { name: "row", method: "GET", path: "/cases/:case/attempts/:slot/rows/:row" },
@@ -74,7 +79,9 @@ const OFFSET = /^(?:0|[1-9][0-9]{0,15})$/;
 const VERSION = /^[1-9][0-9]{0,8}$/;
 
 type Params = Readonly<Partial<Record<Param, string>>>;
-type Context = Readonly<{ request: Request; url: URL; params: Params; service: CaseService; assertion: string; caseId: string }>;
+/** The routes of the list, which name no case and are answered by the directory. Every other route names one. */
+const DIRECTORY_ROUTES: readonly RouteName[] = ["cases", "create-case"];
+type Context = Readonly<{ request: Request; url: URL; params: Params; service: CaseService; directory: CaseDirectory | null; assertion: string; caseId: string }>;
 type Handler = (context: Context) => Promise<Response>;
 
 function matchPath(pattern: string, pathname: string): Params | null {
@@ -120,6 +127,34 @@ class FormFault {
 
 const TOO_LARGE = `A form may hold at most ${MAX_FORM_BYTES} bytes, which the largest claim of each kind fits.`;
 const NOT_A_FORM = "A claim is posted as an HTML form, application/x-www-form-urlencoded.";
+const WHOLE_NUMBER = /^(?:0|[1-9][0-9]{0,8})$/;
+
+/** A new case's plan from the create form. The form has no field for an id, and one sent anyway is refused with the rest it does not know. */
+const PLAN_FIELDS = ["slot", "commit", "runner-image", "rea-release", "rea-integrity", "scanner-node", "rea-node", "chromium", "instruments", "grammar-version", "fixture", "criterion"];
+
+function planOf(form: URLSearchParams): NewCasePlan {
+  for (const name of form.keys()) if (!PLAN_FIELDS.includes(name)) throw new FormFault("malformed-form", null, 400, "The form held a field a new case does not take.");
+  const grammarVersion = one(form, "grammar-version").trim();
+  if (!WHOLE_NUMBER.test(grammarVersion)) throw new FormFault("malformed-form", "grammar-version", 400);
+  const field = (name: string): string => one(form, name).trim();
+  return {
+    slots: form.getAll("slot"),
+    configuration: {
+      commit: field("commit"),
+      runnerImage: field("runner-image"),
+      reaRelease: field("rea-release"),
+      reaIntegrity: field("rea-integrity"),
+      scannerNode: field("scanner-node"),
+      reaNode: field("rea-node"),
+      chromium: field("chromium"),
+      instruments: field("instruments").split(/\s+/).filter((instrument) => instrument !== ""),
+      grammarVersion: Number(grammarVersion)
+    },
+    // Kept as typed, since the plan names each by the digest of its bytes.
+    fixture: one(form, "fixture"),
+    criterion: one(form, "criterion")
+  };
+}
 
 async function readForm(request: Request): Promise<URLSearchParams> {
   const type = (request.headers.get("content-type") ?? "").split(";")[0].trim().toLowerCase();
@@ -220,6 +255,24 @@ function claimRoute(build: (form: URLSearchParams, params: Params, caseId: strin
 const event = (type: string, data: Record<string, unknown>): LogEvent => ({ type, data }) as unknown as LogEvent;
 
 const HANDLERS: Readonly<Record<RouteName, Handler>> = {
+  cases: async (context) => {
+    const answer = await (context.directory as CaseDirectory).list(context.assertion);
+    // The list refuses only for the assertion or for an outage, and answers as a case does for either.
+    return answer.ok ? htmlResponse(200, casesPage(answer.cases, answer.limit)) : answerRefused("", answer);
+  },
+  "create-case": async (context) => {
+    let plan: NewCasePlan;
+    try {
+      plan = planOf(await readForm(context.request));
+    } catch (error) {
+      if (error instanceof FormFault) return htmlResponse(error.status, createRefusalPage(error.refusal, error.field, error.why));
+      throw error;
+    }
+    const answer = await (context.directory as CaseDirectory).create(context.assertion, plan);
+    if (answer.ok) return htmlResponse(303, "", { location: pathOf(["cases", answer.caseId]) });
+    if (!("at" in answer)) return answerRefused("", answer);
+    return htmlResponse(422, createRefusalPage(answer.refusal, answer.at));
+  },
   case: (context) => withCase(context, (view) => casePage(view)),
   attempt: (context) => withCase(context, (view) => attemptPage(view, context.params.slot as string)),
   row: (context) => withCase(context, (view) => rowPage(view, context.params.slot as string, context.params.row as string)),
@@ -254,10 +307,10 @@ const HANDLERS: Readonly<Record<RouteName, Handler>> = {
   "reaffirm-interpretation": claimRoute((form, params, caseId) => ({ event: event("interpretation-reaffirmed", { interpretation: params.interpretation, cites: citesOf(form) }), then: ["cases", caseId] }))
 };
 
-export type ViewerOptions = Readonly<{ env: WorkspaceEnv; service: CaseService | null }>;
+export type ViewerOptions = Readonly<{ env: WorkspaceEnv; service: CaseService | null; directory?: CaseDirectory | null }>;
 
-/** The viewer's route table as the gate calls it. With no service, every case route fails closed. */
-export function viewerRoutes({ env, service }: ViewerOptions): WorkspaceRoutes {
+/** The viewer's route table as the gate calls it. With no service, every case route fails closed, and with no directory the list's two do. */
+export function viewerRoutes({ env, service, directory = null }: ViewerOptions): WorkspaceRoutes {
   return async (request, _identity, assertion) => {
     const url = new URL(request.url);
     // Health says whether any case can be reached: deny-all with no service, as the production entry has.
@@ -268,8 +321,10 @@ export function viewerRoutes({ env, service }: ViewerOptions): WorkspaceRoutes {
     });
     if (matches.length === 0) return htmlResponse(404, notFoundPage());
     if (service === null) return refusalResponse(503);
+    // The list's routes are the directory's. With none they answer as a case route does with no service.
+    if (directory === null && matches.some(({ route }) => DIRECTORY_ROUTES.includes(route.name))) return refusalResponse(503);
     const match = matches.find(({ route }) => route.method === request.method);
     if (match === undefined) return htmlResponse(405, methodPage(), { allow: [...new Set(matches.map(({ route }) => route.method))].join(", ") });
-    return HANDLERS[match.route.name]({ request, url, params: match.params, service, assertion, caseId: match.params.case as string });
+    return HANDLERS[match.route.name]({ request, url, params: match.params, service, directory, assertion, caseId: match.params.case as string });
   };
 }

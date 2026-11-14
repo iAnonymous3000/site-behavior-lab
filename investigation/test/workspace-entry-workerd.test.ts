@@ -13,10 +13,11 @@ import { claimsAt, VIEWER_ENV } from "./viewer-fixture";
 import { accessKeysOnly, bundleForWorkerd, COMPATIBILITY_DATE } from "./workerd-bundle";
 
 /**
- * The production entry, as its own config bundles it, on real workerd. It configures no case
- * service, so every case route must answer 503, as a missing configuration does, for the owner
- * and by every method, while health still answers and every other request is refused as before.
- * Nothing deploys: the bundle is `wrangler deploy --dry-run`'s.
+ * The production entry, as its own config bundles it, on real workerd, with none of the three
+ * bindings a hosted case needs. It then has no case service, so every route must answer 503, as
+ * a missing configuration does, for the owner and by every method, while health still answers
+ * deny-all and every other request is refused as before. case-host-workerd.test.ts runs the same
+ * bundle with its bindings. Nothing deploys: the bundle is `wrangler deploy --dry-run`'s.
  */
 
 const SAMPLE: Readonly<Record<string, string>> = { case: "case-one", slot: "B1", row: "row-one", fact: "fact-one", assertion: "said-one", interpretation: "reading-one", digest: "ab".repeat(32) };
@@ -74,7 +75,7 @@ test("the production entry's own bundle answers 503 on every case route, and hea
     }
     assert.equal(routes, VIEWER_ROUTES.length * 2);
     // What no route names stays not found, with a service or without.
-    for (const pathname of ["/", "/cases", "/cases/case-one/approve", "/cases/case-one/export"]) assert.equal((await send(pathname, "GET", ownerToken)).status, 404, pathname);
+    for (const pathname of ["/", "/cases/", "/cases/case-one/approve", "/cases/case-one/export"]) assert.equal((await send(pathname, "GET", ownerToken)).status, 404, pathname);
     assert.deepEqual(outbound.refused, []);
     assert.ok(outbound.keyFetches() >= 1);
   } finally {

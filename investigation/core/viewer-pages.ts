@@ -21,8 +21,9 @@
 // imported case keeps, which no page shows yet.
 
 import { aggregate, evidenceForAttempt, limitsOfReading, type AggregateGroup, type Measure } from "./aggregates";
-import { configurationKey } from "./case-events";
-import { continuationOf, denominatorOf, retentionOf, visitBasisOf, type AttemptState, type MachineState } from "./case-machine";
+import { configurationKey, MAX_TEXT_CHARS } from "./case-events";
+import { continuationOf, denominatorOf, retentionOf, SLOT_NAMES, visitBasisOf, type AttemptState, type MachineState } from "./case-machine";
+import type { ListedCase } from "./case-host";
 import type { CaseView, EvidencePage } from "./case-service";
 import { aggregateRowsOfCase, type CaseState } from "./case-store";
 import { readRow, sourceIdentityOf, type EvidenceRecord, type EvidenceRow, type Fact, type Interpretation, type RowReading, type RowWindow } from "./evidence-model";
@@ -391,6 +392,42 @@ export function refusalPage(caseId: string, refusal: string, at: string | null):
 export function formRefusalPage(caseId: string, refusal: string, field: string | null, why: string | null = null): string {
   const body = html`<h1>That form could not be read</h1><p><code>${refusalName(refusal)}</code>${refusalPlace(field)}.${why === null ? "" : ` ${why}`} Nothing was written.</p><p>${linkTo(["cases", caseId], "Back to the case")}</p>`;
   return documentOf(`Form refused, case ${caseId}`, caseId, body);
+}
+
+/** When a create reserved its id, as the list recorded it. A time that is no time shows as that. */
+function reservedAt(ms: number): string {
+  return Number.isSafeInteger(ms) && Math.abs(ms) <= 8.64e15 ? new Date(ms).toISOString() : "at a time not recorded";
+}
+
+function listedRows(cases: readonly ListedCase[]): Markup {
+  return html`<table><tr><th>Case</th><th>Create started</th></tr>${cases.map(({ caseId, reservedAtMs }) => html`<tr><td>${linkTo(["cases", caseId], caseId)}</td><td>${reservedAt(reservedAtMs)}</td></tr>`)}</table>`;
+}
+
+/** The form that makes a case. It carries no id: the workspace mints one. */
+function createForm(): Markup {
+  return html`<form method="post" action="${attribute(pathOf(["cases"]))}">
+<fieldset><legend>Slots the plan holds</legend>${SLOT_NAMES.map((slot) => html`<label><input type="checkbox" name="slot" value="${attribute(slot)}"> ${slot}</label>`)}</fieldset>
+<fieldset><legend>Configuration</legend>${textField("commit", "Scanner commit, 40 hex digits")}${textField("runner-image", "Runner image digest, sha256: and 64 hex digits")}${textField("rea-release", "REA release")}${textField("rea-integrity", "REA integrity, as sha256-, sha384- or sha512- and base64")}${textField("scanner-node", "Scanner Node version")}${textField("rea-node", "REA Node version")}${textField("chromium", "Chromium version")}${textField("instruments", "Instruments, separated by spaces")}${textField("grammar-version", "Grammar version, a whole number")}</fieldset>
+${areaField("fixture", `Control fixture, as text of at most ${MAX_TEXT_CHARS} characters`)}${areaField("criterion", `Control criterion, as text of at most ${MAX_TEXT_CHARS} characters`)}
+<p>The fixture and the criterion are stored as the bytes of this text in UTF-8, with each line break one line feed, and the plan names each by the digest of those bytes. The case's id, its attempt ids and its control run's id are minted by the workspace. This starts nothing: it records a plan.</p>
+<button type="submit">Create the case</button></form>`;
+}
+
+/** Every case this namespace lists, and the form that makes another. */
+export function casesPage(cases: readonly ListedCase[], limit: number): string {
+  const created = cases.filter((listed) => listed.created);
+  const unfinished = cases.filter((listed) => !listed.created);
+  const body = html`<h1>Cases</h1><p>Created: ${created.length}. This workspace lists at most ${limit} ids, counting creates that did not finish. The list is the ids this workspace minted for a create. It does not open any case, so it says nothing of what a case's log holds.</p>
+${created.length === 0 ? html`<p class="muted">No case yet.</p>` : listedRows(created)}
+${unfinished.length === 0 ? html`` : html`<h2>Creates that did not finish</h2><p class="flag">Each id below was reserved by a create that was never marked finished. Its case may hold a whole plan, a log and no plan, or nothing. Open it to see which. Each still counts toward the ${limit}.</p>${listedRows(unfinished)}`}
+<h2>Create a case</h2>${createForm()}`;
+  return documentOf("Cases", null, body);
+}
+
+/** A create that was refused, by the refusal's name and place. Nothing the form held is shown. */
+export function createRefusalPage(refusal: string, at: string | null, why: string | null = null): string {
+  const body = html`<h1>That case was not created</h1><p><code>${refusalName(refusal)}</code>${refusalPlace(at)}.${why === null ? "" : ` ${why}`} No case was made, and the list holds no id for it.</p><p>${linkTo(["cases"], "Back to the cases")}</p>`;
+  return documentOf("Case not created", null, body);
 }
 
 export function methodPage(): string {

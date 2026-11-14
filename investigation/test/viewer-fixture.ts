@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { AccessKeySet, ACCESS_TOKEN_HEADER, verifyAccessToken } from "../core/access-token";
 import { ownerActorFrom, type OwnerActor } from "../core/actor";
+import type { CaseDirectory } from "../core/case-host";
 import { caseServiceOver, type CaseService } from "../core/case-service";
 import { createLog, putEvidence } from "../core/case-log";
 import { viewerRoutes } from "../core/viewer-routes";
@@ -206,6 +207,8 @@ export type WorldOptions = Readonly<{
   seeded?: boolean;
   /** Null for the production entry's shape, with no service at all. */
   noService?: boolean;
+  /** What answers the list's two routes. With none they answer 503. */
+  directory?: CaseDirectory | null;
   /** A variant of the service module, the gate or the routes, to show a check can see what it is for. */
   serviceModule?: Pick<typeof import("../core/case-service"), "caseServiceOver">;
   gate?: typeof handleWorkspaceRequest;
@@ -248,7 +251,7 @@ export async function viewerWorld(options: WorldOptions = {}): Promise<ViewerWor
     if (init.origin !== undefined && init.origin !== null) headers.set("origin", init.origin);
     if (init.contentType !== undefined) headers.set("content-type", init.contentType);
     const request = new Request(`${VIEWER_ORIGIN}${path}`, { method: init.method ?? "GET", headers, body: init.body });
-    return gate(request, VIEWER_ENV, { keySetFor, now, routes: routesOf({ env: VIEWER_ENV, service: options.noService === true ? null : service }) });
+    return gate(request, VIEWER_ENV, { keySetFor, now, routes: routesOf({ env: VIEWER_ENV, service: options.noService === true ? null : service, directory: options.directory ?? null }) });
   };
   return {
     signing,

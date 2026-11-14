@@ -93,3 +93,7 @@ export default {
     });
   }
 };
+
+// The workspace's config names two Durable Object classes, and the bundler refuses an entry
+// that does not export them. Nothing here binds or reaches either.
+export { InvestigationCase, InvestigationCaseIndex } from "../../cloudflare/investigation-worker";

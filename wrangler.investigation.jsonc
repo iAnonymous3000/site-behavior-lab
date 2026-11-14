@@ -1,17 +1,28 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
-  // The private investigation workspace's front Worker, deny-all for now.
+  // The private investigation workspace's front Worker and its two Durable Object
+  // classes: one object for each case, and one that lists them.
   //
   // Nothing deploys this config, and it names no hostname, so a deployment would
   // answer nowhere. Its aliases stay off because a workers.dev or preview address
   // would answer outside the Cloudflare Access application meant to stand in front
   // of it. It binds nothing of the public scanner's: no reports bucket, no scanner
-  // container. investigation/test/deployment-config.test.ts holds all of this.
+  // container. The bucket it names for case objects does not exist, and nothing
+  // here creates it. investigation/test/deployment-config.test.ts holds all of this.
   "name": "site-behavior-lab-investigation",
   "main": "cloudflare/investigation-worker.ts",
   "compatibility_date": "2026-07-21",
   "workers_dev": false,
   "preview_urls": false,
+  "durable_objects": {
+    "bindings": [
+      { "name": "INVESTIGATION_CASES", "class_name": "InvestigationCase" },
+      { "name": "INVESTIGATION_CASE_INDEX", "class_name": "InvestigationCaseIndex" }
+    ]
+  },
+  // Both classes keep their state in SQLite, where a case's head is one row.
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["InvestigationCase", "InvestigationCaseIndex"] }],
+  "r2_buckets": [{ "binding": "INVESTIGATION_OBJECTS", "bucket_name": "site-behavior-lab-investigation-objects" }],
   // Off until reading a log is proven not to show a visited address.
   "observability": {
     "enabled": false

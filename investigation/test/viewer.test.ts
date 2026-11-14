@@ -49,8 +49,10 @@ const FIELDS: Readonly<Record<string, readonly (readonly [string, string])[]>> =
   "reaffirm-interpretation": [["cite", "fact-lantern-host:2"]]
 };
 
-const WRITES = VIEWER_ROUTES.filter(({ method }) => method === "POST");
-const READS = VIEWER_ROUTES.filter(({ method }) => method === "GET");
+/** The routes that name a case, which this suite walks. The list's two, which the directory answers, are held by case-directory.test.ts. */
+const CASE_ROUTES = VIEWER_ROUTES.filter(({ path }) => path.startsWith("/cases/:case/") || path === "/cases/:case");
+const WRITES = CASE_ROUTES.filter(({ method }) => method === "POST");
+const READS = CASE_ROUTES.filter(({ method }) => method === "GET");
 
 async function headNow(world: ViewerWorld): Promise<string> {
   return headOf(await (await world.send(CASE)).text());
@@ -64,6 +66,8 @@ function storedHead(world: ViewerWorld): string | null {
 const OWNER_ESCAPED = 'CANARY-OWNER &lt;script&gt;window.ownerRan = 1&lt;/script&gt;&lt;/textarea&gt;&quot;&#39;&gt;&lt;b id=&quot;broke-owner&quot;&gt;bold&lt;/b&gt; <span class="ctl">U+202E</span>txet<span class="ctl">U+2069</span> nul<span class="ctl">U+0000</span>end';
 
 const ROUTE_TABLE = [
+  "GET /cases",
+  "POST /cases",
   "GET /cases/:case",
   "GET /cases/:case/attempts/:slot",
   "GET /cases/:case/attempts/:slot/rows/:row",
@@ -82,7 +86,8 @@ const ROUTE_TABLE = [
 /** Addresses no route may answer: what drives the machine, purges, approves, publishes, exports or downloads, and malformed ids. */
 const NOT_ROUTES = [
   "/",
-  "/cases",
+  "/cases/",
+  "/case",
   `${CASE}/`,
   `${CASE}/approve`,
   `${CASE}/publish`,
@@ -134,7 +139,7 @@ async function checkRouteSet(routes: typeof VIEWER_ROUTES, options: WorldOptions
     }
   }
   // Every other method on every route's own path, from the workspace's own origin, so only the dispatcher can refuse it.
-  for (const route of VIEWER_ROUTES) {
+  for (const route of CASE_ROUTES) {
     for (const method of METHODS.filter((candidate) => candidate !== route.method)) {
       const body = method === "GET" || method === "HEAD" ? undefined : new URLSearchParams([["head", head], ...(FIELDS[route.name] ?? FIELDS["record-assertion"])] as [string, string][]).toString();
       const response = await world.send(concrete(route.path), { method, origin: VIEWER_ORIGIN, contentType: "application/x-www-form-urlencoded", body });
@@ -201,7 +206,7 @@ async function checkAccess(options: WorldOptions): Promise<void> {
   const head = await headNow(world);
   const callsBefore = world.calls();
   const tokens = { "no token": null, "a forged token": world.forgedToken, "another person": world.otherPersonToken, "a service token": world.serviceToken, "a malformed token": "not.a.token" };
-  for (const route of VIEWER_ROUTES) {
+  for (const route of CASE_ROUTES) {
     for (const [who, token] of Object.entries(tokens)) {
       const response = route.method === "GET" ? await world.send(concrete(route.path), { token }) : await world.post(concrete(route.path), [["head", head], ...FIELDS[route.name]], { token });
       holds(REACHES_NONE, response.status === 401 && (await response.text()) === '{"error":"access-refused"}', () => ({ route: route.name, who, status: response.status }));
@@ -1223,7 +1228,7 @@ const TYPED = "a case that will not open gets a typed refusal page that shows no
 
 async function checkRefusal(world: ViewerWorld, expected: RegExp, canary: string | null): Promise<void> {
   const head = storedHead(world);
-  for (const route of VIEWER_ROUTES) {
+  for (const route of CASE_ROUTES) {
     const response = route.method === "GET" ? await world.send(concrete(route.path)) : await world.post(concrete(route.path), [["head", head ?? "0".repeat(64)], ...FIELDS[route.name]]);
     const page = await response.text();
     holds(TYPED, response.status === 409, () => ({ route: route.name, status: response.status }));
@@ -1260,7 +1265,7 @@ test("ruling 9: a case that will not open gets a typed refusal page, by name and
 
 test("ruling 1: with no case service, every case route answers 503 as a missing configuration does, and health says no case is served", async () => {
   const world = await viewerWorld({ noService: true });
-  for (const route of VIEWER_ROUTES) {
+  for (const route of CASE_ROUTES) {
     for (const method of ["GET", "POST"]) {
       const response = method === "GET" ? await world.send(concrete(route.path)) : await world.post(concrete(route.path), [["head", "0".repeat(64)]]);
       assert.deepEqual([response.status, await response.text()], [503, '{"error":"unavailable"}'], `${method} ${route.path}`);

@@ -7,8 +7,10 @@ import ts from "typescript";
 /**
  * The workspace's deployment shape, while nothing deploys it: its aliases stay off,
  * because a workers.dev or preview address would answer outside the Access
- * application, and it binds nothing of the public scanner's. A new top-level key
- * in the config has to be added here on purpose.
+ * application, and it binds nothing of the public scanner's. It binds the two
+ * Durable Object classes its cases live in, on SQLite storage, and one bucket of its
+ * own. A new top-level key in the config, or a new binding, has to be added here on
+ * purpose.
  */
 
 const root = process.cwd();
@@ -32,16 +34,36 @@ test("logs stay off until reading one is proven not to show a visited address", 
   assert.deepEqual(config.observability, { enabled: false });
 });
 
-test("the config holds only what the deny-all Worker needs: no hostname, binding or container", () => {
+test("the config holds only what the case host needs: no hostname, route, variable or container", () => {
   assert.deepEqual(Object.keys(config).sort(), [
     "$schema",
     "compatibility_date",
+    "durable_objects",
     "main",
+    "migrations",
     "name",
     "observability",
     "preview_urls",
+    "r2_buckets",
     "workers_dev"
   ]);
+});
+
+test("its bindings are exactly the two case classes, both on SQLite storage, and one bucket that is not the public one", () => {
+  assert.deepEqual(config.durable_objects, {
+    bindings: [
+      { name: "INVESTIGATION_CASES", class_name: "InvestigationCase" },
+      { name: "INVESTIGATION_CASE_INDEX", class_name: "InvestigationCaseIndex" }
+    ]
+  });
+  // One migration, naming both classes as SQLite classes and nothing else: a case's head is a row there.
+  assert.deepEqual(config.migrations, [{ tag: "v1", new_sqlite_classes: ["InvestigationCase", "InvestigationCaseIndex"] }]);
+  assert.deepEqual(config.r2_buckets, [{ binding: "INVESTIGATION_OBJECTS", bucket_name: "site-behavior-lab-investigation-objects" }]);
+  // The entry exports a class for each binding, by the names the config gives.
+  const entry = readFileSync(path.join(root, config.main as string), "utf8");
+  for (const { class_name } of (config.durable_objects as { bindings: { class_name: string }[] }).bindings) {
+    assert.match(entry, new RegExp(`^export class ${class_name} \\{$`, "m"), class_name);
+  }
 });
 
 test("it can never bind the public reports bucket or the scanner, even in a comment's shadow", () => {
