@@ -16,9 +16,9 @@ describes one measured visit, not a privacy score or a legal verdict.
 [Read the methodology](https://sitebehavior.org/methodology/) ·
 [See measurement limits](https://sitebehavior.org/catalog/)
 
-[![A wikipedia.org report in the current r2 format, with its visit identity, reviewed clarification, and plain-language headline](docs/images/report-overview.jpg)](https://sitebehavior.org/reports/20260814-31e105d7971825fbd0f3fffa099188fe/)
+[![A wikipedia.org report page, with its reviewed clarification, plain-language headline, and the visit that ran first](docs/images/report-overview.jpg)](https://sitebehavior.org/reports/20260814-31e105d7971825fbd0f3fffa099188fe/)
 
-*The live report page, captured October 18, 2026. This historical GPC
+*The live report page, captured November 14, 2026. This historical GPC
 comparison records August 14 visits and carries a reviewed clarification; it
 does not describe Wikipedia's current behavior.*
 
