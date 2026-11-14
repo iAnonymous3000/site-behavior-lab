@@ -583,6 +583,17 @@ To close the rc line:
 6. Add the six files, the new receipt and the new binding in the final
    carrier.
 
+The citation moves twice on the way. The rc's archive PR advances
+`CITATION.cff` to `1.0.0-rc.N`, because that version then has a receipt. The
+commit that declares `1.0.0` must set `CITATION.cff` back to the newest
+stable receipted release, with that receipt's date: the declared version has
+no receipt yet, and `selectCitedReceiptedVersion` in
+`scripts/release-evidence.mjs` then prefers a stable receipt to a
+candidate's. After `0.6.0` and `1.0.0-rc.1` that release is `0.6.0`. The
+sentence "The current release is" under "Current release state" names the
+cited version, so it changes in the same two commits. The final archive PR
+advances both to `1.0.0`.
+
 Between the deletion and the final carrier, `npm run release:readiness` shows
 `release-candidate-binding`, `release-tag-governance` and
 `formal-verification` failing. That is the state of every commit that is not
