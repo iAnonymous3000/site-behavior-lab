@@ -9,6 +9,29 @@ public API or a 1.0 release.
 
 ### Added
 
+- The owner-only investigation workspace can hold cases on Durable Objects,
+  built and tested locally only: nothing is deployed, no bucket or object
+  exists, and the public scanner and site are unchanged. One object for each
+  case is its single writer, with the log's head in the object's own storage
+  and entries and evidence as content-addressed objects in a private bucket;
+  one more object lists the cases. The front Worker mints each case id and a
+  typed name is refused. The owner's commands (plan and freeze, exception,
+  baseline rule, start, deadline, reconcile, cleanup, cancel, and the release
+  of a case id whose create never finished) are signed requests, each a
+  button. A timer marks a deadline as
+  due and asks for the runner to be stopped; it writes nothing to the case
+  log, and the owner writes the deadline or reconcile entry afterwards. The
+  case machine, the log's shape and their specification are unchanged.
+  Limits: no runner exists, so the stop is a seam that nothing fills, and a
+  visit can start only on an exception; the three waits (15 minutes for an
+  attempt, 30 before reconcile is due, 24 hours for a case) are defaults no
+  ruling sets; a command sent again after a lost answer reads as a conflict;
+  the fixture and criterion of a new case are text of at most 4,096
+  characters; the list holds 512 cases and nothing removes a created one; no
+  bound on a case's size is enforced; no route deletes; and the hosted
+  bucket's refusal of a second write at one address is shown on the local
+  simulator only.
+
 - Finite checks of producer identity, coverage loss and request accounting
   (`lib/fv-*.test.ts`). Each holds for all inputs in a stated domain at its
   commit and names broken variants it must catch; none proves anything of

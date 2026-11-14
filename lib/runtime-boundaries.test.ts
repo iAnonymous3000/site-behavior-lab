@@ -49,13 +49,16 @@ test("Cloudflare Worker imports stay out of Node-only modules", async () => {
       "cloudflare/r2-remediation-worker.ts",
       "cloudflare/r2-delete-canary-worker.ts",
       WORKSPACE_ENTRYPOINT,
-      // Written to run in this Worker. The entry reaches the viewer, and through it the
-      // store, the log, the machine, the evidence model and the aggregates. Neither the case
-      // service, which the production entry does not configure, nor the summary tier is
-      // reached. Each is named, so none drops out if an import moves.
+      // Written to run in this Worker. The entry reaches the viewer and the case host, and
+      // through them the case service, the store, the log, the machine, the supervision
+      // marks, the evidence model and the aggregates. The summary tier is not reached. Each
+      // is named, so none drops out if an import moves.
       "investigation/core/case-log.ts",
       "investigation/core/case-store.ts",
       "investigation/core/case-service.ts",
+      "investigation/core/case-host.ts",
+      "investigation/core/case-host-stores.ts",
+      "investigation/core/case-supervision.ts",
       "investigation/core/viewer-routes.ts",
       "investigation/core/viewer-pages.ts",
       "investigation/core/viewer-text.ts",
