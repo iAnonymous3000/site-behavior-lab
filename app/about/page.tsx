@@ -174,8 +174,8 @@ export default function AboutPage() {
           </li>
           </ol>
           <p>
-          Two limits worth stating plainly. A scan is <em>one visit, at one moment, from one place</em> —
-          sites behave differently by country, by device and by time. And the scanner observes what a page
+          Two limits worth stating plainly. A scan is <em>one visit, at one moment, from one place</em>,
+          and sites behave differently by country, by device and by time. And the scanner observes what a page
           does, never why: it can record that a request was sent to an advertising company, not what that
           company did with it.
           </p>

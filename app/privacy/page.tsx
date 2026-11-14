@@ -147,8 +147,8 @@ export default function PrivacyPage() {
           <li>
             The encrypted queue record never contains your IP address or client hash, Turnstile or access tokens,
             authorization or other request headers, cookies, screenshots, page evidence, or scan results. Bounded
-            operational metadata&mdash;opaque job and report IDs, timestamps, status and progress, attempt count, and
-            lease/fencing fields&mdash;is stored separately without application encryption and contains neither the
+            operational metadata (opaque job and report IDs, timestamps, status and progress, attempt count, and
+            lease/fencing fields) is stored separately without application encryption and contains neither the
             target address nor a client identifier. After the active encrypted record is deleted, copies of its
             ciphertext may remain temporarily in Cloudflare&rsquo;s platform recovery snapshots until Cloudflare&rsquo;s
             own backup-retention window expires; those copies remain application-encrypted.
