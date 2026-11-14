@@ -389,9 +389,18 @@ created only after the revision it names is already promoted:
    to be no earlier than the candidate commit and no later than the add-only
    carrier commit that introduced the retained bytes. If CI, promotion, or environment
    review carries the receipt outside that window, recapture to a new
-   content-addressed path, add that path to the binding, commit it, rotate the
-   external Actions selector, let the carrier commit promote, and start a fresh
-   dispatch; never rewrite or re-date an old inventory. At publication,
+   content-addressed path; never rewrite or re-date an old inventory. Under
+   `investigative-v1` a committed binding cannot take the new path: the
+   contract refuses a binding that changes after its carrier commit, and
+   refuses any commit after that carrier. Select a new candidate instead.
+   Make one commit that deletes the six fixed evidence files and
+   `research/v1-release-binding.json`, and use a commit that no longer holds
+   them as candidate `C`. Obtain the six files again for that candidate,
+   recapture the receipt after it, run the binding producer, and commit one
+   new carrier. The old receipt can stay at its path; the new binding does not
+   name it. Under the research contract, add the new path to its binding and
+   commit it. In both cases rotate the external Actions selector, let the
+   carrier commit promote, and start a fresh dispatch. At publication,
    `prepare` resolves `${{ vars.RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256 }}` exactly
    once outside every environment, validates one lowercase sha256, and freezes
    it as an immutable job output. Attestation and tag jobs consume only that
