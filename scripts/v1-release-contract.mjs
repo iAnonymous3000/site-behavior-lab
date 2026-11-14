@@ -182,6 +182,12 @@ function allowedEvidence(entry) {
   if (/^research\/ops-receipts\/release-tag-governance\/[0-9a-f]{64}\.json$/.test(entry.path)) return entry.category === "release-tag-governance-receipt";
   return false;
 }
+// What the binding's producer (scripts/v1-release-binding.mjs) takes from this
+// contract: the fixed files with their categories, the repository, the rule
+// that admits an evidence row and the bounded read of an evidence file. The
+// producer writes from these and holds no second copy, so the file it writes
+// and the file verifyV1ReleaseBinding accepts cannot name different paths.
+export { FIXED_EVIDENCE as V1_FIXED_EVIDENCE, REPOSITORY as V1_REPOSITORY, allowedEvidence as v1AllowedEvidence, bytes as v1EvidenceBytes };
 
 /** Authenticate C and every C..S edit. Only evidence may be added after C;
  * existing reports, source, configuration, policies and workflows stay pinned.

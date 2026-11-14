@@ -131,6 +131,7 @@
     "reports:verify-v2-shadow": "node scripts/run-schema-cli.mjs verify-v2-shadow",
     "release:evidence": "node scripts/release-evidence.mjs",
     "release:formal-verification-report": "node scripts/formal-verification-report.mjs",
+    "release:v1-binding": "node scripts/v1-release-binding.mjs",
     "transparency:log": "node scripts/run-schema-cli.mjs publication-transparency-log",
     "transparency:log:check": "node scripts/run-schema-cli.mjs publication-transparency-log --check",
     "transparency:verify-history": "node scripts/run-schema-cli.mjs publication-transparency-log --verify-history",
