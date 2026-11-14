@@ -432,6 +432,21 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- Four slips in finding-card wording. No stored report, evaluator or detector
+  changes, no stored headline changes, and no correction event is taken.
+  - A card titled "Session-replay vendor observed" with no listener detection
+    stored said the evidence "shows the page was instrumented to observe
+    interaction". Such a card holds one fact, a request to a catalogued
+    vendor. Its explanation now states that match alone and closes with the
+    review-prompt sentence. This narrows the claim on 30 cards of the
+    committed reports; the 485 cards with a listener detection keep their
+    text.
+  - Four sentences of the services card agree with a count of one ("Google
+    was named", "the 1 third-party domain"), on 76 fields.
+  - A title or sentence that opens with a censored count opens "At least",
+    on 743 card fields and 11 subhead sentences.
+  - An incomplete-visit note joins its reason with a colon, on 107 notes of
+    41 committed reports.
 - Report wording that said less, or other, than the stored record. No stored
   report, evaluator or detector changes, and no correction event is taken:
   each change names or narrows what a sentence already said.
