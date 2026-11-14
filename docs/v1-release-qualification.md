@@ -187,6 +187,10 @@ run by hand; CI does not run it.
    All evidence is introduced once, and no bound file may be modified after C.
    Code, configuration, existing reports, policies and workflows
    cannot change after C. A source fix requires a new candidate and recollection.
+   The same rule governs a second ceremony. After a `1.0.0-rc.N` carrier the
+   six fixed evidence files and the binding are in the tree, so the final
+   `1.0.0` candidate must first delete those seven files; `RELEASE.md` lists
+   them under "After a successful tag".
 4. Run `npm run release:readiness:check`. Independently verify and hash the whole
    binding, then select that digest with the existing
    `RELEASE_MEASUREMENT_BINDING_SHA256` variable. Its historical variable name is
