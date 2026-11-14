@@ -451,6 +451,10 @@ public API or a 1.0 release.
     on 743 card fields and 11 subhead sentences.
   - An incomplete-visit note joins its reason with a colon, on 107 notes of
     41 committed reports.
+  - The printed report's visit heading and the title line of a saved
+    report's README join with a colon, and a site feed summary that opens
+    with a hedged count opens "At least". No stored file or digest holds
+    any of the three.
 - Report wording that said less, or other, than the stored record. No stored
   report, evaluator or detector changes, and no correction event is taken:
   each change names or narrows what a sentence already said.
