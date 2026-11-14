@@ -422,6 +422,11 @@ routine edit.
   and filter-list provenance.
 - `RELEASE.md`, `release-policy.json`, `RELEASE_READINESS.json`,
   `CHANGELOG.md`: what a tag claims and what still blocks 1.0.
+- `docs/formal-verification.md`: the claims register. Each row states what
+  one bounded check, one model-checked TLA+ specification (`specs/`), or one
+  machine-checked argument about a Rust function (`tools/trust-kernel/`)
+  holds, over which domain, and what it does not claim. No row is a statement
+  about the scanner as a whole.
 - `docs/pagegraph-adapter.md`, `docs/native-shields-differential.md`:
   research-only importers and comparisons that never write public reports.
 - `docs/audit-2026-10-17.md`: the most recent audit, with what changed, how
