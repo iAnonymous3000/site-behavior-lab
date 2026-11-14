@@ -982,7 +982,7 @@ test("an unverified legacy consent pair falls through to the raw evidence headli
 
   const headline = buildReportHeadline(viewFromV1Report(consentPair(acceptRun, rejectRun)));
   assert.equal(headline.tone, "warn");
-  assert.match(headline.headline, /shop\.example contacted catalogued Google and Meta domains during this visit\./);
+  assert.match(headline.headline, /shop\.example contacted catalogued Google and Meta domains during the visit labeled Accept-all click\./);
   assert.doesNotMatch(`${headline.headline} ${headline.subhead}`, /Reject all|Accept all|after the click/);
   assert.equal(headline.focusArm, undefined);
 });
@@ -1368,7 +1368,7 @@ test("a clean legacy reject attempt cannot drive a consent headline", () => {
 
   const headline = buildReportHeadline(viewFromV1Report(consentPair(acceptRun, rejectRun)));
   assert.equal(headline.tone, "warn");
-  assert.match(headline.headline, /shop\.example contacted catalogued Google domains during this visit\./);
+  assert.match(headline.headline, /shop\.example contacted catalogued Google domains during the visit labeled Accept-all click\./);
   assert.doesNotMatch(`${headline.headline} ${headline.subhead}`, /Reject all|Accept all|Rejecting|removed/);
 });
 
@@ -1390,7 +1390,7 @@ test("an un-clicked reject run falls through to the ordinary evidence headline",
   // No Reject all claim is allowed when the click never happened; the report
   // leads with the ordinary evidence story instead.
   assert.equal(/Reject all/.test(headline.headline), false);
-  assert.match(headline.headline, /shop\.example contacted catalogued Google domains during this visit\./);
+  assert.match(headline.headline, /shop\.example contacted catalogued Google domains during the visit labeled Accept-all click\./);
 });
 
 test("an HTTP error load is framed as a failed load, not as relatively private", () => {
@@ -1972,4 +1972,19 @@ test("a two-visit headline names the visit its secondary signals came from", () 
 
   // A single-visit report keeps the plain clause; the chain-wording test
   // above pins its opening words.
+});
+
+test("a two-visit headline names the visit its sentence describes", () => {
+  // Each sentence below reads the lead visit alone. On a report with two
+  // visits "this visit" does not say which, so the headline gives the label
+  // the report shows for that visit. Both reports are ledger-pinned.
+  const consentPair = buildReportHeadline(ledgerPinnedReportView("20260702-74b79a8d1cc1bd9cffeefab7ea0890bc"));
+  assert.match(consentPair.headline, / during the visit labeled Accept-all attempt\.$/);
+  // The label leads here: "labeled No blocking matched" misreads as one phrase.
+  const shieldsPairHeadline = buildReportHeadline(ledgerPinnedReportView("20260721-4273aca23e2843746c105fea36a8ebee"));
+  assert.equal(
+    shieldsPairHeadline.headline,
+    "In the visit labeled No blocking, at least 2 retained requests matched Brave Shields filter lists."
+  );
+  for (const headline of [consentPair, shieldsPairHeadline]) assert.doesNotMatch(headline.headline, /this visit/);
 });

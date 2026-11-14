@@ -251,6 +251,9 @@ function buildUncorrectedReportHeadline(
     arms && (run.label === "baseline" || run.label === "variant")
       ? view.comparison?.runLabels[run.label] ?? null
       : null;
+  // The same rule for the headline sentence: every "this visit" below reads
+  // the lead run alone, so a two-visit report names that visit.
+  const visitPhrase = extrasVisitLabel ? `the visit labeled ${extrasVisitLabel}` : "this visit";
   const extraNote =
     extras.length === 0
       ? ""
@@ -844,7 +847,7 @@ function buildUncorrectedReportHeadline(
       platforms.length >= 3 ? "alarm" : "warn",
       requestState === "censored"
         ? `${domain}'s retained request log includes catalogued ${joinNames(platforms)} domains.`
-        : `${domain} contacted catalogued ${joinNames(platforms)} domains during this visit.`,
+        : `${domain} contacted catalogued ${joinNames(platforms)} domains during ${visitPhrase}.`,
       `${clause} across ${retainedCountPhrase(
         run.counts.thirdPartyDomains,
         "cross-site domain",
@@ -866,7 +869,7 @@ function buildUncorrectedReportHeadline(
         : `${domain} contacted ${plural(
             trackingEntities.length,
             "distinct catalogued tracking-related service"
-          )} during this visit.`,
+          )} during ${visitPhrase}.`,
       `${
         requestState === "censored"
           ? `Retained rows include ${joinNames(trackingNames)} (${answeredCount} recorded responses)`
@@ -969,8 +972,11 @@ function buildUncorrectedReportHeadline(
     return finish(
       facts.signals.shields.severity === "warn" ? "warn" : "info",
       shieldsMeasurement.kind === "engine-blocked"
-        ? `Brave's blocking engine stopped ${shieldsCount} during this visit.`
-        : `${shieldsCount} in this visit matched Brave Shields filter lists.`,
+        ? `Brave's blocking engine stopped ${shieldsCount} during ${visitPhrase}.`
+        : extrasVisitLabel
+          ? // Label first: "labeled No blocking matched" misreads as one phrase.
+            `In the visit labeled ${extrasVisitLabel}, ${shieldsCount} matched Brave Shields filter lists.`
+          : `${shieldsCount} in this visit matched Brave Shields filter lists.`,
       shieldsMeasurement.kind === "engine-blocked"
         ? `This was a block simulation in the scanner's browser, not a live Brave-browser visit. The count covers requests the engine directly stopped; follow-on requests that never started are separate.`
         : shieldsMeasurement.evaluated === null
@@ -997,7 +1003,7 @@ function buildUncorrectedReportHeadline(
     const cookieState = facts.evidence.cookies.state;
     return finish(
       "info",
-      `${domain} recorded ${plural(run.counts.thirdPartyCookies, "third-party cookie")} in this visit.`,
+      `${domain} recorded ${plural(run.counts.thirdPartyCookies, "third-party cookie")} in ${visitPhrase}.`,
       cookieState === "censored"
         ? `The end-of-visit cookie snapshot was incomplete. It retained ${plural(
             run.counts.thirdPartyCookies,
@@ -1030,7 +1036,7 @@ function buildUncorrectedReportHeadline(
           )}; this is not an exact total.`;
     return finish(
       "info",
-      `${domain} called instrumented browser APIs during this visit.`,
+      `${domain} called instrumented browser APIs during ${visitPhrase}.`,
       `${eventObservation} These APIs can support legitimate graphics or media use, so the observation is not proof of fingerprinting intent.${
         fingerprintEvidenceIncomplete
           ? " Fingerprinting-heuristic evaluation was incomplete."
@@ -1288,7 +1294,7 @@ function buildUncorrectedReportHeadline(
       : "";
   return finish(
     "calm",
-    `${domain} showed few catalogued or fingerprint-like signals in this visit.`,
+    `${domain} showed few catalogued or fingerprint-like signals in ${visitPhrase}.`,
     `${observedAbsence}.${rawFingerprintNote || " No fingerprint-observer events showed up either."}`,
     calmStats,
     undefined,
