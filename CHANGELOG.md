@@ -455,6 +455,8 @@ public API or a 1.0 release.
     report's README join with a colon, and a site feed summary that opens
     with a hedged count opens "At least". No stored file or digest holds
     any of the three.
+  - Each counted noun in a site feed summary agrees with its count ("1
+    third-party cookie"), on 125 feed entries.
 - Report wording that said less, or other, than the stored record. No stored
   report, evaluator or detector changes, and no correction event is taken:
   each change names or narrows what a sentence already said.
