@@ -9,13 +9,16 @@ import { handleWorkspaceRequest } from "../core/workspace-gate";
  * The production entry's wiring, bundled by the case host's fault and cost suites, with three
  * things the production entry has no way to do. Its case objects write through a bucket that
  * fails an entry's write while the test's marker object exists, which is how a kill between the
- * log's start and the plan is planted. A case object also takes two calls of the test's own:
+ * log's start and the plan is planted, and holds an entry's write back while a second marker
+ * exists, which is how two commands are made to meet at the head. A case object also takes two
+ * calls of the test's own:
  * one that runs the stores through their contract inside the object and reports what each call
  * answered, and one that sets a head, so a case built in Node can be measured as the host
  * opens it. None of this is reachable from cloudflare/investigation-worker.ts.
  */
 
 const FAULT_KEY = "test-fault/entry-put";
+const SLOW_KEY = "test-fault/slow-entry-put";
 
 type ObjectState = Readonly<{ id: Readonly<{ name?: string }>; storage: HostStorage }>;
 
@@ -40,6 +43,8 @@ function plantable(bucket: HostBucket, counts: { gets: number }): HostBucket {
     },
     put: async (key, value, options) => {
       if (key.includes("/entries/") && (await bucket.head(FAULT_KEY)) !== null) throw new Error("The test's planted store failure");
+      // Held back while the second marker exists, so two commands that read one head are both past that read before either swaps it.
+      if (key.includes("/entries/") && (await bucket.head(SLOW_KEY)) !== null) await new Promise((resolve) => setTimeout(resolve, 150));
       return bucket.put(key, value, options);
     }
   };

@@ -15,6 +15,7 @@ import { IDENTITY_ALDER } from "./case-fixture";
 
 const ENTRY = "investigation/test/workerd-case-host-entry.ts";
 const FAULT_KEY = "test-fault/entry-put";
+const SLOW_KEY = "test-fault/slow-entry-put";
 
 let world: HostWorld;
 
@@ -99,6 +100,21 @@ test("a store that fails between the log's start and the plan leaves a log that 
   assert.notEqual(next, caseId);
   assert.deepEqual((await world.listed()).created.sort(), [whole, next].sort());
   assert.deepEqual((await world.listed()).unfinished, [caseId]);
+});
+
+test("two commands that both read one head and both write their entry meet at the swap, and exactly one is committed", { timeout: 120_000 }, async () => {
+  const bucket = await world.miniflare.getR2Bucket(OBJECTS_BINDING);
+  const caseId = await world.create();
+  const opened = (await world.direct(CASES_BINDING, caseId, { call: "open", assertion: world.ownerToken, caseId })).answer.case as { head: string };
+  const claim = (id: string) => world.direct(CASES_BINDING, caseId, { call: "claim", caseId, viewedHead: opened.head, assertion: world.ownerToken, event: { type: "assertion-recorded", data: { id, statement: `Said as ${id}.` } } });
+  await bucket.put(SLOW_KEY, "armed");
+  const raced = await Promise.all([claim("said-first"), claim("said-second"), claim("said-third")]);
+  await bucket.delete(SLOW_KEY);
+  assert.deepEqual(raced.map(({ answer }) => (answer.ok === true ? "committed" : answer.refusal)).sort(), ["committed", "conflict", "conflict"]);
+  // All three wrote an entry, so each was past the service's own look at the head: only the swap stood between them.
+  assert.equal((await world.keys(`cases/${caseId}/entries/`)).length, 4);
+  const after = (await world.direct(CASES_BINDING, caseId, { call: "open", assertion: world.ownerToken, caseId })).answer.case as { seq: number; state: { record: { assertions: unknown[] } } };
+  assert.deepEqual([after.seq, after.state.record.assertions.length], [2, 1]);
 });
 
 test("the list holds a bounded number of ids, and a create past the bound is refused with nothing reserved", { timeout: 240_000 }, async () => {
