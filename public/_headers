@@ -12,10 +12,8 @@
 # - challenges.cloudflare.com: Turnstile widget script + challenge iframe for
 #   the scan form.
 # - scan.sitebehavior.org: the scan API (health, scans, report JSON).
-# - static.cloudflareinsights.com / cloudflareinsights.com: the Cloudflare Web
-#   Analytics beacon Pages injects when enabled on the project.
 /*
-  Content-Security-Policy: default-src 'self'; base-uri 'self'; connect-src 'self' https://scan.sitebehavior.org https://cloudflareinsights.com; form-action 'self'; frame-ancestors 'none'; frame-src https://challenges.cloudflare.com; img-src 'self' data:; object-src 'none'; script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'
+  Content-Security-Policy: default-src 'self'; base-uri 'self'; connect-src 'self' https://scan.sitebehavior.org; form-action 'self'; frame-ancestors 'none'; frame-src https://challenges.cloudflare.com; img-src 'self' data:; object-src 'none'; script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline'
   Strict-Transport-Security: max-age=31536000; includeSubDomains
   Referrer-Policy: no-referrer
   X-Content-Type-Options: nosniff

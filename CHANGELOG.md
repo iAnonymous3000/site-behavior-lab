@@ -432,6 +432,10 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- The site's content security policy no longer allows
+  `cloudflareinsights.com` or `static.cloudflareinsights.com`. Web Analytics
+  is off for the site, so nothing loads from either host; the policy now
+  refuses them.
 - Four slips in finding-card wording. No stored report, evaluator or detector
   changes, no stored headline changes, and no correction event is taken.
   - A card titled "Session-replay vendor observed" with no listener detection
