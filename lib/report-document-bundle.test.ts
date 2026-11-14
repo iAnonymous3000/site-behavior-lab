@@ -30,5 +30,8 @@ test("independent unzip and SHA-256 recover the original binary PDF and exact JS
     }
     assert.equal(manifest.rendererCommit, "a".repeat(40));
     assert.match(get("README.txt").toString(), /do not prove who created it/);
+    // Public text carries no em or en dash; the title joins with a colon.
+    assert.match(get("README.txt").toString(), /^SITE BEHAVIOR LAB: SAVED REPORT\n\n/);
+    assert.doesNotMatch(get("README.txt").toString(), /[\u2013\u2014]/);
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
