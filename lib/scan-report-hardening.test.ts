@@ -32,6 +32,7 @@ import {
   viewFromV2
 } from "./scan-report-view";
 import { degradedRunNotice, runCensorshipNotes, runQualitySummary } from "./scan-report-censorship";
+import { ledgerPinnedReportView } from "./pinned-reports";
 import { makeGpcInterventionReportV2R2 } from "./scan-report-v2-r2-fixtures";
 import { evaluateComparability, evaluateQuality } from "./scan-report-v2-evaluators";
 import {
@@ -2018,4 +2019,29 @@ test("prototype-named quality reasons and evidence families never reach reader p
     true,
     "a prototype-named family must render through the fallback label"
   );
+});
+
+test("an incomplete-visit note joins its reason with a colon, never a long dash", () => {
+  // Committed, ledger-pinned homedepot.com GPC pair: both visits carry
+  // censored families whose notes name a recorded reason.
+  const view = ledgerPinnedReportView("20260814-0d43cea9be32d1d52650401b4661cce3");
+  const notes = view.runs.flatMap((run) => runCensorshipNotes(run));
+  assert.ok(
+    notes.some((note) =>
+      /^fingerprinting evidence was censored before completion: the in-page fingerprint observer did not finish \(recorded loss count: \d+\)$/.test(note)
+    ),
+    notes.join(" | ")
+  );
+  // A censored family with no recorded loss takes the fallback reason.
+  const run = view.runs[0];
+  const noRecordedLoss = {
+    ...run,
+    quality: { ...run.quality, reasons: [], facts: undefined, byFamily: { storage: { outcome: "censored", reasons: [] } } }
+  } as unknown as Parameters<typeof runCensorshipNotes>[0];
+  assert.deepEqual(runCensorshipNotes(noRecordedLoss), [
+    "storage evidence was censored before completion: the producer recorded incomplete collection"
+  ]);
+  for (const note of [...notes, ...runCensorshipNotes(noRecordedLoss)]) {
+    assert.doesNotMatch(note, /[\u2013\u2014]/, note);
+  }
 });

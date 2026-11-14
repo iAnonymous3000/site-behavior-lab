@@ -274,7 +274,7 @@ function censoredFamilyDetailNote(run: RunView, family: string): string {
         )
     )
   );
-  return details.length === 0 ? "" : ` — ${details.join("; ")}`;
+  return details.length === 0 ? "" : `: ${details.join("; ")}`;
 }
 
 const EVIDENCE_FAMILY_LABELS: Readonly<Record<string, string>> = Object.freeze({
@@ -301,7 +301,7 @@ export function runCensorshipNotes(run: RunView): string[] {
       }
       notes.push(
         `${ownNote(EVIDENCE_FAMILY_LABELS, family) ?? "recorded"} evidence was censored before completion${
-          censoredFamilyDetailNote(run, family) || " — the producer recorded incomplete collection"
+          censoredFamilyDetailNote(run, family) || ": the producer recorded incomplete collection"
         }`
       );
     }
