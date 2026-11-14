@@ -1233,7 +1233,7 @@ const EB2_PROPERTY_END = "; every target epoch of the obligation contracts is na
 const EB2_TESTS = "  - `lib/fv-producer-identity.test.ts`: \"EB2: every target epoch of the obligation contracts is named by a row\"\n";
 const EB3_FAMILY = '  - `lib/fv-producer-identity.test.ts`: names beginning "EB3 catches a variant"\n- **Commit:** af6c9568efe3f9cbf2503a8d9b3086fd8b240167';
 const PROSE_SPOT = "## What this register does not claim\n";
-const PINS_CASE = '  - "the same, frozen as reaching, with only its attach heard at the freeze"\n';
+const PINS_CASE = '  - "a worker that ran, whose attach is on the port when the frame tree answers, lands in no term"\n';
 const RA4_LAST = '  - `lib/fv-scroll-producer.test.ts`: "RA4: each ending validates and keeps what it earned"\n';
 const F4_HAND_CODE = "- **Code:** `sharedWorkerAttacherThread` in `lib/shared-worker-attacher.ts`.";
 const RA7P_VARIANTS = "- **Variants:** none: the test pins where the recorders part, which RA7's bounded check leaves to arrival order.\n";
@@ -1298,7 +1298,7 @@ const TEXT_VARIANTS: ReadonlyArray<readonly [string, string, () => Partial<Input
   ["Variants none with no reason", P.shape, () => ({ doc: planted("- **Variants:** none: the test pins where the recorders part", "- **Variants:** none") })],
   ["a malformed Tests item", P.shape, () => ({ doc: planted(EB2_TESTS, "  - lib/fv-producer-identity.test.ts EB2: every target epoch of the obligation contracts is named by a row\n") })],
   ["a malformed Variants item", P.shape, () => ({ doc: planted(EB3_FAMILY, EB3_FAMILY.replace('names beginning "EB3 catches a variant"', "names beginning EB3 catches a variant")) })],
-  ["a malformed Cases item", P.shape, () => ({ doc: planted(PINS_CASE, "  - the same, frozen as reaching, with only its attach heard at the freeze\n") })],
+  ["a malformed Cases item", P.shape, () => ({ doc: planted(PINS_CASE, "  - a worker that ran, whose attach is on the port when the frame tree answers, lands in no term\n") })],
   ["a malformed Members item", P.shape, () => ({ doc: planted('  - "a running worker\'s last word at the call is its state, with no barrier"\n', "  - a running worker's last word at the call is its state, with no barrier\n") })],
   ["a duplicated row id", P.ids, () => ({ doc: planted("### EB2. ", "### EB1. ") })],
   ["an id with a space in it", P.ids, () => ({ doc: planted("### EB2. ", "### E B2. ") })],
@@ -1453,11 +1453,11 @@ const TEXT_VARIANTS: ReadonlyArray<readonly [string, string, () => Partial<Input
   ["a Code field that names no file", P.quoted, () => ({ doc: planted(F4_HAND_CODE, "- **Code:** the thread's program.") })],
   ["a name in code that its files do not hold", P.quoted, () => ({ doc: planted("with `detectorObligationContractVersion` and", "with `detectorObligationContractVersions` and") })],
   ["a quote its files do not hold", P.quoted, () => ({ doc: planted(EB2_PROPERTY_END, `${EB2_PROPERTY_END} The suite says "every row is held".`) })],
-  ["Cases on a row whose test is not table-driven", P.cases, () => ({ doc: planted("with another worker's drain open\"\n", "with another worker's drain open\"\n- **Cases:**\n  - \"an ordinary hold\"\n") })],
+  ["Cases on a row whose test is not table-driven", P.cases, () => ({ doc: planted("is read at the snapshot before it\"\n", "is read at the snapshot before it\"\n- **Cases:**\n  - \"an ordinary hold\"\n") })],
   [
     "a row citing the table-driven open test twice",
     P.cases,
-    () => ({ doc: planted("- **Cases:**\n  - \"held at the freeze and at the bound, with its late on the port", "  - `lib/fv-worker-model.test.ts`: `open (F4, ${kind}): ${name}, which rests on ${rests}`\n- **Cases:**\n  - \"held at the freeze and at the bound, with its late on the port") })
+    () => ({ doc: planted("- **Cases:**\n  - \"a worker that ran, whose attach is on the port", "  - `lib/fv-worker-model.test.ts`: `open (F4, ${kind}): ${name}, which rests on ${rests}`\n- **Cases:**\n  - \"a worker that ran, whose attach is on the port") })
   ],
   [
     "a second table-driven open test on one row, over that row's cases",

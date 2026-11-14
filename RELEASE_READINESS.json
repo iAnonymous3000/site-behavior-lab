@@ -290,13 +290,13 @@
         },
         {
           "id": "lib/fv-worker-model.test.ts",
-          "minimumTests": 130,
-          "minimumVariants": 106
+          "minimumTests": 131,
+          "minimumVariants": 107
         },
         {
           "id": "lib/fv-worker-readout.test.ts",
-          "minimumTests": 122,
-          "minimumVariants": 108
+          "minimumTests": 154,
+          "minimumVariants": 139
         },
         {
           "id": "lib/scroll-check-stacks.test.ts",
@@ -310,7 +310,7 @@
         },
         {
           "id": "scripts/tla-worker-hold-conformance.test.mjs",
-          "minimumTests": 59,
+          "minimumTests": 73,
           "minimumVariants": 0
         }
       ]

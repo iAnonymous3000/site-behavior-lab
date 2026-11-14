@@ -609,13 +609,13 @@ the unit suite's test of the module the scanner loads is
 
 ### CL8a. The readout's classifier over the whole view domain
 
-- **Property:** The shared classifier holds over every view, and fingerprint-observer@12 moves only fingerprint-observer@11's exclusions, toward unread or toward the stream; a shared worker excluded or unread at the freeze, or ended at once, stays so whatever the drain's end shows; a shared worker's stream lands where the world's text says; the dedicated classifier holds over every view.
+- **Property:** The shared classifier holds over every view, and of fingerprint-observer@11's exclusions fingerprint-observer@12 moves only the views of a worker gone held, to unread; a shared worker unread at the freeze, or ended at once, stays so whatever the drain's end shows; a shared worker's stream lands where the world's text says; the dedicated classifier holds over every view: for a worker held at its attach it is unchanged since @11, and for one already running at its attach it is never an exclusion at the freeze and differs from @11 only where @11 excluded, which is attached late.
 - **Code:** the kernels `freezeDedicatedRealm`, `freezeSharedRealm`, `resolveSharedRealm` (with `resolveReachingRealm` and `resolveHeldRealm`), `streamAtFreeze`, `dedicatedLandedTerm` and `sharedLandedTerm` in `lib/worker-fingerprint-realm.ts`.
-- **Domain:** Shared views over the hold, the detach flags, channel loss, the install outcome, attachment after the freeze or not, the lifetime against the ended-at-once bound, the last word and a break; each view that waits on the drain against each end the suite moves (hold, detach flags, channel loss and lifetime), and each that reads its stream against every slot, loss, break and credit; for staying settled, the shared views with no last word and no break, against the same ends; dedicated views over the release, the detach flags, channel loss, the install outcome, the last word, a break, the owner, frame trees read or not, the slot, and loss and break at the drain's end. Combinations the mirror never produces are walked too. Sampled for the lifetime, at the values the Bounds name, and for the text of a snapshot, which the suite writes out.
+- **Domain:** Shared views over the hold, the detach flags, channel loss, the install outcome, attachment after the freeze or not, the lifetime against the ended-at-once bound, the last word and a break; each view that waits on the drain against each end the suite moves (hold, detach flags, channel loss and lifetime), and each that reads its stream against every slot, loss, break and credit; for staying settled, the shared views with no last word and no break, against the same ends; dedicated views over whether the worker was held at its attach, the release, the detach flags, channel loss, the install outcome, the last word, a break, the owner, frame trees read or not, the slot, and loss and break at the drain's end. Combinations the mirror never produces are walked too. Sampled for the lifetime, at the values the Bounds name, and for the text of a snapshot, which the suite writes out.
 - **Bounds:** none beyond those products; the lifetime takes none, under the bound, at it and one past it.
 - **Axioms:** none: the only premise is that a view's fields are what the kernels are handed.
 - **Method:** exhaustive, sampled, restatement
-- **Not claimed:** That a view is true of the worker, which is the model's question (F4); that a browser behaves as the model says; that excluded means no page code ran, which is not in the view. The @11 reference is spelled out from git and catches drift from what @12 said it changed, not a wrong rule at @11.
+- **Not claimed:** That a view is true of the worker, which is the model's question (F4); that a browser behaves as the model says; that excluded means no page code ran, which is not in the view. The @11 reference is spelled out from git and catches drift from what @12 and @14 said they changed, not a wrong rule at @11.
 - **Tests:**
   - `lib/fv-worker-readout.test.ts`: "CL8a: the shared classifier holds over every view, and @12 moves only what it said it moved"
   - `lib/fv-worker-readout.test.ts`: "CL8a: a worker settled at the freeze stays settled, whatever the drain's end shows"
@@ -627,29 +627,46 @@ the unit suite's test of the module the scanner loads is
 
 ### CL8a-M. The classifier through the real mirror and readout
 
-- **Property:** Through the real mirror and readout, @12 moves @11's exclusions toward unread and toward the stream, and nothing else; a shared worker attached on a stream that missed a commit is credited to nothing, read in full or not, and one attached before that loss keeps what it read.
+- **Property:** Through the real mirror and readout, a shared worker attached on a stream that missed a commit is credited to nothing, read in full or not, and one attached before that loss keeps what it read.
 - **Code:** `SharedWorkerVisitChannel` in `lib/shared-worker-attacher.ts` and the readout in `lib/worker-fingerprint-realm.ts`.
-- **Domain:** Exhaustive over every cut of every prefix of the suite's written-out report paths, each with each way the channel is lost, less those a loss before the freeze leaves unreported. Sampled over a stream that missed a commit: the worlds the suite writes out, commits never watched and the page's session lost before or after the attach, beside commits watched.
+- **Domain:** Sampled over a stream that missed a commit: the worlds the suite writes out, commits never watched and the page's session lost before or after the attach, beside commits watched.
 - **Bounds:** none beyond that enumeration; these worlds read with the drain's settle set to nothing, so production's timer ends the drain at once.
 - **Axioms:** as CL7: the attacher's thread is scripted and reports in the order it posted, and each scripted answer stands for the browser's.
-- **Method:** exhaustive, sampled, restatement
+- **Method:** sampled, restatement
+- **Not claimed:** Which way the readout's rule has moved since fingerprint-observer@11, through the real mirror: row CL8b holds that.
 - **Tests:**
   - `lib/fv-worker-readout.test.ts`: "CL8a: a shared worker attached on a stream that missed a commit is credited to nothing"
-  - `lib/fv-worker-readout.test.ts`: "CL8a: through the real mirror and readout, @12 moves @11's exclusions toward unread and toward the stream, and nothing else"
 - **Variants:**
   - `lib/fv-worker-readout.test.ts`: names beginning "CL8a catches a variant"
   - `lib/fv-worker-readout.test.ts`: "CL8a catches a variant: a creation document read on a stream that missed a commit is kept"
 - **Commit:** 8d1ec26228f9e2a518f31150071da3a4ceed382c
 
+### CL8b. No shared worker is excluded
+
+- **Property:** The shared classifier excludes no view. Each view fingerprint-observer@11 called paused at the readout is unread as a hold the freeze cannot place: released and attached after the freeze; reaching at the freeze and released by the drain's end; seen held, and released or still held at the drain's end. Nothing else differs from @11 but fingerprint-observer@12's views of a worker gone held. Through the real mirror and readout, @12 and fingerprint-observer@14 together move each of @11's exclusions, toward unread or toward the stream, and nothing else; with no loss of the channel, a worker the mirror heard released in the drain, or still saw held at its end, is an unread realm, whether the freeze found it held, found it reaching or had not heard of it.
+- **Code:** the kernels `freezeSharedRealm`, `resolveSharedRealm` (with `resolveReachingRealm` and `resolveHeldRealm`) and `sharedLandedTerm`, and the readout, in `lib/worker-fingerprint-realm.ts`; `SharedWorkerVisitChannel` in `lib/shared-worker-attacher.ts`.
+- **Domain:** For the kernels, the shared views of CL8a, each that waits on the drain against each end the suite moves. For the real mirror and readout, every cut of every prefix of the suite's written-out report paths, each prefix with an answered install crossed with each stream, barrier answer and credit, each with each way the channel is lost, less those a loss before the freeze leaves unreported.
+- **Bounds:** none beyond those enumerations; the worlds read with the drain's settle set to nothing, so production's timer ends the drain at once.
+- **Axioms:** none for the kernels: the only premise is that a view's fields are what the kernels are handed. For the worlds, as CL7: the attacher's thread is scripted and reports in the order it posted, and each scripted answer stands for the browser's.
+- **Method:** exhaustive, restatement
+- **Not claimed:** That a worker landed so ran page code before the freeze: the term says the readout cannot tell, and a worker that ran nothing lands so too. How often a page lands a worker so, which is a measurement. That a view is true of the worker, which is the model's question (F4-NOEXCL). The @11 reference is spelled out from git and catches drift from what @12 and @14 said they changed, not a wrong rule at @11.
+- **Tests:**
+  - `lib/fv-worker-readout.test.ts`: "CL8a: no shared view is excluded, and @14 moves only the views @11 called paused at the readout, each to a hold the freeze cannot place"
+  - `lib/fv-worker-readout.test.ts`: "CL8a: through the real mirror and readout, @12 and @14 move every one of @11's exclusions toward unread or toward the stream, and nothing else"
+- **Variants:**
+  - `lib/fv-worker-readout.test.ts`: names beginning "CL8b catches a variant of the kernels"
+  - `lib/fv-worker-readout.test.ts`: names beginning "CL8b catches a variant in the readout"
+- **Commit:** 2b6189b38f851e7c155d09c64591b1ea25df04bd
+
 ### CL7. Every attached worker lands in one term
 
 - **Property:** Every dedicated worker attached before the freeze, and every shared worker the attacher reported, lands in exactly one term of the real readout's diagnostics, for a dedicated worker the term its world says, and the terms add up to what the readout publishes; the drain waits for each thing it names and ends when that arrives; an emission in the drain moves no freeze point already passed.
 - **Code:** the readout in `lib/worker-fingerprint-realm.ts`, `SharedWorkerVisitChannel` in `lib/shared-worker-attacher.ts`, and `DedicatedWorkerAttachSession` in `lib/devtools-worker-channel.ts`.
-- **Domain:** Sampled over the dedicated worlds: a quiet worker with one thing varied at a time (its start, each failing install, each later stream with each barrier answer) crossed with each way of going away and each owner state, under each channel mode the suite lists, except that the earlier installer's hold takes the current owner only; then workers started by others, no channel, and witness counts that disagree with what attached. Exhaustive over the shared worlds: every cut of every prefix of the suite's written-out report paths, each prefix with an answered install crossed with each stream, barrier answer and credit, with the reports the mirror must ignore after late, under each way the channel is lost. Sampled over the drain: the things the suite lists for it to wait for, and the emissions the suite writes out.
+- **Domain:** Sampled over the dedicated worlds: a quiet worker with one thing varied at a time (its start, which is paused, running, held by an earlier installer, or running with an earlier installer still at work; each failing install, each later stream with each barrier answer) crossed with each way of going away and each owner state, under each channel mode the suite lists, except that the starts with an earlier installer take the current owner only; then workers started by others, no channel, and witness counts that disagree with what attached. Exhaustive over the shared worlds: every cut of every prefix of the suite's written-out report paths, each prefix with an answered install crossed with each stream, barrier answer and credit, with the reports the mirror must ignore after late, under each way the channel is lost. Sampled over the drain: the things the suite lists for it to wait for, and the emissions the suite writes out.
 - **Bounds:** none beyond those enumerations. The accounting worlds read with the drain's settle set to nothing, so production's timer ends the drain at once; the drain and emission worlds read with a settle that never expires in the test, so each case is decided by order.
 - **Axioms:** The attacher's thread is scripted and reports in the order it posted, so F4 replays the real thread; each scripted answer stands for the browser's and arrives in the turn it was sent unless a world holds it; a detach reaches the session before the installer; an earlier installer holds until told to, which the real GPC installer does not once its channel closes.
 - **Method:** exhaustive, sampled, restatement
-- **Not claimed:** A dedicated worker attached in the drain lands in no term (OPEN-F3.3). The dedicated worlds take a worker an earlier installer holds as excluded, the reading OPEN-F3.6 pins open, and witness counts and attaches have nothing to join them (OPEN-F3.4). Whether a browser produces a path, and what a term says of a site. The expected terms restate the docblocks of the diagnostics and of the readout. A shared worker on the dedicated channel stays out of these terms, and `shared.diedPaused` is written by nothing since @12.
+- **Not claimed:** A dedicated worker attached in the drain, which row CL7-D holds. The dedicated worlds take a worker an earlier installer holds as excluded, the reading OPEN-F3.6 pins open, and witness counts and attaches have nothing to join them (OPEN-F3.4). Whether a browser produces a path, and what a term says of a site. The expected terms restate the docblocks of the diagnostics and of the readout. A shared worker on the dedicated channel stays out of these terms, `shared.diedPaused` is written by nothing since @12, and `shared.pausedAtReadout` by nothing since @14.
 - **Tests:**
   - `lib/fv-worker-readout.test.ts`: "CL7: every dedicated worker lands in one term of the real readout, the one its world says, and the terms add up"
   - `lib/fv-worker-readout.test.ts`: "CL7: every shared worker the attacher reported lands in one term of the real readout, and the terms add up"
@@ -658,6 +675,21 @@ the unit suite's test of the module the scanner loads is
 - **Variants:**
   - `lib/fv-worker-readout.test.ts`: names beginning "CL7 catches a variant"
 - **Commit:** 8d1ec26228f9e2a518f31150071da3a4ceed382c
+
+### CL7-D. A dedicated worker attached in the drain lands by its attach
+
+- **Property:** A dedicated worker whose attach arrives in the drain lands in a single term of the real readout's diagnostics and in no other, by its attach alone: held at that attach, it is paused at the readout, an exclusion, and no unread realm; already running at it, it is attached late and an unread realm, as the same worker attached before the call is. What its install, an earlier installer or the channel did afterwards changes neither landing, a worker attached before the call beside it keeps its own term, and a witnessed worker that never attached is still unattached.
+- **Code:** the readout in `lib/worker-fingerprint-realm.ts` and `DedicatedWorkerAttachSession` in `lib/devtools-worker-channel.ts`.
+- **Domain:** Sampled: a worker attached in the drain, by each start (paused, running, held by an earlier installer, or running with an earlier installer still at work), a paused worker with its install answered or left unanswered, alone or beside a quiet worker attached before the call, with every witnessed worker attached or a further witnessed worker that never attached, under each channel mode the suite lists for it (alive, alive with frame trees that cannot be read, lost in the drain).
+- **Bounds:** none beyond that enumeration; the worlds read with the drain's settle set to nothing, and the attach is delivered in the turn of the call, so each case is decided by order.
+- **Axioms:** as CL7. The attach's own word on whether the worker waits for the debugger is taken as the browser gave it.
+- **Method:** sampled, restatement
+- **Not claimed:** Whether Chromium attaches an already running worker in a drain, which is not measured. That a worker held at an attach heard after the freeze ran nothing before the freeze rests on A4, a worker the debugger holds at its start running nothing until released, which F4-TABLE holds of the dedicated model and no test holds of a browser. A witness count and the attaches still have nothing to join them (OPEN-F3.4), so an unwitnessed worker attached in the drain stands in for a witnessed worker that never attached.
+- **Tests:**
+  - `lib/fv-worker-readout.test.ts`: "CL7: a dedicated worker attached in the drain lands in one term, by its attach: held there it is excluded, and already running it is an unread realm"
+- **Variants:**
+  - `lib/fv-worker-readout.test.ts`: names beginning "CL7 catches a variant in the drain's attaches"
+- **Commit:** 2b6189b38f851e7c155d09c64591b1ea25df04bd
 
 ### RA4. The scroll producer passes its validator and keeps what it earned
 
@@ -733,7 +765,7 @@ Its axioms are switches, each of which only removes transitions:
 
 ### F4-TERM. Every shared worker the readout heard of lands in one term
 
-- **Property:** Every shared worker the readout heard of lands in exactly one term, and where @12 lands a worker apart from where @11 would have, it moves it only from excluded, toward unread or toward its stream.
+- **Property:** Every shared worker the readout heard of lands in exactly one term, and where the readout lands a worker apart from where @11 would have, it moves it only from excluded, toward unread or toward its stream.
 - **Code:** the readout's kernels in `lib/worker-fingerprint-realm.ts`, as `lib/fv-worker-model.ts` calls them.
 - **Domain:** Every event order in the alphabets of the shared worlds.
 - **Bounds:** each world's alphabet and the bounds the suite asserts.
@@ -751,7 +783,7 @@ Its axioms are switches, each of which only removes transitions:
 
 ### F4-TABLE. The axiom table only weakens as axioms are dropped
 
-- **Property:** A property that holds under a set of axioms holds under every larger set, in each shared world; A4 changes no verdict for a shared worker under any subset of the other axioms; in the dedicated world, a worker held at its attach and excluded ran nothing, under A4 and only under A4; with Z among the switches, the @11 shared rule keeps the first exclusion row in the small world under no detach overtaking, and in the hold world needs A1, A2, no detach overtaking and A5's order half, where @12 needs only A5's order half.
+- **Property:** A property that holds under a set of axioms holds under every larger set, in each shared world; A4 changes no verdict for a shared worker under any subset of the other axioms; in the dedicated world, a worker held at its attach and excluded ran nothing, under A4 and only under A4; the @11 shared rule for a worker gone held, put back over the present kernels, keeps the first exclusion row in the small world under Z and no detach overtaking, and in the hold world needs A1, A2 and no detach overtaking, where the present kernels need no axiom, since they exclude no shared worker.
 - **Code:** `lib/fv-worker-model.ts`, over the real kernels.
 - **Domain:** Every subset of A1 to A5, with A5's halves apart, over each shared world; the dedicated world under each axiom; for the @11 rule, the small world under Z and no detach overtaking, and the hold world under the subsets of A1, A2, no detach overtaking, A5's order half and Z.
 - **Bounds:** each world's alphabet and the bounds the suite asserts.
@@ -766,15 +798,15 @@ Its axioms are switches, each of which only removes transitions:
   - `lib/fv-worker-model.test.ts`: "the model catches a variant of the dedicated kernel: a released worker is excluded"
 - **Commit:** 5aea6d6120edcb929a3576b502cd2f5a638115d3
 
-### F4-BEYOND. What the empty rows would take
+### F4-BEYOND. What the empty row would take
 
-- **Property:** C1 (what the browser emitted before the freeze, and what the thread posted on hearing it, is processed before the settle bound) and D1 (all of that is processed before the page's frame tree answers) are not axioms of the plan, and each says only what it says: with both on top of every axiom the exclusion rows still fail, so measuring latency cannot close them; D1 closes the no-term row only in the hold and stream worlds, and over every world only Z, which restates the safety property's premise, closes it. With Z alone assumed, the small world keeps the exclusion rows. The named trace, a worker that ran unobserved before the freeze and that the mirror does not yet call late, is reachable, frozen as held, as reaching and by the second pass, and the readout excludes it.
+- **Property:** C1 (what the browser emitted before the freeze, and what the thread posted on hearing it, is processed before the settle bound) and D1 (all of that is processed before the page's frame tree answers) are not axioms of the plan, and each says only what it says: the exclusion rows need none of them, holding under no axiom with nothing to judge, since no shared worker is excluded; D1 closes the no-term row only in the hold and stream worlds, and over every world only Z, which says the mirror is current at the freeze, closes it. With Z alone assumed, the small world keeps the exclusion rows. The named trace, a worker that ran unobserved before the freeze and that the mirror does not yet call late, is reachable, frozen as held, as reaching and by the second pass, with the causes each set of switches leaves, and under no set of switches does it end in an exclusion.
 - **Code:** `lib/fv-worker-model.ts`, over the real kernels.
 - **Domain:** Every event order in the alphabets of the shared worlds and the small world, under each switch set the tests name.
 - **Bounds:** each world's alphabet and the bounds the suite asserts.
 - **Axioms:** the plan's axioms with C1, D1 and Z as each test names them; none of C1, D1 and Z is a fact of Chromium.
 - **Method:** reachable states
-- **Not claimed:** That Z holds of a browser: that the empty rows hold under Z shows only that they have no other way to fail. The small-world clause is checked by the production pass that opens each named member's test.
+- **Not claimed:** That Z holds of a browser: that the empty row holds under Z shows only that it has no other way to fail. The small-world clause is checked by the production pass that opens each named member's test. Through fingerprint-observer@13 the exclusion rows failed with C1 and D1 on top of every axiom; row F4-NOEXCL holds that rule, put back, to those rows.
 - **Tests:**
   - `lib/fv-worker-model.test.ts`: "beyond the plan's axioms: C1, D1 and Z are not axioms, and each says only what it says"
   - `lib/fv-worker-model.test.ts`: "the named trace is reachable, frozen as held, as reaching, and by the second pass, and A5's latency half closes one of its causes in two of those forms"
@@ -783,7 +815,6 @@ Its axioms are switches, each of which only removes transitions:
   - `lib/fv-worker-model.test.ts`: names beginning "the model catches a variant of the kernels"
 - **Members:**
   - "the @11 shared rule is restored: a worker gone held is excluded"
-  - "lostWithChannel is ignored: a worker the closed channel left running reads as held"
   - "a worker the mirror knows is late is excluded"
 - **Commit:** 5aea6d6120edcb929a3576b502cd2f5a638115d3
 
@@ -831,7 +862,7 @@ Its axioms are switches, each of which only removes transitions:
 
 ### F4-TRACE. The real thread, mirror and readout follow the model
 
-- **Property:** The real attacher thread hears every sequence it can hear in the hold and stream worlds, with no axiom assumed, and posts and sends what the model says at each step; the real mirror and readout hear every sequence they can hear with the port in order and land where the model says, and with the port out of order and the thread dead take every transition of what they can hear; through the real thread, its in-process transport, the real mirror and the real readout, a set of traces takes every transition of what all of it hears; in the world of `TWO_WORKER_WORLD` each side takes every transition of what it hears and both together reach every landing; the real session, installer and readout hear every sequence of the dedicated world, and under A4 keep `a-dedicated-worker-held-at-its-attach-and-excluded-ran-no-page-code-before-the-freeze` and `a-dedicated-worker-read-had-the-observer-before-every-statement` by the world's facts; each word the model drops, the real thread makes nothing of, from that state on, but a late worker's own stream, which it forwards; on a scripted broken hold, the real path keeps `excluded-implies-no-unobserved-page-code-before-the-freeze` and `read-implies-the-observer-preceded-every-statement`, and a worker running at its attach whose late the mirror heard lands in a term; each row's need and each form of the named trace goes through the real code, and the term the real readout counted breaks the property the model says it breaks, except on the trace for `a-worker-that-ran-before-the-freeze-lands-in-a-term`, where the model's term is nowhere and is judged as the model gives it, so that test depends on none of the readout's term counts: among what it holds are the real mirror against the model (the installer's install counts included) and that the real drain had not ended at each label before the last, and that it ended; the landing is not compared on those traces.
+- **Property:** The real attacher thread hears every sequence it can hear in the hold and stream worlds, with no axiom assumed, and posts and sends what the model says at each step; the real mirror and readout hear every sequence they can hear with the port in order and land where the model says, and with the port out of order and the thread dead take every transition of what they can hear; through the real thread, its in-process transport, the real mirror and the real readout, a set of traces takes every transition of what all of it hears; in the world of `TWO_WORKER_WORLD` each side takes every transition of what it hears and both together reach every landing; the real session, installer and readout hear every sequence of the dedicated world, and under A4 keep every property of the dedicated world by the world's facts; each word the model drops, the real thread makes nothing of, from that state on, but a late worker's own stream, which it forwards; on a scripted broken hold, the real path keeps `excluded-implies-no-unobserved-page-code-before-the-freeze` and `read-implies-the-observer-preceded-every-statement`, and a worker running at its attach whose late the mirror heard lands in a term; each row's need goes through the real code, and the term the real readout counted breaks the property the model says it breaks, except on the trace for `a-worker-that-ran-before-the-freeze-lands-in-a-term`, where the model's term is nowhere and is judged as the model gives it, so that test depends on none of the readout's term counts: among what it holds are the real mirror against the model (the installer's install counts included) and that the real drain had not ended at each label before the last, and that it ended; the landing is not compared on those traces.
 - **Code:** `sharedWorkerAttacherThread`, `SharedWorkerVisitChannel` and `inProcessAttacherTransportForTests` in `lib/shared-worker-attacher.ts`, the readout in `lib/worker-fingerprint-realm.ts`, `DedicatedWorkerAttachSession` in `lib/devtools-worker-channel.ts`, and the replay in `lib/fv-worker-model-replay.ts`.
 - **Domain:** The model's traces of each world, each replayed in one process over a stand-in socket and patched timers, with the port a queue in the harness; the scripted traces the tests write out.
 - **Bounds:** every sequence where a test says every sequence, and otherwise a set of traces that takes every transition of the side's input automaton.
@@ -848,7 +879,6 @@ Its axioms are switches, each of which only removes transitions:
   - `lib/fv-worker-model.test.ts`: "replay: the real session, installer and readout hear every sequence of the dedicated world"
   - `lib/fv-worker-model.test.ts`: "replay: each word the model drops, the real thread makes nothing of, from that state on through every transition, in the hold and stream worlds"
   - `lib/fv-worker-model.test.ts`: `the table's need, of the real code: ${property} in the ${world.name} world, under ${assumptions.join(" ")}`
-  - `lib/fv-worker-model.test.ts`: `the named trace frozen as ${form}, with ${cause}, goes through the real code: the real readout excludes a worker that ran unobserved`
   - `lib/fv-worker-model.test.ts`: "the @11 rule, in the real readout, is caught by the world's facts on a worker that ran and went away held"
 - **Variants:**
   - `lib/fv-worker-model.test.ts`: names beginning "the replay catches a variant"
@@ -859,7 +889,6 @@ Its axioms are switches, each of which only removes transitions:
   - `lib/fv-worker-model.test.ts`: "the whole replay catches a variant of the thread: a report that says more than the main side's own replay words"
   - `lib/fv-worker-model.test.ts`: "the replay catches a variant of the dedicated readout: an install's late answer upgrades a worker the pause bound concluded"
   - `lib/fv-worker-model.test.ts`: "the replay catches a variant of the dedicated channel: a detach before the resume is not taken as dying paused"
-  - `lib/fv-worker-model.test.ts`: "the world's facts catch a thread that drops a broken hold's late, as a worker excluded though it ran unobserved"
   - `lib/fv-worker-model.test.ts`: "the world's facts catch a readout that lands a worker in no term, as one that ran before the freeze"
   - `lib/fv-worker-model.test.ts`: "the world's facts catch a dedicated install whose late answer upgrades a worker the pause bound concluded, as a read of one that ran unobserved"
 - **Commit:** 5aea6d6120edcb929a3576b502cd2f5a638115d3
@@ -909,6 +938,39 @@ Its axioms are switches, each of which only removes transitions:
 - **Variants:**
   - `lib/fv-worker-model.test.ts`: names beginning "the replay in reads catches a variant of the thread"
 - **Commit:** 2912f66aab21a93138b51efb750f9f7924fb112b
+
+### F4-NOEXCL. No shared worker is excluded, whatever ran before the freeze
+
+- **Property:** In each shared world and the small world, under no assumption, no worker lands in an exclusion, and each world but the stream world lands some worker as a hold the freeze cannot place. Each trace pinned open through fingerprint-observer@13 as a worker excluded though it ran lands an unread realm with nothing broken by the world's facts, in the model and through the real thread, mirror and readout with each exclusion row required of them: a release a single hop from the mirror at the freeze, frozen as held, as reaching and read by the second pass; a failed install in that window; a worker held at the freeze and at the bound with its late on the port, posted after the freeze, or its resume still on the socket; a worker whose hold's bound fires first; a worker whose connection closes behind it; and a worker attached after the freeze by the mirror's clock and released, with another worker's drain open. Each form of the named trace goes through the real code and lands an unread realm. With @13's exclusions put back, each of those traces is excluded again by the real code and caught by the row it broke, and each of those exclusions put back alone is caught by the model.
+- **Code:** the readout's kernels in `lib/worker-fingerprint-realm.ts`, as `lib/fv-worker-model.ts` calls them; and, for the traces, `sharedWorkerAttacherThread` and `SharedWorkerVisitChannel` in `lib/shared-worker-attacher.ts`, the readout in `lib/worker-fingerprint-realm.ts` and the replay in `lib/fv-worker-model-replay.ts`.
+- **Domain:** Every reachable state of the hold world, the stream world, the world of `TWO_WORKER_WORLD` and `SMALL_WORLD`, under no assumption; the written-out traces of the hold world, each walked transition by transition under the axioms it names; the first trace the search finds to each form of the named trace, and to a worker of `TWO_WORKER_WORLD` that ran before the freeze, was attached after it by the mirror's clock and landed by the drain's end with the attacher alive.
+- **Bounds:** each world's alphabet and the bounds the suite asserts; a single trace for each written-out case and each form.
+- **Axioms:** none for the reachable states. Each written-out trace assumes the axioms it names, which only say that the model allows the trace under them; the landing needs none.
+- **Method:** reachable states, trace conformance
+- **Not claimed:** That a worker landed as a hold the freeze cannot place ran before the freeze: in the model a worker that ran nothing lands so too, which is the cost of the rule. A worker the readout never heard of, which lands in no term (OPEN-F4.3). That a browser produces any of these traces, or how often. The exclusion rows hold of the model with nothing to judge, so the table (F4-TERM, F4-BEYOND) is no evidence for them: the evidence is the put-back rule being caught. A replay of `TWO_WORKER_WORLD` cannot tell which worker a stray exclusion belongs to, so the second pass put back alone is held by the model in the hold world and not by that replay.
+- **Tests:**
+  - `lib/fv-worker-model.test.ts`: "no shared worker is excluded in any world, under no assumption, and each world but the stream's lands one as a hold the freeze cannot place"
+  - `lib/fv-worker-model.test.ts`: `F4, closed at fingerprint-observer@14 (${kind}): ${name}`
+  - `lib/fv-worker-model.test.ts`: "F4, closed at fingerprint-observer@14 (implementation): attached after the freeze by the mirror's clock and released, having run before the freeze, with another worker's drain open, is an unread realm"
+  - `lib/fv-worker-model.test.ts`: `the named trace frozen as ${form}, with ${cause}, goes through the real code: the real readout counts a worker that ran unobserved as an unread realm, where @13's rule excludes it`
+- **Variants:**
+  - `lib/fv-worker-model.test.ts`: names beginning "the model catches fingerprint-observer@13's rule put back"
+  - `lib/fv-worker-model.test.ts`: "a thread that drops a broken hold's late no longer gets its worker excluded: the landing catches the drop, and under @13's rule the world's facts catch it as a worker excluded though it ran unobserved"
+- **Commit:** 2b6189b38f851e7c155d09c64591b1ea25df04bd
+
+### F4-LATE. A dedicated worker already running at its attach is never excluded
+
+- **Property:** In the dedicated world, under no assumption, no worker that was already running when it attached lands in an exclusion. The traces pinned open through fingerprint-observer@13 land attached late, an unread realm, in the model and through the real session, installer and readout: a worker read inside the round trip that arms the recursion, and a worker gone in that round trip and read after it. With @13's rule put back for each (an attached worker with no record counted as held, and a detach before the channel's resume taken as dying paused whatever the attach said), the real readout excludes the worker again and the world's facts catch it.
+- **Code:** the readout and `freezeDedicatedRealm` in `lib/worker-fingerprint-realm.ts`, `DedicatedWorkerAttachSession` in `lib/devtools-worker-channel.ts`, the dedicated model in `lib/fv-worker-model.ts` and its replay in `lib/fv-worker-model-replay.ts`.
+- **Domain:** Every reachable state of the dedicated world, a single worker on the main thread's channel; the written-out traces, each replayed in the test's own process over a stand-in channel.
+- **Bounds:** the dedicated world's alphabet; the traces the test writes out.
+- **Axioms:** none for the reachable states; the written-out traces are walked under A4, which removes no step of either.
+- **Method:** reachable states, trace conformance
+- **Not claimed:** How often a dedicated worker attaches already running, which is not measured. A worker attached in the drain, which the dedicated model has no state for, since its worker's drain ends at the freeze when nothing has been heard: CL7-D holds that case of the real readout. That the attach's word on whether the worker waits for the debugger is true of the worker.
+- **Tests:**
+  - `lib/fv-worker-model.test.ts`: "closed at fingerprint-observer@14 (dedicated): a worker already running when it attached is an unread realm inside the arming's round trip, and gone in it, where @13 excluded it"
+- **Variants:** none: the test itself puts each of fingerprint-observer@13's rules back and requires the world's facts to catch the exclusion.
+- **Commit:** 2b6189b38f851e7c155d09c64591b1ea25df04bd
 
 ## Claims from F5: the case machine, its purge slice and the fold
 
@@ -1261,20 +1323,18 @@ report facts, and RC-A holds the activity slice with them in it.
 
 ### TLA-HOLD. The hold's specification and the hand-written model agree
 
-- **Property:** In each shared world, the specification and the hand-written model take the same steps under every set of switches and land every worker the same way. The rows TLC found broken under each set of switches are the rows the model's own verdicts break. The axiom table and the named trace TLC found are those of F4-TABLE and F4-BEYOND.
+- **Property:** In each shared world, the specification and the hand-written model take the same steps under every set of switches and land every worker the same way. The rows TLC found broken under each set of switches are the rows the model's own verdicts break. The axiom table TLC found is the register's.
 - **Code:** `specs/worker-hold/WorkerHold.tla` and `specs/worker-hold/WorkerHoldTable.tla`, against `lib/fv-worker-model.ts`.
 - **Domain:** The hold world, the stream world, the world of `TWO_WORKER_WORLD` and `SMALL_WORLD`, each under each of the 512 sets of switches.
 - **Bounds:** Each world's own, as F4-WORLD states them.
 - **Axioms:** The switches a set assumes. None is a fact of Chromium, and no run measures one.
 - **Method:** model checked, exhaustive
-- **Not claimed:** A second reading of what the worlds should be: the specification was written with the model open and takes its worlds and its step names. That the graphs of the specification and the model are the same edge by edge: they are compared by digests cut to 128 bits. The dedicated world, and the second half of F4-TERM, which the specification does not state. The cells where a row has nothing to judge and so passes whatever the protocol does: F4-READ, both exclusion rows and the no-term row in the stream world, and F4-AGE in each world with no stream. No configuration lists them, and that such a cell of the F4 table reads as holding under no axiom carries no information; TLA-HOLD-N holds which cells they are. That TLC ran at the commit that holds this file: the unit suite reads the committed export, and the workflow `.github/workflows/tla-checks.yml` compares it with TLC on each push to `main`.
+- **Not claimed:** A second reading of what the worlds should be: the specification was written with the model open and takes its worlds and its step names. That the graphs of the specification and the model are the same edge by edge: they are compared by digests cut to 128 bits. The dedicated world, and the second half of F4-TERM, which the specification does not state. The cells where a row has nothing to judge and so passes whatever the protocol does: both exclusion rows in every world, F4-READ and the no-term row in the stream world, and F4-AGE in each world with no stream. No configuration lists them, and that such a cell of the F4 table reads as holding under no axiom carries no information; TLA-HOLD-N holds which cells they are. That TLC ran at the commit that holds this file: the unit suite reads the committed export, and the workflow `.github/workflows/tla-checks.yml` compares it with TLC on each push to `main`.
 - **Tests:**
   - `scripts/tla-worker-hold-conformance.test.mjs`: `the hand-written model and the specification take the same steps under every set of switches, and land every worker the same way, in the ${world} world`
   - `scripts/tla-worker-hold-conformance.test.mjs`: `under each of the 512 sets of switches, the rows the model's own verdicts break are the rows TLC found broken, in the ${world} world`
   - `scripts/tla-worker-hold-conformance.test.mjs`: "the axiom table TLC found is the register's: each row's smallest sets of the plan's axioms, in each shared world"
-  - `scripts/tla-worker-hold-conformance.test.mjs`: "F4-TABLE and F4-BEYOND, from TLC's table: A4 changes no verdict, the exclusion rows fail with C1 and D1 on top of every axiom, D1 closes the no-term row only where the tree is waited for, and only Z closes it everywhere"
   - `scripts/tla-worker-hold-conformance.test.mjs`: "TLC's own verdict on each row, as an invariant under each set of switches the register names, is the register's"
-  - `scripts/tla-worker-hold-conformance.test.mjs`: "the named trace, from TLC's table: reachable and excluded, frozen as held, as reaching and by the second pass, with the causes each set of switches leaves"
 - **Variants:** none: the specification's seeded faults (`scripts/tla-worker-hold-mutations.mjs`) need TLC and run in the hosted workflow.
 - **Commit:** 1e9876569068656f89fca24a35eceef0a60bf5a9
 
@@ -1292,23 +1352,28 @@ report facts, and RC-A holds the activity slice with them in it.
 - **Variants:** none: the specification's seeded faults (`scripts/tla-worker-hold-mutations.mjs`) need TLC and run in the hosted workflow.
 - **Commit:** 2bd2af881f98b2ba13c9641156bc89b1847c38cb
 
-### TLA-HOLD-N. Where a hold row has nothing to judge
+### TLA-HOLD-N. Where a hold row has nothing to judge, and no shared worker is excluded
 
-- **Property:** In the stream world no worker is excluded, lands nowhere or runs unobserved, and outside it no read is of a realm past its first snapshot; every other row can be judged in every world. A row with nothing to judge in a world is in no cell and no committed configuration of that world.
-- **Code:** `specs/worker-hold/WorkerHold.tla`, against `lib/fv-worker-model.ts`.
-- **Domain:** Each row in each shared world of TLA-HOLD, with no switch assumed.
-- **Bounds:** Each world's own, as F4-WORLD states them.
-- **Axioms:** none
-- **Method:** model checked, exhaustive
-- **Not claimed:** Anything of a row in a cell this row names: such a row passes there whatever the protocol does. That TLC ran at the commit that holds this file, as TLA-HOLD says.
+- **Property:** No worker of any world is excluded, so neither exclusion row has a worker to judge anywhere; in the stream world no worker lands nowhere or runs unobserved, and outside it no read is of a realm past its first snapshot; every other row can be judged in every world. A row with nothing to judge in a world is in no cell and no committed configuration of that world. In each world TLC held `NoWorkerExcluded` with nothing assumed, and the hand-written model's graph has no excluded landing. In TLC's table A4 changes no verdict, no set of switches breaks an exclusion row, D1 closes the no-term row only where the tree is waited for, and only Z closes it everywhere. The named trace is reachable in TLC's table, frozen as held, as reaching and by the second pass, with the causes each set of switches leaves, and lands unread as a hold the freeze cannot place; replayed through the real thread, mirror and readout, each kept named trace lands so and is not excluded.
+- **Code:** `specs/worker-hold/WorkerHold.tla` and `specs/worker-hold/WorkerHoldTable.tla`, against `lib/fv-worker-model.ts`; for the replays, `lib/shared-worker-attacher.ts`, the readout in `lib/worker-fingerprint-realm.ts` and `lib/fv-worker-model-replay.ts`.
+- **Domain:** Each row in each shared world of TLA-HOLD and the small world, with no switch assumed; TLC's table of the hold world under each set of switches; the named traces the export keeps, by form, by cause and by whether the worker ends released or still held.
+- **Bounds:** Each world's own, as F4-WORLD states them; the kept traces are those the export script selects.
+- **Axioms:** none for the rows with nothing to judge; each kept trace assumes the switches it names.
+- **Method:** model checked, exhaustive, trace conformance
+- **Not claimed:** Anything of a row in a cell this row names: such a row passes there whatever the protocol does, so that the exclusion rows hold is no evidence for them. The evidence that they can still fail is the seeded faults: of the specification, which need TLC and run in the hosted workflow, and of the real readout, in the Variants. Which kept trace ends released and which still held is told by a label test in the export script that TLC does not check. That TLC ran at the commit that holds this file, as TLA-HOLD says.
 - **Tests:**
-  - `scripts/tla-worker-hold-conformance.test.mjs`: "where a row has nothing to judge: in the stream world no worker is excluded, lands nowhere or runs unobserved, and outside it no read is of a realm past its first snapshot; every other row can be judged in every world"
-- **Variants:** none: the specification's seeded faults (`scripts/tla-worker-hold-mutations.mjs`) need TLC and run in the hosted workflow.
-- **Commit:** 9b5e50f758dc82dc71abd9b073297cc6c08ffe0c
+  - `scripts/tla-worker-hold-conformance.test.mjs`: "where a row has nothing to judge: no worker of any world is excluded; in the stream world none lands nowhere or runs unobserved; outside it no read is of a realm past its first snapshot; every other row can be judged in every world"
+  - `scripts/tla-worker-hold-conformance.test.mjs`: `no shared worker is excluded in the ${world} world, under any set of switches: TLC held NoWorkerExcluded with nothing assumed, the model's graph has no excluded landing, and both exclusion rows are listed nowhere`
+  - `scripts/tla-worker-hold-conformance.test.mjs`: "F4-TABLE and F4-BEYOND, from TLC's table: A4 changes no verdict, no set of switches breaks an exclusion row now that no shared worker is excluded, D1 closes the no-term row only where the tree is waited for, and only Z closes it everywhere"
+  - `scripts/tla-worker-hold-conformance.test.mjs`: "the named trace, from TLC's table: reachable, and unread as a hold the freeze cannot place, frozen as held, as reaching and by the second pass, with the causes each set of switches leaves"
+  - `scripts/tla-worker-hold-conformance.test.mjs`: `the named trace as ${form}, ${NAMED_END[end]}, under ${assumed.join(" ")} goes through the real code: the real readout lands a worker that ran unobserved as unread, a hold the freeze cannot place, and does not exclude it (${index})`
+- **Variants:**
+  - `scripts/tla-worker-hold-conformance.test.mjs`: names beginning "the replay of TLC's named traces catches a variant of the real readout by an exclusion row"
+- **Commit:** 2b6189b38f851e7c155d09c64591b1ea25df04bd
 
 ### TLA-HOLD-R. The real thread, mirror and readout follow TLC's kept traces
 
-- **Property:** Replayed through the real thread, mirror and readout, each kept trace gives at each step what the specification gives, and on each form of the named trace the real readout excludes a worker that ran unobserved.
+- **Property:** Replayed through the real thread, mirror and readout, each kept trace that covers a world's labels or breaks a row gives at each step what the specification gives. The named traces are row TLA-HOLD-N's.
 - **Code:** The attacher's thread, the mirror and the readout, through `lib/fv-worker-model-replay.ts`.
 - **Domain:** The traces the export keeps: the covering traces of each world, which take each label the world has under the plan's axioms with C1 and D1 once; a trace for each row the register says fails; and a trace for each form of the named trace.
 - **Bounds:** Those traces and no others.
@@ -1318,7 +1383,6 @@ report facts, and RC-A holds the activity slice with them in it.
 - **Tests:**
   - `scripts/tla-worker-hold-conformance.test.mjs`: `TLC's traces replay through the real thread, mirror and readout: every label the ${world} world takes under the plan's axioms with C1 and D1`
   - `scripts/tla-worker-hold-conformance.test.mjs`: `TLC's trace that breaks ${row} in the ${world} world under ${assumed.join(" ") || "nothing"} goes through the real code, and the real readout's term breaks it too (${index})`
-  - `scripts/tla-worker-hold-conformance.test.mjs`: `the named trace as ${form} under ${assumed.join(" ")} goes through the real code: the real readout excludes a worker that ran unobserved (${index})`
   - `scripts/tla-worker-hold-conformance.test.mjs`: "the kept traces are the ones the suite replays: each row the register says fails has its trace, and the named trace each of its forms"
   - `scripts/tla-worker-hold-conformance.test.mjs`: "what the kept traces cannot tell from the real thread: a fault on a word the model drops, and one that needs a session's words out of order at one point"
 - **Variants:**
@@ -1468,13 +1532,6 @@ which is the owner's call.
   - `lib/fv-scroll-producer.test.ts`: "open (RA4): a listed host the validator refuses turns the whole check into a bare cut-short"
 - **Commit:** 8d1ec26228f9e2a518f31150071da3a4ceed382c
 
-### OPEN-F3.3. A dedicated worker attached in the drain lands in no term
-
-- **Finding:** A dedicated worker attached in the drain is counted as attached and lands in no term. Paused at its attach, only the diagnostics show it; running at its attach, it is no unread realm, where the same worker attached before the call counts as an unread realm. This moves the readout's unread realms, which the suite's docblock says feed the published count. Whether Chromium attaches a running worker in a drain is not measured.
-- **Tests:**
-  - `lib/fv-worker-readout.test.ts`: "open (CL7): a dedicated worker attached in the drain lands in no term, paused or running"
-- **Commit:** 8d1ec26228f9e2a518f31150071da3a4ceed382c
-
 ### OPEN-F3.4. An unwitnessed worker masks a witnessed one
 
 - **Finding:** The witness is a count, and nothing joins it to the workers that attached, so a worker the witness never saw, attached before the freeze or in the drain, stands in for a witnessed worker that never attached. This moves the readout's unread realms, which the suite's docblock says feed the published count. How often a witness and its attaches disagree this way is not measured.
@@ -1496,31 +1553,6 @@ which is the owner's call.
   - `lib/fv-worker-readout.test.ts`: "open (CL8a): a dedicated worker an earlier installer still holds when the channel closes is excluded until its flow moves on"
 - **Commit:** 8d1ec26228f9e2a518f31150071da3a4ceed382c
 
-### OPEN-F4.1. A release in flight at the freeze reads as excluded
-
-- **Finding:** The headline of F4, an implementation finding. The readout takes a worker released, or still held at the bound, as having run nothing before the freeze, and that is false for a release in flight at the freeze: the worker's disable lands, it runs with its observer, and the mirror hears of it one hop later, before the bound. The same false premise is in the reaching branch and in the second pass, which needs no second worker. A failed install in the same window lands the same way, having run with no observer, so measuring latency cannot close either exclusion row. In the axiom table, `excluded-implies-no-page-code-before-the-freeze` and `excluded-implies-no-unobserved-page-code-before-the-freeze` hold under no subset of A1 to A5 in the shared worlds taken together.
-- **Tests:**
-  - `lib/fv-worker-model.test.ts`: `open (F4, ${kind}): ${name}, which rests on ${rests}`
-- **Cases:**
-  - "an ordinary hold whose release is one hop from the mirror at the freeze, frozen as held, is excluded though it ran, with its observer in"
-  - "the same, frozen as reaching, with only its attach heard at the freeze"
-  - "the same, read by the second pass, with every report on the port at the freeze"
-  - "a failed install in the same window is excluded though the worker ran with no observer"
-- **Commit:** 5aea6d6120edcb929a3576b502cd2f5a638115d3
-
-### OPEN-F4.2. The named trace, by each of its causes
-
-- **Finding:** A worker held at the freeze and still at the bound, having run unobserved, is excluded. In the model, A5's latency half closes one cause, for a worker frozen held or reaching; the others rest on what no axiom states: socket-to-port latency for what the browser emitted before the freeze, the same bound read across a connection that closes behind the freeze, and the thread's own hold bound, which needs a resume held on the socket past that bound. Each case names what would rule it out.
-- **Tests:**
-  - `lib/fv-worker-model.test.ts`: `open (F4, ${kind}): ${name}, which rests on ${rests}`
-- **Cases:**
-  - "held at the freeze and at the bound, with its late on the port, is excluded though it ran unobserved"
-  - "held at the freeze and at the bound, with its late posted after the freeze, is excluded though it ran unobserved"
-  - "held at the freeze and at the bound, with its resume still on the thread's socket, is excluded though it ran unobserved"
-  - "held at the freeze, its hold's bound fires before the resume is heard, and it is excluded though it ran unobserved"
-  - "held at the freeze, the connection closes behind it with the resume on its socket, and it is excluded though it ran unobserved"
-- **Commit:** 5aea6d6120edcb929a3576b502cd2f5a638115d3
-
 ### OPEN-F4.3. A worker that ran can land in no term
 
 - **Finding:** The row `a-worker-that-ran-before-the-freeze-lands-in-a-term` holds under no subset of A1 to A5. A worker that ran lands in no term by the first way only in the model's alphabet, where discovery on the page's connection is a free step: production reads that discovery after the frame tree and counts a worker it found with no report as unattached, which is unread, so the first way needs the frame tree ahead of the discovery, one order on one connection. The other way the row fails is the page's channel lost at the freeze, when the frame tree comes back at once. Pinned beside it, outside the row (which asks only while the attacher lives): an attach lost with the attacher's connection, with no discovery. Each pin is replayed through the real code. Ordering inside Chromium is not read.
@@ -1532,25 +1564,11 @@ which is the owner's call.
   - "a worker whose attach went down with the connection, which ran when Chromium let it, lands in no term"
 - **Commit:** 5aea6d6120edcb929a3576b502cd2f5a638115d3
 
-### OPEN-F4.4. Attached after the freeze by the mirror's clock, and excluded
-
-- **Finding:** The second pass again, with another worker holding the drain open and the attacher alive: a worker attached after the freeze by the mirror's clock, released, is excluded though it ran before the freeze. It holds under C1 and D1 too, so no latency bound closes it.
-- **Tests:**
-  - `lib/fv-worker-model.test.ts`: "open (F4, implementation): attached after the freeze by the mirror's clock, released, and excluded, though it ran before the freeze, with another worker's drain open"
-- **Commit:** 5aea6d6120edcb929a3576b502cd2f5a638115d3
-
 ### OPEN-F4.5. A detach that overtakes a worker's last emission
 
 - **Finding:** If a detach can overtake a resume, it can overtake a last emission, and @12 then reads a gone worker at the snapshot before it, short of its last task. It can reach a saved report. Whether a detach overtakes is the plan's ordering study, not measured.
 - **Tests:**
   - `lib/fv-worker-model.test.ts`: "open (A3): a worker whose detach overtakes its last emission is read at the snapshot before it"
-- **Commit:** 5aea6d6120edcb929a3576b502cd2f5a638115d3
-
-### OPEN-F4.6. A dedicated worker already running when it attached
-
-- **Finding:** The readout counts an attached dedicated worker with no record as held, and the channel takes a detach before its resume as dying paused; neither reads whether the worker waits for the debugger. A worker already running when it attached reads held inside the arming's round trip, and excluded at every later readout if it goes in that window. It can reach a saved report. How often a dedicated worker attaches already running is not measured.
-- **Tests:**
-  - `lib/fv-worker-model.test.ts`: "open (dedicated): a worker already running when it attached is excluded inside the arming's round trip"
 - **Commit:** 5aea6d6120edcb929a3576b502cd2f5a638115d3
 
 ### OPEN-IP4.1. Anycast addresses the registry marks reachable read as not public
