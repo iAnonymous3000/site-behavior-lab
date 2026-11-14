@@ -4,7 +4,7 @@ import { createServer } from "node:http";
 import { execFileSync } from "node:child_process";
 import { createHash, randomBytes } from "node:crypto";
 import { existsSync } from "node:fs";
-import { readFile, readdir, stat } from "node:fs/promises";
+import { readFile, stat } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { gzipSync } from "node:zlib";
@@ -18,6 +18,7 @@ import {
   withHttpOperationDeadline
 } from "./http-response.mjs";
 import { resolveExactStaticDeploymentCommit } from "./static-deployment-provenance.mjs";
+import { STATIC_EXPORT_MAX_BYTES, measureStaticExport, staticExportBoundViolation } from "./static-export-bounds.mjs";
 import { reportCorrectionSuppressesIndexing, reportSubjectCorrectionEvents } from "./static-report-corrections.mjs";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -58,25 +59,6 @@ const maxReportHtmlBytes = 200 * 1024;
 // number is stated rather than absorbed so the regression stays visible, and
 // the 4 KB of headroom keeps the gate binding.
 const maxInitialJsGzipBytes = 190 * 1024;
-/**
- * Ceiling on the WHOLE published artifact, not one page.
- *
- * The per-page budgets above cannot see this: they bound one report's HTML and
- * its initial JavaScript, and 574 pages that each pass them can still produce
- * an artifact the platform refuses to publish. Nothing asserted total size
- * before, so the only signal of an overrun would have been a failed deploy.
- *
- * Derived. Measured today: out/ is 318 MB, of which out/reports is 298 MB and
- * the two social cards per report are the bulk of it. The corpus pruner caps
- * committed reports at 1,000, so the same export at the corpus's own maximum
- * is roughly 554 MB. The ceiling clears that (a full corpus must never fail
- * this gate) and sits below GitHub Pages' 1 GB published-site limit, which is
- * the failure this exists to prevent. It still catches the change that
- * motivated it: prerendering the printable route for every committed report
- * renders full evidence eagerly 574 times and would breach this long before it
- * breached the platform.
- */
-const maxStaticExportBytes = 700 * 1024 * 1024;
 const staticFetchTimeoutMs = 10_000;
 const controlResponseMaxBytes = 64 * 1024;
 const schemaResponseMaxBytes = 2 * 1024 * 1024;
@@ -1408,39 +1390,27 @@ async function assertStaticRouteBudgets(htmlPath, { label, maxHtmlBytes, maxInit
   );
 }
 
-async function directorySizeBytes(directory) {
-  let total = 0;
-  for (const entry of await readdir(directory, { withFileTypes: true })) {
-    const child = path.join(directory, entry.name);
-    if (entry.isDirectory()) total += await directorySizeBytes(child);
-    else if (entry.isFile()) total += (await stat(child)).size;
-  }
-  return total;
-}
-
+// The bounds and their derivation are in scripts/static-export-bounds.mjs.
+// The per-page budgets above cannot see these: each bounds one report's HTML
+// and initial JavaScript, and a thousand pages that each pass can still make
+// an export the host refuses.
 async function assertStaticExportSize() {
-  const byDirectory = [];
-  let total = 0;
-  for (const entry of await readdir(outDir, { withFileTypes: true })) {
-    const child = path.join(outDir, entry.name);
-    const bytes = entry.isDirectory() ? await directorySizeBytes(child) : (await stat(child)).size;
-    total += bytes;
-    byDirectory.push([entry.name, bytes]);
-  }
-
-  if (total > maxStaticExportBytes) {
+  const total = await measureStaticExport(outDir);
+  const violation = staticExportBoundViolation(total);
+  if (violation) {
     // Attribute the overrun. A single scary number gets the ceiling raised
     // reflexively; a breakdown says which half grew and whether it should have.
-    const breakdown = byDirectory
-      .sort((a, b) => b[1] - a[1])
+    const breakdown = total.entries
       .slice(0, 6)
-      .map(([name, bytes]) => `${name} ${(bytes / 1024 / 1024).toFixed(1)} MB`)
+      .map((entry) => `${entry.name} ${(entry.bytes / 1024 / 1024).toFixed(1)} MiB in ${entry.fileCount} files`)
       .join(", ");
-    fail(
-      `static export is ${(total / 1024 / 1024).toFixed(1)} MB; ceiling is ${(maxStaticExportBytes / 1024 / 1024).toFixed(0)} MB. Largest: ${breakdown}`
-    );
+    fail(`${violation}. Largest file: ${total.largestFile}. Largest: ${breakdown}`);
   }
-  pass(`static export is ${(total / 1024 / 1024).toFixed(1)} MB, within its ${(maxStaticExportBytes / 1024 / 1024).toFixed(0)} MB ceiling`);
+  // Print what was measured, not only PASS, so the room left is in every log.
+  pass(
+    `static export is ${(total.bytes / 1024 / 1024).toFixed(1)} MiB of ${(STATIC_EXPORT_MAX_BYTES / 1024 / 1024).toFixed(0)} MiB ` +
+      `in ${total.fileCount} files, largest file ${total.largestFileBytes} bytes`
+  );
 }
 
 function escapeRegex(value) {

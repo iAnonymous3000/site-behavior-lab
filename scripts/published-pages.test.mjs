@@ -9,6 +9,8 @@ import { setTimeout as delay } from "node:timers/promises";
 import { validatePagesReceipt, verifyPagesArtifact, assertPagesProject,
   assertPagesDeployment, waitForPagesDeployment } from "./published-pages-lib.mjs";
 import { buildDeploymentReceipt } from "./static-deployment-provenance.mjs";
+import { STATIC_EXPORT_MAX_BYTES, STATIC_EXPORT_MAX_FILES, STATIC_EXPORT_MAX_FILE_BYTES,
+  measureStaticExport, staticExportBoundViolation } from "./static-export-bounds.mjs";
 
 const digest = (bytes) => createHash("sha256").update(bytes).digest("hex");
 // Docker deliberately omits the checkout's .git directory. The provenance
@@ -96,6 +98,93 @@ test("another source, malformed manifest, traversal or executable Pages content 
   }
 });
 
+test("each export bound accepts its own value and refuses one more", () => {
+  const within = { fileCount: 10, bytes: 1_000, largestFileBytes: 500 };
+  assert.equal(staticExportBoundViolation(within), null);
+  for (const [field, limit, sentence] of [
+    ["fileCount", STATIC_EXPORT_MAX_FILES, /files; the host accepts/],
+    ["largestFileBytes", STATIC_EXPORT_MAX_FILE_BYTES, /largest file is/],
+    ["bytes", STATIC_EXPORT_MAX_BYTES, /MiB; ceiling is/]
+  ]) {
+    assert.equal(staticExportBoundViolation({ ...within, [field]: limit }), null, `${field} at its limit`);
+    assert.match(staticExportBoundViolation({ ...within, [field]: limit + 1 }), sentence, `${field} past its limit`);
+    for (const bad of [undefined, null, -1, 1.5, Number.NaN, "10"]) {
+      assert.match(staticExportBoundViolation({ ...within, [field]: bad }), /is not a count/, `${field} as ${String(bad)}`);
+    }
+  }
+  assert.match(staticExportBoundViolation({ ...within, fileCount: 0 }), /is empty/);
+  assert.match(staticExportBoundViolation({ ...within, bytes: 0 }), /is empty/);
+  // The host's limits are the host's: a change to either number is a claim
+  // about Cloudflare Pages and has to be read from its page, not from a build.
+  assert.equal(STATIC_EXPORT_MAX_FILES, 20_000);
+  assert.equal(STATIC_EXPORT_MAX_FILE_BYTES, 25 * 1024 * 1024);
+});
+
+test("the export measure counts every file, dotfiles and nested ones, and names the largest", async (t) => {
+  const directory = await mkdtemp(path.join(tmpdir(), "sbl-export-measure-"));
+  t.after(() => rm(directory, { recursive: true, force: true }));
+  await mkdir(path.join(directory, "reports/deep"), { recursive: true });
+  await mkdir(path.join(directory, "empty"));
+  await writeFile(path.join(directory, ".nojekyll"), "");
+  await writeFile(path.join(directory, "index.html"), "x".repeat(7));
+  await writeFile(path.join(directory, "reports/a.json"), "x".repeat(11));
+  await writeFile(path.join(directory, "reports/deep/b.png"), "x".repeat(40));
+  await symlink(path.join(directory, "reports/deep/b.png"), path.join(directory, "linked.png"));
+  assert.deepEqual(await measureStaticExport(directory), {
+    fileCount: 5, bytes: 98, largestFileBytes: 40, largestFile: "linked.png",
+    entries: [
+      { name: "reports", fileCount: 2, bytes: 51 },
+      { name: "linked.png", fileCount: 1, bytes: 40 },
+      { name: "index.html", fileCount: 1, bytes: 7 },
+      { name: ".nojekyll", fileCount: 1, bytes: 0 },
+      { name: "empty", fileCount: 0, bytes: 0 }
+    ]
+  });
+});
+
+test("a receipt that agrees with itself is still refused past each export bound", () => {
+  // Every receipt here is well formed: its sums agree and its digest matches
+  // its file list. Only the bound can refuse it, so a bound that stopped being
+  // read would let all three through.
+  const reseal = (r) => {
+    const a = r.artifacts[0];
+    a.files.sort((x, y) => x.path < y.path ? -1 : 1);
+    a.fileCount = a.files.length;
+    a.bytes = a.files.reduce((sum, f) => sum + f.bytes, 0);
+    a.manifestSha256 = digest(JSON.stringify(a.files));
+    return r;
+  };
+  const padded = (count, bytes) => {
+    const r = receipt();
+    for (let index = 0; index < count; index++) {
+      r.artifacts[0].files.push({ path: `pad/${String(index).padStart(6, "0")}`, bytes, sha256: digest("") });
+    }
+    return reseal(r);
+  };
+  const base = receipt().artifacts[0];
+  const atFileLimit = padded(STATIC_EXPORT_MAX_FILES - base.fileCount, 1);
+  assert.equal(atFileLimit.artifacts[0].fileCount, STATIC_EXPORT_MAX_FILES);
+  validatePagesReceipt(atFileLimit, { commit, tree });
+  assert.throws(() => validatePagesReceipt(padded(STATIC_EXPORT_MAX_FILES - base.fileCount + 1, 1), { commit, tree }),
+    /files; the host accepts/);
+
+  validatePagesReceipt(padded(1, STATIC_EXPORT_MAX_FILE_BYTES), { commit, tree });
+  assert.throws(() => validatePagesReceipt(padded(1, STATIC_EXPORT_MAX_FILE_BYTES + 1), { commit, tree }),
+    /largest file is/);
+
+  // Total bytes, with every file inside the one-file limit.
+  const whole = Math.floor((STATIC_EXPORT_MAX_BYTES - base.bytes) / STATIC_EXPORT_MAX_FILE_BYTES);
+  const rest = STATIC_EXPORT_MAX_BYTES - base.bytes - whole * STATIC_EXPORT_MAX_FILE_BYTES;
+  const atByteLimit = (extra) => {
+    const r = padded(whole, STATIC_EXPORT_MAX_FILE_BYTES);
+    r.artifacts[0].files.push({ path: "pad/rest", bytes: rest + extra, sha256: digest("") });
+    return reseal(r);
+  };
+  assert.equal(atByteLimit(0).artifacts[0].bytes, STATIC_EXPORT_MAX_BYTES);
+  validatePagesReceipt(atByteLimit(0), { commit, tree });
+  assert.throws(() => validatePagesReceipt(atByteLimit(1), { commit, tree }), /MiB; ceiling is/);
+});
+
 test("the provider must identify the right project, source and production branch with one writer", () => {
   assert.equal(assertPagesDeployment(project(), commit), project().canonical_deployment.id);
   for (const mutate of [
@@ -146,7 +235,7 @@ test("the deployment CLI refuses failed signatures and substituted artifacts bef
   await mkdir(path.join(root, "ignored"));
   for (const file of ["deploy-pages.mjs", "production-ci-lib.mjs", "verify-required-ci-jobs.mjs",
     "published-pages-lib.mjs", "published-container-lib.mjs", "release-evidence.mjs",
-    "static-deployment-provenance.mjs", "http-response.mjs"]) {
+    "static-deployment-provenance.mjs", "http-response.mjs", "static-export-bounds.mjs"]) {
     await copyFile(path.join("scripts", file), path.join(root, "scripts", file));
   }
   await copyFile(".github/required-ci-jobs.json", path.join(root, ".github/required-ci-jobs.json"));

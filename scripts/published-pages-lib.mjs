@@ -7,6 +7,7 @@ import { REPOSITORY } from "./production-ci-lib.mjs";
 import { sha256 } from "./published-container-lib.mjs";
 import { deploymentReceiptViolation } from "./static-deployment-provenance.mjs";
 import { withHttpOperationDeadline } from "./http-response.mjs";
+import { staticExportBoundViolation } from "./static-export-bounds.mjs";
 
 export const PAGES_PROJECT = "site-behavior-lab";
 export const PAGES_ORIGIN = "https://sitebehavior.org";
@@ -27,9 +28,10 @@ export function validatePagesReceipt(receipt, { commit, tree }) {
   assert.equal(artifact.path, "out");
   assert.equal(artifact.digestAlgorithm, "sha256");
   assert.equal(artifact.deployment?.deployment, commit);
-  assert.ok(Number.isSafeInteger(artifact.fileCount) && artifact.fileCount > 0 && artifact.fileCount <= 20_000);
-  assert.ok(Number.isSafeInteger(artifact.bytes) && artifact.bytes > 0 && artifact.bytes <= 700 * 1024 * 1024);
-  assert.equal(artifact.files?.length, artifact.fileCount);
+  assert.ok(Number.isSafeInteger(artifact.fileCount) && artifact.fileCount > 0);
+  assert.ok(Number.isSafeInteger(artifact.bytes) && artifact.bytes > 0);
+  assert.ok(Array.isArray(artifact.files));
+  assert.equal(artifact.files.length, artifact.fileCount);
   assert.match(artifact.manifestSha256, /^[0-9a-f]{64}$/);
   assert.equal(sha256(JSON.stringify(artifact.files)), artifact.manifestSha256);
   let previous = "";
@@ -45,6 +47,13 @@ export function validatePagesReceipt(receipt, { commit, tree }) {
     previous = file.path;
   }
   assert.equal(artifact.files.reduce((sum, file) => sum + file.bytes, 0), artifact.bytes);
+  // After the sums agree, so the bounds are read from the per-file sizes the
+  // receipt lists and not from a total it only declares.
+  assert.equal(staticExportBoundViolation({
+    fileCount: artifact.fileCount,
+    bytes: artifact.bytes,
+    largestFileBytes: artifact.files.reduce((largest, file) => Math.max(largest, file.bytes), 0)
+  }), null);
   for (const file of ["index.html", "deployment.json", "_headers", "reports/index.json", "scan-report.schema.json"]) {
     assert.ok(artifact.files.some((entry) => entry.path === file), `Static export is missing ${file}`);
   }

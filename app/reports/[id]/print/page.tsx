@@ -46,8 +46,8 @@ import { ReportVisitSummaryBlock } from "@/app/_components/report-visit-summary-
  * current export measures.
  *
  * The overrun would now be CAUGHT rather than silently published:
- * `scripts/smoke-static-site.mjs` bounds the whole export (318 MB against a
- * 700 MB ceiling at the time of writing). So the remaining blocker is one
+ * `scripts/smoke-static-site.mjs` bounds the whole export against the ceiling
+ * `scripts/static-export-bounds.mjs` derives. So the remaining blocker is one
  * measured `npm run build:pages && npm run test:smoke:static` with the
  * `serverOnlyAppDirs` entry removed and this route added to
  * `runtimeReportRouteFiles`, not the absence of a gate.

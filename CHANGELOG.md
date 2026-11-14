@@ -363,6 +363,18 @@ public API or a 1.0 release.
 
 ### Changed
 
+- The bounds on the published static export are stated once, in
+  `scripts/static-export-bounds.mjs`, and read by both the static smoke and
+  the deploy path's receipt check, which each restated them before. Two of
+  them are the host's published limits, read on 2026-11-14: 20,000 files and
+  25 MiB for one file. The static smoke now measures both; before, only the
+  receipt check read the file count and nothing read the size of one file.
+  The third, the ceiling on total size, goes from 700 MiB to 800 MiB. The
+  host states no limit on total size. The old value was set under another
+  host's 1 GB limit from an estimate of 554 MiB for a full corpus; the export
+  measures 641.0 MiB over 1,029 reports today, and the new value is that
+  measurement with a quarter added. It guards against a change that
+  multiplies the export by accident. No report, page or published byte moves.
 - The toolchain canary panel is version 2 (`monthly-toolchain-canary-v2`).
   One qualifying capture ran on isolated staging on 2026-11-11, on build
   b554198e with Chromium 156, under rule `panel-qualification-2026-11-10`,
