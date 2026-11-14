@@ -32,9 +32,6 @@
 /opengraph-image
   Content-Type: image/png
 
-/twitter-image
-  Content-Type: image/png
-
 # The scanner-origin status page reads this public, non-sensitive receipt to
 # compare the deployed revisions. Wildcard read access is safe because the
 # response is already public and the request carries no credentials.
@@ -42,9 +39,6 @@
   Access-Control-Allow-Origin: *
 
 /reports/*/opengraph-image
-  Content-Type: image/png
-
-/reports/*/twitter-image
   Content-Type: image/png
 
 # Frozen schema bytes cannot carry post-publication corrections. Publish a

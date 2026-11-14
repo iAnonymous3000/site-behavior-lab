@@ -409,9 +409,7 @@ async function main() {
 
     for (const cardPath of [
       "/opengraph-image",
-      "/twitter-image",
-      "/reports/*/opengraph-image",
-      "/reports/*/twitter-image"
+      "/reports/*/opengraph-image"
     ]) {
       const rule = `${cardPath}\n  Content-Type: image/png`;
       if (!pagesHeaders.includes(rule)) fail(`${cardPath} omits its extensionless PNG content type`);
@@ -4198,7 +4196,7 @@ function searchableReportText(report) {
 
 function contentType(filePath) {
   const basename = path.basename(filePath);
-  if (basename === "opengraph-image" || basename === "twitter-image") return "image/png";
+  if (basename === "opengraph-image") return "image/png";
   const extension = path.extname(filePath);
   if (extension === ".html") return "text/html; charset=utf-8";
   if (extension === ".js") return "text/javascript; charset=utf-8";

@@ -12,8 +12,8 @@ import { displayHost } from "./text-format";
 /**
  * Shared `next/og` social-card renderers for report and homepage links.
  *
- * Kept out of the route files so both the `opengraph-image` and `twitter-image`
- * conventions can stay thin, self-contained route segments (re-exporting route
+ * Kept out of the route files so the `opengraph-image` conventions can stay
+ * thin, self-contained route segments (re-exporting route
  * config across files defeats Next's static analysis under `output: export`).
  */
 

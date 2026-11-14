@@ -58,8 +58,7 @@ const serverOnlyAppDirs = [
 ];
 const runtimeReportRouteFiles = [
   path.join("app", "reports", "[id]", "page.tsx"),
-  path.join("app", "reports", "[id]", "opengraph-image.tsx"),
-  path.join("app", "reports", "[id]", "twitter-image.tsx")
+  path.join("app", "reports", "[id]", "opengraph-image.tsx")
 ];
 const runtimeReportRouteMode = 'export const dynamic = "force-dynamic";';
 const staticReportRouteMode = 'export const dynamic = "force-static";';

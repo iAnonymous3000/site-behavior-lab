@@ -195,7 +195,7 @@ test("public page metadata uses one base-path-aware absolute URL and complete so
     ]);
     assert.equal(metadata.twitter?.title, "Evidence catalog");
     assert.equal(metadata.twitter?.description, "Review the current evidence catalog.");
-    assert.deepEqual(metadata.twitter?.images, ["https://example.com/project/twitter-image"]);
+    assert.deepEqual(metadata.twitter?.images, ["https://example.com/project/opengraph-image"]);
   } finally {
     if (previousOrigin === undefined) delete process.env.NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL;
     else process.env.NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL = previousOrigin;

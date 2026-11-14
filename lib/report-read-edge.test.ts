@@ -50,11 +50,9 @@ test("the edge recognizes every storage/rendering report representation with the
     resource: "opengraph-image",
     quota: "report-read"
   });
-  assert.deepEqual(parsePublicReportReadPath("GET", `/reports/${REPORT_ID}/twitter-image/`), {
-    reportId: REPORT_ID,
-    resource: "twitter-image",
-    quota: "report-read"
-  });
+  // The second card route is gone: one image serves every consumer, and the
+  // app has no route to forward this to.
+  assert.equal(parsePublicReportReadPath("GET", `/reports/${REPORT_ID}/twitter-image/`), null);
   // The printable rendering is the heaviest representation: the complete
   // evidence, server-rendered eagerly. It landed after the parser did and was
   // forwarded uncharged until this case existed.

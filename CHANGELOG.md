@@ -308,6 +308,14 @@ public API or a 1.0 release.
 
 ### Removed
 
+- The second social card route, `twitter-image`, at the site root and for
+  each report. It published the same bytes as `opengraph-image`: 1,030 files
+  and 100.2 MiB of the 641.0 MiB static export. Each page's `twitter:image`
+  tag now names the one card image. The old addresses,
+  `/twitter-image` and `/reports/<id>/twitter-image`, no longer answer; a
+  consumer that reads a page again finds the image through its tags. No
+  report or report page text changes.
+
 - Five dated working documents that no tracked file cited:
   `docs/audit-prompt.md`, `docs/ux-overhaul-2026-09-05.md` with its two
   images, `docs/status-freshness-2026-09-07.md`,

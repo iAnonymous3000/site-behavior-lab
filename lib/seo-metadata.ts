@@ -31,7 +31,9 @@ export function publicPageMetadata(input: {
       card: "summary_large_image",
       title: input.title,
       description: input.description,
-      images: [siteUrl("/twitter-image")]
+      // One card image serves every consumer. A second route with the same
+      // bytes doubled the cards in the static export.
+      images: [siteUrl("/opengraph-image")]
     }
   };
 }

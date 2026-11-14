@@ -93,7 +93,7 @@ export const PUBLIC_REPORT_API_ALLOW_HEADER = [...PUBLIC_REPORT_READ_METHODS, "O
 
 export type PublicReportReadPath = Readonly<{
   reportId: string;
-  resource: "page" | "opengraph-image" | "twitter-image" | "print" | "json" | "pdf";
+  resource: "page" | "opengraph-image" | "print" | "json" | "pdf";
   quota: PublicReportReadQuota;
 }>;
 
@@ -158,7 +158,6 @@ export function parsePublicReportReadPath(method: string, pathname: string): Pub
   if (
     routeResource !== undefined &&
     routeResource !== "opengraph-image" &&
-    routeResource !== "twitter-image" &&
     routeResource !== "print"
   ) {
     return null;
