@@ -424,7 +424,7 @@ function RunEvidence({ reportView, displayedFacts, arm, printComplete, overview,
   return (
     <section className={printComplete ? "print-visit" : undefined} data-evidence-arm={arm ?? "single"}>
       {printComplete && <header className="print-visit-heading">
-        <h2>{arm ? armDisplayLabel(reportView, arm) : "Recorded visit"} — evidence</h2>
+        <h2>{arm ? armDisplayLabel(reportView, arm) : "Recorded visit"}: evidence</h2>
         <p>{displayedRun.startedAt ?? "Visit time not recorded"} · {runQualitySummary(displayedRun)}</p>
         <p>Retained observations from this visit. Missing measurements do not establish absence of activity.</p>
       </header>}

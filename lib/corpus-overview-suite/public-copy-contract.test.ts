@@ -420,3 +420,9 @@ test("the status card never claims one cohort backs every corpus aggregate while
     assert.match(status, /no single cohort backs every published aggregate/);
   }
 });
+
+test("the printed report's visit heading joins its label with a colon, never a long dash", () => {
+  const renderer = source("app/_components/report-renderer.tsx");
+  assert.match(renderer, /<h2>\{arm \? armDisplayLabel\(reportView, arm\) : "Recorded visit"\}: evidence<\/h2>/);
+  assert.doesNotMatch(renderer, /[\u2013\u2014] evidence</);
+});
