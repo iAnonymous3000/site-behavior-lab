@@ -976,11 +976,11 @@ function buildUncorrectedReportHeadline(
         : extrasVisitLabel
           ? // Label first: "labeled No blocking matched" misreads as one phrase.
             `In the visit labeled ${extrasVisitLabel}, ${shieldsCount} matched Brave Shields filter lists.`
-          : `${shieldsCount} in this visit matched Brave Shields filter lists.`,
+          : `${capitalize(shieldsCount)} in this visit matched Brave Shields filter lists.`,
       shieldsMeasurement.kind === "engine-blocked"
         ? `This was a block simulation in the scanner's browser, not a live Brave-browser visit. The count covers requests the engine directly stopped; follow-on requests that never started are separate.`
         : shieldsMeasurement.evaluated === null
-          ? `${shieldsCount} matched while loading normally. This run records no evaluated-request count, so no match ratio is stated. Matching identifies traffic the lists would target; it does not establish the purpose or payload of an individual request.`
+          ? `${capitalize(shieldsCount)} matched while loading normally. This run records no evaluated-request count, so no match ratio is stated. Matching identifies traffic the lists would target; it does not establish the purpose or payload of an individual request.`
           : // Denominated by what the engine EVALUATED, not by the retained
             // request total. The two are different populations, and this text
             // also reaches JSON-LD and the social card, so the pairing was
@@ -989,7 +989,7 @@ function buildUncorrectedReportHeadline(
             // the engine's own classifier calls, and request-capture censoring
             // truncates the retained rows the numerator is recounted from,
             // never this counter, so only the numerator carries the hedge.
-            `${shieldsCount} matched while loading normally, out of ${plural(
+            `${capitalize(shieldsCount)} matched while loading normally, out of ${plural(
               shieldsMeasurement.evaluated,
               "request"
             )} the engine evaluated. Matching identifies traffic the lists would target; it does not establish the purpose or payload of an individual request.`,
@@ -1060,11 +1060,8 @@ function buildUncorrectedReportHeadline(
             run.counts.thirdPartyDomains,
             "cross-site host"
           )} that the service catalog did not classify as tracking.`,
-      `${retainedCountPhrase(
-        run.counts.thirdPartyRequests,
-        "cross-site request",
-        "cross-site requests",
-        requestState
+      `${capitalize(
+        retainedCountPhrase(run.counts.thirdPartyRequests, "cross-site request", "cross-site requests", requestState)
       )} appeared in the log. The identity map named ${
         facts.identity.coverage.identifiedHosts
       } of ${plural(facts.identity.coverage.thirdPartyHosts, "host")}; an unmatched host is a catalog limit, not evidence that it is harmless.`,

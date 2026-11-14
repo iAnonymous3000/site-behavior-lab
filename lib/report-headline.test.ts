@@ -60,9 +60,11 @@ test("a censored run's Shields subhead states the evaluated denominator exactly"
     requests: { outcome: "censored", reasons: ["budget-exhausted:public-request-records"] }
   };
   const headline = buildReportHeadline(view);
+  // A censored count opens the headline too, so it opens in upper case.
+  assert.equal(headline.headline, "At least 1,204 retained requests in this visit matched Brave Shields filter lists.");
   assert.match(
     headline.subhead,
-    /at least 1,204 retained requests matched while loading normally, out of 2,416 requests the engine evaluated\./,
+    /^At least 1,204 retained requests matched while loading normally, out of 2,416 requests the engine evaluated\./,
     "the numerator keeps its retained-floor hedge and the denominator stays exact"
   );
   assert.doesNotMatch(
@@ -1987,4 +1989,11 @@ test("a two-visit headline names the visit its sentence describes", () => {
     "In the visit labeled No blocking, at least 2 retained requests matched Brave Shields filter lists."
   );
   for (const headline of [consentPair, shieldsPairHeadline]) assert.doesNotMatch(headline.headline, /this visit/);
+});
+
+test("a subhead that opens with a censored count opens in upper case", () => {
+  // Committed, ledger-pinned Shields pair whose lead visit has a censored
+  // request log and no evaluated-request count.
+  const pair = buildReportHeadline(ledgerPinnedReportView("20260721-4273aca23e2843746c105fea36a8ebee"));
+  assert.match(pair.subhead, /^At least 2 retained requests matched while loading normally\. This run records no evaluated-request count/);
 });

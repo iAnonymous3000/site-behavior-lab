@@ -5268,7 +5268,7 @@ test("a censored run hedges only the Shields numerator, never the evaluated deno
   const card = byId(buildFindings(view, null), "shields-blocked");
   assert.match(
     card.title,
-    /at least 1,204 retained requests out of 2,416 requests the engine evaluated/,
+    /^At least 1,204 retained requests out of 2,416 requests the engine evaluated/,
     "the numerator keeps its retained-floor hedge and the denominator stays exact"
   );
   assert.doesNotMatch(
@@ -5558,4 +5558,39 @@ test("sentences that name one operator or one third-party host agree in number",
   for (const card of [sameOrganization, outsideName, unidentified]) {
     assert.doesNotMatch(`${card.lead} ${card.detail}`, /of the 1 |^\S+ were named /);
   }
+});
+
+test("no card title or sentence opens with a lower-case count phrase", () => {
+  // A censored count reads "at least N retained ...". Four committed,
+  // ledger-pinned visits with a censored request log reach every such opening
+  // the corpus holds: the Shields title and lead, and the evidence lines of
+  // the bottom line, third-party services and named platforms cards.
+  const openings: string[] = [];
+  for (const id of [
+    "20260702-3f5a6e84e5855df1ffd486d5f2067bd4",
+    "20260721-55dfd80888e8fa2ef4cb5fecf58e3ae4",
+    "20260721-4273aca23e2843746c105fea36a8ebee",
+    "20260721-722b781436baf376d058b0179c1c71cf"
+  ]) {
+    for (const card of buildFindings(ledgerPinnedReportView(id), null, undefined, "baseline")) {
+      for (const text of [card.title, card.lead, card.detail, card.evidence]) {
+        for (const sentence of (text ?? "").split(/(?<=[.!?]) +/)) {
+          assert.doesNotMatch(sentence, /^at least /, `${id} ${card.id}: ${sentence}`);
+          if (/^At least /.test(sentence)) openings.push(`${card.id}: ${sentence.replace(/[\d,]+/g, "N")}`);
+        }
+      }
+    }
+  }
+  const shapes = new Set(openings);
+  for (const expected of [
+    "shields-blocked: At least N retained requests matched Brave Shields filter lists",
+    "bottom-line: At least N retained requests observed in one controlled visit.",
+    "named-platforms: At least N retained requests to these platforms.",
+    "named-platforms: At least N retained cross-site domains seen overall.",
+    "named-platforms: At least N retained cross-site requests mapped to a reviewed same-organization domain family."
+  ]) {
+    assert.ok(shapes.has(expected), `${expected}\n${[...shapes].join("\n")}`);
+  }
+  assert.ok([...shapes].some((shape) => /^shields-blocked: At least N retained requests matched the default filter lists/.test(shape)));
+  assert.ok([...shapes].some((shape) => /^third-party-services: At least N retained cross-site requests across at least N retained third-party hosts\.$/.test(shape)));
 });

@@ -1315,11 +1315,13 @@ export function buildFindings(
             4,
             (count) => `Plus ${plural(count, "other DNS alias", "other DNS aliases")}.`
           )
-        : `${retainedCountPhrase(
-            run.counts.thirdPartyRequests,
-            "cross-site request",
-            "cross-site requests",
-            facts.evidence.requests.state
+        : `${capitalizeSentence(
+            retainedCountPhrase(
+              run.counts.thirdPartyRequests,
+              "cross-site request",
+              "cross-site requests",
+              facts.evidence.requests.state
+            )
           )} across ${retainedCountPhrase(
             run.counts.thirdPartyDomains,
             "third-party host",
@@ -1413,32 +1415,32 @@ export function buildFindings(
             : `Major-platform domains were not observed in this single passive visit; interaction-gated requests could still load for real users.${requestsCensored ? CENSORED_ABSENCE_NOTE : ""}`,
     evidence:
       headlineNames.length > 0
-        ? `${retainedCountPhrase(
+        ? `${capitalizeSentence(retainedCountPhrase(
             headlineRequests,
             "request",
             "requests",
             facts.evidence.requests.state
-          )} to these platforms.`
+          ))} to these platforms.`
         : cataloguedNonTrackingHeadlineNames.length > 0
-          ? `${retainedCountPhrase(
+          ? `${capitalizeSentence(retainedCountPhrase(
               cataloguedNonTrackingHeadlineRequests,
               "request",
               "requests",
               facts.evidence.requests.state
-            )} to these catalogued platform domains.`
+            ))} to these catalogued platform domains.`
         : sameOrganizationPlatformNames.length > 0
-          ? `${retainedCountPhrase(
+          ? `${capitalizeSentence(retainedCountPhrase(
               sameOrganizationPlatformRequests,
               "cross-site request",
               "cross-site requests",
               facts.evidence.requests.state
-            )} mapped to a reviewed same-organization domain family.`
-          : `${retainedCountPhrase(
+            ))} mapped to a reviewed same-organization domain family.`
+          : `${capitalizeSentence(retainedCountPhrase(
               run.counts.thirdPartyDomains,
               "cross-site domain",
               "cross-site domains",
               facts.evidence.requests.state
-            )} seen overall.`
+            ))} seen overall.`
     ,
     claim: findingClaim(
       facts,
@@ -2318,6 +2320,9 @@ export function buildFindings(
       "requests",
       requestState
     );
+    // The same phrase where it opens a title or a sentence: a censored count
+    // reads "at least N retained", which must not open in lower case.
+    const blockedOpening = capitalizeSentence(blockedPhrase);
     // The DENOMINATOR is the population the engine evaluated, never the
     // retained request total. `count` is a counter over evaluated requests, so
     // pairing it with the retained total describes two populations as one: the
@@ -2380,16 +2385,16 @@ export function buildFindings(
           ? simulated
             ? `Brave's blocking engine stopped ${blockedPhrase} in this visit`
             : evaluatedPhrase === null
-              ? `${blockedPhrase} matched Brave Shields filter lists`
+              ? `${blockedOpening} matched Brave Shields filter lists`
               : requestState === "complete"
                 ? `${blocked.toLocaleString("en-US")} of ${evaluatedPhrase} the engine evaluated matched Brave Shields filter lists`
-                : `${blockedPhrase} out of ${evaluatedPhrase} the engine evaluated matched Brave Shields filter lists`
+                : `${blockedOpening} out of ${evaluatedPhrase} the engine evaluated matched Brave Shields filter lists`
           : shieldsAbsence.title,
       lead:
         blocked > 0
           ? simulated
             ? `Brave's ad-block engine running Shields' default filter lists stopped ${blockedPhrase} from loading, a block simulation in this scanner's browser, not a live Brave-browser visit.`
-            : `${blockedPhrase} matched the default filter lists of Brave Shields, the ad and tracker blocker built into the Brave browser, while loading normally.`
+            : `${blockedOpening} matched the default filter lists of Brave Shields, the ad and tracker blocker built into the Brave browser, while loading normally.`
           : shieldsAbsence.lead,
       detail: simulated
         ? "Measured with Brave's own ad-block engine and default filter lists actively blocking (network requests only, so no cosmetic or CNAME-based blocking). Blocked requests are not in this run's totals, and requests a blocked script would have made never started. This is Site Behavior Lab's list-based simulation. It applies every list to the site's own requests too, which Brave's default Standard setting mostly exempts, so results can differ."
@@ -2549,12 +2554,12 @@ export function buildFindings(
       : corpusIsUsable(corpus)
         ? `The cards below translate the evidence into plain language. ${unrankedReason} The request log, domain table, and methodology remain below for verification.`
         : "The cards below translate the evidence into plain language; severity reflects fixed reference thresholds, not measured population percentiles. The request log, domain table, and methodology remain below for verification.",
-    evidence: `${retainedCountPhrase(
+    evidence: `${capitalizeSentence(retainedCountPhrase(
       run.counts.totalRequests,
       "request",
       "requests",
       facts.evidence.requests.state
-    )} observed in one controlled visit.`,
+    ))} observed in one controlled visit.`,
     ...(benchmarkScope !== null ? { benchmarkScope } : {})
   });
 
