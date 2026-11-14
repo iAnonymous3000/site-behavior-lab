@@ -205,7 +205,12 @@ test("public metric copy keeps request rows and distinct service entities separa
   assert.match(site, /its request counts are lower bounds/);
   assert.match(siteFeed, /const requestPrefix = entry\.requestEvidenceComplete \? "" : "at least "/);
   // The summary's first count opens the sentence, so its hedge is capitalized.
-  assert.match(siteFeed, /const metrics = `\$\{entry\.requestEvidenceComplete \? "" : "At least "\}\$\{entry\.thirdPartyRequests/);
+  assert.match(siteFeed, /const metrics = `\$\{entry\.requestEvidenceComplete \? "" : "At least "\}\$\{plural\(entry\.thirdPartyRequests, "third-party request"\)\}, \$\{requestPrefix\}\$\{plural\(entry\.trackerRequests, "third-party tracking-service request"\)\}, \$\{cookies\}\.`;/);
+  // Every counted noun in the summary agrees with its count: the shared helper
+  // writes each one, and no fixed plural stands beside an interpolated count.
+  assert.match(siteFeed, /import \{ plural \} from "@\/lib\/text-format";/);
+  assert.match(siteFeed, /\? plural\(entry\.thirdPartyCookies, "third-party cookie"\)/);
+  assert.doesNotMatch(siteFeed, /\} third-party (?:tracking-service )?(?:requests|cookies)/);
   assert.match(siteFeed, /request counts are lower bounds/);
   assert.doesNotMatch(siteFeed, /; counts are lower bounds\./);
 

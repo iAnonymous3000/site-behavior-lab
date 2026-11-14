@@ -2,6 +2,7 @@ import { publishedReportCorrections } from "@/lib/published-report-corrections";
 import { loadCorpusOverview, type DirectoryEntry } from "@/lib/corpus-overview";
 import { reportPagePath } from "@/lib/report-locator";
 import { siteProfileKey } from "@/lib/site-profile";
+import { plural } from "@/lib/text-format";
 import { siteBaseUrl } from "@/lib/site-url";
 
 export const dynamic = "force-static";
@@ -76,13 +77,12 @@ function entrySummary(entry: DirectoryEntry): string {
   // renders "Not measured" in that case, and this feed was the one surface
   // stating the count as fact.
   const cookies = entry.cookieEvidenceComplete
-    ? `${entry.thirdPartyCookies.toLocaleString("en-US")} third-party cookies`
+    ? plural(entry.thirdPartyCookies, "third-party cookie")
     : "third-party cookies not measured";
   const requestPrefix = entry.requestEvidenceComplete ? "" : "at least ";
   // The summary opens with this count, so its hedge opens in upper case.
-  const metrics = `${entry.requestEvidenceComplete ? "" : "At least "}${entry.thirdPartyRequests.toLocaleString("en-US")} third-party requests, ${requestPrefix}${entry.trackerRequests.toLocaleString(
-    "en-US"
-  )} third-party tracking-service requests, ${cookies}.`;
+  // Each counted noun agrees with its count through the helper the report cards use.
+  const metrics = `${entry.requestEvidenceComplete ? "" : "At least "}${plural(entry.thirdPartyRequests, "third-party request")}, ${requestPrefix}${plural(entry.trackerRequests, "third-party tracking-service request")}, ${cookies}.`;
   if (entry.requestEvidenceComplete) return metrics;
   // A failed visit (an error document or a blocked load) is why the counts are
   // floors, so say that rather than a capture loss the run did not record.
