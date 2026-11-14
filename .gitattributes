@@ -1,0 +1,16 @@
+# Linguist attributes only. They tell GitHub which files are generated, for
+# its language statistics and for collapsing them in diffs. Nothing here may
+# change a checked-out byte: many files in this repository are pinned by
+# digest and read as raw bytes, so this file carries no text, eol, filter,
+# diff or merge attribute.
+
+# wasm-bindgen output, rebuilt from tools/adblock-wasm/ and vendored here.
+lib/adblock-wasm/sbl_adblock_wasm.js linguist-generated
+lib/adblock-wasm/sbl_adblock_wasm.d.ts linguist-generated
+lib/adblock-wasm/sbl_adblock_wasm_bg.wasm.d.ts linguist-generated
+
+# Written by scripts/trust-kernel-nfc-tables.mjs from the reference runtime.
+tools/trust-kernel/kernel/src/nfc_tables.rs linguist-generated
+
+# Written by Next.js.
+next-env.d.ts linguist-generated
