@@ -198,6 +198,11 @@ run by hand; CI does not run it.
    the raw bytes again before obtaining release authority. Governance selection,
    exact-S CI checks, artifact attestation, promotion App and live checks remain.
 
+The binding holds only at S. The verifier requires the binding to be added in
+the commit it is run at, so `npm run release:readiness` on any later commit of
+`main` shows the binding gate failing. That is by design, and it is the state
+of `main` after a release.
+
 This smaller binding does not feed calibration readers or authorize calibrated
 claims. The old `research/measurement-candidate-binding.json` remains the
 research programme's separate contract. Its freeze, controlled-runner,

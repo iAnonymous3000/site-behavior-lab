@@ -515,6 +515,21 @@ leave the generated receipt bytes untouched. In the same PR, fold any
 changelog entries recorded under `Unreleased` between the declaration and the
 tag into the version's section, so `Unreleased` again holds only later work.
 
+After an exact `1.0.0` or `1.0.0-rc.N` release, `npm run release:readiness`
+on a later commit of `main` reports NOT READY. This is by design and is not a
+regression. The binding holds only at its carrier: `verifyV1ReleaseBinding`
+requires the binding to be added in the commit it is run at, and the archive
+PR's merge is already a later commit. The `release-candidate-binding` gate
+then fails with `v1 binding must be added once in the final carrier commit`,
+and the two gates that read the binding, `release-tag-governance` and
+`formal-verification`, fail with it. To read the release's own
+verdict, check out the tagged commit and run the command there, with
+`RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256` set to the digest in the tag message.
+The governance gate still fails there once the receipt is more than one day
+old; the verdict that counted is the one the release run recorded. CI does
+not run the readiness check, and the unit suite accepts either verdict for
+each gate, so `main` stays green.
+
 After a successful prerelease rehearsal, close the prerelease line promptly
 rather than leaving the repository indefinitely in an RC-labelled released
 state. This is how `0.4.0` closed its `0.4.0-rc.1` line on 2026-08-02, through
