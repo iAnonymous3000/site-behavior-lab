@@ -262,6 +262,30 @@ public API or a 1.0 release.
   floor, since a process stopped inside those 5 seconds loses its last
   comparisons. `docs/address-kernel-flip-criteria.md` says what must be seen
   before the kernel's answer may decide; that change is not made here.
+- Register rows for the two TLA+ specifications and for the Rust trust
+  kernel (`docs/formal-verification.md`). The register held only finite
+  checks the unit suite runs. It now has two more methods. A `model checked`
+  row rests on TLC, which walked a specification, and names a further method
+  that says how far the code is held to that specification. A
+  `machine-checked argument` row rests on Verus, which accepted a statement
+  about a Rust function for every value of a type. The unit suite runs
+  neither tool: each such row says where the tool runs (the hosted workflows
+  `tla-checks.yml` and `trust-kernel.yml`), what the unit suite holds in its
+  place, and what the tool was trusted for. No release gate reads either
+  workflow. The words the register refuses stay refused, for these rows too.
+  The rows are TLA-HOLD, TLA-HOLD-L, TLA-HOLD-N, TLA-HOLD-R, TLA-CASE and
+  TLA-EXPORT for the specifications, and TK-A4, TK-A6, TK-ENC and TK-MOD for
+  the kernel. No row says that a scan's address decision rests on the
+  kernel; it rests on `lib/ip-safety.ts`. The register's guard holds the new
+  rows as it holds the others, and learns a `Checked by` field that only a
+  kernel row has. Release contract: the `formal-verification` gate now
+  requires 21 test files, 3 more than before
+  (`lib/address-kernel.test.ts`,
+  `scripts/tla-case-machine-conformance.test.mjs` and
+  `scripts/tla-worker-hold-conformance.test.mjs`), and
+  `npm run release:formal-verification-report` runs a suite under `scripts`
+  as it is written, after both test compiles. No scan, report or identity
+  changes.
 
 ### Removed
 
