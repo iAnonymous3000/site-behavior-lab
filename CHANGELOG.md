@@ -289,6 +289,11 @@ public API or a 1.0 release.
 
 ### Removed
 
+- Five dated working documents that no tracked file cited:
+  `docs/audit-prompt.md`, `docs/ux-overhaul-2026-09-05.md` with its two
+  images, `docs/status-freshness-2026-09-07.md`,
+  `docs/real-site-acceptance-2026-09-06.md` and
+  `docs/ci-performance-audit-2026-09-25.md`. Git history keeps them.
 - The aggregate-metrics pipeline. It was added on 2026-07-21 as an edge route
   that would count a fixed set of product events into an Analytics Engine
   dataset, and it stayed disabled: the flag was "0" in every committed
