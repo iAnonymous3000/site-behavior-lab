@@ -322,11 +322,14 @@ gate: both gates were removed on 2026-11-11 because neither could pass as
 written (see
 [`docs/v1-release-qualification.md`](docs/v1-release-qualification.md)).
 
-No scheduled workflow pushes to `main`. Featured-site rescans run weekly in two
-legs (the gallery and the de-bias seed catalogs), each opening a pull request a
-human must merge; the weekly transparency-log anchor extends one standing
-anchor proposal a human must merge; Dependabot proposals get their derived
-manifests regenerated and still need a human.
+No scheduled workflow pushes to `main`. Featured-site rescans are scheduled
+weekly in two legs (the gallery and the de-bias seed catalogs), each opening a
+pull request a human must merge. That workflow is disabled as of 2026-11-14, so
+the committed corpus is not being refreshed, and the
+[status page](https://sitebehavior.org/status/) dates its newest evidence. The
+weekly transparency-log anchor extends one standing anchor proposal a human
+must merge; Dependabot proposals get their derived manifests regenerated and
+still need a human.
 
 The weekly Brave Shields list refresh fetches and validates the lists, then
 force-updates the proposal branch `automation/brave-list-refresh` and its pull
