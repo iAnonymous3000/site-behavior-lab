@@ -79,7 +79,8 @@ function entrySummary(entry: DirectoryEntry): string {
     ? `${entry.thirdPartyCookies.toLocaleString("en-US")} third-party cookies`
     : "third-party cookies not measured";
   const requestPrefix = entry.requestEvidenceComplete ? "" : "at least ";
-  const metrics = `${requestPrefix}${entry.thirdPartyRequests.toLocaleString("en-US")} third-party requests, ${requestPrefix}${entry.trackerRequests.toLocaleString(
+  // The summary opens with this count, so its hedge opens in upper case.
+  const metrics = `${entry.requestEvidenceComplete ? "" : "At least "}${entry.thirdPartyRequests.toLocaleString("en-US")} third-party requests, ${requestPrefix}${entry.trackerRequests.toLocaleString(
     "en-US"
   )} third-party tracking-service requests, ${cookies}.`;
   if (entry.requestEvidenceComplete) return metrics;

@@ -204,6 +204,8 @@ test("public metric copy keeps request rows and distinct service entities separa
   assert.match(site, /!entry\.requestEvidenceComplete && "at least "/);
   assert.match(site, /its request counts are lower bounds/);
   assert.match(siteFeed, /const requestPrefix = entry\.requestEvidenceComplete \? "" : "at least "/);
+  // The summary's first count opens the sentence, so its hedge is capitalized.
+  assert.match(siteFeed, /const metrics = `\$\{entry\.requestEvidenceComplete \? "" : "At least "\}\$\{entry\.thirdPartyRequests/);
   assert.match(siteFeed, /request counts are lower bounds/);
   assert.doesNotMatch(siteFeed, /; counts are lower bounds\./);
 
