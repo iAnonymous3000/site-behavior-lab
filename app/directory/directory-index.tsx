@@ -109,7 +109,7 @@ export async function DirectoryIndex({ page }: { page: number }) {
         )}
       </section>
 
-      <aside className={styles.caveat}>
+      <aside>
         The newest published report is shown for navigation, including failed or incomplete visits when that is the
         latest observation. Category medians use a stricter sample: one successful, request-complete, uncapped passive
         visit per canonical site, the newest within the one measurement cohort each category page publishes.
