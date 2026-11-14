@@ -43,6 +43,16 @@ import { gitFixtureEnv, initFixtureRepo, removeFixtureTree, runFixtureGit } from
  * history rule is not restated here: lib/ci-performance-contract.test.ts owns it, and this
  * holds the register to citing that test by its title.
  *
+ * Rows that rest on a tool the unit suite does not run. A `model checked` row rests on TLC
+ * and a `machine-checked argument` row on Verus; neither tool runs here, and the guard holds
+ * no verdict of either. It holds the shape of such a row: a model checked row names a further
+ * method, since that method holds a specification and not the code; a machine-checked
+ * argument row states Checked by, no other row does, and only such a row may state no test,
+ * with the reason. The conformance suites of the TLA+ specifications are under scripts and
+ * are read as the lib suites are; each runs in a stage of test:unit of its own, which the
+ * register must name. What Checked by says is prose: the guard holds that each path it names
+ * exists, and nothing of what the script does.
+ *
  * Each refusal is one named property, raised through `holds`, and each has a planted
  * variant below, or a test on a git fixture, that it catches first (`assertCaughtBy` returns on
  * the first counterexample, so "first" is what is checked). The test that holds every refusal to
@@ -91,6 +101,8 @@ const P = {
   methodList: "the register's method list is the guard's",
   wordList: "the register's list of refused words is the guard's",
   method: "every Method names distinct terms from the closed list, at least one of them not restatement",
+  modelChecked: "every model checked row names a further method, which is not restatement",
+  checkedBy: "a row states Checked by exactly when its Method names machine-checked argument, and only such a row states no test",
   plainText: "the register is plain ASCII, with no HTML entity, and no HTML tag or comment outside code spans",
   refusedWord: "no refused word or phrase appears outside the register's list of them",
   quantifier: "no quantifier ranges over an open domain, or over inputs without naming the row's domain or bounds",
@@ -127,7 +139,11 @@ const P = {
 } as const;
 
 /** The closed list, as the register's Methods section states it. */
-const METHODS = ["exhaustive", "bounded", "reachable states", "trace conformance", "sampled", "restatement"] as const;
+const METHODS = ["exhaustive", "bounded", "reachable states", "trace conformance", "sampled", "restatement", "model checked", "machine-checked argument"] as const;
+/** Holds a specification and not the code, so a row names a further method beside it. */
+const MODEL_CHECKED = "model checked";
+/** Rests on a tool the unit suite does not run, so a row says in Checked by what runs it, and may state no test. */
+const MACHINE_CHECKED = "machine-checked argument";
 
 /**
  * Refused anywhere in the register but in its own list, each group with one reason there. A
@@ -277,7 +293,21 @@ const ANCHORS: readonly Anchor[] = [
   { row: "F5-U", phrase: "Positions in UTF-16 columns", number: "16", file: "investigation/test/case-exploration.test.ts", source: 'test("UTF-16 columns:' },
   { row: "F5-U", phrase: "in UTF-16 code units", number: "16", file: "investigation/test/case-exploration.test.ts", source: 'test("UTF-16 columns:' },
   { row: "OPEN-IP4.1", phrase: "marks 192.0.0.9, Port Control Protocol anycast", number: "192.0.0.9", file: "lib/fv-ipv4-classifier.test.ts", source: '{ cidr: "192.0.0.9/32", name: "Port Control Protocol anycast"' },
-  { row: "OPEN-IP4.1", phrase: "and 192.0.0.10, Traversal Using Relays around NAT anycast", number: "192.0.0.10", file: "lib/fv-ipv4-classifier.test.ts", source: '{ cidr: "192.0.0.10/32", name: "Traversal Using Relays around NAT anycast"' }
+  { row: "OPEN-IP4.1", phrase: "and 192.0.0.10, Traversal Using Relays around NAT anycast", number: "192.0.0.10", file: "lib/fv-ipv4-classifier.test.ts", source: '{ cidr: "192.0.0.10/32", name: "Traversal Using Relays around NAT anycast"' },
+  { row: "TLA-HOLD", phrase: "each of the 512 sets of switches", number: "512", file: "scripts/tla-worker-hold-conformance.test.mjs", source: "under each of the 512 sets of switches" },
+  { row: "TLA-HOLD", phrase: "digests cut to 128 bits", number: "128", file: "scripts/tla-worker-hold-conformance.test.mjs", source: "cut to 128 bits" },
+  { row: "TLA-HOLD-R", phrase: "The suite pins two seeded faults", number: "two", file: "scripts/tla-worker-hold-conformance.test.mjs", source: "Two seeded faults of the real thread are pinned" },
+  { row: "TLA-CASE", phrase: "On each of the five plans", number: "five", file: "scripts/tla-case-machine-conformance.test.mjs", source: "For each of the five plans" },
+  { row: "TLA-CASE", phrase: "Three guards that the specification words", number: "three", file: "specs/case-machine/CaseMachine.tla", source: "Three guards are written as the rule text words them" },
+  { row: "TK-A4", phrase: "none of the sixteen ranges", number: "sixteen", file: "tools/trust-kernel/kernel/src/address.rs", source: "none of the sixteen ranges of the table" },
+  { row: "TK-A4", phrase: "Every 32-bit value", number: "32", file: "tools/trust-kernel/kernel/src/address.rs", source: "for every 32-bit `v`" },
+  { row: "TK-A6", phrase: "Every 128-bit value", number: "128", file: "tools/trust-kernel/kernel/src/address.rs", source: "for every 128-bit `v`" },
+  { row: "TK-A6", phrase: "refuses three blocks", number: "three", file: "tools/trust-kernel/kernel/src/address.rs", source: "differ in three blocks" },
+  { row: "TK-ENC", phrase: "Two different admitted trees never share bytes", number: "two", file: "tools/trust-kernel/kernel/src/encode.rs", source: "two different admitted trees never share bytes" },
+  { row: "TK-ENC", phrase: "Two different admitted trees never have the same bytes", number: "two", file: "tools/trust-kernel/kernel/src/encode.rs", source: "two different admitted trees never share bytes" },
+  { row: "TK-MOD", phrase: "only when it is 1 or 0", number: "1", file: "lib/address-kernel.ts", source: "The entry points return 1 or 0." },
+  { row: "TK-MOD", phrase: "only when it is 1 or 0", number: "0", file: "lib/address-kernel.ts", source: "The entry points return 1 or 0." },
+  { row: "TK-MOD", phrase: "builds the module twice", number: "twice", file: "scripts/trust-kernel-build.mjs", source: "bytes) twice." }
 ];
 
 /** Suite files and modules that must exist, so a discovery that matched nothing fails. */
@@ -294,7 +324,10 @@ const KNOWN_SUITE_FILES = [
   "lib/fv-worker-model.test.ts",
   "lib/fv-ipv4-classifier.test.ts",
   "lib/fv-report-consistency.test.ts",
-  "investigation/test/case-exploration.test.ts"
+  "investigation/test/case-exploration.test.ts",
+  "scripts/tla-case-machine-conformance.test.mjs",
+  "scripts/tla-worker-hold-conformance.test.mjs",
+  "lib/address-kernel.test.ts"
 ];
 const KNOWN_MODULES = [
   "lib/finite-check.ts",
@@ -311,8 +344,8 @@ const CI_HISTORY_TEST = { file: "lib/ci-performance-contract.test.ts", title: "e
 const RELEASE_GATE = "formal-verification";
 const RELEASE_SENTENCE = "The release gate `formal-verification` is in code.";
 
-const CLAIM_FIELDS = ["Property", "Code", "Domain", "Bounds", "Axioms", "Method", "Not claimed", "Tests", "Variants", "Members", "Commit"] as const;
-const OPTIONAL_CLAIM_FIELDS = new Set(["Not claimed", "Members"]);
+const CLAIM_FIELDS = ["Property", "Code", "Domain", "Bounds", "Axioms", "Method", "Not claimed", "Checked by", "Tests", "Variants", "Members", "Commit"] as const;
+const OPTIONAL_CLAIM_FIELDS = new Set(["Not claimed", "Checked by", "Members"]);
 const OPEN_FIELDS = ["Finding", "Tests", "Cases", "Commit"] as const;
 const OPTIONAL_OPEN_FIELDS = new Set(["Cases"]);
 const LIST_FIELDS = new Set(["Tests", "Variants", "Members", "Cases"]);
@@ -434,7 +467,8 @@ function shapeRow(row: Row): void {
   holds(P.shape, JSON.stringify(row.order) === JSON.stringify(wanted), () => ({ row: row.id, fields: row.order, expected: wanted }));
   const prose: string[] = [row.heading];
   for (const [name, { value, items }] of row.fields) {
-    if (name === "Variants") {
+    // A claim's Tests may be none with a reason, as Variants may: which rows may say so is held under its own property.
+    if (name === "Variants" || (name === "Tests" && row.kind === "claim")) {
       const none = /^none: \S/.test(value);
       holds(P.shape, value === "" || none, () => ({ row: row.id, field: name, value }));
       holds(P.shape, none ? items.length === 0 : items.length > 0, () => ({ row: row.id, field: name, value, items: items.length }));
@@ -873,6 +907,10 @@ function checkText(inputs: Inputs): Register {
     holds(P.method, terms.every((term) => (METHODS as readonly string[]).includes(term)), () => ({ row: row.id, method: terms }));
     holds(P.method, new Set(terms).size === terms.length, () => ({ row: row.id, repeated: terms }));
     holds(P.method, terms.some((term) => term !== "restatement"), () => ({ row: row.id, alone: terms }));
+    holds(P.modelChecked, !terms.includes(MODEL_CHECKED) || terms.some((term) => term !== MODEL_CHECKED && term !== "restatement"), () => ({ row: row.id, alone: terms }));
+    const machineChecked = terms.includes(MACHINE_CHECKED);
+    holds(P.checkedBy, row.fields.has("Checked by") === machineChecked, () => ({ row: row.id, method: terms, checkedBy: row.fields.has("Checked by") }));
+    holds(P.checkedBy, machineChecked || (row.fields.get("Tests")?.items.length ?? 0) > 0, () => ({ row: row.id, method: terms, tests: "none" }));
   }
 
   // Words, over the whole file as words, but the cited titles (held below under their own
@@ -1012,7 +1050,21 @@ function checkText(inputs: Inputs): Register {
   holds(P.wiring, unit.includes("npm run test:investigation"), () => ({ "test:unit": scripts["test:unit"], missing: "npm run test:investigation" }));
   holds(P.wiring, unit.includes("npm run test:investigation-exploration"), () => ({ "test:unit": scripts["test:unit"], missing: "npm run test:investigation-exploration" }));
   const investigationStages = `${scripts["test:investigation"] ?? ""} ${scripts["test:investigation-exploration"] ?? ""}`.split(/\s+/);
+  /** The stage of test:unit whose own script runs a suite under scripts, by that suite's path, or null. */
+  const stageOf = (file: string): string | null => {
+    for (const step of unit) {
+      const stage = /^npm run (\S+)$/.exec(step)?.[1];
+      if (stage !== undefined && (scripts[stage] ?? "").split(/\s+/).includes(file)) return stage;
+    }
+    return null;
+  };
   for (const file of new Set([...rows.flatMap((row) => [...row.tests, ...row.families].map((cited) => cited.file)), ...inputs.suiteFiles])) {
+    if (/^scripts\/[A-Za-z0-9._-]+\.test\.mjs$/.test(file)) {
+      // A suite under scripts has a stage of its own, which the register names where it says what test:unit reruns.
+      const stage = stageOf(file);
+      holds(P.wiring, stage !== null && inputs.doc.includes(`\`npm run ${stage}\``), () => ({ file, stage: stage ?? "no stage of test:unit runs it", register: stage === null ? null : "does not name the stage" }));
+      continue;
+    }
     const runs = /^lib\/[A-Za-z0-9._-]+\.test\.ts$/.test(file)
       ? lanes
       : /^investigation\/test\/[A-Za-z0-9._-]+\.test\.ts$/.test(file) && investigationStages.includes(`.investigation-test-dist/${file.replace(/\.ts$/, ".js")}`);
@@ -1094,7 +1146,10 @@ function discover(directory: string, pattern: RegExp): string[] {
 const SUITE_FILES = [
   ...discover("lib", /^fv-[A-Za-z0-9._-]+\.test\.ts$/),
   "lib/finite-check.test.ts",
-  ...discover("investigation/test", /^case-exploration[A-Za-z0-9._-]*\.test\.ts$/)
+  ...discover("investigation/test", /^case-exploration[A-Za-z0-9._-]*\.test\.ts$/),
+  // The conformance suites of the TLA+ specifications, and the unit suite's test of the trust kernel's module.
+  ...discover("scripts", /^tla-[A-Za-z0-9._-]+-conformance\.test\.mjs$/),
+  "lib/address-kernel.test.ts"
 ];
 const MODULES = [
   ...discover("lib", /^fv-[A-Za-z0-9._-]+\.ts$/).filter((file) => !file.endsWith(".test.ts")),
@@ -1171,6 +1226,13 @@ const RA4_LAST = '  - `lib/fv-scroll-producer.test.ts`: "RA4: each ending valida
 const F4_HAND_CODE = "- **Code:** `sharedWorkerAttacherThread` in `lib/shared-worker-attacher.ts`.";
 const RA7P_VARIANTS = "- **Variants:** none: the test pins where the recorders part, which RA7's bounded check leaves to arrival order.\n";
 const EB2_METHOD = "- **Axioms:** none\n- **Method:** exhaustive\n- **Tests:**\n  - `lib/fv-producer-identity.test.ts`: \"EB2:";
+const OPEN_IP4_TESTS = '- **Tests:**\n  - `lib/fv-ipv4-classifier.test.ts`: "open (IP4): the two anycast addresses the registry marks globally reachable read as not public"\n- **Commit:**';
+const EB2_FIRST_TEST = "  - `lib/fv-producer-identity.test.ts`: \"EB2: every row's obligations are the contract its detector registry is held to\"\n";
+const HOLD_CONFORMANCE = "scripts/tla-worker-hold-conformance.test.mjs";
+const DEFAULT_IMPORT_TEST = 'import test from "node:test";';
+const TLA_CASE_METHOD = "- **Method:** model checked, reachable states, trace conformance\n";
+const TK_ENC_TESTS = "- **Tests:** none: the unit suite has none.\n";
+const TK_ENC_CHECKED = `- **Checked by:** as TK-A4.\n${TK_ENC_TESTS}`;
 
 const PI = "lib/fv-producer-identity.test.ts";
 const IC = "lib/fv-initiator-claims.test.ts";
@@ -1217,6 +1279,9 @@ const TEXT_VARIANTS: ReadonlyArray<readonly [string, string, () => Partial<Input
   ["an empty Members list", P.shape, () => ({ doc: planted('- **Members:**\n  - "a running worker\'s last word at the call is its state, with no barrier"\n', "- **Members:**\n") })],
   ["a row with an empty Axioms", P.shape, () => ({ doc: planted("- **Bounds:** none beyond those tables.\n- **Axioms:** none\n", "- **Bounds:** none beyond those tables.\n- **Axioms:**\n") })],
   ["a Tests field with a value of its own", P.shape, () => ({ doc: planted(EB2_METHOD, EB2_METHOD.replace("- **Tests:**", "- **Tests:** see below")) })],
+  ["Tests none with no reason", P.shape, () => ({ doc: planted(TK_ENC_TESTS, "- **Tests:** none\n") })],
+  ["Tests none with a test beside it", P.shape, () => ({ doc: planted(TK_ENC_TESTS, `${TK_ENC_TESTS}${EB2_TESTS}`) })],
+  ["an open finding that states no test", P.shape, () => ({ doc: planted(OPEN_IP4_TESTS, "- **Tests:** none: later.\n- **Commit:**") })],
   ["Variants none with no reason", P.shape, () => ({ doc: planted("- **Variants:** none: the test pins where the recorders part", "- **Variants:** none") })],
   ["a malformed Tests item", P.shape, () => ({ doc: planted(EB2_TESTS, "  - lib/fv-producer-identity.test.ts EB2: every target epoch of the obligation contracts is named by a row\n") })],
   ["a malformed Variants item", P.shape, () => ({ doc: planted(EB3_FAMILY, EB3_FAMILY.replace('names beginning "EB3 catches a variant"', "names beginning EB3 catches a variant")) })],
@@ -1227,9 +1292,15 @@ const TEXT_VARIANTS: ReadonlyArray<readonly [string, string, () => Partial<Input
   ["a row outside any claims section", P.ids, () => ({ doc: planted("## Claims from F2: published stacks", "## More from F2: published stacks") })],
   ["a method list that differs from the guard's", P.methodList, () => ({ doc: planted("- `sampled`: written-out cases", "- `spot-checked`: written-out cases") })],
   ["a list of refused words with a group gone", P.wordList, () => ({ doc: planted(/^- `ensur\*`.*\n/m.exec(REAL.doc)?.[0] ?? "(absent)", "") })],
-  ["a method outside the closed list", P.method, () => ({ doc: planted(EB2_METHOD, EB2_METHOD.replace("exhaustive", "model checked")) })],
+  ["a method outside the closed list", P.method, () => ({ doc: planted(EB2_METHOD, EB2_METHOD.replace("exhaustive", "spot checked")) })],
   ["a method named twice", P.method, () => ({ doc: planted(EB2_METHOD, EB2_METHOD.replace("exhaustive", "exhaustive, exhaustive")) })],
   ["restatement standing alone", P.method, () => ({ doc: planted(EB2_METHOD, EB2_METHOD.replace("exhaustive", "restatement")) })],
+  ["model checked standing alone", P.modelChecked, () => ({ doc: planted(TLA_CASE_METHOD, "- **Method:** model checked\n") })],
+  ["model checked beside restatement and nothing else", P.modelChecked, () => ({ doc: planted(TLA_CASE_METHOD, "- **Method:** model checked, restatement\n") })],
+  ["a machine-checked row with no Checked by", P.checkedBy, () => ({ doc: planted(TK_ENC_CHECKED, TK_ENC_TESTS) })],
+  ["Checked by on a row of another method", P.checkedBy, () => ({ doc: planted(EB2_METHOD, EB2_METHOD.replace("- **Tests:**", "- **Checked by:** a script of its own.\n- **Tests:**")) })],
+  ["a machine-checked argument claimed beside a method, with no Checked by", P.checkedBy, () => ({ doc: planted(EB2_METHOD, EB2_METHOD.replace("exhaustive", "exhaustive, machine-checked argument")) })],
+  ["a row of another method that states no test", P.checkedBy, () => ({ doc: planted(`- **Tests:**\n${EB2_FIRST_TEST}${EB2_TESTS}`, "- **Tests:** none: the suite has none yet.\n") })],
   ["a character outside ASCII", P.plainText, () => ({ doc: planted(EB2_PROPERTY_END, `${EB2_PROPERTY_END} It holds here.`) })],
   ["an HTML entity", P.plainText, () => ({ doc: planted(EB2_PROPERTY_END, `${EB2_PROPERTY_END} Rows &amp; registries.`) })],
   ["an HTML tag inside a word", P.plainText, () => added("It is pro<b></b>ved.")],
@@ -1255,7 +1326,7 @@ const TEXT_VARIANTS: ReadonlyArray<readonly [string, string, () => Partial<Input
   ["a form of guarantee", P.refusedWord, () => added("The table is guaranteeing it.")],
   ["a form of sound", P.refusedWord, () => added("It holds soundly.")],
   ["formally verifying", P.refusedWord, () => added("The suite is formally verifying it.")],
-  ["a refused word in a justification of the list itself", P.refusedWord, () => ({ doc: planted("which no check here walks.", "which no proof here walks.") })],
+  ["a refused word in a justification of the list itself", P.refusedWord, () => ({ doc: planted("and these words claim more than that.", "and these proofs claim more than that.") })],
   ["a quantifier over sites", P.quantifier, () => ({ doc: planted(EB2_PROPERTY_END, `${EB2_PROPERTY_END} It holds on any site.`) })],
   ["every single site", P.quantifier, () => ({ doc: planted(EB2_PROPERTY_END, `${EB2_PROPERTY_END} It holds for every single site.`) })],
   ["a quantifier over URLs", P.quantifier, () => ({ doc: planted(EB2_PROPERTY_END, `${EB2_PROPERTY_END} It holds for all URLs.`) })],
@@ -1392,12 +1463,15 @@ const TEXT_VARIANTS: ReadonlyArray<readonly [string, string, () => Partial<Input
     })
   ],
   ["a known suite file the discovery missed", P.discovery, () => ({ suiteFiles: REAL.suiteFiles.filter((file) => file !== "lib/fv-worker-model.test.ts") })],
+  ["a conformance suite the discovery missed", P.discovery, () => ({ suiteFiles: REAL.suiteFiles.filter((file) => file !== HOLD_CONFORMANCE) })],
   ["a known module the discovery missed", P.discovery, () => ({ modules: REAL.modules.filter((file) => file !== "lib/fv-worker-model-replay.ts") })],
   ["a suite file the register does not name", P.suiteNamed, () => ({ suiteFiles: [...REAL.suiteFiles, "lib/fv-planted.test.ts"], read: (file) => (file === "lib/fv-planted.test.ts" ? 'test("planted", () => {});\n' : readText(file)) })],
   ["a module the register does not name", P.suiteNamed, () => ({ modules: [...REAL.modules, "lib/fv-planted.ts"] })],
   ["a test in a suite file no row cites", P.covered, () => ({ doc: planted('  - `lib/fv-producer-identity.test.ts`: "EB1: no PageGraph row accepts a misshapen methodology"\n', "") })],
   ["a plainly named variant test left to a family", P.covered, () => ({ doc: planted('  - `lib/fv-producer-identity.test.ts`: "EB1 catches a variant: a refetch retires the row"\n', "") })],
   ["a new test planted in a suite file", P.covered, () => ({ read: editedRead("lib/fv-initiator-claims.test.ts", 'import { test } from "node:test";', 'import { test } from "node:test";\ntest("RA8: a planted property no row cites", () => {});') })],
+  ["a new test planted in a conformance suite", P.covered, () => ({ read: editedRead(HOLD_CONFORMANCE, DEFAULT_IMPORT_TEST, `${DEFAULT_IMPORT_TEST}\ntest("a planted conformance test no row cites", () => {});`) })],
+  ["a new test planted in the kernel module's suite", P.covered, () => plantedIn("lib/address-kernel.test.ts", 'test("a planted kernel test no row cites", () => {});')],
   ["a test called through it", P.covered, () => ({ read: editedRead("lib/fv-initiator-claims.test.ts", 'import { test } from "node:test";', 'import { it, test } from "node:test";\nit("RA8: a planted property no row cites", () => {});') })],
   ["a test called through a renamed import", P.covered, () => ({ read: editedRead("lib/fv-initiator-claims.test.ts", 'import { test } from "node:test";', 'import { test, test as check } from "node:test";\ncheck("RA8: a planted property no row cites", () => {});') })],
   ["a test called through a default import", P.covered, () => ({ read: editedRead("lib/fv-initiator-claims.test.ts", 'import { test } from "node:test";', 'import { test } from "node:test";\nimport check from "node:test";\ncheck("RA8: a planted property no row cites", () => {});') })],
@@ -1430,6 +1504,9 @@ const TEXT_VARIANTS: ReadonlyArray<readonly [string, string, () => Partial<Input
   ["the exploration stage dropped from test:unit", P.wiring, () => ({ packageJson: REAL.packageJson.replace(" && npm run test:investigation-exploration", "") })],
   ["the lanes step narrowed in test:unit", P.wiring, () => ({ packageJson: REAL.packageJson.replace("'npm run test:corpus-overview' .unit-test-dist/lib/*.test.js", "'npm run test:corpus-overview' .unit-test-dist/lib/fv-*.test.js") })],
   ["a cited workspace suite no stage runs", P.wiring, () => ({ packageJson: REAL.packageJson.replace(" .investigation-test-dist/investigation/test/readings.test.js", "") })],
+  ["a conformance stage dropped from test:unit", P.wiring, () => ({ packageJson: REAL.packageJson.replace(" && npm run test:tla-worker-hold\"", "\"") })],
+  ["a conformance suite its stage no longer runs", P.wiring, () => ({ packageJson: REAL.packageJson.replace("tla-case-machine scripts/tla-case-machine-conformance.test.mjs", "tla-case-machine scripts/tla-case-machine-other.test.mjs") })],
+  ["a conformance stage the register does not name", P.wiring, () => ({ doc: planted("`npm run test:tla-case-machine`", "a stage of its own") })],
   ["the contract test renamed", P.ciRule, () => ({ read: editedRead(CI_HISTORY_TEST.file, `test("${CI_HISTORY_TEST.title}"`, 'test("every job that runs the unit suite checks out enough history"') })],
   ["the register no longer citing the contract test", P.ciRule, () => ({ doc: planted(`\`${CI_HISTORY_TEST.file}\`, "${CI_HISTORY_TEST.title}"`, `\`${CI_HISTORY_TEST.file}\``) })],
   ["a published command that is no package script", P.commands, () => ({ doc: planted("## Release status\n", "## Release status\n\nRun `npm run test:formal-register` alone.\n") })],

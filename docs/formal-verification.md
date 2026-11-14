@@ -7,6 +7,13 @@ and not at C's first parent. Each row is a statement about this repository's
 own code over a closed, finite domain, and says nothing of what a browser, a
 page or a network hands that code.
 
+Some rows rest on a tool this project did not write. A row whose method is
+`model checked` rests on TLC, which walked a TLA+ specification. A row whose
+method is `machine-checked argument` rests on Verus, which accepted a statement
+about a Rust function for every value of a type. The unit suite runs neither
+tool. Each such row says where the tool runs, what the unit suite holds in its
+place, and what the tool was trusted for.
+
 The register covers the suites of the F batches, named by their file prefix
 and listed under Files below. Other tests also use `lib/finite-check.ts`, the
 walks of the investigation workspace's W1 and W2 suites among them, and this
@@ -48,7 +55,8 @@ Each claim row has these fields, in this order:
 - **Axioms:** A, what the row assumes about the environment, or none.
 - **Method:** how the domain is covered, from the list below.
 - **Not claimed:** what the row leaves out, where that needs saying. This field is optional.
-- **Tests:** T, each test the row rests on, by its file and its exact name as the source spells it, template placeholders included.
+- **Checked by:** for a row whose method is `machine-checked argument`, and for no other row: the script that runs the tool and holds what the tool is asked, and where that script runs.
+- **Tests:** T, each test the row rests on, by its file and its exact name as the source spells it, template placeholders included. A row with a Checked by field may state none, with the reason; no other row may.
 - **Variants:** the tests that hold the check to broken variants of the code: a family of templated tests by the start of their names, or a test by its exact name, or none with the reason.
 - **Members:** the entries of a cited family's table that this row rests on, where the family holds members for other rows too. This field is optional.
 - **Commit:** C, a full commit id, an ancestor of the checked-out commit and a commit object, in whose tree each cited test and family is present, and in whose first parent none is.
@@ -69,6 +77,8 @@ pins what the code does, not what it should do.
 - `trace conformance`: traces of a model replayed through the real code, with each step's output compared with the model's. It holds the code to the model, and neither to a browser.
 - `sampled`: written-out cases from a wider domain passed, and nothing is said of the rest of that domain.
 - `restatement`: the oracle restates the production rule, from a docblock, a commit or the code, so it catches the code drifting from that rule and never a wrong rule. It qualifies another method and never stands alone.
+- `model checked`: TLC held the row's invariants on every state it reached from the first state of each configuration the row names, over that configuration's alphabet and bounds, under the switches it sets. It holds a specification and not the code; a further method in the same row says how far the code is held to the specification. TLC's side of each comparison in the unit suite is a committed export, which a hosted workflow compares with TLC's own output.
+- `machine-checked argument`: Verus accepted that an executable Rust function returns what a written specification says, for every value of the type the Domain states, with no bound. It holds the function to the specification as written. It holds the specification to nothing, and it says nothing of compiled bytes or of the code that calls the function. It trusts Verus, Z3, vstd, the Rust compiler and the specification.
 
 Where a row walks every variation of cases the suite writes out (every cut of
 every prefix of its paths, say), the walk is exhaustive over those variations
@@ -87,10 +97,10 @@ whole word and in any case, except in this list. A space in a phrase also
 matches a hyphen or a slash, a trailing star stands for any ending of the word,
 and emphasis and link marks are read through:
 
-- `proof`, `proofs`, `prove`, `proves`, `proved`, `proven`, `proving`, `provable`, `provably`: a finite check holds a property over its domain at a commit. These words claim an argument for inputs beyond the domain, which no check here walks.
+- `proof`, `proofs`, `prove`, `proves`, `proved`, `proven`, `proving`, `provable`, `provably`: a finite check holds a property over its domain at a commit, and these words claim more than that. The kernel rows state an argument for every value of a type, and name it by their method, `machine-checked argument`, and by no other word.
 - `theorem`, `theorems`: these name a statement settled by such an argument, which no row is.
 - `guarant*`, `bulletproof`: these words promise behavior on whatever input arrives, and a row speaks only of its domain, bounds and axioms.
-- `formally verif*`: this names a machine-checked argument against a specification, which these suites do not make. "Formal verification" names the program and its release gate, and stays allowed.
+- `formally verif*`: this names a whole program held to a specification. No row here says that of the scanner. The kernel rows say it of the functions they name and of nothing else, in their own words. "Formal verification" names the program and its release gate, and stays allowed.
 - `verified`, `verifies`, `certified`, `certifies`: these give the code a verdict against a standard, where a row says only that its tests held over their domain.
 - `sound*`: these speak of a method beyond the domain it was run on, and a row speaks of one domain.
 - `correct`, `correctly`, `correctness`, `incorrect`, `incorrectly`: as a verdict this says the code is right or wrong. A restated oracle catches drift from a rule and never a wrong rule, and a check against a hand-written table holds only that table.
@@ -141,8 +151,10 @@ It does not say where a test first appeared in history: a test deleted and
 added again, a file renamed, a merge whose second parent held the test, and
 members a family gained after its Commit all pass. `npm run test:unit` reruns
 the lib suites in its unit lanes, the workspace suites in
-`npm run test:investigation` and the case exploration in
-`npm run test:investigation-exploration`, wherever it runs; the guard reads
+`npm run test:investigation`, the case exploration in
+`npm run test:investigation-exploration` and the conformance suites in
+`npm run test:tla-worker-hold` and `npm run test:tla-case-machine`, wherever it
+runs; the guard reads
 that wiring from `package.json`. A row states what its tests hold at the commit
 that holds this file, and a test may have held less, or held a different rule,
 at its Commit. What binds a run of the cited tests to a release candidate is
@@ -231,6 +243,13 @@ names with the tests the rows cite: the guard holds those at each commit, and
 the guard is not among the files the report runs. A report shows that the
 cited files ran and passed at a commit. It adds nothing to what a row claims.
 
+The gate's execution report runs the unit suite's files. It runs neither TLC
+nor Verus. What a `model checked` or `machine-checked argument` row rests on
+is a hosted workflow run at a commit: `tla-checks.yml` writes and signs a
+receipt, and `trust-kernel.yml` passes or fails. No release gate reads
+either today. A reader who wants the tool's verdict for a release looks for
+those runs at the release's commit.
+
 ## What this register does not claim
 
 - That a browser behaves as an axiom states. Each axiom stays a question for measurement, and the amd64 hold rate is among what is not yet measured.
@@ -238,6 +257,8 @@ cited files ran and passed at a commit. It adds nothing to what a row claims.
 - Anything about an input outside a row's domain or past its bounds.
 - That a restated oracle states the right rule.
 - Anything about a visit made with the scanner's investigation seam set. No suite sets the seam, or hands a check the boundary callback or the deadline margin that only the seam supplies.
+- That a scan's address decision rests on the kernel. It rests on `lib/ip-safety.ts`.
+- That TLC or Verus ran at a commit, beyond what the hosted runs at that commit show.
 
 ## Files
 
@@ -256,6 +277,15 @@ describes, has a test of its own outside this register's rows,
 in `investigation/test/case-exploration-walk.ts`, run in worker threads by
 `investigation/test/case-exploration-worker.ts`, with a planted fault for its
 self-tests in `investigation/test/case-exploration-plant-worker.ts`.
+
+The specifications are under `specs/worker-hold` and `specs/case-machine`. Their
+conformance suites are `scripts/tla-worker-hold-conformance.test.mjs` and
+`scripts/tla-case-machine-conformance.test.mjs`, which read the committed
+exports `specs/worker-hold/conformance.json` and
+`specs/case-machine/conformance.json`. The trust kernel is under
+`tools/trust-kernel`. `scripts/trust-kernel-verus.mjs` runs Verus on it, and
+the unit suite's test of the module the scanner loads is
+`lib/address-kernel.test.ts`.
 
 ## Claims from F1: producer identity, coverage loss and request accounting
 
@@ -1224,6 +1254,183 @@ report facts, and RC-A holds the activity slice with them in it.
   - `lib/fv-report-consistency.test.ts`: "the four slices above reached these headline stories, and no other"
 - **Variants:** none: each test compares the walk with production, or with a list the suite writes out.
 - **Commit:** bc1ff528b0e014a59e50b354ab3f6edc28b0fb8b
+
+## Claims from the TLA+ specifications
+
+### TLA-HOLD. The hold's specification and the hand-written model agree
+
+- **Property:** In each shared world, the specification and the hand-written model take the same steps under every set of switches and land every worker the same way. The rows TLC found broken under each set of switches are the rows the model's own verdicts break. The axiom table and the named trace TLC found are those of F4-TABLE and F4-BEYOND.
+- **Code:** `specs/worker-hold/WorkerHold.tla` and `specs/worker-hold/WorkerHoldTable.tla`, against `lib/fv-worker-model.ts`.
+- **Domain:** The hold world, the stream world, the world of `TWO_WORKER_WORLD` and `SMALL_WORLD`, each under each of the 512 sets of switches.
+- **Bounds:** Each world's own, as F4-WORLD states them.
+- **Axioms:** The switches a set assumes. None is a fact of Chromium, and no run measures one.
+- **Method:** model checked, exhaustive
+- **Not claimed:** A second reading of what the worlds should be: the specification was written with the model open and takes its worlds and its step names. That the graphs of the specification and the model are the same edge by edge: they are compared by digests cut to 128 bits. The dedicated world, and the second half of F4-TERM, which the specification does not state. The cells where a row has nothing to judge and so passes whatever the protocol does: F4-READ, both exclusion rows and the no-term row in the stream world, and F4-AGE in each world with no stream. No configuration lists them, and that such a cell of the F4 table reads as holding under no axiom carries no information; TLA-HOLD-N holds which cells they are. That TLC ran at the commit that holds this file: the unit suite reads the committed export, and the workflow `.github/workflows/tla-checks.yml` compares it with TLC on each push to `main`.
+- **Tests:**
+  - `scripts/tla-worker-hold-conformance.test.mjs`: `the hand-written model and the specification take the same steps under every set of switches, and land every worker the same way, in the ${world} world`
+  - `scripts/tla-worker-hold-conformance.test.mjs`: `under each of the 512 sets of switches, the rows the model's own verdicts break are the rows TLC found broken, in the ${world} world`
+  - `scripts/tla-worker-hold-conformance.test.mjs`: "the axiom table TLC found is the register's: each row's smallest sets of the plan's axioms, in each shared world"
+  - `scripts/tla-worker-hold-conformance.test.mjs`: "F4-TABLE and F4-BEYOND, from TLC's table: A4 changes no verdict, the exclusion rows fail with C1 and D1 on top of every axiom, D1 closes the no-term row only where the tree is waited for, and only Z closes it everywhere"
+  - `scripts/tla-worker-hold-conformance.test.mjs`: "TLC's own verdict on each row, as an invariant under each set of switches the register names, is the register's"
+  - `scripts/tla-worker-hold-conformance.test.mjs`: "the named trace, from TLC's table: reachable and excluded, frozen as held, as reaching and by the second pass, with the causes each set of switches leaves"
+- **Variants:** none: the specification's seeded faults (`scripts/tla-worker-hold-mutations.mjs`) need TLC and run in the hosted workflow.
+- **Commit:** 1e9876569068656f89fca24a35eceef0a60bf5a9
+
+### TLA-HOLD-L. A hold row is listed only where it has something to judge
+
+- **Property:** A row is listed as holding only where it has something to judge: each of its companions is reached there, by TLC's own run and in the hand-written model's graph.
+- **Code:** `specs/worker-hold/WorkerHold.tla`, against `lib/fv-worker-model.ts`.
+- **Domain:** Each cell of the export script's table and each committed configuration, in each shared world of TLA-HOLD.
+- **Bounds:** Each world's own, as F4-WORLD states them.
+- **Axioms:** The switches a cell or a configuration assumes. None is a fact of Chromium, and no run measures one.
+- **Method:** model checked, exhaustive
+- **Not claimed:** Where a row is listed, TLC reached its subject and what would break it; that shows the row can be judged there, not that a fault would be caught. That TLC ran at the commit that holds this file, as TLA-HOLD says.
+- **Tests:**
+  - `scripts/tla-worker-hold-conformance.test.mjs`: "a row is listed as holding only where it has something to judge: each of its companions is reached there, by TLC's own run and in the hand-written model's graph"
+- **Variants:** none: the specification's seeded faults (`scripts/tla-worker-hold-mutations.mjs`) need TLC and run in the hosted workflow.
+- **Commit:** 2bd2af881f98b2ba13c9641156bc89b1847c38cb
+
+### TLA-HOLD-N. Where a hold row has nothing to judge
+
+- **Property:** In the stream world no worker is excluded, lands nowhere or runs unobserved, and outside it no read is of a realm past its first snapshot; every other row can be judged in every world. A row with nothing to judge in a world is in no cell and no committed configuration of that world.
+- **Code:** `specs/worker-hold/WorkerHold.tla`, against `lib/fv-worker-model.ts`.
+- **Domain:** Each row in each shared world of TLA-HOLD, with no switch assumed.
+- **Bounds:** Each world's own, as F4-WORLD states them.
+- **Axioms:** none
+- **Method:** model checked, exhaustive
+- **Not claimed:** Anything of a row in a cell this row names: such a row passes there whatever the protocol does. That TLC ran at the commit that holds this file, as TLA-HOLD says.
+- **Tests:**
+  - `scripts/tla-worker-hold-conformance.test.mjs`: "where a row has nothing to judge: in the stream world no worker is excluded, lands nowhere or runs unobserved, and outside it no read is of a realm past its first snapshot; every other row can be judged in every world"
+- **Variants:** none: the specification's seeded faults (`scripts/tla-worker-hold-mutations.mjs`) need TLC and run in the hosted workflow.
+- **Commit:** 9b5e50f758dc82dc71abd9b073297cc6c08ffe0c
+
+### TLA-HOLD-R. The real thread, mirror and readout follow TLC's kept traces
+
+- **Property:** Replayed through the real thread, mirror and readout, each kept trace gives at each step what the specification gives, and on each form of the named trace the real readout excludes a worker that ran unobserved.
+- **Code:** The attacher's thread, the mirror and the readout, through `lib/fv-worker-model-replay.ts`.
+- **Domain:** The traces the export keeps: the covering traces of each world, which take each label the world has under the plan's axioms with C1 and D1 once; a trace for each row the register says fails; and a trace for each form of the named trace.
+- **Bounds:** Those traces and no others.
+- **Axioms:** As each trace's set of switches.
+- **Method:** trace conformance, sampled
+- **Not claimed:** A label a world takes only with fewer switches assumed. The suite pins two seeded faults of the real thread that this replay does not detect: one on a word the model drops, and one that needs a session's words out of order at one point.
+- **Tests:**
+  - `scripts/tla-worker-hold-conformance.test.mjs`: `TLC's traces replay through the real thread, mirror and readout: every label the ${world} world takes under the plan's axioms with C1 and D1`
+  - `scripts/tla-worker-hold-conformance.test.mjs`: `TLC's trace that breaks ${row} in the ${world} world under ${assumed.join(" ") || "nothing"} goes through the real code, and the real readout's term breaks it too (${index})`
+  - `scripts/tla-worker-hold-conformance.test.mjs`: `the named trace as ${form} under ${assumed.join(" ")} goes through the real code: the real readout excludes a worker that ran unobserved (${index})`
+  - `scripts/tla-worker-hold-conformance.test.mjs`: "the kept traces are the ones the suite replays: each row the register says fails has its trace, and the named trace each of its forms"
+  - `scripts/tla-worker-hold-conformance.test.mjs`: "what the kept traces cannot tell from the real thread: a fault on a word the model drops, and one that needs a session's words out of order at one point"
+- **Variants:**
+  - `scripts/tla-worker-hold-conformance.test.mjs`: names beginning "the replay of TLC's traces catches a variant of the real thread:"
+- **Commit:** 1e9876569068656f89fca24a35eceef0a60bf5a9
+
+### TLA-CASE. The real case machine's transitions are the specification's
+
+- **Property:** On each of the five plans, the real machine reaches the states the specification reaches, and on each of them accepts each event of the alphabet exactly when the specification does and leaves the state the specification leaves. TLC held each invariant of the specification's table on every state of each plan. The real purge reducer answers as the specification's on every pairing of the slice.
+- **Code:** `specs/case-machine/CaseMachine.tla` and `specs/case-machine/PurgeSlice.tla`, against `investigation/core/case-machine.ts` and `investigation/core/purge.ts`.
+- **Domain:** The plans of F5-M and F5-S and the slice of F5-P, over the same event alphabet and under the same caps, which a test holds to production's.
+- **Bounds:** Those plans and caps.
+- **Axioms:** none
+- **Method:** model checked, reachable states, trace conformance
+- **Not claimed:** Refusal reasons, evidence ids and the record events of `investigation/core/evidence-model.ts`, which the specification does not model. Three guards that the specification words as the rule text does and the code words otherwise; on these plans both give the same transitions, and nothing is said of another plan. The fold of F5-F, which is not specified. That the relations of the specification and the machine are the same edge by edge: they are compared by counts and a digest. That TLC ran at the commit that holds this file: the hosted workflow compares the committed export with TLC by schedule (weekly) and by hand, not on each push, and is to be run at each release candidate.
+- **Tests:**
+  - `scripts/tla-case-machine-conformance.test.mjs`: "the export was made under each plan's committed configuration, in a run where TLC held every invariant of the table on every state"
+  - `scripts/tla-case-machine-conformance.test.mjs`: "the caps the specification's configurations set are production's"
+  - `scripts/tla-case-machine-conformance.test.mjs`: `the real machine's reachable transitions are the specification's, on the plan ${planName}`
+  - `scripts/tla-case-machine-conformance.test.mjs`: `TLC's traces replay through the real step, state by state, on the plan ${planName}`
+  - `scripts/tla-case-machine-conformance.test.mjs`: "the plans whose traces are kept are the six-slot plan and the two smallest"
+  - `scripts/tla-case-machine-conformance.test.mjs`: "an event from an actor the specification's table refuses is refused by the real machine"
+  - `scripts/tla-case-machine-conformance.test.mjs`: "the real purgeStep and retentionTier answer as the specification's reducer, on every pairing of the slice"
+  - `scripts/tla-case-machine-conformance.test.mjs`: "through the real step a purge answers as the specification's reducer and moves nothing else, and no other event reads the manifest, on the two smallest plans"
+- **Variants:**
+  - `scripts/tla-case-machine-conformance.test.mjs`: names beginning "the relation check catches a variant of the real machine:"
+  - `scripts/tla-case-machine-conformance.test.mjs`: "the relation check passes the real machine on the plan the variants run on"
+- **Commit:** 7326be58c59b405a10390d77af5af724e1518090
+
+### TLA-EXPORT. Each committed export names what wrote it
+
+- **Property:** Each specification's committed export names the script that wrote it and the files it was written from, and each of those files still has the digest the export records. The hold's export has the worlds of the hand-written model.
+- **Code:** `specs/worker-hold/conformance.json` and `specs/case-machine/conformance.json` as data, read by `scripts/tla-tools-lib.mjs`.
+- **Domain:** The files each export names: the export script and the modules it imports, the specification's files and the committed configurations.
+- **Bounds:** none beyond those files.
+- **Axioms:** none
+- **Method:** exhaustive
+- **Not claimed:** That an export is what TLC writes: the hosted workflow compares each with TLC's own output, as TLA-HOLD and TLA-CASE say, and the unit suite runs no TLC.
+- **Tests:**
+  - `scripts/tla-worker-hold-conformance.test.mjs`: "the committed export names the script that wrote it and the files it was written from, each still has the digest it records, and its worlds are the hand-written model's"
+  - `scripts/tla-case-machine-conformance.test.mjs`: "the committed export names the script that wrote it and the files it was written from, and each still has the digest it records"
+- **Variants:** none: the suites seed no fault of an export.
+- **Commit:** abddd5766fdb5ea7aa7d12ab69dab13067b2bb2a
+
+## Claims from the trust kernel
+
+`tools/trust-kernel` is a Rust crate, compiled to a WebAssembly module the
+scanner loads. `lib/ip-safety.ts` still decides where a scan may connect.
+The kernel's address functions answer beside it for the same address,
+given as a value, and the scanner counts where they differ. No row here
+says that a scan's decision rests on the kernel. Nothing calls the kernel's
+canonical JSON.
+
+### TK-A4. An IPv4 value is public exactly when the written table says so
+
+- **Property:** `is_public_ipv4` returns true exactly when the value lies in none of the sixteen ranges of the written table, and each line of the table is the block its comment names. The function overflows no integer.
+- **Code:** `is_public_ipv4` in `tools/trust-kernel/kernel/src/address.rs`.
+- **Domain:** Every 32-bit value. An address here is a value; no text is read.
+- **Bounds:** none
+- **Axioms:** none of the environment. The method's trust is stated under Methods.
+- **Method:** machine-checked argument
+- **Not claimed:** That the table is what the IANA registries list: that is a human reading, dated in the source. The table follows `lib/ip-safety.ts` where they part: it refuses the addresses of OPEN-IP4.1. The WebAssembly bytes: the argument is about the Rust function. How a text becomes a value: Node reads it for the scanner, and the kernel's own text reader is ordinary Rust. That the scanner acts on this answer.
+- **Checked by:** `scripts/trust-kernel-verus.mjs`, which pins the statement word for word and the specification by digest, refuses source that would let a claim through unchecked, and requires Verus to refuse each seeded break. It runs in the workflow `.github/workflows/trust-kernel.yml`.
+- **Tests:**
+  - `lib/address-kernel.test.ts`: "the IPv4 entry point answers as the reference on both sides of every block edge"
+- **Variants:** none: the runner's seeded breaks need Verus.
+- **Commit:** cf699bc2d1b8dc699ef6d8ff21404ccdc0902773
+
+### TK-A6. An IPv6 value is public exactly when the written rule says so
+
+- **Property:** `is_public_ipv6` returns true exactly when the written rule over prefixes holds of the value, and each prefix of the rule starts on a boundary of its own length. Told how an address was spelled, the function can only turn a public answer into a refusal.
+- **Code:** `is_public_ipv6` and `is_public_ipv6_as_spelled` in `tools/trust-kernel/kernel/src/address.rs`.
+- **Domain:** Every 128-bit value.
+- **Bounds:** none
+- **Axioms:** none of the environment.
+- **Method:** machine-checked argument
+- **Not claimed:** As TK-A4. The rule refuses three blocks the registry marks reachable, as the reference does. That the facts about spelling passed in are the right ones: the text layer reads them and Verus does not read the text layer.
+- **Checked by:** as TK-A4.
+- **Tests:**
+  - `lib/address-kernel.test.ts`: "the IPv6 entry point answers as the reference, and each half of the value is where it belongs"
+  - `lib/address-kernel.test.ts`: "a value spelled another way is the same value, where the reference follows the spelling"
+- **Variants:** none: the runner's seeded breaks need Verus.
+- **Commit:** cf699bc2d1b8dc699ef6d8ff21404ccdc0902773
+
+### TK-ENC. Two different admitted trees never share bytes
+
+- **Property:** The encoder returns bytes exactly when the tree is admitted, and those bytes are the written encoding of that tree. Two different admitted trees never have the same bytes. In an admitted object each key is less than every later key. The encoder indexes nothing out of range and overflows no integer.
+- **Code:** `encode_admitted` in `tools/trust-kernel/kernel/src/encode.rs`.
+- **Domain:** Every value tree of the encoder's type. "Admitted" is wider than canonical.
+- **Bounds:** none
+- **Axioms:** none of the environment.
+- **Method:** machine-checked argument
+- **Not claimed:** That the written encoding is JSON, or is what `lib/canonical-json.ts` writes: a generated comparison in the hosted workflow holds that on its cases and on no others. How a tree is built from bytes (the parser, the number text, the normalization), and so that every tree the kernel builds is admitted. Memory and stack depth. Any use: no code of the scanner, the Worker or the site calls the kernel's canonical JSON.
+- **Checked by:** as TK-A4.
+- **Tests:** none: the unit suite has none.
+- **Variants:** none: the runner's seeded breaks need Verus.
+- **Commit:** c4470db9aa0322f9ef5eb0c04148d9793a12306a
+
+### TK-MOD. The module the scanner loads is the pinned one
+
+- **Property:** The vendored module has the digest the reproducibility contract records for every host that built it. A module with other bytes, or none, is refused, and an entry point's number is an answer only when it is 1 or 0.
+- **Code:** `lib/address-kernel.ts`, and `lib/trust-kernel-wasm/sbl_trust_kernel_wasm.wasm` as data.
+- **Domain:** The vendored file and the refusals the suite writes out.
+- **Bounds:** none beyond those cases.
+- **Axioms:** none
+- **Method:** sampled
+- **Not claimed:** That those bytes are a build of the source Verus read. The hosted workflow builds the module twice from clean and compares the builds with the contract, `tools/trust-kernel/reproducibility-contract.json`, and not with the vendored file; the unit suite does not build. That the contract's digest was recorded honestly: it is a committed file.
+- **Tests:**
+  - `lib/address-kernel.test.ts`: "the vendored module is the bytes the contract records for every host that built it"
+  - `lib/address-kernel.test.ts`: "a module that is not the pinned bytes is refused, and so is a missing one"
+  - `lib/address-kernel.test.ts`: "an entry point's number is an answer only when it is 1 or 0"
+  - `lib/address-kernel.test.ts`: "a text is read into the value Node gives it, and a text Node does not read has none"
+- **Variants:** none: the suite plants no variant of the loader, and its refusals are written-out cases.
+- **Commit:** cf699bc2d1b8dc699ef6d8ff21404ccdc0902773
 
 ## Open findings
 

@@ -32,11 +32,16 @@ export const V1_FORMAL_VERIFICATION_BUNDLE_PATH = "research/measurement-candidat
 // day the gate landed. They are change detectors, never evidence: one refuses
 // a suite that lost tests and says nothing of the tests it keeps. A suite may
 // grow without an edit here.
+// The entries for lib/address-kernel.test.ts and the two conformance suites
+// under scripts came with the register's rows for the trust kernel and the
+// TLA+ specifications, with their counts on that day. Those three record no
+// catch: their seeded faults do not go through the harness's catch log.
 export const V1_REQUIRED_SUITES = Object.freeze([
   { id: "investigation/test/case-exploration.test.ts", minimumTests: 130, minimumVariants: 122 },
   { id: "investigation/test/evidence-model.test.ts", minimumTests: 24, minimumVariants: 148 },
   { id: "investigation/test/purge.test.ts", minimumTests: 14, minimumVariants: 21 },
   { id: "investigation/test/readings.test.ts", minimumTests: 134, minimumVariants: 129 },
+  { id: "lib/address-kernel.test.ts", minimumTests: 7, minimumVariants: 0 },
   { id: "lib/call-stack-publisher.test.ts", minimumTests: 14, minimumVariants: 0 },
   { id: "lib/finite-check.test.ts", minimumTests: 9, minimumVariants: 1 },
   { id: "lib/fv-coverage-loss.test.ts", minimumTests: 26, minimumVariants: 19 },
@@ -50,7 +55,9 @@ export const V1_REQUIRED_SUITES = Object.freeze([
   { id: "lib/fv-warning-fragments.test.ts", minimumTests: 22, minimumVariants: 15 },
   { id: "lib/fv-worker-model.test.ts", minimumTests: 130, minimumVariants: 106 },
   { id: "lib/fv-worker-readout.test.ts", minimumTests: 122, minimumVariants: 108 },
-  { id: "lib/scroll-check-stacks.test.ts", minimumTests: 26, minimumVariants: 0 }
+  { id: "lib/scroll-check-stacks.test.ts", minimumTests: 26, minimumVariants: 0 },
+  { id: "scripts/tla-case-machine-conformance.test.mjs", minimumTests: 30, minimumVariants: 0 },
+  { id: "scripts/tla-worker-hold-conformance.test.mjs", minimumTests: 59, minimumVariants: 0 }
 ].map((entry) => Object.freeze(entry)));
 // Every gate this contract defers, with its kind: the two research
 // programmes, and nothing else. v1ProfileProblems holds each record by id and

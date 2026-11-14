@@ -229,6 +229,11 @@
           "minimumVariants": 129
         },
         {
+          "id": "lib/address-kernel.test.ts",
+          "minimumTests": 7,
+          "minimumVariants": 0
+        },
+        {
           "id": "lib/call-stack-publisher.test.ts",
           "minimumTests": 14,
           "minimumVariants": 0
@@ -296,6 +301,16 @@
         {
           "id": "lib/scroll-check-stacks.test.ts",
           "minimumTests": 26,
+          "minimumVariants": 0
+        },
+        {
+          "id": "scripts/tla-case-machine-conformance.test.mjs",
+          "minimumTests": 30,
+          "minimumVariants": 0
+        },
+        {
+          "id": "scripts/tla-worker-hold-conformance.test.mjs",
+          "minimumTests": 59,
           "minimumVariants": 0
         }
       ]
