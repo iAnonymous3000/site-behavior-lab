@@ -575,8 +575,16 @@ export function buildFindings(
     catalogReach.thirdPartyHosts === 0
       ? ""
       : catalogReach.unidentifiedHosts === 0
-        ? ` This scan identified an operator for every one of the ${plural(catalogReach.thirdPartyHosts, "third-party domain")} recorded here using catalog, consent-platform, reviewed-ownership, and CNAME evidence.`
-        : ` This scan could not identify ${catalogReach.unidentifiedHosts} of the ${plural(catalogReach.thirdPartyHosts, "third-party host")} recorded here, so it cannot say who operates ${catalogReach.unidentifiedHosts === 1 ? "it" : "them"}. That is a limit of identity coverage, not evidence about the site.`;
+        ? ` This scan identified an operator for ${
+            catalogReach.thirdPartyHosts === 1
+              ? "the 1 third-party domain"
+              : `every one of the ${plural(catalogReach.thirdPartyHosts, "third-party domain")}`
+          } recorded here using catalog, consent-platform, reviewed-ownership, and CNAME evidence.`
+        : ` This scan could not identify ${
+            catalogReach.thirdPartyHosts === 1
+              ? "the 1 third-party host"
+              : `${catalogReach.unidentifiedHosts} of the ${plural(catalogReach.thirdPartyHosts, "third-party host")}`
+          } recorded here, so it cannot say who operates ${catalogReach.unidentifiedHosts === 1 ? "it" : "them"}. That is a limit of identity coverage, not evidence about the site.`;
   const catalogEntityNames = new Set(facts.identity.catalogEntities.map((entity) => entity.entity));
   const nonCatalogOutsideIdentityNames = facts.identity.outsideNames.filter(
     (name) => !catalogEntityNames.has(name) && !trackingCnameNameSet.has(name)
@@ -1268,9 +1276,17 @@ export function buildFindings(
           : unclassifiedEntities.length > 0
             ? `The catalog identified ${humanList(unclassifiedNames)}, but its read-time role taxonomy leaves at least one category unclassified and assigns ${unclassifiedEntities.length === 1 ? "that service" : "those services"} no tracking-related role.`
           : nonCatalogOutsideIdentityNames.length > 0
-            ? `${humanList(nonCatalogOutsideIdentityNames)} were named by consent-platform signatures, reviewed ownership, or CNAME evidence without being classified as tracking services.`
+            ? `${humanList(nonCatalogOutsideIdentityNames)} ${
+                nonCatalogOutsideIdentityNames.length === 1
+                  ? "was named by consent-platform signatures, reviewed ownership, or CNAME evidence without being classified as a tracking service"
+                  : "were named by consent-platform signatures, reviewed ownership, or CNAME evidence without being classified as tracking services"
+              }.`
             : nonCatalogSameOrganizationNames.length > 0
-              ? `${humanList(nonCatalogSameOrganizationNames)} were named across a registrable-domain boundary, but the reviewed ownership map groups them with the site rather than an outside company.`
+              ? `${humanList(nonCatalogSameOrganizationNames)} ${
+                  nonCatalogSameOrganizationNames.length === 1
+                    ? "was named across a registrable-domain boundary, but the reviewed ownership map groups it"
+                    : "were named across a registrable-domain boundary, but the reviewed ownership map groups them"
+                } with the site rather than an outside company.`
             : servicesAbsence.lead,
     detail:
       trackingEntities.length > 0

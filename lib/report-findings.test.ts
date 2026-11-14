@@ -4692,7 +4692,7 @@ test("the services card quantifies the domains the catalog could not name", () =
   );
   const unmatchedCard = byId(unmatched, "third-party-services");
   assert.match(unmatchedCard.title, /No known services matched/);
-  assert.match(unmatchedCard.detail, /could not identify 1 of the 1 third-party host recorded here/);
+  assert.match(unmatchedCard.detail, /could not identify the 1 third-party host recorded here, so it cannot say who operates it\./);
 
   // Full coverage must not borrow the shortfall sentence.
   const covered = buildFindings(
@@ -4706,7 +4706,7 @@ test("the services card quantifies the domains the catalog could not name", () =
     null
   );
   const coveredDetail = byId(covered, "third-party-services").detail;
-  assert.match(coveredDetail, /identified an operator for every one of the 1 third-party domain recorded here/);
+  assert.match(coveredDetail, /identified an operator for the 1 third-party domain recorded here using/);
   assert.doesNotMatch(coveredDetail, /could not identify/);
 
   // A visit with no third parties at all has nothing to quantify.
@@ -5528,4 +5528,34 @@ test("a session-replay card with no listener detection describes only the vendor
   assert.match(listenerCard.title, /^Input-monitoring signal involving /);
   assert.match(listenerCard.detail, /^This is a behavioral instrumentation signal from listener registration, /);
   assert.match(listenerCard.detail, / Treat this card as a review prompt rather than proof\.$/);
+});
+
+test("sentences that name one operator or one third-party host agree in number", () => {
+  // Three committed, ledger-pinned reports. Each printed a plural verb or
+  // "of the 1" for a single name or host.
+  const sameOrganization = byId(
+    buildFindings(ledgerPinnedReportView("20260721-953d702b56e5ad38c4a6061e61a16149"), null, undefined, "baseline"),
+    "third-party-services"
+  );
+  assert.equal(
+    sameOrganization.lead,
+    "Google was named across a registrable-domain boundary, but the reviewed ownership map groups it with the site rather than an outside company."
+  );
+  assert.match(sameOrganization.detail, / identified an operator for the 1 third-party domain recorded here using /);
+  const outsideName = byId(
+    buildFindings(ledgerPinnedReportView("20260721-4273aca23e2843746c105fea36a8ebee"), null, undefined, "baseline"),
+    "third-party-services"
+  );
+  assert.equal(
+    outsideName.lead,
+    "Google was named by consent-platform signatures, reviewed ownership, or CNAME evidence without being classified as a tracking service."
+  );
+  const unidentified = byId(
+    buildFindings(ledgerPinnedReportView("20260721-0939ef51d787a9a482f84c99ad3e0967"), null, undefined, "baseline"),
+    "third-party-services"
+  );
+  assert.match(unidentified.detail, / could not identify the 1 third-party host recorded here, so it cannot say who operates it\./);
+  for (const card of [sameOrganization, outsideName, unidentified]) {
+    assert.doesNotMatch(`${card.lead} ${card.detail}`, /of the 1 |^\S+ were named /);
+  }
 });
